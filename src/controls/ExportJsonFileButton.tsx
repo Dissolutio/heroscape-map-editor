@@ -1,16 +1,17 @@
 import { Button } from '@mui/material'
 import { MdOutlineDownloadForOffline } from 'react-icons/md'
 import useBoundStore from '../store/store'
-import { MapState } from '../types'
+import { BoardPieces, HexMap } from '../types'
 
 const ExportJsonFileButton = () => {
-  const boardHexes = useBoundStore((state) => state.boardHexes)
   const hexMap = useBoundStore((state) => state.hexMap)
   const boardPieces = useBoundStore((state) => state.boardPieces)
   const handleClickExportJson = async () => {
     const filename = `${hexMap.name}.hexoscape.gz`
-    const data: MapState = {
-      boardHexes,
+    const data: {
+      hexMap: HexMap,
+      boardPieces: BoardPieces,
+    } = {
       hexMap,
       boardPieces,
     }

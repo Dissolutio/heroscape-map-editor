@@ -3,7 +3,7 @@ import { Button } from '@mui/material'
 import { MdFileOpen } from 'react-icons/md'
 import { GiDevilMask } from 'react-icons/gi'
 import readVirtualscapeMapFile from '../data/readVirtualscapeMapFile'
-import buildupVSFileMap from '../data/buildupMap'
+import buildupVSFileMap, { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
 import { MapState } from '../types'
 
@@ -36,7 +36,7 @@ const ImportFileButton = () => {
         const decompressedData = await new Response(decompressedStream).text();
         const data = JSON.parse(decompressedData);
         const jsonMap: MapState = {
-          boardHexes: data.boardHexes,
+          boardHexes: buildupJsonFileMap(data.boardPieces, data.hexMap).boardHexes,
           hexMap: data.hexMap,
           boardPieces: data.boardPieces,
         }

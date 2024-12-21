@@ -4,7 +4,7 @@ export interface MapState {
     boardPieces: BoardPieces
 }
 
-type HexMap = {
+export type HexMap = {
     id: string
     name: string
     shape: string // 'hexagon' | 'rectangle'

@@ -38,7 +38,7 @@ type HexagonScenarioOptions = {
 export const hexagonScenario = makeHexagonScenario({
     size: 15,
 })
-function makeHexagonScenario(options?: HexagonScenarioOptions): MapState {
+export function makeHexagonScenario(options?: HexagonScenarioOptions): MapState {
     const size = Math.min(options?.size ?? 12, MAX_HEXAGON_MAP_DIMENSION)
     const hexMap = {
         id: generateTimestampID(),

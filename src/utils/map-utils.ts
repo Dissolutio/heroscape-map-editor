@@ -77,8 +77,8 @@ export const hexSidesFromCenter = {
     bottomRight: new Vector3(HEXGRID_HEX_APOTHEM / 2, 0, threeQuarterSideLength),
     bottomLeft: new Vector3(-HEXGRID_HEX_APOTHEM / 2, 0, threeQuarterSideLength),
 }
-export function genPieceID(qraID: string, pieceID: string) {
-    return `${qraID},${pieceID}`
+export function genPieceID(qraID: string, pieceID: string, rotation: number) {
+    return `${qraID},${rotation},${pieceID}`
 }
 export function genBoardHexID(hex: CubeCoordinate & { altitude: number }) {
     /* Hex world global coords (q,r,altitude) => (x,y,z)

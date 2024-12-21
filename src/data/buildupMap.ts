@@ -1,14 +1,13 @@
 import { clone } from 'lodash';
-import { VirtualScapeTile, BoardHexes, Piece, CubeCoordinate, MapState, HexTerrain, Pieces, BoardPieces, } from '../types'
+import { VirtualScapeTile, BoardHexes, Piece, CubeCoordinate, MapState, HexTerrain, Pieces, BoardPieces, HexMap, } from '../types'
 import { isFluidTerrainHex, isObstaclePieceID, isObstructingTerrain, isSolidTerrainHex } from '../utils/board-utils';
 import { hexUtilsOddRToCube } from '../utils/hex-utils';
 import { genBoardHexID, genPieceID } from '../utils/map-utils';
 import getVSTileTemplate from './rotationTransforms';
-import { makeRectangleScenario } from '../utils/map-gen';
+import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen';
 import { pieceCodes } from './pieceCodes';
 import { piecesSoFar } from './pieces';
 import { interiorHexTemplates, verticalObstructionTemplates, verticalSupportTemplates } from './ruins-templates';
-
 
 export default function buildupVSFileMap(tiles: VirtualScapeTile[], mapName: string): MapState {
   const blankMap = getBlankHexoscapeMapForVSTiles(tiles, mapName)
@@ -19,10 +18,12 @@ export default function buildupVSFileMap(tiles: VirtualScapeTile[], mapName: str
     boardHexes,
     hexMap
   } = blankMap
-  const terrainTilesOnly = tiles.filter(t => t.type !== 15001)
-  // const startZoneTiles = tiles.filter(t => t.type === 15001)
-  const newBoardHexes = terrainTilesOnly.reduce((boardHexes: BoardHexes, tile) => {
+  const newBoardHexes = tiles.reduce((boardHexes: BoardHexes, tile) => {
     const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
+    // start zones
+    // if (tile.type === 15001) {
+    // }
+    // personalTiles
     const inventoryID = pieceCodes?.[getCodeQuick(tile)] ?? ''
     const piece = piecesSoFar[inventoryID]
     if (!piece) {
@@ -42,6 +43,75 @@ export default function buildupVSFileMap(tiles: VirtualScapeTile[], mapName: str
     boardPieces = newBoardPieces
     return newBoardHexes
   }, boardHexes)
+
+  return {
+    boardHexes: newBoardHexes,
+    hexMap: hexMap,
+    boardPieces,
+  }
+}
+// const testPieces: BoardPieces = {
+//   "0,0,0,0,wellspringWater1": Pieces.wellspringWater1,
+//   "0,1,0,0,grass2": Pieces.grass2,
+//   "0,1,1,0,water1": Pieces.water1,
+//   "0,0,2,0,grass24": Pieces.grass24,
+//   "1,0,1,0,laurPillar": Pieces.laurPillar,
+//   "1,1,0,0,laurPillar": Pieces.laurPillar
+// }
+// const testMap = {
+//   "id": "1734739675688",
+//   "name": "Dec20, 2024 Test Map",
+//   "shape": "rectangle",
+//   "width": 10,
+//   "height": 7
+// }
+// console.log("🚀 ~ testPieces:", buildupJsonFileMap(testPieces, testMap))
+export function buildupJsonFileMap(boardPieces: BoardPieces, hexMap: HexMap): MapState {
+  let initialBoardHexes: BoardHexes = {}
+  if (hexMap.shape === 'rectangle') {
+    initialBoardHexes = makeRectangleScenario({
+      mapLength: hexMap.height,
+      mapWidth: hexMap.width,
+      mapName: hexMap.name,
+    }).boardHexes
+  } else {
+    initialBoardHexes = makeHexagonScenario({
+      size: hexMap.height,
+      mapName: hexMap.name,
+    }).boardHexes
+  }
+  const newBoardHexes = Object.entries(boardPieces).reduce((boardHexes: BoardHexes, [pieceQraID, pieceInventoryID]): BoardHexes => {
+    const arrayThing = pieceQraID.split(',')
+    const placementAltitude = parseInt(arrayThing[0])
+    const q = parseInt(arrayThing[1])
+    const r = parseInt(arrayThing[2])
+    const s = -q - r
+    const rotation = parseInt(arrayThing[3])
+    const tileCoords = { q, r, s }
+    // start zones
+    // if (tile.type === 15001) {
+    // }
+    // personalTiles
+    const piece = piecesSoFar[pieceInventoryID]
+    console.log("🚀 ~ buildupJsonFileMap ~ piece:", piece)
+    if (!piece) {
+      return boardHexes // Should probably handle this different, errors etc.
+    }
+    // get the new board hexes and new board pieces
+    const { newBoardHexes } = getBoardHexesWithPieceAdded({
+      piece,
+      boardHexes,
+      boardPieces,
+      cubeCoords: tileCoords,
+      placementAltitude: placementAltitude, // z is altitude is virtualscape, y is altitude in our app
+      rotation: rotation,
+      isVsTile: false
+    })
+    // mark every new piece on the board
+    // boardPieces = newBoardPieces
+    return newBoardHexes
+    // return boardHexes
+  }, initialBoardHexes)
 
   return {
     boardHexes: newBoardHexes,
@@ -71,6 +141,9 @@ export function getBoardHexesWithPieceAdded({
   isVsTile
 }: PieceAddArgs): PieceAddReturn {
   const newBoardHexes = clone(boardHexes)
+  if (!isVsTile) {
+    console.log("🚀 ~ boardHexes:", boardHexes)
+  }
   const newBoardPieces = clone(boardPieces)
   const isSolidTile = isSolidTerrainHex(piece.terrain)
   const isFluidTile = isFluidTerrainHex(piece.terrain)
@@ -82,7 +155,7 @@ export function getBoardHexesWithPieceAdded({
     isVsTile
   })
   const clickedHexIDOrTileCoordsPresumedID = genBoardHexID({ ...cubeCoords, altitude: placementAltitude })
-  const pieceID = genPieceID(clickedHexIDOrTileCoordsPresumedID, piece.id)
+  const pieceID = genPieceID(clickedHexIDOrTileCoordsPresumedID, piece.id, rotation)
   const genIds = (altitude: number) => {
     return piecePlaneCoords.map((cubeCoord) => (
       genBoardHexID({ ...cubeCoord, altitude: altitude })
@@ -176,7 +249,7 @@ export function getBoardHexesWithPieceAdded({
         const pieceInventoryIDOfBase = isHexUnderneathCastleBase ? '' : piece.buddyID // if there is no base present we add one
         if (pieceInventoryIDOfBase) {
           // we are being crazy re-using clickedHexIDOrTileCoordsPresumedID here: VStiles will have a base and a wall one altitude above. We have auto-base and wall pieces at the same spot, could cause trouble later
-          const basePieceID = genPieceID(clickedHexIDOrTileCoordsPresumedID, pieceInventoryIDOfBase)
+          const basePieceID = genPieceID(clickedHexIDOrTileCoordsPresumedID, pieceInventoryIDOfBase, rotation)
           newBoardPieces[basePieceID] = pieceInventoryIDOfBase as Pieces
         }
         if (isHexUnderneathCastleBase) {
