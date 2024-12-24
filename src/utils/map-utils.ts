@@ -1,5 +1,5 @@
 import { Vector3 } from "three"
-import { BoardHexes, CubeCoordinate } from "../types"
+import { BoardHexes, CubeCoordinate, HexTerrain } from "../types"
 import { HEXGRID_HEX_APOTHEM, HEXGRID_HEX_HEIGHT, HEXGRID_HEX_RADIUS, HEXGRID_SPACING, HEXGRID_HEXCAP_HEIGHT } from "./constants"
 import { cubeToPixel } from "./hex-utils"
 
@@ -12,31 +12,34 @@ type MapDimensions = {
 export const getBoardHexesRectangularMapDimensions = (
     boardHexes: BoardHexes
 ): MapDimensions => {
-
+    const boardHexesArr = Object.values(boardHexes).filter(bh => bh.terrain !== HexTerrain.empty)
+    console.log("🚀 ~ boardHexesArr:", boardHexesArr)
     // Gets the top-most, bottom-most, left-most, and right-most hexes, then calculates the difference for the map width and height
     const qPlusSMax = Math.max(
-        ...Object.keys(boardHexes).map(
-            (hexID) => boardHexes[hexID].q + boardHexes[hexID].s
+        ...boardHexesArr.map(
+            (bh) => bh.q + bh.s
         )
     )
     const qPlusSMin = Math.min(
-        ...Object.keys(boardHexes).map(
-            (hexID) => boardHexes[hexID].q + boardHexes[hexID].s
+        ...boardHexesArr.map(
+            (bh) => bh.q + bh.s
         )
     )
     const sMinusQMax = Math.max(
-        ...Object.keys(boardHexes).map(
-            (hexID) => boardHexes[hexID].s - boardHexes[hexID].q
+        ...boardHexesArr.map(
+            (bh) => bh.s - bh.q
         )
     )
     const sMinusQMin = Math.min(
-        ...Object.keys(boardHexes).map(
-            (hexID) => boardHexes[hexID].s - boardHexes[hexID].q
+        ...boardHexesArr.map(
+            (bh) => bh.s - bh.q
         )
     )
     const hexHeight = qPlusSMax - qPlusSMin
+    console.log("🚀 ~ hexHeight:", hexHeight)
     const height = (hexHeight * 1.5 + 2 * HEXGRID_HEX_RADIUS) * HEXGRID_SPACING
     const hexWidth = sMinusQMax - sMinusQMin
+    console.log("🚀 ~ hexWidth:", hexWidth)
     const width =
         (hexWidth + 2) * HEXGRID_HEX_APOTHEM * HEXGRID_SPACING
     const apex = Math.max(...Object.values(boardHexes).map((hex) => hex.altitude)) * HEXGRID_HEX_HEIGHT
