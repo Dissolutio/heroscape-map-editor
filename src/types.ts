@@ -17,6 +17,13 @@ export type CubeCoordinate = {
   r: number
   s: number
 }
+type BoardHexVertex = {
+  vertex: number // 0-5
+  pieceID: string
+  pieceRotation: number
+  isObstacleOrigin?: boolean // This marks the boardHex that will render the obstacle model
+  isObstacleAuxiliary?: boolean // just shows an obstacle base for that hex
+}
 export interface BoardHex extends CubeCoordinate {
   id: string
   altitude: number
@@ -27,6 +34,9 @@ export interface BoardHex extends CubeCoordinate {
   isObstacleOrigin?: boolean // This marks the boardHex that will render the obstacle model
   isObstacleAuxiliary?: boolean // just shows an obstacle base for that hex
   obstacleHeight?: number // used to find the cap hex when clicking a castle wall (it's 9 up with a base, 8 up when wall-on-wall)
+  // DENSE BOARD HEXES : for ladders, battlements, maybe ruins too
+  isDenseBoardHex?: boolean
+  vertexData?: BoardHexVertex[]
 }
 export type BoardPieces = {
   [id: string]: Pieces
