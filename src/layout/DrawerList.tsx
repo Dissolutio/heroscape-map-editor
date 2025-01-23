@@ -183,18 +183,6 @@ export const DrawerList = ({
             >
               Contact
             </Link>
-            <Link
-              title="Donate"
-              href={"https://www.paypal.com/donate/?business=FY675ZX49UCQN&amount=1&no_recurring=1&item_name=For+my+more+affluent+users%2C+a+%241+thank+you+means+a+lot+and+supports+the+project+%3A%29&currency_code=USD"}
-              target="_blank"
-              rel="noopener noreferrer"
-              underline="hover"
-              sx={{
-                fontSize: '1rem',
-              }}
-            >
-              Donate
-            </Link>
           </div>
         </div>
 
