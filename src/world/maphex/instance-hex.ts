@@ -24,6 +24,7 @@ export type DreiCapProps = {
 export type DreiInstanceCapProps = {
   boardHex: BoardHex
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
+  pieceID: string
 }
 
 export type InstanceRefType = InstancedMesh<

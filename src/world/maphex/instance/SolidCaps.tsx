@@ -46,6 +46,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
           key={hex.id + i}
           boardHex={hex}
           onPointerUp={onPointerUp}
+          pieceID={hex?.pieceID ?? ''}
         />
       ))}
     </Instances>
@@ -57,6 +58,7 @@ export default SolidCaps
 function SolidCap({
   boardHex,
   onPointerUp,
+  pieceID
 }: DreiInstanceCapProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ref = React.useRef<any>(undefined!)
@@ -78,12 +80,12 @@ function SolidCap({
 
   // update color when piece is hovered
   React.useEffect(() => {
-    if (hoveredPieceID === boardHex.pieceID) {
+    if (hoveredPieceID === pieceID) {
       // ref.current.color.set('yellow')
     } else {
       ref.current.color.set(color)
     }
-  }, [boardHex.pieceID, hoveredPieceID, color])
+  }, [pieceID, hoveredPieceID, color])
 
   const handleEnter = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation() // prevent this hover from passing through and affecting behind

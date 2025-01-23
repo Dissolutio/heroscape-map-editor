@@ -185,9 +185,10 @@ export function addPiece({
   if (isCastleWallPiece || isCastleArchPiece) {
     const isCastleUnderAll = underHexIds.every(
       (id) =>
-        newBoardHexes?.[id]?.pieceID.includes(PiecePrefixes.castleBase) ||
-        newBoardHexes?.[id]?.pieceID.includes(PiecePrefixes.castleWall) ||
-        newBoardHexes?.[id]?.pieceID.includes(PiecePrefixes.castleArch),
+        // DEV on vertex pieces: this won't affect vertex pieces anyway, cannot place castle walls on battlements, ruins, or ladders
+        (newBoardHexes?.[id]?.pieceID ?? '').includes(PiecePrefixes.castleBase) ||
+        (newBoardHexes?.[id]?.pieceID ?? '').includes(PiecePrefixes.castleWall) ||
+        (newBoardHexes?.[id]?.pieceID ?? '').includes(PiecePrefixes.castleArch),
     )
     const isCastleWallSupported =
       isSolidUnderAll || isEmptyUnderAll || isCastleUnderAll
@@ -206,7 +207,8 @@ export function addPiece({
       newHexIds.forEach((newHexID, i) => {
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]
         const isHexUnderneathCastleBase =
-          hexUnderneath?.pieceID.includes(PiecePrefixes.castleBase)
+          // DEV on vertex pieces: this won't affect vertex pieces anyway, cannot place castle walls on battlements, ruins, or ladders
+          (hexUnderneath?.pieceID ?? '').includes(PiecePrefixes.castleBase)
         const wallAltitude = isHexUnderneathCastleBase
           ? placementAltitude
           : newPieceAltitude

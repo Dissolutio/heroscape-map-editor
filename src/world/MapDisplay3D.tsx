@@ -167,7 +167,8 @@ export default function MapDisplay3D({
     }
 
     if (penMode === 'select') {
-      toggleSelectedPieceID(hex.pieceID)
+      // DEV TODO: on vertex pieces: selecting vertex pieces?
+      toggleSelectedPieceID(hex?.pieceID ?? '')
     } else {
       const pieceMode = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
       const piece = piecesSoFar[pieceMode]
@@ -176,7 +177,8 @@ export default function MapDisplay3D({
         altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
       })
       const isCastleWallArchClicked =
-        hex.pieceID.includes(PiecePrefixes.castleWall) || hex.pieceID.includes(PiecePrefixes.castleArch)
+        // DEV on vertex pieces: this won't affect vertex pieces anyway, cannot place castle walls on battlements, ruins, or ladders
+        (hex?.pieceID ?? '').includes(PiecePrefixes.castleWall) || (hex?.pieceID ?? '').includes(PiecePrefixes.castleArch)
       // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
       const clickedHex = isCastleWallArchClicked
         ? boardHexes[boardHexOfCapForWall]
@@ -198,7 +200,8 @@ export default function MapDisplay3D({
     event.stopPropagation() // prevent pass through
     // Early out if camera is active
     if (cameraControlsRef?.current?.active) return
-    toggleSelectedPieceID(hex.pieceID)
+    // DEV on vertex pieces: this won't affect vertex pieces anyway, cannot place laur walls on battlements, ruins, or ladders
+    toggleSelectedPieceID(hex?.pieceID ?? '')
     // const baseSideRotation = pillarSideRotations?.[side] ?? 0
 
   }

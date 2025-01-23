@@ -12,7 +12,8 @@ export default function usePieceHoverState() {
     e.stopPropagation()
     setIsHovered(true)
     hoverTimeout.current = setTimeout(() => {
-      toggleHoveredPieceID(boardHex.pieceID)
+      // DEV on vertex pieces: this hover state hook will not be used for vertex pieces anyway
+      toggleHoveredPieceID(boardHex?.pieceID ?? '')
     }, 100); // Adjust the delay (in milliseconds) as needed
   }
   const onPointerOut = (e: ThreeEvent<PointerEvent>) => {

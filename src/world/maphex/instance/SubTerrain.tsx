@@ -44,7 +44,10 @@ const SubTerrains = ({ boardHexArr }: Props) => {
         <meshMatcapMaterial />} */}
       <meshMatcapMaterial />
       {boardHexArr.map((hex, i) => (
-        <SubTerrain key={hex.id + i + 'sub'} boardHex={hex} />
+        <SubTerrain key={hex.id + i + 'sub'}
+          boardHex={hex}
+          pieceID={hex?.pieceID ?? ''}
+        />
       ))}
     </Instances>
   )
@@ -54,8 +57,10 @@ export default SubTerrains
 
 function SubTerrain({
   boardHex,
+  pieceID
 }: {
   boardHex: BoardHex,
+  pieceID: string
 }) {
   const hoveredPieceID = useBoundStore(s => s.hoveredPieceID)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -82,12 +87,12 @@ function SubTerrain({
 
   // update color when piece is hovered
   React.useEffect(() => {
-    if (hoveredPieceID === boardHex.pieceID) {
+    if (hoveredPieceID === pieceID) {
       ref.current.color.set('yellow')
     } else {
       ref.current.color.set(subTerrainColor)
     }
-  }, [boardHex.pieceID, hoveredPieceID, subTerrainColor])
+  }, [pieceID, hoveredPieceID, subTerrainColor])
 
   const handleEnter = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation() // prevent this hover from passing through and affecting behind
