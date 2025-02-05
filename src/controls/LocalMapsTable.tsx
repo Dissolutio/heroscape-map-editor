@@ -302,12 +302,13 @@ export default function LocalMapsTable() {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', mb: 2 }}>
+      <Paper sx={{ width: '100%' }}>
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
           <Table
             sx={{ minWidth: 750 }}
             aria-labelledby="tableTitle"
+            stickyHeader
             // size={dense ? 'small' : 'medium'}
             size={'small'}
           >
