@@ -8,6 +8,7 @@ import CreateMapFormDialog from './CreateMapFormDialog'
 import EditMapFormDialog from './EditMapFormDialog'
 import { LoadMapInputs } from './LoadMapButtons'
 import CameraSpeedDial from './CameraSpeedDial'
+import LocalMapsTable from '../controls/LocalMapsTable'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(undefined!)
@@ -70,8 +71,9 @@ export default function HomePage() {
               height: isLargeScreenLayout ? '100%' : '70vh',
             }}
           >
-            <CameraSpeedDial cameraControlsRef={cameraControlsRef} />
-            <World cameraControlsRef={cameraControlsRef} />
+            {/* <CameraSpeedDial cameraControlsRef={cameraControlsRef} />
+            <World cameraControlsRef={cameraControlsRef} /> */}
+            <LocalMapsTable />
           </div>
           <div
             style={{
