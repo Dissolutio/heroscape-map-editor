@@ -17,10 +17,11 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import { MdDelete } from 'react-icons/md';
 import { visuallyHidden } from '@mui/utils';
+import { MapFileState } from '../types';
 
-type Data = {
-  id: number;
-  calories: number;
+type Data = MapFileState & {
+  createdAt: number; // utc timestamp
+  updatedAt: number; // utc timestamp
   carbs: number;
   fat: number;
   name: string;

@@ -27,6 +27,7 @@ function storageToObject(storage: Storage): any {
           storageObj[key] = JSON.parse(value);
         }
       } catch (e) {
+        console.error("Error while converting local storage key/value to object:", e)
         storageObj[key] = value;
       }
     }
@@ -35,6 +36,7 @@ function storageToObject(storage: Storage): any {
 }
 
 export function useLocalStorage<T>(
+  // passing an empty string will attempt to return the whole LocalStorage as an object
   key: string,
   initialValue: T,
 ): [T, (value: T) => void] {
