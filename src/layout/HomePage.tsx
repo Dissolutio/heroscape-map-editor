@@ -80,6 +80,8 @@ export default function HomePage() {
               display: 'flex',
               flexFlow: 'column nowrap',
               width: isLargeScreenLayout ? '450px' : '100%',
+              // width: isNavOpen ? '0px' : isLargeScreenLayout ? '450px' : '100%',
+              // transition: 'width 2s',
               height: isLargeScreenLayout ? '100%' : '30vh',
               background: 'var(--black)',
               overflow: 'auto',
