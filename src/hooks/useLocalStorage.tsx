@@ -15,11 +15,30 @@ import { useEffect, useState } from 'react'
 // };
 // console.log("Total = " + (_lsTotal / 1024).toFixed(2) + " KB");
 
+function storageToObject(storage: Storage): any {
+  const storageObj: any = {};
+
+  for (let i = 0; i < storage.length; i++) {
+    const key = storage.key(i);
+    if (key) {
+      const value = storage.getItem(key);
+      try {
+        if (value) {
+          storageObj[key] = JSON.parse(value);
+        }
+      } catch (e) {
+        storageObj[key] = value;
+      }
+    }
+  }
+  return storageObj;
+}
 
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,
 ): [T, (value: T) => void] {
+
   // try local first, default to initialValue
   const readValue = () => {
     // Prevent build error "window is undefined"
@@ -27,8 +46,15 @@ export function useLocalStorage<T>(
       return initialValue
     }
     try {
-      const item = window.localStorage.getItem(key)
-      return item ? JSON.parse(item) : initialValue
+      let item
+      if (key === '') {
+        console.log("🚀 ~ readValue ~ key:", key)
+        item = storageToObject(window.localStorage)
+        return item
+      } else {
+        item = window.localStorage.getItem(key)
+        return item ? JSON.parse(item) : initialValue
+      }
     } catch (error) {
       console.warn(`Error reading localStorage key “${key}”:`, error)
       return initialValue
