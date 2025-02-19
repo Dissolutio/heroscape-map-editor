@@ -40,6 +40,10 @@ const App = () => {
             <Switch>
               <Route path={ROUTES.root} component={RootPage} />
               <Route path={`${ROUTES.heroscapeHome}`} component={HomePage} />
+              <Route path={`${ROUTES.heroscapeCartographers}`} component={HomePage} />
+              <Route path="/users/:name">
+                {(params) => <>Hello, {params.name}!</>}
+              </Route>
 
               {/* Default route in a switch */}
               <Route><ErrorPage /></Route>
