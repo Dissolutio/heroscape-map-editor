@@ -47,4 +47,4 @@ export function Battlement({ pid, isVisible }: { pid: string, isVisible: boolean
   )
 }
 
-useGLTF.preload('/handmade-battlement.glb')
+// useGLTF.preload('/handmade-battlement.glb')

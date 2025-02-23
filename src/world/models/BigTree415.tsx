@@ -66,4 +66,4 @@ export default function BigTree415({
   )
 }
 
-useGLTF.preload('/forest-tree15-colored-lowpoly.glb')
+// useGLTF.preload('/forest-tree15-colored-lowpoly.glb')

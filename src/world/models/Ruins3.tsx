@@ -67,4 +67,4 @@ export default function Ruins3({
   )
 }
 
-useGLTF.preload('/ruins3.glb')
+// useGLTF.preload('/ruins3.glb')

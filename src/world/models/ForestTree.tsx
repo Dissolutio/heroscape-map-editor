@@ -65,4 +65,4 @@ export default function ForestTree({
   )
 }
 
-useGLTF.preload('/forgotten-forest-tree-low-poly-colored.glb')
+// useGLTF.preload('/forgotten-forest-tree-low-poly-colored.glb')

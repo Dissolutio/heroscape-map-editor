@@ -53,4 +53,4 @@ export default function MarroHive6({
   )
 }
 
-useGLTF.preload('/uncolored-decimated-marro-hive-6.glb')
+// useGLTF.preload('/uncolored-decimated-marro-hive-6.glb')

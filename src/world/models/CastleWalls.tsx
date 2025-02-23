@@ -124,4 +124,4 @@ export function CastleWall({ boardHex, underHexTerrain, onPointerUp }: Props) {
     </>
   )
 }
-useGLTF.preload('/adjustable-castle-walls.glb')
+// useGLTF.preload('/adjustable-castle-walls.glb')

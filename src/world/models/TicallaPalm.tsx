@@ -64,5 +64,5 @@ export default function TicallaPalm({
   )
 }
 
-useGLTF.preload('/ticalla-palm.glb')
+// useGLTF.preload('/ticalla-palm.glb')
 

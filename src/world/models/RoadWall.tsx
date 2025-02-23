@@ -47,4 +47,4 @@ export function RoadWall({ pid, isVisible }: { pid: string, isVisible: boolean }
   )
 }
 
-useGLTF.preload('/handmade-roadwall.glb')
+// useGLTF.preload('/handmade-roadwall.glb')

@@ -64,4 +64,4 @@ export default function TicallaBrush({
   )
 }
 
-useGLTF.preload('/ticalla-brush.glb')
+// useGLTF.preload('/ticalla-brush.glb')

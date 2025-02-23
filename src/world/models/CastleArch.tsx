@@ -227,5 +227,5 @@ export function CastleArch({
   )
 }
 
-useGLTF.preload('/castle-arch-handmade.glb')
+// useGLTF.preload('/castle-arch-handmade.glb')
 

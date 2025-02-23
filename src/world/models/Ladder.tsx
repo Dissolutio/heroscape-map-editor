@@ -52,4 +52,4 @@ export function Ladder({
   )
 }
 
-useGLTF.preload('/handmade-battlement.glb')
+// useGLTF.preload('/handmade-battlement.glb')

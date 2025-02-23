@@ -107,6 +107,6 @@ export function LaurWallAddon({ pid, isVisible }: { pid: string, isVisible: bool
     </group>
   )
 }
-useGLTF.preload('/laurwall-ruin.glb')
-useGLTF.preload('/laurwall-short.glb')
-useGLTF.preload('/laurwall-long.glb')
+// useGLTF.preload('/laurwall-ruin.glb')
+// useGLTF.preload('/laurwall-short.glb')
+// useGLTF.preload('/laurwall-long.glb')

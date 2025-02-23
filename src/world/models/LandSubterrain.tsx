@@ -158,7 +158,7 @@ export function Subterrain24({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_24.glb')
+// useGLTF.preload('/subterrain_24.glb')
 
 export function Subterrain9({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_9.glb') as any
@@ -170,7 +170,7 @@ export function Subterrain9({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_9.glb')
+// useGLTF.preload('/subterrain_9.glb')
 
 export function Subterrain7B({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_7B.glb') as any
@@ -182,7 +182,7 @@ export function Subterrain7B({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_7B.glb')
+// useGLTF.preload('/subterrain_7B.glb')
 
 export function Subterrain7({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_7.glb') as any
@@ -194,7 +194,7 @@ export function Subterrain7({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_7.glb')
+// useGLTF.preload('/subterrain_7.glb')
 
 
 export function Subterrain6({ children }: PropsWithChildren) {
@@ -207,7 +207,7 @@ export function Subterrain6({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_6.glb')
+// useGLTF.preload('/subterrain_6.glb')
 
 export function Subterrain5({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_5.glb') as any
@@ -219,7 +219,7 @@ export function Subterrain5({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_5.glb')
+// useGLTF.preload('/subterrain_5.glb')
 
 export function Subterrain4({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_4.glb') as any
@@ -231,7 +231,7 @@ export function Subterrain4({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_4.glb')
+// useGLTF.preload('/subterrain_4.glb')
 
 export function Subterrain3({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_3.glb') as any
@@ -243,7 +243,7 @@ export function Subterrain3({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_3.glb')
+// useGLTF.preload('/subterrain_3.glb')
 
 export function Subterrain2({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_2.glb') as any
@@ -255,7 +255,7 @@ export function Subterrain2({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_2.glb')
+// useGLTF.preload('/subterrain_2.glb')
 
 export function Subterrain1({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_1.glb') as any
@@ -267,4 +267,4 @@ export function Subterrain1({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_1.glb')
+// useGLTF.preload('/subterrain_1.glb')

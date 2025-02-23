@@ -200,5 +200,5 @@ export default function LaurWallPillar({
   )
 }
 
-useGLTF.preload('/laurwall-pillar.glb')
+// useGLTF.preload('/laurwall-pillar.glb')
 
