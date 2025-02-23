@@ -1,31 +1,12 @@
 import React from 'react'
 import useBoundStore from '../store/store'
-import { Button, Card, CardActions, CardContent, Typography } from '@mui/material'
+import { Card, CardActions, CardContent, Typography } from '@mui/material'
 import { decodePieceID } from '../utils/map-utils'
-import { isPieceIDPiece } from '../utils/board-utils'
-import { useHotkeys } from 'react-hotkeys-hook'
-import { noop } from 'lodash'
-import { enqueueSnackbar } from 'notistack'
 import { piecesSoFar } from '../data/pieces'
+import DeletePieceButton from './DeletePieceButton'
 
 const SelectedPieceReadout = () => {
   const selectedPieceID = useBoundStore(s => s.selectedPieceID)
-  const toggleSelectedPieceID = useBoundStore(s => s.toggleSelectedPieceID)
-  const removePieceByPieceID = useBoundStore(s => s.removePieceByPieceID)
-  const deletePiece = () => {
-    if (isPieceIDPiece(pieceID)) {
-      removePieceByPieceID(selectedPieceID)
-      toggleSelectedPieceID('')
-    } else {
-      enqueueSnackbar({
-        message: `Currently, can only delete battlements, roadwalls, and laur wall addons.`,
-        variant: 'error',
-        autoHideDuration: 3000,
-      })
-    }
-
-  }
-  useHotkeys('delete', () => selectedPieceID ? deletePiece() : noop(), /*isEnabled*/)
   if (!selectedPieceID) {
     return null
   }
@@ -72,12 +53,9 @@ const SelectedPieceReadout = () => {
           </Typography>
         </CardContent>
         <CardActions>
-          <Button
-            // variant='contained'
-            // color="error"
-            size="small"
-            onClick={deletePiece}
-          >Delete Piece</Button>
+          <DeletePieceButton
+            pieceID={pieceID}
+          />
         </CardActions>
       </Card>
     </div>
