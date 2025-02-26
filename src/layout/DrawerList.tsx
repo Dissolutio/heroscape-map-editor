@@ -7,6 +7,7 @@ import useBoundStore from '../store/store'
 import { useSnackbar } from 'notistack'
 import JSONCrush from 'jsoncrush'
 import { FcAddImage, FcDownload, FcLink, FcUpload, FcVlc } from 'react-icons/fc'
+import { URL_CHARACTER_LIMIT } from '../utils/constants'
 
 export const DrawerList = ({
   toggleIsNavOpen,
@@ -39,7 +40,7 @@ export const DrawerList = ({
       ),
     )
     const fullUrl = window.location.origin + window.location.pathname + '?m=' + myUrl
-    if (fullUrl.length > 2082) {
+    if (fullUrl.length > URL_CHARACTER_LIMIT) {
       enqueueSnackbar({
         message: `Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.`,
         variant: 'error',

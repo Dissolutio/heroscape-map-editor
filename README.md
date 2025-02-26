@@ -110,7 +110,7 @@ Each hex on the board has a unique ID that is derived from its Q and R coordinat
 To add new terrain pieces, follow these steps:
 1. **Create the 3D Model**: Use Blender to create the 3D model of the new terrain piece.
 2. **Export as .glb**: Export the model as a `.glb` file.
-3. **Add to Project**: Add the `.glb` file to the appropriate directory in the project.
+3. **Add to Project**: Add the `.glb` file to the appropriate directory in the project (`public`).
 4. **Create a React Component for the Model**: Run the `.glb` through [`gltfjsx`](https://gltf.pmnd.rs/), for example.
 5. **Update UI**: Update the user interface to allow users to select and place the new terrain piece. (as the project is under development, this step is subject to considerable change)
 

@@ -10,8 +10,7 @@ export default function ForestTree({
   boardHex,
 }: { boardHex: BoardHex }) {
   const {
-    nodes,
-    //  materials
+    nodes
   } = useGLTF('/forgotten-forest-tree-low-poly-colored.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
@@ -47,20 +46,11 @@ export default function ForestTree({
         onPointerUp={e => onPointerUp(e)}
         onPointerEnter={e => onPointerEnter(e, boardHex)}
         onPointerOut={e => onPointerOut(e)}
-      // material={materials.ForestTree}
       >
         <meshMatcapMaterial
           color={color}
         />
       </mesh>
-      {/* <Billboard
-        position={[x, options.y + 1.5, z]}
-        rotation={[0, (rotation * -Math.PI) / 3, 0]}
-        scale={[1, 3, 1]}
-        onPointerEnter={e => e.stopPropagation()}
-      >
-        <Image url='tree-img.jpg'></Image>
-      </Billboard> */}
     </>
   )
 }
