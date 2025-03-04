@@ -54,7 +54,6 @@ const SelectedPieceReadout = () => {
         </CardContent>
         <CardActions>
           <DeletePieceButton
-            pieceID={pieceID}
           />
         </CardActions>
       </Card>
