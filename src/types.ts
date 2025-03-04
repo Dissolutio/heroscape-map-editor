@@ -126,6 +126,7 @@ export enum PiecePrefixes {
   castleWall = 'cw',
   laurWall = 'lw',
   castleArch = 'ca',
+  glyph = 'y',
 }
 export enum Pieces {
   // these inventory IDs are purposely short, to make their character length small for maximum-sized URL-sharealbe maps
@@ -238,6 +239,7 @@ export enum Pieces {
   castleWallEnd = `${PiecePrefixes.castleWall}e`,
   castleArch = `${PiecePrefixes.castleArch}`,
   castleArchNoDoor = `${PiecePrefixes.castleArch}b`, //b broken, like marvel
+  glyphHaukeland = `${PiecePrefixes.glyph}1`, // WIP glyphs
 }
 
 export type VirtualScapeMap = {

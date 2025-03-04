@@ -1,0 +1,20 @@
+
+const gameColors = {
+  connectableWallBorder: "#D7269C",
+  connectableWallCenter: "#621C60",
+  jungleTreeCenter: "#F9E908",
+  jungleTreeBorder: "#793D1A",
+  twentyFourSpaceBorder: "#BCBBB9",
+  sevenSpaceBorder: "#AE1B94",
+  threeSpaceBorder: "#100F0D",
+  twoSpaceBorder: "#E6641A",
+  oneSpaceBorder: "#E61C24",
+  waterOneSpaceBorder: "#2B378A",
+  grassCenter: "#33A03F",
+  sandCenter: "#D3E75A",
+  rockCenter: "#616062",
+  renegadeGlyphCenter: "#F57C20",
+  renegadeBrownStartZone: "#7F471E",
+  renegadeNavyStartZone: "#0C1639",
+  objectiveCenter: "#E41E25",
+}

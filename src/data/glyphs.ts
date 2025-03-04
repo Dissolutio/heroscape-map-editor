@@ -13,8 +13,15 @@ type HexoscapeGlyphs = {
 /* 
 AOA GLYPHS
 Permanent
-Glyph of Yadulkia (Disengage): Your figures are never attacked when leaving an engagement.
+// Brandar
+// Dagmar init +8
+
+Glyph of Rannveig (Wind): All figures with the Flying Special Power lose this power and cannot Fly while a figure is standing on the Glyph of Rannveig.
+
 Glyph of Xenithrax Vines (Vines): If a Huge figure moves onto this Glyph, this Glyph is immediately removed from the battlefield and that figure may continue its movement. Figures standing on this Glyph roll 1 fewer attack die and 2 fewer defense dice. When a figure on this Glyph moves off of the Glyph, roll one attack die. If you roll a skull, that figure takes one wound. Remove this Glyph from the battlefield after a figure moves off of it, or at the end of the round if a figure is standing on it.
+
+Glyph of Yadulkia (Disengage): Your figures are never attacked when leaving an engagement.
+
 Temporary
 Glyph of Felaron (Glyph Removal) Remove any other Glyph from the battlefield.
 Glyph of Haukeland (Healing) When one of your figures stops here, you may remove up to 3 Wound Markers from across any of your Army Cards.
@@ -23,6 +30,40 @@ Glyph of Quillivon (Sudden Movement): Choose up to 3 of your figures other than 
 */
 
 export const powerGlyphs: HexoscapeGlyphs = {
+  // TEMPORARY GLYPHS
+  // Glyph of St
+  //  Glyph of Felaron (Glyph Removal): Remove any other Glyph from the battlefield.
+  //  Glyph of Yadulkia (Disengage): Your figures are never attacked when leaving an engagement.
+  // Glyph of Xenithrax Vines (Vines): If a Huge figure moves onto this Glyph, this Glyph is immediately removed from the battlefield and that figure may continue its movement. Figures standing on this Glyph roll 1 fewer attack die and 2 fewer defense dice. When a figure on this Glyph moves off of the Glyph, roll one attack die. If you roll a skull, that figure takes one wound. Remove this Glyph from the battlefield after a figure moves off of it, or at the end of the round if a figure is standing on it.
+  // Glyph of Haukeland (Healing): When one of your figures stops here, you may remove up to 3 Wound Markers from across any of your Army Cards.
+  healing: {
+    id: 'haukeland',
+    name: 'Quillivon (Sudden Movement)',
+    shortName: 'Sudden Movement',
+    glyphLetter: 'Q',
+    type: 'temporary',
+    effect: 'Move 3 figures',
+    description: `Choose up to 3 of your figures other than the one on this Glyph. You may move each of the chosen figures up to 5 spaces.`,
+  },
+  suddenMovement: {
+    id: 'quillivon',
+    name: 'Quillivon (Sudden Movement)',
+    shortName: 'Sudden Movement',
+    glyphLetter: 'Q',
+    type: 'temporary',
+    effect: 'Move 3 figures',
+    description: `Choose up to 3 of your figures other than the one on this Glyph. You may move each of the chosen figures up to 5 spaces.`,
+  },
+  removal: {
+    id: 'felaron',
+    name: 'Felaron',
+    shortName: 'Removal',
+    glyphLetter: 'F',
+    type: 'temporary',
+    effect: 'Remove a glyph',
+    description: `Remove any other Glyph from the battlefield.`,
+  },
+  // CLASSIC TEMPORARY
   objective: {
     id: 'objective',
     name: 'Brandar',
@@ -30,9 +71,8 @@ export const powerGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'B',
     type: 'power',
     effect: 'Artifact',
-    description: 'The rules for this Glyph changes for each scenario.',
+    description: 'The rules of this Glyph vary, depending on the Scenario.',
   },
-  // TEMPORARY GLYPHS
   summoner: {
     id: 'summoner',
     name: 'Erland',
@@ -59,7 +99,10 @@ export const powerGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'M',
     type: 'temporary',
     effect: 'Massive Curse',
-    description: `When a figure lands on this Glyph, all players must roll the 20 sided die for all their own figures. If a 1 is rolled, than that figure is destroyed, 2 or higher and the figure is safe.`,
+    description: `For each figure on the battlefield (yours and your
+opponents’), roll the 20-sided die. If you roll a 1,
+the figure is destroyed. If you roll 2 through 20,
+the figure is safe.`,
   },
   revive: {
     id: 'revive',
