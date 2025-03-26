@@ -1,5 +1,5 @@
 import { useGLTF } from '@react-three/drei'
-import { ThreeEvent } from '@react-three/fiber'
+import { ThreeEvent, useLoader } from '@react-three/fiber'
 import { BoardHex, HexTerrain } from '../../types'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -10,6 +10,7 @@ import {
 } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { getRuinsOptions } from './piece-adjustments'
+import { TextureLoader } from 'three'
 
 export default function Ruins2({
   boardHex,
@@ -20,6 +21,13 @@ export default function Ruins2({
     nodes,
     // materials
   } = useGLTF('/ruins2.glb') as any
+  const [colorMap, displacementMap, normalMap, roughnessMap, aoMap] = useLoader(TextureLoader, [
+    'PavingStones092_1K_Color.jpg',
+    'PavingStones092_1K_Displacement.jpg',
+    'PavingStones092_1K_Normal.jpg',
+    'PavingStones092_1K_Roughness.jpg',
+    'PavingStones092_1K_AmbientOcclusion.jpg',
+  ])
   const { x, z, y: yo } = getBoardHex3DCoords(boardHex)
   const y = yo - HEXGRID_HEX_HEIGHT
   const options = getRuinsOptions(boardHex.pieceRotation)
@@ -61,7 +69,15 @@ export default function Ruins2({
         onPointerOut={e => onPointerOut(e)}
         geometry={nodes.Ruin_Small_Scanned.geometry}
       >
-        <meshMatcapMaterial color={color} />
+        <meshStandardMaterial
+          color={color}
+          displacementScale={0.2}
+          map={colorMap}
+          displacementMap={displacementMap}
+          normalMap={normalMap}
+          roughnessMap={roughnessMap}
+          aoMap={aoMap}
+        />
       </mesh>
     </group>
   )
