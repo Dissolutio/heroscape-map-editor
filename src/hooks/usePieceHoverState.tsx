@@ -12,7 +12,7 @@ export default function usePieceHoverState(isVisible?: boolean) {
     if (!isVisible) { return }
     e.stopPropagation()
     setIsHovered(true)
-    hoverTimeout.current = setTimeout(() => {
+    hoverTimeout.current = window.setTimeout(() => {
       toggleHoveredPieceID(boardHex.pieceID)
     }, 100); // Adjust the delay (in milliseconds) as needed
   }
@@ -20,7 +20,7 @@ export default function usePieceHoverState(isVisible?: boolean) {
     if (!isVisible) { return }
     e.stopPropagation()
     setIsHovered(true)
-    hoverTimeout.current = setTimeout(() => {
+    hoverTimeout.current = window.setTimeout(() => {
       toggleHoveredPieceID(pid)
     }, 100); // Adjust the delay (in milliseconds) as needed
   }

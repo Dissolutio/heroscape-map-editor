@@ -64,7 +64,7 @@ export default function CameraSpeedDial({
   // }
   const handleTakePictureJpg = () => {
     toggleIsTakingPicture(true)
-    takePictureTimeout.current = setTimeout(() => {
+    takePictureTimeout.current = window.setTimeout(() => {
       publish(EVENTS.saveJpg)
     }, 100); // Long enough to make some changes to the map and render
   }
