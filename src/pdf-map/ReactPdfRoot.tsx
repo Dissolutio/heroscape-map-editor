@@ -1,4 +1,4 @@
-import { Document, Page, View, PDFViewer, Text, } from '@react-pdf/renderer';
+import { Document, Page, View, PDFViewer, Text, PDFDownloadLink, } from '@react-pdf/renderer';
 import { groupBy, keyBy } from 'lodash';
 import { BoardHex, BoardHexes, BoardPieces, MapState, Pieces } from '../types';
 import React, { PropsWithChildren } from 'react';
@@ -6,6 +6,7 @@ import { decodePieceID, getBoardHexesSvgMapDimensions } from '../utils/map-utils
 import useBoundStore from '../store/store';
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay';
 import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils';
+import { useMediaQuery } from '@mui/material';
 
 const getBoardHexAndPieceChunks = (boardHexes: BoardHexes, boardPieces: BoardPieces) => {
   const filteredBoardHexes = Object.values(getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes))
@@ -43,10 +44,27 @@ const getBoardHexAndPieceChunks = (boardHexes: BoardHexes, boardPieces: BoardPie
   return chunks;
 };
 
-export default function ReactPdfRoot() {
+export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const boardHexes = useBoundStore((s) => s.boardHexes);
   const boardPieces = useBoundStore((s) => s.boardPieces);
   const hexMap = useBoundStore((s) => s.hexMap);
+  return (
+    <PDFDownloadLink
+      document={(
+        <MyDocument boardHexes={boardHexes} boardPieces={boardPieces} hexMap={hexMap} />
+      )}
+      fileName={`${hexMap.name}.pdf`}
+    >
+      {props.children}
+    </PDFDownloadLink>
+  )
+}
+
+export function ReactPdfRoot() {
+  const boardHexes = useBoundStore((s) => s.boardHexes);
+  const boardPieces = useBoundStore((s) => s.boardPieces);
+  const hexMap = useBoundStore((s) => s.hexMap);
+  const isMobile = useMediaQuery('(max-width:800px)');
   return (
     <div
       style={{
@@ -58,16 +76,27 @@ export default function ReactPdfRoot() {
         margin: 0,
       }}
     >
-      <PDFViewer
-        width={"100%"}
-        height={"100%"}
-      >
-        <MyDocument
-          boardHexes={boardHexes}
-          boardPieces={boardPieces}
-          hexMap={hexMap}
-        />
-      </PDFViewer>
+      {isMobile ? (
+        <PDFDownloadLink
+          document={(
+            <MyDocument boardHexes={boardHexes} boardPieces={boardPieces} hexMap={hexMap} />
+          )}
+          fileName={`${hexMap.name}.pdf`}
+        >
+          Download!
+        </PDFDownloadLink>
+      ) : (
+        <PDFViewer
+          width={"100%"}
+          height={"100%"}
+        >
+          <MyDocument
+            boardHexes={boardHexes}
+            boardPieces={boardPieces}
+            hexMap={hexMap}
+          />
+        </PDFViewer>
+      )}
     </div>
   )
 }
