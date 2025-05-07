@@ -11,10 +11,8 @@ import { useHotkeys } from 'react-hotkeys-hook';
 
 export default function CameraSpeedDial({
   cameraControlsRef,
-  isHidden
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
-  isHidden: boolean
 }) {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
@@ -71,8 +69,7 @@ export default function CameraSpeedDial({
 
   return (
     <SpeedDial
-      hidden={isHidden}
-      ariaLabel="camera-speed-dial"
+      ariaLabel="3D camera controls menu"
       sx={
         {
           position: 'absolute',
@@ -123,6 +120,7 @@ export default function CameraSpeedDial({
       <SpeedDialAction
         icon={<FcOldTimeCamera />}
         tooltipTitle={'Take map picture .JPG'}
+        aria-label='Camera take map picture and save as JPG'
         onClick={handleTakePictureJpg}
       />
     </SpeedDial>

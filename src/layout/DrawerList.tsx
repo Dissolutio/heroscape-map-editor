@@ -235,6 +235,7 @@ export const DrawerList = ({
           type="file"
           style={hiddenStyle}
           accept=".tsv"
+          aria- hidden="true"
           onChange={readPersonalInventoryTsvFile}
         />
 

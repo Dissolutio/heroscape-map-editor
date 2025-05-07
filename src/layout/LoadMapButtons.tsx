@@ -176,6 +176,7 @@ export const LoadMapInputs = () => {
         type="file"
         style={hiddenStyle}
         accept=".gz"
+        aria-hidden="true"
         onChange={readGzipFile}
       />
       <input
@@ -183,6 +184,7 @@ export const LoadMapInputs = () => {
         type="file"
         style={hiddenStyle}
         accept=".json"
+        aria-hidden="true"
         onChange={readJsonFile}
       />
       <input
@@ -190,6 +192,7 @@ export const LoadMapInputs = () => {
         type="file"
         style={hiddenStyle}
         accept=".hsc"
+        aria-hidden="true"
         onChange={readVSFile}
       />
     </>

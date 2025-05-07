@@ -1,11 +1,14 @@
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import IconButton from '@mui/material/IconButton'
-import { Md3dRotation, MdMenu, MdPictureAsPdf } from 'react-icons/md'
+import { MdMenu } from 'react-icons/md'
 import { Typography } from '@mui/material'
 import useBoundStore from '../store/store'
+import { ReactPdfDownloadLink } from '../pdf-map/ReactPdfRoot'
+import { FcGlobe, FcLandscape, FcPrint } from 'react-icons/fc'
 
 type Props = {
+  isMobileScreenLayout: boolean
   isNavOpen: boolean
   toggleIsNavOpen: (arg0: boolean) => void
   isPdfOpen: boolean
@@ -15,6 +18,7 @@ type Props = {
 }
 
 export default function HeaderNav({
+  isMobileScreenLayout,
   isNavOpen,
   toggleIsNavOpen,
   isPdfOpen,
@@ -35,33 +39,45 @@ export default function HeaderNav({
         <IconButton
           size="large"
           edge="start"
-          aria-label="menu"
+          aria-label="File menu"
           sx={{ mr: 2 }}
           onClick={() => toggleIsNavOpen(!isNavOpen)}
         >
           <MdMenu />
         </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} aria-label={`Map name: ${hexMap.name}`}>
           {hexMap.name || 'Hexoscape Map Editor'}
         </Typography>
+        {isMobileScreenLayout ? (
+          <ReactPdfDownloadLink>
+            <IconButton
+              size="large"
+              title={`Download pdf build instructions`}
+              aria-label={`Download pdf build instructions`}
+              sx={{ mr: 2 }}
+            >
+              <FcPrint />
+            </IconButton>
+          </ReactPdfDownloadLink>) : (
+
+          <IconButton
+            size="large"
+            title={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
+            aria-label={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
+            sx={{ mr: 2 }}
+            onClick={() => toggleIsPdfOpen(!isPdfOpen)}
+          >
+            <FcPrint />
+          </IconButton>
+        )}
         <IconButton
           size="large"
-          // edge="end"
-          aria-label="pdf"
-          sx={{ mr: 2 }}
-          onClick={() => toggleIsPdfOpen(!isPdfOpen)}
-        >
-          <MdPictureAsPdf />
-        </IconButton>
-        <IconButton
-          size="large"
-          // edge="end"
-          aria-label={is2DOpen ? '3D Map' : '2D Map'}
+          aria-label={is2DOpen ? 'View 3D Map' : 'View 2D Map'}
           title={is2DOpen ? 'View 3D Map' : 'View 2D Map'}
           sx={{ mr: 2 }}
           onClick={() => toggleIs2DOpen(!is2DOpen)}
         >
-          <Md3dRotation />
+          {is2DOpen ? <FcGlobe /> : <FcLandscape />}
         </IconButton>
       </Toolbar>
     </AppBar>

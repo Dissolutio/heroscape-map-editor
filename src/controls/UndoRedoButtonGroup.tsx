@@ -20,6 +20,7 @@ const UndoRedoButtonGroup = () => {
       <Button
         variant="contained"
         title={`(ctrl/cmd + Z) (${pastStates.length} undoable actions)`}
+        aria-label={`Undo (${pastStates.length} undoable actions)`}
         onClick={() => undo()}
         startIcon={<FcUndo />}
       >
@@ -28,6 +29,7 @@ const UndoRedoButtonGroup = () => {
       <Button
         variant="contained"
         title={`(ctrl/cmd + Z) (${futureStates.length} redoable actions)`}
+        aria-label={`Redo (${pastStates.length} undoable actions)`}
         onClick={() => redo()}
         startIcon={<FcRedo />}
       >

@@ -8,7 +8,7 @@ import CreateMapFormDialog from './CreateMapFormDialog'
 import EditMapFormDialog from './EditMapFormDialog'
 import { LoadMapInputs } from './LoadMapButtons'
 import CameraSpeedDial from './CameraSpeedDial'
-import ReactPdfRoot from '../pdf-map/ReactPdfRoot'
+import { ReactPdfRoot } from '../pdf-map/ReactPdfRoot'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
 import { SvgMapDisplay } from '../svg-map/SvgMapDisplay'
 import { shatteredTableBoardHexes } from '../data/shatteredTableBoardHexes'
@@ -29,6 +29,7 @@ export default function HomePage() {
   // xl, extra-large: 1536px
 
   const isLargeScreenLayout = useMediaQuery('(min-width:1200px)');
+  const isMobileScreenLayout = useMediaQuery('(max-width:600px)');
 
   const [isNavOpen, setIsNavOpen] = React.useState(false)
   const toggleIsNavOpen = (s: boolean) => {
@@ -67,6 +68,7 @@ export default function HomePage() {
         }}
       >
         <HeaderNav
+          isMobileScreenLayout={isMobileScreenLayout}
           isNavOpen={isNavOpen}
           toggleIsNavOpen={toggleIsNavOpen}
           isPdfOpen={isPdfOpen}
@@ -102,7 +104,7 @@ export default function HomePage() {
               <SvgMapDisplay />
             )}
             <>
-              <CameraSpeedDial isHidden={is2DOpen || isPdfOpen} cameraControlsRef={cameraControlsRef} />
+              {(!is2DOpen && !isPdfOpen) && <CameraSpeedDial cameraControlsRef={cameraControlsRef} />}
               <World isHidden={is2DOpen || isPdfOpen} cameraControlsRef={cameraControlsRef} />
             </>
 
