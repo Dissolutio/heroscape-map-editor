@@ -1,7 +1,7 @@
 import React from 'react'
 import { Drawer, useMediaQuery } from '@mui/material'
 import { DrawerList } from './DrawerList'
-import HeaderNav from './HeaderNav'
+import { HeaderNav } from './HeaderNav'
 import Controls from '../controls/Controls'
 import World from '../world/World'
 import CreateMapFormDialog from './CreateMapFormDialog'

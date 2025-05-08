@@ -5,7 +5,8 @@ import { MdMenu } from 'react-icons/md'
 import { Typography } from '@mui/material'
 import useBoundStore from '../store/store'
 import { ReactPdfDownloadLink } from '../pdf-map/ReactPdfRoot'
-import { FcGlobe, FcLandscape, FcPrint } from 'react-icons/fc'
+import { FcGlobe, FcPrint } from 'react-icons/fc'
+import { Hexes2DIcon } from '../assets/Hexes2DIcon'
 
 type Props = {
   isMobileScreenLayout: boolean
@@ -17,7 +18,7 @@ type Props = {
   toggleIs2DOpen: (arg0: boolean) => void
 }
 
-export default function HeaderNav({
+export function HeaderNav({
   isMobileScreenLayout,
   isNavOpen,
   toggleIsNavOpen,
@@ -77,7 +78,7 @@ export default function HeaderNav({
           sx={{ mr: 2 }}
           onClick={() => toggleIs2DOpen(!is2DOpen)}
         >
-          {is2DOpen ? <FcGlobe /> : <FcLandscape />}
+          {is2DOpen ? <FcGlobe /> : <Hexes2DIcon />}
         </IconButton>
       </Toolbar>
     </AppBar>
