@@ -7,10 +7,11 @@ import useBoundStore from '../store/store'
 import { useSnackbar } from 'notistack'
 import JSONCrush from 'jsoncrush'
 import { FcAddImage, FcDownload, FcLink, FcUpload, FcVlc } from 'react-icons/fc'
-import { parse, ParseResult } from 'papaparse'
+import { parse } from 'papaparse'
 import { useLocalPieceInventory } from '../hooks/useLocalPieceInventory'
-import { Pieces } from '../types'
+import { PieceInventory, Pieces } from '../types'
 import tsvTemplate from '/inventory_template.tsv?url';
+import { piecesSoFar } from '../data/pieces'
 
 export const DrawerList = ({
   toggleIsNavOpen,
@@ -99,16 +100,16 @@ export const DrawerList = ({
       parse<Record<string, string>>(file, {
         delimiter: '\t',
         header: true,
-        complete: (results: ParseResult<Record<string, string>>) => {
-          const dataMap: Record<string, number> = {}
-          results.data.forEach((datum: Record<string, string>) => {
-            if (Object.prototype.hasOwnProperty.call(Pieces, datum.ID)) {
-              const id: string = Pieces[datum.ID as keyof typeof Pieces] as string
-              dataMap[id] = parseInt(datum.Count)
+        complete: (results) => {
+          const newPieceInventory: PieceInventory = {}
+          results.data.forEach((datum) => {
+            console.log("🚀 ~ results.data.forEach ~ datum:", datum)
+            if (datum.ID && piecesSoFar[datum.ID]) {
+              newPieceInventory[datum.ID] = parseInt(datum.Count)
             }
           })
-          inventory.setPieceInventory(dataMap)
-          console.log(inventory.pieceInventory)
+          inventory.setPieceInventory(newPieceInventory)
+          console.log("🚀 ~ readPersonalInventoryTsvFile ~ inventory:", inventory.pieceInventory)
         },
         error: (err) => {
           console.error(err)
