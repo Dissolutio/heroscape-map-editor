@@ -39,14 +39,15 @@ const Controls = () => {
   const loadMap = useBoundStore((s) => s.loadMap)
 
   const inventory = useLocalPieceInventory();
+  console.log("🚀 ~ Controls ~ inventory:", inventory.pieceInventory)
   const useInventory = 0 < Object.keys(inventory.pieceInventory).reduce(
-    function(sum, key) {
-        return sum + inventory.pieceInventory[key];
+    function (sum, key) {
+      return sum + inventory.pieceInventory[key];
     }, 0);
   const selectedPiece = useBoundStore(s => s.penMode + s.pieceSize)
   const totalCount = inventory.pieceInventory[selectedPiece]
   const remainingCount = Object.values(boardPieces).reduce((count, val) => {
-	  return val === selectedPiece ? count - 1 : count
+    return val === selectedPiece ? count - 1 : count
   }, totalCount)
 
   const handleClickLogState = () => {
@@ -141,7 +142,7 @@ const Controls = () => {
     <Container sx={{ padding: 1 }}>
       <UndoRedoButtonGroup />
       <PenModeControls />
-      <div style={{ padding: '0px 20px' }}>{ useInventory && !isNaN(remainingCount) ? remainingCount + " remaining" : "" }</div>
+      <div style={{ padding: '0px 20px' }}>{useInventory && !isNaN(remainingCount) ? remainingCount + " remaining" : ""}</div>
       <PieceSizeSelect />
       <RotationSelect />
       {/* <MapLensToggles /> */}

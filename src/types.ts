@@ -142,7 +142,7 @@ export enum PiecePrefixes {
 }
 export enum PieceSetIds {
   // these inventory IDs are purposely short, to make their character length small for maximum-sized URL-shareable maps
-  aoaMaster1 = 'aoa1',
+  aoaMaster1 = 'aoa',
   mstk = 'mstk',
   totk = 'totk',
   battleForWellspring = 'bftw',

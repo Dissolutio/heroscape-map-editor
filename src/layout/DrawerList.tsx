@@ -89,30 +89,30 @@ export const DrawerList = ({
     }
   }
   const readPersonalInventoryTsvFile = async (event: ChangeEvent<HTMLInputElement>) => {
-    let file : File | undefined = event?.target?.files?.[0]
-  
+    const file: File | undefined = event?.target?.files?.[0]
+
     if (!file) {
       return
     }
-  
+
     try {
       parse<Record<string, string>>(file, {
-          delimiter: '\t',
-          header: true,
-          complete: (results: ParseResult<Record<string, string>>) => {
-              const dataMap: Record<string, number> = {}
-              results.data.forEach((datum: Record<string, string>) => {
-                  if(Pieces.hasOwnProperty(datum.ID)) {
-                      const id: string = Pieces[datum.ID as keyof typeof Pieces] as string
-                      dataMap[id] = parseInt(datum.Count)
-                  }
-              })
-              inventory.setPieceInventory(dataMap)
-              console.log(inventory.pieceInventory)
-          },
-          error: (err) => {
-              console.error(err)
-          }
+        delimiter: '\t',
+        header: true,
+        complete: (results: ParseResult<Record<string, string>>) => {
+          const dataMap: Record<string, number> = {}
+          results.data.forEach((datum: Record<string, string>) => {
+            if (Object.prototype.hasOwnProperty.call(Pieces, datum.ID)) {
+              const id: string = Pieces[datum.ID as keyof typeof Pieces] as string
+              dataMap[id] = parseInt(datum.Count)
+            }
+          })
+          inventory.setPieceInventory(dataMap)
+          console.log(inventory.pieceInventory)
+        },
+        error: (err) => {
+          console.error(err)
+        }
       })
     } catch (error: any) {
       console.error(error)
@@ -215,8 +215,8 @@ export const DrawerList = ({
             <ListItemText primary={'Load Personal Inventory (.tsv)'} />
           </ListItemButton>
 
-          { /* DOWNLOAD PERSONAL INVENTORY TSV TEMPLATE */ }
-          <a style={{textDecoration: 'none', color: 'inherit'}} href={tsvTemplate} download="inventory_template.tsv">
+          { /* DOWNLOAD PERSONAL INVENTORY TSV TEMPLATE */}
+          <a style={{ textDecoration: 'none', color: 'inherit' }} href={tsvTemplate} download="inventory_template.tsv">
             <ListItemButton>
               <ListItemIcon
                 sx={{
@@ -235,7 +235,7 @@ export const DrawerList = ({
           type="file"
           style={hiddenStyle}
           accept=".tsv"
-          aria- hidden="true"
+          aria-hidden="true"
           onChange={readPersonalInventoryTsvFile}
         />
 
