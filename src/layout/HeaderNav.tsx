@@ -5,8 +5,8 @@ import { MdMenu } from 'react-icons/md'
 import { Typography } from '@mui/material'
 import useBoundStore from '../store/store'
 import { ReactPdfDownloadLink } from '../pdf-map/ReactPdfRoot'
-import { FcGlobe, FcPrint } from 'react-icons/fc'
-import { Hexes2DIcon } from '../assets/Hexes2DIcon'
+import { FcPrint } from 'react-icons/fc'
+import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
 
 type Props = {
   isMobileScreenLayout: boolean
@@ -78,7 +78,7 @@ export function HeaderNav({
           sx={{ mr: 2 }}
           onClick={() => toggleIs2DOpen(!is2DOpen)}
         >
-          {is2DOpen ? <FcGlobe /> : <Hexes2DIcon />}
+          {is2DOpen ? <World3DIcon /> : <Hexes2DIcon />}
         </IconButton>
       </Toolbar>
     </AppBar>
