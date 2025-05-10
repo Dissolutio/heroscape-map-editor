@@ -45,8 +45,7 @@ const Controls = () => {
   const loadMap = useBoundStore((s) => s.loadMap)
 
   const inventory = useLocalPieceInventory()
-  console.log('🚀 ~ Controls ~ inventory:', inventory.pieceInventory)
-  const useInventory =
+  const isUseInventory =
     0 <
     Object.keys(inventory.pieceInventory).reduce(function (sum, key) {
       return sum + inventory.pieceInventory[key]
@@ -150,7 +149,7 @@ const Controls = () => {
       <UndoRedoButtonGroup />
       <PenModeControls />
       <div style={{ padding: '0px 20px' }}>
-        {useInventory && !isNaN(remainingCount)
+        {isUseInventory && !isNaN(remainingCount)
           ? remainingCount + ' remaining'
           : ''}
       </div>
