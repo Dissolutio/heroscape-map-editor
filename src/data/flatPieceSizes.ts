@@ -1,17 +1,19 @@
-import { Dictionary } from "lodash";
-import { piecesSoFar } from "./pieces";
+import { Dictionary } from 'lodash'
+import { piecesSoFar } from './pieces'
 
-const landSizes = Object.values(piecesSoFar)
-  .reduce((prev, curr) => {
+const landSizes = Object.values(piecesSoFar).reduce(
+  (prev, curr) => {
     const landPrefix = curr.landPrefix
     if (landPrefix) {
       return {
         ...prev,
-        [landPrefix]: [...prev?.[landPrefix as string] ?? [], curr.size]
+        [landPrefix]: [...(prev?.[landPrefix as string] ?? []), curr.size],
       }
     }
     return prev
-  }, {} as Dictionary<number[]>)
+  },
+  {} as Dictionary<number[]>,
+)
 export const getNewPieceSizeForPenMode = (
   newMode: string,
   oldMode: string,

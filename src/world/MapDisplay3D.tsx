@@ -1,27 +1,31 @@
-import React from 'react'
-import { ThreeEvent } from '@react-three/fiber'
 import { CameraControls } from '@react-three/drei'
+import { ThreeEvent } from '@react-three/fiber'
+import React from 'react'
 
-import { MapHex3D } from './maphex/MapHex3D.tsx'
+import { Group, Object3DEventMap } from 'three'
+import { piecesSoFar } from '../data/pieces.ts'
 import useBoundStore from '../store/store.ts'
-import { useZoomCameraToMapCenter } from './camera/useZoomeCameraToMapCenter.tsx'
 import { BoardHex, HexTerrain, PiecePrefixes } from '../types.ts'
 import {
   isFluidTerrainHex,
   isJungleTerrainHex,
   isSolidTerrainHex,
 } from '../utils/board-utils.ts'
-import { piecesSoFar } from '../data/pieces.ts'
-import EmptyHexes from './maphex/instance/EmptyHex.tsx'
-import SolidCaps from './maphex/instance/SolidCaps.tsx'
-import { genBoardHexID, getBoardHexesRectangularMapDimensions, getBoardPiecesMaxLevel } from '../utils/map-utils.ts'
-import { Group, Object3DEventMap } from 'three'
+import {
+  genBoardHexID,
+  getBoardHexesRectangularMapDimensions,
+  getBoardPiecesMaxLevel,
+} from '../utils/map-utils.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
+import { useZoomCameraToMapCenter } from './camera/useZoomeCameraToMapCenter.tsx'
+import { MapHex3D } from './maphex/MapHex3D.tsx'
+import EmptyHexes from './maphex/instance/EmptyHex.tsx'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
+import SolidCaps from './maphex/instance/SolidCaps.tsx'
 
 export default function MapDisplay3D({
   cameraControlsRef,
-  mapGroupRef
+  mapGroupRef,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
@@ -30,13 +34,15 @@ export default function MapDisplay3D({
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
-  const boardHexesArr = Object.values(boardHexes).sort((a, b) => a.altitude - b.altitude)
+  const boardHexesArr = Object.values(boardHexes).sort(
+    (a, b) => a.altitude - b.altitude,
+  )
   const penMode = useBoundStore((s) => s.penMode)
   const paintTile = useBoundStore((s) => s.paintTile)
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const pieceRotation = useBoundStore((s) => s.pieceRotation)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const isTakingPicture = useBoundStore(s => s.isTakingPicture)
+  const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useZoomCameraToMapCenter({
     cameraControlsRef,
     boardHexes,
@@ -48,9 +54,15 @@ export default function MapDisplay3D({
     toggleViewingLevel(maxLevel)
   }, [boardPieces, toggleViewingLevel, maxLevel])
 
-  const instanceBoardHexes = getInstanceBoardHexes(boardHexesArr, isTakingPicture)
+  const instanceBoardHexes = getInstanceBoardHexes(
+    boardHexesArr,
+    isTakingPicture,
+  )
 
-  const onPointerUp = async (event: ThreeEvent<PointerEvent>, hex: BoardHex) => {
+  const onPointerUp = async (
+    event: ThreeEvent<PointerEvent>,
+    hex: BoardHex,
+  ) => {
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
@@ -74,7 +86,8 @@ export default function MapDisplay3D({
         altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
       })
       const isCastleWallArchClicked =
-        hex.pieceID.includes(PiecePrefixes.castleWall) || hex.pieceID.includes(PiecePrefixes.castleArch)
+        hex.pieceID.includes(PiecePrefixes.castleWall) ||
+        hex.pieceID.includes(PiecePrefixes.castleArch)
       // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
       const clickedHex = isCastleWallArchClicked
         ? boardHexes[boardHexOfCapForWall]
@@ -98,7 +111,7 @@ export default function MapDisplay3D({
           // position={[topLeft[0], 0, topLeft[1]]}
           position={[0, 0, 0]}
           scale={[width, 0, length]}
-        // rotation={new Euler(0, Math.PI, 0)}
+          // rotation={new Euler(0, Math.PI, 0)}
         />
       )}
 
@@ -124,21 +137,10 @@ export default function MapDisplay3D({
         onPointerUp={onPointerUp}
       />
       {Object.keys(boardPieces).map((pid) => {
-        return (
-          <MapBoardPiece3D
-            key={pid}
-            pid={pid}
-          />
-        )
+        return <MapBoardPiece3D key={pid} pid={pid} />
       })}
       {boardHexesArr.map((bh) => {
-        return (
-          <MapHex3D
-            key={bh.id}
-            boardHex={bh}
-            onPointerUp={onPointerUp}
-          />
-        )
+        return <MapHex3D key={bh.id} boardHex={bh} onPointerUp={onPointerUp} />
       })}
     </group>
   )
@@ -150,11 +152,15 @@ type InstanceBoardHexes = {
   solidHexCaps: BoardHex[]
   fluidHexCaps: BoardHex[]
 }
-function getInstanceBoardHexes(boardHexesArr: BoardHex[], isTakingPicture: boolean) {
+function getInstanceBoardHexes(
+  boardHexesArr: BoardHex[],
+  isTakingPicture: boolean,
+) {
   return boardHexesArr.reduce(
     (result: InstanceBoardHexes, current) => {
       const isCap = current.isCap // land hexes that are covered, obstacle origin/auxiliary hexes, vertical clearance hexes
-      const isEmptyCap = isCap && !isTakingPicture && current.terrain === HexTerrain.empty
+      const isEmptyCap =
+        isCap && !isTakingPicture && current.terrain === HexTerrain.empty
       const isSolidCap = isSolidTerrainHex(current.terrain)
       const isFluidCap = isCap && isFluidTerrainHex(current.terrain)
       const isSubTerrain =

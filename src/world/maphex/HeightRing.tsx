@@ -1,5 +1,5 @@
+import { Object3DNode, extend } from '@react-three/fiber'
 import { BufferGeometry, Color, Line, Vector3 } from 'three'
-import { extend, Object3DNode } from '@react-three/fiber'
 import { hexPointsFromCenter } from '../../utils/map-utils'
 
 // this extension for line_ is because, if we just use <line></line> then we get an error:

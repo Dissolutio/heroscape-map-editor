@@ -1,9 +1,8 @@
 import { Button } from '@mui/material'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { FcRedo, FcUndo } from 'react-icons/fc'
 import useTemporalStore from '../hooks/useTemporalStore'
-import ControlButtonGroup from './ControlButtonGroup';
-import { FcRedo, FcUndo } from 'react-icons/fc';
-
+import ControlButtonGroup from './ControlButtonGroup'
 
 const UndoRedoButtonGroup = () => {
   // we do things strange in this component to have react pastStates/futureStates and show
@@ -11,7 +10,7 @@ const UndoRedoButtonGroup = () => {
   // const { undo, redo } = useBoundStore.temporal.getState()
   const { undo, redo, pastStates, futureStates } = useTemporalStore(
     (state: any) => state,
-  );
+  )
   useHotkeys('mod+z', () => undo())
   useHotkeys('mod+y', () => redo())
   return (

@@ -1,20 +1,20 @@
 import { Instance, Instances } from '@react-three/drei'
+import { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
+import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import { HexTerrain } from '../../../types'
-import {
-  CylinderGeometryArgs,
-  DreiCapProps,
-  BoardHexPieceProps,
-  InstanceRefType,
-} from '../instance-hex'
-import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import {
   HEXGRID_EMPTYHEX_HEIGHT,
   INSTANCE_LIMIT,
 } from '../../../utils/constants'
+import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { hexTerrainColor } from '../hexColors'
-import { ThreeEvent } from '@react-three/fiber'
-import usePieceHoverState from '../../../hooks/usePieceHoverState'
+import {
+  BoardHexPieceProps,
+  CylinderGeometryArgs,
+  DreiCapProps,
+  InstanceRefType,
+} from '../instance-hex'
 
 const baseEmptyCapCylinderArgs: CylinderGeometryArgs = [
   0.999,
@@ -54,16 +54,10 @@ const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
 
 export default EmptyHexes
 
-function EmptyHex({
-  boardHex,
-  onPointerUp,
-}: BoardHexPieceProps) {
+function EmptyHex({ boardHex, onPointerUp }: BoardHexPieceProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ref = React.useRef<any>(undefined!)
-  const {
-    onPointerEnter,
-    onPointerOut,
-  } = usePieceHoverState(true)
+  const { onPointerEnter, onPointerOut } = usePieceHoverState(true)
 
   // Effect: Initial color/position
   React.useLayoutEffect(() => {

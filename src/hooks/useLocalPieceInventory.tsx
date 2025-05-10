@@ -104,22 +104,33 @@ const blankPieceState: { [key: string]: number } = {
   [Pieces.ladder]: 0,
 }
 export const useLocalPieceInventory = () => {
-
-  const [pieceInventory, setPieceInventory] = useLocalStorage(LS_KEYS.pieceInventory, blankPieceState)
+  const [pieceInventory, setPieceInventory] = useLocalStorage(
+    LS_KEYS.pieceInventory,
+    blankPieceState,
+  )
   const clearPieceInventory = () => {
     setPieceInventory(blankPieceState)
   }
   const addSet = (pieceSet: PieceInventory) => {
-    const newPieceInventory = Object.keys(pieceSet).reduce((prev: PieceInventory, curr: string) => {
-      const valueToAdd = pieceSet[curr]
-      return { ...prev, [curr]: pieceInventory[curr] + valueToAdd }
-    }, { ...pieceInventory })
+    const newPieceInventory = Object.keys(pieceSet).reduce(
+      (prev: PieceInventory, curr: string) => {
+        const valueToAdd = pieceSet[curr]
+        return { ...prev, [curr]: pieceInventory[curr] + valueToAdd }
+      },
+      { ...pieceInventory },
+    )
     setPieceInventory(newPieceInventory)
   }
   const removeSet = (pieceSet: PieceInventory) => {
-    const newPieceInventory = Object.keys(pieceSet).reduce((prev: PieceInventory, curr: string) => {
-      return { ...prev, [curr]: Math.max(pieceInventory[curr] - (pieceSet[curr]), 0) }
-    }, { ...pieceInventory })
+    const newPieceInventory = Object.keys(pieceSet).reduce(
+      (prev: PieceInventory, curr: string) => {
+        return {
+          ...prev,
+          [curr]: Math.max(pieceInventory[curr] - pieceSet[curr], 0),
+        }
+      },
+      { ...pieceInventory },
+    )
     setPieceInventory(newPieceInventory)
   }
   return {
@@ -127,6 +138,6 @@ export const useLocalPieceInventory = () => {
     addSet,
     removeSet,
     clearPieceInventory,
-    setPieceInventory
+    setPieceInventory,
   }
 }

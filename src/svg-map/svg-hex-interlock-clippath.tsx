@@ -47,28 +47,22 @@ export const PdfInterlockClipPaths = ({ points }: Props) => {
         <Polygon points={interlock1Points} />
       </ClipPath> */}
       <ClipPath id="interlock1-0-clip">
-        <Polygon points={interlock1Points_0}
-        />
+        <Polygon points={interlock1Points_0} />
       </ClipPath>
       <ClipPath id="interlock1-1-clip">
-        <Polygon points={interlock1Points_1}
-        />
+        <Polygon points={interlock1Points_1} />
       </ClipPath>
       <ClipPath id="interlock1-2-clip">
-        <Polygon points={interlock1Points_2}
-        />
+        <Polygon points={interlock1Points_2} />
       </ClipPath>
       <ClipPath id="interlock1-3-clip">
-        <Polygon points={interlock1Points_3}
-        />
+        <Polygon points={interlock1Points_3} />
       </ClipPath>
       <ClipPath id="interlock1-4-clip">
-        <Polygon points={interlock1Points_4}
-        />
+        <Polygon points={interlock1Points_4} />
       </ClipPath>
       <ClipPath id="interlock1-5-clip">
-        <Polygon points={interlock1Points_5}
-        />
+        <Polygon points={interlock1Points_5} />
       </ClipPath>
       <ClipPath id="interlock2-0-clip">
         <Polygon points={interlock2Points_0} />
@@ -125,34 +119,22 @@ export const PdfInterlockClipPaths = ({ points }: Props) => {
         <Polygon points={interlock3BPoints_5} />
       </ClipPath>
       <ClipPath id="interlock4-0-clip">
-        <Polygon
-          points={interlock4Points_0}
-        />
+        <Polygon points={interlock4Points_0} />
       </ClipPath>
       <ClipPath id="interlock4-1-clip">
-        <Polygon
-          points={interlock4Points_1}
-        />
+        <Polygon points={interlock4Points_1} />
       </ClipPath>
       <ClipPath id="interlock4-2-clip">
-        <Polygon
-          points={interlock4Points_2}
-        />
+        <Polygon points={interlock4Points_2} />
       </ClipPath>
       <ClipPath id="interlock4-3-clip">
-        <Polygon
-          points={interlock4Points_3}
-        />
+        <Polygon points={interlock4Points_3} />
       </ClipPath>
       <ClipPath id="interlock4-4-clip">
-        <Polygon
-          points={interlock4Points_4}
-        />
+        <Polygon points={interlock4Points_4} />
       </ClipPath>
       <ClipPath id="interlock4-5-clip">
-        <Polygon
-          points={interlock4Points_5}
-        />
+        <Polygon points={interlock4Points_5} />
       </ClipPath>
       <ClipPath id="interlock4B-0-clip">
         <Polygon points={interlock4BPoints_0} />
@@ -191,34 +173,22 @@ export const PdfInterlockClipPaths = ({ points }: Props) => {
         <Polygon points={interlock5Points_5} />
       </ClipPath>
       <ClipPath id="interlock6-0-clip">
-        <Polygon
-          points={interlock6Points_0}
-        />
+        <Polygon points={interlock6Points_0} />
       </ClipPath>
       <ClipPath id="interlock6-1-clip">
-        <Polygon
-          points={interlock6Points_1}
-        />
+        <Polygon points={interlock6Points_1} />
       </ClipPath>
       <ClipPath id="interlock6-2-clip">
-        <Polygon
-          points={interlock6Points_2}
-        />
+        <Polygon points={interlock6Points_2} />
       </ClipPath>
       <ClipPath id="interlock6-3-clip">
-        <Polygon
-          points={interlock6Points_3}
-        />
+        <Polygon points={interlock6Points_3} />
       </ClipPath>
       <ClipPath id="interlock6-4-clip">
-        <Polygon
-          points={interlock6Points_4}
-        />
+        <Polygon points={interlock6Points_4} />
       </ClipPath>
       <ClipPath id="interlock6-5-clip">
-        <Polygon
-          points={interlock6Points_5}
-        />
+        <Polygon points={interlock6Points_5} />
       </ClipPath>
     </Defs>
   )
@@ -284,21 +254,14 @@ const interlock4Points_3 = `${ptBotLeft} ${ptTopLeft} ${ptTop} ${ptTopRight} ${p
 const interlock4Points_4 = `${ptTopLeft} ${ptTop} ${ptTopRight} ${ptBotRight} ${ptBot} ${ptCenter}`
 const interlock4Points_5 = `${ptTop} ${ptTopRight} ${ptBotRight} ${ptBot} ${ptBotLeft} ${ptCenter}`
 
-const interlock5Points_0 =
-  `${ptTopRight} ${ptBotRight} ${ptBot} ${ptBotLeft} ${ptTopLeft} ${ptTop} ${ptCenter}`
-const interlock5Points_1 =
-  `${ptBotRight} ${ptBot} ${ptBotLeft} ${ptTopLeft} ${ptTop} ${ptTopRight} ${ptCenter}`
-const interlock5Points_2 =
-  `${ptBot} ${ptBotLeft} ${ptTopLeft} ${ptTop} ${ptTopRight} ${ptBotRight} ${ptCenter}`
-const interlock5Points_3 =
-  `${ptBotLeft} ${ptTopLeft} ${ptTop} ${ptTopRight} ${ptBotRight} ${ptBot} ${ptCenter}`
-const interlock5Points_4 =
-  `${ptTopLeft} ${ptTop} ${ptTopRight} ${ptBotRight} ${ptBot} ${ptBotLeft} ${ptCenter}`
-const interlock5Points_5 =
-  `${ptTop} ${ptTopRight} ${ptBotRight} ${ptBot} ${ptBotLeft} ${ptTopLeft} ${ptCenter}`
+const interlock5Points_0 = `${ptTopRight} ${ptBotRight} ${ptBot} ${ptBotLeft} ${ptTopLeft} ${ptTop} ${ptCenter}`
+const interlock5Points_1 = `${ptBotRight} ${ptBot} ${ptBotLeft} ${ptTopLeft} ${ptTop} ${ptTopRight} ${ptCenter}`
+const interlock5Points_2 = `${ptBot} ${ptBotLeft} ${ptTopLeft} ${ptTop} ${ptTopRight} ${ptBotRight} ${ptCenter}`
+const interlock5Points_3 = `${ptBotLeft} ${ptTopLeft} ${ptTop} ${ptTopRight} ${ptBotRight} ${ptBot} ${ptCenter}`
+const interlock5Points_4 = `${ptTopLeft} ${ptTop} ${ptTopRight} ${ptBotRight} ${ptBot} ${ptBotLeft} ${ptCenter}`
+const interlock5Points_5 = `${ptTop} ${ptTopRight} ${ptBotRight} ${ptBot} ${ptBotLeft} ${ptTopLeft} ${ptCenter}`
 
-const interlock6Points_0 =
-  `${ptTopRight} ${ptBotRight} ${ptBot} ${ptBotLeft} ${ptTopLeft} ${ptTop}`
+const interlock6Points_0 = `${ptTopRight} ${ptBotRight} ${ptBot} ${ptBotLeft} ${ptTopLeft} ${ptTop}`
 const interlock6Points_1 = interlock6Points_0
 const interlock6Points_2 = interlock6Points_0
 const interlock6Points_3 = interlock6Points_0

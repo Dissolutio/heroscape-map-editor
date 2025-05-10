@@ -1,8 +1,8 @@
-import { create } from 'zustand'
-import createUISlice, { UISlice } from './ui-slice'
-import createMapSlice, { MapSlice } from './map-slice'
-import { temporal } from 'zundo'
 import { isEqual } from 'lodash'
+import { temporal } from 'zundo'
+import { create } from 'zustand'
+import createMapSlice, { MapSlice } from './map-slice'
+import createUISlice, { UISlice } from './ui-slice'
 
 export type AppState = MapSlice & UISlice
 
@@ -23,7 +23,6 @@ const useBoundStore = create<AppState>()(
         }
       },
       equality: (pastState, currentState) =>
-
         isEqual(pastState.boardHexes, currentState.boardHexes) &&
         isEqual(pastState.boardPieces, currentState.boardPieces) &&
         isEqual(pastState.hexMap, currentState.hexMap),

@@ -15,17 +15,20 @@ const basic3 = [...basic2, CUBE_SE]
 const basic7 = [
   ...basic3,
   CUBE_SW,
-  { // right
+  {
+    // right
     q: 1,
     r: 1,
     s: -2,
   },
-  { // bottom-left
+  {
+    // bottom-left
     q: -1,
     r: 2,
     s: -1,
   },
-  {// bottom-right
+  {
+    // bottom-right
     q: 0,
     r: 2,
     s: -2,

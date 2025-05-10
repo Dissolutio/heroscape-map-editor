@@ -1,12 +1,12 @@
-import AppBar from '@mui/material/AppBar'
-import Toolbar from '@mui/material/Toolbar'
-import IconButton from '@mui/material/IconButton'
-import { MdMenu } from 'react-icons/md'
 import { Typography } from '@mui/material'
-import useBoundStore from '../store/store'
-import { ReactPdfDownloadLink } from '../pdf-map/ReactPdfRoot'
+import AppBar from '@mui/material/AppBar'
+import IconButton from '@mui/material/IconButton'
+import Toolbar from '@mui/material/Toolbar'
 import { FcPrint } from 'react-icons/fc'
+import { MdMenu } from 'react-icons/md'
 import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
+import { ReactPdfDownloadLink } from '../pdf-map/ReactPdfRoot'
+import useBoundStore from '../store/store'
 
 type Props = {
   isMobileScreenLayout: boolean
@@ -25,16 +25,16 @@ export function HeaderNav({
   isPdfOpen,
   toggleIsPdfOpen,
   is2DOpen,
-  toggleIs2DOpen
+  toggleIs2DOpen,
 }: Props) {
   // AppBar height is 64px when screen > 600px
   // AppBar height is 56px when screen < 600px
-  const hexMap = useBoundStore(s => s.hexMap)
+  const hexMap = useBoundStore((s) => s.hexMap)
   return (
     <AppBar
       position="static"
-    // sx={{ backgroundColor: 'var(--black)' }}
-    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+      // sx={{ backgroundColor: 'var(--black)' }}
+      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
         <IconButton
@@ -46,7 +46,12 @@ export function HeaderNav({
         >
           <MdMenu />
         </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} aria-label={`Map name: ${hexMap.name}`}>
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1 }}
+          aria-label={`Map name: ${hexMap.name}`}
+        >
           {hexMap.name || 'Hexoscape Map Editor'}
         </Typography>
         {isMobileScreenLayout ? (
@@ -59,8 +64,8 @@ export function HeaderNav({
             >
               <FcPrint />
             </IconButton>
-          </ReactPdfDownloadLink>) : (
-
+          </ReactPdfDownloadLink>
+        ) : (
           <IconButton
             size="large"
             title={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}

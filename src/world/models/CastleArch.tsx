@@ -1,18 +1,18 @@
 import { useGLTF } from '@react-three/drei'
-import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
-import { BoardHex, CubeCoordinate, HexTerrain } from '../../types'
-import { hexTerrainColor } from '../maphex/hexColors'
-import ObstacleBase from './ObstacleBase'
-import React from 'react'
 import { ThreeEvent } from '@react-three/fiber'
+import React from 'react'
+import usePieceHoverState from '../../hooks/usePieceHoverState'
+import useBoundStore from '../../store/store'
+import { BoardHex, CubeCoordinate, HexTerrain } from '../../types'
 import {
   hexUtilsAdd,
   hexUtilsGetNeighborForRotation,
 } from '../../utils/hex-utils'
-import useBoundStore from '../../store/store'
+import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
-import usePieceHoverState from '../../hooks/usePieceHoverState'
+import { hexTerrainColor } from '../maphex/hexColors'
 import { terrainCapColors } from '../maphex/terrainCapColors'
+import ObstacleBase from './ObstacleBase'
 
 type Props = {
   boardHex: BoardHex
@@ -35,11 +35,8 @@ export function CastleArch({
   const isSelected = selectedPieceID === boardHex.pieceID
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
-  const {
-    isHovered,
-    onPointerEnter,
-    onPointerOut,
-  } = usePieceHoverState(isVisible)
+  const { isHovered, onPointerEnter, onPointerOut } =
+    usePieceHoverState(isVisible)
   const isHighlighted = isHovered || isSelected
   const yellowColor = 'yellow'
   // const castleColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
@@ -172,22 +169,24 @@ export function CastleArch({
       position={[x, yBase, z]}
       rotation={[0, (rotation * -Math.PI) / 3, 0]}
     >
-      {(selectedPieceID === boardHex.pieceID) && (
+      {selectedPieceID === boardHex.pieceID && (
         <DeletePieceBillboard pieceID={boardHex.pieceID} y={1} />
       )}
       <group
-        onPointerEnter={e => onPointerEnter(e, boardHex)}
-        onPointerOut={e => onPointerOut(e)}
+        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerOut={(e) => onPointerOut(e)}
       >
         <mesh
           geometry={nodes.CastleArchBody.geometry}
           onPointerUp={onPointerUpBody}
         >
-          <meshMatcapMaterial color={isHighlighted ? yellowColor : castleColor} />
+          <meshMatcapMaterial
+            color={isHighlighted ? yellowColor : castleColor}
+          />
         </mesh>
         <mesh
           geometry={nodes.CastleArchCapNear.geometry}
-          onPointerUp={e => onPointerUp(e, boardHex)}
+          onPointerUp={(e) => onPointerUp(e, boardHex)}
           onPointerEnter={onPointerEnterNear}
           onPointerOut={onPointerOutNear}
         >
@@ -199,7 +198,9 @@ export function CastleArch({
           onPointerOut={onPointerOutMiddle}
           onPointerUp={onPointerUpMiddle}
         >
-          <meshMatcapMaterial color={isHighlighted ? yellowColor : colorMiddle} />
+          <meshMatcapMaterial
+            color={isHighlighted ? yellowColor : colorMiddle}
+          />
         </mesh>
         <mesh
           geometry={nodes.CastleArchCapFar.geometry}
@@ -212,9 +213,11 @@ export function CastleArch({
         {isDoor && (
           <mesh
             geometry={nodes.ArchDoor.geometry}
-            onPointerUp={e => onPointerUp(e, boardHex)}
+            onPointerUp={(e) => onPointerUp(e, boardHex)}
           >
-            <meshMatcapMaterial color={isHighlighted ? yellowColor : hexTerrainColor.castleDoor} />
+            <meshMatcapMaterial
+              color={isHighlighted ? yellowColor : hexTerrainColor.castleDoor}
+            />
           </mesh>
         )}
       </group>
@@ -229,4 +232,3 @@ export function CastleArch({
 }
 
 useGLTF.preload('/castle-arch-handmade.glb')
-

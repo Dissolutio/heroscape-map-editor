@@ -6,9 +6,7 @@
     "useIgnoreFile": false
   },
   "files": {
-    "ignoreUnknown": false,
-    "ignore": [],
-    "include": ["src/*.{ts,tsx,json,js,jsx}"]
+    "ignoreUnknown": false
   },
   "formatter": {
     "enabled": true,

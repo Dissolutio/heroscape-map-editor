@@ -92,7 +92,7 @@ export enum HexTerrain {
 export type PieceInventory = { [key: string]: number }
 export type Piece = {
   id: Pieces
-  title: string, // the human friendly name
+  title: string // the human friendly name
   terrain: string
   size: number
   template: string
@@ -100,11 +100,11 @@ export type Piece = {
   isHexTerrainPiece: boolean
   isObstaclePiece: boolean
   landPrefix?: PiecePrefixes // Including this so land pieces can have their sizes computed for piece-size selection in the Controls
-  isUninventoried?: boolean, // so far just marvel-ruins-broken and castle-arch-no-door versions (these are just variations on their inventoried counterparts)
+  isUninventoried?: boolean // so far just marvel-ruins-broken and castle-arch-no-door versions (these are just variations on their inventoried counterparts)
 }
 export type PieceSet = {
   id: PieceSetIds
-  title: string, // the human friendly name
+  title: string // the human friendly name
   inventory: PieceInventory
   abbreviation: string
 }

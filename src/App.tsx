@@ -1,20 +1,31 @@
-import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
-import { Redirect, Route, Switch } from "wouter";
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
+import * as Sentry from '@sentry/react'
 import { SnackbarProvider } from 'notistack'
-import * as Sentry from "@sentry/react";
+import { Redirect, Route, Switch } from 'wouter'
 
 import { EventProvider } from './hooks/useEvent'
-import ErrorPage from './layout/ErrorPage';
+import ErrorPage from './layout/ErrorPage'
 import './layout/index.css'
-import { ROUTES } from './ROUTES';
-import HomePage from './layout/HomePage';
+import { ROUTES } from './ROUTES'
+import HomePage from './layout/HomePage'
 
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
   },
   typography: {
-    fontFamily: ['-apple-system', 'BlinkMacSystemFont', "Segoe UI", 'Roboto', 'Helvetica', 'Arial', 'sans-serif', "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"].join(','),
+    fontFamily: [
+      '-apple-system',
+      'BlinkMacSystemFont',
+      'Segoe UI',
+      'Roboto',
+      'Helvetica',
+      'Arial',
+      'sans-serif',
+      'Apple Color Emoji',
+      'Segoe UI Emoji',
+      'Segoe UI Symbol',
+    ].join(','),
     // button: {
     // fontSize: 16,
     // fontWeight: 600,
@@ -22,9 +33,7 @@ const darkTheme = createTheme({
   },
 })
 const RootPage = () => {
-  return (
-    <Redirect to={ROUTES.heroscapeHome} />
-  )
+  return <Redirect to={ROUTES.heroscapeHome} />
 }
 
 const App = () => {
@@ -43,7 +52,9 @@ const App = () => {
               <Route path={`${ROUTES.heroscapeHome}`} component={HomePage} />
 
               {/* Default route in a switch */}
-              <Route><ErrorPage /></Route>
+              <Route>
+                <ErrorPage />
+              </Route>
             </Switch>
           </SnackbarProvider>
         </EventProvider>

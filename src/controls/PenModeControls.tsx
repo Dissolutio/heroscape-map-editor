@@ -1,21 +1,21 @@
+import { Divider, ListItemIcon } from '@mui/material'
+import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
-import FormControl from '@mui/material/FormControl'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
-import { Divider, ListItemIcon } from '@mui/material'
+import { noop } from 'lodash'
+import { useHotkeys } from 'react-hotkeys-hook'
 import {
   GiArrowCursor,
-  GiPeaks,
+  GiCastle,
   GiGrass,
   GiIsland,
-  GiWaterfall,
-  GiCastle,
+  GiPeaks,
   GiPineTree,
+  GiWaterfall,
 } from 'react-icons/gi'
-import { PiecePrefixes, Pieces } from '../types'
 import useBoundStore from '../store/store'
-import { useHotkeys } from 'react-hotkeys-hook'
-import { noop } from 'lodash'
+import { PiecePrefixes, Pieces } from '../types'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
@@ -39,26 +39,69 @@ export default function PenModeControls() {
   // state.pieceSize,
   // )
 
-
   // '1'
-  useHotkeys('1', () => isSizes ? togglePieceSize(flatPieceSizes[0]) : noop(), /*isEnabled*/)
-  useHotkeys('shift+1', () => togglePenMode(Pieces.castleWallEnd), /*isEnabled*/)
+  useHotkeys(
+    '1',
+    () => (isSizes ? togglePieceSize(flatPieceSizes[0]) : noop()) /*isEnabled*/,
+  )
+  useHotkeys('shift+1', () => togglePenMode(Pieces.castleWallEnd) /*isEnabled*/)
   // '2'
-  useHotkeys('2', () => isSizes ? togglePieceSize(flatPieceSizes?.[1] ?? flatPieceSizes[0]) : noop(), /*isEnabled*/)
-  useHotkeys('shift+2', () => togglePenMode(Pieces.castleWallStraight), /*isEnabled*/)
+  useHotkeys(
+    '2',
+    () =>
+      isSizes
+        ? togglePieceSize(flatPieceSizes?.[1] ?? flatPieceSizes[0])
+        : noop() /*isEnabled*/,
+  )
+  useHotkeys(
+    'shift+2',
+    () => togglePenMode(Pieces.castleWallStraight) /*isEnabled*/,
+  )
   // '3'
-  useHotkeys('3', () => isSizes ? togglePieceSize(flatPieceSizes?.[2] ?? (flatPieceSizes?.[1] ?? flatPieceSizes?.[0])) : noop(), /*isEnabled*/)
-  useHotkeys('shift+3', () => togglePenMode(Pieces.castleWallCorner), /*isEnabled*/)
+  useHotkeys(
+    '3',
+    () =>
+      isSizes
+        ? togglePieceSize(
+            flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
+          )
+        : noop() /*isEnabled*/,
+  )
+  useHotkeys(
+    'shift+3',
+    () => togglePenMode(Pieces.castleWallCorner) /*isEnabled*/,
+  )
   // '4'
-  useHotkeys('4', () => isSizes ? togglePieceSize(flatPieceSizes?.[3] ?? flatPieceSizes?.[2] ??
-    (flatPieceSizes?.[1] ?? flatPieceSizes[0])
-  ) : noop(), /*isEnabled*/)
-  useHotkeys('shift+4', () => togglePenMode(Pieces.castleArch), /*isEnabled*/)
+  useHotkeys(
+    '4',
+    () =>
+      isSizes
+        ? togglePieceSize(
+            flatPieceSizes?.[3] ??
+              flatPieceSizes?.[2] ??
+              flatPieceSizes?.[1] ??
+              flatPieceSizes[0],
+          )
+        : noop() /*isEnabled*/,
+  )
+  useHotkeys('shift+4', () => togglePenMode(Pieces.castleArch) /*isEnabled*/)
   // '5'
-  useHotkeys('5', () => isSizes ? togglePieceSize(flatPieceSizes?.[4] ?? flatPieceSizes?.[3] ??
-    ((flatPieceSizes?.[2] ?? (flatPieceSizes?.[1] ?? flatPieceSizes[0])))
-  ) : noop(), /*isEnabled*/)
-  useHotkeys('shift+5', () => togglePenMode(Pieces.castleArchNoDoor), /*isEnabled*/)
+  useHotkeys(
+    '5',
+    () =>
+      isSizes
+        ? togglePieceSize(
+            flatPieceSizes?.[4] ??
+              flatPieceSizes?.[3] ??
+              flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ??
+              flatPieceSizes[0],
+          )
+        : noop() /*isEnabled*/,
+  )
+  useHotkeys(
+    'shift+5',
+    () => togglePenMode(Pieces.castleArchNoDoor) /*isEnabled*/,
+  )
   // '6'
   // '7'
   // '8'
@@ -69,44 +112,53 @@ export default function PenModeControls() {
   // 'b'
   // 'c'
   // 'd'
-  useHotkeys('d', () => togglePenMode(PiecePrefixes.dungeon), /*isEnabled*/)
-  useHotkeys('shift+d', () => togglePenMode(PiecePrefixes.shadow), /*isEnabled*/)
+  useHotkeys('d', () => togglePenMode(PiecePrefixes.dungeon) /*isEnabled*/)
+  useHotkeys('shift+d', () => togglePenMode(PiecePrefixes.shadow) /*isEnabled*/)
   // 'e'
   // 'f'
   // 'g'
-  useHotkeys('g', () => togglePenMode(PiecePrefixes.grass), /*isEnabled*/)
+  useHotkeys('g', () => togglePenMode(PiecePrefixes.grass) /*isEnabled*/)
   // 'h'
   // 'i'
-  useHotkeys('i', () => togglePenMode(PiecePrefixes.snow), /*isEnabled*/)
-  useHotkeys('shift+i', () => togglePenMode(PiecePrefixes.ice), /*isEnabled*/)
+  useHotkeys('i', () => togglePenMode(PiecePrefixes.snow) /*isEnabled*/)
+  useHotkeys('shift+i', () => togglePenMode(PiecePrefixes.ice) /*isEnabled*/)
   // 'j'
   // 'k'
   // 'l'
-  useHotkeys('l', () => togglePenMode(PiecePrefixes.lavaField), /*isEnabled*/)
-  useHotkeys('shift+l', () => togglePenMode(PiecePrefixes.lava), /*isEnabled*/)
+  useHotkeys('l', () => togglePenMode(PiecePrefixes.lavaField) /*isEnabled*/)
+  useHotkeys('shift+l', () => togglePenMode(PiecePrefixes.lava) /*isEnabled*/)
   // 'm'
   // 'n'
   // 'o'
-  useHotkeys('o', () => togglePenMode(PiecePrefixes.road), /*isEnabled*/)
-  useHotkeys('shift+o', () => togglePenMode(PiecePrefixes.wallWalk), /*isEnabled*/)
+  useHotkeys('o', () => togglePenMode(PiecePrefixes.road) /*isEnabled*/)
+  useHotkeys(
+    'shift+o',
+    () => togglePenMode(PiecePrefixes.wallWalk) /*isEnabled*/,
+  )
   // 'p'
-  useHotkeys('p', () => togglePenMode(PiecePrefixes.swamp), /*isEnabled*/)
-  useHotkeys('shift+p', () => togglePenMode(PiecePrefixes.swampWater), /*isEnabled*/)
+  useHotkeys('p', () => togglePenMode(PiecePrefixes.swamp) /*isEnabled*/)
+  useHotkeys(
+    'shift+p',
+    () => togglePenMode(PiecePrefixes.swampWater) /*isEnabled*/,
+  )
   // 'q'
   // 'r'
-  useHotkeys('r', () => togglePenMode(PiecePrefixes.rock), /*isEnabled*/)
+  useHotkeys('r', () => togglePenMode(PiecePrefixes.rock) /*isEnabled*/)
   // 's'
-  useHotkeys('s', () => togglePenMode(PiecePrefixes.sand), /*isEnabled*/)
+  useHotkeys('s', () => togglePenMode(PiecePrefixes.sand) /*isEnabled*/)
   // 't'
   // 'u'
   // 'v'
   // 'w'
-  useHotkeys('w', () => togglePenMode(PiecePrefixes.water), /*isEnabled*/)
-  useHotkeys('shift+w', () => togglePenMode(PiecePrefixes.wellspringWater), /*isEnabled*/)
+  useHotkeys('w', () => togglePenMode(PiecePrefixes.water) /*isEnabled*/)
+  useHotkeys(
+    'shift+w',
+    () => togglePenMode(PiecePrefixes.wellspringWater) /*isEnabled*/,
+  )
   // 'x'
   // 'y'
   // 'z'
-  useHotkeys('z', () => togglePenMode('select'), /*isEnabled*/)
+  useHotkeys('z', () => togglePenMode('select') /*isEnabled*/)
 
   return (
     <FormControl variant="filled">

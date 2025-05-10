@@ -1,21 +1,21 @@
 import { Instance, Instances } from '@react-three/drei'
-import React from 'react'
-import {
-  CylinderGeometryArgs,
-  DreiCapProps,
-  BoardHexPieceProps,
-  InstanceRefType,
-} from '../instance-hex'
-import { getBoardHex3DCoords } from '../../../utils/map-utils'
-import {
-  HEXGRID_HEX_HEIGHT,
-  HEXGRID_HEXCAP_FLUID_SCALE,
-  INSTANCE_LIMIT,
-} from '../../../utils/constants'
-import { hexTerrainColor } from '../hexColors'
 import { ThreeEvent } from '@react-three/fiber'
+import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
+import {
+  HEXGRID_HEXCAP_FLUID_SCALE,
+  HEXGRID_HEX_HEIGHT,
+  INSTANCE_LIMIT,
+} from '../../../utils/constants'
+import { getBoardHex3DCoords } from '../../../utils/map-utils'
+import { hexTerrainColor } from '../hexColors'
+import {
+  BoardHexPieceProps,
+  CylinderGeometryArgs,
+  DreiCapProps,
+  InstanceRefType,
+} from '../instance-hex'
 
 const baseFluidCapCylinderArgs: CylinderGeometryArgs = [
   0.9,
@@ -30,9 +30,9 @@ const baseFluidCapCylinderArgs: CylinderGeometryArgs = [
 export const FLUID_CAP_OPACITY = 0.85
 const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
   const ref = React.useRef<InstanceRefType>(undefined!)
-  const viewingLevel = useBoundStore(s => s.viewingLevel)
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
   if (boardHexArr.length === 0) return null
-  const range = boardHexArr.filter(bh => bh.altitude <= viewingLevel).length
+  const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
   return (
     <Instances
       limit={INSTANCE_LIMIT}
@@ -61,19 +61,16 @@ export default FluidCaps
 function FluidCap({
   boardHex,
   onPointerUp,
-  isVisible
+  isVisible,
 }: BoardHexPieceProps & { isVisible: boolean }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ref = React.useRef<any>(undefined!)
-  const {
-    onPointerEnter,
-    onPointerOut,
-  } = usePieceHoverState(isVisible)
-  const toggleSelectedPieceID = useBoundStore(s => s.toggleSelectedPieceID)
-  const penMode = useBoundStore(s => s.penMode)
-  const hoveredPieceID = useBoundStore(s => s.hoveredPieceID)
+  const { onPointerEnter, onPointerOut } = usePieceHoverState(isVisible)
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const penMode = useBoundStore((s) => s.penMode)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const color = hexTerrainColor[boardHex.terrain]
-  const selectedPieceID = useBoundStore(s => s.selectedPieceID)
+  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID
 
   // Effect: Initial color/position
@@ -82,8 +79,11 @@ function FluidCap({
     ref.current.color.set(hexTerrainColor[boardHex.terrain])
     ref.current.position.set(
       x,
-      y - (HEXGRID_HEX_HEIGHT - (HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE)) + 0.01,
-      z)
+      y -
+        (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
+        0.01,
+      z,
+    )
   }, [boardHex])
 
   // update color when piece is hovered

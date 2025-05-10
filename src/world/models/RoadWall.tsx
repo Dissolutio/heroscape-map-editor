@@ -1,24 +1,26 @@
 import { useGLTF } from '@react-three/drei'
-import { hexTerrainColor } from '../maphex/hexColors'
-import useBoundStore from '../../store/store'
 import { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
+import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
+import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
+import { hexTerrainColor } from '../maphex/hexColors'
 
-export function RoadWall({ pid, isVisible }: { pid: string, isVisible: boolean }) {
+export function RoadWall({
+  pid,
+  isVisible,
+}: { pid: string; isVisible: boolean }) {
   const { nodes } = useGLTF('/handmade-roadwall.glb') as any
-  const {
-    isHovered,
-    onPointerEnterPID,
-    onPointerOut,
-  } = usePieceHoverState(isVisible)
-  const toggleSelectedPieceID = useBoundStore(s => s.toggleSelectedPieceID)
-  const selectedPieceID = useBoundStore(s => s.selectedPieceID)
+  const { isHovered, onPointerEnterPID, onPointerOut } =
+    usePieceHoverState(isVisible)
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === pid
   const isHighlighted = isHovered || isSelected
-  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.roadWall]
+  const color = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.roadWall]
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
       return
@@ -32,14 +34,12 @@ export function RoadWall({ pid, isVisible }: { pid: string, isVisible: boolean }
   }
   return (
     <>
-      {(isSelected) && (
-        <DeletePieceBillboard pieceID={pid} y={1} />
-      )}
+      {isSelected && <DeletePieceBillboard pieceID={pid} y={1} />}
       <mesh
         geometry={nodes.RoadWall.geometry}
-        onPointerUp={e => onPointerUp(e)}
-        onPointerEnter={e => onPointerEnterPID(e, pid)}
-        onPointerOut={e => onPointerOut(e)}
+        onPointerUp={(e) => onPointerUp(e)}
+        onPointerEnter={(e) => onPointerEnterPID(e, pid)}
+        onPointerOut={(e) => onPointerOut(e)}
       >
         <meshMatcapMaterial color={color} />
       </mesh>

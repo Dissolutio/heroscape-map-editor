@@ -30,7 +30,8 @@ export const verticalObstructionTemplates: Dictionary<number[]> = {
     ---9---8x---8---7--
     */
     // first the basic3 (the support hexes, coincidentally)
-    9, 8, 8,
+    9,
+    8, 8,
     // then the bottom-left, top-right, and bottom-right of glacier6
     9, 7, 8,
     // then the top-right, and bottom-right hexes
@@ -67,7 +68,8 @@ export const verticalSupportTemplates: Dictionary<number[]> = {
     */
     // so first the basic-3
     // first the basic3 (the support hexes, coincidentally)
-    1, 1, 1,
+    1,
+    1, 1,
     // then the rest are not!
     0, 0, 0, 0, 0, 0, 0,
   ],
@@ -84,7 +86,8 @@ export const interiorHexTemplates: Dictionary<number[]> = {
     */
     // A value of "2"  means origin, "1" means auxiliary
     // first the basic3, which contains both of ruins2's interior hexes
-    2, 1, 0,
+    2,
+    1, 0,
     // then the rest are not!
     0, 0, 0, 0, 0,
   ],
@@ -96,7 +99,8 @@ export const interiorHexTemplates: Dictionary<number[]> = {
     */
     // A value of "2"  means origin, "1" means auxiliary
     // first the basic3, which contains 2 of ruins3's interior hexes
-    2, 1, 0,
+    2,
+    1, 0,
     // then the bottom-left, top-right, and bottom-right (top-right is our last interior hex)
     0,
     1, 0,

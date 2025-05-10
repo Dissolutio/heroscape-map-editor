@@ -1,17 +1,24 @@
-import React from 'react';
-import { List, ListItem, ListItemText, IconButton, Typography, Container } from '@mui/material';
-import { MdDelete } from 'react-icons/md';
-import { MapFileState } from '../types';
+import {
+  Container,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from '@mui/material'
+import React from 'react'
+import { MdDelete } from 'react-icons/md'
+import { MapFileState } from '../types'
 
-const maxLocalStorageSize = 5120;
+const maxLocalStorageSize = 5120
 
 const LocalStorageList = () => {
-  const [storageData, setStorageData] = React.useState(analyzeLocalStorage());
+  const [storageData, setStorageData] = React.useState(analyzeLocalStorage())
 
   const handleDelete = (key: string) => {
-    localStorage.removeItem(key);
-    setStorageData(analyzeLocalStorage());
-  };
+    localStorage.removeItem(key)
+    setStorageData(analyzeLocalStorage())
+  }
 
   return (
     <Container sx={{ padding: 2 }}>
@@ -23,7 +30,11 @@ const LocalStorageList = () => {
           <ListItem
             key={item.key}
             secondaryAction={
-              <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(item.key)}>
+              <IconButton
+                edge="end"
+                aria-label="delete"
+                onClick={() => handleDelete(item.key)}
+              >
                 <MdDelete />
               </IconButton>
             }
@@ -47,67 +58,71 @@ const LocalStorageList = () => {
       {/* | Total Items: {storageData.itemCount}
           | Size unused: {storageData.totalSize} KB */}
     </Container>
-  );
-};
-
+  )
+}
 
 const validateIsHexoscapeMap = (item: any): item is MapFileState => {
   // TODO: Add more specific validation logic based on MapFileState structure
   return (
-    typeof item === 'object' && item !== null &&
-    'hexMap' in item && typeof item.hexMap === 'object' &&
-    'boardPieces' in item && typeof item.boardPieces === 'object'
+    typeof item === 'object' &&
+    item !== null &&
+    'hexMap' in item &&
+    typeof item.hexMap === 'object' &&
+    'boardPieces' in item &&
+    typeof item.boardPieces === 'object'
     // Add more checks for other required properties
-  );
-};
+  )
+}
 type LocalStorageItem = {
-  key: string;
-  value: MapFileState | number | object | string | null;
-  size: number;
-  type: string;
+  key: string
+  value: MapFileState | number | object | string | null
+  size: number
+  type: string
 }
 function analyzeLocalStorage(): {
-  totalSize: number;
-  itemCount: number;
-  dataTypeCounts: Record<string, number>;
-  items: Array<LocalStorageItem>;
+  totalSize: number
+  itemCount: number
+  dataTypeCounts: Record<string, number>
+  items: Array<LocalStorageItem>
 } {
   const storageInfo = {
     totalSize: 0, // Total size in kilobytes
     itemCount: 0, // Total number of items
     dataTypeCounts: {} as Record<string, number>, // Counts of each data type (string, object, number, etc.)
     items: [] as Array<LocalStorageItem>,
-  };
-
+  }
 
   for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    let itemSize = 0;
-    const value = key ? localStorage.getItem(key) : null;
+    const key = localStorage.key(i)
+    let itemSize = 0
+    const value = key ? localStorage.getItem(key) : null
 
     if (value && key) {
       // Calculate the size of each item in bytes, accounting for UTF-16 encoding
-      itemSize = (key.length + value.length) * 2;
-      storageInfo.totalSize += itemSize;
+      itemSize = (key.length + value.length) * 2
+      storageInfo.totalSize += itemSize
     }
 
     // Determine data type and update counts
-    let dataType = 'string';
-    const parsedValue = (value && isJSON(value)) ? JSON.parse(value) : value?.toString() ?? 'unknown';
+    let dataType = 'string'
+    const parsedValue =
+      value && isJSON(value)
+        ? JSON.parse(value)
+        : (value?.toString() ?? 'unknown')
     if (validateIsHexoscapeMap(parsedValue)) {
-      dataType = 'map';
+      dataType = 'map'
     } else if (typeof parsedValue === 'object' && parsedValue !== null) {
-      dataType = 'object';
+      dataType = 'object'
     } else if (typeof parsedValue === 'number') {
-      dataType = 'number';
+      dataType = 'number'
     } else if (typeof parsedValue === 'boolean') {
-      dataType = 'boolean';
+      dataType = 'boolean'
     }
 
     if (storageInfo.dataTypeCounts[dataType]) {
-      storageInfo.dataTypeCounts[dataType]++;
+      storageInfo.dataTypeCounts[dataType]++
     } else {
-      storageInfo.dataTypeCounts[dataType] = 1;
+      storageInfo.dataTypeCounts[dataType] = 1
     }
 
     storageInfo.items.push({
@@ -115,27 +130,27 @@ function analyzeLocalStorage(): {
       value: parsedValue,
       size: parseFloat((itemSize / 1024).toFixed(2)),
       type: dataType,
-    });
+    })
 
-    storageInfo.itemCount++;
+    storageInfo.itemCount++
   }
 
   // Convert total size to KB
-  storageInfo.totalSize = parseFloat((storageInfo.totalSize / 1024).toFixed(2));
+  storageInfo.totalSize = parseFloat((storageInfo.totalSize / 1024).toFixed(2))
 
-  return storageInfo;
+  return storageInfo
 }
 
-const localStorageData = analyzeLocalStorage();
-console.log(localStorageData);
+const localStorageData = analyzeLocalStorage()
+console.log(localStorageData)
 export default LocalStorageList
 
 // Helper function to check if a string is valid JSON
 function isJSON(value: string): boolean {
   try {
-    JSON.parse(value);
-    return true;
+    JSON.parse(value)
+    return true
   } catch {
-    return false;
+    return false
   }
 }

@@ -30,7 +30,15 @@ const cityThings = [
   'Pillar',
 ]
 const wateryThings = ['Isles', 'Beaches', 'Cove', 'Grotto', 'Seas', 'Shipwreck']
-const grassyThings = ['Plains', 'Fields', 'Woods', 'Forest', 'Hunting Grounds', 'Den', 'Fairgrounds']
+const grassyThings = [
+  'Plains',
+  'Fields',
+  'Woods',
+  'Forest',
+  'Hunting Grounds',
+  'Den',
+  'Fairgrounds',
+]
 const sandyThings = ['Desert', 'Mesa', 'Canyon', 'Gorge', 'Plateau']
 const rockyThings = [
   'Cliffs',

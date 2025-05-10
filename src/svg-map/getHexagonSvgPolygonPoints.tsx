@@ -1,5 +1,5 @@
-import { Point } from "../types"
-import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from "../utils/constants"
+import { Point } from '../types'
+import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 
 export function getHexagonSvgPolygonPoints(
   radius: number,
@@ -17,4 +17,3 @@ export function getHexagonSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-

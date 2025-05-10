@@ -80,8 +80,11 @@ export function isNoVerifyDeletePieceByPieceID(inventoryID: string) {
   }
 }
 export function isJungleTerrainHex(terrain: string) {
-  if (terrain === HexTerrain.brush || terrain === HexTerrain.palm ||
-    terrain === HexTerrain.laurBrush || terrain === HexTerrain.laurPalm ||
+  if (
+    terrain === HexTerrain.brush ||
+    terrain === HexTerrain.palm ||
+    terrain === HexTerrain.laurBrush ||
+    terrain === HexTerrain.laurPalm ||
     terrain === HexTerrain.swampBrush
   ) {
     return true
@@ -90,8 +93,7 @@ export function isJungleTerrainHex(terrain: string) {
   }
 }
 export function isEvergreenTree(terrain: string) {
-  if (terrain === HexTerrain.tree || terrain === HexTerrain.snowTree
-  ) {
+  if (terrain === HexTerrain.tree || terrain === HexTerrain.snowTree) {
     return true
   } else {
     return false
@@ -131,27 +133,24 @@ export function isObstaclePieceID(id: string) {
 }
 export function isBridgingObstaclePieceID(id: string) {
   // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
-  if (
-    id === Pieces.glacier4 ||
-    id === Pieces.glacier6 ||
-    id === Pieces.hive
-  ) {
+  if (id === Pieces.glacier4 || id === Pieces.glacier6 || id === Pieces.hive) {
     return true
   } else {
     return false
   }
 }
-export const getBoardHexObstacleOriginsAndHexesAndEmpties = (boardHexes: BoardHexes): BoardHexes => {
+export const getBoardHexObstacleOriginsAndHexesAndEmpties = (
+  boardHexes: BoardHexes,
+): BoardHexes => {
   return Object.values(boardHexes).reduce((acc, hex) => {
-    const inventoryPieceID = decodePieceID(hex.pieceID).pieceID;
+    const inventoryPieceID = decodePieceID(hex.pieceID).pieceID
     const isPieceOriginHex =
       piecesSoFar[inventoryPieceID]?.isHexTerrainPiece ||
       (piecesSoFar[inventoryPieceID]?.isObstaclePiece && hex.isObstacleOrigin)
 
     if (isPieceOriginHex || hex.terrain === 'empty') {
-      acc[hex.id] = hex;
+      acc[hex.id] = hex
     }
-    return acc;
-  }
-    , {} as BoardHexes);
+    return acc
+  }, {} as BoardHexes)
 }

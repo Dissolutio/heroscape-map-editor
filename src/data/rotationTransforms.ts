@@ -1,8 +1,8 @@
 import { Dictionary } from 'lodash'
-import { Pieces, CubeCoordinate } from '../types'
+import { CubeCoordinate, Pieces } from '../types'
+import { CUBE_EAST, CUBE_SE, CUBE_SW, ORIGIN_000 } from '../utils/constants'
 import { hexUtilsAdd, hexUtilsRotateAroundOrigin_000 } from '../utils/hex-utils'
 import tileTemplates from './tileTemplates'
-import { CUBE_EAST, CUBE_SE, CUBE_SW, ORIGIN_000 } from '../utils/constants'
 
 export default function getPieceTemplateCoords({
   clickedHex,
