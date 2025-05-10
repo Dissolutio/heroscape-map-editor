@@ -1,6 +1,6 @@
 import { Object3DNode, extend } from '@react-three/fiber'
 import { BufferGeometry, Color, Line, Vector3 } from 'three'
-import { hexPointsFromCenter } from '../../utils/map-utils'
+import { hexPoints3DFromCenter } from '../../utils/map-utils'
 
 // this extension for line_ is because, if we just use <line></line> then we get an error:
 // Property 'geometry' does not exist on type 'SVGProps<SVGLineElement>'
@@ -15,13 +15,13 @@ declare global {
   }
 }
 const ringGeo = new BufferGeometry().setFromPoints([
-  hexPointsFromCenter.topRight,
-  hexPointsFromCenter.bottomRight,
-  hexPointsFromCenter.bottom,
-  hexPointsFromCenter.bottomLeft,
-  hexPointsFromCenter.topLeft,
-  hexPointsFromCenter.top,
-  hexPointsFromCenter.topRight,
+  hexPoints3DFromCenter.topRight,
+  hexPoints3DFromCenter.bottomRight,
+  hexPoints3DFromCenter.bottom,
+  hexPoints3DFromCenter.bottomLeft,
+  hexPoints3DFromCenter.topLeft,
+  hexPoints3DFromCenter.top,
+  hexPoints3DFromCenter.topRight,
 ])
 export default function HeightRing({ position }: { position: Vector3 }) {
   return (

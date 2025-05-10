@@ -58,7 +58,7 @@ export const getBoardHexesRectangularMapDimensions = (
     ((hexLength === 1
       ? 2 * HEXGRID_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-        3 * HEXGRID_HEX_APOTHEM) +
+      3 * HEXGRID_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * HEXGRID_HEX_APOTHEM) /
     HEXGRID_SPACING
   const apex =
@@ -107,7 +107,7 @@ export const getBoardHexesSvgMapDimensions = (
     ((hexLength === 1
       ? 2 * SVG_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-        3 * SVG_HEX_APOTHEM) +
+      3 * SVG_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * SVG_HEX_APOTHEM) /
     HEXGRID_SPACING
   return { length, width, hexLength, hexWidth }
@@ -182,7 +182,7 @@ export const getHexNearNeighborByRotation = (
   ]
 }
 const halfASideLength = HEXGRID_HEX_RADIUS / 2
-export const hexPointsFromCenter = {
+export const hexPoints3DFromCenter = {
   topRight: new Vector3(HEXGRID_HEX_APOTHEM, 0, halfASideLength), // top-right
   bottomRight: new Vector3(HEXGRID_HEX_APOTHEM, 0, -halfASideLength), // bottom-right
   bottom: new Vector3(0, 0, -HEXGRID_HEX_RADIUS), // bottom
