@@ -1,17 +1,17 @@
-import React from 'react'
 import { Drawer, useMediaQuery } from '@mui/material'
-import { DrawerList } from './DrawerList'
-import { HeaderNav } from './HeaderNav'
+import React from 'react'
 import Controls from '../controls/Controls'
-import World from '../world/World'
-import CreateMapFormDialog from './CreateMapFormDialog'
-import EditMapFormDialog from './EditMapFormDialog'
-import { LoadMapInputs } from './LoadMapButtons'
-import CameraSpeedDial from './CameraSpeedDial'
-import { ReactPdfRoot } from '../pdf-map/ReactPdfRoot'
-import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
-import { SvgMapDisplay } from '../svg-map/SvgMapDisplay'
 import { shatteredTableBoardHexes } from '../data/shatteredTableBoardHexes'
+import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
+import { ReactPdfRoot } from '../pdf-map/ReactPdfRoot'
+import { SvgMapDisplay } from '../svg-map/SvgMapDisplay'
+import World from '../world/World'
+import CameraSpeedDial from './CameraSpeedDial'
+import CreateMapFormDialog from './CreateMapFormDialog'
+import { DrawerList } from './DrawerList'
+import EditMapFormDialog from './EditMapFormDialog'
+import { HeaderNav } from './HeaderNav'
+import { LoadMapInputs } from './LoadMapButtons'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(undefined!)
@@ -20,7 +20,6 @@ export default function HomePage() {
   // USE EFFECT: automatically load up map from URL, OR from file
   useAutoLoadMapFile({ boardHexes: shatteredTableBoardHexes })
 
-
   // MUI BREAKPOINTS
   //   xs, extra-small: 0px
   // sm, small: 600px
@@ -28,8 +27,8 @@ export default function HomePage() {
   // lg, large: 1200px
   // xl, extra-large: 1536px
 
-  const isLargeScreenLayout = useMediaQuery('(min-width:1200px)');
-  const isMobileScreenLayout = useMediaQuery('(max-width:600px)');
+  const isLargeScreenLayout = useMediaQuery('(min-width:1200px)')
+  const isMobileScreenLayout = useMediaQuery('(max-width:600px)')
 
   const [isNavOpen, setIsNavOpen] = React.useState(false)
   const toggleIsNavOpen = (s: boolean) => {
@@ -87,7 +86,6 @@ export default function HomePage() {
             overflow: 'auto',
           }}
         >
-
           <div
             style={{
               flex: 1,
@@ -96,19 +94,17 @@ export default function HomePage() {
               height: isLargeScreenLayout ? '100%' : '70vh',
             }}
           >
-            {
-              isPdfOpen && (
-                <ReactPdfRoot />
-              )}
-            {(is2DOpen && !isPdfOpen) && (
-              <SvgMapDisplay />
-            )}
+            {isPdfOpen && <ReactPdfRoot />}
+            {is2DOpen && !isPdfOpen && <SvgMapDisplay />}
             <>
-              {(!is2DOpen && !isPdfOpen) && <CameraSpeedDial cameraControlsRef={cameraControlsRef} />}
-              <World isHidden={is2DOpen || isPdfOpen} cameraControlsRef={cameraControlsRef} />
+              {!is2DOpen && !isPdfOpen && (
+                <CameraSpeedDial cameraControlsRef={cameraControlsRef} />
+              )}
+              <World
+                isHidden={is2DOpen || isPdfOpen}
+                cameraControlsRef={cameraControlsRef}
+              />
             </>
-
-
           </div>
           <div
             style={{

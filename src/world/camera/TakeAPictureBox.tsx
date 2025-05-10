@@ -2,13 +2,13 @@ import { Box } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
 import useEvent from '../../hooks/useEvent'
-import { EVENTS } from '../../utils/constants'
 import useBoundStore from '../../store/store'
+import { EVENTS } from '../../utils/constants'
 
 const TakeAPictureBox = () => {
   const { gl, scene, camera } = useThree()
   const { subscribe, unsubscribe } = useEvent()
-  const hexMap = useBoundStore(s => s.hexMap)
+  const hexMap = useBoundStore((s) => s.hexMap)
   const toggleIsTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
 
   useEffect(() => {
@@ -41,7 +41,15 @@ const TakeAPictureBox = () => {
       unsubscribe(EVENTS.savePng, handleDownloadPng)
       unsubscribe(EVENTS.saveJpg, handleDownloadJpg)
     }
-  }, [camera, gl, scene, toggleIsTakingPicture, subscribe, unsubscribe, hexMap.name])
+  }, [
+    camera,
+    gl,
+    scene,
+    toggleIsTakingPicture,
+    subscribe,
+    unsubscribe,
+    hexMap.name,
+  ])
 
   return <Box args={[0, 0, 0]} />
 }

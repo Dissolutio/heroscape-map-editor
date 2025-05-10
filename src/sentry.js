@@ -1,10 +1,8 @@
-import * as Sentry from "@sentry/react";
+import * as Sentry from '@sentry/react'
 
 Sentry.init({
-  dsn: "https://abf54ce42681460cbea61d773becd43d@o374574.ingest.us.sentry.io/5192792",
-  integrations: [
-    Sentry.replayIntegration(),
-  ],
+  dsn: 'https://abf54ce42681460cbea61d773becd43d@o374574.ingest.us.sentry.io/5192792',
+  integrations: [Sentry.replayIntegration()],
 
   // Set tracesSampleRate to 1.0 to capture 100%
   // of transactions for tracing.
@@ -21,4 +19,4 @@ Sentry.init({
   // https://docs.sentry.io/platforms/javascript/session-replay/configuration/#general-integration-configuration
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
-});
+})

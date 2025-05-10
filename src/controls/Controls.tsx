@@ -1,35 +1,41 @@
 import { Button, Container } from '@mui/material'
-import PieceSizeSelect from './PieceSizeSelect'
+import { buildupJsonFileMap } from '../data/buildupMap'
+import { useLocalPieceInventory } from '../hooks/useLocalPieceInventory'
+import useBoundStore from '../store/store'
+import { BoardPieces } from '../types'
+import {
+  MAX_HEXAGON_MAP_DIMENSION,
+  MAX_RECTANGLE_MAP_DIMENSION,
+} from '../utils/constants'
+import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
+import { decodePieceID, genBoardHexID, genPieceID } from '../utils/map-utils'
 import PenModeControls from './PenModeControls'
+import PieceSizeSelect from './PieceSizeSelect'
 import RotationSelect from './RotationSelect'
 import UndoRedoButtonGroup from './UndoRedoButtonGroup'
 import ViewingLevelInput from './ViewingLevelInput'
-import useBoundStore from '../store/store'
-import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
-import { decodePieceID, genBoardHexID, genPieceID } from '../utils/map-utils'
-import { buildupJsonFileMap } from '../data/buildupMap'
-import { useLocalPieceInventory } from '../hooks/useLocalPieceInventory'
-import { BoardPieces } from '../types'
-import { MAX_HEXAGON_MAP_DIMENSION, MAX_RECTANGLE_MAP_DIMENSION } from '../utils/constants'
 // import LocalStorageList from './LocalStorageList'
 
 const shiftPieces = (direction: number, boardPieces: BoardPieces) => {
-  const newBoardPieces = Object.keys(boardPieces).reduce((prev: any, pid: string) => {
-    const {
-      pieceID,
-      altitude,
-      rotation,
-      // boardHexID,
-      pieceCoords
-    } = decodePieceID(pid)
-    const newPieceCoords = hexUtilsAdd(pieceCoords, HEX_DIRECTIONS[direction])
-    const newBoardHexID = genBoardHexID({ ...newPieceCoords, altitude })
-    const newPieceID = genPieceID(newBoardHexID, pieceID, rotation)
-    return {
-      ...prev,
-      [newPieceID]: pieceID
-    }
-  }, {})
+  const newBoardPieces = Object.keys(boardPieces).reduce(
+    (prev: any, pid: string) => {
+      const {
+        pieceID,
+        altitude,
+        rotation,
+        // boardHexID,
+        pieceCoords,
+      } = decodePieceID(pid)
+      const newPieceCoords = hexUtilsAdd(pieceCoords, HEX_DIRECTIONS[direction])
+      const newBoardHexID = genBoardHexID({ ...newPieceCoords, altitude })
+      const newPieceID = genPieceID(newBoardHexID, pieceID, rotation)
+      return {
+        ...prev,
+        [newPieceID]: pieceID,
+      }
+    },
+    {},
+  )
   return newBoardPieces
 }
 const Controls = () => {
@@ -38,21 +44,23 @@ const Controls = () => {
   const hexMap = useBoundStore((s) => s.hexMap)
   const loadMap = useBoundStore((s) => s.loadMap)
 
-  const inventory = useLocalPieceInventory();
-  const useInventory = 0 < Object.keys(inventory.pieceInventory).reduce(
-    function(sum, key) {
-        return sum + inventory.pieceInventory[key];
-    }, 0);
-  const selectedPiece = useBoundStore(s => s.penMode + s.pieceSize)
+  const inventory = useLocalPieceInventory()
+  console.log('🚀 ~ Controls ~ inventory:', inventory.pieceInventory)
+  const useInventory =
+    0 <
+    Object.keys(inventory.pieceInventory).reduce(function (sum, key) {
+      return sum + inventory.pieceInventory[key]
+    }, 0)
+  const selectedPiece = useBoundStore((s) => s.penMode + s.pieceSize)
   const totalCount = inventory.pieceInventory[selectedPiece]
   const remainingCount = Object.values(boardPieces).reduce((count, val) => {
-	  return val === selectedPiece ? count - 1 : count
+    return val === selectedPiece ? count - 1 : count
   }, totalCount)
 
   const handleClickLogState = () => {
-    console.log("🚀 ~ Controls ~ boardHexes:", boardHexes)
-    console.log("🚀 ~ Controls ~ boardPieces:", boardPieces)
-    console.log("🚀 ~ Controls ~ hexMap:", hexMap)
+    console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
+    console.log('🚀 ~ Controls ~ boardPieces:', boardPieces)
+    console.log('🚀 ~ Controls ~ hexMap:', hexMap)
   }
   // const handleTrimMap = () => {
   //   const boardHexArr = Object.values(boardHexes)
@@ -76,7 +84,7 @@ const Controls = () => {
     const newHexMap = {
       ...hexMap,
       length: hexMap.length + 1,
-      width: hexMap.shape === 'hexagon' ? hexMap.width + 1 : hexMap.width
+      width: hexMap.shape === 'hexagon' ? hexMap.width + 1 : hexMap.width,
     }
     if (hexMap.shape !== 'hexagon') {
       const newMap = buildupJsonFileMap(boardPieces, newHexMap)
@@ -92,7 +100,7 @@ const Controls = () => {
     const newHexMap = {
       ...hexMap,
       length: hexMap.length - 1,
-      width: hexMap.shape !== 'hexagon' ? hexMap.width - 1 : hexMap.width
+      width: hexMap.shape !== 'hexagon' ? hexMap.width - 1 : hexMap.width,
     }
     if (hexMap.shape !== 'hexagon') {
       const newMap = buildupJsonFileMap(boardPieces, newHexMap)
@@ -108,7 +116,7 @@ const Controls = () => {
     const newHexMap = {
       ...hexMap,
       width: hexMap.width + 1,
-      length: hexMap.shape === 'hexagon' ? hexMap.length + 1 : hexMap.length
+      length: hexMap.shape === 'hexagon' ? hexMap.length + 1 : hexMap.length,
     }
     if (hexMap.shape !== 'hexagon') {
       const newMap = buildupJsonFileMap(boardPieces, newHexMap)
@@ -124,7 +132,7 @@ const Controls = () => {
     const newHexMap = {
       ...hexMap,
       width: hexMap.width - 1,
-      length: hexMap.shape !== 'hexagon' ? hexMap.length - 1 : hexMap.length
+      length: hexMap.shape !== 'hexagon' ? hexMap.length - 1 : hexMap.length,
     }
     if (hexMap.shape !== 'hexagon') {
       const newMap = buildupJsonFileMap(boardPieces, newHexMap)
@@ -141,34 +149,56 @@ const Controls = () => {
     <Container sx={{ padding: 1 }}>
       <UndoRedoButtonGroup />
       <PenModeControls />
-      <div style={{ padding: '0px 20px' }}>{ useInventory && !isNaN(remainingCount) ? remainingCount + " remaining" : "" }</div>
+      <div style={{ padding: '0px 20px' }}>
+        {useInventory && !isNaN(remainingCount)
+          ? remainingCount + ' remaining'
+          : ''}
+      </div>
       <PieceSizeSelect />
       <RotationSelect />
       {/* <MapLensToggles /> */}
       <ViewingLevelInput />
       {/* <LocalStorageList /> */}
       <Button
-        disabled={(hexMap.shape === "hexagon" && hexMap.length >= MAX_HEXAGON_MAP_DIMENSION)
-          || (hexMap.shape === "rectangle" && hexMap.length >= MAX_RECTANGLE_MAP_DIMENSION)}
+        disabled={
+          (hexMap.shape === 'hexagon' &&
+            hexMap.length >= MAX_HEXAGON_MAP_DIMENSION) ||
+          (hexMap.shape === 'rectangle' &&
+            hexMap.length >= MAX_RECTANGLE_MAP_DIMENSION)
+        }
         onClick={handleClickAddMapLengthX}
-      >Add length
+      >
+        Add length
       </Button>
       <Button
-        disabled={(hexMap.shape === "hexagon" && hexMap.length <= 1)
-          || (hexMap.shape === "rectangle" && hexMap.length <= 1)}
+        disabled={
+          (hexMap.shape === 'hexagon' && hexMap.length <= 1) ||
+          (hexMap.shape === 'rectangle' && hexMap.length <= 1)
+        }
         onClick={handleClickRemoveMapLengthX}
-      >Remove length
+      >
+        Remove length
       </Button>
       <Button
-        disabled={(hexMap.shape === "hexagon" && hexMap.width >= MAX_HEXAGON_MAP_DIMENSION)
-          || (hexMap.shape === "rectangle" && hexMap.width >= MAX_RECTANGLE_MAP_DIMENSION)}
+        disabled={
+          (hexMap.shape === 'hexagon' &&
+            hexMap.width >= MAX_HEXAGON_MAP_DIMENSION) ||
+          (hexMap.shape === 'rectangle' &&
+            hexMap.width >= MAX_RECTANGLE_MAP_DIMENSION)
+        }
         onClick={handleClickAddMapWidthY}
-      >Add width</Button>
+      >
+        Add width
+      </Button>
       <Button
-        disabled={(hexMap.shape === "hexagon" && hexMap.width <= 1)
-          || (hexMap.shape === "rectangle" && hexMap.width <= 1)}
+        disabled={
+          (hexMap.shape === 'hexagon' && hexMap.width <= 1) ||
+          (hexMap.shape === 'rectangle' && hexMap.width <= 1)
+        }
         onClick={handleClickRemoveMapWidthY}
-      >Remove width</Button>
+      >
+        Remove width
+      </Button>
       <Button onClick={() => movePieces(0)}>East</Button>
       <Button onClick={() => movePieces(1)}>SouthEast</Button>
       <Button onClick={() => movePieces(2)}>SouthWest</Button>

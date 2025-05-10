@@ -1,10 +1,10 @@
 import {
-  VirtualScapeTile,
   BoardHexes,
-  MapState,
   BoardPieces,
   HexMap,
+  MapState,
   Pieces,
+  VirtualScapeTile,
 } from '../types'
 import { hexUtilsOddRToCube } from '../utils/hex-utils'
 import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
@@ -27,41 +27,38 @@ export default function buildupVSFileMap(
   //   .map(t => t.type)
   // )
   // const startZoneTiles = tiles.filter(t => t.type === 15001)
-  const newBoardHexes = tiles.reduce(
-    (boardHexes: BoardHexes, tile) => {
-      const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
-      // if (tile.type === 16101 || tile.type === 16102 || tile.type === 16103) {
-      //   console.log("Castle base found in virtualscape map!", tileCoords, tile.posZ)
-      // }
-      // if (tile.type === 16301) {
-      //   console.log("Battlement found in virtualscape map!", tileCoords, tile.posZ)
-      // }
-      // if (tile.type === 16402) {
-      //   console.log("Ladder found in virtualscape map! Coords, tile.posZ", tileCoords, tile.posZ)
-      // }
-      // if (tile.type === 15001) {
-      //   console.log("Startzone found in virtualscape map!", tileCoords, tile.colorf)
-      // }
-      const id = pieceCodes?.[getCodeForVSPersonalTile(tile)] ?? ''
-      const piece = piecesSoFar[id]
-      if (!piece) {
-        return boardHexes // Should probably handle this different, errors etc.
-      }
-      // get the new board hexes and new board pieces
-      const { newBoardHexes, newBoardPieces } = addPiece({
-        piece,
-        boardHexes,
-        boardPieces,
-        pieceCoords: tileCoords,
-        placementAltitude: tile.posZ, // z is altitude is virtualscape, y is altitude in our app
-        rotation: tile.rotation,
-        isVsTile: true,
-      })
-      boardPieces = newBoardPieces
-      return newBoardHexes
-    },
-    boardHexes,
-  )
+  const newBoardHexes = tiles.reduce((boardHexes: BoardHexes, tile) => {
+    const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
+    // if (tile.type === 16101 || tile.type === 16102 || tile.type === 16103) {
+    //   console.log("Castle base found in virtualscape map!", tileCoords, tile.posZ)
+    // }
+    // if (tile.type === 16301) {
+    //   console.log("Battlement found in virtualscape map!", tileCoords, tile.posZ)
+    // }
+    // if (tile.type === 16402) {
+    //   console.log("Ladder found in virtualscape map! Coords, tile.posZ", tileCoords, tile.posZ)
+    // }
+    // if (tile.type === 15001) {
+    //   console.log("Startzone found in virtualscape map!", tileCoords, tile.colorf)
+    // }
+    const id = pieceCodes?.[getCodeForVSPersonalTile(tile)] ?? ''
+    const piece = piecesSoFar[id]
+    if (!piece) {
+      return boardHexes // Should probably handle this different, errors etc.
+    }
+    // get the new board hexes and new board pieces
+    const { newBoardHexes, newBoardPieces } = addPiece({
+      piece,
+      boardHexes,
+      boardPieces,
+      pieceCoords: tileCoords,
+      placementAltitude: tile.posZ, // z is altitude is virtualscape, y is altitude in our app
+      rotation: tile.rotation,
+      isVsTile: true,
+    })
+    boardPieces = newBoardPieces
+    return newBoardHexes
+  }, boardHexes)
   return {
     boardHexes: newBoardHexes,
     hexMap: hexMap,
@@ -112,14 +109,16 @@ export function buildupJsonFileMap(
       mapName: hexMap.name,
     }).boardHexes
   }
-  const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(Object.keys(boardPieces))
+  const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(
+    Object.keys(boardPieces),
+  )
   const newBoardHexes = piecesArray.reduce(
     (boardHexes: BoardHexes, pieceAqrrID): BoardHexes => {
       const {
         pieceCoords,
         altitude: placementAltitude,
         rotation,
-        pieceID
+        pieceID,
       } = decodePieceID(pieceAqrrID)
       const piece = piecesSoFar[pieceID]
       if (!piece) {
@@ -154,8 +153,8 @@ function getBlankHexoscapeMapForVSTiles(
   // cushions have to be an even number because of the coordinate system used in virtualscape
   const cushionToPadY = 8 // 24-hexer's max Y displacement in vscape
   const cushionToPadX = 6 // 24-hexer's max X displacement in vscape
-  const xMin = Math.min(...tiles.map((t) => t.posX - cushionToPadX) ?? 0)
-  const yMin = Math.min(...tiles.map((t) => t.posY - cushionToPadY) ?? 0)
+  const xMin = Math.min(...(tiles.map((t) => t.posX - cushionToPadX) ?? 0))
+  const yMin = Math.min(...(tiles.map((t) => t.posY - cushionToPadY) ?? 0))
   // remove as many empty hexes as possible from the empty grid we are going to generate
   const xIncrementsWorthEmpty = Math.floor(xMin / 2)
   const yIncrementsWorthEmpty = Math.floor(yMin / 2)
@@ -171,8 +170,8 @@ function getBlankHexoscapeMapForVSTiles(
     })
   }
   // these are the dimensions of the empty map to generate
-  const length = Math.max(...tiles.map((t) => t.posY + cushionToPadY) ?? 0)
-  const width = Math.max(...tiles.map((t) => t.posX + cushionToPadX) ?? 0)
+  const length = Math.max(...(tiles.map((t) => t.posY + cushionToPadY) ?? 0))
+  const width = Math.max(...(tiles.map((t) => t.posX + cushionToPadX) ?? 0))
 
   return makeRectangleScenario({
     length,

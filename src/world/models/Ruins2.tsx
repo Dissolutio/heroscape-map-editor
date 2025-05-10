@@ -1,20 +1,18 @@
 import { useGLTF } from '@react-three/drei'
 import { ThreeEvent } from '@react-three/fiber'
-import { BoardHex, HexTerrain } from '../../types'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
+import { BoardHex, HexTerrain } from '../../types'
+import { HEXGRID_HEX_HEIGHT } from '../../utils/constants'
 import { getBoardHex3DCoords } from '../../utils/map-utils'
-import {
-  HEXGRID_HEX_HEIGHT,
-} from '../../utils/constants'
+import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { getRuinsOptions } from './piece-adjustments'
 
 export default function Ruins2({
   boardHex,
 }: {
-  boardHex: BoardHex,
+  boardHex: BoardHex
 }) {
   const {
     nodes,
@@ -25,12 +23,9 @@ export default function Ruins2({
   const options = getRuinsOptions(boardHex.pieceRotation)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
-  const {
-    isHovered,
-    onPointerEnter,
-    onPointerOut,
-  } = usePieceHoverState(isVisible)
-  const toggleSelectedPieceID = useBoundStore(s => s.toggleSelectedPieceID)
+  const { isHovered, onPointerEnter, onPointerOut } =
+    usePieceHoverState(isVisible)
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
       return
@@ -42,7 +37,7 @@ export default function Ruins2({
     }
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
-  const selectedPieceID = useBoundStore(s => s.selectedPieceID)
+  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = isHovered || isSelected
@@ -52,13 +47,11 @@ export default function Ruins2({
       position={[x + options.xAdd, y, z + options.zAdd]}
       rotation={[0, options.rotationY, 0]}
     >
-      {(isSelected) && (
-        <DeletePieceBillboard pieceID={boardHex.pieceID} y={3} />
-      )}
+      {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={3} />}
       <mesh
-        onPointerUp={e => onPointerUp(e)}
-        onPointerEnter={e => onPointerEnter(e, boardHex)}
-        onPointerOut={e => onPointerOut(e)}
+        onPointerUp={(e) => onPointerUp(e)}
+        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerOut={(e) => onPointerOut(e)}
         geometry={nodes.Ruin_Small_Scanned.geometry}
       >
         <meshMatcapMaterial color={color} />

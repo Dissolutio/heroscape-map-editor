@@ -1,16 +1,20 @@
 import { Vector3 } from 'three'
 import { BoardHex, BoardHexes, BoardPieces, CubeCoordinate } from '../types'
 import {
+  HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEX_APOTHEM,
   HEXGRID_HEX_HEIGHT,
   HEXGRID_HEX_RADIUS,
   HEXGRID_SPACING,
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
-  SVG_HEX_RADIUS,
   SVG_HEX_APOTHEM,
+  SVG_HEX_RADIUS,
 } from './constants'
-import { cubeToPixel, hexUtilsAdd, hexUtilsGetNeighborForRotation, hexUtilsGetRadialFarNeighborForRotation } from './hex-utils'
-
+import {
+  cubeToPixel,
+  hexUtilsAdd,
+  hexUtilsGetNeighborForRotation,
+  hexUtilsGetRadialFarNeighborForRotation,
+} from './hex-utils'
 
 export const getBoardHexesRectangularMapDimensions = (
   boardHexes: BoardHexes,
@@ -43,26 +47,24 @@ export const getBoardHexesRectangularMapDimensions = (
     ),
   )
   const hexLength = qPlusSMax - qPlusSMin + 1
-  const length = (
-    (
-      (2 * HEXGRID_HEX_RADIUS) + // 2 for the first row
+  const length =
+    (2 * HEXGRID_HEX_RADIUS + // 2 for the first row
       // 1.5 for each row after that (the short leg from a vertex to the perpendicular shortdiagonal is 1/2 radius)
-      Math.floor(hexLength - 1) * 1.5 * HEXGRID_HEX_RADIUS
-    ) / HEXGRID_SPACING
-  )
+      Math.floor(hexLength - 1) * 1.5 * HEXGRID_HEX_RADIUS) /
+    HEXGRID_SPACING
   const hexWidth = Math.floor((sMinusQMax - sMinusQMin) / 2 + 1)
-  const width = (
+  const width =
     // the short diagonal of the first hex, if height is 1
-    (hexLength === 1 ? (2 * HEXGRID_HEX_APOTHEM)
-      // otherwise, also the next half from 2nd row
-      : (3 * HEXGRID_HEX_APOTHEM))
-    +
-    (hexWidth - 1) * 2 * HEXGRID_HEX_APOTHEM
-  ) / HEXGRID_SPACING
+    ((hexLength === 1
+      ? 2 * HEXGRID_HEX_APOTHEM
+      : // otherwise, also the next half from 2nd row
+        3 * HEXGRID_HEX_APOTHEM) +
+      (hexWidth - 1) * 2 * HEXGRID_HEX_APOTHEM) /
+    HEXGRID_SPACING
   const apex =
     Math.max(...Object.values(boardHexes).map((hex) => hex.altitude)) *
     HEXGRID_HEX_HEIGHT
-  return { length, width, apex, hexLength, hexWidth, }
+  return { length, width, apex, hexLength, hexWidth }
 }
 export const getBoardHexesSvgMapDimensions = (
   boardHexes: BoardHexes,
@@ -94,23 +96,21 @@ export const getBoardHexesSvgMapDimensions = (
     ),
   )
   const hexLength = qPlusSMax - qPlusSMin + 1
-  const length = (
-    (
-      (2 * SVG_HEX_RADIUS) + // 2 for the first row
+  const length =
+    (2 * SVG_HEX_RADIUS + // 2 for the first row
       // 1.5 for each row after that (the short leg from a vertex to the perpendicular shortdiagonal is 1/2 radius)
-      Math.floor(hexLength - 1) * 1.5 * SVG_HEX_RADIUS
-    ) / HEXGRID_SPACING
-  )
+      Math.floor(hexLength - 1) * 1.5 * SVG_HEX_RADIUS) /
+    HEXGRID_SPACING
   const hexWidth = Math.floor((sMinusQMax - sMinusQMin) / 2 + 1)
-  const width = (
+  const width =
     // the short diagonal of the first hex, if height is 1
-    (hexLength === 1 ? (2 * SVG_HEX_APOTHEM)
-      // otherwise, also the next half from 2nd row
-      : (3 * SVG_HEX_APOTHEM))
-    +
-    (hexWidth - 1) * 2 * SVG_HEX_APOTHEM
-  ) / HEXGRID_SPACING
-  return { length, width, hexLength, hexWidth, }
+    ((hexLength === 1
+      ? 2 * SVG_HEX_APOTHEM
+      : // otherwise, also the next half from 2nd row
+        3 * SVG_HEX_APOTHEM) +
+      (hexWidth - 1) * 2 * SVG_HEX_APOTHEM) /
+    HEXGRID_SPACING
+  return { length, width, hexLength, hexWidth }
 }
 export const getBoardHex3DCoords = (
   hex: CubeCoordinate & { altitude: number },
@@ -130,7 +130,7 @@ export const getBoardHex3DCoords = (
     yBaseCap,
     yWithBase,
     yBase,
-    yJungle
+    yJungle,
   }
 }
 export const hexUtilsHexToPixel = (
@@ -144,23 +144,42 @@ export const getHexNeighborByRotAlt = (
   hex: BoardHex,
   boardHexes: BoardHexes,
   rotation: number,
-  altitudeDelta?: number
+  altitudeDelta?: number,
 ) => {
   let neighborCoord: CubeCoordinate
   if (Number.isInteger(rotation)) {
-    neighborCoord = hexUtilsAdd({ q: hex.q, r: hex.r, s: hex.s }, hexUtilsGetNeighborForRotation(rotation))
+    neighborCoord = hexUtilsAdd(
+      { q: hex.q, r: hex.r, s: hex.s },
+      hexUtilsGetNeighborForRotation(rotation),
+    )
   } else {
-    neighborCoord = hexUtilsAdd({ q: hex.q, r: hex.r, s: hex.s }, hexUtilsGetRadialFarNeighborForRotation(rotation))
+    neighborCoord = hexUtilsAdd(
+      { q: hex.q, r: hex.r, s: hex.s },
+      hexUtilsGetRadialFarNeighborForRotation(rotation),
+    )
   }
   // main thing is the lower altitude of 1, otherwise this would work for regular land hexes too
-  return boardHexes[genBoardHexID({ ...neighborCoord, altitude: hex.altitude + (altitudeDelta ?? 0) })]
+  return boardHexes[
+    genBoardHexID({
+      ...neighborCoord,
+      altitude: hex.altitude + (altitudeDelta ?? 0),
+    })
+  ]
 }
 export const getHexNearNeighborByRotation = (
   hex: BoardHex,
   boardHexes: BoardHexes,
-  rotation: number
+  rotation: number,
 ) => {
-  return boardHexes[genBoardHexID({ ...hexUtilsAdd({ q: hex.q, r: hex.r, s: hex.s }, hexUtilsGetNeighborForRotation(rotation)), altitude: hex.altitude })]
+  return boardHexes[
+    genBoardHexID({
+      ...hexUtilsAdd(
+        { q: hex.q, r: hex.r, s: hex.s },
+        hexUtilsGetNeighborForRotation(rotation),
+      ),
+      altitude: hex.altitude,
+    })
+  ]
 }
 const halfASideLength = HEXGRID_HEX_RADIUS / 2
 export const hexPointsFromCenter = {
@@ -202,7 +221,7 @@ export function decodePieceID(aqrrID: string) {
     altitude,
     rotation,
     boardHexID: genBoardHexID({ ...pieceCoords, altitude }),
-    pieceCoords
+    pieceCoords,
   }
 }
 export function genBoardHexID(hex: CubeCoordinate & { altitude: number }) {
@@ -213,8 +232,10 @@ export function genBoardHexID(hex: CubeCoordinate & { altitude: number }) {
   return `${hex.altitude}~${hex.q}~${hex.r}`
 }
 export const getBoardPiecesMaxLevel = (boardPieces: BoardPieces) => {
-  const maxLevel = 1 + Object.keys(boardPieces)
-    .map(bp => decodePieceID(bp).altitude) // get their altitudes
-    .sort((a, b) => b - a)[0] // sort them high to low and grab the first
+  const maxLevel =
+    1 +
+    Object.keys(boardPieces)
+      .map((bp) => decodePieceID(bp).altitude) // get their altitudes
+      .sort((a, b) => b - a)[0] // sort them high to low and grab the first
   return Number.isNaN(maxLevel) ? 0 : maxLevel
 }

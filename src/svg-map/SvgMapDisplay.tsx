@@ -1,30 +1,30 @@
-import { useRef, useState, useEffect } from 'react';
-import { SvgMapHex } from './SvgMapHex';
-import { getBoardHexesSvgMapDimensions } from '../utils/map-utils';
-import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils';
-import { getHexagonSvgPolygonPoints } from './getHexagonSvgPolygonPoints';
-import { SVG_HEX_RADIUS } from '../utils/constants';
-import { SvgInterlockClipPaths } from './svg-hex-interlock-clippath';
-import useBoundStore from '../store/store';
+import { useEffect, useRef, useState } from 'react'
+import useBoundStore from '../store/store'
+import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
+import { SVG_HEX_RADIUS } from '../utils/constants'
+import { getBoardHexesSvgMapDimensions } from '../utils/map-utils'
+import { SvgMapHex } from './SvgMapHex'
+import { getHexagonSvgPolygonPoints } from './getHexagonSvgPolygonPoints'
+import { SvgInterlockClipPaths } from './svg-hex-interlock-clippath'
 
 export const SvgMapDisplay = () => {
   const boardHexes = useBoundStore((state) => state.boardHexes)
-  const { points } = getHexagonSvgPolygonPoints(SVG_HEX_RADIUS);
-  const mapDimensions = getBoardHexesSvgMapDimensions(boardHexes);
-  const boardHexesArr = Object.values(getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes)).sort(
-    (a, b) => a.altitude - b.altitude,
-  );
+  const { points } = getHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
+  const mapDimensions = getBoardHexesSvgMapDimensions(boardHexes)
+  const boardHexesArr = Object.values(
+    getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
+  ).sort((a, b) => a.altitude - b.altitude)
 
-  const svgRef = useRef<SVGSVGElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null)
   const [viewBox, setViewBox] = useState({
     x: 0,
     y: 0,
     width: mapDimensions.width,
     height: mapDimensions.length,
-  });
+  })
 
-  const pointerOrigin = useRef({ x: 0, y: 0 });
-  const isPointerDown = useRef(false);
+  const pointerOrigin = useRef({ x: 0, y: 0 })
+  const isPointerDown = useRef(false)
 
   // Effect to update the viewBox when map dimensions change
   useEffect(() => {
@@ -33,38 +33,38 @@ export const SvgMapDisplay = () => {
       y: 0,
       width: getBoardHexesSvgMapDimensions(boardHexes).width,
       height: getBoardHexesSvgMapDimensions(boardHexes).length,
-    });
-  }, [boardHexes]);
+    })
+  }, [boardHexes])
 
   const onPointerDown = (event: React.PointerEvent) => {
-    isPointerDown.current = true;
-    pointerOrigin.current = { x: event.clientX, y: event.clientY };
-  };
+    isPointerDown.current = true
+    pointerOrigin.current = { x: event.clientX, y: event.clientY }
+  }
 
   const onPointerMove = (event: React.PointerEvent) => {
-    if (!isPointerDown.current) return;
+    if (!isPointerDown.current) return
 
-    const svg = svgRef.current;
-    if (!svg) return;
-    event.preventDefault();
-    const pointerPosition = { x: event.clientX, y: event.clientY };
-    const dx = pointerPosition.x - pointerOrigin.current.x;
-    const dy = pointerPosition.y - pointerOrigin.current.y;
+    const svg = svgRef.current
+    if (!svg) return
+    event.preventDefault()
+    const pointerPosition = { x: event.clientX, y: event.clientY }
+    const dx = pointerPosition.x - pointerOrigin.current.x
+    const dy = pointerPosition.y - pointerOrigin.current.y
 
-    const ratio = viewBox.width / svg.getBoundingClientRect().width;
+    const ratio = viewBox.width / svg.getBoundingClientRect().width
 
     setViewBox((prev) => ({
       ...prev,
       x: prev.x - dx * ratio,
       y: prev.y - dy * ratio,
-    }));
+    }))
 
-    pointerOrigin.current = pointerPosition;
-  };
+    pointerOrigin.current = pointerPosition
+  }
 
   const onPointerUp = () => {
-    isPointerDown.current = false;
-  };
+    isPointerDown.current = false
+  }
 
   return (
     <svg
@@ -101,5 +101,5 @@ export const SvgMapDisplay = () => {
         <SvgMapHex key={hex.id} hex={hex} />
       ))}
     </svg>
-  );
-};
+  )
+}

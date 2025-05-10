@@ -5,12 +5,15 @@ import { FcCancel } from 'react-icons/fc'
 import useBoundStore from '../../store/store'
 import { Pieces } from '../../types'
 
-type Props = { pieceID: string, y?: number }
+type Props = { pieceID: string; y?: number }
 
 const DeletePieceBillboard = ({ pieceID, y = 0 }: Props) => {
-  const removePieceByPieceID = useBoundStore(s => s.removePieceByPieceID)
+  const removePieceByPieceID = useBoundStore((s) => s.removePieceByPieceID)
   const onClickDeletePiece = (e: React.PointerEvent<HTMLButtonElement>) => {
-    if (pieceID.includes(Pieces.roadWall) || pieceID.includes(Pieces.battlement)) {
+    if (
+      pieceID.includes(Pieces.roadWall) ||
+      pieceID.includes(Pieces.battlement)
+    ) {
       e?.stopPropagation()
       removePieceByPieceID(pieceID)
     }
@@ -19,13 +22,12 @@ const DeletePieceBillboard = ({ pieceID, y = 0 }: Props) => {
   return (
     <Billboard position={[0.5, 1 + y, 0]}>
       <Html>
-        <Tooltip
-          title={'Delete piece'}
-        >
+        <Tooltip title={'Delete piece'}>
           <Button
-            sx={{ backgroundColor: ('var(--black)') }}
-            variant='contained' size="small"
-            onPointerDown={e => e?.stopPropagation()}
+            sx={{ backgroundColor: 'var(--black)' }}
+            variant="contained"
+            size="small"
+            onPointerDown={(e) => e?.stopPropagation()}
             onPointerUp={onClickDeletePiece}
           >
             <FcCancel />
@@ -34,6 +36,5 @@ const DeletePieceBillboard = ({ pieceID, y = 0 }: Props) => {
       </Html>
     </Billboard>
   )
-
 }
 export default DeletePieceBillboard

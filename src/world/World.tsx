@@ -1,28 +1,35 @@
-import React from 'react'
-import { Canvas } from '@react-three/fiber'
-import { CameraControls, OrthographicCamera, PerspectiveCamera, Stats } from '@react-three/drei'
-import Lights from './Lights'
-import MyCameraControls from './camera/MyCameraControls'
-import MapDisplay3D from './MapDisplay3D'
-import * as THREE from 'three'
-import useBoundStore from '../store/store'
-import TakeAPictureBox from './camera/TakeAPictureBox'
 import { ClickAwayListener } from '@mui/material'
-import { CAMERA_FOV } from '../utils/constants'
+import {
+  CameraControls,
+  OrthographicCamera,
+  PerspectiveCamera,
+  Stats,
+} from '@react-three/drei'
+import { Canvas } from '@react-three/fiber'
+import React from 'react'
+import * as THREE from 'three'
 import SelectedPieceReadout from '../controls/SelectedPieceReadout'
+import useBoundStore from '../store/store'
+import { CAMERA_FOV } from '../utils/constants'
+import Lights from './Lights'
+import MapDisplay3D from './MapDisplay3D'
+import MyCameraControls from './camera/MyCameraControls'
+import TakeAPictureBox from './camera/TakeAPictureBox'
 
 const World = ({
   cameraControlsRef,
-  isHidden
+  isHidden,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   isHidden: boolean
 }) => {
-  const mapGroupRef = React.useRef<THREE.Group<THREE.Object3DEventMap>>(undefined!)
-  const isOrthoCam = useBoundStore(s => s.isOrthoCam)
+  const mapGroupRef = React.useRef<THREE.Group<THREE.Object3DEventMap>>(
+    undefined!,
+  )
+  const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)
-  const toggleHoveredPieceID = useBoundStore(s => s.toggleHoveredPieceID)
-  const toggleSelectedPieceID = useBoundStore(s => s.toggleSelectedPieceID)
+  const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const handleClickAway = () => {
     toggleHoveredPieceID('')
     toggleSelectedPieceID('')
@@ -60,10 +67,17 @@ const World = ({
             fov={CAMERA_FOV}
             makeDefault={!isOrthoCam}
           />
-          <OrthographicCamera position={[100, 1000, 100]} zoom={30} makeDefault={isOrthoCam} />
+          <OrthographicCamera
+            position={[100, 1000, 100]}
+            zoom={30}
+            makeDefault={isOrthoCam}
+          />
           {/* Stats displays the fps */}
           {!isHidden && <Stats className="stats-panel" />}
-          <MapDisplay3D mapGroupRef={mapGroupRef} cameraControlsRef={cameraControlsRef} />
+          <MapDisplay3D
+            mapGroupRef={mapGroupRef}
+            cameraControlsRef={cameraControlsRef}
+          />
           <Lights />
           {/* {!isTakingPicture && <GridHelper />} */}
           <MyCameraControls

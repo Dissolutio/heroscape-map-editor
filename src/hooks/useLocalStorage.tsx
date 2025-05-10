@@ -15,7 +15,6 @@ import { useEffect, useState } from 'react'
 // };
 // console.log("Total = " + (_lsTotal / 1024).toFixed(2) + " KB");
 
-
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,

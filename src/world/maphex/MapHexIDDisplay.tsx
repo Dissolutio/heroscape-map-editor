@@ -23,10 +23,20 @@ export const MapHexIDDisplay = ({
   grid works (you can see vertical-clearance hexes, empty hexes)
   */
   // if (!boardHex.isCap) return null
-  if (!boardHex.isCap && !(boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)) return null // filters out vertical clearance
+  if (
+    !boardHex.isCap &&
+    !(boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
+  )
+    return null // filters out vertical clearance
   // if (boardHex.terrain === HexTerrain.empty) return null
   return (
-    <Billboard position={[position.x, position.y + ((boardHex?.obstacleHeight ?? 0) * HEXGRID_HEX_HEIGHT), position.z]}>
+    <Billboard
+      position={[
+        position.x,
+        position.y + (boardHex?.obstacleHeight ?? 0) * HEXGRID_HEX_HEIGHT,
+        position.z,
+      ]}
+    >
       <Text fontSize={0.2} color={new Color('black')}>
         {/* {`${boardHex.terrain}:${boardHex.id}`} */}
         {/* {`${boardHex.id}`} */}

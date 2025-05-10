@@ -3,9 +3,7 @@ import { hexUtilsGenHexagonGrid, hexUtilsGenRectangleGrid } from './hex-utils'
 import { genBoardHexID } from './map-utils'
 
 export const generateHexagon = (mapSize: number): BoardHexes => {
-  const boardHexes = hexesToEmptyBoardHexes(
-    hexUtilsGenHexagonGrid(mapSize)
-  )
+  const boardHexes = hexesToEmptyBoardHexes(hexUtilsGenHexagonGrid(mapSize))
   return boardHexes
 }
 

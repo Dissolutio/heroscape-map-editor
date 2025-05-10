@@ -1,8 +1,8 @@
+import { produce } from 'immer'
 import { StateCreator } from 'zustand'
+import { addPiece } from '../data/addPiece'
 import { BoardHex, MapState, Piece } from '../types'
 import { AppState } from './store'
-import { produce } from 'immer'
-import { addPiece } from '../data/addPiece'
 
 export interface MapSlice extends MapState {
   paintTile: (args: PaintTileArgs) => void

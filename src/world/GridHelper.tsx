@@ -1,5 +1,5 @@
-import { HEXGRID_HEX_HEIGHT } from '../utils/constants'
 import { Vector3 } from 'three'
+import { HEXGRID_HEX_HEIGHT } from '../utils/constants'
 
 const GridHelper = () => {
   // cellSize: { value: 0.6, min: 0, max: 10, step: 0.1 },

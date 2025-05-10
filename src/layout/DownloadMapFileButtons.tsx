@@ -1,9 +1,9 @@
 import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import { MdFolderZip } from 'react-icons/md'
 import useBoundStore from '../store/store'
-import { encodeFilename } from '../utils/map-utils'
 import { BoardPieces, HexMap } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
+import { encodeFilename } from '../utils/map-utils'
 
 const DownloadMapFileButtons = () => {
   const hexMap = useBoundStore((state) => state.hexMap)
@@ -47,8 +47,8 @@ const DownloadMapFileButtons = () => {
     element.setAttribute(
       'href',
       `data:application/x-ndjson;charset=utf-8,${encodeURIComponent(
-        JSON.stringify(data)
-      )}`
+        JSON.stringify(data),
+      )}`,
     )
     element.setAttribute('download', filename)
     element.style.display = 'none'
@@ -58,20 +58,14 @@ const DownloadMapFileButtons = () => {
   }
   return (
     <>
-      <ListItemButton
-        sx={{ pl: 4 }}
-        onClick={handleClickExportGzip}
-      >
+      <ListItemButton sx={{ pl: 4 }} onClick={handleClickExportGzip}>
         <ListItemIcon>
           <MdFolderZip />
         </ListItemIcon>
         <ListItemText primary="Download file (.gz)" />
       </ListItemButton>
 
-      <ListItemButton
-        sx={{ pl: 4 }}
-        onClick={handleClickExportJson}
-      >
+      <ListItemButton sx={{ pl: 4 }} onClick={handleClickExportJson}>
         <ListItemIcon>
           <MdFolderZip />
         </ListItemIcon>

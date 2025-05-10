@@ -1,32 +1,36 @@
-import SpeedDial from '@mui/material/SpeedDial';
-import SpeedDialAction from '@mui/material/SpeedDialAction';
-import React from 'react';
-import useBoundStore from '../store/store';
-import useEvent from '../hooks/useEvent';
-import { EVENTS } from '../utils/constants';
-import { CameraControls } from '@react-three/drei';
-import { FcCamcorderPro, FcNoVideo, FcOldTimeCamera, FcSwitchCamera, FcSynchronize, FcVideoCall } from 'react-icons/fc';
-import { useHotkeys } from 'react-hotkeys-hook';
-
+import SpeedDial from '@mui/material/SpeedDial'
+import SpeedDialAction from '@mui/material/SpeedDialAction'
+import { CameraControls } from '@react-three/drei'
+import React from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
+import {
+  FcCamcorderPro,
+  FcNoVideo,
+  FcOldTimeCamera,
+  FcSwitchCamera,
+  FcSynchronize,
+  FcVideoCall,
+} from 'react-icons/fc'
+import useEvent from '../hooks/useEvent'
+import useBoundStore from '../store/store'
+import { EVENTS } from '../utils/constants'
 
 export default function CameraSpeedDial({
   cameraControlsRef,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
 }) {
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [open, setOpen] = React.useState(false)
+  const handleOpen = () => setOpen(true)
+  const handleClose = () => setOpen(false)
   const { publish } = useEvent()
   const toggleIsTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
   const isTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
 
-  const toggleIsOrthoCam = useBoundStore(s => s.toggleIsOrthoCam)
-  const isOrthoCam = useBoundStore(s => s.isOrthoCam)
+  const toggleIsOrthoCam = useBoundStore((s) => s.toggleIsOrthoCam)
+  const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const isCamerDisabled = useBoundStore((s) => s.isCameraDisabled)
-  const toggleIsCameraDisabled = useBoundStore(
-    (s) => s.toggleIsCameraDisabled,
-  )
+  const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
   // const onClickDisableCamera = (e: any) => {
   //   const targetId = e?.nativeEvent?.target?.id ?? ''
   //   const classList = Array.from(e?.nativeEvent?.target?.classList ?? [])
@@ -37,11 +41,11 @@ export default function CameraSpeedDial({
   // }
 
   // this timeout gives the World enough time to re-render without empty hexes etc.
-  const takePictureTimeout = React.useRef<number>(null!);
+  const takePictureTimeout = React.useRef<number>(null!)
   // effect: clear the timeout after we take a picture
   React.useEffect(() => {
     if (!isTakingPicture) {
-      clearTimeout(takePictureTimeout.current);
+      clearTimeout(takePictureTimeout.current)
     }
   }, [isTakingPicture])
 
@@ -64,24 +68,24 @@ export default function CameraSpeedDial({
     toggleIsTakingPicture(true)
     takePictureTimeout.current = window.setTimeout(() => {
       publish(EVENTS.saveJpg)
-    }, 100); // Long enough to make some changes to the map and render
+    }, 100) // Long enough to make some changes to the map and render
   }
 
   return (
     <SpeedDial
       ariaLabel="3D camera controls menu"
-      sx={
-        {
-          position: 'absolute',
-          bottom: 16,
-          left: '2rem',
+      sx={{
+        position: 'absolute',
+        bottom: 16,
+        left: '2rem',
 
-          // Style the button red when camera is disabled
-          ['.MuiSpeedDial-fab']: {
-            ...(isCamerDisabled ? { backgroundColor: 'red', color: 'white' } : {})
-          }
-        }
-      }
+        // Style the button red when camera is disabled
+        ['.MuiSpeedDial-fab']: {
+          ...(isCamerDisabled
+            ? { backgroundColor: 'red', color: 'white' }
+            : {}),
+        },
+      }}
       icon={<FcCamcorderPro />}
       transitionDuration={100}
       direction="right"
@@ -90,16 +94,12 @@ export default function CameraSpeedDial({
       onOpen={handleOpen}
     >
       <SpeedDialAction
-        icon={isCamerDisabled ?
-          <FcVideoCall
-            id={id2}
-          />
-          :
-          <FcNoVideo
-            id={id1}
-          />
+        icon={
+          isCamerDisabled ? <FcVideoCall id={id2} /> : <FcNoVideo id={id1} />
         }
-        tooltipTitle={isCamerDisabled ? "Unlock camera controls" : "Lock camera controls"}
+        tooltipTitle={
+          isCamerDisabled ? 'Unlock camera controls' : 'Lock camera controls'
+        }
         onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
       />
       <SpeedDialAction
@@ -109,7 +109,11 @@ export default function CameraSpeedDial({
       />
       <SpeedDialAction
         icon={<FcSwitchCamera />}
-        tooltipTitle={isOrthoCam ? 'Switch to perspective camera' : 'Switch to orthographic camera'}
+        tooltipTitle={
+          isOrthoCam
+            ? 'Switch to perspective camera'
+            : 'Switch to orthographic camera'
+        }
         onClick={handleToggleOrthoCam}
       />
       {/* <SpeedDialAction
@@ -120,9 +124,9 @@ export default function CameraSpeedDial({
       <SpeedDialAction
         icon={<FcOldTimeCamera />}
         tooltipTitle={'Take map picture .JPG'}
-        aria-label='Camera take map picture and save as JPG'
+        aria-label="Camera take map picture and save as JPG"
         onClick={handleTakePictureJpg}
       />
     </SpeedDial>
-  );
+  )
 }

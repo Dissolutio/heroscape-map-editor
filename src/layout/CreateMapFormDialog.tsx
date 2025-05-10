@@ -1,25 +1,28 @@
-import * as React from 'react'
+import { Box, IconButton, useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
+import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormLabel from '@mui/material/FormLabel'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormControl from '@mui/material/FormControl'
-import FormLabel from '@mui/material/FormLabel'
-import Slider from '@mui/material/Slider';
-import { Box, IconButton, useMediaQuery } from '@mui/material'
-import { genRandomMapName } from '../utils/genRandomMapName'
-import useBoundStore from '../store/store'
+import Slider from '@mui/material/Slider'
+import TextField from '@mui/material/TextField'
 import { useSnackbar } from 'notistack'
-import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
+import * as React from 'react'
+import { MdAutorenew } from 'react-icons/md'
 import { useLocation } from 'wouter'
 import { ROUTES } from '../ROUTES'
-import { MAX_HEXAGON_MAP_DIMENSION, MAX_RECTANGLE_MAP_DIMENSION } from '../utils/constants'
-import { MdAutorenew } from 'react-icons/md'
+import useBoundStore from '../store/store'
+import {
+  MAX_HEXAGON_MAP_DIMENSION,
+  MAX_RECTANGLE_MAP_DIMENSION,
+} from '../utils/constants'
+import { genRandomMapName } from '../utils/genRandomMapName'
+import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
 
 const hexagonMarks = [
   {
@@ -34,7 +37,7 @@ const hexagonMarks = [
     value: 14,
     label: 'Large',
   },
-];
+]
 const rectangleMarks = [
   {
     value: 12,
@@ -48,37 +51,41 @@ const rectangleMarks = [
     value: 25,
     label: 'Large',
   },
-];
-
+]
 
 export default function CreateMapFormDialog() {
-  const [, navigate] = useLocation();
-  const fullScreen = useMediaQuery('(max-width:900px)');
+  const [, navigate] = useLocation()
+  const fullScreen = useMediaQuery('(max-width:900px)')
   const loadMap = useBoundStore((state) => state.loadMap)
   const { clear: clearUndoHistory } = useBoundStore.temporal.getState()
-  const toggleIsNewMapDialogOpen = useBoundStore((state) => state.toggleIsNewMapDialogOpen)
+  const toggleIsNewMapDialogOpen = useBoundStore(
+    (state) => state.toggleIsNewMapDialogOpen,
+  )
   const isNewMapDialogOpen = useBoundStore((state) => state.isNewMapDialogOpen)
   const handleClose = () => toggleIsNewMapDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
   // new map form state
-  const [mapName, setMapName] = React.useState(() => genRandomMapName());
-  const [mapShape, setMapShape] = React.useState('rectangle');
+  const [mapName, setMapName] = React.useState(() => genRandomMapName())
+  const [mapShape, setMapShape] = React.useState('rectangle')
   const handleChangeMapShape = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMapShape((event.target as HTMLInputElement).value);
-  };
-  const [mapWidth, setMapWidth] = React.useState(20);
-  const [mapLength, setMapLength] = React.useState(20);
-  const [mapSize, setMapSize] = React.useState(10);
+    setMapShape((event.target as HTMLInputElement).value)
+  }
+  const [mapWidth, setMapWidth] = React.useState(20)
+  const [mapLength, setMapLength] = React.useState(20)
+  const [mapSize, setMapSize] = React.useState(10)
 
   const handleSubmit = () => {
-    const newMap = mapShape === 'rectangle' ? makeRectangleScenario({
-      mapName,
-      width: mapWidth,
-      length: mapLength,
-    }) : makeHexagonScenario({
-      mapName,
-      size: mapSize
-    })
+    const newMap =
+      mapShape === 'rectangle'
+        ? makeRectangleScenario({
+            mapName,
+            width: mapWidth,
+            length: mapLength,
+          })
+        : makeHexagonScenario({
+            mapName,
+            size: mapSize,
+          })
     loadMap(newMap)
     clearUndoHistory()
     navigate(ROUTES.heroscapeHome)
@@ -119,7 +126,7 @@ export default function CreateMapFormDialog() {
               required
               value={mapName}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setMapName(event.target.value);
+                setMapName(event.target.value)
               }}
               margin="dense"
               label="Map Title"
@@ -192,7 +199,7 @@ export default function CreateMapFormDialog() {
               </Box>
             </>
           ) : (
-            < Box sx={{ marginY: '1em' }}>
+            <Box sx={{ marginY: '1em' }}>
               <Slider
                 // size='small'
                 min={1}

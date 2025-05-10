@@ -1,5 +1,5 @@
 import { Dictionary } from 'lodash'
-import { createContext, PropsWithChildren, useContext, useState } from 'react'
+import { PropsWithChildren, createContext, useContext, useState } from 'react'
 
 type EventContextType = {
   publish: (eventName: string) => void

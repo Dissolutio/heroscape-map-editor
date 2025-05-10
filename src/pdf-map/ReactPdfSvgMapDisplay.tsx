@@ -1,9 +1,9 @@
-import { BoardHex } from '../types'
 import { Svg } from '@react-pdf/renderer'
-import { PdfMapHex } from './PdfMapHex'
-import { PdfInterlockClipPaths } from '../svg-map/svg-hex-interlock-clippath'
-import { SVG_HEX_RADIUS } from '../utils/constants'
 import { getHexagonSvgPolygonPoints } from '../svg-map/getHexagonSvgPolygonPoints'
+import { PdfInterlockClipPaths } from '../svg-map/svg-hex-interlock-clippath'
+import { BoardHex } from '../types'
+import { SVG_HEX_RADIUS } from '../utils/constants'
+import { PdfMapHex } from './PdfMapHex'
 
 type ReactPdfSvgMapDisplayProps = {
   width: number
@@ -12,8 +12,13 @@ type ReactPdfSvgMapDisplayProps = {
   emptyHexesArr: BoardHex[]
 }
 
-export const ReactPdfSvgMapDisplay = ({ width, length, boardHexArr, emptyHexesArr }: ReactPdfSvgMapDisplayProps) => {
-  const { points } = getHexagonSvgPolygonPoints(SVG_HEX_RADIUS);
+export const ReactPdfSvgMapDisplay = ({
+  width,
+  length,
+  boardHexArr,
+  emptyHexesArr,
+}: ReactPdfSvgMapDisplayProps) => {
+  const { points } = getHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
 
   return (
     <Svg
@@ -38,17 +43,16 @@ export const ReactPdfSvgMapDisplay = ({ width, length, boardHexArr, emptyHexesAr
         stroke="blue"
         strokeWidth={0.5}
       /> */}
-      <PdfInterlockClipPaths
-        points={points}
-      />
+      <PdfInterlockClipPaths points={points} />
       {emptyHexesArr.map((hex) => (
         <PdfMapHex key={hex.id} hex={hex} />
       ))}
-      {boardHexArr.filter(h => h.terrain !== 'empty').sort(
-        (a, b) => a.altitude - b.altitude,
-      ).map((hex) => (
-        <PdfMapHex key={hex.id} hex={hex} />
-      ))}
+      {boardHexArr
+        .filter((h) => h.terrain !== 'empty')
+        .sort((a, b) => a.altitude - b.altitude)
+        .map((hex) => (
+          <PdfMapHex key={hex.id} hex={hex} />
+        ))}
     </Svg>
   )
 }

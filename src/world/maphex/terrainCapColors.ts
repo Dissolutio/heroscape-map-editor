@@ -1,5 +1,5 @@
-import { HexTerrain } from "../../types";
-import { hexTerrainColor } from "./hexColors";
+import { HexTerrain } from '../../types'
+import { hexTerrainColor } from './hexColors'
 
 export const terrainCapColors: { [terrain: string]: string } = {
   // these three use a brown subterrain
@@ -15,4 +15,4 @@ export const terrainCapColors: { [terrain: string]: string } = {
   [HexTerrain.asphalt]: hexTerrainColor.asphaltCap,
   [HexTerrain.concrete]: hexTerrainColor.concreteCap,
   [HexTerrain.swamp]: hexTerrainColor.swampCap,
-};
+}

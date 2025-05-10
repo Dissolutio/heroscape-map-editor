@@ -1,26 +1,21 @@
 import { useGLTF } from '@react-three/drei'
 import { ThreeEvent } from '@react-three/fiber'
-import { BoardHex, HexTerrain } from '../../types'
-import { hexTerrainColor } from '../maphex/hexColors'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
+import { BoardHex, HexTerrain } from '../../types'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
+import { hexTerrainColor } from '../maphex/hexColors'
 
-export default function ForestTree({
-  boardHex,
-}: { boardHex: BoardHex }) {
+export default function ForestTree({ boardHex }: { boardHex: BoardHex }) {
   const {
     nodes,
     //  materials
   } = useGLTF('/forgotten-forest-tree-low-poly-colored.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
-  const {
-    isHovered,
-    onPointerEnter,
-    onPointerOut,
-  } = usePieceHoverState(isVisible)
-  const toggleSelectedPieceID = useBoundStore(s => s.toggleSelectedPieceID)
+  const { isHovered, onPointerEnter, onPointerOut } =
+    usePieceHoverState(isVisible)
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
       return
@@ -32,26 +27,24 @@ export default function ForestTree({
     }
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
-  const selectedPieceID = useBoundStore(s => s.selectedPieceID)
+  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = isHovered || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.tree]
   return (
     <>
-      {(isSelected) && (
+      {isSelected && (
         <DeletePieceBillboard pieceID={boardHex.pieceID} y={100} />
       )}
       <mesh
         geometry={nodes.Tree10_scanned.geometry}
-        onPointerUp={e => onPointerUp(e)}
-        onPointerEnter={e => onPointerEnter(e, boardHex)}
-        onPointerOut={e => onPointerOut(e)}
-      // material={materials.ForestTree}
+        onPointerUp={(e) => onPointerUp(e)}
+        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerOut={(e) => onPointerOut(e)}
+        // material={materials.ForestTree}
       >
-        <meshMatcapMaterial
-          color={color}
-        />
+        <meshMatcapMaterial color={color} />
       </mesh>
       {/* <Billboard
         position={[x, options.y + 1.5, z]}

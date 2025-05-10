@@ -1,21 +1,20 @@
-import React, { ChangeEvent } from 'react'
 import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
+import { useSnackbar } from 'notistack'
+import React, { ChangeEvent } from 'react'
 import { MdFolderZip, MdOutlineHexagon } from 'react-icons/md'
+import { useLocation } from 'wouter'
+import { ROUTES } from '../ROUTES'
+import buildupVSFileMap, { buildupJsonFileMap } from '../data/buildupMap'
 import readVirtualscapeMapFile, {
   readGzipMapFile,
 } from '../data/readVirtualscapeMapFile'
-import buildupVSFileMap, { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import { useLocation } from 'wouter'
-import { ROUTES } from '../ROUTES'
-import { useSnackbar } from 'notistack'
 
 const uploadElementID = 'upload'
 const jsonUploadElementID = 'jsonupload'
 const virtualScapeUploadElementID = 'vsupload'
 
 const LoadMapButtons = () => {
-
   const handleClickGzipFileSelect = () => {
     const element = document.getElementById(uploadElementID)
     if (element) {
@@ -35,31 +34,21 @@ const LoadMapButtons = () => {
     }
   }
 
-
   return (
     <>
-      <ListItemButton
-        sx={{ pl: 4 }}
-        onClick={handleClickGzipFileSelect}
-      >
+      <ListItemButton sx={{ pl: 4 }} onClick={handleClickGzipFileSelect}>
         <ListItemIcon>
           <MdFolderZip />
         </ListItemIcon>
         <ListItemText primary="Load file (.gz)" />
       </ListItemButton>
-      <ListItemButton
-        sx={{ pl: 4 }}
-        onClick={handleClickJsonFileSelect}
-      >
+      <ListItemButton sx={{ pl: 4 }} onClick={handleClickJsonFileSelect}>
         <ListItemIcon>
           <MdFolderZip />
         </ListItemIcon>
         <ListItemText primary="Load file (.json)" />
       </ListItemButton>
-      <ListItemButton
-        sx={{ pl: 4 }}
-        onClick={handleClickVSFileSelect}
-      >
+      <ListItemButton sx={{ pl: 4 }} onClick={handleClickVSFileSelect}>
         <ListItemIcon>
           <MdOutlineHexagon />
         </ListItemIcon>
@@ -72,18 +61,22 @@ const LoadMapButtons = () => {
 export const LoadMapInputs = () => {
   const loadMap = useBoundStore((state) => state.loadMap)
   // const { clear } = useBoundStore.temporal.getState()
-  const [, navigate] = useLocation();
+  const [, navigate] = useLocation()
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const closeSnackbarIDAction: any = (snackbarId: string) => (
     <>
       {/* <button onClick={() => { alert(`I belong to snackbar with id ${snackbarId}`); }}>
         Undo
       </button> */}
-      <button onClick={() => { closeSnackbar(snackbarId) }}>
+      <button
+        onClick={() => {
+          closeSnackbar(snackbarId)
+        }}
+      >
         Dismiss
       </button>
     </>
-  );
+  )
   const readGzipFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event?.target?.files?.[0]
     if (!file) {

@@ -1,22 +1,26 @@
-import * as React from 'react'
+import { Box, IconButton, useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import { Box, IconButton, useMediaQuery } from '@mui/material'
-import useBoundStore from '../store/store'
+import TextField from '@mui/material/TextField'
 import { useSnackbar } from 'notistack'
+import * as React from 'react'
 import { MdAutorenew } from 'react-icons/md'
+import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
 
 export default function EditMapFormDialog() {
-  const fullScreen = useMediaQuery('(max-width:900px)');
+  const fullScreen = useMediaQuery('(max-width:900px)')
   const changeMapName = useBoundStore((state) => state.changeMapName)
   const mapName = useBoundStore((state) => state.hexMap.name)
-  const toggleIsEditMapDialogOpen = useBoundStore((state) => state.toggleIsEditMapDialogOpen)
-  const isEditMapDialogOpen = useBoundStore((state) => state.isEditMapDialogOpen)
+  const toggleIsEditMapDialogOpen = useBoundStore(
+    (state) => state.toggleIsEditMapDialogOpen,
+  )
+  const isEditMapDialogOpen = useBoundStore(
+    (state) => state.isEditMapDialogOpen,
+  )
   const handleClose = () => toggleIsEditMapDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
   const [newName, setNewName] = React.useState(mapName)
@@ -30,7 +34,6 @@ export default function EditMapFormDialog() {
        */
       setNewName(mapName)
     }
-
   }, [isEditMapDialogOpen]) // Only reset when dialog opens or closes
 
   return (
@@ -44,9 +47,9 @@ export default function EditMapFormDialog() {
           component: 'form',
           onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault()
-            const formData = new FormData(event.currentTarget);
-            const formJson = Object.fromEntries((formData as any).entries());
-            const newMapName = formJson.newMapName;
+            const formData = new FormData(event.currentTarget)
+            const formJson = Object.fromEntries((formData as any).entries())
+            const newMapName = formJson.newMapName
             changeMapName(newMapName)
             enqueueSnackbar({
               message: `Updated Map Name: ${newMapName}`,
@@ -66,7 +69,6 @@ export default function EditMapFormDialog() {
               width: '100%',
             }}
           >
-
             <TextField
               id="newMapName"
               name="newMapName"

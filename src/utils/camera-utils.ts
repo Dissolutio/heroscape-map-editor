@@ -1,6 +1,6 @@
+import { BoardHexes } from '../types'
 import { CAMERA_FOV } from '../utils/constants'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
-import { BoardHexes } from '../types'
 
 type CameraLookAtArgs = [
   // positionX

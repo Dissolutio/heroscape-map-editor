@@ -1,16 +1,14 @@
-import { DoubleSide } from 'three'
 import { useGLTF } from '@react-three/drei'
-import { BoardHex, HexTerrain } from '../../types'
-import { getBoardHex3DCoords } from '../../utils/map-utils'
-import { hexTerrainColor } from '../maphex/hexColors'
-import { HEXGRID_HEXCAP_FLUID_HEIGHT } from '../../utils/constants'
-import { CylinderGeometryArgs } from '../maphex/instance-hex'
-import useBoundStore from '../../store/store'
-import usePieceHoverState from '../../hooks/usePieceHoverState'
 import { ThreeEvent } from '@react-three/fiber'
+import { DoubleSide } from 'three'
+import usePieceHoverState from '../../hooks/usePieceHoverState'
+import useBoundStore from '../../store/store'
+import { BoardHex, HexTerrain } from '../../types'
+import { HEXGRID_HEXCAP_FLUID_HEIGHT } from '../../utils/constants'
+import { getBoardHex3DCoords } from '../../utils/map-utils'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
-
-
+import { hexTerrainColor } from '../maphex/hexColors'
+import { CylinderGeometryArgs } from '../maphex/instance-hex'
 
 // function getPillarReport({
 //   boardHexes,
@@ -99,18 +97,15 @@ export default function LaurWallPillar({
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
   const { x, z, yWithBase, yBase } = getBoardHex3DCoords(boardHex)
-  const selectedPieceID = useBoundStore(s => s.selectedPieceID)
-  const toggleSelectedPieceID = useBoundStore(s => s.toggleSelectedPieceID)
+  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const { nodes } = useGLTF('/laurwall-pillar.glb') as any
   const rotation = boardHex?.pieceRotation ?? 0
 
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
-  const {
-    isHovered,
-    onPointerEnter,
-    onPointerOut,
-  } = usePieceHoverState(isVisible)
+  const { isHovered, onPointerEnter, onPointerOut } =
+    usePieceHoverState(isVisible)
 
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
@@ -145,10 +140,8 @@ export default function LaurWallPillar({
 
   return (
     <>
-      <group
-        position={[x, yWithBase, z]}
-      >
-        {(isSelected) && (
+      <group position={[x, yWithBase, z]}>
+        {isSelected && (
           <DeletePieceBillboard pieceID={boardHex.pieceID} y={1} />
         )}
       </group>
@@ -156,50 +149,35 @@ export default function LaurWallPillar({
         position={[x, yBase, z]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
         onPointerUp={onPointerUp}
-        onPointerEnter={e => onPointerEnter(e, boardHex)}
-        onPointerOut={e => onPointerOut(e)}
+        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerOut={(e) => onPointerOut(e)}
       >
-        <group
-          position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}
-        >
-
-
-          <mesh
-            geometry={nodes.PillarTop.geometry}
-          >
+        <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
+          <mesh geometry={nodes.PillarTop.geometry}>
             <meshMatcapMaterial
               color={isHighlighted ? yellowColor : pillarColor}
             />
           </mesh>
-          <mesh
-            geometry={nodes.SubDecorCore.geometry}
-          >
+          <mesh geometry={nodes.SubDecorCore.geometry}>
             <meshMatcapMaterial
               color={isHighlighted ? yellowColor : interiorPillarColor}
             />
           </mesh>
-          <mesh
-            geometry={nodes.Facade.geometry}
-          >
+          <mesh geometry={nodes.Facade.geometry}>
             <meshMatcapMaterial
               side={DoubleSide}
               color={isHighlighted ? yellowColor : pillarColor}
             />
           </mesh>
-          <mesh
-            geometry={nodes.FacadeInner.geometry}
-          >
+          <mesh geometry={nodes.FacadeInner.geometry}>
             <meshMatcapMaterial
               side={DoubleSide}
               color={isHighlighted ? yellowColor : interiorPillarColor}
             />
           </mesh>
         </group>
-        <group
-          position={[0, 0, 0]}
-        >
-          <mesh
-          >
+        <group position={[0, 0, 0]}>
+          <mesh>
             <cylinderGeometry args={baseCylinderArgs} />
             <meshMatcapMaterial
               color={isHighlighted ? yellowColor : pillarColor}
@@ -212,4 +190,3 @@ export default function LaurWallPillar({
 }
 
 useGLTF.preload('/laurwall-pillar.glb')
-

@@ -1,7 +1,7 @@
-import { StateCreator } from 'zustand'
-import { AppState } from './store'
 import { produce } from 'immer'
+import { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
+import { AppState } from './store'
 
 export interface UISlice {
   penMode: string
@@ -70,7 +70,8 @@ const createUISlice: StateCreator<
         state.flatPieceSizes = newSizes
       }),
     ),
-  flatPieceSizes: getNewPieceSizeForPenMode(initialPenMode, 'select', 0).newSizes,
+  flatPieceSizes: getNewPieceSizeForPenMode(initialPenMode, 'select', 0)
+    .newSizes,
   pieceSize: 0,
   togglePieceSize: (n: number) =>
     set(

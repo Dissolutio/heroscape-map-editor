@@ -1,26 +1,21 @@
 import { useGLTF } from '@react-three/drei'
-import { BoardHex, HexTerrain } from '../../types'
-import { hexTerrainColor } from '../maphex/hexColors'
-import usePieceHoverState from '../../hooks/usePieceHoverState'
 import { ThreeEvent } from '@react-three/fiber'
+import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
+import { BoardHex, HexTerrain } from '../../types'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
+import { hexTerrainColor } from '../maphex/hexColors'
 
-export default function BigTree415({
-  boardHex,
-}: { boardHex: BoardHex }) {
+export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
   const {
     nodes,
     //  materials
   } = useGLTF('/forest-tree15-colored-lowpoly.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
-  const {
-    isHovered,
-    onPointerEnter,
-    onPointerOut,
-  } = usePieceHoverState(isVisible)
-  const toggleSelectedPieceID = useBoundStore(s => s.toggleSelectedPieceID)
+  const { isHovered, onPointerEnter, onPointerOut } =
+    usePieceHoverState(isVisible)
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
 
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
@@ -33,31 +28,35 @@ export default function BigTree415({
     }
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
-  const selectedPieceID = useBoundStore(s => s.selectedPieceID)
+  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = isHovered || isSelected
-  const treeColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.tree]
-  const rockColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.tree]
+  const treeColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.tree]
+  const rockColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.tree]
   return (
     <>
-      {(isSelected) && (
+      {isSelected && (
         <DeletePieceBillboard pieceID={boardHex.pieceID} y={150} />
       )}
       <group
-        onPointerUp={e => onPointerUp(e)}
-        onPointerEnter={e => onPointerEnter(e, boardHex)}
-        onPointerOut={e => onPointerOut(e)}
+        onPointerUp={(e) => onPointerUp(e)}
+        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerOut={(e) => onPointerOut(e)}
       >
         <mesh
           geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
-        // material={materials.BoulderGray}
+          // material={materials.BoulderGray}
         >
           <meshMatcapMaterial color={rockColor} />
         </mesh>
         <mesh
           geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
-        // material={materials.ForestTree}
+          // material={materials.ForestTree}
         >
           <meshMatcapMaterial color={treeColor} />
         </mesh>

@@ -1,58 +1,81 @@
-import { Document, Page, View, PDFViewer, Text, PDFDownloadLink, } from '@react-pdf/renderer';
-import { groupBy, keyBy } from 'lodash';
-import { BoardHex, BoardHexes, BoardPieces, MapState, Pieces } from '../types';
-import React, { PropsWithChildren } from 'react';
-import { decodePieceID, getBoardHexesSvgMapDimensions } from '../utils/map-utils';
-import useBoundStore from '../store/store';
-import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay';
-import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils';
-import { useMediaQuery } from '@mui/material';
+import { useMediaQuery } from '@mui/material'
+import {
+  Document,
+  PDFDownloadLink,
+  PDFViewer,
+  Page,
+  Text,
+  View,
+} from '@react-pdf/renderer'
+import { groupBy, keyBy } from 'lodash'
+import React, { PropsWithChildren } from 'react'
+import useBoundStore from '../store/store'
+import { BoardHex, BoardHexes, BoardPieces, MapState, Pieces } from '../types'
+import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
+import {
+  decodePieceID,
+  getBoardHexesSvgMapDimensions,
+} from '../utils/map-utils'
+import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 
-const getBoardHexAndPieceChunks = (boardHexes: BoardHexes, boardPieces: BoardPieces) => {
-  const filteredBoardHexes = Object.values(getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes))
-  const filteredBoardPieces = Object.keys(boardPieces).filter((pieceID) => {
-    const id = decodePieceID(pieceID).pieceID;
-    return (
-      id === Pieces.battlement ||
-      id === Pieces.roadWall ||
-      id === Pieces.laurWallLong ||
-      id === Pieces.laurWallShort ||
-      id === Pieces.laurWallRuin
-    );
-  }).map((pieceID) => decodePieceID(pieceID));
+const getBoardHexAndPieceChunks = (
+  boardHexes: BoardHexes,
+  boardPieces: BoardPieces,
+) => {
+  const filteredBoardHexes = Object.values(
+    getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
+  )
+  const filteredBoardPieces = Object.keys(boardPieces)
+    .filter((pieceID) => {
+      const id = decodePieceID(pieceID).pieceID
+      return (
+        id === Pieces.battlement ||
+        id === Pieces.roadWall ||
+        id === Pieces.laurWallLong ||
+        id === Pieces.laurWallShort ||
+        id === Pieces.laurWallRuin
+      )
+    })
+    .map((pieceID) => decodePieceID(pieceID))
 
   // Group hexes and pieces by altitude
-  const groupedHexesByAltitude = groupBy(filteredBoardHexes, 'altitude');
-  const groupedPiecesByAltitude = groupBy(filteredBoardPieces, 'altitude');
+  const groupedHexesByAltitude = groupBy(filteredBoardHexes, 'altitude')
+  const groupedPiecesByAltitude = groupBy(filteredBoardPieces, 'altitude')
 
   // Combine hexes and pieces into a single array of altitude groups
-  const combinedGroups = Object.keys(groupedHexesByAltitude).map((altitude) => ({
-    altitude: Number(altitude),
-    hexes: groupedHexesByAltitude[altitude] || [],
-    pieces: groupedPiecesByAltitude[altitude] || [],
-  }));
+  const combinedGroups = Object.keys(groupedHexesByAltitude).map(
+    (altitude) => ({
+      altitude: Number(altitude),
+      hexes: groupedHexesByAltitude[altitude] || [],
+      pieces: groupedPiecesByAltitude[altitude] || [],
+    }),
+  )
 
   // Sort combined groups by altitude
-  combinedGroups.sort((a, b) => a.altitude - b.altitude);
+  combinedGroups.sort((a, b) => a.altitude - b.altitude)
 
   // Chunk combined groups into chunks of 6
-  const chunks = [];
+  const chunks = []
   for (let i = 0; i < combinedGroups.length; i += 6) {
-    chunks.push(combinedGroups.slice(i, i + 6));
+    chunks.push(combinedGroups.slice(i, i + 6))
   }
 
-  return chunks;
-};
+  return chunks
+}
 
 export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
-  const boardHexes = useBoundStore((s) => s.boardHexes);
-  const boardPieces = useBoundStore((s) => s.boardPieces);
-  const hexMap = useBoundStore((s) => s.hexMap);
+  const boardHexes = useBoundStore((s) => s.boardHexes)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const hexMap = useBoundStore((s) => s.hexMap)
   return (
     <PDFDownloadLink
-      document={(
-        <MyDocument boardHexes={boardHexes} boardPieces={boardPieces} hexMap={hexMap} />
-      )}
+      document={
+        <MyDocument
+          boardHexes={boardHexes}
+          boardPieces={boardPieces}
+          hexMap={hexMap}
+        />
+      }
       fileName={`${hexMap.name}.pdf`}
     >
       {props.children}
@@ -61,10 +84,10 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
 }
 
 export function ReactPdfRoot() {
-  const boardHexes = useBoundStore((s) => s.boardHexes);
-  const boardPieces = useBoundStore((s) => s.boardPieces);
-  const hexMap = useBoundStore((s) => s.hexMap);
-  const isMobile = useMediaQuery('(max-width:800px)');
+  const boardHexes = useBoundStore((s) => s.boardHexes)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const hexMap = useBoundStore((s) => s.hexMap)
+  const isMobile = useMediaQuery('(max-width:800px)')
   return (
     <div
       style={{
@@ -78,18 +101,19 @@ export function ReactPdfRoot() {
     >
       {isMobile ? (
         <PDFDownloadLink
-          document={(
-            <MyDocument boardHexes={boardHexes} boardPieces={boardPieces} hexMap={hexMap} />
-          )}
+          document={
+            <MyDocument
+              boardHexes={boardHexes}
+              boardPieces={boardPieces}
+              hexMap={hexMap}
+            />
+          }
           fileName={`${hexMap.name}.pdf`}
         >
           Download!
         </PDFDownloadLink>
       ) : (
-        <PDFViewer
-          width={"100%"}
-          height={"100%"}
-        >
+        <PDFViewer width={'100%'} height={'100%'}>
           <MyDocument
             boardHexes={boardHexes}
             boardPieces={boardPieces}
@@ -101,22 +125,20 @@ export function ReactPdfRoot() {
   )
 }
 type DecodedPiece = {
-  pieceID: string;
-  altitude: number;
-  rotation: number;
-  boardHexID: string;
+  pieceID: string
+  altitude: number
+  rotation: number
+  boardHexID: string
   pieceCoords: {
-    q: number;
-    r: number;
-    s: number;
-  };
+    q: number
+    r: number
+    s: number
+  }
 }
 
 const MyDocument = ({ boardHexes, boardPieces, hexMap }: MapState) => {
   return (
-    <Document
-      title={hexMap.name}
-    >
+    <Document title={hexMap.name}>
       <HexMapLevels6PerPage
         boardHexes={boardHexes}
         boardPieces={boardPieces}
@@ -137,13 +159,21 @@ const HalfPageColumn = (props: PropsWithChildren) => {
     >
       {props.children}
     </View>
-  );
-};
+  )
+}
 
 const HexMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
-  const boardHexesWithoutEmpties = keyBy(Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'), 'id')
-  const boardHexAndPieceChunks = getBoardHexAndPieceChunks((boardHexesWithoutEmpties), boardPieces);
-  const emptyHexesArr = Object.values(boardHexes).filter((hex) => hex.terrain === 'empty');
+  const boardHexesWithoutEmpties = keyBy(
+    Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
+    'id',
+  )
+  const boardHexAndPieceChunks = getBoardHexAndPieceChunks(
+    boardHexesWithoutEmpties,
+    boardPieces,
+  )
+  const emptyHexesArr = Object.values(boardHexes).filter(
+    (hex) => hex.terrain === 'empty',
+  )
   const svgMapDimensions = getBoardHexesSvgMapDimensions(boardHexes)
   return (
     <>
@@ -157,20 +187,25 @@ const HexMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
         />
       ))}
     </>
-  );
-};
+  )
+}
 
 type HexMapPageProps = {
   width: number
   length: number
   emptyHexesArr: BoardHex[]
   chunk: {
-    altitude: number;
-    hexes: BoardHex[];
-    pieces: DecodedPiece[];
-  }[];
-};
-const HexMapPage = ({ chunk, width, length, emptyHexesArr }: HexMapPageProps) => {
+    altitude: number
+    hexes: BoardHex[]
+    pieces: DecodedPiece[]
+  }[]
+}
+const HexMapPage = ({
+  chunk,
+  width,
+  length,
+  emptyHexesArr,
+}: HexMapPageProps) => {
   return (
     <Page
       size="LETTER"
@@ -194,7 +229,9 @@ const HexMapPage = ({ chunk, width, length, emptyHexesArr }: HexMapPageProps) =>
                     flexBasis: '33%',
                   }}
                 >
-                  <Text style={{ fontSize: '10px' }}>Level: {group.altitude}</Text>
+                  <Text style={{ fontSize: '10px' }}>
+                    Level: {group.altitude}
+                  </Text>
                   <ReactPdfSvgMapDisplay
                     boardHexArr={group.hexes}
                     emptyHexesArr={emptyHexesArr}
@@ -215,7 +252,9 @@ const HexMapPage = ({ chunk, width, length, emptyHexesArr }: HexMapPageProps) =>
                     flexBasis: '33%',
                   }}
                 >
-                  <Text style={{ fontSize: '10px' }}>Level: {group.altitude}</Text>
+                  <Text style={{ fontSize: '10px' }}>
+                    Level: {group.altitude}
+                  </Text>
                   <ReactPdfSvgMapDisplay
                     boardHexArr={group.hexes}
                     emptyHexesArr={emptyHexesArr}
@@ -229,6 +268,5 @@ const HexMapPage = ({ chunk, width, length, emptyHexesArr }: HexMapPageProps) =>
         </HalfPageColumn>
       </View>
     </Page>
-  );
-};
-
+  )
+}

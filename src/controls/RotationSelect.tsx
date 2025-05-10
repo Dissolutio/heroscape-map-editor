@@ -1,6 +1,5 @@
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
-import useBoundStore from '../store/store'
 import {
   MdOutlineEast,
   MdOutlineNorthEast,
@@ -9,6 +8,7 @@ import {
   MdOutlineSouthWest,
   MdOutlineWest,
 } from 'react-icons/md'
+import useBoundStore from '../store/store'
 
 export default function RotationSelect() {
   const pieceRotation = useBoundStore((s) => s.pieceRotation)

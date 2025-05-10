@@ -1,23 +1,18 @@
 import { useGLTF } from '@react-three/drei'
 import { ThreeEvent } from '@react-three/fiber'
-import { BoardHex, HexTerrain } from '../../types'
-import { hexTerrainColor } from '../maphex/hexColors'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
+import { BoardHex, HexTerrain } from '../../types'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
+import { hexTerrainColor } from '../maphex/hexColors'
 
-export default function TicallaPalm({
-  boardHex,
-}: { boardHex: BoardHex }) {
+export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
   const { nodes } = useGLTF('/ticalla-palm.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
-  const {
-    isHovered,
-    onPointerEnter,
-    onPointerOut,
-  } = usePieceHoverState(isVisible)
-  const toggleSelectedPieceID = useBoundStore(s => s.toggleSelectedPieceID)
+  const { isHovered, onPointerEnter, onPointerOut } =
+    usePieceHoverState(isVisible)
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
       return
@@ -29,23 +24,27 @@ export default function TicallaPalm({
     }
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
-  const selectedPieceID = useBoundStore(s => s.selectedPieceID)
+  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = isHovered || isSelected
-  const colorTrunk = isHighlighted ? yellowColor : hexTerrainColor.ticallaPalmModel1
+  const colorTrunk = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.ticallaPalmModel1
   const colorBrush = isHighlighted ? yellowColor : hexTerrainColor.ticallaBrush2
-  const colorPalmLeaf = isHighlighted ? yellowColor : hexTerrainColor.ticallaPalmModel3
-  const colorBase = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.swamp]
+  const colorPalmLeaf = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.ticallaPalmModel3
+  const colorBase = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.swamp]
   return (
     <>
-      {(isSelected) && (
-        <DeletePieceBillboard pieceID={boardHex.pieceID} y={3} />
-      )}
+      {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={3} />}
       <group
-        onPointerUp={e => onPointerUp(e)}
-        onPointerEnter={e => onPointerEnter(e, boardHex)}
-        onPointerOut={e => onPointerOut(e)}
+        onPointerUp={(e) => onPointerUp(e)}
+        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerOut={(e) => onPointerOut(e)}
       >
         <mesh geometry={nodes.PalmLeaf.geometry}>
           <meshMatcapMaterial color={colorPalmLeaf} />
@@ -65,4 +64,3 @@ export default function TicallaPalm({
 }
 
 useGLTF.preload('/ticalla-palm.glb')
-

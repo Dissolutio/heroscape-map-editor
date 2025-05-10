@@ -1,12 +1,12 @@
-import React from 'react'
-import useBoundStore from '../store/store'
-import { useSnackbar } from 'notistack'
-import { useSearch } from 'wouter'
 import JSONCrush from 'jsoncrush'
-import { BoardHexes, BoardPieces, Pieces } from '../types'
-import { decodePieceID } from '../utils/map-utils'
+import { useSnackbar } from 'notistack'
+import React from 'react'
+import { useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
+import useBoundStore from '../store/store'
+import { BoardHexes, BoardPieces, Pieces } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
+import { decodePieceID } from '../utils/map-utils'
 
 type Props = {
   boardHexes?: BoardHexes
@@ -16,7 +16,7 @@ const useAutoLoadMapFile = (props: Props) => {
   const loadMap = useBoundStore((s) => s.loadMap)
   const { clear: clearUndoHistory } = useBoundStore.temporal.getState()
   const { enqueueSnackbar } = useSnackbar()
-  const searchString = useSearch();
+  const searchString = useSearch()
 
   // USE EFFECT: automatically load up map from URL, OR from file
   React.useEffect(() => {
