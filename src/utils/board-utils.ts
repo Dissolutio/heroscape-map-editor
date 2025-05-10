@@ -34,7 +34,7 @@ export function isSolidTerrainHex(terrain: string) {
     return false
   }
 }
-export function isPieceIDPiece(inventoryID: string) {
+export function isRenderedFromPieceIDPiece(inventoryID: string) {
   if (
     inventoryID === Pieces.battlement ||
     inventoryID === Pieces.roadWall ||

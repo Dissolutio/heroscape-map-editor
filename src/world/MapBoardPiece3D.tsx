@@ -1,7 +1,7 @@
 import { Vector3 } from 'three'
 import useBoundStore from '../store/store'
 import { Pieces } from '../types'
-import { isPieceIDPiece } from '../utils/board-utils'
+import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
 import { HEXGRID_HEXCAP_HEIGHT } from '../utils/constants'
 import { decodePieceID, getBoardHex3DCoords } from '../utils/map-utils'
 import { Battlement } from './models/Battlement'
@@ -33,7 +33,7 @@ export const MapBoardPiece3D = ({
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = altitude + 1 <= viewingLevel
-  if (!isPieceIDPiece(pieceID)) {
+  if (!isRenderedFromPieceIDPiece(pieceID)) {
     return null
   }
   // LAURWALL ADDON

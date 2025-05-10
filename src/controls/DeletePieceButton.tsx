@@ -6,7 +6,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import useBoundStore from '../store/store'
 import {
   isNoVerifyDeletePieceByPieceID,
-  isPieceIDPiece,
+  isRenderedFromPieceIDPiece,
 } from '../utils/board-utils'
 import { decodePieceID } from '../utils/map-utils'
 
@@ -24,7 +24,7 @@ const DeletePieceButton = () => {
     () => (selectedPieceID ? deletePiece() : noop()) /*isEnabled*/,
   )
   const deletePiece = () => {
-    if (isPieceIDPiece(inventoryID)) {
+    if (isRenderedFromPieceIDPiece(inventoryID)) {
       removePieceByPieceID(selectedPieceID)
       toggleSelectedPieceID('')
     } else if (isNoVerifyDeletePieceByPieceID(inventoryID)) {

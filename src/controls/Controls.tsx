@@ -16,7 +16,7 @@ import UndoRedoButtonGroup from './UndoRedoButtonGroup'
 import ViewingLevelInput from './ViewingLevelInput'
 // import LocalStorageList from './LocalStorageList'
 
-const shiftPieces = (direction: number, boardPieces: BoardPieces) => {
+const shiftInDirectionBoardPieces = (direction: number, boardPieces: BoardPieces) => {
   const newBoardPieces = Object.keys(boardPieces).reduce(
     (prev: any, pid: string) => {
       const {
@@ -76,7 +76,7 @@ const Controls = () => {
   //   const isTop2RowsEmpty = top2Rows.every(bh => bh.terrain === HexTerrain.empty)
   // }
   const movePieces = (direction: number) => {
-    const newBoardPieces = shiftPieces(direction, boardPieces)
+    const newBoardPieces = shiftInDirectionBoardPieces(direction, boardPieces)
     const newMap = buildupJsonFileMap(newBoardPieces, hexMap)
     loadMap(newMap)
   }
@@ -90,8 +90,8 @@ const Controls = () => {
       const newMap = buildupJsonFileMap(boardPieces, newHexMap)
       loadMap(newMap)
     } else {
-      const shiftedEastPieces = shiftPieces(0, boardPieces)
-      const shiftedSouthEastPieces = shiftPieces(1, shiftedEastPieces)
+      const shiftedEastPieces = shiftInDirectionBoardPieces(0, boardPieces)
+      const shiftedSouthEastPieces = shiftInDirectionBoardPieces(1, shiftedEastPieces)
       const newMap = buildupJsonFileMap(shiftedSouthEastPieces, newHexMap)
       loadMap(newMap)
     }
@@ -106,8 +106,8 @@ const Controls = () => {
       const newMap = buildupJsonFileMap(boardPieces, newHexMap)
       loadMap(newMap)
     } else {
-      const shiftedWestPieces = shiftPieces(3, boardPieces)
-      const shiftedNorthWestPieces = shiftPieces(4, shiftedWestPieces)
+      const shiftedWestPieces = shiftInDirectionBoardPieces(3, boardPieces)
+      const shiftedNorthWestPieces = shiftInDirectionBoardPieces(4, shiftedWestPieces)
       const newMap = buildupJsonFileMap(shiftedNorthWestPieces, newHexMap)
       loadMap(newMap)
     }
@@ -122,8 +122,8 @@ const Controls = () => {
       const newMap = buildupJsonFileMap(boardPieces, newHexMap)
       loadMap(newMap)
     } else {
-      const shiftedEastPieces = shiftPieces(0, boardPieces)
-      const shiftedSouthEastPieces = shiftPieces(1, shiftedEastPieces)
+      const shiftedEastPieces = shiftInDirectionBoardPieces(0, boardPieces)
+      const shiftedSouthEastPieces = shiftInDirectionBoardPieces(1, shiftedEastPieces)
       const newMap = buildupJsonFileMap(shiftedSouthEastPieces, newHexMap)
       loadMap(newMap)
     }
@@ -138,8 +138,8 @@ const Controls = () => {
       const newMap = buildupJsonFileMap(boardPieces, newHexMap)
       loadMap(newMap)
     } else {
-      const shiftedWestPieces = shiftPieces(3, boardPieces)
-      const shiftedNorthWestPieces = shiftPieces(4, shiftedWestPieces)
+      const shiftedWestPieces = shiftInDirectionBoardPieces(3, boardPieces)
+      const shiftedNorthWestPieces = shiftInDirectionBoardPieces(4, shiftedWestPieces)
       const newMap = buildupJsonFileMap(shiftedNorthWestPieces, newHexMap)
       loadMap(newMap)
     }
