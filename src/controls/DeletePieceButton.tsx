@@ -28,7 +28,7 @@ const DeletePieceButton = () => {
       removePieceByPieceID(selectedPieceID)
       toggleSelectedPieceID('')
     } else if (isNoVerifyDeletePieceByPieceID(inventoryID)) {
-    /* 
+      /* 
     0. Obstacles, Ruins
     1. Laur Pillars
     2. Land (check stuff on top)
