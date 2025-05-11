@@ -59,23 +59,16 @@ export function removePiece({
   if (isRenderedFromPieceIDPiece(inventoryID)) {
     delete newBoardPieces[pieceID]
   }
-
   // RUINS
   // CASTLE BASE
   // OBSTACLES: trees, bushes, palms, glaciers, outcrops, laurPillar
-  if (piece.terrain === HexTerrain.ruin || isObstacle || isCastleBase || isLadder) {
-    // remove the hexes
-    removePieceIDFromBoardHexes(pieceID, newBoardHexes)
-    // remove the piece
-    delete newBoardPieces[pieceID]
-  }
   // LAND, WALLWALK, CASTLE WALL
   // const isPieceRemoveable = isEachOverheadPieceSupportedByAnotherPiece(newBoardHexes, pieceID)
   // if(!isPieceRemoveable){
   //   error = {message: "Cannot remove piece, other pieces are on top of it"}
   // }
-  // if ((isLandTile || isCastleArch || isCastleWall) && isPieceRemoveable) {
-  if ((isLandTile || isCastleArch || isCastleWall)) {
+  if (piece.terrain === HexTerrain.ruin || isObstacle || isLandTile ||
+    isCastleArch || isCastleWall || isCastleBase || isLadder) {
     // restore caps to under hexes
     restoreCapsToEmptyUnderHexes(pieceID, newBoardHexes)
     // remove the hexes
