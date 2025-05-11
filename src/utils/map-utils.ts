@@ -58,7 +58,7 @@ export const getBoardHexesRectangularMapDimensions = (
     ((hexLength === 1
       ? 2 * HEXGRID_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-      3 * HEXGRID_HEX_APOTHEM) +
+        3 * HEXGRID_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * HEXGRID_HEX_APOTHEM) /
     HEXGRID_SPACING
   const apex =
@@ -107,7 +107,7 @@ export const getBoardHexesSvgMapDimensions = (
     ((hexLength === 1
       ? 2 * SVG_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-      3 * SVG_HEX_APOTHEM) +
+        3 * SVG_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * SVG_HEX_APOTHEM) /
     HEXGRID_SPACING
   return { length, width, hexLength, hexWidth }
@@ -214,10 +214,10 @@ export function decodePieceID(aqrrID: string) {
   const r = parseInt(parsed[2])
   const s = -q - r
   const rotation = parseFloat(parsed[3])
-  const pieceID = parsed[4]
+  const inventoryID = parsed[4]
   const pieceCoords = { q, r, s }
   return {
-    pieceID,
+    inventoryID,
     altitude,
     rotation,
     boardHexID: genBoardHexID({ ...pieceCoords, altitude }),

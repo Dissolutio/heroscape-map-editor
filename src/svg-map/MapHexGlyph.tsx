@@ -8,13 +8,13 @@ type Props = {
   glyphPieceID: string
 }
 export function MapHexGlyph({ glyphPieceID }: Props) {
-  const { pieceID, altitude, rotation, boardHexID, pieceCoords } =
+  const { inventoryID, altitude, rotation, boardHexID, pieceCoords } =
     decodePieceID(glyphPieceID)
   const hexMap = useBoundStore((s) => s.hexMap)
   console.log(
     '🚀 ~ MapHexGlyph ~ hexMap:',
     hexMap,
-    pieceID,
+    inventoryID,
     altitude,
     rotation,
     boardHexID,

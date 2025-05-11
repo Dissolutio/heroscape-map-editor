@@ -29,7 +29,7 @@ const useAutoLoadMapFile = (props: Props) => {
         const boardPieces: BoardPieces = pieceIds.reduce(
           (prev: BoardPieces, curr: string) => {
             // get inventory id from pieceID (a~q~r~rot~id)
-            prev[curr] = decodePieceID(curr).pieceID as Pieces
+            prev[curr] = decodePieceID(curr).inventoryID
             return prev
           },
           {},

@@ -14,7 +14,7 @@ import { svgColors } from '../world/maphex/hexColors'
 export const PdfMapHex = ({ hex }: { hex: BoardHex }) => {
   const { points } = getHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
   const pixel = hexUtilsHexToPixel(hex)
-  const inventoryID = decodePieceID(hex.pieceID).pieceID
+  const inventoryID = decodePieceID(hex.pieceID).inventoryID
   const isEmptyHex = hex.terrain === 'empty'
   const color = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
 

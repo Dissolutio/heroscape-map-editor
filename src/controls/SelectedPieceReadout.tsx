@@ -1,5 +1,4 @@
 import { Card, CardActions, CardContent, Typography } from '@mui/material'
-import React from 'react'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { decodePieceID } from '../utils/map-utils'
@@ -39,7 +38,7 @@ const SelectedPieceReadout = () => {
             Selected Piece
           </Typography>
           <Typography variant="h5" component="div" sx={{ fontSize: 18 }}>
-            {piece.title}
+            {piece?.title ?? piece}
           </Typography>
           <Typography variant="body2">
             {/* TODO: Piece Altitude off by one */}

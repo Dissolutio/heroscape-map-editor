@@ -16,7 +16,7 @@ import { FLUID_CAP_OPACITY } from '../maphex/instance/FluidCap'
 
 export default function LandSubterrain({ pid }: { pid: string }) {
   const {
-    pieceID,
+    inventoryID,
     altitude,
     // rotation,
     // boardHexID,
@@ -31,7 +31,7 @@ export default function LandSubterrain({ pid }: { pid: string }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const isSelected = selectedPieceID === pid
   const isHovered = hoveredPieceID === pid
-  const pieceTerrain = piecesSoFar[pieceID].terrain
+  const pieceTerrain = piecesSoFar[inventoryID].terrain
   const isDirtSubterrain =
     pieceTerrain === HexTerrain.grass ||
     pieceTerrain === HexTerrain.sand ||
@@ -42,13 +42,13 @@ export default function LandSubterrain({ pid }: { pid: string }) {
   const [color, setColor] = React.useState('red')
   const regex = /\d+/g
 
-  let pieceSize = pieceID.match(regex)?.[0] ?? ''
+  let pieceSize = inventoryID.match(regex)?.[0] ?? ''
   const isHighlighted = isHovered || isSelected
-  if (pieceSize === '7' && pieceID === Pieces.wallWalk7) {
+  if (pieceSize === '7' && inventoryID === Pieces.wallWalk7) {
     pieceSize = '7B'
   }
   // TODO: just add a subterrain property to Pieces, this is a hack
-  if (pieceSize === '6' && pieceID === Pieces.concrete6) {
+  if (pieceSize === '6' && inventoryID === Pieces.concrete6) {
     pieceSize = '6B'
   }
   // update color when piece is hovered/selected

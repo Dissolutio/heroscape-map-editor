@@ -1,49 +1,21 @@
 import { Button } from '@mui/material'
 import { noop } from 'lodash'
-import { enqueueSnackbar } from 'notistack'
-import React from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import useBoundStore from '../store/store'
-import {
-  isNoVerifyDeletePieceByPieceID,
-  isRenderedFromPieceIDPiece,
-} from '../utils/board-utils'
-import { decodePieceID } from '../utils/map-utils'
-
-type Props = {
-  pieceID: string
-}
 
 const DeletePieceButton = () => {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const { inventoryID } = decodePieceID(selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const removePieceByPieceID = useBoundStore((s) => s.removePieceByPieceID)
+  const unpaintTile = useBoundStore((s) => s.unpaintTile)
   useHotkeys(
     'delete',
     () => (selectedPieceID ? deletePiece() : noop()) /*isEnabled*/,
   )
   const deletePiece = () => {
-    if (isRenderedFromPieceIDPiece(inventoryID)) {
-      removePieceByPieceID(selectedPieceID)
-      toggleSelectedPieceID('')
-    } else if (isNoVerifyDeletePieceByPieceID(inventoryID)) {
-      /* 
-    0. Obstacles, Ruins
-    2. Land (check stuff on top)
-    1. Laur Pillars
-    3. Ladders
-    4. Castle Pieces
-    */
-      console.log('🚀 ~ deletePiece ~ true:', true)
-    } else {
-      enqueueSnackbar({
-        message: `Currently, can only delete battlements, roadwalls, and laur wall addons, ruins, and obstacles.`,
-        variant: 'error',
-        autoHideDuration: 3000,
-      })
-    }
+    unpaintTile(selectedPieceID)
+    toggleSelectedPieceID('')
   }
+
   return (
     <Button
       // variant='contained'

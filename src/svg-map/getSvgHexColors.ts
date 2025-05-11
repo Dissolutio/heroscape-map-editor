@@ -12,7 +12,7 @@ import { svgColors, virtualscapeTileColors } from '../world/maphex/hexColors'
 export const getSvgHexBorderColor = (hex: BoardHex) => {
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
   const inventoryPiece =
-    piecesSoFar?.[decodePieceID?.(hex.pieceID)?.pieceID] ?? ''
+    piecesSoFar?.[decodePieceID?.(hex.pieceID)?.inventoryID] ?? ''
   const is1Hex = inventoryPiece.size === 1
   const is2Hex = inventoryPiece.size === 2
   const is3Hex = inventoryPiece.size === 3
