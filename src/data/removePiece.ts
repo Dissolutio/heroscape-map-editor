@@ -42,46 +42,15 @@ export function removePiece({
   pieceID,
 }: RemovePieceArgs): AddRemovePieceReturn {
   let error: AddRemovePieceError
-  const {
-    inventoryID,
-    altitude: pieceAltitude,
-    rotation,
-    boardHexID,
-    pieceCoords,
-  } = decodePieceID(pieceID)
+  const { inventoryID } = decodePieceID(pieceID)
   const piece = piecesSoFar[inventoryID]
   const newBoardHexes = clone(boardHexes)
   const newBoardPieces = clone(boardPieces)
-  // const piecePlaneCoords = getPieceTemplateCoords({
-  //   clickedHex: { q: pieceCoords.q, r: pieceCoords.r, s: pieceCoords.s },
-  //   rotation,
-  //   template: piece.template,
-  //   isVsTile: false,
-  // })
   const isCastleBase = piece.id.includes(PiecePrefixes.castleBase)
   const isCastleWall = piece.id.includes(PiecePrefixes.castleWall)
   const isLadder = piece.id === Pieces.ladder
-  // const isCastleWallPiece = piece.id.includes(PiecePrefixes.castleWall)
   const isCastleArch =
     piece.id === Pieces.castleArch || piece.id === Pieces.castleArchNoDoor
-  // Validate
-  // const isVerticalClearanceForPiece = newHexIds.every((_, i) => {
-  //   const clearanceHexIds = Array(
-  //     verticalObstructionTemplates?.[piece.id]?.[i] ?? piece.height,
-  //   )
-  //     .fill(0)
-  //     .map((_, j) => {
-  //       const altitude = newPieceAltitude + 1 + j
-  //       return genBoardHexID({ ...piecePlaneCoords[i], altitude })
-  //     })
-  //   return clearanceHexIds.every((clearanceHexId) => {
-  //     const hex = newBoardHexes?.[clearanceHexId]
-  //     if (!hex) return true // if no boardHex is written, then it is definitely empty
-  //     const terrain = hex?.terrain
-  //     const isBlocked = isSolidTerrainHex(terrain) || isFluidTerrainHex(terrain)
-  //     return !isBlocked
-  //   })
-  // })
   const isLandTile =
     isFluidTerrainHex(piece.terrain) || isSolidTerrainHex(piece.terrain)
   const isObstacle = isObstaclePieceID(piece.id)
@@ -107,7 +76,12 @@ export function removePiece({
   //   }
   // }
   // LAND, WALLWALK, CASTLE WALL
-  if ((isLandTile || isCastleArch || isCastleWall) && isEachOverheadPieceSupportedByAnotherPiece(newBoardHexes, pieceID)) {
+  // const isPieceRemoveable = isEachOverheadPieceSupportedByAnotherPiece(newBoardHexes, pieceID)
+  // if(!isPieceRemoveable){
+  //   error = {message: "Cannot remove piece, other pieces are on top of it"}
+  // }
+  // if ((isLandTile || isCastleArch || isCastleWall) && isPieceRemoveable) {
+  if ((isLandTile || isCastleArch || isCastleWall)) {
     // restore caps to under hexes
     restoreCapsToEmptyUnderHexes(pieceID, newBoardHexes)
     // remove the hexes
@@ -129,33 +103,32 @@ const removePieceIDFromBoardHexes = (
     }
   })
 }
-const isEachOverheadPieceSupportedByAnotherPiece = (newBoardHexes: BoardHexes, pieceIDRemoving: string) => {
-  const pieceBoardHexes = Object.values(newBoardHexes)
-    .filter(bh => (bh?.pieceID === pieceIDRemoving))
-  const overHexIds = pieceBoardHexes.map((hex) =>
-    genBoardHexID({ ...hex, altitude: (hex?.altitude ?? 0) + 1 }),
-  )
-  const pieceIdsOfOverHexes = Array.from(new Set(overHexIds.map(oh => (
-    newBoardHexes?.[oh]?.pieceID
-  )).filter(id => id && newBoardHexes?.[id]?.pieceID !== pieceIDRemoving)))
-  console.log("🚀 ~ isEachOverheadPieceSupportedByAnotherPiece ~ pieceIdsOfOverHexes:", pieceIdsOfOverHexes)
-  return pieceIdsOfOverHexes.every((overPieceID) => {
-    // Cannot delete with castle arch over head (unless deleting that arch)
-    if (overPieceID.includes(Pieces.castleArch) && overPieceID !== pieceIDRemoving) {
-      return false
-    }
-    const overPieceHexes = Object.values(newBoardHexes).filter(
-      (hex) => hex?.pieceID === overPieceID
-    )
-    const underHexIds = overPieceHexes.map((cubeCoord) =>
-      genBoardHexID({ ...cubeCoord, altitude: (cubeCoord.altitude ?? 0) - 1 })
-    )
-    return underHexIds.some((underHexId) => {
-      const underHex = newBoardHexes?.[underHexId]
-      return underHex && underHex.pieceID && underHex.pieceID !== pieceIDRemoving && underHex.pieceID !== overPieceID
-    })
-  })
-}
+// const isEachOverheadPieceSupportedByAnotherPiece = (newBoardHexes: BoardHexes, pieceIDRemoving: string) => {
+//   const pieceBoardHexes = Object.values(newBoardHexes)
+//     .filter(bh => (bh?.pieceID === pieceIDRemoving))
+//   const overHexIds = pieceBoardHexes.map((hex) =>
+//     genBoardHexID({ ...hex, altitude: (hex?.altitude ?? 0) + 1 }),
+//   )
+//   const pieceIdsOfOverHexes = Array.from(new Set(overHexIds.map(oh => (
+//     newBoardHexes?.[oh]?.pieceID
+//   )).filter(id => id && newBoardHexes?.[id]?.pieceID !== pieceIDRemoving)))
+//   return pieceIdsOfOverHexes.every((overPieceID) => {
+//     // Cannot delete with castle arch over head (unless deleting that arch)
+//     if (overPieceID.includes(Pieces.castleArch) && overPieceID !== pieceIDRemoving) {
+//       return false
+//     }
+//     const overPieceHexes = Object.values(newBoardHexes).filter(
+//       (hex) => hex?.pieceID === overPieceID
+//     )
+//     const underHexIds = overPieceHexes.map((cubeCoord) =>
+//       genBoardHexID({ ...cubeCoord, altitude: (cubeCoord.altitude ?? 0) - 1 })
+//     )
+//     return underHexIds.some((underHexId) => {
+//       const underHex = newBoardHexes?.[underHexId]
+//       return underHex && underHex.pieceID && underHex.pieceID !== pieceIDRemoving && underHex.pieceID !== overPieceID
+//     })
+//   })
+// }
 const restoreCapsToEmptyUnderHexes = (pieceIDRemoving: string, newBoardHexes: BoardHexes) => {
   const pieceBoardHexes = Object.values(newBoardHexes)
     .filter(bh => (bh?.pieceID === pieceIDRemoving))
