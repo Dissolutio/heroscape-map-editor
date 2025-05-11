@@ -17,15 +17,17 @@ type PaintTileArgs = {
   rotation: number
   laurSide?: string
 }
+type AddRemovePieceError = undefined | { message: string }
 
 const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   boardHexes: {},
   hexMap: { id: '', name: '', shape: 'rectangle', width: 20, length: 20 },
   boardPieces: {},
-  paintTile: ({ piece, clickedHex, rotation }: PaintTileArgs) =>
+  paintTile: ({ piece, clickedHex, rotation }: PaintTileArgs): AddRemovePieceError => {
+    let error
     set((state) => {
       return produce(state, (draft) => {
-        const { newBoardHexes, newBoardPieces } = addPiece({
+        const { newBoardHexes, newBoardPieces, error } = addPiece({
           piece,
           boardHexes: draft.boardHexes,
           boardPieces: draft.boardPieces,
@@ -37,32 +39,33 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
       })
-    }),
+    })
+    return error
+  },
   removePieceByPieceID: (pieceID: string) =>
     set((state) => {
       return produce(state, (draft) => {
         delete draft.boardPieces[pieceID]
       })
     }),
-  // deleteLandPiece: ({ piece, clickedHex }: {
-  //   piece: Piece
-  //   clickedHex: BoardHex
-  // }) =>
-  //   set((state) => {
-  //     return produce(state, (draft) => {
-  //       const { newBoardHexes, newBoardPieces } = addPiece({
-  //         piece,
-  //         boardHexes: draft.boardHexes,
-  //         boardPieces: draft.boardPieces,
-  //         pieceCoords: clickedHex,
-  //         placementAltitude: clickedHex.altitude,
-  //         rotation,
-  //         isVsTile: false,
-  //       })
-  //       draft.boardHexes = newBoardHexes
-  //       draft.boardPieces = newBoardPieces
-  //     })
-  //   }),
+  unpaintTile: ({ piece, clickedHex }: {
+    piece: Piece
+    clickedHex: BoardHex
+  }) =>
+    set((state) => {
+      return produce(state, (draft) => {
+        const { newBoardHexes, newBoardPieces } = removePiece({
+          piece,
+          boardHexes: draft.boardHexes,
+          boardPieces: draft.boardPieces,
+          // placementAltitude: clickedHex.altitude,
+          // rotation,
+          // isVsTile: false,
+        })
+        draft.boardHexes = newBoardHexes
+        draft.boardPieces = newBoardPieces
+      })
+    }),
   changeMapName: (mapName: string) =>
     set((state) => {
       return produce(state, (draft) => {

@@ -15,7 +15,7 @@ import {
   isObstaclePieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
-import { genBoardHexID, genPieceID } from '../utils/map-utils'
+import { decodePieceID, genBoardHexID, genPieceID } from '../utils/map-utils'
 import interlockRotationTemplates from './interlock-rotations'
 import interlockTemplates from './interlock-templates'
 import getPieceTemplateCoords from './rotationTransforms'
@@ -24,168 +24,71 @@ import {
   verticalObstructionTemplates,
   verticalSupportTemplates,
 } from './ruins-templates'
+import { AddRemovePieceReturn } from './addPiece'
+import { piecesSoFar } from './pieces'
 
-export type PieceAddArgs = {
-  piece: Piece
+export type RemovePieceArgs = {
+  pieceID: string
   boardHexes: BoardHexes
   boardPieces: BoardPieces
-  pieceCoords: CubeCoordinate
-  placementAltitude: number
-  rotation: number
-  isVsTile: boolean
-}
-export type AddRemovePieceReturn = {
-  newBoardHexes: BoardHexes
-  newBoardPieces: BoardPieces
-  error: AddRemovePieceError
 }
 
-export function addPiece({
+export function removePiece({
   // state to mutate and return
   boardHexes,
   boardPieces,
   // input
-  piece,
-  pieceCoords,
-  placementAltitude,
-  rotation,
-  isVsTile,
-}: PieceAddArgs): AddRemovePieceReturn {
+  pieceID,
+}: RemovePieceArgs): AddRemovePieceReturn {
   let error: AddRemovePieceError
+  const {
+    inventoryID,
+    altitude: pieceAltitude,
+    rotation,
+    boardHexID,
+    pieceCoords,
+  } = decodePieceID(pieceID)
+  const piece = piecesSoFar[inventoryID]
   const newBoardHexes = clone(boardHexes)
   const newBoardPieces = clone(boardPieces)
   const piecePlaneCoords = getPieceTemplateCoords({
     clickedHex: { q: pieceCoords.q, r: pieceCoords.r, s: pieceCoords.s },
     rotation,
     template: piece.template,
-    isVsTile,
+    isVsTile: false,
   })
-  const originOfTile = isVsTile ? piecePlaneCoords[0] : pieceCoords // vs moves it around per rotation, our app will probably not
-  const pieceHexID = genBoardHexID({
-    ...originOfTile,
-    altitude: placementAltitude,
-  })
-  const pieceID = genPieceID(pieceHexID, piece.id, rotation)
-  const ladderBattlementPieceRotation = isVsTile
-    ? (rotation + 5) % 6
-    : rotation % 6 // VS starts ladders at rotation 5 (top-right, NE), instead of 0 (right, E)
-  const ladderBattlementPieceID = genPieceID(
-    pieceHexID,
-    piece.id,
-    ladderBattlementPieceRotation,
-  )
-  const newPieceAltitude = placementAltitude + 1
-  const underHexIds = piecePlaneCoords.map((cubeCoord) =>
-    genBoardHexID({ ...cubeCoord, altitude: placementAltitude }),
-  )
-  const newHexIds = piecePlaneCoords.map((cubeCoord) =>
-    genBoardHexID({ ...cubeCoord, altitude: newPieceAltitude }),
-  )
-  const overHexIds = piecePlaneCoords.map((cubeCoord) =>
-    genBoardHexID({ ...cubeCoord, altitude: newPieceAltitude + 1 }),
-  )
+  // const originOfTile = calculate this
+  // const pieceHexID = genBoardHexID({
+  //   ...originOfTile,
+  //   altitude: placementAltitude,
+  // })
+  // const overHexIds = piecePlaneCoords.map((cubeCoord) =>
+  //   genBoardHexID({ ...cubeCoord, altitude: newPieceAltitude + 1 }),
+  // )
   const isCastleWallPiece = piece.id.includes(PiecePrefixes.castleWall)
   const isCastleArchPiece =
     piece.id === Pieces.castleArch || piece.id === Pieces.castleArchNoDoor
   // Validate
-  const isPlacingOnTable = underHexIds.every(
-    (id) => (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.empty,
-  )
-  const isSpaceFree = newHexIds.every((id) => !newBoardHexes[id])
-  const isSolidUnderAtLeastOne = underHexIds.some(
-    (id) =>
-      isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? '') ||
-      newBoardHexes?.[id]?.pieceID.includes(PiecePrefixes.castleBase),
-  )
-  const isSolidUnderAll = underHexIds.every((id) =>
-    isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
-  )
-  const isLadderAuxiliaryUnderAll = underHexIds.every(
-    (id) =>
-      (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.ladder &&
-      newBoardHexes?.[id]?.isObstacleAuxiliary === true,
-  )
-  const isEmptyUnderAll = underHexIds.every(
-    (id) => (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.empty,
-  )
-  const isVerticalClearanceForPiece = newHexIds.every((_, i) => {
-    const clearanceHexIds = Array(
-      verticalObstructionTemplates?.[piece.id]?.[i] ?? piece.height,
-    )
-      .fill(0)
-      .map((_, j) => {
-        const altitude = newPieceAltitude + 1 + j
-        return genBoardHexID({ ...piecePlaneCoords[i], altitude })
-      })
-    return clearanceHexIds.every((clearanceHexId) => {
-      const hex = newBoardHexes?.[clearanceHexId]
-      if (!hex) return true // if no boardHex is written, then it is definitely empty
-      const terrain = hex?.terrain
-      const isBlocked = isSolidTerrainHex(terrain) || isFluidTerrainHex(terrain)
-      return !isBlocked
-    })
-  })
-  const isCastleWallUnder = underHexIds.some(
-    (id) => newBoardHexes?.[id]?.terrain === HexTerrain.castle,
-  )
-  const isPlacingWallWalkOnWall =
-    piece.terrain === HexTerrain.wallWalk && isSpaceFree && isCastleWallUnder
-  const isPlacingLandTile =
-    (isFluidTerrainHex(piece.terrain) || isSolidTerrainHex(piece.terrain)) &&
-    !isPlacingWallWalkOnWall
-  // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
-  const isObstaclePieceSupported =
-    isSolidUnderAll ||
-    (isBridgingObstaclePieceID(piece.id) && isSolidUnderAtLeastOne) ||
-    isPlacingOnTable
-  const isLadderPieceSupported = isSolidUnderAll || isLadderAuxiliaryUnderAll
-  const isBattlementPieceSupported_TODO = true // TODO: compute
+  // const isVerticalClearanceForPiece = newHexIds.every((_, i) => {
+  //   const clearanceHexIds = Array(
+  //     verticalObstructionTemplates?.[piece.id]?.[i] ?? piece.height,
+  //   )
+  //     .fill(0)
+  //     .map((_, j) => {
+  //       const altitude = newPieceAltitude + 1 + j
+  //       return genBoardHexID({ ...piecePlaneCoords[i], altitude })
+  //     })
+  //   return clearanceHexIds.every((clearanceHexId) => {
+  //     const hex = newBoardHexes?.[clearanceHexId]
+  //     if (!hex) return true // if no boardHex is written, then it is definitely empty
+  //     const terrain = hex?.terrain
+  //     const isBlocked = isSolidTerrainHex(terrain) || isFluidTerrainHex(terrain)
+  //     return !isBlocked
+  //   })
+  // })
+  const isPlacingLandTile = (isFluidTerrainHex(piece.terrain) || isSolidTerrainHex(piece.terrain))
   const isPlacingObstacle =
-    isObstaclePieceID(piece.id) &&
-    isSpaceFree &&
-    isVerticalClearanceForPiece &&
-    isObstaclePieceSupported
-  const isLadderPieceID = piece.terrain === HexTerrain.ladder
-  const isPlacingLadder =
-    isLadderPieceID &&
-    isSpaceFree &&
-    isVerticalClearanceForPiece &&
-    isLadderPieceSupported
-  const isBattlementPieceID = piece.terrain === HexTerrain.battlement
-  const isRoadWallPieceID = piece.terrain === HexTerrain.roadWall
-  const isRoadWallPieceSupported_TODO = true // TODO: compute
-  const isPlacingBattlement =
-    isBattlementPieceID && isBattlementPieceSupported_TODO
-  const isPlacingRoadWall = isRoadWallPieceID && isRoadWallPieceSupported_TODO
-
-  // LAUR WALL ADDONS: Autoadd piece id, render from boardPieces
-  if (
-    piece.terrain === HexTerrain.laurWall &&
-    piece.id !== Pieces.laurWallPillar
-  ) {
-    // write the new laur addon piece
-    newBoardPieces[pieceID] = piece.id
-  }
-  // ROADWALLS: Autoadd piece id, render from boardPieces
-  if (isPlacingRoadWall) {
-    try {
-      // Battlements are just going to write piece ID, no matter what, and we will render from that
-      // write the new battlement piece
-      newBoardPieces[pieceID] = piece.id
-    } catch (error) {
-      console.log('Error placing roadwall piece error:', error)
-    }
-  }
-  // BATTLEMENTS: Autoadd piece id, render from boardPieces
-  if (isPlacingBattlement) {
-    try {
-      // Battlements are just going to write piece ID, no matter what, and we will render from that
-      // write the new battlement piece
-      newBoardPieces[ladderBattlementPieceID] = piece.id
-    } catch (error) {
-      console.log('Error placing battlement piece:', error)
-    }
-  }
+    isObstaclePieceID(piece.id)
 
   // ALL PIECES BELOW ARE RENDERED FROM BOARD HEXES
 
