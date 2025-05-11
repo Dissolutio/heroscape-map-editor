@@ -135,6 +135,3 @@ COLOR MAPPING:
 Gpick                 |||  Coolors
 hsl(359, 51%, 36%)  hsl(354, 65%, 36%)
 hsl(232, 42%, 71%) hsl(231, 46%, 71%)
-
-
-http://localhost:5173/hs?m=%5B(%27id!%27F5sSju4FuCGK86name!%27Cave%20of%20Gotterdammerung6shape!%27rectangle6width!2~length!4)~0.0A0.1A991.g172.r273.r261.2*9r2%27%5D*,%27.*0*6%27~760*-991*A.g26%01A976.*_
