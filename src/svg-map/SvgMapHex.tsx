@@ -1,3 +1,4 @@
+import useBoundStore from '../store/store'
 import { BoardHex } from '../types'
 import { SVG_HEX_RADIUS } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
@@ -5,15 +6,17 @@ import { SvgHexIDText } from './SvgHexIDText'
 import { getHexagonSvgPolygonPoints } from './getHexagonSvgPolygonPoints'
 import { getSvgHexBorderColor, getSvgHexFillColor } from './getSvgHexColors'
 
-export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
-  const isEmptyHex = hex.terrain === 'empty'
-  // handlers
-  const pixel = hexUtilsHexToPixel(hex)
+const OPACITY_SUBLEVEL = 0.5
 
+export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isVisible = hex.altitude <= viewingLevel
+  const isSubLevel = hex.altitude < viewingLevel
+  const isEmptyHex = hex.terrain === 'empty'
+  const pixel = hexUtilsHexToPixel(hex)
   const { points } = getHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
   const color = getSvgHexFillColor(hex)
   const borderColor = getSvgHexBorderColor(hex)
-
   const borderRotation =
     (+(hex?.interlockRotation ?? 0) + (hex?.pieceRotation ?? 0)) * 60
 
@@ -21,8 +24,10 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     <g
       transform={`translate(${pixel.x}, ${pixel.y})`}
       clipPath="url(#inner-stroke-clip)"
+      style={{ visibility: isVisible ? 'visible' : 'hidden' }}
     >
-      <polygon points={points} fill={color} stroke={color} />
+      <polygon points={points} fill={color} stroke={color}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1} />
       {hex.interlockType !== '0' && (
         <polygon
           points={points}

@@ -69,12 +69,6 @@ export function removePiece({
     // remove the piece
     delete newBoardPieces[pieceID]
   }
-  //  ARCH (leetle complicated)
-  // if(isCastleArch){
-  //   error = {
-  //     message: "Cannot delete castle "
-  //   }
-  // }
   // LAND, WALLWALK, CASTLE WALL
   // const isPieceRemoveable = isEachOverheadPieceSupportedByAnotherPiece(newBoardHexes, pieceID)
   // if(!isPieceRemoveable){
