@@ -1,7 +1,7 @@
 import { Vector3 } from 'three'
 import useBoundStore from '../store/store'
 import { Pieces } from '../types'
-import { isPieceIDPiece } from '../utils/board-utils'
+import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
 import { HEXGRID_HEXCAP_HEIGHT } from '../utils/constants'
 import { decodePieceID, getBoardHex3DCoords } from '../utils/map-utils'
 import { Battlement } from './models/Battlement'
@@ -19,7 +19,7 @@ export const MapBoardPiece3D = ({
   pid: string
 }) => {
   const {
-    pieceID,
+    inventoryID,
     altitude,
     rotation,
     // boardHexID,
@@ -33,14 +33,14 @@ export const MapBoardPiece3D = ({
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = altitude + 1 <= viewingLevel
-  if (!isPieceIDPiece(pieceID)) {
+  if (!isRenderedFromPieceIDPiece(inventoryID)) {
     return null
   }
   // LAURWALL ADDON
   if (
-    pieceID === Pieces.laurWallRuin ||
-    pieceID === Pieces.laurWallShort ||
-    pieceID === Pieces.laurWallLong
+    inventoryID === Pieces.laurWallRuin ||
+    inventoryID === Pieces.laurWallShort ||
+    inventoryID === Pieces.laurWallLong
   ) {
     return (
       <group
@@ -56,7 +56,7 @@ export const MapBoardPiece3D = ({
   }
 
   // BATTLEMENT
-  if (pieceID === Pieces.battlement) {
+  if (inventoryID === Pieces.battlement) {
     return (
       <group
         position={[
@@ -73,7 +73,7 @@ export const MapBoardPiece3D = ({
   }
 
   // ROADWALL
-  if (pieceID === Pieces.roadWall) {
+  if (inventoryID === Pieces.roadWall) {
     return (
       <group
         position={[

@@ -26,7 +26,7 @@ export function LaurWallAddon({
     nodes: { LaurWallLong, LaurWallLongDecorDeep },
   } = useGLTF('/laurwall-long.glb') as any
   const {
-    pieceID,
+    inventoryID,
     // altitude,
     // rotation,
     // boardHexID,
@@ -63,7 +63,7 @@ export function LaurWallAddon({
       onPointerOut={(e) => onPointerOut(e)}
     >
       {/* LAUR WALL RUIN */}
-      {pieceID === Pieces.laurWallRuin && (
+      {inventoryID === Pieces.laurWallRuin && (
         <>
           <mesh geometry={LaurWallRuin.geometry}>
             <meshMatcapMaterial color={pillarColor} />
@@ -74,7 +74,7 @@ export function LaurWallAddon({
         </>
       )}
       {/* LAUR WALL SHORT */}
-      {pieceID === Pieces.laurWallShort && (
+      {inventoryID === Pieces.laurWallShort && (
         <>
           <mesh geometry={LaurWallShort.geometry}>
             <meshMatcapMaterial color={pillarColor} />
@@ -85,7 +85,7 @@ export function LaurWallAddon({
         </>
       )}
       {/* LAUR WALL LONG */}
-      {pieceID === Pieces.laurWallLong && (
+      {inventoryID === Pieces.laurWallLong && (
         <>
           <mesh
             geometry={LaurWallLong.geometry}

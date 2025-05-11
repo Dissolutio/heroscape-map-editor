@@ -7,11 +7,15 @@ cbc	Castle Base Corner	1	0
 cbe	Castle Base End	1	0
 cbs	Castle Base Straight	1	0
 ca	Castle Door Arch	3	0
+cwc	Castle Wall Corner	1	0
+cwe	Castle Wall End	1	0
+cws	Castle Wall Straight	1	0
 c1	Concrete	1	0
 c2	Concrete	2	0
 c6	Concrete	6	0
 c7	Concrete	7	0
 d1	Dungeon	1	0
+d2	Dungeon	2	0
 d3	Dungeon	3	0
 d7	Dungeon	7	0
 d24	Dungeon	24	0
@@ -33,7 +37,7 @@ lp13	Laur Jungle Tree	13	0
 lp14	Laur Jungle Tree	14	0
 lp15	Laur Jungle Tree	15	0
 lwp	Laur Pillar	1	0
-sb10	Laur Underbrush	10	0
+lb10	Laur Underbrush	10	0
 lwl	Laur Wall Long	1	0
 lwr	Laur Wall Ruin	#N/A	0
 lws	Laur Wall Short	#N/A	0
@@ -84,14 +88,14 @@ sw3	Swamp	3	0
 sw7	Swamp	7	0
 sw24	Swamp	24	0
 sb10	Swamp Underbrush	10	0
-sww1	Swamp Water	1	0
-sww3	Swamp Water	3	0
-sww6	Swamp Water	6	0
+ws1	Swamp Water	1	0
+ws3	Swamp Water	3	0
+ws6	Swamp Water	6	0
 tb9	Ticalla Brush	9	0
 tr10	Tree	10	0
 tr11	Tree	11	0
 tr12	Tree	12	0
-tr415	Tree	15	0
+tr15	Tree	15	0
 cg1	Wall Walk	1	0
 cg7	Wall Walk	7	0
 cg9	Wall Walk	9	0

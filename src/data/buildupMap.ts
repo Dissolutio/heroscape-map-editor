@@ -68,8 +68,8 @@ export default function buildupVSFileMap(
 function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: string[]) {
   // adding the laur addons will only work if pillars are already down
   return arr.sort((a, b) => {
-    const aPieceID = decodePieceID(a).pieceID
-    const bPieceID = decodePieceID(b).pieceID
+    const aPieceID = decodePieceID(a).inventoryID
+    const bPieceID = decodePieceID(b).inventoryID
     if (
       aPieceID === Pieces.laurWallRuin ||
       aPieceID === Pieces.laurWallLong ||
@@ -118,9 +118,9 @@ export function buildupJsonFileMap(
         pieceCoords,
         altitude: placementAltitude,
         rotation,
-        pieceID,
+        inventoryID,
       } = decodePieceID(pieceAqrrID)
-      const piece = piecesSoFar[pieceID]
+      const piece = piecesSoFar[inventoryID]
       if (!piece) {
         return boardHexes // Should probably handle this different, errors etc.
       }

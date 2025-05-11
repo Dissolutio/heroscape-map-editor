@@ -27,7 +27,7 @@ const getBoardHexAndPieceChunks = (
   )
   const filteredBoardPieces = Object.keys(boardPieces)
     .filter((pieceID) => {
-      const id = decodePieceID(pieceID).pieceID
+      const id = decodePieceID(pieceID).inventoryID
       return (
         id === Pieces.battlement ||
         id === Pieces.roadWall ||
@@ -125,7 +125,7 @@ export function ReactPdfRoot() {
   )
 }
 type DecodedPiece = {
-  pieceID: string
+  inventoryID: string
   altitude: number
   rotation: number
   boardHexID: string

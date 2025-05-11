@@ -182,7 +182,7 @@ export const getHexNearNeighborByRotation = (
   ]
 }
 const halfASideLength = HEXGRID_HEX_RADIUS / 2
-export const hexPointsFromCenter = {
+export const hexPoints3DFromCenter = {
   topRight: new Vector3(HEXGRID_HEX_APOTHEM, 0, halfASideLength), // top-right
   bottomRight: new Vector3(HEXGRID_HEX_APOTHEM, 0, -halfASideLength), // bottom-right
   bottom: new Vector3(0, 0, -HEXGRID_HEX_RADIUS), // bottom
@@ -214,10 +214,10 @@ export function decodePieceID(aqrrID: string) {
   const r = parseInt(parsed[2])
   const s = -q - r
   const rotation = parseFloat(parsed[3])
-  const pieceID = parsed[4]
+  const inventoryID = parsed[4]
   const pieceCoords = { q, r, s }
   return {
-    pieceID,
+    inventoryID,
     altitude,
     rotation,
     boardHexID: genBoardHexID({ ...pieceCoords, altitude }),
