@@ -8,14 +8,14 @@ import { Pieces } from '../../types'
 type Props = { pieceID: string; y?: number }
 
 const DeletePieceBillboard = ({ pieceID, y = 0 }: Props) => {
-  const removePieceByPieceID = useBoundStore((s) => s.removePieceByPieceID)
+  const unpaintTile = useBoundStore((s) => s.unpaintTile)
   const onClickDeletePiece = (e: React.PointerEvent<HTMLButtonElement>) => {
     if (
       pieceID.includes(Pieces.roadWall) ||
       pieceID.includes(Pieces.battlement)
     ) {
       e?.stopPropagation()
-      removePieceByPieceID(pieceID)
+      unpaintTile(pieceID)
     }
   }
   return null
