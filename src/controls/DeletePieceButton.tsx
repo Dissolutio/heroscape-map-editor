@@ -16,7 +16,7 @@ type Props = {
 
 const DeletePieceButton = () => {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const { pieceID: inventoryID } = decodePieceID(selectedPieceID)
+  const { inventoryID } = decodePieceID(selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const removePieceByPieceID = useBoundStore((s) => s.removePieceByPieceID)
   useHotkeys(
@@ -30,8 +30,8 @@ const DeletePieceButton = () => {
     } else if (isNoVerifyDeletePieceByPieceID(inventoryID)) {
       /* 
     0. Obstacles, Ruins
-    1. Laur Pillars
     2. Land (check stuff on top)
+    1. Laur Pillars
     3. Ladders
     4. Castle Pieces
     */

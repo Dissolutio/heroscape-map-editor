@@ -20,7 +20,7 @@ const shiftInDirectionBoardPieces = (direction: number, boardPieces: BoardPieces
   const newBoardPieces = Object.keys(boardPieces).reduce(
     (prev: any, pid: string) => {
       const {
-        pieceID,
+        inventoryID,
         altitude,
         rotation,
         // boardHexID,
@@ -28,10 +28,10 @@ const shiftInDirectionBoardPieces = (direction: number, boardPieces: BoardPieces
       } = decodePieceID(pid)
       const newPieceCoords = hexUtilsAdd(pieceCoords, HEX_DIRECTIONS[direction])
       const newBoardHexID = genBoardHexID({ ...newPieceCoords, altitude })
-      const newPieceID = genPieceID(newBoardHexID, pieceID, rotation)
+      const newPieceID = genPieceID(newBoardHexID, inventoryID, rotation)
       return {
         ...prev,
-        [newPieceID]: pieceID,
+        [newPieceID]: inventoryID,
       }
     },
     {},

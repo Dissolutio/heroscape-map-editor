@@ -11,13 +11,13 @@ const SelectedPieceReadout = () => {
     return null
   }
   const {
-    pieceID,
+    inventoryID,
     altitude,
     rotation,
     // boardHexID,
     // pieceCoords
   } = decodePieceID(selectedPieceID)
-  const piece = piecesSoFar[pieceID]
+  const piece = piecesSoFar[inventoryID]
 
   return (
     <div
