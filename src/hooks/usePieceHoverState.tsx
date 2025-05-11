@@ -16,7 +16,7 @@ export default function usePieceHoverState(isVisible?: boolean) {
     setIsHovered(true)
     hoverTimeout.current = window.setTimeout(() => {
       toggleHoveredPieceID(boardHex.pieceID)
-    }, 100) // Adjust the delay (in milliseconds) as needed
+    }, 50) // Adjust the delay (in milliseconds) as needed
   }
   const onPointerEnterPID = (e: ThreeEvent<PointerEvent>, pid: string) => {
     if (!isVisible) {
@@ -26,7 +26,7 @@ export default function usePieceHoverState(isVisible?: boolean) {
     setIsHovered(true)
     hoverTimeout.current = window.setTimeout(() => {
       toggleHoveredPieceID(pid)
-    }, 100) // Adjust the delay (in milliseconds) as needed
+    }, 50) // Adjust the delay (in milliseconds) as needed
   }
   const onPointerOut = (e: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
