@@ -6,7 +6,7 @@ import { SvgHexIDText } from './SvgHexIDText'
 import { getHexagonSvgPolygonPoints } from './getHexagonSvgPolygonPoints'
 import { getSvgHexBorderColor, getSvgHexFillColor } from './getSvgHexColors'
 
-const OPACITY_SUBLEVEL = 0.5
+const OPACITY_SUBLEVEL = 0.3
 
 export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
@@ -41,6 +41,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           strokeWidth={isEmptyHex ? 0.2 : 2}
           strokeLinejoin="round"
           strokeLinecap="butt"
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
           clipPath={`url(#interlock${hex.interlockType}-clip)`}
         />
       )}
