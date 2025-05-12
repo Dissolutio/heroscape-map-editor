@@ -8,7 +8,7 @@ import { PdfMapHex } from './PdfMapHex'
 type ReactPdfSvgMapDisplayProps = {
   width: number
   length: number
-  levelHexArr: BoardHex[]
+  // levelHexArr: BoardHex[]
   boardHexesArr: BoardHex[]
   viewingLevel: number
 }
@@ -16,7 +16,6 @@ type ReactPdfSvgMapDisplayProps = {
 export const ReactPdfSvgMapDisplay = ({
   width,
   length,
-  levelHexArr,
   boardHexesArr,
   viewingLevel
 }: ReactPdfSvgMapDisplayProps) => {

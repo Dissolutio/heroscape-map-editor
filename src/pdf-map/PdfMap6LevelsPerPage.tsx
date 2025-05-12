@@ -22,7 +22,7 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
   )
   return (
     <>
-      {boardHexAndPieceChunks.map((chunk, pageIndex) => (
+      {boardHexAndPieceChunks.map((chunk) => (
         <Page
           size="LETTER"
           style={{
@@ -49,7 +49,7 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
                         Level: {group.altitude}
                       </Text>
                       <ReactPdfSvgMapDisplay
-                        levelHexArr={group.hexes}
+                        // levelHexArr={group.hexes}
                         boardHexesArr={Object.values(boardHexes)}
                         width={width}
                         length={length}
@@ -73,7 +73,7 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
                         Level: {group.altitude}
                       </Text>
                       <ReactPdfSvgMapDisplay
-                        levelHexArr={group.hexes}
+                        // levelHexArr={group.hexes}
                         boardHexesArr={Object.values(boardHexes)}
                         width={width}
                         length={length}
