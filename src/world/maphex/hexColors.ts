@@ -116,6 +116,7 @@ export const svgColors = {
   outline7: 'rgb(175, 27, 148)',
   outline24: 'rgb(188, 188, 186)',
   outlineWater: 'rgb(43, 56, 139)', // ice, swampwater too
+  outlineLava: hexTerrainColor[HexTerrain.lava],
   outlineWellspringWater: 'rgb(41, 56, 136)',
   outlineTree: 'rgb(29, 60, 30)',
   outlineJungle: 'rgb(121, 61, 26)',

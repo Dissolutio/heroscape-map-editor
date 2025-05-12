@@ -11,17 +11,25 @@ import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import { svgColors } from '../world/maphex/hexColors'
 
-export const PdfMapHex = ({ hex }: { hex: BoardHex }) => {
+const OPACITY_SUBLEVEL = 0.5
+
+export const PdfMapHex = ({ hex, viewingLevel }: { hex: BoardHex, viewingLevel: number }) => {
   const { points } = getHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
   const pixel = hexUtilsHexToPixel(hex)
   const inventoryID = decodePieceID(hex.pieceID).inventoryID
   const isEmptyHex = hex.terrain === 'empty'
-  const color = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
+  const isSubLevel = hex.altitude < viewingLevel
+  const isVisible = hex.altitude <= viewingLevel
+  const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
 
   const borderColor = getSvgHexBorderColor(hex)
   const borderRotation =
     ((hex?.interlockRotation ?? 0) + (hex?.pieceRotation ?? 0)) % 6
   const pieceHeightText = piecesSoFar[inventoryID]?.height
+  // EARLY RETURN: NOT VISIBLE
+  if (!isVisible) {
+    return null
+  }
   return (
     <G transform={`translate(${pixel.x}, ${pixel.y})`}>
       {/* TODO PDF HEX: Make composite interlocks, see if that looks nicer in LibreOffice */}
@@ -29,10 +37,11 @@ export const PdfMapHex = ({ hex }: { hex: BoardHex }) => {
       {/*  */}
       <Polygon
         points={points}
-        fill={color}
-        stroke={isEmptyHex ? 'black' : color}
+        fill={fillColor}
+        stroke={isEmptyHex ? 'black' : fillColor}
         strokeWidth={isEmptyHex ? 0.2 : 1}
-        strokeOpacity={isEmptyHex ? 0.1 : 0}
+        // strokeOpacity={isEmptyHex ? 0.1 : isSubLevel ? OPACITY_SUBLEVEL : 0}
+        opacity={isEmptyHex ? 0.1 : isSubLevel ? OPACITY_SUBLEVEL : 1}
         clipPath="url(#inner-stroke-clip)"
       />
       {/* Interlock Hex Outlines */}
@@ -41,6 +50,7 @@ export const PdfMapHex = ({ hex }: { hex: BoardHex }) => {
           points={points}
           stroke={borderColor}
           strokeWidth={5}
+          opacity={isEmptyHex ? 0.1 : isSubLevel ? OPACITY_SUBLEVEL : 1}
           clipPath={`url(#interlock${hex.interlockType}-${borderRotation}-clip)`}
         />
       )}
