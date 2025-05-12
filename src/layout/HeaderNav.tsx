@@ -5,8 +5,8 @@ import Toolbar from '@mui/material/Toolbar'
 import { FcPrint } from 'react-icons/fc'
 import { MdMenu } from 'react-icons/md'
 import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
-import useBoundStore from '../store/store'
 import { ReactPdfDownloadLink } from '../pdf-map/ReactPdfDownloadLink'
+import useBoundStore from '../store/store'
 
 type Props = {
   isMobileScreenLayout: boolean
@@ -33,8 +33,8 @@ export function HeaderNav({
   return (
     <AppBar
       position="static"
-    // sx={{ backgroundColor: 'var(--black)' }}
-    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+      // sx={{ backgroundColor: 'var(--black)' }}
+      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
         <IconButton

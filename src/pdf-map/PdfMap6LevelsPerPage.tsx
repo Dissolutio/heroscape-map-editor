@@ -1,14 +1,13 @@
+import { Page, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy } from 'lodash'
-import { BoardHex, BoardHexes, BoardPieces, MapState, Pieces } from '../types'
+import { Fragment, PropsWithChildren } from 'react'
+import { BoardHexes, BoardPieces, MapState, Pieces } from '../types'
 import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
 import {
   decodePieceID,
   getBoardHexesSvgMapDimensions,
 } from '../utils/map-utils'
-import { Page, Text, View } from '@react-pdf/renderer'
-import { Fragment, PropsWithChildren } from 'react'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
-
 
 export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)

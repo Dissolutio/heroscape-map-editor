@@ -1,11 +1,8 @@
 import { useMediaQuery } from '@mui/material'
-import {
-  Document,
-  PDFViewer,
-} from '@react-pdf/renderer'
+import { Document, PDFViewer } from '@react-pdf/renderer'
 import useBoundStore from '../store/store'
-import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
+import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
 
 export function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -24,10 +21,7 @@ export function ReactPdfRoot() {
       }}
     >
       {isMobile ? (
-        <ReactPdfDownloadLink
-        >
-          Download!
-        </ReactPdfDownloadLink>
+        <ReactPdfDownloadLink>Download!</ReactPdfDownloadLink>
       ) : (
         <PDFViewer width={'100%'} height={'100%'}>
           <Document title={hexMap.name}>

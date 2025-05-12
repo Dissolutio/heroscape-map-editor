@@ -14,7 +14,7 @@
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^6.1.6",
-    "@react-pdf/renderer": "^4.2.1",
+    "@react-pdf/renderer": "^4.3.0",
     "@react-three/drei": "^9.116.0",
     "@react-three/fiber": "^8.17.10",
     "@sentry/react": "^8.47.0",

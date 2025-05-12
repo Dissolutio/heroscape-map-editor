@@ -1,7 +1,7 @@
-import { Document, PDFDownloadLink } from "@react-pdf/renderer"
-import useBoundStore from "../store/store"
-import { PropsWithChildren } from "react"
-import { PdfMapLevels6PerPage } from "./PdfMap6LevelsPerPage"
+import { Document, PDFDownloadLink } from '@react-pdf/renderer'
+import { PropsWithChildren } from 'react'
+import useBoundStore from '../store/store'
+import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 
 export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const boardHexes = useBoundStore((s) => s.boardHexes)

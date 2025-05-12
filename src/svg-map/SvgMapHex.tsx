@@ -26,8 +26,12 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       clipPath="url(#inner-stroke-clip)"
       style={{ visibility: isVisible ? 'visible' : 'hidden' }}
     >
-      <polygon points={points} fill={color} stroke={color}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1} />
+      <polygon
+        points={points}
+        fill={color}
+        stroke={color}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
       {hex.interlockType !== '0' && (
         <polygon
           points={points}

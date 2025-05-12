@@ -1,7 +1,7 @@
 import { Line, Svg } from '@react-pdf/renderer'
 import { getHexagonSvgPolygonPoints } from '../svg-map/getHexagonSvgPolygonPoints'
 import { PdfInterlockClipPaths } from '../svg-map/svg-hex-interlock-clippath'
-import { BoardHex, } from '../types'
+import { BoardHex } from '../types'
 import { SVG_HEX_RADIUS } from '../utils/constants'
 import { PdfMapHex } from './PdfMapHex'
 
@@ -17,12 +17,10 @@ export const ReactPdfSvgMapDisplay = ({
   width,
   length,
   boardHexesArr,
-  viewingLevel
+  viewingLevel,
 }: ReactPdfSvgMapDisplayProps) => {
   const { points } = getHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
-  const emptyHexesArr = boardHexesArr.filter(
-    (hex) => hex.terrain === 'empty',
-  )
+  const emptyHexesArr = boardHexesArr.filter((hex) => hex.terrain === 'empty')
   return (
     <Svg
       viewBox={`${0} ${0} ${width} ${length}`}
@@ -44,25 +42,14 @@ export const ReactPdfSvgMapDisplay = ({
     </Svg>
   )
 }
-const PdfSvgXYHelperLines = ({ length, width }: { length: number, width: number }) => {
+const PdfSvgXYHelperLines = ({
+  length,
+  width,
+}: { length: number; width: number }) => {
   return (
     <>
-      <Line
-        x1={0}
-        x2={0}
-        y1={0}
-        y2={length}
-        stroke="red"
-        strokeWidth={0.5}
-      />
-      <Line
-        x1={0}
-        x2={width}
-        y1={0}
-        y2={0}
-        stroke="blue"
-        strokeWidth={0.5}
-      />
+      <Line x1={0} x2={0} y1={0} y2={length} stroke="red" strokeWidth={0.5} />
+      <Line x1={0} x2={width} y1={0} y2={0} stroke="blue" strokeWidth={0.5} />
     </>
   )
 }

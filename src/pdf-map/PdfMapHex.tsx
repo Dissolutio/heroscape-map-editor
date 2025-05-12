@@ -13,7 +13,10 @@ import { svgColors } from '../world/maphex/hexColors'
 
 const OPACITY_SUBLEVEL = 0.5
 
-export const PdfMapHex = ({ hex, viewingLevel }: { hex: BoardHex, viewingLevel: number }) => {
+export const PdfMapHex = ({
+  hex,
+  viewingLevel,
+}: { hex: BoardHex; viewingLevel: number }) => {
   const { points } = getHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
   const pixel = hexUtilsHexToPixel(hex)
   const inventoryID = decodePieceID(hex.pieceID).inventoryID
