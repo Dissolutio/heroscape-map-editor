@@ -20,7 +20,7 @@ export const PdfMapHex = ({ hex, viewingLevel }: { hex: BoardHex, viewingLevel: 
   const isEmptyHex = hex.terrain === 'empty'
   const isSubLevel = hex.altitude < viewingLevel
   const isVisible = hex.altitude <= viewingLevel
-  const color = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
+  const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
 
   const borderColor = getSvgHexBorderColor(hex)
   const borderRotation =
@@ -37,11 +37,11 @@ export const PdfMapHex = ({ hex, viewingLevel }: { hex: BoardHex, viewingLevel: 
       {/*  */}
       <Polygon
         points={points}
-        fill={color}
-        stroke={isEmptyHex ? 'black' : color}
+        fill={fillColor}
+        stroke={isEmptyHex ? 'black' : fillColor}
         strokeWidth={isEmptyHex ? 0.2 : 1}
-        strokeOpacity={isEmptyHex ? 0.1 : 0}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        // strokeOpacity={isEmptyHex ? 0.1 : isSubLevel ? OPACITY_SUBLEVEL : 0}
+        opacity={isEmptyHex ? 0.1 : isSubLevel ? OPACITY_SUBLEVEL : 1}
         clipPath="url(#inner-stroke-clip)"
       />
       {/* Interlock Hex Outlines */}
@@ -50,6 +50,7 @@ export const PdfMapHex = ({ hex, viewingLevel }: { hex: BoardHex, viewingLevel: 
           points={points}
           stroke={borderColor}
           strokeWidth={5}
+          opacity={isEmptyHex ? 0.1 : isSubLevel ? OPACITY_SUBLEVEL : 1}
           clipPath={`url(#interlock${hex.interlockType}-${borderRotation}-clip)`}
         />
       )}
