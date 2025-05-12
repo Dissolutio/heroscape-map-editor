@@ -1,6 +1,7 @@
 import { ClipPath, Defs, Polygon } from '@react-pdf/renderer'
 import React from 'react'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
+import { get2HexSvgPolygonPoints } from './getHexagonSvgPolygonPoints'
 
 type Props = { points: string }
 
@@ -9,6 +10,9 @@ export const SvgInterlockClipPaths = ({ points }: Props) => {
     <defs>
       <clipPath id="inner-stroke-clip">
         <polygon points={points} />
+      </clipPath>
+      <clipPath id="inner-stroke-2-clip">
+        <polygon points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
       </clipPath>
       <clipPath id="interlock1-clip">
         <polygon points={interlock1Points_0} />
@@ -43,9 +47,9 @@ export const PdfInterlockClipPaths = ({ points }: Props) => {
       <ClipPath id="inner-stroke-clip">
         <Polygon points={points} />
       </ClipPath>
-      {/* <ClipPath id="interlock1-clip">
-        <Polygon points={interlock1Points} />
-      </ClipPath> */}
+      <ClipPath id="inner-stroke-2-clip">
+        <Polygon points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
+      </ClipPath>
       <ClipPath id="interlock1-0-clip">
         <Polygon points={interlock1Points_0} />
       </ClipPath>
@@ -172,24 +176,6 @@ export const PdfInterlockClipPaths = ({ points }: Props) => {
       <ClipPath id="interlock5-5-clip">
         <Polygon points={interlock5Points_5} />
       </ClipPath>
-      <ClipPath id="interlock6-0-clip">
-        <Polygon points={interlock6Points_0} />
-      </ClipPath>
-      <ClipPath id="interlock6-1-clip">
-        <Polygon points={interlock6Points_1} />
-      </ClipPath>
-      <ClipPath id="interlock6-2-clip">
-        <Polygon points={interlock6Points_2} />
-      </ClipPath>
-      <ClipPath id="interlock6-3-clip">
-        <Polygon points={interlock6Points_3} />
-      </ClipPath>
-      <ClipPath id="interlock6-4-clip">
-        <Polygon points={interlock6Points_4} />
-      </ClipPath>
-      <ClipPath id="interlock6-5-clip">
-        <Polygon points={interlock6Points_5} />
-      </ClipPath>
     </Defs>
   )
 }
@@ -262,8 +248,3 @@ const interlock5Points_4 = `${ptTopLeft} ${ptTop} ${ptTopRight} ${ptBotRight} ${
 const interlock5Points_5 = `${ptTop} ${ptTopRight} ${ptBotRight} ${ptBot} ${ptBotLeft} ${ptTopLeft} ${ptCenter}`
 
 const interlock6Points_0 = `${ptTopRight} ${ptBotRight} ${ptBot} ${ptBotLeft} ${ptTopLeft} ${ptTop}`
-const interlock6Points_1 = interlock6Points_0
-const interlock6Points_2 = interlock6Points_0
-const interlock6Points_3 = interlock6Points_0
-const interlock6Points_4 = interlock6Points_0
-const interlock6Points_5 = interlock6Points_0

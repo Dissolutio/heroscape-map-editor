@@ -28,7 +28,7 @@ export const ReactPdfSvgMapDisplay = ({
         border: '1px solid black',
       }}
     >
-      <PdfSvgXYHelperLines length={length} width={width} />
+      {/* <PdfSvgXYHelperLines length={length} width={width} /> */}
       <PdfInterlockClipPaths points={points} />
       {emptyHexesArr.map((hex) => (
         <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
