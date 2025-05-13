@@ -115,25 +115,20 @@ export const PdfMapHex = ({
   // EARLY RETURN: USE MULTIHEX FOR SOME TILES (wip)
   if (
     isLandHex &&
-    inventoryID === Pieces.grass2 &&
     hex.isObstacleAuxiliary
   ) {
     return null
   }
   if (
     isLandHex &&
-    inventoryID === Pieces.grass2 &&
+    piecesSoFar?.[inventoryID]?.size === 2 &&
     hex.isObstacleOrigin
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <Polygon
-          points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points}
-          fill={fillColor}
-          stroke={borderColor}
-          strokeWidth={SVGHEX_BORDER_WIDTH}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-          clipPath="url(#inner-stroke-2-clip)"
+        <PdfMultiHex2
+          hex={hex}
+          viewingLevel={viewingLevel}
         />
       </G>
     )
@@ -200,6 +195,35 @@ const PdfMultiHex1 = ({
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       points={getHexagonSvgPolygonPoints(SVG_HEX_RADIUS).points}
       clipPath="url(#inner-stroke-clip)"
+    />
+  )
+}
+const PdfMultiHex2 = ({
+  hex,
+  viewingLevel,
+}: {
+  hex: BoardHex; viewingLevel: number
+}) => {
+  const isEmptyHex = hex.terrain === 'empty'
+  const { inventoryID } = decodePieceID(hex.pieceID)
+  const isObstaclePiece = isObstaclePieceID(inventoryID)
+  const isSubLevel = hex.altitude < viewingLevel || (isObstaclePiece && !hex.isObstacleOrigin)
+  const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
+  const borderColor = getSvgHexBorderColor(hex)
+  const pieceRotation =
+    ((hex?.pieceRotation ?? 0) % 6)
+  return (
+    <Polygon
+      // transform={`translate(${-SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS}) rotate(${rotation}, 8.660254037844386, 10) translate(${SVG_HEX_APOTHEM},${SVG_HEX_RADIUS})`}
+      // transform={`rotate(${pieceRotation}, 8.660254037844386, 10)`}
+      // transform={`rotate(${pieceRotation * 60})`}
+      // transform={`rotate(10)`}
+      points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points}
+      fill={fillColor}
+      stroke={borderColor}
+      strokeWidth={SVGHEX_BORDER_WIDTH}
+      opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      clipPath={`url(#inner-stroke-2-${pieceRotation}-clip)`}
     />
   )
 }

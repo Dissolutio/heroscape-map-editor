@@ -39,13 +39,42 @@ export const SvgInterlockClipPaths = ({ points }: Props) => {
   )
 }
 export const PdfInterlockClipPaths = ({ points }: Props) => {
+  const NUMBA = 60
   return (
     <Defs>
       <ClipPath id="inner-stroke-clip">
         <Polygon points={points} />
       </ClipPath>
-      <ClipPath id="inner-stroke-2-clip">
+      {/* <ClipPath id="inner-stroke-2-clip">
         <Polygon points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
+      </ClipPath> */}
+      <ClipPath id="inner-stroke-2-0-clip">
+        <Polygon points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
+      </ClipPath>
+      <ClipPath id="inner-stroke-2-1-clip">
+        <Polygon
+          transform={`rotate(${NUMBA * 1})`}
+          points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
+      </ClipPath>
+      <ClipPath id="inner-stroke-2-2-clip">
+        <Polygon
+          transform={`rotate(${NUMBA * 2})`}
+          points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
+      </ClipPath>
+      <ClipPath id="inner-stroke-2-3-clip">
+        <Polygon
+          transform={`rotate(${NUMBA * 3})`}
+          points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
+      </ClipPath>
+      <ClipPath id="inner-stroke-2-4-clip">
+        <Polygon
+          transform={`rotate(${NUMBA * 4})`}
+          points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
+      </ClipPath>
+      <ClipPath id="inner-stroke-2-5-clip">
+        <Polygon
+          transform={`rotate(${NUMBA * 5})`}
+          points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
       </ClipPath>
       <ClipPath id="inner-stroke-3-clip">
         <Polygon points={get3HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
