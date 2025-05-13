@@ -51,7 +51,7 @@ export const PdfMapHex = ({
   if (isEvergreenTree(hex.terrain)) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SingleHexTile
+        <PdfMultiHex1
           hex={hex}
           viewingLevel={viewingLevel}
         />
@@ -77,7 +77,7 @@ export const PdfMapHex = ({
   if (isJungleTerrainHex(hex.terrain)) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SingleHexTile
+        <PdfMultiHex1
           hex={hex}
           viewingLevel={viewingLevel}
         />
@@ -105,7 +105,7 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SingleHexTile
+        <PdfMultiHex1
           hex={hex}
           viewingLevel={viewingLevel}
         />
@@ -179,13 +179,12 @@ export const PdfMapHex = ({
   )
 }
 
-const SingleHexTile = ({
+const PdfMultiHex1 = ({
   hex,
   viewingLevel,
 }: {
   hex: BoardHex; viewingLevel: number
 }) => {
-  const { points } = getHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
   const isEmptyHex = hex.terrain === 'empty'
   const { inventoryID } = decodePieceID(hex.pieceID)
   const isObstaclePiece = isObstaclePieceID(inventoryID)
@@ -199,7 +198,7 @@ const SingleHexTile = ({
       stroke={borderColor}
       strokeWidth={SVGHEX_BORDER_WIDTH}
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      points={points}
+      points={getHexagonSvgPolygonPoints(SVG_HEX_RADIUS).points}
       clipPath="url(#inner-stroke-clip)"
     />
   )
