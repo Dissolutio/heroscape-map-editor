@@ -21,8 +21,9 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
   )
   return (
     <>
-      {boardHexAndPieceChunks.map((chunk) => (
+      {boardHexAndPieceChunks.map((chunk, i) => (
         <Page
+          key={i}
           size="LETTER"
           style={{
             flexDirection: 'column',
@@ -37,50 +38,48 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
           >
             <HalfPageColumn>
               {chunk.map((group, i) => (
-                <Fragment key={group.altitude}>
-                  {i < 3 && (
-                    <View
-                      style={{
-                        flexBasis: '33%',
-                      }}
-                    >
-                      <Text style={{ fontSize: '10px' }}>
-                        Level: {group.altitude}
-                      </Text>
-                      <ReactPdfSvgMapDisplay
-                        // levelHexArr={group.hexes}
-                        boardHexesArr={Object.values(boardHexes)}
-                        width={width}
-                        length={length}
-                        viewingLevel={group.altitude}
-                      />
-                    </View>
-                  )}
-                </Fragment>
+                i < 3 ? (
+                  <View
+                    key={i}
+                    style={{
+                      flexBasis: '33%',
+                    }}
+                  >
+                    <Text style={{ fontSize: '10px' }}>
+                      Level: {group.altitude}
+                    </Text>
+                    <ReactPdfSvgMapDisplay
+                      // levelHexArr={group.hexes}
+                      boardHexesArr={Object.values(boardHexes)}
+                      width={width}
+                      length={length}
+                      viewingLevel={group.altitude}
+                    />
+                  </View>
+                ) : null
               ))}
             </HalfPageColumn>
             <HalfPageColumn>
               {chunk.map((group, i) => (
-                <Fragment key={group.altitude}>
-                  {i >= 3 && (
-                    <View
-                      style={{
-                        flexBasis: '33%',
-                      }}
-                    >
-                      <Text style={{ fontSize: '10px' }}>
-                        Level: {group.altitude}
-                      </Text>
-                      <ReactPdfSvgMapDisplay
-                        // levelHexArr={group.hexes}
-                        boardHexesArr={Object.values(boardHexes)}
-                        width={width}
-                        length={length}
-                        viewingLevel={group.altitude}
-                      />
-                    </View>
-                  )}
-                </Fragment>
+                i >= 3 ? (
+                  <View
+                    key={i}
+                    style={{
+                      flexBasis: '33%',
+                    }}
+                  >
+                    <Text style={{ fontSize: '10px' }}>
+                      Level: {group.altitude}
+                    </Text>
+                    <ReactPdfSvgMapDisplay
+                      // levelHexArr={group.hexes}
+                      boardHexesArr={Object.values(boardHexes)}
+                      width={width}
+                      length={length}
+                      viewingLevel={group.altitude}
+                    />
+                  </View>
+                ) : null
               ))}
             </HalfPageColumn>
           </View>
