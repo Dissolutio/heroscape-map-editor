@@ -1,7 +1,7 @@
 import { ClipPath, Defs, Polygon } from '@react-pdf/renderer'
 import React from 'react'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
-import { get2HexSvgPolygonPoints } from './getHexagonSvgPolygonPoints'
+import { get2HexSvgPolygonPoints, get3HexSvgPolygonPoints } from './getHexagonSvgPolygonPoints'
 
 type Props = { points: string }
 
@@ -13,6 +13,9 @@ export const SvgInterlockClipPaths = ({ points }: Props) => {
       </clipPath>
       <clipPath id="inner-stroke-2-clip">
         <polygon points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
+      </clipPath>
+      <clipPath id="inner-stroke-3-clip">
+        <polygon points={get3HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
       </clipPath>
       <clipPath id="interlock1-clip">
         <polygon points={interlock1Points_0} />
@@ -49,6 +52,9 @@ export const PdfInterlockClipPaths = ({ points }: Props) => {
       </ClipPath>
       <ClipPath id="inner-stroke-2-clip">
         <Polygon points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
+      </ClipPath>
+      <ClipPath id="inner-stroke-3-clip">
+        <Polygon points={get3HexSvgPolygonPoints(SVG_HEX_RADIUS).points} />
       </ClipPath>
       <ClipPath id="interlock1-0-clip">
         <Polygon points={interlock1Points_0} />

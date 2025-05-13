@@ -38,7 +38,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           transform={`rotate(${borderRotation}, 8.660254037844386, 10)`}
           fill="transparent"
           stroke={borderColor}
-          strokeWidth={isEmptyHex ? 0.2 : 2}
+          strokeWidth={isEmptyHex ? 0.2 : 4}
           strokeLinejoin="round"
           strokeLinecap="butt"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}

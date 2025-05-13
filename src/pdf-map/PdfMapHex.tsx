@@ -1,8 +1,8 @@
 import { G, Path, Polygon, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
-  get2HexSvgPolygonFillPoints,
   get2HexSvgPolygonPoints,
+  get3HexSvgPolygonPoints,
   getHexagonSvgPolygonPoints,
 } from '../svg-map/getHexagonSvgPolygonPoints'
 import {
@@ -52,42 +52,64 @@ export const PdfMapHex = ({
   // EARLY RETURN: USE MULTIHEX FOR SOME TILES (wip)
   if (
     isLandHex &&
-    inventoryID === Pieces.grass2 &&
+    (inventoryID === Pieces.grass2 || inventoryID === Pieces.grass3) &&
     hex.isObstacleAuxiliary
   ) {
     return null
   }
   if (
     isLandHex &&
-    hex.pieceID.endsWith(Pieces.grass2) &&
+    (inventoryID === Pieces.grass2) &&
     hex.isObstacleOrigin
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <Polygon
           points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points}
-          fill={borderColor}
-          // stroke={borderColor}
-          // strokeWidth={borderWidth}
+          fill={fillColor}
+          stroke={borderColor}
+          strokeWidth={SVGHEX_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        // clipPath="url(#inner-stroke-2-clip)"
+          clipPath="url(#inner-stroke-2-clip)"
         />
-        <Polygon
+        {/* <Polygon
           transform={`translate(${SVG_HEX_APOTHEM}, ${SVG_HEX_RADIUS}) scale(${SVGHEX_BORDER_SCALE} ${SVGHEX_BORDER_SCALE}) translate(-${SVG_HEX_APOTHEM}, -${SVG_HEX_RADIUS})`}
           points={get2HexSvgPolygonFillPoints(SVG_HEX_RADIUS).points}
           fill={fillColor}
           // stroke={borderColor}
-          // strokeWidth={borderWidth}
+          // strokeWidth={SVGHEX_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         // clipPath="url(#inner-stroke-2-clip)"
+        /> */}
+      </G>
+    )
+  } else if (isLandHex &&
+    (inventoryID === Pieces.grass3) &&
+    hex.isObstacleOrigin) {
+    return (
+
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <Polygon
+          points={get3HexSvgPolygonPoints(SVG_HEX_RADIUS).points}
+          fill={fillColor}
+          stroke={borderColor}
+          strokeWidth={SVGHEX_BORDER_WIDTH}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+          clipPath="url(#inner-stroke-3-clip)"
         />
+        {/* <Polygon
+          transform={`translate(${SVG_HEX_APOTHEM}, ${SVG_HEX_RADIUS}) scale(${SVGHEX_BORDER_SCALE} ${SVGHEX_BORDER_SCALE}) translate(-${SVG_HEX_APOTHEM}, -${SVG_HEX_RADIUS})`}
+          points={get3HexSvgPolygonFillPoints(SVG_HEX_RADIUS).points}
+          fill={fillColor}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        /> */}
       </G>
     )
   } else {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         {/* All Hexes, need to isolate (Tree415, outcrop[3-4-6], Hive6, Ruins2/3, castle arch, ladders+battlements+laurWallAddons) */}
-        {hex.interlockType && hex?.interlockType !== '6' && (
+        {(hex.interlockType && hex?.interlockType !== '6' || hex.terrain === 'empty') && (
           <Polygon
             points={points}
             fill={fillColor}
@@ -132,15 +154,6 @@ export const PdfMapHex = ({
               clipPath={`url(#interlock${hex.interlockType}-${borderRotation}-clip)`}
             />
           )}
-        {/* Laur Pillar Outline */}
-        {/* {inventoryID === Pieces.laurWallPillar && (
-          <Polygon
-            points={points}
-            stroke={borderColor}
-            strokeWidth={borderWidth}
-            clipPath={`url(#interlock6-${borderRotation}-clip)`}
-          />
-        )} */}
         {/* Jungle Hex */}
         {/* Tree Hex */}
         {/* Jungle Text */}
@@ -191,7 +204,10 @@ export const PdfMapHex = ({
                   ? svgColors.snowFlake
                   : svgColors.iceFlake
               }
-              transform={`translate(${(SVG_HEX_APOTHEM - 2 * SVG_HEX_APOTHEM * 0.03) / 2}, ${(SVG_HEX_RADIUS - 2 * SVG_HEX_RADIUS * 0.03) / 2})scale(0.03)`}
+              // translate(${(SVG_HEX_APOTHEM - 2 * SVG_HEX_APOTHEM * 0.03) / 2}, ${(SVG_HEX_RADIUS - 2 * SVG_HEX_RADIUS * 0.03) / 2})
+              transform={`
+                translate(${SVG_HEX_APOTHEM}, ${SVG_HEX_RADIUS})
+               scale(0.05)`}
             ></Path>
           )}
         {/* <SvgHexIDText
