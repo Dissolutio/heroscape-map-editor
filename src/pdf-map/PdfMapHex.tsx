@@ -1,6 +1,7 @@
 import { G, Path, Polygon, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
+  get2HexSvgPolygonFillPoints,
   get2HexSvgPolygonPoints,
   getHexagonSvgPolygonPoints,
 } from '../svg-map/getHexagonSvgPolygonPoints'
@@ -21,7 +22,7 @@ import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import { svgColors } from '../world/maphex/hexColors'
 
 const OPACITY_SUBLEVEL = 0.5
-const SVGHEX_BORDER_WIDTH = 4
+const SVGHEX_BORDER_WIDTH = 4 // divided by 2
 const SVGHEX_BORDER_SCALE = 0.8
 
 export const PdfMapHex = ({
@@ -33,8 +34,8 @@ export const PdfMapHex = ({
   const isEmptyHex = hex.terrain === 'empty'
   const { inventoryID } = decodePieceID(hex.pieceID)
   const isObstaclePiece = isObstaclePieceID(inventoryID)
-  const isSubLevel = hex.altitude < viewingLevel || (isObstaclePiece && !hex.isObstacleOrigin)
-  const isNotRenderedIn2DAuxiliary = isObstaclePiece && hex.isObstacleAuxiliary
+  const isSubLevel = hex.altitude < viewingLevel
+  const isNotRenderedIn2DAuxiliary = isObstaclePiece && hex.isVerticalClearanceHex
   const isVisible = hex.altitude <= viewingLevel
   const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
   const isLandHex =
@@ -73,7 +74,7 @@ export const PdfMapHex = ({
         />
         <Polygon
           transform={`translate(${SVG_HEX_APOTHEM}, ${SVG_HEX_RADIUS}) scale(${SVGHEX_BORDER_SCALE} ${SVGHEX_BORDER_SCALE}) translate(-${SVG_HEX_APOTHEM}, -${SVG_HEX_RADIUS})`}
-          points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points}
+          points={get2HexSvgPolygonFillPoints(SVG_HEX_RADIUS).points}
           fill={fillColor}
           // stroke={borderColor}
           // strokeWidth={borderWidth}
@@ -86,8 +87,7 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         {/* All Hexes, need to isolate (Tree415, outcrop[3-4-6], Hive6, Ruins2/3, castle arch, ladders+battlements+laurWallAddons) */}
-        {/*  */}
-        {hex?.interlockType !== '6' && (
+        {hex.interlockType && hex?.interlockType !== '6' && (
           <Polygon
             points={points}
             fill={fillColor}

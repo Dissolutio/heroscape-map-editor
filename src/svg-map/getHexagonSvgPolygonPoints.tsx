@@ -70,3 +70,38 @@ export function get2HexSvgPolygonPoints(radius: number) {
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
+
+export function get2HexSvgPolygonFillPoints(radius: number) {
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const hexWidth = 2 * apothem
+  const hexHeight = 2 * radius
+  const leftX = 0
+  const rightX = apothem * 2
+  const topX = apothem
+  const topY = 0
+  const bottomY = topY + hexHeight
+  const bottomSideY = 1.5 * radius
+  const topSideY = 0.5 * radius
+
+  const corners: Point[] = [
+    /* 
+     /\_/\
+    |  _  |
+     \/ \/
+    */
+    { x: topX, y: topY }, //  top of hex1
+    { x: rightX, y: topSideY }, // top-right hex1
+    { x: 4 * 1.25 + rightX, y: topSideY }, // top-left hex2
+    { x: 4 * 1.25 + topX + hexWidth, y: topY }, //  top of hex2
+    { x: 4 * 1.25 + rightX * 2, y: topSideY }, //  top-right of hex2
+    { x: 4 * 1.25 + rightX * 2, y: bottomSideY }, //  bottom-right of hex2
+    { x: 4 * 1.25 + topX + hexWidth, y: bottomY }, //  bottom of hex2
+    { x: 4 * 1.25 + rightX, y: bottomSideY }, // bottom-left hex2
+    { x: rightX, y: bottomSideY }, // bottom-right hex1
+    { x: topX, y: bottomY }, // bottom hex1
+    { x: leftX, y: bottomSideY }, // bottom-left hex1
+    { x: leftX, y: topSideY }, // top-left hex1
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
