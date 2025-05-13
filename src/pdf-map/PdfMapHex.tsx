@@ -12,6 +12,8 @@ import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import { svgColors } from '../world/maphex/hexColors'
 
 const OPACITY_SUBLEVEL = 0.5
+const SVGHEX_BORDER_WIDTH = 4 // divided by 2
+const SVGHEX_BORDER_SCALE = 0.8
 
 export const PdfMapHex = ({
   hex,
@@ -21,6 +23,9 @@ export const PdfMapHex = ({
   const pixel = hexUtilsHexToPixel(hex)
   const inventoryID = decodePieceID(hex.pieceID).inventoryID
   const isEmptyHex = hex.terrain === 'empty'
+  const isNotRenderedIn2DAuxiliary = isObstaclePiece && hex.isVerticalClearanceHex
+  const { inventoryID } = decodePieceID(hex.pieceID)
+  const isObstaclePiece = isObstaclePieceID(inventoryID)
   const isSubLevel = hex.altitude < viewingLevel
   const isVisible = hex.altitude <= viewingLevel
   const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)

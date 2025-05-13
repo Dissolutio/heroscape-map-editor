@@ -209,7 +209,7 @@ export function addPiece({
           pieceID: ladderBattlementPieceID,
           pieceRotation: ladderBattlementPieceRotation,
           isObstacleOrigin: true, // ladders have one origin, and one vertical clearance auxiliary
-          isObstacleAuxiliary: false, // ladders have one origin, and one vertical clearance auxiliary
+          isObstacleAuxiliary: false,
           obstacleHeight: piece.height,
         }
         // write in the new vertical clearances, this will block some pieces at these coordinates
@@ -231,8 +231,9 @@ export function addPiece({
               pieceID: ladderBattlementPieceID,
               pieceRotation: ladderBattlementPieceRotation,
               isObstacleOrigin: false, // ladders have one origin, and one vertical clearance auxiliary
-              isObstacleAuxiliary: true, // ladders have one origin, and one vertical clearance auxiliary
+              isObstacleAuxiliary: false,
               obstacleHeight: piece.height, // probably unused
+              isVerticalClearanceHex: true // ladders have one origin, and one vertical clearance auxiliary
             }
           })
       })
@@ -299,6 +300,7 @@ export function addPiece({
                 terrain: piece.terrain,
                 pieceID,
                 pieceRotation: rotation,
+                isVerticalClearanceHex: true
               }
             }
           })
@@ -381,12 +383,12 @@ export function addPiece({
       // i=0, i=2, those are the 2 "outer" hexes of the 3-hex arch
     )
     const isCastleArchSupported = isSolidUnder2OuterHexes || isEmptyUnderAll
-    const isPlacingWallArch =
+    const isPlacingCastleWallOrCastleArch =
       ((isCastleArchPiece && isCastleArchSupported) ||
         (isCastleWallPiece && isCastleWallSupported)) &&
       isSpaceFree &&
       isVerticalClearanceForPiece
-    if (isPlacingWallArch) {
+    if (isPlacingCastleWallOrCastleArch) {
       newHexIds.forEach((newHexID, i) => {
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]
         const isHexUnderneathCastleBase = hexUnderneath?.pieceID.includes(
@@ -454,6 +456,7 @@ export function addPiece({
               terrain: piece.terrain,
               pieceID,
               pieceRotation: rotation,
+              isVerticalClearanceHex: true
             }
           })
       })
@@ -523,6 +526,7 @@ export function addPiece({
             terrain: piece.terrain,
             pieceID,
             pieceRotation: rotation,
+            isVerticalClearanceHex: true
           }
         })
     })
