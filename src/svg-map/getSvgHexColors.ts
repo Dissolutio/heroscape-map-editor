@@ -11,8 +11,11 @@ import { svgColors, virtualscapeTileColors } from '../world/maphex/hexColors'
 
 export const getSvgHexBorderColor = (hex: BoardHex) => {
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
+  if (hex.terrain === 'empty') {
+    return 'black'
+  }
   const inventoryPiece =
-    piecesSoFar?.[decodePieceID?.(hex.pieceID)?.inventoryID] ?? ''
+    piecesSoFar?.[decodePieceID?.(hex.pieceID)?.inventoryID]
   const is1Hex = inventoryPiece.size === 1
   const is2Hex = inventoryPiece.size === 2
   const is3Hex = inventoryPiece.size === 3
@@ -46,8 +49,6 @@ export const getSvgHexBorderColor = (hex: BoardHex) => {
   }
   if (
     hex.terrain === HexTerrain.wellspringWater
-    // ||
-    // hex.terrain === HexTerrain.shadow
   ) {
     return svgColors.outlineWellspringWater
   }

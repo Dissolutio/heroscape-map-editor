@@ -24,9 +24,6 @@ export const ReactPdfSvgMapDisplay = ({
   return (
     <Svg
       viewBox={`${0} ${0} ${width} ${length}`}
-      style={{
-        border: '1px solid black',
-      }}
     >
       {/* <PdfSvgXYHelperLines length={length} width={width} /> */}
       <PdfInterlockClipPaths points={points} />
