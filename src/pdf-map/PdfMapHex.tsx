@@ -184,7 +184,7 @@ const PdfMultiHex2 = ({
     ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <Polygon
-      // transform={`rotate(${pieceRotation})`}
+      transform={`rotate(${pieceRotation})`}
       // transform={`rotate(-60)`}
       points={get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points}
       fill={fillColor}
