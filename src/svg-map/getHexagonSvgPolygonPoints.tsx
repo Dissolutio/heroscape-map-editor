@@ -59,22 +59,20 @@ export function get2HexSvgPolygonPointsAt00(radius: number, borderWidth: number)
   const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
-  const topYInner = -radius + halfBorder
-  const bottomYInner = radius - halfBorder
-  const bottomSideYInner = 0.5 * radius - halfBorder
-  const topSideYInner = -0.5 * radius + halfBorder
+  const topYInner = -radiusInner
+  const bottomYInner = radiusInner
+  const bottomSideYInner = 0.5 * radiusInner
+  const topSideYInner = -0.5 * radiusInner
 
   // using pen and paper geometry, find your way around the multi-hex (TODO: this could be programmatic)
   const corners: Point[] = [
     { x: topX, y: topYInner }, // top hex1
-    { x: rightXInner, y: topSideYInner }, // top-right hex1 OVERLAPS ▼▼
-    { x: topX + hexWidth - apothemInner, y: topSideYInner }, // top-left hex2  OVERLAPS ▲▲
+    { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1
     { x: rightXOuter + apothem, y: topYInner }, //  top hex2
     { x: rightXOuter + apothem + apothemInner, y: topSideYInner }, // top-right hex2
     { x: rightXOuter + apothem + apothemInner, y: bottomSideYInner }, // bottom-right hex2
     { x: rightXOuter + apothem, y: bottomYInner }, // bottom hex2
-    { x: topX + hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex2  OVERLAPS ▼▼
-    { x: rightXInner, y: bottomSideYInner }, // bottom-right hex1 OVERLAPS ▲▲
+    { x: rightXOuter, y: bottomSideYOuter - halfBorder }, // bottom-right hex1
     { x: topX, y: bottomYInner }, // bottom hex1
     { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
     { x: leftXInner, y: topSideYInner }, // top-left hex1
