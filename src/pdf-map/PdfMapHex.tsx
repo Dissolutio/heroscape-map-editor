@@ -1,9 +1,7 @@
 import { G, Path, Polygon, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
-  get2HexSvgPolygonPoints,
   get2HexSvgPolygonPointsAt00,
-  getHexagonSvgPolygonPoints,
   getHexagonSvgPolygonPointsAt00,
 } from '../svg-map/getHexagonSvgPolygonPoints'
 import {
