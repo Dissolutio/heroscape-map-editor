@@ -1,23 +1,6 @@
 import { Point } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 
-// export function getHexagonSvgPolygonPoints(
-//   radius: number,
-//   // angle: number, 0 makes flat top, pi/6 makes pointy top
-// ) {
-//   const corners: Point[] = []
-//   const initialAngle = Math.PI / 6
-//   for (let i = 0; i < 6; i++) {
-//     const x = radius * Math.cos((2 * Math.PI * i) / 6 + initialAngle)
-//     const y = radius * Math.sin((2 * Math.PI * i) / 6 + initialAngle)
-//     const point = { x: SVG_HEX_APOTHEM + x, y: SVG_HEX_RADIUS + y }
-//     // const point = { x: x, y: y }
-//     corners.push(point)
-//   }
-//   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
-//   return { points, corners }
-// }
-
 export function getHexagonSvgPolygonPoints(radius: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const leftX = 0
@@ -71,17 +54,30 @@ export function get2HexSvgPolygonPoints(hexRadius: number, borderWidth: number) 
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
 
-  /* 
-  INNER
-   /\/\
-  |    |
-   \/\/
-   */
+
   const radiusInner = hexRadius - borderWidth
   const apothemInner = (Math.sqrt(3) * hexRadius) / 2
+  const cornersInner: Point[] = [
+    /* 
+    INNER
+    /\/\
+   |    |
+    \/\/
+    */
+    { x: topX, y: topY + borderWidth }, //  top of hex1
+    { x: rightX - borderWidth, y: borderWidth + radiusInner / 2 }, // top-right hex1
+    { x: topX + hexWidth, y: topY }, //  top of hex2
+    { x: rightX * 2, y: topSideY }, //  top-right of hex2
+    { x: rightX * 2, y: bottomSideY }, //  bottom-right of hex2
+    { x: topX + hexWidth, y: bottomY }, //  bottom of hex2
+    { x: rightX, y: bottomSideY }, // bottom-right hex1
+    { x: topX, y: bottomY }, // bottom hex1
+    { x: leftX, y: bottomSideY }, // bottom-left hex1
+    { x: leftX, y: topSideY }, // top-left hex1
+  ]
   const hexWidthInner = 2 * apothem
   const hexHeightInner = 2 * hexRadius
-  const pointsInner = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  const pointsInner = cornersInner.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners, pointsInner, cornersInner }
 }
 export function get3HexSvgPolygonPoints(radius: number) {

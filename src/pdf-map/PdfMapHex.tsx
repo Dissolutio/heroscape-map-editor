@@ -210,29 +210,20 @@ const PdfMultiHex2 = ({
   const isSubLevel = hex.altitude < viewingLevel || (isObstaclePiece && !hex.isObstacleOrigin)
   const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
   const borderColor = getSvgHexBorderColor(hex)
+  const { points, pointsInner } = get2HexSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   const pieceRotation =
     ((hex?.pieceRotation ?? 0) % 6)
   return (
     <>
       <Polygon
-        points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points}
-        fill={fillColor}
-        stroke={borderColor}
-        // strokeWidth={SVGHEX_BORDER_WIDTH}
+        points={points}
+        fill={borderColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      // clipPath={`url(#inner-stroke-2-${pieceRotation}-clip)`}
       />
       <Polygon
-        transform={`rotate(60) translate(${SVG_HEX_APOTHEM},0)`}
-        // transform={`rotate(${pieceRotation}, 8.660254037844386, 10)`}
-        // transform={`rotate(${pieceRotation * 60})`}
-        // transform={`rotate(10)`}
-        points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points}
+        points={pointsInner}
         fill={fillColor}
-        // stroke={borderColor}
-        // strokeWidth={SVGHEX_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      // clipPath={`url(#inner-stroke-2-${pieceRotation}-clip)`}
       />
     </>
   )
