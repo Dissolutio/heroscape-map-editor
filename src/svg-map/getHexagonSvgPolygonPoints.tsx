@@ -43,22 +43,29 @@ export function getHexagonSvgPolygonPointsAt00(radius: number) {
 }
 export function get2HexSvgPolygonPointsAt00(radius: number, borderWidth: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
+  const halfBorder = borderWidth / 2
+  const drawRadius = radius - halfBorder
   const hexWidth = 2 * SVG_HEX_APOTHEM
-  const leftX = -apothem
-  const rightX = apothem
+  const leftX = -apothem + halfBorder
+  const rightX = apothem - halfBorder
   const topX = 0
-  const topY = -radius
-  const bottomY = radius
-  const bottomSideY = 0.5 * radius
-  const topSideY = -0.5 * radius
+  const topY = -radius + halfBorder
+  const bottomY = radius - halfBorder
+  const bottomSideY = 0.5 * radius - halfBorder
+  const topSideYOuter = -0.5 * radius
+  const topSideY = -0.5 * radius + halfBorder
   const corners: Point[] = [
     { x: topX, y: topY }, // top hex1
-    { x: rightX, y: topSideY }, // top-right hex1
-    { x: rightX + SVG_HEX_APOTHEM, y: topY }, //  top hex2
-    { x: rightX + hexWidth, y: topSideY }, // top-right hex2
-    { x: rightX + hexWidth, y: bottomSideY }, // bottom-right hex2
-    { x: rightX + SVG_HEX_APOTHEM, y: bottomY }, // bottom hex2
-    { x: rightX, y: bottomSideY }, // bottom-right hex1
+    { x: rightX + halfBorder, y: topSideY + halfBorder }, // top-right hex1
+    // { x: rightX - halfBorder, y: topSideY }, // top-right hex1
+    // { x: rightX + halfBorder, y: topSideY }, // top-left hex2
+    { x: rightX + apothem + halfBorder, y: topY }, //  top hex2
+    { x: rightX + hexWidth + (halfBorder), y: topSideY }, // top-right hex2
+    { x: rightX + hexWidth + (halfBorder), y: bottomSideY }, // bottom-right hex2
+    { x: rightX + apothem + halfBorder, y: bottomY }, // bottom hex2
+    // { x: rightX + halfBorder, y: bottomSideY }, // bottom-left hex2
+    { x: rightX + halfBorder, y: bottomSideY }, // bottom-right hex1
+    // { x: rightX - halfBorder, y: bottomSideY }, // bottom-right hex1
     { x: topX, y: bottomY }, // bottom hex1
     { x: leftX, y: bottomSideY }, // bottom-left hex1
     { x: leftX, y: topSideY }, // top-left hex1
