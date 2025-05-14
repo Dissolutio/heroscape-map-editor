@@ -21,7 +21,7 @@ import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import { svgColors } from '../world/maphex/hexColors'
 
 const OPACITY_SUBLEVEL = 0.5
-const SVGHEX_BORDER_WIDTH = 4 // divided by 2
+const SVG_BORDER_WIDTH = 2 // divided by 2
 
 export const PdfMapHex = ({
   hex,
@@ -114,7 +114,7 @@ export const PdfMapHex = ({
   }
   // EARLY RETURN: USE MULTIHEX FOR SOME TILES (wip)
   if (
-    isLandHex &&
+    isLandHex && piecesSoFar?.[inventoryID]?.size === 2 &&
     hex.isObstacleAuxiliary
   ) {
     return null
@@ -152,7 +152,7 @@ export const PdfMapHex = ({
           <Polygon
             points={points}
             stroke={borderColor}
-            strokeWidth={SVGHEX_BORDER_WIDTH}
+            strokeWidth={SVG_BORDER_WIDTH}
             opacity={isEmptyHex ? 0.1 : isSubLevel ? OPACITY_SUBLEVEL : 1}
             clipPath={`url(#interlock${hex.interlockType}-${borderRotation}-clip)`}
           />
@@ -191,7 +191,7 @@ const PdfMultiHex1 = ({
     <Polygon
       fill={fillColor}
       stroke={borderColor}
-      strokeWidth={SVGHEX_BORDER_WIDTH}
+      strokeWidth={SVG_BORDER_WIDTH}
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       points={getHexagonSvgPolygonPoints(SVG_HEX_RADIUS).points}
       clipPath="url(#inner-stroke-clip)"
@@ -213,17 +213,27 @@ const PdfMultiHex2 = ({
   const pieceRotation =
     ((hex?.pieceRotation ?? 0) % 6)
   return (
-    <Polygon
-      // transform={`translate(${-SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS}) rotate(${rotation}, 8.660254037844386, 10) translate(${SVG_HEX_APOTHEM},${SVG_HEX_RADIUS})`}
-      // transform={`rotate(${pieceRotation}, 8.660254037844386, 10)`}
-      // transform={`rotate(${pieceRotation * 60})`}
-      // transform={`rotate(10)`}
-      points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS).points}
-      fill={fillColor}
-      stroke={borderColor}
-      strokeWidth={SVGHEX_BORDER_WIDTH}
-      opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      clipPath={`url(#inner-stroke-2-${pieceRotation}-clip)`}
-    />
+    <>
+      <Polygon
+        points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points}
+        fill={fillColor}
+        stroke={borderColor}
+        // strokeWidth={SVGHEX_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      // clipPath={`url(#inner-stroke-2-${pieceRotation}-clip)`}
+      />
+      <Polygon
+        transform={`rotate(60) translate(${SVG_HEX_APOTHEM},0)`}
+        // transform={`rotate(${pieceRotation}, 8.660254037844386, 10)`}
+        // transform={`rotate(${pieceRotation * 60})`}
+        // transform={`rotate(10)`}
+        points={get2HexSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points}
+        fill={fillColor}
+        // stroke={borderColor}
+        // strokeWidth={SVGHEX_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      // clipPath={`url(#inner-stroke-2-${pieceRotation}-clip)`}
+      />
+    </>
   )
 }

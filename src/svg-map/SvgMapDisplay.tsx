@@ -22,7 +22,7 @@ export const SvgMapDisplay = () => {
     width: mapDimensions.width,
     height: mapDimensions.length,
   })
-
+  const viewboxStr = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`
   const pointerOrigin = useRef({ x: 0, y: 0 })
   const isPointerDown = useRef(false)
 
@@ -69,7 +69,7 @@ export const SvgMapDisplay = () => {
   return (
     <svg
       ref={svgRef}
-      viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
+      viewBox={viewboxStr}
       style={{
         height: '99%',
         cursor: isPointerDown.current ? 'grabbing' : 'grab',

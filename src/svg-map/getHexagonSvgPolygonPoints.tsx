@@ -38,20 +38,22 @@ export function getHexagonSvgPolygonPoints(radius: number) {
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function get2HexSvgPolygonPoints(radius: number) {
-  const apothem = (Math.sqrt(3) * radius) / 2
+export function get2HexSvgPolygonPoints(hexRadius: number, borderWidth: number) {
+  const apothem = (Math.sqrt(3) * hexRadius) / 2
   const hexWidth = 2 * apothem
-  const hexHeight = 2 * radius
+  const hexHeight = 2 * hexRadius
   const leftX = 0
   const rightX = apothem * 2
   const topX = apothem
   const topY = 0
   const bottomY = topY + hexHeight
-  const bottomSideY = 1.5 * radius
-  const topSideY = 0.5 * radius
+  const bottomSideY = 1.5 * hexRadius
+  const topSideY = 0.5 * hexRadius
+
 
   const corners: Point[] = [
     /* 
+    OUTER
      /\/\
     |    |
      \/\/
@@ -68,7 +70,19 @@ export function get2HexSvgPolygonPoints(radius: number) {
     { x: leftX, y: topSideY }, // top-left hex1
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
-  return { points, corners }
+
+  /* 
+  INNER
+   /\/\
+  |    |
+   \/\/
+   */
+  const radiusInner = hexRadius - borderWidth
+  const apothemInner = (Math.sqrt(3) * hexRadius) / 2
+  const hexWidthInner = 2 * apothem
+  const hexHeightInner = 2 * hexRadius
+  const pointsInner = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners, pointsInner, cornersInner }
 }
 export function get3HexSvgPolygonPoints(radius: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
