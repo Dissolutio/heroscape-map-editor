@@ -2,7 +2,9 @@ import { G, Path, Polygon, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
   get2HexSvgPolygonPoints,
+  get2HexSvgPolygonPointsAt00,
   getHexagonSvgPolygonPoints,
+  getHexagonSvgPolygonPointsAt00,
 } from '../svg-map/getHexagonSvgPolygonPoints'
 import {
   getSvgHexBorderColor,
@@ -20,14 +22,13 @@ import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import { svgColors } from '../world/maphex/hexColors'
 
-const OPACITY_SUBLEVEL = 0.5
 const SVG_BORDER_WIDTH = 2 // divided by 2
+const SVG_EMPTYHEX_BORDER_WIDTH = 0.2 // divided by 2
 
 export const PdfMapHex = ({
   hex,
   viewingLevel,
 }: { hex: BoardHex; viewingLevel: number }) => {
-  const { points } = getHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
   const pixel = hexUtilsHexToPixel(hex)
   const isEmptyHex = hex.terrain === 'empty'
   const { inventoryID } = decodePieceID(hex.pieceID)
@@ -53,11 +54,10 @@ export const PdfMapHex = ({
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1
           hex={hex}
-          viewingLevel={viewingLevel}
         />
         <Text
           fill="white"
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+          // opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
           style={{
             fontSize: 9,
             fontWeight: 'bold',
@@ -79,14 +79,13 @@ export const PdfMapHex = ({
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1
           hex={hex}
-          viewingLevel={viewingLevel}
         />
         <Text
           style={{
             fontSize: 9,
             fontWeight: 'bold',
           }}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+          // opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
           fill="rgb(35, 31, 32)"
           y={1.3 * SVG_HEX_RADIUS}
           x={
@@ -107,7 +106,6 @@ export const PdfMapHex = ({
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1
           hex={hex}
-          viewingLevel={viewingLevel}
         />
       </G>
     )
@@ -128,7 +126,6 @@ export const PdfMapHex = ({
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex2
           hex={hex}
-          viewingLevel={viewingLevel}
         />
       </G>
     )
@@ -138,25 +135,11 @@ export const PdfMapHex = ({
       {/* Hex Fill */}
       {hex?.interlockType !== '6' && (
         <Polygon
-          points={points}
+          points={isEmptyHex ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS - SVG_EMPTYHEX_BORDER_WIDTH / 2).points : getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS - (SVG_BORDER_WIDTH / 2)).points}
           fill={fillColor}
           stroke={isEmptyHex ? 'black' : fillColor}
-          strokeWidth={isEmptyHex ? 0.2 : 0}
-          opacity={isEmptyHex ? 0.1 : isSubLevel ? OPACITY_SUBLEVEL : 1}
-          clipPath="url(#inner-stroke-clip)"
+          strokeWidth={isEmptyHex ? SVG_EMPTYHEX_BORDER_WIDTH : SVG_BORDER_WIDTH}
         />)}
-      {/* Interlock Hex Outlines with Clip Paths */}
-      {hex.interlockType &&
-        hex.interlockType !== '0' &&
-        hex.interlockType !== '6' && (
-          <Polygon
-            points={points}
-            stroke={borderColor}
-            strokeWidth={SVG_BORDER_WIDTH}
-            opacity={isEmptyHex ? 0.1 : isSubLevel ? OPACITY_SUBLEVEL : 1}
-            clipPath={`url(#interlock${hex.interlockType}-${borderRotation}-clip)`}
-          />
-        )}
       {/* Snow/Ice Flakes */}
       {(hex.terrain === HexTerrain.snow ||
         hex.terrain === HexTerrain.ice) && (
@@ -176,15 +159,10 @@ export const PdfMapHex = ({
 
 const PdfMultiHex1 = ({
   hex,
-  viewingLevel,
 }: {
-  hex: BoardHex; viewingLevel: number
+  hex: BoardHex
 }) => {
-  const isEmptyHex = hex.terrain === 'empty'
-  const { inventoryID } = decodePieceID(hex.pieceID)
-  const isObstaclePiece = isObstaclePieceID(inventoryID)
-  const isSubLevel = hex.altitude < viewingLevel || (isObstaclePiece && !hex.isObstacleOrigin)
-  const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
+  const fillColor = getSvgHexFillColor(hex)
   const borderColor = getSvgHexBorderColor(hex)
 
   return (
@@ -192,39 +170,28 @@ const PdfMultiHex1 = ({
       fill={fillColor}
       stroke={borderColor}
       strokeWidth={SVG_BORDER_WIDTH}
-      opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      points={getHexagonSvgPolygonPoints(SVG_HEX_RADIUS).points}
-      clipPath="url(#inner-stroke-clip)"
+      points={getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS - SVG_BORDER_WIDTH / 2).points}
+    // clipPath="url(#inner-stroke-clip)"
     />
   )
 }
 const PdfMultiHex2 = ({
   hex,
-  viewingLevel,
 }: {
-  hex: BoardHex; viewingLevel: number
+  hex: BoardHex
 }) => {
-  const isEmptyHex = hex.terrain === 'empty'
-  const { inventoryID } = decodePieceID(hex.pieceID)
-  const isObstaclePiece = isObstaclePieceID(inventoryID)
-  const isSubLevel = hex.altitude < viewingLevel || (isObstaclePiece && !hex.isObstacleOrigin)
-  const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
+  const fillColor = getSvgHexFillColor(hex)
   const borderColor = getSvgHexBorderColor(hex)
-  const { points, pointsInner } = get2HexSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   const pieceRotation =
-    ((hex?.pieceRotation ?? 0) % 6)
+    ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
-    <>
-      <Polygon
-        points={points}
-        fill={borderColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
-      <Polygon
-        points={pointsInner}
-        fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
-    </>
+    <Polygon
+      // transform={`rotate(${pieceRotation})`}
+      // transform={`rotate(-60)`}
+      points={get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points}
+      fill={fillColor}
+      stroke={borderColor}
+      strokeWidth={SVG_BORDER_WIDTH}
+    />
   )
 }
