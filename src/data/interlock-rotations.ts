@@ -62,7 +62,7 @@ const marvel6 = [
   2,
   4,
   1,
-  5, // glacier4
+  0, // glacier4
   0, // bottom-right middle
   4, // bottom-right corner
 ]
