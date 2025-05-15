@@ -83,17 +83,31 @@ export function get2HexSvgPolygonPointsAt00(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function get3HexSvgPolygonPoints(radius: number) {
+export function get3HexSvgPolygonPointsAt00(
+  radius: number,
+  borderWidth: number,
+) {
   const apothem = (Math.sqrt(3) * radius) / 2
+  const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem
-  const hexHeight = 2 * radius
-  const leftX = 0
-  const rightX = apothem * 2
-  const topX = apothem
-  const topY = 0
-  const bottomY = topY + hexHeight
-  const bottomSideY = 1.5 * radius
-  const topSideY = 0.5 * radius
+  const topX = 0
+  // Outer hexagon
+  const topYOuter = -radius
+  const leftXOuter = -apothem
+  const rightXOuter = apothem
+  const topSideYOuter = -0.5 * radius
+  const bottomSideYOuter = 0.5 * radius
+
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const hexWidthInner = 2 * apothemInner
+  const rightXInner = apothemInner
+  const leftXInner = -apothemInner
+  const topYInner = -radiusInner
+  const bottomYInner = radiusInner
+  const bottomSideYInner = 0.5 * radiusInner
+  const topSideYInner = -0.5 * radiusInner
 
   const corners: Point[] = [
     /* 
@@ -103,20 +117,20 @@ export function get3HexSvgPolygonPoints(radius: number) {
      |  |
       \/
     */
-    { x: topX, y: topY }, //  top of hex1
-    { x: rightX, y: topSideY }, // top-right hex1
-    { x: topX + hexWidth, y: topY }, //  top of hex2
-    { x: rightX * 2, y: topSideY }, //  top-right of hex2
-    { x: rightX * 2, y: bottomSideY }, //  bottom-right of hex2
-    { x: topX + hexWidth, y: bottomY }, //  bottom of hex2
-    // { x: topX + hexWidth, y: bottomY }, //  top-right of hex3
-    { x: topX + hexWidth, y: bottomY + SVG_HEX_RADIUS }, //  bottom-right of hex3
-    { x: rightX, y: bottomY + 1.5 * SVG_HEX_RADIUS }, //  bottom of hex3
-    { x: topX, y: bottomY + SVG_HEX_RADIUS }, //  bottom-left of hex3
-    { x: topX, y: bottomY }, //  top-left of hex3
-    { x: topX, y: bottomY }, //  bottom of hex1
-    { x: leftX, y: bottomSideY }, //  bottom-left of hex1
-    { x: leftX, y: topSideY }, // top-left hex1
+    // { x: topX, y: topY }, //  top of hex1
+    // { x: rightX, y: topSideY }, // top-right hex1
+    // { x: topX + hexWidth, y: topY }, //  top of hex2
+    // { x: rightX * 2, y: topSideY }, //  top-right of hex2
+    // { x: rightX * 2, y: bottomSideY }, //  bottom-right of hex2
+    // { x: topX + hexWidth, y: bottomY }, //  bottom of hex2
+    // // { x: topX + hexWidth, y: bottomY }, //  top-right of hex3
+    // { x: topX + hexWidth, y: bottomY + SVG_HEX_RADIUS }, //  bottom-right of hex3
+    // { x: rightX, y: bottomY + 1.5 * SVG_HEX_RADIUS }, //  bottom of hex3
+    // { x: topX, y: bottomY + SVG_HEX_RADIUS }, //  bottom-left of hex3
+    // { x: topX, y: bottomY }, //  top-left of hex3
+    // { x: topX, y: bottomY }, //  bottom of hex1
+    // { x: leftX, y: bottomSideY }, //  bottom-left of hex1
+    // { x: leftX, y: topSideY }, // top-left hex1
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
