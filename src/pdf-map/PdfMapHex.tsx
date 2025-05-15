@@ -72,6 +72,7 @@ export const PdfMapHex = ({
       </G>
     )
   }
+  // JUNGLE
   if (isJungleTerrainHex(hex.terrain)) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
@@ -97,6 +98,7 @@ export const PdfMapHex = ({
       </G>
     )
   }
+  // LAUR PILLARS
   if (inventoryID === Pieces.laurWallPillar ||
     (isLandHex && piecesSoFar[inventoryID].size === 1)
   ) {
@@ -108,7 +110,7 @@ export const PdfMapHex = ({
       </G>
     )
   }
-  // EARLY RETURN: USE MULTIHEX FOR SOME TILES (wip)
+  // EARLY RETURN: LAND AUXILIARY HEXES return null (the Origin hex will render the piece) TODO: filter these out higher up
   if (
     isLandHex && piecesSoFar?.[inventoryID]?.size === 2 &&
     hex.isObstacleAuxiliary
