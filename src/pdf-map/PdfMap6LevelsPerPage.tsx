@@ -37,7 +37,7 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
             }}
           >
             <HalfPageColumn>
-              {chunk.map((group, i) => (
+              {chunk.map((group, i) =>
                 i < 3 ? (
                   <View
                     key={i}
@@ -56,11 +56,11 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
                       viewingLevel={group.altitude}
                     />
                   </View>
-                ) : null
-              ))}
+                ) : null,
+              )}
             </HalfPageColumn>
             <HalfPageColumn>
-              {chunk.map((group, i) => (
+              {chunk.map((group, i) =>
                 i >= 3 ? (
                   <View
                     key={i}
@@ -79,8 +79,8 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
                       viewingLevel={group.altitude}
                     />
                   </View>
-                ) : null
-              ))}
+                ) : null,
+              )}
             </HalfPageColumn>
           </View>
         </Page>

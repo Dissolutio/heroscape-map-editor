@@ -47,9 +47,7 @@ export const getSvgHexBorderColor = (hex: BoardHex) => {
   if (hex.terrain === HexTerrain.lava) {
     return svgColors.outlineLava
   }
-  if (
-    hex.terrain === HexTerrain.wellspringWater
-  ) {
+  if (hex.terrain === HexTerrain.wellspringWater) {
     return svgColors.outlineWellspringWater
   }
   if (isJungleTerrainHex(hex.terrain)) {

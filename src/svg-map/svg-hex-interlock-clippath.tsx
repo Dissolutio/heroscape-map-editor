@@ -1,7 +1,10 @@
 import { ClipPath, Defs, Polygon } from '@react-pdf/renderer'
 import React from 'react'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
-import { get2HexSvgPolygonPoints, get3HexSvgPolygonPoints } from './getHexagonSvgPolygonPoints'
+import {
+  get2HexSvgPolygonPoints,
+  get3HexSvgPolygonPoints,
+} from './getHexagonSvgPolygonPoints'
 
 type Props = { points: string }
 

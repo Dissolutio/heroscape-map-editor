@@ -23,7 +23,7 @@ export const ReactPdfSvgMapDisplay = ({
   const emptyHexesArr = boardHexesArr.filter((hex) => hex.terrain === 'empty')
   const adjustXForNew00Centers = 1.2 * SVG_HEX_APOTHEM
   const adjustYForNew00Centers = 1.2 * SVG_HEX_RADIUS
-  const subLevelHexes = boardHexesArr.filter(h => h.altitude < viewingLevel)
+  const subLevelHexes = boardHexesArr.filter((h) => h.altitude < viewingLevel)
   return (
     <Svg
       viewBox={`${-adjustXForNew00Centers} ${-adjustYForNew00Centers} ${width + adjustXForNew00Centers} ${length + adjustYForNew00Centers}`}

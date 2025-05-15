@@ -233,7 +233,7 @@ export function addPiece({
               isObstacleOrigin: false, // ladders have one origin, and one vertical clearance auxiliary
               isObstacleAuxiliary: false,
               obstacleHeight: piece.height, // probably unused
-              isVerticalClearanceHex: true // ladders have one origin, and one vertical clearance auxiliary
+              isVerticalClearanceHex: true, // ladders have one origin, and one vertical clearance auxiliary
             }
           })
       })
@@ -300,7 +300,7 @@ export function addPiece({
                 terrain: piece.terrain,
                 pieceID,
                 pieceRotation: rotation,
-                isVerticalClearanceHex: true
+                isVerticalClearanceHex: true,
               }
             }
           })
@@ -456,7 +456,7 @@ export function addPiece({
               terrain: piece.terrain,
               pieceID,
               pieceRotation: rotation,
-              isVerticalClearanceHex: true
+              isVerticalClearanceHex: true,
             }
           })
       })
@@ -526,7 +526,7 @@ export function addPiece({
             terrain: piece.terrain,
             pieceID,
             pieceRotation: rotation,
-            isVerticalClearanceHex: true
+            isVerticalClearanceHex: true,
           }
         })
     })

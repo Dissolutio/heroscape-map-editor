@@ -41,7 +41,10 @@ export function getHexagonSvgPolygonPointsAt00(radius: number) {
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function get2HexSvgPolygonPointsAt00(radius: number, borderWidth: number) {
+export function get2HexSvgPolygonPointsAt00(
+  radius: number,
+  borderWidth: number,
+) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem
