@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite --force",
     "format": "npx biome check --write",
     "build": "tsc -b && vite build",
     "lint": "npx biome check",
