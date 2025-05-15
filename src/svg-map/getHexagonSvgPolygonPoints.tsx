@@ -117,20 +117,20 @@ export function get3HexSvgPolygonPointsAt00(
      |  |
       \/
     */
-    // { x: topX, y: topY }, //  top of hex1
-    // { x: rightX, y: topSideY }, // top-right hex1
-    // { x: topX + hexWidth, y: topY }, //  top of hex2
-    // { x: rightX * 2, y: topSideY }, //  top-right of hex2
-    // { x: rightX * 2, y: bottomSideY }, //  bottom-right of hex2
-    // { x: topX + hexWidth, y: bottomY }, //  bottom of hex2
-    // // { x: topX + hexWidth, y: bottomY }, //  top-right of hex3
-    // { x: topX + hexWidth, y: bottomY + SVG_HEX_RADIUS }, //  bottom-right of hex3
-    // { x: rightX, y: bottomY + 1.5 * SVG_HEX_RADIUS }, //  bottom of hex3
-    // { x: topX, y: bottomY + SVG_HEX_RADIUS }, //  bottom-left of hex3
-    // { x: topX, y: bottomY }, //  top-left of hex3
-    // { x: topX, y: bottomY }, //  bottom of hex1
-    // { x: leftX, y: bottomSideY }, //  bottom-left of hex1
-    // { x: leftX, y: topSideY }, // top-left hex1
+    { x: topX, y: topYInner }, // top hex1
+    { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1
+    { x: rightXOuter + apothem, y: topYInner }, //  top hex2
+    { x: rightXOuter + apothem + apothemInner, y: topSideYInner }, // top-right hex2
+    { x: rightXOuter + apothem + apothemInner, y: bottomSideYInner }, // bottom-right hex2
+    { x: rightXOuter + apothem, y: bottomYInner }, // bottom hex2
+    { x: rightXOuter + apothemInner, y: radius }, // top-right hex3
+    { x: rightXOuter + apothemInner, y: radius + radiusInner }, // bottom-right hex3
+    { x: rightXOuter, y: radius + 1.5 * radiusInner }, // bottom hex3
+    { x: rightXOuter - apothemInner, y: radius + radiusInner }, // bottom-left hex3
+    { x: rightXOuter - apothemInner, y: radius }, // top-left hex3
+    { x: topX, y: bottomYInner }, // bottom hex1
+    { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
+    { x: leftXInner, y: topSideYInner }, // top-left hex1
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }

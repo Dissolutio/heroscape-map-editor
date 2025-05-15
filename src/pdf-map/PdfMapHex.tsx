@@ -2,6 +2,7 @@ import { G, Path, Polygon, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
   get2HexSvgPolygonPointsAt00,
+  get3HexSvgPolygonPointsAt00,
   getHexagonSvgPolygonPointsAt00,
 } from '../svg-map/getHexagonSvgPolygonPoints'
 import {
@@ -102,7 +103,7 @@ export const PdfMapHex = ({
   // EARLY RETURN: LAND AUXILIARY HEXES return null (the Origin hex will render the piece) TODO: filter these out higher up
   if (
     isLandHex &&
-    piecesSoFar?.[inventoryID]?.size === 2 &&
+    (piecesSoFar?.[inventoryID]?.size === 2 || piecesSoFar?.[inventoryID]?.size === 3) &&
     hex.isObstacleAuxiliary
   ) {
     return null
@@ -115,6 +116,17 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex2 hex={hex} />
+      </G>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.size === 3 &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex3 hex={hex} />
       </G>
     )
   }
@@ -190,6 +202,26 @@ const PdfMultiHex2 = ({
       // transform={`rotate(-60)`}
       points={
         get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+      }
+      fill={fillColor}
+      stroke={borderColor}
+      strokeWidth={SVG_BORDER_WIDTH}
+    />
+  )
+}
+const PdfMultiHex3 = ({
+  hex,
+}: {
+  hex: BoardHex
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = getSvgHexBorderColor(hex)
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  return (
+    <Polygon
+      transform={`rotate(${pieceRotation})`}
+      points={
+        get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
       }
       fill={fillColor}
       stroke={borderColor}
