@@ -31,16 +31,11 @@ export const PdfMapHex = ({
   const isEmptyHex = hex.terrain === 'empty'
   const { inventoryID } = decodePieceID(hex.pieceID)
   const isObstaclePiece = isObstaclePieceID(inventoryID)
-  const isSubLevel =
-    hex.altitude < viewingLevel || (isObstaclePiece && !hex.isObstacleOrigin)
   const isAuxiliaryNotRenderedIn2D = isObstaclePiece && hex.isObstacleAuxiliary
   const isVisible = hex.altitude <= viewingLevel
   const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const borderColor = getSvgHexBorderColor(hex)
-  const borderRotation =
-    ((hex?.interlockRotation ?? 0) + (hex?.pieceRotation ?? 0)) % 6
   const pieceHeightText = piecesSoFar[inventoryID]?.height
 
   // EARLY RETURN: NOT VISIBLE
@@ -54,7 +49,6 @@ export const PdfMapHex = ({
         <PdfMultiHex1 hex={hex} />
         <Text
           fill="white"
-          // opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
           style={{
             fontSize: 9,
             fontWeight: 'bold',
@@ -81,7 +75,6 @@ export const PdfMapHex = ({
             fontSize: 9,
             fontWeight: 'bold',
           }}
-          // opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
           fill="rgb(35, 31, 32)"
           y={1.3 * SVG_HEX_RADIUS}
           x={
