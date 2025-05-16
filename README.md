@@ -39,9 +39,9 @@ To get started with the project, follow these steps:
 The following scripts are available in the project:
 
 - `dev`: Starts the development server with Vite.
-- `format`: Formats the code using Prettier.
+- `format`: Formats the code using BiomeJS.
 - `build`: Builds the project using TypeScript and Vite.
-- `lint`: Lints the code using ESLint and fixes any issues.
+- `lint`: Lints the code using BiomeJS and fixes any issues.
 - `preview`: Previews the production build using Vite.
 
 To run any of these scripts, use the following command:
@@ -56,6 +56,7 @@ This project utilizes several libraries to provide a rich development experience
 - **React**: A JavaScript library for building user interfaces.
 - **TypeScript**: A typed superset of JavaScript that compiles to plain JavaScript.
 - **Vite**: A fast build tool and development server.
+- **BiomeJS**: Fast code linter/formatter.
 - **@emotion/react** and **@emotion/styled**: Libraries for writing CSS styles with JavaScript.
 - **@mui/material**: A popular React UI framework.
 - **@react-three/drei** and **@react-three/fiber**: Libraries for working with Three.js in React.
