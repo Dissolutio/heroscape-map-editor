@@ -68,6 +68,7 @@ export const SvgMapDisplay = () => {
 
   return (
     <svg
+      role="img"
       ref={svgRef}
       viewBox={viewboxStr}
       style={{
@@ -80,26 +81,45 @@ export const SvgMapDisplay = () => {
       onPointerUp={onPointerUp}
       onPointerLeave={onPointerUp}
     >
+      <title>2D Map Display</title>
+
+      <filter id="constantOpacity">
+        <feComponentTransfer>
+          {/* This transfer function leaves all alpha values of the unfiltered
+           graphics that are lower than .5 at their original values.
+           All higher alpha above will be changed to .5.
+           These calculations are derived from the values in
+           the tableValues attribute using linear interpolation. */}
+          <feFuncA type="table" tableValues="0 .5 .5" />
+        </feComponentTransfer>
+      </filter>
       <SvgInterlockClipPaths points={points} />
-      {/* <line
-        x1={0}
-        y1={0}
-        x2={0}
-        y2={mapDimensions.length}
-        stroke="red"
-        strokeWidth={0.5}
-      />
-      <line
-        x1={0}
-        y1={0}
-        x2={mapDimensions.width}
-        y2={0}
-        stroke="blue"
-        strokeWidth={0.5}
-      /> */}
-      {boardHexesArr.map((hex) => (
-        <SvgMapHex key={hex.id} hex={hex} />
-      ))}
+      <g filter="url(#constantOpacity)">
+        {boardHexesArr.map((hex) => (
+          <SvgMapHex key={hex.id} hex={hex} />
+        ))}
+      </g>
     </svg>
   )
+}
+
+const AxesHelper = () => {
+  ;<>
+    <line
+      x1={0}
+      y1={0}
+      x2={0}
+      y2={mapDimensions.length}
+      stroke="red"
+      strokeWidth={0.5}
+    />
+    <line
+      x1={0}
+      y1={0}
+      x2={mapDimensions.width}
+      y2={0}
+      stroke="blue"
+      strokeWidth={0.5}
+    />
+  </>
 }
