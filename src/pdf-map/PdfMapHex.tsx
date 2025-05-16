@@ -140,11 +140,11 @@ export const PdfMapHex = ({
           points={
             isEmptyHex
               ? getHexagonSvgPolygonPointsAt00(
-                SVG_HEX_RADIUS - SVG_EMPTYHEX_BORDER_WIDTH / 2,
-              ).points
+                  SVG_HEX_RADIUS - SVG_EMPTYHEX_BORDER_WIDTH / 2,
+                ).points
               : getHexagonSvgPolygonPointsAt00(
-                SVG_HEX_RADIUS - SVG_BORDER_WIDTH / 2,
-              ).points
+                  SVG_HEX_RADIUS - SVG_BORDER_WIDTH / 2,
+                ).points
           }
           fill={fillColor}
           stroke={isEmptyHex ? 'black' : fillColor}

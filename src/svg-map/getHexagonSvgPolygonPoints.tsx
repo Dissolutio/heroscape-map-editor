@@ -164,9 +164,10 @@ export function get4HexSvgPolygonPointsAt00(
     /* 
      /\/\
     |    |
-     \  /
-     |  |
-      \/
+    \    /
+   /    \
+   |    |
+    \/\/
     */
     { x: topX, y: topYInner }, // top hex1
     { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1
