@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite --force",
-    "format": "npx biome check --write",
+    "lint": "npx @biomejs/biome lint --write ./src",
+    "format": "npx biome format --write src/",
     "build": "tsc -b && vite build",
-    "lint": "npx biome check",
     "preview": "vite preview"
   },
   "dependencies": {
