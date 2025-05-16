@@ -6,6 +6,7 @@ import {
   get4HexSvgPolygonPointsAt00,
   get7HexSvgPolygonPointsAt00,
   getHexagonSvgPolygonPointsAt00,
+  getMarvel6HexSvgPolygonPointsAt00,
 } from '../svg-map/getHexagonSvgPolygonPoints'
 import {
   getSvgHexBorderColor,
@@ -179,11 +180,11 @@ export const PdfMapHex = ({
           points={
             isEmptyHex
               ? getHexagonSvgPolygonPointsAt00(
-                  SVG_HEX_RADIUS - SVG_EMPTYHEX_BORDER_WIDTH / 2,
-                ).points
+                SVG_HEX_RADIUS - SVG_EMPTYHEX_BORDER_WIDTH / 2,
+              ).points
               : getHexagonSvgPolygonPointsAt00(
-                  SVG_HEX_RADIUS - SVG_BORDER_WIDTH / 2,
-                ).points
+                SVG_HEX_RADIUS - SVG_BORDER_WIDTH / 2,
+              ).points
           }
           fill={fillColor}
           stroke={isEmptyHex ? 'black' : fillColor}
@@ -287,6 +288,26 @@ const PdfMultiHex4 = ({
       transform={`rotate(${pieceRotation})`}
       points={
         get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+      }
+      fill={fillColor}
+      stroke={borderColor}
+      strokeWidth={SVG_BORDER_WIDTH}
+    />
+  )
+}
+const PdfMultiHexMarvel6 = ({
+  hex,
+}: {
+  hex: BoardHex
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = getSvgHexBorderColor(hex)
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  return (
+    <Polygon
+      transform={`rotate(${pieceRotation})`}
+      points={
+        getMarvel6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
       }
       fill={fillColor}
       stroke={borderColor}

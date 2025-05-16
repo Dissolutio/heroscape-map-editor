@@ -501,7 +501,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.concrete7]: {
     id: Pieces.concrete7,
-    title: `Concrete-7`,
+    title: 'Concrete-7',
     terrain: HexTerrain.concrete,
     landPrefix: PiecePrefixes.concrete,
     isHexTerrainPiece: true,

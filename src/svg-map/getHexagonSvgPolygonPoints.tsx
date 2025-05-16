@@ -220,29 +220,31 @@ export function getMarvel6HexSvgPolygonPointsAt00(
     /* 
      /\/\
     |    |
-     \   \
-     |    |
-      \/\/
+     \   \/\/\
+     |        |
+      \/\/\/\/
     */
     { x: topX, y: topYInner }, // top hex1
     { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1, top-left hex2 TWEENSIE
     { x: rightXOuter + apothem, y: topYInner }, //  top hex2
     { x: rightXOuter + apothem + apothemInner, y: topSideYInner }, // top-right hex2
-    {
-      x: rightXOuter + apothem + apothemInner,
-      y: bottomSideYInner + halfBorder,
-    }, // bottom-right hex2, top hex3 TWEENSIE
+    { x: rightXOuter + apothem + apothemInner, y: bottomSideYInner + halfBorder }, // bottom-right hex2, top hex3 TWEENSIE
     { x: rightXOuter + hexWidth + apothemInner, y: radius }, // top-right hex3
+    { x: rightXOuter + 2 * hexWidth - apothemInner, y: radius }, // top-left hex4
+    { x: rightXOuter + 2 * hexWidth, y: radius - 0.5 * radiusInner }, // top hex4
+    { x: rightXOuter + 2 * hexWidth + apothemInner, y: radius }, // top-right hex4
 
-    // top-left hex4
-    // top hex4
-    // top-right hex4
-    // top-left hex5
-    // top hex5
-    // top-right hex5
-    // bottom-right hex5
-    // bottom hex5
-    // bottom-left hex5
+    { x: rightXOuter + 3 * hexWidth - apothemInner, y: radius }, // top-left hex5
+    { x: rightXOuter + 3 * hexWidth, y: radius - 0.5 * radiusInner }, // top hex5
+    { x: rightXOuter + 3 * hexWidth + apothemInner, y: radius }, // top-right hex5
+
+    { x: rightXOuter + 3 * hexWidth + apothemInner, y: radius + radiusInner }, // bottom-right hex5
+    { x: rightXOuter + 3 * hexWidth, y: radius + 1.5 * radiusInner }, // bottom hex5
+    { x: rightXOuter + 3 * hexWidth - apothemInner, y: radius + radiusInner }, // bottom-left hex5
+
+    { x: rightXOuter + 2 * hexWidth + apothemInner, y: radius + radiusInner }, // bottom-right hex4
+    { x: rightXOuter + 2 * hexWidth, y: radius + 1.5 * radiusInner }, // bottom hex4
+    { x: rightXOuter + 2 * hexWidth - apothemInner, y: radius + radiusInner }, // bottom-left hex4
     // bottom-right hex4
     // bottom hex4
     // bottom-left hex4
@@ -259,10 +261,10 @@ export function getMarvel6HexSvgPolygonPointsAt00(
 
     { x: rightXOuter + hexWidth + apothemInner, y: radius + radiusInner }, // bottom-right hex3
     { x: rightXOuter + hexWidth, y: 2.5 * radius - halfBorder }, // bottom hex3
-    { x: rightXOuter + apothemInner + halfBorder, y: radius + radiusInner }, // bottom-left hex3, bottom-right hex4 TWEENSIE
-    { x: rightXOuter, y: radius + 1.5 * radiusInner }, // bottom hex4
-    { x: rightXOuter - apothemInner, y: radius + radiusInner }, // bottom-left hex4
-    { x: rightXOuter - apothemInner, y: radius }, // top-left hex4, bottom hex1 TWEENSIE
+    { x: rightXOuter + apothemInner + halfBorder, y: radius + radiusInner }, // bottom-left hex3, bottom-right hex6 TWEENSIE
+    { x: rightXOuter, y: radius + 1.5 * radiusInner }, // bottom hex6
+    { x: rightXOuter - apothemInner, y: radius + radiusInner }, // bottom-left hex6
+    { x: rightXOuter - apothemInner, y: radius }, // top-left hex6, bottom hex1 TWEENSIE
     { x: topX, y: bottomYInner }, // bottom hex1
     { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
     { x: leftXInner, y: topSideYInner }, // top-left hex1
