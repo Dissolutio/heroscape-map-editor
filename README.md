@@ -122,17 +122,3 @@ To add new terrain pieces, follow these steps:
 5. **Update UI**: Update the user interface to allow users to select and place the new terrain piece. (as the project is under development, this step is subject to considerable change)
 
 By following these steps, you can expand the application to support new releases of Heroscape terrain.
-
-LavaField: rgb(160, 32, 32)
-Lava: rgb(255, 64, 64)
-Sand: rgb(204, 171, 41)
-Water: rgb(32, 32, 255)
-Swampwater: rgb(222, 210, 42)
-Snow: rgb(255,255,255)
-Ice: rgb(180,180,255)
-Shadow: rgb(0,0,0)
-
-COLOR MAPPING:
-Gpick                 |||  Coolors
-hsl(359, 51%, 36%)  hsl(354, 65%, 36%)
-hsl(232, 42%, 71%) hsl(231, 46%, 71%)
