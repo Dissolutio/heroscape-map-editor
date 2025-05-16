@@ -206,17 +206,17 @@ export const PdfInterlockClipPaths = ({ points }: Props) => {
     </Defs>
   )
 }
-const bottomRightX = SVG_HEX_APOTHEM * 2
-const bottomRightY = 1.5 * SVG_HEX_RADIUS
-const bottomX = SVG_HEX_APOTHEM
-const bottomY = 2 * SVG_HEX_RADIUS
-const bottomLeftX = 0
+const bottomRightX = SVG_HEX_APOTHEM
+const bottomRightY = 0.5 * SVG_HEX_RADIUS
+const bottomX = 0
+const bottomY = SVG_HEX_RADIUS
+const bottomLeftX = -SVG_HEX_APOTHEM
 const bottomLeftY = bottomRightY
 const topLeftX = 0
 const topLeftY = 0.5 * SVG_HEX_RADIUS
 const topX = bottomX
-const topY = 0
-const topRightX = SVG_HEX_RADIUS * Math.sqrt(3)
+const topY = -SVG_HEX_RADIUS
+const topRightX = SVG_HEX_APOTHEM
 const topRightY = topLeftY
 const ptBotRight = `${bottomRightX},${bottomRightY}`
 const ptBot = `${bottomX},${bottomY}`

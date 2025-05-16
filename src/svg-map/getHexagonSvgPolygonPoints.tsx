@@ -1,25 +1,25 @@
 import type { Point } from '../types'
 
-export function getHexagonSvgPolygonPoints(radius: number) {
-  const apothem = (Math.sqrt(3) * radius) / 2
-  const leftX = 0
-  const rightX = apothem * 2
-  const topX = apothem
-  const topY = 0
-  const bottomY = 2 * radius
-  const bottomSideY = 1.5 * radius
-  const topSideY = 0.5 * radius
-  const corners: Point[] = [
-    { x: rightX, y: bottomSideY }, //  bottom-right
-    { x: topX, y: bottomY }, // bottom
-    { x: leftX, y: bottomSideY }, // bottom-left
-    { x: leftX, y: topSideY }, // top-left
-    { x: topX, y: topY }, // top
-    { x: rightX, y: topSideY }, // top-right
-  ]
-  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
-  return { points, corners }
-}
+// export function getHexagonSvgPolygonPoints(radius: number) {
+//   const apothem = (Math.sqrt(3) * radius) / 2
+//   const leftX = 0
+//   const rightX = apothem * 2
+//   const topX = apothem
+//   const topY = 0
+//   const bottomY = 2 * radius
+//   const bottomSideY = 1.5 * radius
+//   const topSideY = 0.5 * radius
+//   const corners: Point[] = [
+//     { x: rightX, y: bottomSideY }, //  bottom-right
+//     { x: topX, y: bottomY }, // bottom
+//     { x: leftX, y: bottomSideY }, // bottom-left
+//     { x: leftX, y: topSideY }, // top-left
+//     { x: topX, y: topY }, // top
+//     { x: rightX, y: topSideY }, // top-right
+//   ]
+//   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+//   return { points, corners }
+// }
 export function getHexagonSvgPolygonPointsAt00(radius: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const leftX = -apothem
@@ -69,12 +69,12 @@ export function get2HexSvgPolygonPointsAt00(
   // using pen and paper geometry, find your way around the multi-hex (TODO: this could be programmatic)
   const corners: Point[] = [
     { x: topX, y: topYInner }, // top hex1
-    { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1
+    { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1, top-left hex2 TWEENSIE
     { x: rightXOuter + apothem, y: topYInner }, //  top hex2
     { x: rightXOuter + apothem + apothemInner, y: topSideYInner }, // top-right hex2
     { x: rightXOuter + apothem + apothemInner, y: bottomSideYInner }, // bottom-right hex2
     { x: rightXOuter + apothem, y: bottomYInner }, // bottom hex2
-    { x: rightXOuter, y: bottomSideYOuter - halfBorder }, // bottom-right hex1
+    { x: rightXOuter, y: bottomSideYOuter - halfBorder }, // bottom-left hex2, bottom-right hex1 TWEENSIE
     { x: topX, y: bottomYInner }, // bottom hex1
     { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
     { x: leftXInner, y: topSideYInner }, // top-left hex1
@@ -117,7 +117,7 @@ export function get3HexSvgPolygonPointsAt00(
       \/
     */
     { x: topX, y: topYInner }, // top hex1
-    { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1
+    { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1, top-left hex2 TWEENSIE
     { x: rightXOuter + apothem, y: topYInner }, //  top hex2
     { x: rightXOuter + apothem + apothemInner, y: topSideYInner }, // top-right hex2
     { x: rightXOuter + apothem + apothemInner, y: bottomSideYInner }, // bottom-right hex2
@@ -164,29 +164,23 @@ export function get4HexSvgPolygonPointsAt00(
     /* 
      /\/\
     |    |
-    \    /
-   /    \
-   |    |
-    \/\/
+     \   \
+     |    |
+      \/\/
     */
     { x: topX, y: topYInner }, // top hex1
-    { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1
+    { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1, top-left hex2 TWEENSIE
     { x: rightXOuter + apothem, y: topYInner }, //  top hex2
     { x: rightXOuter + apothem + apothemInner, y: topSideYInner }, // top-right hex2
-    { x: rightXOuter + apothem + apothemInner, y: bottomSideYInner }, // bottom-right hex2
-    { x: rightXOuter + apothem, y: bottomYInner }, // bottom hex2
-    { x: rightXOuter + apothemInner, y: radius }, // top-right hex3
-    { x: rightXOuter + apothemInner, y: radius + radiusInner }, // bottom-right hex3
-    { x: rightXOuter, y: radius + 1.5 * radiusInner }, // bottom hex3
-    { x: rightXOuter - apothemInner, y: radius + radiusInner }, // bottom-left hex3
-    // { x: rightXOuter - apothemInner, y: radius + radiusInner }, // bottom-left hex3
-    // { x: rightXOuter - apothemInner, y: radius + radiusInner }, // bottom-left hex3
-    // { x: rightXOuter - apothemInner, y: radius + radiusInner }, // bottom-left hex3
-    // { x: rightXOuter - apothemInner, y: radius + radiusInner }, // bottom-left hex3
-    // { x: rightXOuter - apothemInner, y: radius + radiusInner }, // bottom-left hex3
-
-    // { x: rightXOuter - apothemInner, y: radius }, // top-left hex3
-    // { x: topX, y: bottomYInner }, // bottom hex1
+    { x: rightXOuter + apothem + apothemInner, y: bottomSideYInner + halfBorder }, // bottom-right hex2, top hex3 TWEENSIE
+    { x: rightXOuter + hexWidth + apothemInner, y: radius }, // top-right hex3
+    { x: rightXOuter + hexWidth + apothemInner, y: radius + radiusInner }, // bottom-right hex3
+    { x: rightXOuter + hexWidth, y: 2.5 * radius - halfBorder }, // bottom hex3
+    { x: rightXOuter + apothemInner + halfBorder, y: radius + radiusInner }, // bottom-left hex3, bottom-right hex4 TWEENSIE
+    { x: rightXOuter, y: radius + 1.5 * radiusInner }, // bottom hex4
+    { x: rightXOuter - apothemInner, y: radius + radiusInner }, // bottom-left hex4
+    { x: rightXOuter - apothemInner, y: radius }, // top-left hex4, bottom hex1 TWEENSIE
+    { x: topX, y: bottomYInner }, // bottom hex1
     { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
     { x: leftXInner, y: topSideYInner }, // top-left hex1
   ]

@@ -1,6 +1,4 @@
 import { G, Line, Svg } from '@react-pdf/renderer'
-import { getHexagonSvgPolygonPoints } from '../svg-map/getHexagonSvgPolygonPoints'
-import { PdfInterlockClipPaths } from '../svg-map/svg-hex-interlock-clippath'
 import type { BoardHex } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { PdfMapHex } from './PdfMapHex'

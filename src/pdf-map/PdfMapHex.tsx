@@ -18,12 +18,11 @@ import {
   isObstaclePieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
-import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
+import { SVG_BORDER_WIDTH, SVG_EMPTYHEX_BORDER_WIDTH, SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import { svgColors } from '../world/maphex/hexColors'
 
-const SVG_BORDER_WIDTH = 2 // divided by 2
-const SVG_EMPTYHEX_BORDER_WIDTH = 0.2 // divided by 2
+
 
 export const PdfMapHex = ({
   hex,
@@ -105,7 +104,8 @@ export const PdfMapHex = ({
   if (
     isLandHex &&
     (piecesSoFar?.[inventoryID]?.size === 2 ||
-      piecesSoFar?.[inventoryID]?.size === 3) &&
+      piecesSoFar?.[inventoryID]?.size === 3 ||
+      piecesSoFar?.[inventoryID]?.size === 4) &&
     hex.isObstacleAuxiliary
   ) {
     return null
@@ -132,6 +132,17 @@ export const PdfMapHex = ({
       </G>
     )
   }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.size === 4 &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex4 hex={hex} />
+      </G>
+    )
+  }
   return (
     <G transform={`translate(${pixel.x}, ${pixel.y})`}>
       {/* Hex Fill */}
@@ -140,11 +151,11 @@ export const PdfMapHex = ({
           points={
             isEmptyHex
               ? getHexagonSvgPolygonPointsAt00(
-                  SVG_HEX_RADIUS - SVG_EMPTYHEX_BORDER_WIDTH / 2,
-                ).points
+                SVG_HEX_RADIUS - SVG_EMPTYHEX_BORDER_WIDTH / 2,
+              ).points
               : getHexagonSvgPolygonPointsAt00(
-                  SVG_HEX_RADIUS - SVG_BORDER_WIDTH / 2,
-                ).points
+                SVG_HEX_RADIUS - SVG_BORDER_WIDTH / 2,
+              ).points
           }
           fill={fillColor}
           stroke={isEmptyHex ? 'black' : fillColor}
