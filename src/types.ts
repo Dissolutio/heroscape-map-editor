@@ -25,6 +25,7 @@ export interface BoardHex extends CubeCoordinate {
   id: string
   altitude: number
   pieceID: string // tileID=qraID + piece-UID
+  inventoryID: string // just the piece UID
   terrain: string
   pieceRotation: number
   isCap?: boolean // caps are uncovered (no land hex above them) land hexes

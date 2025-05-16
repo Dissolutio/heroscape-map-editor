@@ -308,6 +308,9 @@
             "useExhaustiveDependencies": "warn",
             "useHookAtTopLevel": "error"
           },
+          "style": {
+            "useLiteralEnumMembers": "off"
+          },
           "suspicious": {
             "noExplicitAny": "warn"
           }
