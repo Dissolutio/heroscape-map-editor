@@ -94,7 +94,9 @@ export const SvgMapDisplay = () => {
         </feComponentTransfer>
       </filter>
       <SvgInterlockClipPaths points={points} />
-      <g filter="url(#constantOpacity)">
+      <g
+      //  filter="url(#constantOpacity)"
+      >
         {boardHexesArr.map((hex) => (
           <SvgMapHex key={hex.id} hex={hex} />
         ))}
@@ -103,20 +105,20 @@ export const SvgMapDisplay = () => {
   )
 }
 
-const AxesHelper = () => {
-  ;<>
+const AxesHelper = ({ width, length }: { width: number, length: number }) => {
+  ; <>
     <line
       x1={0}
       y1={0}
       x2={0}
-      y2={mapDimensions.length}
+      y2={length}
       stroke="red"
       strokeWidth={0.5}
     />
     <line
       x1={0}
       y1={0}
-      x2={mapDimensions.width}
+      x2={width}
       y2={0}
       stroke="blue"
       strokeWidth={0.5}
