@@ -4,6 +4,7 @@ import {
   get2HexSvgPolygonPointsAt00,
   get3HexSvgPolygonPointsAt00,
   get4HexSvgPolygonPointsAt00,
+  get7HexSvgPolygonPointsAt00,
   getHexagonSvgPolygonPointsAt00,
 } from '../svg-map/getHexagonSvgPolygonPoints'
 import {
@@ -18,11 +19,14 @@ import {
   isObstaclePieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
-import { SVG_BORDER_WIDTH, SVG_EMPTYHEX_BORDER_WIDTH, SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
+import {
+  SVG_BORDER_WIDTH,
+  SVG_EMPTYHEX_BORDER_WIDTH,
+  SVG_HEX_APOTHEM,
+  SVG_HEX_RADIUS,
+} from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import { svgColors } from '../world/maphex/hexColors'
-
-
 
 export const PdfMapHex = ({
   hex,
@@ -105,6 +109,8 @@ export const PdfMapHex = ({
     isLandHex &&
     (piecesSoFar?.[inventoryID]?.size === 2 ||
       piecesSoFar?.[inventoryID]?.size === 3 ||
+      piecesSoFar?.[inventoryID]?.size === 7 ||
+      piecesSoFar?.[inventoryID]?.size === 6 ||
       piecesSoFar?.[inventoryID]?.size === 4) &&
     hex.isObstacleAuxiliary
   ) {
@@ -143,6 +149,28 @@ export const PdfMapHex = ({
       </G>
     )
   }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.size === 7 &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex7 hex={hex} />
+      </G>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.size === 6 &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHexMarvel6 hex={hex} />
+      </G>
+    )
+  }
   return (
     <G transform={`translate(${pixel.x}, ${pixel.y})`}>
       {/* Hex Fill */}
@@ -151,11 +179,11 @@ export const PdfMapHex = ({
           points={
             isEmptyHex
               ? getHexagonSvgPolygonPointsAt00(
-                SVG_HEX_RADIUS - SVG_EMPTYHEX_BORDER_WIDTH / 2,
-              ).points
+                  SVG_HEX_RADIUS - SVG_EMPTYHEX_BORDER_WIDTH / 2,
+                ).points
               : getHexagonSvgPolygonPointsAt00(
-                SVG_HEX_RADIUS - SVG_BORDER_WIDTH / 2,
-              ).points
+                  SVG_HEX_RADIUS - SVG_BORDER_WIDTH / 2,
+                ).points
           }
           fill={fillColor}
           stroke={isEmptyHex ? 'black' : fillColor}
@@ -259,6 +287,26 @@ const PdfMultiHex4 = ({
       transform={`rotate(${pieceRotation})`}
       points={
         get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+      }
+      fill={fillColor}
+      stroke={borderColor}
+      strokeWidth={SVG_BORDER_WIDTH}
+    />
+  )
+}
+const PdfMultiHex7 = ({
+  hex,
+}: {
+  hex: BoardHex
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = getSvgHexBorderColor(hex)
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  return (
+    <Polygon
+      transform={`rotate(${pieceRotation})`}
+      points={
+        get7HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
       }
       fill={fillColor}
       stroke={borderColor}

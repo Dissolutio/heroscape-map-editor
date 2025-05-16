@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import useBoundStore from '../store/store'
 import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
-import { SVG_BORDER_WIDTH, SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
+import {
+  SVG_BORDER_WIDTH,
+  SVG_HEX_APOTHEM,
+  SVG_HEX_RADIUS,
+} from '../utils/constants'
 import { getBoardHexesSvgMapDimensions } from '../utils/map-utils'
 import { SvgMapHex } from './SvgMapHex'
 import { getHexagonSvgPolygonPointsAt00 } from './getHexagonSvgPolygonPoints'
@@ -12,8 +16,7 @@ const mapY = -SVG_HEX_RADIUS
 
 export const SvgMapDisplay = () => {
   const boardHexes = useBoundStore((state) => state.boardHexes)
-  const points = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
-    .points
+  const points = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS).points
   const mapDimensions = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesArr = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
@@ -97,10 +100,7 @@ export const SvgMapDisplay = () => {
           <feFuncA type="table" tableValues="0 .5 .5" />
         </feComponentTransfer>
       </filter>
-      <AxesHelper
-        width={viewBox.width}
-        length={viewBox.height}
-      />
+      <AxesHelper width={viewBox.width} length={viewBox.height} />
       <SvgInterlockClipPaths points={points} />
       <g
       //  filter="url(#constantOpacity)"
@@ -113,24 +113,25 @@ export const SvgMapDisplay = () => {
   )
 }
 
-const AxesHelper = ({ width, length }: { width: number, length: number }) => {
-  return (<>
-    <line
-      x1={mapX}
-      y1={mapY}
-      x2={mapX}
-      y2={length}
-      stroke="red"
-      strokeWidth={0.5}
-    />
-    <line
-      x1={mapX}
-      y1={mapY}
-      x2={width}
-      y2={mapY}
-      stroke="blue"
-      strokeWidth={0.5}
-    />
-  </>
+const AxesHelper = ({ width, length }: { width: number; length: number }) => {
+  return (
+    <>
+      <line
+        x1={mapX}
+        y1={mapY}
+        x2={mapX}
+        y2={length}
+        stroke="red"
+        strokeWidth={0.5}
+      />
+      <line
+        x1={mapX}
+        y1={mapY}
+        x2={width}
+        y2={mapY}
+        stroke="blue"
+        strokeWidth={0.5}
+      />
+    </>
   )
 }

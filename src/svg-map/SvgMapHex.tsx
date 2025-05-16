@@ -1,6 +1,10 @@
 import useBoundStore from '../store/store'
 import type { BoardHex } from '../types'
-import { SVG_BORDER_WIDTH, SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
+import {
+  SVG_BORDER_WIDTH,
+  SVG_HEX_APOTHEM,
+  SVG_HEX_RADIUS,
+} from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import { SvgHexIDText } from './SvgHexIDText'
 import { getHexagonSvgPolygonPointsAt00 } from './getHexagonSvgPolygonPoints'
@@ -14,8 +18,9 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   const isSubLevel = hex.altitude < viewingLevel
   const isEmptyHex = hex.terrain === 'empty'
   const pixel = hexUtilsHexToPixel(hex)
-  const points = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS - SVG_BORDER_WIDTH / 2)
-    .points
+  const points = getHexagonSvgPolygonPointsAt00(
+    SVG_HEX_RADIUS - SVG_BORDER_WIDTH / 2,
+  ).points
   const color = getSvgHexFillColor(hex)
   const borderColor = getSvgHexBorderColor(hex)
   const borderRotation =
