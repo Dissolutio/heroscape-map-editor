@@ -1,7 +1,7 @@
-import { CameraControls } from '@react-three/drei'
+import type { CameraControls } from '@react-three/drei'
 import React from 'react'
 import useBoundStore from '../../store/store'
-import { BoardHexes } from '../../types'
+import type { BoardHexes } from '../../types'
 import { getMapCenterCameraLookAt } from '../../utils/camera-utils'
 
 export const useZoomCameraToMapCenter = ({

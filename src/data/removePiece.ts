@@ -1,8 +1,8 @@
 import { clone } from 'lodash'
 import {
-  AddRemovePieceError,
-  BoardHexes,
-  BoardPieces,
+  type AddRemovePieceError,
+  type BoardHexes,
+  type BoardPieces,
   CubeCoordinate,
   HexTerrain,
   Piece,
@@ -17,7 +17,7 @@ import {
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import { decodePieceID, genBoardHexID, genPieceID } from '../utils/map-utils'
-import { AddRemovePieceReturn } from './addPiece'
+import type { AddRemovePieceReturn } from './addPiece'
 import interlockRotationTemplates from './interlock-rotations'
 import interlockTemplates from './interlock-templates'
 import { piecesSoFar } from './pieces'

@@ -1,9 +1,9 @@
-import { ThreeEvent } from '@react-three/fiber'
-import { InstancedMesh, NormalBufferAttributes } from 'three'
-import { BufferGeometry } from 'three'
-import { Material } from 'three'
-import { InstancedMeshEventMap } from 'three'
-import { BoardHex } from '../../types'
+import type { ThreeEvent } from '@react-three/fiber'
+import type { InstancedMesh, NormalBufferAttributes } from 'three'
+import type { BufferGeometry } from 'three'
+import type { Material } from 'three'
+import type { InstancedMeshEventMap } from 'three'
+import type { BoardHex } from '../../types'
 
 export type CylinderGeometryArgs =
   | [

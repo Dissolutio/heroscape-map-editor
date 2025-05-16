@@ -4,7 +4,7 @@ import React from 'react'
 import { useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import { BoardHexes, BoardPieces, Pieces } from '../types'
+import { type BoardHexes, type BoardPieces, Pieces } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { decodePieceID } from '../utils/map-utils'
 

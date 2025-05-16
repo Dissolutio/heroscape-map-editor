@@ -1,4 +1,4 @@
-import { Object3DNode, extend } from '@react-three/fiber'
+import { type Object3DNode, extend } from '@react-three/fiber'
 import { BufferGeometry, Color, Line, Vector3 } from 'three'
 import { hexPoints3DFromCenter } from '../../utils/map-utils'
 

@@ -1,7 +1,12 @@
 import { Page, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy } from 'lodash'
-import { Fragment, PropsWithChildren } from 'react'
-import { BoardHexes, BoardPieces, MapState, Pieces } from '../types'
+import { Fragment, type PropsWithChildren } from 'react'
+import {
+  type BoardHexes,
+  type BoardPieces,
+  type MapState,
+  Pieces,
+} from '../types'
 import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
 import {
   decodePieceID,

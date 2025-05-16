@@ -165,7 +165,7 @@ function analyzeLocalStorage(): {
     items.push({
       key: key || '',
       value,
-      size: parseFloat((size / 1024).toFixed(2)),
+      size: Number.parseFloat((size / 1024).toFixed(2)),
       type,
     })
   }
@@ -173,9 +173,9 @@ function analyzeLocalStorage(): {
   const freeSpace = totalSpace - usedSpace
 
   return {
-    freeSpace: parseFloat(freeSpace.toFixed(2)),
-    usedSpace: parseFloat(usedSpace.toFixed(2)),
-    mapSpace: parseFloat(mapSpace.toFixed(2)),
+    freeSpace: Number.parseFloat(freeSpace.toFixed(2)),
+    usedSpace: Number.parseFloat(usedSpace.toFixed(2)),
+    mapSpace: Number.parseFloat(mapSpace.toFixed(2)),
     items,
   }
 }

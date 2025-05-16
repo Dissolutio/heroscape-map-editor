@@ -1,5 +1,5 @@
-import { Dictionary } from 'lodash'
-import { HexTerrain, Piece, PiecePrefixes, Pieces } from '../types'
+import type { Dictionary } from 'lodash'
+import { HexTerrain, type Piece, PiecePrefixes, Pieces } from '../types'
 
 export const getPieceByTerrainAndSize = (terrain: string, size: number) => {
   const piece = piecesSoFar[`${terrain}${size}`]

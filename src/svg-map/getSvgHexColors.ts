@@ -1,5 +1,5 @@
 import { piecesSoFar } from '../data/pieces'
-import { BoardHex, HexTerrain } from '../types'
+import { type BoardHex, HexTerrain } from '../types'
 import {
   isEvergreenTree,
   isFluidTerrainHex,

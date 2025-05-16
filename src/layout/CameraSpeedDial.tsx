@@ -1,6 +1,6 @@
 import SpeedDial from '@mui/material/SpeedDial'
 import SpeedDialAction from '@mui/material/SpeedDialAction'
-import { CameraControls } from '@react-three/drei'
+import type { CameraControls } from '@react-three/drei'
 import React from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import {

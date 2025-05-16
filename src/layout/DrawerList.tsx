@@ -12,7 +12,7 @@ import {
 import JSONCrush from 'jsoncrush'
 import { useSnackbar } from 'notistack'
 import { parse } from 'papaparse'
-import React, { ChangeEvent } from 'react'
+import React, { type ChangeEvent } from 'react'
 import { FcAddImage, FcDownload, FcLink, FcUpload, FcVlc } from 'react-icons/fc'
 import {
   MdExpandLess,
@@ -24,7 +24,7 @@ import tsvTemplate from '/inventory_template.tsv?url'
 import { piecesSoFar } from '../data/pieces'
 import { useLocalPieceInventory } from '../hooks/useLocalPieceInventory'
 import useBoundStore from '../store/store'
-import { PieceInventory, Pieces } from '../types'
+import { type PieceInventory, Pieces } from '../types'
 import DownloadMapFileButtons from './DownloadMapFileButtons'
 import LoadMapButtons from './LoadMapButtons'
 
@@ -130,7 +130,7 @@ export const DrawerList = ({
           results.data.forEach((datum) => {
             console.log('🚀 ~ results.data.forEach ~ datum:', datum)
             if (datum.ID && piecesSoFar[datum.ID]) {
-              newPieceInventory[datum.ID] = parseInt(datum.Count)
+              newPieceInventory[datum.ID] = Number.parseInt(datum.Count)
             }
           })
           inventory.setPieceInventory(newPieceInventory)

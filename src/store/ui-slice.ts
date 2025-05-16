@@ -1,7 +1,7 @@
 import { produce } from 'immer'
-import { StateCreator } from 'zustand'
+import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
-import { AppState } from './store'
+import type { AppState } from './store'
 
 export interface UISlice {
   penMode: string

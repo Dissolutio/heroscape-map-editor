@@ -1,6 +1,6 @@
 import { Billboard, Text } from '@react-three/drei'
-import { Color, Vector3 } from 'three'
-import {
+import { Color, type Vector3 } from 'three'
+import type {
   BoardHex,
   // HexTerrain,
 } from '../../types'

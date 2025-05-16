@@ -1,14 +1,14 @@
 import { useGLTF } from '@react-three/drei'
-import { ThreeEvent } from '@react-three/fiber'
+import type { ThreeEvent } from '@react-three/fiber'
 import { DoubleSide } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { BoardHex, HexTerrain } from '../../types'
+import { type BoardHex, HexTerrain } from '../../types'
 import { HEXGRID_HEXCAP_FLUID_HEIGHT } from '../../utils/constants'
 import { getBoardHex3DCoords } from '../../utils/map-utils'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { CylinderGeometryArgs } from '../maphex/instance-hex'
+import type { CylinderGeometryArgs } from '../maphex/instance-hex'
 
 // function getPillarReport({
 //   boardHexes,

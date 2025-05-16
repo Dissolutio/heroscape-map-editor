@@ -1,4 +1,4 @@
-import { Dictionary } from 'lodash'
+import type { Dictionary } from 'lodash'
 
 export const hexoscapeColors = {
   white: '#f7edf0',

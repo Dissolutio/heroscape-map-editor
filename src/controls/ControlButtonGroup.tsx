@@ -1,5 +1,5 @@
 import { ButtonGroup } from '@mui/material'
-import React, { PropsWithChildren } from 'react'
+import React, { type PropsWithChildren } from 'react'
 
 const ControlButtonGroup = (props: PropsWithChildren) => {
   return (

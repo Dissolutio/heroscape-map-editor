@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { MapFileState } from '../types'
+import type { MapFileState } from '../types'
 
 type IndexedDBHook<T> = {
   data: T[]
@@ -11,7 +11,7 @@ type IndexedDBHook<T> = {
 const useIndexedDB = (
   dbName: string,
   storeName: string,
-  version: number = 1,
+  version = 1,
 ): IndexedDBHook<MapFileState> => {
   const [data, setData] = useState<MapFileState[]>([])
   const [loading, setLoading] = useState<boolean>(true)

@@ -2,7 +2,7 @@ import { Divider, ListItemIcon } from '@mui/material'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
-import Select, { SelectChangeEvent } from '@mui/material/Select'
+import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import { noop } from 'lodash'
 import { useHotkeys } from 'react-hotkeys-hook'
 import {

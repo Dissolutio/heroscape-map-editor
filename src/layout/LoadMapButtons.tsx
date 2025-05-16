@@ -1,6 +1,6 @@
 import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import { useSnackbar } from 'notistack'
-import React, { ChangeEvent } from 'react'
+import React, { type ChangeEvent } from 'react'
 import { MdFolderZip, MdOutlineHexagon } from 'react-icons/md'
 import { useLocation } from 'wouter'
 import { ROUTES } from '../ROUTES'

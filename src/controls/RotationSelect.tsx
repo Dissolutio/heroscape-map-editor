@@ -17,7 +17,7 @@ export default function RotationSelect() {
     _event: React.MouseEvent<HTMLElement>,
     value: string,
   ) => {
-    togglePieceRotation(parseInt(value))
+    togglePieceRotation(Number.parseInt(value))
   }
   return (
     <span style={{ margin: '0px 20px' }}>

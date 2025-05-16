@@ -37,7 +37,7 @@ export default function ViewingLevelInput() {
             size="small"
             // disabled // TODO: implement viewing levels
             onChange={(event) =>
-              toggleViewingLevel(parseInt(event.target.value))
+              toggleViewingLevel(Number.parseInt(event.target.value))
             }
             inputProps={{
               step: 1,

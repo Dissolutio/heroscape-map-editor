@@ -1,8 +1,8 @@
-import { ThreeEvent } from '@react-three/fiber'
+import type { ThreeEvent } from '@react-three/fiber'
 import { Suspense } from 'react'
 import { Vector3 } from 'three'
 import useBoundStore from '../../store/store'
-import { BoardHex, HexTerrain, Pieces } from '../../types'
+import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../../utils/board-utils'
 import {
   HEXGRID_HEXCAP_FLUID_SCALE,

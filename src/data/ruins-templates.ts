@@ -1,4 +1,4 @@
-import { Dictionary } from 'lodash'
+import type { Dictionary } from 'lodash'
 import { Pieces } from '../types'
 
 export const verticalObstructionTemplates: Dictionary<number[]> = {

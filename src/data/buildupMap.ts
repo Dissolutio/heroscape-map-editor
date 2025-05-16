@@ -1,10 +1,10 @@
 import {
-  BoardHexes,
-  BoardPieces,
-  HexMap,
-  MapState,
+  type BoardHexes,
+  type BoardPieces,
+  type HexMap,
+  type MapState,
   Pieces,
-  VirtualScapeTile,
+  type VirtualScapeTile,
 } from '../types'
 import { hexUtilsOddRToCube } from '../utils/hex-utils'
 import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'

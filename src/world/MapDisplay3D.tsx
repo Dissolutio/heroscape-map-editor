@@ -1,11 +1,11 @@
-import { CameraControls } from '@react-three/drei'
-import { ThreeEvent } from '@react-three/fiber'
+import type { CameraControls } from '@react-three/drei'
+import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 
-import { Group, Object3DEventMap } from 'three'
+import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
 import useBoundStore from '../store/store.ts'
-import { BoardHex, HexTerrain, PiecePrefixes } from '../types.ts'
+import { type BoardHex, HexTerrain, PiecePrefixes } from '../types.ts'
 import {
   isFluidTerrainHex,
   isJungleTerrainHex,

@@ -1,11 +1,11 @@
 import { Instance, Instances } from '@react-three/drei'
-import { ThreeEvent } from '@react-three/fiber'
+import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
 import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
-import {
+import type {
   BoardHexPieceProps,
   CylinderGeometryArgs,
   DreiCapProps,

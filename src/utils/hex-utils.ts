@@ -1,4 +1,4 @@
-import { CubeCoordinate } from '../types'
+import type { CubeCoordinate } from '../types'
 import {
   CUBE_EAST,
   CUBE_NE,

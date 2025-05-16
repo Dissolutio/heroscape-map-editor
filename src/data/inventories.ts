@@ -1,4 +1,4 @@
-import { PieceInventory, Pieces } from '../types'
+import { type PieceInventory, Pieces } from '../types'
 
 export const maxSharedTerrainKit: PieceInventory = {
   // https://www.heroscapers.com/threads/max-shared-terrain-kit-mstk.64183/

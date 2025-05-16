@@ -1,5 +1,10 @@
 import { Vector3 } from 'three'
-import { BoardHex, BoardHexes, BoardPieces, CubeCoordinate } from '../types'
+import type {
+  BoardHex,
+  BoardHexes,
+  BoardPieces,
+  CubeCoordinate,
+} from '../types'
 import {
   HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEX_APOTHEM,
@@ -209,11 +214,11 @@ export function genPieceID(
 }
 export function decodePieceID(aqrrID: string) {
   const parsed = aqrrID.split('~')
-  const altitude = parseInt(parsed[0])
-  const q = parseInt(parsed[1])
-  const r = parseInt(parsed[2])
+  const altitude = Number.parseInt(parsed[0])
+  const q = Number.parseInt(parsed[1])
+  const r = Number.parseInt(parsed[2])
   const s = -q - r
-  const rotation = parseFloat(parsed[3])
+  const rotation = Number.parseFloat(parsed[3])
   const inventoryID = parsed[4]
   const pieceCoords = { q, r, s }
   return {

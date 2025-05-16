@@ -1,5 +1,5 @@
-import { Dictionary } from 'lodash'
-import { CubeCoordinate, Pieces } from '../types'
+import type { Dictionary } from 'lodash'
+import { type CubeCoordinate, Pieces } from '../types'
 import { CUBE_EAST, CUBE_SE, CUBE_SW, ORIGIN_000 } from '../utils/constants'
 import { hexUtilsAdd, hexUtilsRotateAroundOrigin_000 } from '../utils/hex-utils'
 import tileTemplates from './tileTemplates'

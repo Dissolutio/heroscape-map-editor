@@ -1,8 +1,8 @@
 import { isEqual } from 'lodash'
 import { temporal } from 'zundo'
 import { create } from 'zustand'
-import createMapSlice, { MapSlice } from './map-slice'
-import createUISlice, { UISlice } from './ui-slice'
+import createMapSlice, { type MapSlice } from './map-slice'
+import createUISlice, { type UISlice } from './ui-slice'
 
 export type AppState = MapSlice & UISlice
 

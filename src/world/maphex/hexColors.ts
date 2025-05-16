@@ -1,4 +1,4 @@
-import { Dictionary } from 'lodash'
+import type { Dictionary } from 'lodash'
 import { HexTerrain } from '../../types'
 
 export const virtualscapeTileColors: Dictionary<string> = {

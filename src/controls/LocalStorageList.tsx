@@ -8,7 +8,7 @@ import {
 } from '@mui/material'
 import React from 'react'
 import { MdDelete } from 'react-icons/md'
-import { MapFileState } from '../types'
+import type { MapFileState } from '../types'
 
 const maxLocalStorageSize = 5120
 
@@ -128,7 +128,7 @@ function analyzeLocalStorage(): {
     storageInfo.items.push({
       key: key || '',
       value: parsedValue,
-      size: parseFloat((itemSize / 1024).toFixed(2)),
+      size: Number.parseFloat((itemSize / 1024).toFixed(2)),
       type: dataType,
     })
 
@@ -136,7 +136,9 @@ function analyzeLocalStorage(): {
   }
 
   // Convert total size to KB
-  storageInfo.totalSize = parseFloat((storageInfo.totalSize / 1024).toFixed(2))
+  storageInfo.totalSize = Number.parseFloat(
+    (storageInfo.totalSize / 1024).toFixed(2),
+  )
 
   return storageInfo
 }

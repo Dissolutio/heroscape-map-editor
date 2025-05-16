@@ -148,9 +148,6 @@
       ],
       "linter": {
         "rules": {
-          "a11y": {
-            "all": false
-          },
           "complexity": {
             "noUselessThisAlias": "error",
             "noUselessTypeConstraint": "error"

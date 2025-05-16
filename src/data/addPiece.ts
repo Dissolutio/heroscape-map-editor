@@ -1,11 +1,11 @@
 import { clone } from 'lodash'
 import {
-  AddRemovePieceError,
-  BoardHexes,
-  BoardPieces,
-  CubeCoordinate,
+  type AddRemovePieceError,
+  type BoardHexes,
+  type BoardPieces,
+  type CubeCoordinate,
   HexTerrain,
-  Piece,
+  type Piece,
   PiecePrefixes,
   Pieces,
 } from '../types'

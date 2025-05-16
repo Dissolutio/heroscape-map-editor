@@ -1,4 +1,4 @@
-import { BoardHexes } from '../types'
+import type { BoardHexes } from '../types'
 import { CAMERA_FOV } from '../utils/constants'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 

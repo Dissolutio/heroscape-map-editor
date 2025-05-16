@@ -1,5 +1,5 @@
 import useBoundStore from '../store/store'
-import { BoardHex } from '../types'
+import type { BoardHex } from '../types'
 import { SVG_HEX_RADIUS } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import { SvgHexIDText } from './SvgHexIDText'
