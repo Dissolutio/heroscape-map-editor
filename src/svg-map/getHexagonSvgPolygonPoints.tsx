@@ -20,22 +20,47 @@ import type { Point } from '../types'
 //   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
 //   return { points, corners }
 // }
-export function getHexagonSvgPolygonPointsAt00(radius: number) {
-  const apothem = (Math.sqrt(3) * radius) / 2
-  const leftX = -apothem
-  const rightX = apothem
+// export function getHexagonSvgPolygonPointsAt00(radius: number) {
+//   const apothem = (Math.sqrt(3) * radius) / 2
+//   const leftX = -apothem
+//   const rightX = apothem
+//   const topX = 0
+//   const topY = -radius
+//   const bottomY = radius
+//   const bottomSideY = 0.5 * radius
+//   const topSideY = -0.5 * radius
+//   const corners: Point[] = [
+//     { x: topX, y: topY }, // top
+//     { x: rightX, y: topSideY }, // top-right
+//     { x: rightX, y: bottomSideY }, //  bottom-right
+//     { x: topX, y: bottomY }, // bottom
+//     { x: leftX, y: bottomSideY }, // bottom-left
+//     { x: leftX, y: topSideY }, // top-left
+//   ]
+//   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+//   return { points, corners }
+// }
+export function getHexagonSvgPolygonPointsAt00(radius: number, borderWidth: number) {
+  const halfBorder = borderWidth / 2
   const topX = 0
-  const topY = -radius
-  const bottomY = radius
-  const bottomSideY = 0.5 * radius
-  const topSideY = -0.5 * radius
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const rightXInner = apothemInner
+  const leftXInner = -apothemInner
+  const topYInner = -radiusInner
+  const bottomYInner = radiusInner
+  const bottomSideYInner = 0.5 * radiusInner
+  const topSideYInner = -0.5 * radiusInner
+
+  // using pen and paper geometry, find your way around the multi-hex (TODO: this could be programmatic)
   const corners: Point[] = [
-    { x: topX, y: topY }, // top
-    { x: rightX, y: topSideY }, // top-right
-    { x: rightX, y: bottomSideY }, //  bottom-right
-    { x: topX, y: bottomY }, // bottom
-    { x: leftX, y: bottomSideY }, // bottom-left
-    { x: leftX, y: topSideY }, // top-left
+    { x: topX, y: topYInner }, // top hex1
+    { x: rightXInner, y: topSideYInner }, // top-right
+    { x: rightXInner, y: bottomSideYInner }, //  bottom-right 
+    { x: topX, y: bottomYInner }, // bottom
+    { x: leftXInner, y: bottomSideYInner }, // bottom-left
+    { x: leftXInner, y: topSideYInner }, // top-left
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }

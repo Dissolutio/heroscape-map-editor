@@ -16,7 +16,7 @@ const mapY = -SVG_HEX_RADIUS
 
 export const SvgMapDisplay = () => {
   const boardHexes = useBoundStore((state) => state.boardHexes)
-  const points = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS).points
+  const points = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
   const mapDimensions = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesArr = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),

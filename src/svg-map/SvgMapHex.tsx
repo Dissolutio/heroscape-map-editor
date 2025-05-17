@@ -19,7 +19,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   const isEmptyHex = hex.terrain === 'empty'
   const pixel = hexUtilsHexToPixel(hex)
   const points = getHexagonSvgPolygonPointsAt00(
-    SVG_HEX_RADIUS - SVG_BORDER_WIDTH / 2,
+    SVG_HEX_RADIUS, SVG_BORDER_WIDTH
   ).points
   const color = getSvgHexFillColor(hex)
   const borderColor = getSvgHexBorderColor(hex)
