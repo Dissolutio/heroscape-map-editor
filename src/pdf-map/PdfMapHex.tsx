@@ -1,6 +1,7 @@
 import { G, Path, Polygon, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
+  get24HexSvgPolygonPointsAt00,
   get2HexSvgPolygonPointsAt00,
   get3HexSvgPolygonPointsAt00,
   get4HexSvgPolygonPointsAt00,
@@ -110,9 +111,11 @@ export const PdfMapHex = ({
     isLandHex &&
     (piecesSoFar?.[inventoryID]?.size === 2 ||
       piecesSoFar?.[inventoryID]?.size === 3 ||
-      piecesSoFar?.[inventoryID]?.size === 7 ||
+      piecesSoFar?.[inventoryID]?.size === 4 ||
       piecesSoFar?.[inventoryID]?.size === 6 ||
-      piecesSoFar?.[inventoryID]?.size === 4) &&
+      piecesSoFar?.[inventoryID]?.size === 7 ||
+      piecesSoFar?.[inventoryID]?.size === 24
+    ) &&
     hex.isObstacleAuxiliary
   ) {
     return null
@@ -172,6 +175,17 @@ export const PdfMapHex = ({
       </G>
     )
   }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.size === 24 &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex24 hex={hex} />
+      </G>
+    )
+  }
   return (
     <G transform={`translate(${pixel.x}, ${pixel.y})`}>
       {/* Hex Fill */}
@@ -215,7 +229,7 @@ const PdfMultiHex1 = ({
   hex: BoardHex
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = getSvgHexBorderColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
 
   return (
     <>
@@ -240,7 +254,7 @@ const PdfMultiHex2 = ({
   hex: BoardHex
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = getSvgHexBorderColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <Polygon
@@ -261,7 +275,7 @@ const PdfMultiHex3 = ({
   hex: BoardHex
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = getSvgHexBorderColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <Polygon
@@ -281,7 +295,7 @@ const PdfMultiHex4 = ({
   hex: BoardHex
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = getSvgHexBorderColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <Polygon
@@ -301,7 +315,7 @@ const PdfMultiHexMarvel6 = ({
   hex: BoardHex
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = getSvgHexBorderColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <Polygon
@@ -321,13 +335,33 @@ const PdfMultiHex7 = ({
   hex: BoardHex
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = getSvgHexBorderColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <Polygon
       transform={`rotate(${pieceRotation})`}
       points={
         get7HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+      }
+      fill={fillColor}
+      stroke={borderColor}
+      strokeWidth={SVG_BORDER_WIDTH}
+    />
+  )
+}
+const PdfMultiHex24 = ({
+  hex,
+}: {
+  hex: BoardHex
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  return (
+    <Polygon
+      transform={`rotate(${pieceRotation})`}
+      points={
+        get24HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
       }
       fill={fillColor}
       stroke={borderColor}
