@@ -114,6 +114,7 @@ export const PdfMapHex = ({
       piecesSoFar?.[inventoryID]?.size === 4 ||
       piecesSoFar?.[inventoryID]?.size === 6 ||
       piecesSoFar?.[inventoryID]?.size === 7 ||
+      piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 ||
       piecesSoFar?.[inventoryID]?.size === 24
     ) &&
     hex.isObstacleAuxiliary
@@ -165,6 +166,20 @@ export const PdfMapHex = ({
   if (
     isLandHex &&
     piecesSoFar?.[inventoryID]?.size === 7 &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex7
+          hex={hex}
+          isSubLevel={hex.altitude < viewingLevel}
+        />
+      </G>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 &&
     hex.isObstacleOrigin
   ) {
     return (
