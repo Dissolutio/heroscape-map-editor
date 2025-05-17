@@ -7,6 +7,7 @@ import {
   get3HexSvgPolygonPointsAt00,
   get4HexSvgPolygonPointsAt00,
   get5HexStraightSvgPolygonPointsAt00,
+  get6HexSvgPolygonPointsAt00,
   get7HexSvgPolygonPointsAt00,
   get7HexWallWalkSvgPolygonPointsAt00,
   get9HexWallWalkSvgPolygonPointsAt00,
@@ -35,15 +36,26 @@ import {
 } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 
+const heightTextProps = (heightText: number) => ({
+  style: {
+    fontSize: 0.9 * SVG_HEX_RADIUS,
+    fontWeight: 'bold',
+  },
+  y: 0.3 * SVG_HEX_RADIUS,
+  x: heightText.toString().length === 2
+    ? -0.6 * SVG_HEX_APOTHEM
+    : -0.3 * SVG_HEX_APOTHEM
+})
+
 export const PdfMapHex = ({
   hex,
   viewingLevel,
 }: { hex: BoardHex; viewingLevel: number }) => {
   const pixel = hexUtilsHexToPixel(hex)
-
+  const isSubLevel = hex.altitude < viewingLevel
   const { inventoryID } = decodePieceID(hex.pieceID)
   const isObstaclePiece = isObstaclePieceID(inventoryID)
-  const isAuxiliaryNotRenderedIn2D = isObstaclePiece && hex.isObstacleAuxiliary
+  const isAuxiliaryNotRenderedIn2D = isObstaclePiece && (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
   const isVisible = hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
@@ -57,19 +69,12 @@ export const PdfMapHex = ({
   if (isEvergreenTree(hex.terrain)) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 hex={hex} />
+        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <Text
           fill="white"
-          style={{
-            fontSize: 9,
-            fontWeight: 'bold',
-          }}
-          y={1.3 * SVG_HEX_RADIUS}
-          x={
-            pieceHeightText.toString().length === 2
-              ? 0.4 * SVG_HEX_APOTHEM
-              : 0.7 * SVG_HEX_APOTHEM
-          }
+          // white text needs a little opacity boost
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          {...heightTextProps(pieceHeightText)}
         >
           {pieceHeightText}
         </Text>
@@ -80,19 +85,11 @@ export const PdfMapHex = ({
   if (isJungleTerrainHex(hex.terrain)) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 hex={hex} />
+        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <Text
-          style={{
-            fontSize: 9,
-            fontWeight: 'bold',
-          }}
           fill="rgb(35, 31, 32)"
-          y={1.3 * SVG_HEX_RADIUS}
-          x={
-            pieceHeightText.toString().length === 2
-              ? 0.4 * SVG_HEX_APOTHEM
-              : 0.7 * SVG_HEX_APOTHEM
-          }
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+          {...heightTextProps(pieceHeightText)}
         >
           {pieceHeightText}
         </Text>
@@ -135,7 +132,7 @@ export const PdfMapHex = ({
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex2
           hex={hex}
-          isSubLevel={hex.altitude < viewingLevel}
+          isSubLevel={isSubLevel}
         />
       </G>
     )
@@ -149,7 +146,7 @@ export const PdfMapHex = ({
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex3
           hex={hex}
-          isSubLevel={hex.altitude < viewingLevel}
+          isSubLevel={isSubLevel}
         />
       </G>
     )
@@ -163,7 +160,7 @@ export const PdfMapHex = ({
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex4
           hex={hex}
-          isSubLevel={hex.altitude < viewingLevel}
+          isSubLevel={isSubLevel}
         />
       </G>
     )
@@ -177,7 +174,7 @@ export const PdfMapHex = ({
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex7
           hex={hex}
-          isSubLevel={hex.altitude < viewingLevel}
+          isSubLevel={isSubLevel}
         />
       </G>
     )
@@ -191,7 +188,7 @@ export const PdfMapHex = ({
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHexWallWalk7
           hex={hex}
-          isSubLevel={hex.altitude < viewingLevel}
+          isSubLevel={isSubLevel}
         />
       </G>
     )
@@ -205,7 +202,7 @@ export const PdfMapHex = ({
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHexWallWalk9
           hex={hex}
-          isSubLevel={hex.altitude < viewingLevel}
+          isSubLevel={isSubLevel}
         />
       </G>
     )
@@ -217,9 +214,23 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex6
+          hex={hex}
+          isSubLevel={isSubLevel}
+        />
+      </G>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === Pieces.marvel &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHexMarvel6
           hex={hex}
-          isSubLevel={hex.altitude < viewingLevel}
+          isSubLevel={isSubLevel}
         />
       </G>
     )
@@ -233,7 +244,7 @@ export const PdfMapHex = ({
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex24
           hex={hex}
-          isSubLevel={hex.altitude < viewingLevel}
+          isSubLevel={isSubLevel}
         />
       </G>
     )
@@ -378,6 +389,38 @@ const PdfMultiHex4 = ({
         transform={`rotate(${pieceRotation})`}
         points={
           get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+        }
+        fill={fillColor}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </>
+  )
+}
+const PdfMultiHex6 = ({
+  hex,
+  isSubLevel
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  return (
+    <>
+      {isSubLevel && <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
+        }
+        fill={'white'}
+      />}
+      <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
         }
         fill={fillColor}
         stroke={borderColor}
