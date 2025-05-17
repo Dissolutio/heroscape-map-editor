@@ -6,6 +6,7 @@ import {
   get3HexSvgPolygonPointsAt00,
   get4HexSvgPolygonPointsAt00,
   get7HexSvgPolygonPointsAt00,
+  get7HexWallWalkSvgPolygonPointsAt00,
   getHexagonSvgPolygonPointsAt00,
   getMarvel6HexSvgPolygonPointsAt00,
 } from '../svg-map/getHexagonSvgPolygonPoints'
@@ -423,6 +424,38 @@ const PdfMultiHex7 = ({
         transform={`rotate(${pieceRotation})`}
         points={
           get7HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+        }
+        fill={fillColor}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </>
+  )
+}
+const PdfMultiHexWallWalk7 = ({
+  hex,
+  isSubLevel
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  return (
+    <>
+      {isSubLevel && <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get7HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
+        }
+        fill={'white'}
+      />}
+      <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get7HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
         }
         fill={fillColor}
         stroke={borderColor}
