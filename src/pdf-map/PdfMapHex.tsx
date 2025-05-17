@@ -7,6 +7,7 @@ import {
   get4HexSvgPolygonPointsAt00,
   get7HexSvgPolygonPointsAt00,
   get7HexWallWalkSvgPolygonPointsAt00,
+  get9HexWallWalkSvgPolygonPointsAt00,
   getHexagonSvgPolygonPointsAt00,
   getMarvel6HexSvgPolygonPointsAt00,
 } from '../svg-map/getHexagonSvgPolygonPoints'
@@ -110,13 +111,14 @@ export const PdfMapHex = ({
   // EARLY RETURN: LAND AUXILIARY HEXES return null (the Origin hex will render the piece) TODO: filter these out higher up
   if (
     isLandHex &&
-    (piecesSoFar?.[inventoryID]?.size === 2 ||
-      piecesSoFar?.[inventoryID]?.size === 3 ||
-      piecesSoFar?.[inventoryID]?.size === 4 ||
-      piecesSoFar?.[inventoryID]?.size === 6 ||
-      piecesSoFar?.[inventoryID]?.size === 7 ||
+    (piecesSoFar?.[inventoryID]?.template === '2' ||
+      piecesSoFar?.[inventoryID]?.template === '3' ||
+      piecesSoFar?.[inventoryID]?.template === '4' ||
+      piecesSoFar?.[inventoryID]?.template === '6' ||
+      piecesSoFar?.[inventoryID]?.template === '7' ||
       piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 ||
-      piecesSoFar?.[inventoryID]?.size === 24
+      piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk9 ||
+      piecesSoFar?.[inventoryID]?.template === '24'
     ) &&
     hex.isObstacleAuxiliary
   ) {
@@ -124,7 +126,7 @@ export const PdfMapHex = ({
   }
   if (
     isLandHex &&
-    piecesSoFar?.[inventoryID]?.size === 2 &&
+    piecesSoFar?.[inventoryID]?.template === '2' &&
     hex.isObstacleOrigin
   ) {
     return (
@@ -138,7 +140,7 @@ export const PdfMapHex = ({
   }
   if (
     isLandHex &&
-    piecesSoFar?.[inventoryID]?.size === 3 &&
+    piecesSoFar?.[inventoryID]?.template === '3' &&
     hex.isObstacleOrigin
   ) {
     return (
@@ -152,7 +154,7 @@ export const PdfMapHex = ({
   }
   if (
     isLandHex &&
-    piecesSoFar?.[inventoryID]?.size === 4 &&
+    piecesSoFar?.[inventoryID]?.template === '4' &&
     hex.isObstacleOrigin
   ) {
     return (
@@ -166,7 +168,7 @@ export const PdfMapHex = ({
   }
   if (
     isLandHex &&
-    piecesSoFar?.[inventoryID]?.size === 7 &&
+    piecesSoFar?.[inventoryID]?.template === '7' &&
     hex.isObstacleOrigin
   ) {
     return (
@@ -185,7 +187,7 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex7
+        <PdfMultiHexWallWalk7
           hex={hex}
           isSubLevel={hex.altitude < viewingLevel}
         />
@@ -194,7 +196,21 @@ export const PdfMapHex = ({
   }
   if (
     isLandHex &&
-    piecesSoFar?.[inventoryID]?.size === 6 &&
+    piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk9 &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHexWallWalk9
+          hex={hex}
+          isSubLevel={hex.altitude < viewingLevel}
+        />
+      </G>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '6' &&
     hex.isObstacleOrigin
   ) {
     return (
@@ -208,7 +224,7 @@ export const PdfMapHex = ({
   }
   if (
     isLandHex &&
-    piecesSoFar?.[inventoryID]?.size === 24 &&
+    piecesSoFar?.[inventoryID]?.template === '24' &&
     hex.isObstacleOrigin
   ) {
     return (
@@ -456,6 +472,38 @@ const PdfMultiHexWallWalk7 = ({
         transform={`rotate(${pieceRotation})`}
         points={
           get7HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+        }
+        fill={fillColor}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </>
+  )
+}
+const PdfMultiHexWallWalk9 = ({
+  hex,
+  isSubLevel
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  return (
+    <>
+      {isSubLevel && <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get9HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
+        }
+        fill={'white'}
+      />}
+      <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get9HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
         }
         fill={fillColor}
         stroke={borderColor}
