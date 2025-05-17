@@ -3,8 +3,10 @@ import { piecesSoFar } from '../data/pieces'
 import {
   get24HexSvgPolygonPointsAt00,
   get2HexSvgPolygonPointsAt00,
+  get3HexStraightSvgPolygonPointsAt00,
   get3HexSvgPolygonPointsAt00,
   get4HexSvgPolygonPointsAt00,
+  get5HexStraightSvgPolygonPointsAt00,
   get7HexSvgPolygonPointsAt00,
   get7HexWallWalkSvgPolygonPointsAt00,
   get9HexWallWalkSvgPolygonPointsAt00,
