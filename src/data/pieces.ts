@@ -832,7 +832,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 9,
+    height: 10,
   },
   [Pieces.tree11]: {
     id: Pieces.tree11,
@@ -842,7 +842,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 10,
+    height: 11,
   },
   [Pieces.tree12]: {
     id: Pieces.tree12,
@@ -852,7 +852,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 11,
+    height: 12,
   },
   [Pieces.tree415]: {
     id: Pieces.tree415,
@@ -862,7 +862,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 4,
     template: '4',
-    height: 14,
+    height: 15,
   },
   [Pieces.swampBrush10]: {
     id: Pieces.swampBrush10,
@@ -973,7 +973,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 3,
     template: '3',
-    height: 9, // untested in reality
+    height: 9, // untested in reality (heights clockwise from origin: 5,9,7)
   },
   [Pieces.glacier4]: {
     id: Pieces.glacier4,
@@ -983,7 +983,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 4,
     template: '4',
-    height: 8, // untested in reality
+    height: 8, // untested in reality (heights clockwise from origin: 7,11,9,11)
   },
   [Pieces.glacier6]: {
     id: Pieces.glacier6,
@@ -993,7 +993,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 6,
     template: '6',
-    height: 16, // untested in reality
+    height: 17, // untested in reality (heights clockwise from origin: 17,17,9,17,17,9)
   },
   [Pieces.outcrop1]: {
     id: Pieces.outcrop1,
@@ -1003,7 +1003,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 6, // eventhough it definitely spans 8 hex-heights in reality!
+    height: 7, // eventhough it definitely spans 8 hex-heights in reality!
   },
   [Pieces.outcrop3]: {
     id: Pieces.outcrop3,
@@ -1013,7 +1013,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 3,
     template: '3',
-    height: 8, // untested in reality
+    height: 9, // untested in reality
   },
   [Pieces.lavaRockOutcrop1]: {
     id: Pieces.lavaRockOutcrop1,
@@ -1023,7 +1023,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 6, // eventhough it definitely spans 8 hex-heights in reality!
+    height: 7, // eventhough it definitely spans 8 hex-heights in reality!
   },
   [Pieces.lavaRockOutcrop3]: {
     id: Pieces.lavaRockOutcrop3,
@@ -1033,7 +1033,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 3,
     template: '3',
-    height: 8, // untested in reality
+    height: 9, // untested in reality
   },
   [Pieces.hive]: {
     id: Pieces.hive,
@@ -1043,7 +1043,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 6,
     template: '6',
-    height: 16, // untested in reality
+    height: 17, // untested in reality
   },
   // CASTLE
   [Pieces.castleBaseEnd]: {
@@ -1054,7 +1054,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 0,
+    height: 1,
   },
   [Pieces.castleBaseStraight]: {
     id: Pieces.castleBaseStraight,
@@ -1064,7 +1064,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 0,
+    height: 1,
   },
   [Pieces.castleBaseCorner]: {
     id: Pieces.castleBaseCorner,
@@ -1074,7 +1074,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 0,
+    height: 1,
   },
   [Pieces.castleArch]: {
     id: Pieces.castleArch,
@@ -1135,7 +1135,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: Pieces.ladder,
-    height: 1,
+    height: 2,
   },
   [Pieces.battlement]: {
     id: Pieces.battlement,

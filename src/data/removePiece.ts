@@ -26,7 +26,7 @@ import {
   interiorHexTemplates,
   verticalObstructionTemplates,
   verticalSupportTemplates,
-} from './ruins-templates'
+} from './vertical-obstruction-templates'
 
 export type RemovePieceArgs = {
   pieceID: string

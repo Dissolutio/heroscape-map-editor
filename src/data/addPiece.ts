@@ -23,7 +23,7 @@ import {
   interiorHexTemplates,
   verticalObstructionTemplates,
   verticalSupportTemplates,
-} from './ruins-templates'
+} from './vertical-obstruction-templates'
 
 export type PieceAddArgs = {
   piece: Piece
@@ -519,28 +519,57 @@ export function addPiece({
         isObstacleAuxiliary: i !== 0, // big tree, glaciers/outcrops, have aux hexes that render only a cap
         obstacleHeight: piece.height,
       }
-      // write in the new vertical clearances, this will block some pieces at these coordinates
-      Array(piece.height)
-        .fill(0)
-        .forEach((_, j) => {
-          const clearanceHexAltitude = newPieceAltitude + 1 + j
-          const clearanceID = genBoardHexID({
-            ...piecePlaneCoords[i],
-            altitude: clearanceHexAltitude,
+      //  if we have a vertical obstruction template for an obstacle, use it, otherwise use its height
+      if (verticalObstructionTemplates[piece.id]) {
+        // write in vertical clearances for the different parts of obstacle
+        Array(verticalObstructionTemplates[piece.id][i])
+          .fill(0)
+          .forEach((_, j) => {
+            const clearanceHexAltitude = newPieceAltitude + j
+            const clearanceID = genBoardHexID({
+              ...piecePlaneCoords[i],
+              altitude: clearanceHexAltitude,
+            })
+            if (!newBoardHexes[clearanceID]) {
+              // BUGFIX: only write in vertical clearance if nothing is already there? But...this seems an incomplete solution
+              newBoardHexes[clearanceID] = {
+                id: clearanceID,
+                q: piecePlaneCoords[i].q,
+                r: piecePlaneCoords[i].r,
+                s: piecePlaneCoords[i].s,
+                altitude: clearanceHexAltitude,
+                terrain: piece.terrain,
+                pieceID,
+                inventoryID: piece.id,
+                pieceRotation: rotation,
+                isVerticalClearanceHex: true,
+              }
+            }
           })
-          newBoardHexes[clearanceID] = {
-            id: clearanceID,
-            q: piecePlaneCoords[i].q,
-            r: piecePlaneCoords[i].r,
-            s: piecePlaneCoords[i].s,
-            altitude: clearanceHexAltitude,
-            terrain: piece.terrain,
-            pieceID,
-            inventoryID: piece.id,
-            pieceRotation: rotation,
-            isVerticalClearanceHex: true,
-          }
-        })
+      } else {
+        // write in the new vertical clearances, this will block some pieces at these coordinates
+        Array(piece.height)
+          .fill(0)
+          .forEach((_, j) => {
+            const clearanceHexAltitude = newPieceAltitude + 1 + j
+            const clearanceID = genBoardHexID({
+              ...piecePlaneCoords[i],
+              altitude: clearanceHexAltitude,
+            })
+            newBoardHexes[clearanceID] = {
+              id: clearanceID,
+              q: piecePlaneCoords[i].q,
+              r: piecePlaneCoords[i].r,
+              s: piecePlaneCoords[i].s,
+              altitude: clearanceHexAltitude,
+              terrain: piece.terrain,
+              pieceID,
+              inventoryID: piece.id,
+              pieceRotation: rotation,
+              isVerticalClearanceHex: true,
+            }
+          })
+      }
     })
 
     // write the new piece
