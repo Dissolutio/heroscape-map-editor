@@ -133,12 +133,14 @@ export const svgColors = {
   [HexTerrain.sand]: 'rgb(211, 231, 90)',
   [HexTerrain.swamp]: 'rgb(27, 46, 22)',
   [HexTerrain.dungeon]: 'rgb(124, 177, 152)',
+  [HexTerrain.lavaField]: 'rgb(163, 0, 41)',
   [HexTerrain.snow]: 'rgb(255,255,255)',
   [HexTerrain.water]: 'rgb(67, 172, 176)',
   [HexTerrain.wellspringWater]: 'rgb(255,255,255)',
   // [HexTerrain.wellspringWater]: 'rgb(225,194,255)', // used this in virtualscape to differentiate from snow
   [HexTerrain.swampWater]: 'rgb(162, 166, 32)',
-  // ice: 'rgb(148, 158, 215)',
+  [HexTerrain.ice]: 'rgb(148, 158, 215)',
+  [HexTerrain.outcrop]: '#3E3C3E',
   iceFlake: 'rgb(242, 243, 250)', // there is variation in the snowflake color
   snowFlake: '#629BD0', // there is variation in the snowflake color
 }

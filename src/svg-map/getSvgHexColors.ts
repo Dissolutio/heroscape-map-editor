@@ -59,6 +59,15 @@ export const getSvgHexBorderColor = (hex: BoardHex) => {
   if (hex.terrain === HexTerrain.laurWall) {
     return svgColors.outlineLaurWall
   }
+  if (hex.terrain === HexTerrain.glacier) {
+    return svgColors.outlineWater
+  }
+  if (hex.terrain === HexTerrain.outcrop) {
+    return svgColors.outlineWater
+  }
+  if (hex.terrain === HexTerrain.lavaRockOutcrop) {
+    return svgColors.outlineLava
+  }
   return 'black'
 }
 export const getSvgHexFillColor = (hex: BoardHex) => {
@@ -81,6 +90,15 @@ export const getSvgHexFillColor = (hex: BoardHex) => {
   }
   if (hex.terrain === HexTerrain.laurWall) {
     return svgColors.outlineLaurWall
+  }
+  if (hex.terrain === HexTerrain.glacier) {
+    return svgColors.ice
+  }
+  if (hex.terrain === HexTerrain.outcrop) {
+    return svgColors.outcrop
+  }
+  if (hex.terrain === HexTerrain.lavaRockOutcrop) {
+    return svgColors.lavaField
   }
   return 'transparent'
 }

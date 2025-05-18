@@ -18,7 +18,7 @@ import {
   getSvgHexBorderColor,
   getSvgHexFillColor,
 } from '../svg-map/getSvgHexColors'
-import { type BoardHex, Pieces } from '../types'
+import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
   isEvergreenTree,
   isFluidTerrainHex,
@@ -36,11 +36,13 @@ import {
 } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 
+const hexTextStyle = {
+  fontSize: 0.9 * SVG_HEX_RADIUS,
+  fontWeight: 'bold',
+}
+
 const singleHexObstacleHeightTextProps = (heightText: number) => ({
-  style: {
-    fontSize: 0.9 * SVG_HEX_RADIUS,
-    fontWeight: 'bold',
-  },
+  style: hexTextStyle,
   y: 0.3 * SVG_HEX_RADIUS,
   x: heightText.toString().length === 2
     ? -0.6 * SVG_HEX_APOTHEM
@@ -64,6 +66,22 @@ export const PdfMapHex = ({
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
     return null
+  }
+  // Outcrop 3s
+  if (inventoryID === Pieces.outcrop3 || inventoryID === Pieces.lavaRockOutcrop3 || inventoryID === Pieces.glacier3) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfSvgOutcrop3 hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
+  // Glacier 6s (maybe someday outcrops/lava outcrops too)
+  if (inventoryID === Pieces.glacier6) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfSvgOutcrop6 hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
   }
   // TREES
   if (inventoryID === Pieces.tree415) {
@@ -646,6 +664,211 @@ const PdfSvgTree415 = ({
         y={treeXYForRotation?.[hex?.pieceRotation]?.y ?? 0}
       >
         {pieceHeightText}
+      </Text>
+    </G>
+  )
+}
+
+const posO3_1 = { x: -0.3 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS }
+const posO3_2 = { x: 1.7 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS }
+const posO3_3 = { x: 0.7 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS }
+const posO3_4 = { x: -1.3 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS }
+const posO3_5 = { x: -2.3 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS }
+const posO3_6 = { x: -1.3 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO3_7 = { x: 0.7 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+
+const posO6_8 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_9 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_10 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+
+const posO6_11 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_12 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_13 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+
+const posO6_14 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_15 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_16 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+
+const posO6_17 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_18 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_19 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+
+const posO6_20 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_21 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_22 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+
+const posO6_23 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_24 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_25 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+
+
+const BLAH = { x: 0, y: 0 }
+const outcrop3TextXYForRotation = [
+  [posO3_1, posO3_2, posO3_3],
+  [posO3_1, posO3_3, posO3_4],
+  [posO3_1, posO3_4, posO3_5],
+  [posO3_1, posO3_5, posO3_6],
+  [posO3_1, posO3_6, posO3_7],
+  [posO3_1, posO3_7, posO3_2],
+]
+const outcrop6TextXYForRotation = [
+  [posO3_1, posO3_2, posO3_3, BLAH, BLAH, BLAH],
+  [posO3_1, posO3_3, posO3_4, BLAH, BLAH, BLAH],
+  [posO3_1, posO3_4, posO3_5, BLAH, BLAH, BLAH],
+  [posO3_1, posO3_5, posO3_6, BLAH, BLAH, BLAH],
+  [posO3_1, posO3_6, posO3_7, BLAH, BLAH, BLAH],
+  [posO3_1, posO3_7, posO3_2, BLAH, BLAH, BLAH],
+]
+const PdfSvgOutcrop6 = ({
+  hex,
+  isSubLevel
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  return (
+    <G>
+      {isSubLevel && <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
+        }
+        fill={'white'}
+      />}
+      <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+        }
+        fill={fillColor}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+      >
+        {'9'}
+      </Text>
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0}
+        y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
+      >
+        {'17'}
+      </Text>
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0}
+        y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
+      >
+        {'17'}
+      </Text>
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
+        y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}
+      >
+        {'9'}
+      </Text>
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0}
+        y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.y ?? 0}
+      >
+        {'17'}
+      </Text>
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0}
+        y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.y ?? 0}
+      >
+        {'17'}
+      </Text>
+    </G>
+  )
+}
+const PdfSvgOutcrop3 = ({
+  hex,
+  isSubLevel
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  return (
+    <G>
+      {isSubLevel && <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
+        }
+        fill={'white'}
+      />}
+      <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+        }
+        fill={fillColor}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+      >
+        {'5'}
+      </Text>
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0}
+        y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
+      >
+        {'9'}
+      </Text>
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0}
+        y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
+      >
+        {'7'}
       </Text>
     </G>
   )
