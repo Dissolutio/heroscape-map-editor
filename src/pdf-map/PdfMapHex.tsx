@@ -37,10 +37,10 @@ import {
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 
 const hexTextStyle = {
-  fontSize: 0.9 * SVG_HEX_RADIUS,
+  fontSize: 0.8 * SVG_HEX_RADIUS,
   fontWeight: 'bold',
 }
-
+const twoCharNumberAdjust = -0.15 * SVG_HEX_RADIUS
 const singleHexObstacleHeightTextProps = (heightText: number) => ({
   style: hexTextStyle,
   y: 0.3 * SVG_HEX_RADIUS,
@@ -80,6 +80,14 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfSvgOutcrop6 hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
+  // Glacier 4s (maybe someday outcrops/lava outcrops too)
+  if (inventoryID === Pieces.glacier4) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfSvgOutcrop4 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -677,29 +685,28 @@ const posO3_5 = { x: -2.3 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS }
 const posO3_6 = { x: -1.3 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
 const posO3_7 = { x: 0.7 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
 
-const posO6_8 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO6_9 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO6_10 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+// The 4-glacier has one more text spot than 3-glacier
+const posO4_1 = { x: 2.7 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS }
+const posO4_2 = { x: -0.2 * SVG_HEX_APOTHEM, y: 3.3 * SVG_HEX_RADIUS }
+const posO4_3 = { x: -3.2 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS }
+const posO4_4 = { x: -3.2 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO4_5 = { x: -0.3 * SVG_HEX_APOTHEM, y: -2.7 * SVG_HEX_RADIUS }
+const posO4_6 = { x: 2.7 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
 
-const posO6_11 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO6_12 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO6_13 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
 
-const posO6_14 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO6_15 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO6_16 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+// The 6-glacier has two more text spots than 4-glacier
+const posO6_1_1 = { x: 3.6 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS } // top right of glacier
+const posO6_2_1 = { x: -1.3 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS } // bottom left
 
-const posO6_17 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO6_18 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO6_19 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_2_2 = { x: 1.7 * SVG_HEX_APOTHEM, y: 3.3 * SVG_HEX_RADIUS }
 
-const posO6_20 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO6_21 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO6_22 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_2_3 = { x: -2.3 * SVG_HEX_APOTHEM, y: 3.3 * SVG_HEX_RADIUS }
 
-const posO6_23 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO6_24 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO6_25 = { x: 3.4 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO6_2_4 = { x: -4.3 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS }
+
+const posO6_1_5 = { x: -2.3 * SVG_HEX_APOTHEM, y: -2.7 * SVG_HEX_RADIUS }
+
+const posO6_1_6 = { x: 1.7 * SVG_HEX_APOTHEM, y: -2.7 * SVG_HEX_RADIUS }
 
 
 const BLAH = { x: 0, y: 0 }
@@ -711,13 +718,21 @@ const outcrop3TextXYForRotation = [
   [posO3_1, posO3_6, posO3_7],
   [posO3_1, posO3_7, posO3_2],
 ]
+const outcrop4TextXYForRotation = [
+  [posO3_1, posO3_2, posO3_3, posO4_1],
+  [posO3_1, posO3_3, posO3_4, posO4_2],
+  [posO3_1, posO3_4, posO3_5, posO4_3],
+  [posO3_1, posO3_5, posO3_6, posO4_4],
+  [posO3_1, posO3_6, posO3_7, posO4_5],
+  [posO3_1, posO3_7, posO3_2, posO4_6],
+]
 const outcrop6TextXYForRotation = [
-  [posO3_1, posO3_2, posO3_3, BLAH, BLAH, BLAH],
-  [posO3_1, posO3_3, posO3_4, BLAH, BLAH, BLAH],
-  [posO3_1, posO3_4, posO3_5, BLAH, BLAH, BLAH],
-  [posO3_1, posO3_5, posO3_6, BLAH, BLAH, BLAH],
-  [posO3_1, posO3_6, posO3_7, BLAH, BLAH, BLAH],
-  [posO3_1, posO3_7, posO3_2, BLAH, BLAH, BLAH],
+  [posO3_1, posO3_2, posO3_3, posO4_1, posO6_1_1, posO6_2_1],
+  [posO3_1, posO3_3, posO3_4, posO4_2, posO3_5, posO6_2_2],
+  [posO3_1, posO3_4, posO3_5, posO4_3, posO3_6, posO6_2_3],
+  [posO3_1, posO3_5, posO3_6, posO4_4, posO3_7, posO6_2_4],
+  [posO3_1, posO3_6, posO3_7, posO4_5, posO6_1_5, posO3_2,],
+  [posO3_1, posO3_7, posO3_2, posO4_6, posO6_1_6, posO3_3],
 ]
 const PdfSvgOutcrop6 = ({
   hex,
@@ -763,7 +778,7 @@ const PdfSvgOutcrop6 = ({
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
-        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0}
+        x={(outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) + twoCharNumberAdjust}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
       >
         {'17'}
@@ -773,7 +788,7 @@ const PdfSvgOutcrop6 = ({
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
-        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0}
+        x={(outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) + twoCharNumberAdjust}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
         {'17'}
@@ -793,7 +808,7 @@ const PdfSvgOutcrop6 = ({
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
-        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0}
+        x={(outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0) + twoCharNumberAdjust}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.y ?? 0}
       >
         {'17'}
@@ -803,7 +818,7 @@ const PdfSvgOutcrop6 = ({
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
-        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0}
+        x={(outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0) + twoCharNumberAdjust}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.y ?? 0}
       >
         {'17'}
@@ -869,6 +884,78 @@ const PdfSvgOutcrop3 = ({
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
         {'7'}
+      </Text>
+    </G>
+  )
+}
+const PdfSvgOutcrop4 = ({
+  hex,
+  isSubLevel
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  return (
+    <G>
+      {isSubLevel && <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
+        }
+        fill={'white'}
+      />}
+      <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+        }
+        fill={fillColor}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={(outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0)}
+        y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+      >
+        {'7'}
+      </Text>
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={(outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) + twoCharNumberAdjust}
+        y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
+      >
+        {'11'}
+      </Text>
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={(outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) + twoCharNumberAdjust}
+        y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
+      >
+        {'11'}
+      </Text>
+      <Text
+        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={hexTextStyle}
+        x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
+        y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}
+      >
+        {'9'}
       </Text>
     </G>
   )
