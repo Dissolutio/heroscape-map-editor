@@ -22,9 +22,10 @@ export const ReactPdfSvgMapDisplay = ({
   const adjustXForNew00Centers = 1.2 * SVG_HEX_APOTHEM
   const adjustYForNew00Centers = 1.2 * SVG_HEX_RADIUS
   const subLevelHexes = nonEmptyHexesArr.filter((h) => h.altitude < viewingLevel)
+  const viewBoxStr = `${-adjustXForNew00Centers} ${-adjustYForNew00Centers} ${width + adjustXForNew00Centers} ${length + adjustYForNew00Centers}`
   return (
     <Svg
-      viewBox={`${-adjustXForNew00Centers} ${-adjustYForNew00Centers} ${width + adjustXForNew00Centers} ${length + adjustYForNew00Centers}`}
+      viewBox={viewBoxStr}
     >
       {/* <PdfSvgXYHelperLines length={length} width={width} /> */}
       {emptyHexesArr.map((hex) => (
