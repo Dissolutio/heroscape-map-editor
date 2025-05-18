@@ -81,6 +81,21 @@ export const PdfMapHex = ({
       </G>
     )
   }
+  if (isEvergreenTree(hex.terrain)) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <Text
+          fill="white"
+          // white text needs a little opacity boost
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          {...heightTextProps(pieceHeightText)}
+        >
+          {pieceHeightText}
+        </Text>
+      </G>
+    )
+  }
   // JUNGLE
   if (isJungleTerrainHex(hex.terrain)) {
     return (
