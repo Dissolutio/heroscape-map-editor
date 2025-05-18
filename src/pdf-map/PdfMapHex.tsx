@@ -36,7 +36,7 @@ import {
 } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 
-const heightTextProps = (heightText: number) => ({
+const singleHexObstacleHeightTextProps = (heightText: number) => ({
   style: {
     fontSize: 0.9 * SVG_HEX_RADIUS,
     fontWeight: 'bold',
@@ -66,18 +66,10 @@ export const PdfMapHex = ({
     return null
   }
   // TREES
-  if (isEvergreenTree(hex.terrain)) {
+  if (inventoryID === Pieces.tree415) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        <Text
-          fill="white"
-          // white text needs a little opacity boost
-          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          {...heightTextProps(pieceHeightText)}
-        >
-          {pieceHeightText}
-        </Text>
+        <PdfSvgTree415 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -89,7 +81,7 @@ export const PdfMapHex = ({
           fill="white"
           // white text needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          {...heightTextProps(pieceHeightText)}
+          {...singleHexObstacleHeightTextProps(pieceHeightText)}
         >
           {pieceHeightText}
         </Text>
@@ -104,7 +96,7 @@ export const PdfMapHex = ({
         <Text
           fill="rgb(35, 31, 32)"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-          {...heightTextProps(pieceHeightText)}
+          {...singleHexObstacleHeightTextProps(pieceHeightText)}
         >
           {pieceHeightText}
         </Text>
@@ -603,5 +595,58 @@ const PdfMultiHex24 = ({
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
+  )
+}
+
+const treeXYForRotation = [
+  { x: 0.9 * SVG_HEX_APOTHEM, y: SVG_HEX_RADIUS },
+  { x: -0.6 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS },
+  { x: -2.1 * SVG_HEX_APOTHEM, y: 1 * SVG_HEX_RADIUS },
+  { x: -2 * SVG_HEX_APOTHEM, y: -0.5 * SVG_HEX_RADIUS },
+  { x: -0.6 * SVG_HEX_APOTHEM, y: -1.3 * SVG_HEX_RADIUS },
+  { x: 0.9 * SVG_HEX_APOTHEM, y: -0.4 * SVG_HEX_RADIUS },
+
+]
+const PdfSvgTree415 = ({
+  hex,
+  isSubLevel
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const pieceHeightText = piecesSoFar[hex.inventoryID].height
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  return (
+    <G>
+      {isSubLevel && <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
+        }
+        fill={'white'}
+      />}
+      <Polygon
+        transform={`rotate(${pieceRotation})`}
+        points={
+          get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+        }
+        fill={fillColor}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <Text
+        fill="white"
+        // white text needs a little opacity boost
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={{ ...singleHexObstacleHeightTextProps(pieceHeightText).style }}
+        x={treeXYForRotation?.[hex?.pieceRotation]?.x ?? 0}
+        y={treeXYForRotation?.[hex?.pieceRotation]?.y ?? 0}
+      >
+        {pieceHeightText}
+      </Text>
+    </G>
   )
 }
