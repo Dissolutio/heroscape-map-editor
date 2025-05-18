@@ -715,9 +715,9 @@ export function get7HexWallWalkSvgPolygonPointsAt00(
 
   const corners: Point[] = [
     /* 
-    ⬢ ⬢ ⬢
-   ⬢ ⬢ ⬢ ⬢
-    1 2 3
+    ⬢ ⬢ ⬢ ⬢
+     ⬢ ⬢ ⬢
+    1 2 3 4
    7 6 5 4
     */
     { x: topX, y: topYInner }, // top hex1
@@ -727,31 +727,31 @@ export function get7HexWallWalkSvgPolygonPointsAt00(
     { x: hexWidth, y: topYInner }, //  top hex2
     { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
 
-    { x: 2 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex3 
+    { x: 2 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex3
     { x: 2 * hexWidth, y: topYInner }, //  top hex3
     { x: 2 * hexWidth + apothemInner, y: topSideYInner }, // top-right hex3
-    { x: 2 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex3
 
-    { x: 2.5 * hexWidth, y: 1.5 * radius - radiusInner }, // top hex4
-    { x: 2.5 * hexWidth + apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-right hex4
-    { x: 2.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex4
-    { x: 2.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex4
-    { x: 2.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex4
+    { x: 3 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex4
+    { x: 3 * hexWidth, y: topYInner }, //  top hex4
+    { x: 3 * hexWidth + apothemInner, y: topSideYInner }, // top-right hex4
+    { x: 3 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex4
+    { x: 3 * hexWidth, y: bottomYInner }, // bottom hex4
 
-    { x: 1.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex5
-    { x: 1.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex5
-    { x: 1.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex5
+    { x: 2.5 * hexWidth + apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-right hex5
+    { x: 2.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex5
+    { x: 2.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex5
+    { x: 2.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex5
 
-    { x: 0.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex6
-    { x: 0.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex6
-    { x: 0.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex6
+    { x: 1.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex6
+    { x: 1.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex6
+    { x: 1.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex6
 
-    { x: -0.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex7
-    { x: -0.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex7
-    { x: -0.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex7
-    { x: -0.5 * hexWidth - apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-left hex7
-    { x: -0.5 * hexWidth, y: 1.5 * radius - radiusInner }, // top hex7
+    { x: 0.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex7
+    { x: 0.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex7
+    { x: 0.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex7
+    { x: 0.5 * hexWidth - apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-left hex7
 
+    { x: topX, y: bottomYInner }, // bottom hex1
     { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
     { x: leftXInner, y: topSideYInner }, // top-left hex1
   ]
@@ -786,10 +786,10 @@ export function get9HexWallWalkSvgPolygonPointsAt00(
 
   const corners: Point[] = [
     /* 
-    ⬢ ⬢ ⬢ ⬢
-   ⬢ ⬢ ⬢ ⬢ ⬢
-    1 2 3 4
-   9 8 7 6 5
+    ⬢ ⬢ ⬢ ⬢ ⬢
+     ⬢ ⬢ ⬢ ⬢
+    1 2 3 4 5
+     9 8 7 6
     */
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
@@ -802,36 +802,35 @@ export function get9HexWallWalkSvgPolygonPointsAt00(
     { x: 2 * hexWidth, y: topYInner }, //  top hex3
     { x: 2 * hexWidth + apothemInner, y: topSideYInner }, // top-right hex3
 
-    { x: 3 * hexWidth - apothemInner, y: topSideYInner }, // top-left 4
-    { x: 3 * hexWidth, y: topYInner }, //  top 4
-    { x: 3 * hexWidth + apothemInner, y: topSideYInner }, // top-right 4
-    { x: 3 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right 4
+    { x: 3 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex4
+    { x: 3 * hexWidth, y: topYInner }, //  top hex4
+    { x: 3 * hexWidth + apothemInner, y: topSideYInner }, // top-right hex4
 
-    { x: 3.5 * hexWidth, y: 1.5 * radius - radiusInner }, // top hex5
-    { x: 3.5 * hexWidth + apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-right hex5
-    { x: 3.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex5
-    { x: 3.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex5
-    { x: 3.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex5
+    { x: 4 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex5
+    { x: 4 * hexWidth, y: topYInner }, //  top hex5
+    { x: 4 * hexWidth + apothemInner, y: topSideYInner }, // top-right hex5
+    { x: 4 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex5
+    { x: 4 * hexWidth, y: bottomYInner }, // bottom hex5
 
-    { x: 2.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex6
-    { x: 2.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex6
-    { x: 2.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex6
+    { x: 3.5 * hexWidth + apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-right hex6
+    { x: 3.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex6
+    { x: 3.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex6
+    { x: 3.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex6
 
-    { x: 1.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex7
-    { x: 1.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex7
-    { x: 1.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex7
+    { x: 2.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex7
+    { x: 2.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex7
+    { x: 2.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex7
 
-    { x: 0.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex8
-    { x: 0.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex8
-    { x: 0.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex8
+    { x: 1.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex8
+    { x: 1.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex8
+    { x: 1.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex8
 
+    { x: 0.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex9
+    { x: 0.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex9
+    { x: 0.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex9
+    { x: 0.5 * hexWidth - apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-left hex9
 
-    { x: -0.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex9
-    { x: -0.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex9
-    { x: -0.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex9
-    { x: -0.5 * hexWidth - apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-left hex9
-    { x: -0.5 * hexWidth, y: 1.5 * radius - radiusInner }, // top hex9
-
+    { x: topX, y: bottomYInner }, // bottom hex1
     { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
     { x: leftXInner, y: topSideYInner }, // top-left hex1
   ]

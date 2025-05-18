@@ -6,12 +6,12 @@ import { HexTerrain, Pieces } from '../../types'
 import { decodePieceID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 
-{
-  /* <mesh geometry={LaurWallRuin.geometry}>
-<mesh geometry={LaurWallRuinBustedConcrete.geometry}>
-<mesh geometry={LaurWallLong.geometry}>
-<mesh geometry={LaurWallLongDecorDeep.geometry}> */
-}
+// {
+//   /* <mesh geometry={LaurWallRuin.geometry}>
+// <mesh geometry={LaurWallRuinBustedConcrete.geometry}>
+// <mesh geometry={LaurWallLong.geometry}>
+// <mesh geometry={LaurWallLongDecorDeep.geometry}> */
+// }
 export function LaurWallAddon({
   pid,
   isVisible,
