@@ -372,34 +372,37 @@ export function addPiece({
     const isCastleBaseSupported = isPlacingOnTable || isSolidUnderAtLeastOne // castle bases are all 1-hex, currently
     const isPlacingCastleBase = isSpaceFree && isCastleBaseSupported
     if (isPlacingCastleBase) {
-      try {
-
-        newHexIds.forEach((newHexID, i) => {
-          const hexUnderneath = newBoardHexes?.[underHexIds[i]]
-          const isSolidUnderneath = isSolidTerrainHex(hexUnderneath?.terrain)
-          if (isSolidUnderneath || isPlacingOnTable) {
-            // covers up the cap below
-            // remove old cap
+      newHexIds.forEach((newHexID, i) => {
+        const hexUnderneath = newBoardHexes?.[underHexIds[i]]
+        const isSolidUnderneath = isSolidTerrainHex(hexUnderneath?.terrain)
+        if (isSolidUnderneath || isPlacingOnTable) {
+          // covers up the cap below
+          // remove old cap
+          newBoardHexes[hexUnderneath.id].isCap = false
+        }
             newBoardHexes[hexUnderneath.id].isCap = false
-          }
-          newBoardHexes[newHexID] = {
-            id: newHexID,
-            q: piecePlaneCoords[i].q,
-            r: piecePlaneCoords[i].r,
-            s: piecePlaneCoords[i].s,
-            altitude: newPieceAltitude,
-            terrain: piece.terrain,
-            pieceID,
-            inventoryID: piece.id,
-            pieceRotation: rotation,
-          }
-        })
-      } catch (error) {
-        addPieceError = { message: "Unable to place castle base", error }
+        newBoardHexes[newHexID] = {
+          id: newHexID,
+          q: piecePlaneCoords[i].q,
+          r: piecePlaneCoords[i].r,
+          s: piecePlaneCoords[i].s,
+          altitude: newPieceAltitude,
+          terrain: piece.terrain,
+          pieceID,
+          inventoryID: piece.id,
+          pieceRotation: rotation,
+        }
+      })
+    } else {
+      if (!isSpaceFree) {
+        addPieceError = { message: "No space free for castle base" }
       }
-      // write the new piece
-      newBoardPieces[pieceID] = piece.id
+      if (!isCastleBaseSupported) {
+        addPieceError = { message: "Castle base is not supported there" }
+      }
     }
+    // write the new piece
+    newBoardPieces[pieceID] = piece.id
   }
   // CASTLE WALL / ARCH (no error reporting)
   if (isCastleWallPiece || isCastleArchPiece) {
