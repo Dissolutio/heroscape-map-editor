@@ -740,7 +740,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 9,
+    height: 12,
   },
   [Pieces.laurWallShort]: {
     id: Pieces.laurWallShort,
@@ -750,7 +750,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: Pieces.laurWallShort,
-    height: 9, // again, really verticalClearance, not "height"
+    height: 12, // again, really verticalClearance, not "height"
   },
   [Pieces.laurWallLong]: {
     id: Pieces.laurWallLong,
@@ -760,7 +760,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: Pieces.laurWallLong,
-    height: 9, // again, really verticalClearance, not "height"
+    height: 12, // again, really verticalClearance, not "height"
   },
   [Pieces.laurWallRuin]: {
     id: Pieces.laurWallRuin,
@@ -770,7 +770,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: Pieces.laurWallRuin,
-    height: 9, // again, really verticalClearance, not "height"
+    height: 12, // 
   },
   // RUINS
   [Pieces.ruins2]: {
