@@ -100,6 +100,9 @@ export function addPiece({
   const isSolidUnderAll = underHexIds.every((id) =>
     isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
   )
+  const isLandUnderAll = underHexIds.every((id) =>
+    isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? '') || isFluidTerrainHex(newBoardHexes?.[id]?.terrain ?? '')
+  )
   const isLadderAuxiliaryUnderAll = underHexIds.every(
     (id) =>
       (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.ladder &&
@@ -136,6 +139,7 @@ export function addPiece({
   // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
   const isObstaclePieceSupported =
     isSolidUnderAll ||
+    (piece.id === Pieces.laurWallPillar && isLandUnderAll) || // Laur wall pillars can be placed on fluid tiles, per Renegade
     (isBridgingObstaclePieceID(piece.id) && isSolidUnderAtLeastOne) ||
     isPlacingOnTable
   const isLadderPieceSupported = isSolidUnderAll || isLadderAuxiliaryUnderAll
