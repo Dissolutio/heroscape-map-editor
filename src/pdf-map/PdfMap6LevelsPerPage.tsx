@@ -24,6 +24,7 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
     boardHexesWithoutEmpties,
     boardPieces,
   )
+  console.log("🚀 ~ PdfMapLevels6PerPage ~ boardHexAndPieceChunks:", boardHexAndPieceChunks)
   return (
     <>
       {boardHexAndPieceChunks.map((chunk, i) => (
@@ -101,6 +102,7 @@ const getBoardHexAndPieceChunks = (
   const filteredBoardHexes = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
   )
+  console.log("🚀 ~ filteredBoardHexes:", filteredBoardHexes)
   const filteredBoardPieces = Object.keys(boardPieces)
     .filter((pieceID) => {
       const id = decodePieceID(pieceID).inventoryID

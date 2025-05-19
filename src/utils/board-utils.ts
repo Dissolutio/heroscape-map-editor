@@ -41,6 +41,9 @@ export function isJungleTerrainHex(terrain: string) {
 export function isEvergreenTree(terrain: string) {
   return terrain === HexTerrain.tree || terrain === HexTerrain.snowTree
 }
+export function isCastleTerrain(terrain: string) {
+  return terrain === HexTerrain.castle
+}
 
 export function isObstaclePieceID(id: string) {
   return id === Pieces.laurWallPillar ||

@@ -1,13 +1,14 @@
 import { piecesSoFar } from '../data/pieces'
 import { type BoardHex, HexTerrain } from '../types'
 import {
+  isCastleTerrain,
   isEvergreenTree,
   isFluidTerrainHex,
   isJungleTerrainHex,
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import { decodePieceID } from '../utils/map-utils'
-import { svgColors, virtualscapeTileColors } from '../world/maphex/hexColors'
+import { hexTerrainColor, svgColors, virtualscapeTileColors } from '../world/maphex/hexColors'
 
 export const getSvgHexBorderColor = (hex: BoardHex) => {
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
@@ -99,6 +100,9 @@ export const getSvgHexFillColor = (hex: BoardHex) => {
   }
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgColors.lavaField
+  }
+  if (isCastleTerrain(hex.terrain)) {
+    return hexTerrainColor.castle
   }
   return 'transparent'
 }

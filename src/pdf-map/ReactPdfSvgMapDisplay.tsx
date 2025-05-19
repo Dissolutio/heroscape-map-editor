@@ -31,11 +31,13 @@ export const ReactPdfSvgMapDisplay = ({
       {emptyHexesArr.map((hex) => (
         <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
       ))}
-      {subLevelHexes
-        .sort((a, b) => a.altitude - b.altitude)
-        .map((hex) => (
-          <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
-        ))}
+      <G opacity={OPACITY_SUBLEVEL}>
+        {subLevelHexes
+          .sort((a, b) => a.altitude - b.altitude)
+          .map((hex) => (
+            <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
+          ))}
+      </G>
       {nonEmptyHexesArr
         .filter((h) => h.altitude === viewingLevel)
         .map((hex) => (

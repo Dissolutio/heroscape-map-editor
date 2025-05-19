@@ -20,6 +20,7 @@ import {
 } from '../svg-map/getSvgHexColors'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
+  isCastleTerrain,
   isEvergreenTree,
   isFluidTerrainHex,
   isJungleTerrainHex,
@@ -41,7 +42,7 @@ const hexTextStyle = {
   fontWeight: 'bold',
 }
 const twoCharNumberAdjust = -0.15 * SVG_HEX_RADIUS
-const singleHexObstacleHeightTextProps = (heightText: number) => ({
+const singleHexObstacleHeightTextProps = (heightText: string) => ({
   style: hexTextStyle,
   y: 0.3 * SVG_HEX_RADIUS,
   x: heightText.toString().length === 2
@@ -55,6 +56,7 @@ export const PdfMapHex = ({
 }: { hex: BoardHex; viewingLevel: number }) => {
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
+  // console.log("🚀 ~ isSubLevel, hex:", viewingLevel, isSubLevel, hex)
   const { inventoryID } = decodePieceID(hex.pieceID)
   const isObstaclePiece = isObstaclePieceID(inventoryID)
   const isAuxiliaryNotRenderedIn2D = isObstaclePiece && (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
@@ -107,9 +109,34 @@ export const PdfMapHex = ({
           fill="white"
           // white text needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          {...singleHexObstacleHeightTextProps(pieceHeightText)}
+          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
         >
           {pieceHeightText}
+        </Text>
+      </G>
+    )
+  }
+  // CASTLE WALLS
+  if (isCastleTerrain(hex.terrain)) {
+    const heightText = pieceHeightText > 0 ? pieceHeightText : ''
+    const castleText = inventoryID === Pieces.castleBaseEnd || inventoryID === Pieces.castleWallEnd ? 'E' :
+      inventoryID === Pieces.castleBaseStraight || inventoryID === Pieces.castleWallStraight ? 'S' : 'C'
+    const castleBaseWallText = `${castleText}${heightText}`
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <Text
+          fill="black"
+          // white text needs a little opacity boost
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+          style={{
+            fontSize: 0.4 * SVG_HEX_RADIUS,
+            fontWeight: 'bold',
+          }}
+          y={0.2 * SVG_HEX_RADIUS}
+          x={-0.2 * SVG_HEX_APOTHEM}
+        >
+          {castleBaseWallText}
         </Text>
       </G>
     )
@@ -122,7 +149,7 @@ export const PdfMapHex = ({
         <Text
           fill="rgb(35, 31, 32)"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-          {...singleHexObstacleHeightTextProps(pieceHeightText)}
+          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
         >
           {pieceHeightText}
         </Text>
@@ -328,7 +355,6 @@ const PdfMultiHex1 = ({
         strokeWidth={borderWidth}
         opacity={isEmptyHex ? OPACITY_EMPTY : isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
-      <Circle r={1} />
       {/* SNOWFLAKE IDEA, this one looks like the original ice snowflakes in Heroscape */}
       {/* https://www.svgrepo.com/svg/60624/snowflake?edit=true */}
       {/* <svg fill="#000000" height="100px" width="100px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-48.96 -48.96 587.52 587.52" xml:space="preserve" transform="matrix(1, 0, 0, 1, 0, 0)rotate(0)"><g id="SVGRepo_bgCarrier" stroke-width="0" transform="translate(0,0), scale(1)"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="10.7712"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M470.758,288L470.758,288l-77.9,34.2l-128.7-77.2l128.7-77.2l77.9,34.2c1.3,0.6,2.7,0.8,4,0.8c3.8,0,7.5-2.2,9.2-6 c2.2-5.1-0.1-11-5.1-13.2l-64.9-28.5l45.2-27.1c4.7-2.8,6.3-9,3.4-13.7c-2.9-4.7-9-6.3-13.7-3.4l-46.1,27.7l7.5-70.2 c0.6-5.5-3.4-10.4-8.9-11s-10.4,3.4-11,8.9l-9.1,85.2l-126.4,75.9V77.5l69.2-49.1c4.5-3.2,5.6-9.4,2.4-13.9s-9.4-5.6-13.9-2.4 l-57.6,40.9V10c0-5.5-4.5-10-10-10s-10,4.5-10,10v42.5l-57.7-40.5c-4.5-3.2-10.8-2.1-13.9,2.4c-3.2,4.5-2.1,10.8,2.4,13.9 l69.1,48.5v150.4l-127.2-76.4l-8.2-84.7c-0.5-5.5-5.4-9.5-10.9-9s-9.5,5.4-9,10.9l6.8,69.9l-45.5-27.3c-4.7-2.8-10.9-1.3-13.7,3.4 c-2.8,4.7-1.3,10.9,3.4,13.7l45,27l-64.7,28.7c-5,2.2-7.3,8.1-5.1,13.2c1.7,3.7,5.3,6,9.1,6c1.4,0,2.7-0.3,4-0.9l77.5-34.4 l129,77.4l-129,77.4l-77.5-34.4c-5.1-2.2-11,0-13.2,5.1c-2.2,5,0,11,5.1,13.2l64.7,28.7l-45,27c-4.7,2.8-6.3,9-3.4,13.7 c1.9,3.1,5.2,4.9,8.6,4.9c1.8,0,3.5-0.5,5.1-1.4l45.5-27.3l-6.8,69.9c-0.5,5.5,3.5,10.4,9,10.9c0.3,0,0.7,0,1,0 c5.1,0,9.4-3.9,9.9-9l8.2-84.7l127.2-76.4v154.8l-68.8,43.9c-4.7,3-6,9.2-3.1,13.8c1.9,3,5.1,4.6,8.4,4.6c1.8,0,3.7-0.5,5.4-1.6 l58-37v38.8c0,5.5,4.5,10,10,10s10-4.5,10-10v-39.2l58,37.4c4.6,3,10.8,1.7,13.8-3c3-4.7,1.7-10.8-3-13.8l-68.7-44V262.6 l126.4,75.9l9.1,85.2c0.5,5.1,4.9,8.9,9.9,8.9c0.4,0,0.7,0,1.1-0.1c5.5-0.6,9.5-5.5,8.9-11l-7.5-70.2l46.1,27.7 c1.6,1,3.4,1.4,5.1,1.4c3.4,0,6.7-1.7,8.6-4.9c2.8-4.7,1.3-10.9-3.4-13.7l-45.2-27.1l64.9-28.5c5.1-2.2,7.4-8.1,5.1-13.2 C481.658,288.1,475.758,285.8,470.758,288z"></path> </g> </g> </g></svg> */}
@@ -667,7 +693,7 @@ const PdfSvgTree415 = ({
         fill="white"
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-        style={{ ...singleHexObstacleHeightTextProps(pieceHeightText).style }}
+        style={{ ...singleHexObstacleHeightTextProps(pieceHeightText.toString()).style }}
         x={treeXYForRotation?.[hex?.pieceRotation]?.x ?? 0}
         y={treeXYForRotation?.[hex?.pieceRotation]?.y ?? 0}
       >
@@ -694,22 +720,15 @@ const posO4_5 = { x: -0.3 * SVG_HEX_APOTHEM, y: -2.7 * SVG_HEX_RADIUS }
 const posO4_6 = { x: 2.7 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
 
 
-// The 6-glacier has two more text spots than 4-glacier
+// The 6-glacier has two more text spots than 4-glacier, but some are reused
 const posO6_1_1 = { x: 3.6 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS } // top right of glacier
 const posO6_2_1 = { x: -1.3 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS } // bottom left
-
 const posO6_2_2 = { x: 1.7 * SVG_HEX_APOTHEM, y: 3.3 * SVG_HEX_RADIUS }
-
 const posO6_2_3 = { x: -2.3 * SVG_HEX_APOTHEM, y: 3.3 * SVG_HEX_RADIUS }
-
 const posO6_2_4 = { x: -4.3 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS }
-
 const posO6_1_5 = { x: -2.3 * SVG_HEX_APOTHEM, y: -2.7 * SVG_HEX_RADIUS }
-
 const posO6_1_6 = { x: 1.7 * SVG_HEX_APOTHEM, y: -2.7 * SVG_HEX_RADIUS }
 
-
-const BLAH = { x: 0, y: 0 }
 const outcrop3TextXYForRotation = [
   [posO3_1, posO3_2, posO3_3],
   [posO3_1, posO3_3, posO3_4],
