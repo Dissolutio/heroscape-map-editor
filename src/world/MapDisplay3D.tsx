@@ -35,6 +35,7 @@ export default function MapDisplay3D({
   const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const boardHexesArr = Object.values(boardHexes).sort(
     (a, b) => a.altitude - b.altitude,
@@ -102,6 +103,7 @@ export default function MapDisplay3D({
         rotation: pieceRotation,
       })
       if (error) {
+        console.log("🚀 ~ error:", error)
         enqueueSnackbar({
           message: `Add piece error: ${error.message}.`,
           variant: 'error',
@@ -109,6 +111,8 @@ export default function MapDisplay3D({
         })
         // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
         toggleSelectedPieceID(hex.pieceID)
+      } else {
+        toggleViewingLevel(getBoardPiecesMaxLevel(boardPieces))
       }
     }
   }
