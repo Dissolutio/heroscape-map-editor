@@ -123,7 +123,7 @@ export default function CastleBases({
         x={x}
         y={yBaseCap}
         z={z}
-        color={isHighlighted ? yellowColor : hexTerrainColor[underHexTerrain]}
+        color={isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]}
       />
     </>
   )

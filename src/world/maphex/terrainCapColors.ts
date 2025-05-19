@@ -3,6 +3,7 @@ import { hexTerrainColor } from './hexColors'
 
 export const terrainCapColors: { [terrain: string]: string } = {
   // these three use a brown subterrain
+  [HexTerrain.empty]: hexTerrainColor.castle,
   [HexTerrain.grass]: hexTerrainColor.grass,
   [HexTerrain.rock]: hexTerrainColor.rock,
   [HexTerrain.sand]: hexTerrainColor.sand,
