@@ -22,6 +22,7 @@ import { MapHex3D } from './maphex/MapHex3D.tsx'
 import EmptyHexes from './maphex/instance/EmptyHex.tsx'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
 import SolidCaps from './maphex/instance/SolidCaps.tsx'
+import { enqueueSnackbar } from 'notistack'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -95,11 +96,20 @@ export default function MapDisplay3D({
         ? boardHexes[boardHexOfCapForWall]
         : hex
       // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
-      paintTile({
+      const error = paintTile({
         piece,
         clickedHex: clickedHex,
         rotation: pieceRotation,
       })
+      if (error) {
+        enqueueSnackbar({
+          message: `Add piece error: ${error.message}.`,
+          variant: 'error',
+          autoHideDuration: 5000,
+        })
+        // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
+        toggleSelectedPieceID(hex.pieceID)
+      }
     }
   }
 

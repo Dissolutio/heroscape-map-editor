@@ -51,7 +51,7 @@ export function addPiece({
   rotation,
   isVsTile,
 }: PieceAddArgs): AddRemovePieceReturn {
-  let error: AddRemovePieceError
+  let addPieceError: AddRemovePieceError
   const newBoardHexes = clone(boardHexes)
   const newBoardPieces = clone(boardPieces)
   const piecePlaneCoords = getPieceTemplateCoords({
@@ -163,8 +163,12 @@ export function addPiece({
     piece.terrain === HexTerrain.laurWall &&
     piece.id !== Pieces.laurWallPillar
   ) {
-    // write the new laur addon piece
-    newBoardPieces[pieceID] = piece.id
+    try {
+      // write the new laur addon piece
+      newBoardPieces[pieceID] = piece.id
+    } catch (error) {
+      addPieceError = { message: "Unable to place laur wall addon", error }
+    }
   }
   // ROADWALLS: Autoadd piece id, render from boardPieces
   if (isPlacingRoadWall) {
@@ -173,7 +177,7 @@ export function addPiece({
       // write the new battlement piece
       newBoardPieces[pieceID] = piece.id
     } catch (error) {
-      console.log('Error placing roadwall piece error:', error)
+      addPieceError = { message: "Unable to place roadwall", error }
     }
   }
   // BATTLEMENTS: Autoadd piece id, render from boardPieces
@@ -183,21 +187,24 @@ export function addPiece({
       // write the new battlement piece
       newBoardPieces[ladderBattlementPieceID] = piece.id
     } catch (error) {
-      console.log('Error placing battlement piece:', error)
+      addPieceError = { message: "Unable to place battlement", error }
     }
   }
 
   // ALL PIECES BELOW ARE RENDERED FROM BOARD HEXES
 
   // LADDERS
-  if (isPlacingLadder) {
-    // const vertices = [ladderPieceRotation + 2, ladderPieceRotation + 3]
-    // const buddyHex = genBoardHexID({ ...hexUtilsAdd(pieceCoords, hexUtilsGetNeighborForRotation(ladderPieceRotation)), altitude: newPieceAltitude })
-    try {
+  if (isLadderPieceID) {
+    const isPlacingLadder =
+      isLadderPieceID &&
+      isSpaceFree &&
+      isVerticalClearanceForPiece &&
+      isLadderPieceSupported
+    if (isPlacingLadder) {
       newHexIds.forEach((newHexID, i) => {
-        // const hexUnderneath = newBoardHexes?.[underHexIds[i]]
+        const hexUnderneath = newBoardHexes?.[underHexIds[i]]
         // remove caps covered by this obstacle
-        // newBoardHexes[hexUnderneath.id].isCap = false
+        newBoardHexes[hexUnderneath.id].isCap = false
         // write in the new hex
         newBoardHexes[newHexID] = {
           id: newHexID,
@@ -217,6 +224,7 @@ export function addPiece({
         Array(piece.height)
           .fill(0)
           .forEach((_, j) => {
+
             const clearanceHexAltitude = newPieceAltitude + 1 + j
             const clearanceID = genBoardHexID({
               ...piecePlaneCoords[i],
@@ -242,8 +250,8 @@ export function addPiece({
 
       // write the new ladder piece
       newBoardPieces[ladderBattlementPieceID] = piece.id
-    } catch (error) {
-      console.log('🚀 ~ placing ladder piece error:', error)
+    } else {
+      addPieceError = { message: "Unable to place ladder" }
     }
   }
   // RUINS
@@ -286,6 +294,7 @@ export function addPiece({
         Array(verticalObstructionTemplates[piece.id][i])
           .fill(0)
           .forEach((_, j) => {
+            // Ruins do not ignore first level, j=0, because their templates accounted for that (inconsistent on my part)
             const clearanceHexAltitude = newPieceAltitude + j
             const clearanceID = genBoardHexID({
               ...piecePlaneCoords[i],
@@ -341,6 +350,16 @@ export function addPiece({
       })
       // write the new piece
       newBoardPieces[pieceID] = piece.id
+    } else {
+      if (!isSpaceFreeForRuin) {
+        addPieceError = { message: "Not enough space for ruin" }
+      }
+      if (!isSolidUnderAllSupportHexes) {
+        addPieceError = { message: "Ruins need solid ground under their three central hexes" }
+      }
+      if (!isVerticalClearanceForPiece) {
+        addPieceError = { message: "Not enough vertical clearance for ruins" }
+      }
     }
   }
 
@@ -349,31 +368,36 @@ export function addPiece({
     const isCastleBaseSupported = isPlacingOnTable || isSolidUnderAtLeastOne // castle bases are all 1-hex, currently
     const isPlacingCastleBase = isSpaceFree && isCastleBaseSupported
     if (isPlacingCastleBase) {
-      newHexIds.forEach((newHexID, i) => {
-        const hexUnderneath = newBoardHexes?.[underHexIds[i]]
-        const isSolidUnderneath = isSolidTerrainHex(hexUnderneath?.terrain)
-        if (isSolidUnderneath || isPlacingOnTable) {
-          // covers up the cap below
-          // remove old cap
-          newBoardHexes[hexUnderneath.id].isCap = false
-        }
-        newBoardHexes[newHexID] = {
-          id: newHexID,
-          q: piecePlaneCoords[i].q,
-          r: piecePlaneCoords[i].r,
-          s: piecePlaneCoords[i].s,
-          altitude: newPieceAltitude,
-          terrain: piece.terrain,
-          pieceID,
-          inventoryID: piece.id,
-          pieceRotation: rotation,
-        }
-      })
+      try {
+
+        newHexIds.forEach((newHexID, i) => {
+          const hexUnderneath = newBoardHexes?.[underHexIds[i]]
+          const isSolidUnderneath = isSolidTerrainHex(hexUnderneath?.terrain)
+          if (isSolidUnderneath || isPlacingOnTable) {
+            // covers up the cap below
+            // remove old cap
+            newBoardHexes[hexUnderneath.id].isCap = false
+          }
+          newBoardHexes[newHexID] = {
+            id: newHexID,
+            q: piecePlaneCoords[i].q,
+            r: piecePlaneCoords[i].r,
+            s: piecePlaneCoords[i].s,
+            altitude: newPieceAltitude,
+            terrain: piece.terrain,
+            pieceID,
+            inventoryID: piece.id,
+            pieceRotation: rotation,
+          }
+        })
+      } catch (error) {
+        addPieceError = { message: "Unable to place castle base", error }
+      }
       // write the new piece
       newBoardPieces[pieceID] = piece.id
     }
   }
-  // CASTLE WALL / ARCH
+  // CASTLE WALL / ARCH (no error reporting)
   if (isCastleWallPiece || isCastleArchPiece) {
     const isCastleUnderAll = underHexIds.every(
       (id) =>
@@ -450,6 +474,7 @@ export function addPiece({
         Array(obstacleHeight)
           .fill(0)
           .forEach((_, j) => {
+            // For some reason castle walls don't ignore the first one
             const clearanceHexAltitude = wallAltitude + 1 + j
             const clearanceID = genBoardHexID({
               ...piecePlaneCoords[i],
@@ -521,17 +546,50 @@ export function addPiece({
       }
       //  if we have a vertical obstruction template for an obstacle, use it, otherwise use its height
       if (verticalObstructionTemplates[piece.id]) {
-        // write in vertical clearances for the different parts of obstacle
-        Array(verticalObstructionTemplates[piece.id][i])
-          .fill(0)
-          .forEach((_, j) => {
-            const clearanceHexAltitude = newPieceAltitude + j
-            const clearanceID = genBoardHexID({
-              ...piecePlaneCoords[i],
-              altitude: clearanceHexAltitude,
+        try {
+
+          // write in vertical clearances for the different parts of obstacle
+          Array(verticalObstructionTemplates[piece.id][i])
+            .fill(0)
+            .forEach((_, j) => {
+
+              const clearanceHexAltitude = newPieceAltitude + j
+              const clearanceID = genBoardHexID({
+                ...piecePlaneCoords[i],
+                altitude: clearanceHexAltitude,
+              })
+              if (!newBoardHexes[clearanceID]) {
+                // BUGFIX: only write in vertical clearance if nothing is already there? But...this seems an incomplete solution
+                newBoardHexes[clearanceID] = {
+                  id: clearanceID,
+                  q: piecePlaneCoords[i].q,
+                  r: piecePlaneCoords[i].r,
+                  s: piecePlaneCoords[i].s,
+                  altitude: clearanceHexAltitude,
+                  terrain: piece.terrain,
+                  pieceID,
+                  inventoryID: piece.id,
+                  pieceRotation: rotation,
+                  isVerticalClearanceHex: true,
+                }
+              }
             })
-            if (!newBoardHexes[clearanceID]) {
-              // BUGFIX: only write in vertical clearance if nothing is already there? But...this seems an incomplete solution
+        } catch (error) {
+          addPieceError = { message: "Failed to fill out vertical obstruction for obstacle", error }
+        }
+      } else {
+        try {
+
+          // write in the new vertical clearances, this will block some pieces at these coordinates
+          Array(piece.height)
+            .fill(0)
+            .forEach((_, j) => {
+
+              const clearanceHexAltitude = newPieceAltitude + 1 + j
+              const clearanceID = genBoardHexID({
+                ...piecePlaneCoords[i],
+                altitude: clearanceHexAltitude,
+              })
               newBoardHexes[clearanceID] = {
                 id: clearanceID,
                 q: piecePlaneCoords[i].q,
@@ -544,31 +602,10 @@ export function addPiece({
                 pieceRotation: rotation,
                 isVerticalClearanceHex: true,
               }
-            }
-          })
-      } else {
-        // write in the new vertical clearances, this will block some pieces at these coordinates
-        Array(piece.height)
-          .fill(0)
-          .forEach((_, j) => {
-            const clearanceHexAltitude = newPieceAltitude + 1 + j
-            const clearanceID = genBoardHexID({
-              ...piecePlaneCoords[i],
-              altitude: clearanceHexAltitude,
             })
-            newBoardHexes[clearanceID] = {
-              id: clearanceID,
-              q: piecePlaneCoords[i].q,
-              r: piecePlaneCoords[i].r,
-              s: piecePlaneCoords[i].s,
-              altitude: clearanceHexAltitude,
-              terrain: piece.terrain,
-              pieceID,
-              inventoryID: piece.id,
-              pieceRotation: rotation,
-              isVerticalClearanceHex: true,
-            }
-          })
+        } catch (error) {
+          addPieceError = { message: "Failed placing vertical clearance for obstacle", error }
+        }
       }
     })
 
@@ -611,11 +648,11 @@ export function addPiece({
           }
         })
       } catch (error) {
-        console.log('🚀 ~ newHexIds.forEach ~ error:', error)
+        addPieceError = { message: "Could not place land tile", error }
       }
       // write the new piece
       newBoardPieces[pieceID] = piece.id
     }
   }
-  return { newBoardHexes, newBoardPieces, error }
+  return { newBoardHexes, newBoardPieces, error: addPieceError }
 }
