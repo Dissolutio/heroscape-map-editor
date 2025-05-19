@@ -31,6 +31,7 @@ export default function MapDisplay3D({
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
+  const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
@@ -50,9 +51,10 @@ export default function MapDisplay3D({
   })
 
   // USE EFFECT: Update viewing level when new map is loaded
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <only auto-update viewing level when map is loaded>
   React.useEffect(() => {
     toggleViewingLevel(maxLevel)
-  }, [boardPieces, toggleViewingLevel, maxLevel])
+  }, [hexMap.id])
 
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
@@ -111,7 +113,7 @@ export default function MapDisplay3D({
           // position={[topLeft[0], 0, topLeft[1]]}
           position={[0, 0, 0]}
           scale={[width, 0, length]}
-          // rotation={new Euler(0, Math.PI, 0)}
+        // rotation={new Euler(0, Math.PI, 0)}
         />
       )}
 
