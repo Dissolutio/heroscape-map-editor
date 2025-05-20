@@ -10,8 +10,8 @@ import { getBoardHexesSvgMapDimensions } from '../utils/map-utils'
 import { SvgMapHex } from './SvgMapHex'
 import { getHexagonSvgPolygonPointsAt00 } from './getHexagonSvgPolygonPoints'
 
-const adjustXForNew00Centers = 1.2 * SVG_HEX_APOTHEM
-const adjustYForNew00Centers = 1.2 * SVG_HEX_RADIUS
+const adjustXForNew00Centers = 1 * SVG_HEX_APOTHEM
+const adjustYForNew00Centers = 1 * SVG_HEX_RADIUS
 
 export const SvgMapDisplay = () => {
   const boardHexes = useBoundStore((state) => state.boardHexes)
@@ -80,6 +80,7 @@ export const SvgMapDisplay = () => {
       viewBox={viewboxStr}
       style={{
         height: '99%',
+        width: '100%',
         cursor: isPointerDown.current ? 'grabbing' : 'grab',
         overflow: 'scroll',
       }}
@@ -90,20 +91,8 @@ export const SvgMapDisplay = () => {
     >
       <title>2D Map Display</title>
 
-      <filter id="constantOpacity">
-        <feComponentTransfer>
-          {/* This transfer function leaves all alpha values of the unfiltered
-           graphics that are lower than .5 at their original values.
-           All higher alpha above will be changed to .5.
-           These calculations are derived from the values in
-           the tableValues attribute using linear interpolation. */}
-          <feFuncA type="table" tableValues="0 .5 .5" />
-        </feComponentTransfer>
-      </filter>
       <AxesHelper width={viewBox.width} length={viewBox.height} />
-      <g
-      //  filter="url(#constantOpacity)"
-      >
+      <g>
         {boardHexesArr.map((hex) => (
           <SvgMapHex key={hex.id} hex={hex} />
         ))}

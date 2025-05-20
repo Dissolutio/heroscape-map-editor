@@ -60,8 +60,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         strokeWidth={borderWidth}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
-      {/* Hex text */}
-      {!isEmptyHex && <SvgHexIDText text={`${hex.altitude}`} textLine2={``} />}
+      {/* {<SvgHexIDText text={`${hex.altitude}`} textLine2={``} />} */}
     </g>
   )
 }

@@ -9,11 +9,11 @@ type Props = {
 export const SvgHexIDText = ({ text, textLine2 }: Props) => {
   return (
     <>
-      <HexText y={1.6 * SVG_HEX_RADIUS} x={SVG_HEX_APOTHEM}>
+      <HexText >
         {text.toString()}
       </HexText>
       {textLine2 && (
-        <HexText y={1.8 * SVG_HEX_RADIUS} x={SVG_HEX_APOTHEM}>
+        <HexText >
           {textLine2.toString()}
         </HexText>
       )}
