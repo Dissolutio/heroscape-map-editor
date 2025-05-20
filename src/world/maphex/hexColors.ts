@@ -1,4 +1,4 @@
-import { Dictionary } from 'lodash'
+import type { Dictionary } from 'lodash'
 import { HexTerrain } from '../../types'
 
 export const virtualscapeTileColors: Dictionary<string> = {
@@ -69,7 +69,7 @@ export const hexTerrainColor: Dictionary<string> = {
   [HexTerrain.concrete]: '#D0D4DC',
   concreteCap: '#DCDFE5',
   [HexTerrain.dungeon]: '#6E675E',
-  dungeonCap: '#797167',
+  dungeonCap: '#ACB9A2',
   [HexTerrain.shadow]: '#362E38',
   [HexTerrain.outcrop]: '#5F5464',
   hiveModel1: '#668958',
@@ -132,12 +132,15 @@ export const svgColors = {
   [HexTerrain.rock]: 'rgb(98, 97, 98)',
   [HexTerrain.sand]: 'rgb(211, 231, 90)',
   [HexTerrain.swamp]: 'rgb(27, 46, 22)',
+  [HexTerrain.dungeon]: 'rgb(124, 177, 152)',
+  [HexTerrain.lavaField]: 'rgb(163, 0, 41)',
   [HexTerrain.snow]: 'rgb(255,255,255)',
   [HexTerrain.water]: 'rgb(67, 172, 176)',
   [HexTerrain.wellspringWater]: 'rgb(255,255,255)',
   // [HexTerrain.wellspringWater]: 'rgb(225,194,255)', // used this in virtualscape to differentiate from snow
   [HexTerrain.swampWater]: 'rgb(162, 166, 32)',
-  // ice: 'rgb(148, 158, 215)',
+  [HexTerrain.ice]: 'rgb(148, 158, 215)',
+  [HexTerrain.outcrop]: '#3E3C3E',
   iceFlake: 'rgb(242, 243, 250)', // there is variation in the snowflake color
   snowFlake: '#629BD0', // there is variation in the snowflake color
 }

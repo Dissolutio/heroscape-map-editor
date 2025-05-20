@@ -1,4 +1,4 @@
-import * as React from 'react'
+import type * as React from 'react'
 import { SVG_HEX_RADIUS } from '../utils/constants'
 
 export type Props = {

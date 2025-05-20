@@ -1,9 +1,9 @@
 import { useGLTF } from '@react-three/drei'
-import { ThreeEvent } from '@react-three/fiber'
+import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { BoardHex, CubeCoordinate, HexTerrain } from '../../types'
+import { type BoardHex, type CubeCoordinate, HexTerrain } from '../../types'
 import {
   hexUtilsAdd,
   hexUtilsGetNeighborForRotation,

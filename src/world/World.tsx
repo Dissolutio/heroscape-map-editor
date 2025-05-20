@@ -1,13 +1,13 @@
 import { ClickAwayListener } from '@mui/material'
 import {
-  CameraControls,
+  type CameraControls,
   OrthographicCamera,
   PerspectiveCamera,
   Stats,
 } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import React from 'react'
-import * as THREE from 'three'
+import type * as THREE from 'three'
 import SelectedPieceReadout from '../controls/SelectedPieceReadout'
 import useBoundStore from '../store/store'
 import { CAMERA_FOV } from '../utils/constants'

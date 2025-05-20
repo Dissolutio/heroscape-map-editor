@@ -10,7 +10,7 @@ export default function PieceSizeSelect() {
     _event: React.MouseEvent<HTMLElement>,
     value: string,
   ) => {
-    togglePieceSize(parseInt(value))
+    togglePieceSize(Number.parseInt(value))
   }
   const isSizes = flatPieceSizes?.length > 0
   return (

@@ -2,7 +2,7 @@ import { Button, Container } from '@mui/material'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { useLocalPieceInventory } from '../hooks/useLocalPieceInventory'
 import useBoundStore from '../store/store'
-import { BoardPieces } from '../types'
+import type { BoardPieces } from '../types'
 import {
   MAX_HEXAGON_MAP_DIMENSION,
   MAX_RECTANGLE_MAP_DIMENSION,
@@ -50,9 +50,10 @@ const Controls = () => {
   const inventory = useLocalPieceInventory()
   const isUseInventory =
     0 <
-    Object.keys(inventory.pieceInventory).reduce(function (sum, key) {
-      return sum + inventory.pieceInventory[key]
-    }, 0)
+    Object.keys(inventory.pieceInventory).reduce(
+      (sum, key) => sum + inventory.pieceInventory[key],
+      0,
+    )
   const selectedPiece = useBoundStore((s) => s.penMode + s.pieceSize)
   const totalCount = inventory.pieceInventory[selectedPiece]
   const remainingCount = Object.values(boardPieces).reduce((count, val) => {

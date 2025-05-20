@@ -39,9 +39,9 @@ To get started with the project, follow these steps:
 The following scripts are available in the project:
 
 - `dev`: Starts the development server with Vite.
-- `format`: Formats the code using Prettier.
+- `format`: Formats the code using BiomeJS.
 - `build`: Builds the project using TypeScript and Vite.
-- `lint`: Lints the code using ESLint and fixes any issues.
+- `lint`: Lints the code using BiomeJS and fixes any issues.
 - `preview`: Previews the production build using Vite.
 
 To run any of these scripts, use the following command:
@@ -56,6 +56,7 @@ This project utilizes several libraries to provide a rich development experience
 - **React**: A JavaScript library for building user interfaces.
 - **TypeScript**: A typed superset of JavaScript that compiles to plain JavaScript.
 - **Vite**: A fast build tool and development server.
+- **BiomeJS**: Fast code linter/formatter.
 - **@emotion/react** and **@emotion/styled**: Libraries for writing CSS styles with JavaScript.
 - **@mui/material**: A popular React UI framework.
 - **@react-three/drei** and **@react-three/fiber**: Libraries for working with Three.js in React.
@@ -121,17 +122,3 @@ To add new terrain pieces, follow these steps:
 5. **Update UI**: Update the user interface to allow users to select and place the new terrain piece. (as the project is under development, this step is subject to considerable change)
 
 By following these steps, you can expand the application to support new releases of Heroscape terrain.
-
-LavaField: rgb(160, 32, 32)
-Lava: rgb(255, 64, 64)
-Sand: rgb(204, 171, 41)
-Water: rgb(32, 32, 255)
-Swampwater: rgb(222, 210, 42)
-Snow: rgb(255,255,255)
-Ice: rgb(180,180,255)
-Shadow: rgb(0,0,0)
-
-COLOR MAPPING:
-Gpick                 |||  Coolors
-hsl(359, 51%, 36%)  hsl(354, 65%, 36%)
-hsl(232, 42%, 71%) hsl(231, 46%, 71%)

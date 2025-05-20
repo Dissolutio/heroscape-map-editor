@@ -1,8 +1,6 @@
-import { Line, Svg } from '@react-pdf/renderer'
-import { getHexagonSvgPolygonPoints } from '../svg-map/getHexagonSvgPolygonPoints'
-import { PdfInterlockClipPaths } from '../svg-map/svg-hex-interlock-clippath'
-import { BoardHex } from '../types'
-import { SVG_HEX_RADIUS } from '../utils/constants'
+import { G, Line, Svg } from '@react-pdf/renderer'
+import type { BoardHex } from '../types'
+import { OPACITY_SUBLEVEL, SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { PdfMapHex } from './PdfMapHex'
 
 type ReactPdfSvgMapDisplayProps = {
@@ -19,23 +17,29 @@ export const ReactPdfSvgMapDisplay = ({
   boardHexesArr,
   viewingLevel,
 }: ReactPdfSvgMapDisplayProps) => {
-  const { points } = getHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
   const emptyHexesArr = boardHexesArr.filter((hex) => hex.terrain === 'empty')
+  const nonEmptyHexesArr = boardHexesArr.filter((hex) => hex.terrain !== 'empty')
+  const adjustXForNew00Centers = 1.2 * SVG_HEX_APOTHEM
+  const adjustYForNew00Centers = 1.2 * SVG_HEX_RADIUS
+  const subLevelHexes = nonEmptyHexesArr.filter((h) => h.altitude < viewingLevel)
+  const viewBoxStr = `${-adjustXForNew00Centers} ${-adjustYForNew00Centers} ${width + adjustXForNew00Centers} ${length + adjustYForNew00Centers}`
   return (
     <Svg
-      viewBox={`${0} ${0} ${width} ${length}`}
-      style={{
-        border: '1px solid black',
-      }}
+      viewBox={viewBoxStr}
     >
-      <PdfSvgXYHelperLines length={length} width={width} />
-      <PdfInterlockClipPaths points={points} />
+      {/* <PdfSvgXYHelperLines length={length} width={width} /> */}
       {emptyHexesArr.map((hex) => (
         <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
       ))}
-      {boardHexesArr
-        .filter((h) => h.terrain !== 'empty')
-        .sort((a, b) => a.altitude - b.altitude)
+      <G opacity={OPACITY_SUBLEVEL}>
+        {subLevelHexes
+          .sort((a, b) => a.altitude - b.altitude)
+          .map((hex) => (
+            <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
+          ))}
+      </G>
+      {nonEmptyHexesArr
+        .filter((h) => h.altitude === viewingLevel)
         .map((hex) => (
           <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
         ))}

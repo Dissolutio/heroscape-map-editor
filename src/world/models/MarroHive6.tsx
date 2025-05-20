@@ -1,8 +1,8 @@
 import { useGLTF } from '@react-three/drei'
-import { ThreeEvent } from '@react-three/fiber'
+import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { BoardHex } from '../../types'
+import type { BoardHex } from '../../types'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 

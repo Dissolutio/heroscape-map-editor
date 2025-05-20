@@ -1,7 +1,7 @@
-import { ThreeEvent } from '@react-three/fiber'
+import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import useBoundStore from '../store/store'
-import { BoardHex } from '../types'
+import type { BoardHex } from '../types'
 
 export default function usePieceHoverState(isVisible?: boolean) {
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)

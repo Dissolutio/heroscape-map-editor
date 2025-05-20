@@ -1,5 +1,5 @@
-import { Dictionary } from 'lodash'
-import { PieceSet, PieceSetIds } from '../types'
+import type { Dictionary } from 'lodash'
+import { type PieceSet, PieceSetIds } from '../types'
 import {
   aoa1PieceSet,
   battleBox1PieceSet,

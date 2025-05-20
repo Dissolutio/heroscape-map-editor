@@ -1,4 +1,4 @@
-import { Dictionary } from 'lodash'
+import type { Dictionary } from 'lodash'
 import { piecesSoFar } from './pieces'
 
 const landSizes = Object.values(piecesSoFar).reduce(

@@ -1,4 +1,4 @@
-import { BoardHexes, CubeCoordinate, HexTerrain } from '../types'
+import { type BoardHexes, type CubeCoordinate, HexTerrain } from '../types'
 import { hexUtilsGenHexagonGrid, hexUtilsGenRectangleGrid } from './hex-utils'
 import { genBoardHexID } from './map-utils'
 

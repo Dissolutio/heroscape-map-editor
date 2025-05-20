@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
-    "format": "npx biome check --write",
+    "dev": "vite --force",
+    "lint": "npx @biomejs/biome lint --write ./src",
+    "format": "npx biome format --write src/",
     "build": "tsc -b && vite build",
-    "lint": "npx biome check",
     "preview": "vite preview"
   },
   "dependencies": {

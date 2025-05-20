@@ -1,11 +1,10 @@
-import { CameraControls } from '@react-three/drei'
-import { ThreeEvent } from '@react-three/fiber'
-import React from 'react'
+import type { CameraControls } from '@react-three/drei'
+import type { ThreeEvent } from '@react-three/fiber'
 
-import { Group, Object3DEventMap } from 'three'
+import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
 import useBoundStore from '../store/store.ts'
-import { BoardHex, HexTerrain, PiecePrefixes } from '../types.ts'
+import { type BoardHex, HexTerrain, PiecePrefixes } from '../types.ts'
 import {
   isFluidTerrainHex,
   isJungleTerrainHex,
@@ -22,6 +21,7 @@ import { MapHex3D } from './maphex/MapHex3D.tsx'
 import EmptyHexes from './maphex/instance/EmptyHex.tsx'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
 import SolidCaps from './maphex/instance/SolidCaps.tsx'
+import { enqueueSnackbar } from 'notistack'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -31,8 +31,10 @@ export default function MapDisplay3D({
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
+  const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const boardHexesArr = Object.values(boardHexes).sort(
     (a, b) => a.altitude - b.altitude,
@@ -49,10 +51,7 @@ export default function MapDisplay3D({
     disabled: !boardHexesArr.length || false, // for when working on camera stuff
   })
 
-  // USE EFFECT: Update viewing level when new map is loaded
-  React.useEffect(() => {
-    toggleViewingLevel(maxLevel)
-  }, [boardPieces, toggleViewingLevel, maxLevel])
+
 
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
@@ -93,11 +92,25 @@ export default function MapDisplay3D({
         ? boardHexes[boardHexOfCapForWall]
         : hex
       // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
-      paintTile({
+      const error = paintTile({
         piece,
         clickedHex: clickedHex,
         rotation: pieceRotation,
       })
+      if (error) {
+        console.log("🚀 ~ error:", error)
+        enqueueSnackbar({
+          message: `Add piece error: ${error.message}.`,
+          variant: 'error',
+          autoHideDuration: 5000,
+        })
+        // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
+        toggleSelectedPieceID(hex.pieceID)
+      } else {
+        if (clickedHex.altitude >= viewingLevel) {
+          toggleViewingLevel(Math.max(getBoardPiecesMaxLevel(boardPieces), clickedHex.altitude + 1))
+        }
+      }
     }
   }
 
@@ -111,7 +124,7 @@ export default function MapDisplay3D({
           // position={[topLeft[0], 0, topLeft[1]]}
           position={[0, 0, 0]}
           scale={[width, 0, length]}
-          // rotation={new Euler(0, Math.PI, 0)}
+        // rotation={new Euler(0, Math.PI, 0)}
         />
       )}
 

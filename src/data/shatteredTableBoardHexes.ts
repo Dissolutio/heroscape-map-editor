@@ -1,4 +1,4 @@
-import { BoardHexes } from '../types'
+import type { BoardHexes } from '../types'
 
 export const shatteredTableBoardHexes: BoardHexes = {
   '0~0~0': {

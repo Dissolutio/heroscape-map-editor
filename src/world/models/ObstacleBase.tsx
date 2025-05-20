@@ -1,6 +1,6 @@
 import { HEXGRID_HEXCAP_FLUID_HEIGHT } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { CylinderGeometryArgs } from '../maphex/instance-hex'
+import type { CylinderGeometryArgs } from '../maphex/instance-hex'
 
 type ObstacleBaseProps = {
   x: number

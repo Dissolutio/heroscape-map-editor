@@ -1,7 +1,7 @@
 import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import { MdFolderZip } from 'react-icons/md'
 import useBoundStore from '../store/store'
-import { BoardPieces, HexMap } from '../types'
+import type { BoardPieces, HexMap } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { encodeFilename } from '../utils/map-utils'
 

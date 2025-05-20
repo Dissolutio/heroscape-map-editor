@@ -1,7 +1,12 @@
-import { Dictionary } from 'lodash'
+import type { Dictionary } from 'lodash'
 import { Pieces } from '../types'
 
 export const verticalObstructionTemplates: Dictionary<number[]> = {
+  [Pieces.outcrop3]: [5, 9, 7],
+  [Pieces.glacier3]: [5, 9, 7],
+  [Pieces.glacier4]: [7, 11, 11, 9],
+  [Pieces.glacier6]: [17, 17, 17, 9, 9, 17], // this one has a wild tile-template order
+  [Pieces.lavaRockOutcrop3]: [5, 9, 7],
   /* 
    The order really matters here.
    These number arrays' indices must line up with the templates' indices, as each hex in a terrain model might have a different height.

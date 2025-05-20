@@ -1,6 +1,6 @@
 import { Billboard, Text } from '@react-three/drei'
-import { Color, Vector3 } from 'three'
-import {
+import { Color, type Vector3 } from 'three'
+import type {
   BoardHex,
   // HexTerrain,
 } from '../../types'
@@ -23,24 +23,25 @@ export const MapHexIDDisplay = ({
   grid works (you can see vertical-clearance hexes, empty hexes)
   */
   // if (!boardHex.isCap) return null
-  if (
-    !boardHex.isCap &&
-    !(boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
-  )
-    return null // filters out vertical clearance
+  // if (
+  //   !boardHex.isCap &&
+  //   !(boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
+  // )
+  //   return null // filters out vertical clearance
   // if (boardHex.terrain === HexTerrain.empty) return null
   return (
     <Billboard
       position={[
         position.x,
-        position.y + (boardHex?.obstacleHeight ?? 0) * HEXGRID_HEX_HEIGHT,
+        // position.y + (boardHex?.obstacleHeight ?? 0) * HEXGRID_HEX_HEIGHT,
+        position.y,
         position.z,
       ]}
     >
       <Text fontSize={0.2} color={new Color('black')}>
         {/* {`${boardHex.terrain}:${boardHex.id}`} */}
-        {/* {`${boardHex.id}`} */}
-        {`${boardHex.q}:${boardHex.r}:${boardHex.s}`}
+        {`${boardHex.id}`}
+        {/* {`${boardHex.q}:${boardHex.r}:${boardHex.s}`} */}
         {/* {`LeftMinX: ${boardHex.s - boardHex.q}`} */}
         {/* {`RightMaxX: ${boardHex.q - boardHex.s}`} */}
         {/* {`BottomMaxY: ${boardHex.r - boardHex.s - boardHex.q}`} */}

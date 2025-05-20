@@ -1,5 +1,5 @@
 import { Document, PDFDownloadLink } from '@react-pdf/renderer'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import useBoundStore from '../store/store'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 

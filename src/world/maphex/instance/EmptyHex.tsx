@@ -1,5 +1,5 @@
 import { Instance, Instances } from '@react-three/drei'
-import { ThreeEvent } from '@react-three/fiber'
+import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import { HexTerrain } from '../../../types'
@@ -9,7 +9,7 @@ import {
 } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { hexTerrainColor } from '../hexColors'
-import {
+import type {
   BoardHexPieceProps,
   CylinderGeometryArgs,
   DreiCapProps,

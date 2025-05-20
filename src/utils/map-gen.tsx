@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid'
-import { BoardHexes, MapState } from '../types'
+import type { BoardHexes, MapState } from '../types'
 import {
   MAX_HEXAGON_MAP_DIMENSION,
   MAX_RECTANGLE_MAP_DIMENSION,

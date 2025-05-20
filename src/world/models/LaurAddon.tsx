@@ -1,17 +1,17 @@
 import { useGLTF } from '@react-three/drei'
-import { ThreeEvent } from '@react-three/fiber'
+import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain, Pieces } from '../../types'
 import { decodePieceID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 
-{
-  /* <mesh geometry={LaurWallRuin.geometry}>
-<mesh geometry={LaurWallRuinBustedConcrete.geometry}>
-<mesh geometry={LaurWallLong.geometry}>
-<mesh geometry={LaurWallLongDecorDeep.geometry}> */
-}
+// {
+//   /* <mesh geometry={LaurWallRuin.geometry}>
+// <mesh geometry={LaurWallRuinBustedConcrete.geometry}>
+// <mesh geometry={LaurWallLong.geometry}>
+// <mesh geometry={LaurWallLongDecorDeep.geometry}> */
+// }
 export function LaurWallAddon({
   pid,
   isVisible,

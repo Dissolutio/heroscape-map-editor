@@ -1,12 +1,12 @@
 import JSONCrush from 'jsoncrush'
 import { useSnackbar } from 'notistack'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import { BoardHexes, BoardPieces, Pieces } from '../types'
+import { type BoardHexes, type BoardPieces, Pieces } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
-import { decodePieceID } from '../utils/map-utils'
+import { decodePieceID, getBoardPiecesMaxLevel } from '../utils/map-utils'
 
 type Props = {
   boardHexes?: BoardHexes
@@ -14,12 +14,21 @@ type Props = {
 
 const useAutoLoadMapFile = (props: Props) => {
   const loadMap = useBoundStore((s) => s.loadMap)
+  const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
+  const hexMap = useBoundStore((s) => s.hexMap)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
   const { clear: clearUndoHistory } = useBoundStore.temporal.getState()
   const { enqueueSnackbar } = useSnackbar()
   const searchString = useSearch()
-
-  // USE EFFECT: automatically load up map from URL, OR from file
+  const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+  // USE EFFECT: Update viewing level when new map is loaded
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <only auto-update viewing level when map is loaded>
   React.useEffect(() => {
+    toggleViewingLevel(maxLevel)
+  }, [hexMap.id])
+  // USE EFFECT: automatically load up map from URL, OR from file
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only run on-load
+  useEffect(() => {
     const queryParams = new URLSearchParams(searchString)
     const urlMapString = queryParams.get('m')
     if (urlMapString) {

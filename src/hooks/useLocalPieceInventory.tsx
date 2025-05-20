@@ -1,5 +1,5 @@
 import { useLocalStorage } from '../hooks/useLocalStorage'
-import { PieceInventory, Pieces } from '../types'
+import { type PieceInventory, Pieces } from '../types'
 import { LS_KEYS } from '../utils/constants'
 
 const blankPieceState: { [key: string]: number } = {

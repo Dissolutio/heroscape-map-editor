@@ -1,18 +1,22 @@
 import { piecesSoFar } from '../data/pieces'
-import { BoardHex, HexTerrain } from '../types'
+import { type BoardHex, HexTerrain } from '../types'
 import {
+  isCastleTerrain,
   isEvergreenTree,
   isFluidTerrainHex,
   isJungleTerrainHex,
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import { decodePieceID } from '../utils/map-utils'
-import { svgColors, virtualscapeTileColors } from '../world/maphex/hexColors'
+import { hexTerrainColor, svgColors, virtualscapeTileColors } from '../world/maphex/hexColors'
 
 export const getSvgHexBorderColor = (hex: BoardHex) => {
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
+  if (hex.terrain === 'empty') {
+    return 'black'
+  }
   const inventoryPiece =
-    piecesSoFar?.[decodePieceID?.(hex.pieceID)?.inventoryID] ?? ''
+    piecesSoFar?.[decodePieceID?.(hex.pieceID)?.inventoryID]
   const is1Hex = inventoryPiece.size === 1
   const is2Hex = inventoryPiece.size === 2
   const is3Hex = inventoryPiece.size === 3
@@ -36,8 +40,7 @@ export const getSvgHexBorderColor = (hex: BoardHex) => {
   if (
     hex.terrain === HexTerrain.water ||
     hex.terrain === HexTerrain.swampWater ||
-    hex.terrain === HexTerrain.ice
-    ||
+    hex.terrain === HexTerrain.ice ||
     hex.terrain === HexTerrain.shadow
   ) {
     return svgColors.outlineWater
@@ -45,10 +48,7 @@ export const getSvgHexBorderColor = (hex: BoardHex) => {
   if (hex.terrain === HexTerrain.lava) {
     return svgColors.outlineLava
   }
-  if (hex.terrain === HexTerrain.wellspringWater
-    // ||
-    // hex.terrain === HexTerrain.shadow
-  ) {
+  if (hex.terrain === HexTerrain.wellspringWater) {
     return svgColors.outlineWellspringWater
   }
   if (isJungleTerrainHex(hex.terrain)) {
@@ -59,6 +59,15 @@ export const getSvgHexBorderColor = (hex: BoardHex) => {
   }
   if (hex.terrain === HexTerrain.laurWall) {
     return svgColors.outlineLaurWall
+  }
+  if (hex.terrain === HexTerrain.glacier) {
+    return svgColors.outlineWater
+  }
+  if (hex.terrain === HexTerrain.outcrop) {
+    return svgColors.outlineWater
+  }
+  if (hex.terrain === HexTerrain.lavaRockOutcrop) {
+    return svgColors.outlineLava
   }
   return 'black'
 }
@@ -82,6 +91,18 @@ export const getSvgHexFillColor = (hex: BoardHex) => {
   }
   if (hex.terrain === HexTerrain.laurWall) {
     return svgColors.outlineLaurWall
+  }
+  if (hex.terrain === HexTerrain.glacier) {
+    return svgColors.ice
+  }
+  if (hex.terrain === HexTerrain.outcrop) {
+    return svgColors.outcrop
+  }
+  if (hex.terrain === HexTerrain.lavaRockOutcrop) {
+    return svgColors.lavaField
+  }
+  if (isCastleTerrain(hex.terrain)) {
+    return hexTerrainColor.castle
   }
   return 'transparent'
 }

@@ -4,7 +4,7 @@ Each hex in a land piece has an interlocking shape to it, one of 7 (so far) comb
 These arrays map each tile in the template to an interlocking hex shape.
 */
 
-import { Dictionary } from 'lodash'
+import type { Dictionary } from 'lodash'
 import { Pieces } from '../types'
 
 const basic1 = [0]

@@ -1,4 +1,4 @@
-import { MapFileState, VirtualScapeMap, VirtualScapeTile } from '../types'
+import type { MapFileState, VirtualScapeMap, VirtualScapeTile } from '../types'
 
 /* 
 This function reads a specific binary file format used by VirtualScape.

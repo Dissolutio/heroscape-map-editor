@@ -1,6 +1,6 @@
 import { Button, Tooltip } from '@mui/material'
 import { Billboard, Html } from '@react-three/drei'
-import React from 'react'
+import type React from 'react'
 import { FcCancel } from 'react-icons/fc'
 import useBoundStore from '../../store/store'
 import { Pieces } from '../../types'

@@ -1,7 +1,12 @@
 import { Page, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy } from 'lodash'
-import { Fragment, PropsWithChildren } from 'react'
-import { BoardHexes, BoardPieces, MapState, Pieces } from '../types'
+import { Fragment, type PropsWithChildren } from 'react'
+import {
+  type BoardHexes,
+  type BoardPieces,
+  type MapState,
+  Pieces,
+} from '../types'
 import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
 import {
   decodePieceID,
@@ -19,10 +24,12 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
     boardHexesWithoutEmpties,
     boardPieces,
   )
+  console.log("🚀 ~ PdfMapLevels6PerPage ~ boardHexAndPieceChunks:", boardHexAndPieceChunks)
   return (
     <>
-      {boardHexAndPieceChunks.map((chunk) => (
+      {boardHexAndPieceChunks.map((chunk, i) => (
         <Page
+          key={i}
           size="LETTER"
           style={{
             flexDirection: 'column',
@@ -36,52 +43,50 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
             }}
           >
             <HalfPageColumn>
-              {chunk.map((group, i) => (
-                <Fragment key={group.altitude}>
-                  {i < 3 && (
-                    <View
-                      style={{
-                        flexBasis: '33%',
-                      }}
-                    >
-                      <Text style={{ fontSize: '10px' }}>
-                        Level: {group.altitude}
-                      </Text>
-                      <ReactPdfSvgMapDisplay
-                        // levelHexArr={group.hexes}
-                        boardHexesArr={Object.values(boardHexes)}
-                        width={width}
-                        length={length}
-                        viewingLevel={group.altitude}
-                      />
-                    </View>
-                  )}
-                </Fragment>
-              ))}
+              {chunk.map((group, i) =>
+                i < 3 ? (
+                  <View
+                    key={i}
+                    style={{
+                      flexBasis: '33%',
+                    }}
+                  >
+                    <Text style={{ fontSize: '10px' }}>
+                      Level: {group.altitude}
+                    </Text>
+                    <ReactPdfSvgMapDisplay
+                      // levelHexArr={group.hexes}
+                      boardHexesArr={Object.values(boardHexes)}
+                      width={width}
+                      length={length}
+                      viewingLevel={group.altitude}
+                    />
+                  </View>
+                ) : null,
+              )}
             </HalfPageColumn>
             <HalfPageColumn>
-              {chunk.map((group, i) => (
-                <Fragment key={group.altitude}>
-                  {i >= 3 && (
-                    <View
-                      style={{
-                        flexBasis: '33%',
-                      }}
-                    >
-                      <Text style={{ fontSize: '10px' }}>
-                        Level: {group.altitude}
-                      </Text>
-                      <ReactPdfSvgMapDisplay
-                        // levelHexArr={group.hexes}
-                        boardHexesArr={Object.values(boardHexes)}
-                        width={width}
-                        length={length}
-                        viewingLevel={group.altitude}
-                      />
-                    </View>
-                  )}
-                </Fragment>
-              ))}
+              {chunk.map((group, i) =>
+                i >= 3 ? (
+                  <View
+                    key={i}
+                    style={{
+                      flexBasis: '33%',
+                    }}
+                  >
+                    <Text style={{ fontSize: '10px' }}>
+                      Level: {group.altitude}
+                    </Text>
+                    <ReactPdfSvgMapDisplay
+                      // levelHexArr={group.hexes}
+                      boardHexesArr={Object.values(boardHexes)}
+                      width={width}
+                      length={length}
+                      viewingLevel={group.altitude}
+                    />
+                  </View>
+                ) : null,
+              )}
             </HalfPageColumn>
           </View>
         </Page>
@@ -97,6 +102,7 @@ const getBoardHexAndPieceChunks = (
   const filteredBoardHexes = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
   )
+  console.log("🚀 ~ filteredBoardHexes:", filteredBoardHexes)
   const filteredBoardPieces = Object.keys(boardPieces)
     .filter((pieceID) => {
       const id = decodePieceID(pieceID).inventoryID
