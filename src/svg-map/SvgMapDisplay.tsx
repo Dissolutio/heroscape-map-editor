@@ -9,14 +9,13 @@ import {
 import { getBoardHexesSvgMapDimensions } from '../utils/map-utils'
 import { SvgMapHex } from './SvgMapHex'
 import { getHexagonSvgPolygonPointsAt00 } from './getHexagonSvgPolygonPoints'
-import { SvgInterlockClipPaths } from './svg-hex-interlock-clippath'
 
-const mapX = -SVG_HEX_APOTHEM
-const mapY = -SVG_HEX_RADIUS
+const adjustXForNew00Centers = 1.2 * SVG_HEX_APOTHEM
+const adjustYForNew00Centers = 1.2 * SVG_HEX_RADIUS
 
 export const SvgMapDisplay = () => {
   const boardHexes = useBoundStore((state) => state.boardHexes)
-  const points = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+  const hexMap = useBoundStore((state) => state.hexMap)
   const mapDimensions = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesArr = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
@@ -24,24 +23,25 @@ export const SvgMapDisplay = () => {
 
   const svgRef = useRef<SVGSVGElement>(null)
   const [viewBox, setViewBox] = useState({
-    x: mapX,
-    y: mapY,
-    width: mapDimensions.width,
-    height: mapDimensions.length,
+    x: adjustXForNew00Centers,
+    y: adjustYForNew00Centers,
+    width: mapDimensions.width + adjustXForNew00Centers,
+    height: mapDimensions.length + adjustYForNew00Centers,
   })
   const viewboxStr = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`
   const pointerOrigin = useRef({ x: 0, y: 0 })
   const isPointerDown = useRef(false)
 
   // Effect to update the viewBox when map dimensions change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     setViewBox({
-      x: mapX,
-      y: mapY,
-      width: getBoardHexesSvgMapDimensions(boardHexes).width,
-      height: getBoardHexesSvgMapDimensions(boardHexes).length,
+      x: adjustXForNew00Centers,
+      y: adjustYForNew00Centers,
+      width: getBoardHexesSvgMapDimensions(boardHexes).width + adjustXForNew00Centers,
+      height: getBoardHexesSvgMapDimensions(boardHexes).length + adjustYForNew00Centers,
     })
-  }, [boardHexes])
+  }, [boardHexes, hexMap.id])
 
   const onPointerDown = (event: React.PointerEvent) => {
     isPointerDown.current = true
@@ -101,7 +101,6 @@ export const SvgMapDisplay = () => {
         </feComponentTransfer>
       </filter>
       <AxesHelper width={viewBox.width} length={viewBox.height} />
-      <SvgInterlockClipPaths points={points} />
       <g
       //  filter="url(#constantOpacity)"
       >
@@ -117,18 +116,18 @@ const AxesHelper = ({ width, length }: { width: number; length: number }) => {
   return (
     <>
       <line
-        x1={mapX}
-        y1={mapY}
-        x2={mapX}
+        x1={-adjustXForNew00Centers}
+        y1={-adjustYForNew00Centers}
+        x2={-adjustXForNew00Centers}
         y2={length}
         stroke="red"
         strokeWidth={0.5}
       />
       <line
-        x1={mapX}
-        y1={mapY}
+        x1={-adjustXForNew00Centers}
+        y1={-adjustYForNew00Centers}
         x2={width}
-        y2={mapY}
+        y2={-adjustYForNew00Centers}
         stroke="blue"
         strokeWidth={0.5}
       />

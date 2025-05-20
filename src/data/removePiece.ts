@@ -91,11 +91,11 @@ const removePieceIDFromBoardHexes = (
   boardHexes: BoardHexes,
 ) => {
   // Remove all hexes from newBoardHexes that have the given pieceID
-  Object.keys(boardHexes).forEach((hexID) => {
+  for (const hexID of Object.keys(boardHexes)) {
     if (boardHexes[hexID]?.pieceID === pieceID) {
       delete boardHexes[hexID]
     }
-  })
+  }
 }
 // const isEachOverheadPieceSupportedByAnotherPiece = (newBoardHexes: BoardHexes, pieceIDRemoving: string) => {
 //   const pieceBoardHexes = Object.values(newBoardHexes)
@@ -133,13 +133,13 @@ const restoreCapsToEmptyUnderHexes = (
   const underHexIds = pieceBoardHexes.map((cubeCoord) =>
     genBoardHexID({ ...cubeCoord, altitude: (cubeCoord.altitude ?? 0) - 1 }),
   )
-  underHexIds.forEach((underHexId) => {
+  for (const underHexId of underHexIds) {
     if (
-      newBoardHexes?.[underHexId]?.terrain === 'empty' ||
+      newBoardHexes?.[underHexId]?.terrain === HexTerrain.empty ||
       isSolidTerrainHex(newBoardHexes?.[underHexId]?.terrain) ||
       isFluidTerrainHex(newBoardHexes?.[underHexId]?.terrain)
     ) {
       newBoardHexes[underHexId].isCap = true
     }
-  })
+  }
 }

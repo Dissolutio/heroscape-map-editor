@@ -1,6 +1,5 @@
 import type { CameraControls } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-import React from 'react'
 
 import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
@@ -52,11 +51,7 @@ export default function MapDisplay3D({
     disabled: !boardHexesArr.length || false, // for when working on camera stuff
   })
 
-  // USE EFFECT: Update viewing level when new map is loaded
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <only auto-update viewing level when map is loaded>
-  React.useEffect(() => {
-    toggleViewingLevel(maxLevel)
-  }, [hexMap.id])
+
 
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
