@@ -43,6 +43,12 @@ import type { Point } from '../types'
 export function getLaurShortWallSvgPolygonPoints(radius: number, borderWidth: number) {
   const halfBorder = borderWidth / 2
   const topX = 0
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const hexWidth = 2 * apothem
+  // Outer
+  const rightXOuter = apothem
+  const topSideYOuter = -0.5 * radius
+  const bottomSideYOuter = 0.5 * radius
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
@@ -54,10 +60,44 @@ export function getLaurShortWallSvgPolygonPoints(radius: number, borderWidth: nu
   const topSideYInner = -0.5 * radiusInner
 
   const corners: Point[] = [
-    { x: topX, y: topYInner }, // top-left of rectangle
-    { x: rightXInner, y: topSideYInner }, // top-right of rectangle
-    { x: rightXInner, y: bottomSideYInner }, //  bottom-right of rectangle
-    { x: leftXInner, y: bottomSideYInner }, // bottom-left of rectangle
+    // MORE FLUSH OPTIONS BUT LOOKS LIKE 2-HEX LAND
+    // { x: rightXOuter - borderWidth, y: topSideYOuter + (borderWidth / Math.sqrt(2)) }, // top-left of rectangle
+    // { x: apothem + borderWidth, y: topSideYOuter + (borderWidth / Math.sqrt(2)) }, // top-right of rectangle
+    // { x: apothem + borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, //  bottom-right of rectangle
+    // { x: rightXOuter - borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, // bottom-left of rectangle
+    // THIS DOES NOT LOOK LIKE RENEGADE, BUT IS MORE LEGIBLE AND DIFFERENTIATED FROM 2-HEX LAND
+    { x: rightXOuter - borderWidth, y: topSideYOuter + (borderWidth) }, // top-left of rectangle
+    { x: apothem + borderWidth, y: topSideYOuter + (borderWidth) }, // top-right of rectangle
+    { x: apothem + borderWidth, y: bottomSideYOuter - (borderWidth) }, //  bottom-right of rectangle
+    { x: rightXOuter - borderWidth, y: bottomSideYOuter - (borderWidth) }, // bottom-left of rectangle
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
+export function getLaurWallRuinSvgPolygonPoints(radius: number, borderWidth: number) {
+  const halfBorder = borderWidth / 2
+  const topX = 0
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const hexWidth = 2 * apothem
+  // Outer
+  const rightXOuter = apothem
+  const topSideYOuter = -0.5 * radius
+  const bottomSideYOuter = 0.5 * radius
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const rightXInner = apothemInner
+  const leftXInner = -apothemInner
+  const topYInner = -radiusInner
+  const bottomYInner = radiusInner
+  const bottomSideYInner = 0.5 * radiusInner
+  const topSideYInner = -0.5 * radiusInner
+
+  const corners: Point[] = [
+    { x: rightXOuter - borderWidth, y: topSideYOuter + (borderWidth) }, // top-left of triangle
+    { x: hexWidth - apothem / 2, y: -radius / 5 }, // right of triangle
+    { x: hexWidth - apothem / 2, y: radius / 5 }, // right of triangle
+    { x: rightXOuter - borderWidth, y: bottomSideYOuter - (borderWidth) }, // bottom-left of triangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }

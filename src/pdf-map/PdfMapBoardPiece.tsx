@@ -9,7 +9,7 @@ import {
   SVG_HEX_RADIUS,
 } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
-import { PdfMultiHex1 } from '../svg-map/SvgShapes'
+import { PdfBoardPieceLaurWallRuin, PdfBoardPieceLaurWallShort, PdfMultiHex1 } from '../svg-map/SvgShapes'
 
 const hexTextStyle = {
   fontSize: 0.8 * SVG_HEX_RADIUS,
@@ -20,10 +20,11 @@ export const PdfMapBoardPiece = ({
   piece,
   viewingLevel,
 }: { piece: DecodedPieceID; viewingLevel: number }) => {
+  const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
-  const isSubLevel = piece.altitude < viewingLevel
+  const isSubLevel = altitudeAdjusted < viewingLevel
   const { inventoryID } = piece
-  const isVisible = piece.altitude <= viewingLevel
+  const isVisible = altitudeAdjusted <= viewingLevel
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible) {
     return null
@@ -36,11 +37,20 @@ export const PdfMapBoardPiece = ({
 
   // LAUR SHORTWALLS
   if (
-    inventoryID === Pieces.laurWallPillar
+    inventoryID === Pieces.laurWallShort
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <PdfBoardPieceLaurWallShort piece={piece} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
+  if (
+    inventoryID === Pieces.laurWallRuin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfBoardPieceLaurWallRuin piece={piece} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -58,9 +68,7 @@ export const PdfMapBoardPiece = ({
     //   />
     // )} */}
     <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-      {/* Empty Hexes and Unknown */}
       {/* <PdfMultiHex1 hex={hex} /> */}
     </G>
   )
 }
-

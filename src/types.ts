@@ -335,4 +335,5 @@ export type DecodedPieceID = {
   rotation: number
   boardHexID: string
   pieceCoords: CubeCoordinate
+  terrain: string
 }

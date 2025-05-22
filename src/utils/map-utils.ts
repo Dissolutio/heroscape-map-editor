@@ -21,6 +21,7 @@ import {
   hexUtilsGetNeighborForRotation,
   hexUtilsGetRadialFarNeighborForRotation,
 } from './hex-utils'
+import { piecesSoFar } from '../data/pieces'
 
 export const getBoardHexesRectangularMapDimensions = (
   boardHexes: BoardHexes,
@@ -221,6 +222,7 @@ export function decodePieceID(aqrrID: string): DecodedPieceID {
   const s = -q - r
   const rotation = Number.parseFloat(parsed[3])
   const inventoryID = parsed[4]
+  const terrain = piecesSoFar[inventoryID]?.terrain ?? 'empty'
   const pieceCoords = { q, r, s }
   return {
     inventoryID,
@@ -228,7 +230,8 @@ export function decodePieceID(aqrrID: string): DecodedPieceID {
     rotation,
     boardHexID: genBoardHexID({ ...pieceCoords, altitude }),
     pieceCoords,
-    boardPieceID: aqrrID
+    boardPieceID: aqrrID,
+    terrain
   }
 }
 export function genBoardHexID(hex: CubeCoordinate & { altitude: number }) {
