@@ -4,6 +4,7 @@ import type {
   BoardHexes,
   BoardPieces,
   CubeCoordinate,
+  DecodedPieceID,
 } from '../types'
 import {
   HEXGRID_HEXCAP_FLUID_HEIGHT,
@@ -63,7 +64,7 @@ export const getBoardHexesRectangularMapDimensions = (
     ((hexLength === 1
       ? 2 * HEXGRID_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-        3 * HEXGRID_HEX_APOTHEM) +
+      3 * HEXGRID_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * HEXGRID_HEX_APOTHEM) /
     HEXGRID_SPACING
   const apex =
@@ -112,7 +113,7 @@ export const getBoardHexesSvgMapDimensions = (
     ((hexLength === 1
       ? 2 * SVG_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-        3 * SVG_HEX_APOTHEM) +
+      3 * SVG_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * SVG_HEX_APOTHEM) /
     HEXGRID_SPACING
   return { length, width, hexLength, hexWidth }
@@ -212,7 +213,7 @@ export function genPieceID(
 ) {
   return `${boardHexID}~${rotation}~${pieceID}`
 }
-export function decodePieceID(aqrrID: string) {
+export function decodePieceID(aqrrID: string): DecodedPieceID {
   const parsed = aqrrID.split('~')
   const altitude = Number.parseInt(parsed[0])
   const q = Number.parseInt(parsed[1])
@@ -227,6 +228,7 @@ export function decodePieceID(aqrrID: string) {
     rotation,
     boardHexID: genBoardHexID({ ...pieceCoords, altitude }),
     pieceCoords,
+    boardPieceID: aqrrID
   }
 }
 export function genBoardHexID(hex: CubeCoordinate & { altitude: number }) {

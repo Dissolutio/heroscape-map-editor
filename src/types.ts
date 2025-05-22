@@ -323,3 +323,16 @@ export type VirtualScapeTile = {
     name: string
   }
 }
+export type PdfMapAltitudeChunk = {
+  altitude: number
+  hexes: BoardHex[]
+  pieces: DecodedPieceID[]
+}
+export type DecodedPieceID = {
+  boardPieceID: string
+  inventoryID: string
+  altitude: number
+  rotation: number
+  boardHexID: string
+  pieceCoords: CubeCoordinate
+}

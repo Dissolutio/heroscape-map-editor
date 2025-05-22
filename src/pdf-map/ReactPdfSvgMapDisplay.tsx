@@ -1,14 +1,15 @@
 import { G, Line, Svg } from '@react-pdf/renderer'
-import type { BoardHex } from '../types'
+import type { BoardHex, DecodedPieceID, PdfMapAltitudeChunk } from '../types'
 import { OPACITY_SUBLEVEL, SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { PdfMapHex } from './PdfMapHex'
 
 type ReactPdfSvgMapDisplayProps = {
   width: number
   length: number
-  // levelHexArr: BoardHex[]
   boardHexesArr: BoardHex[]
+  boardPiecesArr: DecodedPieceID[]
   viewingLevel: number
+  chunk?: PdfMapAltitudeChunk
 }
 
 export const ReactPdfSvgMapDisplay = ({
@@ -16,6 +17,7 @@ export const ReactPdfSvgMapDisplay = ({
   length,
   boardHexesArr,
   viewingLevel,
+  chunk
 }: ReactPdfSvgMapDisplayProps) => {
   const emptyHexesArr = boardHexesArr.filter((hex) => hex.terrain === 'empty')
   const nonEmptyHexesArr = boardHexesArr.filter((hex) => hex.terrain !== 'empty')
@@ -31,13 +33,11 @@ export const ReactPdfSvgMapDisplay = ({
       {emptyHexesArr.map((hex) => (
         <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
       ))}
-      <G opacity={OPACITY_SUBLEVEL}>
-        {subLevelHexes
-          .sort((a, b) => a.altitude - b.altitude)
-          .map((hex) => (
-            <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
-          ))}
-      </G>
+      {subLevelHexes
+        .sort((a, b) => a.altitude - b.altitude)
+        .map((hex) => (
+          <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
+        ))}
       {nonEmptyHexesArr
         .filter((h) => h.altitude === viewingLevel)
         .map((hex) => (

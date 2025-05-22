@@ -1,24 +1,6 @@
-import { Circle, G, Polygon, Text } from '@react-pdf/renderer'
+import { G, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
-import {
-  get24HexSvgPolygonPointsAt00,
-  get2HexSvgPolygonPointsAt00,
-  get3HexStraightSvgPolygonPointsAt00,
-  get3HexSvgPolygonPointsAt00,
-  get4HexSvgPolygonPointsAt00,
-  get5HexStraightSvgPolygonPointsAt00,
-  get6HexSvgPolygonPointsAt00,
-  get7HexSvgPolygonPointsAt00,
-  get7HexWallWalkSvgPolygonPointsAt00,
-  get9HexWallWalkSvgPolygonPointsAt00,
-  getHexagonSvgPolygonPointsAt00,
-  getMarvel6HexSvgPolygonPointsAt00,
-} from '../svg-map/getHexagonSvgPolygonPoints'
-import {
-  getSvgHexBorderColor,
-  getSvgHexFillColor,
-} from '../svg-map/getSvgHexColors'
-import { type BoardHex, HexTerrain, Pieces } from '../types'
+import { type BoardHex, Pieces } from '../types'
 import {
   isCastleTerrain,
   isEvergreenTree,
@@ -28,10 +10,7 @@ import {
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import {
-  OPACITY_EMPTY,
   OPACITY_SUBLEVEL,
-  SVG_BORDER_WIDTH,
-  SVG_EMPTYHEX_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
@@ -56,7 +35,6 @@ export const PdfMapHex = ({
 }: { hex: BoardHex; viewingLevel: number }) => {
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
-  // console.log("🚀 ~ isSubLevel, hex:", viewingLevel, isSubLevel, hex)
   const { inventoryID } = decodePieceID(hex.pieceID)
   const isObstaclePiece = isObstaclePieceID(inventoryID)
   const isAuxiliaryNotRenderedIn2D = isObstaclePiece && (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
@@ -64,7 +42,6 @@ export const PdfMapHex = ({
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
   const pieceHeightText = piecesSoFar[inventoryID]?.height
-
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
     return null
@@ -156,14 +133,14 @@ export const PdfMapHex = ({
       </G>
     )
   }
-  // LAUR PILLARS
+  // LAUR PILLARS and SINGLE LAND
   if (
     inventoryID === Pieces.laurWallPillar ||
     (isLandHex && piecesSoFar[inventoryID].size === 1)
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 hex={hex} />
+        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
