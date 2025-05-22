@@ -8,8 +8,6 @@ import {
 import { getBoardHexesSvgMapDimensions } from '../utils/map-utils'
 import { SvgMapHex } from './SvgMapHex'
 
-// const adjustXForNew00Centers = 0
-// const adjustYForNew00Centers = 0
 const adjustXForNew00Centers = -1 * SVG_HEX_APOTHEM
 const adjustYForNew00Centers = -1 * SVG_HEX_RADIUS
 
@@ -21,7 +19,6 @@ export const SvgMapDisplay = () => {
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
   ).sort((a, b) => a.altitude - b.altitude)
 
-  // const svgRef = useRef<SVGSVGElement>(null)
   const [viewBox, setViewBox] = useState({
     x: adjustXForNew00Centers,
     y: adjustYForNew00Centers,
@@ -42,35 +39,6 @@ export const SvgMapDisplay = () => {
     })
   }, [boardHexes, hexMap.id])
 
-  // const onPointerDown = (event: React.PointerEvent) => {
-  //   isPointerDown.current = true
-  //   pointerOrigin.current = { x: event.clientX, y: event.clientY }
-  // }
-
-  // const onPointerMove = (event: React.PointerEvent) => {
-  //   if (!isPointerDown.current) return
-
-  //   const svg = svgRef.current
-  //   if (!svg) return
-  //   event.preventDefault()
-  //   const pointerPosition = { x: event.clientX, y: event.clientY }
-  //   const dx = pointerPosition.x - pointerOrigin.current.x
-  //   const dy = pointerPosition.y - pointerOrigin.current.y
-
-  //   const ratio = viewBox.width / svg.getBoundingClientRect().width
-
-  //   setViewBox((prev) => ({
-  //     ...prev,
-  //     x: prev.x - dx * ratio,
-  //     y: prev.y - dy * ratio,
-  //   }))
-
-  //   pointerOrigin.current = pointerPosition
-  // }
-
-  // const onPointerUp = () => {
-  //   isPointerDown.current = false
-  // }
 
   return (
     <svg
@@ -79,14 +47,10 @@ export const SvgMapDisplay = () => {
       viewBox={viewboxStr}
       style={{
         // height: '99%',
-        maxHeight: '100%',
-        // width: '100%',
+        maxHeight: '99%',
+        width: '100%',
         overflow: 'auto',
       }}
-    // onPointerDown={onPointerDown}
-    // onPointerMove={onPointerMove}
-    // onPointerUp={onPointerUp}
-    // onPointerLeave={onPointerUp}
     >
       <title>2D Map Display</title>
 
