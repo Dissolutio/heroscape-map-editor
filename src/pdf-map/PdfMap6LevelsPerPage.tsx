@@ -15,7 +15,7 @@ import {
 } from '../utils/map-utils'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 
-export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
+export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces, hexMap }: MapState) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesWithoutEmpties = keyBy(
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
@@ -38,6 +38,16 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
             maxHeight: '100vh',
           }}
         >
+          {i === 0 && (
+            <>
+              <Text style={{ fontSize: '20px', alignSelf: 'center' }}>
+                {hexMap.name}
+              </Text>
+              <Text style={{ fontSize: '16px', alignSelf: 'center' }}>
+                by: dissolutio
+              </Text>
+            </>
+          )}
           <View
             style={{
               flexDirection: 'row',
