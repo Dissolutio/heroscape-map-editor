@@ -78,14 +78,14 @@ export default function CreateMapFormDialog() {
     const newMap =
       mapShape === 'rectangle'
         ? makeRectangleScenario({
-            mapName,
-            width: mapWidth,
-            length: mapLength,
-          })
+          mapName,
+          width: mapWidth,
+          length: mapLength,
+        })
         : makeHexagonScenario({
-            mapName,
-            size: mapSize,
-          })
+          mapName,
+          size: mapSize,
+        })
     loadMap(newMap)
     clearUndoHistory()
     navigate(ROUTES.heroscapeHome)
@@ -102,13 +102,15 @@ export default function CreateMapFormDialog() {
         onClose={handleClose}
         fullScreen={fullScreen}
         fullWidth={!fullScreen}
-        PaperProps={{
-          component: 'form',
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault()
-            handleSubmit()
-            handleClose()
-          },
+        slotProps={{
+          paper: {
+            component: 'form',
+            onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+              event.preventDefault()
+              handleSubmit()
+              handleClose()
+            },
+          }
         }}
       >
         <DialogTitle>New Map</DialogTitle>
