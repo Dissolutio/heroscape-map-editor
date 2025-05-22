@@ -11,14 +11,12 @@ import ObstacleBase from './ObstacleBase'
 
 type Props = {
   boardHex: BoardHex
-  underHexTerrain: string
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }
 
 // These were made after the castle walls and are VERY SIMILAR. TODO: DRY
 export default function CastleBases({
   boardHex,
-  underHexTerrain,
   onPointerUp,
 }: Props) {
   const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any

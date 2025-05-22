@@ -24,6 +24,7 @@ function hexesToEmptyBoardHexes(hexgridHexes: CubeCoordinate[]): BoardHexes {
         terrain: HexTerrain.empty,
         altitude: 0,
         pieceID: '',
+        inventoryID: '',
         pieceRotation: 0,
         isCap: true,
       }

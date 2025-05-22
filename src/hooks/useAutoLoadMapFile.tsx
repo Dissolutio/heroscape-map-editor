@@ -12,7 +12,7 @@ type Props = {
   boardHexes?: BoardHexes
 }
 
-const useAutoLoadMapFile = (props: Props) => {
+const useAutoLoadMapFile = (props?: Props) => {
   const loadMap = useBoundStore((s) => s.loadMap)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const hexMap = useBoundStore((s) => s.hexMap)
@@ -93,7 +93,7 @@ const useAutoLoadMapFile = (props: Props) => {
       fetch(fileName).then(async (response) => {
         // const data = response.json()
         const data = await response.json()
-        if (props.boardHexes) {
+        if (props?.boardHexes) {
           loadMap({
             boardHexes: props.boardHexes,
             boardPieces: data.boardPieces,
@@ -108,7 +108,7 @@ const useAutoLoadMapFile = (props: Props) => {
         }
         enqueueSnackbar({
           // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
-          message: `WELCOME!`,
+          message: 'WELCOME!',
           variant: 'success',
           autoHideDuration: 5000,
         })

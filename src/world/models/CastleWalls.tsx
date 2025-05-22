@@ -14,11 +14,10 @@ import ObstacleBase from './ObstacleBase'
 
 type Props = {
   boardHex: BoardHex
-  underHexTerrain: string
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }
 
-export function CastleWall({ boardHex, underHexTerrain, onPointerUp }: Props) {
+export function CastleWall({ boardHex, onPointerUp }: Props) {
   const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
   const [capColor, setCapColor] = React.useState(
     hexTerrainColor[HexTerrain.castle],

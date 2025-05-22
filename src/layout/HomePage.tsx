@@ -1,7 +1,6 @@
 import { Drawer, useMediaQuery } from '@mui/material'
 import React from 'react'
 import Controls from '../controls/Controls'
-import { shatteredTableBoardHexes } from '../data/shatteredTableBoardHexes'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
 import { ReactPdfRoot } from '../pdf-map/ReactPdfRoot'
 import { SvgMapDisplay } from '../svg-map/SvgMapDisplay'
@@ -14,11 +13,11 @@ import { HeaderNav } from './HeaderNav'
 import { LoadMapInputs } from './LoadMapButtons'
 
 export default function HomePage() {
-  const cameraControlsRef = React.useRef(undefined!)
+  const cameraControlsRef = React.useRef(null)
 
   // https://robohash.org/you.png?size=200x200
   // USE EFFECT: automatically load up map from URL, OR from file
-  useAutoLoadMapFile({ boardHexes: shatteredTableBoardHexes })
+  useAutoLoadMapFile()
 
   // MUI BREAKPOINTS
   //   xs, extra-small: 0px
