@@ -40,6 +40,28 @@ import type { Point } from '../types'
 //   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
 //   return { points, corners }
 // }
+export function getLaurShortWallSvgPolygonPoints(radius: number, borderWidth: number) {
+  const halfBorder = borderWidth / 2
+  const topX = 0
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const rightXInner = apothemInner
+  const leftXInner = -apothemInner
+  const topYInner = -radiusInner
+  const bottomYInner = radiusInner
+  const bottomSideYInner = 0.5 * radiusInner
+  const topSideYInner = -0.5 * radiusInner
+
+  const corners: Point[] = [
+    { x: topX, y: topYInner }, // top-left of rectangle
+    { x: rightXInner, y: topSideYInner }, // top-right of rectangle
+    { x: rightXInner, y: bottomSideYInner }, //  bottom-right of rectangle
+    { x: leftXInner, y: bottomSideYInner }, // bottom-left of rectangle
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
 export function getHexagonSvgPolygonPointsAt00(radius: number, borderWidth: number) {
   const halfBorder = borderWidth / 2
   const topX = 0

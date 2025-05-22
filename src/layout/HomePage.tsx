@@ -33,7 +33,7 @@ export default function HomePage() {
   const toggleIsNavOpen = (s: boolean) => {
     setIsNavOpen(s)
   }
-  const [isPdfOpen, setIsPdfOpen] = React.useState(false)
+  const [isPdfOpen, setIsPdfOpen] = React.useState(true)
   const toggleIsPdfOpen = (s: boolean) => {
     setIsPdfOpen(s)
   }
