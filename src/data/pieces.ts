@@ -48,6 +48,28 @@ export const getPieceByTerrainAndSize = (terrain: string, size: number) => {
 //   wallWalk: 'Wall Walk',
 // }
 export const piecesSoFar: Dictionary<Piece> = {
+  [Pieces.glyphPower]: {
+    id: Pieces.glyphPower,
+    title: 'Power Glyph',
+    terrain: HexTerrain.glyph,
+    landPrefix: PiecePrefixes.glyph,
+    isHexTerrainPiece: false,
+    isObstaclePiece: true,
+    size: 1,
+    template: '1',
+    height: 0,
+  },
+  [Pieces.glyphTreasure]: {
+    id: Pieces.glyphTreasure,
+    title: 'Treasure Glyph',
+    terrain: HexTerrain.glyph,
+    landPrefix: PiecePrefixes.glyph,
+    isHexTerrainPiece: false,
+    isObstaclePiece: true,
+    size: 1,
+    template: '1',
+    height: 0,
+  },
   [Pieces.grass1]: {
     id: Pieces.grass1,
     title: 'Grass-1',

@@ -96,6 +96,7 @@ export const MapHex3D = ({
   const isSwampBrushHex =
     boardHex.terrain === HexTerrain.swampBrush && boardHex.isObstacleOrigin
   const isGlacier1Hex = pieceID === Pieces.glacier1 && isObstacleHex
+  const isGlyphHex = pieceID === Pieces.glyphPower || pieceID === Pieces.glyphPower
   const isOutcrop1Hex = pieceID === Pieces.outcrop1 && isObstacleHex
   const isOutcrop3Hex = pieceID === Pieces.outcrop3 && boardHex.isObstacleOrigin
   const isOutcrop3BaseHex =
@@ -285,6 +286,25 @@ export const MapHex3D = ({
               <TicallaPalm boardHex={boardHex} />
             </group>
           </Suspense>
+        )}
+        {isGlyphHex && (
+          <>
+            <Suspense fallback={<ModelLoader />}>
+              <group
+                position={[x, yWithBase, z]}
+                rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
+              >
+                <Outcrop1 isGlacier={true} boardHex={boardHex} />
+              </group>
+            </Suspense>
+            <ObstacleBase
+              x={x}
+              y={yBase}
+              z={z}
+              color={hexTerrainColor[HexTerrain.ice]}
+              isFluidBase={true}
+            />
+          </>
         )}
         {isGlacier1Hex && (
           <>

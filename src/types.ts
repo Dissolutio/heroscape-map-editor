@@ -276,7 +276,8 @@ export enum Pieces {
   castleWallEnd = `${PiecePrefixes.castleWall}e`,
   castleArch = `${PiecePrefixes.castleArch}`,
   castleArchNoDoor = `${PiecePrefixes.castleArch}b`, //b broken, like marvel
-  glyphHaukeland = `${PiecePrefixes.glyph}1`, // WIP glyphs
+  glyphPower = `${PiecePrefixes.glyph}0`, // WIP glyphs
+  glyphTreasure = `${PiecePrefixes.glyph}1`,
 }
 export type AddRemovePieceError = undefined | { message?: string, error?: any }
 export type VirtualScapeMap = {
