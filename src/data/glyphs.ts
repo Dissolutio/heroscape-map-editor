@@ -10,33 +10,10 @@ type HexoscapeGlyphs = {
   }
 }
 
-/* 
-AOA GLYPHS
-Permanent
-// Brandar
-// Dagmar init +8
-
-Glyph of Rannveig (Wind): All figures with the Flying Special Power lose this power and cannot Fly while a figure is standing on the Glyph of Rannveig.
-
-Glyph of Xenithrax Vines (Vines): If a Huge figure moves onto this Glyph, this Glyph is immediately removed from the battlefield and that figure may continue its movement. Figures standing on this Glyph roll 1 fewer attack die and 2 fewer defense dice. When a figure on this Glyph moves off of the Glyph, roll one attack die. If you roll a skull, that figure takes one wound. Remove this Glyph from the battlefield after a figure moves off of it, or at the end of the round if a figure is standing on it.
-
-Glyph of Yadulkia (Disengage): Your figures are never attacked when leaving an engagement.
-
-Temporary
-Glyph of Felaron (Glyph Removal) Remove any other Glyph from the battlefield.
-Glyph of Haukeland (Healing) When one of your figures stops here, you may remove up to 3 Wound Markers from across any of your Army Cards.
-Glyph of Mitonsoul (Massive Curse): When a figure lands on this Glyph, all players must roll the 20 sided die for all their own figures. If a 1 is rolled, than that figure is destroyed. On a 2 or higher, that figure is safe.
-Glyph of Quillivon (Sudden Movement): Choose up to 3 of your figures other than the one on this Glyph. You may move each of the chosen figures up to 5 spaces.
-*/
 
 export const powerGlyphs: HexoscapeGlyphs = {
   // TEMPORARY GLYPHS
-  // Glyph of St
-  //  Glyph of Felaron (Glyph Removal): Remove any other Glyph from the battlefield.
-  //  Glyph of Yadulkia (Disengage): Your figures are never attacked when leaving an engagement.
-  // Glyph of Xenithrax Vines (Vines): If a Huge figure moves onto this Glyph, this Glyph is immediately removed from the battlefield and that figure may continue its movement. Figures standing on this Glyph roll 1 fewer attack die and 2 fewer defense dice. When a figure on this Glyph moves off of the Glyph, roll one attack die. If you roll a skull, that figure takes one wound. Remove this Glyph from the battlefield after a figure moves off of it, or at the end of the round if a figure is standing on it.
-  // Glyph of Haukeland (Healing): When one of your figures stops here, you may remove up to 3 Wound Markers from across any of your Army Cards.
-  healing: {
+  healing: { // Haukeland
     id: 'haukeland',
     name: 'Quillivon (Sudden Movement)',
     shortName: 'Sudden Movement',
@@ -45,7 +22,7 @@ export const powerGlyphs: HexoscapeGlyphs = {
     effect: 'Move 3 figures',
     description: `Choose up to 3 of your figures other than the one on this Glyph. You may move each of the chosen figures up to 5 spaces.`,
   },
-  suddenMovement: {
+  suddenMovement: { // Quillivon
     id: 'quillivon',
     name: 'Quillivon (Sudden Movement)',
     shortName: 'Sudden Movement',
@@ -54,7 +31,7 @@ export const powerGlyphs: HexoscapeGlyphs = {
     effect: 'Move 3 figures',
     description: `Choose up to 3 of your figures other than the one on this Glyph. You may move each of the chosen figures up to 5 spaces.`,
   },
-  removal: {
+  removal: { // Felaron
     id: 'felaron',
     name: 'Felaron',
     shortName: 'Removal',
@@ -64,7 +41,7 @@ export const powerGlyphs: HexoscapeGlyphs = {
     description: `Remove any other Glyph from the battlefield.`,
   },
   // CLASSIC TEMPORARY
-  objective: {
+  objective: { // Brandar
     id: 'objective',
     name: 'Brandar',
     shortName: 'Objective',
@@ -73,7 +50,7 @@ export const powerGlyphs: HexoscapeGlyphs = {
     effect: 'Artifact',
     description: 'The rules of this Glyph vary, depending on the Scenario.',
   },
-  summoner: {
+  summoner: { // Erland
     id: 'summoner',
     name: 'Erland',
     shortName: 'Summoner',
@@ -82,7 +59,7 @@ export const powerGlyphs: HexoscapeGlyphs = {
     effect: 'Summon figure',
     description: `When a figure lands on this Glyph, choose any one figure (yours, a teammate's or an opponent's) and to place on an adjacent space.`,
   },
-  healer: {
+  healer: { // Kelda
     id: 'healer',
     name: 'Kelda',
     shortName: 'Healer',
@@ -92,7 +69,7 @@ export const powerGlyphs: HexoscapeGlyphs = {
     description:
       'When a Hero you control lands on this Glyph, remove all wound markers from it. If a Squad figure lands here, nothing happens.',
   },
-  curse: {
+  curse: { // Mitonsoul
     id: 'curse',
     name: 'Mitonsoul',
     shortName: 'Curse',
@@ -104,7 +81,7 @@ opponents’), roll the 20-sided die. If you roll a 1,
 the figure is destroyed. If you roll 2 through 20,
 the figure is safe.`,
   },
-  revive: {
+  revive: { // Sturla
     id: 'revive',
     name: 'Sturla',
     shortName: 'Revive',
@@ -114,7 +91,7 @@ the figure is safe.`,
     description: `When a figure lands on this Glyph, both players must roll the 20 sided die for all of their previously destroyed figures. If a 19 or 20 is rolled, than that figure is placed on any starting zone.`,
   },
   negation: {
-    // Nilrend (Negation): When one of your figures stops here, you may choose any opponent's Unique Army Card. Roll the 20-sided die. If you roll a 1 - 4, nothing happens. If you roll a 5 - 20, place the Gold Negation Marker on the chosen figure's Army Card. All of that figure's special powers are negated for the rest of the game.
+    // Nilrend (Negation): When one of your figures stops here, you may choose any opponent's Unique Army Card. Roll the 20-sided die. If you roll a 1 - 4, nothing happens. If you roll a 5 - 20, place the Gold Negation Marker on the chosen figure's Army Card. All of that figure's special powers are negated for the rest of the game. // Nilrend
     id: 'negation',
     name: 'Nilrend',
     shortName: 'Negation',
@@ -123,7 +100,16 @@ the figure is safe.`,
     effect: 'Negation',
     description: `When one of your figures stops here, you may choose any opponent's Unique Army Card. Roll the 20-sided die. If you roll a 1 - 4, nothing happens. If you roll a 5 - 20, place the Gold Negation Marker on the chosen figure's Army Card. All of that figure's special powers are negated for the rest of the game.`,
   },
-  interceptOrder: {
+  xenithraxVines: { // Oreld
+    id: 'xenithraxVines',
+    name: 'Xenithrax Vines',
+    shortName: 'Vines',
+    glyphLetter: 'XV',
+    type: 'temporary',
+    effect: 'Xenithrax Vines',
+    description: 'If a Huge figure moves onto this Glyph, this Glyph is immediately removed from the battlefield and that figure may continue its movement. Figures standing on this Glyph roll 1 fewer attack die and 2 fewer defense dice. When a figure on this Glyph moves off of the Glyph, roll one attack die. If you roll a skull, that figure takes one wound. Remove this Glyph from the battlefield after a figure moves off of it, or at the end of the round if a figure is standing on it.',
+  },
+  interceptOrder: { // Oreld
     id: 'interceptOrder',
     name: 'Oreld',
     shortName: 'Intercept Order',
@@ -133,7 +119,7 @@ the figure is safe.`,
     description: `When one of your figures stops here, roll the 20-sided die. If you roll a 1 - 9, nothing happens. If your roll a 10 - 20, you may remove one random unrevealed Order Marker from an opponent's Army Card.`,
   },
   // PERMANENT GLYPHS
-  attack: {
+  attack: { // Astrid
     id: 'attack',
     name: 'Astrid',
     shortName: 'Attack +1',
@@ -143,7 +129,7 @@ the figure is safe.`,
     description:
       'Add one die to your attack roll when any figure in your army uses a Normal Attack',
   },
-  defense: {
+  defense: { // Gerda
     id: 'defense',
     name: 'Gerda',
     shortName: 'Defense +1',
@@ -153,7 +139,7 @@ the figure is safe.`,
     description:
       'Add one die to your Defense Roll when any figure in your army is attacked.',
   },
-  move: {
+  move: { // Valda
     id: 'move',
     name: 'Valda',
     shortName: 'Move +2',
@@ -163,7 +149,7 @@ the figure is safe.`,
     description:
       'Add 2 to the Move Number stated on every Army Card in your army.',
   },
-  range: {
+  range: { // Ivor
     id: 'range',
     name: 'Ivor',
     shortName: 'Range +4',
@@ -173,7 +159,7 @@ the figure is safe.`,
     description:
       'Add 4 to the Range limit of every Army Card in your army which already had a Range of 4 or more.',
   },
-  initiative: {
+  initiative: { // Dagmar
     id: 'initiative',
     name: 'Dagmar',
     shortName: 'Initiative +8',
@@ -183,7 +169,7 @@ the figure is safe.`,
     description:
       'Add 8 to your Initiative Roll at the beginning of the next Round.',
   },
-  defense2: {
+  defense2: { // Jalgard
     id: 'defense2',
     name: 'Jalgard',
     shortName: 'Defense +2',
@@ -193,7 +179,7 @@ the figure is safe.`,
     description:
       'Add two dice to your Defense Roll when any figure in your army is attacked.',
   },
-  lucky1: {
+  lucky1: { // Lodin
     id: 'lucky1',
     name: 'Lodin',
     shortName: 'Lucky 20-Sider',
@@ -203,7 +189,7 @@ the figure is safe.`,
     description:
       'Whenever you roll the 20 sided die, you may add one to your die roll.',
   },
-  wind: {
+  wind: { // Rannveig
     id: 'wind',
     name: 'Rannveig',
     shortName: 'Wind',
@@ -213,7 +199,7 @@ the figure is safe.`,
     description:
       "When a figure is on this Glyph, no figure may use the 'Flying' power. This includes figures in your own army was well as figures on the other player's team.",
   },
-  commonAttack: {
+  commonAttack: { // Crevcor
     id: 'commonAttack',
     name: 'Crevcor',
     shortName: 'Common Attack +1',
@@ -223,7 +209,7 @@ the figure is safe.`,
     description:
       'All Common Figures in your army may add one additional attack die when attacking normally.',
   },
-  thorian: {
+  thorian: { // Thorian
     id: 'thorian',
     name: 'Thorian',
     shortName: 'Thorian',
@@ -233,7 +219,7 @@ the figure is safe.`,
     description:
       "All opponents' figures must be adjacent to your figures to attack your figures with a normal attack.",
   },
-  pitTrap: {
+  pitTrap: { // Proftaka
     id: 'pitTrap',
     name: 'Proftaka',
     shortName: 'Pit Trap',
@@ -243,7 +229,7 @@ the figure is safe.`,
     description:
       'Your figure is trapped. The trapped figure cannot move from this space. The figure can move off the Proftaka only if a friendly figure occupies an adjacent space.',
   },
-  uniqueAttack: {
+  uniqueAttack: { // Ulaniva
     id: 'uniqueAttack',
     name: 'Ulaniva',
     shortName: 'Unique Attack +1',
@@ -253,7 +239,7 @@ the figure is safe.`,
     description:
       'All Unique Figures in your army may add one extra attack die when attacking normally.',
   },
-  wound: {
+  wound: { // Wannok
     id: 'wound',
     name: 'Wannok',
     shortName: 'Wound',
@@ -262,6 +248,16 @@ the figure is safe.`,
     effect: 'Wound',
     description:
       'At the end of every round, roll the 20-sided die. If you roll a 1, the figure on the Glyph receives one wound. If you roll a 2 or higher, you may choose an opponent who must give one wound to any figure he or she controls on the battlefield.',
+  },
+  disengage: { // Yadulkia
+    id: 'disengage',
+    name: 'Yadulkia',
+    shortName: 'Yadulkia',
+    glyphLetter: 'Y',
+    type: 'power',
+    effect: 'Disengage',
+    description:
+      'Your figures are never attacked when leaving an engagement.',
   },
 }
 
