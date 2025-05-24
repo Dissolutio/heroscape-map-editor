@@ -66,11 +66,17 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces, hexMap }: MapSta
                   />
                 </Svg>
               </View> */}
-              <Text style={{ fontSize: '12px', alignSelf: 'center' }}>
+              <Text style={{ fontSize: '12px', alignSelf: 'center', padding: 5 }}>
                 by: dissolutio
               </Text>
-              <Text style={{ fontSize: '14px', alignSelf: 'center' }}>
-                Uses: 1xAoA, 1xSoV, 1xGaLE
+              <Text style={{ fontSize: '14px', alignSelf: 'center', padding: 5 }}>
+                Uses: Battle for the Wellspring (1xBftW)
+              </Text>
+              <Text style={{ fontSize: '14px', alignSelf: 'center', padding: 5 }}>
+                For 3 players
+              </Text>
+              <Text style={{ fontSize: '14px', alignSelf: 'center', padding: 5 }}>
+                The first time a unit moves into battle, they must exit the water space and never return.
               </Text>
             </View>
           )}
