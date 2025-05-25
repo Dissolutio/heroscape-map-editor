@@ -73,7 +73,7 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces, hexMap }: MapSta
                 Uses: Battle for the Wellspring (1xBftW)
               </Text>
               <Text style={{ fontSize: '14px', alignSelf: 'center', padding: 5 }}>
-                For 3 players
+                For 3 players (300 - 500 points each) (2 Permenant Power Glyphs)
               </Text>
               <Text style={{ fontSize: '14px', alignSelf: 'center', padding: 5 }}>
                 The first time a unit moves into battle, they must exit the water space and never return.

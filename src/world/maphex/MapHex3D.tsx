@@ -5,6 +5,7 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../../utils/board-utils'
 import {
+  HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
   HEXGRID_HEX_HEIGHT,
@@ -96,7 +97,8 @@ export const MapHex3D = ({
   const isSwampBrushHex =
     boardHex.terrain === HexTerrain.swampBrush && boardHex.isObstacleOrigin
   const isGlacier1Hex = pieceID === Pieces.glacier1 && isObstacleHex
-  const isGlyphHex = pieceID === Pieces.glyphPower || pieceID === Pieces.glyphPower
+  const isPowerGlyphHex = pieceID === Pieces.glyphPower
+  const isTreasureGlyphHex = pieceID === Pieces.glyphTreasure
   const isOutcrop1Hex = pieceID === Pieces.outcrop1 && isObstacleHex
   const isOutcrop3Hex = pieceID === Pieces.outcrop3 && boardHex.isObstacleOrigin
   const isOutcrop3BaseHex =
@@ -287,24 +289,41 @@ export const MapHex3D = ({
             </group>
           </Suspense>
         )}
-        {isGlyphHex && (
-          <>
-            <Suspense fallback={<ModelLoader />}>
-              <group
-                position={[x, yWithBase, z]}
-                rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
-              >
-                <Outcrop1 isGlacier={true} boardHex={boardHex} />
-              </group>
-            </Suspense>
-            <ObstacleBase
-              x={x}
-              y={yBase}
-              z={z}
-              color={hexTerrainColor[HexTerrain.ice]}
-              isFluidBase={true}
+        {/* POWER GLYPHS */}
+        {isPowerGlyphHex && (
+          <mesh position={[x, y, z]}>
+            <cylinderGeometry args={[
+              0.9,
+              0.997,
+              HEXGRID_HEXCAP_FLUID_HEIGHT * 3,
+              6,
+              undefined,
+              false,
+              undefined,
+              undefined,
+            ]} />
+            <meshMatcapMaterial
+              color={'#830C0C'}
             />
-          </>
+          </mesh>
+        )}
+        {/* TREASURE GLYPHS */}
+        {isTreasureGlyphHex && (
+          <mesh position={[x, y, z]}>
+            <cylinderGeometry args={[
+              0.9,
+              0.997,
+              HEXGRID_HEXCAP_FLUID_HEIGHT * 3,
+              6,
+              undefined,
+              false,
+              undefined,
+              undefined,
+            ]} />
+            <meshMatcapMaterial
+              color={'#BC8224'}
+            />
+          </mesh>
         )}
         {isGlacier1Hex && (
           <>

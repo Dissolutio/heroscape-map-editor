@@ -46,8 +46,8 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-            flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
-          )
+          flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
+        )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -55,11 +55,11 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-            flatPieceSizes?.[3] ??
-              flatPieceSizes?.[2] ??
-              flatPieceSizes?.[1] ??
-              flatPieceSizes[0],
-          )
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
+        )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -67,12 +67,12 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-            flatPieceSizes?.[4] ??
-              flatPieceSizes?.[3] ??
-              flatPieceSizes?.[2] ??
-              flatPieceSizes?.[1] ??
-              flatPieceSizes[0],
-          )
+          flatPieceSizes?.[4] ??
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
+        )
         : noop() /*isEnabled*/,
   )
   useHotkeys('z', () => togglePenMode('select') /*isEnabled*/)
@@ -414,6 +414,20 @@ export default function PenModeControls() {
             <GiCastle />
           </ListItemIcon>
           <span>Wall Walk</span>
+        </MenuItem>
+
+        {/* GLYPHS */}
+        <MenuItem value={Pieces.glyphPower}>
+          <ListItemIcon>
+            <GiCastle />
+          </ListItemIcon>
+          <span>Power Glyph</span>
+        </MenuItem>
+        <MenuItem value={Pieces.glyphTreasure}>
+          <ListItemIcon>
+            <GiCastle />
+          </ListItemIcon>
+          <span>Treasure Glyph</span>
         </MenuItem>
 
         {/* <Divider /> */}

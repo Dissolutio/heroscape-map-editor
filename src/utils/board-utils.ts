@@ -68,7 +68,9 @@ export function isObstaclePieceID(id: string) {
     id === Pieces.glacier3 ||
     id === Pieces.glacier4 ||
     id === Pieces.glacier6 ||
-    id === Pieces.hive
+    id === Pieces.hive ||
+    id === Pieces.glyphPower ||
+    id === Pieces.glyphTreasure
 
 }
 export function isBridgingObstaclePieceID(id: string) {
