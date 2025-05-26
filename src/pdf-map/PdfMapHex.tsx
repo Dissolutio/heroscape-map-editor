@@ -25,7 +25,7 @@ const singleHexObstacleHeightTextProps = (heightText: string) => ({
   style: hexTextStyle,
   y: 0.3 * SVG_HEX_RADIUS,
   x: heightText.toString().length === 2
-    ? -0.6 * SVG_HEX_APOTHEM
+    ? -0.5 * SVG_HEX_APOTHEM
     : -0.3 * SVG_HEX_APOTHEM
 })
 

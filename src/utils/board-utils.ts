@@ -32,11 +32,7 @@ export function isRenderedFromPieceIDPiece(inventoryID: string) {
 }
 export function isJungleTerrainHex(terrain: string) {
   return terrain === HexTerrain.brush ||
-    terrain === HexTerrain.palm ||
-    terrain === HexTerrain.laurBrush ||
-    terrain === HexTerrain.laurPalm ||
-    terrain === HexTerrain.swampBrush
-
+    terrain === HexTerrain.palm
 }
 export function isEvergreenTree(terrain: string) {
   return terrain === HexTerrain.tree || terrain === HexTerrain.snowTree

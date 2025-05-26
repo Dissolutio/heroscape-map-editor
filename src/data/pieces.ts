@@ -889,7 +889,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.swampBrush10]: {
     id: Pieces.swampBrush10,
     title: 'Swamp Underbrush',
-    terrain: HexTerrain.swampBrush,
+    terrain: HexTerrain.brush,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
@@ -899,7 +899,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.laurBrush10]: {
     id: Pieces.laurBrush10,
     title: 'Laur Underbrush ',
-    terrain: HexTerrain.laurBrush,
+    terrain: HexTerrain.brush,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
@@ -909,7 +909,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.laurPalm13]: {
     id: Pieces.laurPalm13,
     title: 'Laur Jungle Tree (13)',
-    terrain: HexTerrain.laurPalm,
+    terrain: HexTerrain.palm,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
@@ -919,7 +919,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.laurPalm14]: {
     id: Pieces.laurPalm14,
     title: 'Laur Jungle Tree (14)',
-    terrain: HexTerrain.laurPalm,
+    terrain: HexTerrain.palm,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
@@ -929,7 +929,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.laurPalm15]: {
     id: Pieces.laurPalm15,
     title: 'Laur Jungle Tree (15)',
-    terrain: HexTerrain.laurPalm,
+    terrain: HexTerrain.palm,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,

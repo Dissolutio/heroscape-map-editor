@@ -111,6 +111,7 @@ export const PdfBoardPieceLaurWallRuin = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(piece)
+  const borderColor = getSvgHexBorderColor(piece)
   const { points } = getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   return (
@@ -124,8 +125,8 @@ export const PdfBoardPieceLaurWallRuin = ({
         transform={`rotate(${pieceRotation})`}
         points={points}
         fill={fillColor}
-        // stroke={fillColor}
-        // strokeWidth={SVG_BORDER_WIDTH / 2}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>

@@ -90,12 +90,6 @@ export const MapHex3D = ({
     boardHex.terrain === HexTerrain.palm && boardHex.isObstacleOrigin
   const isLadderHex =
     boardHex.terrain === HexTerrain.ladder && boardHex.isObstacleOrigin
-  const isLaurPalmHex =
-    boardHex.terrain === HexTerrain.laurPalm && boardHex.isObstacleOrigin
-  const isLaurBrushHex =
-    boardHex.terrain === HexTerrain.laurBrush && boardHex.isObstacleOrigin
-  const isSwampBrushHex =
-    boardHex.terrain === HexTerrain.swampBrush && boardHex.isObstacleOrigin
   const isGlacier1Hex = pieceID === Pieces.glacier1 && isObstacleHex
   const isPowerGlyphHex = pieceID === Pieces.glyphPower
   const isTreasureGlyphHex = pieceID === Pieces.glyphTreasure
@@ -268,7 +262,7 @@ export const MapHex3D = ({
             </group>
           </Suspense>
         )}
-        {(isBrushHex || isLaurBrushHex || isSwampBrushHex) && (
+        {(isBrushHex) && (
           <Suspense fallback={<ModelLoader />}>
             <group
               position={[x, yBaseCap, z]}
@@ -278,7 +272,7 @@ export const MapHex3D = ({
             </group>
           </Suspense>
         )}
-        {(isPalmHex || isLaurPalmHex) && (
+        {(isPalmHex) && (
           <Suspense fallback={<ModelLoader />}>
             <group
               scale={[1, getOptionsForPalmHeight(boardHex.pieceID).scaleY, 1]}
@@ -303,7 +297,7 @@ export const MapHex3D = ({
               undefined,
             ]} />
             <meshMatcapMaterial
-              color={'#830C0C'}
+              color={'#830C0C'} //coolors matched with aquilla yellow #daa040
             />
           </mesh>
         )}
@@ -321,7 +315,7 @@ export const MapHex3D = ({
               undefined,
             ]} />
             <meshMatcapMaterial
-              color={'#BC8224'}
+              color={'#BC8224'} //coolors matched with aquilla yellow #daa040
             />
           </mesh>
         )}

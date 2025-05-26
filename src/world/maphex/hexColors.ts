@@ -93,7 +93,6 @@ export const hexTerrainColor: Dictionary<string> = {
   laurBrush1: '#1EA300',
   laurBrush2: '#25CC00',
   laurBrush3: '#22B800',
-  [HexTerrain.laurPalm]: '#0f4f00', // only gets used as subterrain color, not in model
   laurPalm1: '#1EA300',
   laurPalm2: '#25CC00',
   laurPalm3: '#22B800',
@@ -125,6 +124,7 @@ export const svgColors = {
   // glyphFill: 'rgb(64, 0, 0)', // virtualscape
   fillGlyph: 'rgb(244, 106, 22)',
   fillJungle: 'rgb(249, 233, 8)',
+  [HexTerrain.palm]: 'rgb(67, 249, 57)',
   [HexTerrain.tree]: 'rgb(51, 160, 62)',
   [HexTerrain.laurWall]: 'rgb(98, 28, 96)',
   // TERRAIN
