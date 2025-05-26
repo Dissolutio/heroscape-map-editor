@@ -1,6 +1,6 @@
-import { Instance, Instances } from '@react-three/drei'
+import { Instance, Instances, useTexture } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-import React from 'react'
+import React, { useEffect } from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
 import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
@@ -25,6 +25,20 @@ const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
 ]
 
 const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
+  // const texture = useTexture('grass.png');
+  const texture = useTexture('grass-ohs.png');
+  // const texture = useTexture('grass-edited.jpg');
+  // const texture = useTexture('Grass.jpg');
+  // texture.center.set(0.5, 0.5); // Set the center of rotation to the middle of the texture
+  // texture.rotation = Math.PI / 3
+  // texture. = 2
+  useEffect(() => {
+    if (texture) {
+      texture.center.set(0.5, 0.5); // Set the center of rotation to the middle of the texture
+      texture.rotation = Math.PI; // Rotate 45 degrees (in radians)
+      texture.needsUpdate = true; // Important: signal that the texture has been updated
+    }
+  }, [texture]);
   const ref = React.useRef<InstanceRefType>(undefined!)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   if (boardHexArr.length === 0) return null
@@ -43,7 +57,8 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
         <meshMatcapMaterial />} */}
       {/* {!isCameraDisabled ? <meshLambertMaterial opacity={0.8} transparent /> :
         <meshMatcapMaterial />} */}
-      <meshMatcapMaterial />
+      {/* <meshMatcapMaterial /> */}
+      <meshBasicMaterial map={texture} />
       {boardHexArr.map((hex, i) => (
         <SolidCap
           key={hex.id + i}
