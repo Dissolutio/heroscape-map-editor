@@ -34,7 +34,8 @@ export function ReactPdfRoot() {
               <MyCustomHeader
                 boardHexes={boardHexes}
                 boardPieces={boardPieces}
-                hexMap={hexMap} />
+                hexMap={hexMap}
+              />
             </PdfMapLevels6PerPage>
           </Document>
         </PDFViewer>
@@ -43,9 +44,7 @@ export function ReactPdfRoot() {
   )
 }
 
-const MyCustomHeader = (
-  { hexMap }: MapState
-) => {
+const MyCustomHeader = ({ hexMap }: MapState) => {
   return (
     <View
       style={{
@@ -84,7 +83,8 @@ const MyCustomHeader = (
         For 3 players (300 - 500 points each) (2 Permenant Power Glyphs)
       </Text>
       <Text style={{ fontSize: '14px', alignSelf: 'center', padding: 5 }}>
-        The first time a unit moves into battle, they must exit the water space and never return.
+        The first time a unit moves into battle, they must exit the water space
+        and never return.
       </Text>
     </View>
   )

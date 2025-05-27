@@ -16,10 +16,7 @@ import {
   getLaurWallRuinSvgPolygonPoints,
   getMarvel6HexSvgPolygonPointsAt00,
 } from './getHexagonSvgPolygonPoints'
-import {
-  getSvgHexBorderColor,
-  getSvgHexFillColor,
-} from './getSvgHexColors'
+import { getSvgHexBorderColor, getSvgHexFillColor } from './getSvgHexColors'
 import { type BoardHex, type DecodedPieceID, HexTerrain } from '../types'
 import {
   OPACITY_EMPTY,
@@ -37,15 +34,16 @@ const hexTextStyle = {
 const singleHexObstacleHeightTextProps = (heightText: string) => ({
   style: hexTextStyle,
   y: 0.3 * SVG_HEX_RADIUS,
-  x: heightText.toString().length === 2
-    ? -0.6 * SVG_HEX_APOTHEM
-    : -0.3 * SVG_HEX_APOTHEM
+  x:
+    heightText.toString().length === 2
+      ? -0.6 * SVG_HEX_APOTHEM
+      : -0.3 * SVG_HEX_APOTHEM,
 })
 const twoCharNumberAdjust = -0.15 * SVG_HEX_RADIUS
 
 export const PdfMultiHex1 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -54,14 +52,17 @@ export const PdfMultiHex1 = ({
   const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const borderWidth = isEmptyHex ? SVG_EMPTYHEX_BORDER_WIDTH : SVG_BORDER_WIDTH
-  const { points } = isEmptyHex ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_EMPTYHEX_BORDER_WIDTH)
+  const { points } = isEmptyHex
+    ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_EMPTYHEX_BORDER_WIDTH)
     : getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
-      {isSubLevel && <Polygon
-        points={getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          points={getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         points={points}
         fill={fillColor}
@@ -77,21 +78,26 @@ export const PdfMultiHex1 = ({
 }
 export const PdfBoardPieceLaurWallShort = ({
   piece,
-  isSubLevel
+  isSubLevel,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(piece)
-  const { points } = getLaurShortWallSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+  const { points } = getLaurShortWallSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={getLaurShortWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).points}
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={getLaurShortWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={points}
@@ -105,22 +111,27 @@ export const PdfBoardPieceLaurWallShort = ({
 }
 export const PdfBoardPieceLaurWallRuin = ({
   piece,
-  isSubLevel
+  isSubLevel,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(piece)
   const borderColor = getSvgHexBorderColor(piece)
-  const { points } = getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+  const { points } = getLaurWallRuinSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS, 0).points}
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={points}
@@ -134,7 +145,7 @@ export const PdfBoardPieceLaurWallRuin = ({
 }
 export const PdfMultiHex2 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -144,13 +155,13 @@ export const PdfMultiHex2 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
@@ -166,7 +177,7 @@ export const PdfMultiHex2 = ({
 }
 export const PdfMultiHex3 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -176,13 +187,13 @@ export const PdfMultiHex3 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
@@ -198,7 +209,7 @@ export const PdfMultiHex3 = ({
 }
 export const PdfMultiHex4 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -208,13 +219,13 @@ export const PdfMultiHex4 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
@@ -230,7 +241,7 @@ export const PdfMultiHex4 = ({
 }
 export const PdfMultiHex6 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -240,13 +251,13 @@ export const PdfMultiHex6 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
@@ -262,7 +273,7 @@ export const PdfMultiHex6 = ({
 }
 export const PdfMultiHexMarvel6 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -272,17 +283,18 @@ export const PdfMultiHexMarvel6 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          getMarvel6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={getMarvel6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
-          getMarvel6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+          getMarvel6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+            .points
         }
         fill={fillColor}
         stroke={borderColor}
@@ -294,7 +306,7 @@ export const PdfMultiHexMarvel6 = ({
 }
 export const PdfMultiHex7 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -304,13 +316,13 @@ export const PdfMultiHex7 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get7HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get7HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
@@ -326,7 +338,7 @@ export const PdfMultiHex7 = ({
 }
 export const PdfMultiHexWallWalk7 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -336,17 +348,18 @@ export const PdfMultiHexWallWalk7 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get7HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get7HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
-          get7HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+          get7HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+            .points
         }
         fill={fillColor}
         stroke={borderColor}
@@ -358,7 +371,7 @@ export const PdfMultiHexWallWalk7 = ({
 }
 export const PdfMultiHexWallWalk9 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -368,17 +381,18 @@ export const PdfMultiHexWallWalk9 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get9HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get9HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
-          get9HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+          get9HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+            .points
         }
         fill={fillColor}
         stroke={borderColor}
@@ -390,7 +404,7 @@ export const PdfMultiHexWallWalk9 = ({
 }
 export const PdfMultiHex24 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -400,13 +414,13 @@ export const PdfMultiHex24 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get24HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get24HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
@@ -428,11 +442,10 @@ const treeXYForRotation = [
   { x: -2 * SVG_HEX_APOTHEM, y: -0.5 * SVG_HEX_RADIUS },
   { x: -0.6 * SVG_HEX_APOTHEM, y: -1.3 * SVG_HEX_RADIUS },
   { x: 0.9 * SVG_HEX_APOTHEM, y: -0.4 * SVG_HEX_RADIUS },
-
 ]
 export const PdfSvgTree415 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -443,13 +456,13 @@ export const PdfSvgTree415 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <G>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
@@ -464,7 +477,9 @@ export const PdfSvgTree415 = ({
         fill="white"
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-        style={{ ...singleHexObstacleHeightTextProps(pieceHeightText.toString()).style }}
+        style={{
+          ...singleHexObstacleHeightTextProps(pieceHeightText.toString()).style,
+        }}
         x={treeXYForRotation?.[hex?.pieceRotation]?.x ?? 0}
         y={treeXYForRotation?.[hex?.pieceRotation]?.y ?? 0}
       >
@@ -489,7 +504,6 @@ const posO4_3 = { x: -3.2 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS }
 const posO4_4 = { x: -3.2 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
 const posO4_5 = { x: -0.3 * SVG_HEX_APOTHEM, y: -2.7 * SVG_HEX_RADIUS }
 const posO4_6 = { x: 2.7 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-
 
 // The 6-glacier has two more text spots than 4-glacier, but some are reused
 const posO6_1_1 = { x: 3.6 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS } // top right of glacier
@@ -521,12 +535,12 @@ const outcrop6TextXYForRotation = [
   [posO3_1, posO3_3, posO3_4, posO4_2, posO3_5, posO6_2_2],
   [posO3_1, posO3_4, posO3_5, posO4_3, posO3_6, posO6_2_3],
   [posO3_1, posO3_5, posO3_6, posO4_4, posO3_7, posO6_2_4],
-  [posO3_1, posO3_6, posO3_7, posO4_5, posO6_1_5, posO3_2,],
+  [posO3_1, posO3_6, posO3_7, posO4_5, posO6_1_5, posO3_2],
   [posO3_1, posO3_7, posO3_2, posO4_6, posO6_1_6, posO3_3],
 ]
 export const PdfSvgOutcrop6 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -536,13 +550,13 @@ export const PdfSvgOutcrop6 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <G>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
@@ -554,7 +568,7 @@ export const PdfSvgOutcrop6 = ({
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
@@ -564,27 +578,33 @@ export const PdfSvgOutcrop6 = ({
         {'9'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
-        x={(outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) + twoCharNumberAdjust}
+        x={
+          (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
+          twoCharNumberAdjust
+        }
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
       >
         {'17'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
-        x={(outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) + twoCharNumberAdjust}
+        x={
+          (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
+          twoCharNumberAdjust
+        }
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
         {'17'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
@@ -594,21 +614,27 @@ export const PdfSvgOutcrop6 = ({
         {'9'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
-        x={(outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0) + twoCharNumberAdjust}
+        x={
+          (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0) +
+          twoCharNumberAdjust
+        }
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.y ?? 0}
       >
         {'17'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
-        x={(outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0) + twoCharNumberAdjust}
+        x={
+          (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0) +
+          twoCharNumberAdjust
+        }
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.y ?? 0}
       >
         {'17'}
@@ -618,7 +644,7 @@ export const PdfSvgOutcrop6 = ({
 }
 export const PdfSvgOutcrop3 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -628,13 +654,13 @@ export const PdfSvgOutcrop3 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <G>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
@@ -646,7 +672,7 @@ export const PdfSvgOutcrop3 = ({
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
@@ -656,7 +682,7 @@ export const PdfSvgOutcrop3 = ({
         {'5'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
@@ -666,7 +692,7 @@ export const PdfSvgOutcrop3 = ({
         {'9'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
@@ -680,7 +706,7 @@ export const PdfSvgOutcrop3 = ({
 }
 export const SvgOutcrop3 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -690,13 +716,13 @@ export const SvgOutcrop3 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <g>
-      {isSubLevel && <polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <polygon
         transform={`rotate(${pieceRotation})`}
         points={
@@ -708,7 +734,7 @@ export const SvgOutcrop3 = ({
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
@@ -718,7 +744,7 @@ export const SvgOutcrop3 = ({
         {'5'}
       </text>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
@@ -728,7 +754,7 @@ export const SvgOutcrop3 = ({
         {'9'}
       </text>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
@@ -742,7 +768,7 @@ export const SvgOutcrop3 = ({
 }
 export const PdfSvgOutcrop4 = ({
   hex,
-  isSubLevel
+  isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -752,13 +778,13 @@ export const PdfSvgOutcrop4 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <G>
-      {isSubLevel && <Polygon
-        transform={`rotate(${pieceRotation})`}
-        points={
-          get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
-        }
-        fill={'white'}
-      />}
+      {isSubLevel && (
+        <Polygon
+          transform={`rotate(${pieceRotation})`}
+          points={get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
       <Polygon
         transform={`rotate(${pieceRotation})`}
         points={
@@ -770,37 +796,43 @@ export const PdfSvgOutcrop4 = ({
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
-        x={(outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0)}
+        x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'7'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
-        x={(outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) + twoCharNumberAdjust}
+        x={
+          (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
+          twoCharNumberAdjust
+        }
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
       >
         {'11'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}
-        x={(outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) + twoCharNumberAdjust}
+        x={
+          (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
+          twoCharNumberAdjust
+        }
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
         {'11'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? "black" : "white"}
+        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={hexTextStyle}

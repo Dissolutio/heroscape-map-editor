@@ -36,16 +36,19 @@ type HexoscapeGlyphs = {
 
 export const powerGlyphs: HexoscapeGlyphs = {
   // TEMPORARY GLYPHS
-  healing: { // Haukeland
+  healing: {
+    // Haukeland
     id: 'haukeland',
     name: 'Quillivon (Sudden Movement)',
     shortName: 'Sudden Movement',
     glyphLetter: 'Q',
     type: 'temporary',
     effect: 'Move 3 figures',
-    description: 'Choose up to 3 of your figures other than the one on this Glyph. You may move each of the chosen figures up to 5 spaces.',
+    description:
+      'Choose up to 3 of your figures other than the one on this Glyph. You may move each of the chosen figures up to 5 spaces.',
   },
-  suddenMovement: { // Quillivon
+  suddenMovement: {
+    // Quillivon
     id: 'quillivon',
     name: 'Quillivon (Sudden Movement)',
     shortName: 'Sudden Movement',
@@ -54,7 +57,8 @@ export const powerGlyphs: HexoscapeGlyphs = {
     effect: 'Move 3 figures',
     description: `Choose up to 3 of your figures other than the one on this Glyph. You may move each of the chosen figures up to 5 spaces.`,
   },
-  removal: { // Felaron
+  removal: {
+    // Felaron
     id: 'felaron',
     name: 'Felaron',
     shortName: 'Removal',
@@ -64,7 +68,8 @@ export const powerGlyphs: HexoscapeGlyphs = {
     description: `Remove any other Glyph from the battlefield.`,
   },
   // CLASSIC TEMPORARY
-  objective: { // Brandar
+  objective: {
+    // Brandar
     id: 'objective',
     name: 'Brandar',
     shortName: 'Objective',
@@ -73,7 +78,8 @@ export const powerGlyphs: HexoscapeGlyphs = {
     effect: 'Artifact',
     description: 'The rules of this Glyph vary, depending on the Scenario.',
   },
-  summoner: { // Erland
+  summoner: {
+    // Erland
     id: 'summoner',
     name: 'Erland',
     shortName: 'Summoner',
@@ -82,7 +88,8 @@ export const powerGlyphs: HexoscapeGlyphs = {
     effect: 'Summon figure',
     description: `When a figure lands on this Glyph, choose any one figure (yours, a teammate's or an opponent's) and to place on an adjacent space.`,
   },
-  healer: { // Kelda
+  healer: {
+    // Kelda
     id: 'healer',
     name: 'Kelda',
     shortName: 'Healer',
@@ -92,7 +99,8 @@ export const powerGlyphs: HexoscapeGlyphs = {
     description:
       'When a Hero you control lands on this Glyph, remove all wound markers from it. If a Squad figure lands here, nothing happens.',
   },
-  curse: { // Mitonsoul
+  curse: {
+    // Mitonsoul
     id: 'curse',
     name: 'Mitonsoul',
     shortName: 'Curse',
@@ -104,14 +112,16 @@ opponents’), roll the 20-sided die. If you roll a 1,
 the figure is destroyed. If you roll 2 through 20,
 the figure is safe.`,
   },
-  revive: { // Sturla
+  revive: {
+    // Sturla
     id: 'revive',
     name: 'Sturla',
     shortName: 'Revive',
     glyphLetter: 'S',
     type: 'temporary',
     effect: 'Revive',
-    description: 'When a figure lands on this Glyph, both players must roll the 20 sided die for all of their previously destroyed figures. If a 19 or 20 is rolled, than that figure is placed on any starting zone.',
+    description:
+      'When a figure lands on this Glyph, both players must roll the 20 sided die for all of their previously destroyed figures. If a 19 or 20 is rolled, than that figure is placed on any starting zone.',
   },
   negation: {
     // Nilrend (Negation): When one of your figures stops here, you may choose any opponent's Unique Army Card. Roll the 20-sided die. If you roll a 1 - 4, nothing happens. If you roll a 5 - 20, place the Gold Negation Marker on the chosen figure's Army Card. All of that figure's special powers are negated for the rest of the game. // Nilrend
@@ -123,16 +133,19 @@ the figure is safe.`,
     effect: 'Negation',
     description: `When one of your figures stops here, you may choose any opponent's Unique Army Card. Roll the 20-sided die. If you roll a 1 - 4, nothing happens. If you roll a 5 - 20, place the Gold Negation Marker on the chosen figure's Army Card. All of that figure's special powers are negated for the rest of the game.`,
   },
-  xenithraxVines: { // Oreld
+  xenithraxVines: {
+    // Oreld
     id: 'xenithraxVines',
     name: 'Xenithrax Vines',
     shortName: 'Vines',
     glyphLetter: 'XV',
     type: 'temporary',
     effect: 'Xenithrax Vines',
-    description: 'If a Huge figure moves onto this Glyph, this Glyph is immediately removed from the battlefield and that figure may continue its movement. Figures standing on this Glyph roll 1 fewer attack die and 2 fewer defense dice. When a figure on this Glyph moves off of the Glyph, roll one attack die. If you roll a skull, that figure takes one wound. Remove this Glyph from the battlefield after a figure moves off of it, or at the end of the round if a figure is standing on it.',
+    description:
+      'If a Huge figure moves onto this Glyph, this Glyph is immediately removed from the battlefield and that figure may continue its movement. Figures standing on this Glyph roll 1 fewer attack die and 2 fewer defense dice. When a figure on this Glyph moves off of the Glyph, roll one attack die. If you roll a skull, that figure takes one wound. Remove this Glyph from the battlefield after a figure moves off of it, or at the end of the round if a figure is standing on it.',
   },
-  interceptOrder: { // Oreld
+  interceptOrder: {
+    // Oreld
     id: 'interceptOrder',
     name: 'Oreld',
     shortName: 'Intercept Order',
@@ -142,7 +155,8 @@ the figure is safe.`,
     description: `When one of your figures stops here, roll the 20-sided die. If you roll a 1 - 9, nothing happens. If your roll a 10 - 20, you may remove one random unrevealed Order Marker from an opponent's Army Card.`,
   },
   // PERMANENT GLYPHS
-  attack: { // Astrid
+  attack: {
+    // Astrid
     id: 'attack',
     name: 'Astrid',
     shortName: 'Attack +1',
@@ -152,7 +166,8 @@ the figure is safe.`,
     description:
       'Add one die to your attack roll when any figure in your army uses a Normal Attack',
   },
-  defense: { // Gerda
+  defense: {
+    // Gerda
     id: 'defense',
     name: 'Gerda',
     shortName: 'Defense +1',
@@ -162,7 +177,8 @@ the figure is safe.`,
     description:
       'Add one die to your Defense Roll when any figure in your army is attacked.',
   },
-  move: { // Valda
+  move: {
+    // Valda
     id: 'move',
     name: 'Valda',
     shortName: 'Move +2',
@@ -172,7 +188,8 @@ the figure is safe.`,
     description:
       'Add 2 to the Move Number stated on every Army Card in your army.',
   },
-  range: { // Ivor
+  range: {
+    // Ivor
     id: 'range',
     name: 'Ivor',
     shortName: 'Range +4',
@@ -182,7 +199,8 @@ the figure is safe.`,
     description:
       'Add 4 to the Range limit of every Army Card in your army which already had a Range of 4 or more.',
   },
-  initiative: { // Dagmar
+  initiative: {
+    // Dagmar
     id: 'initiative',
     name: 'Dagmar',
     shortName: 'Initiative +8',
@@ -192,7 +210,8 @@ the figure is safe.`,
     description:
       'Add 8 to your Initiative Roll at the beginning of the next Round.',
   },
-  defense2: { // Jalgard
+  defense2: {
+    // Jalgard
     id: 'defense2',
     name: 'Jalgard',
     shortName: 'Defense +2',
@@ -202,7 +221,8 @@ the figure is safe.`,
     description:
       'Add two dice to your Defense Roll when any figure in your army is attacked.',
   },
-  lucky1: { // Lodin
+  lucky1: {
+    // Lodin
     id: 'lucky1',
     name: 'Lodin',
     shortName: 'Lucky 20-Sider',
@@ -212,7 +232,8 @@ the figure is safe.`,
     description:
       'Whenever you roll the 20 sided die, you may add one to your die roll.',
   },
-  wind: { // Rannveig
+  wind: {
+    // Rannveig
     id: 'wind',
     name: 'Rannveig',
     shortName: 'Wind',
@@ -222,7 +243,8 @@ the figure is safe.`,
     description:
       "When a figure is on this Glyph, no figure may use the 'Flying' power. This includes figures in your own army was well as figures on the other player's team.",
   },
-  commonAttack: { // Crevcor
+  commonAttack: {
+    // Crevcor
     id: 'commonAttack',
     name: 'Crevcor',
     shortName: 'Common Attack +1',
@@ -232,7 +254,8 @@ the figure is safe.`,
     description:
       'All Common Figures in your army may add one additional attack die when attacking normally.',
   },
-  thorian: { // Thorian
+  thorian: {
+    // Thorian
     id: 'thorian',
     name: 'Thorian',
     shortName: 'Thorian',
@@ -242,7 +265,8 @@ the figure is safe.`,
     description:
       "All opponents' figures must be adjacent to your figures to attack your figures with a normal attack.",
   },
-  pitTrap: { // Proftaka
+  pitTrap: {
+    // Proftaka
     id: 'pitTrap',
     name: 'Proftaka',
     shortName: 'Pit Trap',
@@ -252,7 +276,8 @@ the figure is safe.`,
     description:
       'Your figure is trapped. The trapped figure cannot move from this space. The figure can move off the Proftaka only if a friendly figure occupies an adjacent space.',
   },
-  uniqueAttack: { // Ulaniva
+  uniqueAttack: {
+    // Ulaniva
     id: 'uniqueAttack',
     name: 'Ulaniva',
     shortName: 'Unique Attack +1',
@@ -262,7 +287,8 @@ the figure is safe.`,
     description:
       'All Unique Figures in your army may add one extra attack die when attacking normally.',
   },
-  wound: { // Wannok
+  wound: {
+    // Wannok
     id: 'wound',
     name: 'Wannok',
     shortName: 'Wound',
@@ -272,15 +298,15 @@ the figure is safe.`,
     description:
       'At the end of every round, roll the 20-sided die. If you roll a 1, the figure on the Glyph receives one wound. If you roll a 2 or higher, you may choose an opponent who must give one wound to any figure he or she controls on the battlefield.',
   },
-  disengage: { // Yadulkia
+  disengage: {
+    // Yadulkia
     id: 'disengage',
     name: 'Yadulkia',
     shortName: 'Yadulkia',
     glyphLetter: 'Y',
     type: 'power',
     effect: 'Disengage',
-    description:
-      'Your figures are never attacked when leaving an engagement.',
+    description: 'Your figures are never attacked when leaving an engagement.',
   },
 }
 
@@ -314,7 +340,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'HR',
     type: 'treasure',
     effect: 'Attack +1',
-    description: 'This figure adds 1 additional attack die when making a normal attack.',
+    description:
+      'This figure adds 1 additional attack die when making a normal attack.',
   },
   talismanOfDefense: {
     id: 'talismanOfDefense',
@@ -332,7 +359,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'BC',
     type: 'treasure',
     effect: 'Artifact',
-    description: 'The rules for this Treasure Glyph vary, depending on the Game Scenario.',
+    description:
+      'The rules for this Treasure Glyph vary, depending on the Game Scenario.',
   },
   holySymbolOfPelor: {
     id: 'holySymbolOfPelor',
@@ -341,7 +369,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'HP',
     type: 'treasure',
     effect: 'Attack +2 vs. Undead',
-    description: 'This figure adds 2 additional attack dice against Undead figures.',
+    description:
+      'This figure adds 2 additional attack dice against Undead figures.',
   },
   broochOfShielding: {
     id: 'broochOfShielding',
@@ -359,7 +388,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'OA',
     type: 'treasure',
     effect: 'Waterwalking',
-    description: 'This figure does not have to stop its movement when entering water spaces.',
+    description:
+      'This figure does not have to stop its movement when entering water spaces.',
   },
   giantHunterStone: {
     id: 'giantHunterStone',
@@ -368,7 +398,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'GS',
     type: 'treasure',
     effect: '+1 vs Large or Huge Figures',
-    description: 'This figure rolls an additional die when attacking or defending against large or huge figures.',
+    description:
+      'This figure rolls an additional die when attacking or defending against large or huge figures.',
   },
 
   // Temporary Treasure Glyphs
@@ -379,7 +410,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'PH',
     type: 'treasure',
     effect: 'Heal 3 Wounds',
-    description: 'This figure may drink this potion after revealing an Order Marker on its Army Card. Remove up to 3 Wound Markers from that figure’s Army Card.',
+    description:
+      'This figure may drink this potion after revealing an Order Marker on its Army Card. Remove up to 3 Wound Markers from that figure’s Army Card.',
   },
   whetstoneOfVenom: {
     id: 'whetstoneOfVenom',
@@ -388,7 +420,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'WV',
     type: 'treasure',
     effect: 'Poison',
-    description: 'This figure may use this whetstone before rolling attack dice for a Normal Attack against an adjacent figure. If that attack inflicts at least one wound, you may add two additional Wound Markers to the defending figure\'s Army Card.',
+    description:
+      "This figure may use this whetstone before rolling attack dice for a Normal Attack against an adjacent figure. If that attack inflicts at least one wound, you may add two additional Wound Markers to the defending figure's Army Card.",
   },
   ringOfProtection: {
     id: 'ringOfProtection',
@@ -397,7 +430,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'RP',
     type: 'treasure',
     effect: 'Defense +3',
-    description: 'This figure may choose to use this ring after an attacking figure has rolled attack dice and before rolling defense dice.',
+    description:
+      'This figure may choose to use this ring after an attacking figure has rolled attack dice and before rolling defense dice.',
   },
   elixirOfSpeed: {
     id: 'elixirOfSpeed',
@@ -406,7 +440,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'ES',
     type: 'treasure',
     effect: 'Move +4',
-    description: 'This figure may add 4 spaces to its move value this turn only.',
+    description:
+      'This figure may add 4 spaces to its move value this turn only.',
   },
   bracersOfTeleportation: {
     id: 'bracersOfTeleportation',
@@ -415,7 +450,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'BT',
     type: 'treasure',
     effect: 'Teleport',
-    description: 'This figure may use these bracers before moving. Instead of moving normally, you may place this figure on any same-level space(s) within 10 spaces of its current location. If this figure is engaged when it starts to teleport, it will not take any leaving engagement attacks.',
+    description:
+      'This figure may use these bracers before moving. Instead of moving normally, you may place this figure on any same-level space(s) within 10 spaces of its current location. If this figure is engaged when it starts to teleport, it will not take any leaving engagement attacks.',
   },
   cloakOfInvisibility: {
     id: 'cloakOfInvisibility',
@@ -424,7 +460,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'CI',
     type: 'treasure',
     effect: 'Invisibility',
-    description: 'This figure may use this cloak at any point during its turn. This figure has no visible Hit Zones until the end of the current round or until it attacks with a normal or special attack, whichever comes first. This figure will never take any leaving engagement attacks while invisible.',
+    description:
+      'This figure may use this cloak at any point during its turn. This figure has no visible Hit Zones until the end of the current round or until it attacks with a normal or special attack, whichever comes first. This figure will never take any leaving engagement attacks while invisible.',
   },
   beltOfGiantStrength: {
     id: 'beltOfGiantStrength',
@@ -433,7 +470,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'BG',
     type: 'treasure',
     effect: 'Attack +2',
-    description: 'This figure may use this belt before rolling attack dice for a Normal Attack against an adjacent figure. This figure adds two additional dice when attacking with a normal Attack this turn.',
+    description:
+      'This figure may use this belt before rolling attack dice for a Normal Attack against an adjacent figure. This figure adds two additional dice when attacking with a normal Attack this turn.',
   },
   scarabOfInvulnerability: {
     id: 'scarabOfInvulnerability',
@@ -442,7 +480,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'SI',
     type: 'treasure',
     effect: 'Ignore Wounds',
-    description: 'This figure may use this Scarab whenever it receives one or more wounds. Roll the 20 sided die. If you roll a 1-15, ignore one of the wounds just received. If you roll a 16 or higher, ignore all wounds just received.',
+    description:
+      'This figure may use this Scarab whenever it receives one or more wounds. Roll the 20 sided die. If you roll a 1-15, ignore one of the wounds just received. If you roll a 16 or higher, ignore all wounds just received.',
   },
 
   // Ancient Artifact Treasure Glyphs
@@ -453,7 +492,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'BW',
     type: 'treasure',
     effect: 'Ancient Artifact',
-    description: "After moving and before attacking with this figure, you may choose any opponent's figure within 5 clear sight spaces. Roll the 20-sided die. If you roll a 1-15, nothing happens. If you roll a 16 or higher, the chosen figure is destroyed. You may attempt to use this power only once per game.",
+    description:
+      "After moving and before attacking with this figure, you may choose any opponent's figure within 5 clear sight spaces. Roll the 20-sided die. If you roll a 1-15, nothing happens. If you roll a 16 or higher, the chosen figure is destroyed. You may attempt to use this power only once per game.",
   },
   revenantsTome: {
     id: 'revenantsTome',
@@ -462,7 +502,8 @@ export const treasureGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'RT',
     type: 'treasure',
     effect: 'Unnatural Revival',
-    description: "This figure may use this tome after revealing an Order Marker on its Army Card. Before taking that turn with this figure, place one previously destroyed Unique figure from your army onto any empty space(s) within five clear sight spaces of this figure. Immediately make a Normal Attack with the placed figure, then immediately destroy that placed figure. While the placed figure is on the board, consider all of its special powers to be negated. The placed figure is considered to have a life of 1, and is not affected by any special power on any Army Card while on the board.",
+    description:
+      'This figure may use this tome after revealing an Order Marker on its Army Card. Before taking that turn with this figure, place one previously destroyed Unique figure from your army onto any empty space(s) within five clear sight spaces of this figure. Immediately make a Normal Attack with the placed figure, then immediately destroy that placed figure. While the placed figure is on the board, consider all of its special powers to be negated. The placed figure is considered to have a life of 1, and is not affected by any special power on any Army Card while on the board.',
   },
 }
 

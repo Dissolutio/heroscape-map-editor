@@ -31,7 +31,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     let error: AddRemovePieceError
     set((state) => {
       return produce(state, (draft) => {
-        const { newBoardHexes, newBoardPieces, error: addPieceError } = addPiece({
+        const {
+          newBoardHexes,
+          newBoardPieces,
+          error: addPieceError,
+        } = addPiece({
           piece,
           boardHexes: draft.boardHexes,
           boardPieces: draft.boardPieces,

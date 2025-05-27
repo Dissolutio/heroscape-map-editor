@@ -9,13 +9,16 @@ import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 
 export function GlyphModel({ boardHex }: { boardHex: BoardHex }) {
   const { nodes } = useGLTF('/glyph.glb') as any
-  const texture = useTexture('glyph_icon.png');
+  const texture = useTexture('glyph_icon.png')
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const glyphColor = decodePieceID(boardHex.pieceID).inventoryID === Pieces.glyphPower ? "#830C0C" : "#BC8224" //coolors matched with aquilla yellow #daa040
+  const glyphColor =
+    decodePieceID(boardHex.pieceID).inventoryID === Pieces.glyphPower
+      ? '#830C0C'
+      : '#BC8224' //coolors matched with aquilla yellow #daa040
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
       return
@@ -34,9 +37,7 @@ export function GlyphModel({ boardHex }: { boardHex: BoardHex }) {
   const color = isHighlighted ? yellowColor : glyphColor
   return (
     <>
-      {isSelected && (
-        <DeletePieceBillboard pieceID={boardHex.pieceID} y={1} />
-      )}
+      {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={1} />}
       <mesh
         geometry={nodes.Glyph.geometry}
         onPointerUp={(e) => onPointerUp(e)}

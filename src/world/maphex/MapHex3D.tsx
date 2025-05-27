@@ -244,7 +244,12 @@ export const MapHex3D = ({
           </>
         )}
         {isBigTreeBaseHex && (
-          <ObstacleBase x={x} y={yBase} z={z} color={hexTerrainColor.treeBase} />
+          <ObstacleBase
+            x={x}
+            y={yBase}
+            z={z}
+            color={hexTerrainColor.treeBase}
+          />
         )}
         {isLadderHex && (
           <Suspense fallback={<ModelLoader />}>
@@ -263,7 +268,7 @@ export const MapHex3D = ({
             </group>
           </Suspense>
         )}
-        {(isBrushHex) && (
+        {isBrushHex && (
           <Suspense fallback={<ModelLoader />}>
             <group
               position={[x, yBaseCap, z]}
@@ -273,7 +278,7 @@ export const MapHex3D = ({
             </group>
           </Suspense>
         )}
-        {(isPalmHex) && (
+        {isPalmHex && (
           <Suspense fallback={<ModelLoader />}>
             <group
               scale={[1, getOptionsForPalmHeight(boardHex.pieceID).scaleY, 1]}
@@ -516,18 +521,12 @@ export const MapHex3D = ({
 
         {isCastleBase && (
           <Suspense fallback={<ModelLoader />}>
-            <CastleBases
-              boardHex={boardHex}
-              onPointerUp={onPointerUp}
-            />
+            <CastleBases boardHex={boardHex} onPointerUp={onPointerUp} />
           </Suspense>
         )}
         {isCastleWall && (
           <Suspense fallback={<ModelLoader />}>
-            <CastleWall
-              onPointerUp={onPointerUp}
-              boardHex={boardHex}
-            />
+            <CastleWall onPointerUp={onPointerUp} boardHex={boardHex} />
           </Suspense>
         )}
         {isCastleArch && (

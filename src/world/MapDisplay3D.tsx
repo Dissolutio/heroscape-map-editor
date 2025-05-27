@@ -51,8 +51,6 @@ export default function MapDisplay3D({
     disabled: !boardHexesArr.length || false, // for when working on camera stuff
   })
 
-
-
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
     isTakingPicture,
@@ -98,7 +96,7 @@ export default function MapDisplay3D({
         rotation: pieceRotation,
       })
       if (error) {
-        console.log("🚀 ~ error:", error)
+        console.log('🚀 ~ error:', error)
         enqueueSnackbar({
           message: `Add piece error: ${error.message}.`,
           variant: 'error',
@@ -108,7 +106,12 @@ export default function MapDisplay3D({
         toggleSelectedPieceID(hex.pieceID)
       } else {
         if (clickedHex.altitude >= viewingLevel) {
-          toggleViewingLevel(Math.max(getBoardPiecesMaxLevel(boardPieces), clickedHex.altitude + 1))
+          toggleViewingLevel(
+            Math.max(
+              getBoardPiecesMaxLevel(boardPieces),
+              clickedHex.altitude + 1,
+            ),
+          )
         }
       }
     }
@@ -124,7 +127,7 @@ export default function MapDisplay3D({
           // position={[topLeft[0], 0, topLeft[1]]}
           position={[0, 0, 0]}
           scale={[width, 0, length]}
-        // rotation={new Euler(0, Math.PI, 0)}
+          // rotation={new Euler(0, Math.PI, 0)}
         />
       )}
 

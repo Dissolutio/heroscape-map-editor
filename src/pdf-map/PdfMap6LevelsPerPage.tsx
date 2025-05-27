@@ -15,7 +15,12 @@ import {
 } from '../utils/map-utils'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 
-export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces, hexMap, children }: PropsWithChildren<MapState>) => {
+export const PdfMapLevels6PerPage = ({
+  boardHexes,
+  boardPieces,
+  hexMap,
+  children,
+}: PropsWithChildren<MapState>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesWithoutEmpties = keyBy(
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
@@ -25,7 +30,9 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces, hexMap, children
     boardHexesWithoutEmpties,
     boardPieces,
   )
-  const decodedBoardPiecesArr = Object.keys(boardPieces).map(id => decodePieceID(id)).filter(p => Boolean(p))
+  const decodedBoardPiecesArr = Object.keys(boardPieces)
+    .map((id) => decodePieceID(id))
+    .filter((p) => Boolean(p))
   return (
     <>
       {boardHexAndPieceChunks.map((chunk, i) => (
@@ -38,9 +45,7 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces, hexMap, children
             maxHeight: '100vh',
           }}
         >
-          {i === 0 && (
-            children
-          )}
+          {i === 0 && children}
           <View
             style={{
               flexDirection: 'row',

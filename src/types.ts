@@ -85,6 +85,7 @@ export enum HexTerrain {
   wallWalk = 'wallWalk',
   // other
   glyph = 'glyph',
+  startZone = 'startZone',
   _vsPersonal = '_vsPersonal',
   _vsFigure = '_vsFigure',
 }
@@ -108,6 +109,7 @@ export type PieceSet = {
   abbreviation: string
 }
 export enum PiecePrefixes {
+  startZone = 'z',
   grass = 'g',
   rock = 'r',
   sand = 's',
@@ -162,6 +164,14 @@ export enum PieceSetIds {
   swarmOfMarroMaster = 'sotm',
 }
 export enum Pieces {
+  startZone1 = `${PiecePrefixes.startZone}1`,
+  startZone2 = `${PiecePrefixes.startZone}2`,
+  startZone3 = `${PiecePrefixes.startZone}3`,
+  startZone4 = `${PiecePrefixes.startZone}4`,
+  startZone5 = `${PiecePrefixes.startZone}5`,
+  startZone6 = `${PiecePrefixes.startZone}6`,
+  startZone7 = `${PiecePrefixes.startZone}7`,
+  startZone8 = `${PiecePrefixes.startZone}8`,
   // these inventory IDs are purposely short, to make their character length small for maximum-sized URL-shareable maps
   grass1 = `${PiecePrefixes.grass}1`,
   grass2 = `${PiecePrefixes.grass}2`,
@@ -276,7 +286,7 @@ export enum Pieces {
   glyphPower = `${PiecePrefixes.glyph}0`, // WIP glyphs
   glyphTreasure = `${PiecePrefixes.glyph}1`,
 }
-export type AddRemovePieceError = undefined | { message?: string, error?: any }
+export type AddRemovePieceError = undefined | { message?: string; error?: any }
 export type VirtualScapeMap = {
   version: number
   name: string

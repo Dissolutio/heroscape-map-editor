@@ -9,14 +9,8 @@ type Props = {
 export const SvgHexIDText = ({ text, textLine2 }: Props) => {
   return (
     <>
-      <HexText >
-        {text.toString()}
-      </HexText>
-      {textLine2 && (
-        <HexText >
-          {textLine2.toString()}
-        </HexText>
-      )}
+      <HexText>{text.toString()}</HexText>
+      {textLine2 && <HexText>{textLine2.toString()}</HexText>}
     </>
   )
 }

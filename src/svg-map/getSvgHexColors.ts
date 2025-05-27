@@ -1,5 +1,10 @@
 import { piecesSoFar } from '../data/pieces'
-import { type BoardHex, type DecodedPieceID, HexTerrain, type Piece } from '../types'
+import {
+  type BoardHex,
+  type DecodedPieceID,
+  HexTerrain,
+  type Piece,
+} from '../types'
 import {
   isCastleTerrain,
   isEvergreenTree,
@@ -8,10 +13,14 @@ import {
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import { decodePieceID } from '../utils/map-utils'
-import { hexTerrainColor, svgColors, virtualscapeTileColors } from '../world/maphex/hexColors'
+import {
+  hexTerrainColor,
+  svgColors,
+  virtualscapeTileColors,
+} from '../world/maphex/hexColors'
 
 function isBoardHex(hex: BoardHex | DecodedPieceID): hex is BoardHex {
-  return (<BoardHex>hex).pieceRotation !== undefined;
+  return (<BoardHex>hex).pieceRotation !== undefined
 }
 
 export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
@@ -21,8 +30,7 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   }
   let inventoryPiece: Piece
   if (isBoardHex(hex)) {
-    inventoryPiece =
-      piecesSoFar?.[decodePieceID?.(hex.pieceID)?.inventoryID]
+    inventoryPiece = piecesSoFar?.[decodePieceID?.(hex.pieceID)?.inventoryID]
   } else {
     inventoryPiece = piecesSoFar[hex.inventoryID]
   }

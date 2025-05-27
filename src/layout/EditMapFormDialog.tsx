@@ -59,7 +59,7 @@ export default function EditMapFormDialog() {
               })
               handleClose()
             },
-          }
+          },
         }}
       >
         <DialogTitle>Edit Map</DialogTitle>

@@ -78,14 +78,14 @@ export default function CreateMapFormDialog() {
     const newMap =
       mapShape === 'rectangle'
         ? makeRectangleScenario({
-          mapName,
-          width: mapWidth,
-          length: mapLength,
-        })
+            mapName,
+            width: mapWidth,
+            length: mapLength,
+          })
         : makeHexagonScenario({
-          mapName,
-          size: mapSize,
-        })
+            mapName,
+            size: mapSize,
+          })
     loadMap(newMap)
     clearUndoHistory()
     navigate(ROUTES.heroscapeHome)
@@ -110,7 +110,7 @@ export default function CreateMapFormDialog() {
               handleSubmit()
               handleClose()
             },
-          }
+          },
         }}
       >
         <DialogTitle>New Map</DialogTitle>

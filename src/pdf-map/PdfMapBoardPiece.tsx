@@ -1,15 +1,14 @@
 import { G } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import { type DecodedPieceID, Pieces } from '../types'
-import {
-  isObstaclePieceID,
-} from '../utils/board-utils'
-import {
-  SVG_HEX_APOTHEM,
-  SVG_HEX_RADIUS,
-} from '../utils/constants'
+import { isObstaclePieceID } from '../utils/board-utils'
+import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
-import { PdfBoardPieceLaurWallRuin, PdfBoardPieceLaurWallShort, PdfMultiHex1 } from '../svg-map/SvgShapes'
+import {
+  PdfBoardPieceLaurWallRuin,
+  PdfBoardPieceLaurWallShort,
+  PdfMultiHex1,
+} from '../svg-map/SvgShapes'
 
 const hexTextStyle = {
   fontSize: 0.8 * SVG_HEX_RADIUS,
@@ -36,18 +35,14 @@ export const PdfMapBoardPiece = ({
   // ROADWALLS
 
   // LAUR SHORTWALLS
-  if (
-    inventoryID === Pieces.laurWallShort
-  ) {
+  if (inventoryID === Pieces.laurWallShort) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfBoardPieceLaurWallShort piece={piece} isSubLevel={isSubLevel} />
       </G>
     )
   }
-  if (
-    inventoryID === Pieces.laurWallRuin
-  ) {
+  if (inventoryID === Pieces.laurWallRuin) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfBoardPieceLaurWallRuin piece={piece} isSubLevel={isSubLevel} />

@@ -1,6 +1,6 @@
 import { G, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
-import { type BoardHex, Pieces } from '../types'
+import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
   isCastleTerrain,
   isEvergreenTree,
@@ -15,7 +15,22 @@ import {
   SVG_HEX_RADIUS,
 } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
-import { PdfMultiHex1, PdfMultiHex2, PdfMultiHex24, PdfMultiHex3, PdfMultiHex4, PdfMultiHex6, PdfMultiHex7, PdfMultiHexMarvel6, PdfMultiHexWallWalk7, PdfMultiHexWallWalk9, PdfSvgOutcrop3, PdfSvgOutcrop4, PdfSvgOutcrop6, PdfSvgTree415 } from '../svg-map/SvgShapes'
+import {
+  PdfMultiHex1,
+  PdfMultiHex2,
+  PdfMultiHex24,
+  PdfMultiHex3,
+  PdfMultiHex4,
+  PdfMultiHex6,
+  PdfMultiHex7,
+  PdfMultiHexMarvel6,
+  PdfMultiHexWallWalk7,
+  PdfMultiHexWallWalk9,
+  PdfSvgOutcrop3,
+  PdfSvgOutcrop4,
+  PdfSvgOutcrop6,
+  PdfSvgTree415,
+} from '../svg-map/SvgShapes'
 
 const hexTextStyle = {
   fontSize: 0.8 * SVG_HEX_RADIUS,
@@ -24,9 +39,10 @@ const hexTextStyle = {
 const singleHexObstacleHeightTextProps = (heightText: string) => ({
   style: hexTextStyle,
   y: 0.3 * SVG_HEX_RADIUS,
-  x: heightText.toString().length === 2
-    ? -0.5 * SVG_HEX_APOTHEM
-    : -0.3 * SVG_HEX_APOTHEM
+  x:
+    heightText.toString().length === 2
+      ? -0.5 * SVG_HEX_APOTHEM
+      : -0.3 * SVG_HEX_APOTHEM,
 })
 
 export const PdfMapHex = ({
@@ -37,7 +53,8 @@ export const PdfMapHex = ({
   const isSubLevel = hex.altitude < viewingLevel
   const { inventoryID } = decodePieceID(hex.pieceID)
   const isObstaclePiece = isObstaclePieceID(inventoryID)
-  const isAuxiliaryNotRenderedIn2D = isObstaclePiece && (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
+  const isAuxiliaryNotRenderedIn2D =
+    isObstaclePiece && (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
   const isVisible = hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
@@ -47,7 +64,11 @@ export const PdfMapHex = ({
     return null
   }
   // Outcrop 3s
-  if (inventoryID === Pieces.outcrop3 || inventoryID === Pieces.lavaRockOutcrop3 || inventoryID === Pieces.glacier3) {
+  if (
+    inventoryID === Pieces.outcrop3 ||
+    inventoryID === Pieces.lavaRockOutcrop3 ||
+    inventoryID === Pieces.glacier3
+  ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfSvgOutcrop3 hex={hex} isSubLevel={isSubLevel} />
@@ -78,6 +99,14 @@ export const PdfMapHex = ({
       </G>
     )
   }
+  // Glyphs
+  if (hex.terrain === HexTerrain.glyph) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfSvgTree415 hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
   if (isEvergreenTree(hex.terrain)) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
@@ -96,8 +125,14 @@ export const PdfMapHex = ({
   // CASTLE WALLS
   if (isCastleTerrain(hex.terrain)) {
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
-    const castleText = inventoryID === Pieces.castleBaseEnd || inventoryID === Pieces.castleWallEnd ? 'E' :
-      inventoryID === Pieces.castleBaseStraight || inventoryID === Pieces.castleWallStraight ? 'S' : 'C'
+    const castleText =
+      inventoryID === Pieces.castleBaseEnd ||
+      inventoryID === Pieces.castleWallEnd
+        ? 'E'
+        : inventoryID === Pieces.castleBaseStraight ||
+            inventoryID === Pieces.castleWallStraight
+          ? 'S'
+          : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
@@ -154,8 +189,7 @@ export const PdfMapHex = ({
       piecesSoFar?.[inventoryID]?.template === '7' ||
       piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 ||
       piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk9 ||
-      piecesSoFar?.[inventoryID]?.template === '24'
-    ) &&
+      piecesSoFar?.[inventoryID]?.template === '24') &&
     hex.isObstacleAuxiliary
   ) {
     return null
@@ -167,10 +201,7 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex2
-          hex={hex}
-          isSubLevel={isSubLevel}
-        />
+        <PdfMultiHex2 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -181,10 +212,7 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex3
-          hex={hex}
-          isSubLevel={isSubLevel}
-        />
+        <PdfMultiHex3 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -195,10 +223,7 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex4
-          hex={hex}
-          isSubLevel={isSubLevel}
-        />
+        <PdfMultiHex4 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -209,10 +234,7 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex7
-          hex={hex}
-          isSubLevel={isSubLevel}
-        />
+        <PdfMultiHex7 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -223,10 +245,7 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHexWallWalk7
-          hex={hex}
-          isSubLevel={isSubLevel}
-        />
+        <PdfMultiHexWallWalk7 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -237,10 +256,7 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHexWallWalk9
-          hex={hex}
-          isSubLevel={isSubLevel}
-        />
+        <PdfMultiHexWallWalk9 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -251,10 +267,7 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex6
-          hex={hex}
-          isSubLevel={isSubLevel}
-        />
+        <PdfMultiHex6 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -265,10 +278,7 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHexMarvel6
-          hex={hex}
-          isSubLevel={isSubLevel}
-        />
+        <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -279,10 +289,7 @@ export const PdfMapHex = ({
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex24
-          hex={hex}
-          isSubLevel={isSubLevel}
-        />
+        <PdfMultiHex24 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -305,4 +312,3 @@ export const PdfMapHex = ({
     </G>
   )
 }
-

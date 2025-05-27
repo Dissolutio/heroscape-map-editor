@@ -24,7 +24,7 @@ const World = ({
   isHidden: boolean
 }) => {
   const mapGroupRef = React.useRef<THREE.Group<THREE.Object3DEventMap> | null>(
-    null
+    null,
   )
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)

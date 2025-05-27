@@ -40,7 +40,10 @@ import type { Point } from '../types'
 //   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
 //   return { points, corners }
 // }
-export function getLaurShortWallSvgPolygonPoints(radius: number, borderWidth: number) {
+export function getLaurShortWallSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
   const halfBorder = borderWidth / 2
   const topX = 0
   const apothem = (Math.sqrt(3) * radius) / 2
@@ -66,15 +69,18 @@ export function getLaurShortWallSvgPolygonPoints(radius: number, borderWidth: nu
     // { x: apothem + borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, //  bottom-right of rectangle
     // { x: rightXOuter - borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, // bottom-left of rectangle
     // THIS DOES NOT LOOK LIKE RENEGADE, BUT IS MORE LEGIBLE AND DIFFERENTIATED FROM 2-HEX LAND
-    { x: rightXOuter - borderWidth, y: topSideYOuter + (borderWidth) }, // top-left of rectangle
-    { x: apothem + borderWidth, y: topSideYOuter + (borderWidth) }, // top-right of rectangle
-    { x: apothem + borderWidth, y: bottomSideYOuter - (borderWidth) }, //  bottom-right of rectangle
-    { x: rightXOuter - borderWidth, y: bottomSideYOuter - (borderWidth) }, // bottom-left of rectangle
+    { x: rightXOuter - borderWidth, y: topSideYOuter + borderWidth }, // top-left of rectangle
+    { x: apothem + borderWidth, y: topSideYOuter + borderWidth }, // top-right of rectangle
+    { x: apothem + borderWidth, y: bottomSideYOuter - borderWidth }, //  bottom-right of rectangle
+    { x: rightXOuter - borderWidth, y: bottomSideYOuter - borderWidth }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function getLaurWallRuinSvgPolygonPoints(radius: number, borderWidth: number) {
+export function getLaurWallRuinSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
   const halfBorder = borderWidth / 2
   const topX = 0
   const apothem = (Math.sqrt(3) * radius) / 2
@@ -94,15 +100,18 @@ export function getLaurWallRuinSvgPolygonPoints(radius: number, borderWidth: num
   const topSideYInner = -0.5 * radiusInner
 
   const corners: Point[] = [
-    { x: rightXOuter - borderWidth, y: topSideYOuter + (borderWidth) }, // top-left of triangle
+    { x: rightXOuter - borderWidth, y: topSideYOuter + borderWidth }, // top-left of triangle
     { x: hexWidth - apothem / 2, y: -radius / 5 }, // right of triangle
     { x: hexWidth - apothem / 2, y: radius / 5 }, // right of triangle
-    { x: rightXOuter - borderWidth, y: bottomSideYOuter - (borderWidth) }, // bottom-left of triangle
+    { x: rightXOuter - borderWidth, y: bottomSideYOuter - borderWidth }, // bottom-left of triangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function getHexagonSvgPolygonPointsAt00(radius: number, borderWidth: number) {
+export function getHexagonSvgPolygonPointsAt00(
+  radius: number,
+  borderWidth: number,
+) {
   const halfBorder = borderWidth / 2
   const topX = 0
   // Inner hexagon
@@ -119,7 +128,7 @@ export function getHexagonSvgPolygonPointsAt00(radius: number, borderWidth: numb
   const corners: Point[] = [
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right
-    { x: rightXInner, y: bottomSideYInner }, //  bottom-right 
+    { x: rightXInner, y: bottomSideYInner }, //  bottom-right
     { x: topX, y: bottomYInner }, // bottom
     { x: leftXInner, y: bottomSideYInner }, // bottom-left
     { x: leftXInner, y: topSideYInner }, // top-left
@@ -160,7 +169,7 @@ export function get2HexSvgPolygonPointsAt00(
 
     // { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1, top-left hex2 TWEENSIE (TODO: Adding this in between point makes the interior angles sharp and more resembles Virtualscape)
 
-    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2 
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
     { x: hexWidth, y: topYInner }, //  top hex2
     { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
     { x: hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex2
@@ -214,7 +223,7 @@ export function get3HexSvgPolygonPointsAt00(
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
 
-    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2 
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
     { x: hexWidth, y: topYInner }, //  top hex2
     { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
     { x: hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex2
@@ -267,11 +276,11 @@ export function get3HexStraightSvgPolygonPointsAt00(
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
 
-    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2 
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
     { x: hexWidth, y: topYInner }, //  top hex2
     { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
 
-    { x: 2 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex3 
+    { x: 2 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex3
     { x: 2 * hexWidth, y: topYInner }, //  top hex3
     { x: 2 * hexWidth + apothemInner, y: topSideYInner }, // top-right hex3
     { x: 2 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex3
@@ -324,7 +333,7 @@ export function get5HexStraightSvgPolygonPointsAt00(
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
 
-    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2 
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
     { x: hexWidth, y: topYInner }, //  top hex2
     { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
 
@@ -400,7 +409,7 @@ export function get4HexSvgPolygonPointsAt00(
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
 
-    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2 
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
     { x: hexWidth, y: topYInner }, //  top hex2
     { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
     { x: hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex2
@@ -459,11 +468,11 @@ export function get6HexSvgPolygonPointsAt00(
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
 
-    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2 
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
     { x: hexWidth, y: topYInner }, //  top hex2
     { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
 
-    { x: 2 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex3 
+    { x: 2 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex3
     { x: 2 * hexWidth, y: topYInner }, //  top hex3
     { x: 2 * hexWidth + apothemInner, y: topSideYInner }, // top-right hex3
     { x: 2 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex3
@@ -527,7 +536,7 @@ export function getMarvel6HexSvgPolygonPointsAt00(
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
 
-    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2 
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
     { x: hexWidth, y: topYInner }, //  top hex2
     { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
     { x: hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex2
@@ -602,7 +611,7 @@ export function get7HexSvgPolygonPointsAt00(
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
 
-    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2 
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
     { x: hexWidth, y: topYInner }, //  top hex2
     { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
     { x: hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex2
@@ -671,8 +680,7 @@ export function get24HexSvgPolygonPointsAt00(
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
 
-
-    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2 
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
     { x: hexWidth, y: topYInner }, //  top hex2
     { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
     { x: hexWidth + apothemInner, y: topSideYInner + radiusInner }, // bottom-right hex2
@@ -785,7 +793,7 @@ export function get7HexWallWalkSvgPolygonPointsAt00(
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
 
-    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2 
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
     { x: hexWidth, y: topYInner }, //  top hex2
     { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
 
@@ -856,7 +864,7 @@ export function get9HexWallWalkSvgPolygonPointsAt00(
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
 
-    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2 
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
     { x: hexWidth, y: topYInner }, //  top hex2
     { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
 
