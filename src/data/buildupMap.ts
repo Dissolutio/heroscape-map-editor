@@ -78,7 +78,8 @@ function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: string[]) {
       aPieceID === Pieces.battlement
     ) {
       return 1 // Move 'targetValue' to the end
-    }if (
+    }
+    if (
       bPieceID === Pieces.laurWallRuin ||
       bPieceID === Pieces.laurWallLong ||
       bPieceID === Pieces.laurWallShort ||
@@ -87,7 +88,7 @@ function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: string[]) {
     ) {
       return -1 // Move 'targetValue' to the end
     }
-      return 0 // Maintain original order
+    return 0 // Maintain original order
   })
 }
 export function buildupJsonFileMap(

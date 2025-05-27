@@ -71,11 +71,11 @@ export const DrawerList = ({
         ]),
       ),
     )
-    const fullUrl =
-      `${window.location.origin + window.location.pathname}?m=${myUrl}`
+    const fullUrl = `${window.location.origin + window.location.pathname}?m=${myUrl}`
     if (fullUrl.length > 2082) {
       enqueueSnackbar({
-        message: 'Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.',
+        message:
+          'Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.',
         variant: 'error',
         autoHideDuration: 3000,
       })
