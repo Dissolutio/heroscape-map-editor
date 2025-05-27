@@ -8,7 +8,7 @@ import {
   PdfBoardPieceLaurWallRuin,
   PdfBoardPieceLaurWallShort,
   PdfMultiHex1,
-} from '../svg-map/SvgShapes'
+} from './PdfSvgShapes'
 
 const hexTextStyle = {
   fontSize: 0.8 * SVG_HEX_RADIUS,

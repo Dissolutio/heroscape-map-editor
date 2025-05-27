@@ -13,7 +13,7 @@ import {
 } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import { SvgHexIDText } from './SvgHexIDText'
-import { SvgOutcrop3 } from './SvgShapes'
+import { SvgOutcrop3 } from '../pdf-map/PdfSvgShapes'
 import { getHexagonSvgPolygonPointsAt00 } from './getHexagonSvgPolygonPoints'
 import { getSvgHexBorderColor, getSvgHexFillColor } from './getSvgHexColors'
 
