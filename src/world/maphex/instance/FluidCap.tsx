@@ -46,7 +46,7 @@ const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       {/* <meshMatcapMaterial transparent opacity={0.85} /> */}
       {boardHexArr.map((hex, i) => (
         <FluidCap
-          key={hex.id + i + 'fluid'}
+          key={`${hex.id + i}fluid`}
           boardHex={hex}
           onPointerUp={onPointerUp}
           isVisible={range >= i}

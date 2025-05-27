@@ -23,7 +23,7 @@ export function useSessionStorage<T>(
 
   // Return a wrapped version of useState's setter function that persists the new value to localStorage
   const setValue = (value: T) => {
-    if (typeof window == 'undefined') {
+    if (typeof window === 'undefined') {
       console.warn(
         `Tried setting sessionStorage key “${key}” even though environment is not a client`,
       )

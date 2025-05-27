@@ -52,7 +52,7 @@ export default function ObstacleBase({
     <mesh position={[x, y, z]}>
       <cylinderGeometry args={treeBaseCylinderArgs} />
       <meshMatcapMaterial
-        color={color || hexTerrainColor['treeBase']}
+        color={color || hexTerrainColor.treeBase}
         transparent={isTransparent}
         opacity={0.85}
       />

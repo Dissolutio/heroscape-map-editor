@@ -55,7 +55,7 @@ export const powerGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'Q',
     type: 'temporary',
     effect: 'Move 3 figures',
-    description: `Choose up to 3 of your figures other than the one on this Glyph. You may move each of the chosen figures up to 5 spaces.`,
+    description: 'Choose up to 3 of your figures other than the one on this Glyph. You may move each of the chosen figures up to 5 spaces.',
   },
   removal: {
     // Felaron
@@ -65,7 +65,7 @@ export const powerGlyphs: HexoscapeGlyphs = {
     glyphLetter: 'F',
     type: 'temporary',
     effect: 'Remove a glyph',
-    description: `Remove any other Glyph from the battlefield.`,
+    description: 'Remove any other Glyph from the battlefield.',
   },
   // CLASSIC TEMPORARY
   objective: {

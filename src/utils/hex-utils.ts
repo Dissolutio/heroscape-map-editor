@@ -79,7 +79,6 @@ function hexUtilsRotateVector(
         r: -v.q,
         s: -v.r,
       }
-    case 0:
     default:
       return v
   }

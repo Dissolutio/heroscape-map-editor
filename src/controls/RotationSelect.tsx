@@ -36,17 +36,17 @@ export default function RotationSelect() {
             aria-label={`${r}-times rotated 60 degrees`}
           >
             {r === 0 ? (
-              <MdOutlineEast></MdOutlineEast>
+              <MdOutlineEast />
             ) : r === 1 ? (
-              <MdOutlineSouthEast></MdOutlineSouthEast>
+              <MdOutlineSouthEast />
             ) : r === 2 ? (
-              <MdOutlineSouthWest></MdOutlineSouthWest>
+              <MdOutlineSouthWest />
             ) : r === 3 ? (
-              <MdOutlineWest></MdOutlineWest>
+              <MdOutlineWest />
             ) : r === 4 ? (
-              <MdOutlineNorthWest></MdOutlineNorthWest>
+              <MdOutlineNorthWest />
             ) : (
-              <MdOutlineNorthEast></MdOutlineNorthEast>
+              <MdOutlineNorthEast />
             )}
           </ToggleButton>
         ))}
