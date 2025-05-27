@@ -77,13 +77,13 @@ export default function LandSubterrain({ pid }: { pid: string }) {
         return (
           <Subterrain1>
             {isFluidTerrainHex(pieceTerrain) ? (
-              <meshLambertMaterial
+              <meshStandardMaterial
                 color={color}
                 transparent
                 opacity={FLUID_CAP_OPACITY}
               />
             ) : (
-              <meshMatcapMaterial color={color} />
+              <meshStandardMaterial color={color} />
             )}
           </Subterrain1>
         )
@@ -91,13 +91,13 @@ export default function LandSubterrain({ pid }: { pid: string }) {
         return (
           <Subterrain2>
             {isFluidTerrainHex(pieceTerrain) ? (
-              <meshLambertMaterial
+              <meshStandardMaterial
                 color={color}
                 transparent
                 opacity={FLUID_CAP_OPACITY}
               />
             ) : (
-              <meshMatcapMaterial color={color} />
+              <meshStandardMaterial color={color} />
             )}
           </Subterrain2>
         )
@@ -105,13 +105,13 @@ export default function LandSubterrain({ pid }: { pid: string }) {
         return (
           <Subterrain3>
             {isFluidTerrainHex(pieceTerrain) ? (
-              <meshLambertMaterial
+              <meshStandardMaterial
                 color={color}
                 transparent
                 opacity={FLUID_CAP_OPACITY}
               />
             ) : (
-              <meshMatcapMaterial color={color} />
+              <meshStandardMaterial color={color} />
             )}
           </Subterrain3>
         )
@@ -119,13 +119,13 @@ export default function LandSubterrain({ pid }: { pid: string }) {
         return (
           <Subterrain4>
             {isFluidTerrainHex(pieceTerrain) ? (
-              <meshLambertMaterial
+              <meshStandardMaterial
                 color={color}
                 transparent
                 opacity={FLUID_CAP_OPACITY}
               />
             ) : (
-              <meshMatcapMaterial color={color} />
+              <meshStandardMaterial color={color} />
             )}
           </Subterrain4>
         )
@@ -133,13 +133,13 @@ export default function LandSubterrain({ pid }: { pid: string }) {
         return (
           <Subterrain5>
             {isFluidTerrainHex(pieceTerrain) ? (
-              <meshLambertMaterial
+              <meshStandardMaterial
                 color={color}
                 transparent
                 opacity={FLUID_CAP_OPACITY}
               />
             ) : (
-              <meshMatcapMaterial color={color} />
+              <meshStandardMaterial color={color} />
             )}
           </Subterrain5>
         )
@@ -147,13 +147,13 @@ export default function LandSubterrain({ pid }: { pid: string }) {
         return (
           <Subterrain6>
             {isFluidTerrainHex(pieceTerrain) ? (
-              <meshLambertMaterial
+              <meshStandardMaterial
                 color={color}
                 transparent
                 opacity={FLUID_CAP_OPACITY}
               />
             ) : (
-              <meshMatcapMaterial color={color} />
+              <meshStandardMaterial color={color} />
             )}
           </Subterrain6>
         )
@@ -161,13 +161,13 @@ export default function LandSubterrain({ pid }: { pid: string }) {
         return (
           <Subterrain6B>
             {isFluidTerrainHex(pieceTerrain) ? (
-              <meshLambertMaterial
+              <meshStandardMaterial
                 color={color}
                 transparent
                 opacity={FLUID_CAP_OPACITY}
               />
             ) : (
-              <meshMatcapMaterial color={color} />
+              <meshStandardMaterial color={color} />
             )}
           </Subterrain6B>
         )
@@ -175,13 +175,13 @@ export default function LandSubterrain({ pid }: { pid: string }) {
         return (
           <Subterrain7B>
             {isFluidTerrainHex(pieceTerrain) ? (
-              <meshLambertMaterial
+              <meshStandardMaterial
                 color={color}
                 transparent
                 opacity={FLUID_CAP_OPACITY}
               />
             ) : (
-              <meshMatcapMaterial color={color} />
+              <meshStandardMaterial color={color} />
             )}
           </Subterrain7B>
         )
@@ -189,13 +189,13 @@ export default function LandSubterrain({ pid }: { pid: string }) {
         return (
           <Subterrain7>
             {isFluidTerrainHex(pieceTerrain) ? (
-              <meshLambertMaterial
+              <meshStandardMaterial
                 color={color}
                 transparent
                 opacity={FLUID_CAP_OPACITY}
               />
             ) : (
-              <meshMatcapMaterial color={color} />
+              <meshStandardMaterial color={color} />
             )}
           </Subterrain7>
         )
@@ -203,13 +203,13 @@ export default function LandSubterrain({ pid }: { pid: string }) {
         return (
           <Subterrain9>
             {isFluidTerrainHex(pieceTerrain) ? (
-              <meshLambertMaterial
+              <meshStandardMaterial
                 color={color}
                 transparent
                 opacity={FLUID_CAP_OPACITY}
               />
             ) : (
-              <meshMatcapMaterial color={color} />
+              <meshStandardMaterial color={color} />
             )}
           </Subterrain9>
         )
@@ -217,13 +217,13 @@ export default function LandSubterrain({ pid }: { pid: string }) {
         return (
           <Subterrain24>
             {isFluidTerrainHex(pieceTerrain) ? (
-              <meshLambertMaterial
+              <meshStandardMaterial
                 color={color}
                 transparent
                 opacity={FLUID_CAP_OPACITY}
               />
             ) : (
-              <meshMatcapMaterial color={color} />
+              <meshStandardMaterial color={color} />
             )}
           </Subterrain24>
         )
@@ -244,66 +244,99 @@ export default function LandSubterrain({ pid }: { pid: string }) {
 
 export function Subterrain24({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_24.glb') as any
-  return <mesh geometry={nodes.Subterrain_24.geometry}>{children}</mesh>
+  return <mesh
+    castShadow
+    receiveShadow
+    geometry={nodes.Subterrain_24.geometry}>{children}</mesh>
 }
 useGLTF.preload('/subterrain_24.glb')
 
 export function Subterrain9({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_9.glb') as any
-  return <mesh geometry={nodes['Subterrain-9'].geometry}>{children}</mesh>
+  return <mesh
+    castShadow
+    receiveShadow
+    geometry={nodes['Subterrain-9'].geometry}>{children}</mesh>
 }
 useGLTF.preload('/subterrain_9.glb')
 
 export function Subterrain7B({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_7B.glb') as any
-  return <mesh geometry={nodes['Subterrain-7B'].geometry}>{children}</mesh>
+  return <mesh
+    castShadow
+    receiveShadow
+    geometry={nodes['Subterrain-7B'].geometry}>{children}</mesh>
 }
 useGLTF.preload('/subterrain_7B.glb')
 
 export function Subterrain7({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_7.glb') as any
-  return <mesh geometry={nodes.Subterrain_7.geometry}>{children}</mesh>
+  return <mesh
+    castShadow
+    receiveShadow
+    geometry={nodes.Subterrain_7.geometry}>{children}</mesh>
 }
 useGLTF.preload('/subterrain_7.glb')
 
 export function Subterrain6({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_6.glb') as any
-  return <mesh geometry={nodes.Subterrain_6.geometry}>{children}</mesh>
+  return <mesh
+    castShadow
+    receiveShadow
+    geometry={nodes.Subterrain_6.geometry}>{children}</mesh>
 }
 useGLTF.preload('/subterrain_6.glb')
 
 export function Subterrain6B({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_6B.glb') as any
-  return <mesh geometry={nodes['Subterrain-6B'].geometry}>{children}</mesh>
+  return <mesh
+    castShadow
+    receiveShadow
+    geometry={nodes['Subterrain-6B'].geometry}>{children}</mesh>
 }
 useGLTF.preload('/subterrain_6B.glb')
 
 export function Subterrain5({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_5.glb') as any
-  return <mesh geometry={nodes.Subterrain_5.geometry}>{children}</mesh>
+  return <mesh
+    castShadow
+    receiveShadow
+    geometry={nodes.Subterrain_5.geometry}>{children}</mesh>
 }
 useGLTF.preload('/subterrain_5.glb')
 
 export function Subterrain4({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_4.glb') as any
-  return <mesh geometry={nodes.Subterrain_4.geometry}>{children}</mesh>
+  return <mesh
+    castShadow
+    receiveShadow
+    geometry={nodes.Subterrain_4.geometry}>{children}</mesh>
 }
 useGLTF.preload('/subterrain_4.glb')
 
 export function Subterrain3({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_3.glb') as any
-  return <mesh geometry={nodes.Subterrain_3.geometry}>{children}</mesh>
+  return <mesh
+    castShadow
+    receiveShadow
+    geometry={nodes.Subterrain_3.geometry}>{children}</mesh>
 }
 useGLTF.preload('/subterrain_3.glb')
 
 export function Subterrain2({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_2.glb') as any
-  return <mesh geometry={nodes.Subterrain_2.geometry}>{children}</mesh>
+  return <mesh
+    castShadow
+    receiveShadow
+    geometry={nodes.Subterrain_2.geometry}>{children}</mesh>
 }
 useGLTF.preload('/subterrain_2.glb')
 
 export function Subterrain1({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_1.glb') as any
-  return <mesh geometry={nodes.Subterrain_1.geometry}>{children}</mesh>
+  return <mesh
+    castShadow
+    receiveShadow
+    geometry={nodes.Subterrain_1.geometry}>{children}</mesh>
 }
 useGLTF.preload('/subterrain_1.glb')

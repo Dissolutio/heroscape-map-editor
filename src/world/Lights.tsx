@@ -1,66 +1,32 @@
+import { TransformControls } from "@react-three/drei";
+
 export default function Lights() {
   return (
     <>
-      <ambientLight intensity={2} />
-      {/* 4 in rectangle over top, shop-light style */}
+      <ambientLight intensity={1} />
       <directionalLight
-        position={[0, 0, 1000]}
         castShadow
-        // position={[50, 50, 50]}
-        color={'#fff'}
+        position={[10, 3, 10]}
         intensity={1}
+        // color="yellow"
+        shadow-mapSize-height={512}
+        shadow-mapSize-width={512}
       />
       <directionalLight
-        position={[0, 0, 1000]}
         castShadow
-        // position={[50, 50, -50]}
-        color={'#f2f2e8'}
-        intensity={1}
+        position={[10, 3, 10]}
+        intensity={0.2}
+        color="yellow"
+        shadow-mapSize-height={512}
+        shadow-mapSize-width={512}
       />
       <directionalLight
-        position={[0, 0, 1000]}
         castShadow
-        // position={[-50, 50, 50]}
-        color={'#ffcd42'}
-        intensity={1}
-      />
-      <directionalLight
-        position={[0, 0, 1000]}
-        castShadow
-        // position={[-50, 50, -50]}
-        color={'#fff5b1'}
-        intensity={1}
-      />
-      <hemisphereLight args={['#fff5b1', '#ffcd42', 2]} />
-
-      {/* 4 on sides, picture-day style */}
-      <directionalLight
-        position={[0, 30, 1000]}
-        castShadow
-        // position={[-50, 0, 0]}
-        color={'#fff'}
-        intensity={1}
-      />
-      <directionalLight
-        position={[0, 30, 1000]}
-        castShadow
-        // position={[-50, 0, -50]}
-        color={'#f2f2e8'}
-        intensity={1}
-      />
-      <directionalLight
-        position={[0, 30, 1000]}
-        castShadow
-        // position={[0, 0, 0]}
-        color={'#ffcd42'}
-        intensity={1}
-      />
-      <directionalLight
-        position={[0, 30, 1000]}
-        castShadow
-        // position={[0, 0, -50]}
-        color={'#fff5b1'}
-        intensity={1}
+        position={[10, 3, 10]}
+        intensity={0.2}
+        color="red"
+        shadow-mapSize-height={512}
+        shadow-mapSize-width={512}
       />
     </>
   )

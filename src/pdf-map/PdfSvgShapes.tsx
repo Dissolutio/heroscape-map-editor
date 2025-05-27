@@ -16,7 +16,10 @@ import {
   getLaurWallRuinSvgPolygonPoints,
   getMarvel6HexSvgPolygonPointsAt00,
 } from '../svg-map/getHexagonSvgPolygonPoints'
-import { getSvgHexBorderColor, getSvgHexFillColor } from '../svg-map/getSvgHexColors'
+import {
+  getSvgHexBorderColor,
+  getSvgHexFillColor,
+} from '../svg-map/getSvgHexColors'
 import { type BoardHex, type DecodedPieceID, HexTerrain } from '../types'
 import {
   OPACITY_EMPTY,

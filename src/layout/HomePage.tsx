@@ -11,6 +11,22 @@ import { DrawerList } from './DrawerList'
 import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
 import { LoadMapInputs } from './LoadMapButtons'
+import { Canvas } from '@react-three/fiber'
+import { OrbitControls, useGLTF } from '@react-three/drei'
+import { HEXGRID_HEX_APOTHEM, HEXGRID_HEX_RADIUS, HEXGRID_HEXCAP_FLUID_HEIGHT } from '../utils/constants'
+import { CylinderGeometryArgs } from '../world/maphex/instance-hex'
+import { DoubleSide } from 'three'
+
+const baseCylinderArgs: CylinderGeometryArgs = [
+  0.9,
+  0.997,
+  HEXGRID_HEXCAP_FLUID_HEIGHT,
+  6,
+  undefined,
+  false,
+  undefined,
+  undefined,
+]
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(null)
@@ -33,15 +49,17 @@ export default function HomePage() {
   const toggleIsNavOpen = (s: boolean) => {
     setIsNavOpen(s)
   }
-  const [isPdfOpen, setIsPdfOpen] = React.useState(true)
+  const [isPdfOpen, setIsPdfOpen] = React.useState(false)
   const toggleIsPdfOpen = (s: boolean) => {
     setIsPdfOpen(s)
   }
-  const [is2DOpen, setIs2DOpen] = React.useState(true)
+  const [is2DOpen, setIs2DOpen] = React.useState(false)
   const toggleIs2DOpen = (s: boolean) => {
     setIsPdfOpen(false)
     setIs2DOpen(s)
   }
+  const { nodes: nodes1HexSubTerrain } = useGLTF('/subterrain_1.glb') as any
+  const { nodes: nodesLaurPillar } = useGLTF('/laurwall-pillar.glb') as any
 
   return (
     <>
@@ -106,6 +124,69 @@ export default function HomePage() {
                 isHidden={is2DOpen || isPdfOpen}
                 cameraControlsRef={cameraControlsRef}
               />
+              {/* 
+              <Canvas shadows>
+                <ambientLight intensity={0.3} />
+                <directionalLight
+                  castShadow
+                  position={[5, 5, 5]}
+                  intensity={1}
+                  shadow-mapSize-height={1024}
+                  shadow-mapSize-width={1024}
+                />
+                <mesh
+                  castShadow
+                  receiveShadow
+                  geometry={nodes1HexSubTerrain.Subterrain_1.geometry}>
+                  <meshStandardMaterial
+                    color={"#BADA55"}
+                  />
+                </mesh>
+                <group
+                  position={[1 * HEXGRID_HEX_APOTHEM, 0, 1.5 * HEXGRID_HEX_RADIUS]}
+                >
+                  <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
+                    <mesh castShadow geometry={nodesLaurPillar.PillarTop.geometry}>
+                      <meshStandardMaterial
+                        color={"##7F7CAF"}
+                      />
+                    </mesh>
+                    <mesh castShadow geometry={nodesLaurPillar.SubDecorCore.geometry}>
+                      <meshStandardMaterial
+                        color={"#7774AA"}
+                      />
+                    </mesh>
+                    <mesh castShadow geometry={nodesLaurPillar.Facade.geometry}>
+                      <meshStandardMaterial
+                        side={DoubleSide}
+                        color={"##7F7CAF"}
+                      />
+                    </mesh>
+                    <mesh castShadow geometry={nodesLaurPillar.FacadeInner.geometry}>
+                      <meshStandardMaterial
+                        side={DoubleSide}
+                        color={"#7774AA"}
+                      />
+                    </mesh>
+                  </group>
+                  <group position={[0, 0, 0]}>
+                    <mesh>
+                      <cylinderGeometry args={baseCylinderArgs} />
+                      <meshStandardMaterial
+                        color={"##7F7CAF"}
+                      />
+                    </mesh>
+
+                  </group>
+                </group>
+
+                <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
+                  <planeGeometry args={[10, 10]} />
+                  <shadowMaterial color="lightgray" opacity={0.5} />
+                </mesh>
+                <OrbitControls />
+              </Canvas>
+               */}
             </>
           </div>
           <div

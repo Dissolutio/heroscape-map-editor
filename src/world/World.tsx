@@ -60,6 +60,7 @@ const World = ({
           }}
           // frameloop='demand'
           hidden={isHidden}
+          shadows
         >
           {/* <color attach="background" args={["white"]} /> */}
           <PerspectiveCamera

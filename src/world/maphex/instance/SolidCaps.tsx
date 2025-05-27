@@ -37,13 +37,14 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       range={range}
       ref={ref}
       frustumCulled={false}
+      receiveShadow
     >
       <cylinderGeometry args={baseSolidCapCylinderArgs} />
       {/* {isCameraDisabled ? <meshPhongMaterial wireframe={true} wireframeLinewidth={0.01} wireframeLinecap='' /> :
         <meshMatcapMaterial />} */}
       {/* {!isCameraDisabled ? <meshLambertMaterial opacity={0.8} transparent /> :
         <meshMatcapMaterial />} */}
-      <meshMatcapMaterial />
+      <meshStandardMaterial />
       {boardHexArr.map((hex, i) => (
         <SolidCap
           key={hex.id + i}
@@ -132,6 +133,7 @@ function SolidCap({
         onPointerLeave={handlePointerOut}
         onPointerUp={handlePointerUp}
         frustumCulled={false}
+        receiveShadow
       />
     </group>
   )
