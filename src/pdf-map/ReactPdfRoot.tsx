@@ -3,7 +3,7 @@ import { Document, PDFViewer, Text, View } from '@react-pdf/renderer'
 import useBoundStore from '../store/store'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
-import { MapState } from '../types'
+import type { MapState } from '../types'
 
 export function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
