@@ -41,6 +41,7 @@ import DeletePieceBillboard from './DeletePieceBillboard'
 import HeightRing from './HeightRing'
 import { MapHexIDDisplay } from './MapHexIDDisplay'
 import { hexTerrainColor } from './hexColors'
+import { GlyphModel } from '../models/Gylph'
 
 export const MapHex3D = ({
   boardHex,
@@ -285,39 +286,25 @@ export const MapHex3D = ({
         )}
         {/* POWER GLYPHS */}
         {isPowerGlyphHex && (
-          <mesh position={[x, y, z]}>
-            <cylinderGeometry args={[
-              0.9,
-              0.997,
-              HEXGRID_HEXCAP_FLUID_HEIGHT * 3,
-              6,
-              undefined,
-              false,
-              undefined,
-              undefined,
-            ]} />
-            <meshMatcapMaterial
-              color={'#830C0C'} //coolors matched with aquilla yellow #daa040
-            />
-          </mesh>
+          <Suspense fallback={<ModelLoader />}>
+            <group
+              position={[x, yBase, z]}
+              rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
+            >
+              <GlyphModel boardHex={boardHex} />
+            </group>
+          </Suspense>
         )}
         {/* TREASURE GLYPHS */}
         {isTreasureGlyphHex && (
-          <mesh position={[x, y, z]}>
-            <cylinderGeometry args={[
-              0.9,
-              0.997,
-              HEXGRID_HEXCAP_FLUID_HEIGHT * 3,
-              6,
-              undefined,
-              false,
-              undefined,
-              undefined,
-            ]} />
-            <meshMatcapMaterial
-              color={'#BC8224'} //coolors matched with aquilla yellow #daa040
-            />
-          </mesh>
+          <Suspense fallback={<ModelLoader />}>
+            <group
+              position={[x, yBase, z]}
+              rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
+            >
+              <GlyphModel boardHex={boardHex} />
+            </group>
+          </Suspense>
         )}
         {isGlacier1Hex && (
           <>

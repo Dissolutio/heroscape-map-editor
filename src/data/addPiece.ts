@@ -87,6 +87,7 @@ export function addPiece({
   const isCastleWallPiece = piece.id.includes(PiecePrefixes.castleWall)
   const isCastleArchPiece =
     piece.id === Pieces.castleArch || piece.id === Pieces.castleArchNoDoor
+  const isGlyphPiece = piece.terrain === HexTerrain.glyph
   // Validate
   const isPlacingOnTable = underHexIds.every(
     (id) => (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.empty,
@@ -139,9 +140,9 @@ export function addPiece({
   // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
   const isObstaclePieceSupported =
     isSolidUnderAll ||
-    (piece.id === Pieces.laurWallPillar && isLandUnderAll) || // Laur wall pillars can be placed on fluid tiles, per Renegade
+    ((piece.id === Pieces.laurWallPillar || isGlyphPiece) && isLandUnderAll) || // Laur wall pillars, and glyphs, can be placed on fluid tiles, per Renegade
     (isBridgingObstaclePieceID(piece.id) && isSolidUnderAtLeastOne) ||
-    isPlacingOnTable
+    (isPlacingOnTable && !isGlyphPiece) // glyphs cannot go directly on table
   const isLadderPieceSupported = isSolidUnderAll || isLadderAuxiliaryUnderAll
   const isBattlementPieceSupported_TODO = true // TODO: compute
   const isPlacingObstacle =
@@ -380,7 +381,7 @@ export function addPiece({
           // remove old cap
           newBoardHexes[hexUnderneath.id].isCap = false
         }
-            newBoardHexes[hexUnderneath.id].isCap = false
+        newBoardHexes[hexUnderneath.id].isCap = false
         newBoardHexes[newHexID] = {
           id: newHexID,
           q: piecePlaneCoords[i].q,
