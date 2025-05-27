@@ -101,8 +101,10 @@ export function addPiece({
   const isSolidUnderAll = underHexIds.every((id) =>
     isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
   )
-  const isLandUnderAll = underHexIds.every((id) =>
-    isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? '') || isFluidTerrainHex(newBoardHexes?.[id]?.terrain ?? '')
+  const isLandUnderAll = underHexIds.every(
+    (id) =>
+      isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? '') ||
+      isFluidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
   )
   const isLadderAuxiliaryUnderAll = underHexIds.every(
     (id) =>

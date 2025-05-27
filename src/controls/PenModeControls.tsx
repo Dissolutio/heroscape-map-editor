@@ -16,6 +16,16 @@ import {
 } from 'react-icons/gi'
 import useBoundStore from '../store/store'
 import { PiecePrefixes, Pieces } from '../types'
+import {
+  TbHexagonNumber1Filled,
+  TbHexagonNumber2Filled,
+  TbHexagonNumber3Filled,
+  TbHexagonNumber4Filled,
+  TbHexagonNumber5Filled,
+  TbHexagonNumber6Filled,
+  TbHexagonNumber7Filled,
+  TbHexagonNumber8Filled,
+} from 'react-icons/tb'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
@@ -46,8 +56,8 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-          flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
-        )
+            flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
+          )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -55,11 +65,11 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-        )
+            flatPieceSizes?.[3] ??
+              flatPieceSizes?.[2] ??
+              flatPieceSizes?.[1] ??
+              flatPieceSizes[0],
+          )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -67,12 +77,12 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-          flatPieceSizes?.[4] ??
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-        )
+            flatPieceSizes?.[4] ??
+              flatPieceSizes?.[3] ??
+              flatPieceSizes?.[2] ??
+              flatPieceSizes?.[1] ??
+              flatPieceSizes[0],
+          )
         : noop() /*isEnabled*/,
   )
   useHotkeys('z', () => togglePenMode('select') /*isEnabled*/)
@@ -417,6 +427,7 @@ export default function PenModeControls() {
         </MenuItem>
 
         {/* GLYPHS */}
+        <Divider />
         <MenuItem value={Pieces.glyphPower}>
           <ListItemIcon>
             <GiCastle />
@@ -430,27 +441,63 @@ export default function PenModeControls() {
           <span>Treasure Glyph</span>
         </MenuItem>
 
-        {/* <Divider /> */}
         {/* START ZONES BEGIN */}
-        {/* 
-        <MenuItem value={PenMode.startZone0}>
+        <Divider />
+
+        <MenuItem value={Pieces.startZone1}>
           <ListItemIcon>
             <TbHexagonNumber1Filled />
           </ListItemIcon>
           <span>Start Zone: P1</span>
         </MenuItem>
-        <MenuItem value={PenMode.startZone1}>
+        <MenuItem value={Pieces.startZone2}>
           <ListItemIcon>
             <TbHexagonNumber2Filled />
           </ListItemIcon>
           <span>Start Zone: P2</span>
         </MenuItem>
-        <MenuItem value={PenMode.startZone2}>
+        <MenuItem value={Pieces.startZone3}>
           <ListItemIcon>
             <TbHexagonNumber3Filled />
           </ListItemIcon>
           <span>Start Zone: P3</span>
-        </MenuItem> */}
+        </MenuItem>
+        <MenuItem value={Pieces.startZone3}>
+          <ListItemIcon>
+            <TbHexagonNumber3Filled />
+          </ListItemIcon>
+          <span>Start Zone: P3</span>
+        </MenuItem>
+        <MenuItem value={Pieces.startZone4}>
+          <ListItemIcon>
+            <TbHexagonNumber4Filled />
+          </ListItemIcon>
+          <span>Start Zone: P4</span>
+        </MenuItem>
+        <MenuItem value={Pieces.startZone5}>
+          <ListItemIcon>
+            <TbHexagonNumber5Filled />
+          </ListItemIcon>
+          <span>Start Zone: P5</span>
+        </MenuItem>
+        <MenuItem value={Pieces.startZone6}>
+          <ListItemIcon>
+            <TbHexagonNumber6Filled />
+          </ListItemIcon>
+          <span>Start Zone: P6</span>
+        </MenuItem>
+        <MenuItem value={Pieces.startZone7}>
+          <ListItemIcon>
+            <TbHexagonNumber7Filled />
+          </ListItemIcon>
+          <span>Start Zone: P7</span>
+        </MenuItem>
+        <MenuItem value={Pieces.startZone8}>
+          <ListItemIcon>
+            <TbHexagonNumber8Filled />
+          </ListItemIcon>
+          <span>Start Zone: P8</span>
+        </MenuItem>
 
         {/* <Divider /> */}
         {/* ERASER BUTTONS BEGIN */}
