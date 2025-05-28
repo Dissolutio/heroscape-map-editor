@@ -41,7 +41,7 @@ import DeletePieceBillboard from './DeletePieceBillboard'
 import HeightRing from './HeightRing'
 import { MapHexIDDisplay } from './MapHexIDDisplay'
 import { hexTerrainColor } from './hexColors'
-import { GlyphModel } from '../models/Gylph'
+import { GlyphModel } from '../models/Glyph'
 
 export const MapHex3D = ({
   boardHex,
