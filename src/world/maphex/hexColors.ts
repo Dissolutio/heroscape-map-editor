@@ -121,8 +121,8 @@ export const svgColors = {
   outlineJungle: 'rgb(121, 61, 26)',
   outlineLaurWall: 'rgb(215, 38, 156)',
   // OBSTACLES
-  // glyphFill: 'rgb(64, 0, 0)', // virtualscape
-  fillGlyph: 'rgb(244, 106, 22)',
+  [HexTerrain.glyph]: 'rgb(64, 0, 0)', // virtualscape
+  // glyph: 'rgb(244, 106, 22)', // renegade
   fillJungle: 'rgb(249, 233, 8)',
   [HexTerrain.palm]: 'rgb(67, 249, 57)',
   [HexTerrain.tree]: 'rgb(51, 160, 62)',

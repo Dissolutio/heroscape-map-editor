@@ -44,6 +44,18 @@ const singleHexObstacleHeightTextProps = (heightText: string) => ({
       ? -0.5 * SVG_HEX_APOTHEM
       : -0.3 * SVG_HEX_APOTHEM,
 })
+const glyphTextProps = (glyphText: string) => ({
+  style: {
+    fontSize: 0.5 * SVG_HEX_RADIUS,
+    fontWeight: 'bold',
+  },
+  y: 0.2 * SVG_HEX_RADIUS,
+  x:
+    glyphText.toString().length === 2
+      ? 0.1 * SVG_HEX_RADIUS
+      : -0.15 * SVG_HEX_APOTHEM,
+      : '-1.5em',
+})
 
 export const PdfMapHex = ({
   hex,
@@ -91,7 +103,7 @@ export const PdfMapHex = ({
       </G>
     )
   }
-  // TREES
+  // TREE 415
   if (inventoryID === Pieces.tree415) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
@@ -101,12 +113,23 @@ export const PdfMapHex = ({
   }
   // Glyphs
   if (hex.terrain === HexTerrain.glyph) {
+    // const glyphShortName = 
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfSvgTree415 hex={hex} isSubLevel={isSubLevel} />
+        <PdfMultiHex1 isGlyph hex={hex} isSubLevel={isSubLevel} />
+        <Text
+          fill="white"
+          // white text needs a little opacity boost
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          // {...glyphTextProps(`${pieceHeightText}`)}
+          {...glyphTextProps(`GL`)}
+        >
+          {"GL"}
+        </Text>
       </G>
     )
   }
+  // Single hex trees
   if (isEvergreenTree(hex.terrain)) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>

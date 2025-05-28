@@ -44,22 +44,25 @@ const twoCharNumberAdjust = -0.15 * SVG_HEX_RADIUS
 export const PdfMultiHex1 = ({
   hex,
   isSubLevel,
+  isGlyph
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  isGlyph?: boolean
 }) => {
   const isEmptyHex = hex.terrain === 'empty'
   const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = SVG_BORDER_WIDTH > 0 ? isGlyph ? fillColor : getSvgHexBorderColor(hex) : ''
   const borderWidth = isEmptyHex ? SVG_EMPTYHEX_BORDER_WIDTH : SVG_BORDER_WIDTH
   const { points } = isEmptyHex
-    ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_EMPTYHEX_BORDER_WIDTH)
-    : getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+    ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_EMPTYHEX_BORDER_WIDTH) :
+    isGlyph ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS / 3, 0)
+      : getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {isSubLevel && (
         <Polygon
-          points={getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          points={isGlyph ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS / 2, 0).points : getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
