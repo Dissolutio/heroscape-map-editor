@@ -111,7 +111,7 @@ export const PdfMapHex = ({
     )
   }
   // Glyphs
-  if (hex.terrain === HexTerrain.glyph) {
+  if (hex.terrain === HexTerrain.glyphPower || hex.terrain === HexTerrain.glyphTreasure) {
     // const glyphShortName = 
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
@@ -121,7 +121,7 @@ export const PdfMapHex = ({
           // white text needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           // {...glyphTextProps(`${pieceHeightText}`)}
-          {...glyphTextProps(`GL`)}
+          {...glyphTextProps('GL')}
         >
           {"GL"}
         </Text>

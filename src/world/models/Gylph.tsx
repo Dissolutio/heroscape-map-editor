@@ -6,7 +6,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 
-export const glyphModelHeight = 0.05
+
 
 export function GlyphModel({ boardHex }: { boardHex: BoardHex }) {
   const { nodes } = useGLTF('/glyph.glb') as any

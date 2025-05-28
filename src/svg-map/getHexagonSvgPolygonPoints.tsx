@@ -100,10 +100,10 @@ export function getLaurWallRuinSvgPolygonPoints(
   const topSideYInner = -0.5 * radiusInner
 
   const corners: Point[] = [
-    { x: rightXOuter - borderWidth, y: topSideYOuter + borderWidth }, // top-left of triangle
+    { x: rightXOuter, y: topSideYOuter + borderWidth }, // top-left of triangle
     { x: hexWidth - apothem / 2, y: -radius / 5 }, // right of triangle
     { x: hexWidth - apothem / 2, y: radius / 5 }, // right of triangle
-    { x: rightXOuter - borderWidth, y: bottomSideYOuter - borderWidth }, // bottom-left of triangle
+    { x: rightXOuter, y: bottomSideYOuter - borderWidth }, // bottom-left of triangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }

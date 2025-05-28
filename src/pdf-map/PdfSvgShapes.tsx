@@ -107,7 +107,7 @@ export const PdfBoardPieceLaurWallShort = ({
         points={points}
         fill={fillColor}
         stroke={fillColor}
-        // strokeWidth={SVG_BORDER_WIDTH / 2}
+        strokeWidth={SVG_BORDER_WIDTH / 2}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
