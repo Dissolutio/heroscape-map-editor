@@ -41,6 +41,8 @@ export const hexTerrainColor: Dictionary<string> = {
   ...virtualscapeTileColors,
   [HexTerrain.empty]: '#020300',
   // All these colors below have been verified on coolors: lock a color and explore! https://coolors.co/fcecc9-336aeb-fcb0b3-f93943-355a44
+  [HexTerrain.glyphPower]: 'rgb(120, 1, 22)', // virtualscape
+  [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
   [HexTerrain.grass]: '#759B1C',
   // [HexTerrain.grass]: '#4A9A4E', // sample from Renegade map pdfs, but not the palette I generated for everything else :(
   [HexTerrain.rock]: '#3D6A7B',
@@ -89,7 +91,7 @@ export const hexTerrainColor: Dictionary<string> = {
   ticallaBrush1: '#1EA300',
   ticallaBrush2: '#25CC00',
   ticallaBrush3: '#22B800',
-  [HexTerrain.laurBrush]: '#0f4f00', // only gets used as subterrain color, not in model
+  laurBrush: '#0f4f00', // only gets used as subterrain color, not in model
   laurBrush1: '#1EA300',
   laurBrush2: '#25CC00',
   laurBrush3: '#22B800',
@@ -121,7 +123,6 @@ export const svgColors = {
   outlineJungle: 'rgb(121, 61, 26)',
   outlineLaurWall: 'rgb(215, 38, 156)',
   // OBSTACLES
-  [HexTerrain.glyph]: 'rgb(64, 0, 0)', // virtualscape
   // glyph: 'rgb(244, 106, 22)', // renegade
   fillJungle: 'rgb(249, 233, 8)',
   [HexTerrain.palm]: 'rgb(67, 249, 57)',
@@ -130,6 +131,9 @@ export const svgColors = {
   // TERRAIN
   [HexTerrain.grass]: 'rgb(0, 161, 0)',
   [HexTerrain.rock]: 'rgb(98, 97, 98)',
+  [HexTerrain.glyphPower]: 'rgb(64, 0, 0)', // virtualscape
+  // [HexTerrain.glyphTreasure]: 'rgb(245, 131, 0)',
+  [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
   [HexTerrain.sand]: 'rgb(211, 231, 90)',
   [HexTerrain.swamp]: 'rgb(27, 46, 22)',
   [HexTerrain.dungeon]: 'rgb(124, 177, 152)',

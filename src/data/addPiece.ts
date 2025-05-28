@@ -87,7 +87,7 @@ export function addPiece({
   const isCastleWallPiece = piece.id.includes(PiecePrefixes.castleWall)
   const isCastleArchPiece =
     piece.id === Pieces.castleArch || piece.id === Pieces.castleArchNoDoor
-  const isGlyphPiece = piece.terrain === HexTerrain.glyph
+  const isGlyphPiece = piece.terrain === HexTerrain.glyphPower || piece.terrain === HexTerrain.glyphTreasure
   // Validate
   const isPlacingOnTable = underHexIds.every(
     (id) => (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.empty,

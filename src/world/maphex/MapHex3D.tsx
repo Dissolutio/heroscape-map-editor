@@ -57,12 +57,13 @@ export const MapHex3D = ({
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const pieceID = boardPieces[boardHex.pieceID]
-  const { x, y, z, yWithBase, yBase, yBaseCap } = getBoardHex3DCoords(boardHex)
+  const { x, y, z, yWithBase, yBase, yBaseCap, yGlyph, yGlyphFluidUnder } = getBoardHex3DCoords(boardHex)
   const underHexID = genBoardHexID({
     ...boardHex,
     altitude: boardHex.altitude - 1,
   })
   const underHexTerrain = boardHexes?.[underHexID]?.terrain ?? HexTerrain.grass
+  const isUnderHexFluid = isFluidTerrainHex(underHexTerrain)
   const isShowEmptyHexes =
     !isTakingPicture && boardHex.terrain === HexTerrain.empty
   const isHeightRingedHex =
@@ -188,7 +189,7 @@ export const MapHex3D = ({
             <HeightRing position={new Vector3(x, y, z)} />
           </Suspense>
         )}
-        {isLaurPillarHex && <LaurPillar boardHex={boardHex} />}
+        {isLaurPillarHex && <LaurPillar boardHex={boardHex} isUnderHexFluid={isUnderHexFluid} />}
         {isTreeHex && (
           <>
             <Suspense fallback={<ModelLoader />}>
@@ -293,7 +294,7 @@ export const MapHex3D = ({
         {isPowerGlyphHex && (
           <Suspense fallback={<ModelLoader />}>
             <group
-              position={[x, yBase, z]}
+              position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
               rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
             >
               <GlyphModel boardHex={boardHex} />
@@ -304,7 +305,7 @@ export const MapHex3D = ({
         {isTreasureGlyphHex && (
           <Suspense fallback={<ModelLoader />}>
             <group
-              position={[x, yBase, z]}
+              position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
               rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
             >
               <GlyphModel boardHex={boardHex} />

@@ -34,6 +34,7 @@ export const HEXGRID_HEXCAP_FLUID_SCALE = 3 / 7 // fluid tiles are 3/7 the heigh
 export const HEXGRID_HEXCAP_FLUID_HEIGHT =
   HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE // 0.35 * 3/7 === 0.15
 export const HEXGRID_EMPTYHEX_HEIGHT = HEXGRID_HEX_HEIGHT / 20
+export const HEXGRID_GLYPH_HEIGHT = 0.05
 export const HEXGRID_MAX_ALTITUDE = 100 // Arbitrary
 export const MAX_RECTANGLE_MAP_DIMENSION = 40 // Arbitrary : BUT a 3ft/6ft table with 27mm based minis would be 34x68 hex rectangle
 export const MAX_HEXAGON_MAP_DIMENSION = 20 // Arbitrary

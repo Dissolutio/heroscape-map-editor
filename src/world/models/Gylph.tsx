@@ -1,11 +1,12 @@
 import { Decal, useGLTF, useTexture } from '@react-three/drei'
 import useBoundStore from '../../store/store'
-import { Pieces, type BoardHex } from '../../types'
+import type { BoardHex } from '../../types'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { decodePieceID } from '../../utils/map-utils'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
+
+export const glyphModelHeight = 0.05
 
 export function GlyphModel({ boardHex }: { boardHex: BoardHex }) {
   const { nodes } = useGLTF('/glyph.glb') as any
@@ -15,10 +16,7 @@ export function GlyphModel({ boardHex }: { boardHex: BoardHex }) {
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const glyphColor =
-    decodePieceID(boardHex.pieceID).inventoryID === Pieces.glyphPower
-      ? '#830C0C'
-      : '#BC8224' //coolors matched with aquilla yellow #daa040
+  const glyphColor = hexTerrainColor[boardHex.terrain]
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
       return

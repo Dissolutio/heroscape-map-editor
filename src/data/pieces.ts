@@ -89,7 +89,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.glyphPower]: {
     id: Pieces.glyphPower,
     title: 'Power Glyph',
-    terrain: HexTerrain.glyph,
+    terrain: HexTerrain.glyphPower,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
@@ -99,7 +99,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.glyphTreasure]: {
     id: Pieces.glyphTreasure,
     title: 'Treasure Glyph',
-    terrain: HexTerrain.glyph,
+    terrain: HexTerrain.glyphTreasure,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,

@@ -84,7 +84,8 @@ export enum HexTerrain {
   castle = 'castle',
   wallWalk = 'wallWalk',
   // other
-  glyph = 'glyph',
+  glyphPower = 'glyphPower',
+  glyphTreasure = 'glyphTreasure',
   startZone = 'startZone',
   _vsPersonal = '_vsPersonal',
   _vsFigure = '_vsFigure',
