@@ -54,15 +54,16 @@ export const PdfMultiHex1 = ({
   const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? isGlyph ? fillColor : getSvgHexBorderColor(hex) : ''
   const borderWidth = isEmptyHex ? SVG_EMPTYHEX_BORDER_WIDTH : SVG_BORDER_WIDTH
+  const glyphHexRadius = SVG_HEX_RADIUS / 1.4
   const { points } = isEmptyHex
     ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_EMPTYHEX_BORDER_WIDTH) :
-    isGlyph ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS / 3, 0)
+    isGlyph ? getHexagonSvgPolygonPointsAt00(glyphHexRadius, 0)
       : getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {isSubLevel && (
         <Polygon
-          points={isGlyph ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS / 2, 0).points : getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          points={isGlyph ? getHexagonSvgPolygonPointsAt00(glyphHexRadius, 0).points : getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}

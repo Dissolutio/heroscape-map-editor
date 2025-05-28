@@ -52,9 +52,8 @@ const glyphTextProps = (glyphText: string) => ({
   y: 0.2 * SVG_HEX_RADIUS,
   x:
     glyphText.toString().length === 2
-      ? 0.1 * SVG_HEX_RADIUS
+      ? -0.3 * SVG_HEX_RADIUS
       : -0.15 * SVG_HEX_APOTHEM,
-      : '-1.5em',
 })
 
 export const PdfMapHex = ({
