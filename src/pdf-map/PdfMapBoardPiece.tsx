@@ -5,6 +5,7 @@ import { isObstaclePieceID } from '../utils/board-utils'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
+  PdfBoardPieceLaurWallLong,
   PdfBoardPieceLaurWallRuin,
   PdfBoardPieceLaurWallShort,
   PdfMultiHex1,
@@ -36,6 +37,13 @@ export const PdfMapBoardPiece = ({
   // ROADWALLS
 
   // LAUR SHORTWALLS
+  if (inventoryID === Pieces.laurWallLong) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
+        <PdfBoardPieceLaurWallLong piece={piece} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
   if (inventoryID === Pieces.laurWallShort) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>

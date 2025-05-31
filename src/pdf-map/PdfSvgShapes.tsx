@@ -12,6 +12,7 @@ import {
   get7HexWallWalkSvgPolygonPointsAt00,
   get9HexWallWalkSvgPolygonPointsAt00,
   getHexagonSvgPolygonPointsAt00,
+  getLaurLongWallSvgPolygonPoints,
   getLaurShortWallSvgPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
   getMarvel6HexSvgPolygonPointsAt00,
@@ -104,7 +105,38 @@ export const PdfBoardPieceLaurWallShort = ({
         points={points}
         fill={fillColor}
         stroke={fillColor}
-        strokeWidth={SVG_BORDER_WIDTH / 2}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </>
+  )
+}
+export const PdfBoardPieceLaurWallLong = ({
+  piece,
+  isSubLevel,
+}: {
+  piece: DecodedPieceID
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(piece)
+  const borderColor = getSvgHexBorderColor(piece)
+  const { points } = getLaurLongWallSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
+  return (
+    <>
+      {isSubLevel && (
+        <Polygon
+          points={getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
+      <Polygon
+        points={points}
+        fill={borderColor} // RENEGADE: they have all border color, community might want regular fill
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>

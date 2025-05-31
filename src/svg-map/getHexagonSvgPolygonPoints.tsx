@@ -44,23 +44,11 @@ export function getLaurShortWallSvgPolygonPoints(
   radius: number,
   borderWidth: number,
 ) {
-  const halfBorder = borderWidth / 2
-  const topX = 0
   const apothem = (Math.sqrt(3) * radius) / 2
-  const hexWidth = 2 * apothem
   // Outer
   const rightXOuter = apothem
   const topSideYOuter = -0.5 * radius
   const bottomSideYOuter = 0.5 * radius
-  // Inner hexagon
-  const radiusInner = radius - halfBorder
-  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const rightXInner = apothemInner
-  const leftXInner = -apothemInner
-  const topYInner = -radiusInner
-  const bottomYInner = radiusInner
-  const bottomSideYInner = 0.5 * radiusInner
-  const topSideYInner = -0.5 * radiusInner
 
   const corners: Point[] = [
     // MORE FLUSH OPTIONS BUT LOOKS LIKE 2-HEX LAND
@@ -69,10 +57,29 @@ export function getLaurShortWallSvgPolygonPoints(
     // { x: apothem + borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, //  bottom-right of rectangle
     // { x: rightXOuter - borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, // bottom-left of rectangle
     // THIS DOES NOT LOOK LIKE RENEGADE, BUT IS MORE LEGIBLE AND DIFFERENTIATED FROM 2-HEX LAND
-    { x: rightXOuter - borderWidth, y: topSideYOuter + borderWidth }, // top-left of rectangle
-    { x: apothem + borderWidth, y: topSideYOuter + borderWidth }, // top-right of rectangle
-    { x: apothem + borderWidth, y: bottomSideYOuter - borderWidth }, //  bottom-right of rectangle
-    { x: rightXOuter - borderWidth, y: bottomSideYOuter - borderWidth }, // bottom-left of rectangle
+    { x: rightXOuter - borderWidth, y: topSideYOuter + (radius / 4) }, // top-left of rectangle
+    { x: apothem + borderWidth, y: topSideYOuter + (radius / 4) }, // top-right of rectangle
+    { x: apothem + borderWidth, y: bottomSideYOuter - (radius / 4) }, //  bottom-right of rectangle
+    { x: rightXOuter - borderWidth, y: bottomSideYOuter - (radius / 4) }, // bottom-left of rectangle
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
+export function getLaurLongWallSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
+  const apothem = (Math.sqrt(3) * radius) / 2
+  // Outer
+  const rightXOuter = apothem
+  const topSideYOuter = -0.5 * radius
+  const bottomSideYOuter = 0.5 * radius
+
+  const corners: Point[] = [
+    { x: radius - borderWidth, y: borderWidth }, // top-left of rectangle
+    { x: radius - borderWidth + radius + (2 * borderWidth), y: borderWidth }, // top-right of rectangle
+    { x: radius - borderWidth + radius + (2 * borderWidth), y: -borderWidth }, //  bottom-right of rectangle
+    { x: radius - borderWidth, y: -borderWidth }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
