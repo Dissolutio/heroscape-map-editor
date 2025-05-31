@@ -92,18 +92,15 @@ export const PdfBoardPieceLaurWallShort = ({
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
-  const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   return (
     <>
       {isSubLevel && (
         <Polygon
-          transform={`rotate(${pieceRotation})`}
           points={getLaurShortWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
       <Polygon
-        transform={`rotate(${pieceRotation})`}
         points={points}
         fill={fillColor}
         stroke={fillColor}
@@ -126,18 +123,15 @@ export const PdfBoardPieceLaurWallRuin = ({
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
-  const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   return (
     <>
       {isSubLevel && (
         <Polygon
-          transform={`rotate(${pieceRotation})`}
           points={getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
       <Polygon
-        transform={`rotate(${pieceRotation})`}
         points={points}
         fill={fillColor}
         stroke={borderColor}

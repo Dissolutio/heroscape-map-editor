@@ -24,6 +24,7 @@ export const PdfMapBoardPiece = ({
   const isSubLevel = altitudeAdjusted < viewingLevel
   const { inventoryID } = piece
   const isVisible = altitudeAdjusted <= viewingLevel
+  const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible) {
     return null
@@ -37,14 +38,14 @@ export const PdfMapBoardPiece = ({
   // LAUR SHORTWALLS
   if (inventoryID === Pieces.laurWallShort) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfBoardPieceLaurWallShort piece={piece} isSubLevel={isSubLevel} />
       </G>
     )
   }
   if (inventoryID === Pieces.laurWallRuin) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfBoardPieceLaurWallRuin piece={piece} isSubLevel={isSubLevel} />
       </G>
     )

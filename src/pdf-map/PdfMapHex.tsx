@@ -118,7 +118,7 @@ export const PdfMapHex = ({
         <PdfMultiHex1 isGlyph hex={hex} isSubLevel={isSubLevel} />
         <Text
           fill="white"
-          // white text needs a little opacity boost
+          // white text needs a little opaci`ty boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           // {...glyphTextProps(`${pieceHeightText}`)}
           {...glyphTextProps('GL')}
@@ -192,7 +192,16 @@ export const PdfMapHex = ({
   }
   // LAUR PILLARS and SINGLE LAND
   if (
-    inventoryID === Pieces.laurWallPillar ||
+    inventoryID === Pieces.laurWallPillar
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
+  // SINGLE HEX LAND
+  if (
     (isLandHex && piecesSoFar[inventoryID].size === 1)
   ) {
     return (
