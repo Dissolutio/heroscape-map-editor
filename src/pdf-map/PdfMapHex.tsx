@@ -70,6 +70,7 @@ export const PdfMapHex = ({
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
   const pieceHeightText = piecesSoFar[inventoryID]?.height
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
     return null
@@ -81,7 +82,7 @@ export const PdfMapHex = ({
     inventoryID === Pieces.glacier3
   ) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfSvgOutcrop3 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -89,7 +90,7 @@ export const PdfMapHex = ({
   // Glacier 6s (maybe someday outcrops/lava outcrops too)
   if (inventoryID === Pieces.glacier6) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfSvgOutcrop6 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -97,7 +98,7 @@ export const PdfMapHex = ({
   // Glacier 4s (maybe someday outcrops/lava outcrops too)
   if (inventoryID === Pieces.glacier4) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfSvgOutcrop4 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -105,7 +106,7 @@ export const PdfMapHex = ({
   // TREE 415
   if (inventoryID === Pieces.tree415) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfSvgTree415 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -178,7 +179,7 @@ export const PdfMapHex = ({
   // JUNGLE
   if (isJungleTerrainHex(hex.terrain)) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <Text
           fill="rgb(35, 31, 32)"
@@ -195,7 +196,7 @@ export const PdfMapHex = ({
     inventoryID === Pieces.laurWallPillar
   ) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -231,7 +232,7 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfMultiHex2 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -242,7 +243,7 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfMultiHex3 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -253,7 +254,7 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfMultiHex4 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -264,7 +265,7 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfMultiHex7 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -275,7 +276,7 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfMultiHexWallWalk7 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -286,7 +287,7 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfMultiHexWallWalk9 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -297,7 +298,7 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfMultiHex6 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -308,7 +309,7 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -319,12 +320,13 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfMultiHex24 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
   return (
+    null
     // {/* Snow/Ice Flakes */}
     // {/* {(hex.terrain === HexTerrain.snow || hex.terrain === HexTerrain.ice) && (
     //   <Path
@@ -337,9 +339,9 @@ export const PdfMapHex = ({
     //     transform={`translate(${(SVG_HEX_APOTHEM - 2 * SVG_HEX_APOTHEM * 0.03) / 2}, ${(SVG_HEX_RADIUS - 2 * SVG_HEX_RADIUS * 0.03) / 2})scale(0.03)`}
     //   />
     // )} */}
-    <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-      {/* Empty Hexes and Unknown */}
-      <PdfMultiHex1 hex={hex} />
-    </G>
+    // <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+    //   {/* Empty Hexes and Unknown */}
+    //   <PdfMultiHex1 hex={hex} />
+    // </G>
   )
 }

@@ -57,10 +57,10 @@ export function getLaurShortWallSvgPolygonPoints(
     // { x: apothem + borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, //  bottom-right of rectangle
     // { x: rightXOuter - borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, // bottom-left of rectangle
     // THIS DOES NOT LOOK LIKE RENEGADE, BUT IS MORE LEGIBLE AND DIFFERENTIATED FROM 2-HEX LAND
-    { x: rightXOuter - borderWidth, y: topSideYOuter + (radius / 4) }, // top-left of rectangle
-    { x: apothem + borderWidth, y: topSideYOuter + (radius / 4) }, // top-right of rectangle
-    { x: apothem + borderWidth, y: bottomSideYOuter - (radius / 4) }, //  bottom-right of rectangle
-    { x: rightXOuter - borderWidth, y: bottomSideYOuter - (radius / 4) }, // bottom-left of rectangle
+    { x: rightXOuter - borderWidth, y: topSideYOuter + (radius / 3) }, // top-left of rectangle
+    { x: apothem + borderWidth, y: topSideYOuter + (radius / 3) }, // top-right of rectangle
+    { x: apothem + borderWidth, y: bottomSideYOuter - (radius / 3) }, //  bottom-right of rectangle
+    { x: rightXOuter - borderWidth, y: bottomSideYOuter - (radius / 3) }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
@@ -76,10 +76,10 @@ export function getLaurLongWallSvgPolygonPoints(
   const bottomSideYOuter = 0.5 * radius
 
   const corners: Point[] = [
-    { x: radius - borderWidth, y: borderWidth }, // top-left of rectangle
-    { x: radius - borderWidth + radius + (2 * borderWidth), y: borderWidth }, // top-right of rectangle
-    { x: radius - borderWidth + radius + (2 * borderWidth), y: -borderWidth }, //  bottom-right of rectangle
-    { x: radius - borderWidth, y: -borderWidth }, // bottom-left of rectangle
+    { x: radius - (borderWidth || (radius / 10)), y: (borderWidth || (radius / 10)) }, // top-left of rectangle
+    { x: radius - (borderWidth || (radius / 10)) + radius + (2 * (borderWidth || (radius / 10))), y: (borderWidth || (radius / 10)) }, // top-right of rectangle
+    { x: radius - (borderWidth || (radius / 10)) + radius + (2 * (borderWidth || (radius / 10))), y: -(borderWidth || (radius / 10)) }, //  bottom-right of rectangle
+    { x: radius - (borderWidth || (radius / 10)), y: -(borderWidth || (radius / 10)) }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }

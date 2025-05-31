@@ -97,8 +97,10 @@ export const PdfBoardPieceLaurWallShort = ({
     <>
       {isSubLevel && (
         <Polygon
-          points={getLaurShortWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).points}
+          points={points}
           fill={'white'}
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
         />
       )}
       <Polygon
@@ -128,8 +130,10 @@ export const PdfBoardPieceLaurWallLong = ({
     <>
       {isSubLevel && (
         <Polygon
-          points={getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).points}
+          points={points}
           fill={'white'}
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
         />
       )}
       <Polygon
@@ -182,18 +186,15 @@ export const PdfMultiHex2 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
       {isSubLevel && (
         <Polygon
-          transform={`rotate(${pieceRotation})`}
           points={get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
       <Polygon
-        transform={`rotate(${pieceRotation})`}
         points={
           get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
         }
@@ -214,18 +215,15 @@ export const PdfMultiHex3 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
       {isSubLevel && (
         <Polygon
-          transform={`rotate(${pieceRotation})`}
           points={get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
       <Polygon
-        transform={`rotate(${pieceRotation})`}
         points={
           get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
         }
@@ -246,18 +244,15 @@ export const PdfMultiHex4 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
       {isSubLevel && (
         <Polygon
-          transform={`rotate(${pieceRotation})`}
           points={get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
       <Polygon
-        transform={`rotate(${pieceRotation})`}
         points={
           get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
         }
@@ -278,18 +273,15 @@ export const PdfMultiHex6 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
       {isSubLevel && (
         <Polygon
-          transform={`rotate(${pieceRotation})`}
           points={get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
       <Polygon
-        transform={`rotate(${pieceRotation})`}
         points={
           get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
         }
@@ -310,18 +302,15 @@ export const PdfMultiHexMarvel6 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
       {isSubLevel && (
         <Polygon
-          transform={`rotate(${pieceRotation})`}
           points={getMarvel6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
       <Polygon
-        transform={`rotate(${pieceRotation})`}
         points={
           getMarvel6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
             .points
@@ -343,18 +332,15 @@ export const PdfMultiHex7 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
       {isSubLevel && (
         <Polygon
-          transform={`rotate(${pieceRotation})`}
           points={get7HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
       <Polygon
-        transform={`rotate(${pieceRotation})`}
         points={
           get7HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
         }
@@ -375,18 +361,15 @@ export const PdfMultiHexWallWalk7 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
       {isSubLevel && (
         <Polygon
-          transform={`rotate(${pieceRotation})`}
           points={get7HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
       <Polygon
-        transform={`rotate(${pieceRotation})`}
         points={
           get7HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
             .points
@@ -408,18 +391,15 @@ export const PdfMultiHexWallWalk9 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
       {isSubLevel && (
         <Polygon
-          transform={`rotate(${pieceRotation})`}
           points={get9HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
       <Polygon
-        transform={`rotate(${pieceRotation})`}
         points={
           get9HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
             .points
@@ -441,18 +421,15 @@ export const PdfMultiHex24 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
       {isSubLevel && (
         <Polygon
-          transform={`rotate(${pieceRotation})`}
           points={get24HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
       <Polygon
-        transform={`rotate(${pieceRotation})`}
         points={
           get24HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
         }
@@ -483,18 +460,15 @@ export const PdfSvgTree415 = ({
   const pieceHeightText = piecesSoFar[hex.inventoryID].height
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <G>
       {isSubLevel && (
         <Polygon
-          transform={`rotate(${pieceRotation})`}
           points={get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
           fill={'white'}
         />
       )}
       <Polygon
-        transform={`rotate(${pieceRotation})`}
         points={
           get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
         }
