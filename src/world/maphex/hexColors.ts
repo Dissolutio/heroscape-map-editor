@@ -17,7 +17,7 @@ export const virtualscapeTileColors: Dictionary<string> = {
   [HexTerrain.lava]: 'rgb(255,64,64)',
   [HexTerrain.shadow]: 'rgb(0, 0, 0)',
   [HexTerrain.swampWater]: 'rgb(222,210,42)',
-  [HexTerrain.glyph]: 'rgb(64,0,0)',
+  [HexTerrain.glyphPower]: 'rgb(64,0,0)',
   [HexTerrain.ruin]: 'rgb(160, 0, 0)',
   [HexTerrain.roadWall]: 'rgb(120, 120, 120)',
   [HexTerrain.marvelRuin]: 'rgb(220, 220, 220)',

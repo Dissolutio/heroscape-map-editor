@@ -10,7 +10,7 @@ import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 
 export function GlyphModel({ boardHex }: { boardHex: BoardHex }) {
   const { nodes } = useGLTF('/glyph.glb') as any
-  const texture = useTexture('glyph_icon.png')
+  const texture = useTexture('glyph-valkyrie-logo.svg')
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =

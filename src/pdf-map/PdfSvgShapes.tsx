@@ -141,7 +141,7 @@ export const PdfBoardPieceLaurWallRuin = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
+        strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
