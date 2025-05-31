@@ -1,9 +1,9 @@
 export const HEXGRID_SPACING = 1 // removed for the sake of blender/grid niceness
 export const HEXGRID_HEX_RADIUS = 1
 export const HEXGRID_HEX_APOTHEM = (Math.sqrt(3) / 2) * HEXGRID_HEX_RADIUS
-export const SVG_HEX_RADIUS = 25
+export const SVG_HEX_RADIUS = 100
 export const SVG_HEX_APOTHEM = (Math.sqrt(3) / 2) * SVG_HEX_RADIUS
-export const SVG_BORDER_WIDTH = 5
+export const SVG_BORDER_WIDTH = 10
 export const SVG_EMPTYHEX_BORDER_WIDTH = 0.2 // divided by 2
 export const OPACITY_EMPTY = 0.1
 export const OPACITY_SUBLEVEL = 0.3
