@@ -57,15 +57,6 @@ export const ReactPdfSvgMapDisplay = ({
             viewingLevel={viewingLevel}
           />
         ))}
-      {boardPiecesArr
-        .filter((bp) => bp.altitude === viewingLevel)
-        .map((bp) => (
-          <PdfMapBoardPiece
-            key={bp.boardPieceID}
-            piece={bp}
-            viewingLevel={viewingLevel}
-          />
-        ))}
     </Svg>
   )
 }
