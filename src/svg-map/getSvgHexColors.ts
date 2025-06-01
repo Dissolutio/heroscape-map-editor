@@ -110,6 +110,9 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.palm) {
     return svgColors.palm
   }
+  if (hex.terrain === HexTerrain.ruin) {
+    return svgColors.ruin
+  }
   if (isEvergreenTree(hex.terrain)) {
     return svgColors.tree
   }

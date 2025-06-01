@@ -104,6 +104,94 @@ export function getLaurWallRuinSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
+export function getRuins2SvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const halfBorder = borderWidth / 2
+  const hexWidth = 2 * apothem
+  const topX = 0
+  // Outer hexagon
+  const topYOuter = -radius
+  const leftXOuter = -apothem
+  const rightXOuter = apothem
+  const topSideYOuter = -0.5 * radius
+  const bottomSideYOuter = 0.5 * radius
+
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const topSideYInner = -0.5 * radiusInner
+
+  const corners: Point[] = [
+    /* 
+    |    
+     \/\/
+    */
+    { x: leftXOuter, y: topSideYInner }, // top-left hex1
+    { x: leftXOuter, y: bottomSideYOuter }, // bottom-left hex1
+    { x: 0, y: radius }, //  bottom hex1
+    { x: rightXOuter, y: bottomSideYOuter }, //  bottom-right hex1
+
+    { x: hexWidth, y: radius }, //  bottom hex2
+    { x: hexWidth + apothem, y: bottomSideYOuter }, //  bottom-right hex2
+  ]
+  const path = `M ${corners[0].x},${corners[0].y} 
+  L ${corners[1].x},${corners[1].y}
+  L ${corners[2].x},${corners[2].y}
+  L ${corners[3].x},${corners[3].y}
+  L ${corners[4].x},${corners[4].y}
+  L ${corners[5].x},${corners[5].y}
+  `
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners, path }
+}
+export function getRuins3SvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const halfBorder = borderWidth / 2
+  const hexWidth = 2 * apothem
+  const topX = 0
+  // Outer hexagon
+  const topYOuter = -radius
+  const leftXOuter = -apothem
+  const rightXOuter = apothem
+  const topSideYOuter = -0.5 * radius
+  const bottomSideYOuter = 0.5 * radius
+
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const topSideYInner = -0.5 * radiusInner
+
+  const corners: Point[] = [
+    /* 
+    |    
+     \/\/
+    */
+    { x: leftXOuter, y: topSideYInner }, // top-left hex1
+    { x: leftXOuter, y: bottomSideYOuter }, // bottom-left hex1
+    { x: 0, y: radius }, //  bottom hex1
+    { x: rightXOuter, y: bottomSideYOuter }, //  bottom-right hex1
+
+    { x: hexWidth, y: radius }, //  bottom hex2
+    { x: hexWidth + apothem, y: bottomSideYOuter }, //  bottom-right hex2
+    { x: 2 * hexWidth, y: radius }, //  bottom hex3
+    { x: 2 * hexWidth + apothem, y: bottomSideYOuter }, //  bottom-right hex3
+  ]
+  const path = `M ${corners[0].x},${corners[0].y} 
+  L ${corners[1].x},${corners[1].y}
+  L ${corners[2].x},${corners[2].y}
+  L ${corners[3].x},${corners[3].y}
+  L ${corners[4].x},${corners[4].y}
+  L ${corners[5].x},${corners[5].y}
+  L ${corners[6].x},${corners[6].y}
+  L ${corners[7].x},${corners[7].y}
+  `
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners, path }
+}
 export function getHexagonSvgPolygonPointsAt00(
   radius: number,
   borderWidth: number,

@@ -1,4 +1,4 @@
-import { Circle, G, Polygon, Text } from '@react-pdf/renderer'
+import { Circle, G, Path, Polygon, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
   get24HexSvgPolygonPointsAt00,
@@ -16,6 +16,8 @@ import {
   getLaurShortWallSvgPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
   getMarvel6HexSvgPolygonPointsAt00,
+  getRuins2SvgPolygonPoints,
+  getRuins3SvgPolygonPoints,
 } from '../svg-map/getHexagonSvgPolygonPoints'
 import { getSvgHexBorderColor, getSvgHexFillColor } from '../svg-map/getSvgHexColors'
 import { type BoardHex, type DecodedPieceID, HexTerrain } from '../types'
@@ -28,20 +30,77 @@ import {
   SVG_HEX_RADIUS,
 } from '../utils/constants'
 
-const hexTextStyle = {
-  fontSize: 0.8 * SVG_HEX_RADIUS,
-  fontWeight: 'bold',
-}
-const singleHexObstacleHeightTextProps = (heightText: string) => ({
-  style: hexTextStyle,
-  y: 0.3 * SVG_HEX_RADIUS,
-  x:
-    heightText.toString().length === 2
-      ? -0.6 * SVG_HEX_APOTHEM
-      : -0.3 * SVG_HEX_APOTHEM,
-})
-const twoCharNumberAdjust = -0.15 * SVG_HEX_RADIUS
 
+export const PdfSvgRuins2 = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  const { path } = getRuins2SvgPolygonPoints(SVG_HEX_RADIUS, 0)
+
+  return (
+    <G>
+      {isSubLevel && (
+        <Path
+          transform={`rotate(${pieceRotation})`}
+          d={path}
+          // fill={'white'}
+          stroke={'white'}
+          strokeWidth={SVG_HEX_RADIUS / 5}
+        // strokeDasharray={`${SVG_HEX_RADIUS * 5}`}
+        />
+      )}
+      <Path
+        d={path}
+        // fill={fillColor}
+        stroke={fillColor}
+        strokeWidth={SVG_HEX_RADIUS / 5}
+        // strokeDasharray={`${SVG_HEX_RADIUS * 5}`}
+        // stroke={borderColor}
+        // strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </G>
+  )
+}
+export const PdfSvgRuins3 = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  const { path } = getRuins3SvgPolygonPoints(SVG_HEX_RADIUS, 0)
+
+  return (
+    <G>
+      {isSubLevel && (
+        <Path
+          transform={`rotate(${pieceRotation})`}
+          d={path}
+          stroke={'white'}
+          strokeWidth={SVG_HEX_RADIUS / 5}
+        />
+      )}
+      <Path
+        d={path}
+        stroke={fillColor}
+        strokeWidth={SVG_HEX_RADIUS / 5}
+        // stroke={borderColor}
+        // strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </G>
+  )
+}
 export const PdfMultiHex1 = ({
   hex,
   isSubLevel,
@@ -442,6 +501,19 @@ export const PdfMultiHex24 = ({
   )
 }
 
+const hexTextStyle = {
+  fontSize: 0.8 * SVG_HEX_RADIUS,
+  fontWeight: 'bold',
+}
+const singleHexObstacleHeightTextProps = (heightText: string) => ({
+  style: hexTextStyle,
+  y: 0.3 * SVG_HEX_RADIUS,
+  x:
+    heightText.toString().length === 2
+      ? -0.6 * SVG_HEX_APOTHEM
+      : -0.3 * SVG_HEX_APOTHEM,
+})
+const twoCharNumberAdjust = -0.15 * SVG_HEX_RADIUS
 const treeXYForRotation = [
   { x: 0.9 * SVG_HEX_APOTHEM, y: SVG_HEX_RADIUS },
   { x: -0.6 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS },

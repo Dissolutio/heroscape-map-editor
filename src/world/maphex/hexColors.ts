@@ -123,7 +123,7 @@ export const svgColors = {
   outlineJungle: 'rgb(121, 61, 26)',
   outlineLaurWall: 'rgb(215, 38, 156)',
   // OBSTACLES
-  // glyph: 'rgb(244, 106, 22)', // renegade
+  [HexTerrain.ruin]: 'rgb(160, 0, 0)',
   fillJungle: 'rgb(249, 233, 8)',
   [HexTerrain.palm]: 'rgb(67, 249, 57)',
   [HexTerrain.tree]: 'rgb(51, 160, 62)',
@@ -131,6 +131,7 @@ export const svgColors = {
   // TERRAIN
   [HexTerrain.grass]: 'rgb(0, 161, 0)',
   [HexTerrain.rock]: 'rgb(98, 97, 98)',
+  // glyph: 'rgb(244, 106, 22)', // renegade
   // [HexTerrain.glyphPower]: 'rgb(64, 0, 0)', // virtualscape
   [HexTerrain.glyphPower]: 'rgb(120, 1, 22)',
   // [HexTerrain.glyphTreasure]: 'rgb(245, 131, 0)',

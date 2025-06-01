@@ -29,6 +29,8 @@ import {
   PdfSvgOutcrop3,
   PdfSvgOutcrop4,
   PdfSvgOutcrop6,
+  PdfSvgRuins2,
+  PdfSvgRuins3,
   PdfSvgTree415,
 } from './PdfSvgShapes'
 
@@ -74,6 +76,26 @@ export const PdfMapHex = ({
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
     return null
+  }
+  // Ruins 3
+  if (
+    inventoryID === Pieces.ruins3 && hex.isObstacleOrigin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
+        <PdfSvgRuins3 hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
+  // Ruins 2
+  if (
+    inventoryID === Pieces.ruins2 && hex.isObstacleOrigin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
+        <PdfSvgRuins2 hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
   }
   // Outcrop 3s
   if (
