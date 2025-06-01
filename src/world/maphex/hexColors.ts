@@ -142,8 +142,8 @@ export const svgColors = {
   [HexTerrain.lavaField]: 'rgb(163, 0, 41)',
   [HexTerrain.snow]: 'rgb(255,255,255)',
   [HexTerrain.water]: 'rgb(67, 172, 176)',
-  [HexTerrain.wellspringWater]: 'rgb(255,255,255)',
-  // [HexTerrain.wellspringWater]: 'rgb(225,194,255)', // used this in virtualscape to differentiate from snow
+  // [HexTerrain.wellspringWater]: 'rgb(255,255,255)', // Renegade uses white, white is too confusing
+  [HexTerrain.wellspringWater]: 'rgb(225,194,255)', // used this in virtualscape to differentiate from snow
   [HexTerrain.swampWater]: 'rgb(162, 166, 32)',
   [HexTerrain.ice]: 'rgb(148, 158, 215)',
   [HexTerrain.outcrop]: '#3E3C3E',

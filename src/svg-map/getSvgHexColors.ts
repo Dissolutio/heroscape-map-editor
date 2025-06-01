@@ -58,6 +58,7 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
     hex.terrain === HexTerrain.water ||
     hex.terrain === HexTerrain.swampWater ||
     hex.terrain === HexTerrain.ice ||
+    hex.terrain === HexTerrain.lava ||
     hex.terrain === HexTerrain.shadow
   ) {
     return svgColors.outlineWater
