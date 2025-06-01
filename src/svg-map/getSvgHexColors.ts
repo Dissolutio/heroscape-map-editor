@@ -55,6 +55,7 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
     return svgColors.outline24
   }
   if (
+    hex.terrain === HexTerrain.hive ||
     hex.terrain === HexTerrain.water ||
     hex.terrain === HexTerrain.swampWater ||
     hex.terrain === HexTerrain.ice ||
@@ -116,6 +117,9 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   }
   if (isEvergreenTree(hex.terrain)) {
     return svgColors.tree
+  }
+  if (hex.terrain === HexTerrain.hive) {
+    return svgColors.swampWater
   }
   if (hex.terrain === HexTerrain.glacier) {
     return svgColors.ice

@@ -16,6 +16,8 @@ import {
 } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import {
+  PdfEmptyHex,
+  PdfHive6,
   PdfMultiHex1,
   PdfMultiHex2,
   PdfMultiHex24,
@@ -77,6 +79,14 @@ export const PdfMapHex = ({
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
     return null
   }
+  // Empty Hexes
+  if (hex.terrain === HexTerrain.empty) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfEmptyHex />
+      </G>
+    )
+  }
   // Ruins 3
   if (
     inventoryID === Pieces.ruins3 && hex.isObstacleOrigin
@@ -87,7 +97,16 @@ export const PdfMapHex = ({
       </G>
     )
   }
-  // Ruins 2
+  // Marro Hive 6
+  if (
+    inventoryID === Pieces.hive && hex.isObstacleOrigin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
+        <PdfHive6 hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
   if (
     inventoryID === Pieces.ruins2 && hex.isObstacleOrigin
   ) {
