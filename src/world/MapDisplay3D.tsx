@@ -123,7 +123,6 @@ export default function MapDisplay3D({
       clickedHex.inventoryID === Pieces.ladder
     ) {
       const clickedHex = getLadderClickedHex(hex, boardHexes)
-      console.log('🚀 ~ clickedHex:', clickedHex)
       error = paintTile({
         piece,
         clickedHex,
@@ -167,7 +166,7 @@ export default function MapDisplay3D({
           // position={[topLeft[0], 0, topLeft[1]]}
           position={[0, 0, 0]}
           scale={[width, 0, length]}
-          // rotation={new Euler(0, Math.PI, 0)}
+        // rotation={new Euler(0, Math.PI, 0)}
         />
       )}
 

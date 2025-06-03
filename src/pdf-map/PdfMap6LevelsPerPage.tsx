@@ -18,7 +18,7 @@ import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 export const PdfMapLevels6PerPage = ({
   boardHexes,
   boardPieces,
-  hexMap,
+  // hexMap,
   children,
 }: PropsWithChildren<MapState>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)

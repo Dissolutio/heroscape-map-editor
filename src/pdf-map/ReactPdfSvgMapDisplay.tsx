@@ -19,7 +19,7 @@ export const ReactPdfSvgMapDisplay = ({
   boardHexesArr,
   boardPiecesArr,
   viewingLevel,
-  chunk,
+  // chunk,
 }: ReactPdfSvgMapDisplayProps) => {
   const emptyHexesArr = boardHexesArr.filter((hex) => hex.terrain === 'empty')
   const nonEmptyHexesArr = boardHexesArr.filter(
