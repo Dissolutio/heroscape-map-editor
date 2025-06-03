@@ -15,10 +15,7 @@ type Props = {
 }
 
 // These were made after the castle walls and are VERY SIMILAR. TODO: DRY
-export default function CastleBases({
-  boardHex,
-  onPointerUp,
-}: Props) {
+export default function CastleBases({ boardHex, onPointerUp }: Props) {
   const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
   const [capColor, setCapColor] = React.useState(
     hexTerrainColor[HexTerrain.castle],

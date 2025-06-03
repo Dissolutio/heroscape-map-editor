@@ -1,10 +1,11 @@
-import { Page, Text, View } from '@react-pdf/renderer'
+import { Page, Path, Svg, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy } from 'lodash'
 import { Fragment, type PropsWithChildren } from 'react'
 import {
   type BoardHexes,
   type BoardPieces,
   type MapState,
+  type PdfMapAltitudeChunk,
   Pieces,
 } from '../types'
 import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
@@ -14,7 +15,12 @@ import {
 } from '../utils/map-utils'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 
-export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
+export const PdfMapLevels6PerPage = ({
+  boardHexes,
+  boardPieces,
+  // hexMap,
+  children,
+}: PropsWithChildren<MapState>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesWithoutEmpties = keyBy(
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
@@ -24,11 +30,14 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
     boardHexesWithoutEmpties,
     boardPieces,
   )
-  console.log("🚀 ~ PdfMapLevels6PerPage ~ boardHexAndPieceChunks:", boardHexAndPieceChunks)
+  const decodedBoardPiecesArr = Object.keys(boardPieces)
+    .map((id) => decodePieceID(id))
+    .filter((p) => Boolean(p))
   return (
     <>
       {boardHexAndPieceChunks.map((chunk, i) => (
         <Page
+          // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
           key={i}
           size="LETTER"
           style={{
@@ -36,6 +45,7 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
             maxHeight: '100vh',
           }}
         >
+          {i === 0 && children}
           <View
             style={{
               flexDirection: 'row',
@@ -46,6 +56,7 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
               {chunk.map((group, i) =>
                 i < 3 ? (
                   <View
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
                     key={i}
                     style={{
                       flexBasis: '33%',
@@ -55,7 +66,8 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
                       Level: {group.altitude}
                     </Text>
                     <ReactPdfSvgMapDisplay
-                      // levelHexArr={group.hexes}
+                      chunk={chunk[i]}
+                      boardPiecesArr={decodedBoardPiecesArr}
                       boardHexesArr={Object.values(boardHexes)}
                       width={width}
                       length={length}
@@ -69,6 +81,7 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
               {chunk.map((group, i) =>
                 i >= 3 ? (
                   <View
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
                     key={i}
                     style={{
                       flexBasis: '33%',
@@ -78,7 +91,8 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
                       Level: {group.altitude}
                     </Text>
                     <ReactPdfSvgMapDisplay
-                      // levelHexArr={group.hexes}
+                      chunk={chunk[i]}
+                      boardPiecesArr={decodedBoardPiecesArr}
                       boardHexesArr={Object.values(boardHexes)}
                       width={width}
                       length={length}
@@ -98,11 +112,10 @@ export const PdfMapLevels6PerPage = ({ boardHexes, boardPieces }: MapState) => {
 const getBoardHexAndPieceChunks = (
   boardHexes: BoardHexes,
   boardPieces: BoardPieces,
-) => {
+): PdfMapAltitudeChunk[][] => {
   const filteredBoardHexes = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
   )
-  console.log("🚀 ~ filteredBoardHexes:", filteredBoardHexes)
   const filteredBoardPieces = Object.keys(boardPieces)
     .filter((pieceID) => {
       const id = decodePieceID(pieceID).inventoryID

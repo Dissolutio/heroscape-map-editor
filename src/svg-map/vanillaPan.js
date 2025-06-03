@@ -1,5 +1,5 @@
 function getPointFromEvent(event) {
-  var point = { x: 0, y: 0 }
+  const point = { x: 0, y: 0 }
   // If event is triggered by a touch event, we get the position of the first finger
   if (event.targetTouches) {
     point.x = event.targetTouches[0].clientX
@@ -13,7 +13,7 @@ function getPointFromEvent(event) {
 }
 
 // We select the SVG into the page
-var svg = document.querySelector('svg')
+const svg = document.querySelector('svg')
 
 // If browser supports pointer events
 if (window.PointerEvent) {
@@ -35,10 +35,10 @@ if (window.PointerEvent) {
 }
 
 // This variable will be used later for move events to check if pointer is down or not
-var isPointerDown = false
+let isPointerDown = false
 
 // This variable will contain the original coordinates when the user start pressing the mouse or touching the screen
-var pointerOrigin = {
+const pointerOrigin = {
   x: 0,
   y: 0,
 }
@@ -48,7 +48,7 @@ function onPointerDown(event) {
   isPointerDown = true // We set the pointer as down
 
   // We get the pointer position on click/touchdown so we can get the value once the user starts to drag
-  var pointerPosition = getPointFromEvent(event)
+  const pointerPosition = getPointFromEvent(event)
   pointerOrigin.x = pointerPosition.x
   pointerOrigin.y = pointerPosition.y
 }

@@ -24,6 +24,7 @@ export default function EditMapFormDialog() {
   const handleClose = () => toggleIsEditMapDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
   const [newName, setNewName] = React.useState(mapName)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <Only reset when dialog opens or closes>
   React.useEffect(() => {
     if (isEditMapDialogOpen) {
       setNewName(mapName) // reset the newName to the current map name when dialog opens
@@ -34,7 +35,7 @@ export default function EditMapFormDialog() {
        */
       setNewName(mapName)
     }
-  }, [isEditMapDialogOpen]) // Only reset when dialog opens or closes
+  }, [isEditMapDialogOpen])
 
   return (
     <React.Fragment>
@@ -43,19 +44,21 @@ export default function EditMapFormDialog() {
         onClose={handleClose}
         fullScreen={fullScreen}
         fullWidth={!fullScreen}
-        PaperProps={{
-          component: 'form',
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault()
-            const formData = new FormData(event.currentTarget)
-            const formJson = Object.fromEntries((formData as any).entries())
-            const newMapName = formJson.newMapName
-            changeMapName(newMapName)
-            enqueueSnackbar({
-              message: `Updated Map Name: ${newMapName}`,
-              autoHideDuration: 3000,
-            })
-            handleClose()
+        slotProps={{
+          paper: {
+            component: 'form',
+            onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+              event.preventDefault()
+              const formData = new FormData(event.currentTarget)
+              const formJson = Object.fromEntries((formData as any).entries())
+              const newMapName = formJson.newMapName
+              changeMapName(newMapName)
+              enqueueSnackbar({
+                message: `Updated Map Name: ${newMapName}`,
+                autoHideDuration: 3000,
+              })
+              handleClose()
+            },
           },
         }}
       >

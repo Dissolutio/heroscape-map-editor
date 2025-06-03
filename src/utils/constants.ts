@@ -1,9 +1,9 @@
 export const HEXGRID_SPACING = 1 // removed for the sake of blender/grid niceness
 export const HEXGRID_HEX_RADIUS = 1
 export const HEXGRID_HEX_APOTHEM = (Math.sqrt(3) / 2) * HEXGRID_HEX_RADIUS
-export const SVG_HEX_RADIUS = 10
+export const SVG_HEX_RADIUS = 100
 export const SVG_HEX_APOTHEM = (Math.sqrt(3) / 2) * SVG_HEX_RADIUS
-export const SVG_BORDER_WIDTH = 2
+export const SVG_BORDER_WIDTH = 20
 export const SVG_EMPTYHEX_BORDER_WIDTH = 0.2 // divided by 2
 export const OPACITY_EMPTY = 0.1
 export const OPACITY_SUBLEVEL = 0.3
@@ -34,6 +34,7 @@ export const HEXGRID_HEXCAP_FLUID_SCALE = 3 / 7 // fluid tiles are 3/7 the heigh
 export const HEXGRID_HEXCAP_FLUID_HEIGHT =
   HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE // 0.35 * 3/7 === 0.15
 export const HEXGRID_EMPTYHEX_HEIGHT = HEXGRID_HEX_HEIGHT / 20
+export const HEXGRID_GLYPH_HEIGHT = 0.05
 export const HEXGRID_MAX_ALTITUDE = 100 // Arbitrary
 export const MAX_RECTANGLE_MAP_DIMENSION = 40 // Arbitrary : BUT a 3ft/6ft table with 27mm based minis would be 34x68 hex rectangle
 export const MAX_HEXAGON_MAP_DIMENSION = 20 // Arbitrary

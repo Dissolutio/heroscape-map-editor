@@ -71,11 +71,11 @@ export const DrawerList = ({
         ]),
       ),
     )
-    const fullUrl =
-      window.location.origin + window.location.pathname + '?m=' + myUrl
+    const fullUrl = `${window.location.origin + window.location.pathname}?m=${myUrl}`
     if (fullUrl.length > 2082) {
       enqueueSnackbar({
-        message: `Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.`,
+        message:
+          'Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.',
         variant: 'error',
         autoHideDuration: 3000,
       })
@@ -84,7 +84,7 @@ export const DrawerList = ({
     try {
       await navigator.clipboard.writeText(fullUrl)
       enqueueSnackbar({
-        message: `Copied shareable map URL to clipboard!`,
+        message: 'Copied shareable map URL to clipboard!',
         variant: 'success',
         autoHideDuration: 3000,
       })
@@ -274,7 +274,6 @@ export const DrawerList = ({
           type="file"
           style={hiddenStyle}
           accept=".tsv"
-          aria-hidden="true"
           onChange={readPersonalInventoryTsvFile}
         />
 

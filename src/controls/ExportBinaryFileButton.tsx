@@ -4,7 +4,7 @@ import { writeVirtualScapeArrayBuffer } from '../data/writeVirtualscapeMapFile'
 
 const ExportBinaryFileButton = () => {
   const handleClickExportBinary = () => {
-    const filename = `HexoscapeMap.hsc`
+    const filename = 'HexoscapeMap.hsc'
     const element = document.createElement('a')
     const fileByteLength = writeVirtualScapeArrayBuffer().offset
     const file = writeVirtualScapeArrayBuffer(fileByteLength).arrayBuffer

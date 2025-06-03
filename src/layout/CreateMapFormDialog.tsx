@@ -102,12 +102,14 @@ export default function CreateMapFormDialog() {
         onClose={handleClose}
         fullScreen={fullScreen}
         fullWidth={!fullScreen}
-        PaperProps={{
-          component: 'form',
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault()
-            handleSubmit()
-            handleClose()
+        slotProps={{
+          paper: {
+            component: 'form',
+            onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+              event.preventDefault()
+              handleSubmit()
+              handleClose()
+            },
           },
         }}
       >

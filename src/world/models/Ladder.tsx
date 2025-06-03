@@ -6,21 +6,24 @@ import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain } from '../../types'
+import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 
 export function Ladder({
   boardHex,
+  onPointerUp,
 }: {
   boardHex: BoardHex
+  onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
   const { nodes } = useGLTF('/handmade-ladder.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const penMode = useBoundStore((s) => s.penMode)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnterPID, onPointerOut } =
     usePieceHoverState(isVisible)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
+  const handleOnPointerUp = (event: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
       return
     }
@@ -29,7 +32,11 @@ export function Ladder({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    if (penMode === Pieces.ladder) {
+      onPointerUp(event, boardHex)
+    } else {
+      toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
@@ -39,7 +46,7 @@ export function Ladder({
   return (
     <mesh
       geometry={nodes.Ladder.geometry}
-      onPointerUp={onPointerUp}
+      onPointerUp={handleOnPointerUp}
       onPointerEnter={(e) => onPointerEnterPID(e, boardHex.pieceID)}
       onPointerOut={(e) => onPointerOut(e)}
     >

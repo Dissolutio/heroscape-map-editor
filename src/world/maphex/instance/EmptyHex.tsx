@@ -43,7 +43,7 @@ const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       <meshMatcapMaterial transparent opacity={0.1} />
       {boardHexArr.map((hex, i) => (
         <EmptyHex
-          key={hex.id + i + 'empty'}
+          key={`${hex.id + i}empty`}
           boardHex={hex}
           onPointerUp={onPointerUp}
         />

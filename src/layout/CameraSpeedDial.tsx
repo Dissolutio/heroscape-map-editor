@@ -80,7 +80,7 @@ export default function CameraSpeedDial({
         left: '2rem',
 
         // Style the button red when camera is disabled
-        ['.MuiSpeedDial-fab']: {
+        '.MuiSpeedDial-fab': {
           ...(isCamerDisabled
             ? { backgroundColor: 'red', color: 'white' }
             : {}),

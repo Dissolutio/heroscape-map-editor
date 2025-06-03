@@ -169,7 +169,8 @@ function readCStringLength(dataView: DataView): number {
       // Case 2a: If the 16-bit value is 0xFFFE, recursively call `readCStringLength`.
       // This indicates that the length is encoded in a more complex way.
       return readCStringLength(dataView)
-    } else if (short === 0xffff) {
+    }
+    if (short === 0xffff) {
       // Case 2b: If the 16-bit value is 0xFFFF, read the next 4 bytes as a 32-bit unsigned integer.
       // This represents a very large string length.
       length = getUint32(dataView)

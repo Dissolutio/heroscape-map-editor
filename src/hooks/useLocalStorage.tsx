@@ -38,7 +38,7 @@ export function useLocalStorage<T>(
 
   // Return a wrapped version of useState's setter function that persists the new value to localStorage
   const setValue = (value: T) => {
-    if (typeof window == 'undefined') {
+    if (typeof window === 'undefined') {
       console.warn(
         `Tried setting localStorage key “${key}” even though environment is not a client`,
       )
@@ -62,7 +62,7 @@ export function useLocalStorage<T>(
 
   // set/remove localStorage listeners (1 native, 1 custom)
   useEffect(() => {
-    if (typeof window == 'undefined') {
+    if (typeof window === 'undefined') {
       return
     }
     const handleStorageChange = () => {

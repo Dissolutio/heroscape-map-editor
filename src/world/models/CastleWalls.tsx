@@ -122,7 +122,9 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
           x={x}
           y={yBaseCap}
           z={z}
-          color={isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]}
+          color={
+            isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
+          }
         />
       )}
     </>

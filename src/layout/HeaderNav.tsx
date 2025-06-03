@@ -58,8 +58,8 @@ export function HeaderNav({
           <ReactPdfDownloadLink>
             <IconButton
               size="large"
-              title={`Download pdf build instructions`}
-              aria-label={`Download pdf build instructions`}
+              title={'Download pdf build instructions'}
+              aria-label={'Download pdf build instructions'}
               sx={{ mr: 2 }}
             >
               <FcPrint />

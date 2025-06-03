@@ -183,6 +183,7 @@ export function getOptionsForPalmHeight(pieceID: string) {
     case 15:
       return { scaleY: 1.04 }
     case 16:
+      return { scaleY: 1.08 }
     default:
       return { scaleY: 1.08 }
   }
@@ -204,6 +205,7 @@ export function getOptionsForTreeHeight(pieceID: string) {
         y: HEXGRID_HEX_HEIGHT / 10,
       }
     case 10:
+      return { scaleX: 0.038, scaleY: 0.038, y: 0 }
     default:
       return { scaleX: 0.038, scaleY: 0.038, y: 0 }
   }

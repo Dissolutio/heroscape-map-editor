@@ -165,8 +165,8 @@ const Controls = () => {
       <UndoRedoButtonGroup />
       <PenModeControls />
       <div style={{ padding: '0px 20px' }}>
-        {isUseInventory && !isNaN(remainingCount)
-          ? remainingCount + ' remaining'
+        {isUseInventory && !Number.isNaN(remainingCount)
+          ? `${remainingCount} remaining`
           : ''}
       </div>
       <PieceSizeSelect />

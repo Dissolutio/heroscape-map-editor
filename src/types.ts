@@ -69,9 +69,6 @@ export enum HexTerrain {
   snowTree = 'snowTree',
   palm = 'palm',
   brush = 'brush',
-  laurPalm = 'laurPalm',
-  laurBrush = 'laurBrush',
-  swampBrush = 'swampBrush',
   outcrop = 'outcrop',
   lavaRockOutcrop = 'lavaRockOutcrop',
   glacier = 'glacier',
@@ -87,7 +84,9 @@ export enum HexTerrain {
   castle = 'castle',
   wallWalk = 'wallWalk',
   // other
-  glyph = 'glyph',
+  glyphPower = 'glyphPower',
+  glyphTreasure = 'glyphTreasure',
+  startZone = 'startZone',
   _vsPersonal = '_vsPersonal',
   _vsFigure = '_vsFigure',
 }
@@ -111,6 +110,7 @@ export type PieceSet = {
   abbreviation: string
 }
 export enum PiecePrefixes {
+  startZone = 'z',
   grass = 'g',
   rock = 'r',
   sand = 's',
@@ -165,6 +165,14 @@ export enum PieceSetIds {
   swarmOfMarroMaster = 'sotm',
 }
 export enum Pieces {
+  startZone1 = `${PiecePrefixes.startZone}1`,
+  startZone2 = `${PiecePrefixes.startZone}2`,
+  startZone3 = `${PiecePrefixes.startZone}3`,
+  startZone4 = `${PiecePrefixes.startZone}4`,
+  startZone5 = `${PiecePrefixes.startZone}5`,
+  startZone6 = `${PiecePrefixes.startZone}6`,
+  startZone7 = `${PiecePrefixes.startZone}7`,
+  startZone8 = `${PiecePrefixes.startZone}8`,
   // these inventory IDs are purposely short, to make their character length small for maximum-sized URL-shareable maps
   grass1 = `${PiecePrefixes.grass}1`,
   grass2 = `${PiecePrefixes.grass}2`,
@@ -276,9 +284,10 @@ export enum Pieces {
   castleWallEnd = `${PiecePrefixes.castleWall}e`,
   castleArch = `${PiecePrefixes.castleArch}`,
   castleArchNoDoor = `${PiecePrefixes.castleArch}b`, //b broken, like marvel
-  glyphHaukeland = `${PiecePrefixes.glyph}1`, // WIP glyphs
+  glyphPower = `${PiecePrefixes.glyph}0`, // WIP glyphs
+  glyphTreasure = `${PiecePrefixes.glyph}1`,
 }
-export type AddRemovePieceError = undefined | { message?: string, error?: any }
+export type AddRemovePieceError = undefined | { message?: string; error?: any }
 export type VirtualScapeMap = {
   version: number
   name: string
@@ -322,4 +331,18 @@ export type VirtualScapeTile = {
     letter: string
     name: string
   }
+}
+export type PdfMapAltitudeChunk = {
+  altitude: number
+  hexes: BoardHex[]
+  pieces: DecodedPieceID[]
+}
+export type DecodedPieceID = {
+  boardPieceID: string
+  inventoryID: string
+  altitude: number
+  rotation: number
+  boardHexID: string
+  pieceCoords: CubeCoordinate
+  terrain: string
 }
