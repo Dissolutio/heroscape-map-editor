@@ -109,7 +109,7 @@ export function addPiece({
   const isLadderAuxiliaryUnderAll = underHexIds.every(
     (id) =>
       (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.ladder &&
-      newBoardHexes?.[id]?.isObstacleAuxiliary === true,
+      newBoardHexes?.[id]?.isVerticalClearanceHex === true,
   )
   const isEmptyUnderAll = underHexIds.every(
     (id) => (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.empty,

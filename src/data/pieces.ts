@@ -1193,7 +1193,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: Pieces.ladder,
-    height: 2,
+    height: 1,
   },
   [Pieces.battlement]: {
     id: Pieces.battlement,

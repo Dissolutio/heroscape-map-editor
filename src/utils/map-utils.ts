@@ -206,6 +206,19 @@ export const getBattlementClickedHexCoords = (
     hexUtilsGetNeighborForRotation(rotation),
   )
 }
+export const getLadderClickedHex = (
+  hex: BoardHex,
+  boardHexes: BoardHexes,
+): BoardHex => {
+  return boardHexes[
+    genBoardHexID({
+      q: hex.q,
+      r: hex.r,
+      s: hex.s,
+      altitude: hex.altitude + 1,
+    })
+  ]
+}
 const halfASideLength = HEXGRID_HEX_RADIUS / 2
 export const hexPoints3DFromCenter = {
   topRight: new Vector3(HEXGRID_HEX_APOTHEM, 0, halfASideLength), // top-right

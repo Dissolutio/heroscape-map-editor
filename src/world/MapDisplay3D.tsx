@@ -15,6 +15,7 @@ import {
   getBattlementClickedHexCoords,
   getBoardHexesRectangularMapDimensions,
   getBoardPiecesMaxLevel,
+  getLadderClickedHex,
 } from '../utils/map-utils.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import { useZoomCameraToMapCenter } from './camera/useZoomeCameraToMapCenter.tsx'
@@ -107,6 +108,14 @@ export default function MapDisplay3D({
         clickedHexCoords,
         altitude: hex.altitude - 1,
         rotation: mirrorRotation,
+      })
+    } if (piece.id === Pieces.ladder && clickedHex.inventoryID === Pieces.ladder) {
+      const clickedHex = getLadderClickedHex(hex, boardHexes)
+      console.log("🚀 ~ clickedHex:", clickedHex)
+      error = paintTile({
+        piece,
+        clickedHex,
+        rotation: clickedHex.pieceRotation,
       })
     } else {
       error = paintTile({
