@@ -109,7 +109,7 @@ export default function MapDisplay3D({
         altitude: hex.altitude - 1,
         rotation: mirrorRotation,
       })
-    } if (piece.id === Pieces.ladder && clickedHex.inventoryID === Pieces.ladder) {
+    } else if (piece.id === Pieces.ladder && clickedHex.inventoryID === Pieces.ladder) {
       const clickedHex = getLadderClickedHex(hex, boardHexes)
       console.log("🚀 ~ clickedHex:", clickedHex)
       error = paintTile({
