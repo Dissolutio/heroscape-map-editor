@@ -6,8 +6,6 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 
-
-
 export function GlyphModel({ boardHex }: { boardHex: BoardHex }) {
   const { nodes } = useGLTF('/glyph.glb') as any
   const texture = useTexture('glyph-valkyrie-logo.svg')

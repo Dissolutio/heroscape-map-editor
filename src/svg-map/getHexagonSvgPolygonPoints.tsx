@@ -57,10 +57,10 @@ export function getLaurShortWallSvgPolygonPoints(
     // { x: apothem + borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, //  bottom-right of rectangle
     // { x: rightXOuter - borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, // bottom-left of rectangle
     // THIS DOES NOT LOOK LIKE RENEGADE, BUT IS MORE LEGIBLE AND DIFFERENTIATED FROM 2-HEX LAND
-    { x: rightXOuter - borderWidth, y: topSideYOuter + (radius / 3) }, // top-left of rectangle
-    { x: apothem + borderWidth, y: topSideYOuter + (radius / 3) }, // top-right of rectangle
-    { x: apothem + borderWidth, y: bottomSideYOuter - (radius / 3) }, //  bottom-right of rectangle
-    { x: rightXOuter - borderWidth, y: bottomSideYOuter - (radius / 3) }, // bottom-left of rectangle
+    { x: rightXOuter - borderWidth, y: topSideYOuter + radius / 3 }, // top-left of rectangle
+    { x: apothem + borderWidth, y: topSideYOuter + radius / 3 }, // top-right of rectangle
+    { x: apothem + borderWidth, y: bottomSideYOuter - radius / 3 }, //  bottom-right of rectangle
+    { x: rightXOuter - borderWidth, y: bottomSideYOuter - radius / 3 }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
@@ -76,10 +76,27 @@ export function getLaurLongWallSvgPolygonPoints(
   const bottomSideYOuter = 0.5 * radius
 
   const corners: Point[] = [
-    { x: radius - (borderWidth || (radius / 10)), y: (borderWidth || (radius / 10)) }, // top-left of rectangle
-    { x: radius - (borderWidth || (radius / 10)) + radius + (2 * (borderWidth || (radius / 10))), y: (borderWidth || (radius / 10)) }, // top-right of rectangle
-    { x: radius - (borderWidth || (radius / 10)) + radius + (2 * (borderWidth || (radius / 10))), y: -(borderWidth || (radius / 10)) }, //  bottom-right of rectangle
-    { x: radius - (borderWidth || (radius / 10)), y: -(borderWidth || (radius / 10)) }, // bottom-left of rectangle
+    { x: radius - (borderWidth || radius / 10), y: borderWidth || radius / 10 }, // top-left of rectangle
+    {
+      x:
+        radius -
+        (borderWidth || radius / 10) +
+        radius +
+        2 * (borderWidth || radius / 10),
+      y: borderWidth || radius / 10,
+    }, // top-right of rectangle
+    {
+      x:
+        radius -
+        (borderWidth || radius / 10) +
+        radius +
+        2 * (borderWidth || radius / 10),
+      y: -(borderWidth || radius / 10),
+    }, //  bottom-right of rectangle
+    {
+      x: radius - (borderWidth || radius / 10),
+      y: -(borderWidth || radius / 10),
+    }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
@@ -104,10 +121,7 @@ export function getLaurWallRuinSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function getRuins2SvgPolygonPoints(
-  radius: number,
-  borderWidth: number,
-) {
+export function getRuins2SvgPolygonPoints(radius: number, borderWidth: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem
@@ -146,10 +160,7 @@ export function getRuins2SvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners, path }
 }
-export function getRuins3SvgPolygonPoints(
-  radius: number,
-  borderWidth: number,
-) {
+export function getRuins3SvgPolygonPoints(radius: number, borderWidth: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem

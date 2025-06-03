@@ -16,7 +16,10 @@ import {
   getLaurWallRuinSvgPolygonPoints,
   getMarvel6HexSvgPolygonPointsAt00,
 } from '../svg-map/getHexagonSvgPolygonPoints'
-import { getSvgHexBorderColor, getSvgHexFillColor } from '../svg-map/getSvgHexColors'
+import {
+  getSvgHexBorderColor,
+  getSvgHexFillColor,
+} from '../svg-map/getSvgHexColors'
 import { type BoardHex, type DecodedPieceID, HexTerrain } from '../types'
 import {
   OPACITY_EMPTY,
@@ -26,7 +29,6 @@ import {
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
-
 
 const hexTextStyle = {
   fontSize: 0.8 * SVG_HEX_RADIUS,
@@ -41,7 +43,6 @@ const singleHexObstacleHeightTextProps = (heightText: string) => ({
       : -0.3 * SVG_HEX_APOTHEM,
 })
 const twoCharNumberAdjust = -0.15 * SVG_HEX_RADIUS
-
 
 export const SvgOutcrop3 = ({
   hex,

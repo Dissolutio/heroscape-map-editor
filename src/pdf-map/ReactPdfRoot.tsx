@@ -99,17 +99,16 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
         padding: 20,
         alignContent: 'center',
         alignItems: 'center',
-        height: 100
+        height: 100,
       }}
     >
       <PdfSvgHeroscapeLogo
         svgProps={{
-          height: "100%",
+          height: '100%',
           // width: "100%",
-          style: { flexBasis: 150 }
-
+          style: { flexBasis: 150 },
         }}
-        fillColor='red'
+        fillColor="red"
       />
       <Text style={{ fontSize: '20px', alignSelf: 'center' }}>
         {hexMap.name}
@@ -117,8 +116,6 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
       <Text style={{ fontSize: '12px', alignSelf: 'center', padding: 5 }}>
         by: dissolutio
       </Text>
-
     </View>
   )
 }
-

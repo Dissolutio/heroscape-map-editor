@@ -4,7 +4,11 @@ import { DoubleSide } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
-import { HEXGRID_GLYPH_HEIGHT, HEXGRID_HEXCAP_FLUID_HEIGHT, HEXGRID_HEXCAP_HEIGHT } from '../../utils/constants'
+import {
+  HEXGRID_GLYPH_HEIGHT,
+  HEXGRID_HEXCAP_FLUID_HEIGHT,
+  HEXGRID_HEXCAP_HEIGHT,
+} from '../../utils/constants'
 import { getBoardHex3DCoords } from '../../utils/map-utils'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
@@ -91,14 +95,15 @@ const baseCylinderArgs: CylinderGeometryArgs = [
 
 export default function LaurWallPillar({
   boardHex,
-  isUnderHexFluid
+  isUnderHexFluid,
 }: {
   boardHex: BoardHex
   isUnderHexFluid: boolean
 }) {
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
-  const { x, z, yWithBase, yGlyph, yGlyphFluidUnder } = getBoardHex3DCoords(boardHex)
+  const { x, z, yWithBase, yGlyph, yGlyphFluidUnder } =
+    getBoardHex3DCoords(boardHex)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const { nodes } = useGLTF('/laurwall-pillar.glb') as any
@@ -148,7 +153,13 @@ export default function LaurWallPillar({
         )}
       </group>
       <group
-        position={[x, isUnderHexFluid ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT, z]}
+        position={[
+          x,
+          isUnderHexFluid
+            ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
+            : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT,
+          z,
+        ]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
         onPointerUp={onPointerUp}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}

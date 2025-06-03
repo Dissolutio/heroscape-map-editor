@@ -4,7 +4,13 @@ import type { ThreeEvent } from '@react-three/fiber'
 import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
 import useBoundStore from '../store/store.ts'
-import { type AddRemovePieceError, type BoardHex, HexTerrain, PiecePrefixes, Pieces } from '../types.ts'
+import {
+  type AddRemovePieceError,
+  type BoardHex,
+  HexTerrain,
+  PiecePrefixes,
+  Pieces,
+} from '../types.ts'
 import {
   isFluidTerrainHex,
   isJungleTerrainHex,
@@ -96,12 +102,15 @@ export default function MapDisplay3D({
     // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
     const clickedHex = isCastleWallArchClicked
       ? boardHexes[boardHexIdOfCapForWall]
-      : hex.inventoryID === Pieces.ladder && piece.id === Pieces.ladder ?
-        boardHexes[boardHexIdOfLadderAuxiliary]
+      : hex.inventoryID === Pieces.ladder && piece.id === Pieces.ladder
+        ? boardHexes[boardHexIdOfLadderAuxiliary]
         : hex
     // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
     if (piece.id === Pieces.battlement) {
-      const clickedHexCoords = getBattlementClickedHexCoords(clickedHex, pieceRotation)
+      const clickedHexCoords = getBattlementClickedHexCoords(
+        clickedHex,
+        pieceRotation,
+      )
       const mirrorRotation = (pieceRotation + 3) % 6
       error = paintPieceIdPiece({
         piece,
@@ -109,9 +118,12 @@ export default function MapDisplay3D({
         altitude: hex.altitude - 1,
         rotation: mirrorRotation,
       })
-    } else if (piece.id === Pieces.ladder && clickedHex.inventoryID === Pieces.ladder) {
+    } else if (
+      piece.id === Pieces.ladder &&
+      clickedHex.inventoryID === Pieces.ladder
+    ) {
       const clickedHex = getLadderClickedHex(hex, boardHexes)
-      console.log("🚀 ~ clickedHex:", clickedHex)
+      console.log('🚀 ~ clickedHex:', clickedHex)
       error = paintTile({
         piece,
         clickedHex,
@@ -155,7 +167,7 @@ export default function MapDisplay3D({
           // position={[topLeft[0], 0, topLeft[1]]}
           position={[0, 0, 0]}
           scale={[width, 0, length]}
-        // rotation={new Euler(0, Math.PI, 0)}
+          // rotation={new Euler(0, Math.PI, 0)}
         />
       )}
 

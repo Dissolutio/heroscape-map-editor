@@ -68,7 +68,7 @@ export const getBoardHexesRectangularMapDimensions = (
     ((hexLength === 1
       ? 2 * HEXGRID_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-      3 * HEXGRID_HEX_APOTHEM) +
+        3 * HEXGRID_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * HEXGRID_HEX_APOTHEM) /
     HEXGRID_SPACING
   const apex =
@@ -117,7 +117,7 @@ export const getBoardHexesSvgMapDimensions = (
     ((hexLength === 1
       ? 2 * SVG_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-      3 * SVG_HEX_APOTHEM) +
+        3 * SVG_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * SVG_HEX_APOTHEM) /
     HEXGRID_SPACING
   return { length, width, hexLength, hexWidth }
@@ -129,11 +129,14 @@ export const getBoardHex3DCoords = (
   const x = cubeToPixel(hex).x * HEXGRID_SPACING
   const y = altitude * HEXGRID_HEX_HEIGHT
   const z = cubeToPixel(hex).y * HEXGRID_SPACING
-  const yDropForBeingOnFluidTile = HEXGRID_HEX_HEIGHT - (HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE)
+  const yDropForBeingOnFluidTile =
+    HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE
 
   const yBaseCap = y - HEXGRID_HEX_HEIGHT
-  const yGlyph = y - HEXGRID_HEX_HEIGHT + (HEXGRID_GLYPH_HEIGHT / 2) + HEXGRID_HEXCAP_HEIGHT
-  const yGlyphFluidUnder = y - HEXGRID_HEX_HEIGHT - yDropForBeingOnFluidTile + HEXGRID_GLYPH_HEIGHT / 2
+  const yGlyph =
+    y - HEXGRID_HEX_HEIGHT + HEXGRID_GLYPH_HEIGHT / 2 + HEXGRID_HEXCAP_HEIGHT
+  const yGlyphFluidUnder =
+    y - HEXGRID_HEX_HEIGHT - yDropForBeingOnFluidTile + HEXGRID_GLYPH_HEIGHT / 2
   const yWithBase = yBaseCap + HEXGRID_HEXCAP_FLUID_HEIGHT / 2
   const yBase = yBaseCap + HEXGRID_HEXCAP_FLUID_HEIGHT / 2
   const yJungle = y

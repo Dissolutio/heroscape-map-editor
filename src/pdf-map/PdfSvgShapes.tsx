@@ -19,7 +19,10 @@ import {
   getRuins2SvgPolygonPoints,
   getRuins3SvgPolygonPoints,
 } from '../svg-map/getHexagonSvgPolygonPoints'
-import { getSvgHexBorderColor, getSvgHexFillColor } from '../svg-map/getSvgHexColors'
+import {
+  getSvgHexBorderColor,
+  getSvgHexFillColor,
+} from '../svg-map/getSvgHexColors'
 import { type BoardHex, type DecodedPieceID, HexTerrain } from '../types'
 import {
   OPACITY_EMPTY,
@@ -29,7 +32,6 @@ import {
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
-
 
 export const PdfSvgRuins2 = ({
   hex,
@@ -51,16 +53,16 @@ export const PdfSvgRuins2 = ({
           d={path}
           stroke={'white'}
           strokeWidth={SVG_BORDER_WIDTH}
-          strokeLinecap='round'
-          strokeLinejoin='round'
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       )}
       <Path
         d={path}
         stroke={fillColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap='round'
-        strokeLinejoin='round'
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </G>
@@ -104,7 +106,10 @@ export const PdfEmptyHex = () => {
   const fillColor = 'white'
   const borderColor = 'black'
   const borderWidth = SVG_EMPTYHEX_BORDER_WIDTH
-  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_EMPTYHEX_BORDER_WIDTH)
+  const { points } = getHexagonSvgPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    SVG_EMPTYHEX_BORDER_WIDTH,
+  )
   return (
     <>
       <Polygon
@@ -120,7 +125,7 @@ export const PdfEmptyHex = () => {
 export const PdfMultiHex1 = ({
   hex,
   isSubLevel,
-  isGlyph
+  isGlyph,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -128,18 +133,28 @@ export const PdfMultiHex1 = ({
 }) => {
   const isEmptyHex = hex.terrain === 'empty'
   const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? isGlyph ? fillColor : getSvgHexBorderColor(hex) : ''
+  const borderColor =
+    SVG_BORDER_WIDTH > 0
+      ? isGlyph
+        ? fillColor
+        : getSvgHexBorderColor(hex)
+      : ''
   const borderWidth = isEmptyHex ? SVG_EMPTYHEX_BORDER_WIDTH : SVG_BORDER_WIDTH
   const glyphHexRadius = SVG_HEX_RADIUS / 1.4
   const { points } = isEmptyHex
-    ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_EMPTYHEX_BORDER_WIDTH) :
-    isGlyph ? getHexagonSvgPolygonPointsAt00(glyphHexRadius, 0)
+    ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_EMPTYHEX_BORDER_WIDTH)
+    : isGlyph
+      ? getHexagonSvgPolygonPointsAt00(glyphHexRadius, 0)
       : getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {isSubLevel && (
         <Polygon
-          points={isGlyph ? getHexagonSvgPolygonPointsAt00(glyphHexRadius, 0).points : getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          points={
+            isGlyph
+              ? getHexagonSvgPolygonPointsAt00(glyphHexRadius, 0).points
+              : getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points
+          }
           fill={'white'}
         />
       )}
@@ -358,7 +373,8 @@ export const PdfMultiHex5 = ({
       )}
       <Polygon
         points={
-          get5HexStraightSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+          get5HexStraightSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+            .points
         }
         fill={fillColor}
         stroke={borderColor}
@@ -399,7 +415,9 @@ export const PdfHive6 = ({
       />
       {/* Inner blob made in Inkscape, so not dynamic yet */}
       <Path
-        d={"m 286.1131,90.73696 c 16.65839,-26.382446 54.15216,-31.892208 79.83132,-15.922364 c 17.97372,10.51788 35.03836,27.196614 57.59125,24.751205 c 22.74872,0.795339 33.98922,-21.294895 52.15463,-30.112717 c 18.42088,-8.050132 46.43658,-4.1049 55.40207,15.571474 c 10.17637,24.542152 -6.43448,52.274572 -30.46369,60.507912 c -18.87364,7.69153 -40.92365,19.04331 -43.32809,41.79135 c -2.99742,25.00222 0.9538,54.08721 -18.15166,73.93317 c -14.48747,17.32703 -40.51142,15.45047 -57.27469,2.80782 c -15.27799,-10.18442 -32.47377,-26.90733 -52.36956,-18.37378 c -13.42277,9.39008 -26.98936,19.30184 -42.8071,24.76172 c -20.63209,9.83002 -46.00051,8.09821 -63.89811,-6.5458 C 208.2596,249.78421 189.07835,237.53341 167.93492,244.2458 c -19.61348,1.87835 -30.33792,19.2147 -42.8165,31.95551 c -22.24859,21.78883 -64.126055,10.10048 -71.795918,-20.1076 c -4.537076,-15.35781 -1.1543,-36.2301 14.689092,-43.44663 c 7.776181,-6.11087 16.524827,-9.88732 25.963292,-12.65677 C 118.43879,189.54675 142.38076,166.68803 139.2922,137.93049 c -2.41869,-23.04113 -4.22448,-51.457898 16.73336,-66.951241 c 24.68892,-16.597599 57.28564,-2.150415 75.81862,17.26422 c 10.82387,13.158621 29.97878,29.987911 46.91284,16.055191 c 3.98396,-3.43307 6.65108,-8.350139 7.35608,-13.5617 z"}
+        d={
+          'm 286.1131,90.73696 c 16.65839,-26.382446 54.15216,-31.892208 79.83132,-15.922364 c 17.97372,10.51788 35.03836,27.196614 57.59125,24.751205 c 22.74872,0.795339 33.98922,-21.294895 52.15463,-30.112717 c 18.42088,-8.050132 46.43658,-4.1049 55.40207,15.571474 c 10.17637,24.542152 -6.43448,52.274572 -30.46369,60.507912 c -18.87364,7.69153 -40.92365,19.04331 -43.32809,41.79135 c -2.99742,25.00222 0.9538,54.08721 -18.15166,73.93317 c -14.48747,17.32703 -40.51142,15.45047 -57.27469,2.80782 c -15.27799,-10.18442 -32.47377,-26.90733 -52.36956,-18.37378 c -13.42277,9.39008 -26.98936,19.30184 -42.8071,24.76172 c -20.63209,9.83002 -46.00051,8.09821 -63.89811,-6.5458 C 208.2596,249.78421 189.07835,237.53341 167.93492,244.2458 c -19.61348,1.87835 -30.33792,19.2147 -42.8165,31.95551 c -22.24859,21.78883 -64.126055,10.10048 -71.795918,-20.1076 c -4.537076,-15.35781 -1.1543,-36.2301 14.689092,-43.44663 c 7.776181,-6.11087 16.524827,-9.88732 25.963292,-12.65677 C 118.43879,189.54675 142.38076,166.68803 139.2922,137.93049 c -2.41869,-23.04113 -4.22448,-51.457898 16.73336,-66.951241 c 24.68892,-16.597599 57.28564,-2.150415 75.81862,17.26422 c 10.82387,13.158621 29.97878,29.987911 46.91284,16.055191 c 3.98396,-3.43307 6.65108,-8.350139 7.35608,-13.5617 z'
+        }
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 1.2}
         transform={`translate(${-2 * SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS})`}
@@ -412,28 +430,32 @@ export const PdfHive6 = ({
         cx="9.4113"
         cy="82.45652"
         rx="16.650465"
-        ry="10.742236" />
+        ry="10.742236"
+      />
       <Ellipse
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 2}
         cx="12.63397"
         cy="101.25543"
         rx="14.502019"
-        ry="8.5937881" />
+        ry="8.5937881"
+      />
       <Ellipse
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 1.4}
         cx="49.15758"
         cy="77.35397"
         rx="25.244253"
-        ry="12.622127" />
+        ry="12.622127"
+      />
       <Ellipse
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 1.8}
         cx="49.96326"
         cy="98.30132"
         rx="23.901474"
-        ry="8.3252325" />
+        ry="8.3252325"
+      />
     </>
   )
 }

@@ -59,8 +59,8 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-          flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
-        )
+            flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
+          )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -68,11 +68,11 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-        )
+            flatPieceSizes?.[3] ??
+              flatPieceSizes?.[2] ??
+              flatPieceSizes?.[1] ??
+              flatPieceSizes[0],
+          )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -80,12 +80,12 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-          flatPieceSizes?.[4] ??
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-        )
+            flatPieceSizes?.[4] ??
+              flatPieceSizes?.[3] ??
+              flatPieceSizes?.[2] ??
+              flatPieceSizes?.[1] ??
+              flatPieceSizes[0],
+          )
         : noop() /*isEnabled*/,
   )
   useHotkeys('z', () => togglePenMode('select') /*isEnabled*/)

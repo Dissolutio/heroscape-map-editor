@@ -30,21 +30,27 @@ export const PdfMapBoardPiece = ({
   // LAUR SHORTWALLS
   if (inventoryID === Pieces.laurWallLong) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
         <PdfBoardPieceLaurWallLong piece={piece} isSubLevel={isSubLevel} />
       </G>
     )
   }
   if (inventoryID === Pieces.laurWallShort) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
         <PdfBoardPieceLaurWallShort piece={piece} isSubLevel={isSubLevel} />
       </G>
     )
   }
   if (inventoryID === Pieces.laurWallRuin) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
         <PdfBoardPieceLaurWallRuin piece={piece} isSubLevel={isSubLevel} />
       </G>
     )

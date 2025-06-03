@@ -2,7 +2,13 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { removePiece } from '../data/removePiece'
-import type { AddRemovePieceError, BoardHex, CubeCoordinate, MapState, Piece } from '../types'
+import type {
+  AddRemovePieceError,
+  BoardHex,
+  CubeCoordinate,
+  MapState,
+  Piece,
+} from '../types'
 import type { AppState } from './store'
 
 export interface MapSlice extends MapState {

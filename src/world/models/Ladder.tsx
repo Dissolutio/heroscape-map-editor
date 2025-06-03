@@ -11,7 +11,7 @@ import { hexTerrainColor } from '../maphex/hexColors'
 
 export function Ladder({
   boardHex,
-  onPointerUp
+  onPointerUp,
 }: {
   boardHex: BoardHex
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
