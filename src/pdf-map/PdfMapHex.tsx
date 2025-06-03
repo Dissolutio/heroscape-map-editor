@@ -23,6 +23,7 @@ import {
   PdfMultiHex24,
   PdfMultiHex3,
   PdfMultiHex4,
+  PdfMultiHex5,
   PdfMultiHex6,
   PdfMultiHex7,
   PdfMultiHexMarvel6,
@@ -280,23 +281,23 @@ export const PdfMapHex = ({
   }
   if (
     isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '3' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
-        <PdfMultiHex3 hex={hex} isSubLevel={isSubLevel} />
-      </G>
-    )
-  }
-  if (
-    isLandHex &&
     piecesSoFar?.[inventoryID]?.template === '4' &&
     hex.isObstacleOrigin
   ) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
         <PdfMultiHex4 hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '5' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
+        <PdfMultiHex5 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }

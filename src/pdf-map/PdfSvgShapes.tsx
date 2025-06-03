@@ -12,7 +12,6 @@ import {
   get7HexWallWalkSvgPolygonPointsAt00,
   get9HexWallWalkSvgPolygonPointsAt00,
   getHexagonSvgPolygonPointsAt00,
-  getHivePerimeterBlobPath,
   getLaurLongWallSvgPolygonPoints,
   getLaurShortWallSvgPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
@@ -331,6 +330,35 @@ export const PdfMultiHex4 = ({
       <Polygon
         points={
           get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+        }
+        fill={fillColor}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </>
+  )
+}
+export const PdfMultiHex5 = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  return (
+    <>
+      {isSubLevel && (
+        <Polygon
+          points={get5HexStraightSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+          fill={'white'}
+        />
+      )}
+      <Polygon
+        points={
+          get5HexStraightSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
         }
         fill={fillColor}
         stroke={borderColor}

@@ -1,20 +1,11 @@
 import { G } from '@react-pdf/renderer'
-import { piecesSoFar } from '../data/pieces'
 import { type DecodedPieceID, Pieces } from '../types'
-import { isObstaclePieceID } from '../utils/board-utils'
-import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   PdfBoardPieceLaurWallLong,
   PdfBoardPieceLaurWallRuin,
   PdfBoardPieceLaurWallShort,
-  PdfMultiHex1,
 } from './PdfSvgShapes'
-
-const hexTextStyle = {
-  fontSize: 0.8 * SVG_HEX_RADIUS,
-  fontWeight: 'bold',
-}
 
 export const PdfMapBoardPiece = ({
   piece,
