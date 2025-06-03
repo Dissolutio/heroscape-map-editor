@@ -50,20 +50,18 @@ export const PdfSvgRuins2 = ({
         <Path
           transform={`rotate(${pieceRotation})`}
           d={path}
-          // fill={'white'}
           stroke={'white'}
-          strokeWidth={SVG_HEX_RADIUS / 5}
-        // strokeDasharray={`${SVG_HEX_RADIUS * 5}`}
+          strokeWidth={SVG_BORDER_WIDTH}
+          strokeLinecap='round'
+          strokeLinejoin='round'
         />
       )}
       <Path
         d={path}
-        // fill={fillColor}
         stroke={fillColor}
-        strokeWidth={SVG_HEX_RADIUS / 5}
-        // strokeDasharray={`${SVG_HEX_RADIUS * 5}`}
-        // stroke={borderColor}
-        // strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={SVG_BORDER_WIDTH}
+        strokeLinecap='round'
+        strokeLinejoin='round'
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </G>
