@@ -145,7 +145,7 @@ export function addPiece({
     ((piece.id === Pieces.laurWallPillar || isGlyphPiece) && isLandUnderAll) || // Laur wall pillars, and glyphs, can be placed on fluid tiles, per Renegade
     (isBridgingObstaclePieceID(piece.id) && isSolidUnderAtLeastOne) ||
     (isPlacingOnTable && !isGlyphPiece) // glyphs cannot go directly on table
-  const isLadderPieceSupported = isSolidUnderAll || isLadderAuxiliaryUnderAll
+  const isLadderPieceSupported = isPlacingOnTable || isSolidUnderAll || isLadderAuxiliaryUnderAll
   const isBattlementPieceSupported_TODO = true // TODO: compute
   const isPlacingObstacle =
     isObstaclePieceID(piece.id) &&
@@ -153,11 +153,6 @@ export function addPiece({
     isVerticalClearanceForPiece &&
     isObstaclePieceSupported
   const isLadderPieceID = piece.terrain === HexTerrain.ladder
-  const isPlacingLadder =
-    isLadderPieceID &&
-    isSpaceFree &&
-    isVerticalClearanceForPiece &&
-    isLadderPieceSupported
   const isBattlementPieceID = piece.terrain === HexTerrain.battlement
   const isRoadWallPieceID = piece.terrain === HexTerrain.roadWall
   const isRoadWallPieceSupported_TODO = true // TODO: compute

@@ -265,7 +265,7 @@ export const MapHex3D = ({
               {selectedPieceID === boardHex.pieceID && (
                 <DeletePieceBillboard pieceID={boardHex.pieceID} />
               )}
-              <Ladder boardHex={boardHex} />
+              <Ladder boardHex={boardHex} onPointerUp={onPointerUp} />
             </group>
           </Suspense>
         )}

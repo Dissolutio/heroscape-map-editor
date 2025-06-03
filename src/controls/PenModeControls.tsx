@@ -8,10 +8,13 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import {
   GiArrowCursor,
   GiCastle,
+  GiCrenulatedShield,
   GiGrass,
   GiIsland,
+  GiLadder,
   GiPeaks,
   GiPineTree,
+  GiStoneWall,
   GiWaterfall,
 } from 'react-icons/gi'
 import useBoundStore from '../store/store'
@@ -56,8 +59,8 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-            flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
-          )
+          flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
+        )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -65,11 +68,11 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-            flatPieceSizes?.[3] ??
-              flatPieceSizes?.[2] ??
-              flatPieceSizes?.[1] ??
-              flatPieceSizes[0],
-          )
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
+        )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -77,12 +80,12 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-            flatPieceSizes?.[4] ??
-              flatPieceSizes?.[3] ??
-              flatPieceSizes?.[2] ??
-              flatPieceSizes?.[1] ??
-              flatPieceSizes[0],
-          )
+          flatPieceSizes?.[4] ??
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
+        )
         : noop() /*isEnabled*/,
   )
   useHotkeys('z', () => togglePenMode('select') /*isEnabled*/)
@@ -441,6 +444,27 @@ export default function PenModeControls() {
           <span>Treasure Glyph</span>
         </MenuItem>
 
+        {/* RoadWall, Battlements, Ladders */}
+        <Divider />
+        <MenuItem value={Pieces.roadWall}>
+          <ListItemIcon>
+            <GiStoneWall />
+          </ListItemIcon>
+          <span>Road Wall</span>
+        </MenuItem>
+        <MenuItem value={Pieces.battlement}>
+          <ListItemIcon>
+            <GiCrenulatedShield />
+          </ListItemIcon>
+          <span>Battlement</span>
+        </MenuItem>
+        <MenuItem value={Pieces.ladder}>
+          <ListItemIcon>
+            <GiLadder />
+          </ListItemIcon>
+          <span>Ladder</span>
+        </MenuItem>
+
         {/* START ZONES BEGIN */}
         <Divider />
 
@@ -499,7 +523,6 @@ export default function PenModeControls() {
           <span>Start Zone: P8</span>
         </MenuItem>
 
-        {/* <Divider /> */}
         {/* ERASER BUTTONS BEGIN */}
 
         {/* <MenuItem value={PenMode.eraserStartZone}>

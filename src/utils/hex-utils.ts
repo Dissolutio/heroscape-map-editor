@@ -1,4 +1,4 @@
-import type { CubeCoordinate } from '../types'
+import type { BoardHex, CubeCoordinate } from '../types'
 import {
   CUBE_EAST,
   CUBE_NE,
@@ -153,7 +153,6 @@ const radialDirections: { [rotation: number]: CubeCoordinate } = {
   4.5: CUBE_FAR_NORTH,
   5.5: CUBE_FAR_NE,
 }
-
 /* For most calculation, we go hex-center to hex-center, 
 drawing a line from our hex-center through the midpoint of a side.
 This is an apothem, not a radius. A radial line goes to an edge, bordering

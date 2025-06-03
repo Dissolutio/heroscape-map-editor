@@ -4,7 +4,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
 import useBoundStore from '../store/store.ts'
-import { type BoardHex, HexTerrain, PiecePrefixes } from '../types.ts'
+import { type AddRemovePieceError, type BoardHex, HexTerrain, PiecePrefixes, Pieces } from '../types.ts'
 import {
   isFluidTerrainHex,
   isJungleTerrainHex,
@@ -12,6 +12,7 @@ import {
 } from '../utils/board-utils.ts'
 import {
   genBoardHexID,
+  getBattlementClickedHexCoords,
   getBoardHexesRectangularMapDimensions,
   getBoardPiecesMaxLevel,
 } from '../utils/map-utils.ts'
@@ -41,6 +42,7 @@ export default function MapDisplay3D({
   )
   const penMode = useBoundStore((s) => s.penMode)
   const paintTile = useBoundStore((s) => s.paintTile)
+  const paintPieceIdPiece = useBoundStore((s) => s.paintPieceIdPiece)
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const pieceRotation = useBoundStore((s) => s.pieceRotation)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -60,6 +62,7 @@ export default function MapDisplay3D({
     event: ThreeEvent<PointerEvent>,
     hex: BoardHex,
   ) => {
+    let error: AddRemovePieceError
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
@@ -75,44 +78,60 @@ export default function MapDisplay3D({
 
     if (penMode === 'select') {
       toggleSelectedPieceID(hex.pieceID)
-    } else {
-      const pieceMode = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
-      const piece = piecesSoFar[pieceMode]
-      const boardHexOfCapForWall = genBoardHexID({
-        ...hex,
-        altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
-      })
-      const isCastleWallArchClicked =
-        hex.pieceID.includes(PiecePrefixes.castleWall) ||
-        hex.pieceID.includes(PiecePrefixes.castleArch)
-      // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
-      const clickedHex = isCastleWallArchClicked
-        ? boardHexes[boardHexOfCapForWall]
+    }
+    const pieceMode = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
+    const piece = piecesSoFar[pieceMode]
+    const boardHexIdOfCapForWall = genBoardHexID({
+      ...hex,
+      altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
+    })
+    const boardHexIdOfLadderAuxiliary = genBoardHexID({
+      ...hex,
+      altitude: hex.altitude + 1,
+    })
+    const isCastleWallArchClicked =
+      hex.pieceID.includes(PiecePrefixes.castleWall) ||
+      hex.pieceID.includes(PiecePrefixes.castleArch)
+    // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
+    const clickedHex = isCastleWallArchClicked
+      ? boardHexes[boardHexIdOfCapForWall]
+      : hex.inventoryID === Pieces.ladder && piece.id === Pieces.ladder ?
+        boardHexes[boardHexIdOfLadderAuxiliary]
         : hex
-      // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
-      const error = paintTile({
+    // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
+    if (piece.id === Pieces.battlement) {
+      const clickedHexCoords = getBattlementClickedHexCoords(clickedHex, pieceRotation)
+      const mirrorRotation = (pieceRotation + 3) % 6
+      error = paintPieceIdPiece({
         piece,
-        clickedHex: clickedHex,
+        clickedHexCoords,
+        altitude: hex.altitude - 1,
+        rotation: mirrorRotation,
+      })
+    } else {
+      error = paintTile({
+        piece,
+        clickedHex,
         rotation: pieceRotation,
       })
-      if (error) {
-        console.log('🚀 ~ error:', error)
-        enqueueSnackbar({
-          message: `Add piece error: ${error.message}.`,
-          variant: 'error',
-          autoHideDuration: 5000,
-        })
-        // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
-        toggleSelectedPieceID(hex.pieceID)
-      } else {
-        if (clickedHex.altitude >= viewingLevel) {
-          toggleViewingLevel(
-            Math.max(
-              getBoardPiecesMaxLevel(boardPieces),
-              clickedHex.altitude + 1,
-            ),
-          )
-        }
+    }
+    if (error) {
+      console.log('🚀 ~ error:', error)
+      enqueueSnackbar({
+        message: `Add piece error: ${error.message}.`,
+        variant: 'error',
+        autoHideDuration: 5000,
+      })
+      // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
+      toggleSelectedPieceID(hex.pieceID)
+    } else {
+      if (clickedHex.altitude >= viewingLevel) {
+        toggleViewingLevel(
+          Math.max(
+            getBoardPiecesMaxLevel(boardPieces),
+            clickedHex.altitude + 1,
+          ),
+        )
       }
     }
   }

@@ -197,6 +197,15 @@ export const getHexNearNeighborByRotation = (
     })
   ]
 }
+export const getBattlementClickedHexCoords = (
+  hex: BoardHex,
+  rotation: number,
+): CubeCoordinate => {
+  return hexUtilsAdd(
+    { q: hex.q, r: hex.r, s: hex.s },
+    hexUtilsGetNeighborForRotation(rotation),
+  )
+}
 const halfASideLength = HEXGRID_HEX_RADIUS / 2
 export const hexPoints3DFromCenter = {
   topRight: new Vector3(HEXGRID_HEX_APOTHEM, 0, halfASideLength), // top-right
