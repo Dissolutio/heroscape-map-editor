@@ -13,18 +13,12 @@ import type { AppState } from './store'
 
 export interface MapSlice extends MapState {
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
-  paintPieceIdPiece: (args: PaintPieceIDArgs) => AddRemovePieceError
   unpaintTile: (pieceID: string) => void
   loadMap: (map: MapState) => void
   changeMapName: (mapName: string) => void
 }
 
 type PaintTileArgs = {
-  piece: Piece
-  clickedHex: BoardHex
-  rotation: number
-}
-type PaintPieceIDArgs = {
   piece: Piece
   clickedHexCoords: CubeCoordinate
   altitude: number
@@ -37,38 +31,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   boardPieces: {},
   paintTile: ({
     piece,
-    clickedHex,
-    rotation,
-  }: PaintTileArgs): AddRemovePieceError => {
-    let error: AddRemovePieceError
-    set((state) => {
-      return produce(state, (draft) => {
-        const {
-          newBoardHexes,
-          newBoardPieces,
-          error: addPieceError,
-        } = addPiece({
-          piece,
-          boardHexes: draft.boardHexes,
-          boardPieces: draft.boardPieces,
-          pieceCoords: clickedHex,
-          placementAltitude: clickedHex.altitude,
-          rotation,
-          isVsTile: false,
-        })
-        error = addPieceError
-        draft.boardHexes = newBoardHexes
-        draft.boardPieces = newBoardPieces
-      })
-    })
-    return error
-  },
-  paintPieceIdPiece: ({
-    piece,
     clickedHexCoords,
     altitude,
     rotation,
-  }: PaintPieceIDArgs): AddRemovePieceError => {
+  }: PaintTileArgs): AddRemovePieceError => {
     let error: AddRemovePieceError
     set((state) => {
       return produce(state, (draft) => {

@@ -109,9 +109,10 @@ export function addPiece({
       isFluidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
   )
   const isLadderAuxiliaryUnderAll = underHexIds.every(
-    (id) =>
-      (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.ladder &&
-      newBoardHexes?.[id]?.isVerticalClearanceHex === true,
+    (id) => {
+      return (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.ladder &&
+        newBoardHexes?.[id]?.isVerticalClearanceHex === true
+    }
   )
   const isEmptyUnderAll = underHexIds.every(
     (id) => (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.empty,
@@ -209,7 +210,9 @@ export function addPiece({
       newHexIds.forEach((newHexID, i) => {
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]
         // remove caps covered by this obstacle
-        newBoardHexes[hexUnderneath.id].isCap = false
+        if (newBoardHexes?.[hexUnderneath?.id]?.isCap) {
+          newBoardHexes[hexUnderneath.id].isCap = false
+        }
         // write in the new hex
         newBoardHexes[newHexID] = {
           id: newHexID,
@@ -233,7 +236,7 @@ export function addPiece({
               // SKIP the first hex, it's the ladder origin hex
               return
             }
-            const clearanceHexAltitude = newPieceAltitude + 1 + j
+            const clearanceHexAltitude = newPieceAltitude + j
             const clearanceID = genBoardHexID({
               ...piecePlaneCoords[i],
               altitude: clearanceHexAltitude,
