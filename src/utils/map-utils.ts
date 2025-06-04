@@ -68,7 +68,7 @@ export const getBoardHexesRectangularMapDimensions = (
     ((hexLength === 1
       ? 2 * HEXGRID_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-        3 * HEXGRID_HEX_APOTHEM) +
+      3 * HEXGRID_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * HEXGRID_HEX_APOTHEM) /
     HEXGRID_SPACING
   const apex =
@@ -117,7 +117,7 @@ export const getBoardHexesSvgMapDimensions = (
     ((hexLength === 1
       ? 2 * SVG_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-        3 * SVG_HEX_APOTHEM) +
+      3 * SVG_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * SVG_HEX_APOTHEM) /
     HEXGRID_SPACING
   return { length, width, hexLength, hexWidth }
@@ -208,19 +208,6 @@ export const getBattlementClickedHexCoords = (
     { q: hex.q, r: hex.r, s: hex.s },
     hexUtilsGetNeighborForRotation(rotation),
   )
-}
-export const getLadderClickedHex = (
-  hex: BoardHex,
-  boardHexes: BoardHexes,
-): BoardHex => {
-  return boardHexes[
-    genBoardHexID({
-      q: hex.q,
-      r: hex.r,
-      s: hex.s,
-      altitude: hex.altitude + 1,
-    })
-  ]
 }
 const halfASideLength = HEXGRID_HEX_RADIUS / 2
 export const hexPoints3DFromCenter = {

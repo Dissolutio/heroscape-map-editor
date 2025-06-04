@@ -21,7 +21,6 @@ import {
   getBattlementClickedHexCoords,
   getBoardHexesRectangularMapDimensions,
   getBoardPiecesMaxLevel,
-  getLadderClickedHex,
 } from '../utils/map-utils.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import { useZoomCameraToMapCenter } from './camera/useZoomeCameraToMapCenter.tsx'
@@ -49,7 +48,6 @@ export default function MapDisplay3D({
   )
   const penMode = useBoundStore((s) => s.penMode)
   const paintTile = useBoundStore((s) => s.paintTile)
-  const paintPieceIdPiece = useBoundStore((s) => s.paintPieceIdPiece)
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const pieceRotation = useBoundStore((s) => s.pieceRotation)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -102,36 +100,48 @@ export default function MapDisplay3D({
     // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
     const clickedHex = isCastleWallArchClicked
       ? boardHexes[boardHexIdOfCapForWall]
-      : hex.inventoryID === Pieces.ladder && piece.id === Pieces.ladder
-        ? boardHexes[boardHexIdOfLadderAuxiliary]
-        : hex
+      : hex
+    const clickedHexCoords = isCastleWallArchClicked ? {
+      q: boardHexes[boardHexIdOfCapForWall].q,
+      r: boardHexes[boardHexIdOfCapForWall].r,
+      s: boardHexes[boardHexIdOfCapForWall].s,
+    } :
+      {
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
+    let clickedHexAltitude = clickedHex.altitude
     // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
     if (piece.id === Pieces.battlement) {
-      const clickedHexCoords = getBattlementClickedHexCoords(
+      const battlementClickedHexCoords = getBattlementClickedHexCoords(
         clickedHex,
         pieceRotation,
       )
+      clickedHexAltitude -= 1
       const mirrorRotation = (pieceRotation + 3) % 6
-      error = paintPieceIdPiece({
+      error = paintTile({
         piece,
-        clickedHexCoords,
-        altitude: hex.altitude - 1,
+        clickedHexCoords: battlementClickedHexCoords,
+        altitude: clickedHexAltitude,
         rotation: mirrorRotation,
       })
     } else if (
       piece.id === Pieces.ladder &&
-      clickedHex.inventoryID === Pieces.ladder
+      hex.inventoryID === Pieces.ladder
     ) {
-      const clickedHex = getLadderClickedHex(hex, boardHexes)
+      clickedHexAltitude += 1
       error = paintTile({
         piece,
-        clickedHex,
+        clickedHexCoords: clickedHexCoords,
+        altitude: clickedHexAltitude,
         rotation: clickedHex.pieceRotation,
       })
     } else {
       error = paintTile({
         piece,
-        clickedHex,
+        clickedHexCoords,
+        altitude: clickedHexAltitude,
         rotation: pieceRotation,
       })
     }
@@ -145,11 +155,11 @@ export default function MapDisplay3D({
       // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
       toggleSelectedPieceID(hex.pieceID)
     } else {
-      if (clickedHex.altitude >= viewingLevel) {
+      if (clickedHexAltitude >= viewingLevel) {
         toggleViewingLevel(
           Math.max(
             getBoardPiecesMaxLevel(boardPieces),
-            clickedHex.altitude + 1,
+            clickedHexAltitude + 1,
           ),
         )
       }
