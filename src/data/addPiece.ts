@@ -108,12 +108,12 @@ export function addPiece({
       isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? '') ||
       isFluidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
   )
-  const isLadderAuxiliaryUnderAll = underHexIds.every(
-    (id) => {
-      return (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.ladder &&
-        newBoardHexes?.[id]?.isVerticalClearanceHex === true
-    }
-  )
+  const isLadderAuxiliaryUnderAll = underHexIds.every((id) => {
+    return (
+      (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.ladder &&
+      newBoardHexes?.[id]?.isVerticalClearanceHex === true
+    )
+  })
   const isEmptyUnderAll = underHexIds.every(
     (id) => (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.empty,
   )
