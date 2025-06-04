@@ -131,6 +131,7 @@ export const svgColors = {
   // TERRAIN
   [HexTerrain.grass]: 'rgb(0, 161, 0)',
   [HexTerrain.rock]: 'rgb(98, 97, 98)',
+  [HexTerrain.road]: '#787D79',
   // glyph: 'rgb(244, 106, 22)', // renegade
   // [HexTerrain.glyphPower]: 'rgb(64, 0, 0)', // virtualscape
   [HexTerrain.glyphPower]: 'rgb(120, 1, 22)',

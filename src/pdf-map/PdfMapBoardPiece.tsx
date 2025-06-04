@@ -2,9 +2,11 @@ import { G } from '@react-pdf/renderer'
 import { type DecodedPieceID, Pieces } from '../types'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
+  PdfBattlement,
   PdfBoardPieceLaurWallLong,
   PdfBoardPieceLaurWallRuin,
   PdfBoardPieceLaurWallShort,
+  PdfRoadWall,
 } from './PdfSvgShapes'
 
 export const PdfMapBoardPiece = ({
@@ -22,10 +24,28 @@ export const PdfMapBoardPiece = ({
     return null
   }
   // BATTLEMENTS
+  if (inventoryID === Pieces.battlement) {
+    return (
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <PdfBattlement piece={piece} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
 
   // LADDERS
 
   // ROADWALLS
+  if (inventoryID === Pieces.roadWall) {
+    return (
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <PdfRoadWall piece={piece} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
 
   // LAUR SHORTWALLS
   if (inventoryID === Pieces.laurWallLong) {

@@ -96,6 +96,7 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     isSolidTerrainHex(hex.terrain) ||
     isFluidTerrainHex(hex.terrain) ||
     hex.terrain === HexTerrain.laurWall ||
+    hex.terrain === HexTerrain.roadWall ||
     hex.terrain === HexTerrain.glyphPower ||
     hex.terrain === HexTerrain.glyphTreasure ||
     hex.terrain === HexTerrain.tree
