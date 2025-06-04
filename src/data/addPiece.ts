@@ -122,7 +122,7 @@ export function addPiece({
     )
       .fill(0)
       .map((_, j) => {
-        const altitude = newPieceAltitude + 1 + j
+        const altitude = newPieceAltitude + j
         return genBoardHexID({ ...piecePlaneCoords[i], altitude })
       })
     return clearanceHexIds.every((clearanceHexId) => {
@@ -229,6 +229,10 @@ export function addPiece({
         Array(piece.height)
           .fill(0)
           .forEach((_, j) => {
+            if (j === 0) {
+              // SKIP the first hex, it's the ladder origin hex
+              return
+            }
             const clearanceHexAltitude = newPieceAltitude + 1 + j
             const clearanceID = genBoardHexID({
               ...piecePlaneCoords[i],
@@ -483,7 +487,7 @@ export function addPiece({
         Array(obstacleHeight)
           .fill(0)
           .forEach((_, j) => {
-            // For some reason castle walls don't ignore the first one
+            // For some reason castle walls don't ignore the first one, perhaps accounted for upstream
             const clearanceHexAltitude = wallAltitude + 1 + j
             const clearanceID = genBoardHexID({
               ...piecePlaneCoords[i],
@@ -560,6 +564,10 @@ export function addPiece({
           Array(verticalObstructionTemplates[piece.id][i])
             .fill(0)
             .forEach((_, j) => {
+              if (j === 0) {
+                // SKIP the first hex, it's the obstacle origin/auxiliary hex
+                return
+              }
               const clearanceHexAltitude = newPieceAltitude + j
               const clearanceID = genBoardHexID({
                 ...piecePlaneCoords[i],
@@ -593,7 +601,11 @@ export function addPiece({
           Array(piece.height)
             .fill(0)
             .forEach((_, j) => {
-              const clearanceHexAltitude = newPieceAltitude + 1 + j
+              if (j === 0) {
+                // SKIP the first hex, it's the obstacle origin/auxiliary hex
+                return
+              }
+              const clearanceHexAltitude = newPieceAltitude + j
               const clearanceID = genBoardHexID({
                 ...piecePlaneCoords[i],
                 altitude: clearanceHexAltitude,

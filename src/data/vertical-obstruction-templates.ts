@@ -9,7 +9,7 @@ export const verticalObstructionTemplates: Dictionary<number[]> = {
   [Pieces.lavaRockOutcrop3]: [5, 9, 7],
   /* 
    The order really matters here.
-   These number arrays' indices must line up with the templates' indices, as each hex in a terrain model might have a different height.
+   These number arrays' indices must line up with the tileTemplates' indices, as each hex in a terrain model might have a different height.
   */
   [Pieces.ruins2]: [
     // Played with this in virtualscape, and here's how much I think each hex in the template requires for clearance:
