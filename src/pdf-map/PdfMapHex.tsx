@@ -210,7 +210,7 @@ export const PdfMapHex = ({
     )
   }
   // CASTLE WALLS
-  if (isCastleTerrain(hex.terrain)) {
+  if (isCastleTerrain(hex.terrain) && hex.isObstacleOrigin) {
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
