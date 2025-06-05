@@ -41,7 +41,7 @@ export function GlyphModel({ boardHex }: { boardHex: BoardHex }) {
         onPointerOut={(e) => onPointerOut(e)}
       >
         <meshMatcapMaterial color={color} />
-        <Decal map={texture} />
+        <Decal depthTest map={texture} />
       </mesh>
     </>
   )

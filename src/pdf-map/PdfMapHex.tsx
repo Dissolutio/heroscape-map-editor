@@ -18,6 +18,7 @@ import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   PdfEmptyHex,
   PdfHive6,
+  PdfLadder,
   PdfMultiHex1,
   PdfMultiHex2,
   PdfMultiHex24,
@@ -29,7 +30,6 @@ import {
   PdfMultiHexMarvel6,
   PdfMultiHexWallWalk7,
   PdfMultiHexWallWalk9,
-  PdfRoadWall,
   PdfSvgOutcrop3,
   PdfSvgOutcrop4,
   PdfSvgOutcrop6,
@@ -89,6 +89,16 @@ export const PdfMapHex = ({
       </G>
     )
   }
+  // Ladder
+  if (inventoryID === Pieces.ladder && hex.isObstacleOrigin) {
+    return (
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <PdfLadder hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
   // Ruins 3
   if (inventoryID === Pieces.ruins3 && hex.isObstacleOrigin) {
     return (
@@ -118,7 +128,7 @@ export const PdfMapHex = ({
       </G>
     )
   }
-  // Outcrop 3s
+  // Outcrop/Glacier/LavaOutcrop 3's
   if (
     inventoryID === Pieces.outcrop3 ||
     inventoryID === Pieces.lavaRockOutcrop3 ||
@@ -126,27 +136,27 @@ export const PdfMapHex = ({
   ) {
     return (
       <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+        transform={`translate(${pixel.x}, ${pixel.y})`}
       >
         <PdfSvgOutcrop3 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
-  // Glacier 6s (maybe someday outcrops/lava outcrops too)
+  // Glacier 6's
   if (inventoryID === Pieces.glacier6) {
     return (
       <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+        transform={`translate(${pixel.x}, ${pixel.y})`}
       >
         <PdfSvgOutcrop6 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
-  // Glacier 4s (maybe someday outcrops/lava outcrops too)
+  // Glacier 4's
   if (inventoryID === Pieces.glacier4) {
     return (
       <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+        transform={`translate(${pixel.x}, ${pixel.y})`}
       >
         <PdfSvgOutcrop4 hex={hex} isSubLevel={isSubLevel} />
       </G>
@@ -156,7 +166,7 @@ export const PdfMapHex = ({
   if (inventoryID === Pieces.tree415) {
     return (
       <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+        transform={`translate(${pixel.x}, ${pixel.y})`}
       >
         <PdfSvgTree415 hex={hex} isSubLevel={isSubLevel} />
       </G>
@@ -303,6 +313,19 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHex4 hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '3' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <PdfMultiHex3 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }

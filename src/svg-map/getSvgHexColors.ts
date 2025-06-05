@@ -99,7 +99,9 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     hex.terrain === HexTerrain.roadWall ||
     hex.terrain === HexTerrain.glyphPower ||
     hex.terrain === HexTerrain.glyphTreasure ||
-    hex.terrain === HexTerrain.tree
+    hex.terrain === HexTerrain.tree ||
+    hex.terrain === HexTerrain.battlement ||
+    hex.terrain === HexTerrain.ladder
   ) {
     return (
       svgColors?.[hex.terrain as keyof typeof svgColors] ??
