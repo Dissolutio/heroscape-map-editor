@@ -479,8 +479,8 @@ export const PdfSvgRuins2 = ({
           d={path}
           stroke={'white'}
           strokeWidth={2 * SVG_BORDER_WIDTH}
-        // strokeLinecap="round"
-        // strokeLinejoin="round"
+          // strokeLinecap="round"
+          // strokeLinejoin="round"
         />
       )}
       <Path
@@ -512,8 +512,8 @@ export const PdfSvgRuins3 = ({
           d={path}
           stroke={'white'}
           strokeWidth={2 * SVG_BORDER_WIDTH}
-        // strokeLinecap="round"
-        // strokeLinejoin="round"
+          // strokeLinecap="round"
+          // strokeLinejoin="round"
         />
       )}
       <Path
@@ -631,8 +631,8 @@ export const PdfRoadWall = ({
           fill={'white'}
           stroke={'white'}
           strokeWidth={SVG_BORDER_WIDTH}
-        // strokeLinecap="round"
-        // strokeLinejoin="round"
+          // strokeLinecap="round"
+          // strokeLinejoin="round"
         />
       )}
       <Polygon

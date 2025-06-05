@@ -135,9 +135,7 @@ export const PdfMapHex = ({
     inventoryID === Pieces.glacier3
   ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})`}
-      >
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfSvgOutcrop3 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -145,9 +143,7 @@ export const PdfMapHex = ({
   // Glacier 6's
   if (inventoryID === Pieces.glacier6) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})`}
-      >
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfSvgOutcrop6 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -155,9 +151,7 @@ export const PdfMapHex = ({
   // Glacier 4's
   if (inventoryID === Pieces.glacier4) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})`}
-      >
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfSvgOutcrop4 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -165,9 +159,7 @@ export const PdfMapHex = ({
   // TREE 415
   if (inventoryID === Pieces.tree415) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})`}
-      >
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfSvgTree415 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -214,10 +206,10 @@ export const PdfMapHex = ({
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-        inventoryID === Pieces.castleWallEnd
+      inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-          inventoryID === Pieces.castleWallStraight
+            inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
