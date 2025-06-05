@@ -400,6 +400,7 @@ export function addPiece({
           pieceID,
           inventoryID: piece.id,
           pieceRotation: rotation,
+          isObstacleOrigin: true,
         }
       })
     } else {

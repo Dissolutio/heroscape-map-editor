@@ -743,16 +743,19 @@ export const PdfSvgTree415 = ({
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
-    <G>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
-        points={points}
-        fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
+    <>
+      <G transform={`rotate(${pieceRotation})`}>
+        {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
+        <Polygon
+          points={points}
+          fill={fillColor}
+          stroke={borderColor}
+          strokeWidth={SVG_BORDER_WIDTH}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        />
+      </G>
       <Text
         fill="white"
         // white text needs a little opacity boost
@@ -765,7 +768,7 @@ export const PdfSvgTree415 = ({
       >
         {pieceHeightText}
       </Text>
-    </G>
+    </>
   )
 }
 const posO3_1 = { x: -0.3 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS }
@@ -830,16 +833,19 @@ export const PdfSvgOutcrop6 = ({
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
-    <G>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
-        points={points}
-        fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
+    <>
+      <G transform={`rotate(${pieceRotation})`}>
+        {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
+        <Polygon
+          points={points}
+          fill={fillColor}
+          stroke={borderColor}
+          strokeWidth={SVG_BORDER_WIDTH}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        />
+      </G>
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
@@ -912,7 +918,7 @@ export const PdfSvgOutcrop6 = ({
       >
         {'17'}
       </Text>
-    </G>
+    </>
   )
 }
 export const PdfSvgOutcrop3 = ({
@@ -928,9 +934,10 @@ export const PdfSvgOutcrop3 = ({
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      <G>
+      <G transform={`rotate(${pieceRotation})`}>
         {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
         <Polygon
           points={points}
@@ -1046,16 +1053,19 @@ export const PdfSvgOutcrop4 = ({
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
-    <G>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
-        points={points}
-        fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
+    <>
+      <G transform={`rotate(${pieceRotation})`}>
+        {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
+        <Polygon
+          points={points}
+          fill={fillColor}
+          stroke={borderColor}
+          strokeWidth={SVG_BORDER_WIDTH}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        />
+      </G>
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
@@ -1102,7 +1112,7 @@ export const PdfSvgOutcrop4 = ({
       >
         {'9'}
       </Text>
-    </G>
+    </>
   )
 }
 const PdfSubLevelWhiteBackerPolygon = ({
