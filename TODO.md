@@ -1,5 +1,22 @@
 
-### Build & Editing Features  
+## Build Instructions
+
+Shapes and Patterns remaining: 
+
+- Castle Bases, Walls, Arch
+- Wallwalk/Road decor
+- Ladder Summaries
+- Start Zones
+- Outcrop squigglies
+- Glyph text / icons
+- Marvel Ruin
+- LaurWall Triangle
+- LaurWall Open door
+- LaurWall stackers
+
+Then need some formatting options (1pg, map key?), author name, maybe more.
+
+## Build & Editing Features  
 
 3. Fast Hex Swap on Mouseover: Middle mouse button while hovering over a hex to make it the new active hex to draw with.
 4. Fast Rotate: SHIFT + mouse wheel to rotate whatever is in your hand.
@@ -8,8 +25,8 @@ Using the arrow keys to rotate is fine, but if my hand is on the left side of th
 ### Multi-Select & Copy/Paste  
 1. Selection Tool: Add a selection tool at the bottom. Functionally, you would click the selection tool, then click multiple hexes to highlight them. Then click the copy button. It would place in your hand what you just copied and then you can left click to place it in the world. Might need a reset button for when you are done copying to put one hex back in your hand.
 
-### UI/ Settings
-3. Customizable Hotkeys
+## UI/ Settings
+Customizable Hotkeys, Colors
 
 
 ## Local Storage Load/Save/Edit maps
@@ -64,8 +81,3 @@ You can remove them. They are removed from MapFileState.
 ## Map Notes
 
 Can be added to build instructions, and **added to MapFileState**.
-
-## Build Instructions
-
-React PDF.
-React hexgrid? Or custom SVG soluition?
