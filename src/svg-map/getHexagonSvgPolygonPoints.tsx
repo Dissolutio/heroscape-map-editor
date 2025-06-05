@@ -74,7 +74,7 @@ export function getRoadWallSvgPolygonPoints(
     \/\/\/\/
 
      */
-    { x: leftXInner, y: bottomSideYInner - (radius / 4) }, // top-left rectangle in hex1
+    { x: leftXInner, y: bottomSideYInner - radius / 4 }, // top-left rectangle in hex1
     { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
     { x: topX, y: bottomYInner }, // bottom hex1
     { x: rightXInner, y: bottomSideYInner }, // bottom-right hex1
@@ -90,7 +90,7 @@ export function getRoadWallSvgPolygonPoints(
     { x: 3 * hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex4
     { x: 3 * hexWidth, y: bottomYInner }, // bottom hex4
     { x: 3 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex4
-    { x: 3 * hexWidth + apothemInner, y: bottomSideYInner - (radius / 4) }, // top-right rectangle in hex4
+    { x: 3 * hexWidth + apothemInner, y: bottomSideYInner - radius / 4 }, // top-right rectangle in hex4
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
@@ -114,9 +114,44 @@ export function getBattlementSvgPolygonPoints(
 
   const corners: Point[] = [
     { x: rightXInner, y: topSideYInner }, // top-right inner trapezoid
-    { x: rightXInner, y: topSideYInner + (radiusInner) }, // top-left inner trapezoid
-    { x: rightXInner, y: bottomSideYInner - (radiusInner) }, // bottom-left inner trapezoid
+    { x: rightXInner - radiusInner / 4, y: topSideYInner + radiusInner / 8 }, // top-left inner trapezoid
+    { x: rightXInner - radiusInner / 4, y: bottomSideYInner - radiusInner / 8 }, // bottom-left inner trapezoid
     { x: rightXInner, y: bottomSideYInner }, // bottom-right inner trapezoid
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
+export function getLadderSvgPolygonPoints(radius: number, borderWidth: number) {
+  const halfBorder = borderWidth / 2
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const hexWidth = apothem * 2
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const rightXInner = apothemInner
+  const leftXInner = -apothemInner
+  const topYInner = -radiusInner
+  const bottomYInner = radiusInner
+  const bottomSideYInner = 0.5 * radiusInner
+  const topSideYInner = -0.5 * radiusInner
+
+  const corners: Point[] = [
+    { x: rightXInner, y: topSideYInner }, // top-right outer rectangle
+    { x: rightXInner, y: bottomSideYInner }, // bottom-right outer rectangle
+    { x: rightXInner - radiusInner / 2, y: bottomSideYInner }, // bottom-left outer rectangle
+    { x: rightXInner - radiusInner / 2, y: topSideYInner }, // top-left outer rectangle
+    { x: rightXInner, y: topSideYInner }, // top-right outer rectangle
+
+    // Counter clockwise inner cutout
+    { x: rightXInner, y: topSideYInner + 0.15 * radius }, // top-right outer handle
+    { x: rightXInner - 0.4 * radius, y: topSideYInner + 0.15 * radius }, // top-left outer handle
+    { x: rightXInner - 0.4 * radius, y: bottomSideYInner - 0.15 * radius }, // bottom-left outer handle
+    { x: rightXInner, y: bottomSideYInner - 0.15 * radius }, // bottom-right outer handle
+
+    { x: rightXInner, y: bottomSideYInner - 0.3 * radius }, // bottom-right inner handle
+    { x: rightXInner - 0.3 * radius, y: bottomSideYInner - 0.3 * radius }, // bottom-left inner handle
+    { x: rightXInner - 0.3 * radius, y: topSideYInner + 0.3 * radius }, // top-left inner handle
+    { x: rightXInner, y: topSideYInner + 0.3 * radius }, // top-right inner handle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
