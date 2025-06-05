@@ -18,6 +18,7 @@ import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   PdfEmptyHex,
   PdfHive6,
+  PdfLadder,
   PdfMultiHex1,
   PdfMultiHex2,
   PdfMultiHex24,
@@ -85,6 +86,16 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfEmptyHex />
+      </G>
+    )
+  }
+  // Ladder
+  if (inventoryID === Pieces.ladder && hex.isObstacleOrigin) {
+    return (
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <PdfLadder hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -302,6 +313,19 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHex4 hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '3' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <PdfMultiHex3 hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
