@@ -61,6 +61,15 @@ export const aoa1PieceSet: PieceInventory = {
   [Pieces.laurWallRuin]: 2,
   [Pieces.laurWallLong]: 1,
 }
+export const ruinsOfValhallaPieceSet: PieceInventory = {
+  // [Pieces.laurWallTrianglePillar]: 4,
+  // [Pieces.laurWallPillarStackable]: 6,
+  // [Pieces.laurWallShortStackable]: 5,
+  // [Pieces.laurWallRuin2]: 2,
+  // [Pieces.laurWallRuin3]: 2,
+  // [Pieces.laurWallLongArch]: 1,
+  // [Pieces.laurWallLongStackable]: 5,
+}
 export const battleBox1PieceSet: PieceInventory = {
   [Pieces.laurPalm14]: 2,
   [Pieces.grass1]: 4,
@@ -111,6 +120,11 @@ export const lavaFieldsPieceSet: PieceInventory = {
   [Pieces.lavaRockOutcrop3]: 1,
   [Pieces.lava1]: 20,
   [Pieces.lava3]: 20,
+}
+export const roadsOfValhallaPieceSet: PieceInventory = {
+  [Pieces.road1]: 16,
+  [Pieces.road5]: 2,
+  [Pieces.roadWall]: 4,
 }
 export const swampsPieceSet: PieceInventory = {
   [Pieces.swamp1]: 2,
