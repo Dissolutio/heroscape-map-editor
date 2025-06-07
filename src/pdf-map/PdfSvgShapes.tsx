@@ -1,4 +1,4 @@
-import { Ellipse, G, Path, Polygon, Text } from '@react-pdf/renderer'
+import { Circle, Ellipse, G, Path, Polygon, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
   get24HexSvgPolygonPointsAt00,
@@ -762,13 +762,34 @@ export const PdfLadder = ({
         strokeWidth={SVG_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
-      <Polygon
-        points={points}
-        fill={svgColors.castleInterior}
-        stroke={svgColors.castleInterior}
+    </>
+  )
+}
+export const PdfStartZone = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  // const borderColor = getSvgHexBorderColor(hex)
+  return (
+    <>
+      {isSubLevel && (
+        <Circle
+          r={SVG_HEX_RADIUS / 2}
+          fill={'white'}
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH / 4}
+        />
+      )}
+      <Circle
+        r={SVG_HEX_RADIUS / 2}
+        // points={points}
+        fill={fillColor}
+        stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 4}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>

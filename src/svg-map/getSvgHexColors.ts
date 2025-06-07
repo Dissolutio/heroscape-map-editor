@@ -111,6 +111,10 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
       virtualscapeTileColors[hex.terrain as keyof typeof virtualscapeTileColors]
     )
   }
+  // StartZone: virtualscape colors, might be other designs
+  if (hex.terrain === HexTerrain.startZone) {
+    return hexTerrainColor[hex.inventoryID]
+  }
   // Renegade shows brush and palm as same color
   if (hex.terrain === HexTerrain.brush) {
     return svgColors.fillJungle

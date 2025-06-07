@@ -35,6 +35,7 @@ import {
   PdfMultiHexStraight3,
   PdfMultiHexWallWalk7,
   PdfMultiHexWallWalk9,
+  PdfStartZone,
   PdfSvgOutcrop3,
   PdfSvgOutcrop4,
   PdfSvgOutcrop6,
@@ -133,6 +134,26 @@ export const PdfMapHex = ({
       </G>
     )
   }
+  // Outcrop/Glacier/LavaOutcrop 1's
+  if (
+    inventoryID === Pieces.outcrop1 ||
+    inventoryID === Pieces.lavaRockOutcrop1 ||
+    inventoryID === Pieces.glacier1
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <Text
+          fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+          // white text needs a little opacity boost
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+        >
+          {pieceHeightText}
+        </Text>
+      </G>
+    )
+  }
   // Outcrop/Glacier/LavaOutcrop 3's
   if (
     inventoryID === Pieces.outcrop3 ||
@@ -178,7 +199,6 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1 isGlyph hex={hex} isSubLevel={isSubLevel} />
-        <Image src="" />
         <Text
           fill="white"
           // white text needs a little opaci`ty boost
@@ -188,6 +208,18 @@ export const PdfMapHex = ({
         >
           {'GL'}
         </Text>
+      </G>
+    )
+  }
+  // Start Zones
+  if (
+    hex.terrain === HexTerrain.startZone
+  ) {
+    return (
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})`}
+      >
+        <PdfStartZone hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
