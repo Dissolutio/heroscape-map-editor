@@ -115,6 +115,9 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.brush) {
     return svgColors.fillJungle
   }
+  if (hex.terrain === HexTerrain.marvelRuin) {
+    return svgColors.outlineCastleWall
+  }
   if (hex.terrain === HexTerrain.palm) {
     return svgColors.palm
   }

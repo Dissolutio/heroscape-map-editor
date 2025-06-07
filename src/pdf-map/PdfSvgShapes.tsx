@@ -22,6 +22,7 @@ import {
   getLaurShortWallSvgPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
   getMarvel6HexSvgPolygonPointsAt00,
+  getMarvelRuinsShapeSvgPath,
   getRoadWallSvgPolygonPoints,
   getRuins2SvgPolygonPoints,
   getRuins3SvgPolygonPoints,
@@ -297,8 +298,10 @@ export const PdfMultiHexMarvel6 = ({
       {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
       <Polygon
         points={points}
-        fill={fillColor}
-        stroke={borderColor}
+        // fill={fillColor}
+        fill={'rgb(220, 220, 220)'}
+        // stroke={borderColor}
+        stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -548,6 +551,40 @@ export const PdfSvgRuins3 = ({
       <Path
         d={path}
         stroke={fillColor}
+        strokeWidth={2 * SVG_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </>
+  )
+}
+export const PdfMarvelRuin = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const fillColorSub = svgColors.outlineCastleWall
+  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS, 0)
+
+  return (
+    <>
+      {isSubLevel && (
+        <Path
+          d={path}
+          stroke={'white'}
+          strokeWidth={2 * SVG_BORDER_WIDTH}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
+      <Path
+        d={path}
+        stroke={fillColorSub}
         strokeWidth={2 * SVG_BORDER_WIDTH}
         strokeLinecap="round"
         strokeLinejoin="round"

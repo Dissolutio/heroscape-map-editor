@@ -1,4 +1,4 @@
-import { G, Text } from '@react-pdf/renderer'
+import { G, Image, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
@@ -23,6 +23,7 @@ import {
   PdfEmptyHex,
   PdfHive6,
   PdfLadder,
+  PdfMarvelRuin,
   PdfMultiHex1,
   PdfMultiHex2,
   PdfMultiHex24,
@@ -178,6 +179,8 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1 isGlyph hex={hex} isSubLevel={isSubLevel} />
+        <Image src=""
+        />
         <Text
           fill="white"
           // white text needs a little opaci`ty boost
@@ -257,18 +260,22 @@ export const PdfMapHex = ({
     //  Castle Arch
     if (hex.inventoryID === Pieces.castleArch || hex.inventoryID === Pieces.castleArchNoDoor) {
       return (
-        <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-          <G transform={`rotate(${pieceRotation})`}>
-            <PdfMultiHexStraight3 hex={hex} isSubLevel={isSubLevel} />
-            <PdfCastleArch hex={hex} isSubLevel={isSubLevel} />
+        // <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        //   <G transform={`rotate(${pieceRotation})`}>
+        //     <PdfMultiHexStraight3 hex={hex} isSubLevel={isSubLevel} />
+        //     <PdfCastleArch hex={hex} isSubLevel={isSubLevel} />
 
-            <G
-              // flip upside down text, all other rotations are legible
-              transform={pieceRotation === 180 ? 'rotate(-180)' : 'rotate(0)'}
-            >
-              <CastleArchText isSubLevel={isSubLevel} pieceRotation={pieceRotation} />
-            </G>
-          </G>
+        //     <G
+        //       // flip upside down text, all other rotations are legible
+        //       transform={pieceRotation === 180 ? 'rotate(-180)' : 'rotate(0)'}
+        //     >
+        //       <CastleArchText isSubLevel={isSubLevel} pieceRotation={pieceRotation} />
+        //     </G>
+        //   </G>
+        // </G>
+        <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
+          <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
+          <PdfMarvelRuin hex={hex} isSubLevel={isSubLevel} />
         </G>
       )
     }

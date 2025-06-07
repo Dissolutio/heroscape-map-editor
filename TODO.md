@@ -3,16 +3,12 @@
 
 Shapes and Patterns remaining: 
 
-- Castle Bases, Walls, Arch
 - Start Zones
-- Glyph text / icons
-- Marvel Ruin
-- Wallwalk/Road decor
-- Ladder Summaries
-- Outcrop squigglies
 - LaurWall Triangle
 - LaurWall Open door
 - LaurWall stackers
+- Wallwalk/Road decor
+- Ladder Summaries
 
 Then need some formatting options (1pg, map key?), author name, maybe more.
 

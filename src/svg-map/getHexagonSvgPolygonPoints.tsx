@@ -537,6 +537,40 @@ export function getRuins3SvgPolygonPoints(radius: number, borderWidth: number) {
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners, path }
 }
+export function getMarvelRuinsShapeSvgPath(radius: number, borderWidth: number) {
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const halfBorder = borderWidth / 2
+  const hexWidth = 2 * apothem
+  const topX = 0
+  // Outer hexagon
+  const topYOuter = -radius
+  const leftXOuter = -apothem
+  const rightXOuter = apothem
+  const topSideYOuter = -0.5 * radius
+  const bottomSideYOuter = 0.5 * radius
+
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const topSideYInner = -0.5 * radiusInner
+
+  const corners: Point[] = [
+    /* 
+    
+    |____
+
+    */
+    { x: rightXOuter, y: topSideYOuter }, // top-right hex1
+
+    { x: apothem, y: 1.5 * radius }, // center hex3
+
+    { x: 8 * apothem, y: 1.5 * radius }, // right side hex6
+  ]
+  const path = `M ${corners[0].x},${corners[0].y} 
+  L ${corners[1].x},${corners[1].y}
+  L ${corners[2].x},${corners[2].y}
+  `
+  return { path }
+}
 export function getHexagonSvgPolygonPointsAt00(
   radius: number,
   borderWidth: number,
