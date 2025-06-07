@@ -511,11 +511,7 @@ export const PdfSvgRuins2 = ({
   return (
     <>
       {isSubLevel && (
-        <Path
-          d={path}
-          stroke={'white'}
-          strokeWidth={2 * SVG_BORDER_WIDTH}
-        />
+        <Path d={path} stroke={'white'} strokeWidth={2 * SVG_BORDER_WIDTH} />
       )}
       <Path
         d={path}
@@ -695,8 +691,8 @@ export const PdfRoadWall = ({
           fill={'white'}
           stroke={'white'}
           strokeWidth={SVG_BORDER_WIDTH}
-        // strokeLinecap="round"
-        // strokeLinejoin="round"
+          // strokeLinecap="round"
+          // strokeLinejoin="round"
         />
       )}
       <Polygon
@@ -786,7 +782,10 @@ export const PdfCastleBaseCorner = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const { points } = getCastleCornerShapeSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+  const { points } = getCastleCornerShapeSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
   return (
     <>
       {isSubLevel && (
@@ -815,7 +814,10 @@ export const PdfCastleStraight = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const { points } = getCastleStraightShapeSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+  const { points } = getCastleStraightShapeSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
   return (
     <>
       {isSubLevel && (
@@ -845,7 +847,10 @@ export const PdfCastleEnd = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   // const borderColor = getSvgHexBorderColor(hex)
-  const { points } = getCastleEndShapeSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+  const { points } = getCastleEndShapeSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
   return (
     <>
       {isSubLevel && (
@@ -876,7 +881,10 @@ export const PdfCastleArch = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   // const borderColor = getSvgHexBorderColor(hex)
-  const { points } = getCastleArchShapeSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+  const { points } = getCastleArchShapeSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
   return (
     <>
       {isSubLevel && (

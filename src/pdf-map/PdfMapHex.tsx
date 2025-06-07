@@ -179,8 +179,7 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1 isGlyph hex={hex} isSubLevel={isSubLevel} />
-        <Image src=""
-        />
+        <Image src="" />
         <Text
           fill="white"
           // white text needs a little opaci`ty boost
@@ -214,51 +213,72 @@ export const PdfMapHex = ({
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-        inventoryID === Pieces.castleWallEnd
+      inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-          inventoryID === Pieces.castleWallStraight
+            inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
     //  Return Castle Corner
-    if (hex.inventoryID === Pieces.castleBaseCorner || hex.inventoryID === Pieces.castleWallCorner) {
+    if (
+      hex.inventoryID === Pieces.castleBaseCorner ||
+      hex.inventoryID === Pieces.castleWallCorner
+    ) {
       return (
         <G transform={`translate(${pixel.x}, ${pixel.y})`}>
           <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
           <G transform={`rotate(${pieceRotation})`}>
             <PdfCastleBaseCorner hex={hex} isSubLevel={isSubLevel} />
           </G>
-          <CastleWallBaseHeightText isSubLevel={isSubLevel} heightText={`${heightText}`} />
+          <CastleWallBaseHeightText
+            isSubLevel={isSubLevel}
+            heightText={`${heightText}`}
+          />
         </G>
       )
     }
     //  Return Castle Straight
-    if (hex.inventoryID === Pieces.castleBaseStraight || hex.inventoryID === Pieces.castleWallStraight) {
+    if (
+      hex.inventoryID === Pieces.castleBaseStraight ||
+      hex.inventoryID === Pieces.castleWallStraight
+    ) {
       return (
         <G transform={`translate(${pixel.x}, ${pixel.y})`}>
           <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
           <G transform={`rotate(${pieceRotation})`}>
             <PdfCastleStraight hex={hex} isSubLevel={isSubLevel} />
           </G>
-          <CastleWallBaseHeightText isSubLevel={isSubLevel} heightText={`${heightText}`} />
+          <CastleWallBaseHeightText
+            isSubLevel={isSubLevel}
+            heightText={`${heightText}`}
+          />
         </G>
       )
     }
     //  Return Castle End
-    if (hex.inventoryID === Pieces.castleBaseEnd || hex.inventoryID === Pieces.castleWallEnd) {
+    if (
+      hex.inventoryID === Pieces.castleBaseEnd ||
+      hex.inventoryID === Pieces.castleWallEnd
+    ) {
       return (
         <G transform={`translate(${pixel.x}, ${pixel.y})`}>
           <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
           <G transform={`rotate(${pieceRotation})`}>
             <PdfCastleEnd hex={hex} isSubLevel={isSubLevel} />
           </G>
-          <CastleWallBaseHeightText isSubLevel={isSubLevel} heightText={`${heightText}`} />
+          <CastleWallBaseHeightText
+            isSubLevel={isSubLevel}
+            heightText={`${heightText}`}
+          />
         </G>
       )
     }
     //  Castle Arch
-    if (hex.inventoryID === Pieces.castleArch || hex.inventoryID === Pieces.castleArchNoDoor) {
+    if (
+      hex.inventoryID === Pieces.castleArch ||
+      hex.inventoryID === Pieces.castleArchNoDoor
+    ) {
       return (
         <G transform={`translate(${pixel.x}, ${pixel.y})`}>
           <G transform={`rotate(${pieceRotation})`}>
@@ -269,7 +289,10 @@ export const PdfMapHex = ({
               // flip upside down text, all other rotations are legible
               transform={pieceRotation === 180 ? 'rotate(-180)' : 'rotate(0)'}
             >
-              <CastleArchText isSubLevel={isSubLevel} pieceRotation={pieceRotation} />
+              <CastleArchText
+                isSubLevel={isSubLevel}
+                pieceRotation={pieceRotation}
+              />
             </G>
           </G>
         </G>
@@ -296,9 +319,14 @@ export const PdfMapHex = ({
     )
   }
   //  Marvel Ruin
-  if (hex.inventoryID === Pieces.marvel || hex.inventoryID === Pieces.marvelBroken) {
+  if (
+    hex.inventoryID === Pieces.marvel ||
+    hex.inventoryID === Pieces.marvelBroken
+  ) {
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
         <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
         <PdfMarvelRuin hex={hex} isSubLevel={isSubLevel} />
       </G>
@@ -503,15 +531,13 @@ export const PdfMapHex = ({
   // </G>
 }
 
-const CastleArchText = (
-  {
-    isSubLevel,
-    pieceRotation
-  }: {
-    isSubLevel: boolean,
-    pieceRotation: number
-  }
-) => {
+const CastleArchText = ({
+  isSubLevel,
+  pieceRotation,
+}: {
+  isSubLevel: boolean
+  pieceRotation: number
+}) => {
   return (
     <Text
       fill="black"
@@ -530,16 +556,13 @@ const CastleArchText = (
     </Text>
   )
 }
-const CastleWallBaseHeightText = (
-  {
-    isSubLevel,
-    heightText
-  }: {
-    isSubLevel: boolean,
-    heightText: string
-  }
-) => {
-
+const CastleWallBaseHeightText = ({
+  isSubLevel,
+  heightText,
+}: {
+  isSubLevel: boolean
+  heightText: string
+}) => {
   return (
     <Text
       fill="black"

@@ -190,10 +190,10 @@ export const hexUtilsGetNeighborForRotation = (
   return HEX_DIRECTIONS[rot]
 }
 export function sinDegrees(degrees: number) {
-  const radians = degrees * (Math.PI / 180);
-  return Math.sin(radians);
+  const radians = degrees * (Math.PI / 180)
+  return Math.sin(radians)
 }
 export function cosDegrees(degrees: number) {
-  const radians = degrees * (Math.PI / 180);
-  return Math.cos(radians);
+  const radians = degrees * (Math.PI / 180)
+  return Math.cos(radians)
 }
