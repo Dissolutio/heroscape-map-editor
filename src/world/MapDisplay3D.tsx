@@ -81,8 +81,9 @@ export default function MapDisplay3D({
       return
     }
 
-    if (penMode === 'select') {
+    if (penMode === 'select' && hex.pieceID) {
       toggleSelectedPieceID(hex.pieceID)
+      return
     }
     const pieceMode = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
     const piece = piecesSoFar[pieceMode]
@@ -110,7 +111,7 @@ export default function MapDisplay3D({
       }
     let clickedHexAltitude = clickedHex.altitude
     // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
-    if (piece.id === Pieces.battlement) {
+    if (piece?.id === Pieces.battlement) {
       const battlementClickedHexCoords = getBattlementClickedHexCoords(
         clickedHex,
         pieceRotation,
@@ -124,8 +125,8 @@ export default function MapDisplay3D({
         rotation: mirrorRotation,
       })
     } else if (
-      piece.id === Pieces.ladder &&
-      hex.inventoryID === Pieces.ladder
+      piece?.id === Pieces.ladder &&
+      hex?.inventoryID === Pieces.ladder
     ) {
       clickedHexAltitude += 1
       error = paintTile({
