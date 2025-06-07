@@ -6,20 +6,31 @@ import Select, { type SelectChangeEvent } from '@mui/material/Select'
 import { noop } from 'lodash'
 import { useHotkeys } from 'react-hotkeys-hook'
 import {
+  GiAncientRuins,
   GiArrowCursor,
   GiCastle,
+  GiCastleRuins,
   GiCrenulatedShield,
   GiGrass,
   GiIsland,
+  GiJungle,
   GiLadder,
-  GiPeaks,
+  GiMountaintop,
+  GiPalmTree,
   GiPineTree,
   GiStoneWall,
-  GiWaterfall,
+  GiWhiteTower,
 } from 'react-icons/gi'
 import useBoundStore from '../store/store'
 import { PiecePrefixes, Pieces } from '../types'
 import {
+  TbHexagon3D,
+  TbHexagonalPyramid,
+  TbHexagonLetterC,
+  TbHexagonLetterE,
+  TbHexagonLetterPFilled,
+  TbHexagonLetterS,
+  TbHexagonLetterTFilled,
   TbHexagonNumber1Filled,
   TbHexagonNumber2Filled,
   TbHexagonNumber3Filled,
@@ -28,7 +39,13 @@ import {
   TbHexagonNumber6Filled,
   TbHexagonNumber7Filled,
   TbHexagonNumber8Filled,
+  TbHexagons,
 } from 'react-icons/tb'
+import { PiCastleTurretLight } from 'react-icons/pi'
+import { BsHexagonHalf } from 'react-icons/bs'
+import { hexTerrainColor } from '../world/maphex/hexColors'
+import { LiaMountainSolid } from 'react-icons/lia'
+import { FaMountainCity } from 'react-icons/fa6'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
@@ -59,8 +76,8 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-            flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
-          )
+          flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
+        )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -68,11 +85,11 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-            flatPieceSizes?.[3] ??
-              flatPieceSizes?.[2] ??
-              flatPieceSizes?.[1] ??
-              flatPieceSizes[0],
-          )
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
+        )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -80,12 +97,12 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-            flatPieceSizes?.[4] ??
-              flatPieceSizes?.[3] ??
-              flatPieceSizes?.[2] ??
-              flatPieceSizes?.[1] ??
-              flatPieceSizes[0],
-          )
+          flatPieceSizes?.[4] ??
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
+        )
         : noop() /*isEnabled*/,
   )
   useHotkeys('z', () => togglePenMode('select') /*isEnabled*/)
@@ -110,7 +127,7 @@ export default function PenModeControls() {
           <ListItemIcon>
             <GiArrowCursor />
           </ListItemIcon>
-          <span>Select</span>
+          <span>Select (hotkey: Z)</span>
         </MenuItem>
 
         <Divider />
@@ -118,256 +135,292 @@ export default function PenModeControls() {
 
         <MenuItem value={PiecePrefixes.grass}>
           <ListItemIcon>
-            <GiGrass />
+            <TbHexagons color={hexTerrainColor.grass} />
           </ListItemIcon>
           <span>Grass</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.rock}>
           <ListItemIcon>
-            <GiPeaks />
+            <TbHexagons color={hexTerrainColor.rock} />
           </ListItemIcon>
           <span>Rock</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.sand}>
           <ListItemIcon>
-            <GiIsland />
+            <TbHexagons color={hexTerrainColor.sand} />
           </ListItemIcon>
           <span>Sand</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.road}>
           <ListItemIcon>
-            <GiIsland />
+            <TbHexagons color={hexTerrainColor.road} />
           </ListItemIcon>
           <span>Road</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.lavaField}>
           <ListItemIcon>
-            <GiIsland />
+            <TbHexagons color={hexTerrainColor.lavaField} />
           </ListItemIcon>
           <span>Lava Field</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.snow}>
           <ListItemIcon>
-            <GiIsland />
+            <TbHexagons color={hexTerrainColor.snow} />
           </ListItemIcon>
           <span>Snow</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.concrete}>
           <ListItemIcon>
-            <GiIsland />
+            <TbHexagons color={hexTerrainColor.concrete} />
           </ListItemIcon>
           <span>Concrete</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.asphalt}>
           <ListItemIcon>
-            <GiIsland />
+            <TbHexagons color={hexTerrainColor.rock} />
           </ListItemIcon>
           <span>Asphalt</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.swamp}>
           <ListItemIcon>
-            <GiIsland />
+            <TbHexagons color={hexTerrainColor.swampCap} />
           </ListItemIcon>
           <span>Swamp</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.dungeon}>
           <ListItemIcon>
-            <GiIsland />
+            <TbHexagons color={hexTerrainColor.dungeon} />
           </ListItemIcon>
           <span>Dungeon</span>
         </MenuItem>
         <Divider />
+
         {/* FLUID LAND BEGIN */}
         <MenuItem value={PiecePrefixes.water}>
           <ListItemIcon>
-            <GiWaterfall />
+            <BsHexagonHalf color={hexTerrainColor.water} />
           </ListItemIcon>
           <span>Water</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.wellspringWater}>
           <ListItemIcon>
-            <GiWaterfall />
+            <BsHexagonHalf color={hexTerrainColor.wellspringWater} />
           </ListItemIcon>
           <span>Wellspring Water</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.ice}>
           <ListItemIcon>
-            <GiWaterfall />
+            <BsHexagonHalf color={hexTerrainColor.ice} />
           </ListItemIcon>
           <span>Ice</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.lava}>
           <ListItemIcon>
-            <GiWaterfall />
+            <BsHexagonHalf color={hexTerrainColor.lava} />
           </ListItemIcon>
           <span>Lava</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.swampWater}>
           <ListItemIcon>
-            <GiWaterfall />
+            <BsHexagonHalf color={hexTerrainColor.swampWater} />
           </ListItemIcon>
           <span>Swamp Water</span>
         </MenuItem>
         <MenuItem value={PiecePrefixes.shadow}>
           <ListItemIcon>
-            <GiWaterfall />
+            <BsHexagonHalf color={hexTerrainColor.castle} />
           </ListItemIcon>
           <span>Shadow</span>
         </MenuItem>
 
         <Divider />
+
         {/* LAUR WALL */}
         <MenuItem value={Pieces.laurWallPillar}>
           <ListItemIcon>
-            <GiWaterfall />
+            <GiWhiteTower color={hexTerrainColor.water} />
           </ListItemIcon>
           <span>Laur Wall Pillar</span>
         </MenuItem>
         <Divider />
+
         {/* RUINS */}
         <MenuItem value={Pieces.ruins2}>
           <ListItemIcon>
-            <GiWaterfall />
+            <GiAncientRuins color={hexTerrainColor.ruin} />
           </ListItemIcon>
           <span>Ruins 2</span>
         </MenuItem>
         <MenuItem value={Pieces.ruins3}>
           <ListItemIcon>
-            <GiWaterfall />
+            <GiAncientRuins color={hexTerrainColor.ruin} />
           </ListItemIcon>
           <span>Ruins 3</span>
         </MenuItem>
         <Divider />
-        {/* OBSTACLES */}
+
+        {/* Trees */}
         <MenuItem value={Pieces.tree10}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiPineTree color={hexTerrainColor.grass} />
           </ListItemIcon>
-          <span>Tree10</span>
+          <span>Tree 10</span>
         </MenuItem>
         <MenuItem value={Pieces.tree11}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiPineTree color={hexTerrainColor.grass} />
           </ListItemIcon>
-          <span>Tree11</span>
+          <span>Tree 11</span>
         </MenuItem>
         <MenuItem value={Pieces.tree12}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiPineTree color={hexTerrainColor.grass} />
           </ListItemIcon>
-          <span>Tree12</span>
+          <span>Tree 12</span>
         </MenuItem>
         <MenuItem value={Pieces.tree415}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiPineTree color={hexTerrainColor.grass} />
           </ListItemIcon>
-          <span>Tree415</span>
+          <span>Big Tree 15</span>
         </MenuItem>
+
+        {/* Jungle Palm / Brush begin */}
+        <Divider />
+
         <MenuItem value={Pieces.brush9}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiJungle color={hexTerrainColor.ticallaBrush1} />
           </ListItemIcon>
-          <span>TicallaBrush9</span>
+          <span>Ticalla Brush 9</span>
         </MenuItem>
         <MenuItem value={Pieces.palm14}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiPalmTree color={hexTerrainColor.ticallaPalmModel2} />
           </ListItemIcon>
-          <span>TicallaPalm14</span>
+          <span>Ticalla Palm 14</span>
         </MenuItem>
         <MenuItem value={Pieces.palm15}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiPalmTree scale={'110%'} color={hexTerrainColor.ticallaPalmModel2} />
           </ListItemIcon>
-          <span>TicallaPalm15</span>
+          <span>Ticalla Palm 15</span>
         </MenuItem>
         <MenuItem value={Pieces.palm16}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiPalmTree scale={'120%'} color={hexTerrainColor.ticallaPalmModel2} />
           </ListItemIcon>
-          <span>TicallaPalm16</span>
+          <span>Ticalla Palm 16</span>
         </MenuItem>
         <MenuItem value={Pieces.swampBrush10}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiJungle color={hexTerrainColor.swampUnderbrush1} />
           </ListItemIcon>
           <span>Swamp Underbrush 10</span>
         </MenuItem>
         <MenuItem value={Pieces.laurBrush10}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiJungle color={hexTerrainColor.laurBrush1} />
           </ListItemIcon>
-          <span>LaurBrush10</span>
+          <span>Laur Brush 10</span>
         </MenuItem>
         <MenuItem value={Pieces.laurPalm13}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
           </ListItemIcon>
-          <span>LaurPalm13</span>
+          <span>Laur Palm 13</span>
         </MenuItem>
         <MenuItem value={Pieces.laurPalm14}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
           </ListItemIcon>
-          <span>LaurPalm14</span>
+          <span>Laur Palm 14</span>
         </MenuItem>
         <MenuItem value={Pieces.laurPalm15}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
           </ListItemIcon>
-          <span>LaurPalm15</span>
+          <span>Laur Palm 15</span>
         </MenuItem>
+
+        {/* Outcrops / Hive Begin */}
+        <Divider />
+
         <MenuItem value={Pieces.outcrop1}>
           <ListItemIcon>
-            <GiPineTree />
+            <TbHexagonalPyramid color={hexTerrainColor.dungeon} />
           </ListItemIcon>
           <span>Outcrop 1</span>
         </MenuItem>
         <MenuItem value={Pieces.outcrop3}>
           <ListItemIcon>
-            <GiPineTree />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.dungeon}
+              style={{ fontSize: '0.8rem' }} />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.dungeon}
+              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem', marginTop: '0.2rem' }} />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.dungeon}
+              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }} />
           </ListItemIcon>
           <span>Outcrop 3</span>
         </MenuItem>
         <MenuItem value={Pieces.lavaRockOutcrop1}>
           <ListItemIcon>
-            <GiPineTree />
+            <TbHexagonalPyramid color={hexTerrainColor.lava} />
           </ListItemIcon>
           <span>Lava Rock Outcrop 1</span>
         </MenuItem>
         <MenuItem value={Pieces.lavaRockOutcrop3}>
           <ListItemIcon>
-            <GiPineTree />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.lava}
+              style={{ fontSize: '0.8rem' }} />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.lava}
+              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem', marginTop: '0.2rem' }} />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.lava}
+              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }} />
           </ListItemIcon>
           <span>Lava Rock Outcrop 3</span>
         </MenuItem>
         <MenuItem value={Pieces.glacier1}>
           <ListItemIcon>
-            <GiPineTree />
+            <TbHexagonalPyramid color={hexTerrainColor.ice} />
           </ListItemIcon>
           <span>Glacier 1</span>
         </MenuItem>
         <MenuItem value={Pieces.glacier3}>
           <ListItemIcon>
-            <GiPineTree />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.ice}
+              style={{ fontSize: '0.8rem' }} />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.ice}
+              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem', marginTop: '0.2rem' }} />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.ice}
+              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }} />
           </ListItemIcon>
           <span>Glacier 3</span>
         </MenuItem>
         <MenuItem value={Pieces.glacier4}>
           <ListItemIcon>
-            <GiPineTree />
+            <GiMountaintop color={hexTerrainColor.ice} />
           </ListItemIcon>
           <span>Glacier 4</span>
         </MenuItem>
         <MenuItem value={Pieces.glacier6}>
           <ListItemIcon>
-            <GiPineTree />
+            <LiaMountainSolid color={hexTerrainColor.ice} />
           </ListItemIcon>
           <span>Glacier 6</span>
         </MenuItem>
         <MenuItem value={Pieces.hive}>
           <ListItemIcon>
-            <GiPineTree />
+            <FaMountainCity color={hexTerrainColor.swampCap} />
           </ListItemIcon>
           <span>Marro Hive 6</span>
         </MenuItem>
@@ -375,56 +428,65 @@ export default function PenModeControls() {
         <Divider />
         <MenuItem value={Pieces.castleBaseEnd}>
           <ListItemIcon>
-            <GiCastle />
+            <TbHexagonLetterE />
           </ListItemIcon>
-          <span>Castle Base End</span>
+          <span>Base End</span>
         </MenuItem>
         <MenuItem value={Pieces.castleBaseStraight}>
           <ListItemIcon>
-            <GiCastle />
+            <TbHexagonLetterS />
           </ListItemIcon>
-          <span>Castle Base Straight</span>
+          <span>Base Straight</span>
         </MenuItem>
         <MenuItem value={Pieces.castleBaseCorner}>
           <ListItemIcon>
-            <GiCastle />
+            <TbHexagonLetterC />
           </ListItemIcon>
-          <span>Castle Base Corner</span>
+          <span>Base Corner</span>
         </MenuItem>
-        <MenuItem value={Pieces.castleWallEnd}>
+        <MenuItem
+          title="Add castle wall end (base is added automatically if needed)"
+          value={Pieces.castleWallEnd}>
           <ListItemIcon>
-            <GiCastle />
+            <PiCastleTurretLight />
+            <TbHexagonLetterE />
           </ListItemIcon>
-          <span>Castle Wall End</span>
+          <span>Wall End</span>
         </MenuItem>
-        <MenuItem value={Pieces.castleWallStraight}>
+        <MenuItem
+          title="Add castle straight wall (base is added automatically if needed)"
+          value={Pieces.castleWallStraight}>
           <ListItemIcon>
-            <GiCastle />
+            <PiCastleTurretLight />
+            <TbHexagonLetterS />
           </ListItemIcon>
-          <span>Castle Wall Straight</span>
+          <span>Wall Straight</span>
         </MenuItem>
-        <MenuItem value={Pieces.castleWallCorner}>
+        <MenuItem
+          title="Add castle wall corner (base is added automatically if needed)"
+          value={Pieces.castleWallCorner}>
           <ListItemIcon>
-            <GiCastle />
+            <PiCastleTurretLight />
+            <TbHexagonLetterC />
           </ListItemIcon>
-          <span>Castle Wall Corner</span>
+          <span>Wall Corner</span>
         </MenuItem>
         <MenuItem value={Pieces.castleArch}>
           <ListItemIcon>
             <GiCastle />
           </ListItemIcon>
-          <span>Castle Arch</span>
+          <span>Arch</span>
         </MenuItem>
         <MenuItem value={Pieces.castleArchNoDoor}>
           <ListItemIcon>
-            <GiCastle />
+            <GiCastleRuins />
           </ListItemIcon>
-          <span>Castle Arch (No Door)</span>
+          <span>Arch (No Door)</span>
         </MenuItem>
         {/* WALL WALK BEGIN */}
         <MenuItem value={PiecePrefixes.wallWalk}>
           <ListItemIcon>
-            <GiCastle />
+            <TbHexagons />
           </ListItemIcon>
           <span>Wall Walk</span>
         </MenuItem>
@@ -433,13 +495,13 @@ export default function PenModeControls() {
         <Divider />
         <MenuItem value={Pieces.glyphPower}>
           <ListItemIcon>
-            <GiCastle />
+            <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
           </ListItemIcon>
           <span>Power Glyph</span>
         </MenuItem>
         <MenuItem value={Pieces.glyphTreasure}>
           <ListItemIcon>
-            <GiCastle />
+            <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
           </ListItemIcon>
           <span>Treasure Glyph</span>
         </MenuItem>
@@ -448,19 +510,19 @@ export default function PenModeControls() {
         <Divider />
         <MenuItem value={Pieces.roadWall}>
           <ListItemIcon>
-            <GiStoneWall />
+            <GiStoneWall color={hexTerrainColor.concrete} />
           </ListItemIcon>
           <span>Road Wall</span>
         </MenuItem>
         <MenuItem value={Pieces.battlement}>
           <ListItemIcon>
-            <GiCrenulatedShield />
+            <GiCrenulatedShield color={hexTerrainColor.concrete} />
           </ListItemIcon>
           <span>Battlement</span>
         </MenuItem>
         <MenuItem value={Pieces.ladder}>
           <ListItemIcon>
-            <GiLadder />
+            <GiLadder color={hexTerrainColor.ladder} />
           </ListItemIcon>
           <span>Ladder</span>
         </MenuItem>
@@ -470,55 +532,49 @@ export default function PenModeControls() {
 
         <MenuItem value={Pieces.startZone1}>
           <ListItemIcon>
-            <TbHexagonNumber1Filled />
+            <TbHexagonNumber1Filled color={hexTerrainColor.z1} />
           </ListItemIcon>
           <span>Start Zone: P1</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone2}>
           <ListItemIcon>
-            <TbHexagonNumber2Filled />
+            <TbHexagonNumber2Filled color={hexTerrainColor.z2} />
           </ListItemIcon>
           <span>Start Zone: P2</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone3}>
           <ListItemIcon>
-            <TbHexagonNumber3Filled />
-          </ListItemIcon>
-          <span>Start Zone: P3</span>
-        </MenuItem>
-        <MenuItem value={Pieces.startZone3}>
-          <ListItemIcon>
-            <TbHexagonNumber3Filled />
+            <TbHexagonNumber3Filled color={hexTerrainColor.z3} />
           </ListItemIcon>
           <span>Start Zone: P3</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone4}>
           <ListItemIcon>
-            <TbHexagonNumber4Filled />
+            <TbHexagonNumber4Filled color={hexTerrainColor.z4} />
           </ListItemIcon>
           <span>Start Zone: P4</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone5}>
           <ListItemIcon>
-            <TbHexagonNumber5Filled />
+            <TbHexagonNumber5Filled color={hexTerrainColor.z5} />
           </ListItemIcon>
           <span>Start Zone: P5</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone6}>
           <ListItemIcon>
-            <TbHexagonNumber6Filled />
+            <TbHexagonNumber6Filled color={hexTerrainColor.z6} />
           </ListItemIcon>
           <span>Start Zone: P6</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone7}>
           <ListItemIcon>
-            <TbHexagonNumber7Filled />
+            <TbHexagonNumber7Filled color={hexTerrainColor.z7} />
           </ListItemIcon>
           <span>Start Zone: P7</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone8}>
           <ListItemIcon>
-            <TbHexagonNumber8Filled />
+            <TbHexagonNumber8Filled color={hexTerrainColor.z8} />
           </ListItemIcon>
           <span>Start Zone: P8</span>
         </MenuItem>
