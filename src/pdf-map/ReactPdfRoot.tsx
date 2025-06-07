@@ -114,7 +114,7 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
         {hexMap.name}
       </Text>
       <Text style={{ fontSize: '12px', alignSelf: 'center', padding: 5 }}>
-        by: dissolutio
+        by:
       </Text>
     </View>
   )

@@ -88,6 +88,9 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgColors.outlineLava
   }
+  if (isCastleTerrain(hex.terrain)) {
+    return svgColors.castle
+  }
   return 'black'
 }
 
