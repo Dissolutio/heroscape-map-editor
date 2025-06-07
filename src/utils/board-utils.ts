@@ -45,35 +45,6 @@ export function isCastleTerrain(terrain: string) {
   return terrain === HexTerrain.castle
 }
 
-export function isObstaclePieceID(id: string) {
-  return (
-    id === Pieces.laurWallPillar ||
-    id === Pieces.tree10 ||
-    id === Pieces.tree11 ||
-    id === Pieces.tree12 ||
-    id === Pieces.tree415 ||
-    id === Pieces.swampBrush10 ||
-    id === Pieces.brush9 ||
-    id === Pieces.palm14 ||
-    id === Pieces.palm15 ||
-    id === Pieces.palm16 ||
-    id === Pieces.laurBrush10 ||
-    id === Pieces.laurPalm13 ||
-    id === Pieces.laurPalm14 ||
-    id === Pieces.laurPalm15 ||
-    id === Pieces.outcrop1 ||
-    id === Pieces.outcrop3 ||
-    id === Pieces.lavaRockOutcrop1 ||
-    id === Pieces.lavaRockOutcrop3 ||
-    id === Pieces.glacier1 ||
-    id === Pieces.glacier3 ||
-    id === Pieces.glacier4 ||
-    id === Pieces.glacier6 ||
-    id === Pieces.hive ||
-    id === Pieces.glyphPower ||
-    id === Pieces.glyphTreasure
-  )
-}
 export function isBridgingObstaclePieceID(id: string) {
   // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
   return id === Pieces.glacier4 || id === Pieces.glacier6 || id === Pieces.hive

@@ -12,7 +12,6 @@ import {
 import {
   isBridgingObstaclePieceID,
   isFluidTerrainHex,
-  isObstaclePieceID,
   isRenderedFromPieceIDPiece,
   isSolidTerrainHex,
 } from '../utils/board-utils'
@@ -53,7 +52,7 @@ export function removePiece({
     piece.id === Pieces.castleArch || piece.id === Pieces.castleArchNoDoor
   const isLandTile =
     isFluidTerrainHex(piece.terrain) || isSolidTerrainHex(piece.terrain)
-  const isObstacle = isObstaclePieceID(piece.id)
+  const isObstacle = piece.isObstaclePiece
 
   // PIECEID RENDERED PIECES: laur wall addons, battlements, roadwalls
   if (isRenderedFromPieceIDPiece(inventoryID)) {

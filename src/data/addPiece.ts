@@ -12,7 +12,6 @@ import {
 import {
   isBridgingObstaclePieceID,
   isFluidTerrainHex,
-  isObstaclePieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import { genBoardHexID, genPieceID } from '../utils/map-utils'
@@ -146,13 +145,13 @@ export function addPiece({
   const isObstaclePieceSupported =
     isSolidUnderAll ||
     ((piece.id === Pieces.laurWallPillar || isGlyphPiece) && isLandUnderAll) || // Laur wall pillars, and glyphs, can be placed on fluid tiles, per Renegade
-    (isBridgingObstaclePieceID(piece.id) && isSolidUnderAtLeastOne) ||
+    (isBridgingObstaclePieceID(piece.id) && isSolidUnderAtLeastOne) || // some multi-hex fluid-tile based obstacles (glaciers-4/6, hive) can bridge over gaps
     (isPlacingOnTable && !isGlyphPiece) // glyphs cannot go directly on table
   const isLadderPieceSupported =
     isPlacingOnTable || isSolidUnderAll || isLadderAuxiliaryUnderAll
   const isBattlementPieceSupported_TODO = true // TODO: compute
   const isPlacingObstacle =
-    isObstaclePieceID(piece.id) &&
+    piece.isObstaclePiece &&
     isSpaceFree &&
     isVerticalClearanceForPiece &&
     isObstaclePieceSupported

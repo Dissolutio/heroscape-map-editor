@@ -805,7 +805,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     title: 'Laur Wall (Short)',
     terrain: HexTerrain.laurWall,
     isHexTerrainPiece: false,
-    isObstaclePiece: true,
+    isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallShort,
     height: 12, // again, really verticalClearance, not "height"
@@ -815,7 +815,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     title: 'Laur Wall (Long)',
     terrain: HexTerrain.laurWall,
     isHexTerrainPiece: false,
-    isObstaclePiece: true,
+    isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallLong,
     height: 12, // again, really verticalClearance, not "height"
@@ -825,7 +825,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     title: 'Laur Wall Ruin',
     terrain: HexTerrain.laurWall,
     isHexTerrainPiece: false,
-    isObstaclePiece: true,
+    isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallRuin,
     height: 12, //
@@ -836,7 +836,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     title: 'Ruins (2)',
     terrain: HexTerrain.ruin,
     isHexTerrainPiece: false,
-    isObstaclePiece: true,
+    isObstaclePiece: false,
     size: 8,
     template: Pieces.ruins2,
     height: 5, // these have a template done, but pending vertex data approach
@@ -846,7 +846,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     title: 'Ruins (3)',
     terrain: HexTerrain.ruin,
     isHexTerrainPiece: false,
-    isObstaclePiece: true,
+    isObstaclePiece: false,
     size: 10,
     template: Pieces.ruins3,
     height: 5, // these have a template done, but pending vertex data approach
@@ -856,7 +856,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     title: 'Warehouse Ruin',
     terrain: HexTerrain.marvelRuin,
     isHexTerrainPiece: false,
-    isObstaclePiece: true,
+    isObstaclePiece: false,
     size: 6,
     template: Pieces.marvel,
     height: 8, // rulebook height is warehoue upper floor 9 levels above base, the windows need a vertical obstruction template done + reality testing

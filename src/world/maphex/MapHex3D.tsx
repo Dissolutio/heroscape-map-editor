@@ -42,6 +42,7 @@ import HeightRing from './HeightRing'
 import { MapHexIDDisplay } from './MapHexIDDisplay'
 import { hexTerrainColor } from './hexColors'
 import { GlyphModel } from '../models/Glyph'
+import { StartZone } from '../models/StartZone'
 
 export const MapHex3D = ({
   boardHex,
@@ -67,6 +68,7 @@ export const MapHex3D = ({
   const isUnderHexFluid = isFluidTerrainHex(underHexTerrain)
   const isShowEmptyHexes =
     !isTakingPicture && boardHex.terrain === HexTerrain.empty
+  const isStartZoneHex = boardHex.terrain === HexTerrain.startZone
   const isHeightRingedHex =
     (isSolidTerrainHex(boardHex.terrain) && !boardHex.isCap) || isShowEmptyHexes
   const isObstacleHex =
@@ -174,6 +176,11 @@ export const MapHex3D = ({
               </group>
             </Suspense>
           </group>
+        )}
+        {isStartZoneHex && (
+          <Suspense fallback={<ModelLoader />}>
+            <StartZone boardHex={boardHex} onPointerUp={onPointerUp} />
+          </Suspense>
         )}
         {isRuin2OriginHex && (
           <Suspense fallback={<ModelLoader />}>

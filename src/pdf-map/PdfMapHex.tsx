@@ -6,7 +6,6 @@ import {
   isEvergreenTree,
   isFluidTerrainHex,
   isJungleTerrainHex,
-  isObstaclePieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import {
@@ -75,7 +74,7 @@ export const PdfMapHex = ({
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
   const { inventoryID } = decodePieceID(hex.pieceID)
-  const isObstaclePiece = isObstaclePieceID(inventoryID)
+  const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
   const isAuxiliaryNotRenderedIn2D =
     isObstaclePiece && (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
   const isVisible = hex.altitude <= viewingLevel
@@ -213,10 +212,10 @@ export const PdfMapHex = ({
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-      inventoryID === Pieces.castleWallEnd
+        inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-            inventoryID === Pieces.castleWallStraight
+          inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
