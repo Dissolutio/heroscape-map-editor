@@ -94,8 +94,8 @@ export const pieceCodes: Dictionary<string> = {
   '27001': Pieces.outcrop1,
   '27003': Pieces.outcrop3,
   // marvel ruin
-  '11006': Pieces.marvel, // marvel ruins also create two elevated spaces/boardHexes
-  '11007': Pieces.marvelBroken, // marvel ruins also create two elevated spaces/boardHexes
+  '11006': Pieces.marvel,
+  '11007': Pieces.marvelBroken,
   // edge add-ons
   '12004': Pieces.roadWall,
   '16301': Pieces.battlement,
@@ -113,8 +113,10 @@ export const pieceCodes: Dictionary<string> = {
   '16203': Pieces.castleWallEnd,
   '16401': Pieces.castleArch, // with door
   '16404': Pieces.castleArchNoDoor, // no door
+  // glyph
+  '14063': Pieces.glyphPower, // virtualscape had named/revealed power glyphs but we transform them all into unrevealed "?" glyphs
   // startzone
-  '15001': 'startArea', // from virtualscape, which we morph to below, only to morph into PieceID...TODO: dry!
+  // '15001': 'startArea', // from virtualscape, we morph into below based on color
   '15002': Pieces.startZone1,
   '15003': Pieces.startZone2,
   '15004': Pieces.startZone3,
