@@ -21,6 +21,7 @@ import {
   getBattlementClickedHexCoords,
   getBoardHexesRectangularMapDimensions,
   getBoardPiecesMaxLevel,
+  getRoadWallClickedHexCoords,
 } from '../utils/map-utils.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import { useZoomCameraToMapCenter } from './camera/useZoomeCameraToMapCenter.tsx'
@@ -111,19 +112,33 @@ export default function MapDisplay3D({
       }
     let clickedHexAltitude = clickedHex.altitude
     // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
-    if (piece?.id === Pieces.battlement) {
+    if (piece?.id === Pieces.battlement || piece?.id === Pieces.roadWall) {
       const battlementClickedHexCoords = getBattlementClickedHexCoords(
+        clickedHex,
+        pieceRotation,
+      )
+      const roadWallClickedHexCoords = getRoadWallClickedHexCoords(
         clickedHex,
         pieceRotation,
       )
       clickedHexAltitude -= 1
       const mirrorRotation = (pieceRotation + 3) % 6
-      error = paintTile({
-        piece,
-        clickedHexCoords: battlementClickedHexCoords,
-        altitude: clickedHexAltitude,
-        rotation: mirrorRotation,
-      })
+      if (piece?.id === Pieces.roadWall) {
+        error = paintTile({
+          piece,
+          clickedHexCoords: roadWallClickedHexCoords,
+          altitude: clickedHexAltitude,
+          rotation: pieceRotation,
+        })
+      } else {
+
+        error = paintTile({
+          piece,
+          clickedHexCoords: battlementClickedHexCoords,
+          altitude: clickedHexAltitude,
+          rotation: mirrorRotation,
+        })
+      }
     } else if (
       piece?.id === Pieces.ladder &&
       hex?.inventoryID === Pieces.ladder

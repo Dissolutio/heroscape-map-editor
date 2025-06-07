@@ -4,6 +4,7 @@
 Shapes and Patterns remaining: 
 
 - Start Zones
+- Tree415 Boulders
 - LaurWall Triangle
 - LaurWall Arch
 - LaurWall Ruins 2 & 3 (just different styles, slightly larger)

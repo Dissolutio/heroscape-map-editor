@@ -145,8 +145,10 @@ export const PdfMapHex = ({
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <Text
           fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
-          // white text needs a little opacity boost
-          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          // white text (not glaciers, so far) needs a little opacity boost
+          opacity={isSubLevel ?
+            (hex.terrain === HexTerrain.glacier ? OPACITY_SUBLEVEL : OPACITY_SUBLEVEL * 2)
+            : 1}
           {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
         >
           {pieceHeightText}
@@ -201,7 +203,7 @@ export const PdfMapHex = ({
         <PdfMultiHex1 isGlyph hex={hex} isSubLevel={isSubLevel} />
         <Text
           fill="white"
-          // white text needs a little opaci`ty boost
+          // white text needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           // {...glyphTextProps(`${pieceHeightText}`)}
           {...glyphTextProps('GL')}
@@ -335,7 +337,6 @@ export const PdfMapHex = ({
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <Text
           fill="black"
-          // white text needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
           style={{
             fontSize: 0.4 * SVG_HEX_RADIUS,
@@ -572,7 +573,6 @@ const CastleArchText = ({
   return (
     <Text
       fill="black"
-      // white text needs a little opacity boost
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       style={{
         fontSize: 0.8 * SVG_HEX_RADIUS,

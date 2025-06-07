@@ -1067,8 +1067,7 @@ export const PdfSvgOutcrop6 = ({
       </G>
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
-        // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
@@ -1077,8 +1076,7 @@ export const PdfSvgOutcrop6 = ({
       </Text>
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
-        // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
@@ -1090,8 +1088,7 @@ export const PdfSvgOutcrop6 = ({
       </Text>
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
-        // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
@@ -1103,8 +1100,7 @@ export const PdfSvgOutcrop6 = ({
       </Text>
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
-        // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}
@@ -1113,8 +1109,7 @@ export const PdfSvgOutcrop6 = ({
       </Text>
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
-        // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0) +
@@ -1126,8 +1121,7 @@ export const PdfSvgOutcrop6 = ({
       </Text>
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
-        // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0) +
@@ -1169,7 +1163,10 @@ export const PdfSvgOutcrop3 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        // white text (not glaciers, so far) needs a little opacity boost
+        opacity={isSubLevel ?
+          (hex.terrain === HexTerrain.glacier ? OPACITY_SUBLEVEL : OPACITY_SUBLEVEL * 2)
+          : 1}
         style={hexTextStyle}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
@@ -1179,7 +1176,10 @@ export const PdfSvgOutcrop3 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        // white text (not glaciers, so far) needs a little opacity boost
+        opacity={isSubLevel ?
+          (hex.terrain === HexTerrain.glacier ? OPACITY_SUBLEVEL : OPACITY_SUBLEVEL * 2)
+          : 1}
         style={hexTextStyle}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
@@ -1189,7 +1189,10 @@ export const PdfSvgOutcrop3 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        // white text (not glaciers, so far) needs a little opacity boost
+        opacity={isSubLevel ?
+          (hex.terrain === HexTerrain.glacier ? OPACITY_SUBLEVEL : OPACITY_SUBLEVEL * 2)
+          : 1}
         style={hexTextStyle}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
