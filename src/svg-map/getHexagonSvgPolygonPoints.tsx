@@ -1,4 +1,5 @@
 import type { Point } from '../types'
+import { cosDegrees, sinDegrees } from '../utils/hex-utils'
 
 // export function getHexagonSvgPolygonPoints(radius: number) {
 //   const apothem = (Math.sqrt(3) * radius) / 2
@@ -156,6 +157,274 @@ export function getLadderSvgPolygonPoints(radius: number, borderWidth: number) {
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
+export function getCastleArchShapeSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
+  const halfBorder = borderWidth / 2
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const hexWidth = 2 * apothem
+  const topSideYOuter = -0.5 * radius
+  const topYOuter = -radius
+  const bottomSideYOuter = 0.5 * radius
+  const bottomYOuter = radius
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const wallInset = 0.2 * radiusInner
+  const wallLength = 0.3 * radiusInner
+  const sin30 = sinDegrees(30)
+  const cos30 = cosDegrees(30)
+  const sin60 = sinDegrees(60)
+  const cos60 = cosDegrees(60)
+  const insetAtMidpoints = borderWidth
+  const x1_1 = 0 - wallInset * cos30
+  const y1_1 = bottomYOuter - wallInset * sin30
+  const x1_2 = -apothem + wallInset * cos30
+  const y1_2 = bottomSideYOuter + wallInset * sin30
+  const x2_1 = 2 * hexWidth + wallInset * cos30
+  const y2_1 = y1_1
+  const x2_2 = 2 * hexWidth + apothem - wallInset * cos30
+  const y2_2 = y1_2
+
+  /*   
+  2 shapes, the left side is smaller, concave, the little spoon, and the right side, the convex shape, the big spoon.
+  d= distance inset of wall from hex boundary extremes
+
+  /^\____/^\
+ |   ____   |
+  \ /    \ /
+  //      \\
+
+   */
+  const corners: Point[] = [
+    {
+      x: apothem / 2 - insetAtMidpoints * cos60,
+      y: (3 / 4) * radius - insetAtMidpoints * sin60,
+    }, // midpoint bottom-right side
+
+    { x: x1_1 + wallLength * cos60, y: y1_1 - wallLength * sin60 }, // inset perimeter1-CCW intrudes into hexagon
+    { x: x1_1, y: y1_1 }, // inset perimeter1-CCW
+
+    { x: x1_2, y: y1_2 }, // bottom-left inset perimeter1-CW
+    { x: x1_2 + wallLength * cos60, y: y1_2 - wallLength * sin60 }, // inset perimeter1-CW intrudes into hexagon
+
+    { x: -apothem + insetAtMidpoints, y: 0 }, // midpoint left side
+    {
+      x: -(apothem / 2) + borderWidth * cos60,
+      y: (-3 / 4) * radius + borderWidth * sin60,
+    }, // midpoint top-left side
+
+    {
+      x: 2 * hexWidth + apothem / 2 - insetAtMidpoints * cos60,
+      y: (-3 / 4) * radius + insetAtMidpoints * sin60,
+    }, // midpoint top-right side far-hex
+    { x: 2 * hexWidth + apothem - insetAtMidpoints, y: 0 }, // midpoint right side far-hex
+
+    { x: x2_2 - wallLength * cos60, y: y2_2 - wallLength * sin60 }, // inset perimeter2-CW intrudes into hexagon
+    { x: x2_2, y: y2_2 }, // bottom-left inset perimeter2-CW
+
+    { x: x2_1, y: y2_1 }, // inset perimeter2-CCW
+    { x: x2_1 - wallLength * cos60, y: y2_1 - wallLength * sin60 }, // inset perimeter2-CW intrudes into hexagon
+
+    {
+      x: 2 * hexWidth - apothem / 2 + borderWidth * cos60,
+      y: (3 / 4) * radius - borderWidth * sin60,
+    }, // midpoint bottom-left side far-hex
+  ]
+
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
+export function getCastleCornerShapeSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
+  const halfBorder = borderWidth / 2
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const topSideYOuter = -0.5 * radius
+  const topYOuter = -radius
+  const bottomSideYOuter = 0.5 * radius
+  const bottomYOuter = radius
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const wallInset = 0.2 * radiusInner
+  const wallLength = 0.3 * radiusInner
+  const sin30 = sinDegrees(30)
+  const cos30 = cosDegrees(30)
+  const sin60 = sinDegrees(60)
+  const cos60 = cosDegrees(60)
+  const insetAtMidpoints = borderWidth
+  // The inset points for little spoon top to bottom and then big spoon top to bottom
+  const x1_1 = -apothem + wallInset * cos30
+  const y1_1 = topSideYOuter - wallInset * sin30
+  const x1_2 = -apothem + wallInset * cos30
+  const y1_2 = bottomSideYOuter + wallInset * sin30
+  const x2_1 = 0 - wallInset * cos30
+  const y2_1 = topYOuter + wallInset * sin30
+  const x2_2 = 0 - wallInset * cos30
+  const y2_2 = bottomYOuter - wallInset * sin30
+
+  /*   
+  2 shapes, the left side is smaller, concave, the little spoon, and the right side, the convex shape, the big spoon.
+  d= distance inset of wall from hex boundary extremes
+
+  _\\d\_
+  \     \
+  /     /
+  \   _/
+  /d//
+
+   */
+  const corners: Point[] = [
+    { x: -apothem + insetAtMidpoints, y: 0 }, // midpoint left side
+    { x: x1_1 + wallLength * cos60, y: y1_1 + wallLength * sin60 }, // inset perimeter1-CCW intrudes into hexagon
+    { x: x1_1, y: y1_1 }, // top-left inset perimeter1-CCW
+    { x: x2_1, y: y2_1 }, // inset perimeter1-CW
+    { x: x2_1 + wallLength * cos60, y: y2_1 + wallLength * sin60 }, // inset perimeter1-CW intrudes into hexagon
+
+    {
+      x: apothem / 2 - insetAtMidpoints * cos60,
+      y: (-3 / 4) * radius + insetAtMidpoints * sin60,
+    }, // midpoint top-right side
+    { x: apothem - insetAtMidpoints, y: 0 }, // midpoint right side
+    {
+      x: apothem / 2 - insetAtMidpoints * cos60,
+      y: (3 / 4) * radius - insetAtMidpoints * sin60,
+    }, // midpoint bottom-right side
+
+    { x: x2_2 + wallLength * cos60, y: y2_2 - wallLength * sin60 }, // inset perimeter2-CCW intrudes into hexagon
+    { x: x2_2, y: y2_2 }, // inset perimeter2-CCW
+    { x: x1_2, y: y1_2 }, // bottom-left inset perimeter2-CW
+    { x: x1_2 + wallLength * cos60, y: y1_2 - wallLength * sin60 }, // inset perimeter2-CW intrudes into hexagon
+  ]
+
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
+export function getCastleEndShapeSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
+  const halfBorder = borderWidth / 2
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const topSideYOuter = -0.5 * radius
+  const bottomSideYOuter = 0.5 * radius
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const insetAtMidpoints = borderWidth
+  const wallInset = 0.2 * radiusInner
+  const wallLength = 0.3 * radiusInner
+  const sin60 = sinDegrees(60)
+  const cos60 = cosDegrees(60)
+  const x1 = -apothem
+  const y1 = topSideYOuter + wallInset
+  const x2 = -apothem
+  const y2 = bottomSideYOuter - wallInset
+  /* 
+  2 shapes, top and bottom:
+  d= distance inset of wall from hex boundary extremes
+        _
+      _/ \
+  d|  _   |
+   |   \_/  
+  
+  */
+  const corners: Point[] = [
+    { x: x1, y: y1 }, // left side inset perimeter1-CW
+    { x: x1 + wallLength, y: y1 }, // left side inset perimeter1-CW intrudes into hexagon
+
+    {
+      x: -(apothem / 2) + borderWidth * cos60,
+      y: (-3 / 4) * radius + borderWidth * sin60,
+    }, // midpoint top-left side
+    {
+      x: apothem / 2 - borderWidth * cos60,
+      y: (-3 / 4) * radius + borderWidth * sin60,
+    }, // midpoint top-right side
+    { x: apothem - insetAtMidpoints, y: 0 }, // midpoint right side
+    {
+      x: apothem / 2 - borderWidth * cos60,
+      y: (3 / 4) * radius - borderWidth * sin60,
+    }, // midpoint bottom-right side
+    {
+      x: -(apothem / 2) + borderWidth * cos60,
+      y: (3 / 4) * radius - borderWidth * sin60,
+    }, // midpoint bottom-left side
+
+    { x: x2 + wallLength, y: y2 }, // right side inset perimeter2-CW intrudes into hexagon
+    { x: x2, y: y2 }, // left side inset perimeter1-CW intrudes into hexagon
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
+export function getCastleStraightShapeSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
+  const halfBorder = borderWidth / 2
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const topSideYOuter = -0.5 * radius
+  const bottomSideYOuter = 0.5 * radius
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const insetAtMidpoints = borderWidth
+  const wallInset = 0.2 * radiusInner
+  const wallLength = 0.3 * radiusInner
+  const sin60 = sinDegrees(60)
+  const cos60 = cosDegrees(60)
+  const x1_1 = -apothem
+  const y1_1 = topSideYOuter + wallInset
+  const x1_2 = apothem
+  const y1_2 = topSideYOuter + wallInset
+  const x2_1 = -apothem
+  const y2_1 = bottomSideYOuter - wallInset
+  const x2_2 = apothem
+  const y2_2 = bottomSideYOuter - wallInset
+  /* 
+  2 shapes, top and bottom:
+  d= distance inset of wall from hex boundary extremes
+  _
+      _/ \_
+    
+  d|  _   _
+   |   \_/  
+  
+  */
+  const corners: Point[] = [
+    { x: x1_1, y: y1_1 }, // left side inset perimeter1-CW
+    { x: x1_1 + wallLength, y: y1_1 }, // left side inset perimeter1-CW intrudes into hexagon
+
+    {
+      x: -(apothem / 2) + insetAtMidpoints * cos60,
+      y: (-3 / 4) * radius + insetAtMidpoints * sin60,
+    }, // midpoint top-left side
+    {
+      x: apothem / 2 - insetAtMidpoints * cos60,
+      y: (-3 / 4) * radius + insetAtMidpoints * sin60,
+    }, // midpoint top-right side
+
+    { x: x1_2 - wallLength, y: y1_2 }, // right side inset perimeter2-CCW intrudes into hexagon
+    { x: x1_2, y: y1_2 }, // right side inset perimeter2-CCW
+
+    { x: x2_2, y: y2_2 }, // right side inset perimeter2-CW
+    { x: x2_2 - wallLength, y: y2_2 }, // right side inset perimeter2-CW intrudes into hexagon
+
+    {
+      x: apothem / 2 - insetAtMidpoints * cos60,
+      y: (3 / 4) * radius - insetAtMidpoints * sin60,
+    }, // midpoint bottom-right side
+    {
+      x: -(apothem / 2) + insetAtMidpoints * cos60,
+      y: (3 / 4) * radius - insetAtMidpoints * sin60,
+    }, // midpoint bottom-left side
+
+    { x: x2_1 + wallLength, y: y2_1 }, // right side inset perimeter2-CW intrudes into hexagon
+    { x: x2_1, y: y2_1 }, // left side inset perimeter1-CW intrudes into hexagon
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
 export function getLaurShortWallSvgPolygonPoints(
   radius: number,
   borderWidth: number,
@@ -219,7 +488,7 @@ export function getLaurLongWallSvgPolygonPoints(
 }
 export function getLaurWallRuinSvgPolygonPoints(
   radius: number,
-  borderWidth: number,
+  // borderWidth: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const hexWidth = 2 * apothem
@@ -229,10 +498,10 @@ export function getLaurWallRuinSvgPolygonPoints(
   const bottomSideYOuter = 0.5 * radius
   // Inner hexagon
   const corners: Point[] = [
-    { x: rightXOuter - borderWidth, y: topSideYOuter + borderWidth }, // top-left of rectangle
-    { x: hexWidth - apothem / 2, y: topSideYOuter + borderWidth }, // top-right of rectangle
-    { x: hexWidth - apothem / 2, y: bottomSideYOuter - borderWidth }, // bottom-right of rectangle
-    { x: rightXOuter - borderWidth, y: bottomSideYOuter - borderWidth }, // bottom-left of rectangle
+    { x: rightXOuter, y: topSideYOuter / 5 }, // top-left of rectangle
+    { x: hexWidth - apothem / 2, y: topSideYOuter / 5 }, // top-right of rectangle
+    { x: hexWidth - apothem / 2, y: bottomSideYOuter / 5 }, // bottom-right of rectangle
+    { x: rightXOuter, y: bottomSideYOuter / 5 }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
@@ -318,6 +587,43 @@ export function getRuins3SvgPolygonPoints(radius: number, borderWidth: number) {
   `
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners, path }
+}
+export function getMarvelRuinsShapeSvgPath(
+  radius: number,
+  borderWidth: number,
+) {
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const halfBorder = borderWidth / 2
+  const hexWidth = 2 * apothem
+  const topX = 0
+  // Outer hexagon
+  const topYOuter = -radius
+  const leftXOuter = -apothem
+  const rightXOuter = apothem
+  const topSideYOuter = -0.5 * radius
+  const bottomSideYOuter = 0.5 * radius
+
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const topSideYInner = -0.5 * radiusInner
+
+  const corners: Point[] = [
+    /* 
+    
+    |____
+
+    */
+    { x: rightXOuter, y: topSideYOuter }, // top-right hex1
+
+    { x: apothem, y: 1.5 * radius }, // center hex3
+
+    { x: 8 * apothem, y: 1.5 * radius }, // right side hex6
+  ]
+  const path = `M ${corners[0].x},${corners[0].y} 
+  L ${corners[1].x},${corners[1].y}
+  L ${corners[2].x},${corners[2].y}
+  `
+  return { path }
 }
 export function getHexagonSvgPolygonPointsAt00(
   radius: number,
