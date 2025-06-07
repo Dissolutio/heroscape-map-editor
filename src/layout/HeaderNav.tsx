@@ -36,8 +36,8 @@ export function HeaderNav({
   return (
     <AppBar
       position="static"
-    // sx={{ backgroundColor: 'var(--black)' }}
-    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+      // sx={{ backgroundColor: 'var(--black)' }}
+      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
         <IconButton
@@ -86,7 +86,11 @@ export function HeaderNav({
           sx={{ mr: 2 }}
           onClick={() => toggleIs2DOpen(!is2DOpen)}
         >
-          {is2DOpen ? <World3DIcon title={iconTitle} /> : <Hexes2DIcon title={iconTitle} />}
+          {is2DOpen ? (
+            <World3DIcon title={iconTitle} />
+          ) : (
+            <Hexes2DIcon title={iconTitle} />
+          )}
         </IconButton>
       </Toolbar>
     </AppBar>

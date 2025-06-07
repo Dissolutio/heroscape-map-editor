@@ -25,14 +25,16 @@ export function StartZone3D({
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = isHovered || isSelected
-  const color = isHighlighted ? yellowColor : hexTerrainColor[boardHex.inventoryID]
+  const color = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[boardHex.inventoryID]
   return (
     <mesh
       onPointerUp={handleOnPointerUp}
       onPointerEnter={(e) => onPointerEnterPID(e, boardHex.pieceID)}
       onPointerOut={(e) => onPointerOut(e)}
       rotation={[0, Math.PI / 2, 0]}
-    // rotation={[0, 0, 0]}
+      // rotation={[0, 0, 0]}
     >
       <circleGeometry args={[HEXGRID_HEX_RADIUS / 2.1, 32]} />
       <meshMatcapMaterial color={color} />

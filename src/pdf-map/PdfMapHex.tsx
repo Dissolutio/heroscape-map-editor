@@ -146,9 +146,13 @@ export const PdfMapHex = ({
         <Text
           fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
           // white text (not glaciers, so far) needs a little opacity boost
-          opacity={isSubLevel ?
-            (hex.terrain === HexTerrain.glacier ? OPACITY_SUBLEVEL : OPACITY_SUBLEVEL * 2)
-            : 1}
+          opacity={
+            isSubLevel
+              ? hex.terrain === HexTerrain.glacier
+                ? OPACITY_SUBLEVEL
+                : OPACITY_SUBLEVEL * 2
+              : 1
+          }
           {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
         >
           {pieceHeightText}
@@ -214,13 +218,9 @@ export const PdfMapHex = ({
     )
   }
   // Start Zones
-  if (
-    hex.terrain === HexTerrain.startZone
-  ) {
+  if (hex.terrain === HexTerrain.startZone) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})`}
-      >
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfStartZone hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -246,10 +246,10 @@ export const PdfMapHex = ({
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-        inventoryID === Pieces.castleWallEnd
+      inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-          inventoryID === Pieces.castleWallStraight
+            inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`

@@ -1,10 +1,7 @@
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { HexTerrain, Pieces, type BoardHex } from '../types'
-import {
-  isFluidTerrainHex,
-  isSolidTerrainHex,
-} from '../utils/board-utils'
+import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import {
   SVG_BORDER_WIDTH,
   SVG_EMPTYHEX_BORDER_WIDTH,

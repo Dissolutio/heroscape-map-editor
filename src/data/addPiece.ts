@@ -89,8 +89,7 @@ export function addPiece({
   const isGlyphPiece =
     piece.terrain === HexTerrain.glyphPower ||
     piece.terrain === HexTerrain.glyphTreasure
-  const isStartZonePiece =
-    piece.terrain === HexTerrain.startZone
+  const isStartZonePiece = piece.terrain === HexTerrain.startZone
   // Validate
   const isPlacingOnTable = underHexIds.every(
     (id) => (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.empty,
@@ -146,7 +145,8 @@ export function addPiece({
   // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
   const isObstaclePieceSupported =
     isSolidUnderAll ||
-    ((piece.id === Pieces.laurWallPillar || isGlyphPiece || isStartZonePiece) && isLandUnderAll) || // Laur wall pillars, and glyphs, can be placed on fluid tiles, per Renegade
+    ((piece.id === Pieces.laurWallPillar || isGlyphPiece || isStartZonePiece) &&
+      isLandUnderAll) || // Laur wall pillars, and glyphs, can be placed on fluid tiles, per Renegade
     (isBridgingObstaclePieceID(piece.id) && isSolidUnderAtLeastOne) || // some multi-hex fluid-tile based obstacles (glaciers-4/6, hive) can bridge over gaps
     (isPlacingOnTable && !isGlyphPiece) // glyphs cannot go directly on table
   const isLadderPieceSupported =

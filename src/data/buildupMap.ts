@@ -176,22 +176,22 @@ function getBlankHexoscapeMapForVSTiles(
 function getCodeForVSPersonalTile(tile: VirtualScapeTile) {
   // transforms glyph pieces into Power Glyph
   // transforms start zone pieces based on their color in Virtualscape
-  // transforms personal tiles created in Virtualscape 
+  // transforms personal tiles created in Virtualscape
   // (the specs on those personal tiles were published here: https://www.heroscapers.com/threads/v-s-personal-tiles.11185/)
   // or just return the original pieceCode
 
   // GLYPHS
   if (
-    tile.type.toString().startsWith('140') // all glyphs are 140XX in Virtualscape, see commented code in glyphs.ts
+    tile.type
+      .toString()
+      .startsWith('140') // all glyphs are 140XX in Virtualscape, see commented code in glyphs.ts
   ) {
-    return 14063  // the "?" glyph from Virtualscape (neglecting importing named/revealed glyphs)
+    return 14063 // the "?" glyph from Virtualscape (neglecting importing named/revealed glyphs)
   }
 
   // START ZONES
-  if (
-    tile.type === 15001
-  ) {
-    console.log("🚀 ~ getCodeForVSPersonalTile ~ tile.colorf:", tile.colorf)
+  if (tile.type === 15001) {
+    console.log('🚀 ~ getCodeForVSPersonalTile ~ tile.colorf:', tile.colorf)
     return startAreaColorsToPieceCode[`${tile.colorf}`] // is now the laurPillar code, never existed in virtualscape
   }
 

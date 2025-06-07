@@ -1,4 +1,4 @@
-import { Pieces } from "../types";
+import { Pieces } from '../types'
 
 export const startAreaColorsToPieceCode: { [colorf: string]: number } = {
   // Keys are the colorf values of StartAreaTiles from virtualscape (the colorf values are these tiles only differentiating property)

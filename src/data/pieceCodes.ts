@@ -128,4 +128,3 @@ export const pieceCodes: Dictionary<string> = {
   // laurWallPillar
   '17101': Pieces.laurWallPillar,
 }
-

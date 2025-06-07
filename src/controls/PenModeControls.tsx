@@ -76,8 +76,8 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-          flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
-        )
+            flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
+          )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -85,11 +85,11 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-        )
+            flatPieceSizes?.[3] ??
+              flatPieceSizes?.[2] ??
+              flatPieceSizes?.[1] ??
+              flatPieceSizes[0],
+          )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -97,12 +97,12 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-          flatPieceSizes?.[4] ??
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-        )
+            flatPieceSizes?.[4] ??
+              flatPieceSizes?.[3] ??
+              flatPieceSizes?.[2] ??
+              flatPieceSizes?.[1] ??
+              flatPieceSizes[0],
+          )
         : noop() /*isEnabled*/,
   )
   useHotkeys('z', () => togglePenMode('select') /*isEnabled*/)
@@ -302,13 +302,19 @@ export default function PenModeControls() {
         </MenuItem>
         <MenuItem value={Pieces.palm15}>
           <ListItemIcon>
-            <GiPalmTree scale={'110%'} color={hexTerrainColor.ticallaPalmModel2} />
+            <GiPalmTree
+              scale={'110%'}
+              color={hexTerrainColor.ticallaPalmModel2}
+            />
           </ListItemIcon>
           <span>Ticalla Palm 15</span>
         </MenuItem>
         <MenuItem value={Pieces.palm16}>
           <ListItemIcon>
-            <GiPalmTree scale={'120%'} color={hexTerrainColor.ticallaPalmModel2} />
+            <GiPalmTree
+              scale={'120%'}
+              color={hexTerrainColor.ticallaPalmModel2}
+            />
           </ListItemIcon>
           <span>Ticalla Palm 16</span>
         </MenuItem>
@@ -356,13 +362,20 @@ export default function PenModeControls() {
           <ListItemIcon>
             <TbHexagonalPyramid
               color={hexTerrainColor.dungeon}
-              style={{ fontSize: '0.8rem' }} />
+              style={{ fontSize: '0.8rem' }}
+            />
             <TbHexagonalPyramid
               color={hexTerrainColor.dungeon}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem', marginTop: '0.2rem' }} />
+              style={{
+                fontSize: '0.8rem',
+                marginLeft: '-0.5rem',
+                marginTop: '0.2rem',
+              }}
+            />
             <TbHexagonalPyramid
               color={hexTerrainColor.dungeon}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }} />
+              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }}
+            />
           </ListItemIcon>
           <span>Outcrop 3</span>
         </MenuItem>
@@ -376,13 +389,20 @@ export default function PenModeControls() {
           <ListItemIcon>
             <TbHexagonalPyramid
               color={hexTerrainColor.lava}
-              style={{ fontSize: '0.8rem' }} />
+              style={{ fontSize: '0.8rem' }}
+            />
             <TbHexagonalPyramid
               color={hexTerrainColor.lava}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem', marginTop: '0.2rem' }} />
+              style={{
+                fontSize: '0.8rem',
+                marginLeft: '-0.5rem',
+                marginTop: '0.2rem',
+              }}
+            />
             <TbHexagonalPyramid
               color={hexTerrainColor.lava}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }} />
+              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }}
+            />
           </ListItemIcon>
           <span>Lava Rock Outcrop 3</span>
         </MenuItem>
@@ -396,13 +416,20 @@ export default function PenModeControls() {
           <ListItemIcon>
             <TbHexagonalPyramid
               color={hexTerrainColor.ice}
-              style={{ fontSize: '0.8rem' }} />
+              style={{ fontSize: '0.8rem' }}
+            />
             <TbHexagonalPyramid
               color={hexTerrainColor.ice}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem', marginTop: '0.2rem' }} />
+              style={{
+                fontSize: '0.8rem',
+                marginLeft: '-0.5rem',
+                marginTop: '0.2rem',
+              }}
+            />
             <TbHexagonalPyramid
               color={hexTerrainColor.ice}
-              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }} />
+              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }}
+            />
           </ListItemIcon>
           <span>Glacier 3</span>
         </MenuItem>
@@ -446,7 +473,8 @@ export default function PenModeControls() {
         </MenuItem>
         <MenuItem
           title="Add castle wall end (base is added automatically if needed)"
-          value={Pieces.castleWallEnd}>
+          value={Pieces.castleWallEnd}
+        >
           <ListItemIcon>
             <PiCastleTurretLight />
             <TbHexagonLetterE />
@@ -455,7 +483,8 @@ export default function PenModeControls() {
         </MenuItem>
         <MenuItem
           title="Add castle straight wall (base is added automatically if needed)"
-          value={Pieces.castleWallStraight}>
+          value={Pieces.castleWallStraight}
+        >
           <ListItemIcon>
             <PiCastleTurretLight />
             <TbHexagonLetterS />
@@ -464,7 +493,8 @@ export default function PenModeControls() {
         </MenuItem>
         <MenuItem
           title="Add castle wall corner (base is added automatically if needed)"
-          value={Pieces.castleWallCorner}>
+          value={Pieces.castleWallCorner}
+        >
           <ListItemIcon>
             <PiCastleTurretLight />
             <TbHexagonLetterC />
