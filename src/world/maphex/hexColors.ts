@@ -122,6 +122,7 @@ export const svgColors = {
   outlineTree: 'rgb(29, 60, 30)',
   outlineJungle: 'rgb(121, 61, 26)',
   outlineLaurWall: 'rgb(215, 38, 156)',
+  outlineCastleWall: 'rgb(80, 79, 84)',
   // OBSTACLES
   [HexTerrain.ladder]: 'rgb(173, 75, 35)',
   // [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
@@ -145,6 +146,9 @@ export const svgColors = {
   [HexTerrain.lavaField]: 'rgb(163, 0, 41)',
   [HexTerrain.snow]: 'rgb(255,255,255)',
   [HexTerrain.water]: 'rgb(67, 172, 176)',
+  [HexTerrain.castle]: 'rgb(80, 79, 84)',
+  // castleInterior: 'rgb(182, 181, 186)', // french gray like hexTerrainColor.castle
+  castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
   // [HexTerrain.wellspringWater]: 'rgb(255,255,255)', // Renegade uses white, white is too confusing
   [HexTerrain.wellspringWater]: 'rgb(225,194,255)', // used this in virtualscape to differentiate from snow
   [HexTerrain.swampWater]: 'rgb(162, 166, 32)',

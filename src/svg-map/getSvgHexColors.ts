@@ -134,7 +134,7 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     return svgColors.lavaField
   }
   if (isCastleTerrain(hex.terrain)) {
-    return hexTerrainColor.castle
+    return svgColors.castle
   }
   return 'transparent'
 }

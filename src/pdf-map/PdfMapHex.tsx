@@ -17,6 +17,8 @@ import {
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   PdfCastleBaseCorner,
+  PdfCastleEnd,
+  PdfCastleStraight,
   PdfEmptyHex,
   PdfHive6,
   PdfLadder,
@@ -214,7 +216,8 @@ export const PdfMapHex = ({
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
-    if (hex.inventoryID === Pieces.castleBaseCorner) {
+    //  Return Castle Corner
+    if (hex.inventoryID === Pieces.castleBaseCorner || hex.inventoryID === Pieces.castleWallCorner) {
       return (
         <G transform={`translate(${pixel.x}, ${pixel.y})`}>
           <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
@@ -233,6 +236,52 @@ export const PdfMapHex = ({
           </Text>
           {/* <G transform={`rotate(${pieceRotation})`}> */}
           <PdfCastleBaseCorner hex={hex} isSubLevel={isSubLevel} />
+          {/* </G> */}
+        </G>
+      )
+    }
+    if (hex.inventoryID === Pieces.castleBaseStraight || hex.inventoryID === Pieces.castleWallStraight) {
+      return (
+        <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+          <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+          <Text
+            fill="black"
+            // white text needs a little opacity boost
+            opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+            style={{
+              fontSize: 0.4 * SVG_HEX_RADIUS,
+              fontWeight: 'bold',
+            }}
+            y={0.2 * SVG_HEX_RADIUS}
+            x={-0.2 * SVG_HEX_APOTHEM}
+          >
+            {heightText}
+          </Text>
+          {/* <G transform={`rotate(${pieceRotation})`}> */}
+          <PdfCastleStraight hex={hex} isSubLevel={isSubLevel} />
+          {/* </G> */}
+        </G>
+      )
+    }
+    if (hex.inventoryID === Pieces.castleBaseEnd || hex.inventoryID === Pieces.castleWallEnd) {
+      return (
+        <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+          <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+          <Text
+            fill="black"
+            // white text needs a little opacity boost
+            opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+            style={{
+              fontSize: 0.4 * SVG_HEX_RADIUS,
+              fontWeight: 'bold',
+            }}
+            y={0.2 * SVG_HEX_RADIUS}
+            x={-0.2 * SVG_HEX_APOTHEM}
+          >
+            {heightText}
+          </Text>
+          {/* <G transform={`rotate(${pieceRotation})`}> */}
+          <PdfCastleEnd hex={hex} isSubLevel={isSubLevel} />
           {/* </G> */}
         </G>
       )

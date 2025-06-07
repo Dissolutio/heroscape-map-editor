@@ -13,6 +13,7 @@ import {
   get9HexWallWalkSvgPolygonPointsAt00,
   getBattlementSvgPolygonPoints,
   getCastleCornerShapeSvgPolygonPoints,
+  getCastleStraightShapeSvgPolygonPoints,
   getHexagonSvgPolygonPointsAt00,
   getLadderSvgPolygonPoints,
   getLaurLongWallSvgPolygonPoints,
@@ -36,6 +37,7 @@ import {
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
+import { svgColors } from '../world/maphex/hexColors'
 
 export const PdfEmptyHex = () => {
   const fillColor = 'white'
@@ -711,6 +713,75 @@ export const PdfCastleBaseCorner = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   // const borderColor = getSvgHexBorderColor(hex)
+  const { points } = getCastleCornerShapeSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+  return (
+    <>
+      {isSubLevel && (
+        <PdfSubLevelWhiteBackerPolygon
+          points={points}
+          borderWidth={0}
+        />
+      )}
+      <Polygon
+        points={points}
+        fill={svgColors.castleInterior}
+        // stroke={svgColors.castle}
+        // strokeWidth={SVG_BORDER_WIDTH / 4}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </>
+  )
+}
+export const PdfCastleStraight = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = getSvgHexBorderColor(hex)
+  const { points, points2 } = getCastleStraightShapeSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+  return (
+    <>
+      {isSubLevel && (
+        <>
+          <PdfSubLevelWhiteBackerPolygon
+            points={points}
+            borderWidth={SVG_BORDER_WIDTH / 4}
+          />
+          <PdfSubLevelWhiteBackerPolygon
+            points={points2}
+            borderWidth={SVG_BORDER_WIDTH / 4}
+          />
+        </>
+      )}
+      <Polygon
+        points={points}
+        fill={svgColors.castle}
+        stroke={svgColors.castle}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <Polygon
+        points={points2}
+        fill={svgColors.castle}
+        stroke={svgColors.castle}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </>
+  )
+}
+export const PdfCastleEnd = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  // const borderColor = getSvgHexBorderColor(hex)
   const { points, points2 } = getCastleCornerShapeSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
@@ -729,22 +800,21 @@ export const PdfCastleBaseCorner = ({
       )}
       <Polygon
         points={points}
-        fill={'black'}
-        stroke={'black'}
+        fill={svgColors.castle}
+        stroke={svgColors.castle}
         strokeWidth={SVG_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 0.5}
       />
       <Polygon
         points={points2}
-        fill={'black'}
-        stroke={'black'}
+        fill={svgColors.castle}
+        stroke={svgColors.castle}
         strokeWidth={SVG_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 0.5}
       />
     </>
   )
 }
-
 const hexTextStyle = {
   fontSize: 0.8 * SVG_HEX_RADIUS,
   fontWeight: 'bold',
