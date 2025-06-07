@@ -42,7 +42,7 @@ import HeightRing from './HeightRing'
 import { MapHexIDDisplay } from './MapHexIDDisplay'
 import { hexTerrainColor } from './hexColors'
 import { GlyphModel } from '../models/Glyph'
-import { StartZone } from '../models/StartZone'
+import { StartZone3D } from '../models/StartZone3D'
 
 export const MapHex3D = ({
   boardHex,
@@ -178,9 +178,15 @@ export const MapHex3D = ({
           </group>
         )}
         {isStartZoneHex && (
-          <Suspense fallback={<ModelLoader />}>
-            <StartZone boardHex={boardHex} onPointerUp={onPointerUp} />
-          </Suspense>
+          <group
+            position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
+            rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, Math.PI / 2]}
+          >
+            {selectedPieceID === boardHex.pieceID && (
+              <DeletePieceBillboard pieceID={boardHex.pieceID} />
+            )}
+            <StartZone3D boardHex={boardHex} onPointerUp={onPointerUp} />
+          </group>
         )}
         {isRuin2OriginHex && (
           <Suspense fallback={<ModelLoader />}>

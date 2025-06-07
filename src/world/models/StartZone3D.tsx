@@ -4,8 +4,9 @@ import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
+import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
 
-export function StartZone({
+export function StartZone3D({
   boardHex,
   onPointerUp,
 }: {
@@ -24,19 +25,17 @@ export function StartZone({
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = isHovered || isSelected
-  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ladder]
+  const color = isHighlighted ? yellowColor : hexTerrainColor[boardHex.inventoryID]
   return (
     <mesh
       onPointerUp={handleOnPointerUp}
       onPointerEnter={(e) => onPointerEnterPID(e, boardHex.pieceID)}
       onPointerOut={(e) => onPointerOut(e)}
-      rotation={[Math.PI / 2, 0, 0]}
+      rotation={[0, Math.PI / 2, 0]}
     // rotation={[0, 0, 0]}
     >
-      <circleGeometry args={[5, 32]} />
+      <circleGeometry args={[HEXGRID_HEX_RADIUS / 2.1, 32]} />
       <meshMatcapMaterial color={color} />
     </mesh>
   )
 }
-
-useGLTF.preload('/handmade-battlement.glb')
