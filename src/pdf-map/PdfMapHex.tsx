@@ -260,22 +260,18 @@ export const PdfMapHex = ({
     //  Castle Arch
     if (hex.inventoryID === Pieces.castleArch || hex.inventoryID === Pieces.castleArchNoDoor) {
       return (
-        // <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        //   <G transform={`rotate(${pieceRotation})`}>
-        //     <PdfMultiHexStraight3 hex={hex} isSubLevel={isSubLevel} />
-        //     <PdfCastleArch hex={hex} isSubLevel={isSubLevel} />
+        <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+          <G transform={`rotate(${pieceRotation})`}>
+            <PdfMultiHexStraight3 hex={hex} isSubLevel={isSubLevel} />
+            <PdfCastleArch hex={hex} isSubLevel={isSubLevel} />
 
-        //     <G
-        //       // flip upside down text, all other rotations are legible
-        //       transform={pieceRotation === 180 ? 'rotate(-180)' : 'rotate(0)'}
-        //     >
-        //       <CastleArchText isSubLevel={isSubLevel} pieceRotation={pieceRotation} />
-        //     </G>
-        //   </G>
-        // </G>
-        <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
-          <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
-          <PdfMarvelRuin hex={hex} isSubLevel={isSubLevel} />
+            <G
+              // flip upside down text, all other rotations are legible
+              transform={pieceRotation === 180 ? 'rotate(-180)' : 'rotate(0)'}
+            >
+              <CastleArchText isSubLevel={isSubLevel} pieceRotation={pieceRotation} />
+            </G>
+          </G>
         </G>
       )
     }
@@ -296,6 +292,15 @@ export const PdfMapHex = ({
         >
           {castleBaseWallText}
         </Text>
+      </G>
+    )
+  }
+  //  Marvel Ruin
+  if (hex.inventoryID === Pieces.marvel || hex.inventoryID === Pieces.marvelBroken) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}>
+        <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
+        <PdfMarvelRuin hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
