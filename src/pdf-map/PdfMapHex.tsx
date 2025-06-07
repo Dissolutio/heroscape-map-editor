@@ -221,6 +221,9 @@ export const PdfMapHex = ({
       return (
         <G transform={`translate(${pixel.x}, ${pixel.y})`}>
           <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+          <G transform={`rotate(${pieceRotation})`}>
+            <PdfCastleBaseCorner hex={hex} isSubLevel={isSubLevel} />
+          </G>
           <Text
             fill="black"
             // white text needs a little opacity boost
@@ -234,9 +237,6 @@ export const PdfMapHex = ({
           >
             {heightText}
           </Text>
-          {/* <G transform={`rotate(${pieceRotation})`}> */}
-          <PdfCastleBaseCorner hex={hex} isSubLevel={isSubLevel} />
-          {/* </G> */}
         </G>
       )
     }

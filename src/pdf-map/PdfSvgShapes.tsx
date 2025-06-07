@@ -697,6 +697,13 @@ export const PdfLadder = ({
         fill={fillColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 4}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <Polygon
+        points={points}
+        fill={svgColors.castleInterior}
+        stroke={svgColors.castleInterior}
+        strokeWidth={SVG_BORDER_WIDTH / 4}
         strokeLinecap="round"
         strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
@@ -712,21 +719,22 @@ export const PdfCastleBaseCorner = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = getSvgHexBorderColor(hex)
   const { points } = getCastleCornerShapeSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {isSubLevel && (
         <PdfSubLevelWhiteBackerPolygon
           points={points}
-          borderWidth={0}
+          borderWidth={SVG_BORDER_WIDTH / 4}
         />
       )}
       <Polygon
         points={points}
         fill={svgColors.castleInterior}
-        // stroke={svgColors.castle}
-        // strokeWidth={SVG_BORDER_WIDTH / 4}
+        stroke={svgColors.castleInterior}
+        strokeWidth={SVG_BORDER_WIDTH / 4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -740,34 +748,22 @@ export const PdfCastleStraight = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = getSvgHexBorderColor(hex)
-  const { points, points2 } = getCastleStraightShapeSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+  const { points } = getCastleStraightShapeSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {isSubLevel && (
-        <>
-          <PdfSubLevelWhiteBackerPolygon
-            points={points}
-            borderWidth={SVG_BORDER_WIDTH / 4}
-          />
-          <PdfSubLevelWhiteBackerPolygon
-            points={points2}
-            borderWidth={SVG_BORDER_WIDTH / 4}
-          />
-        </>
+        <PdfSubLevelWhiteBackerPolygon
+          points={points}
+          borderWidth={SVG_BORDER_WIDTH / 4}
+        />
       )}
       <Polygon
         points={points}
-        fill={svgColors.castle}
-        stroke={svgColors.castle}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
-      <Polygon
-        points={points2}
-        fill={svgColors.castle}
-        stroke={svgColors.castle}
-        strokeWidth={SVG_BORDER_WIDTH}
+        fill={svgColors.castleInterior}
+        stroke={svgColors.castleInterior}
+        strokeWidth={SVG_BORDER_WIDTH / 4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -782,35 +778,22 @@ export const PdfCastleEnd = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   // const borderColor = getSvgHexBorderColor(hex)
-  const { points, points2 } = getCastleCornerShapeSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+  const { points } = getCastleCornerShapeSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {isSubLevel && (
-        <>
-
-          <PdfSubLevelWhiteBackerPolygon
-            points={points}
-            borderWidth={SVG_BORDER_WIDTH / 4}
-          />
-          <PdfSubLevelWhiteBackerPolygon
-            points={points2}
-            borderWidth={SVG_BORDER_WIDTH / 4}
-          />
-        </>
+        <PdfSubLevelWhiteBackerPolygon
+          points={points}
+          // borderWidth={SVG_BORDER_WIDTH / 4}
+          borderWidth={0}
+        />
       )}
       <Polygon
         points={points}
-        fill={svgColors.castle}
-        stroke={svgColors.castle}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 0.5}
-      />
-      <Polygon
-        points={points2}
-        fill={svgColors.castle}
-        stroke={svgColors.castle}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 0.5}
+        fill={svgColors.castleInterior}
+        // stroke={svgColors.castle}
+        // strokeWidth={SVG_BORDER_WIDTH / 4}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
