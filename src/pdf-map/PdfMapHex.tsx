@@ -6,7 +6,6 @@ import {
   isEvergreenTree,
   isFluidTerrainHex,
   isJungleTerrainHex,
-  isObstaclePieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import {
@@ -36,6 +35,7 @@ import {
   PdfMultiHexStraight3,
   PdfMultiHexWallWalk7,
   PdfMultiHexWallWalk9,
+  PdfStartZone,
   PdfSvgOutcrop3,
   PdfSvgOutcrop4,
   PdfSvgOutcrop6,
@@ -75,7 +75,7 @@ export const PdfMapHex = ({
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
   const { inventoryID } = decodePieceID(hex.pieceID)
-  const isObstaclePiece = isObstaclePieceID(inventoryID)
+  const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
   const isAuxiliaryNotRenderedIn2D =
     isObstaclePiece && (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
   const isVisible = hex.altitude <= viewingLevel
@@ -134,6 +134,28 @@ export const PdfMapHex = ({
       </G>
     )
   }
+  // Outcrop/Glacier/LavaOutcrop 1's
+  if (
+    inventoryID === Pieces.outcrop1 ||
+    inventoryID === Pieces.lavaRockOutcrop1 ||
+    inventoryID === Pieces.glacier1
+  ) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <Text
+          fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+          // white text (not glaciers, so far) needs a little opacity boost
+          opacity={isSubLevel ?
+            (hex.terrain === HexTerrain.glacier ? OPACITY_SUBLEVEL : OPACITY_SUBLEVEL * 2)
+            : 1}
+          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+        >
+          {pieceHeightText}
+        </Text>
+      </G>
+    )
+  }
   // Outcrop/Glacier/LavaOutcrop 3's
   if (
     inventoryID === Pieces.outcrop3 ||
@@ -179,16 +201,27 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1 isGlyph hex={hex} isSubLevel={isSubLevel} />
-        <Image src="" />
         <Text
           fill="white"
-          // white text needs a little opaci`ty boost
+          // white text needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           // {...glyphTextProps(`${pieceHeightText}`)}
           {...glyphTextProps('GL')}
         >
           {'GL'}
         </Text>
+      </G>
+    )
+  }
+  // Start Zones
+  if (
+    hex.terrain === HexTerrain.startZone
+  ) {
+    return (
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})`}
+      >
+        <PdfStartZone hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -213,10 +246,10 @@ export const PdfMapHex = ({
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-      inventoryID === Pieces.castleWallEnd
+        inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-            inventoryID === Pieces.castleWallStraight
+          inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
@@ -304,7 +337,6 @@ export const PdfMapHex = ({
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <Text
           fill="black"
-          // white text needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
           style={{
             fontSize: 0.4 * SVG_HEX_RADIUS,
@@ -541,7 +573,6 @@ const CastleArchText = ({
   return (
     <Text
       fill="black"
-      // white text needs a little opacity boost
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       style={{
         fontSize: 0.8 * SVG_HEX_RADIUS,

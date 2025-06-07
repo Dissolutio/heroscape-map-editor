@@ -12,6 +12,7 @@ import { decodePieceID } from '../utils/map-utils'
 import { addPiece } from './addPiece'
 import { pieceCodes } from './pieceCodes'
 import { piecesSoFar } from './pieces'
+import { startAreaColorsToPieceCode } from './virtualStartZones'
 
 export default function buildupVSFileMap(
   tiles: VirtualScapeTile[],
@@ -29,17 +30,10 @@ export default function buildupVSFileMap(
   // const startZoneTiles = tiles.filter(t => t.type === 15001)
   const newBoardHexes = tiles.reduce((boardHexes: BoardHexes, tile) => {
     const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
-    // if (tile.type === 16101 || tile.type === 16102 || tile.type === 16103) {
-    //   console.log("Castle base found in virtualscape map!", tileCoords, tile.posZ)
-    // }
-    // if (tile.type === 16301) {
-    //   console.log("Battlement found in virtualscape map!", tileCoords, tile.posZ)
-    // }
-    // if (tile.type === 16402) {
-    //   console.log("Ladder found in virtualscape map! Coords, tile.posZ", tileCoords, tile.posZ)
-    // }
-    // if (tile.type === 15001) {
+    // PARSE START ZONES
+    // if (tile.type.toString().startsWith("1500")) {
     //   console.log("Startzone found in virtualscape map!", tileCoords, tile.colorf)
+    //   if (tile.colorf) { }
     // }
     const id = pieceCodes?.[getCodeForVSPersonalTile(tile)] ?? ''
     const piece = piecesSoFar[id]
@@ -160,14 +154,14 @@ function getBlankHexoscapeMapForVSTiles(
   const yIncrementsWorthEmpty = Math.floor(yMin / 2)
   // MUTATE TILES TO MAKE MAP SMALL AS POSSIBLE
   if (xIncrementsWorthEmpty > 0) {
-    tiles.forEach((t) => {
+    for (const t of tiles) {
       t.posX -= xIncrementsWorthEmpty * 2
-    })
+    }
   }
   if (yIncrementsWorthEmpty > 0) {
-    tiles.forEach((t) => {
+    for (const t of tiles) {
       t.posY -= yIncrementsWorthEmpty * 2
-    })
+    }
   }
   // these are the dimensions of the empty map to generate
   const length = Math.max(...(tiles.map((t) => t.posY + cushionToPadY) ?? 0))
@@ -180,8 +174,34 @@ function getBlankHexoscapeMapForVSTiles(
   })
 }
 function getCodeForVSPersonalTile(tile: VirtualScapeTile) {
-  // this function is a monkeypatch
-  // this function was created to simply transform personal tiles, created in Virtualscape, to be used in this app, quickly, or just return the original pieceCode
+  // transforms glyph pieces into Power Glyph
+  // transforms start zone pieces based on their color in Virtualscape
+  // transforms personal tiles created in Virtualscape 
+  // (the specs on those personal tiles were published here: https://www.heroscapers.com/threads/v-s-personal-tiles.11185/)
+  // or just return the original pieceCode
+
+  // GLYPHS
+  if (
+    tile.type.toString().startsWith('140') // all glyphs are 140XX in Virtualscape, see commented code in glyphs.ts
+  ) {
+    return 14063  // the "?" glyph from Virtualscape (neglecting importing named/revealed glyphs)
+  }
+
+  // START ZONES
+  if (
+    tile.type === 15001
+  ) {
+    console.log("🚀 ~ getCodeForVSPersonalTile ~ tile.colorf:", tile.colorf)
+    return startAreaColorsToPieceCode[`${tile.colorf}`] // is now the laurPillar code, never existed in virtualscape
+  }
+
+  // PERSONAL TILES
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('pillar')
+  ) {
+    return 17101 // is now the laurPillar code, never existed in virtualscape
+  }
   if (
     tile.type === 17000 &&
     (tile?.personal?.name ?? '').toLowerCase().includes('pillar')

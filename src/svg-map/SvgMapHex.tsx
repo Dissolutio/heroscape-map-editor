@@ -3,7 +3,6 @@ import useBoundStore from '../store/store'
 import { HexTerrain, Pieces, type BoardHex } from '../types'
 import {
   isFluidTerrainHex,
-  isObstaclePieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import {
@@ -12,7 +11,6 @@ import {
   SVG_HEX_RADIUS,
 } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
-import { SvgHexIDText } from './SvgHexIDText'
 import { SvgOutcrop3 } from '../pdf-map/PdfSvgShapes'
 import { getHexagonSvgPolygonPointsAt00 } from './getHexagonSvgPolygonPoints'
 import { getSvgHexBorderColor, getSvgHexFillColor } from './getSvgHexColors'
@@ -24,7 +22,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
   const { inventoryID } = decodePieceID(hex.pieceID)
-  const isObstaclePiece = isObstaclePieceID(inventoryID)
+  const isObstaclePiece = piecesSoFar[inventoryID].isObstaclePiece
   const isAuxiliaryNotRenderedIn2D =
     isObstaclePiece && (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
   const isEmptyHex = hex.terrain === HexTerrain.empty

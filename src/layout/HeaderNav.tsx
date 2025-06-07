@@ -30,11 +30,14 @@ export function HeaderNav({
   // AppBar height is 64px when screen > 600px
   // AppBar height is 56px when screen < 600px
   const hexMap = useBoundStore((s) => s.hexMap)
+  const icon3DTitle = 'View 3D Map'
+  const icon2DTitle = 'View 2D Map'
+  const iconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
   return (
     <AppBar
       position="static"
-      // sx={{ backgroundColor: 'var(--black)' }}
-      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+    // sx={{ backgroundColor: 'var(--black)' }}
+    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
         <IconButton
@@ -78,12 +81,12 @@ export function HeaderNav({
         )}
         <IconButton
           size="large"
-          aria-label={is2DOpen ? 'View 3D Map' : 'View 2D Map'}
-          title={is2DOpen ? 'View 3D Map' : 'View 2D Map'}
+          aria-label={iconTitle}
+          title={iconTitle}
           sx={{ mr: 2 }}
           onClick={() => toggleIs2DOpen(!is2DOpen)}
         >
-          {is2DOpen ? <World3DIcon /> : <Hexes2DIcon />}
+          {is2DOpen ? <World3DIcon title={iconTitle} /> : <Hexes2DIcon title={iconTitle} />}
         </IconButton>
       </Toolbar>
     </AppBar>

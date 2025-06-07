@@ -21,6 +21,7 @@ import {
   getBattlementClickedHexCoords,
   getBoardHexesRectangularMapDimensions,
   getBoardPiecesMaxLevel,
+  getRoadWallClickedHexCoords,
 } from '../utils/map-utils.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import { useZoomCameraToMapCenter } from './camera/useZoomeCameraToMapCenter.tsx'
@@ -81,18 +82,15 @@ export default function MapDisplay3D({
       return
     }
 
-    if (penMode === 'select') {
+    if (penMode === 'select' && hex.pieceID) {
       toggleSelectedPieceID(hex.pieceID)
+      return
     }
     const pieceMode = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
     const piece = piecesSoFar[pieceMode]
     const boardHexIdOfCapForWall = genBoardHexID({
       ...hex,
       altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
-    })
-    const boardHexIdOfLadderAuxiliary = genBoardHexID({
-      ...hex,
-      altitude: hex.altitude + 1,
     })
     const isCastleWallArchClicked =
       hex.pieceID.includes(PiecePrefixes.castleWall) ||
@@ -103,33 +101,47 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     let clickedHexAltitude = clickedHex.altitude
     // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
-    if (piece.id === Pieces.battlement) {
+    if (piece?.id === Pieces.battlement || piece?.id === Pieces.roadWall) {
       const battlementClickedHexCoords = getBattlementClickedHexCoords(
+        clickedHex,
+        pieceRotation,
+      )
+      const roadWallClickedHexCoords = getRoadWallClickedHexCoords(
         clickedHex,
         pieceRotation,
       )
       clickedHexAltitude -= 1
       const mirrorRotation = (pieceRotation + 3) % 6
-      error = paintTile({
-        piece,
-        clickedHexCoords: battlementClickedHexCoords,
-        altitude: clickedHexAltitude,
-        rotation: mirrorRotation,
-      })
+      if (piece?.id === Pieces.roadWall) {
+        error = paintTile({
+          piece,
+          clickedHexCoords: roadWallClickedHexCoords,
+          altitude: clickedHexAltitude,
+          rotation: pieceRotation,
+        })
+      } else {
+
+        error = paintTile({
+          piece,
+          clickedHexCoords: battlementClickedHexCoords,
+          altitude: clickedHexAltitude,
+          rotation: mirrorRotation,
+        })
+      }
     } else if (
-      piece.id === Pieces.ladder &&
-      hex.inventoryID === Pieces.ladder
+      piece?.id === Pieces.ladder &&
+      hex?.inventoryID === Pieces.ladder
     ) {
       clickedHexAltitude += 1
       error = paintTile({
@@ -174,7 +186,7 @@ export default function MapDisplay3D({
           // position={[topLeft[0], 0, topLeft[1]]}
           position={[0, 0, 0]}
           scale={[width, 0, length]}
-          // rotation={new Euler(0, Math.PI, 0)}
+        // rotation={new Euler(0, Math.PI, 0)}
         />
       )}
 

@@ -86,7 +86,7 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
     return svgColors.outlineWater
   }
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
-    return svgColors.outlineLava
+    return svgColors.outlineWater
   }
   if (isCastleTerrain(hex.terrain)) {
     return svgColors.castle
@@ -110,6 +110,10 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
       svgColors?.[hex.terrain as keyof typeof svgColors] ??
       virtualscapeTileColors[hex.terrain as keyof typeof virtualscapeTileColors]
     )
+  }
+  // StartZone: virtualscape colors, might be other designs
+  if (hex.terrain === HexTerrain.startZone) {
+    return hexTerrainColor[hex.inventoryID]
   }
   // Renegade shows brush and palm as same color
   if (hex.terrain === HexTerrain.brush) {

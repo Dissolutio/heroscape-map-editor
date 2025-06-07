@@ -94,8 +94,8 @@ export const pieceCodes: Dictionary<string> = {
   '27001': Pieces.outcrop1,
   '27003': Pieces.outcrop3,
   // marvel ruin
-  '11006': Pieces.marvel, // marvel ruins also create two elevated spaces/boardHexes
-  '11007': Pieces.marvelBroken, // marvel ruins also create two elevated spaces/boardHexes
+  '11006': Pieces.marvel,
+  '11007': Pieces.marvelBroken,
   // edge add-ons
   '12004': Pieces.roadWall,
   '16301': Pieces.battlement,
@@ -113,19 +113,19 @@ export const pieceCodes: Dictionary<string> = {
   '16203': Pieces.castleWallEnd,
   '16401': Pieces.castleArch, // with door
   '16404': Pieces.castleArchNoDoor, // no door
+  // glyph
+  '14063': Pieces.glyphPower, // virtualscape had named/revealed power glyphs but we transform them all into unrevealed "?" glyphs
   // startzone
-  '15001': 'startArea',
+  // '15001': 'startArea', // from virtualscape, we morph into below based on color
+  '15002': Pieces.startZone1,
+  '15003': Pieces.startZone2,
+  '15004': Pieces.startZone3,
+  '15005': Pieces.startZone4,
+  '15006': Pieces.startZone5,
+  '15007': Pieces.startZone6,
+  '15008': Pieces.startZone7,
+  '15009': Pieces.startZone8,
   // laurWallPillar
   '17101': Pieces.laurWallPillar,
 }
-export const startAreaColorsToPlayerID = {
-  // Keys are the colorf values of StartAreaTiles from virtualscape (the colorf values are these tiles only differentiating property)
-  255: '1', // red rgba(255,0,0,0)
-  65280: '2', // green rgba(0,255,0,0)
-  16711680: '3', // blue rgba(0,0,255,0)
-  65535: '4', // yellow rgba(255,255,0,0)
-  16711935: '5', // violet rgba(255,0,255,0)
-  16776960: '6', // cyan rgba(0,255,255,0)
-  33023: '7', // orange  rgba(255,128,0,0)
-  16711808: '8', // purple rgba(128,0,255,0)
-}
+

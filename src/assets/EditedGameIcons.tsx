@@ -1,4 +1,4 @@
-export function Hexes2DIcon() {
+export function Hexes2DIcon({ title }: { title: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -8,6 +8,7 @@ export function Hexes2DIcon() {
         width: '1em',
       }}
     >
+      <title>{title}</title>
       <defs>
         <linearGradient x1="0" x2="1" y1="1" y2="0" id="skoll-hexes-gradient-1">
           <stop offset="0%" stopColor="#00a100" stopOpacity="1" />
@@ -91,7 +92,7 @@ export function Hexes2DIcon() {
     </svg>
   )
 }
-export function World3DIcon() {
+export function World3DIcon({ title }: { title: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -101,6 +102,7 @@ export function World3DIcon() {
         width: '1em',
       }}
     >
+      <title>{title}</title>
       <circle
         cx="256"
         cy="256"

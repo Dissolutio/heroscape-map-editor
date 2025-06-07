@@ -1,5 +1,5 @@
 import type { Dictionary } from 'lodash'
-import { HexTerrain } from '../../types'
+import { HexTerrain, Pieces } from '../../types'
 
 export const virtualscapeTileColors: Dictionary<string> = {
   [HexTerrain.grass]: 'rgb(0,160,0)',
@@ -41,7 +41,8 @@ export const hexTerrainColor: Dictionary<string> = {
   ...virtualscapeTileColors,
   [HexTerrain.empty]: '#020300',
   // All these colors below have been verified on coolors: lock a color and explore! https://coolors.co/fcecc9-336aeb-fcb0b3-f93943-355a44
-  [HexTerrain.glyphPower]: 'rgb(120, 1, 22)', // virtualscape
+  // [HexTerrain.glyphPower]: 'rgb(120, 1, 22)', // virtualscape
+  [HexTerrain.glyphPower]: 'rgb(217, 8, 18)', // brighter glyph for icon
   [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
   [HexTerrain.grass]: '#759B1C',
   // [HexTerrain.grass]: '#4A9A4E', // sample from Renegade map pdfs, but not the palette I generated for everything else :(
@@ -98,6 +99,15 @@ export const hexTerrainColor: Dictionary<string> = {
   laurPalm1: '#1EA300',
   laurPalm2: '#25CC00',
   laurPalm3: '#22B800',
+  // Virtualscape StartZones
+  [Pieces.startZone1]: 'rgb(255,0,0)',
+  [Pieces.startZone2]: 'rgb(0,255,0)',
+  [Pieces.startZone3]: 'rgb(0,0,255)',
+  [Pieces.startZone4]: 'rgb(255,255,0)',
+  [Pieces.startZone5]: 'rgb(255,0,255)',
+  [Pieces.startZone6]: 'rgb(0,255,255)',
+  [Pieces.startZone7]: 'rgb(255,128,0)',
+  [Pieces.startZone8]: 'rgb(128,0,255)',
 }
 
 export const svgColors = {
@@ -157,7 +167,7 @@ export const svgColors = {
   iceFlake: 'rgb(242, 243, 250)', // there is variation in the snowflake color
   snowFlake: '#629BD0', // there is variation in the snowflake color
 }
-// const hsColors = {
+// const renegadeValkyriePaintColors = {
 //     // selected by color picker on webp image of renegade paint set, so probably horrible
 //     utgarRed: '#b13e3f',
 //     aquillaYellow: '#daa040',
@@ -168,3 +178,13 @@ export const svgColors = {
 //     revnaOchre: '#676345',
 //     valkrill: '#89845d', // this one, from "Tainted Gold" is a gradient and could be way off
 // }
+const valkyrieColorsFromLogos = {
+  //     utgarRed: '#81272e',
+  //     jandarBlue: '#5279b2',
+  //     vydarGray: '#8598a8',
+  //     ullarGreen: '#306a3a',
+  //     aquillaYellow: '#cab800',
+  //     einarPurple: '#582c67',
+  //     revnaOchre: '#c7c3aa',
+  //     valkrill: '#A5A03B',
+}
