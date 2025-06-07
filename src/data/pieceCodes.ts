@@ -114,7 +114,15 @@ export const pieceCodes: Dictionary<string> = {
   '16401': Pieces.castleArch, // with door
   '16404': Pieces.castleArchNoDoor, // no door
   // startzone
-  '15001': 'startArea',
+  '15001': 'startArea', // from virtualscape, which we morph to below, only to morph into PieceID...TODO: dry!
+  '15002': Pieces.startZone1,
+  '15003': Pieces.startZone2,
+  '15004': Pieces.startZone3,
+  '15005': Pieces.startZone4,
+  '15006': Pieces.startZone5,
+  '15007': Pieces.startZone6,
+  '15008': Pieces.startZone7,
+  '15009': Pieces.startZone8,
   // laurWallPillar
   '17101': Pieces.laurWallPillar,
 }
