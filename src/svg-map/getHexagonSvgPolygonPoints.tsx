@@ -488,7 +488,7 @@ export function getLaurLongWallSvgPolygonPoints(
 }
 export function getLaurWallRuinSvgPolygonPoints(
   radius: number,
-  borderWidth: number,
+  // borderWidth: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const hexWidth = 2 * apothem

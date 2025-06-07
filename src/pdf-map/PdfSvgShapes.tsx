@@ -649,7 +649,7 @@ export const PdfBoardPieceLaurWallRuin = ({
   const borderColor = getSvgHexBorderColor(piece)
   const { points } = getLaurWallRuinSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    // SVG_BORDER_WIDTH,
   )
   return (
     <>
@@ -691,8 +691,8 @@ export const PdfRoadWall = ({
           fill={'white'}
           stroke={'white'}
           strokeWidth={SVG_BORDER_WIDTH}
-          // strokeLinecap="round"
-          // strokeLinejoin="round"
+        // strokeLinecap="round"
+        // strokeLinejoin="round"
         />
       )}
       <Polygon
