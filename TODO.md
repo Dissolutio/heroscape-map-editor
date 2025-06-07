@@ -5,14 +5,14 @@ Shapes and Patterns remaining:
 
 - Start Zones
 - LaurWall Triangle
-- LaurWall Open door
-- LaurWall stackers
+- LaurWall Arch
+- LaurWall Ruins 2 & 3 (just different styles, slightly larger)
 - Wallwalk/Road decor
 - Ladder Summaries
 
 Then need some formatting options (1pg, map key?), author name, maybe more.
 
-## Build & Editing Features  
+## Build & Editing Features
 
 3. Fast Hex Swap on Mouseover: Middle mouse button while hovering over a hex to make it the new active hex to draw with.
 4. Fast Rotate: SHIFT + mouse wheel to rotate whatever is in your hand.
