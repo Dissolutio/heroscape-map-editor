@@ -36,26 +36,13 @@ export const MapBoardPiece3D = ({
   }
   // LAURWALL ADDON
   if (
-    inventoryID === Pieces.laurWallRuin
-  ) {
-    return (
-      <group
-        position={new Vector3(xLaurWall, yLaurWall + (HEXGRID_HEXCAP_FLUID_HEIGHT / 2), zLaurWall)}
-        rotation={[0, (rotation * -Math.PI) / 3, 0]}
-        visible={isVisible}
-      >
-        <LaurWallAddon pid={pid} isVisible={isVisible} />
-      </group>
-    )
-  }
-  // LAURWALL ADDON
-  if (
     inventoryID === Pieces.laurWallShort ||
+    inventoryID === Pieces.laurWallRuin ||
     inventoryID === Pieces.laurWallLong
   ) {
     return (
       <group
-        position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
+        position={new Vector3(xLaurWall, yLaurWall + (HEXGRID_HEXCAP_FLUID_HEIGHT / 2), zLaurWall)}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
         visible={isVisible}
       >
