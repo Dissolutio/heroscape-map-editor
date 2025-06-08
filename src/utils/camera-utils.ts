@@ -25,10 +25,6 @@ export const getMapCenterCameraLookAt = (
 ): CameraLookAtArgs => {
   const { width, length, apex } =
     getBoardHexesRectangularMapDimensions(boardHexes)
-  /* 
-  TODO: This will need to be updated: Find width and height,
-  then ascend a bit from apex, not from base (what if apex is fat?) 
-  */
   const alpha = CAMERA_FOV / 2
   const beta = 90 - alpha
   const y = (width / 2) * Math.tan(beta) // far enough to see all of bottom of map even if it wall at the apex of the map

@@ -41,7 +41,6 @@ const SelectedPieceReadout = () => {
             {piece?.title ?? piece}
           </Typography>
           <Typography variant="body2">
-            {/* TODO: Piece Altitude off by one */}
             Altitude: {altitude + 1}
             <br />
             Rotation: {rotation}

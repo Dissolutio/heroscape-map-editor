@@ -112,9 +112,6 @@ function SolidCap({
     }
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (e.button !== 0) {
-      // THIS IS A RIGHT CLICK
-      // TODO: Can paste in copied templates! BUT, user must agree to reading text/images from the clipboard
-      // const myClipboard = await navigator.clipboard.readText()
       return
     }
     if (penMode === 'select') {

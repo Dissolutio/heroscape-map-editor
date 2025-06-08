@@ -861,6 +861,36 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: Pieces.marvel,
     height: 8, // rulebook height is warehoue upper floor 9 levels above base, the windows need a vertical obstruction template done + reality testing
   },
+  [Pieces.marvelBroken]: {
+    id: Pieces.marvelBroken,
+    title: 'Warehouse Ruin - Destroyed Wall',
+    terrain: HexTerrain.marvelRuin,
+    isHexTerrainPiece: false,
+    isObstaclePiece: false,
+    size: 6,
+    template: Pieces.marvel,
+    height: 8, // rulebook height is warehoue upper floor 9 levels above base, the windows need a vertical obstruction template done + reality testing
+  },
+  [Pieces.marvelNoUpper]: {
+    id: Pieces.marvelNoUpper,
+    title: 'Warehouse Ruin - No Upper Floor',
+    terrain: HexTerrain.marvelRuin,
+    isHexTerrainPiece: false,
+    isObstaclePiece: false,
+    size: 6,
+    template: Pieces.marvel,
+    height: 8, // rulebook height is warehoue upper floor 9 levels above base, the windows need a vertical obstruction template done + reality testing
+  },
+  [Pieces.marvelNoUpperBroken]: {
+    id: Pieces.marvelNoUpperBroken,
+    title: 'Warehouse Ruin- No Upper Floor and Destroyed Wall',
+    terrain: HexTerrain.marvelRuin,
+    isHexTerrainPiece: false,
+    isObstaclePiece: false,
+    size: 6,
+    template: Pieces.marvel,
+    height: 8, // rulebook height is warehoue upper floor 9 levels above base, the windows need a vertical obstruction template done + reality testing
+  },
   // HEX OBSTACLES
   [Pieces.snowTree10]: {
     id: Pieces.snowTree10,

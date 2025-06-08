@@ -27,10 +27,8 @@ export default function ViewingLevelInput() {
         </Grid2>
         <Grid2 size={{ xs: 3 }}>
           <Input
-            // title="This feature is not ready yet"
             value={viewingLevel}
             size="small"
-            // disabled // TODO: implement viewing levels
             onChange={(event) =>
               toggleViewingLevel(Number.parseInt(event.target.value))
             }

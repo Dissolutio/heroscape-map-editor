@@ -67,7 +67,7 @@ export function getRoadWallSvgPolygonPoints(
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 
-  // using pen and paper geometry, find your way around the multi-hex (TODO: this could be programmatic)
+  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
     /* 
      ______
@@ -641,7 +641,7 @@ export function getHexagonSvgPolygonPointsAt00(
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 
-  // using pen and paper geometry, find your way around the multi-hex (TODO: this could be programmatic)
+  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right
@@ -679,12 +679,12 @@ export function get2HexSvgPolygonPointsAt00(
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 
-  // using pen and paper geometry, find your way around the multi-hex (TODO: this could be programmatic)
+  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
 
-    // { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1, top-left hex2 TWEENSIE (TODO: Adding this in between point makes the interior angles sharp and more resembles Virtualscape)
+    // { x: rightXOuter, y: topSideYOuter + halfBorder }, // top-right hex1, top-left hex2 TWEENSIE (TODO: Style: Adding this in between point makes the interior angles sharp and more resembles Virtualscape)
 
     { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
     { x: hexWidth, y: topYInner }, //  top hex2

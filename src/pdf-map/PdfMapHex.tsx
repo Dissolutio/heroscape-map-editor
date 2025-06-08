@@ -246,10 +246,10 @@ export const PdfMapHex = ({
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-      inventoryID === Pieces.castleWallEnd
+        inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-            inventoryID === Pieces.castleWallStraight
+          inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
@@ -399,7 +399,7 @@ export const PdfMapHex = ({
       </G>
     )
   }
-  // EARLY RETURN: LAND AUXILIARY HEXES return null (the Origin hex will render the piece) TODO: filter these out higher up
+  // EARLY RETURN: LAND AUXILIARY HEXES return null
   if (
     isLandHex &&
     (piecesSoFar?.[inventoryID]?.template === '2' ||

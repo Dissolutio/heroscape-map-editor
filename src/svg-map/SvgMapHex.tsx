@@ -243,10 +243,10 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-      inventoryID === Pieces.castleWallEnd
+        inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-            inventoryID === Pieces.castleWallStraight
+          inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
@@ -396,7 +396,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       </g>
     )
   }
-  // EARLY RETURN: LAND AUXILIARY HEXES return null (the Origin hex will render the piece) TODO: filter these out higher up
+  // EARLY RETURN: LAND AUXILIARY HEXES return null
   if (
     isLandHex &&
     (piecesSoFar?.[inventoryID]?.template === '2' ||
@@ -563,7 +563,7 @@ const SvgCastleArchText = ({
       // upside down text is flipped in parent component, and adjusted here
       x={pieceRotation === 180 ? -3.7 * SVG_HEX_APOTHEM : 0.3 * SVG_HEX_APOTHEM}
     >
-      {/* TODO: this style will need adjustment for international/other languages, where char length changes */}
+      {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}
       {'D O O R'}
     </text>
   )
