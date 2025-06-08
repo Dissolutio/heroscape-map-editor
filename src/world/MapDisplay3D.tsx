@@ -72,8 +72,7 @@ export default function MapDisplay3D({
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
-      // THIS IS A RIGHT CLICK
-      // TODO: Can paste in copied templates! BUT, user must agree to reading text/images from the clipboard
+      // TODO: MultiSelect Copy/Paste: Can paste in copied templates! BUT, user must agree to reading text/images from the clipboard
       // const myClipboard = await navigator.clipboard.readText()
       return
     }
@@ -101,15 +100,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     let clickedHexAltitude = clickedHex.altitude
     // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
     if (piece?.id === Pieces.battlement || piece?.id === Pieces.roadWall) {
@@ -185,7 +184,7 @@ export default function MapDisplay3D({
           // position={[topLeft[0], 0, topLeft[1]]}
           position={[0, 0, 0]}
           scale={[width, 0, length]}
-          // rotation={new Euler(0, Math.PI, 0)}
+        // rotation={new Euler(0, Math.PI, 0)}
         />
       )}
 
@@ -234,7 +233,7 @@ function getInstanceBoardHexes(
     (result: InstanceBoardHexes, current) => {
       const isCap = current.isCap // land hexes that are covered, obstacle origin/auxiliary hexes, vertical clearance hexes
       const isEmptyCap =
-        isCap && !isTakingPicture && current.terrain === HexTerrain.empty
+        !isTakingPicture && current.terrain === HexTerrain.empty
       const isSolidCap = isSolidTerrainHex(current.terrain) // We render solid caps for aesthetics, even if they are not caps for building on click
       const isFluidCap = isCap && isFluidTerrainHex(current.terrain)
       const isSubTerrain =

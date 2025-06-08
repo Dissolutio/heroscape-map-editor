@@ -47,7 +47,7 @@ export default function LandSubterrain({ pid }: { pid: string }) {
   if (pieceSize === '7' && inventoryID === Pieces.wallWalk7) {
     pieceSize = '7B'
   }
-  // TODO: just add a subterrain property to Pieces, this is a hack
+  // TODO: Data: just add a subterrain property to Pieces, this is a hack
   if (pieceSize === '6' && inventoryID === Pieces.concrete6) {
     pieceSize = '6B'
   }

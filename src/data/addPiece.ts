@@ -150,7 +150,7 @@ export function addPiece({
     (isPlacingOnTable && !isGlyphPiece) // glyphs cannot go directly on table
   const isLadderPieceSupported =
     isPlacingOnTable || isSolidUnderAll || isLadderAuxiliaryUnderAll
-  const isBattlementPieceSupported_TODO = true // TODO: compute
+  const isBattlementPieceSupported_true = true // TODO: validate pieces
   const isPlacingObstacle =
     piece.isObstaclePiece &&
     isSpaceFree &&
@@ -159,10 +159,10 @@ export function addPiece({
   const isLadderPieceID = piece.terrain === HexTerrain.ladder
   const isBattlementPieceID = piece.terrain === HexTerrain.battlement
   const isRoadWallPieceID = piece.terrain === HexTerrain.roadWall
-  const isRoadWallPieceSupported_TODO = true // TODO: compute
+  const isRoadWallPieceSupported_true = true // TODO: validate pieces
   const isPlacingBattlement =
-    isBattlementPieceID && isBattlementPieceSupported_TODO
-  const isPlacingRoadWall = isRoadWallPieceID && isRoadWallPieceSupported_TODO
+    isBattlementPieceID && isBattlementPieceSupported_true
+  const isPlacingRoadWall = isRoadWallPieceID && isRoadWallPieceSupported_true
 
   // LAUR WALL ADDONS: Autoadd piece id, render from boardPieces
   if (
@@ -276,7 +276,7 @@ export function addPiece({
         ? isSolidTerrainHex(newBoardHexes?.[underHexIds[i]]?.terrain)
         : true
     })
-    const isSpaceFreeForRuin = newHexIds.every((newID, i) => {
+    const isSpaceFreeForRuin = newHexIds.every((newID) => {
       // Ruins, and LaurAddons, only block at certain angles per rotation, unlike obstacles that block everything
       // Here is where we calculate our Ruin we are placing versus the ruin on the hex, can they co-exist?
       const hex = newBoardHexes?.[newID]

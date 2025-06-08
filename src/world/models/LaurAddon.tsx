@@ -89,13 +89,13 @@ export function LaurWallAddon({
         <>
           <mesh
             geometry={LaurWallLong.geometry}
-            position={[0.635, 0, 0]} // TODO: Rexport or extract adjustment fn
+            position={[0.635, 0, 0]} // TODO: Tidy
           >
             <meshMatcapMaterial color={pillarColor} />
           </mesh>
           <mesh
             geometry={LaurWallLongDecorDeep.geometry}
-            position={[0.635, 0, 0]} // TODO: Rexport or extract adjustment fn
+            position={[0.635, 0, 0]} // TODO: Tidy
           >
             <meshMatcapMaterial color={interiorPillarColor} />
           </mesh>

@@ -272,6 +272,8 @@ export enum Pieces {
   ruins3 = `${PiecePrefixes.ruins}3`,
   marvel = 'rm',
   marvelBroken = 'rmb', //b broken, like castlearch
+  marvelNoUpper = 'rmn', //b broken, like castlearch
+  marvelNoUpperBroken = 'rmnb', //b broken, like castlearch
   // CastleObstacles
   wallWalk1 = `${PiecePrefixes.wallWalk}1`,
   wallWalk7 = `${PiecePrefixes.wallWalk}7`,
