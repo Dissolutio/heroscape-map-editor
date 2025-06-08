@@ -44,9 +44,10 @@ export const MapBoardPiece3D = ({
   ) {
     return (
       <group
-        position={new Vector3(xLaurWall, yLaurWall, zLaurWall).add(
-          getLaurWallAddonPositionByRotation(rotation),
-        )}
+        position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
+        // position={new Vector3(xLaurWall, yLaurWall, zLaurWall).add(
+        //   getLaurWallAddonPositionByRotation(rotation),
+        // )}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
         visible={isVisible}
       >
