@@ -53,8 +53,6 @@ export const getBoardHexObstacleOriginsAndHexesAndEmpties = (
   boardHexes: BoardHexes,
 ): BoardHexes => {
   return Object.values(boardHexes).reduce((acc, hex) => {
-    const inventoryID = decodePieceID(hex.pieceID).inventoryID
-
     if (hex.isObstacleOrigin || hex.terrain === 'empty') {
       acc[hex.id] = hex
     }

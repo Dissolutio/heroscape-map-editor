@@ -819,8 +819,21 @@ export const PdfStartZone = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   // const borderColor = getSvgHexBorderColor(hex)
+  // const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0)
   return (
     <>
+      {/* Renegade style start zones, full hex coverage, below, show as one level for exactness */}
+      {/* {isSubLevel && (
+        <Polygon
+          points={points}
+          fill={'white'}
+        />
+      )}
+      <Polygon
+        points={points}
+        fill={fillColor}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      /> */}
       {isSubLevel && (
         <Circle
           r={SVG_HEX_RADIUS / 2}
