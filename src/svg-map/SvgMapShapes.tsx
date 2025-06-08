@@ -41,9 +41,10 @@ import {
   SVG_HEX_RADIUS,
 } from '../utils/constants'
 import { svgColors } from '../world/maphex/hexColors'
-import { svgHiveBlobD } from '../svg-map/svg-hive'
+import { svgHiveBlobD } from './svg-hive'
 
-export const PdfEmptyHex = () => {
+export const SvgEmptyHex = () => {
+
   const fillColor = 'white'
   const borderColor = 'black'
   const borderWidth = SVG_EMPTYHEX_BORDER_WIDTH
@@ -53,7 +54,12 @@ export const PdfEmptyHex = () => {
   )
   return (
     <>
-      <Polygon
+      {/* {isSubLevel && (
+        <SvgSubLevelWhiteBackerPolygon
+          points={points}
+        />
+      )} */}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -66,7 +72,7 @@ export const PdfEmptyHex = () => {
   )
 }
 
-export const PdfMultiHex1 = ({
+export const SvgMultiHex1 = ({
   hex,
   isSubLevel,
   isGlyph,
@@ -75,8 +81,7 @@ export const PdfMultiHex1 = ({
   isSubLevel?: boolean
   isGlyph?: boolean
 }) => {
-  const isEmptyHex = hex.terrain === 'empty'
-  const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
+  const fillColor = getSvgHexFillColor(hex)
   const borderColor =
     SVG_BORDER_WIDTH > 0
       ? isGlyph
@@ -95,18 +100,18 @@ export const PdfMultiHex1 = ({
   return (
     <>
       {isSubLevel && (
-        <PdfSubLevelWhiteBackerPolygon
+        <SvgSubLevelWhiteBackerPolygon
           points={isGlyph ? glyphPoints : points}
         />
       )}
-      <Polygon
+      <polygon
         points={isGlyph ? glyphPoints : points}
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
         strokeLinecap="round"
         strokeLinejoin="round"
-        opacity={isEmptyHex ? OPACITY_EMPTY : isSubLevel ? OPACITY_SUBLEVEL : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       {/* SNOWFLAKE IDEA, this one looks like the original ice snowflakes in Heroscape */}
       {/* https://www.svgrepo.com/svg/60624/snowflake?edit=true */}
@@ -114,7 +119,7 @@ export const PdfMultiHex1 = ({
     </>
   )
 }
-export const PdfMultiHex2 = ({
+export const SvgMultiHex2 = ({
   hex,
   isSubLevel,
 }: {
@@ -129,8 +134,8 @@ export const PdfMultiHex2 = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -142,7 +147,7 @@ export const PdfMultiHex2 = ({
     </>
   )
 }
-export const PdfMultiHex3 = ({
+export const SvgMultiHex3 = ({
   hex,
   isSubLevel,
 }: {
@@ -157,8 +162,8 @@ export const PdfMultiHex3 = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -170,7 +175,9 @@ export const PdfMultiHex3 = ({
     </>
   )
 }
-export const PdfCastleArchStraight3 = ({
+
+
+export const SvgCastleArchStraight3 = ({
   hex,
   isSubLevel,
 }: {
@@ -185,8 +192,8 @@ export const PdfCastleArchStraight3 = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -198,7 +205,7 @@ export const PdfCastleArchStraight3 = ({
     </>
   )
 }
-export const PdfMultiHex4 = ({
+export const SvgMultiHex4 = ({
   hex,
   isSubLevel,
 }: {
@@ -213,8 +220,8 @@ export const PdfMultiHex4 = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -226,7 +233,7 @@ export const PdfMultiHex4 = ({
     </>
   )
 }
-export const PdfMultiHex5 = ({
+export const SvgMultiHex5 = ({
   hex,
   isSubLevel,
 }: {
@@ -241,8 +248,8 @@ export const PdfMultiHex5 = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -254,7 +261,7 @@ export const PdfMultiHex5 = ({
     </>
   )
 }
-export const PdfMultiHex6 = ({
+export const SvgMultiHex6 = ({
   hex,
   isSubLevel,
 }: {
@@ -269,8 +276,8 @@ export const PdfMultiHex6 = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -282,7 +289,7 @@ export const PdfMultiHex6 = ({
     </>
   )
 }
-export const PdfMultiHexMarvel6 = ({
+export const SvgMultiHexMarvel6 = ({
   hex,
   isSubLevel,
 }: {
@@ -297,8 +304,8 @@ export const PdfMultiHexMarvel6 = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         // fill={fillColor}
         fill={'rgb(220, 220, 220)'}
@@ -312,7 +319,7 @@ export const PdfMultiHexMarvel6 = ({
     </>
   )
 }
-export const PdfMultiHex7 = ({
+export const SvgMultiHex7 = ({
   hex,
   isSubLevel,
 }: {
@@ -327,8 +334,8 @@ export const PdfMultiHex7 = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -340,7 +347,7 @@ export const PdfMultiHex7 = ({
     </>
   )
 }
-export const PdfMultiHexWallWalk7 = ({
+export const SvgMultiHexWallWalk7 = ({
   hex,
   isSubLevel,
 }: {
@@ -355,8 +362,8 @@ export const PdfMultiHexWallWalk7 = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -368,7 +375,7 @@ export const PdfMultiHexWallWalk7 = ({
     </>
   )
 }
-export const PdfMultiHexWallWalk9 = ({
+export const SvgMultiHexWallWalk9 = ({
   hex,
   isSubLevel,
 }: {
@@ -383,8 +390,8 @@ export const PdfMultiHexWallWalk9 = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -396,7 +403,7 @@ export const PdfMultiHexWallWalk9 = ({
     </>
   )
 }
-export const PdfMultiHex24 = ({
+export const SvgMultiHex24 = ({
   hex,
   isSubLevel,
 }: {
@@ -411,8 +418,8 @@ export const PdfMultiHex24 = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -424,8 +431,7 @@ export const PdfMultiHex24 = ({
     </>
   )
 }
-
-export const PdfHive6 = ({
+export const SvgHive6 = ({
   hex,
   isSubLevel,
 }: {
@@ -440,8 +446,8 @@ export const PdfHive6 = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -450,24 +456,26 @@ export const PdfHive6 = ({
         strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+      {/* Inner blob made in Inkscape, so not dynamic yet */}
       {isSubLevel &&
-        <Path d={svgHiveBlobD}
+        <path d={svgHiveBlobD}
           fill={'white'}
           stroke={'white'}
           strokeWidth={SVG_BORDER_WIDTH / 1.2}
           transform={`translate(${-2 * SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS})`}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1} />
       }
-      <Path
+      <path
         d={svgHiveBlobD}
+        fill={fillColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 1.2}
         transform={`translate(${-2 * SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS})`}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
-
-      {isSubLevel && <Ellipse
-        fill={'white'}
+      {/* Little marro bubbles made in Inkscape, so not dynamic yet */}
+      {isSubLevel && <ellipse
+        fill={'transparent'}
         stroke={'white'}
         strokeWidth={SVG_BORDER_WIDTH / 2}
         opacity={1}
@@ -476,7 +484,8 @@ export const PdfHive6 = ({
         rx="16.650465"
         ry="10.742236"
       />}
-      <Ellipse
+      <ellipse
+        fill={fillColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 2}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
@@ -485,9 +494,8 @@ export const PdfHive6 = ({
         rx="16.650465"
         ry="10.742236"
       />
-
-      {isSubLevel && <Ellipse
-        fill={'white'}
+      {isSubLevel && <ellipse
+        fill={'transparent'}
         stroke={'white'}
         strokeWidth={SVG_BORDER_WIDTH / 2}
         opacity={1}
@@ -496,7 +504,8 @@ export const PdfHive6 = ({
         rx="14.502019"
         ry="8.5937881"
       />}
-      <Ellipse
+      <ellipse
+        fill={fillColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 2}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
@@ -505,9 +514,8 @@ export const PdfHive6 = ({
         rx="14.502019"
         ry="8.5937881"
       />
-
-      {isSubLevel && <Ellipse
-        fill={'white'}
+      {isSubLevel && <ellipse
+        fill={'transparent'}
         stroke={'white'}
         strokeWidth={SVG_BORDER_WIDTH / 1.4}
         opacity={1}
@@ -516,7 +524,8 @@ export const PdfHive6 = ({
         rx="25.244253"
         ry="12.622127"
       />}
-      <Ellipse
+      <ellipse
+        fill={fillColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 1.4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
@@ -525,9 +534,8 @@ export const PdfHive6 = ({
         rx="25.244253"
         ry="12.622127"
       />
-
-      {isSubLevel && <Ellipse
-        fill={'white'}
+      {isSubLevel && <ellipse
+        fill={'transparent'}
         stroke={'white'}
         strokeWidth={SVG_BORDER_WIDTH / 1.8}
         opacity={1}
@@ -536,7 +544,8 @@ export const PdfHive6 = ({
         rx="23.901474"
         ry="8.3252325"
       />}
-      <Ellipse
+      <ellipse
+        fill={fillColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 1.8}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
@@ -548,7 +557,7 @@ export const PdfHive6 = ({
     </>
   )
 }
-export const PdfSvgRuins2 = ({
+export const SvgRuins2 = ({
   hex,
   isSubLevel,
 }: {
@@ -562,9 +571,9 @@ export const PdfSvgRuins2 = ({
   return (
     <>
       {isSubLevel && (
-        <Path d={path} stroke={'white'} strokeWidth={2 * SVG_BORDER_WIDTH} />
+        <path d={path} stroke={'white'} strokeWidth={2 * SVG_BORDER_WIDTH} />
       )}
-      <Path
+      <path
         d={path}
         stroke={fillColor}
         strokeWidth={2 * SVG_BORDER_WIDTH}
@@ -573,7 +582,7 @@ export const PdfSvgRuins2 = ({
     </>
   )
 }
-export const PdfSvgRuins3 = ({
+export const SvgRuins3 = ({
   hex,
   isSubLevel,
 }: {
@@ -587,7 +596,7 @@ export const PdfSvgRuins3 = ({
   return (
     <>
       {isSubLevel && (
-        <Path
+        <path
           d={path}
           stroke={'white'}
           strokeWidth={2 * SVG_BORDER_WIDTH}
@@ -595,7 +604,7 @@ export const PdfSvgRuins3 = ({
           strokeLinejoin="round"
         />
       )}
-      <Path
+      <path
         d={path}
         stroke={fillColor}
         strokeWidth={2 * SVG_BORDER_WIDTH}
@@ -606,7 +615,7 @@ export const PdfSvgRuins3 = ({
     </>
   )
 }
-export const PdfMarvelRuin = ({
+export const SvgMarvelRuin = ({
   hex,
   isSubLevel,
 }: {
@@ -621,7 +630,7 @@ export const PdfMarvelRuin = ({
   return (
     <>
       {isSubLevel && (
-        <Path
+        <path
           d={path}
           stroke={'white'}
           strokeWidth={2 * SVG_BORDER_WIDTH}
@@ -629,7 +638,7 @@ export const PdfMarvelRuin = ({
           strokeLinejoin="round"
         />
       )}
-      <Path
+      <path
         d={path}
         stroke={fillColorSub}
         strokeWidth={2 * SVG_BORDER_WIDTH}
@@ -640,7 +649,7 @@ export const PdfMarvelRuin = ({
     </>
   )
 }
-export const PdfBoardPieceLaurWallShort = ({
+export const SvgBoardPieceLaurWallShort = ({
   piece,
   isSubLevel,
 }: {
@@ -654,8 +663,8 @@ export const PdfBoardPieceLaurWallShort = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={fillColor}
         stroke={fillColor}
@@ -665,7 +674,7 @@ export const PdfBoardPieceLaurWallShort = ({
     </>
   )
 }
-export const PdfBoardPieceLaurWallLong = ({
+export const SvgBoardPieceLaurWallLong = ({
   piece,
   isSubLevel,
 }: {
@@ -679,8 +688,8 @@ export const PdfBoardPieceLaurWallLong = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={borderColor} // RENEGADE: they have all border color, community might want regular fill
         stroke={borderColor}
@@ -690,7 +699,7 @@ export const PdfBoardPieceLaurWallLong = ({
     </>
   )
 }
-export const PdfBoardPieceLaurWallRuin = ({
+export const SvgBoardPieceLaurWallRuin = ({
   piece,
   isSubLevel,
 }: {
@@ -704,8 +713,8 @@ export const PdfBoardPieceLaurWallRuin = ({
   )
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-      <Polygon
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
         points={points}
         fill={borderColor} // Renegade just does a pink rectangle
         stroke={borderColor}
@@ -715,12 +724,7 @@ export const PdfBoardPieceLaurWallRuin = ({
     </>
   )
 }
-// const {points} = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
-//   {isSubLevel && (
-//       <PdfSubLevelWhiteBackerPolygon points={points} />
-//       )}
-//         points={points}
-export const PdfRoadWall = ({
+export const SvgRoadWall = ({
   piece,
   isSubLevel,
 }: {
@@ -737,11 +741,11 @@ export const PdfRoadWall = ({
   return (
     <>
       {isSubLevel && (
-        <PdfSubLevelWhiteBackerPolygon
+        <SvgSubLevelWhiteBackerPolygon
           points={points}
         />
       )}
-      <Polygon
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -753,7 +757,7 @@ export const PdfRoadWall = ({
     </>
   )
 }
-export const PdfBattlement = ({
+export const SvgBattlement = ({
   piece,
   isSubLevel,
 }: {
@@ -766,12 +770,12 @@ export const PdfBattlement = ({
   return (
     <>
       {isSubLevel && (
-        <PdfSubLevelWhiteBackerPolygon
+        <SvgSubLevelWhiteBackerPolygon
           points={points}
           borderWidth={SVG_BORDER_WIDTH / 2}
         />
       )}
-      <Polygon
+      <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
@@ -783,7 +787,7 @@ export const PdfBattlement = ({
     </>
   )
 }
-export const PdfLadder = ({
+export const SvgLadder = ({
   hex,
   isSubLevel,
 }: {
@@ -796,12 +800,12 @@ export const PdfLadder = ({
   return (
     <>
       {isSubLevel && (
-        <PdfSubLevelWhiteBackerPolygon
+        <SvgSubLevelWhiteBackerPolygon
           points={points}
           borderWidth={SVG_BORDER_WIDTH / 4}
         />
       )}
-      <Polygon
+      <polygon
         points={points}
         fill={fillColor}
         stroke={'black'}
@@ -811,7 +815,7 @@ export const PdfLadder = ({
     </>
   )
 }
-export const PdfStartZone = ({
+export const SvgStartZone = ({
   hex,
   isSubLevel,
 }: {
@@ -841,7 +845,7 @@ export const PdfStartZone = ({
     </>
   )
 }
-export const PdfCastleCorner = ({
+export const SvgCastleCorner = ({
   hex,
   isSubLevel,
 }: {
@@ -856,12 +860,12 @@ export const PdfCastleCorner = ({
   return (
     <>
       {isSubLevel && (
-        <PdfSubLevelWhiteBackerPolygon
+        <SvgSubLevelWhiteBackerPolygon
           points={points}
           borderWidth={SVG_BORDER_WIDTH / 4}
         />
       )}
-      <Polygon
+      <polygon
         points={points}
         fill={svgColors.castleInterior}
         stroke={svgColors.castleInterior}
@@ -873,7 +877,7 @@ export const PdfCastleCorner = ({
     </>
   )
 }
-export const PdfCastleStraight = ({
+export const SvgCastleStraight = ({
   hex,
   isSubLevel,
 }: {
@@ -888,12 +892,12 @@ export const PdfCastleStraight = ({
   return (
     <>
       {isSubLevel && (
-        <PdfSubLevelWhiteBackerPolygon
+        <SvgSubLevelWhiteBackerPolygon
           points={points}
           borderWidth={SVG_BORDER_WIDTH / 4}
         />
       )}
-      <Polygon
+      <polygon
         points={points}
         fill={svgColors.castleInterior}
         stroke={svgColors.castleInterior}
@@ -905,7 +909,7 @@ export const PdfCastleStraight = ({
     </>
   )
 }
-export const PdfCastleEnd = ({
+export const SvgCastleEnd = ({
   hex,
   isSubLevel,
 }: {
@@ -921,13 +925,13 @@ export const PdfCastleEnd = ({
   return (
     <>
       {isSubLevel && (
-        <PdfSubLevelWhiteBackerPolygon
+        <SvgSubLevelWhiteBackerPolygon
           points={points}
           // borderWidth={SVG_BORDER_WIDTH / 4}
           borderWidth={SVG_BORDER_WIDTH / 4}
         />
       )}
-      <Polygon
+      <polygon
         points={points}
         fill={svgColors.castleInterior}
         stroke={svgColors.castleInterior}
@@ -939,7 +943,7 @@ export const PdfCastleEnd = ({
     </>
   )
 }
-export const PdfCastleArch = ({
+export const SvgCastleArch = ({
   hex,
   isSubLevel,
 }: {
@@ -955,13 +959,13 @@ export const PdfCastleArch = ({
   return (
     <>
       {isSubLevel && (
-        <PdfSubLevelWhiteBackerPolygon
+        <SvgSubLevelWhiteBackerPolygon
           points={points}
           // borderWidth={SVG_BORDER_WIDTH / 4}
           borderWidth={SVG_BORDER_WIDTH / 4}
         />
       )}
-      <Polygon
+      <polygon
         points={points}
         fill={svgColors.castleInterior}
         stroke={svgColors.castleInterior}
@@ -973,6 +977,8 @@ export const PdfCastleArch = ({
     </>
   )
 }
+
+
 const hexTextStyle = {
   fontSize: 0.8 * SVG_HEX_RADIUS,
   fontWeight: 'bold',
@@ -994,7 +1000,7 @@ const treeXYForRotation = [
   { x: -0.6 * SVG_HEX_APOTHEM, y: -1.3 * SVG_HEX_RADIUS },
   { x: 0.9 * SVG_HEX_APOTHEM, y: -0.4 * SVG_HEX_RADIUS },
 ]
-export const PdfSvgTree415 = ({
+export const SvgTree415 = ({
   hex,
   isSubLevel,
 }: {
@@ -1011,17 +1017,17 @@ export const PdfSvgTree415 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      <G transform={`rotate(${pieceRotation})`}>
-        {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-        <Polygon
+      <g transform={`rotate(${pieceRotation})`}>
+        {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+        <polygon
           points={points}
           fill={fillColor}
           stroke={borderColor}
           strokeWidth={SVG_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
-      </G>
-      <Text
+      </g>
+      <text
         fill="white"
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
@@ -1032,7 +1038,7 @@ export const PdfSvgTree415 = ({
         y={treeXYForRotation?.[hex?.pieceRotation]?.y ?? 0}
       >
         {pieceHeightText}
-      </Text>
+      </text>
     </>
   )
 }
@@ -1085,7 +1091,7 @@ const outcrop6TextXYForRotation = [
   [posO3_1, posO3_6, posO3_7, posO4_5, posO6_1_5, posO3_2],
   [posO3_1, posO3_7, posO3_2, posO4_6, posO6_1_6, posO3_3],
 ]
-export const PdfSvgOutcrop6 = ({
+export const SvgOutcrop6 = ({
   hex,
   isSubLevel,
 }: {
@@ -1101,17 +1107,17 @@ export const PdfSvgOutcrop6 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      <G transform={`rotate(${pieceRotation})`}>
-        {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-        <Polygon
+      <g transform={`rotate(${pieceRotation})`}>
+        {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+        <polygon
           points={points}
           fill={fillColor}
           stroke={borderColor}
           strokeWidth={SVG_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
-      </G>
-      <Text
+      </g>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
@@ -1119,8 +1125,8 @@ export const PdfSvgOutcrop6 = ({
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'9'}
-      </Text>
-      <Text
+      </text>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
@@ -1131,8 +1137,8 @@ export const PdfSvgOutcrop6 = ({
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
       >
         {'17'}
-      </Text>
-      <Text
+      </text>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
@@ -1143,8 +1149,8 @@ export const PdfSvgOutcrop6 = ({
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
         {'17'}
-      </Text>
-      <Text
+      </text>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
@@ -1152,8 +1158,8 @@ export const PdfSvgOutcrop6 = ({
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}
       >
         {'9'}
-      </Text>
-      <Text
+      </text>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
@@ -1164,8 +1170,8 @@ export const PdfSvgOutcrop6 = ({
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.y ?? 0}
       >
         {'17'}
-      </Text>
-      <Text
+      </text>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
@@ -1176,11 +1182,11 @@ export const PdfSvgOutcrop6 = ({
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.y ?? 0}
       >
         {'17'}
-      </Text>
+      </text>
     </>
   )
 }
-export const PdfSvgOutcrop3 = ({
+export const SvgOutcrop3 = ({
   hex,
   isSubLevel,
 }: {
@@ -1196,17 +1202,17 @@ export const PdfSvgOutcrop3 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      <G transform={`rotate(${pieceRotation})`}>
-        {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-        <Polygon
+      <g transform={`rotate(${pieceRotation})`}>
+        {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+        <polygon
           points={points}
           fill={fillColor}
           stroke={borderColor}
           strokeWidth={SVG_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
-      </G>
-      <Text
+      </g>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         // white text (not glaciers, so far) needs a little opacity boost
@@ -1222,8 +1228,8 @@ export const PdfSvgOutcrop3 = ({
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'5'}
-      </Text>
-      <Text
+      </text>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         // white text (not glaciers, so far) needs a little opacity boost
@@ -1239,8 +1245,8 @@ export const PdfSvgOutcrop3 = ({
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
       >
         {'9'}
-      </Text>
-      <Text
+      </text>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         // white text (not glaciers, so far) needs a little opacity boost
@@ -1256,11 +1262,11 @@ export const PdfSvgOutcrop3 = ({
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
         {'7'}
-      </Text>
+      </text>
     </>
   )
 }
-export const PdfSvgOutcrop4 = ({
+export const SvgOutcrop4 = ({
   hex,
   isSubLevel,
 }: {
@@ -1276,17 +1282,17 @@ export const PdfSvgOutcrop4 = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      <G transform={`rotate(${pieceRotation})`}>
-        {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
-        <Polygon
+      <g transform={`rotate(${pieceRotation})`}>
+        {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+        <polygon
           points={points}
           fill={fillColor}
           stroke={borderColor}
           strokeWidth={SVG_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
-      </G>
-      <Text
+      </g>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
@@ -1295,8 +1301,8 @@ export const PdfSvgOutcrop4 = ({
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'7'}
-      </Text>
-      <Text
+      </text>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
@@ -1308,8 +1314,8 @@ export const PdfSvgOutcrop4 = ({
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
       >
         {'11'}
-      </Text>
-      <Text
+      </text>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
@@ -1321,8 +1327,8 @@ export const PdfSvgOutcrop4 = ({
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
         {'11'}
-      </Text>
-      <Text
+      </text>
+      <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
@@ -1331,16 +1337,16 @@ export const PdfSvgOutcrop4 = ({
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}
       >
         {'9'}
-      </Text>
+      </text>
     </>
   )
 }
-const PdfSubLevelWhiteBackerPolygon = ({
+const SvgSubLevelWhiteBackerPolygon = ({
   points,
   borderWidth,
 }: { points: string; borderWidth?: number }) => {
   return (
-    <Polygon
+    <polygon
       points={points}
       fill={'white'}
       stroke={'white'}
