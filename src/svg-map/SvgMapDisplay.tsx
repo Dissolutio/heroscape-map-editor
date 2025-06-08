@@ -21,6 +21,8 @@ export const SvgMapDisplay = () => {
   const hexMap = useBoundStore((state) => state.hexMap)
   const mapDimensions = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesArr = Object.values(boardHexes)
+    // sort by altitude, so pieces don't get painted over higher altitude shapes (easy to see with Ruins 2/3 and adjacent 1-hex land)
+    .sort((a, b) => a.altitude - b.altitude)
 
   const [viewBox, setViewBox] = useState({
     x: adjustXForNew00Centers,

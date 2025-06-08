@@ -43,6 +43,7 @@ import { MapHexIDDisplay } from './MapHexIDDisplay'
 import { hexTerrainColor } from './hexColors'
 import { GlyphModel } from '../models/Glyph'
 import { StartZone3D } from '../models/StartZone3D'
+import { MarvelRuin } from '../models/MarvelRuin'
 
 export const MapHex3D = ({
   boardHex,
@@ -126,6 +127,8 @@ export const MapHex3D = ({
     pieceID === Pieces.ruins2 && boardHex.isObstacleOrigin
   const isRuin3OriginHex =
     pieceID === Pieces.ruins3 && boardHex.isObstacleOrigin
+  const isMarvelRuinOriginHex =
+    (pieceID === Pieces.marvel || pieceID === Pieces.marvelBroken) && boardHex.isObstacleOrigin
   const isCastleBaseEnd = pieceID === Pieces.castleBaseEnd
   const isCastleBaseStraight = pieceID === Pieces.castleBaseStraight
   const isCastleBaseCorner = pieceID === Pieces.castleBaseCorner
@@ -195,7 +198,13 @@ export const MapHex3D = ({
         )}
         {isRuin3OriginHex && (
           <Suspense fallback={<ModelLoader />}>
-            <Ruins3 boardHex={boardHex} />
+            {/* <Ruins3 boardHex={boardHex} /> */}
+            <MarvelRuin boardHex={boardHex} />
+          </Suspense>
+        )}
+        {isMarvelRuinOriginHex && (
+          <Suspense fallback={<ModelLoader />}>
+            <MarvelRuin boardHex={boardHex} />
           </Suspense>
         )}
         {isHeightRingedHex && (
