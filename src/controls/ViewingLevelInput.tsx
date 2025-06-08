@@ -22,15 +22,10 @@ export default function ViewingLevelInput() {
   return (
     <Box sx={{ width: 250 }}>
       <Grid2 container spacing={2} sx={{ alignItems: 'center' }}>
-        <Grid2 size={{ xs: 6 }}>
-          <Typography id="input-slider">
-            {viewingLevel === maxLevel
-              ? 'Viewing all levels'
-              : 'Viewing up to level'}
-            :
-          </Typography>
+        <Grid2 size={{ xs: 5 }}>
+          <Typography id="input-slider">Viewing level</Typography>
         </Grid2>
-        <Grid2 size={{ xs: 6 }}>
+        <Grid2 size={{ xs: 3 }}>
           <Input
             // title="This feature is not ready yet"
             value={viewingLevel}
@@ -47,6 +42,9 @@ export default function ViewingLevelInput() {
               'aria-labelledby': 'input-slider',
             }}
           />
+        </Grid2>
+        <Grid2 size={{ xs: 4 }}>
+          <Typography id="input-slider">{`of ${maxLevel}`}</Typography>
         </Grid2>
       </Grid2>
     </Box>

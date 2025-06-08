@@ -3,29 +3,18 @@ import {
   type AddRemovePieceError,
   type BoardHexes,
   type BoardPieces,
-  CubeCoordinate,
   HexTerrain,
-  Piece,
   PiecePrefixes,
   Pieces,
 } from '../types'
 import {
-  isBridgingObstaclePieceID,
   isFluidTerrainHex,
   isRenderedFromPieceIDPiece,
   isSolidTerrainHex,
 } from '../utils/board-utils'
-import { decodePieceID, genBoardHexID, genPieceID } from '../utils/map-utils'
+import { decodePieceID, genBoardHexID } from '../utils/map-utils'
 import type { AddRemovePieceReturn } from './addPiece'
-import interlockRotationTemplates from './interlock-rotations'
-import interlockTemplates from './interlock-templates'
 import { piecesSoFar } from './pieces'
-import getPieceTemplateCoords from './rotationTransforms'
-import {
-  interiorHexTemplates,
-  verticalObstructionTemplates,
-  verticalSupportTemplates,
-} from './vertical-obstruction-templates'
 
 export type RemovePieceArgs = {
   pieceID: string

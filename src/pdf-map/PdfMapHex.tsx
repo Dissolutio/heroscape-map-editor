@@ -1,4 +1,4 @@
-import { G, Image, Text } from '@react-pdf/renderer'
+import { G, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
@@ -16,7 +16,7 @@ import {
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   PdfCastleArch,
-  PdfCastleBaseCorner,
+  PdfCastleCorner,
   PdfCastleEnd,
   PdfCastleStraight,
   PdfEmptyHex,
@@ -32,7 +32,7 @@ import {
   PdfMultiHex6,
   PdfMultiHex7,
   PdfMultiHexMarvel6,
-  PdfMultiHexStraight3,
+  PdfCastleArchStraight3,
   PdfMultiHexWallWalk7,
   PdfMultiHexWallWalk9,
   PdfStartZone,
@@ -42,7 +42,7 @@ import {
   PdfSvgRuins2,
   PdfSvgRuins3,
   PdfSvgTree415,
-} from './PdfSvgShapes'
+} from './PdfMapShapes'
 
 const hexTextStyle = {
   fontSize: 0.8 * SVG_HEX_RADIUS,
@@ -262,9 +262,9 @@ export const PdfMapHex = ({
         <G transform={`translate(${pixel.x}, ${pixel.y})`}>
           <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
           <G transform={`rotate(${pieceRotation})`}>
-            <PdfCastleBaseCorner hex={hex} isSubLevel={isSubLevel} />
+            <PdfCastleCorner hex={hex} isSubLevel={isSubLevel} />
           </G>
-          <CastleWallBaseHeightText
+          <PdfCastleWallBaseHeightText
             isSubLevel={isSubLevel}
             heightText={`${heightText}`}
           />
@@ -282,7 +282,7 @@ export const PdfMapHex = ({
           <G transform={`rotate(${pieceRotation})`}>
             <PdfCastleStraight hex={hex} isSubLevel={isSubLevel} />
           </G>
-          <CastleWallBaseHeightText
+          <PdfCastleWallBaseHeightText
             isSubLevel={isSubLevel}
             heightText={`${heightText}`}
           />
@@ -300,7 +300,7 @@ export const PdfMapHex = ({
           <G transform={`rotate(${pieceRotation})`}>
             <PdfCastleEnd hex={hex} isSubLevel={isSubLevel} />
           </G>
-          <CastleWallBaseHeightText
+          <PdfCastleWallBaseHeightText
             isSubLevel={isSubLevel}
             heightText={`${heightText}`}
           />
@@ -315,14 +315,14 @@ export const PdfMapHex = ({
       return (
         <G transform={`translate(${pixel.x}, ${pixel.y})`}>
           <G transform={`rotate(${pieceRotation})`}>
-            <PdfMultiHexStraight3 hex={hex} isSubLevel={isSubLevel} />
+            <PdfCastleArchStraight3 hex={hex} isSubLevel={isSubLevel} />
             <PdfCastleArch hex={hex} isSubLevel={isSubLevel} />
 
             <G
               // flip upside down text, all other rotations are legible
               transform={pieceRotation === 180 ? 'rotate(-180)' : 'rotate(0)'}
             >
-              <CastleArchText
+              <PdfCastleArchText
                 isSubLevel={isSubLevel}
                 pieceRotation={pieceRotation}
               />
@@ -563,7 +563,7 @@ export const PdfMapHex = ({
   // </G>
 }
 
-const CastleArchText = ({
+const PdfCastleArchText = ({
   isSubLevel,
   pieceRotation,
 }: {
@@ -587,7 +587,7 @@ const CastleArchText = ({
     </Text>
   )
 }
-const CastleWallBaseHeightText = ({
+const PdfCastleWallBaseHeightText = ({
   isSubLevel,
   heightText,
 }: {

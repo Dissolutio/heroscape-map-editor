@@ -7,7 +7,7 @@ import {
   PdfBoardPieceLaurWallRuin,
   PdfBoardPieceLaurWallShort,
   PdfRoadWall,
-} from './PdfSvgShapes'
+} from './PdfMapShapes'
 
 export const PdfMapBoardPiece = ({
   piece,
