@@ -1,5 +1,5 @@
 ## 2D SVG Builder
-Building pretty much exactly like you did in Virtualscape. This will probably be a requirement
+Building pretty much exactly like you did in Virtualscape. This will probably be a requirement.
 
 ## Build Instructions
 
@@ -11,11 +11,19 @@ Shapes and Patterns remaining:
 - LaurWall Arch
 - LaurWall Ruins 2 & 3 (just different styles, slightly larger)
 
+- Fortress Banner
 - Wallwalk/Road decor
 - Ladder Summaries
 - Tree415 Boulders
 
 Then need some formatting options (1pg, map key?), author name, maybe more.
+
+## Home Page
+
+Cartographers => Maps Gallery
+New => Editor
+Load => Editor
+About => Info
 
 ## Controls
 
@@ -87,6 +95,7 @@ RoadWall needs a lip for unit bases and interlock faces.
 Laur Pillar is too short.
 Marvel ruin needs serious help or deep dive.
 All Jungle is pretty bad.
+Fortress Banner.
 Winter trees?
 New Laur Ruin2 Ruin3 ShortWallStacker LongWallStacker ArchStacker PillarStacker TrianglePillar
 Laur Ruin, Laur Short Wall, Laur Long Wall are poorly made.
