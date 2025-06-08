@@ -17,17 +17,24 @@ export const MapHexIDDisplay = ({
   position: Vector3
   boardHex: BoardHex
 }) => {
-  return null
+  // return null
   /* 
   DEV VISUAL: toggling the below filters off, such that EVERY boardHex shows a billboardID, really helps to see how the 
   grid works (you can see vertical-clearance hexes, empty hexes)
   */
+
+  // filters out non-caps
   // if (!boardHex.isCap) return null
+
+  // filters out vertical clearance
   // if (
   //   !boardHex.isCap &&
   //   !(boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
-  // )
-  //   return null // filters out vertical clearance
+  // ) {
+  //   return null
+  // }
+
+  // filters out empty hexes
   // if (boardHex.terrain === HexTerrain.empty) return null
   return (
     <Billboard

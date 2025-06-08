@@ -79,37 +79,39 @@ export const verticalSupportTemplates: Dictionary<number[]> = {
     0, 0, 0, 0, 0, 0, 0,
   ],
 }
-export const interiorHexTemplates: Dictionary<number[]> = {
-  /* 
-  THESE ARE BROKEN AND DO NOT SOLVE THE PROBLEM OF PERFECT VALID RUIN PLACEMENT: Edges need to be explored, they are different than hexes
-  */
-  [Pieces.ruins2]: [
-    /* the i's mark the interior hexes
-    --3--
-    9--10i--7i---4
-   --10--10--7--
-    */
-    // A value of "2"  means origin, "1" means auxiliary
-    // first the basic3, which contains both of ruins2's interior hexes
-    2,
-    1, 0,
-    // then the rest are not!
-    0, 0, 0, 0, 0,
-  ],
-  [Pieces.ruins3]: [
-    /* the i's mark the interior hexes
-    --3--
-    9---9i----8i---7i---3
-    ---9---8---8---7--
-    */
-    // A value of "2"  means origin, "1" means auxiliary
-    // first the basic3, which contains 2 of ruins3's interior hexes
-    2,
-    1, 0,
-    // then the bottom-left, top-right, and bottom-right (top-right is our last interior hex)
-    0,
-    1, 0,
-    // then the rest are not!
-    0, 0, 0, 0,
-  ],
-}
+
+//  LEGACY interiorHexTemplates: A failed approach which crossed wires with later notions of "auxiliary" hex (which can probably go away later) Was meant to represent the hexes of a ruin that must be supported by land for it to not fall down
+// export const interiorHexTemplates: Dictionary<number[]> = {
+//   /* 
+//   THESE ARE BROKEN AND DO NOT SOLVE THE PROBLEM OF PERFECT VALID RUIN PLACEMENT: Edges need to be explored, they are different than hexes
+//   */
+//   [Pieces.ruins2]: [
+//     /* the i's mark the interior hexes
+//     --3--
+//     9--10i--7i---4
+//    --10--10--7--
+//     */
+//     // A value of "2"  means origin, "1" means auxiliary
+//     // first the basic3, which contains both of ruins2's interior hexes
+//     2,
+//     1, 0,
+//     // then the rest are not!
+//     0, 0, 0, 0, 0,
+//   ],
+//   [Pieces.ruins3]: [
+//     /* the i's mark the interior hexes
+//     --3--
+//     9---9i----8i---7i---3
+//     ---9---8---8---7--
+//     */
+//     // A value of "2"  means origin, "1" means auxiliary
+//     // first the basic3, which contains 2 of ruins3's interior hexes
+//     2,
+//     1, 0,
+//     // then the bottom-left, top-right, and bottom-right (top-right is our last interior hex)
+//     0,
+//     1, 0,
+//     // then the rest are not!
+//     0, 0, 0, 0,
+//   ],
+// }

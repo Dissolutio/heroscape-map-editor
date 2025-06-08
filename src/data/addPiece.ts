@@ -19,7 +19,6 @@ import interlockRotationTemplates from './interlock-rotations'
 import interlockTemplates from './interlock-templates'
 import getPieceTemplateCoords from './rotationTransforms'
 import {
-  interiorHexTemplates,
   verticalObstructionTemplates,
   verticalSupportTemplates,
 } from './vertical-obstruction-templates'
@@ -283,12 +282,10 @@ export function addPiece({
       const hex = newBoardHexes?.[newID]
       if (!hex) return true
       const terrain = hex?.terrain
-      const isForNewInterior = interiorHexTemplates?.[piece.id]?.[i] > 0 // origin & aux hexes
       const isBlocked =
         isSolidTerrainHex(terrain) ||
         isFluidTerrainHex(terrain) ||
-        (isForNewInterior && hex.isObstacleOrigin)
-      // ||
+        (hex.isObstacleOrigin)
       // (isForNewInterior && hex.isObstacleAuxiliary)
       return !isBlocked
     })
@@ -299,14 +296,18 @@ export function addPiece({
       isVerticalClearanceForPiece
     if (isPlacingRuin) {
       newHexIds.forEach((newHexID, i) => {
-        const isObstacleAuxiliary = interiorHexTemplates[piece.id][i] === 1 // 1 marks auxiliary hexes, 2 marks the origin, in these template arrays
-        const isPieceOrigin = i === 0 // hacking off the template order, should be 0 but we shift the template for ruins, (because then the wallWalk template handily matches the vertical clearance of a ruin)
+        const isObstacleOrigin = i === 0 // hacking off the template order, should be 0 but we shift the template for ruins, (because then the wallWalk template handily matches the vertical clearance of a ruin)
+        const isObstacleAuxiliary = i > 0
 
         // write in vertical clearances for all the hexes a ruin borders
+        // these are writing inside the loop for all ground-level hexes
         Array(verticalObstructionTemplates[piece.id][i])
           .fill(0)
           .forEach((_, j) => {
-            // Ruins do not ignore first level, j=0, because their templates accounted for that (inconsistent on my part)
+            if (j === 0) {
+              // SKIP the first hex, it's the obstacle origin/auxiliary hex
+              return
+            }
             const clearanceHexAltitude = newPieceAltitude + j
             const clearanceID = genBoardHexID({
               ...piecePlaneCoords[i],
@@ -329,35 +330,19 @@ export function addPiece({
             }
           })
 
-        // write in the new ruin hex only for one, the one that will get drawn, all the rest are simply marked as occupied
-        if (isPieceOrigin) {
-          newBoardHexes[newHexID] = {
-            id: newHexID,
-            q: piecePlaneCoords[i].q,
-            r: piecePlaneCoords[i].r,
-            s: piecePlaneCoords[i].s,
-            altitude: newPieceAltitude,
-            terrain: piece.terrain,
-            pieceID,
-            inventoryID: piece.id,
-            pieceRotation: rotation,
-            isObstacleOrigin: true,
-          }
-        }
-        if (isObstacleAuxiliary) {
-          newBoardHexes[newHexID] = {
-            id: newHexID,
-            q: piecePlaneCoords[i].q,
-            r: piecePlaneCoords[i].r,
-            s: piecePlaneCoords[i].s,
-            altitude: newPieceAltitude,
-            terrain: piece.terrain,
-            pieceID,
-            inventoryID: piece.id,
-            pieceRotation: rotation,
-            isObstacleOrigin: false,
-            isObstacleAuxiliary: true,
-          }
+        // write in the new ruin hex origin and auxiliary
+        newBoardHexes[newHexID] = {
+          id: newHexID,
+          q: piecePlaneCoords[i].q,
+          r: piecePlaneCoords[i].r,
+          s: piecePlaneCoords[i].s,
+          altitude: newPieceAltitude,
+          terrain: piece.terrain,
+          pieceID,
+          inventoryID: piece.id,
+          pieceRotation: rotation,
+          isObstacleOrigin: isObstacleOrigin,
+          isObstacleAuxiliary,
         }
       })
       // write the new piece
