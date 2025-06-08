@@ -44,6 +44,7 @@ export const hexTerrainColor: Dictionary<string> = {
   // [HexTerrain.glyphPower]: 'rgb(120, 1, 22)', // virtualscape
   [HexTerrain.glyphPower]: 'rgb(217, 8, 18)', // brighter glyph for icon
   [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
+  [HexTerrain.marvelRuin]: 'rgb(153, 51, 65)', // matched with concrete on coolors Cordovan : https://coolors.co/d0d4dc-993341-ce8147-607196-334139
   [HexTerrain.grass]: '#759B1C',
   // [HexTerrain.grass]: '#4A9A4E', // sample from Renegade map pdfs, but not the palette I generated for everything else :(
   [HexTerrain.rock]: '#3D6A7B',
