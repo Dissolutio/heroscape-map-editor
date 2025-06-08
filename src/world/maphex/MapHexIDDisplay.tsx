@@ -17,7 +17,7 @@ export const MapHexIDDisplay = ({
   position: Vector3
   boardHex: BoardHex
 }) => {
-  // return null
+  return null
   /* 
   DEV VISUAL: toggling the below filters off, such that EVERY boardHex shows a billboardID, really helps to see how the 
   grid works (you can see vertical-clearance hexes, empty hexes)
