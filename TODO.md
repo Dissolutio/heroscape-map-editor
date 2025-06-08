@@ -91,14 +91,12 @@ When user clicks SAVE/LOAD, show:
         * EDIT => Delete button for items in local storage, the delete button changes its text and turns red to verify and requires one more click to actually delete.
 
 ## 3D Models
-RoadWall needs a lip for unit bases and interlock faces.
-Laur Pillar is too short.
-Marvel ruin needs serious help or deep dive.
+Marvel ruin buildout.
 All Jungle is pretty bad.
 Fortress Banner.
 Winter trees?
 New Laur Ruin2 Ruin3 ShortWallStacker LongWallStacker ArchStacker PillarStacker TrianglePillar
-Laur Ruin, Laur Short Wall, Laur Long Wall are poorly made.
+Laur Ruin1 redux
 
 ## Map Notes
 
