@@ -135,8 +135,8 @@ export const svgColors = {
   outlineCastleWall: 'rgb(80, 79, 84)',
   // OBSTACLES
   [HexTerrain.ladder]: 'rgb(173, 75, 35)',
-  // [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
-  [HexTerrain.ruin]: 'rgb(82, 81, 81)', // choice from coolors
+  [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
+  // [HexTerrain.ruin]: 'rgb(82, 81, 81)', // choice from coolors
   fillJungle: 'rgb(249, 233, 8)',
   [HexTerrain.palm]: 'rgb(67, 249, 57)',
   [HexTerrain.tree]: 'rgb(51, 160, 62)',

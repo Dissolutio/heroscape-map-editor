@@ -1,6 +1,6 @@
-import { Page, Text, View } from '@react-pdf/renderer'
+import { Page, Path, Svg, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy } from 'lodash'
-import type { PropsWithChildren } from 'react'
+import { Fragment, type PropsWithChildren } from 'react'
 import {
   type BoardHexes,
   type BoardPieces,
@@ -8,6 +8,7 @@ import {
   type PdfMapAltitudeChunk,
   Pieces,
 } from '../types'
+import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
 import {
   decodePieceID,
   getBoardHexesSvgMapDimensions,
@@ -112,7 +113,9 @@ const getBoardHexAndPieceChunks = (
   boardHexes: BoardHexes,
   boardPieces: BoardPieces,
 ): PdfMapAltitudeChunk[][] => {
-  const filteredBoardHexes = Object.values(boardHexes)
+  const filteredBoardHexes = Object.values(
+    getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
+  )
   const filteredBoardPieces = Object.keys(boardPieces)
     .filter((pieceID) => {
       const id = decodePieceID(pieceID).inventoryID

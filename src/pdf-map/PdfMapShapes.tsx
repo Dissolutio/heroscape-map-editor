@@ -565,7 +565,6 @@ export const PdfSvgRuins2 = ({
       {isSubLevel && (
         <Path
           d={path}
-          fill='transparent'
           stroke={'white'}
           strokeWidth={SVG_HEX_RADIUS / 5}
           strokeLinecap="round"
@@ -574,7 +573,6 @@ export const PdfSvgRuins2 = ({
       )}
       <Path
         d={path}
-        fill='transparent'
         stroke={fillColor}
         strokeWidth={SVG_HEX_RADIUS / 5}
         strokeLinecap="round"
@@ -599,14 +597,12 @@ export const PdfSvgRuins3 = ({
       {isSubLevel && (
         <Path
           d={path}
-          fill='transparent'
           stroke={'white'}
           strokeWidth={SVG_HEX_RADIUS / 5}
         />
       )}
       <Path
         d={path}
-        fill='transparent'
         stroke={fillColor}
         strokeWidth={SVG_HEX_RADIUS / 5}
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}

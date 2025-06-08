@@ -679,6 +679,8 @@ export const SvgBoardPieceLaurWallShort = ({
         fill={fillColor}
         stroke={fillColor}
         strokeWidth={SVG_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -704,6 +706,8 @@ export const SvgBoardPieceLaurWallLong = ({
         fill={borderColor} // RENEGADE: they have all border color, community might want regular fill
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -729,6 +733,8 @@ export const SvgBoardPieceLaurWallRuin = ({
         fill={borderColor} // Renegade just does a pink rectangle
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -820,6 +826,8 @@ export const SvgLadder = ({
         fill={fillColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -842,6 +850,8 @@ export const SvgStartZone = ({
           fill={'white'}
           stroke={'white'}
           strokeWidth={SVG_BORDER_WIDTH / 4}
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       )}
       <circle
@@ -850,6 +860,8 @@ export const SvgStartZone = ({
         fill={fillColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -1034,6 +1046,8 @@ export const SvgTree415 = ({
           fill={fillColor}
           stroke={borderColor}
           strokeWidth={SVG_BORDER_WIDTH}
+          strokeLinecap="round"
+          strokeLinejoin="round"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
@@ -1124,6 +1138,8 @@ export const SvgOutcrop6 = ({
           fill={fillColor}
           stroke={borderColor}
           strokeWidth={SVG_BORDER_WIDTH}
+          strokeLinecap="round"
+          strokeLinejoin="round"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
@@ -1219,6 +1235,8 @@ export const SvgOutcrop3 = ({
           fill={fillColor}
           stroke={borderColor}
           strokeWidth={SVG_BORDER_WIDTH}
+          strokeLinecap="round"
+          strokeLinejoin="round"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
@@ -1299,6 +1317,8 @@ export const SvgOutcrop4 = ({
           fill={fillColor}
           stroke={borderColor}
           strokeWidth={SVG_BORDER_WIDTH}
+          strokeLinecap="round"
+          strokeLinejoin="round"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
