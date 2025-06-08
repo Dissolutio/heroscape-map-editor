@@ -42,7 +42,7 @@ import {
   PdfSvgRuins2,
   PdfSvgRuins3,
   PdfSvgTree415,
-} from './PdfSvgShapes'
+} from './PdfMapShapes'
 
 const hexTextStyle = {
   fontSize: 0.8 * SVG_HEX_RADIUS,

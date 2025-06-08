@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import useBoundStore from '../store/store'
-import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { decodePieceID, getBoardHexesSvgMapDimensions } from '../utils/map-utils'
 import { SvgMapHex } from './SvgMapHex'
@@ -18,9 +17,7 @@ export const SvgMapDisplay = () => {
     .filter((p) => Boolean(p))
   const hexMap = useBoundStore((state) => state.hexMap)
   const mapDimensions = getBoardHexesSvgMapDimensions(boardHexes)
-  const boardHexesArr = Object.values(
-    getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
-  ).sort((a, b) => a.altitude - b.altitude)
+  const boardHexesArr = Object.values(boardHexes)
 
   const [viewBox, setViewBox] = useState({
     x: adjustXForNew00Centers,

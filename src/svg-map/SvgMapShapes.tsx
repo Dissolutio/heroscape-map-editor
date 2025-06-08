@@ -565,19 +565,28 @@ export const SvgRuins2 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { path } = getRuins2SvgPolygonPoints(SVG_HEX_RADIUS, 0)
 
   return (
     <>
       {isSubLevel && (
-        <path d={path} stroke={'white'} strokeWidth={2 * SVG_BORDER_WIDTH} />
+        <path
+          d={path}
+          fill='transparent'
+          stroke={'white'}
+          strokeWidth={SVG_HEX_RADIUS / 5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       )}
       <path
         d={path}
+        fill='transparent'
         stroke={fillColor}
-        strokeWidth={2 * SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        strokeWidth={SVG_HEX_RADIUS / 5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
       />
     </>
   )
@@ -590,7 +599,6 @@ export const SvgRuins3 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { path } = getRuins3SvgPolygonPoints(SVG_HEX_RADIUS, 0)
 
   return (
@@ -598,19 +606,21 @@ export const SvgRuins3 = ({
       {isSubLevel && (
         <path
           d={path}
+          fill='transparent'
           stroke={'white'}
-          strokeWidth={2 * SVG_BORDER_WIDTH}
+          strokeWidth={SVG_HEX_RADIUS / 5}
           strokeLinecap="round"
           strokeLinejoin="round"
         />
       )}
       <path
         d={path}
+        fill='transparent'
         stroke={fillColor}
-        strokeWidth={2 * SVG_BORDER_WIDTH}
+        strokeWidth={SVG_HEX_RADIUS / 5}
         strokeLinecap="round"
         strokeLinejoin="round"
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
       />
     </>
   )
@@ -827,14 +837,14 @@ export const SvgStartZone = ({
   return (
     <>
       {isSubLevel && (
-        <Circle
+        <circle
           r={SVG_HEX_RADIUS / 2}
           fill={'white'}
           stroke={'white'}
           strokeWidth={SVG_BORDER_WIDTH / 4}
         />
       )}
-      <Circle
+      <circle
         r={SVG_HEX_RADIUS / 2}
         // points={points}
         fill={fillColor}

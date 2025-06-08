@@ -557,18 +557,29 @@ export const PdfSvgRuins2 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   const { path } = getRuins2SvgPolygonPoints(SVG_HEX_RADIUS, 0)
 
   return (
     <>
       {isSubLevel && (
-        <Path d={path} stroke={'white'} strokeWidth={2 * SVG_BORDER_WIDTH} />
+        <Path
+          d={path}
+          fill='transparent'
+          stroke={'white'}
+          strokeWidth={SVG_HEX_RADIUS / 5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       )}
       <Path
         d={path}
+        fill='transparent'
         stroke={fillColor}
-        strokeWidth={2 * SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        strokeWidth={SVG_HEX_RADIUS / 5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
       />
     </>
   )
@@ -581,7 +592,6 @@ export const PdfSvgRuins3 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { path } = getRuins3SvgPolygonPoints(SVG_HEX_RADIUS, 0)
 
   return (
@@ -589,19 +599,17 @@ export const PdfSvgRuins3 = ({
       {isSubLevel && (
         <Path
           d={path}
+          fill='transparent'
           stroke={'white'}
-          strokeWidth={2 * SVG_BORDER_WIDTH}
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          strokeWidth={SVG_HEX_RADIUS / 5}
         />
       )}
       <Path
         d={path}
+        fill='transparent'
         stroke={fillColor}
-        strokeWidth={2 * SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        strokeWidth={SVG_HEX_RADIUS / 5}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
       />
     </>
   )
@@ -715,11 +723,6 @@ export const PdfBoardPieceLaurWallRuin = ({
     </>
   )
 }
-// const {points} = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
-//   {isSubLevel && (
-//       <PdfSubLevelWhiteBackerPolygon points={points} />
-//       )}
-//         points={points}
 export const PdfRoadWall = ({
   piece,
   isSubLevel,

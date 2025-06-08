@@ -71,6 +71,16 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       </g>
     )
   }
+  // Ruins 2
+  if (inventoryID === Pieces.ruins2 && hex.isObstacleOrigin) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgRuins2 hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
   // Ruins 3
   if (inventoryID === Pieces.ruins3 && hex.isObstacleOrigin) {
     return (
@@ -88,15 +98,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgHive6 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (inventoryID === Pieces.ruins2 && hex.isObstacleOrigin) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgRuins2 hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
   }
