@@ -450,14 +450,16 @@ export const PdfHive6 = ({
         strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
-      {isSubLevel &&
-        <Path d={svgHiveBlobD}
+      {isSubLevel && (
+        <Path
+          d={svgHiveBlobD}
           fill={'white'}
           stroke={'white'}
           strokeWidth={SVG_BORDER_WIDTH / 1.2}
           transform={`translate(${-2 * SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS})`}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1} />
-      }
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        />
+      )}
       <Path
         d={svgHiveBlobD}
         stroke={'black'}
@@ -466,16 +468,18 @@ export const PdfHive6 = ({
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
 
-      {isSubLevel && <Ellipse
-        fill={'white'}
-        stroke={'white'}
-        strokeWidth={SVG_BORDER_WIDTH / 2}
-        opacity={1}
-        cx="9.4113"
-        cy="82.45652"
-        rx="16.650465"
-        ry="10.742236"
-      />}
+      {isSubLevel && (
+        <Ellipse
+          fill={'white'}
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH / 2}
+          opacity={1}
+          cx="9.4113"
+          cy="82.45652"
+          rx="16.650465"
+          ry="10.742236"
+        />
+      )}
       <Ellipse
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 2}
@@ -486,16 +490,18 @@ export const PdfHive6 = ({
         ry="10.742236"
       />
 
-      {isSubLevel && <Ellipse
-        fill={'white'}
-        stroke={'white'}
-        strokeWidth={SVG_BORDER_WIDTH / 2}
-        opacity={1}
-        cx="12.63397"
-        cy="101.25543"
-        rx="14.502019"
-        ry="8.5937881"
-      />}
+      {isSubLevel && (
+        <Ellipse
+          fill={'white'}
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH / 2}
+          opacity={1}
+          cx="12.63397"
+          cy="101.25543"
+          rx="14.502019"
+          ry="8.5937881"
+        />
+      )}
       <Ellipse
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 2}
@@ -506,16 +512,18 @@ export const PdfHive6 = ({
         ry="8.5937881"
       />
 
-      {isSubLevel && <Ellipse
-        fill={'white'}
-        stroke={'white'}
-        strokeWidth={SVG_BORDER_WIDTH / 1.4}
-        opacity={1}
-        cx="49.15758"
-        cy="77.35397"
-        rx="25.244253"
-        ry="12.622127"
-      />}
+      {isSubLevel && (
+        <Ellipse
+          fill={'white'}
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH / 1.4}
+          opacity={1}
+          cx="49.15758"
+          cy="77.35397"
+          rx="25.244253"
+          ry="12.622127"
+        />
+      )}
       <Ellipse
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 1.4}
@@ -526,16 +534,18 @@ export const PdfHive6 = ({
         ry="12.622127"
       />
 
-      {isSubLevel && <Ellipse
-        fill={'white'}
-        stroke={'white'}
-        strokeWidth={SVG_BORDER_WIDTH / 1.8}
-        opacity={1}
-        cx="49.96326"
-        cy="98.30132"
-        rx="23.901474"
-        ry="8.3252325"
-      />}
+      {isSubLevel && (
+        <Ellipse
+          fill={'white'}
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH / 1.8}
+          opacity={1}
+          cx="49.96326"
+          cy="98.30132"
+          rx="23.901474"
+          ry="8.3252325"
+        />
+      )}
       <Ellipse
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 1.8}
@@ -595,11 +605,7 @@ export const PdfSvgRuins3 = ({
   return (
     <>
       {isSubLevel && (
-        <Path
-          d={path}
-          stroke={'white'}
-          strokeWidth={SVG_HEX_RADIUS / 5}
-        />
+        <Path d={path} stroke={'white'} strokeWidth={SVG_HEX_RADIUS / 5} />
       )}
       <Path
         d={path}
@@ -735,11 +741,7 @@ export const PdfRoadWall = ({
 
   return (
     <>
-      {isSubLevel && (
-        <PdfSubLevelWhiteBackerPolygon
-          points={points}
-        />
-      )}
+      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
       <Polygon
         points={points}
         fill={fillColor}

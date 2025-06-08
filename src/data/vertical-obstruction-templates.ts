@@ -82,7 +82,7 @@ export const verticalSupportTemplates: Dictionary<number[]> = {
 
 //  LEGACY interiorHexTemplates: A failed approach which crossed wires with later notions of "auxiliary" hex (which can probably go away later) Was meant to represent the hexes of a ruin that must be supported by land for it to not fall down
 // export const interiorHexTemplates: Dictionary<number[]> = {
-//   /* 
+//   /*
 //   THESE ARE BROKEN AND DO NOT SOLVE THE PROBLEM OF PERFECT VALID RUIN PLACEMENT: Edges need to be explored, they are different than hexes
 //   */
 //   [Pieces.ruins2]: [

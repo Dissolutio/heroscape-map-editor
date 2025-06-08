@@ -44,7 +44,6 @@ import { svgColors } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from './svg-hive'
 
 export const SvgEmptyHex = () => {
-
   const fillColor = 'white'
   const borderColor = 'black'
   const borderWidth = SVG_EMPTYHEX_BORDER_WIDTH
@@ -175,7 +174,6 @@ export const SvgMultiHex3 = ({
     </>
   )
 }
-
 
 export const SvgCastleArchStraight3 = ({
   hex,
@@ -457,14 +455,16 @@ export const SvgHive6 = ({
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       {/* Inner blob made in Inkscape, so not dynamic yet */}
-      {isSubLevel &&
-        <path d={svgHiveBlobD}
+      {isSubLevel && (
+        <path
+          d={svgHiveBlobD}
           fill={'white'}
           stroke={'white'}
           strokeWidth={SVG_BORDER_WIDTH / 1.2}
           transform={`translate(${-2 * SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS})`}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1} />
-      }
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        />
+      )}
       <path
         d={svgHiveBlobD}
         fill={fillColor}
@@ -474,16 +474,18 @@ export const SvgHive6 = ({
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       {/* Little marro bubbles made in Inkscape, so not dynamic yet */}
-      {isSubLevel && <ellipse
-        fill={'transparent'}
-        stroke={'white'}
-        strokeWidth={SVG_BORDER_WIDTH / 2}
-        opacity={1}
-        cx="9.4113"
-        cy="82.45652"
-        rx="16.650465"
-        ry="10.742236"
-      />}
+      {isSubLevel && (
+        <ellipse
+          fill={'transparent'}
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH / 2}
+          opacity={1}
+          cx="9.4113"
+          cy="82.45652"
+          rx="16.650465"
+          ry="10.742236"
+        />
+      )}
       <ellipse
         fill={fillColor}
         stroke={'black'}
@@ -494,16 +496,18 @@ export const SvgHive6 = ({
         rx="16.650465"
         ry="10.742236"
       />
-      {isSubLevel && <ellipse
-        fill={'transparent'}
-        stroke={'white'}
-        strokeWidth={SVG_BORDER_WIDTH / 2}
-        opacity={1}
-        cx="12.63397"
-        cy="101.25543"
-        rx="14.502019"
-        ry="8.5937881"
-      />}
+      {isSubLevel && (
+        <ellipse
+          fill={'transparent'}
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH / 2}
+          opacity={1}
+          cx="12.63397"
+          cy="101.25543"
+          rx="14.502019"
+          ry="8.5937881"
+        />
+      )}
       <ellipse
         fill={fillColor}
         stroke={'black'}
@@ -514,16 +518,18 @@ export const SvgHive6 = ({
         rx="14.502019"
         ry="8.5937881"
       />
-      {isSubLevel && <ellipse
-        fill={'transparent'}
-        stroke={'white'}
-        strokeWidth={SVG_BORDER_WIDTH / 1.4}
-        opacity={1}
-        cx="49.15758"
-        cy="77.35397"
-        rx="25.244253"
-        ry="12.622127"
-      />}
+      {isSubLevel && (
+        <ellipse
+          fill={'transparent'}
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH / 1.4}
+          opacity={1}
+          cx="49.15758"
+          cy="77.35397"
+          rx="25.244253"
+          ry="12.622127"
+        />
+      )}
       <ellipse
         fill={fillColor}
         stroke={'black'}
@@ -534,16 +540,18 @@ export const SvgHive6 = ({
         rx="25.244253"
         ry="12.622127"
       />
-      {isSubLevel && <ellipse
-        fill={'transparent'}
-        stroke={'white'}
-        strokeWidth={SVG_BORDER_WIDTH / 1.8}
-        opacity={1}
-        cx="49.96326"
-        cy="98.30132"
-        rx="23.901474"
-        ry="8.3252325"
-      />}
+      {isSubLevel && (
+        <ellipse
+          fill={'transparent'}
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH / 1.8}
+          opacity={1}
+          cx="49.96326"
+          cy="98.30132"
+          rx="23.901474"
+          ry="8.3252325"
+        />
+      )}
       <ellipse
         fill={fillColor}
         stroke={'black'}
@@ -572,7 +580,7 @@ export const SvgRuins2 = ({
       {isSubLevel && (
         <path
           d={path}
-          fill='transparent'
+          fill="transparent"
           stroke={'white'}
           strokeWidth={SVG_HEX_RADIUS / 5}
           strokeLinecap="round"
@@ -581,7 +589,7 @@ export const SvgRuins2 = ({
       )}
       <path
         d={path}
-        fill='transparent'
+        fill="transparent"
         stroke={fillColor}
         strokeWidth={SVG_HEX_RADIUS / 5}
         strokeLinecap="round"
@@ -606,7 +614,7 @@ export const SvgRuins3 = ({
       {isSubLevel && (
         <path
           d={path}
-          fill='transparent'
+          fill="transparent"
           stroke={'white'}
           strokeWidth={SVG_HEX_RADIUS / 5}
           strokeLinecap="round"
@@ -615,7 +623,7 @@ export const SvgRuins3 = ({
       )}
       <path
         d={path}
-        fill='transparent'
+        fill="transparent"
         stroke={fillColor}
         strokeWidth={SVG_HEX_RADIUS / 5}
         strokeLinecap="round"
@@ -756,11 +764,7 @@ export const SvgRoadWall = ({
 
   return (
     <>
-      {isSubLevel && (
-        <SvgSubLevelWhiteBackerPolygon
-          points={points}
-        />
-      )}
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon
         points={points}
         fill={fillColor}
@@ -999,7 +1003,6 @@ export const SvgCastleArch = ({
     </>
   )
 }
-
 
 const hexTextStyle = {
   fontSize: 0.8 * SVG_HEX_RADIUS,

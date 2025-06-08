@@ -1,13 +1,44 @@
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { HexTerrain, Pieces, type BoardHex } from '../types'
-import { isCastleTerrain, isEvergreenTree, isFluidTerrainHex, isJungleTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import {
-  SVG_HEX_APOTHEM,
-  SVG_HEX_RADIUS,
-} from '../utils/constants'
+  isCastleTerrain,
+  isEvergreenTree,
+  isFluidTerrainHex,
+  isJungleTerrainHex,
+  isSolidTerrainHex,
+} from '../utils/board-utils'
+import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
-import { SvgCastleArch, SvgCastleArchStraight3, SvgCastleCorner, SvgCastleEnd, SvgCastleStraight, SvgEmptyHex, SvgHive6, SvgLadder, SvgMarvelRuin, SvgMultiHex1, SvgMultiHex2, SvgMultiHex24, SvgMultiHex3, SvgMultiHex4, SvgMultiHex5, SvgMultiHex6, SvgMultiHex7, SvgMultiHexMarvel6, SvgMultiHexWallWalk7, SvgMultiHexWallWalk9, SvgOutcrop3, SvgOutcrop4, SvgOutcrop6, SvgStartZone, SvgRuins2, SvgRuins3, SvgTree415 } from './SvgMapShapes'
+import {
+  SvgCastleArch,
+  SvgCastleArchStraight3,
+  SvgCastleCorner,
+  SvgCastleEnd,
+  SvgCastleStraight,
+  SvgEmptyHex,
+  SvgHive6,
+  SvgLadder,
+  SvgMarvelRuin,
+  SvgMultiHex1,
+  SvgMultiHex2,
+  SvgMultiHex24,
+  SvgMultiHex3,
+  SvgMultiHex4,
+  SvgMultiHex5,
+  SvgMultiHex6,
+  SvgMultiHex7,
+  SvgMultiHexMarvel6,
+  SvgMultiHexWallWalk7,
+  SvgMultiHexWallWalk9,
+  SvgOutcrop3,
+  SvgOutcrop4,
+  SvgOutcrop6,
+  SvgStartZone,
+  SvgRuins2,
+  SvgRuins3,
+  SvgTree415,
+} from './SvgMapShapes'
 
 const OPACITY_SUBLEVEL = 0.3
 
@@ -34,7 +65,6 @@ const glyphTextProps = (glyphText: string) => ({
       ? -0.3 * SVG_HEX_RADIUS
       : -0.15 * SVG_HEX_APOTHEM,
 })
-
 
 export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
@@ -213,10 +243,10 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-        inventoryID === Pieces.castleWallEnd
+      inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-          inventoryID === Pieces.castleWallStraight
+            inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
@@ -512,7 +542,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     )
   }
   return null
-
 }
 
 const SvgCastleArchText = ({

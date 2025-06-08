@@ -34,7 +34,7 @@ export function StartZone3D({
       onPointerEnter={(e) => onPointerEnterPID(e, boardHex.pieceID)}
       onPointerOut={(e) => onPointerOut(e)}
       rotation={[0, Math.PI / 2, 0]}
-    // rotation={[0, 0, 0]}
+      // rotation={[0, 0, 0]}
     >
       <circleGeometry args={[HEXGRID_HEX_RADIUS / 2.1, 32]} />
       <meshMatcapMaterial color={color} />

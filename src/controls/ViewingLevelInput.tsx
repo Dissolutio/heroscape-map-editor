@@ -23,9 +23,7 @@ export default function ViewingLevelInput() {
     <Box sx={{ width: 250 }}>
       <Grid2 container spacing={2} sx={{ alignItems: 'center' }}>
         <Grid2 size={{ xs: 5 }}>
-          <Typography id="input-slider">
-            Viewing level
-          </Typography>
+          <Typography id="input-slider">Viewing level</Typography>
         </Grid2>
         <Grid2 size={{ xs: 3 }}>
           <Input
@@ -46,9 +44,7 @@ export default function ViewingLevelInput() {
           />
         </Grid2>
         <Grid2 size={{ xs: 4 }}>
-          <Typography id="input-slider">
-            {`of ${maxLevel}`}
-          </Typography>
+          <Typography id="input-slider">{`of ${maxLevel}`}</Typography>
         </Grid2>
       </Grid2>
     </Box>

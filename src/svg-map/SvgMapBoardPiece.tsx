@@ -1,6 +1,12 @@
 import { type DecodedPieceID, Pieces } from '../types'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
-import { SvgBattlement, SvgBoardPieceLaurWallLong, SvgBoardPieceLaurWallRuin, SvgBoardPieceLaurWallShort, SvgRoadWall } from './SvgMapShapes';
+import {
+  SvgBattlement,
+  SvgBoardPieceLaurWallLong,
+  SvgBoardPieceLaurWallRuin,
+  SvgBoardPieceLaurWallShort,
+  SvgRoadWall,
+} from './SvgMapShapes'
 
 export const SvgMapBoardPiece = ({
   piece,

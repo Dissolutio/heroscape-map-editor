@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import useBoundStore from '../store/store'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
-import { decodePieceID, getBoardHexesSvgMapDimensions } from '../utils/map-utils'
+import {
+  decodePieceID,
+  getBoardHexesSvgMapDimensions,
+} from '../utils/map-utils'
 import { SvgMapHex } from './SvgMapHex'
 import { SvgMapBoardPiece } from './SvgMapBoardPiece'
 
