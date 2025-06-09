@@ -19,6 +19,7 @@ import {
   getHexagonSvgPolygonPointsAt00,
   getLadderSvgPolygonPoints,
   getLaurLongWallSvgPolygonPoints,
+  getLaurPillarSquare,
   getLaurShortWallSvgPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
   getMarvel6HexSvgPolygonPointsAt00,
@@ -425,6 +426,52 @@ export const PdfMultiHex24 = ({
   )
 }
 
+export const PdfLaurPillar = ({
+  hex,
+  isSubLevel,
+  isGlyph,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+  isGlyph?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor =
+    SVG_BORDER_WIDTH > 0
+      ? getSvgHexBorderColor(hex)
+      : ''
+  const { points } = getHexagonSvgPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
+  return (
+    <>
+      {isSubLevel && (
+        <PdfSubLevelWhiteBackerPolygon
+          points={points}
+        />
+      )}
+      <Polygon
+        points={points}
+        fill={fillColor}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <Polygon
+        points={getLaurPillarSquare(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points}
+        fill={fillColor}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </>
+  )
+}
 export const PdfHive6 = ({
   hex,
   isSubLevel,

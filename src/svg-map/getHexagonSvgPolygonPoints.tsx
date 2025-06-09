@@ -625,6 +625,32 @@ export function getMarvelRuinsShapeSvgPath(
   `
   return { path }
 }
+export function getLaurPillarSquare(
+  radius: number,
+  borderWidth: number,
+) {
+  const halfBorder = borderWidth / 2
+  const topX = 0
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const rightXInner = apothemInner
+  const leftXInner = -apothemInner
+  const topYInner = -radiusInner
+  const bottomYInner = radiusInner
+  const bottomSideYInner = 0.5 * radiusInner
+  const topSideYInner = -0.5 * radiusInner
+
+  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
+  const corners: Point[] = [
+    { x: leftXInner / 3, y: leftXInner / 3 }, // top-left
+    { x: rightXInner / 3, y: leftXInner / 3 }, // top-right
+    { x: rightXInner / 3, y: rightXInner / 3 }, // bottom-right
+    { x: leftXInner / 3, y: rightXInner / 3 }, // bottom-left
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
 export function getHexagonSvgPolygonPointsAt00(
   radius: number,
   borderWidth: number,

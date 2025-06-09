@@ -42,6 +42,7 @@ import {
   PdfSvgRuins2,
   PdfSvgRuins3,
   PdfSvgTree415,
+  PdfLaurPillar,
 } from './PdfMapShapes'
 
 const hexTextStyle = {
@@ -381,13 +382,13 @@ export const PdfMapHex = ({
       </G>
     )
   }
-  // LAUR PILLARS and SINGLE LAND
+  // LAUR PILLARS
   if (inventoryID === Pieces.laurWallPillar) {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <PdfLaurPillar hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
