@@ -233,15 +233,21 @@ export enum Pieces {
   ice6 = `${PiecePrefixes.ice}6`,
   shadow1 = `${PiecePrefixes.shadow}1`,
   shadow3 = `${PiecePrefixes.shadow}3`,
-  // EdgeAddons
-  roadWall = 'rw', // rendered from BoardPieces not BoardHexes
-  battlement = 'bt', // rendered from BoardPieces not BoardHexes
-  ladder = 'ld',
-  // LaurWall
-  laurWallPillar = `${PiecePrefixes.laurWall}p`,
-  laurWallShort = `${PiecePrefixes.laurWall}s`, // rendered from BoardPieces not BoardHexes
-  laurWallLong = `${PiecePrefixes.laurWall}l`, // rendered from BoardPieces not BoardHexes
-  laurWallRuin = `${PiecePrefixes.laurWall}r`, // rendered from BoardPieces not BoardHexes
+  // EdgeAddons -- rendered from BoardPieces not BoardHexes
+  roadWall = 'rw',
+  battlement = 'bt',
+  ladder = 'ld', //rendered from BoardHexes
+  // LaurWall -- rendered from BoardPieces not BoardHexes
+  laurWallPillar = `${PiecePrefixes.laurWall}p`,//rendered from BoardHexes
+  laurWallTriangleLongConfig = `${PiecePrefixes.laurWall}tl`, // triangle pillars have 2 configurations (can be plugged into bases 2 ways)
+  laurWallTriangleShortConfig = `${PiecePrefixes.laurWall}ts`,
+  laurWallShort = `${PiecePrefixes.laurWall}s`,
+  laurWallShortStackable = `${PiecePrefixes.laurWall}s2`,
+  laurWallLong = `${PiecePrefixes.laurWall}l`,
+  laurWallLongStackable = `${PiecePrefixes.laurWall}l2`,
+  laurWallRuin = `${PiecePrefixes.laurWall}r`, // most damaged
+  laurWallRuin2 = `${PiecePrefixes.laurWall}r2`, // 2nd most damaged
+  laurWallRuin3 = `${PiecePrefixes.laurWall}r3`, // 3rd most damaged
   // HexObstacles
   snowTree10 = `${PiecePrefixes.snowTree}10`,
   snowTree12 = `${PiecePrefixes.snowTree}12`,

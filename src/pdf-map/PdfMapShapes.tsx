@@ -19,7 +19,7 @@ import {
   getHexagonSvgPolygonPointsAt00,
   getLadderSvgPolygonPoints,
   getLaurLongWallSvgPolygonPoints,
-  getLaurPillarSquare,
+  getLaurPillarShape,
   getLaurShortWallSvgPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
   getMarvel6HexSvgPolygonPointsAt00,
@@ -429,11 +429,9 @@ export const PdfMultiHex24 = ({
 export const PdfLaurPillar = ({
   hex,
   isSubLevel,
-  isGlyph,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  isGlyph?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor =
@@ -444,6 +442,7 @@ export const PdfLaurPillar = ({
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
+  const laurSquarePoints = getLaurPillarShape(SVG_HEX_RADIUS, SVG_BORDER_WIDTH, true).points
   return (
     <>
       {isSubLevel && (
@@ -460,11 +459,18 @@ export const PdfLaurPillar = ({
         strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+      {isSubLevel && (
+        <PdfSubLevelWhiteBackerPolygon
+          points={laurSquarePoints}
+          borderWidth={SVG_BORDER_WIDTH / 2}
+        />
+      )}
       <Polygon
-        points={getLaurPillarSquare(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points}
+        points={laurSquarePoints}
+        // transform={"rotate(30deg)"} // TRIANGLE 2nd CONFIGURATION (plugs 2 ways into base)
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={SVG_BORDER_WIDTH / 2}
         strokeLinecap="round"
         strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}

@@ -625,9 +625,10 @@ export function getMarvelRuinsShapeSvgPath(
   `
   return { path }
 }
-export function getLaurPillarSquare(
+export function getLaurPillarShape(
   radius: number,
   borderWidth: number,
+  isTriangle?: boolean
 ) {
   const halfBorder = borderWidth / 2
   const topX = 0
@@ -641,14 +642,21 @@ export function getLaurPillarSquare(
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 
-  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
+  const inset = 0.5 * radiusInner
+  const cos30 = cosDegrees(30)
+  const sin30 = sinDegrees(30)
   const corners: Point[] = [
-    { x: leftXInner / 3, y: leftXInner / 3 }, // top-left
-    { x: rightXInner / 3, y: leftXInner / 3 }, // top-right
-    { x: rightXInner / 3, y: rightXInner / 3 }, // bottom-right
-    { x: leftXInner / 3, y: rightXInner / 3 }, // bottom-left
+    { x: -inset * cos30, y: -inset * sin30 }, // top-left
+    { x: inset * cos30, y: -inset * sin30 }, // top-right
+    { x: inset * cos30, y: inset * sin30 }, // bottom-right
+    { x: -inset * cos30, y: inset * sin30 }, // bottom-left
   ]
-  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  const triangle: Point[] = [
+    { x: -inset * cos30, y: -inset * sin30 }, // top-left
+    { x: inset * cos30, y: -inset * sin30 }, // top-right
+    { x: 0, y: inset }, // bottom-left
+  ]
+  const points = (isTriangle ? triangle : corners).map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
 export function getHexagonSvgPolygonPointsAt00(
