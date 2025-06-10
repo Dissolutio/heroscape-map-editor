@@ -628,7 +628,7 @@ export function getMarvelRuinsShapeSvgPath(
 export function getLaurPillarShape(
   radius: number,
   borderWidth: number,
-  isTriangle?: boolean
+  isTriangle?: boolean,
 ) {
   const halfBorder = borderWidth / 2
   const topX = 0
@@ -656,7 +656,9 @@ export function getLaurPillarShape(
     { x: inset * cos30, y: -inset * sin30 }, // top-right
     { x: 0, y: inset }, // bottom-left
   ]
-  const points = (isTriangle ? triangle : corners).map((point) => `${point.x},${point.y}`).join(' ')
+  const points = (isTriangle ? triangle : corners)
+    .map((point) => `${point.x},${point.y}`)
+    .join(' ')
   return { points, corners }
 }
 export function getHexagonSvgPolygonPointsAt00(

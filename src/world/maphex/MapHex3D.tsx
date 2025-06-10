@@ -128,7 +128,8 @@ export const MapHex3D = ({
   const isRuin3OriginHex =
     pieceID === Pieces.ruins3 && boardHex.isObstacleOrigin
   const isMarvelRuinOriginHex =
-    (pieceID === Pieces.marvel || pieceID === Pieces.marvelBroken) && boardHex.isObstacleOrigin
+    (pieceID === Pieces.marvel || pieceID === Pieces.marvelBroken) &&
+    boardHex.isObstacleOrigin
   const isCastleBaseEnd = pieceID === Pieces.castleBaseEnd
   const isCastleBaseStraight = pieceID === Pieces.castleBaseStraight
   const isCastleBaseCorner = pieceID === Pieces.castleBaseCorner

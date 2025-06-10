@@ -434,22 +434,19 @@ export const PdfLaurPillar = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor =
-    SVG_BORDER_WIDTH > 0
-      ? getSvgHexBorderColor(hex)
-      : ''
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
-  const laurSquarePoints = getLaurPillarShape(SVG_HEX_RADIUS, SVG_BORDER_WIDTH, true).points
+  const laurSquarePoints = getLaurPillarShape(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+    true,
+  ).points
   return (
     <>
-      {isSubLevel && (
-        <PdfSubLevelWhiteBackerPolygon
-          points={points}
-        />
-      )}
+      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
       <Polygon
         points={points}
         fill={fillColor}
