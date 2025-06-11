@@ -1,22 +1,34 @@
 ## 2D SVG Builder
 Building pretty much exactly like you did in Virtualscape. This will probably be a requirement.
 
-## Build Instructions
+## Build Instructions / PdfSVG
 
 Shapes and Patterns remaining: 
 
 - Start Zones( as one layer)
 
-- LaurWall Triangle
 - LaurWall Arch
 - LaurWall Ruins 2 & 3 (just different styles, slightly larger)
-
+- Jungle cactus shapes
 - Fortress Banner
 - Wallwalk/Road decor
 - Ladder Summaries
 - Tree415 Boulders
 
 Then need some formatting options (1pg, map key?), author name, maybe more.
+
+## 3D Models
+Marvel
+Jungle
+Fortress Banner
+Winter trees
+Laur Wall:
+- Laur Ruin2 Ruin3
+- Laur LongWallArchStacker
+- Laur Ruin1 redux
+- Laur ShortWallStacker 
+- Laur LongWallStacker 
+- Laur PillarStacker TrianglePillar check/build their stacked configuration
 
 ## Home Page
 
@@ -25,14 +37,13 @@ New => Editor
 Load => Editor
 About => Info
 
-## Controls
 
-Several sub sections!!!
+## Controls: Add Laur Wall Addons Etc
+Do them like battlement and roadwall.
+When you click a pillar we add them.
+Can improve later.
 
-### Add Laur Wall Addons Etc
-Can't even add laur addons right now!
-
-### Restructure the controls completely
+## Restructure the controls completely
 1. Build/Main
     * Undo/Redo
     * Pen Mode
@@ -42,7 +53,8 @@ Can't even add laur addons right now!
 2. Edit
     * change map name
     * alter map dimensions / shift pieces
-    * **change piece inventory**
+    * **change build constraints**
+    * **change notes**
 
 3. View
     * **Toggle Hexes show coords (cube, odd-R, letter-number like virtualscape, axial)**
@@ -60,13 +72,15 @@ Can't even add laur addons right now!
     * Save map
     * Save map as (copy map, new id, choose new name)
 
-### Build & Editing Features
+## Build & Editing Features
 
-3. Fast Hex Swap on Mouseover: Middle mouse button while hovering over a hex to make it the new active hex to draw with.
-4. Fast Rotate: SHIFT + mouse wheel to rotate whatever is in your hand.
-Using the arrow keys to rotate is fine, but if my hand is on the left side of the keyboard using WASD to move around, I'd like the option for a quick rotate by holding shift and scrolling the mouse wheel so I don't have to move my left hand.
+1. Middle mouse click or btn on selected piece readout, to grab that terrain as pen mode.
+2. Show ghost piece on hover.
+3. Quick rotate pieces somehow.
+4. Keyboard move and rotate pieces.
 
-### Multi-Select & Copy/Paste  
+
+## Multi-Select & Copy/Paste  
 1. Selection Tool: Add a selection tool at the bottom. Functionally, you would click the selection tool, then click multiple hexes to highlight them. Then click the copy button. It would place in your hand what you just copied and then you can left click to place it in the world. Might need a reset button for when you are done copying to put one hex back in your hand.
 
 <!-- END ##Controls -->
@@ -90,13 +104,6 @@ When user clicks SAVE/LOAD, show:
         * LOAD => Load selected map, user may select a map object from the list
         * EDIT => Delete button for items in local storage, the delete button changes its text and turns red to verify and requires one more click to actually delete.
 
-## 3D Models
-Marvel ruin buildout.
-All Jungle is pretty bad.
-Fortress Banner.
-Winter trees?
-New Laur Ruin2 Ruin3 ShortWallStacker LongWallStacker ArchStacker PillarStacker TrianglePillar
-Laur Ruin1 redux
 
 ## Map Notes
 
