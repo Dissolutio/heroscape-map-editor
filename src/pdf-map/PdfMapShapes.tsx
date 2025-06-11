@@ -443,14 +443,22 @@ const PdfCactusOnJungle = ({
   const isPalmPosition = hex.terrain === HexTerrain.palm
   const cactusFill = hex.terrain === HexTerrain.palm ? hexTerrainColor.laurBrush1 :
     hex.inventoryID.startsWith('sb') ? hexTerrainColor.swampUnderbrush3 : hexTerrainColor.laurBrush2
+  const cactusFill2 = hex.terrain === HexTerrain.palm ? hexTerrainColor.laurBrush :
+    hex.inventoryID.startsWith('sb') ? hexTerrainColor.swampUnderbrush3 : hexTerrainColor.laurBrush
   const cactusBorder = hex.terrain === HexTerrain.palm ? hexTerrainColor.laurBrush :
     hex.inventoryID.startsWith('sb') ? hexTerrainColor.swampUnderbrush1 : hexTerrainColor.laurBrush
+  const loneCacAdjust = isPalmPosition ? -160 : 0
+  const tripCacAdjust = isPalmPosition ? 30 : 0
+  const cac1Rotate = -25 + tripCacAdjust
+  const cac2Rotate = -17 + tripCacAdjust
+  const cac3Rotate = 0 + tripCacAdjust
+  const cacLoneRotate = -15 + loneCacAdjust
+
   return (
     <>
       {/* The triple cactus */}
       <Ellipse
-        transform={`rotate(-17deg)`}
-        // transform={`rotate(-17deg)scale(1 -1)`}
+        transform={`rotate(${cac1Rotate}deg)`}
         stroke={cactusBorder}
         strokeWidth={SVG_BORDER_WIDTH / 4}
         fill={cactusFill}
@@ -461,8 +469,7 @@ const PdfCactusOnJungle = ({
         ry="25"
       />
       <Ellipse
-        transform={`rotate(-15deg)`}
-        // transform={`rotate(-15deg)scale(1 -1)`}
+        transform={`rotate(${cac2Rotate}deg)`}
         stroke={cactusBorder}
         strokeWidth={SVG_BORDER_WIDTH / 4}
         fill={cactusFill}
@@ -473,7 +480,7 @@ const PdfCactusOnJungle = ({
         ry="20"
       />
       <Ellipse
-        // transform={`scale(1 -1)`}
+        transform={`rotate(${cac3Rotate}deg)`}
         stroke={cactusBorder}
         strokeWidth={SVG_BORDER_WIDTH / 4}
         fill={cactusFill}
@@ -485,15 +492,15 @@ const PdfCactusOnJungle = ({
       />
       {/* The lone round cactus */}
       <Ellipse
-        transform={`rotate(-15deg)`}
-        // transform={`rotate(-15deg)scale(1 -1)`}
+        // transform={`rotate(-135deg)`}
+        transform={`rotate(${cacLoneRotate}deg)`}
         stroke={cactusBorder}
         strokeWidth={SVG_BORDER_WIDTH / 4}
-        fill={cactusFill}
-        fillOpacity={0.3}
+        fill={cactusFill2}
+        fillOpacity={0.5}
         cx="10"
         cy="55"
-        rx="28"
+        rx="26"
         ry="12"
       />
     </>
