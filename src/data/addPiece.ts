@@ -144,7 +144,10 @@ export function addPiece({
   // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
   const isObstaclePieceSupported =
     isSolidUnderAll ||
-    (((piece.id === Pieces.laurWallPillar || piece.id === Pieces.laurWallTrianglePillar) || isGlyphPiece || isStartZonePiece) &&
+    ((piece.id === Pieces.laurWallPillar ||
+      piece.id === Pieces.laurWallTrianglePillar ||
+      isGlyphPiece ||
+      isStartZonePiece) &&
       isLandUnderAll) || // Laur wall pillars, and glyphs, can be placed on fluid tiles, per Renegade
     (isBridgingObstaclePieceID(piece.id) && isSolidUnderAtLeastOne) || // some multi-hex fluid-tile based obstacles (glaciers-4/6, hive) can bridge over gaps
     (isPlacingOnTable && !isGlyphPiece) // glyphs cannot go directly on table

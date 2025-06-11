@@ -249,10 +249,10 @@ export const PdfMapHex = ({
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-        inventoryID === Pieces.castleWallEnd
+      inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-          inventoryID === Pieces.castleWallStraight
+            inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
@@ -370,9 +370,7 @@ export const PdfMapHex = ({
   // JUNGLE
   if (isJungleTerrainHex(hex.terrain)) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})`}
-      >
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfJungle hex={hex} isSubLevel={isSubLevel} />
       </G>
     )

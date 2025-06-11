@@ -17,7 +17,7 @@ export default function RotationSelect() {
   const togglePieceRotation = useBoundStore((s) => s.togglePieceRotation)
   const handleChange = (
     _event: React.MouseEvent<HTMLElement>,
-    value: string,
+    value: number,
   ) => {
     togglePieceRotation(value)
   }
@@ -28,9 +28,9 @@ export default function RotationSelect() {
     penMode === Pieces.laurWallLong || penMode === Pieces.laurWallLongStackable
       ? partialRotations
       : penMode === Pieces.laurWallTrianglePillar ||
-          penMode === Pieces.laurWallRuin ||
-          penMode === Pieces.laurWallRuin2 ||
-          penMode === Pieces.laurWallRuin3
+        penMode === Pieces.laurWallRuin ||
+        penMode === Pieces.laurWallRuin2 ||
+        penMode === Pieces.laurWallRuin3
         ? allRotations
         : regularRotations
   return (

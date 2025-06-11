@@ -1,4 +1,4 @@
-import { SVG_HEX_RADIUS, SVG_HEX_APOTHEM } from "../utils/constants"
+import { SVG_HEX_RADIUS, SVG_HEX_APOTHEM } from '../utils/constants'
 
 export const hexTextStyle = {
   fontSize: 0.6 * SVG_HEX_RADIUS,

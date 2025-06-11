@@ -48,7 +48,10 @@ import {
 } from '../utils/constants'
 import { hexTerrainColor, svgColors } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from '../svg-map/svg-hive'
-import { hexTextStyle, singleHexObstacleHeightTextProps } from '../svg-map/svgText'
+import {
+  hexTextStyle,
+  singleHexObstacleHeightTextProps,
+} from '../svg-map/svgText'
 
 export const PdfEmptyHex = () => {
   const fillColor = 'white'
@@ -441,12 +444,24 @@ const PdfCactusOnJungle = ({
   // const fillColor = getSvgHexFillColor(hex)
   // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const isPalmPosition = hex.terrain === HexTerrain.palm
-  const cactusFill = hex.terrain === HexTerrain.palm ? hexTerrainColor.laurBrush1 :
-    hex.inventoryID.startsWith('sb') ? hexTerrainColor.swampUnderbrush3 : hexTerrainColor.laurBrush2
-  const cactusFill2 = hex.terrain === HexTerrain.palm ? hexTerrainColor.laurBrush :
-    hex.inventoryID.startsWith('sb') ? hexTerrainColor.swampUnderbrush3 : hexTerrainColor.laurBrush
-  const cactusBorder = hex.terrain === HexTerrain.palm ? hexTerrainColor.laurBrush :
-    hex.inventoryID.startsWith('sb') ? hexTerrainColor.swampUnderbrush1 : hexTerrainColor.laurBrush
+  const cactusFill =
+    hex.terrain === HexTerrain.palm
+      ? hexTerrainColor.laurBrush1
+      : hex.inventoryID.startsWith('sb')
+        ? hexTerrainColor.swampUnderbrush3
+        : hexTerrainColor.laurBrush2
+  const cactusFill2 =
+    hex.terrain === HexTerrain.palm
+      ? hexTerrainColor.laurBrush
+      : hex.inventoryID.startsWith('sb')
+        ? hexTerrainColor.swampUnderbrush3
+        : hexTerrainColor.laurBrush
+  const cactusBorder =
+    hex.terrain === HexTerrain.palm
+      ? hexTerrainColor.laurBrush
+      : hex.inventoryID.startsWith('sb')
+        ? hexTerrainColor.swampUnderbrush1
+        : hexTerrainColor.laurBrush
   const loneCacAdjust = isPalmPosition ? -160 : 0
   const tripCacAdjust = isPalmPosition ? 30 : 0
   const cac1Rotate = -25 + tripCacAdjust
@@ -473,7 +488,7 @@ const PdfCactusOnJungle = ({
         stroke={cactusBorder}
         strokeWidth={SVG_BORDER_WIDTH / 4}
         fill={cactusFill}
-        fillOpacity={0.3}
+        fillOpacity={isSubLevel ? 0.3 : 0.3}
         cx="56"
         cy="12"
         rx="6"
@@ -519,14 +534,10 @@ export const PdfJungle = ({
   const isCactus = !isTicallaJungle
   return (
     <>
-      <G
-        transform={`rotate(${pieceRotation})`}
-      >
+      <G transform={`rotate(${pieceRotation})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         {/* The triple cactus */}
-        {isCactus && (
-          <PdfCactusOnJungle hex={hex} isSubLevel={isSubLevel} />
-        )}
+        {isCactus && <PdfCactusOnJungle hex={hex} isSubLevel={isSubLevel} />}
       </G>
       <Text
         fill="rgb(35, 31, 32)"
