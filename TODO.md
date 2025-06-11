@@ -9,7 +9,6 @@ Shapes and Patterns remaining:
 
 - LaurWall Arch
 - LaurWall Ruins 2 & 3 (just different styles, slightly larger)
-- Jungle cactus shapes
 - Fortress Banner
 - Wallwalk/Road decor
 - Ladder Summaries

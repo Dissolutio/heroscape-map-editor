@@ -644,10 +644,10 @@ export function getLaurPillarShape(radius: number, borderWidth: number) {
   const cos60 = cosDegrees(60)
   const sin60 = sinDegrees(60)
   const corners: Point[] = [
-    { x: -inset * cos30, y: -inset * sin30 }, // top-left
-    { x: inset * cos30, y: -inset * sin30 }, // top-right
-    { x: inset * cos30, y: inset * sin30 }, // bottom-right
-    { x: -inset * cos30, y: inset * sin30 }, // bottom-left
+    { x: -inset * cos30, y: topSideYInner }, // top-left
+    { x: inset * cos30, y: topSideYInner }, // top-right
+    { x: inset * cos30, y: bottomSideYInner }, // bottom-right
+    { x: -inset * cos30, y: bottomSideYInner }, // bottom-left
   ]
   const triangle: Point[] = [
     // { x: -inset * cos30, y: -inset * sin30 }, // top-left

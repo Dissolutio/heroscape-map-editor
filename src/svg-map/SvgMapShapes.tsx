@@ -46,8 +46,9 @@ import {
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
-import { svgColors } from '../world/maphex/hexColors'
+import { hexTerrainColor, svgColors } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from './svg-hive'
+import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
 export const SvgEmptyHex = () => {
   const fillColor = 'white'
@@ -492,6 +493,101 @@ export const SvgLaurPillar = ({
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
+    </>
+  )
+}
+const SvgCactusOnJungle = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  // const fillColor = getSvgHexFillColor(hex)
+  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const cactusFill = hex.terrain === HexTerrain.palm ? hexTerrainColor.laurBrush1 :
+    hex.inventoryID.startsWith('sb') ? hexTerrainColor.swampUnderbrush3 : hexTerrainColor.laurBrush2
+  const cactusBorder = hex.terrain === HexTerrain.palm ? hexTerrainColor.laurBrush :
+    hex.inventoryID.startsWith('sb') ? hexTerrainColor.swampUnderbrush1 : hexTerrainColor.laurBrush
+  return (
+    <>
+      {/* The triple cactus */}
+      <ellipse
+        transform={'rotate(-17deg)'}
+        stroke={cactusBorder}
+        strokeWidth={SVG_BORDER_WIDTH / 4}
+        fill={cactusFill}
+        fillOpacity={0.3}
+        cx="55"
+        cy="-5"
+        rx="8"
+        ry="25"
+      />
+      <ellipse
+        transform={'rotate(-15deg)'}
+        stroke={cactusBorder}
+        strokeWidth={SVG_BORDER_WIDTH / 4}
+        fill={cactusFill}
+        fillOpacity={0.3}
+        cx="56"
+        cy="12"
+        rx="6"
+        ry="20"
+      />
+      <ellipse
+        stroke={cactusBorder}
+        strokeWidth={SVG_BORDER_WIDTH / 4}
+        fill={cactusFill}
+        fillOpacity={0.3}
+        cx="56"
+        cy="18"
+        rx="6"
+        ry="20"
+      />
+      {/* The lone round cactus */}
+      <ellipse
+        transform={'rotate(-15deg)'}
+        stroke={cactusBorder}
+        strokeWidth={SVG_BORDER_WIDTH / 4}
+        fill={cactusFill}
+        fillOpacity={0.3}
+        cx="10"
+        cy="55"
+        rx="28"
+        ry="12"
+      />
+    </>
+  )
+}
+export const PdfJungle = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const pieceHeightText = piecesSoFar[hex.inventoryID]?.height
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  const isTicallaJungle = hex.inventoryID.startsWith('t') // hacky, TODO: tidy
+  const isCactus = !isTicallaJungle
+  return (
+    <>
+      <g
+        transform={`rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        {/* The triple cactus */}
+        {isCactus && (
+          <SvgCactusOnJungle hex={hex} isSubLevel={isSubLevel} />
+        )}
+      </g>
+      <text
+        fill="rgb(35, 31, 32)"
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+      >
+        {pieceHeightText}
+      </text>
     </>
   )
 }
@@ -1069,19 +1165,6 @@ export const SvgCastleArch = ({
     </>
   )
 }
-
-const hexTextStyle = {
-  fontSize: 0.8 * SVG_HEX_RADIUS,
-  fontWeight: 'bold',
-}
-const singleHexObstacleHeightTextProps = (heightText: string) => ({
-  style: hexTextStyle,
-  y: 0.3 * SVG_HEX_RADIUS,
-  x:
-    heightText.toString().length === 2
-      ? -0.6 * SVG_HEX_APOTHEM
-      : -0.3 * SVG_HEX_APOTHEM,
-})
 const twoCharNumberAdjust = -0.15 * SVG_HEX_RADIUS
 const treeXYForRotation = [
   { x: 0.9 * SVG_HEX_APOTHEM, y: SVG_HEX_RADIUS },
