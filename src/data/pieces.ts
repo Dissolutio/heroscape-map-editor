@@ -800,19 +800,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 12,
   },
-  [Pieces.laurWallTriangleLongConfig]: {
-    id: Pieces.laurWallTriangleLongConfig,
-    title: 'Laur Triangle Pillar (Long Configuration)',
-    terrain: HexTerrain.laurWall,
-    isHexTerrainPiece: false,
-    isObstaclePiece: true,
-    size: 1,
-    template: '1',
-    height: 12,
-  },
-  [Pieces.laurWallTriangleShortConfig]: {
-    id: Pieces.laurWallTriangleShortConfig,
-    title: 'Laur Triangle Pillar (Short Configuration)',
+  [Pieces.laurWallTrianglePillar]: {
+    id: Pieces.laurWallTrianglePillar,
+    title: 'Laur Triangle Pillar',
     terrain: HexTerrain.laurWall,
     isHexTerrainPiece: false,
     isObstaclePiece: true,

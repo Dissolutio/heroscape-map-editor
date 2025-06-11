@@ -17,11 +17,13 @@ const UndoRedoButtonGroup = () => {
     <ControlButtonGroup>
       {/* <Button onClick={() => useBoundStore.temporal.getState().clear()}>CLEAR</Button> */}
       <Button
-        variant="contained"
+        // variant="contained"
         title={`(ctrl/cmd + Z) (${pastStates.length} undoable actions)`}
         aria-label={`Undo (${pastStates.length} undoable actions)`}
         onClick={() => undo()}
-        startIcon={<FcUndo />}
+        startIcon={<FcUndo size={16} />}
+        size="small"
+        style={{ fontSize: '0.7em' }}
       >
         Undo
       </Button>
@@ -31,6 +33,7 @@ const UndoRedoButtonGroup = () => {
         aria-label={`Redo (${pastStates.length} undoable actions)`}
         onClick={() => redo()}
         startIcon={<FcRedo />}
+        size="small"
       >
         Redo
       </Button>

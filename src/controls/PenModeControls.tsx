@@ -76,8 +76,8 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-            flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
-          )
+          flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
+        )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -85,11 +85,11 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-            flatPieceSizes?.[3] ??
-              flatPieceSizes?.[2] ??
-              flatPieceSizes?.[1] ??
-              flatPieceSizes[0],
-          )
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
+        )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -97,18 +97,18 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-            flatPieceSizes?.[4] ??
-              flatPieceSizes?.[3] ??
-              flatPieceSizes?.[2] ??
-              flatPieceSizes?.[1] ??
-              flatPieceSizes[0],
-          )
+          flatPieceSizes?.[4] ??
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
+        )
         : noop() /*isEnabled*/,
   )
   useHotkeys('z', () => togglePenMode('select') /*isEnabled*/)
 
   return (
-    <FormControl variant="filled">
+    <FormControl variant="filled" size="small">
       <InputLabel id="pen-terrain-select-label">Terrain</InputLabel>
       <Select
         autoWidth
@@ -241,6 +241,12 @@ export default function PenModeControls() {
             <GiWhiteTower color={hexTerrainColor.water} />
           </ListItemIcon>
           <span>Laur Wall Pillar</span>
+        </MenuItem>
+        <MenuItem value={Pieces.laurWallTrianglePillar}>
+          <ListItemIcon>
+            <GiWhiteTower color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>Laur Wall Triangle Pillar</span>
         </MenuItem>
         <Divider />
 

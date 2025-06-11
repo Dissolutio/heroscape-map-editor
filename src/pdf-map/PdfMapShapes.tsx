@@ -32,7 +32,7 @@ import {
   getSvgHexBorderColor,
   getSvgHexFillColor,
 } from '../svg-map/getSvgHexColors'
-import { type BoardHex, type DecodedPieceID, HexTerrain } from '../types'
+import { type BoardHex, type DecodedPieceID, HexTerrain, Pieces } from '../types'
 import {
   OPACITY_EMPTY,
   OPACITY_SUBLEVEL,
@@ -435,7 +435,7 @@ export const PdfLaurPillar = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = getHexagonSvgPolygonPointsAt00(
+  const { points: fullHexPoints } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
@@ -443,12 +443,21 @@ export const PdfLaurPillar = ({
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
     true,
-  ).points
+  ).squarePoints
+  const laurTrianglePoints = getLaurPillarShape(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+    true,
+  ).trianglePoints
+  const innerShapePoints = hex.inventoryID === Pieces.laurWallTrianglePillar ? laurTrianglePoints : laurSquarePoints
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
+      {isSubLevel && <PdfSubLevelWhiteBackerPolygon
+        points={fullHexPoints}
+      />}
+      {/* FULL HEX */}
       <Polygon
-        points={points}
+        points={fullHexPoints}
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
@@ -456,15 +465,16 @@ export const PdfLaurPillar = ({
         strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+
+      {/*  LAUR SQUARE/TRIANGLE BELOW */}
       {isSubLevel && (
         <PdfSubLevelWhiteBackerPolygon
-          points={laurSquarePoints}
+          points={innerShapePoints}
           borderWidth={SVG_BORDER_WIDTH / 2}
         />
       )}
       <Polygon
-        points={laurSquarePoints}
-        // transform={"rotate(30deg)"} // TRIANGLE 2nd CONFIGURATION (plugs 2 ways into base)
+        points={innerShapePoints}
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH / 2}

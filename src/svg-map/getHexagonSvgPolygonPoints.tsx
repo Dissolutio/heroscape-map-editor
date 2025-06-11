@@ -642,7 +642,7 @@ export function getLaurPillarShape(
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 
-  const inset = 0.5 * radiusInner
+  const inset = 0.5 * radiusInner // the current laur pillar is definitely about 1/2 radius square
   const cos30 = cosDegrees(30)
   const sin30 = sinDegrees(30)
   const corners: Point[] = [
@@ -654,12 +654,15 @@ export function getLaurPillarShape(
   const triangle: Point[] = [
     { x: -inset * cos30, y: -inset * sin30 }, // top-left
     { x: inset * cos30, y: -inset * sin30 }, // top-right
-    { x: 0, y: inset }, // bottom-left
+    { x: 0, y: inset }, // bottom
   ]
-  const points = (isTriangle ? triangle : corners)
-    .map((point) => `${point.x},${point.y}`)
+  const squarePoints = corners.map((point) => `${point.x},${point.y}`)
     .join(' ')
-  return { points, corners }
+  const trianglePoints = triangle.map((point) => `${point.x},${point.y}`)
+    .join(' ')
+  return {
+    squarePoints, trianglePoints: trianglePoints
+  }
 }
 export function getHexagonSvgPolygonPointsAt00(
   radius: number,

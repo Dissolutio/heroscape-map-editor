@@ -9,48 +9,113 @@ import {
   MdOutlineWest,
 } from 'react-icons/md'
 import useBoundStore from '../store/store'
+import { Pieces } from '../types'
 
 export default function RotationSelect() {
   const pieceRotation = useBoundStore((s) => s.pieceRotation)
+  const penMode = useBoundStore((s) => s.penMode)
   const togglePieceRotation = useBoundStore((s) => s.togglePieceRotation)
   const handleChange = (
     _event: React.MouseEvent<HTMLElement>,
     value: string,
   ) => {
-    togglePieceRotation(Number.parseInt(value))
+    togglePieceRotation(value)
   }
+  const allRotations = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5]
+  const regularRotations = [0, 1, 2, 3, 4, 5,]
+  const partialRotations = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5]
+  const possibleRotations = penMode === Pieces.laurWallLong || penMode === Pieces.laurWallLongStackable ? partialRotations :
+    penMode === Pieces.laurWallTrianglePillar || penMode === Pieces.laurWallRuin
+      || penMode === Pieces.laurWallRuin2 || penMode === Pieces.laurWallRuin3
+      ? allRotations : regularRotations
   return (
-    <span style={{ margin: '0px 20px' }}>
-      <span>Select rotation:</span>
+    <div style={{
+      margin: '0px 0px',
+      border: '1px solid',
+    }}>
+      <span>Piece rotation:</span>
       <ToggleButtonGroup
         // disabled={!isSizes}
         value={`${pieceRotation}`}
         onChange={handleChange}
         exclusive
+        size="small"
         aria-label="piece rotation for current pen mode"
       >
-        {[0, 1, 2, 3, 4, 5].map((r) => (
+        {possibleRotations.map((r) => (
           <ToggleButton
             key={r}
             value={`${r}`}
             aria-label={`${r}-times rotated 60 degrees`}
+            style={{ display: 'flex', flexDirection: 'column' }}
           >
             {r === 0 ? (
-              <MdOutlineEast />
+              <>
+                <MdOutlineEast />
+                <span>0</span>
+              </>
+            ) : r === 0.5 ? (
+              <>
+                <MdOutlineEast style={{ transform: "rotate(30deg)" }} />
+                <span>0.5</span>
+              </>
             ) : r === 1 ? (
-              <MdOutlineSouthEast />
+              <>
+                <MdOutlineSouthEast />
+                <span>1</span>
+              </>
+            ) : r === 1.5 ? (
+              <>
+                <MdOutlineSouthEast style={{ transform: "rotate(45deg)" }} />
+                <span>1.5</span>
+              </>
             ) : r === 2 ? (
-              <MdOutlineSouthWest />
+              <>
+                <MdOutlineSouthWest />
+                <span>2</span>
+              </>
+            ) : r === 2.5 ? (
+              <>
+                <MdOutlineSouthWest style={{ transform: "rotate(30deg)" }} />
+                <span>2.5</span>
+              </>
             ) : r === 3 ? (
-              <MdOutlineWest />
+              <>
+                <MdOutlineWest />
+                <span>3</span>
+              </>
+            ) : r === 3.5 ? (
+              <>
+                <MdOutlineWest style={{ transform: "rotate(45deg)" }} />
+                <span>3.5</span>
+              </>
             ) : r === 4 ? (
-              <MdOutlineNorthWest />
-            ) : (
-              <MdOutlineNorthEast />
-            )}
+              <>
+                <MdOutlineNorthWest />
+                <span>4</span>
+              </>
+            ) : r === 4.5 ? (
+              <>
+                <MdOutlineSouthEast style={{ transform: "rotate(45deg)" }} />
+                <span>4.5</span>
+              </>
+            ) : r === 5 ? (
+              <>
+                <MdOutlineNorthEast />
+                <span>5</span>
+              </>
+            ) :
+              // r === 5.5
+              (
+                <>
+                  <MdOutlineNorthEast style={{ transform: "rotate(45deg)" }} />
+                  <span>5.5</span>
+                </>
+              )
+            }
           </ToggleButton>
         ))}
       </ToggleButtonGroup>
-    </span>
+    </div >
   )
 }

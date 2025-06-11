@@ -239,8 +239,7 @@ export enum Pieces {
   ladder = 'ld', //rendered from BoardHexes
   // LaurWall -- rendered from BoardPieces not BoardHexes
   laurWallPillar = `${PiecePrefixes.laurWall}p`, //rendered from BoardHexes
-  laurWallTriangleLongConfig = `${PiecePrefixes.laurWall}tl`, // triangle pillars have 2 configurations (can be plugged into bases 2 ways)
-  laurWallTriangleShortConfig = `${PiecePrefixes.laurWall}ts`,
+  laurWallTrianglePillar = `${PiecePrefixes.laurWall}t`, // triangle pillars have 2 configurations (can be plugged into bases 2 ways), so one config will be rendered at a 30 degree rotation from the other
   laurWallShort = `${PiecePrefixes.laurWall}s`,
   laurWallShortStackable = `${PiecePrefixes.laurWall}s2`,
   laurWallLong = `${PiecePrefixes.laurWall}l`,
