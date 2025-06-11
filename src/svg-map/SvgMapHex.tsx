@@ -38,6 +38,7 @@ import {
   SvgRuins2,
   SvgRuins3,
   SvgTree415,
+  SvgLaurPillar,
 } from './SvgMapShapes'
 
 const OPACITY_SUBLEVEL = 0.3
@@ -379,12 +380,13 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     )
   }
   // LAUR PILLARS and SINGLE LAND
-  if (inventoryID === Pieces.laurWallPillar) {
+  if (
+    inventoryID === Pieces.laurWallPillar ||
+    inventoryID === Pieces.laurWallTrianglePillar
+  ) {
     return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <SvgLaurPillar hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
   }

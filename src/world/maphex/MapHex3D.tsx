@@ -92,7 +92,8 @@ export const MapHex3D = ({
   const isLaurSquarePillarHex =
     boardHex.inventoryID === Pieces.laurWallPillar && boardHex.isObstacleOrigin
   const isLaurTrianglePillarHex =
-    boardHex.inventoryID === Pieces.laurWallTrianglePillar && boardHex.isObstacleOrigin
+    boardHex.inventoryID === Pieces.laurWallTrianglePillar &&
+    boardHex.isObstacleOrigin
   const isBrushHex =
     boardHex.terrain === HexTerrain.brush && boardHex.isObstacleOrigin
   const isPalmHex =
@@ -220,7 +221,10 @@ export const MapHex3D = ({
           <LaurPillar boardHex={boardHex} isUnderHexFluid={isUnderHexFluid} />
         )}
         {isLaurTrianglePillarHex && (
-          <LaurWallTrianglePillar boardHex={boardHex} isUnderHexFluid={isUnderHexFluid} />
+          <LaurWallTrianglePillar
+            boardHex={boardHex}
+            isUnderHexFluid={isUnderHexFluid}
+          />
         )}
         {isTreeHex && (
           <>

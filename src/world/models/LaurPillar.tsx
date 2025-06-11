@@ -107,7 +107,7 @@ export default function LaurWallPillar({
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const { nodes } = useGLTF('/laurwall-pillar.glb') as any
-  const pieceRotation = ((boardHex?.pieceRotation ?? 0) % 6) * -Math.PI / 3
+  const pieceRotation = (((boardHex?.pieceRotation ?? 0) % 6) * -Math.PI) / 3
 
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel

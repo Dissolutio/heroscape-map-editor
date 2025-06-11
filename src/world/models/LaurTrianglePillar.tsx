@@ -14,7 +14,6 @@ import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { CylinderGeometryArgs } from '../maphex/instance-hex'
 
-
 const baseCylinderArgs: CylinderGeometryArgs = [
   0.9,
   0.997,
@@ -40,7 +39,7 @@ export default function LaurWallTrianglePillar({
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
-  const pieceRotation = ((boardHex?.pieceRotation ?? 0) % 6) * -Math.PI / 3
+  const pieceRotation = (((boardHex?.pieceRotation ?? 0) % 6) * -Math.PI) / 3
 
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
@@ -62,7 +61,6 @@ export default function LaurWallTrianglePillar({
     }
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
-
 
   return (
     <>
@@ -87,6 +85,7 @@ export default function LaurWallTrianglePillar({
         <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
           <mesh geometry={nodes.TrianglePillarTop.geometry}>
             <meshMatcapMaterial
+              side={DoubleSide}
               color={isHighlighted ? yellowColor : pillarColor}
             />
           </mesh>
@@ -97,7 +96,7 @@ export default function LaurWallTrianglePillar({
           </mesh>
           <mesh geometry={nodes.TriangleFacade.geometry}>
             <meshMatcapMaterial
-              side={DoubleSide}
+              // side={DoubleSide}
               color={isHighlighted ? yellowColor : pillarColor}
             />
           </mesh>

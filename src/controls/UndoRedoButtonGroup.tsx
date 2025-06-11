@@ -32,8 +32,9 @@ const UndoRedoButtonGroup = () => {
         title={`(ctrl/cmd + Z) (${futureStates.length} redoable actions)`}
         aria-label={`Redo (${pastStates.length} undoable actions)`}
         onClick={() => redo()}
-        startIcon={<FcRedo />}
+        startIcon={<FcRedo size={16} />}
         size="small"
+        style={{ fontSize: '0.7em' }}
       >
         Redo
       </Button>

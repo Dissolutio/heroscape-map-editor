@@ -32,7 +32,12 @@ import {
   getSvgHexBorderColor,
   getSvgHexFillColor,
 } from '../svg-map/getSvgHexColors'
-import { type BoardHex, type DecodedPieceID, HexTerrain, Pieces } from '../types'
+import {
+  type BoardHex,
+  type DecodedPieceID,
+  HexTerrain,
+  Pieces,
+} from '../types'
 import {
   OPACITY_EMPTY,
   OPACITY_SUBLEVEL,
@@ -442,19 +447,19 @@ export const PdfLaurPillar = ({
   const laurSquarePoints = getLaurPillarShape(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
-    true,
   ).squarePoints
   const laurTrianglePoints = getLaurPillarShape(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
-    true,
   ).trianglePoints
-  const innerShapePoints = hex.inventoryID === Pieces.laurWallTrianglePillar ? laurTrianglePoints : laurSquarePoints
+  const innerShapePoints =
+    hex.inventoryID === Pieces.laurWallTrianglePillar
+      ? laurTrianglePoints
+      : laurSquarePoints
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <PdfSubLevelWhiteBackerPolygon
-        points={fullHexPoints}
-      />}
+      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={fullHexPoints} />}
       {/* FULL HEX */}
       <Polygon
         points={fullHexPoints}
@@ -465,23 +470,24 @@ export const PdfLaurPillar = ({
         strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
-
-      {/*  LAUR SQUARE/TRIANGLE BELOW */}
-      {isSubLevel && (
-        <PdfSubLevelWhiteBackerPolygon
+      <G transform={`rotate(${pieceRotation})`}>
+        {/*  LAUR SQUARE/TRIANGLE BELOW */}
+        {isSubLevel && (
+          <PdfSubLevelWhiteBackerPolygon
+            points={innerShapePoints}
+            borderWidth={SVG_BORDER_WIDTH / 2}
+          />
+        )}
+        <Polygon
           points={innerShapePoints}
-          borderWidth={SVG_BORDER_WIDTH / 2}
+          fill={fillColor}
+          stroke={borderColor}
+          strokeWidth={SVG_BORDER_WIDTH / 2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
-      )}
-      <Polygon
-        points={innerShapePoints}
-        fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH / 2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
+      </G>
     </>
   )
 }

@@ -383,11 +383,12 @@ export const PdfMapHex = ({
     )
   }
   // LAUR PILLARS
-  if (inventoryID === Pieces.laurWallPillar) {
+  if (
+    inventoryID === Pieces.laurWallPillar ||
+    inventoryID === Pieces.laurWallTrianglePillar
+  ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfLaurPillar hex={hex} isSubLevel={isSubLevel} />
       </G>
     )

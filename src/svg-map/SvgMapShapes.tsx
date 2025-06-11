@@ -19,6 +19,7 @@ import {
   getHexagonSvgPolygonPointsAt00,
   getLadderSvgPolygonPoints,
   getLaurLongWallSvgPolygonPoints,
+  getLaurPillarShape,
   getLaurShortWallSvgPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
   getMarvel6HexSvgPolygonPointsAt00,
@@ -31,7 +32,12 @@ import {
   getSvgHexBorderColor,
   getSvgHexFillColor,
 } from '../svg-map/getSvgHexColors'
-import { type BoardHex, type DecodedPieceID, HexTerrain } from '../types'
+import {
+  type BoardHex,
+  type DecodedPieceID,
+  HexTerrain,
+  Pieces,
+} from '../types'
 import {
   OPACITY_EMPTY,
   OPACITY_SUBLEVEL,
@@ -426,6 +432,66 @@ export const SvgMultiHex24 = ({
         strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+    </>
+  )
+}
+export const SvgLaurPillar = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const { points: fullHexPoints } = getHexagonSvgPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
+  const laurSquarePoints = getLaurPillarShape(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  ).squarePoints
+  const laurTrianglePoints = getLaurPillarShape(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  ).trianglePoints
+  const innerShapePoints =
+    hex.inventoryID === Pieces.laurWallTrianglePillar
+      ? laurTrianglePoints
+      : laurSquarePoints
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
+  return (
+    <>
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={fullHexPoints} />}
+      {/* FULL HEX */}
+      <polygon
+        points={fullHexPoints}
+        fill={fillColor}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <g transform={`rotate(${pieceRotation})`}>
+        {/*  LAUR SQUARE/TRIANGLE BELOW */}
+        {isSubLevel && (
+          <SvgSubLevelWhiteBackerPolygon
+            points={innerShapePoints}
+            borderWidth={SVG_BORDER_WIDTH / 2}
+          />
+        )}
+        <polygon
+          points={innerShapePoints}
+          fill={fillColor}
+          stroke={borderColor}
+          strokeWidth={SVG_BORDER_WIDTH / 2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        />
+      </g>
     </>
   )
 }
