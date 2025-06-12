@@ -666,6 +666,26 @@ export function getLaurPillarShape(radius: number, borderWidth: number) {
     trianglePoints: trianglePoints,
   }
 }
+export function getJungleTriangleShape(radius: number, borderWidth: number) {
+  const halfBorder = borderWidth / 2
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const rightXInner = apothemInner
+  const leftXInner = -apothemInner
+  const topYInner = -radiusInner
+  const topSideYInner = -0.5 * radiusInner
+
+  const corners: Point[] = [
+    { x: 0, y: topYInner }, // top
+    { x: rightXInner, y: topSideYInner }, // top-right
+    { x: leftXInner, y: topSideYInner }, // top-left
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return {
+    points,
+  }
+}
 export function getHexagonSvgPolygonPointsAt00(
   radius: number,
   borderWidth: number,
