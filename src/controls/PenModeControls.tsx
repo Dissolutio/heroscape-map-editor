@@ -108,7 +108,7 @@ export default function PenModeControls() {
   useHotkeys('z', () => togglePenMode('select') /*isEnabled*/)
 
   return (
-    <FormControl variant="filled">
+    <FormControl variant="filled" size="small">
       <InputLabel id="pen-terrain-select-label">Terrain</InputLabel>
       <Select
         autoWidth
@@ -241,6 +241,12 @@ export default function PenModeControls() {
             <GiWhiteTower color={hexTerrainColor.water} />
           </ListItemIcon>
           <span>Laur Wall Pillar</span>
+        </MenuItem>
+        <MenuItem value={Pieces.laurWallTrianglePillar}>
+          <ListItemIcon>
+            <GiWhiteTower color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>Laur Wall Triangle Pillar</span>
         </MenuItem>
         <Divider />
 

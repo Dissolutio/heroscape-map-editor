@@ -25,7 +25,7 @@ export default function PieceSizeSelect() {
           alignItems: 'center',
         }}
       >
-        <span>Select piece:</span>
+        <span>Piece size:</span>
         <span>
           {isSizes ? (
             flatPieceSizes.map((s, i) => (

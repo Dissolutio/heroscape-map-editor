@@ -2,14 +2,16 @@ import { Vector3 } from 'three'
 import useBoundStore from '../store/store'
 import { Pieces } from '../types'
 import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
-import { HEXGRID_HEXCAP_HEIGHT } from '../utils/constants'
+import {
+  HEXGRID_HEXCAP_FLUID_HEIGHT,
+  HEXGRID_HEXCAP_HEIGHT,
+} from '../utils/constants'
 import { decodePieceID, getBoardHex3DCoords } from '../utils/map-utils'
 import { Battlement } from './models/Battlement'
 import { LaurWallAddon } from './models/LaurAddon'
 import { RoadWall } from './models/RoadWall'
 import {
   getLadderBattlementOptions,
-  getLaurWallAddonPositionByRotation,
   getRoadWallOptions,
 } from './models/piece-adjustments'
 
@@ -18,13 +20,7 @@ export const MapBoardPiece3D = ({
 }: {
   pid: string
 }) => {
-  const {
-    inventoryID,
-    altitude,
-    rotation,
-    // boardHexID,
-    pieceCoords,
-  } = decodePieceID(pid)
+  const { inventoryID, altitude, rotation, pieceCoords } = decodePieceID(pid)
   const { x, z, y } = getBoardHex3DCoords({ ...pieceCoords, altitude })
   const {
     x: xLaurWall,
@@ -38,15 +34,19 @@ export const MapBoardPiece3D = ({
   }
   // LAURWALL ADDON
   if (
-    inventoryID === Pieces.laurWallRuin ||
     inventoryID === Pieces.laurWallShort ||
+    inventoryID === Pieces.laurWallRuin ||
     inventoryID === Pieces.laurWallLong
   ) {
     return (
       <group
-        position={new Vector3(xLaurWall, yLaurWall, zLaurWall).add(
-          getLaurWallAddonPositionByRotation(rotation),
-        )}
+        position={
+          new Vector3(
+            xLaurWall,
+            yLaurWall + HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+            zLaurWall,
+          )
+        }
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
         visible={isVisible}
       >

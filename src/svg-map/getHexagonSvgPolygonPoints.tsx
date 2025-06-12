@@ -625,6 +625,47 @@ export function getMarvelRuinsShapeSvgPath(
   `
   return { path }
 }
+export function getLaurPillarShape(radius: number, borderWidth: number) {
+  const halfBorder = borderWidth / 2
+  const topX = 0
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const rightXInner = apothemInner
+  const leftXInner = -apothemInner
+  const topYInner = -radiusInner
+  const bottomYInner = radiusInner
+  const bottomSideYInner = 0.5 * radiusInner
+  const topSideYInner = -0.5 * radiusInner
+
+  const inset = 0.5 * radiusInner // the current laur pillar is definitely about 1/2 radius square
+  const cos30 = cosDegrees(30)
+  const sin30 = sinDegrees(30)
+  const cos60 = cosDegrees(60)
+  const sin60 = sinDegrees(60)
+  const corners: Point[] = [
+    { x: -inset * cos30, y: topSideYInner }, // top-left
+    { x: inset * cos30, y: topSideYInner }, // top-right
+    { x: inset * cos30, y: bottomSideYInner }, // bottom-right
+    { x: -inset * cos30, y: bottomSideYInner }, // bottom-left
+  ]
+  const triangle: Point[] = [
+    // { x: -inset * cos30, y: -inset * sin30 }, // top-left
+    // { x: inset * cos30, y: -inset * sin30 }, // top-right
+    // { x: 0, y: inset }, // bottom
+    { x: inset * cos60, y: -inset * sin60 }, // top-right
+    { x: inset * cos60, y: inset * sin60 }, // bottom-right
+    { x: -inset, y: 0 }, // mid-left
+  ]
+  const squarePoints = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  const trianglePoints = triangle
+    .map((point) => `${point.x},${point.y}`)
+    .join(' ')
+  return {
+    squarePoints,
+    trianglePoints: trianglePoints,
+  }
+}
 export function getHexagonSvgPolygonPointsAt00(
   radius: number,
   borderWidth: number,

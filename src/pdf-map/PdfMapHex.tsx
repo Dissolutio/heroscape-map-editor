@@ -1,4 +1,4 @@
-import { G, Text } from '@react-pdf/renderer'
+import { Ellipse, G, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
@@ -10,6 +10,7 @@ import {
 } from '../utils/board-utils'
 import {
   OPACITY_SUBLEVEL,
+  SVG_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
@@ -42,19 +43,21 @@ import {
   PdfSvgRuins2,
   PdfSvgRuins3,
   PdfSvgTree415,
+  PdfLaurPillar,
+  PdfJungle,
 } from './PdfMapShapes'
 
 const hexTextStyle = {
-  fontSize: 0.8 * SVG_HEX_RADIUS,
+  fontSize: 0.6 * SVG_HEX_RADIUS,
   fontWeight: 'bold',
 }
 const singleHexObstacleHeightTextProps = (heightText: string) => ({
   style: hexTextStyle,
-  y: 0.3 * SVG_HEX_RADIUS,
+  y: 0.2 * SVG_HEX_RADIUS,
   x:
     heightText.toString().length === 2
-      ? -0.5 * SVG_HEX_APOTHEM
-      : -0.3 * SVG_HEX_APOTHEM,
+      ? -0.35 * SVG_HEX_APOTHEM
+      : -0.15 * SVG_HEX_APOTHEM,
 })
 const glyphTextProps = (glyphText: string) => ({
   style: {
@@ -74,7 +77,7 @@ export const PdfMapHex = ({
 }: { hex: BoardHex; viewingLevel: number }) => {
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
-  const { inventoryID } = decodePieceID(hex.pieceID)
+  const { inventoryID } = hex
   const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
   const isAuxiliaryNotRenderedIn2D =
     isObstaclePiece && (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
@@ -367,27 +370,19 @@ export const PdfMapHex = ({
   // JUNGLE
   if (isJungleTerrainHex(hex.terrain)) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        <Text
-          fill="rgb(35, 31, 32)"
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
-        >
-          {pieceHeightText}
-        </Text>
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfJungle hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
-  // LAUR PILLARS and SINGLE LAND
-  if (inventoryID === Pieces.laurWallPillar) {
+  // LAUR PILLARS
+  if (
+    inventoryID === Pieces.laurWallPillar ||
+    inventoryID === Pieces.laurWallTrianglePillar
+  ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfLaurPillar hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }

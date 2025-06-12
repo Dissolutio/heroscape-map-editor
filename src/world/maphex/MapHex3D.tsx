@@ -44,6 +44,7 @@ import { hexTerrainColor } from './hexColors'
 import { GlyphModel } from '../models/Glyph'
 import { StartZone3D } from '../models/StartZone3D'
 import { MarvelRuin } from '../models/MarvelRuin'
+import LaurWallTrianglePillar from '../models/LaurTrianglePillar'
 
 export const MapHex3D = ({
   boardHex,
@@ -88,8 +89,11 @@ export const MapHex3D = ({
     !isBigTreeBaseHex &&
     boardHex.terrain === HexTerrain.tree &&
     isObstacleHex
-  const isLaurPillarHex =
-    boardHex.terrain === HexTerrain.laurWall && isObstacleHex
+  const isLaurSquarePillarHex =
+    boardHex.inventoryID === Pieces.laurWallPillar && boardHex.isObstacleOrigin
+  const isLaurTrianglePillarHex =
+    boardHex.inventoryID === Pieces.laurWallTrianglePillar &&
+    boardHex.isObstacleOrigin
   const isBrushHex =
     boardHex.terrain === HexTerrain.brush && boardHex.isObstacleOrigin
   const isPalmHex =
@@ -128,7 +132,8 @@ export const MapHex3D = ({
   const isRuin3OriginHex =
     pieceID === Pieces.ruins3 && boardHex.isObstacleOrigin
   const isMarvelRuinOriginHex =
-    (pieceID === Pieces.marvel || pieceID === Pieces.marvelBroken) && boardHex.isObstacleOrigin
+    (pieceID === Pieces.marvel || pieceID === Pieces.marvelBroken) &&
+    boardHex.isObstacleOrigin
   const isCastleBaseEnd = pieceID === Pieces.castleBaseEnd
   const isCastleBaseStraight = pieceID === Pieces.castleBaseStraight
   const isCastleBaseCorner = pieceID === Pieces.castleBaseCorner
@@ -212,8 +217,14 @@ export const MapHex3D = ({
             <HeightRing position={new Vector3(x, y, z)} />
           </Suspense>
         )}
-        {isLaurPillarHex && (
+        {isLaurSquarePillarHex && (
           <LaurPillar boardHex={boardHex} isUnderHexFluid={isUnderHexFluid} />
+        )}
+        {isLaurTrianglePillarHex && (
+          <LaurWallTrianglePillar
+            boardHex={boardHex}
+            isUnderHexFluid={isUnderHexFluid}
+          />
         )}
         {isTreeHex && (
           <>

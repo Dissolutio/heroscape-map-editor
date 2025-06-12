@@ -800,8 +800,28 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 12,
   },
+  [Pieces.laurWallTrianglePillar]: {
+    id: Pieces.laurWallTrianglePillar,
+    title: 'Laur Triangle Pillar',
+    terrain: HexTerrain.laurWall,
+    isHexTerrainPiece: false,
+    isObstaclePiece: true,
+    size: 1,
+    template: '1',
+    height: 12,
+  },
   [Pieces.laurWallShort]: {
     id: Pieces.laurWallShort,
+    title: 'Laur Wall (Short)',
+    terrain: HexTerrain.laurWall,
+    isHexTerrainPiece: false,
+    isObstaclePiece: false,
+    size: 1,
+    template: Pieces.laurWallShort,
+    height: 12, // again, really verticalClearance, not "height"
+  },
+  [Pieces.laurWallShortStackable]: {
+    id: Pieces.laurWallShortStackable,
     title: 'Laur Wall (Short)',
     terrain: HexTerrain.laurWall,
     isHexTerrainPiece: false,

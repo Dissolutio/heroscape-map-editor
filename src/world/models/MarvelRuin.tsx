@@ -1,4 +1,3 @@
-
 import { useGLTF } from '@react-three/drei'
 import { getBoardHex3DCoords } from '../../utils/map-utils'
 import useBoundStore from '../../store/store'
@@ -7,7 +6,12 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { BoardHex } from '../../types'
 import { DoubleSide } from 'three'
-import { HEXGRID_HEX_APOTHEM, HEXGRID_HEX_HEIGHT, HEXGRID_HEX_RADIUS, SVG_HEX_APOTHEM } from '../../utils/constants'
+import {
+  HEXGRID_HEX_APOTHEM,
+  HEXGRID_HEX_HEIGHT,
+  HEXGRID_HEX_RADIUS,
+  SVG_HEX_APOTHEM,
+} from '../../utils/constants'
 
 export function MarvelRuin({
   boardHex,
@@ -38,7 +42,9 @@ export function MarvelRuin({
   const isHighlighted = isHovered || isSelected
   const yellowColor = 'yellow'
   const rotation = boardHex?.pieceRotation ?? 0
-  const colorMarvelRuin = isHighlighted ? yellowColor : hexTerrainColor.marvelRuin
+  const colorMarvelRuin = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.marvelRuin
   const colorUpperFloor = isHighlighted ? yellowColor : hexTerrainColor.ladder
   return (
     <group
@@ -48,30 +54,14 @@ export function MarvelRuin({
       onPointerOut={(e) => onPointerOut(e)}
       onPointerUp={(e) => onPointerUp(e)}
     >
-
-      <mesh
-        geometry={nodes.MarvelRuinMain.geometry}
-      >
-        <meshMatcapMaterial
-          color={colorMarvelRuin}
-          side={DoubleSide}
-        />
+      <mesh geometry={nodes.MarvelRuinMain.geometry}>
+        <meshMatcapMaterial color={colorMarvelRuin} side={DoubleSide} />
       </mesh>
-      <mesh
-        geometry={nodes.MarvelRuinUpperFloor.geometry}
-      >
-        <meshMatcapMaterial
-          color={colorUpperFloor}
-          side={DoubleSide}
-        />
+      <mesh geometry={nodes.MarvelRuinUpperFloor.geometry}>
+        <meshMatcapMaterial color={colorUpperFloor} side={DoubleSide} />
       </mesh>
-      <mesh
-        geometry={nodes.MarvelRuinRemoveableWall.geometry}
-      >
-        <meshMatcapMaterial
-          color={colorMarvelRuin}
-          side={DoubleSide}
-        />
+      <mesh geometry={nodes.MarvelRuinRemoveableWall.geometry}>
+        <meshMatcapMaterial color={colorMarvelRuin} side={DoubleSide} />
       </mesh>
     </group>
   )
