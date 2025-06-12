@@ -497,7 +497,7 @@ export const SvgLaurPillar = ({
     </>
   )
 }
-export const PdfJungle = ({
+export const SvgJungle = ({
   hex,
   isSubLevel,
 }: {
