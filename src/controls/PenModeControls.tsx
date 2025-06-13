@@ -42,7 +42,7 @@ import { BsHexagonHalf } from 'react-icons/bs'
 import { hexTerrainColor } from '../world/maphex/hexColors'
 import { LiaMountainSolid } from 'react-icons/lia'
 import { FaMountainCity } from 'react-icons/fa6'
-import { FcAddColumn } from 'react-icons/fc'
+import { FcAddColumn, FcAddDatabase } from 'react-icons/fc'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
@@ -246,6 +246,30 @@ export default function PenModeControls() {
             <FcAddColumn color={hexTerrainColor.water} />
           </ListItemIcon>
           <span>Laur Wall Ruins</span>
+        </MenuItem>
+        {/* <MenuItem value={Pieces.laurWallRuin2}>
+          <ListItemIcon>
+            <FcAddColumn color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>Laur Wall Ruins</span>
+        </MenuItem> */}
+        {/* <MenuItem value={Pieces.laurWallRuin3}>
+          <ListItemIcon>
+            <FcAddColumn color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>Laur Wall Ruins</span>
+        </MenuItem> */}
+        <MenuItem value={Pieces.laurWallShort}>
+          <ListItemIcon>
+            <FcAddDatabase color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>Laur Wall (Short)</span>
+        </MenuItem>
+        <MenuItem value={Pieces.laurWallLong}>
+          <ListItemIcon>
+            <FcAddDatabase color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>Laur Wall (Long)</span>
         </MenuItem>
         <Divider />
 
