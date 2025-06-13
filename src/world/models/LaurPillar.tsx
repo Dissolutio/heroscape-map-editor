@@ -96,16 +96,17 @@ const baseCylinderArgs: CylinderGeometryArgs = [
 export default function LaurWallPillar({
   boardHex,
   isUnderHexFluid,
+  onPointerUp,
 }: {
   boardHex: BoardHex
   isUnderHexFluid: boolean
+  onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
   const { x, z, yWithBase, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords(boardHex)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const { nodes } = useGLTF('/laurwall-pillar.glb') as any
   const pieceRotation = (((boardHex?.pieceRotation ?? 0) % 6) * -Math.PI) / 3
 
@@ -117,33 +118,6 @@ export default function LaurWallPillar({
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = isHovered || isSelected
-
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
-  }
-
-  // if (isSelected) {
-  //   const pillarReport = getPillarReport({
-  //     boardHexes,
-  //     boardPieces,
-  //     boardHex
-  //   })
-  // }
-
-  // const buttonPositions: [x: number, y: number, z: number][] = [
-  //   [0.5, 1, 0],
-  //   [-0.5, 1, 1],
-  //   [-1.5, 1, 0],
-  //   [-0.5, 1, -1],
-  // ].map(xyz => [xyz[0] - 0.1, xyz[1], xyz[2] - 0.2])
 
   return (
     <>
@@ -161,7 +135,7 @@ export default function LaurWallPillar({
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
-        onPointerUp={onPointerUp}
+        onPointerUp={(e) => onPointerUp(e, boardHex)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >

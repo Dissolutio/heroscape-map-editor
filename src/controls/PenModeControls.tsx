@@ -11,11 +11,8 @@ import {
   GiCastle,
   GiCastleRuins,
   GiCrenulatedShield,
-  GiGrass,
-  GiIsland,
   GiJungle,
   GiLadder,
-  GiMountaintop,
   GiPalmTree,
   GiPineTree,
   GiStoneWall,
@@ -24,7 +21,6 @@ import {
 import useBoundStore from '../store/store'
 import { PiecePrefixes, Pieces } from '../types'
 import {
-  TbHexagon3D,
   TbHexagonalPyramid,
   TbHexagonLetterC,
   TbHexagonLetterE,
@@ -46,6 +42,7 @@ import { BsHexagonHalf } from 'react-icons/bs'
 import { hexTerrainColor } from '../world/maphex/hexColors'
 import { LiaMountainSolid } from 'react-icons/lia'
 import { FaMountainCity } from 'react-icons/fa6'
+import { FcAddColumn, FcAddDatabase } from 'react-icons/fc'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
@@ -66,10 +63,6 @@ export default function PenModeControls() {
       isSizes
         ? togglePieceSize(flatPieceSizes?.[1] ?? flatPieceSizes[0])
         : noop() /*isEnabled*/,
-  )
-  useHotkeys(
-    'shift+2',
-    () => togglePenMode(Pieces.castleWallStraight) /*isEnabled*/,
   )
   useHotkeys(
     '3',
@@ -247,6 +240,36 @@ export default function PenModeControls() {
             <GiWhiteTower color={hexTerrainColor.water} />
           </ListItemIcon>
           <span>Laur Wall Triangle Pillar</span>
+        </MenuItem>
+        <MenuItem value={Pieces.laurWallRuin}>
+          <ListItemIcon>
+            <FcAddColumn color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>Laur Wall Ruins</span>
+        </MenuItem>
+        {/* <MenuItem value={Pieces.laurWallRuin2}>
+          <ListItemIcon>
+            <FcAddColumn color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>Laur Wall Ruins</span>
+        </MenuItem> */}
+        {/* <MenuItem value={Pieces.laurWallRuin3}>
+          <ListItemIcon>
+            <FcAddColumn color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>Laur Wall Ruins</span>
+        </MenuItem> */}
+        <MenuItem value={Pieces.laurWallShort}>
+          <ListItemIcon>
+            <FcAddDatabase color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>Laur Wall (Short)</span>
+        </MenuItem>
+        <MenuItem value={Pieces.laurWallLong}>
+          <ListItemIcon>
+            <FcAddDatabase color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>Laur Wall (Long)</span>
         </MenuItem>
         <Divider />
 
@@ -441,7 +464,33 @@ export default function PenModeControls() {
         </MenuItem>
         <MenuItem value={Pieces.glacier4}>
           <ListItemIcon>
-            <GiMountaintop color={hexTerrainColor.ice} />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.ice}
+              style={{
+                fontSize: '0.7rem',
+                marginRight: '-1rem',
+                marginTop: '-0.2rem',
+              }}
+            />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.ice}
+              style={{ fontSize: '0.8rem' }}
+            />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.ice}
+              style={{
+                fontSize: '0.8rem',
+                marginLeft: '-0.5rem',
+                marginTop: '0.2rem',
+              }}
+            />
+            <TbHexagonalPyramid
+              color={hexTerrainColor.ice}
+              style={{
+                fontSize: '0.8rem',
+                marginLeft: '-0.5rem',
+              }}
+            />
           </ListItemIcon>
           <span>Glacier 4</span>
         </MenuItem>
@@ -615,20 +664,32 @@ export default function PenModeControls() {
           <span>Start Zone: P8</span>
         </MenuItem>
 
-        {/* ERASER BUTTONS BEGIN */}
-
-        {/* <MenuItem value={PenMode.eraserStartZone}>
+        {/* Marvel RUINS */}
+        <Divider />
+        <MenuItem value={Pieces.marvel}>
           <ListItemIcon>
-            <GiBulldozer />
+            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
           </ListItemIcon>
-          <span>Erase Start Zone</span>
+          <span>Marvel Ruins</span>
         </MenuItem>
-        <MenuItem value={PenMode.eraser}>
+        <MenuItem value={Pieces.marvelBroken}>
           <ListItemIcon>
-            <GiBulldozer />
+            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
           </ListItemIcon>
-          <span>Delete Hex</span>
-        </MenuItem> */}
+          <span>Marvel Ruins - Wall Destroyed</span>
+        </MenuItem>
+        <MenuItem value={Pieces.marvelNoUpper}>
+          <ListItemIcon>
+            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+          </ListItemIcon>
+          <span>Marvel Ruins - No Upper Floor</span>
+        </MenuItem>
+        <MenuItem value={Pieces.marvelNoUpperBroken}>
+          <ListItemIcon>
+            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+          </ListItemIcon>
+          <span>Marvel Ruins - No Upper Floor, Wall Destroyed</span>
+        </MenuItem>
       </Select>
     </FormControl>
   )

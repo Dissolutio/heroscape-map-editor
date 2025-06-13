@@ -51,7 +51,7 @@ const useAutoLoadMapFile = (props?: Props) => {
         enqueueSnackbar({
           message: `Loaded map from URL: ${jsonMap.hexMap.name}.`,
           variant: 'success',
-          autoHideDuration: 5000,
+          autoHideDuration: 1000,
         })
         // enqueueSnackbar({
         //   message: `Map data has been removed from your URL bar, to return it please press the back button in your browser.`,

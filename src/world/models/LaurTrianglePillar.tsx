@@ -28,9 +28,11 @@ const baseCylinderArgs: CylinderGeometryArgs = [
 export default function LaurWallTrianglePillar({
   boardHex,
   isUnderHexFluid,
+  onPointerUp,
 }: {
   boardHex: BoardHex
   isUnderHexFluid: boolean
+  onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
@@ -50,17 +52,17 @@ export default function LaurWallTrianglePillar({
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = isHovered || isSelected
 
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
-  }
+  // const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
+  //   if (!isVisible) {
+  //     return
+  //   }
+  //   event.stopPropagation() // prevent pass through
+  //   // Early out right clicks(event.button=2), middle mouse clicks(1)
+  //   if (event.button !== 0) {
+  //     return
+  //   }
+  //   toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+  // }
 
   return (
     <>
@@ -78,7 +80,7 @@ export default function LaurWallTrianglePillar({
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
-        onPointerUp={onPointerUp}
+        onPointerUp={(e) => onPointerUp(e, boardHex)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >

@@ -28,13 +28,13 @@ export default function PieceSizeSelect() {
         <span>Piece size:</span>
         <span>
           {isSizes ? (
-            flatPieceSizes.map((s, i) => (
+            flatPieceSizes.map((s) => (
               <ToggleButton
                 key={s}
                 value={`${s}`}
                 aria-label={`${s}-hex sized piece`}
               >
-                {s} [{i + 1}]{/* <HotkeyBadge hotkey={`${i + 1}`} /> */}
+                {s}
               </ToggleButton>
             ))
           ) : (

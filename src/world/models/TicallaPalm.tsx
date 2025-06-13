@@ -8,6 +8,7 @@ import { hexTerrainColor } from '../maphex/hexColors'
 
 export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
   const { nodes } = useGLTF('/ticalla-palm.glb') as any
+  const { nodes: nodesNewPalm } = useGLTF('/handmade-palm.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
@@ -46,12 +47,14 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        <mesh geometry={nodes.PalmLeaf.geometry}>
-          <meshMatcapMaterial color={colorPalmLeaf} />
-        </mesh>
-        <mesh geometry={nodes.PalmTrunk.geometry}>
+        <mesh geometry={nodesNewPalm.Palm_Trunk.geometry}>
           <meshMatcapMaterial color={colorTrunk} />
         </mesh>
+        <mesh geometry={nodesNewPalm.Palm_Canopy.geometry}>
+          {/* <meshMatcapMaterial transparent opacity={0.95} color={colorPalmLeaf} /> */}
+          <meshMatcapMaterial color={colorPalmLeaf} />
+        </mesh>
+
         <mesh geometry={nodes.PalmBrush.geometry}>
           <meshMatcapMaterial color={colorBrush} />
         </mesh>
@@ -64,3 +67,8 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
 }
 
 useGLTF.preload('/ticalla-palm.glb')
+
+export function NewPalm3D() {
+  return <></>
+}
+useGLTF.preload('/handmade-palm.glb')

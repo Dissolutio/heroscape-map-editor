@@ -17,6 +17,7 @@ import {
   getCastleEndShapeSvgPolygonPoints,
   getCastleStraightShapeSvgPolygonPoints,
   getHexagonSvgPolygonPointsAt00,
+  getJungleTriangleShape,
   getLadderSvgPolygonPoints,
   getLaurLongWallSvgPolygonPoints,
   getLaurPillarShape,
@@ -434,93 +435,7 @@ export const PdfMultiHex24 = ({
     </>
   )
 }
-const PdfCactusOnJungle = ({
-  hex,
-  isSubLevel,
-}: {
-  hex: BoardHex
-  isSubLevel?: boolean
-}) => {
-  // const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const isPalmPosition = hex.terrain === HexTerrain.palm
-  const cactusFill =
-    hex.terrain === HexTerrain.palm
-      ? hexTerrainColor.laurBrush1
-      : hex.inventoryID.startsWith('sb')
-        ? hexTerrainColor.swampUnderbrush3
-        : hexTerrainColor.laurBrush2
-  const cactusFill2 =
-    hex.terrain === HexTerrain.palm
-      ? hexTerrainColor.laurBrush
-      : hex.inventoryID.startsWith('sb')
-        ? hexTerrainColor.swampUnderbrush3
-        : hexTerrainColor.laurBrush
-  const cactusBorder =
-    hex.terrain === HexTerrain.palm
-      ? hexTerrainColor.laurBrush
-      : hex.inventoryID.startsWith('sb')
-        ? hexTerrainColor.swampUnderbrush1
-        : hexTerrainColor.laurBrush
-  const loneCacAdjust = isPalmPosition ? -160 : 0
-  const tripCacAdjust = isPalmPosition ? 30 : 0
-  const cac1Rotate = -25 + tripCacAdjust
-  const cac2Rotate = -17 + tripCacAdjust
-  const cac3Rotate = 0 + tripCacAdjust
-  const cacLoneRotate = -15 + loneCacAdjust
 
-  return (
-    <>
-      {/* The triple cactus */}
-      <Ellipse
-        transform={`rotate(${cac1Rotate}deg)`}
-        stroke={cactusBorder}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        fill={cactusFill}
-        fillOpacity={0.3}
-        cx="55"
-        cy="-5"
-        rx="8"
-        ry="25"
-      />
-      <Ellipse
-        transform={`rotate(${cac2Rotate}deg)`}
-        stroke={cactusBorder}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        fill={cactusFill}
-        fillOpacity={isSubLevel ? 0.3 : 0.3}
-        cx="56"
-        cy="12"
-        rx="6"
-        ry="20"
-      />
-      <Ellipse
-        transform={`rotate(${cac3Rotate}deg)`}
-        stroke={cactusBorder}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        fill={cactusFill}
-        fillOpacity={0.3}
-        cx="56"
-        cy="18"
-        rx="6"
-        ry="20"
-      />
-      {/* The lone round cactus */}
-      <Ellipse
-        // transform={`rotate(-135deg)`}
-        transform={`rotate(${cacLoneRotate}deg)`}
-        stroke={cactusBorder}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        fill={cactusFill2}
-        fillOpacity={0.5}
-        cx="10"
-        cy="55"
-        rx="26"
-        ry="12"
-      />
-    </>
-  )
-}
 export const PdfJungle = ({
   hex,
   isSubLevel,
@@ -530,14 +445,18 @@ export const PdfJungle = ({
 }) => {
   const pieceHeightText = piecesSoFar[hex.inventoryID]?.height
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
-  const isTicallaJungle = hex.inventoryID.startsWith('t') // hacky, TODO: tidy
-  const isCactus = !isTicallaJungle
+  const points = getJungleTriangleShape(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
   return (
     <>
       <G transform={`rotate(${pieceRotation})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        {/* The triple cactus */}
-        {isCactus && <PdfCactusOnJungle hex={hex} isSubLevel={isSubLevel} />}
+        <Polygon
+          points={points}
+          fill={svgColors.outlineJungle}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        />
       </G>
       <Text
         fill="rgb(35, 31, 32)"

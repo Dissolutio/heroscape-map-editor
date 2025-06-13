@@ -6,8 +6,8 @@ import type { AppState } from './store'
 export interface UISlice {
   penMode: string
   togglePenMode: (mode: string) => void
-  pieceRotation: number
-  togglePieceRotation: (s: number) => void
+  penModeRotation: number
+  togglePenModeRotation: (s: number) => void
   pieceSize: number
   togglePieceSize: (s: number) => void
   flatPieceSizes: number[]
@@ -79,11 +79,11 @@ const createUISlice: StateCreator<
         s.pieceSize = n
       }),
     ),
-  pieceRotation: 0,
-  togglePieceRotation: (n: number) =>
+  penModeRotation: 0,
+  togglePenModeRotation: (n: number) =>
     set(
       produce((s) => {
-        s.pieceRotation = n
+        s.penModeRotation = n
       }),
     ),
   isShowStartZones: true,

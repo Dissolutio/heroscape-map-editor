@@ -1,5 +1,3 @@
-## 2D SVG Builder
-Building pretty much exactly like you did in Virtualscape. This will probably be a requirement.
 
 ## Build Instructions / PdfSVG
 
@@ -17,9 +15,12 @@ Shapes and Patterns remaining:
 Then need some formatting options (1pg, map key?), author name, maybe more.
 
 ## 3D Models
-Marvel
-Jungle
+<!-- MAKE SOON -->
+Triple Cactus - Laur Underbrush
+Lone Cactus - Laur Underbrush
 Fortress Banner
+FatLeaf - Laur Underbrush (6 leaves, 3 nodes, stem ends at last node, with wingspan and tilt it is the tallest plant)
+Tri-Leaf - Laur Underbrush (8 leaves, 4 nodes, stem ends at last node, each leaf is like a small plant)
 Winter trees
 Laur Wall:
 - Laur Ruin2 Ruin3
@@ -29,6 +30,17 @@ Laur Wall:
 - Laur LongWallStacker 
 - Laur PillarStacker TrianglePillar check/build their stacked configuration
 
+<!-- Refine -->
+Refine Laur Palm Leaves
+Refine Marvel
+Refine Ticalla Palm Leaves
+
+## Map Build constraints **NEW**
+You can add them to a map, it **Becomes part of MapFileState**.
+It specifies id and quantity array of sets used, and of any piece-meal added items.
+
+You can remove them. They are removed from MapFileState.
+
 ## Home Page
 
 Cartographers => Maps Gallery
@@ -36,11 +48,8 @@ New => Editor
 Load => Editor
 About => Info
 
-
-## Controls: Add Laur Wall Addons Etc
-Do them like battlement and roadwall.
-When you click a pillar we add them.
-Can improve later.
+## 2D SVG Builder
+Building pretty much exactly like you did in Virtualscape. This will probably be a requirement.
 
 ## Restructure the controls completely
 1. Build/Main
@@ -82,13 +91,7 @@ Can improve later.
 ## Multi-Select & Copy/Paste  
 1. Selection Tool: Add a selection tool at the bottom. Functionally, you would click the selection tool, then click multiple hexes to highlight them. Then click the copy button. It would place in your hand what you just copied and then you can left click to place it in the world. Might need a reset button for when you are done copying to put one hex back in your hand.
 
-<!-- END ##Controls -->
 
-## Map Build constraints **NEW**
-You can add them to a map, it **Becomes part of MapFileState**.
-It specifies id and quantity array of sets used, and of any piece-meal added items.
-
-You can remove them. They are removed from MapFileState.
 
 ## Local Storage Load/Save/Edit maps
 

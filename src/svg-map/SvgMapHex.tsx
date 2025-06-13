@@ -39,6 +39,7 @@ import {
   SvgRuins3,
   SvgTree415,
   SvgLaurPillar,
+  SvgJungle,
 } from './SvgMapShapes'
 
 const OPACITY_SUBLEVEL = 0.3
@@ -365,17 +366,8 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   // JUNGLE
   if (isJungleTerrainHex(hex.terrain)) {
     return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        <text
-          fill="rgb(35, 31, 32)"
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
-        >
-          {pieceHeightText}
-        </text>
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <SvgJungle hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
   }

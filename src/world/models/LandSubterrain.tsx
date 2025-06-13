@@ -13,6 +13,7 @@ import { isFluidTerrainHex } from '../../utils/board-utils'
 import { decodePieceID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { FLUID_CAP_OPACITY } from '../maphex/instance/FluidCap'
+import { HEXGRID_HEX_APOTHEM } from '../../utils/constants'
 
 export default function LandSubterrain({ pid }: { pid: string }) {
   const {
@@ -274,7 +275,15 @@ useGLTF.preload('/subterrain_6.glb')
 
 export function Subterrain6B({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_6B.glb') as any
-  return <mesh geometry={nodes['Subterrain-6B'].geometry}>{children}</mesh>
+  // Have to adjust model left because original tile template was wrong choice, TODO: Blender update model
+  return (
+    <mesh
+      position={[-2 * HEXGRID_HEX_APOTHEM, 0, 0]}
+      geometry={nodes['Subterrain-6B'].geometry}
+    >
+      {children}
+    </mesh>
+  )
 }
 useGLTF.preload('/subterrain_6B.glb')
 

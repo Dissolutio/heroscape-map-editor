@@ -2,6 +2,7 @@ import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import {
   MdOutlineEast,
+  MdOutlineNorth,
   MdOutlineNorthEast,
   MdOutlineNorthWest,
   MdOutlineSouthEast,
@@ -12,14 +13,14 @@ import useBoundStore from '../store/store'
 import { Pieces } from '../types'
 
 export default function RotationSelect() {
-  const pieceRotation = useBoundStore((s) => s.pieceRotation)
+  const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const penMode = useBoundStore((s) => s.penMode)
-  const togglePieceRotation = useBoundStore((s) => s.togglePieceRotation)
+  const togglePenModeRotation = useBoundStore((s) => s.togglePenModeRotation)
   const handleChange = (
     _event: React.MouseEvent<HTMLElement>,
     value: number,
   ) => {
-    togglePieceRotation(value)
+    togglePenModeRotation(value)
   }
   const allRotations = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5]
   const regularRotations = [0, 1, 2, 3, 4, 5]
@@ -28,9 +29,9 @@ export default function RotationSelect() {
     penMode === Pieces.laurWallLong || penMode === Pieces.laurWallLongStackable
       ? partialRotations
       : penMode === Pieces.laurWallTrianglePillar ||
-        penMode === Pieces.laurWallRuin ||
-        penMode === Pieces.laurWallRuin2 ||
-        penMode === Pieces.laurWallRuin3
+          penMode === Pieces.laurWallRuin ||
+          penMode === Pieces.laurWallRuin2 ||
+          penMode === Pieces.laurWallRuin3
         ? allRotations
         : regularRotations
   return (
@@ -43,7 +44,7 @@ export default function RotationSelect() {
       <span>Piece rotation:</span>
       <ToggleButtonGroup
         // disabled={!isSizes}
-        value={`${pieceRotation}`}
+        value={`${penModeRotation}`}
         onChange={handleChange}
         exclusive
         size="small"
@@ -73,7 +74,7 @@ export default function RotationSelect() {
               </>
             ) : r === 1.5 ? (
               <>
-                <MdOutlineSouthEast style={{ transform: 'rotate(45deg)' }} />
+                <MdOutlineSouthEast style={{ transform: 'rotate(30deg)' }} />
                 <span>1.5</span>
               </>
             ) : r === 2 ? (
@@ -93,7 +94,7 @@ export default function RotationSelect() {
               </>
             ) : r === 3.5 ? (
               <>
-                <MdOutlineWest style={{ transform: 'rotate(45deg)' }} />
+                <MdOutlineWest style={{ transform: 'rotate(35deg)' }} />
                 <span>3.5</span>
               </>
             ) : r === 4 ? (
@@ -103,7 +104,7 @@ export default function RotationSelect() {
               </>
             ) : r === 4.5 ? (
               <>
-                <MdOutlineSouthEast style={{ transform: 'rotate(45deg)' }} />
+                <MdOutlineNorth />
                 <span>4.5</span>
               </>
             ) : r === 5 ? (
@@ -114,7 +115,7 @@ export default function RotationSelect() {
             ) : (
               // r === 5.5
               <>
-                <MdOutlineNorthEast style={{ transform: 'rotate(45deg)' }} />
+                <MdOutlineNorthEast style={{ transform: 'rotate(30deg)' }} />
                 <span>5.5</span>
               </>
             )}

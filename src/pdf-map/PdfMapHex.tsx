@@ -118,6 +118,22 @@ export const PdfMapHex = ({
       </G>
     )
   }
+  // Marvel Ruins (4 variations)
+  if (
+    (inventoryID === Pieces.marvel ||
+      inventoryID === Pieces.marvelBroken ||
+      inventoryID === Pieces.marvelNoUpper ||
+      inventoryID === Pieces.marvelNoUpperBroken) &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <PdfMarvelRuin hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
   // Marro Hive 6
   if (inventoryID === Pieces.hive && hex.isObstacleOrigin) {
     return (
