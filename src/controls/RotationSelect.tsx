@@ -12,14 +12,14 @@ import useBoundStore from '../store/store'
 import { Pieces } from '../types'
 
 export default function RotationSelect() {
-  const pieceRotation = useBoundStore((s) => s.pieceRotation)
+  const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const penMode = useBoundStore((s) => s.penMode)
-  const togglePieceRotation = useBoundStore((s) => s.togglePieceRotation)
+  const togglePenModeRotation = useBoundStore((s) => s.togglePenModeRotation)
   const handleChange = (
     _event: React.MouseEvent<HTMLElement>,
     value: number,
   ) => {
-    togglePieceRotation(value)
+    togglePenModeRotation(value)
   }
   const allRotations = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5]
   const regularRotations = [0, 1, 2, 3, 4, 5]
@@ -43,7 +43,7 @@ export default function RotationSelect() {
       <span>Piece rotation:</span>
       <ToggleButtonGroup
         // disabled={!isSizes}
-        value={`${pieceRotation}`}
+        value={`${penModeRotation}`}
         onChange={handleChange}
         exclusive
         size="small"

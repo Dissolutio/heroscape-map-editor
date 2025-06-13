@@ -34,7 +34,7 @@ export default function PieceSizeSelect() {
                 value={`${s}`}
                 aria-label={`${s}-hex sized piece`}
               >
-                {s} [{i + 1}]{/* <HotkeyBadge hotkey={`${i + 1}`} /> */}
+                {s}
               </ToggleButton>
             ))
           ) : (
