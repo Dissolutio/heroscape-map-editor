@@ -176,16 +176,16 @@ const glacier6 = [
   },
 ]
 const marvel6 = [
-  ...glacier4,
+  ORIGIN_000, CUBE_SE, CUBE_SW, CUBE_WEST,
+  {
+    q: 1,
+    r: 1,
+    s: -2,
+  },
   {
     q: 2,
     r: 1,
     s: -3,
-  },
-  {
-    q: 3,
-    r: 1,
-    s: -4,
   },
 ]
 const wallWalk7 = [

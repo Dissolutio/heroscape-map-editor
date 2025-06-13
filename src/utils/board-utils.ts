@@ -47,7 +47,8 @@ export function isCastleTerrain(terrain: string) {
 
 export function isBridgingObstaclePieceID(id: string) {
   // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
-  return id === Pieces.glacier4 || id === Pieces.glacier6 || id === Pieces.hive
+  return id === Pieces.glacier4 || id === Pieces.glacier6 || id === Pieces.hive ||
+    id === Pieces.marvel || id === Pieces.marvelNoUpper || id === Pieces.marvelBroken || id === Pieces.marvelNoUpperBroken
 }
 export const getBoardHexObstacleOriginsAndHexesAndEmpties = (
   boardHexes: BoardHexes,

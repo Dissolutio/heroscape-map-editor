@@ -132,7 +132,9 @@ export const MapHex3D = ({
   const isRuin3OriginHex =
     pieceID === Pieces.ruins3 && boardHex.isObstacleOrigin
   const isMarvelRuinOriginHex =
-    (pieceID === Pieces.marvel || pieceID === Pieces.marvelBroken) &&
+    (pieceID === Pieces.marvel || pieceID === Pieces.marvelBroken ||
+      pieceID === Pieces.marvelNoUpper || pieceID === Pieces.marvelNoUpperBroken
+    ) &&
     boardHex.isObstacleOrigin
   const isCastleBaseEnd = pieceID === Pieces.castleBaseEnd
   const isCastleBaseStraight = pieceID === Pieces.castleBaseStraight
@@ -203,8 +205,7 @@ export const MapHex3D = ({
         )}
         {isRuin3OriginHex && (
           <Suspense fallback={<ModelLoader />}>
-            {/* <Ruins3 boardHex={boardHex} /> */}
-            <MarvelRuin boardHex={boardHex} />
+            <Ruins3 boardHex={boardHex} />
           </Suspense>
         )}
         {isMarvelRuinOriginHex && (
