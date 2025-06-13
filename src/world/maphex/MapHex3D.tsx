@@ -219,12 +219,16 @@ export const MapHex3D = ({
           </Suspense>
         )}
         {isLaurSquarePillarHex && (
-          <LaurPillar boardHex={boardHex} isUnderHexFluid={isUnderHexFluid} />
+          <LaurPillar boardHex={boardHex}
+            isUnderHexFluid={isUnderHexFluid}
+            onPointerUp={onPointerUp}
+          />
         )}
         {isLaurTrianglePillarHex && (
           <LaurWallTrianglePillar
             boardHex={boardHex}
             isUnderHexFluid={isUnderHexFluid}
+            onPointerUp={onPointerUp}
           />
         )}
         {isTreeHex && (
