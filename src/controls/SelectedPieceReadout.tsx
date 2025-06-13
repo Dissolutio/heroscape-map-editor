@@ -54,7 +54,7 @@ const SelectedPieceReadout = () => {
   )
 }
 export const HoveredPieceReadout = () => {
-  const hoveredPieceID = useBoundStore(s => s.hoveredPieceID)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   if (!hoveredPieceID) {
     return null
   }
@@ -79,7 +79,10 @@ export const HoveredPieceReadout = () => {
     >
       <Card sx={{ minWidth: 150 }}>
         <CardContent>
-          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
+          <Typography
+            gutterBottom
+            sx={{ color: 'text.secondary', fontSize: 14 }}
+          >
             Hovered Piece:
           </Typography>
           <Typography variant="h6" component="div" sx={{ fontSize: 16 }}>

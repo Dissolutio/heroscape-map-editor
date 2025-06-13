@@ -412,9 +412,10 @@ export function addPiece({
     )
     const isCastleArchSupported = isSolidUnder2OuterHexes || isEmptyUnderAll
     const isPlacingCastleArch =
-      ((isCastleArchPiece && isCastleArchSupported) &&
-        isSpaceFree &&
-        isVerticalClearanceForPiece)
+      isCastleArchPiece &&
+      isCastleArchSupported &&
+      isSpaceFree &&
+      isVerticalClearanceForPiece
     if (isPlacingCastleArch) {
       newHexIds.forEach((newHexID, i) => {
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]
@@ -475,7 +476,8 @@ export function addPiece({
     const isCastleWallSupported =
       isSolidUnderAll || isEmptyUnderAll || isCastleUnderAll
     const isPlacingCastleWall =
-      (isCastleWallPiece && isCastleWallSupported) &&
+      isCastleWallPiece &&
+      isCastleWallSupported &&
       isSpaceFree &&
       isVerticalClearanceForPiece
     if (isPlacingCastleWall) {

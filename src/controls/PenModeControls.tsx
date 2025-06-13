@@ -69,8 +69,8 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-          flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
-        )
+            flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
+          )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -78,11 +78,11 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-        )
+            flatPieceSizes?.[3] ??
+              flatPieceSizes?.[2] ??
+              flatPieceSizes?.[1] ??
+              flatPieceSizes[0],
+          )
         : noop() /*isEnabled*/,
   )
   useHotkeys(
@@ -90,12 +90,12 @@ export default function PenModeControls() {
     () =>
       isSizes
         ? togglePieceSize(
-          flatPieceSizes?.[4] ??
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-        )
+            flatPieceSizes?.[4] ??
+              flatPieceSizes?.[3] ??
+              flatPieceSizes?.[2] ??
+              flatPieceSizes?.[1] ??
+              flatPieceSizes[0],
+          )
         : noop() /*isEnabled*/,
   )
   useHotkeys('z', () => togglePenMode('select') /*isEnabled*/)
@@ -287,7 +287,6 @@ export default function PenModeControls() {
           <span>Ruins 3</span>
         </MenuItem>
         <Divider />
-
 
         {/* Trees */}
         <MenuItem value={Pieces.tree10}>
@@ -489,7 +488,7 @@ export default function PenModeControls() {
               color={hexTerrainColor.ice}
               style={{
                 fontSize: '0.8rem',
-                marginLeft: '-0.5rem'
+                marginLeft: '-0.5rem',
               }}
             />
           </ListItemIcon>
@@ -691,7 +690,6 @@ export default function PenModeControls() {
           </ListItemIcon>
           <span>Marvel Ruins - No Upper Floor, Wall Destroyed</span>
         </MenuItem>
-
       </Select>
     </FormControl>
   )

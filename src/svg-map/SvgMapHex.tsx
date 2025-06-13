@@ -366,9 +366,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   // JUNGLE
   if (isJungleTerrainHex(hex.terrain)) {
     return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})`}
-      >
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgJungle hex={hex} isSubLevel={isSubLevel} />
       </g>
     )

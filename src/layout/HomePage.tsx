@@ -46,13 +46,13 @@ export default function HomePage() {
   }
   useEffect(() => {
     if (hexMap.name) {
-      const prevTitle = document.title;
-      document.title = hexMap.name;
+      const prevTitle = document.title
+      document.title = hexMap.name
       return () => {
-        document.title = prevTitle;
-      };
+        document.title = prevTitle
+      }
     }
-  }, [hexMap.name]);
+  }, [hexMap.name])
   return (
     <>
       <CreateMapFormDialog />

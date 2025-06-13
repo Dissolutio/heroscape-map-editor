@@ -445,10 +445,7 @@ export const PdfJungle = ({
 }) => {
   const pieceHeightText = piecesSoFar[hex.inventoryID]?.height
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
-  const points = getJungleTriangleShape(
-    SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
-  ).points
+  const points = getJungleTriangleShape(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
   return (
     <>
       <G transform={`rotate(${pieceRotation})`}>

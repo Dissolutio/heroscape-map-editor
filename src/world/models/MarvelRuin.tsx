@@ -25,8 +25,12 @@ export function MarvelRuin({
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isUpperFloor = boardHex.inventoryID === Pieces.marvel || boardHex.inventoryID === Pieces.marvelBroken
-  const isWallIntact = boardHex.inventoryID === Pieces.marvel || boardHex.inventoryID === Pieces.marvelNoUpper
+  const isUpperFloor =
+    boardHex.inventoryID === Pieces.marvel ||
+    boardHex.inventoryID === Pieces.marvelBroken
+  const isWallIntact =
+    boardHex.inventoryID === Pieces.marvel ||
+    boardHex.inventoryID === Pieces.marvelNoUpper
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
@@ -59,12 +63,16 @@ export function MarvelRuin({
       <mesh geometry={nodes.MarvelRuinMain.geometry}>
         <meshMatcapMaterial color={colorMarvelRuin} side={DoubleSide} />
       </mesh>
-      {isUpperFloor && <mesh geometry={nodes.MarvelRuinUpperFloor.geometry}>
-        <meshMatcapMaterial color={colorUpperFloor} side={DoubleSide} />
-      </mesh>}
-      {isWallIntact && <mesh geometry={nodes.MarvelRuinRemoveableWall.geometry}>
-        <meshMatcapMaterial color={colorMarvelRuin} side={DoubleSide} />
-      </mesh>}
+      {isUpperFloor && (
+        <mesh geometry={nodes.MarvelRuinUpperFloor.geometry}>
+          <meshMatcapMaterial color={colorUpperFloor} side={DoubleSide} />
+        </mesh>
+      )}
+      {isWallIntact && (
+        <mesh geometry={nodes.MarvelRuinRemoveableWall.geometry}>
+          <meshMatcapMaterial color={colorMarvelRuin} side={DoubleSide} />
+        </mesh>
+      )}
     </group>
   )
 }

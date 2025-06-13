@@ -176,7 +176,10 @@ const glacier6 = [
   },
 ]
 const marvel6 = [
-  ORIGIN_000, CUBE_SE, CUBE_SW, CUBE_WEST,
+  ORIGIN_000,
+  CUBE_SE,
+  CUBE_SW,
+  CUBE_WEST,
   {
     q: 1,
     r: 1,

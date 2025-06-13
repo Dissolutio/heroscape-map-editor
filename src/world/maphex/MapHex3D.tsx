@@ -132,9 +132,10 @@ export const MapHex3D = ({
   const isRuin3OriginHex =
     pieceID === Pieces.ruins3 && boardHex.isObstacleOrigin
   const isMarvelRuinOriginHex =
-    (pieceID === Pieces.marvel || pieceID === Pieces.marvelBroken ||
-      pieceID === Pieces.marvelNoUpper || pieceID === Pieces.marvelNoUpperBroken
-    ) &&
+    (pieceID === Pieces.marvel ||
+      pieceID === Pieces.marvelBroken ||
+      pieceID === Pieces.marvelNoUpper ||
+      pieceID === Pieces.marvelNoUpperBroken) &&
     boardHex.isObstacleOrigin
   const isCastleBaseEnd = pieceID === Pieces.castleBaseEnd
   const isCastleBaseStraight = pieceID === Pieces.castleBaseStraight
@@ -219,7 +220,8 @@ export const MapHex3D = ({
           </Suspense>
         )}
         {isLaurSquarePillarHex && (
-          <LaurPillar boardHex={boardHex}
+          <LaurPillar
+            boardHex={boardHex}
             isUnderHexFluid={isUnderHexFluid}
             onPointerUp={onPointerUp}
           />

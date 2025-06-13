@@ -47,14 +47,10 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        <mesh
-          geometry={nodesNewPalm.Palm_Trunk.geometry}
-        >
+        <mesh geometry={nodesNewPalm.Palm_Trunk.geometry}>
           <meshMatcapMaterial color={colorTrunk} />
         </mesh>
-        <mesh
-          geometry={nodesNewPalm.Palm_Canopy.geometry}
-        >
+        <mesh geometry={nodesNewPalm.Palm_Canopy.geometry}>
           {/* <meshMatcapMaterial transparent opacity={0.95} color={colorPalmLeaf} /> */}
           <meshMatcapMaterial color={colorPalmLeaf} />
         </mesh>
@@ -73,9 +69,6 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
 useGLTF.preload('/ticalla-palm.glb')
 
 export function NewPalm3D() {
-  return (
-    <>
-    </>
-  )
+  return <></>
 }
 useGLTF.preload('/handmade-palm.glb')

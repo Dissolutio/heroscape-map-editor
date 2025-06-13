@@ -28,7 +28,7 @@ export default function PieceSizeSelect() {
         <span>Piece size:</span>
         <span>
           {isSizes ? (
-            flatPieceSizes.map((s, i) => (
+            flatPieceSizes.map((s) => (
               <ToggleButton
                 key={s}
                 value={`${s}`}

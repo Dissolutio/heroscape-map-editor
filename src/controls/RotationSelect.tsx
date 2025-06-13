@@ -29,9 +29,9 @@ export default function RotationSelect() {
     penMode === Pieces.laurWallLong || penMode === Pieces.laurWallLongStackable
       ? partialRotations
       : penMode === Pieces.laurWallTrianglePillar ||
-        penMode === Pieces.laurWallRuin ||
-        penMode === Pieces.laurWallRuin2 ||
-        penMode === Pieces.laurWallRuin3
+          penMode === Pieces.laurWallRuin ||
+          penMode === Pieces.laurWallRuin2 ||
+          penMode === Pieces.laurWallRuin3
         ? allRotations
         : regularRotations
   return (

@@ -96,8 +96,7 @@ const baseCylinderArgs: CylinderGeometryArgs = [
 export default function LaurWallPillar({
   boardHex,
   isUnderHexFluid,
-  onPointerUp
-
+  onPointerUp,
 }: {
   boardHex: BoardHex
   isUnderHexFluid: boolean

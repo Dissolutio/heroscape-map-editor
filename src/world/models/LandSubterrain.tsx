@@ -276,7 +276,14 @@ useGLTF.preload('/subterrain_6.glb')
 export function Subterrain6B({ children }: PropsWithChildren) {
   const { nodes } = useGLTF('/subterrain_6B.glb') as any
   // Have to adjust model left because original tile template was wrong choice, TODO: Blender update model
-  return <mesh position={[-2 * HEXGRID_HEX_APOTHEM, 0, 0]} geometry={nodes['Subterrain-6B'].geometry}>{children}</mesh>
+  return (
+    <mesh
+      position={[-2 * HEXGRID_HEX_APOTHEM, 0, 0]}
+      geometry={nodes['Subterrain-6B'].geometry}
+    >
+      {children}
+    </mesh>
+  )
 }
 useGLTF.preload('/subterrain_6B.glb')
 
