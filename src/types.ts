@@ -32,6 +32,7 @@ export interface BoardHex extends CubeCoordinate {
   interlockType?: string // 0,1,2,3,3B,4,4B,5,6 interlocking hex types https://github.com/Dissolutio/heroscape-map-editor/issues/3
   interlockRotation?: number // 1-6, each interlock has a rotatin WITHIN its template
   isObstacleOrigin?: boolean // This marks the boardHex that will render the obstacle model
+  isObstacleSecondary?: boolean // This marks the second cap for castle arch, maybe future uses
   isObstacleAuxiliary?: boolean // These are hexes that are same altitude as origin hex, but ignored for rendering
   obstacleHeight?: number // used to find the cap hex when clicking a castle wall (it's 9 up with a base, 8 up when wall-on-wall)
   isVerticalClearanceHex?: boolean // These are hexes that are above the origin/auxiliary hexes
