@@ -17,9 +17,12 @@ Shapes and Patterns remaining:
 Then need some formatting options (1pg, map key?), author name, maybe more.
 
 ## 3D Models
-Marvel
-Jungle
+<!-- MAKE SOON -->
+Triple Cactus - Laur Underbrush
+Lone Cactus - Laur Underbrush
 Fortress Banner
+FatLeaf - Laur Underbrush (6 leaves, 3 nodes, stem ends at last node, with wingspan and tilt it is the tallest plant)
+Tri-Leaf - Laur Underbrush (8 leaves, 4 nodes, stem ends at last node, each leaf is like a small plant)
 Winter trees
 Laur Wall:
 - Laur Ruin2 Ruin3
@@ -28,6 +31,11 @@ Laur Wall:
 - Laur ShortWallStacker 
 - Laur LongWallStacker 
 - Laur PillarStacker TrianglePillar check/build their stacked configuration
+
+<!-- Refine -->
+Refine Laur Palm Leaves
+Refine Marvel
+Refine Ticalla Palm Leaves
 
 ## Home Page
 
