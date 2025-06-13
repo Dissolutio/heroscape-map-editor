@@ -2,6 +2,7 @@ import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import {
   MdOutlineEast,
+  MdOutlineNorth,
   MdOutlineNorthEast,
   MdOutlineNorthWest,
   MdOutlineSouthEast,
@@ -73,7 +74,7 @@ export default function RotationSelect() {
               </>
             ) : r === 1.5 ? (
               <>
-                <MdOutlineSouthEast style={{ transform: 'rotate(45deg)' }} />
+                <MdOutlineSouthEast style={{ transform: 'rotate(30deg)' }} />
                 <span>1.5</span>
               </>
             ) : r === 2 ? (
@@ -93,7 +94,7 @@ export default function RotationSelect() {
               </>
             ) : r === 3.5 ? (
               <>
-                <MdOutlineWest style={{ transform: 'rotate(45deg)' }} />
+                <MdOutlineWest style={{ transform: 'rotate(35deg)' }} />
                 <span>3.5</span>
               </>
             ) : r === 4 ? (
@@ -103,7 +104,7 @@ export default function RotationSelect() {
               </>
             ) : r === 4.5 ? (
               <>
-                <MdOutlineSouthEast style={{ transform: 'rotate(45deg)' }} />
+                <MdOutlineNorth />
                 <span>4.5</span>
               </>
             ) : r === 5 ? (
@@ -114,7 +115,7 @@ export default function RotationSelect() {
             ) : (
               // r === 5.5
               <>
-                <MdOutlineNorthEast style={{ transform: 'rotate(45deg)' }} />
+                <MdOutlineNorthEast style={{ transform: 'rotate(30deg)' }} />
                 <span>5.5</span>
               </>
             )}

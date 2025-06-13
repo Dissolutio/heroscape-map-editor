@@ -50,7 +50,7 @@ export default function MapDisplay3D({
   const penMode = useBoundStore((s) => s.penMode)
   const paintTile = useBoundStore((s) => s.paintTile)
   const pieceSize = useBoundStore((s) => s.pieceSize)
-  const pieceRotation = useBoundStore((s) => s.pieceRotation)
+  const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useZoomCameraToMapCenter({
@@ -87,57 +87,89 @@ export default function MapDisplay3D({
     }
     const pieceMode = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
     const piece = piecesSoFar[pieceMode]
+    const isCastleWallArchClicked =
+      hex.pieceID.includes(PiecePrefixes.castleWall) ||
+      hex.pieceID.includes(PiecePrefixes.castleArch)
+    const isLaurPillarClicked =
+      hex.pieceID === Pieces.laurWallPillar || hex.pieceID === Pieces.laurWallTrianglePillar
     const boardHexIdOfCapForWall = genBoardHexID({
       ...hex,
       altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
     })
-    const isCastleWallArchClicked =
-      hex.pieceID.includes(PiecePrefixes.castleWall) ||
-      hex.pieceID.includes(PiecePrefixes.castleArch)
     // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
-    const clickedHex = isCastleWallArchClicked
-      ? boardHexes[boardHexIdOfCapForWall]
-      : hex
+    const castleWallArchClickedHex = boardHexes[boardHexIdOfCapForWall]
+    const clickedHex = hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     let clickedHexAltitude = clickedHex.altitude
     // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
-    if (piece?.id === Pieces.battlement || piece?.id === Pieces.roadWall) {
+
+    if (isCastleWallArchClicked) {
+      const castleWallArchClickedHexCoords = {
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
+      error = paintTile({
+        piece,
+        clickedHexCoords: castleWallArchClickedHexCoords,
+        altitude: clickedHexAltitude,
+        rotation: penModeRotation,
+      })
+    }
+    else if (isLaurPillarClicked &&
+      (piece?.id === Pieces.laurWallRuin || piece?.id === Pieces.laurWallRuin2 || piece?.id === Pieces.laurWallRuin3)
+    ) {
+      // const laurWallAddonClickedHexCoords = getBattlementClickedHexCoords(
+      //   clickedHex,
+      //   penModeRotation,
+      // )
+      error = paintTile({
+        piece,
+        clickedHexCoords,
+        altitude: clickedHexAltitude,
+        rotation: penModeRotation,
+      })
+      console.log("🚀 ~ error:", error)
+    }
+    else if (piece?.id === Pieces.battlement) {
       const battlementClickedHexCoords = getBattlementClickedHexCoords(
         clickedHex,
-        pieceRotation,
-      )
-      const roadWallClickedHexCoords = getRoadWallClickedHexCoords(
-        clickedHex,
-        pieceRotation,
+        penModeRotation,
       )
       clickedHexAltitude -= 1
-      const mirrorRotation = (pieceRotation + 3) % 6
-      if (piece?.id === Pieces.roadWall) {
-        error = paintTile({
-          piece,
-          clickedHexCoords: roadWallClickedHexCoords,
-          altitude: clickedHexAltitude,
-          rotation: pieceRotation,
-        })
-      } else {
-        error = paintTile({
-          piece,
-          clickedHexCoords: battlementClickedHexCoords,
-          altitude: clickedHexAltitude,
-          rotation: mirrorRotation,
-        })
-      }
-    } else if (
+      const mirrorRotation = (penModeRotation + 3) % 6
+      error = paintTile({
+        piece,
+        clickedHexCoords: battlementClickedHexCoords,
+        altitude: clickedHexAltitude,
+        rotation: mirrorRotation,
+      })
+    }
+    else if (piece?.id === Pieces.roadWall) {
+      const roadWallClickedHexCoords = getRoadWallClickedHexCoords(
+        clickedHex,
+        penModeRotation,
+      )
+      clickedHexAltitude -= 1
+      error = paintTile({
+        piece,
+        clickedHexCoords: roadWallClickedHexCoords,
+        altitude: clickedHexAltitude,
+        rotation: penModeRotation,
+      })
+
+    }
+    else if (
       piece?.id === Pieces.ladder &&
       hex?.inventoryID === Pieces.ladder
     ) {
@@ -153,7 +185,7 @@ export default function MapDisplay3D({
         piece,
         clickedHexCoords,
         altitude: clickedHexAltitude,
-        rotation: pieceRotation,
+        rotation: penModeRotation,
       })
     }
     if (error) {
@@ -184,7 +216,7 @@ export default function MapDisplay3D({
           // position={[topLeft[0], 0, topLeft[1]]}
           position={[0, 0, 0]}
           scale={[width, 0, length]}
-          // rotation={new Euler(0, Math.PI, 0)}
+        // rotation={new Euler(0, Math.PI, 0)}
         />
       )}
 
