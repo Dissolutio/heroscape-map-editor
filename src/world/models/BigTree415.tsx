@@ -37,7 +37,7 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
     : hexTerrainColor[HexTerrain.tree]
   const rockColor = isHighlighted
     ? yellowColor
-    : hexTerrainColor[HexTerrain.tree]
+    : hexTerrainColor[HexTerrain.ruin]
   return (
     <>
       {isSelected && (
@@ -49,16 +49,20 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
         onPointerOut={(e) => onPointerOut(e)}
       >
         <mesh
+          receiveShadow
+          castShadow
           geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
-          // material={materials.BoulderGray}
+        // material={materials.BoulderGray}
         >
-          <meshMatcapMaterial color={rockColor} />
+          <meshStandardMaterial color={rockColor} />
         </mesh>
         <mesh
+          receiveShadow
+          castShadow
           geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
-          // material={materials.ForestTree}
+        // material={materials.ForestTree}
         >
-          <meshMatcapMaterial color={treeColor} />
+          <meshStandardMaterial roughness={0.4} emissive={'black'} emissiveIntensity={0.4} metalness={0} color={treeColor} />
         </mesh>
       </group>
     </>

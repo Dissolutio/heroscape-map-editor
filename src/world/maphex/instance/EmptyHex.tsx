@@ -38,9 +38,10 @@ const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       // range={1}
       limit={INSTANCE_LIMIT}
       frustumCulled={false}
+      receiveShadow
     >
       <cylinderGeometry args={baseEmptyCapCylinderArgs} />
-      <meshMatcapMaterial transparent opacity={0.1} />
+      <meshLambertMaterial color="white" />
       {boardHexArr.map((hex, i) => (
         <EmptyHex
           key={`${hex.id + i}empty`}

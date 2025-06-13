@@ -177,45 +177,59 @@ export function CastleArch({
         onPointerOut={(e) => onPointerOut(e)}
       >
         <mesh
+          receiveShadow
+          castShadow
           geometry={nodes.CastleArchBody.geometry}
           onPointerUp={onPointerUpBody}
         >
-          <meshMatcapMaterial
+          <meshStandardMaterial
             color={isHighlighted ? yellowColor : castleColor}
           />
         </mesh>
         <mesh
+          receiveShadow
+          castShadow
           geometry={nodes.CastleArchCapNear.geometry}
           onPointerUp={(e) => onPointerUp(e, boardHex)}
           onPointerEnter={onPointerEnterNear}
           onPointerOut={onPointerOutNear}
         >
-          <meshMatcapMaterial color={isHighlighted ? yellowColor : colorNear} />
+          <meshStandardMaterial
+            color={isHighlighted ? yellowColor : colorNear}
+          />
         </mesh>
         <mesh
+          receiveShadow
+          castShadow
           geometry={nodes.CastleArchCapMiddle.geometry}
           onPointerEnter={onPointerEnterMiddle}
           onPointerOut={onPointerOutMiddle}
           onPointerUp={onPointerUpMiddle}
         >
-          <meshMatcapMaterial
+          <meshStandardMaterial
             color={isHighlighted ? yellowColor : colorMiddle}
           />
         </mesh>
         <mesh
+          receiveShadow
+          castShadow
           geometry={nodes.CastleArchCapFar.geometry}
           onPointerEnter={onPointerEnterFar}
           onPointerOut={onPointerOutFar}
           onPointerUp={onPointerUpFar}
         >
-          <meshMatcapMaterial color={isHighlighted ? yellowColor : colorFar} />
+          <meshStandardMaterial
+            color={isHighlighted ? yellowColor : colorFar}
+          />
         </mesh>
         {isDoor && (
           <mesh
+            receiveShadow
+            castShadow
             geometry={nodes.ArchDoor.geometry}
             onPointerUp={(e) => onPointerUp(e, boardHex)}
           >
-            <meshMatcapMaterial
+            <meshStandardMaterial
               color={isHighlighted ? yellowColor : hexTerrainColor.castleDoor}
             />
           </mesh>

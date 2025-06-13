@@ -36,12 +36,14 @@ export function RoadWall({
     <>
       {isSelected && <DeletePieceBillboard pieceID={pid} y={1} />}
       <mesh
+        receiveShadow
+        castShadow
         geometry={nodes.RoadWall.geometry}
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnterPID(e, pid)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        <meshMatcapMaterial color={color} />
+        <meshStandardMaterial color={color} />
       </mesh>
     </>
   )

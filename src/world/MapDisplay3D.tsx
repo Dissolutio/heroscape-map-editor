@@ -1,4 +1,4 @@
-import type { CameraControls } from '@react-three/drei'
+import { TransformControls, type CameraControls } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 
 import type { Group, Object3DEventMap } from 'three'
@@ -30,6 +30,8 @@ import EmptyHexes from './maphex/instance/EmptyHex.tsx'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
 import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import { enqueueSnackbar } from 'notistack'
+import { HEXGRID_HEX_APOTHEM, HEXGRID_HEX_RADIUS } from '../utils/constants.ts'
+import { useRef, useState } from 'react'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -206,6 +208,14 @@ export default function MapDisplay3D({
   }
 
   const { length, width } = getBoardHexesRectangularMapDimensions(boardHexes)
+  // biome-ignore lint/style/noNonNullAssertion: <explanation>
+  const lightRef = useRef(null!)
+  const [transformControlsVisible, setTransformControlsVisible] =
+    useState(false)
+  const [selectedObject, setSelectedObject] = useState(null)
+  const [transformMode, setTransformMode] = useState<
+    'translate' | 'rotate' | 'scale'
+  >('translate') // 'translate', 'rotate', 'scale'
   // const topLeft = [-HEXGRID_HEX_APOTHEM, -1]
   return (
     <group ref={mapGroupRef}>
@@ -213,11 +223,25 @@ export default function MapDisplay3D({
       {!isTakingPicture && (
         <axesHelper
           // position={[topLeft[0], 0, topLeft[1]]}
-          position={[0, 0, 0]}
+          position={[0, 0.1, 0]}
           scale={[width, 0, length]}
           // rotation={new Euler(0, Math.PI, 0)}
         />
       )}
+      {/* Tabletop / Ground */}
+      <mesh
+        receiveShadow
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[
+          width / 2 - HEXGRID_HEX_APOTHEM,
+          -0.01,
+          length / 2 - HEXGRID_HEX_RADIUS,
+        ]}
+      >
+        <planeGeometry args={[3 * width, 3 * length]} />
+        <shadowMaterial color="lightgray" opacity={0.5} />
+        {/* <meshPhongMaterial color="lightgray" opacity={0.5} /> */}
+      </mesh>
 
       {/* BOTTOM RIGHT */}
       {/* <axesHelper

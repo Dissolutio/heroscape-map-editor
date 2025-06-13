@@ -35,12 +35,14 @@ export default function MarroHive6({ boardHex }: { boardHex: BoardHex }) {
     <>
       {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={4} />}
       <mesh
+        receiveShadow
+        castShadow
         geometry={nodes.Marro_Hive.geometry}
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={onPointerOut}
       >
-        <meshMatcapMaterial color={color} />
+        <meshStandardMaterial color={color} />
       </mesh>
     </>
   )

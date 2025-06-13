@@ -38,13 +38,15 @@ export default function ForestTree({ boardHex }: { boardHex: BoardHex }) {
         <DeletePieceBillboard pieceID={boardHex.pieceID} y={100} />
       )}
       <mesh
+        receiveShadow
+        castShadow
         geometry={nodes.Tree10_scanned.geometry}
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
         // material={materials.ForestTree}
       >
-        <meshMatcapMaterial color={color} />
+        <meshStandardMaterial color={color} />
       </mesh>
       {/* <Billboard
         position={[x, options.y + 1.5, z]}

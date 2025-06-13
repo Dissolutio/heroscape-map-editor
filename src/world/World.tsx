@@ -15,6 +15,7 @@ import Lights from './Lights'
 import MapDisplay3D from './MapDisplay3D'
 import MyCameraControls from './camera/MyCameraControls'
 import TakeAPictureBox from './camera/TakeAPictureBox'
+import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 
 const World = ({
   cameraControlsRef,
@@ -27,6 +28,8 @@ const World = ({
     null,
   )
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
+  const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -57,6 +60,7 @@ const World = ({
           }}
           // frameloop='demand'
           hidden={isHidden}
+          shadows
         >
           {/* <color attach="background" args={["white"]} /> */}
           <PerspectiveCamera
@@ -75,7 +79,7 @@ const World = ({
             mapGroupRef={mapGroupRef}
             cameraControlsRef={cameraControlsRef}
           />
-          <Lights />
+          <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}
           <MyCameraControls
             cameraControlsRef={cameraControlsRef}

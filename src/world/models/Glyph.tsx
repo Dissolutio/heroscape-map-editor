@@ -35,12 +35,13 @@ export function GlyphModel({ boardHex }: { boardHex: BoardHex }) {
     <>
       {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={1} />}
       <mesh
+        receiveShadow
         geometry={nodes.Glyph.geometry}
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        <meshMatcapMaterial color={color} />
+        <meshStandardMaterial color={color} />
         <Decal depthTest map={texture} />
       </mesh>
     </>

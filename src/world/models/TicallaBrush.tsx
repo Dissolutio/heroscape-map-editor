@@ -55,17 +55,17 @@ export default function TicallaBrush({ boardHex }: { boardHex: BoardHex }) {
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        <mesh geometry={nodes.FatFern.geometry}>
-          <meshMatcapMaterial color={color1} />
+        <mesh receiveShadow castShadow geometry={nodes.FatFern.geometry}>
+          <meshStandardMaterial color={color1} />
         </mesh>
-        <mesh geometry={nodes.PineappleFern.geometry}>
-          <meshMatcapMaterial color={color2} />
+        <mesh receiveShadow castShadow geometry={nodes.PineappleFern.geometry}>
+          <meshStandardMaterial color={color2} />
         </mesh>
-        <mesh geometry={nodes.Needler.geometry}>
-          <meshMatcapMaterial color={color3} />
+        <mesh receiveShadow castShadow geometry={nodes.Needler.geometry}>
+          <meshStandardMaterial color={color3} />
         </mesh>
-        <mesh geometry={nodes.Interlock6.geometry}>
-          <meshMatcapMaterial color={colorBase} />
+        <mesh receiveShadow castShadow geometry={nodes.Interlock6.geometry}>
+          <meshStandardMaterial color={colorBase} />
         </mesh>
       </group>
     </>

@@ -47,19 +47,31 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        <mesh geometry={nodesNewPalm.Palm_Trunk.geometry}>
-          <meshMatcapMaterial color={colorTrunk} />
+        <mesh
+          receiveShadow
+          castShadow
+          geometry={nodesNewPalm.Palm_Trunk.geometry}
+        >
+          <meshStandardMaterial color={colorTrunk} />
         </mesh>
-        <mesh geometry={nodesNewPalm.Palm_Canopy.geometry}>
-          {/* <meshMatcapMaterial transparent opacity={0.95} color={colorPalmLeaf} /> */}
-          <meshMatcapMaterial color={colorPalmLeaf} />
+        <mesh
+          receiveShadow
+          castShadow
+          geometry={nodesNewPalm.Palm_Canopy.geometry}
+        >
+          <meshStandardMaterial
+            transparent
+            opacity={0.95}
+            color={colorPalmLeaf}
+          />
+          {/* <meshStandardMaterial color={colorPalmLeaf} /> */}
         </mesh>
 
-        <mesh geometry={nodes.PalmBrush.geometry}>
-          <meshMatcapMaterial color={colorBrush} />
+        <mesh receiveShadow castShadow geometry={nodes.PalmBrush.geometry}>
+          <meshStandardMaterial color={colorBrush} />
         </mesh>
-        <mesh geometry={nodes.Interlock6.geometry}>
-          <meshMatcapMaterial color={colorBase} />
+        <mesh receiveShadow castShadow geometry={nodes.Interlock6.geometry}>
+          <meshStandardMaterial color={colorBase} />
         </mesh>
       </group>
     </>
