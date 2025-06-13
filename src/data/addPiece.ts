@@ -403,8 +403,69 @@ export function addPiece({
     // write the new piece
     newBoardPieces[pieceID] = piece.id
   }
-  // CASTLE WALL / ARCH (no error reporting)
-  if (isCastleWallPiece || isCastleArchPiece) {
+  // CASTLE ARCH (no error reporting)
+  if (isCastleArchPiece) {
+    const isSolidUnder2OuterHexes = underHexIds.every(
+      (id, i) =>
+        i === 1 ? true : isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
+      // i=0, i=2, those are the 2 "outer" hexes of the 3-hex arch
+    )
+    const isCastleArchSupported = isSolidUnder2OuterHexes || isEmptyUnderAll
+    const isPlacingCastleArch =
+      ((isCastleArchPiece && isCastleArchSupported) &&
+        isSpaceFree &&
+        isVerticalClearanceForPiece)
+    if (isPlacingCastleArch) {
+      newHexIds.forEach((newHexID, i) => {
+        const hexUnderneath = newBoardHexes?.[underHexIds[i]]
+        const obstacleHeight = piece.height
+        // remove the cap from land hex below
+        newBoardHexes[hexUnderneath.id].isCap = false
+        newBoardHexes[newHexID] = {
+          id: newHexID,
+          q: piecePlaneCoords[i].q,
+          r: piecePlaneCoords[i].r,
+          s: piecePlaneCoords[i].s,
+          altitude: newPieceAltitude,
+          terrain: piece.terrain,
+          pieceID,
+          inventoryID: piece.id,
+          pieceRotation: rotation,
+          isObstacleOrigin: i === 0, // The first boardHex is marked to render the obstacle model
+          isObstacleAuxiliary: i !== 0,
+          obstacleHeight,
+        }
+
+        // vertical clearances
+        Array(obstacleHeight)
+          .fill(0)
+          .forEach((_, j) => {
+            // For some reason castle walls don't ignore the first one, perhaps accounted for upstream
+            const clearanceHexAltitude = newPieceAltitude + 1 + j
+            const clearanceID = genBoardHexID({
+              ...piecePlaneCoords[i],
+              altitude: clearanceHexAltitude,
+            })
+            newBoardHexes[clearanceID] = {
+              id: clearanceID,
+              q: piecePlaneCoords[i].q,
+              r: piecePlaneCoords[i].r,
+              s: piecePlaneCoords[i].s,
+              altitude: clearanceHexAltitude,
+              terrain: piece.terrain,
+              pieceID,
+              inventoryID: piece.id,
+              pieceRotation: rotation,
+              isVerticalClearanceHex: true,
+            }
+          })
+      })
+      // write the new piece
+      newBoardPieces[pieceID] = piece.id
+    }
+  }
+  // CASTLE WALL (no error reporting)
+  if (isCastleWallPiece) {
     const isCastleUnderAll = underHexIds.every(
       (id) =>
         newBoardHexes?.[id]?.pieceID.includes(PiecePrefixes.castleBase) ||
@@ -413,18 +474,11 @@ export function addPiece({
     )
     const isCastleWallSupported =
       isSolidUnderAll || isEmptyUnderAll || isCastleUnderAll
-    const isSolidUnder2OuterHexes = underHexIds.every(
-      (id, i) =>
-        i === 1 ? true : isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
-      // i=0, i=2, those are the 2 "outer" hexes of the 3-hex arch
-    )
-    const isCastleArchSupported = isSolidUnder2OuterHexes || isEmptyUnderAll
-    const isPlacingCastleWallOrCastleArch =
-      ((isCastleArchPiece && isCastleArchSupported) ||
-        (isCastleWallPiece && isCastleWallSupported)) &&
+    const isPlacingCastleWall =
+      (isCastleWallPiece && isCastleWallSupported) &&
       isSpaceFree &&
       isVerticalClearanceForPiece
-    if (isPlacingCastleWallOrCastleArch) {
+    if (isPlacingCastleWall) {
       newHexIds.forEach((newHexID, i) => {
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]
         const isHexUnderneathCastleBase = hexUnderneath?.pieceID.includes(
