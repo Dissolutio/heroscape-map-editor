@@ -1,5 +1,5 @@
 import { Drawer, useMediaQuery } from '@mui/material'
-import React from 'react'
+import React, { useEffect } from 'react'
 import Controls from '../controls/Controls'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
 import { ReactPdfRoot } from '../pdf-map/ReactPdfRoot'
@@ -11,9 +11,11 @@ import { DrawerList } from './DrawerList'
 import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
 import { LoadMapInputs } from './LoadMapButtons'
+import useBoundStore from '../store/store'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(null)
+  const hexMap = useBoundStore((s) => s.hexMap)
 
   // https://robohash.org/you.png?size=200x200
   // USE EFFECT: automatically load up map from URL, OR from file
@@ -42,7 +44,15 @@ export default function HomePage() {
     setIsPdfOpen(false)
     setIs2DOpen(s)
   }
-
+  useEffect(() => {
+    if (hexMap.name) {
+      const prevTitle = document.title;
+      document.title = hexMap.name;
+      return () => {
+        document.title = prevTitle;
+      };
+    }
+  }, [hexMap.name]);
   return (
     <>
       <CreateMapFormDialog />
