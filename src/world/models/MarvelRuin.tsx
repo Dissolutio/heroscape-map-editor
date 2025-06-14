@@ -60,17 +60,25 @@ export function MarvelRuin({
       onPointerOut={(e) => onPointerOut(e)}
       onPointerUp={(e) => onPointerUp(e)}
     >
-      <mesh geometry={nodes.MarvelRuinMain.geometry}>
-        <meshMatcapMaterial color={colorMarvelRuin} side={DoubleSide} />
+      <mesh receiveShadow castShadow geometry={nodes.MarvelRuinMain.geometry}>
+        <meshStandardMaterial color={colorMarvelRuin} side={DoubleSide} />
       </mesh>
       {isUpperFloor && (
-        <mesh geometry={nodes.MarvelRuinUpperFloor.geometry}>
-          <meshMatcapMaterial color={colorUpperFloor} side={DoubleSide} />
+        <mesh
+          receiveShadow
+          castShadow
+          geometry={nodes.MarvelRuinUpperFloor.geometry}
+        >
+          <meshStandardMaterial color={colorUpperFloor} side={DoubleSide} />
         </mesh>
       )}
       {isWallIntact && (
-        <mesh geometry={nodes.MarvelRuinRemoveableWall.geometry}>
-          <meshMatcapMaterial color={colorMarvelRuin} side={DoubleSide} />
+        <mesh
+          receiveShadow
+          castShadow
+          geometry={nodes.MarvelRuinRemoveableWall.geometry}
+        >
+          <meshStandardMaterial color={colorMarvelRuin} side={DoubleSide} />
         </mesh>
       )}
     </group>

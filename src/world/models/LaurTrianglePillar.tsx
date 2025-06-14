@@ -85,34 +85,50 @@ export default function LaurWallTrianglePillar({
         onPointerOut={(e) => onPointerOut(e)}
       >
         <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
-          <mesh geometry={nodes.TrianglePillarTop.geometry}>
-            <meshMatcapMaterial
+          <mesh
+            castShadow
+            receiveShadow
+            geometry={nodes.TrianglePillarTop.geometry}
+          >
+            <meshStandardMaterial
               side={DoubleSide}
               color={isHighlighted ? yellowColor : pillarColor}
             />
           </mesh>
-          <mesh geometry={nodes.TriangleSubDecorCore.geometry}>
-            <meshMatcapMaterial
+          <mesh
+            castShadow
+            receiveShadow
+            geometry={nodes.TriangleSubDecorCore.geometry}
+          >
+            <meshStandardMaterial
               color={isHighlighted ? yellowColor : interiorPillarColor}
             />
           </mesh>
-          <mesh geometry={nodes.TriangleFacade.geometry}>
-            <meshMatcapMaterial
+          <mesh
+            castShadow
+            receiveShadow
+            geometry={nodes.TriangleFacade.geometry}
+          >
+            <meshStandardMaterial
               // side={DoubleSide}
               color={isHighlighted ? yellowColor : pillarColor}
             />
           </mesh>
-          <mesh geometry={nodes.TriangleFacadeInner.geometry}>
-            <meshMatcapMaterial
+          <mesh
+            castShadow
+            receiveShadow
+            geometry={nodes.TriangleFacadeInner.geometry}
+          >
+            <meshStandardMaterial
               side={DoubleSide}
               color={isHighlighted ? yellowColor : interiorPillarColor}
             />
           </mesh>
         </group>
         <group position={[0, 0, 0]}>
-          <mesh>
+          <mesh castShadow receiveShadow>
             <cylinderGeometry args={baseCylinderArgs} />
-            <meshMatcapMaterial
+            <meshStandardMaterial
               color={isHighlighted ? yellowColor : pillarColor}
             />
           </mesh>

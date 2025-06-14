@@ -45,12 +45,14 @@ export function Ladder({
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ladder]
   return (
     <mesh
+      receiveShadow
+      castShadow
       geometry={nodes.Ladder.geometry}
       onPointerUp={handleOnPointerUp}
       onPointerEnter={(e) => onPointerEnterPID(e, boardHex.pieceID)}
       onPointerOut={(e) => onPointerOut(e)}
     >
-      <meshMatcapMaterial color={color} />
+      <meshStandardMaterial color={color} />
     </mesh>
   )
 }

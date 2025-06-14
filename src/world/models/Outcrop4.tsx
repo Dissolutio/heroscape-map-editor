@@ -43,12 +43,14 @@ export default function Outcrop4({
     <>
       {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={3} />}
       <mesh
+        receiveShadow
+        castShadow
         geometry={nodes.glacier_4_with_holes.geometry}
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={onPointerOut}
       >
-        <meshMatcapMaterial
+        <meshStandardMaterial
           color={isGlacier ? iceColor : outcropColor}
           transparent={isGlacier}
           opacity={0.99}

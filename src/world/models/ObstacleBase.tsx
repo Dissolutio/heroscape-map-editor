@@ -42,16 +42,16 @@ export default function ObstacleBase({
 }: ObstacleBaseProps) {
   if (isFluidBase) {
     return (
-      <mesh position={[x, y, z]}>
+      <mesh receiveShadow castShadow position={[x, y, z]}>
         <cylinderGeometry args={baseFluidCapCylinderArgs} />
-        <meshLambertMaterial color={color} transparent opacity={0.85} />
+        <meshStandardMaterial color={color} transparent opacity={0.85} />
       </mesh>
     )
   }
   return (
     <mesh position={[x, y, z]}>
       <cylinderGeometry args={treeBaseCylinderArgs} />
-      <meshMatcapMaterial
+      <meshStandardMaterial
         color={color || hexTerrainColor.treeBase}
         transparent={isTransparent}
         opacity={0.85}

@@ -80,12 +80,14 @@ export default function CastleBases({ boardHex, onPointerUp }: Props) {
           <DeletePieceBillboard pieceID={boardHex.pieceID} y={1} />
         )}
         <mesh
+          receiveShadow
+          castShadow
           geometry={bodyGeometry}
           onPointerUp={onPointerUpBody}
           onPointerEnter={(e) => onPointerEnter(e, boardHex)}
           onPointerOut={onPointerOut}
         >
-          <meshMatcapMaterial
+          <meshStandardMaterial
             color={
               isHighlighted ? yellowColor : hexTerrainColor[boardHex.terrain]
             }
@@ -99,16 +101,18 @@ export default function CastleBases({ boardHex, onPointerUp }: Props) {
           onPointerOut={onPointerOutCap}
         >
           <mesh
+            receiveShadow
+            castShadow
             geometry={nodes.WallCap.geometry}
             onPointerEnter={onPointerEnterCap}
             onPointerOut={onPointerOutCap}
           >
-            <meshMatcapMaterial
+            <meshStandardMaterial
               color={isHighlighted ? yellowColor : capColor}
             />
           </mesh>
-          <mesh geometry={capGeometry}>
-            <meshMatcapMaterial
+          <mesh receiveShadow castShadow geometry={capGeometry}>
+            <meshStandardMaterial
               color={isHighlighted ? yellowColor : capColor}
             />
           </mesh>

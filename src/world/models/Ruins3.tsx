@@ -49,12 +49,14 @@ export default function Ruins3({
     >
       {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={3} />}
       <mesh
+        receiveShadow
+        castShadow
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
         geometry={nodes.Ruin_Large_Scanned.geometry}
       >
-        <meshMatcapMaterial color={color} />
+        <meshStandardMaterial color={color} />
       </mesh>
     </group>
   )

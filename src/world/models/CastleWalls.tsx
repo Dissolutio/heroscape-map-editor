@@ -86,32 +86,38 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
           <DeletePieceBillboard pieceID={boardHex.pieceID} y={1} />
         )}
         <mesh
+          receiveShadow
+          castShadow
           scale={scale}
           geometry={bodyGeometry}
           onPointerUp={onPointerUpBody}
           onPointerEnter={(e) => onPointerEnter(e, boardHex)}
           onPointerOut={(e) => onPointerOut(e)}
         >
-          <meshMatcapMaterial color={castleColor} />
+          <meshStandardMaterial color={castleColor} />
         </mesh>
         <>
           <mesh
+            receiveShadow
+            castShadow
             geometry={nodes.WallCap.geometry}
             position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
             onPointerUp={(e) => onPointerUp(e, boardHex)}
             onPointerEnter={onPointerEnterCap}
             onPointerOut={onPointerOutCap}
           >
-            <meshMatcapMaterial
+            <meshStandardMaterial
               color={isHighlighted ? yellowColor : capColor}
             />
           </mesh>
           <mesh
+            receiveShadow
+            castShadow
             geometry={capGeometry}
             position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
             onPointerUp={(e) => onPointerUp(e, boardHex)}
           >
-            <meshMatcapMaterial
+            <meshStandardMaterial
               color={isHighlighted ? yellowColor : capColor}
             />
           </mesh>
