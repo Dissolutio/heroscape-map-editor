@@ -238,7 +238,7 @@ export default function MapDisplay3D({
           length / 2 - HEXGRID_HEX_RADIUS,
         ]}
       >
-        <planeGeometry args={[3 * width, 3 * length]} />
+        <planeGeometry args={[2 * width, 2 * length]} />
         <shadowMaterial color="lightgray" opacity={0.5} />
         {/* <meshPhongMaterial color="lightgray" opacity={0.5} /> */}
       </mesh>
