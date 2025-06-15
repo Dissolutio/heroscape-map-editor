@@ -62,7 +62,7 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
           geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
         // material={materials.ForestTree}
         >
-          <meshStandardMaterial roughness={0.4} emissive={'black'} emissiveIntensity={0.4} metalness={0} color={treeColor} />
+          <meshStandardMaterial color={treeColor} />
         </mesh>
       </group>
     </>
