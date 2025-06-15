@@ -142,26 +142,38 @@ export default function LaurWallPillar({
         <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
           <mesh geometry={nodes.PillarTop.geometry} castShadow receiveShadow>
             <meshStandardMaterial
-              roughness={0.4} emissive={'black'} emissiveIntensity={0.4} metalness={0}
+              roughness={0.4}
+              emissive={'black'}
+              emissiveIntensity={0.4}
+              metalness={0}
               color={isHighlighted ? yellowColor : pillarColor}
             />
           </mesh>
           <mesh geometry={nodes.SubDecorCore.geometry} castShadow receiveShadow>
             <meshStandardMaterial
-              roughness={0.4} emissive={'black'} emissiveIntensity={0.4} metalness={0}
+              roughness={0.4}
+              emissive={'black'}
+              emissiveIntensity={0.4}
+              metalness={0}
               color={isHighlighted ? yellowColor : interiorPillarColor}
             />
           </mesh>
           <mesh geometry={nodes.Facade.geometry} castShadow receiveShadow>
             <meshStandardMaterial
-              roughness={0.4} emissive={'black'} emissiveIntensity={0.4} metalness={0}
+              roughness={0.4}
+              emissive={'black'}
+              emissiveIntensity={0.4}
+              metalness={0}
               side={DoubleSide}
               color={isHighlighted ? yellowColor : pillarColor}
             />
           </mesh>
           <mesh geometry={nodes.FacadeInner.geometry} castShadow receiveShadow>
             <meshStandardMaterial
-              roughness={0.4} emissive={'black'} emissiveIntensity={0.4} metalness={0}
+              roughness={0.4}
+              emissive={'black'}
+              emissiveIntensity={0.4}
+              metalness={0}
               side={DoubleSide}
               color={isHighlighted ? yellowColor : interiorPillarColor}
             />
@@ -171,7 +183,10 @@ export default function LaurWallPillar({
           <mesh castShadow receiveShadow>
             <cylinderGeometry args={baseCylinderArgs} />
             <meshStandardMaterial
-              roughness={0.4} emissive={'black'} emissiveIntensity={0.4} metalness={0}
+              roughness={0.4}
+              emissive={'black'}
+              emissiveIntensity={0.4}
+              metalness={0}
               color={isHighlighted ? yellowColor : pillarColor}
             />
             {/* <meshLambertMaterial
