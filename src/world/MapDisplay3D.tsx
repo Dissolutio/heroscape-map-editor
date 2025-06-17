@@ -103,19 +103,18 @@ export default function MapDisplay3D({
       altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
     })
     // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
-    const castleWallArchClickedHex = boardHexes[boardHexIdOfCapForWall]
     const clickedHex = hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     let clickedHexAltitude = clickedHex.altitude
     // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
 
@@ -221,16 +220,8 @@ export default function MapDisplay3D({
   >('translate') // 'translate', 'rotate', 'scale'
   // const topLeft = [-HEXGRID_HEX_APOTHEM, -1]
   return (
-    <group ref={mapGroupRef}>
-      {/* TOP LEFT */}
-      {!isTakingPicture && (
-        <axesHelper
-          // position={[topLeft[0], 0, topLeft[1]]}
-          position={[0, 0.1, 0]}
-          scale={[width, 0, length]}
-          // rotation={new Euler(0, Math.PI, 0)}
-        />
-      )}
+    <>
+
       {/* Tabletop / Ground */}
       <mesh
         receiveShadow
@@ -241,39 +232,50 @@ export default function MapDisplay3D({
           length / 2 - HEXGRID_HEX_RADIUS,
         ]}
       >
-        <planeGeometry args={[2 * width, 2 * length]} />
-        <shadowMaterial color="lightgray" opacity={0.5} />
+        <planeGeometry args={[10 * width, 10 * length]} />
+        <shadowMaterial color="lightgray" opacity={0.4} />
         {/* <meshPhongMaterial color="lightgray" opacity={0.5} /> */}
       </mesh>
+      <group ref={mapGroupRef}>
+        {/* TOP LEFT */}
+        {!isTakingPicture && (
+          <axesHelper
+            // position={[topLeft[0], 0, topLeft[1]]}
+            position={[0, 0.1, 0]}
+            scale={[width, 0, length]}
+          // rotation={new Euler(0, Math.PI, 0)}
+          />
+        )}
 
-      {/* BOTTOM RIGHT */}
-      {/* <axesHelper
+        {/* BOTTOM RIGHT */}
+        {/* <axesHelper
         position={[width, 0, length]}
         // position={[height - HEXGRID_HEX_APOTHEM, 0, length - 1]}
         scale={[width, 0, length]}
       // rotation={new Euler(0, Math.PI, 0)}
       /> */}
 
-      {/* <SubTerrains boardHexArr={instanceBoardHexes.subTerrainHexes} /> */}
-      <EmptyHexes
-        boardHexArr={instanceBoardHexes.emptyHexCaps}
-        onPointerUp={onPointerUp}
-      />
-      <SolidCaps
-        boardHexArr={instanceBoardHexes.solidHexCaps}
-        onPointerUp={onPointerUp}
-      />
-      <FluidCaps
-        boardHexArr={instanceBoardHexes.fluidHexCaps}
-        onPointerUp={onPointerUp}
-      />
-      {Object.keys(boardPieces).map((pid) => {
-        return <MapBoardPiece3D key={pid} pid={pid} />
-      })}
-      {boardHexesArr.map((bh) => {
-        return <MapHex3D key={bh.id} boardHex={bh} onPointerUp={onPointerUp} />
-      })}
-    </group>
+        {/* <SubTerrains boardHexArr={instanceBoardHexes.subTerrainHexes} /> */}
+        <EmptyHexes
+          boardHexArr={instanceBoardHexes.emptyHexCaps}
+          onPointerUp={onPointerUp}
+        />
+        <SolidCaps
+          boardHexArr={instanceBoardHexes.solidHexCaps}
+          onPointerUp={onPointerUp}
+        />
+        <FluidCaps
+          boardHexArr={instanceBoardHexes.fluidHexCaps}
+          onPointerUp={onPointerUp}
+        />
+        {Object.keys(boardPieces).map((pid) => {
+          return <MapBoardPiece3D key={pid} pid={pid} />
+        })}
+        {boardHexesArr.map((bh) => {
+          return <MapHex3D key={bh.id} boardHex={bh} onPointerUp={onPointerUp} />
+        })}
+      </group>
+    </>
   )
 }
 
