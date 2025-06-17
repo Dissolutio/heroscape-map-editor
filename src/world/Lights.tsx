@@ -7,7 +7,7 @@ export default function Lights({
   console.log('🚀 ~ map width, length', width, length)
   return (
     <>
-      <ambientLight intensity={0.7} />
+      <ambientLight intensity={1} />
       <directionalLight
         castShadow
         position={[10, 3, 10]}
