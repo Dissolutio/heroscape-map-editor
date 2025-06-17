@@ -43,8 +43,8 @@ const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
     >
       <cylinderGeometry args={baseFluidCapCylinderArgs} />
       {/* <meshLambertMaterial /> */}
-      {/* <meshLambertMaterial transparent opacity={FLUID_CAP_OPACITY} /> */}
-      <meshStandardMaterial transparent opacity={FLUID_CAP_OPACITY} />
+      <meshLambertMaterial transparent opacity={FLUID_CAP_OPACITY} />
+      {/* <meshStandardMaterial transparent opacity={FLUID_CAP_OPACITY} /> */}
       {/* <meshMatcapMaterial transparent opacity={0.85} /> */}
       {boardHexArr.map((hex, i) => (
         <FluidCap
@@ -82,8 +82,8 @@ function FluidCap({
     ref.current.position.set(
       x,
       y -
-        (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
-        0.01,
+      (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
+      0.01,
       z,
     )
   }, [boardHex])
