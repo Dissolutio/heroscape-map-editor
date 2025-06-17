@@ -17,6 +17,7 @@ import {
   isSolidTerrainHex,
 } from '../utils/board-utils.ts'
 import {
+  decodePieceID,
   genBoardHexID,
   getBattlementClickedHexCoords,
   getBoardHexesRectangularMapDimensions,
@@ -53,6 +54,8 @@ export default function MapDisplay3D({
   const paintTile = useBoundStore((s) => s.paintTile)
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
+  // const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+  // const decodedHoverPieceID = decodePieceID(hoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useZoomCameraToMapCenter({
