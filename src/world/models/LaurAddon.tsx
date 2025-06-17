@@ -65,12 +65,7 @@ export function LaurWallAddon({
       {/* LAUR WALL RUIN */}
       {inventoryID === Pieces.laurWallRuin && (
         <>
-
-          <mesh
-            receiveShadow
-            castShadow
-            geometry={LaurWallRuin.geometry}
-          >
+          <mesh receiveShadow castShadow geometry={LaurWallRuin.geometry}>
             <meshStandardMaterial color={pillarColor} />
           </mesh>
           <mesh
@@ -85,11 +80,7 @@ export function LaurWallAddon({
       {/* LAUR WALL SHORT */}
       {inventoryID === Pieces.laurWallShort && (
         <>
-          <mesh
-            receiveShadow
-            castShadow
-            geometry={LaurWallShort.geometry}
-          >
+          <mesh receiveShadow castShadow geometry={LaurWallShort.geometry}>
             <meshStandardMaterial color={pillarColor} />
           </mesh>
           <mesh
@@ -108,7 +99,7 @@ export function LaurWallAddon({
             receiveShadow
             castShadow
             geometry={LaurWallLong.geometry}
-          // position={[0.635, 0, 0]} // TODO: Tidy
+            // position={[0.635, 0, 0]} // TODO: Tidy
           >
             <meshStandardMaterial color={pillarColor} />
           </mesh>
@@ -116,7 +107,7 @@ export function LaurWallAddon({
             receiveShadow
             castShadow
             geometry={LaurWallLongDecorDeep.geometry}
-          // position={[0.635, 0, 0]} // TODO: Tidy
+            // position={[0.635, 0, 0]} // TODO: Tidy
           >
             <meshStandardMaterial color={interiorPillarColor} />
           </mesh>
