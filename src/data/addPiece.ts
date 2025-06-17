@@ -59,22 +59,22 @@ export function addPiece({
     isVsTile,
   })
   const originOfTile = isVsTile ? piecePlaneCoords[0] : pieceCoords // vs moves it around per rotation, our app will probably not
-  const pieceHexID = genBoardHexID({
-    ...originOfTile,
-    altitude: placementAltitude,
-  })
-  const pieceID = genPieceID(pieceHexID, piece.id, rotation)
   const ladderBattlementPieceRotation = isVsTile
     ? (rotation + 5) % 6
     : rotation % 6 // VS starts ladders at rotation 5 (top-right, NE), instead of 0 (right, E)
+  const newPieceAltitude = placementAltitude + 1
+  const pieceHexID = genBoardHexID({
+    ...originOfTile,
+    altitude: newPieceAltitude,
+  })
+  const pieceID = genPieceID(pieceHexID, piece.id, rotation)
+  const underHexIds = piecePlaneCoords.map((cubeCoord) =>
+    genBoardHexID({ ...cubeCoord, altitude: placementAltitude }),
+  )
   const ladderBattlementPieceID = genPieceID(
     pieceHexID,
     piece.id,
     ladderBattlementPieceRotation,
-  )
-  const newPieceAltitude = placementAltitude + 1
-  const underHexIds = piecePlaneCoords.map((cubeCoord) =>
-    genBoardHexID({ ...cubeCoord, altitude: placementAltitude }),
   )
   const newHexIds = piecePlaneCoords.map((cubeCoord) =>
     genBoardHexID({ ...cubeCoord, altitude: newPieceAltitude }),

@@ -141,7 +141,7 @@ export default function MapDisplay3D({
       error = paintTile({
         piece,
         clickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: clickedHexAltitude - 1,
         rotation: penModeRotation,
       })
       console.log('🚀 ~ error:', error)
