@@ -65,12 +65,19 @@ export function LaurWallAddon({
       {/* LAUR WALL RUIN */}
       {inventoryID === Pieces.laurWallRuin && (
         <>
-          receiveShadow castShadow
-          <mesh geometry={LaurWallRuin.geometry}>
+
+          <mesh
+            receiveShadow
+            castShadow
+            geometry={LaurWallRuin.geometry}
+          >
             <meshStandardMaterial color={pillarColor} />
           </mesh>
-          receiveShadow castShadow
-          <mesh geometry={LaurWallRuinBustedConcrete.geometry}>
+          <mesh
+            receiveShadow
+            castShadow
+            geometry={LaurWallRuinBustedConcrete.geometry}
+          >
             <meshStandardMaterial color={interiorPillarColor} />
           </mesh>
         </>
@@ -78,12 +85,18 @@ export function LaurWallAddon({
       {/* LAUR WALL SHORT */}
       {inventoryID === Pieces.laurWallShort && (
         <>
-          receiveShadow castShadow
-          <mesh geometry={LaurWallShort.geometry}>
+          <mesh
+            receiveShadow
+            castShadow
+            geometry={LaurWallShort.geometry}
+          >
             <meshStandardMaterial color={pillarColor} />
           </mesh>
-          receiveShadow castShadow
-          <mesh geometry={LaurWallShortDecorDeep.geometry}>
+          <mesh
+            receiveShadow
+            castShadow
+            geometry={LaurWallShortDecorDeep.geometry}
+          >
             <meshStandardMaterial color={interiorPillarColor} />
           </mesh>
         </>
@@ -95,7 +108,7 @@ export function LaurWallAddon({
             receiveShadow
             castShadow
             geometry={LaurWallLong.geometry}
-            // position={[0.635, 0, 0]} // TODO: Tidy
+          // position={[0.635, 0, 0]} // TODO: Tidy
           >
             <meshStandardMaterial color={pillarColor} />
           </mesh>
@@ -103,7 +116,7 @@ export function LaurWallAddon({
             receiveShadow
             castShadow
             geometry={LaurWallLongDecorDeep.geometry}
-            // position={[0.635, 0, 0]} // TODO: Tidy
+          // position={[0.635, 0, 0]} // TODO: Tidy
           >
             <meshStandardMaterial color={interiorPillarColor} />
           </mesh>
