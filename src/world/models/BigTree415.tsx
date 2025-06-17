@@ -52,7 +52,6 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
           receiveShadow
           castShadow
           geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
-          // material={materials.BoulderGray}
         >
           <meshStandardMaterial color={rockColor} />
         </mesh>
@@ -60,7 +59,6 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
           receiveShadow
           castShadow
           geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
-          // material={materials.ForestTree}
         >
           <meshStandardMaterial color={treeColor} />
         </mesh>
