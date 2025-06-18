@@ -1,4 +1,4 @@
-import { Instance, Instances } from '@react-three/drei'
+import { Instance, Instances, useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
@@ -24,6 +24,9 @@ const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
 ]
 
 const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
+  const ref = React.useRef<InstanceRefType>(undefined!)
+  const { nodes } = useGLTF('/classic1-cap.glb') as any
+  // const { nodes } = useGLTF('/classic1-cap.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   if (boardHexArr.length === 0) return null
@@ -32,15 +35,30 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
     <Instances
       limit={INSTANCE_LIMIT}
       range={range}
-      frustumCulled={false} // BUG: otherwise they disappear from view at unexpected angles
+      ref={ref}
+      frustumCulled={false}
+      geometry={nodes.Classic1_Cap.geometry}
       receiveShadow={isHighQualityRender}
       castShadow={isHighQualityRender}
     >
-      <cylinderGeometry args={baseSolidCapCylinderArgs} />
-      {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />}
+      {/* <instancedMesh> */}
+      {/* <bufferGeometry args={[nodes.Classic1_Cap.geometry]} /> */}
+      {/* {isCameraDisabled ? <meshPhongMaterial wireframe={true} wireframeLinewidth={0.01} wireframeLinecap='' /> :
+        <meshMatcapMaterial />} */}
+      {/* {!isCameraDisabled ? <meshLambertMaterial opacity={0.8} transparent /> :
+        <meshMatcapMaterial />} */}
+      {/* <meshStandardMaterial /> */}
+      {/* </instancedMesh> */}
+      {/* <ClassicCap1 /> */}
+      {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
+      {/* {isCameraDisabled ? <meshPhongMaterial wireframe={true} wireframeLinewidth={0.01} wireframeLinecap='' /> :
+        <meshMatcapMaterial />} */}
+      {/* {!isCameraDisabled ? <meshLambertMaterial opacity={0.8} transparent /> :
+        <meshMatcapMaterial />} */}
+      <meshStandardMaterial />
       {boardHexArr.map((hex, i) => (
-        <SolidCap
-          key={`${hex.id} + ${i}`}
+        <SolidCapInstance
+          key={hex.id + i}
           boardHex={hex}
           onPointerUp={onPointerUp}
           isVisible={range >= i}
@@ -50,10 +68,14 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
     </Instances>
   )
 }
+useGLTF.preload('/classic1-cap.glb')
+
 
 export default SolidCaps
 
-function SolidCap({
+
+
+function SolidCapInstance({
   boardHex,
   onPointerUp,
   isVisible,
@@ -74,6 +96,7 @@ function SolidCap({
     const { x, y, z } = getBoardHex3DCoords(boardHex)
     ref.current.color.set(color)
     ref.current.position.set(x, y + HEXGRID_HEXCAP_HEIGHT / 2, z)
+    ref.current.rotation.set(0, Math.PI / 6, 0)
   }, [boardHex, color])
 
   // update color when piece is hovered
