@@ -55,7 +55,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
         <meshMatcapMaterial />} */}
       {/* {!isCameraDisabled ? <meshLambertMaterial opacity={0.8} transparent /> :
         <meshMatcapMaterial />} */}
-      <meshStandardMaterial />
+      <meshMatcapMaterial />
       {boardHexArr.map((hex, i) => (
         <SolidCapInstance
           key={hex.id + i}
@@ -96,7 +96,7 @@ function SolidCapInstance({
     const { x, y, z } = getBoardHex3DCoords(boardHex)
     ref.current.color.set(color)
     ref.current.position.set(x, y + HEXGRID_HEXCAP_HEIGHT / 2, z)
-    ref.current.rotation.set(0, Math.PI / 6, 0)
+    ref.current.rotation.set(0, Math.PI / 6 + (getRandomInteger(1, 6) * Math.PI / 3), 0)
   }, [boardHex, color])
 
   // update color when piece is hovered
@@ -151,4 +151,10 @@ function SolidCapInstance({
       castShadow={isHighQualityRender}
     />
   )
+}
+
+function getRandomInteger(min: number, max: number) {
+  const minimum = Math.ceil(min); // Ensure min is rounded up to the nearest whole number
+  const maximum = Math.floor(max); // Ensure max is rounded down to the nearest whole number
+  return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
 }
