@@ -4,7 +4,6 @@ export default function Lights({
   width,
   length,
 }: { width?: number; length?: number }) {
-  console.log('🚀 ~ map width, length', width, length)
   return (
     <>
       <ambientLight intensity={1} />
