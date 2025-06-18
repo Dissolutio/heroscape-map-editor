@@ -25,7 +25,7 @@ export default function LandSubterrain({ pid }: { pid: string }) {
   } = decodePieceID(pid)
 
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isVisible = altitude <= viewingLevel
+  const isVisible = altitude + 1 <= viewingLevel
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState(isVisible)
 
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
