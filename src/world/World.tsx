@@ -1,6 +1,5 @@
 import { ClickAwayListener } from '@mui/material'
 import {
-  Bvh,
   type CameraControls,
   OrthographicCamera,
   PerspectiveCamera,
@@ -63,7 +62,6 @@ const World = ({
           hidden={isHidden}
           shadows
         >
-
           {/* <color attach="background" args={["white"]} /> */}
           <PerspectiveCamera
             position={[10, 10, 10]}
@@ -77,13 +75,10 @@ const World = ({
           />
           {/* Stats displays the fps */}
           {!isHidden && <Stats className="stats-panel" />}
-          {/* Bvh might not even be needed in this project */}
-          <Bvh firstHitOnly>
-            <MapDisplay3D
-              mapGroupRef={mapGroupRef}
-              cameraControlsRef={cameraControlsRef}
-            />
-          </Bvh>
+          <MapDisplay3D
+            mapGroupRef={mapGroupRef}
+            cameraControlsRef={cameraControlsRef}
+          />
           <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}
           <MyCameraControls
