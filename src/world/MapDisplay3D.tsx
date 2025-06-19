@@ -69,7 +69,7 @@ export default function MapDisplay3D({
     isTakingPicture,
   )
 
-  const onPointerUp = async (
+  const onPointerUp = (
     event: ThreeEvent<PointerEvent>,
     hex: BoardHex,
   ) => {
@@ -86,8 +86,10 @@ export default function MapDisplay3D({
       return
     }
 
-    if (penMode === 'select' && hex.pieceID) {
-      toggleSelectedPieceID(hex.pieceID)
+    if (penMode === 'select') {
+      if (hex.pieceID) {
+        toggleSelectedPieceID(hex.pieceID)
+      }
       return
     }
     const pieceMode = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
