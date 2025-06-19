@@ -41,21 +41,10 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       receiveShadow={isHighQualityRender}
       castShadow={isHighQualityRender}
     >
-      {/* <instancedMesh> */}
-      {/* <bufferGeometry args={[nodes.Classic1_Cap.geometry]} /> */}
-      {/* {isCameraDisabled ? <meshPhongMaterial wireframe={true} wireframeLinewidth={0.01} wireframeLinecap='' /> :
-        <meshMatcapMaterial />} */}
-      {/* {!isCameraDisabled ? <meshLambertMaterial opacity={0.8} transparent /> :
-        <meshMatcapMaterial />} */}
-      {/* <meshStandardMaterial /> */}
-      {/* </instancedMesh> */}
-      {/* <ClassicCap1 /> */}
-      {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
-      {/* {isCameraDisabled ? <meshPhongMaterial wireframe={true} wireframeLinewidth={0.01} wireframeLinecap='' /> :
-        <meshMatcapMaterial />} */}
-      {/* {!isCameraDisabled ? <meshLambertMaterial opacity={0.8} transparent /> :
-        <meshMatcapMaterial />} */}
+      {/* <meshPhongMaterial wireframe={true} wireframeLinewidth={0.01} wireframeLinecap='' /> */}
       <meshMatcapMaterial />
+      {/* <meshStandardMaterial /> */}
+      {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
       {boardHexArr.map((hex, i) => (
         <SolidCapInstance
           key={hex.id + i}
