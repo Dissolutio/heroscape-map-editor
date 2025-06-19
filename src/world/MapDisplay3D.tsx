@@ -46,6 +46,7 @@ export default function MapDisplay3D({
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const boardHexesArr = Object.values(boardHexes).sort(
     (a, b) => a.altitude - b.altitude,
@@ -221,7 +222,7 @@ export default function MapDisplay3D({
   return (
     <>
       {/* Tabletop / Ground */}
-      <mesh
+      {isHighQualityRender && (<mesh
         receiveShadow
         rotation={[-Math.PI / 2, 0, 0]}
         position={[
@@ -233,7 +234,7 @@ export default function MapDisplay3D({
         <planeGeometry args={[10 * width, 10 * length]} />
         <shadowMaterial color="lightgray" opacity={0.4} />
         {/* <meshPhongMaterial color="lightgray" opacity={0.5} /> */}
-      </mesh>
+      </mesh>)}
       <group ref={mapGroupRef}>
         {/* TOP LEFT */}
         {!isTakingPicture && (

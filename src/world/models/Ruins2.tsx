@@ -14,14 +14,13 @@ export default function Ruins2({
 }: {
   boardHex: BoardHex
 }) {
-  const {
-    nodes,
-    // materials
-  } = useGLTF('/ruins2.glb') as any
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/ruins2.glb') as any
   const { x, z, y: yo } = getBoardHex3DCoords(boardHex)
   const y = yo - HEXGRID_HEX_HEIGHT
   const options = getRuinsOptions(boardHex.pieceRotation)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
@@ -49,14 +48,14 @@ export default function Ruins2({
     >
       {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={3} />}
       <mesh
-        receiveShadow
-        castShadow
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
         geometry={nodes.Ruin_Small_Scanned.geometry}
       >
-        <meshStandardMaterial color={color} />
+        {isHighQualityRender ? <meshStandardMaterial color={color} /> : <meshMatcapMaterial color={color} />}
       </mesh>
     </group>
   )
