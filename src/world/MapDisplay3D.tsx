@@ -105,15 +105,15 @@ export default function MapDisplay3D({
     const clickedHex = hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     let clickedHexAltitude = clickedHex.altitude
     // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
 
@@ -225,9 +225,9 @@ export default function MapDisplay3D({
         receiveShadow
         rotation={[-Math.PI / 2, 0, 0]}
         position={[
-          width / 2 - HEXGRID_HEX_APOTHEM,
+          width ? width / 2 - HEXGRID_HEX_APOTHEM : 0,
           -0.01,
-          length / 2 - HEXGRID_HEX_RADIUS,
+          length ? length / 2 - HEXGRID_HEX_RADIUS : 0,
         ]}
       >
         <planeGeometry args={[10 * width, 10 * length]} />
@@ -241,7 +241,7 @@ export default function MapDisplay3D({
             // position={[topLeft[0], 0, topLeft[1]]}
             position={[0, 0.1, 0]}
             scale={[width, 0, length]}
-            // rotation={new Euler(0, Math.PI, 0)}
+          // rotation={new Euler(0, Math.PI, 0)}
           />
         )}
 
