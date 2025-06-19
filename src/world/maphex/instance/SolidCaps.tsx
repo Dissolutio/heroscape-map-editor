@@ -9,7 +9,6 @@ import type {
   BoardHexPieceProps,
   CylinderGeometryArgs,
   DreiCapProps,
-  InstanceRefType,
 } from '../instance-hex'
 import { terrainCapColors } from '../terrainCapColors'
 
@@ -25,29 +24,23 @@ const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
 ]
 
 const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
-  const ref = React.useRef<InstanceRefType>(undefined!)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
   return (
     <Instances
       limit={INSTANCE_LIMIT}
-      // limit={2}
-      // range={boardHexArr.length}
       range={range}
-      ref={ref}
-      frustumCulled={false}
-      receiveShadow
+      frustumCulled={false} // BUG: otherwise they disappear from view at unexpected angles
+      receiveShadow={isHighQualityRender}
+      castShadow={isHighQualityRender}
     >
       <cylinderGeometry args={baseSolidCapCylinderArgs} />
-      {/* {isCameraDisabled ? <meshPhongMaterial wireframe={true} wireframeLinewidth={0.01} wireframeLinecap='' /> :
-        <meshMatcapMaterial />} */}
-      {/* {!isCameraDisabled ? <meshLambertMaterial opacity={0.8} transparent /> :
-        <meshMatcapMaterial />} */}
-      <meshStandardMaterial />
+      {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />}
       {boardHexArr.map((hex, i) => (
         <SolidCap
-          key={hex.id + i}
+          key={`${hex.id} + ${i}`}
           boardHex={hex}
           onPointerUp={onPointerUp}
           isVisible={range >= i}
@@ -64,8 +57,8 @@ function SolidCap({
   onPointerUp,
   isVisible,
 }: BoardHexPieceProps & { isVisible: boolean }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ref = React.useRef<any>(undefined!)
+  // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
+  const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState(isVisible)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const penMode = useBoundStore((s) => s.penMode)
@@ -129,7 +122,6 @@ function SolidCap({
       onPointerLeave={handlePointerOut}
       onPointerUp={handlePointerUp}
       frustumCulled={false}
-      receiveShadow
     />
   )
 }

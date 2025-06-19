@@ -27,8 +27,10 @@ const World = ({
   const mapGroupRef = React.useRef<THREE.Group<THREE.Object3DEventMap> | null>(
     null,
   )
-  const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const boardHexes = useBoundStore((s) => s.boardHexes)
+  const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
@@ -58,9 +60,9 @@ const World = ({
           onPointerLeave={() => {
             toggleHoveredPieceID('')
           }}
-          // frameloop='demand'
+          frameloop={isFrameloopDemand ? 'demand' : undefined}
           hidden={isHidden}
-          shadows
+          shadows={isHighQualityRender}
         >
           {/* <color attach="background" args={["white"]} /> */}
           <PerspectiveCamera
@@ -74,7 +76,7 @@ const World = ({
             makeDefault={isOrthoCam}
           />
           {/* Stats displays the fps */}
-          {!isHidden && <Stats className="stats-panel" />}
+          {(!isHidden && import.meta.env.DEV) && <Stats className="stats-panel" />}
           <MapDisplay3D
             mapGroupRef={mapGroupRef}
             cameraControlsRef={cameraControlsRef}

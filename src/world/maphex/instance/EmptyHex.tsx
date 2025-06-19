@@ -13,8 +13,8 @@ import type {
   BoardHexPieceProps,
   CylinderGeometryArgs,
   DreiCapProps,
-  InstanceRefType,
 } from '../instance-hex'
+import useBoundStore from '../../../store/store'
 
 const baseEmptyCapCylinderArgs: CylinderGeometryArgs = [
   0.999,
@@ -29,19 +29,17 @@ const baseEmptyCapCylinderArgs: CylinderGeometryArgs = [
 const emptyHexColor = hexTerrainColor[HexTerrain.empty]
 
 const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
-  const ref = React.useRef<InstanceRefType>(undefined!)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   if (boardHexArr.length === 0) return null
   return (
     <Instances
-      ref={ref}
       range={boardHexArr.length}
-      // range={1}
       limit={INSTANCE_LIMIT}
-      frustumCulled={false}
-      receiveShadow
+      frustumCulled={false} // BUG: otherwise they disappear from view at unexpected angless
+      receiveShadow={isHighQualityRender}
     >
       <cylinderGeometry args={baseEmptyCapCylinderArgs} />
-      <meshLambertMaterial color="white" />
+      {isHighQualityRender ? <meshStandardMaterial /> : <meshLambertMaterial />}
       {boardHexArr.map((hex, i) => (
         <EmptyHex
           key={`${hex.id + i}empty`}
@@ -56,8 +54,8 @@ const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
 export default EmptyHexes
 
 function EmptyHex({ boardHex, onPointerUp }: BoardHexPieceProps) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ref = React.useRef<any>(undefined!)
+  // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
+  const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState(true)
 
   // Effect: Initial color/position

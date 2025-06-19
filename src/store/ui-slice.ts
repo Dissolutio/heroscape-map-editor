@@ -30,6 +30,10 @@ export interface UISlice {
   toggleIsOrthoCam: (b: boolean) => void
   viewingLevel: number
   toggleViewingLevel: (level: number) => void
+  isHighQualityRender: boolean
+  toggleIsHighQualityRender: (b: boolean) => void
+  isFrameloopDemand: boolean
+  toggleIsFrameloopDemand: (b: boolean) => void
 }
 
 const initialPenMode = 'select'
@@ -133,6 +137,20 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.viewingLevel = level
+      }),
+    ),
+  isHighQualityRender: true,
+  toggleIsHighQualityRender: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isHighQualityMode = b
+      }),
+    ),
+  isFrameloopDemand: false,
+  toggleIsFrameloopDemand: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isLowQualityMode = b
       }),
     ),
 })
