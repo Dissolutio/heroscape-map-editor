@@ -75,11 +75,10 @@ export const MapHex3D = ({
     (isSolidTerrainHex(boardHex.terrain) && !boardHex.isCap) || isShowEmptyHexes
   const isObstacleHex =
     boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary
-  const isSubterrainOrigin =
+  const isSolidSubterrain =
     isSolidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
-  const isFluidOrigin =
+  const isFluidSubterrain =
     isFluidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
-  // const isFluidHex = isFluidTerrainHex(boardHex.terrain)
   const isBigTreeHex =
     boardHex.pieceID.endsWith(Pieces.tree415) && boardHex.isObstacleOrigin
   const isBigTreeBaseHex =
@@ -160,7 +159,7 @@ export const MapHex3D = ({
         position={new Vector3(x, y + 0.2, z)}
       />
       <group visible={isVisible}>
-        {isSubterrainOrigin && (
+        {isSolidSubterrain && (
           <group
             position={[x, y - HEXGRID_HEX_HEIGHT, z]}
             rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
@@ -173,7 +172,7 @@ export const MapHex3D = ({
             </Suspense>
           </group>
         )}
-        {isFluidOrigin && (
+        {isFluidSubterrain && (
           <group position={[x, y - HEXGRID_HEX_HEIGHT, z]}>
             {selectedPieceID === boardHex.pieceID && (
               <DeletePieceBillboard pieceID={boardHex.pieceID} />
@@ -215,9 +214,7 @@ export const MapHex3D = ({
           </Suspense>
         )}
         {isHeightRingedHex && (
-          <Suspense fallback={<ModelLoader />}>
-            <HeightRing position={new Vector3(x, y, z)} />
-          </Suspense>
+          <HeightRing position={new Vector3(x, y, z)} />
         )}
         {isLaurSquarePillarHex && (
           <LaurPillar
