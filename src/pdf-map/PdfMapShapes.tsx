@@ -28,7 +28,7 @@ import {
   getRoadWallSvgPolygonPoints,
   getRuins2SvgPolygonPoints,
   getRuins3SvgPolygonPoints,
-} from '../svg-map/getHexagonSvgPolygonPoints'
+} from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
 import {
   getSvgHexBorderColor,
   getSvgHexFillColor,

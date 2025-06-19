@@ -6,12 +6,6 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { Pieces, type BoardHex } from '../../types'
 import { DoubleSide } from 'three'
-import {
-  HEXGRID_HEX_APOTHEM,
-  HEXGRID_HEX_HEIGHT,
-  HEXGRID_HEX_RADIUS,
-  SVG_HEX_APOTHEM,
-} from '../../utils/constants'
 
 export function MarvelRuin({
   boardHex,
@@ -19,8 +13,7 @@ export function MarvelRuin({
   boardHex: BoardHex
 }) {
   const { nodes } = useGLTF('/marvel-ruins.glb') as any
-  const { x, z, y, yBaseCap } = getBoardHex3DCoords(boardHex)
-  const boardHexes = useBoundStore((s) => s.boardHexes)
+  const { x, z, yBaseCap } = getBoardHex3DCoords(boardHex)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID

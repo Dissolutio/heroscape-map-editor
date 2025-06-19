@@ -1,10 +1,10 @@
 import { TransformControls } from '@react-three/drei'
 
-export default function Lights({
-  width,
-  length,
-}: { width?: number; length?: number }) {
-  console.log('🚀 ~ map width, length', width, length)
+// export default function Lights({
+//   width,
+//   length,
+// }: { width?: number; length?: number }) {
+export default function Lights() {
   return (
     <>
       <ambientLight intensity={1} />

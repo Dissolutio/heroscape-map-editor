@@ -39,7 +39,6 @@ export default function LaurWallTrianglePillar({
   const { x, z, yWithBase, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords(boardHex)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
   const pieceRotation = (((boardHex?.pieceRotation ?? 0) % 6) * -Math.PI) / 3
 
@@ -51,18 +50,6 @@ export default function LaurWallTrianglePillar({
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = isHovered || isSelected
-
-  // const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-  //   if (!isVisible) {
-  //     return
-  //   }
-  //   event.stopPropagation() // prevent pass through
-  //   // Early out right clicks(event.button=2), middle mouse clicks(1)
-  //   if (event.button !== 0) {
-  //     return
-  //   }
-  //   toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
-  // }
 
   return (
     <>
@@ -79,12 +66,14 @@ export default function LaurWallTrianglePillar({
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT,
           z,
         ]}
-        rotation={[0, pieceRotation, 0]}
         onPointerUp={(e) => onPointerUp(e, boardHex)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
+        <group
+          position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}
+          rotation={[0, pieceRotation, 0]}
+        >
           <mesh
             castShadow
             receiveShadow
