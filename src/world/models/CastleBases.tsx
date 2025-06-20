@@ -16,16 +16,15 @@ type Props = {
 
 // These were made after the castle walls and are VERY SIMILAR. TODO: DRY
 export default function CastleBases({ boardHex, onPointerUp }: Props) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
-  const [capColor, setCapColor] = React.useState(
-    hexTerrainColor[HexTerrain.castle],
-  )
   const { x, z, yBase, yBaseCap } = getBoardHex3DCoords(boardHex)
   const pieceID = boardHex.pieceID
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
@@ -43,11 +42,11 @@ export default function CastleBases({ boardHex, onPointerUp }: Props) {
     : pieceID.includes(Pieces.castleBaseStraight)
       ? nodes.CastleWallStraightCap.geometry
       : nodes.CastleWallCornerCap.geometry
+  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
   const onPointerEnterCap = (e: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
       return
     }
-    setCapColor('yellow')
     e.stopPropagation()
     onPointerEnter(e, boardHex)
   }
@@ -55,7 +54,6 @@ export default function CastleBases({ boardHex, onPointerUp }: Props) {
     if (!isVisible) {
       return
     }
-    setCapColor(hexTerrainColor[HexTerrain.castle])
     e.stopPropagation()
     onPointerOut(e)
   }
@@ -70,6 +68,7 @@ export default function CastleBases({ boardHex, onPointerUp }: Props) {
     }
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
+  const material = isHighQualityRender ? <meshStandardMaterial color={color} /> : <meshMatcapMaterial color={color} />
   return (
     <>
       <group
@@ -80,18 +79,14 @@ export default function CastleBases({ boardHex, onPointerUp }: Props) {
           <DeletePieceBillboard pieceID={boardHex.pieceID} y={1} />
         )}
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={bodyGeometry}
           onPointerUp={onPointerUpBody}
           onPointerEnter={(e) => onPointerEnter(e, boardHex)}
           onPointerOut={onPointerOut}
         >
-          <meshStandardMaterial
-            color={
-              isHighlighted ? yellowColor : hexTerrainColor[boardHex.terrain]
-            }
-          />
+          {material}
         </mesh>
 
         {/* Each wall has a WallCap mesh, then each wall-type adds on its little directional indicator mesh */}
@@ -101,20 +96,19 @@ export default function CastleBases({ boardHex, onPointerUp }: Props) {
           onPointerOut={onPointerOutCap}
         >
           <mesh
-            receiveShadow
-            castShadow
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
             geometry={nodes.WallCap.geometry}
             onPointerEnter={onPointerEnterCap}
             onPointerOut={onPointerOutCap}
           >
-            <meshStandardMaterial
-              color={isHighlighted ? yellowColor : capColor}
-            />
+            {material}
           </mesh>
-          <mesh receiveShadow castShadow geometry={capGeometry}>
-            <meshStandardMaterial
-              color={isHighlighted ? yellowColor : capColor}
-            />
+          <mesh
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
+            geometry={capGeometry}>
+            {material}
           </mesh>
         </group>
       </group>
@@ -122,7 +116,7 @@ export default function CastleBases({ boardHex, onPointerUp }: Props) {
         x={x}
         y={yBaseCap}
         z={z}
-        color={isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]}
+        color={color}
       />
     </>
   )

@@ -5,6 +5,7 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
+import { getMaterialForOutcrop } from './materials'
 
 export default function Outcrop3({
   boardHex,
@@ -15,9 +16,10 @@ export default function Outcrop3({
   isGlacier?: boolean
   isLavaRock?: boolean
 }) {
-  const model = useGLTF('/uncolored-decimated-glacier-outcrop-3.glb') as any
-  const { nodes } = model
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-3.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
@@ -44,22 +46,20 @@ export default function Outcrop3({
   const outcropColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.outcrop]
+  const color = isGlacier ? iceColor : isLavaRock ? lavaColor : outcropColor
+
   return (
     <>
       {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={2} />}
       <mesh
-        receiveShadow
-        castShadow
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
         geometry={nodes.glacier_3_with_holes.geometry}
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={onPointerOut}
       >
-        <meshStandardMaterial
-          color={isGlacier ? iceColor : isLavaRock ? lavaColor : outcropColor}
-          transparent={isGlacier}
-          opacity={0.99}
-        />
+        {getMaterialForOutcrop(isHighQualityRender, color, isGlacier)}
       </mesh>
     </>
   )

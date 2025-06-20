@@ -559,7 +559,6 @@ export const MapHex3D = ({
             isFluidBase={true}
           />
         )}
-
         {isCastleBase && (
           <Suspense fallback={<ModelLoader />}>
             <CastleBases boardHex={boardHex} onPointerUp={onPointerUp} />

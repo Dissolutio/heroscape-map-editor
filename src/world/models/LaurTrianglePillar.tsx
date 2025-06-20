@@ -42,7 +42,6 @@ export default function LaurWallTrianglePillar({
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
   const pieceRotation = (((boardHex?.pieceRotation ?? 0) % 6) * -Math.PI) / 3
-
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
@@ -56,19 +55,15 @@ export default function LaurWallTrianglePillar({
   const interiorColor = isHighlighted ? yellowColor : interiorPillarColor
   const material1 = isHighQualityRender ?
     <meshStandardMaterial
-      // roughness={0.4}
-      // emissive={'black'}
-      // emissiveIntensity={0.4}
-      // metalness={0}
       color={color} />
     : <meshMatcapMaterial color={color} />
   const material2 = isHighQualityRender ?
     <meshStandardMaterial
-      // roughness={0.4}
-      // emissive={'black'}
-      // emissiveIntensity={0.4}
-      // metalness={0}
       color={interiorColor} />
+    : <meshMatcapMaterial color={interiorColor} />
+  const material3 = isHighQualityRender ?
+    <meshStandardMaterial
+      color={interiorColor} side={DoubleSide} />
     : <meshMatcapMaterial color={interiorColor} />
   return (
     <>
@@ -98,7 +93,7 @@ export default function LaurWallTrianglePillar({
             castShadow={isHighQualityRender}
             geometry={nodes.TrianglePillarTop.geometry}
           >
-            {material1}
+            {material3}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}

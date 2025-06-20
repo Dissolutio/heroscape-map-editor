@@ -1,13 +1,12 @@
+import useBoundStore from '../../store/store'
 import { HEXGRID_HEXCAP_FLUID_HEIGHT } from '../../utils/constants'
-import { hexTerrainColor } from '../maphex/hexColors'
 import type { CylinderGeometryArgs } from '../maphex/instance-hex'
 
 type ObstacleBaseProps = {
   x: number
   y: number
   z: number
-  color?: string
-  isTransparent?: boolean
+  color: string
   isFluidBase?: boolean
 }
 
@@ -37,25 +36,33 @@ export default function ObstacleBase({
   y,
   z,
   color,
-  isTransparent,
   isFluidBase,
 }: ObstacleBaseProps) {
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   if (isFluidBase) {
     return (
-      <mesh receiveShadow castShadow position={[x, y, z]}>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        position={[x, y, z]}
+      >
         <cylinderGeometry args={baseFluidCapCylinderArgs} />
-        <meshStandardMaterial color={color} transparent opacity={0.85} />
+        {isHighQualityRender ?
+          <meshStandardMaterial color={color} transparent opacity={0.85} />
+          : <meshLambertMaterial color={color} transparent opacity={0.85} />}
       </mesh>
     )
   }
   return (
-    <mesh position={[x, y, z]}>
+    <mesh
+      receiveShadow={isHighQualityRender}
+      castShadow={isHighQualityRender}
+      position={[x, y, z]}
+    >
       <cylinderGeometry args={treeBaseCylinderArgs} />
-      <meshStandardMaterial
-        color={color || hexTerrainColor.treeBase}
-        transparent={isTransparent}
-        opacity={0.85}
-      />
+      {isHighQualityRender ?
+        <meshStandardMaterial color={color} />
+        : <meshMatcapMaterial color={color} />}
     </mesh>
   )
 }
