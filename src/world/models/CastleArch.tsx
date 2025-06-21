@@ -27,6 +27,7 @@ export function CastleArch({
   // overHexTerrain,
   onPointerUp,
 }: Props) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/castle-arch-handmade.glb') as any
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
@@ -34,6 +35,7 @@ export function CastleArch({
   const { x, z, yBase, yBaseCap } = getBoardHex3DCoords(boardHex)
   const isSelected = selectedPieceID === boardHex.pieceID
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
@@ -177,8 +179,8 @@ export function CastleArch({
         onPointerOut={(e) => onPointerOut(e)}
       >
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodes.CastleArchBody.geometry}
           onPointerUp={onPointerUpBody}
         >
@@ -187,8 +189,8 @@ export function CastleArch({
           />
         </mesh>
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodes.CastleArchCapNear.geometry}
           onPointerUp={(e) => onPointerUp(e, boardHex)}
           onPointerEnter={onPointerEnterNear}
@@ -199,8 +201,8 @@ export function CastleArch({
           />
         </mesh>
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodes.CastleArchCapMiddle.geometry}
           onPointerEnter={onPointerEnterMiddle}
           onPointerOut={onPointerOutMiddle}
@@ -211,8 +213,8 @@ export function CastleArch({
           />
         </mesh>
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodes.CastleArchCapFar.geometry}
           onPointerEnter={onPointerEnterFar}
           onPointerOut={onPointerOutFar}
@@ -224,7 +226,7 @@ export function CastleArch({
         </mesh>
         {isDoor && (
           <mesh
-            receiveShadow
+            receiveShadow={isHighQualityRender}
             castShadow
             geometry={nodes.ArchDoor.geometry}
             onPointerUp={(e) => onPointerUp(e, boardHex)}
