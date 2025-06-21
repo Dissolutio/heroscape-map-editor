@@ -49,18 +49,14 @@ export const PdfMapLevels6PerPage = ({
           <View
             style={{
               flexDirection: 'row',
-              flexGrow: 1,
             }}
           >
             <HalfPageColumn>
               {chunk.map((group, i) =>
                 i < 3 ? (
-                  <View
+                  <RowWrapper
                     // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
                     key={i}
-                    style={{
-                      flexBasis: '33%',
-                    }}
                   >
                     <Text style={{ fontSize: '10px' }}>
                       Level: {group.altitude}
@@ -73,19 +69,16 @@ export const PdfMapLevels6PerPage = ({
                       length={length}
                       viewingLevel={group.altitude}
                     />
-                  </View>
+                  </RowWrapper>
                 ) : null,
               )}
             </HalfPageColumn>
             <HalfPageColumn>
               {chunk.map((group, i) =>
                 i >= 3 ? (
-                  <View
+                  <RowWrapper
                     // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
                     key={i}
-                    style={{
-                      flexBasis: '33%',
-                    }}
                   >
                     <Text style={{ fontSize: '10px' }}>
                       Level: {group.altitude}
@@ -98,7 +91,7 @@ export const PdfMapLevels6PerPage = ({
                       length={length}
                       viewingLevel={group.altitude}
                     />
-                  </View>
+                  </RowWrapper>
                 ) : null,
               )}
             </HalfPageColumn>
@@ -158,10 +151,21 @@ const HalfPageColumn = (props: PropsWithChildren) => {
   return (
     <View
       style={{
-        flexGrow: 1,
         flexBasis: '50%',
         flexDirection: 'column',
-        margin: 5,
+        margin: 0,
+      }}
+    >
+      {props.children}
+    </View>
+  )
+}
+const RowWrapper = (props: PropsWithChildren) => {
+  return (
+    <View
+      style={{
+        flexBasis: '33%',
+        maxHeight: '33%',
       }}
     >
       {props.children}
