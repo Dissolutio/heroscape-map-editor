@@ -30,7 +30,7 @@ import EmptyHexes from './maphex/instance/EmptyHex.tsx'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
 import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import { enqueueSnackbar } from 'notistack'
-import { TableSurfaceMesh } from './Lights.tsx'
+import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 
 export default function MapDisplay3D({
   cameraControlsRef,

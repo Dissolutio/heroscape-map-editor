@@ -39,8 +39,8 @@ export const virtualscapeTileColors: Dictionary<string> = {
 
 export const hexTerrainColor: Dictionary<string> = {
   ...virtualscapeTileColors,
-  // [HexTerrain.empty]: '#020300',
-  [HexTerrain.empty]: '#FFF',
+  [HexTerrain.empty]: '#020300',
+  // [HexTerrain.empty]: '#FFF',
   // All these colors below have been verified on coolors: lock a color and explore! https://coolors.co/fcecc9-336aeb-fcb0b3-f93943-355a44
   // [HexTerrain.glyphPower]: 'rgb(120, 1, 22)', // virtualscape
   [HexTerrain.glyphPower]: 'rgb(217, 8, 18)', // brighter glyph for icon

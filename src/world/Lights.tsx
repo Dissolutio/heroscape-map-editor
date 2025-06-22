@@ -6,17 +6,23 @@ export default function Lights({
   length,
 }: { width: number; length: number }) {
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   return (
     <>
-      <ambientLight intensity={isHighQualityRender ? 0.3 : 2} />
+      <ambientLight intensity={isHighQualityRender ? 0.5 : 2} />
       <hemisphereLight
         castShadow={isHighQualityRender}
         color={'0xffffff'}
         groundColor={'0xffffff'}
-        intensity={0.2}
+        intensity={0.5}
       />
       {isHighQualityRender && (
-        <TransformControls position={[width / 2, 20, length / 2]}>
+        <TransformControls
+          position={[width / 2, 20, length / 2]}
+          showX={!isTakingPicture}
+          showY={!isTakingPicture}
+          showZ={!isTakingPicture}
+        >
           <pointLight
             castShadow={isHighQualityRender}
             intensity={200}

@@ -19,10 +19,10 @@ export function TableSurfaceMesh({
         length ? length / 2 - HEXGRID_HEX_RADIUS : 0,
       ]}
     >
-      <planeGeometry args={[3 * width, 3 * length]} />
-      <shadowMaterial color="white" opacity={1} />
+      <planeGeometry args={[2 * width, 2 * length]} />
+      {/* <shadowMaterial color="white" opacity={1} /> */}
       {/* <meshStandardMaterial color="brown" opacity={1} /> */}
-      {/* <meshPhongMaterial color="lightgray" opacity={0.5} /> */}
+      <meshPhongMaterial color="white" opacity={1} />
     </mesh>
   )
 }
