@@ -56,9 +56,9 @@ const Controls = () => {
     )
   const selectedPiece = useBoundStore((s) => s.penMode + s.pieceSize)
   const totalCount = inventory.pieceInventory[selectedPiece]
-  const remainingCount = Object.values(boardPieces).reduce((count, val) => {
-    return val === selectedPiece ? count - 1 : count
-  }, totalCount)
+  // const remainingCount = Object.values(boardPieces).reduce((count, val) => {
+  //   return val === selectedPiece ? count - 1 : count
+  // }, totalCount)
 
   const handleClickLogState = () => {
     console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
@@ -164,11 +164,11 @@ const Controls = () => {
     <Container sx={{ padding: 1 }}>
       <UndoRedoButtonGroup />
       <PenModeControls />
-      <div style={{ padding: '0px 20px' }}>
+      {/* <div style={{ padding: '0px 20px' }}>
         {isUseInventory && !Number.isNaN(remainingCount)
           ? `${remainingCount} remaining`
           : ''}
-      </div>
+      </div> */}
       <PieceSizeSelect />
       <RotationSelect />
       {/* <MapLensToggles /> */}
