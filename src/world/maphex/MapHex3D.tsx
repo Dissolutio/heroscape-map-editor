@@ -574,7 +574,6 @@ export const MapHex3D = ({
             <CastleArch
               boardHex={boardHex}
               onPointerUp={onPointerUp}
-              underHexTerrain={underHexTerrain}
             />
           </Suspense>
         )}

@@ -79,7 +79,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
     }
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
-  const material = isHighQualityRender ? <meshStandardMaterial color={color} /> : <meshMatcapMaterial color={color} />
+  const material = (color: string) => isHighQualityRender ? <meshStandardMaterial color={color} /> : <meshMatcapMaterial color={color} />
 
   return (
     <>
@@ -99,7 +99,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
           onPointerEnter={(e) => onPointerEnter(e, boardHex)}
           onPointerOut={(e) => onPointerOut(e)}
         >
-          {material}
+          {material(color)}
         </mesh>
         <>
           <mesh
@@ -111,7 +111,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
             onPointerEnter={onPointerEnterCap}
             onPointerOut={onPointerOutCap}
           >
-            {material}
+            {material(capColor)}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
@@ -120,7 +120,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
             position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
             onPointerUp={(e) => onPointerUp(e, boardHex)}
           >
-            {material}
+            {material(capColor)}
           </mesh>
         </>
       </group>
