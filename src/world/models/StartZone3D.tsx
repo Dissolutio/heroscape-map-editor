@@ -14,7 +14,7 @@ export function StartZone3D({
 }) {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
-  const { isHovered, onPointerEnterPID, onPointerOut } =
+  const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
   const handleOnPointerUp = (event: ThreeEvent<PointerEvent>) => {
     onPointerUp(event, boardHex)
@@ -29,7 +29,7 @@ export function StartZone3D({
   return (
     <mesh
       onPointerUp={handleOnPointerUp}
-      onPointerEnter={(e) => onPointerEnterPID(e, boardHex.pieceID)}
+      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
       onPointerOut={(e) => onPointerOut(e)}
       rotation={[0, Math.PI / 2, 0]}
     >

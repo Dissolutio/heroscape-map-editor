@@ -2,6 +2,7 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { AppState } from './store'
+import type { BoardHex } from '../types'
 
 export interface UISlice {
   penMode: string
@@ -20,6 +21,8 @@ export interface UISlice {
   toggleSelectedPieceID: (id: string) => void
   hoveredPieceID: string
   toggleHoveredPieceID: (id: string) => void
+  hoveredHex: string
+  toggleHoveredHex: (hex: BoardHex) => void
   isShowStartZones: boolean
   toggleIsShowStartZones: (s: boolean) => void
   isTakingPicture: boolean
@@ -57,6 +60,13 @@ const createUISlice: StateCreator<
     set(
       produce((state) => {
         state.hoveredPieceID = pieceID
+      }),
+    ),
+  hoveredHex: '',
+  toggleHoveredHex: (hex: BoardHex) =>
+    set(
+      produce((state) => {
+        state.hoveredHex = hex
       }),
     ),
   penMode: initialPenMode,

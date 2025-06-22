@@ -33,6 +33,7 @@ import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import { enqueueSnackbar } from 'notistack'
 import { HEXGRID_HEX_APOTHEM, HEXGRID_HEX_RADIUS } from '../utils/constants.ts'
 import { useRef, useState } from 'react'
+import { TableSurfaceMesh } from './Lights.tsx'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -56,6 +57,7 @@ export default function MapDisplay3D({
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   // const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+  const hoveredHex = useBoundStore((s) => s.hoveredHex)
   // const decodedHoverPieceID = decodePieceID(hoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
@@ -108,15 +110,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     let clickedHexAltitude = clickedHex.altitude
     // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
 
@@ -214,23 +216,7 @@ export default function MapDisplay3D({
   const { length, width } = getBoardHexesRectangularMapDimensions(boardHexes)
   return (
     <>
-      {/* Tabletop / Ground */}
-      {isHighQualityRender && (
-        <mesh
-          receiveShadow
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[
-            width ? width / 2 - HEXGRID_HEX_APOTHEM : 0,
-            -0.01,
-            length ? length / 2 - HEXGRID_HEX_RADIUS : 0,
-          ]}
-        >
-          <planeGeometry args={[3 * width, 3 * length]} />
-          <shadowMaterial color="white" opacity={1} />
-          {/* <meshStandardMaterial color="brown" opacity={1} /> */}
-          {/* <meshPhongMaterial color="lightgray" opacity={0.5} /> */}
-        </mesh>
-      )}
+      <TableSurfaceMesh width={width} length={length} />
       <group ref={mapGroupRef}>
         {/* TOP LEFT */}
         {!isTakingPicture && (
@@ -238,7 +224,7 @@ export default function MapDisplay3D({
             // position={[topLeft[0], 0, topLeft[1]]}
             position={[0, 0.1, 0]}
             scale={[width, 0, length]}
-            // rotation={new Euler(0, Math.PI, 0)}
+          // rotation={new Euler(0, Math.PI, 0)}
           />
         )}
 
@@ -250,7 +236,6 @@ export default function MapDisplay3D({
       // rotation={new Euler(0, Math.PI, 0)}
       /> */}
 
-        {/* <SubTerrains boardHexArr={instanceBoardHexes.subTerrainHexes} /> */}
         <EmptyHexes
           boardHexArr={instanceBoardHexes.emptyHexCaps}
           onPointerUp={onPointerUp}

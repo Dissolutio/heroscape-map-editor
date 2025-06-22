@@ -17,17 +17,17 @@ export function LaurWallAddon({
   pid,
   isVisible,
 }: { pid: string; isVisible: boolean }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const {
     nodes: { LaurWallRuin, LaurWallRuinBustedConcrete },
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   } = useGLTF('/laurwall-ruin.glb') as any
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const {
     nodes: { LaurWallShort, LaurWallShortDecorDeep },
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   } = useGLTF('/laurwall-short.glb') as any
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const {
     nodes: { LaurWallLong, LaurWallLongDecorDeep },
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   } = useGLTF('/laurwall-long.glb') as any
   const { inventoryID } = decodePieceID(pid)
   const { isHovered, onPointerEnterPID, onPointerOut } =
@@ -106,7 +106,7 @@ export function LaurWallAddon({
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={LaurWallLong.geometry}
-            // position={[0.635, 0, 0]} // TODO: Tidy
+          // position={[0.635, 0, 0]} // TODO: Tidy
           >
             {basicModelMaterial(pillarColor, isHighQualityRender)}
           </mesh>
@@ -114,7 +114,7 @@ export function LaurWallAddon({
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={LaurWallLongDecorDeep.geometry}
-            // position={[0.635, 0, 0]} // TODO: Tidy
+          // position={[0.635, 0, 0]} // TODO: Tidy
           >
             {basicModelMaterial(interiorPillarColor, isHighQualityRender)}
           </mesh>
