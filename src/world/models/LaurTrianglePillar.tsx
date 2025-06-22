@@ -13,6 +13,7 @@ import { getBoardHex3DCoords } from '../../utils/map-utils'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { CylinderGeometryArgs } from '../maphex/instance-hex'
+import { basicModelMaterial } from './materials'
 
 const baseCylinderArgs: CylinderGeometryArgs = [
   0.9,
@@ -53,22 +54,15 @@ export default function LaurWallTrianglePillar({
   const isHighlighted = isHovered || isSelected
   const color = isHighlighted ? yellowColor : pillarColor
   const interiorColor = isHighlighted ? yellowColor : interiorPillarColor
-  const material1 = isHighQualityRender ?
-    <meshStandardMaterial
-      color={color} />
-    : <meshMatcapMaterial color={color} />
-  const material2 = isHighQualityRender ?
-    <meshStandardMaterial
-      color={interiorColor} />
-    : <meshMatcapMaterial color={interiorColor} />
-  const material3 = isHighQualityRender ?
+  const helpMaterialNeedsBlenderWork = isHighQualityRender ?
     <meshStandardMaterial
       color={interiorColor}
       side={DoubleSide}
       shadowSide={BackSide}
-    // shadowSide={FrontSide}
     />
-    : <meshMatcapMaterial color={interiorColor} />
+    : <meshMatcapMaterial
+      side={DoubleSide}
+      color={interiorColor} />
   return (
     <>
       <group position={[x, yWithBase, z]}>
@@ -97,28 +91,28 @@ export default function LaurWallTrianglePillar({
             castShadow={isHighQualityRender}
             geometry={nodes.TrianglePillarTop.geometry}
           >
-            {material3}
+            {helpMaterialNeedsBlenderWork}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={nodes.TriangleSubDecorCore.geometry}
           >
-            {material2}
+            {basicModelMaterial(interiorColor, isHighQualityRender)}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={nodes.TriangleFacade.geometry}
           >
-            {material1}
+            {basicModelMaterial(color, isHighQualityRender)}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={nodes.TriangleFacadeInner.geometry}
           >
-            {material2}
+            {basicModelMaterial(interiorColor, isHighQualityRender)}
           </mesh>
         </group>
         <group position={[0, 0, 0]}>
@@ -127,7 +121,7 @@ export default function LaurWallTrianglePillar({
             castShadow={isHighQualityRender}
           >
             <cylinderGeometry args={baseCylinderArgs} />
-            {material1}
+            {basicModelMaterial(color, isHighQualityRender)}
           </mesh>
         </group>
       </group>

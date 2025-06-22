@@ -143,14 +143,14 @@ const createUISlice: StateCreator<
   toggleIsHighQualityRender: (b: boolean) =>
     set(
       produce((s) => {
-        s.isHighQualityMode = b
+        s.isHighQualityRender = b
       }),
     ),
-  isFrameloopDemand: false,
+  isFrameloopDemand: true,
   toggleIsFrameloopDemand: (b: boolean) =>
     set(
       produce((s) => {
-        s.isLowQualityMode = b
+        s.isFrameloopDemand = b
       }),
     ),
 })

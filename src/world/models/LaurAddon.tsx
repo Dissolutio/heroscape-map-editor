@@ -5,6 +5,7 @@ import useBoundStore from '../../store/store'
 import { HexTerrain, Pieces } from '../../types'
 import { decodePieceID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
+import { basicModelMaterial } from './materials'
 
 // {
 //   /* <mesh geometry={LaurWallRuin.geometry}>
@@ -16,26 +17,20 @@ export function LaurWallAddon({
   pid,
   isVisible,
 }: { pid: string; isVisible: boolean }) {
-  const {
-    nodes: { LaurWallRuin, LaurWallRuinBustedConcrete },
-  } = useGLTF('/laurwall-ruin.glb') as any
-  const {
-    nodes: { LaurWallShort, LaurWallShortDecorDeep },
-  } = useGLTF('/laurwall-short.glb') as any
-  const {
-    nodes: { LaurWallLong, LaurWallLongDecorDeep },
-  } = useGLTF('/laurwall-long.glb') as any
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes: { LaurWallRuin, LaurWallRuinBustedConcrete } } = useGLTF('/laurwall-ruin.glb') as any
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes: { LaurWallShort, LaurWallShortDecorDeep } } = useGLTF('/laurwall-short.glb') as any
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes: { LaurWallLong, LaurWallLongDecorDeep } } = useGLTF('/laurwall-long.glb') as any
   const {
     inventoryID,
-    // altitude,
-    // rotation,
-    // boardHexID,
-    // pieceCoords
   } = decodePieceID(pid)
   const { isHovered, onPointerEnterPID, onPointerOut } =
     usePieceHoverState(isVisible)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === pid
   const isHighlighted = isHovered || isSelected
@@ -65,30 +60,38 @@ export function LaurWallAddon({
       {/* LAUR WALL RUIN */}
       {inventoryID === Pieces.laurWallRuin && (
         <>
-          <mesh receiveShadow castShadow geometry={LaurWallRuin.geometry}>
-            <meshStandardMaterial color={pillarColor} />
+          <mesh
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
+            geometry={LaurWallRuin.geometry}
+          >
+            {basicModelMaterial(pillarColor, isHighQualityRender)}
           </mesh>
           <mesh
-            receiveShadow
-            castShadow
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
             geometry={LaurWallRuinBustedConcrete.geometry}
           >
-            <meshStandardMaterial color={interiorPillarColor} />
+            {basicModelMaterial(interiorPillarColor, isHighQualityRender)}
           </mesh>
         </>
       )}
       {/* LAUR WALL SHORT */}
       {inventoryID === Pieces.laurWallShort && (
         <>
-          <mesh receiveShadow castShadow geometry={LaurWallShort.geometry}>
-            <meshStandardMaterial color={pillarColor} />
+          <mesh
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
+            geometry={LaurWallShort.geometry}
+          >
+            {basicModelMaterial(pillarColor, isHighQualityRender)}
           </mesh>
           <mesh
-            receiveShadow
-            castShadow
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
             geometry={LaurWallShortDecorDeep.geometry}
           >
-            <meshStandardMaterial color={interiorPillarColor} />
+            {basicModelMaterial(interiorPillarColor, isHighQualityRender)}
           </mesh>
         </>
       )}
@@ -96,20 +99,20 @@ export function LaurWallAddon({
       {inventoryID === Pieces.laurWallLong && (
         <>
           <mesh
-            receiveShadow
-            castShadow
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
             geometry={LaurWallLong.geometry}
-            // position={[0.635, 0, 0]} // TODO: Tidy
+          // position={[0.635, 0, 0]} // TODO: Tidy
           >
-            <meshStandardMaterial color={pillarColor} />
+            {basicModelMaterial(pillarColor, isHighQualityRender)}
           </mesh>
           <mesh
-            receiveShadow
-            castShadow
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
             geometry={LaurWallLongDecorDeep.geometry}
-            // position={[0.635, 0, 0]} // TODO: Tidy
+          // position={[0.635, 0, 0]} // TODO: Tidy
           >
-            <meshStandardMaterial color={interiorPillarColor} />
+            {basicModelMaterial(interiorPillarColor, isHighQualityRender)}
           </mesh>
         </>
       )}

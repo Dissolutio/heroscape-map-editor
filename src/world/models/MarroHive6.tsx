@@ -5,6 +5,7 @@ import useBoundStore from '../../store/store'
 import type { BoardHex } from '../../types'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
+import { basicModelMaterial } from './materials'
 
 export default function MarroHive6({ boardHex }: { boardHex: BoardHex }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -42,8 +43,7 @@ export default function MarroHive6({ boardHex }: { boardHex: BoardHex }) {
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={onPointerOut}
       >
-        {isHighQualityRender ? <meshStandardMaterial color={color} /> :
-          <meshMatcapMaterial color={color} />}
+        {basicModelMaterial(color, isHighQualityRender)}
       </mesh>
     </>
   )

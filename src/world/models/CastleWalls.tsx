@@ -11,6 +11,7 @@ import { getBoardHex3DCoords } from '../../utils/map-utils'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 import ObstacleBase from './ObstacleBase'
+import { basicModelMaterial } from './materials'
 
 type Props = {
   boardHex: BoardHex
@@ -79,7 +80,6 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
     }
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
-  const material = (color: string) => isHighQualityRender ? <meshStandardMaterial color={color} /> : <meshMatcapMaterial color={color} />
 
   return (
     <>
@@ -99,7 +99,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
           onPointerEnter={(e) => onPointerEnter(e, boardHex)}
           onPointerOut={(e) => onPointerOut(e)}
         >
-          {material(color)}
+          {basicModelMaterial(color, isHighQualityRender)}
         </mesh>
         <>
           <mesh
@@ -111,7 +111,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
             onPointerEnter={onPointerEnterCap}
             onPointerOut={onPointerOutCap}
           >
-            {material(capColor)}
+            {basicModelMaterial(capColor, isHighQualityRender)}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
@@ -120,7 +120,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
             position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
             onPointerUp={(e) => onPointerUp(e, boardHex)}
           >
-            {material(capColor)}
+            {basicModelMaterial(capColor, isHighQualityRender)}
           </mesh>
         </>
       </group>

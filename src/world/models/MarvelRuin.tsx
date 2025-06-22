@@ -6,12 +6,14 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { Pieces, type BoardHex } from '../../types'
 import { DoubleSide } from 'three'
+import { basicDoubleSideModelMaterial } from './materials'
 
 export function MarvelRuin({
   boardHex,
 }: {
   boardHex: BoardHex
 }) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/marvel-ruins.glb') as any
   const { x, z, yBaseCap } = getBoardHex3DCoords(boardHex)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
@@ -58,9 +60,7 @@ export function MarvelRuin({
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.MarvelRuinMain.geometry}>
-        {isHighQualityRender ?
-          <meshStandardMaterial color={color} side={DoubleSide} />
-          : <meshMatcapMaterial color={color} side={DoubleSide} />}
+        {basicDoubleSideModelMaterial(color, isHighQualityRender)}
       </mesh>
       {isUpperFloor && (
         <mesh
@@ -68,9 +68,7 @@ export function MarvelRuin({
           castShadow={isHighQualityRender}
           geometry={nodes.MarvelRuinUpperFloor.geometry}
         >
-          {isHighQualityRender ?
-            <meshStandardMaterial color={colorUpperFloor} side={DoubleSide} />
-            : <meshMatcapMaterial color={colorUpperFloor} side={DoubleSide} />}
+          {basicDoubleSideModelMaterial(colorUpperFloor, isHighQualityRender)}
         </mesh>
       )}
       {isWallIntact && (
@@ -79,9 +77,7 @@ export function MarvelRuin({
           castShadow={isHighQualityRender}
           geometry={nodes.MarvelRuinRemoveableWall.geometry}
         >
-          {isHighQualityRender ?
-            <meshStandardMaterial color={color} side={DoubleSide} />
-            : <meshMatcapMaterial color={color} side={DoubleSide} />}
+          {basicDoubleSideModelMaterial(color, isHighQualityRender)}
         </mesh>
       )}
     </group>

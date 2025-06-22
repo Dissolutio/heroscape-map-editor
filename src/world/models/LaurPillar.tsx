@@ -13,6 +13,7 @@ import { getBoardHex3DCoords } from '../../utils/map-utils'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { CylinderGeometryArgs } from '../maphex/instance-hex'
+import { basicModelMaterial } from './materials'
 
 // function getPillarReport({
 //   boardHexes,
@@ -122,22 +123,6 @@ export default function LaurWallPillar({
   const isHighlighted = isHovered || isSelected
   const color = isHighlighted ? yellowColor : pillarColor
   const interiorColor = isHighlighted ? yellowColor : interiorPillarColor
-  const material1 = isHighQualityRender ?
-    <meshStandardMaterial
-      // roughness={0.4}
-      // emissive={'black'}
-      // emissiveIntensity={0.4}
-      // metalness={0}
-      color={color} />
-    : <meshMatcapMaterial color={color} />
-  const material2 = isHighQualityRender ?
-    <meshStandardMaterial
-      // roughness={0.4}
-      // emissive={'black'}
-      // emissiveIntensity={0.4}
-      // metalness={0}
-      color={interiorColor} />
-    : <meshMatcapMaterial color={interiorColor} />
   return (
     <>
       <group position={[x, yWithBase, z]}>
@@ -164,25 +149,25 @@ export default function LaurWallPillar({
             castShadow={isHighQualityRender}
             geometry={nodes.PillarTop.geometry}
           >
-            {material1}
+            {basicModelMaterial(color, isHighQualityRender)}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={nodes.SubDecorCore.geometry}>
-            {material2}
+            {basicModelMaterial(interiorColor, isHighQualityRender)}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={nodes.Facade.geometry}>
-            {material1}
+            {basicModelMaterial(color, isHighQualityRender)}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={nodes.FacadeInner.geometry}>
-            {material2}
+            {basicModelMaterial(interiorColor, isHighQualityRender)}
           </mesh>
         </group>
         <group position={[0, 0, 0]}>
@@ -191,7 +176,7 @@ export default function LaurWallPillar({
             castShadow={isHighQualityRender}
           >
             <cylinderGeometry args={baseCylinderArgs} />
-            {material1}
+            {basicModelMaterial(color, isHighQualityRender)}
           </mesh>
         </group>
       </group>
