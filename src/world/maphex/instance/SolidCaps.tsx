@@ -44,6 +44,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
           boardHex={hex}
           onPointerUp={onPointerUp}
           isVisible={range >= i}
+          isHighQualityRender={isHighQualityRender}
         />
       ))}
     </Instances>
@@ -56,7 +57,8 @@ function SolidCap({
   boardHex,
   onPointerUp,
   isVisible,
-}: BoardHexPieceProps & { isVisible: boolean }) {
+  isHighQualityRender
+}: BoardHexPieceProps & { isVisible: boolean, isHighQualityRender: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState(isVisible)
@@ -122,6 +124,8 @@ function SolidCap({
       onPointerLeave={handlePointerOut}
       onPointerUp={handlePointerUp}
       frustumCulled={false}
+      receiveShadow={isHighQualityRender}
+      castShadow={isHighQualityRender}
     />
   )
 }

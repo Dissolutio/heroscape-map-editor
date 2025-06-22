@@ -40,10 +40,10 @@ const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       range={range} // no way there would be this many fluid caps, but with an overhang on every other hex, maybe
       ref={ref}
       frustumCulled={false}
-      receiveShadow
+      receiveShadow={isHighQualityRender}
     >
       <cylinderGeometry args={baseFluidCapCylinderArgs} />
-      {isHighQualityRender ? <meshStandardMaterial /> : <meshLambertMaterial transparent opacity={FLUID_CAP_OPACITY} />}
+      {isHighQualityRender ? <meshStandardMaterial transparent opacity={FLUID_CAP_OPACITY} /> : <meshLambertMaterial transparent opacity={FLUID_CAP_OPACITY} />}
       {boardHexArr.map((hex, i) => (
         <FluidCap
           key={`${hex.id + i}fluid`}
@@ -83,7 +83,7 @@ function FluidCap({
       x,
       y -
       (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
-      0.01,
+      0.001,
       z,
     )
   }, [boardHex])

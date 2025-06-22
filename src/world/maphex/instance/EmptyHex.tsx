@@ -45,6 +45,7 @@ const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
           key={`${hex.id + i}empty`}
           boardHex={hex}
           onPointerUp={onPointerUp}
+          isHighQualityRender={isHighQualityRender}
         />
       ))}
     </Instances>
@@ -53,7 +54,11 @@ const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
 
 export default EmptyHexes
 
-function EmptyHex({ boardHex, onPointerUp }: BoardHexPieceProps) {
+function EmptyHex({
+  boardHex,
+  onPointerUp,
+  isHighQualityRender
+}: BoardHexPieceProps & { isHighQualityRender: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState(true)
@@ -86,6 +91,8 @@ function EmptyHex({ boardHex, onPointerUp }: BoardHexPieceProps) {
       onPointerEnter={handleEnter}
       onPointerOut={handleOut}
       frustumCulled={false}
+      receiveShadow={isHighQualityRender}
+      castShadow={isHighQualityRender}
     />
   )
 }

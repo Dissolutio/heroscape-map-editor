@@ -210,15 +210,6 @@ export default function MapDisplay3D({
   }
 
   const { length, width } = getBoardHexesRectangularMapDimensions(boardHexes)
-  // biome-ignore lint/style/noNonNullAssertion: <explanation>
-  const lightRef = useRef(null!)
-  const [transformControlsVisible, setTransformControlsVisible] =
-    useState(false)
-  const [selectedObject, setSelectedObject] = useState(null)
-  const [transformMode, setTransformMode] = useState<
-    'translate' | 'rotate' | 'scale'
-  >('translate') // 'translate', 'rotate', 'scale'
-  // const topLeft = [-HEXGRID_HEX_APOTHEM, -1]
   return (
     <>
       {/* Tabletop / Ground */}
@@ -231,8 +222,9 @@ export default function MapDisplay3D({
           length ? length / 2 - HEXGRID_HEX_RADIUS : 0,
         ]}
       >
-        <planeGeometry args={[10 * width, 10 * length]} />
-        <shadowMaterial color="lightgray" opacity={0.4} />
+        <planeGeometry args={[3 * width, 3 * length]} />
+        <shadowMaterial color="white" opacity={1} />
+        {/* <meshStandardMaterial color="brown" opacity={1} /> */}
         {/* <meshPhongMaterial color="lightgray" opacity={0.5} /> */}
       </mesh>)}
       <group ref={mapGroupRef}>

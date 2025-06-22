@@ -81,8 +81,7 @@ const World = ({
             mapGroupRef={mapGroupRef}
             cameraControlsRef={cameraControlsRef}
           />
-          {/* <Lights width={width} length={length} /> */}
-          <Lights />
+          <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}
           <MyCameraControls
             cameraControlsRef={cameraControlsRef}
