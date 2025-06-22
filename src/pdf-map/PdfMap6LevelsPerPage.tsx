@@ -43,6 +43,7 @@ export const PdfMapLevels6PerPage = ({
           style={{
             flexDirection: 'column',
             maxHeight: '100vh',
+            padding: 5,
           }}
         >
           {i === 0 && children}
