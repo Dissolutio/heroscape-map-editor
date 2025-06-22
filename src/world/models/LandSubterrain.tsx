@@ -1,35 +1,26 @@
 import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import React, { type PropsWithChildren } from 'react'
-import { piecesSoFar } from '../../data/pieces'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { HexTerrain, Pieces } from '../../types'
+import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import { isFluidTerrainHex } from '../../utils/board-utils'
-import { decodePieceID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { FLUID_CAP_OPACITY } from '../maphex/instance/FluidCap'
 import { HEXGRID_HEX_APOTHEM } from '../../utils/constants'
 
-export default function LandSubterrain({ pid }: { pid: string }) {
+export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
   const {
     inventoryID,
-    altitude,
-    // rotation,
-    // boardHexID,
-    // pieceCoords
-  } = decodePieceID(pid)
-
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+    pieceID
+  } = boardHex
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const isVisible = altitude + 1 <= viewingLevel
-  const { onPointerEnterPID, onPointerOut } = usePieceHoverState(isVisible)
-
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === pid
-  const isHovered = hoveredPieceID === pid
-  const pieceTerrain = piecesSoFar[inventoryID].terrain
+  const isSelected = selectedPieceID === pieceID
+  const isHovered = hoveredPieceID === pieceID
+  const pieceTerrain = boardHex.terrain
   const isDirtSubterrain =
     pieceTerrain === HexTerrain.grass ||
     pieceTerrain === HexTerrain.sand ||
@@ -59,15 +50,12 @@ export default function LandSubterrain({ pid }: { pid: string }) {
   }, [baseColor, isHighlighted])
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : pid)
+    toggleSelectedPieceID(isSelected ? '' : pieceID)
   }
   const material = () => {
     if (isHighQualityRender) {
@@ -125,7 +113,7 @@ export default function LandSubterrain({ pid }: { pid: string }) {
   return (
     <group
       onPointerUp={onPointerUp}
-      onPointerEnter={(e) => onPointerEnterPID(e, pid)}
+      onPointerEnter={(e) => onPointerEnterPID(e, pieceID)}
       onPointerOut={(e) => onPointerOut(e)}
     >
       {getMesh()}

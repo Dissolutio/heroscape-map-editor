@@ -7,28 +7,31 @@ import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
 
 export function StartZone3D({
   boardHex,
-  onPointerUp,
 }: {
   boardHex: BoardHex
-  onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isVisible = boardHex.altitude <= viewingLevel
-  const { isHovered, onPointerEnter, onPointerOut } =
-    usePieceHoverState(isVisible)
-  const handleOnPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    onPointerUp(event, boardHex)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+  const { onPointerEnter, onPointerOut } =
+    usePieceHoverState()
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation() // prevent pass through
+    // Early out right clicks(event.button=2), middle mouse clicks(1)
+    if (event.button !== 0) {
+      return
+    }
+    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = isHovered || isSelected
+  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
   const color = isHighlighted
     ? yellowColor
     : hexTerrainColor[boardHex.inventoryID]
   return (
     <mesh
-      onPointerUp={handleOnPointerUp}
+      onPointerUp={onPointerUp}
       onPointerEnter={(e) => onPointerEnter(e, boardHex)}
       onPointerOut={(e) => onPointerOut(e)}
       rotation={[0, Math.PI / 2, 0]}

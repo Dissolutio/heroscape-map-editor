@@ -36,6 +36,7 @@ import {
   getOptionsForBigTree,
   getOptionsForPalmHeight,
   getOptionsForTreeHeight,
+  getRuinsOptions,
 } from '../models/piece-adjustments'
 import DeletePieceBillboard from './DeletePieceBillboard'
 import HeightRing from './HeightRing'
@@ -152,38 +153,39 @@ export const MapHex3D = ({
   const isCastleArch =
     pieceID === Pieces.castleArch || pieceID === Pieces.castleArchNoDoor
 
+
+  const ruinsOptions = getRuinsOptions(boardHex.pieceRotation)
+  const pieceRotation = (boardHex.pieceRotation * -Math.PI) / 3
+
+  if (!isVisible) {
+    return null
+  }
   return (
     <>
       <MapHexIDDisplay
         boardHex={boardHex}
         position={new Vector3(x, y + 0.2, z)}
       />
-      <group visible={isVisible}>
+      <group>
+        {/* GROUP 1: pos, rot, scale */}
         {isSolidSubterrain && (
           <group
-            position={[x, y - HEXGRID_HEX_HEIGHT, z]}
-            rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
+            position={[x, yBaseCap, z]}
+            rotation={[0, pieceRotation, 0]}
           >
-            {selectedPieceID === boardHex.pieceID && (
-              <DeletePieceBillboard pieceID={boardHex.pieceID} />
-            )}
             <Suspense fallback={<ModelLoader />}>
-              <LandSubterrain pid={boardHex.pieceID} />
+              <LandSubterrain boardHex={boardHex} />
             </Suspense>
           </group>
         )}
         {isFluidSubterrain && (
-          <group position={[x, y - HEXGRID_HEX_HEIGHT, z]}>
-            {selectedPieceID === boardHex.pieceID && (
-              <DeletePieceBillboard pieceID={boardHex.pieceID} />
-            )}
+          <group
+            position={[x, yBaseCap, z]}
+            rotation={[0, pieceRotation, 0]}
+            scale={[1, HEXGRID_HEXCAP_FLUID_SCALE, 1]}
+          >
             <Suspense fallback={<ModelLoader />}>
-              <group
-                rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
-                scale={[1, HEXGRID_HEXCAP_FLUID_SCALE, 1]}
-              >
-                <LandSubterrain pid={boardHex.pieceID} />
-              </group>
+              <LandSubterrain boardHex={boardHex} />
             </Suspense>
           </group>
         )}
@@ -192,27 +194,71 @@ export const MapHex3D = ({
             position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
             rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, Math.PI / 2]}
           >
-            {selectedPieceID === boardHex.pieceID && (
-              <DeletePieceBillboard pieceID={boardHex.pieceID} />
-            )}
-            <StartZone3D boardHex={boardHex} onPointerUp={onPointerUp} />
+            <StartZone3D boardHex={boardHex} />
           </group>
         )}
         {isRuin2OriginHex && (
-          <Suspense fallback={<ModelLoader />}>
-            <Ruins2 boardHex={boardHex} />
-          </Suspense>
+          <group
+            position={[x + ruinsOptions.xAdd, yBaseCap, z + ruinsOptions.zAdd]}
+            rotation={[0, ruinsOptions.rotationY, 0]}
+          //       onPointerUp={(e) => onPointerUp(e)}
+          // onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+          // onPointerOut={(e) => onPointerOut(e)}
+          >
+            <Suspense fallback={<ModelLoader />}>
+              <Ruins2 boardHex={boardHex} />
+            </Suspense>
+          </group>
         )}
         {isRuin3OriginHex && (
-          <Suspense fallback={<ModelLoader />}>
-            <Ruins3 boardHex={boardHex} />
-          </Suspense>
+          <group
+            position={[x + ruinsOptions.xAdd, yBaseCap, z + ruinsOptions.zAdd]}
+            rotation={[0, ruinsOptions.rotationY, 0]}
+          >
+            <Suspense fallback={<ModelLoader />}>
+              <Ruins3 boardHex={boardHex} />
+            </Suspense>
+          </group>
         )}
         {isMarvelRuinOriginHex && (
-          <Suspense fallback={<ModelLoader />}>
-            <MarvelRuin boardHex={boardHex} />
-          </Suspense>
+          <group
+            position={[x, yBaseCap, z]}
+            rotation={[0, pieceRotation, 0]}
+          >
+            <Suspense fallback={<ModelLoader />}>
+              <MarvelRuin boardHex={boardHex} />
+            </Suspense>
+          </group>
         )}
+        {isTreeHex && (
+          <>
+            <group
+              scale={[
+                getOptionsForTreeHeight(boardHex.pieceID).scaleX,
+                getOptionsForTreeHeight(boardHex.pieceID).scaleY,
+                getOptionsForTreeHeight(boardHex.pieceID).scaleX,
+              ]}
+              position={[
+                x,
+                yWithBase + getOptionsForTreeHeight(boardHex.pieceID).y,
+                z,
+              ]}
+              rotation={[0, pieceRotation, 0]}
+            >
+              <Suspense fallback={<ModelLoader />}>
+                <ForestTree boardHex={boardHex} />
+              </Suspense>
+            </group>
+            <ObstacleBase
+              x={x}
+              y={yBase}
+              z={z}
+              color={hexTerrainColor.treeBase}
+            />
+          </>
+        )}
+
+        {/* UNSORTED BELOW */}
         {isHeightRingedHex && <HeightRing position={new Vector3(x, y, z)} />}
         {isLaurSquarePillarHex && (
           <LaurPillar
@@ -228,33 +274,7 @@ export const MapHex3D = ({
             onPointerUp={onPointerUp}
           />
         )}
-        {isTreeHex && (
-          <>
-            <Suspense fallback={<ModelLoader />}>
-              <group
-                scale={[
-                  getOptionsForTreeHeight(boardHex.pieceID).scaleX,
-                  getOptionsForTreeHeight(boardHex.pieceID).scaleY,
-                  getOptionsForTreeHeight(boardHex.pieceID).scaleX,
-                ]}
-                position={[
-                  x,
-                  yWithBase + getOptionsForTreeHeight(boardHex.pieceID).y,
-                  z,
-                ]}
-                rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
-              >
-                <ForestTree boardHex={boardHex} />
-              </group>
-            </Suspense>
-            <ObstacleBase
-              x={x}
-              y={yBase}
-              z={z}
-              color={hexTerrainColor.treeBase}
-            />
-          </>
-        )}
+
         {isBigTreeHex && (
           <>
             <Suspense fallback={<ModelLoader />}>

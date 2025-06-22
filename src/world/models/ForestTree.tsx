@@ -5,22 +5,16 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
+import { basicModelMaterial } from './materials'
 
 export default function ForestTree({ boardHex }: { boardHex: BoardHex }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF(
-    '/forgotten-forest-tree-low-poly-colored.glb',
-  ) as any
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const { nodes } = useGLTF('/forgotten-forest-tree-low-poly-colored.glb') as any
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const isVisible = boardHex.altitude <= viewingLevel
-  const { isHovered, onPointerEnter, onPointerOut } =
-    usePieceHoverState(isVisible)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
@@ -31,7 +25,7 @@ export default function ForestTree({ boardHex }: { boardHex: BoardHex }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = isHovered || isSelected
+  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.tree]
   return (
     <>
@@ -46,11 +40,7 @@ export default function ForestTree({ boardHex }: { boardHex: BoardHex }) {
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        {isHighQualityRender ? (
-          <meshStandardMaterial color={color} />
-        ) : (
-          <meshMatcapMaterial color={color} />
-        )}
+        {basicModelMaterial(color, isHighQualityRender)}
       </mesh>
       {/* <Billboard
         position={[x, options.y + 1.5, z]}
