@@ -31,6 +31,7 @@ import FluidCaps from './maphex/instance/FluidCap.tsx'
 import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import { enqueueSnackbar } from 'notistack'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
+import PiecePreview from './PiecePreview.tsx'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -50,7 +51,6 @@ export default function MapDisplay3D({
   const paintTile = useBoundStore((s) => s.paintTile)
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
-  const hoveredHex = useBoundStore((s) => s.hoveredHex)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useZoomCameraToMapCenter({
@@ -64,7 +64,7 @@ export default function MapDisplay3D({
     isTakingPicture,
   )
 
-  const onPointerUp = (event: ThreeEvent<PointerEvent>, hex: BoardHex) => {
+  const onPointerUpPaintPiece = (event: ThreeEvent<PointerEvent>, hex: BoardHex) => {
     let error: AddRemovePieceError
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
@@ -228,25 +228,25 @@ export default function MapDisplay3D({
       // rotation={new Euler(0, Math.PI, 0)}
       /> */}
 
-        {/* <PiecePreview /> */}
+        <PiecePreview />
         <EmptyHexes
           boardHexArr={instanceBoardHexes.emptyHexCaps}
-          onPointerUp={onPointerUp}
+          onPointerUp={onPointerUpPaintPiece}
         />
         <SolidCaps
           boardHexArr={instanceBoardHexes.solidHexCaps}
-          onPointerUp={onPointerUp}
+          onPointerUp={onPointerUpPaintPiece}
         />
         <FluidCaps
           boardHexArr={instanceBoardHexes.fluidHexCaps}
-          onPointerUp={onPointerUp}
+          onPointerUp={onPointerUpPaintPiece}
         />
         {Object.keys(boardPieces).map((pid) => {
           return <MapBoardPiece3D key={pid} pid={pid} />
         })}
         {boardHexesArr.map((bh) => {
           return (
-            <MapHex3D key={bh.id} boardHex={bh} onPointerUp={onPointerUp} />
+            <MapHex3D key={bh.id} boardHex={bh} onPointerUpPaintPiece={onPointerUpPaintPiece} />
           )
         })}
       </group>

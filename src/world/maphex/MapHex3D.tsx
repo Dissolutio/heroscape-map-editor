@@ -50,13 +50,22 @@ import LaurWallTrianglePillar from '../models/LaurTrianglePillar'
 
 export const MapHex3D = ({
   boardHex,
-  onPointerUp,
-  isPiecePreview
+  onPointerUpPaintPiece,
+  piecePreviewID
 }: {
   boardHex: BoardHex
-  onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
-  isPiecePreview?: boolean
+  onPointerUpPaintPiece?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
+  piecePreviewID?: string // A piece inventory ID
 }) => {
+  const isPiecePreview = Boolean(piecePreviewID) // no pointer events and add opacity
+  const hoveredHex = useBoundStore((s) => s.hoveredHex)
+  const hex = isPiecePreview ? hoveredHex : boardHex
+  /* Piece Preview:
+  1. A solid/fluid/empty cap (preview anything except laur-addons)
+  2. Laur Pillar / Triangle (preview laud-addons)
+  3. Castle Walls onto Walls (preview stacking)
+  4. 
+  */
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
@@ -206,9 +215,6 @@ export const MapHex3D = ({
         <group
           position={[x + ruinsOptions.xAdd, yBaseCap, z + ruinsOptions.zAdd]}
           rotation={[0, ruinsOptions.rotationY, 0]}
-        //       onPointerUp={(e) => onPointerUp(e)}
-        // onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-        // onPointerOut={(e) => onPointerOut(e)}
         >
           <Suspense fallback={<ModelLoader />}>
             <Ruins2 boardHex={boardHex} />
@@ -262,6 +268,7 @@ export const MapHex3D = ({
           />
         </>
       )}
+      {/* GROUP GETS onPointerUpPaintPiece */}
       {isLaurSquarePillarHex && (
         <>
           <group
@@ -277,8 +284,7 @@ export const MapHex3D = ({
             <Suspense fallback={<ModelLoader />}>
               <LaurPillar
                 boardHex={boardHex}
-                isUnderHexFluid={isUnderHexFluid}
-                onPointerUp={onPointerUp}
+                onPointerUp={onPointerUpPaintPiece}
               />
             </Suspense>
           </group>
@@ -305,7 +311,7 @@ export const MapHex3D = ({
             <Suspense fallback={<ModelLoader />}>
               <LaurWallTrianglePillar
                 boardHex={boardHex}
-                onPointerUp={onPointerUp}
+                onPointerUp={onPointerUpPaintPiece}
               />
             </Suspense>
           </group>
@@ -584,7 +590,7 @@ export const MapHex3D = ({
           rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <Ladder boardHex={boardHex} onPointerUp={onPointerUp} />
+            <Ladder boardHex={boardHex} onPointerUp={onPointerUpPaintPiece} />
           </Suspense>
         </group>
       )}
@@ -626,7 +632,7 @@ export const MapHex3D = ({
             rotation={[0, pieceRotation, 0]}
           >
             <Suspense fallback={<ModelLoader />}>
-              <CastleBases boardHex={boardHex} onPointerUp={onPointerUp} />
+              <CastleBases boardHex={boardHex} onPointerUp={onPointerUpPaintPiece} />
             </Suspense>
           </group>
           <ObstacleBase x={x} y={yBaseCap} z={z} color={(hoveredPieceID === boardHex.pieceID) || selectedPieceID === boardHex.pieceID ? hexTerrainColor[HexTerrain.castle] : 'yellow'} />
@@ -639,7 +645,7 @@ export const MapHex3D = ({
             rotation={[0, pieceRotation, 0]}
           >
             <Suspense fallback={<ModelLoader />}>
-              <CastleWall onPointerUp={onPointerUp} boardHex={boardHex} />
+              <CastleWall onPointerUp={onPointerUpPaintPiece} boardHex={boardHex} />
             </Suspense>
           </group>
           {boardHex.obstacleHeight === 9 && ( // when it's 8, castle is wall-on-wall and no base is shown
@@ -658,7 +664,7 @@ export const MapHex3D = ({
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <CastleArch boardHex={boardHex} onPointerUp={onPointerUp} />
+            <CastleArch boardHex={boardHex} onPointerUp={onPointerUpPaintPiece} />
           </Suspense>
         </group>
       )}

@@ -6,7 +6,6 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import { HEXGRID_HEXCAP_FLUID_HEIGHT } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
-import type { CylinderGeometryArgs } from '../maphex/instance-hex'
 import { basicModelMaterial } from './materials'
 
 export default function LaurWallTrianglePillar({
@@ -14,7 +13,7 @@ export default function LaurWallTrianglePillar({
   onPointerUp,
 }: {
   boardHex: BoardHex
-  onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
+  onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -40,7 +39,7 @@ export default function LaurWallTrianglePillar({
   return (
     <>
       <group
-        onPointerUp={(e) => onPointerUp(e, boardHex)}
+        onPointerUp={(e) => onPointerUp?.(e, boardHex)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
