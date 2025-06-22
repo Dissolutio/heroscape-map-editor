@@ -1,6 +1,6 @@
 import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-import { DoubleSide } from 'three'
+import { BackSide, DoubleSide } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
@@ -63,7 +63,11 @@ export default function LaurWallTrianglePillar({
     : <meshMatcapMaterial color={interiorColor} />
   const material3 = isHighQualityRender ?
     <meshStandardMaterial
-      color={interiorColor} side={DoubleSide} />
+      color={interiorColor}
+      side={DoubleSide}
+      shadowSide={BackSide}
+    // shadowSide={FrontSide}
+    />
     : <meshMatcapMaterial color={interiorColor} />
   return (
     <>
