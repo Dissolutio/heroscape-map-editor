@@ -19,11 +19,11 @@ export const getMaterialForOutcrop = (
     />
   )
 }
-export const basicModelMaterial = (color: string, isHQ: boolean) =>
+export const basicModelMaterial = (color: string, isHQ: boolean, isPreview?: boolean) =>
   isHQ ? (
-    <meshStandardMaterial color={color} />
+    <meshStandardMaterial color={color} transparent={isPreview} opacity={isPreview ? 0.5 : 1} />
   ) : (
-    <meshMatcapMaterial color={color} />
+    <meshMatcapMaterial color={color} transparent={isPreview} opacity={isPreview ? 0.5 : 1} />
   )
 export const basicDoubleSideModelMaterial = (color: string, isHQ: boolean) =>
   isHQ ? (

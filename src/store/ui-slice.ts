@@ -21,7 +21,7 @@ export interface UISlice {
   toggleSelectedPieceID: (id: string) => void
   hoveredPieceID: string
   toggleHoveredPieceID: (id: string) => void
-  hoveredHex: string
+  hoveredHex: BoardHex | undefined
   toggleHoveredHex: (hex: BoardHex) => void
   isShowStartZones: boolean
   toggleIsShowStartZones: (s: boolean) => void
@@ -62,7 +62,7 @@ const createUISlice: StateCreator<
         state.hoveredPieceID = pieceID
       }),
     ),
-  hoveredHex: '',
+  hoveredHex: undefined,
   toggleHoveredHex: (hex: BoardHex) =>
     set(
       produce((state) => {

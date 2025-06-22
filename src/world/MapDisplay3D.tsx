@@ -34,6 +34,7 @@ import { enqueueSnackbar } from 'notistack'
 import { HEXGRID_HEX_APOTHEM, HEXGRID_HEX_RADIUS } from '../utils/constants.ts'
 import { useRef, useState } from 'react'
 import { TableSurfaceMesh } from './Lights.tsx'
+import PiecePreview from './PiecePreview.tsx'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -235,7 +236,7 @@ export default function MapDisplay3D({
         scale={[width, 0, length]}
       // rotation={new Euler(0, Math.PI, 0)}
       /> */}
-
+        <PiecePreview />
         <EmptyHexes
           boardHexArr={instanceBoardHexes.emptyHexCaps}
           onPointerUp={onPointerUp}
