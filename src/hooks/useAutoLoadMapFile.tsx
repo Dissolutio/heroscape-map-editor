@@ -60,6 +60,7 @@ const useAutoLoadMapFile = (props?: Props) => {
         // })
         // navigate(ROUTES.heroscapeHome)
         clearUndoHistory() // clear undo history, initial load should not be undoable
+        // biome-ignore lint/suspicious/noExplicitAny: <error could be anything>
       } catch (error: any) {
         enqueueSnackbar({
           message: `Error loading map from URL: ${error?.message ?? error}`,
@@ -88,8 +89,7 @@ const useAutoLoadMapFile = (props?: Props) => {
       //     )
       //   })
       // AUTO JSON
-      // const fileName = '/The_Sunken_Crypt.json'
-      const fileName = '/AoA_1_The_Shattered_Table.json'
+      const fileName = '/json-maps/AoA_1_The_Shattered_Table.json'
       fetch(fileName).then(async (response) => {
         // const data = response.json()
         const data = await response.json()
