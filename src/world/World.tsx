@@ -76,7 +76,9 @@ const World = ({
             makeDefault={isOrthoCam}
           />
           {/* Stats displays the fps */}
-          {(!isHidden && import.meta.env.DEV) && <Stats className="stats-panel" />}
+          {!isHidden && import.meta.env.DEV && (
+            <Stats className="stats-panel" />
+          )}
           <MapDisplay3D
             mapGroupRef={mapGroupRef}
             cameraControlsRef={cameraControlsRef}

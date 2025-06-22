@@ -54,15 +54,15 @@ export default function LaurWallTrianglePillar({
   const isHighlighted = isHovered || isSelected
   const color = isHighlighted ? yellowColor : pillarColor
   const interiorColor = isHighlighted ? yellowColor : interiorPillarColor
-  const helpMaterialNeedsBlenderWork = isHighQualityRender ?
+  const helpMaterialNeedsBlenderWork = isHighQualityRender ? (
     <meshStandardMaterial
       color={interiorColor}
       side={DoubleSide}
       shadowSide={BackSide}
     />
-    : <meshMatcapMaterial
-      side={DoubleSide}
-      color={interiorColor} />
+  ) : (
+    <meshMatcapMaterial side={DoubleSide} color={interiorColor} />
+  )
   return (
     <>
       <group position={[x, yWithBase, z]}>

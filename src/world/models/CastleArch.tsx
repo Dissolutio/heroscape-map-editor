@@ -17,10 +17,7 @@ type Props = {
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }
 
-export function CastleArch({
-  boardHex,
-  onPointerUp,
-}: Props) {
+export function CastleArch({ boardHex, onPointerUp }: Props) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/castle-arch-handmade.glb') as any
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -36,7 +33,12 @@ export function CastleArch({
   const isHighlighted = isHovered || isSelected
   const yellowColor = 'yellow'
   const castleColor = hexTerrainColor[HexTerrain.castle]
-  const material = (color: string) => isHighQualityRender ? <meshStandardMaterial color={color} /> : <meshMatcapMaterial color={color} />
+  const material = (color: string) =>
+    isHighQualityRender ? (
+      <meshStandardMaterial color={color} />
+    ) : (
+      <meshMatcapMaterial color={color} />
+    )
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
   const rotation = boardHex?.pieceRotation ?? 0
   const isDoor = !boardHex.pieceID.endsWith('b') // hacky but fast, marvel ruin and castle arch no door end with "b"

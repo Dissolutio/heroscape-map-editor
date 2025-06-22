@@ -57,8 +57,8 @@ function SolidCap({
   boardHex,
   onPointerUp,
   isVisible,
-  isHighQualityRender
-}: BoardHexPieceProps & { isVisible: boolean, isHighQualityRender: boolean }) {
+  isHighQualityRender,
+}: BoardHexPieceProps & { isVisible: boolean; isHighQualityRender: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState(isVisible)

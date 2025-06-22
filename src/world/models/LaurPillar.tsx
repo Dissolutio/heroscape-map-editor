@@ -154,19 +154,22 @@ export default function LaurWallPillar({
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
-            geometry={nodes.SubDecorCore.geometry}>
+            geometry={nodes.SubDecorCore.geometry}
+          >
             {basicModelMaterial(interiorColor, isHighQualityRender)}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
-            geometry={nodes.Facade.geometry}>
+            geometry={nodes.Facade.geometry}
+          >
             {basicModelMaterial(color, isHighQualityRender)}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
-            geometry={nodes.FacadeInner.geometry}>
+            geometry={nodes.FacadeInner.geometry}
+          >
             {basicModelMaterial(interiorColor, isHighQualityRender)}
           </mesh>
         </group>

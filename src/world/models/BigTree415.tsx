@@ -52,14 +52,22 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
           castShadow={isHighQualityRender}
           geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
         >
-          {isHighQualityRender ? <meshStandardMaterial color={rockColor} /> : <meshMatcapMaterial color={rockColor} />}
+          {isHighQualityRender ? (
+            <meshStandardMaterial color={rockColor} />
+          ) : (
+            <meshMatcapMaterial color={rockColor} />
+          )}
         </mesh>
         <mesh
           receiveShadow={isHighQualityRender}
           castShadow={isHighQualityRender}
           geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
         >
-          {isHighQualityRender ? <meshStandardMaterial color={treeColor} /> : <meshMatcapMaterial color={treeColor} />}
+          {isHighQualityRender ? (
+            <meshStandardMaterial color={treeColor} />
+          ) : (
+            <meshMatcapMaterial color={treeColor} />
+          )}
         </mesh>
       </group>
     </>

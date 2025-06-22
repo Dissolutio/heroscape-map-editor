@@ -57,7 +57,7 @@ export default EmptyHexes
 function EmptyHex({
   boardHex,
   onPointerUp,
-  isHighQualityRender
+  isHighQualityRender,
 }: BoardHexPieceProps & { isHighQualityRender: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)

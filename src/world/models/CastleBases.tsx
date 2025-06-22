@@ -68,7 +68,11 @@ export default function CastleBases({ boardHex, onPointerUp }: Props) {
     }
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
-  const material = isHighQualityRender ? <meshStandardMaterial color={color} /> : <meshMatcapMaterial color={color} />
+  const material = isHighQualityRender ? (
+    <meshStandardMaterial color={color} />
+  ) : (
+    <meshMatcapMaterial color={color} />
+  )
   return (
     <>
       <group
@@ -107,17 +111,13 @@ export default function CastleBases({ boardHex, onPointerUp }: Props) {
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
-            geometry={capGeometry}>
+            geometry={capGeometry}
+          >
             {material}
           </mesh>
         </group>
       </group>
-      <ObstacleBase
-        x={x}
-        y={yBaseCap}
-        z={z}
-        color={color}
-      />
+      <ObstacleBase x={x} y={yBaseCap} z={z} color={color} />
     </>
   )
 }

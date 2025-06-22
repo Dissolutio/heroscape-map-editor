@@ -42,8 +42,12 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
   const colorBase = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.swamp]
-  const material = (c: string) => isHighQualityRender ? <meshStandardMaterial color={c} />
-    : <meshMatcapMaterial color={c} />
+  const material = (c: string) =>
+    isHighQualityRender ? (
+      <meshStandardMaterial color={c} />
+    ) : (
+      <meshMatcapMaterial color={c} />
+    )
   return (
     <>
       {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={3} />}

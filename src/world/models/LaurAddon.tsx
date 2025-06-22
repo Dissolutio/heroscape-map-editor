@@ -18,14 +18,18 @@ export function LaurWallAddon({
   isVisible,
 }: { pid: string; isVisible: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes: { LaurWallRuin, LaurWallRuinBustedConcrete } } = useGLTF('/laurwall-ruin.glb') as any
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes: { LaurWallShort, LaurWallShortDecorDeep } } = useGLTF('/laurwall-short.glb') as any
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes: { LaurWallLong, LaurWallLongDecorDeep } } = useGLTF('/laurwall-long.glb') as any
   const {
-    inventoryID,
-  } = decodePieceID(pid)
+    nodes: { LaurWallRuin, LaurWallRuinBustedConcrete },
+  } = useGLTF('/laurwall-ruin.glb') as any
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const {
+    nodes: { LaurWallShort, LaurWallShortDecorDeep },
+  } = useGLTF('/laurwall-short.glb') as any
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const {
+    nodes: { LaurWallLong, LaurWallLongDecorDeep },
+  } = useGLTF('/laurwall-long.glb') as any
+  const { inventoryID } = decodePieceID(pid)
   const { isHovered, onPointerEnterPID, onPointerOut } =
     usePieceHoverState(isVisible)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -102,7 +106,7 @@ export function LaurWallAddon({
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={LaurWallLong.geometry}
-          // position={[0.635, 0, 0]} // TODO: Tidy
+            // position={[0.635, 0, 0]} // TODO: Tidy
           >
             {basicModelMaterial(pillarColor, isHighQualityRender)}
           </mesh>
@@ -110,7 +114,7 @@ export function LaurWallAddon({
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={LaurWallLongDecorDeep.geometry}
-          // position={[0.635, 0, 0]} // TODO: Tidy
+            // position={[0.635, 0, 0]} // TODO: Tidy
           >
             {basicModelMaterial(interiorPillarColor, isHighQualityRender)}
           </mesh>

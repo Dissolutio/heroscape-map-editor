@@ -8,7 +8,9 @@ import { hexTerrainColor } from '../maphex/hexColors'
 
 export default function ForestTree({ boardHex }: { boardHex: BoardHex }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/forgotten-forest-tree-low-poly-colored.glb') as any
+  const { nodes } = useGLTF(
+    '/forgotten-forest-tree-low-poly-colored.glb',
+  ) as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
@@ -44,9 +46,11 @@ export default function ForestTree({ boardHex }: { boardHex: BoardHex }) {
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        {isHighQualityRender ?
+        {isHighQualityRender ? (
           <meshStandardMaterial color={color} />
-          : <meshMatcapMaterial color={color} />}
+        ) : (
+          <meshMatcapMaterial color={color} />
+        )}
       </mesh>
       {/* <Billboard
         position={[x, options.y + 1.5, z]}

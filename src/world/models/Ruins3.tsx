@@ -55,7 +55,11 @@ export default function Ruins3({
         onPointerOut={(e) => onPointerOut(e)}
         geometry={nodes.Ruin_Large_Scanned.geometry}
       >
-        {isHighQualityRender ? <meshStandardMaterial color={color} /> : <meshMatcapMaterial color={color} />}
+        {isHighQualityRender ? (
+          <meshStandardMaterial color={color} />
+        ) : (
+          <meshMatcapMaterial color={color} />
+        )}
       </mesh>
     </group>
   )

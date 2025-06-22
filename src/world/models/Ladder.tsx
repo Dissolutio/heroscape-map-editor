@@ -50,8 +50,11 @@ export function Ladder({
       onPointerEnter={(e) => onPointerEnterPID(e, boardHex.pieceID)}
       onPointerOut={(e) => onPointerOut(e)}
     >
-      {isHighQualityRender ? <meshStandardMaterial color={color} />
-        : <meshMatcapMaterial color={color} />}
+      {isHighQualityRender ? (
+        <meshStandardMaterial color={color} />
+      ) : (
+        <meshMatcapMaterial color={color} />
+      )}
     </mesh>
   )
 }

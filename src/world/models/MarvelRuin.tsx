@@ -44,9 +44,7 @@ export function MarvelRuin({
   const isHighlighted = isHovered || isSelected
   const yellowColor = 'yellow'
   const rotation = boardHex?.pieceRotation ?? 0
-  const color = isHighlighted
-    ? yellowColor
-    : hexTerrainColor.marvelRuin
+  const color = isHighlighted ? yellowColor : hexTerrainColor.marvelRuin
   const colorUpperFloor = isHighlighted ? yellowColor : hexTerrainColor.ladder
   return (
     <group
@@ -59,7 +57,8 @@ export function MarvelRuin({
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
-        geometry={nodes.MarvelRuinMain.geometry}>
+        geometry={nodes.MarvelRuinMain.geometry}
+      >
         {basicDoubleSideModelMaterial(color, isHighQualityRender)}
       </mesh>
       {isUpperFloor && (

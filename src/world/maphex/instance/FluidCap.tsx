@@ -43,7 +43,11 @@ const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       receiveShadow={isHighQualityRender}
     >
       <cylinderGeometry args={baseFluidCapCylinderArgs} />
-      {isHighQualityRender ? <meshStandardMaterial transparent opacity={FLUID_CAP_OPACITY} /> : <meshLambertMaterial transparent opacity={FLUID_CAP_OPACITY} />}
+      {isHighQualityRender ? (
+        <meshStandardMaterial transparent opacity={FLUID_CAP_OPACITY} />
+      ) : (
+        <meshLambertMaterial transparent opacity={FLUID_CAP_OPACITY} />
+      )}
       {boardHexArr.map((hex, i) => (
         <FluidCap
           key={`${hex.id + i}fluid`}
@@ -63,8 +67,8 @@ function FluidCap({
   boardHex,
   onPointerUp,
   isVisible,
-  isHighQualityRender
-}: BoardHexPieceProps & { isVisible: boolean, isHighQualityRender: boolean }) {
+  isHighQualityRender,
+}: BoardHexPieceProps & { isVisible: boolean; isHighQualityRender: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState(isVisible)
@@ -82,8 +86,8 @@ function FluidCap({
     ref.current.position.set(
       x,
       y -
-      (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
-      0.001,
+        (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
+        0.001,
       z,
     )
   }, [boardHex])

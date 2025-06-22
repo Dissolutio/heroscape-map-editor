@@ -72,92 +72,52 @@ export default function LandSubterrain({ pid }: { pid: string }) {
   const material = () => {
     if (isHighQualityRender) {
       if (isFluidTerrainHex(pieceTerrain)) {
-        return <meshStandardMaterial
-          color={color}
-          transparent
-          opacity={FLUID_CAP_OPACITY}
-        />
+        return (
+          <meshStandardMaterial
+            color={color}
+            transparent
+            opacity={FLUID_CAP_OPACITY}
+          />
+        )
       }
       return <meshStandardMaterial color={color} />
     }
     // not high quality render below
     if (isFluidTerrainHex(pieceTerrain)) {
-      return <meshLambertMaterial
-        color={color}
-        transparent
-        opacity={FLUID_CAP_OPACITY}
-      />
+      return (
+        <meshLambertMaterial
+          color={color}
+          transparent
+          opacity={FLUID_CAP_OPACITY}
+        />
+      )
     }
     return <meshMatcapMaterial color={color} />
   }
   const getMesh = () => {
     switch (pieceSize) {
       case '1':
-        return (
-          <Subterrain1>
-            {material()}
-          </Subterrain1>
-        )
+        return <Subterrain1>{material()}</Subterrain1>
       case '2':
-        return (
-          <Subterrain2>
-            {material()}
-          </Subterrain2>
-        )
+        return <Subterrain2>{material()}</Subterrain2>
       case '3':
-        return (
-          <Subterrain3>
-            {material()}
-          </Subterrain3>
-        )
+        return <Subterrain3>{material()}</Subterrain3>
       case '4':
-        return (
-          <Subterrain4>
-            {material()}
-          </Subterrain4>
-        )
+        return <Subterrain4>{material()}</Subterrain4>
       case '5':
-        return (
-          <Subterrain5>
-            {material()}
-          </Subterrain5>
-        )
+        return <Subterrain5>{material()}</Subterrain5>
       case '6':
-        return (
-          <Subterrain6>
-            {material()}
-          </Subterrain6>
-        )
+        return <Subterrain6>{material()}</Subterrain6>
       case '6B':
-        return (
-          <Subterrain6B>
-            {material()}
-          </Subterrain6B>
-        )
+        return <Subterrain6B>{material()}</Subterrain6B>
       case '7B':
-        return (
-          <Subterrain7B>
-            {material()}
-          </Subterrain7B>
-        )
+        return <Subterrain7B>{material()}</Subterrain7B>
       case '7':
-        return (
-          <Subterrain7>
-            {material()}
-          </Subterrain7>
-        )
+        return <Subterrain7>{material()}</Subterrain7>
       case '9':
-        return (
-          <Subterrain9>
-            {material()}
-          </Subterrain9>
-        )
+        return <Subterrain9>{material()}</Subterrain9>
       case '24':
-        return (
-          <Subterrain24>
-            {material()}
-          </Subterrain24>
-        )
+        return <Subterrain24>{material()}</Subterrain24>
       default:
         return null
     }
@@ -180,7 +140,8 @@ export function Subterrain24({ children }: PropsWithChildren) {
     <mesh
       castShadow={isHighQualityRender}
       receiveShadow={isHighQualityRender}
-      geometry={nodes.Subterrain_24.geometry}>
+      geometry={nodes.Subterrain_24.geometry}
+    >
       {children}
     </mesh>
   )
@@ -195,7 +156,8 @@ export function Subterrain9({ children }: PropsWithChildren) {
     <mesh
       castShadow={isHighQualityRender}
       receiveShadow={isHighQualityRender}
-      geometry={nodes['Subterrain-9'].geometry}>
+      geometry={nodes['Subterrain-9'].geometry}
+    >
       {children}
     </mesh>
   )
@@ -210,7 +172,8 @@ export function Subterrain7B({ children }: PropsWithChildren) {
     <mesh
       castShadow={isHighQualityRender}
       receiveShadow={isHighQualityRender}
-      geometry={nodes['Subterrain-7B'].geometry}>
+      geometry={nodes['Subterrain-7B'].geometry}
+    >
       {children}
     </mesh>
   )
@@ -225,7 +188,8 @@ export function Subterrain7({ children }: PropsWithChildren) {
     <mesh
       castShadow={isHighQualityRender}
       receiveShadow={isHighQualityRender}
-      geometry={nodes.Subterrain_7.geometry}>
+      geometry={nodes.Subterrain_7.geometry}
+    >
       {children}
     </mesh>
   )
@@ -240,7 +204,8 @@ export function Subterrain6({ children }: PropsWithChildren) {
     <mesh
       castShadow={isHighQualityRender}
       receiveShadow={isHighQualityRender}
-      geometry={nodes.Subterrain_6.geometry}>
+      geometry={nodes.Subterrain_6.geometry}
+    >
       {children}
     </mesh>
   )
@@ -271,7 +236,8 @@ export function Subterrain5({ children }: PropsWithChildren) {
     <mesh
       castShadow={isHighQualityRender}
       receiveShadow={isHighQualityRender}
-      geometry={nodes.Subterrain_5.geometry}>
+      geometry={nodes.Subterrain_5.geometry}
+    >
       {children}
     </mesh>
   )
@@ -286,7 +252,8 @@ export function Subterrain4({ children }: PropsWithChildren) {
     <mesh
       castShadow={isHighQualityRender}
       receiveShadow={isHighQualityRender}
-      geometry={nodes.Subterrain_4.geometry}>
+      geometry={nodes.Subterrain_4.geometry}
+    >
       {children}
     </mesh>
   )
@@ -301,7 +268,8 @@ export function Subterrain3({ children }: PropsWithChildren) {
     <mesh
       castShadow={isHighQualityRender}
       receiveShadow={isHighQualityRender}
-      geometry={nodes.Subterrain_3.geometry}>
+      geometry={nodes.Subterrain_3.geometry}
+    >
       {children}
     </mesh>
   )
@@ -316,7 +284,8 @@ export function Subterrain2({ children }: PropsWithChildren) {
     <mesh
       castShadow={isHighQualityRender}
       receiveShadow={isHighQualityRender}
-      geometry={nodes.Subterrain_2.geometry}>
+      geometry={nodes.Subterrain_2.geometry}
+    >
       {children}
     </mesh>
   )
@@ -331,7 +300,8 @@ export function Subterrain1({ children }: PropsWithChildren) {
     <mesh
       castShadow={isHighQualityRender}
       receiveShadow={isHighQualityRender}
-      geometry={nodes.Subterrain_1.geometry}>
+      geometry={nodes.Subterrain_1.geometry}
+    >
       {children}
     </mesh>
   )

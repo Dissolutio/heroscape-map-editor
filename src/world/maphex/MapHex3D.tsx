@@ -213,9 +213,7 @@ export const MapHex3D = ({
             <MarvelRuin boardHex={boardHex} />
           </Suspense>
         )}
-        {isHeightRingedHex && (
-          <HeightRing position={new Vector3(x, y, z)} />
-        )}
+        {isHeightRingedHex && <HeightRing position={new Vector3(x, y, z)} />}
         {isLaurSquarePillarHex && (
           <LaurPillar
             boardHex={boardHex}
@@ -571,10 +569,7 @@ export const MapHex3D = ({
         )}
         {isCastleArch && (
           <Suspense fallback={<ModelLoader />}>
-            <CastleArch
-              boardHex={boardHex}
-              onPointerUp={onPointerUp}
-            />
+            <CastleArch boardHex={boardHex} onPointerUp={onPointerUp} />
           </Suspense>
         )}
       </group>

@@ -47,9 +47,11 @@ export default function ObstacleBase({
         position={[x, y, z]}
       >
         <cylinderGeometry args={baseFluidCapCylinderArgs} />
-        {isHighQualityRender ?
+        {isHighQualityRender ? (
           <meshStandardMaterial color={color} transparent opacity={0.85} />
-          : <meshLambertMaterial color={color} transparent opacity={0.85} />}
+        ) : (
+          <meshLambertMaterial color={color} transparent opacity={0.85} />
+        )}
       </mesh>
     )
   }
@@ -60,9 +62,11 @@ export default function ObstacleBase({
       position={[x, y, z]}
     >
       <cylinderGeometry args={treeBaseCylinderArgs} />
-      {isHighQualityRender ?
+      {isHighQualityRender ? (
         <meshStandardMaterial color={color} />
-        : <meshMatcapMaterial color={color} />}
+      ) : (
+        <meshMatcapMaterial color={color} />
+      )}
     </mesh>
   )
 }
