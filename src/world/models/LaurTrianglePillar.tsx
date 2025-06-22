@@ -4,56 +4,30 @@ import { BackSide, DoubleSide } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
-import {
-  HEXGRID_GLYPH_HEIGHT,
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
-  HEXGRID_HEXCAP_HEIGHT,
-} from '../../utils/constants'
-import { getBoardHex3DCoords } from '../../utils/map-utils'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
+import { HEXGRID_HEXCAP_FLUID_HEIGHT } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { CylinderGeometryArgs } from '../maphex/instance-hex'
 import { basicModelMaterial } from './materials'
 
-const baseCylinderArgs: CylinderGeometryArgs = [
-  0.9,
-  0.997,
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
-  6,
-  undefined,
-  false,
-  undefined,
-  undefined,
-]
-
 export default function LaurWallTrianglePillar({
   boardHex,
-  isUnderHexFluid,
   onPointerUp,
 }: {
   boardHex: BoardHex
-  isUnderHexFluid: boolean
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
-  const pillarColor = hexTerrainColor[HexTerrain.laurWall]
-  const interiorPillarColor = hexTerrainColor.laurModelColor2
-  const { x, z, yWithBase, yGlyph, yGlyphFluidUnder } =
-    getBoardHex3DCoords(boardHex)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
   const pieceRotation = (((boardHex?.pieceRotation ?? 0) % 6) * -Math.PI) / 3
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const isVisible = boardHex.altitude <= viewingLevel
-  const { isHovered, onPointerEnter, onPointerOut } =
-    usePieceHoverState(isVisible)
-
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = isHovered || isSelected
-  const color = isHighlighted ? yellowColor : pillarColor
-  const interiorColor = isHighlighted ? yellowColor : interiorPillarColor
+  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
+  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.laurWall]
+  const interiorColor = isHighlighted ? yellowColor : hexTerrainColor.laurModelColor2
   const helpMaterialNeedsBlenderWork = isHighQualityRender ? (
     <meshStandardMaterial
       color={interiorColor}
@@ -65,19 +39,7 @@ export default function LaurWallTrianglePillar({
   )
   return (
     <>
-      <group position={[x, yWithBase, z]}>
-        {isSelected && (
-          <DeletePieceBillboard pieceID={boardHex.pieceID} y={1} />
-        )}
-      </group>
       <group
-        position={[
-          x,
-          isUnderHexFluid
-            ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
-            : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT,
-          z,
-        ]}
         onPointerUp={(e) => onPointerUp(e, boardHex)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
@@ -113,15 +75,6 @@ export default function LaurWallTrianglePillar({
             geometry={nodes.TriangleFacadeInner.geometry}
           >
             {basicModelMaterial(interiorColor, isHighQualityRender)}
-          </mesh>
-        </group>
-        <group position={[0, 0, 0]}>
-          <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
-          >
-            <cylinderGeometry args={baseCylinderArgs} />
-            {basicModelMaterial(color, isHighQualityRender)}
           </mesh>
         </group>
       </group>

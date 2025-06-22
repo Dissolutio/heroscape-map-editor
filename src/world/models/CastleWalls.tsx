@@ -24,21 +24,13 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const [capColor, setCapColor] = React.useState(
     hexTerrainColor[HexTerrain.castle],
   )
-  const { x, z, yBase, yBaseCap } = getBoardHex3DCoords(boardHex)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const isVisible = boardHex.altitude <= viewingLevel
-  const { isHovered, onPointerEnter, onPointerOut } =
-    usePieceHoverState(isVisible)
-  const isHighlighted = isHovered || isSelected
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || selectedPieceID === boardHex.pieceID
   const yellowColor = 'yellow'
-  const castleColor = isHighlighted
-    ? yellowColor
-    : hexTerrainColor[HexTerrain.castle]
-  const rotation = boardHex?.pieceRotation ?? 0
   const scaleYAdjust = 0.01 // just a little to get it out of the subterrain
   // castle walls are 10 levels tall, UNLESS stacked on another wall, then they are 9 (they have a 1-level bottom base when on land)
   const scaleY = (boardHex?.obstacleHeight ?? 9) + (1 - scaleYAdjust)
@@ -46,16 +38,10 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const pieceID = boardHex.pieceID
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
   const onPointerEnterCap = (e: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     setCapColor('yellow')
     e.stopPropagation()
   }
   const onPointerOutCap = (e: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     setCapColor(hexTerrainColor[HexTerrain.castle])
     e.stopPropagation()
   }
@@ -70,70 +56,50 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
       ? nodes.CastleWallStraightCap.geometry
       : nodes.CastleWallCornerCap.geometry
   const onPointerUpBody = (event: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    toggleSelectedPieceID(selectedPieceID === boardHex.pieceID ? '' : boardHex.pieceID)
   }
 
   return (
     <>
-      <group
-        position={[x, yBase - 0.005, z]}
-        rotation={[0, (rotation * -Math.PI) / 3, 0]}
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        scale={scale}
+        geometry={bodyGeometry}
+        onPointerUp={onPointerUpBody}
+        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerOut={(e) => onPointerOut(e)}
       >
-        {selectedPieceID === boardHex.pieceID && (
-          <DeletePieceBillboard pieceID={boardHex.pieceID} y={1} />
-        )}
+        {basicModelMaterial(color, isHighQualityRender)}
+      </mesh>
+      <group
+        onPointerUp={(e) => onPointerUp(e, boardHex)}
+        onPointerEnter={onPointerEnterCap}
+        onPointerOut={onPointerOutCap}
+      >
         <mesh
           receiveShadow={isHighQualityRender}
           castShadow={isHighQualityRender}
-          scale={scale}
-          geometry={bodyGeometry}
-          onPointerUp={onPointerUpBody}
-          onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-          onPointerOut={(e) => onPointerOut(e)}
+          geometry={nodes.WallCap.geometry}
+          position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
         >
-          {basicModelMaterial(color, isHighQualityRender)}
+          {basicModelMaterial(capColor, isHighQualityRender)}
         </mesh>
-        <>
-          <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
-            geometry={nodes.WallCap.geometry}
-            position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
-            onPointerUp={(e) => onPointerUp(e, boardHex)}
-            onPointerEnter={onPointerEnterCap}
-            onPointerOut={onPointerOutCap}
-          >
-            {basicModelMaterial(capColor, isHighQualityRender)}
-          </mesh>
-          <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
-            geometry={capGeometry}
-            position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
-            onPointerUp={(e) => onPointerUp(e, boardHex)}
-          >
-            {basicModelMaterial(capColor, isHighQualityRender)}
-          </mesh>
-        </>
+        <mesh
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
+          geometry={capGeometry}
+          position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
+          onPointerUp={(e) => onPointerUp(e, boardHex)}
+        >
+          {basicModelMaterial(capColor, isHighQualityRender)}
+        </mesh>
       </group>
-      {boardHex.obstacleHeight === 9 && ( // when it's 8, castle is wall-on-wall and no base is shown
-        <ObstacleBase
-          x={x}
-          y={yBaseCap}
-          z={z}
-          color={
-            isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
-          }
-        />
-      )}
     </>
   )
 }

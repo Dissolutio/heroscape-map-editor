@@ -1,4 +1,4 @@
-import { TransformControls, type CameraControls } from '@react-three/drei'
+import type { CameraControls } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 
 import type { Group, Object3DEventMap } from 'three'
@@ -17,7 +17,6 @@ import {
   isSolidTerrainHex,
 } from '../utils/board-utils.ts'
 import {
-  decodePieceID,
   genBoardHexID,
   getBattlementClickedHexCoords,
   getBoardHexesRectangularMapDimensions,
@@ -31,10 +30,7 @@ import EmptyHexes from './maphex/instance/EmptyHex.tsx'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
 import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import { enqueueSnackbar } from 'notistack'
-import { HEXGRID_HEX_APOTHEM, HEXGRID_HEX_RADIUS } from '../utils/constants.ts'
-import { useRef, useState } from 'react'
 import { TableSurfaceMesh } from './Lights.tsx'
-import PiecePreview from './PiecePreview.tsx'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -44,11 +40,8 @@ export default function MapDisplay3D({
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
-  const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
-  const maxLevel = getBoardPiecesMaxLevel(boardPieces)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const boardHexesArr = Object.values(boardHexes).sort(
     (a, b) => a.altitude - b.altitude,
@@ -57,9 +50,7 @@ export default function MapDisplay3D({
   const paintTile = useBoundStore((s) => s.paintTile)
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
-  // const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
-  // const decodedHoverPieceID = decodePieceID(hoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useZoomCameraToMapCenter({
@@ -236,7 +227,8 @@ export default function MapDisplay3D({
         scale={[width, 0, length]}
       // rotation={new Euler(0, Math.PI, 0)}
       /> */}
-        <PiecePreview />
+
+        {/* <PiecePreview /> */}
         <EmptyHexes
           boardHexArr={instanceBoardHexes.emptyHexCaps}
           onPointerUp={onPointerUp}

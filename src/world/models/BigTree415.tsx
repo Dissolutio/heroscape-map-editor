@@ -5,21 +5,17 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
+import { basicModelMaterial } from './materials'
 
 export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/forest-tree15-colored-lowpoly.glb') as any
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const isVisible = boardHex.altitude <= viewingLevel
-  const { isHovered, onPointerEnter, onPointerOut } =
-    usePieceHoverState(isVisible)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
 
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
@@ -30,7 +26,7 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = isHovered || isSelected
+  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
   const treeColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.tree]
@@ -38,39 +34,26 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
     ? yellowColor
     : hexTerrainColor[HexTerrain.ruin]
   return (
-    <>
-      {isSelected && (
-        <DeletePieceBillboard pieceID={boardHex.pieceID} y={150} />
-      )}
-      <group
-        onPointerUp={(e) => onPointerUp(e)}
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-        onPointerOut={(e) => onPointerOut(e)}
+    <group
+      onPointerUp={(e) => onPointerUp(e)}
+      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+      onPointerOut={(e) => onPointerOut(e)}
+    >
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
       >
-        <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
-          geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
-        >
-          {isHighQualityRender ? (
-            <meshStandardMaterial color={rockColor} />
-          ) : (
-            <meshMatcapMaterial color={rockColor} />
-          )}
-        </mesh>
-        <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
-          geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
-        >
-          {isHighQualityRender ? (
-            <meshStandardMaterial color={treeColor} />
-          ) : (
-            <meshMatcapMaterial color={treeColor} />
-          )}
-        </mesh>
-      </group>
-    </>
+        {basicModelMaterial(rockColor, isHighQualityRender)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
+      >
+        {basicModelMaterial(treeColor, isHighQualityRender)}
+      </mesh>
+    </group>
   )
 }
 

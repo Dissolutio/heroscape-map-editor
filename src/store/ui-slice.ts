@@ -149,7 +149,7 @@ const createUISlice: StateCreator<
         s.viewingLevel = level
       }),
     ),
-  isHighQualityRender: false,
+  isHighQualityRender: true,
   toggleIsHighQualityRender: (b: boolean) =>
     set(
       produce((s) => {

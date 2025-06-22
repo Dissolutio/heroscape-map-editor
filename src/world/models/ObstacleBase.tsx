@@ -11,7 +11,7 @@ type ObstacleBaseProps = {
 }
 
 const treeBaseCylinderArgs: CylinderGeometryArgs = [
-  0.9,
+  0.95,
   0.997,
   HEXGRID_HEXCAP_FLUID_HEIGHT,
   6,

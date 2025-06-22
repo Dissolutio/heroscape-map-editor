@@ -3,31 +3,22 @@ import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 
-export function Battlement({
-  pid,
-  isVisible,
-}: { pid: string; isVisible: boolean }) {
+export function Battlement({ pid }: { pid: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/handmade-battlement.glb') as any
-  const { isHovered, onPointerEnterPID, onPointerOut } =
-    usePieceHoverState(isVisible)
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === pid
-  const isHighlighted = isHovered || isSelected
-  const color = isHighlighted
-    ? yellowColor
-    : hexTerrainColor[HexTerrain.battlement]
+  const isHighlighted = (hoveredPieceID === pid) || isSelected
+  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.battlement]
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
@@ -37,7 +28,6 @@ export function Battlement({
   }
   return (
     <>
-      {isSelected && <DeletePieceBillboard pieceID={pid} y={1} />}
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
