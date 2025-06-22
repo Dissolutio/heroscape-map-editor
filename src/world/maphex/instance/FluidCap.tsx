@@ -29,7 +29,8 @@ const baseFluidCapCylinderArgs: CylinderGeometryArgs = [
 ]
 export const FLUID_CAP_OPACITY = 0.85
 const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
-  const ref = React.useRef<InstanceRefType>(undefined!)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const ref = React.useRef<InstanceRefType>(null)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
@@ -39,19 +40,21 @@ const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       range={range} // no way there would be this many fluid caps, but with an overhang on every other hex, maybe
       ref={ref}
       frustumCulled={false}
-      receiveShadow
+      receiveShadow={isHighQualityRender}
     >
       <cylinderGeometry args={baseFluidCapCylinderArgs} />
-      {/* <meshLambertMaterial /> */}
-      <meshLambertMaterial transparent opacity={FLUID_CAP_OPACITY} />
-      {/* <meshStandardMaterial transparent opacity={FLUID_CAP_OPACITY} /> */}
-      {/* <meshMatcapMaterial transparent opacity={0.85} /> */}
+      {isHighQualityRender ? (
+        <meshStandardMaterial transparent opacity={FLUID_CAP_OPACITY} />
+      ) : (
+        <meshLambertMaterial transparent opacity={FLUID_CAP_OPACITY} />
+      )}
       {boardHexArr.map((hex, i) => (
         <FluidCap
           key={`${hex.id + i}fluid`}
           boardHex={hex}
           onPointerUp={onPointerUp}
           isVisible={range >= i}
+          isHighQualityRender={isHighQualityRender}
         />
       ))}
     </Instances>
@@ -64,9 +67,10 @@ function FluidCap({
   boardHex,
   onPointerUp,
   isVisible,
-}: BoardHexPieceProps & { isVisible: boolean }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ref = React.useRef<any>(undefined!)
+  isHighQualityRender,
+}: BoardHexPieceProps & { isVisible: boolean; isHighQualityRender: boolean }) {
+  // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
+  const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState(isVisible)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const penMode = useBoundStore((s) => s.penMode)
@@ -83,7 +87,7 @@ function FluidCap({
       x,
       y -
         (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
-        0.01,
+        0.001,
       z,
     )
   }, [boardHex])
@@ -109,10 +113,8 @@ function FluidCap({
     if (!isVisible) {
       return
     }
-    // if (hoveredPieceID !== boardHex.pieceID) {
     ref.current.color.set(color)
     onPointerOut(e)
-    // }
   }
   const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
@@ -136,7 +138,8 @@ function FluidCap({
       onPointerEnter={handlePointerEnter}
       onPointerOut={handlePointerOut}
       frustumCulled={false}
-      receiveShadow
+      receiveShadow={isHighQualityRender}
+      castShadow={isHighQualityRender}
     />
   )
 }

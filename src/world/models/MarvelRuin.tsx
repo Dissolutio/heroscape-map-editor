@@ -6,18 +6,21 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { Pieces, type BoardHex } from '../../types'
 import { DoubleSide } from 'three'
+import { basicDoubleSideModelMaterial } from './materials'
 
 export function MarvelRuin({
   boardHex,
 }: {
   boardHex: BoardHex
 }) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/marvel-ruins.glb') as any
   const { x, z, yBaseCap } = getBoardHex3DCoords(boardHex)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isUpperFloor =
     boardHex.inventoryID === Pieces.marvel ||
     boardHex.inventoryID === Pieces.marvelBroken
@@ -41,9 +44,7 @@ export function MarvelRuin({
   const isHighlighted = isHovered || isSelected
   const yellowColor = 'yellow'
   const rotation = boardHex?.pieceRotation ?? 0
-  const colorMarvelRuin = isHighlighted
-    ? yellowColor
-    : hexTerrainColor.marvelRuin
+  const color = isHighlighted ? yellowColor : hexTerrainColor.marvelRuin
   const colorUpperFloor = isHighlighted ? yellowColor : hexTerrainColor.ladder
   return (
     <group
@@ -53,25 +54,29 @@ export function MarvelRuin({
       onPointerOut={(e) => onPointerOut(e)}
       onPointerUp={(e) => onPointerUp(e)}
     >
-      <mesh receiveShadow castShadow geometry={nodes.MarvelRuinMain.geometry}>
-        <meshStandardMaterial color={colorMarvelRuin} side={DoubleSide} />
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.MarvelRuinMain.geometry}
+      >
+        {basicDoubleSideModelMaterial(color, isHighQualityRender)}
       </mesh>
       {isUpperFloor && (
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodes.MarvelRuinUpperFloor.geometry}
         >
-          <meshStandardMaterial color={colorUpperFloor} side={DoubleSide} />
+          {basicDoubleSideModelMaterial(colorUpperFloor, isHighQualityRender)}
         </mesh>
       )}
       {isWallIntact && (
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodes.MarvelRuinRemoveableWall.geometry}
         >
-          <meshStandardMaterial color={colorMarvelRuin} side={DoubleSide} />
+          {basicDoubleSideModelMaterial(color, isHighQualityRender)}
         </mesh>
       )}
     </group>

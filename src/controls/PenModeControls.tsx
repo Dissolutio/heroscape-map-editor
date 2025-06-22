@@ -9,7 +9,6 @@ import {
   GiAncientRuins,
   GiArrowCursor,
   GiCastle,
-  GiCastleRuins,
   GiCrenulatedShield,
   GiJungle,
   GiLadder,
@@ -564,7 +563,7 @@ export default function PenModeControls() {
         </MenuItem>
         <MenuItem value={Pieces.castleArchNoDoor}>
           <ListItemIcon>
-            <GiCastleRuins />
+            <GiCastle />
           </ListItemIcon>
           <span>Arch (No Door)</span>
         </MenuItem>

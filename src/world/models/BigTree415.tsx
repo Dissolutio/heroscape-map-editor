@@ -7,11 +7,10 @@ import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 
 export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
-  const {
-    nodes,
-    //  materials
-  } = useGLTF('/forest-tree15-colored-lowpoly.glb') as any
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/forest-tree15-colored-lowpoly.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
@@ -49,18 +48,26 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
         onPointerOut={(e) => onPointerOut(e)}
       >
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
         >
-          <meshStandardMaterial color={rockColor} />
+          {isHighQualityRender ? (
+            <meshStandardMaterial color={rockColor} />
+          ) : (
+            <meshMatcapMaterial color={rockColor} />
+          )}
         </mesh>
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
         >
-          <meshStandardMaterial color={treeColor} />
+          {isHighQualityRender ? (
+            <meshStandardMaterial color={treeColor} />
+          ) : (
+            <meshMatcapMaterial color={treeColor} />
+          )}
         </mesh>
       </group>
     </>

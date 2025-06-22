@@ -11,39 +11,37 @@ import {
 import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { terrainCapColors } from '../maphex/terrainCapColors'
-import ObstacleBase from './ObstacleBase'
 
 type Props = {
   boardHex: BoardHex
-  underHexTerrain: string
-  // overHexTerrain: string,
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }
 
-export function CastleArch({
-  boardHex,
-  underHexTerrain,
-  // overHexTerrain,
-  onPointerUp,
-}: Props) {
+export function CastleArch({ boardHex, onPointerUp }: Props) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/castle-arch-handmade.glb') as any
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const { x, z, yBase, yBaseCap } = getBoardHex3DCoords(boardHex)
+  const { x, z, yBase } = getBoardHex3DCoords(boardHex)
   const isSelected = selectedPieceID === boardHex.pieceID
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
   const isHighlighted = isHovered || isSelected
   const yellowColor = 'yellow'
-  // const castleColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
   const castleColor = hexTerrainColor[HexTerrain.castle]
+  const material = (color: string) =>
+    isHighQualityRender ? (
+      <meshStandardMaterial color={color} />
+    ) : (
+      <meshMatcapMaterial color={color} />
+    )
+  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
   const rotation = boardHex?.pieceRotation ?? 0
   const isDoor = !boardHex.pieceID.endsWith('b') // hacky but fast, marvel ruin and castle arch no door end with "b"
-  const isCastleUnder = underHexTerrain === HexTerrain.castle
   const [colorNear, setColorNear] = React.useState(
     hexTerrainColor[HexTerrain.castle],
   )
@@ -98,21 +96,6 @@ export function CastleArch({
   const isVerticalClearanceHex = !(
     boardHex.isObstacleAuxiliary || boardHex.isObstacleOrigin
   )
-  if (isVerticalClearanceHex) {
-    return null
-  }
-  if (boardHex.isObstacleAuxiliary) {
-    return !isCastleUnder ? (
-      <ObstacleBase
-        x={x}
-        y={yBaseCap}
-        z={z}
-        color={terrainCapColors[underHexTerrain]}
-      />
-    ) : (
-      <></>
-    )
-  }
   const onPointerUpMiddle = (e: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
       return
@@ -164,6 +147,14 @@ export function CastleArch({
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
 
+  // Early return non-origin hexes
+  if (isVerticalClearanceHex) {
+    return null
+  }
+  if (boardHex.isObstacleAuxiliary) {
+    return null
+  }
+
   return (
     <group
       position={[x, yBase, z]}
@@ -177,61 +168,51 @@ export function CastleArch({
         onPointerOut={(e) => onPointerOut(e)}
       >
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodes.CastleArchBody.geometry}
           onPointerUp={onPointerUpBody}
         >
-          <meshStandardMaterial
-            color={isHighlighted ? yellowColor : castleColor}
-          />
+          {material(color)}
         </mesh>
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodes.CastleArchCapNear.geometry}
           onPointerUp={(e) => onPointerUp(e, boardHex)}
           onPointerEnter={onPointerEnterNear}
           onPointerOut={onPointerOutNear}
         >
-          <meshStandardMaterial
-            color={isHighlighted ? yellowColor : colorNear}
-          />
+          {material(colorNear)}
         </mesh>
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodes.CastleArchCapMiddle.geometry}
           onPointerEnter={onPointerEnterMiddle}
           onPointerOut={onPointerOutMiddle}
           onPointerUp={onPointerUpMiddle}
         >
-          <meshStandardMaterial
-            color={isHighlighted ? yellowColor : colorMiddle}
-          />
+          {material(colorMiddle)}
         </mesh>
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodes.CastleArchCapFar.geometry}
           onPointerEnter={onPointerEnterFar}
           onPointerOut={onPointerOutFar}
           onPointerUp={onPointerUpFar}
         >
-          <meshStandardMaterial
-            color={isHighlighted ? yellowColor : colorFar}
-          />
+          {material(colorFar)}
         </mesh>
         {isDoor && (
           <mesh
-            receiveShadow
+            receiveShadow={isHighQualityRender}
             castShadow
             geometry={nodes.ArchDoor.geometry}
             onPointerUp={(e) => onPointerUp(e, boardHex)}
           >
-            <meshStandardMaterial
-              color={isHighlighted ? yellowColor : hexTerrainColor.castleDoor}
-            />
+            {material(isHighlighted ? yellowColor : hexTerrainColor.castleDoor)}
           </mesh>
         )}
       </group>

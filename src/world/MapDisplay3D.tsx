@@ -46,6 +46,7 @@ export default function MapDisplay3D({
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const boardHexesArr = Object.values(boardHexes).sort(
     (a, b) => a.altitude - b.altitude,
@@ -102,7 +103,9 @@ export default function MapDisplay3D({
       altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
     })
     // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
-    const clickedHex = hex
+    const clickedHex = isCastleWallArchClicked
+      ? boardHexes[boardHexIdOfCapForWall]
+      : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
           q: boardHexes[boardHexIdOfCapForWall].q,
@@ -209,31 +212,25 @@ export default function MapDisplay3D({
   }
 
   const { length, width } = getBoardHexesRectangularMapDimensions(boardHexes)
-  // biome-ignore lint/style/noNonNullAssertion: <explanation>
-  const lightRef = useRef(null!)
-  const [transformControlsVisible, setTransformControlsVisible] =
-    useState(false)
-  const [selectedObject, setSelectedObject] = useState(null)
-  const [transformMode, setTransformMode] = useState<
-    'translate' | 'rotate' | 'scale'
-  >('translate') // 'translate', 'rotate', 'scale'
-  // const topLeft = [-HEXGRID_HEX_APOTHEM, -1]
   return (
     <>
       {/* Tabletop / Ground */}
-      <mesh
-        receiveShadow
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[
-          width / 2 - HEXGRID_HEX_APOTHEM,
-          -0.01,
-          length / 2 - HEXGRID_HEX_RADIUS,
-        ]}
-      >
-        <planeGeometry args={[10 * width, 10 * length]} />
-        <shadowMaterial color="lightgray" opacity={0.4} />
-        {/* <meshPhongMaterial color="lightgray" opacity={0.5} /> */}
-      </mesh>
+      {isHighQualityRender && (
+        <mesh
+          receiveShadow
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[
+            width ? width / 2 - HEXGRID_HEX_APOTHEM : 0,
+            -0.01,
+            length ? length / 2 - HEXGRID_HEX_RADIUS : 0,
+          ]}
+        >
+          <planeGeometry args={[3 * width, 3 * length]} />
+          <shadowMaterial color="white" opacity={1} />
+          {/* <meshStandardMaterial color="brown" opacity={1} /> */}
+          {/* <meshPhongMaterial color="lightgray" opacity={0.5} /> */}
+        </mesh>
+      )}
       <group ref={mapGroupRef}>
         {/* TOP LEFT */}
         {!isTakingPicture && (

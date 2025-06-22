@@ -7,9 +7,11 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 
 export function GlyphModel({ boardHex }: { boardHex: BoardHex }) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/glyph.glb') as any
   const texture = useTexture('glyph-valkyrie-logo.svg')
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
@@ -35,13 +37,18 @@ export function GlyphModel({ boardHex }: { boardHex: BoardHex }) {
     <>
       {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={1} />}
       <mesh
-        receiveShadow
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
         geometry={nodes.Glyph.geometry}
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        <meshStandardMaterial color={color} />
+        {isHighQualityRender ? (
+          <meshStandardMaterial color={color} />
+        ) : (
+          <meshMatcapMaterial color={color} />
+        )}
         <Decal depthTest map={texture} />
       </mesh>
     </>

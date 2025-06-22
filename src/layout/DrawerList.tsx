@@ -14,13 +14,8 @@ import { useSnackbar } from 'notistack'
 import { parse } from 'papaparse'
 import React, { type ChangeEvent } from 'react'
 import { FcAddImage, FcDownload, FcLink, FcUpload, FcVlc } from 'react-icons/fc'
-import {
-  MdExpandLess,
-  MdExpandMore,
-  MdInventory,
-  MdOutlineInventory,
-} from 'react-icons/md'
-import tsvTemplate from '/inventory_template.tsv?url'
+import { MdExpandLess, MdExpandMore } from 'react-icons/md'
+// import tsvTemplate from '/inventory_template.tsv?url'
 import { piecesSoFar } from '../data/pieces'
 import { useLocalPieceInventory } from '../hooks/useLocalPieceInventory'
 import useBoundStore from '../store/store'
@@ -239,7 +234,7 @@ export const DrawerList = ({
           </Collapse>
 
           {/* LOAD PERSONAL PIECE INVENTORY */}
-          <ListItemButton onClick={handleClickUploadPersonalInventoryTsv}>
+          {/* <ListItemButton onClick={handleClickUploadPersonalInventoryTsv}>
             <ListItemIcon
               sx={{
                 color: 'inherit',
@@ -248,10 +243,10 @@ export const DrawerList = ({
               <MdInventory />
             </ListItemIcon>
             <ListItemText primary={'Load Personal Inventory (.tsv)'} />
-          </ListItemButton>
+          </ListItemButton> */}
 
           {/* DOWNLOAD PERSONAL INVENTORY TSV TEMPLATE */}
-          <a
+          {/* <a
             style={{ textDecoration: 'none', color: 'inherit' }}
             href={tsvTemplate}
             download="inventory_template.tsv"
@@ -266,7 +261,7 @@ export const DrawerList = ({
               </ListItemIcon>
               <ListItemText primary={'Download Inventory Template File'} />
             </ListItemButton>
-          </a>
+          </a> */}
         </List>
 
         <input

@@ -14,7 +14,7 @@ export default function PieceSizeSelect() {
   }
   const isSizes = flatPieceSizes?.length > 0
   return (
-    <span style={{ margin: '0px 20px' }}>
+    <div style={{ margin: '10px 20px', border: '1px solid' }}>
       <ToggleButtonGroup
         disabled={!isSizes}
         value={`${pieceSize}`}
@@ -38,10 +38,12 @@ export default function PieceSizeSelect() {
               </ToggleButton>
             ))
           ) : (
-            <>No sizes</>
+            <ToggleButton value={`${0}`} disabled>
+              -
+            </ToggleButton>
           )}
         </span>
       </ToggleButtonGroup>
-    </span>
+    </div>
   )
 }

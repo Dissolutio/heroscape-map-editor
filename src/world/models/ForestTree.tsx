@@ -7,11 +7,12 @@ import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 
 export default function ForestTree({ boardHex }: { boardHex: BoardHex }) {
-  const {
-    nodes,
-    //  materials
-  } = useGLTF('/forgotten-forest-tree-low-poly-colored.glb') as any
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF(
+    '/forgotten-forest-tree-low-poly-colored.glb',
+  ) as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
@@ -38,15 +39,18 @@ export default function ForestTree({ boardHex }: { boardHex: BoardHex }) {
         <DeletePieceBillboard pieceID={boardHex.pieceID} y={100} />
       )}
       <mesh
-        receiveShadow
-        castShadow
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
         geometry={nodes.Tree10_scanned.geometry}
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
-        // material={materials.ForestTree}
       >
-        <meshStandardMaterial color={color} />
+        {isHighQualityRender ? (
+          <meshStandardMaterial color={color} />
+        ) : (
+          <meshMatcapMaterial color={color} />
+        )}
       </mesh>
       {/* <Billboard
         position={[x, options.y + 1.5, z]}

@@ -13,6 +13,7 @@ import { getBoardHex3DCoords } from '../../utils/map-utils'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { CylinderGeometryArgs } from '../maphex/instance-hex'
+import { basicModelMaterial } from './materials'
 
 // function getPillarReport({
 //   boardHexes,
@@ -107,10 +108,12 @@ export default function LaurWallPillar({
   const { x, z, yWithBase, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords(boardHex)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laurwall-pillar.glb') as any
   const pieceRotation = (((boardHex?.pieceRotation ?? 0) % 6) * -Math.PI) / 3
 
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
@@ -118,7 +121,8 @@ export default function LaurWallPillar({
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = isHovered || isSelected
-
+  const color = isHighlighted ? yellowColor : pillarColor
+  const interiorColor = isHighlighted ? yellowColor : interiorPillarColor
   return (
     <>
       <group position={[x, yWithBase, z]}>
@@ -140,60 +144,42 @@ export default function LaurWallPillar({
         onPointerOut={(e) => onPointerOut(e)}
       >
         <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
-          <mesh geometry={nodes.PillarTop.geometry} castShadow receiveShadow>
-            <meshStandardMaterial
-              roughness={0.4}
-              emissive={'black'}
-              emissiveIntensity={0.4}
-              metalness={0}
-              color={isHighlighted ? yellowColor : pillarColor}
-            />
+          <mesh
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
+            geometry={nodes.PillarTop.geometry}
+          >
+            {basicModelMaterial(color, isHighQualityRender)}
           </mesh>
-          <mesh geometry={nodes.SubDecorCore.geometry} castShadow receiveShadow>
-            <meshStandardMaterial
-              roughness={0.4}
-              emissive={'black'}
-              emissiveIntensity={0.4}
-              metalness={0}
-              color={isHighlighted ? yellowColor : interiorPillarColor}
-            />
+          <mesh
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
+            geometry={nodes.SubDecorCore.geometry}
+          >
+            {basicModelMaterial(interiorColor, isHighQualityRender)}
           </mesh>
-          <mesh geometry={nodes.Facade.geometry} castShadow receiveShadow>
-            <meshStandardMaterial
-              roughness={0.4}
-              emissive={'black'}
-              emissiveIntensity={0.4}
-              metalness={0}
-              side={DoubleSide}
-              color={isHighlighted ? yellowColor : pillarColor}
-            />
+          <mesh
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
+            geometry={nodes.Facade.geometry}
+          >
+            {basicModelMaterial(color, isHighQualityRender)}
           </mesh>
-          <mesh geometry={nodes.FacadeInner.geometry} castShadow receiveShadow>
-            <meshStandardMaterial
-              roughness={0.4}
-              emissive={'black'}
-              emissiveIntensity={0.4}
-              metalness={0}
-              side={DoubleSide}
-              color={isHighlighted ? yellowColor : interiorPillarColor}
-            />
+          <mesh
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
+            geometry={nodes.FacadeInner.geometry}
+          >
+            {basicModelMaterial(interiorColor, isHighQualityRender)}
           </mesh>
         </group>
         <group position={[0, 0, 0]}>
-          <mesh castShadow receiveShadow>
+          <mesh
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
+          >
             <cylinderGeometry args={baseCylinderArgs} />
-            <meshStandardMaterial
-              roughness={0.4}
-              emissive={'black'}
-              emissiveIntensity={0.4}
-              metalness={0}
-              color={isHighlighted ? yellowColor : pillarColor}
-            />
-            {/* <meshLambertMaterial
-              transparent
-              opacity={0.3}
-              color={isHighlighted ? yellowColor : pillarColor}
-            /> */}
+            {basicModelMaterial(color, isHighQualityRender)}
           </mesh>
         </group>
       </group>

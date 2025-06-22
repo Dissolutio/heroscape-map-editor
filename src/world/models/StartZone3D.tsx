@@ -1,8 +1,7 @@
-import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain } from '../../types'
+import type { BoardHex } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
 
@@ -17,7 +16,6 @@ export function StartZone3D({
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnterPID, onPointerOut } =
     usePieceHoverState(isVisible)
-  // const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const handleOnPointerUp = (event: ThreeEvent<PointerEvent>) => {
     onPointerUp(event, boardHex)
   }
@@ -34,7 +32,6 @@ export function StartZone3D({
       onPointerEnter={(e) => onPointerEnterPID(e, boardHex.pieceID)}
       onPointerOut={(e) => onPointerOut(e)}
       rotation={[0, Math.PI / 2, 0]}
-      // rotation={[0, 0, 0]}
     >
       <circleGeometry args={[HEXGRID_HEX_RADIUS / 2.1, 32]} />
       <meshMatcapMaterial color={color} />

@@ -7,9 +7,12 @@ import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 
 export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/ticalla-palm.glb') as any
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes: nodesNewPalm } = useGLTF('/handmade-palm.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
@@ -39,6 +42,12 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
   const colorBase = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.swamp]
+  const material = (c: string) =>
+    isHighQualityRender ? (
+      <meshStandardMaterial color={c} />
+    ) : (
+      <meshMatcapMaterial color={c} />
+    )
   return (
     <>
       {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={3} />}
@@ -48,30 +57,33 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
         onPointerOut={(e) => onPointerOut(e)}
       >
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodesNewPalm.Palm_Trunk.geometry}
         >
-          <meshStandardMaterial color={colorTrunk} />
+          {material(colorTrunk)}
         </mesh>
         <mesh
-          receiveShadow
-          castShadow
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
           geometry={nodesNewPalm.Palm_Canopy.geometry}
         >
-          <meshStandardMaterial
-            transparent
-            opacity={0.95}
-            color={colorPalmLeaf}
-          />
-          {/* <meshStandardMaterial color={colorPalmLeaf} /> */}
+          {material(colorPalmLeaf)}
         </mesh>
 
-        <mesh receiveShadow castShadow geometry={nodes.PalmBrush.geometry}>
-          <meshStandardMaterial color={colorBrush} />
+        <mesh
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
+          geometry={nodes.PalmBrush.geometry}
+        >
+          {material(colorBrush)}
         </mesh>
-        <mesh receiveShadow castShadow geometry={nodes.Interlock6.geometry}>
-          <meshStandardMaterial color={colorBase} />
+        <mesh
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
+          geometry={nodes.Interlock6.geometry}
+        >
+          {material(colorBase)}
         </mesh>
       </group>
     </>

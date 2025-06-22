@@ -23,7 +23,7 @@ export function ReactPdfRoot() {
       }}
     >
       {isMobile ? (
-        <ReactPdfDownloadLink>Download!</ReactPdfDownloadLink>
+        <ReactPdfDownloadLink>Download</ReactPdfDownloadLink>
       ) : (
         <PDFViewer width={'100%'} height={'100%'}>
           <Document title={hexMap.name}>
@@ -96,10 +96,10 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
       style={{
         flexDirection: 'row',
         flexGrow: 0,
-        padding: 20,
+        padding: 0,
         alignContent: 'center',
         alignItems: 'center',
-        height: 100,
+        height: 50,
       }}
     >
       <PdfSvgHeroscapeLogo
@@ -110,12 +110,8 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
         }}
         fillColor="red"
       />
-      <Text style={{ fontSize: '20px', alignSelf: 'center' }}>
-        {hexMap.name}
-      </Text>
-      <Text style={{ fontSize: '12px', alignSelf: 'center', padding: 5 }}>
-        by:
-      </Text>
+      <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>
+      <Text style={{ fontSize: '12px', paddingLeft: 5 }}>by:</Text>
     </View>
   )
 }

@@ -1,6 +1,6 @@
 import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-import { DoubleSide } from 'three'
+import { BackSide, DoubleSide } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
@@ -13,6 +13,7 @@ import { getBoardHex3DCoords } from '../../utils/map-utils'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { CylinderGeometryArgs } from '../maphex/instance-hex'
+import { basicModelMaterial } from './materials'
 
 const baseCylinderArgs: CylinderGeometryArgs = [
   0.9,
@@ -39,10 +40,11 @@ export default function LaurWallTrianglePillar({
   const { x, z, yWithBase, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords(boardHex)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
   const pieceRotation = (((boardHex?.pieceRotation ?? 0) % 6) * -Math.PI) / 3
-
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
@@ -50,7 +52,17 @@ export default function LaurWallTrianglePillar({
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = isHovered || isSelected
-
+  const color = isHighlighted ? yellowColor : pillarColor
+  const interiorColor = isHighlighted ? yellowColor : interiorPillarColor
+  const helpMaterialNeedsBlenderWork = isHighQualityRender ? (
+    <meshStandardMaterial
+      color={interiorColor}
+      side={DoubleSide}
+      shadowSide={BackSide}
+    />
+  ) : (
+    <meshMatcapMaterial side={DoubleSide} color={interiorColor} />
+  )
   return (
     <>
       <group position={[x, yWithBase, z]}>
@@ -75,51 +87,41 @@ export default function LaurWallTrianglePillar({
           rotation={[0, pieceRotation, 0]}
         >
           <mesh
-            castShadow
-            receiveShadow
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
             geometry={nodes.TrianglePillarTop.geometry}
           >
-            <meshStandardMaterial
-              side={DoubleSide}
-              color={isHighlighted ? yellowColor : pillarColor}
-            />
+            {helpMaterialNeedsBlenderWork}
           </mesh>
           <mesh
-            castShadow
-            receiveShadow
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
             geometry={nodes.TriangleSubDecorCore.geometry}
           >
-            <meshStandardMaterial
-              color={isHighlighted ? yellowColor : interiorPillarColor}
-            />
+            {basicModelMaterial(interiorColor, isHighQualityRender)}
           </mesh>
           <mesh
-            castShadow
-            receiveShadow
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
             geometry={nodes.TriangleFacade.geometry}
           >
-            <meshStandardMaterial
-              // side={DoubleSide}
-              color={isHighlighted ? yellowColor : pillarColor}
-            />
+            {basicModelMaterial(color, isHighQualityRender)}
           </mesh>
           <mesh
-            castShadow
-            receiveShadow
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
             geometry={nodes.TriangleFacadeInner.geometry}
           >
-            <meshStandardMaterial
-              side={DoubleSide}
-              color={isHighlighted ? yellowColor : interiorPillarColor}
-            />
+            {basicModelMaterial(interiorColor, isHighQualityRender)}
           </mesh>
         </group>
         <group position={[0, 0, 0]}>
-          <mesh castShadow receiveShadow>
+          <mesh
+            receiveShadow={isHighQualityRender}
+            castShadow={isHighQualityRender}
+          >
             <cylinderGeometry args={baseCylinderArgs} />
-            <meshStandardMaterial
-              color={isHighlighted ? yellowColor : pillarColor}
-            />
+            {basicModelMaterial(color, isHighQualityRender)}
           </mesh>
         </group>
       </group>

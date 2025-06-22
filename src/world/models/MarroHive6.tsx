@@ -5,12 +5,13 @@ import useBoundStore from '../../store/store'
 import type { BoardHex } from '../../types'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
+import { basicModelMaterial } from './materials'
 
 export default function MarroHive6({ boardHex }: { boardHex: BoardHex }) {
-  const model = useGLTF('/uncolored-decimated-marro-hive-6.glb') as any
-  const { nodes } = model
-
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/uncolored-decimated-marro-hive-6.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isVisible = boardHex.altitude <= viewingLevel
   const { isHovered, onPointerEnter, onPointerOut } =
     usePieceHoverState(isVisible)
@@ -35,14 +36,14 @@ export default function MarroHive6({ boardHex }: { boardHex: BoardHex }) {
     <>
       {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={4} />}
       <mesh
-        receiveShadow
-        castShadow
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
         geometry={nodes.Marro_Hive.geometry}
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={onPointerOut}
       >
-        <meshStandardMaterial color={color} />
+        {basicModelMaterial(color, isHighQualityRender)}
       </mesh>
     </>
   )
