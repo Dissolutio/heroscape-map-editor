@@ -9,7 +9,7 @@ import {
 } from './models/piece-adjustments'
 import { getBoardHex3DCoords } from '../utils/map-utils'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
-import { HexTerrain, Pieces } from '../types'
+import { HexTerrain, PiecePrefixes, Pieces } from '../types'
 import { LaurWallPillarPreview } from './models/LaurPillar'
 import {
   HEXGRID_GLYPH_HEIGHT,
@@ -47,6 +47,9 @@ import { Outcrop4Preview } from './models/Outcrop4'
 import { Outcrop6Preview } from './models/Outcrop6'
 import { LadderPreview } from './models/Ladder'
 import { LaurWallAddonPreview } from './models/LaurAddon'
+import Ruins2, { Ruins2Preview } from './models/Ruins2'
+import { Ruins3Preview } from './models/Ruins3'
+import { MarvelRuinPreview } from './models/MarvelRuin'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -64,8 +67,6 @@ export default function PiecePreview() {
   3. Castle Walls onto Walls (preview stacking)
   4. 
   */
-  const boardPieces = useBoundStore((s) => s.boardPieces)
-  const boardHexes = useBoundStore((s) => s.boardHexes)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const pieceID = piece?.id ?? ''
@@ -80,7 +81,8 @@ export default function PiecePreview() {
   const isUnderHexFluid = isFluidTerrainHex(hoveredHex.terrain)
   const isUnderHexLadder = hoveredHex.inventoryID === Pieces.ladder
   const isUnderHexLaurPillar = hoveredHex.inventoryID === Pieces.laurWallSquarePillar || hoveredHex.inventoryID === Pieces.laurWallTrianglePillar
-
+  const isUnderHexCastleWallArch = hoveredHex.inventoryID === Pieces.castleArch || hoveredHex.inventoryID === Pieces.castleArchNoDoor ||
+    hoveredHex.inventoryID === Pieces.castleWallCorner || hoveredHex.inventoryID === Pieces.castleWallEnd || hoveredHex.inventoryID === Pieces.castleWallStraight
   const isLaurWallAddon = piece.terrain === HexTerrain.laurWallAddon
   const isSolidSubterrain = isSolidTerrainHex(piece.terrain)
   const isFluidSubterrain = isFluidTerrainHex(piece.terrain)
@@ -123,15 +125,15 @@ export default function PiecePreview() {
   const isGlacier3Hex = pieceID === Pieces.glacier3
   const isGlacier4Hex = pieceID === Pieces.glacier4
   const isGlacier6Hex = pieceID === Pieces.glacier6
-  const isRuin2OriginHex = pieceID === Pieces.ruins2
-  const isRuin3OriginHex = pieceID === Pieces.ruins3
-  const isMarvelRuinOriginHex =
+  const isRuin2Hex = pieceID === Pieces.ruins2
+  const isRuin3Hex = pieceID === Pieces.ruins3
+  const isMarvelRuinHex =
     pieceID === Pieces.marvel ||
     pieceID === Pieces.marvelBroken ||
     pieceID === Pieces.marvelNoUpper ||
     pieceID === Pieces.marvelNoUpperBroken
 
-  const ruinsOptions = getRuinsOptions(hoveredHex.pieceRotation)
+  const ruinsOptions = getRuinsOptions(penModeRotation)
   const pieceRotation = (penModeRotation * -Math.PI) / 3
 
   // LAND DETAILS:
@@ -139,6 +141,7 @@ export default function PiecePreview() {
     piece.terrain === HexTerrain.grass ||
     piece.terrain === HexTerrain.sand ||
     piece.terrain === HexTerrain.rock
+
   const baseColor = isDirtSubterrain
     ? hexTerrainColor[HexTerrain.dirt]
     : hexTerrainColor[piece.terrain]
@@ -180,7 +183,10 @@ export default function PiecePreview() {
     )
   }
   const getLandMesh = () => {
-    switch (`${penModeSize}`) {
+    switch (
+    penModeSize === 6 && penMode === PiecePrefixes.concrete ? '6B' :
+      penModeSize === 7 && penMode === PiecePrefixes.wallWalk ? '7B'
+        : `${penModeSize}`) {
       case '1':
         return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
       case '2':
@@ -211,17 +217,24 @@ export default function PiecePreview() {
     isSolidTerrainHex(hoveredHex.terrain) ||
     isFluidTerrainHex(hoveredHex.terrain)
   const isEmptyBeneath = hoveredHex.terrain === HexTerrain.empty
+  const isSolidOrEmptyBeneath = isSolidTerrainHex(hoveredHex.terrain) || isEmptyBeneath
+  const isLandOrEmptyBeneath = isLandBeneath || isEmptyBeneath
 
   // Early Return: no piece
   if (!piece) return null
-  if (isSolidSubterrain || isFluidSubterrain) {
+  // Show land tiles, if hovering table/solid-land
+  if (((isSolidSubterrain || isFluidSubterrain) && isSolidOrEmptyBeneath) || (
+    isUnderHexCastleWallArch && piece.terrain === HexTerrain.wallWalk
+  )) {
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
         scale={[1, isFluidSubterrain ? HEXGRID_HEXCAP_FLUID_SCALE : 1, 1]}
       >
-        <Suspense fallback={<ModelLoader />}>{getLandMesh()}</Suspense>
+        <Suspense fallback={<ModelLoader />}>
+          {getLandMesh()}
+        </Suspense>
       </group>
     )
   }
@@ -239,7 +252,7 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isLaurSquarePillarHex && (isLandBeneath || isEmptyBeneath)) {
+  if (isLaurSquarePillarHex && isLandOrEmptyBeneath) {
     return (
       <group
         position={[
@@ -257,7 +270,7 @@ export default function PiecePreview() {
     )
   }
   // TODO: Pillars: Can put some pillars onto other pillars
-  if (isLaurTrianglePillarHex && (isLandBeneath || isEmptyBeneath)) {
+  if (isLaurTrianglePillarHex && isLandOrEmptyBeneath) {
     return (
       <group
         position={[
@@ -274,7 +287,7 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isTreeHex) {
+  if (isTreeHex && isSolidOrEmptyBeneath) {
     return (
       <group
         scale={[
@@ -291,7 +304,7 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isBigTreeHex) {
+  if (isBigTreeHex && isSolidOrEmptyBeneath) {
     return (
       <group
         position={[
@@ -308,7 +321,7 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isCastleArch) {
+  if (isCastleArch && isSolidOrEmptyBeneath) {
     return (
       <group
         position={[x, yBase + HEXGRID_HEX_HEIGHT, z]}
@@ -320,7 +333,7 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isHiveHex) {
+  if (isHiveHex && isSolidOrEmptyBeneath) {
     return (
       <group
         position={[x, yWithBase, z]}
@@ -332,7 +345,43 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isPowerGlyphHex || isTreasureGlyphHex) {
+  if (isRuin2Hex && isSolidOrEmptyBeneath) {
+    return (
+      <group
+        position={[x + ruinsOptions.xAdd, yBaseCap, z + ruinsOptions.zAdd]}
+        rotation={[0, ruinsOptions.rotationY, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <Ruins2Preview />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isRuin3Hex && isSolidOrEmptyBeneath) {
+    return (
+      <group
+        position={[x + ruinsOptions.xAdd, yBaseCap, z + ruinsOptions.zAdd]}
+        rotation={[0, ruinsOptions.rotationY, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <Ruins3Preview />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isMarvelRuinHex && isSolidOrEmptyBeneath) {
+    return (
+      <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
+        <Suspense fallback={<ModelLoader />}>
+          <MarvelRuinPreview
+            isUpperFloor={pieceID === Pieces.marvel || pieceID === Pieces.marvelBroken}
+            isWallIntact={pieceID === Pieces.marvel || pieceID === Pieces.marvelNoUpper}
+          />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isPowerGlyphHex || isTreasureGlyphHex && isLandOrEmptyBeneath) {
     return (
       <group
         position={[
@@ -355,7 +404,7 @@ export default function PiecePreview() {
 
   //   )
   // }
-  if (isLadderHex) {
+  if (isLadderHex && (isUnderHexLadder || isLandOrEmptyBeneath)) {
     const ladderRotation = isUnderHexLadder ? hoveredHex.pieceRotation : penModeRotation
     return (
       <group
@@ -372,7 +421,7 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isGlacier4Hex) {
+  if (isGlacier4Hex && isSolidOrEmptyBeneath) {
     return (
       <group
         position={[x, yWithBase, z]}
@@ -385,7 +434,7 @@ export default function PiecePreview() {
 
     )
   }
-  if (isGlacier6Hex) {
+  if (isGlacier6Hex && isSolidOrEmptyBeneath) {
     return (
       <group
         position={[x, yWithBase, z]}
@@ -398,7 +447,7 @@ export default function PiecePreview() {
 
     )
   }
-  if (isOutcrop3Hex || isLavaRockOutcrop3Hex || isGlacier3Hex) {
+  if ((isOutcrop3Hex || isLavaRockOutcrop3Hex || isGlacier3Hex) && isSolidOrEmptyBeneath) {
     return (
       <group
         position={[x, yWithBase, z]}

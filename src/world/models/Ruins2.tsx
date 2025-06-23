@@ -5,6 +5,7 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export default function Ruins2({
   boardHex,
@@ -40,6 +41,21 @@ export default function Ruins2({
       geometry={nodes.Ruin_Small_Scanned.geometry}
     >
       {basicModelMaterial(color, isHighQualityRender)}
+    </mesh>
+  )
+}
+export function Ruins2Preview() {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/ruins2.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const color = hexTerrainColor[HexTerrain.ruin]
+  return (
+    <mesh
+      receiveShadow={isHighQualityRender}
+      castShadow={isHighQualityRender}
+      geometry={nodes.Ruin_Small_Scanned.geometry}
+    >
+      {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
     </mesh>
   )
 }

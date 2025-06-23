@@ -7,6 +7,7 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { Pieces, type BoardHex } from '../../types'
 import { DoubleSide } from 'three'
 import { basicDoubleSideModelMaterial } from './materials'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export function MarvelRuin({
   boardHex,
@@ -71,6 +72,49 @@ export function MarvelRuin({
         </mesh>
       )}
     </group>
+  )
+}
+export function MarvelRuinPreview({
+  isUpperFloor,
+  isWallIntact,
+}: {
+  isUpperFloor: boolean
+  isWallIntact: boolean
+
+}) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/marvel-ruins.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const color = hexTerrainColor.marvelRuin
+  const colorUpperFloor = hexTerrainColor.ladder
+  return (
+    <>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.MarvelRuinMain.geometry}
+      >
+        {basicDoubleSideModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+      </mesh>
+      {isUpperFloor && (
+        <mesh
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
+          geometry={nodes.MarvelRuinUpperFloor.geometry}
+        >
+          {basicDoubleSideModelMaterial(colorUpperFloor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+        </mesh>
+      )}
+      {isWallIntact && (
+        <mesh
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
+          geometry={nodes.MarvelRuinRemoveableWall.geometry}
+        >
+          {basicDoubleSideModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+        </mesh>
+      )}
+    </>
   )
 }
 
