@@ -39,7 +39,6 @@ import {
   getOptionsForTreeHeight,
   getRuinsOptions,
 } from '../models/piece-adjustments'
-import DeletePieceBillboard from './DeletePieceBillboard'
 import HeightRing from './HeightRing'
 import { MapHexIDDisplay } from './MapHexIDDisplay'
 import { hexTerrainColor } from './hexColors'
@@ -51,21 +50,10 @@ import LaurWallTrianglePillar from '../models/LaurTrianglePillar'
 export const MapHex3D = ({
   boardHex,
   onPointerUpPaintPiece,
-  piecePreviewID
 }: {
   boardHex: BoardHex
-  onPointerUpPaintPiece?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
-  piecePreviewID?: string // A piece inventory ID
+  onPointerUpPaintPiece: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) => {
-  const isPiecePreview = Boolean(piecePreviewID) // no pointer events and add opacity
-  const hoveredHex = useBoundStore((s) => s.hoveredHex)
-  const hex = isPiecePreview ? hoveredHex : boardHex
-  /* Piece Preview:
-  1. A solid/fluid/empty cap (preview anything except laur-addons)
-  2. Laur Pillar / Triangle (preview laud-addons)
-  3. Castle Walls onto Walls (preview stacking)
-  4. 
-  */
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
@@ -380,27 +368,17 @@ export const MapHex3D = ({
         </group>
       )}
       {/* POWER GLYPHS */}
-      {isPowerGlyphHex && (
+      {(isPowerGlyphHex || isTreasureGlyphHex) && (
         <group
           position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
           rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <GlyphModel boardHex={boardHex} />
+            <GlyphModel boardHex={boardHex} terrain={boardHex.terrain} />
           </Suspense>
         </group>
       )}
       {/* TREASURE GLYPHS */}
-      {isTreasureGlyphHex && (
-        <group
-          position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
-          rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <GlyphModel boardHex={boardHex} />
-          </Suspense>
-        </group>
-      )}
       {isGlacier1Hex && (
         <>
           <group
