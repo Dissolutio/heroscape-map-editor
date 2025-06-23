@@ -16,6 +16,8 @@ import { LaurWallTrianglePillarPreview } from './models/LaurTrianglePillar'
 import ForestTree from './models/ForestTree'
 import BigTree415 from './models/BigTree415'
 import MarroHive6 from './models/MarroHive6'
+import { CastleArch } from './models/CastleArch'
+import { noop } from 'lodash'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -264,6 +266,16 @@ export default function PiecePreview() {
           <BigTree415 />
         </group>
       </Suspense>
+  if (isCastleArch) {
+    return (
+      <group
+        position={[x, yBase + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <CastleArch />
+        </Suspense>
+      </group>
     )
   }
   if (isHiveHex) {
