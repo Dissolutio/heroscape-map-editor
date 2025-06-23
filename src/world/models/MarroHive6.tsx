@@ -3,11 +3,12 @@ import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import type { BoardHex } from '../../types'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { noop } from 'lodash'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
-export default function MarroHive6({ boardHex }: { boardHex: BoardHex }) {
+export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/uncolored-decimated-marro-hive-6.glb') as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
@@ -20,25 +21,27 @@ export default function MarroHive6({ boardHex }: { boardHex: BoardHex }) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    if (boardHex) {
+      toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
+  const isSelected = selectedPieceID === boardHex?.pieceID
+  const isHighlighted = (hoveredPieceID === boardHex?.pieceID) || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor.hiveModel1
   return (
     <>
-      {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={4} />}
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.Marro_Hive.geometry}
-        onPointerUp={(e) => onPointerUp(e)}
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-        onPointerOut={onPointerOut}
+        onPointerUp={(e) => boardHex ? onPointerUp(e) : noop()}
+        onPointerEnter={(e) => boardHex ? onPointerEnter(e, boardHex) : noop()}
+        onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
       >
-        {basicModelMaterial(color, isHighQualityRender)}
+        {boardHex ? basicModelMaterial(color, isHighQualityRender)
+          : basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
       </mesh>
     </>
   )

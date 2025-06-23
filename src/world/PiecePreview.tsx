@@ -1,6 +1,6 @@
 import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
-import { getOptionsForBigTree, getOptionsForTreeHeight, getRuinsOptions } from './models/piece-adjustments'
+import { getObstaclRotation, getOptionsForBigTree, getOptionsForTreeHeight, getRuinsOptions } from './models/piece-adjustments'
 import { getBoardHex3DCoords } from '../utils/map-utils'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HexTerrain, Pieces } from '../types'
@@ -15,6 +15,7 @@ import { GlyphModel } from './models/Glyph'
 import { LaurWallTrianglePillarPreview } from './models/LaurTrianglePillar'
 import ForestTree from './models/ForestTree'
 import BigTree415 from './models/BigTree415'
+import MarroHive6 from './models/MarroHive6'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -263,6 +264,18 @@ export default function PiecePreview() {
           <BigTree415 />
         </group>
       </Suspense>
+    )
+  }
+  if (isHiveHex) {
+    return (
+      <group
+        position={[x, yWithBase, z]}
+        rotation={[0, getObstaclRotation(penModeRotation), 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <MarroHive6 />
+        </Suspense>
+      </group>
     )
   }
   // if(XXX){
