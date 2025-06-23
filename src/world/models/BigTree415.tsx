@@ -4,10 +4,11 @@ import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { basicModelMaterial } from './materials'
+import { basicModelMaterial, basicModelPreviewMaterial } from './materials'
 import { noop } from 'lodash'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
-export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
+export default function BigTree415({ boardHex }: { boardHex?: BoardHex }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/forest-tree15-colored-lowpoly.glb') as any
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
@@ -35,6 +36,7 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
   const rockColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.ruin]
+
   return (
     <group
       onPointerUp={(e) => boardHex ? onPointerUp(e) : noop()}
@@ -46,14 +48,16 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
         castShadow={isHighQualityRender}
         geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
       >
-        {basicModelMaterial(rockColor, isHighQualityRender)}
+        {boardHex ? basicModelMaterial(rockColor, isHighQualityRender)
+          : basicModelPreviewMaterial(rockColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
       </mesh>
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
       >
-        {basicModelMaterial(treeColor, isHighQualityRender)}
+        {boardHex ? basicModelMaterial(treeColor, isHighQualityRender)
+          : basicModelPreviewMaterial(treeColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
       </mesh>
     </group>
   )
