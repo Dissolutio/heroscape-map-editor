@@ -8,7 +8,10 @@ import { basicModelMaterial } from './materials'
 import { noop } from 'lodash'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
-export function GlyphModel({ boardHex, terrain }: { boardHex?: BoardHex, terrain: string }) {
+export function GlyphModel({
+  boardHex,
+  terrain,
+}: { boardHex?: BoardHex; terrain: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/glyph.glb') as any
   const texture = useTexture('glyph-valkyrie-logo.svg')
@@ -30,18 +33,20 @@ export function GlyphModel({ boardHex, terrain }: { boardHex?: BoardHex, terrain
   const glyphColor = hexTerrainColor[terrain]
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex?.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex?.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
   const color = isHighlighted ? yellowColor : glyphColor
   return (
     <mesh
       receiveShadow={isHighQualityRender}
       castShadow={isHighQualityRender}
       geometry={nodes.Glyph.geometry}
-      onPointerUp={(e) => boardHex ? onPointerUp(e) : noop()}
-      onPointerEnter={(e) => boardHex ? onPointerEnter(e, boardHex) : noop()}
-      onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
+      onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
+      onPointerEnter={(e) => (boardHex ? onPointerEnter(e, boardHex) : noop())}
+      onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
     >
-      {boardHex ? basicModelMaterial(color, isHighQualityRender) : basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+      {boardHex
+        ? basicModelMaterial(color, isHighQualityRender)
+        : basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
       {boardHex && <Decal depthTest map={texture} />}
     </mesh>
   )

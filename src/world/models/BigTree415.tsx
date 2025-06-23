@@ -29,7 +29,7 @@ export default function BigTree415({ boardHex }: { boardHex?: BoardHex }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex?.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex?.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
   const treeColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.tree]
@@ -39,25 +39,35 @@ export default function BigTree415({ boardHex }: { boardHex?: BoardHex }) {
 
   return (
     <group
-      onPointerUp={(e) => boardHex ? onPointerUp(e) : noop()}
-      onPointerEnter={(e) => boardHex ? onPointerEnter(e, boardHex) : noop()}
-      onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
+      onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
+      onPointerEnter={(e) => (boardHex ? onPointerEnter(e, boardHex) : noop())}
+      onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
     >
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
       >
-        {boardHex ? basicModelMaterial(rockColor, isHighQualityRender)
-          : basicModelMaterial(rockColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+        {boardHex
+          ? basicModelMaterial(rockColor, isHighQualityRender)
+          : basicModelMaterial(
+              rockColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
       >
-        {boardHex ? basicModelMaterial(treeColor, isHighQualityRender)
-          : basicModelMaterial(treeColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+        {boardHex
+          ? basicModelMaterial(treeColor, isHighQualityRender)
+          : basicModelMaterial(
+              treeColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </group>
   )

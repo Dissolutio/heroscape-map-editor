@@ -64,7 +64,10 @@ export default function MapDisplay3D({
     isTakingPicture,
   )
 
-  const onPointerUpPaintPiece = (event: ThreeEvent<PointerEvent>, hex: BoardHex) => {
+  const onPointerUpPaintPiece = (
+    event: ThreeEvent<PointerEvent>,
+    hex: BoardHex,
+  ) => {
     let error: AddRemovePieceError
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
@@ -102,15 +105,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-        q: boardHexes[boardHexIdOfCapForWall].q,
-        r: boardHexes[boardHexIdOfCapForWall].r,
-        s: boardHexes[boardHexIdOfCapForWall].s,
-      }
+          q: boardHexes[boardHexIdOfCapForWall].q,
+          r: boardHexes[boardHexIdOfCapForWall].r,
+          s: boardHexes[boardHexIdOfCapForWall].s,
+        }
       : {
-        q: hex.q,
-        r: hex.r,
-        s: hex.s,
-      }
+          q: hex.q,
+          r: hex.r,
+          s: hex.s,
+        }
     const clickedHexAltitude = clickedHex.altitude
 
     // Clicked castle, use cap coords and altitude (TODO: improve?)
@@ -162,7 +165,7 @@ export default function MapDisplay3D({
         rotation: mirrorRotation,
       })
     }
-    // 
+    //
     else if (piece?.id === Pieces.roadWall) {
       const roadWallClickedHexCoords = getRoadWallClickedHexCoords(
         clickedHex,
@@ -225,7 +228,7 @@ export default function MapDisplay3D({
             // position={[topLeft[0], 0, topLeft[1]]}
             position={[0, 0.1, 0]}
             scale={[width, 0, length]}
-          // rotation={new Euler(0, Math.PI, 0)}
+            // rotation={new Euler(0, Math.PI, 0)}
           />
         )}
 
@@ -255,7 +258,11 @@ export default function MapDisplay3D({
         })}
         {boardHexesArr.map((bh) => {
           return (
-            <MapHex3D key={bh.id} boardHex={bh} onPointerUpPaintPiece={onPointerUpPaintPiece} />
+            <MapHex3D
+              key={bh.id}
+              boardHex={bh}
+              onPointerUpPaintPiece={onPointerUpPaintPiece}
+            />
           )
         })}
       </group>

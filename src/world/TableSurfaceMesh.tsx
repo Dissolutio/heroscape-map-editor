@@ -1,5 +1,5 @@
-import useBoundStore from "../store/store";
-import { HEXGRID_HEX_APOTHEM, HEXGRID_HEX_RADIUS } from "../utils/constants";
+import useBoundStore from '../store/store'
+import { HEXGRID_HEX_APOTHEM, HEXGRID_HEX_RADIUS } from '../utils/constants'
 
 export function TableSurfaceMesh({
   width,
@@ -26,4 +26,3 @@ export function TableSurfaceMesh({
     </mesh>
   )
 }
-

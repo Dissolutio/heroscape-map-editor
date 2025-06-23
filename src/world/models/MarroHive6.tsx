@@ -28,7 +28,7 @@ export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex?.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex?.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor.hiveModel1
   return (
     <>
@@ -36,12 +36,19 @@ export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.Marro_Hive.geometry}
-        onPointerUp={(e) => boardHex ? onPointerUp(e) : noop()}
-        onPointerEnter={(e) => boardHex ? onPointerEnter(e, boardHex) : noop()}
-        onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
+        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) =>
+          boardHex ? onPointerEnter(e, boardHex) : noop()
+        }
+        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
-        {boardHex ? basicModelMaterial(color, isHighQualityRender)
-          : basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+        {boardHex
+          ? basicModelMaterial(color, isHighQualityRender)
+          : basicModelMaterial(
+              color,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </>
   )

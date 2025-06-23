@@ -37,7 +37,7 @@ export default function LaurWallPillar({
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
   const color = isHighlighted ? yellowColor : pillarColor

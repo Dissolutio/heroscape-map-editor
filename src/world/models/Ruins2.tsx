@@ -28,7 +28,7 @@ export default function Ruins2({
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ruin]
   return (
     <mesh

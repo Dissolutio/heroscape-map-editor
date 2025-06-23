@@ -69,16 +69,32 @@ const Controls = () => {
   const handleTrimMap = (boardHexesToTrim: BoardHexes): BoardHexes => {
     // const boardHexArr = Object.values(boardHexes)
     const boardHexArr = Object.values(boardHexesToTrim)
-    const maxX = Math.max(...boardHexArr.map(bh => bh.q - bh.s))
-    const rightColumn = boardHexArr.filter(bh => bh.q - bh.s === maxX || bh.q - bh.s === (maxX - 1))
-    const isRightSideEmpty = rightColumn.every(bh => bh.terrain === HexTerrain.empty)
-    const leftColumn = boardHexArr.filter(bh => bh.s - bh.q === -1 || bh.s - bh.q === 0)
-    const isLeftSideEmpty = leftColumn.every(bh => bh.terrain === HexTerrain.empty)
-    const maxY = Math.max(...boardHexArr.map(bh => bh.r - bh.s - bh.q))
-    const bottomRow = boardHexArr.filter(bh => (bh.r - bh.s - bh.q === maxY) || (bh.r - bh.s - bh.q === maxY - 2))
-    const isBottomRowEmpty = bottomRow.every(bh => bh.terrain === HexTerrain.empty)
-    const top2Rows = boardHexArr.filter(bh => bh.q + bh.s - bh.r === 0 || bh.q + bh.s - bh.r === -2)
-    const isTop2RowsEmpty = top2Rows.every(bh => bh.terrain === HexTerrain.empty)
+    const maxX = Math.max(...boardHexArr.map((bh) => bh.q - bh.s))
+    const rightColumn = boardHexArr.filter(
+      (bh) => bh.q - bh.s === maxX || bh.q - bh.s === maxX - 1,
+    )
+    const isRightSideEmpty = rightColumn.every(
+      (bh) => bh.terrain === HexTerrain.empty,
+    )
+    const leftColumn = boardHexArr.filter(
+      (bh) => bh.s - bh.q === -1 || bh.s - bh.q === 0,
+    )
+    const isLeftSideEmpty = leftColumn.every(
+      (bh) => bh.terrain === HexTerrain.empty,
+    )
+    const maxY = Math.max(...boardHexArr.map((bh) => bh.r - bh.s - bh.q))
+    const bottomRow = boardHexArr.filter(
+      (bh) => bh.r - bh.s - bh.q === maxY || bh.r - bh.s - bh.q === maxY - 2,
+    )
+    const isBottomRowEmpty = bottomRow.every(
+      (bh) => bh.terrain === HexTerrain.empty,
+    )
+    const top2Rows = boardHexArr.filter(
+      (bh) => bh.q + bh.s - bh.r === 0 || bh.q + bh.s - bh.r === -2,
+    )
+    const isTop2RowsEmpty = top2Rows.every(
+      (bh) => bh.terrain === HexTerrain.empty,
+    )
     return keyBy(boardHexArr, 'id')
   }
   const movePieces = (direction: number) => {

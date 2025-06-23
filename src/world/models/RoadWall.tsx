@@ -16,7 +16,7 @@ export function RoadWall({ pid }: { pid: string }) {
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === pid
-  const isHighlighted = (hoveredPieceID === pid) || isSelected
+  const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.roadWall]

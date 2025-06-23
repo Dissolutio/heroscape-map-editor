@@ -10,7 +10,9 @@ import { noop } from 'lodash'
 
 export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/forgotten-forest-tree-low-poly-colored.glb') as any
+  const { nodes } = useGLTF(
+    '/forgotten-forest-tree-low-poly-colored.glb',
+  ) as any
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
@@ -28,7 +30,7 @@ export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex?.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex?.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.tree]
   return (
     <>
@@ -36,12 +38,19 @@ export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.Tree10_scanned.geometry}
-        onPointerUp={(e) => boardHex ? onPointerUp(e) : noop()}
-        onPointerEnter={(e) => boardHex ? onPointerEnter(e, boardHex) : noop()}
-        onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
+        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) =>
+          boardHex ? onPointerEnter(e, boardHex) : noop()
+        }
+        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
-        {boardHex ? basicModelMaterial(color, isHighQualityRender) :
-          basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+        {boardHex
+          ? basicModelMaterial(color, isHighQualityRender)
+          : basicModelMaterial(
+              color,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       {/* <Billboard
         position={[x, options.y + 1.5, z]}

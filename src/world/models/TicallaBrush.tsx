@@ -25,7 +25,7 @@ export default function TicallaBrush({ boardHex }: { boardHex: BoardHex }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const isSwampBrush = boardHex.pieceID.includes(Pieces.swampBrush10)
   const color1 = isHighlighted
     ? yellowColor
@@ -42,7 +42,9 @@ export default function TicallaBrush({ boardHex }: { boardHex: BoardHex }) {
     : isSwampBrush
       ? hexTerrainColor.swampUnderbrush3
       : hexTerrainColor.ticallaBrush3
-  const colorBase = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.swamp]
+  const colorBase = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.swamp]
   return (
     <>
       {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={3} />}

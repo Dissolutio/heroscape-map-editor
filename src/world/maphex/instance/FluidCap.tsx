@@ -86,8 +86,8 @@ function FluidCap({
     ref.current.position.set(
       x,
       y -
-      (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
-      0.001,
+        (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
+        0.001,
       z,
     )
   }, [boardHex])

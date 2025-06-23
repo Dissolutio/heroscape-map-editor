@@ -22,7 +22,7 @@ export default function CastleBases({ boardHex, onPointerUp }: Props) {
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const yellowColor = 'yellow'
   const bodyGeometry = pieceID.includes(Pieces.castleBaseEnd)
     ? nodes.CastleWallEndBody.geometry

@@ -17,8 +17,7 @@ export default function Outcrop6({
   const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-6.glb') as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const { onPointerEnter, onPointerOut } =
-    usePieceHoverState()
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -31,7 +30,7 @@ export default function Outcrop6({
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const iceColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ice]
   const outcropColor = isHighlighted
     ? yellowColor

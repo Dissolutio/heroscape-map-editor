@@ -30,7 +30,7 @@ export default function Outcrop4({
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const iceColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ice]
   const outcropColor = isHighlighted
     ? yellowColor

@@ -4,7 +4,10 @@ import { BackSide, DoubleSide } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
-import { HEXGRID_HEXCAP_FLUID_HEIGHT, PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import {
+  HEXGRID_HEXCAP_FLUID_HEIGHT,
+  PIECE_PREVIEW_OPACITY,
+} from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 
@@ -24,9 +27,13 @@ export default function LaurWallTrianglePillar({
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
-  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.laurWall]
-  const interiorColor = isHighlighted ? yellowColor : hexTerrainColor.laurModelColor2
+  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
+  const color = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.laurWall]
+  const interiorColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.laurModelColor2
   const helpMaterialNeedsBlenderWork = isHighQualityRender ? (
     <meshStandardMaterial
       color={interiorColor}

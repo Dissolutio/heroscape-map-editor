@@ -9,11 +9,17 @@ import { basicModelMaterial } from './materials'
 
 export function LaurWallAddon({ pid }: { pid: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes: { LaurWallRuin, LaurWallRuinBustedConcrete } } = useGLTF('/laurwall-ruin.glb') as any
+  const {
+    nodes: { LaurWallRuin, LaurWallRuinBustedConcrete },
+  } = useGLTF('/laurwall-ruin.glb') as any
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes: { LaurWallShort, LaurWallShortDecorDeep } } = useGLTF('/laurwall-short.glb') as any
+  const {
+    nodes: { LaurWallShort, LaurWallShortDecorDeep },
+  } = useGLTF('/laurwall-short.glb') as any
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes: { LaurWallLong, LaurWallLongDecorDeep } } = useGLTF('/laurwall-long.glb') as any
+  const {
+    nodes: { LaurWallLong, LaurWallLongDecorDeep },
+  } = useGLTF('/laurwall-long.glb') as any
   const { inventoryID } = decodePieceID(pid)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
@@ -22,9 +28,13 @@ export function LaurWallAddon({ pid }: { pid: string }) {
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === pid
-  const isHighlighted = (hoveredPieceID === pid) || isSelected
-  const pillarColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.laurWall]
-  const interiorPillarColor = isHighlighted ? yellowColor : hexTerrainColor.laurModelColor2
+  const isHighlighted = hoveredPieceID === pid || isSelected
+  const pillarColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.laurWall]
+  const interiorPillarColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.laurModelColor2
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)

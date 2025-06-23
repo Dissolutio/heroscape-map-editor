@@ -39,7 +39,11 @@ const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       receiveShadow={isHighQualityRender}
     >
       <cylinderGeometry args={baseEmptyCapCylinderArgs} />
-      {isHighQualityRender ? <meshStandardMaterial transparent opacity={0.5} /> : <meshLambertMaterial transparent opacity={0.5} />}
+      {isHighQualityRender ? (
+        <meshStandardMaterial transparent opacity={0.5} />
+      ) : (
+        <meshLambertMaterial transparent opacity={0.5} />
+      )}
       {boardHexArr.map((hex, i) => (
         <EmptyHex
           key={`${hex.id + i}empty`}

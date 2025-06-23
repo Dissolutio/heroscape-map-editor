@@ -154,7 +154,6 @@ export const MapHex3D = ({
   const isCastleArch =
     pieceID === Pieces.castleArch || pieceID === Pieces.castleArchNoDoor
 
-
   const ruinsOptions = getRuinsOptions(boardHex.pieceRotation)
   const pieceRotation = (boardHex.pieceRotation * -Math.PI) / 3
 
@@ -171,10 +170,7 @@ export const MapHex3D = ({
       {isHeightRingedHex && <HeightRing position={new Vector3(x, y, z)} />}
       {/* GROUP 1: pos, rot, scale */}
       {isSolidSubterrain && (
-        <group
-          position={[x, yBaseCap, z]}
-          rotation={[0, pieceRotation, 0]}
-        >
+        <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
           <Suspense fallback={<ModelLoader />}>
             <LandSubterrain boardHex={boardHex} />
           </Suspense>
@@ -220,10 +216,7 @@ export const MapHex3D = ({
         </group>
       )}
       {isMarvelRuinOriginHex && (
-        <group
-          position={[x, yBaseCap, z]}
-          rotation={[0, pieceRotation, 0]}
-        >
+        <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
           <Suspense fallback={<ModelLoader />}>
             <MarvelRuin boardHex={boardHex} />
           </Suspense>
@@ -264,7 +257,8 @@ export const MapHex3D = ({
               x,
               (isUnderHexFluid
                 ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
-                : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) + HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+                : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
+                HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
               z,
             ]}
             rotation={[0, pieceRotation, 0]}
@@ -291,7 +285,8 @@ export const MapHex3D = ({
               x,
               (isUnderHexFluid
                 ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
-                : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) + HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+                : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
+                HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
               z,
             ]}
             rotation={[0, pieceRotation, 0]}
@@ -339,12 +334,7 @@ export const MapHex3D = ({
         </>
       )}
       {isBigTreeBaseHex && (
-        <ObstacleBase
-          x={x}
-          y={yBase}
-          z={z}
-          color={hexTerrainColor.treeBase}
-        />
+        <ObstacleBase x={x} y={yBase} z={z} color={hexTerrainColor.treeBase} />
       )}
       {isBrushHex && (
         <group
@@ -605,15 +595,25 @@ export const MapHex3D = ({
       )}
       {isCastleBase && (
         <>
-          <group
-            position={[x, yBase, z]}
-            rotation={[0, pieceRotation, 0]}
-          >
+          <group position={[x, yBase, z]} rotation={[0, pieceRotation, 0]}>
             <Suspense fallback={<ModelLoader />}>
-              <CastleBases boardHex={boardHex} onPointerUp={onPointerUpPaintPiece} />
+              <CastleBases
+                boardHex={boardHex}
+                onPointerUp={onPointerUpPaintPiece}
+              />
             </Suspense>
           </group>
-          <ObstacleBase x={x} y={yBaseCap} z={z} color={(hoveredPieceID === boardHex.pieceID) || selectedPieceID === boardHex.pieceID ? hexTerrainColor[HexTerrain.castle] : 'yellow'} />
+          <ObstacleBase
+            x={x}
+            y={yBaseCap}
+            z={z}
+            color={
+              hoveredPieceID === boardHex.pieceID ||
+              selectedPieceID === boardHex.pieceID
+                ? hexTerrainColor[HexTerrain.castle]
+                : 'yellow'
+            }
+          />
         </>
       )}
       {isCastleWall && (
@@ -623,7 +623,10 @@ export const MapHex3D = ({
             rotation={[0, pieceRotation, 0]}
           >
             <Suspense fallback={<ModelLoader />}>
-              <CastleWall onPointerUp={onPointerUpPaintPiece} boardHex={boardHex} />
+              <CastleWall
+                onPointerUp={onPointerUpPaintPiece}
+                boardHex={boardHex}
+              />
             </Suspense>
           </group>
           {boardHex.obstacleHeight === 9 && ( // when it's 8, castle is wall-on-wall and no base is shown
@@ -631,18 +634,23 @@ export const MapHex3D = ({
               x={x}
               y={yBaseCap}
               z={z}
-              color={(hoveredPieceID === boardHex.pieceID) || selectedPieceID === boardHex.pieceID ? 'yellow' : hexTerrainColor[HexTerrain.castle]}
+              color={
+                hoveredPieceID === boardHex.pieceID ||
+                selectedPieceID === boardHex.pieceID
+                  ? 'yellow'
+                  : hexTerrainColor[HexTerrain.castle]
+              }
             />
           )}
         </>
       )}
       {isCastleArch && (
-        <group
-          position={[x, yBase, z]}
-          rotation={[0, pieceRotation, 0]}
-        >
+        <group position={[x, yBase, z]} rotation={[0, pieceRotation, 0]}>
           <Suspense fallback={<ModelLoader />}>
-            <CastleArch boardHex={boardHex} onPointerUp={onPointerUpPaintPiece} />
+            <CastleArch
+              boardHex={boardHex}
+              onPointerUp={onPointerUpPaintPiece}
+            />
           </Suspense>
         </group>
       )}

@@ -10,10 +10,7 @@ import { FLUID_CAP_OPACITY } from '../maphex/instance/FluidCap'
 import { HEXGRID_HEX_APOTHEM } from '../../utils/constants'
 
 export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
-  const {
-    inventoryID,
-    pieceID
-  } = boardHex
+  const { inventoryID, pieceID } = boardHex
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()

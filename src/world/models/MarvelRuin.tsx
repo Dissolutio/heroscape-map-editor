@@ -29,7 +29,7 @@ export function MarvelRuin({
     }
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const yellowColor = 'yellow'
   const color = isHighlighted ? yellowColor : hexTerrainColor.marvelRuin
   const colorUpperFloor = isHighlighted ? yellowColor : hexTerrainColor.ladder

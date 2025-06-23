@@ -16,8 +16,10 @@ export function Battlement({ pid }: { pid: string }) {
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === pid
-  const isHighlighted = (hoveredPieceID === pid) || isSelected
-  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.battlement]
+  const isHighlighted = hoveredPieceID === pid || isSelected
+  const color = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.battlement]
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)

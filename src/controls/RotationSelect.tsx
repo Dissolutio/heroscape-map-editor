@@ -28,11 +28,11 @@ export default function RotationSelect() {
   const allRotations = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5]
   const possibleRotations =
     penMode === Pieces.laurWallTrianglePillar ||
-      penMode === Pieces.laurWallRuin ||
-      penMode === Pieces.laurWallRuin2 ||
-      penMode === Pieces.laurWallRuin3 ||
-      penMode === Pieces.laurWallLong ||
-      penMode === Pieces.laurWallLongStackable
+    penMode === Pieces.laurWallRuin ||
+    penMode === Pieces.laurWallRuin2 ||
+    penMode === Pieces.laurWallRuin3 ||
+    penMode === Pieces.laurWallLong ||
+    penMode === Pieces.laurWallLongStackable
       ? allRotations
       : regularRotations
   return (

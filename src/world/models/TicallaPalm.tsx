@@ -26,7 +26,7 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const colorTrunk = isHighlighted
     ? yellowColor
     : hexTerrainColor.ticallaPalmModel1
