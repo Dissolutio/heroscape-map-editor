@@ -16,12 +16,10 @@ import {
 import { genBoardHexID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { noop } from 'lodash'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 type Props = {
-  boardHex?: BoardHex
-  onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
+  boardHex: BoardHex
+  onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }
 
 export function CastleArch({ boardHex, onPointerUp }: Props) {
@@ -30,15 +28,15 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const isSelected = selectedPieceID === boardHex?.pieceID
+  const isSelected = selectedPieceID === boardHex.pieceID
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
-  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
+  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
   const yellowColor = 'yellow'
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
   const colorDoor = isHighlighted ? yellowColor : hexTerrainColor.castleDoor
-  const isDoor = !(boardHex?.inventoryID === Pieces.castleArchNoDoor)
+  const isDoor = !(boardHex.inventoryID === Pieces.castleArchNoDoor)
   const [colorNear, setColorNear] = React.useState(
     hexTerrainColor[HexTerrain.castle],
   )
@@ -73,12 +71,9 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
     e.stopPropagation()
   }
   const isVerticalClearanceHex = !(
-    boardHex?.isObstacleAuxiliary || boardHex?.isObstacleOrigin
+    boardHex.isObstacleAuxiliary || boardHex.isObstacleOrigin
   )
   const onPointerUpMiddle = (e: ThreeEvent<PointerEvent>) => {
-    if (!boardHex) {
-      return
-    }
     e.stopPropagation()
     const myCube: CubeCoordinate = {
       q: boardHex.q,
@@ -91,12 +86,9 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
     )
     const middleBaseHex =
       boardHexes[genBoardHexID({ ...middleCube, altitude: boardHex.altitude })]
-    onPointerUp?.(e, middleBaseHex)
+    onPointerUp(e, middleBaseHex)
   }
   const onPointerUpFar = (e: ThreeEvent<PointerEvent>) => {
-    if (!boardHex) {
-      return
-    }
     e.stopPropagation()
     const myCube: CubeCoordinate = {
       q: boardHex.q,
@@ -112,12 +104,9 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
     )
     const farBaseHex =
       boardHexes[genBoardHexID({ ...farCube, altitude: boardHex.altitude })]
-    onPointerUp?.(e, farBaseHex)
+    onPointerUp(e, farBaseHex)
   }
   const onPointerUpBody = (event: ThreeEvent<PointerEvent>) => {
-    if (!boardHex) {
-      return
-    }
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
@@ -135,89 +124,61 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   }
 
   return (
-    <group
-      onPointerEnter={(e) => (boardHex ? onPointerEnter(e, boardHex) : noop())}
-      onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
-    >
-      {isDoor && (
+    <>
+      <group
+        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerOut={(e) => onPointerOut(e)}
+      >
+        {isDoor && (
+          <mesh
+            receiveShadow={isHighQualityRender}
+            castShadow
+            geometry={nodes.ArchDoor.geometry}
+            onPointerUp={(e) => onPointerUp(e, boardHex)}
+          >
+            {basicModelMaterial(colorDoor, isHighQualityRender)}
+          </mesh>
+        )}
         <mesh
           receiveShadow={isHighQualityRender}
           castShadow={isHighQualityRender}
-          geometry={nodes.ArchDoor.geometry}
-          onPointerUp={(e) => (boardHex ? onPointerUp?.(e, boardHex) : noop())}
+          geometry={nodes.CastleArchBody.geometry}
+          onPointerUp={onPointerUpBody}
         >
-          {boardHex
-            ? basicModelMaterial(colorDoor, isHighQualityRender)
-            : basicModelMaterial(
-                colorDoor,
-                isHighQualityRender,
-                PIECE_PREVIEW_OPACITY,
-              )}
+          {basicModelMaterial(color, isHighQualityRender)}
         </mesh>
-      )}
-      <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
-        geometry={nodes.CastleArchBody.geometry}
-        onPointerUp={boardHex ? onPointerUpBody : noop}
-      >
-        {boardHex
-          ? basicModelMaterial(color, isHighQualityRender)
-          : basicModelMaterial(
-              color,
-              isHighQualityRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
-      <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
-        geometry={nodes.CastleArchCapNear.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp?.(e, boardHex) : noop)}
-        onPointerEnter={boardHex ? onPointerEnterNear : noop}
-        onPointerOut={boardHex ? onPointerOutNear : noop}
-      >
-        {boardHex
-          ? basicModelMaterial(colorNear, isHighQualityRender)
-          : basicModelMaterial(
-              colorNear,
-              isHighQualityRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
-      <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
-        geometry={nodes.CastleArchCapMiddle.geometry}
-        onPointerEnter={boardHex ? onPointerEnterMiddle : noop}
-        onPointerOut={boardHex ? onPointerOutMiddle : noop}
-        onPointerUp={boardHex ? onPointerUpMiddle : noop}
-      >
-        {boardHex
-          ? basicModelMaterial(colorMiddle, isHighQualityRender)
-          : basicModelMaterial(
-              colorMiddle,
-              isHighQualityRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
-      <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
-        geometry={nodes.CastleArchCapFar.geometry}
-        onPointerEnter={boardHex ? onPointerEnterFar : noop}
-        onPointerOut={boardHex ? onPointerOutFar : noop}
-        onPointerUp={boardHex ? onPointerUpFar : noop}
-      >
-        {boardHex
-          ? basicModelMaterial(colorFar, isHighQualityRender)
-          : basicModelMaterial(
-              colorFar,
-              isHighQualityRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
-    </group>
+        <mesh
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
+          geometry={nodes.CastleArchCapNear.geometry}
+          onPointerUp={(e) => onPointerUp(e, boardHex)}
+          onPointerEnter={onPointerEnterNear}
+          onPointerOut={onPointerOutNear}
+        >
+          {basicModelMaterial(colorNear, isHighQualityRender)}
+        </mesh>
+        <mesh
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
+          geometry={nodes.CastleArchCapMiddle.geometry}
+          onPointerEnter={onPointerEnterMiddle}
+          onPointerOut={onPointerOutMiddle}
+          onPointerUp={onPointerUpMiddle}
+        >
+          {basicModelMaterial(colorMiddle, isHighQualityRender)}
+        </mesh>
+        <mesh
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
+          geometry={nodes.CastleArchCapFar.geometry}
+          onPointerEnter={onPointerEnterFar}
+          onPointerOut={onPointerOutFar}
+          onPointerUp={onPointerUpFar}
+        >
+          {basicModelMaterial(colorFar, isHighQualityRender)}
+        </mesh>
+      </group>
+    </>
   )
 }
 
