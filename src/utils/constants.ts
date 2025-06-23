@@ -42,6 +42,7 @@ export const INSTANCE_LIMIT =
   MAX_RECTANGLE_MAP_DIMENSION *
   MAX_RECTANGLE_MAP_DIMENSION *
   HEXGRID_MAX_ALTITUDE
+export const PIECE_PREVIEW_OPACITY = 0.8
 export const CAMERA_FOV = 65
 export const EVENTS = {
   savePng: 'savePng',

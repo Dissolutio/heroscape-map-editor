@@ -4,9 +4,9 @@ import { BackSide, DoubleSide } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
-import { HEXGRID_HEXCAP_FLUID_HEIGHT } from '../../utils/constants'
+import { HEXGRID_HEXCAP_FLUID_HEIGHT, PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { basicModelMaterial } from './materials'
+import { basicModelMaterial, basicModelPreviewMaterial } from './materials'
 
 export default function LaurWallTrianglePillar({
   boardHex,
@@ -80,5 +80,50 @@ export default function LaurWallTrianglePillar({
     </>
   )
 }
-
+export function LaurWallTrianglePillarPreview({
+  opacity,
+}: {
+  opacity?: number
+}) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const pillarColor = hexTerrainColor[HexTerrain.laurWall]
+  const interiorPillarColor = hexTerrainColor.laurModelColor2
+  const color = pillarColor
+  const interiorColor = interiorPillarColor
+  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
+  return (
+    <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.TrianglePillarTop.geometry}
+      >
+        {basicModelPreviewMaterial(color, isHighQualityRender, opacityLevel)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.TriangleSubDecorCore.geometry}
+      >
+        {basicModelPreviewMaterial(interiorColor, isHighQualityRender, opacityLevel)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.TriangleFacade.geometry}
+      >
+        {basicModelPreviewMaterial(color, isHighQualityRender, opacityLevel)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.TriangleFacadeInner.geometry}
+      >
+        {basicModelPreviewMaterial(interiorColor, isHighQualityRender, opacityLevel)}
+      </mesh>
+    </group>
+  )
+}
 useGLTF.preload('/laur-triangle-pillar.glb')

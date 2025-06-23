@@ -5,10 +5,11 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import {
   HEXGRID_HEXCAP_FLUID_HEIGHT,
+  PIECE_PREVIEW_OPACITY,
 } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { CylinderGeometryArgs } from '../maphex/instance-hex'
-import { basicModelMaterial } from './materials'
+import { basicModelMaterial, basicModelPreviewMaterial } from './materials'
 
 const baseCylinderArgs: CylinderGeometryArgs = [
   0.9,
@@ -26,7 +27,7 @@ export default function LaurWallPillar({
   onPointerUp,
 }: {
   boardHex: BoardHex
-  onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
+  onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -44,7 +45,7 @@ export default function LaurWallPillar({
   return (
     <>
       <group
-        onPointerUp={(e) => onPointerUp?.(e, boardHex)}
+        onPointerUp={(e) => onPointerUp(e, boardHex)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
@@ -90,71 +91,49 @@ export default function LaurWallPillar({
   )
 }
 export function LaurWallPillarPreview({
-  boardHex,
-  onPointerUp,
+  opacity,
 }: {
-  boardHex: BoardHex
-  onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
+  opacity?: number
 }) {
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laurwall-pillar.glb') as any
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
-  const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
-  const color = isHighlighted ? yellowColor : pillarColor
-  const interiorColor = isHighlighted ? yellowColor : interiorPillarColor
+  const color = pillarColor
+  const interiorColor = interiorPillarColor
+  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
   return (
-    <>
-      <group
-        onPointerUp={(e) => onPointerUp?.(e, boardHex)}
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-        onPointerOut={(e) => onPointerOut(e)}
+    <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.PillarTop.geometry}
       >
-        <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
-          <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
-            geometry={nodes.PillarTop.geometry}
-          >
-            {basicModelMaterial(color, isHighQualityRender)}
-          </mesh>
-          <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
-            geometry={nodes.SubDecorCore.geometry}
-          >
-            {basicModelMaterial(interiorColor, isHighQualityRender)}
-          </mesh>
-          <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
-            geometry={nodes.Facade.geometry}
-          >
-            {basicModelMaterial(color, isHighQualityRender)}
-          </mesh>
-          <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
-            geometry={nodes.FacadeInner.geometry}
-          >
-            {basicModelMaterial(interiorColor, isHighQualityRender)}
-          </mesh>
-        </group>
-        <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
-        >
-          <cylinderGeometry args={baseCylinderArgs} />
-          {basicModelMaterial(color, isHighQualityRender)}
-        </mesh>
-      </group>
-    </>
+        {basicModelPreviewMaterial(color, isHighQualityRender, opacityLevel)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.SubDecorCore.geometry}
+      >
+        {basicModelPreviewMaterial(interiorColor, isHighQualityRender, opacityLevel)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.Facade.geometry}
+      >
+        {basicModelPreviewMaterial(color, isHighQualityRender, opacityLevel)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.FacadeInner.geometry}
+      >
+        {basicModelPreviewMaterial(interiorColor, isHighQualityRender, opacityLevel)}
+      </mesh>
+    </group>
   )
 }
 useGLTF.preload('/laurwall-pillar.glb')
