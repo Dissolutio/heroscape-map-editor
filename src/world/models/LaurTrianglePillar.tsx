@@ -52,7 +52,6 @@ export default function LaurWallTrianglePillar({
       >
         <group
           position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}
-          rotation={[0, pieceRotation, 0]}
         >
           <mesh
             receiveShadow={isHighQualityRender}
