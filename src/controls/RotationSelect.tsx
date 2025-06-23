@@ -5,6 +5,7 @@ import {
   MdOutlineNorth,
   MdOutlineNorthEast,
   MdOutlineNorthWest,
+  MdOutlineSouth,
   MdOutlineSouthEast,
   MdOutlineSouthWest,
   MdOutlineWest,
@@ -22,18 +23,18 @@ export default function RotationSelect() {
   ) => {
     togglePenModeRotation(value)
   }
-  const allRotations = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5]
   const regularRotations = [0, 1, 2, 3, 4, 5]
-  const partialRotations = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5]
+  // const partialRotations = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5]
+  const allRotations = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5]
   const possibleRotations =
-    penMode === Pieces.laurWallLong || penMode === Pieces.laurWallLongStackable
-      ? partialRotations
-      : penMode === Pieces.laurWallTrianglePillar ||
-          penMode === Pieces.laurWallRuin ||
-          penMode === Pieces.laurWallRuin2 ||
-          penMode === Pieces.laurWallRuin3
-        ? allRotations
-        : regularRotations
+    penMode === Pieces.laurWallTrianglePillar ||
+      penMode === Pieces.laurWallRuin ||
+      penMode === Pieces.laurWallRuin2 ||
+      penMode === Pieces.laurWallRuin3 ||
+      penMode === Pieces.laurWallLong ||
+      penMode === Pieces.laurWallLongStackable
+      ? allRotations
+      : regularRotations
   return (
     <div
       style={{
@@ -74,7 +75,7 @@ export default function RotationSelect() {
               </>
             ) : r === 1.5 ? (
               <>
-                <MdOutlineSouthEast style={{ transform: 'rotate(30deg)' }} />
+                <MdOutlineSouth />
                 <span>1.5</span>
               </>
             ) : r === 2 ? (
