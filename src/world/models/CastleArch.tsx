@@ -16,12 +16,66 @@ import {
 import { genBoardHexID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 type Props = {
   boardHex: BoardHex
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }
 
+export function CastleArchPreview({ isDoor }: { isDoor: boolean }) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/castle-arch-handmade.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const color = hexTerrainColor[HexTerrain.castle]
+  const colorDoor = hexTerrainColor.castleDoor
+
+  return (
+    <>
+      {isDoor && (
+        <mesh
+          receiveShadow={isHighQualityRender}
+          castShadow
+          geometry={nodes.ArchDoor.geometry}
+        >
+          {basicModelMaterial(
+            colorDoor,
+            isHighQualityRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
+        </mesh>
+      )}
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.CastleArchBody.geometry}
+      >
+        {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.CastleArchCapNear.geometry}
+      >
+        {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.CastleArchCapMiddle.geometry}
+      >
+        {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.CastleArchCapFar.geometry}
+      >
+        {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+      </mesh>
+    </>
+  )
+}
 export function CastleArch({ boardHex, onPointerUp }: Props) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/castle-arch-handmade.glb') as any
@@ -32,7 +86,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
+  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const yellowColor = 'yellow'
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
   const colorDoor = isHighlighted ? yellowColor : hexTerrainColor.castleDoor

@@ -5,6 +5,7 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export function Ladder({
   boardHex,
@@ -18,7 +19,7 @@ export function Ladder({
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const penMode = useBoundStore((s) => s.penMode)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const handleOnPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -43,10 +44,25 @@ export function Ladder({
       castShadow={isHighQualityRender}
       geometry={nodes.Ladder.geometry}
       onPointerUp={handleOnPointerUp}
-      onPointerEnter={(e) => onPointerEnterPID(e, boardHex.pieceID)}
+      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
       onPointerOut={(e) => onPointerOut(e)}
     >
       {basicModelMaterial(color, isHighQualityRender)}
+    </mesh>
+  )
+}
+export function LadderPreview() {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/handmade-ladder.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const color = hexTerrainColor[HexTerrain.ladder]
+  return (
+    <mesh
+      receiveShadow={isHighQualityRender}
+      castShadow={isHighQualityRender}
+      geometry={nodes.Ladder.geometry}
+    >
+      {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
     </mesh>
   )
 }

@@ -1,6 +1,7 @@
 import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
 import {
+  getLadderBattlementOptions,
   getObstaclRotation,
   getOptionsForBigTree,
   getOptionsForTreeHeight,
@@ -40,8 +41,11 @@ import { LaurWallTrianglePillarPreview } from './models/LaurTrianglePillar'
 import ForestTree from './models/ForestTree'
 import BigTree415 from './models/BigTree415'
 import MarroHive6 from './models/MarroHive6'
-import { CastleArch } from './models/CastleArch'
-import { noop } from 'lodash'
+import { CastleArchPreview } from './models/CastleArch'
+import { Outcrop3Preview } from './models/Outcrop3'
+import { Outcrop4Preview } from './models/Outcrop4'
+import { Outcrop6Preview } from './models/Outcrop6'
+import { LadderPreview } from './models/Ladder'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -73,7 +77,10 @@ export default function PiecePreview() {
   const { x, y, z, yWithBase, yBase, yBaseCap, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords(hoveredHex)
   const isUnderHexFluid = isFluidTerrainHex(hoveredHex.terrain)
+  const isUnderHexLadder = hoveredHex.inventoryID === Pieces.ladder
+  const isUnderHexLaurPillar = hoveredHex.inventoryID === Pieces.laurWallPillar || hoveredHex.inventoryID === Pieces.laurWallTrianglePillar
 
+  const isLaurWallAddon = pieceID === Pieces.laurWallTrianglePillar
   const isSolidSubterrain = isSolidTerrainHex(piece.terrain)
   const isFluidSubterrain = isFluidTerrainHex(piece.terrain)
   const isLaurSquarePillarHex = piece.id === Pieces.laurWallPillar
@@ -109,10 +116,6 @@ export default function PiecePreview() {
   const isHiveHex = pieceID === Pieces.hive
   const isCastleArch =
     pieceID === Pieces.castleArch || pieceID === Pieces.castleArchNoDoor
-  const isLavaRockOutcrop3BaseHex = pieceID === Pieces.lavaRockOutcrop3
-  const isGlacier3BaseHex = pieceID === Pieces.glacier3
-  const isGlacier4BaseHex = pieceID === Pieces.glacier4
-  const isGlacier6BaseHex = pieceID === Pieces.glacier6
   const isLadderHex = piece.terrain === HexTerrain.ladder
   const isOutcrop3Hex = pieceID === Pieces.outcrop3
   const isLavaRockOutcrop3Hex = pieceID === Pieces.lavaRockOutcrop3
@@ -229,7 +232,24 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+          z,
+        ]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <LaurWallPillarPreview />
+      </group>
+    )
+  }
+  if (isLaurSquarePillarHex && (isLandBeneath || isEmptyBeneath)) {
+    return (
+      <group
+        position={[
+          x,
+          (isUnderHexFluid
+            ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
+            : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -247,7 +267,7 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -297,7 +317,7 @@ export default function PiecePreview() {
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <CastleArch />
+          <CastleArchPreview isDoor={pieceID === Pieces.castleArch} />
         </Suspense>
       </group>
     )
@@ -314,11 +334,6 @@ export default function PiecePreview() {
       </group>
     )
   }
-  // if(XXX){
-  //   return(
-
-  //   )
-  // }
   if (isPowerGlyphHex || isTreasureGlyphHex) {
     return (
       <group
@@ -337,6 +352,67 @@ export default function PiecePreview() {
       </group>
     )
   }
+  // if(XXX){
+  //   return(
 
+  //   )
+  // }
+  if (isLadderHex) {
+    const ladderRotation = isUnderHexLadder ? hoveredHex.pieceRotation : penModeRotation
+    return (
+      <group
+        position={[
+          x + getLadderBattlementOptions(ladderRotation).xAdd,
+          y + HEXGRID_HEXCAP_HEIGHT / 2 + (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
+          z + getLadderBattlementOptions(ladderRotation).zAdd,
+        ]}
+        rotation={[0, ((ladderRotation) * -Math.PI) / 3, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <LadderPreview />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isGlacier4Hex) {
+    return (
+      <group
+        position={[x, yWithBase, z]}
+        rotation={[0, getObstaclRotation(penModeRotation), 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <Outcrop4Preview />
+        </Suspense>
+      </group>
+
+    )
+  }
+  if (isGlacier6Hex) {
+    return (
+      <group
+        position={[x, yWithBase, z]}
+        rotation={[0, getObstaclRotation(penModeRotation), 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <Outcrop6Preview />
+        </Suspense>
+      </group>
+
+    )
+  }
+  if (isOutcrop3Hex || isLavaRockOutcrop3Hex || isGlacier3Hex) {
+    return (
+      <group
+        position={[x, yWithBase, z]}
+        rotation={[0, getObstaclRotation(penModeRotation), 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <Outcrop3Preview
+            isGlacier={piece.terrain === HexTerrain.glacier}
+            isLavaRock={piece.terrain === HexTerrain.lavaRockOutcrop} />
+        </Suspense>
+      </group>
+    )
+  }
   return null
 }

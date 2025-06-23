@@ -5,6 +5,7 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export default function Outcrop3({
   boardHex,
@@ -33,7 +34,7 @@ export default function Outcrop3({
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
-  const iceColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ice]
+  const iceColor = hexTerrainColor[HexTerrain.ice]
   const lavaColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.lavaField]
@@ -52,6 +53,31 @@ export default function Outcrop3({
       onPointerOut={onPointerOut}
     >
       {basicModelMaterial(color, isHighQualityRender)}
+    </mesh>
+  )
+}
+export function Outcrop3Preview({
+  isGlacier,
+  isLavaRock,
+}: {
+  isGlacier?: boolean
+  isLavaRock?: boolean
+}) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-3.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const iceColor = hexTerrainColor[HexTerrain.ice]
+  const lavaColor = hexTerrainColor[HexTerrain.lavaField]
+  const outcropColor = hexTerrainColor[HexTerrain.outcrop]
+  const color = isGlacier ? iceColor : isLavaRock ? lavaColor : outcropColor
+
+  return (
+    <mesh
+      receiveShadow={isHighQualityRender}
+      castShadow={isHighQualityRender}
+      geometry={nodes.glacier_3_with_holes.geometry}
+    >
+      {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
     </mesh>
   )
 }

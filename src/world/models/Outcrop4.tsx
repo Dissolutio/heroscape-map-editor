@@ -5,6 +5,7 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export default function Outcrop4({
   isGlacier,
@@ -48,6 +49,23 @@ export default function Outcrop4({
         onPointerOut={onPointerOut}
       >
         {basicModelMaterial(color, isHighQualityRender)}
+      </mesh>
+    </>
+  )
+}
+export function Outcrop4Preview() {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-4.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const color = hexTerrainColor[HexTerrain.ice]
+  return (
+    <>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.glacier_4_with_holes.geometry}
+      >
+        {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
       </mesh>
     </>
   )
