@@ -245,10 +245,10 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-      inventoryID === Pieces.castleWallEnd
+        inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-            inventoryID === Pieces.castleWallStraight
+          inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
@@ -373,7 +373,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   }
   // LAUR PILLARS and SINGLE LAND
   if (
-    inventoryID === Pieces.laurWallPillar ||
+    inventoryID === Pieces.laurWallSquarePillar ||
     inventoryID === Pieces.laurWallTrianglePillar
   ) {
     return (

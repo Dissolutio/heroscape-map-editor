@@ -93,7 +93,7 @@ export default function MapDisplay3D({
       hex.pieceID.includes(PiecePrefixes.castleWall) ||
       hex.pieceID.includes(PiecePrefixes.castleArch)
     const isLaurPillarClicked =
-      hex.inventoryID === Pieces.laurWallPillar ||
+      hex.inventoryID === Pieces.laurWallSquarePillar ||
       hex.inventoryID === Pieces.laurWallTrianglePillar
     const boardHexIdOfCapForWall = genBoardHexID({
       ...hex,

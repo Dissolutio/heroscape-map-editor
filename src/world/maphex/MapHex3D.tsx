@@ -91,7 +91,7 @@ export const MapHex3D = ({
     boardHex.terrain === HexTerrain.tree &&
     isObstacleHex
   const isLaurSquarePillarHex =
-    boardHex.inventoryID === Pieces.laurWallPillar && boardHex.isObstacleOrigin
+    boardHex.inventoryID === Pieces.laurWallSquarePillar && boardHex.isObstacleOrigin
   const isLaurTrianglePillarHex =
     boardHex.inventoryID === Pieces.laurWallTrianglePillar &&
     boardHex.isObstacleOrigin
@@ -258,7 +258,7 @@ export const MapHex3D = ({
               (isUnderHexFluid
                 ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
                 : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-                HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+              HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
               z,
             ]}
             rotation={[0, pieceRotation, 0]}
@@ -286,7 +286,7 @@ export const MapHex3D = ({
               (isUnderHexFluid
                 ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
                 : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-                HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+              HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
               z,
             ]}
             rotation={[0, pieceRotation, 0]}
@@ -609,7 +609,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-              selectedPieceID === boardHex.pieceID
+                selectedPieceID === boardHex.pieceID
                 ? hexTerrainColor[HexTerrain.castle]
                 : 'yellow'
             }
@@ -636,7 +636,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+                  selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castle]
               }

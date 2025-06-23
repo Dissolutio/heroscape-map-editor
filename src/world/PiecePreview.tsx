@@ -78,12 +78,12 @@ export default function PiecePreview() {
     getBoardHex3DCoords(hoveredHex)
   const isUnderHexFluid = isFluidTerrainHex(hoveredHex.terrain)
   const isUnderHexLadder = hoveredHex.inventoryID === Pieces.ladder
-  const isUnderHexLaurPillar = hoveredHex.inventoryID === Pieces.laurWallPillar || hoveredHex.inventoryID === Pieces.laurWallTrianglePillar
+  const isUnderHexLaurPillar = hoveredHex.inventoryID === Pieces.laurWallSquarePillar || hoveredHex.inventoryID === Pieces.laurWallTrianglePillar
 
   const isLaurWallAddon = pieceID === Pieces.laurWallTrianglePillar
   const isSolidSubterrain = isSolidTerrainHex(piece.terrain)
   const isFluidSubterrain = isFluidTerrainHex(piece.terrain)
-  const isLaurSquarePillarHex = piece.id === Pieces.laurWallPillar
+  const isLaurSquarePillarHex = piece.id === Pieces.laurWallSquarePillar
   const isLaurTrianglePillarHex = pieceID === Pieces.laurWallTrianglePillar
   const isPowerGlyphHex = pieceID === Pieces.glyphPower
   const isTreasureGlyphHex = pieceID === Pieces.glyphTreasure

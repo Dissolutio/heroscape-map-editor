@@ -790,8 +790,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     height: 0,
   },
   // LAUR WALL
-  [Pieces.laurWallPillar]: {
-    id: Pieces.laurWallPillar,
+  [Pieces.laurWallSquarePillar]: {
+    id: Pieces.laurWallSquarePillar,
     title: 'Laur Pillar',
     terrain: HexTerrain.laurWall,
     isHexTerrainPiece: false,

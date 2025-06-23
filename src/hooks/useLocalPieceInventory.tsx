@@ -59,7 +59,7 @@ const blankPieceState: { [key: string]: number } = {
   [Pieces.shadow1]: 0,
   [Pieces.shadow3]: 0,
   [Pieces.roadWall]: 0,
-  [Pieces.laurWallPillar]: 0,
+  [Pieces.laurWallSquarePillar]: 0,
   [Pieces.laurWallShort]: 0,
   [Pieces.laurWallLong]: 0,
   [Pieces.laurWallRuin1]: 0,

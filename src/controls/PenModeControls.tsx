@@ -228,7 +228,7 @@ export default function PenModeControls() {
         <Divider />
 
         {/* LAUR WALL */}
-        <MenuItem value={Pieces.laurWallPillar}>
+        <MenuItem value={Pieces.laurWallSquarePillar}>
           <ListItemIcon>
             <GiWhiteTower color={hexTerrainColor.water} />
           </ListItemIcon>
