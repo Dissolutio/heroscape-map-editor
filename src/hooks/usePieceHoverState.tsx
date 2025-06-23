@@ -3,7 +3,7 @@ import React from 'react'
 import useBoundStore from '../store/store'
 import type { BoardHex } from '../types'
 
-export default function usePieceHoverState(isVisible?: boolean) {
+export default function usePieceHoverState() {
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
   const toggleHoveredHex = useBoundStore((s) => s.toggleHoveredHex)
   // biome-ignore lint/style/noNonNullAssertion: <is immediately defined>
@@ -28,6 +28,7 @@ export default function usePieceHoverState(isVisible?: boolean) {
   const onPointerOut = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
     setIsHovered(false)
+    toggleHoveredHex(undefined)
     clearTimeout(hoverTimeout.current)
   }
   return {

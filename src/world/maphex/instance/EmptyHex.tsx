@@ -61,7 +61,7 @@ function EmptyHex({
 }: BoardHexPieceProps & { isHighQualityRender: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState(true)
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
 
   // Effect: Initial color/position
   React.useLayoutEffect(() => {
