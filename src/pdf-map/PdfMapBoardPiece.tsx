@@ -66,7 +66,7 @@ export const PdfMapBoardPiece = ({
       </G>
     )
   }
-  if (inventoryID === Pieces.laurWallRuin) {
+  if (inventoryID === Pieces.laurWallRuin1) {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}

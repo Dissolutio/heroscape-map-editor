@@ -257,7 +257,7 @@ const tileTemplates: Dictionary<CubeCoordinate[]> = {
   '24': basic24,
   // hex obstructions below
   [Pieces.laurWallPillar]: basic1,
-  [Pieces.laurWallRuin]: basic1,
+  [Pieces.laurWallRuin1]: basic1,
   [Pieces.laurWallShort]: basic1,
   [Pieces.laurWallLong]: basic1,
   [Pieces.tree10]: basic1,

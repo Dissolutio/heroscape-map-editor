@@ -58,7 +58,7 @@ export const aoa1PieceSet: PieceInventory = {
   [Pieces.water1]: 20,
   [Pieces.laurWallPillar]: 8,
   [Pieces.laurWallShort]: 4,
-  [Pieces.laurWallRuin]: 2,
+  [Pieces.laurWallRuin1]: 2,
   [Pieces.laurWallLong]: 1,
 }
 export const ruinsOfValhallaPieceSet: PieceInventory = {

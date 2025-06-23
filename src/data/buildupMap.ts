@@ -65,7 +65,7 @@ function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: string[]) {
     const aPieceID = decodePieceID(a).inventoryID
     const bPieceID = decodePieceID(b).inventoryID
     if (
-      aPieceID === Pieces.laurWallRuin ||
+      aPieceID === Pieces.laurWallRuin1 ||
       aPieceID === Pieces.laurWallLong ||
       aPieceID === Pieces.laurWallShort ||
       aPieceID === Pieces.ladder ||
@@ -74,7 +74,7 @@ function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: string[]) {
       return 1 // Move 'targetValue' to the end
     }
     if (
-      bPieceID === Pieces.laurWallRuin ||
+      bPieceID === Pieces.laurWallRuin1 ||
       bPieceID === Pieces.laurWallLong ||
       bPieceID === Pieces.laurWallShort ||
       aPieceID === Pieces.ladder ||

@@ -51,7 +51,7 @@ export function LaurWallAddon({ pid }: { pid: string }) {
       onPointerOut={(e) => onPointerOut(e)}
     >
       {/* LAUR WALL RUIN */}
-      {inventoryID === Pieces.laurWallRuin && (
+      {inventoryID === Pieces.laurWallRuin1 && (
         <>
           <mesh
             receiveShadow={isHighQualityRender}

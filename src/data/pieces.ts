@@ -840,14 +840,14 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: Pieces.laurWallLong,
     height: 12, // again, really verticalClearance, not "height"
   },
-  [Pieces.laurWallRuin]: {
-    id: Pieces.laurWallRuin,
+  [Pieces.laurWallRuin1]: {
+    id: Pieces.laurWallRuin1,
     title: 'Laur Wall Ruin',
     terrain: HexTerrain.laurWall,
     isHexTerrainPiece: false,
     isObstaclePiece: false,
     size: 1,
-    template: Pieces.laurWallRuin,
+    template: Pieces.laurWallRuin1,
     height: 12, //
   },
   // RUINS

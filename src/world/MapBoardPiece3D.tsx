@@ -38,7 +38,7 @@ export const MapBoardPiece3D = ({
   // LAURWALL ADDON
   if (
     inventoryID === Pieces.laurWallShort ||
-    inventoryID === Pieces.laurWallRuin ||
+    inventoryID === Pieces.laurWallRuin1 ||
     inventoryID === Pieces.laurWallLong
   ) {
     return (

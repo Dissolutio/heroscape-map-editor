@@ -245,7 +245,7 @@ export enum Pieces {
   laurWallShortStackable = `${PiecePrefixes.laurWall}s2`,
   laurWallLong = `${PiecePrefixes.laurWall}l`,
   laurWallLongStackable = `${PiecePrefixes.laurWall}l2`,
-  laurWallRuin = `${PiecePrefixes.laurWall}r`, // most damaged
+  laurWallRuin1 = `${PiecePrefixes.laurWall}r`, // most damaged
   laurWallRuin2 = `${PiecePrefixes.laurWall}r2`, // 2nd most damaged
   laurWallRuin3 = `${PiecePrefixes.laurWall}r3`, // 3rd most damaged
   // HexObstacles
