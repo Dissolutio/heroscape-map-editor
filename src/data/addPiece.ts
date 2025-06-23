@@ -591,7 +591,7 @@ export function addPiece({
       if (hexUnderneath) {
         newBoardHexes[hexUnderneath.id].isCap = false
       }
-      // write in the new hex
+      // write in the new base level hexes (origin+auxiliaries)
       newBoardHexes[newHexID] = {
         id: newHexID,
         q: piecePlaneCoords[i].q,
