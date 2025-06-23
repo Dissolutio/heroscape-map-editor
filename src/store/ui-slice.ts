@@ -79,6 +79,7 @@ const createUISlice: StateCreator<
           state.penMode,
           state.pieceSize,
         )
+        // TODO: UI re-select a valid rotation, see RotationSelect.tsx
         state.penMode = mode
         state.pieceSize = newSize
         state.flatPieceSizes = newSizes
