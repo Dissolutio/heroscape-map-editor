@@ -2,7 +2,7 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { AppState } from './store'
-import type { BoardHex } from '../types'
+import { Pieces, type BoardHex } from '../types'
 
 export interface UISlice {
   penMode: string
@@ -39,7 +39,8 @@ export interface UISlice {
   toggleIsFrameloopDemand: (b: boolean) => void
 }
 
-const initialPenMode = 'select'
+// const initialPenMode = 'select'
+const initialPenMode = Pieces.tree415
 
 const createUISlice: StateCreator<
   // https://immerjs.github.io/immer/#with-immer

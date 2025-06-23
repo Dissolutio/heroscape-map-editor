@@ -157,6 +157,9 @@ export const MapHex3D = ({
 
   const ruinsOptions = getRuinsOptions(boardHex.pieceRotation)
   const pieceRotation = (boardHex.pieceRotation * -Math.PI) / 3
+  if (isBigTreeHex) {
+    console.log("🚀 ~ rotation.getOptionsForBigTree(boardHex.pieceRotation).rotationY:", getOptionsForBigTree(boardHex.pieceRotation).rotationY)
+  }
 
   if (!isVisible) {
     return null
@@ -324,6 +327,7 @@ export const MapHex3D = ({
               rotation={[
                 0,
                 getOptionsForBigTree(boardHex.pieceRotation).rotationY,
+                // getOptionsForBigTree(boardHex.pieceRotation).rotationY,
                 0,
               ]}
             >
