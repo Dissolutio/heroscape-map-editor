@@ -90,8 +90,8 @@ export default function MapDisplay3D({
       hex.pieceID.includes(PiecePrefixes.castleWall) ||
       hex.pieceID.includes(PiecePrefixes.castleArch)
     const isLaurPillarClicked =
-      hex.pieceID === Pieces.laurWallPillar ||
-      hex.pieceID === Pieces.laurWallTrianglePillar
+      hex.inventoryID === Pieces.laurWallPillar ||
+      hex.inventoryID === Pieces.laurWallTrianglePillar
     const boardHexIdOfCapForWall = genBoardHexID({
       ...hex,
       altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
@@ -111,9 +111,9 @@ export default function MapDisplay3D({
         r: hex.r,
         s: hex.s,
       }
-    let clickedHexAltitude = clickedHex.altitude
-    // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
+    const clickedHexAltitude = clickedHex.altitude
 
+    // Clicked castle, use cap coords and altitude (TODO: improve?)
     if (isCastleWallArchClicked) {
       const castleWallArchClickedHexCoords = {
         q: boardHexes[boardHexIdOfCapForWall].q,
@@ -126,11 +126,17 @@ export default function MapDisplay3D({
         altitude: clickedHexAltitude,
         rotation: penModeRotation,
       })
-    } else if (
+    }
+    // Clicked Pillar, adding laur addon, put it at same level
+    else if (
       isLaurPillarClicked &&
       (piece?.id === Pieces.laurWallRuin ||
         piece?.id === Pieces.laurWallRuin2 ||
-        piece?.id === Pieces.laurWallRuin3)
+        piece?.id === Pieces.laurWallRuin3 ||
+        piece?.id === Pieces.laurWallLong ||
+        piece?.id === Pieces.laurWallLongStackable ||
+        piece?.id === Pieces.laurWallShort ||
+        piece?.id === Pieces.laurWallShortStackable)
     ) {
       // const laurWallAddonClickedHexCoords = getBattlementClickedHexCoords(
       //   clickedHex,
@@ -139,7 +145,7 @@ export default function MapDisplay3D({
       error = paintTile({
         piece,
         clickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: clickedHexAltitude - 1,
         rotation: penModeRotation,
       })
       console.log('🚀 ~ error:', error)
@@ -148,38 +154,41 @@ export default function MapDisplay3D({
         clickedHex,
         penModeRotation,
       )
-      clickedHexAltitude -= 1
       const mirrorRotation = (penModeRotation + 3) % 6
       error = paintTile({
         piece,
         clickedHexCoords: battlementClickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: clickedHexAltitude - 1,
         rotation: mirrorRotation,
       })
-    } else if (piece?.id === Pieces.roadWall) {
+    }
+    // 
+    else if (piece?.id === Pieces.roadWall) {
       const roadWallClickedHexCoords = getRoadWallClickedHexCoords(
         clickedHex,
         penModeRotation,
       )
-      clickedHexAltitude -= 1
       error = paintTile({
         piece,
         clickedHexCoords: roadWallClickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: clickedHexAltitude - 1,
         rotation: penModeRotation,
       })
-    } else if (
+    }
+    // Adding ladder onto ladder
+    else if (
       piece?.id === Pieces.ladder &&
       hex?.inventoryID === Pieces.ladder
     ) {
-      clickedHexAltitude += 1
       error = paintTile({
         piece,
         clickedHexCoords: clickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: clickedHexAltitude + 1,
         rotation: clickedHex.pieceRotation,
       })
-    } else {
+    }
+    // Clicked a regular land cap
+    else {
       error = paintTile({
         piece,
         clickedHexCoords,
