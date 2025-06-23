@@ -3,9 +3,8 @@ import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { basicModelMaterial, basicModelPreviewMaterial } from './materials'
+import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
 
@@ -42,7 +41,7 @@ export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
       >
         {boardHex ? basicModelMaterial(color, isHighQualityRender) :
-          basicModelPreviewMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+          basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
       </mesh>
       {/* <Billboard
         position={[x, options.y + 1.5, z]}

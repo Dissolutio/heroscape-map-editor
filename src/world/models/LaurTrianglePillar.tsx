@@ -6,7 +6,7 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import { HEXGRID_HEXCAP_FLUID_HEIGHT, PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { basicModelMaterial, basicModelPreviewMaterial } from './materials'
+import { basicModelMaterial } from './materials'
 
 export default function LaurWallTrianglePillar({
   boardHex,
@@ -100,28 +100,28 @@ export function LaurWallTrianglePillarPreview({
         castShadow={isHighQualityRender}
         geometry={nodes.TrianglePillarTop.geometry}
       >
-        {basicModelPreviewMaterial(color, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
       </mesh>
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.TriangleSubDecorCore.geometry}
       >
-        {basicModelPreviewMaterial(interiorColor, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(interiorColor, isHighQualityRender, opacityLevel)}
       </mesh>
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.TriangleFacade.geometry}
       >
-        {basicModelPreviewMaterial(color, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
       </mesh>
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.TriangleFacadeInner.geometry}
       >
-        {basicModelPreviewMaterial(interiorColor, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(interiorColor, isHighQualityRender, opacityLevel)}
       </mesh>
     </group>
   )

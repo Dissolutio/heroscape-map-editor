@@ -4,7 +4,7 @@ import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { basicModelMaterial, basicModelPreviewMaterial } from './materials'
+import { basicModelMaterial } from './materials'
 import { noop } from 'lodash'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
@@ -49,7 +49,7 @@ export default function BigTree415({ boardHex }: { boardHex?: BoardHex }) {
         geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
       >
         {boardHex ? basicModelMaterial(rockColor, isHighQualityRender)
-          : basicModelPreviewMaterial(rockColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+          : basicModelMaterial(rockColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
       </mesh>
       <mesh
         receiveShadow={isHighQualityRender}
@@ -57,7 +57,7 @@ export default function BigTree415({ boardHex }: { boardHex?: BoardHex }) {
         geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
       >
         {boardHex ? basicModelMaterial(treeColor, isHighQualityRender)
-          : basicModelPreviewMaterial(treeColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+          : basicModelMaterial(treeColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
       </mesh>
     </group>
   )

@@ -19,21 +19,15 @@ export const getMaterialForOutcrop = (
     />
   )
 }
-export const basicModelPreviewMaterial = (color: string, isHQ: boolean, opacity?: number) =>
-  isHQ ? (
-    <meshStandardMaterial color={color} transparent={Boolean(opacity)} opacity={opacity ?? 1} />
-  ) : (
-    <meshLambertMaterial color={color} transparent={Boolean(opacity)} opacity={opacity ?? 1} />
-  )
 export const basicModelMaterial = (color: string, isHQ: boolean, opacity?: number) =>
   isHQ ? (
     <meshStandardMaterial color={color} transparent={Boolean(opacity)} opacity={opacity ?? 1} />
   ) : (
     <meshMatcapMaterial color={color} transparent={Boolean(opacity)} opacity={opacity ?? 1} />
   )
-export const basicDoubleSideModelMaterial = (color: string, isHQ: boolean) =>
+export const basicDoubleSideModelMaterial = (color: string, isHQ: boolean, opacity?: number) =>
   isHQ ? (
-    <meshStandardMaterial side={DoubleSide} color={color} />
+    <meshStandardMaterial side={DoubleSide} color={color} transparent={Boolean(opacity)} opacity={opacity ?? 1} />
   ) : (
-    <meshMatcapMaterial side={DoubleSide} color={color} />
+    <meshMatcapMaterial side={DoubleSide} color={color} transparent={Boolean(opacity)} opacity={opacity ?? 1} />
   )

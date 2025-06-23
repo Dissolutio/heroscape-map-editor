@@ -244,27 +244,27 @@ export default function PiecePreview() {
       </group>
     )
   }
-  // if (isBigTreeHex) {
-  //   return (
-  //     <Suspense fallback={<ModelLoader />}>
-  //       <group
-  //         position={[
-  //           x + getOptionsForBigTree(penModeRotation).xAdd,
-  //           yWithBase,
-  //           z + getOptionsForBigTree(penModeRotation).zAdd,
-  //         ]}
-  //         scale={0.038}
-  //         rotation={[
-  //           0,
-  //           getOptionsForBigTree(penModeRotation).rotationY,
-  //           0,
-  //         ]}
-  //       >
-  //         <BigTree415 />
-  //       </group>
-  //     </Suspense>
-  //   )
-  // }
+  if (isBigTreeHex) {
+    return (
+      <Suspense fallback={<ModelLoader />}>
+        <group
+          position={[
+            x + getOptionsForBigTree(penModeRotation).xAdd,
+            yWithBase + HEXGRID_HEX_HEIGHT,
+            z + getOptionsForBigTree(penModeRotation).zAdd,
+          ]}
+          scale={0.038}
+          rotation={[
+            0,
+            getOptionsForBigTree(penModeRotation).rotationY,
+            0,
+          ]}
+        >
+          <BigTree415 />
+        </group>
+      </Suspense>
+    )
+  }
   // if(XXX){
   //   return(
 

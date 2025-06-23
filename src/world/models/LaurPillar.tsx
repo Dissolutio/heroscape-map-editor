@@ -9,7 +9,7 @@ import {
 } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { CylinderGeometryArgs } from '../maphex/instance-hex'
-import { basicModelMaterial, basicModelPreviewMaterial } from './materials'
+import { basicModelMaterial } from './materials'
 
 const baseCylinderArgs: CylinderGeometryArgs = [
   0.9,
@@ -110,28 +110,28 @@ export function LaurWallPillarPreview({
         castShadow={isHighQualityRender}
         geometry={nodes.PillarTop.geometry}
       >
-        {basicModelPreviewMaterial(color, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
       </mesh>
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.SubDecorCore.geometry}
       >
-        {basicModelPreviewMaterial(interiorColor, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(interiorColor, isHighQualityRender, opacityLevel)}
       </mesh>
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.Facade.geometry}
       >
-        {basicModelPreviewMaterial(color, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
       </mesh>
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.FacadeInner.geometry}
       >
-        {basicModelPreviewMaterial(interiorColor, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(interiorColor, isHighQualityRender, opacityLevel)}
       </mesh>
     </group>
   )

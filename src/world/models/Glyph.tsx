@@ -4,8 +4,7 @@ import type { BoardHex } from '../../types'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
-import { basicModelMaterial, basicModelPreviewMaterial } from './materials'
+import { basicModelMaterial } from './materials'
 import { noop } from 'lodash'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
@@ -42,7 +41,7 @@ export function GlyphModel({ boardHex, terrain }: { boardHex?: BoardHex, terrain
       onPointerEnter={(e) => boardHex ? onPointerEnter(e, boardHex) : noop()}
       onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
     >
-      {boardHex ? basicModelMaterial(color, isHighQualityRender) : basicModelPreviewMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+      {boardHex ? basicModelMaterial(color, isHighQualityRender) : basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
       {boardHex && <Decal depthTest map={texture} />}
     </mesh>
   )
