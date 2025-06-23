@@ -3,9 +3,9 @@ import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { noop } from 'lodash'
 
 export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -21,12 +21,14 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    if (boardHex) {
+      toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = (hoveredPieceID === boardHex.pieceID) || isSelected
+  const isSelected = selectedPieceID === boardHex?.pieceID
+  const isHighlighted = (hoveredPieceID === boardHex?.pieceID) || isSelected
   const treeColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.tree]
@@ -35,9 +37,9 @@ export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
     : hexTerrainColor[HexTerrain.ruin]
   return (
     <group
-      onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-      onPointerOut={(e) => onPointerOut(e)}
+      onPointerUp={(e) => boardHex ? onPointerUp(e) : noop()}
+      onPointerEnter={(e) => boardHex ? onPointerEnter(e, boardHex) : noop()}
+      onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
     >
       <mesh
         receiveShadow={isHighQualityRender}

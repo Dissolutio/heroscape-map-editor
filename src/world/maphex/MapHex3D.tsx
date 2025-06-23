@@ -82,9 +82,9 @@ export const MapHex3D = ({
   const isFluidSubterrain =
     isFluidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
   const isBigTreeHex =
-    boardHex.pieceID.endsWith(Pieces.tree415) && boardHex.isObstacleOrigin
+    boardHex.inventoryID === Pieces.tree415 && boardHex.isObstacleOrigin
   const isBigTreeBaseHex =
-    boardHex.pieceID.endsWith(Pieces.tree415) && boardHex.isObstacleAuxiliary
+    boardHex.inventoryID === Pieces.tree415 && boardHex.isObstacleAuxiliary
   const isTreeHex =
     !isBigTreeHex &&
     !isBigTreeBaseHex &&
