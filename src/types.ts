@@ -66,6 +66,7 @@ export enum HexTerrain {
   shadow = 'shadow',
   // hex obstacle
   laurWall = 'laurWall',
+  laurWallAddon = 'laurWallAddon',
   tree = 'tree',
   snowTree = 'snowTree',
   palm = 'palm',

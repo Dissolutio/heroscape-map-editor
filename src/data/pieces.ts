@@ -808,47 +808,67 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12,
+    height: 12, // game height is 10
   },
   [Pieces.laurWallShort]: {
     id: Pieces.laurWallShort,
     title: 'Laur Wall (Short)',
-    terrain: HexTerrain.laurWall,
+    terrain: HexTerrain.laurWallAddon,
     isHexTerrainPiece: false,
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallShort,
-    height: 12, // again, really verticalClearance, not "height"
+    height: 12, // game height is 10
   },
   [Pieces.laurWallShortStackable]: {
     id: Pieces.laurWallShortStackable,
     title: 'Laur Wall (Short)',
-    terrain: HexTerrain.laurWall,
+    terrain: HexTerrain.laurWallAddon,
     isHexTerrainPiece: false,
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallShort,
-    height: 12, // again, really verticalClearance, not "height"
+    height: 12, // game height is 10
   },
   [Pieces.laurWallLong]: {
     id: Pieces.laurWallLong,
     title: 'Laur Wall (Long)',
-    terrain: HexTerrain.laurWall,
+    terrain: HexTerrain.laurWallAddon,
     isHexTerrainPiece: false,
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallLong,
-    height: 12, // again, really verticalClearance, not "height"
+    height: 12, // game height is 10
   },
   [Pieces.laurWallRuin1]: {
     id: Pieces.laurWallRuin1,
     title: 'Laur Wall Ruin',
-    terrain: HexTerrain.laurWall,
+    terrain: HexTerrain.laurWallAddon,
     isHexTerrainPiece: false,
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallRuin1,
-    height: 12, //
+    height: 10, //smallest ruin, no top part, game height is undefined (doesn't block adjacency)
+  },
+  [Pieces.laurWallRuin2]: {
+    id: Pieces.laurWallRuin2,
+    title: 'Laur Wall Ruin (style 2)',
+    terrain: HexTerrain.laurWallAddon,
+    isHexTerrainPiece: false,
+    isObstaclePiece: false,
+    size: 1,
+    template: Pieces.laurWallRuin2,
+    height: 12, // game height is undefined (doesn't block adjacency)
+  },
+  [Pieces.laurWallRuin3]: {
+    id: Pieces.laurWallRuin3,
+    title: 'Laur Wall Ruin (style 3)',
+    terrain: HexTerrain.laurWallAddon,
+    isHexTerrainPiece: false,
+    isObstaclePiece: false,
+    size: 1,
+    template: Pieces.laurWallRuin3,
+    height: 12, // game height is undefined (doesn't block adjacency)
   },
   // RUINS
   [Pieces.ruins2]: {

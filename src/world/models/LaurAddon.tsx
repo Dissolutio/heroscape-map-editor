@@ -8,17 +8,17 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 
 export function LaurWallAddon({ pid }: { pid: string }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const {
     nodes: { LaurWallRuin, LaurWallRuinBustedConcrete },
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   } = useGLTF('/laurwall-ruin.glb') as any
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const {
     nodes: { LaurWallShort, LaurWallShortDecorDeep },
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   } = useGLTF('/laurwall-short.glb') as any
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const {
     nodes: { LaurWallLong, LaurWallLongDecorDeep },
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   } = useGLTF('/laurwall-long.glb') as any
   const { inventoryID } = decodePieceID(pid)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
