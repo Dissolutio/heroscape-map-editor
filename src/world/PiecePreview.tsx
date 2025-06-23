@@ -46,6 +46,7 @@ import { Outcrop3Preview } from './models/Outcrop3'
 import { Outcrop4Preview } from './models/Outcrop4'
 import { Outcrop6Preview } from './models/Outcrop6'
 import { LadderPreview } from './models/Ladder'
+import { LaurWallAddonPreview } from './models/LaurAddon'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -80,7 +81,7 @@ export default function PiecePreview() {
   const isUnderHexLadder = hoveredHex.inventoryID === Pieces.ladder
   const isUnderHexLaurPillar = hoveredHex.inventoryID === Pieces.laurWallSquarePillar || hoveredHex.inventoryID === Pieces.laurWallTrianglePillar
 
-  const isLaurWallAddon = pieceID === Pieces.laurWallTrianglePillar
+  const isLaurWallAddon = piece.terrain === HexTerrain.laurWallAddon
   const isSolidSubterrain = isSolidTerrainHex(piece.terrain)
   const isFluidSubterrain = isFluidTerrainHex(piece.terrain)
   const isLaurSquarePillarHex = piece.id === Pieces.laurWallSquarePillar
@@ -224,20 +225,17 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isLaurSquarePillarHex && (isLandBeneath || isEmptyBeneath)) {
+  if (isLaurWallAddon && isUnderHexLaurPillar) {
     return (
       <group
         position={[
           x,
-          (isUnderHexFluid
-            ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
-            : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
-          z,
+          yWithBase,
+          z + HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
         ]}
-        rotation={[0, pieceRotation, 0]}
+        rotation={[0, (penModeRotation * -Math.PI) / 3, 0]}
       >
-        <LaurWallPillarPreview />
+        <LaurWallAddonPreview inventoryID={pieceID} />
       </group>
     )
   }

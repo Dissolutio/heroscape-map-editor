@@ -169,8 +169,7 @@ export function addPiece({
 
   // LAUR WALL ADDONS: Autoadd piece id, render from boardPieces
   if (
-    piece.terrain === HexTerrain.laurWall &&
-    piece.id !== Pieces.laurWallSquarePillar
+    piece.terrain === HexTerrain.laurWallAddon
   ) {
     try {
       // write the new laur addon piece

@@ -130,9 +130,8 @@ export default function MapDisplay3D({
         rotation: penModeRotation,
       })
     }
-    // Clicked Pillar, adding laur addon, put it at same level
+    // Adding laur addon, put it at same level
     else if (
-      isLaurPillarClicked &&
       (piece?.id === Pieces.laurWallRuin1 ||
         piece?.id === Pieces.laurWallRuin2 ||
         piece?.id === Pieces.laurWallRuin3 ||
@@ -141,6 +140,14 @@ export default function MapDisplay3D({
         piece?.id === Pieces.laurWallShort ||
         piece?.id === Pieces.laurWallShortStackable)
     ) {
+      if (!isLaurPillarClicked) {
+        enqueueSnackbar({
+          message: 'Must add to Square/Triangle Pillar.',
+          variant: 'warning',
+          autoHideDuration: 5000,
+        })
+        return
+      }
       // const laurWallAddonClickedHexCoords = getBattlementClickedHexCoords(
       //   clickedHex,
       //   penModeRotation,

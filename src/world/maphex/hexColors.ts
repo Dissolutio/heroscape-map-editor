@@ -81,6 +81,7 @@ export const hexTerrainColor: Dictionary<string> = {
   swampCap: '#136600',
   [HexTerrain.swamp]: '#0f4f00',
   [HexTerrain.laurWall]: '#7F7CAF',
+  // [HexTerrain.laurWallAddon]: '#7F7CAF',
   laurModelColor2: '#7774AA',
   [HexTerrain.swampWater]: '#37590D', //dark moss green
 

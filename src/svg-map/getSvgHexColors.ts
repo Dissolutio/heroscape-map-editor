@@ -24,6 +24,7 @@ function isBoardHex(hex: BoardHex | DecodedPieceID): hex is BoardHex {
 }
 
 export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
+  // TODO: color: refactor this to be more direct
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
   if (hex.terrain === 'empty') {
     return 'black'
@@ -76,7 +77,7 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   if (isEvergreenTree(hex.terrain)) {
     return svgColors.outlineTree
   }
-  if (hex.terrain === HexTerrain.laurWall) {
+  if (hex.terrain === HexTerrain.laurWall || hex.terrain === HexTerrain.laurWallAddon) {
     return svgColors.outlineLaurWall
   }
   if (hex.terrain === HexTerrain.glacier) {
@@ -95,10 +96,12 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
 }
 
 export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
+  // TODO: color: refactor this to be more direct
   if (
     isSolidTerrainHex(hex.terrain) ||
     isFluidTerrainHex(hex.terrain) ||
     hex.terrain === HexTerrain.laurWall ||
+    hex.terrain === HexTerrain.laurWallAddon ||
     hex.terrain === HexTerrain.roadWall ||
     hex.terrain === HexTerrain.glyphPower ||
     hex.terrain === HexTerrain.glyphTreasure ||
