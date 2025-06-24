@@ -22,6 +22,7 @@ const DeletePieceButton = () => {
       // color="error"
       size="small"
       onClick={deletePiece}
+      title="Hotkey: delete"
     >
       Delete Piece
     </Button>

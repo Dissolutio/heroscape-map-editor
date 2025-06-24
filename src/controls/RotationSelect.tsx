@@ -13,6 +13,7 @@ import {
 import useBoundStore from '../store/store'
 import { useEffect } from 'react'
 import {
+  doPenModeCounterRotation,
   doPenModeRotation,
   getPossibleRotationsForPenMode,
 } from './getPossibleRotationsForPenMode'
@@ -33,6 +34,15 @@ export default function RotationSelect() {
     'q',
     () =>
       doPenModeRotation(
+        penMode,
+        penModeRotation,
+        togglePenModeRotation,
+      ) /*isEnabled*/,
+  )
+  useHotkeys(
+    'e',
+    () =>
+      doPenModeCounterRotation(
         penMode,
         penModeRotation,
         togglePenModeRotation,
@@ -62,14 +72,16 @@ export default function RotationSelect() {
           alignItems: 'center',
         }}
       >
-        <span title={`Use "q" hotkey to cycle rotation`}>Piece rotation:</span>
+        <span title={`Use "q"/"e" hotkeys to cycle rotation`}>
+          Piece rotation:
+        </span>
         <span
           style={{
             fontSize: '0.6em',
             color: 'var(--sub-white)',
           }}
         >
-          Press "q" to cycle
+          Hotkeys: q, e
         </span>
       </div>
       <ToggleButtonGroup
