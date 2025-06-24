@@ -97,6 +97,52 @@ export default function PenModeControls() {
           )
         : noop() /*isEnabled*/,
   )
+  useHotkeys('d', () => togglePenMode(PiecePrefixes.dungeon) /*isEnabled*/)
+  useHotkeys('shift+d', () => togglePenMode(PiecePrefixes.shadow) /*isEnabled*/)
+  // 'e'
+  // 'f'
+  // 'g'
+  useHotkeys('g', () => togglePenMode(PiecePrefixes.grass) /*isEnabled*/)
+  // 'h'
+  // 'i'
+  useHotkeys('i', () => togglePenMode(PiecePrefixes.snow) /*isEnabled*/)
+  useHotkeys('shift+i', () => togglePenMode(PiecePrefixes.ice) /*isEnabled*/)
+  // 'j'
+  // 'k'
+  // 'l'
+  useHotkeys('l', () => togglePenMode(PiecePrefixes.lavaField) /*isEnabled*/)
+  useHotkeys('shift+l', () => togglePenMode(PiecePrefixes.lava) /*isEnabled*/)
+  // 'm'
+  // 'n'
+  // 'o'
+  useHotkeys('o', () => togglePenMode(PiecePrefixes.road) /*isEnabled*/)
+  useHotkeys(
+    'shift+o',
+    () => togglePenMode(PiecePrefixes.wallWalk) /*isEnabled*/,
+  )
+  // 'p'
+  useHotkeys('p', () => togglePenMode(PiecePrefixes.swamp) /*isEnabled*/)
+  useHotkeys(
+    'shift+p',
+    () => togglePenMode(PiecePrefixes.swampWater) /*isEnabled*/,
+  )
+  // 'q'
+  // 'r'
+  useHotkeys('r', () => togglePenMode(PiecePrefixes.rock) /*isEnabled*/)
+  // 's'
+  useHotkeys('s', () => togglePenMode(PiecePrefixes.sand) /*isEnabled*/)
+  // 't'
+  // 'u'
+  // 'v'
+  // 'w'
+  useHotkeys('w', () => togglePenMode(PiecePrefixes.water) /*isEnabled*/)
+  useHotkeys(
+    'shift+w',
+    () => togglePenMode(PiecePrefixes.wellspringWater) /*isEnabled*/,
+  )
+  // 'x'
+  // 'y'
+  // 'z'
   useHotkeys('z', () => togglePenMode('select') /*isEnabled*/)
 
   return (
