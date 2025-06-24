@@ -57,6 +57,7 @@ export default function MyCameraControls({
       minDistance={1} // this keeps the camera above ground and out of the board hexes nether region
       maxDistance={100} // this prevents camera from dollying out too far
       smoothTime={0.3}
+      dollySpeed={0.2}
     />
   )
 }
