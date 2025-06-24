@@ -11,12 +11,12 @@ import {
   MdOutlineWest,
 } from 'react-icons/md'
 import useBoundStore from '../store/store'
-import { Pieces } from '../types'
 import { useEffect } from 'react'
 import {
   doPenModeRotation,
   getPossibleRotationsForPenMode,
 } from './getPossibleRotationsForPenMode'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 export default function RotationSelect() {
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
@@ -29,7 +29,15 @@ export default function RotationSelect() {
     togglePenModeRotation(value)
   }
   const possibleRotations = getPossibleRotationsForPenMode(penMode)
-
+  useHotkeys(
+    'q',
+    () =>
+      doPenModeRotation(
+        penMode,
+        penModeRotation,
+        togglePenModeRotation,
+      ) /*isEnabled*/,
+  )
   // biome-ignore lint/correctness/useExhaustiveDependencies: <only update when pen mode changes>
   useEffect(() => {
     if (!possibleRotations.includes(penModeRotation)) {
@@ -41,10 +49,11 @@ export default function RotationSelect() {
     <div
       style={{
         margin: '0px 0px',
-        border: '1px solid',
+        border: '1px solid var(--transparent-border)',
+        padding: '0.5em'
       }}
     >
-      <span>Piece rotation:</span>
+      <span title={`Use "q" hotkey to cycle rotation`}>Piece rotation:</span>
       <ToggleButtonGroup
         value={`${penModeRotation}`}
         onChange={handleChange}

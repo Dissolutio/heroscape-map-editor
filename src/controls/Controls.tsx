@@ -1,4 +1,4 @@
-import { Button, Container } from '@mui/material'
+import { Button, Container, FormControlLabel, FormGroup, Switch } from '@mui/material'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { useLocalPieceInventory } from '../hooks/useLocalPieceInventory'
 import useBoundStore from '../store/store'
@@ -181,8 +181,16 @@ const Controls = () => {
 
   return (
     <Container sx={{ padding: 1 }}>
-      <UndoRedoButtonGroup />
-      <PenModeControls />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-around'
+        }}>
+
+        <PenModeControls />
+        <UndoRedoButtonGroup />
+      </div>
       {/* <div style={{ padding: '0px 20px' }}>
         {isUseInventory && !Number.isNaN(remainingCount)
           ? `${remainingCount} remaining`
@@ -193,55 +201,106 @@ const Controls = () => {
       {/* <MapLensToggles /> */}
       <ViewingLevelInput />
       {/* <LocalStorageList /> */}
-      <Button
-        disabled={
-          (hexMap.shape === 'hexagon' &&
-            hexMap.length >= MAX_HEXAGON_MAP_DIMENSION) ||
-          (hexMap.shape === 'rectangle' &&
-            hexMap.length >= MAX_RECTANGLE_MAP_DIMENSION)
-        }
-        onClick={handleClickAddMapLengthX}
-      >
-        Add length
-      </Button>
-      <Button
-        disabled={
-          (hexMap.shape === 'hexagon' && hexMap.length <= 1) ||
-          (hexMap.shape === 'rectangle' && hexMap.length <= 1)
-        }
-        onClick={handleClickRemoveMapLengthX}
-      >
-        Remove length
-      </Button>
-      <Button
-        disabled={
-          (hexMap.shape === 'hexagon' &&
-            hexMap.width >= MAX_HEXAGON_MAP_DIMENSION) ||
-          (hexMap.shape === 'rectangle' &&
-            hexMap.width >= MAX_RECTANGLE_MAP_DIMENSION)
-        }
-        onClick={handleClickAddMapWidthY}
-      >
-        Add width
-      </Button>
-      <Button
-        disabled={
-          (hexMap.shape === 'hexagon' && hexMap.width <= 1) ||
-          (hexMap.shape === 'rectangle' && hexMap.width <= 1)
-        }
-        onClick={handleClickRemoveMapWidthY}
-      >
-        Remove width
-      </Button>
-      <Button onClick={() => movePieces(0)}>East</Button>
-      <Button onClick={() => movePieces(1)}>SouthEast</Button>
-      <Button onClick={() => movePieces(2)}>SouthWest</Button>
-      <Button onClick={() => movePieces(3)}>West</Button>
-      <Button onClick={() => movePieces(4)}>NorthWest</Button>
-      <Button onClick={() => movePieces(5)}>NorthEast</Button>
-      <Button onClick={handleClickLogState}>Log state</Button>
+
+      <div style={{ border: '1px solid var(--transparent-border)' }}>
+        <Button
+          disabled={
+            (hexMap.shape === 'hexagon' &&
+              hexMap.length >= MAX_HEXAGON_MAP_DIMENSION) ||
+            (hexMap.shape === 'rectangle' &&
+              hexMap.length >= MAX_RECTANGLE_MAP_DIMENSION)
+          }
+          onClick={handleClickAddMapLengthX}
+        >
+          Add length
+        </Button>
+        <Button
+          disabled={
+            (hexMap.shape === 'hexagon' && hexMap.length <= 1) ||
+            (hexMap.shape === 'rectangle' && hexMap.length <= 1)
+          }
+          onClick={handleClickRemoveMapLengthX}
+        >
+          Remove length
+        </Button>
+        <Button
+          disabled={
+            (hexMap.shape === 'hexagon' &&
+              hexMap.width >= MAX_HEXAGON_MAP_DIMENSION) ||
+            (hexMap.shape === 'rectangle' &&
+              hexMap.width >= MAX_RECTANGLE_MAP_DIMENSION)
+          }
+          onClick={handleClickAddMapWidthY}
+        >
+          Add width
+        </Button>
+        <Button
+          disabled={
+            (hexMap.shape === 'hexagon' && hexMap.width <= 1) ||
+            (hexMap.shape === 'rectangle' && hexMap.width <= 1)
+          }
+          onClick={handleClickRemoveMapWidthY}
+        >
+          Remove width
+        </Button>
+      </div>
+
+      <div style={{ border: '1px solid var(--transparent-border)' }}>
+        <Button
+          title="Move all pieces 1 hex right"
+          onClick={() => movePieces(0)}
+        >
+          Right
+        </Button>
+        <Button
+          title="Move all pieces 1 hex down-right"
+          onClick={() => movePieces(1)}>
+          Down Right
+        </Button>
+        <Button
+          title="Move all pieces 1 hex down-left"
+          onClick={() => movePieces(2)}>
+          Down Left
+        </Button>
+        <Button
+          title="Move all pieces 1 hex left"
+          onClick={() => movePieces(3)}>
+          Left
+        </Button>
+        <Button
+          title="Move all pieces 1 hex up-left"
+          onClick={() => movePieces(4)}>
+          Up Left
+        </Button>
+        <Button
+          title="Move all pieces 1 hex up-right"
+          onClick={() => movePieces(5)}>
+          Up Right
+        </Button>
+      </div>
+
+      <SwitchHighQualityRender />
+
+      {import.meta.env.DEV && <Button onClick={handleClickLogState}>Log state</Button>}
     </Container>
   )
 }
 
+function SwitchHighQualityRender() {
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const toggleIsHighQualityRender = useBoundStore((s) => s.toggleIsHighQualityRender)
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    toggleIsHighQualityRender(event.target.checked);
+  };
+  return (
+    <FormGroup>
+      <FormControlLabel control={
+        <Switch
+          checked={isHighQualityRender}
+          onChange={handleChange}
+        />
+      } label="High Quality Render" />
+    </FormGroup>
+  );
+}
 export default Controls
