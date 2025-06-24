@@ -20,10 +20,34 @@ export default function ViewingLevelInput() {
   )
 
   return (
-    <Box sx={{ width: 250 }}>
+    <Box
+      sx={{
+        // width: 250,
+        border: '1px solid var(--transparent-border)',
+        padding: '0.5em',
+      }}
+    >
       <Grid2 container spacing={2} sx={{ alignItems: 'center' }}>
         <Grid2 size={{ xs: 5 }}>
-          <Typography id="input-slider">Viewing level</Typography>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <span title={`Use "page up"/"page down" hotkeys to change`}>
+              Viewing level:
+            </span>
+            <span
+              style={{
+                fontSize: '0.6em',
+                color: 'var(--sub-white)',
+              }}
+            >
+              Hotkeys: page-up, page-down
+            </span>
+          </div>
         </Grid2>
         <Grid2 size={{ xs: 3 }}>
           <Input
@@ -37,7 +61,6 @@ export default function ViewingLevelInput() {
               min: 0,
               max: maxLevel ?? 0,
               type: 'number',
-              'aria-labelledby': 'input-slider',
             }}
           />
         </Grid2>

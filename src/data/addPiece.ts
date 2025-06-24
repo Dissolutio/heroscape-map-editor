@@ -258,7 +258,6 @@ export function addPiece({
             }
           })
       })
-
       // write the new ladder piece
       newBoardPieces[ladderBattlementPieceID] = piece.id
     } else {

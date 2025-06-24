@@ -216,9 +216,23 @@ export default function MapDisplay3D({
       // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
       toggleSelectedPieceID(hex.pieceID)
     } else {
+      // ADJUST VIEWING LEVEL: wip
       if (clickedHexAltitude >= viewingLevel) {
         toggleViewingLevel(
-          Math.max(getBoardPiecesMaxLevel(boardPieces), clickedHexAltitude + 1),
+          Math.max(
+            getBoardPiecesMaxLevel(boardPieces),
+            clickedHexAltitude + (piece.id === Pieces.ladder ? 2 : 1),
+          ),
+        )
+      }
+      console.log('🚀 ~ clickedHexAltitude:', clickedHexAltitude)
+      if (
+        clickedHexAltitude >= viewingLevel - 1 &&
+        piece.id === Pieces.ladder
+      ) {
+        toggleViewingLevel(
+          // Math.max(getBoardPiecesMaxLevel(boardPieces), clickedHexAltitude + 1),
+          Math.max(getBoardPiecesMaxLevel(boardPieces), clickedHexAltitude + 2),
         )
       }
     }
