@@ -105,15 +105,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     const clickedHexAltitude = clickedHex.altitude
 
     // Clicked castle, use cap coords and altitude (TODO: improve?)
@@ -216,9 +216,17 @@ export default function MapDisplay3D({
       // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
       toggleSelectedPieceID(hex.pieceID)
     } else {
+      // ADJUST VIEWING LEVEL: wip
       if (clickedHexAltitude >= viewingLevel) {
         toggleViewingLevel(
-          Math.max(getBoardPiecesMaxLevel(boardPieces), clickedHexAltitude + 1),
+          Math.max(getBoardPiecesMaxLevel(boardPieces), clickedHexAltitude + (piece.id === Pieces.ladder ? 2 : 1)),
+        )
+      }
+      console.log("🚀 ~ clickedHexAltitude:", clickedHexAltitude)
+      if (clickedHexAltitude >= viewingLevel - 1 && piece.id === Pieces.ladder) {
+        toggleViewingLevel(
+          // Math.max(getBoardPiecesMaxLevel(boardPieces), clickedHexAltitude + 1),
+          Math.max(getBoardPiecesMaxLevel(boardPieces), clickedHexAltitude + 2)
         )
       }
     }
@@ -235,7 +243,7 @@ export default function MapDisplay3D({
             // position={[topLeft[0], 0, topLeft[1]]}
             position={[0, 0.1, 0]}
             scale={[width, 0, length]}
-            // rotation={new Euler(0, Math.PI, 0)}
+          // rotation={new Euler(0, Math.PI, 0)}
           />
         )}
 
