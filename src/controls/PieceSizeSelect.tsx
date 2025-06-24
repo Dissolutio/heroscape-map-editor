@@ -14,11 +14,13 @@ export default function PieceSizeSelect() {
   }
   const isSizes = flatPieceSizes?.length > 0
   return (
-    <div style={{
-      margin: '10px 20px',
-      padding: '0.5em',
-      border: '1px solid var(--transparent-border)'
-    }}>
+    <div
+      style={{
+        margin: '10px 20px',
+        padding: '0.5em',
+        border: '1px solid var(--transparent-border)',
+      }}
+    >
       <ToggleButtonGroup
         disabled={!isSizes}
         value={`${pieceSize}`}

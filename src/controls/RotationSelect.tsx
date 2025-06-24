@@ -50,7 +50,7 @@ export default function RotationSelect() {
       style={{
         margin: '0px 0px',
         border: '1px solid var(--transparent-border)',
-        padding: '0.5em'
+        padding: '0.5em',
       }}
     >
       <span title={`Use "q" hotkey to cycle rotation`}>Piece rotation:</span>

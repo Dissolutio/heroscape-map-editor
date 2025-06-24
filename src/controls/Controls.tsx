@@ -1,4 +1,10 @@
-import { Button, Container, FormControlLabel, FormGroup, Switch } from '@mui/material'
+import {
+  Button,
+  Container,
+  FormControlLabel,
+  FormGroup,
+  Switch,
+} from '@mui/material'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { useLocalPieceInventory } from '../hooks/useLocalPieceInventory'
 import useBoundStore from '../store/store'
@@ -185,9 +191,9 @@ const Controls = () => {
         style={{
           display: 'flex',
           flexDirection: 'row',
-          justifyContent: 'space-around'
-        }}>
-
+          justifyContent: 'space-around',
+        }}
+      >
         <PenModeControls />
         <UndoRedoButtonGroup />
       </div>
@@ -254,53 +260,62 @@ const Controls = () => {
         </Button>
         <Button
           title="Move all pieces 1 hex down-right"
-          onClick={() => movePieces(1)}>
+          onClick={() => movePieces(1)}
+        >
           Down Right
         </Button>
         <Button
           title="Move all pieces 1 hex down-left"
-          onClick={() => movePieces(2)}>
+          onClick={() => movePieces(2)}
+        >
           Down Left
         </Button>
         <Button
           title="Move all pieces 1 hex left"
-          onClick={() => movePieces(3)}>
+          onClick={() => movePieces(3)}
+        >
           Left
         </Button>
         <Button
           title="Move all pieces 1 hex up-left"
-          onClick={() => movePieces(4)}>
+          onClick={() => movePieces(4)}
+        >
           Up Left
         </Button>
         <Button
           title="Move all pieces 1 hex up-right"
-          onClick={() => movePieces(5)}>
+          onClick={() => movePieces(5)}
+        >
           Up Right
         </Button>
       </div>
 
       <SwitchHighQualityRender />
 
-      {import.meta.env.DEV && <Button onClick={handleClickLogState}>Log state</Button>}
+      {import.meta.env.DEV && (
+        <Button onClick={handleClickLogState}>Log state</Button>
+      )}
     </Container>
   )
 }
 
 function SwitchHighQualityRender() {
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const toggleIsHighQualityRender = useBoundStore((s) => s.toggleIsHighQualityRender)
+  const toggleIsHighQualityRender = useBoundStore(
+    (s) => s.toggleIsHighQualityRender,
+  )
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    toggleIsHighQualityRender(event.target.checked);
-  };
+    toggleIsHighQualityRender(event.target.checked)
+  }
   return (
     <FormGroup>
-      <FormControlLabel control={
-        <Switch
-          checked={isHighQualityRender}
-          onChange={handleChange}
-        />
-      } label="High Quality Render" />
+      <FormControlLabel
+        control={
+          <Switch checked={isHighQualityRender} onChange={handleChange} />
+        }
+        label="High Quality Render"
+      />
     </FormGroup>
-  );
+  )
 }
 export default Controls
