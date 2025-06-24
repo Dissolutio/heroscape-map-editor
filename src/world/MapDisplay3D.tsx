@@ -32,6 +32,7 @@ import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import { enqueueSnackbar } from 'notistack'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import PiecePreview from './PiecePreview.tsx'
+import { useHotkeyConfig } from '../controls/useHotkeyConfig'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -51,6 +52,7 @@ export default function MapDisplay3D({
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  useHotkeyConfig({ cameraControlsRef, mapGroupRef })
   useZoomCameraToMapCenter({
     cameraControlsRef,
     disabled: !boardHexesArr.length || false, // for when working on camera stuff
