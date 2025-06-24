@@ -216,6 +216,11 @@ const Controls = () => {
             (hexMap.shape === 'rectangle' &&
               hexMap.length >= MAX_RECTANGLE_MAP_DIMENSION)
           }
+          title={
+            hexMap.shape === 'hexagon'
+              ? 'Add one outer ring of hexes'
+              : 'Add one row of hexes to bottom'
+          }
           onClick={handleClickAddMapLengthX}
         >
           Add length
@@ -224,6 +229,11 @@ const Controls = () => {
           disabled={
             (hexMap.shape === 'hexagon' && hexMap.length <= 1) ||
             (hexMap.shape === 'rectangle' && hexMap.length <= 1)
+          }
+          title={
+            hexMap.shape === 'hexagon'
+              ? 'Remove one outer ring of hexes'
+              : 'Remove one row of hexes from bottom'
           }
           onClick={handleClickRemoveMapLengthX}
         >
@@ -236,6 +246,7 @@ const Controls = () => {
             (hexMap.shape === 'rectangle' &&
               hexMap.width >= MAX_RECTANGLE_MAP_DIMENSION)
           }
+          title="Add one column of hexes to right side"
           onClick={handleClickAddMapWidthY}
         >
           Add width
@@ -245,6 +256,7 @@ const Controls = () => {
             (hexMap.shape === 'hexagon' && hexMap.width <= 1) ||
             (hexMap.shape === 'rectangle' && hexMap.width <= 1)
           }
+          title="Remove one column of hexes from right side"
           onClick={handleClickRemoveMapWidthY}
         >
           Remove width
