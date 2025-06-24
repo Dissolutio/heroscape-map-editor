@@ -48,12 +48,30 @@ export default function RotationSelect() {
   return (
     <div
       style={{
+        display: 'flex',
+        flexDirection: 'row',
         margin: '0px 0px',
         border: '1px solid var(--transparent-border)',
         padding: '0.5em',
       }}
     >
-      <span title={`Use "q" hotkey to cycle rotation`}>Piece rotation:</span>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <span title={`Use "q" hotkey to cycle rotation`}>Piece rotation:</span>
+        <span
+          style={{
+            fontSize: '0.6em',
+            color: 'var(--sub-white)',
+          }}
+        >
+          Press "q" to cycle
+        </span>
+      </div>
       <ToggleButtonGroup
         value={`${penModeRotation}`}
         onChange={handleChange}
