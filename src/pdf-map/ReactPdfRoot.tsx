@@ -102,14 +102,18 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
         height: 50,
       }}
     >
-      <PdfSvgHeroscapeLogo
-        svgProps={{
-          height: '100%',
-          // width: "100%",
-          style: { flexBasis: 150 },
+      <View
+        style={{
+          flexBasis: 110,
         }}
-        fillColor="red"
-      />
+      >
+        <PdfSvgHeroscapeLogo
+          svgProps={{
+            height: '70%',
+          }}
+          fillColor="red"
+        />
+      </View>
       <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>
       <Text style={{ fontSize: '12px', paddingLeft: 5 }}>by:</Text>
     </View>
