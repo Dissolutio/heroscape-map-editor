@@ -1,7 +1,7 @@
 import { Button, Container } from '@mui/material'
 import * as pieceSets from '../data/inventories'
 import { piecesSoFar } from '../data/pieces'
-import { useLocalPieceInventory } from '../hooks/useLocalPieceInventory'
+import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 
 const InventoryForm = () => {
   const {

@@ -6,7 +6,7 @@ import {
   Switch,
 } from '@mui/material'
 import { buildupJsonFileMap } from '../data/buildupMap'
-import { useLocalPieceInventory } from '../hooks/useLocalPieceInventory'
+import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 import useBoundStore from '../store/store'
 import { HexTerrain, type BoardHexes, type BoardPieces } from '../types'
 import {

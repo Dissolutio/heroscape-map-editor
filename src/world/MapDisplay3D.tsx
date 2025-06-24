@@ -225,7 +225,6 @@ export default function MapDisplay3D({
           ),
         )
       }
-      console.log('🚀 ~ clickedHexAltitude:', clickedHexAltitude)
       if (
         clickedHexAltitude >= viewingLevel - 1 &&
         piece.id === Pieces.ladder

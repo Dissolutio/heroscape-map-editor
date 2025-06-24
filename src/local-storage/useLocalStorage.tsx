@@ -61,6 +61,7 @@ export function useLocalStorage<T>(
   }
 
   // set/remove localStorage listeners (1 native, 1 custom)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <on mount>
   useEffect(() => {
     if (typeof window === 'undefined') {
       return

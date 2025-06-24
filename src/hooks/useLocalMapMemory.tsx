@@ -1,4 +1,4 @@
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useLocalStorage } from '../local-storage/useLocalStorage'
 import type { MapState } from '../types'
 
 export const useLocalMapMemory = () => {
