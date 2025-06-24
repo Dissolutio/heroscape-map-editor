@@ -13,6 +13,7 @@ import {
 import useBoundStore from '../store/store'
 import { Pieces } from '../types'
 import { useEffect } from 'react'
+import { doPenModeRotation, getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
 
 export default function RotationSelect() {
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
@@ -24,23 +25,12 @@ export default function RotationSelect() {
   ) => {
     togglePenModeRotation(value)
   }
-  const regularRotations = [0, 1, 2, 3, 4, 5]
-  // const partialRotations = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5]
-  const allRotations = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5]
-  const possibleRotations =
-    penMode === Pieces.laurWallTrianglePillar ||
-      penMode === Pieces.laurWallRuin1 ||
-      penMode === Pieces.laurWallRuin2 ||
-      penMode === Pieces.laurWallRuin3 ||
-      penMode === Pieces.laurWallLong ||
-      penMode === Pieces.laurWallLongStackable
-      ? allRotations
-      : regularRotations
+  const possibleRotations = getPossibleRotationsForPenMode(penMode)
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <only update when possible rotations changes>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <only update when pen mode changes>
   useEffect(() => {
     if (!possibleRotations.includes(penModeRotation)) {
-      togglePenModeRotation(possibleRotations[possibleRotations.findIndex(r => r > penModeRotation)])
+      doPenModeRotation(penMode, penModeRotation, togglePenModeRotation)
     }
   }, [penMode])
 
