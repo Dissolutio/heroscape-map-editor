@@ -12,7 +12,7 @@ import SelectedPieceReadout from '../controls/SelectedPieceReadout'
 import useBoundStore from '../store/store'
 import { CAMERA_FOV } from '../utils/constants'
 import Lights from './Lights'
-import MapDisplay3D, { doPenModeRotation } from './MapDisplay3D'
+import MapDisplay3D from './MapDisplay3D'
 import MyCameraControls from './camera/MyCameraControls'
 import TakeAPictureBox from './camera/TakeAPictureBox'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
@@ -29,10 +29,6 @@ const World = ({
   )
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
-  const penMode = useBoundStore((s) => s.penMode)
-  const penModeRotation = useBoundStore((s) => s.penModeRotation)
-  const hoveredHex = useBoundStore((s) => s.hoveredHex)
-  const togglePenModeRotation = useBoundStore((s) => s.togglePenModeRotation)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
@@ -43,7 +39,6 @@ const World = ({
     toggleHoveredPieceID('')
     toggleSelectedPieceID('')
   }
-
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
       <div
