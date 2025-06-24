@@ -126,5 +126,5 @@ export const pieceCodes: Dictionary<string> = {
   '15008': Pieces.startZone7,
   '15009': Pieces.startZone8,
   // laurWallPillar
-  '17101': Pieces.laurWallPillar,
+  '17101': Pieces.laurWallSquarePillar,
 }

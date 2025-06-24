@@ -4,54 +4,51 @@ import type { BoardHex } from '../../types'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
+import { basicModelMaterial } from './materials'
+import { noop } from 'lodash'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
-export function GlyphModel({ boardHex }: { boardHex: BoardHex }) {
+export function GlyphModel({
+  boardHex,
+  terrain,
+}: { boardHex?: BoardHex; terrain: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/glyph.glb') as any
   const texture = useTexture('glyph-valkyrie-logo.svg')
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const isVisible = boardHex.altitude <= viewingLevel
-  const { isHovered, onPointerEnter, onPointerOut } =
-    usePieceHoverState(isVisible)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const glyphColor = hexTerrainColor[boardHex.terrain]
+  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    if (boardHex?.pieceID) {
+      toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    }
   }
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const glyphColor = hexTerrainColor[terrain]
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = isHovered || isSelected
+  const isSelected = selectedPieceID === boardHex?.pieceID
+  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
   const color = isHighlighted ? yellowColor : glyphColor
   return (
-    <>
-      {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={1} />}
-      <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
-        geometry={nodes.Glyph.geometry}
-        onPointerUp={(e) => onPointerUp(e)}
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-        onPointerOut={(e) => onPointerOut(e)}
-      >
-        {isHighQualityRender ? (
-          <meshStandardMaterial color={color} />
-        ) : (
-          <meshMatcapMaterial color={color} />
-        )}
-        <Decal depthTest map={texture} />
-      </mesh>
-    </>
+    <mesh
+      receiveShadow={isHighQualityRender}
+      castShadow={isHighQualityRender}
+      geometry={nodes.Glyph.geometry}
+      onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
+      onPointerEnter={(e) => (boardHex ? onPointerEnter(e, boardHex) : noop())}
+      onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+    >
+      {boardHex
+        ? basicModelMaterial(color, isHighQualityRender)
+        : basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+      {boardHex && <Decal depthTest map={texture} />}
+    </mesh>
   )
 }
 

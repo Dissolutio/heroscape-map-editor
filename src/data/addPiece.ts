@@ -144,7 +144,7 @@ export function addPiece({
   // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
   const isObstaclePieceSupported =
     isSolidUnderAll ||
-    ((piece.id === Pieces.laurWallPillar ||
+    ((piece.id === Pieces.laurWallSquarePillar ||
       piece.id === Pieces.laurWallTrianglePillar ||
       isGlyphPiece ||
       isStartZonePiece) &&
@@ -168,10 +168,7 @@ export function addPiece({
   const isPlacingRoadWall = isRoadWallPieceID && isRoadWallPieceSupported_true
 
   // LAUR WALL ADDONS: Autoadd piece id, render from boardPieces
-  if (
-    piece.terrain === HexTerrain.laurWall &&
-    piece.id !== Pieces.laurWallPillar
-  ) {
+  if (piece.terrain === HexTerrain.laurWallAddon) {
     try {
       // write the new laur addon piece
       newBoardPieces[pieceID] = piece.id
@@ -591,7 +588,7 @@ export function addPiece({
       if (hexUnderneath) {
         newBoardHexes[hexUnderneath.id].isCap = false
       }
-      // write in the new hex
+      // write in the new base level hexes (origin+auxiliaries)
       newBoardHexes[newHexID] = {
         id: newHexID,
         q: piecePlaneCoords[i].q,

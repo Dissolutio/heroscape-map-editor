@@ -65,7 +65,7 @@ export const SvgMapBoardPiece = ({
       </g>
     )
   }
-  if (inventoryID === Pieces.laurWallRuin) {
+  if (inventoryID === Pieces.laurWallRuin1) {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}

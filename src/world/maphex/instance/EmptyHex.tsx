@@ -39,7 +39,11 @@ const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       receiveShadow={isHighQualityRender}
     >
       <cylinderGeometry args={baseEmptyCapCylinderArgs} />
-      {isHighQualityRender ? <meshStandardMaterial /> : <meshLambertMaterial />}
+      {isHighQualityRender ? (
+        <meshStandardMaterial transparent opacity={0.5} />
+      ) : (
+        <meshLambertMaterial transparent opacity={0.5} />
+      )}
       {boardHexArr.map((hex, i) => (
         <EmptyHex
           key={`${hex.id + i}empty`}
@@ -61,7 +65,7 @@ function EmptyHex({
 }: BoardHexPieceProps & { isHighQualityRender: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState(true)
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
 
   // Effect: Initial color/position
   React.useLayoutEffect(() => {

@@ -24,7 +24,7 @@ export const virtualscapeTileColors: Dictionary<string> = {
   [HexTerrain.outcrop]: 'rgb(180,180,180)',
   [HexTerrain.wallWalk]: 'rgb(190,190,190)',
   [HexTerrain.castle]: 'rgb(220, 220, 220)',
-  castle2: 'rgb(50, 50, 50)', // Castle tiles in virtualscape have a second color for some reason
+  castle2: 'rgb(50, 50, 50)', // Castle tiles in virtualscape have a second color for the castle interior shape
   [HexTerrain.battlement]: 'rgb(80, 80, 80)',
   castleFlag: 'rgb(0,100,0)',
   [HexTerrain.palm]: 'rgb(120,255,120)',
@@ -39,8 +39,8 @@ export const virtualscapeTileColors: Dictionary<string> = {
 
 export const hexTerrainColor: Dictionary<string> = {
   ...virtualscapeTileColors,
-  // [HexTerrain.empty]: '#020300',
-  [HexTerrain.empty]: '#FFF',
+  [HexTerrain.empty]: '#020300',
+  // [HexTerrain.empty]: '#FFF',
   // All these colors below have been verified on coolors: lock a color and explore! https://coolors.co/fcecc9-336aeb-fcb0b3-f93943-355a44
   // [HexTerrain.glyphPower]: 'rgb(120, 1, 22)', // virtualscape
   [HexTerrain.glyphPower]: 'rgb(217, 8, 18)', // brighter glyph for icon
@@ -81,8 +81,10 @@ export const hexTerrainColor: Dictionary<string> = {
   swampCap: '#136600',
   [HexTerrain.swamp]: '#0f4f00',
   [HexTerrain.laurWall]: '#7F7CAF',
+  // [HexTerrain.laurWallAddon]: '#7F7CAF',
   laurModelColor2: '#7774AA',
   [HexTerrain.swampWater]: '#37590D', //dark moss green
+
   [HexTerrain.palm]: '#0f4f00', // only gets used as subterrain color, not in model
   ticallaPalmModel1: '#B07156', // palm trunk
   ticallaPalmModel2: '#45f529', // accompanying brush
@@ -101,6 +103,7 @@ export const hexTerrainColor: Dictionary<string> = {
   laurPalm1: '#1EA300',
   laurPalm2: '#25CC00',
   laurPalm3: '#22B800',
+
   // Virtualscape StartZones
   [Pieces.startZone1]: 'rgb(255,0,0)',
   [Pieces.startZone2]: 'rgb(0,255,0)',

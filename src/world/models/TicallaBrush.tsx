@@ -5,20 +5,16 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
+import { basicModelMaterial } from './materials'
 
 export default function TicallaBrush({ boardHex }: { boardHex: BoardHex }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/ticalla-brush.glb') as any
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const isVisible = boardHex.altitude <= viewingLevel
-  const { isHovered, onPointerEnter, onPointerOut } =
-    usePieceHoverState(isVisible)
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
@@ -29,7 +25,7 @@ export default function TicallaBrush({ boardHex }: { boardHex: BoardHex }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = isHovered || isSelected
+  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const isSwampBrush = boardHex.pieceID.includes(Pieces.swampBrush10)
   const color1 = isHighlighted
     ? yellowColor
@@ -49,12 +45,6 @@ export default function TicallaBrush({ boardHex }: { boardHex: BoardHex }) {
   const colorBase = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.swamp]
-  const material = (c: string) =>
-    isHighQualityRender ? (
-      <meshStandardMaterial color={c} />
-    ) : (
-      <meshMatcapMaterial color={c} />
-    )
   return (
     <>
       {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={3} />}
@@ -68,28 +58,28 @@ export default function TicallaBrush({ boardHex }: { boardHex: BoardHex }) {
           castShadow={isHighQualityRender}
           geometry={nodes.FatFern.geometry}
         >
-          {material(color1)}
+          {basicModelMaterial(color1, isHighQualityRender)}
         </mesh>
         <mesh
           receiveShadow={isHighQualityRender}
           castShadow={isHighQualityRender}
           geometry={nodes.PineappleFern.geometry}
         >
-          {material(color2)}
+          {basicModelMaterial(color2, isHighQualityRender)}
         </mesh>
         <mesh
           receiveShadow={isHighQualityRender}
           castShadow={isHighQualityRender}
           geometry={nodes.Needler.geometry}
         >
-          {material(color3)}
+          {basicModelMaterial(color3, isHighQualityRender)}
         </mesh>
         <mesh
           receiveShadow={isHighQualityRender}
           castShadow={isHighQualityRender}
           geometry={nodes.Interlock6.geometry}
         >
-          {material(colorBase)}
+          {basicModelMaterial(colorBase, isHighQualityRender)}
         </mesh>
       </group>
     </>

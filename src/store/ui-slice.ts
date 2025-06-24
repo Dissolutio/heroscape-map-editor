@@ -2,6 +2,7 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { AppState } from './store'
+import type { BoardHex } from '../types'
 
 export interface UISlice {
   penMode: string
@@ -20,6 +21,8 @@ export interface UISlice {
   toggleSelectedPieceID: (id: string) => void
   hoveredPieceID: string
   toggleHoveredPieceID: (id: string) => void
+  hoveredHex: BoardHex | undefined
+  toggleHoveredHex: (hex?: BoardHex) => void
   isShowStartZones: boolean
   toggleIsShowStartZones: (s: boolean) => void
   isTakingPicture: boolean
@@ -59,6 +62,13 @@ const createUISlice: StateCreator<
         state.hoveredPieceID = pieceID
       }),
     ),
+  hoveredHex: undefined,
+  toggleHoveredHex: (hex?: BoardHex) =>
+    set(
+      produce((state) => {
+        state.hoveredHex = hex
+      }),
+    ),
   penMode: initialPenMode,
   togglePenMode: (mode: string) =>
     set(
@@ -69,6 +79,7 @@ const createUISlice: StateCreator<
           state.penMode,
           state.pieceSize,
         )
+        // TODO: UI re-select a valid rotation, see RotationSelect.tsx
         state.penMode = mode
         state.pieceSize = newSize
         state.flatPieceSizes = newSizes

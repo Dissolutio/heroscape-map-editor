@@ -66,6 +66,7 @@ export enum HexTerrain {
   shadow = 'shadow',
   // hex obstacle
   laurWall = 'laurWall',
+  laurWallAddon = 'laurWallAddon',
   tree = 'tree',
   snowTree = 'snowTree',
   palm = 'palm',
@@ -239,13 +240,13 @@ export enum Pieces {
   battlement = 'bt',
   ladder = 'ld', //rendered from BoardHexes
   // LaurWall -- rendered from BoardPieces not BoardHexes
-  laurWallPillar = `${PiecePrefixes.laurWall}p`, //rendered from BoardHexes
+  laurWallSquarePillar = `${PiecePrefixes.laurWall}p`, //rendered from BoardHexes
   laurWallTrianglePillar = `${PiecePrefixes.laurWall}t`, // triangle pillars have 2 configurations (can be plugged into bases 2 ways), so one config will be rendered at a 30 degree rotation from the other
   laurWallShort = `${PiecePrefixes.laurWall}s`,
   laurWallShortStackable = `${PiecePrefixes.laurWall}s2`,
   laurWallLong = `${PiecePrefixes.laurWall}l`,
   laurWallLongStackable = `${PiecePrefixes.laurWall}l2`,
-  laurWallRuin = `${PiecePrefixes.laurWall}r`, // most damaged
+  laurWallRuin1 = `${PiecePrefixes.laurWall}r`, // most damaged
   laurWallRuin2 = `${PiecePrefixes.laurWall}r2`, // 2nd most damaged
   laurWallRuin3 = `${PiecePrefixes.laurWall}r3`, // 3rd most damaged
   // HexObstacles

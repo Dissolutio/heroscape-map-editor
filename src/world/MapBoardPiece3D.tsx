@@ -29,13 +29,16 @@ export const MapBoardPiece3D = ({
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = altitude + 1 <= viewingLevel
-  if (!isRenderedFromPieceIDPiece(inventoryID)) {
+
+  // EARLY RETURN, no render
+  if (!isRenderedFromPieceIDPiece(inventoryID) || !isVisible) {
     return null
   }
+
   // LAURWALL ADDON
   if (
     inventoryID === Pieces.laurWallShort ||
-    inventoryID === Pieces.laurWallRuin ||
+    inventoryID === Pieces.laurWallRuin1 ||
     inventoryID === Pieces.laurWallLong
   ) {
     return (
@@ -48,9 +51,8 @@ export const MapBoardPiece3D = ({
           )
         }
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
-        visible={isVisible}
       >
-        <LaurWallAddon pid={pid} isVisible={isVisible} />
+        <LaurWallAddon pid={pid} />
       </group>
     )
   }
@@ -65,9 +67,8 @@ export const MapBoardPiece3D = ({
           z + getLadderBattlementOptions(rotation).zAdd,
         ]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
-        visible={isVisible}
       >
-        <Battlement pid={pid} isVisible={isVisible} />
+        <Battlement pid={pid} />
       </group>
     )
   }
@@ -82,9 +83,8 @@ export const MapBoardPiece3D = ({
           z + getRoadWallOptions(rotation).zAdd,
         ]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
-        visible={isVisible}
       >
-        <RoadWall pid={pid} isVisible={isVisible} />
+        <RoadWall pid={pid} />
       </group>
     )
   }

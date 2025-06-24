@@ -41,7 +41,7 @@ export function getLaurWallAddonPositionByRotation(rotation: number) {
 }
 
 export function getRuinsOptions(rotation: number) {
-  switch (rotation) {
+  switch (Number(rotation)) {
     case 0:
       return { rotationY: 0, xAdd: -HEXGRID_HEX_APOTHEM + 0.04, zAdd: 0.7 }
     case 1:
@@ -79,7 +79,7 @@ export function getRuinsOptions(rotation: number) {
   }
 }
 export function getObstaclRotation(rotation: number) {
-  switch (rotation) {
+  switch (Number(rotation)) {
     case 0:
       return 0
     case 1:
@@ -97,7 +97,7 @@ export function getObstaclRotation(rotation: number) {
   }
 }
 export function getLadderBattlementOptions(rotation: number) {
-  switch (rotation) {
+  switch (Number(rotation)) {
     case 0:
       return { xAdd: HEXGRID_HEX_APOTHEM, zAdd: 0 }
     case 1:
@@ -149,7 +149,7 @@ export function getRoadWallOptions(rotation: number) {
 export function getOptionsForBigTree(rotation: number) {
   const xLength = Math.cos(Math.PI / 6) * 1.5
   const zLength = Math.sin(Math.PI / 6) * 1.5
-  switch (rotation) {
+  switch (Number(rotation)) {
     case 0:
       return { rotationY: Math.PI / 3, xAdd: xLength, zAdd: zLength }
     case 1:

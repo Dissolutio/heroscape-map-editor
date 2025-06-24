@@ -3,74 +3,73 @@ import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
+import { basicModelMaterial } from './materials'
+import { noop } from 'lodash'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
-export default function BigTree415({ boardHex }: { boardHex: BoardHex }) {
+export default function BigTree415({ boardHex }: { boardHex?: BoardHex }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/forest-tree15-colored-lowpoly.glb') as any
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const isVisible = boardHex.altitude <= viewingLevel
-  const { isHovered, onPointerEnter, onPointerOut } =
-    usePieceHoverState(isVisible)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
 
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    if (boardHex) {
+      toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = isHovered || isSelected
+  const isSelected = selectedPieceID === boardHex?.pieceID
+  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
   const treeColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.tree]
   const rockColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.ruin]
+
   return (
-    <>
-      {isSelected && (
-        <DeletePieceBillboard pieceID={boardHex.pieceID} y={150} />
-      )}
-      <group
-        onPointerUp={(e) => onPointerUp(e)}
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-        onPointerOut={(e) => onPointerOut(e)}
+    <group
+      onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
+      onPointerEnter={(e) => (boardHex ? onPointerEnter(e, boardHex) : noop())}
+      onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+    >
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
       >
-        <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
-          geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
-        >
-          {isHighQualityRender ? (
-            <meshStandardMaterial color={rockColor} />
-          ) : (
-            <meshMatcapMaterial color={rockColor} />
-          )}
-        </mesh>
-        <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
-          geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
-        >
-          {isHighQualityRender ? (
-            <meshStandardMaterial color={treeColor} />
-          ) : (
-            <meshMatcapMaterial color={treeColor} />
-          )}
-        </mesh>
-      </group>
-    </>
+        {boardHex
+          ? basicModelMaterial(rockColor, isHighQualityRender)
+          : basicModelMaterial(
+              rockColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
+      >
+        {boardHex
+          ? basicModelMaterial(treeColor, isHighQualityRender)
+          : basicModelMaterial(
+              treeColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
+      </mesh>
+    </group>
   )
 }
 

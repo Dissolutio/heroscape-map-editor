@@ -393,7 +393,7 @@ export const PdfMapHex = ({
   }
   // LAUR PILLARS
   if (
-    inventoryID === Pieces.laurWallPillar ||
+    inventoryID === Pieces.laurWallSquarePillar ||
     inventoryID === Pieces.laurWallTrianglePillar
   ) {
     return (

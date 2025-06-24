@@ -118,7 +118,7 @@ const getBoardHexAndPieceChunks = (
         id === Pieces.roadWall ||
         id === Pieces.laurWallLong ||
         id === Pieces.laurWallShort ||
-        id === Pieces.laurWallRuin
+        id === Pieces.laurWallRuin1
       )
     })
     .map((pieceID) => decodePieceID(pieceID))

@@ -7,6 +7,7 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { Pieces, type BoardHex } from '../../types'
 import { DoubleSide } from 'three'
 import { basicDoubleSideModelMaterial } from './materials'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export function MarvelRuin({
   boardHex,
@@ -15,25 +16,13 @@ export function MarvelRuin({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/marvel-ruins.glb') as any
-  const { x, z, yBaseCap } = getBoardHex3DCoords(boardHex)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const isUpperFloor =
-    boardHex.inventoryID === Pieces.marvel ||
-    boardHex.inventoryID === Pieces.marvelBroken
-  const isWallIntact =
-    boardHex.inventoryID === Pieces.marvel ||
-    boardHex.inventoryID === Pieces.marvelNoUpper
-  const isVisible = boardHex.altitude <= viewingLevel
-  const { isHovered, onPointerEnter, onPointerOut } =
-    usePieceHoverState(isVisible)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
@@ -41,15 +30,18 @@ export function MarvelRuin({
     }
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
-  const isHighlighted = isHovered || isSelected
+  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const yellowColor = 'yellow'
-  const rotation = boardHex?.pieceRotation ?? 0
   const color = isHighlighted ? yellowColor : hexTerrainColor.marvelRuin
   const colorUpperFloor = isHighlighted ? yellowColor : hexTerrainColor.ladder
+  const isUpperFloor =
+    boardHex.inventoryID === Pieces.marvel ||
+    boardHex.inventoryID === Pieces.marvelBroken
+  const isWallIntact =
+    boardHex.inventoryID === Pieces.marvel ||
+    boardHex.inventoryID === Pieces.marvelNoUpper
   return (
     <group
-      position={[x, yBaseCap, z]}
-      rotation={[0, (rotation * -Math.PI) / 3, 0]}
       onPointerEnter={(e) => onPointerEnter(e, boardHex)}
       onPointerOut={(e) => onPointerOut(e)}
       onPointerUp={(e) => onPointerUp(e)}
@@ -80,6 +72,60 @@ export function MarvelRuin({
         </mesh>
       )}
     </group>
+  )
+}
+export function MarvelRuinPreview({
+  isUpperFloor,
+  isWallIntact,
+}: {
+  isUpperFloor: boolean
+  isWallIntact: boolean
+}) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/marvel-ruins.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const color = hexTerrainColor.marvelRuin
+  const colorUpperFloor = hexTerrainColor.ladder
+  return (
+    <>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.MarvelRuinMain.geometry}
+      >
+        {basicDoubleSideModelMaterial(
+          color,
+          isHighQualityRender,
+          PIECE_PREVIEW_OPACITY,
+        )}
+      </mesh>
+      {isUpperFloor && (
+        <mesh
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
+          geometry={nodes.MarvelRuinUpperFloor.geometry}
+        >
+          {basicDoubleSideModelMaterial(
+            colorUpperFloor,
+            isHighQualityRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
+        </mesh>
+      )}
+      {isWallIntact && (
+        <mesh
+          receiveShadow={isHighQualityRender}
+          castShadow={isHighQualityRender}
+          geometry={nodes.MarvelRuinRemoveableWall.geometry}
+        >
+          {basicDoubleSideModelMaterial(
+            color,
+            isHighQualityRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
+        </mesh>
+      )}
+    </>
   )
 }
 

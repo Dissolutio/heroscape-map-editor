@@ -36,7 +36,7 @@ export const tournamentOrganizerTerrainKitPieceSet: PieceInventory = {
   [Pieces.sand3]: 12, // 3
   [Pieces.sand7]: 20, // 5
   [Pieces.water1]: 48, // 12
-  [Pieces.laurWallPillar]: 8,
+  [Pieces.laurWallSquarePillar]: 8,
   [Pieces.laurWallLong]: 4,
   [Pieces.laurBrush10]: 12,
 }
@@ -56,9 +56,9 @@ export const aoa1PieceSet: PieceInventory = {
   [Pieces.sand3]: 1,
   [Pieces.sand7]: 2,
   [Pieces.water1]: 20,
-  [Pieces.laurWallPillar]: 8,
+  [Pieces.laurWallSquarePillar]: 8,
   [Pieces.laurWallShort]: 4,
-  [Pieces.laurWallRuin]: 2,
+  [Pieces.laurWallRuin1]: 2,
   [Pieces.laurWallLong]: 1,
 }
 export const ruinsOfValhallaPieceSet: PieceInventory = {

@@ -1,4 +1,4 @@
-import { TransformControls, type CameraControls } from '@react-three/drei'
+import type { CameraControls } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 
 import type { Group, Object3DEventMap } from 'three'
@@ -17,7 +17,6 @@ import {
   isSolidTerrainHex,
 } from '../utils/board-utils.ts'
 import {
-  decodePieceID,
   genBoardHexID,
   getBattlementClickedHexCoords,
   getBoardHexesRectangularMapDimensions,
@@ -31,8 +30,8 @@ import EmptyHexes from './maphex/instance/EmptyHex.tsx'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
 import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import { enqueueSnackbar } from 'notistack'
-import { HEXGRID_HEX_APOTHEM, HEXGRID_HEX_RADIUS } from '../utils/constants.ts'
-import { useRef, useState } from 'react'
+import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
+import PiecePreview from './PiecePreview.tsx'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -42,11 +41,8 @@ export default function MapDisplay3D({
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
-  const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
-  const maxLevel = getBoardPiecesMaxLevel(boardPieces)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const boardHexesArr = Object.values(boardHexes).sort(
     (a, b) => a.altitude - b.altitude,
@@ -55,8 +51,6 @@ export default function MapDisplay3D({
   const paintTile = useBoundStore((s) => s.paintTile)
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
-  // const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  // const decodedHoverPieceID = decodePieceID(hoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useZoomCameraToMapCenter({
@@ -70,7 +64,10 @@ export default function MapDisplay3D({
     isTakingPicture,
   )
 
-  const onPointerUp = (event: ThreeEvent<PointerEvent>, hex: BoardHex) => {
+  const onPointerUpPaintPiece = (
+    event: ThreeEvent<PointerEvent>,
+    hex: BoardHex,
+  ) => {
     let error: AddRemovePieceError
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
@@ -96,8 +93,8 @@ export default function MapDisplay3D({
       hex.pieceID.includes(PiecePrefixes.castleWall) ||
       hex.pieceID.includes(PiecePrefixes.castleArch)
     const isLaurPillarClicked =
-      hex.pieceID === Pieces.laurWallPillar ||
-      hex.pieceID === Pieces.laurWallTrianglePillar
+      hex.inventoryID === Pieces.laurWallSquarePillar ||
+      hex.inventoryID === Pieces.laurWallTrianglePillar
     const boardHexIdOfCapForWall = genBoardHexID({
       ...hex,
       altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
@@ -117,9 +114,9 @@ export default function MapDisplay3D({
           r: hex.r,
           s: hex.s,
         }
-    let clickedHexAltitude = clickedHex.altitude
-    // const piece = isLandHex ? getPieceByTerrainAndSize(penMode, pieceSize) : piecesSoFar[penMode]
+    const clickedHexAltitude = clickedHex.altitude
 
+    // Clicked castle, use cap coords and altitude (TODO: improve?)
     if (isCastleWallArchClicked) {
       const castleWallArchClickedHexCoords = {
         q: boardHexes[boardHexIdOfCapForWall].q,
@@ -132,12 +129,25 @@ export default function MapDisplay3D({
         altitude: clickedHexAltitude,
         rotation: penModeRotation,
       })
-    } else if (
-      isLaurPillarClicked &&
-      (piece?.id === Pieces.laurWallRuin ||
-        piece?.id === Pieces.laurWallRuin2 ||
-        piece?.id === Pieces.laurWallRuin3)
+    }
+    // Adding laur addon, put it at same level
+    else if (
+      piece?.id === Pieces.laurWallRuin1 ||
+      piece?.id === Pieces.laurWallRuin2 ||
+      piece?.id === Pieces.laurWallRuin3 ||
+      piece?.id === Pieces.laurWallLong ||
+      piece?.id === Pieces.laurWallLongStackable ||
+      piece?.id === Pieces.laurWallShort ||
+      piece?.id === Pieces.laurWallShortStackable
     ) {
+      if (!isLaurPillarClicked) {
+        enqueueSnackbar({
+          message: 'Must add to Square/Triangle Pillar.',
+          variant: 'warning',
+          autoHideDuration: 5000,
+        })
+        return
+      }
       // const laurWallAddonClickedHexCoords = getBattlementClickedHexCoords(
       //   clickedHex,
       //   penModeRotation,
@@ -145,7 +155,7 @@ export default function MapDisplay3D({
       error = paintTile({
         piece,
         clickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: clickedHexAltitude - 1,
         rotation: penModeRotation,
       })
       console.log('🚀 ~ error:', error)
@@ -154,38 +164,41 @@ export default function MapDisplay3D({
         clickedHex,
         penModeRotation,
       )
-      clickedHexAltitude -= 1
       const mirrorRotation = (penModeRotation + 3) % 6
       error = paintTile({
         piece,
         clickedHexCoords: battlementClickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: clickedHexAltitude - 1,
         rotation: mirrorRotation,
       })
-    } else if (piece?.id === Pieces.roadWall) {
+    }
+    //
+    else if (piece?.id === Pieces.roadWall) {
       const roadWallClickedHexCoords = getRoadWallClickedHexCoords(
         clickedHex,
         penModeRotation,
       )
-      clickedHexAltitude -= 1
       error = paintTile({
         piece,
         clickedHexCoords: roadWallClickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: clickedHexAltitude - 1,
         rotation: penModeRotation,
       })
-    } else if (
+    }
+    // Adding ladder onto ladder
+    else if (
       piece?.id === Pieces.ladder &&
       hex?.inventoryID === Pieces.ladder
     ) {
-      clickedHexAltitude += 1
       error = paintTile({
         piece,
         clickedHexCoords: clickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: clickedHexAltitude + 1,
         rotation: clickedHex.pieceRotation,
       })
-    } else {
+    }
+    // Clicked a regular land cap
+    else {
       error = paintTile({
         piece,
         clickedHexCoords,
@@ -214,23 +227,7 @@ export default function MapDisplay3D({
   const { length, width } = getBoardHexesRectangularMapDimensions(boardHexes)
   return (
     <>
-      {/* Tabletop / Ground */}
-      {isHighQualityRender && (
-        <mesh
-          receiveShadow
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[
-            width ? width / 2 - HEXGRID_HEX_APOTHEM : 0,
-            -0.01,
-            length ? length / 2 - HEXGRID_HEX_RADIUS : 0,
-          ]}
-        >
-          <planeGeometry args={[3 * width, 3 * length]} />
-          <shadowMaterial color="white" opacity={1} />
-          {/* <meshStandardMaterial color="brown" opacity={1} /> */}
-          {/* <meshPhongMaterial color="lightgray" opacity={0.5} /> */}
-        </mesh>
-      )}
+      <TableSurfaceMesh width={width} length={length} />
       <group ref={mapGroupRef}>
         {/* TOP LEFT */}
         {!isTakingPicture && (
@@ -250,25 +247,29 @@ export default function MapDisplay3D({
       // rotation={new Euler(0, Math.PI, 0)}
       /> */}
 
-        {/* <SubTerrains boardHexArr={instanceBoardHexes.subTerrainHexes} /> */}
+        <PiecePreview />
         <EmptyHexes
           boardHexArr={instanceBoardHexes.emptyHexCaps}
-          onPointerUp={onPointerUp}
+          onPointerUp={onPointerUpPaintPiece}
         />
         <SolidCaps
           boardHexArr={instanceBoardHexes.solidHexCaps}
-          onPointerUp={onPointerUp}
+          onPointerUp={onPointerUpPaintPiece}
         />
         <FluidCaps
           boardHexArr={instanceBoardHexes.fluidHexCaps}
-          onPointerUp={onPointerUp}
+          onPointerUp={onPointerUpPaintPiece}
         />
         {Object.keys(boardPieces).map((pid) => {
           return <MapBoardPiece3D key={pid} pid={pid} />
         })}
         {boardHexesArr.map((bh) => {
           return (
-            <MapHex3D key={bh.id} boardHex={bh} onPointerUp={onPointerUp} />
+            <MapHex3D
+              key={bh.id}
+              boardHex={bh}
+              onPointerUpPaintPiece={onPointerUpPaintPiece}
+            />
           )
         })}
       </group>
