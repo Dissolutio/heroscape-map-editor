@@ -265,24 +265,6 @@ const Controls = () => {
 
       <div style={{ border: '1px solid var(--transparent-border)' }}>
         <Button
-          title="Move all pieces 1 hex right"
-          onClick={() => movePieces(0)}
-        >
-          Right
-        </Button>
-        <Button
-          title="Move all pieces 1 hex down-right"
-          onClick={() => movePieces(1)}
-        >
-          Down Right
-        </Button>
-        <Button
-          title="Move all pieces 1 hex down-left"
-          onClick={() => movePieces(2)}
-        >
-          Down Left
-        </Button>
-        <Button
           title="Move all pieces 1 hex left"
           onClick={() => movePieces(3)}
         >
@@ -299,6 +281,24 @@ const Controls = () => {
           onClick={() => movePieces(5)}
         >
           Up Right
+        </Button>
+        <Button
+          title="Move all pieces 1 hex right"
+          onClick={() => movePieces(0)}
+        >
+          Right
+        </Button>
+        <Button
+          title="Move all pieces 1 hex down-right"
+          onClick={() => movePieces(1)}
+        >
+          Down Right
+        </Button>
+        <Button
+          title="Move all pieces 1 hex down-left"
+          onClick={() => movePieces(2)}
+        >
+          Down Left
         </Button>
       </div>
 

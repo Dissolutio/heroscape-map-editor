@@ -19,7 +19,7 @@ export default function Lights({
       {isHighQualityRender && (
         <>
           <TransformControls
-            position={[width / 3, 20, length / 3]}
+            position={[width / 3, 10, length / 3]}
             showX={!isTakingPicture}
             showY={!isTakingPicture}
             showZ={!isTakingPicture}
@@ -32,7 +32,7 @@ export default function Lights({
             />
           </TransformControls>
           <TransformControls
-            position={[width / 3, 20, (2 * length) / 3]}
+            position={[width / 3, 10, (2 * length) / 3]}
             showX={!isTakingPicture}
             showY={!isTakingPicture}
             showZ={!isTakingPicture}
@@ -45,7 +45,7 @@ export default function Lights({
             />
           </TransformControls>
           <TransformControls
-            position={[(2 * width) / 3, 20, length / 3]}
+            position={[(2 * width) / 3, 10, length / 3]}
             showX={!isTakingPicture}
             showY={!isTakingPicture}
             showZ={!isTakingPicture}
@@ -58,7 +58,7 @@ export default function Lights({
             />
           </TransformControls>
           <TransformControls
-            position={[(2 * width) / 3, 20, (2 * length) / 3]}
+            position={[(2 * width) / 3, 10, (2 * length) / 3]}
             showX={!isTakingPicture}
             showY={!isTakingPicture}
             showZ={!isTakingPicture}
