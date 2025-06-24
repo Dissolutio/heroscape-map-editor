@@ -105,15 +105,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-        q: boardHexes[boardHexIdOfCapForWall].q,
-        r: boardHexes[boardHexIdOfCapForWall].r,
-        s: boardHexes[boardHexIdOfCapForWall].s,
-      }
+          q: boardHexes[boardHexIdOfCapForWall].q,
+          r: boardHexes[boardHexIdOfCapForWall].r,
+          s: boardHexes[boardHexIdOfCapForWall].s,
+        }
       : {
-        q: hex.q,
-        r: hex.r,
-        s: hex.s,
-      }
+          q: hex.q,
+          r: hex.r,
+          s: hex.s,
+        }
     const clickedHexAltitude = clickedHex.altitude
 
     // Clicked castle, use cap coords and altitude (TODO: improve?)
@@ -132,13 +132,13 @@ export default function MapDisplay3D({
     }
     // Adding laur addon, put it at same level
     else if (
-      (piece?.id === Pieces.laurWallRuin1 ||
-        piece?.id === Pieces.laurWallRuin2 ||
-        piece?.id === Pieces.laurWallRuin3 ||
-        piece?.id === Pieces.laurWallLong ||
-        piece?.id === Pieces.laurWallLongStackable ||
-        piece?.id === Pieces.laurWallShort ||
-        piece?.id === Pieces.laurWallShortStackable)
+      piece?.id === Pieces.laurWallRuin1 ||
+      piece?.id === Pieces.laurWallRuin2 ||
+      piece?.id === Pieces.laurWallRuin3 ||
+      piece?.id === Pieces.laurWallLong ||
+      piece?.id === Pieces.laurWallLongStackable ||
+      piece?.id === Pieces.laurWallShort ||
+      piece?.id === Pieces.laurWallShortStackable
     ) {
       if (!isLaurPillarClicked) {
         enqueueSnackbar({
@@ -235,7 +235,7 @@ export default function MapDisplay3D({
             // position={[topLeft[0], 0, topLeft[1]]}
             position={[0, 0.1, 0]}
             scale={[width, 0, length]}
-          // rotation={new Euler(0, Math.PI, 0)}
+            // rotation={new Euler(0, Math.PI, 0)}
           />
         )}
 

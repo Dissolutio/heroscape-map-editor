@@ -50,9 +50,7 @@ export default function LaurWallTrianglePillar({
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        <group
-          position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}
-        >
+        <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}

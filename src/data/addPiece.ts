@@ -168,9 +168,7 @@ export function addPiece({
   const isPlacingRoadWall = isRoadWallPieceID && isRoadWallPieceSupported_true
 
   // LAUR WALL ADDONS: Autoadd piece id, render from boardPieces
-  if (
-    piece.terrain === HexTerrain.laurWallAddon
-  ) {
+  if (piece.terrain === HexTerrain.laurWallAddon) {
     try {
       // write the new laur addon piece
       newBoardPieces[pieceID] = piece.id

@@ -13,7 +13,10 @@ import {
 import useBoundStore from '../store/store'
 import { Pieces } from '../types'
 import { useEffect } from 'react'
-import { doPenModeRotation, getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
+import {
+  doPenModeRotation,
+  getPossibleRotationsForPenMode,
+} from './getPossibleRotationsForPenMode'
 
 export default function RotationSelect() {
   const penModeRotation = useBoundStore((s) => s.penModeRotation)

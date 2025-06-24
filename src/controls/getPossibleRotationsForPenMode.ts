@@ -1,4 +1,4 @@
-import { Pieces } from "../types"
+import { Pieces } from '../types'
 
 export function getPossibleRotationsForPenMode(penMode: string) {
   const regularRotations = [0, 1, 2, 3, 4, 5]
@@ -13,10 +13,14 @@ export function getPossibleRotationsForPenMode(penMode: string) {
     ? allRotations
     : regularRotations
 }
-export function doPenModeRotation(penMode: string, penModeRotation: number, togglePenModeRotation: (s: number) => void) {
+export function doPenModeRotation(
+  penMode: string,
+  penModeRotation: number,
+  togglePenModeRotation: (s: number) => void,
+) {
   // impl:
   // doPenModeRotation(penMode, penModeRotation, togglePenModeRotation)
   const possibleRotations = getPossibleRotationsForPenMode(penMode)
-  const nextHighest = possibleRotations.findIndex(r => r > penModeRotation)
+  const nextHighest = possibleRotations.findIndex((r) => r > penModeRotation)
   togglePenModeRotation(possibleRotations[nextHighest === -1 ? 0 : nextHighest])
 }

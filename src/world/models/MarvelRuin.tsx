@@ -80,7 +80,6 @@ export function MarvelRuinPreview({
 }: {
   isUpperFloor: boolean
   isWallIntact: boolean
-
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/marvel-ruins.glb') as any
@@ -94,7 +93,11 @@ export function MarvelRuinPreview({
         castShadow={isHighQualityRender}
         geometry={nodes.MarvelRuinMain.geometry}
       >
-        {basicDoubleSideModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+        {basicDoubleSideModelMaterial(
+          color,
+          isHighQualityRender,
+          PIECE_PREVIEW_OPACITY,
+        )}
       </mesh>
       {isUpperFloor && (
         <mesh
@@ -102,7 +105,11 @@ export function MarvelRuinPreview({
           castShadow={isHighQualityRender}
           geometry={nodes.MarvelRuinUpperFloor.geometry}
         >
-          {basicDoubleSideModelMaterial(colorUpperFloor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+          {basicDoubleSideModelMaterial(
+            colorUpperFloor,
+            isHighQualityRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
         </mesh>
       )}
       {isWallIntact && (
@@ -111,7 +118,11 @@ export function MarvelRuinPreview({
           castShadow={isHighQualityRender}
           geometry={nodes.MarvelRuinRemoveableWall.geometry}
         >
-          {basicDoubleSideModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+          {basicDoubleSideModelMaterial(
+            color,
+            isHighQualityRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
         </mesh>
       )}
     </>

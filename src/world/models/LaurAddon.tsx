@@ -138,14 +138,22 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
             castShadow={isHighQualityRender}
             geometry={LaurWallRuin.geometry}
           >
-            {basicModelMaterial(pillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              pillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={LaurWallRuinBustedConcrete.geometry}
           >
-            {basicModelMaterial(interiorPillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              interiorPillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
         </>
       )}
@@ -157,14 +165,22 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
             castShadow={isHighQualityRender}
             geometry={LaurWallRuin.geometry}
           >
-            {basicModelMaterial(pillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              pillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={LaurWallRuinBustedConcrete.geometry}
           >
-            {basicModelMaterial(interiorPillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              interiorPillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
         </>
       )}
@@ -176,14 +192,22 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
             castShadow={isHighQualityRender}
             geometry={LaurWallRuin.geometry}
           >
-            {basicModelMaterial(pillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              pillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={LaurWallRuinBustedConcrete.geometry}
           >
-            {basicModelMaterial(interiorPillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              interiorPillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
         </>
       )}
@@ -195,14 +219,22 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
             castShadow={isHighQualityRender}
             geometry={LaurWallShort.geometry}
           >
-            {basicModelMaterial(pillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              pillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={LaurWallShortDecorDeep.geometry}
           >
-            {basicModelMaterial(interiorPillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              interiorPillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
         </>
       )}
@@ -214,14 +246,22 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
             castShadow={isHighQualityRender}
             geometry={LaurWallShort.geometry}
           >
-            {basicModelMaterial(pillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              pillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={LaurWallShortDecorDeep.geometry}
           >
-            {basicModelMaterial(interiorPillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              interiorPillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
         </>
       )}
@@ -233,14 +273,22 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
             castShadow={isHighQualityRender}
             geometry={LaurWallLong.geometry}
           >
-            {basicModelMaterial(pillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              pillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={LaurWallLongDecorDeep.geometry}
           >
-            {basicModelMaterial(interiorPillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              interiorPillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
         </>
       )}
@@ -252,14 +300,22 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
             castShadow={isHighQualityRender}
             geometry={LaurWallLong.geometry}
           >
-            {basicModelMaterial(pillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              pillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
           <mesh
             receiveShadow={isHighQualityRender}
             castShadow={isHighQualityRender}
             geometry={LaurWallLongDecorDeep.geometry}
           >
-            {basicModelMaterial(interiorPillarColor, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+            {basicModelMaterial(
+              interiorPillarColor,
+              isHighQualityRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
           </mesh>
         </>
       )}
