@@ -12,6 +12,7 @@ import {
 } from 'react-icons/md'
 import useBoundStore from '../store/store'
 import { Pieces } from '../types'
+import { useEffect } from 'react'
 
 export default function RotationSelect() {
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
@@ -35,6 +36,14 @@ export default function RotationSelect() {
       penMode === Pieces.laurWallLongStackable
       ? allRotations
       : regularRotations
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <only update when possible rotations changes>
+  useEffect(() => {
+    if (!possibleRotations.includes(penModeRotation)) {
+      togglePenModeRotation(possibleRotations[possibleRotations.findIndex(r => r > penModeRotation)])
+    }
+  }, [penMode])
+
   return (
     <div
       style={{
@@ -44,7 +53,6 @@ export default function RotationSelect() {
     >
       <span>Piece rotation:</span>
       <ToggleButtonGroup
-        // disabled={!isSizes}
         value={`${penModeRotation}`}
         onChange={handleChange}
         exclusive
