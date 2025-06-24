@@ -32,6 +32,15 @@ import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import { enqueueSnackbar } from 'notistack'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import PiecePreview from './PiecePreview.tsx'
+import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode.ts'
+
+export function doPenModeRotation(penMode: string, penModeRotation: number, togglePenModeRotation: (s: number) => void) {
+  // impl:
+  // doPenModeRotation(penMode, penModeRotation, togglePenModeRotation)
+  const possibleRotations = getPossibleRotationsForPenMode(penMode)
+  const nextHighest = possibleRotations.findIndex(r => r > penModeRotation)
+  togglePenModeRotation(possibleRotations[nextHighest === -1 ? 0 : nextHighest])
+}
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -51,7 +60,9 @@ export default function MapDisplay3D({
   const paintTile = useBoundStore((s) => s.paintTile)
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
+  const hoveredHex = useBoundStore((s) => s.hoveredHex)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const togglePenModeRotation = useBoundStore((s) => s.togglePenModeRotation)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useZoomCameraToMapCenter({
     cameraControlsRef,
@@ -63,13 +74,17 @@ export default function MapDisplay3D({
     boardHexesArr,
     isTakingPicture,
   )
-
   const onPointerUpPaintPiece = (
     event: ThreeEvent<PointerEvent>,
     hex: BoardHex,
   ) => {
     let error: AddRemovePieceError
     event.stopPropagation() // prevent pass through
+    // // Right click: rotate piece?
+    if (event.button === 2) {
+      doPenModeRotation(penMode, penModeRotation, togglePenModeRotation)
+      return
+    }
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
       // TODO: MultiSelect Copy/Paste: Can paste in copied templates! BUT, user must agree to reading text/images from the clipboard
@@ -223,12 +238,21 @@ export default function MapDisplay3D({
       }
     }
   }
-
+  const onWheelRotatePiece = (e: ThreeEvent<WheelEvent>) => {
+    e.stopPropagation()
+    if (!hoveredHex) {
+      return
+    }
+    doPenModeRotation(penMode, penModeRotation, togglePenModeRotation)
+  }
   const { length, width } = getBoardHexesRectangularMapDimensions(boardHexes)
   return (
     <>
       <TableSurfaceMesh width={width} length={length} />
-      <group ref={mapGroupRef}>
+      <group
+        ref={mapGroupRef}
+        onWheel={onWheelRotatePiece}
+      >
         {/* TOP LEFT */}
         {!isTakingPicture && (
           <axesHelper
