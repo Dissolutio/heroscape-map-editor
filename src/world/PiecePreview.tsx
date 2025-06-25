@@ -4,6 +4,7 @@ import {
   getLadderBattlementOptions,
   getObstaclRotation,
   getOptionsForBigTree,
+  getOptionsForPalmHeight,
   getOptionsForTreeHeight,
   getRuinsOptions,
 } from './models/piece-adjustments'
@@ -41,15 +42,16 @@ import { LaurWallTrianglePillarPreview } from './models/LaurTrianglePillar'
 import ForestTree from './models/ForestTree'
 import BigTree415 from './models/BigTree415'
 import MarroHive6 from './models/MarroHive6'
-import { CastleArchPreview } from './models/CastleArch'
 import { Outcrop3Preview } from './models/Outcrop3'
 import { Outcrop4Preview } from './models/Outcrop4'
 import { Outcrop6Preview } from './models/Outcrop6'
 import { LadderPreview } from './models/Ladder'
 import { LaurWallAddonPreview } from './models/LaurAddon'
-import Ruins2, { Ruins2Preview } from './models/Ruins2'
+import { Ruins2Preview } from './models/Ruins2'
 import { Ruins3Preview } from './models/Ruins3'
 import { MarvelRuinPreview } from './models/MarvelRuin'
+import { TicallaPalmPreview } from './models/TicallaPalm'
+import { TicallaBrushPreview } from './models/TicallaBrush'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -110,7 +112,8 @@ export default function PiecePreview() {
     isShowEmptyHexes
   const isObstacleHex =
     hoveredHex.isObstacleOrigin || hoveredHex.isObstacleAuxiliary
-  const isBrushHex = piece.terrain === HexTerrain.brush
+  const isBrushHex = piece.id === Pieces.laurBrush10 || piece.id === Pieces.brush9
+  const isSwampBrushHex = piece.id === Pieces.swampBrush10
   const isPalmHex = piece.terrain === HexTerrain.palm
   const isGlacier1Hex = pieceID === Pieces.glacier1
   const isOutcrop1Hex = pieceID === Pieces.outcrop1
@@ -121,10 +124,9 @@ export default function PiecePreview() {
   const isCastleWallEnd = pieceID === Pieces.castleWallEnd
   const isCastleWallStraight = pieceID === Pieces.castleWallStraight
   const isCastleWallCorner = pieceID === Pieces.castleWallCorner
+  const isCastleArch = pieceID === Pieces.castleArch || pieceID === Pieces.castleArchNoDoor
 
   const isHiveHex = pieceID === Pieces.hive
-  const isCastleArch =
-    pieceID === Pieces.castleArch || pieceID === Pieces.castleArchNoDoor
   const isLadderHex = piece.terrain === HexTerrain.ladder
   const isOutcrop3Hex = pieceID === Pieces.outcrop3
   const isLavaRockOutcrop3Hex = pieceID === Pieces.lavaRockOutcrop3
@@ -319,14 +321,45 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isCastleArch && isSolidOrEmptyBeneath) {
+  if (isPalmHex && isSolidOrEmptyBeneath) {
     return (
       <group
-        position={[x, yBase + HEXGRID_HEX_HEIGHT, z]}
+        scale={[1, getOptionsForPalmHeight(pieceID).scaleY, 1]}
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <CastleArchPreview isDoor={pieceID === Pieces.castleArch} />
+          <TicallaPalmPreview opacity={PIECE_PREVIEW_OPACITY} />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isBrushHex && isSolidOrEmptyBeneath) {
+    return (
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <TicallaBrushPreview opacity={PIECE_PREVIEW_OPACITY} />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isSwampBrushHex && isSolidOrEmptyBeneath) {
+    return (
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <TicallaBrushPreview
+            color1={hexTerrainColor.swampUnderbrush1}
+            color2={hexTerrainColor.swampUnderbrush2}
+            color3={hexTerrainColor.swampUnderbrush3}
+            colorBase={hexTerrainColor[HexTerrain.swamp]}
+            opacity={PIECE_PREVIEW_OPACITY} />
+
         </Suspense>
       </group>
     )
