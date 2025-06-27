@@ -7,12 +7,7 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 
 export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/ticalla-palm.glb') as any
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes: nodesNewPalm } = useGLTF('/handmade-palm.glb') as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
@@ -24,38 +19,49 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
-  const colorTrunk = isHighlighted
-    ? yellowColor
-    : hexTerrainColor.ticallaPalmModel1
-  const colorBrush = isHighlighted ? yellowColor : hexTerrainColor.ticallaBrush2
-  const colorPalmLeaf = isHighlighted
-    ? yellowColor
-    : hexTerrainColor.ticallaPalmModel3
-  const colorBase = isHighlighted
-    ? yellowColor
-    : hexTerrainColor[HexTerrain.swamp]
   return (
     <group
       onPointerUp={(e) => onPointerUp(e)}
       onPointerEnter={(e) => onPointerEnter(e, boardHex)}
       onPointerOut={(e) => onPointerOut(e)}
     >
+      <TicallaPalmPreview color={isHighlighted ? 'yellow' : ''} />
+    </group>
+  )
+}
+export function TicallaPalmPreview({
+  opacity = 1,
+  color = ''
+}: {
+  opacity?: number,
+  color?: string,
+}) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/ticalla-palm.glb') as any
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes: nodesNewPalm } = useGLTF('/handmade-palm.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const colorTrunk = color || hexTerrainColor.ticallaPalmModel1
+  const colorBrush = color || hexTerrainColor.ticallaBrush2
+  const colorPalmLeaf = color || hexTerrainColor.ticallaPalmModel3
+  const colorBase = color || hexTerrainColor[HexTerrain.swamp]
+  return (
+    <>
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodesNewPalm.Palm_Trunk.geometry}
       >
-        {basicModelMaterial(colorTrunk, isHighQualityRender)}
+        {basicModelMaterial(colorTrunk, isHighQualityRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodesNewPalm.Palm_Canopy.geometry}
       >
-        {basicModelMaterial(colorPalmLeaf, isHighQualityRender)}
+        {basicModelMaterial(colorPalmLeaf, isHighQualityRender, opacity)}
       </mesh>
 
       <mesh
@@ -63,16 +69,16 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
         castShadow={isHighQualityRender}
         geometry={nodes.PalmBrush.geometry}
       >
-        {basicModelMaterial(colorBrush, isHighQualityRender)}
+        {basicModelMaterial(colorBrush, isHighQualityRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isHighQualityRender}
         castShadow={isHighQualityRender}
         geometry={nodes.Interlock6.geometry}
       >
-        {basicModelMaterial(colorBase, isHighQualityRender)}
+        {basicModelMaterial(colorBase, isHighQualityRender, opacity)}
       </mesh>
-    </group>
+    </>
   )
 }
 

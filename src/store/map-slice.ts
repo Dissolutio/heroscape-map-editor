@@ -10,6 +10,7 @@ import type {
   Piece,
 } from '../types'
 import type { AppState } from './store'
+import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 
 export interface MapSlice extends MapState {
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
@@ -52,6 +53,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           isVsTile: false,
         })
         error = addPieceError
+        draft.viewingLevel = getBoardPiecesMaxLevel(newBoardPieces) > state.viewingLevel ? getBoardPiecesMaxLevel(newBoardPieces) : state.viewingLevel
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
       })
@@ -66,6 +68,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           boardHexes: draft.boardHexes,
           boardPieces: draft.boardPieces,
         })
+        draft.viewingLevel = getBoardPiecesMaxLevel(newBoardPieces) < state.viewingLevel ? getBoardPiecesMaxLevel(newBoardPieces) : state.viewingLevel
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
       })

@@ -49,9 +49,7 @@ export const EVENTS = {
   saveJpg: 'saveJpg',
   toggleOrthoCam: 'toggleOrthoCam',
 }
-export const LS_KEYS = {
-  pieceInventory: 'pieceInventory',
-}
+
 export const LAYOUT_POINTY = {
   f0: Math.sqrt(3.0),
   f1: Math.sqrt(3.0) / 2.0,

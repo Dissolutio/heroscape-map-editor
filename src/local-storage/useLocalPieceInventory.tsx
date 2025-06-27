@@ -1,6 +1,6 @@
-import { useLocalStorage } from '../hooks/useLocalStorage'
+import { useLocalStorage } from './useLocalStorage'
 import { type PieceInventory, Pieces } from '../types'
-import { LS_KEYS } from '../utils/constants'
+import { LS_KEYS } from './keys'
 
 const blankPieceState: { [key: string]: number } = {
   [Pieces.grass1]: 0,
@@ -103,6 +103,7 @@ const blankPieceState: { [key: string]: number } = {
   [Pieces.battlement]: 0,
   [Pieces.ladder]: 0,
 }
+
 export const useLocalPieceInventory = () => {
   const [pieceInventory, setPieceInventory] = useLocalStorage(
     LS_KEYS.pieceInventory,

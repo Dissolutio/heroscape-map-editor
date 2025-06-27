@@ -1,6 +1,7 @@
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import useBoundStore from '../store/store'
+import { HotkeyText } from './HotKeyText'
 
 export default function PieceSizeSelect() {
   const pieceSize = useBoundStore((s) => s.pieceSize)
@@ -34,13 +35,15 @@ export default function PieceSizeSelect() {
         <span>Piece size:</span>
         <span>
           {isSizes ? (
-            flatPieceSizes.map((s) => (
+            flatPieceSizes.map((s, i) => (
               <ToggleButton
                 key={s}
                 value={`${s}`}
                 aria-label={`${s}-hex sized piece`}
+                title={`${s}-hex sized piece [hotkey ${i + 1}`}
               >
                 {s}
+                <HotkeyText text={`${i + 1}`} />
               </ToggleButton>
             ))
           ) : (

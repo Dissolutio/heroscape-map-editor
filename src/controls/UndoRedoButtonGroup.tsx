@@ -11,8 +11,6 @@ const UndoRedoButtonGroup = () => {
   const { undo, redo, pastStates, futureStates } = useTemporalStore(
     (state: any) => state,
   )
-  useHotkeys('mod+z', () => undo())
-  useHotkeys('mod+y', () => redo())
   return (
     <ControlButtonGroup>
       {/* <Button onClick={() => useBoundStore.temporal.getState().clear()}>CLEAR</Button> */}

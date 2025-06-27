@@ -27,13 +27,13 @@ export const basicModelMaterial = (
   isHQ ? (
     <meshStandardMaterial
       color={color}
-      transparent={Boolean(opacity)}
+      transparent={(opacity ?? 1) !== 1}
       opacity={opacity ?? 1}
     />
   ) : (
     <meshMatcapMaterial
       color={color}
-      transparent={Boolean(opacity)}
+      transparent={(opacity ?? 1) !== 1}
       opacity={opacity ?? 1}
     />
   )
@@ -46,14 +46,14 @@ export const basicDoubleSideModelMaterial = (
     <meshStandardMaterial
       side={DoubleSide}
       color={color}
-      transparent={Boolean(opacity)}
+      transparent={(opacity ?? 1) !== 1}
       opacity={opacity ?? 1}
     />
   ) : (
     <meshMatcapMaterial
       side={DoubleSide}
       color={color}
-      transparent={Boolean(opacity)}
+      transparent={(opacity ?? 1) !== 1}
       opacity={opacity ?? 1}
     />
   )

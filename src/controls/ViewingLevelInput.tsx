@@ -1,5 +1,4 @@
 import { Box, Grid2, Input, Typography } from '@mui/material'
-import React from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import useBoundStore from '../store/store'
 import { getBoardPiecesMaxLevel } from '../utils/map-utils'
@@ -9,20 +8,11 @@ export default function ViewingLevelInput() {
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
-  useHotkeys(
-    'pagedown',
-    () => toggleViewingLevel(Math.max(viewingLevel - 1, 0)) /*isEnabled*/,
-  )
-  useHotkeys(
-    'pageup',
-    () =>
-      toggleViewingLevel(Math.min(viewingLevel + 1, maxLevel)) /*isEnabled*/,
-  )
 
   return (
     <Box
       sx={{
-        // width: 250,
+        width: 250,
         border: '1px solid var(--transparent-border)',
         padding: '0.5em',
       }}

@@ -3,8 +3,6 @@ import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
-import { noop } from 'lodash'
-import { useHotkeys } from 'react-hotkeys-hook'
 import {
   GiAncientRuins,
   GiArrowCursor,
@@ -42,6 +40,7 @@ import { hexTerrainColor } from '../world/maphex/hexColors'
 import { LiaMountainSolid } from 'react-icons/lia'
 import { FaMountainCity } from 'react-icons/fa6'
 import { FcAddColumn, FcAddDatabase } from 'react-icons/fc'
+import { HotkeyText } from './HotKeyText'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
@@ -50,55 +49,6 @@ export default function PenModeControls() {
     togglePenMode(event.target.value)
   }
   const flatPieceSizes = useBoundStore((s) => s.flatPieceSizes)
-  const togglePieceSize = useBoundStore((s) => s.togglePieceSize)
-  const isSizes = flatPieceSizes?.length > 0
-  useHotkeys(
-    '1',
-    () => (isSizes ? togglePieceSize(flatPieceSizes[0]) : noop()) /*isEnabled*/,
-  )
-  useHotkeys(
-    '2',
-    () =>
-      isSizes
-        ? togglePieceSize(flatPieceSizes?.[1] ?? flatPieceSizes[0])
-        : noop() /*isEnabled*/,
-  )
-  useHotkeys(
-    '3',
-    () =>
-      isSizes
-        ? togglePieceSize(
-            flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
-          )
-        : noop() /*isEnabled*/,
-  )
-  useHotkeys(
-    '4',
-    () =>
-      isSizes
-        ? togglePieceSize(
-            flatPieceSizes?.[3] ??
-              flatPieceSizes?.[2] ??
-              flatPieceSizes?.[1] ??
-              flatPieceSizes[0],
-          )
-        : noop() /*isEnabled*/,
-  )
-  useHotkeys(
-    '5',
-    () =>
-      isSizes
-        ? togglePieceSize(
-            flatPieceSizes?.[4] ??
-              flatPieceSizes?.[3] ??
-              flatPieceSizes?.[2] ??
-              flatPieceSizes?.[1] ??
-              flatPieceSizes[0],
-          )
-        : noop() /*isEnabled*/,
-  )
-  useHotkeys('z', () => togglePenMode('select') /*isEnabled*/)
-
   return (
     <FormControl variant="filled" size="small">
       <InputLabel id="pen-terrain-select-label">Terrain</InputLabel>
@@ -119,7 +69,8 @@ export default function PenModeControls() {
           <ListItemIcon>
             <GiArrowCursor />
           </ListItemIcon>
-          <span>Select (hotkey: Z)</span>
+          <span>Select</span>
+          <HotkeyText text="Z" />
         </MenuItem>
 
         <Divider />
@@ -130,60 +81,70 @@ export default function PenModeControls() {
             <TbHexagons color={hexTerrainColor.grass} />
           </ListItemIcon>
           <span>Grass</span>
+          <HotkeyText text="G" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.rock}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.rock} />
           </ListItemIcon>
           <span>Rock</span>
+          <HotkeyText text="R" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.sand}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.sand} />
           </ListItemIcon>
           <span>Sand</span>
+          <HotkeyText text="S" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.road}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.road} />
           </ListItemIcon>
           <span>Road</span>
+          <HotkeyText text="O" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.lavaField}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.lavaField} />
           </ListItemIcon>
           <span>Lava Field</span>
+          <HotkeyText text="L" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.snow}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.snow} />
           </ListItemIcon>
           <span>Snow</span>
+          <HotkeyText text="I" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.concrete}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.concrete} />
           </ListItemIcon>
           <span>Concrete</span>
+          <HotkeyText text="C" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.asphalt}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.rock} />
           </ListItemIcon>
           <span>Asphalt</span>
+          <HotkeyText text="A" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.swamp}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.swampCap} />
           </ListItemIcon>
           <span>Swamp</span>
+          <HotkeyText text="P" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.dungeon}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.dungeon} />
           </ListItemIcon>
           <span>Dungeon</span>
+          <HotkeyText text="D" />
         </MenuItem>
         <Divider />
 
@@ -193,36 +154,42 @@ export default function PenModeControls() {
             <BsHexagonHalf color={hexTerrainColor.water} />
           </ListItemIcon>
           <span>Water</span>
+          <HotkeyText text="W" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.wellspringWater}>
           <ListItemIcon>
             <BsHexagonHalf color={hexTerrainColor.wellspringWater} />
           </ListItemIcon>
           <span>Wellspring Water</span>
+          <HotkeyText text="shift+W" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.ice}>
           <ListItemIcon>
             <BsHexagonHalf color={hexTerrainColor.ice} />
           </ListItemIcon>
           <span>Ice</span>
+          <HotkeyText text="shift+I" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.lava}>
           <ListItemIcon>
             <BsHexagonHalf color={hexTerrainColor.lava} />
           </ListItemIcon>
           <span>Lava</span>
+          <HotkeyText text="shift+L" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.swampWater}>
           <ListItemIcon>
             <BsHexagonHalf color={hexTerrainColor.swampWater} />
           </ListItemIcon>
           <span>Swamp Water</span>
+          <HotkeyText text="shift+P" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.shadow}>
           <ListItemIcon>
             <BsHexagonHalf color={hexTerrainColor.castle} />
           </ListItemIcon>
           <span>Shadow</span>
+          <HotkeyText text="shift+D" />
         </MenuItem>
 
         <Divider />
@@ -582,12 +549,14 @@ export default function PenModeControls() {
             <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
           </ListItemIcon>
           <span>Power Glyph</span>
+          <HotkeyText text="Y" />
         </MenuItem>
         <MenuItem value={Pieces.glyphTreasure}>
           <ListItemIcon>
             <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
           </ListItemIcon>
           <span>Treasure Glyph</span>
+          <HotkeyText text="shift+Y" />
         </MenuItem>
 
         {/* RoadWall, Battlements, Ladders */}

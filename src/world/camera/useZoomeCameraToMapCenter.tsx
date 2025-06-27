@@ -7,24 +7,15 @@ import { getBoardPiecesMaxLevel } from '../../utils/map-utils'
 
 export const useZoomCameraToMapCenter = ({
   cameraControlsRef,
-  boardHexes,
   disabled,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
-  boardHexes: BoardHexes
   disabled?: boolean
 }) => {
   const mapID = useBoundStore((state) => state.hexMap.id)
-  const boardPieces = useBoundStore((state) => state.boardPieces)
   const mapShape = useBoundStore((state) => state.hexMap.shape)
-  const toggleViewingLevel = useBoundStore((state) => state.toggleViewingLevel)
-  const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
 
-  // USE EFFECT: Update viewing level when new map is loaded
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <only auto-update viewing level when map is loaded>
-  React.useEffect(() => {
-    toggleViewingLevel(maxLevel)
-  }, [mapID])
   // biome-ignore lint/correctness/useExhaustiveDependencies: only run on load new map
   React.useEffect(() => {
     if (disabled) {

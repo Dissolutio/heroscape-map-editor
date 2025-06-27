@@ -3,15 +3,11 @@ import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 
 export default function TicallaBrush({ boardHex }: { boardHex: BoardHex }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/ticalla-brush.glb') as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
@@ -47,41 +43,68 @@ export default function TicallaBrush({ boardHex }: { boardHex: BoardHex }) {
     : hexTerrainColor[HexTerrain.swamp]
   return (
     <>
-      {isSelected && <DeletePieceBillboard pieceID={boardHex.pieceID} y={3} />}
       <group
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
-          geometry={nodes.FatFern.geometry}
-        >
-          {basicModelMaterial(color1, isHighQualityRender)}
-        </mesh>
-        <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
-          geometry={nodes.PineappleFern.geometry}
-        >
-          {basicModelMaterial(color2, isHighQualityRender)}
-        </mesh>
-        <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
-          geometry={nodes.Needler.geometry}
-        >
-          {basicModelMaterial(color3, isHighQualityRender)}
-        </mesh>
-        <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
-          geometry={nodes.Interlock6.geometry}
-        >
-          {basicModelMaterial(colorBase, isHighQualityRender)}
-        </mesh>
+        <TicallaBrushPreview
+          opacity={1}
+          color1={color1}
+          color2={color2}
+          color3={color3}
+          colorBase={colorBase}
+        />
       </group>
+    </>
+  )
+}
+export function TicallaBrushPreview({
+  opacity = 1,
+  color1 = hexTerrainColor.ticallaBrush1,
+  color2 = hexTerrainColor.ticallaBrush2,
+  color3 = hexTerrainColor.ticallaBrush3,
+  colorBase = hexTerrainColor[HexTerrain.swamp],
+}: {
+  opacity?: number,
+  color1?: string,
+  color2?: string,
+  color3?: string,
+  colorBase?: string,
+}) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/ticalla-brush.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  return (
+    <>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.FatFern.geometry}
+      >
+        {basicModelMaterial(color1, isHighQualityRender, opacity)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.PineappleFern.geometry}
+      >
+        {basicModelMaterial(color2, isHighQualityRender, opacity)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.Needler.geometry}
+      >
+        {basicModelMaterial(color3, isHighQualityRender, opacity)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.Interlock6.geometry}
+      >
+        {basicModelMaterial(colorBase, isHighQualityRender, opacity)}
+      </mesh>
     </>
   )
 }
