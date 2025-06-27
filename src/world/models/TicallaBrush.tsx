@@ -66,11 +66,11 @@ export function TicallaBrushPreview({
   color3 = hexTerrainColor.ticallaBrush3,
   colorBase = hexTerrainColor[HexTerrain.swamp],
 }: {
-  opacity?: number,
-  color1?: string,
-  color2?: string,
-  color3?: string,
-  colorBase?: string,
+  opacity?: number
+  color1?: string
+  color2?: string
+  color3?: string
+  colorBase?: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/ticalla-brush.glb') as any

@@ -33,10 +33,10 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
 }
 export function TicallaPalmPreview({
   opacity = 1,
-  color = ''
+  color = '',
 }: {
-  opacity?: number,
-  color?: string,
+  opacity?: number
+  color?: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/ticalla-palm.glb') as any

@@ -3,7 +3,10 @@ import { LS_KEYS } from '../local-storage/keys'
 import { useLocalStorage } from '../local-storage/useLocalStorage'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { PiecePrefixes, Pieces } from '../types'
-import { doPenModeCounterRotation, doPenModeRotation } from './getPossibleRotationsForPenMode'
+import {
+  doPenModeCounterRotation,
+  doPenModeRotation,
+} from './getPossibleRotationsForPenMode'
 import { useEffect } from 'react'
 import useTemporalStore from '../hooks/useTemporalStore'
 import type { Group, Object3DEventMap } from 'three'
@@ -17,7 +20,10 @@ export const useHotkeyConfig = ({
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) => {
-  const [hotkeyConfig, setHotkeyConfig] = useLocalStorage(LS_KEYS.hotkeyConfig, defaultHotkeyConfig)
+  const [hotkeyConfig, setHotkeyConfig] = useLocalStorage(
+    LS_KEYS.hotkeyConfig,
+    defaultHotkeyConfig,
+  )
   // biome-ignore lint/correctness/useExhaustiveDependencies: <on-mount>
   useEffect(() => {
     setHotkeyConfig(defaultHotkeyConfig)
@@ -36,9 +42,7 @@ export const useHotkeyConfig = ({
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
   const isSizes = flatPieceSizes?.length > 0
-  const { undo, redo } = useTemporalStore(
-    (state: any) => state,
-  )
+  const { undo, redo } = useTemporalStore((state: any) => state)
   const handleToggleIsOrthoCam = () => {
     toggleIsOrthoCam(!isOrthoCam)
   }
@@ -47,8 +51,10 @@ export const useHotkeyConfig = ({
       cameraControlsRef.current?.fitToBox?.(mapGroupRef.current, true)
     }
   }
-  const incrementViewingLevel = () => toggleViewingLevel(Math.min(viewingLevel + 1, maxLevel))
-  const decrementViewingLevel = () => toggleViewingLevel(Math.max(viewingLevel - 1, 0))
+  const incrementViewingLevel = () =>
+    toggleViewingLevel(Math.min(viewingLevel + 1, maxLevel))
+  const decrementViewingLevel = () =>
+    toggleViewingLevel(Math.max(viewingLevel - 1, 0))
   const togglePieceSize1 = () => {
     if (isSizes) {
       togglePieceSize(flatPieceSizes[0])
@@ -69,33 +75,31 @@ export const useHotkeyConfig = ({
   const togglePieceSize4 = () => {
     if (isSizes) {
       togglePieceSize(
-        flatPieceSizes?.[3] ?? flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes[0],
+        flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
       )
     }
-
   }
   const togglePieceSize5 = () => {
     if (isSizes) {
       togglePieceSize(
-        flatPieceSizes?.[4] ?? flatPieceSizes?.[3] ?? flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes[0],
+        flatPieceSizes?.[4] ??
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
       )
     }
   }
   const undoWorld = undo
   const redoWorld = redo
   const cycleNextPieceRotation = () => {
-    doPenModeRotation(
-      penMode,
-      penModeRotation,
-      togglePenModeRotation,
-    )
+    doPenModeRotation(penMode, penModeRotation, togglePenModeRotation)
   }
   const cyclePrevPieceRotation = () => {
-    doPenModeCounterRotation(
-      penMode,
-      penModeRotation,
-      togglePenModeRotation,
-    )
+    doPenModeCounterRotation(penMode, penModeRotation, togglePenModeRotation)
   }
   const togglePenModeSelect = () => togglePenMode('select')
   const togglePenModeGrass = () => togglePenMode(PiecePrefixes.grass)
@@ -109,7 +113,8 @@ export const useHotkeyConfig = ({
   const togglePenModeAsphalt = () => togglePenMode(PiecePrefixes.asphalt)
   const togglePenModeConcrete = () => togglePenMode(PiecePrefixes.concrete)
   const togglePenModeDungeon = () => togglePenMode(PiecePrefixes.dungeon)
-  const togglePenModeWellspringWater = () => togglePenMode(PiecePrefixes.wellspringWater)
+  const togglePenModeWellspringWater = () =>
+    togglePenMode(PiecePrefixes.wellspringWater)
   const togglePenModeWater = () => togglePenMode(PiecePrefixes.water)
   const togglePenModeLava = () => togglePenMode(PiecePrefixes.lava)
   const togglePenModeIce = () => togglePenMode(PiecePrefixes.ice)
@@ -119,45 +124,44 @@ export const useHotkeyConfig = ({
   const togglePenModeTreasureGlyph = () => togglePenMode(Pieces.glyphTreasure)
 
   const actionMap: { [key: string]: () => void } = {
-    'incrementViewingLevel': incrementViewingLevel,
-    'decrementViewingLevel': decrementViewingLevel,
+    incrementViewingLevel: incrementViewingLevel,
+    decrementViewingLevel: decrementViewingLevel,
 
-    'handleToggleIsOrthoCam': handleToggleIsOrthoCam,
-    'zoomToMap': zoomToMap,
+    handleToggleIsOrthoCam: handleToggleIsOrthoCam,
+    zoomToMap: zoomToMap,
 
-    'togglePieceSize1': togglePieceSize1,
-    'togglePieceSize2': togglePieceSize2,
-    'togglePieceSize3': togglePieceSize3,
-    'togglePieceSize4': togglePieceSize4,
-    'togglePieceSize5': togglePieceSize5,
+    togglePieceSize1: togglePieceSize1,
+    togglePieceSize2: togglePieceSize2,
+    togglePieceSize3: togglePieceSize3,
+    togglePieceSize4: togglePieceSize4,
+    togglePieceSize5: togglePieceSize5,
 
-    'cycleNextPieceRotation': cycleNextPieceRotation,
-    'cyclePrevPieceRotation': cyclePrevPieceRotation,
+    cycleNextPieceRotation: cycleNextPieceRotation,
+    cyclePrevPieceRotation: cyclePrevPieceRotation,
 
-    'undoWorld': undoWorld,
-    'redoWorld': redoWorld,
+    undoWorld: undoWorld,
+    redoWorld: redoWorld,
 
-
-    'togglePenModeSelect': togglePenModeSelect,
-    'togglePenModePowerGlyph': togglePenModePowerGlyph,
-    'togglePenModeTreasureGlyph': togglePenModeTreasureGlyph,
-    'togglePenModeGrass': togglePenModeGrass,
-    'togglePenModeRock': togglePenModeRock,
-    'togglePenModeSand': togglePenModeSand,
-    'togglePenModeRoad': togglePenModeRoad,
-    'togglePenModeWallWalk': togglePenModeWallWalk,
-    'togglePenModeSnow': togglePenModeSnow,
-    'togglePenModeLavaField': togglePenModeLavaField,
-    'togglePenModeSwamp': togglePenModeSwamp,
-    'togglePenModeAsphalt': togglePenModeAsphalt,
-    'togglePenModeConcrete': togglePenModeConcrete,
-    'togglePenModeDungeon': togglePenModeDungeon,
-    'togglePenModeWellspringWater': togglePenModeWellspringWater,
-    'togglePenModeWater': togglePenModeWater,
-    'togglePenModeLava': togglePenModeLava,
-    'togglePenModeIce': togglePenModeIce,
-    'togglePenModeSwampWater': togglePenModeSwampWater,
-    'togglePenModeShadow': togglePenModeShadow,
+    togglePenModeSelect: togglePenModeSelect,
+    togglePenModePowerGlyph: togglePenModePowerGlyph,
+    togglePenModeTreasureGlyph: togglePenModeTreasureGlyph,
+    togglePenModeGrass: togglePenModeGrass,
+    togglePenModeRock: togglePenModeRock,
+    togglePenModeSand: togglePenModeSand,
+    togglePenModeRoad: togglePenModeRoad,
+    togglePenModeWallWalk: togglePenModeWallWalk,
+    togglePenModeSnow: togglePenModeSnow,
+    togglePenModeLavaField: togglePenModeLavaField,
+    togglePenModeSwamp: togglePenModeSwamp,
+    togglePenModeAsphalt: togglePenModeAsphalt,
+    togglePenModeConcrete: togglePenModeConcrete,
+    togglePenModeDungeon: togglePenModeDungeon,
+    togglePenModeWellspringWater: togglePenModeWellspringWater,
+    togglePenModeWater: togglePenModeWater,
+    togglePenModeLava: togglePenModeLava,
+    togglePenModeIce: togglePenModeIce,
+    togglePenModeSwampWater: togglePenModeSwampWater,
+    togglePenModeShadow: togglePenModeShadow,
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -216,10 +220,10 @@ const actions = {
   redoWorld: 'redoWorld',
 }
 export const defaultHotkeyConfig = {
-  'insert': actions.handleToggleIsOrthoCam,
-  'home': actions.zoomToMap,
-  'pagedown': actions.decrementViewingLevel,
-  'pageup': actions.incrementViewingLevel,
+  insert: actions.handleToggleIsOrthoCam,
+  home: actions.zoomToMap,
+  pagedown: actions.decrementViewingLevel,
+  pageup: actions.incrementViewingLevel,
 
   '1': actions.togglePieceSize1,
   '2': actions.togglePieceSize2,
@@ -231,83 +235,83 @@ export const defaultHotkeyConfig = {
   '8': undefined,
   '9': undefined,
   '0': undefined,
-  'a': actions.togglePenModeAsphalt,
+  a: actions.togglePenModeAsphalt,
   'shift+a': undefined,
   'alt+a': undefined,
-  'b': undefined,
+  b: undefined,
   'shift+b': undefined,
   'alt+b': undefined,
-  'c': actions.togglePenModeConcrete,
+  c: actions.togglePenModeConcrete,
   'shift+c': undefined,
   'alt+c': undefined,
-  'd': actions.togglePenModeDungeon,
+  d: actions.togglePenModeDungeon,
   'shift+d': actions.togglePenModeShadow,
   'alt+d': undefined,
-  'e': actions.cyclePrevPieceRotation,
+  e: actions.cyclePrevPieceRotation,
   'shift+e': undefined,
   'alt+e': undefined,
-  'f': undefined,
+  f: undefined,
   'shift+f': undefined,
   'alt+f': undefined,
-  'g': actions.togglePenModeGrass,
+  g: actions.togglePenModeGrass,
   'shift+g': undefined,
   'alt+g': undefined,
-  'h': undefined,
+  h: undefined,
   'shift+h': undefined,
   'alt+h': undefined,
-  'i': actions.togglePenModeSnow,
+  i: actions.togglePenModeSnow,
   'shift+i': actions.togglePenModeIce,
   'alt+i': undefined,
-  'j': undefined,
+  j: undefined,
   'shift+j': undefined,
   'alt+j': undefined,
-  'k': undefined,
+  k: undefined,
   'shift+k': undefined,
   'alt+k': undefined,
-  'l': actions.togglePenModeLavaField,
+  l: actions.togglePenModeLavaField,
   'shift+l': actions.togglePenModeLava,
   'alt+l': undefined,
-  'm': undefined,
+  m: undefined,
   'shift+m': undefined,
   'alt+m': undefined,
-  'n': undefined,
+  n: undefined,
   'shift+n': undefined,
   'alt+n': undefined,
-  'o': actions.togglePenModeRoad,
+  o: actions.togglePenModeRoad,
   'shift+o': actions.togglePenModeWallwalk,
   'alt+o': undefined,
-  'p': actions.togglePenModeSwamp,
+  p: actions.togglePenModeSwamp,
   'shift+p': actions.togglePenModeSwampWater,
   'alt+p': undefined,
-  'q': actions.cycleNextPieceRotation,
+  q: actions.cycleNextPieceRotation,
   'shift+q': undefined,
   'alt+q': undefined,
-  'r': actions.togglePenModeRock,
+  r: actions.togglePenModeRock,
   'shift+r': undefined,
   'alt+r': undefined,
-  's': actions.togglePenModeSand,
+  s: actions.togglePenModeSand,
   'shift+s': undefined,
   'alt+s': undefined,
-  't': undefined,
+  t: undefined,
   'shift+t': undefined,
   'alt+t': undefined,
-  'u': undefined,
+  u: undefined,
   'shift+u': undefined,
   'alt+u': undefined,
-  'v': undefined,
+  v: undefined,
   'shift+v': undefined,
   'alt+v': undefined,
-  'w': actions.togglePenModeWater,
+  w: actions.togglePenModeWater,
   'shift+w': actions.togglePenModeWellspringWater,
   'alt+w': undefined,
-  'x': undefined,
+  x: undefined,
   'shift+x': undefined,
   'alt+x': undefined,
-  'y': actions.togglePenModePowerGlyph,
+  y: actions.togglePenModePowerGlyph,
   'shift+y': actions.togglePenModeTreasureGlyph,
   'alt+y': undefined,
   'mod+y': actions.redoWorld,
-  'z': actions.togglePenModeSelect,
+  z: actions.togglePenModeSelect,
   'shift+z': undefined,
   'alt+z': undefined,
   'mod+z': actions.undoWorld,

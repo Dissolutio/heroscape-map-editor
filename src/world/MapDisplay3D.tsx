@@ -102,15 +102,17 @@ export default function MapDisplay3D({
     const clickedHex = isCastleWallArchClicked
       ? boardHexes[boardHexIdOfCapForWall]
       : hex
-    const clickedHexCoords = isCastleWallArchClicked ? {
-      q: boardHexes[boardHexIdOfCapForWall].q,
-      r: boardHexes[boardHexIdOfCapForWall].r,
-      s: boardHexes[boardHexIdOfCapForWall].s,
-    } : {
-      q: hex.q,
-      r: hex.r,
-      s: hex.s,
-    }
+    const clickedHexCoords = isCastleWallArchClicked
+      ? {
+          q: boardHexes[boardHexIdOfCapForWall].q,
+          r: boardHexes[boardHexIdOfCapForWall].r,
+          s: boardHexes[boardHexIdOfCapForWall].s,
+        }
+      : {
+          q: hex.q,
+          r: hex.r,
+          s: hex.s,
+        }
     const clickedHexAltitude = clickedHex.altitude
 
     // Clicked castle, use cap coords and altitude (TODO: improve?)
@@ -223,10 +225,7 @@ export default function MapDisplay3D({
       <group ref={mapGroupRef}>
         {/* TOP LEFT */}
         {!isTakingPicture && (
-          <axesHelper
-            position={[0, 0.1, 0]}
-            scale={[width, 0, length]}
-          />
+          <axesHelper position={[0, 0.1, 0]} scale={[width, 0, length]} />
         )}
 
         {/* BOTTOM RIGHT */}

@@ -112,7 +112,8 @@ export default function PiecePreview() {
     isShowEmptyHexes
   const isObstacleHex =
     hoveredHex.isObstacleOrigin || hoveredHex.isObstacleAuxiliary
-  const isBrushHex = piece.id === Pieces.laurBrush10 || piece.id === Pieces.brush9
+  const isBrushHex =
+    piece.id === Pieces.laurBrush10 || piece.id === Pieces.brush9
   const isSwampBrushHex = piece.id === Pieces.swampBrush10
   const isPalmHex = piece.terrain === HexTerrain.palm
   const isGlacier1Hex = pieceID === Pieces.glacier1
@@ -124,7 +125,8 @@ export default function PiecePreview() {
   const isCastleWallEnd = pieceID === Pieces.castleWallEnd
   const isCastleWallStraight = pieceID === Pieces.castleWallStraight
   const isCastleWallCorner = pieceID === Pieces.castleWallCorner
-  const isCastleArch = pieceID === Pieces.castleArch || pieceID === Pieces.castleArchNoDoor
+  const isCastleArch =
+    pieceID === Pieces.castleArch || pieceID === Pieces.castleArchNoDoor
 
   const isHiveHex = pieceID === Pieces.hive
   const isLadderHex = piece.terrain === HexTerrain.ladder
@@ -185,11 +187,11 @@ export default function PiecePreview() {
   }
   const getLandMesh = () => {
     switch (
-    penModeSize === 6 && penMode === PiecePrefixes.concrete
-      ? '6B'
-      : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
-        ? '7B'
-        : `${penModeSize}`
+      penModeSize === 6 && penMode === PiecePrefixes.concrete
+        ? '6B'
+        : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
+          ? '7B'
+          : `${penModeSize}`
     ) {
       case '1':
         return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
@@ -260,7 +262,7 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -278,7 +280,7 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -358,8 +360,8 @@ export default function PiecePreview() {
             color2={hexTerrainColor.swampUnderbrush2}
             color3={hexTerrainColor.swampUnderbrush3}
             colorBase={hexTerrainColor[HexTerrain.swamp]}
-            opacity={PIECE_PREVIEW_OPACITY} />
-
+            opacity={PIECE_PREVIEW_OPACITY}
+          />
         </Suspense>
       </group>
     )
@@ -448,8 +450,8 @@ export default function PiecePreview() {
         position={[
           x + getLadderBattlementOptions(ladderRotation).xAdd,
           y +
-          HEXGRID_HEXCAP_HEIGHT / 2 +
-          (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
+            HEXGRID_HEXCAP_HEIGHT / 2 +
+            (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
           z + getLadderBattlementOptions(ladderRotation).zAdd,
         ]}
         rotation={[0, (ladderRotation * -Math.PI) / 3, 0]}

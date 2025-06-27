@@ -53,7 +53,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           isVsTile: false,
         })
         error = addPieceError
-        draft.viewingLevel = getBoardPiecesMaxLevel(newBoardPieces) > state.viewingLevel ? getBoardPiecesMaxLevel(newBoardPieces) : state.viewingLevel
+        draft.viewingLevel =
+          getBoardPiecesMaxLevel(newBoardPieces) > state.viewingLevel
+            ? getBoardPiecesMaxLevel(newBoardPieces)
+            : state.viewingLevel
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
       })
@@ -68,7 +71,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           boardHexes: draft.boardHexes,
           boardPieces: draft.boardPieces,
         })
-        draft.viewingLevel = getBoardPiecesMaxLevel(newBoardPieces) < state.viewingLevel ? getBoardPiecesMaxLevel(newBoardPieces) : state.viewingLevel
+        draft.viewingLevel =
+          getBoardPiecesMaxLevel(newBoardPieces) < state.viewingLevel
+            ? getBoardPiecesMaxLevel(newBoardPieces)
+            : state.viewingLevel
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
       })
