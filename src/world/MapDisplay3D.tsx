@@ -281,12 +281,12 @@ function getInstanceBoardHexes(
     (result: InstanceBoardHexes, current) => {
       const isCap = current.isCap // land hexes that are covered, obstacle origin/auxiliary hexes, vertical clearance hexes
       const isEmptyCap =
-        !isTakingPicture && current.terrain === HexTerrain.empty
-      const isSolidCap = isSolidTerrainHex(current.terrain) // We render solid caps for aesthetics, even if they are not caps for building on click
-      const isFluidCap = isCap && isFluidTerrainHex(current.terrain)
+        !isTakingPicture && current?.terrain === HexTerrain.empty
+      const isSolidCap = isSolidTerrainHex(current?.terrain) // We render solid caps for aesthetics, even if they are not caps for building on click
+      const isFluidCap = isCap && isFluidTerrainHex(current?.terrain)
       const isSubTerrain =
-        isSolidTerrainHex(current.terrain) ||
-        (isJungleTerrainHex(current.terrain) && current.isObstacleOrigin)
+        isSolidTerrainHex(current?.terrain) ||
+        (isJungleTerrainHex(current?.terrain) && current.isObstacleOrigin)
       // const isSubTerrain = isSolidTerrainHex(current.terrain) || isFluidTerrainHex(current.terrain)
       if (isEmptyCap) {
         result.emptyHexCaps.push(current)
