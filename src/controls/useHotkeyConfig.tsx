@@ -18,6 +18,7 @@ export const useHotkeyConfig = ({
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) => {
   const [hotkeyConfig, setHotkeyConfig] = useLocalStorage(LS_KEYS.hotkeyConfig, defaultHotkeyConfig)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <on-mount>
   useEffect(() => {
     setHotkeyConfig(defaultHotkeyConfig)
   }, [])
@@ -162,7 +163,6 @@ export const useHotkeyConfig = ({
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   // biome-ignore lint/complexity/noForEach: <explanation>
   Object.entries(hotkeyConfig).forEach((value: any) => {
-    console.log("🚀 ~ Object.entries ~ value:", value)
     if (value[0] && value[1] && actionMap[value[1]]) {
       useHotkeys(value[0], () => actionMap[value[1]]?.())
     }

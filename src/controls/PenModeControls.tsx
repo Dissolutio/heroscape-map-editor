@@ -40,6 +40,7 @@ import { hexTerrainColor } from '../world/maphex/hexColors'
 import { LiaMountainSolid } from 'react-icons/lia'
 import { FaMountainCity } from 'react-icons/fa6'
 import { FcAddColumn, FcAddDatabase } from 'react-icons/fc'
+import { HotkeyText } from './HotKeyText'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
@@ -136,7 +137,7 @@ export default function PenModeControls() {
             <TbHexagons color={hexTerrainColor.swampCap} />
           </ListItemIcon>
           <span>Swamp</span>
-          <HotkeyText text="W" />
+          <HotkeyText text="P" />
         </MenuItem>
         <MenuItem value={PiecePrefixes.dungeon}>
           <ListItemIcon>
@@ -659,16 +660,5 @@ export default function PenModeControls() {
         </MenuItem>
       </Select>
     </FormControl>
-  )
-}
-const HotkeyText = ({ text }: { text: string }) => {
-  return (
-    <span style={{
-      fontSize: '0.6em',
-      color: 'var(--sub-white)',
-      marginLeft: '0.5em'
-    }}>
-      [{text}]
-    </span>
   )
 }
