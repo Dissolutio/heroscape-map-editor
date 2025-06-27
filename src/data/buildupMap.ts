@@ -37,7 +37,7 @@ export default function buildupVSFileMap(
     // }
     const id = pieceCodes?.[getCodeForVSPersonalTile(tile)] ?? ''
     const piece = piecesSoFar[id]
-    if (!piece) {
+    if (!piece || !piece.terrain) {
       return boardHexes // Should probably handle this different, errors etc.
     }
     // get the new board hexes and new board pieces
