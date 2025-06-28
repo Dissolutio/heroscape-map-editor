@@ -32,13 +32,17 @@ const useBoundStore = create<AppState>()(
           // optional
           return (state, error) => {
             if (error) {
-              console.log('an error happened during hydration: error, state', error, state)
+              console.log(
+                'an error happened during hydration: error, state',
+                error,
+                state,
+              )
             } else {
               console.log('hydration finished: state', state)
             }
           }
         },
-      }
+      },
     ),
     {
       limit: 30,
