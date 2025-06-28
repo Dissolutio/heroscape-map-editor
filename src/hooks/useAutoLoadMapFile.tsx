@@ -29,6 +29,15 @@ const useAutoLoadMapFile = (props?: Props) => {
   // USE EFFECT: automatically load up map from URL, OR from file
   // biome-ignore lint/correctness/useExhaustiveDependencies: only run on-load
   useEffect(() => {
+    if (hexMap.name && Object.values(boardPieces).length > 0) {
+      enqueueSnackbar({
+        // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
+        message: `Welcome back, loaded last map: "${hexMap.name}"!`,
+        variant: 'success',
+        autoHideDuration: 5000,
+      })
+      return
+    }
     const queryParams = new URLSearchParams(searchString)
     const urlMapString = queryParams.get('m')
     if (urlMapString) {
