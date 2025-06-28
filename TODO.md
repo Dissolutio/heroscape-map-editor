@@ -1,18 +1,27 @@
 
-## Build Instructions / PdfSVG
+3. Move, rotate, switch pieces that are on the board already
+
+## Build constraints and Inventory **NEW**
+You can add them to a map, it **Becomes part of MapFileState**.
+It specifies id and quantity array of sets used, and of any piece-meal added items.
+You can remove them. They are removed from MapFileState.
+
+
+## PDF Build Instructions
 
 Shapes and Patterns remaining: 
 
 - Start Zones( as one layer)
-
 - LaurWall Arch
 - LaurWall Ruins 2 & 3 (just different styles, slightly larger)
-- Fortress Banner
 - Wallwalk/Road decor
-- Ladder Summaries
-- Tree415 Boulders
 
-Then need some formatting options (1pg, map key?), author name, maybe more.
+- Ladder Summaries
+- Map Key(see LeftOn4Ya's ultimate key, Renegade key, and old Hasbro key)
+- Fortress Banner (see GaryLASQ site)
+- Tree415 Boulders (see GaryLASQ site, or old Hasbro docs)
+
+Then need some formatting options (1-pager, map key?), author name, maybe more.
 
 ## 3D Models
 <!-- MAKE SOON -->
@@ -35,14 +44,8 @@ Refine Laur Palm Leaves
 Refine Marvel
 Refine Ticalla Palm Leaves
 
-## Map Build constraints **NEW**
-You can add them to a map, it **Becomes part of MapFileState**.
-It specifies id and quantity array of sets used, and of any piece-meal added items.
-
-You can remove them. They are removed from MapFileState.
 
 ## Home Page
-
 Cartographers => Maps Gallery
 New => Editor
 Load => Editor
@@ -97,7 +100,6 @@ Building pretty much exactly like you did in Virtualscape. This will probably be
 
 Make a react component that can be shown in the modal like `CreateMapFormDialog.tsx`. The new component is for the user to save and load maps from local storage. They can also edit their local storage, to peruse and delete maps or other unused data stored in local storage. Some user settings may get saved there, and can be exported to a file/string and imported as easily.
 
-
 When user clicks SAVE/LOAD, show:
     1. free space: KB unused capacity in local storage
     2. unavailable space: KB used capacity in local storage that is not a hexoscape map that can be saved or loaded
@@ -107,12 +109,7 @@ When user clicks SAVE/LOAD, show:
         * EDIT => Delete button for items in local storage, the delete button changes its text and turns red to verify and requires one more click to actually delete.
 
 
-## Map Notes
-
-Can be added to build instructions, and **added to MapFileState**.
-
-
-## UI/ Settings
-Customizable Hotkeys, Colors
-Toggle Renegade style
-Toggle other ETC ...
+## Settings / Preferences
+- Customizable Hotkeys,
+- Customizeable Colors
+- Toggle Renegade style

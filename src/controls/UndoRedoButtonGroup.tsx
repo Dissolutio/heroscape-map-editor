@@ -1,5 +1,4 @@
 import { Button } from '@mui/material'
-import { useHotkeys } from 'react-hotkeys-hook'
 import { FcRedo, FcUndo } from 'react-icons/fc'
 import useTemporalStore from '../hooks/useTemporalStore'
 import ControlButtonGroup from './ControlButtonGroup'

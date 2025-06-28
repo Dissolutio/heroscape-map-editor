@@ -13,11 +13,9 @@ import {
 import useBoundStore from '../store/store'
 import { useEffect } from 'react'
 import {
-  doPenModeCounterRotation,
   doPenModeRotation,
   getPossibleRotationsForPenMode,
 } from './getPossibleRotationsForPenMode'
-import { useHotkeys } from 'react-hotkeys-hook'
 
 export default function RotationSelect() {
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
@@ -30,24 +28,6 @@ export default function RotationSelect() {
     togglePenModeRotation(value)
   }
   const possibleRotations = getPossibleRotationsForPenMode(penMode)
-  useHotkeys(
-    'q',
-    () =>
-      doPenModeRotation(
-        penMode,
-        penModeRotation,
-        togglePenModeRotation,
-      ) /*isEnabled*/,
-  )
-  useHotkeys(
-    'e',
-    () =>
-      doPenModeCounterRotation(
-        penMode,
-        penModeRotation,
-        togglePenModeRotation,
-      ) /*isEnabled*/,
-  )
   // biome-ignore lint/correctness/useExhaustiveDependencies: <only update when pen mode changes>
   useEffect(() => {
     if (!possibleRotations.includes(penModeRotation)) {

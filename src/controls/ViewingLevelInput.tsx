@@ -1,5 +1,4 @@
 import { Box, Grid2, Input, Typography } from '@mui/material'
-import { useHotkeys } from 'react-hotkeys-hook'
 import useBoundStore from '../store/store'
 import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 
