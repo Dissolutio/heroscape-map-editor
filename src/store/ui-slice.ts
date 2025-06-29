@@ -54,11 +54,12 @@ const createUISlice: StateCreator<
   UISlice
 > = (set) => ({
   mapPortraitBase64: '',
-  addMapPortraitBase64: (pic: string) => set(
-    produce((state) => {
-      state.mapPortraitBase64 = pic
-    }),
-  ),
+  addMapPortraitBase64: (pic: string) =>
+    set(
+      produce((state) => {
+        state.mapPortraitBase64 = pic
+      }),
+    ),
   selectedPieceID: '',
   toggleSelectedPieceID: (pieceID: string) =>
     set(

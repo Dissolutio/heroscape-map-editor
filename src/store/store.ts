@@ -8,7 +8,6 @@ import { LS_KEYS } from '../local-storage/keys'
 
 export type AppState = MapSlice & UISlice
 
-
 const useBoundStore = create<AppState>()(
   temporal(
     persist(

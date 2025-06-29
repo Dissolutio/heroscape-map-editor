@@ -1,5 +1,13 @@
 import { useMediaQuery } from '@mui/material'
-import { Document, Image, Path, PDFViewer, Svg, Text, View } from '@react-pdf/renderer'
+import {
+  Document,
+  Image,
+  Path,
+  PDFViewer,
+  Svg,
+  Text,
+  View,
+} from '@react-pdf/renderer'
 import useBoundStore from '../store/store'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
@@ -126,7 +134,10 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
     </View>
   )
 }
-const MapPortraitHeader = ({ hexMap, mapPortraitBase64 }: MapState & { mapPortraitBase64: string }) => {
+const MapPortraitHeader = ({
+  hexMap,
+  mapPortraitBase64,
+}: MapState & { mapPortraitBase64: string }) => {
   return (
     <View
       style={{
@@ -147,7 +158,7 @@ const MapPortraitHeader = ({ hexMap, mapPortraitBase64 }: MapState & { mapPortra
           src={mapPortraitBase64}
           style={{
             // width: '30%',
-            maxHeight: '100%'
+            maxHeight: '100%',
           }}
         />
       </View>

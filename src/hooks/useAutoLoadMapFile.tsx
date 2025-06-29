@@ -40,7 +40,12 @@ const useAutoLoadMapFile = (props?: Props) => {
     // Map might be loaded from local storage already
     const queryParams = new URLSearchParams(searchString)
     const urlMapString = queryParams.get('m')
-    const localMapCache = clone(Object.assign(JSON.parse(localStorage?.getItem?.(LS_KEYS.lastMapCache) ?? ''), {}))
+    const localMapCache = clone(
+      Object.assign(
+        JSON.parse(localStorage?.getItem?.(LS_KEYS.lastMapCache) ?? ''),
+        {},
+      ),
+    )
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
@@ -71,10 +76,11 @@ const useAutoLoadMapFile = (props?: Props) => {
                 autoHideDuration: 3000,
               })
               navigate(ROUTES.heroscapeHome)
-            }}>
+            }}
+          >
             Load your last map instead
           </Button>
-        );
+        )
         const snackbarId = enqueueSnackbar({
           message: `Loaded map from URL: ${jsonMap.hexMap.name}.`,
           variant: 'success',
@@ -150,7 +156,6 @@ const useAutoLoadMapFile = (props?: Props) => {
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
 }
 
 export default useAutoLoadMapFile

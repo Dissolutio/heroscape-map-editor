@@ -31,9 +31,12 @@ type PaintTileArgs = {
 let localLastMap: { state: MapState } | undefined
 if (localStorage.getItem(LS_KEYS.lastMap)) {
   localLastMap = JSON.parse(localStorage?.getItem(LS_KEYS.lastMap) ?? '{}')
-  console.log("🚀 ~ mapSlice localLastMap:", localLastMap)
+  console.log('🚀 ~ mapSlice localLastMap:', localLastMap)
   if (localLastMap?.state) {
-    localStorage.setItem(LS_KEYS.lastMapCache, JSON.stringify(localLastMap.state))
+    localStorage.setItem(
+      LS_KEYS.lastMapCache,
+      JSON.stringify(localLastMap.state),
+    )
   }
 }
 
