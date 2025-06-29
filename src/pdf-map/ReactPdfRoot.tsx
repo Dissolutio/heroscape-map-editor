@@ -1,5 +1,5 @@
 import { useMediaQuery } from '@mui/material'
-import { Document, Path, PDFViewer, Svg, Text, View } from '@react-pdf/renderer'
+import { Document, Image, Path, PDFViewer, Svg, Text, View } from '@react-pdf/renderer'
 import useBoundStore from '../store/store'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
@@ -10,6 +10,7 @@ export function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
+  // const mapPortraitBase64 = useBoundStore((s) => s.mapPortraitBase64)
   const isMobile = useMediaQuery('(max-width:800px)')
   return (
     <div
@@ -32,6 +33,12 @@ export function ReactPdfRoot() {
               boardPieces={boardPieces}
               hexMap={hexMap}
             >
+              {/* <MapPortraitHeader
+                boardHexes={boardHexes}
+                boardPieces={boardPieces}
+                hexMap={hexMap}
+                mapPortraitBase64={mapPortraitBase64}
+              /> */}
               <MyCustomHeaderHeroscapeLogo
                 boardHexes={boardHexes}
                 boardPieces={boardPieces}
@@ -112,6 +119,36 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
             height: '70%',
           }}
           fillColor="red"
+        />
+      </View>
+      <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>
+      <Text style={{ fontSize: '12px', paddingLeft: 5 }}>by:</Text>
+    </View>
+  )
+}
+const MapPortraitHeader = ({ hexMap, mapPortraitBase64 }: MapState & { mapPortraitBase64: string }) => {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        flexGrow: 0,
+        padding: 0,
+        alignContent: 'center',
+        alignItems: 'center',
+        height: 50,
+      }}
+    >
+      <View
+        style={{
+          flexBasis: 110,
+        }}
+      >
+        <Image
+          src={mapPortraitBase64}
+          style={{
+            // width: '30%',
+            maxHeight: '100%'
+          }}
         />
       </View>
       <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>

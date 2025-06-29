@@ -1,6 +1,6 @@
 
 3. Move, rotate, switch pieces that are on the board already
-
+4. 'X' last brush?
 ## Build constraints and Inventory **NEW**
 You can add them to a map, it **Becomes part of MapFileState**.
 It specifies id and quantity array of sets used, and of any piece-meal added items.
