@@ -1,280 +1,56 @@
-import useBoundStore, { type AppState } from '../store/store'
 import { LS_KEYS } from '../local-storage/keys'
 import { useLocalStorage } from '../local-storage/useLocalStorage'
-import { useHotkeys } from 'react-hotkeys-hook'
-import { PiecePrefixes, Pieces } from '../types'
-import {
-  doPenModeCounterRotation,
-  doPenModeRotation,
-} from './getPossibleRotationsForPenMode'
 import { useEffect } from 'react'
-import useTemporalStore from '../hooks/useTemporalStore'
-import type { Group, Object3DEventMap } from 'three'
-import type { CameraControls } from '@react-three/drei'
-import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 
-export const useHotkeyConfig = ({
-  cameraControlsRef,
-  mapGroupRef,
-}: {
-  cameraControlsRef: React.RefObject<CameraControls>
-  mapGroupRef: React.RefObject<Group<Object3DEventMap>>
-}) => {
+export const useHotkeyConfig = () => {
   const [hotkeyConfig, setHotkeyConfig] = useLocalStorage(
     LS_KEYS.hotkeyConfig,
     defaultHotkeyConfig,
   )
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <on-mount>
-  useEffect(() => {
-    setHotkeyConfig(defaultHotkeyConfig)
-  }, [])
+  const hotkeyLookup = Object.fromEntries(
+    Object.entries(hotkeyConfig).map(([key, value]) => [value, key])
+  );
+  // // FOR DEVELOPMENT, when updating default hotkey config, activate this effect to update in app
+  // // biome-ignore lint/correctness/useExhaustiveDependencies: <on-mount>
+  // useEffect(() => {
+  //   setHotkeyConfig(defaultHotkeyConfig)
+  // }, [])
 
-  const penMode = useBoundStore((s) => s.penMode)
-  const togglePenMode = useBoundStore((state) => state.togglePenMode)
-  const flatPieceSizes = useBoundStore((s) => s.flatPieceSizes)
-  const togglePieceSize = useBoundStore((s) => s.togglePieceSize)
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
-  const penModeRotation = useBoundStore((s) => s.penModeRotation)
-  const togglePenModeRotation = useBoundStore((s) => s.togglePenModeRotation)
-  const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
-  const toggleIsOrthoCam = useBoundStore((s) => s.toggleIsOrthoCam)
-  const isCameraDisabled = useBoundStore((s) => s.isCameraDisabled)
-  const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
-  const unpaintTile = useBoundStore((s) => s.unpaintTile)
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const boardPieces = useBoundStore((s) => s.boardPieces)
-  const maxLevel = getBoardPiecesMaxLevel(boardPieces)
-  const isSizes = flatPieceSizes?.length > 0
-  const { undo, redo } = useTemporalStore((state: AppState) => state)
 
-  const deleteSelectedPiece = () => {
-    if (selectedPieceID) {
-      unpaintTile(selectedPieceID)
-      toggleSelectedPieceID('')
-    }
-  }
-  const handleToggleIsOrthoCam = () => {
-    toggleIsOrthoCam(!isOrthoCam)
-  }
-  const handleToggleIsCameraDisabled = () => {
-    toggleIsCameraDisabled(!isCameraDisabled)
-  }
-  const zoomToMap = () => {
-    if (mapGroupRef.current) {
-      cameraControlsRef.current?.fitToBox?.(mapGroupRef.current, true)
-    }
-  }
-  const incrementViewingLevel = () =>
-    toggleViewingLevel(Math.min(viewingLevel + 1, maxLevel))
-  const decrementViewingLevel = () =>
-    toggleViewingLevel(Math.max(viewingLevel - 1, 0))
-  const togglePieceSize1 = () => {
-    if (isSizes) {
-      togglePieceSize(flatPieceSizes[0])
-    }
-  }
-  const togglePieceSize2 = () => {
-    if (isSizes) {
-      togglePieceSize(flatPieceSizes?.[1] ?? flatPieceSizes[0])
-    }
-  }
-  const togglePieceSize3 = () => {
-    if (isSizes) {
-      togglePieceSize(
-        flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
-      )
-    }
-  }
-  const togglePieceSize4 = () => {
-    if (isSizes) {
-      togglePieceSize(
-        flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-      )
-    }
-  }
-  const togglePieceSize5 = () => {
-    if (isSizes) {
-      togglePieceSize(
-        flatPieceSizes?.[4] ??
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-      )
-    }
-  }
-  const undoWorld = undo
-  const redoWorld = redo
-  const cycleNextPieceRotation = () => {
-    doPenModeRotation(penMode, penModeRotation, togglePenModeRotation)
-  }
-  const cyclePrevPieceRotation = () => {
-    doPenModeCounterRotation(penMode, penModeRotation, togglePenModeRotation)
-  }
-  const togglePenModeSelect = () => togglePenMode('select')
-  const togglePenModeGrass = () => togglePenMode(PiecePrefixes.grass)
-  const togglePenModeRock = () => togglePenMode(PiecePrefixes.rock)
-  const togglePenModeSand = () => togglePenMode(PiecePrefixes.sand)
-  const togglePenModeRoad = () => togglePenMode(PiecePrefixes.road)
-  const togglePenModeWallWalk = () => togglePenMode(PiecePrefixes.wallWalk)
-  const togglePenModeSnow = () => togglePenMode(PiecePrefixes.snow)
-  const togglePenModeLavaField = () => togglePenMode(PiecePrefixes.lavaField)
-  const togglePenModeSwamp = () => togglePenMode(PiecePrefixes.swamp)
-  const togglePenModeAsphalt = () => togglePenMode(PiecePrefixes.asphalt)
-  const togglePenModeConcrete = () => togglePenMode(PiecePrefixes.concrete)
-  const togglePenModeDungeon = () => togglePenMode(PiecePrefixes.dungeon)
-  const togglePenModeWellspringWater = () =>
-    togglePenMode(PiecePrefixes.wellspringWater)
-  const togglePenModeWater = () => togglePenMode(PiecePrefixes.water)
-  const togglePenModeLava = () => togglePenMode(PiecePrefixes.lava)
-  const togglePenModeIce = () => togglePenMode(PiecePrefixes.ice)
-  const togglePenModeSwampWater = () => togglePenMode(PiecePrefixes.swampWater)
-  const togglePenModeShadow = () => togglePenMode(PiecePrefixes.shadow)
-  const togglePenModePowerGlyph = () => togglePenMode(Pieces.glyphPower)
-  const togglePenModeTreasureGlyph = () => togglePenMode(Pieces.glyphTreasure)
-
-  const actionMap: { [key: string]: () => void } = {
-    deleteSelectedPiece: deleteSelectedPiece,
-
-    incrementViewingLevel: incrementViewingLevel,
-    decrementViewingLevel: decrementViewingLevel,
-
-    handleToggleIsOrthoCam: handleToggleIsOrthoCam,
-    handleToggleIsCameraDisabled: handleToggleIsCameraDisabled,
-    zoomToMap: zoomToMap,
-
-    togglePieceSize1: togglePieceSize1,
-    togglePieceSize2: togglePieceSize2,
-    togglePieceSize3: togglePieceSize3,
-    togglePieceSize4: togglePieceSize4,
-    togglePieceSize5: togglePieceSize5,
-
-    cycleNextPieceRotation: cycleNextPieceRotation,
-    cyclePrevPieceRotation: cyclePrevPieceRotation,
-
-    undoWorld: undoWorld,
-    redoWorld: redoWorld,
-
-    togglePenModeSelect: togglePenModeSelect,
-    togglePenModePowerGlyph: togglePenModePowerGlyph,
-    togglePenModeTreasureGlyph: togglePenModeTreasureGlyph,
-    togglePenModeGrass: togglePenModeGrass,
-    togglePenModeRock: togglePenModeRock,
-    togglePenModeSand: togglePenModeSand,
-    togglePenModeRoad: togglePenModeRoad,
-    togglePenModeWallWalk: togglePenModeWallWalk,
-    togglePenModeSnow: togglePenModeSnow,
-    togglePenModeLavaField: togglePenModeLavaField,
-    togglePenModeSwamp: togglePenModeSwamp,
-    togglePenModeAsphalt: togglePenModeAsphalt,
-    togglePenModeConcrete: togglePenModeConcrete,
-    togglePenModeDungeon: togglePenModeDungeon,
-    togglePenModeWellspringWater: togglePenModeWellspringWater,
-    togglePenModeWater: togglePenModeWater,
-    togglePenModeLava: togglePenModeLava,
-    togglePenModeIce: togglePenModeIce,
-    togglePenModeSwampWater: togglePenModeSwampWater,
-    togglePenModeShadow: togglePenModeShadow,
-  }
-
-  // ALL ACTION-ASSIGNED HOTKEYS ARE APPLIED HERE
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  // biome-ignore lint/complexity/noForEach: <explanation>
-  Object.entries(hotkeyConfig).forEach((value: any) => {
-    if (value[0] && value[1] && actionMap[value[1]]) {
-      useHotkeys(value[0], () => actionMap[value[1]]?.())
-    }
-  })
-
-  return
+  return { hotkeyConfig, setHotkeyConfig, hotkeyLookup }
 }
-const actions = {
-  // selected piece
-  deleteSelectedPiece: 'deleteSelectedPiece',
 
-  // camera
-  handleToggleIsOrthoCam: 'handleToggleIsOrthoCam',
-  handleToggleIsCameraDisabled: 'handleToggleIsCameraDisabled',
-  zoomToMap: 'zoomToMap',
-
-  // viewing level
-  incrementViewingLevel: 'incrementViewingLevel',
-  decrementViewingLevel: 'decrementViewingLevel',
-
-  // piece size
-  togglePieceSize1: 'togglePieceSize1',
-  togglePieceSize2: 'togglePieceSize2',
-  togglePieceSize3: 'togglePieceSize3',
-  togglePieceSize4: 'togglePieceSize4',
-  togglePieceSize5: 'togglePieceSize5',
-
-  // penmodes: other
-  togglePenModeSelect: 'togglePenModeSelect',
-  togglePenModePowerGlyph: 'togglePenModePowerGlyph',
-  togglePenModeTreasureGlyph: 'togglePenModeTreasureGlyph',
-
-  // penmodes: land
-  togglePenModeGrass: 'togglePenModeGrass',
-  togglePenModeRock: 'togglePenModeRock',
-  togglePenModeSand: 'togglePenModeSand',
-  togglePenModeRoad: 'togglePenModeRoad',
-  togglePenModeWallwalk: 'togglePenModeWallwalk',
-  togglePenModeSnow: 'togglePenModeSnow',
-  togglePenModeLavaField: 'togglePenModeLavaField',
-  togglePenModeSwamp: 'togglePenModeSwamp',
-  togglePenModeAsphalt: 'togglePenModeAsphalt',
-  togglePenModeConcrete: 'togglePenModeConcrete',
-  togglePenModeDungeon: 'togglePenModeDungeon',
-  togglePenModeWellspringWater: 'togglePenModeWellspringWater',
-  togglePenModeWater: 'togglePenModeWater',
-  togglePenModeLava: 'togglePenModeLava',
-  togglePenModeIce: 'togglePenModeIce',
-  togglePenModeSwampWater: 'togglePenModeSwampWater',
-  togglePenModeShadow: 'togglePenModeShadow',
-  // rotation select
-  cycleNextPieceRotation: 'cycleNextPieceRotation',
-  cyclePrevPieceRotation: 'cyclePrevPieceRotation',
-
-  // undo redo from zustand
-  undoWorld: 'undoWorld',
-  redoWorld: 'redoWorld',
-}
 export const defaultHotkeyConfig = {
-  delete: actions.deleteSelectedPiece,
+  delete: 'deleteSelectedPiece',
 
   // CAMERA
-  insert: actions.handleToggleIsOrthoCam,
-  end: actions.handleToggleIsCameraDisabled,
-  home: actions.zoomToMap,
+  insert: 'handleToggleIsOrthoCam',
+  end: 'handleToggleIsCameraDisabled',
+  home: 'zoomToMap',
 
-  pagedown: actions.decrementViewingLevel,
-  pageup: actions.incrementViewingLevel,
+  pagedown: 'decrementViewingLevel',
+  pageup: 'incrementViewingLevel',
 
   // 2 control buttons
-  'mod+z': actions.undoWorld,
-  'mod+y': actions.redoWorld,
+  'mod+z': 'undoWorld',
+  'mod+y': 'redoWorld',
 
   // 10 numbers, 26 letters, shift+, alt+
-  '1': actions.togglePieceSize1,
-  'shift+1': actions.togglePieceSize1,
-  'alt+1': actions.togglePieceSize1,
-  '2': actions.togglePieceSize2,
-  'shift+2': actions.togglePieceSize2,
-  'alt+2': actions.togglePieceSize2,
-  '3': actions.togglePieceSize3,
-  'shift+3': actions.togglePieceSize3,
-  'alt+3': actions.togglePieceSize3,
-  '4': actions.togglePieceSize4,
-  'shift+4': actions.togglePieceSize4,
-  'alt+4': actions.togglePieceSize4,
-  '5': actions.togglePieceSize5,
-  'shift+5': actions.togglePieceSize5,
-  'alt+5': actions.togglePieceSize5,
+  '1': 'togglePieceSize1',
+  'shift+1': 'togglePieceSize1',
+  'alt+1': 'togglePieceSize1',
+  '2': 'togglePieceSize2',
+  'shift+2': 'togglePieceSize2',
+  'alt+2': 'togglePieceSize2',
+  '3': 'togglePieceSize3',
+  'shift+3': 'togglePieceSize3',
+  'alt+3': 'togglePieceSize3',
+  '4': 'togglePieceSize4',
+  'shift+4': 'togglePieceSize4',
+  'alt+4': 'togglePieceSize4',
+  '5': 'togglePieceSize5',
+  'shift+5': 'togglePieceSize5',
+  'alt+5': 'togglePieceSize5',
   '6': undefined,
   'shift+6': undefined,
   'alt+6': undefined,
@@ -291,32 +67,32 @@ export const defaultHotkeyConfig = {
   'shift+0': undefined,
   'alt+0': undefined,
 
-  a: actions.togglePenModeAsphalt,
+  a: 'togglePenModeAsphalt',
   'shift+a': undefined,
   'alt+a': undefined,
   b: undefined,
   'shift+b': undefined,
   'alt+b': undefined,
-  c: actions.togglePenModeConcrete,
+  c: 'togglePenModeConcrete',
   'shift+c': undefined,
   'alt+c': undefined,
-  d: actions.togglePenModeDungeon,
-  'shift+d': actions.togglePenModeShadow,
+  d: 'togglePenModeDungeon',
+  'shift+d': 'togglePenModeShadow',
   'alt+d': undefined,
-  e: actions.cyclePrevPieceRotation,
+  e: 'cyclePrevPieceRotation',
   'shift+e': undefined,
   'alt+e': undefined,
   f: undefined,
   'shift+f': undefined,
   'alt+f': undefined,
-  g: actions.togglePenModeGrass,
+  g: 'togglePenModeGrass',
   'shift+g': undefined,
   'alt+g': undefined,
   h: undefined,
   'shift+h': undefined,
   'alt+h': undefined,
-  i: actions.togglePenModeSnow,
-  'shift+i': actions.togglePenModeIce,
+  i: 'togglePenModeSnow',
+  'shift+i': 'togglePenModeIce',
   'alt+i': undefined,
   j: undefined,
   'shift+j': undefined,
@@ -324,8 +100,8 @@ export const defaultHotkeyConfig = {
   k: undefined,
   'shift+k': undefined,
   'alt+k': undefined,
-  l: actions.togglePenModeLavaField,
-  'shift+l': actions.togglePenModeLava,
+  l: 'togglePenModeLavaField',
+  'shift+l': 'togglePenModeLava',
   'alt+l': undefined,
   m: undefined,
   'shift+m': undefined,
@@ -333,19 +109,19 @@ export const defaultHotkeyConfig = {
   n: undefined,
   'shift+n': undefined,
   'alt+n': undefined,
-  o: actions.togglePenModeRoad,
-  'shift+o': actions.togglePenModeWallwalk,
+  o: 'togglePenModeRoad',
+  'shift+o': 'togglePenModeWallwalk',
   'alt+o': undefined,
-  p: actions.togglePenModeSwamp,
-  'shift+p': actions.togglePenModeSwampWater,
+  p: 'togglePenModeSwamp',
+  'shift+p': 'togglePenModeSwampWater',
   'alt+p': undefined,
-  q: actions.cycleNextPieceRotation,
+  q: 'cycleNextPieceRotation',
   'shift+q': undefined,
   'alt+q': undefined,
-  r: actions.togglePenModeRock,
+  r: 'togglePenModeRock',
   'shift+r': undefined,
   'alt+r': undefined,
-  s: actions.togglePenModeSand,
+  s: 'togglePenModeSand',
   'shift+s': undefined,
   'alt+s': undefined,
   t: undefined,
@@ -357,16 +133,16 @@ export const defaultHotkeyConfig = {
   v: undefined,
   'shift+v': undefined,
   'alt+v': undefined,
-  w: actions.togglePenModeWater,
-  'shift+w': actions.togglePenModeWellspringWater,
+  w: 'togglePenModeWater',
+  'shift+w': 'togglePenModeWellspringWater',
   'alt+w': undefined,
-  x: undefined,
+  x: 'togglePenModeLast',
   'shift+x': undefined,
   'alt+x': undefined,
-  y: actions.togglePenModePowerGlyph,
-  'shift+y': actions.togglePenModeTreasureGlyph,
+  y: 'togglePenModePowerGlyph',
+  'shift+y': 'togglePenModeTreasureGlyph',
   'alt+y': undefined,
-  z: actions.togglePenModeSelect,
+  z: 'togglePenModeSelect',
   'shift+z': undefined,
   'alt+z': undefined,
 }

@@ -41,14 +41,17 @@ import { LiaMountainSolid } from 'react-icons/lia'
 import { FaMountainCity } from 'react-icons/fa6'
 import { FcAddColumn, FcAddDatabase } from 'react-icons/fc'
 import { HotkeyText } from './HotKeyText'
+import { useHotkeyConfig } from './useHotkeyConfig'
+import { piecesSoFar } from '../data/pieces'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
+  const lastPenMode = useBoundStore((state) => state.lastPenMode)
   const togglePenMode = useBoundStore((state) => state.togglePenMode)
   const handleChange = (event: SelectChangeEvent) => {
     togglePenMode(event.target.value)
   }
-  const flatPieceSizes = useBoundStore((s) => s.flatPieceSizes)
+  const { hotkeyLookup } = useHotkeyConfig()
   return (
     <FormControl variant="filled" size="small">
       <InputLabel id="pen-terrain-select-label">Terrain</InputLabel>
@@ -70,7 +73,15 @@ export default function PenModeControls() {
             <GiArrowCursor />
           </ListItemIcon>
           <span>Select</span>
-          <HotkeyText text="Z" />
+          <HotkeyText text={hotkeyLookup.togglePenModeSelect} />
+        </MenuItem>
+
+        <MenuItem value={lastPenMode}>
+          <ListItemIcon>
+            <GiArrowCursor />
+          </ListItemIcon>
+          <span>{`Last used: ${penModeText?.[lastPenMode] ?? (piecesSoFar?.[lastPenMode]?.title ?? '')}`}</span>
+          <HotkeyText text={hotkeyLookup.togglePenModeLast} />
         </MenuItem>
 
         <Divider />
@@ -81,21 +92,21 @@ export default function PenModeControls() {
             <TbHexagons color={hexTerrainColor.grass} />
           </ListItemIcon>
           <span>Grass</span>
-          <HotkeyText text="G" />
+          <HotkeyText text={hotkeyLookup.togglePenModeGrass} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.rock}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.rock} />
           </ListItemIcon>
           <span>Rock</span>
-          <HotkeyText text="R" />
+          <HotkeyText text={hotkeyLookup.togglePenModeRock} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.sand}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.sand} />
           </ListItemIcon>
           <span>Sand</span>
-          <HotkeyText text="S" />
+          <HotkeyText text={hotkeyLookup.togglePenModeSand} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.road}>
           <ListItemIcon>
@@ -661,4 +672,25 @@ export default function PenModeControls() {
       </Select>
     </FormControl>
   )
+}
+
+
+const penModeText: { [key: string]: string } = {
+  g: 'grass',
+  r: 'rock',
+  s: 'sand',
+  d: 'dungeon',
+  sw: 'swamp',
+  lf: 'lava field',
+  a: 'asphalt',
+  c: 'concrete',
+  rd: 'road',
+  sn: 'snow',
+  w: 'water',
+  ww: 'wellspring water',
+  i: 'ice',
+  l: 'lava',
+  ws: 'swamp water',
+  sh: 'shadow',
+  cg: 'wall walk',
 }
