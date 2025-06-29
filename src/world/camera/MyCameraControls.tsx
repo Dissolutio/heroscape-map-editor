@@ -1,17 +1,12 @@
 import { CameraControls } from '@react-three/drei'
 import type React from 'react'
-import type { Group, Object3DEventMap } from 'three'
 import useBoundStore from '../../store/store'
 
 export default function MyCameraControls({
   cameraControlsRef,
-  mapGroupRef,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
-  mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) {
-  const isCameraDisabled = useBoundStore((s) => s.isCameraDisabled)
-  const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
   const isCameraActuallyDisabled = useBoundStore(
     (s) => s.isCameraDisabled || s.isTakingPicture,
   )
