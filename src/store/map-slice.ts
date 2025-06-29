@@ -11,6 +11,7 @@ import type {
 } from '../types'
 import type { AppState } from './store'
 import { getBoardPiecesMaxLevel } from '../utils/map-utils'
+import { LS_KEYS } from '../local-storage/keys'
 
 export interface MapSlice extends MapState {
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
@@ -24,6 +25,16 @@ type PaintTileArgs = {
   clickedHexCoords: CubeCoordinate
   altitude: number
   rotation: number
+}
+
+// Here, we cache the local map in case the user is loading a URL, we can offer them the chance to load their last map instead (in useAutoLoadMapFile)
+let localLastMap: { state: MapState } | undefined
+if (localStorage.getItem(LS_KEYS.lastMap)) {
+  localLastMap = JSON.parse(localStorage?.getItem(LS_KEYS.lastMap) ?? '{}')
+  console.log("🚀 ~ mapSlice localLastMap:", localLastMap)
+  if (localLastMap?.state) {
+    localStorage.setItem(LS_KEYS.lastMapCache, JSON.stringify(localLastMap.state))
+  }
 }
 
 const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({

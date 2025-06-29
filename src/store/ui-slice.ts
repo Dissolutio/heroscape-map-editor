@@ -168,7 +168,7 @@ const createUISlice: StateCreator<
         s.isHighQualityRender = b
       }),
     ),
-  isFrameloopDemand: true,
+  isFrameloopDemand: false,
   toggleIsFrameloopDemand: (b: boolean) =>
     set(
       produce((s) => {
