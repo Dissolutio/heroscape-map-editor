@@ -63,7 +63,8 @@ export default function RotationSelect() {
             color: 'var(--sub-white)',
           }}
         >
-          Hotkeys: {`${(hotkeyLookup.cyclePrevPieceRotation)?.toUpperCase()}`}, {`${(hotkeyLookup.cycleNextPieceRotation)?.toUpperCase()}`}
+          Hotkeys: {`${(hotkeyLookup.cyclePrevPieceRotation)?.toUpperCase()}`},{' '}
+          {`${(hotkeyLookup.cycleNextPieceRotation)?.toUpperCase()}`}
         </span>
       </div>
       <ToggleButtonGroup

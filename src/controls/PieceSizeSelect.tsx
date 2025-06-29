@@ -45,7 +45,9 @@ export default function PieceSizeSelect() {
                 title={`${s}-hex sized piece [hotkey ${i + 1}`}
               >
                 {s}
-                <HotkeyText text={`${hotkeyLookup[`togglePieceSize${i + 1}`]}`} />
+                <HotkeyText
+                  text={`${hotkeyLookup[`togglePieceSize${i + 1}`]}`}
+                />
               </ToggleButton>
             ))
           ) : (

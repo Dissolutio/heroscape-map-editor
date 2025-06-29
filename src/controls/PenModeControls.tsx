@@ -80,7 +80,7 @@ export default function PenModeControls() {
           <ListItemIcon>
             <GiArrowCursor />
           </ListItemIcon>
-          <span>{`Last used: ${penModeText?.[lastPenMode] ?? (piecesSoFar?.[lastPenMode]?.title ?? '')}`}</span>
+          <span>{`Last used: ${penModeText?.[lastPenMode] ?? piecesSoFar?.[lastPenMode]?.title ?? ''}`}</span>
           <HotkeyText text={hotkeyLookup.togglePenModeLast} />
         </MenuItem>
 
@@ -673,7 +673,6 @@ export default function PenModeControls() {
     </FormControl>
   )
 }
-
 
 const penModeText: { [key: string]: string } = {
   g: 'grass',

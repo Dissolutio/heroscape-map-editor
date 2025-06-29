@@ -67,7 +67,7 @@ const useAutoLoadMapFile = (props?: Props) => {
           <>
             <Button
               color="info"
-              variant='contained'
+              variant="contained"
               onClick={() => {
                 // load last map instead, close original snackbar, open a new one, remove map from URL bar
                 localMapCache ? loadMap(localMapCache) : noop()
@@ -84,7 +84,7 @@ const useAutoLoadMapFile = (props?: Props) => {
             </Button>
             <Button
               color="warning"
-              variant='contained'
+              variant="contained"
               onClick={() => {
                 closeSnackbar(snackbarId)
               }}

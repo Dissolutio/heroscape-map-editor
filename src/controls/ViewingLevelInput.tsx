@@ -36,7 +36,9 @@ export default function ViewingLevelInput() {
                 color: 'var(--sub-white)',
               }}
             >
-              Hotkeys: {`${(hotkeyLookup.incrementViewingLevel)?.toUpperCase()}`}, {`${(hotkeyLookup.decrementViewingLevel)?.toUpperCase()}`}
+              Hotkeys:{' '}
+              {`${(hotkeyLookup.incrementViewingLevel)?.toUpperCase()}`},{' '}
+              {`${(hotkeyLookup.decrementViewingLevel)?.toUpperCase()}`}
             </span>
           </div>
         </Grid2>

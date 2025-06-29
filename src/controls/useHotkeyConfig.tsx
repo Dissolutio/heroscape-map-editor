@@ -8,15 +8,14 @@ export const useHotkeyConfig = () => {
     defaultHotkeyConfig,
   )
   const hotkeyLookup = Object.fromEntries(
-    Object.entries(hotkeyConfig).map(([key, value]) => [value, key])
-  );
+    Object.entries(hotkeyConfig).map(([key, value]) => [value, key]),
+  )
 
   // // FOR DEVELOPMENT, when updating default hotkey config, activate this effect to update in app
   // // biome-ignore lint/correctness/useExhaustiveDependencies: <on-mount>
   // useEffect(() => {
   //   setHotkeyConfig(defaultHotkeyConfig)
   // }, [])
-
 
   return { hotkeyConfig, setHotkeyConfig, hotkeyLookup }
 }

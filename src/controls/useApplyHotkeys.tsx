@@ -19,8 +19,6 @@ export const useApplyHotkeys = ({
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
   hotkeyConfig: { [key: string]: string | undefined }
 }) => {
-
-
   const penMode = useBoundStore((s) => s.penMode)
   const lastPenMode = useBoundStore((s) => s.lastPenMode)
   const togglePenMode = useBoundStore((state) => state.togglePenMode)
@@ -84,9 +82,9 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[3] ??
-        flatPieceSizes?.[2] ??
-        flatPieceSizes?.[1] ??
-        flatPieceSizes[0],
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
       )
     }
   }
@@ -94,10 +92,10 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[4] ??
-        flatPieceSizes?.[3] ??
-        flatPieceSizes?.[2] ??
-        flatPieceSizes?.[1] ??
-        flatPieceSizes[0],
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
       )
     }
   }
