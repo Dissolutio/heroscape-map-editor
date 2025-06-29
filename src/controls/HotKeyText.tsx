@@ -7,7 +7,7 @@ export const HotkeyText = ({ text }: { text: string }) => {
         marginLeft: '0.5em',
       }}
     >
-      [{text}]
+      [{text?.toUpperCase()}]
     </span>
   )
 }

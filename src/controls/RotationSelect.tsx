@@ -16,11 +16,13 @@ import {
   doPenModeRotation,
   getPossibleRotationsForPenMode,
 } from './getPossibleRotationsForPenMode'
+import { useHotkeyConfig } from './useHotkeyConfig'
 
 export default function RotationSelect() {
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const penMode = useBoundStore((s) => s.penMode)
   const togglePenModeRotation = useBoundStore((s) => s.togglePenModeRotation)
+  const { hotkeyLookup } = useHotkeyConfig()
   const handleChange = (
     _event: React.MouseEvent<HTMLElement>,
     value: number,
@@ -61,7 +63,7 @@ export default function RotationSelect() {
             color: 'var(--sub-white)',
           }}
         >
-          Hotkeys: q, e
+          Hotkeys: {`${(hotkeyLookup.cyclePrevPieceRotation)?.toUpperCase()}`}, {`${(hotkeyLookup.cycleNextPieceRotation)?.toUpperCase()}`}
         </span>
       </div>
       <ToggleButtonGroup

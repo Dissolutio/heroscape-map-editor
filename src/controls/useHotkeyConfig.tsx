@@ -10,6 +10,7 @@ export const useHotkeyConfig = () => {
   const hotkeyLookup = Object.fromEntries(
     Object.entries(hotkeyConfig).map(([key, value]) => [value, key])
   );
+
   // // FOR DEVELOPMENT, when updating default hotkey config, activate this effect to update in app
   // // biome-ignore lint/correctness/useExhaustiveDependencies: <on-mount>
   // useEffect(() => {
@@ -37,20 +38,20 @@ export const defaultHotkeyConfig = {
 
   // 10 numbers, 26 letters, shift+, alt+
   '1': 'togglePieceSize1',
-  'shift+1': 'togglePieceSize1',
-  'alt+1': 'togglePieceSize1',
+  'shift+1': undefined,
+  'alt+1': undefined,
   '2': 'togglePieceSize2',
-  'shift+2': 'togglePieceSize2',
-  'alt+2': 'togglePieceSize2',
+  'shift+2': undefined,
+  'alt+2': undefined,
   '3': 'togglePieceSize3',
-  'shift+3': 'togglePieceSize3',
-  'alt+3': 'togglePieceSize3',
+  'shift+3': undefined,
+  'alt+3': undefined,
   '4': 'togglePieceSize4',
-  'shift+4': 'togglePieceSize4',
-  'alt+4': 'togglePieceSize4',
+  'shift+4': undefined,
+  'alt+4': undefined,
   '5': 'togglePieceSize5',
-  'shift+5': 'togglePieceSize5',
-  'alt+5': 'togglePieceSize5',
+  'shift+5': undefined,
+  'alt+5': undefined,
   '6': undefined,
   'shift+6': undefined,
   'alt+6': undefined,

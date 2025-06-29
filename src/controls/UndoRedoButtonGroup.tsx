@@ -26,7 +26,7 @@ const UndoRedoButtonGroup = () => {
       </Button>
       <Button
         variant="contained"
-        title={`(ctrl/cmd + Z) (${futureStates.length} redoable actions)`}
+        title={`(ctrl/cmd + Y) (${futureStates.length} redoable actions)`}
         aria-label={`Redo (${pastStates.length} undoable actions)`}
         onClick={() => redo()}
         startIcon={<FcRedo size={16} />}
