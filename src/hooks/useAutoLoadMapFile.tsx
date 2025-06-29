@@ -1,12 +1,16 @@
 import JSONCrush from 'jsoncrush'
-import { useSnackbar } from 'notistack'
+import { closeSnackbar, useSnackbar } from 'notistack'
 import React, { useEffect } from 'react'
-import { useSearch } from 'wouter'
+import { useLocation, useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
 import { type BoardHexes, type BoardPieces, Pieces } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { decodePieceID, getBoardPiecesMaxLevel } from '../utils/map-utils'
+import { Button } from '@mui/material'
+import { LS_KEYS } from '../local-storage/keys'
+import { clone, noop } from 'lodash'
+import { ROUTES } from '../ROUTES'
 
 type Props = {
   boardHexes?: BoardHexes
@@ -21,25 +25,28 @@ const useAutoLoadMapFile = (props?: Props) => {
   const { enqueueSnackbar } = useSnackbar()
   const searchString = useSearch()
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+
+  const [, navigate] = useLocation()
+
   // USE EFFECT: Update viewing level when new map is loaded
   // biome-ignore lint/correctness/useExhaustiveDependencies: <only auto-update viewing level when map is loaded>
   React.useEffect(() => {
     toggleViewingLevel(maxLevel)
   }, [hexMap.id])
+
   // USE EFFECT: automatically load up map from URL, OR from file
   // biome-ignore lint/correctness/useExhaustiveDependencies: only run on-load
   useEffect(() => {
-    if (hexMap.name && Object.values(boardPieces).length > 0) {
-      enqueueSnackbar({
-        // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
-        message: `Welcome back, loaded last map: "${hexMap.name}"!`,
-        variant: 'success',
-        autoHideDuration: 5000,
-      })
-      return
-    }
+    // Map might be loaded from local storage already
     const queryParams = new URLSearchParams(searchString)
     const urlMapString = queryParams.get('m')
+    const localMapCache = clone(
+      Object.assign(
+        JSON.parse(localStorage?.getItem?.(LS_KEYS.lastMapCache) ?? ''),
+        {},
+      ),
+    )
+    // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
         const data = JSON.parse(JSONCrush.uncrush(urlMapString))
@@ -56,19 +63,39 @@ const useAutoLoadMapFile = (props?: Props) => {
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
         }
-        loadMap(jsonMap)
-        enqueueSnackbar({
+        const action = () => (
+          <Button
+            color="warning"
+            onClick={() => {
+              // load last map instead, close original snackbar, open a new one, remove map from URL bar
+              localMapCache ? loadMap(localMapCache) : noop()
+              closeSnackbar(snackbarId)
+              enqueueSnackbar({
+                message: `Loaded last map instead: ${localMapCache.hexMap.name}`,
+                variant: 'success',
+                autoHideDuration: 3000,
+              })
+              navigate(ROUTES.heroscapeHome)
+            }}
+          >
+            Load your last map instead
+          </Button>
+        )
+        const snackbarId = enqueueSnackbar({
           message: `Loaded map from URL: ${jsonMap.hexMap.name}.`,
           variant: 'success',
-          autoHideDuration: 1000,
+          autoHideDuration: null,
+          action,
         })
+        loadMap(jsonMap)
         // enqueueSnackbar({
         //   message: `Map data has been removed from your URL bar, to return it please press the back button in your browser.`,
         //   variant: 'info',
         //   autoHideDuration: 6000,
         // })
-        // navigate(ROUTES.heroscapeHome)
         clearUndoHistory() // clear undo history, initial load should not be undoable
+        return
+
         // biome-ignore lint/suspicious/noExplicitAny: <error could be anything>
       } catch (error: any) {
         enqueueSnackbar({
@@ -77,53 +104,56 @@ const useAutoLoadMapFile = (props?: Props) => {
           autoHideDuration: 5000,
         })
         console.error('🚀 ~ React.useEffect ~ error:', error)
+        return
       }
-    } else {
-      // AUTO VSCAPE
-      // const fileName = '/ladders.hsc'
-      // fetch(fileName)
-      //   .then((response) => {
-      //     return response.arrayBuffer()
-      //   })
-      //   .then((arrayBuffer) => {
-      //     const vsFileData = processVirtualScapeArrayBuffer(arrayBuffer)
-      //     // buildupVSFileMap should return errorArr for enqueueSnackbar
-      //     const vsMap = buildupVSFileMap(
-      //       vsFileData.tiles,
-      //       vsFileData?.name ?? fileName,
-      //     )
-      //     loadMap(vsMap)
-      //     enqueueSnackbar(
-      //       `Automatically loaded Virtualscape map named: "${vsMap.hexMap.name}" from file: "${fileName}"`,
-      //     )
-      //   })
-      // AUTO JSON
-      const fileName = '/json-maps/AoA_1_The_Shattered_Table.json'
-      fetch(fileName).then(async (response) => {
-        // const data = response.json()
-        const data = await response.json()
-        if (props?.boardHexes) {
-          loadMap({
-            boardHexes: props.boardHexes,
-            boardPieces: data.boardPieces,
-            hexMap: data.hexMap,
-          })
-        } else {
-          const jsonMap = buildupJsonFileMap(data.boardPieces, data.hexMap)
-          if (!jsonMap.hexMap.name) {
-            jsonMap.hexMap.name = fileName
-          }
-          loadMap(jsonMap)
-        }
-        enqueueSnackbar({
-          // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
-          message: 'WELCOME!',
-          variant: 'success',
-          autoHideDuration: 5000,
-        })
-        clearUndoHistory() // clear undo history, initial load should not be undoable
-      })
     }
+
+    // No url and no prev state? auto load a file
+
+    // AUTO VSCAPE
+    // const fileName = '/ladders.hsc'
+    // fetch(fileName)
+    //   .then((response) => {
+    //     return response.arrayBuffer()
+    //   })
+    //   .then((arrayBuffer) => {
+    //     const vsFileData = processVirtualScapeArrayBuffer(arrayBuffer)
+    //     // buildupVSFileMap should return errorArr for enqueueSnackbar
+    //     const vsMap = buildupVSFileMap(
+    //       vsFileData.tiles,
+    //       vsFileData?.name ?? fileName,
+    //     )
+    //     loadMap(vsMap)
+    //     enqueueSnackbar(
+    //       `Automatically loaded Virtualscape map named: "${vsMap.hexMap.name}" from file: "${fileName}"`,
+    //     )
+    //   })
+    // AUTO JSON
+    const fileName = '/json-maps/AoA_1_The_Shattered_Table.json'
+    fetch(fileName).then(async (response) => {
+      // const data = response.json()
+      const data = await response.json()
+      if (props?.boardHexes) {
+        loadMap({
+          boardHexes: props.boardHexes,
+          boardPieces: data.boardPieces,
+          hexMap: data.hexMap,
+        })
+      } else {
+        const jsonMap = buildupJsonFileMap(data.boardPieces, data.hexMap)
+        if (!jsonMap.hexMap.name) {
+          jsonMap.hexMap.name = fileName
+        }
+        loadMap(jsonMap)
+      }
+      enqueueSnackbar({
+        // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
+        message: 'WELCOME!',
+        variant: 'success',
+        autoHideDuration: 5000,
+      })
+      clearUndoHistory() // clear undo history, initial load should not be undoable
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 }

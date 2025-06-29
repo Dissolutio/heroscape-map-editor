@@ -2,7 +2,6 @@ import SpeedDial from '@mui/material/SpeedDial'
 import SpeedDialAction from '@mui/material/SpeedDialAction'
 import type { CameraControls } from '@react-three/drei'
 import React from 'react'
-import { useHotkeys } from 'react-hotkeys-hook'
 import {
   FcCamcorderPro,
   FcNoVideo,
@@ -41,7 +40,7 @@ export default function CameraSpeedDial({
   // }
 
   // this timeout gives the World enough time to re-render without empty hexes etc.
-  const takePictureTimeout = React.useRef<number>(null!)
+  const takePictureTimeout = React.useRef<number>()
   // effect: clear the timeout after we take a picture
   React.useEffect(() => {
     if (!isTakingPicture) {
@@ -57,7 +56,6 @@ export default function CameraSpeedDial({
   const handleToggleOrthoCam = () => {
     toggleIsOrthoCam(!isOrthoCam)
   }
-  useHotkeys('insert', () => handleToggleOrthoCam())
   // const handleTakePicturePng = () => {
   //   toggleIsTakingPicture(true)
   //   takePictureTimeout.current = setTimeout(() => {

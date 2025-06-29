@@ -10,7 +10,9 @@ const TakeAPictureBox = () => {
   const { subscribe, unsubscribe } = useEvent()
   const hexMap = useBoundStore((s) => s.hexMap)
   const toggleIsTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
+  const addMapPortraitBase64 = useBoundStore((s) => s.addMapPortraitBase64)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <fns could be memoized, unimportant>
   useEffect(() => {
     const handleDownloadPng = () => {
       gl.render(scene, camera)
@@ -34,11 +36,19 @@ const TakeAPictureBox = () => {
       // document.body.removeChild(link)
       toggleIsTakingPicture(false)
     }
+    const handleMapPortrait = () => {
+      gl.render(scene, camera)
+      const screenshot = gl.domElement.toDataURL()
+      addMapPortraitBase64(screenshot)
+      toggleIsTakingPicture(false)
+    }
     subscribe(EVENTS.savePng, handleDownloadPng)
+    subscribe(EVENTS.mapPortrait, handleMapPortrait)
     subscribe(EVENTS.saveJpg, handleDownloadJpg)
 
     return () => {
       unsubscribe(EVENTS.savePng, handleDownloadPng)
+      unsubscribe(EVENTS.mapPortrait, handleMapPortrait)
       unsubscribe(EVENTS.saveJpg, handleDownloadJpg)
     }
   }, [

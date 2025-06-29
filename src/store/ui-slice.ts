@@ -5,6 +5,11 @@ import type { AppState } from './store'
 import type { BoardHex } from '../types'
 
 export interface UISlice {
+  // TODO: persisted state below
+  isShowStartZones: boolean
+  toggleIsShowStartZones: (s: boolean) => void
+
+  // unpersisted state below
   penMode: string
   togglePenMode: (mode: string) => void
   penModeRotation: number
@@ -17,26 +22,26 @@ export interface UISlice {
   isEditMapDialogOpen: boolean
   toggleIsEditMapDialogOpen: (b: boolean) => void
   // WORLD STATE
+  mapPortraitBase64: string
+  addMapPortraitBase64: (pic: string) => void
   selectedPieceID: string
   toggleSelectedPieceID: (id: string) => void
   hoveredPieceID: string
   toggleHoveredPieceID: (id: string) => void
   hoveredHex: BoardHex | undefined
   toggleHoveredHex: (hex?: BoardHex) => void
-  isShowStartZones: boolean
-  toggleIsShowStartZones: (s: boolean) => void
-  isTakingPicture: boolean
-  toggleIsTakingPicture: (s: boolean) => void
-  isCameraDisabled: boolean
-  toggleIsCameraDisabled: (b: boolean) => void
-  isOrthoCam: boolean
-  toggleIsOrthoCam: (b: boolean) => void
   viewingLevel: number
   toggleViewingLevel: (level: number) => void
   isHighQualityRender: boolean
   toggleIsHighQualityRender: (b: boolean) => void
   isFrameloopDemand: boolean
   toggleIsFrameloopDemand: (b: boolean) => void
+  isTakingPicture: boolean
+  toggleIsTakingPicture: (s: boolean) => void
+  isCameraDisabled: boolean
+  toggleIsCameraDisabled: (b: boolean) => void
+  isOrthoCam: boolean
+  toggleIsOrthoCam: (b: boolean) => void
 }
 
 const initialPenMode = 'select'
@@ -48,6 +53,13 @@ const createUISlice: StateCreator<
   [],
   UISlice
 > = (set) => ({
+  mapPortraitBase64: '',
+  addMapPortraitBase64: (pic: string) =>
+    set(
+      produce((state) => {
+        state.mapPortraitBase64 = pic
+      }),
+    ),
   selectedPieceID: '',
   toggleSelectedPieceID: (pieceID: string) =>
     set(
@@ -157,7 +169,7 @@ const createUISlice: StateCreator<
         s.isHighQualityRender = b
       }),
     ),
-  isFrameloopDemand: true,
+  isFrameloopDemand: false,
   toggleIsFrameloopDemand: (b: boolean) =>
     set(
       produce((s) => {

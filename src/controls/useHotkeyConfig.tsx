@@ -1,4 +1,4 @@
-import useBoundStore from '../store/store'
+import useBoundStore, { type AppState } from '../store/store'
 import { LS_KEYS } from '../local-storage/keys'
 import { useLocalStorage } from '../local-storage/useLocalStorage'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -37,14 +37,29 @@ export const useHotkeyConfig = ({
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const togglePenModeRotation = useBoundStore((s) => s.togglePenModeRotation)
-  const toggleIsOrthoCam = useBoundStore((s) => s.toggleIsOrthoCam)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
+  const toggleIsOrthoCam = useBoundStore((s) => s.toggleIsOrthoCam)
+  const isCameraDisabled = useBoundStore((s) => s.isCameraDisabled)
+  const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
+  const unpaintTile = useBoundStore((s) => s.unpaintTile)
+  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
   const isSizes = flatPieceSizes?.length > 0
-  const { undo, redo } = useTemporalStore((state: any) => state)
+  const { undo, redo } = useTemporalStore((state: AppState) => state)
+
+  const deleteSelectedPiece = () => {
+    if (selectedPieceID) {
+      unpaintTile(selectedPieceID)
+      toggleSelectedPieceID('')
+    }
+  }
   const handleToggleIsOrthoCam = () => {
     toggleIsOrthoCam(!isOrthoCam)
+  }
+  const handleToggleIsCameraDisabled = () => {
+    toggleIsCameraDisabled(!isCameraDisabled)
   }
   const zoomToMap = () => {
     if (mapGroupRef.current) {
@@ -124,10 +139,13 @@ export const useHotkeyConfig = ({
   const togglePenModeTreasureGlyph = () => togglePenMode(Pieces.glyphTreasure)
 
   const actionMap: { [key: string]: () => void } = {
+    deleteSelectedPiece: deleteSelectedPiece,
+
     incrementViewingLevel: incrementViewingLevel,
     decrementViewingLevel: decrementViewingLevel,
 
     handleToggleIsOrthoCam: handleToggleIsOrthoCam,
+    handleToggleIsCameraDisabled: handleToggleIsCameraDisabled,
     zoomToMap: zoomToMap,
 
     togglePieceSize1: togglePieceSize1,
@@ -164,6 +182,7 @@ export const useHotkeyConfig = ({
     togglePenModeShadow: togglePenModeShadow,
   }
 
+  // ALL ACTION-ASSIGNED HOTKEYS ARE APPLIED HERE
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   // biome-ignore lint/complexity/noForEach: <explanation>
   Object.entries(hotkeyConfig).forEach((value: any) => {
@@ -175,10 +194,15 @@ export const useHotkeyConfig = ({
   return
 }
 const actions = {
+  // selected piece
+  deleteSelectedPiece: 'deleteSelectedPiece',
+
   // camera
   handleToggleIsOrthoCam: 'handleToggleIsOrthoCam',
+  handleToggleIsCameraDisabled: 'handleToggleIsCameraDisabled',
   zoomToMap: 'zoomToMap',
 
+  // viewing level
   incrementViewingLevel: 'incrementViewingLevel',
   decrementViewingLevel: 'decrementViewingLevel',
 
@@ -216,25 +240,57 @@ const actions = {
   cycleNextPieceRotation: 'cycleNextPieceRotation',
   cyclePrevPieceRotation: 'cyclePrevPieceRotation',
 
+  // undo redo from zustand
   undoWorld: 'undoWorld',
   redoWorld: 'redoWorld',
 }
 export const defaultHotkeyConfig = {
+  delete: actions.deleteSelectedPiece,
+
+  // CAMERA
   insert: actions.handleToggleIsOrthoCam,
+  end: actions.handleToggleIsCameraDisabled,
   home: actions.zoomToMap,
+
   pagedown: actions.decrementViewingLevel,
   pageup: actions.incrementViewingLevel,
 
+  // 2 control buttons
+  'mod+z': actions.undoWorld,
+  'mod+y': actions.redoWorld,
+
+  // 10 numbers, 26 letters, shift+, alt+
   '1': actions.togglePieceSize1,
+  'shift+1': actions.togglePieceSize1,
+  'alt+1': actions.togglePieceSize1,
   '2': actions.togglePieceSize2,
+  'shift+2': actions.togglePieceSize2,
+  'alt+2': actions.togglePieceSize2,
   '3': actions.togglePieceSize3,
+  'shift+3': actions.togglePieceSize3,
+  'alt+3': actions.togglePieceSize3,
   '4': actions.togglePieceSize4,
+  'shift+4': actions.togglePieceSize4,
+  'alt+4': actions.togglePieceSize4,
   '5': actions.togglePieceSize5,
+  'shift+5': actions.togglePieceSize5,
+  'alt+5': actions.togglePieceSize5,
   '6': undefined,
+  'shift+6': undefined,
+  'alt+6': undefined,
   '7': undefined,
+  'shift+7': undefined,
+  'alt+7': undefined,
   '8': undefined,
+  'shift+8': undefined,
+  'alt+8': undefined,
   '9': undefined,
+  'shift+9': undefined,
+  'alt+9': undefined,
   '0': undefined,
+  'shift+0': undefined,
+  'alt+0': undefined,
+
   a: actions.togglePenModeAsphalt,
   'shift+a': undefined,
   'alt+a': undefined,
@@ -310,9 +366,7 @@ export const defaultHotkeyConfig = {
   y: actions.togglePenModePowerGlyph,
   'shift+y': actions.togglePenModeTreasureGlyph,
   'alt+y': undefined,
-  'mod+y': actions.redoWorld,
   z: actions.togglePenModeSelect,
   'shift+z': undefined,
   'alt+z': undefined,
-  'mod+z': actions.undoWorld,
 }

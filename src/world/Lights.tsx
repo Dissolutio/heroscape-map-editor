@@ -11,7 +11,6 @@ export default function Lights({
     <>
       <ambientLight intensity={isHighQualityRender ? 0.5 : 2} />
       <hemisphereLight
-        castShadow={isHighQualityRender}
         color={'0xffffff'}
         groundColor={'0xffffff'}
         intensity={0.5}

@@ -19,29 +19,16 @@ const useBoundStore = create<AppState>()(
         name: LS_KEYS.lastMap, // name of the item in the storage (must be unique)
         // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
         partialize: (state) => {
+          if (!state.hexMap.name && !state.hexMap.id) {
+            return
+          }
           return {
             boardHexes: state.boardHexes,
             boardPieces: state.boardPieces,
             hexMap: state.hexMap,
-            viewingLevel: state.viewingLevel,
           }
         },
-        onRehydrateStorage: (state) => {
-          console.log('hydration starts: state', state)
-
-          // optional
-          return (state, error) => {
-            if (error) {
-              console.log(
-                'an error happened during hydration: error, state',
-                error,
-                state,
-              )
-            } else {
-              console.log('hydration finished: state', state)
-            }
-          }
-        },
+        // skipHydration: true,
       },
     ),
     {

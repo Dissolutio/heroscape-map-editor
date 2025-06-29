@@ -1,6 +1,5 @@
 import { CameraControls } from '@react-three/drei'
 import type React from 'react'
-import { useHotkeys } from 'react-hotkeys-hook'
 import type { Group, Object3DEventMap } from 'three'
 import useBoundStore from '../../store/store'
 
@@ -15,25 +14,6 @@ export default function MyCameraControls({
   const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
   const isCameraActuallyDisabled = useBoundStore(
     (s) => s.isCameraDisabled || s.isTakingPicture,
-  )
-  const hotkeyOptions = {
-    enabled: !isCameraActuallyDisabled,
-  }
-  const fitToMap = () => {
-    if (mapGroupRef.current) {
-      cameraControlsRef.current?.fitToBox?.(mapGroupRef.current, true)
-    }
-  }
-
-  // THIS HOTKEY ENABLED ALL THE TIME
-  useHotkeys('end', () => toggleIsCameraDisabled(!isCameraDisabled))
-
-  useHotkeys(
-    'home',
-    () => {
-      fitToMap()
-    },
-    hotkeyOptions,
   )
   // useHotkeys('up', () => { cameraControlsRef?.current?.truck(0, -5, true) }, hotkeyOptions)
   // useHotkeys('down', () => cameraControlsRef?.current?.truck(0, 5, true), hotkeyOptions)
