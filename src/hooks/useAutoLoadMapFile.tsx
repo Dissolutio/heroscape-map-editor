@@ -64,22 +64,34 @@ const useAutoLoadMapFile = (props?: Props) => {
           jsonMap.hexMap.name = genRandomMapName()
         }
         const action = () => (
-          <Button
-            color="warning"
-            onClick={() => {
-              // load last map instead, close original snackbar, open a new one, remove map from URL bar
-              localMapCache ? loadMap(localMapCache) : noop()
-              closeSnackbar(snackbarId)
-              enqueueSnackbar({
-                message: `Loaded last map instead: ${localMapCache.hexMap.name}`,
-                variant: 'success',
-                autoHideDuration: 3000,
-              })
-              navigate(ROUTES.heroscapeHome)
-            }}
-          >
-            Load your last map instead
-          </Button>
+          <>
+            <Button
+              color="info"
+              variant="contained"
+              onClick={() => {
+                // load last map instead, close original snackbar, open a new one, remove map from URL bar
+                localMapCache ? loadMap(localMapCache) : noop()
+                closeSnackbar(snackbarId)
+                enqueueSnackbar({
+                  message: `Loaded last map instead: ${localMapCache.hexMap.name}`,
+                  variant: 'success',
+                  autoHideDuration: 3000,
+                })
+                navigate(ROUTES.heroscapeHome)
+              }}
+            >
+              Load last map instead
+            </Button>
+            <Button
+              color="warning"
+              variant="contained"
+              onClick={() => {
+                closeSnackbar(snackbarId)
+              }}
+            >
+              Close
+            </Button>
+          </>
         )
         const snackbarId = enqueueSnackbar({
           message: `Loaded map from URL: ${jsonMap.hexMap.name}.`,

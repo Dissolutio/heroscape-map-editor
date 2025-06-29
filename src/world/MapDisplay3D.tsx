@@ -33,6 +33,7 @@ import { enqueueSnackbar } from 'notistack'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import PiecePreview from './PiecePreview.tsx'
 import { useHotkeyConfig } from '../controls/useHotkeyConfig'
+import { useApplyHotkeys } from '../controls/useApplyHotkeys.tsx'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -52,7 +53,8 @@ export default function MapDisplay3D({
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
-  useHotkeyConfig({ cameraControlsRef, mapGroupRef })
+  const { hotkeyConfig } = useHotkeyConfig()
+  useApplyHotkeys({ hotkeyConfig, cameraControlsRef, mapGroupRef })
   useZoomCameraToMapCenter({
     cameraControlsRef,
     disabled: !boardHexesArr.length || false, // for when working on camera stuff
@@ -215,6 +217,7 @@ export default function MapDisplay3D({
       // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
       toggleSelectedPieceID(hex.pieceID)
     } else {
+      toggleSelectedPieceID('')
     }
   }
 

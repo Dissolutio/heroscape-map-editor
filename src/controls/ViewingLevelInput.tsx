@@ -1,12 +1,14 @@
 import { Box, Grid2, Input, Typography } from '@mui/material'
 import useBoundStore from '../store/store'
 import { getBoardPiecesMaxLevel } from '../utils/map-utils'
+import { useHotkeyConfig } from './useHotkeyConfig'
 
 export default function ViewingLevelInput() {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+  const { hotkeyLookup } = useHotkeyConfig()
 
   return (
     <Box
@@ -34,7 +36,9 @@ export default function ViewingLevelInput() {
                 color: 'var(--sub-white)',
               }}
             >
-              Hotkeys: page-up, page-down
+              Hotkeys:{' '}
+              {`${(hotkeyLookup.incrementViewingLevel)?.toUpperCase()}`},{' '}
+              {`${(hotkeyLookup.decrementViewingLevel)?.toUpperCase()}`}
             </span>
           </div>
         </Grid2>

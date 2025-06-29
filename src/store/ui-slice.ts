@@ -10,6 +10,7 @@ export interface UISlice {
   toggleIsShowStartZones: (s: boolean) => void
 
   // unpersisted state below
+  lastPenMode: string
   penMode: string
   togglePenMode: (mode: string) => void
   penModeRotation: number
@@ -82,6 +83,7 @@ const createUISlice: StateCreator<
       }),
     ),
   penMode: initialPenMode,
+  lastPenMode: 'g',
   togglePenMode: (mode: string) =>
     set(
       produce((state) => {
@@ -91,7 +93,10 @@ const createUISlice: StateCreator<
           state.penMode,
           state.pieceSize,
         )
-        // TODO: UI re-select a valid rotation, see RotationSelect.tsx
+        // if switching to 'select', remeber the last pen mode
+        if (mode === 'select' && state.penMode !== 'select') {
+          state.lastPenMode = state.penMode
+        }
         state.penMode = mode
         state.pieceSize = newSize
         state.flatPieceSizes = newSizes

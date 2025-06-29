@@ -41,14 +41,17 @@ import { LiaMountainSolid } from 'react-icons/lia'
 import { FaMountainCity } from 'react-icons/fa6'
 import { FcAddColumn, FcAddDatabase } from 'react-icons/fc'
 import { HotkeyText } from './HotKeyText'
+import { useHotkeyConfig } from './useHotkeyConfig'
+import { piecesSoFar } from '../data/pieces'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
+  const lastPenMode = useBoundStore((state) => state.lastPenMode)
   const togglePenMode = useBoundStore((state) => state.togglePenMode)
   const handleChange = (event: SelectChangeEvent) => {
     togglePenMode(event.target.value)
   }
-  const flatPieceSizes = useBoundStore((s) => s.flatPieceSizes)
+  const { hotkeyLookup } = useHotkeyConfig()
   return (
     <FormControl variant="filled" size="small">
       <InputLabel id="pen-terrain-select-label">Terrain</InputLabel>
@@ -70,7 +73,15 @@ export default function PenModeControls() {
             <GiArrowCursor />
           </ListItemIcon>
           <span>Select</span>
-          <HotkeyText text="Z" />
+          <HotkeyText text={hotkeyLookup.togglePenModeSelect} />
+        </MenuItem>
+
+        <MenuItem value={lastPenMode}>
+          <ListItemIcon>
+            <GiArrowCursor />
+          </ListItemIcon>
+          <span>{`Last used: ${penModeText?.[lastPenMode] ?? piecesSoFar?.[lastPenMode]?.title ?? ''}`}</span>
+          <HotkeyText text={hotkeyLookup.togglePenModeLast} />
         </MenuItem>
 
         <Divider />
@@ -81,70 +92,70 @@ export default function PenModeControls() {
             <TbHexagons color={hexTerrainColor.grass} />
           </ListItemIcon>
           <span>Grass</span>
-          <HotkeyText text="G" />
+          <HotkeyText text={hotkeyLookup.togglePenModeGrass} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.rock}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.rock} />
           </ListItemIcon>
           <span>Rock</span>
-          <HotkeyText text="R" />
+          <HotkeyText text={hotkeyLookup.togglePenModeRock} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.sand}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.sand} />
           </ListItemIcon>
           <span>Sand</span>
-          <HotkeyText text="S" />
+          <HotkeyText text={hotkeyLookup.togglePenModeSand} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.road}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.road} />
           </ListItemIcon>
           <span>Road</span>
-          <HotkeyText text="O" />
+          <HotkeyText text={hotkeyLookup.togglePenModeRoad} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.lavaField}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.lavaField} />
           </ListItemIcon>
           <span>Lava Field</span>
-          <HotkeyText text="L" />
+          <HotkeyText text={hotkeyLookup.togglePenModeLavaField} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.snow}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.snow} />
           </ListItemIcon>
           <span>Snow</span>
-          <HotkeyText text="I" />
+          <HotkeyText text={hotkeyLookup.togglePenModeSnow} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.concrete}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.concrete} />
           </ListItemIcon>
           <span>Concrete</span>
-          <HotkeyText text="C" />
+          <HotkeyText text={hotkeyLookup.togglePenModeConcrete} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.asphalt}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.rock} />
           </ListItemIcon>
           <span>Asphalt</span>
-          <HotkeyText text="A" />
+          <HotkeyText text={hotkeyLookup.togglePenModeAsphalt} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.swamp}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.swampCap} />
           </ListItemIcon>
           <span>Swamp</span>
-          <HotkeyText text="P" />
+          <HotkeyText text={hotkeyLookup.togglePenModeSwamp} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.dungeon}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.dungeon} />
           </ListItemIcon>
           <span>Dungeon</span>
-          <HotkeyText text="D" />
+          <HotkeyText text={hotkeyLookup.togglePenModeDungeon} />
         </MenuItem>
         <Divider />
 
@@ -154,42 +165,42 @@ export default function PenModeControls() {
             <BsHexagonHalf color={hexTerrainColor.water} />
           </ListItemIcon>
           <span>Water</span>
-          <HotkeyText text="W" />
+          <HotkeyText text={hotkeyLookup.togglePenModeWater} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.wellspringWater}>
           <ListItemIcon>
             <BsHexagonHalf color={hexTerrainColor.wellspringWater} />
           </ListItemIcon>
           <span>Wellspring Water</span>
-          <HotkeyText text="shift+W" />
+          <HotkeyText text={hotkeyLookup.togglePenModeWellspringWater} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.ice}>
           <ListItemIcon>
             <BsHexagonHalf color={hexTerrainColor.ice} />
           </ListItemIcon>
           <span>Ice</span>
-          <HotkeyText text="shift+I" />
+          <HotkeyText text={hotkeyLookup.togglePenModeIce} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.lava}>
           <ListItemIcon>
             <BsHexagonHalf color={hexTerrainColor.lava} />
           </ListItemIcon>
           <span>Lava</span>
-          <HotkeyText text="shift+L" />
+          <HotkeyText text={hotkeyLookup.togglePenModeLava} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.swampWater}>
           <ListItemIcon>
             <BsHexagonHalf color={hexTerrainColor.swampWater} />
           </ListItemIcon>
           <span>Swamp Water</span>
-          <HotkeyText text="shift+P" />
+          <HotkeyText text={hotkeyLookup.togglePenModeSwampWater} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.shadow}>
           <ListItemIcon>
             <BsHexagonHalf color={hexTerrainColor.castle} />
           </ListItemIcon>
           <span>Shadow</span>
-          <HotkeyText text="shift+D" />
+          <HotkeyText text={hotkeyLookup.togglePenModeShadow} />
         </MenuItem>
 
         <Divider />
@@ -549,14 +560,14 @@ export default function PenModeControls() {
             <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
           </ListItemIcon>
           <span>Power Glyph</span>
-          <HotkeyText text="Y" />
+          <HotkeyText text={hotkeyLookup.togglePenModePowerGlyph} />
         </MenuItem>
         <MenuItem value={Pieces.glyphTreasure}>
           <ListItemIcon>
             <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
           </ListItemIcon>
           <span>Treasure Glyph</span>
-          <HotkeyText text="shift+Y" />
+          <HotkeyText text={hotkeyLookup.togglePenModeTreasureGlyph} />
         </MenuItem>
 
         {/* RoadWall, Battlements, Ladders */}
@@ -661,4 +672,24 @@ export default function PenModeControls() {
       </Select>
     </FormControl>
   )
+}
+
+const penModeText: { [key: string]: string } = {
+  g: 'grass',
+  r: 'rock',
+  s: 'sand',
+  d: 'dungeon',
+  sw: 'swamp',
+  lf: 'lava field',
+  a: 'asphalt',
+  c: 'concrete',
+  rd: 'road',
+  sn: 'snow',
+  w: 'water',
+  ww: 'wellspring water',
+  i: 'ice',
+  l: 'lava',
+  ws: 'swamp water',
+  sh: 'shadow',
+  cg: 'wall walk',
 }
