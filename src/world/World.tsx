@@ -87,7 +87,6 @@ const World = ({
           {/* {!isTakingPicture && <GridHelper />} */}
           <MyCameraControls
             cameraControlsRef={cameraControlsRef}
-            mapGroupRef={mapGroupRef}
           />
           <TakeAPictureBox />
         </Canvas>

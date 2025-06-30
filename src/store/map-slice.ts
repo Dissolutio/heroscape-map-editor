@@ -4,7 +4,6 @@ import { addPiece } from '../data/addPiece'
 import { removePiece } from '../data/removePiece'
 import type {
   AddRemovePieceError,
-  BoardHex,
   CubeCoordinate,
   MapState,
   Piece,
@@ -31,7 +30,6 @@ type PaintTileArgs = {
 let localLastMap: { state: MapState } | undefined
 if (localStorage.getItem(LS_KEYS.lastMap)) {
   localLastMap = JSON.parse(localStorage?.getItem(LS_KEYS.lastMap) ?? '{}')
-  console.log('🚀 ~ mapSlice localLastMap:', localLastMap)
   if (localLastMap?.state) {
     localStorage.setItem(
       LS_KEYS.lastMapCache,
@@ -67,9 +65,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           isVsTile: false,
         })
         error = addPieceError
+        // we added a piece. ___X go up piece height, __xX|
+        const placedAtLevel = altitude + 1
         draft.viewingLevel =
-          getBoardPiecesMaxLevel(newBoardPieces) > state.viewingLevel
-            ? getBoardPiecesMaxLevel(newBoardPieces)
+          placedAtLevel > state.viewingLevel
+            ? state.viewingLevel + 1
             : state.viewingLevel
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
@@ -85,10 +85,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           boardHexes: draft.boardHexes,
           boardPieces: draft.boardPieces,
         })
-        draft.viewingLevel =
-          getBoardPiecesMaxLevel(newBoardPieces) < state.viewingLevel
-            ? getBoardPiecesMaxLevel(newBoardPieces)
-            : state.viewingLevel
+        // draft.viewingLevel =
+        //   getBoardPiecesMaxLevel(newBoardPieces) < state.viewingLevel
+        //     ? getBoardPiecesMaxLevel(newBoardPieces)
+        //     : state.viewingLevel
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
       })
