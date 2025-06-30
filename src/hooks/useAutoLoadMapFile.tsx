@@ -118,54 +118,61 @@ const useAutoLoadMapFile = (props?: Props) => {
         console.error('🚀 ~ React.useEffect ~ error:', error)
         return
       }
-    }
-
-    // No url and no prev state? auto load a file
-
-    // AUTO VSCAPE
-    // const fileName = '/ladders.hsc'
-    // fetch(fileName)
-    //   .then((response) => {
-    //     return response.arrayBuffer()
-    //   })
-    //   .then((arrayBuffer) => {
-    //     const vsFileData = processVirtualScapeArrayBuffer(arrayBuffer)
-    //     // buildupVSFileMap should return errorArr for enqueueSnackbar
-    //     const vsMap = buildupVSFileMap(
-    //       vsFileData.tiles,
-    //       vsFileData?.name ?? fileName,
-    //     )
-    //     loadMap(vsMap)
-    //     enqueueSnackbar(
-    //       `Automatically loaded Virtualscape map named: "${vsMap.hexMap.name}" from file: "${fileName}"`,
-    //     )
-    //   })
-    // AUTO JSON
-    const fileName = '/json-maps/AoA_1_The_Shattered_Table.json'
-    fetch(fileName).then(async (response) => {
-      // const data = response.json()
-      const data = await response.json()
-      if (props?.boardHexes) {
-        loadMap({
-          boardHexes: props.boardHexes,
-          boardPieces: data.boardPieces,
-          hexMap: data.hexMap,
-        })
-      } else {
-        const jsonMap = buildupJsonFileMap(data.boardPieces, data.hexMap)
-        if (!jsonMap.hexMap.name) {
-          jsonMap.hexMap.name = fileName
-        }
-        loadMap(jsonMap)
-      }
+    } else if (localMapCache) {
+      loadMap(localMapCache)
       enqueueSnackbar({
-        // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
-        message: 'WELCOME!',
+        message: `Loaded last map: ${localMapCache.hexMap.name}`,
         variant: 'success',
-        autoHideDuration: 5000,
+        autoHideDuration: 3000,
       })
-      clearUndoHistory() // clear undo history, initial load should not be undoable
-    })
+    } else {
+      // No url and no prev state? auto load a file
+
+      // AUTO VSCAPE
+      // const fileName = '/ladders.hsc'
+      // fetch(fileName)
+      //   .then((response) => {
+      //     return response.arrayBuffer()
+      //   })
+      //   .then((arrayBuffer) => {
+      //     const vsFileData = processVirtualScapeArrayBuffer(arrayBuffer)
+      //     // buildupVSFileMap should return errorArr for enqueueSnackbar
+      //     const vsMap = buildupVSFileMap(
+      //       vsFileData.tiles,
+      //       vsFileData?.name ?? fileName,
+      //     )
+      //     loadMap(vsMap)
+      //     enqueueSnackbar(
+      //       `Automatically loaded Virtualscape map named: "${vsMap.hexMap.name}" from file: "${fileName}"`,
+      //     )
+      //   })
+      // AUTO JSON
+      const fileName = '/json-maps/AoA_1_The_Shattered_Table.json'
+      fetch(fileName).then(async (response) => {
+        // const data = response.json()
+        const data = await response.json()
+        if (props?.boardHexes) {
+          loadMap({
+            boardHexes: props.boardHexes,
+            boardPieces: data.boardPieces,
+            hexMap: data.hexMap,
+          })
+        } else {
+          const jsonMap = buildupJsonFileMap(data.boardPieces, data.hexMap)
+          if (!jsonMap.hexMap.name) {
+            jsonMap.hexMap.name = fileName
+          }
+          loadMap(jsonMap)
+        }
+        enqueueSnackbar({
+          // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
+          message: 'WELCOME!',
+          variant: 'success',
+          autoHideDuration: 5000,
+        })
+        clearUndoHistory() // clear undo history, initial load should not be undoable
+      })
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 }
