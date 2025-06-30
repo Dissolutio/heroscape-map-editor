@@ -14,8 +14,16 @@ export default function ViewingLevelInput() {
     <Box
       sx={{
         width: 250,
-        border: '1px solid var(--transparent-border)',
         padding: '0.5em',
+        border: '1px solid',
+        borderColor:
+          viewingLevel < maxLevel
+            ? 'warning.main'
+            : 'var(--transparent-border)',
+        boxShadow:
+          viewingLevel < maxLevel
+            ? '3px 0 3px #ffeb3b, -3px 0 3px  #ffeb3b'
+            : '',
       }}
     >
       <Grid2 container spacing={2} sx={{ alignItems: 'center' }}>
