@@ -39,6 +39,7 @@ const useBoundStore = create<AppState>()(
           boardHexes: state.boardHexes,
           boardPieces: state.boardPieces,
           hexMap: state.hexMap,
+          viewingLevel: state.viewingLevel
         }
       },
       equality: (pastState, currentState) =>
