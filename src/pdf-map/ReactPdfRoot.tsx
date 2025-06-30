@@ -1,13 +1,5 @@
 import { useMediaQuery } from '@mui/material'
-import {
-  Document,
-  Image,
-  Path,
-  PDFViewer,
-  Svg,
-  Text,
-  View,
-} from '@react-pdf/renderer'
+import { Document, Image, PDFViewer, Text, View } from '@react-pdf/renderer'
 import useBoundStore from '../store/store'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'

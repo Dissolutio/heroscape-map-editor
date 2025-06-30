@@ -85,9 +85,7 @@ const World = ({
           />
           <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}
-          <MyCameraControls
-            cameraControlsRef={cameraControlsRef}
-          />
+          <MyCameraControls cameraControlsRef={cameraControlsRef} />
           <TakeAPictureBox />
         </Canvas>
         <SelectedPieceReadout />

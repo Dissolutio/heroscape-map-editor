@@ -1,6 +1,6 @@
-import { Page, Path, Svg, Text, View } from '@react-pdf/renderer'
+import { Page, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy } from 'lodash'
-import { Fragment, type PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import {
   type BoardHexes,
   type BoardPieces,

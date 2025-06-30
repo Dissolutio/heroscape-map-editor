@@ -1,6 +1,16 @@
+## What are BoardHexes used for
+- MapDisplay3D => empty/fluid/solid caps, => render pieces
+- MapHex3D => underHexTerrain
+- ReactPdfDownloadLink / ReactPdfRoot => PdfMapLevels6PerPage => ReactPdfSvgMapDisplay => render
+- CastleArch: calculate clicked hex
+- useZoomCameraToMapCenter: width/height of map
+- World: width/height of map
+- Controls: log state
 
+
+## Move/rotate/switch pieces
 3. Move, rotate, switch pieces that are on the board already
-4. 'X' last brush?
+
 ## Build constraints and Inventory **NEW**
 You can add them to a map, it **Becomes part of MapFileState**.
 It specifies id and quantity array of sets used, and of any piece-meal added items.
