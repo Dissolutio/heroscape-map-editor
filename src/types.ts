@@ -355,3 +355,8 @@ export type DecodedPieceID = {
   pieceCoords: CubeCoordinate
   terrain: string
 }
+export type AddRemovePieceReturn = {
+  newBoardHexes: BoardHexes
+  newBoardPieces: BoardPieces
+  error: AddRemovePieceError
+}

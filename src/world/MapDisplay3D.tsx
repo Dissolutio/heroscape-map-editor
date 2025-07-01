@@ -14,6 +14,7 @@ import {
 import {
   isFluidTerrainHex,
   isJungleTerrainHex,
+  isLaurWallAddonPieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils.ts'
 import {
@@ -132,15 +133,7 @@ export default function MapDisplay3D({
       })
     }
     // Adding laur addon, put it at same level
-    else if (
-      piece?.id === Pieces.laurWallRuin1 ||
-      piece?.id === Pieces.laurWallRuin2 ||
-      piece?.id === Pieces.laurWallRuin3 ||
-      piece?.id === Pieces.laurWallLong ||
-      piece?.id === Pieces.laurWallLongStackable ||
-      piece?.id === Pieces.laurWallShort ||
-      piece?.id === Pieces.laurWallShortStackable
-    ) {
+    else if (isLaurWallAddonPieceID(piece?.id ?? '')) {
       if (!isLaurPillarClicked) {
         enqueueSnackbar({
           message: 'Must add to Square/Triangle Pillar.',

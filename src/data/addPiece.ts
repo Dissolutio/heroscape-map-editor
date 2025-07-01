@@ -1,6 +1,7 @@
 import { clone } from 'lodash'
 import {
   type AddRemovePieceError,
+  type AddRemovePieceReturn,
   type BoardHexes,
   type BoardPieces,
   type CubeCoordinate,
@@ -31,11 +32,6 @@ export type PieceAddArgs = {
   placementAltitude: number
   rotation: number
   isVsTile: boolean
-}
-export type AddRemovePieceReturn = {
-  newBoardHexes: BoardHexes
-  newBoardPieces: BoardPieces
-  error: AddRemovePieceError
 }
 
 export function addPiece({
