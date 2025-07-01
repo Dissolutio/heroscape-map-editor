@@ -28,7 +28,7 @@ export default function HomePage() {
   // lg, large: 1200px
   // xl, extra-large: 1536px
 
-  const isLargeScreenLayout = useMediaQuery('(min-width:1200px)')
+  const isLargeScreenLayout = useMediaQuery('(min-width:1000px)')
   const isMobileScreenLayout = useMediaQuery('(max-width:600px)')
 
   const [isNavOpen, setIsNavOpen] = React.useState(false)
