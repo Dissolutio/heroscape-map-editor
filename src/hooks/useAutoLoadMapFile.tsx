@@ -40,12 +40,8 @@ const useAutoLoadMapFile = (props?: Props) => {
     // Map might be loaded from local storage already
     const queryParams = new URLSearchParams(searchString)
     const urlMapString = queryParams.get('m')
-    const localMapCache = clone(
-      Object.assign(
-        JSON.parse(localStorage?.getItem?.(LS_KEYS.lastMapCache) ?? ''),
-        {},
-      ),
-    )
+    const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
+    const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
