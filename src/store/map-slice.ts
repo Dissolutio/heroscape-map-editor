@@ -40,7 +40,7 @@ if (localStorage.getItem(LS_KEYS.lastMap)) {
 
 const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   boardHexes: {},
-  hexMap: { id: '', name: '', shape: 'rectangle', width: 20, length: 20 },
+  hexMap: { id: '', name: '', author: '', sets: '', shape: 'rectangle', width: 20, length: 20 },
   boardPieces: {},
   paintTile: ({
     piece,

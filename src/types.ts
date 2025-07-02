@@ -8,6 +8,8 @@ export type MapFileState = {
 export type HexMap = {
   id: string
   name: string
+  author: string
+  sets: string
   shape: string // 'hexagon' | 'rectangle'
   length: number // for hexagon shaped maps width=length=size
   width: number // for hexagon shaped maps width=length=size
