@@ -11,8 +11,8 @@ export default function Lights({
     <>
       <ambientLight intensity={isHighQualityRender ? 0.5 : 2} />
       <hemisphereLight
-        color={'0xffffff'}
-        groundColor={'0xffffff'}
+        color={'white'}
+        groundColor={'white'}
         intensity={0.5}
       />
       {isHighQualityRender && (

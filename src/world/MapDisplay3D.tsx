@@ -102,23 +102,19 @@ export default function MapDisplay3D({
       altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
     })
     // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
-    const clickedHex = isCastleWallArchClicked
-      ? boardHexes[boardHexIdOfCapForWall]
-      : hex
-    const clickedHexCoords = isCastleWallArchClicked
-      ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
-      : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+    const clickedHex = isCastleWallArchClicked ? boardHexes[boardHexIdOfCapForWall] : hex
+    const clickedHexCoords = isCastleWallArchClicked ? {
+      q: boardHexes[boardHexIdOfCapForWall].q,
+      r: boardHexes[boardHexIdOfCapForWall].r,
+      s: boardHexes[boardHexIdOfCapForWall].s,
+    } : {
+      q: hex.q,
+      r: hex.r,
+      s: hex.s,
+    }
     const clickedHexAltitude = clickedHex.altitude
 
-    // Clicked castle, use cap coords and altitude (TODO: improve?)
+    // Castle W/A: use cap coords and altitude
     if (isCastleWallArchClicked) {
       const castleWallArchClickedHexCoords = {
         q: boardHexes[boardHexIdOfCapForWall].q,
@@ -128,7 +124,7 @@ export default function MapDisplay3D({
       error = paintTile({
         piece,
         clickedHexCoords: castleWallArchClickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: boardHexes[boardHexIdOfCapForWall].altitude,
         rotation: penModeRotation,
       })
     }
@@ -140,6 +136,7 @@ export default function MapDisplay3D({
           variant: 'warning',
           autoHideDuration: 5000,
         })
+
         return
       }
       // const laurWallAddonClickedHexCoords = getBattlementClickedHexCoords(
@@ -153,7 +150,9 @@ export default function MapDisplay3D({
         rotation: penModeRotation,
       })
       console.log('🚀 ~ error:', error)
-    } else if (piece?.id === Pieces.battlement) {
+    }
+    // BATTLEMENT
+    if (piece?.id === Pieces.battlement) {
       const battlementClickedHexCoords = getBattlementClickedHexCoords(
         clickedHex,
         penModeRotation,
@@ -166,8 +165,8 @@ export default function MapDisplay3D({
         rotation: mirrorRotation,
       })
     }
-    //
-    else if (piece?.id === Pieces.roadWall) {
+    // ROADWALL
+    if (piece?.id === Pieces.roadWall) {
       const roadWallClickedHexCoords = getRoadWallClickedHexCoords(
         clickedHex,
         penModeRotation,
@@ -179,11 +178,8 @@ export default function MapDisplay3D({
         rotation: penModeRotation,
       })
     }
-    // Adding ladder onto ladder
-    else if (
-      piece?.id === Pieces.ladder &&
-      hex?.inventoryID === Pieces.ladder
-    ) {
+    // LADDER ONTO LADDER
+    if (piece?.id === Pieces.ladder && hex?.inventoryID === Pieces.ladder) {
       error = paintTile({
         piece,
         clickedHexCoords: clickedHexCoords,
@@ -200,6 +196,7 @@ export default function MapDisplay3D({
         rotation: penModeRotation,
       })
     }
+    // Error from add/remove piece, report error and select piece
     if (error) {
       console.log('🚀 ~ error:', error)
       enqueueSnackbar({
@@ -209,7 +206,9 @@ export default function MapDisplay3D({
       })
       // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
       toggleSelectedPieceID(hex.pieceID)
-    } else {
+    }
+    // Placed new piece, deselect piece
+    else {
       toggleSelectedPieceID('')
     }
   }

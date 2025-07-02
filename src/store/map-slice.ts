@@ -9,7 +9,6 @@ import type {
   Piece,
 } from '../types'
 import type { AppState } from './store'
-import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 import { LS_KEYS } from '../local-storage/keys'
 
 export interface MapSlice extends MapState {
