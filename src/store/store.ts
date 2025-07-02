@@ -19,9 +19,6 @@ const useBoundStore = create<AppState>()(
         name: LS_KEYS.lastMap, // name of the item in the storage (must be unique)
         // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
         partialize: (state) => {
-          if (!state.hexMap.name && !state.hexMap.id) {
-            return
-          }
           return {
             boardHexes: state.boardHexes,
             boardPieces: state.boardPieces,
