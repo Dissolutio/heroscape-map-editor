@@ -15,7 +15,8 @@ export interface MapSlice extends MapState {
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
   unpaintTile: (pieceID: string) => void
   loadMap: (map: MapState) => void
-  changeMapName: (mapName: string) => void
+  changeMapName: (val: string) => void
+  changeAuthorName: (val: string) => void
 }
 
 type PaintTileArgs = {
@@ -92,10 +93,16 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.boardPieces = newBoardPieces
       })
     }),
-  changeMapName: (mapName: string) =>
+  changeMapName: (val: string) =>
     set((state) => {
       return produce(state, (draft) => {
-        draft.hexMap.name = mapName
+        draft.hexMap.name = val
+      })
+    }),
+  changeAuthorName: (val: string) =>
+    set((state) => {
+      return produce(state, (draft) => {
+        draft.hexMap.author = val
       })
     }),
   loadMap: (mapState: MapState) =>

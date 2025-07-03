@@ -10,7 +10,7 @@ export function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
-  // const mapPortraitBase64 = useBoundStore((s) => s.mapPortraitBase64)
+  const mapPortraitBase64 = useBoundStore((s) => s.mapPortraitBase64)
   const isMobile = useMediaQuery('(max-width:800px)')
   return (
     <div
@@ -122,7 +122,7 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
         />
       </View>
       <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>
-      <Text style={{ fontSize: '12px', paddingLeft: 5 }}>by:</Text>
+      <Text style={{ fontSize: '12px', paddingLeft: 5 }}>by: {hexMap.author}</Text>
     </View>
   )
 }
@@ -149,13 +149,14 @@ const MapPortraitHeader = ({
         <Image
           src={mapPortraitBase64}
           style={{
-            // width: '30%',
-            maxHeight: '100%',
+            // maxHeight: '100%',
+            width: '50px',
+            height: 'auto',
           }}
         />
       </View>
       <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>
-      <Text style={{ fontSize: '12px', paddingLeft: 5 }}>by:</Text>
+      <Text style={{ fontSize: '12px', paddingLeft: 5 }}>by: {hexMap.author}</Text>
     </View>
   )
 }

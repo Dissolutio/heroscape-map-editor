@@ -14,7 +14,11 @@ import { genRandomMapName } from '../utils/genRandomMapName'
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
   const changeMapName = useBoundStore((state) => state.changeMapName)
+  const changeAuthorName = useBoundStore((state) => state.changeAuthorName)
   const mapName = useBoundStore((state) => state.hexMap.name)
+  const authorName = useBoundStore((state) => state.hexMap.author)
+  // const mapPortraitBase64 = useBoundStore((state) => state.mapPortraitBase64)
+  const addMapPortraitBase64 = useBoundStore((state) => state.addMapPortraitBase64)
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
   )
@@ -24,17 +28,45 @@ export default function EditMapFormDialog() {
   const handleClose = () => toggleIsEditMapDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
   const [newName, setNewName] = React.useState(mapName)
+  const [newAuthor, setNewAuthor] = React.useState(authorName)
+  const [file, setFile] = React.useState<File | undefined>(undefined);
+
+  // update base64 map portrait when file uploaded
+  React.useEffect(() => {
+    let fileReader = undefined
+    let isCancel = false;
+    if (file) {
+      fileReader = new FileReader();
+      fileReader.onload = (e) => {
+        const reader = e.target as FileReader;
+        const result = reader.result;
+        if (result && !isCancel) {
+          addMapPortraitBase64(result.toString())
+        }
+      }
+      fileReader.readAsDataURL(file);
+    }
+    return () => {
+      isCancel = true;
+      if (fileReader && fileReader.readyState === 1) {
+        fileReader.abort();
+      }
+    }
+  }, [file, addMapPortraitBase64]);
+
+  // const onChangeMapPortrait = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event?.target?.files?.[0]
+  //   if (!file) {
+  //     return
+  //   }
+  //   setFile(file);
+  // }
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <Only reset when dialog opens or closes>
   React.useEffect(() => {
-    if (isEditMapDialogOpen) {
-      setNewName(mapName) // reset the newName to the current map name when dialog opens
-    } else {
-      /**
-       * When the dialog closes, reset the newName to the current map name.
-       * This ensures that if the dialog is reopened, it shows the correct current name.
-       */
-      setNewName(mapName)
-    }
+    // reset vals to the current map when dialog opens/closes
+    setNewName(mapName)
+    setNewAuthor(authorName)
   }, [isEditMapDialogOpen])
 
   return (
@@ -50,9 +82,12 @@ export default function EditMapFormDialog() {
             onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
               event.preventDefault()
               const formData = new FormData(event.currentTarget)
+              // biome-ignore lint/suspicious/noExplicitAny: <form data not well understood>
               const formJson = Object.fromEntries((formData as any).entries())
               const newMapName = formJson.newMapName
+              const newAuthorName = formJson.newAuthorName
               changeMapName(newMapName)
+              changeAuthorName(newAuthorName)
               enqueueSnackbar({
                 message: `Updated Map Name: ${newMapName}`,
                 autoHideDuration: 3000,
@@ -94,6 +129,36 @@ export default function EditMapFormDialog() {
               <MdAutorenew />
             </IconButton>
           </Box>
+          <Box
+            sx={{
+              p: '1em 4px',
+            }}
+          >
+            <TextField
+              id="newAuthorName"
+              name="newAuthorName"
+              required
+              value={newAuthor}
+              onChange={(e) => setNewAuthor(e.target.value)}
+              margin="dense"
+              label="Map Author"
+              type="text"
+              fullWidth
+              variant="outlined"
+            />
+          </Box>
+          {/* <label htmlFor='mapPortraitInput'>
+            Map portrait:
+            <input
+              id="mapPortraitInput"
+              type="file"
+              accept="image/*"
+              onChange={onChangeMapPortrait}
+            />
+          </label>
+          <img
+            alt="map portrait"
+            src={mapPortraitBase64} /> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
