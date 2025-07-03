@@ -1,7 +1,10 @@
 import { useMediaQuery } from '@mui/material'
 import { Document, Image, PDFViewer, Text, View } from '@react-pdf/renderer'
 import useBoundStore from '../store/store'
-import { PdfMapLevels6PerPage, PdfMapLevelsPerPage } from './PdfMap6LevelsPerPage'
+import {
+  PdfMapLevels6PerPage,
+  PdfMapLevelsPerPage,
+} from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
 import type { MapState } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
@@ -150,6 +153,7 @@ const MapPortraitHeader = ({
           alignContent: 'center',
           alignItems: 'center',
           height: 50,
+          border: '1px solid red',
         }}
       >
         <View
@@ -174,6 +178,7 @@ const MapPortraitHeader = ({
         style={{
           height: '200px',
           width: 'auto',
+          border: '1px solid red',
         }}
       />
     </View>

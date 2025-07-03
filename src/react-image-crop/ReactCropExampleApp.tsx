@@ -6,45 +6,29 @@ import ReactCrop, {
   makeAspectCrop,
   type Crop,
   type PixelCrop,
-  convertToPixelCrop,
 } from 'react-image-crop'
 import { canvasPreview } from './canvasPreview'
 import { useDebounceEffect } from './useDebounceEffect'
-
 import 'react-image-crop/dist/ReactCrop.css'
-import './crop-css.css'
 
-// This is to demonstate how to make and center a % aspect crop
-// which is a bit trickier so we use some helper functions.
-function centerAspectCrop(
-  mediaWidth: number,
-  mediaHeight: number,
-  aspect: number,
-) {
-  return centerCrop(
-    makeAspectCrop(
-      {
-        unit: '%',
-        width: 90,
-      },
-      aspect,
-      mediaWidth,
-      mediaHeight,
-    ),
-    mediaWidth,
-    mediaHeight,
-  )
+type Props = {
+  imgSrc: string
+  setImgSrc: React.Dispatch<React.SetStateAction<string>>
 }
 
-export default function ReactCropExampleApp() {
-  const [imgSrc, setImgSrc] = useState('')
+export default function ReactCropExampleApp({
+  imgSrc,
+  setImgSrc
+}: Props) {
+  // const [imgSrc, setImgSrc] = useState('')
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
   const hiddenAnchorRef = useRef<HTMLAnchorElement>(null)
   const blobUrlRef = useRef('')
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
-  const aspect = 16 / 9
+  const initialAspect = 16 / 9
+
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
       setCrop(undefined) // Makes crop preview update between images.
@@ -58,7 +42,7 @@ export default function ReactCropExampleApp() {
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     const { width, height } = e.currentTarget
-    setCrop(centerAspectCrop(width, height, aspect))
+    setCrop(centerAspectCrop(width, height, initialAspect))
   }
 
   async function onDownloadCropClick() {
@@ -111,48 +95,42 @@ export default function ReactCropExampleApp() {
     }
   }
 
-  useDebounceEffect(
-    async () => {
-      if (
-        completedCrop?.width &&
-        completedCrop?.height &&
-        imgRef.current &&
-        previewCanvasRef.current
-      ) {
-        // We use canvasPreview as it's much faster than imgPreview.
-        canvasPreview(
-          imgRef.current,
-          previewCanvasRef.current,
-          completedCrop,
-        )
-      }
-    },
+  useDebounceEffect(async () => {
+    if (
+      completedCrop?.width &&
+      completedCrop?.height &&
+      imgRef.current &&
+      previewCanvasRef.current
+    ) {
+      // We use canvasPreview as it's much faster than imgPreview.
+      canvasPreview(imgRef.current, previewCanvasRef.current, completedCrop)
+    }
+  },
     100,
-    [completedCrop],
-  )
-
+    [completedCrop],)
 
   return (
-    <div className="App">
-      <div className="Crop-Controls">
-        <input type="file" accept="image/*" onChange={onSelectFile} />
-      </div>
+    <>
+      <label>
+        Map portrait:
+        <input
+          type="file"
+          accept="image/*"
+          onChange={onSelectFile}
+        />
+      </label>
+
       {!!imgSrc && (
         <ReactCrop
           crop={crop}
           onChange={(_, percentCrop) => setCrop(percentCrop)}
           onComplete={(c) => setCompletedCrop(c)}
-          // aspect={aspect}
           minHeight={100}
         >
-          <img
-            ref={imgRef}
-            alt="Crop me"
-            src={imgSrc}
-            onLoad={onImageLoad}
-          />
+          <img ref={imgRef} alt="Crop me" src={imgSrc} onLoad={onImageLoad} />
         </ReactCrop>
       )}
+
       {!!completedCrop && (
         <>
           <div>
@@ -167,7 +145,9 @@ export default function ReactCropExampleApp() {
             />
           </div>
           <div>
-            <button type="button" onClick={onDownloadCropClick}>Download Crop</button>
+            <button type="button" onClick={onDownloadCropClick}>
+              Download Crop
+            </button>
             <a
               href="#hidden"
               ref={hiddenAnchorRef}
@@ -183,6 +163,29 @@ export default function ReactCropExampleApp() {
           </div>
         </>
       )}
-    </div>
+    </>
+  )
+}
+
+
+// This is to demonstate how to make and center a % aspect crop
+// which is a bit trickier so we use some helper functions.
+function centerAspectCrop(
+  mediaWidth: number,
+  mediaHeight: number,
+  aspect: number,
+) {
+  return centerCrop(
+    makeAspectCrop(
+      {
+        unit: '%',
+        width: 90,
+      },
+      aspect,
+      mediaWidth,
+      mediaHeight,
+    ),
+    mediaWidth,
+    mediaHeight,
   )
 }

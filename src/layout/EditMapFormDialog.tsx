@@ -12,6 +12,7 @@ import { MdAutorenew } from 'react-icons/md'
 import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import ReactCrop, { type Crop } from 'react-image-crop'
+import ReactCropExampleApp from '../react-image-crop/ReactCropExampleApp'
 
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -20,6 +21,7 @@ export default function EditMapFormDialog() {
   const mapName = useBoundStore((state) => state.hexMap.name)
   const authorName = useBoundStore((state) => state.hexMap.author)
   const mapPortraitBase64 = useBoundStore((state) => state.mapPortraitBase64)
+  const [imgSrc, setImgSrc] = React.useState('')
   const [crop, setCrop] = React.useState<Crop>()
 
   const addMapPortraitBase64 = useBoundStore(
@@ -60,12 +62,14 @@ export default function EditMapFormDialog() {
     }
   }, [file, addMapPortraitBase64])
 
-  const onChangeMapPortrait = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeMapPortrait = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event?.target?.files?.[0]
     if (!file) {
       return
     }
-    setFile(file);
+    setFile(file)
   }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <Only reset when dialog opens or closes>
@@ -94,7 +98,7 @@ export default function EditMapFormDialog() {
               const newAuthorName = formJson.newAuthorName
               changeMapName(newMapName)
               changeAuthorName(newAuthorName)
-              addMapPortraitBase64(crop)
+              addMapPortraitBase64(imgSrc)
               enqueueSnackbar({
                 message: `Updated Map Name: ${newMapName}`,
                 autoHideDuration: 3000,
@@ -154,7 +158,7 @@ export default function EditMapFormDialog() {
               variant="outlined"
             />
           </Box>
-          <label htmlFor='mapPortraitInput'>
+          {/* <label>
             Map portrait:
             <input
               id="mapPortraitInput"
@@ -163,11 +167,13 @@ export default function EditMapFormDialog() {
               onChange={onChangeMapPortrait}
             />
           </label>
-          <ReactCrop crop={crop} onChange={c => setCrop(c)}>
-            <img
-              alt="map portrait"
-              src={mapPortraitBase64} />
-          </ReactCrop>
+          <ReactCrop crop={crop} onChange={(c) => setCrop(c)}>
+            <img alt="map portrait" src={mapPortraitBase64} />
+          </ReactCrop> */}
+          <ReactCropExampleApp
+            imgSrc={imgSrc}
+            setImgSrc={setImgSrc}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
