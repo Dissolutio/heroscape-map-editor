@@ -17,7 +17,7 @@ export default function EditMapFormDialog() {
   const changeAuthorName = useBoundStore((state) => state.changeAuthorName)
   const mapName = useBoundStore((state) => state.hexMap.name)
   const authorName = useBoundStore((state) => state.hexMap.author)
-  // const mapPortraitBase64 = useBoundStore((state) => state.mapPortraitBase64)
+  const mapPortraitBase64 = useBoundStore((state) => state.mapPortraitBase64)
   const addMapPortraitBase64 = useBoundStore(
     (state) => state.addMapPortraitBase64,
   )
@@ -56,13 +56,13 @@ export default function EditMapFormDialog() {
     }
   }, [file, addMapPortraitBase64])
 
-  // const onChangeMapPortrait = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = event?.target?.files?.[0]
-  //   if (!file) {
-  //     return
-  //   }
-  //   setFile(file);
-  // }
+  const onChangeMapPortrait = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event?.target?.files?.[0]
+    if (!file) {
+      return
+    }
+    setFile(file);
+  }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <Only reset when dialog opens or closes>
   React.useEffect(() => {
@@ -149,7 +149,7 @@ export default function EditMapFormDialog() {
               variant="outlined"
             />
           </Box>
-          {/* <label htmlFor='mapPortraitInput'>
+          <label htmlFor='mapPortraitInput'>
             Map portrait:
             <input
               id="mapPortraitInput"
@@ -160,7 +160,7 @@ export default function EditMapFormDialog() {
           </label>
           <img
             alt="map portrait"
-            src={mapPortraitBase64} /> */}
+            src={mapPortraitBase64} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
