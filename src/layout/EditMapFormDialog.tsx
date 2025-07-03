@@ -18,7 +18,9 @@ export default function EditMapFormDialog() {
   const mapName = useBoundStore((state) => state.hexMap.name)
   const authorName = useBoundStore((state) => state.hexMap.author)
   // const mapPortraitBase64 = useBoundStore((state) => state.mapPortraitBase64)
-  const addMapPortraitBase64 = useBoundStore((state) => state.addMapPortraitBase64)
+  const addMapPortraitBase64 = useBoundStore(
+    (state) => state.addMapPortraitBase64,
+  )
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
   )
@@ -29,30 +31,30 @@ export default function EditMapFormDialog() {
   const { enqueueSnackbar } = useSnackbar()
   const [newName, setNewName] = React.useState(mapName)
   const [newAuthor, setNewAuthor] = React.useState(authorName)
-  const [file, setFile] = React.useState<File | undefined>(undefined);
+  const [file, setFile] = React.useState<File | undefined>(undefined)
 
   // update base64 map portrait when file uploaded
   React.useEffect(() => {
     let fileReader = undefined
-    let isCancel = false;
+    let isCancel = false
     if (file) {
-      fileReader = new FileReader();
+      fileReader = new FileReader()
       fileReader.onload = (e) => {
-        const reader = e.target as FileReader;
-        const result = reader.result;
+        const reader = e.target as FileReader
+        const result = reader.result
         if (result && !isCancel) {
           addMapPortraitBase64(result.toString())
         }
       }
-      fileReader.readAsDataURL(file);
+      fileReader.readAsDataURL(file)
     }
     return () => {
-      isCancel = true;
+      isCancel = true
       if (fileReader && fileReader.readyState === 1) {
-        fileReader.abort();
+        fileReader.abort()
       }
     }
-  }, [file, addMapPortraitBase64]);
+  }, [file, addMapPortraitBase64])
 
   // const onChangeMapPortrait = async (event: React.ChangeEvent<HTMLInputElement>) => {
   //   const file = event?.target?.files?.[0]

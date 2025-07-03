@@ -31,6 +31,7 @@ export function makeRectangleScenario(
   const hexMap = {
     id: generateMapID(),
     name: options?.mapName ?? genRandomMapName(),
+    author: '',
     shape: 'rectangle',
     width: mapWidth,
     length: mapLength,
@@ -60,6 +61,7 @@ export function makeHexagonScenario(
   const hexMap = {
     id: generateMapID(),
     name: options?.mapName ?? genRandomMapName(),
+    author: '',
     shape: 'hexagon',
     width: size,
     length: size,

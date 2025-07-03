@@ -1,6 +1,7 @@
 import { clone } from 'lodash'
 import {
   type AddRemovePieceError,
+  type AddRemovePieceReturn,
   type BoardHexes,
   type BoardPieces,
   HexTerrain,
@@ -13,7 +14,6 @@ import {
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import { decodePieceID, genBoardHexID } from '../utils/map-utils'
-import type { AddRemovePieceReturn } from './addPiece'
 import { piecesSoFar } from './pieces'
 
 export type RemovePieceArgs = {
@@ -92,4 +92,3 @@ export function removePiece({
   }
   return { newBoardHexes, newBoardPieces, error }
 }
-

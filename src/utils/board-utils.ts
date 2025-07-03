@@ -67,14 +67,14 @@ export const getBoardHexObstacleOriginsAndHexesAndEmpties = (
     return acc
   }, {} as BoardHexes)
 }
-export const isLaurWallAddonPieceID = (
-  pieceID: string
-): boolean => {
-  return pieceID === Pieces.laurWallRuin1 ||
+export const isLaurWallAddonPieceID = (pieceID: string): boolean => {
+  return (
+    pieceID === Pieces.laurWallRuin1 ||
     pieceID === Pieces.laurWallRuin2 ||
     pieceID === Pieces.laurWallRuin3 ||
     pieceID === Pieces.laurWallLong ||
     pieceID === Pieces.laurWallLongStackable ||
     pieceID === Pieces.laurWallShort ||
     pieceID === Pieces.laurWallShortStackable
+  )
 }

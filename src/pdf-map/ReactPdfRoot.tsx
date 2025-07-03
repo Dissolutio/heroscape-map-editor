@@ -122,7 +122,9 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
         />
       </View>
       <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>
-      <Text style={{ fontSize: '12px', paddingLeft: 5 }}>by: {hexMap.author}</Text>
+      <Text style={{ fontSize: '12px', paddingLeft: 5 }}>
+        by: {hexMap.author}
+      </Text>
     </View>
   )
 }
@@ -156,7 +158,9 @@ const MapPortraitHeader = ({
         />
       </View>
       <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>
-      <Text style={{ fontSize: '12px', paddingLeft: 5 }}>by: {hexMap.author}</Text>
+      <Text style={{ fontSize: '12px', paddingLeft: 5 }}>
+        by: {hexMap.author}
+      </Text>
     </View>
   )
 }

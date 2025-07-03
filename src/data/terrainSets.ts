@@ -1,15 +1,15 @@
-import { setInventories } from "./inventories";
+import { setInventories } from './inventories'
 
 export const terrainSets = {
-  'A': {
+  A: {
     inventory: setInventories.maxSharedTerrainKit,
     id: 'A',
   },
-  'B': {
+  B: {
     inventory: setInventories.tournamentOrganizerTerrainKitPieceSet,
     id: 'B',
   },
-  'C': {
+  C: {
     inventory: setInventories.aoa1PieceSet,
     id: 'C',
   },
@@ -17,71 +17,71 @@ export const terrainSets = {
   //   inventory: setInventories.ruinsOfValhallaPieceSet,
   //   id: 'D',
   // },
-  'E': {
+  E: {
     inventory: setInventories.battleBox1PieceSet,
     id: 'E',
   },
-  'F': {
+  F: {
     inventory: setInventories.landsPieceSet,
     id: 'F',
   },
-  'G': {
+  G: {
     inventory: setInventories.snowsPieceSet,
     id: 'G',
   },
-  'H': {
+  H: {
     inventory: setInventories.lavaFieldsPieceSet,
     id: 'H',
   },
-  'I': {
+  I: {
     inventory: setInventories.roadsOfValhallaPieceSet,
     id: 'I',
   },
-  'J': {
+  J: {
     inventory: setInventories.swampsPieceSet,
     id: 'J',
   },
-  'K': {
+  K: {
     inventory: setInventories.watersPieceSet,
     id: 'K',
   },
-  'L': {
+  L: {
     inventory: setInventories.laurJunglePieceSet,
     id: 'L',
   },
-  'M': {
+  M: {
     inventory: setInventories.ticallaJunglePieceSet,
     id: 'M',
   },
-  'N': {
+  N: {
     inventory: setInventories.fortressPieceSet,
     id: 'N',
   },
-  'O': {
+  O: {
     inventory: setInventories.marvelPieceSet,
     id: 'O',
   },
-  'P': {
+  P: {
     inventory: setInventories.thaelenkPieceSet,
     id: 'P',
   },
-  'Q': {
+  Q: {
     inventory: setInventories.volcarrenPieceSet,
     id: 'Q',
   },
-  'R': {
+  R: {
     inventory: setInventories.forgottenForestPieceSet,
     id: 'R',
   },
-  'S': {
+  S: {
     inventory: setInventories.ms1PieceSet,
     id: 'S',
   },
-  'T': {
+  T: {
     inventory: setInventories.ms2PieceSet,
     id: 'T',
   },
-  'U': {
+  U: {
     inventory: setInventories.underdarkPieceSet,
     id: 'U',
   },

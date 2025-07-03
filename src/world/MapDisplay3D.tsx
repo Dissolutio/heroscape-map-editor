@@ -102,16 +102,20 @@ export default function MapDisplay3D({
       altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
     })
     // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
-    const clickedHex = isCastleWallArchClicked ? boardHexes[boardHexIdOfCapForWall] : hex
-    const clickedHexCoords = isCastleWallArchClicked ? {
-      q: boardHexes[boardHexIdOfCapForWall].q,
-      r: boardHexes[boardHexIdOfCapForWall].r,
-      s: boardHexes[boardHexIdOfCapForWall].s,
-    } : {
-      q: hex.q,
-      r: hex.r,
-      s: hex.s,
-    }
+    const clickedHex = isCastleWallArchClicked
+      ? boardHexes[boardHexIdOfCapForWall]
+      : hex
+    const clickedHexCoords = isCastleWallArchClicked
+      ? {
+          q: boardHexes[boardHexIdOfCapForWall].q,
+          r: boardHexes[boardHexIdOfCapForWall].r,
+          s: boardHexes[boardHexIdOfCapForWall].s,
+        }
+      : {
+          q: hex.q,
+          r: hex.r,
+          s: hex.s,
+        }
     const clickedHexAltitude = clickedHex.altitude
 
     // Castle W/A: use cap coords and altitude

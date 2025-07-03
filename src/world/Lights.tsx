@@ -10,11 +10,7 @@ export default function Lights({
   return (
     <>
       <ambientLight intensity={isHighQualityRender ? 0.5 : 2} />
-      <hemisphereLight
-        color={'white'}
-        groundColor={'white'}
-        intensity={0.5}
-      />
+      <hemisphereLight color={'white'} groundColor={'white'} intensity={0.5} />
       {isHighQualityRender && (
         <>
           <TransformControls
