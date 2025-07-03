@@ -1,3 +1,4 @@
+import 'react-image-crop/dist/ReactCrop.css'
 import { Box, IconButton, useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -10,6 +11,7 @@ import * as React from 'react'
 import { MdAutorenew } from 'react-icons/md'
 import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
+import ReactCrop, { type Crop } from 'react-image-crop'
 
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -18,6 +20,8 @@ export default function EditMapFormDialog() {
   const mapName = useBoundStore((state) => state.hexMap.name)
   const authorName = useBoundStore((state) => state.hexMap.author)
   const mapPortraitBase64 = useBoundStore((state) => state.mapPortraitBase64)
+  const [crop, setCrop] = React.useState<Crop>()
+
   const addMapPortraitBase64 = useBoundStore(
     (state) => state.addMapPortraitBase64,
   )
@@ -90,6 +94,7 @@ export default function EditMapFormDialog() {
               const newAuthorName = formJson.newAuthorName
               changeMapName(newMapName)
               changeAuthorName(newAuthorName)
+              addMapPortraitBase64(crop)
               enqueueSnackbar({
                 message: `Updated Map Name: ${newMapName}`,
                 autoHideDuration: 3000,
@@ -158,9 +163,11 @@ export default function EditMapFormDialog() {
               onChange={onChangeMapPortrait}
             />
           </label>
-          <img
-            alt="map portrait"
-            src={mapPortraitBase64} />
+          <ReactCrop crop={crop} onChange={c => setCrop(c)}>
+            <img
+              alt="map portrait"
+              src={mapPortraitBase64} />
+          </ReactCrop>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
