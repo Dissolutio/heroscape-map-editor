@@ -82,9 +82,9 @@ export function removePiece({
     }
     // remove the hexes
     // Remove all hexes from newBoardHexes that have the given pieceID
-    for (const hexID of Object.keys(boardHexes)) {
-      if (boardHexes[hexID]?.pieceID === pieceID) {
-        delete boardHexes[hexID]
+    for (const hexID of Object.keys(newBoardHexes)) {
+      if (newBoardHexes[hexID]?.pieceID === pieceID) {
+        delete newBoardHexes[hexID]
       }
     }
     // remove the piece
