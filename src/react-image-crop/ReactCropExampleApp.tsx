@@ -44,10 +44,7 @@ export default function ReactCropExampleApp() {
   const blobUrlRef = useRef('')
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
-  const [scale, setScale] = useState(1)
-  const [rotate, setRotate] = useState(0)
-  const [aspect, setAspect] = useState<number | undefined>(16 / 9)
-
+  const aspect = 16 / 9
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
       setCrop(undefined) // Makes crop preview update between images.
@@ -60,10 +57,8 @@ export default function ReactCropExampleApp() {
   }
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
-    if (aspect) {
-      const { width, height } = e.currentTarget
-      setCrop(centerAspectCrop(width, height, aspect))
-    }
+    const { width, height } = e.currentTarget
+    setCrop(centerAspectCrop(width, height, aspect))
   }
 
   async function onDownloadCropClick() {
@@ -129,79 +124,31 @@ export default function ReactCropExampleApp() {
           imgRef.current,
           previewCanvasRef.current,
           completedCrop,
-          scale,
-          rotate,
         )
       }
     },
     100,
-    [completedCrop, scale, rotate],
+    [completedCrop],
   )
 
-  function handleToggleAspectClick() {
-    if (aspect) {
-      setAspect(undefined)
-    } else {
-      setAspect(16 / 9)
-
-      if (imgRef.current) {
-        const { width, height } = imgRef.current
-        const newCrop = centerAspectCrop(width, height, 16 / 9)
-        setCrop(newCrop)
-        // Updates the preview
-        setCompletedCrop(convertToPixelCrop(newCrop, width, height))
-      }
-    }
-  }
 
   return (
     <div className="App">
       <div className="Crop-Controls">
         <input type="file" accept="image/*" onChange={onSelectFile} />
-        <div>
-          <label htmlFor="scale-input">Scale: </label>
-          <input
-            id="scale-input"
-            type="number"
-            step="0.1"
-            value={scale}
-            disabled={!imgSrc}
-            onChange={(e) => setScale(Number(e.target.value))}
-          />
-        </div>
-        <div>
-          <label htmlFor="rotate-input">Rotate: </label>
-          <input
-            id="rotate-input"
-            type="number"
-            value={rotate}
-            disabled={!imgSrc}
-            onChange={(e) =>
-              setRotate(Math.min(180, Math.max(-180, Number(e.target.value))))
-            }
-          />
-        </div>
-        <div>
-          <button type="button" onClick={handleToggleAspectClick}>
-            Toggle aspect {aspect ? 'off' : 'on'}
-          </button>
-        </div>
       </div>
       {!!imgSrc && (
         <ReactCrop
           crop={crop}
           onChange={(_, percentCrop) => setCrop(percentCrop)}
           onComplete={(c) => setCompletedCrop(c)}
-          aspect={aspect}
-          // minWidth={400}
+          // aspect={aspect}
           minHeight={100}
-        // circularCrop
         >
           <img
             ref={imgRef}
             alt="Crop me"
             src={imgSrc}
-            style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
             onLoad={onImageLoad}
           />
         </ReactCrop>
@@ -221,10 +168,6 @@ export default function ReactCropExampleApp() {
           </div>
           <div>
             <button type="button" onClick={onDownloadCropClick}>Download Crop</button>
-            <div style={{ fontSize: 12, color: '#666' }}>
-              If you get a security error when downloading try opening the
-              Preview in a new tab (icon near top right).
-            </div>
             <a
               href="#hidden"
               ref={hiddenAnchorRef}
