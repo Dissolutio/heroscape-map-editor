@@ -33,7 +33,7 @@ export const PdfMapLevels4FirstPage = ({
     }}
   >
     {children}
-    <View style={{ flexDirection: 'row' }}>
+    <View style={{ flexDirection: 'row', flexGrow: 1 }}>
       <HalfPageColumn>
         {chunk.map((group: any, i: number) =>
           i < 2 ? (
@@ -277,7 +277,7 @@ const RowWrapper = (props: PropsWithChildren) => {
     <View
       style={{
         flexBasis: '33%',
-        maxHeight: '33%',
+        // maxHeight: '33%',
       }}
     >
       {props.children}
