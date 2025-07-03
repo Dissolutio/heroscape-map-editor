@@ -8,6 +8,14 @@
 - Controls: log state
 
 
+## Separation of State (pieces) / Validation
+- Add/Remove Piece should be **functional**, **NOT mutational**
+
+1. Land / EZ/Based Obstacles
+2. Laur Addons / Castle Walls / Wall Walk / Ladder
+
+
+
 ## Move/rotate/switch pieces
 3. Move, rotate, switch pieces that are on the board already
 

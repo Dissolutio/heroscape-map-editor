@@ -9,14 +9,14 @@ import type {
   Piece,
 } from '../types'
 import type { AppState } from './store'
-import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 import { LS_KEYS } from '../local-storage/keys'
 
 export interface MapSlice extends MapState {
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
   unpaintTile: (pieceID: string) => void
   loadMap: (map: MapState) => void
-  changeMapName: (mapName: string) => void
+  changeMapName: (val: string) => void
+  changeAuthorName: (val: string) => void
 }
 
 type PaintTileArgs = {
@@ -40,7 +40,15 @@ if (localStorage.getItem(LS_KEYS.lastMap)) {
 
 const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   boardHexes: {},
-  hexMap: { id: '', name: '', shape: 'rectangle', width: 20, length: 20 },
+  hexMap: {
+    id: '',
+    name: '',
+    author: '',
+    // sets: '',
+    shape: 'rectangle',
+    width: 20,
+    length: 20,
+  },
   boardPieces: {},
   paintTile: ({
     piece,
@@ -93,10 +101,16 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.boardPieces = newBoardPieces
       })
     }),
-  changeMapName: (mapName: string) =>
+  changeMapName: (val: string) =>
     set((state) => {
       return produce(state, (draft) => {
-        draft.hexMap.name = mapName
+        draft.hexMap.name = val
+      })
+    }),
+  changeAuthorName: (val: string) =>
+    set((state) => {
+      return produce(state, (draft) => {
+        draft.hexMap.author = val
       })
     }),
   loadMap: (mapState: MapState) =>
