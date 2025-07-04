@@ -107,15 +107,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     const clickedHexAltitude = clickedHex.altitude
 
     // Castle W/A: use cap coords and altitude
@@ -140,13 +140,8 @@ export default function MapDisplay3D({
           variant: 'warning',
           autoHideDuration: 5000,
         })
-
         return
       }
-      // const laurWallAddonClickedHexCoords = getBattlementClickedHexCoords(
-      //   clickedHex,
-      //   penModeRotation,
-      // )
       error = paintTile({
         piece,
         clickedHexCoords,
@@ -156,7 +151,7 @@ export default function MapDisplay3D({
       console.log('🚀 ~ error:', error)
     }
     // BATTLEMENT
-    if (piece?.id === Pieces.battlement) {
+    else if (piece?.id === Pieces.battlement) {
       const battlementClickedHexCoords = getBattlementClickedHexCoords(
         clickedHex,
         penModeRotation,
@@ -170,7 +165,7 @@ export default function MapDisplay3D({
       })
     }
     // ROADWALL
-    if (piece?.id === Pieces.roadWall) {
+    else if (piece?.id === Pieces.roadWall) {
       const roadWallClickedHexCoords = getRoadWallClickedHexCoords(
         clickedHex,
         penModeRotation,
@@ -183,7 +178,7 @@ export default function MapDisplay3D({
       })
     }
     // LADDER ONTO LADDER
-    if (piece?.id === Pieces.ladder && hex?.inventoryID === Pieces.ladder) {
+    else if (piece?.id === Pieces.ladder && hex?.inventoryID === Pieces.ladder) {
       error = paintTile({
         piece,
         clickedHexCoords: clickedHexCoords,
