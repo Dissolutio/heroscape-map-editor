@@ -7,6 +7,7 @@ export default function Lights({
 }: { width: number; length: number }) {
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const initialHeight = 15
   return (
     <>
       <ambientLight intensity={isHighQualityRender ? 0.5 : 2} />
@@ -14,7 +15,7 @@ export default function Lights({
       {isHighQualityRender && (
         <>
           <TransformControls
-            position={[width / 3, 10, length / 3]}
+            position={[width / 3, initialHeight, length / 3]}
             showX={!isTakingPicture}
             showY={!isTakingPicture}
             showZ={!isTakingPicture}
@@ -27,7 +28,7 @@ export default function Lights({
             />
           </TransformControls>
           <TransformControls
-            position={[width / 3, 10, (2 * length) / 3]}
+            position={[width / 3, initialHeight, (2 * length) / 3]}
             showX={!isTakingPicture}
             showY={!isTakingPicture}
             showZ={!isTakingPicture}
@@ -40,7 +41,7 @@ export default function Lights({
             />
           </TransformControls>
           <TransformControls
-            position={[(2 * width) / 3, 10, length / 3]}
+            position={[(2 * width) / 3, initialHeight, length / 3]}
             showX={!isTakingPicture}
             showY={!isTakingPicture}
             showZ={!isTakingPicture}
@@ -53,7 +54,7 @@ export default function Lights({
             />
           </TransformControls>
           <TransformControls
-            position={[(2 * width) / 3, 10, (2 * length) / 3]}
+            position={[(2 * width) / 3, initialHeight, (2 * length) / 3]}
             showX={!isTakingPicture}
             showY={!isTakingPicture}
             showZ={!isTakingPicture}

@@ -23,7 +23,7 @@ export default function EditMapFormDialog() {
   const mapNotes = useBoundStore((state) => state.mapNotes)
   const changeMapNotes = useBoundStore((state) => state.changeMapNotes)
   const mapPortraitBase64 = useBoundStore((state) => state.mapPortraitBase64)
-  const [imgSrc, setImgSrc] = React.useState('')
+  const [imgSrc, setImgSrc] = React.useState(mapPortraitBase64)
   const [crop, setCrop] = React.useState<Crop>()
 
   const addMapPortraitBase64 = useBoundStore(
@@ -77,9 +77,12 @@ export default function EditMapFormDialog() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <Only reset when dialog opens or closes>
   React.useEffect(() => {
     // reset vals to the current map when dialog opens/closes
-    setNewName(mapName)
-    setNewAuthor(authorName)
-    changeMapNotes(mapNotes)
+    if (isEditMapDialogOpen) {
+      setNewName(mapName)
+      setNewAuthor(authorName)
+      changeMapNotes(mapNotes)
+      setImgSrc(mapPortraitBase64)
+    }
   }, [isEditMapDialogOpen])
 
   return (

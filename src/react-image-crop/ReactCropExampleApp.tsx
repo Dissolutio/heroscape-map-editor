@@ -10,6 +10,7 @@ import ReactCrop, {
 import { canvasPreview } from './canvasPreview'
 import { useDebounceEffect } from './useDebounceEffect'
 import 'react-image-crop/dist/ReactCrop.css'
+import { hiddenStyle } from '../layout/hiddenStyle'
 
 type Props = {
   imgSrc: string
@@ -43,7 +44,7 @@ export default function ReactCropExampleApp({
     setCrop(centerAspectCrop(width, height, width / height))
   }
 
-  async function onDownloadCropClick() {
+  async function onApplyCropClick(isDownload?: boolean) {
     const image = imgRef.current
     const previewCanvas = previewCanvasRef.current
     if (!image || !previewCanvas || !completedCrop) {
@@ -81,15 +82,26 @@ export default function ReactCropExampleApp({
     const blob = await offscreen.convertToBlob({
       type: 'image/png',
     })
-
     if (blobUrlRef.current) {
       URL.revokeObjectURL(blobUrlRef.current)
     }
     blobUrlRef.current = URL.createObjectURL(blob)
 
-    if (hiddenAnchorRef.current) {
-      hiddenAnchorRef.current.href = blobUrlRef.current
-      hiddenAnchorRef.current.click()
+    // DOWNLOAD IMAGE or APPLY CROP:
+    if (isDownload) {
+      if (hiddenAnchorRef.current) {
+        hiddenAnchorRef.current.href = blobUrlRef.current
+        hiddenAnchorRef.current.click()
+      }
+    } else {
+      // Convert blob to base64 and set as imgSrc
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        if (reader.result && typeof reader.result === 'string') {
+          setImgSrc(reader.result)
+        }
+      }
+      reader.readAsDataURL(blob)
     }
   }
 
@@ -143,18 +155,17 @@ export default function ReactCropExampleApp({
             />
           </div>
           <div>
-            <button type="button" onClick={onDownloadCropClick}>
+            <button type="button" onClick={() => onApplyCropClick(false)}>
+              Apply Crop
+            </button>
+            <button type="button" onClick={() => onApplyCropClick(true)}>
               Download Crop
             </button>
             <a
               href="#hidden"
               ref={hiddenAnchorRef}
               download
-              style={{
-                position: 'absolute',
-                top: '-200vh',
-                visibility: 'hidden',
-              }}
+              style={hiddenStyle}
             >
               Hidden download
             </a>
