@@ -18,10 +18,7 @@ type Props = {
   setImgSrc: React.Dispatch<React.SetStateAction<string>>
 }
 
-export default function ReactCropExampleApp({
-  imgSrc,
-  setImgSrc
-}: Props) {
+export default function ReactCropExampleApp({ imgSrc, setImgSrc }: Props) {
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
   const hiddenAnchorRef = useRef<HTMLAnchorElement>(null)
@@ -106,29 +103,27 @@ export default function ReactCropExampleApp({
     }
   }
 
-  useDebounceEffect(async () => {
-    if (
-      completedCrop?.width &&
-      completedCrop?.height &&
-      imgRef.current &&
-      previewCanvasRef.current
-    ) {
-      // We use canvasPreview as it's much faster than imgPreview.
-      canvasPreview(imgRef.current, previewCanvasRef.current, completedCrop)
-    }
-  },
+  useDebounceEffect(
+    async () => {
+      if (
+        completedCrop?.width &&
+        completedCrop?.height &&
+        imgRef.current &&
+        previewCanvasRef.current
+      ) {
+        // We use canvasPreview as it's much faster than imgPreview.
+        canvasPreview(imgRef.current, previewCanvasRef.current, completedCrop)
+      }
+    },
     100,
-    [completedCrop],)
+    [completedCrop],
+  )
 
   return (
     <>
       <label>
         Map portrait:
-        <input
-          type="file"
-          accept="image/*"
-          onChange={onSelectFile}
-        />
+        <input type="file" accept="image/*" onChange={onSelectFile} />
       </label>
 
       {!!imgSrc && (
@@ -159,13 +154,15 @@ export default function ReactCropExampleApp({
             <Button
               color="success"
               variant="contained"
-              onClick={() => onApplyCropClick(false)}>
+              onClick={() => onApplyCropClick(false)}
+            >
               Apply Crop
             </Button>
             <Button
               color="info"
               variant="contained"
-              onClick={() => onApplyCropClick(true)}>
+              onClick={() => onApplyCropClick(true)}
+            >
               Download Crop
             </Button>
             <a
@@ -182,7 +179,6 @@ export default function ReactCropExampleApp({
     </>
   )
 }
-
 
 // This is to demonstate how to make and center a % aspect crop
 // which is a bit trickier so we use some helper functions.

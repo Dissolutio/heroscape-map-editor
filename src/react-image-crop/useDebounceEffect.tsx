@@ -5,9 +5,10 @@ export function useDebounceEffect(
   waitTime: number,
   deps?: DependencyList,
 ) {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const t = setTimeout(() => {
-      fn.apply(undefined, deps)
+      fn.apply(undefined, deps as [])
     }, waitTime)
 
     return () => {

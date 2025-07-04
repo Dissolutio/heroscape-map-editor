@@ -63,7 +63,9 @@ export default function CreateMapFormDialog() {
   )
   const isNewMapDialogOpen = useBoundStore((state) => state.isNewMapDialogOpen)
   const changeMapNotes = useBoundStore((state) => state.changeMapNotes)
-  const addMapPortraitBase64 = useBoundStore((state) => state.addMapPortraitBase64)
+  const addMapPortraitBase64 = useBoundStore(
+    (state) => state.addMapPortraitBase64,
+  )
   const handleClose = () => toggleIsNewMapDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
   // new map form state
@@ -80,14 +82,14 @@ export default function CreateMapFormDialog() {
     const newMap =
       mapShape === 'rectangle'
         ? makeRectangleScenario({
-          mapName,
-          width: mapWidth,
-          length: mapLength,
-        })
+            mapName,
+            width: mapWidth,
+            length: mapLength,
+          })
         : makeHexagonScenario({
-          mapName,
-          size: mapSize,
-        })
+            mapName,
+            size: mapSize,
+          })
     loadMap(newMap)
     changeMapNotes('')
     addMapPortraitBase64('')

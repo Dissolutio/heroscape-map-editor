@@ -192,10 +192,7 @@ export default function EditMapFormDialog() {
           <ReactCrop crop={crop} onChange={(c) => setCrop(c)}>
             <img alt="map portrait" src={mapPortraitBase64} />
           </ReactCrop> */}
-          <ReactCropExampleApp
-            imgSrc={imgSrc}
-            setImgSrc={setImgSrc}
-          />
+          <ReactCropExampleApp imgSrc={imgSrc} setImgSrc={setImgSrc} />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
