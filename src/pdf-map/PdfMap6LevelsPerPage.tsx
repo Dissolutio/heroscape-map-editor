@@ -15,6 +15,63 @@ import {
 } from '../utils/map-utils'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 
+export const PdfMapLevels4FirstPage = ({
+  chunk,
+  boardHexes,
+  // boardPieces,
+  decodedBoardPiecesArr,
+  width,
+  length,
+  children,
+}: any) => (
+  <Page
+    size="LETTER"
+    style={{
+      flexDirection: 'column',
+      maxHeight: '100vh',
+      padding: 5,
+    }}
+  >
+    {children}
+    <View style={{ flexDirection: 'row', flexGrow: 1 }}>
+      <HalfPageColumn>
+        {chunk.map((group: any, i: number) =>
+          i < 2 ? (
+            <RowWrapper key={i}>
+              <Text style={{ fontSize: '10px' }}>Level: {group.altitude}</Text>
+              <ReactPdfSvgMapDisplay
+                chunk={chunk[i]}
+                boardPiecesArr={decodedBoardPiecesArr}
+                boardHexesArr={Object.values(boardHexes)}
+                width={width}
+                length={length}
+                viewingLevel={group.altitude}
+              />
+            </RowWrapper>
+          ) : null,
+        )}
+      </HalfPageColumn>
+      <HalfPageColumn>
+        {chunk.map((group: any, i: number) =>
+          i >= 2 ? (
+            <RowWrapper key={i}>
+              <Text style={{ fontSize: '10px' }}>Level: {group.altitude}</Text>
+              <ReactPdfSvgMapDisplay
+                chunk={chunk[i]}
+                boardPiecesArr={decodedBoardPiecesArr}
+                boardHexesArr={Object.values(boardHexes)}
+                width={width}
+                length={length}
+                viewingLevel={group.altitude}
+              />
+            </RowWrapper>
+          ) : null,
+        )}
+      </HalfPageColumn>
+    </View>
+  </Page>
+)
+
 export const PdfMapLevels6PerPage = ({
   boardHexes,
   boardPieces,
@@ -103,6 +160,54 @@ export const PdfMapLevels6PerPage = ({
   )
 }
 
+export const PdfMapLevelsPerPage = ({
+  boardHexes,
+  boardPieces,
+  hexMap,
+  children,
+}: PropsWithChildren<MapState>) => {
+  const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
+  const boardHexesWithoutEmpties = keyBy(
+    Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
+    'id',
+  )
+  const boardHexAndPieceChunks = getBoardHexAndPieceChunks(
+    boardHexesWithoutEmpties,
+    boardPieces,
+  )
+  const decodedBoardPiecesArr = Object.keys(boardPieces)
+    .map((id) => decodePieceID(id))
+    .filter((p) => Boolean(p))
+
+  return (
+    <>
+      {boardHexAndPieceChunks.map((chunk, i) =>
+        i === 0 ? (
+          <PdfMapLevels4FirstPage
+            key={i}
+            chunk={chunk}
+            boardHexes={boardHexes}
+            boardPieces={boardPieces}
+            decodedBoardPiecesArr={decodedBoardPiecesArr}
+            width={width}
+            length={length}
+          >
+            {children}
+          </PdfMapLevels4FirstPage>
+        ) : (
+          <PdfMapLevels6PerPage
+            key={i}
+            hexMap={hexMap}
+            boardHexes={boardHexes}
+            boardPieces={boardPieces}
+            children={null}
+          />
+        ),
+      )}
+    </>
+  )
+}
+
 const getBoardHexAndPieceChunks = (
   boardHexes: BoardHexes,
   boardPieces: BoardPieces,
@@ -139,12 +244,18 @@ const getBoardHexAndPieceChunks = (
   // Sort combined groups by altitude
   combinedGroups.sort((a, b) => a.altitude - b.altitude)
 
-  // Chunk combined groups into chunks of 6
+  // Chunk combined groups: 4 for first page, 6 for the rest
   const chunks = []
-  for (let i = 0; i < combinedGroups.length; i += 6) {
+  let i = 0
+  if (combinedGroups.length > 0) {
+    // First page: 4 levels
+    chunks.push(combinedGroups.slice(0, 4))
+    i = 4
+  }
+  // Subsequent pages: 6 levels per page
+  for (; i < combinedGroups.length; i += 6) {
     chunks.push(combinedGroups.slice(i, i + 6))
   }
-
   return chunks
 }
 
@@ -166,7 +277,7 @@ const RowWrapper = (props: PropsWithChildren) => {
     <View
       style={{
         flexBasis: '33%',
-        maxHeight: '33%',
+        // maxHeight: '33%',
       }}
     >
       {props.children}

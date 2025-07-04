@@ -23,8 +23,6 @@ export interface UISlice {
   isEditMapDialogOpen: boolean
   toggleIsEditMapDialogOpen: (b: boolean) => void
   // WORLD STATE
-  mapPortraitBase64: string
-  addMapPortraitBase64: (pic: string) => void
   selectedPieceID: string
   toggleSelectedPieceID: (id: string) => void
   hoveredPieceID: string
@@ -54,13 +52,6 @@ const createUISlice: StateCreator<
   [],
   UISlice
 > = (set) => ({
-  mapPortraitBase64: '',
-  addMapPortraitBase64: (pic: string) =>
-    set(
-      produce((state) => {
-        state.mapPortraitBase64 = pic
-      }),
-    ),
   selectedPieceID: '',
   toggleSelectedPieceID: (pieceID: string) =>
     set(

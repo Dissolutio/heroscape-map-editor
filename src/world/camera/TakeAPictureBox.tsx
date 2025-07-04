@@ -17,6 +17,7 @@ const TakeAPictureBox = () => {
     const handleDownloadPng = () => {
       gl.render(scene, camera)
       const screenshot = gl.domElement.toDataURL()
+      addMapPortraitBase64(screenshot)
       const link = document.createElement('a')
       link.download = `${hexMap.name}.png`
       link.href = screenshot

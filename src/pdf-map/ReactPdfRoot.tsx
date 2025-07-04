@@ -1,7 +1,7 @@
 import { useMediaQuery } from '@mui/material'
 import { Document, Image, PDFViewer, Text, View } from '@react-pdf/renderer'
 import useBoundStore from '../store/store'
-import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
+import { PdfMapLevelsPerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
 import type { MapState } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
@@ -28,23 +28,23 @@ export function ReactPdfRoot() {
       ) : (
         <PDFViewer width={'100%'} height={'100%'}>
           <Document title={hexMap.name}>
-            <PdfMapLevels6PerPage
+            <PdfMapLevelsPerPage
               boardHexes={boardHexes}
               boardPieces={boardPieces}
               hexMap={hexMap}
             >
-              {/* <MapPortraitHeader
+              <MapPortraitHeader
                 boardHexes={boardHexes}
                 boardPieces={boardPieces}
                 hexMap={hexMap}
                 mapPortraitBase64={mapPortraitBase64}
-              /> */}
-              <MyCustomHeaderHeroscapeLogo
+              />
+              {/* <MyCustomHeaderHeroscapeLogo
                 boardHexes={boardHexes}
                 boardPieces={boardPieces}
                 hexMap={hexMap}
-              />
-            </PdfMapLevels6PerPage>
+              /> */}
+            </PdfMapLevelsPerPage>
           </Document>
         </PDFViewer>
       )}
@@ -135,32 +135,49 @@ const MapPortraitHeader = ({
   return (
     <View
       style={{
-        flexDirection: 'row',
+        flexDirection: 'column',
         flexGrow: 0,
         padding: 0,
         alignContent: 'center',
         alignItems: 'center',
-        height: 50,
       }}
     >
       <View
         style={{
-          flexBasis: 110,
+          flexDirection: 'row',
+          flexGrow: 0,
+          padding: 0,
+          alignContent: 'center',
+          alignItems: 'center',
+          height: 50,
+          // border: '1px solid red',
         }}
       >
-        <Image
-          src={mapPortraitBase64}
+        <View
           style={{
-            // maxHeight: '100%',
-            width: '50px',
-            height: 'auto',
+            flexBasis: 110,
           }}
-        />
+        >
+          <PdfSvgHeroscapeLogo
+            svgProps={{
+              height: '70%',
+            }}
+            fillColor="red"
+          />
+        </View>
+        <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>
+        <Text style={{ fontSize: '12px', paddingLeft: 5 }}>
+          by: {hexMap.author}
+        </Text>
       </View>
-      <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>
-      <Text style={{ fontSize: '12px', paddingLeft: 5 }}>
-        by: {hexMap.author}
-      </Text>
+      <Image
+        src={mapPortraitBase64}
+        style={{
+          height: '200px',
+          width: 'auto',
+          // border: '1px solid red',
+        }}
+      />
     </View>
   )
 }

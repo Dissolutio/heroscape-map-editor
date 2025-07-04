@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/react'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
+// import ReactCropExampleApp from './react-image-crop/ReactCropExampleApp'
 
 const container = document.getElementById('root')
 const root = createRoot(container, {
@@ -19,5 +20,6 @@ const root = createRoot(container, {
 root.render(
   <StrictMode>
     <App />
+    {/* <ReactCropExampleApp /> */}
   </StrictMode>,
 )

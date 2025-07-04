@@ -22,6 +22,7 @@ import useBoundStore from '../store/store'
 import { type PieceInventory, Pieces } from '../types'
 import DownloadMapFileButtons from './DownloadMapFileButtons'
 import LoadMapButtons from './LoadMapButtons'
+import { hiddenStyle } from './hiddenStyle'
 
 export const DrawerList = ({
   toggleIsNavOpen,
@@ -313,16 +314,4 @@ export const DrawerList = ({
       </div>
     </Box>
   )
-}
-
-const hiddenStyle = {
-  clip: 'rect(0 0 0 0)',
-  clipPath: 'inset(50%)',
-  height: '1',
-  overflow: 'hidden',
-  position: 'absolute' as const,
-  bottom: '0',
-  left: '0',
-  whiteSpace: 'nowrap',
-  width: '1',
 }

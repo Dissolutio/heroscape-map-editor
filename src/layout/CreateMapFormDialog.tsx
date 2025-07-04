@@ -62,6 +62,10 @@ export default function CreateMapFormDialog() {
     (state) => state.toggleIsNewMapDialogOpen,
   )
   const isNewMapDialogOpen = useBoundStore((state) => state.isNewMapDialogOpen)
+  const changeMapNotes = useBoundStore((state) => state.changeMapNotes)
+  const addMapPortraitBase64 = useBoundStore(
+    (state) => state.addMapPortraitBase64,
+  )
   const handleClose = () => toggleIsNewMapDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
   // new map form state
@@ -87,6 +91,8 @@ export default function CreateMapFormDialog() {
             size: mapSize,
           })
     loadMap(newMap)
+    changeMapNotes('')
+    addMapPortraitBase64('')
     clearUndoHistory()
     navigate(ROUTES.heroscapeHome)
     enqueueSnackbar({
