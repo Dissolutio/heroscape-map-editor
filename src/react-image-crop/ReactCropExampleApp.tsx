@@ -11,6 +11,7 @@ import { canvasPreview } from './canvasPreview'
 import { useDebounceEffect } from './useDebounceEffect'
 import 'react-image-crop/dist/ReactCrop.css'
 import { hiddenStyle } from '../layout/hiddenStyle'
+import { Button } from '@mui/material'
 
 type Props = {
   imgSrc: string
@@ -155,12 +156,18 @@ export default function ReactCropExampleApp({
             />
           </div>
           <div>
-            <button type="button" onClick={() => onApplyCropClick(false)}>
+            <Button
+              color="success"
+              variant="contained"
+              onClick={() => onApplyCropClick(false)}>
               Apply Crop
-            </button>
-            <button type="button" onClick={() => onApplyCropClick(true)}>
+            </Button>
+            <Button
+              color="info"
+              variant="contained"
+              onClick={() => onApplyCropClick(true)}>
               Download Crop
-            </button>
+            </Button>
             <a
               href="#hidden"
               ref={hiddenAnchorRef}
