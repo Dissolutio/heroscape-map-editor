@@ -172,6 +172,8 @@ const MapPortraitHeader = ({
         <Text style={{ fontSize: '12px', paddingLeft: 5 }}>
           by: {hexMap.author}
         </Text>
+      </View>
+      <View>
         <Text style={{ fontSize: '10px', paddingLeft: 5 }}>
           {mapNotes}
         </Text>

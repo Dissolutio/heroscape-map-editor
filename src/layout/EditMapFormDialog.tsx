@@ -172,6 +172,7 @@ export default function EditMapFormDialog() {
           >
             <TextField
               id="mapNotes"
+              name="mapNotes"
               label="Map Notes"
               defaultValue={mapNotes}
               placeholder="Your notes here..."
