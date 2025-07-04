@@ -56,18 +56,18 @@ export default function CameraSpeedDial({
   const handleToggleOrthoCam = () => {
     toggleIsOrthoCam(!isOrthoCam)
   }
-  // const handleTakePicturePng = () => {
-  //   toggleIsTakingPicture(true)
-  //   takePictureTimeout.current = setTimeout(() => {
-  //     publish(EVENTS.savePng)
-  //   }, 100); // Long enough to make some changes to the map and render
-  // }
-  const handleTakePictureJpg = () => {
+  const handleTakePicturePng = () => {
     toggleIsTakingPicture(true)
     takePictureTimeout.current = window.setTimeout(() => {
-      publish(EVENTS.saveJpg)
-    }, 100) // Long enough to make some changes to the map and render
+      publish(EVENTS.savePng)
+    }, 100); // Long enough to make some changes to the map and render
   }
+  // const handleTakePictureJpg = () => {
+  //   toggleIsTakingPicture(true)
+  //   takePictureTimeout.current = window.setTimeout(() => {
+  //     publish(EVENTS.saveJpg)
+  //   }, 100) // Long enough to make some changes to the map and render
+  // }
 
   return (
     <SpeedDial
@@ -114,17 +114,17 @@ export default function CameraSpeedDial({
         }
         onClick={handleToggleOrthoCam}
       />
-      {/* <SpeedDialAction
+      <SpeedDialAction
         icon={<FcOldTimeCamera />}
         tooltipTitle={'Take map picture .PNG'}
         onClick={handleTakePicturePng}
-      /> */}
-      <SpeedDialAction
+      />
+      {/* <SpeedDialAction
         icon={<FcOldTimeCamera />}
         tooltipTitle={'Take map picture .JPG'}
         aria-label="Camera take map picture and save as JPG"
         onClick={handleTakePictureJpg}
-      />
+      /> */}
     </SpeedDial>
   )
 }

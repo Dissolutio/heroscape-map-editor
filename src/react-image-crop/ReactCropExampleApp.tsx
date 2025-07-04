@@ -20,14 +20,12 @@ export default function ReactCropExampleApp({
   imgSrc,
   setImgSrc
 }: Props) {
-  // const [imgSrc, setImgSrc] = useState('')
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
   const hiddenAnchorRef = useRef<HTMLAnchorElement>(null)
   const blobUrlRef = useRef('')
   const [crop, setCrop] = useState<Crop>()
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
-  const initialAspect = 16 / 9
 
   function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
@@ -42,7 +40,7 @@ export default function ReactCropExampleApp({
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     const { width, height } = e.currentTarget
-    setCrop(centerAspectCrop(width, height, initialAspect))
+    setCrop(centerAspectCrop(width, height, width / height))
   }
 
   async function onDownloadCropClick() {
@@ -179,7 +177,7 @@ function centerAspectCrop(
     makeAspectCrop(
       {
         unit: '%',
-        width: 90,
+        width: 100,
       },
       aspect,
       mediaWidth,

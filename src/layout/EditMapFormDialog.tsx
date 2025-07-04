@@ -16,10 +16,12 @@ import ReactCropExampleApp from '../react-image-crop/ReactCropExampleApp'
 
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
-  const changeMapName = useBoundStore((state) => state.changeMapName)
-  const changeAuthorName = useBoundStore((state) => state.changeAuthorName)
   const mapName = useBoundStore((state) => state.hexMap.name)
+  const changeMapName = useBoundStore((state) => state.changeMapName)
   const authorName = useBoundStore((state) => state.hexMap.author)
+  const changeAuthorName = useBoundStore((state) => state.changeAuthorName)
+  const mapNotes = useBoundStore((state) => state.mapNotes)
+  const changeMapNotes = useBoundStore((state) => state.changeMapNotes)
   const mapPortraitBase64 = useBoundStore((state) => state.mapPortraitBase64)
   const [imgSrc, setImgSrc] = React.useState('')
   const [crop, setCrop] = React.useState<Crop>()
@@ -77,6 +79,7 @@ export default function EditMapFormDialog() {
     // reset vals to the current map when dialog opens/closes
     setNewName(mapName)
     setNewAuthor(authorName)
+    changeMapNotes(mapNotes)
   }, [isEditMapDialogOpen])
 
   return (
@@ -96,8 +99,10 @@ export default function EditMapFormDialog() {
               const formJson = Object.fromEntries((formData as any).entries())
               const newMapName = formJson.newMapName
               const newAuthorName = formJson.newAuthorName
+              const newMapNotes = formJson.mapNotes
               changeMapName(newMapName)
               changeAuthorName(newAuthorName)
+              changeMapNotes(newMapNotes)
               addMapPortraitBase64(imgSrc)
               enqueueSnackbar({
                 message: `Updated Map Name: ${newMapName}`,
@@ -148,7 +153,6 @@ export default function EditMapFormDialog() {
             <TextField
               id="newAuthorName"
               name="newAuthorName"
-              required
               value={newAuthor}
               onChange={(e) => setNewAuthor(e.target.value)}
               margin="dense"
@@ -156,6 +160,21 @@ export default function EditMapFormDialog() {
               type="text"
               fullWidth
               variant="outlined"
+            />
+          </Box>
+          <Box
+            sx={{
+              p: '1em 4px',
+            }}
+          >
+            <TextField
+              id="mapNotes"
+              label="Map Notes"
+              defaultValue={mapNotes}
+              placeholder="Your notes here..."
+              fullWidth
+              multiline
+              rows={4}
             />
           </Box>
           {/* <label>
