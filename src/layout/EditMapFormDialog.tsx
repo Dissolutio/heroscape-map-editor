@@ -64,16 +64,6 @@ export default function EditMapFormDialog() {
     }
   }, [file, addMapPortraitBase64])
 
-  const onChangeMapPortrait = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event?.target?.files?.[0]
-    if (!file) {
-      return
-    }
-    setFile(file)
-  }
-
   // biome-ignore lint/correctness/useExhaustiveDependencies: <Only reset when dialog opens or closes>
   React.useEffect(() => {
     // reset vals to the current map when dialog opens/closes
@@ -172,6 +162,7 @@ export default function EditMapFormDialog() {
           >
             <TextField
               id="mapNotes"
+              name="mapNotes"
               label="Map Notes"
               defaultValue={mapNotes}
               placeholder="Your notes here..."
@@ -180,18 +171,6 @@ export default function EditMapFormDialog() {
               rows={4}
             />
           </Box>
-          {/* <label>
-            Map portrait:
-            <input
-              id="mapPortraitInput"
-              type="file"
-              accept="image/*"
-              onChange={onChangeMapPortrait}
-            />
-          </label>
-          <ReactCrop crop={crop} onChange={(c) => setCrop(c)}>
-            <img alt="map portrait" src={mapPortraitBase64} />
-          </ReactCrop> */}
           <ReactCropExampleApp imgSrc={imgSrc} setImgSrc={setImgSrc} />
         </DialogContent>
         <DialogActions>

@@ -1,7 +1,7 @@
 import { useMediaQuery } from '@mui/material'
 import { Document, Image, PDFViewer, Text, View } from '@react-pdf/renderer'
 import useBoundStore from '../store/store'
-import { PdfMapLevelsPerPage } from './PdfMap6LevelsPerPage'
+import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
 import type { MapState } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
@@ -10,6 +10,7 @@ export function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
+  const mapNotes = useBoundStore((s) => s.mapNotes)
   const mapPortraitBase64 = useBoundStore((s) => s.mapPortraitBase64)
   const isMobile = useMediaQuery('(max-width:800px)')
   return (
@@ -28,7 +29,7 @@ export function ReactPdfRoot() {
       ) : (
         <PDFViewer width={'100%'} height={'100%'}>
           <Document title={hexMap.name}>
-            <PdfMapLevelsPerPage
+            <PdfMapLevels6PerPage
               boardHexes={boardHexes}
               boardPieces={boardPieces}
               hexMap={hexMap}
@@ -38,13 +39,14 @@ export function ReactPdfRoot() {
                 boardPieces={boardPieces}
                 hexMap={hexMap}
                 mapPortraitBase64={mapPortraitBase64}
+                mapNotes={mapNotes}
               />
               {/* <MyCustomHeaderHeroscapeLogo
                 boardHexes={boardHexes}
                 boardPieces={boardPieces}
                 hexMap={hexMap}
               /> */}
-            </PdfMapLevelsPerPage>
+            </PdfMapLevels6PerPage>
           </Document>
         </PDFViewer>
       )}
@@ -131,7 +133,10 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
 const MapPortraitHeader = ({
   hexMap,
   mapPortraitBase64,
-}: MapState & { mapPortraitBase64: string }) => {
+  mapNotes,
+}: MapState & { mapPortraitBase64: string; mapNotes: string }) => {
+  const notesHeight = 20 * Math.ceil(mapNotes.length / 134)
+  console.log('🚀 ~ notesHeight:', notesHeight)
   return (
     <View
       style={{
@@ -149,8 +154,7 @@ const MapPortraitHeader = ({
           padding: 0,
           alignContent: 'center',
           alignItems: 'center',
-          height: 50,
-          // border: '1px solid red',
+          flexBasis: 50,
         }}
       >
         <View
@@ -170,14 +174,32 @@ const MapPortraitHeader = ({
           by: {hexMap.author}
         </Text>
       </View>
-      <Image
-        src={mapPortraitBase64}
+
+      <View
         style={{
-          height: '200px',
-          width: 'auto',
-          // border: '1px solid red',
+          flexBasis: notesHeight,
         }}
-      />
+      >
+        <Text style={{ fontSize: '10px' }}>
+          {/* STRIP OUT LINE BREAKS */}
+          {/* {mapNotes.replace(/(\r\n|\n|\r)/gm, "")} */}
+          {mapNotes}
+        </Text>
+      </View>
+      <View
+        style={{
+          flexBasis: mapPortraitBase64 ? 200 : 0,
+        }}
+      >
+        <Image
+          src={mapPortraitBase64}
+          style={{
+            height: '200px',
+            width: 'auto',
+            // border: '1px solid red',
+          }}
+        />
+      </View>
     </View>
   )
 }

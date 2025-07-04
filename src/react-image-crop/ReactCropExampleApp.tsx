@@ -122,8 +122,8 @@ export default function ReactCropExampleApp({ imgSrc, setImgSrc }: Props) {
   return (
     <>
       <label>
-        Map portrait:
-        <input type="file" accept="image/*" onChange={onSelectFile} />
+        Map portrait .png:
+        <input type="file" accept="image/png" onChange={onSelectFile} />
       </label>
 
       {!!imgSrc && (
