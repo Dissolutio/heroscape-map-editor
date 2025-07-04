@@ -133,10 +133,10 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
 const MapPortraitHeader = ({
   hexMap,
   mapPortraitBase64,
-  mapNotes
-}: MapState & { mapPortraitBase64: string, mapNotes: string }) => {
-  const notesHeight = (20 * Math.ceil(mapNotes.length / 134))
-  console.log("🚀 ~ notesHeight:", notesHeight)
+  mapNotes,
+}: MapState & { mapPortraitBase64: string; mapNotes: string }) => {
+  const notesHeight = 20 * Math.ceil(mapNotes.length / 134)
+  console.log('🚀 ~ notesHeight:', notesHeight)
   return (
     <View
       style={{
