@@ -24,6 +24,7 @@ const useBoundStore = create<AppState>()(
             boardPieces: state.boardPieces,
             hexMap: state.hexMap,
             mapNotes: state.mapNotes,
+            mapPortraitBase64: state.mapPortraitBase64,
           }
         },
         // skipHydration: true,
