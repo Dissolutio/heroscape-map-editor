@@ -2,6 +2,7 @@ import { Box, Grid2, Input, Typography } from '@mui/material'
 import useBoundStore from '../store/store'
 import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 import { useHotkeyConfig } from './useHotkeyConfig'
+import { useEffect } from 'react'
 
 export default function ViewingLevelInput() {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
@@ -9,6 +10,13 @@ export default function ViewingLevelInput() {
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
   const { hotkeyLookup } = useHotkeyConfig()
+  // Adjust viewing level down when it's over the max (TODO: viewingLevel: should be in map-slice unpaint?)
+  useEffect(() => {
+    if (viewingLevel > maxLevel) {
+      toggleViewingLevel(maxLevel)
+    }
+
+  }, [viewingLevel, maxLevel, toggleViewingLevel])
 
   return (
     <Box
