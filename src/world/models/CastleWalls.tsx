@@ -2,7 +2,6 @@ import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import { Vector3 } from 'three'
-
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
@@ -10,10 +9,7 @@ import {
   HEXGRID_HEX_HEIGHT,
   PIECE_PREVIEW_OPACITY,
 } from '../../utils/constants'
-import { getBoardHex3DCoords } from '../../utils/map-utils'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
 import { hexTerrainColor } from '../maphex/hexColors'
-import ObstacleBase from './ObstacleBase'
 import { basicModelMaterial } from './materials'
 
 type Props = {

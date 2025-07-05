@@ -5,6 +5,7 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 type Props = {
   boardHex: BoardHex
@@ -87,6 +88,58 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
           {basicModelMaterial(color, isHighQualityRender)}
         </mesh>
       </group>
+    </>
+  )
+}
+export function CastleBasePreview({
+  opacity,
+  isCastleEnd,
+  isCastleStraight,
+}: {
+  opacity?: number
+  isCastleEnd?: boolean
+  isCastleStraight?: boolean
+}) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const bodyGeometry = isCastleEnd
+    ? nodes.CastleWallEndBody.geometry
+    : isCastleStraight
+      ? nodes.CastleWallStraightBody.geometry
+      : nodes.CastleWallCornerBody.geometry
+  const capGeometry = isCastleEnd
+    ? nodes.CastleWallEndCap.geometry
+    : isCastleStraight
+      ? nodes.CastleWallStraightCap.geometry
+      : nodes.CastleWallCornerCap.geometry
+  const color = hexTerrainColor[HexTerrain.castle]
+  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
+  return (
+    <>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={bodyGeometry}
+      >
+        {basicModelMaterial(color, isHighQualityRender)}
+      </mesh>
+
+      {/* Each wall has a WallCap mesh, then each wall-type adds on its little directional indicator mesh */}
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.WallCap.geometry}
+      >
+        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={capGeometry}
+      >
+        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+      </mesh>
     </>
   )
 }
