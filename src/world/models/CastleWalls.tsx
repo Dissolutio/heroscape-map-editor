@@ -11,6 +11,7 @@ import {
 } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { genBoardHexID } from '../../utils/map-utils'
 
 type Props = {
   boardHex: BoardHex
@@ -24,7 +25,9 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
     hexTerrainColor[HexTerrain.castle],
   )
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const toggleHoveredHex = useBoundStore((s) => s.toggleHoveredHex)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
@@ -37,11 +40,20 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const scale = new Vector3(1, scaleY, 1)
   const pieceID = boardHex.pieceID
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
+  const boardHexIdOfCapForWall = genBoardHexID({
+    ...boardHex,
+    altitude: boardHex.altitude + (boardHex?.obstacleHeight ?? 0),
+  })
+  const boardHexCap = boardHexes[boardHexIdOfCapForWall]
   const onPointerEnterCap = (e: ThreeEvent<PointerEvent>) => {
     setCapColor('yellow')
+    // toggleHoveredHex(boardHexCap)
+    onPointerEnter(e, boardHexCap)
     e.stopPropagation()
   }
   const onPointerOutCap = (e: ThreeEvent<PointerEvent>) => {
+    // toggleHoveredHex(undefined)
+    onPointerOut(e)
     setCapColor(hexTerrainColor[HexTerrain.castle])
     e.stopPropagation()
   }
@@ -122,7 +134,7 @@ export function CastleWallPreview({
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const scaleYAdjust = 0.01 // just a little to get it out of the subterrain
   // castle walls are 10 levels tall, UNLESS stacked on another wall, then they are 9 (they have a 1-level bottom base when on land)
-  const scaleY = (isCastleUnder ? 9 : 10) + (1 - scaleYAdjust)
+  const scaleY = (isCastleUnder ? 8 : 9) + (1 - scaleYAdjust)
   const scale = new Vector3(1, scaleY, 1)
   const color = hexTerrainColor[HexTerrain.castle]
   const bodyGeometry = isCastleEnd

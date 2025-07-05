@@ -235,7 +235,8 @@ export default function PiecePreview() {
     isSolidTerrainHex(hoveredHex.terrain) ||
     isFluidTerrainHex(hoveredHex.terrain)
   const isEmptyBeneath = hoveredHex.terrain === HexTerrain.empty
-  const isCastleBeneath = hoveredHex.terrain === HexTerrain.castle
+  const isCastleCapBeneath =
+    hoveredHex.terrain === HexTerrain.castle && !hoveredHex.isObstacleOrigin
   const isSolidOrEmptyBeneath =
     isSolidTerrainHex(hoveredHex.terrain) || isEmptyBeneath
   const isLandOrEmptyBeneath = isLandBeneath || isEmptyBeneath
@@ -336,15 +337,18 @@ export default function PiecePreview() {
   }
   if (
     (isCastleWallCorner || isCastleWallEnd || isCastleWallStraight) &&
-    (isSolidOrEmptyBeneath || isCastleBeneath)
+    (isSolidOrEmptyBeneath || isCastleCapBeneath)
   ) {
     return (
-      <group position={[x, yBase - 0.005, z]} rotation={[0, pieceRotation, 0]}>
+      <group
+        position={[x, yBase - 0.005 + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
         <Suspense fallback={<ModelLoader />}>
           <CastleWallPreview
             isCastleEnd={isCastleWallEnd}
             isCastleStraight={isCastleWallStraight}
-            isCastleUnder={isCastleBeneath}
+            isCastleUnder={isCastleCapBeneath}
           />
         </Suspense>
       </group>

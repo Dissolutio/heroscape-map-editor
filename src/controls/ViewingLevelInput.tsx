@@ -15,7 +15,6 @@ export default function ViewingLevelInput() {
     if (viewingLevel > maxLevel) {
       toggleViewingLevel(maxLevel)
     }
-
   }, [viewingLevel, maxLevel, toggleViewingLevel])
 
   return (

@@ -82,7 +82,7 @@ export default function MapDisplay3D({
     if (cameraControlsRef?.current?.active) {
       return
     }
-
+    // Select Hex
     if (penMode === 'select') {
       if (hex.pieceID) {
         toggleSelectedPieceID(hex.pieceID)
