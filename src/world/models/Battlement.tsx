@@ -5,6 +5,7 @@ import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export function Battlement({ pid }: { pid: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -29,18 +30,32 @@ export function Battlement({ pid }: { pid: string }) {
     toggleSelectedPieceID(isSelected ? '' : pid)
   }
   return (
-    <>
-      <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
-        geometry={nodes.Battlement.geometry}
-        onPointerUp={(e) => onPointerUp(e)}
-        onPointerEnter={(e) => onPointerEnterPID(e, pid)}
-        onPointerOut={(e) => onPointerOut(e)}
-      >
-        {basicModelMaterial(color, isHighQualityRender)}
-      </mesh>
-    </>
+    <mesh
+      receiveShadow={isHighQualityRender}
+      castShadow={isHighQualityRender}
+      geometry={nodes.Battlement.geometry}
+      onPointerUp={(e) => onPointerUp(e)}
+      onPointerEnter={(e) => onPointerEnterPID(e, pid)}
+      onPointerOut={(e) => onPointerOut(e)}
+    >
+      {basicModelMaterial(color, isHighQualityRender)}
+    </mesh>
+  )
+}
+export function BattlementPreview({ opacity }: { opacity?: number }) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/handmade-battlement.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const color = hexTerrainColor[HexTerrain.battlement]
+  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
+  return (
+    <mesh
+      receiveShadow={isHighQualityRender}
+      castShadow={isHighQualityRender}
+      geometry={nodes.Battlement.geometry}
+    >
+      {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+    </mesh>
   )
 }
 

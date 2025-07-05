@@ -57,6 +57,7 @@ import { MarvelRuinPreview } from './models/MarvelRuin'
 import { TicallaPalmPreview } from './models/TicallaPalm'
 import { TicallaBrushPreview } from './models/TicallaBrush'
 import { RoadWallPreview } from './models/RoadWall'
+import { BattlementPreview } from './models/Battlement'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -83,14 +84,11 @@ export default function PiecePreview() {
     return null
   }
 
-  const roadWallClickedHexCoords = {
-    ...getRoadWallClickedHexCoords(hoveredHex, penModeRotation),
-    altitude: hoveredHex.altitude - 1,
-  }
   const isRoadWall = pieceID === Pieces.roadWall
-  const hexForCoords = isRoadWall ? roadWallClickedHexCoords : hoveredHex
+  const isBattlement = pieceID === Pieces.battlement
+  const mirrorRotation = (penModeRotation + 3) % 6
   const { x, y, z, yWithBase, yBase, yBaseCap, yGlyph, yGlyphFluidUnder } =
-    getBoardHex3DCoords(hexForCoords)
+    getBoardHex3DCoords(hoveredHex)
   const isUnderHexFluid = isFluidTerrainHex(hoveredHex.terrain)
   const isUnderHexLadder = hoveredHex.inventoryID === Pieces.ladder
   const isUnderHexLaurPillar =
@@ -198,11 +196,11 @@ export default function PiecePreview() {
   }
   const getLandMesh = () => {
     switch (
-      penModeSize === 6 && penMode === PiecePrefixes.concrete
-        ? '6B'
-        : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
-          ? '7B'
-          : `${penModeSize}`
+    penModeSize === 6 && penMode === PiecePrefixes.concrete
+      ? '6B'
+      : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
+        ? '7B'
+        : `${penModeSize}`
     ) {
       case '1':
         return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
@@ -273,7 +271,7 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -291,7 +289,7 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -461,8 +459,8 @@ export default function PiecePreview() {
         position={[
           x + getLadderBattlementOptions(ladderRotation).xAdd,
           y +
-            HEXGRID_HEXCAP_HEIGHT / 2 +
-            (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
+          HEXGRID_HEXCAP_HEIGHT / 2 +
+          (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
           z + getLadderBattlementOptions(ladderRotation).zAdd,
         ]}
         rotation={[0, (ladderRotation * -Math.PI) / 3, 0]}
@@ -516,16 +514,42 @@ export default function PiecePreview() {
     )
   }
   if (isRoadWall) {
+    const roadWallClickedHexCoords = {
+      ...getRoadWallClickedHexCoords(hoveredHex, penModeRotation),
+      altitude: hoveredHex.altitude - 1,
+    }
+    const { x: xRoadWall, y: yRoadWall, z: zRoadWall } =
+      getBoardHex3DCoords(roadWallClickedHexCoords)
     return (
       <group
         position={[
-          x + getRoadWallOptions(penModeRotation).xAdd,
-          y,
-          z + getRoadWallOptions(penModeRotation).zAdd,
+          xRoadWall + getRoadWallOptions(penModeRotation).xAdd,
+          yRoadWall,
+          zRoadWall + getRoadWallOptions(penModeRotation).zAdd,
         ]}
         rotation={[0, (penModeRotation * -Math.PI) / 3, 0]}
       >
         <RoadWallPreview />
+      </group>
+    )
+  }
+  if (isBattlement) {
+    const battlementClickedHexCoords = {
+      ...hoveredHex,
+      altitude: hoveredHex.altitude - 1,
+    }
+    const { x: xBattlement, y: yBattlement, z: zBattlement } =
+      getBoardHex3DCoords(battlementClickedHexCoords)
+    return (
+      <group
+        position={[
+          xBattlement + getLadderBattlementOptions(penModeRotation).xAdd,
+          yBattlement + HEXGRID_HEXCAP_HEIGHT / 2,
+          zBattlement + getLadderBattlementOptions(penModeRotation).zAdd,
+        ]}
+        rotation={[0, (mirrorRotation * -Math.PI) / 3, 0]}
+      >
+        <BattlementPreview />
       </group>
     )
   }
