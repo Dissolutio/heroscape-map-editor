@@ -1,6 +1,5 @@
-import { piecesSoFar } from '../data/pieces'
 import { type BoardHexes, HexTerrain, Pieces } from '../types'
-import { decodePieceID } from './map-utils'
+
 export function isFluidTerrainHex(terrain: string) {
   return (
     terrain === HexTerrain.wellspringWater ||

@@ -10,7 +10,6 @@ import {
   getRuinsOptions,
 } from './models/piece-adjustments'
 import {
-  getBattlementClickedHexCoords,
   getBoardHex3DCoords,
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils'
@@ -85,20 +84,11 @@ export default function PiecePreview() {
     return null
   }
 
-  const roadWallClickedHexCoords = {
-    ...getRoadWallClickedHexCoords(hoveredHex, penModeRotation),
-    altitude: hoveredHex.altitude - 1,
-  }
-  const battlementClickedHexCoords = {
-    ...hoveredHex,
-    altitude: hoveredHex.altitude - 1,
-  }
   const isRoadWall = pieceID === Pieces.roadWall
   const isBattlement = pieceID === Pieces.battlement
   const mirrorRotation = (penModeRotation + 3) % 6
-  const hexForCoords = isRoadWall ? roadWallClickedHexCoords : isBattlement ? battlementClickedHexCoords : hoveredHex
   const { x, y, z, yWithBase, yBase, yBaseCap, yGlyph, yGlyphFluidUnder } =
-    getBoardHex3DCoords(hexForCoords)
+    getBoardHex3DCoords(hoveredHex)
   const isUnderHexFluid = isFluidTerrainHex(hoveredHex.terrain)
   const isUnderHexLadder = hoveredHex.inventoryID === Pieces.ladder
   const isUnderHexLaurPillar =
@@ -524,12 +514,18 @@ export default function PiecePreview() {
     )
   }
   if (isRoadWall) {
+    const roadWallClickedHexCoords = {
+      ...getRoadWallClickedHexCoords(hoveredHex, penModeRotation),
+      altitude: hoveredHex.altitude - 1,
+    }
+    const { x: xRoadWall, y: yRoadWall, z: zRoadWall } =
+      getBoardHex3DCoords(roadWallClickedHexCoords)
     return (
       <group
         position={[
-          x + getRoadWallOptions(penModeRotation).xAdd,
-          y,
-          z + getRoadWallOptions(penModeRotation).zAdd,
+          xRoadWall + getRoadWallOptions(penModeRotation).xAdd,
+          yRoadWall,
+          zRoadWall + getRoadWallOptions(penModeRotation).zAdd,
         ]}
         rotation={[0, (penModeRotation * -Math.PI) / 3, 0]}
       >
@@ -538,12 +534,18 @@ export default function PiecePreview() {
     )
   }
   if (isBattlement) {
+    const battlementClickedHexCoords = {
+      ...hoveredHex,
+      altitude: hoveredHex.altitude - 1,
+    }
+    const { x: xBattlement, y: yBattlement, z: zBattlement } =
+      getBoardHex3DCoords(battlementClickedHexCoords)
     return (
       <group
         position={[
-          x + getLadderBattlementOptions(penModeRotation).xAdd,
-          y + HEXGRID_HEXCAP_HEIGHT / 2,
-          z + getLadderBattlementOptions(penModeRotation).zAdd,
+          xBattlement + getLadderBattlementOptions(penModeRotation).xAdd,
+          yBattlement + HEXGRID_HEXCAP_HEIGHT / 2,
+          zBattlement + getLadderBattlementOptions(penModeRotation).zAdd,
         ]}
         rotation={[0, (mirrorRotation * -Math.PI) / 3, 0]}
       >
