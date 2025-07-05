@@ -110,7 +110,7 @@ export const defaultHotkeyConfig = {
   'shift+n': undefined,
   'alt+n': undefined,
   o: 'togglePenModeRoad',
-  'shift+o': 'togglePenModeWallwalk',
+  'shift+o': 'togglePenModeWallWalk',
   'alt+o': undefined,
   p: 'togglePenModeSwamp',
   'shift+p': 'togglePenModeSwampWater',
