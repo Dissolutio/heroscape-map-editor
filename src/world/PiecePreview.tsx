@@ -6,9 +6,13 @@ import {
   getOptionsForBigTree,
   getOptionsForPalmHeight,
   getOptionsForTreeHeight,
+  getRoadWallOptions,
   getRuinsOptions,
 } from './models/piece-adjustments'
-import { getBoardHex3DCoords } from '../utils/map-utils'
+import {
+  getBoardHex3DCoords,
+  getRoadWallClickedHexCoords,
+} from '../utils/map-utils'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HexTerrain, PiecePrefixes, Pieces } from '../types'
 import { LaurWallPillarPreview } from './models/LaurPillar'
@@ -52,6 +56,7 @@ import { Ruins3Preview } from './models/Ruins3'
 import { MarvelRuinPreview } from './models/MarvelRuin'
 import { TicallaPalmPreview } from './models/TicallaPalm'
 import { TicallaBrushPreview } from './models/TicallaBrush'
+import { RoadWallPreview } from './models/RoadWall'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -78,8 +83,14 @@ export default function PiecePreview() {
     return null
   }
 
+  const roadWallClickedHexCoords = {
+    ...getRoadWallClickedHexCoords(hoveredHex, penModeRotation),
+    altitude: hoveredHex.altitude - 1,
+  }
+  const isRoadWall = pieceID === Pieces.roadWall
+  const hexForCoords = isRoadWall ? roadWallClickedHexCoords : hoveredHex
   const { x, y, z, yWithBase, yBase, yBaseCap, yGlyph, yGlyphFluidUnder } =
-    getBoardHex3DCoords(hoveredHex)
+    getBoardHex3DCoords(hexForCoords)
   const isUnderHexFluid = isFluidTerrainHex(hoveredHex.terrain)
   const isUnderHexLadder = hoveredHex.inventoryID === Pieces.ladder
   const isUnderHexLaurPillar =
@@ -501,6 +512,20 @@ export default function PiecePreview() {
             isLavaRock={piece.terrain === HexTerrain.lavaRockOutcrop}
           />
         </Suspense>
+      </group>
+    )
+  }
+  if (isRoadWall) {
+    return (
+      <group
+        position={[
+          x + getRoadWallOptions(penModeRotation).xAdd,
+          y,
+          z + getRoadWallOptions(penModeRotation).zAdd,
+        ]}
+        rotation={[0, (penModeRotation * -Math.PI) / 3, 0]}
+      >
+        <RoadWallPreview />
       </group>
     )
   }

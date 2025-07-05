@@ -5,6 +5,7 @@ import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export function RoadWall({ pid }: { pid: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -43,5 +44,18 @@ export function RoadWall({ pid }: { pid: string }) {
     </>
   )
 }
-
+export function RoadWallPreview({ opacity }: { opacity?: number }) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/handmade-roadwall.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const color = hexTerrainColor[HexTerrain.roadWall]
+  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
+  return (
+    <>
+      <mesh receiveShadow castShadow geometry={nodes.RoadWall.geometry}>
+        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+      </mesh>
+    </>
+  )
+}
 useGLTF.preload('/handmade-roadwall.glb')
