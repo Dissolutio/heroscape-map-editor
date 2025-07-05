@@ -58,6 +58,7 @@ import { TicallaPalmPreview } from './models/TicallaPalm'
 import { TicallaBrushPreview } from './models/TicallaBrush'
 import { RoadWallPreview } from './models/RoadWall'
 import { BattlementPreview } from './models/Battlement'
+import { Outcrop1Preview } from './models/Outcrop1'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -257,7 +258,7 @@ export default function PiecePreview() {
     return (
       <group
         position={[x, yWithBase, z + HEXGRID_HEXCAP_FLUID_HEIGHT / 2]}
-        rotation={[0, (penModeRotation * -Math.PI) / 3, 0]}
+        rotation={[0, pieceRotation, 0]}
       >
         <LaurWallAddonPreview inventoryID={pieceID} />
       </group>
@@ -295,6 +296,21 @@ export default function PiecePreview() {
         rotation={[0, pieceRotation, 0]}
       >
         <LaurWallTrianglePillarPreview />
+      </group>
+    )
+  }
+  if ((isGlacier1Hex || isOutcrop1Hex || isLavaRockOutcrop1Hex) && isSolidOrEmptyBeneath) {
+    return (
+      <group
+        position={[x, yWithBase, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <Outcrop1Preview
+            isLavaRock={isLavaRockOutcrop1Hex}
+            isGlacier={isGlacier1Hex}
+          />
+        </Suspense>
       </group>
     )
   }

@@ -369,7 +369,6 @@ export const MapHex3D = ({
           </Suspense>
         </group>
       )}
-      {/* TREASURE GLYPHS */}
       {isGlacier1Hex && (
         <>
           <group

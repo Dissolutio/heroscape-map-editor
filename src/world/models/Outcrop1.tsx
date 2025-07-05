@@ -5,6 +5,7 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export function Outcrop1({
   boardHex,
@@ -51,6 +52,33 @@ export function Outcrop1({
       onPointerOut={onPointerOut}
     >
       {basicModelMaterial(color, isHighQualityRender)}
+    </mesh>
+  )
+}
+export function Outcrop1Preview({
+  opacity,
+  isGlacier,
+  isLavaRock,
+}: {
+  opacity?: number
+  isGlacier?: boolean
+  isLavaRock?: boolean
+}) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-1.glb') as any
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const iceColor = hexTerrainColor[HexTerrain.ice]
+  const lavaColor = hexTerrainColor[HexTerrain.lavaField]
+  const outcropColor = hexTerrainColor[HexTerrain.outcrop]
+  const color = isGlacier ? iceColor : isLavaRock ? lavaColor : outcropColor
+  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
+  return (
+    <mesh
+      receiveShadow={isHighQualityRender}
+      castShadow={isHighQualityRender}
+      geometry={nodes.glacier_1_with_holes.geometry}
+    >
+      {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
     </mesh>
   )
 }
