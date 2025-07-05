@@ -10,6 +10,7 @@ import {
   getRuinsOptions,
 } from './models/piece-adjustments'
 import {
+  getBattlementClickedHexCoords,
   getBoardHex3DCoords,
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils'
@@ -57,6 +58,7 @@ import { MarvelRuinPreview } from './models/MarvelRuin'
 import { TicallaPalmPreview } from './models/TicallaPalm'
 import { TicallaBrushPreview } from './models/TicallaBrush'
 import { RoadWallPreview } from './models/RoadWall'
+import { BattlementPreview } from './models/Battlement'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -87,8 +89,14 @@ export default function PiecePreview() {
     ...getRoadWallClickedHexCoords(hoveredHex, penModeRotation),
     altitude: hoveredHex.altitude - 1,
   }
+  const battlementClickedHexCoords = {
+    ...hoveredHex,
+    altitude: hoveredHex.altitude - 1,
+  }
   const isRoadWall = pieceID === Pieces.roadWall
-  const hexForCoords = isRoadWall ? roadWallClickedHexCoords : hoveredHex
+  const isBattlement = pieceID === Pieces.battlement
+  const mirrorRotation = (penModeRotation + 3) % 6
+  const hexForCoords = isRoadWall ? roadWallClickedHexCoords : isBattlement ? battlementClickedHexCoords : hoveredHex
   const { x, y, z, yWithBase, yBase, yBaseCap, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords(hexForCoords)
   const isUnderHexFluid = isFluidTerrainHex(hoveredHex.terrain)
@@ -198,11 +206,11 @@ export default function PiecePreview() {
   }
   const getLandMesh = () => {
     switch (
-      penModeSize === 6 && penMode === PiecePrefixes.concrete
-        ? '6B'
-        : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
-          ? '7B'
-          : `${penModeSize}`
+    penModeSize === 6 && penMode === PiecePrefixes.concrete
+      ? '6B'
+      : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
+        ? '7B'
+        : `${penModeSize}`
     ) {
       case '1':
         return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
@@ -273,7 +281,7 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -291,7 +299,7 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -461,8 +469,8 @@ export default function PiecePreview() {
         position={[
           x + getLadderBattlementOptions(ladderRotation).xAdd,
           y +
-            HEXGRID_HEXCAP_HEIGHT / 2 +
-            (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
+          HEXGRID_HEXCAP_HEIGHT / 2 +
+          (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
           z + getLadderBattlementOptions(ladderRotation).zAdd,
         ]}
         rotation={[0, (ladderRotation * -Math.PI) / 3, 0]}
@@ -526,6 +534,20 @@ export default function PiecePreview() {
         rotation={[0, (penModeRotation * -Math.PI) / 3, 0]}
       >
         <RoadWallPreview />
+      </group>
+    )
+  }
+  if (isBattlement) {
+    return (
+      <group
+        position={[
+          x + getLadderBattlementOptions(penModeRotation).xAdd,
+          y + HEXGRID_HEXCAP_HEIGHT / 2,
+          z + getLadderBattlementOptions(penModeRotation).zAdd,
+        ]}
+        rotation={[0, (mirrorRotation * -Math.PI) / 3, 0]}
+      >
+        <BattlementPreview />
       </group>
     )
   }
