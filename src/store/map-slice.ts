@@ -2,11 +2,13 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { removePiece } from '../data/removePiece'
-import type {
-  AddRemovePieceError,
-  CubeCoordinate,
-  MapState,
-  Piece,
+import {
+  HexTerrain,
+  Pieces,
+  type AddRemovePieceError,
+  type CubeCoordinate,
+  type MapState,
+  type Piece,
 } from '../types'
 import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
@@ -80,9 +82,12 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         // we added a piece. ___X go up piece height, __xX|
         const placedAtLevel = altitude + 1
         draft.viewingLevel =
-          placedAtLevel > state.viewingLevel
-            ? state.viewingLevel + 1
-            : state.viewingLevel
+          placedAtLevel > state.viewingLevel && piece.id === Pieces.ladder
+            ? state.viewingLevel + (placedAtLevel - state.viewingLevel)
+            : placedAtLevel > state.viewingLevel &&
+              piece.terrain === HexTerrain.castle
+              ? placedAtLevel
+              : state.viewingLevel
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
       })

@@ -2,15 +2,14 @@ import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import { Vector3 } from 'three'
-
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
-import { HEXGRID_HEX_HEIGHT } from '../../utils/constants'
-import { getBoardHex3DCoords } from '../../utils/map-utils'
-import DeletePieceBillboard from '../maphex/DeletePieceBillboard'
+import {
+  HEXGRID_HEX_HEIGHT,
+  PIECE_PREVIEW_OPACITY,
+} from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
-import ObstacleBase from './ObstacleBase'
 import { basicModelMaterial } from './materials'
 
 type Props = {
@@ -103,6 +102,66 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
           {basicModelMaterial(capColor, isHighQualityRender)}
         </mesh>
       </group>
+    </>
+  )
+}
+export function CastleWallPreview({
+  opacity,
+  isCastleEnd,
+  isCastleStraight,
+  isCastleUnder,
+}: {
+  opacity?: number
+  isCastleEnd?: boolean
+  isCastleStraight?: boolean
+  isCastleUnder?: boolean
+}) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
+  const capColor = hexTerrainColor[HexTerrain.castle]
+  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const scaleYAdjust = 0.01 // just a little to get it out of the subterrain
+  // castle walls are 10 levels tall, UNLESS stacked on another wall, then they are 9 (they have a 1-level bottom base when on land)
+  const scaleY = (isCastleUnder ? 9 : 10) + (1 - scaleYAdjust)
+  const scale = new Vector3(1, scaleY, 1)
+  const color = hexTerrainColor[HexTerrain.castle]
+  const bodyGeometry = isCastleEnd
+    ? nodes.CastleWallEndBody.geometry
+    : isCastleStraight
+      ? nodes.CastleWallStraightBody.geometry
+      : nodes.CastleWallCornerBody.geometry
+  const capGeometry = isCastleEnd
+    ? nodes.CastleWallEndCap.geometry
+    : isCastleStraight
+      ? nodes.CastleWallStraightCap.geometry
+      : nodes.CastleWallCornerCap.geometry
+  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
+  return (
+    <>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        scale={scale}
+        geometry={bodyGeometry}
+      >
+        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={nodes.WallCap.geometry}
+        position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
+      >
+        {basicModelMaterial(capColor, isHighQualityRender, opacityLevel)}
+      </mesh>
+      <mesh
+        receiveShadow={isHighQualityRender}
+        castShadow={isHighQualityRender}
+        geometry={capGeometry}
+        position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
+      >
+        {basicModelMaterial(capColor, isHighQualityRender, opacityLevel)}
+      </mesh>
     </>
   )
 }
