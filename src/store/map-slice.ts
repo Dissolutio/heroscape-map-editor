@@ -82,12 +82,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         // we added a piece. ___X go up piece height, __xX|
         const placedAtLevel = altitude + 1
         draft.viewingLevel =
-          placedAtLevel > state.viewingLevel && piece.id === Pieces.ladder
+          placedAtLevel > state.viewingLevel
             ? state.viewingLevel + (placedAtLevel - state.viewingLevel)
-            : placedAtLevel > state.viewingLevel &&
-                piece.terrain === HexTerrain.castle
-              ? placedAtLevel
-              : state.viewingLevel
+            : state.viewingLevel
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
       })
