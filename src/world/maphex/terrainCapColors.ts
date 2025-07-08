@@ -9,7 +9,7 @@ export const terrainCapColors: { [terrain: string]: string } = {
   [HexTerrain.sand]: hexTerrainColor.sand,
   // these below have same color subterrain, so a little different shade on the cap for aesthetics
   [HexTerrain.lavaField]: hexTerrainColor.lavaFieldCap,
-  [HexTerrain.road]: hexTerrainColor.roadWall,
+  [HexTerrain.road]: hexTerrainColor.roadCap,
   [HexTerrain.wallWalk]: hexTerrainColor.roadWall,
   [HexTerrain.dungeon]: hexTerrainColor.dungeonCap,
   [HexTerrain.snow]: hexTerrainColor.snowCap,

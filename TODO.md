@@ -1,3 +1,30 @@
+## Superfrog notes:
+Things that are fine but could/should be improved if and when possible:
+tile images for both 3d and 2D view. For example, dungeon doesn’t look very recognizable on either view, swamp is hard to interpret on the 2D view.
+I do not think the differing border colors based on tile size help. I know Hasbro and renegade both do/did this but it doesn’t add any information and just makes it visually cluttered
+Camera control hotkeys would be clutch, zoom and pan etc.
+Automatic orthographic view and potentially level numbers would also be huge. 
+But, definitely the first time I’ve thought something had the potential to pass up VS in terms of usability!
+
+Superfrog's color reco:
+- Asphalt: top #303030, sides #363636
+- Concrete: top #a2a493, sides #a0a090
+- Swamp Water: #7a6c35
+- Swamp: top #31743c, sides #776c36
+- Water: #028bc4
+- Grass: top #7c9a3c, sides #975a3a
+- Rock: top #7b8481, sides #975a3a
+- Sand: top #be9e5f, sides #975a3a
+- Molten Lava: #b00100
+- Lava Field: top #484540, sides #881c05
+- Ice: #ced5cc
+- Snow: top #bcbdc5, sides #c0bec6
+- Shadow: #0f0f0d
+- Dungeon: top #b3b1aa, sides #7a7972
+- Road: top #929186, sides #a8a597
+- Glyph: #942a34
+- Treasure: #847040
+
 ## What are BoardHexes used for
 - MapDisplay3D => empty/fluid/solid caps, => render pieces
 - MapHex3D => underHexTerrain

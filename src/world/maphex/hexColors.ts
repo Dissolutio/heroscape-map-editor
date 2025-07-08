@@ -43,17 +43,24 @@ export const hexTerrainColor: Dictionary<string> = {
   // [HexTerrain.empty]: '#FFF',
   // All these colors below have been verified on coolors: lock a color and explore! https://coolors.co/fcecc9-336aeb-fcb0b3-f93943-355a44
   // [HexTerrain.glyphPower]: 'rgb(120, 1, 22)', // virtualscape
-  [HexTerrain.glyphPower]: 'rgb(217, 8, 18)', // brighter glyph for icon
-  [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
+  // [HexTerrain.glyphPower]: 'rgb(217, 8, 18)', // brighter glyph for icon
+  [HexTerrain.glyphPower]: '#942a34', // superfrog
+  // [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
+  [HexTerrain.glyphTreasure]: '#847040', // superfrog
   [HexTerrain.marvelRuin]: 'rgb(153, 51, 65)', // matched with concrete on coolors Cordovan : https://coolors.co/d0d4dc-993341-ce8147-607196-334139
-  [HexTerrain.grass]: '#759B1C',
+  // [HexTerrain.grass]: '#759B1C',
   // [HexTerrain.grass]: '#4A9A4E', // sample from Renegade map pdfs, but not the palette I generated for everything else :(
-  [HexTerrain.rock]: '#3D6A7B',
-  [HexTerrain.sand]: '#B4AD2D',
-  [HexTerrain.dirt]: '#C46E71',
+  [HexTerrain.grass]: '#7c9a3c', // superfrog
+  // [HexTerrain.rock]: '#3D6A7B',
+  [HexTerrain.rock]: '#7b8481', // superfrog
+  // [HexTerrain.sand]: '#B4AD2D',
+  [HexTerrain.sand]: '#be9e5f', // superfrog
+  // [HexTerrain.dirt]: '#C46E71',
+  [HexTerrain.dirt]: '#975a3a', // superfrog
   [HexTerrain.tree]: '#355A44',
   treeBase: '#A34C00',
-  [HexTerrain.water]: '#336AEB',
+  // [HexTerrain.water]: '#336AEB',
+  [HexTerrain.water]: '#028bc4', // superfrog
   [HexTerrain.wellspringWater]: '#BA70FF',
   [HexTerrain.ruin]: '#A2A0A6',
   [HexTerrain.castle]: '#B6B5BA',
@@ -61,29 +68,48 @@ export const hexTerrainColor: Dictionary<string> = {
   [HexTerrain.battlement]: '#ACABB0',
   castleDoor: '#913B3F',
   [HexTerrain.wallWalk]: '#97969C', //same as road
-  [HexTerrain.road]: '#97969C',
+  // [HexTerrain.road]: '#97969C',
+  [HexTerrain.road]: '#a8a597', // superfrog
+  // roadCap: '#787D79',
+  roadCap: '#929186', // superfrog
   [HexTerrain.roadWall]: '#787D79',
-  [HexTerrain.snow]: '#EEEBFF',
-  [`${HexTerrain.snow}Cap`]: '#FFF',
-  [HexTerrain.ice]: '#55DBCB',
-  [HexTerrain.lavaField]: '#A30029',
-  lavaFieldCap: '#4F4840',
-  [HexTerrain.lava]: '#FA003F',
-  [HexTerrain.asphalt]: '#413370',
-  asphaltCap: '#4A3A7E',
-  [HexTerrain.concrete]: '#D0D4DC',
-  concreteCap: '#DCDFE5',
-  [HexTerrain.dungeon]: '#6E675E',
-  dungeonCap: '#ACB9A2',
-  [HexTerrain.shadow]: '#362E38',
+  // [HexTerrain.snow]: '#EEEBFF',
+  [HexTerrain.snow]: '#c0bec6', // superfrog
+  // [`${HexTerrain.snow}Cap`]: '#FFF',
+  [`${HexTerrain.snow}Cap`]: '#bcbdc5', // superfrog
+  // [HexTerrain.ice]: '#55DBCB',
+  [HexTerrain.ice]: '#ced5cc', // superfrog
+  // [HexTerrain.lavaField]: '#A30029',
+  [HexTerrain.lavaField]: '#881c05', // superfrog
+  // lavaFieldCap: '#4F4840',
+  lavaFieldCap: '#484540', // superfrog
+  // [HexTerrain.lava]: '#FA003F',
+  [HexTerrain.lava]: '#b00100', // superfrog
+  // [HexTerrain.asphalt]: '#413370',
+  [HexTerrain.asphalt]: '#363636', // superfrog
+  // asphaltCap: '#4A3A7E',
+  asphaltCap: '#303030', // superfrog
+  // [HexTerrain.concrete]: '#D0D4DC',
+  [HexTerrain.concrete]: '#a0a090', // superfrog
+  // concreteCap: '#DCDFE5',
+  concreteCap: '#a2a493', // superfrog
+  // [HexTerrain.dungeon]: '#6E675E',
+  [HexTerrain.dungeon]: '#7a7972', // superfrog
+  // dungeonCap: '#ACB9A2',
+  dungeonCap: '#b3b1aa', // superfrog
+  // [HexTerrain.shadow]: '#362E38',
+  [HexTerrain.shadow]: '#0f0f0d', // superfrog
   [HexTerrain.outcrop]: '#5F5464',
   hiveModel1: '#668958',
-  swampCap: '#136600',
-  [HexTerrain.swamp]: '#0f4f00',
+  // swampCap: '#136600',
+  swampCap: '#31743c', // superfrog
+  // [HexTerrain.swamp]: '#0f4f00',
+  [HexTerrain.swamp]: '#776c36', // superfrog
   [HexTerrain.laurWall]: '#7F7CAF',
   // [HexTerrain.laurWallAddon]: '#7F7CAF',
   laurModelColor2: '#7774AA',
-  [HexTerrain.swampWater]: '#37590D', //dark moss green
+  // [HexTerrain.swampWater]: '#37590D', //dark moss green
+  [HexTerrain.swampWater]: '#7a6c35', // superfrog
 
   [HexTerrain.palm]: '#0f4f00', // only gets used as subterrain color, not in model
   ticallaPalmModel1: '#B07156', // palm trunk
