@@ -105,9 +105,11 @@ export const hexTerrainColor: Dictionary<string> = {
   swampCap: '#31743c', // superfrog
   // [HexTerrain.swamp]: '#0f4f00',
   [HexTerrain.swamp]: '#776c36', // superfrog
-  [HexTerrain.laurWall]: '#7F7CAF',
+  // [HexTerrain.laurWall]: '#7F7CAF',
+  [HexTerrain.laurWall]: '#999999',
   // [HexTerrain.laurWallAddon]: '#7F7CAF',
-  laurModelColor2: '#7774AA',
+  // laurModelColor2: '#7774AA',
+  laurModelColor2: '#909090',
   // [HexTerrain.swampWater]: '#37590D', //dark moss green
   [HexTerrain.swampWater]: '#7a6c35', // superfrog
 
