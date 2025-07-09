@@ -9,6 +9,7 @@ import type {
   BoardHexPieceProps,
   CylinderGeometryArgs,
   DreiCapProps,
+  InstanceRefType,
 } from '../instance-hex'
 import { terrainCapColors } from '../terrainCapColors'
 import { CylinderGeometry } from 'three'
@@ -25,9 +26,9 @@ const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
 ]
 
 const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
-  const ref = React.useRef<InstanceRefType>(undefined!)
+  const ref = React.useRef<InstanceRefType>(null)
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/classic1-cap.glb') as any
-  // const { nodes } = useGLTF('/classic1-cap.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   if (boardHexArr.length === 0) return null
@@ -43,14 +44,11 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       receiveShadow={isHighQualityRender}
       castShadow={isHighQualityRender}
     >
-      {/* <meshPhongMaterial wireframe={true} wireframeLinewidth={0.01} wireframeLinecap='' /> */}
-      {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
       {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />}
-      {/* <meshStandardMaterial /> */}
       {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
       {boardHexArr.map((hex, i) => (
         <SolidCapInstance
-          key={hex.id + i}
+          key={hex.id}
           boardHex={hex}
           onPointerUp={onPointerUp}
           isVisible={range >= i}
@@ -87,9 +85,10 @@ function SolidCapInstance({
   React.useEffect(() => {
     const { x, y, z } = getBoardHex3DCoords(boardHex)
     ref.current.color.set(color)
-    ref.current.position.set(x, y + HEXGRID_HEXCAP_HEIGHT / 2, z)
+    // ref.current.position.set(x, y + HEXGRID_HEXCAP_HEIGHT / 2, z)
+    ref.current.position.set(x, y - (isHighQualityRender ? HEXGRID_HEXCAP_HEIGHT : 0), z)
     ref.current.rotation.set(0, Math.PI / 6 + (getRandomInteger(1, 6) * Math.PI / 3), 0)
-  }, [boardHex, color])
+  }, [boardHex, color, isHighQualityRender])
 
   // update color when piece is hovered
   React.useEffect(() => {
