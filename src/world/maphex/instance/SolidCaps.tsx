@@ -13,8 +13,8 @@ import type {
 import { terrainCapColors } from '../terrainCapColors'
 
 const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
-  0.888,
-  0.888,
+  0.8515,
+  0.8615,
   HEXGRID_HEXCAP_HEIGHT,
   6,
   undefined,
