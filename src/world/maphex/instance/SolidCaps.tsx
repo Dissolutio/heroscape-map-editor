@@ -40,7 +40,9 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       range={range}
       ref={ref}
       frustumCulled={false}
-      geometry={isHighQualityRender ? nodes.Classic1_Cap.geometry : basicCapGeometry}
+      geometry={
+        isHighQualityRender ? nodes.Classic1_Cap.geometry : basicCapGeometry
+      }
       receiveShadow={isHighQualityRender}
       castShadow={isHighQualityRender}
     >
@@ -60,10 +62,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
 }
 useGLTF.preload('/classic1-cap.glb')
 
-
 export default SolidCaps
-
-
 
 function SolidCapInstance({
   boardHex,
@@ -86,8 +85,16 @@ function SolidCapInstance({
     const { x, y, z } = getBoardHex3DCoords(boardHex)
     ref.current.color.set(color)
     // ref.current.position.set(x, y + HEXGRID_HEXCAP_HEIGHT / 2, z)
-    ref.current.position.set(x, y - (isHighQualityRender ? HEXGRID_HEXCAP_HEIGHT : 0), z)
-    ref.current.rotation.set(0, Math.PI / 6 + (getRandomInteger(1, 6) * Math.PI / 3), 0)
+    ref.current.position.set(
+      x,
+      y - (isHighQualityRender ? HEXGRID_HEXCAP_HEIGHT : 0),
+      z,
+    )
+    ref.current.rotation.set(
+      0,
+      Math.PI / 6 + (getRandomInteger(1, 6) * Math.PI) / 3,
+      0,
+    )
   }, [boardHex, color, isHighQualityRender])
 
   // update color when piece is hovered
@@ -145,7 +152,7 @@ function SolidCapInstance({
 }
 
 function getRandomInteger(min: number, max: number) {
-  const minimum = Math.ceil(min); // Ensure min is rounded up to the nearest whole number
-  const maximum = Math.floor(max); // Ensure max is rounded down to the nearest whole number
-  return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum;
+  const minimum = Math.ceil(min) // Ensure min is rounded up to the nearest whole number
+  const maximum = Math.floor(max) // Ensure max is rounded down to the nearest whole number
+  return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum
 }
