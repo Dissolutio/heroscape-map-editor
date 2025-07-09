@@ -11,6 +11,7 @@ import type {
   DreiCapProps,
 } from '../instance-hex'
 import { terrainCapColors } from '../terrainCapColors'
+import { CylinderGeometry } from 'three'
 
 const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
   0.8515,
@@ -19,7 +20,7 @@ const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
   6,
   undefined,
   false,
-  undefined,
+  Math.PI / 6,
   undefined,
 ]
 
@@ -31,18 +32,20 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
+  const basicCapGeometry = new CylinderGeometry(...baseSolidCapCylinderArgs)
   return (
     <Instances
       limit={INSTANCE_LIMIT}
       range={range}
       ref={ref}
       frustumCulled={false}
-      geometry={nodes.Classic1_Cap.geometry}
+      geometry={isHighQualityRender ? nodes.Classic1_Cap.geometry : basicCapGeometry}
       receiveShadow={isHighQualityRender}
       castShadow={isHighQualityRender}
     >
       {/* <meshPhongMaterial wireframe={true} wireframeLinewidth={0.01} wireframeLinecap='' /> */}
-      <meshMatcapMaterial />
+      {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
+      {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />}
       {/* <meshStandardMaterial /> */}
       {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
       {boardHexArr.map((hex, i) => (
