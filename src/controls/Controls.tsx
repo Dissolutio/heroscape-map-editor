@@ -303,6 +303,7 @@ const Controls = () => {
       </div>
 
       <SwitchHighQualityRender />
+      <SwitchIsDisplayCapHeights />
 
       {import.meta.env.DEV && (
         <Button onClick={handleClickLogState}>Log state</Button>
@@ -326,6 +327,25 @@ function SwitchHighQualityRender() {
           <Switch checked={isHighQualityRender} onChange={handleChange} />
         }
         label="High Quality Render"
+      />
+    </FormGroup>
+  )
+}
+function SwitchIsDisplayCapHeights() {
+  const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
+  const toggleIsDisplayCapHeights = useBoundStore(
+    (s) => s.toggleIsDisplayCapHeights,
+  )
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    toggleIsDisplayCapHeights(event.target.checked)
+  }
+  return (
+    <FormGroup>
+      <FormControlLabel
+        control={
+          <Switch checked={isDisplayCapHeights} onChange={handleChange} />
+        }
+        label="Display Hex Heights"
       />
     </FormGroup>
   )

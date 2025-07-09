@@ -33,6 +33,8 @@ export interface UISlice {
   toggleViewingLevel: (level: number) => void
   isHighQualityRender: boolean
   toggleIsHighQualityRender: (b: boolean) => void
+  isDisplayCapHeights: boolean
+  toggleIsDisplayCapHeights: (b: boolean) => void
   isFrameloopDemand: boolean
   toggleIsFrameloopDemand: (b: boolean) => void
   isTakingPicture: boolean
@@ -163,6 +165,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isHighQualityRender = b
+      }),
+    ),
+  isDisplayCapHeights: false,
+  toggleIsDisplayCapHeights: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isDisplayCapHeights = b
       }),
     ),
   isFrameloopDemand: false,

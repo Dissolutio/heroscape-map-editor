@@ -1,10 +1,13 @@
 import { Billboard, Text } from '@react-three/drei'
 import { Color, type Vector3 } from 'three'
-import type {
-  BoardHex,
+import {
+  HexTerrain,
+  type BoardHex,
   // HexTerrain,
 } from '../../types'
 import { HEXGRID_HEX_HEIGHT } from '../../utils/constants'
+import { isFluidTerrainHex } from '../../utils/board-utils'
+import useBoundStore from '../../store/store'
 
 /* 
   MapHexIDDisplay
@@ -17,25 +20,29 @@ export const MapHexIDDisplay = ({
   position: Vector3
   boardHex: BoardHex
 }) => {
-  return null
+  // return null
   /* 
   DEV VISUAL: toggling the below filters off, such that EVERY boardHex shows a billboardID, really helps to see how the 
   grid works (you can see vertical-clearance hexes, empty hexes)
   */
+  const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
+
+  // TODO: make own component for cap heights
+  if (!isDisplayCapHeights) return null
 
   // filters out non-caps
-  // if (!boardHex.isCap) return null
-
+  if (!boardHex.isCap) return null
   // filters out vertical clearance
-  // if (
-  //   !boardHex.isCap &&
-  //   !(boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
-  // ) {
-  //   return null
-  // }
-
+  if (
+    !boardHex.isCap &&
+    !(boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
+  ) {
+    return null // filters out vertical clearance
+  }
   // filters out empty hexes
-  // if (boardHex.terrain === HexTerrain.empty) return null
+  if (boardHex.terrain === HexTerrain.empty) return null
+  const hexAltitudeForStandingOn =
+    boardHex.altitude - (isFluidTerrainHex(boardHex.terrain) ? 1 : 0)
   return (
     <Billboard
       position={[
@@ -45,9 +52,10 @@ export const MapHexIDDisplay = ({
         position.z,
       ]}
     >
-      <Text fontSize={0.2} color={new Color('black')}>
+      <Text fontSize={0.8} color={new Color('white')}>
         {/* {`${boardHex.terrain}:${boardHex.id}`} */}
-        {`${boardHex.id}`}
+        {/* {`${boardHex.id}`} */}
+        {`${hexAltitudeForStandingOn === 1 ? '' : hexAltitudeForStandingOn}`}
         {/* {`${boardHex.q}:${boardHex.r}:${boardHex.s}`} */}
         {/* {`LeftMinX: ${boardHex.s - boardHex.q}`} */}
         {/* {`RightMaxX: ${boardHex.q - boardHex.s}`} */}
