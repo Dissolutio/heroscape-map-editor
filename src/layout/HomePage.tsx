@@ -12,11 +12,12 @@ import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
 import { LoadMapInputs } from './LoadMapButtons'
 import useBoundStore from '../store/store'
+import type { Group, Object3DEventMap } from 'three'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(null)
   const hexMap = useBoundStore((s) => s.hexMap)
-
+  const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
   // https://robohash.org/you.png?size=200x200
   // USE EFFECT: automatically load up map from URL, OR from file
   useAutoLoadMapFile()
@@ -115,6 +116,7 @@ export default function HomePage() {
               <World
                 isHidden={is2DOpen || isPdfOpen}
                 cameraControlsRef={cameraControlsRef}
+                mapGroupRef={mapGroupRef}
               />
             </>
           </div>
@@ -128,7 +130,10 @@ export default function HomePage() {
               overflow: 'auto',
             }}
           >
-            <Controls />
+            <Controls
+              cameraControlsRef={cameraControlsRef}
+              mapGroupRef={mapGroupRef}
+            />
             <LoadMapInputs />
           </div>
         </div>

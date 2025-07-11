@@ -6,8 +6,6 @@ import {
   Stats,
 } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
-import React from 'react'
-import type * as THREE from 'three'
 import SelectedPieceReadout from '../controls/SelectedPieceReadout'
 import useBoundStore from '../store/store'
 import { CAMERA_FOV } from '../utils/constants'
@@ -16,17 +14,17 @@ import MapDisplay3D from './MapDisplay3D'
 import MyCameraControls from './camera/MyCameraControls'
 import TakeAPictureBox from './camera/TakeAPictureBox'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
+import type { Group, Object3DEventMap } from 'three'
 
 const World = ({
   cameraControlsRef,
+  mapGroupRef,
   isHidden,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
+  mapGroupRef: React.RefObject<Group<Object3DEventMap>>
   isHidden: boolean
 }) => {
-  const mapGroupRef = React.useRef<THREE.Group<THREE.Object3DEventMap> | null>(
-    null,
-  )
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const isLightsAndShadowsRender = useBoundStore(

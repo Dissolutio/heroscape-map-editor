@@ -8,7 +8,8 @@ export function TableSurfaceMesh({
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  if (!isLightsAndShadowsRender) {
+  const isHideTableTop = useBoundStore((s) => s.isHideTableTop)
+  if (!isLightsAndShadowsRender || isHideTableTop) {
     return null
   }
   return (

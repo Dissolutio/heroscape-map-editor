@@ -37,6 +37,8 @@ export interface UISlice {
   toggleIsLightsAndShadowsRender: (b: boolean) => void
   isDisplayCapHeights: boolean
   toggleIsDisplayCapHeights: (b: boolean) => void
+  isHideTableTop: boolean
+  toggleIsHideTableTop: (b: boolean) => void
   isFrameloopDemand: boolean
   toggleIsFrameloopDemand: (b: boolean) => void
   isTakingPicture: boolean
@@ -134,7 +136,7 @@ const createUISlice: StateCreator<
         s.isCameraDisabled = b
       }),
     ),
-  isOrthoCam: false,
+  isOrthoCam: true,
   toggleIsOrthoCam: (b: boolean) =>
     set(
       produce((s) => {
@@ -181,6 +183,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isDisplayCapHeights = b
+      }),
+    ),
+  isHideTableTop: false,
+  toggleIsHideTableTop: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isHideTableTop = b
       }),
     ),
   isFrameloopDemand: false,

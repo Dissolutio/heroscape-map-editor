@@ -6,10 +6,10 @@ import {
   Switch,
 } from '@mui/material'
 import { buildupJsonFileMap } from '../data/buildupMap'
-import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 import useBoundStore from '../store/store'
 import { HexTerrain, type BoardHexes, type BoardPieces } from '../types'
 import {
+  EVENTS,
   MAX_HEXAGON_MAP_DIMENSION,
   MAX_RECTANGLE_MAP_DIMENSION,
 } from '../utils/constants'
@@ -21,7 +21,10 @@ import RotationSelect from './RotationSelect'
 import UndoRedoButtonGroup from './UndoRedoButtonGroup'
 import ViewingLevelInput from './ViewingLevelInput'
 import { keyBy } from 'lodash'
-// import LocalStorageList from './LocalStorageList'
+import type { CameraControls } from '@react-three/drei'
+import type { Group, Object3DEventMap } from 'three'
+import { useEffect, useRef } from 'react'
+import useEvent from '../hooks/useEvent'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
@@ -48,24 +51,21 @@ const shiftInDirectionBoardPieces = (
   )
   return newBoardPieces
 }
-const Controls = () => {
+const Controls = ({
+  cameraControlsRef,
+  mapGroupRef,
+}: {
+  cameraControlsRef: React.RefObject<CameraControls>
+  mapGroupRef: React.RefObject<Group<Object3DEventMap>>
+}) => {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
   const loadMap = useBoundStore((s) => s.loadMap)
+  const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const toggleIsTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
 
-  const inventory = useLocalPieceInventory()
-  const isUseInventory =
-    0 <
-    Object.keys(inventory.pieceInventory).reduce(
-      (sum, key) => sum + inventory.pieceInventory[key],
-      0,
-    )
-  const selectedPiece = useBoundStore((s) => s.penMode + s.pieceSize)
-  const totalCount = inventory.pieceInventory[selectedPiece]
-  // const remainingCount = Object.values(boardPieces).reduce((count, val) => {
-  //   return val === selectedPiece ? count - 1 : count
-  // }, totalCount)
+  // const inventory = useLocalPieceInventory()
 
   const handleClickLogState = () => {
     console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
@@ -184,7 +184,25 @@ const Controls = () => {
       loadMap(newMap)
     }
   }
-
+  const zoomToMap = () => {
+    if (mapGroupRef.current) {
+      cameraControlsRef.current?.fitToBox?.(mapGroupRef.current, true)
+    }
+  }
+  const takePictureTimeout = useRef<number>()
+  const { publish } = useEvent()
+  // effect: clear the timeout after we take a picture
+  useEffect(() => {
+    if (!isTakingPicture) {
+      clearTimeout(takePictureTimeout.current)
+    }
+  }, [isTakingPicture])
+  const handleTakePictureJpg = () => {
+    toggleIsTakingPicture(true)
+    takePictureTimeout.current = window.setTimeout(() => {
+      publish(EVENTS.saveJpg)
+    }, 100) // Long enough to make some changes to the map and render
+  }
   return (
     <Container sx={{ padding: 1 }}>
       <div
@@ -301,10 +319,25 @@ const Controls = () => {
           Down Left
         </Button>
       </div>
-
-      <SwitchIsLightsAndShadows />
-      <SwitchIsDisplayCapHeights />
-      <SwitchIsHighQualityRender />
+      <div style={{ border: '1px solid var(--transparent-border)' }}>
+        <SwitchIsLightsAndShadows />
+        <SwitchIsHideTableTop />
+        <SwitchIsDisplayCapHeights />
+        <div>
+          <Button title="Center the camera on the map" onClick={zoomToMap}>
+            Zoom to map
+          </Button>
+        </div>
+        <SwitchIsHighQualityRender />
+        <div>
+          <Button
+            title="Take a map picture .jpg"
+            onClick={handleTakePictureJpg}
+          >
+            Take map picture JPG
+          </Button>
+        </div>
+      </div>
 
       {import.meta.env.DEV && (
         <Button onClick={handleClickLogState}>Log state</Button>
@@ -368,6 +401,21 @@ function SwitchIsDisplayCapHeights() {
           <Switch checked={isDisplayCapHeights} onChange={handleChange} />
         }
         label="Display Hex Heights"
+      />
+    </FormGroup>
+  )
+}
+function SwitchIsHideTableTop() {
+  const isHideTableTop = useBoundStore((s) => s.isHideTableTop)
+  const toggleIsHideTableTop = useBoundStore((s) => s.toggleIsHideTableTop)
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    toggleIsHideTableTop(event.target.checked)
+  }
+  return (
+    <FormGroup>
+      <FormControlLabel
+        control={<Switch checked={isHideTableTop} onChange={handleChange} />}
+        label="Hide TableTop"
       />
     </FormGroup>
   )
