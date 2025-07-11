@@ -14,7 +14,9 @@ export default function Ruins3({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/ruins3.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -47,7 +49,9 @@ export default function Ruins3({
 export function Ruins3Preview() {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/ruins3.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const color = hexTerrainColor[HexTerrain.ruin]
   return (
     <mesh
@@ -55,7 +59,11 @@ export function Ruins3Preview() {
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Ruin_Large_Scanned.geometry}
     >
-      {basicModelMaterial(color, isLightsAndShadowsRender, PIECE_PREVIEW_OPACITY)}
+      {basicModelMaterial(
+        color,
+        isLightsAndShadowsRender,
+        PIECE_PREVIEW_OPACITY,
+      )}
     </mesh>
   )
 }

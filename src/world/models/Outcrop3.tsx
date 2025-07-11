@@ -18,7 +18,9 @@ export default function Outcrop3({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-3.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -65,7 +67,9 @@ export function Outcrop3Preview({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-3.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const iceColor = hexTerrainColor[HexTerrain.ice]
   const lavaColor = hexTerrainColor[HexTerrain.lavaField]
   const outcropColor = hexTerrainColor[HexTerrain.outcrop]
@@ -77,7 +81,11 @@ export function Outcrop3Preview({
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.glacier_3_with_holes.geometry}
     >
-      {basicModelMaterial(color, isLightsAndShadowsRender, PIECE_PREVIEW_OPACITY)}
+      {basicModelMaterial(
+        color,
+        isLightsAndShadowsRender,
+        PIECE_PREVIEW_OPACITY,
+      )}
     </mesh>
   )
 }

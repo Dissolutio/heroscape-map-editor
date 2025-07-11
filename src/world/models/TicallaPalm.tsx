@@ -42,7 +42,9 @@ export function TicallaPalmPreview({
   const { nodes } = useGLTF('/ticalla-palm.glb') as any
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes: nodesNewPalm } = useGLTF('/handmade-palm.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const colorTrunk = color || hexTerrainColor.ticallaPalmModel1
   const colorBrush = color || hexTerrainColor.ticallaBrush2
   const colorPalmLeaf = color || hexTerrainColor.ticallaPalmModel3

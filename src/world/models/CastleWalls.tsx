@@ -29,7 +29,9 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const toggleHoveredHex = useBoundStore((s) => s.toggleHoveredHex)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isHighlighted =
     hoveredPieceID === boardHex.pieceID || selectedPieceID === boardHex.pieceID
@@ -131,7 +133,9 @@ export function CastleWallPreview({
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
   const capColor = hexTerrainColor[HexTerrain.castle]
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const scaleYAdjust = 0.01 // just a little to get it out of the subterrain
   // castle walls are 10 levels tall, UNLESS stacked on another wall, then they are 9 (they have a 1-level bottom base when on land)
   const scaleY = (isCastleUnder ? 8 : 9) + (1 - scaleYAdjust)

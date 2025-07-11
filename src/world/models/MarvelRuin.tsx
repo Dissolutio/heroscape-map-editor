@@ -19,7 +19,9 @@ export function MarvelRuin({
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
@@ -59,7 +61,10 @@ export function MarvelRuin({
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.MarvelRuinUpperFloor.geometry}
         >
-          {basicDoubleSideModelMaterial(colorUpperFloor, isLightsAndShadowsRender)}
+          {basicDoubleSideModelMaterial(
+            colorUpperFloor,
+            isLightsAndShadowsRender,
+          )}
         </mesh>
       )}
       {isWallIntact && (
@@ -83,7 +88,9 @@ export function MarvelRuinPreview({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/marvel-ruins.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const color = hexTerrainColor.marvelRuin
   const colorUpperFloor = hexTerrainColor.ladder
   return (

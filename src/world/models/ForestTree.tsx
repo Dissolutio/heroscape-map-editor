@@ -13,7 +13,9 @@ export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
   const { nodes } = useGLTF(
     '/forgotten-forest-tree-low-poly-colored.glb',
   ) as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -47,10 +49,10 @@ export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-            color,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              color,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       {/* <Billboard
         position={[x, options.y + 1.5, z]}

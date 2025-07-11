@@ -32,7 +32,9 @@ export default function LaurWallPillar({
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laurwall-pillar.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const yellowColor = 'yellow'
@@ -97,7 +99,9 @@ export function LaurWallPillarPreview({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laurwall-pillar.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
   const color = pillarColor
@@ -117,7 +121,11 @@ export function LaurWallPillarPreview({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.SubDecorCore.geometry}
       >
-        {basicModelMaterial(interiorColor, isLightsAndShadowsRender, opacityLevel)}
+        {basicModelMaterial(
+          interiorColor,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -131,7 +139,11 @@ export function LaurWallPillarPreview({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.FacadeInner.geometry}
       >
-        {basicModelMaterial(interiorColor, isLightsAndShadowsRender, opacityLevel)}
+        {basicModelMaterial(
+          interiorColor,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
       </mesh>
     </group>
   )

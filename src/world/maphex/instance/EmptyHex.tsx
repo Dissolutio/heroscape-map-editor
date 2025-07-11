@@ -29,7 +29,9 @@ const baseEmptyCapCylinderArgs: CylinderGeometryArgs = [
 const emptyHexColor = hexTerrainColor[HexTerrain.empty]
 
 const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   if (boardHexArr.length === 0) return null
   return (
     <Instances

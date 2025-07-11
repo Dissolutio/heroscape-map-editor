@@ -29,7 +29,9 @@ const baseFluidCapCylinderArgs: CylinderGeometryArgs = [
 ]
 export const FLUID_CAP_OPACITY = 0.85
 const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const ref = React.useRef<InstanceRefType>(null)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   if (boardHexArr.length === 0) return null
@@ -68,7 +70,10 @@ function FluidCap({
   onPointerUp,
   isVisible,
   isLightsAndShadowsRender,
-}: BoardHexPieceProps & { isVisible: boolean; isLightsAndShadowsRender: boolean }) {
+}: BoardHexPieceProps & {
+  isVisible: boolean
+  isLightsAndShadowsRender: boolean
+}) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
@@ -86,8 +91,8 @@ function FluidCap({
     ref.current.position.set(
       x,
       y -
-      (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
-      0.001,
+        (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
+        0.001,
       z,
     )
   }, [boardHex])

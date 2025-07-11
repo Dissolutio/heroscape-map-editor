@@ -16,7 +16,9 @@ export function Ladder({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/handmade-ladder.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const penMode = useBoundStore((s) => s.penMode)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
@@ -54,7 +56,9 @@ export function Ladder({
 export function LadderPreview() {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/handmade-ladder.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const color = hexTerrainColor[HexTerrain.ladder]
   return (
     <mesh
@@ -62,7 +66,11 @@ export function LadderPreview() {
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Ladder.geometry}
     >
-      {basicModelMaterial(color, isLightsAndShadowsRender, PIECE_PREVIEW_OPACITY)}
+      {basicModelMaterial(
+        color,
+        isLightsAndShadowsRender,
+        PIECE_PREVIEW_OPACITY,
+      )}
     </mesh>
   )
 }

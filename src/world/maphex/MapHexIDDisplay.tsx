@@ -23,7 +23,7 @@ export const MapHexIDDisplay = ({
   boardHex: BoardHex
 }) => {
   // return null
-  const boardHexes = useBoundStore(s => s.boardHexes)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
   /* 
   DEV VISUAL: toggling the below filters off, such that EVERY boardHex shows a billboardID, really helps to see how the 
   grid works (you can see vertical-clearance hexes, empty hexes)
@@ -40,7 +40,8 @@ export const MapHexIDDisplay = ({
   if (!isDisplayCapHeights) return null
 
   // filters out non-caps
-  if (!(boardHex.isCap || boardHex.terrain === HexTerrain.startZone)) return null
+  if (!(boardHex.isCap || boardHex.terrain === HexTerrain.startZone))
+    return null
   // filters out vertical clearance
   if (
     !boardHex.isCap &&
@@ -51,7 +52,12 @@ export const MapHexIDDisplay = ({
   // filters out empty hexes
   if (boardHex.terrain === HexTerrain.empty) return null
   const hexAltitudeForStandingOn =
-    boardHex.altitude - ((isUnderHexFluid && isStartZoneHex) ? 2 : (!isUnderHexFluid && isStartZoneHex) ? 1 : 0)
+    boardHex.altitude -
+    (isUnderHexFluid && isStartZoneHex
+      ? 2
+      : !isUnderHexFluid && isStartZoneHex
+        ? 1
+        : 0)
   return (
     <Billboard
       position={[

@@ -17,7 +17,9 @@ export function GlyphModel({
   const texture = useTexture('glyph-valkyrie-logo.svg')
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
@@ -46,7 +48,11 @@ export function GlyphModel({
     >
       {boardHex
         ? basicModelMaterial(color, isLightsAndShadowsRender)
-        : basicModelMaterial(color, isLightsAndShadowsRender, PIECE_PREVIEW_OPACITY)}
+        : basicModelMaterial(
+            color,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       {boardHex && <Decal depthTest map={texture} />}
     </mesh>
   )

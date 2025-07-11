@@ -314,7 +314,9 @@ const Controls = () => {
 }
 
 function SwitchIsLightsAndShadows() {
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const toggleIsLightsAndShadowsRender = useBoundStore(
     (s) => s.toggleIsLightsAndShadowsRender,
   )
@@ -334,7 +336,9 @@ function SwitchIsLightsAndShadows() {
 }
 function SwitchIsHighQualityRender() {
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const toggleIsHighQualityRender = useBoundStore((s) => s.toggleIsHighQualityRender)
+  const toggleIsHighQualityRender = useBoundStore(
+    (s) => s.toggleIsHighQualityRender,
+  )
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     toggleIsHighQualityRender(event.target.checked)
   }

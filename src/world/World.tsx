@@ -29,7 +29,9 @@ const World = ({
   )
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)

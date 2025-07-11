@@ -11,7 +11,9 @@ import { HEXGRID_HEX_APOTHEM } from '../../utils/constants'
 
 export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
   const { inventoryID, pieceID } = boardHex
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
@@ -120,7 +122,9 @@ export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
 export function Subterrain24({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_24.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
       castShadow={isLightsAndShadowsRender}
@@ -136,7 +140,9 @@ useGLTF.preload('/subterrain_24.glb')
 export function Subterrain9({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_9.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
       castShadow={isLightsAndShadowsRender}
@@ -152,7 +158,9 @@ useGLTF.preload('/subterrain_9.glb')
 export function Subterrain7B({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_7B.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
       castShadow={isLightsAndShadowsRender}
@@ -168,7 +176,9 @@ useGLTF.preload('/subterrain_7B.glb')
 export function Subterrain7({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_7.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
       castShadow={isLightsAndShadowsRender}
@@ -184,7 +194,9 @@ useGLTF.preload('/subterrain_7.glb')
 export function Subterrain6({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_6.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
       castShadow={isLightsAndShadowsRender}
@@ -200,7 +212,9 @@ useGLTF.preload('/subterrain_6.glb')
 export function Subterrain6B({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_6B.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   // Have to adjust model left because original tile template was wrong choice, TODO: Blender update model
   return (
     <mesh
@@ -216,7 +230,9 @@ useGLTF.preload('/subterrain_6B.glb')
 export function Subterrain5({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_5.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
       castShadow={isLightsAndShadowsRender}
@@ -232,7 +248,9 @@ useGLTF.preload('/subterrain_5.glb')
 export function Subterrain4({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_4.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
       castShadow={isLightsAndShadowsRender}
@@ -248,7 +266,9 @@ useGLTF.preload('/subterrain_4.glb')
 export function Subterrain3({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_3.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
       castShadow={isLightsAndShadowsRender}
@@ -264,7 +284,9 @@ useGLTF.preload('/subterrain_3.glb')
 export function Subterrain2({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_2.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
       castShadow={isLightsAndShadowsRender}
@@ -280,7 +302,9 @@ useGLTF.preload('/subterrain_2.glb')
 export function Subterrain1({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_1.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
       castShadow={isLightsAndShadowsRender}

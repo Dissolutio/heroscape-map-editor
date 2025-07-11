@@ -30,7 +30,9 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/classic1-cap.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
@@ -73,7 +75,7 @@ function SolidCapInstance({
   isLightsAndShadowsRender,
   isHighQualityRender,
 }: BoardHexPieceProps & {
-  isVisible: boolean;
+  isVisible: boolean
   isLightsAndShadowsRender: boolean
   isHighQualityRender: boolean
 }) {

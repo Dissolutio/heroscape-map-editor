@@ -5,7 +5,9 @@ export default function Lights({
   width,
   length,
 }: { width: number; length: number }) {
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const initialHeight = 15
   return (

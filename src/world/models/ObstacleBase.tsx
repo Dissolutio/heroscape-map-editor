@@ -38,7 +38,9 @@ export default function ObstacleBase({
   color,
   isFluidBase,
 }: ObstacleBaseProps) {
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   if (isFluidBase) {
     return (
       <mesh

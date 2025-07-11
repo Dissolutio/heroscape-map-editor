@@ -5,7 +5,9 @@ export function TableSurfaceMesh({
   width,
   length,
 }: { width: number; length: number }) {
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   if (!isLightsAndShadowsRender) {
     return null
   }

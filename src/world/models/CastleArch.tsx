@@ -26,7 +26,9 @@ type Props = {
 export function CastleArchPreview({ isDoor }: { isDoor: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/castle-arch-handmade.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const color = hexTerrainColor[HexTerrain.castle]
   const colorDoor = hexTerrainColor.castleDoor
 
@@ -50,28 +52,44 @@ export function CastleArchPreview({ isDoor }: { isDoor: boolean }) {
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.CastleArchBody.geometry}
       >
-        {basicModelMaterial(color, isLightsAndShadowsRender, PIECE_PREVIEW_OPACITY)}
+        {basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          PIECE_PREVIEW_OPACITY,
+        )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.CastleArchCapNear.geometry}
       >
-        {basicModelMaterial(color, isLightsAndShadowsRender, PIECE_PREVIEW_OPACITY)}
+        {basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          PIECE_PREVIEW_OPACITY,
+        )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.CastleArchCapMiddle.geometry}
       >
-        {basicModelMaterial(color, isLightsAndShadowsRender, PIECE_PREVIEW_OPACITY)}
+        {basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          PIECE_PREVIEW_OPACITY,
+        )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.CastleArchCapFar.geometry}
       >
-        {basicModelMaterial(color, isLightsAndShadowsRender, PIECE_PREVIEW_OPACITY)}
+        {basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          PIECE_PREVIEW_OPACITY,
+        )}
       </mesh>
     </>
   )
@@ -84,7 +102,9 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const yellowColor = 'yellow'
