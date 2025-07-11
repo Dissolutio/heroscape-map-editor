@@ -5,14 +5,14 @@ export default function Lights({
   width,
   length,
 }: { width: number; length: number }) {
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const initialHeight = 15
   return (
     <>
-      <ambientLight intensity={isHighQualityRender ? 0.5 : 2} />
+      <ambientLight intensity={isLightsAndShadowsRender ? 0.5 : 2} />
       <hemisphereLight color={'white'} groundColor={'white'} intensity={0.5} />
-      {isHighQualityRender && (
+      {isLightsAndShadowsRender && (
         <>
           <TransformControls
             position={[width / 3, initialHeight, length / 3]}
@@ -21,7 +21,7 @@ export default function Lights({
             showZ={!isTakingPicture}
           >
             <pointLight
-              castShadow={isHighQualityRender}
+              castShadow={isLightsAndShadowsRender}
               intensity={200}
               shadow-mapSize-height={512}
               shadow-mapSize-width={512}
@@ -34,7 +34,7 @@ export default function Lights({
             showZ={!isTakingPicture}
           >
             <pointLight
-              castShadow={isHighQualityRender}
+              castShadow={isLightsAndShadowsRender}
               intensity={200}
               shadow-mapSize-height={512}
               shadow-mapSize-width={512}
@@ -47,7 +47,7 @@ export default function Lights({
             showZ={!isTakingPicture}
           >
             <pointLight
-              castShadow={isHighQualityRender}
+              castShadow={isLightsAndShadowsRender}
               intensity={200}
               shadow-mapSize-height={512}
               shadow-mapSize-width={512}
@@ -60,7 +60,7 @@ export default function Lights({
             showZ={!isTakingPicture}
           >
             <pointLight
-              castShadow={isHighQualityRender}
+              castShadow={isLightsAndShadowsRender}
               intensity={200}
               shadow-mapSize-height={512}
               shadow-mapSize-width={512}

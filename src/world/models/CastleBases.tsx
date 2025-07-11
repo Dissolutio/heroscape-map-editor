@@ -21,7 +21,7 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const yellowColor = 'yellow'
@@ -55,14 +55,14 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
   return (
     <>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={bodyGeometry}
         onPointerUp={onPointerUpBody}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={onPointerOut}
       >
-        {basicModelMaterial(color, isHighQualityRender)}
+        {basicModelMaterial(color, isLightsAndShadowsRender)}
       </mesh>
 
       {/* Each wall has a WallCap mesh, then each wall-type adds on its little directional indicator mesh */}
@@ -72,20 +72,20 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
         onPointerOut={onPointerOutCap}
       >
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
           geometry={nodes.WallCap.geometry}
           onPointerEnter={onPointerEnterCap}
           onPointerOut={onPointerOutCap}
         >
-          {basicModelMaterial(color, isHighQualityRender)}
+          {basicModelMaterial(color, isLightsAndShadowsRender)}
         </mesh>
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
           geometry={capGeometry}
         >
-          {basicModelMaterial(color, isHighQualityRender)}
+          {basicModelMaterial(color, isLightsAndShadowsRender)}
         </mesh>
       </group>
     </>
@@ -102,7 +102,7 @@ export function CastleBasePreview({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const bodyGeometry = isCastleEnd
     ? nodes.CastleWallEndBody.geometry
     : isCastleStraight
@@ -118,27 +118,27 @@ export function CastleBasePreview({
   return (
     <>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={bodyGeometry}
       >
-        {basicModelMaterial(color, isHighQualityRender)}
+        {basicModelMaterial(color, isLightsAndShadowsRender)}
       </mesh>
 
       {/* Each wall has a WallCap mesh, then each wall-type adds on its little directional indicator mesh */}
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.WallCap.geometry}
       >
-        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={capGeometry}
       >
-        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
     </>
   )

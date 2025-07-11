@@ -24,7 +24,7 @@ export default function LaurWallTrianglePillar({
   const pieceRotation = (((boardHex?.pieceRotation ?? 0) % 6) * -Math.PI) / 3
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
@@ -34,7 +34,7 @@ export default function LaurWallTrianglePillar({
   const interiorColor = isHighlighted
     ? yellowColor
     : hexTerrainColor.laurModelColor2
-  const helpMaterialNeedsBlenderWork = isHighQualityRender ? (
+  const helpMaterialNeedsBlenderWork = isLightsAndShadowsRender ? (
     <meshStandardMaterial
       color={interiorColor}
       side={DoubleSide}
@@ -52,32 +52,32 @@ export default function LaurWallTrianglePillar({
       >
         <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={nodes.TrianglePillarTop.geometry}
           >
             {helpMaterialNeedsBlenderWork}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={nodes.TriangleSubDecorCore.geometry}
           >
-            {basicModelMaterial(interiorColor, isHighQualityRender)}
+            {basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={nodes.TriangleFacade.geometry}
           >
-            {basicModelMaterial(color, isHighQualityRender)}
+            {basicModelMaterial(color, isLightsAndShadowsRender)}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={nodes.TriangleFacadeInner.geometry}
           >
-            {basicModelMaterial(interiorColor, isHighQualityRender)}
+            {basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
           </mesh>
         </group>
       </group>
@@ -91,7 +91,7 @@ export function LaurWallTrianglePillarPreview({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
   const color = pillarColor
@@ -100,32 +100,32 @@ export function LaurWallTrianglePillarPreview({
   return (
     <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.TrianglePillarTop.geometry}
       >
-        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.TriangleSubDecorCore.geometry}
       >
-        {basicModelMaterial(interiorColor, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(interiorColor, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.TriangleFacade.geometry}
       >
-        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.TriangleFacadeInner.geometry}
       >
-        {basicModelMaterial(interiorColor, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(interiorColor, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
     </group>
   )

@@ -18,7 +18,7 @@ export function Outcrop1({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-1.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -44,14 +44,14 @@ export function Outcrop1({
   const color = isGlacier ? iceColor : isLavaRock ? lavaColor : outcropColor
   return (
     <mesh
-      receiveShadow={isHighQualityRender}
-      castShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
       geometry={nodes.glacier_1_with_holes.geometry}
       onPointerUp={(e) => onPointerUp(e)}
       onPointerEnter={(e) => onPointerEnter(e, boardHex)}
       onPointerOut={onPointerOut}
     >
-      {basicModelMaterial(color, isHighQualityRender)}
+      {basicModelMaterial(color, isLightsAndShadowsRender)}
     </mesh>
   )
 }
@@ -66,7 +66,7 @@ export function Outcrop1Preview({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-1.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const iceColor = hexTerrainColor[HexTerrain.ice]
   const lavaColor = hexTerrainColor[HexTerrain.lavaField]
   const outcropColor = hexTerrainColor[HexTerrain.outcrop]
@@ -74,11 +74,11 @@ export function Outcrop1Preview({
   const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
   return (
     <mesh
-      receiveShadow={isHighQualityRender}
-      castShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
       geometry={nodes.glacier_1_with_holes.geometry}
     >
-      {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+      {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
     </mesh>
   )
 }

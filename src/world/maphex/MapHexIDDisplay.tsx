@@ -2,12 +2,14 @@ import { Billboard, Text } from '@react-three/drei'
 import { Color, type Vector3 } from 'three'
 import {
   HexTerrain,
+  Pieces,
   type BoardHex,
   // HexTerrain,
 } from '../../types'
 import { HEXGRID_HEX_HEIGHT } from '../../utils/constants'
 import { isFluidTerrainHex } from '../../utils/board-utils'
 import useBoundStore from '../../store/store'
+import { genBoardHexID } from '../../utils/map-utils'
 
 /* 
   MapHexIDDisplay
@@ -21,17 +23,24 @@ export const MapHexIDDisplay = ({
   boardHex: BoardHex
 }) => {
   // return null
+  const boardHexes = useBoundStore(s => s.boardHexes)
   /* 
   DEV VISUAL: toggling the below filters off, such that EVERY boardHex shows a billboardID, really helps to see how the 
   grid works (you can see vertical-clearance hexes, empty hexes)
   */
   const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
-
+  const isStartZoneHex = boardHex.terrain === HexTerrain.startZone
+  const underHexID = genBoardHexID({
+    ...boardHex,
+    altitude: boardHex.altitude - 1,
+  })
+  const underHex = boardHexes?.[underHexID]
+  const isUnderHexFluid = isFluidTerrainHex(underHex?.terrain)
   // TODO: make own component for cap heights
   if (!isDisplayCapHeights) return null
 
   // filters out non-caps
-  if (!boardHex.isCap) return null
+  if (!(boardHex.isCap || boardHex.terrain === HexTerrain.startZone)) return null
   // filters out vertical clearance
   if (
     !boardHex.isCap &&
@@ -42,7 +51,7 @@ export const MapHexIDDisplay = ({
   // filters out empty hexes
   if (boardHex.terrain === HexTerrain.empty) return null
   const hexAltitudeForStandingOn =
-    boardHex.altitude - (isFluidTerrainHex(boardHex.terrain) ? 1 : 0)
+    boardHex.altitude - ((isUnderHexFluid && isStartZoneHex) ? 2 : (!isUnderHexFluid && isStartZoneHex) ? 1 : 0)
   return (
     <Billboard
       position={[

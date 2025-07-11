@@ -38,16 +38,16 @@ export default function ObstacleBase({
   color,
   isFluidBase,
 }: ObstacleBaseProps) {
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   if (isFluidBase) {
     return (
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         position={[x, y, z]}
       >
         <cylinderGeometry args={baseFluidCapCylinderArgs} />
-        {isHighQualityRender ? (
+        {isLightsAndShadowsRender ? (
           <meshStandardMaterial color={color} transparent opacity={0.85} />
         ) : (
           <meshLambertMaterial color={color} transparent opacity={0.85} />
@@ -57,12 +57,12 @@ export default function ObstacleBase({
   }
   return (
     <mesh
-      receiveShadow={isHighQualityRender}
-      castShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
       position={[x, y, z]}
     >
       <cylinderGeometry args={treeBaseCylinderArgs} />
-      {isHighQualityRender ? (
+      {isLightsAndShadowsRender ? (
         <meshStandardMaterial color={color} />
       ) : (
         <meshMatcapMaterial color={color} />

@@ -11,7 +11,7 @@ import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 export default function BigTree415({ boardHex }: { boardHex?: BoardHex }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/forest-tree15-colored-lowpoly.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -44,30 +44,30 @@ export default function BigTree415({ boardHex }: { boardHex?: BoardHex }) {
       onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
     >
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
       >
         {boardHex
-          ? basicModelMaterial(rockColor, isHighQualityRender)
+          ? basicModelMaterial(rockColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              rockColor,
-              isHighQualityRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            rockColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
       >
         {boardHex
-          ? basicModelMaterial(treeColor, isHighQualityRender)
+          ? basicModelMaterial(treeColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              treeColor,
-              isHighQualityRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            treeColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </group>
   )

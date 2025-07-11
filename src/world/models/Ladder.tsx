@@ -16,7 +16,7 @@ export function Ladder({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/handmade-ladder.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const penMode = useBoundStore((s) => s.penMode)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
@@ -40,29 +40,29 @@ export function Ladder({
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ladder]
   return (
     <mesh
-      receiveShadow={isHighQualityRender}
-      castShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
       geometry={nodes.Ladder.geometry}
       onPointerUp={handleOnPointerUp}
       onPointerEnter={(e) => onPointerEnter(e, boardHex)}
       onPointerOut={(e) => onPointerOut(e)}
     >
-      {basicModelMaterial(color, isHighQualityRender)}
+      {basicModelMaterial(color, isLightsAndShadowsRender)}
     </mesh>
   )
 }
 export function LadderPreview() {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/handmade-ladder.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const color = hexTerrainColor[HexTerrain.ladder]
   return (
     <mesh
-      receiveShadow={isHighQualityRender}
-      castShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
       geometry={nodes.Ladder.geometry}
     >
-      {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+      {basicModelMaterial(color, isLightsAndShadowsRender, PIECE_PREVIEW_OPACITY)}
     </mesh>
   )
 }

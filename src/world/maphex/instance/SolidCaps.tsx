@@ -30,6 +30,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/classic1-cap.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
@@ -43,8 +44,8 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       geometry={
         isHighQualityRender ? nodes.Classic1_Cap.geometry : basicCapGeometry
       }
-      receiveShadow={isHighQualityRender}
-      castShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
     >
       {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />}
       {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
@@ -54,6 +55,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
           boardHex={hex}
           onPointerUp={onPointerUp}
           isVisible={range >= i}
+          isLightsAndShadowsRender={isLightsAndShadowsRender}
           isHighQualityRender={isHighQualityRender}
         />
       ))}
@@ -68,8 +70,13 @@ function SolidCapInstance({
   boardHex,
   onPointerUp,
   isVisible,
+  isLightsAndShadowsRender,
   isHighQualityRender,
-}: BoardHexPieceProps & { isVisible: boolean; isHighQualityRender: boolean }) {
+}: BoardHexPieceProps & {
+  isVisible: boolean;
+  isLightsAndShadowsRender: boolean
+  isHighQualityRender: boolean
+}) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
@@ -87,6 +94,7 @@ function SolidCapInstance({
     // ref.current.position.set(x, y + HEXGRID_HEXCAP_HEIGHT / 2, z)
     ref.current.position.set(
       x,
+      // small adjustment down for realistic caps, to show the subterrain through the cracks
       y - (isHighQualityRender ? HEXGRID_HEXCAP_HEIGHT : 0),
       z,
     )
@@ -145,8 +153,8 @@ function SolidCapInstance({
       onPointerLeave={handlePointerOut}
       onPointerUp={handlePointerUp}
       frustumCulled={false}
-      receiveShadow={isHighQualityRender}
-      castShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
     />
   )
 }

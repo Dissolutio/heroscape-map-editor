@@ -19,7 +19,7 @@ export function MarvelRuin({
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
@@ -47,28 +47,28 @@ export function MarvelRuin({
       onPointerUp={(e) => onPointerUp(e)}
     >
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.MarvelRuinMain.geometry}
       >
-        {basicDoubleSideModelMaterial(color, isHighQualityRender)}
+        {basicDoubleSideModelMaterial(color, isLightsAndShadowsRender)}
       </mesh>
       {isUpperFloor && (
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
           geometry={nodes.MarvelRuinUpperFloor.geometry}
         >
-          {basicDoubleSideModelMaterial(colorUpperFloor, isHighQualityRender)}
+          {basicDoubleSideModelMaterial(colorUpperFloor, isLightsAndShadowsRender)}
         </mesh>
       )}
       {isWallIntact && (
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
           geometry={nodes.MarvelRuinRemoveableWall.geometry}
         >
-          {basicDoubleSideModelMaterial(color, isHighQualityRender)}
+          {basicDoubleSideModelMaterial(color, isLightsAndShadowsRender)}
         </mesh>
       )}
     </group>
@@ -83,44 +83,44 @@ export function MarvelRuinPreview({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/marvel-ruins.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const color = hexTerrainColor.marvelRuin
   const colorUpperFloor = hexTerrainColor.ladder
   return (
     <>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.MarvelRuinMain.geometry}
       >
         {basicDoubleSideModelMaterial(
           color,
-          isHighQualityRender,
+          isLightsAndShadowsRender,
           PIECE_PREVIEW_OPACITY,
         )}
       </mesh>
       {isUpperFloor && (
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
           geometry={nodes.MarvelRuinUpperFloor.geometry}
         >
           {basicDoubleSideModelMaterial(
             colorUpperFloor,
-            isHighQualityRender,
+            isLightsAndShadowsRender,
             PIECE_PREVIEW_OPACITY,
           )}
         </mesh>
       )}
       {isWallIntact && (
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
           geometry={nodes.MarvelRuinRemoveableWall.geometry}
         >
           {basicDoubleSideModelMaterial(
             color,
-            isHighQualityRender,
+            isLightsAndShadowsRender,
             PIECE_PREVIEW_OPACITY,
           )}
         </mesh>

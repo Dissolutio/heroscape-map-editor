@@ -5,8 +5,8 @@ export function TableSurfaceMesh({
   width,
   length,
 }: { width: number; length: number }) {
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  if (!isHighQualityRender) {
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  if (!isLightsAndShadowsRender) {
     return null
   }
   return (

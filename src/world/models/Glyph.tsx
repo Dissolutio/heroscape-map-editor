@@ -17,7 +17,7 @@ export function GlyphModel({
   const texture = useTexture('glyph-valkyrie-logo.svg')
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
@@ -37,16 +37,16 @@ export function GlyphModel({
   const color = isHighlighted ? yellowColor : glyphColor
   return (
     <mesh
-      receiveShadow={isHighQualityRender}
-      castShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
       geometry={nodes.Glyph.geometry}
       onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
       onPointerEnter={(e) => (boardHex ? onPointerEnter(e, boardHex) : noop())}
       onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
     >
       {boardHex
-        ? basicModelMaterial(color, isHighQualityRender)
-        : basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+        ? basicModelMaterial(color, isLightsAndShadowsRender)
+        : basicModelMaterial(color, isLightsAndShadowsRender, PIECE_PREVIEW_OPACITY)}
       {boardHex && <Decal depthTest map={texture} />}
     </mesh>
   )

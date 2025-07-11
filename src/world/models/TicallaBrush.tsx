@@ -74,36 +74,36 @@ export function TicallaBrushPreview({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/ticalla-brush.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   return (
     <>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.FatFern.geometry}
       >
-        {basicModelMaterial(color1, isHighQualityRender, opacity)}
+        {basicModelMaterial(color1, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.PineappleFern.geometry}
       >
-        {basicModelMaterial(color2, isHighQualityRender, opacity)}
+        {basicModelMaterial(color2, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.Needler.geometry}
       >
-        {basicModelMaterial(color3, isHighQualityRender, opacity)}
+        {basicModelMaterial(color3, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.Interlock6.geometry}
       >
-        {basicModelMaterial(colorBase, isHighQualityRender, opacity)}
+        {basicModelMaterial(colorBase, isLightsAndShadowsRender, opacity)}
       </mesh>
     </>
   )

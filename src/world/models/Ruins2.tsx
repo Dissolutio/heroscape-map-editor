@@ -14,7 +14,7 @@ export default function Ruins2({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/ruins2.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -33,29 +33,29 @@ export default function Ruins2({
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ruin]
   return (
     <mesh
-      receiveShadow={isHighQualityRender}
-      castShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
       onPointerUp={(e) => onPointerUp(e)}
       onPointerEnter={(e) => onPointerEnter(e, boardHex)}
       onPointerOut={(e) => onPointerOut(e)}
       geometry={nodes.Ruin_Small_Scanned.geometry}
     >
-      {basicModelMaterial(color, isHighQualityRender)}
+      {basicModelMaterial(color, isLightsAndShadowsRender)}
     </mesh>
   )
 }
 export function Ruins2Preview() {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/ruins2.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const color = hexTerrainColor[HexTerrain.ruin]
   return (
     <mesh
-      receiveShadow={isHighQualityRender}
-      castShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
       geometry={nodes.Ruin_Small_Scanned.geometry}
     >
-      {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+      {basicModelMaterial(color, isLightsAndShadowsRender, PIECE_PREVIEW_OPACITY)}
     </mesh>
   )
 }

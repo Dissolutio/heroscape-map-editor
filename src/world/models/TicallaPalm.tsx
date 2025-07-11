@@ -42,7 +42,7 @@ export function TicallaPalmPreview({
   const { nodes } = useGLTF('/ticalla-palm.glb') as any
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes: nodesNewPalm } = useGLTF('/handmade-palm.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const colorTrunk = color || hexTerrainColor.ticallaPalmModel1
   const colorBrush = color || hexTerrainColor.ticallaBrush2
   const colorPalmLeaf = color || hexTerrainColor.ticallaPalmModel3
@@ -50,33 +50,33 @@ export function TicallaPalmPreview({
   return (
     <>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodesNewPalm.Palm_Trunk.geometry}
       >
-        {basicModelMaterial(colorTrunk, isHighQualityRender, opacity)}
+        {basicModelMaterial(colorTrunk, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodesNewPalm.Palm_Canopy.geometry}
       >
-        {basicModelMaterial(colorPalmLeaf, isHighQualityRender, opacity)}
+        {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
       </mesh>
 
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.PalmBrush.geometry}
       >
-        {basicModelMaterial(colorBrush, isHighQualityRender, opacity)}
+        {basicModelMaterial(colorBrush, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.Interlock6.geometry}
       >
-        {basicModelMaterial(colorBase, isHighQualityRender, opacity)}
+        {basicModelMaterial(colorBase, isLightsAndShadowsRender, opacity)}
       </mesh>
     </>
   )

@@ -29,7 +29,7 @@ const World = ({
   )
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)
@@ -62,7 +62,7 @@ const World = ({
           }}
           frameloop={isFrameloopDemand ? 'demand' : undefined}
           hidden={isHidden}
-          shadows={isHighQualityRender}
+          shadows={isLightsAndShadowsRender}
         >
           {/* <color attach="background" args={["white"]} /> */}
           <PerspectiveCamera
