@@ -79,7 +79,9 @@ export default function PiecePreview() {
   4. 
   */
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const pieceID = piece?.id ?? ''
 
   //EARLY RETURN:  Only show preview if hovering a valid hex and penMode is not 'select'
@@ -161,7 +163,7 @@ export default function PiecePreview() {
   const subterrainColor = hexTerrainColor[piece.terrain]
 
   const landSubterrainMaterial = () => {
-    if (isHighQualityRender) {
+    if (isLightsAndShadowsRender) {
       if (isFluidTerrainHex(piece.terrain)) {
         return (
           <meshStandardMaterial

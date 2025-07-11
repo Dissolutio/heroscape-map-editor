@@ -26,7 +26,9 @@ type Props = {
 export function CastleArchPreview({ isDoor }: { isDoor: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/castle-arch-handmade.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const color = hexTerrainColor[HexTerrain.castle]
   const colorDoor = hexTerrainColor.castleDoor
 
@@ -34,44 +36,60 @@ export function CastleArchPreview({ isDoor }: { isDoor: boolean }) {
     <>
       {isDoor && (
         <mesh
-          receiveShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
           castShadow
           geometry={nodes.ArchDoor.geometry}
         >
           {basicModelMaterial(
             colorDoor,
-            isHighQualityRender,
+            isLightsAndShadowsRender,
             PIECE_PREVIEW_OPACITY,
           )}
         </mesh>
       )}
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.CastleArchBody.geometry}
       >
-        {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+        {basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          PIECE_PREVIEW_OPACITY,
+        )}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.CastleArchCapNear.geometry}
       >
-        {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+        {basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          PIECE_PREVIEW_OPACITY,
+        )}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.CastleArchCapMiddle.geometry}
       >
-        {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+        {basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          PIECE_PREVIEW_OPACITY,
+        )}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.CastleArchCapFar.geometry}
       >
-        {basicModelMaterial(color, isHighQualityRender, PIECE_PREVIEW_OPACITY)}
+        {basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          PIECE_PREVIEW_OPACITY,
+        )}
       </mesh>
     </>
   )
@@ -84,7 +102,9 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const yellowColor = 'yellow'
@@ -185,51 +205,51 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
       >
         {isDoor && (
           <mesh
-            receiveShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
             castShadow
             geometry={nodes.ArchDoor.geometry}
             onPointerUp={(e) => onPointerUp(e, boardHex)}
           >
-            {basicModelMaterial(colorDoor, isHighQualityRender)}
+            {basicModelMaterial(colorDoor, isLightsAndShadowsRender)}
           </mesh>
         )}
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
           geometry={nodes.CastleArchBody.geometry}
           onPointerUp={onPointerUpBody}
         >
-          {basicModelMaterial(color, isHighQualityRender)}
+          {basicModelMaterial(color, isLightsAndShadowsRender)}
         </mesh>
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
           geometry={nodes.CastleArchCapNear.geometry}
           onPointerUp={(e) => onPointerUp(e, boardHex)}
           onPointerEnter={onPointerEnterNear}
           onPointerOut={onPointerOutNear}
         >
-          {basicModelMaterial(colorNear, isHighQualityRender)}
+          {basicModelMaterial(colorNear, isLightsAndShadowsRender)}
         </mesh>
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
           geometry={nodes.CastleArchCapMiddle.geometry}
           onPointerEnter={onPointerEnterMiddle}
           onPointerOut={onPointerOutMiddle}
           onPointerUp={onPointerUpMiddle}
         >
-          {basicModelMaterial(colorMiddle, isHighQualityRender)}
+          {basicModelMaterial(colorMiddle, isLightsAndShadowsRender)}
         </mesh>
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
           geometry={nodes.CastleArchCapFar.geometry}
           onPointerEnter={onPointerEnterFar}
           onPointerOut={onPointerOutFar}
           onPointerUp={onPointerUpFar}
         >
-          {basicModelMaterial(colorFar, isHighQualityRender)}
+          {basicModelMaterial(colorFar, isLightsAndShadowsRender)}
         </mesh>
       </group>
     </>

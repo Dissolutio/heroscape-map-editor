@@ -12,7 +12,9 @@ export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/uncolored-decimated-marro-hive-6.glb') as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
@@ -33,8 +35,8 @@ export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
   return (
     <>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.Marro_Hive.geometry}
         onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
         onPointerEnter={(e) =>
@@ -43,10 +45,10 @@ export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(color, isHighQualityRender)
+          ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
               color,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
       </mesh>

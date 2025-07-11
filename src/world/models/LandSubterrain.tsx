@@ -11,7 +11,9 @@ import { HEXGRID_HEX_APOTHEM } from '../../utils/constants'
 
 export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
   const { inventoryID, pieceID } = boardHex
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
@@ -55,7 +57,7 @@ export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
     toggleSelectedPieceID(isSelected ? '' : pieceID)
   }
   const material = () => {
-    if (isHighQualityRender) {
+    if (isLightsAndShadowsRender) {
       if (isFluidTerrainHex(pieceTerrain)) {
         return (
           <meshStandardMaterial
@@ -120,11 +122,13 @@ export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
 export function Subterrain24({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_24.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
-      castShadow={isHighQualityRender}
-      receiveShadow={isHighQualityRender}
+      castShadow={isLightsAndShadowsRender}
+      receiveShadow={isLightsAndShadowsRender}
       geometry={nodes.Subterrain_24.geometry}
     >
       {children}
@@ -136,11 +140,13 @@ useGLTF.preload('/subterrain_24.glb')
 export function Subterrain9({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_9.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
-      castShadow={isHighQualityRender}
-      receiveShadow={isHighQualityRender}
+      castShadow={isLightsAndShadowsRender}
+      receiveShadow={isLightsAndShadowsRender}
       geometry={nodes['Subterrain-9'].geometry}
     >
       {children}
@@ -152,11 +158,13 @@ useGLTF.preload('/subterrain_9.glb')
 export function Subterrain7B({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_7B.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
-      castShadow={isHighQualityRender}
-      receiveShadow={isHighQualityRender}
+      castShadow={isLightsAndShadowsRender}
+      receiveShadow={isLightsAndShadowsRender}
       geometry={nodes['Subterrain-7B'].geometry}
     >
       {children}
@@ -168,11 +176,13 @@ useGLTF.preload('/subterrain_7B.glb')
 export function Subterrain7({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_7.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
-      castShadow={isHighQualityRender}
-      receiveShadow={isHighQualityRender}
+      castShadow={isLightsAndShadowsRender}
+      receiveShadow={isLightsAndShadowsRender}
       geometry={nodes.Subterrain_7.geometry}
     >
       {children}
@@ -184,11 +194,13 @@ useGLTF.preload('/subterrain_7.glb')
 export function Subterrain6({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_6.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
-      castShadow={isHighQualityRender}
-      receiveShadow={isHighQualityRender}
+      castShadow={isLightsAndShadowsRender}
+      receiveShadow={isLightsAndShadowsRender}
       geometry={nodes.Subterrain_6.geometry}
     >
       {children}
@@ -200,7 +212,9 @@ useGLTF.preload('/subterrain_6.glb')
 export function Subterrain6B({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_6B.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   // Have to adjust model left because original tile template was wrong choice, TODO: Blender update model
   return (
     <mesh
@@ -216,11 +230,13 @@ useGLTF.preload('/subterrain_6B.glb')
 export function Subterrain5({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_5.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
-      castShadow={isHighQualityRender}
-      receiveShadow={isHighQualityRender}
+      castShadow={isLightsAndShadowsRender}
+      receiveShadow={isLightsAndShadowsRender}
       geometry={nodes.Subterrain_5.geometry}
     >
       {children}
@@ -232,11 +248,13 @@ useGLTF.preload('/subterrain_5.glb')
 export function Subterrain4({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_4.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
-      castShadow={isHighQualityRender}
-      receiveShadow={isHighQualityRender}
+      castShadow={isLightsAndShadowsRender}
+      receiveShadow={isLightsAndShadowsRender}
       geometry={nodes.Subterrain_4.geometry}
     >
       {children}
@@ -248,11 +266,13 @@ useGLTF.preload('/subterrain_4.glb')
 export function Subterrain3({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_3.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
-      castShadow={isHighQualityRender}
-      receiveShadow={isHighQualityRender}
+      castShadow={isLightsAndShadowsRender}
+      receiveShadow={isLightsAndShadowsRender}
       geometry={nodes.Subterrain_3.geometry}
     >
       {children}
@@ -264,11 +284,13 @@ useGLTF.preload('/subterrain_3.glb')
 export function Subterrain2({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_2.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
-      castShadow={isHighQualityRender}
-      receiveShadow={isHighQualityRender}
+      castShadow={isLightsAndShadowsRender}
+      receiveShadow={isLightsAndShadowsRender}
       geometry={nodes.Subterrain_2.geometry}
     >
       {children}
@@ -280,11 +302,13 @@ useGLTF.preload('/subterrain_2.glb')
 export function Subterrain1({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/subterrain_1.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   return (
     <mesh
-      castShadow={isHighQualityRender}
-      receiveShadow={isHighQualityRender}
+      castShadow={isLightsAndShadowsRender}
+      receiveShadow={isLightsAndShadowsRender}
       geometry={nodes.Subterrain_1.geometry}
     >
       {children}

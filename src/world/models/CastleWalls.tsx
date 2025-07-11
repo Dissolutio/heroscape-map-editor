@@ -29,7 +29,9 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const toggleHoveredHex = useBoundStore((s) => s.toggleHoveredHex)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isHighlighted =
     hoveredPieceID === boardHex.pieceID || selectedPieceID === boardHex.pieceID
@@ -81,15 +83,15 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   return (
     <>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         scale={scale}
         geometry={bodyGeometry}
         onPointerUp={onPointerUpBody}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        {basicModelMaterial(color, isHighQualityRender)}
+        {basicModelMaterial(color, isLightsAndShadowsRender)}
       </mesh>
       <group
         onPointerUp={(e) => onPointerUp(e, boardHex)}
@@ -97,21 +99,21 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
         onPointerOut={onPointerOutCap}
       >
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
           geometry={nodes.WallCap.geometry}
           position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
         >
-          {basicModelMaterial(capColor, isHighQualityRender)}
+          {basicModelMaterial(capColor, isLightsAndShadowsRender)}
         </mesh>
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
           geometry={capGeometry}
           position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
           onPointerUp={(e) => onPointerUp(e, boardHex)}
         >
-          {basicModelMaterial(capColor, isHighQualityRender)}
+          {basicModelMaterial(capColor, isLightsAndShadowsRender)}
         </mesh>
       </group>
     </>
@@ -131,7 +133,9 @@ export function CastleWallPreview({
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
   const capColor = hexTerrainColor[HexTerrain.castle]
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const scaleYAdjust = 0.01 // just a little to get it out of the subterrain
   // castle walls are 10 levels tall, UNLESS stacked on another wall, then they are 9 (they have a 1-level bottom base when on land)
   const scaleY = (isCastleUnder ? 8 : 9) + (1 - scaleYAdjust)
@@ -151,28 +155,28 @@ export function CastleWallPreview({
   return (
     <>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         scale={scale}
         geometry={bodyGeometry}
       >
-        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.WallCap.geometry}
         position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
       >
-        {basicModelMaterial(capColor, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(capColor, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={capGeometry}
         position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
       >
-        {basicModelMaterial(capColor, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(capColor, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
     </>
   )

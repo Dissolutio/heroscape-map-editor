@@ -302,8 +302,9 @@ const Controls = () => {
         </Button>
       </div>
 
-      <SwitchHighQualityRender />
+      <SwitchIsLightsAndShadows />
       <SwitchIsDisplayCapHeights />
+      <SwitchIsHighQualityRender />
 
       {import.meta.env.DEV && (
         <Button onClick={handleClickLogState}>Log state</Button>
@@ -312,7 +313,28 @@ const Controls = () => {
   )
 }
 
-function SwitchHighQualityRender() {
+function SwitchIsLightsAndShadows() {
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
+  const toggleIsLightsAndShadowsRender = useBoundStore(
+    (s) => s.toggleIsLightsAndShadowsRender,
+  )
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    toggleIsLightsAndShadowsRender(event.target.checked)
+  }
+  return (
+    <FormGroup>
+      <FormControlLabel
+        control={
+          <Switch checked={isLightsAndShadowsRender} onChange={handleChange} />
+        }
+        label="Render Lights and Shadows"
+      />
+    </FormGroup>
+  )
+}
+function SwitchIsHighQualityRender() {
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const toggleIsHighQualityRender = useBoundStore(
     (s) => s.toggleIsHighQualityRender,
@@ -326,7 +348,7 @@ function SwitchHighQualityRender() {
         control={
           <Switch checked={isHighQualityRender} onChange={handleChange} />
         }
-        label="High Quality Render"
+        label="High Quality Render (Significant performance impact)"
       />
     </FormGroup>
   )

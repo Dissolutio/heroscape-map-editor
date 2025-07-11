@@ -4,6 +4,7 @@ import {
   type DecodedPieceID,
   HexTerrain,
   type Piece,
+  Pieces,
 } from '../types'
 import {
   isCastleTerrain,
@@ -100,6 +101,9 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
 
 export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   // TODO: color: refactor this to be more direct
+  if (hex.inventoryID === Pieces.laurWallShort) {
+    return svgColors[HexTerrain.laurWall]
+  }
   if (
     isSolidTerrainHex(hex.terrain) ||
     isFluidTerrainHex(hex.terrain) ||

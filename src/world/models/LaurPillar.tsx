@@ -32,7 +32,9 @@ export default function LaurWallPillar({
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laurwall-pillar.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const yellowColor = 'yellow'
@@ -51,40 +53,40 @@ export default function LaurWallPillar({
       >
         <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={nodes.PillarTop.geometry}
           >
-            {basicModelMaterial(color, isHighQualityRender)}
+            {basicModelMaterial(color, isLightsAndShadowsRender)}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={nodes.SubDecorCore.geometry}
           >
-            {basicModelMaterial(interiorColor, isHighQualityRender)}
+            {basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={nodes.Facade.geometry}
           >
-            {basicModelMaterial(color, isHighQualityRender)}
+            {basicModelMaterial(color, isLightsAndShadowsRender)}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={nodes.FacadeInner.geometry}
           >
-            {basicModelMaterial(interiorColor, isHighQualityRender)}
+            {basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
           </mesh>
         </group>
         <mesh
-          receiveShadow={isHighQualityRender}
-          castShadow={isHighQualityRender}
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
         >
           <cylinderGeometry args={baseCylinderArgs} />
-          {basicModelMaterial(color, isHighQualityRender)}
+          {basicModelMaterial(color, isLightsAndShadowsRender)}
         </mesh>
       </group>
     </>
@@ -97,7 +99,9 @@ export function LaurWallPillarPreview({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laurwall-pillar.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
   const color = pillarColor
@@ -106,32 +110,40 @@ export function LaurWallPillarPreview({
   return (
     <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.PillarTop.geometry}
       >
-        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.SubDecorCore.geometry}
       >
-        {basicModelMaterial(interiorColor, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(
+          interiorColor,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.Facade.geometry}
       >
-        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
       <mesh
-        receiveShadow={isHighQualityRender}
-        castShadow={isHighQualityRender}
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.FacadeInner.geometry}
       >
-        {basicModelMaterial(interiorColor, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(
+          interiorColor,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
       </mesh>
     </group>
   )

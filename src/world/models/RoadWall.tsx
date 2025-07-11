@@ -14,7 +14,9 @@ export function RoadWall({ pid }: { pid: string }) {
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === pid
   const isHighlighted = hoveredPieceID === pid || isSelected
@@ -39,7 +41,7 @@ export function RoadWall({ pid }: { pid: string }) {
         onPointerEnter={(e) => onPointerEnterPID(e, pid)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        {basicModelMaterial(color, isHighQualityRender)}
+        {basicModelMaterial(color, isLightsAndShadowsRender)}
       </mesh>
     </>
   )
@@ -47,13 +49,15 @@ export function RoadWall({ pid }: { pid: string }) {
 export function RoadWallPreview({ opacity }: { opacity?: number }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/handmade-roadwall.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const color = hexTerrainColor[HexTerrain.roadWall]
   const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
   return (
     <>
       <mesh receiveShadow castShadow geometry={nodes.RoadWall.geometry}>
-        {basicModelMaterial(color, isHighQualityRender, opacityLevel)}
+        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
     </>
   )

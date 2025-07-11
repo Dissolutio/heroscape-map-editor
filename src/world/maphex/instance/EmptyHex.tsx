@@ -29,17 +29,19 @@ const baseEmptyCapCylinderArgs: CylinderGeometryArgs = [
 const emptyHexColor = hexTerrainColor[HexTerrain.empty]
 
 const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   if (boardHexArr.length === 0) return null
   return (
     <Instances
       range={boardHexArr.length}
       limit={INSTANCE_LIMIT}
       frustumCulled={false} // BUG: otherwise they disappear from view at unexpected angless
-      receiveShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
     >
       <cylinderGeometry args={baseEmptyCapCylinderArgs} />
-      {isHighQualityRender ? (
+      {isLightsAndShadowsRender ? (
         <meshStandardMaterial transparent opacity={0.5} />
       ) : (
         <meshLambertMaterial transparent opacity={0.5} />
@@ -49,7 +51,7 @@ const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
           key={`${hex.id + i}empty`}
           boardHex={hex}
           onPointerUp={onPointerUp}
-          isHighQualityRender={isHighQualityRender}
+          isLightsAndShadowsRender={isLightsAndShadowsRender}
         />
       ))}
     </Instances>
@@ -61,8 +63,8 @@ export default EmptyHexes
 function EmptyHex({
   boardHex,
   onPointerUp,
-  isHighQualityRender,
-}: BoardHexPieceProps & { isHighQualityRender: boolean }) {
+  isLightsAndShadowsRender,
+}: BoardHexPieceProps & { isLightsAndShadowsRender: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
@@ -95,8 +97,8 @@ function EmptyHex({
       onPointerEnter={handleEnter}
       onPointerOut={handleOut}
       frustumCulled={false}
-      receiveShadow={isHighQualityRender}
-      castShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
     />
   )
 }

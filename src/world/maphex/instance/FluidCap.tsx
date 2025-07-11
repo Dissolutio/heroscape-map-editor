@@ -29,7 +29,9 @@ const baseFluidCapCylinderArgs: CylinderGeometryArgs = [
 ]
 export const FLUID_CAP_OPACITY = 0.85
 const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const ref = React.useRef<InstanceRefType>(null)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   if (boardHexArr.length === 0) return null
@@ -40,10 +42,10 @@ const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       range={range} // no way there would be this many fluid caps, but with an overhang on every other hex, maybe
       ref={ref}
       frustumCulled={false}
-      receiveShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
     >
       <cylinderGeometry args={baseFluidCapCylinderArgs} />
-      {isHighQualityRender ? (
+      {isLightsAndShadowsRender ? (
         <meshStandardMaterial transparent opacity={FLUID_CAP_OPACITY} />
       ) : (
         <meshLambertMaterial transparent opacity={FLUID_CAP_OPACITY} />
@@ -54,7 +56,7 @@ const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
           boardHex={hex}
           onPointerUp={onPointerUp}
           isVisible={range >= i}
-          isHighQualityRender={isHighQualityRender}
+          isLightsAndShadowsRender={isLightsAndShadowsRender}
         />
       ))}
     </Instances>
@@ -67,8 +69,11 @@ function FluidCap({
   boardHex,
   onPointerUp,
   isVisible,
-  isHighQualityRender,
-}: BoardHexPieceProps & { isVisible: boolean; isHighQualityRender: boolean }) {
+  isLightsAndShadowsRender,
+}: BoardHexPieceProps & {
+  isVisible: boolean
+  isLightsAndShadowsRender: boolean
+}) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
@@ -138,8 +143,8 @@ function FluidCap({
       onPointerEnter={handlePointerEnter}
       onPointerOut={handlePointerOut}
       frustumCulled={false}
-      receiveShadow={isHighQualityRender}
-      castShadow={isHighQualityRender}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
     />
   )
 }

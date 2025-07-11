@@ -37,6 +37,8 @@ export function StartZone3D({
     >
       <circleGeometry args={[HEXGRID_HEX_RADIUS / 2.1, 32]} />
       <meshMatcapMaterial color={color} />
+      {/* <ringGeometry args={[HEXGRID_HEX_RADIUS / 3, HEXGRID_HEX_RADIUS / 2.1, 32]} /> */}
+      {/* <meshStandardMaterial color={color} transparent opacity={0.2} /> */}
     </mesh>
   )
 }

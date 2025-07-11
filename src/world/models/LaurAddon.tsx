@@ -26,7 +26,9 @@ export function LaurWallAddon({ pid }: { pid: string }) {
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === pid
   const isHighlighted = hoveredPieceID === pid || isSelected
@@ -55,18 +57,18 @@ export function LaurWallAddon({ pid }: { pid: string }) {
       {inventoryID === Pieces.laurWallRuin1 && (
         <>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallRuin.geometry}
           >
-            {basicModelMaterial(pillarColor, isHighQualityRender)}
+            {basicModelMaterial(pillarColor, isLightsAndShadowsRender)}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallRuinBustedConcrete.geometry}
           >
-            {basicModelMaterial(interiorPillarColor, isHighQualityRender)}
+            {basicModelMaterial(interiorPillarColor, isLightsAndShadowsRender)}
           </mesh>
         </>
       )}
@@ -74,18 +76,18 @@ export function LaurWallAddon({ pid }: { pid: string }) {
       {inventoryID === Pieces.laurWallShort && (
         <>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallShort.geometry}
           >
-            {basicModelMaterial(pillarColor, isHighQualityRender)}
+            {basicModelMaterial(pillarColor, isLightsAndShadowsRender)}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallShortDecorDeep.geometry}
           >
-            {basicModelMaterial(interiorPillarColor, isHighQualityRender)}
+            {basicModelMaterial(interiorPillarColor, isLightsAndShadowsRender)}
           </mesh>
         </>
       )}
@@ -93,18 +95,18 @@ export function LaurWallAddon({ pid }: { pid: string }) {
       {inventoryID === Pieces.laurWallLong && (
         <>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallLong.geometry}
           >
-            {basicModelMaterial(pillarColor, isHighQualityRender)}
+            {basicModelMaterial(pillarColor, isLightsAndShadowsRender)}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallLongDecorDeep.geometry}
           >
-            {basicModelMaterial(interiorPillarColor, isHighQualityRender)}
+            {basicModelMaterial(interiorPillarColor, isLightsAndShadowsRender)}
           </mesh>
         </>
       )}
@@ -124,7 +126,9 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
     nodes: { LaurWallLong, LaurWallLongDecorDeep },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   } = useGLTF('/laurwall-long.glb') as any
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
 
@@ -134,24 +138,24 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
       {inventoryID === Pieces.laurWallRuin1 && (
         <>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallRuin.geometry}
           >
             {basicModelMaterial(
               pillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallRuinBustedConcrete.geometry}
           >
             {basicModelMaterial(
               interiorPillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
@@ -161,24 +165,24 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
       {inventoryID === Pieces.laurWallRuin2 && (
         <>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallRuin.geometry}
           >
             {basicModelMaterial(
               pillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallRuinBustedConcrete.geometry}
           >
             {basicModelMaterial(
               interiorPillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
@@ -188,24 +192,24 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
       {inventoryID === Pieces.laurWallRuin3 && (
         <>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallRuin.geometry}
           >
             {basicModelMaterial(
               pillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallRuinBustedConcrete.geometry}
           >
             {basicModelMaterial(
               interiorPillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
@@ -215,24 +219,24 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
       {inventoryID === Pieces.laurWallShort && (
         <>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallShort.geometry}
           >
             {basicModelMaterial(
               pillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallShortDecorDeep.geometry}
           >
             {basicModelMaterial(
               interiorPillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
@@ -242,24 +246,24 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
       {inventoryID === Pieces.laurWallShortStackable && (
         <>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallShort.geometry}
           >
             {basicModelMaterial(
               pillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallShortDecorDeep.geometry}
           >
             {basicModelMaterial(
               interiorPillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
@@ -269,24 +273,24 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
       {inventoryID === Pieces.laurWallLong && (
         <>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallLong.geometry}
           >
             {basicModelMaterial(
               pillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallLongDecorDeep.geometry}
           >
             {basicModelMaterial(
               interiorPillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
@@ -296,24 +300,24 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
       {inventoryID === Pieces.laurWallLongStackable && (
         <>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallLong.geometry}
           >
             {basicModelMaterial(
               pillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
           <mesh
-            receiveShadow={isHighQualityRender}
-            castShadow={isHighQualityRender}
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
             geometry={LaurWallLongDecorDeep.geometry}
           >
             {basicModelMaterial(
               interiorPillarColor,
-              isHighQualityRender,
+              isLightsAndShadowsRender,
               PIECE_PREVIEW_OPACITY,
             )}
           </mesh>
