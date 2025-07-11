@@ -197,10 +197,10 @@ const Controls = ({
       clearTimeout(takePictureTimeout.current)
     }
   }, [isTakingPicture])
-  const handleTakePictureJpg = () => {
+  const handleTakePicturePng = () => {
     toggleIsTakingPicture(true)
     takePictureTimeout.current = window.setTimeout(() => {
-      publish(EVENTS.saveJpg)
+      publish(EVENTS.savePng)
     }, 100) // Long enough to make some changes to the map and render
   }
   return (
@@ -331,10 +331,10 @@ const Controls = ({
         <SwitchIsHighQualityRender />
         <div>
           <Button
-            title="Take a map picture .jpg"
-            onClick={handleTakePictureJpg}
+            title="Take a map picture .png"
+            onClick={handleTakePicturePng}
           >
-            Take map picture JPG
+            Take map picture PNG
           </Button>
         </div>
       </div>
