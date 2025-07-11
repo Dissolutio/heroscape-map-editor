@@ -1,4 +1,4 @@
-import { Instance, Instances } from '@react-three/drei'
+import { Instance, Instances, useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
@@ -9,8 +9,10 @@ import type {
   BoardHexPieceProps,
   CylinderGeometryArgs,
   DreiCapProps,
+  InstanceRefType,
 } from '../instance-hex'
 import { terrainCapColors } from '../terrainCapColors'
+import { CylinderGeometry } from 'three'
 
 const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
   0.8515,
@@ -19,28 +21,36 @@ const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
   6,
   undefined,
   false,
-  undefined,
+  Math.PI / 6,
   undefined,
 ]
 
 const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
+  const ref = React.useRef<InstanceRefType>(null)
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/classic1-cap.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
+  const basicCapGeometry = new CylinderGeometry(...baseSolidCapCylinderArgs)
   return (
     <Instances
       limit={INSTANCE_LIMIT}
       range={range}
-      frustumCulled={false} // BUG: otherwise they disappear from view at unexpected angles
+      ref={ref}
+      frustumCulled={false}
+      geometry={
+        isHighQualityRender ? nodes.Classic1_Cap.geometry : basicCapGeometry
+      }
       receiveShadow={isHighQualityRender}
       castShadow={isHighQualityRender}
     >
-      <cylinderGeometry args={baseSolidCapCylinderArgs} />
       {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />}
+      {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
       {boardHexArr.map((hex, i) => (
-        <SolidCap
-          key={`${hex.id} + ${i}`}
+        <SolidCapInstance
+          key={hex.id}
           boardHex={hex}
           onPointerUp={onPointerUp}
           isVisible={range >= i}
@@ -50,10 +60,11 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
     </Instances>
   )
 }
+useGLTF.preload('/classic1-cap.glb')
 
 export default SolidCaps
 
-function SolidCap({
+function SolidCapInstance({
   boardHex,
   onPointerUp,
   isVisible,
@@ -73,8 +84,18 @@ function SolidCap({
   React.useEffect(() => {
     const { x, y, z } = getBoardHex3DCoords(boardHex)
     ref.current.color.set(color)
-    ref.current.position.set(x, y + HEXGRID_HEXCAP_HEIGHT / 2, z)
-  }, [boardHex, color])
+    // ref.current.position.set(x, y + HEXGRID_HEXCAP_HEIGHT / 2, z)
+    ref.current.position.set(
+      x,
+      y - (isHighQualityRender ? HEXGRID_HEXCAP_HEIGHT : 0),
+      z,
+    )
+    ref.current.rotation.set(
+      0,
+      Math.PI / 6 + (getRandomInteger(1, 6) * Math.PI) / 3,
+      0,
+    )
+  }, [boardHex, color, isHighQualityRender])
 
   // update color when piece is hovered
   React.useEffect(() => {
@@ -128,4 +149,10 @@ function SolidCap({
       castShadow={isHighQualityRender}
     />
   )
+}
+
+function getRandomInteger(min: number, max: number) {
+  const minimum = Math.ceil(min) // Ensure min is rounded up to the nearest whole number
+  const maximum = Math.floor(max) // Ensure max is rounded down to the nearest whole number
+  return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum
 }
