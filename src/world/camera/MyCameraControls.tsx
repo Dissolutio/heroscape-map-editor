@@ -2,16 +2,14 @@ import { CameraControls } from '@react-three/drei'
 import type React from 'react'
 import useBoundStore from '../../store/store'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { useThree } from '@react-three/fiber'
 
 export default function MyCameraControls({
   cameraControlsRef,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
 }) {
-  const isCameraDisabled = useBoundStore(
-    (s) => s.isCameraDisabled || s.isTakingPicture,
-  )
+  const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
+  const isCameraDisabled = useBoundStore((s) => s.isCameraDisabled || s.isTakingPicture)
   useHotkeys('up', () => { cameraControlsRef?.current?.truck(0, -5, true) })
   useHotkeys('down', () => cameraControlsRef?.current?.truck(0, 5, true))
   useHotkeys('left', () => cameraControlsRef?.current?.truck(-5, 0, true))
@@ -20,10 +18,8 @@ export default function MyCameraControls({
   useHotkeys('shift+down', () => { cameraControlsRef.current?.rotate(0, Math.PI / 27, true) })
   useHotkeys('shift+left', () => { cameraControlsRef.current?.rotate(-Math.PI / 27, 0, true) })
   useHotkeys('shift+right', () => { cameraControlsRef.current?.rotate(Math.PI / 27, 0, true) })
-  useHotkeys('mod+up', () => { cameraControlsRef?.current?.dolly(1, true) })
-  useHotkeys('mod+down', () => { cameraControlsRef?.current?.dolly(-1, true) })
-  useHotkeys('mod+left', () => { cameraControlsRef?.current?.zoom(-cameraControlsRef.current.camera.zoom / 2, true) })
-  useHotkeys('mod+right', () => { cameraControlsRef?.current?.zoom(cameraControlsRef.current.camera.zoom / 2, true) })
+  useHotkeys('mod+up', () => { isOrthoCam ? cameraControlsRef?.current?.zoom(cameraControlsRef.current.camera.zoom / 2, true) : cameraControlsRef?.current?.dolly(1, true) })
+  useHotkeys('mod+down', () => { isOrthoCam ? cameraControlsRef?.current?.zoom(-cameraControlsRef.current.camera.zoom / 2, true) : cameraControlsRef?.current?.dolly(-1, true) })
 
   return (
     <CameraControls

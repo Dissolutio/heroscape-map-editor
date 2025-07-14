@@ -57,56 +57,6 @@ export const useApplyHotkeys = ({
       cameraControlsRef.current?.fitToBox?.(mapGroupRef.current, true)
     }
   }
-  const truckUp = () => {
-    cameraControlsRef?.current?.truck(0, -5, true)
-  }
-  const truckDown = () => {
-    cameraControlsRef?.current?.truck(0, 5, true)
-  }
-  const truckLeft = () => {
-    cameraControlsRef?.current?.truck(-5, 0, true)
-  }
-  const truckRight = () => {
-    cameraControlsRef?.current?.truck(5, 0, true)
-  }
-  const rotateCameraUp = () => {
-    cameraControlsRef.current?.rotate(0, -Math.PI / 27, true)
-  }
-  const rotateCameraDown = () => {
-    cameraControlsRef.current?.rotate(0, Math.PI / 27, true)
-  }
-  const rotateCameraLeft = () => {
-    cameraControlsRef.current?.rotate(-Math.PI / 27, 0, true)
-  }
-  const rotateCameraRight = () => {
-    cameraControlsRef.current?.rotate(Math.PI / 27, 0, true)
-  }
-  // Should be mod up/down zooms in ortho, dollys in perspective
-  const dollyCameraForward = () => {
-    cameraControlsRef?.current?.dolly(1, true)
-  }
-  const dollyCameraBackward = () => {
-    cameraControlsRef?.current?.dolly(-1, true)
-  }
-  const zoomOutCamera = () => {
-    cameraControlsRef?.current?.zoom(-cameraControlsRef.current.camera.zoom / 2, true)
-  }
-  const zoomInCamera = () => {
-    cameraControlsRef?.current?.zoom(cameraControlsRef.current.camera.zoom / 2, true)
-  }
-
-  // useHotkeys('up', () => { cameraControlsRef?.current?.truck(0, -5, true) }, hotkeyOptions)
-  // useHotkeys('down', () => cameraControlsRef?.current?.truck(0, 5, true), hotkeyOptions)
-  // useHotkeys('left', () => cameraControlsRef?.current?.truck(-5, 0, true), hotkeyOptions)
-  // useHotkeys('right', () => cameraControlsRef?.current?.truck(5, 0, true), hotkeyOptions)
-  // useHotkeys('shift+up', () => { cameraControlsRef.current?.rotate(0, -Math.PI / 27, true) }, hotkeyOptions)
-  // useHotkeys('shift+down', () => { cameraControlsRef.current?.rotate(0, Math.PI / 27, true) }, hotkeyOptions)
-  // useHotkeys('shift+left', () => { cameraControlsRef.current?.rotate(-Math.PI / 27, 0, true) }, hotkeyOptions)
-  // useHotkeys('shift+right', () => { cameraControlsRef.current?.rotate(Math.PI / 27, 0, true) }, hotkeyOptions)
-  // useHotkeys('mod+up', () => { cameraControlsRef?.current?.dolly(1, true) }, hotkeyOptions)
-  // useHotkeys('mod+down', () => { cameraControlsRef?.current?.dolly(-1, true) }, hotkeyOptions)
-  // useHotkeys('mod+left', () => { cameraControlsRef?.current?.zoom(-cameraControlsRef.current.camera.zoom / 2, true) }, hotkeyOptions)
-  // useHotkeys('mod+right', () => { cameraControlsRef?.current?.zoom(cameraControlsRef.current.camera.zoom / 2, true) }, hotkeyOptions)
 
   const incrementViewingLevel = () =>
     toggleViewingLevel(Math.min(viewingLevel + 1, maxLevel))
