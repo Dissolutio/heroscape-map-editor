@@ -6,6 +6,7 @@ export const getPieceByTerrainAndSize = (terrain: string, size: number) => {
   return piece
 }
 export const piecesSoFar: Dictionary<Piece> = {
+  // UNINVENTORIED
   [Pieces.startZone1]: {
     id: Pieces.startZone1,
     title: 'Start Zone: Player 1',
@@ -106,6 +107,10 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 0,
   },
+
+  // INVENTORIED
+
+  // LAND
   [Pieces.grass1]: {
     id: Pieces.grass1,
     title: 'Grass-1',
@@ -798,7 +803,17 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12,
+    height: 12, // game height was 10, errata 9
+  },
+  [Pieces.laurWallPillarStackable]: {
+    id: Pieces.laurWallPillarStackable,
+    title: 'Laur Pillar (Stackable)',
+    terrain: HexTerrain.laurWall,
+    isHexTerrainPiece: false,
+    isObstaclePiece: true,
+    size: 1,
+    template: '1',
+    height: 12, // game height was 10, errata 9
   },
   [Pieces.laurWallTrianglePillar]: {
     id: Pieces.laurWallTrianglePillar,
@@ -808,7 +823,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12, // game height is 10
+    height: 12, // game height was 10, errata 9
   },
   [Pieces.laurWallShort]: {
     id: Pieces.laurWallShort,
@@ -822,7 +837,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.laurWallShortStackable]: {
     id: Pieces.laurWallShortStackable,
-    title: 'Laur Wall (Short)',
+    title: 'Laur Wall (Short) (Stackable)',
     terrain: HexTerrain.laurWallAddon,
     isHexTerrainPiece: false,
     isObstaclePiece: false,
@@ -838,6 +853,26 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallLong,
+    height: 12, // game height is 10
+  },
+  [Pieces.laurWallLongStackable]: {
+    id: Pieces.laurWallLongStackable,
+    title: 'Laur Wall (Long) (Stackable)',
+    terrain: HexTerrain.laurWallAddon,
+    isHexTerrainPiece: false,
+    isObstaclePiece: false,
+    size: 1,
+    template: Pieces.laurWallLongStackable,
+    height: 12, // game height is 10
+  },
+  [Pieces.laurWallArch]: {
+    id: Pieces.laurWallArch,
+    title: 'Laur Wall Arch',
+    terrain: HexTerrain.laurWallAddon,
+    isHexTerrainPiece: false,
+    isObstaclePiece: false,
+    size: 1,
+    template: Pieces.laurWallLongStackable,
     height: 12, // game height is 10
   },
   [Pieces.laurWallRuin1]: {

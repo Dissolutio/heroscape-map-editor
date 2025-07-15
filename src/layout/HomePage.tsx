@@ -13,6 +13,7 @@ import { HeaderNav } from './HeaderNav'
 import { LoadMapInputs } from './LoadMapButtons'
 import useBoundStore from '../store/store'
 import type { Group, Object3DEventMap } from 'three'
+import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(null)
@@ -58,6 +59,7 @@ export default function HomePage() {
     <>
       <CreateMapFormDialog />
       <EditMapFormDialog />
+      <EditPieceInventoryDialog />
       <Drawer
         open={isNavOpen}
         // open={true} // DEV toggle

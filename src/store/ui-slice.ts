@@ -2,7 +2,8 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { AppState } from './store'
-import type { BoardHex } from '../types'
+import type { BoardHex, PieceInventory } from '../types'
+import { blankPieceInventory } from '../inventory/blankInventory'
 
 export interface UISlice {
   // TODO: persisted state below
@@ -22,6 +23,8 @@ export interface UISlice {
   toggleIsNewMapDialogOpen: (b: boolean) => void
   isEditMapDialogOpen: boolean
   toggleIsEditMapDialogOpen: (b: boolean) => void
+  isPieceInventoryDialogOpen: boolean
+  toggleIsPieceInventoryDialogOpen: (b: boolean) => void
   // WORLD STATE
   selectedPieceID: string
   toggleSelectedPieceID: (id: string) => void
@@ -47,6 +50,8 @@ export interface UISlice {
   toggleIsCameraDisabled: (b: boolean) => void
   isOrthoCam: boolean
   toggleIsOrthoCam: (b: boolean) => void
+  userPieceInventory: PieceInventory
+  updateUserPieceInventory: (n: PieceInventory) => void
 }
 
 const initialPenMode = 'select'
@@ -157,6 +162,13 @@ const createUISlice: StateCreator<
         s.isEditMapDialogOpen = b
       }),
     ),
+  isPieceInventoryDialogOpen: false,
+  toggleIsPieceInventoryDialogOpen: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isPieceInventoryDialogOpen = b
+      }),
+    ),
   viewingLevel: 0,
   toggleViewingLevel: (level: number) =>
     set(
@@ -197,6 +209,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isFrameloopDemand = b
+      }),
+    ),
+  userPieceInventory: blankPieceInventory,
+  updateUserPieceInventory: (n: PieceInventory) =>
+    set(
+      produce((s) => {
+        s.userPieceInventory = n
       }),
     ),
 })

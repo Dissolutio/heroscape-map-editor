@@ -13,9 +13,15 @@ import JSONCrush from 'jsoncrush'
 import { useSnackbar } from 'notistack'
 import { parse } from 'papaparse'
 import React, { type ChangeEvent } from 'react'
-import { FcAddImage, FcDownload, FcLink, FcUpload, FcVlc } from 'react-icons/fc'
+import {
+  FcAddImage,
+  FcDownload,
+  FcLink,
+  FcRules,
+  FcUpload,
+  FcVlc,
+} from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore } from 'react-icons/md'
-// import tsvTemplate from '/inventory_template.tsv?url'
 import { piecesSoFar } from '../data/pieces'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 import useBoundStore from '../store/store'
@@ -40,6 +46,9 @@ export const DrawerList = ({
   const isNewMapDialogOpen = useBoundStore((state) => state.isNewMapDialogOpen)
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
+  )
+  const toggleIsPieceInventoryDialogOpen = useBoundStore(
+    (state) => state.toggleIsPieceInventoryDialogOpen,
   )
   const personalInventoryTsvUploadElementID = 'tsvinventoryupload'
   const inventory = useLocalPieceInventory()
@@ -185,6 +194,14 @@ export const DrawerList = ({
             </ListItemIcon>
             <ListItemText primary={'Edit Map Details'} />
           </ListItemButton>
+          <ListItemButton
+            onClick={() => toggleIsPieceInventoryDialogOpen(true)}
+          >
+            <ListItemIcon>
+              <FcRules />
+            </ListItemIcon>
+            <ListItemText primary={'Edit My Piece Inventory'} />
+          </ListItemButton>
           {/* COPY URL */}
           <ListItemButton onClick={onClickCopy}>
             <ListItemIcon>
@@ -233,36 +250,6 @@ export const DrawerList = ({
               <LoadMapButtons />
             </List>
           </Collapse>
-
-          {/* LOAD PERSONAL PIECE INVENTORY */}
-          {/* <ListItemButton onClick={handleClickUploadPersonalInventoryTsv}>
-            <ListItemIcon
-              sx={{
-                color: 'inherit',
-              }}
-            >
-              <MdInventory />
-            </ListItemIcon>
-            <ListItemText primary={'Load Personal Inventory (.tsv)'} />
-          </ListItemButton> */}
-
-          {/* DOWNLOAD PERSONAL INVENTORY TSV TEMPLATE */}
-          {/* <a
-            style={{ textDecoration: 'none', color: 'inherit' }}
-            href={tsvTemplate}
-            download="inventory_template.tsv"
-          >
-            <ListItemButton>
-              <ListItemIcon
-                sx={{
-                  color: 'inherit',
-                }}
-              >
-                <MdOutlineInventory />
-              </ListItemIcon>
-              <ListItemText primary={'Download Inventory Template File'} />
-            </ListItemButton>
-          </a> */}
         </List>
 
         <input
