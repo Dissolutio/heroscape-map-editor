@@ -1,4 +1,4 @@
-import { Pieces } from "../types";
+import { Pieces } from '../types'
 
 export const blankPieceInventory = {
   [Pieces.grass1]: 0,

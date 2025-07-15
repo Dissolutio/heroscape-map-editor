@@ -217,7 +217,7 @@ const createUISlice: StateCreator<
       produce((s) => {
         s.userPieceInventory = n
       }),
-    )
+    ),
 })
 
 export default createUISlice

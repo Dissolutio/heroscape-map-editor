@@ -1,7 +1,6 @@
 import { type PieceInventory, Pieces } from '../types'
 export * as setInventories from './inventories'
 
-
 export const maxSharedTerrainKit: PieceInventory = {
   // https://www.heroscapers.com/threads/max-shared-terrain-kit-mstk.64183/
   [Pieces.grass1]: 10,
