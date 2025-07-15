@@ -180,7 +180,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8273',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8273',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A',
     set: "Utgar's Rage: Minutemen and Wolves",
@@ -309,7 +310,8 @@ const armyCardsRaw = [
     general: 'Marvel',
     size: 'Medium',
     height: '6',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9719',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9719',
     oeaoPowerRanking: 'N/A',
     dokPowerRanking: 'N/A',
     set: 'Marvel: The Conflict Begins',
@@ -394,7 +396,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8274',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8274',
     oeaoPowerRanking: 'C-',
     dokPowerRanking: 'D',
     set: 'Crest of the Valkyrie',
@@ -522,7 +525,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8276',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8276',
     oeaoPowerRanking: 'C+',
     dokPowerRanking: 'C',
     set: 'Rise of the Valkyrie',
@@ -699,7 +703,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8683',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8683',
     oeaoPowerRanking: 'A-',
     dokPowerRanking: 'A-',
     set: 'Rise of the Valkyrie',
@@ -828,7 +833,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8576',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8576',
     oeaoPowerRanking: 'A-',
     dokPowerRanking: 'B+',
     set: "Jandar's Oath: Heroes of Nostralund",
@@ -959,7 +965,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8426',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8426',
     oeaoPowerRanking: 'B-',
     dokPowerRanking: 'B-',
     set: "Utgar's Rage: Minutemen and Wolves",
@@ -1131,7 +1138,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8275',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8275',
     oeaoPowerRanking: 'B-',
     dokPowerRanking: 'C+',
     set: "Zanafor's Discovery: Greeks and Vipers",
@@ -1158,8 +1166,7 @@ const armyCardsRaw = [
     power1Text:
       'Before taking a turn with Arrow Gruts, you may first take a turn with any Beast you control.',
     power2Name: 'DISENGAGE',
-    power2Text:
-      'Arrow Gruts are never attacked when leaving an engagement.',
+    power2Text: 'Arrow Gruts are never attacked when leaving an engagement.',
     power3Name: null,
     power3Text: null,
     power4Name: null,
@@ -1174,7 +1181,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8592',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8592',
     oeaoPowerRanking: 'A-',
     dokPowerRanking: 'B+',
     set: "Malliddon's Prophecy: Grut Orcs",
@@ -1303,7 +1311,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9615',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9615',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B',
     set: 'Fields of Valor: Spearmen and Riflemen',
@@ -1345,7 +1354,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9613',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9613',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'C+',
     set: 'Fields of Valor: Spearmen and Riflemen',
@@ -1519,7 +1529,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8410',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8410',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B-',
     set: "Zanafor's Discovery: Soulborgs and Elves",
@@ -2117,8 +2128,7 @@ const armyCardsRaw = [
     power1Text:
       'Before taking a turn with Blade Gruts, you may first take a turn with any Orc Champion you control.',
     power2Name: 'DISENGAGE',
-    power2Text:
-      'Blade Gruts are never attacked when leaving an engagement.',
+    power2Text: 'Blade Gruts are never attacked when leaving an engagement.',
     power3Name: null,
     power3Text: null,
     power4Name: null,
@@ -2133,7 +2143,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8590',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8590',
     oeaoPowerRanking: 'A-',
     dokPowerRanking: 'A-',
     set: "Malliddon's Prophecy: Grut Orcs",
@@ -2176,7 +2187,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8595',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8595',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A-',
     set: "Thora's Vengeance: Soulborgs",
@@ -2575,7 +2587,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Huge',
     height: '13',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8105',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8105',
     oeaoPowerRanking: 'A-',
     dokPowerRanking: 'A-',
     set: "Raknar's Vision",
@@ -2750,7 +2763,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Huge',
     height: '8',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8584',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8584',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B',
     set: "Orm's Return",
@@ -2780,8 +2794,7 @@ const armyCardsRaw = [
     power2Text:
       'Once per turn, after attacking with the Brute Gruts, you may place a Berserker Marker on this card to attack one additional time with the Brute Gruts. Subtract 1 from the Brute Gruts’ Defense value for each Berserker Marker on this card. A maximum of 3 Berserker Markers can be placed on this card.',
     power3Name: 'DISENGAGE',
-    power3Text:
-      'Brute Gruts are never attacked when leaving an engagement.',
+    power3Text: 'Brute Gruts are never attacked when leaving an engagement.',
     power4Name: null,
     power4Text: null,
     life: '1',
@@ -3013,7 +3026,8 @@ const armyCardsRaw = [
     general: 'Marvel',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9712',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9712',
     oeaoPowerRanking: 'N/A',
     dokPowerRanking: 'N/A',
     set: 'Marvel: The Conflict Begins',
@@ -3230,7 +3244,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Huge',
     height: '9',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8124',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8124',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B',
     set: "Orm's Return",
@@ -3447,7 +3462,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8688',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8688',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B+',
     set: "Jandar's Oath: Heroes of Nostralund",
@@ -3661,7 +3677,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8602',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8602',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B+',
     set: "Thora's Vengeance: Gladiators and Agents",
@@ -3794,7 +3811,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9614',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9614',
     oeaoPowerRanking: 'A-',
     dokPowerRanking: 'A-',
     set: 'Fields of Valor: Heroes of Elswin',
@@ -3926,7 +3944,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8106',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8106',
     oeaoPowerRanking: 'C-',
     dokPowerRanking: 'C-',
     set: "Zanafor's Discovery: Lawmen and Samurai",
@@ -4085,8 +4104,7 @@ const armyCardsRaw = [
     power1Text:
       "After a Deathreaver you control rolls defense dice against a normal attack from an opponent's figure, you may move any 2 Deathreavers you control up to 4 spaces each.",
     power2Name: 'DISENGAGE',
-    power2Text:
-      'Deathreavers are never attacked when leaving an engagement.',
+    power2Text: 'Deathreavers are never attacked when leaving an engagement.',
     power3Name: 'CLIMB X2',
     power3Text:
       'When moving up or down levels of terrain, Deathreavers may double their Height.',
@@ -4102,7 +4120,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Small',
     height: '3',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8107',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8107',
     oeaoPowerRanking: 'A+',
     dokPowerRanking: 'A+',
     set: "Thora's Vengeance: Warriors and Soulborgs",
@@ -4144,7 +4163,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Large',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8108',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8108',
     oeaoPowerRanking: 'C+',
     dokPowerRanking: 'C',
     set: "Thora's Vengeance: Soulborgs",
@@ -4231,7 +4251,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8583',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8583',
     oeaoPowerRanking: 'F',
     dokPowerRanking: 'D',
     set: "Jandar's Oath: Heroes of Nostralund",
@@ -4273,7 +4294,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Large',
     height: '7',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8582',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8582',
     oeaoPowerRanking: 'C+',
     dokPowerRanking: 'C',
     set: "Orm's Return",
@@ -4316,7 +4338,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Large',
     height: '7',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8404',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8404',
     oeaoPowerRanking: 'C',
     dokPowerRanking: 'C-',
     set: 'Rise of the Valkyrie',
@@ -4446,7 +4469,8 @@ const armyCardsRaw = [
     general: 'Marvel',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9713',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9713',
     oeaoPowerRanking: 'N/A',
     dokPowerRanking: 'N/A',
     set: 'Marvel: The Conflict Begins',
@@ -4619,7 +4643,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Large',
     height: '7',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8585',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8585',
     oeaoPowerRanking: 'B-',
     dokPowerRanking: 'C-',
     set: 'The Road to the Forgotten Forest',
@@ -4661,7 +4686,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Large',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8109',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8109',
     oeaoPowerRanking: 'C-',
     dokPowerRanking: 'D',
     set: "Orm's Return",
@@ -4749,7 +4775,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '6',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8110',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8110',
     oeaoPowerRanking: 'B-',
     dokPowerRanking: 'D',
     set: 'Thaelenk Tundra',
@@ -4817,8 +4844,7 @@ const armyCardsRaw = [
     class: 'Construct',
     personality: 'Terrifying',
     power1Name: 'DEFENSIVE POSITIONING',
-    power1Text:
-      'While an Ebon Armor is engaged, it has no visible Hit Zone.',
+    power1Text: 'While an Ebon Armor is engaged, it has no visible Hit Zone.',
     power2Name: 'ANIMATED MATERIEL',
     power2Text:
       'When an Ebon Armor you control is destroyed, you may place it on a Unique Human Army Card in your army that does not already have an Ebon Armor on it.',
@@ -4926,7 +4952,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8581',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8581',
     oeaoPowerRanking: 'C-',
     dokPowerRanking: 'C-',
     set: 'Dawn of Darkness: Archers and Kyrie',
@@ -5012,7 +5039,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8573',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8573',
     oeaoPowerRanking: 'A-',
     dokPowerRanking: 'A-',
     set: 'Dawn of Darkness: Heroes of Durgeth',
@@ -5056,7 +5084,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8412',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8412',
     oeaoPowerRanking: 'C+',
     dokPowerRanking: 'D',
     set: "Valkrill's Gambit: Champions of Renown",
@@ -5230,7 +5259,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '6',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8587',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8587',
     oeaoPowerRanking: 'C-',
     dokPowerRanking: 'D',
     set: 'Dawn of Darkness: Heroes of Durgeth',
@@ -5758,7 +5788,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8415',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8415',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B+',
     set: 'Rise of the Valkyrie',
@@ -6065,7 +6096,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8594',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8594',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A-',
     set: "Zanafor's Discovery: Soulborgs and Elves",
@@ -6238,7 +6270,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8599',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8599',
     oeaoPowerRanking: 'C+',
     dokPowerRanking: 'C',
     set: "Jandar's Oath: Gorillas and Hounds",
@@ -6547,7 +6580,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Huge',
     height: '11',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8414',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8414',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A',
     set: 'Rise of the Valkyrie',
@@ -6634,7 +6668,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8111',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8111',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'A-',
     set: "Zanafor's Discovery: Lawmen and Samurai",
@@ -6808,7 +6843,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8403',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8403',
     oeaoPowerRanking: 'F',
     dokPowerRanking: 'F',
     set: 'Crest of the Valkyrie',
@@ -6894,7 +6930,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8591',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8591',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A',
     set: 'Dawn of Darkness: Shades and Orcs',
@@ -7374,7 +7411,8 @@ const armyCardsRaw = [
     general: 'Marvel',
     size: 'Medium',
     height: '6',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9718',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9718',
     oeaoPowerRanking: 'N/A',
     dokPowerRanking: 'N/A',
     set: 'Marvel: The Conflict Begins',
@@ -7503,7 +7541,8 @@ const armyCardsRaw = [
     general: 'Marvel',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9715',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9715',
     oeaoPowerRanking: 'N/A',
     dokPowerRanking: 'N/A',
     set: 'Marvel: The Conflict Begins',
@@ -7547,7 +7586,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9616',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9616',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A',
     set: 'Fields of Valor: Heroes of Elswin',
@@ -7591,7 +7631,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9617',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9617',
     oeaoPowerRanking: 'B-',
     dokPowerRanking: 'D',
     set: 'Fields of Valor: Fiends & Vampires',
@@ -7633,7 +7674,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8397',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8397',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B',
     set: 'Rise of the Valkyrie',
@@ -7676,7 +7718,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8689',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8689',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B',
     set: "Zanafor's Discovery: Lawmen and Samurai",
@@ -7761,7 +7804,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8112',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8112',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B',
     set: "Jandar's Oath: Heroes of Nostralund",
@@ -7890,7 +7934,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Huge',
     height: '10',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8113',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8113',
     oeaoPowerRanking: 'C+',
     dokPowerRanking: 'C+',
     set: "Raknar's Vision",
@@ -7933,7 +7978,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8402',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8402',
     oeaoPowerRanking: 'A-',
     dokPowerRanking: 'A',
     set: 'Dawn of Darkness: Heroes of Durgeth',
@@ -8151,7 +8197,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '6',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8283',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8283',
     oeaoPowerRanking: 'C',
     dokPowerRanking: 'C-',
     set: 'Dawn of Darkness: Heroes of Durgeth',
@@ -8194,7 +8241,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8114',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8114',
     oeaoPowerRanking: 'B-',
     dokPowerRanking: 'C-',
     set: "Malliddon's Prophecy: Heroes of Bleakwood",
@@ -8280,7 +8328,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8425',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8425',
     oeaoPowerRanking: 'C-',
     dokPowerRanking: 'D',
     set: "Utgar's Rage: Heroes of Barrenspur",
@@ -8666,7 +8715,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8575',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8575',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A',
     set: "Utgar's Rage: Knights and The Swog Rider",
@@ -8840,7 +8890,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8398',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8398',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B-',
     set: "Thora's Vengeance: Ninjas and Samurai",
@@ -8882,7 +8933,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8405',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8405',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A-',
     set: 'Rise of the Valkyrie',
@@ -8924,7 +8976,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Huge',
     height: '8',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8424',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8424',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B+',
     set: "Utgar's Rage: Heroes of Barrenspur",
@@ -9139,7 +9192,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9618',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9618',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B-',
     set: 'Fields of Valor: Heroes of Elswin',
@@ -9181,7 +9235,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8580',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8580',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'A-',
     set: 'Crest of the Valkyrie',
@@ -9527,7 +9582,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8423',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8423',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B-',
     set: "Jandar's Oath: Kilts and Commandos",
@@ -9744,7 +9800,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Large',
     height: '7',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8597',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8597',
     oeaoPowerRanking: 'A+',
     dokPowerRanking: 'A+',
     set: "Raknar's Vision",
@@ -9787,7 +9844,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8596',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8596',
     oeaoPowerRanking: 'D',
     dokPowerRanking: 'C-',
     set: "Zanafor's Discovery: Heroes of Trollsford",
@@ -9962,7 +10020,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9619',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9619',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A',
     set: 'Fields of Valor: Fiends & Vampires',
@@ -10004,7 +10063,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8687',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8687',
     oeaoPowerRanking: 'A-',
     dokPowerRanking: 'A-',
     set: "Malliddon's Prophecy: Heroes of Bleakwood",
@@ -10047,7 +10107,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Large',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8281',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8281',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B',
     set: "Jandar's Oath: Gorillas and Hounds",
@@ -10177,7 +10238,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8280',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8280',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B',
     set: "Utgar's Rage: Drones and Minions",
@@ -10393,7 +10455,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8282',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8282',
     oeaoPowerRanking: 'A+',
     dokPowerRanking: 'A+',
     set: 'Rise of the Valkyrie',
@@ -10695,7 +10758,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Large',
     height: '7',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8279',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8279',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A',
     set: "Utgar's Rage: Heroes of Barrenspur",
@@ -10827,7 +10891,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8686',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8686',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B',
     set: "Jandar's Oath: Kilts and Commandos",
@@ -11089,7 +11154,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Huge',
     height: '9',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8277',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8277',
     oeaoPowerRanking: 'A-',
     dokPowerRanking: 'A-',
     set: 'Rise of the Valkyrie',
@@ -11177,7 +11243,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '6',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8693',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8693',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B',
     set: "Utgar's Rage: Drones and Minions",
@@ -11466,8 +11533,7 @@ const armyCardsRaw = [
     class: 'Darklord',
     personality: 'Terrifying',
     power1Name: 'DOUBLE ATTACK',
-    power1Text:
-      'When Morgoloth attacks, he may attack one additional time.',
+    power1Text: 'When Morgoloth attacks, he may attack one additional time.',
     power2Name: 'SWARMING VERMIN',
     power2Text:
       'Friendly small figures who follow Utgar or Valkrill are never attacked when leaving an engagement with a figure within 5 clear sight spaces of Morgoloth.',
@@ -11572,7 +11638,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8409',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8409',
     oeaoPowerRanking: 'B-',
     dokPowerRanking: 'C+',
     set: "Zanafor's Discovery: Heroes of Trollsford",
@@ -11702,7 +11769,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8600',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8600',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B',
     set: "Thora's Vengeance: Gladiators and Agents",
@@ -11786,7 +11854,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8278',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8278',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B+',
     set: 'Rise of the Valkyrie',
@@ -11815,8 +11884,7 @@ const armyCardsRaw = [
     power2Text:
       "All orc figures you control within 4 clear sight spaces of Nerak add 1 to their defense dice. Nerak's Orc Defensive Aura does not affect Nerak.",
     power3Name: 'SNOW STRENGTH',
-    power3Text:
-      "Add 1 to Nerak's attack and defense while on a snow space.",
+    power3Text: "Add 1 to Nerak's attack and defense while on a snow space.",
     power4Name: null,
     power4Text: null,
     life: '3',
@@ -11829,7 +11897,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Large',
     height: '6',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8420',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8420',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A',
     set: "Valkrill's Gambit: Champions of Renown",
@@ -11960,7 +12029,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Huge',
     height: '12',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8115',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8115',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A',
     set: "Raknar's Vision",
@@ -12003,7 +12073,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8116',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8116',
     oeaoPowerRanking: 'C+',
     dokPowerRanking: 'C+',
     set: "Thora's Vengeance: Ninjas and Samurai",
@@ -12178,7 +12249,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8117',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8117',
     oeaoPowerRanking: 'D',
     dokPowerRanking: 'C-',
     set: 'Volcarren Wasteland',
@@ -12376,8 +12448,7 @@ const armyCardsRaw = [
     class: 'Commander',
     personality: 'Precise',
     power1Name: 'DOUBLE ATTACK',
-    power1Text:
-      'When Omegacron attacks, he may attack one additional time.',
+    power1Text: 'When Omegacron attacks, he may attack one additional time.',
     power2Name: 'OMNICRON MOBILIZATION',
     power2Text:
       'Instead of moving with Omegacron, you may move up to 3 other Soulborg figures you control who follow Jandar up to 5 spaces each.',
@@ -12483,7 +12554,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8118',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8118',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'C+',
     set: "Malliddon's Prophecy: Snipers and Vipers",
@@ -12609,7 +12681,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8421',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8421',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B-',
     set: 'Crest of the Valkyrie',
@@ -12784,7 +12857,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8589',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8589',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'C-',
     set: "Zanafor's Discovery: Heroes of Trollsford",
@@ -13521,7 +13595,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8119',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8119',
     oeaoPowerRanking: 'A+',
     dokPowerRanking: 'A+',
     set: 'Rise of the Valkyrie',
@@ -13696,7 +13771,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9620',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9620',
     oeaoPowerRanking: 'C-',
     dokPowerRanking: 'C-',
     set: 'Fields of Valor: Fiends & Vampires',
@@ -13827,7 +13903,8 @@ const armyCardsRaw = [
     general: 'Marvel',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9710',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9710',
     oeaoPowerRanking: 'N/A',
     dokPowerRanking: 'N/A',
     set: 'Marvel: The Conflict Begins',
@@ -13957,7 +14034,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8603',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8603',
     oeaoPowerRanking: 'B-',
     dokPowerRanking: 'C',
     set: "Thora's Vengeance: Gladiators and Agents",
@@ -14043,7 +14121,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8120',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8120',
     oeaoPowerRanking: 'C',
     dokPowerRanking: 'C-',
     set: "Malliddon's Prophecy: The IX Roman Legion",
@@ -14086,7 +14165,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8684',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8684',
     oeaoPowerRanking: 'A-',
     dokPowerRanking: 'A-',
     set: "Malliddon's Prophecy: The IX Roman Legion",
@@ -14129,7 +14209,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8574',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8574',
     oeaoPowerRanking: 'C-',
     dokPowerRanking: 'D',
     set: 'Dawn of Darkness: Heroes of Durgeth',
@@ -14215,7 +14296,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8690',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8690',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B+',
     set: "Zanafor's Discovery: Greeks and Vipers",
@@ -14345,7 +14427,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8121',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8121',
     oeaoPowerRanking: 'C',
     dokPowerRanking: 'D',
     set: "Jandar's Oath: Heroes of Nostralund",
@@ -14474,7 +14557,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '6',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8598',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8598',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B',
     set: "Jandar's Oath: Monks and Sentinels",
@@ -14560,7 +14644,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8418',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8418',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'C+',
     set: 'Rise of the Valkyrie',
@@ -14648,7 +14733,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8586',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8586',
     oeaoPowerRanking: 'C-',
     dokPowerRanking: 'C-',
     set: 'Dawn of Darkness: Shades and Orcs',
@@ -14820,7 +14906,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8122',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8122',
     oeaoPowerRanking: 'C+',
     dokPowerRanking: 'C+',
     set: "Jandar's Oath: Monks and Sentinels",
@@ -15171,7 +15258,8 @@ const armyCardsRaw = [
     general: 'Marvel',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9720',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9720',
     oeaoPowerRanking: 'N/A',
     dokPowerRanking: 'N/A',
     set: 'Marvel: The Conflict Begins',
@@ -15213,7 +15301,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8577',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8577',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'C',
     set: "Utgar's Rage: Heroes of Barrenspur",
@@ -15300,7 +15389,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8578',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8578',
     oeaoPowerRanking: 'A',
     dokPowerRanking: 'A',
     set: 'Crest of the Valkyrie',
@@ -15343,7 +15433,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8579',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8579',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B',
     set: "Valkrill's Gambit: Champions of Renown",
@@ -15605,7 +15696,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9621',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9621',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B-',
     set: 'Fields of Valor: Heroes of Elswin',
@@ -15690,7 +15782,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8601',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8601',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B',
     set: "Thora's Vengeance: Gladiators and Agents",
@@ -15778,7 +15871,8 @@ const armyCardsRaw = [
     general: 'Marvel',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9716',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9716',
     oeaoPowerRanking: 'N/A',
     dokPowerRanking: 'N/A',
     set: 'Marvel: The Conflict Begins',
@@ -15821,7 +15915,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Huge',
     height: '12',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8691',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8691',
     oeaoPowerRanking: 'B-',
     dokPowerRanking: 'C+',
     set: "Orm's Return",
@@ -15863,7 +15958,8 @@ const armyCardsRaw = [
     general: 'Vydar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8685',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8685',
     oeaoPowerRanking: 'C-',
     dokPowerRanking: 'D',
     set: "Zanafor's Discovery: Heroes of Trollsford",
@@ -16035,7 +16131,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Large',
     height: '6',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8593',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8593',
     oeaoPowerRanking: 'A-',
     dokPowerRanking: 'C+',
     set: "Utgar's Rage: Knights and The Swog Rider",
@@ -16076,7 +16173,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8407',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8407',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B+',
     set: 'Rise of the Valkyrie',
@@ -16119,7 +16217,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8422',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8422',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'C+',
     set: "Malliddon's Prophecy: Heroes of Bleakwood",
@@ -16162,7 +16261,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8400',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8400',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'C+',
     set: "Zanafor's Discovery: Lawmen and Samurai",
@@ -16204,7 +16304,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8401',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8401',
     oeaoPowerRanking: 'B-',
     dokPowerRanking: 'C+',
     set: 'Dawn of Darkness: Archers and Kyrie',
@@ -16333,7 +16434,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8417',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8417',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B-',
     set: 'Rise of the Valkyrie',
@@ -16420,7 +16522,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Large',
     height: '6',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9622',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9622',
     oeaoPowerRanking: 'C-',
     dokPowerRanking: 'C-',
     set: 'Fields of Valor: Knights Templar',
@@ -16506,7 +16609,8 @@ const armyCardsRaw = [
     general: 'Marvel',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9711',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9711',
     oeaoPowerRanking: 'N/A',
     dokPowerRanking: 'N/A',
     set: 'Marvel: The Conflict Begins',
@@ -16592,7 +16696,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Large',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8413',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8413',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'C+',
     set: "Raknar's Vision",
@@ -16635,7 +16740,8 @@ const armyCardsRaw = [
     general: 'Jandar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8416',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8416',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B-',
     set: 'Rise of the Valkyrie',
@@ -16982,7 +17088,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Large',
     height: '6',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8419',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8419',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'C+',
     set: "Malliddon's Prophecy: Heroes of Bleakwood",
@@ -17286,7 +17393,8 @@ const armyCardsRaw = [
     general: 'Einar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8588',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8588',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B-',
     set: "Zanafor's Discovery: Heroes of Trollsford",
@@ -17590,7 +17698,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8411',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8411',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B',
     set: "Malliddon's Prophecy: Snipers and Vipers",
@@ -17633,7 +17742,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '6',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8427',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8427',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B',
     set: "Malliddon's Prophecy: Heroes of Bleakwood",
@@ -17677,7 +17787,8 @@ const armyCardsRaw = [
     general: 'Marvel',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9717',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9717',
     oeaoPowerRanking: 'N/A',
     dokPowerRanking: 'N/A',
     set: 'Marvel: The Conflict Begins',
@@ -17848,7 +17959,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=9623',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=9623',
     oeaoPowerRanking: 'B-',
     dokPowerRanking: 'C+',
     set: 'Fields of Valor: Heroes of Elswin',
@@ -17934,7 +18046,8 @@ const armyCardsRaw = [
     general: 'Ullar',
     size: 'Medium',
     height: '4',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8408',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8408',
     oeaoPowerRanking: 'B',
     dokPowerRanking: 'B',
     set: "Thora's Vengeance: Warriors and Soulborgs",
@@ -18895,7 +19008,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8406',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8406',
     oeaoPowerRanking: 'B-',
     dokPowerRanking: 'C+',
     set: 'Rise of the Valkyrie',
@@ -19113,7 +19227,8 @@ const armyCardsRaw = [
     general: 'Utgar',
     size: 'Medium',
     height: '5',
-    heroscapersLink: 'https://www.heroscapers.com/community/showthread.php?t=8123',
+    heroscapersLink:
+      'https://www.heroscapers.com/community/showthread.php?t=8123',
     oeaoPowerRanking: 'B+',
     dokPowerRanking: 'B',
     set: 'Dawn of Darkness: Zombie Horde',
