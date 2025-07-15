@@ -52,6 +52,7 @@ export default function MapDisplay3D({
   const paintTile = useBoundStore((s) => s.paintTile)
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const { hotkeyConfig } = useHotkeyConfig()
@@ -64,6 +65,7 @@ export default function MapDisplay3D({
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
     isTakingPicture,
+    viewingLevel
   )
 
   const onPointerUpPaintPiece = (
@@ -107,15 +109,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     const clickedHexAltitude = clickedHex.altitude
 
     // Castle W/A: use cap coords and altitude
@@ -272,8 +274,10 @@ type InstanceBoardHexes = {
 function getInstanceBoardHexes(
   boardHexesArr: BoardHex[],
   isTakingPicture: boolean,
+  viewingLevel: number,
 ) {
-  return boardHexesArr.reduce(
+  console.log("🚀 ~ viewingLevel:", viewingLevel)
+  return boardHexesArr.filter(bh => bh.altitude <= viewingLevel).reduce(
     (result: InstanceBoardHexes, current) => {
       const isCap = current.isCap // land hexes that are covered, obstacle origin/auxiliary hexes, vertical clearance hexes
       const isEmptyCap =
