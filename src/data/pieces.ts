@@ -803,7 +803,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12,
+    height: 12, // game height was 10, errata 9
   },
   [Pieces.laurWallTrianglePillar]: {
     id: Pieces.laurWallTrianglePillar,
@@ -813,7 +813,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12, // game height is 10
+    height: 12, // game height was 10, errata 9
   },
   [Pieces.laurWallShort]: {
     id: Pieces.laurWallShort,
@@ -836,6 +836,16 @@ export const piecesSoFar: Dictionary<Piece> = {
     height: 12, // game height is 10
   },
   [Pieces.laurWallLong]: {
+    id: Pieces.laurWallLong,
+    title: 'Laur Wall (Long)',
+    terrain: HexTerrain.laurWallAddon,
+    isHexTerrainPiece: false,
+    isObstaclePiece: false,
+    size: 1,
+    template: Pieces.laurWallLong,
+    height: 12, // game height is 10
+  },
+  [Pieces.laurWallLongStackable]: {
     id: Pieces.laurWallLong,
     title: 'Laur Wall (Long)',
     terrain: HexTerrain.laurWallAddon,

@@ -37,6 +37,7 @@ export default function EditMapFormDialog() {
   const { enqueueSnackbar } = useSnackbar()
   const [newName, setNewName] = React.useState(mapName)
   const [newAuthor, setNewAuthor] = React.useState(authorName)
+  // TODO: UPDATE BASE64 URL (and jpg)
   /* 
   const [file, setFile] = React.useState<File | undefined>(undefined)
   // update base64 map portrait when file uploaded

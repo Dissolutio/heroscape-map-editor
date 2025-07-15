@@ -1,6 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, useMediaQuery } from "@mui/material"
 import { useSnackbar } from "notistack"
 import useBoundStore from "../store/store"
+import type { PieceInventory } from "../types"
 
 export const EditPieceInventoryDialog = () => {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -12,31 +13,6 @@ export const EditPieceInventoryDialog = () => {
   )
   const handleClose = () => toggleIsPieceInventoryDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
-  /* 
-  const [file, setFile] = React.useState<File | undefined>(undefined)
-  // update base64 map portrait when file uploaded
-    React.useEffect(() => {
-      let fileReader = undefined
-      let isCancel = false
-      if (file) {
-        fileReader = new FileReader()
-        fileReader.onload = (e) => {
-          const reader = e.target as FileReader
-          const result = reader.result
-          if (result && !isCancel) {
-            addMapPortraitBase64(result.toString())
-          }
-        }
-        fileReader.readAsDataURL(file)
-      }
-      return () => {
-        isCancel = true
-        if (fileReader && fileReader.readyState === 1) {
-          fileReader.abort()
-        }
-      }
-    }, [file, addMapPortraitBase64])
-    */
 
   // // biome-ignore lint/correctness/useExhaustiveDependencies: <Only reset when dialog opens or closes>
   // useEffect(() => {
@@ -44,7 +20,23 @@ export const EditPieceInventoryDialog = () => {
   //   if (isPieceInventoryDialogOpen) {
   //   }
   // }, [isPieceInventoryDialogOpen])
+  const onSubmitForm = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    // biome-ignore lint/suspicious/noExplicitAny: <form data not well understood>
+    const formJson = Object.fromEntries((formData as any).entries())
+    let newPieceInventory: PieceInventory = {}
 
+    // changeMapName(newMapName)
+    // changeAuthorName(newAuthorName)
+    // changeMapNotes(newMapNotes)
+    // addMapPortraitBase64(imgSrc)
+    enqueueSnackbar({
+      message: 'Updated Piece Inventory',
+      autoHideDuration: 3000,
+    })
+    handleClose()
+  }
   return (
     <Dialog
       open={isPieceInventoryDialogOpen}
@@ -54,17 +46,14 @@ export const EditPieceInventoryDialog = () => {
       slotProps={{
         paper: {
           component: 'form',
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault()
-            const formData = new FormData(event.currentTarget)
-            handleClose()
-          },
+          onSubmit: onSubmitForm,
         },
       }}
     >
       <DialogTitle>Edit Piece Inventory</DialogTitle>
       <DialogContent>
-        <div>Put the form here!</div>
+
+
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
