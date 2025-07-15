@@ -36,6 +36,7 @@ export const MapHexIDDisplay = ({
   })
   const underHex = boardHexes?.[underHexID]
   const isUnderHexFluid = isFluidTerrainHex(underHex?.terrain)
+  const isHexFluid = isFluidTerrainHex(boardHex?.terrain)
   // TODO: make own component for cap heights
   if (!isDisplayCapHeights) return null
 
@@ -57,7 +58,7 @@ export const MapHexIDDisplay = ({
       ? 2
       : !isUnderHexFluid && isStartZoneHex
         ? 1
-        : 0)
+        : isHexFluid ? 1 : 0)
   return (
     <Billboard
       position={[
