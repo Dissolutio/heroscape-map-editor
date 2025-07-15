@@ -6,6 +6,7 @@ export const getPieceByTerrainAndSize = (terrain: string, size: number) => {
   return piece
 }
 export const piecesSoFar: Dictionary<Piece> = {
+  // UNINVENTORIED
   [Pieces.startZone1]: {
     id: Pieces.startZone1,
     title: 'Start Zone: Player 1',
@@ -106,6 +107,10 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 0,
   },
+
+  // INVENTORIED
+
+  // LAND
   [Pieces.grass1]: {
     id: Pieces.grass1,
     title: 'Grass-1',

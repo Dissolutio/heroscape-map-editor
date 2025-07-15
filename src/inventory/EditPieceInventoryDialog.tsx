@@ -5,7 +5,7 @@ import useBoundStore from "../store/store"
 export const EditPieceInventoryDialog = () => {
   const fullScreen = useMediaQuery('(max-width:900px)')
   const toggleIsPieceInventoryDialogOpen = useBoundStore(
-    (state) => state.toggleIsEditMapDialogOpen,
+    (state) => state.toggleIsPieceInventoryDialogOpen,
   )
   const isPieceInventoryDialogOpen = useBoundStore(
     (state) => state.isPieceInventoryDialogOpen,
