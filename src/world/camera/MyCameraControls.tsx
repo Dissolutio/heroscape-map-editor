@@ -51,12 +51,12 @@ export default function MyCameraControls({
       maxDistance={100} // this prevents camera from dollying out too far
       smoothTime={0.3}
       dollySpeed={0.2}
-    // mouseButtons={{
-    //   left: isCameraDisabled ? 0 : 1, // No action
-    //   middle: 0, // No action
-    //   right: isCameraDisabled ? 0 : 2, // No action
-    //   wheel: isCameraDisabled ? 0 : 8, // Zoom (hard to configure between ortho and perspective, no luck)
-    // }}
+      // mouseButtons={{
+      //   left: isCameraDisabled ? 0 : 1, // No action
+      //   middle: 0, // No action
+      //   right: isCameraDisabled ? 0 : 2, // No action
+      //   wheel: isCameraDisabled ? 0 : 8, // Zoom (hard to configure between ortho and perspective, no luck)
+      // }}
     />
   )
 }

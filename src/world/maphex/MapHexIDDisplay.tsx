@@ -58,7 +58,9 @@ export const MapHexIDDisplay = ({
       ? 2
       : !isUnderHexFluid && isStartZoneHex
         ? 1
-        : isHexFluid ? 1 : 0)
+        : isHexFluid
+          ? 1
+          : 0)
   return (
     <Billboard
       position={[
