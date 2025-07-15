@@ -65,7 +65,7 @@ export default function MapDisplay3D({
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
     isTakingPicture,
-    viewingLevel
+    viewingLevel,
   )
 
   const onPointerUpPaintPiece = (
@@ -276,37 +276,38 @@ function getInstanceBoardHexes(
   isTakingPicture: boolean,
   viewingLevel: number,
 ) {
-  console.log("🚀 ~ viewingLevel:", viewingLevel)
-  return boardHexesArr.filter(bh => bh.altitude <= viewingLevel).reduce(
-    (result: InstanceBoardHexes, current) => {
-      const isCap = current.isCap // land hexes that are covered, obstacle origin/auxiliary hexes, vertical clearance hexes
-      const isEmptyCap =
-        !isTakingPicture && current?.terrain === HexTerrain.empty
-      const isSolidCap = isSolidTerrainHex(current?.terrain) // We render solid caps for aesthetics, even if they are not caps for building on click
-      const isFluidCap = isCap && isFluidTerrainHex(current?.terrain)
-      const isSubTerrain =
-        isSolidTerrainHex(current?.terrain) ||
-        (isJungleTerrainHex(current?.terrain) && current.isObstacleOrigin)
-      // const isSubTerrain = isSolidTerrainHex(current.terrain) || isFluidTerrainHex(current.terrain)
-      if (isEmptyCap) {
-        result.emptyHexCaps.push(current)
-      }
-      if (isSolidCap) {
-        result.solidHexCaps.push(current)
-      }
-      if (isFluidCap) {
-        result.fluidHexCaps.push(current)
-      }
-      if (isSubTerrain) {
-        result.subTerrainHexes.push(current)
-      }
-      return result
-    },
-    {
-      emptyHexCaps: [],
-      solidHexCaps: [],
-      fluidHexCaps: [],
-      subTerrainHexes: [],
-    },
-  )
+  return boardHexesArr
+    .filter((bh) => bh.altitude <= viewingLevel)
+    .reduce(
+      (result: InstanceBoardHexes, current) => {
+        const isCap = current.isCap // land hexes that are covered, obstacle origin/auxiliary hexes, vertical clearance hexes
+        const isEmptyCap =
+          !isTakingPicture && current?.terrain === HexTerrain.empty
+        const isSolidCap = isSolidTerrainHex(current?.terrain) // We render solid caps for aesthetics, even if they are not caps for building on click
+        const isFluidCap = isCap && isFluidTerrainHex(current?.terrain)
+        const isSubTerrain =
+          isSolidTerrainHex(current?.terrain) ||
+          (isJungleTerrainHex(current?.terrain) && current.isObstacleOrigin)
+        // const isSubTerrain = isSolidTerrainHex(current.terrain) || isFluidTerrainHex(current.terrain)
+        if (isEmptyCap) {
+          result.emptyHexCaps.push(current)
+        }
+        if (isSolidCap) {
+          result.solidHexCaps.push(current)
+        }
+        if (isFluidCap) {
+          result.fluidHexCaps.push(current)
+        }
+        if (isSubTerrain) {
+          result.subTerrainHexes.push(current)
+        }
+        return result
+      },
+      {
+        emptyHexCaps: [],
+        solidHexCaps: [],
+        fluidHexCaps: [],
+        subTerrainHexes: [],
+      },
+    )
 }
