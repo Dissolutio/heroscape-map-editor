@@ -2,87 +2,171 @@ import { setInventories } from './inventories'
 
 export const terrainSets = {
   A: {
+    name: 'Max Shared Terrain Kit',
+    abbreviation: 'MSTK',
     inventory: setInventories.maxSharedTerrainKit,
     id: 'A',
+    // hsOrgId: '17',
+    releaseDate: "08/2024"
   },
   B: {
+    name: 'Tournament Organizer Terrain Kit',
+    abbreviation: 'TOTK',
     inventory: setInventories.tournamentOrganizerTerrainKitPieceSet,
     id: 'B',
+    hsOrgId: '17',
+    releaseDate: "09/2024"
   },
   C: {
+    name: 'Age of Annihilation',
+    abbreviation: 'AoA',
     inventory: setInventories.aoa1PieceSet,
     id: 'C',
+    hsOrgId: '11',
+    releaseDate: "08/2024"
   },
-  // 'D': {
-  //   inventory: setInventories.ruinsOfValhallaPieceSet,
-  //   id: 'D',
-  // },
+  D: {
+    name: "Ruins at Laur's Edge",
+    abbreviation: 'RaLE',
+    inventory: setInventories.ruinsOfValhallaPieceSet,
+    id: 'D',
+    // hsOrgId: '18',
+    releaseDate: "08/2025"
+  },
   E: {
+    name: 'Battle for the Wellspring',
+    abbreviation: 'BftW',
     inventory: setInventories.battleBox1PieceSet,
     id: 'E',
+    hsOrgId: '12',
+    releaseDate: "08/2024"
   },
   F: {
+    name: 'Lands of Valhalla',
+    abbreviation: 'LoV',
     inventory: setInventories.landsPieceSet,
     id: 'F',
+    hsOrgId: '13',
+    releaseDate: "10/2024"
   },
   G: {
+    name: 'Snow Fields of Valhalla',
+    abbreviation: 'SFoV',
     inventory: setInventories.snowsPieceSet,
     id: 'G',
+    hsOrgId: '15',
+    releaseDate: "02/2025"
   },
   H: {
+    name: 'Lava Fields of Valhalla',
+    abbreviation: 'LFoV',
     inventory: setInventories.lavaFieldsPieceSet,
     id: 'H',
+    hsOrgId: '18',
+    releaseDate: "08/2025"
   },
   I: {
+    name: 'Roads of Valhalla',
+    abbreviation: 'RoV',
     inventory: setInventories.roadsOfValhallaPieceSet,
     id: 'I',
+    // hsOrgId: '18',
+    releaseDate: "08/2025"
   },
   J: {
+    name: 'Swamps of Valhalla',
+    abbreviation: 'SoV',
     inventory: setInventories.swampsPieceSet,
     id: 'J',
+    hsOrgId: '16',
+    releaseDate: "02/2025"
   },
   K: {
+    name: 'Waters of Valhalla',
+    abbreviation: 'WoV',
     inventory: setInventories.watersPieceSet,
     id: 'K',
+    hsOrgId: '14',
+    releaseDate: "10/2024"
   },
   L: {
+    name: "Grove at Laur's Edge",
+    abbreviation: 'GaLE',
     inventory: setInventories.laurJunglePieceSet,
     id: 'L',
+    hsOrgId: '8', // same as ticalla, for now
+    releaseDate: "08/2024"
   },
   M: {
+    name: 'Ticalla Jungle',
+    abbreviation: 'TJ',
     inventory: setInventories.ticallaJunglePieceSet,
     id: 'M',
+    hsOrgId: '8',
+    releaseDate: "06/2008"
   },
   N: {
+    name: 'Fortress of the Archkyrie',
+    abbreviation: 'FotA',
     inventory: setInventories.fortressPieceSet,
     id: 'N',
+    hsOrgId: '5',
+    releaseDate: "08/2006"
   },
   O: {
+    name: 'Marvel: The Conflict Begins',
+    abbreviation: 'MtCB',
     inventory: setInventories.marvelPieceSet,
     id: 'O',
+    hsOrgId: '9',
+    releaseDate: "2007"
   },
   P: {
+    name: 'Thaelenk Tundra',
+    abbreviation: 'TT',
     inventory: setInventories.thaelenkPieceSet,
     id: 'P',
+    hsOrgId: '6',
+    releaseDate: "05/2006"
   },
   Q: {
+    name: 'Volcarran Wasteland',
+    abbreviation: 'VW',
     inventory: setInventories.volcarrenPieceSet,
     id: 'Q',
+    hsOrgId: '7',
+    releaseDate: "08/2005"
   },
   R: {
+    name: 'Road to the Forgotten Forest',
+    abbreviation: 'RttFF',
     inventory: setInventories.forgottenForestPieceSet,
     id: 'R',
+    hsOrgId: '4',
+    releaseDate: "07/2005"
   },
   S: {
+    name: 'Rise of the Valkyrie',
+    abbreviation: 'RotV',
     inventory: setInventories.ms1PieceSet,
     id: 'S',
+    hsOrgId: '1',
+    releaseDate: "08/2004"
   },
   T: {
+    name: 'Swarm of the Marro',
+    abbreviation: 'SotM',
     inventory: setInventories.ms2PieceSet,
     id: 'T',
+    hsOrgId: '2',
+    releaseDate: "08/2007"
   },
   U: {
+    name: 'Battle for the Underdark',
+    abbreviation: 'BftU',
     inventory: setInventories.underdarkPieceSet,
     id: 'U',
+    hsOrgId: '3',
+    releaseDate: "2010"
   },
 }
