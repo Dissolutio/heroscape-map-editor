@@ -22,6 +22,8 @@ export interface UISlice {
   toggleIsNewMapDialogOpen: (b: boolean) => void
   isEditMapDialogOpen: boolean
   toggleIsEditMapDialogOpen: (b: boolean) => void
+  isPieceInventoryDialogOpen: boolean
+  toggleIsPieceInventoryDialogOpen: (b: boolean) => void
   // WORLD STATE
   selectedPieceID: string
   toggleSelectedPieceID: (id: string) => void
@@ -155,6 +157,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isEditMapDialogOpen = b
+      }),
+    ),
+  isPieceInventoryDialogOpen: false,
+  toggleIsPieceInventoryDialogOpen: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isPieceInventoryDialogOpen = b
       }),
     ),
   viewingLevel: 0,

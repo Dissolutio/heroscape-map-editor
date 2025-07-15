@@ -13,7 +13,7 @@ import JSONCrush from 'jsoncrush'
 import { useSnackbar } from 'notistack'
 import { parse } from 'papaparse'
 import React, { type ChangeEvent } from 'react'
-import { FcAddImage, FcDownload, FcLink, FcUpload, FcVlc } from 'react-icons/fc'
+import { FcAddImage, FcDownload, FcLink, FcRules, FcUpload, FcVlc } from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 // import tsvTemplate from '/inventory_template.tsv?url'
 import { piecesSoFar } from '../data/pieces'
@@ -40,6 +40,9 @@ export const DrawerList = ({
   const isNewMapDialogOpen = useBoundStore((state) => state.isNewMapDialogOpen)
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
+  )
+  const toggleIsPieceInventoryDialogOpen = useBoundStore(
+    (state) => state.toggleIsPieceInventoryDialogOpen,
   )
   const personalInventoryTsvUploadElementID = 'tsvinventoryupload'
   const inventory = useLocalPieceInventory()
@@ -184,6 +187,12 @@ export const DrawerList = ({
               <FcVlc />
             </ListItemIcon>
             <ListItemText primary={'Edit Map Details'} />
+          </ListItemButton>
+          <ListItemButton onClick={() => toggleIsPieceInventoryDialogOpen(true)}>
+            <ListItemIcon>
+              <FcRules />
+            </ListItemIcon>
+            <ListItemText primary={'Edit My Piece Inventory'} />
           </ListItemButton>
           {/* COPY URL */}
           <ListItemButton onClick={onClickCopy}>
