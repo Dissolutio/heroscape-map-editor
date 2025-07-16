@@ -36,6 +36,7 @@ export const DrawerList = ({
   toggleIsNavOpen: (arg0: boolean) => void
 }) => {
   const hexMap = useBoundStore((s) => s.hexMap)
+  const setsUsed = useBoundStore((s) => s.setsUsed)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const [isUploadOpen, setIsUploadOpen] = React.useState(false)
@@ -71,7 +72,9 @@ export const DrawerList = ({
     const myUrl = encodeURI(
       JSONCrush.crush(
         JSON.stringify([
+          // original idea was just hexmap, then pieces, but now we are adding items (setsUsed), so we will see if it's possible to do without breaking old links
           hexMap, // 1
+          setsUsed, // 2
           ...Object.keys(boardPieces),
         ]),
       ),

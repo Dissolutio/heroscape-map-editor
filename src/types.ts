@@ -4,6 +4,7 @@ export type MapState = MapFileState & {
 export type MapFileState = {
   hexMap: HexMap
   boardPieces: BoardPieces
+  setsUsed?: string[] // array of terrainSet ID's
 }
 export type HexMap = {
   id: string

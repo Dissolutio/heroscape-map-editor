@@ -54,6 +54,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     length: 20,
   },
   boardPieces: {},
+  setsUsed: [],
   paintTile: ({
     piece,
     clickedHexCoords,

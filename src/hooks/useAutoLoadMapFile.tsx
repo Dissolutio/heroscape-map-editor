@@ -46,7 +46,14 @@ const useAutoLoadMapFile = (props?: Props) => {
     if (urlMapString) {
       try {
         const data = JSON.parse(JSONCrush.uncrush(urlMapString))
-        const [hexMap, ...pieceIds] = data
+        // WARNING: this is where v1 links were just [hexMap, ...boardPieces], but v2 is [hexMap, setsUsed, ...boardPieces]
+        // BEGIN VERSIONING
+        const isV1Link = data[1].includes('~')
+        // const isV2Link = data[1] will be a setsUsed array (array of strings) 
+        const hexMap = data[0]
+        const setsUsed = isV1Link ? [] : data[1]
+        const pieceIds = isV1Link ? [...data.slice(1)] : [...data.slice(2)]
+        // END VERSIONING
         const boardPieces: BoardPieces = pieceIds.reduce(
           (prev: BoardPieces, curr: string) => {
             // get inventory id from pieceID (a~q~r~rot~id)
