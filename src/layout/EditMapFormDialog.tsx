@@ -149,15 +149,16 @@ export default function EditMapFormDialog() {
           </IconButton>
         </Box>
 
-
         {/* TERRAIN SETS */}
         <Box
-          sx={{
-            // border: '1px solid'
-          }}
+          sx={
+            {
+              // border: '1px solid'
+            }
+          }
         >
           <h3>Terrain set constraints:</h3>
-          {Object.values(terrainSets).map(set => (
+          {Object.values(terrainSets).map((set) => (
             <TextField
               key={set.id}
               defaultValue={countStringInArrayLoop(setsUsed, set.id)}
@@ -218,11 +219,11 @@ export default function EditMapFormDialog() {
 }
 
 function countStringInArrayLoop(arr: string[], targetString: string) {
-  let count = 0;
+  let count = 0
   for (let i = 0; i < arr.length; i++) {
     if (arr[i] === targetString) {
-      count++;
+      count++
     }
   }
-  return count;
+  return count
 }

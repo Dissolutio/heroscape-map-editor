@@ -1,4 +1,4 @@
-import { Pieces } from "../types";
+import { Pieces } from '../types'
 
 export const pieceGroups = [
   {
@@ -104,11 +104,7 @@ export const pieceGroups = [
   },
   {
     label: 'Road',
-    pieces: [
-      Pieces.road1,
-      Pieces.road2,
-      Pieces.road5,
-    ],
+    pieces: [Pieces.road1, Pieces.road2, Pieces.road5],
   },
   {
     label: 'Obstacles & Jungle',

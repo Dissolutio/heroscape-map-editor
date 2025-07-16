@@ -48,7 +48,9 @@ export const EditPieceInventoryDialog = () => {
   }, [isPieceInventoryDialogOpen])
 
   // Track how many times each set is added during this session
-  const [setAddCounts, setSetAddCounts] = useState<{ [setId: string]: number }>({})
+  const [setAddCounts, setSetAddCounts] = useState<{ [setId: string]: number }>(
+    {},
+  )
 
   // Reset counts when dialog opens
   useEffect(() => {
@@ -107,7 +109,10 @@ export const EditPieceInventoryDialog = () => {
         {/* Display set add counts */}
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 1 }}>
           {Object.values(terrainSets).map((set) => (
-            <Box key={set.id} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box
+              key={set.id}
+              sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+            >
               <Button
                 variant="outlined"
                 size="small"
@@ -135,13 +140,25 @@ export const EditPieceInventoryDialog = () => {
                 const piece = piecesSoFar[pieceId]
                 if (!piece) return null
                 return (
-                  <Box key={pieceId} sx={{ display: 'flex', alignItems: 'center', minWidth: 200 }}>
+                  <Box
+                    key={pieceId}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      minWidth: 200,
+                    }}
+                  >
                     <TextField
                       label={piece.title || pieceId}
                       type="number"
                       size="small"
                       value={localInventory[pieceId] ?? 0}
-                      onChange={(e) => handlePieceChange(pieceId, Math.max(0, Number(e.target.value)))}
+                      onChange={(e) =>
+                        handlePieceChange(
+                          pieceId,
+                          Math.max(0, Number(e.target.value)),
+                        )
+                      }
                       sx={{ mr: 1 }}
                     />
                     <Typography variant="body2" color="text.secondary">

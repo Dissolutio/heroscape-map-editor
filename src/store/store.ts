@@ -23,7 +23,6 @@ const useBoundStore = create<AppState>()(
             boardHexes: state.boardHexes,
             boardPieces: state.boardPieces,
             hexMap: state.hexMap,
-            setsUsed: state.setsUsed,
             mapNotes: state.mapNotes,
             mapPortraitBase64: state.mapPortraitBase64,
           }

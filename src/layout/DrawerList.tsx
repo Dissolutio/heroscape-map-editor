@@ -36,7 +36,6 @@ export const DrawerList = ({
   toggleIsNavOpen: (arg0: boolean) => void
 }) => {
   const hexMap = useBoundStore((s) => s.hexMap)
-  const setsUsed = useBoundStore((s) => s.setsUsed)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const [isUploadOpen, setIsUploadOpen] = React.useState(false)
