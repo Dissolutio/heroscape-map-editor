@@ -1,22 +1,6 @@
 import { setInventories } from './inventories'
 
 export const terrainSets = {
-  A: {
-    name: 'Max Shared Terrain Kit',
-    abbreviation: 'MSTK',
-    inventory: setInventories.maxSharedTerrainKit,
-    id: 'A',
-    // hsOrgId: '17',
-    releaseDate: '08/2024',
-  },
-  B: {
-    name: 'Tournament Organizer Terrain Kit',
-    abbreviation: 'TOTK',
-    inventory: setInventories.tournamentOrganizerTerrainKitPieceSet,
-    id: 'B',
-    hsOrgId: '17',
-    releaseDate: '09/2024',
-  },
   C: {
     name: 'Age of Annihilation',
     abbreviation: 'AoA',
@@ -24,14 +8,6 @@ export const terrainSets = {
     id: 'C',
     hsOrgId: '11',
     releaseDate: '08/2024',
-  },
-  D: {
-    name: "Ruins at Laur's Edge",
-    abbreviation: 'RaLE',
-    inventory: setInventories.ruinsOfValhallaPieceSet,
-    id: 'D',
-    // hsOrgId: '18',
-    releaseDate: '08/2025',
   },
   E: {
     name: 'Battle for the Wellspring',
@@ -41,13 +17,13 @@ export const terrainSets = {
     hsOrgId: '12',
     releaseDate: '08/2024',
   },
-  F: {
-    name: 'Lands of Valhalla',
-    abbreviation: 'LoV',
-    inventory: setInventories.landsPieceSet,
-    id: 'F',
-    hsOrgId: '13',
-    releaseDate: '10/2024',
+  J: {
+    name: 'Swamps of Valhalla',
+    abbreviation: 'SoV',
+    inventory: setInventories.swampsPieceSet,
+    id: 'J',
+    hsOrgId: '16',
+    releaseDate: '02/2025',
   },
   G: {
     name: 'Snow Fields of Valhalla',
@@ -73,13 +49,13 @@ export const terrainSets = {
     // hsOrgId: '18',
     releaseDate: '08/2025',
   },
-  J: {
-    name: 'Swamps of Valhalla',
-    abbreviation: 'SoV',
-    inventory: setInventories.swampsPieceSet,
-    id: 'J',
-    hsOrgId: '16',
-    releaseDate: '02/2025',
+  F: {
+    name: 'Lands of Valhalla',
+    abbreviation: 'LoV',
+    inventory: setInventories.landsPieceSet,
+    id: 'F',
+    hsOrgId: '13',
+    releaseDate: '10/2024',
   },
   K: {
     name: 'Waters of Valhalla',
@@ -88,6 +64,14 @@ export const terrainSets = {
     id: 'K',
     hsOrgId: '14',
     releaseDate: '10/2024',
+  },
+  D: {
+    name: "Ruins at Laur's Edge",
+    abbreviation: 'RaLE',
+    inventory: setInventories.ruinsOfValhallaPieceSet,
+    id: 'D',
+    // hsOrgId: '18',
+    releaseDate: '08/2025',
   },
   L: {
     name: "Grove at Laur's Edge",
@@ -104,6 +88,30 @@ export const terrainSets = {
     id: 'M',
     hsOrgId: '8',
     releaseDate: '06/2008',
+  },
+  S: {
+    name: 'Rise of the Valkyrie',
+    abbreviation: 'RotV',
+    inventory: setInventories.ms1PieceSet,
+    id: 'S',
+    hsOrgId: '1',
+    releaseDate: '08/2004',
+  },
+  T: {
+    name: 'Swarm of the Marro',
+    abbreviation: 'SotM',
+    inventory: setInventories.ms2PieceSet,
+    id: 'T',
+    hsOrgId: '2',
+    releaseDate: '08/2007',
+  },
+  U: {
+    name: 'Battle for the Underdark',
+    abbreviation: 'BftU',
+    inventory: setInventories.underdarkPieceSet,
+    id: 'U',
+    hsOrgId: '3',
+    releaseDate: '2010',
   },
   N: {
     name: 'Fortress of the Archkyrie',
@@ -145,28 +153,20 @@ export const terrainSets = {
     hsOrgId: '4',
     releaseDate: '07/2005',
   },
-  S: {
-    name: 'Rise of the Valkyrie',
-    abbreviation: 'RotV',
-    inventory: setInventories.ms1PieceSet,
-    id: 'S',
-    hsOrgId: '1',
-    releaseDate: '08/2004',
+  A: {
+    name: 'Max Shared Terrain Kit',
+    abbreviation: 'MSTK',
+    inventory: setInventories.maxSharedTerrainKit,
+    id: 'A',
+    // hsOrgId: '17',
+    releaseDate: '08/2024',
   },
-  T: {
-    name: 'Swarm of the Marro',
-    abbreviation: 'SotM',
-    inventory: setInventories.ms2PieceSet,
-    id: 'T',
-    hsOrgId: '2',
-    releaseDate: '08/2007',
-  },
-  U: {
-    name: 'Battle for the Underdark',
-    abbreviation: 'BftU',
-    inventory: setInventories.underdarkPieceSet,
-    id: 'U',
-    hsOrgId: '3',
-    releaseDate: '2010',
+  B: {
+    name: 'Tournament Organizer Terrain Kit',
+    abbreviation: 'TOTK',
+    inventory: setInventories.tournamentOrganizerTerrainKitPieceSet,
+    id: 'B',
+    hsOrgId: '17',
+    releaseDate: '09/2024',
   },
 }

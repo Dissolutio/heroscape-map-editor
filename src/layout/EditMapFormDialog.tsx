@@ -12,18 +12,20 @@ import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import ReactCropExampleApp from '../react-image-crop/ReactCropExampleApp'
 import 'react-image-crop/dist/ReactCrop.css'
+import { terrainSets } from '../data/terrainSets'
 
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
   const mapName = useBoundStore((state) => state.hexMap.name)
+  const setsUsed = useBoundStore((state) => state.hexMap.setsUsed) ?? []
   const changeMapName = useBoundStore((state) => state.changeMapName)
   const authorName = useBoundStore((state) => state.hexMap.author)
   const changeAuthorName = useBoundStore((state) => state.changeAuthorName)
   const mapNotes = useBoundStore((state) => state.mapNotes)
   const changeMapNotes = useBoundStore((state) => state.changeMapNotes)
   const mapPortraitBase64 = useBoundStore((state) => state.mapPortraitBase64)
+  const changeSetsUsed = useBoundStore((state) => state.changeSetsUsed)
   const [imgSrc, setImgSrc] = React.useState(mapPortraitBase64)
-
   const addMapPortraitBase64 = useBoundStore(
     (state) => state.addMapPortraitBase64,
   )
@@ -37,6 +39,7 @@ export default function EditMapFormDialog() {
   const { enqueueSnackbar } = useSnackbar()
   const [newName, setNewName] = React.useState(mapName)
   const [newAuthor, setNewAuthor] = React.useState(authorName)
+
   // TODO: UPDATE BASE64 URL (and jpg)
   /* 
   const [file, setFile] = React.useState<File | undefined>(undefined)
@@ -92,9 +95,17 @@ export default function EditMapFormDialog() {
             const newMapName = formJson.newMapName
             const newAuthorName = formJson.newAuthorName
             const newMapNotes = formJson.mapNotes
+            const newSetsUsed: string[] = []
+            Object.values(terrainSets).map((set) => {
+              const count = formJson[`terrainSet${set.id}`]
+              for (let i = 0; i < count; i++) {
+                newSetsUsed.push(set.id)
+              }
+            })
             changeMapName(newMapName)
             changeAuthorName(newAuthorName)
             changeMapNotes(newMapNotes)
+            changeSetsUsed(newSetsUsed)
             addMapPortraitBase64(imgSrc)
             enqueueSnackbar({
               message: `Updated Map Name: ${newMapName}`,
@@ -137,6 +148,30 @@ export default function EditMapFormDialog() {
             <MdAutorenew />
           </IconButton>
         </Box>
+
+
+        {/* TERRAIN SETS */}
+        <Box
+          sx={{
+            // border: '1px solid'
+          }}
+        >
+          <h3>Terrain set constraints:</h3>
+          {Object.values(terrainSets).map(set => (
+            <TextField
+              key={set.id}
+              defaultValue={countStringInArrayLoop(setsUsed, set.id)}
+              name={`terrainSet${set.id}`}
+              // onChange={(e) => setNewAuthor(e.target.value)}
+              margin="dense"
+              label={set.name}
+              type="number"
+              variant="outlined"
+            />
+          ))}
+        </Box>
+
+        {/* MAP AUTHOR */}
         <Box
           sx={{
             p: '1em 4px',
@@ -154,6 +189,8 @@ export default function EditMapFormDialog() {
             variant="outlined"
           />
         </Box>
+
+        {/* MAP NOTES */}
         <Box
           sx={{
             p: '1em 4px',
@@ -178,4 +215,14 @@ export default function EditMapFormDialog() {
       </DialogActions>
     </Dialog>
   )
+}
+
+function countStringInArrayLoop(arr: string[], targetString: string) {
+  let count = 0;
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === targetString) {
+      count++;
+    }
+  }
+  return count;
 }

@@ -18,6 +18,7 @@ export interface MapSlice extends MapState {
   mapPortraitBase64: string
   addMapPortraitBase64: (pic: string) => void
   changeMapName: (val: string) => void
+  changeSetsUsed: (val: string[]) => void
   changeAuthorName: (val: string) => void
   mapNotes: string
   changeMapNotes: (val: string) => void
@@ -54,7 +55,6 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     length: 20,
   },
   boardPieces: {},
-  setsUsed: [],
   paintTile: ({
     piece,
     clickedHexCoords,
@@ -117,6 +117,12 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     set((state) => {
       return produce(state, (draft) => {
         draft.hexMap.name = val
+      })
+    }),
+  changeSetsUsed: (val: string[]) =>
+    set((state) => {
+      return produce(state, (draft) => {
+        draft.hexMap.setsUsed = val
       })
     }),
   changeAuthorName: (val: string) =>

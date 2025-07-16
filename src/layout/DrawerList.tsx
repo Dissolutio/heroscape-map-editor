@@ -72,9 +72,7 @@ export const DrawerList = ({
     const myUrl = encodeURI(
       JSONCrush.crush(
         JSON.stringify([
-          // original idea was just hexmap, then pieces, but now we are adding items (setsUsed), so we will see if it's possible to do without breaking old links
           hexMap, // 1
-          setsUsed, // 2
           ...Object.keys(boardPieces),
         ]),
       ),
@@ -197,14 +195,17 @@ export const DrawerList = ({
             </ListItemIcon>
             <ListItemText primary={'Edit Map Details'} />
           </ListItemButton>
-          <ListItemButton
+
+          {/* OPEN EDIT MY PIECE INVENTORY DIALOG */}
+          {/* <ListItemButton
             onClick={() => toggleIsPieceInventoryDialogOpen(true)}
           >
             <ListItemIcon>
               <FcRules />
             </ListItemIcon>
             <ListItemText primary={'Edit My Piece Inventory'} />
-          </ListItemButton>
+          </ListItemButton> */}
+
           {/* COPY URL */}
           <ListItemButton onClick={onClickCopy}>
             <ListItemIcon>
