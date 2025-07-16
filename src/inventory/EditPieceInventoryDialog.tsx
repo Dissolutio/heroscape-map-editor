@@ -20,7 +20,7 @@ import { terrainSets } from '../data/terrainSets'
 import { pieceGroups } from '../data/pieceGroups'
 
 export const EditPieceInventoryDialog = () => {
-  const fullScreen = useMediaQuery('(max-width:900px)')
+  // const fullScreen = useMediaQuery('(max-width:900px)')
   const toggleIsPieceInventoryDialogOpen = useBoundStore(
     (state) => state.toggleIsPieceInventoryDialogOpen,
   )
@@ -93,8 +93,8 @@ export const EditPieceInventoryDialog = () => {
     <Dialog
       open={isPieceInventoryDialogOpen}
       onClose={handleClose}
-      fullScreen={fullScreen}
-      fullWidth={!fullScreen}
+      fullScreen={true}
+      fullWidth={true}
       slotProps={{
         paper: {
           component: 'form',

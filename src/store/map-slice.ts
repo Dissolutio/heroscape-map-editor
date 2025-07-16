@@ -2,13 +2,11 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { removePiece } from '../data/removePiece'
-import {
-  HexTerrain,
-  Pieces,
-  type AddRemovePieceError,
-  type CubeCoordinate,
-  type MapState,
-  type Piece,
+import type {
+  AddRemovePieceError,
+  CubeCoordinate,
+  MapState,
+  Piece,
 } from '../types'
 import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
