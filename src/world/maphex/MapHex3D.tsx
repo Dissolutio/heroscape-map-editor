@@ -227,7 +227,7 @@ export const MapHex3D = ({
           <StartZone3D boardHex={boardHex} />
         </group>
       )}
-      {isRuin2OriginHex && (
+      {/* {isRuin2OriginHex && (
         <group
           position={[x + ruinsOptions.xAdd, yBaseCap, z + ruinsOptions.zAdd]}
           rotation={[0, ruinsOptions.rotationY, 0]}
@@ -236,7 +236,7 @@ export const MapHex3D = ({
             <Ruins2 boardHex={boardHex} />
           </Suspense>
         </group>
-      )}
+      )} */}
       {isRuin3OriginHex && (
         <group
           position={[x + ruinsOptions.xAdd, yBaseCap, z + ruinsOptions.zAdd]}

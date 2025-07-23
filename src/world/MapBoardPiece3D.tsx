@@ -3,6 +3,8 @@ import useBoundStore from '../store/store'
 import { type BoardPiece, HexTerrain, Pieces } from '../types'
 import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
 import {
+  HEXGRID_HEX_HEIGHT,
+  HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_HEIGHT,
 } from '../utils/constants'
 import { getBoardHex3DCoords } from '../utils/map-utils'
@@ -12,9 +14,15 @@ import { RoadWall } from './models/RoadWall'
 import {
   getLadderBattlementOptions,
   getRoadWallOptions,
+  getRuinsOptions,
 } from './models/piece-adjustments'
 import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from './maphex/hexColors'
+import { Suspense } from 'react'
+import ModelLoader from './models/ModelLoader'
+import Ruins2 from './models/Ruins2'
+import { piecesSoFar } from '../data/pieces'
+import LandSubterrain from './models/LandSubterrain'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -37,21 +45,46 @@ export const MapBoardPiece3D = ({
     }
     toggleSelectedPieceID(boardPiece.uid === selectedPieceID ? '' : boardPiece.uid)
   }
-  const { x, z, y } = getBoardHex3DCoords({ ...pieceCoords, altitude })
+  const { x, z, y, yBaseCap } = getBoardHex3DCoords({ ...pieceCoords, altitude })
   const {
     x: xLaurWall,
     z: zLaurWall,
     yWithBase: yLaurWall,
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const isVisible = altitude + 1 <= viewingLevel
+  const isSolidLand = isSolidTerrainHex(piecesSoFar[inventoryID].terrain)
 
   // TODO: PIECE ID TO RENDER MUST BE ADDED TO THIS FN: isRenderedFromPieceIDPiece
   // [Make it not so]
   // EARLY RETURN, no render
-  if (!isRenderedFromPieceIDPiece(inventoryID) || !isVisible) {
+  if (!isVisible) {
     return null
   }
 
+  // SOLID LAND
+  // if (isSolidLand) {
+  //   return (
+  //     <group position={[x, yBaseCap, z]} rotation={[0, rotation, 0]}>
+  //       <Suspense fallback={<ModelLoader />}>
+  //         <LandSubterrain boardHex={boardHex} />
+  //       </Suspense>
+  //     </group>
+  //   )
+  // }
+  // RUINS 2
+  const ruinsOptions = getRuinsOptions(rotation)
+  if (inventoryID === Pieces.ruins2) {
+    return (
+      <group
+        position={[x + ruinsOptions.xAdd, yBaseCap + HEXGRID_HEX_HEIGHT, z + ruinsOptions.zAdd]}
+        rotation={[0, ruinsOptions.rotationY, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <Ruins2 pid={pid} />
+        </Suspense>
+      </group>
+    )
+  }
   // LAURWALL ADDON
   if (
     inventoryID === Pieces.laurWallShort ||
@@ -77,7 +110,6 @@ export const MapBoardPiece3D = ({
       </group>
     )
   }
-
   // BATTLEMENT
   if (inventoryID === Pieces.battlement) {
     return (
@@ -101,7 +133,6 @@ export const MapBoardPiece3D = ({
       </group>
     )
   }
-
   // ROADWALL
   if (inventoryID === Pieces.roadWall) {
     return (

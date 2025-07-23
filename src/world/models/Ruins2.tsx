@@ -7,17 +7,13 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
-export default function Ruins2({
-  boardHex,
-}: {
-  boardHex: BoardHex
-}) {
+export default function Ruins2({ pid }: { pid: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/ruins2.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
@@ -26,19 +22,19 @@ export default function Ruins2({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    toggleSelectedPieceID(isSelected ? '' : pid)
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ruin]
   return (
     <mesh
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+      onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
       geometry={nodes.Ruin_Small_Scanned.geometry}
     >
