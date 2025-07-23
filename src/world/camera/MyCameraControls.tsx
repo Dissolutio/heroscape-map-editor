@@ -13,22 +13,22 @@ export default function MyCameraControls({
     (s) => s.isCameraDisabled || s.isTakingPicture,
   )
   useHotkeys('up', () => {
-    cameraControlsRef?.current?.truck(0, -5, true)
+    cameraControlsRef?.current?.truck(0, -1, true)
   })
-  useHotkeys('down', () => cameraControlsRef?.current?.truck(0, 5, true))
-  useHotkeys('left', () => cameraControlsRef?.current?.truck(-5, 0, true))
-  useHotkeys('right', () => cameraControlsRef?.current?.truck(5, 0, true))
+  useHotkeys('down', () => cameraControlsRef?.current?.truck(0, 1, true))
+  useHotkeys('left', () => cameraControlsRef?.current?.truck(-1, 0, true))
+  useHotkeys('right', () => cameraControlsRef?.current?.truck(1, 0, true))
   useHotkeys('shift+up', () => {
-    cameraControlsRef.current?.rotate(0, -Math.PI / 27, true)
+    cameraControlsRef.current?.rotate(0, -Math.PI / 180, true)
   })
   useHotkeys('shift+down', () => {
-    cameraControlsRef.current?.rotate(0, Math.PI / 27, true)
+    cameraControlsRef.current?.rotate(0, Math.PI / 180, true)
   })
   useHotkeys('shift+left', () => {
-    cameraControlsRef.current?.rotate(-Math.PI / 27, 0, true)
+    cameraControlsRef.current?.rotate(-Math.PI / 180, 0, true)
   })
   useHotkeys('shift+right', () => {
-    cameraControlsRef.current?.rotate(Math.PI / 27, 0, true)
+    cameraControlsRef.current?.rotate(Math.PI / 180, 0, true)
   })
   useHotkeys('mod+up', () => {
     isOrthoCam
@@ -51,12 +51,12 @@ export default function MyCameraControls({
       maxDistance={100} // this prevents camera from dollying out too far
       smoothTime={0.3}
       dollySpeed={0.2}
-      // mouseButtons={{
-      //   left: isCameraDisabled ? 0 : 1, // No action
-      //   middle: 0, // No action
-      //   right: isCameraDisabled ? 0 : 2, // No action
-      //   wheel: isCameraDisabled ? 0 : 8, // Zoom (hard to configure between ortho and perspective, no luck)
-      // }}
+    // mouseButtons={{
+    //   left: isCameraDisabled ? 0 : 1, // No action
+    //   middle: 0, // No action
+    //   right: isCameraDisabled ? 0 : 2, // No action
+    //   wheel: isCameraDisabled ? 0 : 8, // Zoom (hard to configure between ortho and perspective, no luck)
+    // }}
     />
   )
 }
