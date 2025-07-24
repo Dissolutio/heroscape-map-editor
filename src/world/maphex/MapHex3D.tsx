@@ -161,6 +161,13 @@ export const MapHex3D = ({
   if (!isVisible) {
     return null
   }
+  const laurPillarHeight = isUnderHexFluid
+    ? yWithBase - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_FLUID_HEIGHT
+    : yWithBase
+  // const laurPillarHeight = (isUnderHexFluid
+  //   ? yGlyphFluidUnder
+  //   : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
+  //   HEXGRID_HEXCAP_FLUID_HEIGHT / 3
   return (
     <>
       <MapHexIDDisplay
@@ -253,10 +260,7 @@ export const MapHex3D = ({
         <group
           position={[
             x,
-            (isUnderHexFluid
-              ? yGlyphFluidUnder
-              : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
-              HEXGRID_HEXCAP_FLUID_HEIGHT / 3,
+            laurPillarHeight,
             z,
           ]}
           rotation={[0, pieceRotation, 0]}
@@ -271,7 +275,11 @@ export const MapHex3D = ({
       )}
       {isLaurTrianglePillarHex && (
         <group
-          position={[x, laurPillarHeight, z]}
+          position={[
+            x,
+            laurPillarHeight,
+            z,
+          ]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -584,7 +592,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-              selectedPieceID === boardHex.pieceID
+                selectedPieceID === boardHex.pieceID
                 ? hexTerrainColor[HexTerrain.castle]
                 : 'yellow'
             }
@@ -611,7 +619,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+                  selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castle]
               }

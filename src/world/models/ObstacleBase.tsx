@@ -1,8 +1,5 @@
 import useBoundStore from '../../store/store'
-import {
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
-  HEXGRID_OBSTACLE_BASE_HEIGHT,
-} from '../../utils/constants'
+import { HEXGRID_HEXCAP_FLUID_HEIGHT, HEXGRID_OBSTACLE_BASE_HEIGHT } from '../../utils/constants'
 import type { CylinderGeometryArgs } from '../maphex/instance-hex'
 
 type ObstacleBaseProps = {
@@ -15,7 +12,7 @@ type ObstacleBaseProps = {
 export const laurBaseCylinderArgs: CylinderGeometryArgs = [
   0.95,
   0.997,
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
+  HEXGRID_OBSTACLE_BASE_HEIGHT,
   6,
   undefined,
   false,
@@ -25,7 +22,7 @@ export const laurBaseCylinderArgs: CylinderGeometryArgs = [
 const treeBaseCylinderArgs: CylinderGeometryArgs = [
   0.95,
   0.997,
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
+  HEXGRID_OBSTACLE_BASE_HEIGHT,
   6,
   undefined,
   false,
@@ -35,7 +32,7 @@ const treeBaseCylinderArgs: CylinderGeometryArgs = [
 const baseFluidCapCylinderArgs: CylinderGeometryArgs = [
   0.95,
   0.997,
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
+  HEXGRID_OBSTACLE_BASE_HEIGHT,
   6,
   undefined,
   false,

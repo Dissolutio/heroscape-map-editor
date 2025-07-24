@@ -16,7 +16,8 @@ export function LaurWallAddon({ pid }: { pid: string }) {
   const {
     nodes: { LaurWallShort, LaurWallShortDecorDeep },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  } = useGLTF('/laurwall-short.glb') as any
+  } = useGLTF('/laurwall-short-from-hs-models-blendfile.glb') as any
+  // } = useGLTF('/laurwall-short.glb') as any
   const {
     nodes: { LaurWallLong, LaurWallLongDecorDeep },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -121,7 +122,8 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
   const {
     nodes: { LaurWallShort, LaurWallShortDecorDeep },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  } = useGLTF('/laurwall-short.glb') as any
+  } = useGLTF('/laurwall-short-from-hs-models-blendfile.glb') as any
+  // } = useGLTF('/laurwall-short.glb') as any
   const {
     nodes: { LaurWallLong, LaurWallLongDecorDeep },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
