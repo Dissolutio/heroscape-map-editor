@@ -256,7 +256,7 @@ export const MapHex3D = ({
             (isUnderHexFluid
               ? yGlyphFluidUnder
               : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 3,
+              HEXGRID_HEXCAP_FLUID_HEIGHT / 3,
             z,
           ]}
           rotation={[0, pieceRotation, 0]}
@@ -276,7 +276,7 @@ export const MapHex3D = ({
             (isUnderHexFluid
               ? yGlyphFluidUnder
               : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 3,
+              HEXGRID_HEXCAP_FLUID_HEIGHT / 3,
             z,
           ]}
           rotation={[0, pieceRotation, 0]}
@@ -591,7 +591,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+              selectedPieceID === boardHex.pieceID
                 ? hexTerrainColor[HexTerrain.castle]
                 : 'yellow'
             }
@@ -618,7 +618,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                  selectedPieceID === boardHex.pieceID
+                selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castle]
               }

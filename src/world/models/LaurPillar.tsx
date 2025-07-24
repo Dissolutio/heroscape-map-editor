@@ -12,8 +12,6 @@ import type { CylinderGeometryArgs } from '../maphex/instance-hex'
 import { basicModelMaterial } from './materials'
 import { laurBaseCylinderArgs } from './ObstacleBase'
 
-
-
 export default function LaurWallPillar({
   boardHex,
   onPointerUp,

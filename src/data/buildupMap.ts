@@ -104,14 +104,14 @@ export function buildupJsonFileMap(
     }).boardHexes
   }
   const boardPiecesSortedByAltitude = Object.keys(boardPieces).sort((a, b) => {
-    if (
-      decodePieceID(a).altitude > decodePieceID(b).altitude
-    ) {
+    if (decodePieceID(a).altitude > decodePieceID(b).altitude) {
       return 1 // Move 'targetValue' to the end
     }
     return -1 // Move 'targetValue' to the end
   })
-  const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(boardPiecesSortedByAltitude)
+  const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(
+    boardPiecesSortedByAltitude,
+  )
   const newBoardHexes = piecesArray.reduce(
     (boardHexes: BoardHexes, pieceAqrrID): BoardHexes => {
       const {
