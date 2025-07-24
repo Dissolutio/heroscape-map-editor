@@ -10,17 +10,9 @@ import {
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { CylinderGeometryArgs } from '../maphex/instance-hex'
 import { basicModelMaterial } from './materials'
+import { laurBaseCylinderArgs } from './ObstacleBase'
 
-const baseCylinderArgs: CylinderGeometryArgs = [
-  0.9,
-  0.997,
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
-  6,
-  undefined,
-  false,
-  undefined,
-  undefined,
-]
+
 
 export default function LaurWallPillar({
   boardHex,
@@ -51,7 +43,8 @@ export default function LaurWallPillar({
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
-        <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
+        {/* Scaled to match reality: 9 clears the upper pillar edge, 13 totally clears the pillars top X-arch */}
+        <group scale={[1, 0.95, 1]}>
           <mesh
             receiveShadow={isLightsAndShadowsRender}
             castShadow={isLightsAndShadowsRender}
@@ -85,7 +78,7 @@ export default function LaurWallPillar({
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
         >
-          <cylinderGeometry args={baseCylinderArgs} />
+          <cylinderGeometry args={laurBaseCylinderArgs} />
           {basicModelMaterial(color, isLightsAndShadowsRender)}
         </mesh>
       </group>
@@ -108,44 +101,53 @@ export function LaurWallPillarPreview({
   const interiorColor = interiorPillarColor
   const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
   return (
-    <group position={[0, HEXGRID_HEXCAP_FLUID_HEIGHT / 2, 0]}>
+    <>
+      <group scale={[1, 0.95, 1]}>
+        <mesh
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
+          geometry={nodes.PillarTop.geometry}
+        >
+          {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
+        </mesh>
+        <mesh
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
+          geometry={nodes.SubDecorCore.geometry}
+        >
+          {basicModelMaterial(
+            interiorColor,
+            isLightsAndShadowsRender,
+            opacityLevel,
+          )}
+        </mesh>
+        <mesh
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
+          geometry={nodes.Facade.geometry}
+        >
+          {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
+        </mesh>
+        <mesh
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
+          geometry={nodes.FacadeInner.geometry}
+        >
+          {basicModelMaterial(
+            interiorColor,
+            isLightsAndShadowsRender,
+            opacityLevel,
+          )}
+        </mesh>
+      </group>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.PillarTop.geometry}
       >
-        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
+        <cylinderGeometry args={laurBaseCylinderArgs} />
+        {basicModelMaterial(color, isLightsAndShadowsRender)}
       </mesh>
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.SubDecorCore.geometry}
-      >
-        {basicModelMaterial(
-          interiorColor,
-          isLightsAndShadowsRender,
-          opacityLevel,
-        )}
-      </mesh>
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Facade.geometry}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
-      </mesh>
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.FacadeInner.geometry}
-      >
-        {basicModelMaterial(
-          interiorColor,
-          isLightsAndShadowsRender,
-          opacityLevel,
-        )}
-      </mesh>
-    </group>
+    </>
   )
 }
 useGLTF.preload('/laurwall-pillar.glb')

@@ -167,9 +167,7 @@ export const MapHex3D = ({
         boardHex={boardHex}
         position={new Vector3(x, y + 0.2, z)}
       />
-      {/* GROUP 2: no preview */}
       {isHeightRingedHex && <HeightRing position={new Vector3(x, y, z)} />}
-      {/* GROUP 1: pos, rot, scale */}
       {isSolidSubterrain && (
         <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
           <Suspense fallback={<ModelLoader />}>
@@ -252,60 +250,44 @@ export const MapHex3D = ({
       )}
       {/* GROUP GETS onPointerUpPaintPiece */}
       {isLaurSquarePillarHex && (
-        <>
-          <group
-            position={[
-              x,
-              (isUnderHexFluid
-                ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
-                : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-                HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
-              z,
-            ]}
-            rotation={[0, pieceRotation, 0]}
-          >
-            <Suspense fallback={<ModelLoader />}>
-              <LaurPillar
-                boardHex={boardHex}
-                onPointerUp={onPointerUpPaintPiece}
-              />
-            </Suspense>
-          </group>
-          <ObstacleBase
-            x={x}
-            y={yBase}
-            z={z}
-            color={hexTerrainColor[HexTerrain.laurWall]}
-          />
-        </>
+        <group
+          position={[
+            x,
+            (isUnderHexFluid
+              ? yGlyphFluidUnder
+              : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
+            HEXGRID_HEXCAP_FLUID_HEIGHT / 3,
+            z,
+          ]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <LaurPillar
+              boardHex={boardHex}
+              onPointerUp={onPointerUpPaintPiece}
+            />
+          </Suspense>
+        </group>
       )}
       {isLaurTrianglePillarHex && (
-        <>
-          <group
-            position={[
-              x,
-              (isUnderHexFluid
-                ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT
-                : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-                HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
-              z,
-            ]}
-            rotation={[0, pieceRotation, 0]}
-          >
-            <Suspense fallback={<ModelLoader />}>
-              <LaurWallTrianglePillar
-                boardHex={boardHex}
-                onPointerUp={onPointerUpPaintPiece}
-              />
-            </Suspense>
-          </group>
-          <ObstacleBase
-            x={x}
-            y={yBase}
-            z={z}
-            color={hexTerrainColor[HexTerrain.laurWall]}
-          />
-        </>
+        <group
+          position={[
+            x,
+            (isUnderHexFluid
+              ? yGlyphFluidUnder
+              : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
+            HEXGRID_HEXCAP_FLUID_HEIGHT / 3,
+            z,
+          ]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <LaurWallTrianglePillar
+              boardHex={boardHex}
+              onPointerUp={onPointerUpPaintPiece}
+            />
+          </Suspense>
+        </group>
       )}
       {isBigTreeHex && (
         <>
@@ -609,7 +591,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-              selectedPieceID === boardHex.pieceID
+                selectedPieceID === boardHex.pieceID
                 ? hexTerrainColor[HexTerrain.castle]
                 : 'yellow'
             }
@@ -636,7 +618,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+                  selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castle]
               }

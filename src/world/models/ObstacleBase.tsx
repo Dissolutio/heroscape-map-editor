@@ -9,7 +9,16 @@ type ObstacleBaseProps = {
   color: string
   isFluidBase?: boolean
 }
-
+export const laurBaseCylinderArgs: CylinderGeometryArgs = [
+  0.95,
+  0.997,
+  HEXGRID_HEXCAP_FLUID_HEIGHT,
+  6,
+  undefined,
+  false,
+  undefined,
+  undefined,
+]
 const treeBaseCylinderArgs: CylinderGeometryArgs = [
   0.95,
   0.997,
