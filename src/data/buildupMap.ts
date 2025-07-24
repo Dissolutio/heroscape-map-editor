@@ -103,9 +103,15 @@ export function buildupJsonFileMap(
       mapName: hexMap.name,
     }).boardHexes
   }
-  const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(
-    Object.keys(boardPieces),
-  )
+  const boardPiecesSortedByAltitude = Object.keys(boardPieces).sort((a, b) => {
+    if (
+      decodePieceID(a).altitude > decodePieceID(b).altitude
+    ) {
+      return 1 // Move 'targetValue' to the end
+    }
+    return -1 // Move 'targetValue' to the end
+  })
+  const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(boardPiecesSortedByAltitude)
   const newBoardHexes = piecesArray.reduce(
     (boardHexes: BoardHexes, pieceAqrrID): BoardHexes => {
       const {
