@@ -138,7 +138,7 @@ export const getBoardHex3DCoords = (
     y - HEXGRID_HEX_HEIGHT + HEXGRID_GLYPH_HEIGHT / 2 + HEXGRID_HEXCAP_HEIGHT
   const yGlyphFluidUnder =
     y - HEXGRID_HEX_HEIGHT - yDropForBeingOnFluidTile + HEXGRID_GLYPH_HEIGHT / 2
-  const yWithBase = yBaseCap + HEXGRID_OBSTACLE_BASE_HEIGHT / 2
+  const yWithBase = yBaseCap + HEXGRID_OBSTACLE_BASE_HEIGHT
   const yBase = yBaseCap + HEXGRID_OBSTACLE_BASE_HEIGHT / 2
   const yJungle = y
   return {

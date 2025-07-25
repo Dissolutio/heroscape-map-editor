@@ -4,7 +4,7 @@ import { BackSide, DoubleSide } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { HEXGRID_OBSTACLE_BASE_HEIGHT, PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { laurBaseCylinderArgs } from './ObstacleBase'
@@ -81,17 +81,19 @@ export default function LaurWallTrianglePillar({
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
-        >
-          <cylinderGeometry args={laurBaseCylinderArgs} />
-          {basicModelMaterial(color, isLightsAndShadowsRender)}
-        </mesh>
-        <mesh
-          receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender}
           geometry={nodes.TriangleFacadeInner.geometry}
         >
           {basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
         </mesh>
+        <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
+          <mesh
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
+          >
+            <cylinderGeometry args={laurBaseCylinderArgs} />
+            {basicModelMaterial(color, isLightsAndShadowsRender)}
+          </mesh>
+        </group>
       </group>
     </>
   )
@@ -168,4 +170,4 @@ export function LaurWallTrianglePillarPreview({
     </>
   )
 }
-useGLTF.preload('/laur-triangle-pillar.glb')
+useGLTF.preload('/laur-triangle-pillar-from-hs-blendfile.glb')

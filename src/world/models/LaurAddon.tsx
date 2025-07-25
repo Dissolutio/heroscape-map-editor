@@ -21,7 +21,7 @@ export function LaurWallAddon({ pid }: { pid: string }) {
   const {
     nodes: { LaurWallLong, LaurWallLongDecorDeep },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  } = useGLTF('/laurwall-long.glb') as any
+  } = useGLTF('/laurwall-long-from-hs-models-blendfile.glb') as any
   const { inventoryID } = decodePieceID(pid)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
@@ -127,7 +127,7 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
   const {
     nodes: { LaurWallLong, LaurWallLongDecorDeep },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  } = useGLTF('/laurwall-long.glb') as any
+  } = useGLTF('/laurwall-long-from-hs-models-blendfile.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -329,5 +329,5 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
   )
 }
 useGLTF.preload('/laurwall-ruin.glb')
-useGLTF.preload('/laurwall-short.glb')
-useGLTF.preload('/laurwall-long.glb')
+useGLTF.preload('/laurwall-short-from-hs-models-blendfile.glb')
+useGLTF.preload('/laurwall-long-from-hs-models-blendfile.glb')

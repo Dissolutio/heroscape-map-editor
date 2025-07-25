@@ -50,13 +50,13 @@ export default function MyCameraControls({
       minDistance={1} // this keeps the camera above ground and out of the board hexes nether region
       maxDistance={100} // this prevents camera from dollying out too far
       smoothTime={0.3}
-      dollySpeed={0.2}
-      // mouseButtons={{
-      //   left: isCameraDisabled ? 0 : 1, // No action
-      //   middle: 0, // No action
-      //   right: isCameraDisabled ? 0 : 2, // No action
-      //   wheel: isCameraDisabled ? 0 : 8, // Zoom (hard to configure between ortho and perspective, no luck)
-      // }}
+      dollySpeed={1}
+    // mouseButtons={{
+    //   left: isCameraDisabled ? 0 : 1, // No action
+    //   middle: 0, // No action
+    //   right: isCameraDisabled ? 0 : 2, // No action
+    //   wheel: isCameraDisabled ? 0 : 8, // Zoom (hard to configure between ortho and perspective, no luck)
+    // }}
     />
   )
 }
