@@ -271,14 +271,7 @@ export const MapHex3D = ({
       )}
       {isLaurTrianglePillarHex && (
         <group
-          position={[
-            x,
-            (isUnderHexFluid
-              ? yGlyphFluidUnder
-              : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
-              HEXGRID_HEXCAP_FLUID_HEIGHT / 3,
-            z,
-          ]}
+          position={[x, laurPillarHeight, z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>

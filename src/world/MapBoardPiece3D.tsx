@@ -43,13 +43,7 @@ export const MapBoardPiece3D = ({
   ) {
     return (
       <group
-        position={
-          new Vector3(
-            xLaurWall,
-            yLaurWall + HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
-            zLaurWall,
-          )
-        }
+        position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <LaurWallAddon pid={pid} />

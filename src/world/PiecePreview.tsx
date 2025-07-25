@@ -277,9 +277,9 @@ export default function PiecePreview() {
         position={[
           x,
           (isUnderHexFluid
-            ? yGlyphFluidUnder
-            : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 3 +
+            ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
+            : yGlyph + HEXGRID_GLYPH_HEIGHT) +
+            HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
             HEXGRID_HEX_HEIGHT,
           z,
         ]}
@@ -296,10 +296,9 @@ export default function PiecePreview() {
         position={[
           x,
           (isUnderHexFluid
-            ? yGlyphFluidUnder
-            : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 3 +
-            HEXGRID_HEX_HEIGHT,
+            ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
+            : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
+            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
