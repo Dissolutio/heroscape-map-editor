@@ -28,7 +28,7 @@ const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
 const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
   const ref = React.useRef<InstanceRefType>(null)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/classic1-cap.glb') as any
+  const { nodes, materials } = useGLTF('/classic1-cap-leafit.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -44,12 +44,14 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       ref={ref}
       frustumCulled={false}
       geometry={
-        isHighQualityRender ? nodes.Classic1_Cap.geometry : basicCapGeometry
+        isHighQualityRender ? nodes.Single_Tile001.geometry : basicCapGeometry
       }
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
+      material={materials['Material.002']}
     >
-      {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />}
+      {/* {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />} */}
+      {!isHighQualityRender && <meshMatcapMaterial />}
       {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
       {boardHexArr.map((hex, i) => (
         <SolidCapInstance
@@ -64,7 +66,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
     </Instances>
   )
 }
-useGLTF.preload('/classic1-cap.glb')
+useGLTF.preload('/classic1-cap-leafit.glb')
 
 export default SolidCaps
 
@@ -92,12 +94,14 @@ function SolidCapInstance({
   // Effect: Initial color/position
   React.useEffect(() => {
     const { x, y, z } = getBoardHex3DCoords(boardHex)
-    ref.current.color.set(color)
+    // ref.current.color.set(color)
+    ref.current.color.set('#EBEBEB')
     // ref.current.position.set(x, y + HEXGRID_HEXCAP_HEIGHT / 2, z)
     ref.current.position.set(
       x,
       // small adjustment down for realistic caps, to show the subterrain through the cracks
-      y - (isHighQualityRender ? HEXGRID_HEXCAP_HEIGHT : 0),
+      // y,
+      y - (isHighQualityRender ? 4 * HEXGRID_HEXCAP_HEIGHT : 0),
       z,
     )
     ref.current.rotation.set(
@@ -105,16 +109,17 @@ function SolidCapInstance({
       Math.PI / 6 + (getRandomInteger(1, 6) * Math.PI) / 3,
       0,
     )
-  }, [boardHex, color, isHighQualityRender])
+  }, [boardHex, isHighQualityRender])
 
   // update color when piece is hovered
   React.useEffect(() => {
     if (hoveredPieceID === boardHex.pieceID) {
-      // ref.current.color.set('yellow')
+      ref.current.color.set('#FFF')
     } else {
-      ref.current.color.set(color)
+      // ref.current.color.set(color)
+      ref.current.color.set('#EBEBEB')
     }
-  }, [boardHex.pieceID, hoveredPieceID, color])
+  }, [boardHex.pieceID, hoveredPieceID])
 
   const handlePointerEnter = (e: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
@@ -122,14 +127,14 @@ function SolidCapInstance({
     }
     e.stopPropagation() // prevent this hover from passing through and affecting behind
     onPointerEnter(e, boardHex)
-    ref.current.color.set('yellow')
+    ref.current.color.set('#EBEBEB')
   }
   const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
       return
     }
     // if (hoveredPieceID !== boardHex.pieceID) {
-    ref.current.color.set(color)
+    ref.current.color.set('#FFF')
     onPointerOut(e)
     // }
   }
