@@ -25,6 +25,8 @@ import { piecesSoFar } from '../data/pieces'
 import LandSubterrain from './models/LandSubterrain'
 import Ruins3 from './models/Ruins3'
 import { MarvelRuin } from './models/MarvelRuin'
+import { StartZone3D } from './models/StartZone3D'
+import { GlyphModel } from './models/Glyph'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -53,6 +55,7 @@ export const MapBoardPiece3D = ({
     z: zLaurWall,
     yWithBase: yLaurWall,
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = altitude + 1 <= viewingLevel
   const isSolidLand = isSolidTerrainHex(piecesSoFar[inventoryID].terrain)
 
@@ -97,6 +100,39 @@ export const MapBoardPiece3D = ({
       <group position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]} rotation={[0, rotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
           <MarvelRuin pid={pid} />
+        </Suspense>
+      </group>
+    )
+  }
+
+  // START ZONES
+  if (inventoryID === Pieces.startZone1 ||
+    inventoryID === Pieces.startZone2 ||
+    inventoryID === Pieces.startZone3 ||
+    inventoryID === Pieces.startZone4 ||
+    inventoryID === Pieces.startZone5 ||
+    inventoryID === Pieces.startZone6 ||
+    inventoryID === Pieces.startZone7 ||
+    inventoryID === Pieces.startZone8) {
+    return (
+      <group
+        position={[x, (isUnderHexFluid ? yGlyphFluidUnder + HEXGRID_HEX_HEIGHT : yGlyph + HEXGRID_HEX_HEIGHT), z]}
+        rotation={[0, (rotation * -Math.PI) / 3, Math.PI / 2]}
+      >
+        <StartZone3D pid={pid} />
+      </group>
+    )
+  }
+
+  //  GLYPHS
+  if (inventoryID === Pieces.glyphPower || inventoryID === Pieces.glyphTreasure) {
+    return (
+      <group
+        position={[x, (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, (rotation * -Math.PI) / 3, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <GlyphModel pid={pid} />
         </Suspense>
       </group>
     )

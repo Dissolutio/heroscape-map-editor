@@ -1,19 +1,16 @@
 import { Decal, useGLTF, useTexture } from '@react-three/drei'
 import useBoundStore from '../../store/store'
-import { HexTerrain, Pieces, type BoardHex } from '../../types'
+import { HexTerrain, Pieces } from '../../types'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { noop } from 'lodash'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { decodePieceID } from '../../utils/map-utils'
 
-export function GlyphModel({
-  boardHex,
-  terrain,
-}: { boardHex: BoardHex; terrain: string }) {
+export function GlyphModel({ pid }: { pid: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/glyph.glb') as any
+  const { inventoryID } = decodePieceID(pid)
   const texture = useTexture('glyph-valkyrie-logo.svg')
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
@@ -21,7 +18,7 @@ export function GlyphModel({
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -29,21 +26,23 @@ export function GlyphModel({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    if (pid) {
+      toggleSelectedPieceID(isSelected ? '' : pid)
+    }
   }
   const glyphColor = hexTerrainColor[terrain as keyof typeof hexTerrainColor]
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted ? yellowColor : glyphColor
   return (
     <mesh
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Glyph.geometry}
-      onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-      onPointerOut={(e) => onPointerOut(e)}
+      onPointerUp={(e) => (onPointerUp(e))}
+      onPointerEnter={(e) => (onPointerEnterPID(e, pid))}
+      onPointerOut={(e) => (onPointerOut(e))}
     >
       {basicModelMaterial(color, isLightsAndShadowsRender)}
       {isDisplayCapHeights ? (
@@ -92,7 +91,7 @@ export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
         isLightsAndShadowsRender,
         // PIECE_PREVIEW_OPACITY,
       )}
-      <Decal
+      {<Decal
         depthTest
         polygonOffsetFactor={-1} // The material should take precedence over the original
         map={texture}
@@ -104,9 +103,9 @@ export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
           transparent
           opacity={0.5}
         />
-      </Decal>
+      </Decal>}
     </mesh>
   )
 }
 
-useGLTF.preload('/glyph.glb')
+// useGLTF.preload('/glyph.glb')

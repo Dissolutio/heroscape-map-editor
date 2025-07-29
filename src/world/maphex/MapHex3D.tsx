@@ -5,7 +5,6 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../../utils/board-utils'
 import {
-  HEXGRID_GLYPH_HEIGHT,
   HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
@@ -27,9 +26,7 @@ import { Outcrop1 } from '../models/Outcrop1'
 import Outcrop3 from '../models/Outcrop3'
 import Outcrop4 from '../models/Outcrop4'
 import Outcrop6 from '../models/Outcrop6'
-import Ruins2 from '../models/Ruins2'
-import Ruins3 from '../models/Ruins3'
-import JungleBrush from '../models/TicallaBrush'
+import TicallaBrush from '../models/TicallaBrush'
 import TicallaPalm from '../models/TicallaPalm'
 import {
   getLadderBattlementOptions,
@@ -42,9 +39,6 @@ import {
 import HeightRing, { TopOutlineInterlockHex } from './HeightRing'
 import { MapHexIDDisplay } from './MapHexIDDisplay'
 import { hexTerrainColor } from './hexColors'
-import { GlyphModel } from '../models/Glyph'
-import { StartZone3D } from '../models/StartZone3D'
-import { MarvelRuin } from '../models/MarvelRuin'
 import LaurWallTrianglePillar from '../models/LaurTrianglePillar'
 import { HexCapIDDisplay } from './HexCapIDDisplay'
 import { FortifiedWall } from '../models/FortifiedWall'
@@ -171,10 +165,6 @@ export const MapHex3D = ({
   const laurPillarHeight = isUnderHexFluid
     ? yWithBase - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_FLUID_HEIGHT
     : yWithBase
-  // const laurPillarHeight = (isUnderHexFluid
-  //   ? yGlyphFluidUnder
-  //   : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
-  //   HEXGRID_HEXCAP_FLUID_HEIGHT / 3
   return (
     <>
       <MapHexIDDisplay
@@ -217,14 +207,6 @@ export const MapHex3D = ({
           <Suspense fallback={<ModelLoader />}>
             <LandSubterrain boardHex={boardHex} />
           </Suspense>
-        </group>
-      )}
-      {isStartZoneHex && (
-        <group
-          position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
-          rotation={[0, pieceRotation, Math.PI / 2]}
-        >
-          <StartZone3D boardHex={boardHex} />
         </group>
       )}
       {isTreeHex && (
@@ -330,17 +312,6 @@ export const MapHex3D = ({
         >
           <Suspense fallback={<ModelLoader />}>
             <TicallaPalm boardHex={boardHex} />
-          </Suspense>
-        </group>
-      )}
-      {/* POWER GLYPHS */}
-      {(isPowerGlyphHex || isTreasureGlyphHex) && (
-        <group
-          position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
-          rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <GlyphModel boardHex={boardHex} terrain={boardHex.terrain} />
           </Suspense>
         </group>
       )}
