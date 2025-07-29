@@ -27,6 +27,9 @@ import Ruins3 from './models/Ruins3'
 import { MarvelRuin } from './models/MarvelRuin'
 import { StartZone3D } from './models/StartZone3D'
 import { GlyphModel } from './models/Glyph'
+import { hexTerrainColor } from './maphex/hexColors'
+import { Outcrop1 } from './models/Outcrop1'
+import ObstacleBase from './models/ObstacleBase'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -135,6 +138,33 @@ export const MapBoardPiece3D = ({
           <GlyphModel pid={pid} />
         </Suspense>
       </group>
+    )
+  }
+  // GLACIER1 / OUTCROP1 / LAVAOUTCROP1
+  if (inventoryID === Pieces.glacier1 || inventoryID === Pieces.outcrop1 || inventoryID === Pieces.lavaRockOutcrop1) {
+    const outcrop1Color = inventoryID === Pieces.glacier1 ? hexTerrainColor[HexTerrain.ice] : inventoryID === Pieces.outcrop1 ? hexTerrainColor[HexTerrain.shadow] : hexTerrainColor[HexTerrain.lava]
+    return (
+      <>
+        <group
+          position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, (rotation * -Math.PI) / 3, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <Outcrop1
+              pid={pid}
+              isGlacier={inventoryID === Pieces.glacier1}
+              isLavaRock={inventoryID === Pieces.lavaRockOutcrop1}
+            />
+          </Suspense>
+        </group>
+        <ObstacleBase
+          x={x}
+          y={yBase + HEXGRID_HEX_HEIGHT}
+          z={z}
+          color={outcrop1Color}
+          isFluidBase={true}
+        />
+      </>
     )
   }
 

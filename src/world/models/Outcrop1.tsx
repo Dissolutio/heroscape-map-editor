@@ -8,11 +8,11 @@ import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export function Outcrop1({
-  boardHex,
+  pid,
   isGlacier,
   isLavaRock,
 }: {
-  boardHex: BoardHex
+  pid: string
   isGlacier?: boolean
   isLavaRock?: boolean
 }) {
@@ -22,7 +22,7 @@ export function Outcrop1({
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -30,12 +30,12 @@ export function Outcrop1({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    toggleSelectedPieceID(isSelected ? '' : pid)
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
   const iceColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ice]
   const lavaColor = isHighlighted
     ? yellowColor
@@ -50,7 +50,7 @@ export function Outcrop1({
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.glacier_1_with_holes.geometry}
       onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+      onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={onPointerOut}
     >
       {basicModelMaterial(color, isLightsAndShadowsRender)}
