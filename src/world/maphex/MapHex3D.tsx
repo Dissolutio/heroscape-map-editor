@@ -227,33 +227,6 @@ export const MapHex3D = ({
           <StartZone3D boardHex={boardHex} />
         </group>
       )}
-      {/* {isRuin2OriginHex && (
-        <group
-          position={[x + ruinsOptions.xAdd, yBaseCap, z + ruinsOptions.zAdd]}
-          rotation={[0, ruinsOptions.rotationY, 0]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <Ruins2 boardHex={boardHex} />
-          </Suspense>
-        </group>
-      )} */}
-      {isRuin3OriginHex && (
-        <group
-          position={[x + ruinsOptions.xAdd, yBaseCap, z + ruinsOptions.zAdd]}
-          rotation={[0, ruinsOptions.rotationY, 0]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <Ruins3 boardHex={boardHex} />
-          </Suspense>
-        </group>
-      )}
-      {isFortifiedWallOriginHex && (
-        <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
-          <Suspense fallback={<ModelLoader />}>
-            <FortifiedWall boardHex={boardHex} />
-          </Suspense>
-        </group>
-      )}
       {isMarvelRuinOriginHex && (
         <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
           <Suspense fallback={<ModelLoader />}>

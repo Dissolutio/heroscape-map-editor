@@ -23,6 +23,7 @@ import ModelLoader from './models/ModelLoader'
 import Ruins2 from './models/Ruins2'
 import { piecesSoFar } from '../data/pieces'
 import LandSubterrain from './models/LandSubterrain'
+import Ruins3 from './models/Ruins3'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -71,20 +72,22 @@ export const MapBoardPiece3D = ({
   //     </group>
   //   )
   // }
+
   // RUINS 2
   const ruinsOptions = getRuinsOptions(rotation)
-  if (inventoryID === Pieces.ruins2) {
+  if (inventoryID === Pieces.ruins2 || inventoryID === Pieces.ruins3) {
     return (
       <group
         position={[x + ruinsOptions.xAdd, yBaseCap + HEXGRID_HEX_HEIGHT, z + ruinsOptions.zAdd]}
         rotation={[0, ruinsOptions.rotationY, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Ruins2 pid={pid} />
+          {inventoryID === Pieces.ruins2 ? <Ruins2 pid={pid} /> : <Ruins3 pid={pid} />}
         </Suspense>
       </group>
     )
   }
+
   // LAURWALL ADDON
   if (
     inventoryID === Pieces.laurWallShort ||
