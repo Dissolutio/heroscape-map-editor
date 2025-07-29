@@ -24,6 +24,7 @@ import Ruins2 from './models/Ruins2'
 import { piecesSoFar } from '../data/pieces'
 import LandSubterrain from './models/LandSubterrain'
 import Ruins3 from './models/Ruins3'
+import { MarvelRuin } from './models/MarvelRuin'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -73,7 +74,7 @@ export const MapBoardPiece3D = ({
   //   )
   // }
 
-  // RUINS 2
+  // RUINS 2/3
   const ruinsOptions = getRuinsOptions(rotation)
   if (inventoryID === Pieces.ruins2 || inventoryID === Pieces.ruins3) {
     return (
@@ -83,6 +84,19 @@ export const MapBoardPiece3D = ({
       >
         <Suspense fallback={<ModelLoader />}>
           {inventoryID === Pieces.ruins2 ? <Ruins2 pid={pid} /> : <Ruins3 pid={pid} />}
+        </Suspense>
+      </group>
+    )
+  }
+  // MARVEL RUINS
+  if (inventoryID === Pieces.marvel ||
+    inventoryID === Pieces.marvelBroken ||
+    inventoryID === Pieces.marvelNoUpper ||
+    inventoryID === Pieces.marvelNoUpperBroken) {
+    return (
+      <group position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]} rotation={[0, rotation, 0]}>
+        <Suspense fallback={<ModelLoader />}>
+          <MarvelRuin pid={pid} />
         </Suspense>
       </group>
     )

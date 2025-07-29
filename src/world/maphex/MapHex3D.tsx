@@ -227,13 +227,6 @@ export const MapHex3D = ({
           <StartZone3D boardHex={boardHex} />
         </group>
       )}
-      {isMarvelRuinOriginHex && (
-        <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
-          <Suspense fallback={<ModelLoader />}>
-            <MarvelRuin boardHex={boardHex} />
-          </Suspense>
-        </group>
-      )}
       {isTreeHex && (
         <>
           <group
