@@ -92,10 +92,12 @@ export const MapBoardPiece3D = ({
     )
   }
   // MARVEL RUINS
-  if (inventoryID === Pieces.marvel ||
+  if (
+    inventoryID === Pieces.marvel ||
     inventoryID === Pieces.marvelBroken ||
     inventoryID === Pieces.marvelNoUpper ||
-    inventoryID === Pieces.marvelNoUpperBroken) {
+    inventoryID === Pieces.marvelNoUpperBroken
+  ) {
     return (
       <group position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]} rotation={[0, rotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
@@ -106,14 +108,16 @@ export const MapBoardPiece3D = ({
   }
 
   // START ZONES
-  if (inventoryID === Pieces.startZone1 ||
+  if (
+    inventoryID === Pieces.startZone1 ||
     inventoryID === Pieces.startZone2 ||
     inventoryID === Pieces.startZone3 ||
     inventoryID === Pieces.startZone4 ||
     inventoryID === Pieces.startZone5 ||
     inventoryID === Pieces.startZone6 ||
     inventoryID === Pieces.startZone7 ||
-    inventoryID === Pieces.startZone8) {
+    inventoryID === Pieces.startZone8
+  ) {
     return (
       <group
         position={[x, (isUnderHexFluid ? yGlyphFluidUnder + HEXGRID_HEX_HEIGHT : yGlyph + HEXGRID_HEX_HEIGHT), z]}
