@@ -8,15 +8,11 @@
 - Controls: log state
 
 
-## Separation of State (pieces) / Validation
-- Validation through BoardHexes, but render through BoardPieces
-- Add/Remove Piece will add to BoardPieces.
-- Top-level (HomePage) will call Service Worker to recalculate BoardHexes, when BoardPieces changes.
-
-1. Land / EZ/Based Obstacles
-2. Laur Addons / Castle Walls / Wall Walk / Ladder
-
-
+## Place base tiles on addPiece
+- Outcrop / Glacier / LavaRockOutcrop
+- Marro Hive
+- Marvel Ruin
+- Castle Wall?
 
 ## Move/rotate/switch pieces
 3. Move, rotate, switch pieces that are on the board already
