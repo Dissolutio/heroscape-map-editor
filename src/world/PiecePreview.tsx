@@ -41,7 +41,7 @@ import {
 } from './models/LandSubterrain'
 import { hexTerrainColor } from './maphex/hexColors'
 import { FLUID_CAP_OPACITY } from './maphex/instance/FluidCap'
-import { GlyphModel } from './models/Glyph'
+import { GlyphModel, GlyphModelPreview } from './models/Glyph'
 import { LaurWallTrianglePillarPreview } from './models/LaurTrianglePillar'
 import ForestTree from './models/ForestTree'
 import BigTree415 from './models/BigTree415'
@@ -309,7 +309,7 @@ export default function PiecePreview() {
     isSolidOrEmptyBeneath
   ) {
     return (
-      <group position={[x, yWithBase, z]} rotation={[0, pieceRotation, 0]}>
+      <group position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]} rotation={[0, pieceRotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
           <Outcrop1Preview
             isLavaRock={isLavaRockOutcrop1Hex}
@@ -483,7 +483,7 @@ export default function PiecePreview() {
   }
   if (isMarvelRuinHex && isSolidOrEmptyBeneath) {
     return (
-      <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
+      <group position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]} rotation={[0, pieceRotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
           <MarvelRuinPreview
             isUpperFloor={
@@ -503,14 +503,14 @@ export default function PiecePreview() {
         position={[
           x,
           isUnderHexFluid
-            ? yGlyphFluidUnder + HEXGRID_HEXCAP_FLUID_HEIGHT
+            ? yGlyphFluidUnder + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_HEX_HEIGHT,
           z,
         ]}
-        rotation={[0, (hoveredHex.pieceRotation * -Math.PI) / 3, 0]}
+        rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <GlyphModel terrain={piece.terrain} />
+          <GlyphModelPreview inventoryID={pieceID} />
         </Suspense>
       </group>
     )
