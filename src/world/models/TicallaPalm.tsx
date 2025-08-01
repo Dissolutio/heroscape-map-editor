@@ -41,7 +41,7 @@ export function TicallaPalmPreview({
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/ticalla-palm.glb') as any
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes: nodesNewPalm } = useGLTF('/handmade-palm.glb') as any
+  const { nodes: nodesLaurJungle } = useGLTF('/laur-jungle.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -54,25 +54,46 @@ export function TicallaPalmPreview({
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodesNewPalm.Palm_Trunk.geometry}
+        geometry={nodesLaurJungle.Palm_Trunk.geometry}
       >
         {basicModelMaterial(colorTrunk, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodesNewPalm.Palm_Canopy.geometry}
+        geometry={nodesLaurJungle.Palm_Canopy.geometry}
+      >
+        {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodesLaurJungle.LaurTriCactus.geometry}
+      >
+        {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodesLaurJungle.LaurRoundCactus.geometry}
+      >
+        {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodesLaurJungle.LaurTriLeaf.geometry}
       >
         {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
       </mesh>
 
-      <mesh
+      {/* <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.PalmBrush.geometry}
       >
         {basicModelMaterial(colorBrush, isLightsAndShadowsRender, opacity)}
-      </mesh>
+      </mesh> */}
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
