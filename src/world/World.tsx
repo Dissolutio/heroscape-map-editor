@@ -1,6 +1,7 @@
 import { ClickAwayListener } from '@mui/material'
 import {
   type CameraControls,
+  Environment,
   OrthographicCamera,
   PerspectiveCamera,
   Stats,
@@ -64,6 +65,9 @@ const World = ({
           hidden={isHidden}
           shadows={isLightsAndShadowsRender}
         >
+          <Environment preset="sunset" />
+
+
           {/* <color attach="background" args={["white"]} /> */}
           <PerspectiveCamera
             position={[10, 10, 10]}

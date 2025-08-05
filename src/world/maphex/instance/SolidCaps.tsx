@@ -87,15 +87,14 @@ function SolidCapInstance({
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const penMode = useBoundStore((s) => s.penMode)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const color = terrainCapColors[boardHex.terrain]
+  const color = isHighQualityRender ? '#EBEBEB' : terrainCapColors[boardHex.terrain]
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID
 
   // Effect: Initial color/position
   React.useEffect(() => {
     const { x, y, z } = getBoardHex3DCoords(boardHex)
-    // ref.current.color.set(color)
-    ref.current.color.set('#EBEBEB')
+    ref.current.color.set(color)
     // ref.current.position.set(x, y + HEXGRID_HEXCAP_HEIGHT / 2, z)
     ref.current.position.set(
       x,
@@ -109,17 +108,17 @@ function SolidCapInstance({
       Math.PI / 6 + (getRandomInteger(1, 6) * Math.PI) / 3,
       0,
     )
-  }, [boardHex, isHighQualityRender])
+  }, [boardHex, isHighQualityRender, color])
 
   // update color when piece is hovered
   React.useEffect(() => {
     if (hoveredPieceID === boardHex.pieceID) {
       ref.current.color.set('#FFF')
     } else {
-      // ref.current.color.set(color)
-      ref.current.color.set('#EBEBEB')
+      ref.current.color.set(color)
+      // ref.current.color.set('#EBEBEB')
     }
-  }, [boardHex.pieceID, hoveredPieceID])
+  }, [boardHex.pieceID, hoveredPieceID, color])
 
   const handlePointerEnter = (e: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
@@ -160,7 +159,7 @@ function SolidCapInstance({
       onPointerLeave={handlePointerOut}
       onPointerUp={handlePointerUp}
       frustumCulled={false}
-      receiveShadow={isLightsAndShadowsRender}
+      // receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
     />
   )
