@@ -44,7 +44,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       ref={ref}
       frustumCulled={false}
       geometry={
-        isHighQualityRender ? nodes.Single_Tile001.geometry : basicCapGeometry
+        isHighQualityRender ? nodes['ClassicCap-Leafit'].geometry : basicCapGeometry
       }
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
