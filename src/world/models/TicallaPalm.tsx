@@ -106,4 +106,4 @@ export function TicallaPalmPreview({
 }
 
 useGLTF.preload('/ticalla-palm.glb')
-useGLTF.preload('/handmade-palm.glb')
+useGLTF.preload('/laur-jungle.glb')
