@@ -6,7 +6,7 @@ import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 
-export default function TicallaBrush({ boardHex }: { boardHex: BoardHex }) {
+export default function JungleBrush({ boardHex }: { boardHex: BoardHex }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -41,6 +41,25 @@ export default function TicallaBrush({ boardHex }: { boardHex: BoardHex }) {
   const colorBase = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.swamp]
+  if (boardHex.inventoryID === Pieces.laurBrush10) {
+    return (
+      <>
+        <group
+          onPointerUp={(e) => onPointerUp(e)}
+          onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+          onPointerOut={(e) => onPointerOut(e)}
+        >
+          <LaurBrushPreview
+            opacity={1}
+            color1={color1}
+            color2={color2}
+            color3={color3}
+            colorBase={colorBase}
+          />
+        </group>
+      </>
+    )
+  }
   return (
     <>
       <group
@@ -59,6 +78,63 @@ export default function TicallaBrush({ boardHex }: { boardHex: BoardHex }) {
     </>
   )
 }
+export function LaurBrushPreview({
+  opacity = 1,
+  color1 = hexTerrainColor.ticallaBrush1,
+  color2 = hexTerrainColor.ticallaBrush2,
+  color3 = hexTerrainColor.ticallaBrush3,
+  colorBase = hexTerrainColor[HexTerrain.swamp],
+}: {
+  opacity?: number
+  color1?: string
+  color2?: string
+  color3?: string
+  colorBase?: string
+}) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/laur-jungle.glb') as any
+  // const { nodes } = useGLTF('/ticalla-brush.glb') as any
+  const colorCactus = color3 || hexTerrainColor.ticallaPalmModel3
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
+  return (
+    <>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.LaurTriLeaf.geometry}
+      >
+        {basicModelMaterial(color1, isLightsAndShadowsRender, opacity)}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.LaurTriCactus.geometry}
+        // Cacti are closer together on brush than on palm
+        rotation={[0, Math.PI / 6.5, 0]}
+      >
+        {basicModelMaterial(colorCactus, isLightsAndShadowsRender, opacity)}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.LaurRoundCactus.geometry}
+        // Cacti are closer together on brush than on palm
+        rotation={[0, -Math.PI / 6.5, 0]}
+      >
+        {basicModelMaterial(colorCactus, isLightsAndShadowsRender, opacity)}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.JungleBase.geometry}
+      >
+        {basicModelMaterial(colorBase, isLightsAndShadowsRender, opacity)}
+      </mesh>
+    </>
+  )
+}
 export function TicallaBrushPreview({
   opacity = 1,
   color1 = hexTerrainColor.ticallaBrush1,
@@ -73,7 +149,8 @@ export function TicallaBrushPreview({
   colorBase?: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/ticalla-brush.glb') as any
+  const { nodes } = useGLTF('/laur-jungle.glb') as any
+  // const { nodes } = useGLTF('/ticalla-brush.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -82,28 +159,40 @@ export function TicallaBrushPreview({
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.FatFern.geometry}
+        geometry={nodes.LaurTriLeaf.geometry}
+      >
+        {/* THIS ONE SHOULD BECOME A CENTRAL FAT-LEAF FERN */}
+        {basicModelMaterial(color1, isLightsAndShadowsRender, opacity)}
+      </mesh>
+
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.TicallaTriLeaf.geometry}
       >
         {basicModelMaterial(color1, isLightsAndShadowsRender, opacity)}
       </mesh>
+
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.PineappleFern.geometry}
+        geometry={nodes.JungleNeedleFern.geometry}
       >
         {basicModelMaterial(color2, isLightsAndShadowsRender, opacity)}
       </mesh>
+
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Needler.geometry}
+        geometry={nodes.TicallaPineappleFern.geometry}
       >
         {basicModelMaterial(color3, isLightsAndShadowsRender, opacity)}
       </mesh>
+
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Interlock6.geometry}
+        geometry={nodes.JungleBase.geometry}
       >
         {basicModelMaterial(colorBase, isLightsAndShadowsRender, opacity)}
       </mesh>
@@ -111,4 +200,5 @@ export function TicallaBrushPreview({
   )
 }
 
-useGLTF.preload('/ticalla-brush.glb')
+useGLTF.preload('/laur-jungle.glb')
+// useGLTF.preload('/ticalla-brush.glb')

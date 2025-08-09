@@ -29,7 +29,7 @@ import Outcrop4 from '../models/Outcrop4'
 import Outcrop6 from '../models/Outcrop6'
 import Ruins2 from '../models/Ruins2'
 import Ruins3 from '../models/Ruins3'
-import TicallaBrush from '../models/TicallaBrush'
+import JungleBrush from '../models/TicallaBrush'
 import TicallaPalm from '../models/TicallaPalm'
 import {
   getLadderBattlementOptions,
@@ -326,7 +326,7 @@ export const MapHex3D = ({
           rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <TicallaBrush boardHex={boardHex} />
+            <JungleBrush boardHex={boardHex} />
           </Suspense>
         </group>
       )}
