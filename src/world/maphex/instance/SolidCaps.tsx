@@ -54,7 +54,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       // material={materials.GrassCap}
-      material={materials.RockCap}
+      material={materials['RockCap.002']}
     >
       {/* {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />} */}
       {!isHighQualityRender && <meshMatcapMaterial />}
