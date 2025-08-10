@@ -28,7 +28,9 @@ const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
 const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
   const ref = React.useRef<InstanceRefType>(null)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes, materials } = useGLTF('/classic1-cap-leafit.glb') as any
+  const { nodes, materials } = useGLTF('/rock-cap-leafit.glb') as any
+  // const { nodes, materials } = useGLTF('/grass-cap-leafit.glb') as any
+
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -43,12 +45,16 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       range={range}
       ref={ref}
       frustumCulled={false}
+      // geometry={
+      //   isHighQualityRender ? nodes.GrassCapLeafit.geometry : basicCapGeometry
+      // }
       geometry={
-        isHighQualityRender ? nodes['ClassicCap-Leafit'].geometry : basicCapGeometry
+        isHighQualityRender ? nodes.RockCapLeafit.geometry : basicCapGeometry
       }
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
-      material={materials['Material.002']}
+      // material={materials.GrassCap}
+      material={materials.RockCap}
     >
       {/* {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />} */}
       {!isHighQualityRender && <meshMatcapMaterial />}
@@ -66,7 +72,8 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
     </Instances>
   )
 }
-useGLTF.preload('/classic1-cap-leafit.glb')
+// useGLTF.preload('/grass-cap-leafit.glb')
+useGLTF.preload('/rock-cap-leafit.glb')
 
 export default SolidCaps
 
