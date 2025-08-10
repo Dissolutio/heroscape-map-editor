@@ -95,7 +95,7 @@ export function TicallaPalmPreview({
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.LaurTriLeaf.geometry}
+        geometry={nodes.TicallaTriLeaf.geometry}
       >
         {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
       </mesh>

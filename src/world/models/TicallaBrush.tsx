@@ -156,14 +156,6 @@ export function TicallaBrushPreview({
   )
   return (
     <>
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.LaurTriLeaf.geometry}
-      >
-        {/* THIS ONE SHOULD BECOME A CENTRAL FAT-LEAF FERN */}
-        {basicModelMaterial(color1, isLightsAndShadowsRender, opacity)}
-      </mesh>
 
       <mesh
         receiveShadow={isLightsAndShadowsRender}
