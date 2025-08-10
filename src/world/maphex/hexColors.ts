@@ -37,7 +37,7 @@ export const virtualscapeTileColors: Dictionary<string> = {
   [HexTerrain._vsPersonal]: 'rgb(160, 160, 160)',
 }
 
-export const hexTerrainColor: Dictionary<string> = {
+export const hexTerrainColor = {
   ...virtualscapeTileColors,
   [HexTerrain.empty]: '#020300',
   // [HexTerrain.empty]: '#FFF',
@@ -122,9 +122,7 @@ export const hexTerrainColor: Dictionary<string> = {
   swampUnderbrush2: '#E0A23E', // the swamp small leaf plant
   swampUnderbrush3: '#7E7A4E', // the swamp cactus
   ticallaBrush1: '#1EA300',
-  ticallaTriLeaf: '#1EA300',
   ticallaBrush2: '#25CC00',
-  ticallaPineappleFern: '#25CC00',
   ticallaBrush3: '#22B800',
   laurBrush: '#0f4f00', // only gets used as subterrain color, not in model
   laurBrush1: '#1EA300',
@@ -133,6 +131,21 @@ export const hexTerrainColor: Dictionary<string> = {
   laurPalm1: '#1EA300',
   laurPalm2: '#25CC00',
   laurPalm3: '#22B800',
+
+  ticallaPalmTrunk: '#B07156',
+  ticallaPalmCanopy: '#1A8F00',
+  ticallaTriLeaf: '#1EA300',
+  ticallaNeedleFern: '#1A8F00',
+  ticallaPineappleFern: '#1EA300',
+  laurTriLeaf: '#1EA300',
+  laurTriCactus: '#1A8F00',
+  laurRoundCactus: '#00830D',
+  swampFatLeaf: '#FB4C00',
+  swampTriLeaf: '#7E632A',
+  // swampTriCactus: '#52621F',
+  // swampRoundCactus: '#52621F',
+  swampTriCactus: '#6F8A2D',
+  swampRoundCactus: '#6F8A2D',
 
   // Virtualscape StartZones
   [Pieces.startZone1]: 'rgb(255,0,0)',

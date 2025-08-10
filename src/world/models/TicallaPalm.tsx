@@ -29,7 +29,7 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
           onPointerEnter={(e) => onPointerEnter(e, boardHex)}
           onPointerOut={(e) => onPointerOut(e)}
         >
-          <LaurPalmPreview color={isHighlighted ? 'yellow' : ''} />
+          <LaurPalmPreview isHighlighted={isHighlighted} />
         </group>
       </>
     )
@@ -40,30 +40,26 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
       onPointerEnter={(e) => onPointerEnter(e, boardHex)}
       onPointerOut={(e) => onPointerOut(e)}
     >
-      <TicallaPalmPreview color={isHighlighted ? 'yellow' : ''} />
+      <TicallaPalmPreview isHighlighted={isHighlighted} />
     </group>
   )
 }
 export function TicallaPalmPreview({
   opacity = 1,
-  color = '',
+  isHighlighted
 }: {
   opacity?: number
-  color?: string
+  isHighlighted?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  // const { nodes } = useGLTF('/ticalla-palm.glb') as any
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-jungle.glb') as any
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const colorTrunk = color || hexTerrainColor.ticallaPalmModel1
-  const colorBrush = color || hexTerrainColor.ticallaBrush2
-  const colorPalmLeaf = color || hexTerrainColor.ticallaPalmModel3
-  const colorTicallaTriLeaf = hexTerrainColor.ticallaTriLeaf
-  const colorTicallaPineappleFern = hexTerrainColor.ticallaPineappleFern
-  const colorBase = color || hexTerrainColor[HexTerrain.swamp]
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const colorPalmTrunk = isHighlighted ? 'yellow' : hexTerrainColor.ticallaPalmTrunk
+  const colorPalmCanopy = isHighlighted ? 'yellow' : hexTerrainColor.ticallaPalmCanopy
+  const colorTriLeaf = isHighlighted ? 'yellow' : hexTerrainColor.ticallaTriLeaf
+  const colorNeedleFern = isHighlighted ? 'yellow' : hexTerrainColor.ticallaNeedleFern
+  const colorPineappleFern = isHighlighted ? 'yellow' : hexTerrainColor.ticallaPineappleFern
+  const colorBase = isHighlighted ? 'yellow' : hexTerrainColor[HexTerrain.swamp]
   return (
     <>
       <mesh
@@ -71,35 +67,35 @@ export function TicallaPalmPreview({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Palm_Trunk.geometry}
       >
-        {basicModelMaterial(colorTrunk, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorPalmTrunk, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Palm_Canopy.geometry}
       >
-        {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorPalmCanopy, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.JungleNeedleFern.geometry}
       >
-        {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorNeedleFern, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.TicallaPineappleFern.geometry}
       >
-        {basicModelMaterial(colorTicallaPineappleFern, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorPineappleFern, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.TicallaTriLeaf.geometry}
       >
-        {basicModelMaterial(colorTicallaTriLeaf, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
       </mesh>
 
       {/* <mesh
@@ -121,22 +117,20 @@ export function TicallaPalmPreview({
 }
 export function LaurPalmPreview({
   opacity = 1,
-  color = '',
+  isHighlighted
 }: {
   opacity?: number
-  color?: string
+  isHighlighted?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  // const { nodes } = useGLTF('/ticalla-palm.glb') as any
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-jungle.glb') as any
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const colorTrunk = color || hexTerrainColor.ticallaPalmModel1
-  const colorBrush = color || hexTerrainColor.ticallaBrush2
-  const colorPalmLeaf = color || hexTerrainColor.ticallaPalmModel3
-  const colorBase = color || hexTerrainColor[HexTerrain.swamp]
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const colorPalmTrunk = isHighlighted ? 'yellow' : hexTerrainColor.ticallaPalmTrunk
+  const colorPalmCanopy = isHighlighted ? 'yellow' : hexTerrainColor.ticallaPalmCanopy
+  const colorTriLeaf = isHighlighted ? 'yellow' : hexTerrainColor.laurTriLeaf
+  const colorTriCactus = isHighlighted ? 'yellow' : hexTerrainColor.laurTriCactus
+  const colorRoundCactus = isHighlighted ? 'yellow' : hexTerrainColor.laurRoundCactus
+  const colorBase = isHighlighted ? 'yellow' : hexTerrainColor[HexTerrain.swamp]
   return (
     <>
       <mesh
@@ -144,44 +138,37 @@ export function LaurPalmPreview({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Palm_Trunk.geometry}
       >
-        {basicModelMaterial(colorTrunk, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorPalmTrunk, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Palm_Canopy.geometry}
       >
-        {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorPalmCanopy, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurTriCactus.geometry}
       >
-        {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorTriCactus, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurRoundCactus.geometry}
       >
-        {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorRoundCactus, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurTriLeaf.geometry}
       >
-        {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
       </mesh>
 
-      {/* <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.PalmBrush.geometry}
-      >
-        {basicModelMaterial(colorBrush, isLightsAndShadowsRender, opacity)}
-      </mesh> */}
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -193,5 +180,4 @@ export function LaurPalmPreview({
   )
 }
 
-useGLTF.preload('/ticalla-palm.glb')
 useGLTF.preload('/laur-jungle.glb')

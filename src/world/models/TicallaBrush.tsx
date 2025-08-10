@@ -12,8 +12,8 @@ export default function JungleBrush({ boardHex }: { boardHex?: BoardHex }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
+    if (!boardHex) return
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
@@ -22,96 +22,64 @@ export default function JungleBrush({ boardHex }: { boardHex?: BoardHex }) {
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
-  const isSwampBrush = boardHex.pieceID.includes(Pieces.swampBrush10)
-  const color1 = isHighlighted
-    ? yellowColor
-    : isSwampBrush
-      ? hexTerrainColor.swampUnderbrush1
-      : hexTerrainColor.ticallaPineappleFern
-  const color2 = isHighlighted
-    ? yellowColor
-    : isSwampBrush
-      ? hexTerrainColor.swampUnderbrush2
-      : hexTerrainColor.ticallaBrush2
-  const color3 = isHighlighted
-    ? yellowColor
-    : isSwampBrush
-      ? hexTerrainColor.swampUnderbrush3
-      : hexTerrainColor.ticallaBrush3
-  const colorBase = isHighlighted
-    ? yellowColor
-    : hexTerrainColor[HexTerrain.swamp]
+  const isSelected = selectedPieceID === boardHex?.pieceID
+  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
   if (boardHex?.inventoryID === Pieces.laurBrush10) {
     return (
-      <>
-        <group
-          onPointerUp={(e) => boardHex ? onPointerUp(e) : noop()}
-          onPointerEnter={(e) => boardHex ? onPointerEnter(e, boardHex) : noop()}
-          onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
-        >
-          <LaurBrushPreview
-            opacity={boardHex ? 1 : PIECE_PREVIEW_OPACITY}
-            color1={color1}
-            color2={color2}
-            color3={color3}
-            colorBase={colorBase}
-          />
-        </group>
-      </>
-    )
-  }
-  if (boardHex?.inventoryID === Pieces.swampBrush10) {
-    return (
-      <>
-        <group
-          onPointerUp={(e) => boardHex ? onPointerUp(e) : noop()}
-          onPointerEnter={(e) => boardHex ? onPointerEnter(e, boardHex) : noop()}
-          onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
-        >
-          <SwampBrushPreview
-            opacity={boardHex ? 1 : PIECE_PREVIEW_OPACITY}
-          />
-        </group>
-      </>
-    )
-  }
-  return (
-    <>
       <group
         onPointerUp={(e) => boardHex ? onPointerUp(e) : noop()}
         onPointerEnter={(e) => boardHex ? onPointerEnter(e, boardHex) : noop()}
         onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
       >
-        <TicallaBrushPreview
+        <LaurBrushPreview
+          isHighlighted={isHighlighted}
           opacity={boardHex ? 1 : PIECE_PREVIEW_OPACITY}
         />
       </group>
-    </>
+    )
+  }
+  if (boardHex?.inventoryID === Pieces.swampBrush10) {
+    return (
+      <group
+        onPointerUp={(e) => boardHex ? onPointerUp(e) : noop()}
+        onPointerEnter={(e) => boardHex ? onPointerEnter(e, boardHex) : noop()}
+        onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
+      >
+        <SwampBrushPreview
+          isHighlighted={isHighlighted}
+          opacity={boardHex ? 1 : PIECE_PREVIEW_OPACITY}
+        />
+      </group>
+    )
+  }
+  return (
+    <group
+      onPointerUp={(e) => boardHex ? onPointerUp(e) : noop()}
+      onPointerEnter={(e) => boardHex ? onPointerEnter(e, boardHex) : noop()}
+      onPointerOut={(e) => boardHex ? onPointerOut(e) : noop()}
+    >
+      <TicallaBrushPreview
+        isHighlighted={isHighlighted}
+        opacity={boardHex ? 1 : PIECE_PREVIEW_OPACITY}
+      />
+    </group>
   )
 }
 export function LaurBrushPreview({
   opacity = 1,
-  color1 = hexTerrainColor.ticallaBrush1,
-  color2 = hexTerrainColor.ticallaBrush2,
-  color3 = hexTerrainColor.ticallaBrush3,
-  colorBase = hexTerrainColor[HexTerrain.swamp],
+  isHighlighted
 }: {
   opacity?: number
-  color1?: string
-  color2?: string
-  color3?: string
-  colorBase?: string
+  isHighlighted?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-jungle.glb') as any
   // const { nodes } = useGLTF('/ticalla-brush.glb') as any
-  const colorCactus = color3 || hexTerrainColor.ticallaPalmModel3
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const colorTriLeaf = isHighlighted ? 'yellow' : hexTerrainColor.laurTriLeaf
+  const colorTriCactus = isHighlighted ? 'yellow' : hexTerrainColor.laurTriCactus
+  const colorRoundCactus = isHighlighted ? 'yellow' : hexTerrainColor.laurRoundCactus
+  const colorBase = isHighlighted ? 'yellow' : hexTerrainColor[HexTerrain.swamp]
   return (
     <>
       <mesh
@@ -119,7 +87,7 @@ export function LaurBrushPreview({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurTriLeaf.geometry}
       >
-        {basicModelMaterial(color1, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -128,7 +96,7 @@ export function LaurBrushPreview({
         // Cacti are closer together on brush than on palm
         rotation={[0, Math.PI / 6.5, 0]}
       >
-        {basicModelMaterial(colorCactus, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorTriCactus, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -137,7 +105,7 @@ export function LaurBrushPreview({
         // Cacti are closer together on brush than on palm
         rotation={[0, -Math.PI / 6.5, 0]}
       >
-        {basicModelMaterial(colorCactus, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorRoundCactus, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -151,25 +119,18 @@ export function LaurBrushPreview({
 }
 export function TicallaBrushPreview({
   opacity = 1,
-  // color1 = hexTerrainColor.ticallaBrush1,
-  // color2 = hexTerrainColor.ticallaBrush2,
-  // color3 = hexTerrainColor.ticallaBrush3,
-  // colorBase = hexTerrainColor[HexTerrain.swamp],
+  isHighlighted
 }: {
+  isHighlighted?: boolean
   opacity?: number
-  // color1?: string
-  // color2?: string
-  // color3?: string
-  // colorBase?: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-jungle.glb') as any
-  // const { nodes } = useGLTF('/ticalla-brush.glb') as any
   const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
-  const color1 = hexTerrainColor.ticallaPineappleFern
-  const color2 = hexTerrainColor.ticallaBrush2
-  const color3 = hexTerrainColor.ticallaBrush3
-  const colorBase = hexTerrainColor[HexTerrain.swamp]
+  const colorTriLeaf = isHighlighted ? 'yellow' : hexTerrainColor.ticallaTriLeaf
+  const colorNeedleFern = isHighlighted ? 'yellow' : hexTerrainColor.ticallaNeedleFern
+  const colorPineappleFern = isHighlighted ? 'yellow' : hexTerrainColor.ticallaPineappleFern
+  const colorBase = isHighlighted ? 'yellow' : hexTerrainColor[HexTerrain.swamp]
   return (
     <>
 
@@ -178,7 +139,7 @@ export function TicallaBrushPreview({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.TicallaTriLeaf.geometry}
       >
-        {basicModelMaterial(color1, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
       </mesh>
 
       <mesh
@@ -186,7 +147,7 @@ export function TicallaBrushPreview({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.JungleNeedleFern.geometry}
       >
-        {basicModelMaterial(color2, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorNeedleFern, isLightsAndShadowsRender, opacity)}
       </mesh>
 
       <mesh
@@ -194,7 +155,7 @@ export function TicallaBrushPreview({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.TicallaPineappleFern.geometry}
       >
-        {basicModelMaterial(color3, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorPineappleFern, isLightsAndShadowsRender, opacity)}
       </mesh>
 
       <mesh
@@ -209,49 +170,47 @@ export function TicallaBrushPreview({
 }
 export function SwampBrushPreview({
   opacity = 1,
-  // color1 = hexTerrainColor.ticallaBrush1,
-  // color2 = hexTerrainColor.ticallaBrush2,
-  // color3 = hexTerrainColor.ticallaBrush3,
-  // colorBase = hexTerrainColor[HexTerrain.swamp],
+  isHighlighted
 }: {
   opacity?: number
-  // color1?: string
-  // color2?: string
-  // color3?: string
-  // colorBase?: string
+  isHighlighted?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-jungle.glb') as any
-  // const { nodes } = useGLTF('/ticalla-brush.glb') as any
   const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
-  const color1 = hexTerrainColor.swampUnderbrush1
-  const color2 = hexTerrainColor.swampUnderbrush2
-  const color3 = hexTerrainColor.swampUnderbrush3
-  const colorBase = hexTerrainColor[HexTerrain.swamp]
+  // const colorTriLeaf = isHighlighted ? 'yellow' : hexTerrainColor.swampTriLeaf
+  const colorTriLeaf = isHighlighted ? 'yellow' : hexTerrainColor.swampFatLeaf
+  const colorTriCactus = isHighlighted ? 'yellow' : hexTerrainColor.swampTriCactus
+  const colorRoundCactus = isHighlighted ? 'yellow' : hexTerrainColor.swampRoundCactus
+  const colorBase = isHighlighted ? 'yellow' : hexTerrainColor[HexTerrain.swamp]
   return (
     <>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.TicallaTriLeaf.geometry}
+        geometry={nodes.LaurTriLeaf.geometry}
       >
-        {basicModelMaterial(color1, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
       </mesh>
 
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.JungleNeedleFern.geometry}
+        geometry={nodes.LaurTriCactus.geometry}
+        // Cacti are closer together on brush than on palm
+        rotation={[0, Math.PI / 6.5, 0]}
       >
-        {basicModelMaterial(color2, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorTriCactus, isLightsAndShadowsRender, opacity)}
       </mesh>
 
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.TicallaPineappleFern.geometry}
+        geometry={nodes.LaurRoundCactus.geometry}
+        // Cacti are closer together on brush than on palm
+        rotation={[0, -Math.PI / 6.5, 0]}
       >
-        {basicModelMaterial(color3, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorRoundCactus, isLightsAndShadowsRender, opacity)}
       </mesh>
 
       <mesh
