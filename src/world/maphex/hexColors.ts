@@ -122,7 +122,9 @@ export const hexTerrainColor: Dictionary<string> = {
   swampUnderbrush2: '#E0A23E', // the swamp small leaf plant
   swampUnderbrush3: '#7E7A4E', // the swamp cactus
   ticallaBrush1: '#1EA300',
+  ticallaTriLeaf: '#1EA300',
   ticallaBrush2: '#25CC00',
+  ticallaPineappleFern: '#25CC00',
   ticallaBrush3: '#22B800',
   laurBrush: '#0f4f00', // only gets used as subterrain color, not in model
   laurBrush1: '#1EA300',

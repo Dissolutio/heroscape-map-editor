@@ -61,6 +61,8 @@ export function TicallaPalmPreview({
   const colorTrunk = color || hexTerrainColor.ticallaPalmModel1
   const colorBrush = color || hexTerrainColor.ticallaBrush2
   const colorPalmLeaf = color || hexTerrainColor.ticallaPalmModel3
+  const colorTicallaTriLeaf = hexTerrainColor.ticallaTriLeaf
+  const colorTicallaPineappleFern = hexTerrainColor.ticallaPineappleFern
   const colorBase = color || hexTerrainColor[HexTerrain.swamp]
   return (
     <>
@@ -90,14 +92,14 @@ export function TicallaPalmPreview({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.TicallaPineappleFern.geometry}
       >
-        {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorTicallaPineappleFern, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.TicallaTriLeaf.geometry}
       >
-        {basicModelMaterial(colorPalmLeaf, isLightsAndShadowsRender, opacity)}
+        {basicModelMaterial(colorTicallaTriLeaf, isLightsAndShadowsRender, opacity)}
       </mesh>
 
       {/* <mesh
