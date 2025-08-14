@@ -29,6 +29,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
   const ref = React.useRef<InstanceRefType>(null)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes, materials } = useGLTF('/rock-cap-leafit.glb') as any
+  console.log("🚀 ~ SolidCaps ~ materials:", materials)
   // const { nodes, materials } = useGLTF('/grass-cap-leafit.glb') as any
 
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
@@ -54,7 +55,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       // material={materials.GrassCap}
-      material={materials['RockCap.002']}
+      material={materials['Material.001']}
     >
       {/* {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />} */}
       {!isHighQualityRender && <meshMatcapMaterial />}
