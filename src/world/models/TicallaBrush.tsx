@@ -77,6 +77,7 @@ export function LaurBrushPreview({
   // const { nodes } = useGLTF('/ticalla-brush.glb') as any
   const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
   const colorTriLeaf = isHighlighted ? 'yellow' : hexTerrainColor.laurTriLeaf
+  const colorFatLeaf = isHighlighted ? 'yellow' : hexTerrainColor.laurFatLeaf
   const colorTriCactus = isHighlighted ? 'yellow' : hexTerrainColor.laurTriCactus
   const colorRoundCactus = isHighlighted ? 'yellow' : hexTerrainColor.laurRoundCactus
   const colorBase = isHighlighted ? 'yellow' : hexTerrainColor[HexTerrain.swamp]
@@ -86,15 +87,24 @@ export function LaurBrushPreview({
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurTriLeaf.geometry}
+        // Trileaf is a little counter-clockwise on brush, unlike on palms
+        rotation={[0, Math.PI / 6.5, 0]}
       >
         {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
+        geometry={nodes.LaurFatLeaf.geometry}
+      >
+        {basicModelMaterial(colorFatLeaf, isLightsAndShadowsRender, opacity)}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurTriCactus.geometry}
         // Cacti are closer together on brush than on palm
-        rotation={[0, Math.PI / 6.5, 0]}
+        rotation={[0, Math.PI / 1.5, 0]}
       >
         {basicModelMaterial(colorTriCactus, isLightsAndShadowsRender, opacity)}
       </mesh>
@@ -103,10 +113,76 @@ export function LaurBrushPreview({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurRoundCactus.geometry}
         // Cacti are closer together on brush than on palm
-        rotation={[0, -Math.PI / 6.5, 0]}
+        rotation={[0, -Math.PI / 1.6, 0]}
       >
         {basicModelMaterial(colorRoundCactus, isLightsAndShadowsRender, opacity)}
       </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.JungleBase.geometry}
+      >
+        {basicModelMaterial(colorBase, isLightsAndShadowsRender, opacity)}
+      </mesh>
+    </>
+  )
+}
+export function SwampBrushPreview({
+  opacity = 1,
+  isHighlighted
+}: {
+  opacity?: number
+  isHighlighted?: boolean
+}) {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  const { nodes } = useGLTF('/laur-jungle.glb') as any
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const colorTriLeaf = isHighlighted ? 'yellow' : hexTerrainColor.swampTriLeaf
+  const colorFatLeaf = isHighlighted ? 'yellow' : hexTerrainColor.swampFatLeaf
+  const colorRoundCactus = isHighlighted ? 'yellow' : hexTerrainColor.swampRoundCactus
+  const colorTriCactus = isHighlighted ? 'yellow' : hexTerrainColor.swampTriCactus
+  const colorBase = isHighlighted ? 'yellow' : hexTerrainColor[HexTerrain.swamp]
+  return (
+    <>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.LaurTriLeaf.geometry}
+        // Trileaf is a little counter-clockwise on brush, unlike on palms
+        rotation={[0, Math.PI / 6.5, 0]}
+      >
+        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.LaurFatLeaf.geometry}
+        // Trileaf is a little counter-clockwise on brush, unlike on palms
+        rotation={[0, Math.PI / 6.5, 0]}
+      >
+        {basicModelMaterial(colorFatLeaf, isLightsAndShadowsRender, opacity)}
+      </mesh>
+
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.LaurTriCactus.geometry}
+        // Cacti are closer together on brush than on palm
+        rotation={[0, Math.PI / 1.5, 0]}
+      >
+        {basicModelMaterial(colorTriCactus, isLightsAndShadowsRender, opacity)}
+      </mesh>
+
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.LaurRoundCactus.geometry}
+        // Cacti are closer together on brush than on palm
+        rotation={[0, -Math.PI / 1.6, 0]}
+      >
+        {basicModelMaterial(colorRoundCactus, isLightsAndShadowsRender, opacity)}
+      </mesh>
+
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -141,6 +217,14 @@ export function TicallaBrushPreview({
       >
         {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
       </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.LaurFatLeaf.geometry}
+        rotation={[0, Math.PI / 1.6, 0]}
+      >
+        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
+      </mesh>
 
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -168,61 +252,5 @@ export function TicallaBrushPreview({
     </>
   )
 }
-export function SwampBrushPreview({
-  opacity = 1,
-  isHighlighted
-}: {
-  opacity?: number
-  isHighlighted?: boolean
-}) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/laur-jungle.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
-  // const colorTriLeaf = isHighlighted ? 'yellow' : hexTerrainColor.swampTriLeaf
-  const colorTriLeaf = isHighlighted ? 'yellow' : hexTerrainColor.swampFatLeaf
-  const colorTriCactus = isHighlighted ? 'yellow' : hexTerrainColor.swampTriCactus
-  const colorRoundCactus = isHighlighted ? 'yellow' : hexTerrainColor.swampRoundCactus
-  const colorBase = isHighlighted ? 'yellow' : hexTerrainColor[HexTerrain.swamp]
-  return (
-    <>
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.LaurTriLeaf.geometry}
-      >
-        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
-      </mesh>
-
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.LaurTriCactus.geometry}
-        // Cacti are closer together on brush than on palm
-        rotation={[0, Math.PI / 6.5, 0]}
-      >
-        {basicModelMaterial(colorTriCactus, isLightsAndShadowsRender, opacity)}
-      </mesh>
-
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.LaurRoundCactus.geometry}
-        // Cacti are closer together on brush than on palm
-        rotation={[0, -Math.PI / 6.5, 0]}
-      >
-        {basicModelMaterial(colorRoundCactus, isLightsAndShadowsRender, opacity)}
-      </mesh>
-
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.JungleBase.geometry}
-      >
-        {basicModelMaterial(colorBase, isLightsAndShadowsRender, opacity)}
-      </mesh>
-    </>
-  )
-}
-
 useGLTF.preload('/laur-jungle.glb')
 // useGLTF.preload('/ticalla-brush.glb')
