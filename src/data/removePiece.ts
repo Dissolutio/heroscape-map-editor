@@ -32,8 +32,10 @@ export function removePiece({
   let error: AddRemovePieceError
   const { inventoryID } = decodePieceID(pieceID)
   const piece = piecesSoFar[inventoryID]
-  const newBoardHexes = clone(boardHexes)
-  const newBoardPieces = clone(boardPieces)
+  const argBoardHexes = clone(boardHexes)
+  const argBoardPieces = clone(boardPieces)
+  const newBoardHexes = Object.assign({}, argBoardHexes)
+  const newBoardPieces = Object.assign({}, argBoardPieces)
   const isCastleBase = piece.id.includes(PiecePrefixes.castleBase)
   const isCastleWall = piece.id.includes(PiecePrefixes.castleWall)
   const isLadder = piece.id === Pieces.ladder

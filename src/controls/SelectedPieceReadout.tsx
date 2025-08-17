@@ -2,7 +2,7 @@ import { Card, CardActions, CardContent, Typography } from '@mui/material'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { decodePieceID } from '../utils/map-utils'
-import DeletePieceButton from './DeletePieceButton'
+import DeletePieceButton, { RotateClockwisePieceButton } from './DeletePieceButton'
 
 const SelectedPieceReadout = () => {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
@@ -48,6 +48,7 @@ const SelectedPieceReadout = () => {
         </CardContent>
         <CardActions>
           <DeletePieceButton />
+          <RotateClockwisePieceButton />
         </CardActions>
       </Card>
     </div>
