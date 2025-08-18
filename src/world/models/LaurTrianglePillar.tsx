@@ -25,6 +25,7 @@ export default function LaurWallTrianglePillar({
     '/laur-triangle-pillar-from-hs-blendfile.glb',
   ) as any
   // const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
+  const pieceRotation = (boardHex.pieceRotation * -Math.PI) / 3
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isLightsAndShadowsRender = useBoundStore(
@@ -90,7 +91,11 @@ export default function LaurWallTrianglePillar({
         >
           {basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
         </mesh>
-        <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
+        <group
+          position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}
+          // Counteract mis-presentation of the base for pieces with partial rotation capabilities (where delta = 0.5)
+          rotation={[0, -pieceRotation, 0]}
+        >
           <mesh
             receiveShadow={isLightsAndShadowsRender}
             castShadow={isLightsAndShadowsRender}

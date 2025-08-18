@@ -10,10 +10,34 @@ export function getPossibleRotationsForPenMode(penMode: string) {
     penMode === Pieces.laurWallRuin3
     ? allRotations
     : penMode === Pieces.laurWallLong ||
-        penMode === Pieces.laurWallLongStackable
+      penMode === Pieces.laurWallLongStackable
       ? partialRotations
       : regularRotations
 }
+export function getRotationDeltaForPieceId(inventoryID: string) {
+  const regularRotation = 1
+  const partialRotation = 0.5
+  return inventoryID === Pieces.laurWallTrianglePillar ||
+    inventoryID === Pieces.laurWallRuin1 ||
+    inventoryID === Pieces.laurWallRuin2 ||
+    inventoryID === Pieces.laurWallRuin3
+    ? partialRotation
+    : regularRotation
+}
+// export function getPossibleRotationsForPenMode(penMode: string) {
+//   const regularRotations = [0, 1, 2, 3, 4, 5]
+//   const partialRotations = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5]
+//   const allRotations = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5]
+//   return penMode === Pieces.laurWallTrianglePillar ||
+//     penMode === Pieces.laurWallRuin1 ||
+//     penMode === Pieces.laurWallRuin2 ||
+//     penMode === Pieces.laurWallRuin3
+//     ? allRotations
+//     : penMode === Pieces.laurWallLong ||
+//         penMode === Pieces.laurWallLongStackable
+//       ? partialRotations
+//       : regularRotations
+// }
 export function doPenModeRotation(
   penMode: string,
   penModeRotation: number,
@@ -37,7 +61,7 @@ export function doPenModeCounterRotation(
     possibleRotations.findIndex((r) => r === penModeRotation) - 1
   togglePenModeRotation(
     possibleRotations[
-      nextLowest < 0 ? possibleRotations.length - 1 : nextLowest
+    nextLowest < 0 ? possibleRotations.length - 1 : nextLowest
     ],
   )
 }

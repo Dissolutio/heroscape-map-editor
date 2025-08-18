@@ -29,6 +29,7 @@ export function removePiece({
   // input
   pieceID,
 }: RemovePieceArgs): AddRemovePieceReturn {
+  console.log("🚀 ~ removePiece ~ pieceID:", pieceID)
   let error: AddRemovePieceError
   const { inventoryID } = decodePieceID(pieceID)
   const piece = piecesSoFar[inventoryID]
@@ -64,13 +65,20 @@ export function removePiece({
     isCastleBase ||
     isLadder
   ) {
-    // restore caps to under hexes
     const pieceBoardHexes = Object.values(newBoardHexes).filter(
       (bh) => bh?.pieceID === pieceID,
     )
     const underHexIds = pieceBoardHexes.map((cubeCoord) =>
       genBoardHexID({ ...cubeCoord, altitude: (cubeCoord.altitude ?? 0) - 1 }),
     )
+    // remove the hexes
+    // Remove all hexes from newBoardHexes that have the given pieceID
+    for (const hexID of Object.keys(newBoardHexes)) {
+      if (newBoardHexes[hexID]?.pieceID === pieceID) {
+        delete newBoardHexes[hexID]
+      }
+    }
+    // restore caps to under hexes
     for (const underHexId of underHexIds) {
       if (
         newBoardHexes?.[underHexId]?.terrain === HexTerrain.empty ||
@@ -78,13 +86,6 @@ export function removePiece({
         isFluidTerrainHex(newBoardHexes?.[underHexId]?.terrain)
       ) {
         newBoardHexes[underHexId].isCap = true
-      }
-    }
-    // remove the hexes
-    // Remove all hexes from newBoardHexes that have the given pieceID
-    for (const hexID of Object.keys(newBoardHexes)) {
-      if (newBoardHexes[hexID]?.pieceID === pieceID) {
-        delete newBoardHexes[hexID]
       }
     }
     // remove the piece
