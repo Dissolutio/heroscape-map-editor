@@ -1,4 +1,4 @@
-import { clone } from 'lodash'
+import { clone, cloneDeep } from 'lodash'
 import {
   type AddRemovePieceError,
   type AddRemovePieceReturn,
@@ -32,10 +32,8 @@ export function removePiece({
   let error: AddRemovePieceError
   const { inventoryID } = decodePieceID(pieceID)
   const piece = piecesSoFar[inventoryID]
-  const argBoardHexes = clone(boardHexes)
-  const argBoardPieces = clone(boardPieces)
-  const newBoardHexes = Object.assign({}, argBoardHexes)
-  const newBoardPieces = Object.assign({}, argBoardPieces)
+  const newBoardHexes = cloneDeep(boardHexes)
+  const newBoardPieces = cloneDeep(boardPieces)
   const isCastleBase = piece.id.includes(PiecePrefixes.castleBase)
   const isCastleWall = piece.id.includes(PiecePrefixes.castleWall)
   const isLadder = piece.id === Pieces.ladder

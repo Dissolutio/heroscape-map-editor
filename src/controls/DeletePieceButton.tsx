@@ -69,8 +69,8 @@ export const RotateClockwisePieceButton = () => {
         piece.id,
         newRotation
       )
-      toggleSelectedPieceID(newPieceID)
       loadMap(buildupJsonFileMap(result.newBoardPieces, hexMap))
+      toggleSelectedPieceID(newPieceID)
     }
     // Optionally: handle error (e.g., show a snackbar)
   }
