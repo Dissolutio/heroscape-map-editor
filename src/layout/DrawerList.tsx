@@ -194,14 +194,17 @@ export const DrawerList = ({
             </ListItemIcon>
             <ListItemText primary={'Edit Map Details'} />
           </ListItemButton>
-          <ListItemButton
+
+          {/* OPEN EDIT MY PIECE INVENTORY DIALOG */}
+          {/* <ListItemButton
             onClick={() => toggleIsPieceInventoryDialogOpen(true)}
           >
             <ListItemIcon>
               <FcRules />
             </ListItemIcon>
             <ListItemText primary={'Edit My Piece Inventory'} />
-          </ListItemButton>
+          </ListItemButton> */}
+
           {/* COPY URL */}
           <ListItemButton onClick={onClickCopy}>
             <ListItemIcon>

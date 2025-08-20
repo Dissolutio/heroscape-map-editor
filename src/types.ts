@@ -13,6 +13,7 @@ export type HexMap = {
   shape: string // 'hexagon' | 'rectangle'
   length: number // for hexagon shaped maps width=length=size
   width: number // for hexagon shaped maps width=length=size
+  setsUsed?: string[] // array of terrainSets Ids
 }
 export type CubeCoordinate = {
   q: number

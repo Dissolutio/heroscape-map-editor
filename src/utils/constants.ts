@@ -33,6 +33,7 @@ export const HEXGRID_HEXCAP_HEIGHT = HEXGRID_HEX_HEIGHT / 7 // for solid tiles t
 export const HEXGRID_HEXCAP_FLUID_SCALE = 3 / 7 // fluid tiles are 3/7 the height of solid tiles, the whole fluid tile is the cap
 export const HEXGRID_HEXCAP_FLUID_HEIGHT =
   HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE // 0.35 * 3/7 === 0.15
+export const HEXGRID_OBSTACLE_BASE_HEIGHT = HEXGRID_HEXCAP_FLUID_HEIGHT
 export const HEXGRID_EMPTYHEX_HEIGHT = HEXGRID_HEX_HEIGHT / 20
 export const HEXGRID_GLYPH_HEIGHT = 0.05
 export const HEXGRID_MAX_ALTITUDE = 100 // Arbitrary

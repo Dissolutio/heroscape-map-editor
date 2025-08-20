@@ -37,7 +37,7 @@ export const virtualscapeTileColors: Dictionary<string> = {
   [HexTerrain._vsPersonal]: 'rgb(160, 160, 160)',
 }
 
-export const hexTerrainColor: Dictionary<string> = {
+export const hexTerrainColor = {
   ...virtualscapeTileColors,
   [HexTerrain.empty]: '#020300',
   // [HexTerrain.empty]: '#FFF',
@@ -131,6 +131,20 @@ export const hexTerrainColor: Dictionary<string> = {
   laurPalm1: '#1EA300',
   laurPalm2: '#25CC00',
   laurPalm3: '#22B800',
+
+  ticallaPalmTrunk: '#B07156',
+  ticallaPalmCanopy: '#1A8F00',
+  ticallaTriLeaf: '#1EA300',
+  ticallaNeedleFern: '#1A8F00',
+  ticallaPineappleFern: '#1EA300',
+  laurFatLeaf: '#1EA300',
+  laurTriLeaf: '#1EA300',
+  laurTriCactus: '#1A8F00',
+  laurRoundCactus: '#1A8F00',
+  swampFatLeaf: '#FB4C00',
+  swampTriLeaf: '#7E632A',
+  swampTriCactus: '#7D9A32',
+  swampRoundCactus: '#7D9A32',
 
   // Virtualscape StartZones
   [Pieces.startZone1]: 'rgb(255,0,0)',

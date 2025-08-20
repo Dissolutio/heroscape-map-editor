@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import {
   Button,
   Dialog,
@@ -13,13 +14,13 @@ import {
 import { useSnackbar } from 'notistack'
 import useBoundStore from '../store/store'
 import type { PieceInventory } from '../types'
-import * as pieceSets from '../data/inventories'
-import { useState, useEffect } from 'react'
 import { piecesSoFar } from '../data/pieces'
 import { blankPieceInventory } from './blankInventory'
+import { terrainSets } from '../data/terrainSets'
+import { pieceGroups } from '../data/pieceGroups'
 
 export const EditPieceInventoryDialog = () => {
-  const fullScreen = useMediaQuery('(max-width:900px)')
+  // const fullScreen = useMediaQuery('(max-width:900px)')
   const toggleIsPieceInventoryDialogOpen = useBoundStore(
     (state) => state.toggleIsPieceInventoryDialogOpen,
   )
@@ -46,13 +47,30 @@ export const EditPieceInventoryDialog = () => {
     // eslint-disable-next-line
   }, [isPieceInventoryDialogOpen])
 
-  // Add all pieces from a set
-  const handleAddSet = (set: PieceInventory) => {
+  // Track how many times each set is added during this session
+  const [setAddCounts, setSetAddCounts] = useState<{ [setId: string]: number }>(
+    {},
+  )
+
+  // Reset counts when dialog opens
+  useEffect(() => {
+    if (isPieceInventoryDialogOpen) {
+      setSetAddCounts({})
+    }
+    // eslint-disable-next-line
+  }, [isPieceInventoryDialogOpen])
+
+  // Add all pieces from a set and increment count
+  const handleAddSet = (set: PieceInventory, setId: string) => {
     const newInventory = { ...localInventory }
     for (const pieceId of Object.keys(set)) {
       newInventory[pieceId] = (newInventory[pieceId] || 0) + set[pieceId]
     }
     setLocalInventory(newInventory)
+    setSetAddCounts((prev) => ({
+      ...prev,
+      [setId]: (prev[setId] || 0) + 1,
+    }))
   }
 
   // Handle individual piece change
@@ -77,8 +95,8 @@ export const EditPieceInventoryDialog = () => {
     <Dialog
       open={isPieceInventoryDialogOpen}
       onClose={handleClose}
-      fullScreen={fullScreen}
-      fullWidth={!fullScreen}
+      fullScreen={true}
+      fullWidth={true}
       slotProps={{
         paper: {
           component: 'form',
@@ -88,47 +106,70 @@ export const EditPieceInventoryDialog = () => {
     >
       <DialogTitle>Edit Piece Inventory</DialogTitle>
       <DialogContent>
-        <h3>Coming soon!</h3>
-        {/* <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-          {Object.entries(pieceSets).map(([setName, set]) => (
-            <Button
-              key={setName}
-              variant="outlined"
-              size="small"
-              onClick={() => handleAddSet(set)}
+        {/* Display set add counts */}
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 1 }}>
+          {Object.values(terrainSets).map((set) => (
+            <Box
+              key={set.id}
+              sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
             >
-              Add {setName}
-            </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => handleAddSet(set.inventory, set.id)}
+              >
+                Add {set.name}
+              </Button>
+              {setAddCounts[set.id] > 0 && (
+                <Typography variant="caption" color="primary">
+                  ×{setAddCounts[set.id]}
+                </Typography>
+              )}
+            </Box>
           ))}
         </Box>
-        <Box key={group.label} sx={{ mb: 2 }}>
-          <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-            {group.label}
-          </Typography>
-          <Divider sx={{ mb: 1 }} />
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-            {group.pieces.map((pieceId: string) => {
-              const piece = piecesSoFar[pieceId]
-              if (!piece) return null
-              return (
-                <Box key={pieceId} sx={{ display: 'flex', alignItems: 'center', minWidth: 200 }}>
-                  <TextField
-                    label={piece.title || pieceId}
-                    type="number"
-                    size="small"
-                    value={localInventory[pieceId] ?? 0}
-                    onChange={(e) => handlePieceChange(pieceId, Math.max(0, Number(e.target.value)))}
-                    inputProps={{ min: 0, style: { width: 60 } }}
-                    sx={{ mr: 1 }}
-                  />
-                  <Typography variant="body2" color="text.secondary">
-                    {piece.shortName || piece.title || pieceId}
-                  </Typography>
-                </Box>
-              )
-            })}
+
+        {pieceGroups.map((group) => (
+          <Box key={group.label} sx={{ mb: 2 }}>
+            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
+              {group.label}
+            </Typography>
+            <Divider sx={{ mb: 1 }} />
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              {group.pieces.map((pieceId: string) => {
+                const piece = piecesSoFar[pieceId]
+                if (!piece) return null
+                return (
+                  <Box
+                    key={pieceId}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      minWidth: 200,
+                    }}
+                  >
+                    <TextField
+                      label={piece.title || pieceId}
+                      type="number"
+                      size="small"
+                      value={localInventory[pieceId] ?? 0}
+                      onChange={(e) =>
+                        handlePieceChange(
+                          pieceId,
+                          Math.max(0, Number(e.target.value)),
+                        )
+                      }
+                      sx={{ mr: 1 }}
+                    />
+                    <Typography variant="body2" color="text.secondary">
+                      {piece.title || pieceId}
+                    </Typography>
+                  </Box>
+                )
+              })}
+            </Box>
           </Box>
-        </Box> */}
+        ))}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>

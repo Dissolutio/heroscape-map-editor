@@ -41,7 +41,7 @@ import {
 } from './models/LandSubterrain'
 import { hexTerrainColor } from './maphex/hexColors'
 import { FLUID_CAP_OPACITY } from './maphex/instance/FluidCap'
-import { GlyphModel } from './models/Glyph'
+import { GlyphModel, GlyphModelPreview } from './models/Glyph'
 import { LaurWallTrianglePillarPreview } from './models/LaurTrianglePillar'
 import ForestTree from './models/ForestTree'
 import BigTree415 from './models/BigTree415'
@@ -54,8 +54,12 @@ import { LaurWallAddonPreview } from './models/LaurAddon'
 import { Ruins2Preview } from './models/Ruins2'
 import { Ruins3Preview } from './models/Ruins3'
 import { MarvelRuinPreview } from './models/MarvelRuin'
-import { TicallaPalmPreview } from './models/TicallaPalm'
-import { TicallaBrushPreview } from './models/TicallaBrush'
+import { LaurPalmPreview, TicallaPalmPreview } from './models/TicallaPalm'
+import {
+  LaurBrushPreview,
+  SwampBrushPreview,
+  TicallaBrushPreview,
+} from './models/TicallaBrush'
 import { RoadWallPreview } from './models/RoadWall'
 import { BattlementPreview } from './models/Battlement'
 import { Outcrop1Preview } from './models/Outcrop1'
@@ -127,10 +131,17 @@ export default function PiecePreview() {
     isShowEmptyHexes
   const isObstacleHex =
     hoveredHex.isObstacleOrigin || hoveredHex.isObstacleAuxiliary
-  const isBrushHex =
-    piece.id === Pieces.laurBrush10 || piece.id === Pieces.brush9
+  const isLaurBrushHex = piece.id === Pieces.laurBrush10
+  const isTicallaBrushHex = piece.id === Pieces.brush9
   const isSwampBrushHex = piece.id === Pieces.swampBrush10
-  const isPalmHex = piece.terrain === HexTerrain.palm
+  const isTicallaPalmHex =
+    pieceID === Pieces.palm16 ||
+    pieceID === Pieces.palm14 ||
+    pieceID === Pieces.palm15
+  const isLaurPalmHex =
+    pieceID === Pieces.laurPalm13 ||
+    pieceID === Pieces.laurPalm14 ||
+    pieceID === Pieces.laurPalm15
   const isGlacier1Hex = pieceID === Pieces.glacier1
   const isOutcrop1Hex = pieceID === Pieces.outcrop1
   const isLavaRockOutcrop1Hex = pieceID === Pieces.lavaRockOutcrop1
@@ -161,7 +172,8 @@ export default function PiecePreview() {
   const ruinsOptions = getRuinsOptions(penModeRotation)
   const pieceRotation = (penModeRotation * -Math.PI) / 3
 
-  const subterrainColor = hexTerrainColor[piece.terrain]
+  const subterrainColor =
+    hexTerrainColor?.[piece.terrain as keyof typeof hexTerrainColor]
 
   const landSubterrainMaterial = () => {
     if (isLightsAndShadowsRender) {
@@ -277,9 +289,9 @@ export default function PiecePreview() {
         position={[
           x,
           (isUnderHexFluid
-            ? yGlyphFluidUnder
-            : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 3 +
+            ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
+            : yGlyph + HEXGRID_GLYPH_HEIGHT) +
+            HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
             HEXGRID_HEX_HEIGHT,
           z,
         ]}
@@ -296,10 +308,9 @@ export default function PiecePreview() {
         position={[
           x,
           (isUnderHexFluid
-            ? yGlyphFluidUnder
-            : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 3 +
-            HEXGRID_HEX_HEIGHT,
+            ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
+            : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
+            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -313,7 +324,10 @@ export default function PiecePreview() {
     isSolidOrEmptyBeneath
   ) {
     return (
-      <group position={[x, yWithBase, z]} rotation={[0, pieceRotation, 0]}>
+      <group
+        position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
         <Suspense fallback={<ModelLoader />}>
           <Outcrop1Preview
             isLavaRock={isLavaRockOutcrop1Hex}
@@ -410,7 +424,7 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isPalmHex && isSolidOrEmptyBeneath) {
+  if (isTicallaPalmHex && isSolidOrEmptyBeneath) {
     return (
       <group
         scale={[1, getOptionsForPalmHeight(pieceID).scaleY, 1]}
@@ -423,7 +437,32 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isBrushHex && isSolidOrEmptyBeneath) {
+  if (isLaurPalmHex && isSolidOrEmptyBeneath) {
+    return (
+      <group
+        scale={[1, getOptionsForPalmHeight(pieceID).scaleY, 1]}
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <LaurPalmPreview opacity={PIECE_PREVIEW_OPACITY} />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isLaurBrushHex && isSolidOrEmptyBeneath) {
+    return (
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <LaurBrushPreview opacity={PIECE_PREVIEW_OPACITY} />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isTicallaBrushHex && isSolidOrEmptyBeneath) {
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
@@ -442,13 +481,7 @@ export default function PiecePreview() {
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <TicallaBrushPreview
-            color1={hexTerrainColor.swampUnderbrush1}
-            color2={hexTerrainColor.swampUnderbrush2}
-            color3={hexTerrainColor.swampUnderbrush3}
-            colorBase={hexTerrainColor[HexTerrain.swamp]}
-            opacity={PIECE_PREVIEW_OPACITY}
-          />
+          <SwampBrushPreview opacity={PIECE_PREVIEW_OPACITY} />
         </Suspense>
       </group>
     )
@@ -491,7 +524,10 @@ export default function PiecePreview() {
   }
   if (isMarvelRuinHex && isSolidOrEmptyBeneath) {
     return (
-      <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
         <Suspense fallback={<ModelLoader />}>
           <MarvelRuinPreview
             isUpperFloor={
@@ -511,14 +547,14 @@ export default function PiecePreview() {
         position={[
           x,
           isUnderHexFluid
-            ? yGlyphFluidUnder + HEXGRID_HEXCAP_FLUID_HEIGHT
+            ? yGlyphFluidUnder + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_HEX_HEIGHT,
           z,
         ]}
-        rotation={[0, (hoveredHex.pieceRotation * -Math.PI) / 3, 0]}
+        rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <GlyphModel terrain={piece.terrain} />
+          <GlyphModelPreview inventoryID={pieceID} />
         </Suspense>
       </group>
     )

@@ -29,7 +29,7 @@ import Outcrop4 from '../models/Outcrop4'
 import Outcrop6 from '../models/Outcrop6'
 import Ruins2 from '../models/Ruins2'
 import Ruins3 from '../models/Ruins3'
-import TicallaBrush from '../models/TicallaBrush'
+import JungleBrush from '../models/TicallaBrush'
 import TicallaPalm from '../models/TicallaPalm'
 import {
   getLadderBattlementOptions,
@@ -161,6 +161,13 @@ export const MapHex3D = ({
   if (!isVisible) {
     return null
   }
+  const laurPillarHeight = isUnderHexFluid
+    ? yWithBase - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_FLUID_HEIGHT
+    : yWithBase
+  // const laurPillarHeight = (isUnderHexFluid
+  //   ? yGlyphFluidUnder
+  //   : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
+  //   HEXGRID_HEXCAP_FLUID_HEIGHT / 3
   return (
     <>
       <MapHexIDDisplay
@@ -251,14 +258,7 @@ export const MapHex3D = ({
       {/* GROUP GETS onPointerUpPaintPiece */}
       {isLaurSquarePillarHex && (
         <group
-          position={[
-            x,
-            (isUnderHexFluid
-              ? yGlyphFluidUnder
-              : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
-              HEXGRID_HEXCAP_FLUID_HEIGHT / 3,
-            z,
-          ]}
+          position={[x, laurPillarHeight, z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -271,14 +271,7 @@ export const MapHex3D = ({
       )}
       {isLaurTrianglePillarHex && (
         <group
-          position={[
-            x,
-            (isUnderHexFluid
-              ? yGlyphFluidUnder
-              : yGlyph - HEXGRID_HEXCAP_HEIGHT) +
-              HEXGRID_HEXCAP_FLUID_HEIGHT / 3,
-            z,
-          ]}
+          position={[x, laurPillarHeight, z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -325,7 +318,7 @@ export const MapHex3D = ({
           rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <TicallaBrush boardHex={boardHex} />
+            <JungleBrush boardHex={boardHex} />
           </Suspense>
         </group>
       )}

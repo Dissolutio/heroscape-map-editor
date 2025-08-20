@@ -5,6 +5,7 @@ import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
 import {
   HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_HEIGHT,
+  HEXGRID_OBSTACLE_BASE_HEIGHT,
 } from '../utils/constants'
 import { decodePieceID, getBoardHex3DCoords } from '../utils/map-utils'
 import { Battlement } from './models/Battlement'
@@ -43,13 +44,7 @@ export const MapBoardPiece3D = ({
   ) {
     return (
       <group
-        position={
-          new Vector3(
-            xLaurWall,
-            yLaurWall + HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
-            zLaurWall,
-          )
-        }
+        position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <LaurWallAddon pid={pid} />

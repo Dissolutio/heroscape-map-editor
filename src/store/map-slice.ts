@@ -2,13 +2,11 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { removePiece } from '../data/removePiece'
-import {
-  HexTerrain,
-  Pieces,
-  type AddRemovePieceError,
-  type CubeCoordinate,
-  type MapState,
-  type Piece,
+import type {
+  AddRemovePieceError,
+  CubeCoordinate,
+  MapState,
+  Piece,
 } from '../types'
 import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
@@ -20,6 +18,7 @@ export interface MapSlice extends MapState {
   mapPortraitBase64: string
   addMapPortraitBase64: (pic: string) => void
   changeMapName: (val: string) => void
+  changeSetsUsed: (val: string[]) => void
   changeAuthorName: (val: string) => void
   mapNotes: string
   changeMapNotes: (val: string) => void
@@ -118,6 +117,12 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     set((state) => {
       return produce(state, (draft) => {
         draft.hexMap.name = val
+      })
+    }),
+  changeSetsUsed: (val: string[]) =>
+    set((state) => {
+      return produce(state, (draft) => {
+        draft.hexMap.setsUsed = val
       })
     }),
   changeAuthorName: (val: string) =>

@@ -1,30 +1,3 @@
-## Superfrog notes:
-Things that are fine but could/should be improved if and when possible:
-tile images for both 3d and 2D view. For example, dungeon doesn’t look very recognizable on either view, swamp is hard to interpret on the 2D view.
-I do not think the differing border colors based on tile size help. I know Hasbro and renegade both do/did this but it doesn’t add any information and just makes it visually cluttered
-Camera control hotkeys would be clutch, zoom and pan etc.
-Automatic orthographic view and potentially level numbers would also be huge. 
-But, definitely the first time I’ve thought something had the potential to pass up VS in terms of usability!
-
-Superfrog's color reco:
-- Asphalt: top #303030, sides #363636
-- Concrete: top #a2a493, sides #a0a090
-- Swamp Water: #7a6c35
-- Swamp: top #31743c, sides #776c36
-- Water: #028bc4
-- Grass: top #7c9a3c, sides #975a3a
-- Rock: top #7b8481, sides #975a3a
-- Sand: top #be9e5f, sides #975a3a
-- Molten Lava: #b00100
-- Lava Field: top #484540, sides #881c05
-- Ice: #ced5cc
-- Snow: top #bcbdc5, sides #c0bec6
-- Shadow: #0f0f0d
-- Dungeon: top #b3b1aa, sides #7a7972
-- Road: top #929186, sides #a8a597
-- Glyph: #942a34
-- Treasure: #847040
-
 ## What are BoardHexes used for
 - MapDisplay3D => empty/fluid/solid caps, => render pieces
 - MapHex3D => underHexTerrain
@@ -36,7 +9,9 @@ Superfrog's color reco:
 
 
 ## Separation of State (pieces) / Validation
-- Add/Remove Piece should be **functional**, **NOT mutational**
+- Validation through BoardHexes, but render through BoardPieces
+- Add/Remove Piece will add to BoardPieces.
+- Top-level (HomePage) will call Service Worker to recalculate BoardHexes, when BoardPieces changes.
 
 1. Land / EZ/Based Obstacles
 2. Laur Addons / Castle Walls / Wall Walk / Ladder
@@ -47,10 +22,10 @@ Superfrog's color reco:
 3. Move, rotate, switch pieces that are on the board already
 
 ## Build constraints and Inventory **NEW**
-You can add them to a map, it **Becomes part of MapFileState**.
-It specifies id and quantity array of sets used, and of any piece-meal added items.
-You can remove them. They are removed from MapFileState.
-
+You can add them to a map, it becomes part of  **HexMap**.
+It is an array of Set IDS.
+User must choose appropriate sets, it doesn't calculate # sets used.
+Display pieces used / left.
 
 ## PDF Build Instructions
 
@@ -64,7 +39,7 @@ Shapes and Patterns remaining:
 - Ladder Summaries
 - Map Key(see LeftOn4Ya's ultimate key, Renegade key, and old Hasbro key)
 - Fortress Banner (see GaryLASQ site)
-- Tree415 Boulders (see GaryLASQ site, or old Hasbro docs)
+- Tree415 Boulders? (see GaryLASQ site, or old Hasbro docs)
 
 Then need some formatting options (1-pager, map key?), author name, maybe more.
 

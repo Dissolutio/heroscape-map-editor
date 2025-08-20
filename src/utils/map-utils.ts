@@ -14,6 +14,7 @@ import {
   HEXGRID_HEX_APOTHEM,
   HEXGRID_HEX_HEIGHT,
   HEXGRID_HEX_RADIUS,
+  HEXGRID_OBSTACLE_BASE_HEIGHT,
   HEXGRID_SPACING,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
@@ -137,8 +138,8 @@ export const getBoardHex3DCoords = (
     y - HEXGRID_HEX_HEIGHT + HEXGRID_GLYPH_HEIGHT / 2 + HEXGRID_HEXCAP_HEIGHT
   const yGlyphFluidUnder =
     y - HEXGRID_HEX_HEIGHT - yDropForBeingOnFluidTile + HEXGRID_GLYPH_HEIGHT / 2
-  const yWithBase = yBaseCap + HEXGRID_HEXCAP_FLUID_HEIGHT / 2
-  const yBase = yBaseCap + HEXGRID_HEXCAP_FLUID_HEIGHT / 2
+  const yWithBase = yBaseCap + HEXGRID_OBSTACLE_BASE_HEIGHT
+  const yBase = yBaseCap + HEXGRID_OBSTACLE_BASE_HEIGHT / 2
   const yJungle = y
   return {
     x,
