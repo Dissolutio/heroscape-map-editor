@@ -1,4 +1,4 @@
-import { clone } from 'lodash'
+import { cloneDeep } from 'lodash'
 import {
   type AddRemovePieceError,
   type AddRemovePieceReturn,
@@ -46,8 +46,8 @@ export function addPiece({
   isVsTile,
 }: PieceAddArgs): AddRemovePieceReturn {
   let addPieceError: AddRemovePieceError
-  const newBoardHexes = clone(boardHexes)
-  const newBoardPieces = clone(boardPieces)
+  const newBoardHexes = cloneDeep(boardHexes)
+  const newBoardPieces = cloneDeep(boardPieces)
   const piecePlaneCoords = getPieceTemplateCoords({
     clickedHex: { q: pieceCoords.q, r: pieceCoords.r, s: pieceCoords.s },
     rotation,

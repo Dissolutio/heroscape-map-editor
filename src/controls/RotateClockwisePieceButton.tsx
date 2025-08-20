@@ -14,7 +14,7 @@ export const RotateClockwisePieceButton = () => {
   const loadMap = useBoundStore((s) => s.loadMap)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
 
-  const rotatePiece = (reverse?: boolean) => {
+  const rotatePiece = () => {
     if (!selectedPieceID) return
     const { inventoryID, altitude, rotation, pieceCoords } = decodePieceID(selectedPieceID)
     const piece = piecesSoFar[inventoryID]
@@ -30,7 +30,7 @@ export const RotateClockwisePieceButton = () => {
     console.log("🚀 ~ rotatePiece ~ removedBoardPieces:", removedBoardPieces)
     const delta = getRotationDeltaForPieceId(piece.id)
     // Try to add the piece with new rotation (+1, wrap 0-5)
-    const newRotation = (reverse ? -1 : 1) * delta + (rotation) % 6
+    const newRotation = delta + (rotation) % 6
     const result = addPiece({
       piece,
       boardHexes: removedBoardHexes,
