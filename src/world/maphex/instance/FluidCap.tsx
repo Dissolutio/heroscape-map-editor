@@ -80,19 +80,19 @@ function FluidCap({
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const penMode = useBoundStore((s) => s.penMode)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const color = hexTerrainColor[boardHex.terrain]
+  const color = hexTerrainColor[boardHex.terrain as keyof typeof hexTerrainColor]
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const isSelected = selectedPieceID === boardHex.pieceID
 
   // Effect: Initial color/position
   React.useEffect(() => {
     const { x, y, z } = getBoardHex3DCoords(boardHex)
-    ref.current.color.set(hexTerrainColor[boardHex.terrain])
+    ref.current.color.set(hexTerrainColor[boardHex.terrain as keyof typeof hexTerrainColor])
     ref.current.position.set(
       x,
       y -
-        (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
-        0.001,
+      (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
+      0.001,
       z,
     )
   }, [boardHex])

@@ -123,7 +123,7 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   }
   // StartZone: virtualscape colors, might be other designs
   if (hex.terrain === HexTerrain.startZone) {
-    return hexTerrainColor[hex.inventoryID]
+    return hexTerrainColor[hex.inventoryID as keyof typeof hexTerrainColor]
   }
   // Renegade shows brush and palm as same color
   if (hex.terrain === HexTerrain.brush) {

@@ -4,7 +4,10 @@ import { BackSide, DoubleSide } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
-import { HEXGRID_OBSTACLE_BASE_HEIGHT, PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import {
+  HEXGRID_OBSTACLE_BASE_HEIGHT,
+  PIECE_PREVIEW_OPACITY,
+} from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { laurBaseCylinderArgs } from './ObstacleBase'
@@ -18,7 +21,9 @@ export default function LaurWallTrianglePillar({
 }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/laur-triangle-pillar-from-hs-blendfile.glb') as any
+  const { nodes } = useGLTF(
+    '/laur-triangle-pillar-from-hs-blendfile.glb',
+  ) as any
   // const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
@@ -104,7 +109,9 @@ export function LaurWallTrianglePillarPreview({
   opacity?: number
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/laur-triangle-pillar-from-hs-blendfile.glb') as any
+  const { nodes } = useGLTF(
+    '/laur-triangle-pillar-from-hs-blendfile.glb',
+  ) as any
   // const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,

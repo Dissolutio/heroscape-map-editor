@@ -27,7 +27,7 @@ export function StartZone3D({
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const color = isHighlighted
     ? yellowColor
-    : hexTerrainColor[boardHex.inventoryID]
+    : hexTerrainColor[boardHex.inventoryID as keyof typeof hexTerrainColor]
   return (
     <mesh
       onPointerUp={onPointerUp}

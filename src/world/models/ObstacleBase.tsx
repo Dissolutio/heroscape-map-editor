@@ -1,5 +1,8 @@
 import useBoundStore from '../../store/store'
-import { HEXGRID_HEXCAP_FLUID_HEIGHT, HEXGRID_OBSTACLE_BASE_HEIGHT } from '../../utils/constants'
+import {
+  HEXGRID_HEXCAP_FLUID_HEIGHT,
+  HEXGRID_OBSTACLE_BASE_HEIGHT,
+} from '../../utils/constants'
 import type { CylinderGeometryArgs } from '../maphex/instance-hex'
 
 type ObstacleBaseProps = {

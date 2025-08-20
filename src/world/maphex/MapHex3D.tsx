@@ -258,11 +258,7 @@ export const MapHex3D = ({
       {/* GROUP GETS onPointerUpPaintPiece */}
       {isLaurSquarePillarHex && (
         <group
-          position={[
-            x,
-            laurPillarHeight,
-            z,
-          ]}
+          position={[x, laurPillarHeight, z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -275,11 +271,7 @@ export const MapHex3D = ({
       )}
       {isLaurTrianglePillarHex && (
         <group
-          position={[
-            x,
-            laurPillarHeight,
-            z,
-          ]}
+          position={[x, laurPillarHeight, z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -592,7 +584,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+              selectedPieceID === boardHex.pieceID
                 ? hexTerrainColor[HexTerrain.castle]
                 : 'yellow'
             }
@@ -619,7 +611,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                  selectedPieceID === boardHex.pieceID
+                selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castle]
               }

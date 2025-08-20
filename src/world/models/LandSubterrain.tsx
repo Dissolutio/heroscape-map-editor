@@ -26,7 +26,7 @@ export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
     pieceTerrain === HexTerrain.rock
   const baseColor = isDirtSubterrain
     ? hexTerrainColor[HexTerrain.dirt]
-    : hexTerrainColor[pieceTerrain]
+    : hexTerrainColor[pieceTerrain as keyof typeof hexTerrainColor]
   const [color, setColor] = React.useState('red')
   const regex = /\d+/g
 

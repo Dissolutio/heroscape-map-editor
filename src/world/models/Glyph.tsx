@@ -30,7 +30,7 @@ export function GlyphModel({
     }
     toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
   }
-  const glyphColor = hexTerrainColor[terrain]
+  const glyphColor = hexTerrainColor[terrain as keyof typeof hexTerrainColor]
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
@@ -40,9 +40,9 @@ export function GlyphModel({
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Glyph.geometry}
-      onPointerUp={(e) => (onPointerUp(e))}
-      onPointerEnter={(e) => (onPointerEnter(e, boardHex))}
-      onPointerOut={(e) => (onPointerOut(e))}
+      onPointerUp={(e) => onPointerUp(e)}
+      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+      onPointerOut={(e) => onPointerOut(e)}
     >
       {basicModelMaterial(color, isLightsAndShadowsRender)}
       <Decal
@@ -60,14 +60,16 @@ export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const color = inventoryID === Pieces.glyphPower ? hexTerrainColor[HexTerrain.glyphPower] : hexTerrainColor[HexTerrain.glyphTreasure]
+  const color =
+    inventoryID === Pieces.glyphPower
+      ? hexTerrainColor[HexTerrain.glyphPower]
+      : hexTerrainColor[HexTerrain.glyphTreasure]
   return (
     <mesh
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Glyph.geometry}
     >
-
       {basicModelMaterial(
         color,
         isLightsAndShadowsRender,
