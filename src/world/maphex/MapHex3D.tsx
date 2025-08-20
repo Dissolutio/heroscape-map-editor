@@ -278,6 +278,7 @@ export const MapHex3D = ({
             <LaurWallTrianglePillar
               boardHex={boardHex}
               onPointerUp={onPointerUpPaintPiece}
+              pieceRotation={pieceRotation}
             />
           </Suspense>
         </group>

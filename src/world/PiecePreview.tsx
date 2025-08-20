@@ -315,7 +315,7 @@ export default function PiecePreview() {
         ]}
         rotation={[0, pieceRotation, 0]}
       >
-        <LaurWallTrianglePillarPreview />
+        <LaurWallTrianglePillarPreview pieceRotation={pieceRotation} />
       </group>
     )
   }

@@ -1,6 +1,6 @@
 import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-import { BackSide, DoubleSide } from 'three'
+import { FrontSide, DoubleSide } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
@@ -15,8 +15,10 @@ import { laurBaseCylinderArgs } from './ObstacleBase'
 export default function LaurWallTrianglePillar({
   boardHex,
   onPointerUp,
+  pieceRotation,
 }: {
   boardHex: BoardHex
+  pieceRotation: number
   onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
@@ -43,7 +45,7 @@ export default function LaurWallTrianglePillar({
     <meshStandardMaterial
       color={interiorColor}
       side={DoubleSide}
-      shadowSide={BackSide}
+      shadowSide={FrontSide}
     />
   ) : (
     <meshMatcapMaterial side={DoubleSide} color={interiorColor} />
@@ -90,7 +92,10 @@ export default function LaurWallTrianglePillar({
         >
           {basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
         </mesh>
-        <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
+        <group
+          position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}
+          rotation={[0, -pieceRotation, 0]}
+        >
           <mesh
             receiveShadow={isLightsAndShadowsRender}
             castShadow={isLightsAndShadowsRender}
@@ -105,7 +110,9 @@ export default function LaurWallTrianglePillar({
 }
 export function LaurWallTrianglePillarPreview({
   opacity,
+  pieceRotation,
 }: {
+  pieceRotation: number
   opacity?: number
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -121,22 +128,18 @@ export function LaurWallTrianglePillarPreview({
   const color = pillarColor
   const interiorColor = interiorPillarColor
   const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
-  const helpMaterialNeedsBlenderWork = isLightsAndShadowsRender ? (
-    <meshStandardMaterial
-      color={interiorColor}
-      side={DoubleSide}
-      shadowSide={BackSide}
-    />
-  ) : (
-    <meshMatcapMaterial side={DoubleSide} color={interiorColor} />
-  )
   return (
     <>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
+        geometry={nodes.TrianglePillarTop.geometry}
       >
-        {helpMaterialNeedsBlenderWork}
+        {basicModelMaterial(
+          interiorColor,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -170,6 +173,7 @@ export function LaurWallTrianglePillarPreview({
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
+        rotation={[0, pieceRotation, 0]}
       >
         <cylinderGeometry args={laurBaseCylinderArgs} />
         {basicModelMaterial(color, isLightsAndShadowsRender)}
