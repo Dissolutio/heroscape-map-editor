@@ -1,8 +1,6 @@
 import { ClickAwayListener } from '@mui/material'
 import {
   type CameraControls,
-  GizmoHelper,
-  GizmoViewport,
   OrthographicCamera,
   PerspectiveCamera,
   Stats,
@@ -89,19 +87,6 @@ const World = ({
           {/* {!isTakingPicture && <GridHelper />} */}
           <MyCameraControls cameraControlsRef={cameraControlsRef} />
           <TakeAPictureBox />
-          <GizmoHelper
-            alignment="bottom-right" // widget alignment within scene
-            margin={[80, 80]} // widget margins (X, Y)
-            // onUpdate={/* called during camera animation  */}
-            // onTarget={/* return current camera target (e.g. from orbit controls) to center animation */}
-            // renderPriority={/* use renderPriority to prevent the helper from disappearing if there is another useFrame(..., 1)*/}
-          >
-            <GizmoViewport
-              axisColors={['red', 'green', 'blue']}
-              labelColor="black"
-            />
-            {/* alternative: <GizmoViewcube /> */}
-          </GizmoHelper>
         </Canvas>
         <SelectedPieceReadout />
         {/* <HoveredPieceReadout /> */}
