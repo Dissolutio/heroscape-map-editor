@@ -37,7 +37,7 @@ const World = ({
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const handleClickAway = () => {
     toggleHoveredPieceID('')
-    toggleSelectedPieceID('')
+    // toggleSelectedPieceID('')
   }
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
