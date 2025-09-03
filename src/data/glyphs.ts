@@ -113,7 +113,7 @@ export const powerGlyphs: HexoscapeGlyphs = [
     glyphLetter: 'M',
     type: 'power',
     duration: 'temporary',
-    shortDescription: "Every figure d20, 1=destroy",
+    shortDescription: 'Every figure d20, 1=destroy',
     description: `For each figure on the battlefield (yours and your
 opponents’), roll the 20-sided die. If you roll a 1,
 the figure is destroyed. If you roll 2 through 20,

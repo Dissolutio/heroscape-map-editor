@@ -204,7 +204,7 @@ const createUISlice: StateCreator<
         s.isHideTableTop = b
       }),
     ),
-  isFrameloopDemand: false,
+  isFrameloopDemand: true,
   toggleIsFrameloopDemand: (b: boolean) =>
     set(
       produce((s) => {
