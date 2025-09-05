@@ -188,14 +188,23 @@ const MapPortraitHeader = ({
           flexDirection: 'row',
           flexGrow: 0,
           padding: 0,
+          paddingBottom: 5,
           alignContent: 'center',
-          alignItems: 'center',
-          flexBasis: 50,
+          alignItems: 'flex-start',
+          // flexBasis: 30,
         }}
       >
-        <Text>Requires: {Object.entries(terrainSetCounts).map([key, val] => {
-          return`${terrainSetsByShortID[key]}`
-        }) }</Text>
+        <Text
+          style={{ fontSize: '10px' }}
+        >Requires: {
+            Object.entries(terrainSetCounts).map(([key, val], index) => {
+              const isCommaAfter = !(index >= Object.entries(terrainSetCounts).length - 1)
+              const setNameText = `${terrainSetsByShortID[key as keyof typeof terrainSetsByShortID]?.abbreviation}`
+              const countText = `x${val ?? 0}`
+              return `${setNameText} ${countText}${isCommaAfter ? ', ' : ''}`
+            })
+          }
+        </Text>
       </View>
 
       <View
