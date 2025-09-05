@@ -132,10 +132,13 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
   )
 }
 function countTerrainSets(setsUsed: string[]): Record<string, number> {
-  return setsUsed.reduce((acc, setID) => {
-    acc[setID] = (acc[setID] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  return setsUsed.reduce(
+    (acc, setID) => {
+      acc[setID] = (acc[setID] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>,
+  )
 }
 const MapPortraitHeader = ({
   hexMap,
@@ -143,8 +146,8 @@ const MapPortraitHeader = ({
   mapNotes,
 }: MapState & { mapPortraitBase64: string; mapNotes: string }) => {
   const notesHeight = 20 * Math.ceil(mapNotes.length / 134)
-  const terrainSetCounts = countTerrainSets(hexMap.setsUsed ?? []);
-  console.log("🚀 ~ MapPortraitHeader ~ terrainSetCounts:", terrainSetCounts)
+  const terrainSetCounts = countTerrainSets(hexMap.setsUsed ?? [])
+  console.log('🚀 ~ MapPortraitHeader ~ terrainSetCounts:', terrainSetCounts)
 
   return (
     <View
@@ -193,20 +196,21 @@ const MapPortraitHeader = ({
           alignItems: 'flex-start',
           // flexBasis: 30,
         }}
-      >{Object.entries(terrainSetCounts).length > 0 && (
-        <Text
-          style={{ fontSize: '10px' }}
-        >Requires: {
-            Object.entries(terrainSetCounts).map(([key, val], index) => {
-              const isCommaAfter = !(index >= Object.entries(terrainSetCounts).length - 1)
+      >
+        {Object.entries(terrainSetCounts).length > 0 && (
+          <Text style={{ fontSize: '10px' }}>
+            Requires:{' '}
+            {Object.entries(terrainSetCounts).map(([key, val], index) => {
+              const isCommaAfter = !(
+                index >=
+                Object.entries(terrainSetCounts).length - 1
+              )
               const setNameText = `${terrainSetsByShortID[key as keyof typeof terrainSetsByShortID]?.abbreviation}`
               const countText = `x${val ?? 0}`
               return `${setNameText} ${countText}${isCommaAfter ? ', ' : ''}`
-            })
-          }
-        </Text>
-      )
-        }
+            })}
+          </Text>
+        )}
       </View>
 
       <View
@@ -225,14 +229,16 @@ const MapPortraitHeader = ({
           flexBasis: mapPortraitBase64 ? 200 : 0,
         }}
       >
-        {mapPortraitBase64 && <Image
-          src={mapPortraitBase64}
-          style={{
-            height: '200px',
-            width: 'auto',
-            // border: '1px solid red',
-          }}
-        />}
+        {mapPortraitBase64 && (
+          <Image
+            src={mapPortraitBase64}
+            style={{
+              height: '200px',
+              width: 'auto',
+              // border: '1px solid red',
+            }}
+          />
+        )}
       </View>
     </View>
   )
