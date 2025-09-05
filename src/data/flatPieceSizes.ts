@@ -3,12 +3,11 @@ import { piecesSoFar } from './pieces'
 
 const landSizes = Object.values(piecesSoFar).reduce(
   (prev, curr) => {
+    //  the presence of a landPrefix on a piece's data means it has flat-piece-sizes
     const landPrefix = curr.landPrefix
     if (landPrefix) {
-      return {
-        ...prev,
-        [landPrefix]: [...(prev?.[landPrefix as string] ?? []), curr.size],
-      }
+      prev[landPrefix] = [...(prev[landPrefix as string] ?? []), curr.size]
+      return prev
     }
     return prev
   },

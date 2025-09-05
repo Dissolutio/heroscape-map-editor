@@ -113,7 +113,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   // LAND
   [Pieces.grass1]: {
     id: Pieces.grass1,
-    title: 'Grass-1',
+    title: '1-hex Grass',
     terrain: HexTerrain.grass,
     landPrefix: PiecePrefixes.grass,
     isHexTerrainPiece: true,
@@ -124,7 +124,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.grass2]: {
     id: Pieces.grass2,
-    title: 'Grass-2',
+    title: '2-hex Grass',
     terrain: HexTerrain.grass,
     landPrefix: PiecePrefixes.grass,
     isHexTerrainPiece: true,
@@ -135,7 +135,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.grass3]: {
     id: Pieces.grass3,
-    title: 'Grass-3',
+    title: '3-hex Grass',
     terrain: HexTerrain.grass,
     landPrefix: PiecePrefixes.grass,
     isHexTerrainPiece: true,
@@ -146,7 +146,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.grass7]: {
     id: Pieces.grass7,
-    title: 'Grass-7',
+    title: '7-hex Grass',
     terrain: HexTerrain.grass,
     landPrefix: PiecePrefixes.grass,
     isHexTerrainPiece: true,
@@ -157,7 +157,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.grass24]: {
     id: Pieces.grass24,
-    title: 'Grass-24',
+    title: '24-hex Grass',
     terrain: HexTerrain.grass,
     landPrefix: PiecePrefixes.grass,
     isHexTerrainPiece: true,
@@ -168,7 +168,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.rock1]: {
     id: Pieces.rock1,
-    title: 'Rock-1',
+    title: '1-hex Rock',
     terrain: HexTerrain.rock,
     landPrefix: PiecePrefixes.rock,
     isHexTerrainPiece: true,
@@ -179,7 +179,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.rock2]: {
     id: Pieces.rock2,
-    title: 'Rock-2',
+    title: '2-hex Rock',
     terrain: HexTerrain.rock,
     landPrefix: PiecePrefixes.rock,
     isHexTerrainPiece: true,
@@ -190,7 +190,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.rock3]: {
     id: Pieces.rock3,
-    title: 'Rock-3',
+    title: '3-hex Rock',
     terrain: HexTerrain.rock,
     landPrefix: PiecePrefixes.rock,
     isHexTerrainPiece: true,
@@ -201,7 +201,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.rock7]: {
     id: Pieces.rock7,
-    title: 'Rock-7',
+    title: '7-hex Rock',
     terrain: HexTerrain.rock,
     landPrefix: PiecePrefixes.rock,
     isHexTerrainPiece: true,
@@ -212,7 +212,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.rock24]: {
     id: Pieces.rock24,
-    title: 'Rock-24',
+    title: '24-hex Rock',
     terrain: HexTerrain.rock,
     landPrefix: PiecePrefixes.rock,
     isHexTerrainPiece: true,
@@ -223,7 +223,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.sand1]: {
     id: Pieces.sand1,
-    title: 'Sand-1',
+    title: '1-hex Sand',
     terrain: HexTerrain.sand,
     landPrefix: PiecePrefixes.sand,
     isHexTerrainPiece: true,
@@ -234,7 +234,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.sand2]: {
     id: Pieces.sand2,
-    title: 'Sand-2',
+    title: '2-hex Sand',
     terrain: HexTerrain.sand,
     landPrefix: PiecePrefixes.sand,
     isHexTerrainPiece: true,
@@ -245,7 +245,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.sand3]: {
     id: Pieces.sand3,
-    title: 'Sand-3',
+    title: '3-hex Sand',
     terrain: HexTerrain.sand,
     landPrefix: PiecePrefixes.sand,
     isHexTerrainPiece: true,
@@ -256,7 +256,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.sand7]: {
     id: Pieces.sand7,
-    title: 'Sand-7',
+    title: '7-hex Sand',
     terrain: HexTerrain.sand,
     landPrefix: PiecePrefixes.sand,
     isHexTerrainPiece: true,
@@ -267,7 +267,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.sand24]: {
     id: Pieces.sand24,
-    title: 'Sand-24',
+    title: '24-hex Sand',
     terrain: HexTerrain.sand,
     landPrefix: PiecePrefixes.sand,
     isHexTerrainPiece: true,
@@ -278,7 +278,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.dungeon1]: {
     id: Pieces.dungeon1,
-    title: 'Dungeon-1',
+    title: '1-hex Dungeon',
     terrain: HexTerrain.dungeon,
     landPrefix: PiecePrefixes.dungeon,
     isHexTerrainPiece: true,
@@ -289,7 +289,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.dungeon2]: {
     id: Pieces.dungeon2,
-    title: 'Dungeon-2',
+    title: '2-hex Dungeon',
     terrain: HexTerrain.dungeon,
     landPrefix: PiecePrefixes.dungeon,
     isHexTerrainPiece: true,
@@ -300,7 +300,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.dungeon3]: {
     id: Pieces.dungeon3,
-    title: 'Dungeon-3',
+    title: '3-hex Dungeon',
     terrain: HexTerrain.dungeon,
     landPrefix: PiecePrefixes.dungeon,
     isHexTerrainPiece: true,
@@ -311,7 +311,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.dungeon7]: {
     id: Pieces.dungeon7,
-    title: 'Dungeon-7',
+    title: '7-hex Dungeon',
     terrain: HexTerrain.dungeon,
     landPrefix: PiecePrefixes.dungeon,
     isHexTerrainPiece: true,
@@ -322,7 +322,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.dungeon24]: {
     id: Pieces.dungeon24,
-    title: 'Dungeon-24',
+    title: '24-hex Dungeon',
     terrain: HexTerrain.dungeon,
     landPrefix: PiecePrefixes.dungeon,
     isHexTerrainPiece: true,
@@ -333,7 +333,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.swamp1]: {
     id: Pieces.swamp1,
-    title: 'Swamp-1',
+    title: '1-hex Swamp',
     terrain: HexTerrain.swamp,
     landPrefix: PiecePrefixes.swamp,
     isHexTerrainPiece: true,
@@ -344,7 +344,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.swamp2]: {
     id: Pieces.swamp2,
-    title: 'Swamp-2',
+    title: '2-hex Swamp',
     terrain: HexTerrain.swamp,
     landPrefix: PiecePrefixes.swamp,
     isHexTerrainPiece: true,
@@ -355,7 +355,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.swamp3]: {
     id: Pieces.swamp3,
-    title: 'Swamp-3',
+    title: '3-hex Swamp',
     terrain: HexTerrain.swamp,
     landPrefix: PiecePrefixes.swamp,
     isHexTerrainPiece: true,
@@ -366,7 +366,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.swamp7]: {
     id: Pieces.swamp7,
-    title: 'Swamp-7',
+    title: '7-hex Swamp',
     terrain: HexTerrain.swamp,
     landPrefix: PiecePrefixes.swamp,
     isHexTerrainPiece: true,
@@ -377,7 +377,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.swamp24]: {
     id: Pieces.swamp24,
-    title: 'Swamp-24',
+    title: '24-hex Swamp',
     terrain: HexTerrain.swamp,
     landPrefix: PiecePrefixes.swamp,
     isHexTerrainPiece: true,
@@ -388,7 +388,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.snow1]: {
     id: Pieces.snow1,
-    title: 'Snow-1',
+    title: '1-hex Snow',
     terrain: HexTerrain.snow,
     landPrefix: PiecePrefixes.snow,
     isHexTerrainPiece: true,
@@ -399,7 +399,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.snow2]: {
     id: Pieces.snow2,
-    title: 'Snow-2',
+    title: '2-hex Snow',
     terrain: HexTerrain.snow,
     landPrefix: PiecePrefixes.snow,
     isHexTerrainPiece: true,
@@ -410,7 +410,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.snow3]: {
     id: Pieces.snow3,
-    title: 'Snow-3',
+    title: '3-hex Snow',
     terrain: HexTerrain.snow,
     landPrefix: PiecePrefixes.snow,
     isHexTerrainPiece: true,
@@ -421,7 +421,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.snow7]: {
     id: Pieces.snow7,
-    title: 'Snow-7',
+    title: '7-hex Snow',
     terrain: HexTerrain.snow,
     landPrefix: PiecePrefixes.snow,
     isHexTerrainPiece: true,
@@ -432,7 +432,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.snow24]: {
     id: Pieces.snow24,
-    title: 'Snow-24',
+    title: '24-hex Snow',
     terrain: HexTerrain.snow,
     landPrefix: PiecePrefixes.snow,
     isHexTerrainPiece: true,
@@ -443,7 +443,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lavaField1]: {
     id: Pieces.lavaField1,
-    title: 'Lava Field-1',
+    title: 'Lava 1-hex Field',
     terrain: HexTerrain.lavaField,
     landPrefix: PiecePrefixes.lavaField,
     isHexTerrainPiece: true,
@@ -454,7 +454,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lavaField2]: {
     id: Pieces.lavaField2,
-    title: 'Lava Field-2',
+    title: 'Lava 2-hex Field',
     terrain: HexTerrain.lavaField,
     landPrefix: PiecePrefixes.lavaField,
     isHexTerrainPiece: true,
@@ -465,7 +465,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lavaField3]: {
     id: Pieces.lavaField3,
-    title: 'Lava Field-3',
+    title: 'Lava 3-hex Field',
     terrain: HexTerrain.lavaField,
     landPrefix: PiecePrefixes.lavaField,
     isHexTerrainPiece: true,
@@ -476,7 +476,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lavaField7]: {
     id: Pieces.lavaField7,
-    title: 'Lava Field-7',
+    title: 'Lava 7-hex Field',
     terrain: HexTerrain.lavaField,
     landPrefix: PiecePrefixes.lavaField,
     isHexTerrainPiece: true,
@@ -487,7 +487,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lavaField24]: {
     id: Pieces.lavaField24,
-    title: 'Lava Field-24',
+    title: 'Lava 24-hex Field',
     terrain: HexTerrain.lavaField,
     landPrefix: PiecePrefixes.lavaField,
     isHexTerrainPiece: true,
@@ -498,7 +498,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.asphalt1]: {
     id: Pieces.asphalt1,
-    title: 'Asphalt-1',
+    title: '1-hex Asphalt',
     terrain: HexTerrain.asphalt,
     landPrefix: PiecePrefixes.asphalt,
     isHexTerrainPiece: true,
@@ -509,7 +509,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.asphalt2]: {
     id: Pieces.asphalt2,
-    title: 'Asphalt-2',
+    title: '2-hex Asphalt',
     terrain: HexTerrain.asphalt,
     landPrefix: PiecePrefixes.asphalt,
     isHexTerrainPiece: true,
@@ -520,7 +520,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.asphalt7]: {
     id: Pieces.asphalt7,
-    title: 'Asphalt-7',
+    title: '7-hex Asphalt',
     terrain: HexTerrain.asphalt,
     landPrefix: PiecePrefixes.asphalt,
     isHexTerrainPiece: true,
@@ -531,7 +531,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.concrete1]: {
     id: Pieces.concrete1,
-    title: 'Concrete-1',
+    title: '1-hex Concrete',
     terrain: HexTerrain.concrete,
     landPrefix: PiecePrefixes.concrete,
     isHexTerrainPiece: true,
@@ -542,7 +542,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.concrete2]: {
     id: Pieces.concrete2,
-    title: 'Concrete-2',
+    title: '2-hex Concrete',
     terrain: HexTerrain.concrete,
     landPrefix: PiecePrefixes.concrete,
     isHexTerrainPiece: true,
@@ -553,7 +553,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.concrete6]: {
     id: Pieces.concrete6,
-    title: 'Concrete-6',
+    title: '6-hex Concrete',
     terrain: HexTerrain.concrete,
     landPrefix: PiecePrefixes.concrete,
     isHexTerrainPiece: true,
@@ -564,7 +564,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.concrete7]: {
     id: Pieces.concrete7,
-    title: 'Concrete-7',
+    title: '7-hex Concrete',
     terrain: HexTerrain.concrete,
     landPrefix: PiecePrefixes.concrete,
     isHexTerrainPiece: true,
@@ -575,7 +575,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.road1]: {
     id: Pieces.road1,
-    title: 'Road-1',
+    title: '1-hex Road',
     terrain: HexTerrain.road,
     landPrefix: PiecePrefixes.road,
     isHexTerrainPiece: true,
@@ -586,7 +586,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.road2]: {
     id: Pieces.road2,
-    title: 'Road-2',
+    title: '2-hex Road',
     terrain: HexTerrain.road,
     landPrefix: PiecePrefixes.road,
     isHexTerrainPiece: true,
@@ -597,7 +597,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.road5]: {
     id: Pieces.road5,
-    title: 'Road-5',
+    title: '5-hex Road',
     terrain: HexTerrain.road,
     landPrefix: PiecePrefixes.road,
     isHexTerrainPiece: true,
@@ -608,7 +608,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.wallWalk1]: {
     id: Pieces.wallWalk1,
-    title: 'Wall Walk-1',
+    title: '1-hex Wall Walk',
     terrain: HexTerrain.wallWalk,
     landPrefix: PiecePrefixes.wallWalk,
     isHexTerrainPiece: true,
@@ -619,7 +619,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.wallWalk7]: {
     id: Pieces.wallWalk7,
-    title: 'Wall Walk-7',
+    title: '7-hex Wall Walk',
     terrain: HexTerrain.wallWalk,
     landPrefix: PiecePrefixes.wallWalk,
     isHexTerrainPiece: true,
@@ -630,7 +630,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.wallWalk9]: {
     id: Pieces.wallWalk9,
-    title: 'Wall Walk-9',
+    title: '9-hex Wall Walk',
     terrain: HexTerrain.wallWalk,
     landPrefix: PiecePrefixes.wallWalk,
     isHexTerrainPiece: true,
@@ -642,7 +642,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   /* FLUID FLUID FLUID */
   [Pieces.wellspringWater1]: {
     id: Pieces.wellspringWater1,
-    title: 'WellspringWater-1',
+    title: '1-hex WellspringWater',
     terrain: HexTerrain.wellspringWater,
     landPrefix: PiecePrefixes.wellspringWater,
     isHexTerrainPiece: true,
@@ -653,7 +653,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.water1]: {
     id: Pieces.water1,
-    title: 'Water-1',
+    title: '1-hex Water',
     terrain: HexTerrain.water,
     landPrefix: PiecePrefixes.water,
     isHexTerrainPiece: true,
@@ -664,7 +664,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.water3]: {
     id: Pieces.water3,
-    title: 'Water-3',
+    title: '3-hex Water',
     terrain: HexTerrain.water,
     landPrefix: PiecePrefixes.water,
     isHexTerrainPiece: true,
@@ -675,7 +675,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lava1]: {
     id: Pieces.lava1,
-    title: 'Lava-1',
+    title: '1-hex Lava',
     terrain: HexTerrain.lava,
     landPrefix: PiecePrefixes.lava,
     isHexTerrainPiece: true,
@@ -686,7 +686,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lava3]: {
     id: Pieces.lava3,
-    title: 'Lava-3',
+    title: '3-hex Lava',
     terrain: HexTerrain.lava,
     landPrefix: PiecePrefixes.lava,
     isHexTerrainPiece: true,
@@ -697,7 +697,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.swampWater1]: {
     id: Pieces.swampWater1,
-    title: 'Swamp Water-1',
+    title: '1-hex Swamp Water',
     terrain: HexTerrain.swampWater,
     landPrefix: PiecePrefixes.swampWater,
     isHexTerrainPiece: true,
@@ -708,7 +708,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.swampWater3]: {
     id: Pieces.swampWater3,
-    title: 'Swamp Water-3',
+    title: '3-hex Swamp Water',
     terrain: HexTerrain.swampWater,
     landPrefix: PiecePrefixes.swampWater,
     isHexTerrainPiece: true,
@@ -719,7 +719,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.swampWater6]: {
     id: Pieces.swampWater6,
-    title: 'Swamp Water-6',
+    title: '6-hex Swamp Water',
     terrain: HexTerrain.swampWater,
     landPrefix: PiecePrefixes.swampWater,
     isHexTerrainPiece: true,
@@ -730,7 +730,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.ice1]: {
     id: Pieces.ice1,
-    title: 'Ice-1',
+    title: '1-hex Ice',
     terrain: HexTerrain.ice,
     landPrefix: PiecePrefixes.ice,
     isHexTerrainPiece: true,
@@ -741,7 +741,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.ice3]: {
     id: Pieces.ice3,
-    title: 'Ice-3',
+    title: '3-hex Ice',
     terrain: HexTerrain.ice,
     landPrefix: PiecePrefixes.ice,
     isHexTerrainPiece: true,
@@ -752,7 +752,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.ice4]: {
     id: Pieces.ice4,
-    title: 'Ice-4',
+    title: '4-hex Ice',
     terrain: HexTerrain.ice,
     landPrefix: PiecePrefixes.ice,
     isHexTerrainPiece: true,
@@ -763,7 +763,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.ice6]: {
     id: Pieces.ice6,
-    title: 'Ice-6',
+    title: '6-hex Ice',
     terrain: HexTerrain.ice,
     landPrefix: PiecePrefixes.ice,
     isHexTerrainPiece: true,
@@ -774,7 +774,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.shadow1]: {
     id: Pieces.shadow1,
-    title: 'Shadow-1',
+    title: '1-hex Shadow',
     terrain: HexTerrain.shadow,
     landPrefix: PiecePrefixes.shadow,
     isHexTerrainPiece: true,
@@ -785,7 +785,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.shadow3]: {
     id: Pieces.shadow3,
-    title: 'Shadow-3',
+    title: '3-hex Shadow',
     terrain: HexTerrain.shadow,
     landPrefix: PiecePrefixes.shadow,
     isHexTerrainPiece: true,

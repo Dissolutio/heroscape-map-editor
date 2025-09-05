@@ -12,11 +12,14 @@ export interface UISlice {
 
   // unpersisted state below
   lastPenMode: string
+  lastPenSize: number
+  toggleLastPenMode: () => void
+
   penMode: string
+  pieceSize: number
   togglePenMode: (mode: string) => void
   penModeRotation: number
   togglePenModeRotation: (s: number) => void
-  pieceSize: number
   togglePieceSize: (s: number) => void
   flatPieceSizes: number[]
   isNewMapDialogOpen: boolean
@@ -25,6 +28,7 @@ export interface UISlice {
   toggleIsEditMapDialogOpen: (b: boolean) => void
   isPieceInventoryDialogOpen: boolean
   toggleIsPieceInventoryDialogOpen: (b: boolean) => void
+
   // WORLD STATE
   selectedPieceID: string
   toggleSelectedPieceID: (id: string) => void
@@ -86,7 +90,30 @@ const createUISlice: StateCreator<
     ),
   penMode: initialPenMode,
   lastPenMode: 'g',
-  togglePenMode: (mode: string) =>
+  lastPenSize: 1,
+  toggleLastPenMode: () =>
+    set(
+      produce((state) => {
+        // if already using old pen mode, skip
+        if (
+          state.penMode === state.lastPenMode &&
+          state.lastPenSize === state.pieceSize
+        ) {
+          return
+        }
+        // we are selecting old pen mode
+        // recalculate piece sizes for old pen mode
+        const { newSize, newSizes } = getNewPieceSizeForPenMode(
+          state.lastPenMode,
+          state.penMode,
+          state.pieceSize,
+        )
+        state.penMode = state.lastPenMode
+        state.pieceSize = state.lastPenSize
+        state.flatPieceSizes = newSizes
+      }),
+    ),
+  togglePenMode: (mode: string) => {
     set(
       produce((state) => {
         // when we switch terrains, we have different size options available and must update smartly
@@ -98,12 +125,15 @@ const createUISlice: StateCreator<
         // if switching to 'select', remeber the last pen mode
         if (mode === 'select' && state.penMode !== 'select') {
           state.lastPenMode = state.penMode
+          state.lastPenSize = state.pieceSize
         }
+        // then update the pen mode/size and available sizes
         state.penMode = mode
         state.pieceSize = newSize
         state.flatPieceSizes = newSizes
       }),
-    ),
+    )
+  },
   flatPieceSizes: getNewPieceSizeForPenMode(initialPenMode, 'select', 0)
     .newSizes,
   pieceSize: 0,
@@ -204,7 +234,7 @@ const createUISlice: StateCreator<
         s.isHideTableTop = b
       }),
     ),
-  isFrameloopDemand: false,
+  isFrameloopDemand: true,
   toggleIsFrameloopDemand: (b: boolean) =>
     set(
       produce((s) => {

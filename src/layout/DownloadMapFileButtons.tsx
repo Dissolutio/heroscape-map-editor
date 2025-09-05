@@ -8,8 +8,9 @@ import { encodeFilename } from '../utils/map-utils'
 const DownloadMapFileButtons = () => {
   const hexMap = useBoundStore((state) => state.hexMap)
   const boardPieces = useBoundStore((state) => state.boardPieces)
+  const fileName = `${encodeFilename(hexMap.name) || genRandomMapName()}${hexMap.author ? `_by_${encodeFilename(hexMap.author)}` : ''}`
   const handleClickExportGzip = async () => {
-    const filename = `${encodeFilename(hexMap.name)}.gz`
+    const filename = `${fileName}.gz`
     const data: {
       hexMap: HexMap
       boardPieces: BoardPieces
@@ -35,7 +36,7 @@ const DownloadMapFileButtons = () => {
     // element.remove()
   }
   const handleClickExportJson = async () => {
-    const filename = `${encodeFilename(hexMap.name) || genRandomMapName()}.json`
+    const filename = `${fileName}.json`
     const data: {
       hexMap: HexMap
       boardPieces: BoardPieces
