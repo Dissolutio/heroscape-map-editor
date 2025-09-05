@@ -193,7 +193,7 @@ const MapPortraitHeader = ({
           alignItems: 'flex-start',
           // flexBasis: 30,
         }}
-      >
+      >{Object.entries(terrainSetCounts).length > 0 && (
         <Text
           style={{ fontSize: '10px' }}
         >Requires: {
@@ -205,6 +205,8 @@ const MapPortraitHeader = ({
             })
           }
         </Text>
+      )
+        }
       </View>
 
       <View
