@@ -95,7 +95,10 @@ const createUISlice: StateCreator<
     set(
       produce((state) => {
         // if already using old pen mode, skip
-        if (state.penMode === state.lastPenMode && state.lastPenSize === state.pieceSize) {
+        if (
+          state.penMode === state.lastPenMode &&
+          state.lastPenSize === state.pieceSize
+        ) {
           return
         }
         // we are selecting old pen mode
@@ -108,8 +111,7 @@ const createUISlice: StateCreator<
         state.penMode = state.lastPenMode
         state.pieceSize = state.lastPenSize
         state.flatPieceSizes = newSizes
-      }
-      ),
+      }),
     ),
   togglePenMode: (mode: string) => {
     set(
@@ -129,10 +131,11 @@ const createUISlice: StateCreator<
         state.penMode = mode
         state.pieceSize = newSize
         state.flatPieceSizes = newSizes
-      })
+      }),
     )
   },
-  flatPieceSizes: getNewPieceSizeForPenMode(initialPenMode, 'select', 0).newSizes,
+  flatPieceSizes: getNewPieceSizeForPenMode(initialPenMode, 'select', 0)
+    .newSizes,
   pieceSize: 0,
   togglePieceSize: (n: number) =>
     set(
