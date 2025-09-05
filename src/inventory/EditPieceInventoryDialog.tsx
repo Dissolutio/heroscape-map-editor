@@ -16,7 +16,7 @@ import useBoundStore from '../store/store'
 import type { PieceInventory } from '../types'
 import { piecesSoFar } from '../data/pieces'
 import { blankPieceInventory } from './blankInventory'
-import { terrainSets } from '../data/terrainSets'
+import { terrainSetsByShortID } from '../data/terrainSets'
 import { pieceGroups } from '../data/pieceGroups'
 
 export const EditPieceInventoryDialog = () => {
@@ -108,7 +108,7 @@ export const EditPieceInventoryDialog = () => {
       <DialogContent>
         {/* Display set add counts */}
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 1 }}>
-          {Object.values(terrainSets).map((set) => (
+          {Object.values(terrainSetsByShortID).map((set) => (
             <Box
               key={set.id}
               sx={{ display: 'flex', alignItems: 'center', gap: 1 }}

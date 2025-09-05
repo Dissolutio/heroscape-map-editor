@@ -12,7 +12,7 @@ import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import ReactCropExampleApp from '../react-image-crop/ReactCropExampleApp'
 import 'react-image-crop/dist/ReactCrop.css'
-import { terrainSets } from '../data/terrainSets'
+import { terrainSetsByShortID } from '../data/terrainSets'
 
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -96,7 +96,7 @@ export default function EditMapFormDialog() {
             const newAuthorName = formJson.newAuthorName
             const newMapNotes = formJson.mapNotes
             const newSetsUsed: string[] = []
-            Object.values(terrainSets).map((set) => {
+            Object.values(terrainSetsByShortID).map((set) => {
               const count = formJson[`terrainSet${set.id}`]
               for (let i = 0; i < count; i++) {
                 newSetsUsed.push(set.id)
@@ -158,7 +158,7 @@ export default function EditMapFormDialog() {
           }
         >
           <h3>Terrain set constraints:</h3>
-          {Object.values(terrainSets).map((set) => (
+          {Object.values(terrainSetsByShortID).map((set) => (
             <TextField
               key={set.id}
               defaultValue={countStringInArrayLoop(setsUsed, set.id)}
