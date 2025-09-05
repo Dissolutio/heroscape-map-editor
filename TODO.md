@@ -1,3 +1,8 @@
+## Move/rotate/switch pieces BIG REFACTOR to boardPiece render
+THIS IS THE BIG REFACTOR: Mixed up validation in addPiece, which should just place the piece if able, then a validator runs in the background
+1. Move, rotate, switch pieces that are on the board already
+
+
 ## What are BoardHexes used for
 - MapDisplay3D => empty/fluid/solid caps, => render pieces
 - MapHex3D => underHexTerrain
@@ -6,7 +11,6 @@
 - useZoomCameraToMapCenter: width/height of map
 - World: width/height of map
 - Controls: log state
-
 
 ## Separation of State (pieces) / Validation
 - Validation through BoardHexes, but render through BoardPieces
@@ -18,8 +22,6 @@
 
 
 
-## Move/rotate/switch pieces
-3. Move, rotate, switch pieces that are on the board already
 
 ## Build constraints and Inventory **NEW**
 You can add them to a map, it becomes part of  **HexMap**.
@@ -45,11 +47,6 @@ Then need some formatting options (1-pager, map key?), author name, maybe more.
 
 ## 3D Models
 <!-- MAKE SOON -->
-Triple Cactus - Laur Underbrush
-Lone Cactus - Laur Underbrush
-Fortress Banner
-FatLeaf - Laur Underbrush (6 leaves, 3 nodes, stem ends at last node, with wingspan and tilt it is the tallest plant)
-Tri-Leaf - Laur Underbrush (8 leaves, 4 nodes, stem ends at last node, each leaf is like a small plant)
 Winter trees
 Laur Wall:
 - Laur Ruin2 Ruin3
@@ -58,12 +55,12 @@ Laur Wall:
 - Laur ShortWallStacker 
 - Laur LongWallStacker 
 - Laur PillarStacker TrianglePillar check/build their stacked configuration
+Fortress Banner
 
 <!-- Refine -->
-Refine Laur Palm Leaves
 Refine Marvel
+Refine Laur Palm Leaves
 Refine Ticalla Palm Leaves
-
 
 ## Home Page
 Cartographers => Maps Gallery
@@ -105,11 +102,9 @@ Building pretty much exactly like you did in Virtualscape. This will probably be
 
 ## Build & Editing Features
 
-1. Middle mouse click or btn on selected piece readout, to grab that terrain as pen mode.
-2. Show ghost piece on hover.
-3. Quick rotate pieces somehow.
-4. Keyboard move and rotate pieces.
-
+* Middle mouse click or btn on selected piece readout, to grab that terrain as pen mode.
+* Quick rotate pieces somehow.
+* 
 
 ## Multi-Select & Copy/Paste  
 1. Selection Tool: Add a selection tool at the bottom. Functionally, you would click the selection tool, then click multiple hexes to highlight them. Then click the copy button. It would place in your hand what you just copied and then you can left click to place it in the world. Might need a reset button for when you are done copying to put one hex back in your hand.
