@@ -22,6 +22,7 @@ export const useApplyHotkeys = ({
   const penMode = useBoundStore((s) => s.penMode)
   const lastPenMode = useBoundStore((s) => s.lastPenMode)
   const togglePenMode = useBoundStore((state) => state.togglePenMode)
+  const toggleLastPenMode = useBoundStore((state) => state.toggleLastPenMode)
   const flatPieceSizes = useBoundStore((s) => s.flatPieceSizes)
   const togglePieceSize = useBoundStore((s) => s.togglePieceSize)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
@@ -83,9 +84,9 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
+        flatPieceSizes?.[2] ??
+        flatPieceSizes?.[1] ??
+        flatPieceSizes[0],
       )
     }
   }
@@ -93,10 +94,10 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[4] ??
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
+        flatPieceSizes?.[3] ??
+        flatPieceSizes?.[2] ??
+        flatPieceSizes?.[1] ??
+        flatPieceSizes[0],
       )
     }
   }
@@ -108,8 +109,12 @@ export const useApplyHotkeys = ({
   const cyclePrevPieceRotation = () => {
     doPenModeCounterRotation(penMode, penModeRotation, togglePenModeRotation)
   }
+  // Instead of one for select, and one for last, maybe combine them and cycle? Could also track
+  // a history of pen modes, and cycle backwards.
   const togglePenModeSelect = () => togglePenMode('select')
-  const togglePenModeLast = () => togglePenMode(lastPenMode)
+  const togglePenModeLast = () => {
+    toggleLastPenMode()
+  }
   const togglePenModeGrass = () => togglePenMode(PiecePrefixes.grass)
   const togglePenModeRock = () => togglePenMode(PiecePrefixes.rock)
   const togglePenModeSand = () => togglePenMode(PiecePrefixes.sand)
