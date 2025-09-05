@@ -1,6 +1,6 @@
 import { setInventories } from './inventories'
 
-export const terrainSets = {
+export const terrainSetsByShortID = {
   C: {
     name: 'Age of Annihilation',
     abbreviation: 'AoA',

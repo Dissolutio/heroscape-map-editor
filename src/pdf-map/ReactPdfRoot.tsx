@@ -5,6 +5,7 @@ import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
 import type { MapState } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
+import { terrainSetsByShortID } from '../data/terrainSets'
 
 export function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -130,13 +131,24 @@ const MyCustomHeaderHeroscapeLogo = ({ hexMap }: MapState) => {
     </View>
   )
 }
+function countTerrainSets(setsUsed: string[]): Record<string, number> {
+  return setsUsed.reduce(
+    (acc, setID) => {
+      acc[setID] = (acc[setID] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>,
+  )
+}
 const MapPortraitHeader = ({
   hexMap,
   mapPortraitBase64,
   mapNotes,
 }: MapState & { mapPortraitBase64: string; mapNotes: string }) => {
   const notesHeight = 20 * Math.ceil(mapNotes.length / 134)
-  console.log('🚀 ~ notesHeight:', notesHeight)
+  const terrainSetCounts = countTerrainSets(hexMap.setsUsed ?? [])
+  console.log('🚀 ~ MapPortraitHeader ~ terrainSetCounts:', terrainSetCounts)
+
   return (
     <View
       style={{
@@ -174,6 +186,32 @@ const MapPortraitHeader = ({
           by: {hexMap.author}
         </Text>
       </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          flexGrow: 0,
+          padding: 0,
+          paddingBottom: 5,
+          alignContent: 'center',
+          alignItems: 'flex-start',
+          // flexBasis: 30,
+        }}
+      >
+        {Object.entries(terrainSetCounts).length > 0 && (
+          <Text style={{ fontSize: '10px' }}>
+            Requires:{' '}
+            {Object.entries(terrainSetCounts).map(([key, val], index) => {
+              const isCommaAfter = !(
+                index >=
+                Object.entries(terrainSetCounts).length - 1
+              )
+              const setNameText = `${terrainSetsByShortID[key as keyof typeof terrainSetsByShortID]?.abbreviation}`
+              const countText = `x${val ?? 0}`
+              return `${setNameText} ${countText}${isCommaAfter ? ', ' : ''}`
+            })}
+          </Text>
+        )}
+      </View>
 
       <View
         style={{
@@ -191,14 +229,16 @@ const MapPortraitHeader = ({
           flexBasis: mapPortraitBase64 ? 200 : 0,
         }}
       >
-        <Image
-          src={mapPortraitBase64}
-          style={{
-            height: '200px',
-            width: 'auto',
-            // border: '1px solid red',
-          }}
-        />
+        {mapPortraitBase64 && (
+          <Image
+            src={mapPortraitBase64}
+            style={{
+              height: '200px',
+              width: 'auto',
+              // border: '1px solid red',
+            }}
+          />
+        )}
       </View>
     </View>
   )
