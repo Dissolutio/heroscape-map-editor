@@ -51,7 +51,9 @@ export const DrawerList = ({
     e?.stopPropagation()
     setIsUploadOpen(!isUploadOpen)
   }
-  const handleClickDownload = (e: React.MouseEvent<HTMLDivElement> | undefined) => {
+  const handleClickDownload = (
+    e: React.MouseEvent<HTMLDivElement> | undefined,
+  ) => {
     e?.stopPropagation()
     setIsDownloadOpen(!isDownloadOpen)
   }
@@ -96,7 +98,7 @@ export const DrawerList = ({
             Undo
           </button> */}
           <button
-            type='button'
+            type="button"
             onClick={() => {
               closeSnackbar(snackbarId)
             }}

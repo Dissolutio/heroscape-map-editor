@@ -47,7 +47,9 @@ export const FileControlsTab = () => {
     e?.stopPropagation()
     setIsUploadOpen(!isUploadOpen)
   }
-  const handleClickDownload = (e: React.MouseEvent<HTMLDivElement> | undefined) => {
+  const handleClickDownload = (
+    e: React.MouseEvent<HTMLDivElement> | undefined,
+  ) => {
     e?.stopPropagation()
     setIsDownloadOpen(!isDownloadOpen)
   }
@@ -92,7 +94,7 @@ export const FileControlsTab = () => {
             Undo
           </button> */}
           <button
-            type='button'
+            type="button"
             onClick={() => {
               closeSnackbar(snackbarId)
             }}
@@ -123,8 +125,6 @@ export const FileControlsTab = () => {
       }}
     >
       <ClickAwayListener onClickAway={handleClickAway}>
-
-
         <div
           style={{
             height: '100%',
@@ -203,7 +203,6 @@ export const FileControlsTab = () => {
               </List>
             </Collapse>
           </List>
-
         </div>
       </ClickAwayListener>
     </Box>

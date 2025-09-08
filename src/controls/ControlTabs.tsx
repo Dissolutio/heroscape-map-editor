@@ -1,21 +1,21 @@
-import * as React from 'react';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
-import Controls from './Controls';
-import type { CameraControls } from '@react-three/drei';
-import type { Group, Object3DEventMap } from 'three';
-import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs';
-import { FileControlsTab } from './FileControlsTab';
+import * as React from 'react'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import Box from '@mui/material/Box'
+import Controls from './Controls'
+import type { CameraControls } from '@react-three/drei'
+import type { Group, Object3DEventMap } from 'three'
+import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
+import { FileControlsTab } from './FileControlsTab'
 
 interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
+  children?: React.ReactNode
+  index: number
+  value: number
 }
 
 function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+  const { children, value, index, ...other } = props
 
   return (
     <div
@@ -27,14 +27,14 @@ function CustomTabPanel(props: TabPanelProps) {
     >
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
-  );
+  )
 }
 
 function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
-  };
+  }
 }
 export const ControlTabs = ({
   cameraControlsRef,
@@ -43,16 +43,20 @@ export const ControlTabs = ({
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) => {
-  const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState(0)
 
   const handleChange = (newValue: number) => {
-    setValue(newValue);
-  };
+    setValue(newValue)
+  }
 
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={(_, n) => handleChange(n)} aria-label="basic tabs example">
+        <Tabs
+          value={value}
+          onChange={(_, n) => handleChange(n)}
+          aria-label="basic tabs example"
+        >
           <Tab label="Build" {...a11yProps(0)} />
           <Tab label="File" {...a11yProps(1)} />
           <Tab label="Edit" {...a11yProps(2)} />
@@ -87,7 +91,7 @@ export const ControlTabs = ({
         />
       </CustomTabPanel>
     </Box>
-  );
+  )
 }
 //   {
 //   const [value, setValue] = React.useState('1');

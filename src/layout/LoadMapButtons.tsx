@@ -10,7 +10,11 @@ import readVirtualscapeMapFile, {
 } from '../data/readVirtualscapeMapFile'
 import useBoundStore from '../store/store'
 import type { MapFileState } from '../types'
-import { jsonUploadElementID, uploadElementID, virtualScapeUploadElementID } from './LoadFileHiddenInputs'
+import {
+  jsonUploadElementID,
+  uploadElementID,
+  virtualScapeUploadElementID,
+} from './LoadFileHiddenInputs'
 
 export const useLoadMapButtons = () => {
   const handleClickGzipFileSelect = () => {
@@ -82,6 +86,5 @@ const LoadMapButtons = () => {
     </>
   )
 }
-
 
 export default LoadMapButtons

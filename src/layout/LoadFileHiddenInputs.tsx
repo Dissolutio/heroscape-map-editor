@@ -17,7 +17,6 @@ export const uploadElementID = 'upload'
 export const jsonUploadElementID = 'jsonupload'
 export const virtualScapeUploadElementID = 'vsupload'
 
-
 export const LoadFileHiddenInputs = () => {
   const loadMap = useBoundStore((state) => state.loadMap)
   const inventory = useLocalPieceInventory()
@@ -26,7 +25,7 @@ export const LoadFileHiddenInputs = () => {
   const closeSnackbarIDAction: SnackbarAction = (snackbarId: SnackbarKey) => (
     <>
       <button
-        type='button'
+        type="button"
         onClick={() => {
           closeSnackbar(snackbarId)
         }}
@@ -203,7 +202,6 @@ export const LoadFileHiddenInputs = () => {
     </>
   )
 }
-
 
 const hiddenStyle = {
   clip: 'rect(0 0 0 0)',
