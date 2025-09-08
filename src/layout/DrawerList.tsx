@@ -10,7 +10,7 @@ import {
   Typography,
 } from '@mui/material'
 import JSONCrush from 'jsoncrush'
-import { useSnackbar } from 'notistack'
+import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
 import { parse } from 'papaparse'
 import React, { type ChangeEvent } from 'react'
 import {
@@ -29,6 +29,7 @@ import type { PieceInventory } from '../types'
 import DownloadMapFileButtons from './DownloadMapFileButtons'
 import LoadMapButtons from './LoadMapButtons'
 import { hiddenStyle } from './hiddenStyle'
+import { LoadFileHiddenInputs } from './LoadFileHiddenInputs'
 
 export const DrawerList = ({
   toggleIsNavOpen,
@@ -47,26 +48,26 @@ export const DrawerList = ({
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
   )
-  const toggleIsPieceInventoryDialogOpen = useBoundStore(
-    (state) => state.toggleIsPieceInventoryDialogOpen,
-  )
+  // const toggleIsPieceInventoryDialogOpen = useBoundStore(
+  //   (state) => state.toggleIsPieceInventoryDialogOpen,
+  // )
   const personalInventoryTsvUploadElementID = 'tsvinventoryupload'
   const inventory = useLocalPieceInventory()
-  const handleClick = (e: any) => {
+  const handleClick = (e: React.MouseEvent<HTMLDivElement> | undefined) => {
     e?.stopPropagation()
     setIsUploadOpen(!isUploadOpen)
   }
-  const handleClickDownload = (e: any) => {
+  const handleClickDownload = (e: React.MouseEvent<HTMLDivElement> | undefined) => {
     e?.stopPropagation()
     setIsDownloadOpen(!isDownloadOpen)
   }
-  const handleClickUploadPersonalInventoryTsv = (e: any) => {
-    e?.stopPropagation()
-    const element = document.getElementById(personalInventoryTsvUploadElementID)
-    if (element) {
-      element.click()
-    }
-  }
+  // const handleClickUploadPersonalInventoryTsv = (e: React.MouseEvent<HTMLDivElement> | undefined) => {
+  //   e?.stopPropagation()
+  //   const element = document.getElementById(personalInventoryTsvUploadElementID)
+  //   if (element) {
+  //     element.click()
+  //   }
+  // }
   const onClickCopy = async () => {
     const myUrl = encodeURI(
       JSONCrush.crush(
@@ -95,12 +96,13 @@ export const DrawerList = ({
       })
     } catch (err) {
       console.log('Attempted clipboard write, failed:', err)
-      const action: any = (snackbarId: string) => (
+      const action: SnackbarAction = (snackbarId: SnackbarKey) => (
         <>
           {/* <button onClick={() => { alert(`I belong to snackbar with id ${snackbarId}`); }}>
             Undo
           </button> */}
           <button
+            type='button'
             onClick={() => {
               closeSnackbar(snackbarId)
             }}
@@ -132,12 +134,12 @@ export const DrawerList = ({
         header: true,
         complete: (results) => {
           const newPieceInventory: PieceInventory = {}
-          results.data.forEach((datum) => {
+          for (const datum of results.data) {
             console.log('🚀 ~ results.data.forEach ~ datum:', datum)
             if (datum.ID && piecesSoFar[datum.ID]) {
               newPieceInventory[datum.ID] = Number.parseInt(datum.Count)
             }
-          })
+          }
           inventory.setPieceInventory(newPieceInventory)
           console.log(
             '🚀 ~ readPersonalInventoryTsvFile ~ inventory:',
@@ -148,7 +150,7 @@ export const DrawerList = ({
           console.error(err)
         },
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error)
     }
     event.target.value = '' // Reset the input value, otherwise choosing same file again will do nothing
@@ -255,14 +257,7 @@ export const DrawerList = ({
           </Collapse>
         </List>
 
-        <input
-          id={personalInventoryTsvUploadElementID}
-          type="file"
-          style={hiddenStyle}
-          accept=".tsv"
-          onChange={readPersonalInventoryTsvFile}
-        />
-
+        <LoadFileHiddenInputs />
         <div>
           <Divider />
           <Typography
