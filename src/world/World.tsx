@@ -39,6 +39,45 @@ const World = ({
     toggleHoveredPieceID('')
     // toggleSelectedPieceID('')
   }
+  // <Canvas
+  //   onPointerMissed={(event) => {
+  //     if (event.button !== 0) {
+  //       return
+  //     }
+  //     toggleHoveredPieceID('')
+  //     toggleSelectedPieceID('')
+  //   }}
+  //   onPointerLeave={() => {
+  //     toggleHoveredPieceID('')
+  //   }}
+  //   frameloop={isFrameloopDemand ? 'demand' : undefined}
+  //   hidden={isHidden}
+  //   shadows={isLightsAndShadowsRender}
+  // >
+  //   {/* <color attach="background" args={["white"]} /> */}
+  //   <PerspectiveCamera
+  //     position={[10, 10, 10]}
+  //     fov={CAMERA_FOV}
+  //     makeDefault={!isOrthoCam}
+  //   />
+  //   <OrthographicCamera
+  //     position={[100, 1000, 100]}
+  //     zoom={30}
+  //     makeDefault={isOrthoCam}
+  //   />
+  //   {/* Stats displays the fps */}
+  //   {!isHidden && import.meta.env.DEV && (
+  //     <Stats className="stats-panel" />
+  //   )}
+  //   <MapDisplay3D
+  //     mapGroupRef={mapGroupRef}
+  //     cameraControlsRef={cameraControlsRef}
+  //   />
+  //   <Lights width={width} length={length} />
+  //   {/* {!isTakingPicture && <GridHelper />} */}
+  //   <MyCameraControls cameraControlsRef={cameraControlsRef} />
+  //   <TakeAPictureBox />
+  // </Canvas>
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
       <div
@@ -49,45 +88,6 @@ const World = ({
           position: 'relative',
         }}
       >
-        <Canvas
-          onPointerMissed={(event) => {
-            if (event.button !== 0) {
-              return
-            }
-            toggleHoveredPieceID('')
-            toggleSelectedPieceID('')
-          }}
-          onPointerLeave={() => {
-            toggleHoveredPieceID('')
-          }}
-          frameloop={isFrameloopDemand ? 'demand' : undefined}
-          hidden={isHidden}
-          shadows={isLightsAndShadowsRender}
-        >
-          {/* <color attach="background" args={["white"]} /> */}
-          <PerspectiveCamera
-            position={[10, 10, 10]}
-            fov={CAMERA_FOV}
-            makeDefault={!isOrthoCam}
-          />
-          <OrthographicCamera
-            position={[100, 1000, 100]}
-            zoom={30}
-            makeDefault={isOrthoCam}
-          />
-          {/* Stats displays the fps */}
-          {!isHidden && import.meta.env.DEV && (
-            <Stats className="stats-panel" />
-          )}
-          <MapDisplay3D
-            mapGroupRef={mapGroupRef}
-            cameraControlsRef={cameraControlsRef}
-          />
-          <Lights width={width} length={length} />
-          {/* {!isTakingPicture && <GridHelper />} */}
-          <MyCameraControls cameraControlsRef={cameraControlsRef} />
-          <TakeAPictureBox />
-        </Canvas>
         <SelectedPieceReadout />
         {/* <HoveredPieceReadout /> */}
       </div>
