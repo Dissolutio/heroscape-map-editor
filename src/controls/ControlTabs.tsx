@@ -6,6 +6,7 @@ import Controls from './Controls';
 import { CameraControls } from '@react-three/drei';
 import { Group, Object3DEventMap } from 'three';
 import { FileControlsTab } from './FileControlsTab';
+import { FileControlsTab2 } from '../layout/DrawerList';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -67,7 +68,7 @@ export const ControlTabs = ({
       </CustomTabPanel>
       {/* FILE */}
       <CustomTabPanel value={value} index={1}>
-        <FileControlsTab />
+        <FileControlsTab2 />
       </CustomTabPanel>
       {/* EDIT */}
       <CustomTabPanel value={value} index={2}>
