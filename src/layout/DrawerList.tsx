@@ -26,7 +26,6 @@ import { piecesSoFar } from '../data/pieces'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 import useBoundStore from '../store/store'
 import type { PieceInventory } from '../types'
-import DownloadMapFileButtons from './DownloadMapFileButtons'
 import LoadMapButtons from './LoadMapButtons'
 import { hiddenStyle } from './hiddenStyle'
 
@@ -213,19 +212,6 @@ export const DrawerList = ({
             <ListItemText primary="Copy Shareable URL" />
           </ListItemButton>
 
-          {/* EXPAND DOWNLAD MAP FILE BTNS */}
-          <ListItemButton onClick={handleClickDownload}>
-            <ListItemIcon>
-              <FcDownload />
-            </ListItemIcon>
-            <ListItemText primary="Download Map File" />
-            {isDownloadOpen ? <MdExpandLess /> : <MdExpandMore />}
-          </ListItemButton>
-          <Collapse in={isDownloadOpen} timeout="auto">
-            <List component="div">
-              <DownloadMapFileButtons />
-            </List>
-          </Collapse>
           {/* OPEN CREATE MAP DIALOG */}
           <ListItemButton
             onClick={() => toggleIsNewMapDialogOpen(!isNewMapDialogOpen)}
