@@ -3,10 +3,10 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Controls from './Controls';
-import { CameraControls } from '@react-three/drei';
-import { Group, Object3DEventMap } from 'three';
+import type { CameraControls } from '@react-three/drei';
+import type { Group, Object3DEventMap } from 'three';
+import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs';
 import { FileControlsTab } from './FileControlsTab';
-import { FileControlsTab2 } from '../layout/DrawerList';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -45,20 +45,22 @@ export const ControlTabs = ({
 }) => {
   const [value, setValue] = React.useState(0);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (newValue: number) => {
     setValue(newValue);
   };
 
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+        <Tabs value={value} onChange={(_, n) => handleChange(n)} aria-label="basic tabs example">
           <Tab label="Build" {...a11yProps(0)} />
           <Tab label="File" {...a11yProps(1)} />
           <Tab label="Edit" {...a11yProps(2)} />
           <Tab label="View" {...a11yProps(3)} />
         </Tabs>
       </Box>
+      {/* HIDDEN FILE INPUTS */}
+      <LoadFileHiddenInputs />
       {/* BUILD */}
       <CustomTabPanel value={value} index={0}>
         <Controls
@@ -68,7 +70,7 @@ export const ControlTabs = ({
       </CustomTabPanel>
       {/* FILE */}
       <CustomTabPanel value={value} index={1}>
-        <FileControlsTab2 />
+        <FileControlsTab />
       </CustomTabPanel>
       {/* EDIT */}
       <CustomTabPanel value={value} index={2}>
