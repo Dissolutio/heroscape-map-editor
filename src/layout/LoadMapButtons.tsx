@@ -1,5 +1,5 @@
 import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
-import { useSnackbar } from 'notistack'
+import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
 import React, { type ChangeEvent } from 'react'
 import { MdFolderZip, MdOutlineHexagon } from 'react-icons/md'
 import { useLocation } from 'wouter'
@@ -9,10 +9,38 @@ import readVirtualscapeMapFile, {
   readGzipMapFile,
 } from '../data/readVirtualscapeMapFile'
 import useBoundStore from '../store/store'
+import type { MapFileState } from '../types'
 
 const uploadElementID = 'upload'
 const jsonUploadElementID = 'jsonupload'
 const virtualScapeUploadElementID = 'vsupload'
+
+export const useLoadMapButtons = () => {
+  const handleClickGzipFileSelect = () => {
+    const element = document.getElementById(uploadElementID)
+    if (element) {
+      element.click()
+    }
+  }
+  const handleClickJsonFileSelect = () => {
+    const element = document.getElementById(jsonUploadElementID)
+    if (element) {
+      element.click()
+    }
+  }
+  const handleClickVSFileSelect = async () => {
+    const element = document.getElementById(virtualScapeUploadElementID)
+    if (element) {
+      element.click()
+    }
+  }
+
+  return {
+    handleClickGzipFileSelect,
+    handleClickJsonFileSelect,
+    handleClickVSFileSelect,
+  }
+}
 
 const LoadMapButtons = () => {
   const handleClickGzipFileSelect = () => {
@@ -63,12 +91,13 @@ export const LoadMapInputs = () => {
   // const { clear } = useBoundStore.temporal.getState()
   const [, navigate] = useLocation()
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
-  const closeSnackbarIDAction: any = (snackbarId: string) => (
+  const closeSnackbarIDAction: SnackbarAction = (snackbarId: SnackbarKey) => (
     <>
       {/* <button onClick={() => { alert(`I belong to snackbar with id ${snackbarId}`); }}>
         Undo
       </button> */}
       <button
+        type='button'
         onClick={() => {
           closeSnackbar(snackbarId)
         }}
@@ -96,9 +125,13 @@ export const LoadMapInputs = () => {
       })
       navigate(ROUTES.heroscapeHome)
       // clear() // clear undo history, initial load should not be undoable
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage =
+        typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message?: string }).message
+          : String(error)
       enqueueSnackbar({
-        message: `Error loading json map: ${error?.message ?? error}`,
+        message: `Error loading json map: ${errorMessage}`,
         variant: 'error',
         action: closeSnackbarIDAction,
       })
@@ -106,13 +139,14 @@ export const LoadMapInputs = () => {
     }
     event.target.value = '' // Reset the input value, otherwise choosing same file again will do nothing
   }
+
   const readJsonFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event?.target?.files?.[0]
     if (!file) {
       return
     }
     try {
-      const data: any = await new Response(file).json()
+      const data: MapFileState = await new Response(file).json()
       const jsonMap = buildupJsonFileMap(data.boardPieces, data.hexMap)
       if (!jsonMap.hexMap.name) {
         jsonMap.hexMap.name = file.name
@@ -125,9 +159,13 @@ export const LoadMapInputs = () => {
       })
       navigate(ROUTES.heroscapeHome)
       // clear() // clear undo history, initial load should not be undoable
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage =
+        typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message?: string }).message
+          : String(error)
       enqueueSnackbar({
-        message: `Error loading json map: ${error?.message ?? error}`,
+        message: `Error loading json map: ${errorMessage}`,
         variant: 'error',
         action: closeSnackbarIDAction,
       })
@@ -151,9 +189,13 @@ export const LoadMapInputs = () => {
         autoHideDuration: 3000,
       })
       navigate(ROUTES.heroscapeHome)
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage =
+        typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message?: string }).message
+          : String(error)
       enqueueSnackbar({
-        message: `Error loading virtualscape map: ${error?.message ?? error}`,
+        message: `Error loading virtualscape map: ${errorMessage}`,
         variant: 'error',
         action: closeSnackbarIDAction,
       })
@@ -161,7 +203,6 @@ export const LoadMapInputs = () => {
     }
     event.target.value = '' // Reset the input value, otherwise choosing same file again will do nothing
   }
-
   return (
     <>
       <input
