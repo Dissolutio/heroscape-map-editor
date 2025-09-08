@@ -40,9 +40,9 @@ export const FileControlsTab = () => {
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
   )
-  const toggleIsPieceInventoryDialogOpen = useBoundStore(
-    (state) => state.toggleIsPieceInventoryDialogOpen,
-  )
+  // const toggleIsPieceInventoryDialogOpen = useBoundStore(
+  //   (state) => state.toggleIsPieceInventoryDialogOpen,
+  // )
   const handleClick = (e: React.MouseEvent<HTMLDivElement> | undefined) => {
     e?.stopPropagation()
     setIsUploadOpen(!isUploadOpen)
@@ -145,14 +145,14 @@ export const FileControlsTab = () => {
             </ListItemButton>
 
             {/* OPEN EDIT MY PIECE INVENTORY DIALOG */}
-            <ListItemButton
+            {/* <ListItemButton
               onClick={() => toggleIsPieceInventoryDialogOpen(true)}
             >
               <ListItemIcon>
                 <FcRules />
               </ListItemIcon>
               <ListItemText primary={'Edit My Piece Inventory'} />
-            </ListItemButton>
+            </ListItemButton> */}
 
             {/* COPY URL */}
             <ListItemButton onClick={onClickCopy}>
