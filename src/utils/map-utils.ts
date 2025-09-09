@@ -26,6 +26,7 @@ import {
   hexUtilsGetRadialFarNeighborForRotation,
 } from './hex-utils'
 import { piecesSoFar } from '../data/pieces'
+import { terrainSetsByShortID } from '../data/terrainSets'
 
 export const getBoardHexesRectangularMapDimensions = (
   boardHexes: BoardHexes,
@@ -279,4 +280,26 @@ export const getBoardPiecesMaxLevel = (boardPieces: BoardPieces) => {
       .map((bp) => decodePieceID(bp).altitude) // get their altitudes
       .sort((a, b) => b - a)[0] // sort them high to low and grab the first
   return Number.isNaN(maxLevel) ? 0 : maxLevel
+}
+export function countTerrainSets(setsUsed: string[]): Record<string, number> {
+  return setsUsed.reduce(
+    (acc, setID) => {
+      acc[setID] = (acc[setID] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>,
+  )
+}
+export const getSetsUsedText = (setsUsed: string[]) => {
+  const terrainSetCounts = countTerrainSets(setsUsed)
+  const res = Object.entries(terrainSetCounts).map(([key, val], index) => {
+    const isCommaAfter = !(
+      index >=
+      Object.entries(terrainSetCounts).length - 1
+    )
+    const setNameText = `${terrainSetsByShortID[key as keyof typeof terrainSetsByShortID]?.abbreviation}`
+    const countText = `x${val ?? 0}`
+    return `${setNameText} ${countText}${isCommaAfter ? ', ' : ''}`
+  })
+  return res
 }

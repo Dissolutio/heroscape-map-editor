@@ -6,6 +6,7 @@ import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
 import type { MapState } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
 import { terrainSetsByShortID } from '../data/terrainSets'
+import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
 
 export function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -55,15 +56,7 @@ export function ReactPdfRoot() {
   )
 }
 
-function countTerrainSets(setsUsed: string[]): Record<string, number> {
-  return setsUsed.reduce(
-    (acc, setID) => {
-      acc[setID] = (acc[setID] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>,
-  )
-}
+
 const MapPortraitHeader = ({
   hexMap,
   mapPortraitBase64,
@@ -122,15 +115,7 @@ const MapPortraitHeader = ({
         {Object.entries(terrainSetCounts).length > 0 && (
           <Text style={{ fontSize: '10px' }}>
             Requires:{' '}
-            {Object.entries(terrainSetCounts).map(([key, val], index) => {
-              const isCommaAfter = !(
-                index >=
-                Object.entries(terrainSetCounts).length - 1
-              )
-              const setNameText = `${terrainSetsByShortID[key as keyof typeof terrainSetsByShortID]?.abbreviation}`
-              const countText = `x${val ?? 0}`
-              return `${setNameText} ${countText}${isCommaAfter ? ', ' : ''}`
-            })}
+            {getSetsUsedText(hexMap?.setsUsed ?? [])}
           </Text>
         )}
       </View>
