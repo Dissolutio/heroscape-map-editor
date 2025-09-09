@@ -3,15 +3,12 @@ import AppBar from '@mui/material/AppBar'
 import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
 import { FcPrint } from 'react-icons/fc'
-import { MdMenu } from 'react-icons/md'
 import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
 import { ReactPdfDownloadLink } from '../pdf-map/ReactPdfDownloadLink'
 import useBoundStore from '../store/store'
 
 type Props = {
   isMobileScreenLayout: boolean
-  isNavOpen: boolean
-  toggleIsNavOpen: (arg0: boolean) => void
   isPdfOpen: boolean
   toggleIsPdfOpen: (arg0: boolean) => void
   is2DOpen: boolean
@@ -20,8 +17,6 @@ type Props = {
 
 export function HeaderNav({
   isMobileScreenLayout,
-  isNavOpen,
-  toggleIsNavOpen,
   isPdfOpen,
   toggleIsPdfOpen,
   is2DOpen,
@@ -30,25 +25,14 @@ export function HeaderNav({
   // AppBar height is 64px when screen > 600px
   // AppBar height is 56px when screen < 600px
   const hexMap = useBoundStore((s) => s.hexMap)
-  const icon3DTitle = 'View 3D Map'
-  const icon2DTitle = 'View 2D Map'
   const iconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
   return (
     <AppBar
       position="static"
-      // sx={{ backgroundColor: 'var(--black)' }}
-      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+    // sx={{ backgroundColor: 'var(--black)' }}
+    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
-        <IconButton
-          size="large"
-          edge="start"
-          aria-label="File menu"
-          sx={{ mr: 2 }}
-          onClick={() => toggleIsNavOpen(!isNavOpen)}
-        >
-          <MdMenu />
-        </IconButton>
         <Typography
           variant="h6"
           component="div"

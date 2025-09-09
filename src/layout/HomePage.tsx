@@ -4,9 +4,7 @@ import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
 import { ReactPdfRoot } from '../pdf-map/ReactPdfRoot'
 import { SvgMapDisplay } from '../svg-map/SvgMapDisplay'
 import World from '../world/World'
-import CameraSpeedDial from './CameraSpeedDial'
 import CreateMapFormDialog from './CreateMapFormDialog'
-import { DrawerList } from './DrawerList'
 import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
 import useBoundStore from '../store/store'
@@ -32,10 +30,6 @@ export default function HomePage() {
   const isLargeScreenLayout = useMediaQuery('(min-width:1000px)')
   const isMobileScreenLayout = useMediaQuery('(max-width:600px)')
 
-  const [isNavOpen, setIsNavOpen] = React.useState(false)
-  const toggleIsNavOpen = (s: boolean) => {
-    setIsNavOpen(s)
-  }
   const [isPdfOpen, setIsPdfOpen] = React.useState(false)
   const toggleIsPdfOpen = (s: boolean) => {
     setIsPdfOpen(s)
@@ -59,14 +53,6 @@ export default function HomePage() {
       <CreateMapFormDialog />
       <EditMapFormDialog />
       <EditPieceInventoryDialog />
-      <Drawer
-        open={isNavOpen}
-        // open={true} // DEV toggle
-        onClose={() => toggleIsNavOpen(false)}
-        keepMounted
-      >
-        <DrawerList toggleIsNavOpen={toggleIsNavOpen} />
-      </Drawer>
       <div
         style={{
           display: 'flex',
@@ -79,8 +65,6 @@ export default function HomePage() {
       >
         <HeaderNav
           isMobileScreenLayout={isMobileScreenLayout}
-          isNavOpen={isNavOpen}
-          toggleIsNavOpen={toggleIsNavOpen}
           isPdfOpen={isPdfOpen}
           toggleIsPdfOpen={toggleIsPdfOpen}
           is2DOpen={is2DOpen}
