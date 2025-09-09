@@ -7,6 +7,9 @@ import type { CameraControls } from '@react-three/drei'
 import type { Group, Object3DEventMap } from 'three'
 import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
 import { FileControlsTab } from './FileControlsTab'
+import ViewControlsTab from './ViewControlsTab'
+import { EditControlsTab } from './EditControlsTab'
+import { BuildControlsTab } from './BuildControlsTab'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -56,6 +59,7 @@ export const ControlTabs = ({
           value={value}
           onChange={(_, n) => handleChange(n)}
           aria-label="basic tabs example"
+          centered
         >
           <Tab label="Build" {...a11yProps(0)} />
           <Tab label="File" {...a11yProps(1)} />
@@ -67,10 +71,7 @@ export const ControlTabs = ({
       <LoadFileHiddenInputs />
       {/* BUILD */}
       <CustomTabPanel value={value} index={0}>
-        <Controls
-          cameraControlsRef={cameraControlsRef}
-          mapGroupRef={mapGroupRef}
-        />
+        <BuildControlsTab />
       </CustomTabPanel>
       {/* FILE */}
       <CustomTabPanel value={value} index={1}>
@@ -78,14 +79,11 @@ export const ControlTabs = ({
       </CustomTabPanel>
       {/* EDIT */}
       <CustomTabPanel value={value} index={2}>
-        <Controls
-          cameraControlsRef={cameraControlsRef}
-          mapGroupRef={mapGroupRef}
-        />
+        <EditControlsTab />
       </CustomTabPanel>
       {/* VIEW */}
       <CustomTabPanel value={value} index={3}>
-        <Controls
+        <ViewControlsTab
           cameraControlsRef={cameraControlsRef}
           mapGroupRef={mapGroupRef}
         />

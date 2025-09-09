@@ -107,16 +107,11 @@ export default function HomePage() {
           >
             {isPdfOpen && <ReactPdfRoot />}
             {is2DOpen && !isPdfOpen && <SvgMapDisplay />}
-            <>
-              {!is2DOpen && !isPdfOpen && (
-                <CameraSpeedDial cameraControlsRef={cameraControlsRef} />
-              )}
-              <World
-                isHidden={is2DOpen || isPdfOpen}
-                cameraControlsRef={cameraControlsRef}
-                mapGroupRef={mapGroupRef}
-              />
-            </>
+            <World
+              isHidden={is2DOpen || isPdfOpen}
+              cameraControlsRef={cameraControlsRef}
+              mapGroupRef={mapGroupRef}
+            />
           </div>
           <div
             style={{
