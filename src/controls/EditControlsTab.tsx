@@ -268,7 +268,6 @@ export const EditControlsTab = () => {
             Shift all pieces in 1 direction
           </Typography>
           <ButtonGroup
-            variant="contained"
             aria-label="Shift map button group"
             size="small"
           >
