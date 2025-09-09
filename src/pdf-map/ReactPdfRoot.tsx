@@ -5,7 +5,6 @@ import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
 import type { MapState } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
-import { terrainSetsByShortID } from '../data/terrainSets'
 import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
 
 export function ReactPdfRoot() {
@@ -97,9 +96,9 @@ const MapPortraitHeader = ({
           />
         </View>
         <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>
-        <Text style={{ fontSize: '12px', paddingLeft: 5 }}>
+        {hexMap.author && (<Text style={{ fontSize: '12px', paddingLeft: 5 }}>
           by: {hexMap.author}
-        </Text>
+        </Text>)}
       </View>
       <View
         style={{

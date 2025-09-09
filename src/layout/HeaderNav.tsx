@@ -6,6 +6,7 @@ import { FcPrint } from 'react-icons/fc'
 import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
 import { ReactPdfDownloadLink } from '../pdf-map/ReactPdfDownloadLink'
 import useBoundStore from '../store/store'
+import { getSetsUsedText } from '../utils/map-utils'
 
 type Props = {
   isMobileScreenLayout: boolean
@@ -26,6 +27,7 @@ export function HeaderNav({
   // AppBar height is 56px when screen < 600px
   const hexMap = useBoundStore((s) => s.hexMap)
   const iconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
+  const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
   return (
     <AppBar
       position="static"
@@ -34,12 +36,27 @@ export function HeaderNav({
     >
       <Toolbar>
         <Typography
-          variant="h6"
-          component="div"
-          sx={{ flexGrow: 1 }}
-          aria-label={`Map name: ${hexMap.name}`}
+          variant="h1"
+          component="h1"
+          sx={{ flexGrow: 0, m: 0, p: 0, fontSize: 18 }}
         >
           {hexMap.name || 'Hexoscape Map Editor'}
+
+        </Typography>
+        <Typography
+          variant="subtitle1"
+          component="span"
+          sx={{
+            flexGrow: 1,
+            textAlign: 'left',
+            fontSize: '0.6em',
+            color: 'var(--sub-white)',
+            px: 2,
+            overflow: 'hidden',
+            maxHeight: 68
+          }}
+        >
+          {setsUsedText}
         </Typography>
         {isMobileScreenLayout ? (
           <ReactPdfDownloadLink>
