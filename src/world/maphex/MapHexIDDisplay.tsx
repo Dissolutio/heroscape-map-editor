@@ -9,7 +9,7 @@ import {
 import { HEXGRID_HEX_HEIGHT } from '../../utils/constants'
 import { isFluidTerrainHex } from '../../utils/board-utils'
 import useBoundStore from '../../store/store'
-import { genBoardHexID } from '../../utils/map-utils'
+import { genBoardHexID, getBoardPiecesMaxLevel } from '../../utils/map-utils'
 
 /* 
   MapHexIDDisplay
@@ -24,6 +24,10 @@ export const MapHexIDDisplay = ({
 }) => {
   // return null
   const boardHexes = useBoundStore((s) => s.boardHexes)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+  const isViewingLevelBelowMax = viewingLevel < maxLevel
   /* 
   DEV VISUAL: toggling the below filters off, such that EVERY boardHex shows a billboardID, really helps to see how the 
   grid works (you can see vertical-clearance hexes, empty hexes)
@@ -43,8 +47,8 @@ export const MapHexIDDisplay = ({
   if (!isDisplayCapHeights) return null
 
   // filters out non-caps
-  if (!(boardHex.isCap || boardHex.terrain === HexTerrain.startZone))
-    return null
+  // if (!(boardHex.isCap || boardHex.terrain === HexTerrain.startZone))
+  //   return null
   // filters out vertical clearance
   if (
     !boardHex.isCap &&
