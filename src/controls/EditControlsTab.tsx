@@ -179,6 +179,7 @@ export const EditControlsTab = () => {
       loadMap(newMap)
     }
   }
+  const buttonFontSize = isMobileScreenLayout ? 8 : isMediumScreenLayout ? 12 : 12
   return (
     <Box sx={{ p: 0 }}>
       {/* <div style={{ padding: '0px 20px' }}>
@@ -223,6 +224,9 @@ export const EditControlsTab = () => {
                   : 'Add one row of hexes to bottom'
               }
               onClick={handleClickAddMapLengthX}
+              sx={{
+                fontSize: buttonFontSize
+              }}
             >
               + length
             </Button>
@@ -237,6 +241,9 @@ export const EditControlsTab = () => {
                   : 'Remove one row of hexes from bottom'
               }
               onClick={handleClickRemoveMapLengthX}
+              sx={{
+                fontSize: buttonFontSize
+              }}
             >
               - length
             </Button>
@@ -249,6 +256,9 @@ export const EditControlsTab = () => {
               }
               title="Add one column of hexes to right side"
               onClick={handleClickAddMapWidthY}
+              sx={{
+                fontSize: buttonFontSize
+              }}
             >
               + width
             </Button>
@@ -259,6 +269,9 @@ export const EditControlsTab = () => {
               }
               title="Remove one column of hexes from right side"
               onClick={handleClickRemoveMapWidthY}
+              sx={{
+                fontSize: buttonFontSize
+              }}
             >
               - width
             </Button>
@@ -279,36 +292,54 @@ export const EditControlsTab = () => {
             <Button
               title="Move all pieces 1 hex left"
               onClick={() => movePieces(3)}
+              sx={{
+                fontSize: buttonFontSize
+              }}
             >
               Left
             </Button>
             <Button
               title="Move all pieces 1 hex up-left"
               onClick={() => movePieces(4)}
+              sx={{
+                fontSize: buttonFontSize
+              }}
             >
               Up Left
             </Button>
             <Button
               title="Move all pieces 1 hex up-right"
               onClick={() => movePieces(5)}
+              sx={{
+                fontSize: buttonFontSize
+              }}
             >
               Up Right
             </Button>
             <Button
               title="Move all pieces 1 hex right"
               onClick={() => movePieces(0)}
+              sx={{
+                fontSize: buttonFontSize
+              }}
             >
               Right
             </Button>
             <Button
               title="Move all pieces 1 hex down-right"
               onClick={() => movePieces(1)}
+              sx={{
+                fontSize: buttonFontSize
+              }}
             >
               Down Right
             </Button>
             <Button
               title="Move all pieces 1 hex down-left"
               onClick={() => movePieces(2)}
+              sx={{
+                fontSize: buttonFontSize
+              }}
             >
               Down Left
             </Button>
