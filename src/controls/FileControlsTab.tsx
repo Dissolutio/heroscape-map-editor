@@ -17,7 +17,7 @@ import {
   FcUpload,
   FcVlc,
 } from 'react-icons/fc'
-import { MdExpandLess, MdExpandMore } from 'react-icons/md'
+import { MdExpandLess, MdExpandMore, MdFolderZip } from 'react-icons/md'
 import useBoundStore from '../store/store'
 import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
 import LoadMapButtons from '../layout/LoadMapButtons'
@@ -25,12 +25,14 @@ import LoadMapButtons from '../layout/LoadMapButtons'
 export const FileControlsTab = () => {
   const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
-  const [isUploadOpen, setIsUploadOpen] = React.useState(false)
-  const [isDownloadOpen, setIsDownloadOpen] = React.useState(false)
+  const mapPortraitBase64 = useBoundStore((s) => s.mapPortraitBase64)
   const toggleIsNewMapDialogOpen = useBoundStore(
     (state) => state.toggleIsNewMapDialogOpen,
   )
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
+  const [isUploadOpen, setIsUploadOpen] = React.useState(false)
+  const [isDownloadOpen, setIsDownloadOpen] = React.useState(false)
+  const [isDownloadPhotoOpen, setIsDownloadPhotoOpen] = React.useState(false)
   const isNewMapDialogOpen = useBoundStore((state) => state.isNewMapDialogOpen)
   // const toggleIsPieceInventoryDialogOpen = useBoundStore(
   //   (state) => state.toggleIsPieceInventoryDialogOpen,
@@ -44,6 +46,22 @@ export const FileControlsTab = () => {
   ) => {
     e?.stopPropagation()
     setIsDownloadOpen(!isDownloadOpen)
+  }
+  const handleDownloadPng = () => {
+    const link = document.createElement('a')
+    link.download = `${hexMap.name}.png`
+    link.href = mapPortraitBase64
+    // document.body.appendChild(link)
+    link.click()
+    // document.body.removeChild(link)
+  }
+  const handleDownloadJpg = () => {
+    const link = document.createElement('a')
+    link.download = `${hexMap.name}.jpg`
+    link.href = mapPortraitBase64
+    // document.body.appendChild(link)
+    link.click()
+    // document.body.removeChild(link)
   }
   // const handleClickUploadPersonalInventoryTsv = (e: React.MouseEvent<HTMLDivElement> | undefined) => {
   //   e?.stopPropagation()
@@ -103,17 +121,21 @@ export const FileControlsTab = () => {
       })
     }
   }
+  const handleClickDownloadPhoto = (
+    e: React.MouseEvent<HTMLDivElement> | undefined,
+  ) => {
+    e?.stopPropagation()
+    setIsDownloadPhotoOpen(!isDownloadPhotoOpen)
+  }
   const handleClickAway = () => {
     setIsUploadOpen(false)
     setIsDownloadOpen(false)
+    setIsDownloadPhotoOpen(false)
   }
   return (
     <Box
       role="presentation"
-      onClick={() => {
-        setIsDownloadOpen(false)
-        setIsUploadOpen(false)
-      }}
+      onClick={handleClickAway}
     >
       <ClickAwayListener onClickAway={handleClickAway}>
         <div
@@ -123,7 +145,6 @@ export const FileControlsTab = () => {
             flexDirection: 'column',
             justifyContent: 'space-between',
             padding: 0,
-            // overflow: 'hidden'
           }}
         >
           <List>
@@ -158,6 +179,32 @@ export const FileControlsTab = () => {
                 <DownloadMapFileButtons />
               </List>
             </Collapse>
+
+            {/* EXPAND DOWNLAD MAP PHOTO BTNS */}
+            <ListItemButton onClick={handleClickDownloadPhoto}>
+              <ListItemIcon>
+                <FcDownload />
+              </ListItemIcon>
+              <ListItemText primary="Download Map Picture" />
+              {isDownloadPhotoOpen ? <MdExpandLess /> : <MdExpandMore />}
+            </ListItemButton>
+            <Collapse in={isDownloadPhotoOpen} timeout="auto">
+              <List component="div">
+                <ListItemButton sx={{ pl: 4 }} onClick={handleDownloadJpg}>
+                  <ListItemIcon>
+                    <MdFolderZip />
+                  </ListItemIcon>
+                  <ListItemText primary="Download map picture as .JPG" />
+                </ListItemButton>
+                <ListItemButton sx={{ pl: 4 }} onClick={handleDownloadPng}>
+                  <ListItemIcon>
+                    <MdFolderZip />
+                  </ListItemIcon>
+                  <ListItemText primary="Download map picture as .PNG" />
+                </ListItemButton>
+              </List>
+            </Collapse>
+
             {/* OPEN CREATE MAP DIALOG */}
             <ListItemButton
               onClick={() => toggleIsNewMapDialogOpen(!isNewMapDialogOpen)}

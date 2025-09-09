@@ -43,23 +43,12 @@ export default function ViewControlsTab({
 }) {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const { publish } = useEvent()
-  const hexMap = useBoundStore((s) => s.hexMap)
   const isCamerDisabled = useBoundStore((s) => s.isCameraDisabled)
   const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
   const toggleIsOrthoCam = useBoundStore((s) => s.toggleIsOrthoCam)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const toggleIsTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
   const isTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
-
-  const [isUploadOpen, setIsUploadOpen] = React.useState(false)
-  const [isDownloadOpen, setIsDownloadOpen] = React.useState(false)
-  const handleClickDownload = (
-    e: React.MouseEvent<HTMLDivElement> | undefined,
-  ) => {
-    e?.stopPropagation()
-    setIsDownloadOpen(!isDownloadOpen)
-  }
-  const mapPortraitBase64 = useBoundStore((s) => s.mapPortraitBase64)
 
   // const onClickDisableCamera = (e: any) => {
   //   const targetId = e?.nativeEvent?.target?.id ?? ''
@@ -98,147 +87,96 @@ export default function ViewControlsTab({
       publish(EVENTS.savePng)
     }, 100) // Long enough to make some changes to the map and render
   }
-  const handleClickAway = () => {
-    setIsUploadOpen(false)
-    setIsDownloadOpen(false)
-  }
-  const handleDownloadPng = () => {
-    const link = document.createElement('a')
-    link.download = `${hexMap.name}.png`
-    link.href = mapPortraitBase64
-    // document.body.appendChild(link)
-    link.click()
-    // document.body.removeChild(link)
-  }
-  const handleDownloadJpg = () => {
-    const link = document.createElement('a')
-    link.download = `${hexMap.name}.jpg`
-    link.href = mapPortraitBase64
-    // document.body.appendChild(link)
-    link.click()
-    // document.body.removeChild(link)
-  }
   return (
     <Box
       sx={{ width: '100%', height: '100%' }}
       role="presentation"
-      onClick={() => {
-        setIsDownloadOpen(false)
-        setIsUploadOpen(false)
-      }}
     >
-      <ClickAwayListener onClickAway={handleClickAway}>
-        <div
-          style={{
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: 0,
-            // overflow: 'hidden'
-          }}
-        >
-          <List>
-            {/* Center map in camera view */}
-            <ListItemButton onClick={zoomToMap}>
-              <ListItemIcon>
-                <FcCollect />
-              </ListItemIcon>
-              <ListItemText primary="Zoom to map" />
-            </ListItemButton>
-            {/* Lock Camera Controls */}
-            <ListItemButton
-              title={isCamerDisabled ? 'Unlock camera controls' : 'Lock camera controls'}
-              onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
-              style={{
-                ...(isCamerDisabled
-                  ? { backgroundColor: 'red', color: 'white' }
-                  : {})
-              }}
+      <div
+        style={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: 0,
+          // overflow: 'hidden'
+        }}
+      >
+        <List>
+          {/* Center map in camera view */}
+          <ListItemButton onClick={zoomToMap}>
+            <ListItemIcon>
+              <FcCollect />
+            </ListItemIcon>
+            <ListItemText primary="Zoom to map" />
+          </ListItemButton>
+          {/* Lock Camera Controls */}
+          <ListItemButton
+            title={isCamerDisabled ? 'Unlock camera controls' : 'Lock camera controls'}
+            onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
+            style={{
+              ...(isCamerDisabled
+                ? { backgroundColor: 'red', color: 'white' }
+                : {})
+            }}
+          >
+            <ListItemIcon
             >
-              <ListItemIcon
-              >
-                {isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />}
-              </ListItemIcon>
-              <ListItemText
-                primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'} />
-            </ListItemButton>
+              {isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />}
+            </ListItemIcon>
+            <ListItemText
+              primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'} />
+          </ListItemButton>
 
 
-            {/* Reset camera defaults */}
-            <ListItemButton
-              title={'Reset camera defaults'}
-              onClick={resetCamera}
-            >
-              <ListItemIcon>
-                <FcSynchronize />
-              </ListItemIcon>
-              <ListItemText primary="Reset camera" />
-            </ListItemButton>
+          {/* Reset camera defaults */}
+          <ListItemButton
+            title={'Reset camera defaults'}
+            onClick={resetCamera}
+          >
+            <ListItemIcon>
+              <FcSynchronize />
+            </ListItemIcon>
+            <ListItemText primary="Reset camera" />
+          </ListItemButton>
 
-            {/* Switch camera orthographic/perspective */}
-            <ListItemButton
-              title={
-                isOrthoCam
-                  ? 'Switch to perspective camera'
-                  : 'Switch to orthographic camera'
-              }
-              onClick={handleToggleOrthoCam}>
-              <ListItemIcon>
-                <FcSwitchCamera />
-              </ListItemIcon>
-              <ListItemText primary={
-                isOrthoCam
-                  ? 'Use perspective camera'
-                  : 'Use orthographic camera'
-              } />
-            </ListItemButton>
+          {/* Switch camera orthographic/perspective */}
+          <ListItemButton
+            title={
+              isOrthoCam
+                ? 'Switch to perspective camera'
+                : 'Switch to orthographic camera'
+            }
+            onClick={handleToggleOrthoCam}>
+            <ListItemIcon>
+              <FcSwitchCamera />
+            </ListItemIcon>
+            <ListItemText primary={
+              isOrthoCam
+                ? 'Use perspective camera'
+                : 'Use orthographic camera'
+            } />
+          </ListItemButton>
 
-            {/* Take map picture PNG */}
-            <ListItemButton
-              title={'Take map picture .PNG'}
-              onClick={handleTakeAMapPicture}>
-              <ListItemIcon>
-                <FcOldTimeCamera />
-              </ListItemIcon>
-              <ListItemText primary={'Take map picture .PNG'} />
-            </ListItemButton>
+          {/* Take map picture PNG */}
+          <ListItemButton
+            title={'Take map picture .PNG'}
+            onClick={handleTakeAMapPicture}>
+            <ListItemIcon>
+              <FcOldTimeCamera />
+            </ListItemIcon>
+            <ListItemText primary={'Take map picture .PNG'} />
+          </ListItemButton>
 
-            {/* Take map picture JPEG */}
-            {/* EXPAND DOWNLAD MAP PHOTO BTNS */}
-            <ListItemButton onClick={handleClickDownload}>
-              <ListItemIcon>
-                <FcDownload />
-              </ListItemIcon>
-              <ListItemText primary="Download Map Picture" />
-              {isDownloadOpen ? <MdExpandLess /> : <MdExpandMore />}
-            </ListItemButton>
-            <Collapse in={isDownloadOpen} timeout="auto">
-              <List component="div">
-                <ListItemButton sx={{ pl: 4 }} onClick={handleDownloadJpg}>
-                  <ListItemIcon>
-                    <MdFolderZip />
-                  </ListItemIcon>
-                  <ListItemText primary="Download map picture as .JPG" />
-                </ListItemButton>
-                <ListItemButton sx={{ pl: 4 }} onClick={handleDownloadPng}>
-                  <ListItemIcon>
-                    <MdFolderZip />
-                  </ListItemIcon>
-                  <ListItemText primary="Download map picture as .PNG" />
-                </ListItemButton>
-              </List>
-            </Collapse>
 
-          </List>
-        </div>
-      </ClickAwayListener>
+        </List>
+      </div>
       <div style={{ border: '1px solid var(--transparent-border)' }}>
         <SwitchIsLightsAndShadows />
         <SwitchIsHideTableTop />
         <SwitchIsDisplayCapHeights />
         <SwitchIsHighQualityRender />
-        <SwitchIsFrameloopDemand />
+        {/* <SwitchIsFrameloopDemand /> */}
       </div>
     </Box>
   )
@@ -318,18 +256,18 @@ function SwitchIsHideTableTop() {
     </FormGroup>
   )
 }
-function SwitchIsFrameloopDemand() {
-  const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
-  const toggleIsFrameloopDemand = useBoundStore((s) => s.toggleIsFrameloopDemand)
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    toggleIsFrameloopDemand(event.target.checked)
-  }
-  return (
-    <FormGroup>
-      <FormControlLabel
-        control={<Switch checked={isFrameloopDemand} onChange={handleChange} />}
-        label="Frameloop Demand"
-      />
-    </FormGroup>
-  )
-}
+// function SwitchIsFrameloopDemand() {
+//   const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
+//   const toggleIsFrameloopDemand = useBoundStore((s) => s.toggleIsFrameloopDemand)
+//   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+//     toggleIsFrameloopDemand(event.target.checked)
+//   }
+//   return (
+//     <FormGroup>
+//       <FormControlLabel
+//         control={<Switch checked={isFrameloopDemand} onChange={handleChange} />}
+//         label="Frameloop Demand"
+//       />
+//     </FormGroup>
+//   )
+// }
