@@ -30,9 +30,9 @@ export const CUBE_NE = { q: 1, r: -1, s: 0 }
 // hex side female plug width: 6/32" (0.47625cm)
 export const HEXGRID_HEX_HEIGHT = 0.35 // 0.375 was BEST fit to the 24-hex tile scan, but castle-walls and ladders have already been tailored to 0.35!
 export const HEXGRID_HEXCAP_HEIGHT = HEXGRID_HEX_HEIGHT / 7 // for solid tiles the cap is a seventh of the height
-export const HEXGRID_HEXCAP_FLUID_SCALE = 3 / 7 // fluid tiles are 3/7 the height of solid tiles, the whole fluid tile is the cap
+export const HEXGRID_HEXCAP_FLUID_SCALE = 1 / 2 // fluid tiles are 3/7 the height of solid tiles in real life
 export const HEXGRID_HEXCAP_FLUID_HEIGHT =
-  HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE // 0.35 * 3/7 === 0.15
+  HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE // 0.35 / 2 === 0.175
 export const HEXGRID_OBSTACLE_BASE_HEIGHT = HEXGRID_HEXCAP_FLUID_HEIGHT
 export const HEXGRID_EMPTYHEX_HEIGHT = HEXGRID_HEX_HEIGHT / 20
 export const HEXGRID_GLYPH_HEIGHT = 0.05
