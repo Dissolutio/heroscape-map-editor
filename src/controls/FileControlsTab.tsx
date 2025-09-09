@@ -32,9 +32,6 @@ export const FileControlsTab = () => {
     (state) => state.toggleIsNewMapDialogOpen,
   )
   const isNewMapDialogOpen = useBoundStore((state) => state.isNewMapDialogOpen)
-  const toggleIsEditMapDialogOpen = useBoundStore(
-    (state) => state.toggleIsEditMapDialogOpen,
-  )
   // const toggleIsPieceInventoryDialogOpen = useBoundStore(
   //   (state) => state.toggleIsPieceInventoryDialogOpen,
   // )
@@ -112,7 +109,6 @@ export const FileControlsTab = () => {
   }
   return (
     <Box
-      sx={{ width: '100%', height: '100%' }}
       role="presentation"
       onClick={() => {
         setIsDownloadOpen(false)
@@ -131,14 +127,6 @@ export const FileControlsTab = () => {
           }}
         >
           <List>
-            {/* OPEN EDIT MAP DETAILS DIALOG */}
-            <ListItemButton onClick={() => toggleIsEditMapDialogOpen(true)}>
-              <ListItemIcon>
-                <FcVlc />
-              </ListItemIcon>
-              <ListItemText primary={'Edit Map Details'} />
-            </ListItemButton>
-
             {/* OPEN EDIT MY PIECE INVENTORY DIALOG */}
             {/* <ListItemButton
               onClick={() => toggleIsPieceInventoryDialogOpen(true)}

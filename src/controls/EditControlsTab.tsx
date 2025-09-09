@@ -1,6 +1,15 @@
 import {
+  Box,
   Button,
+  ButtonGroup,
+  Card,
+  CardContent,
   Container,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
 } from '@mui/material'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
@@ -11,6 +20,7 @@ import {
 } from '../utils/constants'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { decodePieceID, genBoardHexID, genPieceID } from '../utils/map-utils'
+import { FcVlc } from 'react-icons/fc'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
@@ -45,6 +55,9 @@ export const EditControlsTab = () => {
 
   // const inventory = useLocalPieceInventory()
 
+  const toggleIsEditMapDialogOpen = useBoundStore(
+    (state) => state.toggleIsEditMapDialogOpen,
+  )
   const handleClickLogState = () => {
     console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
     console.log('🚀 ~ Controls ~ boardPieces:', boardPieces)
@@ -163,7 +176,7 @@ export const EditControlsTab = () => {
     }
   }
   return (
-    <Container sx={{ padding: 1 }}>
+    <Box sx={{ p: 0 }}>
       {/* <div style={{ padding: '0px 20px' }}>
         {isUseInventory && !Number.isNaN(remainingCount)
           ? `${remainingCount} remaining`
@@ -171,104 +184,138 @@ export const EditControlsTab = () => {
       </div> */}
       {/* <MapLensToggles /> */}
       {/* <LocalStorageList /> */}
+      {/* OPEN EDIT MAP DETAILS DIALOG */}
+      <List>
 
-      <div style={{ border: '1px solid var(--transparent-border)' }}>
-        <Button
-          disabled={
-            (hexMap.shape === 'hexagon' &&
-              hexMap.length >= MAX_HEXAGON_MAP_DIMENSION) ||
-            (hexMap.shape === 'rectangle' &&
-              hexMap.length >= MAX_RECTANGLE_MAP_DIMENSION)
-          }
-          title={
-            hexMap.shape === 'hexagon'
-              ? 'Add one outer ring of hexes'
-              : 'Add one row of hexes to bottom'
-          }
-          onClick={handleClickAddMapLengthX}
-        >
-          Add length
-        </Button>
-        <Button
-          disabled={
-            (hexMap.shape === 'hexagon' && hexMap.length <= 1) ||
-            (hexMap.shape === 'rectangle' && hexMap.length <= 1)
-          }
-          title={
-            hexMap.shape === 'hexagon'
-              ? 'Remove one outer ring of hexes'
-              : 'Remove one row of hexes from bottom'
-          }
-          onClick={handleClickRemoveMapLengthX}
-        >
-          Remove length
-        </Button>
-        <Button
-          disabled={
-            (hexMap.shape === 'hexagon' &&
-              hexMap.width >= MAX_HEXAGON_MAP_DIMENSION) ||
-            (hexMap.shape === 'rectangle' &&
-              hexMap.width >= MAX_RECTANGLE_MAP_DIMENSION)
-          }
-          title="Add one column of hexes to right side"
-          onClick={handleClickAddMapWidthY}
-        >
-          Add width
-        </Button>
-        <Button
-          disabled={
-            (hexMap.shape === 'hexagon' && hexMap.width <= 1) ||
-            (hexMap.shape === 'rectangle' && hexMap.width <= 1)
-          }
-          title="Remove one column of hexes from right side"
-          onClick={handleClickRemoveMapWidthY}
-        >
-          Remove width
-        </Button>
-      </div>
+        <ListItemButton onClick={() => toggleIsEditMapDialogOpen(true)}>
+          <ListItemIcon>
+            <FcVlc />
+          </ListItemIcon>
+          <ListItemText primary={'Edit Map Details'} />
+        </ListItemButton>
+      </List>
 
-      <div style={{ border: '1px solid var(--transparent-border)' }}>
-        <Button
-          title="Move all pieces 1 hex left"
-          onClick={() => movePieces(3)}
-        >
-          Left
-        </Button>
-        <Button
-          title="Move all pieces 1 hex up-left"
-          onClick={() => movePieces(4)}
-        >
-          Up Left
-        </Button>
-        <Button
-          title="Move all pieces 1 hex up-right"
-          onClick={() => movePieces(5)}
-        >
-          Up Right
-        </Button>
-        <Button
-          title="Move all pieces 1 hex right"
-          onClick={() => movePieces(0)}
-        >
-          Right
-        </Button>
-        <Button
-          title="Move all pieces 1 hex down-right"
-          onClick={() => movePieces(1)}
-        >
-          Down Right
-        </Button>
-        <Button
-          title="Move all pieces 1 hex down-left"
-          onClick={() => movePieces(2)}
-        >
-          Down Left
-        </Button>
-      </div>
+      <Card>
+        <CardContent>
+          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
+            Adjust map dimensions
+          </Typography>
+          <ButtonGroup
+            // variant="contained"
+            aria-label="Adjust map dimensions button group"
+            size="small"
+          >
+            <Button
+              size="small"
+              disabled={
+                (hexMap.shape === 'hexagon' &&
+                  hexMap.length >= MAX_HEXAGON_MAP_DIMENSION) ||
+                (hexMap.shape === 'rectangle' &&
+                  hexMap.length >= MAX_RECTANGLE_MAP_DIMENSION)
+              }
+              title={
+                hexMap.shape === 'hexagon'
+                  ? 'Add one outer ring of hexes'
+                  : 'Add one row of hexes to bottom'
+              }
+              onClick={handleClickAddMapLengthX}
+            >
+              + length
+            </Button>
+            <Button
+              disabled={
+                (hexMap.shape === 'hexagon' && hexMap.length <= 1) ||
+                (hexMap.shape === 'rectangle' && hexMap.length <= 1)
+              }
+              title={
+                hexMap.shape === 'hexagon'
+                  ? 'Remove one outer ring of hexes'
+                  : 'Remove one row of hexes from bottom'
+              }
+              onClick={handleClickRemoveMapLengthX}
+            >
+              - length
+            </Button>
+            <Button
+              disabled={
+                (hexMap.shape === 'hexagon' &&
+                  hexMap.width >= MAX_HEXAGON_MAP_DIMENSION) ||
+                (hexMap.shape === 'rectangle' &&
+                  hexMap.width >= MAX_RECTANGLE_MAP_DIMENSION)
+              }
+              title="Add one column of hexes to right side"
+              onClick={handleClickAddMapWidthY}
+            >
+              + width
+            </Button>
+            <Button
+              disabled={
+                (hexMap.shape === 'hexagon' && hexMap.width <= 1) ||
+                (hexMap.shape === 'rectangle' && hexMap.width <= 1)
+              }
+              title="Remove one column of hexes from right side"
+              onClick={handleClickRemoveMapWidthY}
+            >
+              - width
+            </Button>
+          </ButtonGroup>
+        </CardContent>
+      </Card>
+
+      <Card >
+        <CardContent>
+          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
+            Shift all pieces in 1 direction
+          </Typography>
+          <ButtonGroup
+            variant="contained"
+            aria-label="Shift map button group"
+            size="small"
+          >
+
+            <Button
+              title="Move all pieces 1 hex left"
+              onClick={() => movePieces(3)}
+            >
+              Left
+            </Button>
+            <Button
+              title="Move all pieces 1 hex up-left"
+              onClick={() => movePieces(4)}
+            >
+              Up Left
+            </Button>
+            <Button
+              title="Move all pieces 1 hex up-right"
+              onClick={() => movePieces(5)}
+            >
+              Up Right
+            </Button>
+            <Button
+              title="Move all pieces 1 hex right"
+              onClick={() => movePieces(0)}
+            >
+              Right
+            </Button>
+            <Button
+              title="Move all pieces 1 hex down-right"
+              onClick={() => movePieces(1)}
+            >
+              Down Right
+            </Button>
+            <Button
+              title="Move all pieces 1 hex down-left"
+              onClick={() => movePieces(2)}
+            >
+              Down Left
+            </Button>
+          </ButtonGroup>
+        </CardContent>
+      </Card>
 
       {import.meta.env.DEV && (
         <Button onClick={handleClickLogState}>Log state</Button>
       )}
-    </Container>
+    </Box>
   )
 }
