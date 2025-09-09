@@ -38,7 +38,7 @@ export function HeaderNav({
         <Typography
           variant="h1"
           component="h1"
-          sx={{ flexGrow: 0, m: 0, p: 0, fontSize: 18 }}
+          sx={{ flexGrow: 0, m: 0, p: 0, fontSize: '1.5rem' }}
         >
           {hexMap.name || 'Hexoscape Map Editor'}
 
@@ -49,7 +49,7 @@ export function HeaderNav({
           sx={{
             flexGrow: 1,
             textAlign: 'left',
-            fontSize: '0.6em',
+            fontSize: '0.8em',
             color: 'var(--sub-white)',
             px: 2,
             overflow: 'hidden',
