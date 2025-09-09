@@ -11,6 +11,7 @@ import useBoundStore from '../store/store'
 import type { Group, Object3DEventMap } from 'three'
 import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
 import { ControlTabs } from '../controls/ControlTabs'
+import { useMuiMediaQuery } from './useMuiMediaQuery'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(null)
@@ -26,9 +27,11 @@ export default function HomePage() {
   // md, medium: 900px
   // lg, large: 1200px
   // xl, extra-large: 1536px
-
-  const isLargeScreenLayout = useMediaQuery('(min-width:1000px)')
-  const isMobileScreenLayout = useMediaQuery('(max-width:600px)')
+  const {
+    isLargeScreenLayout,
+    isMobileScreenLayout,
+    // isMediumScreenLayout,
+  } = useMuiMediaQuery()
 
   const [isPdfOpen, setIsPdfOpen] = React.useState(false)
   const toggleIsPdfOpen = (s: boolean) => {

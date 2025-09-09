@@ -4,7 +4,6 @@ import {
   ButtonGroup,
   Card,
   CardContent,
-  Container,
   List,
   ListItemButton,
   ListItemIcon,
@@ -21,6 +20,7 @@ import {
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { decodePieceID, genBoardHexID, genPieceID } from '../utils/map-utils'
 import { FcVlc } from 'react-icons/fc'
+import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
@@ -52,7 +52,11 @@ export const EditControlsTab = () => {
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
   const loadMap = useBoundStore((s) => s.loadMap)
-
+  const {
+    // isLargeScreenLayout,
+    isMobileScreenLayout,
+    isMediumScreenLayout,
+  } = useMuiMediaQuery()
   // const inventory = useLocalPieceInventory()
 
   const toggleIsEditMapDialogOpen = useBoundStore(
