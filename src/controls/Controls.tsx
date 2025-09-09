@@ -23,6 +23,7 @@ import ViewingLevelInput from './ViewingLevelInput'
 import { keyBy } from 'lodash'
 import type { CameraControls } from '@react-three/drei'
 import type { Group, Object3DEventMap } from 'three'
+import type React from 'react'
 import { useEffect, useRef } from 'react'
 import useEvent from '../hooks/useEvent'
 

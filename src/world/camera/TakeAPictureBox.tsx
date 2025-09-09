@@ -14,44 +14,19 @@ const TakeAPictureBox = () => {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <fns could be memoized, unimportant>
   useEffect(() => {
-    const handleDownloadPng = () => {
-      gl.render(scene, camera)
-      const screenshot = gl.domElement.toDataURL()
-      addMapPortraitBase64(screenshot)
-      const link = document.createElement('a')
-      link.download = `${hexMap.name}.png`
-      link.href = screenshot
-      // document.body.appendChild(link)
-      link.click()
-      // document.body.removeChild(link)
-      toggleIsTakingPicture(false)
-    }
-    const handleDownloadJpg = () => {
-      gl.render(scene, camera)
-      const screenshot = gl.domElement.toDataURL()
-      addMapPortraitBase64(screenshot)
-      const link = document.createElement('a')
-      link.download = `${hexMap.name}.jpg`
-      link.href = screenshot
-      // document.body.appendChild(link)
-      link.click()
-      // document.body.removeChild(link)
-      toggleIsTakingPicture(false)
-    }
-    const handleMapPortrait = () => {
+    const handleTakeMapPicture = () => {
       gl.render(scene, camera)
       const screenshot = gl.domElement.toDataURL()
       addMapPortraitBase64(screenshot)
       toggleIsTakingPicture(false)
     }
-    subscribe(EVENTS.savePng, handleDownloadPng)
-    subscribe(EVENTS.mapPortrait, handleMapPortrait)
-    subscribe(EVENTS.saveJpg, handleDownloadJpg)
+
+    subscribe(EVENTS.savePng, handleTakeMapPicture)
+    subscribe(EVENTS.saveJpg, handleTakeMapPicture)
 
     return () => {
-      unsubscribe(EVENTS.savePng, handleDownloadPng)
-      unsubscribe(EVENTS.mapPortrait, handleMapPortrait)
-      unsubscribe(EVENTS.saveJpg, handleDownloadJpg)
+      unsubscribe(EVENTS.savePng, handleTakeMapPicture)
+      unsubscribe(EVENTS.saveJpg, handleTakeMapPicture)
     }
   }, [
     camera,

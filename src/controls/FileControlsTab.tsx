@@ -2,29 +2,24 @@ import {
   Box,
   ClickAwayListener,
   Collapse,
-  Divider,
-  Link,
   List,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography,
 } from '@mui/material'
 import JSONCrush from 'jsoncrush'
 import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
-import React, { type ChangeEvent } from 'react'
+import React from 'react'
 import {
   FcAddImage,
   FcDownload,
   FcLink,
-  FcRules,
   FcUpload,
   FcVlc,
 } from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 import useBoundStore from '../store/store'
 import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
-import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
 import LoadMapButtons from '../layout/LoadMapButtons'
 
 export const FileControlsTab = () => {
@@ -117,7 +112,7 @@ export const FileControlsTab = () => {
   }
   return (
     <Box
-      sx={{ width: 350, height: '100%' }}
+      sx={{ width: '100%', height: '100%' }}
       role="presentation"
       onClick={() => {
         setIsDownloadOpen(false)

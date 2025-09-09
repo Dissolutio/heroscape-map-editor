@@ -15,6 +15,7 @@ import MyCameraControls from './camera/MyCameraControls'
 import TakeAPictureBox from './camera/TakeAPictureBox'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import type { Group, Object3DEventMap } from 'three'
+import type React from 'react'
 
 const World = ({
   cameraControlsRef,
