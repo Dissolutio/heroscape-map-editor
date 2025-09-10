@@ -9,6 +9,9 @@ import { FileControlsTab } from './FileControlsTab'
 import ViewControlsTab from './ViewControlsTab'
 import { EditControlsTab } from './EditControlsTab'
 import { BuildControlsTab } from './BuildControlsTab'
+import { MdExpandLess, MdExpandMore } from 'react-icons/md'
+import { IconButton } from '@mui/material'
+import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -41,52 +44,127 @@ function a11yProps(index: number) {
 export const ControlTabs = ({
   cameraControlsRef,
   mapGroupRef,
+  toggleisControlTabMinimized,
+  isControlTabMinimized
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
+  toggleisControlTabMinimized: (s: boolean) => void
+  isControlTabMinimized: boolean
 }) => {
   const [value, setValue] = React.useState(0)
-
+  const { isLargeScreenLayout } = useMuiMediaQuery()
   const handleChange = (newValue: number) => {
     setValue(newValue)
   }
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+    <Box sx={{
+      width: '100%',
+      overflow: isControlTabMinimized ? 'hidden' : 'auto',
+    }}>
+      <Box sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        p: 0,
+        borderBottom: 1,
+        borderColor: 'divider',
+        width: '100%',
+
+      }}>
         <Tabs
           value={value}
           onChange={(_, n) => handleChange(n)}
-          aria-label="basic tabs example"
-          centered
+          aria-label="control tabs"
+          // centered
+          sx={{
+            minHeight: 30,
+          }}
         >
-          <Tab label="Build" {...a11yProps(0)} />
-          <Tab label="File" {...a11yProps(1)} />
-          <Tab label="Edit" {...a11yProps(2)} />
-          <Tab label="View" {...a11yProps(3)} />
+          <Tab
+            label="Build" {...a11yProps(0)}
+            onClick={() => toggleisControlTabMinimized(false)}
+            sx={{
+              fontSize: 12,
+              p: 0,
+              m: 0,
+              minHeight: 30,
+              minWidth: 50,
+            }}
+          />
+          <Tab
+            label="File" {...a11yProps(1)}
+            onClick={() => toggleisControlTabMinimized(false)}
+            sx={{
+              fontSize: 12,
+              p: 0,
+              m: 0,
+              minHeight: 30,
+              minWidth: 50,
+            }}
+          />
+          <Tab
+            label="Edit" {...a11yProps(2)}
+            onClick={() => toggleisControlTabMinimized(false)}
+            sx={{
+              fontSize: 12,
+              p: 0,
+              m: 0,
+              minHeight: 30,
+              minWidth: 50,
+            }}
+          />
+          <Tab
+            label="View" {...a11yProps(3)}
+            onClick={() => toggleisControlTabMinimized(false)}
+            sx={{
+              fontSize: 12,
+              p: 0,
+              m: 0,
+              minHeight: 30,
+              minWidth: 50,
+            }}
+          />
         </Tabs>
+        {!isLargeScreenLayout && (<IconButton
+          onClick={() => toggleisControlTabMinimized(!isControlTabMinimized)}
+          sx={{ fontSize: 12 }}
+        >
+          {isControlTabMinimized ? <MdExpandLess /> : <MdExpandMore />}
+        </IconButton>
+        )}
       </Box>
       {/* HIDDEN FILE INPUTS */}
       <LoadFileHiddenInputs />
-      {/* BUILD */}
-      <CustomTabPanel value={value} index={0}>
-        <BuildControlsTab />
-      </CustomTabPanel>
-      {/* FILE */}
-      <CustomTabPanel value={value} index={1}>
-        <FileControlsTab />
-      </CustomTabPanel>
-      {/* EDIT */}
-      <CustomTabPanel value={value} index={2}>
-        <EditControlsTab />
-      </CustomTabPanel>
-      {/* VIEW */}
-      <CustomTabPanel value={value} index={3}>
-        <ViewControlsTab
-          cameraControlsRef={cameraControlsRef}
-          mapGroupRef={mapGroupRef}
-        />
-      </CustomTabPanel>
+      <div
+        style={{
+          // maxHeight: 0,
+          overflow: isControlTabMinimized ? 'hidden' : 'auto',
+          //  height: 0
+        }}
+      >
+        {/* BUILD */}
+        <CustomTabPanel value={value} index={0}>
+          <BuildControlsTab />
+        </CustomTabPanel>
+        {/* FILE */}
+        <CustomTabPanel value={value} index={1}>
+          <FileControlsTab />
+        </CustomTabPanel>
+        {/* EDIT */}
+        <CustomTabPanel value={value} index={2}>
+          <EditControlsTab />
+        </CustomTabPanel>
+        {/* VIEW */}
+        <CustomTabPanel value={value} index={3}>
+          <ViewControlsTab
+            cameraControlsRef={cameraControlsRef}
+            mapGroupRef={mapGroupRef}
+          />
+        </CustomTabPanel>
+      </div>
+
     </Box>
   )
 }

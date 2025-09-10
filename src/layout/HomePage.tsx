@@ -1,4 +1,4 @@
-import { Drawer, useMediaQuery } from '@mui/material'
+import { Box, Drawer, useMediaQuery } from '@mui/material'
 import React, { useEffect } from 'react'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
 import { ReactPdfRoot } from '../pdf-map/ReactPdfRoot'
@@ -37,6 +37,10 @@ export default function HomePage() {
   const toggleIsPdfOpen = (s: boolean) => {
     setIsPdfOpen(s)
   }
+  const [isControlTabMinimized, setIsControlTabMinimized] = React.useState(false)
+  const toggleisControlTabMinimized = (s: boolean) => {
+    setIsControlTabMinimized(s)
+  }
   const [is2DOpen, setIs2DOpen] = React.useState(false)
   const toggleIs2DOpen = (s: boolean) => {
     setIsPdfOpen(false)
@@ -73,7 +77,7 @@ export default function HomePage() {
           is2DOpen={is2DOpen}
           toggleIs2DOpen={toggleIs2DOpen}
         />
-        <div
+        <Box
           style={{
             display: 'flex',
             flex: 1,
@@ -84,14 +88,13 @@ export default function HomePage() {
             overflow: 'auto',
           }}
         >
-          <div
-            style={{
+          <Box
+            sx={{
               flex: 1,
               position: 'relative',
               width: isLargeScreenLayout ? '70vw' : '100%',
               height: isLargeScreenLayout ? '100%' : '70vh',
-            }}
-          >
+            }}>
             {isPdfOpen && <ReactPdfRoot />}
             {is2DOpen && !isPdfOpen && <SvgMapDisplay />}
             <World
@@ -99,23 +102,31 @@ export default function HomePage() {
               cameraControlsRef={cameraControlsRef}
               mapGroupRef={mapGroupRef}
             />
-          </div>
+          </Box>
+
           <div
             style={{
               display: 'flex',
               flexFlow: 'column nowrap',
               width: isLargeScreenLayout ? '450px' : '100%',
-              height: isLargeScreenLayout ? '100%' : '30vh',
+              // fullscreen => full device height, no option to minimize
+              // smaller-screen => can be minimized/maxiized, only bottom part of device height
+              height: isLargeScreenLayout ? '100%' : isControlTabMinimized ? '30px' : '30vh',
               background: 'var(--black)',
               overflow: 'auto',
+              flexShrink: 1,
+              transition: 'height 0.5s ease-in-out',
+
             }}
           >
             <ControlTabs
               cameraControlsRef={cameraControlsRef}
               mapGroupRef={mapGroupRef}
+              toggleisControlTabMinimized={toggleisControlTabMinimized}
+              isControlTabMinimized={isControlTabMinimized}
             />
           </div>
-        </div>
+        </Box>
       </div>
     </>
   )
