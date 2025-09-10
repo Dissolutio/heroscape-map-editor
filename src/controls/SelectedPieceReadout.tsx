@@ -8,6 +8,11 @@ import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
 const SelectedPieceReadout = () => {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const {
+    // isLargeScreenLayout,
+    isMobileScreenLayout,
+    // isMediumScreenLayout,
+  } = useMuiMediaQuery()
   if (!selectedPieceID) {
     return null
   }
@@ -19,11 +24,6 @@ const SelectedPieceReadout = () => {
     // pieceCoords
   } = decodePieceID(selectedPieceID)
   const piece = piecesSoFar[inventoryID]
-  const {
-    isLargeScreenLayout,
-    isMobileScreenLayout,
-    isMediumScreenLayout,
-  } = useMuiMediaQuery()
 
   if (isMobileScreenLayout) {
     return (
@@ -40,7 +40,7 @@ const SelectedPieceReadout = () => {
         <Card
           sx={{
             width: 120,
-            height: 100,
+            height: 120,
             p: 0,
           }}
         >
@@ -70,7 +70,13 @@ const SelectedPieceReadout = () => {
               Rotation: {rotation}
             </Typography>
           </CardContent>
-          <CardActions>
+          <CardActions
+            sx={{
+              p: 0,
+              px: 1,
+              m: 0
+            }}
+          >
             <DeletePieceButton />
           </CardActions>
         </Card>
@@ -84,14 +90,14 @@ const SelectedPieceReadout = () => {
         position: 'absolute',
         bottom: 0,
         right: 0,
-        padding: 20,
-        margin: 20,
+        padding: 10,
+        margin: 10,
         // backgroundColor: 'var(--gunmetal-transparent)'
       }}
     >
       <Card sx={{
-        width: isMobileScreenLayout ? 75 : 150,
-        height: isMobileScreenLayout ? 100 : 200
+        width: 150,
+        height: 200
       }}>
         <CardContent>
           <Typography
@@ -109,7 +115,13 @@ const SelectedPieceReadout = () => {
             Rotation: {rotation}
           </Typography>
         </CardContent>
-        <CardActions>
+        <CardActions
+          sx={{
+            // p: 0,
+            px: '20px',
+            // m: 0
+          }}
+        >
           <DeletePieceButton />
         </CardActions>
       </Card>
