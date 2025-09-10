@@ -3,6 +3,8 @@ import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { decodePieceID } from '../utils/map-utils'
 import DeletePieceButton from './DeletePieceButton'
+import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
+
 
 const SelectedPieceReadout = () => {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
@@ -17,6 +19,64 @@ const SelectedPieceReadout = () => {
     // pieceCoords
   } = decodePieceID(selectedPieceID)
   const piece = piecesSoFar[inventoryID]
+  const {
+    isLargeScreenLayout,
+    isMobileScreenLayout,
+    isMediumScreenLayout,
+  } = useMuiMediaQuery()
+
+  if (isMobileScreenLayout) {
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          right: 0,
+          padding: 1,
+          margin: 1,
+          // backgroundColor: 'var(--gunmetal-transparent)'
+        }}
+      >
+        <Card
+          sx={{
+            width: 120,
+            height: 100,
+            p: 0,
+          }}
+        >
+          <CardContent
+            sx={{
+              p: 1,
+            }}
+          >
+            <Typography
+              sx={{
+                color: 'text.secondary',
+                fontSize: 10
+              }}
+            >
+              Selected Piece
+            </Typography>
+            <Typography variant="h5" component="div"
+              sx={{ fontSize: 12 }}
+            >
+              {piece?.title ?? piece}
+            </Typography>
+            <Typography variant="body2"
+              sx={{ fontSize: 12 }}
+            >
+              Altitude: {altitude + 1}
+              <br />
+              Rotation: {rotation}
+            </Typography>
+          </CardContent>
+          <CardActions>
+            <DeletePieceButton />
+          </CardActions>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -29,7 +89,10 @@ const SelectedPieceReadout = () => {
         // backgroundColor: 'var(--gunmetal-transparent)'
       }}
     >
-      <Card sx={{ width: 150, height: 200 }}>
+      <Card sx={{
+        width: isMobileScreenLayout ? 75 : 150,
+        height: isMobileScreenLayout ? 100 : 200
+      }}>
         <CardContent>
           <Typography
             gutterBottom
