@@ -53,9 +53,8 @@ export const ControlTabs = ({
   isControlTabMinimized: boolean
 }) => {
   const [value, setValue] = React.useState(0)
-  const { isLargeScreenLayout, isLandscapeOrientation } = useMuiMediaQuery()
-  const isSideControls = isLargeScreenLayout || isLandscapeOrientation
-  const isSmallTextSideControls = !isLargeScreenLayout && isLandscapeOrientation
+  const { isLandscapeOrientation, isSmallScreenLandscapeOrientation, isMediumScreenLandscapeOrientation } = useMuiMediaQuery()
+  const isSideControls = isLandscapeOrientation
   const handleChange = (newValue: number) => {
     setValue(newValue)
   }
@@ -89,12 +88,12 @@ export const ControlTabs = ({
             value={value}
             onChange={(_, n) => handleChange(n)}
             aria-label="control tabs"
-            centered
+            // centered
             sx={{
-              fontSize: isLandscapeOrientation ? '0.8em' : '1em',
+              fontSize: (isSmallScreenLandscapeOrientation) ? '0.8em' : isMediumScreenLandscapeOrientation ? '0.9em' : '1em',
               // minHeight: 30,
-              minHeight: isSmallTextSideControls ? 20 : 30,
-              minWidth: isSmallTextSideControls ? 30 : 50,
+              minHeight: isSmallScreenLandscapeOrientation ? 20 : 30,
+              minWidth: isSmallScreenLandscapeOrientation ? 40 : isMediumScreenLandscapeOrientation ? 50 : 90,
             }}
           >
             <Tab
@@ -102,12 +101,12 @@ export const ControlTabs = ({
               {...a11yProps(0)}
               onClick={() => toggleisControlTabMinimized(false)}
               sx={{
-                fontSize: isLandscapeOrientation ? '0.8em' : '1em',
+                fontSize: (isSmallScreenLandscapeOrientation) ? '0.8em' : isMediumScreenLandscapeOrientation ? '0.9em' : '1em',
                 p: 0,
                 m: 0,
                 // minHeight: 30,
-                minHeight: isSmallTextSideControls ? 20 : 30,
-                minWidth: isSmallTextSideControls ? 30 : 50,
+                minHeight: isSmallScreenLandscapeOrientation ? 20 : 30,
+                minWidth: isSmallScreenLandscapeOrientation ? 40 : isMediumScreenLandscapeOrientation ? 50 : 90,
               }}
             />
             <Tab
@@ -115,12 +114,12 @@ export const ControlTabs = ({
               {...a11yProps(1)}
               onClick={() => toggleisControlTabMinimized(false)}
               sx={{
-                fontSize: isLandscapeOrientation ? '0.8em' : '1em',
+                fontSize: (isSmallScreenLandscapeOrientation) ? '0.8em' : isMediumScreenLandscapeOrientation ? '0.9em' : '1em',
                 p: 0,
                 m: 0,
                 // minHeight: 30,
-                minHeight: isSmallTextSideControls ? 20 : 30,
-                minWidth: isSmallTextSideControls ? 30 : 50,
+                minHeight: isSmallScreenLandscapeOrientation ? 20 : 30,
+                minWidth: isSmallScreenLandscapeOrientation ? 40 : isMediumScreenLandscapeOrientation ? 50 : 90,
               }}
             />
             <Tab
@@ -128,12 +127,12 @@ export const ControlTabs = ({
               {...a11yProps(2)}
               onClick={() => toggleisControlTabMinimized(false)}
               sx={{
-                fontSize: isLandscapeOrientation ? '0.8em' : '1em',
+                fontSize: (isSmallScreenLandscapeOrientation) ? '0.8em' : isMediumScreenLandscapeOrientation ? '0.9em' : '1em',
                 p: 0,
                 m: 0,
                 // minHeight: 30,
-                minHeight: isSmallTextSideControls ? 20 : 30,
-                minWidth: isSmallTextSideControls ? 30 : 50,
+                minHeight: isSmallScreenLandscapeOrientation ? 20 : 30,
+                minWidth: isSmallScreenLandscapeOrientation ? 40 : isMediumScreenLandscapeOrientation ? 50 : 90,
               }}
             />
             <Tab
@@ -141,12 +140,12 @@ export const ControlTabs = ({
               {...a11yProps(3)}
               onClick={() => toggleisControlTabMinimized(false)}
               sx={{
-                fontSize: isLandscapeOrientation ? '0.8em' : '1em',
+                fontSize: (isSmallScreenLandscapeOrientation) ? '0.8em' : isMediumScreenLandscapeOrientation ? '0.9em' : '1em',
                 p: 0,
                 m: 0,
                 // minHeight: 30,
-                minHeight: isSmallTextSideControls ? 20 : 30,
-                minWidth: isSmallTextSideControls ? 30 : 50,
+                minHeight: isSmallScreenLandscapeOrientation ? 20 : 30,
+                minWidth: isSmallScreenLandscapeOrientation ? 40 : isMediumScreenLandscapeOrientation ? 50 : 90,
               }}
             />
           </Tabs>

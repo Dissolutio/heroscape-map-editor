@@ -15,12 +15,10 @@ export const ControlTabsListItemButton = ({
   icon,
   endIcon,
 }: Props) => {
-  const { isLargeScreenLayout, isMediumScreenLayout, isLandscapeOrientation } = useMuiMediaQuery()
-  // const isMediumLandscapeOrientation = isMediumScreenLayout && isLandscapeOrientation
-  const isMobileLandscapeOrientation = (!isLargeScreenLayout && !isMediumScreenLayout) && isLandscapeOrientation
+  const { isSmallScreenLandscapeOrientation } = useMuiMediaQuery()
   const listItemTextStyleProps = {
     primary: {
-      fontSize: isMobileLandscapeOrientation ? 8 : 16,
+      fontSize: isSmallScreenLandscapeOrientation ? 8 : 16,
       fontWeight: 'medium',
       flexGrow: 1,
     },
