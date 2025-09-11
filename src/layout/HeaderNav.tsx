@@ -27,12 +27,12 @@ export function HeaderNav({
   const hexMap = useBoundStore((s) => s.hexMap)
   const iconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
   const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
-  const { isMobileScreenLayout } = useMuiMediaQuery()
+  const { isMobileScreenLayout, isLandscapeOrientation } = useMuiMediaQuery()
   return (
     <AppBar
       position="static"
-      // sx={{ backgroundColor: 'var(--black)' }}
-      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+    // sx={{ backgroundColor: 'var(--black)' }}
+    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
         <Typography
@@ -52,7 +52,7 @@ export function HeaderNav({
         </Typography>
 
         {/* Hide sets used in navbar on small devices */}
-        {!isMobileScreenLayout && (
+        {isLandscapeOrientation && (
           <Typography
             variant="subtitle1"
             component="span"

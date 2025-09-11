@@ -8,6 +8,7 @@ import ErrorPage from './layout/ErrorPage'
 import './layout/index.css'
 import { ROUTES } from './ROUTES'
 import HomePage from './layout/HomePage'
+import { useMuiMediaQuery } from './layout/useMuiMediaQuery'
 
 const darkTheme = createTheme({
   palette: {
@@ -37,12 +38,21 @@ const RootPage = () => {
 }
 
 const App = () => {
+  const {
+    isMobileScreenLayout,
+    isSmallScreenLandscapeOrientation,
+  } = useMuiMediaQuery()
   return (
     <Sentry.ErrorBoundary fallback={ErrorPage} showDialog>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <EventProvider>
           <SnackbarProvider
+            dense
+            style={{
+              maxWidth: '100vw',
+              fontSize: isSmallScreenLandscapeOrientation || isMobileScreenLayout ? 10 : 20,
+            }}
             anchorOrigin={{ horizontal: 'center', vertical: 'top' }}
             maxSnack={3}
             autoHideDuration={3000}

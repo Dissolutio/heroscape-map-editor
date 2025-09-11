@@ -92,7 +92,7 @@ export default function HomePage() {
               flex: 1,
               position: 'relative',
               width: isSideControls ? '70vw' : '100%',
-              height: isSideControls ? '100%' : '70vh',
+              height: isSideControls ? '100%' : '40vh',
             }}
           >
             {isPdfOpen && <ReactPdfRoot />}
@@ -110,12 +110,12 @@ export default function HomePage() {
               flexFlow: 'column nowrap',
               width: isSideControls ? 'var(--controls-width)' : '100%',
               // fullscreen => full device height, no option to minimize
-              // smaller-screen => can be minimized/maxiized, only bottom part of device height
+              // smaller-screen => can be minimized/maximized, only bottom part of device height
               height: isSideControls
                 ? '100%'
                 : isControlTabMinimized
-                  ? '30px'
-                  : '30vh',
+                  ? '80px'
+                  : '60vh',
               background: 'var(--black)',
               overflow: 'auto',
               flexShrink: 1,

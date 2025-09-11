@@ -63,7 +63,7 @@ export const ControlTabs = ({
     <Box
       sx={{
         width: '100%',
-        overflow: isControlTabMinimized ? 'hidden' : 'auto',
+        // overflow: isControlTabMinimized ? 'hidden' : 'auto',
       }}
     >
       <Box
