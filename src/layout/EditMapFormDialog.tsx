@@ -40,6 +40,33 @@ export default function EditMapFormDialog() {
   const [newName, setNewName] = React.useState(mapName)
   const [newAuthor, setNewAuthor] = React.useState(authorName)
 
+  const handleSubmitEditMapForm = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    // biome-ignore lint/suspicious/noExplicitAny: <form data not well understood>
+    const formJson = Object.fromEntries((formData as any).entries())
+    const newMapName = formJson.newMapName
+    const newAuthorName = formJson.newAuthorName
+    const newMapNotes = formJson.mapNotes
+    const newSetsUsed: string[] = []
+    Object.values(terrainSetsByShortID).map((set) => {
+      const count = formJson[`terrainSet${set.id}`]
+      for (let i = 0; i < count; i++) {
+        newSetsUsed.push(set.id)
+      }
+    })
+    changeMapName(newMapName)
+    changeAuthorName(newAuthorName)
+    changeMapNotes(newMapNotes)
+    changeSetsUsed(newSetsUsed)
+    addMapPortraitBase64(imgSrc)
+    enqueueSnackbar({
+      message: `Updated Map Name: ${newMapName}`,
+      autoHideDuration: 3000,
+    })
+    handleClose()
+  }
+
   // TODO: UPDATE BASE64 URL (and jpg)
   /* 
   const [file, setFile] = React.useState<File | undefined>(undefined)
@@ -87,32 +114,7 @@ export default function EditMapFormDialog() {
       slotProps={{
         paper: {
           component: 'form',
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault()
-            const formData = new FormData(event.currentTarget)
-            // biome-ignore lint/suspicious/noExplicitAny: <form data not well understood>
-            const formJson = Object.fromEntries((formData as any).entries())
-            const newMapName = formJson.newMapName
-            const newAuthorName = formJson.newAuthorName
-            const newMapNotes = formJson.mapNotes
-            const newSetsUsed: string[] = []
-            Object.values(terrainSetsByShortID).map((set) => {
-              const count = formJson[`terrainSet${set.id}`]
-              for (let i = 0; i < count; i++) {
-                newSetsUsed.push(set.id)
-              }
-            })
-            changeMapName(newMapName)
-            changeAuthorName(newAuthorName)
-            changeMapNotes(newMapNotes)
-            changeSetsUsed(newSetsUsed)
-            addMapPortraitBase64(imgSrc)
-            enqueueSnackbar({
-              message: `Updated Map Name: ${newMapName}`,
-              autoHideDuration: 3000,
-            })
-            handleClose()
-          },
+          onSubmit: handleSubmitEditMapForm,
         },
       }}
     >
