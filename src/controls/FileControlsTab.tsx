@@ -122,10 +122,7 @@ export const FileControlsTab = () => {
     setIsDownloadPhotoOpen(false)
   }
   return (
-    <Box
-      role="presentation"
-      onClick={handleClickAway}
-    >
+    <Box role="presentation" onClick={handleClickAway}>
       <ClickAwayListener onClickAway={handleClickAway}>
         <List>
           {/* OPEN EDIT MY PIECE INVENTORY DIALOG */}

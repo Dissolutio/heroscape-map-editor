@@ -13,14 +13,19 @@ export const BuildControlsTab = () => {
   // const inventory = useLocalPieceInventory()
   const isViewMapInventoryDialogOpen =
     useBoundStore((state) => state.currentDialog) === DIALOGS.viewMapInventory
-  const toggleCurrentDialog =
-    useBoundStore((state) => state.toggleCurrentDialog)
+  const toggleCurrentDialog = useBoundStore(
+    (state) => state.toggleCurrentDialog,
+  )
   return (
     <Container sx={{ padding: 1 }}>
       <List>
         <ControlTabsListItemButton
           primary={'View Map Inventory'}
-          onClick={() => toggleCurrentDialog(isViewMapInventoryDialogOpen ? '' : DIALOGS.viewMapInventory)}
+          onClick={() =>
+            toggleCurrentDialog(
+              isViewMapInventoryDialogOpen ? '' : DIALOGS.viewMapInventory,
+            )
+          }
           icon={<FcTodoList />}
         />
       </List>

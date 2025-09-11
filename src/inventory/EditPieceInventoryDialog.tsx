@@ -25,9 +25,9 @@ export const EditPieceInventoryDialog = () => {
   const toggleIsPieceInventoryDialogOpen = useBoundStore(
     (state) => state.toggleIsPieceInventoryDialogOpen,
   )
-  const isPieceInventoryDialogOpen = useBoundStore(
-    (state) => state.currentDialog,
-  ) === DIALOGS.editPersonalInventory
+  const isPieceInventoryDialogOpen =
+    useBoundStore((state) => state.currentDialog) ===
+    DIALOGS.editPersonalInventory
   const userPieceInventory = useBoundStore((state) => state.userPieceInventory)
   const updateUserPieceInventory = useBoundStore(
     (state) => state.updateUserPieceInventory,

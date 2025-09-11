@@ -1,15 +1,4 @@
-import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
-import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
-import React, { type ChangeEvent } from 'react'
 import { MdFolderZip, MdOutlineHexagon } from 'react-icons/md'
-import { useLocation } from 'wouter'
-import { ROUTES } from '../ROUTES'
-import buildupVSFileMap, { buildupJsonFileMap } from '../data/buildupMap'
-import readVirtualscapeMapFile, {
-  readGzipMapFile,
-} from '../data/readVirtualscapeMapFile'
-import useBoundStore from '../store/store'
-import type { MapFileState } from '../types'
 import {
   jsonUploadElementID,
   uploadElementID,
@@ -17,7 +6,6 @@ import {
 } from './LoadFileHiddenInputs'
 import {
   ControlTabsListItemButton,
-  ControlTabsListItemText,
 } from '../controls/ControlTabsListItemButton'
 
 export const useLoadMapButtons = () => {

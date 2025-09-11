@@ -1,4 +1,3 @@
-import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import { MdFolderZip } from 'react-icons/md'
 import useBoundStore from '../store/store'
 import type { BoardPieces, HexMap } from '../types'
@@ -6,7 +5,6 @@ import { genRandomMapName } from '../utils/genRandomMapName'
 import { encodeFilename } from '../utils/map-utils'
 import {
   ControlTabsListItemButton,
-  ControlTabsListItemText,
 } from '../controls/ControlTabsListItemButton'
 
 const DownloadMapFileButtons = () => {
@@ -68,7 +66,6 @@ const DownloadMapFileButtons = () => {
         onClick={handleClickExportGzip}
         icon={<MdFolderZip />}
       />
-
       <ControlTabsListItemButton
         primary="Download file (.json)"
         onClick={handleClickExportJson}

@@ -32,7 +32,8 @@ const ViewMapInventoryDialog = () => {
   function getCombinedInventory(setsUsed: string[]): Record<string, number> {
     const combined: Record<string, number> = {}
     for (const setID of setsUsed) {
-      const set = terrainSetsByShortID[setID as keyof typeof terrainSetsByShortID]
+      const set =
+        terrainSetsByShortID[setID as keyof typeof terrainSetsByShortID]
       for (const [pieceID, count] of Object.entries(set?.inventory ?? {})) {
         combined[pieceID] = (combined[pieceID] || 0) + (count as number)
       }
@@ -41,7 +42,9 @@ const ViewMapInventoryDialog = () => {
   }
 
   // Count pieces used in the map
-  function countPiecesUsed(boardPieces: Record<string, string>): Record<string, number> {
+  function countPiecesUsed(
+    boardPieces: Record<string, string>,
+  ): Record<string, number> {
     const used: Record<string, number> = {}
     for (const pieceID of Object.values(boardPieces)) {
       used[pieceID] = (used[pieceID] || 0) + 1
@@ -67,8 +70,18 @@ const ViewMapInventoryDialog = () => {
               const usedCount = piecesUsed[pieceID] || 0
               const isOver = usedCount > available
               return (
-                <Box key={pieceID} sx={{ color: isOver ? 'error.main' : 'inherit', display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <span>{piecesSoFar[pieceID]?.title}: {usedCount} / {available}</span>
+                <Box
+                  key={pieceID}
+                  sx={{
+                    color: isOver ? 'error.main' : 'inherit',
+                    display: 'flex',
+                    alignItems: 'center',
+                    mb: 1,
+                  }}
+                >
+                  <span>
+                    {piecesSoFar[pieceID]?.title}: {usedCount} / {available}
+                  </span>
                   {isOver && (
                     <Icon sx={{ ml: 1 }}>
                       <FcBiohazard color="error" />
