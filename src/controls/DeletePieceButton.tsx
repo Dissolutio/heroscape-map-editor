@@ -25,7 +25,7 @@ const DeletePieceButton = () => {
       title="Hotkey: delete"
       sx={{
         p: 0,
-        fontSize: isMobileScreenLayout ? 10 : undefined
+        fontSize: isMobileScreenLayout ? 10 : undefined,
       }}
     >
       Delete Piece

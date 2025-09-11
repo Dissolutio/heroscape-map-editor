@@ -1,6 +1,4 @@
-import {
-  Container,
-} from '@mui/material'
+import { Container } from '@mui/material'
 import PenModeControls from './PenModeControls'
 import PieceSizeSelect from './PieceSizeSelect'
 import RotationSelect from './RotationSelect'
@@ -8,7 +6,6 @@ import UndoRedoButtonGroup from './UndoRedoButtonGroup'
 import ViewingLevelInput from './ViewingLevelInput'
 
 export const BuildControlsTab = () => {
-
   // const inventory = useLocalPieceInventory()
 
   return (

@@ -70,7 +70,7 @@ export const getBoardHexesRectangularMapDimensions = (
     ((hexLength === 1
       ? 2 * HEXGRID_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-      3 * HEXGRID_HEX_APOTHEM) +
+        3 * HEXGRID_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * HEXGRID_HEX_APOTHEM) /
     HEXGRID_SPACING
   const apex =
@@ -119,7 +119,7 @@ export const getBoardHexesSvgMapDimensions = (
     ((hexLength === 1
       ? 2 * SVG_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-      3 * SVG_HEX_APOTHEM) +
+        3 * SVG_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * SVG_HEX_APOTHEM) /
     HEXGRID_SPACING
   return { length, width, hexLength, hexWidth }
@@ -293,10 +293,7 @@ export function countTerrainSets(setsUsed: string[]): Record<string, number> {
 export const getSetsUsedText = (setsUsed: string[]) => {
   const terrainSetCounts = countTerrainSets(setsUsed)
   const res = Object.entries(terrainSetCounts).map(([key, val], index) => {
-    const isCommaAfter = !(
-      index >=
-      Object.entries(terrainSetCounts).length - 1
-    )
+    const isCommaAfter = !(index >= Object.entries(terrainSetCounts).length - 1)
     const setNameText = `${terrainSetsByShortID[key as keyof typeof terrainSetsByShortID]?.abbreviation}`
     const countText = `x${val ?? 0}`
     return `${setNameText} ${countText}${isCommaAfter ? ', ' : ''}`

@@ -55,7 +55,6 @@ export function ReactPdfRoot() {
   )
 }
 
-
 const MapPortraitHeader = ({
   hexMap,
   mapPortraitBase64,
@@ -96,9 +95,11 @@ const MapPortraitHeader = ({
           />
         </View>
         <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>
-        {hexMap.author && (<Text style={{ fontSize: '12px', paddingLeft: 5 }}>
-          by: {hexMap.author}
-        </Text>)}
+        {hexMap.author && (
+          <Text style={{ fontSize: '12px', paddingLeft: 5 }}>
+            by: {hexMap.author}
+          </Text>
+        )}
       </View>
       <View
         style={{
@@ -113,8 +114,7 @@ const MapPortraitHeader = ({
       >
         {Object.entries(terrainSetCounts).length > 0 && (
           <Text style={{ fontSize: '10px' }}>
-            Requires:{' '}
-            {getSetsUsedText(hexMap?.setsUsed ?? [])}
+            Requires: {getSetsUsedText(hexMap?.setsUsed ?? [])}
           </Text>
         )}
       </View>

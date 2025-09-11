@@ -179,7 +179,11 @@ export const EditControlsTab = () => {
       loadMap(newMap)
     }
   }
-  const buttonFontSize = isMobileScreenLayout ? 8 : isMediumScreenLayout ? 12 : 12
+  const buttonFontSize = isMobileScreenLayout
+    ? 8
+    : isMediumScreenLayout
+      ? 12
+      : 12
   return (
     <Box sx={{ p: 0 }}>
       {/* <div style={{ padding: '0px 20px' }}>
@@ -191,7 +195,6 @@ export const EditControlsTab = () => {
       {/* <LocalStorageList /> */}
       {/* OPEN EDIT MAP DETAILS DIALOG */}
       <List>
-
         <ListItemButton onClick={() => toggleIsEditMapDialogOpen(true)}>
           <ListItemIcon>
             <FcVlc />
@@ -202,7 +205,10 @@ export const EditControlsTab = () => {
 
       <Card>
         <CardContent>
-          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
+          <Typography
+            gutterBottom
+            sx={{ color: 'text.secondary', fontSize: 14 }}
+          >
             Adjust map dimensions
           </Typography>
           <ButtonGroup
@@ -225,7 +231,7 @@ export const EditControlsTab = () => {
               }
               onClick={handleClickAddMapLengthX}
               sx={{
-                fontSize: buttonFontSize
+                fontSize: buttonFontSize,
               }}
             >
               + length
@@ -242,7 +248,7 @@ export const EditControlsTab = () => {
               }
               onClick={handleClickRemoveMapLengthX}
               sx={{
-                fontSize: buttonFontSize
+                fontSize: buttonFontSize,
               }}
             >
               - length
@@ -257,7 +263,7 @@ export const EditControlsTab = () => {
               title="Add one column of hexes to right side"
               onClick={handleClickAddMapWidthY}
               sx={{
-                fontSize: buttonFontSize
+                fontSize: buttonFontSize,
               }}
             >
               + width
@@ -270,7 +276,7 @@ export const EditControlsTab = () => {
               title="Remove one column of hexes from right side"
               onClick={handleClickRemoveMapWidthY}
               sx={{
-                fontSize: buttonFontSize
+                fontSize: buttonFontSize,
               }}
             >
               - width
@@ -279,21 +285,20 @@ export const EditControlsTab = () => {
         </CardContent>
       </Card>
 
-      <Card >
+      <Card>
         <CardContent>
-          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
+          <Typography
+            gutterBottom
+            sx={{ color: 'text.secondary', fontSize: 14 }}
+          >
             Shift all pieces in 1 direction
           </Typography>
-          <ButtonGroup
-            aria-label="Shift map button group"
-            size="small"
-          >
-
+          <ButtonGroup aria-label="Shift map button group" size="small">
             <Button
               title="Move all pieces 1 hex left"
               onClick={() => movePieces(3)}
               sx={{
-                fontSize: buttonFontSize
+                fontSize: buttonFontSize,
               }}
             >
               Left
@@ -302,7 +307,7 @@ export const EditControlsTab = () => {
               title="Move all pieces 1 hex up-left"
               onClick={() => movePieces(4)}
               sx={{
-                fontSize: buttonFontSize
+                fontSize: buttonFontSize,
               }}
             >
               Up Left
@@ -311,7 +316,7 @@ export const EditControlsTab = () => {
               title="Move all pieces 1 hex up-right"
               onClick={() => movePieces(5)}
               sx={{
-                fontSize: buttonFontSize
+                fontSize: buttonFontSize,
               }}
             >
               Up Right
@@ -320,7 +325,7 @@ export const EditControlsTab = () => {
               title="Move all pieces 1 hex right"
               onClick={() => movePieces(0)}
               sx={{
-                fontSize: buttonFontSize
+                fontSize: buttonFontSize,
               }}
             >
               Right
@@ -329,7 +334,7 @@ export const EditControlsTab = () => {
               title="Move all pieces 1 hex down-right"
               onClick={() => movePieces(1)}
               sx={{
-                fontSize: buttonFontSize
+                fontSize: buttonFontSize,
               }}
             >
               Down Right
@@ -338,7 +343,7 @@ export const EditControlsTab = () => {
               title="Move all pieces 1 hex down-left"
               onClick={() => movePieces(2)}
               sx={{
-                fontSize: buttonFontSize
+                fontSize: buttonFontSize,
               }}
             >
               Down Left

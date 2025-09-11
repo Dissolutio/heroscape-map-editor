@@ -36,7 +36,7 @@ import type { Group, Object3DEventMap } from 'three'
 
 export default function ViewControlsTab({
   cameraControlsRef,
-  mapGroupRef
+  mapGroupRef,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
@@ -88,10 +88,7 @@ export default function ViewControlsTab({
     }, 100) // Long enough to make some changes to the map and render
   }
   return (
-    <Box
-      sx={{ width: '100%', height: '100%' }}
-      role="presentation"
-    >
+    <Box sx={{ width: '100%', height: '100%' }} role="presentation">
       <div
         style={{
           height: '100%',
@@ -112,28 +109,28 @@ export default function ViewControlsTab({
           </ListItemButton>
           {/* Lock Camera Controls */}
           <ListItemButton
-            title={isCamerDisabled ? 'Unlock camera controls' : 'Lock camera controls'}
+            title={
+              isCamerDisabled
+                ? 'Unlock camera controls'
+                : 'Lock camera controls'
+            }
             onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
             style={{
               ...(isCamerDisabled
                 ? { backgroundColor: 'red', color: 'white' }
-                : {})
+                : {}),
             }}
           >
-            <ListItemIcon
-            >
+            <ListItemIcon>
               {isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />}
             </ListItemIcon>
             <ListItemText
-              primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'} />
+              primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'}
+            />
           </ListItemButton>
 
-
           {/* Reset camera defaults */}
-          <ListItemButton
-            title={'Reset camera defaults'}
-            onClick={resetCamera}
-          >
+          <ListItemButton title={'Reset camera defaults'} onClick={resetCamera}>
             <ListItemIcon>
               <FcSynchronize />
             </ListItemIcon>
@@ -147,28 +144,30 @@ export default function ViewControlsTab({
                 ? 'Switch to perspective camera'
                 : 'Switch to orthographic camera'
             }
-            onClick={handleToggleOrthoCam}>
+            onClick={handleToggleOrthoCam}
+          >
             <ListItemIcon>
               <FcSwitchCamera />
             </ListItemIcon>
-            <ListItemText primary={
-              isOrthoCam
-                ? 'Use perspective camera'
-                : 'Use orthographic camera'
-            } />
+            <ListItemText
+              primary={
+                isOrthoCam
+                  ? 'Use perspective camera'
+                  : 'Use orthographic camera'
+              }
+            />
           </ListItemButton>
 
           {/* Take map picture PNG */}
           <ListItemButton
             title={'Take map picture .PNG'}
-            onClick={handleTakeAMapPicture}>
+            onClick={handleTakeAMapPicture}
+          >
             <ListItemIcon>
               <FcOldTimeCamera />
             </ListItemIcon>
             <ListItemText primary={'Take map picture .PNG'} />
           </ListItemButton>
-
-
         </List>
       </div>
       <div style={{ border: '1px solid var(--transparent-border)' }}>

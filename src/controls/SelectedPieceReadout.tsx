@@ -5,7 +5,6 @@ import { decodePieceID } from '../utils/map-utils'
 import DeletePieceButton from './DeletePieceButton'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
-
 const SelectedPieceReadout = () => {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const {
@@ -52,19 +51,15 @@ const SelectedPieceReadout = () => {
             <Typography
               sx={{
                 color: 'text.secondary',
-                fontSize: 10
+                fontSize: 10,
               }}
             >
               Selected Piece
             </Typography>
-            <Typography variant="h5" component="div"
-              sx={{ fontSize: 12 }}
-            >
+            <Typography variant="h5" component="div" sx={{ fontSize: 12 }}>
               {piece?.title ?? piece}
             </Typography>
-            <Typography variant="body2"
-              sx={{ fontSize: 12 }}
-            >
+            <Typography variant="body2" sx={{ fontSize: 12 }}>
               Altitude: {altitude + 1}
               <br />
               Rotation: {rotation}
@@ -74,7 +69,7 @@ const SelectedPieceReadout = () => {
             sx={{
               p: 0,
               px: 1,
-              m: 0
+              m: 0,
             }}
           >
             <DeletePieceButton />
@@ -95,10 +90,12 @@ const SelectedPieceReadout = () => {
         // backgroundColor: 'var(--gunmetal-transparent)'
       }}
     >
-      <Card sx={{
-        width: 150,
-        height: 200
-      }}>
+      <Card
+        sx={{
+          width: 150,
+          height: 200,
+        }}
+      >
         <CardContent>
           <Typography
             gutterBottom

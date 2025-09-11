@@ -141,7 +141,7 @@ const InventoryForm = () => {
         .filter((p) => !p?.isUninventoried)
         .map((piece) => {
           return (
-            <li>
+            <li key={piece.id}>
               {piece.title}: {pieceInventory[piece.id]}
             </li>
           )
@@ -149,39 +149,5 @@ const InventoryForm = () => {
     </div>
   )
 }
-// type BasicCardProps = {
-//   title: string
-//   count: number
-// }
-// function BasicCard({
-//   title,
-//   count
-// }: BasicCardProps) {
-//   return (
-//     <Card sx={{ minWidth: 275 }}>
-//       <CardContent>
-//         <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
-//           {title}
-//         </Typography>
-//         <Typography variant="h5" component="div">
-//           {count}
-//         </Typography>
-//         <Typography sx={{ color: 'text.secondary', mb: 1.5 }}>You have: {count}</Typography>
-//       </CardContent>
-//       <CardActions>
-//         <Button
-//           variant='contained'
-//           size="small"
-//           sx={{ color: 'green' }}
-//         >+</Button>
-//         <Button
-//           variant='contained'
-//           size="small"
-//           sx={{ color: 'red' }}
-//         >-</Button>
-//       </CardActions>
-//     </Card>
-//   );
-// }
 
 export default InventoryForm

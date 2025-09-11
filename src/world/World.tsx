@@ -48,7 +48,7 @@ const World = ({
           height: '100%',
           display: isHidden ? 'none' : 'block',
           position: 'relative',
-          backgroundColor: 'var(--black)'
+          backgroundColor: 'var(--black)',
         }}
       >
         <Canvas
@@ -66,7 +66,7 @@ const World = ({
           hidden={isHidden}
           shadows={isLightsAndShadowsRender}
         >
-          <color attach="background" args={["white"]} />
+          <color attach="background" args={['white']} />
           <PerspectiveCamera
             position={[10, 10, 10]}
             fov={CAMERA_FOV}
