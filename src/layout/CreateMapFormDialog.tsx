@@ -58,7 +58,7 @@ export default function CreateMapFormDialog() {
   const [, navigate] = useLocation()
   const fullScreen = useMediaQuery('(max-width:900px)')
   const loadMap = useBoundStore((state) => state.loadMap)
-  const { clear: clearUndoHistory } = useBoundStore.temporal.getState()
+  // const { clear: clearUndoHistory } = useBoundStore.temporal.getState()
   const toggleIsNewMapDialogOpen = useBoundStore(
     (state) => state.toggleIsNewMapDialogOpen,
   )
@@ -95,7 +95,8 @@ export default function CreateMapFormDialog() {
     loadMap(newMap)
     changeMapNotes('')
     addMapPortraitBase64('')
-    clearUndoHistory()
+    // clearUndoHistory is commented above, imported
+    // clearUndoHistory()
     navigate(ROUTES.heroscapeHome)
     enqueueSnackbar({
       message: `Created new map: ${newMap.hexMap.name}`,
