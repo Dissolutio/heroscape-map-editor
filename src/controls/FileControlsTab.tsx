@@ -103,9 +103,10 @@ export const FileControlsTab = () => {
         </>
       )
       enqueueSnackbar({
-        message: `Failed to copy url to clipboard, here it is: ${fullUrl}`,
+        message: 'Failed to copy url to clipboard',
+        // message: `${err?.message ?? ''}`,
         variant: 'error',
-        autoHideDuration: 30000,
+        // autoHideDuration: 30000,
         action: action,
       })
     }
