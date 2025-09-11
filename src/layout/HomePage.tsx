@@ -12,6 +12,7 @@ import type { Group, Object3DEventMap } from 'three'
 import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
 import { ControlTabs } from '../controls/ControlTabs'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
+import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(null)
@@ -58,6 +59,7 @@ export default function HomePage() {
       <CreateMapFormDialog />
       <EditMapFormDialog />
       <EditPieceInventoryDialog />
+      <ViewMapInventoryDialog />
       <div
         style={{
           display: 'flex',

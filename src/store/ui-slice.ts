@@ -24,6 +24,7 @@ export interface UISlice {
   togglePieceSize: (s: number) => void
   flatPieceSizes: number[]
   currentDialog: string
+  toggleCurrentDialog: (s: string) => void
   toggleIsNewMapDialogOpen: (b: boolean) => void
   toggleIsEditMapDialogOpen: (b: boolean) => void
   toggleIsPieceInventoryDialogOpen: (b: boolean) => void
@@ -177,7 +178,8 @@ const createUISlice: StateCreator<
         s.isOrthoCam = b
       }),
     ),
-  currentDialog: '',
+  // currentDialog: '',
+  currentDialog: DIALOGS.viewMapInventory,
   toggleIsNewMapDialogOpen: (b: boolean) =>
     set(
       produce((s) => {
@@ -194,6 +196,12 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.currentDialog = b ? DIALOGS.editPersonalInventory : ''
+      }),
+    ),
+  toggleCurrentDialog: (dialogName: string) =>
+    set(
+      produce((s) => {
+        s.currentDialog = dialogName ?? ''
       }),
     ),
   viewingLevel: 0,
