@@ -178,8 +178,7 @@ const createUISlice: StateCreator<
         s.isOrthoCam = b
       }),
     ),
-  // currentDialog: '',
-  currentDialog: DIALOGS.viewMapInventory,
+  currentDialog: '',
   toggleIsNewMapDialogOpen: (b: boolean) =>
     set(
       produce((s) => {
