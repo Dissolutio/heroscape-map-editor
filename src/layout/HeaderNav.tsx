@@ -31,40 +31,46 @@ export function HeaderNav({
   return (
     <AppBar
       position="static"
-    // sx={{ backgroundColor: 'var(--black)' }}
-    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+      // sx={{ backgroundColor: 'var(--black)' }}
+      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
         <Typography
           variant="h6"
+          noWrap
           // component="h1"
           sx={{
             // must grow instead of sets used text growing, since on small screens sets used text no displayed
             flexGrow: isMobileScreenLayout ? 1 : 0,
-            m: 0, p: 0,
+            fontSize: hexMap.name.length > 32 ? '70%' : undefined,
+            m: 0,
+            p: 0,
             // fontSize: isHugeScreenLayout ? undefined : '1em'
           }}
         >
           {hexMap.name || 'Hexoscape Map Editor'}
-
         </Typography>
 
         {/* Hide sets used in navbar on small devices */}
-        {!isMobileScreenLayout && <Typography
-          variant="subtitle1"
-          component="span"
-          sx={{
-            flexGrow: 1,
-            textAlign: 'left',
-            // fontSize: isHugeScreenLayout ? '2em' : '0.8em',
-            color: 'var(--sub-white)',
-            px: 2,
-            overflow: 'hidden',
-            maxHeight: 68
-          }}
-        >
-          {setsUsedText}
-        </Typography>}
+        {!isMobileScreenLayout && (
+          <Typography
+            variant="subtitle1"
+            component="span"
+            noWrap
+            sx={{
+              flexGrow: 1,
+              textAlign: 'left',
+              fontSize: setsUsedText.length > 32 ? '70%' : undefined,
+              color: 'var(--sub-white)',
+              px: 2,
+              overflow: 'hidden',
+              maxHeight: 68,
+            }}
+          >
+            {setsUsedText}
+          </Typography>
+        )}
+
         {isMobileScreenLayout ? (
           <ReactPdfDownloadLink>
             <IconButton

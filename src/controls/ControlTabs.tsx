@@ -45,7 +45,7 @@ export const ControlTabs = ({
   cameraControlsRef,
   mapGroupRef,
   toggleisControlTabMinimized,
-  isControlTabMinimized
+  isControlTabMinimized,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
@@ -53,91 +53,112 @@ export const ControlTabs = ({
   isControlTabMinimized: boolean
 }) => {
   const [value, setValue] = React.useState(0)
-  const { isLargeScreenLayout } = useMuiMediaQuery()
+  const { isLargeScreenLayout, isLandscapeOrientation } = useMuiMediaQuery()
+  const isSideControls = isLargeScreenLayout || isLandscapeOrientation
+  const isSmallTextSideControls = !isLargeScreenLayout && isLandscapeOrientation
   const handleChange = (newValue: number) => {
     setValue(newValue)
   }
 
   return (
-    <Box sx={{
-      width: '100%',
-      overflow: isControlTabMinimized ? 'hidden' : 'auto',
-    }}>
-      <Box sx={{
-        position: 'fixed',
-        backgroundColor: 'var(--black)',
-        zIndex: 100,
-        width: '100%'
-      }}>
-        <Box sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          p: 0,
-          borderBottom: 1,
-          borderColor: 'divider',
-          width: '100%',
-        }}>
+    <Box
+      sx={{
+        width: '100%',
+        overflow: isControlTabMinimized ? 'hidden' : 'auto',
+      }}
+    >
+      <Box
+        sx={{
+          position: 'fixed',
+          backgroundColor: 'var(--black)',
+          zIndex: 100,
+          width: isSideControls ? 'var(--controls-width)' : '100%',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            p: 0,
+            borderBottom: 1,
+            borderColor: 'divider',
+          }}
+        >
           <Tabs
             value={value}
             onChange={(_, n) => handleChange(n)}
             aria-label="control tabs"
-            // centered
+            centered
             sx={{
-              minHeight: 30,
+              fontSize: isLandscapeOrientation ? '0.8em' : '1em',
+              // minHeight: 30,
+              minHeight: isSmallTextSideControls ? 20 : 30,
+              minWidth: isSmallTextSideControls ? 30 : 50,
             }}
           >
             <Tab
-              label="Build" {...a11yProps(0)}
+              label="Build"
+              {...a11yProps(0)}
               onClick={() => toggleisControlTabMinimized(false)}
               sx={{
-                fontSize: 12,
+                fontSize: isLandscapeOrientation ? '0.8em' : '1em',
                 p: 0,
                 m: 0,
-                minHeight: 30,
-                minWidth: 50,
+                // minHeight: 30,
+                minHeight: isSmallTextSideControls ? 20 : 30,
+                minWidth: isSmallTextSideControls ? 30 : 50,
               }}
             />
             <Tab
-              label="File" {...a11yProps(1)}
+              label="File"
+              {...a11yProps(1)}
               onClick={() => toggleisControlTabMinimized(false)}
               sx={{
-                fontSize: 12,
+                fontSize: isLandscapeOrientation ? '0.8em' : '1em',
                 p: 0,
                 m: 0,
-                minHeight: 30,
-                minWidth: 50,
+                // minHeight: 30,
+                minHeight: isSmallTextSideControls ? 20 : 30,
+                minWidth: isSmallTextSideControls ? 30 : 50,
               }}
             />
             <Tab
-              label="Edit" {...a11yProps(2)}
+              label="Edit"
+              {...a11yProps(2)}
               onClick={() => toggleisControlTabMinimized(false)}
               sx={{
-                fontSize: 12,
+                fontSize: isLandscapeOrientation ? '0.8em' : '1em',
                 p: 0,
                 m: 0,
-                minHeight: 30,
-                minWidth: 50,
+                // minHeight: 30,
+                minHeight: isSmallTextSideControls ? 20 : 30,
+                minWidth: isSmallTextSideControls ? 30 : 50,
               }}
             />
             <Tab
-              label="View" {...a11yProps(3)}
+              label="View"
+              {...a11yProps(3)}
               onClick={() => toggleisControlTabMinimized(false)}
               sx={{
-                fontSize: 12,
+                fontSize: isLandscapeOrientation ? '0.8em' : '1em',
                 p: 0,
                 m: 0,
-                minHeight: 30,
-                minWidth: 50,
+                // minHeight: 30,
+                minHeight: isSmallTextSideControls ? 20 : 30,
+                minWidth: isSmallTextSideControls ? 30 : 50,
               }}
             />
           </Tabs>
-          {!isLargeScreenLayout && (<IconButton
-            onClick={() => toggleisControlTabMinimized(!isControlTabMinimized)}
-            sx={{ fontSize: 12 }}
-          >
-            {isControlTabMinimized ? <MdExpandLess /> : <MdExpandMore />}
-          </IconButton>
+          {!isSideControls && (
+            <IconButton
+              onClick={() =>
+                toggleisControlTabMinimized(!isControlTabMinimized)
+              }
+              sx={{ fontSize: 12 }}
+            >
+              {isControlTabMinimized ? <MdExpandLess /> : <MdExpandMore />}
+            </IconButton>
           )}
         </Box>
       </Box>
@@ -170,7 +191,6 @@ export const ControlTabs = ({
           />
         </CustomTabPanel>
       </div>
-
     </Box>
   )
 }

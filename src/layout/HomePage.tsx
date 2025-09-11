@@ -27,15 +27,15 @@ export default function HomePage() {
   // md, medium: 900px
   // lg, large: 1200px
   // xl, extra-large: 1536px
-  const {
-    isLargeScreenLayout,
-  } = useMuiMediaQuery()
+  const { isLargeScreenLayout, isLandscapeOrientation } = useMuiMediaQuery()
+  const isSideControls = isLargeScreenLayout || isLandscapeOrientation
 
   const [isPdfOpen, setIsPdfOpen] = React.useState(false)
   const toggleIsPdfOpen = (s: boolean) => {
     setIsPdfOpen(s)
   }
-  const [isControlTabMinimized, setIsControlTabMinimized] = React.useState(false)
+  const [isControlTabMinimized, setIsControlTabMinimized] =
+    React.useState(false)
   const toggleisControlTabMinimized = (s: boolean) => {
     setIsControlTabMinimized(s)
   }
@@ -78,7 +78,7 @@ export default function HomePage() {
           style={{
             display: 'flex',
             flex: 1,
-            flexDirection: isLargeScreenLayout ? 'row-reverse' : 'column',
+            flexDirection: isSideControls ? 'row-reverse' : 'column',
             width: '100%',
             padding: 0,
             margin: 0,
@@ -89,9 +89,10 @@ export default function HomePage() {
             sx={{
               flex: 1,
               position: 'relative',
-              width: isLargeScreenLayout ? '70vw' : '100%',
-              height: isLargeScreenLayout ? '100%' : '70vh',
-            }}>
+              width: isSideControls ? '70vw' : '100%',
+              height: isSideControls ? '100%' : '70vh',
+            }}
+          >
             {isPdfOpen && <ReactPdfRoot />}
             {is2DOpen && !isPdfOpen && <SvgMapDisplay />}
             <World
@@ -105,15 +106,18 @@ export default function HomePage() {
             style={{
               display: 'flex',
               flexFlow: 'column nowrap',
-              width: isLargeScreenLayout ? '30vw' : '100%',
+              width: isSideControls ? 'var(--controls-width)' : '100%',
               // fullscreen => full device height, no option to minimize
               // smaller-screen => can be minimized/maxiized, only bottom part of device height
-              height: isLargeScreenLayout ? '100%' : isControlTabMinimized ? '30px' : '30vh',
+              height: isSideControls
+                ? '100%'
+                : isControlTabMinimized
+                  ? '30px'
+                  : '30vh',
               background: 'var(--black)',
               overflow: 'auto',
               flexShrink: 1,
               transition: 'height 0.5s ease-in-out',
-
             }}
           >
             <ControlTabs
