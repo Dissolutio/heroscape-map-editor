@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "lint": "npx @biomejs/biome lint --write ./src",
     "format": "npx biome format --write src/",
     "build": "tsc -b && vite build",
