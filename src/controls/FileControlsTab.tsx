@@ -138,18 +138,9 @@ export const FileControlsTab = () => {
       onClick={handleClickAway}
     >
       <ClickAwayListener onClickAway={handleClickAway}>
-        <div
-          style={{
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: 0,
-          }}
-        >
-          <List>
-            {/* OPEN EDIT MY PIECE INVENTORY DIALOG */}
-            {/* <ListItemButton
+        <List>
+          {/* OPEN EDIT MY PIECE INVENTORY DIALOG */}
+          {/* <ListItemButton
               onClick={() => toggleIsPieceInventoryDialogOpen(true)}
             >
               <ListItemIcon>
@@ -158,82 +149,81 @@ export const FileControlsTab = () => {
               <ListItemText primary={'Edit My Piece Inventory'} />
             </ListItemButton> */}
 
-            {/* COPY URL */}
-            <ListItemButton onClick={onClickCopy}>
-              <ListItemIcon>
-                <FcLink />
-              </ListItemIcon>
-              <ListItemText primary="Copy Shareable URL" />
-            </ListItemButton>
+          {/* COPY URL */}
+          <ListItemButton onClick={onClickCopy}>
+            <ListItemIcon>
+              <FcLink />
+            </ListItemIcon>
+            <ListItemText primary="Copy Shareable URL" />
+          </ListItemButton>
 
-            {/* EXPAND DOWNLAD MAP FILE BTNS */}
-            <ListItemButton onClick={handleClickDownload}>
-              <ListItemIcon>
-                <FcDownload />
-              </ListItemIcon>
-              <ListItemText primary="Download Map File" />
-              {isDownloadOpen ? <MdExpandLess /> : <MdExpandMore />}
-            </ListItemButton>
-            <Collapse in={isDownloadOpen} timeout="auto">
-              <List component="div">
-                <DownloadMapFileButtons />
-              </List>
-            </Collapse>
+          {/* EXPAND DOWNLAD MAP FILE BTNS */}
+          <ListItemButton onClick={handleClickDownload}>
+            <ListItemIcon>
+              <FcDownload />
+            </ListItemIcon>
+            <ListItemText primary="Download Map File" />
+            {isDownloadOpen ? <MdExpandLess /> : <MdExpandMore />}
+          </ListItemButton>
+          <Collapse in={isDownloadOpen} timeout="auto">
+            <List component="div">
+              <DownloadMapFileButtons />
+            </List>
+          </Collapse>
 
-            {/* EXPAND DOWNLAD MAP PHOTO BTNS */}
-            <ListItemButton onClick={handleClickDownloadPhoto}>
-              <ListItemIcon>
-                <FcDownload />
-              </ListItemIcon>
-              <ListItemText primary="Download Map Picture" />
-              {isDownloadPhotoOpen ? <MdExpandLess /> : <MdExpandMore />}
-            </ListItemButton>
-            <Collapse in={isDownloadPhotoOpen} timeout="auto">
-              <List component="div">
-                <ListItemButton sx={{ pl: 4 }} onClick={handleDownloadJpg}>
-                  <ListItemIcon>
-                    <MdFolderZip />
-                  </ListItemIcon>
-                  <ListItemText primary="Download map picture as .JPG" />
-                </ListItemButton>
-                <ListItemButton sx={{ pl: 4 }} onClick={handleDownloadPng}>
-                  <ListItemIcon>
-                    <MdFolderZip />
-                  </ListItemIcon>
-                  <ListItemText primary="Download map picture as .PNG" />
-                </ListItemButton>
-              </List>
-            </Collapse>
+          {/* EXPAND DOWNLAD MAP PHOTO BTNS */}
+          <ListItemButton onClick={handleClickDownloadPhoto}>
+            <ListItemIcon>
+              <FcDownload />
+            </ListItemIcon>
+            <ListItemText primary="Download Map Picture" />
+            {isDownloadPhotoOpen ? <MdExpandLess /> : <MdExpandMore />}
+          </ListItemButton>
+          <Collapse in={isDownloadPhotoOpen} timeout="auto">
+            <List component="div">
+              <ListItemButton sx={{ pl: 4 }} onClick={handleDownloadJpg}>
+                <ListItemIcon>
+                  <MdFolderZip />
+                </ListItemIcon>
+                <ListItemText primary="Download map picture as .JPG" />
+              </ListItemButton>
+              <ListItemButton sx={{ pl: 4 }} onClick={handleDownloadPng}>
+                <ListItemIcon>
+                  <MdFolderZip />
+                </ListItemIcon>
+                <ListItemText primary="Download map picture as .PNG" />
+              </ListItemButton>
+            </List>
+          </Collapse>
 
-            {/* OPEN CREATE MAP DIALOG */}
-            <ListItemButton
-              onClick={() => toggleIsNewMapDialogOpen(!isNewMapDialogOpen)}
+          {/* OPEN CREATE MAP DIALOG */}
+          <ListItemButton
+            onClick={() => toggleIsNewMapDialogOpen(!isNewMapDialogOpen)}
+          >
+            <ListItemIcon
+              sx={{
+                color: 'inherit',
+              }}
             >
-              <ListItemIcon
-                sx={{
-                  color: 'inherit',
-                }}
-              >
-                <FcAddImage />
-              </ListItemIcon>
-              <ListItemText primary={'Create New Map'} />
-            </ListItemButton>
+              <FcAddImage />
+            </ListItemIcon>
+            <ListItemText primary={'Create New Map'} />
+          </ListItemButton>
 
-            {/* EXPAND LOAD MAP BTNS */}
-            <ListItemButton onClick={handleClick}>
-              <ListItemIcon>
-                <FcUpload />
-              </ListItemIcon>
-              <ListItemText primary="Load Map" />
-              {isUploadOpen ? <MdExpandLess /> : <MdExpandMore />}
-            </ListItemButton>
-            <Collapse in={isUploadOpen} timeout="auto">
-              <List component="div">
-                <LoadMapButtons />
-              </List>
-            </Collapse>
-          </List>
-        </div>
+          {/* EXPAND LOAD MAP BTNS */}
+          <ListItemButton onClick={handleClick}>
+            <ListItemIcon>
+              <FcUpload />
+            </ListItemIcon>
+            <ListItemText primary="Load Map" />
+            {isUploadOpen ? <MdExpandLess /> : <MdExpandMore />}
+          </ListItemButton>
+          <Collapse in={isUploadOpen} timeout="auto">
+            <List component="div">
+              <LoadMapButtons />
+            </List>
+          </Collapse>
+        </List>
       </ClickAwayListener>
     </Box>
   )
