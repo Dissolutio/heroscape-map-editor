@@ -23,6 +23,7 @@ import {
 } from '../utils/constants'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
+import { DIALOGS } from './dialogNames'
 
 const hexagonMarks = [
   {
@@ -61,7 +62,8 @@ export default function CreateMapFormDialog() {
   const toggleIsNewMapDialogOpen = useBoundStore(
     (state) => state.toggleIsNewMapDialogOpen,
   )
-  const isNewMapDialogOpen = useBoundStore((state) => state.isNewMapDialogOpen)
+  const isNewMapDialogOpen =
+    useBoundStore((state) => state.currentDialog) === DIALOGS.newMap
   const changeMapNotes = useBoundStore((state) => state.changeMapNotes)
   const addMapPortraitBase64 = useBoundStore(
     (state) => state.addMapPortraitBase64,

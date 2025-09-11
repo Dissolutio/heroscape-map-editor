@@ -1,3 +1,4 @@
+import type React from 'react'
 import { useState, useEffect } from 'react'
 import {
   Button,
@@ -5,7 +6,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  useMediaQuery,
   Box,
   Typography,
   TextField,
@@ -18,6 +18,7 @@ import { piecesSoFar } from '../data/pieces'
 import { blankPieceInventory } from './blankInventory'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import { pieceGroups } from '../data/pieceGroups'
+import { DIALOGS } from '../layout/dialogNames'
 
 export const EditPieceInventoryDialog = () => {
   // const fullScreen = useMediaQuery('(max-width:900px)')
@@ -25,8 +26,8 @@ export const EditPieceInventoryDialog = () => {
     (state) => state.toggleIsPieceInventoryDialogOpen,
   )
   const isPieceInventoryDialogOpen = useBoundStore(
-    (state) => state.isPieceInventoryDialogOpen,
-  )
+    (state) => state.currentDialog,
+  ) === DIALOGS.editPersonalInventory
   const userPieceInventory = useBoundStore((state) => state.userPieceInventory)
   const updateUserPieceInventory = useBoundStore(
     (state) => state.updateUserPieceInventory,

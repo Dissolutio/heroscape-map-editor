@@ -13,6 +13,7 @@ import { genRandomMapName } from '../utils/genRandomMapName'
 import ReactCropExampleApp from '../react-image-crop/ReactCropExampleApp'
 import 'react-image-crop/dist/ReactCrop.css'
 import { terrainSetsByShortID } from '../data/terrainSets'
+import { DIALOGS } from './dialogNames'
 
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -32,9 +33,8 @@ export default function EditMapFormDialog() {
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
   )
-  const isEditMapDialogOpen = useBoundStore(
-    (state) => state.isEditMapDialogOpen,
-  )
+  const isEditMapDialogOpen =
+    useBoundStore((state) => state.currentDialog) === DIALOGS.editMap
   const handleClose = () => toggleIsEditMapDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
   const [newName, setNewName] = React.useState(mapName)

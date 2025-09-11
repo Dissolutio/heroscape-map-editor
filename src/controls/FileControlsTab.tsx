@@ -8,6 +8,7 @@ import useBoundStore from '../store/store'
 import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
 import LoadMapButtons from '../layout/LoadMapButtons'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
+import { DIALOGS } from '../layout/dialogNames'
 
 export const FileControlsTab = () => {
   const hexMap = useBoundStore((s) => s.hexMap)
@@ -20,7 +21,8 @@ export const FileControlsTab = () => {
   const [isUploadOpen, setIsUploadOpen] = React.useState(false)
   const [isDownloadOpen, setIsDownloadOpen] = React.useState(false)
   const [isDownloadPhotoOpen, setIsDownloadPhotoOpen] = React.useState(false)
-  const isNewMapDialogOpen = useBoundStore((state) => state.isNewMapDialogOpen)
+  const isNewMapDialogOpen =
+    useBoundStore((state) => state.currentDialog) === DIALOGS.newMap
   // const toggleIsPieceInventoryDialogOpen = useBoundStore(
   //   (state) => state.toggleIsPieceInventoryDialogOpen,
   // )

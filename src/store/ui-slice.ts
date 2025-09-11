@@ -4,6 +4,7 @@ import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { AppState } from './store'
 import type { BoardHex, PieceInventory } from '../types'
 import { blankPieceInventory } from '../inventory/blankInventory'
+import { DIALOGS } from '../layout/dialogNames'
 
 export interface UISlice {
   // TODO: persisted state below
@@ -22,11 +23,9 @@ export interface UISlice {
   togglePenModeRotation: (s: number) => void
   togglePieceSize: (s: number) => void
   flatPieceSizes: number[]
-  isNewMapDialogOpen: boolean
+  currentDialog: string
   toggleIsNewMapDialogOpen: (b: boolean) => void
-  isEditMapDialogOpen: boolean
   toggleIsEditMapDialogOpen: (b: boolean) => void
-  isPieceInventoryDialogOpen: boolean
   toggleIsPieceInventoryDialogOpen: (b: boolean) => void
 
   // WORLD STATE
@@ -103,7 +102,7 @@ const createUISlice: StateCreator<
         }
         // we are selecting old pen mode
         // recalculate piece sizes for old pen mode
-        const { newSize, newSizes } = getNewPieceSizeForPenMode(
+        const { newSize: _, newSizes } = getNewPieceSizeForPenMode(
           state.lastPenMode,
           state.penMode,
           state.pieceSize,
@@ -178,25 +177,23 @@ const createUISlice: StateCreator<
         s.isOrthoCam = b
       }),
     ),
-  isNewMapDialogOpen: false,
+  currentDialog: '',
   toggleIsNewMapDialogOpen: (b: boolean) =>
     set(
       produce((s) => {
-        s.isNewMapDialogOpen = b
+        s.currentDialog = b ? DIALOGS.newMap : ''
       }),
     ),
-  isEditMapDialogOpen: false,
   toggleIsEditMapDialogOpen: (b: boolean) =>
     set(
       produce((s) => {
-        s.isEditMapDialogOpen = b
+        s.currentDialog = b ? DIALOGS.editMap : ''
       }),
     ),
-  isPieceInventoryDialogOpen: false,
   toggleIsPieceInventoryDialogOpen: (b: boolean) =>
     set(
       produce((s) => {
-        s.isPieceInventoryDialogOpen = b
+        s.currentDialog = b ? DIALOGS.editPersonalInventory : ''
       }),
     ),
   viewingLevel: 0,
