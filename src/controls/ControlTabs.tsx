@@ -64,76 +64,82 @@ export const ControlTabs = ({
       overflow: isControlTabMinimized ? 'hidden' : 'auto',
     }}>
       <Box sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        p: 0,
-        borderBottom: 1,
-        borderColor: 'divider',
-        width: '100%',
-
+        position: 'fixed',
+        backgroundColor: 'var(--black)',
+        zIndex: 100,
+        width: '100%'
       }}>
-        <Tabs
-          value={value}
-          onChange={(_, n) => handleChange(n)}
-          aria-label="control tabs"
-          // centered
-          sx={{
-            minHeight: 30,
-          }}
-        >
-          <Tab
-            label="Build" {...a11yProps(0)}
-            onClick={() => toggleisControlTabMinimized(false)}
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          p: 0,
+          borderBottom: 1,
+          borderColor: 'divider',
+          width: '100%',
+        }}>
+          <Tabs
+            value={value}
+            onChange={(_, n) => handleChange(n)}
+            aria-label="control tabs"
+            // centered
             sx={{
-              fontSize: 12,
-              p: 0,
-              m: 0,
               minHeight: 30,
-              minWidth: 50,
             }}
-          />
-          <Tab
-            label="File" {...a11yProps(1)}
-            onClick={() => toggleisControlTabMinimized(false)}
-            sx={{
-              fontSize: 12,
-              p: 0,
-              m: 0,
-              minHeight: 30,
-              minWidth: 50,
-            }}
-          />
-          <Tab
-            label="Edit" {...a11yProps(2)}
-            onClick={() => toggleisControlTabMinimized(false)}
-            sx={{
-              fontSize: 12,
-              p: 0,
-              m: 0,
-              minHeight: 30,
-              minWidth: 50,
-            }}
-          />
-          <Tab
-            label="View" {...a11yProps(3)}
-            onClick={() => toggleisControlTabMinimized(false)}
-            sx={{
-              fontSize: 12,
-              p: 0,
-              m: 0,
-              minHeight: 30,
-              minWidth: 50,
-            }}
-          />
-        </Tabs>
-        {!isLargeScreenLayout && (<IconButton
-          onClick={() => toggleisControlTabMinimized(!isControlTabMinimized)}
-          sx={{ fontSize: 12 }}
-        >
-          {isControlTabMinimized ? <MdExpandLess /> : <MdExpandMore />}
-        </IconButton>
-        )}
+          >
+            <Tab
+              label="Build" {...a11yProps(0)}
+              onClick={() => toggleisControlTabMinimized(false)}
+              sx={{
+                fontSize: 12,
+                p: 0,
+                m: 0,
+                minHeight: 30,
+                minWidth: 50,
+              }}
+            />
+            <Tab
+              label="File" {...a11yProps(1)}
+              onClick={() => toggleisControlTabMinimized(false)}
+              sx={{
+                fontSize: 12,
+                p: 0,
+                m: 0,
+                minHeight: 30,
+                minWidth: 50,
+              }}
+            />
+            <Tab
+              label="Edit" {...a11yProps(2)}
+              onClick={() => toggleisControlTabMinimized(false)}
+              sx={{
+                fontSize: 12,
+                p: 0,
+                m: 0,
+                minHeight: 30,
+                minWidth: 50,
+              }}
+            />
+            <Tab
+              label="View" {...a11yProps(3)}
+              onClick={() => toggleisControlTabMinimized(false)}
+              sx={{
+                fontSize: 12,
+                p: 0,
+                m: 0,
+                minHeight: 30,
+                minWidth: 50,
+              }}
+            />
+          </Tabs>
+          {!isLargeScreenLayout && (<IconButton
+            onClick={() => toggleisControlTabMinimized(!isControlTabMinimized)}
+            sx={{ fontSize: 12 }}
+          >
+            {isControlTabMinimized ? <MdExpandLess /> : <MdExpandMore />}
+          </IconButton>
+          )}
+        </Box>
       </Box>
       {/* HIDDEN FILE INPUTS */}
       <LoadFileHiddenInputs />
