@@ -4,6 +4,10 @@ import useBoundStore from '../store/store'
 import type { BoardPieces, HexMap } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { encodeFilename } from '../utils/map-utils'
+import {
+  ControlTabsListItemButton,
+  ControlTabsListItemText,
+} from '../controls/ControlTabsListItemButton'
 
 const DownloadMapFileButtons = () => {
   const hexMap = useBoundStore((state) => state.hexMap)
@@ -59,19 +63,17 @@ const DownloadMapFileButtons = () => {
   }
   return (
     <>
-      <ListItemButton sx={{ pl: 4 }} onClick={handleClickExportGzip}>
-        <ListItemIcon>
-          <MdFolderZip />
-        </ListItemIcon>
-        <ListItemText primary="Download file (.gz)" />
-      </ListItemButton>
+      <ControlTabsListItemButton
+        primary="Download file (.gz)"
+        onClick={handleClickExportGzip}
+        icon={<MdFolderZip />}
+      />
 
-      <ListItemButton sx={{ pl: 4 }} onClick={handleClickExportJson}>
-        <ListItemIcon>
-          <MdFolderZip />
-        </ListItemIcon>
-        <ListItemText primary="Download file (.json)" />
-      </ListItemButton>
+      <ControlTabsListItemButton
+        primary="Download file (.json)"
+        onClick={handleClickExportJson}
+        icon={<MdFolderZip />}
+      />
     </>
   )
 }

@@ -1,26 +1,13 @@
-import {
-  Box,
-  ClickAwayListener,
-  Collapse,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-} from '@mui/material'
+import { Box, ClickAwayListener, Collapse, List } from '@mui/material'
 import JSONCrush from 'jsoncrush'
 import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
 import React from 'react'
-import {
-  FcAddImage,
-  FcDownload,
-  FcLink,
-  FcUpload,
-  FcVlc,
-} from 'react-icons/fc'
+import { FcAddImage, FcDownload, FcLink, FcUpload } from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore, MdFolderZip } from 'react-icons/md'
 import useBoundStore from '../store/store'
 import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
 import LoadMapButtons from '../layout/LoadMapButtons'
+import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
 export const FileControlsTab = () => {
   const hexMap = useBoundStore((s) => s.hexMap)
@@ -150,21 +137,19 @@ export const FileControlsTab = () => {
             </ListItemButton> */}
 
           {/* COPY URL */}
-          <ListItemButton onClick={onClickCopy}>
-            <ListItemIcon>
-              <FcLink />
-            </ListItemIcon>
-            <ListItemText primary="Copy Shareable URL" />
-          </ListItemButton>
+          <ControlTabsListItemButton
+            primary="Copy Shareable URL"
+            onClick={onClickCopy}
+            icon={<FcLink />}
+          />
 
           {/* EXPAND DOWNLAD MAP FILE BTNS */}
-          <ListItemButton onClick={handleClickDownload}>
-            <ListItemIcon>
-              <FcDownload />
-            </ListItemIcon>
-            <ListItemText primary="Download Map File" />
-            {isDownloadOpen ? <MdExpandLess /> : <MdExpandMore />}
-          </ListItemButton>
+          <ControlTabsListItemButton
+            primary="Download Map File"
+            onClick={handleClickDownload}
+            icon={<FcDownload />}
+            endIcon={isDownloadOpen ? <MdExpandLess /> : <MdExpandMore />}
+          />
           <Collapse in={isDownloadOpen} timeout="auto">
             <List component="div">
               <DownloadMapFileButtons />
@@ -172,52 +157,41 @@ export const FileControlsTab = () => {
           </Collapse>
 
           {/* EXPAND DOWNLAD MAP PHOTO BTNS */}
-          <ListItemButton onClick={handleClickDownloadPhoto}>
-            <ListItemIcon>
-              <FcDownload />
-            </ListItemIcon>
-            <ListItemText primary="Download Map Picture" />
-            {isDownloadPhotoOpen ? <MdExpandLess /> : <MdExpandMore />}
-          </ListItemButton>
+          <ControlTabsListItemButton
+            primary="Download Map Picture"
+            onClick={handleClickDownloadPhoto}
+            icon={<FcDownload />}
+            endIcon={isDownloadOpen ? <MdExpandLess /> : <MdExpandMore />}
+          />
           <Collapse in={isDownloadPhotoOpen} timeout="auto">
             <List component="div">
-              <ListItemButton sx={{ pl: 4 }} onClick={handleDownloadJpg}>
-                <ListItemIcon>
-                  <MdFolderZip />
-                </ListItemIcon>
-                <ListItemText primary="Download map picture as .JPG" />
-              </ListItemButton>
-              <ListItemButton sx={{ pl: 4 }} onClick={handleDownloadPng}>
-                <ListItemIcon>
-                  <MdFolderZip />
-                </ListItemIcon>
-                <ListItemText primary="Download map picture as .PNG" />
-              </ListItemButton>
+              <ControlTabsListItemButton
+                primary="Download map picture as .JPG"
+                onClick={handleDownloadJpg}
+                icon={<MdFolderZip />}
+              />
+              <ControlTabsListItemButton
+                primary="Download map picture as .PNG"
+                onClick={handleDownloadPng}
+                icon={<MdFolderZip />}
+              />
             </List>
           </Collapse>
 
           {/* OPEN CREATE MAP DIALOG */}
-          <ListItemButton
+          <ControlTabsListItemButton
+            primary={'Create New Map'}
             onClick={() => toggleIsNewMapDialogOpen(!isNewMapDialogOpen)}
-          >
-            <ListItemIcon
-              sx={{
-                color: 'inherit',
-              }}
-            >
-              <FcAddImage />
-            </ListItemIcon>
-            <ListItemText primary={'Create New Map'} />
-          </ListItemButton>
+            icon={<FcAddImage />}
+          />
 
           {/* EXPAND LOAD MAP BTNS */}
-          <ListItemButton onClick={handleClick}>
-            <ListItemIcon>
-              <FcUpload />
-            </ListItemIcon>
-            <ListItemText primary="Load Map" />
-            {isUploadOpen ? <MdExpandLess /> : <MdExpandMore />}
-          </ListItemButton>
+          <ControlTabsListItemButton
+            primary="Load Map"
+            onClick={handleClick}
+            icon={<FcUpload />}
+            endIcon={isUploadOpen ? <MdExpandLess /> : <MdExpandMore />}
+          />
           <Collapse in={isUploadOpen} timeout="auto">
             <List component="div">
               <LoadMapButtons />

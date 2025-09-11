@@ -15,6 +15,7 @@ import {
   uploadElementID,
   virtualScapeUploadElementID,
 } from './LoadFileHiddenInputs'
+import { ControlTabsListItemButton, ControlTabsListItemText } from '../controls/ControlTabsListItemButton'
 
 export const useLoadMapButtons = () => {
   const handleClickGzipFileSelect = () => {
@@ -65,24 +66,21 @@ const LoadMapButtons = () => {
 
   return (
     <>
-      <ListItemButton sx={{ pl: 4 }} onClick={handleClickGzipFileSelect}>
-        <ListItemIcon>
-          <MdFolderZip />
-        </ListItemIcon>
-        <ListItemText primary="Load file (.gz)" />
-      </ListItemButton>
-      <ListItemButton sx={{ pl: 4 }} onClick={handleClickJsonFileSelect}>
-        <ListItemIcon>
-          <MdFolderZip />
-        </ListItemIcon>
-        <ListItemText primary="Load file (.json)" />
-      </ListItemButton>
-      <ListItemButton sx={{ pl: 4 }} onClick={handleClickVSFileSelect}>
-        <ListItemIcon>
-          <MdOutlineHexagon />
-        </ListItemIcon>
-        <ListItemText primary="Load Virtualscape file (.hsc)" />
-      </ListItemButton>
+      <ControlTabsListItemButton
+        primary="Load file (.json)"
+        onClick={handleClickJsonFileSelect}
+        icon={<MdFolderZip />}
+      />
+      <ControlTabsListItemButton
+        primary="Load file (.gz)"
+        onClick={handleClickGzipFileSelect}
+        icon={<MdFolderZip />}
+      />
+      <ControlTabsListItemButton
+        primary="Load Virtualscape file (.hsc)"
+        onClick={handleClickVSFileSelect}
+        icon={<MdOutlineHexagon />}
+      />
     </>
   )
 }
