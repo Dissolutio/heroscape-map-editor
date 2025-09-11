@@ -29,8 +29,6 @@ export default function HomePage() {
   // xl, extra-large: 1536px
   const {
     isLargeScreenLayout,
-    isMobileScreenLayout,
-    // isMediumScreenLayout,
   } = useMuiMediaQuery()
 
   const [isPdfOpen, setIsPdfOpen] = React.useState(false)
@@ -71,7 +69,6 @@ export default function HomePage() {
         }}
       >
         <HeaderNav
-          isMobileScreenLayout={isMobileScreenLayout}
           isPdfOpen={isPdfOpen}
           toggleIsPdfOpen={toggleIsPdfOpen}
           is2DOpen={is2DOpen}
@@ -108,7 +105,7 @@ export default function HomePage() {
             style={{
               display: 'flex',
               flexFlow: 'column nowrap',
-              width: isLargeScreenLayout ? '450px' : '100%',
+              width: isLargeScreenLayout ? '30vw' : '100%',
               // fullscreen => full device height, no option to minimize
               // smaller-screen => can be minimized/maxiized, only bottom part of device height
               height: isLargeScreenLayout ? '100%' : isControlTabMinimized ? '30px' : '30vh',

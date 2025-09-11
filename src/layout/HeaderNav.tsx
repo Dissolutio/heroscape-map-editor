@@ -7,9 +7,9 @@ import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
 import { ReactPdfDownloadLink } from '../pdf-map/ReactPdfDownloadLink'
 import useBoundStore from '../store/store'
 import { getSetsUsedText } from '../utils/map-utils'
+import { useMuiMediaQuery } from './useMuiMediaQuery'
 
 type Props = {
-  isMobileScreenLayout: boolean
   isPdfOpen: boolean
   toggleIsPdfOpen: (arg0: boolean) => void
   is2DOpen: boolean
@@ -17,7 +17,6 @@ type Props = {
 }
 
 export function HeaderNav({
-  isMobileScreenLayout,
   isPdfOpen,
   toggleIsPdfOpen,
   is2DOpen,
@@ -28,6 +27,7 @@ export function HeaderNav({
   const hexMap = useBoundStore((s) => s.hexMap)
   const iconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
   const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
+  const { isMobileScreenLayout } = useMuiMediaQuery()
   return (
     <AppBar
       position="static"
@@ -36,20 +36,27 @@ export function HeaderNav({
     >
       <Toolbar>
         <Typography
-          variant="h1"
-          component="h1"
-          sx={{ flexGrow: 0, m: 0, p: 0, fontSize: '1.5rem' }}
+          variant="h6"
+          // component="h1"
+          sx={{
+            // must grow instead of sets used text growing, since on small screens sets used text no displayed
+            flexGrow: isMobileScreenLayout ? 1 : 0,
+            m: 0, p: 0,
+            // fontSize: isHugeScreenLayout ? undefined : '1em'
+          }}
         >
           {hexMap.name || 'Hexoscape Map Editor'}
 
         </Typography>
-        <Typography
+
+        {/* Hide sets used in navbar on small devices */}
+        {!isMobileScreenLayout && <Typography
           variant="subtitle1"
           component="span"
           sx={{
             flexGrow: 1,
             textAlign: 'left',
-            fontSize: '0.8em',
+            // fontSize: isHugeScreenLayout ? '2em' : '0.8em',
             color: 'var(--sub-white)',
             px: 2,
             overflow: 'hidden',
@@ -57,7 +64,7 @@ export function HeaderNav({
           }}
         >
           {setsUsedText}
-        </Typography>
+        </Typography>}
         {isMobileScreenLayout ? (
           <ReactPdfDownloadLink>
             <IconButton
