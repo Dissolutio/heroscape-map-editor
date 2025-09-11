@@ -1,6 +1,6 @@
 import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import type React from 'react'
-import type { PropsWithChildren } from 'react'
+import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
 type Props = {
   primary: string
@@ -15,9 +15,12 @@ export const ControlTabsListItemButton = ({
   icon,
   endIcon,
 }: Props) => {
+  const { isLargeScreenLayout, isMediumScreenLayout, isLandscapeOrientation } = useMuiMediaQuery()
+  // const isMediumLandscapeOrientation = isMediumScreenLayout && isLandscapeOrientation
+  const isMobileLandscapeOrientation = (!isLargeScreenLayout && !isMediumScreenLayout) && isLandscapeOrientation
   const listItemTextStyleProps = {
     primary: {
-      fontSize: 8,
+      fontSize: isMobileLandscapeOrientation ? 8 : 16,
       fontWeight: 'medium',
       flexGrow: 1,
     },
