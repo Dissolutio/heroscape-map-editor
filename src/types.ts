@@ -4,8 +4,6 @@ export type MapState = MapFileState & {
 export type MapFileState = {
   hexMap: HexMap
   boardPieces: BoardPieces
-  mapPortraitBase64?: string
-  mapNotes?: string
 }
 export type HexMap = {
   id: string
@@ -16,6 +14,8 @@ export type HexMap = {
   length: number // for hexagon shaped maps width=length=size
   width: number // for hexagon shaped maps width=length=size
   setsUsed?: string[] // array of terrainSets Ids
+  mapPortraitBase64?: string
+  mapNotes?: string
 }
 export type CubeCoordinate = {
   q: number
