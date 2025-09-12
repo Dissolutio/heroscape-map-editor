@@ -87,7 +87,6 @@ export const EditPieceInventoryDialog = () => {
     updateUserPieceInventory(localInventory)
     enqueueSnackbar({
       message: 'Updated Piece Inventory',
-      autoHideDuration: 3000,
     })
     handleClose()
   }

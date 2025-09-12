@@ -62,7 +62,6 @@ export default function EditMapFormDialog() {
     addMapPortraitBase64(imgSrc)
     enqueueSnackbar({
       message: `Updated Map Name: ${newMapName}`,
-      autoHideDuration: 3000,
     })
     handleClose()
   }

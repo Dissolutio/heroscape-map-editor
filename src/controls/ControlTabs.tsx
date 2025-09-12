@@ -55,6 +55,9 @@ export const ControlTabs = ({
   const [value, setValue] = React.useState(0)
   const { isLandscapeOrientation, isSmallScreenLandscapeOrientation, isMediumScreenLandscapeOrientation } = useMuiMediaQuery()
   const isSideControls = isLandscapeOrientation
+  const tabFontSize = (isSmallScreenLandscapeOrientation) ? '0.8em' : isMediumScreenLandscapeOrientation ? '0.9em' : '1em'
+  const tabMinWidth = isSmallScreenLandscapeOrientation ? 40 : isMediumScreenLandscapeOrientation ? 50 : 90
+  const tabMinHeight = isSmallScreenLandscapeOrientation ? 20 : 30
   const handleChange = (newValue: number) => {
     setValue(newValue)
   }
@@ -90,10 +93,10 @@ export const ControlTabs = ({
             aria-label="control tabs"
             // centered
             sx={{
-              fontSize: (isSmallScreenLandscapeOrientation) ? '0.8em' : isMediumScreenLandscapeOrientation ? '0.9em' : '1em',
+              fontSize: tabFontSize,
               // minHeight: 30,
-              minHeight: isSmallScreenLandscapeOrientation ? 20 : 30,
-              minWidth: isSmallScreenLandscapeOrientation ? 40 : isMediumScreenLandscapeOrientation ? 50 : 90,
+              minHeight: tabMinHeight,
+              minWidth: tabMinWidth,
             }}
           >
             <Tab
@@ -101,12 +104,12 @@ export const ControlTabs = ({
               {...a11yProps(0)}
               onClick={() => toggleisControlTabMinimized(false)}
               sx={{
-                fontSize: (isSmallScreenLandscapeOrientation) ? '0.8em' : isMediumScreenLandscapeOrientation ? '0.9em' : '1em',
+                fontSize: tabFontSize,
                 p: 0,
                 m: 0,
                 // minHeight: 30,
-                minHeight: isSmallScreenLandscapeOrientation ? 20 : 30,
-                minWidth: isSmallScreenLandscapeOrientation ? 40 : isMediumScreenLandscapeOrientation ? 50 : 90,
+                minHeight: tabMinHeight,
+                minWidth: tabMinWidth,
               }}
             />
             <Tab
@@ -114,12 +117,12 @@ export const ControlTabs = ({
               {...a11yProps(1)}
               onClick={() => toggleisControlTabMinimized(false)}
               sx={{
-                fontSize: (isSmallScreenLandscapeOrientation) ? '0.8em' : isMediumScreenLandscapeOrientation ? '0.9em' : '1em',
+                fontSize: tabFontSize,
                 p: 0,
                 m: 0,
                 // minHeight: 30,
-                minHeight: isSmallScreenLandscapeOrientation ? 20 : 30,
-                minWidth: isSmallScreenLandscapeOrientation ? 40 : isMediumScreenLandscapeOrientation ? 50 : 90,
+                minHeight: tabMinHeight,
+                minWidth: tabMinWidth,
               }}
             />
             <Tab
@@ -127,12 +130,12 @@ export const ControlTabs = ({
               {...a11yProps(2)}
               onClick={() => toggleisControlTabMinimized(false)}
               sx={{
-                fontSize: (isSmallScreenLandscapeOrientation) ? '0.8em' : isMediumScreenLandscapeOrientation ? '0.9em' : '1em',
+                fontSize: tabFontSize,
                 p: 0,
                 m: 0,
                 // minHeight: 30,
-                minHeight: isSmallScreenLandscapeOrientation ? 20 : 30,
-                minWidth: isSmallScreenLandscapeOrientation ? 40 : isMediumScreenLandscapeOrientation ? 50 : 90,
+                minHeight: tabMinHeight,
+                minWidth: tabMinWidth,
               }}
             />
             <Tab
@@ -140,12 +143,9 @@ export const ControlTabs = ({
               {...a11yProps(3)}
               onClick={() => toggleisControlTabMinimized(false)}
               sx={{
-                fontSize: (isSmallScreenLandscapeOrientation) ? '0.8em' : isMediumScreenLandscapeOrientation ? '0.9em' : '1em',
-                p: 0,
-                m: 0,
-                // minHeight: 30,
-                minHeight: isSmallScreenLandscapeOrientation ? 20 : 30,
-                minWidth: isSmallScreenLandscapeOrientation ? 40 : isMediumScreenLandscapeOrientation ? 50 : 90,
+                fontSize: tabFontSize,
+                minHeight: tabMinHeight,
+                minWidth: tabMinWidth,
               }}
             />
           </Tabs>
@@ -154,7 +154,7 @@ export const ControlTabs = ({
               onClick={() =>
                 toggleisControlTabMinimized(!isControlTabMinimized)
               }
-              sx={{ fontSize: 12 }}
+              sx={{ fontSize: tabFontSize }}
             >
               {isControlTabMinimized ? <MdExpandLess /> : <MdExpandMore />}
             </IconButton>
@@ -165,9 +165,7 @@ export const ControlTabs = ({
       <LoadFileHiddenInputs />
       <div
         style={{
-          // maxHeight: 0,
           overflow: isControlTabMinimized ? 'hidden' : 'auto',
-          //  height: 0
         }}
       >
         {/* BUILD */}

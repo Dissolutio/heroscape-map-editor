@@ -6,9 +6,9 @@ import { FcAddImage, FcDownload, FcLink, FcUpload } from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore, MdFolderZip } from 'react-icons/md'
 import useBoundStore from '../store/store'
 import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
-import LoadMapButtons from '../layout/LoadMapButtons'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { DIALOGS } from '../layout/dialogNames'
+import { LoadMapButtons } from '../layout/LoadMapButtons'
 
 export const FileControlsTab = () => {
   const hexMap = useBoundStore((s) => s.hexMap)
@@ -26,7 +26,7 @@ export const FileControlsTab = () => {
   // const toggleIsPieceInventoryDialogOpen = useBoundStore(
   //   (state) => state.toggleIsPieceInventoryDialogOpen,
   // )
-  const handleClick = (e: React.MouseEvent<HTMLDivElement> | undefined) => {
+  const handleClickUploadMap = (e: React.MouseEvent<HTMLDivElement> | undefined) => {
     e?.stopPropagation()
     setIsUploadOpen(!isUploadOpen)
   }
@@ -89,9 +89,6 @@ export const FileControlsTab = () => {
       console.log('Attempted clipboard write, failed:', err)
       const action: SnackbarAction = (snackbarId: SnackbarKey) => (
         <>
-          {/* <button onClick={() => { alert(`I belong to snackbar with id ${snackbarId}`); }}>
-            Undo
-          </button> */}
           <button
             type="button"
             onClick={() => {
@@ -188,7 +185,7 @@ export const FileControlsTab = () => {
           {/* EXPAND LOAD MAP BTNS */}
           <ControlTabsListItemButton
             primary="Load Map"
-            onClick={handleClick}
+            onClick={handleClickUploadMap}
             icon={<FcUpload />}
             endIcon={isUploadOpen ? <MdExpandLess /> : <MdExpandMore />}
           />

@@ -42,6 +42,7 @@ const App = () => {
     isMobileScreenLayout,
     isSmallScreenLandscapeOrientation,
   } = useMuiMediaQuery()
+  const snackbarFontSize = isSmallScreenLandscapeOrientation || isMobileScreenLayout ? 10 : 20
   return (
     <Sentry.ErrorBoundary fallback={ErrorPage} showDialog>
       <ThemeProvider theme={darkTheme}>
@@ -51,7 +52,7 @@ const App = () => {
             dense
             style={{
               maxWidth: '100vw',
-              fontSize: isSmallScreenLandscapeOrientation || isMobileScreenLayout ? 10 : 20,
+              fontSize: snackbarFontSize,
             }}
             anchorOrigin={{ horizontal: 'center', vertical: 'top' }}
             maxSnack={3}

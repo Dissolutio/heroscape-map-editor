@@ -8,7 +8,7 @@ import {
   ControlTabsListItemButton,
 } from '../controls/ControlTabsListItemButton'
 
-export const useLoadMapButtons = () => {
+const useLoadMapButtons = () => {
   const handleClickGzipFileSelect = () => {
     const element = document.getElementById(uploadElementID)
     if (element) {
@@ -35,26 +35,30 @@ export const useLoadMapButtons = () => {
   }
 }
 
-const LoadMapButtons = () => {
-  const handleClickGzipFileSelect = () => {
-    const element = document.getElementById(uploadElementID)
-    if (element) {
-      element.click()
-    }
-  }
-  const handleClickJsonFileSelect = () => {
-    const element = document.getElementById(jsonUploadElementID)
-    if (element) {
-      element.click()
-    }
-  }
-  const handleClickVSFileSelect = async () => {
-    const element = document.getElementById(virtualScapeUploadElementID)
-    if (element) {
-      element.click()
-    }
-  }
-
+export const LoadMapButtons = () => {
+  // const handleClickGzipFileSelect = () => {
+  //   const element = document.getElementById(uploadElementID)
+  //   if (element) {
+  //     element.click()
+  //   }
+  // }
+  // const handleClickJsonFileSelect = () => {
+  //   const element = document.getElementById(jsonUploadElementID)
+  //   if (element) {
+  //     element.click()
+  //   }
+  // }
+  // const handleClickVSFileSelect = async () => {
+  //   const element = document.getElementById(virtualScapeUploadElementID)
+  //   if (element) {
+  //     element.click()
+  //   }
+  // }
+  const {
+    handleClickGzipFileSelect,
+    handleClickJsonFileSelect,
+    handleClickVSFileSelect,
+  } = useLoadMapButtons()
   return (
     <>
       <ControlTabsListItemButton
@@ -76,4 +80,3 @@ const LoadMapButtons = () => {
   )
 }
 
-export default LoadMapButtons

@@ -71,7 +71,6 @@ const useAutoLoadMapFile = (props?: Props) => {
                 enqueueSnackbar({
                   message: `Loaded last map instead: ${localMapCache.hexMap.name}`,
                   variant: 'success',
-                  autoHideDuration: 3000,
                 })
                 navigate(ROUTES.heroscapeHome)
               }}
@@ -92,7 +91,6 @@ const useAutoLoadMapFile = (props?: Props) => {
         const snackbarId = enqueueSnackbar({
           message: `Loaded map from URL: ${jsonMap.hexMap.name}.`,
           variant: 'success',
-          autoHideDuration: null,
           action,
         })
         loadMap(jsonMap)
@@ -119,7 +117,6 @@ const useAutoLoadMapFile = (props?: Props) => {
       enqueueSnackbar({
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
         variant: 'success',
-        autoHideDuration: 3000,
       })
     } else {
       // No url and no prev state? auto load a file

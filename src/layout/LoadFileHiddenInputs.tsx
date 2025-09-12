@@ -49,7 +49,6 @@ export const LoadFileHiddenInputs = () => {
       enqueueSnackbar({
         message: `Loaded map: ${jsonMap.hexMap.name}`,
         variant: 'success',
-        autoHideDuration: 3000,
       })
       navigate(ROUTES.heroscapeHome)
       // clear() // clear undo history, initial load should not be undoable
@@ -83,7 +82,6 @@ export const LoadFileHiddenInputs = () => {
       enqueueSnackbar({
         message: `Loaded map: ${jsonMap.hexMap.name}`,
         variant: 'success',
-        autoHideDuration: 3000,
       })
       navigate(ROUTES.heroscapeHome)
       // clear() // clear undo history, initial load should not be undoable
@@ -114,7 +112,6 @@ export const LoadFileHiddenInputs = () => {
       enqueueSnackbar({
         message: `Loaded map: ${loadedMap.hexMap.name}`,
         variant: 'success',
-        autoHideDuration: 3000,
       })
       navigate(ROUTES.heroscapeHome)
     } catch (error: unknown) {
