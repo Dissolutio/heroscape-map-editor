@@ -8,6 +8,7 @@ import { ReactPdfDownloadLink } from '../pdf-map/ReactPdfDownloadLink'
 import useBoundStore from '../store/store'
 import { getSetsUsedText } from '../utils/map-utils'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
+import { useSnackbar } from 'notistack'
 
 type Props = {
   isPdfOpen: boolean
@@ -26,8 +27,27 @@ export function HeaderNav({
   // AppBar height is 56px when screen < 600px
   const hexMap = useBoundStore((s) => s.hexMap)
   const iconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
+  const { enqueueSnackbar } = useSnackbar()
   const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
   const { isMobileScreenLayout, isLandscapeOrientation } = useMuiMediaQuery()
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      // If not in fullscreen, request it with fallbacks
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else {
+        enqueueSnackbar({
+          message: 'Fullscreen mode not available',
+          variant: 'error',
+        })
+      }
+    } else {
+      // If in fullscreen, exit it with fallbacks
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  }
   return (
     <AppBar
       position="static"
@@ -38,6 +58,7 @@ export function HeaderNav({
         <Typography
           variant="h6"
           noWrap
+          onClick={() => toggleFullscreen()}
           // component="h1"
           sx={{
             // must grow instead of sets used text growing, since on small screens sets used text no displayed
