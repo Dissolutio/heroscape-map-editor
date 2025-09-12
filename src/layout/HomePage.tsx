@@ -35,11 +35,6 @@ export default function HomePage() {
   const toggleIsPdfOpen = (s: boolean) => {
     setIsPdfOpen(s)
   }
-  const [isControlTabMinimized, setIsControlTabMinimized] =
-    React.useState(false)
-  const toggleisControlTabMinimized = (s: boolean) => {
-    setIsControlTabMinimized(s)
-  }
   const [is2DOpen, setIs2DOpen] = React.useState(false)
   const toggleIs2DOpen = (s: boolean) => {
     setIsPdfOpen(false)
@@ -92,7 +87,7 @@ export default function HomePage() {
               flex: 1,
               position: 'relative',
               width: isSideControls ? '70vw' : '100%',
-              height: isSideControls ? '100%' : '40vh',
+              height: isSideControls ? '100%' : '70vh',
             }}
           >
             {isPdfOpen && <ReactPdfRoot />}
@@ -110,23 +105,20 @@ export default function HomePage() {
               flexFlow: 'column nowrap',
               width: isSideControls ? 'var(--controls-width)' : '100%',
               // fullscreen => full device height, no option to minimize
-              // smaller-screen => can be minimized/maximized, only bottom part of device height
+              // smaller-screen => can be minimized/maxiized, only bottom part of device height
+              flexGrow: 1,
               height: isSideControls
                 ? '100%'
-                : isControlTabMinimized
-                  ? '80px'
-                  : '60vh',
+                : '30vh',
               background: 'var(--black)',
               overflow: 'auto',
-              flexShrink: 1,
+              // flexShrink: 1,
               transition: 'height 0.5s ease-in-out',
             }}
           >
             <ControlTabs
               cameraControlsRef={cameraControlsRef}
               mapGroupRef={mapGroupRef}
-              toggleisControlTabMinimized={toggleisControlTabMinimized}
-              isControlTabMinimized={isControlTabMinimized}
             />
           </div>
         </Box>

@@ -44,13 +44,9 @@ function a11yProps(index: number) {
 export const ControlTabs = ({
   cameraControlsRef,
   mapGroupRef,
-  toggleisControlTabMinimized,
-  isControlTabMinimized,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
-  toggleisControlTabMinimized: (s: boolean) => void
-  isControlTabMinimized: boolean
 }) => {
   const [value, setValue] = React.useState(0)
   const { isLandscapeOrientation, isSmallScreenLandscapeOrientation, isMediumScreenLandscapeOrientation } = useMuiMediaQuery()
@@ -81,7 +77,7 @@ export const ControlTabs = ({
           sx={{
             display: 'flex',
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            // justifyContent: 'space-between',
             p: 0,
             borderBottom: 1,
             borderColor: 'divider',
@@ -102,7 +98,6 @@ export const ControlTabs = ({
             <Tab
               label="Build"
               {...a11yProps(0)}
-              onClick={() => toggleisControlTabMinimized(false)}
               sx={{
                 fontSize: tabFontSize,
                 p: 0,
@@ -115,7 +110,6 @@ export const ControlTabs = ({
             <Tab
               label="File"
               {...a11yProps(1)}
-              onClick={() => toggleisControlTabMinimized(false)}
               sx={{
                 fontSize: tabFontSize,
                 p: 0,
@@ -128,7 +122,6 @@ export const ControlTabs = ({
             <Tab
               label="Edit"
               {...a11yProps(2)}
-              onClick={() => toggleisControlTabMinimized(false)}
               sx={{
                 fontSize: tabFontSize,
                 p: 0,
@@ -141,7 +134,6 @@ export const ControlTabs = ({
             <Tab
               label="View"
               {...a11yProps(3)}
-              onClick={() => toggleisControlTabMinimized(false)}
               sx={{
                 fontSize: tabFontSize,
                 minHeight: tabMinHeight,
@@ -149,25 +141,11 @@ export const ControlTabs = ({
               }}
             />
           </Tabs>
-          {!isSideControls && (
-            <IconButton
-              onClick={() =>
-                toggleisControlTabMinimized(!isControlTabMinimized)
-              }
-              sx={{ fontSize: tabFontSize }}
-            >
-              {isControlTabMinimized ? <MdExpandLess /> : <MdExpandMore />}
-            </IconButton>
-          )}
         </Box>
       </Box>
       {/* HIDDEN FILE INPUTS */}
       <LoadFileHiddenInputs />
-      <div
-        style={{
-          overflow: isControlTabMinimized ? 'hidden' : 'auto',
-        }}
-      >
+      <div>
         {/* BUILD */}
         <CustomTabPanel value={value} index={0}>
           <BuildControlsTab />
