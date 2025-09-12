@@ -74,7 +74,6 @@ export const FileControlsTab = () => {
         message:
           'Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.',
         variant: 'error',
-        autoHideDuration: 3000,
       })
       return
     }
@@ -83,7 +82,6 @@ export const FileControlsTab = () => {
       enqueueSnackbar({
         message: 'Copied shareable map URL to clipboard!',
         variant: 'success',
-        autoHideDuration: 3000,
       })
     } catch (err) {
       console.log('Attempted clipboard write, failed:', err)
@@ -103,7 +101,6 @@ export const FileControlsTab = () => {
         message: 'Failed to copy url to clipboard',
         // message: `${err?.message ?? ''}`,
         variant: 'error',
-        // autoHideDuration: 30000,
         action: action,
       })
     }

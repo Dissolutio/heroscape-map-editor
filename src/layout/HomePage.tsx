@@ -106,7 +106,7 @@ export default function HomePage() {
               width: isSideControls ? 'var(--controls-width)' : '100%',
               // fullscreen => full device height, no option to minimize
               // smaller-screen => can be minimized/maxiized, only bottom part of device height
-              flexGrow: 1,
+              // flexGrow: 1,
               height: isSideControls
                 ? '100%'
                 : '30vh',
