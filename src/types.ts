@@ -4,6 +4,8 @@ export type MapState = MapFileState & {
 export type MapFileState = {
   hexMap: HexMap
   boardPieces: BoardPieces
+  mapPortraitBase64?: string
+  mapNotes?: string
 }
 export type HexMap = {
   id: string

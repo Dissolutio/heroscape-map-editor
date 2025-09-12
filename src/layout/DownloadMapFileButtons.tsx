@@ -10,15 +10,21 @@ import {
 const DownloadMapFileButtons = () => {
   const hexMap = useBoundStore((state) => state.hexMap)
   const boardPieces = useBoundStore((state) => state.boardPieces)
+  const mapPortraitBase64 = useBoundStore((s) => s.mapPortraitBase64)
+  const mapNotes = useBoundStore((s) => s.mapNotes)
   const fileName = `${encodeFilename(hexMap.name) || genRandomMapName()}${hexMap.author ? `_by_${encodeFilename(hexMap.author)}` : ''}`
   const handleClickExportGzip = async () => {
     const filename = `${fileName}.gz`
     const data: {
       hexMap: HexMap
       boardPieces: BoardPieces
+      mapPortraitBase64: string
+      mapNotes: string
     } = {
       hexMap,
       boardPieces,
+      mapPortraitBase64,
+      mapNotes,
     }
     const jsonDataString = JSON.stringify(data)
     const encoder = new TextEncoder()
@@ -42,9 +48,11 @@ const DownloadMapFileButtons = () => {
     const data: {
       hexMap: HexMap
       boardPieces: BoardPieces
+      mapPortraitBase64: string
     } = {
       hexMap,
       boardPieces,
+      mapPortraitBase64
     }
     const element = document.createElement('a')
     element.setAttribute(
