@@ -1,17 +1,16 @@
-import JSONCrush from 'jsoncrush'
 import { closeSnackbar, useSnackbar } from 'notistack'
 import React, { useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import { type BoardHexes, type BoardPieces, HexMap, Pieces } from '../types'
+import type { BoardHexes, BoardPieces } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { decodePieceID, getBoardPiecesMaxLevel } from '../utils/map-utils'
 import { Button } from '@mui/material'
 import { LS_KEYS } from '../local-storage/keys'
-import { clone, noop } from 'lodash'
+import { noop } from 'lodash'
 import { ROUTES } from '../ROUTES'
-import { isHexMap } from '../utils/type-checker'
+import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
 
 type Props = {
   boardHexes?: BoardHexes
@@ -46,45 +45,6 @@ const useAutoLoadMapFile = (props?: Props) => {
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
-        const data = JSON.parse(JSONCrush.uncrush(urlMapString))
-        function parseMapDataArrayFromCrushed(crushed: string): {
-          hexMap: HexMap
-          boardPieces: BoardPieces
-          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-          extra?: any[]
-        } {
-          const data = JSON.parse(JSONCrush.uncrush(crushed))
-          let hexMap: HexMap | undefined = undefined
-          const boardPieces: BoardPieces = {}
-          const extra = []
-
-          for (const item of data) {
-            // Detect hexMap: must be an object with expected keys
-            if (
-              isHexMap(item)
-            ) {
-              hexMap = item
-            }
-            // Detect boardPiece ID: string format, e.g. "a~q~r~rot~id"
-            else if (typeof item === 'string' && item.includes('~')) {
-              boardPieces[item] = decodePieceID(item).inventoryID
-            }
-            // Detect array of board piece objects (a projected possible change in format)
-            else if (Array.isArray(item) && item.length && typeof item[0] === 'object') {
-              extra.push(item)
-            }
-            // Anything else
-            else {
-              extra.push(item)
-            }
-          }
-
-          if (!hexMap) {
-            throw new Error('HexMap is missing in the crushed data')
-          }
-          return { hexMap, boardPieces, extra: extra.length ? extra : undefined }
-        }
-
         const { hexMap, boardPieces: pieceIds } = parseMapDataArrayFromCrushed(urlMapString)
         // const [hexMap, ...pieceIds] = data
         const boardPieces: BoardPieces = Object.keys(pieceIds).reduce(

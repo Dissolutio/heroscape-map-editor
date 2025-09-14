@@ -11,8 +11,8 @@ export function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
-  const mapNotes = useBoundStore((s) => s.mapNotes)
-  const mapPortraitBase64 = useBoundStore((s) => s.mapPortraitBase64)
+  const mapNotes = hexMap?.mapNotes ?? ''
+  const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
   const isMobile = useMediaQuery('(max-width:800px)')
   return (
     <div

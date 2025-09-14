@@ -9,11 +9,12 @@ import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { DIALOGS } from '../layout/dialogNames'
 import { LoadMapButtons } from '../layout/LoadMapButtons'
+import { getUrlMapString } from '../data/jsonCrush'
 
 export const FileControlsTab = () => {
   const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
-  const mapPortraitBase64 = useBoundStore((s) => s.mapPortraitBase64)
+  const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
   const toggleIsNewMapDialogOpen = useBoundStore(
     (state) => state.toggleIsNewMapDialogOpen,
   )
@@ -60,7 +61,8 @@ export const FileControlsTab = () => {
   //   }
   // }
   const onClickCopy = async () => {
-    const myUrl = encodeURI(
+    const myUrl = getUrlMapString({ hexMap: { ...hexMap, mapPortraitBase64: '', mapNotes: '' }, boardPieces })
+    encodeURI(
       JSONCrush.crush(
         JSON.stringify([
           hexMap, // 1

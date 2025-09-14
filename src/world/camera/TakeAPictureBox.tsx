@@ -4,10 +4,12 @@ import { useEffect } from 'react'
 import useEvent from '../../hooks/useEvent'
 import useBoundStore from '../../store/store'
 import { EVENTS } from '../../utils/constants'
+import { useSnackbar } from 'notistack'
 
 const TakeAPictureBox = () => {
   const { gl, scene, camera } = useThree()
   const { subscribe, unsubscribe } = useEvent()
+  const { enqueueSnackbar } = useSnackbar()
   const hexMap = useBoundStore((s) => s.hexMap)
   const toggleIsTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
   const addMapPortraitBase64 = useBoundStore((s) => s.addMapPortraitBase64)
@@ -19,6 +21,11 @@ const TakeAPictureBox = () => {
       const screenshot = gl.domElement.toDataURL()
       addMapPortraitBase64(screenshot)
       toggleIsTakingPicture(false)
+      enqueueSnackbar({
+        message:
+          'Picture saved! Can edit picture in Edit, or download from File',
+        variant: 'success',
+      })
     }
 
     subscribe(EVENTS.savePng, handleTakeMapPicture)

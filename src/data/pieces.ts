@@ -443,7 +443,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lavaField1]: {
     id: Pieces.lavaField1,
-    title: 'Lava 1-hex Field',
+    title: '1-hex Lava Field',
     terrain: HexTerrain.lavaField,
     landPrefix: PiecePrefixes.lavaField,
     isHexTerrainPiece: true,
@@ -454,7 +454,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lavaField2]: {
     id: Pieces.lavaField2,
-    title: 'Lava 2-hex Field',
+    title: '2-hex Lava Field',
     terrain: HexTerrain.lavaField,
     landPrefix: PiecePrefixes.lavaField,
     isHexTerrainPiece: true,
@@ -465,7 +465,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lavaField3]: {
     id: Pieces.lavaField3,
-    title: 'Lava 3-hex Field',
+    title: '3-hex Lava Field',
     terrain: HexTerrain.lavaField,
     landPrefix: PiecePrefixes.lavaField,
     isHexTerrainPiece: true,
@@ -476,7 +476,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lavaField7]: {
     id: Pieces.lavaField7,
-    title: 'Lava 7-hex Field',
+    title: '7-hex Lava Field',
     terrain: HexTerrain.lavaField,
     landPrefix: PiecePrefixes.lavaField,
     isHexTerrainPiece: true,
@@ -487,7 +487,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lavaField24]: {
     id: Pieces.lavaField24,
-    title: 'Lava 24-hex Field',
+    title: '24-hex Lava Field',
     terrain: HexTerrain.lavaField,
     landPrefix: PiecePrefixes.lavaField,
     isHexTerrainPiece: true,

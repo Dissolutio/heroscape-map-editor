@@ -22,9 +22,10 @@ export default function EditMapFormDialog() {
   const changeMapName = useBoundStore((state) => state.changeMapName)
   const authorName = useBoundStore((state) => state.hexMap.author)
   const changeAuthorName = useBoundStore((state) => state.changeAuthorName)
-  const mapNotes = useBoundStore((state) => state.mapNotes)
+  const hexMap = useBoundStore((state) => state.hexMap)
   const changeMapNotes = useBoundStore((state) => state.changeMapNotes)
-  const mapPortraitBase64 = useBoundStore((state) => state.mapPortraitBase64)
+  const mapNotes = hexMap?.mapNotes ?? ''
+  const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
   const changeSetsUsed = useBoundStore((state) => state.changeSetsUsed)
   const [imgSrc, setImgSrc] = React.useState(mapPortraitBase64)
   const addMapPortraitBase64 = useBoundStore(
@@ -61,7 +62,7 @@ export default function EditMapFormDialog() {
     changeSetsUsed(newSetsUsed)
     addMapPortraitBase64(imgSrc)
     enqueueSnackbar({
-      message: `Updated Map Name: ${newMapName}`,
+      message: 'Updated Map',
     })
     handleClose()
   }
