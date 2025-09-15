@@ -29,7 +29,7 @@ export function HeaderNav({
   const iconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
   const { enqueueSnackbar } = useSnackbar()
   const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
-  const { isMobileScreenLayout, isLandscapeOrientation } = useMuiMediaQuery()
+  const { isSmallScreenWidth, isLandscapeOrientation } = useMuiMediaQuery()
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
       // If not in fullscreen, request it with fallbacks
@@ -62,7 +62,7 @@ export function HeaderNav({
           // component="h1"
           sx={{
             // must grow instead of sets used text growing, since on small screens sets used text no displayed
-            flexGrow: isMobileScreenLayout ? 1 : 0,
+            flexGrow: isSmallScreenWidth ? 1 : 0,
             fontSize: hexMap.name.length > 32 ? '70%' : undefined,
             m: 0,
             p: 0,
@@ -72,7 +72,7 @@ export function HeaderNav({
           {hexMap.name || 'Hexoscape Map Editor'}
         </Typography>
 
-        {/* Hide sets used in navbar on small devices */}
+        {/* Hide sets used in navbar on narrow screens */}
         {isLandscapeOrientation && (
           <Typography
             variant="subtitle1"
@@ -92,7 +92,7 @@ export function HeaderNav({
           </Typography>
         )}
 
-        {isMobileScreenLayout ? (
+        {isSmallScreenWidth ? (
           <ReactPdfDownloadLink>
             <IconButton
               size="large"

@@ -53,9 +53,9 @@ export const EditControlsTab = () => {
   const hexMap = useBoundStore((s) => s.hexMap)
   const loadMap = useBoundStore((s) => s.loadMap)
   const {
-    // isLargeScreenLayout,
-    isMobileScreenLayout,
-    isMediumScreenLayout,
+    // isLargeScreenWidth,
+    isSmallScreenWidth,
+    isMediumScreenWidth,
   } = useMuiMediaQuery()
   // const inventory = useLocalPieceInventory()
 
@@ -179,9 +179,9 @@ export const EditControlsTab = () => {
       loadMap(newMap)
     }
   }
-  const buttonFontSize = isMobileScreenLayout
+  const buttonFontSize = isSmallScreenWidth
     ? 8
-    : isMediumScreenLayout
+    : isMediumScreenWidth
       ? 12
       : 12
   return (

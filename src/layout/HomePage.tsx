@@ -28,8 +28,8 @@ export default function HomePage() {
   // md, medium: 900px
   // lg, large: 1200px
   // xl, extra-large: 1536px
-  const { isLandscapeOrientation } = useMuiMediaQuery()
-  const isSideControls = isLandscapeOrientation
+  const { isLandscapeOrientation, isSmallScreenWidth } = useMuiMediaQuery()
+  const isSideControls = isLandscapeOrientation || isSmallScreenWidth
 
   const [isPdfOpen, setIsPdfOpen] = React.useState(false)
   const toggleIsPdfOpen = (s: boolean) => {

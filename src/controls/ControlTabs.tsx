@@ -9,9 +9,9 @@ import { FileControlsTab } from './FileControlsTab'
 import ViewControlsTab from './ViewControlsTab'
 import { EditControlsTab } from './EditControlsTab'
 import { BuildControlsTab } from './BuildControlsTab'
-import { MdExpandLess, MdExpandMore } from 'react-icons/md'
-import { IconButton } from '@mui/material'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
+import { createContext, PropsWithChildren, useContext } from "react";
+import { ControlsWidthContextProvider, useControlsWidthContext } from './useControlWidth'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -41,6 +41,8 @@ function a11yProps(index: number) {
     'aria-controls': `simple-tabpanel-${index}`,
   }
 }
+
+
 export const ControlTabs = ({
   cameraControlsRef,
   mapGroupRef,
@@ -52,137 +54,134 @@ export const ControlTabs = ({
   const { isLandscapeOrientation } = useMuiMediaQuery()
   const isSideControls = isLandscapeOrientation
   // track width of controls for styling
-  const divRef = React.useRef(null);
-  const [divWidth, setDivWidth] = React.useState(0);
-  // const isLargeControls = divWidth > 500
-  const isMediumControls = divWidth > 300 && divWidth < 400
-  const isSmallControls = divWidth < 300
+  // const containerRef = React.useRef(null);
+  // const [divWidth, setDivWidth] = React.useState(0);
+  // // const isLargeControls = divWidth > 500
+  // const isMediumControls = divWidth > 300 && divWidth < 400
+  // const isSmallControls = divWidth < 300
+  const {
+    containerRef,
+    isMediumControls,
+    isSmallControls,
+  } = useControlsWidthContext()
+
   const tabFontSize = isSmallControls ? '0.7em' : isMediumControls ? '0.8em' : '1rem'
   const tabMinHeight = isSmallControls ? 20 : isMediumControls ? 25 : 30
   const tabMinWidth = isSmallControls ? 40 : isMediumControls ? 50 : 90
 
-  React.useEffect(() => {
-    if (divRef.current) {
-      const observer = new ResizeObserver(entries => {
-        for (let entry of entries) {
-          setDivWidth(entry.contentRect.width);
-        }
-      });
-      observer.observe(divRef.current);
 
-      return () => observer.disconnect(); // Clean up the observer
-    }
-  }, []);
   const handleChange = (newValue: number) => {
     setValue(newValue)
   }
   return (
-    <Box
-      ref={divRef}
-      sx={{
-        width: '100%',
-      }}
-    >
+    <ControlsWidthContextProvider>
       <Box
+        ref={containerRef}
         sx={{
-          position: 'fixed',
-          backgroundColor: 'var(--black)',
-          zIndex: 100,
-          width: isSideControls ? 'var(--controls-width)' : '100%',
+          width: '100%',
         }}
       >
         <Box
           sx={{
-            // display: 'flex',
-            // flexDirection: 'row',
-            // p: 0,
-            borderBottom: 1,
-            borderColor: 'divider',
+            position: 'fixed',
+            backgroundColor: 'var(--black)',
+            zIndex: 100,
+            width: isSideControls ? 'var(--controls-width)' : '100%',
           }}
         >
-          <Tabs
-            value={value}
-            onChange={(_, n) => handleChange(n)}
-            aria-label="control tabs"
-            centered
+          <Box
             sx={{
-              fontSize: tabFontSize,
-              // minHeight: 30,
-              minHeight: tabMinHeight,
-              minWidth: tabMinWidth,
+              // display: 'flex',
+              // flexDirection: 'row',
+              // p: 0,
+              borderBottom: 1,
+              borderColor: 'divider',
             }}
           >
-            <Tab
-              label="Build"
-              {...a11yProps(0)}
+            <Tabs
+              value={value}
+              onChange={(_, n) => handleChange(n)}
+              aria-label="control tabs"
+              centered
               sx={{
                 fontSize: tabFontSize,
-                p: 0,
-                m: 0,
+                // minHeight: 30,
                 minHeight: tabMinHeight,
                 minWidth: tabMinWidth,
               }}
+            >
+              <Tab
+                label="Build"
+                {...a11yProps(0)}
+                sx={{
+                  fontSize: tabFontSize,
+                  p: 0,
+                  m: 0,
+                  minHeight: tabMinHeight,
+                  minWidth: tabMinWidth,
+                }}
+              />
+              <Tab
+                label="File"
+                {...a11yProps(1)}
+                sx={{
+                  fontSize: tabFontSize,
+                  p: 0,
+                  m: 0,
+                  minHeight: tabMinHeight,
+                  minWidth: tabMinWidth,
+                }}
+              />
+              <Tab
+                label="Edit"
+                {...a11yProps(2)}
+                sx={{
+                  fontSize: tabFontSize,
+                  p: 0,
+                  m: 0,
+                  minHeight: tabMinHeight,
+                  minWidth: tabMinWidth,
+                }}
+              />
+              <Tab
+                label="View"
+                {...a11yProps(3)}
+                sx={{
+                  fontSize: tabFontSize,
+                  p: 0,
+                  m: 0,
+                  minHeight: tabMinHeight,
+                  minWidth: tabMinWidth,
+                }}
+              />
+            </Tabs>
+          </Box>
+        </Box>
+        {/* HIDDEN FILE INPUTS */}
+        <LoadFileHiddenInputs />
+        <Box>
+          {/* BUILD */}
+          <CustomTabPanel value={value} index={0}>
+            <BuildControlsTab />
+          </CustomTabPanel>
+          {/* FILE */}
+          <CustomTabPanel value={value} index={1}>
+            <FileControlsTab />
+          </CustomTabPanel>
+          {/* EDIT */}
+          <CustomTabPanel value={value} index={2}>
+            <EditControlsTab />
+          </CustomTabPanel>
+          {/* VIEW */}
+          <CustomTabPanel value={value} index={3}>
+            <ViewControlsTab
+              cameraControlsRef={cameraControlsRef}
+              mapGroupRef={mapGroupRef}
             />
-            <Tab
-              label="File"
-              {...a11yProps(1)}
-              sx={{
-                fontSize: tabFontSize,
-                p: 0,
-                m: 0,
-                minHeight: tabMinHeight,
-                minWidth: tabMinWidth,
-              }}
-            />
-            <Tab
-              label="Edit"
-              {...a11yProps(2)}
-              sx={{
-                fontSize: tabFontSize,
-                p: 0,
-                m: 0,
-                minHeight: tabMinHeight,
-                minWidth: tabMinWidth,
-              }}
-            />
-            <Tab
-              label="View"
-              {...a11yProps(3)}
-              sx={{
-                fontSize: tabFontSize,
-                p: 0,
-                m: 0,
-                minHeight: tabMinHeight,
-                minWidth: tabMinWidth,
-              }}
-            />
-          </Tabs>
+          </CustomTabPanel>
         </Box>
       </Box>
-      {/* HIDDEN FILE INPUTS */}
-      <LoadFileHiddenInputs />
-      <Box>
-        {/* BUILD */}
-        <CustomTabPanel value={value} index={0}>
-          <BuildControlsTab />
-        </CustomTabPanel>
-        {/* FILE */}
-        <CustomTabPanel value={value} index={1}>
-          <FileControlsTab />
-        </CustomTabPanel>
-        {/* EDIT */}
-        <CustomTabPanel value={value} index={2}>
-          <EditControlsTab />
-        </CustomTabPanel>
-        {/* VIEW */}
-        <CustomTabPanel value={value} index={3}>
-          <ViewControlsTab
-            cameraControlsRef={cameraControlsRef}
-            mapGroupRef={mapGroupRef}
-          />
-        </CustomTabPanel>
-      </Box>
-    </Box>
+    </ControlsWidthContextProvider>
   )
 }
 //   {

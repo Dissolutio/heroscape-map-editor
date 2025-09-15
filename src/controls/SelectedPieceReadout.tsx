@@ -8,9 +8,9 @@ import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 const SelectedPieceReadout = () => {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const {
-    // isLargeScreenLayout,
-    isMobileScreenLayout,
-    // isMediumScreenLayout,
+    // isLargeScreenWidth,
+    isSmallScreenWidth,
+    // isMediumScreenWidth,
   } = useMuiMediaQuery()
   if (!selectedPieceID) {
     return null
@@ -24,7 +24,7 @@ const SelectedPieceReadout = () => {
   } = decodePieceID(selectedPieceID)
   const piece = piecesSoFar[inventoryID]
 
-  if (isMobileScreenLayout) {
+  if (isSmallScreenWidth) {
     return (
       <div
         style={{

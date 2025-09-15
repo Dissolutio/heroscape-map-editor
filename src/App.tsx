@@ -39,10 +39,10 @@ const RootPage = () => {
 
 const App = () => {
   const {
-    isMobileScreenLayout,
+    isSmallScreenWidth,
     isSmallScreenLandscapeOrientation,
   } = useMuiMediaQuery()
-  const snackbarFontSize = isSmallScreenLandscapeOrientation || isMobileScreenLayout ? 10 : 20
+  const snackbarFontSize = isSmallScreenLandscapeOrientation || isSmallScreenWidth ? 10 : 20
   return (
     <Sentry.ErrorBoundary fallback={ErrorPage} showDialog>
       <ThemeProvider theme={darkTheme}>
