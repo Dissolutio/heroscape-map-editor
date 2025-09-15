@@ -13,6 +13,7 @@ import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
 import { ControlTabs } from '../controls/ControlTabs'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
+import { ControlsWidthContextProvider } from '../controls/useControlWidth'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(null)
@@ -98,29 +99,30 @@ export default function HomePage() {
               mapGroupRef={mapGroupRef}
             />
           </Box>
-
-          <div
-            style={{
-              display: 'flex',
-              flexFlow: 'column nowrap',
-              width: isSideControls ? 'var(--controls-width)' : '100%',
-              // fullscreen => full device height, no option to minimize
-              // smaller-screen => can be minimized/maxiized, only bottom part of device height
-              // flexGrow: 1,
-              height: isSideControls
-                ? '100%'
-                : '30vh',
-              background: 'var(--black)',
-              overflow: 'auto',
-              // flexShrink: 1,
-              transition: 'height 0.5s ease-in-out',
-            }}
-          >
-            <ControlTabs
-              cameraControlsRef={cameraControlsRef}
-              mapGroupRef={mapGroupRef}
-            />
-          </div>
+          <ControlsWidthContextProvider>
+            <div
+              style={{
+                display: 'flex',
+                flexFlow: 'column nowrap',
+                width: isSideControls ? 'var(--controls-width)' : '100%',
+                // fullscreen => full device height, no option to minimize
+                // smaller-screen => can be minimized/maxiized, only bottom part of device height
+                // flexGrow: 1,
+                height: isSideControls
+                  ? '100%'
+                  : '30vh',
+                background: 'var(--black)',
+                overflow: 'auto',
+                // flexShrink: 1,
+                transition: 'height 0.5s ease-in-out',
+              }}
+            >
+              <ControlTabs
+                cameraControlsRef={cameraControlsRef}
+                mapGroupRef={mapGroupRef}
+              />
+            </div>
+          </ControlsWidthContextProvider>
         </Box>
       </div>
     </>

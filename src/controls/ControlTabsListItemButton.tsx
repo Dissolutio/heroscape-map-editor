@@ -1,6 +1,7 @@
 import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import type React from 'react'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
+import { useControlsWidthContext } from './useControlWidth'
 
 type Props = {
   primary: string
@@ -15,11 +16,10 @@ export const ControlTabsListItemButton = ({
   icon,
   endIcon,
 }: Props) => {
-  const { isSmallScreenLandscapeOrientation } = useMuiMediaQuery()
+  const { isSmallControls, isMediumControls } = useControlsWidthContext()
   const listItemTextStyleProps = {
     primary: {
-      fontSize: isSmallScreenLandscapeOrientation ? 8 : 16,
-      fontWeight: 'medium',
+      fontSize: isSmallControls ? 8 : isMediumControls ? 12 : 16,
       flexGrow: 1,
     },
   }
@@ -41,11 +41,6 @@ export const ControlTabsListItemButton = ({
       <ListItemText
         primary={primary}
         slotProps={listItemTextStyleProps}
-        sx={
-          {
-            // width: 200
-          }
-        }
       />
       {endIcon && (
         <ListItemIcon

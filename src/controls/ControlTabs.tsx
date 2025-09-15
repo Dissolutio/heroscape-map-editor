@@ -10,8 +10,7 @@ import ViewControlsTab from './ViewControlsTab'
 import { EditControlsTab } from './EditControlsTab'
 import { BuildControlsTab } from './BuildControlsTab'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
-import { createContext, PropsWithChildren, useContext } from "react";
-import { ControlsWidthContextProvider, useControlsWidthContext } from './useControlWidth'
+import { useControlsWidthContext } from './useControlWidth'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -74,114 +73,113 @@ export const ControlTabs = ({
     setValue(newValue)
   }
   return (
-    <ControlsWidthContextProvider>
+
+    <Box
+      ref={containerRef}
+      sx={{
+        width: '100%',
+      }}
+    >
       <Box
-        ref={containerRef}
         sx={{
-          width: '100%',
+          position: 'fixed',
+          backgroundColor: 'var(--black)',
+          zIndex: 100,
+          width: isSideControls ? 'var(--controls-width)' : '100%',
         }}
       >
         <Box
           sx={{
-            position: 'fixed',
-            backgroundColor: 'var(--black)',
-            zIndex: 100,
-            width: isSideControls ? 'var(--controls-width)' : '100%',
+            // display: 'flex',
+            // flexDirection: 'row',
+            // p: 0,
+            borderBottom: 1,
+            borderColor: 'divider',
           }}
         >
-          <Box
+          <Tabs
+            value={value}
+            onChange={(_, n) => handleChange(n)}
+            aria-label="control tabs"
+            centered
             sx={{
-              // display: 'flex',
-              // flexDirection: 'row',
-              // p: 0,
-              borderBottom: 1,
-              borderColor: 'divider',
+              fontSize: tabFontSize,
+              // minHeight: 30,
+              minHeight: tabMinHeight,
+              minWidth: tabMinWidth,
             }}
           >
-            <Tabs
-              value={value}
-              onChange={(_, n) => handleChange(n)}
-              aria-label="control tabs"
-              centered
+            <Tab
+              label="Build"
+              {...a11yProps(0)}
               sx={{
                 fontSize: tabFontSize,
-                // minHeight: 30,
+                p: 0,
+                m: 0,
                 minHeight: tabMinHeight,
                 minWidth: tabMinWidth,
               }}
-            >
-              <Tab
-                label="Build"
-                {...a11yProps(0)}
-                sx={{
-                  fontSize: tabFontSize,
-                  p: 0,
-                  m: 0,
-                  minHeight: tabMinHeight,
-                  minWidth: tabMinWidth,
-                }}
-              />
-              <Tab
-                label="File"
-                {...a11yProps(1)}
-                sx={{
-                  fontSize: tabFontSize,
-                  p: 0,
-                  m: 0,
-                  minHeight: tabMinHeight,
-                  minWidth: tabMinWidth,
-                }}
-              />
-              <Tab
-                label="Edit"
-                {...a11yProps(2)}
-                sx={{
-                  fontSize: tabFontSize,
-                  p: 0,
-                  m: 0,
-                  minHeight: tabMinHeight,
-                  minWidth: tabMinWidth,
-                }}
-              />
-              <Tab
-                label="View"
-                {...a11yProps(3)}
-                sx={{
-                  fontSize: tabFontSize,
-                  p: 0,
-                  m: 0,
-                  minHeight: tabMinHeight,
-                  minWidth: tabMinWidth,
-                }}
-              />
-            </Tabs>
-          </Box>
-        </Box>
-        {/* HIDDEN FILE INPUTS */}
-        <LoadFileHiddenInputs />
-        <Box>
-          {/* BUILD */}
-          <CustomTabPanel value={value} index={0}>
-            <BuildControlsTab />
-          </CustomTabPanel>
-          {/* FILE */}
-          <CustomTabPanel value={value} index={1}>
-            <FileControlsTab />
-          </CustomTabPanel>
-          {/* EDIT */}
-          <CustomTabPanel value={value} index={2}>
-            <EditControlsTab />
-          </CustomTabPanel>
-          {/* VIEW */}
-          <CustomTabPanel value={value} index={3}>
-            <ViewControlsTab
-              cameraControlsRef={cameraControlsRef}
-              mapGroupRef={mapGroupRef}
             />
-          </CustomTabPanel>
+            <Tab
+              label="File"
+              {...a11yProps(1)}
+              sx={{
+                fontSize: tabFontSize,
+                p: 0,
+                m: 0,
+                minHeight: tabMinHeight,
+                minWidth: tabMinWidth,
+              }}
+            />
+            <Tab
+              label="Edit"
+              {...a11yProps(2)}
+              sx={{
+                fontSize: tabFontSize,
+                p: 0,
+                m: 0,
+                minHeight: tabMinHeight,
+                minWidth: tabMinWidth,
+              }}
+            />
+            <Tab
+              label="View"
+              {...a11yProps(3)}
+              sx={{
+                fontSize: tabFontSize,
+                p: 0,
+                m: 0,
+                minHeight: tabMinHeight,
+                minWidth: tabMinWidth,
+              }}
+            />
+          </Tabs>
         </Box>
       </Box>
-    </ControlsWidthContextProvider>
+      {/* HIDDEN FILE INPUTS */}
+      <LoadFileHiddenInputs />
+      <Box>
+        {/* BUILD */}
+        <CustomTabPanel value={value} index={0}>
+          <BuildControlsTab />
+        </CustomTabPanel>
+        {/* FILE */}
+        <CustomTabPanel value={value} index={1}>
+          <FileControlsTab />
+        </CustomTabPanel>
+        {/* EDIT */}
+        <CustomTabPanel value={value} index={2}>
+          <EditControlsTab />
+        </CustomTabPanel>
+        {/* VIEW */}
+        <CustomTabPanel value={value} index={3}>
+          <ViewControlsTab
+            cameraControlsRef={cameraControlsRef}
+            mapGroupRef={mapGroupRef}
+          />
+        </CustomTabPanel>
+      </Box>
+    </Box>
   )
 }
 //   {
