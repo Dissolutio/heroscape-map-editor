@@ -34,6 +34,8 @@ export const MapHexIDDisplay = ({
   */
   const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
   const isStartZoneHex = boardHex.terrain === HexTerrain.startZone
+  const isGlyphHex = boardHex.terrain === HexTerrain.glyphPower || boardHex.terrain === HexTerrain.glyphTreasure
+  const isHeightlessStandableObstacle = isStartZoneHex || isGlyphHex
   const underHexID = genBoardHexID({
     ...boardHex,
     altitude: boardHex.altitude - 1,
@@ -46,23 +48,27 @@ export const MapHexIDDisplay = ({
   // TODO: make own component for cap heights
   if (!isDisplayCapHeights) return null
 
-  // filters out non-caps
-  // if (!(boardHex.isCap || boardHex.terrain === HexTerrain.startZone))
-  //   return null
-  // filters out vertical clearance
-  if (
-    !boardHex.isCap &&
-    !(boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
-  ) {
-    return null // filters out vertical clearance
-  }
+  // filters out all but caps, startzones, glyphs
+  if (!(boardHex.isCap || boardHex.terrain === HexTerrain.startZone
+    || boardHex.terrain === HexTerrain.glyphPower || boardHex.terrain === HexTerrain.glyphTreasure
+  ))
+    return null
+  // filters out all but caps and obstacle origins/auxiliaries
+  // if (
+  //   !boardHex.isCap &&
+  //   !(boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
+  // ) {
+  //   return null // filters out vertical clearance
+  // }
+
   // filters out empty hexes
   if (boardHex.terrain === HexTerrain.empty) return null
+
   const hexAltitudeForStandingOn =
     boardHex.altitude -
-    (isUnderHexFluid && isStartZoneHex
+    (isUnderHexFluid && isHeightlessStandableObstacle
       ? 2
-      : !isUnderHexFluid && isStartZoneHex
+      : !isUnderHexFluid && isHeightlessStandableObstacle
         ? 1
         : isHexFluid
           ? 1
