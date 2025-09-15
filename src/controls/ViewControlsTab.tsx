@@ -3,35 +3,24 @@ import {
   FormControlLabel,
   FormGroup,
   Switch,
-  ClickAwayListener,
-  Collapse,
   List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Button,
-  Icon,
+  FormControl,
+  FormLabel,
 } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
 import React from 'react'
 import {
-  FcCamcorderPro,
   FcCollect,
-  FcDownload,
   FcLock,
-  FcNoVideo,
   FcOldTimeCamera,
-  FcPanorama,
   FcSwitchCamera,
   FcSynchronize,
   FcUnlock,
-  FcVideoCall,
 } from 'react-icons/fc'
 import useEvent from '../hooks/useEvent'
 import useBoundStore from '../store/store'
 import { EVENTS } from '../utils/constants'
 import { useSnackbar } from 'notistack'
-import { MdExpandLess, MdExpandMore, MdFolderZip } from 'react-icons/md'
 import type { Group, Object3DEventMap } from 'three'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
@@ -42,7 +31,7 @@ export default function ViewControlsTab({
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) {
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
+  // const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const { publish } = useEvent()
   const isCamerDisabled = useBoundStore((s) => s.isCameraDisabled)
   const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
@@ -97,7 +86,6 @@ export default function ViewControlsTab({
           flexDirection: 'column',
           justifyContent: 'space-between',
           padding: 0,
-          // overflow: 'hidden'
         }}
       >
         <List>
@@ -154,103 +142,82 @@ export default function ViewControlsTab({
           />
         </List>
       </div>
-      <div style={{ border: '1px solid var(--transparent-border)' }}>
-        <SwitchIsLightsAndShadows />
-        <SwitchIsHideTableTop />
-        <SwitchIsDisplayCapHeights />
-        <SwitchIsHighQualityRender />
-        {/* <SwitchIsFrameloopDemand /> */}
-      </div>
+      <Box>
+        <ViewPreferencesSwitchForm />
+      </Box>
     </Box>
   )
 }
-
-function SwitchIsLightsAndShadows() {
+const ViewPreferencesSwitchForm = () => {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const toggleIsLightsAndShadowsRender = useBoundStore(
     (s) => s.toggleIsLightsAndShadowsRender,
   )
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeLightsAndRender = (event: React.ChangeEvent<HTMLInputElement>) => {
     toggleIsLightsAndShadowsRender(event.target.checked)
   }
-  return (
-    <FormGroup>
-      <FormControlLabel
-        control={
-          <Switch checked={isLightsAndShadowsRender} onChange={handleChange} />
-        }
-        label="Render Lights and Shadows"
-      />
-    </FormGroup>
-  )
-}
-function SwitchIsHighQualityRender() {
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const toggleIsHighQualityRender = useBoundStore(
     (s) => s.toggleIsHighQualityRender,
   )
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeHQRender = (event: React.ChangeEvent<HTMLInputElement>) => {
     toggleIsHighQualityRender(event.target.checked)
   }
-  return (
-    <FormGroup>
-      <FormControlLabel
-        control={
-          <Switch checked={isHighQualityRender} onChange={handleChange} />
-        }
-        label="High Quality Render (Significant performance impact)"
-      />
-    </FormGroup>
-  )
-}
-function SwitchIsDisplayCapHeights() {
   const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
   const toggleIsDisplayCapHeights = useBoundStore(
     (s) => s.toggleIsDisplayCapHeights,
   )
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeDisplayCapHeights = (event: React.ChangeEvent<HTMLInputElement>) => {
     toggleIsDisplayCapHeights(event.target.checked)
   }
-  return (
-    <FormGroup>
-      <FormControlLabel
-        control={
-          <Switch checked={isDisplayCapHeights} onChange={handleChange} />
-        }
-        label="Display Hex Heights"
-      />
-    </FormGroup>
-  )
-}
-function SwitchIsHideTableTop() {
   const isHideTableTop = useBoundStore((s) => s.isHideTableTop)
   const toggleIsHideTableTop = useBoundStore((s) => s.toggleIsHideTableTop)
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeHideTableTop = (event: React.ChangeEvent<HTMLInputElement>) => {
     toggleIsHideTableTop(event.target.checked)
   }
+  const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
+  const toggleIsFrameloopDemand = useBoundStore((s) => s.toggleIsFrameloopDemand)
+  const handleChangeFrameloopDemand = (event: React.ChangeEvent<HTMLInputElement>) => {
+    toggleIsFrameloopDemand(event.target.checked)
+  }
+
   return (
-    <FormGroup>
-      <FormControlLabel
-        control={<Switch checked={isHideTableTop} onChange={handleChange} />}
-        label="Hide TableTop"
-      />
-    </FormGroup>
+    <FormControl component="fieldset" variant="standard">
+      <FormLabel component="legend">View options:</FormLabel>
+      <FormGroup>
+
+        <FormControlLabel
+          control={
+            <Switch size="small" checked={isLightsAndShadowsRender} onChange={handleChangeLightsAndRender} />
+          }
+          label="Render Lights and Shadows"
+        />
+
+        <FormControlLabel
+          control={<Switch size="small" checked={isHideTableTop} onChange={handleChangeHideTableTop} />}
+          label="Hide TableTop"
+        />
+
+        <FormControlLabel
+          control={
+            <Switch size="small" checked={isDisplayCapHeights} onChange={handleChangeDisplayCapHeights} />
+          }
+          label="Display Hex Heights"
+        />
+        <FormControlLabel
+          control={
+            <Switch size="small" checked={isHighQualityRender} onChange={handleChangeHQRender} />
+          }
+          label="High Quality Render (Significant performance impact)"
+        />
+        {/* <FormControlLabel
+          control={<Switch checked={isFrameloopDemand} onChange={handleChangeFrameloopDemand} />}
+          label="Frameloop Demand"
+        /> */}
+
+      </FormGroup>
+    </FormControl>
   )
 }
-// function SwitchIsFrameloopDemand() {
-//   const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
-//   const toggleIsFrameloopDemand = useBoundStore((s) => s.toggleIsFrameloopDemand)
-//   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-//     toggleIsFrameloopDemand(event.target.checked)
-//   }
-//   return (
-//     <FormGroup>
-//       <FormControlLabel
-//         control={<Switch checked={isFrameloopDemand} onChange={handleChange} />}
-//         label="Frameloop Demand"
-//       />
-//     </FormGroup>
-//   )
-// }

@@ -6,7 +6,7 @@ export const useMuiMediaQuery = () => {
   const isMediumWidth = useMediaQuery('(max-width:999px)')
   const isMediumScreenWidth = !isSmallScreenWidth && isMediumWidth
   const isLandscapeOrientation = useMediaQuery('(orientation: landscape)')
-  const isSmallScreenLandscapeOrientation = !isLargeScreenWidth && isLandscapeOrientation
+  const isSmallScreenLandscapeOrientation = isSmallScreenWidth && isLandscapeOrientation
   return {
     isLargeScreenWidth,
     isSmallScreenWidth,

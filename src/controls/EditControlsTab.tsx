@@ -21,6 +21,7 @@ import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { decodePieceID, genBoardHexID, genPieceID } from '../utils/map-utils'
 import { FcVlc } from 'react-icons/fc'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
+import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
@@ -202,6 +203,14 @@ export const EditControlsTab = () => {
           <ListItemText primary={'Edit Map Details'} />
         </ListItemButton>
       </List>
+
+      {/* Lock Camera Controls */}
+      <ControlTabsListItemButton
+        title={'Edit map details (i.e. name, author, crop picture, sets used, )'}
+        primary={'Edit Map Details'}
+        onClick={() => toggleIsEditMapDialogOpen(true)}
+        icon={<FcVlc />}
+      />
 
       <Card>
         <CardContent>

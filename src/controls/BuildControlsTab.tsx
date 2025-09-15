@@ -20,6 +20,7 @@ export const BuildControlsTab = () => {
     <Container sx={{ padding: 1 }}>
       <List>
         <ControlTabsListItemButton
+          title={'View information about the pieces used in current map'}
           primary={'View Map Inventory'}
           onClick={() =>
             toggleCurrentDialog(
