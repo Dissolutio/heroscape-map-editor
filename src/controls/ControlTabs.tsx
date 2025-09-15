@@ -49,20 +49,38 @@ export const ControlTabs = ({
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) => {
   const [value, setValue] = React.useState(0)
-  const { isLandscapeOrientation, isSmallScreenLandscapeOrientation, isMediumScreenLandscapeOrientation } = useMuiMediaQuery()
+  const { isLandscapeOrientation } = useMuiMediaQuery()
   const isSideControls = isLandscapeOrientation
-  const tabFontSize = (isSmallScreenLandscapeOrientation) ? '0.8em' : isMediumScreenLandscapeOrientation ? '0.9em' : '1em'
-  const tabMinWidth = isSmallScreenLandscapeOrientation ? 40 : isMediumScreenLandscapeOrientation ? 50 : 90
-  const tabMinHeight = isSmallScreenLandscapeOrientation ? 20 : 30
+  // track width of controls for styling
+  const divRef = React.useRef(null);
+  const [divWidth, setDivWidth] = React.useState(0);
+  // const isLargeControls = divWidth > 500
+  const isMediumControls = divWidth > 300 && divWidth < 400
+  const isSmallControls = divWidth < 300
+  const tabFontSize = isSmallControls ? '0.7em' : isMediumControls ? '0.8em' : '1rem'
+  const tabMinHeight = isSmallControls ? 20 : isMediumControls ? 25 : 30
+  const tabMinWidth = isSmallControls ? 40 : isMediumControls ? 50 : 90
+
+  React.useEffect(() => {
+    if (divRef.current) {
+      const observer = new ResizeObserver(entries => {
+        for (let entry of entries) {
+          setDivWidth(entry.contentRect.width);
+        }
+      });
+      observer.observe(divRef.current);
+
+      return () => observer.disconnect(); // Clean up the observer
+    }
+  }, []);
   const handleChange = (newValue: number) => {
     setValue(newValue)
   }
-
   return (
     <Box
+      ref={divRef}
       sx={{
         width: '100%',
-        // overflow: isControlTabMinimized ? 'hidden' : 'auto',
       }}
     >
       <Box
@@ -75,10 +93,9 @@ export const ControlTabs = ({
       >
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            // justifyContent: 'space-between',
-            p: 0,
+            // display: 'flex',
+            // flexDirection: 'row',
+            // p: 0,
             borderBottom: 1,
             borderColor: 'divider',
           }}
@@ -87,7 +104,7 @@ export const ControlTabs = ({
             value={value}
             onChange={(_, n) => handleChange(n)}
             aria-label="control tabs"
-            // centered
+            centered
             sx={{
               fontSize: tabFontSize,
               // minHeight: 30,
@@ -102,7 +119,6 @@ export const ControlTabs = ({
                 fontSize: tabFontSize,
                 p: 0,
                 m: 0,
-                // minHeight: 30,
                 minHeight: tabMinHeight,
                 minWidth: tabMinWidth,
               }}
@@ -114,7 +130,6 @@ export const ControlTabs = ({
                 fontSize: tabFontSize,
                 p: 0,
                 m: 0,
-                // minHeight: 30,
                 minHeight: tabMinHeight,
                 minWidth: tabMinWidth,
               }}
@@ -126,7 +141,6 @@ export const ControlTabs = ({
                 fontSize: tabFontSize,
                 p: 0,
                 m: 0,
-                // minHeight: 30,
                 minHeight: tabMinHeight,
                 minWidth: tabMinWidth,
               }}
@@ -136,6 +150,8 @@ export const ControlTabs = ({
               {...a11yProps(3)}
               sx={{
                 fontSize: tabFontSize,
+                p: 0,
+                m: 0,
                 minHeight: tabMinHeight,
                 minWidth: tabMinWidth,
               }}
@@ -145,7 +161,7 @@ export const ControlTabs = ({
       </Box>
       {/* HIDDEN FILE INPUTS */}
       <LoadFileHiddenInputs />
-      <div>
+      <Box>
         {/* BUILD */}
         <CustomTabPanel value={value} index={0}>
           <BuildControlsTab />
@@ -165,7 +181,7 @@ export const ControlTabs = ({
             mapGroupRef={mapGroupRef}
           />
         </CustomTabPanel>
-      </div>
+      </Box>
     </Box>
   )
 }
