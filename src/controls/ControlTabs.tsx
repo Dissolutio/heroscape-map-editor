@@ -86,6 +86,7 @@ export const ControlTabs = ({
           backgroundColor: 'var(--black)',
           zIndex: 100,
           width: isSideControls ? 'var(--controls-width)' : '100%',
+          // width: isSideControls ? '30vw' : '100%',
         }}
       >
         <Box

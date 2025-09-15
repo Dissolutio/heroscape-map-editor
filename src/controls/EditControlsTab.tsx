@@ -194,23 +194,15 @@ export const EditControlsTab = () => {
       </div> */}
       {/* <MapLensToggles /> */}
       {/* <LocalStorageList /> */}
-      {/* OPEN EDIT MAP DETAILS DIALOG */}
       <List>
-        <ListItemButton onClick={() => toggleIsEditMapDialogOpen(true)}>
-          <ListItemIcon>
-            <FcVlc />
-          </ListItemIcon>
-          <ListItemText primary={'Edit Map Details'} />
-        </ListItemButton>
+        {/* OPEN EDIT MAP DETAILS DIALOG */}
+        <ControlTabsListItemButton
+          title={'Edit map details (i.e. name, author, sets used, map pictures, notes)'}
+          primary={'Edit Map Details'}
+          onClick={() => toggleIsEditMapDialogOpen(true)}
+          icon={<FcVlc />}
+        />
       </List>
-
-      {/* Lock Camera Controls */}
-      <ControlTabsListItemButton
-        title={'Edit map details (i.e. name, author, crop picture, sets used, )'}
-        primary={'Edit Map Details'}
-        onClick={() => toggleIsEditMapDialogOpen(true)}
-        icon={<FcVlc />}
-      />
 
       <Card>
         <CardContent>

@@ -1,4 +1,4 @@
-import { Box, Drawer, useMediaQuery } from '@mui/material'
+import { Box } from '@mui/material'
 import React, { useEffect } from 'react'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
 import { ReactPdfRoot } from '../pdf-map/ReactPdfRoot'
@@ -29,8 +29,8 @@ export default function HomePage() {
   // md, medium: 900px
   // lg, large: 1200px
   // xl, extra-large: 1536px
-  const { isLandscapeOrientation, isSmallScreenWidth } = useMuiMediaQuery()
-  const isSideControls = isLandscapeOrientation || isSmallScreenWidth
+  const { isLandscapeOrientation, isLargeScreenWidth } = useMuiMediaQuery()
+  const isSideControls = isLandscapeOrientation || isLargeScreenWidth
 
   const [isPdfOpen, setIsPdfOpen] = React.useState(false)
   const toggleIsPdfOpen = (s: boolean) => {
@@ -87,7 +87,9 @@ export default function HomePage() {
             sx={{
               flex: 1,
               position: 'relative',
-              width: isSideControls ? '70vw' : '100%',
+              // flexGrow: 1,
+              // flexShrink: 0,
+              width: isSideControls ? 'calc(100% - 70vw)' : '100%',
               height: isSideControls ? '100%' : '70vh',
             }}
           >
@@ -104,13 +106,13 @@ export default function HomePage() {
               style={{
                 display: 'flex',
                 flexFlow: 'column nowrap',
-                width: isSideControls ? 'var(--controls-width)' : '100%',
+                width: isSideControls ? 'max(30vw, 400px)' : '100%',
                 // fullscreen => full device height, no option to minimize
                 // smaller-screen => can be minimized/maxiized, only bottom part of device height
                 // flexGrow: 1,
                 height: isSideControls
                   ? '100%'
-                  : '30vh',
+                  : 'max(30vh, 250px)',
                 background: 'var(--black)',
                 overflow: 'auto',
                 // flexShrink: 1,
