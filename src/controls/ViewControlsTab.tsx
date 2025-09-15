@@ -195,10 +195,10 @@ const ViewPreferencesSwitchForm = () => {
           label="Render Lights and Shadows"
         />
 
-        <FormControlLabel
+        {isLightsAndShadowsRender && <FormControlLabel
           control={<Switch size="small" checked={isHideTableTop} onChange={handleChangeHideTableTop} />}
           label="Hide TableTop"
-        />
+        />}
 
         <FormControlLabel
           control={
