@@ -8,6 +8,7 @@ type Props = {
   onClick: React.MouseEventHandler<HTMLDivElement> | undefined
   icon: React.ReactNode
   endIcon?: React.ReactNode
+  title?: string
 }
 
 export const ControlTabsListItemButton = ({
@@ -15,6 +16,7 @@ export const ControlTabsListItemButton = ({
   onClick,
   icon,
   endIcon,
+  title
 }: Props) => {
   const { isSmallControls, isMediumControls } = useControlsWidthContext()
   const listItemTextStyleProps = {
@@ -30,6 +32,7 @@ export const ControlTabsListItemButton = ({
         minHeight: 32,
         width: '100%',
       }}
+      title={title}
     >
       <ListItemIcon
         sx={{

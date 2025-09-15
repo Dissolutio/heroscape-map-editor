@@ -33,6 +33,7 @@ import { EVENTS } from '../utils/constants'
 import { useSnackbar } from 'notistack'
 import { MdExpandLess, MdExpandMore, MdFolderZip } from 'react-icons/md'
 import type { Group, Object3DEventMap } from 'three'
+import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
 export default function ViewControlsTab({
   cameraControlsRef,
@@ -101,73 +102,56 @@ export default function ViewControlsTab({
       >
         <List>
           {/* Center map in camera view */}
-          <ListItemButton onClick={zoomToMap}>
-            <ListItemIcon>
-              <FcCollect />
-            </ListItemIcon>
-            <ListItemText primary="Zoom to map" />
-          </ListItemButton>
+          <ControlTabsListItemButton
+            title="Center the camera on entire map"
+            primary="Zoom to map"
+            onClick={zoomToMap}
+            icon={<FcCollect />}
+          />
+
           {/* Lock Camera Controls */}
-          <ListItemButton
+          <ControlTabsListItemButton
             title={
               isCamerDisabled
                 ? 'Unlock camera controls'
                 : 'Lock camera controls'
             }
+            primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'}
             onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
-            style={{
-              ...(isCamerDisabled
-                ? { backgroundColor: 'red', color: 'white' }
-                : {}),
-            }}
-          >
-            <ListItemIcon>
-              {isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />}
-            </ListItemIcon>
-            <ListItemText
-              primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'}
-            />
-          </ListItemButton>
+            icon={isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />}
+          />
 
           {/* Reset camera defaults */}
-          <ListItemButton title={'Reset camera defaults'} onClick={resetCamera}>
-            <ListItemIcon>
-              <FcSynchronize />
-            </ListItemIcon>
-            <ListItemText primary="Reset camera" />
-          </ListItemButton>
+          <ControlTabsListItemButton
+            title={'Reset camera defaults'}
+            primary="Reset camera"
+            onClick={resetCamera}
+            icon={<FcSynchronize />}
+          />
 
           {/* Switch camera orthographic/perspective */}
-          <ListItemButton
+          <ControlTabsListItemButton
             title={
               isOrthoCam
                 ? 'Switch to perspective camera'
                 : 'Switch to orthographic camera'
             }
+            primary={
+              isOrthoCam
+                ? 'Use perspective camera'
+                : 'Use orthographic camera'
+            }
             onClick={handleToggleOrthoCam}
-          >
-            <ListItemIcon>
-              <FcSwitchCamera />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                isOrthoCam
-                  ? 'Use perspective camera'
-                  : 'Use orthographic camera'
-              }
-            />
-          </ListItemButton>
+            icon={<FcSwitchCamera />}
+          />
 
           {/* Take map picture PNG */}
-          <ListItemButton
+          <ControlTabsListItemButton
             title={'Take map picture .PNG'}
+            primary="Take map picture .PNG"
             onClick={handleTakeAMapPicture}
-          >
-            <ListItemIcon>
-              <FcOldTimeCamera />
-            </ListItemIcon>
-            <ListItemText primary={'Take map picture .PNG'} />
-          </ListItemButton>
+            icon={<FcOldTimeCamera />}
+          />
         </List>
       </div>
       <div style={{ border: '1px solid var(--transparent-border)' }}>
