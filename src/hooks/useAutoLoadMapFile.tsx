@@ -45,7 +45,8 @@ const useAutoLoadMapFile = (props?: Props) => {
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
-        const { hexMap, boardPieces: pieceIds } = parseMapDataArrayFromCrushed(urlMapString)
+        const { hexMap, boardPieces: pieceIds } =
+          parseMapDataArrayFromCrushed(urlMapString)
         // const [hexMap, ...pieceIds] = data
         const boardPieces: BoardPieces = Object.keys(pieceIds).reduce(
           (prev: BoardPieces, curr: string) => {
@@ -169,6 +170,5 @@ const useAutoLoadMapFile = (props?: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 }
-
 
 export default useAutoLoadMapFile

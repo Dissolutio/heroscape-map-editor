@@ -57,10 +57,7 @@ const ViewMapInventoryDialog = () => {
 
   // Merge all pieceIDs from combinedInventory and piecesUsed
   const allPieceIDs = Array.from(
-    new Set([
-      ...Object.keys(combinedInventory),
-      ...Object.keys(piecesUsed),
-    ]),
+    new Set([...Object.keys(combinedInventory), ...Object.keys(piecesUsed)]),
   )
 
   // Helper: check if piece is a Start Zone or Glyph
@@ -91,7 +88,8 @@ const ViewMapInventoryDialog = () => {
     return 0
   })
 
-  const hasConstraints = Array.isArray(hexMap?.setsUsed) && hexMap.setsUsed.length > 0
+  const hasConstraints =
+    Array.isArray(hexMap?.setsUsed) && hexMap.setsUsed.length > 0
 
   return (
     <React.Fragment>
@@ -114,7 +112,10 @@ const ViewMapInventoryDialog = () => {
                 <Box
                   key={pieceID}
                   sx={{
-                    color: (isOver || isNotAllowed) && !skipAlert ? 'error.main' : 'inherit',
+                    color:
+                      (isOver || isNotAllowed) && !skipAlert
+                        ? 'error.main'
+                        : 'inherit',
                     display: 'flex',
                     alignItems: 'center',
                     mb: 1,

@@ -19,7 +19,7 @@ export default function HomePage() {
   const cameraControlsRef = React.useRef(null)
   const hexMap = useBoundStore((s) => s.hexMap)
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
-  const controlsContainerRef = React.useRef(null);
+  const controlsContainerRef = React.useRef(null)
   // https://robohash.org/you.png?size=200x200
   // USE EFFECT: automatically load up map from URL, OR from file
   useAutoLoadMapFile()
@@ -100,16 +100,16 @@ export default function HomePage() {
               mapGroupRef={mapGroupRef}
             />
           </Box>
-          <ControlsWidthContextProvider containerRef={controlsContainerRef} >
+          <ControlsWidthContextProvider containerRef={controlsContainerRef}>
             <div
               style={{
                 display: 'flex',
                 flexFlow: 'column nowrap',
                 width: isSideControls ? 'var(--controls-width)' : '100%',
-                flexBasis: isSideControls ? 'var(--controls-width)' : 'max(30vh, 250px)',
-                height: isSideControls
-                  ? '100%'
+                flexBasis: isSideControls
+                  ? 'var(--controls-width)'
                   : 'max(30vh, 250px)',
+                height: isSideControls ? '100%' : 'max(30vh, 250px)',
                 background: 'var(--black)',
                 overflow: 'auto',
                 transition: 'height 0.5s ease-in-out',

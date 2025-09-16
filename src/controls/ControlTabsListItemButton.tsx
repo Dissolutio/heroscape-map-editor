@@ -16,7 +16,7 @@ export const ControlTabsListItemButton = ({
   onClick,
   icon,
   endIcon,
-  title
+  title,
 }: Props) => {
   const { isSmallControls, isMediumControls } = useControlsWidthContext()
   const listItemTextStyleProps = {
@@ -41,10 +41,7 @@ export const ControlTabsListItemButton = ({
       >
         {icon}
       </ListItemIcon>
-      <ListItemText
-        primary={primary}
-        slotProps={listItemTextStyleProps}
-      />
+      <ListItemText primary={primary} slotProps={listItemTextStyleProps} />
       {endIcon && (
         <ListItemIcon
           sx={{

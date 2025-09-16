@@ -36,7 +36,7 @@ export function HeaderNav({
     if (!isFullscreen) {
       // If not in fullscreen, request it with fallbacks
       if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
+        document.documentElement.requestFullscreen()
       } else {
         enqueueSnackbar({
           message: 'Fullscreen mode not available',
@@ -46,15 +46,15 @@ export function HeaderNav({
     } else {
       // If in fullscreen, exit it with fallbacks
       if (document.exitFullscreen) {
-        document.exitFullscreen();
+        document.exitFullscreen()
       }
     }
   }
   return (
     <AppBar
       position="static"
-    // sx={{ backgroundColor: 'var(--black)' }}
-    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+      // sx={{ backgroundColor: 'var(--black)' }}
+      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
         <Typography
@@ -97,15 +97,15 @@ export function HeaderNav({
 
         <IconButton
           size="large"
-          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-          title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+          title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
           sx={{ mr: 2 }}
           onClick={() => toggleFullscreen()}
         >
           {isFullscreen ? (
             <MdFullscreenExit />
           ) : (
-            <MdFullscreen title={"Enter fullscreen"} />
+            <MdFullscreen title={'Enter fullscreen'} />
           )}
         </IconButton>
         {/* MOBILE: No render pdf, does not seem to work on mobile, direct download on button click instead */}

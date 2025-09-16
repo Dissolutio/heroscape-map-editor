@@ -34,7 +34,9 @@ export const MapHexIDDisplay = ({
   */
   const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
   const isStartZoneHex = boardHex.terrain === HexTerrain.startZone
-  const isGlyphHex = boardHex.terrain === HexTerrain.glyphPower || boardHex.terrain === HexTerrain.glyphTreasure
+  const isGlyphHex =
+    boardHex.terrain === HexTerrain.glyphPower ||
+    boardHex.terrain === HexTerrain.glyphTreasure
   const isHeightlessStandableObstacle = isStartZoneHex || isGlyphHex
   const underHexID = genBoardHexID({
     ...boardHex,
@@ -49,9 +51,14 @@ export const MapHexIDDisplay = ({
   if (!isDisplayCapHeights) return null
 
   // filters out all but caps, startzones, glyphs
-  if (!(boardHex.isCap || boardHex.terrain === HexTerrain.startZone
-    || boardHex.terrain === HexTerrain.glyphPower || boardHex.terrain === HexTerrain.glyphTreasure
-  ))
+  if (
+    !(
+      boardHex.isCap ||
+      boardHex.terrain === HexTerrain.startZone ||
+      boardHex.terrain === HexTerrain.glyphPower ||
+      boardHex.terrain === HexTerrain.glyphTreasure
+    )
+  )
     return null
   // filters out all but caps and obstacle origins/auxiliaries
   // if (

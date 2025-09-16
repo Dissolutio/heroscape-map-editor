@@ -44,7 +44,7 @@ function a11yProps(index: number) {
 export const ControlTabs = ({
   cameraControlsRef,
   mapGroupRef,
-  controlsContainerRef
+  controlsContainerRef,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
@@ -52,19 +52,23 @@ export const ControlTabs = ({
 }) => {
   const [value, setValue] = React.useState(0)
   const { isSideControls } = useMuiMediaQuery()
-  const {
-    isMediumControls,
-    isSmallControls,
-  } = useControlsWidthContext()
-  const tabFontSize = isSmallControls ? '0.8em' : isMediumControls ? '0.8em' : '1rem'
-  const tabMinHeight = isSmallControls ? '22px' : isMediumControls ? '25px' : '31px'
+  const { isMediumControls, isSmallControls } = useControlsWidthContext()
+  const tabFontSize = isSmallControls
+    ? '0.8em'
+    : isMediumControls
+      ? '0.8em'
+      : '1rem'
+  const tabMinHeight = isSmallControls
+    ? '22px'
+    : isMediumControls
+      ? '25px'
+      : '31px'
   const tabMinWidth = isSmallControls ? 40 : isMediumControls ? 50 : 90
 
   const handleChange = (newValue: number) => {
     setValue(newValue)
   }
   return (
-
     <Box
       ref={controlsContainerRef}
       sx={{
@@ -176,7 +180,7 @@ export const ControlTabs = ({
       </Box>
       <Box
         sx={{
-          marginTop: tabMinHeight
+          marginTop: tabMinHeight,
         }}
       >
         {/* BUILD */}

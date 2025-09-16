@@ -1,4 +1,4 @@
-import type { HexMap } from "../types";
+import type { HexMap } from '../types'
 
 export function isHexMap(item: unknown): item is HexMap {
   return (

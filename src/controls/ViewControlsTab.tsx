@@ -124,9 +124,7 @@ export default function ViewControlsTab({
                 : 'Switch to orthographic camera'
             }
             primary={
-              isOrthoCam
-                ? 'Use perspective camera'
-                : 'Use orthographic camera'
+              isOrthoCam ? 'Use perspective camera' : 'Use orthographic camera'
             }
             onClick={handleToggleOrthoCam}
             icon={<FcSwitchCamera />}
@@ -154,7 +152,9 @@ const ViewPreferencesSwitchForm = () => {
   const toggleIsLightsAndShadowsRender = useBoundStore(
     (s) => s.toggleIsLightsAndShadowsRender,
   )
-  const handleChangeLightsAndRender = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeLightsAndRender = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     toggleIsLightsAndShadowsRender(event.target.checked)
   }
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
@@ -168,12 +168,16 @@ const ViewPreferencesSwitchForm = () => {
   const toggleIsDisplayCapHeights = useBoundStore(
     (s) => s.toggleIsDisplayCapHeights,
   )
-  const handleChangeDisplayCapHeights = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeDisplayCapHeights = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     toggleIsDisplayCapHeights(event.target.checked)
   }
   const isHideTableTop = useBoundStore((s) => s.isHideTableTop)
   const toggleIsHideTableTop = useBoundStore((s) => s.toggleIsHideTableTop)
-  const handleChangeHideTableTop = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeHideTableTop = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     toggleIsHideTableTop(event.target.checked)
   }
   // const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
@@ -186,28 +190,47 @@ const ViewPreferencesSwitchForm = () => {
     <FormControl component="fieldset" variant="standard">
       <FormLabel component="legend">View options:</FormLabel>
       <FormGroup>
-
         <FormControlLabel
           control={
-            <Switch size="small" checked={isLightsAndShadowsRender} onChange={handleChangeLightsAndRender} />
+            <Switch
+              size="small"
+              checked={isLightsAndShadowsRender}
+              onChange={handleChangeLightsAndRender}
+            />
           }
           label="Render Lights and Shadows"
         />
 
-        {isLightsAndShadowsRender && <FormControlLabel
-          control={<Switch size="small" checked={isHideTableTop} onChange={handleChangeHideTableTop} />}
-          label="Hide TableTop"
-        />}
+        {isLightsAndShadowsRender && (
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={isHideTableTop}
+                onChange={handleChangeHideTableTop}
+              />
+            }
+            label="Hide TableTop"
+          />
+        )}
 
         <FormControlLabel
           control={
-            <Switch size="small" checked={isDisplayCapHeights} onChange={handleChangeDisplayCapHeights} />
+            <Switch
+              size="small"
+              checked={isDisplayCapHeights}
+              onChange={handleChangeDisplayCapHeights}
+            />
           }
           label="Display Hex Heights"
         />
         <FormControlLabel
           control={
-            <Switch size="small" checked={isHighQualityRender} onChange={handleChangeHQRender} />
+            <Switch
+              size="small"
+              checked={isHighQualityRender}
+              onChange={handleChangeHQRender}
+            />
           }
           label="High Quality Render (Significant performance impact)"
         />
@@ -215,7 +238,6 @@ const ViewPreferencesSwitchForm = () => {
           control={<Switch checked={isFrameloopDemand} onChange={handleChangeFrameloopDemand} />}
           label="Frameloop Demand"
         /> */}
-
       </FormGroup>
     </FormControl>
   )

@@ -180,11 +180,7 @@ export const EditControlsTab = () => {
       loadMap(newMap)
     }
   }
-  const buttonFontSize = isSmallScreenWidth
-    ? 8
-    : isMediumScreenWidth
-      ? 12
-      : 12
+  const buttonFontSize = isSmallScreenWidth ? 8 : isMediumScreenWidth ? 12 : 12
   return (
     <Box sx={{ p: 0 }}>
       {/* <div style={{ padding: '0px 20px' }}>
@@ -197,7 +193,9 @@ export const EditControlsTab = () => {
       <List>
         {/* OPEN EDIT MAP DETAILS DIALOG */}
         <ControlTabsListItemButton
-          title={'Edit map details (i.e. name, author, sets used, map pictures, notes)'}
+          title={
+            'Edit map details (i.e. name, author, sets used, map pictures, notes)'
+          }
           primary={'Edit Map Details'}
           onClick={() => toggleIsEditMapDialogOpen(true)}
           icon={<FcVlc />}

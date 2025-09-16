@@ -41,9 +41,14 @@ const App = () => {
   const {
     isSmallScreenWidth,
     isSmallScreenLandscapeOrientation,
-    isMediumScreenWidth
+    isMediumScreenWidth,
   } = useMuiMediaQuery()
-  const snackbarFontSize = isSmallScreenLandscapeOrientation || isSmallScreenWidth ? 10 : isMediumScreenWidth ? 12 : 20
+  const snackbarFontSize =
+    isSmallScreenLandscapeOrientation || isSmallScreenWidth
+      ? 10
+      : isMediumScreenWidth
+        ? 12
+        : 20
   return (
     <Sentry.ErrorBoundary fallback={ErrorPage} showDialog>
       <ThemeProvider theme={darkTheme}>

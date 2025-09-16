@@ -46,7 +46,7 @@ export function GlyphModel({
       onPointerOut={(e) => onPointerOut(e)}
     >
       {basicModelMaterial(color, isLightsAndShadowsRender)}
-      {isDisplayCapHeights ?
+      {isDisplayCapHeights ? (
         <Decal
           depthTest
           polygonOffsetFactor={-1} // The material should take precedence over the original
@@ -60,13 +60,13 @@ export function GlyphModel({
             opacity={isDisplayCapHeights ? 0.4 : 1}
           />
         </Decal>
-        : (
-          <Decal
-            depthTest
-            polygonOffsetFactor={-1} // The material should take precedence over the original
-            map={texture}
-          />
-        )}
+      ) : (
+        <Decal
+          depthTest
+          polygonOffsetFactor={-1} // The material should take precedence over the original
+          map={texture}
+        />
+      )}
     </mesh>
   )
 }

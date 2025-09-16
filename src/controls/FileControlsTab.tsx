@@ -28,7 +28,9 @@ export const FileControlsTab = () => {
   // const toggleIsPieceInventoryDialogOpen = useBoundStore(
   //   (state) => state.toggleIsPieceInventoryDialogOpen,
   // )
-  const handleClickUploadMap = (e: React.MouseEvent<HTMLDivElement> | undefined) => {
+  const handleClickUploadMap = (
+    e: React.MouseEvent<HTMLDivElement> | undefined,
+  ) => {
     e?.stopPropagation()
     setIsUploadOpen(!isUploadOpen)
   }
@@ -62,7 +64,10 @@ export const FileControlsTab = () => {
   //   }
   // }
   const onClickCopy = async () => {
-    const myUrl = getUrlMapString({ hexMap: { ...hexMap, mapPortraitBase64: '', mapNotes: '' }, boardPieces })
+    const myUrl = getUrlMapString({
+      hexMap: { ...hexMap, mapPortraitBase64: '', mapNotes: '' },
+      boardPieces,
+    })
     encodeURI(
       JSONCrush.crush(
         JSON.stringify([
@@ -181,7 +186,6 @@ export const FileControlsTab = () => {
               />
             </List>
           </Collapse>
-
 
           {/* EXPAND LOAD MAP BTNS */}
           <ControlTabsListItemButton

@@ -18,7 +18,6 @@ const TakeAPictureBox = () => {
   useEffect(() => {
     const handleTakeMapPicture = () => {
       try {
-
         gl.render(scene, camera)
         const screenshot = gl.domElement.toDataURL()
         addMapPortraitBase64(screenshot)

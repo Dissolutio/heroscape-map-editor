@@ -3,9 +3,7 @@ import useBoundStore from '../store/store'
 import type { BoardPieces, HexMap } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { encodeFilename } from '../utils/map-utils'
-import {
-  ControlTabsListItemButton,
-} from '../controls/ControlTabsListItemButton'
+import { ControlTabsListItemButton } from '../controls/ControlTabsListItemButton'
 
 const DownloadMapFileButtons = () => {
   const hexMap = useBoundStore((state) => state.hexMap)
@@ -45,7 +43,9 @@ const DownloadMapFileButtons = () => {
   }
   const handleClickExportJson = async (isLeanFileVersion: boolean) => {
     const filename = `${fileName}.json`
-    const hexMapToUse = isLeanFileVersion ? { ...hexMap, mapPortraitBase64: '' } : hexMap
+    const hexMapToUse = isLeanFileVersion
+      ? { ...hexMap, mapPortraitBase64: '' }
+      : hexMap
     const data: {
       hexMap: HexMap
       boardPieces: BoardPieces
@@ -53,7 +53,7 @@ const DownloadMapFileButtons = () => {
     } = {
       hexMap: hexMapToUse,
       boardPieces,
-      mapPortraitBase64
+      mapPortraitBase64,
     }
     const element = document.createElement('a')
     element.setAttribute(

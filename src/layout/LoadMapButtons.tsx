@@ -4,9 +4,7 @@ import {
   uploadElementID,
   virtualScapeUploadElementID,
 } from './LoadFileHiddenInputs'
-import {
-  ControlTabsListItemButton,
-} from '../controls/ControlTabsListItemButton'
+import { ControlTabsListItemButton } from '../controls/ControlTabsListItemButton'
 
 const useLoadMapButtons = () => {
   const handleClickGzipFileSelect = () => {
@@ -79,4 +77,3 @@ export const LoadMapButtons = () => {
     </>
   )
 }
-
