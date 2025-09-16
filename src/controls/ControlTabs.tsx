@@ -50,8 +50,8 @@ export const ControlTabs = ({
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) => {
   const [value, setValue] = React.useState(0)
-  const { isLandscapeOrientation } = useMuiMediaQuery()
-  const isSideControls = isLandscapeOrientation
+  const { isLandscapeOrientation, isLargeScreenWidth } = useMuiMediaQuery()
+  const isSideControls = isLandscapeOrientation || isLargeScreenWidth
   // track width of controls for styling
   // const containerRef = React.useRef(null);
   // const [divWidth, setDivWidth] = React.useState(0);
@@ -84,9 +84,7 @@ export const ControlTabs = ({
         sx={{
           position: 'fixed',
           backgroundColor: 'var(--black)',
-          zIndex: 100,
           width: isSideControls ? 'var(--controls-width)' : '100%',
-          // width: isSideControls ? '30vw' : '100%',
         }}
       >
         <Box
@@ -94,6 +92,7 @@ export const ControlTabs = ({
             // display: 'flex',
             // flexDirection: 'row',
             // p: 0,
+            width: '100%',
             borderBottom: 1,
             borderColor: 'divider',
           }}
