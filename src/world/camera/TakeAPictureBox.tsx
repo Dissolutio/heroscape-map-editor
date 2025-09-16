@@ -17,15 +17,25 @@ const TakeAPictureBox = () => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <fns could be memoized, unimportant>
   useEffect(() => {
     const handleTakeMapPicture = () => {
-      gl.render(scene, camera)
-      const screenshot = gl.domElement.toDataURL()
-      addMapPortraitBase64(screenshot)
-      toggleIsTakingPicture(false)
-      enqueueSnackbar({
-        message:
-          'Picture saved! Can edit picture in Edit, or download from File',
-        variant: 'success',
-      })
+      try {
+
+        gl.render(scene, camera)
+        const screenshot = gl.domElement.toDataURL()
+        addMapPortraitBase64(screenshot)
+        toggleIsTakingPicture(false)
+        enqueueSnackbar({
+          message:
+            'Map portrait saved! Crop it in Edit tab, or download from File tab',
+          variant: 'success',
+        })
+      } catch (error) {
+        enqueueSnackbar({
+          message:
+            'Sorry, map portrait failed! Maybe you can upload one in File tab',
+          variant: 'error',
+        })
+        console.error(error)
+      }
     }
 
     subscribe(EVENTS.savePng, handleTakeMapPicture)
