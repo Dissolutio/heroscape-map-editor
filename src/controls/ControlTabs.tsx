@@ -52,15 +52,14 @@ export const ControlTabs = ({
   controlsContainerRef: React.RefObject<null>
 }) => {
   const [value, setValue] = React.useState(0)
-  const { isLandscapeOrientation, isLargeScreenWidth } = useMuiMediaQuery()
+  const { isSideControls } = useMuiMediaQuery()
   const {
     controlsWidth,
     isMediumControls,
     isSmallControls,
   } = useControlsWidthContext()
-  const isSideControls = isLandscapeOrientation || isLargeScreenWidth
-  const tabFontSize = isSmallControls ? '0.7em' : isMediumControls ? '0.8em' : '1rem'
-  const tabMinHeight = isSmallControls ? 20 : isMediumControls ? 25 : 30
+  const tabFontSize = isSmallControls ? '0.8em' : isMediumControls ? '0.8em' : '1rem'
+  const tabMinHeight = isSmallControls ? '22px' : isMediumControls ? '25px' : '31px'
   const tabMinWidth = isSmallControls ? 40 : isMediumControls ? 50 : 90
 
   const handleChange = (newValue: number) => {
@@ -73,12 +72,15 @@ export const ControlTabs = ({
       sx={{
         width: '100%',
       }}
+      id="control-tabs"
     >
       <Box
         sx={{
           position: 'fixed',
           backgroundColor: 'var(--black)',
           width: isSideControls ? 'var(--controls-width)' : '100%',
+          zIndex: 100,
+          minHeight: tabMinHeight,
         }}
       >
         <Box
@@ -146,7 +148,23 @@ export const ControlTabs = ({
           </Tabs>
         </Box>
       </Box>
-      <Box>
+      <Box
+        sx={{
+          marginTop: tabMinHeight
+        }}
+      >
+        {(!isMediumControls && !isSmallControls) && (
+          <Typography
+            variant="h2"
+          // sx={{
+          //   p: 0,
+          //   m: 0,
+          //   fontSize: '0.8em'
+          // }}
+          >
+            LG-{controlsWidth}
+          </Typography>
+        )}
         {isMediumControls && (
           <Typography
             variant="h2"
@@ -158,7 +176,6 @@ export const ControlTabs = ({
           >
             MD-{controlsWidth}
           </Typography>
-          // <h2>MEDIUM CONTROLS</h2>
         )}
         {isSmallControls && (
           <Typography
@@ -171,7 +188,6 @@ export const ControlTabs = ({
           >
             SM-{controlsWidth}
           </Typography>
-          // <h2>SMALL CONTROLS</h2>
         )}
         {/* BUILD */}
         <CustomTabPanel value={value} index={0}>

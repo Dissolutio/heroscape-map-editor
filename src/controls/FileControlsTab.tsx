@@ -133,6 +133,13 @@ export const FileControlsTab = () => {
               <ListItemText primary={'Edit My Piece Inventory'} />
             </ListItemButton> */}
 
+          {/* OPEN CREATE MAP DIALOG */}
+          <ControlTabsListItemButton
+            primary={'Create New Map'}
+            onClick={() => toggleIsNewMapDialogOpen(!isNewMapDialogOpen)}
+            icon={<FcAddImage />}
+          />
+
           {/* COPY URL */}
           <ControlTabsListItemButton
             primary="Copy Shareable URL"
@@ -175,12 +182,6 @@ export const FileControlsTab = () => {
             </List>
           </Collapse>
 
-          {/* OPEN CREATE MAP DIALOG */}
-          <ControlTabsListItemButton
-            primary={'Create New Map'}
-            onClick={() => toggleIsNewMapDialogOpen(!isNewMapDialogOpen)}
-            icon={<FcAddImage />}
-          />
 
           {/* EXPAND LOAD MAP BTNS */}
           <ControlTabsListItemButton

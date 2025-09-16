@@ -18,7 +18,7 @@ export const ControlsWidthContextProvider = ({ children, containerRef }: React.P
   const [isLoaded, setIsLoaded] = React.useState(false);
   // const isLargeControls = divWidth > 500
   const isMediumControls = divWidth > 300 && divWidth < 450
-  const isSmallControls = divWidth < 300
+  const isSmallControls = divWidth <= 300
   // biome-ignore lint/correctness/useExhaustiveDependencies: <Observer instead of React to update>
   React.useEffect(() => {
     if (containerRef.current) {

@@ -30,8 +30,7 @@ export default function HomePage() {
   // md, medium: 900px
   // lg, large: 1200px
   // xl, extra-large: 1536px
-  const { isLandscapeOrientation, isSmallScreenWidth } = useMuiMediaQuery()
-  const isSideControls = isLandscapeOrientation || !isSmallScreenWidth
+  const { isSideControls } = useMuiMediaQuery()
 
   const [isPdfOpen, setIsPdfOpen] = React.useState(false)
   const toggleIsPdfOpen = (s: boolean) => {
@@ -89,7 +88,6 @@ export default function HomePage() {
               flex: 1,
               position: 'relative',
               flexGrow: 1,
-              // flexShrink: 0,
               width: isSideControls ? 'calc(100% - 70vw)' : '100%',
               height: isSideControls ? '100%' : '70vh',
             }}
@@ -108,15 +106,12 @@ export default function HomePage() {
                 display: 'flex',
                 flexFlow: 'column nowrap',
                 width: isSideControls ? 'var(--controls-width)' : '100%',
-                // fullscreen => full device height, no option to minimize
-                // smaller-screen => can be minimized/maxiized, only bottom part of device height
-                // flexGrow: 1,
+                flexBasis: isSideControls ? 'var(--controls-width)' : 'max(30vh, 250px)',
                 height: isSideControls
                   ? '100%'
                   : 'max(30vh, 250px)',
                 background: 'var(--black)',
                 overflow: 'auto',
-                // flexShrink: 1,
                 transition: 'height 0.5s ease-in-out',
               }}
             >
