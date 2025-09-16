@@ -43,14 +43,15 @@ const DownloadMapFileButtons = () => {
     element.click()
     // element.remove()
   }
-  const handleClickExportJson = async () => {
+  const handleClickExportJson = async (isLeanFileVersion: boolean) => {
     const filename = `${fileName}.json`
+    const hexMapToUse = isLeanFileVersion ? { ...hexMap, mapPortraitBase64: '' } : hexMap
     const data: {
       hexMap: HexMap
       boardPieces: BoardPieces
       mapPortraitBase64: string
     } = {
-      hexMap,
+      hexMap: hexMapToUse,
       boardPieces,
       mapPortraitBase64
     }
@@ -76,7 +77,13 @@ const DownloadMapFileButtons = () => {
       />
       <ControlTabsListItemButton
         primary="Download file (.json)"
-        onClick={handleClickExportJson}
+        onClick={() => handleClickExportJson(false)}
+        icon={<MdFolderZip />}
+      />
+      <ControlTabsListItemButton
+        title="Download the map file without the map portrait image (much smaller filesize)"
+        primary="Download slim file (.json)"
+        onClick={() => handleClickExportJson(false)}
         icon={<MdFolderZip />}
       />
     </>
