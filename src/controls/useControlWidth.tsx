@@ -5,39 +5,41 @@ const ControlsWidthContext = React.createContext<ControlsWidthContextValue | und
 );
 
 type ControlsWidthContextValue = {
-  containerRef: React.MutableRefObject<null>
-  setContainerWidth: (w: number) => void
+  controlsWidth: number
   isMediumControls: boolean
   isSmallControls: boolean
 };
 
-export const ControlsWidthContextProvider = ({ children }: React.PropsWithChildren) => {
-  const containerRef = React.useRef(null);
+export const ControlsWidthContextProvider = ({ children, containerRef }: React.PropsWithChildren<{
+  containerRef: React.MutableRefObject<null>
+}>) => {
+  // const containerRef = React.useRef(null);
   const [divWidth, setDivWidth] = React.useState(0);
-  const setContainerWidth = (w: number) => {
-    setDivWidth(w)
-  }
+  const [isLoaded, setIsLoaded] = React.useState(false);
   // const isLargeControls = divWidth > 500
-  const isMediumControls = divWidth > 300 && divWidth < 400
+  const isMediumControls = divWidth > 300 && divWidth < 450
   const isSmallControls = divWidth < 300
   // biome-ignore lint/correctness/useExhaustiveDependencies: <Observer instead of React to update>
   React.useEffect(() => {
     if (containerRef.current) {
-      const observer = new ResizeObserver(entries => {
-        for (const entry of entries) {
-          setContainerWidth(entry.contentRect.width);
-        }
-      });
-      observer.observe(containerRef.current);
-      return () => observer.disconnect(); // Clean up the observer
+      if (!isLoaded) {
+        const observer = new ResizeObserver(entries => {
+          for (const entry of entries) {
+            setDivWidth(entry.contentRect.width);
+          }
+        });
+        observer.observe(containerRef.current);
+        setIsLoaded(true)
+        return () => observer.disconnect(); // Clean up the observer
+      }
+
     }
   }, []);
 
   return (
     <ControlsWidthContext.Provider
       value={{
-        containerRef,
-        setContainerWidth,
+        controlsWidth: divWidth,
         isMediumControls,
         isSmallControls,
       }}

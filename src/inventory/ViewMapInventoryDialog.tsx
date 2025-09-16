@@ -91,6 +91,8 @@ const ViewMapInventoryDialog = () => {
     return 0
   })
 
+  const hasConstraints = Array.isArray(hexMap?.setsUsed) && hexMap.setsUsed.length > 0
+
   return (
     <React.Fragment>
       <Dialog
@@ -107,7 +109,7 @@ const ViewMapInventoryDialog = () => {
               const usedCount = piecesUsed[pieceID] || 0
               const isOver = usedCount > available && available > 0
               const isNotAllowed = available === 0 && usedCount > 0
-              const skipAlert = isStartZoneOrGlyph(pieceID)
+              const skipAlert = isStartZoneOrGlyph(pieceID) || !hasConstraints
               return (
                 <Box
                   key={pieceID}
@@ -119,7 +121,8 @@ const ViewMapInventoryDialog = () => {
                   }}
                 >
                   <span>
-                    {piecesSoFar[pieceID]?.title || pieceID}: {usedCount} / {available}
+                    {`${piecesSoFar[pieceID]?.title || pieceID}: ${usedCount}`}
+                    {hasConstraints ? ` / ${available}` : ''}
                   </span>
                   {(isOver || isNotAllowed) && !skipAlert && (
                     <Icon sx={{ ml: 1 }}>

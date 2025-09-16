@@ -19,6 +19,7 @@ export default function HomePage() {
   const cameraControlsRef = React.useRef(null)
   const hexMap = useBoundStore((s) => s.hexMap)
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
+  const controlsContainerRef = React.useRef(null);
   // https://robohash.org/you.png?size=200x200
   // USE EFFECT: automatically load up map from URL, OR from file
   useAutoLoadMapFile()
@@ -29,8 +30,8 @@ export default function HomePage() {
   // md, medium: 900px
   // lg, large: 1200px
   // xl, extra-large: 1536px
-  const { isLandscapeOrientation, isLargeScreenWidth } = useMuiMediaQuery()
-  const isSideControls = isLandscapeOrientation || isLargeScreenWidth
+  const { isLandscapeOrientation, isSmallScreenWidth } = useMuiMediaQuery()
+  const isSideControls = isLandscapeOrientation || !isSmallScreenWidth
 
   const [isPdfOpen, setIsPdfOpen] = React.useState(false)
   const toggleIsPdfOpen = (s: boolean) => {
@@ -87,7 +88,7 @@ export default function HomePage() {
             sx={{
               flex: 1,
               position: 'relative',
-              // flexGrow: 1,
+              flexGrow: 1,
               // flexShrink: 0,
               width: isSideControls ? 'calc(100% - 70vw)' : '100%',
               height: isSideControls ? '100%' : '70vh',
@@ -101,12 +102,12 @@ export default function HomePage() {
               mapGroupRef={mapGroupRef}
             />
           </Box>
-          <ControlsWidthContextProvider>
+          <ControlsWidthContextProvider containerRef={controlsContainerRef} >
             <div
               style={{
                 display: 'flex',
                 flexFlow: 'column nowrap',
-                width: isSideControls ? 'max(30vw, 400px)' : '100%',
+                width: isSideControls ? 'var(--controls-width)' : '100%',
                 // fullscreen => full device height, no option to minimize
                 // smaller-screen => can be minimized/maxiized, only bottom part of device height
                 // flexGrow: 1,
@@ -122,6 +123,7 @@ export default function HomePage() {
               <ControlTabs
                 cameraControlsRef={cameraControlsRef}
                 mapGroupRef={mapGroupRef}
+                controlsContainerRef={controlsContainerRef}
               />
             </div>
           </ControlsWidthContextProvider>

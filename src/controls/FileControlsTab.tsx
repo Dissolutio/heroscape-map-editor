@@ -10,6 +10,7 @@ import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { DIALOGS } from '../layout/dialogNames'
 import { LoadMapButtons } from '../layout/LoadMapButtons'
 import { getUrlMapString } from '../data/jsonCrush'
+import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
 
 export const FileControlsTab = () => {
   const hexMap = useBoundStore((s) => s.hexMap)
@@ -194,7 +195,9 @@ export const FileControlsTab = () => {
             </List>
           </Collapse>
         </List>
+        {/* HIDDEN FILE INPUTS */}
       </ClickAwayListener>
+      <LoadFileHiddenInputs />
     </Box>
   )
 }

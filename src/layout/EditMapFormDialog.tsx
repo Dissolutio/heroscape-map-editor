@@ -63,6 +63,7 @@ export default function EditMapFormDialog() {
     addMapPortraitBase64(imgSrc)
     enqueueSnackbar({
       message: 'Updated Map',
+      variant: 'success',
     })
     handleClose()
   }

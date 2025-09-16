@@ -4,13 +4,13 @@ import Tab from '@mui/material/Tab'
 import Box from '@mui/material/Box'
 import type { CameraControls } from '@react-three/drei'
 import type { Group, Object3DEventMap } from 'three'
-import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
 import { FileControlsTab } from './FileControlsTab'
 import ViewControlsTab from './ViewControlsTab'
 import { EditControlsTab } from './EditControlsTab'
 import { BuildControlsTab } from './BuildControlsTab'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import { useControlsWidthContext } from './useControlWidth'
+import { Typography } from '@mui/material'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -45,29 +45,23 @@ function a11yProps(index: number) {
 export const ControlTabs = ({
   cameraControlsRef,
   mapGroupRef,
+  controlsContainerRef
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
+  controlsContainerRef: React.RefObject<null>
 }) => {
   const [value, setValue] = React.useState(0)
   const { isLandscapeOrientation, isLargeScreenWidth } = useMuiMediaQuery()
-  const isSideControls = isLandscapeOrientation || isLargeScreenWidth
-  // track width of controls for styling
-  // const containerRef = React.useRef(null);
-  // const [divWidth, setDivWidth] = React.useState(0);
-  // // const isLargeControls = divWidth > 500
-  // const isMediumControls = divWidth > 300 && divWidth < 400
-  // const isSmallControls = divWidth < 300
   const {
-    containerRef,
+    controlsWidth,
     isMediumControls,
     isSmallControls,
   } = useControlsWidthContext()
-
+  const isSideControls = isLandscapeOrientation || isLargeScreenWidth
   const tabFontSize = isSmallControls ? '0.7em' : isMediumControls ? '0.8em' : '1rem'
   const tabMinHeight = isSmallControls ? 20 : isMediumControls ? 25 : 30
   const tabMinWidth = isSmallControls ? 40 : isMediumControls ? 50 : 90
-
 
   const handleChange = (newValue: number) => {
     setValue(newValue)
@@ -75,7 +69,7 @@ export const ControlTabs = ({
   return (
 
     <Box
-      ref={containerRef}
+      ref={controlsContainerRef}
       sx={{
         width: '100%',
       }}
@@ -89,9 +83,6 @@ export const ControlTabs = ({
       >
         <Box
           sx={{
-            // display: 'flex',
-            // flexDirection: 'row',
-            // p: 0,
             width: '100%',
             borderBottom: 1,
             borderColor: 'divider',
@@ -104,7 +95,6 @@ export const ControlTabs = ({
             centered
             sx={{
               fontSize: tabFontSize,
-              // minHeight: 30,
               minHeight: tabMinHeight,
               minWidth: tabMinWidth,
             }}
@@ -156,9 +146,33 @@ export const ControlTabs = ({
           </Tabs>
         </Box>
       </Box>
-      {/* HIDDEN FILE INPUTS */}
-      <LoadFileHiddenInputs />
       <Box>
+        {isMediumControls && (
+          <Typography
+            variant="h2"
+          // sx={{
+          //   p: 0,
+          //   m: 0,
+          //   fontSize: '0.8em'
+          // }}
+          >
+            MD-{controlsWidth}
+          </Typography>
+          // <h2>MEDIUM CONTROLS</h2>
+        )}
+        {isSmallControls && (
+          <Typography
+            variant="h2"
+          // sx={{
+          //   p: 0,
+          //   m: 0,
+          //   fontSize: '0.8em'
+          // }}
+          >
+            SM-{controlsWidth}
+          </Typography>
+          // <h2>SMALL CONTROLS</h2>
+        )}
         {/* BUILD */}
         <CustomTabPanel value={value} index={0}>
           <BuildControlsTab />
@@ -182,43 +196,3 @@ export const ControlTabs = ({
     </Box>
   )
 }
-//   {
-//   const [value, setValue] = React.useState('1');
-
-//   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-//     setValue(newValue);
-//   };
-
-//   return (
-//     <Box sx={{ width: '100%', typography: 'body1' }}>
-//       <TabContext value={value}>
-//         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-//           <TabList onChange={handleChange} aria-label="lab API tabs example">
-//             <Tab label="Build" value="1" />
-//             <Tab label="File" value="2" />
-//             <Tab label="Edit" value="3" />
-//             <Tab label="View" value="4" />
-//           </TabList>
-//         </Box>
-//         <TabPanel value="1">
-//           <Controls
-//             cameraControlsRef={cameraControlsRef}
-//             mapGroupRef={mapGroupRef}
-//           />
-//         </TabPanel>
-//         <TabPanel value="2">
-//           <Controls
-//             cameraControlsRef={cameraControlsRef}
-//             mapGroupRef={mapGroupRef}
-//           />
-//         </TabPanel>
-//         <TabPanel value="3">
-//           <Controls
-//             cameraControlsRef={cameraControlsRef}
-//             mapGroupRef={mapGroupRef}
-//           />
-//         </TabPanel>
-//       </TabContext>
-//     </Box>
-//   );
-// }
