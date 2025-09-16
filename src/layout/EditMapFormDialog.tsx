@@ -153,13 +153,7 @@ export default function EditMapFormDialog() {
         </Box>
 
         {/* TERRAIN SETS */}
-        <Box
-          sx={
-            {
-              // border: '1px solid'
-            }
-          }
-        >
+        <Box>
           <h3>Terrain set constraints:</h3>
           {Object.values(terrainSetsByShortID).map((set) => (
             <TextField
@@ -168,7 +162,7 @@ export default function EditMapFormDialog() {
               name={`terrainSet${set.id}`}
               // onChange={(e) => setNewAuthor(e.target.value)}
               margin="dense"
-              label={set.name}
+              label={`${set.name} - ${set.abbreviation}`}
               type="number"
               variant="outlined"
             />
