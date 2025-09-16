@@ -9,6 +9,7 @@ import useBoundStore from '../store/store'
 import { getSetsUsedText } from '../utils/map-utils'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 import { useSnackbar } from 'notistack'
+import { MdFullscreen, MdFullscreenExit } from 'react-icons/md'
 
 type Props = {
   isPdfOpen: boolean
@@ -26,12 +27,13 @@ export function HeaderNav({
   // AppBar height is 64px when screen > 600px
   // AppBar height is 56px when screen < 600px
   const hexMap = useBoundStore((s) => s.hexMap)
-  const iconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
+  const view3DOr2DIconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
   const { enqueueSnackbar } = useSnackbar()
   const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
   const { isSmallScreenWidth, isSideControls } = useMuiMediaQuery()
+  const isFullscreen = document?.fullscreenElement ?? false
   function toggleFullscreen() {
-    if (!document.fullscreenElement) {
+    if (!isFullscreen) {
       // If not in fullscreen, request it with fallbacks
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
@@ -58,8 +60,8 @@ export function HeaderNav({
         <Typography
           variant="h6"
           noWrap
-          onClick={() => toggleFullscreen()}
-          // component="h1"
+          component="h1"
+          title="Name of this map"
           sx={{
             // must grow instead of sets used text growing, since on small screens sets used text not displayed
             flexGrow: isSideControls ? 1 : 0,
@@ -77,6 +79,7 @@ export function HeaderNav({
           <Typography
             variant="subtitle1"
             component="span"
+            title="Heroscape terrain sets used in this map"
             noWrap
             sx={{
               flexGrow: 1,
@@ -92,6 +95,19 @@ export function HeaderNav({
           </Typography>
         )}
 
+        <IconButton
+          size="large"
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          sx={{ mr: 2 }}
+          onClick={() => toggleFullscreen()}
+        >
+          {isFullscreen ? (
+            <MdFullscreenExit />
+          ) : (
+            <MdFullscreen title={"Enter fullscreen"} />
+          )}
+        </IconButton>
         {/* MOBILE: No render pdf, does not seem to work on mobile, direct download on button click instead */}
         {isSmallScreenWidth ? (
           <ReactPdfDownloadLink>
@@ -118,15 +134,15 @@ export function HeaderNav({
         )}
         <IconButton
           size="large"
-          aria-label={iconTitle}
-          title={iconTitle}
+          aria-label={view3DOr2DIconTitle}
+          title={view3DOr2DIconTitle}
           sx={{ mr: 2 }}
           onClick={() => toggleIs2DOpen(!is2DOpen)}
         >
           {is2DOpen ? (
-            <World3DIcon title={iconTitle} />
+            <World3DIcon title={view3DOr2DIconTitle} />
           ) : (
-            <Hexes2DIcon title={iconTitle} />
+            <Hexes2DIcon title={view3DOr2DIconTitle} />
           )}
         </IconButton>
       </Toolbar>
