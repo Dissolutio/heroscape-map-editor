@@ -10,7 +10,7 @@ import { EditControlsTab } from './EditControlsTab'
 import { BuildControlsTab } from './BuildControlsTab'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import { useControlsWidthContext } from './useControlWidth'
-import { Typography } from '@mui/material'
+import { Tooltip } from '@mui/material'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -40,7 +40,6 @@ function a11yProps(index: number) {
     'aria-controls': `simple-tabpanel-${index}`,
   }
 }
-
 
 export const ControlTabs = ({
   cameraControlsRef,
@@ -100,50 +99,78 @@ export const ControlTabs = ({
               minWidth: tabMinWidth,
             }}
           >
-            <Tab
-              label="Build"
-              {...a11yProps(0)}
-              sx={{
-                fontSize: tabFontSize,
-                p: 0,
-                m: 0,
-                minHeight: tabMinHeight,
-                minWidth: tabMinWidth,
-              }}
-            />
-            <Tab
-              label="File"
-              {...a11yProps(1)}
-              sx={{
-                fontSize: tabFontSize,
-                p: 0,
-                m: 0,
-                minHeight: tabMinHeight,
-                minWidth: tabMinWidth,
-              }}
-            />
-            <Tab
-              label="Edit"
-              {...a11yProps(2)}
-              sx={{
-                fontSize: tabFontSize,
-                p: 0,
-                m: 0,
-                minHeight: tabMinHeight,
-                minWidth: tabMinWidth,
-              }}
-            />
-            <Tab
-              label="View"
-              {...a11yProps(3)}
-              sx={{
-                fontSize: tabFontSize,
-                p: 0,
-                m: 0,
-                minHeight: tabMinHeight,
-                minWidth: tabMinWidth,
-              }}
-            />
+            <Tooltip
+              title="Show controls for building the map"
+              disableHoverListener
+              disableTouchListener
+            >
+              <Tab
+                label="Build"
+                title="Show controls for building the map"
+                {...a11yProps(0)}
+                sx={{
+                  fontSize: tabFontSize,
+                  p: 0,
+                  m: 0,
+                  minHeight: tabMinHeight,
+                  minWidth: tabMinWidth,
+                }}
+              />
+            </Tooltip>
+            <Tooltip
+              title="Show controls for loading, downloading, sharing, or creating new map files"
+              disableHoverListener
+              disableTouchListener
+            >
+              <Tab
+                label="File"
+                title="Show controls for loading, downloading, sharing, or creating new map files"
+                {...a11yProps(1)}
+                sx={{
+                  fontSize: tabFontSize,
+                  p: 0,
+                  m: 0,
+                  minHeight: tabMinHeight,
+                  minWidth: tabMinWidth,
+                }}
+              />
+            </Tooltip>
+            <Tooltip
+              title="Show controls for editing details of the current map"
+              disableHoverListener
+              disableTouchListener
+            >
+              <Tab
+                title="Show controls for editing details of the current map"
+                label="Edit"
+                {...a11yProps(2)}
+                sx={{
+                  fontSize: tabFontSize,
+                  p: 0,
+                  m: 0,
+                  minHeight: tabMinHeight,
+                  minWidth: tabMinWidth,
+                }}
+              />
+            </Tooltip>
+            <Tooltip
+              title="Show controls for taking a map picture, controlling the camera, and editing preferences"
+              disableHoverListener
+              disableTouchListener
+            >
+              <Tab
+                title="Show controls for taking a map picture, controlling the camera, and editing preferences"
+                label="View"
+                {...a11yProps(3)}
+                sx={{
+                  fontSize: tabFontSize,
+                  p: 0,
+                  m: 0,
+                  minHeight: tabMinHeight,
+                  minWidth: tabMinWidth,
+                }}
+              />
+            </Tooltip>
           </Tabs>
         </Box>
       </Box>
