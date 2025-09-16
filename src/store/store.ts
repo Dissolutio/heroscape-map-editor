@@ -23,8 +23,6 @@ const useBoundStore = create<AppState>()(
             boardHexes: state.boardHexes,
             boardPieces: state.boardPieces,
             hexMap: state.hexMap,
-            mapNotes: state.mapNotes,
-            mapPortraitBase64: state.mapPortraitBase64,
           }
         },
         // skipHydration: true,
