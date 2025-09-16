@@ -20,7 +20,6 @@ import {
 import useEvent from '../hooks/useEvent'
 import useBoundStore from '../store/store'
 import { EVENTS } from '../utils/constants'
-import { useSnackbar } from 'notistack'
 import type { Group, Object3DEventMap } from 'three'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
@@ -177,11 +176,11 @@ const ViewPreferencesSwitchForm = () => {
   const handleChangeHideTableTop = (event: React.ChangeEvent<HTMLInputElement>) => {
     toggleIsHideTableTop(event.target.checked)
   }
-  const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
-  const toggleIsFrameloopDemand = useBoundStore((s) => s.toggleIsFrameloopDemand)
-  const handleChangeFrameloopDemand = (event: React.ChangeEvent<HTMLInputElement>) => {
-    toggleIsFrameloopDemand(event.target.checked)
-  }
+  // const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
+  // const toggleIsFrameloopDemand = useBoundStore((s) => s.toggleIsFrameloopDemand)
+  // const handleChangeFrameloopDemand = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   toggleIsFrameloopDemand(event.target.checked)
+  // }
 
   return (
     <FormControl component="fieldset" variant="standard">
