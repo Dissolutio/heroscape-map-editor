@@ -110,7 +110,6 @@ export const ControlTabs = ({
             >
               <Tab
                 label="Build"
-                title="Show controls for building the map"
                 {...a11yProps(0)}
                 sx={{
                   fontSize: tabFontSize,
@@ -128,7 +127,6 @@ export const ControlTabs = ({
             >
               <Tab
                 label="File"
-                title="Show controls for loading, downloading, sharing, or creating new map files"
                 {...a11yProps(1)}
                 sx={{
                   fontSize: tabFontSize,
@@ -145,7 +143,6 @@ export const ControlTabs = ({
               disableTouchListener
             >
               <Tab
-                title="Show controls for editing details of the current map"
                 label="Edit"
                 {...a11yProps(2)}
                 sx={{
@@ -163,7 +160,6 @@ export const ControlTabs = ({
               disableTouchListener
             >
               <Tab
-                title="Show controls for taking a map picture, controlling the camera, and editing preferences"
                 label="View"
                 {...a11yProps(3)}
                 sx={{
