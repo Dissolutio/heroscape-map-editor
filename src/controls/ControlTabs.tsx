@@ -54,7 +54,6 @@ export const ControlTabs = ({
   const [value, setValue] = React.useState(0)
   const { isSideControls } = useMuiMediaQuery()
   const {
-    controlsWidth,
     isMediumControls,
     isSmallControls,
   } = useControlsWidthContext()
@@ -153,42 +152,6 @@ export const ControlTabs = ({
           marginTop: tabMinHeight
         }}
       >
-        {(!isMediumControls && !isSmallControls) && (
-          <Typography
-            variant="h2"
-          // sx={{
-          //   p: 0,
-          //   m: 0,
-          //   fontSize: '0.8em'
-          // }}
-          >
-            LG-{controlsWidth}
-          </Typography>
-        )}
-        {isMediumControls && (
-          <Typography
-            variant="h2"
-          // sx={{
-          //   p: 0,
-          //   m: 0,
-          //   fontSize: '0.8em'
-          // }}
-          >
-            MD-{controlsWidth}
-          </Typography>
-        )}
-        {isSmallControls && (
-          <Typography
-            variant="h2"
-          // sx={{
-          //   p: 0,
-          //   m: 0,
-          //   fontSize: '0.8em'
-          // }}
-          >
-            SM-{controlsWidth}
-          </Typography>
-        )}
         {/* BUILD */}
         <CustomTabPanel value={value} index={0}>
           <BuildControlsTab />
