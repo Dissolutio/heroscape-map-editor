@@ -13,7 +13,7 @@ export default function Lights({
   return (
     <>
       <ambientLight intensity={isLightsAndShadowsRender ? 0.5 : 2} />
-      <hemisphereLight color={'white'} groundColor={'white'} intensity={0.5} />
+      <hemisphereLight color={'0xffffbb'} groundColor={'0x080820'} intensity={0.5} />
       {isLightsAndShadowsRender && (
         <>
           <TransformControls
@@ -23,6 +23,7 @@ export default function Lights({
             showZ={!isTakingPicture}
           >
             <pointLight
+              color={'white'}
               castShadow={isLightsAndShadowsRender}
               intensity={200}
               shadow-mapSize-height={512}
@@ -36,6 +37,7 @@ export default function Lights({
             showZ={!isTakingPicture}
           >
             <pointLight
+              color={'yellow'}
               castShadow={isLightsAndShadowsRender}
               intensity={200}
               shadow-mapSize-height={512}
@@ -49,6 +51,7 @@ export default function Lights({
             showZ={!isTakingPicture}
           >
             <pointLight
+              color={'red'}
               castShadow={isLightsAndShadowsRender}
               intensity={200}
               shadow-mapSize-height={512}
@@ -62,6 +65,7 @@ export default function Lights({
             showZ={!isTakingPicture}
           >
             <pointLight
+              color={'orange'}
               castShadow={isLightsAndShadowsRender}
               intensity={200}
               shadow-mapSize-height={512}
