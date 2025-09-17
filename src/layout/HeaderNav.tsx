@@ -10,6 +10,7 @@ import { getSetsUsedText } from '../utils/map-utils'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 import { useSnackbar } from 'notistack'
 import { MdFullscreen, MdFullscreenExit } from 'react-icons/md'
+import React from 'react'
 
 type Props = {
   isPdfOpen: boolean
@@ -31,7 +32,23 @@ export function HeaderNav({
   const { enqueueSnackbar } = useSnackbar()
   const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
   const { isSmallScreenWidth, isSideControls } = useMuiMediaQuery()
-  const isFullscreen = document?.fullscreenElement ?? false
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
+
+  React.useEffect(() => {
+    function handleFullscreenChange() {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    }
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    // Initial check on component mount
+    setIsFullscreen(Boolean(document.fullscreenElement));
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   function toggleFullscreen() {
     if (!isFullscreen) {
       // If not in fullscreen, request it with fallbacks
@@ -45,16 +62,14 @@ export function HeaderNav({
       }
     } else {
       // If in fullscreen, exit it with fallbacks
-      if (document.exitFullscreen) {
-        document.exitFullscreen()
-      }
+      document?.exitFullscreen()
     }
   }
   return (
     <AppBar
       position="static"
-      // sx={{ backgroundColor: 'var(--black)' }}
-      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+    // sx={{ backgroundColor: 'var(--black)' }}
+    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
         <Typography
@@ -97,15 +112,15 @@ export function HeaderNav({
 
         <IconButton
           size="large"
-          aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-          title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+          aria-label={document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'}
+          title={document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'}
           sx={{ mr: 2 }}
           onClick={() => toggleFullscreen()}
         >
-          {isFullscreen ? (
+          {document.fullscreenElement ? (
             <MdFullscreenExit />
           ) : (
-            <MdFullscreen title={'Enter fullscreen'} />
+            <MdFullscreen />
           )}
         </IconButton>
         {/* MOBILE: No render pdf, does not seem to work on mobile, direct download on button click instead */}
