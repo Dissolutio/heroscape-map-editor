@@ -72,7 +72,8 @@ export const ruinsOfValhallaPieceSet: PieceInventory = {
   [Pieces.laurWallLongStackable]: 5,
 }
 export const battleBox1PieceSet: PieceInventory = {
-  [Pieces.laurPalm14]: 2,
+  [Pieces.laurPalm15]: 1,
+  [Pieces.laurPalm14]: 1,
   [Pieces.grass1]: 4,
   [Pieces.grass3]: 3,
   [Pieces.grass7]: 3,
