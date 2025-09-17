@@ -1,22 +1,28 @@
-import { ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
 import { MdFolderZip } from 'react-icons/md'
 import useBoundStore from '../store/store'
 import type { BoardPieces, HexMap } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { encodeFilename } from '../utils/map-utils'
+import { ControlTabsListItemButton } from '../controls/ControlTabsListItemButton'
 
 const DownloadMapFileButtons = () => {
   const hexMap = useBoundStore((state) => state.hexMap)
   const boardPieces = useBoundStore((state) => state.boardPieces)
+  const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
+  const mapNotes = hexMap?.mapNotes ?? ''
   const fileName = `${encodeFilename(hexMap.name) || genRandomMapName()}${hexMap.author ? `_by_${encodeFilename(hexMap.author)}` : ''}`
   const handleClickExportGzip = async () => {
     const filename = `${fileName}.gz`
     const data: {
       hexMap: HexMap
       boardPieces: BoardPieces
+      mapPortraitBase64: string
+      mapNotes: string
     } = {
       hexMap,
       boardPieces,
+      mapPortraitBase64,
+      mapNotes,
     }
     const jsonDataString = JSON.stringify(data)
     const encoder = new TextEncoder()
@@ -35,14 +41,19 @@ const DownloadMapFileButtons = () => {
     element.click()
     // element.remove()
   }
-  const handleClickExportJson = async () => {
+  const handleClickExportJson = async (isLeanFileVersion: boolean) => {
     const filename = `${fileName}.json`
+    const hexMapToUse = isLeanFileVersion
+      ? { ...hexMap, mapPortraitBase64: '' }
+      : hexMap
     const data: {
       hexMap: HexMap
       boardPieces: BoardPieces
+      mapPortraitBase64: string
     } = {
-      hexMap,
+      hexMap: hexMapToUse,
       boardPieces,
+      mapPortraitBase64,
     }
     const element = document.createElement('a')
     element.setAttribute(
@@ -59,19 +70,22 @@ const DownloadMapFileButtons = () => {
   }
   return (
     <>
-      <ListItemButton sx={{ pl: 4 }} onClick={handleClickExportGzip}>
-        <ListItemIcon>
-          <MdFolderZip />
-        </ListItemIcon>
-        <ListItemText primary="Download file (.gz)" />
-      </ListItemButton>
-
-      <ListItemButton sx={{ pl: 4 }} onClick={handleClickExportJson}>
-        <ListItemIcon>
-          <MdFolderZip />
-        </ListItemIcon>
-        <ListItemText primary="Download file (.json)" />
-      </ListItemButton>
+      <ControlTabsListItemButton
+        primary="Download file (.gz)"
+        onClick={handleClickExportGzip}
+        icon={<MdFolderZip />}
+      />
+      <ControlTabsListItemButton
+        primary="Download file (.json)"
+        onClick={() => handleClickExportJson(false)}
+        icon={<MdFolderZip />}
+      />
+      <ControlTabsListItemButton
+        title="Download the map file without the map portrait image (much smaller filesize)"
+        primary="Download slim file (.json)"
+        onClick={() => handleClickExportJson(false)}
+        icon={<MdFolderZip />}
+      />
     </>
   )
 }

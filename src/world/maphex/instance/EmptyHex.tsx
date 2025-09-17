@@ -72,9 +72,11 @@ function EmptyHex({
   // Effect: Initial color/position
   React.useLayoutEffect(() => {
     const { x, z, y } = getBoardHex3DCoords(boardHex)
-    ref.current.color.set(emptyHexColor)
-    ref.current.position.set(x, y, z)
-    ref.current.opacity = 0.5
+    if (ref.current) {
+      ref.current.color.set(emptyHexColor)
+      ref.current.position.set(x, y, z)
+      ref.current.opacity = 0.5
+    }
   }, [boardHex])
 
   const handleEnter = (e: ThreeEvent<PointerEvent>) => {
@@ -83,7 +85,9 @@ function EmptyHex({
     ref.current.color.set('yellow')
   }
   const handleOut = (e: ThreeEvent<PointerEvent>) => {
-    ref.current.color.set(emptyHexColor)
+    if (ref.current) {
+      ref.current.color.set(emptyHexColor)
+    }
     onPointerOut(e)
   }
   const handleUp = (e: ThreeEvent<PointerEvent>) => {

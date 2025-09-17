@@ -1,8 +1,14 @@
 import { Button } from '@mui/material'
 import useBoundStore from '../store/store'
+import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
 const DeletePieceButton = () => {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const {
+    // isLargeScreenWidth,
+    isSmallScreenWidth,
+    // isMediumScreenWidth,
+  } = useMuiMediaQuery()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const unpaintTile = useBoundStore((s) => s.unpaintTile)
   const deletePiece = () => {
@@ -17,6 +23,10 @@ const DeletePieceButton = () => {
       size="small"
       onClick={deletePiece}
       title="Hotkey: delete"
+      sx={{
+        p: 0,
+        fontSize: isSmallScreenWidth ? 10 : undefined,
+      }}
     >
       Delete Piece
     </Button>

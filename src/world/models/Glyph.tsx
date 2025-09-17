@@ -16,6 +16,7 @@ export function GlyphModel({
   const { nodes } = useGLTF('/glyph.glb') as any
   const texture = useTexture('glyph-valkyrie-logo.svg')
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -45,11 +46,27 @@ export function GlyphModel({
       onPointerOut={(e) => onPointerOut(e)}
     >
       {basicModelMaterial(color, isLightsAndShadowsRender)}
-      <Decal
-        depthTest
-        polygonOffsetFactor={-1} // The material should take precedence over the original
-        map={texture}
-      />
+      {isDisplayCapHeights ? (
+        <Decal
+          depthTest
+          polygonOffsetFactor={-1} // The material should take precedence over the original
+          map={texture}
+        >
+          <meshStandardMaterial
+            map={texture}
+            polygonOffset
+            polygonOffsetFactor={-1} // The material should take precedence over the original
+            transparent={isDisplayCapHeights}
+            opacity={isDisplayCapHeights ? 0.4 : 1}
+          />
+        </Decal>
+      ) : (
+        <Decal
+          depthTest
+          polygonOffsetFactor={-1} // The material should take precedence over the original
+          map={texture}
+        />
+      )}
     </mesh>
   )
 }

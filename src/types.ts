@@ -14,6 +14,9 @@ export type HexMap = {
   length: number // for hexagon shaped maps width=length=size
   width: number // for hexagon shaped maps width=length=size
   setsUsed?: string[] // array of terrainSets Ids
+  // properties below are written as BLANK STRINGS in URL-shareable format
+  mapPortraitBase64?: string // a base64 representation of image of map (taken or submitted by user)
+  mapNotes?: string // notes about the map, added by user
 }
 export type CubeCoordinate = {
   q: number

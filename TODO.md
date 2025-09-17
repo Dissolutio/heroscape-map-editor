@@ -20,9 +20,6 @@ THIS IS THE BIG REFACTOR: Mixed up validation in addPiece, which should just pla
 1. Land / EZ/Based Obstacles
 2. Laur Addons / Castle Walls / Wall Walk / Ladder
 
-
-
-
 ## Build constraints and Inventory **NEW**
 You can add them to a map, it becomes part of  **HexMap**.
 It is an array of Set IDS.
@@ -71,40 +68,10 @@ About => Info
 ## 2D SVG Builder
 Building pretty much exactly like you did in Virtualscape. This will probably be a requirement.
 
-## Restructure the controls completely
-1. Build/Main
-    * Undo/Redo
-    * Pen Mode
-    * Piece size
-    * Piece rotation
-
-2. Edit
-    * change map name
-    * alter map dimensions / shift pieces
-    * **change build constraints**
-    * **change notes**
-
-3. View
-    * **Toggle Hexes show coords (cube, odd-R, letter-number like virtualscape, axial)**
-    * **Toggle Hexes show altitude**
-    * **Toggle BuildConstraints show In Map**
-    * **Toggle BuildConstraints show Available**
-    * Camera: Lock, Reset, Ortho, TakePicture
-    * **Toggle Build Constraints display (pieces left & pieces used, counts and visuals)**
-
-4. File
-    * New Map (**Choose build constraints**)
-    * Share Map URL
-    * Export file
-    * Load map
-    * Save map
-    * Save map as (copy map, new id, choose new name)
-
 ## Build & Editing Features
 
 * Middle mouse click or btn on selected piece readout, to grab that terrain as pen mode.
-* Quick rotate pieces somehow.
-* 
+* Quick rotate pieces somehow. 
 
 ## Multi-Select & Copy/Paste  
 1. Selection Tool: Add a selection tool at the bottom. Functionally, you would click the selection tool, then click multiple hexes to highlight them. Then click the copy button. It would place in your hand what you just copied and then you can left click to place it in the world. Might need a reset button for when you are done copying to put one hex back in your hand.

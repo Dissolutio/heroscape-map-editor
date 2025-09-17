@@ -15,6 +15,7 @@ import MyCameraControls from './camera/MyCameraControls'
 import TakeAPictureBox from './camera/TakeAPictureBox'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import type { Group, Object3DEventMap } from 'three'
+import type React from 'react'
 
 const World = ({
   cameraControlsRef,
@@ -47,6 +48,7 @@ const World = ({
           height: '100%',
           display: isHidden ? 'none' : 'block',
           position: 'relative',
+          backgroundColor: 'var(--black)',
         }}
       >
         <Canvas
@@ -64,7 +66,7 @@ const World = ({
           hidden={isHidden}
           shadows={isLightsAndShadowsRender}
         >
-          {/* <color attach="background" args={["white"]} /> */}
+          <color attach="background" args={['white']} />
           <PerspectiveCamera
             position={[10, 10, 10]}
             fov={CAMERA_FOV}

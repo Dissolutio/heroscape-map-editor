@@ -13,6 +13,7 @@ import { genRandomMapName } from '../utils/genRandomMapName'
 import ReactCropExampleApp from '../react-image-crop/ReactCropExampleApp'
 import 'react-image-crop/dist/ReactCrop.css'
 import { terrainSetsByShortID } from '../data/terrainSets'
+import { DIALOGS } from './dialogNames'
 
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -21,9 +22,10 @@ export default function EditMapFormDialog() {
   const changeMapName = useBoundStore((state) => state.changeMapName)
   const authorName = useBoundStore((state) => state.hexMap.author)
   const changeAuthorName = useBoundStore((state) => state.changeAuthorName)
-  const mapNotes = useBoundStore((state) => state.mapNotes)
+  const hexMap = useBoundStore((state) => state.hexMap)
   const changeMapNotes = useBoundStore((state) => state.changeMapNotes)
-  const mapPortraitBase64 = useBoundStore((state) => state.mapPortraitBase64)
+  const mapNotes = hexMap?.mapNotes ?? ''
+  const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
   const changeSetsUsed = useBoundStore((state) => state.changeSetsUsed)
   const [imgSrc, setImgSrc] = React.useState(mapPortraitBase64)
   const addMapPortraitBase64 = useBoundStore(
@@ -32,13 +34,39 @@ export default function EditMapFormDialog() {
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
   )
-  const isEditMapDialogOpen = useBoundStore(
-    (state) => state.isEditMapDialogOpen,
-  )
+  const isEditMapDialogOpen =
+    useBoundStore((state) => state.currentDialog) === DIALOGS.editMap
   const handleClose = () => toggleIsEditMapDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
   const [newName, setNewName] = React.useState(mapName)
   const [newAuthor, setNewAuthor] = React.useState(authorName)
+
+  const handleSubmitEditMapForm = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    // biome-ignore lint/suspicious/noExplicitAny: <form data not well understood>
+    const formJson = Object.fromEntries((formData as any).entries())
+    const newMapName = formJson.newMapName
+    const newAuthorName = formJson.newAuthorName
+    const newMapNotes = formJson.mapNotes
+    const newSetsUsed: string[] = []
+    Object.values(terrainSetsByShortID).map((set) => {
+      const count = formJson[`terrainSet${set.id}`]
+      for (let i = 0; i < count; i++) {
+        newSetsUsed.push(set.id)
+      }
+    })
+    changeMapName(newMapName)
+    changeAuthorName(newAuthorName)
+    changeMapNotes(newMapNotes)
+    changeSetsUsed(newSetsUsed)
+    addMapPortraitBase64(imgSrc)
+    enqueueSnackbar({
+      message: 'Updated Map',
+      variant: 'success',
+    })
+    handleClose()
+  }
 
   // TODO: UPDATE BASE64 URL (and jpg)
   /* 
@@ -87,32 +115,7 @@ export default function EditMapFormDialog() {
       slotProps={{
         paper: {
           component: 'form',
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault()
-            const formData = new FormData(event.currentTarget)
-            // biome-ignore lint/suspicious/noExplicitAny: <form data not well understood>
-            const formJson = Object.fromEntries((formData as any).entries())
-            const newMapName = formJson.newMapName
-            const newAuthorName = formJson.newAuthorName
-            const newMapNotes = formJson.mapNotes
-            const newSetsUsed: string[] = []
-            Object.values(terrainSetsByShortID).map((set) => {
-              const count = formJson[`terrainSet${set.id}`]
-              for (let i = 0; i < count; i++) {
-                newSetsUsed.push(set.id)
-              }
-            })
-            changeMapName(newMapName)
-            changeAuthorName(newAuthorName)
-            changeMapNotes(newMapNotes)
-            changeSetsUsed(newSetsUsed)
-            addMapPortraitBase64(imgSrc)
-            enqueueSnackbar({
-              message: `Updated Map Name: ${newMapName}`,
-              autoHideDuration: 3000,
-            })
-            handleClose()
-          },
+          onSubmit: handleSubmitEditMapForm,
         },
       }}
     >
@@ -150,13 +153,7 @@ export default function EditMapFormDialog() {
         </Box>
 
         {/* TERRAIN SETS */}
-        <Box
-          sx={
-            {
-              // border: '1px solid'
-            }
-          }
-        >
+        <Box>
           <h3>Terrain set constraints:</h3>
           {Object.values(terrainSetsByShortID).map((set) => (
             <TextField
@@ -165,7 +162,7 @@ export default function EditMapFormDialog() {
               name={`terrainSet${set.id}`}
               // onChange={(e) => setNewAuthor(e.target.value)}
               margin="dense"
-              label={set.name}
+              label={`${set.name} - ${set.abbreviation}`}
               type="number"
               variant="outlined"
             />

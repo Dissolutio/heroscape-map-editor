@@ -3,9 +3,15 @@ import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { decodePieceID } from '../utils/map-utils'
 import DeletePieceButton from './DeletePieceButton'
+import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
 const SelectedPieceReadout = () => {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const {
+    // isLargeScreenWidth,
+    isSmallScreenWidth,
+    // isMediumScreenWidth,
+  } = useMuiMediaQuery()
   if (!selectedPieceID) {
     return null
   }
@@ -18,18 +24,78 @@ const SelectedPieceReadout = () => {
   } = decodePieceID(selectedPieceID)
   const piece = piecesSoFar[inventoryID]
 
+  if (isSmallScreenWidth) {
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          right: 0,
+          padding: 1,
+          margin: 1,
+          // backgroundColor: 'var(--gunmetal-transparent)'
+        }}
+      >
+        <Card
+          sx={{
+            width: 120,
+            height: 120,
+            p: 0,
+          }}
+        >
+          <CardContent
+            sx={{
+              p: 1,
+            }}
+          >
+            <Typography
+              sx={{
+                color: 'text.secondary',
+                fontSize: 10,
+              }}
+            >
+              Selected Piece
+            </Typography>
+            <Typography variant="h5" component="div" sx={{ fontSize: 12 }}>
+              {piece?.title ?? piece}
+            </Typography>
+            <Typography variant="body2" sx={{ fontSize: 12 }}>
+              Altitude: {altitude + 1}
+              <br />
+              Rotation: {rotation}
+            </Typography>
+          </CardContent>
+          <CardActions
+            sx={{
+              p: 0,
+              px: 1,
+              m: 0,
+            }}
+          >
+            <DeletePieceButton />
+          </CardActions>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div
       style={{
         position: 'absolute',
         bottom: 0,
         right: 0,
-        padding: 20,
-        margin: 20,
+        padding: 10,
+        margin: 10,
         // backgroundColor: 'var(--gunmetal-transparent)'
       }}
     >
-      <Card sx={{ width: 150, height: 200 }}>
+      <Card
+        sx={{
+          width: 150,
+          height: 200,
+        }}
+      >
         <CardContent>
           <Typography
             gutterBottom
@@ -46,7 +112,13 @@ const SelectedPieceReadout = () => {
             Rotation: {rotation}
           </Typography>
         </CardContent>
-        <CardActions>
+        <CardActions
+          sx={{
+            // p: 0,
+            px: '20px',
+            // m: 0
+          }}
+        >
           <DeletePieceButton />
         </CardActions>
       </Card>

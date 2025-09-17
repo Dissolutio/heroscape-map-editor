@@ -1,24 +1,25 @@
-import { Drawer, useMediaQuery } from '@mui/material'
+import { Box } from '@mui/material'
 import React, { useEffect } from 'react'
-import Controls from '../controls/Controls'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
 import { ReactPdfRoot } from '../pdf-map/ReactPdfRoot'
 import { SvgMapDisplay } from '../svg-map/SvgMapDisplay'
 import World from '../world/World'
-import CameraSpeedDial from './CameraSpeedDial'
 import CreateMapFormDialog from './CreateMapFormDialog'
-import { DrawerList } from './DrawerList'
 import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
-import { LoadMapInputs } from './LoadMapButtons'
 import useBoundStore from '../store/store'
 import type { Group, Object3DEventMap } from 'three'
 import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
+import { ControlTabs } from '../controls/ControlTabs'
+import { useMuiMediaQuery } from './useMuiMediaQuery'
+import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
+import { ControlsWidthContextProvider } from '../controls/useControlWidth'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(null)
   const hexMap = useBoundStore((s) => s.hexMap)
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
+  const controlsContainerRef = React.useRef(null)
   // https://robohash.org/you.png?size=200x200
   // USE EFFECT: automatically load up map from URL, OR from file
   useAutoLoadMapFile()
@@ -29,14 +30,8 @@ export default function HomePage() {
   // md, medium: 900px
   // lg, large: 1200px
   // xl, extra-large: 1536px
+  const { isSideControls } = useMuiMediaQuery()
 
-  const isLargeScreenLayout = useMediaQuery('(min-width:1000px)')
-  const isMobileScreenLayout = useMediaQuery('(max-width:600px)')
-
-  const [isNavOpen, setIsNavOpen] = React.useState(false)
-  const toggleIsNavOpen = (s: boolean) => {
-    setIsNavOpen(s)
-  }
   const [isPdfOpen, setIsPdfOpen] = React.useState(false)
   const toggleIsPdfOpen = (s: boolean) => {
     setIsPdfOpen(s)
@@ -60,14 +55,7 @@ export default function HomePage() {
       <CreateMapFormDialog />
       <EditMapFormDialog />
       <EditPieceInventoryDialog />
-      <Drawer
-        open={isNavOpen}
-        // open={true} // DEV toggle
-        onClose={() => toggleIsNavOpen(false)}
-        keepMounted
-      >
-        <DrawerList toggleIsNavOpen={toggleIsNavOpen} />
-      </Drawer>
+      <ViewMapInventoryDialog />
       <div
         style={{
           display: 'flex',
@@ -79,63 +67,62 @@ export default function HomePage() {
         }}
       >
         <HeaderNav
-          isMobileScreenLayout={isMobileScreenLayout}
-          isNavOpen={isNavOpen}
-          toggleIsNavOpen={toggleIsNavOpen}
           isPdfOpen={isPdfOpen}
           toggleIsPdfOpen={toggleIsPdfOpen}
           is2DOpen={is2DOpen}
           toggleIs2DOpen={toggleIs2DOpen}
         />
-        <div
+        <Box
           style={{
             display: 'flex',
             flex: 1,
-            flexDirection: isLargeScreenLayout ? 'row-reverse' : 'column',
+            flexDirection: isSideControls ? 'row-reverse' : 'column',
             width: '100%',
             padding: 0,
             margin: 0,
             overflow: 'auto',
           }}
         >
-          <div
-            style={{
+          <Box
+            sx={{
               flex: 1,
               position: 'relative',
-              width: isLargeScreenLayout ? '70vw' : '100%',
-              height: isLargeScreenLayout ? '100%' : '70vh',
+              flexGrow: 1,
+              width: isSideControls ? 'calc(100% - 70vw)' : '100%',
+              height: isSideControls ? '100%' : '70vh',
             }}
           >
             {isPdfOpen && <ReactPdfRoot />}
             {is2DOpen && !isPdfOpen && <SvgMapDisplay />}
-            <>
-              {!is2DOpen && !isPdfOpen && (
-                <CameraSpeedDial cameraControlsRef={cameraControlsRef} />
-              )}
-              <World
-                isHidden={is2DOpen || isPdfOpen}
-                cameraControlsRef={cameraControlsRef}
-                mapGroupRef={mapGroupRef}
-              />
-            </>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              flexFlow: 'column nowrap',
-              width: isLargeScreenLayout ? '450px' : '100%',
-              height: isLargeScreenLayout ? '100%' : '30vh',
-              background: 'var(--black)',
-              overflow: 'auto',
-            }}
-          >
-            <Controls
+            <World
+              isHidden={is2DOpen || isPdfOpen}
               cameraControlsRef={cameraControlsRef}
               mapGroupRef={mapGroupRef}
             />
-            <LoadMapInputs />
-          </div>
-        </div>
+          </Box>
+          <ControlsWidthContextProvider containerRef={controlsContainerRef}>
+            <div
+              style={{
+                display: 'flex',
+                flexFlow: 'column nowrap',
+                width: isSideControls ? 'var(--controls-width)' : '100%',
+                flexBasis: isSideControls
+                  ? 'var(--controls-width)'
+                  : 'max(30vh, 250px)',
+                height: isSideControls ? '100%' : 'max(30vh, 250px)',
+                background: 'var(--black)',
+                overflow: 'auto',
+                transition: 'height 0.5s ease-in-out',
+              }}
+            >
+              <ControlTabs
+                cameraControlsRef={cameraControlsRef}
+                mapGroupRef={mapGroupRef}
+                controlsContainerRef={controlsContainerRef}
+              />
+            </div>
+          </ControlsWidthContextProvider>
+        </Box>
       </div>
     </>
   )

@@ -665,3 +665,107 @@ export const c3vPlaytestGlyphs: HexoscapeGlyphs = [
       'Once during each turn, a Hero you control may add one extra attack die when attacking normally.',
   },
 ]
+export const customGlyphs: HexoscapeGlyphs = [
+  {
+    id: 'kasfa',
+    name: 'Kasfa',
+    shortName: 'Phantom Walk',
+    glyphLetter: 'KA',
+    type: 'power',
+    duration: 'permanent',
+    shortDescription: 'Phantom Walk',
+    description:
+      'Figures you control are never attacked when leaving an engagement and can move through all figures.',
+  },
+  {
+    id: 'manigLodin',
+    name: 'Manig Lodin',
+    shortName: 'D20 +2',
+    glyphLetter: 'ML',
+    type: 'power',
+    duration: 'permanent',
+    shortDescription: 'D20 +2',
+    description:
+      'Whenever you roll the 20 sided die, you may add two to your die roll.',
+  },
+  {
+    id: 'nifl',
+    name: 'Nifl',
+    shortName: 'Heavy Fog',
+    glyphLetter: 'NIFL',
+    type: 'power',
+    duration: 'permanent',
+    shortDescription: 'Limit range 3',
+    description:
+      'Clear Sight & Line of Sight for all figures is reduced to 3 spaces.',
+  },
+  {
+    id: 'solaAstrid',
+    name: 'Sola Astrid',
+    shortName: 'Attack +1',
+    glyphLetter: 'SA',
+    type: 'power',
+    duration: 'permanent',
+    shortDescription: 'Attack +1 1x/turn',
+    description:
+      'Once per numbered Order Marker, you may add one die to your attack roll when any figure in your army uses a Normal Attack.',
+  },
+  {
+    id: 'solaGerda',
+    name: 'Sola Gerda',
+    shortName: 'Defense +1',
+    glyphLetter: 'SG',
+    type: 'power',
+    duration: 'permanent',
+    shortDescription: 'Defense +1 1x/turn',
+    description:
+      'Once per numbered Order Marker, before rolling defense dice, you may choose to roll 1 additional defense die.',
+  },
+]
+
+// OHS
+/*
+Bracers of Teleportation
+Brooch of Shielding
+Dagmar
+Gem of Lava Resistance
+Giant Hunter Stone
+Heroic Rune
+Holdir
+Kelda
+Lodin
+Lorja Ivor
+Scarab of Invulnerability
+Searing Amulet
+Ulaniva
+Valda
+Wannok
+Yngvild
+Zawit
+ */
+
+// ScapeCon
+/*
+Dagmar
+Manig Lodin [GameBear]
+Sola Astrid [GameBear]
+Valda
+Wannok
+Yngvild
+*/
+
+// HexiCon
+/* 
+Dagmar
+Gem of Lava Resistance
+Heroic Rune
+Manig Lodin [GameBear]
+Nifl [MegaSilver]
+Searing Amulet
+Sola Astrid [GameBear]
+Talisman of Defense
+Valda
+Wannok
+Yngvild
+Zawit
+ */

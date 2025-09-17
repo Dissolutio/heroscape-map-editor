@@ -1,16 +1,16 @@
-import JSONCrush from 'jsoncrush'
 import { closeSnackbar, useSnackbar } from 'notistack'
 import React, { useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import { type BoardHexes, type BoardPieces, Pieces } from '../types'
+import type { BoardHexes, BoardPieces } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { decodePieceID, getBoardPiecesMaxLevel } from '../utils/map-utils'
 import { Button } from '@mui/material'
 import { LS_KEYS } from '../local-storage/keys'
-import { clone, noop } from 'lodash'
+import { noop } from 'lodash'
 import { ROUTES } from '../ROUTES'
+import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
 
 type Props = {
   boardHexes?: BoardHexes
@@ -45,9 +45,10 @@ const useAutoLoadMapFile = (props?: Props) => {
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
-        const data = JSON.parse(JSONCrush.uncrush(urlMapString))
-        const [hexMap, ...pieceIds] = data
-        const boardPieces: BoardPieces = pieceIds.reduce(
+        const { hexMap, boardPieces: pieceIds } =
+          parseMapDataArrayFromCrushed(urlMapString)
+        // const [hexMap, ...pieceIds] = data
+        const boardPieces: BoardPieces = Object.keys(pieceIds).reduce(
           (prev: BoardPieces, curr: string) => {
             // get inventory id from pieceID (a~q~r~rot~id)
             prev[curr] = decodePieceID(curr).inventoryID
@@ -71,7 +72,6 @@ const useAutoLoadMapFile = (props?: Props) => {
                 enqueueSnackbar({
                   message: `Loaded last map instead: ${localMapCache.hexMap.name}`,
                   variant: 'success',
-                  autoHideDuration: 3000,
                 })
                 navigate(ROUTES.heroscapeHome)
               }}
@@ -92,7 +92,6 @@ const useAutoLoadMapFile = (props?: Props) => {
         const snackbarId = enqueueSnackbar({
           message: `Loaded map from URL: ${jsonMap.hexMap.name}.`,
           variant: 'success',
-          autoHideDuration: null,
           action,
         })
         loadMap(jsonMap)
@@ -119,7 +118,6 @@ const useAutoLoadMapFile = (props?: Props) => {
       enqueueSnackbar({
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
         variant: 'success',
-        autoHideDuration: 3000,
       })
     } else {
       // No url and no prev state? auto load a file
