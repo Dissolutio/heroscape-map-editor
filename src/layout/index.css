@@ -9,7 +9,7 @@ html {
   --gunmetal-transparent: rgba(34, 50, 58, 0.6);
   --gray: #5d576b;
   --transparent-border: rgba(255, 255, 255, 0.1);
-  --controls-width: max(30vw, 300px);
+  --controls-width: max(20vw, 300px);
   overflow: hidden;
 }
 
