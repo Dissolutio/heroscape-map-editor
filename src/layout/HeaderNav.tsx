@@ -32,29 +32,30 @@ export function HeaderNav({
   const { enqueueSnackbar } = useSnackbar()
   const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
   const { isSmallScreenWidth, isMediumScreenWidth } = useMuiMediaQuery()
-  const [isFullscreen, setIsFullscreen] = React.useState(false);
-  const fontSizeHeaderMapName = isSmallScreenWidth && hexMap.name.length > 32 ?
-    '0.6em'
-    : isSmallScreenWidth ?
-      '0.9em'
-      : hexMap.name.length > 32 ?
-        '0.8em'
-        : '1em'
+  const [isFullscreen, setIsFullscreen] = React.useState(false)
+  const fontSizeHeaderMapName =
+    isSmallScreenWidth && hexMap.name.length > 32
+      ? '0.6em'
+      : isSmallScreenWidth
+        ? '0.9em'
+        : hexMap.name.length > 32
+          ? '0.8em'
+          : '1em'
 
   React.useEffect(() => {
     function handleFullscreenChange() {
-      setIsFullscreen(Boolean(document.fullscreenElement));
+      setIsFullscreen(Boolean(document.fullscreenElement))
     }
 
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
 
     // Initial check on component mount
-    setIsFullscreen(Boolean(document.fullscreenElement));
+    setIsFullscreen(Boolean(document.fullscreenElement))
 
     return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-    };
-  }, []);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    }
+  }, [])
 
   function toggleFullscreen() {
     if (!isFullscreen) {
@@ -76,8 +77,8 @@ export function HeaderNav({
   return (
     <AppBar
       position="static"
-    // sx={{ backgroundColor: 'var(--black)' }}
-    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+      // sx={{ backgroundColor: 'var(--black)' }}
+      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
         <Typography
@@ -118,23 +119,35 @@ export function HeaderNav({
         )}
 
         <IconButton
-          size={isSmallScreenWidth ? "small" : isMediumScreenWidth ? undefined : "large"}
-          aria-label={document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'}
-          title={document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'}
+          size={
+            isSmallScreenWidth
+              ? 'small'
+              : isMediumScreenWidth
+                ? undefined
+                : 'large'
+          }
+          aria-label={
+            document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'
+          }
+          title={
+            document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'
+          }
           sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
           onClick={() => toggleFullscreen()}
         >
-          {document.fullscreenElement ? (
-            <MdFullscreenExit />
-          ) : (
-            <MdFullscreen />
-          )}
+          {document.fullscreenElement ? <MdFullscreenExit /> : <MdFullscreen />}
         </IconButton>
         {/* MOBILE: No render pdf, does not seem to work on mobile, direct download on button click instead */}
         {isSmallScreenWidth ? (
           <ReactPdfDownloadLink>
             <IconButton
-              size={isSmallScreenWidth ? "small" : isMediumScreenWidth ? undefined : "large"}
+              size={
+                isSmallScreenWidth
+                  ? 'small'
+                  : isMediumScreenWidth
+                    ? undefined
+                    : 'large'
+              }
               title={'Download pdf build instructions'}
               aria-label={'Download pdf build instructions'}
               sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
@@ -145,7 +158,13 @@ export function HeaderNav({
         ) : (
           // NOT ON MOBILE: You can view the pdf, can download from that view
           <IconButton
-            size={isSmallScreenWidth ? "small" : isMediumScreenWidth ? undefined : "large"}
+            size={
+              isSmallScreenWidth
+                ? 'small'
+                : isMediumScreenWidth
+                  ? undefined
+                  : 'large'
+            }
             title={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
             aria-label={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
             sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
@@ -155,7 +174,13 @@ export function HeaderNav({
           </IconButton>
         )}
         <IconButton
-          size={isSmallScreenWidth ? "small" : isMediumScreenWidth ? undefined : "large"}
+          size={
+            isSmallScreenWidth
+              ? 'small'
+              : isMediumScreenWidth
+                ? undefined
+                : 'large'
+          }
           aria-label={view3DOr2DIconTitle}
           title={view3DOr2DIconTitle}
           sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
