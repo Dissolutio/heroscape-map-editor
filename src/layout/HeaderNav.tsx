@@ -31,8 +31,15 @@ export function HeaderNav({
   const view3DOr2DIconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
   const { enqueueSnackbar } = useSnackbar()
   const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
-  const { isSmallScreenWidth, isSideControls } = useMuiMediaQuery()
+  const { isSmallScreenWidth, isMediumScreenWidth } = useMuiMediaQuery()
   const [isFullscreen, setIsFullscreen] = React.useState(false);
+  const fontSizeHeaderMapName = isSmallScreenWidth && hexMap.name.length > 32 ?
+    '0.6em'
+    : isSmallScreenWidth ?
+      '0.9em'
+      : hexMap.name.length > 32 ?
+        '0.8em'
+        : '1em'
 
   React.useEffect(() => {
     function handleFullscreenChange() {
@@ -65,6 +72,7 @@ export function HeaderNav({
       document?.exitFullscreen()
     }
   }
+
   return (
     <AppBar
       position="static"
@@ -79,18 +87,17 @@ export function HeaderNav({
           title="Name of this map"
           sx={{
             // must grow instead of sets used text growing, since on small screens sets used text not displayed
-            flexGrow: isSideControls ? 1 : 0,
-            fontSize: hexMap.name.length > 32 ? '70%' : undefined,
+            flexGrow: isSmallScreenWidth ? 1 : 0,
             m: 0,
             p: 0,
-            // fontSize: isHugeScreenLayout ? undefined : '1em'
+            fontSize: fontSizeHeaderMapName,
           }}
         >
           {hexMap.name || 'Hexoscape Map Editor'}
         </Typography>
 
         {/* Hide sets used in navbar on narrow screens */}
-        {isSideControls && (
+        {!isSmallScreenWidth && (
           <Typography
             variant="subtitle1"
             component="span"
@@ -99,7 +106,7 @@ export function HeaderNav({
             sx={{
               flexGrow: 1,
               textAlign: 'left',
-              fontSize: setsUsedText.length > 32 ? '70%' : undefined,
+              fontSize: `calc(${fontSizeHeaderMapName} * 0.7)`,
               color: 'var(--sub-white)',
               px: 2,
               overflow: 'hidden',
@@ -111,10 +118,10 @@ export function HeaderNav({
         )}
 
         <IconButton
-          size="large"
+          size={isSmallScreenWidth ? "small" : isMediumScreenWidth ? undefined : "large"}
           aria-label={document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'}
           title={document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'}
-          sx={{ mr: 2 }}
+          sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
           onClick={() => toggleFullscreen()}
         >
           {document.fullscreenElement ? (
@@ -127,10 +134,10 @@ export function HeaderNav({
         {isSmallScreenWidth ? (
           <ReactPdfDownloadLink>
             <IconButton
-              size="large"
+              size={isSmallScreenWidth ? "small" : isMediumScreenWidth ? undefined : "large"}
               title={'Download pdf build instructions'}
               aria-label={'Download pdf build instructions'}
-              sx={{ mr: 2 }}
+              sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
             >
               <FcPrint />
             </IconButton>
@@ -138,20 +145,20 @@ export function HeaderNav({
         ) : (
           // NOT ON MOBILE: You can view the pdf, can download from that view
           <IconButton
-            size="large"
+            size={isSmallScreenWidth ? "small" : isMediumScreenWidth ? undefined : "large"}
             title={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
             aria-label={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
-            sx={{ mr: 2 }}
+            sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
             onClick={() => toggleIsPdfOpen(!isPdfOpen)}
           >
             <FcPrint />
           </IconButton>
         )}
         <IconButton
-          size="large"
+          size={isSmallScreenWidth ? "small" : isMediumScreenWidth ? undefined : "large"}
           aria-label={view3DOr2DIconTitle}
           title={view3DOr2DIconTitle}
-          sx={{ mr: 2 }}
+          sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
           onClick={() => toggleIs2DOpen(!is2DOpen)}
         >
           {is2DOpen ? (
