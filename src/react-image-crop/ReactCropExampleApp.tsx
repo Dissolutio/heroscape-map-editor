@@ -12,6 +12,8 @@ import { useDebounceEffect } from './useDebounceEffect'
 import 'react-image-crop/dist/ReactCrop.css'
 import { hiddenStyle } from '../layout/hiddenStyle'
 import { Button } from '@mui/material'
+import InputFileUpload from '../layout/InputFileUpload'
+import { MdCloudUpload } from 'react-icons/md'
 
 type Props = {
   imgSrc: string
@@ -121,10 +123,12 @@ export default function ReactCropExampleApp({ imgSrc, setImgSrc }: Props) {
 
   return (
     <>
-      <label>
-        Map portrait .png:
-        <input type="file" accept="image/png" onChange={onSelectFile} />
-      </label>
+      <InputFileUpload
+        mainText="Upload new map portrait (.png)"
+        onChange={onSelectFile}
+        startIcon={MdCloudUpload}
+      />
+      {/* <input type="file" accept="image/png" onChange={onSelectFile} /> */}
 
       {!!imgSrc && (
         <ReactCrop
@@ -133,7 +137,7 @@ export default function ReactCropExampleApp({ imgSrc, setImgSrc }: Props) {
           onComplete={(c) => setCompletedCrop(c)}
           minHeight={100}
         >
-          <img ref={imgRef} alt="Crop me" src={imgSrc} onLoad={onImageLoad} />
+          <img ref={imgRef} alt="Crop the map portrait" src={imgSrc} onLoad={onImageLoad} />
         </ReactCrop>
       )}
 
