@@ -64,14 +64,15 @@ export const FileControlsTab = () => {
   //   }
   // }
   const onClickCopy = async () => {
+    const hexMapToUse = { ...hexMap, mapPortraitBase64: '', mapNotes: '' }
     const myUrl = getUrlMapString({
-      hexMap: { ...hexMap, mapPortraitBase64: '', mapNotes: '' },
+      hexMap: hexMapToUse,
       boardPieces,
     })
     encodeURI(
       JSONCrush.crush(
         JSON.stringify([
-          hexMap, // 1
+          hexMapToUse, // 1
           ...Object.keys(boardPieces),
         ]),
       ),
