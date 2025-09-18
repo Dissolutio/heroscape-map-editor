@@ -3,6 +3,7 @@ import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   SvgBattlement,
   SvgBoardPieceLaurWallLong,
+  SvgBoardPieceLaurWallLongArch,
   SvgBoardPieceLaurWallRuin,
   SvgBoardPieceLaurWallShort,
   SvgRoadWall,
@@ -53,6 +54,15 @@ export const SvgMapBoardPiece = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgBoardPieceLaurWallLong piece={piece} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (inventoryID === Pieces.laurWallArch) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgBoardPieceLaurWallLongArch piece={piece} isSubLevel={isSubLevel} />
       </g>
     )
   }

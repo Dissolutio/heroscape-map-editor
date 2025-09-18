@@ -11,7 +11,7 @@ import {
   MdOutlineWest,
 } from 'react-icons/md'
 import useBoundStore from '../store/store'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import {
   doPenModeRotation,
   getPossibleRotationsForPenMode,

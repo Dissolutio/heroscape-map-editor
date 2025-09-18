@@ -31,7 +31,8 @@ export function isRenderedFromPieceIDPiece(inventoryID: string) {
     inventoryID === Pieces.roadWall ||
     inventoryID === Pieces.laurWallRuin1 ||
     inventoryID === Pieces.laurWallShort ||
-    inventoryID === Pieces.laurWallLong
+    inventoryID === Pieces.laurWallLong ||
+    inventoryID === Pieces.laurWallArch
   )
 }
 export function isJungleTerrainHex(terrain: string) {
@@ -72,6 +73,7 @@ export const isLaurWallAddonPieceID = (pieceID: string): boolean => {
     pieceID === Pieces.laurWallRuin2 ||
     pieceID === Pieces.laurWallRuin3 ||
     pieceID === Pieces.laurWallLong ||
+    pieceID === Pieces.laurWallArch ||
     pieceID === Pieces.laurWallLongStackable ||
     pieceID === Pieces.laurWallShort ||
     pieceID === Pieces.laurWallShortStackable

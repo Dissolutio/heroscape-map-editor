@@ -10,7 +10,8 @@ export function getPossibleRotationsForPenMode(penMode: string) {
     penMode === Pieces.laurWallRuin3
     ? allRotations
     : penMode === Pieces.laurWallLong ||
-        penMode === Pieces.laurWallLongStackable
+      penMode === Pieces.laurWallArch ||
+      penMode === Pieces.laurWallLongStackable
       ? partialRotations
       : regularRotations
 }
@@ -37,7 +38,7 @@ export function doPenModeCounterRotation(
     possibleRotations.findIndex((r) => r === penModeRotation) - 1
   togglePenModeRotation(
     possibleRotations[
-      nextLowest < 0 ? possibleRotations.length - 1 : nextLowest
+    nextLowest < 0 ? possibleRotations.length - 1 : nextLowest
     ],
   )
 }

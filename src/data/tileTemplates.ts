@@ -260,6 +260,7 @@ const tileTemplates: Dictionary<CubeCoordinate[]> = {
   [Pieces.laurWallRuin1]: basic1,
   [Pieces.laurWallShort]: basic1,
   [Pieces.laurWallLong]: basic1,
+  [Pieces.laurWallArch]: basic1,
   [Pieces.tree10]: basic1,
   [Pieces.tree11]: basic1,
   [Pieces.tree12]: basic1,

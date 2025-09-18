@@ -22,6 +22,10 @@ export function LaurWallAddon({ pid }: { pid: string }) {
     nodes: { LaurWallLong, LaurWallLongDecorDeep },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   } = useGLTF('/laurwall-long-from-hs-models-blendfile.glb') as any
+  const {
+    nodes: { LaurWallLongArch },
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  } = useGLTF('/laurwall-long-arch.glb') as any
   const { inventoryID } = decodePieceID(pid)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
@@ -47,7 +51,23 @@ export function LaurWallAddon({ pid }: { pid: string }) {
     }
     toggleSelectedPieceID(isSelected ? '' : pid)
   }
-
+  if (inventoryID === Pieces.laurWallArch) {
+    return (
+      <group
+        onPointerUp={(e) => onPointerUp(e)}
+        onPointerEnter={(e) => onPointerEnterPID(e, pid)}
+        onPointerOut={(e) => onPointerOut(e)}
+      >
+        <mesh
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
+          geometry={LaurWallLongArch.geometry}
+        >
+          {basicModelMaterial(pillarColor, isLightsAndShadowsRender)}
+        </mesh>
+      </group>
+    )
+  }
   return (
     <group
       onPointerUp={(e) => onPointerUp(e)}
@@ -55,6 +75,8 @@ export function LaurWallAddon({ pid }: { pid: string }) {
       onPointerOut={(e) => onPointerOut(e)}
     >
       {/* LAUR WALL RUIN */}
+      {/* {inventoryID === Pieces.laurWallRuin2 && ()} */}
+      {/* {inventoryID === Pieces.laurWallRuin3 && ()} */}
       {inventoryID === Pieces.laurWallRuin1 && (
         <>
           <mesh
@@ -74,6 +96,7 @@ export function LaurWallAddon({ pid }: { pid: string }) {
         </>
       )}
       {/* LAUR WALL SHORT */}
+      {/* {inventoryID === Pieces.laurWallShortStackable && ()} */}
       {inventoryID === Pieces.laurWallShort && (
         <>
           <mesh
@@ -93,6 +116,7 @@ export function LaurWallAddon({ pid }: { pid: string }) {
         </>
       )}
       {/* LAUR WALL LONG */}
+      {/* {inventoryID === Pieces.laurWallLongStackable && ()} */}
       {inventoryID === Pieces.laurWallLong && (
         <>
           <mesh
@@ -111,6 +135,9 @@ export function LaurWallAddon({ pid }: { pid: string }) {
           </mesh>
         </>
       )}
+      {/* LAUR WALL Arch */}
+      {/* {inventoryID === Pieces.laurWallLongStackable && ()} */}
+
     </group>
   )
 }
@@ -128,6 +155,10 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
     nodes: { LaurWallLong, LaurWallLongDecorDeep },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   } = useGLTF('/laurwall-long-from-hs-models-blendfile.glb') as any
+  const {
+    nodes: { LaurWallLongArch },
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  } = useGLTF('/laurwall-long-arch.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -325,9 +356,24 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
           </mesh>
         </>
       )}
+      {/* TODO: laur wall arch */}
+      {inventoryID === Pieces.laurWallArch && (
+        <mesh
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
+          geometry={LaurWallLongArch.geometry}
+        >
+          {basicModelMaterial(
+            pillarColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
+        </mesh>
+      )}
     </>
   )
 }
 useGLTF.preload('/laurwall-ruin-from-hs-models-blendfile.glb')
 useGLTF.preload('/laurwall-short-from-hs-models-blendfile.glb')
 useGLTF.preload('/laurwall-long-from-hs-models-blendfile.glb')
+useGLTF.preload('/laurwall-long-arch.glb')

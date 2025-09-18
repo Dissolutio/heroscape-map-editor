@@ -42,6 +42,7 @@ export const MapBoardPiece3D = ({
   if (
     inventoryID === Pieces.laurWallShort ||
     inventoryID === Pieces.laurWallRuin1 ||
+    inventoryID === Pieces.laurWallArch ||
     inventoryID === Pieces.laurWallLong
   ) {
     return (
