@@ -39,7 +39,11 @@ import { BsHexagonHalf } from 'react-icons/bs'
 import { hexTerrainColor } from '../world/maphex/hexColors'
 import { LiaMountainSolid } from 'react-icons/lia'
 import { FaMountainCity } from 'react-icons/fa6'
-import { FcAddColumn, FcAddDatabase, FcEnteringHeavenAlive } from 'react-icons/fc'
+import {
+  FcAddColumn,
+  FcAddDatabase,
+  FcEnteringHeavenAlive,
+} from 'react-icons/fc'
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
 import { piecesSoFar } from '../data/pieces'

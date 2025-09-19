@@ -1,7 +1,7 @@
-import { styled } from '@mui/material/styles';
-import Button from '@mui/material/Button';
-import { MdCloudUpload } from 'react-icons/md';
-import React from 'react';
+import { styled } from '@mui/material/styles'
+import Button from '@mui/material/Button'
+import { MdCloudUpload } from 'react-icons/md'
+import type React from 'react'
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -13,8 +13,7 @@ const VisuallyHiddenInput = styled('input')({
   left: 0,
   whiteSpace: 'nowrap',
   width: 1,
-});
-
+})
 
 type Props = {
   mainText: string
@@ -25,7 +24,7 @@ type Props = {
 export default function InputFileUpload({
   mainText,
   onChange,
-  startIcon
+  startIcon,
 }: Props) {
   return (
     <Button
@@ -37,11 +36,7 @@ export default function InputFileUpload({
       startIcon={startIcon}
     >
       {mainText}
-      <VisuallyHiddenInput
-        type="file"
-        onChange={onChange}
-        multiple
-      />
+      <VisuallyHiddenInput type="file" onChange={onChange} multiple />
     </Button>
-  );
+  )
 }

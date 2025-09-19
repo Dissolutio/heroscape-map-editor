@@ -137,7 +137,6 @@ export function LaurWallAddon({ pid }: { pid: string }) {
       )}
       {/* LAUR WALL Arch */}
       {/* {inventoryID === Pieces.laurWallLongStackable && ()} */}
-
     </group>
   )
 }

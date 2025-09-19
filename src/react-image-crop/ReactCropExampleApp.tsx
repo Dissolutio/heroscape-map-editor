@@ -126,7 +126,7 @@ export default function ReactCropExampleApp({ imgSrc, setImgSrc }: Props) {
       <InputFileUpload
         mainText="Upload new map portrait (.png)"
         onChange={onSelectFile}
-        startIcon={MdCloudUpload}
+        startIcon={<MdCloudUpload />}
       />
       {/* <input type="file" accept="image/png" onChange={onSelectFile} /> */}
 
@@ -137,7 +137,12 @@ export default function ReactCropExampleApp({ imgSrc, setImgSrc }: Props) {
           onComplete={(c) => setCompletedCrop(c)}
           minHeight={100}
         >
-          <img ref={imgRef} alt="Crop the map portrait" src={imgSrc} onLoad={onImageLoad} />
+          <img
+            ref={imgRef}
+            alt="Crop the map portrait"
+            src={imgSrc}
+            onLoad={onImageLoad}
+          />
         </ReactCrop>
       )}
 
