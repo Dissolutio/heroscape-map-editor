@@ -46,7 +46,7 @@ export const SvgMapBoardPiece = ({
     )
   }
 
-  // LAUR SHORTWALLS
+  // LAUR LONGWALLS
   if (inventoryID === Pieces.laurWallLong) {
     return (
       <g
@@ -56,6 +56,7 @@ export const SvgMapBoardPiece = ({
       </g>
     )
   }
+  // LAUR SHORTWALLS
   if (inventoryID === Pieces.laurWallShort) {
     return (
       <g
@@ -65,6 +66,7 @@ export const SvgMapBoardPiece = ({
       </g>
     )
   }
+  // LAUR RUINS
   if (inventoryID === Pieces.laurWallRuin1) {
     return (
       <g

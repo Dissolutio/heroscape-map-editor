@@ -47,7 +47,7 @@ export const PdfMapBoardPiece = ({
     )
   }
 
-  // LAUR SHORTWALLS
+  // LAUR LONGWALLS
   if (inventoryID === Pieces.laurWallLong) {
     return (
       <G
@@ -66,6 +66,7 @@ export const PdfMapBoardPiece = ({
       </G>
     )
   }
+  // LAUR RUINS
   if (inventoryID === Pieces.laurWallRuin1) {
     return (
       <G
