@@ -70,13 +70,12 @@ Building pretty much exactly like you did in Virtualscape. This will probably be
 
 ## Build & Editing Features
 
-* Middle mouse click or btn on selected piece readout, to grab that terrain as pen mode.
+* Grab terrain as pen.
+* Paint format as pen
 * Quick rotate pieces somehow. 
 
 ## Multi-Select & Copy/Paste  
 1. Selection Tool: Add a selection tool at the bottom. Functionally, you would click the selection tool, then click multiple hexes to highlight them. Then click the copy button. It would place in your hand what you just copied and then you can left click to place it in the world. Might need a reset button for when you are done copying to put one hex back in your hand.
-
-
 
 ## Local Storage Load/Save/Edit maps
 

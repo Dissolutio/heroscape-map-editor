@@ -872,7 +872,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isHexTerrainPiece: false,
     isObstaclePiece: false,
     size: 1,
-    template: Pieces.laurWallLongStackable,
+    template: Pieces.laurWallArch,
     height: 12, // game height is 10
   },
   [Pieces.laurWallRuin1]: {

@@ -4,6 +4,7 @@ import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   PdfBattlement,
   PdfBoardPieceLaurWallLong,
+  PdfBoardPieceLaurWallLongArch,
   PdfBoardPieceLaurWallRuin,
   PdfBoardPieceLaurWallShort,
   PdfRoadWall,
@@ -47,7 +48,7 @@ export const PdfMapBoardPiece = ({
     )
   }
 
-  // LAUR SHORTWALLS
+  // LAUR LONGWALLS
   if (inventoryID === Pieces.laurWallLong) {
     return (
       <G
@@ -57,6 +58,16 @@ export const PdfMapBoardPiece = ({
       </G>
     )
   }
+  if (inventoryID === Pieces.laurWallArch) {
+    return (
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <PdfBoardPieceLaurWallLongArch piece={piece} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
+  // LAUR SHORTWALLS
   if (inventoryID === Pieces.laurWallShort) {
     return (
       <G
@@ -66,6 +77,7 @@ export const PdfMapBoardPiece = ({
       </G>
     )
   }
+  // LAUR RUINS
   if (inventoryID === Pieces.laurWallRuin1) {
     return (
       <G

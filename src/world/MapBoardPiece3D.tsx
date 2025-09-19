@@ -31,6 +31,8 @@ export const MapBoardPiece3D = ({
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = altitude + 1 <= viewingLevel
 
+  // TODO: PIECE ID TO RENDER MUST BE ADDED TO THIS FN: isRenderedFromPieceIDPiece
+  // [Make it not so]
   // EARLY RETURN, no render
   if (!isRenderedFromPieceIDPiece(inventoryID) || !isVisible) {
     return null
@@ -40,6 +42,7 @@ export const MapBoardPiece3D = ({
   if (
     inventoryID === Pieces.laurWallShort ||
     inventoryID === Pieces.laurWallRuin1 ||
+    inventoryID === Pieces.laurWallArch ||
     inventoryID === Pieces.laurWallLong
   ) {
     return (

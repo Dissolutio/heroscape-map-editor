@@ -821,6 +821,33 @@ export const SvgBoardPieceLaurWallLong = ({
     </>
   )
 }
+export const SvgBoardPieceLaurWallLongArch = ({
+  piece,
+  isSubLevel,
+}: {
+  piece: DecodedPieceID
+  isSubLevel?: boolean
+}) => {
+  const borderColor = getSvgHexBorderColor(piece)
+  const { points } = getLaurLongWallSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
+  return (
+    <>
+      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
+      <polygon
+        points={points}
+        fill={'transparent'}
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </>
+  )
+}
 export const SvgBoardPieceLaurWallRuin = ({
   piece,
   isSubLevel,

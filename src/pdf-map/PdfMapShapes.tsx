@@ -804,6 +804,31 @@ export const PdfBoardPieceLaurWallLong = ({
     </>
   )
 }
+export const PdfBoardPieceLaurWallLongArch = ({
+  piece,
+  isSubLevel,
+}: {
+  piece: DecodedPieceID
+  isSubLevel?: boolean
+}) => {
+  const borderColor = getSvgHexBorderColor(piece)
+  const { points } = getLaurLongWallSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
+  return (
+    <>
+      {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
+      <Polygon
+        points={points}
+        // fill={borderColor} // RENEGADE: they have all border color, community might want regular fill
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+    </>
+  )
+}
 export const PdfBoardPieceLaurWallRuin = ({
   piece,
   isSubLevel,
