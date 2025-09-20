@@ -70,7 +70,7 @@ export const getBoardHexesRectangularMapDimensions = (
     ((hexLength === 1
       ? 2 * HEXGRID_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-        3 * HEXGRID_HEX_APOTHEM) +
+      3 * HEXGRID_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * HEXGRID_HEX_APOTHEM) /
     HEXGRID_SPACING
   const apex =
@@ -119,7 +119,7 @@ export const getBoardHexesSvgMapDimensions = (
     ((hexLength === 1
       ? 2 * SVG_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-        3 * SVG_HEX_APOTHEM) +
+      3 * SVG_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * SVG_HEX_APOTHEM) /
     HEXGRID_SPACING
   return { length, width, hexLength, hexWidth }
@@ -299,4 +299,14 @@ export const getSetsUsedText = (setsUsed: string[]) => {
     return `${setNameText} ${countText}${isCommaAfter ? ', ' : ''}`
   })
   return res.join('')
+}
+
+export function countStringInArrayLoop(arr: string[], targetString: string) {
+  let count = 0
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === targetString) {
+      count++
+    }
+  }
+  return count
 }

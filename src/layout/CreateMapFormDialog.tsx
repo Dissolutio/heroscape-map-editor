@@ -24,6 +24,8 @@ import {
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
 import { DIALOGS } from './dialogNames'
+import { terrainSetsByShortID } from '../data/terrainSets'
+import { InputSetsUsedCard, setsUsedInputNameForFormData } from './InputSetsUsedCard'
 
 const hexagonMarks = [
   {
@@ -79,27 +81,48 @@ export default function CreateMapFormDialog() {
   const [mapWidth, setMapWidth] = React.useState(20)
   const [mapLength, setMapLength] = React.useState(20)
   const [mapSize, setMapSize] = React.useState(10)
-
-  const handleSubmit = () => {
-    const newMap =
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    // setsUsed is uncontrolled and extracted from form data
+    const formData = new FormData(event.currentTarget)
+    // biome-ignore lint/suspicious/noExplicitAny: <form data not well understood>
+    const formJson = Object.fromEntries((formData as any).entries())
+    const getSetsUsedFormData = () => {
+      const newSetsUsed: string[] = []
+      Object.values(terrainSetsByShortID).map((set) => {
+        const count = formJson[`${setsUsedInputNameForFormData}${set.id}`]
+        for (let i = 0; i < count; i++) {
+          newSetsUsed.push(set.id)
+        }
+      })
+      return newSetsUsed
+    }
+    const newSetsUsed = getSetsUsedFormData()
+    const blankMap =
       mapShape === 'rectangle'
         ? makeRectangleScenario({
-            mapName,
-            width: mapWidth,
-            length: mapLength,
-          })
+          mapName,
+          width: mapWidth,
+          length: mapLength,
+        })
         : makeHexagonScenario({
-            mapName,
-            size: mapSize,
-          })
-    loadMap(newMap)
+          mapName,
+          size: mapSize,
+        })
+    const editedMapState = {
+      ...blankMap,
+      hexMap: {
+        ...blankMap.hexMap,
+        setsUsed: newSetsUsed
+      }
+    }
+    loadMap(editedMapState)
     changeMapNotes('')
     addMapPortraitBase64('')
     // clearUndoHistory is commented above, imported
     // clearUndoHistory()
     navigate(ROUTES.heroscapeHome)
     enqueueSnackbar({
-      message: `Created new map: ${newMap.hexMap.name}`,
+      message: `Created new map: ${editedMapState.hexMap.name}`,
       autoHideDuration: 5000,
     })
   }
@@ -116,7 +139,7 @@ export default function CreateMapFormDialog() {
             component: 'form',
             onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
               event.preventDefault()
-              handleSubmit()
+              handleSubmit(event)
               handleClose()
             },
           },
@@ -225,6 +248,8 @@ export default function CreateMapFormDialog() {
               />
             </Box>
           )}
+          {/* TERRAIN SETS */}
+          <InputSetsUsedCard isCreateNewMap />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>

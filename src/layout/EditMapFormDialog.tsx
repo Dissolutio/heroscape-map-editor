@@ -1,24 +1,24 @@
-import { Box, IconButton, useMediaQuery } from '@mui/material'
+import { Box, useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
-import { useSnackbar } from 'notistack'
-import * as React from 'react'
-import { MdAutorenew } from 'react-icons/md'
+import * as React from 'react';
 import useBoundStore from '../store/store'
-import { genRandomMapName } from '../utils/genRandomMapName'
 import ReactCropExampleApp from '../react-image-crop/ReactCropExampleApp'
 import 'react-image-crop/dist/ReactCrop.css'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import { DIALOGS } from './dialogNames'
+import { useSnackbar } from 'notistack'
+import { InputSetsUsedCard, setsUsedInputNameForFormData } from './InputSetsUsedCard'
 
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
   const mapName = useBoundStore((state) => state.hexMap.name)
-  const setsUsed = useBoundStore((state) => state.hexMap.setsUsed) ?? []
+  const changeSetsUsed = useBoundStore((state) => state.changeSetsUsed)
+
   const changeMapName = useBoundStore((state) => state.changeMapName)
   const authorName = useBoundStore((state) => state.hexMap.author)
   const changeAuthorName = useBoundStore((state) => state.changeAuthorName)
@@ -26,7 +26,6 @@ export default function EditMapFormDialog() {
   const changeMapNotes = useBoundStore((state) => state.changeMapNotes)
   const mapNotes = hexMap?.mapNotes ?? ''
   const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
-  const changeSetsUsed = useBoundStore((state) => state.changeSetsUsed)
   const [imgSrc, setImgSrc] = React.useState(mapPortraitBase64)
   const addMapPortraitBase64 = useBoundStore(
     (state) => state.addMapPortraitBase64,
@@ -40,7 +39,6 @@ export default function EditMapFormDialog() {
   const { enqueueSnackbar } = useSnackbar()
   const [newName, setNewName] = React.useState(mapName)
   const [newAuthor, setNewAuthor] = React.useState(authorName)
-
   const handleSubmitEditMapForm = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
@@ -49,13 +47,17 @@ export default function EditMapFormDialog() {
     const newMapName = formJson.newMapName
     const newAuthorName = formJson.newAuthorName
     const newMapNotes = formJson.mapNotes
-    const newSetsUsed: string[] = []
-    Object.values(terrainSetsByShortID).map((set) => {
-      const count = formJson[`terrainSet${set.id}`]
-      for (let i = 0; i < count; i++) {
-        newSetsUsed.push(set.id)
-      }
-    })
+    const getSetsUsedFormData = () => {
+      const newSetsUsed: string[] = []
+      Object.values(terrainSetsByShortID).map((set) => {
+        const count = formJson[`${setsUsedInputNameForFormData}${set.id}`]
+        for (let i = 0; i < count; i++) {
+          newSetsUsed.push(set.id)
+        }
+      })
+      return newSetsUsed
+    }
+    const newSetsUsed = getSetsUsedFormData()
     changeMapName(newMapName)
     changeAuthorName(newAuthorName)
     changeMapNotes(newMapNotes)
@@ -90,8 +92,8 @@ export default function EditMapFormDialog() {
         isCancel = true
         if (fileReader && fileReader.readyState === 1) {
           fileReader.abort()
-        }
-      }
+          }
+          }
     }, [file, addMapPortraitBase64])
     */
 
@@ -124,9 +126,9 @@ export default function EditMapFormDialog() {
         <Box
           sx={{
             p: '1em 4px',
-            display: 'flex',
-            alignItems: 'center',
-            width: '100%',
+            // display: 'flex',
+            // alignItems: 'center',
+            // width: '100%',
           }}
         >
           <TextField
@@ -142,32 +144,10 @@ export default function EditMapFormDialog() {
             fullWidth
             variant="outlined"
           />
-          <IconButton
-            title="Generate new random map name"
-            type="button"
-            sx={{ p: '10px' }}
-            onClick={() => setNewName(genRandomMapName())}
-          >
-            <MdAutorenew />
-          </IconButton>
         </Box>
 
         {/* TERRAIN SETS */}
-        <Box>
-          <h3>Terrain set constraints:</h3>
-          {Object.values(terrainSetsByShortID).map((set) => (
-            <TextField
-              key={set.id}
-              defaultValue={countStringInArrayLoop(setsUsed, set.id)}
-              name={`terrainSet${set.id}`}
-              // onChange={(e) => setNewAuthor(e.target.value)}
-              margin="dense"
-              label={`${set.name} - ${set.abbreviation}`}
-              type="number"
-              variant="outlined"
-            />
-          ))}
-        </Box>
+        <InputSetsUsedCard />
 
         {/* MAP AUTHOR */}
         <Box
@@ -213,14 +193,4 @@ export default function EditMapFormDialog() {
       </DialogActions>
     </Dialog>
   )
-}
-
-function countStringInArrayLoop(arr: string[], targetString: string) {
-  let count = 0
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i] === targetString) {
-      count++
-    }
-  }
-  return count
 }
