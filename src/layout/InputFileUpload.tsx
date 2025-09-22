@@ -36,7 +36,12 @@ export default function InputFileUpload({
       startIcon={startIcon}
     >
       {mainText}
-      <VisuallyHiddenInput type="file" onChange={onChange} multiple />
+      <VisuallyHiddenInput
+        type="file"
+        accept=".png,.jpg,image"
+        onChange={onChange}
+        multiple
+      />
     </Button>
   )
 }
