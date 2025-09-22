@@ -131,9 +131,7 @@ export const MapBoardPiece3D = ({
         position={[x, (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
-        <Suspense fallback={<ModelLoader />}>
-          <GlyphModel pid={pid} />
-        </Suspense>
+        <GlyphModel pid={pid} />
       </group>
     )
   }
