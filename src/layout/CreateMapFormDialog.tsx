@@ -25,7 +25,10 @@ import { genRandomMapName } from '../utils/genRandomMapName'
 import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
 import { DIALOGS } from './dialogNames'
 import { terrainSetsByShortID } from '../data/terrainSets'
-import { InputSetsUsedCard, setsUsedInputNameForFormData } from './InputSetsUsedCard'
+import {
+  InputSetsUsedCard,
+  setsUsedInputNameForFormData,
+} from './InputSetsUsedCard'
 
 const hexagonMarks = [
   {
@@ -100,20 +103,20 @@ export default function CreateMapFormDialog() {
     const blankMap =
       mapShape === 'rectangle'
         ? makeRectangleScenario({
-          mapName,
-          width: mapWidth,
-          length: mapLength,
-        })
+            mapName,
+            width: mapWidth,
+            length: mapLength,
+          })
         : makeHexagonScenario({
-          mapName,
-          size: mapSize,
-        })
+            mapName,
+            size: mapSize,
+          })
     const editedMapState = {
       ...blankMap,
       hexMap: {
         ...blankMap.hexMap,
-        setsUsed: newSetsUsed
-      }
+        setsUsed: newSetsUsed,
+      },
     }
     loadMap(editedMapState)
     changeMapNotes('')

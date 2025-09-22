@@ -5,14 +5,17 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
-import * as React from 'react';
+import * as React from 'react'
 import useBoundStore from '../store/store'
 import ReactCropExampleApp from '../react-image-crop/ReactCropExampleApp'
 import 'react-image-crop/dist/ReactCrop.css'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import { DIALOGS } from './dialogNames'
 import { useSnackbar } from 'notistack'
-import { InputSetsUsedCard, setsUsedInputNameForFormData } from './InputSetsUsedCard'
+import {
+  InputSetsUsedCard,
+  setsUsedInputNameForFormData,
+} from './InputSetsUsedCard'
 
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
