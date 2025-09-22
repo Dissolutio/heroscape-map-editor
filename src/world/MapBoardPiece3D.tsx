@@ -4,7 +4,6 @@ import { type BoardPiece, HexTerrain, Pieces } from '../types'
 import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
 import {
   HEXGRID_HEX_HEIGHT,
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_HEIGHT,
 } from '../utils/constants'
 import { getBoardHex3DCoords } from '../utils/map-utils'
@@ -21,8 +20,6 @@ import { hexTerrainColor } from './maphex/hexColors'
 import { Suspense } from 'react'
 import ModelLoader from './models/ModelLoader'
 import Ruins2 from './models/Ruins2'
-import { piecesSoFar } from '../data/pieces'
-import LandSubterrain from './models/LandSubterrain'
 import Ruins3 from './models/Ruins3'
 import { MarvelRuin } from './models/MarvelRuin'
 import { StartZone3D } from './models/StartZone3D'
@@ -60,7 +57,7 @@ export const MapBoardPiece3D = ({
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = altitude + 1 <= viewingLevel
-  const isSolidLand = isSolidTerrainHex(piecesSoFar[inventoryID].terrain)
+  // const isSolidLand = isSolidTerrainHex(piecesSoFar[inventoryID].terrain)
 
   // TODO: PIECE ID TO RENDER MUST BE ADDED TO THIS FN: isRenderedFromPieceIDPiece
   // [Make it not so]

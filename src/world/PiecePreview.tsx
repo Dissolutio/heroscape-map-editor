@@ -41,7 +41,7 @@ import {
 } from './models/LandSubterrain'
 import { hexTerrainColor } from './maphex/hexColors'
 import { FLUID_CAP_OPACITY } from './maphex/instance/FluidCap'
-import { GlyphModel, GlyphModelPreview } from './models/Glyph'
+import { GlyphModelPreview } from './models/Glyph'
 import { LaurWallTrianglePillarPreview } from './models/LaurTrianglePillar'
 import ForestTree from './models/ForestTree'
 import BigTree415 from './models/BigTree415'
@@ -84,7 +84,6 @@ export default function PiecePreview() {
   3. Castle Walls onto Walls (preview stacking)
   4. 
   */
-  const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

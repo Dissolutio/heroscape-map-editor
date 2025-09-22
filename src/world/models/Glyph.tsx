@@ -10,7 +10,7 @@ import { decodePieceID } from '../../utils/map-utils'
 export function GlyphModel({ pid }: { pid: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/glyph.glb') as any
-  const { inventoryID } = decodePieceID(pid)
+  const { terrain } = decodePieceID(pid)
   const texture = useTexture('glyph-valkyrie-logo.svg')
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
@@ -20,19 +20,17 @@ export function GlyphModel({ pid }: { pid: string }) {
   )
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+  const isSelected = selectedPieceID === pid
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
       return
     }
-    if (pid) {
-      toggleSelectedPieceID(isSelected ? '' : pid)
-    }
+    toggleSelectedPieceID(pid)
   }
   const glyphColor = hexTerrainColor[terrain as keyof typeof hexTerrainColor]
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === pid
   const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted ? yellowColor : glyphColor
   return (

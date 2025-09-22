@@ -39,8 +39,7 @@ import HeightRing, { TopOutlineInterlockHex } from './HeightRing'
 import { MapHexIDDisplay } from './MapHexIDDisplay'
 import { hexTerrainColor } from './hexColors'
 import LaurWallTrianglePillar from '../models/LaurTrianglePillar'
-import { HexCapIDDisplay } from './HexCapIDDisplay'
-import { FortifiedWall } from '../models/FortifiedWall'
+import JungleBrush from '../models/TicallaBrush'
 
 export const MapHex3D = ({
   boardHex,
