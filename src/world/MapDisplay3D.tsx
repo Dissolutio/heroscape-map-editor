@@ -35,6 +35,7 @@ import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import PiecePreview from './PiecePreview.tsx'
 import { useHotkeyConfig } from '../controls/useHotkeyConfig'
 import { useApplyHotkeys } from '../controls/useApplyHotkeys.tsx'
+import type React from 'react'
 
 export default function MapDisplay3D({
   cameraControlsRef,
