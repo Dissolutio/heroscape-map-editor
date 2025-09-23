@@ -223,18 +223,6 @@ export default function MapDisplay3D({
     <>
       <TableSurfaceMesh width={width} length={length} />
       <group ref={mapGroupRef}>
-        {/* TOP LEFT */}
-        {!isTakingPicture && (
-          <axesHelper position={[0, 0.1, 0]} scale={[width, 0, length]} />
-        )}
-
-        {/* BOTTOM RIGHT */}
-        {/* <axesHelper
-        position={[width, 0, length]}
-        // position={[height - HEXGRID_HEX_APOTHEM, 0, length - 1]}
-        scale={[width, 0, length]}
-      // rotation={new Euler(0, Math.PI, 0)}
-      /> */}
 
         <PiecePreview />
         <EmptyHexes
