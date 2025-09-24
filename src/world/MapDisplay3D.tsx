@@ -35,6 +35,7 @@ import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import PiecePreview from './PiecePreview.tsx'
 import { useHotkeyConfig } from '../controls/useHotkeyConfig'
 import { useApplyHotkeys } from '../controls/useApplyHotkeys.tsx'
+import type React from 'react'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -222,19 +223,6 @@ export default function MapDisplay3D({
     <>
       <TableSurfaceMesh width={width} length={length} />
       <group ref={mapGroupRef}>
-        {/* TOP LEFT */}
-        {!isTakingPicture && (
-          <axesHelper position={[0, 0.1, 0]} scale={[width, 0, length]} />
-        )}
-
-        {/* BOTTOM RIGHT */}
-        {/* <axesHelper
-        position={[width, 0, length]}
-        // position={[height - HEXGRID_HEX_APOTHEM, 0, length - 1]}
-        scale={[width, 0, length]}
-      // rotation={new Euler(0, Math.PI, 0)}
-      /> */}
-
         <PiecePreview />
         <EmptyHexes
           boardHexArr={instanceBoardHexes.emptyHexCaps}

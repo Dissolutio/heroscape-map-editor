@@ -32,6 +32,7 @@ const World = ({
     (s) => s.isLightsAndShadowsRender,
   )
   const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
+  const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
@@ -81,6 +82,18 @@ const World = ({
           {!isHidden && import.meta.env.DEV && (
             <Stats className="stats-panel" />
           )}
+          {/* TOP LEFT */}
+          {!isTakingPicture && (
+            <axesHelper position={[0, 0.1, 0]} scale={[width, 0, length]} />
+          )}
+
+          {/* BOTTOM RIGHT */}
+          {/* <axesHelper
+                  position={[width, 0, length]}
+                  // position={[height - HEXGRID_HEX_APOTHEM, 0, length - 1]}
+                  scale={[width, 0, length]}
+                // rotation={new Euler(0, Math.PI, 0)}
+                /> */}
           <MapDisplay3D
             mapGroupRef={mapGroupRef}
             cameraControlsRef={cameraControlsRef}

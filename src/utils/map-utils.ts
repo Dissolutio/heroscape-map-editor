@@ -222,12 +222,13 @@ export const getRoadWallClickedHexCoords = (
 }
 const halfASideLength = HEXGRID_HEX_RADIUS / 2
 export const hexPoints3DFromCenter = {
-  topRight: new Vector3(HEXGRID_HEX_APOTHEM, 0, halfASideLength), // top-right
-  bottomRight: new Vector3(HEXGRID_HEX_APOTHEM, 0, -halfASideLength), // bottom-right
-  bottom: new Vector3(0, 0, -HEXGRID_HEX_RADIUS), // bottom
-  bottomLeft: new Vector3(-HEXGRID_HEX_APOTHEM, 0, -halfASideLength), // bottom-left
-  topLeft: new Vector3(-HEXGRID_HEX_APOTHEM, 0, halfASideLength), // top-left
-  top: new Vector3(0, 0, HEXGRID_HEX_RADIUS), // top
+  center: new Vector3(0, 0, 0), // top
+  bottom: new Vector3(0, 0, HEXGRID_HEX_RADIUS), // top
+  bottomRight: new Vector3(HEXGRID_HEX_APOTHEM, 0, halfASideLength), // top-right
+  topRight: new Vector3(HEXGRID_HEX_APOTHEM, 0, -halfASideLength), // bottom-right
+  top: new Vector3(0, 0, -HEXGRID_HEX_RADIUS), // bottom
+  topLeft: new Vector3(-HEXGRID_HEX_APOTHEM, 0, -halfASideLength), // bottom-left
+  bottomLeft: new Vector3(-HEXGRID_HEX_APOTHEM, 0, halfASideLength), // top-left
 }
 export const pillarSideRotations = [0, 1.5, 3, 4.5]
 export const pillarSideRotationsFlip: { [rotation: number]: number } = {

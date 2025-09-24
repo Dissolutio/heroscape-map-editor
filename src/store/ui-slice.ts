@@ -46,6 +46,8 @@ export interface UISlice {
   toggleIsDisplayCapHeights: (b: boolean) => void
   isHideTableTop: boolean
   toggleIsHideTableTop: (b: boolean) => void
+  isTopOutlinedInterlockHexes: boolean
+  toggleIsTopOutlinedInterlockHexes: (b: boolean) => void
   isFrameloopDemand: boolean
   toggleIsFrameloopDemand: (b: boolean) => void
   isTakingPicture: boolean
@@ -236,6 +238,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isHideTableTop = b
+      }),
+    ),
+  isTopOutlinedInterlockHexes: true, // helps see the pieces from above, when they're same terrain
+  toggleIsTopOutlinedInterlockHexes: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isTopOutlinedInterlockHexes = b
       }),
     ),
   isFrameloopDemand: false,
