@@ -68,6 +68,7 @@ export function TopOutlineInterlockHex({
   position,
   boardHex,
 }: { position: Vector3; boardHex: BoardHex }) {
+  console.log("🚀 ~ TopOutlineInterlockHex ~ boardHex.pieceRotation:", boardHex.pieceRotation, typeof boardHex.pieceRotation)
   // 0,1,2,3,3B,4,4B,5,6
   const geos = getGeo(
     boardHex?.interlockType ?? '',
