@@ -14,8 +14,8 @@ export default function Lights({
     <>
       <ambientLight intensity={isLightsAndShadowsRender ? 0.5 : 2} />
       <hemisphereLight
-        color={'0xffffbb'}
-        groundColor={'0x080820'}
+        color={'#ffffbb'}
+        groundColor={'#080820'}
         intensity={0.5}
       />
       {isLightsAndShadowsRender && (
