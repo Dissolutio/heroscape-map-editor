@@ -63,10 +63,10 @@ const glacier6 = [
 ]
 const marvel6 = [
   // concrete6: base of marvel ruin
-  '4',
   '3',
+  '3B',
   '3',
-  '3B', // glacier4
+  '4', // glacier4
   '4B', // bottom-right middle
   '5', // bottom-right corner
 ]

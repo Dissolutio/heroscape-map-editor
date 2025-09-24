@@ -1,7 +1,7 @@
 import { type Object3DNode, extend } from '@react-three/fiber'
 import { BufferGeometry, Color, Line, Vector3 } from 'three'
 import { hexPoints3DFromCenter } from '../../utils/map-utils'
-import { BoardHex } from '../../types'
+import type { BoardHex } from '../../types'
 
 // this extension for line_ is because, if we just use <line></line> then we get an error:
 // Property 'geometry' does not exist on type 'SVGProps<SVGLineElement>'
@@ -16,7 +16,7 @@ declare global {
   }
 }
 const hexPoints = [
-  // we go around twice so that interlock rotations have something to slice off
+  // we go around thrice so that interlock rotations have something to slice off
   // hexPoints3DFromCenter.center,
   hexPoints3DFromCenter.topRight,
   hexPoints3DFromCenter.bottomRight,
@@ -66,18 +66,15 @@ export default function HeightRing({ position }: { position: Vector3 }) {
 }
 export function TopOutlineInterlockHex({ position, boardHex }: { position: Vector3, boardHex: BoardHex }) {
   // 0,1,2,3,3B,4,4B,5,6
-  const geo = getGeo(boardHex?.interlockType ?? '', boardHex?.interlockRotation ?? 0)
+  const geos = getGeo(boardHex?.interlockType ?? '', ((boardHex?.interlockRotation ?? 0) + boardHex.pieceRotation) % 6)
   if (boardHex.interlockType === '0') {
     return null
   }
-  return (
+  return geos.map((g, index) => (
     <line_
-      geometry={geo}
-      position={
-        position.y === 0
-          ? new Vector3(position.x, position.y + 0.01, position.z)
-          : position
-      }
+      key={`${boardHex.id}${index}`}
+      geometry={g}
+      position={new Vector3(position.x, position.y + 0.01, position.z)}
       frustumCulled={false}
     >
       <lineBasicMaterial
@@ -86,24 +83,36 @@ export function TopOutlineInterlockHex({ position, boardHex }: { position: Vecto
         linewidth={1}
       />
     </line_>
-  )
+  ))
+
 }
-const getGeo = (interlockType: string, interlockRotation: number) => {
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+const getGeo = (interlockType: string, interlockRotation: number): any[] => {
   if (interlockType === '1') {
-    return getInterlock1Geo(interlockRotation)
+    return [getInterlock1Geo(interlockRotation)]
   }
   if (interlockType === '2') {
-    return getInterlock2Geo(interlockRotation)
+    return [getInterlock2Geo(interlockRotation)]
   }
   if (interlockType === '3') {
-    return getInterlock3Geo(interlockRotation)
+    return [getInterlock3Geo(interlockRotation)]
   }
   if (interlockType === '4') {
-    return getInterlock4Geo(interlockRotation)
+    return [getInterlock4Geo(interlockRotation)]
   }
   if (interlockType === '5') {
-    return getInterlock5Geo(interlockRotation)
+    return [getInterlock5Geo(interlockRotation)]
   }
+  if (interlockType === '6') {
+    return [interlock6Geo]
+  }
+  if (interlockType === '3B') {
+    return [getInterlock1Geo(interlockRotation + 5), getInterlock2Geo(interlockRotation + 1)]
+  }
+  if (interlockType === '4B') {
+    return [getInterlock2Geo(interlockRotation + 1), getInterlock2Geo(interlockRotation + 4)]
+  }
+  return []
 }
 const getInterlock1Geo = (interlockRotation: number) => {
   const points = hexPoints.slice(0 + interlockRotation, (0 + interlockRotation + 2))
