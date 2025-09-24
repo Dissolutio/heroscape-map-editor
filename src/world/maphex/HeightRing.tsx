@@ -75,7 +75,9 @@ export function TopOutlineInterlockHex({
   const geos = getGeo(
     boardHex?.interlockType ?? '',
     // STRANGE BUG FIX here below, coerce to number, eventhough it should already be a number
-    ((boardHex?.interlockRotation ?? 0) + Number.parseInt(String(boardHex.pieceRotation))) % 6,
+    ((boardHex?.interlockRotation ?? 0) +
+      Number.parseInt(String(boardHex.pieceRotation))) %
+      6,
   )
   if (boardHex.interlockType === '0') {
     return null
