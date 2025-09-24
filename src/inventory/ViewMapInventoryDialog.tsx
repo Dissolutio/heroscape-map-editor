@@ -136,8 +136,7 @@ const ViewMapInventoryDialog = () => {
                   }}
                 >
                   <span>
-                    {piecesSoFar[pieceID]?.title || pieceID}: {usedCount} /{' '}
-                    {available}
+                    {piecesSoFar[pieceID]?.title || pieceID}: {usedCount} {(available > 0) ? `/ ${available}` : ''}
                   </span>
                   {isNotAllowed && !skipAlert && (
                     <span style={{ marginLeft: 8, fontWeight: 'bold' }}>
