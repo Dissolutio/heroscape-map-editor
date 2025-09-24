@@ -157,6 +157,17 @@ const ViewPreferencesSwitchForm = () => {
   ) => {
     toggleIsLightsAndShadowsRender(event.target.checked)
   }
+  const isTopOutlinedInterlockHexes = useBoundStore(
+    (s) => s.isTopOutlinedInterlockHexes,
+  )
+  const toggleIsTopOutlinedInterlockHexes = useBoundStore(
+    (s) => s.toggleIsTopOutlinedInterlockHexes,
+  )
+  const handleChangeShowOutlinedInterlockHexes = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsTopOutlinedInterlockHexes(event.target.checked)
+  }
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const toggleIsHighQualityRender = useBoundStore(
     (s) => s.toggleIsHighQualityRender,
@@ -190,6 +201,17 @@ const ViewPreferencesSwitchForm = () => {
     <FormControl component="fieldset" variant="standard">
       <FormLabel component="legend">View options:</FormLabel>
       <FormGroup>
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isTopOutlinedInterlockHexes}
+              onChange={handleChangeShowOutlinedInterlockHexes}
+              title="Enable/disable a black border around the top of land pieces, to help distinguish them from eachother"
+            />
+          }
+          label="Show piece outlines"
+        />
         <FormControlLabel
           control={
             <Switch
