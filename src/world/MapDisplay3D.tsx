@@ -223,7 +223,6 @@ export default function MapDisplay3D({
     <>
       <TableSurfaceMesh width={width} length={length} />
       <group ref={mapGroupRef}>
-
         <PiecePreview />
         <EmptyHexes
           boardHexArr={instanceBoardHexes.emptyHexCaps}

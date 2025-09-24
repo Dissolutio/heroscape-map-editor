@@ -304,7 +304,9 @@ export const Pieces = {
   glyphPower: `${PiecePrefixes.glyph}0`, // WIP glyphs
   glyphTreasure: `${PiecePrefixes.glyph}1`,
 }
-export type AddRemovePieceError = undefined | { message?: string; error?: unknown }
+export type AddRemovePieceError =
+  | undefined
+  | { message?: string; error?: unknown }
 export type VirtualScapeMap = {
   version: number
   name: string

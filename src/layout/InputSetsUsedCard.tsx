@@ -70,10 +70,7 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
             {setsUsedText}
           </Typography>
         )}
-        <Collapse
-          in={isSetUsedOpen}
-          timeout="auto"
-        >
+        <Collapse in={isSetUsedOpen} timeout="auto">
           {Object.values(terrainSetsByShortID).map((set) => (
             <TextField
               key={set.id}

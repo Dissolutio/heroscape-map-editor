@@ -64,9 +64,15 @@ export default function HeightRing({ position }: { position: Vector3 }) {
     </line_>
   )
 }
-export function TopOutlineInterlockHex({ position, boardHex }: { position: Vector3, boardHex: BoardHex }) {
+export function TopOutlineInterlockHex({
+  position,
+  boardHex,
+}: { position: Vector3; boardHex: BoardHex }) {
   // 0,1,2,3,3B,4,4B,5,6
-  const geos = getGeo(boardHex?.interlockType ?? '', ((boardHex?.interlockRotation ?? 0) + boardHex.pieceRotation) % 6)
+  const geos = getGeo(
+    boardHex?.interlockType ?? '',
+    ((boardHex?.interlockRotation ?? 0) + boardHex.pieceRotation) % 6,
+  )
   if (boardHex.interlockType === '0') {
     return null
   }
@@ -84,7 +90,6 @@ export function TopOutlineInterlockHex({ position, boardHex }: { position: Vecto
       />
     </line_>
   ))
-
 }
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 const getGeo = (interlockType: string, interlockRotation: number): any[] => {
@@ -107,30 +112,51 @@ const getGeo = (interlockType: string, interlockRotation: number): any[] => {
     return [interlock6Geo]
   }
   if (interlockType === '3B') {
-    return [getInterlock1Geo(interlockRotation + 5), getInterlock2Geo(interlockRotation + 1)]
+    return [
+      getInterlock1Geo(interlockRotation + 5),
+      getInterlock2Geo(interlockRotation + 1),
+    ]
   }
   if (interlockType === '4B') {
-    return [getInterlock2Geo(interlockRotation + 1), getInterlock2Geo(interlockRotation + 4)]
+    return [
+      getInterlock2Geo(interlockRotation + 1),
+      getInterlock2Geo(interlockRotation + 4),
+    ]
   }
   return []
 }
 const getInterlock1Geo = (interlockRotation: number) => {
-  const points = hexPoints.slice(0 + interlockRotation, (0 + interlockRotation + 2))
+  const points = hexPoints.slice(
+    0 + interlockRotation,
+    0 + interlockRotation + 2,
+  )
   return new BufferGeometry().setFromPoints(points)
 }
 const getInterlock2Geo = (interlockRotation: number) => {
-  const points = hexPoints.slice(0 + interlockRotation, 0 + interlockRotation + 3)
+  const points = hexPoints.slice(
+    0 + interlockRotation,
+    0 + interlockRotation + 3,
+  )
   return new BufferGeometry().setFromPoints(points)
 }
 const getInterlock3Geo = (interlockRotation: number) => {
-  const points = hexPoints.slice(0 + interlockRotation, 0 + interlockRotation + 4)
+  const points = hexPoints.slice(
+    0 + interlockRotation,
+    0 + interlockRotation + 4,
+  )
   return new BufferGeometry().setFromPoints(points)
 }
 const getInterlock4Geo = (interlockRotation: number) => {
-  const points = hexPoints.slice(0 + interlockRotation, 0 + interlockRotation + 5)
+  const points = hexPoints.slice(
+    0 + interlockRotation,
+    0 + interlockRotation + 5,
+  )
   return new BufferGeometry().setFromPoints(points)
 }
 const getInterlock5Geo = (interlockRotation: number) => {
-  const points = hexPoints.slice(0 + interlockRotation, 0 + interlockRotation + 6)
+  const points = hexPoints.slice(
+    0 + interlockRotation,
+    0 + interlockRotation + 6,
+  )
   return new BufferGeometry().setFromPoints(points)
 }

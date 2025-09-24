@@ -57,7 +57,9 @@ export const MapHex3D = ({
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const isTopOutlinedInterlockHexes = useBoundStore((s) => s.isTopOutlinedInterlockHexes)
+  const isTopOutlinedInterlockHexes = useBoundStore(
+    (s) => s.isTopOutlinedInterlockHexes,
+  )
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = boardHex.altitude <= viewingLevel
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
@@ -76,7 +78,8 @@ export const MapHex3D = ({
   const isStartZoneHex = boardHex.terrain === HexTerrain.startZone
   const isHeightRingedHex =
     (isSolidTerrainHex(boardHex.terrain) && !boardHex.isCap) || isShowEmptyHexes
-  const isTopOutlinedInterlockHex = isTopOutlinedInterlockHexes && !isTakingPicture
+  const isTopOutlinedInterlockHex =
+    isTopOutlinedInterlockHexes && !isTakingPicture
   const isObstacleHex =
     boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary
   const isSolidSubterrain =
@@ -179,7 +182,16 @@ export const MapHex3D = ({
       {isHeightRingedHex && <HeightRing position={new Vector3(x, y, z)} />}
       {isTopOutlinedInterlockHex && (
         <TopOutlineInterlockHex
-          position={new Vector3(x, y * (isFluidTerrainHex(boardHex.terrain) ? HEXGRID_HEXCAP_FLUID_SCALE : 1), z)}
+          position={
+            new Vector3(
+              x,
+              y *
+                (isFluidTerrainHex(boardHex.terrain)
+                  ? HEXGRID_HEXCAP_FLUID_SCALE
+                  : 1),
+              z,
+            )
+          }
           boardHex={boardHex}
         />
       )}
@@ -593,7 +605,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+              selectedPieceID === boardHex.pieceID
                 ? hexTerrainColor[HexTerrain.castle]
                 : 'yellow'
             }
@@ -620,7 +632,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                  selectedPieceID === boardHex.pieceID
+                selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castle]
               }
