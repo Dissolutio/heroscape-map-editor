@@ -68,11 +68,14 @@ export function TopOutlineInterlockHex({
   position,
   boardHex,
 }: { position: Vector3; boardHex: BoardHex }) {
-  console.log("🚀 ~ TopOutlineInterlockHex ~ boardHex.pieceRotation:", boardHex.pieceRotation, typeof boardHex.pieceRotation)
+  // SITE OF STRANGE BUG: somehow, pieceRotation is a string, sometimes, not a number, and throws off the geo logic (no idea how!)
+  // console.log("🚀 ~ TopOutlineInterlockHex ~ boardHex.pieceRotation:", boardHex.pieceRotation, typeof boardHex.pieceRotation)
+
   // 0,1,2,3,3B,4,4B,5,6
   const geos = getGeo(
     boardHex?.interlockType ?? '',
-    ((boardHex?.interlockRotation ?? 0) + boardHex.pieceRotation) % 6,
+    // STRANGE BUG FIX here below, coerce to number, eventhough it should already be a number
+    ((boardHex?.interlockRotation ?? 0) + Number.parseInt(String(boardHex.pieceRotation))) % 6,
   )
   if (boardHex.interlockType === '0') {
     return null
