@@ -57,7 +57,7 @@ export function parseMapDataArrayFromCrushed(
   }
 
   if (!hexMap) {
-    throw new Error('HexMap is missing in the crushed data')
+    throw new Error('HexMap is missing in the JSON-crush data')
   }
   return { hexMap, boardPieces, extra: extra.length ? extra : undefined }
 }

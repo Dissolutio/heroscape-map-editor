@@ -13,6 +13,7 @@ export type HexMap = {
   shape: string // 'hexagon' | 'rectangle'
   length: number // for hexagon shaped maps width=length=size
   width: number // for hexagon shaped maps width=length=size
+  version?: number // no version means boardPieces was an object, version 1 has boardPieces as an array
   setsUsed?: string[] // array of terrainSets Ids
   // properties below are written as BLANK STRINGS in URL-shareable format
   mapPortraitBase64?: string // a base64 representation of image of map (taken or submitted by user)
