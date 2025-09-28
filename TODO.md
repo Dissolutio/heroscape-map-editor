@@ -6,13 +6,15 @@ This will allow to have two pieces overlapping on the map, whereas before if 2 p
 were in the same spot, one would be overwritten.
 
 
-BoardPieces I/O:
-- handleClickExportJson, handleClickExportGzip
+BoardPieces Input:
+- `LoadFileHiddenInputs.tsx` => readGzipFile, readJsonFile
 - `jsonCrush.ts` => getUrlMapString, parseMapDataArrayFromCrushed
 - `useAutoLoadMapFile.tsx` => unpacking JSON-crush
-- buildupJsonFileMap
 
-BoardPieces post-I/O:
+BoardPieces Output:
+- handleClickExportJson, handleClickExportGzip
+
+BoardPieces Internal:
 - AddRemovePieceReturn, addPiece, removePiece
 - getBoardPiecesMaxLevel
 - getBoardHexAndPieceChunks for PDF

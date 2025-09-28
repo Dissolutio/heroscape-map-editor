@@ -47,6 +47,7 @@ export interface BoardHex extends CubeCoordinate {
 export type BoardPieces = {
   [id: string]: string // string = piece inventory ID
 }
+export type BoardPiecesArr = string[] // array of piece ids
 export type BoardHexes = {
   [qraID: string]: BoardHex
 }

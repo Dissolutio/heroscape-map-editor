@@ -41,6 +41,7 @@ const DownloadMapFileButtons = () => {
     element.click()
     // element.remove()
   }
+  // lean file version means no map portrait is saved
   const handleClickExportJson = async (isLeanFileVersion: boolean) => {
     const filename = `${fileName}.json`
     const hexMapToUse = isLeanFileVersion
