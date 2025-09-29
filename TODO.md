@@ -102,6 +102,8 @@ Building pretty much exactly like you did in Virtualscape. This will probably be
 
 ## Local Storage Load/Save/Edit maps
 
+Deleted the component for analyzing local storage space. `LocalStorageList.tsx`, check commits.
+
 Make a react component that can be shown in the modal like `CreateMapFormDialog.tsx`. The new component is for the user to save and load maps from local storage. They can also edit their local storage, to peruse and delete maps or other unused data stored in local storage. Some user settings may get saved there, and can be exported to a file/string and imported as easily.
 
 When user clicks SAVE/LOAD, show:
