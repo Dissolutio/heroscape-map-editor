@@ -1,4 +1,4 @@
-import type { MapFileState, VirtualScapeMap, VirtualScapeTile } from '../types'
+import type { VirtualScapeMap, VirtualScapeTile } from '../types'
 
 /* 
 This function reads a specific binary file format used by VirtualScape.
@@ -200,45 +200,6 @@ export default function readVirtualscapeMapFile(
         arrayBuffer as ArrayBuffer,
       )
       resolve(virtualScapeMap)
-    }
-    reader.onerror = () => {
-      reject(reader.error)
-    }
-    reader.readAsArrayBuffer(file)
-  })
-}
-export async function processGZippedJsonArrayBuffer(
-  arrayBuffer: ArrayBuffer,
-  readableStream?: ReadableStream<Uint8Array> | null,
-) {
-  try {
-    const stream = readableStream || new Blob([arrayBuffer ?? '']).stream()
-    const decompressedStream = stream.pipeThrough(
-      new DecompressionStream('gzip'),
-    )
-    const decompressedData = await new Response(decompressedStream).text()
-    const data: MapFileState = JSON.parse(decompressedData)
-    return data
-  } catch (error) {
-    console.error(error)
-  }
-}
-export function readGzipMapFile(file: File): Promise<MapFileState> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onloadend = async () => {
-      const arrayBuffer = reader.result
-      try {
-        const compressedBlob = new Blob([arrayBuffer ?? ''])
-        const decompressedStream = compressedBlob
-          .stream()
-          .pipeThrough(new DecompressionStream('gzip'))
-        const decompressedData = await new Response(decompressedStream).text()
-        const data: MapFileState = JSON.parse(decompressedData)
-        resolve(data)
-      } catch (error) {
-        console.error(error)
-      }
     }
     reader.onerror = () => {
       reject(reader.error)

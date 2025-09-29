@@ -1,11 +1,9 @@
-import React, { type ChangeEvent } from 'react'
+import type { ChangeEvent } from 'react'
 import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
 import { useLocation } from 'wouter'
 import { ROUTES } from '../ROUTES'
 import buildupVSFileMap, { buildupJsonFileMap } from '../data/buildupMap'
-import readVirtualscapeMapFile, {
-  readGzipMapFile,
-} from '../data/readVirtualscapeMapFile'
+import readVirtualscapeMapFile from '../data/readVirtualscapeMapFile'
 import useBoundStore from '../store/store'
 import type { MapFileState, PieceInventory } from '../types'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
@@ -73,7 +71,7 @@ export const LoadFileHiddenInputs = () => {
       return
     }
     try {
-      const data: MapFileState = await new Response(file).json()
+      const data = await new Response(file).json()
       const jsonMap = buildupJsonFileMap(data.boardPieces, data.hexMap)
       if (!jsonMap.hexMap.name) {
         jsonMap.hexMap.name = file.name
@@ -210,4 +208,28 @@ const hiddenStyle = {
   left: '0',
   whiteSpace: 'nowrap',
   width: '1',
+}
+
+function readGzipMapFile(file: File): Promise<MapFileState> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = async () => {
+      const arrayBuffer = reader.result
+      try {
+        const compressedBlob = new Blob([arrayBuffer ?? ''])
+        const decompressedStream = compressedBlob
+          .stream()
+          .pipeThrough(new DecompressionStream('gzip'))
+        const decompressedData = await new Response(decompressedStream).text()
+        const data = JSON.parse(decompressedData)
+        resolve(data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    reader.onerror = () => {
+      reject(reader.error)
+    }
+    reader.readAsArrayBuffer(file)
+  })
 }
