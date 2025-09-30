@@ -14,7 +14,7 @@ export const getUrlMapString = ({
     JSONCrush.crush(
       JSON.stringify([
         hexMap, // 1
-        ...Object.keys(boardPieces),
+        ...boardPieces,
       ]),
     ),
   )
@@ -30,8 +30,7 @@ export function parseMapDataArrayFromCrushed(
 ): ParsedJSONCrushMap {
   const data = JSON.parse(JSONCrush.uncrush(crushed))
   let hexMap: HexMap | undefined = undefined
-  const boardPieces: BoardPieces = {}
-  const extra = []
+  const boardPieces: BoardPieces = []
 
   for (const item of data) {
     // Detect hexMap: must be an object with expected keys
@@ -40,24 +39,14 @@ export function parseMapDataArrayFromCrushed(
     }
     // Detect boardPiece ID: string format, e.g. "a~q~r~rot~id"
     else if (typeof item === 'string' && item.includes('~')) {
-      boardPieces[item] = decodePieceID(item).inventoryID
-    }
-    // Detect array of board piece objects (a projected possible change in format)
-    else if (
-      Array.isArray(item) &&
-      item.length &&
-      typeof item[0] === 'object'
-    ) {
-      extra.push(item)
-    }
-    // Anything else
-    else {
-      extra.push(item)
+      boardPieces.push(item)
+      // below, for when boardPieces was an object
+      // boardPieces[item] = decodePieceID(item).inventoryID
     }
   }
 
   if (!hexMap) {
     throw new Error('HexMap is missing in the JSON-crush data')
   }
-  return { hexMap, boardPieces, extra: extra.length ? extra : undefined }
+  return { hexMap, boardPieces }
 }

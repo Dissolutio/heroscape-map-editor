@@ -91,7 +91,7 @@ export function buildupJsonFileMap(
       mapName: hexMap.name,
     }).boardHexes
   }
-  const boardPiecesSortedByAltitude = Object.keys(boardPieces).sort((a, b) => {
+  const boardPiecesSortedByAltitude = boardPieces.sort((a, b) => {
     if (decodePieceID(a).altitude > decodePieceID(b).altitude) {
       return 1 // Move 'targetValue' to the end
     }

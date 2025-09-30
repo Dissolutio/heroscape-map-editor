@@ -27,24 +27,19 @@ const shiftInDirectionBoardPieces = (
   direction: number,
   boardPieces: BoardPieces,
 ) => {
-  const newBoardPieces = Object.keys(boardPieces).reduce(
-    (prev: any, pid: string) => {
-      const {
-        inventoryID,
-        altitude,
-        rotation,
-        // boardHexID,
-        pieceCoords,
-      } = decodePieceID(pid)
-      const newPieceCoords = hexUtilsAdd(pieceCoords, HEX_DIRECTIONS[direction])
-      const newBoardHexID = genBoardHexID({ ...newPieceCoords, altitude })
-      const newPieceID = genPieceID(newBoardHexID, inventoryID, rotation)
-      return {
-        ...prev,
-        [newPieceID]: inventoryID,
-      }
-    },
-    {},
+  const newBoardPieces = boardPieces.map((pid) => {
+    const {
+      inventoryID,
+      altitude,
+      rotation,
+      // boardHexID,
+      pieceCoords,
+    } = decodePieceID(pid)
+    const newPieceCoords = hexUtilsAdd(pieceCoords, HEX_DIRECTIONS[direction])
+    const newBoardHexID = genBoardHexID({ ...newPieceCoords, altitude })
+    const newPieceID = genPieceID(newBoardHexID, inventoryID, rotation)
+    return newPieceID
+  }
   )
   return newBoardPieces
 }

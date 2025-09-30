@@ -1,4 +1,4 @@
-import { clone } from 'lodash'
+// import { clone } from 'lodash'
 import {
   type AddRemovePieceError,
   type AddRemovePieceReturn,
@@ -32,8 +32,13 @@ export function removePiece({
   let error: AddRemovePieceError
   const { inventoryID } = decodePieceID(pieceID)
   const piece = piecesSoFar[inventoryID]
-  const newBoardHexes = clone(boardHexes)
-  const newBoardPieces = clone(boardPieces)
+  // Shallow copy boardHexes (if needed)
+  const newBoardHexes = { ...boardHexes }
+  // Remove only the first occurrence of pieceID from the array
+  const idx = boardPieces.indexOf(pieceID)
+  const newBoardPieces: BoardPieces = idx === -1
+    ? [...boardPieces]
+    : [...boardPieces.slice(0, idx), ...boardPieces.slice(idx + 1)]
   const isCastleBase = piece.id.includes(PiecePrefixes.castleBase)
   const isCastleWall = piece.id.includes(PiecePrefixes.castleWall)
   const isLadder = piece.id === Pieces.ladder
@@ -44,9 +49,7 @@ export function removePiece({
   const isObstacle = piece.isObstaclePiece
 
   // PIECEID RENDERED PIECES: laur wall addons, battlements, roadwalls
-  if (isRenderedFromPieceIDPiece(inventoryID)) {
-    delete newBoardPieces[pieceID]
-  }
+  // No object delete logic needed; already filtered above
   // RUINS
   // CASTLE BASE
   // OBSTACLES: trees, bushes, palms, glaciers, outcrops, laurPillar
@@ -88,7 +91,7 @@ export function removePiece({
       }
     }
     // remove the piece
-    delete newBoardPieces[pieceID]
+    // Already filtered above
   }
   return { newBoardHexes, newBoardPieces, error }
 }

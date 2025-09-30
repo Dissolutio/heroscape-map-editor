@@ -3,7 +3,7 @@ import { Document, Image, PDFViewer, Text, View } from '@react-pdf/renderer'
 import useBoundStore from '../store/store'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
-import type { MapState } from '../types'
+import type { HexMap, MapState } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
 import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
 
@@ -36,8 +36,6 @@ export function ReactPdfRoot() {
               hexMap={hexMap}
             >
               <MapPortraitHeader
-                boardHexes={boardHexes}
-                boardPieces={boardPieces}
                 hexMap={hexMap}
                 mapPortraitBase64={mapPortraitBase64}
                 mapNotes={mapNotes}
@@ -59,7 +57,11 @@ const MapPortraitHeader = ({
   hexMap,
   mapPortraitBase64,
   mapNotes,
-}: MapState & { mapPortraitBase64: string; mapNotes: string }) => {
+}: {
+  hexMap: HexMap
+  mapPortraitBase64: string
+  mapNotes: string
+}) => {
   const notesHeight = 20 * Math.ceil(mapNotes.length / 134)
   const terrainSetCounts = countTerrainSets(hexMap.setsUsed ?? [])
   return (

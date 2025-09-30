@@ -25,9 +25,10 @@ const useBoundStore = create<AppState>()(
             hexMap: state.hexMap,
           }
         },
-        // skipHydration: true,
+        skipHydration: true,
       },
     ),
+    // undo/redo config object
     {
       limit: 30,
       // onSave: (state) => console.log('saved', state),

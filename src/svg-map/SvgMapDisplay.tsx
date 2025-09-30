@@ -31,7 +31,7 @@ export const SvgMapDisplay = () => {
     height: mapDimensions.length - adjustYForNew00Centers,
   })
   const viewboxStr = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`
-  const isPointerDown = useRef(false)
+  // const isPointerDown = useRef(false)
 
   // Effect to update the viewBox when map dimensions change
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>

@@ -41,7 +41,7 @@ export function makeRectangleScenario(
   return {
     boardHexes,
     hexMap,
-    boardPieces: {},
+    boardPieces: [],
   }
 }
 type HexagonScenarioOptions = {
@@ -71,7 +71,7 @@ export function makeHexagonScenario(
   return {
     boardHexes,
     hexMap,
-    boardPieces: {},
+    boardPieces: [],
   }
 }
 

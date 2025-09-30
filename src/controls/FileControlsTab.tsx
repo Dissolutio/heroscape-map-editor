@@ -69,14 +69,14 @@ export const FileControlsTab = () => {
       hexMap: hexMapToUse,
       boardPieces,
     })
-    encodeURI(
-      JSONCrush.crush(
-        JSON.stringify([
-          hexMapToUse, // 1
-          ...Object.keys(boardPieces),
-        ]),
-      ),
-    )
+    // encodeURI(
+    //   JSONCrush.crush(
+    //     JSON.stringify([
+    //       hexMapToUse, // 1
+    //       ...boardPieces,
+    //     ]),
+    //   ),
+    // )
     const fullUrl = `${window.location.origin + window.location.pathname}?m=${myUrl}`
     if (fullUrl.length > 2082) {
       enqueueSnackbar({

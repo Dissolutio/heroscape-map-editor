@@ -3,7 +3,7 @@ export type MapState = MapFileState & {
 }
 export type MapFileState = {
   hexMap: HexMap
-  boardPieces: BoardPieces
+  boardPieces: string[] // just an array of piece IDs, which include q coordinate, r coordinate, altitude, and rotation
 }
 export type HexMap = {
   id: string
@@ -13,7 +13,6 @@ export type HexMap = {
   shape: string // 'hexagon' | 'rectangle'
   length: number // for hexagon shaped maps width=length=size
   width: number // for hexagon shaped maps width=length=size
-  version?: number // no version means boardPieces was an object, version 1 has boardPieces as an array
   setsUsed?: string[] // array of terrainSets Ids
   // properties below are written as BLANK STRINGS in URL-shareable format
   mapPortraitBase64?: string // a base64 representation of image of map (taken or submitted by user)
@@ -44,10 +43,7 @@ export interface BoardHex extends CubeCoordinate {
   obstacleHeight?: number // used to find the cap hex when clicking a castle wall (it's 9 up with a base, 8 up when wall-on-wall)
   isVerticalClearanceHex?: boolean // These are hexes that are above the origin/auxiliary hexes
 }
-export type BoardPieces = {
-  [id: string]: string // string = piece inventory ID
-}
-export type BoardPiecesArr = string[] // array of piece ids
+export type BoardPieces = string[]
 export type BoardHexes = {
   [qraID: string]: BoardHex
 }

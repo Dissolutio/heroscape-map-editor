@@ -1,6 +1,7 @@
 ## HexMap Version Number
-HexMap version 1 means that the BoardPieces are stored as an array.
-It was a mistake to store as an object.
+~~HexMap version 1 means that the BoardPieces are stored as an array.~~
+Actually, not adding a version number, just decoding object to array if present.
+It was a mistake to implement as an object.
 Need to handle logic to still load old maps.
 This will allow to have two pieces overlapping on the map, whereas before if 2 pieces of same type and rotation
 were in the same spot, one would be overwritten.
@@ -24,6 +25,13 @@ BoardPieces Internal:
 ## Move/rotate/switch pieces BIG REFACTOR to boardPiece render
 THIS IS THE BIG REFACTOR: Mixed up validation in addPiece, which should just place the piece if able, then a validator runs in the background
 1. Move, rotate, switch pieces that are on the board already
+
+## BowTie Jones requests
+- Indicate which way piece is being shifted
+- Format painter
+- PDF 2 column format
+- PDF portrait as level format
+- Select existing piece as pen mode
 
 
 ## What are BoardHexes used for

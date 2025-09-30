@@ -24,16 +24,6 @@ import {
   verticalSupportTemplates,
 } from './vertical-obstruction-templates'
 
-export type PieceAddArgs = {
-  piece: Piece
-  boardHexes: BoardHexes
-  boardPieces: BoardPieces
-  pieceCoords: CubeCoordinate
-  placementAltitude: number
-  rotation: number
-  isVsTile: boolean
-}
-
 export function addPiece({
   // state to mutate and return
   boardHexes,
@@ -44,10 +34,18 @@ export function addPiece({
   placementAltitude,
   rotation,
   isVsTile,
-}: PieceAddArgs): AddRemovePieceReturn {
+}: {
+  piece: Piece
+  boardHexes: BoardHexes
+  boardPieces: BoardPieces
+  pieceCoords: CubeCoordinate
+  placementAltitude: number
+  rotation: number
+  isVsTile: boolean
+}): AddRemovePieceReturn {
   let addPieceError: AddRemovePieceError
   const newBoardHexes = clone(boardHexes)
-  const newBoardPieces = clone(boardPieces)
+  const newBoardPieces = [...boardPieces]
   const piecePlaneCoords = getPieceTemplateCoords({
     clickedHex: { q: pieceCoords.q, r: pieceCoords.r, s: pieceCoords.s },
     rotation,
@@ -166,8 +164,8 @@ export function addPiece({
   // LAUR WALL ADDONS: Autoadd piece id, render from boardPieces
   if (piece.terrain === HexTerrain.laurWallAddon) {
     try {
-      // write the new laur addon piece
-      newBoardPieces[pieceID] = piece.id
+      // add the new laur addon piece
+      newBoardPieces.push(pieceID)
     } catch (error) {
       addPieceError = { message: 'Unable to place laur wall addon', error }
     }
@@ -175,9 +173,8 @@ export function addPiece({
   // ROADWALLS: Autoadd piece id, render from boardPieces
   if (isPlacingRoadWall) {
     try {
-      // Battlements are just going to write piece ID, no matter what, and we will render from that
-      // write the new battlement piece
-      newBoardPieces[pieceID] = piece.id
+      // Add the new roadwall piece
+      newBoardPieces.push(pieceID)
     } catch (error) {
       addPieceError = { message: 'Unable to place roadwall', error }
     }
@@ -185,9 +182,8 @@ export function addPiece({
   // BATTLEMENTS: Autoadd piece id, render from boardPieces
   if (isPlacingBattlement) {
     try {
-      // Battlements are just going to write piece ID, no matter what, and we will render from that
-      // write the new battlement piece
-      newBoardPieces[ladderBattlementPieceID] = piece.id
+      // Add the new battlement piece
+      newBoardPieces.push(ladderBattlementPieceID)
     } catch (error) {
       addPieceError = { message: 'Unable to place battlement', error }
     }
@@ -254,8 +250,8 @@ export function addPiece({
             }
           })
       })
-      // write the new ladder piece
-      newBoardPieces[ladderBattlementPieceID] = piece.id
+      // add the new ladder piece
+      newBoardPieces.push(ladderBattlementPieceID)
     } else {
       addPieceError = { message: 'Unable to place ladder' }
     }
@@ -340,8 +336,8 @@ export function addPiece({
           isObstacleAuxiliary,
         }
       })
-      // write the new piece
-      newBoardPieces[pieceID] = piece.id
+      // add the new piece
+      newBoardPieces.push(pieceID)
     } else {
       if (!isSpaceFreeForRuin) {
         addPieceError = { message: 'Not enough space for ruin' }
@@ -392,8 +388,8 @@ export function addPiece({
         addPieceError = { message: 'Castle base is not supported there' }
       }
     }
-    // write the new piece
-    newBoardPieces[pieceID] = piece.id
+    // add the new piece
+    newBoardPieces.push(pieceID)
   }
   // CASTLE ARCH (no error reporting)
   if (isCastleArchPiece) {
@@ -453,8 +449,8 @@ export function addPiece({
             }
           })
       })
-      // write the new piece
-      newBoardPieces[pieceID] = piece.id
+      // add the new piece
+      newBoardPieces.push(pieceID)
     }
   }
   // CASTLE WALL (no error reporting)
@@ -548,8 +544,8 @@ export function addPiece({
             }
           })
       })
-      // write the new piece
-      newBoardPieces[pieceID] = piece.id
+      // add the new piece
+      newBoardPieces.push(pieceID)
     }
   }
   // WALLWALK ONTO WALL
@@ -572,8 +568,8 @@ export function addPiece({
         isObstacleAuxiliary: iForEach !== 0, // mark non-origin hex
       }
     })
-    // write the new piece
-    newBoardPieces[pieceID] = piece.id
+    // add the new piece
+    newBoardPieces.push(pieceID)
   }
   // OBSTACLES: trees, bushes, palms, glaciers, outcrops, laurPillar
   if (isPlacingObstacle) {
@@ -673,8 +669,8 @@ export function addPiece({
       }
     })
 
-    // write the new piece
-    newBoardPieces[pieceID] = piece.id
+    // add the new piece
+    newBoardPieces.push(pieceID)
   }
   // LAND
   if (isPlacingLandTile) {
@@ -714,8 +710,8 @@ export function addPiece({
       } catch (error) {
         addPieceError = { message: 'Could not place land tile', error }
       }
-      // write the new piece
-      newBoardPieces[pieceID] = piece.id
+      // add the new piece
+      newBoardPieces.push(pieceID)
     }
   }
   return { newBoardHexes, newBoardPieces, error: addPieceError }
