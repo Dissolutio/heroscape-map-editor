@@ -21,20 +21,8 @@ export default function buildupVSFileMap(
   const blankMap = getBlankHexoscapeMapForVSTiles(tiles, mapName)
   let { boardPieces } = blankMap
   const { boardHexes, hexMap } = blankMap
-  // console.log("🚀 ~ tiles:", tiles
-  // .filter(t => t.type.toString().startsWith('14'))
-  // .map(t => t.glyphLetter), tiles
-  //   .filter(t => t.type.toString().startsWith('14'))
-  //   .map(t => t.type)
-  // )
-  // const startZoneTiles = tiles.filter(t => t.type === 15001)
   const newBoardHexes = tiles.reduce((boardHexes: BoardHexes, tile) => {
     const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
-    // PARSE START ZONES
-    // if (tile.type.toString().startsWith("1500")) {
-    //   console.log("Startzone found in virtualscape map!", tileCoords, tile.colorf)
-    //   if (tile.colorf) { }
-    // }
     const id = pieceCodes?.[getCodeForVSPersonalTile(tile)] ?? ''
     const piece = piecesSoFar[id]
     if (!piece || !piece.terrain) {
