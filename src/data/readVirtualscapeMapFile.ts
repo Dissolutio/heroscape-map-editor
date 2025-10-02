@@ -292,7 +292,7 @@ export function getCodeForVSPersonalTile(tile: VirtualScapeTile) {
   }
   if (
     tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('sand24')
+    (tile?.personal?.name ?? '').toLowerCase().includes('sand')
   ) {
     return 3024
   }
@@ -326,7 +326,29 @@ export function getCodeForVSPersonalTile(tile: VirtualScapeTile) {
   ) {
     return 5003
   }
-  // console.log("🚀 ~ getCodeForVSPersonalTile ~ tile.type:", tile)
-  // units/figures from virtualscape are tile.type === 18001
+
+  // "units/figures" from virtualscape are tile.type === 18001
+
+  /* 
+  TODO: impl converter for Superfrog's Unit Overwrites:
+  Figure => Obstacle
+  * MW1 => Glyph
+  * MW2 => Treasure Glyph
+  * MW3 => Glyph (lowered)
+  * MW4 => Treasure Glyph (lowered)
+  * Roman Archer => Long AoA wall
+  * Lego1 => AoA pillar
+  * Lego2 => AoA ruined wall (flat side)
+  * Lego3 => AoA ruined wall (corner)
+  * Lego4 => AoA pillar base
+  * Venoc => Short AoA wall
+
+  */
+  // if (
+  //   tile.type === 18001 && tile.figure.name === "ROMAN LEGIONNAIRES 4/4"
+  // ) {
+  //   return 17101 // superfrog upgraded the roman to be the pillar
+  // }
+
   return tile.type
 }
