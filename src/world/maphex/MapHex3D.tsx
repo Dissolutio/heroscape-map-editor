@@ -131,8 +131,7 @@ export const MapHex3D = ({
   const isHiveHex =
     boardHex.inventoryID === Pieces.hive && boardHex.isObstacleOrigin
   const isHiveBaseHex =
-    boardHex.inventoryID === Pieces.hive &&
-    boardHex.isObstacleAuxiliary
+    boardHex.inventoryID === Pieces.hive && boardHex.isObstacleAuxiliary
   const isRuin2OriginHex =
     pieceID === Pieces.ruins2 && boardHex.isObstacleOrigin
   const isRuin3OriginHex =
@@ -185,9 +184,9 @@ export const MapHex3D = ({
             new Vector3(
               x,
               y *
-              (isFluidTerrainHex(boardHex.terrain)
-                ? HEXGRID_HEXCAP_FLUID_SCALE
-                : 1),
+                (isFluidTerrainHex(boardHex.terrain)
+                  ? HEXGRID_HEXCAP_FLUID_SCALE
+                  : 1),
               z,
             )
           }
@@ -604,7 +603,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+              selectedPieceID === boardHex.pieceID
                 ? hexTerrainColor[HexTerrain.castle]
                 : 'yellow'
             }
@@ -631,7 +630,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                  selectedPieceID === boardHex.pieceID
+                selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castle]
               }

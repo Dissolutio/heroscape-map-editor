@@ -36,9 +36,10 @@ export function removePiece({
   const newBoardHexes = { ...boardHexes }
   // Remove only the first occurrence of pieceID from the array
   const idx = boardPieces.indexOf(pieceID)
-  const newBoardPieces: BoardPieces = idx === -1
-    ? [...boardPieces]
-    : [...boardPieces.slice(0, idx), ...boardPieces.slice(idx + 1)]
+  const newBoardPieces: BoardPieces =
+    idx === -1
+      ? [...boardPieces]
+      : [...boardPieces.slice(0, idx), ...boardPieces.slice(idx + 1)]
   const isCastleBase = piece.id.includes(PiecePrefixes.castleBase)
   const isCastleWall = piece.id.includes(PiecePrefixes.castleWall)
   const isLadder = piece.id === Pieces.ladder

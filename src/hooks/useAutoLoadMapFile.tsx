@@ -5,7 +5,11 @@ import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
 import type { BoardHexes, BoardPieces } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
-import { decodePieceID, getBoardPiecesMaxLevel, normalizeBoardPieces } from '../utils/map-utils'
+import {
+  decodePieceID,
+  getBoardPiecesMaxLevel,
+  normalizeBoardPieces,
+} from '../utils/map-utils'
 import { Button } from '@mui/material'
 import { LS_KEYS } from '../local-storage/keys'
 import { noop } from 'lodash'
@@ -47,11 +51,6 @@ const useAutoLoadMapFile = (props?: Props) => {
       try {
         const { hexMap, boardPieces } =
           parseMapDataArrayFromCrushed(urlMapString)
-        // const [hexMap, ...pieceIds] = data
-        // const boardPieces: BoardPieces = pieceIds.map((pieceId: string) => {
-        //   // get inventory id from pieceID (a~q~r~rot~id)
-        //   return decodePieceID(pieceId).inventoryID
-        // })
         const jsonMap = buildupJsonFileMap(boardPieces, hexMap)
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
@@ -149,7 +148,10 @@ const useAutoLoadMapFile = (props?: Props) => {
             hexMap: data.hexMap,
           })
         } else {
-          const jsonMap = buildupJsonFileMap(normalizeBoardPieces(data.boardPieces), data.hexMap)
+          const jsonMap = buildupJsonFileMap(
+            normalizeBoardPieces(data.boardPieces),
+            data.hexMap,
+          )
           if (!jsonMap.hexMap.name) {
             jsonMap.hexMap.name = fileName
           }

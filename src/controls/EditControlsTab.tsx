@@ -39,8 +39,7 @@ const shiftInDirectionBoardPieces = (
     const newBoardHexID = genBoardHexID({ ...newPieceCoords, altitude })
     const newPieceID = genPieceID(newBoardHexID, inventoryID, rotation)
     return newPieceID
-  }
-  )
+  })
   return newBoardPieces
 }
 export const EditControlsTab = () => {

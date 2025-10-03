@@ -39,7 +39,7 @@ if (localStorage.getItem(LS_KEYS.lastMap)) {
       LS_KEYS.lastMapCache,
       JSON.stringify({
         ...localLastMap.state,
-        boardPieces: normalizeBoardPieces(localLastMap.state.boardPieces)
+        boardPieces: normalizeBoardPieces(localLastMap.state.boardPieces),
       }),
     )
   }
