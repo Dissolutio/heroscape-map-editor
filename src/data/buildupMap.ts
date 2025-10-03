@@ -1,3 +1,4 @@
+import { clone } from 'lodash'
 import {
   type BoardHexes,
   type BoardPieces,
@@ -91,7 +92,7 @@ export function buildupJsonFileMap(
       mapName: hexMap.name,
     }).boardHexes
   }
-  const boardPiecesSortedByAltitude = boardPieces.sort((a, b) => {
+  const boardPiecesSortedByAltitude = clone(boardPieces).sort((a, b) => {
     if (decodePieceID(a).altitude > decodePieceID(b).altitude) {
       return 1 // Move 'targetValue' to the end
     }
