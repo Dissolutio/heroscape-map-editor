@@ -80,6 +80,7 @@ export function buildupJsonFileMap(
 ): MapState {
   // For JSON maps, the map dimensions are free, we do not have to compute them
   let initialBoardHexes: BoardHexes = {}
+  const initialBoardPieces = clone(boardPieces)
   if (hexMap.shape === 'rectangle') {
     initialBoardHexes = makeRectangleScenario({
       length: hexMap.length,
@@ -92,7 +93,7 @@ export function buildupJsonFileMap(
       mapName: hexMap.name,
     }).boardHexes
   }
-  const boardPiecesSortedByAltitude = clone(boardPieces).sort((a, b) => {
+  const boardPiecesSortedByAltitude = initialBoardPieces.sort((a, b) => {
     if (decodePieceID(a).altitude > decodePieceID(b).altitude) {
       return 1 // Move 'targetValue' to the end
     }
@@ -102,23 +103,24 @@ export function buildupJsonFileMap(
     boardPiecesSortedByAltitude,
   )
   const newBoardHexes = piecesArray.reduce(
-    (boardHexes: BoardHexes, pieceAqrrID): BoardHexes => {
+    (prev: BoardHexes, curr): BoardHexes => {
       const {
         pieceCoords,
         altitude: placementAltitude,
         rotation,
         inventoryID,
-      } = decodePieceID(pieceAqrrID)
+      } = decodePieceID(curr)
       const piece = piecesSoFar[inventoryID]
+      console.log("🚀 ~ buildupJsonFileMap ~ piece:", piece)
       if (!piece) {
-        return boardHexes // Should probably handle this different, errors etc.
+        return prev // Should probably handle this different, errors etc.
       }
 
       // get the new board hexes and new board pieces
       const nextBoardHexes = addPiece({
         piece,
-        boardHexes,
-        boardPieces,
+        boardHexes: prev,
+        boardPieces: clone(boardPieces),
         pieceCoords,
         placementAltitude: placementAltitude, // z is altitude is virtualscape, y is altitude in our app
         rotation: rotation,
@@ -132,7 +134,7 @@ export function buildupJsonFileMap(
   return {
     boardHexes: newBoardHexes,
     hexMap: hexMap,
-    boardPieces,
+    boardPieces: initialBoardPieces,
   }
 }
 function getBlankHexoscapeMapForVSTiles(

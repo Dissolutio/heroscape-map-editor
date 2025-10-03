@@ -51,6 +51,7 @@ const useAutoLoadMapFile = (props?: Props) => {
       try {
         const { hexMap, boardPieces } =
           parseMapDataArrayFromCrushed(urlMapString)
+        console.log("🚀 ~ useAutoLoadMapFile ~ boardPieces:", boardPieces)
         const jsonMap = buildupJsonFileMap(boardPieces, hexMap)
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
