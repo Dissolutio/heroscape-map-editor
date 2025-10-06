@@ -1,6 +1,61 @@
 import { type PieceInventory, Pieces } from '../types'
 export * as setInventories from './inventories'
 
+/* 
+SHORES:
+12 2-hex wood
+1 crashed ship bow
+2 crashed ship walls
+3 cannons
+6 rope ladders
+
+FORESTS
+2 10H trees
+2 12H trees
+2 15H 4-hex trees
+
+URBAN LANDSCAPE OF VALHALLA
+1 24-hex asphalt
+2 7-hex asphalt
+1 3-hex asphalt
+4 2-hex asphalt
+2 1-hex asphalt
+
+1 24-hex concrete
+2 7-hex concrete
+1 3-hex concrete
+4 2-hex concrete
+2 1-hex concrete
+
+2 fortified walls
+
+CAVERNS OF VALHALLA
+2 24-hex dungeon
+5 7-hex dungeon
+2 3-hex dungeon
+2 2-hex dungeon
+7 1-hex dungeon
+
+6 1-hex shadow
+6 1-hex shadow (modified, with holes)
+
+3 1-hex rock outcrops
+1 3-hex rock outcrop
+
+Rumble at the Rift BB
+2 24-hex asphalt
+
+5 7-hex concrete
+6 3-hex concrete
+
+5 1-hex shadow tiles
+
+6 1-hex toxic
+5 1-hex toxic water
+
+2 fortified walls
+*/
+
 export const maxSharedTerrainKit: PieceInventory = {
   // https://www.heroscapers.com/threads/max-shared-terrain-kit-mstk.64183/
   [Pieces.grass1]: 10,
