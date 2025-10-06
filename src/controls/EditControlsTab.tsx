@@ -174,7 +174,7 @@ export const EditControlsTab = () => {
       loadMap(newMap)
     }
   }
-  const buttonFontSize = isSmallScreenWidth ? 8 : isMediumScreenWidth ? 12 : 12
+  const buttonFontSize = isSmallScreenWidth ? 8 : isMediumScreenWidth ? 8 : 8
   return (
     <Box sx={{ p: 0 }}>
       {/* <div style={{ padding: '0px 20px' }}>
@@ -314,6 +314,8 @@ export const EditControlsTab = () => {
             >
               Up Right
             </Button>
+          </ButtonGroup>
+          <ButtonGroup>
             <Button
               title="Move all pieces 1 hex right"
               onClick={() => movePieces(0)}
