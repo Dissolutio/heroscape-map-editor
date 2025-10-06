@@ -111,7 +111,6 @@ export function buildupJsonFileMap(
         inventoryID,
       } = decodePieceID(curr)
       const piece = piecesSoFar[inventoryID]
-      console.log("🚀 ~ buildupJsonFileMap ~ piece:", piece)
       if (!piece) {
         return prev // Should probably handle this different, errors etc.
       }
