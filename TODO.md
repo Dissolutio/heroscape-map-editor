@@ -2,6 +2,13 @@
 THIS IS THE BIG REFACTOR: Mixed up validation in addPiece, which should just place the piece if able, then a validator runs in the background
 1. Move, rotate, switch pieces that are on the board already
 
+## BowTie Jones requests
+- Indicate which way piece is being shifted
+- Format painter
+- PDF 2 column format
+- PDF portrait as level format
+- Select existing piece as pen mode
+
 
 ## What are BoardHexes used for
 - MapDisplay3D => empty/fluid/solid caps, => render pieces
@@ -78,6 +85,8 @@ Building pretty much exactly like you did in Virtualscape. This will probably be
 1. Selection Tool: Add a selection tool at the bottom. Functionally, you would click the selection tool, then click multiple hexes to highlight them. Then click the copy button. It would place in your hand what you just copied and then you can left click to place it in the world. Might need a reset button for when you are done copying to put one hex back in your hand.
 
 ## Local Storage Load/Save/Edit maps
+
+Deleted the component for analyzing local storage space. `LocalStorageList.tsx`, check commits.
 
 Make a react component that can be shown in the modal like `CreateMapFormDialog.tsx`. The new component is for the user to save and load maps from local storage. They can also edit their local storage, to peruse and delete maps or other unused data stored in local storage. Some user settings may get saved there, and can be exported to a file/string and imported as easily.
 

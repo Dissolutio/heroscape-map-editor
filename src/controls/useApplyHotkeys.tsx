@@ -9,18 +9,19 @@ import useTemporalStore from '../hooks/useTemporalStore'
 import type { Group, Object3DEventMap } from 'three'
 import type { CameraControls } from '@react-three/drei'
 import { getBoardPiecesMaxLevel } from '../utils/map-utils'
+import type { RefObject } from 'react'
 
 export const useApplyHotkeys = ({
   cameraControlsRef,
   mapGroupRef,
   hotkeyConfig,
 }: {
-  cameraControlsRef: React.RefObject<CameraControls>
-  mapGroupRef: React.RefObject<Group<Object3DEventMap>>
+  cameraControlsRef: RefObject<CameraControls>
+  mapGroupRef: RefObject<Group<Object3DEventMap>>
   hotkeyConfig: { [key: string]: string | undefined }
 }) => {
   const penMode = useBoundStore((s) => s.penMode)
-  const lastPenMode = useBoundStore((s) => s.lastPenMode)
+  // const lastPenMode = useBoundStore((s) => s.lastPenMode)
   const togglePenMode = useBoundStore((state) => state.togglePenMode)
   const toggleLastPenMode = useBoundStore((state) => state.toggleLastPenMode)
   const flatPieceSizes = useBoundStore((s) => s.flatPieceSizes)

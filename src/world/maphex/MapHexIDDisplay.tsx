@@ -24,10 +24,10 @@ export const MapHexIDDisplay = ({
 }) => {
   // return null
   const boardHexes = useBoundStore((s) => s.boardHexes)
-  const boardPieces = useBoundStore((s) => s.boardPieces)
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const maxLevel = getBoardPiecesMaxLevel(boardPieces)
-  const isViewingLevelBelowMax = viewingLevel < maxLevel
+  // const boardPieces = useBoundStore((s) => s.boardPieces)
+  // const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  // const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+  // const isViewingLevelBelowMax = viewingLevel < maxLevel
   /* 
   DEV VISUAL: toggling the below filters off, such that EVERY boardHex shows a billboardID, really helps to see how the 
   grid works (you can see vertical-clearance hexes, empty hexes)

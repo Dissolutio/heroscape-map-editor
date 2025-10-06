@@ -41,6 +41,7 @@ const DownloadMapFileButtons = () => {
     element.click()
     // element.remove()
   }
+  // lean file version means no map portrait is saved
   const handleClickExportJson = async (isLeanFileVersion: boolean) => {
     const filename = `${fileName}.json`
     const hexMapToUse = isLeanFileVersion
@@ -76,13 +77,13 @@ const DownloadMapFileButtons = () => {
         icon={<MdFolderZip />}
       />
       <ControlTabsListItemButton
+        title="Download the map file without the map portrait image (much smaller filesize)"
         primary="Download file (.json)"
-        onClick={() => handleClickExportJson(false)}
+        onClick={() => handleClickExportJson(true)}
         icon={<MdFolderZip />}
       />
       <ControlTabsListItemButton
-        title="Download the map file without the map portrait image (much smaller filesize)"
-        primary="Download slim file (.json)"
+        primary="Download file (.json) (with map picture included)"
         onClick={() => handleClickExportJson(false)}
         icon={<MdFolderZip />}
       />

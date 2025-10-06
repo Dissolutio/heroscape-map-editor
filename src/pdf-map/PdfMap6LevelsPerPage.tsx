@@ -29,7 +29,7 @@ export const PdfMapLevels6PerPage = ({
     boardHexesWithoutEmpties,
     boardPieces,
   )
-  const decodedBoardPiecesArr = Object.keys(boardPieces)
+  const decodedBoardPiecesArr = boardPieces
     .map((id) => decodePieceID(id))
     .filter((p) => Boolean(p))
   return (
@@ -109,7 +109,7 @@ const getBoardHexAndPieceChunks = (
   const filteredBoardHexes = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
   )
-  const filteredBoardPieces = Object.keys(boardPieces)
+  const filteredBoardPieces = boardPieces
     .filter((pieceID) => {
       const id = decodePieceID(pieceID).inventoryID
       return (

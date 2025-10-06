@@ -236,7 +236,7 @@ export default function MapDisplay3D({
           boardHexArr={instanceBoardHexes.fluidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
         />
-        {Object.keys(boardPieces).map((pid) => {
+        {boardPieces.map((pid) => {
           return <MapBoardPiece3D key={pid} pid={pid} />
         })}
         {boardHexesArr.map((bh) => {

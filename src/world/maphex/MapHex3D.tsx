@@ -54,7 +54,6 @@ export const MapHex3D = ({
   boardHex: BoardHex
   onPointerUpPaintPiece: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) => {
-  const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isTopOutlinedInterlockHexes = useBoundStore(
@@ -64,7 +63,7 @@ export const MapHex3D = ({
   const isVisible = boardHex.altitude <= viewingLevel
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const pieceID = boardPieces[boardHex.pieceID]
+  const inventoryID = boardHex.inventoryID
   const { x, y, z, yWithBase, yBase, yBaseCap, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords(boardHex)
   const underHexID = genBoardHexID({
@@ -107,58 +106,57 @@ export const MapHex3D = ({
     boardHex.terrain === HexTerrain.palm && boardHex.isObstacleOrigin
   const isLadderHex =
     boardHex.terrain === HexTerrain.ladder && boardHex.isObstacleOrigin
-  const isGlacier1Hex = pieceID === Pieces.glacier1 && isObstacleHex
-  const isPowerGlyphHex = pieceID === Pieces.glyphPower
-  const isTreasureGlyphHex = pieceID === Pieces.glyphTreasure
-  const isOutcrop1Hex = pieceID === Pieces.outcrop1 && isObstacleHex
-  const isOutcrop3Hex = pieceID === Pieces.outcrop3 && boardHex.isObstacleOrigin
+  const isGlacier1Hex = inventoryID === Pieces.glacier1 && isObstacleHex
+  const isPowerGlyphHex = inventoryID === Pieces.glyphPower
+  const isTreasureGlyphHex = inventoryID === Pieces.glyphTreasure
+  const isOutcrop1Hex = inventoryID === Pieces.outcrop1 && isObstacleHex
+  const isOutcrop3Hex = inventoryID === Pieces.outcrop3 && boardHex.isObstacleOrigin
   const isOutcrop3BaseHex =
-    pieceID === Pieces.outcrop3 && boardHex.isObstacleAuxiliary
+    inventoryID === Pieces.outcrop3 && boardHex.isObstacleAuxiliary
   const isLavaRockOutcrop1Hex =
-    pieceID === Pieces.lavaRockOutcrop1 && isObstacleHex
+    inventoryID === Pieces.lavaRockOutcrop1 && isObstacleHex
   const isLavaRockOutcrop3Hex =
-    pieceID === Pieces.lavaRockOutcrop3 && boardHex.isObstacleOrigin
+    inventoryID === Pieces.lavaRockOutcrop3 && boardHex.isObstacleOrigin
   const isLavaRockOutcrop3BaseHex =
-    pieceID === Pieces.lavaRockOutcrop3 && boardHex.isObstacleAuxiliary
-  const isGlacier3Hex = pieceID === Pieces.glacier3 && boardHex.isObstacleOrigin
+    inventoryID === Pieces.lavaRockOutcrop3 && boardHex.isObstacleAuxiliary
+  const isGlacier3Hex = inventoryID === Pieces.glacier3 && boardHex.isObstacleOrigin
   const isGlacier3BaseHex =
-    pieceID === Pieces.glacier3 && boardHex.isObstacleAuxiliary
-  const isGlacier4Hex = pieceID === Pieces.glacier4 && boardHex.isObstacleOrigin
+    inventoryID === Pieces.glacier3 && boardHex.isObstacleAuxiliary
+  const isGlacier4Hex = inventoryID === Pieces.glacier4 && boardHex.isObstacleOrigin
   const isGlacier4BaseHex =
-    pieceID === Pieces.glacier4 && boardHex.isObstacleAuxiliary
-  const isGlacier6Hex = pieceID === Pieces.glacier6 && boardHex.isObstacleOrigin
+    inventoryID === Pieces.glacier4 && boardHex.isObstacleAuxiliary
+  const isGlacier6Hex = inventoryID === Pieces.glacier6 && boardHex.isObstacleOrigin
   const isGlacier6BaseHex =
-    pieceID === Pieces.glacier6 && boardHex.isObstacleAuxiliary
+    inventoryID === Pieces.glacier6 && boardHex.isObstacleAuxiliary
   const isHiveHex =
-    boardPieces[boardHex.pieceID] === Pieces.hive && boardHex.isObstacleOrigin
+    boardHex.inventoryID === Pieces.hive && boardHex.isObstacleOrigin
   const isHiveBaseHex =
-    boardPieces[boardHex.pieceID] === Pieces.hive &&
-    boardHex.isObstacleAuxiliary
+    boardHex.inventoryID === Pieces.hive && boardHex.isObstacleAuxiliary
   const isRuin2OriginHex =
-    pieceID === Pieces.ruins2 && boardHex.isObstacleOrigin
+    inventoryID === Pieces.ruins2 && boardHex.isObstacleOrigin
   const isRuin3OriginHex =
-    pieceID === Pieces.ruins3 && boardHex.isObstacleOrigin
+    inventoryID === Pieces.ruins3 && boardHex.isObstacleOrigin
   const isMarvelRuinOriginHex =
-    (pieceID === Pieces.marvel ||
-      pieceID === Pieces.marvelBroken ||
-      pieceID === Pieces.marvelNoUpper ||
-      pieceID === Pieces.marvelNoUpperBroken) &&
+    (inventoryID === Pieces.marvel ||
+      inventoryID === Pieces.marvelBroken ||
+      inventoryID === Pieces.marvelNoUpper ||
+      inventoryID === Pieces.marvelNoUpperBroken) &&
     boardHex.isObstacleOrigin
-  const isCastleBaseEnd = pieceID === Pieces.castleBaseEnd
-  const isCastleBaseStraight = pieceID === Pieces.castleBaseStraight
-  const isCastleBaseCorner = pieceID === Pieces.castleBaseCorner
+  const isCastleBaseEnd = inventoryID === Pieces.castleBaseEnd
+  const isCastleBaseStraight = inventoryID === Pieces.castleBaseStraight
+  const isCastleBaseCorner = inventoryID === Pieces.castleBaseCorner
   const isCastleWallEnd =
-    pieceID === Pieces.castleWallEnd && boardHex.isObstacleOrigin
+    inventoryID === Pieces.castleWallEnd && boardHex.isObstacleOrigin
   const isCastleWallStraight =
-    pieceID === Pieces.castleWallStraight && boardHex.isObstacleOrigin
+    inventoryID === Pieces.castleWallStraight && boardHex.isObstacleOrigin
   const isCastleWallCorner =
-    pieceID === Pieces.castleWallCorner && boardHex.isObstacleOrigin
+    inventoryID === Pieces.castleWallCorner && boardHex.isObstacleOrigin
   const isCastleWall =
     isCastleWallEnd || isCastleWallStraight || isCastleWallCorner
   const isCastleBase =
     isCastleBaseEnd || isCastleBaseStraight || isCastleBaseCorner
   const isCastleArch =
-    pieceID === Pieces.castleArch || pieceID === Pieces.castleArchNoDoor
+    inventoryID === Pieces.castleArch || inventoryID === Pieces.castleArchNoDoor
 
   const ruinsOptions = getRuinsOptions(boardHex.pieceRotation)
   const pieceRotation = (boardHex.pieceRotation * -Math.PI) / 3
@@ -186,9 +184,9 @@ export const MapHex3D = ({
             new Vector3(
               x,
               y *
-                (isFluidTerrainHex(boardHex.terrain)
-                  ? HEXGRID_HEXCAP_FLUID_SCALE
-                  : 1),
+              (isFluidTerrainHex(boardHex.terrain)
+                ? HEXGRID_HEXCAP_FLUID_SCALE
+                : 1),
               z,
             )
           }
@@ -252,13 +250,13 @@ export const MapHex3D = ({
         <>
           <group
             scale={[
-              getOptionsForTreeHeight(boardHex.pieceID).scaleX,
-              getOptionsForTreeHeight(boardHex.pieceID).scaleY,
-              getOptionsForTreeHeight(boardHex.pieceID).scaleX,
+              getOptionsForTreeHeight(boardHex.inventoryID).scaleX,
+              getOptionsForTreeHeight(boardHex.inventoryID).scaleY,
+              getOptionsForTreeHeight(boardHex.inventoryID).scaleX,
             ]}
             position={[
               x,
-              yWithBase + getOptionsForTreeHeight(boardHex.pieceID).y,
+              yWithBase + getOptionsForTreeHeight(boardHex.inventoryID).y,
               z,
             ]}
             rotation={[0, pieceRotation, 0]}
@@ -345,7 +343,7 @@ export const MapHex3D = ({
       )}
       {isPalmHex && (
         <group
-          scale={[1, getOptionsForPalmHeight(boardHex.pieceID).scaleY, 1]}
+          scale={[1, getOptionsForPalmHeight(boardHex.inventoryID).scaleY, 1]}
           position={[x, yBaseCap, z]}
           rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
         >
@@ -605,7 +603,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-              selectedPieceID === boardHex.pieceID
+                selectedPieceID === boardHex.pieceID
                 ? hexTerrainColor[HexTerrain.castle]
                 : 'yellow'
             }
@@ -632,7 +630,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+                  selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castle]
               }

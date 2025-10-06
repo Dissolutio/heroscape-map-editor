@@ -10,6 +10,7 @@ import type {
 } from '../types'
 import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
+import { normalizeBoardPieces } from '../utils/map-utils'
 
 export interface MapSlice extends MapState {
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
@@ -36,7 +37,10 @@ if (localStorage.getItem(LS_KEYS.lastMap)) {
   if (localLastMap?.state) {
     localStorage.setItem(
       LS_KEYS.lastMapCache,
-      JSON.stringify(localLastMap.state),
+      JSON.stringify({
+        ...localLastMap.state,
+        boardPieces: normalizeBoardPieces(localLastMap.state.boardPieces),
+      }),
     )
   }
 }
@@ -52,7 +56,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     width: 20,
     length: 20,
   },
-  boardPieces: {},
+  boardPieces: [],
   paintTile: ({
     piece,
     clickedHexCoords,
@@ -91,7 +95,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   unpaintTile: (pieceID: string) =>
     set((state) => {
       return produce(state, (draft) => {
-        const { newBoardHexes, newBoardPieces, error } = removePiece({
+        const { newBoardHexes, newBoardPieces } = removePiece({
           pieceID,
           boardHexes: draft.boardHexes,
           boardPieces: draft.boardPieces,

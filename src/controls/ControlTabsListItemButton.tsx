@@ -9,6 +9,7 @@ type Props = {
   icon: React.ReactNode
   endIcon?: React.ReactNode
   title?: string
+  disabled?: boolean
 }
 
 export const ControlTabsListItemButton = ({
@@ -17,6 +18,7 @@ export const ControlTabsListItemButton = ({
   icon,
   endIcon,
   title,
+  disabled,
 }: Props) => {
   const { isSmallControls, isMediumControls } = useControlsWidthContext()
   const listItemTextStyleProps = {
@@ -33,6 +35,7 @@ export const ControlTabsListItemButton = ({
         width: '100%',
       }}
       title={title}
+      disabled={disabled}
     >
       <ListItemIcon
         sx={{

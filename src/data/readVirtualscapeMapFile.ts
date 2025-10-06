@@ -1,4 +1,4 @@
-import type { MapFileState, VirtualScapeMap, VirtualScapeTile } from '../types'
+import type { VirtualScapeMap, VirtualScapeTile } from '../types'
 
 /* 
 This function reads a specific binary file format used by VirtualScape.
@@ -189,9 +189,7 @@ function rtfToText(rtf: string) {
     .trim()
 }
 
-export default function readVirtualscapeMapFile(
-  file: File,
-): Promise<VirtualScapeMap> {
+export function readVirtualscapeMapFile(file: File): Promise<VirtualScapeMap> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onloadend = () => {
@@ -207,42 +205,148 @@ export default function readVirtualscapeMapFile(
     reader.readAsArrayBuffer(file)
   })
 }
-export async function processGZippedJsonArrayBuffer(
-  arrayBuffer: ArrayBuffer,
-  readableStream?: ReadableStream<Uint8Array> | null,
-) {
-  try {
-    const stream = readableStream || new Blob([arrayBuffer ?? '']).stream()
-    const decompressedStream = stream.pipeThrough(
-      new DecompressionStream('gzip'),
-    )
-    const decompressedData = await new Response(decompressedStream).text()
-    const data: MapFileState = JSON.parse(decompressedData)
-    return data
-  } catch (error) {
-    console.error(error)
-  }
+
+const startAreaColorsToPieceCode: { [colorf: string]: number } = {
+  // Keys are the colorf values of StartAreaTiles from virtualscape (the colorf values are these tiles only differentiating property)
+  'rgba(255,0,0,0)': 15002, // red 255
+  'rgba(0,255,0,0)': 15003, // green 65280
+  'rgba(0,0,255,0)': 15004, // blue 16711680
+  'rgba(255,255,0,0)': 15005, // yellow 65535
+  'rgba(255,0,255,0)': 15006, // violet 16711935
+  'rgba(0,255,255,0)': 15007, // cyan 16776960
+  'rgba(255,128,0,0)': 15008, // orange  33023
+  'rgba(128,0,255,0)': 15009, // purple 16711808
 }
-export function readGzipMapFile(file: File): Promise<MapFileState> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onloadend = async () => {
-      const arrayBuffer = reader.result
-      try {
-        const compressedBlob = new Blob([arrayBuffer ?? ''])
-        const decompressedStream = compressedBlob
-          .stream()
-          .pipeThrough(new DecompressionStream('gzip'))
-        const decompressedData = await new Response(decompressedStream).text()
-        const data: MapFileState = JSON.parse(decompressedData)
-        resolve(data)
-      } catch (error) {
-        console.error(error)
-      }
-    }
-    reader.onerror = () => {
-      reject(reader.error)
-    }
-    reader.readAsArrayBuffer(file)
-  })
+
+export function getCodeForVSPersonalTile(tile: VirtualScapeTile) {
+  // transforms glyph pieces into Power Glyph
+  // transforms start zone pieces based on their color in Virtualscape
+  // transforms personal tiles created in Virtualscape
+  // (the specs on those personal tiles were published here: https://www.heroscapers.com/threads/v-s-personal-tiles.11185/)
+  // or just return the original pieceCode
+
+  // GLYPHS
+  if (
+    tile.type
+      .toString()
+      .startsWith('140') // all glyphs are 140XX in Virtualscape, see commented code in glyphs.ts
+  ) {
+    return 14063 // the "?" glyph from Virtualscape (neglecting importing named/revealed glyphs)
+  }
+
+  // START ZONES
+  if (tile.type === 15001) {
+    return startAreaColorsToPieceCode[`${tile.colorf}`]
+  }
+
+  // PERSONAL TILES
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('pillar')
+  ) {
+    return 17101 // is now the laurPillar code, never existed in virtualscape
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('pillar')
+  ) {
+    return 17101 // is now the laurPillar code, never existed in virtualscape
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('wellspring')
+  ) {
+    return 17001
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('lavafield3')
+  ) {
+    return 7003
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('lavafield24')
+  ) {
+    return 7024
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('snow3')
+  ) {
+    return 9003
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('snow7')
+  ) {
+    return 9007
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('snow24')
+  ) {
+    return 9024
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('sand')
+  ) {
+    return 3024
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('swampwater3')
+  ) {
+    return 19003
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().startsWith('water3')
+  ) {
+    return 4003
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('lava3')
+  ) {
+    return 6003
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('shadow3')
+  ) {
+    return 25003
+  }
+  if (
+    tile.type === 17000 &&
+    (tile?.personal?.name ?? '').toLowerCase().includes('ice3')
+  ) {
+    return 5003
+  }
+
+  // "units/figures" from virtualscape are tile.type === 18001
+
+  /* 
+  TODO: impl converter for Superfrog's Unit Overwrites:
+  Figure => Obstacle
+  * MW1 => Glyph
+  * MW2 => Treasure Glyph
+  * MW3 => Glyph (lowered)
+  * MW4 => Treasure Glyph (lowered)
+  * Roman Archer => Long AoA wall
+  * Lego1 => AoA pillar
+  * Lego2 => AoA ruined wall (flat side)
+  * Lego3 => AoA ruined wall (corner)
+  * Lego4 => AoA pillar base
+  * Venoc => Short AoA wall
+
+  */
+  // if (
+  //   tile.type === 18001 && tile.figure.name === "ROMAN LEGIONNAIRES 4/4"
+  // ) {
+  //   return 17101 // superfrog upgraded the roman to be the pillar
+  // }
+
+  return tile.type
 }

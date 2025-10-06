@@ -3,7 +3,7 @@ export type MapState = MapFileState & {
 }
 export type MapFileState = {
   hexMap: HexMap
-  boardPieces: BoardPieces
+  boardPieces: string[] // just an array of piece IDs, which include q coordinate, r coordinate, altitude, and rotation
 }
 export type HexMap = {
   id: string
@@ -43,9 +43,7 @@ export interface BoardHex extends CubeCoordinate {
   obstacleHeight?: number // used to find the cap hex when clicking a castle wall (it's 9 up with a base, 8 up when wall-on-wall)
   isVerticalClearanceHex?: boolean // These are hexes that are above the origin/auxiliary hexes
 }
-export type BoardPieces = {
-  [id: string]: string // string = piece inventory ID
-}
+export type BoardPieces = string[]
 export type BoardHexes = {
   [qraID: string]: BoardHex
 }

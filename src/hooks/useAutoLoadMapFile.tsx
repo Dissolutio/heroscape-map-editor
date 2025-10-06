@@ -5,7 +5,11 @@ import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
 import type { BoardHexes, BoardPieces } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
-import { decodePieceID, getBoardPiecesMaxLevel } from '../utils/map-utils'
+import {
+  decodePieceID,
+  getBoardPiecesMaxLevel,
+  normalizeBoardPieces,
+} from '../utils/map-utils'
 import { Button } from '@mui/material'
 import { LS_KEYS } from '../local-storage/keys'
 import { noop } from 'lodash'
@@ -45,17 +49,9 @@ const useAutoLoadMapFile = (props?: Props) => {
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
-        const { hexMap, boardPieces: pieceIds } =
+        const { hexMap, boardPieces } =
           parseMapDataArrayFromCrushed(urlMapString)
-        // const [hexMap, ...pieceIds] = data
-        const boardPieces: BoardPieces = Object.keys(pieceIds).reduce(
-          (prev: BoardPieces, curr: string) => {
-            // get inventory id from pieceID (a~q~r~rot~id)
-            prev[curr] = decodePieceID(curr).inventoryID
-            return prev
-          },
-          {},
-        )
+        console.log("🚀 ~ useAutoLoadMapFile ~ boardPieces:", boardPieces)
         const jsonMap = buildupJsonFileMap(boardPieces, hexMap)
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
@@ -145,14 +141,18 @@ const useAutoLoadMapFile = (props?: Props) => {
       fetch(fileName).then(async (response) => {
         // const data = response.json()
         const data = await response.json()
+
         if (props?.boardHexes) {
           loadMap({
             boardHexes: props.boardHexes,
-            boardPieces: data.boardPieces,
+            boardPieces: normalizeBoardPieces(data.boardPieces),
             hexMap: data.hexMap,
           })
         } else {
-          const jsonMap = buildupJsonFileMap(data.boardPieces, data.hexMap)
+          const jsonMap = buildupJsonFileMap(
+            normalizeBoardPieces(data.boardPieces),
+            data.hexMap,
+          )
           if (!jsonMap.hexMap.name) {
             jsonMap.hexMap.name = fileName
           }

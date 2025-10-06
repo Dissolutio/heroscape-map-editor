@@ -44,11 +44,11 @@ const ViewMapInventoryDialog = () => {
 
   // Count pieces used in the map
   function countPiecesUsed(
-    boardPieces: Record<string, string>,
+    boardPieces: string[],
   ): Record<string, number> {
     const used: Record<string, number> = {}
-    for (const pieceID of Object.values(boardPieces)) {
-      used[pieceID] = (used[pieceID] || 0) + 1
+    for (const pieceID of boardPieces) {
+      used[pieceID] = (used?.[pieceID] ?? 0) + 1
     }
     return used
   }
@@ -136,7 +136,8 @@ const ViewMapInventoryDialog = () => {
                   }}
                 >
                   <span>
-                    {piecesSoFar[pieceID]?.title || pieceID}: {usedCount} {(available > 0) ? `/ ${available}` : ''}
+                    {piecesSoFar[pieceID]?.title || pieceID}: {usedCount}{' '}
+                    {available > 0 ? `/ ${available}` : ''}
                   </span>
                   {isNotAllowed && !skipAlert && (
                     <span style={{ marginLeft: 8, fontWeight: 'bold' }}>

@@ -1,3 +1,4 @@
+import { clone } from 'lodash'
 import {
   type BoardHexes,
   type BoardPieces,
@@ -12,7 +13,7 @@ import { decodePieceID } from '../utils/map-utils'
 import { addPiece } from './addPiece'
 import { pieceCodes } from './pieceCodes'
 import { piecesSoFar } from './pieces'
-import { startAreaColorsToPieceCode } from './virtualStartZones'
+import { getCodeForVSPersonalTile } from './readVirtualscapeMapFile'
 
 export default function buildupVSFileMap(
   tiles: VirtualScapeTile[],
@@ -21,20 +22,8 @@ export default function buildupVSFileMap(
   const blankMap = getBlankHexoscapeMapForVSTiles(tiles, mapName)
   let { boardPieces } = blankMap
   const { boardHexes, hexMap } = blankMap
-  // console.log("🚀 ~ tiles:", tiles
-  // .filter(t => t.type.toString().startsWith('14'))
-  // .map(t => t.glyphLetter), tiles
-  //   .filter(t => t.type.toString().startsWith('14'))
-  //   .map(t => t.type)
-  // )
-  // const startZoneTiles = tiles.filter(t => t.type === 15001)
   const newBoardHexes = tiles.reduce((boardHexes: BoardHexes, tile) => {
     const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
-    // PARSE START ZONES
-    // if (tile.type.toString().startsWith("1500")) {
-    //   console.log("Startzone found in virtualscape map!", tileCoords, tile.colorf)
-    //   if (tile.colorf) { }
-    // }
     const id = pieceCodes?.[getCodeForVSPersonalTile(tile)] ?? ''
     const piece = piecesSoFar[id]
     if (!piece || !piece.terrain) {
@@ -91,6 +80,7 @@ export function buildupJsonFileMap(
 ): MapState {
   // For JSON maps, the map dimensions are free, we do not have to compute them
   let initialBoardHexes: BoardHexes = {}
+  const initialBoardPieces = clone(boardPieces)
   if (hexMap.shape === 'rectangle') {
     initialBoardHexes = makeRectangleScenario({
       length: hexMap.length,
@@ -103,7 +93,7 @@ export function buildupJsonFileMap(
       mapName: hexMap.name,
     }).boardHexes
   }
-  const boardPiecesSortedByAltitude = Object.keys(boardPieces).sort((a, b) => {
+  const boardPiecesSortedByAltitude = initialBoardPieces.sort((a, b) => {
     if (decodePieceID(a).altitude > decodePieceID(b).altitude) {
       return 1 // Move 'targetValue' to the end
     }
@@ -113,23 +103,23 @@ export function buildupJsonFileMap(
     boardPiecesSortedByAltitude,
   )
   const newBoardHexes = piecesArray.reduce(
-    (boardHexes: BoardHexes, pieceAqrrID): BoardHexes => {
+    (prev: BoardHexes, curr): BoardHexes => {
       const {
         pieceCoords,
         altitude: placementAltitude,
         rotation,
         inventoryID,
-      } = decodePieceID(pieceAqrrID)
+      } = decodePieceID(curr)
       const piece = piecesSoFar[inventoryID]
       if (!piece) {
-        return boardHexes // Should probably handle this different, errors etc.
+        return prev // Should probably handle this different, errors etc.
       }
 
       // get the new board hexes and new board pieces
       const nextBoardHexes = addPiece({
         piece,
-        boardHexes,
-        boardPieces,
+        boardHexes: prev,
+        boardPieces: clone(boardPieces),
         pieceCoords,
         placementAltitude: placementAltitude, // z is altitude is virtualscape, y is altitude in our app
         rotation: rotation,
@@ -143,7 +133,7 @@ export function buildupJsonFileMap(
   return {
     boardHexes: newBoardHexes,
     hexMap: hexMap,
-    boardPieces,
+    boardPieces: initialBoardPieces,
   }
 }
 function getBlankHexoscapeMapForVSTiles(
@@ -178,113 +168,4 @@ function getBlankHexoscapeMapForVSTiles(
     width,
     mapName,
   })
-}
-function getCodeForVSPersonalTile(tile: VirtualScapeTile) {
-  // transforms glyph pieces into Power Glyph
-  // transforms start zone pieces based on their color in Virtualscape
-  // transforms personal tiles created in Virtualscape
-  // (the specs on those personal tiles were published here: https://www.heroscapers.com/threads/v-s-personal-tiles.11185/)
-  // or just return the original pieceCode
-
-  // GLYPHS
-  if (
-    tile.type
-      .toString()
-      .startsWith('140') // all glyphs are 140XX in Virtualscape, see commented code in glyphs.ts
-  ) {
-    return 14063 // the "?" glyph from Virtualscape (neglecting importing named/revealed glyphs)
-  }
-
-  // START ZONES
-  if (tile.type === 15001) {
-    console.log('🚀 ~ getCodeForVSPersonalTile ~ tile.colorf:', tile.colorf)
-    return startAreaColorsToPieceCode[`${tile.colorf}`] // is now the laurPillar code, never existed in virtualscape
-  }
-
-  // PERSONAL TILES
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('pillar')
-  ) {
-    return 17101 // is now the laurPillar code, never existed in virtualscape
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('pillar')
-  ) {
-    return 17101 // is now the laurPillar code, never existed in virtualscape
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('wellspring')
-  ) {
-    return 17001
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('lavafield3')
-  ) {
-    return 7003
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('lavafield24')
-  ) {
-    return 7024
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('snow3')
-  ) {
-    return 9003
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('snow7')
-  ) {
-    return 9007
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('snow24')
-  ) {
-    return 9024
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('sand24')
-  ) {
-    return 3024
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('swampwater3')
-  ) {
-    return 19003
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().startsWith('water3')
-  ) {
-    return 4003
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('lava3')
-  ) {
-    return 6003
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('shadow3')
-  ) {
-    return 25003
-  }
-  if (
-    tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('ice3')
-  ) {
-    return 5003
-  }
-  return tile.type
 }

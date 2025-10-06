@@ -277,7 +277,7 @@ export function genBoardHexID(hex: CubeCoordinate & { altitude: number }) {
 export const getBoardPiecesMaxLevel = (boardPieces: BoardPieces) => {
   const maxLevel =
     1 +
-    Object.keys(boardPieces)
+    boardPieces
       .map((bp) => decodePieceID(bp).altitude) // get their altitudes
       .sort((a, b) => b - a)[0] // sort them high to low and grab the first
   return Number.isNaN(maxLevel) ? 0 : maxLevel
@@ -310,4 +310,19 @@ export function countStringInArrayLoop(arr: string[], targetString: string) {
     }
   }
   return count
+}
+
+/**
+ * Normalize BoardPieces to an array of pieceIDs (strings).
+ * Supports legacy object format and new array format (version 1).
+ */
+export function normalizeBoardPieces(boardPieces: BoardPieces): string[] {
+  if (Array.isArray(boardPieces)) {
+    return boardPieces
+  }
+  if (typeof boardPieces === 'object' && boardPieces !== null) {
+    return Object.keys(boardPieces)
+  }
+  // ERROR, since currently there's only 2 versions
+  return []
 }
