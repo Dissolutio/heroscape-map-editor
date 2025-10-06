@@ -247,7 +247,7 @@ const createUISlice: StateCreator<
         s.isTopOutlinedInterlockHexes = b
       }),
     ),
-  isFrameloopDemand: false,  // app seems to lockup on stale window regardless
+  isFrameloopDemand: false, // app seems to lockup on stale window regardless
   toggleIsFrameloopDemand: (b: boolean) =>
     set(
       produce((s) => {

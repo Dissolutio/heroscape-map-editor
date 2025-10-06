@@ -355,10 +355,8 @@ export function addPiece({
 
   // CASTLE BASE
   if (piece.id.includes(PiecePrefixes.castleBase)) {
-    console.log("🚀 ~ addPiece ~ piece.id.includes(PiecePrefixes.castleBase):", piece.id.includes(PiecePrefixes.castleBase))
     const isCastleBaseSupported = isPlacingOnTable || isSolidUnderAtLeastOne // castle bases are all 1-hex, currently
     const isPlacingCastleBase = isSpaceFree && isCastleBaseSupported
-    console.log("🚀 ~ addPiece ~ isPlacingCastleBase:", isPlacingCastleBase)
     if (isPlacingCastleBase) {
       newHexIds.forEach((newHexID, i) => {
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]

@@ -43,9 +43,7 @@ const ViewMapInventoryDialog = () => {
   }
 
   // Count pieces used in the map
-  function countPiecesUsed(
-    boardPieces: string[],
-  ): Record<string, number> {
+  function countPiecesUsed(boardPieces: string[]): Record<string, number> {
     const used: Record<string, number> = {}
     for (const pieceID of boardPieces) {
       used[pieceID] = (used?.[pieceID] ?? 0) + 1

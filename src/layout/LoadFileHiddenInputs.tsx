@@ -40,7 +40,10 @@ export const LoadFileHiddenInputs = () => {
     }
     try {
       const data = await readGzipMapFile(file)
-      const jsonMap = buildupJsonFileMap(normalizeBoardPieces(data.boardPieces), data.hexMap)
+      const jsonMap = buildupJsonFileMap(
+        normalizeBoardPieces(data.boardPieces),
+        data.hexMap,
+      )
       if (!jsonMap.hexMap.name) {
         jsonMap.hexMap.name = file.name
       }
@@ -73,7 +76,10 @@ export const LoadFileHiddenInputs = () => {
     }
     try {
       const data = await new Response(file).json()
-      const jsonMap = buildupJsonFileMap(normalizeBoardPieces(data.boardPieces), data.hexMap)
+      const jsonMap = buildupJsonFileMap(
+        normalizeBoardPieces(data.boardPieces),
+        data.hexMap,
+      )
       if (!jsonMap.hexMap.name) {
         jsonMap.hexMap.name = file.name
       }
