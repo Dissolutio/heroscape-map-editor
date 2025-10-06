@@ -170,6 +170,7 @@ export const FileControlsTab = () => {
           <ControlTabsListItemButton
             primary="Download Map Picture"
             onClick={handleClickDownloadPhoto}
+            disabled={!hexMap.mapPortraitBase64}
             icon={<FcDownload />}
             endIcon={isDownloadOpen ? <MdExpandLess /> : <MdExpandMore />}
           />
