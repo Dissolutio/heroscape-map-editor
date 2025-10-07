@@ -58,8 +58,7 @@ export const MapHex3D = ({
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const inventoryID = boardHex.inventoryID
-  const { x, y, z, yWithBase, yBase, yBaseCap, yGlyph, yGlyphFluidUnder } =
-    getBoardHex3DCoords(boardHex)
+  const { x, y, z, yWithBase, yBase, yBaseCap } = getBoardHex3DCoords(boardHex)
   const underHexID = genBoardHexID({
     ...boardHex,
     altitude: boardHex.altitude - 1,
@@ -99,16 +98,10 @@ export const MapHex3D = ({
     boardHex.terrain === HexTerrain.palm && boardHex.isObstacleOrigin
   const isLadderHex =
     boardHex.terrain === HexTerrain.ladder && boardHex.isObstacleOrigin
-  const isGlacier1Hex = inventoryID === Pieces.glacier1 && isObstacleHex
-  const isPowerGlyphHex = inventoryID === Pieces.glyphPower
-  const isTreasureGlyphHex = inventoryID === Pieces.glyphTreasure
-  const isOutcrop1Hex = inventoryID === Pieces.outcrop1 && isObstacleHex
   const isOutcrop3Hex =
     inventoryID === Pieces.outcrop3 && boardHex.isObstacleOrigin
   const isOutcrop3BaseHex =
     inventoryID === Pieces.outcrop3 && boardHex.isObstacleAuxiliary
-  const isLavaRockOutcrop1Hex =
-    inventoryID === Pieces.lavaRockOutcrop1 && isObstacleHex
   const isLavaRockOutcrop3Hex =
     inventoryID === Pieces.lavaRockOutcrop3 && boardHex.isObstacleOrigin
   const isLavaRockOutcrop3BaseHex =
@@ -129,18 +122,9 @@ export const MapHex3D = ({
     boardHex.inventoryID === Pieces.hive && boardHex.isObstacleOrigin
   const isHiveBaseHex =
     boardHex.inventoryID === Pieces.hive && boardHex.isObstacleAuxiliary
-  const isRuin2OriginHex =
-    inventoryID === Pieces.ruins2 && boardHex.isObstacleOrigin
-  const isRuin3OriginHex =
-    inventoryID === Pieces.ruins3 && boardHex.isObstacleOrigin
-  const isFortifiedWallOriginHex =
-    inventoryID === Pieces.fortifiedWall && boardHex.isObstacleOrigin
-  const isMarvelRuinOriginHex =
-    (inventoryID === Pieces.marvel ||
-      inventoryID === Pieces.marvelBroken ||
-      inventoryID === Pieces.marvelNoUpper ||
-      inventoryID === Pieces.marvelNoUpperBroken) &&
-    boardHex.isObstacleOrigin
+  const isCastleBaseEnd = inventoryID === Pieces.castleBaseEnd
+  const isCastleBaseStraight = inventoryID === Pieces.castleBaseStraight
+  const isCastleBaseCorner = inventoryID === Pieces.castleBaseCorner
   const isCastleWallEnd =
     inventoryID === Pieces.castleWallEnd && boardHex.isObstacleOrigin
   const isCastleWallStraight =
@@ -232,7 +216,6 @@ export const MapHex3D = ({
           />
         </>
       )}
-      {/* GROUP GETS onPointerUpPaintPiece */}
       {isLaurSquarePillarHex && (
         <group
           position={[x, laurPillarHeight, z]}

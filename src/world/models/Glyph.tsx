@@ -38,9 +38,9 @@ export function GlyphModel({ pid }: { pid: string }) {
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Glyph.geometry}
-      onPointerUp={(e) => (onPointerUp(e))}
-      onPointerEnter={(e) => (onPointerEnterPID(e, pid))}
-      onPointerOut={(e) => (onPointerOut(e))}
+      onPointerUp={(e) => onPointerUp(e)}
+      onPointerEnter={(e) => onPointerEnterPID(e, pid)}
+      onPointerOut={(e) => onPointerOut(e)}
     >
       {basicModelMaterial(color, isLightsAndShadowsRender)}
       {isDisplayCapHeights ? (
@@ -89,19 +89,21 @@ export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
         isLightsAndShadowsRender,
         // PIECE_PREVIEW_OPACITY,
       )}
-      {<Decal
-        depthTest
-        polygonOffsetFactor={-1} // The material should take precedence over the original
-        map={texture}
-      >
-        <meshStandardMaterial
-          map={texture}
-          polygonOffset
+      {
+        <Decal
+          depthTest
           polygonOffsetFactor={-1} // The material should take precedence over the original
-          transparent
-          opacity={0.5}
-        />
-      </Decal>}
+          map={texture}
+        >
+          <meshStandardMaterial
+            map={texture}
+            polygonOffset
+            polygonOffsetFactor={-1} // The material should take precedence over the original
+            transparent
+            opacity={0.5}
+          />
+        </Decal>
+      }
     </mesh>
   )
 }

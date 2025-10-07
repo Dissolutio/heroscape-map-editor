@@ -34,11 +34,9 @@ export function MarvelRuin({ pid }: { pid: string }) {
   const color = isHighlighted ? yellowColor : hexTerrainColor.marvelRuin
   const colorUpperFloor = isHighlighted ? yellowColor : hexTerrainColor.ladder
   const isUpperFloor =
-    inventoryID === Pieces.marvel ||
-    inventoryID === Pieces.marvelBroken
+    inventoryID === Pieces.marvel || inventoryID === Pieces.marvelBroken
   const isWallIntact =
-    inventoryID === Pieces.marvel ||
-    inventoryID === Pieces.marvelNoUpper
+    inventoryID === Pieces.marvel || inventoryID === Pieces.marvelNoUpper
   return (
     <group
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}

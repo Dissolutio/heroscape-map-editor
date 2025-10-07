@@ -49,7 +49,8 @@ export const MapBoardPiece3D = ({
     }
     toggleSelectedPieceID(boardPiece.uid === selectedPieceID ? '' : boardPiece.uid)
   }
-  const { x, z, y, yBaseCap } = getBoardHex3DCoords({ ...pieceCoords, altitude })
+  const { x, z, y, yBaseCap, yGlyphFluidUnder, yGlyph, yWithBase, yBase } =
+    getBoardHex3DCoords({ ...pieceCoords, altitude })
   const {
     x: xLaurWall,
     z: zLaurWall,
@@ -82,11 +83,19 @@ export const MapBoardPiece3D = ({
   if (inventoryID === Pieces.ruins2 || inventoryID === Pieces.ruins3) {
     return (
       <group
-        position={[x + ruinsOptions.xAdd, yBaseCap + HEXGRID_HEX_HEIGHT, z + ruinsOptions.zAdd]}
+        position={[
+          x + ruinsOptions.xAdd,
+          yBaseCap + HEXGRID_HEX_HEIGHT,
+          z + ruinsOptions.zAdd,
+        ]}
         rotation={[0, ruinsOptions.rotationY, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          {inventoryID === Pieces.ruins2 ? <Ruins2 pid={pid} /> : <Ruins3 pid={pid} />}
+          {inventoryID === Pieces.ruins2 ? (
+            <Ruins2 pid={pid} />
+          ) : (
+            <Ruins3 pid={pid} />
+          )}
         </Suspense>
       </group>
     )
@@ -99,7 +108,10 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.marvelNoUpperBroken
   ) {
     return (
-      <group position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]} rotation={[0, rotation, 0]}>
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, rotation, 0]}
+      >
         <Suspense fallback={<ModelLoader />}>
           <MarvelRuin pid={pid} />
         </Suspense>
@@ -120,7 +132,13 @@ export const MapBoardPiece3D = ({
   ) {
     return (
       <group
-        position={[x, (isUnderHexFluid ? yGlyphFluidUnder + HEXGRID_HEX_HEIGHT : yGlyph + HEXGRID_HEX_HEIGHT), z]}
+        position={[
+          x,
+          isUnderHexFluid
+            ? yGlyphFluidUnder + HEXGRID_HEX_HEIGHT
+            : yGlyph + HEXGRID_HEX_HEIGHT,
+          z,
+        ]}
         rotation={[0, (rotation * -Math.PI) / 3, Math.PI / 2]}
       >
         <StartZone3D pid={pid} />
@@ -129,10 +147,17 @@ export const MapBoardPiece3D = ({
   }
 
   //  GLYPHS
-  if (inventoryID === Pieces.glyphPower || inventoryID === Pieces.glyphTreasure) {
+  if (
+    inventoryID === Pieces.glyphPower ||
+    inventoryID === Pieces.glyphTreasure
+  ) {
     return (
       <group
-        position={[x, (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) + HEXGRID_HEX_HEIGHT, z]}
+        position={[
+          x,
+          (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) + HEXGRID_HEX_HEIGHT,
+          z,
+        ]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <GlyphModel pid={pid} />
@@ -140,8 +165,17 @@ export const MapBoardPiece3D = ({
     )
   }
   // GLACIER1 / OUTCROP1 / LAVAOUTCROP1
-  if (inventoryID === Pieces.glacier1 || inventoryID === Pieces.outcrop1 || inventoryID === Pieces.lavaRockOutcrop1) {
-    const outcrop1Color = inventoryID === Pieces.glacier1 ? hexTerrainColor[HexTerrain.ice] : inventoryID === Pieces.outcrop1 ? hexTerrainColor[HexTerrain.shadow] : hexTerrainColor[HexTerrain.lava]
+  if (
+    inventoryID === Pieces.glacier1 ||
+    inventoryID === Pieces.outcrop1 ||
+    inventoryID === Pieces.lavaRockOutcrop1
+  ) {
+    const outcrop1Color =
+      inventoryID === Pieces.glacier1
+        ? hexTerrainColor[HexTerrain.ice]
+        : inventoryID === Pieces.outcrop1
+          ? hexTerrainColor[HexTerrain.shadow]
+          : hexTerrainColor[HexTerrain.lava]
     return (
       <>
         <group

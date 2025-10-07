@@ -197,8 +197,6 @@ export function addPiece({
     newBoardPieces[pieceID] = piece.id
   }
 
-
-
   // ALL PIECES BELOW ARE RENDERED FROM BOARD HEXES
 
   // LADDERS
