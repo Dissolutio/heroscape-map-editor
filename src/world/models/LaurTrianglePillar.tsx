@@ -9,16 +9,21 @@ import {
   PIECE_PREVIEW_OPACITY,
 } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { basicModelMaterial } from './materials'
+import { basicDoubleSideModelMaterial, basicModelMaterial } from './materials'
 import { laurBaseCylinderArgs } from './ObstacleBase'
 
 type LaurWallTrianglePillarProps = {
-  pieceRotation: number
   opacity?: number
   // If boardHex and pointer handlers are provided, component is interactive
   boardHex?: BoardHex
   onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
-}) {
+}
+
+export function LaurWallTrianglePillar({
+  opacity,
+  boardHex,
+  onPointerUp,
+}: LaurWallTrianglePillarProps) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const { nodes } = useGLTF(
     '/laur-triangle-pillar-from-hs-blendfile.glb',
@@ -137,7 +142,7 @@ export function LaurWallTrianglePillarPreview({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.TrianglePillarTop.geometry}
       >
-        {basicModelMaterial(
+        {basicDoubleSideModelMaterial(
           finalInteriorColor,
           isLightsAndShadowsRender,
           opacityLevel,
@@ -183,12 +188,7 @@ export function LaurWallTrianglePillarPreview({
           opacityLevel,
         )}
       </mesh>
-      <group
-        position={
-          boardHex ? [0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0] : undefined
-        }
-        rotation={boardHex ? [0, -pieceRotation, 0] : [0, pieceRotation, 0]}
-      >
+      <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}

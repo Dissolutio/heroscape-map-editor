@@ -15,7 +15,7 @@ import {
 } from '../utils/map-utils'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HexTerrain, PiecePrefixes, Pieces } from '../types'
-import LaurWallPillar from './models/LaurPillar'
+import { LaurWallPillar } from './models/LaurPillar'
 import {
   HEXGRID_GLYPH_HEIGHT,
   HEXGRID_HEX_HEIGHT,
@@ -322,13 +322,14 @@ export default function PiecePreview() {
           x,
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
-            : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+            : yGlyph + HEXGRID_GLYPH_HEIGHT) +
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
+          HEXGRID_HEX_HEIGHT,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
       >
-        <LaurWallTrianglePillar pieceRotation={pieceRotation} />
+        <LaurWallTrianglePillar />
       </group>
     )
   }

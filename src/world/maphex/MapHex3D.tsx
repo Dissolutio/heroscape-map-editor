@@ -18,14 +18,13 @@ import { CastleWall } from '../models/CastleWalls'
 import ForestTree from '../models/ForestTree'
 import { Ladder } from '../models/Ladder'
 import LandSubterrain from '../models/LandSubterrain'
-import LaurPillar from '../models/LaurPillar'
+import { LaurWallPillar } from '../models/LaurPillar'
 import MarroHive6 from '../models/MarroHive6'
 import ModelLoader from '../models/ModelLoader'
 import ObstacleBase from '../models/ObstacleBase'
 import Outcrop3 from '../models/Outcrop3'
 import Outcrop4 from '../models/Outcrop4'
 import Outcrop6 from '../models/Outcrop6'
-import TicallaBrush from '../models/TicallaBrush'
 import TicallaPalm from '../models/TicallaPalm'
 import {
   getLadderBattlementOptions,
@@ -33,7 +32,6 @@ import {
   getOptionsForBigTree,
   getOptionsForPalmHeight,
   getOptionsForTreeHeight,
-  getRuinsOptions,
 } from '../models/piece-adjustments'
 import HeightRing, { TopOutlineInterlockHex } from './HeightRing'
 import { MapHexIDDisplay } from './MapHexIDDisplay'
@@ -222,7 +220,7 @@ export const MapHex3D = ({
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <LaurPillar
+            <LaurWallPillar
               boardHex={boardHex}
               onPointerUp={onPointerUpPaintPiece}
             />
@@ -238,7 +236,6 @@ export const MapHex3D = ({
             <LaurWallTrianglePillar
               boardHex={boardHex}
               onPointerUp={onPointerUpPaintPiece}
-              pieceRotation={pieceRotation}
             />
           </Suspense>
         </group>

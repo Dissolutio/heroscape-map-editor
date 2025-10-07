@@ -1,3 +1,4 @@
+
 import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
@@ -11,7 +12,13 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { laurBaseCylinderArgs } from './ObstacleBase'
 
-export default function LaurWallPillar({
+type LaurWallPillarProps = {
+  boardHex?: BoardHex
+  onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
+  opacity?: number
+}
+
+export function LaurWallPillar({
   boardHex,
   onPointerUp,
   opacity,
@@ -23,11 +30,14 @@ export default function LaurWallPillar({
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-pillar-from-hs-blendfile.glb') as any
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
+  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
+
+  // Interactive highlight logic
+  const isSelected = boardHex && selectedPieceID === boardHex.pieceID
+  const isHighlighted = boardHex && (hoveredPieceID === boardHex.pieceID || isSelected)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex?.pieceID
   const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
