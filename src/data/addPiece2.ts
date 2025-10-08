@@ -167,7 +167,7 @@ export function addPiece({
   if (piece.terrain === HexTerrain.laurWallAddon) {
     try {
       // write the new laur addon piece
-      newBoardPieces[pieceID] = piece.id
+      newBoardPieces.push(pieceID)
     } catch (error) {
       addPieceError = { message: 'Unable to place laur wall addon', error }
     }
@@ -177,7 +177,7 @@ export function addPiece({
     try {
       // Battlements are just going to write piece ID, no matter what, and we will render from that
       // write the new battlement piece
-      newBoardPieces[pieceID] = piece.id
+      newBoardPieces.push(pieceID)
     } catch (error) {
       addPieceError = { message: 'Unable to place roadwall', error }
     }
@@ -187,14 +187,14 @@ export function addPiece({
     try {
       // Battlements are just going to write piece ID, no matter what, and we will render from that
       // write the new battlement piece
-      newBoardPieces[ladderBattlementPieceID] = piece.id
+      newBoardPieces.push(ladderBattlementPieceID)
     } catch (error) {
       addPieceError = { message: 'Unable to place battlement', error }
     }
   }
   // RUINS 2/3
   if (piece.terrain === HexTerrain.ruin) {
-    newBoardPieces[pieceID] = piece.id
+    newBoardPieces.push(pieceID)
   }
 
   // ALL PIECES BELOW ARE RENDERED FROM BOARD HEXES
@@ -259,7 +259,7 @@ export function addPiece({
           })
       })
       // write the new ladder piece
-      newBoardPieces[ladderBattlementPieceID] = piece.id
+      newBoardPieces.push(ladderBattlementPieceID)
     } else {
       addPieceError = { message: 'Unable to place ladder' }
     }
@@ -301,7 +301,7 @@ export function addPiece({
       }
     }
     // write the new piece
-    newBoardPieces[pieceID] = piece.id
+    newBoardPieces.push(pieceID)
   }
   // CASTLE ARCH (no error reporting)
   if (isCastleArchPiece) {
@@ -362,7 +362,7 @@ export function addPiece({
           })
       })
       // write the new piece
-      newBoardPieces[pieceID] = piece.id
+      newBoardPieces.push(pieceID)
     }
   }
   // CASTLE WALL (no error reporting)
@@ -457,7 +457,7 @@ export function addPiece({
           })
       })
       // write the new piece
-      newBoardPieces[pieceID] = piece.id
+      newBoardPieces.push(pieceID)
     }
   }
   // WALLWALK ONTO WALL
@@ -481,7 +481,7 @@ export function addPiece({
       }
     })
     // write the new piece
-    newBoardPieces[pieceID] = piece.id
+    newBoardPieces.push(pieceID)
   }
   // OBSTACLES: trees, bushes, palms, glaciers, outcrops, laurPillar
   if (isPlacingObstacle) {
@@ -582,7 +582,7 @@ export function addPiece({
     })
 
     // write the new piece
-    newBoardPieces[pieceID] = piece.id
+    newBoardPieces.push(pieceID)
   }
   // LAND
   if (isPlacingLandTile) {
@@ -623,7 +623,7 @@ export function addPiece({
         addPieceError = { message: 'Could not place land tile', error }
       }
       // write the new piece
-      newBoardPieces[pieceID] = piece.id
+      newBoardPieces.push(pieceID)
     }
   }
   return { newBoardHexes, newBoardPieces, error: addPieceError }
