@@ -11,11 +11,9 @@ import {
   HEXGRID_HEX_HEIGHT,
 } from '../../utils/constants'
 import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
-import BigTree415 from '../models/BigTree415'
 import { CastleArch } from '../models/CastleArch'
 import CastleBase from '../models/CastleBases'
 import { CastleWall } from '../models/CastleWalls'
-// import ForestTree from '../models/ForestTree'
 import { Ladder } from '../models/Ladder'
 import LandSubterrain from '../models/LandSubterrain'
 import { LaurWallPillar } from '../models/LaurPillar'
@@ -30,7 +28,6 @@ import {
   getLadderBattlementOptions,
   getObstaclRotation,
   getOptionsForPalmHeight,
-  getOptionsForTreeHeight,
 } from '../models/piece-adjustments'
 import HeightRing, { TopOutlineInterlockHex } from './HeightRing'
 import { MapHexIDDisplay } from './MapHexIDDisplay'
@@ -72,10 +69,6 @@ export const MapHex3D = ({
     isSolidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
   const isFluidSubterrain =
     isFluidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
-  const isBigTreeHex =
-    boardHex.inventoryID === Pieces.tree415 && boardHex.isObstacleOrigin
-  const isBigTreeBaseHex =
-    boardHex.inventoryID === Pieces.tree415 && boardHex.isObstacleAuxiliary
   const isLaurSquarePillarHex =
     boardHex.inventoryID === Pieces.laurWallSquarePillar &&
     boardHex.isObstacleOrigin
@@ -204,20 +197,6 @@ export const MapHex3D = ({
             />
           </Suspense>
         </group>
-      )}
-      {isBigTreeHex && (
-        <Suspense fallback={<ModelLoader />}>
-          <group
-            position={[
-              x,
-              y - HEXGRID_HEX_HEIGHT,
-              z
-            ]}
-            rotation={[0, pieceRotation, 0]}
-          >
-            <BigTree415 boardHex={boardHex} />
-          </group>
-        </Suspense>
       )}
       {isBrushHex && (
         <group

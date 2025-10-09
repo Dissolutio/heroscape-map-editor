@@ -43,7 +43,6 @@ import { FLUID_CAP_OPACITY } from './maphex/instance/FluidCap'
 import { GlyphModelPreview } from './models/Glyph'
 import { LaurWallTrianglePillar } from './models/LaurTrianglePillar'
 import { ForestTree } from './models/ForestTree'
-import BigTree415 from './models/BigTree415'
 import MarroHive6 from './models/MarroHive6'
 import { Outcrop3 } from './models/Outcrop3'
 import { Outcrop4Preview } from './models/Outcrop4'
@@ -65,7 +64,7 @@ import { Outcrop1Preview } from './models/Outcrop1'
 import { CastleWallPreview } from './models/CastleWalls'
 import { CastleBasePreview } from './models/CastleBases'
 import { CastleArchPreview } from './models/CastleArch'
-import { FortifiedWallPreview } from './models/FortifiedWall'
+import { BigTree415 } from './models/BigTree415'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)

@@ -30,6 +30,7 @@ import { hexTerrainColor } from './maphex/hexColors'
 import { Outcrop1 } from './models/Outcrop1'
 import ObstacleBase from './models/ObstacleBase'
 import { ForestTree } from './models/ForestTree'
+import { BigTree415 } from './models/BigTree415'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -301,6 +302,22 @@ export const MapBoardPiece3D = ({
           color={hexTerrainColor.treeBase}
         />
       </>
+    )
+  }
+  if (inventoryID === Pieces.tree415) {
+    return (
+      <Suspense fallback={<ModelLoader />}>
+        <group
+          position={[
+            x,
+            y,
+            z
+          ]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <BigTree415 pid={pid} />
+        </group>
+      </Suspense>
     )
   }
   return <></>
