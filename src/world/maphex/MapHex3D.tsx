@@ -22,9 +22,9 @@ import { LaurWallPillar } from '../models/LaurPillar'
 import MarroHive6 from '../models/MarroHive6'
 import ModelLoader from '../models/ModelLoader'
 import ObstacleBase from '../models/ObstacleBase'
-import Outcrop3 from '../models/Outcrop3'
+import { Outcrop3 } from '../models/Outcrop3'
 import Outcrop4 from '../models/Outcrop4'
-import Outcrop6 from '../models/Outcrop6'
+import { Outcrop6 } from '../models/Outcrop6'
 import TicallaPalm from '../models/TicallaPalm'
 import {
   getLadderBattlementOptions,
@@ -298,7 +298,7 @@ export const MapHex3D = ({
             rotation={[0, getObstaclRotation(boardHex.pieceRotation), 0]}
           >
             <Suspense fallback={<ModelLoader />}>
-              <Outcrop3 isGlacier={true} boardHex={boardHex} />
+              <Outcrop3 isGlacier boardHex={boardHex} />
             </Suspense>
           </group>
           <ObstacleBase
@@ -317,7 +317,7 @@ export const MapHex3D = ({
             rotation={[0, getObstaclRotation(boardHex.pieceRotation), 0]}
           >
             <Suspense fallback={<ModelLoader />}>
-              <Outcrop3 isLavaRock={true} boardHex={boardHex} />
+              <Outcrop3 isLavaRock boardHex={boardHex} />
             </Suspense>
           </group>
           <ObstacleBase
@@ -354,7 +354,7 @@ export const MapHex3D = ({
             rotation={[0, getObstaclRotation(boardHex.pieceRotation), 0]}
           >
             <Suspense fallback={<ModelLoader />}>
-              <Outcrop3 isGlacier={false} boardHex={boardHex} />
+              <Outcrop3 boardHex={boardHex} />
             </Suspense>
           </group>
           <ObstacleBase

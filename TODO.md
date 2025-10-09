@@ -7,6 +7,11 @@
 - World: width/height of map
 - Controls: log state
 
+## Obstacle bases
+When adding an outcrop (lavarock, rock, or glacier), also add a base.
+Check `setsUsed`, and choose the corresponding pieces. (Caverns of valhalla doesn't have shadow-3 bases for the triple outcrop, you combine 3 "modified" shadow-1 spaces)
+
+
 ## Separation of State (pieces) / Validation
 - Validation through BoardHexes, but render through BoardPieces
 - Add/Remove Piece will add to BoardPieces.

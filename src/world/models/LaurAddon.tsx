@@ -1,3 +1,4 @@
+
 import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
@@ -137,6 +138,7 @@ export function LaurWallAddon({
     </group >
   )
 }
+
 useGLTF.preload('/laurwall-ruin-from-hs-models-blendfile.glb')
 useGLTF.preload('/laurwall-short-from-hs-models-blendfile.glb')
 useGLTF.preload('/laurwall-long-from-hs-models-blendfile.glb')

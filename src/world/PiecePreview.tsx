@@ -46,9 +46,9 @@ import { LaurWallTrianglePillar } from './models/LaurTrianglePillar'
 import ForestTree from './models/ForestTree'
 import BigTree415 from './models/BigTree415'
 import MarroHive6 from './models/MarroHive6'
-import { Outcrop3Preview } from './models/Outcrop3'
+import { Outcrop3 } from './models/Outcrop3'
 import { Outcrop4Preview } from './models/Outcrop4'
-import { Outcrop6Preview } from './models/Outcrop6'
+import { Outcrop6 } from './models/Outcrop6'
 import { LadderPreview } from './models/Ladder'
 import { LaurWallAddon } from './models/LaurAddon'
 import { Ruins2Preview } from './models/Ruins2'
@@ -633,7 +633,7 @@ export default function PiecePreview() {
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Outcrop6Preview />
+          <Outcrop6 isGlacier />
         </Suspense>
       </group>
     )
