@@ -8,7 +8,7 @@ import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
 
-export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
+export default function ForestTree({ boardHex, opacity }: { boardHex?: BoardHex, opacity?: number }) {
   const { nodes } = useGLTF(
     '/forgotten-forest-tree-low-poly-colored.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -47,21 +47,13 @@ export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(color, isLightsAndShadowsRender)
+          ? basicModelMaterial(color, isLightsAndShadowsRender, opacity ?? 1)
           : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            color,
+            isLightsAndShadowsRender,
+            opacity ?? PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
-      {/* <Billboard
-        position={[x, options.y + 1.5, z]}
-        rotation={[0, (rotation * -Math.PI) / 3, 0]}
-        scale={[1, 3, 1]}
-        onPointerEnter={e => e.stopPropagation()}
-      >
-        <Image url='tree-img.jpg'></Image>
-      </Billboard> */}
     </>
   )
 }
