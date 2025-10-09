@@ -10,7 +10,6 @@ import {
 } from '../types'
 import {
   isFluidTerrainHex,
-  isRenderedFromPieceIDPiece,
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import { decodePieceID, genBoardHexID } from '../utils/map-utils'
