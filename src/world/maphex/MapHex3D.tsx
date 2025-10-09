@@ -15,7 +15,7 @@ import BigTree415 from '../models/BigTree415'
 import { CastleArch } from '../models/CastleArch'
 import CastleBase from '../models/CastleBases'
 import { CastleWall } from '../models/CastleWalls'
-import ForestTree from '../models/ForestTree'
+// import ForestTree from '../models/ForestTree'
 import { Ladder } from '../models/Ladder'
 import LandSubterrain from '../models/LandSubterrain'
 import { LaurWallPillar } from '../models/LaurPillar'
@@ -69,8 +69,6 @@ export const MapHex3D = ({
     (isSolidTerrainHex(boardHex.terrain) && !boardHex.isCap) || isShowEmptyHexes
   const isTopOutlinedInterlockHex =
     isTopOutlinedInterlockHexes && !isTakingPicture
-  const isObstacleHex =
-    boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary
   const isSolidSubterrain =
     isSolidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
   const isFluidSubterrain =
@@ -79,11 +77,6 @@ export const MapHex3D = ({
     boardHex.inventoryID === Pieces.tree415 && boardHex.isObstacleOrigin
   const isBigTreeBaseHex =
     boardHex.inventoryID === Pieces.tree415 && boardHex.isObstacleAuxiliary
-  const isTreeHex =
-    !isBigTreeHex &&
-    !isBigTreeBaseHex &&
-    boardHex.terrain === HexTerrain.tree &&
-    isObstacleHex
   const isLaurSquarePillarHex =
     boardHex.inventoryID === Pieces.laurWallSquarePillar &&
     boardHex.isObstacleOrigin
@@ -186,33 +179,6 @@ export const MapHex3D = ({
             <LandSubterrain boardHex={boardHex} />
           </Suspense>
         </group>
-      )}
-      {isTreeHex && (
-        <>
-          <group
-            scale={[
-              getOptionsForTreeHeight(boardHex.inventoryID).scaleX,
-              getOptionsForTreeHeight(boardHex.inventoryID).scaleY,
-              getOptionsForTreeHeight(boardHex.inventoryID).scaleX,
-            ]}
-            position={[
-              x,
-              yWithBase + getOptionsForTreeHeight(boardHex.inventoryID).y,
-              z,
-            ]}
-            rotation={[0, pieceRotation, 0]}
-          >
-            <Suspense fallback={<ModelLoader />}>
-              <ForestTree boardHex={boardHex} />
-            </Suspense>
-          </group>
-          <ObstacleBase
-            x={x}
-            y={yBase}
-            z={z}
-            color={hexTerrainColor.treeBase}
-          />
-        </>
       )}
       {isLaurSquarePillarHex && (
         <group

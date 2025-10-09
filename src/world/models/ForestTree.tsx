@@ -8,7 +8,7 @@ import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
 
-export default function ForestTree({ boardHex, opacity }: { boardHex?: BoardHex, opacity?: number }) {
+export function ForestTree({ pid, opacity }: { pid?: string, opacity?: number }) {
   const { nodes } = useGLTF(
     '/forgotten-forest-tree-low-poly-colored.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -17,42 +17,34 @@ export default function ForestTree({ boardHex, opacity }: { boardHex?: BoardHex,
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    if (boardHex) {
-      toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
-    }
-  }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.pieceID
-  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.tree]
+  const opacityLevel = opacity ?? (pid ? 1 : PIECE_PREVIEW_OPACITY)
+  const pointerHandlers = pid
+    ? {
+      onPointerUp: (e: ThreeEvent<PointerEvent>) => {
+        e.stopPropagation()
+        if (e.button !== 0) return
+        toggleSelectedPieceID(isSelected ? '' : pid)
+      },
+      onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterPID(e, pid),
+      onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+    }
+    : {}
   return (
     <>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Tree10_scanned.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        {...pointerHandlers}
       >
-        {boardHex
-          ? basicModelMaterial(color, isLightsAndShadowsRender, opacity ?? 1)
-          : basicModelMaterial(
-            color,
-            isLightsAndShadowsRender,
-            opacity ?? PIECE_PREVIEW_OPACITY,
-          )}
+        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
     </>
   )

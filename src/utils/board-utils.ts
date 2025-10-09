@@ -71,6 +71,16 @@ export const isLaurWallAddonPieceID = (pieceID: string): boolean => {
     pieceID === Pieces.laurWallShortStackable
   )
 }
+export const isSingleHexTreePieceID = (pieceID: string): boolean => {
+  return (
+    pieceID === Pieces.tree10 ||
+    pieceID === Pieces.tree11 ||
+    pieceID === Pieces.tree12 ||
+    pieceID === Pieces.snowTree10 ||
+    pieceID === Pieces.snowTree12
+  )
+}
+
 export function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: BoardPieces) {
   // adding the laur addons will only work if pillars are already down
   return arr.sort((a, b) => {

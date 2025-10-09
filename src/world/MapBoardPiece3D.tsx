@@ -2,6 +2,7 @@ import { Vector3 } from 'three'
 import useBoundStore from '../store/store'
 import { type BoardPiece, HexTerrain, Pieces } from '../types'
 import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
+import { isFluidTerrainHex, isSingleHexTreePieceID } from '../utils/board-utils'
 import {
   HEXGRID_HEX_HEIGHT,
   HEXGRID_HEXCAP_HEIGHT,
@@ -12,6 +13,7 @@ import { LaurWallAddon } from './models/LaurAddon'
 import { RoadWall } from './models/RoadWall'
 import {
   getLadderBattlementOptions,
+  getOptionsForTreeHeight,
   getRoadWallOptions,
   getRuinsOptions,
 } from './models/piece-adjustments'
@@ -27,6 +29,7 @@ import { GlyphModel } from './models/Glyph'
 import { hexTerrainColor } from './maphex/hexColors'
 import { Outcrop1 } from './models/Outcrop1'
 import ObstacleBase from './models/ObstacleBase'
+import { ForestTree } from './models/ForestTree'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -60,8 +63,6 @@ export const MapBoardPiece3D = ({
   const isVisible = altitude + 1 <= viewingLevel
   // const isSolidLand = isSolidTerrainHex(piecesSoFar[inventoryID].terrain)
 
-  // TODO: PIECE ID TO RENDER MUST BE ADDED TO THIS FN: isRenderedFromPieceIDPiece
-  // [Make it not so]
   // EARLY RETURN, no render
   if (!isVisible) {
     return null
@@ -139,7 +140,7 @@ export const MapBoardPiece3D = ({
             : yGlyph + HEXGRID_HEX_HEIGHT,
           z,
         ]}
-        rotation={[0, (rotation * -Math.PI) / 3, Math.PI / 2]}
+        rotation={[0, pieceRotation, Math.PI / 2]}
       >
         <StartZone3D pid={pid} />
       </group>
@@ -158,7 +159,7 @@ export const MapBoardPiece3D = ({
           (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) + HEXGRID_HEX_HEIGHT,
           z,
         ]}
-        rotation={[0, (rotation * -Math.PI) / 3, 0]}
+        rotation={[0, pieceRotation, 0]}
       >
         <GlyphModel pid={pid} />
       </group>
@@ -180,7 +181,7 @@ export const MapBoardPiece3D = ({
       <>
         <group
           position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
-          rotation={[0, (rotation * -Math.PI) / 3, 0]}
+          rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
             <Outcrop1
@@ -211,7 +212,7 @@ export const MapBoardPiece3D = ({
     return (
       <group
         position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
-        rotation={[0, (rotation * -Math.PI) / 3, 0]}
+        rotation={[0, pieceRotation, 0]}
       >
         <LaurWallAddon
           onPointerUp={onPointerUp}
@@ -235,7 +236,7 @@ export const MapBoardPiece3D = ({
           y + HEXGRID_HEXCAP_HEIGHT / 2,
           z + getLadderBattlementOptions(rotation).zAdd,
         ]}
-        rotation={[0, (rotation * -Math.PI) / 3, 0]}
+        rotation={[0, pieceRotation, 0]}
       >
         <Battlement
           boardPiece={boardPiece}
@@ -258,7 +259,7 @@ export const MapBoardPiece3D = ({
           y,
           z + getRoadWallOptions(rotation).zAdd,
         ]}
-        rotation={[0, (rotation * -Math.PI) / 3, 0]}
+        rotation={[0, pieceRotation, 0]}
       >
         <RoadWall
           boardPiece={boardPiece}
@@ -270,6 +271,36 @@ export const MapBoardPiece3D = ({
           isLightsAndShadowsRender={isLightsAndShadowsRender}
         />
       </group>
+    )
+  }
+  // SINGLE HEX TREES
+  if (isSingleHexTreePieceID(inventoryID)) {
+    return (
+      <>
+        <group
+          scale={[
+            getOptionsForTreeHeight(inventoryID).scaleX,
+            getOptionsForTreeHeight(inventoryID).scaleY,
+            getOptionsForTreeHeight(inventoryID).scaleX,
+          ]}
+          position={[
+            x,
+            yWithBase + getOptionsForTreeHeight(inventoryID).y + HEXGRID_HEX_HEIGHT,
+            z,
+          ]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <ForestTree pid={pid} />
+          </Suspense>
+        </group>
+        <ObstacleBase
+          x={x}
+          y={yBase + HEXGRID_HEX_HEIGHT}
+          z={z}
+          color={hexTerrainColor.treeBase}
+        />
+      </>
     )
   }
   return <></>
