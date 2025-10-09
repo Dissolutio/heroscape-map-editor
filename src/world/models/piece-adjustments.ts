@@ -146,26 +146,6 @@ export function getRoadWallOptions(rotation: number) {
       return { xAdd: 0, zAdd: 0 }
   }
 }
-export function getOptionsForBigTree(rotation: number) {
-  const xLength = Math.cos(Math.PI / 6) * 1.5
-  const zLength = Math.sin(Math.PI / 6) * 1.5
-  switch (Number(rotation)) {
-    case 0:
-      return { rotationY: Math.PI / 3, xAdd: xLength, zAdd: zLength }
-    case 1:
-      return { rotationY: 0, xAdd: 0, zAdd: 1.5 * HEXGRID_HEX_RADIUS }
-    case 2:
-      return { rotationY: -Math.PI / 3, xAdd: -xLength, zAdd: zLength }
-    case 3:
-      return { rotationY: Math.PI / 3, xAdd: -xLength, zAdd: -zLength }
-    case 4:
-      return { rotationY: 0, xAdd: 0, zAdd: -1.5 * HEXGRID_HEX_RADIUS }
-    case 5:
-      return { rotationY: -Math.PI / 3, xAdd: xLength, zAdd: -zLength }
-    default:
-      return { rotationY: 0, xAdd: 0, zAdd: 0 }
-  }
-}
 export function getOptionsForPalmHeight(pieceID: string) {
   const treeHeight = pieceID.includes(Pieces.palm16)
     ? 16

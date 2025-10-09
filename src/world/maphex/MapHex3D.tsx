@@ -29,7 +29,6 @@ import TicallaPalm from '../models/TicallaPalm'
 import {
   getLadderBattlementOptions,
   getObstaclRotation,
-  getOptionsForBigTree,
   getOptionsForPalmHeight,
   getOptionsForTreeHeight,
 } from '../models/piece-adjustments'
@@ -207,34 +206,18 @@ export const MapHex3D = ({
         </group>
       )}
       {isBigTreeHex && (
-        <>
-          <Suspense fallback={<ModelLoader />}>
-            <group
-              position={[
-                x + getOptionsForBigTree(boardHex.pieceRotation).xAdd,
-                yWithBase,
-                z + getOptionsForBigTree(boardHex.pieceRotation).zAdd,
-              ]}
-              scale={0.038}
-              rotation={[
-                0,
-                getOptionsForBigTree(boardHex.pieceRotation).rotationY,
-                0,
-              ]}
-            >
-              <BigTree415 boardHex={boardHex} />
-            </group>
-          </Suspense>
-          <ObstacleBase
-            x={x}
-            y={yBase}
-            z={z}
-            color={hexTerrainColor.treeBase}
-          />
-        </>
-      )}
-      {isBigTreeBaseHex && (
-        <ObstacleBase x={x} y={yBase} z={z} color={hexTerrainColor.treeBase} />
+        <Suspense fallback={<ModelLoader />}>
+          <group
+            position={[
+              x,
+              y - HEXGRID_HEX_HEIGHT,
+              z
+            ]}
+            rotation={[0, pieceRotation, 0]}
+          >
+            <BigTree415 boardHex={boardHex} />
+          </group>
+        </Suspense>
       )}
       {isBrushHex && (
         <group

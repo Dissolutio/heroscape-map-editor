@@ -3,7 +3,6 @@ import { piecesSoFar } from '../data/pieces'
 import {
   getLadderBattlementOptions,
   getObstaclRotation,
-  getOptionsForBigTree,
   getOptionsForPalmHeight,
   getOptionsForTreeHeight,
   getRoadWallOptions,
@@ -425,12 +424,11 @@ export default function PiecePreview() {
     return (
       <group
         position={[
-          x + getOptionsForBigTree(penModeRotation).xAdd,
-          yWithBase + HEXGRID_HEX_HEIGHT,
-          z + getOptionsForBigTree(penModeRotation).zAdd,
+          x,
+          y,
+          z,
         ]}
-        scale={0.038}
-        rotation={[0, getOptionsForBigTree(penModeRotation).rotationY, 0]}
+        rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
           <BigTree415 />
