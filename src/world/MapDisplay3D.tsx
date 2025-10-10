@@ -1,11 +1,9 @@
 import type { CameraControls } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-
 import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
 import useBoundStore from '../store/store.ts'
 import {
-  type AddRemovePieceError,
   type BoardHex,
   type BoardPiece,
   HexTerrain,
@@ -69,7 +67,6 @@ export default function MapDisplay3D({
     event: ThreeEvent<PointerEvent>,
     hex: BoardHex,
   ) => {
-    let error: AddRemovePieceError
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
@@ -102,6 +99,8 @@ export default function MapDisplay3D({
     const isCastleWallArchClicked =
       hex.pieceID.includes(PiecePrefixes.castleWall) ||
       hex.pieceID.includes(PiecePrefixes.castleArch)
+    const isSolidLandCapClicked =
+      isSolidTerrainHex(piecesSoFar[hex.inventoryID].terrain)
     const isLaurPillarClicked =
       hex.inventoryID === Pieces.laurWallSquarePillar ||
       hex.inventoryID === Pieces.laurWallTrianglePillar
@@ -110,7 +109,7 @@ export default function MapDisplay3D({
       altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
     })
 
-    // Castle W/A: use cap coords and altitude
+    // CASTLE WALL/ARCH: use cap coords and altitude
     if (isCastleWallArchClicked) {
       paintTile({
         ...pieceObject,
@@ -121,6 +120,8 @@ export default function MapDisplay3D({
           s: boardHexes[boardHexIdOfCapForWall].s,
         },
       })
+      // Placed new piece, deselect piece
+      toggleSelectedPieceID('')
     }
     // Adding laur addon, put it at same level
     else if (isLaurWallAddonPieceID(pieceData?.id ?? '')) {
@@ -137,6 +138,7 @@ export default function MapDisplay3D({
         altitude: hex.altitude - 1,
       })
     }
+
     // BATTLEMENT
     else if (pieceData?.id === Pieces.battlement) {
       const battlementClickedHexCoords = getBattlementClickedHexCoords(
@@ -150,7 +152,10 @@ export default function MapDisplay3D({
         pieceCoords: battlementClickedHexCoords,
         rotation: mirrorRotation,
       })
+      // Placed new piece, deselect piece
+      toggleSelectedPieceID('')
     }
+
     // ROADWALL
     else if (pieceData?.id === Pieces.roadWall) {
       const roadWallClickedHexCoords = getRoadWallClickedHexCoords(
@@ -162,7 +167,10 @@ export default function MapDisplay3D({
         altitude: hex.altitude - 1,
         pieceCoords: roadWallClickedHexCoords,
       })
+      // Placed new piece, deselect piece
+      toggleSelectedPieceID('')
     }
+
     // LADDER ONTO LADDER
     else if (
       pieceData?.id === Pieces.ladder &&
@@ -174,25 +182,17 @@ export default function MapDisplay3D({
         // placing ladder on ladder, just used rotation of existing ladder
         rotation: hex.pieceRotation,
       })
+      // Placed new piece, deselect piece
+      toggleSelectedPieceID('')
     }
     // Clicked a regular land cap
     else {
       paintTile(pieceObject)
     }
-    // Error from add/remove piece, report error and select piece
-    if (error) {
-      console.log('🚀 ~ error:', error)
-      enqueueSnackbar({
-        message: `Add piece error: ${error.message}.`,
-        variant: 'error',
-        autoHideDuration: 5000,
-      })
-      // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
-      toggleSelectedPieceID(hex.pieceID)
-    }
-    // Placed new piece, deselect piece
+
+    // No piece placed: if we didn't paint a piece maybe the user was trying to select one
     else {
-      toggleSelectedPieceID('')
+      toggleSelectedPieceID(hex.pieceID)
     }
   }
 
