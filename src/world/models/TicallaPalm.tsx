@@ -5,42 +5,45 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain, PiecePrefixes, Pieces } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { decodePieceID } from '../../utils/map-utils'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
-export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
+export default function TicallaPalm({ pid, opacity }: { pid?: string, opacity?: number }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
-  }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
-  if (boardHex.inventoryID.startsWith(PiecePrefixes.laurPalm)) {
-    return (
-      <>
-        <group
-          onPointerUp={(e) => onPointerUp(e)}
-          onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-          onPointerOut={(e) => onPointerOut(e)}
-        >
-          <LaurPalmPreview isHighlighted={isHighlighted} />
-        </group>
-      </>
-    )
-  }
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
+  const { inventoryID } = decodePieceID(pid || '')
+  const opacityLevel = opacity ?? pid ? 1 : PIECE_PREVIEW_OPACITY
+  const pointerHandlers = pid
+    ? {
+      onPointerUp: (e: ThreeEvent<PointerEvent>) => {
+        e.stopPropagation()
+        if (e.button !== 0) return
+        toggleSelectedPieceID(isSelected ? '' : pid)
+      },
+      onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterPID(e, pid),
+      onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+    }
+    : {}
+  const model = inventoryID.startsWith(PiecePrefixes.laurPalm) ? (
+    <LaurPalmPreview
+      isHighlighted={isHighlighted}
+      opacity={opacityLevel}
+    />
+  ) : (
+    <TicallaPalmPreview
+      isHighlighted={isHighlighted}
+      opacity={opacityLevel}
+    />
+  )
   return (
     <group
-      onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-      onPointerOut={(e) => onPointerOut(e)}
+      {...pointerHandlers}
     >
-      <TicallaPalmPreview isHighlighted={isHighlighted} />
+      {model}
     </group>
   )
 }
@@ -111,14 +114,6 @@ export function TicallaPalmPreview({
       >
         {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
       </mesh>
-
-      {/* <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.PalmBrush.geometry}
-      >
-        {basicModelMaterial(colorBrush, isLightsAndShadowsRender, opacity)}
-      </mesh> */}
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}

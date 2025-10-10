@@ -13,6 +13,7 @@ import { LaurWallAddon } from './models/LaurAddon'
 import { RoadWall } from './models/RoadWall'
 import {
   getLadderBattlementOptions,
+  getOptionsForPalmHeight,
   getOptionsForTreeHeight,
   getRoadWallOptions,
   getRuinsOptions,
@@ -33,6 +34,7 @@ import { ForestTree } from './models/ForestTree'
 import { BigTree415 } from './models/BigTree415'
 import { piecesSoFar } from '../data/pieces'
 import { JungleBrush } from './models/TicallaBrush'
+import TicallaPalm from './models/TicallaPalm'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -323,7 +325,7 @@ export const MapBoardPiece3D = ({
       </Suspense>
     )
   }
-  // 
+  // JUNGLE BUSH 
   if (piecesSoFar[inventoryID].terrain === HexTerrain.brush) {
     return (
       <group
@@ -332,6 +334,20 @@ export const MapBoardPiece3D = ({
       >
         <Suspense fallback={<ModelLoader />}>
           <JungleBrush pid={pid} />
+        </Suspense>
+      </group>
+    )
+  }
+  // JUNGLE PALM
+  if (piecesSoFar[inventoryID].terrain === HexTerrain.palm) {
+    return (
+      <group
+        scale={[1, getOptionsForPalmHeight(inventoryID).scaleY, 1]}
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <TicallaPalm pid={pid} />
         </Suspense>
       </group>
     )

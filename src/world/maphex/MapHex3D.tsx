@@ -23,11 +23,9 @@ import ObstacleBase from '../models/ObstacleBase'
 import { Outcrop3 } from '../models/Outcrop3'
 import Outcrop4 from '../models/Outcrop4'
 import { Outcrop6 } from '../models/Outcrop6'
-import TicallaPalm from '../models/TicallaPalm'
 import {
   getLadderBattlementOptions,
   getObstaclRotation,
-  getOptionsForPalmHeight,
 } from '../models/piece-adjustments'
 import HeightRing, { TopOutlineInterlockHex } from './HeightRing'
 import { MapHexIDDisplay } from './MapHexIDDisplay'
@@ -74,8 +72,6 @@ export const MapHex3D = ({
   const isLaurTrianglePillarHex =
     boardHex.inventoryID === Pieces.laurWallTrianglePillar &&
     boardHex.isObstacleOrigin
-  const isPalmHex =
-    boardHex.terrain === HexTerrain.palm && boardHex.isObstacleOrigin
   const isLadderHex =
     boardHex.terrain === HexTerrain.ladder && boardHex.isObstacleOrigin
   const isOutcrop3Hex =
@@ -192,17 +188,6 @@ export const MapHex3D = ({
               boardHex={boardHex}
               onPointerUp={onPointerUpPaintPiece}
             />
-          </Suspense>
-        </group>
-      )}
-      {isPalmHex && (
-        <group
-          scale={[1, getOptionsForPalmHeight(boardHex.inventoryID).scaleY, 1]}
-          position={[x, yBaseCap, z]}
-          rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <TicallaPalm boardHex={boardHex} />
           </Suspense>
         </group>
       )}
