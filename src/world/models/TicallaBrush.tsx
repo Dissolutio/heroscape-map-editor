@@ -2,70 +2,53 @@ import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain, Pieces } from '../../types'
+import { HexTerrain, Pieces } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
-import { noop } from 'lodash'
+import { decodePieceID } from '../../utils/map-utils'
 
-export default function JungleBrush({ boardHex }: { boardHex?: BoardHex }) {
+export function JungleBrush({ pid, opacity }: { pid?: string, opacity?: number }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    if (!boardHex) return
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
-  }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === boardHex?.pieceID
-  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
-  if (boardHex?.inventoryID === Pieces.laurBrush10) {
-    return (
-      <group
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
-      >
-        <LaurBrushPreview
-          isHighlighted={isHighlighted}
-          opacity={boardHex ? 1 : PIECE_PREVIEW_OPACITY}
-        />
-      </group>
-    )
-  }
-  if (boardHex?.inventoryID === Pieces.swampBrush10) {
-    return (
-      <group
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
-      >
-        <SwampBrushPreview
-          isHighlighted={isHighlighted}
-          opacity={boardHex ? 1 : PIECE_PREVIEW_OPACITY}
-        />
-      </group>
-    )
-  }
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
+  const { inventoryID } = decodePieceID(pid || '')
+  const opacityLevel = opacity ?? pid ? 1 : PIECE_PREVIEW_OPACITY
+  const pointerHandlers = pid
+    ? {
+      onPointerUp: (e: ThreeEvent<PointerEvent>) => {
+        e.stopPropagation()
+        if (e.button !== 0) return
+        toggleSelectedPieceID(isSelected ? '' : pid)
+      },
+      onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterPID(e, pid),
+      onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+    }
+    : {}
+  const model = inventoryID === Pieces.laurBrush10 ? (
+    <LaurBrushPreview
+      isHighlighted={isHighlighted}
+      opacity={opacityLevel}
+    />
+  ) : inventoryID === Pieces.swampBrush10 ? (
+    <SwampBrushPreview
+      isHighlighted={isHighlighted}
+      opacity={opacityLevel}
+    />
+  ) : (
+    <TicallaBrushPreview
+      isHighlighted={isHighlighted}
+      opacity={opacityLevel}
+    />
+  )
   return (
     <group
-      onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-      onPointerEnter={(e) => (boardHex ? onPointerEnter(e, boardHex) : noop())}
-      onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+      {...pointerHandlers}
     >
-      <TicallaBrushPreview
-        isHighlighted={isHighlighted}
-        opacity={boardHex ? 1 : PIECE_PREVIEW_OPACITY}
-      />
+      {model}
     </group>
   )
 }

@@ -33,7 +33,6 @@ import HeightRing, { TopOutlineInterlockHex } from './HeightRing'
 import { MapHexIDDisplay } from './MapHexIDDisplay'
 import { hexTerrainColor } from './hexColors'
 import { LaurWallTrianglePillar } from '../models/LaurTrianglePillar'
-import JungleBrush from '../models/TicallaBrush'
 
 export const MapHex3D = ({
   boardHex,
@@ -75,8 +74,6 @@ export const MapHex3D = ({
   const isLaurTrianglePillarHex =
     boardHex.inventoryID === Pieces.laurWallTrianglePillar &&
     boardHex.isObstacleOrigin
-  const isBrushHex =
-    boardHex.terrain === HexTerrain.brush && boardHex.isObstacleOrigin
   const isPalmHex =
     boardHex.terrain === HexTerrain.palm && boardHex.isObstacleOrigin
   const isLadderHex =
@@ -195,16 +192,6 @@ export const MapHex3D = ({
               boardHex={boardHex}
               onPointerUp={onPointerUpPaintPiece}
             />
-          </Suspense>
-        </group>
-      )}
-      {isBrushHex && (
-        <group
-          position={[x, yBaseCap, z]}
-          rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <JungleBrush boardHex={boardHex} />
           </Suspense>
         </group>
       )}

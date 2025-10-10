@@ -31,6 +31,8 @@ import { Outcrop1 } from './models/Outcrop1'
 import ObstacleBase from './models/ObstacleBase'
 import { ForestTree } from './models/ForestTree'
 import { BigTree415 } from './models/BigTree415'
+import { piecesSoFar } from '../data/pieces'
+import { JungleBrush } from './models/TicallaBrush'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -304,6 +306,7 @@ export const MapBoardPiece3D = ({
       </>
     )
   }
+  // BIG TREE
   if (inventoryID === Pieces.tree415) {
     return (
       <Suspense fallback={<ModelLoader />}>
@@ -318,6 +321,19 @@ export const MapBoardPiece3D = ({
           <BigTree415 pid={pid} />
         </group>
       </Suspense>
+    )
+  }
+  // 
+  if (piecesSoFar[inventoryID].terrain === HexTerrain.brush) {
+    return (
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <JungleBrush pid={pid} />
+        </Suspense>
+      </group>
     )
   }
   return <></>
