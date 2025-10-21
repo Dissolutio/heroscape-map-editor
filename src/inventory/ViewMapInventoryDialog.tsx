@@ -15,6 +15,7 @@ import { Box } from '@mui/system'
 import { FcBiohazard } from 'react-icons/fc'
 import { piecesSoFar } from '../data/pieces'
 import { yellow } from '@mui/material/colors'
+import { decodePieceID } from '../utils/map-utils'
 
 const ViewMapInventoryDialog = () => {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -46,7 +47,8 @@ const ViewMapInventoryDialog = () => {
   function countPiecesUsed(boardPieces: string[]): Record<string, number> {
     const used: Record<string, number> = {}
     for (const pieceID of boardPieces) {
-      used[pieceID] = (used?.[pieceID] ?? 0) + 1
+      const inventoryID = decodePieceID(pieceID).inventoryID
+      used[inventoryID] = (used?.[inventoryID] ?? 0) + 1
     }
     return used
   }
