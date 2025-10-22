@@ -45,10 +45,12 @@ export const ControlTabs = ({
   cameraControlsRef,
   mapGroupRef,
   controlsContainerRef,
+  is2DOpen,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
   controlsContainerRef: React.RefObject<null>
+  is2DOpen: boolean
 }) => {
   const [value, setValue] = React.useState(0)
   const { isSideControls } = useMuiMediaQuery()
@@ -185,7 +187,7 @@ export const ControlTabs = ({
         </CustomTabPanel>
         {/* FILE */}
         <CustomTabPanel value={value} index={1}>
-          <FileControlsTab />
+          <FileControlsTab is2DOpen={is2DOpen} />
         </CustomTabPanel>
         {/* EDIT */}
         <CustomTabPanel value={value} index={2}>

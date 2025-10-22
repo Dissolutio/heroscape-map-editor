@@ -12,9 +12,14 @@ import { LoadMapButtons } from '../layout/LoadMapButtons'
 import { getUrlMapString } from '../data/jsonCrush'
 import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
 
-export const FileControlsTab = () => {
+export const FileControlsTab = ({
+  is2DOpen,
+}: {
+  is2DOpen: boolean
+}) => {
   const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
   const toggleIsNewMapDialogOpen = useBoundStore(
     (state) => state.toggleIsNewMapDialogOpen,
@@ -39,6 +44,20 @@ export const FileControlsTab = () => {
   ) => {
     e?.stopPropagation()
     setIsDownloadOpen(!isDownloadOpen)
+  }
+  const handleDownloadCurrent2DSvg = () => {
+    const svgElement = document.getElementById('2d-svg-view'); // Replace 'your-svg-id' with the actual ID
+    if (svgElement) {
+      const svgContent = svgElement.outerHTML;
+      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const link = document.createElement('a')
+      link.download = `${hexMap.name}-level-${viewingLevel}.svg`
+      link.href = URL.createObjectURL(blob);
+      // document.body.appendChild(link)
+      link.click()
+      // document.body.removeChild(link)
+      URL.revokeObjectURL(link.href); // Clean up the Blob URL
+    }
   }
   const handleDownloadPng = () => {
     const link = document.createElement('a')
@@ -152,6 +171,13 @@ export const FileControlsTab = () => {
             onClick={onClickCopy}
             icon={<FcLink />}
           />
+
+          {/* DOWNLOAD 2D-MODE SVG IMAGE */}
+          {is2DOpen && <ControlTabsListItemButton
+            primary="Download Current 2D Level as SVG"
+            onClick={handleDownloadCurrent2DSvg}
+            icon={<FcDownload />}
+          />}
 
           {/* EXPAND DOWNLAD MAP FILE BTNS */}
           <ControlTabsListItemButton
