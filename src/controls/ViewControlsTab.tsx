@@ -22,6 +22,8 @@ import useBoundStore from '../store/store'
 import { EVENTS } from '../utils/constants'
 import type { Group, Object3DEventMap } from 'three'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
+import { zoomToMap } from '../utils/camera-utils'
+import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 
 export default function ViewControlsTab({
   cameraControlsRef,
@@ -38,7 +40,8 @@ export default function ViewControlsTab({
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const toggleIsTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
   const isTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
-
+  const boardHexes = useBoundStore((s) => s.boardHexes)
+  const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const onClickDisableCamera = (e: any) => {
   //   const targetId = e?.nativeEvent?.target?.id ?? ''
   //   const classList = Array.from(e?.nativeEvent?.target?.classList ?? [])
@@ -62,9 +65,9 @@ export default function ViewControlsTab({
   const resetCamera = () => {
     cameraControlsRef?.current?.reset(true)
   }
-  const zoomToMap = () => {
+  const useZoomToMap = () => {
     if (mapGroupRef.current) {
-      cameraControlsRef.current?.fitToBox?.(mapGroupRef.current, true)
+      zoomToMap(mapGroupRef, cameraControlsRef, width, length)
     }
   }
   const handleToggleOrthoCam = () => {
@@ -92,7 +95,7 @@ export default function ViewControlsTab({
           <ControlTabsListItemButton
             title="Center the camera on entire map"
             primary="Zoom to map"
-            onClick={zoomToMap}
+            onClick={useZoomToMap}
             icon={<FcCollect />}
           />
 

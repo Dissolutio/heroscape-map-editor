@@ -8,8 +8,12 @@ import {
 import useTemporalStore from '../hooks/useTemporalStore'
 import type { Group, Object3DEventMap } from 'three'
 import type { CameraControls } from '@react-three/drei'
-import { getBoardPiecesMaxLevel } from '../utils/map-utils'
+import {
+  getBoardHexesRectangularMapDimensions,
+  getBoardPiecesMaxLevel,
+} from '../utils/map-utils'
 import type { RefObject } from 'react'
+import { zoomToMap } from '../utils/camera-utils'
 
 export const useApplyHotkeys = ({
   cameraControlsRef,
@@ -38,6 +42,8 @@ export const useApplyHotkeys = ({
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
+  const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
   const isSizes = flatPieceSizes?.length > 0
   const { undo, redo } = useTemporalStore((state: AppState) => state)
@@ -54,9 +60,9 @@ export const useApplyHotkeys = ({
   const handleToggleIsCameraDisabled = () => {
     toggleIsCameraDisabled(!isCameraDisabled)
   }
-  const zoomToMap = () => {
+  const useZoomToMap = () => {
     if (mapGroupRef.current) {
-      cameraControlsRef.current?.fitToBox?.(mapGroupRef.current, true)
+      zoomToMap(mapGroupRef, cameraControlsRef, width, length)
     }
   }
 
@@ -145,7 +151,7 @@ export const useApplyHotkeys = ({
 
     handleToggleIsOrthoCam: handleToggleIsOrthoCam,
     handleToggleIsCameraDisabled: handleToggleIsCameraDisabled,
-    zoomToMap: zoomToMap,
+    zoomToMap: useZoomToMap,
 
     togglePieceSize1: togglePieceSize1,
     togglePieceSize2: togglePieceSize2,
