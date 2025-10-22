@@ -8,7 +8,10 @@ import {
 import useTemporalStore from '../hooks/useTemporalStore'
 import type { Group, Object3DEventMap } from 'three'
 import type { CameraControls } from '@react-three/drei'
-import { getBoardHexesRectangularMapDimensions, getBoardPiecesMaxLevel } from '../utils/map-utils'
+import {
+  getBoardHexesRectangularMapDimensions,
+  getBoardPiecesMaxLevel,
+} from '../utils/map-utils'
 import type { RefObject } from 'react'
 import { zoomToMap } from '../utils/camera-utils'
 
@@ -88,9 +91,9 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[3] ??
-        flatPieceSizes?.[2] ??
-        flatPieceSizes?.[1] ??
-        flatPieceSizes[0],
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
       )
     }
   }
@@ -98,10 +101,10 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[4] ??
-        flatPieceSizes?.[3] ??
-        flatPieceSizes?.[2] ??
-        flatPieceSizes?.[1] ??
-        flatPieceSizes[0],
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
       )
     }
   }
