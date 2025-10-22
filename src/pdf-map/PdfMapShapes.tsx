@@ -117,7 +117,7 @@ export const PdfMultiHex1 = ({
         strokeWidth={SVG_BORDER_WIDTH}
         strokeLinecap="round"
         strokeLinejoin="round"
-        opacity={isEmptyHex ? OPACITY_EMPTY : isSubLevel ? OPACITY_SUBLEVEL : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       {/* SNOWFLAKE IDEA, this one looks like the original ice snowflakes in Heroscape */}
       {/* https://www.svgrepo.com/svg/60624/snowflake?edit=true */}
