@@ -81,6 +81,7 @@ export function buildupJsonFileMap(
   // For JSON maps, the map dimensions are free, we do not have to compute them
   let initialBoardHexes: BoardHexes = {}
   const initialBoardPieces = clone(boardPieces)
+  let finalBoardPieces: BoardPieces = []
   if (hexMap.shape === 'rectangle') {
     initialBoardHexes = makeRectangleScenario({
       length: hexMap.length,
@@ -116,16 +117,17 @@ export function buildupJsonFileMap(
       }
 
       // get the new board hexes and new board pieces
-      const nextBoardHexes = addPiece({
+      const { newBoardHexes, newBoardPieces } = addPiece({
         piece,
         boardHexes: prev,
-        boardPieces: clone(boardPieces),
+        boardPieces: finalBoardPieces,
         pieceCoords,
         placementAltitude: placementAltitude, // z is altitude is virtualscape, y is altitude in our app
         rotation: rotation,
         isVsTile: false,
-      }).newBoardHexes
-      return nextBoardHexes
+      })
+      finalBoardPieces = newBoardPieces
+      return newBoardHexes
     },
     initialBoardHexes,
   )
@@ -133,7 +135,7 @@ export function buildupJsonFileMap(
   return {
     boardHexes: newBoardHexes,
     hexMap: hexMap,
-    boardPieces: initialBoardPieces,
+    boardPieces: finalBoardPieces,
   }
 }
 function getBlankHexoscapeMapForVSTiles(
