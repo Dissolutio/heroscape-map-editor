@@ -14,12 +14,40 @@ import { ControlTabs } from './ControlTabs'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
+import type { BoardPieces } from '../types'
+
+type WorkerArgs = BoardPieces
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(null)
   const hexMap = useBoundStore((s) => s.hexMap)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
   const controlsContainerRef = React.useRef(null)
+  const workerRef = React.useRef<Worker>();
+
+
+  // effect: start/terminate worker, set up what to do with its return
+  React.useEffect(() => {
+    const worker = new Worker(new URL('../validation/boardHexesWorker.js', import.meta.url), { type: 'module' }); // 
+    workerRef.current = worker
+    workerRef.current.onmessage = (event) => {
+      const workerData = event.data
+      console.log("🚀 ~ HomePage ~ workerData:", workerData)
+    };
+    return () => {
+      workerRef?.current?.terminate();
+    };
+  }, []);
+
+  // effect: use worker to calculate something
+  React.useEffect(() => {
+    workerRef?.current?.postMessage?.(boardPieces);
+  }, [boardPieces])
+
+
+
+
   // https://robohash.org/you.png?size=200x200
   // USE EFFECT: automatically load up map from URL, OR from file
   useAutoLoadMapFile()
