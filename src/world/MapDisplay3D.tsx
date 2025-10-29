@@ -81,10 +81,7 @@ export default function MapDisplay3D({
       // const myClipboard = await navigator.clipboard.readText()
       return
     }
-    // Early out if camera is active
-    if (cameraControlsRef?.current?.active) {
-      return
-    }
+
     // Select Hex
     if (penMode === 'select') {
       if (hex.pieceID) {
