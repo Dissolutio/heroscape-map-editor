@@ -18,6 +18,7 @@ import {
   getPossibleRotationsForPenMode,
 } from './getPossibleRotationsForPenMode'
 import { useHotkeyConfig } from './useHotkeyConfig'
+import { chunk } from 'lodash'
 
 export default function RotationSelect() {
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
@@ -43,6 +44,7 @@ export default function RotationSelect() {
       style={{
         display: 'flex',
         flexDirection: 'row',
+        flexWrap: 'wrap',
         margin: '0px 0px',
         border: '1px solid var(--transparent-border)',
         padding: '0.5em',
@@ -75,77 +77,88 @@ export default function RotationSelect() {
         size="small"
         aria-label="piece rotation for current pen mode"
       >
-        {possibleRotations.map((r) => (
-          <ToggleButton
-            key={r}
-            value={`${r}`}
-            aria-label={`${r}-times rotated 60 degrees`}
-            style={{ display: 'flex', flexDirection: 'column' }}
+        {chunk(possibleRotations, 3).map((chunkResult, index) => (
+          <div
+            // biome-ignore lint/suspicious/noArrayIndexKey: <in this case unique>
+            key={index}
+            style={{
+            }}
           >
-            {r === 0 ? (
-              <>
-                <MdOutlineEast />
-                <span>0</span>
-              </>
-            ) : r === 0.5 ? (
-              <>
-                <MdOutlineEast style={{ transform: 'rotate(30deg)' }} />
-                <span>0.5</span>
-              </>
-            ) : r === 1 ? (
-              <>
-                <MdOutlineSouthEast />
-                <span>1</span>
-              </>
-            ) : r === 1.5 ? (
-              <>
-                <MdOutlineSouth />
-                <span>1.5</span>
-              </>
-            ) : r === 2 ? (
-              <>
-                <MdOutlineSouthWest />
-                <span>2</span>
-              </>
-            ) : r === 2.5 ? (
-              <>
-                <MdOutlineSouthWest style={{ transform: 'rotate(30deg)' }} />
-                <span>2.5</span>
-              </>
-            ) : r === 3 ? (
-              <>
-                <MdOutlineWest />
-                <span>3</span>
-              </>
-            ) : r === 3.5 ? (
-              <>
-                <MdOutlineWest style={{ transform: 'rotate(35deg)' }} />
-                <span>3.5</span>
-              </>
-            ) : r === 4 ? (
-              <>
-                <MdOutlineNorthWest />
-                <span>4</span>
-              </>
-            ) : r === 4.5 ? (
-              <>
-                <MdOutlineNorth />
-                <span>4.5</span>
-              </>
-            ) : r === 5 ? (
-              <>
-                <MdOutlineNorthEast />
-                <span>5</span>
-              </>
-            ) : (
-              // r === 5.5
-              <>
-                <MdOutlineNorthEast style={{ transform: 'rotate(30deg)' }} />
-                <span>5.5</span>
-              </>
-            )}
-          </ToggleButton>
-        ))}
+            {chunkResult.map((rotation) => (
+              <ToggleButton
+                key={rotation}
+                value={`${rotation}`}
+                aria-label={`${chunkResult}-times rotated 60 degrees`}
+                style={{ display: 'flex', flexDirection: 'column' }}
+              >
+                {rotation === 0 ? (
+                  <>
+                    <MdOutlineEast />
+                    <span>0</span>
+                  </>
+                ) : rotation === 0.5 ? (
+                  <>
+                    <MdOutlineEast style={{ transform: 'rotate(30deg)' }} />
+                    <span>0.5</span>
+                  </>
+                ) : rotation === 1 ? (
+                  <>
+                    <MdOutlineSouthEast />
+                    <span>1</span>
+                  </>
+                ) : rotation === 1.5 ? (
+                  <>
+                    <MdOutlineSouth />
+                    <span>1.5</span>
+                  </>
+                ) : rotation === 2 ? (
+                  <>
+                    <MdOutlineSouthWest />
+                    <span>2</span>
+                  </>
+                ) : rotation === 2.5 ? (
+                  <>
+                    <MdOutlineSouthWest style={{ transform: 'rotate(30deg)' }} />
+                    <span>2.5</span>
+                  </>
+                ) : rotation === 3 ? (
+                  <>
+                    <MdOutlineWest />
+                    <span>3</span>
+                  </>
+                ) : rotation === 3.5 ? (
+                  <>
+                    <MdOutlineWest style={{ transform: 'rotate(35deg)' }} />
+                    <span>3.5</span>
+                  </>
+                ) : rotation === 4 ? (
+                  <>
+                    <MdOutlineNorthWest />
+                    <span>4</span>
+                  </>
+                ) : rotation === 4.5 ? (
+                  <>
+                    <MdOutlineNorth />
+                    <span>4.5</span>
+                  </>
+                ) : rotation === 5 ? (
+                  <>
+                    <MdOutlineNorthEast />
+                    <span>5</span>
+                  </>
+                ) : (
+                  // r === 5.5
+                  <>
+                    <MdOutlineNorthEast style={{ transform: 'rotate(30deg)' }} />
+                    <span>5.5</span>
+                  </>
+                )
+                }
+              </ToggleButton>
+            ))}
+          </div>
+        ))
+        }
       </ToggleButtonGroup>
     </div>
   )
