@@ -1,6 +1,5 @@
-## Move/rotate/switch pieces BIG REFACTOR to boardPiece render
-THIS IS THE BIG REFACTOR: Mixed up validation in addPiece, which should just place the piece if able, then a validator runs in the background
-1. Move, rotate, switch pieces that are on the board already
+## Refactor to render from BoardPieces
+- Compute caps from boardpieces
 
 ## BowTie Jones requests
 - Indicate which way piece is being shifted
@@ -33,14 +32,16 @@ It is an array of Set IDS.
 User must choose appropriate sets, it doesn't calculate # sets used.
 Display pieces used / left.
 
+## Obstacle bases
+When adding an outcrop (lavarock, rock, or glacier), also add a base.
+Check `setsUsed`, and choose the corresponding pieces. (Caverns of valhalla doesn't have shadow-3 bases for the triple outcrop, you combine 3 "modified" shadow-1 spaces)
+
 ## PDF Build Instructions
-
-Shapes and Patterns remaining: 
-
 - Start Zones( as one layer)
-- LaurWall Arch
-- LaurWall Ruins 2 & 3 (just different styles, slightly larger)
-- Wallwalk/Road decor
+- LaurWall Arch pdf/svg shape
+- 
+- LaurWall Ruins 2 & 3 pdf/svg shape
+- Wallwalk/Road pdf/svg decor
 
 - Ladder Summaries
 - Map Key(see LeftOn4Ya's ultimate key, Renegade key, and old Hasbro key)
@@ -50,21 +51,16 @@ Shapes and Patterns remaining:
 Then need some formatting options (1-pager, map key?), author name, maybe more.
 
 ## 3D Models
-<!-- MAKE SOON -->
-Winter trees
-Laur Wall:
+- Winter trees
+- Toxic tiles
+- New evergreen trees
+- Refine Laur Ruin1 (redo)
 - Laur Ruin2 Ruin3
-- Laur LongWallArchStacker
-- Laur Ruin1 redux
-- Laur ShortWallStacker 
-- Laur LongWallStacker 
-- Laur PillarStacker TrianglePillar check/build their stacked configuration
-Fortress Banner
+- Refine Marvel
+- Fortress Banner
+- Refine Laur Palm Leaves
+- Refine Ticalla Palm Leaves
 
-<!-- Refine -->
-Refine Marvel
-Refine Laur Palm Leaves
-Refine Ticalla Palm Leaves
 
 ## Home Page
 Cartographers => Maps Gallery
@@ -73,7 +69,7 @@ Load => Editor
 About => Info
 
 ## 2D SVG Builder
-Building pretty much exactly like you did in Virtualscape. This will probably be a requirement.
+Building pretty much exactly like you did in Virtualscape.
 
 ## Build & Editing Features
 
@@ -82,7 +78,7 @@ Building pretty much exactly like you did in Virtualscape. This will probably be
 * Quick rotate pieces somehow. 
 
 ## Multi-Select & Copy/Paste  
-1. Selection Tool: Add a selection tool at the bottom. Functionally, you would click the selection tool, then click multiple hexes to highlight them. Then click the copy button. It would place in your hand what you just copied and then you can left click to place it in the world. Might need a reset button for when you are done copying to put one hex back in your hand.
+- Multi-select pieces
 
 ## Local Storage Load/Save/Edit maps
 

@@ -296,14 +296,14 @@ export const SvgMultiHex6 = ({
   )
 }
 export const SvgMultiHexMarvel6 = ({
-  hex,
+  // hex,
   isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  // const fillColor = getSvgHexFillColor(hex)
+  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = getMarvel6HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
@@ -734,13 +734,13 @@ export const SvgRuins3 = ({
   )
 }
 export const SvgMarvelRuin = ({
-  hex,
+  // hex,
   isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
+  // const fillColor = getSvgHexFillColor(hex)
   const fillColorSub = svgColors.outlineCastleWall
   // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS, 0)
@@ -999,13 +999,13 @@ export const SvgStartZone = ({
   )
 }
 export const SvgCastleCorner = ({
-  hex,
+  // hex,
   isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
+  // const fillColor = getSvgHexFillColor(hex)
   const { points } = getCastleCornerShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
@@ -1031,13 +1031,13 @@ export const SvgCastleCorner = ({
   )
 }
 export const SvgCastleStraight = ({
-  hex,
+  // hex,
   isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
+  // const fillColor = getSvgHexFillColor(hex)
   const { points } = getCastleStraightShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
@@ -1063,13 +1063,13 @@ export const SvgCastleStraight = ({
   )
 }
 export const SvgCastleEnd = ({
-  hex,
+  // hex,
   isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
+  // const fillColor = getSvgHexFillColor(hex)
   // const borderColor = getSvgHexBorderColor(hex)
   const { points } = getCastleEndShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -1097,13 +1097,13 @@ export const SvgCastleEnd = ({
   )
 }
 export const SvgCastleArch = ({
-  hex,
+  // hex,
   isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
+  // const fillColor = getSvgHexFillColor(hex)
   // const borderColor = getSvgHexBorderColor(hex)
   const { points } = getCastleArchShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
