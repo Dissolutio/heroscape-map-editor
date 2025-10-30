@@ -43,6 +43,14 @@ export interface BoardHex extends CubeCoordinate {
   obstacleHeight?: number // used to find the cap hex when clicking a castle wall (it's 9 up with a base, 8 up when wall-on-wall)
   isVerticalClearanceHex?: boolean // These are hexes that are above the origin/auxiliary hexes
 }
+export type BoardPiece = {
+  uid: string // new unique instance id (e.g., 'bp_abc123' or uuid/v4/nanoid)
+  // boardPieceID: string // existing encoded string like 'qraID+pieceUID' (keeps export format)
+  inventoryID: string
+  altitude: number
+  rotation: number
+  pieceCoords: CubeCoordinate
+}
 export type BoardPieces = string[]
 export type BoardHexes = {
   [qraID: string]: BoardHex
