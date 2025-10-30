@@ -9,9 +9,9 @@ import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
 
 export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF(
     '/forgotten-forest-tree-low-poly-colored.glb',
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,

@@ -29,6 +29,7 @@ function hexesToEmptyBoardHexes(hexgridHexes: CubeCoordinate[]): BoardHexes {
         isCap: true,
       }
       return {
+        // biome-ignore lint/performance/noAccumulatingSpread: <lazy>
         ...prev,
         [boardHex.id]: boardHex,
       }

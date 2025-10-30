@@ -44,9 +44,7 @@ export const getMapCenterCameraLookAt = (
 ): CameraLookAtArgs => {
   const { width, length, apex } =
     getBoardHexesRectangularMapDimensions(boardHexes)
-  const alpha = CAMERA_FOV / 2
-  const beta = 90 - alpha
-  const y = (width / 2) * Math.tan(beta) // far enough to see all of bottom of map even if it wall at the apex of the map
+  const y = width / 2 // far enough to see all of bottom of map even if it wall at the apex of the map
   if (mapShape === 'hexagon') {
     const centerOfMapCamera = {
       x: 0,
@@ -72,7 +70,7 @@ export const getMapCenterCameraLookAt = (
   }
   const centerOfMapCamera = {
     x: width / 2,
-    z: length * 2,
+    z: length / 1.5,
     y: y + apex * 1.4,
   }
   const centerOfMapLookAt = {

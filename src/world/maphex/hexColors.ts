@@ -225,13 +225,14 @@ export const svgColors = {
 //     revnaOchre: '#676345',
 //     valkrill: '#89845d', // this one, from "Tainted Gold" is a gradient and could be way off
 // }
-const valkyrieColorsFromLogos = {
-  //     utgarRed: '#81272e',
-  //     jandarBlue: '#5279b2',
-  //     vydarGray: '#8598a8',
-  //     ullarGreen: '#306a3a',
-  //     aquillaYellow: '#cab800',
-  //     einarPurple: '#582c67',
-  //     revnaOchre: '#c7c3aa',
-  //     valkrill: '#A5A03B',
-}
+
+// const valkyrieColorsFromLogos = {
+//     utgarRed: '#81272e',
+//     jandarBlue: '#5279b2',
+//     vydarGray: '#8598a8',
+//     ullarGreen: '#306a3a',
+//     aquillaYellow: '#cab800',
+//     einarPurple: '#582c67',
+//     revnaOchre: '#c7c3aa',
+//     valkrill: '#A5A03B',
+// }

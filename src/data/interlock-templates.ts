@@ -1,7 +1,7 @@
 /* 
-This file is going to be 1-1 with the tileTemplates file.
 Each hex in a land piece has an interlocking shape to it, one of 7 (so far) combinations.
-These arrays map each tile in the template to an interlocking hex shape.
+This arrays map each tile in the template to an interlocking hex shape. Another
+array will map a rotation to the interlocking shape.
 */
 
 import type { Dictionary } from 'lodash'

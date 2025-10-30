@@ -80,7 +80,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           isVsTile: false,
         })
         error = addPieceError
-        // we added a piece. ___X go up piece height, __xX|
+        // we added a piece. ___X go up piece height
         const placedAtLevel = altitude + 1
         draft.viewingLevel =
           placedAtLevel > state.viewingLevel
