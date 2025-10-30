@@ -3,7 +3,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import useBoundStore from '../store/store'
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
-import React from 'react'
+import type React from 'react'
 
 export default function PieceSizeSelect() {
   const pieceSize = useBoundStore((s) => s.pieceSize)
@@ -25,8 +25,6 @@ export default function PieceSizeSelect() {
         border: '1px solid var(--transparent-border)',
       }}
     >
-
-
       <ToggleButtonGroup
         disabled={!isSizes}
         value={`${pieceSize}`}
@@ -37,7 +35,7 @@ export default function PieceSizeSelect() {
           alignItems: 'center',
         }}
       >
-        { }
+        {}
         <span>Piece size:</span>
         <span>
           {isSizes ? (
@@ -61,9 +59,6 @@ export default function PieceSizeSelect() {
           )}
         </span>
       </ToggleButtonGroup>
-
-
-
     </div>
   )
 }

@@ -81,8 +81,7 @@ export default function RotationSelect() {
           <div
             // biome-ignore lint/suspicious/noArrayIndexKey: <in this case unique>
             key={index}
-            style={{
-            }}
+            style={{}}
           >
             {chunkResult.map((rotation) => (
               <ToggleButton
@@ -118,7 +117,9 @@ export default function RotationSelect() {
                   </>
                 ) : rotation === 2.5 ? (
                   <>
-                    <MdOutlineSouthWest style={{ transform: 'rotate(30deg)' }} />
+                    <MdOutlineSouthWest
+                      style={{ transform: 'rotate(30deg)' }}
+                    />
                     <span>2.5</span>
                   </>
                 ) : rotation === 3 ? (
@@ -149,16 +150,16 @@ export default function RotationSelect() {
                 ) : (
                   // r === 5.5
                   <>
-                    <MdOutlineNorthEast style={{ transform: 'rotate(30deg)' }} />
+                    <MdOutlineNorthEast
+                      style={{ transform: 'rotate(30deg)' }}
+                    />
                     <span>5.5</span>
                   </>
-                )
-                }
+                )}
               </ToggleButton>
             ))}
           </div>
-        ))
-        }
+        ))}
       </ToggleButtonGroup>
     </div>
   )
