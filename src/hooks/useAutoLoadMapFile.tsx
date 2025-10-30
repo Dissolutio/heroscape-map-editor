@@ -3,10 +3,9 @@ import React, { useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import type { BoardHexes, BoardPieces } from '../types'
+import type { BoardHexes } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
-  decodePieceID,
   getBoardPiecesMaxLevel,
   normalizeBoardPieces,
 } from '../utils/map-utils'
