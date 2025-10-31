@@ -126,45 +126,45 @@ const SelectedPieceReadout = () => {
     </div>
   )
 }
-export const HoveredPieceReadout = () => {
-  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  if (!hoveredPieceID) {
-    return null
-  }
-  const {
-    inventoryID,
-    altitude,
-    rotation,
-    // boardHexID,
-    // pieceCoords
-  } = decodePieceID(hoveredPieceID)
-  const piece = piecesSoFar[inventoryID]
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        bottom: 200,
-        right: 0,
-        padding: 20,
-        margin: 20,
-        // backgroundColor: 'var(--gunmetal-transparent)'
-      }}
-    >
-      <Card sx={{ minWidth: 150 }}>
-        <CardContent>
-          <Typography
-            gutterBottom
-            sx={{ color: 'text.secondary', fontSize: 14 }}
-          >
-            Hovered Piece:
-          </Typography>
-          <Typography variant="h6" component="div" sx={{ fontSize: 16 }}>
-            {piece.title}
-          </Typography>
-        </CardContent>
-      </Card>
-    </div>
-  )
-}
+// export const HoveredPieceReadout = () => {
+//   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+//   if (!hoveredPieceID) {
+//     return null
+//   }
+//   const {
+//     inventoryID,
+//     altitude,
+//     rotation,
+//     // boardHexID,
+//     // pieceCoords
+//   } = decodePieceID(hoveredPieceID)
+//   const piece = piecesSoFar[inventoryID]
+//   return (
+//     <div
+//       style={{
+//         position: 'absolute',
+//         bottom: 200,
+//         right: 0,
+//         padding: 20,
+//         margin: 20,
+//         // backgroundColor: 'var(--gunmetal-transparent)'
+//       }}
+//     >
+//       <Card sx={{ minWidth: 150 }}>
+//         <CardContent>
+//           <Typography
+//             gutterBottom
+//             sx={{ color: 'text.secondary', fontSize: 14 }}
+//           >
+//             Hovered Piece:
+//           </Typography>
+//           <Typography variant="h6" component="div" sx={{ fontSize: 16 }}>
+//             {piece.title}
+//           </Typography>
+//         </CardContent>
+//       </Card>
+//     </div>
+//   )
+// }
 
 export default SelectedPieceReadout
