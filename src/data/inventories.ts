@@ -232,6 +232,8 @@ export const marvelPieceSet: PieceInventory = {
   [Pieces.asphalt1]: 3,
   [Pieces.asphalt2]: 8,
   [Pieces.asphalt7]: 3,
+  [Pieces.grass2]: 8,
+  [Pieces.grass1]: 2,
   [Pieces.marvel]: 1,
   [Pieces.concrete6]: 1,
 }
