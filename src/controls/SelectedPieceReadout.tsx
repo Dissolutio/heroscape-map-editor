@@ -99,14 +99,14 @@ const SelectedPieceReadout = () => {
         <CardContent>
           <Typography
             gutterBottom
-            sx={{ color: 'text.secondary', fontSize: 14 }}
+            sx={{ color: 'text.secondary', fontSize: 12 }}
           >
             Selected Piece
           </Typography>
-          <Typography variant="h5" component="div" sx={{ fontSize: 18 }}>
+          <Typography variant="h5" component="div" sx={{ fontSize: 14 }}>
             {piece?.title ?? piece}
           </Typography>
-          <Typography variant="body2">
+          <Typography variant="body2" sx={{ fontSize: 12 }}>
             Altitude: {altitude + 1}
             <br />
             Rotation: {rotation}
@@ -116,6 +116,7 @@ const SelectedPieceReadout = () => {
           sx={{
             // p: 0,
             px: '20px',
+            py: 0,
             // m: 0
           }}
         >
