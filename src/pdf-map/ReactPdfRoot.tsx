@@ -3,7 +3,7 @@ import { Document, Image, PDFViewer, Text, View } from '@react-pdf/renderer'
 import useBoundStore from '../store/store'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
-import type { HexMap, MapState } from '../types'
+import type { HexMap } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
 import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
 
@@ -33,7 +33,6 @@ export function ReactPdfRoot() {
             <PdfMapLevels6PerPage
               boardHexes={boardHexes}
               boardPieces={boardPieces}
-              hexMap={hexMap}
             >
               <MapPortraitHeader
                 hexMap={hexMap}

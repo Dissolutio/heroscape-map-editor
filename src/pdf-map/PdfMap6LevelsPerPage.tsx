@@ -4,7 +4,6 @@ import type { PropsWithChildren } from 'react'
 import {
   type BoardHexes,
   type BoardPieces,
-  type MapState,
   type PdfMapAltitudeChunk,
   Pieces,
 } from '../types'
@@ -17,9 +16,8 @@ import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 export const PdfMapLevels6PerPage = ({
   boardHexes,
   boardPieces,
-  // hexMap,
   children,
-}: PropsWithChildren<MapState>) => {
+}: PropsWithChildren<{ boardHexes: BoardHexes, boardPieces: BoardPieces }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesWithoutEmpties = keyBy(
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
