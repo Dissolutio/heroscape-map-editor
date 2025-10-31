@@ -14,7 +14,6 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
           <PdfMapLevels6PerPage
             boardHexes={boardHexes}
             boardPieces={boardPieces}
-            hexMap={hexMap}
           />
         </Document>
       }

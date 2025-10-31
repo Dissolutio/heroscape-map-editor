@@ -21,7 +21,6 @@ import {
   genBoardHexID,
   getBattlementClickedHexCoords,
   getBoardHexesRectangularMapDimensions,
-  getBoardPiecesMaxLevel,
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'

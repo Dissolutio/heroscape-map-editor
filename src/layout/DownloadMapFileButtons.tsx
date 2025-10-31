@@ -8,21 +8,16 @@ import { ControlTabsListItemButton } from '../controls/ControlTabsListItemButton
 const DownloadMapFileButtons = () => {
   const hexMap = useBoundStore((state) => state.hexMap)
   const boardPieces = useBoundStore((state) => state.boardPieces)
-  const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
-  const mapNotes = hexMap?.mapNotes ?? ''
   const fileName = `${encodeFilename(hexMap.name) || genRandomMapName()}${hexMap.author ? `_by_${encodeFilename(hexMap.author)}` : ''}`
   const handleClickExportGzip = async () => {
     const filename = `${fileName}.gz`
+    const hexMapToUse = { ...hexMap, mapPortraitBase64: '' }
     const data: {
       hexMap: HexMap
       boardPieces: BoardPieces
-      mapPortraitBase64: string
-      mapNotes: string
     } = {
-      hexMap,
+      hexMap: hexMapToUse,
       boardPieces,
-      mapPortraitBase64,
-      mapNotes,
     }
     const jsonDataString = JSON.stringify(data)
     const encoder = new TextEncoder()
@@ -50,11 +45,9 @@ const DownloadMapFileButtons = () => {
     const data: {
       hexMap: HexMap
       boardPieces: BoardPieces
-      mapPortraitBase64: string
     } = {
       hexMap: hexMapToUse,
       boardPieces,
-      mapPortraitBase64,
     }
     const element = document.createElement('a')
     element.setAttribute(
@@ -72,6 +65,7 @@ const DownloadMapFileButtons = () => {
   return (
     <>
       <ControlTabsListItemButton
+        title="Download the map file without the map portrait image, and compressed with GZip (extremely small file size)"
         primary="Download file (.gz)"
         onClick={handleClickExportGzip}
         icon={<MdFolderZip />}
@@ -83,6 +77,7 @@ const DownloadMapFileButtons = () => {
         icon={<MdFolderZip />}
       />
       <ControlTabsListItemButton
+        title="Download the map file with the map portrait image (much larger filesize)"
         primary="Download file (.json) (with map picture included)"
         onClick={() => handleClickExportJson(false)}
         icon={<MdFolderZip />}
