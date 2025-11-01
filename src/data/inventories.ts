@@ -255,6 +255,11 @@ export const volcarrenPieceSet: PieceInventory = {
   [Pieces.lavaField2]: 5,
   [Pieces.lavaField7]: 4,
 }
+export const forestsOfValhalla: PieceInventory = {
+  [Pieces.tree10]: 2,
+  [Pieces.tree12]: 2,
+  [Pieces.tree415]: 2,
+}
 export const forgottenForestPieceSet: PieceInventory = {
   [Pieces.road1]: 8,
   [Pieces.road2]: 8,
@@ -302,6 +307,16 @@ export const ms2PieceSet: PieceInventory = {
   [Pieces.sand2]: 1,
   [Pieces.sand3]: 2,
   [Pieces.sand7]: 5,
+}
+export const cavernsOfValhalla: PieceInventory = {
+  [Pieces.dungeon1]: 7,
+  [Pieces.dungeon2]: 2,
+  [Pieces.dungeon3]: 2,
+  [Pieces.dungeon7]: 5,
+  [Pieces.dungeon24]: 2,
+  [Pieces.shadow1]: 14, // 8, but 6 "modified" shadows for putting the outcrops on
+  [Pieces.outcrop1]: 3,
+  [Pieces.outcrop3]: 1,
 }
 export const underdarkPieceSet: PieceInventory = {
   [Pieces.grass1]: 1,
