@@ -192,7 +192,7 @@ export const terrainSetsByShortID = {
   //   id: 'X',
   //   hsOrgId: '17',
   //   releaseDate: '09/2024',
-  // }, 
+  // },
   // Y: {
   //   name: 'Tournament Organizer Terrain Kit',
   //   abbreviation: 'TOTK',
@@ -200,7 +200,7 @@ export const terrainSetsByShortID = {
   //   id: 'Y',
   //   hsOrgId: '17',
   //   releaseDate: '09/2024',
-  // }, 
+  // },
   // Z: {
   //   name: 'Tournament Organizer Terrain Kit',
   //   abbreviation: 'TOTK',
@@ -208,5 +208,5 @@ export const terrainSetsByShortID = {
   //   id: 'Z',
   //   hsOrgId: '17',
   //   releaseDate: '09/2024',
-  // }, 
+  // },
 }
