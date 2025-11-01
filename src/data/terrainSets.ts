@@ -81,6 +81,22 @@ export const terrainSetsByShortID = {
     hsOrgId: '8', // same as ticalla, for now
     releaseDate: '08/2024',
   },
+  V: {
+    name: 'Caverns of Valhalla',
+    abbreviation: 'CoV',
+    inventory: setInventories.cavernsOfValhalla,
+    id: 'V',
+    hsOrgId: '28',
+    releaseDate: '02/2026',
+  },
+  W: {
+    name: 'Forests of Valhalla',
+    abbreviation: 'FoV',
+    inventory: setInventories.forestsOfValhalla,
+    id: 'W',
+    // hsOrgId: '17',
+    // releaseDate: '02/2026',
+  },
   M: {
     name: 'Ticalla Jungle',
     abbreviation: 'TJ',
@@ -169,4 +185,28 @@ export const terrainSetsByShortID = {
     hsOrgId: '17',
     releaseDate: '09/2024',
   },
+  // X: {
+  //   name: 'Tournament Organizer Terrain Kit',
+  //   abbreviation: 'TOTK',
+  //   inventory: setInventories.tournamentOrganizerTerrainKitPieceSet,
+  //   id: 'X',
+  //   hsOrgId: '17',
+  //   releaseDate: '09/2024',
+  // }, 
+  // Y: {
+  //   name: 'Tournament Organizer Terrain Kit',
+  //   abbreviation: 'TOTK',
+  //   inventory: setInventories.tournamentOrganizerTerrainKitPieceSet,
+  //   id: 'Y',
+  //   hsOrgId: '17',
+  //   releaseDate: '09/2024',
+  // }, 
+  // Z: {
+  //   name: 'Tournament Organizer Terrain Kit',
+  //   abbreviation: 'TOTK',
+  //   inventory: setInventories.tournamentOrganizerTerrainKitPieceSet,
+  //   id: 'Z',
+  //   hsOrgId: '17',
+  //   releaseDate: '09/2024',
+  // }, 
 }

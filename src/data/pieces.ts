@@ -999,7 +999,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.tree11]: {
     id: Pieces.tree11,
-    title: 'Evergreen Tree (10)',
+    title: 'Evergreen Tree (11)',
     terrain: HexTerrain.tree,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
@@ -1009,7 +1009,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.tree12]: {
     id: Pieces.tree12,
-    title: 'Evergreen Tree (10)',
+    title: 'Evergreen Tree (12)',
     terrain: HexTerrain.tree,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
