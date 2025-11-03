@@ -743,7 +743,7 @@ export const SvgMarvelRuin = ({
   // const fillColor = getSvgHexFillColor(hex)
   const fillColorSub = svgColors.outlineCastleWall
   // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS, 0)
+  const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS)
 
   return (
     <>
@@ -885,8 +885,7 @@ export const SvgRoadWall = ({
   const fillColor = getSvgHexFillColor(piece)
   const borderColor = getSvgHexBorderColor(piece)
   const { points } = getRoadWallSvgPolygonPoints(
-    SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    SVG_HEX_RADIUS
   )
 
   return (

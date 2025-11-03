@@ -49,23 +49,13 @@ export function getRoadWallSvgPolygonPoints(
   const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem
   const topX = 0
-  // Outer hexagon
-  const topYOuter = -radius
-  const leftXOuter = -apothem
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
-
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
-  const topYInner = -radiusInner
   const bottomYInner = radiusInner
   const bottomSideYInner = 0.5 * radiusInner
-  const topSideYInner = -0.5 * radiusInner
 
   // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
@@ -101,15 +91,10 @@ export function getBattlementSvgPolygonPoints(
   borderWidth: number,
 ) {
   const halfBorder = borderWidth / 2
-  const apothem = (Math.sqrt(3) * radius) / 2
-  const hexWidth = apothem * 2
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
   const rightXInner = apothemInner
-  const leftXInner = -apothemInner
-  const topYInner = -radiusInner
-  const bottomYInner = radiusInner
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 
@@ -124,15 +109,10 @@ export function getBattlementSvgPolygonPoints(
 }
 export function getLadderSvgPolygonPoints(radius: number, borderWidth: number) {
   const halfBorder = borderWidth / 2
-  const apothem = (Math.sqrt(3) * radius) / 2
-  const hexWidth = apothem * 2
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
   const rightXInner = apothemInner
-  const leftXInner = -apothemInner
-  const topYInner = -radiusInner
-  const bottomYInner = radiusInner
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 
@@ -164,8 +144,6 @@ export function getCastleArchShapeSvgPolygonPoints(
   const halfBorder = borderWidth / 2
   const apothem = (Math.sqrt(3) * radius) / 2
   const hexWidth = 2 * apothem
-  const topSideYOuter = -0.5 * radius
-  const topYOuter = -radius
   const bottomSideYOuter = 0.5 * radius
   const bottomYOuter = radius
   // Inner hexagon
@@ -367,7 +345,6 @@ export function getCastleStraightShapeSvgPolygonPoints(
   const bottomSideYOuter = 0.5 * radius
   // Inner hexagon
   const radiusInner = radius - halfBorder
-  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
   const insetAtMidpoints = borderWidth
   const wallInset = 0.2 * radiusInner
   const wallLength = 0.3 * radiusInner
@@ -454,12 +431,6 @@ export function getLaurLongWallSvgPolygonPoints(
   radius: number,
   borderWidth: number,
 ) {
-  const apothem = (Math.sqrt(3) * radius) / 2
-  // Outer
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
-
   const corners: Point[] = [
     { x: radius - (borderWidth || radius / 10), y: borderWidth || radius / 10 }, // top-left of rectangle
     {
@@ -510,12 +481,9 @@ export function getRuins2SvgPolygonPoints(radius: number, borderWidth: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem
-  const topX = 0
   // Outer hexagon
-  const topYOuter = -radius
   const leftXOuter = -apothem
   const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
   const bottomSideYOuter = 0.5 * radius
 
   // Inner hexagon
@@ -549,12 +517,9 @@ export function getRuins3SvgPolygonPoints(radius: number, borderWidth: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem
-  const topX = 0
   // Outer hexagon
-  const topYOuter = -radius
   const leftXOuter = -apothem
   const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
   const bottomSideYOuter = 0.5 * radius
 
   // Inner hexagon
@@ -590,22 +555,11 @@ export function getRuins3SvgPolygonPoints(radius: number, borderWidth: number) {
 }
 export function getMarvelRuinsShapeSvgPath(
   radius: number,
-  borderWidth: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
-  const halfBorder = borderWidth / 2
-  const hexWidth = 2 * apothem
-  const topX = 0
   // Outer hexagon
-  const topYOuter = -radius
-  const leftXOuter = -apothem
   const rightXOuter = apothem
   const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
-
-  // Inner hexagon
-  const radiusInner = radius - halfBorder
-  const topSideYInner = -0.5 * radiusInner
 
   const corners: Point[] = [
     /* 
@@ -627,20 +581,13 @@ export function getMarvelRuinsShapeSvgPath(
 }
 export function getLaurPillarShape(radius: number, borderWidth: number) {
   const halfBorder = borderWidth / 2
-  const topX = 0
   // Inner hexagon
   const radiusInner = radius - halfBorder
-  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const rightXInner = apothemInner
-  const leftXInner = -apothemInner
-  const topYInner = -radiusInner
-  const bottomYInner = radiusInner
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 
   const inset = 0.5 * radiusInner // the current laur pillar is definitely about 1/2 radius square
   const cos30 = cosDegrees(30)
-  const sin30 = sinDegrees(30)
   const cos60 = cosDegrees(60)
   const sin60 = sinDegrees(60)
   const corners: Point[] = [
@@ -723,16 +670,10 @@ export function get2HexSvgPolygonPointsAt00(
   const hexWidth = 2 * apothem
   const topX = 0
   // Outer hexagon
-  const topYOuter = -radius
-  const leftXOuter = -apothem
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
 
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
@@ -773,16 +714,11 @@ export function get3HexSvgPolygonPointsAt00(
   const hexWidth = 2 * apothem
   const topX = 0
   // Outer hexagon
-  const topYOuter = -radius
-  const leftXOuter = -apothem
   const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
 
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
@@ -828,17 +764,10 @@ export function get3HexStraightSvgPolygonPointsAt00(
   const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem
   const topX = 0
-  // Outer hexagon
-  const topYOuter = -radius
-  const leftXOuter = -apothem
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
 
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
@@ -885,17 +814,9 @@ export function get5HexStraightSvgPolygonPointsAt00(
   const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem
   const topX = 0
-  // Outer hexagon
-  const topYOuter = -radius
-  const leftXOuter = -apothem
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
-
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
@@ -959,16 +880,11 @@ export function get4HexSvgPolygonPointsAt00(
   const hexWidth = 2 * apothem
   const topX = 0
   // Outer hexagon
-  const topYOuter = -radius
-  const leftXOuter = -apothem
   const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
 
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
@@ -1018,17 +934,9 @@ export function get6HexSvgPolygonPointsAt00(
   const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem
   const topX = 0
-  // Outer hexagon
-  const topYOuter = -radius
-  const leftXOuter = -apothem
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
-
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
@@ -1084,18 +992,11 @@ export function getMarvel6HexSvgPolygonPointsAt00(
   const apothem = (Math.sqrt(3) * radius) / 2
   const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem
-  const topX = 0
   // Outer hexagon
-  const topYOuter = -radius
-  const leftXOuter = -apothem
   const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
-
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
@@ -1161,20 +1062,14 @@ export function get7HexSvgPolygonPointsAt00(
   const hexWidth = 2 * apothem
   const topX = 0
   // Outer hexagon
-  const topYOuter = -radius
   const leftXOuter = -apothem
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
 
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
-  const bottomYInner = radiusInner
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 
@@ -1227,20 +1122,15 @@ export function get24HexSvgPolygonPointsAt00(
   const hexWidth = 2 * apothem
   const topX = 0
   // Outer hexagon
-  const topYOuter = -radius
   const leftXOuter = -apothem
   const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
 
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
-  const bottomYInner = radiusInner
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 
@@ -1341,17 +1231,9 @@ export function get7HexWallWalkSvgPolygonPointsAt00(
   const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem
   const topX = 0
-  // Outer hexagon
-  const topYOuter = -radius
-  const leftXOuter = -apothem
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
-
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
@@ -1412,17 +1294,9 @@ export function get9HexWallWalkSvgPolygonPointsAt00(
   const halfBorder = borderWidth / 2
   const hexWidth = 2 * apothem
   const topX = 0
-  // Outer hexagon
-  const topYOuter = -radius
-  const leftXOuter = -apothem
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
-
   // Inner hexagon
   const radiusInner = radius - halfBorder
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const hexWidthInner = 2 * apothemInner
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
