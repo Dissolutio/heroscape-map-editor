@@ -352,7 +352,9 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   //  Marvel Ruin
   if (
     hex.inventoryID === Pieces.marvel ||
-    hex.inventoryID === Pieces.marvelBroken
+    hex.inventoryID === Pieces.marvelBroken ||
+    hex.inventoryID === Pieces.marvelNoUpper ||
+    hex.inventoryID === Pieces.marvelNoUpperBroken
   ) {
     return (
       <g

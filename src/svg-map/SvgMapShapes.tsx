@@ -743,7 +743,7 @@ export const SvgMarvelRuin = ({
   // const fillColor = getSvgHexFillColor(hex)
   const fillColorSub = svgColors.outlineCastleWall
   // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS, 0)
+  const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS)
 
   return (
     <>
@@ -758,6 +758,7 @@ export const SvgMarvelRuin = ({
       )}
       <path
         d={path}
+        fillOpacity={0}
         stroke={fillColorSub}
         strokeWidth={2 * SVG_BORDER_WIDTH}
         strokeLinecap="round"

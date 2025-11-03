@@ -730,7 +730,7 @@ export const PdfMarvelRuin = ({
   // const fillColor = getSvgHexFillColor(hex)
   const fillColorSub = svgColors.outlineCastleWall
   // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS, 0)
+  const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS)
 
   return (
     <>
