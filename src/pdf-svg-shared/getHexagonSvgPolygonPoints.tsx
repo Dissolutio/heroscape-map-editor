@@ -1106,33 +1106,26 @@ export function getMarvel6HexSvgPolygonPointsAt00(
   const corners: Point[] = [
     /* 
      /\/\
-    |    |
+    |6  1|
      \   \/\/\
-     |        |
+     | 5 2 3 4|
       \/\/\/\/
     */
-    { x: topX, y: topYInner }, // top hex1
+    { x: -apothemInner, y: topSideYInner }, // top-left hex1
+    { x: 0, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
+    { x: apothemInner, y: bottomSideYInner }, // bottom-right hex1
 
-    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
-    { x: hexWidth, y: topYInner }, //  top hex2
-    { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
-    { x: hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex2
+    { x: 0.5 * hexWidth, y: 1.5 * radius - radiusInner }, // top hex2
+    { x: 0.5 * hexWidth + apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-right hex2
 
+    { x: 1.5 * hexWidth - apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-left hex3
     { x: 1.5 * hexWidth, y: 1.5 * radius - radiusInner }, // top hex3
     { x: 1.5 * hexWidth + apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-right hex3
 
     { x: 2.5 * hexWidth - apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-left hex4
     { x: 2.5 * hexWidth, y: 1.5 * radius - radiusInner }, // top hex4
     { x: 2.5 * hexWidth + apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-right hex4
-
-    { x: 3.5 * hexWidth - apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-left hex5
-    { x: 3.5 * hexWidth, y: 1.5 * radius - radiusInner }, // top hex5
-    { x: 3.5 * hexWidth + apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-right hex5
-    { x: 3.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex5
-    { x: 3.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex5
-    { x: 3.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex5
-
     { x: 2.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex4
     { x: 2.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex4
     { x: 2.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex4
@@ -1141,15 +1134,20 @@ export function getMarvel6HexSvgPolygonPointsAt00(
     { x: 1.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex3
     { x: 1.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex3
 
-    // { x: rightXOuter + apothemInner + halfBorder, y: radius + radiusInner }, // bottom-left hex3, bottom-right hex6 TWEENSIE
+    { x: 0.5 * hexWidth + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex2
+    { x: 0.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex2
+    { x: 0.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex2
 
-    { x: rightXOuter + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, //bottom-right hex6
-    { x: rightXOuter, y: 1.5 * radius + radiusInner }, // bottom hex6
-    { x: rightXOuter - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex6
-    { x: rightXOuter - apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-left hex6
-    { x: topX, y: bottomYInner }, // bottom hex1
-    { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
-    { x: leftXInner, y: topSideYInner }, // top-left hex1
+    { x: (-hexWidth) + rightXOuter + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, //bottom-right hex5
+    { x: (-hexWidth) + rightXOuter, y: 1.5 * radius + radiusInner }, // bottom hex5
+    { x: (-hexWidth) + rightXOuter - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex5
+    { x: (-hexWidth) + rightXOuter - apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-left hex5
+
+    { x: -hexWidth, y: bottomYInner }, // bottom hex6
+    { x: -hexWidth + leftXInner, y: bottomSideYInner }, // bottom-left hex6
+    { x: -hexWidth + leftXInner, y: topSideYInner }, // top-left hex6
+    { x: -hexWidth, y: topYInner }, // top hex6
+    { x: -hexWidth - leftXInner, y: topSideYInner }, // top-right hex6
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
