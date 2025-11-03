@@ -758,6 +758,7 @@ export const SvgMarvelRuin = ({
       )}
       <path
         d={path}
+        fillOpacity={0}
         stroke={fillColorSub}
         strokeWidth={2 * SVG_BORDER_WIDTH}
         strokeLinecap="round"

@@ -557,6 +557,7 @@ export function getMarvelRuinsShapeSvgPath(
   radius: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
+  const hexWidth = 2 * apothem
   // Outer hexagon
   const rightXOuter = apothem
   const topSideYOuter = -0.5 * radius
@@ -567,11 +568,11 @@ export function getMarvelRuinsShapeSvgPath(
     |____
 
     */
-    { x: rightXOuter, y: topSideYOuter }, // top-right hex1
+    { x: -hexWidth + rightXOuter, y: topSideYOuter }, // top-right hex1
 
-    { x: apothem, y: 1.5 * radius }, // center hex3
+    { x: -hexWidth + apothem, y: 1.5 * radius }, // center hex3
 
-    { x: 8 * apothem, y: 1.5 * radius }, // right side hex6
+    { x: 6 * apothem, y: 1.5 * radius }, // right side hex6
   ]
   const path = `M ${corners[0].x},${corners[0].y} 
   L ${corners[1].x},${corners[1].y}
