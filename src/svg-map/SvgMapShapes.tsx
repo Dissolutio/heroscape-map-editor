@@ -886,7 +886,8 @@ export const SvgRoadWall = ({
   const fillColor = getSvgHexFillColor(piece)
   const borderColor = getSvgHexBorderColor(piece)
   const { points } = getRoadWallSvgPolygonPoints(
-    SVG_HEX_RADIUS
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
   )
 
   return (

@@ -355,7 +355,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     hex.inventoryID === Pieces.marvelBroken ||
     hex.inventoryID === Pieces.marvelNoUpper ||
     hex.inventoryID === Pieces.marvelNoUpperBroken
-
   ) {
     return (
       <g

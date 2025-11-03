@@ -553,9 +553,7 @@ export function getRuins3SvgPolygonPoints(radius: number, borderWidth: number) {
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners, path }
 }
-export function getMarvelRuinsShapeSvgPath(
-  radius: number,
-) {
+export function getMarvelRuinsShapeSvgPath(radius: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const hexWidth = 2 * apothem
   // Outer hexagon
@@ -1040,10 +1038,19 @@ export function getMarvel6HexSvgPolygonPointsAt00(
     { x: 0.5 * hexWidth, y: 1.5 * radius + radiusInner }, // bottom hex2
     { x: 0.5 * hexWidth - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex2
 
-    { x: (-hexWidth) + rightXOuter + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, //bottom-right hex5
-    { x: (-hexWidth) + rightXOuter, y: 1.5 * radius + radiusInner }, // bottom hex5
-    { x: (-hexWidth) + rightXOuter - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex5
-    { x: (-hexWidth) + rightXOuter - apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-left hex5
+    {
+      x: -hexWidth + rightXOuter + apothemInner,
+      y: 1.5 * radius + 0.5 * radiusInner,
+    }, //bottom-right hex5
+    { x: -hexWidth + rightXOuter, y: 1.5 * radius + radiusInner }, // bottom hex5
+    {
+      x: -hexWidth + rightXOuter - apothemInner,
+      y: 1.5 * radius + 0.5 * radiusInner,
+    }, // bottom-left hex5
+    {
+      x: -hexWidth + rightXOuter - apothemInner,
+      y: 1.5 * radius - 0.5 * radiusInner,
+    }, // top-left hex5
 
     { x: -hexWidth, y: bottomYInner }, // bottom hex6
     { x: -hexWidth + leftXInner, y: bottomSideYInner }, // bottom-left hex6
