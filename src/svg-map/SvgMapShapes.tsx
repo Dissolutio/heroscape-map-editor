@@ -751,6 +751,7 @@ export const SvgMarvelRuin = ({
         <path
           d={path}
           stroke={'white'}
+          fillOpacity={0}
           strokeWidth={2 * SVG_BORDER_WIDTH}
           strokeLinecap="round"
           strokeLinejoin="round"
