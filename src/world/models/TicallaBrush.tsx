@@ -78,7 +78,6 @@ export function LaurBrushPreview({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-jungle.glb') as any
-  // const { nodes } = useGLTF('/ticalla-brush.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -286,4 +285,3 @@ export function TicallaBrushPreview({
   )
 }
 useGLTF.preload('/laur-jungle.glb')
-// useGLTF.preload('/ticalla-brush.glb')
