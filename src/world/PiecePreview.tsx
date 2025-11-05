@@ -89,8 +89,8 @@ export default function PiecePreview() {
   )
   const pieceID = piece?.id ?? ''
 
-  //EARLY RETURN:  Only show preview if hovering a valid hex and penMode is not 'select'
-  if (!hoveredHex || penMode === 'select') {
+  //EARLY RETURN:  Only show preview if hovering a valid hex, a piece is defined, penMode is not 'select', and map picture not being taken
+  if (!hoveredHex || !piece || penMode === 'select' || isTakingPicture) {
     return null
   }
 
@@ -123,14 +123,14 @@ export default function PiecePreview() {
     pieceID === Pieces.tree12
   const isBigTreeHex = pieceID.endsWith(Pieces.tree415)
 
-  const isShowEmptyHexes =
-    !isTakingPicture && hoveredHex.terrain === HexTerrain.empty
-  const isStartZoneHex = hoveredHex.terrain === HexTerrain.startZone
-  const isHeightRingedHex =
-    (isSolidTerrainHex(hoveredHex.terrain) && !hoveredHex.isCap) ||
-    isShowEmptyHexes
-  const isObstacleHex =
-    hoveredHex.isObstacleOrigin || hoveredHex.isObstacleAuxiliary
+  // const isShowEmptyHexes =
+  //   !isTakingPicture && hoveredHex.terrain === HexTerrain.empty
+  // const isStartZoneHex = hoveredHex.terrain === HexTerrain.startZone
+  // const isHeightRingedHex =
+  //   (isSolidTerrainHex(hoveredHex.terrain) && !hoveredHex.isCap) ||
+  //   isShowEmptyHexes
+  // const isObstacleHex =
+  //   hoveredHex.isObstacleOrigin || hoveredHex.isObstacleAuxiliary
   const isLaurBrushHex = piece.id === Pieces.laurBrush10
   const isTicallaBrushHex = piece.id === Pieces.brush9
   const isSwampBrushHex = piece.id === Pieces.swampBrush10
@@ -214,11 +214,11 @@ export default function PiecePreview() {
   }
   const getLandMesh = () => {
     switch (
-      penModeSize === 6 && penMode === PiecePrefixes.concrete
-        ? '6B'
-        : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
-          ? '7B'
-          : `${penModeSize}`
+    penModeSize === 6 && penMode === PiecePrefixes.concrete
+      ? '6B'
+      : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
+        ? '7B'
+        : `${penModeSize}`
     ) {
       case '1':
         return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
@@ -291,8 +291,8 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
-            HEXGRID_HEX_HEIGHT,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
+          HEXGRID_HEX_HEIGHT,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -310,7 +310,7 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -573,8 +573,8 @@ export default function PiecePreview() {
         position={[
           x + getLadderBattlementOptions(ladderRotation).xAdd,
           y +
-            HEXGRID_HEXCAP_HEIGHT / 2 +
-            (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
+          HEXGRID_HEXCAP_HEIGHT / 2 +
+          (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
           z + getLadderBattlementOptions(ladderRotation).zAdd,
         ]}
         rotation={[0, (ladderRotation * -Math.PI) / 3, 0]}

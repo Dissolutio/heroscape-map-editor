@@ -94,8 +94,8 @@ function FluidCap({
     ref.current.position.set(
       x,
       y -
-        (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
-        0.001,
+      (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
+      0.001,
       z,
     )
   }, [boardHex])
@@ -115,13 +115,13 @@ function FluidCap({
     }
     e.stopPropagation() // prevent this hover from passing through and affecting behind
     onPointerEnter(e, boardHex)
-    ref.current.color.set('yellow')
+    ref?.current?.color?.set?.('yellow')
   }
   const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
       return
     }
-    ref.current.color.set(color)
+    ref?.current?.color?.set?.(color)
     onPointerOut(e)
   }
   const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
