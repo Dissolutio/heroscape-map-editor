@@ -40,7 +40,8 @@ const useAutoLoadMapFile = (props?: Props) => {
     // Map might be loaded from local storage already
     const queryParams = new URLSearchParams(searchString)
     const urlMapString = queryParams.get('m')
-    const localMapCache = clone(Object.assign(JSON.parse(localStorage?.getItem?.(LS_KEYS.lastMapCache) ?? ''), {}))
+    const localMapCachePre = localStorage?.getItem?.(LS_KEYS.lastMapCache) ?? ''
+    const localMapCache = localMapCachePre ? JSON.parse?.(localMapCachePre) : null
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
@@ -66,7 +67,7 @@ const useAutoLoadMapFile = (props?: Props) => {
               localMapCache ? loadMap(localMapCache) : noop()
               closeSnackbar(snackbarId)
               enqueueSnackbar({
-                message: `Loaded last map instead: ${localMapCache.hexMap.name}`,
+                message: `Loaded last map instead: ${localMapCache?.hexMap?.name ?? ''}`,
                 variant: 'success',
                 autoHideDuration: 3000,
               })
