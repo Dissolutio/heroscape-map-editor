@@ -99,3 +99,7 @@ When user clicks SAVE/LOAD, show:
 - Customizable Hotkeys,
 - Customizeable Colors
 - Toggle Renegade style
+
+## Update Inventories for Pieces with Variations (Marvel Ruin, Castle Arch)
+- Marvel ruin counts once in inventories, but has 4 variations
+- Castle arch counts once in inventories, but has 2 variations
