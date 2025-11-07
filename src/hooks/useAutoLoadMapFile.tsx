@@ -40,7 +40,8 @@ const useAutoLoadMapFile = (props?: Props) => {
     toggleViewingLevel(maxLevel)
   }, [hexMap.id])
 
-  // USE EFFECT: automatically load up map from URL, OR from file
+  // USE EFFECT: automatically load up map from URL(with option to use lastMapCache instead)
+  //  OR from json/.hsc file
   // biome-ignore lint/correctness/useExhaustiveDependencies: only run on-load
   useEffect(() => {
     // Map might be loaded from local storage already
@@ -100,7 +101,6 @@ const useAutoLoadMapFile = (props?: Props) => {
         // })
         clearUndoHistory() // clear undo history, initial load should not be undoable
         return
-
         // biome-ignore lint/suspicious/noExplicitAny: <error could be anything>
       } catch (error: any) {
         enqueueSnackbar({
@@ -119,58 +119,57 @@ const useAutoLoadMapFile = (props?: Props) => {
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
         variant: 'success',
       })
-    } else {
-      // No url and no prev state? auto load a file
-
-      // AUTO VSCAPE
-      // const fileName = '/ladders.hsc'
-      // fetch(fileName)
-      //   .then((response) => {
-      //     return response.arrayBuffer()
-      //   })
-      //   .then((arrayBuffer) => {
-      //     const vsFileData = processVirtualScapeArrayBuffer(arrayBuffer)
-      //     // buildupVSFileMap should return errorArr for enqueueSnackbar
-      //     const vsMap = buildupVSFileMap(
-      //       vsFileData.tiles,
-      //       vsFileData?.name ?? fileName,
-      //     )
-      //     loadMap(vsMap)
-      //     enqueueSnackbar(
-      //       `Automatically loaded Virtualscape map named: "${vsMap.hexMap.name}" from file: "${fileName}"`,
-      //     )
-      //   })
-      // AUTO JSON
-      const fileName = '/json-maps/AoA_1_The_Shattered_Table.json'
-      fetch(fileName).then(async (response) => {
-        // const data = response.json()
-        const data = await response.json()
-
-        if (props?.boardHexes) {
-          loadMap({
-            boardHexes: props.boardHexes,
-            boardPieces: normalizeBoardPieces(data.boardPieces),
-            hexMap: data.hexMap,
-          })
-        } else {
-          const jsonMap = buildupJsonFileMap(
-            normalizeBoardPieces(data.boardPieces),
-            data.hexMap,
-          )
-          if (!jsonMap.hexMap.name) {
-            jsonMap.hexMap.name = fileName
-          }
-          loadMap(jsonMap)
-        }
-        enqueueSnackbar({
-          // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
-          message: 'WELCOME!',
-          variant: 'success',
-          autoHideDuration: 5000,
-        })
-        clearUndoHistory() // clear undo history, initial load should not be undoable
-      })
+      return
     }
+    // No url and no prev state? auto load a file
+    // AUTO VSCAPE
+    // const fileName = '/ladders.hsc'
+    // fetch(fileName)
+    //   .then((response) => {
+    //     return response.arrayBuffer()
+    //   })
+    //   .then((arrayBuffer) => {
+    //     const vsFileData = processVirtualScapeArrayBuffer(arrayBuffer)
+    //     // buildupVSFileMap should return errorArr for enqueueSnackbar
+    //     const vsMap = buildupVSFileMap(
+    //       vsFileData.tiles,
+    //       vsFileData?.name ?? fileName,
+    //     )
+    //     loadMap(vsMap)
+    //     enqueueSnackbar(
+    //       `Automatically loaded Virtualscape map named: "${vsMap.hexMap.name}" from file: "${fileName}"`,
+    //     )
+    //   })
+    // AUTO JSON
+    const fileName = '/json-maps/AoA_1_The_Shattered_Table.json'
+    fetch(fileName).then(async (response) => {
+      // const data = response.json()
+      const data = await response.json()
+
+      if (props?.boardHexes) {
+        loadMap({
+          boardHexes: props.boardHexes,
+          boardPieces: normalizeBoardPieces(data.boardPieces),
+          hexMap: data.hexMap,
+        })
+      } else {
+        const jsonMap = buildupJsonFileMap(
+          normalizeBoardPieces(data.boardPieces),
+          data.hexMap,
+        )
+        if (!jsonMap.hexMap.name) {
+          jsonMap.hexMap.name = fileName
+        }
+        loadMap(jsonMap)
+      }
+      enqueueSnackbar({
+        // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
+        message: 'WELCOME!',
+        variant: 'success',
+        autoHideDuration: 5000,
+      })
+      clearUndoHistory() // clear undo history, initial load should not be undoable
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 }

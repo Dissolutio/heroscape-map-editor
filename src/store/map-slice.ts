@@ -30,7 +30,8 @@ type PaintTileArgs = {
   rotation: number
 }
 
-// Here, we cache the local map in case the user is loading a URL, we can offer them the chance to load their last map instead (in useAutoLoadMapFile)
+// Here, we duplicate lastMap in case the user is loading a URL, which will immediately overwrite lastMap,
+// we can offer them the chance to load their last map instead of the URL (in useAutoLoadMapFile.tsx)
 let localLastMap: { state: MapState } | undefined
 if (localStorage.getItem(LS_KEYS.lastMap)) {
   localLastMap = JSON.parse(localStorage?.getItem(LS_KEYS.lastMap) ?? '{}')
