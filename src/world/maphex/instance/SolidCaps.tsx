@@ -112,7 +112,7 @@ function SolidCapInstance({
     if (hoveredPieceID === boardHex.pieceID) {
       // ref.current.color.set('yellow')
     } else {
-      ref.current.color.set(color)
+      ref?.current?.color?.set?.(color)
     }
   }, [boardHex.pieceID, hoveredPieceID, color])
 
@@ -122,14 +122,14 @@ function SolidCapInstance({
     }
     e.stopPropagation() // prevent this hover from passing through and affecting behind
     onPointerEnter(e, boardHex)
-    ref.current.color.set('yellow')
+    ref?.current?.color?.set?.('yellow')
   }
   const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
       return
     }
     // if (hoveredPieceID !== boardHex.pieceID) {
-    ref.current.color.set(color)
+    ref?.current?.color?.set?.(color)
     onPointerOut(e)
     // }
   }

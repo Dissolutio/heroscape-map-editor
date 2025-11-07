@@ -73,7 +73,7 @@ function EmptyHex({
   React.useLayoutEffect(() => {
     const { x, z, y } = getBoardHex3DCoords(boardHex)
     if (ref.current) {
-      ref.current.color.set(emptyHexColor)
+      ref.current?.color?.set?.(emptyHexColor)
       ref.current.position.set(x, y, z)
       ref.current.opacity = 0.5
     }
@@ -82,11 +82,11 @@ function EmptyHex({
   const handleEnter = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation() // prevent this hover from passing through and affecting behind
     onPointerEnter(e, boardHex)
-    ref.current.color.set('yellow')
+    ref?.current?.color?.set?.('yellow')
   }
   const handleOut = (e: ThreeEvent<PointerEvent>) => {
     if (ref.current) {
-      ref.current.color.set(emptyHexColor)
+      ref.current?.color?.set?.(emptyHexColor)
     }
     onPointerOut(e)
   }
