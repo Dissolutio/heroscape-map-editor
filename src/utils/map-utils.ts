@@ -2,7 +2,7 @@ import { Vector3 } from 'three'
 import type {
   BoardHex,
   BoardHexes,
-  BoardPieces,
+  BoardPiecesEncodedArr,
   CubeCoordinate,
   DecodedPieceID,
 } from '../types'
@@ -70,7 +70,7 @@ export const getBoardHexesRectangularMapDimensions = (
     ((hexLength === 1
       ? 2 * HEXGRID_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-        3 * HEXGRID_HEX_APOTHEM) +
+      3 * HEXGRID_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * HEXGRID_HEX_APOTHEM) /
     HEXGRID_SPACING
   const apex =
@@ -119,7 +119,7 @@ export const getBoardHexesSvgMapDimensions = (
     ((hexLength === 1
       ? 2 * SVG_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-        3 * SVG_HEX_APOTHEM) +
+      3 * SVG_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * SVG_HEX_APOTHEM) /
     HEXGRID_SPACING
   return { length, width, hexLength, hexWidth }
@@ -274,7 +274,7 @@ export function genBoardHexID(hex: CubeCoordinate & { altitude: number }) {
     */
   return `${hex.altitude}~${hex.q}~${hex.r}`
 }
-export const getBoardPiecesMaxLevel = (boardPieces: BoardPieces) => {
+export const getBoardPiecesMaxLevel = (boardPieces: BoardPiecesEncodedArr) => {
   const maxLevel =
     1 +
     boardPieces
@@ -316,7 +316,7 @@ export function countStringInArrayLoop(arr: string[], targetString: string) {
  * Normalize BoardPieces to an array of pieceIDs (strings).
  * Supports legacy object format and new array format (version 1).
  */
-export function normalizeBoardPieces(boardPieces: BoardPieces): string[] {
+export function normalizeBoardPieces(boardPieces: BoardPiecesEncodedArr): string[] {
   if (Array.isArray(boardPieces)) {
     return boardPieces
   }

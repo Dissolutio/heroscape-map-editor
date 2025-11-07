@@ -12,7 +12,7 @@ import {
 } from '@mui/material'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import type { BoardPieces } from '../types'
+import type { BoardPiecesEncodedArr } from '../types'
 import {
   MAX_HEXAGON_MAP_DIMENSION,
   MAX_RECTANGLE_MAP_DIMENSION,
@@ -25,7 +25,7 @@ import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
-  boardPieces: BoardPieces,
+  boardPieces: BoardPiecesEncodedArr,
 ) => {
   const newBoardPieces = boardPieces.map((pid) => {
     const {

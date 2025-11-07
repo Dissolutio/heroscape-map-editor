@@ -1,5 +1,5 @@
 import JSONCrush from 'jsoncrush'
-import type { BoardPieces, HexMap } from '../types'
+import type { BoardPiecesEncodedArr, HexMap } from '../types'
 import { isHexMap } from '../utils/type-checker'
 import { decodePieceID } from '../utils/map-utils'
 
@@ -8,7 +8,7 @@ export const getUrlMapString = ({
   boardPieces,
 }: {
   hexMap: HexMap
-  boardPieces: BoardPieces
+  boardPieces: BoardPiecesEncodedArr
 }) => {
   return encodeURI(
     JSONCrush.crush(
@@ -21,7 +21,7 @@ export const getUrlMapString = ({
 }
 type ParsedJSONCrushMap = {
   hexMap: HexMap
-  boardPieces: BoardPieces
+  boardPieces: BoardPiecesEncodedArr
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   extra?: any[]
 }
@@ -30,7 +30,7 @@ export function parseMapDataArrayFromCrushed(
 ): ParsedJSONCrushMap {
   const data = JSON.parse(JSONCrush.uncrush(crushed))
   let hexMap: HexMap | undefined = undefined
-  const boardPieces: BoardPieces = []
+  const boardPieces: BoardPiecesEncodedArr = []
 
   for (const item of data) {
     // Detect hexMap: must be an object with expected keys

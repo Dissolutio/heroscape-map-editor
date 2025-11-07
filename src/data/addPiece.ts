@@ -3,7 +3,7 @@ import {
   type AddRemovePieceError,
   type AddRemovePieceReturn,
   type BoardHexes,
-  type BoardPieces,
+  type BoardPiecesEncodedArr,
   type CubeCoordinate,
   HexTerrain,
   type Piece,
@@ -37,7 +37,7 @@ export function addPiece({
 }: {
   piece: Piece
   boardHexes: BoardHexes
-  boardPieces: BoardPieces
+  boardPieces: BoardPiecesEncodedArr
   pieceCoords: CubeCoordinate
   placementAltitude: number
   rotation: number

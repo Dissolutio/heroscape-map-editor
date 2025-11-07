@@ -1,7 +1,7 @@
 import { clone } from 'lodash'
 import {
   type BoardHexes,
-  type BoardPieces,
+  type BoardPiecesEncodedArr,
   type HexMap,
   type MapState,
   Pieces,
@@ -75,13 +75,13 @@ function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: string[]) {
   })
 }
 export function buildupJsonFileMap(
-  boardPieces: BoardPieces,
+  boardPieces: BoardPiecesEncodedArr,
   hexMap: HexMap,
 ): MapState {
   // For JSON maps, the map dimensions are free, we do not have to compute them
   let initialBoardHexes: BoardHexes = {}
   const initialBoardPieces = clone(boardPieces)
-  let finalBoardPieces: BoardPieces = []
+  let finalBoardPieces: BoardPiecesEncodedArr = []
   if (hexMap.shape === 'rectangle') {
     initialBoardHexes = makeRectangleScenario({
       length: hexMap.length,

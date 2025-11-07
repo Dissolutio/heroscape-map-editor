@@ -3,7 +3,7 @@ import {
   type AddRemovePieceError,
   type AddRemovePieceReturn,
   type BoardHexes,
-  type BoardPieces,
+  type BoardPiecesEncodedArr,
   HexTerrain,
   PiecePrefixes,
   Pieces,
@@ -19,7 +19,7 @@ import { piecesSoFar } from './pieces'
 export type RemovePieceArgs = {
   pieceID: string
   boardHexes: BoardHexes
-  boardPieces: BoardPieces
+  boardPieces: BoardPiecesEncodedArr
 }
 
 export function removePiece({
@@ -36,7 +36,7 @@ export function removePiece({
   const newBoardHexes = { ...boardHexes }
   // Remove only the first occurrence of pieceID from the array
   const idx = boardPieces.indexOf(pieceID)
-  const newBoardPieces: BoardPieces =
+  const newBoardPieces: BoardPiecesEncodedArr =
     idx === -1
       ? [...boardPieces]
       : [...boardPieces.slice(0, idx), ...boardPieces.slice(idx + 1)]

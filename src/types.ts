@@ -51,7 +51,8 @@ export type BoardPiece = {
   rotation: number
   pieceCoords: CubeCoordinate
 }
-export type BoardPieces = string[]
+export type BoardPieces = BoardPiece[]
+export type BoardPiecesEncodedArr = string[]
 export type BoardHexes = {
   [qraID: string]: BoardHex
 }
@@ -356,6 +357,6 @@ export type DecodedPieceID = {
 }
 export type AddRemovePieceReturn = {
   newBoardHexes: BoardHexes
-  newBoardPieces: BoardPieces
+  newBoardPieces: BoardPiecesEncodedArr
   error: AddRemovePieceError
 }

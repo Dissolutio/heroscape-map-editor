@@ -3,7 +3,7 @@ import { groupBy, keyBy } from 'lodash'
 import type { PropsWithChildren } from 'react'
 import {
   type BoardHexes,
-  type BoardPieces,
+  type BoardPiecesEncodedArr,
   type PdfMapAltitudeChunk,
   Pieces,
 } from '../types'
@@ -17,7 +17,7 @@ export const PdfMapLevels6PerPage = ({
   boardHexes,
   boardPieces,
   children,
-}: PropsWithChildren<{ boardHexes: BoardHexes; boardPieces: BoardPieces }>) => {
+}: PropsWithChildren<{ boardHexes: BoardHexes; boardPieces: BoardPiecesEncodedArr }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesWithoutEmpties = keyBy(
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
@@ -102,7 +102,7 @@ export const PdfMapLevels6PerPage = ({
 
 const getBoardHexAndPieceChunks = (
   boardHexes: BoardHexes,
-  boardPieces: BoardPieces,
+  boardPieces: BoardPiecesEncodedArr,
 ): PdfMapAltitudeChunk[][] => {
   const filteredBoardHexes = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
