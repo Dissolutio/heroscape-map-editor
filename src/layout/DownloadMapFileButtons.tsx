@@ -1,6 +1,6 @@
 import { MdFolderZip } from 'react-icons/md'
 import useBoundStore from '../store/store'
-import type { BoardPieces, HexMap } from '../types'
+import type { BoardPiecesEncodedArr, HexMap } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { encodeFilename } from '../utils/map-utils'
 import { ControlTabsListItemButton } from '../controls/ControlTabsListItemButton'
@@ -14,7 +14,7 @@ const DownloadMapFileButtons = () => {
     const hexMapToUse = { ...hexMap, mapPortraitBase64: '' }
     const data: {
       hexMap: HexMap
-      boardPieces: BoardPieces
+      boardPieces: BoardPiecesEncodedArr
     } = {
       hexMap: hexMapToUse,
       boardPieces,
@@ -44,7 +44,7 @@ const DownloadMapFileButtons = () => {
       : hexMap
     const data: {
       hexMap: HexMap
-      boardPieces: BoardPieces
+      boardPieces: BoardPiecesEncodedArr
     } = {
       hexMap: hexMapToUse,
       boardPieces,
