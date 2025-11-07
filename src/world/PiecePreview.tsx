@@ -99,7 +99,7 @@ export default function PiecePreview() {
   const mirrorRotation = (penModeRotation + 3) % 6
   const { x, y, z, yWithBase, yBase, yBaseCap, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords(hoveredHex)
-  const isUnderHexFluid = isFluidTerrainHex(hoveredHex.terrain)
+  const isUnderHexFluid = isFluidTerrainHex(hoveredHex?.terrain)
   const isUnderHexLadder = hoveredHex.inventoryID === Pieces.ladder
   const isUnderHexLaurPillar =
     hoveredHex.inventoryID === Pieces.laurWallSquarePillar ||
@@ -110,9 +110,9 @@ export default function PiecePreview() {
     hoveredHex.inventoryID === Pieces.castleWallCorner ||
     hoveredHex.inventoryID === Pieces.castleWallEnd ||
     hoveredHex.inventoryID === Pieces.castleWallStraight
-  const isLaurWallAddon = piece.terrain === HexTerrain.laurWallAddon
-  const isSolidSubterrain = isSolidTerrainHex(piece.terrain)
-  const isFluidSubterrain = isFluidTerrainHex(piece.terrain)
+  const isLaurWallAddon = piece?.terrain === HexTerrain.laurWallAddon
+  const isSolidSubterrain = isSolidTerrainHex(piece?.terrain)
+  const isFluidSubterrain = isFluidTerrainHex(piece?.terrain)
   const isLaurSquarePillarHex = piece.id === Pieces.laurWallSquarePillar
   const isLaurTrianglePillarHex = pieceID === Pieces.laurWallTrianglePillar
   const isPowerGlyphHex = pieceID === Pieces.glyphPower
@@ -155,7 +155,7 @@ export default function PiecePreview() {
     pieceID === Pieces.castleArch || pieceID === Pieces.castleArchNoDoor
 
   const isHiveHex = pieceID === Pieces.hive
-  const isLadderHex = piece.terrain === HexTerrain.ladder
+  const isLadderHex = piece?.terrain === HexTerrain.ladder
   const isOutcrop3Hex = pieceID === Pieces.outcrop3
   const isLavaRockOutcrop3Hex = pieceID === Pieces.lavaRockOutcrop3
   const isGlacier3Hex = pieceID === Pieces.glacier3
@@ -173,11 +173,11 @@ export default function PiecePreview() {
   const pieceRotation = (penModeRotation * -Math.PI) / 3
 
   const subterrainColor =
-    hexTerrainColor?.[piece.terrain as keyof typeof hexTerrainColor]
+    hexTerrainColor?.[piece?.terrain as keyof typeof hexTerrainColor]
 
   const landSubterrainMaterial = () => {
     if (isLightsAndShadowsRender) {
-      if (isFluidTerrainHex(piece.terrain)) {
+      if (isFluidTerrainHex(piece?.terrain)) {
         return (
           <meshStandardMaterial
             color={subterrainColor}
@@ -195,7 +195,7 @@ export default function PiecePreview() {
       )
     }
     // not high quality render below
-    if (isFluidTerrainHex(piece.terrain)) {
+    if (isFluidTerrainHex(piece?.terrain)) {
       return (
         <meshLambertMaterial
           color={subterrainColor}
@@ -247,21 +247,19 @@ export default function PiecePreview() {
     }
   }
   const isLandBeneath =
-    isSolidTerrainHex(hoveredHex.terrain) ||
-    isFluidTerrainHex(hoveredHex.terrain)
-  const isEmptyBeneath = hoveredHex.terrain === HexTerrain.empty
+    isSolidTerrainHex(hoveredHex?.terrain) ||
+    isFluidTerrainHex(hoveredHex?.terrain)
+  const isEmptyBeneath = hoveredHex?.terrain === HexTerrain.empty
   const isCastleCapBeneath =
-    hoveredHex.terrain === HexTerrain.castle && !hoveredHex.isObstacleOrigin
+    hoveredHex?.terrain === HexTerrain.castle && !hoveredHex.isObstacleOrigin
   const isSolidOrEmptyBeneath =
     isSolidTerrainHex(hoveredHex.terrain) || isEmptyBeneath
   const isLandOrEmptyBeneath = isLandBeneath || isEmptyBeneath
 
-  // Early Return: no piece
-  if (!piece) return null
   // Show land tiles, if hovering table/solid-land
   if (
     ((isSolidSubterrain || isFluidSubterrain) && isSolidOrEmptyBeneath) ||
-    (isUnderHexCastleWallArch && piece.terrain === HexTerrain.wallWalk)
+    (isUnderHexCastleWallArch && piece?.terrain === HexTerrain.wallWalk)
   ) {
     return (
       <group
@@ -620,8 +618,8 @@ export default function PiecePreview() {
       >
         <Suspense fallback={<ModelLoader />}>
           <Outcrop3Preview
-            isGlacier={piece.terrain === HexTerrain.glacier}
-            isLavaRock={piece.terrain === HexTerrain.lavaRockOutcrop}
+            isGlacier={piece?.terrain === HexTerrain.glacier}
+            isLavaRock={piece?.terrain === HexTerrain.lavaRockOutcrop}
           />
         </Suspense>
       </group>
