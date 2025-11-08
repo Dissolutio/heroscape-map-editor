@@ -1,17 +1,23 @@
 import { type BoardHexes, type CubeCoordinate, HexTerrain } from '../types'
 import { hexUtilsGenHexagonGrid, hexUtilsGenRectangleGrid } from './hex-utils'
 import { genBoardHexID } from './map-utils'
+import {
+  MAX_HEXAGON_MAP_DIMENSION,
+  MAX_RECTANGLE_MAP_DIMENSION,
+} from './constants'
 
-export const generateHexagon = (mapSize: number): BoardHexes => {
-  const boardHexes = hexesToEmptyBoardHexes(hexUtilsGenHexagonGrid(mapSize))
-  return boardHexes
+export function makeRectangleMapEmptyHexes(
+  width?: number,
+  length?: number
+): BoardHexes {
+  const l = Math.min(length ?? 15, MAX_RECTANGLE_MAP_DIMENSION)
+  const w = Math.min(width ?? 15, MAX_RECTANGLE_MAP_DIMENSION)
+  return hexesToEmptyBoardHexes(hexUtilsGenRectangleGrid(l, w))
 }
 
-export const generateRectangle = (
-  mapWidth: number,
-  mapHeight: number,
-): BoardHexes => {
-  return hexesToEmptyBoardHexes(hexUtilsGenRectangleGrid(mapWidth, mapHeight))
+export function makeHexagonMapEmptyHexes(size?: number) {
+  const mapSize = Math.min(size ?? 12, MAX_HEXAGON_MAP_DIMENSION)
+  return hexesToEmptyBoardHexes(hexUtilsGenHexagonGrid(mapSize))
 }
 
 function hexesToEmptyBoardHexes(hexgridHexes: CubeCoordinate[]): BoardHexes {

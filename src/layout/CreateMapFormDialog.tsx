@@ -22,13 +22,13 @@ import {
   MAX_RECTANGLE_MAP_DIMENSION,
 } from '../utils/constants'
 import { genRandomMapName } from '../utils/genRandomMapName'
-import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
 import { DIALOGS } from './dialogNames'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import {
   InputSetsUsedCard,
   setsUsedInputNameForFormData,
 } from './InputSetsUsedCard'
+import { nanoid } from 'nanoid'
 
 const hexagonMarks = [
   {
@@ -100,23 +100,18 @@ export default function CreateMapFormDialog() {
       return newSetsUsed
     }
     const newSetsUsed = getSetsUsedFormData()
-    const blankMap =
-      mapShape === 'rectangle'
-        ? makeRectangleScenario({
-            mapName,
-            width: mapWidth,
-            length: mapLength,
-          })
-        : makeHexagonScenario({
-            mapName,
-            size: mapSize,
-          })
+    const hexMap = {
+      id: nanoid(13),
+      name: mapName,
+      author: '',
+      shape: mapShape,
+      width: mapWidth,
+      length: mapLength,
+      setsUsed: newSetsUsed,
+    }
     const editedMapState = {
-      ...blankMap,
-      hexMap: {
-        ...blankMap.hexMap,
-        setsUsed: newSetsUsed,
-      },
+      boardPieces: [],
+      hexMap,
     }
     loadMap(editedMapState)
     changeMapNotes('')

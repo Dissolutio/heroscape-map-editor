@@ -8,7 +8,7 @@ import {
   type VirtualScapeTile,
 } from '../types'
 import { hexUtilsOddRToCube } from '../utils/hex-utils'
-import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
+import { makeHexagonMapEmptyHexes, makeRectangleMapEmptyHexes } from '../utils/hex-gen'
 import { decodePieceID } from '../utils/map-utils'
 import { addPiece } from './addPiece'
 import { pieceCodes } from './pieceCodes'
@@ -19,8 +19,7 @@ export default function buildupVSFileMap(
   tiles: VirtualScapeTile[],
   mapName: string,
 ): MapState {
-  const blankMap = getBlankHexoscapeMapForVSTiles(tiles, mapName)
-  let { boardPieces } = blankMap
+  const blankMap = getBlankHexoscapeMapForVSTiles(tiles)
   const { boardHexes, hexMap } = blankMap
   const newBoardHexes = tiles.reduce((boardHexes: BoardHexes, tile) => {
     const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
@@ -30,7 +29,7 @@ export default function buildupVSFileMap(
       return boardHexes // Should probably handle this different, errors etc.
     }
     // get the new board hexes and new board pieces
-    const { newBoardHexes, newBoardPieces } = addPiece({
+    const { newBoardHexes } = addPiece({
       piece,
       boardHexes,
       boardPieces,
@@ -39,7 +38,6 @@ export default function buildupVSFileMap(
       rotation: tile.rotation,
       isVsTile: true,
     })
-    boardPieces = newBoardPieces
     return newBoardHexes
   }, boardHexes)
   return {
@@ -83,16 +81,9 @@ export function buildupJsonFileMap(
   const initialBoardPieces = clone(boardPieces)
   let finalBoardPieces: BoardPiecesEncodedArr = []
   if (hexMap.shape === 'rectangle') {
-    initialBoardHexes = makeRectangleScenario({
-      length: hexMap.length,
-      width: hexMap.width,
-      mapName: hexMap.name,
-    }).boardHexes
+    initialBoardHexes = makeRectangleMapEmptyHexes(hexMap.length, hexMap.width)
   } else {
-    initialBoardHexes = makeHexagonScenario({
-      size: hexMap.length,
-      mapName: hexMap.name,
-    }).boardHexes
+    initialBoardHexes = makeHexagonMapEmptyHexes(hexMap.length)
   }
   const boardPiecesSortedByAltitude = initialBoardPieces.sort((a, b) => {
     if (decodePieceID(a).altitude > decodePieceID(b).altitude) {
@@ -140,8 +131,7 @@ export function buildupJsonFileMap(
 }
 function getBlankHexoscapeMapForVSTiles(
   tiles: VirtualScapeTile[],
-  mapName: string,
-): MapState {
+): BoardHexes {
   // cushions have to be an even number because of the coordinate system used in virtualscape
   const cushionToPadY = 8 // 24-hexer's max Y displacement in vscape
   const cushionToPadX = 6 // 24-hexer's max X displacement in vscape
@@ -165,9 +155,5 @@ function getBlankHexoscapeMapForVSTiles(
   const length = Math.max(...(tiles.map((t) => t.posY + cushionToPadY) ?? 0))
   const width = Math.max(...(tiles.map((t) => t.posX + cushionToPadX) ?? 0))
 
-  return makeRectangleScenario({
-    length,
-    width,
-    mapName,
-  })
+  return makeRectangleMapEmptyHexes(length, width)
 }
