@@ -1,22 +1,20 @@
 import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
-import { addPiece } from '../data/addPiece'
-import { removePiece } from '../data/removePiece'
 import type {
-  AddRemovePieceError,
+  BoardHexes,
   BoardPiece,
-  CubeCoordinate,
   MapFileState,
   MapState,
-  Piece,
 } from '../types'
 import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
 import { normalizeBoardPieces } from '../utils/map-utils'
 
 export interface MapSlice extends MapState {
+  boardHexes: BoardHexes
   paintTile: (piece: BoardPiece) => void
   unpaintTile: (boardPieceUid: string) => void
+  updateBoardHexes: (bh: BoardHexes) => void
   loadMap: (map: MapState) => void
   addMapPortraitBase64: (pic: string) => void
   changeMapName: (val: string) => void
@@ -103,10 +101,16 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.hexMap.mapNotes = val
       })
     }),
+  updateBoardHexes: (bh: BoardHexes) => {
+    set((state) => {
+      return produce(state, (draft) => {
+        draft.boardHexes = bh
+      })
+    })
+  },
   loadMap: (mapState: MapState) =>
     set((state) => {
       return produce(state, (draft) => {
-        // draft.boardHexes = mapState.boardHexes
         draft.hexMap = mapState.hexMap
         draft.boardPieces = mapState.boardPieces
       })
