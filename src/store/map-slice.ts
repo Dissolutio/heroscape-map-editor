@@ -4,6 +4,7 @@ import { addPiece } from '../data/addPiece'
 import { removePiece } from '../data/removePiece'
 import type {
   AddRemovePieceError,
+  BoardPiece,
   CubeCoordinate,
   MapFileState,
   MapState,
@@ -14,21 +15,14 @@ import { LS_KEYS } from '../local-storage/keys'
 import { normalizeBoardPieces } from '../utils/map-utils'
 
 export interface MapSlice extends MapState {
-  paintTile: (args: PaintTileArgs) => AddRemovePieceError
-  unpaintTile: (pieceID: string) => void
+  paintTile: (piece: BoardPiece) => void
+  unpaintTile: (boardPieceUid: string) => void
   loadMap: (map: MapState) => void
   addMapPortraitBase64: (pic: string) => void
   changeMapName: (val: string) => void
   changeSetsUsed: (val: string[]) => void
   changeAuthorName: (val: string) => void
   changeMapNotes: (val: string) => void
-}
-
-type PaintTileArgs = {
-  piece: Piece
-  clickedHexCoords: CubeCoordinate
-  altitude: number
-  rotation: number
 }
 
 // Here, we duplicate lastMap in case the user is loading a URL, which will immediately overwrite lastMap,
@@ -53,61 +47,28 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     id: '',
     name: '',
     author: '',
-    // sets: '',
     shape: 'rectangle',
     width: 20,
     length: 20,
   },
   boardPieces: [],
-  paintTile: ({
-    piece,
-    clickedHexCoords,
-    altitude,
-    rotation,
-  }: PaintTileArgs): AddRemovePieceError => {
-    let error: AddRemovePieceError
+  paintTile: (piece: BoardPiece) => {
     set((state) => {
       return produce(state, (draft) => {
-        const {
-          newBoardHexes,
-          newBoardPieces,
-          error: addPieceError,
-        } = addPiece({
-          piece,
-          // boardHexes: draft.boardHexes,
-          boardPieces: draft.boardPieces,
-          pieceCoords: clickedHexCoords,
-          placementAltitude: altitude,
-          rotation,
-          isVsTile: false,
-        })
-        error = addPieceError
         // we added a piece. ___X go up piece height
-        const placedAtLevel = altitude + 1
+        const placedAtLevel = piece.altitude + 1
         draft.viewingLevel =
           placedAtLevel > state.viewingLevel
             ? state.viewingLevel + (placedAtLevel - state.viewingLevel)
             : state.viewingLevel
-        draft.boardHexes = newBoardHexes
-        draft.boardPieces = newBoardPieces
+        draft.boardPieces.push(piece)
       })
     })
-    return error
   },
-  unpaintTile: (pieceID: string) =>
+  unpaintTile: (boardPieceUid: string) =>
     set((state) => {
       return produce(state, (draft) => {
-        const { newBoardHexes, newBoardPieces } = removePiece({
-          pieceID,
-          boardHexes: draft.boardHexes,
-          boardPieces: draft.boardPieces,
-        })
-        // draft.viewingLevel =
-        //   getBoardPiecesMaxLevel(newBoardPieces) < state.viewingLevel
-        //     ? getBoardPiecesMaxLevel(newBoardPieces)
-        //     : state.viewingLevel
-        draft.boardHexes = newBoardHexes
-        draft.boardPieces = newBoardPieces
+        draft.boardPieces = state.boardPieces.filter((bp) => bp.uid !== boardPieceUid)
       })
     }),
   mapPortraitBase64: '',

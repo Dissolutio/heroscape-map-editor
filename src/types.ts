@@ -1,7 +1,7 @@
 export type MapState = {
   boardHexes: BoardHexes // baseEmptyBoardHexes
   hexMap: HexMap
-  boardPieces: BoardPieces[]
+  boardPieces: BoardPiece[]
 }
 export type MapFileState = {
   hexMap: HexMap
