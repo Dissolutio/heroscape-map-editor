@@ -3,10 +3,12 @@ import React, { useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import type { BoardHexes } from '../types'
+import type { BoardHexes, BoardPiece } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
+  decodePieceID,
   getBoardPiecesMaxLevel,
+  inflateBoardPiecesFromIds,
   normalizeBoardPieces,
 } from '../utils/map-utils'
 import { Button } from '@mui/material'
@@ -14,6 +16,7 @@ import { LS_KEYS } from '../local-storage/keys'
 import { noop } from 'lodash'
 import { ROUTES } from '../ROUTES'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
+import { nanoid } from 'nanoid'
 
 type Props = {
   boardHexes?: BoardHexes
@@ -50,6 +53,7 @@ const useAutoLoadMapFile = (props?: Props) => {
       try {
         const { hexMap, boardPieces } =
           parseMapDataArrayFromCrushed(urlMapString)
+        const fullBoardPieces = inflateBoardPiecesFromIds(boardPieces)
         const jsonMap = buildupJsonFileMap(boardPieces, hexMap)
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()

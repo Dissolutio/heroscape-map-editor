@@ -2,6 +2,7 @@ import { Vector3 } from 'three'
 import type {
   BoardHex,
   BoardHexes,
+  BoardPiece,
   BoardPiecesEncodedArr,
   CubeCoordinate,
   DecodedPieceID,
@@ -27,6 +28,7 @@ import {
 } from './hex-utils'
 import { piecesSoFar } from '../data/pieces'
 import { terrainSetsByShortID } from '../data/terrainSets'
+import { nanoid } from 'nanoid'
 
 export const getBoardHexesRectangularMapDimensions = (
   boardHexes: BoardHexes,
@@ -301,7 +303,23 @@ export const getSetsUsedText = (setsUsed: string[]) => {
   })
   return res.join('')
 }
-
+export const inflateBoardPiecesFromIds = (ids: string[]): BoardPiece[] => {
+  return ids.map((id) => {
+    const {
+      inventoryID,
+      altitude,
+      rotation,
+      pieceCoords,
+    } = decodePieceID(id)
+    return {
+      uid: nanoid(10),
+      inventoryID,
+      altitude,
+      rotation,
+      pieceCoords,
+    }
+  })
+}
 export function countStringInArrayLoop(arr: string[], targetString: string) {
   let count = 0
   for (let i = 0; i < arr.length; i++) {
