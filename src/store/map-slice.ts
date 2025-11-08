@@ -5,6 +5,7 @@ import { removePiece } from '../data/removePiece'
 import type {
   AddRemovePieceError,
   CubeCoordinate,
+  MapFileState,
   MapState,
   Piece,
 } from '../types'
@@ -32,7 +33,7 @@ type PaintTileArgs = {
 
 // Here, we duplicate lastMap in case the user is loading a URL, which will immediately overwrite lastMap,
 // we can offer them the chance to load their last map instead of the URL (in useAutoLoadMapFile.tsx)
-let localLastMap: { state: MapState } | undefined
+let localLastMap: { state: MapFileState } | undefined
 if (localStorage.getItem(LS_KEYS.lastMap)) {
   localLastMap = JSON.parse(localStorage?.getItem(LS_KEYS.lastMap) ?? '{}')
   if (localLastMap?.state) {
@@ -73,7 +74,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           error: addPieceError,
         } = addPiece({
           piece,
-          boardHexes: draft.boardHexes,
+          // boardHexes: draft.boardHexes,
           boardPieces: draft.boardPieces,
           pieceCoords: clickedHexCoords,
           placementAltitude: altitude,
@@ -144,7 +145,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   loadMap: (mapState: MapState) =>
     set((state) => {
       return produce(state, (draft) => {
-        draft.boardHexes = mapState.boardHexes
+        // draft.boardHexes = mapState.boardHexes
         draft.hexMap = mapState.hexMap
         draft.boardPieces = mapState.boardPieces
       })

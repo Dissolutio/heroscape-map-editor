@@ -1,7 +1,7 @@
 import { closeSnackbar, useSnackbar } from 'notistack'
 import React, { useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
-import { buildupJsonFileMap } from '../data/buildupMap'
+import buildupVSFileMap, { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
 import type { BoardHexes, BoardPiece } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
@@ -17,6 +17,7 @@ import { noop } from 'lodash'
 import { ROUTES } from '../ROUTES'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
 import { nanoid } from 'nanoid'
+import { processVirtualScapeArrayBuffer } from '../data/readVirtualscapeMapFile'
 
 type Props = {
   boardHexes?: BoardHexes
@@ -48,7 +49,9 @@ const useAutoLoadMapFile = (props?: Props) => {
     const queryParams = new URLSearchParams(searchString)
     const urlMapString = queryParams.get('m')
     const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
-    const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
+    const localMapCache_PreValidated = isLocal ? JSON.parse(isLocal) : undefined
+    const localMapCache = localMapCache_PreValidated?.hexMap &&
+      localMapCache_PreValidated?.boardPieces ? localMapCache_PreValidated : undefined
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
@@ -59,7 +62,7 @@ const useAutoLoadMapFile = (props?: Props) => {
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
         }
-        const action = () => (
+        const actionToLoadLastMapInstead = () => (
           <>
             <Button
               color="info"
@@ -91,7 +94,7 @@ const useAutoLoadMapFile = (props?: Props) => {
         const snackbarId = enqueueSnackbar({
           message: `Loaded map from URL: ${jsonMap.hexMap.name}.`,
           variant: 'success',
-          action,
+          action: actionToLoadLastMapInstead,
         })
         loadMap(jsonMap)
         // enqueueSnackbar({
@@ -114,6 +117,7 @@ const useAutoLoadMapFile = (props?: Props) => {
     }
     // No url, but a last map, then load the last map
     if (localMapCache) {
+      const fullBoardPieces = inflateBoardPiecesFromIds(localMapCache.boardPieces)
       loadMap(localMapCache)
       enqueueSnackbar({
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
@@ -123,53 +127,55 @@ const useAutoLoadMapFile = (props?: Props) => {
     }
     // No url and no prev state? auto load a file
     // AUTO VSCAPE
-    // const fileName = '/ladders.hsc'
-    // fetch(fileName)
-    //   .then((response) => {
-    //     return response.arrayBuffer()
-    //   })
-    //   .then((arrayBuffer) => {
-    //     const vsFileData = processVirtualScapeArrayBuffer(arrayBuffer)
-    //     // buildupVSFileMap should return errorArr for enqueueSnackbar
-    //     const vsMap = buildupVSFileMap(
-    //       vsFileData.tiles,
-    //       vsFileData?.name ?? fileName,
-    //     )
-    //     loadMap(vsMap)
-    //     enqueueSnackbar(
-    //       `Automatically loaded Virtualscape map named: "${vsMap.hexMap.name}" from file: "${fileName}"`,
-    //     )
-    //   })
-    // AUTO JSON
-    const fileName = '/json-maps/AoA_1_The_Shattered_Table.json'
-    fetch(fileName).then(async (response) => {
-      // const data = response.json()
-      const data = await response.json()
-
-      if (props?.boardHexes) {
-        loadMap({
-          boardHexes: props.boardHexes,
-          boardPieces: normalizeBoardPieces(data.boardPieces),
-          hexMap: data.hexMap,
-        })
-      } else {
-        const jsonMap = buildupJsonFileMap(
-          normalizeBoardPieces(data.boardPieces),
-          data.hexMap,
-        )
-        if (!jsonMap.hexMap.name) {
-          jsonMap.hexMap.name = fileName
-        }
-        loadMap(jsonMap)
-      }
-      enqueueSnackbar({
-        // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
-        message: 'WELCOME!',
-        variant: 'success',
-        autoHideDuration: 5000,
+    const fileName = '/ladders.hsc'
+    fetch(fileName)
+      .then((response) => {
+        return response.arrayBuffer()
       })
-      clearUndoHistory() // clear undo history, initial load should not be undoable
-    })
+      .then((arrayBuffer) => {
+        const vsFileData = processVirtualScapeArrayBuffer(arrayBuffer)
+        //     // buildupVSFileMap should return errorArr for enqueueSnackbar
+        const vsMap = buildupVSFileMap(
+          vsFileData.tiles,
+          vsFileData?.name ?? fileName,
+        )
+        const fullBoardPiecesFromVSMap = inflateBoardPiecesFromIds(vsMap.boardPieces)
+        //     loadMap(vsMap)
+        //     enqueueSnackbar(
+        //       `Automatically loaded Virtualscape map named: "${vsMap.hexMap.name}" from file: "${fileName}"`,
+        //     )
+        //   })
+        // AUTO JSON
+        // const fileName = '/json-maps/AoA_1_The_Shattered_Table.json'
+        // fetch(fileName).then(async (response) => {
+        //   // const data = response.json()
+        //   const data = await response.json()
+
+        //   if (data?.hexMap && data?.boardPieces) {
+        //     const fullBoardPieces = inflateBoardPiecesFromIds(normalizeBoardPieces(data.boardPieces))
+        //     loadMap({
+        //       boardHexes: props?.boardHexes,
+        //       boardPieces: normalizeBoardPieces(data.boardPieces),
+        //       hexMap: data.hexMap,
+        //     })
+        //   } else {
+        //     const jsonMap = buildupJsonFileMap(
+        //       normalizeBoardPieces(data.boardPieces),
+        //       data.hexMap,
+        //     )
+        //     if (!jsonMap.hexMap.name) {
+        //       jsonMap.hexMap.name = fileName
+        //     }
+        //     loadMap(jsonMap)
+        //   }
+        //   enqueueSnackbar({
+        //     // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
+        //     message: 'WELCOME!',
+        //     variant: 'success',
+        //     autoHideDuration: 5000,
+        //   })
+        //   clearUndoHistory() // clear undo history, initial load should not be undoable
+      })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 }
