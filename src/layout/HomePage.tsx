@@ -16,12 +16,12 @@ import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
 import type { BoardPieces } from '../types'
 
-type WorkerArgs = BoardPieces
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(null)
   const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const updateBoardHexes = useBoundStore((s) => s.updateBoardHexes)
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
   const controlsContainerRef = React.useRef(null)
   const workerRef = React.useRef<Worker>();
@@ -29,21 +29,22 @@ export default function HomePage() {
 
   // effect: start/terminate worker, set up what to do with its return
   React.useEffect(() => {
-    const worker = new Worker(new URL('../validation/boardHexesWorker.js', import.meta.url), { type: 'module' }); // 
+    const worker = new Worker(new URL('../validation/boardHexesWorker.ts', import.meta.url), { type: 'module' }); // 
     workerRef.current = worker
     workerRef.current.onmessage = (event) => {
       const workerData = event.data
       console.log("🚀 ~ HomePage ~ workerData:", workerData)
+      updateBoardHexes(workerData)
     };
     return () => {
       workerRef?.current?.terminate();
     };
-  }, []);
+  }, [updateBoardHexes]);
 
   // effect: use worker to calculate something
   React.useEffect(() => {
-    workerRef?.current?.postMessage?.(boardPieces);
-  }, [boardPieces])
+    workerRef?.current?.postMessage?.(hexMap, boardPieces);
+  }, [hexMap, boardPieces])
 
 
 
