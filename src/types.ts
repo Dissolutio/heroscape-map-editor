@@ -1,5 +1,7 @@
-export type MapState = MapFileState & {
-  boardHexes: BoardHexes
+export type MapState = {
+  boardHexes: BoardHexes // baseEmptyBoardHexes
+  hexMap: HexMap
+  boardPieces: BoardPieces[]
 }
 export type MapFileState = {
   hexMap: HexMap
