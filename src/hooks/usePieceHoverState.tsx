@@ -18,7 +18,7 @@ export default function usePieceHoverState() {
       toggleHoveredHex(boardHex)
     }, 50) // Adjust the delay (in milliseconds) as needed
   }
-  const onPointerEnterPID = (e: ThreeEvent<PointerEvent>, pid: string) => {
+  const onPointerEnterPiece = (e: ThreeEvent<PointerEvent>, pid: string) => {
     e.stopPropagation()
     setIsHovered(true)
     hoverTimeout.current = window.setTimeout(() => {
@@ -34,7 +34,7 @@ export default function usePieceHoverState() {
   return {
     isHovered,
     onPointerEnter,
-    onPointerEnterPID,
+    onPointerEnterPiece,
     onPointerOut,
   }
 }

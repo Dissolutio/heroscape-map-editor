@@ -1,13 +1,11 @@
 import { Vector3 } from 'three'
 import useBoundStore from '../store/store'
-import { Pieces } from '../types'
+import { type BoardPiece, HexTerrain, Pieces } from '../types'
 import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
 import {
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_HEIGHT,
-  HEXGRID_OBSTACLE_BASE_HEIGHT,
 } from '../utils/constants'
-import { decodePieceID, getBoardHex3DCoords } from '../utils/map-utils'
+import { getBoardHex3DCoords } from '../utils/map-utils'
 import { Battlement } from './models/Battlement'
 import { LaurWallAddon } from './models/LaurAddon'
 import { RoadWall } from './models/RoadWall'
@@ -15,20 +13,36 @@ import {
   getLadderBattlementOptions,
   getRoadWallOptions,
 } from './models/piece-adjustments'
+import type { ThreeEvent } from '@react-three/fiber'
+import { hexTerrainColor } from './maphex/hexColors'
 
 export const MapBoardPiece3D = ({
-  pid,
+  boardPiece,
 }: {
-  pid: string
+  boardPiece: BoardPiece
 }) => {
-  const { inventoryID, altitude, rotation, pieceCoords } = decodePieceID(pid)
+  const { inventoryID, altitude, rotation, pieceCoords } = boardPiece
+  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const onPointerUp = (event: ThreeEvent<PointerEvent>, boardPiece: BoardPiece) => {
+    event.stopPropagation() // prevent pass through
+    // Early out right clicks(event.button=2), middle mouse clicks(1)
+    if (event.button !== 0) {
+      return
+    }
+    toggleSelectedPieceID(boardPiece.uid === selectedPieceID ? '' : boardPiece.uid)
+  }
   const { x, z, y } = getBoardHex3DCoords({ ...pieceCoords, altitude })
   const {
     x: xLaurWall,
     z: zLaurWall,
     yWithBase: yLaurWall,
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = altitude + 1 <= viewingLevel
 
   // TODO: PIECE ID TO RENDER MUST BE ADDED TO THIS FN: isRenderedFromPieceIDPiece
@@ -50,7 +64,11 @@ export const MapBoardPiece3D = ({
         position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
-        <LaurWallAddon pid={pid} />
+        <LaurWallAddon
+          boardPiece={boardPiece}
+          color={hexTerrainColor[HexTerrain.laurWall]}
+          secondaryColor={hexTerrainColor.laurModelColor2}
+        />
       </group>
     )
   }
@@ -66,7 +84,15 @@ export const MapBoardPiece3D = ({
         ]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
-        <Battlement pid={pid} />
+        <Battlement
+          boardPiece={boardPiece}
+          color={hexTerrainColor[HexTerrain.battlement]}
+          onPointerUp={onPointerUp}
+          opacity={1}
+          selectedPieceID={selectedPieceID}
+          hoveredPieceID={hoveredPieceID}
+          isLightsAndShadowsRender={isLightsAndShadowsRender}
+        />
       </group>
     )
   }
@@ -82,7 +108,15 @@ export const MapBoardPiece3D = ({
         ]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
-        <RoadWall pid={pid} />
+        <RoadWall
+          boardPiece={boardPiece}
+          color={hexTerrainColor[HexTerrain.roadWall]}
+          opacity={1}
+          onPointerUp={onPointerUp}
+          selectedPieceID={selectedPieceID}
+          hoveredPieceID={hoveredPieceID}
+          isLightsAndShadowsRender={isLightsAndShadowsRender}
+        />
       </group>
     )
   }

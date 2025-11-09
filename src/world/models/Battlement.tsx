@@ -1,66 +1,50 @@
 import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
-import useBoundStore from '../../store/store'
-import { HexTerrain } from '../../types'
-import { hexTerrainColor } from '../maphex/hexColors'
+import type { BoardPiece } from '../../types'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
-export function Battlement({ pid }: { pid: string }) {
+export function Battlement({
+  color,
+  boardPiece,
+  onPointerUp,
+  opacity,
+  selectedPieceID,
+  hoveredPieceID,
+  isLightsAndShadowsRender,
+}: {
+  color: string
+  boardPiece?: BoardPiece
+  onPointerUp?: (e: ThreeEvent<PointerEvent>, boardPiece: BoardPiece) => void
+  opacity?: number
+  selectedPieceID?: string
+  hoveredPieceID?: string
+  isLightsAndShadowsRender?: boolean
+}) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/handmade-battlement.glb') as any
-  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
-  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === pid
-  const isHighlighted = hoveredPieceID === pid || isSelected
-  const color = isHighlighted
-    ? yellowColor
-    : hexTerrainColor[HexTerrain.battlement]
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(isSelected ? '' : pid)
-  }
+  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
+  const isSelected = selectedPieceID === boardPiece?.uid
+  const isHighlighted = hoveredPieceID === boardPiece?.uid || isSelected
+  const currentColor = isHighlighted
+    ? 'yellow'
+    : color
+  const opacityLevel = opacity ?? 1
+  const interactivityProps = onPointerUp && boardPiece ? {
+    onPointerUp: (e: ThreeEvent<PointerEvent>) => onPointerUp(e, boardPiece),
+    onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterPiece(e, boardPiece.uid),
+    onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+  } : {}
   return (
-    <mesh
-      receiveShadow={isLightsAndShadowsRender}
-      castShadow={isLightsAndShadowsRender}
-      geometry={nodes.Battlement.geometry}
-      onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnterPID(e, pid)}
-      onPointerOut={(e) => onPointerOut(e)}
-    >
-      {basicModelMaterial(color, isLightsAndShadowsRender)}
-    </mesh>
+    <group>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.Battlement.geometry}
+        {...interactivityProps}
+      >
+        {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacityLevel)}
+      </mesh>
+    </group>
   )
 }
-export function BattlementPreview({ opacity }: { opacity?: number }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/handmade-battlement.glb') as any
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const color = hexTerrainColor[HexTerrain.battlement]
-  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
-  return (
-    <mesh
-      receiveShadow={isLightsAndShadowsRender}
-      castShadow={isLightsAndShadowsRender}
-      geometry={nodes.Battlement.geometry}
-    >
-      {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
-    </mesh>
-  )
-}
-
-useGLTF.preload('/handmade-battlement.glb')

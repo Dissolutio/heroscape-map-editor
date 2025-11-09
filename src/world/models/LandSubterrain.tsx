@@ -15,7 +15,7 @@ export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const isSelected = selectedPieceID === pieceID
   const isHovered = hoveredPieceID === pieceID
@@ -112,7 +112,7 @@ export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
   return (
     <group
       onPointerUp={onPointerUp}
-      onPointerEnter={(e) => onPointerEnterPID(e, pieceID)}
+      onPointerEnter={(e) => onPointerEnterPiece(e, pieceID)}
       onPointerOut={(e) => onPointerOut(e)}
     >
       {getMesh()}
@@ -215,11 +215,11 @@ export function Subterrain6B({ children }: PropsWithChildren) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  // Have to adjust model left because original tile template was wrong choice, TODO: Blender update model
   return (
     <mesh
       castShadow={isLightsAndShadowsRender}
       receiveShadow={isLightsAndShadowsRender}
+      // Have to adjust model left because original tile template was wrong choice, TODO: Blender update model
       position={[-2 * HEXGRID_HEX_APOTHEM, 0, 0]}
       geometry={nodes['Subterrain-6B'].geometry}
     >

@@ -1,4 +1,4 @@
-import { type BoardHexes, HexTerrain, Pieces } from '../types'
+import { type BoardHexes, BoardPieces, HexTerrain, Pieces } from '../types'
 
 export function isFluidTerrainHex(terrain: string) {
   return (
@@ -80,4 +80,30 @@ export const isLaurWallAddonPieceID = (pieceID: string): boolean => {
     pieceID === Pieces.laurWallShort ||
     pieceID === Pieces.laurWallShortStackable
   )
+}
+export function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: BoardPieces) {
+  // adding the laur addons will only work if pillars are already down
+  return arr.sort((a, b) => {
+    const aPieceID = a.inventoryID
+    const bPieceID = b.inventoryID
+    if (
+      aPieceID === Pieces.laurWallRuin1 ||
+      aPieceID === Pieces.laurWallLong ||
+      aPieceID === Pieces.laurWallShort ||
+      aPieceID === Pieces.ladder ||
+      aPieceID === Pieces.battlement
+    ) {
+      return 1 // Move 'targetValue' to the end
+    }
+    if (
+      bPieceID === Pieces.laurWallRuin1 ||
+      bPieceID === Pieces.laurWallLong ||
+      bPieceID === Pieces.laurWallShort ||
+      aPieceID === Pieces.ladder ||
+      aPieceID === Pieces.battlement
+    ) {
+      return -1 // Move 'targetValue' to the end
+    }
+    return 0 // Maintain original order
+  })
 }

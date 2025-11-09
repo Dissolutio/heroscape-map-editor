@@ -15,7 +15,7 @@ import {
 } from '../utils/map-utils'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HexTerrain, PiecePrefixes, Pieces } from '../types'
-import { LaurWallPillarPreview } from './models/LaurPillar'
+import LaurWallPillar from './models/LaurPillar'
 import {
   HEXGRID_GLYPH_HEIGHT,
   HEXGRID_HEX_HEIGHT,
@@ -50,7 +50,7 @@ import { Outcrop3Preview } from './models/Outcrop3'
 import { Outcrop4Preview } from './models/Outcrop4'
 import { Outcrop6Preview } from './models/Outcrop6'
 import { LadderPreview } from './models/Ladder'
-import { LaurWallAddonPreview } from './models/LaurAddon'
+import { LaurWallAddon } from './models/LaurAddon'
 import { Ruins2Preview } from './models/Ruins2'
 import { Ruins3Preview } from './models/Ruins3'
 import { MarvelRuinPreview } from './models/MarvelRuin'
@@ -60,8 +60,8 @@ import {
   SwampBrushPreview,
   TicallaBrushPreview,
 } from './models/TicallaBrush'
-import { RoadWallPreview } from './models/RoadWall'
-import { BattlementPreview } from './models/Battlement'
+import { RoadWall } from './models/RoadWall'
+import { Battlement } from './models/Battlement'
 import { Outcrop1Preview } from './models/Outcrop1'
 import { CastleWallPreview } from './models/CastleWalls'
 import { CastleBasePreview } from './models/CastleBases'
@@ -180,8 +180,10 @@ export default function PiecePreview() {
       : hexTerrainColor?.[piece?.terrain as keyof typeof hexTerrainColor]
 
   const landSubterrainMaterial = () => {
+    // HIGH QUALITY RENDER
     if (isLightsAndShadowsRender) {
       if (isFluidTerrainHex(piece?.terrain)) {
+        // HQ Fluid
         return (
           <meshStandardMaterial
             color={subterrainColor}
@@ -190,6 +192,7 @@ export default function PiecePreview() {
           />
         )
       }
+      // HQ Solid
       return (
         <meshStandardMaterial
           color={subterrainColor}
@@ -198,8 +201,9 @@ export default function PiecePreview() {
         />
       )
     }
-    // not high quality render below
+    // LOW QUALITY RENDER
     if (isFluidTerrainHex(piece?.terrain)) {
+      // LQ Fluid
       return (
         <meshLambertMaterial
           color={subterrainColor}
@@ -208,6 +212,7 @@ export default function PiecePreview() {
         />
       )
     }
+    // LQ Solid
     return (
       <meshMatcapMaterial
         color={subterrainColor}
@@ -218,11 +223,11 @@ export default function PiecePreview() {
   }
   const getLandMesh = () => {
     switch (
-      penModeSize === 6 && penMode === PiecePrefixes.concrete
-        ? '6B'
-        : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
-          ? '7B'
-          : `${penModeSize}`
+    penModeSize === 6 && penMode === PiecePrefixes.concrete
+      ? '6B'
+      : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
+        ? '7B'
+        : `${penModeSize}`
     ) {
       case '1':
         return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
@@ -282,7 +287,11 @@ export default function PiecePreview() {
         position={[x, yWithBase, z + HEXGRID_HEXCAP_FLUID_HEIGHT / 2]}
         rotation={[0, pieceRotation, 0]}
       >
-        <LaurWallAddonPreview inventoryID={pieceID} />
+        <LaurWallAddon
+          color={hexTerrainColor[HexTerrain.laurWall]}
+          secondaryColor={hexTerrainColor.laurModelColor2}
+          opacity={PIECE_PREVIEW_OPACITY}
+        />
       </group>
     )
   }
@@ -294,13 +303,15 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
-            HEXGRID_HEX_HEIGHT,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
+          HEXGRID_HEX_HEIGHT,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
       >
-        <LaurWallPillarPreview />
+        <LaurWallPillar
+          opacity={PIECE_PREVIEW_OPACITY}
+        />
       </group>
     )
   }
@@ -313,7 +324,7 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -582,11 +593,6 @@ export default function PiecePreview() {
       </group>
     )
   }
-  // if(XXX){
-  //   return(
-
-  //   )
-  // }
   if (isLadderHex && (isUnderHexLadder || isLandOrEmptyBeneath)) {
     const ladderRotation = isUnderHexLadder
       ? hoveredHex.pieceRotation
@@ -596,8 +602,8 @@ export default function PiecePreview() {
         position={[
           x + getLadderBattlementOptions(ladderRotation).xAdd,
           y +
-            HEXGRID_HEXCAP_HEIGHT / 2 +
-            (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
+          HEXGRID_HEXCAP_HEIGHT / 2 +
+          (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
           z + getLadderBattlementOptions(ladderRotation).zAdd,
         ]}
         rotation={[0, (ladderRotation * -Math.PI) / 3, 0]}
@@ -651,48 +657,44 @@ export default function PiecePreview() {
     )
   }
   if (isRoadWall) {
-    const roadWallClickedHexCoords = {
+    const roadWallCoords = getBoardHex3DCoords({
       ...getRoadWallClickedHexCoords(hoveredHex, penModeRotation),
       altitude: hoveredHex.altitude - 1,
-    }
-    const {
-      x: xRoadWall,
-      y: yRoadWall,
-      z: zRoadWall,
-    } = getBoardHex3DCoords(roadWallClickedHexCoords)
+    })
     return (
       <group
         position={[
-          xRoadWall + getRoadWallOptions(penModeRotation).xAdd,
-          yRoadWall,
-          zRoadWall + getRoadWallOptions(penModeRotation).zAdd,
+          roadWallCoords.x + getRoadWallOptions(penModeRotation).xAdd,
+          roadWallCoords.y,
+          roadWallCoords.z + getRoadWallOptions(penModeRotation).zAdd,
         ]}
         rotation={[0, pieceRotation, 0]}
       >
-        <RoadWallPreview />
+        <RoadWall
+          color={hexTerrainColor[HexTerrain.roadWall]}
+          opacity={PIECE_PREVIEW_OPACITY}
+        />
       </group>
     )
   }
   if (isBattlement) {
-    const battlementClickedHexCoords = {
+    const battlementCoords = getBoardHex3DCoords({
       ...hoveredHex,
       altitude: hoveredHex.altitude - 1,
-    }
-    const {
-      x: xBattlement,
-      y: yBattlement,
-      z: zBattlement,
-    } = getBoardHex3DCoords(battlementClickedHexCoords)
+    })
     return (
       <group
         position={[
-          xBattlement + getLadderBattlementOptions(penModeRotation).xAdd,
-          yBattlement + HEXGRID_HEXCAP_HEIGHT / 2,
-          zBattlement + getLadderBattlementOptions(penModeRotation).zAdd,
+          battlementCoords.x + getLadderBattlementOptions(penModeRotation).xAdd,
+          battlementCoords.y + HEXGRID_HEXCAP_HEIGHT / 2,
+          battlementCoords.z + getLadderBattlementOptions(penModeRotation).zAdd,
         ]}
         rotation={[0, (mirrorRotation * -Math.PI) / 3, 0]}
       >
-        <BattlementPreview />
+        <Battlement
+          color={hexTerrainColor[HexTerrain.battlement]}
+          opacity={PIECE_PREVIEW_OPACITY}
+        />
       </group>
     )
   }

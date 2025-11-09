@@ -1,63 +1,49 @@
 import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
-import useBoundStore from '../../store/store'
-import { HexTerrain } from '../../types'
-import { hexTerrainColor } from '../maphex/hexColors'
+import type { BoardPiece } from '../../types'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
-export function RoadWall({ pid }: { pid: string }) {
+export function RoadWall({
+  color,
+  boardPiece,
+  onPointerUp,
+  opacity,
+  selectedPieceID,
+  hoveredPieceID,
+  isLightsAndShadowsRender,
+}: {
+  color: string
+  boardPiece?: BoardPiece
+  onPointerUp?: (e: ThreeEvent<PointerEvent>, boardPiece: BoardPiece) => void
+  opacity?: number
+  selectedPieceID?: string
+  hoveredPieceID?: string
+  isLightsAndShadowsRender?: boolean
+}) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/handmade-roadwall.glb') as any
-  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
-  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === pid
-  const isHighlighted = hoveredPieceID === pid || isSelected
-  const color = isHighlighted
-    ? yellowColor
-    : hexTerrainColor[HexTerrain.roadWall]
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(isSelected ? '' : pid)
-  }
+  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
+  const isSelected = selectedPieceID === boardPiece?.uid
+  const isHighlighted = hoveredPieceID === boardPiece?.uid || isSelected
+  const currentColor = isHighlighted
+    ? 'yellow'
+    : color
+  const opacityLevel = opacity ?? 1
+  const interactivityProps = onPointerUp && boardPiece ? {
+    onPointerUp: (e: ThreeEvent<PointerEvent>) => onPointerUp(e, boardPiece),
+    onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterPiece(e, boardPiece.uid),
+    onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+  } : {}
   return (
     <>
       <mesh
         receiveShadow
         castShadow
         geometry={nodes.RoadWall.geometry}
-        onPointerUp={(e) => onPointerUp(e)}
-        onPointerEnter={(e) => onPointerEnterPID(e, pid)}
-        onPointerOut={(e) => onPointerOut(e)}
+        {...interactivityProps}
       >
-        {basicModelMaterial(color, isLightsAndShadowsRender)}
-      </mesh>
-    </>
-  )
-}
-export function RoadWallPreview({ opacity }: { opacity?: number }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/handmade-roadwall.glb') as any
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const color = hexTerrainColor[HexTerrain.roadWall]
-  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
-  return (
-    <>
-      <mesh receiveShadow castShadow geometry={nodes.RoadWall.geometry}>
-        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
+        {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacityLevel)}
       </mesh>
     </>
   )
