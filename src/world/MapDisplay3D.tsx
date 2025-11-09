@@ -7,6 +7,7 @@ import useBoundStore from '../store/store.ts'
 import {
   type AddRemovePieceError,
   type BoardHex,
+  type BoardPiece,
   HexTerrain,
   PiecePrefixes,
   Pieces,
@@ -19,6 +20,7 @@ import {
 } from '../utils/board-utils.ts'
 import {
   genBoardHexID,
+  genPieceObjectUid,
   getBattlementClickedHexCoords,
   getBoardHexesRectangularMapDimensions,
   getRoadWallClickedHexCoords,
@@ -84,7 +86,19 @@ export default function MapDisplay3D({
       return
     }
     const pieceMode = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
-    const piece = piecesSoFar[pieceMode]
+    const pieceData = piecesSoFar[pieceMode]
+    const clickedHexCoords = {
+      q: hex.q,
+      r: hex.r,
+      s: hex.s,
+    }
+    const pieceObject: BoardPiece = {
+      uid: genPieceObjectUid(), // new unique instance id (e.g., 'bp_abc123' or uuid/v4/nanoid)
+      inventoryID: 'g1',
+      altitude: hex.altitude,
+      rotation: penModeRotation,
+      pieceCoords: clickedHexCoords
+    }
     const isCastleWallArchClicked =
       hex.pieceID.includes(PiecePrefixes.castleWall) ||
       hex.pieceID.includes(PiecePrefixes.castleArch)
@@ -95,39 +109,21 @@ export default function MapDisplay3D({
       ...hex,
       altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
     })
-    // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
-    const clickedHex = isCastleWallArchClicked
-      ? boardHexes[boardHexIdOfCapForWall]
-      : hex
-    const clickedHexCoords = isCastleWallArchClicked
-      ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
-      : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
-    const clickedHexAltitude = clickedHex.altitude
 
     // Castle W/A: use cap coords and altitude
     if (isCastleWallArchClicked) {
-      const castleWallArchClickedHexCoords = {
-        q: boardHexes[boardHexIdOfCapForWall].q,
-        r: boardHexes[boardHexIdOfCapForWall].r,
-        s: boardHexes[boardHexIdOfCapForWall].s,
-      }
-      error = paintTile({
-        piece,
-        clickedHexCoords: castleWallArchClickedHexCoords,
-        altitude: boardHexes[boardHexIdOfCapForWall].altitude,
-        rotation: penModeRotation,
+      paintTile({
+        ...pieceObject,
+        altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
+        pieceCoords: {
+          q: boardHexes[boardHexIdOfCapForWall].q,
+          r: boardHexes[boardHexIdOfCapForWall].r,
+          s: boardHexes[boardHexIdOfCapForWall].s,
+        },
       })
     }
     // Adding laur addon, put it at same level
-    else if (isLaurWallAddonPieceID(piece?.id ?? '')) {
+    else if (isLaurWallAddonPieceID(pieceData?.id ?? '')) {
       if (!isLaurPillarClicked) {
         enqueueSnackbar({
           message: 'Must add to Square/Triangle Pillar.',
@@ -136,59 +132,55 @@ export default function MapDisplay3D({
         })
         return
       }
-      error = paintTile({
-        piece,
-        clickedHexCoords,
-        altitude: clickedHexAltitude - 1,
-        rotation: penModeRotation,
+      paintTile({
+        ...pieceObject,
+        altitude: hex.altitude - 1,
       })
-      console.log('🚀 ~ error:', error)
     }
     // BATTLEMENT
-    else if (piece?.id === Pieces.battlement) {
+    else if (pieceData?.id === Pieces.battlement) {
       const battlementClickedHexCoords = getBattlementClickedHexCoords(
-        clickedHex,
+        hex,
         penModeRotation,
       )
       const mirrorRotation = (penModeRotation + 3) % 6
-      error = paintTile({
-        piece,
-        clickedHexCoords: battlementClickedHexCoords,
-        altitude: clickedHexAltitude - 1,
+      paintTile({
+        ...pieceObject,
+        altitude: hex.altitude - 1,
+        pieceCoords: battlementClickedHexCoords,
         rotation: mirrorRotation,
       })
     }
     // ROADWALL
-    else if (piece?.id === Pieces.roadWall) {
+    else if (pieceData?.id === Pieces.roadWall) {
       const roadWallClickedHexCoords = getRoadWallClickedHexCoords(
-        clickedHex,
+        hex,
         penModeRotation,
       )
-      error = paintTile({
-        piece,
-        clickedHexCoords: roadWallClickedHexCoords,
-        altitude: clickedHexAltitude - 1,
-        rotation: penModeRotation,
+      paintTile({
+        ...pieceObject,
+        altitude: hex.altitude - 1,
+        pieceCoords: roadWallClickedHexCoords,
       })
     }
     // LADDER ONTO LADDER
     else if (
-      piece?.id === Pieces.ladder &&
+      pieceData?.id === Pieces.ladder &&
       hex?.inventoryID === Pieces.ladder
     ) {
-      error = paintTile({
-        piece,
-        clickedHexCoords: clickedHexCoords,
-        altitude: clickedHexAltitude + 1,
-        rotation: clickedHex.pieceRotation,
+      paintTile({
+        ...pieceObject,
+        altitude: hex.altitude + 1,
+        // placing ladder on ladder, just used rotation of existing ladder
+        rotation: hex.pieceRotation,
       })
     }
     // Clicked a regular land cap
     else {
-      error = paintTile({
-        piece,
+      paintTile({
+        piece: pieceData,
         clickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: hex.altitude,
         rotation: penModeRotation,
       })
     }
