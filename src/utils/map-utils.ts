@@ -219,6 +219,8 @@ export const getRoadWallClickedHexCoords = (
 ): CubeCoordinate => {
   return hexUtilsAdd(
     { q: hex.q, r: hex.r, s: hex.s },
+    // when we place a roadwall "on" a tile at 0-rotation (pointing east) we are REALLY
+    // placing it NorthWest of the tile so as to proceed east and stay parallel
     hexUtilsGetNeighborForRotation((rotation + 4) % 6),
   )
 }

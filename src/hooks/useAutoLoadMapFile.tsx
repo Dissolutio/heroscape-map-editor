@@ -3,20 +3,17 @@ import React, { useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
 import buildupVSFileMap, { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import type { BoardHexes, BoardPiece } from '../types'
+import type { BoardHexes } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
-  decodePieceID,
   getBoardPiecesMaxLevel,
   inflateBoardPiecesFromIds,
-  normalizeBoardPieces,
 } from '../utils/map-utils'
 import { Button } from '@mui/material'
 import { LS_KEYS } from '../local-storage/keys'
 import { noop } from 'lodash'
 import { ROUTES } from '../ROUTES'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
-import { nanoid } from 'nanoid'
 import { processVirtualScapeArrayBuffer } from '../data/readVirtualscapeMapFile'
 
 type Props = {

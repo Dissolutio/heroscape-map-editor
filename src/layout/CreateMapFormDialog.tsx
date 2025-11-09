@@ -105,8 +105,8 @@ export default function CreateMapFormDialog() {
       name: mapName,
       author: '',
       shape: mapShape,
-      width: mapWidth,
-      length: mapLength,
+      width: mapShape === 'rectangle' ? mapWidth : mapSize,
+      length: mapShape === 'rectangle' ? mapLength : mapSize,
       setsUsed: newSetsUsed,
     }
     const editedMapState = {
