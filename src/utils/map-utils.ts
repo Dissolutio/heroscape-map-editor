@@ -242,6 +242,9 @@ export const pillarSideRotationsFlip: { [rotation: number]: number } = {
 export function encodeFilename(str: string) {
   return str.replace(/[^\w]/g, '_')
 }
+export function genPieceObjectUid() {
+  return nanoid(10)
+}
 export function genPieceID(
   boardHexID: string,
   pieceID: string,
@@ -312,7 +315,7 @@ export const inflateBoardPiecesFromIds = (ids: string[]): BoardPiece[] => {
       pieceCoords,
     } = decodePieceID(id)
     return {
-      uid: nanoid(10),
+      uid: genPieceObjectUid(),
       inventoryID,
       altitude,
       rotation,
