@@ -15,6 +15,7 @@ import { useMuiMediaQuery } from './useMuiMediaQuery'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
 import type { BoardPieces } from '../types'
+import { noop } from 'lodash'
 
 
 export default function HomePage() {
@@ -26,7 +27,6 @@ export default function HomePage() {
   const controlsContainerRef = React.useRef(null)
   const workerRef = React.useRef<Worker>();
 
-
   // effect: start/terminate worker, set up what to do with its return
   React.useEffect(() => {
     const worker = new Worker(new URL('../validation/boardHexesWorker.ts', import.meta.url), { type: 'module' }); // 
@@ -34,6 +34,7 @@ export default function HomePage() {
     workerRef.current.onmessage = (event) => {
       const workerData = event.data
       console.log("🚀 ~ HomePage ~ workerData:", workerData)
+      // noop(workerData)
       updateBoardHexes(workerData)
     };
     return () => {
@@ -43,7 +44,7 @@ export default function HomePage() {
 
   // effect: use worker to calculate something
   React.useEffect(() => {
-    workerRef?.current?.postMessage?.(hexMap, boardPieces);
+    workerRef?.current?.postMessage?.({ hexMap, boardPieces });
   }, [hexMap, boardPieces])
 
 
