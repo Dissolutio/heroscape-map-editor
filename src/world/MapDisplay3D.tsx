@@ -177,12 +177,7 @@ export default function MapDisplay3D({
     }
     // Clicked a regular land cap
     else {
-      paintTile({
-        piece: pieceData,
-        clickedHexCoords,
-        altitude: hex.altitude,
-        rotation: penModeRotation,
-      })
+      paintTile(pieceObject)
     }
     // Error from add/remove piece, report error and select piece
     if (error) {

@@ -14,7 +14,7 @@ import { ControlTabs } from './ControlTabs'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
-import type { BoardPieces } from '../types'
+import type { BoardHexes, BoardPieces } from '../types'
 import { noop } from 'lodash'
 
 
@@ -31,10 +31,8 @@ export default function HomePage() {
   React.useEffect(() => {
     const worker = new Worker(new URL('../validation/boardHexesWorker.ts', import.meta.url), { type: 'module' }); // 
     workerRef.current = worker
-    workerRef.current.onmessage = (event) => {
+    workerRef.current.onmessage = (event: MessageEvent<BoardHexes>) => {
       const workerData = event.data
-      console.log("🚀 ~ HomePage ~ workerData:", workerData)
-      // noop(workerData)
       updateBoardHexes(workerData)
     };
     return () => {
