@@ -4,7 +4,6 @@ import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
 import {
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_OBSTACLE_BASE_HEIGHT,
   PIECE_PREVIEW_OPACITY,
 } from '../../utils/constants'
@@ -15,9 +14,11 @@ import { laurBaseCylinderArgs } from './ObstacleBase'
 export default function LaurWallPillar({
   boardHex,
   onPointerUp,
+  opacity,
 }: {
-  boardHex: BoardHex
-  onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
+  opacity?: number
+  boardHex?: BoardHex
+  onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -28,47 +29,60 @@ export default function LaurWallPillar({
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
+  const isSelected = selectedPieceID === boardHex?.pieceID
+  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
   const color = isHighlighted ? yellowColor : pillarColor
   const interiorColor = isHighlighted ? yellowColor : interiorPillarColor
+  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
+  const interactivityProps = onPointerUp && boardHex ? {
+    onPointerUp: (e: ThreeEvent<PointerEvent>) => onPointerUp(e, boardHex),
+    onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnter(e, boardHex),
+    onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+  } : {}
   return (
     <>
       <group
-        onPointerUp={(e) => onPointerUp(e, boardHex)}
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
-        onPointerOut={(e) => onPointerOut(e)}
+        {...interactivityProps}
       >
-        {/* Scaled to match reality: 9 clears the upper pillar edge, 13 totally clears the pillars top X-arch */}
+        {/* Scaled to match reality: 9 clears the upper pillar edge,
+         13 totally clears the pillars top X-arch */}
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.PillarTop.geometry}
         >
-          {basicModelMaterial(color, isLightsAndShadowsRender)}
+          {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
         </mesh>
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.PillarSubDecorCore.geometry}
         >
-          {basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
+          {basicModelMaterial(
+            interiorColor,
+            isLightsAndShadowsRender,
+            opacityLevel,
+          )}
         </mesh>
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.PillarFacade.geometry}
         >
-          {basicModelMaterial(color, isLightsAndShadowsRender)}
+          {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
         </mesh>
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.PillarFacadeInner.geometry}
         >
-          {basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
+          {basicModelMaterial(
+            interiorColor,
+            isLightsAndShadowsRender,
+            opacityLevel,
+          )}
         </mesh>
         <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
           <mesh
@@ -83,70 +97,4 @@ export default function LaurWallPillar({
     </>
   )
 }
-export function LaurWallPillarPreview({
-  opacity,
-}: {
-  opacity?: number
-}) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/laur-pillar-from-hs-blendfile.glb') as any
-  // const { nodes } = useGLTF('/laurwall-pillar.glb') as any
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const pillarColor = hexTerrainColor[HexTerrain.laurWall]
-  const interiorPillarColor = hexTerrainColor.laurModelColor2
-  const color = pillarColor
-  const interiorColor = interiorPillarColor
-  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
-  return (
-    <>
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.PillarTop.geometry}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
-      </mesh>
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.PillarSubDecorCore.geometry}
-      >
-        {basicModelMaterial(
-          interiorColor,
-          isLightsAndShadowsRender,
-          opacityLevel,
-        )}
-      </mesh>
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.PillarFacade.geometry}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
-      </mesh>
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.PillarFacadeInner.geometry}
-      >
-        {basicModelMaterial(
-          interiorColor,
-          isLightsAndShadowsRender,
-          opacityLevel,
-        )}
-      </mesh>
-      <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
-        <mesh
-          receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender}
-        >
-          <cylinderGeometry args={laurBaseCylinderArgs} />
-          {basicModelMaterial(color, isLightsAndShadowsRender)}
-        </mesh>
-      </group>
-    </>
-  )
-}
-// useGLTF.preload('/laurwall-pillar.glb')
+useGLTF.preload('/laur-pillar-from-hs-blendfile.glb')
