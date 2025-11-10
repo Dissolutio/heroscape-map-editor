@@ -1,6 +1,6 @@
 import type { Dictionary } from 'lodash'
 import { type CubeCoordinate, Pieces } from '../types'
-import { CUBE_EAST, CUBE_SE, CUBE_SW, ORIGIN_000 } from '../utils/constants'
+import { CUBE_EAST, CUBE_SE, CUBE_SW, CUBE_WEST, ORIGIN_000 } from '../utils/constants'
 import { hexUtilsAdd, hexUtilsRotateAroundOrigin_000 } from '../utils/hex-utils'
 import tileTemplates from './tileTemplates'
 
@@ -131,12 +131,12 @@ const castle9 = [
   { q: -4, r: 4, s: 0 },
 ]
 const marvel6 = [
-  ORIGIN_000,
-  ORIGIN_000,
   CUBE_EAST,
-  { q: 3, r: 1, s: -4 },
-  { q: -1, r: 4, s: -3 },
-  { q: -4, r: 3, s: 1 },
+  CUBE_SE,
+  CUBE_SE,
+  { q: 2, r: 1, s: -3 },
+  { q: -1, r: 3, s: -2 },
+  { q: -3, r: 2, s: 1 },
 ]
 const rotationTransforms: Dictionary<CubeCoordinate[]> = {
   // land tiles (solid and fluid) will use their size to lookup their rotations
