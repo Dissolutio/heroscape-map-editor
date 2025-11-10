@@ -3,18 +3,19 @@ import { piecesSoFar } from "../data/pieces"
 import type { BoardHexes, BoardPiece, BoardPieces, HexMap, MapState } from "../types"
 import { sortLaurAddonsLaddersBattlementsToEndOfArray } from "../utils/board-utils"
 import { makeHexagonMapEmptyHexes, makeRectangleMapEmptyHexes } from "../utils/hex-gen"
+import { genPieceObjectUid } from "../utils/map-utils"
 
 self.onmessage = (event: MessageEvent<MapState>) => {
   const hexMap = event?.data?.hexMap
-  // const boardPieces = event?.data?.boardPieces
-  let blankHexes: BoardHexes = {}
-  if (hexMap.shape === 'rectangle') {
-    blankHexes = makeRectangleMapEmptyHexes(hexMap.width, hexMap.length)
-  } else {
-    blankHexes = makeHexagonMapEmptyHexes(hexMap.length)
-  }
-  // const result = makeRectangleMapEmptyHexes
-  self.postMessage(blankHexes)
+  const boardPieces = event?.data?.boardPieces
+  // let blankHexes: BoardHexes = {}
+  // if (hexMap.shape === 'rectangle') {
+  //   blankHexes = makeRectangleMapEmptyHexes(hexMap.width, hexMap.length)
+  // } else {
+  //   blankHexes = makeHexagonMapEmptyHexes(hexMap.length)
+  // }
+  const result = buildupBoardHexes(boardPieces, hexMap)
+  self.postMessage(result)
 }
 
 function buildupBoardHexes(
@@ -42,7 +43,7 @@ function buildupBoardHexes(
     (prev: BoardHexes, curr): BoardHexes => {
       const {
         pieceCoords,
-        altitude: placementAltitude,
+        altitude,
         rotation,
         inventoryID,
       } = curr
@@ -50,14 +51,18 @@ function buildupBoardHexes(
       if (!piece) {
         return prev // Should probably handle this different, errors etc.
       }
-
-      // get the new board hexes and new board pieces
-      const { newBoardHexes } = addPieceToBoardHexes({
-        piece,
-        boardHexes: prev,
+      const pieceObject: BoardPiece = {
+        uid: genPieceObjectUid(), // new unique instance id (e.g., 'bp_abc123' or uuid/v4/nanoid)
+        inventoryID: 'g1',
+        altitude,
+        rotation,
         pieceCoords,
-        placementAltitude: placementAltitude, // z is altitude is virtualscape, y is altitude in our app
-        rotation: rotation,
+      }
+      // get the new board hexes and new board pieces
+      const newBoardHexes = addPieceToBoardHexes({
+        boardPiece: pieceObject,
+        pieceData: piece,
+        boardHexes: prev,
         isVsTile: false,
       })
       return newBoardHexes

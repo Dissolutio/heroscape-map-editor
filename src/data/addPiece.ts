@@ -3,7 +3,7 @@ import {
   type AddRemovePieceError,
   type AddRemovePieceReturn,
   type BoardHexes,
-  BoardPiece,
+  type BoardPiece,
   type BoardPiecesEncodedArr,
   type CubeCoordinate,
   HexTerrain,
@@ -26,50 +26,42 @@ import {
 } from './vertical-obstruction-templates'
 
 export function addPieceToBoardHexes({
+  boardPiece,
+  pieceData,
+  isVsTile,
   // state to mutate and return
   boardHexes,
-  // input
-  pieceData,
-  pieceCoords,
-  placementAltitude,
-  rotation,
-  isVsTile,
 }: {
   boardPiece: BoardPiece
   pieceData: Piece
-  boardHexes: BoardHexes
-  boardPieces: BoardPiecesEncodedArr
-  pieceCoords: CubeCoordinate
-  placementAltitude: number
-  rotation: number
   isVsTile: boolean
-}): AddRemovePieceReturn {
-  let addPieceError: AddRemovePieceError
+  boardHexes: BoardHexes
+}): BoardHexes {
   const newBoardHexes = clone(boardHexes)
   const piecePlaneCoords = getPieceTemplateCoords({
-    clickedHex: { q: pieceCoords.q, r: pieceCoords.r, s: pieceCoords.s },
-    rotation,
+    clickedHex: { q: boardPiece.pieceCoords.q, r: boardPiece.pieceCoords.r, s: boardPiece.pieceCoords.s },
+    rotation: boardPiece.rotation,
     template: pieceData.template,
     isVsTile,
   })
   // VirtualScape had multiple origin hexes for different rotations, Hexoscape rotates all pieces around one origin hex
-  const originOfTile = isVsTile ? piecePlaneCoords[0] : pieceCoords
+  const originOfTile = isVsTile ? piecePlaneCoords[0] : boardPiece.pieceCoords
   const pieceHexID = genBoardHexID({
     ...originOfTile,
-    altitude: placementAltitude,
+    altitude: boardPiece.altitude,
   })
-  const pieceID = genPieceID(pieceHexID, pieceData.id, rotation)
+  const pieceID = genPieceID(pieceHexID, pieceData.id, boardPiece.rotation)
   const ladderBattlementPieceRotation = isVsTile
-    ? (rotation + 5) % 6
-    : rotation % 6 // VS starts ladders at rotation 5 (top-right, NE), instead of 0 (right, E)
+    ? (boardPiece.rotation + 5) % 6
+    : boardPiece.rotation % 6 // VS starts ladders at rotation 5 (top-right, NE), instead of 0 (right, E)
   const ladderBattlementPieceID = genPieceID(
     pieceHexID,
     pieceData.id,
     ladderBattlementPieceRotation,
   )
-  const newPieceAltitude = placementAltitude + 1
+  const newPieceAltitude = boardPiece.altitude + 1
   const underHexIds = piecePlaneCoords.map((cubeCoord) =>
-    genBoardHexID({ ...cubeCoord, altitude: placementAltitude }),
+    genBoardHexID({ ...cubeCoord, altitude: boardPiece.altitude }),
   )
   const newHexIds = piecePlaneCoords.map((cubeCoord) =>
     genBoardHexID({ ...cubeCoord, altitude: newPieceAltitude }),
@@ -148,19 +140,19 @@ export function addPieceToBoardHexes({
     (isPlacingOnTable && !isGlyphPiece) // glyphs cannot go directly on table
   const isLadderPieceSupported =
     isPlacingOnTable || isSolidUnderAll || isLadderAuxiliaryUnderAll
-  const isBattlementPieceSupported_true = true // TODO: validate pieces
   const isPlacingObstacle =
     pieceData.isObstaclePiece &&
     isSpaceFree &&
     isVerticalClearanceForPiece &&
     isObstaclePieceSupported
   const isLadderPieceID = pieceData.terrain === HexTerrain.ladder
-  const isBattlementPieceID = pieceData.terrain === HexTerrain.battlement
-  const isRoadWallPieceID = pieceData.terrain === HexTerrain.roadWall
-  const isRoadWallPieceSupported_true = true // TODO: validate pieces
-  const isPlacingBattlement =
-    isBattlementPieceID && isBattlementPieceSupported_true
-  const isPlacingRoadWall = isRoadWallPieceID && isRoadWallPieceSupported_true
+  // const isBattlementPieceSupported_true = true // TODO: validate pieces
+  // const isBattlementPieceID = pieceData.terrain === HexTerrain.battlement
+  // const isRoadWallPieceID = pieceData.terrain === HexTerrain.roadWall
+  // const isRoadWallPieceSupported_true = true // TODO: validate pieces
+  // const isPlacingBattlement =
+  //   isBattlementPieceID && isBattlementPieceSupported_true
+  // const isPlacingRoadWall = isRoadWallPieceID && isRoadWallPieceSupported_true
 
   // LAUR WALL ADDONS: Autoadd piece id, render from boardPieces
   // if (pieceData.terrain === HexTerrain.laurWallAddon) {
@@ -172,23 +164,23 @@ export function addPieceToBoardHexes({
   //   }
   // }
   // ROADWALLS: Autoadd piece id, render from boardPieces
-  if (isPlacingRoadWall) {
-    try {
-      // Add the new roadwall piece
-      newBoardPieces.push(pieceID)
-    } catch (error) {
-      addPieceError = { message: 'Unable to place roadwall', error }
-    }
-  }
+  // if (isPlacingRoadWall) {
+  //   try {
+  //     // Add the new roadwall piece
+  //     newBoardPieces.push(pieceID)
+  //   } catch (error) {
+  //   console.log("🚀 ~ addPieceToBoardHexes ~ error:", error)
+  //   }
+  // }
+
   // BATTLEMENTS: Autoadd piece id, render from boardPieces
-  if (isPlacingBattlement) {
-    try {
-      // Add the new battlement piece
-      newBoardPieces.push(ladderBattlementPieceID)
-    } catch (error) {
-      addPieceError = { message: 'Unable to place battlement', error }
-    }
-  }
+  // if (isPlacingBattlement) {
+  //   try {
+  //     // newBoardPieces.push(ladderBattlementPieceID)
+  //   } catch (error) {
+  //     console.log("🚀 ~ addPieceToBoardHexes ~ error:", error)
+  //   }
+  // }
 
   // ALL PIECES BELOW ARE RENDERED FROM BOARD HEXES
 
@@ -252,9 +244,9 @@ export function addPieceToBoardHexes({
           })
       })
       // add the new ladder piece
-      newBoardPieces.push(ladderBattlementPieceID)
+      // newBoardPieces.push(ladderBattlementPieceID)
     } else {
-      addPieceError = { message: 'Unable to place ladder' }
+      // addPieceError = { message: 'Unable to place ladder' }
     }
   }
   // RUINS
@@ -316,7 +308,7 @@ export function addPieceToBoardHexes({
                 terrain: pieceData.terrain,
                 pieceID,
                 inventoryID: pieceData.id,
-                pieceRotation: rotation,
+                pieceRotation: boardPiece.rotation,
                 isVerticalClearanceHex: true,
               }
             }
@@ -332,24 +324,24 @@ export function addPieceToBoardHexes({
           terrain: pieceData.terrain,
           pieceID,
           inventoryID: pieceData.id,
-          pieceRotation: rotation,
+          pieceRotation: boardPiece.rotation,
           isObstacleOrigin: isObstacleOrigin,
           isObstacleAuxiliary,
         }
       })
       // add the new piece
-      newBoardPieces.push(pieceID)
+      // newBoardPieces.push(pieceID)
     } else {
       if (!isSpaceFreeForRuin) {
-        addPieceError = { message: 'Not enough space for ruin' }
+        // addPieceError = { message: 'Not enough space for ruin' }
       }
       if (!isSolidUnderAllSupportHexes) {
-        addPieceError = {
-          message: 'Ruins need solid ground under their three central hexes',
-        }
+        // addPieceError = {
+        //   message: 'Ruins need solid ground under their three central hexes',
+        // }
       }
       if (!isVerticalClearanceForPiece) {
-        addPieceError = { message: 'Not enough vertical clearance for ruins' }
+        // addPieceError = { message: 'Not enough vertical clearance for ruins' }
       }
     }
   }
@@ -377,20 +369,20 @@ export function addPieceToBoardHexes({
           terrain: pieceData.terrain,
           pieceID,
           inventoryID: pieceData.id,
-          pieceRotation: rotation,
+          pieceRotation: boardPiece.rotation,
           isObstacleOrigin: true,
         }
       })
     } else {
       if (!isSpaceFree) {
-        addPieceError = { message: 'No space free for castle base' }
+        // addPieceError = { message: 'No space free for castle base' }
       }
       if (!isCastleBaseSupported) {
-        addPieceError = { message: 'Castle base is not supported there' }
+        // addPieceError = { message: 'Castle base is not supported there' }
       }
     }
     // add the new piece
-    newBoardPieces.push(pieceID)
+    // newBoardPieces.push(pieceID)
   }
   // CASTLE ARCH (no error reporting)
   if (isCastleArchPiece) {
@@ -420,7 +412,7 @@ export function addPieceToBoardHexes({
           terrain: pieceData.terrain,
           pieceID,
           inventoryID: pieceData.id,
-          pieceRotation: rotation,
+          pieceRotation: boardPiece.rotation,
           isObstacleOrigin: i === 0, // The first boardHex is marked to render the obstacle model
           isObstacleAuxiliary: i !== 0,
           obstacleHeight,
@@ -445,13 +437,13 @@ export function addPieceToBoardHexes({
               terrain: pieceData.terrain,
               pieceID,
               inventoryID: pieceData.id,
-              pieceRotation: rotation,
+              pieceRotation: boardPiece.rotation,
               isVerticalClearanceHex: true,
             }
           })
       })
       // add the new piece
-      newBoardPieces.push(pieceID)
+      // newBoardPieces.push(pieceID)
     }
   }
   // CASTLE WALL (no error reporting)
@@ -476,7 +468,7 @@ export function addPieceToBoardHexes({
           PiecePrefixes.castleBase,
         )
         const wallAltitude = isHexUnderneathCastleBase
-          ? placementAltitude
+          ? boardPiece.altitude
           : newPieceAltitude
         const obstacleHeight =
           pieceData.height -
@@ -497,7 +489,7 @@ export function addPieceToBoardHexes({
             terrain: pieceData.terrain,
             pieceID,
             inventoryID: pieceData.id,
-            pieceRotation: rotation,
+            pieceRotation: boardPiece.rotation,
             isObstacleOrigin: i === 0, // first hex marks the wall/arch model
             isObstacleAuxiliary: i !== 0, // arches have 2 aux hexes that render only an under-hex-cap
             obstacleHeight,
@@ -514,7 +506,7 @@ export function addPieceToBoardHexes({
             terrain: pieceData.terrain,
             pieceID,
             inventoryID: pieceData.id,
-            pieceRotation: rotation,
+            pieceRotation: boardPiece.rotation,
             isObstacleOrigin: i === 0, // The first boardHex is marked to render the obstacle model
             isObstacleAuxiliary: i !== 0,
             obstacleHeight,
@@ -540,13 +532,13 @@ export function addPieceToBoardHexes({
               terrain: pieceData.terrain,
               pieceID,
               inventoryID: pieceData.id,
-              pieceRotation: rotation,
+              pieceRotation: boardPiece.rotation,
               isVerticalClearanceHex: true,
             }
           })
       })
       // add the new piece
-      newBoardPieces.push(pieceID)
+      // newBoardPieces.push(pieceID)
     }
   }
   // WALLWALK ONTO WALL
@@ -563,14 +555,14 @@ export function addPieceToBoardHexes({
         terrain: pieceData.terrain,
         pieceID,
         inventoryID: pieceData.id,
-        pieceRotation: rotation,
+        pieceRotation: boardPiece.rotation,
         isCap: !isSolidAbove,
         isObstacleOrigin: iForEach === 0, // mark subterrain origin hex
         isObstacleAuxiliary: iForEach !== 0, // mark non-origin hex
       }
     })
     // add the new piece
-    newBoardPieces.push(pieceID)
+    // newBoardPieces.push(pieceID)
   }
   // OBSTACLES: trees, bushes, palms, glaciers, outcrops, laurPillar
   if (isPlacingObstacle) {
@@ -590,7 +582,7 @@ export function addPieceToBoardHexes({
         terrain: pieceData.terrain,
         pieceID,
         inventoryID: pieceData.id,
-        pieceRotation: rotation,
+        pieceRotation: boardPiece.rotation,
         isObstacleOrigin: i === 0, //only the first hex is an origin (because we made the template arrays this way. with origin hex at index 0)
         isObstacleAuxiliary: i !== 0, // big tree, glaciers/outcrops, have aux hexes that render only a cap
         obstacleHeight: pieceData.height,
@@ -622,16 +614,17 @@ export function addPieceToBoardHexes({
                   terrain: pieceData.terrain,
                   pieceID,
                   inventoryID: pieceData.id,
-                  pieceRotation: rotation,
+                  pieceRotation: boardPiece.rotation,
                   isVerticalClearanceHex: true,
                 }
               }
             })
         } catch (error) {
-          addPieceError = {
-            message: 'Failed to fill out vertical obstruction for obstacle',
-            error,
-          }
+          console.log("🚀 ~ addPieceToBoardHexes ~ error:", error)
+          // addPieceError = {
+          //   message: 'Failed to fill out vertical obstruction for obstacle',
+          //   error,
+          // }
         }
       } else {
         try {
@@ -657,21 +650,22 @@ export function addPieceToBoardHexes({
                 terrain: pieceData.terrain,
                 pieceID,
                 inventoryID: pieceData.id,
-                pieceRotation: rotation,
+                pieceRotation: boardPiece.rotation,
                 isVerticalClearanceHex: true,
               }
             })
         } catch (error) {
-          addPieceError = {
-            message: 'Failed placing vertical clearance for obstacle',
-            error,
-          }
+          console.log("🚀 ~ addPieceToBoardHexes ~ error:", error)
+          // addPieceError = {
+          //   message: 'Failed placing vertical clearance for obstacle',
+          //   error,
+          // }
         }
       }
     })
 
     // add the new piece
-    newBoardPieces.push(pieceID)
+    // newBoardPieces.push(pieceID)
   }
   // LAND
   if (isPlacingLandTile) {
@@ -699,7 +693,7 @@ export function addPieceToBoardHexes({
             terrain: pieceData.terrain,
             pieceID,
             inventoryID: pieceData.id,
-            pieceRotation: rotation,
+            pieceRotation: boardPiece.rotation,
             isCap: !isSolidAbove, // not a cap if solid hex directly above
             isObstacleOrigin: iForEach === 0, // mark subterrain origin hex
             isObstacleAuxiliary: iForEach !== 0, // mark non-origin hex
@@ -709,13 +703,14 @@ export function addPieceToBoardHexes({
           }
         })
       } catch (error) {
-        addPieceError = { message: 'Could not place land tile', error }
+        console.log("🚀 ~ addPieceToBoardHexes ~ error:", error)
+        // addPieceError = { message: 'Could not place land tile', error }
       }
       // add the new piece
-      newBoardPieces.push(pieceID)
+      // newBoardPieces.push(pieceID)
     }
   }
-  return { newBoardHexes, newBoardPieces, error: addPieceError }
+  return newBoardHexes
 }
 
 export function addPiece({
