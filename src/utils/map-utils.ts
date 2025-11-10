@@ -247,6 +247,9 @@ export function encodeFilename(str: string) {
 export function genPieceObjectUid() {
   return nanoid(10)
 }
+export function generateMapID(): string {
+  return nanoid(13)
+}
 export function genPieceID(
   boardHexID: string,
   pieceID: string,

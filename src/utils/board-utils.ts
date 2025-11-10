@@ -1,4 +1,4 @@
-import { type BoardHexes, BoardPieces, HexTerrain, Pieces } from '../types'
+import { type BoardHexes, type BoardPieces, HexTerrain, Pieces } from '../types'
 
 export function isFluidTerrainHex(terrain: string) {
   return (

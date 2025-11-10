@@ -32,6 +32,19 @@ export default function getPieceTemplateCoords({
       isVsTile ? hexUtilsAdd(t, originOfTile) : hexUtilsAdd(t, clickedHex),
     )
 }
+export function getVSTileOriginCoords({
+  pieceCoords,
+  rotation,
+  template,
+}: {
+  pieceCoords: CubeCoordinate
+  rotation: number
+  template: string
+}): CubeCoordinate {
+  const originOfTileTransform =
+    rotationTransforms?.[template]?.[rotation] ?? ORIGIN_000
+  return hexUtilsAdd(pieceCoords, originOfTileTransform)
+}
 
 const t1 = [
   ORIGIN_000,

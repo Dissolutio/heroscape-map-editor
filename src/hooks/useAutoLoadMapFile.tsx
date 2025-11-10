@@ -1,7 +1,7 @@
 import { closeSnackbar, useSnackbar } from 'notistack'
 import React, { useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
-import buildupVSFileMap, { buildupJsonFileMap } from '../data/buildupMap'
+import { buildupVSFileMap, buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
 import type { BoardHexes } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
@@ -131,48 +131,48 @@ const useAutoLoadMapFile = (props?: Props) => {
       })
       .then((arrayBuffer) => {
         const vsFileData = processVirtualScapeArrayBuffer(arrayBuffer)
-        //     // buildupVSFileMap should return errorArr for enqueueSnackbar
         const vsMap = buildupVSFileMap(
           vsFileData.tiles,
           vsFileData?.name ?? fileName,
         )
-        const fullBoardPiecesFromVSMap = inflateBoardPiecesFromIds(vsMap.boardPieces)
-        //     loadMap(vsMap)
-        //     enqueueSnackbar(
-        //       `Automatically loaded Virtualscape map named: "${vsMap.hexMap.name}" from file: "${fileName}"`,
-        //     )
-        //   })
-        // AUTO JSON
-        // const fileName = '/json-maps/AoA_1_The_Shattered_Table.json'
-        // fetch(fileName).then(async (response) => {
-        //   // const data = response.json()
-        //   const data = await response.json()
-
-        //   if (data?.hexMap && data?.boardPieces) {
-        //     const fullBoardPieces = inflateBoardPiecesFromIds(normalizeBoardPieces(data.boardPieces))
-        //     loadMap({
-        //       boardHexes: props?.boardHexes,
-        //       boardPieces: normalizeBoardPieces(data.boardPieces),
-        //       hexMap: data.hexMap,
-        //     })
-        //   } else {
-        //     const jsonMap = buildupJsonFileMap(
-        //       normalizeBoardPieces(data.boardPieces),
-        //       data.hexMap,
-        //     )
-        //     if (!jsonMap.hexMap.name) {
-        //       jsonMap.hexMap.name = fileName
-        //     }
-        //     loadMap(jsonMap)
-        //   }
-        //   enqueueSnackbar({
-        //     // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
-        //     message: 'WELCOME!',
-        //     variant: 'success',
-        //     autoHideDuration: 5000,
-        //   })
-        //   clearUndoHistory() // clear undo history, initial load should not be undoable
+        // const fullBoardPiecesFromVSMap = inflateBoardPiecesFromIds(vsMap.boardPieces)
+        loadMap(vsMap)
+        enqueueSnackbar(
+          `Automatically loaded Virtualscape map named: "${vsMap.hexMap.name}" from file: "${fileName}"`,
+        )
       })
+
+    // AUTO JSON
+    // const fileName = '/json-maps/AoA_1_The_Shattered_Table.json'
+    // fetch(fileName).then(async (response) => {
+    //   // const data = response.json()
+    //   const data = await response.json()
+    //   if (data?.hexMap && data?.boardPieces) {
+    //     const fullBoardPieces = inflateBoardPiecesFromIds(normalizeBoardPieces(data.boardPieces))
+    //     loadMap({
+    //       boardHexes: props?.boardHexes,
+    //       boardPieces: normalizeBoardPieces(data.boardPieces),
+    //       hexMap: data.hexMap,
+    //     })
+    //   } else {
+    //     const jsonMap = buildupJsonFileMap(
+    //       normalizeBoardPieces(data.boardPieces),
+    //       data.hexMap,
+    //     )
+    //     if (!jsonMap.hexMap.name) {
+    //       jsonMap.hexMap.name = fileName
+    //     }
+    //     loadMap(jsonMap)
+    //   }
+    //   enqueueSnackbar({
+    //     // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
+    //     message: 'WELCOME!',
+    //     variant: 'success',
+    //     autoHideDuration: 5000,
+    //   })
+    //   clearUndoHistory() // clear undo history, initial load should not be undoable
+    // })
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 }

@@ -29,6 +29,7 @@ import {
   setsUsedInputNameForFormData,
 } from './InputSetsUsedCard'
 import { nanoid } from 'nanoid'
+import { generateMapID } from '../utils/map-utils'
 
 const hexagonMarks = [
   {
@@ -101,7 +102,7 @@ export default function CreateMapFormDialog() {
     }
     const newSetsUsed = getSetsUsedFormData()
     const hexMap = {
-      id: nanoid(13),
+      id: generateMapID(),
       name: mapName,
       author: '',
       shape: mapShape,

@@ -1,6 +1,7 @@
 import { clone } from 'lodash'
 import {
   type BoardHexes,
+  type BoardPieces,
   type BoardPiecesEncodedArr,
   type HexMap,
   type MapState,
@@ -8,42 +9,45 @@ import {
   type VirtualScapeTile,
 } from '../types'
 import { hexUtilsOddRToCube } from '../utils/hex-utils'
-import { makeHexagonMapEmptyHexes, makeRectangleMapEmptyHexes } from '../utils/hex-gen'
-import { decodePieceID } from '../utils/map-utils'
+import { decodePieceID, generateMapID, genPieceObjectUid } from '../utils/map-utils'
 import { addPiece } from './addPiece'
 import { pieceCodes } from './pieceCodes'
 import { piecesSoFar } from './pieces'
 import { getCodeForVSPersonalTile } from './readVirtualscapeMapFile'
+import { genRandomMapName } from '../utils/genRandomMapName'
+import { getVSTileOriginCoords } from './rotationTransforms'
 
-export default function buildupVSFileMap(
+export function buildupVSFileMap(
   tiles: VirtualScapeTile[],
   mapName: string,
 ): MapState {
-  const blankMap = getBlankHexoscapeMapForVSTiles(tiles)
-  const { boardHexes, hexMap } = blankMap
-  const newBoardHexes = tiles.reduce((boardHexes: BoardHexes, tile) => {
+  const hexMap = getHexMapForVSTiles(tiles, mapName)
+  // let { boardPieces } = blankMap
+  // const { boardHexes, hexMap } = blankMap
+  const vsTilesAsBoardPieces: BoardPieces = tiles.map(tile => {
     const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
-    const id = pieceCodes?.[getCodeForVSPersonalTile(tile)] ?? ''
-    const piece = piecesSoFar[id]
-    if (!piece || !piece.terrain) {
-      return boardHexes // Should probably handle this different, errors etc.
-    }
-    // get the new board hexes and new board pieces
-    const { newBoardHexes } = addPiece({
-      piece,
-      boardHexes,
-      boardPieces,
+    const inventoryID = pieceCodes?.[getCodeForVSPersonalTile(tile)] ?? ''
+    // For VS Marvel ruin, should add a Concrete-6 and move ruin up one altitude
+    // Adjust rotation for ladders/battlements (VS starts them at rotation-5, instead of our rotation-0)
+
+    // Adjust tile origin, since VS moves it per rotation for some pieces (our app rotates pieces around their one unmoving origin hex)
+    const originHexCoords = getVSTileOriginCoords({
       pieceCoords: tileCoords,
-      placementAltitude: tile.posZ, // z is altitude is virtualscape, y is altitude in our app
       rotation: tile.rotation,
-      isVsTile: true,
+      template: piecesSoFar[inventoryID].template,
     })
-    return newBoardHexes
-  }, boardHexes)
+
+    return {
+      uid: genPieceObjectUid(),
+      inventoryID,
+      pieceCoords: originHexCoords,
+      altitude: tile.posZ,
+      rotation: tile.rotation,
+    }
+  })
   return {
-    boardHexes: newBoardHexes,
-    hexMap: hexMap,
-    boardPieces,
+    boardPieces: vsTilesAsBoardPieces,
+    hexMap
   }
 }
 function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: string[]) {
@@ -129,9 +133,10 @@ export function buildupJsonFileMap(
     boardPieces: finalBoardPieces,
   }
 }
-function getBlankHexoscapeMapForVSTiles(
+function getHexMapForVSTiles(
   tiles: VirtualScapeTile[],
-): BoardHexes {
+  mapName: string,
+): HexMap {
   // cushions have to be an even number because of the coordinate system used in virtualscape
   const cushionToPadY = 8 // 24-hexer's max Y displacement in vscape
   const cushionToPadX = 6 // 24-hexer's max X displacement in vscape
@@ -154,6 +159,12 @@ function getBlankHexoscapeMapForVSTiles(
   // these are the dimensions of the empty map to generate
   const length = Math.max(...(tiles.map((t) => t.posY + cushionToPadY) ?? 0))
   const width = Math.max(...(tiles.map((t) => t.posX + cushionToPadX) ?? 0))
-
-  return makeRectangleMapEmptyHexes(length, width)
+  return {
+    id: generateMapID(),
+    name: mapName ?? genRandomMapName(),
+    author: '',
+    shape: 'rectangle',
+    width,
+    length,
+  }
 }
