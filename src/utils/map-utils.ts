@@ -3,6 +3,7 @@ import type {
   BoardHex,
   BoardHexes,
   BoardPiece,
+  BoardPieces,
   BoardPiecesEncodedArr,
   CubeCoordinate,
   DecodedPieceID,
@@ -284,11 +285,11 @@ export function genBoardHexID(hex: CubeCoordinate & { altitude: number }) {
     */
   return `${hex.altitude}~${hex.q}~${hex.r}`
 }
-export const getBoardPiecesMaxLevel = (boardPieces: BoardPiecesEncodedArr) => {
+export const getBoardPiecesMaxLevel = (boardPieces: BoardPieces) => {
   const maxLevel =
     1 +
     boardPieces
-      .map((bp) => decodePieceID(bp).altitude) // get their altitudes
+      .map((bp) => bp.altitude) // get their altitudes
       .sort((a, b) => b - a)[0] // sort them high to low and grab the first
   return Number.isNaN(maxLevel) ? 0 : maxLevel
 }

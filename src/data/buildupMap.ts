@@ -50,11 +50,11 @@ export function buildupVSFileMap(
     hexMap
   }
 }
-function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: string[]) {
+function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: BoardPieces) {
   // adding the laur addons will only work if pillars are already down
   return arr.sort((a, b) => {
-    const aPieceID = decodePieceID(a).inventoryID
-    const bPieceID = decodePieceID(b).inventoryID
+    const aPieceID = a.inventoryID
+    const bPieceID = b.inventoryID
     if (
       aPieceID === Pieces.laurWallRuin1 ||
       aPieceID === Pieces.laurWallLong ||
@@ -77,18 +77,11 @@ function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: string[]) {
   })
 }
 export function buildupJsonFileMap(
-  boardPieces: BoardPiecesEncodedArr,
+  boardPieces: BoardPieces,
   hexMap: HexMap,
 ): MapState {
   // For JSON maps, the map dimensions are free, we do not have to compute them
-  let initialBoardHexes: BoardHexes = {}
   const initialBoardPieces = clone(boardPieces)
-  let finalBoardPieces: BoardPiecesEncodedArr = []
-  if (hexMap.shape === 'rectangle') {
-    initialBoardHexes = makeRectangleMapEmptyHexes(hexMap.length, hexMap.width)
-  } else {
-    initialBoardHexes = makeHexagonMapEmptyHexes(hexMap.length)
-  }
   const boardPiecesSortedByAltitude = initialBoardPieces.sort((a, b) => {
     if (decodePieceID(a).altitude > decodePieceID(b).altitude) {
       return 1 // Move 'targetValue' to the end
@@ -98,37 +91,29 @@ export function buildupJsonFileMap(
   const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(
     boardPiecesSortedByAltitude,
   )
-  const newBoardHexes = piecesArray.reduce(
-    (prev: BoardHexes, curr): BoardHexes => {
-      const {
-        pieceCoords,
-        altitude: placementAltitude,
-        rotation,
-        inventoryID,
-      } = decodePieceID(curr)
-      const piece = piecesSoFar[inventoryID]
+  const finalBoardPieces = piecesArray.map(
+    (bp) => {
+      const piece = piecesSoFar[bp.inventoryID]
       if (!piece) {
-        return prev // Should probably handle this different, errors etc.
+        return // Should probably handle this different, errors etc.
       }
+      return {
 
+      }
       // get the new board hexes and new board pieces
-      const { newBoardHexes, newBoardPieces } = addPiece({
-        piece,
-        boardHexes: prev,
-        boardPieces: finalBoardPieces,
-        pieceCoords,
-        placementAltitude: placementAltitude, // z is altitude is virtualscape, y is altitude in our app
-        rotation: rotation,
-        isVsTile: false,
-      })
-      finalBoardPieces = newBoardPieces
-      return newBoardHexes
-    },
-    initialBoardHexes,
+      // const { newBoardHexes, newBoardPieces } = addPiece({
+      //   piece,
+      //   boardHexes: prev,
+      //   boardPieces: finalBoardPieces,
+      //   pieceCoords,
+      //   placementAltitude: placementAltitude, // z is altitude is virtualscape, y is altitude in our app
+      //   rotation: rotation,
+      //   isVsTile: false,
+      // })
+    }
   )
 
   return {
-    boardHexes: newBoardHexes,
     hexMap: hexMap,
     boardPieces: finalBoardPieces,
   }

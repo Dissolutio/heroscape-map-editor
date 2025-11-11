@@ -12,7 +12,7 @@ import {
 } from '@mui/material'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import type { BoardPiecesEncodedArr } from '../types'
+import type { BoardPieces } from '../types'
 import {
   MAX_HEXAGON_MAP_DIMENSION,
   MAX_RECTANGLE_MAP_DIMENSION,
@@ -25,16 +25,15 @@ import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
-  boardPieces: BoardPiecesEncodedArr,
+  boardPieces: BoardPieces,
 ) => {
-  const newBoardPieces = boardPieces.map((pid) => {
+  const newBoardPieces = boardPieces.map((bp) => {
     const {
       inventoryID,
       altitude,
       rotation,
-      // boardHexID,
       pieceCoords,
-    } = decodePieceID(pid)
+    } = bp
     const newPieceCoords = hexUtilsAdd(pieceCoords, HEX_DIRECTIONS[direction])
     const newBoardHexID = genBoardHexID({ ...newPieceCoords, altitude })
     const newPieceID = genPieceID(newBoardHexID, inventoryID, rotation)

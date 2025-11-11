@@ -36,9 +36,7 @@ function buildupBoardHexes(
     }
     return -1 // Move 'targetValue' to the end
   })
-  const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(
-    boardPiecesSortedByAltitude,
-  )
+  const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(boardPiecesSortedByAltitude)
   const newBoardHexes = piecesArray.reduce(
     (prev: BoardHexes, curr): BoardHexes => {
       const {
@@ -53,7 +51,7 @@ function buildupBoardHexes(
       }
       const pieceObject: BoardPiece = {
         uid: genPieceObjectUid(), // new unique instance id (e.g., 'bp_abc123' or uuid/v4/nanoid)
-        inventoryID: 'g1',
+        inventoryID,
         altitude,
         rotation,
         pieceCoords,
