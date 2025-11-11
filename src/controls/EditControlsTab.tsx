@@ -5,12 +5,8 @@ import {
   Card,
   CardContent,
   List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Typography,
 } from '@mui/material'
-import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
 import type { BoardPieces } from '../types'
 import {
@@ -18,7 +14,6 @@ import {
   MAX_RECTANGLE_MAP_DIMENSION,
 } from '../utils/constants'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
-import { decodePieceID, genBoardHexID, genPieceID } from '../utils/map-utils'
 import { FcVlc } from 'react-icons/fc'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
@@ -26,20 +21,13 @@ import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 const shiftInDirectionBoardPieces = (
   direction: number,
   boardPieces: BoardPieces,
-) => {
-  const newBoardPieces = boardPieces.map((bp) => {
-    const {
-      inventoryID,
-      altitude,
-      rotation,
-      pieceCoords,
-    } = bp
-    const newPieceCoords = hexUtilsAdd(pieceCoords, HEX_DIRECTIONS[direction])
-    const newBoardHexID = genBoardHexID({ ...newPieceCoords, altitude })
-    const newPieceID = genPieceID(newBoardHexID, inventoryID, rotation)
-    return newPieceID
+): BoardPieces => {
+  return boardPieces.map((bp) => {
+    return {
+      ...bp,
+      pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction])
+    }
   })
-  return newBoardPieces
 }
 export const EditControlsTab = () => {
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -94,8 +82,7 @@ export const EditControlsTab = () => {
   // }
   const movePieces = (direction: number) => {
     const newBoardPieces = shiftInDirectionBoardPieces(direction, boardPieces)
-    const newMap = buildupJsonFileMap(newBoardPieces, hexMap)
-    loadMap(newMap)
+    loadMap({ boardPieces: newBoardPieces, hexMap })
   }
   const handleClickAddMapLengthX = () => {
     const newHexMap = {
@@ -104,16 +91,14 @@ export const EditControlsTab = () => {
       width: hexMap.shape === 'hexagon' ? hexMap.width + 1 : hexMap.width,
     }
     if (hexMap.shape !== 'hexagon') {
-      const newMap = buildupJsonFileMap(boardPieces, newHexMap)
-      loadMap(newMap)
+      loadMap({ boardPieces, hexMap: newHexMap })
     } else {
       const shiftedEastPieces = shiftInDirectionBoardPieces(0, boardPieces)
       const shiftedSouthEastPieces = shiftInDirectionBoardPieces(
         1,
         shiftedEastPieces,
       )
-      const newMap = buildupJsonFileMap(shiftedSouthEastPieces, newHexMap)
-      loadMap(newMap)
+      loadMap({ boardPieces: shiftedSouthEastPieces, hexMap: newHexMap })
     }
   }
   const handleClickRemoveMapLengthX = () => {
@@ -123,16 +108,14 @@ export const EditControlsTab = () => {
       width: hexMap.shape !== 'hexagon' ? hexMap.width : hexMap.width - 1,
     }
     if (hexMap.shape !== 'hexagon') {
-      const newMap = buildupJsonFileMap(boardPieces, newHexMap)
-      loadMap(newMap)
+      loadMap({ boardPieces, hexMap: newHexMap })
     } else {
       const shiftedWestPieces = shiftInDirectionBoardPieces(3, boardPieces)
       const shiftedNorthWestPieces = shiftInDirectionBoardPieces(
         4,
         shiftedWestPieces,
       )
-      const newMap = buildupJsonFileMap(shiftedNorthWestPieces, newHexMap)
-      loadMap(newMap)
+      loadMap({ boardPieces: shiftedNorthWestPieces, hexMap: newHexMap })
     }
   }
   const handleClickAddMapWidthY = () => {
@@ -142,16 +125,14 @@ export const EditControlsTab = () => {
       length: hexMap.shape === 'hexagon' ? hexMap.length + 1 : hexMap.length,
     }
     if (hexMap.shape !== 'hexagon') {
-      const newMap = buildupJsonFileMap(boardPieces, newHexMap)
-      loadMap(newMap)
+      loadMap({ boardPieces, hexMap: newHexMap })
     } else {
       const shiftedEastPieces = shiftInDirectionBoardPieces(0, boardPieces)
       const shiftedSouthEastPieces = shiftInDirectionBoardPieces(
         1,
         shiftedEastPieces,
       )
-      const newMap = buildupJsonFileMap(shiftedSouthEastPieces, newHexMap)
-      loadMap(newMap)
+      loadMap({ boardPieces: shiftedSouthEastPieces, hexMap: newHexMap })
     }
   }
   const handleClickRemoveMapWidthY = () => {
@@ -161,16 +142,14 @@ export const EditControlsTab = () => {
       length: hexMap.shape !== 'hexagon' ? hexMap.length : hexMap.length - 1,
     }
     if (hexMap.shape !== 'hexagon') {
-      const newMap = buildupJsonFileMap(boardPieces, newHexMap)
-      loadMap(newMap)
+      loadMap({ boardPieces, hexMap: newHexMap })
     } else {
       const shiftedWestPieces = shiftInDirectionBoardPieces(3, boardPieces)
       const shiftedNorthWestPieces = shiftInDirectionBoardPieces(
         4,
         shiftedWestPieces,
       )
-      const newMap = buildupJsonFileMap(shiftedNorthWestPieces, newHexMap)
-      loadMap(newMap)
+      loadMap({ boardPieces: shiftedNorthWestPieces, hexMap: newHexMap })
     }
   }
   const buttonFontSize = isSmallScreenWidth ? 8 : isMediumScreenWidth ? 8 : 8

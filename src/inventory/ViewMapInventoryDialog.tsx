@@ -4,7 +4,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Icon,
   useMediaQuery,
 } from '@mui/material'
 import React from 'react'
@@ -12,14 +11,12 @@ import { DIALOGS } from '../layout/dialogNames'
 import useBoundStore from '../store/store'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import { Box } from '@mui/system'
-import { FcBiohazard } from 'react-icons/fc'
 import { piecesSoFar } from '../data/pieces'
 import { yellow } from '@mui/material/colors'
-import { decodePieceID } from '../utils/map-utils'
+import type { BoardPieces } from '../types'
 
 const ViewMapInventoryDialog = () => {
   const fullScreen = useMediaQuery('(max-width:900px)')
-  // const fullScreen = true
   const toggleIsNewMapDialogOpen = useBoundStore(
     (state) => state.toggleIsNewMapDialogOpen,
   )
@@ -44,10 +41,10 @@ const ViewMapInventoryDialog = () => {
   }
 
   // Count pieces used in the map
-  function countPiecesUsed(boardPieces: string[]): Record<string, number> {
+  function countPiecesUsed(boardPieces: BoardPieces): Record<string, number> {
     const used: Record<string, number> = {}
-    for (const pieceID of boardPieces) {
-      const inventoryID = decodePieceID(pieceID).inventoryID
+    for (const piece of boardPieces) {
+      const inventoryID = piece.inventoryID
       used[inventoryID] = (used?.[inventoryID] ?? 0) + 1
     }
     return used

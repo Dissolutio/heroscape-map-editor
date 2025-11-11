@@ -3,12 +3,11 @@ import type { StateCreator } from 'zustand'
 import type {
   BoardHexes,
   BoardPiece,
-  MapFileState,
   MapState,
 } from '../types'
 import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
-import { normalizeBoardPieces } from '../utils/map-utils'
+import { inflateBoardPiecesFromIds, normalizeBoardPieces } from '../utils/map-utils'
 
 export interface MapSlice extends MapState {
   boardHexes: BoardHexes
@@ -22,22 +21,46 @@ export interface MapSlice extends MapState {
   changeAuthorName: (val: string) => void
   changeMapNotes: (val: string) => void
 }
+function isPlainObject(value: unknown) {
+  return Object.prototype.toString.call(value) === '[object Object]';
+}
+function loadMapFromLocalStorage(): MapState | null {
+  try {
+    const raw = localStorage.getItem(LS_KEYS.lastMap)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (!parsed) return null
+
+    // handle legacy format where map stored boardPieces as {[pieceID: string]: string}
+    if (isPlainObject(parsed.boardPieces) && Object.keys(parsed.boardPieces).length && typeof Object.keys(parsed.boardPieces)[0] === 'string') {
+      const migrated1 = inflateBoardPiecesFromIds(normalizeBoardPieces(parsed.boardPieces))
+      // optionally re-save migrated shape
+      return { hexMap: parsed.hexMap, boardPieces: migrated1 }
+    }
+    // handle legacy format where map stored boardPieces as string[]
+    if (Array.isArray(parsed.boardPieces) && parsed.boardPieces.length && typeof parsed.boardPieces[0] === 'string') {
+      const migrated2 = inflateBoardPiecesFromIds(parsed.boardPieces as string[])
+      return { hexMap: parsed.hexMap, boardPieces: migrated2 }
+    }
+
+    // already new shape
+    return { hexMap: parsed.hexMap, boardPieces: parsed.boardPieces }
+  } catch (e) {
+    console.warn('Failed loading last map from localStorage', e)
+    return null
+  }
+}
 
 // Here, we duplicate lastMap in case the user is loading a URL, which will immediately overwrite lastMap,
 // we can offer them the chance to load their last map instead of the URL (in useAutoLoadMapFile.tsx)
-let localLastMap: { state: MapFileState } | undefined
-if (localStorage.getItem(LS_KEYS.lastMap)) {
-  localLastMap = JSON.parse(localStorage?.getItem(LS_KEYS.lastMap) ?? '{}')
-  if (localLastMap?.state) {
-    localStorage.setItem(
-      LS_KEYS.lastMapCache,
-      JSON.stringify({
-        ...localLastMap.state,
-        boardPieces: normalizeBoardPieces(localLastMap.state.boardPieces),
-      }),
-    )
-  }
+const localLastMap = loadMapFromLocalStorage()
+if (localLastMap) {
+  localStorage.setItem(
+    LS_KEYS.lastMapCache,
+    JSON.stringify(localLastMap),
+  )
 }
+
 
 const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   boardHexes: {},

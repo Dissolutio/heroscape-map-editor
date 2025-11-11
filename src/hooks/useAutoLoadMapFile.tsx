@@ -1,9 +1,8 @@
 import { closeSnackbar, useSnackbar } from 'notistack'
 import React, { useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
-import { buildupVSFileMap, buildupJsonFileMap } from '../data/buildupMap'
+import { buildupVSFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import type { BoardHexes } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
   getBoardPiecesMaxLevel,
@@ -54,7 +53,7 @@ const useAutoLoadMapFile = () => {
         const { hexMap, boardPieces } =
           parseMapDataArrayFromCrushed(urlMapString)
         const fullBoardPieces = inflateBoardPiecesFromIds(boardPieces)
-        const jsonMap = buildupJsonFileMap(fullBoardPieces, hexMap)
+        const jsonMap = { boardPieces: fullBoardPieces, hexMap }
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
         }

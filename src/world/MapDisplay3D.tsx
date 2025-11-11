@@ -94,7 +94,7 @@ export default function MapDisplay3D({
     }
     const pieceObject: BoardPiece = {
       uid: genPieceObjectUid(), // new unique instance id (e.g., 'bp_abc123' or uuid/v4/nanoid)
-      inventoryID: 'g1',
+      inventoryID: pieceData.id,
       altitude: hex.altitude,
       rotation: penModeRotation,
       pieceCoords: clickedHexCoords

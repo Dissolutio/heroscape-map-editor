@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react'
 import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
 import { useLocation } from 'wouter'
 import { ROUTES } from '../ROUTES'
-import { buildupVSFileMap, buildupJsonFileMap } from '../data/buildupMap'
+import { buildupVSFileMap } from '../data/buildupMap'
 import { readVirtualscapeMapFile } from '../data/readVirtualscapeMapFile'
 import useBoundStore from '../store/store'
 import type { MapFileState, PieceInventory } from '../types'
@@ -42,10 +42,10 @@ export const LoadFileHiddenInputs = () => {
     try {
       const data = await readGzipMapFile(file)
       const boardPieces = inflateBoardPiecesFromIds(normalizeBoardPieces(data.boardPieces))
-      const jsonMap = buildupJsonFileMap(
+      const jsonMap = {
         boardPieces,
-        data.hexMap,
-      )
+        hexMap: data.hexMap,
+      }
       if (!jsonMap.hexMap.name) {
         jsonMap.hexMap.name = file.name
       }
@@ -79,10 +79,10 @@ export const LoadFileHiddenInputs = () => {
     try {
       const data = await new Response(file).json()
       const boardPieces = inflateBoardPiecesFromIds(normalizeBoardPieces(data.boardPieces))
-      const jsonMap = buildupJsonFileMap(
+      const jsonMap = {
         boardPieces,
-        data.hexMap,
-      )
+        hexMap: data.hexMap,
+      }
       if (!jsonMap.hexMap.name) {
         jsonMap.hexMap.name = file.name
       }

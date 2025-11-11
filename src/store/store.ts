@@ -20,7 +20,6 @@ const useBoundStore = create<AppState>()(
         // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
         partialize: (state) => {
           return {
-            // boardHexes: state.boardHexes,
             boardPieces: state.boardPieces,
             hexMap: state.hexMap,
           }
@@ -34,14 +33,14 @@ const useBoundStore = create<AppState>()(
       // onSave: (state) => console.log('saved', state),
       partialize: (state) => {
         return {
-          boardHexes: state.boardHexes,
+          // boardHexes: state.boardHexes,
           boardPieces: state.boardPieces,
           hexMap: state.hexMap,
           viewingLevel: state.viewingLevel,
         }
       },
       equality: (pastState, currentState) =>
-        isEqual(pastState.boardHexes, currentState.boardHexes) &&
+        // isEqual(pastState.boardHexes, currentState.boardHexes) &&
         isEqual(pastState.boardPieces, currentState.boardPieces) &&
         isEqual(pastState.hexMap, currentState.hexMap),
     },

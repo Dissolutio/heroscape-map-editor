@@ -1,16 +1,11 @@
-import { clone } from 'lodash'
-import {
-  type BoardHexes,
-  type BoardPieces,
-  type BoardPiecesEncodedArr,
-  type HexMap,
-  type MapState,
-  Pieces,
-  type VirtualScapeTile,
+import type {
+  BoardPieces,
+  HexMap,
+  MapState,
+  VirtualScapeTile,
 } from '../types'
 import { hexUtilsOddRToCube } from '../utils/hex-utils'
-import { decodePieceID, generateMapID, genPieceObjectUid } from '../utils/map-utils'
-import { addPiece } from './addPiece'
+import { generateMapID, genPieceObjectUid } from '../utils/map-utils'
 import { pieceCodes } from './pieceCodes'
 import { piecesSoFar } from './pieces'
 import { getCodeForVSPersonalTile } from './readVirtualscapeMapFile'
@@ -48,74 +43,6 @@ export function buildupVSFileMap(
   return {
     boardPieces: vsTilesAsBoardPieces,
     hexMap
-  }
-}
-function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: BoardPieces) {
-  // adding the laur addons will only work if pillars are already down
-  return arr.sort((a, b) => {
-    const aPieceID = a.inventoryID
-    const bPieceID = b.inventoryID
-    if (
-      aPieceID === Pieces.laurWallRuin1 ||
-      aPieceID === Pieces.laurWallLong ||
-      aPieceID === Pieces.laurWallShort ||
-      aPieceID === Pieces.ladder ||
-      aPieceID === Pieces.battlement
-    ) {
-      return 1 // Move 'targetValue' to the end
-    }
-    if (
-      bPieceID === Pieces.laurWallRuin1 ||
-      bPieceID === Pieces.laurWallLong ||
-      bPieceID === Pieces.laurWallShort ||
-      aPieceID === Pieces.ladder ||
-      aPieceID === Pieces.battlement
-    ) {
-      return -1 // Move 'targetValue' to the end
-    }
-    return 0 // Maintain original order
-  })
-}
-export function buildupJsonFileMap(
-  boardPieces: BoardPieces,
-  hexMap: HexMap,
-): MapState {
-  // For JSON maps, the map dimensions are free, we do not have to compute them
-  const initialBoardPieces = clone(boardPieces)
-  const boardPiecesSortedByAltitude = initialBoardPieces.sort((a, b) => {
-    if (decodePieceID(a).altitude > decodePieceID(b).altitude) {
-      return 1 // Move 'targetValue' to the end
-    }
-    return -1 // Move 'targetValue' to the end
-  })
-  const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(
-    boardPiecesSortedByAltitude,
-  )
-  const finalBoardPieces = piecesArray.map(
-    (bp) => {
-      const piece = piecesSoFar[bp.inventoryID]
-      if (!piece) {
-        return // Should probably handle this different, errors etc.
-      }
-      return {
-
-      }
-      // get the new board hexes and new board pieces
-      // const { newBoardHexes, newBoardPieces } = addPiece({
-      //   piece,
-      //   boardHexes: prev,
-      //   boardPieces: finalBoardPieces,
-      //   pieceCoords,
-      //   placementAltitude: placementAltitude, // z is altitude is virtualscape, y is altitude in our app
-      //   rotation: rotation,
-      //   isVsTile: false,
-      // })
-    }
-  )
-
-  return {
-    hexMap: hexMap,
-    boardPieces: finalBoardPieces,
   }
 }
 function getHexMapForVSTiles(
