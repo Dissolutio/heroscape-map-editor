@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import useBoundStore from '../store/store'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import {
-  decodePieceID,
   getBoardHexesSvgMapDimensions,
 } from '../utils/map-utils'
 import { SvgMapHex } from './SvgMapHex'
@@ -17,9 +16,6 @@ export const SvgMapDisplay = () => {
     return s.boardPieces
   })
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const decodedBoardPiecesArr = boardPieces
-    .map((id) => decodePieceID(id))
-    .filter((p) => Boolean(p))
   const hexMap = useBoundStore((state) => state.hexMap)
   const mapDimensions = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesArr = Object.values(boardHexes)
@@ -68,12 +64,12 @@ export const SvgMapDisplay = () => {
         {boardHexesArr.map((hex) => (
           <SvgMapHex key={hex.id} hex={hex} />
         ))}
-        {decodedBoardPiecesArr
+        {boardPieces
           .filter((bp) => bp.altitude <= viewingLevel)
           .sort((a, b) => a.altitude - b.altitude)
           .map((bp) => (
             <SvgMapBoardPiece
-              key={bp.boardPieceID}
+              key={bp.uid}
               piece={bp}
               viewingLevel={viewingLevel}
             />

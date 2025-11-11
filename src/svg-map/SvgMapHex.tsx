@@ -623,42 +623,47 @@ const SvgCastleWallBaseHeightText = ({
 }
 
 const SvgRoadDecor = () => {
-  return (
-    <>
-      {/* Big bottom left blob */}
-      <path
-        style={{
-          transform: 'translate(-22,17),scale(0.025),rotate(40)',
-        }}
-        fill="black"
-        d={roadDecorBlobs.bigBottomLeft}
-      />
-      {/* Big top right blob */}
-      <path
-        style={{
-          transform: 'translate(13,-18),scale(0.025),rotate(160)',
-        }}
-        fill="black"
-        d={roadDecorBlobs.bigUpperRight}
-      />
+  return null
+  // return (
+  //   <>
+  //     {/* Big bottom left blob */}
+  //     <path
+  //       scale={0.25}
+  //       style={{
+  //         transform: 'translate(-22,17),rotate(40)',
+  //       }}
+  //       fill="black"
+  //       d={roadDecorBlobs.bigBottomLeft}
+  //     />
+  //     {/* Big top right blob */}
+  //     <path
+  //       scale={0.25}
+  //       style={{
+  //         transform: 'translate(13,-18),rotate(160)',
+  //       }}
+  //       fill="black"
+  //       d={roadDecorBlobs.bigUpperRight}
+  //     />
 
-      {/* Small upper left blob */}
-      <path
-        style={{
-          transform: 'translate(-15,-22),scale(0.019),rotate(70)',
-        }}
-        fill="black"
-        d={roadDecorBlobs.smallUpperLeft}
-      />
+  //     {/* Small upper left blob */}
+  //     <path
+  //       scale={0.19}
+  //       style={{
+  //         transform: 'translate(-15,-22),rotate(70)',
+  //       }}
+  //       fill="black"
+  //       d={roadDecorBlobs.smallUpperLeft}
+  //     />
 
-      {/* Small bottom right blob */}
-      <path
-        style={{
-          transform: 'translate(17,18),scale(0.017),rotate(220)',
-        }}
-        fill="black"
-        d={roadDecorBlobs.smallBottomRight}
-      />
-    </>
-  )
+  //     {/* Small bottom right blob */}
+  //     <path
+  //       scale={0.17}
+  //       style={{
+  //         transform: 'translate(17,18),rotate(220)',
+  //       }}
+  //       fill="black"
+  //       d={roadDecorBlobs.smallBottomRight}
+  //     />
+  //   </>
+  // )
 }

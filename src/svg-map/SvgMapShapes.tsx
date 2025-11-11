@@ -48,7 +48,7 @@ import {
 } from '../svg-map/getSvgHexColors'
 import {
   type BoardHex,
-  type DecodedPieceID,
+  type BoardPiece,
   HexTerrain,
   Pieces,
 } from '../types'
@@ -882,7 +882,7 @@ export const SvgBoardPieceLaurWallShort = ({
   piece,
   isSubLevel,
 }: {
-  piece: DecodedPieceID
+  piece: BoardPiece
   isSubLevel?: boolean
 }) => {
   const fillColor = isSubLevel
@@ -895,7 +895,7 @@ export const SvgBoardPieceLaurWallLong = ({
   piece,
   isSubLevel,
 }: {
-  piece: DecodedPieceID
+  piece: BoardPiece
   isSubLevel?: boolean
 }) => {
   const fillColor = isSubLevel
@@ -908,7 +908,7 @@ export const SvgBoardPieceLaurWallLongArch = ({
   piece,
   isSubLevel,
 }: {
-  piece: DecodedPieceID
+  piece: BoardPiece
   isSubLevel?: boolean
 }) => {
   const fillColor = isSubLevel
@@ -921,7 +921,7 @@ export const SvgBoardPieceLaurWallRuin = ({
   piece,
   isSubLevel,
 }: {
-  piece: DecodedPieceID
+  piece: BoardPiece
   isSubLevel?: boolean
 }) => {
   const fillColor = isSubLevel
@@ -934,7 +934,7 @@ export const SvgRoadWall = ({
   piece,
   isSubLevel,
 }: {
-  piece: DecodedPieceID
+  piece: BoardPiece
   isSubLevel?: boolean
 }) => {
   const fillColor = isSubLevel
@@ -948,7 +948,7 @@ export const SvgBattlement = ({
   piece,
   isSubLevel,
 }: {
-  piece: DecodedPieceID
+  piece: BoardPiece
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(piece)

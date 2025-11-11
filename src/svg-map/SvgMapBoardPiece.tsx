@@ -1,4 +1,4 @@
-import { type DecodedPieceID, Pieces } from '../types'
+import { type BoardPiece, Pieces } from '../types'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import { SvgLaurWallArchText } from './SvgMapHex'
 import {
@@ -13,7 +13,7 @@ import {
 export const SvgMapBoardPiece = ({
   piece,
   viewingLevel,
-}: { piece: DecodedPieceID; viewingLevel: number }) => {
+}: { piece: BoardPiece; viewingLevel: number }) => {
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
   const isSubLevel = altitudeAdjusted < viewingLevel
