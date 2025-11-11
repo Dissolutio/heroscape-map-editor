@@ -7,6 +7,7 @@ import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
 const SelectedPieceReadout = () => {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
   const {
     // isLargeScreenWidth,
     isSmallScreenWidth,
@@ -15,13 +16,14 @@ const SelectedPieceReadout = () => {
   if (!selectedPieceID) {
     return null
   }
+  const pieceByUid = boardPieces.find(bp => bp.uid === selectedPieceID)
   const {
     inventoryID,
     altitude,
     rotation,
     // boardHexID,
     // pieceCoords
-  } = decodePieceID(selectedPieceID)
+  } = pieceByUid ? pieceByUid : decodePieceID(selectedPieceID)
   const piece = piecesSoFar[inventoryID]
 
   if (isSmallScreenWidth) {

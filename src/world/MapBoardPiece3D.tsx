@@ -65,9 +65,14 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <LaurWallAddon
+          onPointerUp={onPointerUp}
           boardPiece={boardPiece}
           color={hexTerrainColor[HexTerrain.laurWall]}
           secondaryColor={hexTerrainColor.laurModelColor2}
+          opacity={1}
+          selectedPieceID={selectedPieceID}
+          hoveredPieceID={hoveredPieceID}
+          isLightsAndShadowsRender={isLightsAndShadowsRender}
         />
       </group>
     )

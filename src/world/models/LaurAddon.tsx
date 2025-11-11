@@ -3,6 +3,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import { type BoardPiece, Pieces } from '../../types'
 import { basicModelMaterial } from './materials'
+import { encodeBoardPieces } from '../../utils/map-utils'
 
 export function LaurWallAddon({
   color,
@@ -39,16 +40,20 @@ export function LaurWallAddon({
     nodes: { LaurWallLongArch },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   } = useGLTF('/laurwall-long-arch.glb') as any
-  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
-  const isSelected = selectedPieceID === boardPiece?.uid
+  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
+  const isSelected = selectedPieceID === boardPiece?.uid || (boardPiece && selectedPieceID === encodeBoardPieces([boardPiece])[0])
   const isHighlighted = hoveredPieceID === boardPiece?.uid || isSelected
   const currentColor = isHighlighted
     ? 'yellow'
     : color
+  const currentSecondaryColor = isHighlighted
+    ? 'yellow'
+    : secondaryColor
   const opacityLevel = opacity ?? 1
+  const currentScale = isHighlighted ? [1.01, 1.01, 1.01] : [1, 1, 1]
   const interactivityProps = onPointerUp && boardPiece ? {
     onPointerUp: (e: ThreeEvent<PointerEvent>) => onPointerUp(e, boardPiece),
-    onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterPiece(e, boardPiece.uid),
+    onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterBoardPiece(e, boardPiece.uid),
     onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
   } : {}
   return (
@@ -59,22 +64,24 @@ export function LaurWallAddon({
       {/* {boardPiece?.inventoryID === Pieces.laurWallRuin2 && ()} */}
       {/* {boardPiece?.inventoryID === Pieces.laurWallRuin3 && ()} */}
       {boardPiece?.inventoryID === Pieces.laurWallRuin1 && (
-        <>
+        <group
+          scale={currentScale}
+        >
           <mesh
             receiveShadow={isLightsAndShadowsRender}
             castShadow={isLightsAndShadowsRender}
             geometry={LaurWallRuin.geometry}
           >
-            {basicModelMaterial(color, !!isLightsAndShadowsRender, opacityLevel)}
+            {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacityLevel)}
           </mesh>
           <mesh
             receiveShadow={isLightsAndShadowsRender}
             castShadow={isLightsAndShadowsRender}
             geometry={LaurWallRuinBustedConcrete.geometry}
           >
-            {basicModelMaterial(secondaryColor, !!isLightsAndShadowsRender, opacityLevel)}
+            {basicModelMaterial(currentSecondaryColor, !!isLightsAndShadowsRender, opacityLevel)}
           </mesh>
-        </>
+        </group>
       )}
       {/* LAUR WALL SHORT */}
       {/* {inventoryID === Pieces.laurWallShortStackable && ()} */}
@@ -85,14 +92,14 @@ export function LaurWallAddon({
             castShadow={isLightsAndShadowsRender}
             geometry={LaurWallShort.geometry}
           >
-            {basicModelMaterial(color, !!isLightsAndShadowsRender, opacityLevel)}
+            {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacityLevel)}
           </mesh>
           <mesh
             receiveShadow={isLightsAndShadowsRender}
             castShadow={isLightsAndShadowsRender}
             geometry={LaurWallShortDecorDeep.geometry}
           >
-            {basicModelMaterial(secondaryColor, !!isLightsAndShadowsRender, opacityLevel)}
+            {basicModelMaterial(currentSecondaryColor, !!isLightsAndShadowsRender, opacityLevel)}
           </mesh>
         </>
       )}
@@ -105,14 +112,14 @@ export function LaurWallAddon({
             castShadow={isLightsAndShadowsRender}
             geometry={LaurWallLong.geometry}
           >
-            {basicModelMaterial(color, !!isLightsAndShadowsRender, opacityLevel)}
+            {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacityLevel)}
           </mesh>
           <mesh
             receiveShadow={isLightsAndShadowsRender}
             castShadow={isLightsAndShadowsRender}
             geometry={LaurWallLongDecorDeep.geometry}
           >
-            {basicModelMaterial(secondaryColor, !!isLightsAndShadowsRender, opacityLevel)}
+            {basicModelMaterial(currentSecondaryColor, !!isLightsAndShadowsRender, opacityLevel)}
           </mesh>
         </>
       )}

@@ -3,6 +3,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import type { BoardPiece } from '../../types'
 import { basicModelMaterial } from './materials'
+import { encodeBoardPieces } from '../../utils/map-utils'
 
 export function RoadWall({
   color,
@@ -23,8 +24,8 @@ export function RoadWall({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/handmade-roadwall.glb') as any
-  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
-  const isSelected = selectedPieceID === boardPiece?.uid
+  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
+  const isSelected = selectedPieceID === boardPiece?.uid || (boardPiece && selectedPieceID === encodeBoardPieces([boardPiece])[0])
   const isHighlighted = hoveredPieceID === boardPiece?.uid || isSelected
   const currentColor = isHighlighted
     ? 'yellow'
@@ -32,20 +33,19 @@ export function RoadWall({
   const opacityLevel = opacity ?? 1
   const interactivityProps = onPointerUp && boardPiece ? {
     onPointerUp: (e: ThreeEvent<PointerEvent>) => onPointerUp(e, boardPiece),
-    onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterPiece(e, boardPiece.uid),
+    onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterBoardPiece(e, boardPiece.uid),
     onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
   } : {}
   return (
-    <>
-      <mesh
-        receiveShadow
-        castShadow
-        geometry={nodes.RoadWall.geometry}
-        {...interactivityProps}
-      >
-        {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacityLevel)}
-      </mesh>
-    </>
+    <mesh
+      receiveShadow
+      castShadow
+      geometry={nodes.RoadWall.geometry}
+      scale={isHighlighted ? [1.1, 1.1, 1.1] : [1, 1, 1]}
+      {...interactivityProps}
+    >
+      {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacityLevel)}
+    </mesh>
   )
 }
 useGLTF.preload('/handmade-roadwall.glb')

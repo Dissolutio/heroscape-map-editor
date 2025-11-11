@@ -1388,7 +1388,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.roadWall]: {
     id: Pieces.roadWall,
-    title: 'Stone Wall',
+    title: 'Short Wall',
     terrain: HexTerrain.roadWall,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
