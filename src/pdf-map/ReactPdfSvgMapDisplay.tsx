@@ -1,5 +1,5 @@
 import { Line, Svg } from '@react-pdf/renderer'
-import type { BoardHex, DecodedPieceID, PdfMapAltitudeChunk } from '../types'
+import type { BoardHex, BoardPieces, DecodedPieceID, PdfMapAltitudeChunk } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { PdfMapHex } from './PdfMapHex'
 import { PdfMapBoardPiece } from './PdfMapBoardPiece'
@@ -8,7 +8,7 @@ type ReactPdfSvgMapDisplayProps = {
   width: number
   length: number
   boardHexesArr: BoardHex[]
-  boardPiecesArr: DecodedPieceID[]
+  boardPiecesArr: BoardPieces
   viewingLevel: number
   chunk?: PdfMapAltitudeChunk
 }
@@ -52,7 +52,7 @@ export const ReactPdfSvgMapDisplay = ({
         .sort((a, b) => a.altitude - b.altitude)
         .map((bp) => (
           <PdfMapBoardPiece
-            key={bp.boardPieceID}
+            key={bp.uid}
             piece={bp}
             viewingLevel={viewingLevel}
           />
@@ -60,6 +60,7 @@ export const ReactPdfSvgMapDisplay = ({
     </Svg>
   )
 }
+
 // const PdfSvgXYHelperLines = ({
 //   length,
 //   width,

@@ -3,6 +3,7 @@ import { groupBy, keyBy } from 'lodash'
 import type { PropsWithChildren } from 'react'
 import {
   type BoardHexes,
+  type BoardPieces,
   type BoardPiecesEncodedArr,
   type PdfMapAltitudeChunk,
   Pieces,
@@ -17,7 +18,7 @@ export const PdfMapLevels6PerPage = ({
   boardHexes,
   boardPieces,
   children,
-}: PropsWithChildren<{ boardHexes: BoardHexes; boardPieces: BoardPiecesEncodedArr }>) => {
+}: PropsWithChildren<{ boardHexes: BoardHexes; boardPieces: BoardPieces }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesWithoutEmpties = keyBy(
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
@@ -27,9 +28,6 @@ export const PdfMapLevels6PerPage = ({
     boardHexesWithoutEmpties,
     boardPieces,
   )
-  const decodedBoardPiecesArr = boardPieces
-    .map((id) => decodePieceID(id))
-    .filter((p) => Boolean(p))
   return (
     <>
       {boardHexAndPieceChunks.map((chunk, i) => (
@@ -61,7 +59,7 @@ export const PdfMapLevels6PerPage = ({
                     </Text>
                     <ReactPdfSvgMapDisplay
                       chunk={chunk[i]}
-                      boardPiecesArr={decodedBoardPiecesArr}
+                      boardPiecesArr={boardPieces}
                       boardHexesArr={Object.values(boardHexes)}
                       width={width}
                       length={length}
@@ -83,7 +81,7 @@ export const PdfMapLevels6PerPage = ({
                     </Text>
                     <ReactPdfSvgMapDisplay
                       chunk={chunk[i]}
-                      boardPiecesArr={decodedBoardPiecesArr}
+                      boardPiecesArr={boardPieces}
                       boardHexesArr={Object.values(boardHexes)}
                       width={width}
                       length={length}
@@ -102,23 +100,21 @@ export const PdfMapLevels6PerPage = ({
 
 const getBoardHexAndPieceChunks = (
   boardHexes: BoardHexes,
-  boardPieces: BoardPiecesEncodedArr,
+  boardPieces: BoardPieces,
 ): PdfMapAltitudeChunk[][] => {
   const filteredBoardHexes = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
   )
   const filteredBoardPieces = boardPieces
-    .filter((pieceID) => {
-      const id = decodePieceID(pieceID).inventoryID
+    .filter((bp) => {
       return (
-        id === Pieces.battlement ||
-        id === Pieces.roadWall ||
-        id === Pieces.laurWallLong ||
-        id === Pieces.laurWallShort ||
-        id === Pieces.laurWallRuin1
+        bp.inventoryID === Pieces.battlement ||
+        bp.inventoryID === Pieces.roadWall ||
+        bp.inventoryID === Pieces.laurWallLong ||
+        bp.inventoryID === Pieces.laurWallShort ||
+        bp.inventoryID === Pieces.laurWallRuin1
       )
     })
-    .map((pieceID) => decodePieceID(pieceID))
 
   // Group hexes and pieces by altitude
   const groupedHexesByAltitude = groupBy(filteredBoardHexes, 'altitude')

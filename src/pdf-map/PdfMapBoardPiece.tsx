@@ -1,5 +1,5 @@
 import { G } from '@react-pdf/renderer'
-import { type DecodedPieceID, Pieces } from '../types'
+import { type BoardPiece, Pieces } from '../types'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   PdfBattlement,
@@ -13,7 +13,7 @@ import {
 export const PdfMapBoardPiece = ({
   piece,
   viewingLevel,
-}: { piece: DecodedPieceID; viewingLevel: number }) => {
+}: { piece: BoardPiece; viewingLevel: number }) => {
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
   const isSubLevel = altitudeAdjusted < viewingLevel
@@ -34,8 +34,6 @@ export const PdfMapBoardPiece = ({
       </G>
     )
   }
-
-  // LADDERS
 
   // ROADWALLS
   if (inventoryID === Pieces.roadWall) {

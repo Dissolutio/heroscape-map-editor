@@ -36,7 +36,7 @@ import {
 } from '../svg-map/getSvgHexColors'
 import {
   type BoardHex,
-  type DecodedPieceID,
+  type BoardPiece,
   HexTerrain,
   Pieces,
 } from '../types'
@@ -926,7 +926,7 @@ export const PdfBoardPieceLaurWallShort = ({
   piece,
   isSubLevel,
 }: {
-  piece: DecodedPieceID
+  piece: BoardPiece
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(piece)
@@ -951,7 +951,7 @@ export const PdfBoardPieceLaurWallLong = ({
   piece,
   isSubLevel,
 }: {
-  piece: DecodedPieceID
+  piece: BoardPiece
   isSubLevel?: boolean
 }) => {
   const borderColor = getSvgHexBorderColor(piece)
@@ -976,7 +976,7 @@ export const PdfBoardPieceLaurWallLongArch = ({
   piece,
   isSubLevel,
 }: {
-  piece: DecodedPieceID
+  piece: BoardPiece
   isSubLevel?: boolean
 }) => {
   const borderColor = getSvgHexBorderColor(piece)
@@ -1001,7 +1001,7 @@ export const PdfBoardPieceLaurWallRuin = ({
   piece,
   isSubLevel,
 }: {
-  piece: DecodedPieceID
+  piece: BoardPiece
   isSubLevel?: boolean
 }) => {
   const borderColor = getSvgHexBorderColor(piece)
@@ -1026,7 +1026,7 @@ export const PdfRoadWall = ({
   piece,
   isSubLevel,
 }: {
-  piece: DecodedPieceID
+  piece: BoardPiece
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(piece)
@@ -1055,7 +1055,7 @@ export const PdfBattlement = ({
   piece,
   isSubLevel,
 }: {
-  piece: DecodedPieceID
+  piece: BoardPiece
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(piece)

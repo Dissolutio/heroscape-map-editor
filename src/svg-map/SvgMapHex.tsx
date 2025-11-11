@@ -1,4 +1,5 @@
 import { piecesSoFar } from '../data/pieces'
+import { roadDecorBlobs } from '../pdf-svg-shared/road-decor-blobs'
 import useBoundStore from '../store/store'
 import { HexTerrain, Pieces, type BoardHex } from '../types'
 import {
@@ -345,7 +346,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
         <SvgMarvelRuin hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
@@ -619,5 +619,46 @@ const SvgCastleWallBaseHeightText = ({
     >
       {heightText}
     </text>
+  )
+}
+
+const SvgRoadDecor = () => {
+  return (
+    <>
+      {/* Big bottom left blob */}
+      <path
+        style={{
+          transform: 'translate(-22,17),scale(0.025),rotate(40)',
+        }}
+        fill="black"
+        d={roadDecorBlobs.bigBottomLeft}
+      />
+      {/* Big top right blob */}
+      <path
+        style={{
+          transform: 'translate(13,-18),scale(0.025),rotate(160)',
+        }}
+        fill="black"
+        d={roadDecorBlobs.bigUpperRight}
+      />
+
+      {/* Small upper left blob */}
+      <path
+        style={{
+          transform: 'translate(-15,-22),scale(0.019),rotate(70)',
+        }}
+        fill="black"
+        d={roadDecorBlobs.smallUpperLeft}
+      />
+
+      {/* Small bottom right blob */}
+      <path
+        style={{
+          transform: 'translate(17,18),scale(0.017),rotate(220)',
+        }}
+        fill="black"
+        d={roadDecorBlobs.smallBottomRight}
+      />
+    </>
   )
 }

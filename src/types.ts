@@ -345,7 +345,7 @@ export type VirtualScapeTile = {
 export type PdfMapAltitudeChunk = {
   altitude: number
   hexes: BoardHex[]
-  pieces: DecodedPieceID[]
+  pieces: BoardPieces
 }
 export type DecodedPieceID = {
   boardPieceID: string

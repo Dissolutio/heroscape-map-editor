@@ -1,7 +1,7 @@
 import { piecesSoFar } from '../data/pieces'
 import {
   type BoardHex,
-  type DecodedPieceID,
+  type BoardPiece,
   HexTerrain,
   type Piece,
   Pieces,
@@ -21,11 +21,12 @@ import {
   virtualscapeTileColors,
 } from '../world/maphex/hexColors'
 
-function isBoardHex(hex: BoardHex | DecodedPieceID): hex is BoardHex {
+function isBoardHex(hex: BoardHex | BoardPiece): hex is BoardHex {
   return (<BoardHex>hex).pieceRotation !== undefined
 }
 
-export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
+export const getSvgHexBorderColor = (hex: BoardHex | BoardPiece) => {
+  const terrain = piecesSoFar[hex.inventoryID].terrain
   // TODO: color: refactor this to be more direct
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
   if (hex.terrain === 'empty') {
@@ -80,16 +81,16 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   if (isJungleTerrainHex(hex.terrain)) {
     return svgColors.outlineJungle
   }
-  if (isEvergreenTree(hex.terrain)) {
+  if (isEvergreenTree(terrain)) {
     return svgColors.outlineTree
   }
   if (
-    hex.terrain === HexTerrain.laurWall ||
-    hex.terrain === HexTerrain.laurWallAddon
+    terrain === HexTerrain.laurWall ||
+    terrain === HexTerrain.laurWallAddon
   ) {
     return svgColors.outlineLaurWall
   }
-  if (hex.terrain === HexTerrain.glacier) {
+  if (terrain === HexTerrain.glacier) {
     return svgColors.outlineWater
   }
   if (hex.terrain === HexTerrain.outcrop) {
@@ -206,12 +207,12 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     hex.terrain === HexTerrain.ladder
   ) {
     return (
-      svgColors?.[hex.terrain as keyof typeof svgColors] ??
-      virtualscapeTileColors[hex.terrain as keyof typeof virtualscapeTileColors]
+      svgColors?.[terrain as keyof typeof svgColors] ??
+      virtualscapeTileColors[terrain as keyof typeof virtualscapeTileColors]
     )
   }
   // StartZone: virtualscape colors, might be other designs
-  if (hex.terrain === HexTerrain.startZone) {
+  if (terrain === HexTerrain.startZone) {
     return hexTerrainColor[hex.inventoryID as keyof typeof hexTerrainColor]
   }
   if (hex.terrain === HexTerrain.brush) {
@@ -224,19 +225,19 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     // Renegade shows brush and palm as same color
     return svgColors.fillJungle // renegade-hexoscape
   }
-  if (hex.terrain === HexTerrain.ruin) {
+  if (terrain === HexTerrain.ruin) {
     return svgColors.ruin
   }
-  if (isEvergreenTree(hex.terrain)) {
+  if (isEvergreenTree(terrain)) {
     return svgColors.tree
   }
-  if (hex.terrain === HexTerrain.hive) {
+  if (terrain === HexTerrain.hive) {
     return svgColors.swampWater
   }
-  if (hex.terrain === HexTerrain.glacier) {
+  if (terrain === HexTerrain.glacier) {
     return svgColors.ice
   }
-  if (hex.terrain === HexTerrain.outcrop) {
+  if (terrain === HexTerrain.outcrop) {
     return svgColors.outcrop
   }
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
