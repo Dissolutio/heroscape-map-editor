@@ -7,7 +7,7 @@ import type {
 } from '../types'
 import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
-import { loadMapFromLocalStorage } from '../local-storage/loadMapFromLocalStorage'
+import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 
 export interface MapSlice extends MapState {
   boardHexes: BoardHexes
@@ -24,7 +24,7 @@ export interface MapSlice extends MapState {
 
 // Here, we duplicate lastMap in case the user is loading a URL, which will immediately overwrite lastMap,
 // we can offer them the chance to load their last map instead of the URL (in useAutoLoadMapFile.tsx)
-const localLastMap = loadMapFromLocalStorage()
+const localLastMap = loadMapFromLocalStorage(LS_KEYS.lastMap)
 if (localLastMap) {
   localStorage.setItem(
     LS_KEYS.lastMapCache,

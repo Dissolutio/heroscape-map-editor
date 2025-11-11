@@ -338,10 +338,10 @@ export function getCodeForVSPersonalTile(tile: VirtualScapeTile) {
   * MW3 => Glyph (lowered)
   * MW4 => Treasure Glyph (lowered)
   * Roman Archer => Long AoA wall
-  * Lego1 => AoA pillar
-  * Lego2 => AoA ruined wall (flat side)
-  * Lego3 => AoA ruined wall (corner)
-  * Lego4 => AoA pillar base
+  * Legionair1 => AoA pillar
+  * Legionair2 => AoA ruined wall (flat side)
+  * Legionair3 => AoA ruined wall (corner)
+  * Legionair4 => AoA pillar base
   * Venoc => Short AoA wall
 
   */

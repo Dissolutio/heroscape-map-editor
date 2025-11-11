@@ -14,6 +14,7 @@ import { noop } from 'lodash'
 import { ROUTES } from '../ROUTES'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
 import { processVirtualScapeArrayBuffer } from '../data/readVirtualscapeMapFile'
+import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 
 const useAutoLoadMapFile = () => {
   const loadMap = useBoundStore((s) => s.loadMap)
@@ -40,13 +41,7 @@ const useAutoLoadMapFile = () => {
     // Map might be loaded from local storage already
     const queryParams = new URLSearchParams(searchString)
     const urlMapString = queryParams.get('m')
-    const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
-    const localMapCache_PreValidated = isLocal ? JSON.parse(isLocal) : undefined
-    const localMapCache = localMapCache_PreValidated?.hexMap &&
-      localMapCache_PreValidated?.boardPieces ? {
-      hexMap,
-      boardPieces: inflateBoardPiecesFromIds(localMapCache_PreValidated.boardPieces)
-    } : undefined
+    const localMapCache = loadMapFromLocalStorage(LS_KEYS.lastMapCache)
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {

@@ -35,7 +35,7 @@ export default function LaurWallPillar({
   const interiorPillarColor = hexTerrainColor.laurModelColor2
   const color = isHighlighted ? yellowColor : pillarColor
   const interiorColor = isHighlighted ? yellowColor : interiorPillarColor
-  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
+  const opacityLevel = opacity ?? 1
   const interactivityProps = onPointerUp && boardHex ? {
     onPointerUp: (e: ThreeEvent<PointerEvent>) => onPointerUp(e, boardHex),
     onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnter(e, boardHex),
