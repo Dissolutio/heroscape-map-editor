@@ -67,7 +67,7 @@ const useAutoLoadMapFile = () => {
                 localMapCache ? loadMap(localMapCache) : noop()
                 closeSnackbar(snackbarId)
                 enqueueSnackbar({
-                  message: `Loaded last map instead: ${localMapCache?.hexMap?.name}`,
+                  message: `Loaded last map instead: ${localMapCache?.hexMap?.name ?? ''}`,
                   variant: 'success',
                 })
                 navigate(ROUTES.heroscapeHome)
