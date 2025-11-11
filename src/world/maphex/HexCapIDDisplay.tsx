@@ -9,7 +9,7 @@ export const HexCapIDDisplay = ({
   position: Vector3
   boardHex: BoardHex
 }) => {
-  // filters out everything but empty hexes
+  // filters out everything but empty hex caps
   if (
     !boardHex.isCap ||
     boardHex.terrain !== HexTerrain.empty
