@@ -11,6 +11,7 @@ import { DIALOGS } from '../layout/dialogNames'
 import { LoadMapButtons } from '../layout/LoadMapButtons'
 import { getUrlMapString } from '../data/jsonCrush'
 import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
+import { encodeBoardPieces } from '../utils/map-utils'
 
 export const FileControlsTab = ({
   is2DOpen,
@@ -86,16 +87,8 @@ export const FileControlsTab = ({
     const hexMapToUse = { ...hexMap, mapPortraitBase64: '', mapNotes: '' }
     const myUrl = getUrlMapString({
       hexMap: hexMapToUse,
-      boardPieces,
+      boardPieces: encodeBoardPieces(boardPieces),
     })
-    // encodeURI(
-    //   JSONCrush.crush(
-    //     JSON.stringify([
-    //       hexMapToUse, // 1
-    //       ...boardPieces,
-    //     ]),
-    //   ),
-    // )
     const fullUrl = `${window.location.origin + window.location.pathname}?m=${myUrl}`
     if (fullUrl.length > 2082) {
       enqueueSnackbar({

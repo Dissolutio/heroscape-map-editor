@@ -312,7 +312,7 @@ export const getSetsUsedText = (setsUsed: string[]) => {
   })
   return res.join('')
 }
-export const inflateBoardPiecesFromIds = (ids: string[]): BoardPiece[] => {
+export const inflateBoardPiecesFromIds = (ids: BoardPiecesEncodedArr): BoardPieces => {
   return ids.map((id) => {
     const {
       inventoryID,
@@ -351,4 +351,11 @@ export function normalizeBoardPieces(boardPieces: BoardPiecesEncodedArr | { [id:
     return Object.keys(boardPieces)
   }
   return []
+}
+export function encodeBoardPieces(boardPieces: BoardPieces): BoardPiecesEncodedArr {
+  return boardPieces.map(bp => {
+    return genPieceID(
+      genBoardHexID({ ...bp.pieceCoords, altitude: bp.altitude }), bp.inventoryID, bp.rotation
+    )
+  })
 }

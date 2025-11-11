@@ -1,7 +1,6 @@
 import JSONCrush from 'jsoncrush'
 import type { BoardPiecesEncodedArr, HexMap } from '../types'
 import { isHexMap } from '../utils/type-checker'
-import { decodePieceID } from '../utils/map-utils'
 
 export const getUrlMapString = ({
   hexMap,
