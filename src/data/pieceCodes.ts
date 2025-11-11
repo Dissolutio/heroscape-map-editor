@@ -94,8 +94,8 @@ export const pieceCodes: Dictionary<string> = {
   '27001': Pieces.outcrop1,
   '27003': Pieces.outcrop3,
   // marvel ruin
-  '11006': Pieces.marvel,
-  '11007': Pieces.marvelBroken,
+  '11006': Pieces.concrete6,
+  '11007': Pieces.concrete6,
   // edge add-ons
   '12004': Pieces.roadWall,
   '16301': Pieces.battlement,
