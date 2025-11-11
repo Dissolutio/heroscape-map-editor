@@ -1,7 +1,6 @@
 import { clone } from 'lodash'
 import {
   type AddRemovePieceError,
-  type AddRemovePieceReturn,
   type BoardHexes,
   type BoardPiece,
   type BoardPiecesEncodedArr,
@@ -731,7 +730,7 @@ export function addPiece({
   placementAltitude: number
   rotation: number
   isVsTile: boolean
-}): AddRemovePieceReturn {
+}) {
   let addPieceError: AddRemovePieceError
   const newBoardHexes = clone(boardHexes)
   const newBoardPieces = clone(boardPieces)

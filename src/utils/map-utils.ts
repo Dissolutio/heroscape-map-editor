@@ -343,13 +343,12 @@ export function countStringInArrayLoop(arr: string[], targetString: string) {
  * Normalize BoardPieces to an array of pieceIDs (strings).
  * Supports legacy object format and new array format (version 1).
  */
-export function normalizeBoardPieces(boardPieces: BoardPiecesEncodedArr): string[] {
+export function normalizeBoardPieces(boardPieces: BoardPiecesEncodedArr | { [id: string]: string }): string[] {
   if (Array.isArray(boardPieces)) {
     return boardPieces
   }
   if (typeof boardPieces === 'object' && boardPieces !== null) {
     return Object.keys(boardPieces)
   }
-  // ERROR, since currently there's only 2 versions
   return []
 }

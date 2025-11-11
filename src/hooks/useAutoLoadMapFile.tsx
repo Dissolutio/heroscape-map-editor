@@ -16,11 +16,7 @@ import { ROUTES } from '../ROUTES'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
 import { processVirtualScapeArrayBuffer } from '../data/readVirtualscapeMapFile'
 
-type Props = {
-  boardHexes?: BoardHexes
-}
-
-const useAutoLoadMapFile = (props?: Props) => {
+const useAutoLoadMapFile = () => {
   const loadMap = useBoundStore((s) => s.loadMap)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const hexMap = useBoundStore((s) => s.hexMap)
@@ -48,14 +44,17 @@ const useAutoLoadMapFile = (props?: Props) => {
     const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
     const localMapCache_PreValidated = isLocal ? JSON.parse(isLocal) : undefined
     const localMapCache = localMapCache_PreValidated?.hexMap &&
-      localMapCache_PreValidated?.boardPieces ? localMapCache_PreValidated : undefined
+      localMapCache_PreValidated?.boardPieces ? {
+      hexMap,
+      boardPieces: inflateBoardPiecesFromIds(localMapCache_PreValidated.boardPieces)
+    } : undefined
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
         const { hexMap, boardPieces } =
           parseMapDataArrayFromCrushed(urlMapString)
         const fullBoardPieces = inflateBoardPiecesFromIds(boardPieces)
-        const jsonMap = buildupJsonFileMap(boardPieces, hexMap)
+        const jsonMap = buildupJsonFileMap(fullBoardPieces, hexMap)
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
         }
@@ -69,7 +68,7 @@ const useAutoLoadMapFile = (props?: Props) => {
                 localMapCache ? loadMap(localMapCache) : noop()
                 closeSnackbar(snackbarId)
                 enqueueSnackbar({
-                  message: `Loaded last map instead: ${localMapCache.hexMap.name}`,
+                  message: `Loaded last map instead: ${localMapCache?.hexMap?.name}`,
                   variant: 'success',
                 })
                 navigate(ROUTES.heroscapeHome)
@@ -114,7 +113,6 @@ const useAutoLoadMapFile = (props?: Props) => {
     }
     // No url, but a last map, then load the last map
     if (localMapCache) {
-      const fullBoardPieces = inflateBoardPiecesFromIds(localMapCache.boardPieces)
       loadMap(localMapCache)
       enqueueSnackbar({
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
