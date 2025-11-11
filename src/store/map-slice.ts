@@ -8,6 +8,7 @@ import type {
 import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
+import { encodeBoardPieces } from '../utils/map-utils'
 
 export interface MapSlice extends MapState {
   boardHexes: BoardHexes
@@ -60,7 +61,17 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   unpaintTile: (boardPieceUid: string) =>
     set((state) => {
       return produce(state, (draft) => {
-        draft.boardPieces = state.boardPieces.filter((bp) => bp.uid !== boardPieceUid)
+        // new mode which is not implemented yet, where selectedPieceID is a uid, not an encoded id
+        const potentialPieceToBeDeleted = state.boardPieces.find(bp => bp.uid === boardPieceUid)
+        if (potentialPieceToBeDeleted) {
+          draft.boardPieces = state.boardPieces.filter((bp) => bp.uid !== boardPieceUid)
+        }
+        // legacy mode to be deprecated soon
+        const encodedBoardPieces = encodeBoardPieces(state.boardPieces)
+        const potentialIndexToBeDeleted = encodedBoardPieces.findIndex((pid) => pid === boardPieceUid)
+        if (potentialIndexToBeDeleted >= 0) {
+          draft.boardPieces = state.boardPieces.filter((_bp, i) => i !== potentialIndexToBeDeleted)
+        }
       })
     }),
   mapPortraitBase64: '',
