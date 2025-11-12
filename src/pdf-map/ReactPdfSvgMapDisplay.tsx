@@ -1,5 +1,10 @@
 import { Line, Svg } from '@react-pdf/renderer'
-import type { BoardHex, BoardPieces, DecodedPieceID, PdfMapAltitudeChunk } from '../types'
+import type {
+  BoardHex,
+  BoardPieces,
+  DecodedPieceID,
+  PdfMapAltitudeChunk,
+} from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { PdfMapHex } from './PdfMapHex'
 import { PdfMapBoardPiece } from './PdfMapBoardPiece'

@@ -49,15 +49,17 @@ export const MapBoardPiece3D = ({
     (s) => s.isLightsAndShadowsRender,
   )
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const { x, z, y, yBaseCap, yGlyphFluidUnder, yGlyph, yWithBase, yBase } =
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isVisible = altitude + 1 <= viewingLevel
+  // const { x, z, y, yBaseCap, yGlyphFluidUnder, yGlyph, yWithBase, yBase } =
+  //   getBoardHex3DCoords({ ...pieceCoords, altitude })
+  const { x, z, y, yBaseCap, yGlyph } =
     getBoardHex3DCoords({ ...pieceCoords, altitude })
   const {
     x: xLaurWall,
     z: zLaurWall,
     yWithBase: yLaurWall,
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isVisible = altitude + 1 <= viewingLevel
 
   const onPointerUp = (event: ThreeEvent<PointerEvent>, uid: string) => {
     event.stopPropagation() // prevent pass through
@@ -78,7 +80,16 @@ export const MapBoardPiece3D = ({
   if (!isVisible) {
     return null
   }
-
+  const interactivityProps = {
+    highlightColor,
+    boardPiece,
+    onPointerUp,
+    onPointerEnter: onPointerEnterBoardPiece,
+    onPointerOut,
+    opacity: 1,
+    isHighlighted,
+    isLightsAndShadowsRender,
+  }
   // SOLID LAND
   // if (isSolidLand) {
   //   return (
@@ -106,26 +117,12 @@ export const MapBoardPiece3D = ({
           {inventoryID === Pieces.ruins2 ? (
             <Ruins2
               color={hexTerrainColor[HexTerrain.ruin]}
-              highlightColor={highlightColor}
-              boardPiece={boardPiece}
-              onPointerUp={onPointerUp}
-              onPointerEnter={onPointerEnterBoardPiece}
-              onPointerOut={onPointerOut}
-              opacity={1}
-              isHighlighted={isHighlighted}
-              isLightsAndShadowsRender={isLightsAndShadowsRender}
+              {...interactivityProps}
             />
           ) : (
             <Ruins3
               color={hexTerrainColor[HexTerrain.ruin]}
-              highlightColor={highlightColor}
-              boardPiece={boardPiece}
-              onPointerUp={onPointerUp}
-              onPointerEnter={onPointerEnterBoardPiece}
-              onPointerOut={onPointerOut}
-              opacity={1}
-              isHighlighted={isHighlighted}
-              isLightsAndShadowsRender={isLightsAndShadowsRender}
+              {...interactivityProps}
             />
           )}
         </Suspense>
@@ -165,14 +162,7 @@ export const MapBoardPiece3D = ({
           <LaurWallPillar
             color={hexTerrainColor[HexTerrain.laurWall]}
             secondaryColor={hexTerrainColor.laurModelColor2}
-            highlightColor={highlightColor}
-            boardPiece={boardPiece}
-            onPointerUp={onPointerUp}
-            onPointerEnter={onPointerEnterBoardPiece}
-            onPointerOut={onPointerOut}
-            isHighlighted={isHighlighted}
-            opacity={1}
-            isLightsAndShadowsRender={isLightsAndShadowsRender}
+            {...interactivityProps}
           />
         </Suspense>
       </group>
@@ -192,14 +182,7 @@ export const MapBoardPiece3D = ({
           <LaurWallTrianglePillar
             color={hexTerrainColor[HexTerrain.laurWall]}
             secondaryColor={hexTerrainColor.laurModelColor2}
-            highlightColor={highlightColor}
-            boardPiece={boardPiece}
-            onPointerUp={onPointerUp}
-            onPointerEnter={onPointerEnterBoardPiece}
-            onPointerOut={onPointerOut}
-            isHighlighted={isHighlighted}
-            opacity={1}
-            isLightsAndShadowsRender={isLightsAndShadowsRender}
+            {...interactivityProps}
           />
         </Suspense>
       </group>
@@ -231,14 +214,7 @@ export const MapBoardPiece3D = ({
       >
         <StartZone3D
           color={hexTerrainColor[inventoryID as keyof typeof hexTerrainColor]}
-          highlightColor={highlightColor}
-          boardPiece={boardPiece}
-          onPointerUp={onPointerUp}
-          onPointerEnter={onPointerEnterBoardPiece}
-          onPointerOut={onPointerOut}
-          opacity={1}
-          isHighlighted={isHighlighted}
-          isLightsAndShadowsRender={isLightsAndShadowsRender}
+          {...interactivityProps}
         />
       </group>
     )
@@ -314,14 +290,7 @@ export const MapBoardPiece3D = ({
         <LaurWallAddon
           color={hexTerrainColor[HexTerrain.laurWall]}
           secondaryColor={hexTerrainColor.laurModelColor2}
-          highlightColor={highlightColor}
-          boardPiece={boardPiece}
-          onPointerUp={onPointerUp}
-          onPointerEnter={onPointerEnterBoardPiece}
-          onPointerOut={onPointerOut}
-          opacity={1}
-          isHighlighted={isHighlighted}
-          isLightsAndShadowsRender={isLightsAndShadowsRender}
+          {...interactivityProps}
         />
       </group>
     )
@@ -339,14 +308,7 @@ export const MapBoardPiece3D = ({
       >
         <Battlement
           color={hexTerrainColor[HexTerrain.battlement]}
-          highlightColor={highlightColor}
-          boardPiece={boardPiece}
-          onPointerUp={onPointerUp}
-          onPointerEnter={onPointerEnterBoardPiece}
-          onPointerOut={onPointerOut}
-          opacity={1}
-          isHighlighted={isHighlighted}
-          isLightsAndShadowsRender={isLightsAndShadowsRender}
+          {...interactivityProps}
         />
       </group>
     )
@@ -364,14 +326,7 @@ export const MapBoardPiece3D = ({
       >
         <RoadWall
           color={hexTerrainColor[HexTerrain.roadWall]}
-          highlightColor={highlightColor}
-          boardPiece={boardPiece}
-          onPointerUp={onPointerUp}
-          onPointerEnter={onPointerEnterBoardPiece}
-          onPointerOut={onPointerOut}
-          opacity={1}
-          isHighlighted={isHighlighted}
-          isLightsAndShadowsRender={isLightsAndShadowsRender}
+          {...interactivityProps}
         />
       </group>
     )

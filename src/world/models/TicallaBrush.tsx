@@ -8,7 +8,10 @@ import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { decodePieceID } from '../../utils/map-utils'
 
-export function JungleBrush({ pid, opacity }: { pid?: string, opacity?: number }) {
+export function JungleBrush({
+  pid,
+  opacity,
+}: { pid?: string; opacity?: number }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -16,41 +19,31 @@ export function JungleBrush({ pid, opacity }: { pid?: string, opacity?: number }
   const isSelected = selectedPieceID === pid
   const isHighlighted = hoveredPieceID === pid || isSelected
   const { inventoryID } = decodePieceID(pid || '')
-  const opacityLevel = opacity ?? pid ? 1 : PIECE_PREVIEW_OPACITY
+  const opacityLevel = (opacity ?? pid) ? 1 : PIECE_PREVIEW_OPACITY
   const pointerHandlers = pid
     ? {
-      onPointerUp: (e: ThreeEvent<PointerEvent>) => {
-        e.stopPropagation()
-        if (e.button !== 0) return
-        toggleSelectedPieceID(isSelected ? '' : pid)
-      },
-      onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterPID(e, pid),
-      onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
-    }
+        onPointerUp: (e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation()
+          if (e.button !== 0) return
+          toggleSelectedPieceID(isSelected ? '' : pid)
+        },
+        onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
+          onPointerEnterPID(e, pid),
+        onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+      }
     : {}
-  const model = inventoryID === Pieces.laurBrush10 ? (
-    <LaurBrushPreview
-      isHighlighted={isHighlighted}
-      opacity={opacityLevel}
-    />
-  ) : inventoryID === Pieces.swampBrush10 ? (
-    <SwampBrushPreview
-      isHighlighted={isHighlighted}
-      opacity={opacityLevel}
-    />
-  ) : (
-    <TicallaBrushPreview
-      isHighlighted={isHighlighted}
-      opacity={opacityLevel}
-    />
-  )
-  return (
-    <group
-      {...pointerHandlers}
-    >
-      {model}
-    </group>
-  )
+  const model =
+    inventoryID === Pieces.laurBrush10 ? (
+      <LaurBrushPreview isHighlighted={isHighlighted} opacity={opacityLevel} />
+    ) : inventoryID === Pieces.swampBrush10 ? (
+      <SwampBrushPreview isHighlighted={isHighlighted} opacity={opacityLevel} />
+    ) : (
+      <TicallaBrushPreview
+        isHighlighted={isHighlighted}
+        opacity={opacityLevel}
+      />
+    )
+  return <group {...pointerHandlers}>{model}</group>
 }
 export function LaurBrushPreview({
   opacity = 1,

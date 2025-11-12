@@ -1,9 +1,18 @@
-import { addPieceToBoardHexes } from "../data/addPiece"
-import { piecesSoFar } from "../data/pieces"
-import type { BoardHexes, BoardPiece, BoardPieces, HexMap, MapState } from "../types"
-import { sortLaurAddonsLaddersBattlementsToEndOfArray } from "../utils/board-utils"
-import { makeHexagonMapEmptyHexes, makeRectangleMapEmptyHexes } from "../utils/hex-gen"
-import { genPieceObjectUid } from "../utils/map-utils"
+import { addPieceToBoardHexes } from '../data/addPiece'
+import { piecesSoFar } from '../data/pieces'
+import type {
+  BoardHexes,
+  BoardPiece,
+  BoardPieces,
+  HexMap,
+  MapState,
+} from '../types'
+import { sortLaurAddonsLaddersBattlementsToEndOfArray } from '../utils/board-utils'
+import {
+  makeHexagonMapEmptyHexes,
+  makeRectangleMapEmptyHexes,
+} from '../utils/hex-gen'
+import { genPieceObjectUid } from '../utils/map-utils'
 
 self.onmessage = (event: MessageEvent<MapState>) => {
   const hexMap = event?.data?.hexMap
@@ -36,15 +45,12 @@ function buildupBoardHexes(
     }
     return -1 // Move 'targetValue' to the end
   })
-  const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(boardPiecesSortedByAltitude)
+  const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(
+    boardPiecesSortedByAltitude,
+  )
   const newBoardHexes = piecesArray.reduce(
     (prev: BoardHexes, curr): BoardHexes => {
-      const {
-        pieceCoords,
-        altitude,
-        rotation,
-        inventoryID,
-      } = curr
+      const { pieceCoords, altitude, rotation, inventoryID } = curr
       const piece = piecesSoFar[inventoryID]
       if (!piece) {
         return prev // Should probably handle this different, errors etc.
@@ -70,4 +76,3 @@ function buildupBoardHexes(
 
   return newBoardHexes
 }
-

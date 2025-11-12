@@ -8,7 +8,10 @@ import { basicDoubleSideModelMaterial, basicModelMaterial } from './materials'
 import { noop } from 'lodash'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
-export function BigTree415({ pid, opacity }: { pid?: string, opacity?: number }) {
+export function BigTree415({
+  pid,
+  opacity,
+}: { pid?: string; opacity?: number }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/big-tree-415.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
@@ -28,32 +31,27 @@ export function BigTree415({ pid, opacity }: { pid?: string, opacity?: number })
   const rockColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.ruin]
-  const opacityLevel = opacity ?? pid ? 1 : PIECE_PREVIEW_OPACITY
+  const opacityLevel = (opacity ?? pid) ? 1 : PIECE_PREVIEW_OPACITY
   const pointerHandlers = pid
     ? {
-      onPointerUp: (e: ThreeEvent<PointerEvent>) => {
-        e.stopPropagation()
-        if (e.button !== 0) return
-        toggleSelectedPieceID(isSelected ? '' : pid)
-      },
-      onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterPID(e, pid),
-      onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
-    }
+        onPointerUp: (e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation()
+          if (e.button !== 0) return
+          toggleSelectedPieceID(isSelected ? '' : pid)
+        },
+        onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
+          onPointerEnterPID(e, pid),
+        onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+      }
     : {}
   return (
-    <group
-      {...pointerHandlers}
-    >
+    <group {...pointerHandlers}>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.BigTreeBoulders.geometry}
       >
-        {basicModelMaterial(
-          rockColor,
-          isLightsAndShadowsRender,
-          opacityLevel,
-        )}
+        {basicModelMaterial(rockColor, isLightsAndShadowsRender, opacityLevel)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}

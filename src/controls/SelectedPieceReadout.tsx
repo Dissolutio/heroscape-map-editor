@@ -16,7 +16,7 @@ const SelectedPieceReadout = () => {
   if (!selectedPieceID) {
     return null
   }
-  const pieceByUid = boardPieces.find(bp => bp.uid === selectedPieceID)
+  const pieceByUid = boardPieces.find((bp) => bp.uid === selectedPieceID)
   const {
     inventoryID,
     altitude,

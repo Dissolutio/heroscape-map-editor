@@ -1,4 +1,3 @@
-
 import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
@@ -15,10 +14,17 @@ type Outcrop3Props = {
   opacity?: number
 }
 
-export function Outcrop3({ boardHex, isGlacier, isLavaRock, opacity }: Outcrop3Props) {
+export function Outcrop3({
+  boardHex,
+  isGlacier,
+  isLavaRock,
+  opacity,
+}: Outcrop3Props) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-3.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
@@ -26,28 +32,42 @@ export function Outcrop3({ boardHex, isGlacier, isLavaRock, opacity }: Outcrop3P
 
   const yellowColor = 'yellow'
   const isSelected = boardHex && selectedPieceID === boardHex.pieceID
-  const isHighlighted = boardHex && (hoveredPieceID === boardHex.pieceID || isSelected)
+  const isHighlighted =
+    boardHex && (hoveredPieceID === boardHex.pieceID || isSelected)
   const iceColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ice]
-  const lavaColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.lavaField]
-  const outcropColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.outcrop]
+  const lavaColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.lavaField]
+  const outcropColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.outcrop]
   const previewIceColor = hexTerrainColor[HexTerrain.ice]
   const previewLavaColor = hexTerrainColor[HexTerrain.lavaField]
   const previewOutcropColor = hexTerrainColor[HexTerrain.outcrop]
   const color = boardHex
-    ? (isGlacier ? iceColor : isLavaRock ? lavaColor : outcropColor)
-    : (isGlacier ? previewIceColor : isLavaRock ? previewLavaColor : previewOutcropColor)
+    ? isGlacier
+      ? iceColor
+      : isLavaRock
+        ? lavaColor
+        : outcropColor
+    : isGlacier
+      ? previewIceColor
+      : isLavaRock
+        ? previewLavaColor
+        : previewOutcropColor
   const opacityLevel = opacity ?? (boardHex ? 1 : PIECE_PREVIEW_OPACITY)
 
   const pointerHandlers = boardHex
     ? {
-      onPointerUp: (e: ThreeEvent<PointerEvent>) => {
-        e.stopPropagation()
-        if (e.button !== 0) return
-        toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
-      },
-      onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnter(e, boardHex),
-      onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
-    }
+        onPointerUp: (e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation()
+          if (e.button !== 0) return
+          toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+        },
+        onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
+          onPointerEnter(e, boardHex),
+        onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+      }
     : {}
 
   return (

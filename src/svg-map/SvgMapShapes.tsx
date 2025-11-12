@@ -46,12 +46,7 @@ import {
   getSvgHexSubLevelBorderColor,
   getSvgHexSubLevelFillColor,
 } from '../svg-map/getSvgHexColors'
-import {
-  type BoardHex,
-  type BoardPiece,
-  HexTerrain,
-  Pieces,
-} from '../types'
+import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import {
   OPACITY_SUBLEVEL,
   SVG_BORDER_WIDTH,

@@ -105,16 +105,15 @@ const getBoardHexAndPieceChunks = (
   const filteredBoardHexes = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
   )
-  const filteredBoardPieces = boardPieces
-    .filter((bp) => {
-      return (
-        bp.inventoryID === Pieces.battlement ||
-        bp.inventoryID === Pieces.roadWall ||
-        bp.inventoryID === Pieces.laurWallLong ||
-        bp.inventoryID === Pieces.laurWallShort ||
-        bp.inventoryID === Pieces.laurWallRuin1
-      )
-    })
+  const filteredBoardPieces = boardPieces.filter((bp) => {
+    return (
+      bp.inventoryID === Pieces.battlement ||
+      bp.inventoryID === Pieces.roadWall ||
+      bp.inventoryID === Pieces.laurWallLong ||
+      bp.inventoryID === Pieces.laurWallShort ||
+      bp.inventoryID === Pieces.laurWallRuin1
+    )
+  })
 
   // Group hexes and pieces by altitude
   const groupedHexesByAltitude = groupBy(filteredBoardHexes, 'altitude')

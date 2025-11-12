@@ -73,7 +73,7 @@ export const getBoardHexesRectangularMapDimensions = (
     ((hexLength === 1
       ? 2 * HEXGRID_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-      3 * HEXGRID_HEX_APOTHEM) +
+        3 * HEXGRID_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * HEXGRID_HEX_APOTHEM) /
     HEXGRID_SPACING
   const apex =
@@ -122,7 +122,7 @@ export const getBoardHexesSvgMapDimensions = (
     ((hexLength === 1
       ? 2 * SVG_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-      3 * SVG_HEX_APOTHEM) +
+        3 * SVG_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * SVG_HEX_APOTHEM) /
     HEXGRID_SPACING
   return { length, width, hexLength, hexWidth }
@@ -312,14 +312,11 @@ export const getSetsUsedText = (setsUsed: string[]) => {
   })
   return res.join('')
 }
-export const inflateBoardPiecesFromIds = (ids: BoardPiecesEncodedArr): BoardPieces => {
+export const inflateBoardPiecesFromIds = (
+  ids: BoardPiecesEncodedArr,
+): BoardPieces => {
   return ids.map((id) => {
-    const {
-      inventoryID,
-      altitude,
-      rotation,
-      pieceCoords,
-    } = decodePieceID(id)
+    const { inventoryID, altitude, rotation, pieceCoords } = decodePieceID(id)
     return {
       uid: genPieceObjectUid(),
       inventoryID,
@@ -343,7 +340,9 @@ export function countStringInArrayLoop(arr: string[], targetString: string) {
  * Normalize BoardPieces to an array of pieceIDs (strings).
  * Supports legacy object format and new array format (version 1).
  */
-export function normalizeBoardPieces(boardPieces: BoardPiecesEncodedArr | { [id: string]: string }): string[] {
+export function normalizeBoardPieces(
+  boardPieces: BoardPiecesEncodedArr | { [id: string]: string },
+): string[] {
   if (Array.isArray(boardPieces)) {
     return boardPieces
   }
@@ -352,10 +351,14 @@ export function normalizeBoardPieces(boardPieces: BoardPiecesEncodedArr | { [id:
   }
   return []
 }
-export function encodeBoardPieces(boardPieces: BoardPieces): BoardPiecesEncodedArr {
-  return boardPieces.map(bp => {
+export function encodeBoardPieces(
+  boardPieces: BoardPieces,
+): BoardPiecesEncodedArr {
+  return boardPieces.map((bp) => {
     return genPieceID(
-      genBoardHexID({ ...bp.pieceCoords, altitude: bp.altitude }), bp.inventoryID, bp.rotation
+      genBoardHexID({ ...bp.pieceCoords, altitude: bp.altitude }),
+      bp.inventoryID,
+      bp.rotation,
     )
   })
 }

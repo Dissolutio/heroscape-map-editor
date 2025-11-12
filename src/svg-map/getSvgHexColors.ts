@@ -84,10 +84,7 @@ export const getSvgHexBorderColor = (hex: BoardHex | BoardPiece) => {
   if (isEvergreenTree(terrain)) {
     return svgColors.outlineTree
   }
-  if (
-    terrain === HexTerrain.laurWall ||
-    terrain === HexTerrain.laurWallAddon
-  ) {
+  if (terrain === HexTerrain.laurWall || terrain === HexTerrain.laurWallAddon) {
     return svgColors.outlineLaurWall
   }
   if (terrain === HexTerrain.glacier) {

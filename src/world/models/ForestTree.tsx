@@ -8,7 +8,10 @@ import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
 
-export function ForestTree({ pid, opacity }: { pid?: string, opacity?: number }) {
+export function ForestTree({
+  pid,
+  opacity,
+}: { pid?: string; opacity?: number }) {
   const { nodes } = useGLTF(
     '/forgotten-forest-tree-low-poly-colored.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -27,14 +30,15 @@ export function ForestTree({ pid, opacity }: { pid?: string, opacity?: number })
   const opacityLevel = opacity ?? (pid ? 1 : PIECE_PREVIEW_OPACITY)
   const pointerHandlers = pid
     ? {
-      onPointerUp: (e: ThreeEvent<PointerEvent>) => {
-        e.stopPropagation()
-        if (e.button !== 0) return
-        toggleSelectedPieceID(isSelected ? '' : pid)
-      },
-      onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterPID(e, pid),
-      onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
-    }
+        onPointerUp: (e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation()
+          if (e.button !== 0) return
+          toggleSelectedPieceID(isSelected ? '' : pid)
+        },
+        onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
+          onPointerEnterPID(e, pid),
+        onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+      }
     : {}
   return (
     <>

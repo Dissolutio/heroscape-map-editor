@@ -1,4 +1,3 @@
-
 import { useGLTF } from '@react-three/drei'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -18,7 +17,9 @@ type Outcrop6Props = {
 export function Outcrop6({ boardHex, isGlacier, opacity }: Outcrop6Props) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-6.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
@@ -26,25 +27,34 @@ export function Outcrop6({ boardHex, isGlacier, opacity }: Outcrop6Props) {
 
   const yellowColor = 'yellow'
   const isSelected = boardHex && selectedPieceID === boardHex.pieceID
-  const isHighlighted = boardHex && (hoveredPieceID === boardHex.pieceID || isSelected)
+  const isHighlighted =
+    boardHex && (hoveredPieceID === boardHex.pieceID || isSelected)
   const iceColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ice]
-  const outcropColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.outcrop]
+  const outcropColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.outcrop]
   const previewIceColor = hexTerrainColor[HexTerrain.ice]
   const previewOutcropColor = hexTerrainColor[HexTerrain.outcrop]
   const color = boardHex
-    ? (isGlacier ? iceColor : outcropColor)
-    : (isGlacier ? previewIceColor : previewOutcropColor)
+    ? isGlacier
+      ? iceColor
+      : outcropColor
+    : isGlacier
+      ? previewIceColor
+      : previewOutcropColor
   const opacityLevel = opacity ?? (boardHex ? 1 : PIECE_PREVIEW_OPACITY)
 
-  const pointerHandlers = boardHex ? {
-    onPointerUp: (e: ThreeEvent<PointerEvent>) => {
-      e.stopPropagation()
-      if (e.button !== 0) return
-      toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
-    },
-    onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnter(e, boardHex),
-    onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
-  }
+  const pointerHandlers = boardHex
+    ? {
+        onPointerUp: (e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation()
+          if (e.button !== 0) return
+          toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+        },
+        onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
+          onPointerEnter(e, boardHex),
+        onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+      }
     : {}
 
   return (

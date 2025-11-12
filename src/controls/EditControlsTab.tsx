@@ -25,7 +25,7 @@ const shiftInDirectionBoardPieces = (
   return boardPieces.map((bp) => {
     return {
       ...bp,
-      pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction])
+      pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
     }
   })
 }

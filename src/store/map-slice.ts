@@ -1,10 +1,6 @@
 import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
-import type {
-  BoardHexes,
-  BoardPiece,
-  MapState,
-} from '../types'
+import type { BoardHexes, BoardPiece, MapState } from '../types'
 import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
@@ -27,12 +23,8 @@ export interface MapSlice extends MapState {
 // we can offer them the chance to load their last map instead of the URL (in useAutoLoadMapFile.tsx)
 const localLastMap = loadMapFromLocalStorage(LS_KEYS.lastMap)
 if (localLastMap) {
-  localStorage.setItem(
-    LS_KEYS.lastMapCache,
-    JSON.stringify(localLastMap),
-  )
+  localStorage.setItem(LS_KEYS.lastMapCache, JSON.stringify(localLastMap))
 }
-
 
 const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   boardHexes: {},
@@ -62,15 +54,23 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     set((state) => {
       return produce(state, (draft) => {
         // new mode which is not implemented yet, where selectedPieceID is a uid, not an encoded id
-        const potentialPieceToBeDeleted = state.boardPieces.find(bp => bp.uid === boardPieceUid)
+        const potentialPieceToBeDeleted = state.boardPieces.find(
+          (bp) => bp.uid === boardPieceUid,
+        )
         if (potentialPieceToBeDeleted) {
-          draft.boardPieces = state.boardPieces.filter((bp) => bp.uid !== boardPieceUid)
+          draft.boardPieces = state.boardPieces.filter(
+            (bp) => bp.uid !== boardPieceUid,
+          )
         }
         // legacy mode to be deprecated soon
         const encodedBoardPieces = encodeBoardPieces(state.boardPieces)
-        const potentialIndexToBeDeleted = encodedBoardPieces.findIndex((pid) => pid === boardPieceUid)
+        const potentialIndexToBeDeleted = encodedBoardPieces.findIndex(
+          (pid) => pid === boardPieceUid,
+        )
         if (potentialIndexToBeDeleted >= 0) {
-          draft.boardPieces = state.boardPieces.filter((_bp, i) => i !== potentialIndexToBeDeleted)
+          draft.boardPieces = state.boardPieces.filter(
+            (_bp, i) => i !== potentialIndexToBeDeleted,
+          )
         }
       })
     }),

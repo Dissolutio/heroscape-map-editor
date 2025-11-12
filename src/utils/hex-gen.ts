@@ -8,7 +8,7 @@ import {
 
 export function makeRectangleMapEmptyHexes(
   length: number,
-  width: number
+  width: number,
 ): BoardHexes {
   const l = Math.min(length ?? 15, MAX_RECTANGLE_MAP_DIMENSION)
   const w = Math.min(width ?? 15, MAX_RECTANGLE_MAP_DIMENSION)

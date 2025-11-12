@@ -34,12 +34,7 @@ import {
   getSvgHexFillColor,
   getSvgHexSubLevelFillColor,
 } from '../svg-map/getSvgHexColors'
-import {
-  type BoardHex,
-  type BoardPiece,
-  HexTerrain,
-  Pieces,
-} from '../types'
+import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import {
   OPACITY_EMPTY,
   OPACITY_SUBLEVEL,

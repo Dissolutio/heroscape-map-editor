@@ -9,8 +9,11 @@ import type { MapFileState, PieceInventory } from '../types'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 import { parse } from 'papaparse'
 import { piecesSoFar } from '../data/pieces'
+import {
+  inflateBoardPiecesFromIds,
+  normalizeBoardPieces,
+} from '../utils/map-utils'
 import { Button } from '@mui/material'
-import { inflateBoardPiecesFromIds, normalizeBoardPieces } from '../utils/map-utils'
 
 export const personalInventoryTsvUploadElementID = 'tsvinventoryupload'
 export const uploadElementID = 'upload'
@@ -41,7 +44,9 @@ export const LoadFileHiddenInputs = () => {
     }
     try {
       const data = await readGzipMapFile(file)
-      const boardPieces = inflateBoardPiecesFromIds(normalizeBoardPieces(data.boardPieces))
+      const boardPieces = inflateBoardPiecesFromIds(
+        normalizeBoardPieces(data.boardPieces),
+      )
       const jsonMap = {
         boardPieces,
         hexMap: data.hexMap,
@@ -78,7 +83,9 @@ export const LoadFileHiddenInputs = () => {
     }
     try {
       const data = await new Response(file).json()
-      const boardPieces = inflateBoardPiecesFromIds(normalizeBoardPieces(data.boardPieces))
+      const boardPieces = inflateBoardPiecesFromIds(
+        normalizeBoardPieces(data.boardPieces),
+      )
       const jsonMap = {
         boardPieces,
         hexMap: data.hexMap,

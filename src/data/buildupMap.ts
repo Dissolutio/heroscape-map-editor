@@ -1,9 +1,4 @@
-import type {
-  BoardPieces,
-  HexMap,
-  MapState,
-  VirtualScapeTile,
-} from '../types'
+import type { BoardPieces, HexMap, MapState, VirtualScapeTile } from '../types'
 import { hexUtilsOddRToCube } from '../utils/hex-utils'
 import { generateMapID, genPieceObjectUid } from '../utils/map-utils'
 import { pieceCodes } from './pieceCodes'
@@ -19,7 +14,7 @@ export function buildupVSFileMap(
   const hexMap = getHexMapForVSTiles(tiles, mapName)
   // let { boardPieces } = blankMap
   // const { boardHexes, hexMap } = blankMap
-  const vsTilesAsBoardPieces: BoardPieces = tiles.flatMap(tile => {
+  const vsTilesAsBoardPieces: BoardPieces = tiles.flatMap((tile) => {
     const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
     const inventoryID = pieceCodes?.[getCodeForVSPersonalTile(tile)] ?? ''
     // For VS Marvel ruin, should add a Concrete-6 and move ruin up one altitude
@@ -34,32 +29,37 @@ export function buildupVSFileMap(
 
     // Special, for marvel ruin, place base and obstacle
     if (tile.type === 11006 || tile.type === 11007) {
-      return [{
+      return [
+        {
+          uid: genPieceObjectUid(),
+          inventoryID: 'c6',
+          pieceCoords: originHexCoords,
+          altitude: tile.posZ,
+          rotation: tile.rotation,
+        },
+        {
+          uid: genPieceObjectUid(),
+          inventoryID: tile.type === 11007 ? 'rmb' : 'rm',
+          pieceCoords: originHexCoords,
+          altitude: tile.posZ + 1,
+          rotation: tile.rotation,
+        },
+      ]
+    }
+    // Or return 1 piece
+    return [
+      {
         uid: genPieceObjectUid(),
-        inventoryID: 'c6',
+        inventoryID,
         pieceCoords: originHexCoords,
         altitude: tile.posZ,
         rotation: tile.rotation,
-      }, {
-        uid: genPieceObjectUid(),
-        inventoryID: tile.type === 11007 ? 'rmb' : 'rm',
-        pieceCoords: originHexCoords,
-        altitude: tile.posZ + 1,
-        rotation: tile.rotation,
-      }]
-    }
-    // Or return 1 piece
-    return [{
-      uid: genPieceObjectUid(),
-      inventoryID,
-      pieceCoords: originHexCoords,
-      altitude: tile.posZ,
-      rotation: tile.rotation,
-    }]
+      },
+    ]
   })
   return {
     boardPieces: vsTilesAsBoardPieces,
-    hexMap
+    hexMap,
   }
 }
 function getHexMapForVSTiles(

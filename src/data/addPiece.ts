@@ -35,7 +35,11 @@ export function addPieceToBoardHexes({
 }): BoardHexes {
   const newBoardHexes = clone(boardHexes)
   const piecePlaneCoords = getPieceTemplateCoords({
-    clickedHex: { q: boardPiece.pieceCoords.q, r: boardPiece.pieceCoords.r, s: boardPiece.pieceCoords.s },
+    clickedHex: {
+      q: boardPiece.pieceCoords.q,
+      r: boardPiece.pieceCoords.r,
+      s: boardPiece.pieceCoords.s,
+    },
     rotation: boardPiece.rotation,
     template: pieceData.template,
     isVsTile,
@@ -67,7 +71,8 @@ export function addPieceToBoardHexes({
   )
   const isCastleWallPiece = pieceData.id.includes(PiecePrefixes.castleWall)
   const isCastleArchPiece =
-    pieceData.id === Pieces.castleArch || pieceData.id === Pieces.castleArchNoDoor
+    pieceData.id === Pieces.castleArch ||
+    pieceData.id === Pieces.castleArchNoDoor
   const isGlyphPiece =
     pieceData.terrain === HexTerrain.glyphPower ||
     pieceData.terrain === HexTerrain.glyphTreasure
@@ -120,9 +125,12 @@ export function addPieceToBoardHexes({
     (id) => newBoardHexes?.[id]?.terrain === HexTerrain.castle,
   )
   const isPlacingWallWalkOnWall =
-    pieceData.terrain === HexTerrain.wallWalk && isSpaceFree && isCastleWallUnder
+    pieceData.terrain === HexTerrain.wallWalk &&
+    isSpaceFree &&
+    isCastleWallUnder
   const isPlacingLandTile =
-    (isFluidTerrainHex(pieceData.terrain) || isSolidTerrainHex(pieceData.terrain)) &&
+    (isFluidTerrainHex(pieceData.terrain) ||
+      isSolidTerrainHex(pieceData.terrain)) &&
     !isPlacingWallWalkOnWall
   // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
   const isObstaclePieceSupported =
@@ -616,7 +624,7 @@ export function addPieceToBoardHexes({
               }
             })
         } catch (error) {
-          console.log("🚀 ~ addPieceToBoardHexes ~ error:", error)
+          console.log('🚀 ~ addPieceToBoardHexes ~ error:', error)
           // addPieceError = {
           //   message: 'Failed to fill out vertical obstruction for obstacle',
           //   error,
@@ -651,7 +659,7 @@ export function addPieceToBoardHexes({
               }
             })
         } catch (error) {
-          console.log("🚀 ~ addPieceToBoardHexes ~ error:", error)
+          console.log('🚀 ~ addPieceToBoardHexes ~ error:', error)
           // addPieceError = {
           //   message: 'Failed placing vertical clearance for obstacle',
           //   error,
@@ -699,7 +707,7 @@ export function addPieceToBoardHexes({
           }
         })
       } catch (error) {
-        console.log("🚀 ~ addPieceToBoardHexes ~ error:", error)
+        console.log('🚀 ~ addPieceToBoardHexes ~ error:', error)
         // addPieceError = { message: 'Could not place land tile', error }
       }
       // add the new piece
@@ -708,4 +716,3 @@ export function addPieceToBoardHexes({
   }
   return newBoardHexes
 }
-
