@@ -1,50 +1,43 @@
 import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-import usePieceHoverState from '../../hooks/usePieceHoverState'
 import type { BoardPiece } from '../../types'
 import { basicModelMaterial } from './materials'
-import { encodeBoardPieces } from '../../utils/map-utils'
 
 export function RoadWall({
   color,
+  highlightColor,
   boardPiece,
   onPointerUp,
+  onPointerEnter,
+  onPointerOut,
   opacity,
-  selectedPieceID,
-  hoveredPieceID,
+  isHighlighted,
   isLightsAndShadowsRender,
 }: {
   color: string
+  highlightColor?: string
   boardPiece?: BoardPiece
-  onPointerUp?: (e: ThreeEvent<PointerEvent>, boardPiece: BoardPiece) => void
+  onPointerUp?: (e: ThreeEvent<PointerEvent>, uid: string) => void
+  onPointerEnter?: (e: ThreeEvent<PointerEvent>, uid: string) => void
+  onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
   opacity?: number
-  selectedPieceID?: string
-  hoveredPieceID?: string
+  isHighlighted?: (uid: string) => boolean
   isLightsAndShadowsRender?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/handmade-roadwall.glb') as any
-  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
-  const isSelected = selectedPieceID === boardPiece?.uid || (boardPiece && selectedPieceID === encodeBoardPieces([boardPiece])[0])
-  const isHighlighted = hoveredPieceID === boardPiece?.uid || isSelected
-  const currentColor = isHighlighted
-    ? 'yellow'
-    : color
-  const opacityLevel = opacity ?? 1
-  const interactivityProps = onPointerUp && boardPiece ? {
-    onPointerUp: (e: ThreeEvent<PointerEvent>) => onPointerUp(e, boardPiece),
-    onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterBoardPiece(e, boardPiece.uid),
-    onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
-  } : {}
+  const currentColor = isHighlighted?.(boardPiece?.uid ?? '') && highlightColor ? highlightColor : color
   return (
     <mesh
-      receiveShadow
-      castShadow
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
       geometry={nodes.RoadWall.geometry}
-      scale={isHighlighted ? [1.1, 1.1, 1.1] : [1, 1, 1]}
-      {...interactivityProps}
+      scale={isHighlighted?.(boardPiece?.uid ?? '') ? [1.01, 1.01, 1.01] : [1, 1, 1]}
+      onPointerUp={(e) => onPointerUp && boardPiece ? onPointerUp(e, boardPiece.uid) : null}
+      onPointerEnter={(e) => onPointerEnter && boardPiece ? onPointerEnter(e, boardPiece.uid) : null}
+      onPointerOut={(e) => onPointerOut && boardPiece ? onPointerOut(e) : null}
     >
-      {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacityLevel)}
+      {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacity ?? 1)}
     </mesh>
   )
 }

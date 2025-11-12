@@ -1,8 +1,7 @@
 import { Vector3 } from 'three'
 import useBoundStore from '../store/store'
 import { type BoardPiece, HexTerrain, Pieces } from '../types'
-import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
-import { isFluidTerrainHex, isSingleHexTreePieceID } from '../utils/board-utils'
+import { isSingleHexTreePieceID, isSolidTerrainHex } from '../utils/board-utils'
 import {
   HEXGRID_HEX_HEIGHT,
   HEXGRID_HEXCAP_HEIGHT,
@@ -19,11 +18,10 @@ import {
   getRuinsOptions,
 } from './models/piece-adjustments'
 import type { ThreeEvent } from '@react-three/fiber'
-import { hexTerrainColor } from './maphex/hexColors'
 import { Suspense } from 'react'
 import ModelLoader from './models/ModelLoader'
-import Ruins2 from './models/Ruins2'
-import Ruins3 from './models/Ruins3'
+import { Ruins2 } from './models/Ruins2'
+import { Ruins3 } from './models/Ruins3'
 import { MarvelRuin } from './models/MarvelRuin'
 import { StartZone3D } from './models/StartZone3D'
 import { GlyphModel } from './models/Glyph'
@@ -35,6 +33,9 @@ import { BigTree415 } from './models/BigTree415'
 import { piecesSoFar } from '../data/pieces'
 import { JungleBrush } from './models/TicallaBrush'
 import TicallaPalm from './models/TicallaPalm'
+import { LaurWallPillar } from './models/LaurPillar'
+import usePieceHoverState from '../hooks/usePieceHoverState'
+import { LaurWallTrianglePillar } from './models/LaurTrianglePillar'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -48,15 +49,6 @@ export const MapBoardPiece3D = ({
     (s) => s.isLightsAndShadowsRender,
   )
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const onPointerUp = (event: ThreeEvent<PointerEvent>, boardPiece: BoardPiece) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(boardPiece.uid === selectedPieceID ? '' : boardPiece.uid)
-  }
   const { x, z, y, yBaseCap, yGlyphFluidUnder, yGlyph, yWithBase, yBase } =
     getBoardHex3DCoords({ ...pieceCoords, altitude })
   const {
@@ -66,6 +58,20 @@ export const MapBoardPiece3D = ({
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = altitude + 1 <= viewingLevel
+
+  const onPointerUp = (event: ThreeEvent<PointerEvent>, uid: string) => {
+    event.stopPropagation() // prevent pass through
+    // Early out right clicks(event.button=2), middle mouse clicks(1)
+    if (event.button !== 0) {
+      return
+    }
+    toggleSelectedPieceID(uid === selectedPieceID ? '' : uid)
+  }
+  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
+  const highlightColor = 'yellow'
+  const isSelected = (uid: string) => (selectedPieceID === uid)
+  const isHighlighted = (uid: string) => (hoveredPieceID === uid || isSelected(uid))
+  const pieceRotation = (boardPiece.rotation * -Math.PI) / 3
   // const isSolidLand = isSolidTerrainHex(piecesSoFar[inventoryID].terrain)
 
   // EARLY RETURN, no render
@@ -98,28 +104,103 @@ export const MapBoardPiece3D = ({
       >
         <Suspense fallback={<ModelLoader />}>
           {inventoryID === Pieces.ruins2 ? (
-            <Ruins2 pid={pid} />
+            <Ruins2
+              color={hexTerrainColor[HexTerrain.ruin]}
+              highlightColor={highlightColor}
+              boardPiece={boardPiece}
+              onPointerUp={onPointerUp}
+              onPointerEnter={onPointerEnterBoardPiece}
+              onPointerOut={onPointerOut}
+              opacity={1}
+              isHighlighted={isHighlighted}
+              isLightsAndShadowsRender={isLightsAndShadowsRender}
+            />
           ) : (
-            <Ruins3 pid={pid} />
+            <Ruins3
+              color={hexTerrainColor[HexTerrain.ruin]}
+              highlightColor={highlightColor}
+              boardPiece={boardPiece}
+              onPointerUp={onPointerUp}
+              onPointerEnter={onPointerEnterBoardPiece}
+              onPointerOut={onPointerOut}
+              opacity={1}
+              isHighlighted={isHighlighted}
+              isLightsAndShadowsRender={isLightsAndShadowsRender}
+            />
           )}
         </Suspense>
       </group>
     )
   }
-  // MARVEL RUINS
+  // // MARVEL RUINS
+  // if (
+  //   inventoryID === Pieces.marvel ||
+  //   inventoryID === Pieces.marvelBroken ||
+  //   inventoryID === Pieces.marvelNoUpper ||
+  //   inventoryID === Pieces.marvelNoUpperBroken
+  // ) {
+  //   return (
+  //     <group
+  //       position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+  //       rotation={[0, rotation, 0]}
+  //     >
+  //       <Suspense fallback={<ModelLoader />}>
+  //         <MarvelRuin pid={pid} />
+  //       </Suspense>
+  //     </group>
+  //   )
+  // }
+
+  // LAUR PILLAR
   if (
-    inventoryID === Pieces.marvel ||
-    inventoryID === Pieces.marvelBroken ||
-    inventoryID === Pieces.marvelNoUpper ||
-    inventoryID === Pieces.marvelNoUpperBroken
+    inventoryID === Pieces.laurWallSquarePillar ||
+    inventoryID === Pieces.laurWallPillarStackable
   ) {
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
-        rotation={[0, rotation, 0]}
+        rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <MarvelRuin pid={pid} />
+          <LaurWallPillar
+            color={hexTerrainColor[HexTerrain.laurWall]}
+            secondaryColor={hexTerrainColor.laurModelColor2}
+            highlightColor={highlightColor}
+            boardPiece={boardPiece}
+            onPointerUp={onPointerUp}
+            onPointerEnter={onPointerEnterBoardPiece}
+            onPointerOut={onPointerOut}
+            isHighlighted={isHighlighted}
+            opacity={1}
+            isLightsAndShadowsRender={isLightsAndShadowsRender}
+          />
+        </Suspense>
+      </group>
+    )
+  }
+
+  // LAUR TRIANGLE PILLAR
+  if (
+    inventoryID === Pieces.laurWallTrianglePillar
+  ) {
+    return (
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <LaurWallTrianglePillar
+            color={hexTerrainColor[HexTerrain.laurWall]}
+            secondaryColor={hexTerrainColor.laurModelColor2}
+            highlightColor={highlightColor}
+            boardPiece={boardPiece}
+            onPointerUp={onPointerUp}
+            onPointerEnter={onPointerEnterBoardPiece}
+            onPointerOut={onPointerOut}
+            isHighlighted={isHighlighted}
+            opacity={1}
+            isLightsAndShadowsRender={isLightsAndShadowsRender}
+          />
         </Suspense>
       </group>
     )
@@ -140,72 +221,83 @@ export const MapBoardPiece3D = ({
       <group
         position={[
           x,
-          isUnderHexFluid
-            ? yGlyphFluidUnder + HEXGRID_HEX_HEIGHT
-            : yGlyph + HEXGRID_HEX_HEIGHT,
+          // isUnderHexFluid
+          //   ? yGlyphFluidUnder + HEXGRID_HEX_HEIGHT
+          //   : yGlyph + HEXGRID_HEX_HEIGHT,
+          yGlyph + HEXGRID_HEX_HEIGHT,
           z,
         ]}
-        rotation={[0, pieceRotation, Math.PI / 2]}
+        rotation={[0, 0, Math.PI / 2]}
       >
-        <StartZone3D pid={pid} />
+        <StartZone3D
+          color={hexTerrainColor[inventoryID as keyof typeof hexTerrainColor]}
+          highlightColor={highlightColor}
+          boardPiece={boardPiece}
+          onPointerUp={onPointerUp}
+          onPointerEnter={onPointerEnterBoardPiece}
+          onPointerOut={onPointerOut}
+          opacity={1}
+          isHighlighted={isHighlighted}
+          isLightsAndShadowsRender={isLightsAndShadowsRender}
+        />
       </group>
     )
   }
 
   //  GLYPHS
-  if (
-    inventoryID === Pieces.glyphPower ||
-    inventoryID === Pieces.glyphTreasure
-  ) {
-    return (
-      <group
-        position={[
-          x,
-          (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) + HEXGRID_HEX_HEIGHT,
-          z,
-        ]}
-        rotation={[0, pieceRotation, 0]}
-      >
-        <GlyphModel pid={pid} />
-      </group>
-    )
-  }
+  // if (
+  //   inventoryID === Pieces.glyphPower ||
+  //   inventoryID === Pieces.glyphTreasure
+  // ) {
+  //   return (
+  //     <group
+  //       position={[
+  //         x,
+  //         (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) + HEXGRID_HEX_HEIGHT,
+  //         z,
+  //       ]}
+  //       rotation={[0, pieceRotation, 0]}
+  //     >
+  //       <GlyphModel pid={pid} />
+  //     </group>
+  //   )
+  // }
   // GLACIER1 / OUTCROP1 / LAVAOUTCROP1
-  if (
-    inventoryID === Pieces.glacier1 ||
-    inventoryID === Pieces.outcrop1 ||
-    inventoryID === Pieces.lavaRockOutcrop1
-  ) {
-    const outcrop1Color =
-      inventoryID === Pieces.glacier1
-        ? hexTerrainColor[HexTerrain.ice]
-        : inventoryID === Pieces.outcrop1
-          ? hexTerrainColor[HexTerrain.shadow]
-          : hexTerrainColor[HexTerrain.lava]
-    return (
-      <>
-        <group
-          position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
-          rotation={[0, pieceRotation, 0]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <Outcrop1
-              pid={pid}
-              isGlacier={inventoryID === Pieces.glacier1}
-              isLavaRock={inventoryID === Pieces.lavaRockOutcrop1}
-            />
-          </Suspense>
-        </group>
-        <ObstacleBase
-          x={x}
-          y={yBase + HEXGRID_HEX_HEIGHT}
-          z={z}
-          color={outcrop1Color}
-          isFluidBase={true}
-        />
-      </>
-    )
-  }
+  // if (
+  //   inventoryID === Pieces.glacier1 ||
+  //   inventoryID === Pieces.outcrop1 ||
+  //   inventoryID === Pieces.lavaRockOutcrop1
+  // ) {
+  //   const outcrop1Color =
+  //     inventoryID === Pieces.glacier1
+  //       ? hexTerrainColor[HexTerrain.ice]
+  //       : inventoryID === Pieces.outcrop1
+  //         ? hexTerrainColor[HexTerrain.shadow]
+  //         : hexTerrainColor[HexTerrain.lava]
+  //   return (
+  //     <>
+  //       <group
+  //         position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
+  //         rotation={[0, boardPiece.rotation, 0]}
+  //       >
+  //         <Suspense fallback={<ModelLoader />}>
+  //           <Outcrop1
+  //             pid={pid}
+  //             isGlacier={inventoryID === Pieces.glacier1}
+  //             isLavaRock={inventoryID === Pieces.lavaRockOutcrop1}
+  //           />
+  //         </Suspense>
+  //       </group>
+  //       <ObstacleBase
+  //         x={x}
+  //         y={yBase + HEXGRID_HEX_HEIGHT}
+  //         z={z}
+  //         color={outcrop1Color}
+  //         isFluidBase={true}
+  //       />
+  //     </>
+  //   )
+  // }
 
   // LAURWALL ADDON
   if (
@@ -220,13 +312,15 @@ export const MapBoardPiece3D = ({
         rotation={[0, pieceRotation, 0]}
       >
         <LaurWallAddon
-          onPointerUp={onPointerUp}
-          boardPiece={boardPiece}
           color={hexTerrainColor[HexTerrain.laurWall]}
           secondaryColor={hexTerrainColor.laurModelColor2}
+          highlightColor={highlightColor}
+          boardPiece={boardPiece}
+          onPointerUp={onPointerUp}
+          onPointerEnter={onPointerEnterBoardPiece}
+          onPointerOut={onPointerOut}
           opacity={1}
-          selectedPieceID={selectedPieceID}
-          hoveredPieceID={hoveredPieceID}
+          isHighlighted={isHighlighted}
           isLightsAndShadowsRender={isLightsAndShadowsRender}
         />
       </group>
@@ -244,12 +338,14 @@ export const MapBoardPiece3D = ({
         rotation={[0, pieceRotation, 0]}
       >
         <Battlement
-          boardPiece={boardPiece}
           color={hexTerrainColor[HexTerrain.battlement]}
+          highlightColor={highlightColor}
+          boardPiece={boardPiece}
           onPointerUp={onPointerUp}
+          onPointerEnter={onPointerEnterBoardPiece}
+          onPointerOut={onPointerOut}
           opacity={1}
-          selectedPieceID={selectedPieceID}
-          hoveredPieceID={hoveredPieceID}
+          isHighlighted={isHighlighted}
           isLightsAndShadowsRender={isLightsAndShadowsRender}
         />
       </group>
@@ -267,90 +363,92 @@ export const MapBoardPiece3D = ({
         rotation={[0, pieceRotation, 0]}
       >
         <RoadWall
-          boardPiece={boardPiece}
           color={hexTerrainColor[HexTerrain.roadWall]}
-          opacity={1}
+          highlightColor={highlightColor}
+          boardPiece={boardPiece}
           onPointerUp={onPointerUp}
-          selectedPieceID={selectedPieceID}
-          hoveredPieceID={hoveredPieceID}
+          onPointerEnter={onPointerEnterBoardPiece}
+          onPointerOut={onPointerOut}
+          opacity={1}
+          isHighlighted={isHighlighted}
           isLightsAndShadowsRender={isLightsAndShadowsRender}
         />
       </group>
     )
   }
   // SINGLE HEX TREES
-  if (isSingleHexTreePieceID(inventoryID)) {
-    return (
-      <>
-        <group
-          scale={[
-            getOptionsForTreeHeight(inventoryID).scaleX,
-            getOptionsForTreeHeight(inventoryID).scaleY,
-            getOptionsForTreeHeight(inventoryID).scaleX,
-          ]}
-          position={[
-            x,
-            yWithBase + getOptionsForTreeHeight(inventoryID).y + HEXGRID_HEX_HEIGHT,
-            z,
-          ]}
-          rotation={[0, pieceRotation, 0]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <ForestTree pid={pid} />
-          </Suspense>
-        </group>
-        <ObstacleBase
-          x={x}
-          y={yBase + HEXGRID_HEX_HEIGHT}
-          z={z}
-          color={hexTerrainColor.treeBase}
-        />
-      </>
-    )
-  }
+  // if (isSingleHexTreePieceID(inventoryID)) {
+  //   return (
+  //     <>
+  //       <group
+  //         scale={[
+  //           getOptionsForTreeHeight(inventoryID).scaleX,
+  //           getOptionsForTreeHeight(inventoryID).scaleY,
+  //           getOptionsForTreeHeight(inventoryID).scaleX,
+  //         ]}
+  //         position={[
+  //           x,
+  //           yWithBase + getOptionsForTreeHeight(inventoryID).y + HEXGRID_HEX_HEIGHT,
+  //           z,
+  //         ]}
+  //         rotation={[0, pieceRotation, 0]}
+  //       >
+  //         <Suspense fallback={<ModelLoader />}>
+  //           <ForestTree pid={pid} />
+  //         </Suspense>
+  //       </group>
+  //       <ObstacleBase
+  //         x={x}
+  //         y={yBase + HEXGRID_HEX_HEIGHT}
+  //         z={z}
+  //         color={hexTerrainColor.treeBase}
+  //       />
+  //     </>
+  //   )
+  // }
   // BIG TREE
-  if (inventoryID === Pieces.tree415) {
-    return (
-      <Suspense fallback={<ModelLoader />}>
-        <group
-          position={[
-            x,
-            y,
-            z
-          ]}
-          rotation={[0, pieceRotation, 0]}
-        >
-          <BigTree415 pid={pid} />
-        </group>
-      </Suspense>
-    )
-  }
+  // if (inventoryID === Pieces.tree415) {
+  //   return (
+  //     <Suspense fallback={<ModelLoader />}>
+  //       <group
+  //         position={[
+  //           x,
+  //           y,
+  //           z
+  //         ]}
+  //         rotation={[0, pieceRotation, 0]}
+  //       >
+  //         <BigTree415 pid={pid} />
+  //       </group>
+  //     </Suspense>
+  //   )
+  // }
   // JUNGLE BUSH 
-  if (piecesSoFar[inventoryID].terrain === HexTerrain.brush) {
-    return (
-      <group
-        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
-        rotation={[0, pieceRotation, 0]}
-      >
-        <Suspense fallback={<ModelLoader />}>
-          <JungleBrush pid={pid} />
-        </Suspense>
-      </group>
-    )
-  }
+  // if (piecesSoFar[inventoryID].terrain === HexTerrain.brush) {
+  //   return (
+  //     <group
+  //       position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+  //       rotation={[0, pieceRotation, 0]}
+  //     >
+  //       <Suspense fallback={<ModelLoader />}>
+  //         <JungleBrush pid={pid} />
+  //       </Suspense>
+  //     </group>
+  //   )
+  // }
   // JUNGLE PALM
-  if (piecesSoFar[inventoryID].terrain === HexTerrain.palm) {
-    return (
-      <group
-        scale={[1, getOptionsForPalmHeight(inventoryID).scaleY, 1]}
-        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
-        rotation={[0, pieceRotation, 0]}
-      >
-        <Suspense fallback={<ModelLoader />}>
-          <TicallaPalm pid={pid} />
-        </Suspense>
-      </group>
-    )
-  }
+  // if (piecesSoFar[inventoryID].terrain === HexTerrain.palm) {
+  //   return (
+  //     <group
+  //       scale={[1, getOptionsForPalmHeight(inventoryID).scaleY, 1]}
+  //       position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+  //       rotation={[0, pieceRotation, 0]}
+  //     >
+  //       <Suspense fallback={<ModelLoader />}>
+  //         <TicallaPalm pid={pid} />
+  //       </Suspense>
+  //     </group>
+  //   )
+  // }
   return <></>
 }

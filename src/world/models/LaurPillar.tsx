@@ -1,60 +1,47 @@
 
 import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-import usePieceHoverState from '../../hooks/usePieceHoverState'
-import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain } from '../../types'
-import {
-  HEXGRID_OBSTACLE_BASE_HEIGHT,
-  PIECE_PREVIEW_OPACITY,
-} from '../../utils/constants'
-import { hexTerrainColor } from '../maphex/hexColors'
+import type { BoardPiece } from '../../types'
+import { HEXGRID_OBSTACLE_BASE_HEIGHT } from '../../utils/constants'
 import { basicModelMaterial } from './materials'
 import { laurBaseCylinderArgs } from './ObstacleBase'
 
-type LaurWallPillarProps = {
-  boardHex?: BoardHex
-  onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
-  opacity?: number
-}
 
 export function LaurWallPillar({
-  boardHex,
+  color,
+  secondaryColor,
+  highlightColor,
+  boardPiece,
   onPointerUp,
+  onPointerEnter,
+  onPointerOut,
   opacity,
+  isHighlighted,
+  isLightsAndShadowsRender,
 }: {
+  color: string
+  secondaryColor: string
+  highlightColor?: string
+  boardPiece?: BoardPiece
+  onPointerUp?: (e: ThreeEvent<PointerEvent>, uid: string) => void
+  onPointerEnter?: (e: ThreeEvent<PointerEvent>, uid: string) => void
+  onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
   opacity?: number
-  boardHex?: BoardHex
-  onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
+  isHighlighted?: (uid: string) => boolean
+  isLightsAndShadowsRender?: boolean
 }) {
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-pillar-from-hs-blendfile.glb') as any
-  const isLightsAndShadowsRender = useBoundStore((s) => s.isLightsAndShadowsRender)
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
-
-  // Interactive highlight logic
-  const isSelected = boardHex && selectedPieceID === boardHex.pieceID
-  const isHighlighted = boardHex && (hoveredPieceID === boardHex.pieceID || isSelected)
-  const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.pieceID
-  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
-  const pillarColor = hexTerrainColor[HexTerrain.laurWall]
-  const interiorPillarColor = hexTerrainColor.laurModelColor2
-  const color = isHighlighted ? yellowColor : pillarColor
-  const interiorColor = isHighlighted ? yellowColor : interiorPillarColor
+  const currentColor = isHighlighted?.(boardPiece?.uid ?? '') && highlightColor ? highlightColor : color
+  const interiorColor = isHighlighted?.(boardPiece?.uid ?? '') && highlightColor ? highlightColor : secondaryColor
   const opacityLevel = opacity ?? 1
-  const interactivityProps = onPointerUp && boardHex ? {
-    onPointerUp: (e: ThreeEvent<PointerEvent>) => onPointerUp(e, boardHex),
-    onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnter(e, boardHex),
-    onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
-  } : {}
   return (
     <>
       <group
-        {...interactivityProps}
+        onPointerUp={(e) => onPointerUp && boardPiece ? onPointerUp(e, boardPiece.uid) : null}
+        onPointerEnter={(e) => onPointerEnter && boardPiece ? onPointerEnter(e, boardPiece.uid) : null}
+        onPointerOut={(e) => onPointerOut && boardPiece ? onPointerOut(e) : null}
+        scale={isHighlighted?.(boardPiece?.uid ?? '') ? [1.01, 1.01, 1.01] : [1, 1, 1]}
       >
         {/* Scaled to match reality: 9 clears the upper pillar edge,
          13 totally clears the pillars top X-arch */}
@@ -63,7 +50,7 @@ export function LaurWallPillar({
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.PillarTop.geometry}
         >
-          {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
+          {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacityLevel)}
         </mesh>
         <mesh
           receiveShadow={isLightsAndShadowsRender}
@@ -72,7 +59,7 @@ export function LaurWallPillar({
         >
           {basicModelMaterial(
             interiorColor,
-            isLightsAndShadowsRender,
+            !!isLightsAndShadowsRender,
             opacityLevel,
           )}
         </mesh>
@@ -81,7 +68,7 @@ export function LaurWallPillar({
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.PillarFacade.geometry}
         >
-          {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
+          {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacityLevel)}
         </mesh>
         <mesh
           receiveShadow={isLightsAndShadowsRender}
@@ -90,7 +77,7 @@ export function LaurWallPillar({
         >
           {basicModelMaterial(
             interiorColor,
-            isLightsAndShadowsRender,
+            !!isLightsAndShadowsRender,
             opacityLevel,
           )}
         </mesh>
@@ -100,7 +87,7 @@ export function LaurWallPillar({
             castShadow={isLightsAndShadowsRender}
           >
             <cylinderGeometry args={laurBaseCylinderArgs} />
-            {basicModelMaterial(color, isLightsAndShadowsRender)}
+            {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacityLevel)}
           </mesh>
         </group>
       </group>

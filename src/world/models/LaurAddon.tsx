@@ -9,20 +9,24 @@ import { encodeBoardPieces } from '../../utils/map-utils'
 export function LaurWallAddon({
   color,
   secondaryColor,
+  highlightColor,
   boardPiece,
   onPointerUp,
+  onPointerEnter,
+  onPointerOut,
   opacity,
-  selectedPieceID,
-  hoveredPieceID,
+  isHighlighted,
   isLightsAndShadowsRender,
 }: {
   color: string
   secondaryColor: string
+  highlightColor?: string
   boardPiece?: BoardPiece
-  onPointerUp?: (e: ThreeEvent<PointerEvent>, boardPiece: BoardPiece) => void
+  onPointerUp?: (e: ThreeEvent<PointerEvent>, uid: string) => void
+  onPointerEnter?: (e: ThreeEvent<PointerEvent>, uid: string) => void
+  onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
   opacity?: number
-  selectedPieceID?: string
-  hoveredPieceID?: string
+  isHighlighted?: (uid: string) => boolean
   isLightsAndShadowsRender?: boolean
 }) {
   const {
@@ -41,32 +45,21 @@ export function LaurWallAddon({
     nodes: { LaurWallLongArch },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   } = useGLTF('/laurwall-long-arch.glb') as any
-  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
-  const isSelected = selectedPieceID === boardPiece?.uid || (boardPiece && selectedPieceID === encodeBoardPieces([boardPiece])[0])
-  const isHighlighted = hoveredPieceID === boardPiece?.uid || isSelected
-  const currentColor = isHighlighted
-    ? 'yellow'
-    : color
-  const currentSecondaryColor = isHighlighted
-    ? 'yellow'
-    : secondaryColor
+  const currentColor = isHighlighted?.(boardPiece?.uid ?? '') && highlightColor ? highlightColor : color
+  const interiorColor = isHighlighted?.(boardPiece?.uid ?? '') && highlightColor ? highlightColor : secondaryColor
   const opacityLevel = opacity ?? 1
-  const currentScale = isHighlighted ? [1.01, 1.01, 1.01] : [1, 1, 1]
-  const interactivityProps = onPointerUp && boardPiece ? {
-    onPointerUp: (e: ThreeEvent<PointerEvent>) => onPointerUp(e, boardPiece),
-    onPointerEnter: (e: ThreeEvent<PointerEvent>) => onPointerEnterBoardPiece(e, boardPiece.uid),
-    onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
-  } : {}
   return (
     <group
-      {...interactivityProps}
+      onPointerUp={(e) => onPointerUp && boardPiece ? onPointerUp(e, boardPiece.uid) : null}
+      onPointerEnter={(e) => onPointerEnter && boardPiece ? onPointerEnter(e, boardPiece.uid) : null}
+      onPointerOut={(e) => onPointerOut && boardPiece ? onPointerOut(e) : null}
+      scale={isHighlighted?.(boardPiece?.uid ?? '') ? [1.01, 1.01, 1.01] : [1, 1, 1]}
     >
       {/* LAUR WALL RUIN */}
       {/* {boardPiece?.inventoryID === Pieces.laurWallRuin2 && ()} */}
       {/* {boardPiece?.inventoryID === Pieces.laurWallRuin3 && ()} */}
       {boardPiece?.inventoryID === Pieces.laurWallRuin1 && (
         <group
-          scale={currentScale}
         >
           <mesh
             receiveShadow={isLightsAndShadowsRender}
@@ -80,7 +73,7 @@ export function LaurWallAddon({
             castShadow={isLightsAndShadowsRender}
             geometry={LaurWallRuinBustedConcrete.geometry}
           >
-            {basicModelMaterial(currentSecondaryColor, !!isLightsAndShadowsRender, opacityLevel)}
+            {basicModelMaterial(interiorColor, !!isLightsAndShadowsRender, opacityLevel)}
           </mesh>
         </group>
       )}
@@ -100,7 +93,7 @@ export function LaurWallAddon({
             castShadow={isLightsAndShadowsRender}
             geometry={LaurWallShortDecorDeep.geometry}
           >
-            {basicModelMaterial(currentSecondaryColor, !!isLightsAndShadowsRender, opacityLevel)}
+            {basicModelMaterial(interiorColor, !!isLightsAndShadowsRender, opacityLevel)}
           </mesh>
         </>
       )}
@@ -120,7 +113,7 @@ export function LaurWallAddon({
             castShadow={isLightsAndShadowsRender}
             geometry={LaurWallLongDecorDeep.geometry}
           >
-            {basicModelMaterial(currentSecondaryColor, !!isLightsAndShadowsRender, opacityLevel)}
+            {basicModelMaterial(interiorColor, !!isLightsAndShadowsRender, opacityLevel)}
           </mesh>
         </>
       )}

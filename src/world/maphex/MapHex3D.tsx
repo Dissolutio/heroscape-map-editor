@@ -5,18 +5,16 @@ import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../../utils/board-utils'
 import {
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
   HEXGRID_HEX_HEIGHT,
 } from '../../utils/constants'
-import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
+import { getBoardHex3DCoords } from '../../utils/map-utils'
 import { CastleArch } from '../models/CastleArch'
 import CastleBase from '../models/CastleBases'
 import { CastleWall } from '../models/CastleWalls'
 import { Ladder } from '../models/Ladder'
 import LandSubterrain from '../models/LandSubterrain'
-import { LaurWallPillar } from '../models/LaurPillar'
 import MarroHive6 from '../models/MarroHive6'
 import ModelLoader from '../models/ModelLoader'
 import ObstacleBase from '../models/ObstacleBase'
@@ -30,7 +28,6 @@ import {
 import HeightRing, { TopOutlineInterlockHex } from './HeightRing'
 import { MapHexIDDisplay } from './MapHexIDDisplay'
 import { hexTerrainColor } from './hexColors'
-import { LaurWallTrianglePillar } from '../models/LaurTrianglePillar'
 
 export const MapHex3D = ({
   boardHex,
@@ -39,7 +36,6 @@ export const MapHex3D = ({
   boardHex: BoardHex
   onPointerUpPaintPiece: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) => {
-  const boardHexes = useBoundStore((s) => s.boardHexes)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isTopOutlinedInterlockHexes = useBoundStore(
     (s) => s.isTopOutlinedInterlockHexes,
@@ -50,12 +46,6 @@ export const MapHex3D = ({
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const inventoryID = boardHex.inventoryID
   const { x, y, z, yWithBase, yBase, yBaseCap } = getBoardHex3DCoords(boardHex)
-  const underHexID = genBoardHexID({
-    ...boardHex,
-    altitude: boardHex.altitude - 1,
-  })
-  const underHexTerrain = boardHexes?.[underHexID]?.terrain ?? HexTerrain.grass
-  const isUnderHexFluid = isFluidTerrainHex(underHexTerrain)
   const isShowEmptyHexes =
     !isTakingPicture && boardHex.terrain === HexTerrain.empty
   const isHeightRingedHex =
@@ -66,12 +56,6 @@ export const MapHex3D = ({
     isSolidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
   const isFluidSubterrain =
     isFluidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
-  const isLaurSquarePillarHex =
-    boardHex.inventoryID === Pieces.laurWallSquarePillar &&
-    boardHex.isObstacleOrigin
-  const isLaurTrianglePillarHex =
-    boardHex.inventoryID === Pieces.laurWallTrianglePillar &&
-    boardHex.isObstacleOrigin
   const isLadderHex =
     boardHex.terrain === HexTerrain.ladder && boardHex.isObstacleOrigin
   const isOutcrop3Hex =
@@ -118,9 +102,6 @@ export const MapHex3D = ({
   if (!isVisible) {
     return null
   }
-  const laurPillarHeight = isUnderHexFluid
-    ? yWithBase - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_FLUID_HEIGHT
-    : yWithBase
   return (
     <>
       <MapHexIDDisplay
@@ -165,7 +146,7 @@ export const MapHex3D = ({
           </Suspense>
         </group>
       )}
-      {isLaurSquarePillarHex && (
+      {/* {isLaurSquarePillarHex && (
         <group
           position={[x, laurPillarHeight, z]}
           rotation={[0, pieceRotation, 0]}
@@ -190,7 +171,7 @@ export const MapHex3D = ({
             />
           </Suspense>
         </group>
-      )}
+      )} */}
       {isGlacier3Hex && (
         <>
           <group

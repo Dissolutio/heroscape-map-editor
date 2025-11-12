@@ -44,13 +44,11 @@ import { GlyphModelPreview } from './models/Glyph'
 import { LaurWallTrianglePillar } from './models/LaurTrianglePillar'
 import { ForestTree } from './models/ForestTree'
 import MarroHive6 from './models/MarroHive6'
-import { Outcrop3 } from './models/Outcrop3'
 import { Outcrop4Preview } from './models/Outcrop4'
 import { Outcrop6 } from './models/Outcrop6'
 import { LadderPreview } from './models/Ladder'
 import { LaurWallAddon } from './models/LaurAddon'
-import { Ruins2Preview } from './models/Ruins2'
-import { Ruins3Preview } from './models/Ruins3'
+import { Ruins2 } from './models/Ruins2'
 import { MarvelRuinPreview } from './models/MarvelRuin'
 import { LaurPalmPreview, TicallaPalmPreview } from './models/TicallaPalm'
 import {
@@ -65,12 +63,16 @@ import { CastleWallPreview } from './models/CastleWalls'
 import { CastleBasePreview } from './models/CastleBases'
 import { CastleArchPreview } from './models/CastleArch'
 import { BigTree415 } from './models/BigTree415'
+import { Outcrop3 } from './models/Outcrop3'
+import { Ruins3 } from './models/Ruins3'
+import { StartZone3D } from './models/StartZone3D'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
   const penMode = useBoundStore((s) => s.penMode)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const penModeSize = useBoundStore((s) => s.pieceSize)
+  const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
 
   // Determine the piece to preview based on penMode and pieceSize
   const pieceKey = penModeSize === 0 ? penMode : `${penMode}${penModeSize}`
@@ -129,6 +131,7 @@ export default function PiecePreview() {
   //   isShowEmptyHexes
   // const isObstacleHex =
   //   hoveredHex.isObstacleOrigin || hoveredHex.isObstacleAuxiliary
+  const isStartZone = piece.landPrefix === PiecePrefixes.startZone
   const isLaurBrushHex = piece.id === Pieces.laurBrush10
   const isTicallaBrushHex = piece.id === Pieces.brush9
   const isSwampBrushHex = piece.id === Pieces.swampBrush10
@@ -307,6 +310,8 @@ export default function PiecePreview() {
         rotation={[0, pieceRotation, 0]}
       >
         <LaurWallPillar
+          color={hexTerrainColor[HexTerrain.laurWall]}
+          secondaryColor={hexTerrainColor.laurModelColor2}
           opacity={PIECE_PREVIEW_OPACITY}
         />
       </group>
@@ -327,7 +332,11 @@ export default function PiecePreview() {
         ]}
         rotation={[0, pieceRotation, 0]}
       >
-        <LaurWallTrianglePillar />
+        <LaurWallTrianglePillar
+          color={hexTerrainColor[HexTerrain.laurWall]}
+          secondaryColor={hexTerrainColor.laurModelColor2}
+          opacity={PIECE_PREVIEW_OPACITY}
+        />
       </group>
     )
   }
@@ -509,6 +518,19 @@ export default function PiecePreview() {
       </group>
     )
   }
+  if (isStartZone) {
+    return (
+      <group
+        position={[x, yGlyph, z]}
+        rotation={[0, 0, Math.PI / 2]}
+      >
+        <StartZone3D
+          color={hexTerrainColor[pieceID as keyof typeof hexTerrainColor]}
+          opacity={PIECE_PREVIEW_OPACITY}
+        />
+      </group>
+    )
+  }
   if (isRuin2Hex && isSolidOrEmptyBeneath) {
     return (
       <group
@@ -520,7 +542,10 @@ export default function PiecePreview() {
         rotation={[0, ruinsOptions.rotationY, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Ruins2Preview />
+          <Ruins2
+            color={hexTerrainColor[HexTerrain.ruin]}
+            opacity={PIECE_PREVIEW_OPACITY}
+          />
         </Suspense>
       </group>
     )
@@ -536,7 +561,10 @@ export default function PiecePreview() {
         rotation={[0, ruinsOptions.rotationY, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Ruins3Preview />
+          <Ruins3
+            color={hexTerrainColor[HexTerrain.ruin]}
+            opacity={PIECE_PREVIEW_OPACITY}
+          />
         </Suspense>
       </group>
     )
@@ -645,7 +673,8 @@ export default function PiecePreview() {
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Outcrop3Preview
+          <Outcrop3
+            opacity={PIECE_PREVIEW_OPACITY}
             isGlacier={piece?.terrain === HexTerrain.glacier}
             isLavaRock={piece?.terrain === HexTerrain.lavaRockOutcrop}
           />

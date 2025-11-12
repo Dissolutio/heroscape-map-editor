@@ -99,8 +99,8 @@ export default function MapDisplay3D({
     const isCastleWallArchClicked =
       hex.pieceID.includes(PiecePrefixes.castleWall) ||
       hex.pieceID.includes(PiecePrefixes.castleArch)
-    const isSolidLandCapClicked =
-      isSolidTerrainHex(piecesSoFar[hex.inventoryID].terrain)
+    // const isSolidLandCapClicked =
+    //   isSolidTerrainHex(piecesSoFar[hex.inventoryID].terrain)
     const isLaurPillarClicked =
       hex.inventoryID === Pieces.laurWallSquarePillar ||
       hex.inventoryID === Pieces.laurWallTrianglePillar
@@ -188,11 +188,6 @@ export default function MapDisplay3D({
     // Clicked a regular land cap
     else {
       paintTile(pieceObject)
-    }
-
-    // No piece placed: if we didn't paint a piece maybe the user was trying to select one
-    else {
-      toggleSelectedPieceID(hex.pieceID)
     }
   }
 
