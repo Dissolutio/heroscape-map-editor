@@ -20,7 +20,7 @@ export function ForestTree({
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
@@ -36,7 +36,7 @@ export function ForestTree({
         toggleSelectedPieceID(isSelected ? '' : pid)
       },
       onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
-        onPointerEnterPiece(e, pid),
+        onPointerEnterBoardPiece(e, pid),
       onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
     }
     : {}

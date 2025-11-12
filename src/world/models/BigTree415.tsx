@@ -18,7 +18,7 @@ export function BigTree415({
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
 
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
@@ -40,7 +40,7 @@ export function BigTree415({
         toggleSelectedPieceID(isSelected ? '' : pid)
       },
       onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
-        onPointerEnterPiece(e, pid),
+        onPointerEnterBoardPiece(e, pid),
       onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
     }
     : {}

@@ -13,7 +13,7 @@ export function JungleBrush({
   opacity,
 }: { pid?: string; opacity?: number }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const isSelected = selectedPieceID === pid
@@ -28,7 +28,7 @@ export function JungleBrush({
         toggleSelectedPieceID(isSelected ? '' : pid)
       },
       onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
-        onPointerEnterPiece(e, pid),
+        onPointerEnterBoardPiece(e, pid),
       onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
     }
     : {}

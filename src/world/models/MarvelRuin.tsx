@@ -21,7 +21,7 @@ export function MarvelRuin({ pid }: { pid: string }) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
@@ -39,7 +39,7 @@ export function MarvelRuin({ pid }: { pid: string }) {
     inventoryID === Pieces.marvel || inventoryID === Pieces.marvelNoUpper
   return (
     <group
-      onPointerEnter={(e) => onPointerEnterPiece(e, pid)}
+      onPointerEnter={(e) => onPointerEnterBoardPiece(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
       onPointerUp={(e) => onPointerUp(e)}
     >

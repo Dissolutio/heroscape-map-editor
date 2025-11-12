@@ -27,7 +27,7 @@ export function Outcrop3({
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterHex, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
 
   const yellowColor = 'yellow'
@@ -59,15 +59,15 @@ export function Outcrop3({
 
   const pointerHandlers = boardHex
     ? {
-        onPointerUp: (e: ThreeEvent<PointerEvent>) => {
-          e.stopPropagation()
-          if (e.button !== 0) return
-          toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
-        },
-        onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
-          onPointerEnter(e, boardHex),
-        onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
-      }
+      onPointerUp: (e: ThreeEvent<PointerEvent>) => {
+        e.stopPropagation()
+        if (e.button !== 0) return
+        toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+      },
+      onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
+        onPointerEnterHex(e, boardHex),
+      onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+    }
     : {}
 
   return (

@@ -81,7 +81,7 @@ function SolidCapInstance({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterHex, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const penMode = useBoundStore((s) => s.penMode)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
@@ -121,7 +121,7 @@ function SolidCapInstance({
       return
     }
     e.stopPropagation() // prevent this hover from passing through and affecting behind
-    onPointerEnter(e, boardHex)
+    onPointerEnterHex(e, boardHex)
     ref?.current?.color?.set?.('yellow')
   }
   const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {

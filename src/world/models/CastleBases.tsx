@@ -24,7 +24,7 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterHex, onPointerOut } = usePieceHoverState()
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const yellowColor = 'yellow'
   const bodyGeometry = pieceID.includes(Pieces.castleBaseEnd)
@@ -42,7 +42,7 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
     : hexTerrainColor[HexTerrain.castleBase]
   const onPointerEnterCap = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
-    onPointerEnter(e, boardHex)
+    onPointerEnterHex(e, boardHex)
   }
   const onPointerOutCap = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
@@ -63,7 +63,7 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
         castShadow={isLightsAndShadowsRender}
         geometry={bodyGeometry}
         onPointerUp={onPointerUpBody}
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerEnter={(e) => onPointerEnterHex(e, boardHex)}
         onPointerOut={onPointerOut}
       >
         {basicModelMaterial(color, isLightsAndShadowsRender)}

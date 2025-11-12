@@ -67,7 +67,7 @@ function EmptyHex({
 }: BoardHexPieceProps & { isLightsAndShadowsRender: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterHex, onPointerOut } = usePieceHoverState()
 
   // Effect: Initial color/position
   React.useLayoutEffect(() => {
@@ -81,7 +81,7 @@ function EmptyHex({
 
   const handleEnter = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation() // prevent this hover from passing through and affecting behind
-    onPointerEnter(e, boardHex)
+    onPointerEnterHex(e, boardHex)
     ref?.current?.color?.set?.('yellow')
   }
   const handleOut = (e: ThreeEvent<PointerEvent>) => {

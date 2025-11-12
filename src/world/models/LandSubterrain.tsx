@@ -15,7 +15,7 @@ export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const isSelected = selectedPieceID === pieceID
   const isHovered = hoveredPieceID === pieceID
@@ -112,7 +112,7 @@ export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
   return (
     <group
       onPointerUp={onPointerUp}
-      onPointerEnter={(e) => onPointerEnterPiece(e, pieceID)}
+      onPointerEnter={(e) => onPointerEnterBoardPiece(e, pieceID)}
       onPointerOut={(e) => onPointerOut(e)}
     >
       {getMesh()}

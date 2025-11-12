@@ -105,7 +105,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterHex, onPointerOut } = usePieceHoverState()
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const yellowColor = 'yellow'
   const color = isHighlighted
@@ -202,7 +202,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   return (
     <>
       <group
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerEnter={(e) => onPointerEnterHex(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
         {isDoor && (

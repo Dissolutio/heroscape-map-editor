@@ -15,7 +15,7 @@ export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterHex, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -40,17 +40,17 @@ export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
         geometry={nodes.Marro_Hive.geometry}
         onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
         onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
+          boardHex ? onPointerEnterHex(e, boardHex) : noop()
         }
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            color,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </>
   )

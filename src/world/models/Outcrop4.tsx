@@ -20,7 +20,7 @@ export default function Outcrop4({
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterHex, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -47,7 +47,7 @@ export default function Outcrop4({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.glacier_4_with_holes.geometry}
         onPointerUp={(e) => onPointerUp(e)}
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerEnter={(e) => onPointerEnterHex(e, boardHex)}
         onPointerOut={onPointerOut}
       >
         {basicModelMaterial(color, isLightsAndShadowsRender)}

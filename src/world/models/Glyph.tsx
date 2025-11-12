@@ -1,16 +1,16 @@
 import { Decal, useGLTF, useTexture } from '@react-three/drei'
 import useBoundStore from '../../store/store'
-import { HexTerrain, Pieces } from '../../types'
+import { type BoardPiece, HexTerrain, Pieces } from '../../types'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { decodePieceID } from '../../utils/map-utils'
+import { piecesSoFar } from '../../data/pieces'
 
-export function GlyphModel({ pid }: { pid: string }) {
+export function GlyphModel({ boardPiece }: { boardPiece: BoardPiece }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/glyph.glb') as any
-  const { terrain } = decodePieceID(pid)
+  const terrain = piecesSoFar[boardPiece.inventoryID].terrain
   const texture = useTexture('glyph-valkyrie-logo.svg')
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
@@ -18,20 +18,20 @@ export function GlyphModel({ pid }: { pid: string }) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const isSelected = selectedPieceID === pid
+  const isSelected = selectedPieceID === boardPiece.uid
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(pid)
+    toggleSelectedPieceID(boardPiece.uid)
   }
   const glyphColor = hexTerrainColor[terrain as keyof typeof hexTerrainColor]
   const yellowColor = 'yellow'
-  const isHighlighted = hoveredPieceID === pid || isSelected
+  const isHighlighted = hoveredPieceID === boardPiece.uid || isSelected
   const color = isHighlighted ? yellowColor : glyphColor
   return (
     <mesh
@@ -39,7 +39,7 @@ export function GlyphModel({ pid }: { pid: string }) {
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Glyph.geometry}
       onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnterPiece(e, pid)}
+      onPointerEnter={(e) => onPointerEnterBoardPiece(e, boardPiece.uid)}
       onPointerOut={(e) => onPointerOut(e)}
     >
       {basicModelMaterial(color, isLightsAndShadowsRender)}

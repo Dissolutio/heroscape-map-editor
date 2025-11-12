@@ -31,7 +31,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterHex, onPointerOut } = usePieceHoverState()
   const isHighlighted =
     hoveredPieceID === boardHex.pieceID || selectedPieceID === boardHex.pieceID
   const yellowColor = 'yellow'
@@ -51,7 +51,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const onPointerEnterCap = (e: ThreeEvent<PointerEvent>) => {
     setCapColor('yellow')
     // toggleHoveredHex(boardHexCap)
-    onPointerEnter(e, boardHexCap)
+    onPointerEnterHex(e, boardHexCap)
     e.stopPropagation()
   }
   const onPointerOutCap = (e: ThreeEvent<PointerEvent>) => {
@@ -89,7 +89,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
         scale={scale}
         geometry={bodyGeometry}
         onPointerUp={onPointerUpBody}
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerEnter={(e) => onPointerEnterHex(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
         {basicModelMaterial(color, isLightsAndShadowsRender)}

@@ -10,19 +10,12 @@ export default function usePieceHoverState() {
   const hoverTimeout = React.useRef<number>(null!)
   const [isHovered, setIsHovered] = React.useState(false)
 
-  const onPointerEnter = (e: ThreeEvent<PointerEvent>, boardHex: BoardHex) => {
+  const onPointerEnterHex = (e: ThreeEvent<PointerEvent>, boardHex: BoardHex) => {
     e.stopPropagation()
     setIsHovered(true)
     hoverTimeout.current = window.setTimeout(() => {
       toggleHoveredPieceID(boardHex.pieceID)
       toggleHoveredHex(boardHex)
-    }, 50) // Adjust the delay (in milliseconds) as needed
-  }
-  const onPointerEnterPiece = (e: ThreeEvent<PointerEvent>, pid: string) => {
-    e.stopPropagation()
-    setIsHovered(true)
-    hoverTimeout.current = window.setTimeout(() => {
-      toggleHoveredPieceID(pid)
     }, 50) // Adjust the delay (in milliseconds) as needed
   }
   const onPointerEnterBoardPiece = (
@@ -44,8 +37,7 @@ export default function usePieceHoverState() {
   }
   return {
     isHovered,
-    onPointerEnter,
-    onPointerEnterPiece,
+    onPointerEnterHex,
     onPointerEnterBoardPiece,
     onPointerOut,
   }
