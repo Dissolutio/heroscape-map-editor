@@ -204,6 +204,7 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.startZone7 ||
     inventoryID === Pieces.startZone8
   ) {
+    const Comp = lookupModelComponent(inventoryID) ?? LaurWallTrianglePillar
     return (
       <group
         position={[
@@ -216,32 +217,37 @@ export const MapBoardPiece3D = ({
         ]}
         rotation={[0, 0, Math.PI / 2]}
       >
-        <StartZone3D
-          color={hexTerrainColor[inventoryID as keyof typeof hexTerrainColor]}
-          {...interactivityProps}
-        />
+        <Suspense fallback={<ModelLoader />}>
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={hexTerrainColor[inventoryID as keyof typeof hexTerrainColor]}
+            />
+          </ModelWrapper>
+        </Suspense>
       </group>
     )
   }
 
   //  GLYPHS
-  // if (
-  //   inventoryID === Pieces.glyphPower ||
-  //   inventoryID === Pieces.glyphTreasure
-  // ) {
-  //   return (
-  //     <group
-  //       position={[
-  //         x,
-  //         (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) + HEXGRID_HEX_HEIGHT,
-  //         z,
-  //       ]}
-  //       rotation={[0, pieceRotation, 0]}
-  //     >
-  //       <GlyphModel pid={pid} />
-  //     </group>
-  //   )
-  // }
+  if (
+    inventoryID === Pieces.glyphPower ||
+    inventoryID === Pieces.glyphTreasure
+  ) {
+    return (
+      <group
+        position={[
+          x,
+          // (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) + HEXGRID_HEX_HEIGHT,
+          yGlyph + HEXGRID_HEX_HEIGHT,
+          z,
+        ]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <GlyphModel boardPiece={boardPiece} />
+      </group>
+    )
+  }
+
   // GLACIER1 / OUTCROP1 / LAVAOUTCROP1
   // if (
   //   inventoryID === Pieces.glacier1 ||

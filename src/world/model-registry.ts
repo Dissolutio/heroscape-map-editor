@@ -6,10 +6,11 @@ import { LaurWallPillar } from './models/LaurPillar'
 import { LaurWallTrianglePillar } from './models/LaurTrianglePillar'
 import { Ruins2 } from './models/Ruins2'
 import { Ruins3 } from './models/Ruins3'
+import type { ModelComponentProps } from './models/ModelComponentProps'
+import { StartZone3D } from './models/StartZone3D'
 
 type RegistryEntry = {
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  component: ComponentType<any>
+  component: ComponentType<ModelComponentProps>
   // optional default color key or other metadata can be added later
 }
 
@@ -26,6 +27,7 @@ export const modelRegistry: Record<string, RegistryEntry> = {
   laurWallTrianglePillar: { component: LaurWallTrianglePillar },
   ruins2: { component: Ruins2 },
   ruins3: { component: Ruins3 },
+  startZone: { component: StartZone3D }
 }
 
 export function lookupModelComponent(inventoryID: string) {
