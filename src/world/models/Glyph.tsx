@@ -18,7 +18,7 @@ export function GlyphModel({ pid }: { pid: string }) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isSelected = selectedPieceID === pid
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
@@ -39,7 +39,7 @@ export function GlyphModel({ pid }: { pid: string }) {
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Glyph.geometry}
       onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnterPID(e, pid)}
+      onPointerEnter={(e) => onPointerEnterPiece(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
     >
       {basicModelMaterial(color, isLightsAndShadowsRender)}

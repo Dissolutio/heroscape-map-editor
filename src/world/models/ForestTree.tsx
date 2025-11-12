@@ -20,7 +20,7 @@ export function ForestTree({
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPiece, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
@@ -30,15 +30,15 @@ export function ForestTree({
   const opacityLevel = opacity ?? (pid ? 1 : PIECE_PREVIEW_OPACITY)
   const pointerHandlers = pid
     ? {
-        onPointerUp: (e: ThreeEvent<PointerEvent>) => {
-          e.stopPropagation()
-          if (e.button !== 0) return
-          toggleSelectedPieceID(isSelected ? '' : pid)
-        },
-        onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
-          onPointerEnterPID(e, pid),
-        onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
-      }
+      onPointerUp: (e: ThreeEvent<PointerEvent>) => {
+        e.stopPropagation()
+        if (e.button !== 0) return
+        toggleSelectedPieceID(isSelected ? '' : pid)
+      },
+      onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
+        onPointerEnterPiece(e, pid),
+      onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
+    }
     : {}
   return (
     <>
