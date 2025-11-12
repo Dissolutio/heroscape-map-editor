@@ -326,13 +326,13 @@ export default function PenModeControls() {
 
         <MenuItem value={Pieces.brush9}>
           <ListItemIcon>
-            <GiJungle color={hexTerrainColor.ticallaBrush1} />
+            <GiJungle color={hexTerrainColor.ticallaPineappleFern} />
           </ListItemIcon>
           <span>Ticalla Brush 9</span>
         </MenuItem>
         <MenuItem value={Pieces.palm14}>
           <ListItemIcon>
-            <GiPalmTree color={hexTerrainColor.ticallaPalmModel2} />
+            <GiPalmTree color={hexTerrainColor.ticallaPalmCanopy} />
           </ListItemIcon>
           <span>Ticalla Palm 14</span>
         </MenuItem>
@@ -340,7 +340,7 @@ export default function PenModeControls() {
           <ListItemIcon>
             <GiPalmTree
               scale={'110%'}
-              color={hexTerrainColor.ticallaPalmModel2}
+              color={hexTerrainColor.ticallaPalmCanopy}
             />
           </ListItemIcon>
           <span>Ticalla Palm 15</span>
@@ -349,38 +349,38 @@ export default function PenModeControls() {
           <ListItemIcon>
             <GiPalmTree
               scale={'120%'}
-              color={hexTerrainColor.ticallaPalmModel2}
+              color={hexTerrainColor.ticallaPalmCanopy}
             />
           </ListItemIcon>
           <span>Ticalla Palm 16</span>
         </MenuItem>
         <MenuItem value={Pieces.swampBrush10}>
           <ListItemIcon>
-            <GiJungle color={hexTerrainColor.swampUnderbrush1} />
+            <GiJungle color={hexTerrainColor.swampFatLeaf} />
           </ListItemIcon>
           <span>Swamp Underbrush 10</span>
         </MenuItem>
         <MenuItem value={Pieces.laurBrush10}>
           <ListItemIcon>
-            <GiJungle color={hexTerrainColor.laurBrush1} />
+            <GiJungle color={hexTerrainColor.laurTriCactus} />
           </ListItemIcon>
           <span>Laur Brush 10</span>
         </MenuItem>
         <MenuItem value={Pieces.laurPalm13}>
           <ListItemIcon>
-            <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
+            <GiPalmTree scale={'120%'} color={hexTerrainColor.ticallaPalmCanopy} />
           </ListItemIcon>
           <span>Laur Palm 13</span>
         </MenuItem>
         <MenuItem value={Pieces.laurPalm14}>
           <ListItemIcon>
-            <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
+            <GiPalmTree scale={'120%'} color={hexTerrainColor.ticallaPalmCanopy} />
           </ListItemIcon>
           <span>Laur Palm 14</span>
         </MenuItem>
         <MenuItem value={Pieces.laurPalm15}>
           <ListItemIcon>
-            <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
+            <GiPalmTree scale={'120%'} color={hexTerrainColor.ticallaPalmCanopy} />
           </ListItemIcon>
           <span>Laur Palm 15</span>
         </MenuItem>
