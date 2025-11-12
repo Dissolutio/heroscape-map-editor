@@ -2,14 +2,13 @@ import { Vector3 } from 'three'
 import useBoundStore from '../store/store'
 import { type BoardPiece, HexTerrain, Pieces } from '../types'
 import { isSingleHexTreePieceID, isSolidTerrainHex } from '../utils/board-utils'
-import {
-  HEXGRID_HEX_HEIGHT,
-  HEXGRID_HEXCAP_HEIGHT,
-} from '../utils/constants'
+import { HEXGRID_HEX_HEIGHT, HEXGRID_HEXCAP_HEIGHT } from '../utils/constants'
 import { getBoardHex3DCoords } from '../utils/map-utils'
 import { Battlement } from './models/Battlement'
 import { LaurWallAddon } from './models/LaurAddon'
 import { RoadWall } from './models/RoadWall'
+import ModelWrapper from './models/ModelWrapper'
+import { lookupModelComponent } from './model-registry'
 import {
   getLadderBattlementOptions,
   getOptionsForPalmHeight,
@@ -53,8 +52,10 @@ export const MapBoardPiece3D = ({
   const isVisible = altitude + 1 <= viewingLevel
   // const { x, z, y, yBaseCap, yGlyphFluidUnder, yGlyph, yWithBase, yBase } =
   //   getBoardHex3DCoords({ ...pieceCoords, altitude })
-  const { x, z, y, yBaseCap, yGlyph } =
-    getBoardHex3DCoords({ ...pieceCoords, altitude })
+  const { x, z, y, yBaseCap, yGlyph } = getBoardHex3DCoords({
+    ...pieceCoords,
+    altitude,
+  })
   const {
     x: xLaurWall,
     z: zLaurWall,
@@ -71,8 +72,9 @@ export const MapBoardPiece3D = ({
   }
   const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
   const highlightColor = 'yellow'
-  const isSelected = (uid: string) => (selectedPieceID === uid)
-  const isHighlighted = (uid: string) => (hoveredPieceID === uid || isSelected(uid))
+  const isSelected = (uid: string) => selectedPieceID === uid
+  const isHighlighted = (uid: string) =>
+    hoveredPieceID === uid || isSelected(uid)
   const pieceRotation = (boardPiece.rotation * -Math.PI) / 3
   // const isSolidLand = isSolidTerrainHex(piecesSoFar[inventoryID].terrain)
 
@@ -153,37 +155,39 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.laurWallSquarePillar ||
     inventoryID === Pieces.laurWallPillarStackable
   ) {
+    const Comp = lookupModelComponent(inventoryID) ?? LaurWallPillar
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallPillar
-            color={hexTerrainColor[HexTerrain.laurWall]}
-            secondaryColor={hexTerrainColor.laurModelColor2}
-            {...interactivityProps}
-          />
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={hexTerrainColor[HexTerrain.laurWall]}
+              secondaryColor={hexTerrainColor.laurModelColor2}
+            />
+          </ModelWrapper>
         </Suspense>
       </group>
     )
   }
 
   // LAUR TRIANGLE PILLAR
-  if (
-    inventoryID === Pieces.laurWallTrianglePillar
-  ) {
+  if (inventoryID === Pieces.laurWallTrianglePillar) {
+    const Comp = lookupModelComponent(inventoryID) ?? LaurWallTrianglePillar
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallTrianglePillar
-            color={hexTerrainColor[HexTerrain.laurWall]}
-            secondaryColor={hexTerrainColor.laurModelColor2}
-            {...interactivityProps}
-          />
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={hexTerrainColor[HexTerrain.laurWall]}
+              secondaryColor={hexTerrainColor.laurModelColor2}
+            />
+          </ModelWrapper>
         </Suspense>
       </group>
     )
@@ -282,21 +286,26 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.laurWallArch ||
     inventoryID === Pieces.laurWallLong
   ) {
+    const Comp = lookupModelComponent(inventoryID) ?? LaurWallAddon
     return (
       <group
         position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
         rotation={[0, pieceRotation, 0]}
       >
-        <LaurWallAddon
-          color={hexTerrainColor[HexTerrain.laurWall]}
-          secondaryColor={hexTerrainColor.laurModelColor2}
-          {...interactivityProps}
-        />
+        <Suspense fallback={<ModelLoader />}>
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={hexTerrainColor[HexTerrain.laurWall]}
+              secondaryColor={hexTerrainColor.laurModelColor2}
+            />
+          </ModelWrapper>
+        </Suspense>
       </group>
     )
   }
   // BATTLEMENT
   if (inventoryID === Pieces.battlement) {
+    const Comp = lookupModelComponent(inventoryID) ?? Battlement
     return (
       <group
         position={[
@@ -306,15 +315,17 @@ export const MapBoardPiece3D = ({
         ]}
         rotation={[0, pieceRotation, 0]}
       >
-        <Battlement
-          color={hexTerrainColor[HexTerrain.battlement]}
-          {...interactivityProps}
-        />
+        <Suspense fallback={<ModelLoader />}>
+          <ModelWrapper {...interactivityProps}>
+            <Comp color={hexTerrainColor[HexTerrain.battlement]} />
+          </ModelWrapper>
+        </Suspense>
       </group>
     )
   }
   // ROADWALL
   if (inventoryID === Pieces.roadWall) {
+    const Comp = lookupModelComponent(inventoryID) ?? RoadWall
     return (
       <group
         position={[
@@ -324,10 +335,11 @@ export const MapBoardPiece3D = ({
         ]}
         rotation={[0, pieceRotation, 0]}
       >
-        <RoadWall
-          color={hexTerrainColor[HexTerrain.roadWall]}
-          {...interactivityProps}
-        />
+        <Suspense fallback={<ModelLoader />}>
+          <ModelWrapper {...interactivityProps}>
+            <Comp color={hexTerrainColor[HexTerrain.roadWall]} />
+          </ModelWrapper>
+        </Suspense>
       </group>
     )
   }
@@ -378,7 +390,7 @@ export const MapBoardPiece3D = ({
   //     </Suspense>
   //   )
   // }
-  // JUNGLE BUSH 
+  // JUNGLE BUSH
   // if (piecesSoFar[inventoryID].terrain === HexTerrain.brush) {
   //   return (
   //     <group

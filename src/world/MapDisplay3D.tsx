@@ -94,7 +94,7 @@ export default function MapDisplay3D({
       inventoryID: pieceData.id,
       altitude: hex.altitude,
       rotation: penModeRotation,
-      pieceCoords: clickedHexCoords
+      pieceCoords: clickedHexCoords,
     }
     const isCastleWallArchClicked =
       hex.pieceID.includes(PiecePrefixes.castleWall) ||

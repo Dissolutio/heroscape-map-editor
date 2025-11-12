@@ -1,43 +1,32 @@
 import { useGLTF } from '@react-three/drei'
-import type { ThreeEvent } from '@react-three/fiber'
-import type { BoardPiece } from '../../types'
 import { basicModelMaterial } from './materials'
+import type { ModelComponentProps } from './ModelComponentProps'
 
 export function Battlement({
   color,
   highlightColor,
   boardPiece,
-  onPointerUp,
-  onPointerEnter,
-  onPointerOut,
   opacity,
   isHighlighted,
   isLightsAndShadowsRender,
-}: {
-  color: string
-  highlightColor?: string
-  boardPiece?: BoardPiece
-  onPointerUp?: (e: ThreeEvent<PointerEvent>, uid: string) => void
-  onPointerEnter?: (e: ThreeEvent<PointerEvent>, uid: string) => void
-  onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
-  opacity?: number
-  isHighlighted?: (uid: string) => boolean
-  isLightsAndShadowsRender?: boolean
-}) {
+}: ModelComponentProps) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/handmade-battlement.glb') as any
-  const currentColor = isHighlighted?.(boardPiece?.uid ?? '') && highlightColor ? highlightColor : color
+  const currentColor =
+    isHighlighted?.(boardPiece?.uid ?? '') && highlightColor
+      ? highlightColor
+      : color
   return (
     <mesh
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Battlement.geometry}
-      scale={isHighlighted?.(boardPiece?.uid ?? '') ? [1.01, 1.01, 1.01] : [1, 1, 1]}
-      onPointerUp={(e) => onPointerUp && boardPiece ? onPointerUp(e, boardPiece.uid) : null}
-      onPointerEnter={(e) => onPointerEnter && boardPiece ? onPointerEnter(e, boardPiece.uid) : null}
-      onPointerOut={(e) => onPointerOut && boardPiece ? onPointerOut(e) : null}
     >
-      {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacity ?? 1)}
+      {basicModelMaterial(
+        currentColor,
+        !!isLightsAndShadowsRender,
+        opacity ?? 1,
+      )}
     </mesh>
   )
 }
