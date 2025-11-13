@@ -8,6 +8,7 @@ import { Ruins2 } from './models/Ruins2'
 import { Ruins3 } from './models/Ruins3'
 import type { ModelComponentProps } from './models/ModelComponentProps'
 import { StartZone3D } from './models/StartZone3D'
+import { Outcrop1 } from './models/Outcrop1'
 
 type RegistryEntry = {
   component: ComponentType<ModelComponentProps>
@@ -27,7 +28,8 @@ export const modelRegistry: Record<string, RegistryEntry> = {
   laurWallTrianglePillar: { component: LaurWallTrianglePillar },
   ruins2: { component: Ruins2 },
   ruins3: { component: Ruins3 },
-  startZone: { component: StartZone3D }
+  startZone: { component: StartZone3D },
+  outcrop1: { component: Outcrop1 }
 }
 
 export function lookupModelComponent(inventoryID: string) {

@@ -58,7 +58,7 @@ import {
 } from './models/TicallaBrush'
 import { RoadWall } from './models/RoadWall'
 import { Battlement } from './models/Battlement'
-import { Outcrop1Preview } from './models/Outcrop1'
+import { Outcrop1 } from './models/Outcrop1'
 import { CastleWallPreview } from './models/CastleWalls'
 import { CastleBasePreview } from './models/CastleBases'
 import { CastleArchPreview } from './models/CastleArch'
@@ -223,11 +223,11 @@ export default function PiecePreview() {
   }
   const getLandMesh = () => {
     switch (
-      penModeSize === 6 && penMode === PiecePrefixes.concrete
-        ? '6B'
-        : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
-          ? '7B'
-          : `${penModeSize}`
+    penModeSize === 6 && penMode === PiecePrefixes.concrete
+      ? '6B'
+      : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
+        ? '7B'
+        : `${penModeSize}`
     ) {
       case '1':
         return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
@@ -303,8 +303,8 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
-            HEXGRID_HEX_HEIGHT,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
+          HEXGRID_HEX_HEIGHT,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -326,8 +326,8 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
-            HEXGRID_HEX_HEIGHT,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
+          HEXGRID_HEX_HEIGHT,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -344,15 +344,21 @@ export default function PiecePreview() {
     (isGlacier1Hex || isOutcrop1Hex || isLavaRockOutcrop1Hex) &&
     isSolidOrEmptyBeneath
   ) {
+    const outcrop1Color =
+      isGlacier1Hex
+        ? hexTerrainColor[HexTerrain.ice]
+        : isLavaRockOutcrop1Hex
+          ? hexTerrainColor[HexTerrain.lava]
+          : hexTerrainColor[HexTerrain.shadow]
     return (
       <group
         position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Outcrop1Preview
-            isLavaRock={isLavaRockOutcrop1Hex}
-            isGlacier={isGlacier1Hex}
+          <Outcrop1
+            color={outcrop1Color}
+            opacity={PIECE_PREVIEW_OPACITY}
           />
         </Suspense>
       </group>
@@ -617,8 +623,8 @@ export default function PiecePreview() {
         position={[
           x + getLadderBattlementOptions(ladderRotation).xAdd,
           y +
-            HEXGRID_HEXCAP_HEIGHT / 2 +
-            (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
+          HEXGRID_HEXCAP_HEIGHT / 2 +
+          (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
           z + getLadderBattlementOptions(ladderRotation).zAdd,
         ]}
         rotation={[0, (ladderRotation * -Math.PI) / 3, 0]}

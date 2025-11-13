@@ -1,88 +1,52 @@
 import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-import usePieceHoverState from '../../hooks/usePieceHoverState'
-import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain } from '../../types'
-import { hexTerrainColor } from '../maphex/hexColors'
+import type { BoardPiece } from '../../types'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export function Outcrop1({
-  pid,
-  isGlacier,
-  isLavaRock,
-}: {
-  pid: string
-  isGlacier?: boolean
-  isLavaRock?: boolean
-}) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-1.glb') as any
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
-  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(isSelected ? '' : pid)
-  }
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === pid
-  const isHighlighted = hoveredPieceID === pid || isSelected
-  const iceColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ice]
-  const lavaColor = isHighlighted
-    ? yellowColor
-    : hexTerrainColor[HexTerrain.lavaField]
-  const outcropColor = isHighlighted
-    ? yellowColor
-    : hexTerrainColor[HexTerrain.outcrop]
-  const color = isGlacier ? iceColor : isLavaRock ? lavaColor : outcropColor
-  return (
-    <mesh
-      receiveShadow={isLightsAndShadowsRender}
-      castShadow={isLightsAndShadowsRender}
-      geometry={nodes.glacier_1_with_holes.geometry}
-      onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnterBoardPiece(e, pid)}
-      onPointerOut={onPointerOut}
-    >
-      {basicModelMaterial(color, isLightsAndShadowsRender)}
-    </mesh>
-  )
-}
-export function Outcrop1Preview({
+  color,
+  highlightColor,
+  boardPiece,
+  onPointerUp,
+  onPointerEnter,
+  onPointerOut,
   opacity,
-  isGlacier,
-  isLavaRock,
+  isHighlighted,
+  isLightsAndShadowsRender,
 }: {
+  color: string
+  highlightColor?: string
+  boardPiece?: BoardPiece
+  onPointerUp?: (e: ThreeEvent<PointerEvent>, uid: string) => void
+  onPointerEnter?: (e: ThreeEvent<PointerEvent>, uid: string) => void
+  onPointerOut?: (e: ThreeEvent<PointerEvent>) => void
   opacity?: number
-  isGlacier?: boolean
-  isLavaRock?: boolean
+  isHighlighted?: (uid: string) => boolean
+  isLightsAndShadowsRender?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-1.glb') as any
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const iceColor = hexTerrainColor[HexTerrain.ice]
-  const lavaColor = hexTerrainColor[HexTerrain.lavaField]
-  const outcropColor = hexTerrainColor[HexTerrain.outcrop]
-  const color = isGlacier ? iceColor : isLavaRock ? lavaColor : outcropColor
-  const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
+  const currentColor =
+    isHighlighted?.(boardPiece?.uid ?? '') && highlightColor
+      ? highlightColor
+      : color
+  const opacityLevel = opacity ?? 1
   return (
     <mesh
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.glacier_1_with_holes.geometry}
+      onPointerUp={(e) =>
+        onPointerUp && boardPiece ? onPointerUp(e, boardPiece.uid) : null
+      }
+      onPointerEnter={(e) =>
+        onPointerEnter && boardPiece ? onPointerEnter(e, boardPiece.uid) : null
+      }
+      onPointerOut={(e) =>
+        onPointerOut && boardPiece ? onPointerOut(e) : null
+      }
     >
-      {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
+      {basicModelMaterial(currentColor, !!isLightsAndShadowsRender, opacityLevel)}
     </mesh>
   )
 }

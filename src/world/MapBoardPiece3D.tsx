@@ -17,7 +17,7 @@ import {
   getRuinsOptions,
 } from './models/piece-adjustments'
 import type { ThreeEvent } from '@react-three/fiber'
-import { Suspense } from 'react'
+import React, { Suspense } from 'react'
 import ModelLoader from './models/ModelLoader'
 import { Ruins2 } from './models/Ruins2'
 import { Ruins3 } from './models/Ruins3'
@@ -51,7 +51,7 @@ export const MapBoardPiece3D = ({
   const isVisible = altitude + 1 <= viewingLevel
   // const { x, z, y, yBaseCap, yGlyphFluidUnder, yGlyph, yWithBase, yBase } =
   //   getBoardHex3DCoords({ ...pieceCoords, altitude })
-  const { x, z, y, yBaseCap, yGlyph } = getBoardHex3DCoords({
+  const { x, z, y, yBaseCap, yGlyph, yWithBase, yBase } = getBoardHex3DCoords({
     ...pieceCoords,
     altitude,
   })
@@ -248,41 +248,40 @@ export const MapBoardPiece3D = ({
   }
 
   // GLACIER1 / OUTCROP1 / LAVAOUTCROP1
-  // if (
-  //   inventoryID === Pieces.glacier1 ||
-  //   inventoryID === Pieces.outcrop1 ||
-  //   inventoryID === Pieces.lavaRockOutcrop1
-  // ) {
-  //   const outcrop1Color =
-  //     inventoryID === Pieces.glacier1
-  //       ? hexTerrainColor[HexTerrain.ice]
-  //       : inventoryID === Pieces.outcrop1
-  //         ? hexTerrainColor[HexTerrain.shadow]
-  //         : hexTerrainColor[HexTerrain.lava]
-  //   return (
-  //     <>
-  //       <group
-  //         position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
-  //         rotation={[0, boardPiece.rotation, 0]}
-  //       >
-  //         <Suspense fallback={<ModelLoader />}>
-  //           <Outcrop1
-  //             pid={pid}
-  //             isGlacier={inventoryID === Pieces.glacier1}
-  //             isLavaRock={inventoryID === Pieces.lavaRockOutcrop1}
-  //           />
-  //         </Suspense>
-  //       </group>
-  //       <ObstacleBase
-  //         x={x}
-  //         y={yBase + HEXGRID_HEX_HEIGHT}
-  //         z={z}
-  //         color={outcrop1Color}
-  //         isFluidBase={true}
-  //       />
-  //     </>
-  //   )
-  // }
+  if (
+    inventoryID === Pieces.glacier1 ||
+    inventoryID === Pieces.outcrop1 ||
+    inventoryID === Pieces.lavaRockOutcrop1
+  ) {
+    const Comp = lookupModelComponent('outcrop1') ?? (React.Fragment)
+    const outcrop1Color =
+      inventoryID === Pieces.glacier1
+        ? hexTerrainColor[HexTerrain.ice]
+        : inventoryID === Pieces.outcrop1
+          ? hexTerrainColor[HexTerrain.shadow]
+          : hexTerrainColor[HexTerrain.lava]
+    return (
+      <>
+        <group
+          position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, boardPiece.rotation, 0]}
+        >
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={outcrop1Color}
+            />
+          </ModelWrapper>
+        </group>
+        <ObstacleBase
+          x={x}
+          y={yBase + HEXGRID_HEX_HEIGHT}
+          z={z}
+          color={outcrop1Color}
+          isFluidBase={true}
+        />
+      </>
+    )
+  }
 
   // LAURWALL ADDON
   if (
