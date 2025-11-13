@@ -11,6 +11,7 @@ import ModelWrapper from './models/ModelWrapper'
 import { lookupModelComponent } from './model-registry'
 import {
   getLadderBattlementOptions,
+  getObstaclRotation,
   getOptionsForPalmHeight,
   getOptionsForTreeHeight,
   getRoadWallOptions,
@@ -154,7 +155,7 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.laurWallSquarePillar ||
     inventoryID === Pieces.laurWallPillarStackable
   ) {
-    const Comp = lookupModelComponent(inventoryID) ?? LaurWallPillar
+    const Comp = lookupModelComponent(inventoryID) ?? (React.Fragment)
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
@@ -174,7 +175,7 @@ export const MapBoardPiece3D = ({
 
   // LAUR TRIANGLE PILLAR
   if (inventoryID === Pieces.laurWallTrianglePillar) {
-    const Comp = lookupModelComponent(inventoryID) ?? LaurWallTrianglePillar
+    const Comp = lookupModelComponent(inventoryID) ?? (React.Fragment)
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
@@ -203,7 +204,7 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.startZone7 ||
     inventoryID === Pieces.startZone8
   ) {
-    const Comp = lookupModelComponent('startZone') ?? LaurWallTrianglePillar
+    const Comp = lookupModelComponent('startZone') ?? (React.Fragment)
     return (
       <group
         position={[
@@ -247,6 +248,25 @@ export const MapBoardPiece3D = ({
     )
   }
 
+  // OUTCROPS
+  const outcropBaseColor =
+    inventoryID === Pieces.glacier1 ||
+      inventoryID === Pieces.glacier3 ||
+      inventoryID === Pieces.glacier4 ||
+      inventoryID === Pieces.glacier6
+      ? hexTerrainColor[HexTerrain.ice]
+      : inventoryID === Pieces.lavaRockOutcrop1 || inventoryID === Pieces.lavaRockOutcrop3
+        ? hexTerrainColor[HexTerrain.lava]
+        : hexTerrainColor[HexTerrain.shadow]
+  const outcropColor =
+    inventoryID === Pieces.glacier1 ||
+      inventoryID === Pieces.glacier3 ||
+      inventoryID === Pieces.glacier4 ||
+      inventoryID === Pieces.glacier6
+      ? hexTerrainColor[HexTerrain.ice]
+      : inventoryID === Pieces.lavaRockOutcrop1 || inventoryID === Pieces.lavaRockOutcrop3
+        ? hexTerrainColor[HexTerrain.lava]
+        : hexTerrainColor[HexTerrain.outcrop]
   // GLACIER1 / OUTCROP1 / LAVAOUTCROP1
   if (
     inventoryID === Pieces.glacier1 ||
@@ -254,12 +274,6 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.lavaRockOutcrop1
   ) {
     const Comp = lookupModelComponent('outcrop1') ?? (React.Fragment)
-    const outcrop1Color =
-      inventoryID === Pieces.glacier1
-        ? hexTerrainColor[HexTerrain.ice]
-        : inventoryID === Pieces.outcrop1
-          ? hexTerrainColor[HexTerrain.shadow]
-          : hexTerrainColor[HexTerrain.lava]
     return (
       <>
         <group
@@ -268,7 +282,7 @@ export const MapBoardPiece3D = ({
         >
           <ModelWrapper {...interactivityProps}>
             <Comp
-              color={outcrop1Color}
+              color={outcropColor}
             />
           </ModelWrapper>
         </group>
@@ -276,7 +290,90 @@ export const MapBoardPiece3D = ({
           x={x}
           y={yBase + HEXGRID_HEX_HEIGHT}
           z={z}
-          color={outcrop1Color}
+          color={outcropBaseColor}
+          isFluidBase={true}
+        />
+      </>
+    )
+  }
+  // GLACIER3 / OUTCROP3 / LAVAOUTCROP3
+  if (
+    inventoryID === Pieces.glacier3 ||
+    inventoryID === Pieces.outcrop3 ||
+    inventoryID === Pieces.lavaRockOutcrop3
+  ) {
+    const Comp = lookupModelComponent('outcrop3') ?? (React.Fragment)
+    return (
+      <>
+        <group
+          position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, getObstaclRotation(boardPiece.rotation), 0]}
+        >
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={outcropColor}
+            />
+          </ModelWrapper>
+        </group>
+        <ObstacleBase
+          x={x}
+          y={yBase + HEXGRID_HEX_HEIGHT}
+          z={z}
+          color={outcropBaseColor}
+          isFluidBase={true}
+        />
+      </>
+    )
+  }
+  // GLACIER4
+  if (
+    inventoryID === Pieces.glacier4
+  ) {
+    const Comp = lookupModelComponent('outcrop4') ?? (React.Fragment)
+    return (
+      <>
+        <group
+          position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, getObstaclRotation(boardPiece.rotation), 0]}
+        >
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={outcropColor}
+            />
+          </ModelWrapper>
+        </group>
+        <ObstacleBase
+          x={x}
+          y={yBase + HEXGRID_HEX_HEIGHT}
+          z={z}
+          color={outcropBaseColor}
+          isFluidBase={true}
+        />
+      </>
+    )
+  }
+  // GLACIER6
+  if (
+    inventoryID === Pieces.glacier6
+  ) {
+    const Comp = lookupModelComponent('outcrop6') ?? (React.Fragment)
+    return (
+      <>
+        <group
+          position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, getObstaclRotation(boardPiece.rotation), 0]}
+        >
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={outcropColor}
+            />
+          </ModelWrapper>
+        </group>
+        <ObstacleBase
+          x={x}
+          y={yBase + HEXGRID_HEX_HEIGHT}
+          z={z}
+          color={outcropBaseColor}
           isFluidBase={true}
         />
       </>
@@ -290,7 +387,7 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.laurWallArch ||
     inventoryID === Pieces.laurWallLong
   ) {
-    const Comp = lookupModelComponent(inventoryID) ?? LaurWallAddon
+    const Comp = lookupModelComponent(inventoryID) ?? (React.Fragment)
     return (
       <group
         position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
@@ -309,7 +406,7 @@ export const MapBoardPiece3D = ({
   }
   // BATTLEMENT
   if (inventoryID === Pieces.battlement) {
-    const Comp = lookupModelComponent(inventoryID) ?? Battlement
+    const Comp = lookupModelComponent(inventoryID) ?? (React.Fragment)
     return (
       <group
         position={[
@@ -329,7 +426,7 @@ export const MapBoardPiece3D = ({
   }
   // ROADWALL
   if (inventoryID === Pieces.roadWall) {
-    const Comp = lookupModelComponent(inventoryID) ?? RoadWall
+    const Comp = lookupModelComponent(inventoryID) ?? (React.Fragment)
     return (
       <group
         position={[

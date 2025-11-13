@@ -44,7 +44,7 @@ import { GlyphModelPreview } from './models/Glyph'
 import { LaurWallTrianglePillar } from './models/LaurTrianglePillar'
 import { ForestTree } from './models/ForestTree'
 import MarroHive6 from './models/MarroHive6'
-import { Outcrop4Preview } from './models/Outcrop4'
+import { Outcrop4 } from './models/Outcrop4'
 import { Outcrop6 } from './models/Outcrop6'
 import { LadderPreview } from './models/Ladder'
 import { LaurWallAddon } from './models/LaurAddon'
@@ -340,16 +340,17 @@ export default function PiecePreview() {
       </group>
     )
   }
+
+  const outcropColor =
+    isGlacier1Hex || isGlacier3Hex || isGlacier4Hex || isGlacier6Hex
+      ? hexTerrainColor[HexTerrain.ice]
+      : isLavaRockOutcrop1Hex || isLavaRockOutcrop3Hex
+        ? hexTerrainColor[HexTerrain.lava]
+        : hexTerrainColor[HexTerrain.shadow]
   if (
     (isGlacier1Hex || isOutcrop1Hex || isLavaRockOutcrop1Hex) &&
     isSolidOrEmptyBeneath
   ) {
-    const outcrop1Color =
-      isGlacier1Hex
-        ? hexTerrainColor[HexTerrain.ice]
-        : isLavaRockOutcrop1Hex
-          ? hexTerrainColor[HexTerrain.lava]
-          : hexTerrainColor[HexTerrain.shadow]
     return (
       <group
         position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
@@ -357,7 +358,7 @@ export default function PiecePreview() {
       >
         <Suspense fallback={<ModelLoader />}>
           <Outcrop1
-            color={outcrop1Color}
+            color={outcropColor}
             opacity={PIECE_PREVIEW_OPACITY}
           />
         </Suspense>
@@ -642,7 +643,10 @@ export default function PiecePreview() {
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Outcrop4Preview />
+          <Outcrop4
+            color={outcropColor}
+            opacity={PIECE_PREVIEW_OPACITY}
+          />
         </Suspense>
       </group>
     )
@@ -654,7 +658,10 @@ export default function PiecePreview() {
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Outcrop6 isGlacier />
+          <Outcrop6
+            color={outcropColor}
+            opacity={PIECE_PREVIEW_OPACITY}
+          />
         </Suspense>
       </group>
     )
@@ -670,9 +677,8 @@ export default function PiecePreview() {
       >
         <Suspense fallback={<ModelLoader />}>
           <Outcrop3
+            color={outcropColor}
             opacity={PIECE_PREVIEW_OPACITY}
-            isGlacier={piece?.terrain === HexTerrain.glacier}
-            isLavaRock={piece?.terrain === HexTerrain.lavaRockOutcrop}
           />
         </Suspense>
       </group>

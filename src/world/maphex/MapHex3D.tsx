@@ -18,9 +18,6 @@ import LandSubterrain from '../models/LandSubterrain'
 import MarroHive6 from '../models/MarroHive6'
 import ModelLoader from '../models/ModelLoader'
 import ObstacleBase from '../models/ObstacleBase'
-import { Outcrop3 } from '../models/Outcrop3'
-import Outcrop4 from '../models/Outcrop4'
-import { Outcrop6 } from '../models/Outcrop6'
 import {
   getLadderBattlementOptions,
   getObstaclRotation,
@@ -58,24 +55,14 @@ export const MapHex3D = ({
     isFluidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
   const isLadderHex =
     boardHex.terrain === HexTerrain.ladder && boardHex.isObstacleOrigin
-  const isOutcrop3Hex =
-    inventoryID === Pieces.outcrop3 && boardHex.isObstacleOrigin
   const isOutcrop3BaseHex =
     inventoryID === Pieces.outcrop3 && boardHex.isObstacleAuxiliary
-  const isLavaRockOutcrop3Hex =
-    inventoryID === Pieces.lavaRockOutcrop3 && boardHex.isObstacleOrigin
   const isLavaRockOutcrop3BaseHex =
     inventoryID === Pieces.lavaRockOutcrop3 && boardHex.isObstacleAuxiliary
-  const isGlacier3Hex =
-    inventoryID === Pieces.glacier3 && boardHex.isObstacleOrigin
   const isGlacier3BaseHex =
     inventoryID === Pieces.glacier3 && boardHex.isObstacleAuxiliary
-  const isGlacier4Hex =
-    inventoryID === Pieces.glacier4 && boardHex.isObstacleOrigin
   const isGlacier4BaseHex =
     inventoryID === Pieces.glacier4 && boardHex.isObstacleAuxiliary
-  const isGlacier6Hex =
-    inventoryID === Pieces.glacier6 && boardHex.isObstacleOrigin
   const isGlacier6BaseHex =
     inventoryID === Pieces.glacier6 && boardHex.isObstacleAuxiliary
   const isHiveHex =
@@ -119,9 +106,9 @@ export const MapHex3D = ({
             new Vector3(
               x,
               y *
-                (isFluidTerrainHex(boardHex.terrain)
-                  ? HEXGRID_HEXCAP_FLUID_SCALE
-                  : 1),
+              (isFluidTerrainHex(boardHex.terrain)
+                ? HEXGRID_HEXCAP_FLUID_SCALE
+                : 1),
               z,
             )
           }
@@ -146,70 +133,6 @@ export const MapHex3D = ({
           </Suspense>
         </group>
       )}
-      {/* {isLaurSquarePillarHex && (
-        <group
-          position={[x, laurPillarHeight, z]}
-          rotation={[0, pieceRotation, 0]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <LaurWallPillar
-              boardHex={boardHex}
-              onPointerUp={onPointerUpPaintPiece}
-            />
-          </Suspense>
-        </group>
-      )}
-      {isLaurTrianglePillarHex && (
-        <group
-          position={[x, laurPillarHeight, z]}
-          rotation={[0, pieceRotation, 0]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <LaurWallTrianglePillar
-              boardHex={boardHex}
-              onPointerUp={onPointerUpPaintPiece}
-            />
-          </Suspense>
-        </group>
-      )} */}
-      {isGlacier3Hex && (
-        <>
-          <group
-            position={[x, yWithBase, z]}
-            rotation={[0, getObstaclRotation(boardHex.pieceRotation), 0]}
-          >
-            <Suspense fallback={<ModelLoader />}>
-              <Outcrop3 isGlacier boardHex={boardHex} />
-            </Suspense>
-          </group>
-          <ObstacleBase
-            x={x}
-            y={yBase}
-            z={z}
-            color={hexTerrainColor[HexTerrain.ice]}
-            isFluidBase={true}
-          />
-        </>
-      )}
-      {isLavaRockOutcrop3Hex && (
-        <>
-          <group
-            position={[x, yWithBase, z]}
-            rotation={[0, getObstaclRotation(boardHex.pieceRotation), 0]}
-          >
-            <Suspense fallback={<ModelLoader />}>
-              <Outcrop3 isLavaRock boardHex={boardHex} />
-            </Suspense>
-          </group>
-          <ObstacleBase
-            x={x}
-            y={yBase}
-            z={z}
-            color={hexTerrainColor[HexTerrain.lava]}
-            isFluidBase={true}
-          />
-        </>
-      )}
       {(isGlacier3BaseHex || isGlacier4BaseHex || isGlacier6BaseHex) && (
         <ObstacleBase
           x={x}
@@ -228,25 +151,6 @@ export const MapHex3D = ({
           isFluidBase={true}
         />
       )}
-      {isOutcrop3Hex && (
-        <>
-          <group
-            position={[x, yWithBase, z]}
-            rotation={[0, getObstaclRotation(boardHex.pieceRotation), 0]}
-          >
-            <Suspense fallback={<ModelLoader />}>
-              <Outcrop3 boardHex={boardHex} />
-            </Suspense>
-          </group>
-          <ObstacleBase
-            x={x}
-            y={yBase}
-            z={z}
-            color={hexTerrainColor[HexTerrain.shadow]}
-            isFluidBase={true}
-          />
-        </>
-      )}
       {isOutcrop3BaseHex && (
         <ObstacleBase
           x={x}
@@ -255,44 +159,6 @@ export const MapHex3D = ({
           color={hexTerrainColor[HexTerrain.shadow]}
           isFluidBase={true}
         />
-      )}
-      {isGlacier4Hex && (
-        <>
-          <group
-            position={[x, yWithBase, z]}
-            rotation={[0, getObstaclRotation(boardHex.pieceRotation), 0]}
-          >
-            <Suspense fallback={<ModelLoader />}>
-              <Outcrop4 isGlacier={true} boardHex={boardHex} />
-            </Suspense>
-          </group>
-          <ObstacleBase
-            x={x}
-            y={yBase}
-            z={z}
-            color={hexTerrainColor[HexTerrain.ice]}
-            isFluidBase={true}
-          />
-        </>
-      )}
-      {isGlacier6Hex && (
-        <>
-          <group
-            position={[x, yWithBase, z]}
-            rotation={[0, getObstaclRotation(boardHex.pieceRotation), 0]}
-          >
-            <Suspense fallback={<ModelLoader />}>
-              <Outcrop6 isGlacier={true} boardHex={boardHex} />
-            </Suspense>
-          </group>
-          <ObstacleBase
-            x={x}
-            y={yBase}
-            z={z}
-            color={hexTerrainColor[HexTerrain.ice]}
-            isFluidBase={true}
-          />
-        </>
       )}
       {isLadderHex && (
         <group
@@ -382,7 +248,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+                  selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castleWall]
               }
