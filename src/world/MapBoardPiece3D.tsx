@@ -22,7 +22,6 @@ import ModelLoader from './models/ModelLoader'
 import { Ruins2 } from './models/Ruins2'
 import { Ruins3 } from './models/Ruins3'
 import { MarvelRuin } from './models/MarvelRuin'
-import { StartZone3D } from './models/StartZone3D'
 import { GlyphModel } from './models/Glyph'
 import { hexTerrainColor } from './maphex/hexColors'
 import { Outcrop1 } from './models/Outcrop1'
@@ -204,7 +203,7 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.startZone7 ||
     inventoryID === Pieces.startZone8
   ) {
-    const Comp = lookupModelComponent(inventoryID) ?? LaurWallTrianglePillar
+    const Comp = lookupModelComponent('startZone') ?? LaurWallTrianglePillar
     return (
       <group
         position={[
