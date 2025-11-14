@@ -43,10 +43,10 @@ import { FLUID_CAP_OPACITY } from './maphex/instance/FluidCap'
 import { GlyphModelPreview } from './models/Glyph'
 import { LaurWallTrianglePillar } from './models/LaurTrianglePillar'
 import { ForestTree } from './models/ForestTree'
-import MarroHive6 from './models/MarroHive6'
+import { MarroHive6 } from './models/MarroHive6'
 import { Outcrop4 } from './models/Outcrop4'
 import { Outcrop6 } from './models/Outcrop6'
-import { LadderPreview } from './models/Ladder'
+import { Ladder } from './models/Ladder'
 import { LaurWallAddon } from './models/LaurAddon'
 import { Ruins2 } from './models/Ruins2'
 import { MarvelRuinPreview } from './models/MarvelRuin'
@@ -381,7 +381,10 @@ export default function PiecePreview() {
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <ForestTree />
+          <ForestTree
+            color={hexTerrainColor[HexTerrain.tree]}
+            opacity={PIECE_PREVIEW_OPACITY}
+          />
         </Suspense>
       </group>
     )
@@ -513,7 +516,10 @@ export default function PiecePreview() {
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <MarroHive6 />
+          <MarroHive6
+            color={hexTerrainColor[HexTerrain.hive]}
+            opacity={PIECE_PREVIEW_OPACITY}
+          />
         </Suspense>
       </group>
     )
@@ -631,7 +637,10 @@ export default function PiecePreview() {
         rotation={[0, (ladderRotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LadderPreview />
+          <Ladder
+            color={hexTerrainColor[HexTerrain.ladder]}
+            opacity={PIECE_PREVIEW_OPACITY}
+          />
         </Suspense>
       </group>
     )

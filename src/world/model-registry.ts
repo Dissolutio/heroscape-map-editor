@@ -12,6 +12,8 @@ import { Outcrop1 } from './models/Outcrop1'
 import { Outcrop3 } from './models/Outcrop3'
 import { Outcrop4 } from './models/Outcrop4'
 import { Outcrop6 } from './models/Outcrop6'
+import { Ladder } from './models/Ladder'
+import { MarroHive6 } from './models/MarroHive6'
 
 type RegistryEntry = {
   component: ComponentType<ModelComponentProps>
@@ -21,11 +23,9 @@ type RegistryEntry = {
 export const modelRegistry: Record<string, RegistryEntry> = {
   // simple direct mappings for common pieces
   battlement: { component: Battlement },
+  ladder: { component: Ladder },
   roadWall: { component: RoadWall },
-  laurWallShort: { component: LaurWallAddon },
-  laurWallRuin1: { component: LaurWallAddon },
-  laurWallArch: { component: LaurWallAddon },
-  laurWallLong: { component: LaurWallAddon },
+  laurWallAddon: { component: LaurWallAddon },
   laurWallSquarePillar: { component: LaurWallPillar },
   laurWallPillarStackable: { component: LaurWallPillar },
   laurWallTrianglePillar: { component: LaurWallTrianglePillar },
@@ -36,6 +36,7 @@ export const modelRegistry: Record<string, RegistryEntry> = {
   outcrop3: { component: Outcrop3 },
   outcrop4: { component: Outcrop4 },
   outcrop6: { component: Outcrop6 },
+  hive: { component: MarroHive6 },
 }
 
 export function lookupModelComponent(inventoryID: string) {

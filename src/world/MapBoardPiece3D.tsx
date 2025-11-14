@@ -52,7 +52,7 @@ export const MapBoardPiece3D = ({
   const isVisible = altitude + 1 <= viewingLevel
   // const { x, z, y, yBaseCap, yGlyphFluidUnder, yGlyph, yWithBase, yBase } =
   //   getBoardHex3DCoords({ ...pieceCoords, altitude })
-  const { x, z, y, yBaseCap, yGlyph, yWithBase, yBase } = getBoardHex3DCoords({
+  const { x, z, y, yBaseCap, yBase, yGlyph, yWithBase } = getBoardHex3DCoords({
     ...pieceCoords,
     altitude,
   })
@@ -155,7 +155,7 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.laurWallSquarePillar ||
     inventoryID === Pieces.laurWallPillarStackable
   ) {
-    const Comp = lookupModelComponent(inventoryID) ?? (React.Fragment)
+    const Comp = lookupModelComponent('laurWallSquarePillar') ?? (React.Fragment)
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
@@ -175,7 +175,7 @@ export const MapBoardPiece3D = ({
 
   // LAUR TRIANGLE PILLAR
   if (inventoryID === Pieces.laurWallTrianglePillar) {
-    const Comp = lookupModelComponent(inventoryID) ?? (React.Fragment)
+    const Comp = lookupModelComponent('laurWallTrianglePillar') ?? (React.Fragment)
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
@@ -249,15 +249,15 @@ export const MapBoardPiece3D = ({
   }
 
   // OUTCROPS
-  const outcropBaseColor =
-    inventoryID === Pieces.glacier1 ||
-      inventoryID === Pieces.glacier3 ||
-      inventoryID === Pieces.glacier4 ||
-      inventoryID === Pieces.glacier6
-      ? hexTerrainColor[HexTerrain.ice]
-      : inventoryID === Pieces.lavaRockOutcrop1 || inventoryID === Pieces.lavaRockOutcrop3
-        ? hexTerrainColor[HexTerrain.lava]
-        : hexTerrainColor[HexTerrain.shadow]
+  // const outcropBaseColor =
+  //   inventoryID === Pieces.glacier1 ||
+  //     inventoryID === Pieces.glacier3 ||
+  //     inventoryID === Pieces.glacier4 ||
+  //     inventoryID === Pieces.glacier6
+  //     ? hexTerrainColor[HexTerrain.ice]
+  //     : inventoryID === Pieces.lavaRockOutcrop1 || inventoryID === Pieces.lavaRockOutcrop3
+  //       ? hexTerrainColor[HexTerrain.lava]
+  //       : hexTerrainColor[HexTerrain.shadow]
   const outcropColor =
     inventoryID === Pieces.glacier1 ||
       inventoryID === Pieces.glacier3 ||
@@ -286,13 +286,6 @@ export const MapBoardPiece3D = ({
             />
           </ModelWrapper>
         </group>
-        <ObstacleBase
-          x={x}
-          y={yBase + HEXGRID_HEX_HEIGHT}
-          z={z}
-          color={outcropBaseColor}
-          isFluidBase={true}
-        />
       </>
     )
   }
@@ -315,13 +308,6 @@ export const MapBoardPiece3D = ({
             />
           </ModelWrapper>
         </group>
-        <ObstacleBase
-          x={x}
-          y={yBase + HEXGRID_HEX_HEIGHT}
-          z={z}
-          color={outcropBaseColor}
-          isFluidBase={true}
-        />
       </>
     )
   }
@@ -342,13 +328,6 @@ export const MapBoardPiece3D = ({
             />
           </ModelWrapper>
         </group>
-        <ObstacleBase
-          x={x}
-          y={yBase + HEXGRID_HEX_HEIGHT}
-          z={z}
-          color={outcropBaseColor}
-          isFluidBase={true}
-        />
       </>
     )
   }
@@ -369,13 +348,27 @@ export const MapBoardPiece3D = ({
             />
           </ModelWrapper>
         </group>
-        <ObstacleBase
-          x={x}
-          y={yBase + HEXGRID_HEX_HEIGHT}
-          z={z}
-          color={outcropBaseColor}
-          isFluidBase={true}
-        />
+      </>
+    )
+  }
+
+  // MARROHIVE6
+  if (
+    inventoryID === Pieces.glacier6
+  ) {
+    const Comp = lookupModelComponent('hive') ?? (React.Fragment)
+    return (
+      <>
+        <group
+          position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, getObstaclRotation(boardPiece.rotation), 0]}
+        >
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={hexTerrainColor[HexTerrain.hive]}
+            />
+          </ModelWrapper>
+        </group>
       </>
     )
   }
@@ -387,7 +380,7 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.laurWallArch ||
     inventoryID === Pieces.laurWallLong
   ) {
-    const Comp = lookupModelComponent(inventoryID) ?? (React.Fragment)
+    const Comp = lookupModelComponent('laurWallAddon') ?? (React.Fragment)
     return (
       <group
         position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
@@ -424,9 +417,29 @@ export const MapBoardPiece3D = ({
       </group>
     )
   }
+  // LADDER
+  if (inventoryID === Pieces.ladder) {
+    const Comp = lookupModelComponent(inventoryID) ?? (React.Fragment)
+    return (
+      <group
+        position={[
+          x + getLadderBattlementOptions(rotation).xAdd,
+          y + HEXGRID_HEXCAP_HEIGHT / 2,
+          z + getLadderBattlementOptions(rotation).zAdd,
+        ]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <ModelWrapper {...interactivityProps}>
+            <Comp color={hexTerrainColor[HexTerrain.ladder]} />
+          </ModelWrapper>
+        </Suspense>
+      </group>
+    )
+  }
   // ROADWALL
   if (inventoryID === Pieces.roadWall) {
-    const Comp = lookupModelComponent(inventoryID) ?? (React.Fragment)
+    const Comp = lookupModelComponent('roadWall') ?? (React.Fragment)
     return (
       <group
         position={[
@@ -445,35 +458,37 @@ export const MapBoardPiece3D = ({
     )
   }
   // SINGLE HEX TREES
-  // if (isSingleHexTreePieceID(inventoryID)) {
-  //   return (
-  //     <>
-  //       <group
-  //         scale={[
-  //           getOptionsForTreeHeight(inventoryID).scaleX,
-  //           getOptionsForTreeHeight(inventoryID).scaleY,
-  //           getOptionsForTreeHeight(inventoryID).scaleX,
-  //         ]}
-  //         position={[
-  //           x,
-  //           yWithBase + getOptionsForTreeHeight(inventoryID).y + HEXGRID_HEX_HEIGHT,
-  //           z,
-  //         ]}
-  //         rotation={[0, pieceRotation, 0]}
-  //       >
-  //         <Suspense fallback={<ModelLoader />}>
-  //           <ForestTree pid={pid} />
-  //         </Suspense>
-  //       </group>
-  //       <ObstacleBase
-  //         x={x}
-  //         y={yBase + HEXGRID_HEX_HEIGHT}
-  //         z={z}
-  //         color={hexTerrainColor.treeBase}
-  //       />
-  //     </>
-  //   )
-  // }
+  if (isSingleHexTreePieceID(inventoryID)) {
+    return (
+      <>
+        <group
+          scale={[
+            getOptionsForTreeHeight(inventoryID).scaleX,
+            getOptionsForTreeHeight(inventoryID).scaleY,
+            getOptionsForTreeHeight(inventoryID).scaleX,
+          ]}
+          position={[
+            x,
+            yWithBase + getOptionsForTreeHeight(inventoryID).y + HEXGRID_HEX_HEIGHT,
+            z,
+          ]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <ForestTree
+              color={hexTerrainColor[HexTerrain.tree]}
+            />
+          </Suspense>
+        </group>
+        <ObstacleBase
+          x={x}
+          y={yBase + HEXGRID_HEX_HEIGHT}
+          z={z}
+          color={hexTerrainColor.treeBase}
+        />
+      </>
+    )
+  }
   // BIG TREE
   // if (inventoryID === Pieces.tree415) {
   //   return (

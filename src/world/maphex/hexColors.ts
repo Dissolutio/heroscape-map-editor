@@ -82,7 +82,7 @@ export const hexTerrainColor = {
 
   [HexTerrain.roadWall]: '#787D79',
   [HexTerrain.outcrop]: '#5F5464',
-  hiveModel1: '#668958',
+  [HexTerrain.hive]: '#668958',
   [HexTerrain.laurWall]: '#999999',
   laurModelColor2: '#909090',
   ticallaPalmTrunk: '#B07156',
