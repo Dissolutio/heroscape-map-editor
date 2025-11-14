@@ -73,7 +73,7 @@ export const getBoardHexesRectangularMapDimensions = (
     ((hexLength === 1
       ? 2 * HEXGRID_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-        3 * HEXGRID_HEX_APOTHEM) +
+      3 * HEXGRID_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * HEXGRID_HEX_APOTHEM) /
     HEXGRID_SPACING
   const apex =
@@ -122,7 +122,7 @@ export const getBoardHexesSvgMapDimensions = (
     ((hexLength === 1
       ? 2 * SVG_HEX_APOTHEM
       : // otherwise, also the next half from 2nd row
-        3 * SVG_HEX_APOTHEM) +
+      3 * SVG_HEX_APOTHEM) +
       (hexWidth - 1) * 2 * SVG_HEX_APOTHEM) /
     HEXGRID_SPACING
   return { length, width, hexLength, hexWidth }
@@ -313,17 +313,20 @@ export const getSetsUsedText = (setsUsed: string[]) => {
   return res.join('')
 }
 export const inflateBoardPiecesFromIds = (
-  ids: BoardPiecesEncodedArr,
+  ids: BoardPiecesEncodedArr | BoardPieces,
 ): BoardPieces => {
   return ids.map((id) => {
-    const { inventoryID, altitude, rotation, pieceCoords } = decodePieceID(id)
-    return {
-      uid: genPieceObjectUid(),
-      inventoryID,
-      altitude,
-      rotation,
-      pieceCoords,
+    if (typeof id === 'string') {
+      const { inventoryID, altitude, rotation, pieceCoords } = decodePieceID(id)
+      return {
+        uid: genPieceObjectUid(),
+        inventoryID,
+        altitude,
+        rotation,
+        pieceCoords,
+      }
     }
+    return id
   })
 }
 export function countStringInArrayLoop(arr: string[], targetString: string) {

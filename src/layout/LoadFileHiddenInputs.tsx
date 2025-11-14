@@ -83,9 +83,8 @@ export const LoadFileHiddenInputs = () => {
     }
     try {
       const data = await new Response(file).json()
-      const boardPieces = inflateBoardPiecesFromIds(
-        normalizeBoardPieces(data.boardPieces),
-      )
+      const normalizedBps = normalizeBoardPieces(data.boardPieces)
+      const boardPieces = inflateBoardPiecesFromIds(normalizedBps)
       const jsonMap = {
         boardPieces,
         hexMap: data.hexMap,
