@@ -202,13 +202,13 @@ export const marvelPieceSet: PieceInventory = {
   [Pieces.concrete6]: 1,
 }
 export const thaelenkPieceSet: PieceInventory = {
-  [Pieces.glacier1]: 1,
+  [Pieces.glacier1]: 3,
   [Pieces.glacier3]: 1,
   [Pieces.glacier4]: 1,
   [Pieces.glacier6]: 1,
   [Pieces.snow1]: 12,
   [Pieces.snow2]: 12,
-  [Pieces.ice1]: 21,
+  [Pieces.ice1]: 23,
   [Pieces.ice3]: 1,
   [Pieces.ice4]: 1,
   [Pieces.ice6]: 1,
@@ -313,8 +313,8 @@ export const underdarkPieceSet: PieceInventory = {
   [Pieces.sand3]: 0,
   [Pieces.sand7]: 3,
   [Pieces.water1]: 12,
-  [Pieces.shadow1]: 11,
-  [Pieces.shadow3]: 1,
+  [Pieces.shadow1]: 11, // 3 with holes for outcrop-1
+  [Pieces.shadow3]: 1, // for the outcrop-3
   [Pieces.outcrop1]: 3,
   [Pieces.outcrop3]: 1,
 }
