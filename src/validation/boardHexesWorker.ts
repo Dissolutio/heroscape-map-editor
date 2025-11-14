@@ -67,7 +67,6 @@ function buildupBoardHexes(
         boardPiece: pieceObject,
         pieceData: piece,
         boardHexes: prev,
-        isVsTile: false,
       })
       return newBoardHexes
     },

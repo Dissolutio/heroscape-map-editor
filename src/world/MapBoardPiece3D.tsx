@@ -35,6 +35,7 @@ import TicallaPalm from './models/TicallaPalm'
 import { LaurWallPillar } from './models/LaurPillar'
 import usePieceHoverState from '../hooks/usePieceHoverState'
 import { LaurWallTrianglePillar } from './models/LaurTrianglePillar'
+import { Outcrop4 } from './models/Outcrop4'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -315,7 +316,6 @@ export const MapBoardPiece3D = ({
   if (
     inventoryID === Pieces.glacier4
   ) {
-    const Comp = lookupModelComponent('outcrop4') ?? (React.Fragment)
     return (
       <>
         <group
@@ -323,7 +323,7 @@ export const MapBoardPiece3D = ({
           rotation={[0, getObstaclRotation(boardPiece.rotation), 0]}
         >
           <ModelWrapper {...interactivityProps}>
-            <Comp
+            <Outcrop4
               color={outcropColor}
             />
           </ModelWrapper>

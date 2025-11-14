@@ -24,13 +24,11 @@ import {
 export function addPieceToBoardHexes({
   boardPiece,
   pieceData,
-  isVsTile,
   // state to mutate and return
   boardHexes,
 }: {
   boardPiece: BoardPiece
   pieceData: Piece
-  isVsTile: boolean
   boardHexes: BoardHexes
 }): BoardHexes {
   const newBoardHexes = clone(boardHexes)
@@ -42,18 +40,15 @@ export function addPieceToBoardHexes({
     },
     rotation: boardPiece.rotation,
     template: pieceData.template,
-    isVsTile,
   })
   // VirtualScape had multiple origin hexes for different rotations, Hexoscape rotates all pieces around one origin hex
-  const originOfTile = isVsTile ? piecePlaneCoords[0] : boardPiece.pieceCoords
+  const originOfTile = boardPiece.pieceCoords
   const pieceHexID = genBoardHexID({
     ...originOfTile,
     altitude: boardPiece.altitude,
   })
   const pieceID = genPieceID(pieceHexID, pieceData.id, boardPiece.rotation)
-  const ladderBattlementPieceRotation = isVsTile
-    ? (boardPiece.rotation + 5) % 6
-    : boardPiece.rotation % 6 // VS starts ladders at rotation 5 (top-right, NE), instead of 0 (right, E)
+  const ladderBattlementPieceRotation = boardPiece.rotation % 6
   const ladderBattlementPieceID = genPieceID(
     pieceHexID,
     pieceData.id,
@@ -185,8 +180,6 @@ export function addPieceToBoardHexes({
   //     console.log("🚀 ~ addPieceToBoardHexes ~ error:", error)
   //   }
   // }
-
-  // ALL PIECES BELOW ARE RENDERED FROM BOARD HEXES
 
   // LADDERS
   if (isLadderPieceID) {

@@ -4,7 +4,6 @@ import {
   CUBE_EAST,
   CUBE_SE,
   CUBE_SW,
-  CUBE_WEST,
   ORIGIN_000,
 } from '../utils/constants'
 import { hexUtilsAdd, hexUtilsRotateAroundOrigin_000 } from '../utils/hex-utils'
@@ -14,22 +13,17 @@ export default function getPieceTemplateCoords({
   clickedHex,
   rotation,
   template,
-  isVsTile,
 }: {
   clickedHex: CubeCoordinate
   rotation: number
   template: string
-  isVsTile: boolean
 }): CubeCoordinate[] {
-  const originOfTileTransform =
-    rotationTransforms?.[template]?.[rotation] ?? ORIGIN_000
-  const originOfTile = hexUtilsAdd(clickedHex, originOfTileTransform)
   return tileTemplates[template]
     .map((t) => {
       return hexUtilsRotateAroundOrigin_000(t, rotation)
     })
     .map((t) =>
-      isVsTile ? hexUtilsAdd(t, originOfTile) : hexUtilsAdd(t, clickedHex),
+      hexUtilsAdd(t, clickedHex),
     )
 }
 export function getVSTileOriginCoords({
