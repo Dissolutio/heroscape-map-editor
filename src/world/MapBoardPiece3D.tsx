@@ -133,23 +133,30 @@ export const MapBoardPiece3D = ({
     )
   }
   // // MARVEL RUINS
-  // if (
-  //   inventoryID === Pieces.marvel ||
-  //   inventoryID === Pieces.marvelBroken ||
-  //   inventoryID === Pieces.marvelNoUpper ||
-  //   inventoryID === Pieces.marvelNoUpperBroken
-  // ) {
-  //   return (
-  //     <group
-  //       position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
-  //       rotation={[0, rotation, 0]}
-  //     >
-  //       <Suspense fallback={<ModelLoader />}>
-  //         <MarvelRuin pid={pid} />
-  //       </Suspense>
-  //     </group>
-  //   )
-  // }
+  if (
+    inventoryID === Pieces.marvel ||
+    inventoryID === Pieces.marvelBroken ||
+    inventoryID === Pieces.marvelNoUpper ||
+    inventoryID === Pieces.marvelNoUpperBroken
+  ) {
+    return (
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <ModelWrapper {...interactivityProps}>
+          <Suspense fallback={<ModelLoader />}>
+            <MarvelRuin
+              color={hexTerrainColor.marvelRuin}
+              secondaryColor={hexTerrainColor.ladder}
+              showUpperFloor={inventoryID === Pieces.marvel || inventoryID === Pieces.marvelBroken}
+              showWallIntact={inventoryID === Pieces.marvel || inventoryID === Pieces.marvelNoUpper}
+            />
+          </Suspense>
+        </ModelWrapper>
+      </group>
+    )
+  }
 
   // LAUR PILLAR
   if (
@@ -159,7 +166,7 @@ export const MapBoardPiece3D = ({
     const Comp = lookupModelComponent('laurWallSquarePillar') ?? (React.Fragment)
     return (
       <group
-        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        position={[x, yBase + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -179,7 +186,7 @@ export const MapBoardPiece3D = ({
     const Comp = lookupModelComponent('laurWallTrianglePillar') ?? (React.Fragment)
     return (
       <group
-        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        position={[x, yBase + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -354,7 +361,7 @@ export const MapBoardPiece3D = ({
 
   // MARROHIVE6
   if (
-    inventoryID === Pieces.glacier6
+    inventoryID === Pieces.hive
   ) {
     const Comp = lookupModelComponent('hive') ?? (React.Fragment)
     return (

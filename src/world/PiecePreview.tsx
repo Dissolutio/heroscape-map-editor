@@ -50,7 +50,7 @@ import { Outcrop6 } from './models/Outcrop6'
 import { Ladder } from './models/Ladder'
 import { LaurWallAddon } from './models/LaurAddon'
 import { Ruins2 } from './models/Ruins2'
-import { MarvelRuinPreview } from './models/MarvelRuin'
+import { MarvelRuin } from './models/MarvelRuin'
 import { LaurPalmPreview, TicallaPalmPreview } from './models/TicallaPalm'
 import {
   LaurBrushPreview,
@@ -575,11 +575,13 @@ export default function PiecePreview() {
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <MarvelRuinPreview
-            isUpperFloor={
+          <MarvelRuin
+            color={hexTerrainColor.marvelRuin}
+            secondaryColor={hexTerrainColor.ladder}
+            showUpperFloor={
               pieceID === Pieces.marvel || pieceID === Pieces.marvelBroken
             }
-            isWallIntact={
+            showWallIntact={
               pieceID === Pieces.marvel || pieceID === Pieces.marvelNoUpper
             }
           />
