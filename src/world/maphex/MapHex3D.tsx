@@ -45,18 +45,14 @@ export const MapHex3D = ({
     isSolidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
   const isFluidSubterrain =
     isFluidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
-  const isOutcrop3BaseHex =
-    inventoryID === Pieces.outcrop3
-  const isLavaRockOutcrop3BaseHex =
-    inventoryID === Pieces.lavaRockOutcrop3
-  const isGlacier3BaseHex =
-    inventoryID === Pieces.glacier3
-  const isGlacier4BaseHex =
-    inventoryID === Pieces.glacier4
-  const isGlacier6BaseHex =
-    inventoryID === Pieces.glacier6
+  const isOutcropBaseHex =
+    boardHex.terrain === HexTerrain.outcrop && (boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
+  const isLavaOutcropBaseHex =
+    boardHex.terrain === HexTerrain.lavaRockOutcrop && (boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
+  const isGlacierBaseHex =
+    boardHex.terrain === HexTerrain.glacier && (boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
   const isHiveBaseHex =
-    boardHex.inventoryID === Pieces.hive
+    boardHex.inventoryID === Pieces.hive && (boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
   const isCastleBaseEnd = inventoryID === Pieces.castleBaseEnd
   const isCastleBaseStraight = inventoryID === Pieces.castleBaseStraight
   const isCastleBaseCorner = inventoryID === Pieces.castleBaseCorner
@@ -121,7 +117,7 @@ export const MapHex3D = ({
           </Suspense>
         </group>
       )}
-      {(isGlacier3BaseHex || isGlacier4BaseHex || isGlacier6BaseHex) && (
+      {isGlacierBaseHex && (
         <ObstacleBase
           x={x}
           y={yBase}
@@ -130,7 +126,7 @@ export const MapHex3D = ({
           isFluidBase={true}
         />
       )}
-      {isLavaRockOutcrop3BaseHex && (
+      {isLavaOutcropBaseHex && (
         <ObstacleBase
           x={x}
           y={yBase}
@@ -139,7 +135,7 @@ export const MapHex3D = ({
           isFluidBase={true}
         />
       )}
-      {isOutcrop3BaseHex && (
+      {(isOutcropBaseHex) && (
         <ObstacleBase
           x={x}
           y={yBase}

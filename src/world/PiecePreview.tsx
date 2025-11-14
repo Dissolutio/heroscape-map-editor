@@ -21,6 +21,7 @@ import {
   HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
+  HEXGRID_OBSTACLE_BASE_HEIGHT,
   PIECE_PREVIEW_OPACITY,
 } from '../utils/constants'
 import { Suspense } from 'react'
@@ -131,7 +132,7 @@ export default function PiecePreview() {
   //   isShowEmptyHexes
   // const isObstacleHex =
   //   hoveredHex.isObstacleOrigin || hoveredHex.isObstacleAuxiliary
-  const isStartZone = piece.landPrefix === PiecePrefixes.startZone
+  const isStartZone = pieceID.startsWith(PiecePrefixes.startZone)
   const isLaurBrushHex = piece.id === Pieces.laurBrush10
   const isTicallaBrushHex = piece.id === Pieces.brush9
   const isSwampBrushHex = piece.id === Pieces.swampBrush10
@@ -304,7 +305,7 @@ export default function PiecePreview() {
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT) +
           HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
-          HEXGRID_HEX_HEIGHT,
+          HEXGRID_HEX_HEIGHT - HEXGRID_OBSTACLE_BASE_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -327,7 +328,7 @@ export default function PiecePreview() {
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT) +
           HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
-          HEXGRID_HEX_HEIGHT,
+          HEXGRID_HEX_HEIGHT - HEXGRID_OBSTACLE_BASE_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -347,24 +348,7 @@ export default function PiecePreview() {
       : isLavaRockOutcrop1Hex || isLavaRockOutcrop3Hex
         ? hexTerrainColor[HexTerrain.lava]
         : hexTerrainColor[HexTerrain.shadow]
-  if (
-    (isGlacier1Hex || isOutcrop1Hex || isLavaRockOutcrop1Hex) &&
-    isSolidOrEmptyBeneath
-  ) {
-    return (
-      <group
-        position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
-        rotation={[0, pieceRotation, 0]}
-      >
-        <Suspense fallback={<ModelLoader />}>
-          <Outcrop1
-            color={outcropColor}
-            opacity={PIECE_PREVIEW_OPACITY}
-          />
-        </Suspense>
-      </group>
-    )
-  }
+
   if (isTreeHex && isSolidOrEmptyBeneath) {
     return (
       <group
@@ -526,7 +510,7 @@ export default function PiecePreview() {
   }
   if (isStartZone) {
     return (
-      <group position={[x, yGlyph, z]} rotation={[0, 0, Math.PI / 2]}>
+      <group position={[x, yGlyph + HEXGRID_HEX_HEIGHT, z]} rotation={[0, 0, Math.PI / 2]}>
         <StartZone3D
           color={hexTerrainColor[pieceID as keyof typeof hexTerrainColor]}
           opacity={PIECE_PREVIEW_OPACITY}
@@ -645,10 +629,28 @@ export default function PiecePreview() {
       </group>
     )
   }
+  if (
+    (isGlacier1Hex || isOutcrop1Hex || isLavaRockOutcrop1Hex) &&
+    isSolidOrEmptyBeneath
+  ) {
+    return (
+      <group
+        position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <Outcrop1
+            color={outcropColor}
+            opacity={PIECE_PREVIEW_OPACITY}
+          />
+        </Suspense>
+      </group>
+    )
+  }
   if (isGlacier4Hex && isSolidOrEmptyBeneath) {
     return (
       <group
-        position={[x, yWithBase, z]}
+        position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -663,7 +665,7 @@ export default function PiecePreview() {
   if (isGlacier6Hex && isSolidOrEmptyBeneath) {
     return (
       <group
-        position={[x, yWithBase, z]}
+        position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -681,7 +683,7 @@ export default function PiecePreview() {
   ) {
     return (
       <group
-        position={[x, yWithBase, z]}
+        position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>

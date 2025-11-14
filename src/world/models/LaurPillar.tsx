@@ -83,7 +83,7 @@ export function LaurWallPillar({
           )}
         </mesh>
         {/* PILLAR BASE */}
-        <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
+        <group position={[0, 0, 0]}>
           <mesh
             receiveShadow={isLightsAndShadowsRender}
             castShadow={isLightsAndShadowsRender}
