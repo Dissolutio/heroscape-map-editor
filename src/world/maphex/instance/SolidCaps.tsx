@@ -13,6 +13,7 @@ import type {
 } from '../instance-hex'
 import { CylinderGeometry } from 'three'
 import { terrainCapColors } from '../hexColors'
+import { randInt } from 'three/src/math/MathUtils.js'
 
 const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
   0.8515,
@@ -102,7 +103,7 @@ function SolidCapInstance({
     )
     ref.current.rotation.set(
       0,
-      Math.PI / 6 + (getRandomInteger(1, 6) * Math.PI) / 3,
+      Math.PI / 6 + (randInt(1, 6) * Math.PI) / 3,
       0,
     )
   }, [boardHex, color, isHighQualityRender])
@@ -159,10 +160,4 @@ function SolidCapInstance({
       castShadow={isLightsAndShadowsRender}
     />
   )
-}
-
-function getRandomInteger(min: number, max: number) {
-  const minimum = Math.ceil(min) // Ensure min is rounded up to the nearest whole number
-  const maximum = Math.floor(max) // Ensure max is rounded down to the nearest whole number
-  return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum
 }
