@@ -55,6 +55,7 @@ export default function MapDisplay3D({
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const { hotkeyConfig } = useHotkeyConfig()
+  const { length, width } = getBoardHexesRectangularMapDimensions(boardHexes)
   useApplyHotkeys({ hotkeyConfig, cameraControlsRef, mapGroupRef })
 
   const instanceBoardHexes = getInstanceBoardHexes(
@@ -190,8 +191,6 @@ export default function MapDisplay3D({
       paintTile(pieceObject)
     }
   }
-
-  const { length, width } = getBoardHexesRectangularMapDimensions(boardHexes)
   return (
     <>
       <TableSurfaceMesh width={width} length={length} />

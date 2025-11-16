@@ -14,8 +14,7 @@ import { ControlTabs } from './ControlTabs'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
-import type { BoardHexes, BoardPieces } from '../types'
-import { noop } from 'lodash'
+import type { BoardHexes } from '../types'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef(null)

@@ -15,7 +15,7 @@ type ReactPdfSvgMapDisplayProps = {
   boardHexesArr: BoardHex[]
   boardPiecesArr: BoardPieces
   viewingLevel: number
-  chunk?: PdfMapAltitudeChunk
+  // chunk?: PdfMapAltitudeChunk
 }
 
 export const ReactPdfSvgMapDisplay = ({

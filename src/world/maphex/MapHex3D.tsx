@@ -29,46 +29,47 @@ export const MapHex3D = ({
   const isTopOutlinedInterlockHexes = useBoundStore(
     (s) => s.isTopOutlinedInterlockHexes,
   )
+  const { inventoryID, altitude, terrain, isObstacleOrigin, isObstacleAuxiliary, isCap, pieceID, obstacleHeight } = boardHex
+  const pieceRotation = (boardHex.pieceRotation * -Math.PI) / 3
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isVisible = boardHex.altitude <= viewingLevel
+  const isVisible = altitude <= viewingLevel
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const inventoryID = boardHex.inventoryID
   const { x, y, z, yBase, yBaseCap } = getBoardHex3DCoords(boardHex)
   const isShowEmptyHexes =
-    !isTakingPicture && boardHex.terrain === HexTerrain.empty
+    !isTakingPicture && terrain === HexTerrain.empty
   const isHeightRingedHex =
-    (isSolidTerrainHex(boardHex.terrain) && !boardHex.isCap) || isShowEmptyHexes
+    (isSolidTerrainHex(terrain) && !isCap) || isShowEmptyHexes
   const isTopOutlinedInterlockHex =
     isTopOutlinedInterlockHexes && !isTakingPicture
   const isSolidSubterrain =
-    isSolidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
+    isSolidTerrainHex(terrain) && isObstacleOrigin
   const isFluidSubterrain =
-    isFluidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
+    isFluidTerrainHex(terrain) && isObstacleOrigin
   const isOutcropBaseHex =
-    boardHex.terrain === HexTerrain.outcrop && (boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
+    terrain === HexTerrain.outcrop && (isObstacleOrigin || isObstacleAuxiliary)
   const isLavaOutcropBaseHex =
-    boardHex.terrain === HexTerrain.lavaRockOutcrop && (boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
+    terrain === HexTerrain.lavaRockOutcrop && (isObstacleOrigin || isObstacleAuxiliary)
   const isGlacierBaseHex =
-    boardHex.terrain === HexTerrain.glacier && (boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
+    terrain === HexTerrain.glacier && (isObstacleOrigin || isObstacleAuxiliary)
   const isHiveBaseHex =
-    boardHex.inventoryID === Pieces.hive && (boardHex.isObstacleOrigin || boardHex.isObstacleAuxiliary)
+    inventoryID === Pieces.hive && (isObstacleOrigin || isObstacleAuxiliary)
   const isCastleBaseEnd = inventoryID === Pieces.castleBaseEnd
   const isCastleBaseStraight = inventoryID === Pieces.castleBaseStraight
   const isCastleBaseCorner = inventoryID === Pieces.castleBaseCorner
   const isCastleWallEnd =
-    inventoryID === Pieces.castleWallEnd && boardHex.isObstacleOrigin
+    inventoryID === Pieces.castleWallEnd && isObstacleOrigin
   const isCastleWallStraight =
-    inventoryID === Pieces.castleWallStraight && boardHex.isObstacleOrigin
+    inventoryID === Pieces.castleWallStraight && isObstacleOrigin
   const isCastleWallCorner =
-    inventoryID === Pieces.castleWallCorner && boardHex.isObstacleOrigin
+    inventoryID === Pieces.castleWallCorner && isObstacleOrigin
   const isCastleWall =
     isCastleWallEnd || isCastleWallStraight || isCastleWallCorner
   const isCastleBase = boardHex.terrain === HexTerrain.castleBase
   const isCastleArch =
     inventoryID === Pieces.castleArch || inventoryID === Pieces.castleArchNoDoor
 
-  const pieceRotation = (boardHex.pieceRotation * -Math.PI) / 3
+
 
   if (!isVisible) {
     return null
@@ -90,7 +91,7 @@ export const MapHex3D = ({
             new Vector3(
               x,
               y *
-              (isFluidTerrainHex(boardHex.terrain)
+              (isFluidTerrainHex(terrain)
                 ? HEXGRID_HEXCAP_FLUID_SCALE
                 : 1),
               z,
@@ -192,14 +193,14 @@ export const MapHex3D = ({
               />
             </Suspense>
           </group>
-          {boardHex.obstacleHeight === 9 && ( // when it's 8, castle is wall-on-wall and no base is shown
+          {obstacleHeight === 9 && ( // when it's 8, castle is wall-on-wall and no base is shown
             <ObstacleBase
               x={x}
               y={yBaseCap}
               z={z}
               color={
-                hoveredPieceID === boardHex.pieceID ||
-                  selectedPieceID === boardHex.pieceID
+                hoveredPieceID === pieceID ||
+                  selectedPieceID === pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castleWall]
               }

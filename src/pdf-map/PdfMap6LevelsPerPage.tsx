@@ -4,13 +4,11 @@ import type { PropsWithChildren } from 'react'
 import {
   type BoardHexes,
   type BoardPieces,
-  type BoardPiecesEncodedArr,
   type PdfMapAltitudeChunk,
   Pieces,
 } from '../types'
 import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
 import {
-  decodePieceID,
   getBoardHexesSvgMapDimensions,
 } from '../utils/map-utils'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
@@ -28,6 +26,20 @@ export const PdfMapLevels6PerPage = ({
     boardHexesWithoutEmpties,
     boardPieces,
   )
+  if (boardHexAndPieceChunks.length <= 0) {
+    return (
+      <Page
+        size="LETTER"
+        style={{
+          flexDirection: 'column',
+          maxHeight: '100vh',
+          padding: 5,
+        }}
+      >
+        {children}
+      </Page>
+    )
+  }
   return (
     <>
       {boardHexAndPieceChunks.map((chunk, i) => (
@@ -58,7 +70,7 @@ export const PdfMapLevels6PerPage = ({
                       Level: {group.altitude}
                     </Text>
                     <ReactPdfSvgMapDisplay
-                      chunk={chunk[i]}
+                      // chunk={chunk[i]}
                       boardPiecesArr={boardPieces}
                       boardHexesArr={Object.values(boardHexes)}
                       width={width}
@@ -80,7 +92,7 @@ export const PdfMapLevels6PerPage = ({
                       Level: {group.altitude}
                     </Text>
                     <ReactPdfSvgMapDisplay
-                      chunk={chunk[i]}
+                      // chunk={chunk[i]}
                       boardPiecesArr={boardPieces}
                       boardHexesArr={Object.values(boardHexes)}
                       width={width}
