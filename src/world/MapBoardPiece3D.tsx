@@ -1,12 +1,9 @@
 import { Vector3 } from 'three'
 import useBoundStore from '../store/store'
-import { type BoardPiece, HexTerrain, Pieces } from '../types'
-import { isSingleHexTreePieceID, isSolidTerrainHex } from '../utils/board-utils'
+import { type BoardPiece, HexTerrain, PiecePrefixes, Pieces } from '../types'
+import { isSingleHexTreePieceID } from '../utils/board-utils'
 import { HEXGRID_HEX_HEIGHT, HEXGRID_HEXCAP_HEIGHT } from '../utils/constants'
 import { getBoardHex3DCoords } from '../utils/map-utils'
-import { Battlement } from './models/Battlement'
-import { LaurWallAddon } from './models/LaurAddon'
-import { RoadWall } from './models/RoadWall'
 import ModelWrapper from './models/ModelWrapper'
 import { lookupModelComponent } from './model-registry'
 import {
@@ -25,17 +22,12 @@ import { Ruins3 } from './models/Ruins3'
 import { MarvelRuin } from './models/MarvelRuin'
 import { GlyphModel } from './models/Glyph'
 import { hexTerrainColor } from './maphex/hexColors'
-import { Outcrop1 } from './models/Outcrop1'
 import ObstacleBase from './models/ObstacleBase'
 import { ForestTree } from './models/ForestTree'
-import { BigTree415 } from './models/BigTree415'
-import { piecesSoFar } from '../data/pieces'
-import { JungleBrush } from './models/TicallaBrush'
-import TicallaPalm from './models/TicallaPalm'
-import { LaurWallPillar } from './models/LaurPillar'
+import { LaurPalm, TicallaPalm } from './models/JunglePalm'
 import usePieceHoverState from '../hooks/usePieceHoverState'
-import { LaurWallTrianglePillar } from './models/LaurTrianglePillar'
 import { Outcrop4 } from './models/Outcrop4'
+import { LaurBrush, TicallaBrush } from './models/JungleBrush'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -514,31 +506,101 @@ export const MapBoardPiece3D = ({
   //   )
   // }
   // JUNGLE BUSH
-  // if (piecesSoFar[inventoryID].terrain === HexTerrain.brush) {
-  //   return (
-  //     <group
-  //       position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
-  //       rotation={[0, pieceRotation, 0]}
-  //     >
-  //       <Suspense fallback={<ModelLoader />}>
-  //         <JungleBrush pid={pid} />
-  //       </Suspense>
-  //     </group>
-  //   )
-  // }
-  // JUNGLE PALM
-  // if (piecesSoFar[inventoryID].terrain === HexTerrain.palm) {
-  //   return (
-  //     <group
-  //       scale={[1, getOptionsForPalmHeight(inventoryID).scaleY, 1]}
-  //       position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
-  //       rotation={[0, pieceRotation, 0]}
-  //     >
-  //       <Suspense fallback={<ModelLoader />}>
-  //         <TicallaPalm pid={pid} />
-  //       </Suspense>
-  //     </group>
-  //   )
-  // }
+  if (inventoryID === Pieces.brush9) {
+    return (
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <TicallaBrush
+            color={hexTerrainColor.laurFatLeaf}
+            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+            colorPineappleFern={hexTerrainColor.ticallaPineappleFern}
+            colorNeedleFern={hexTerrainColor.ticallaNeedleFern}
+            colorTriLeaf={hexTerrainColor.ticallaTriLeaf}
+          />
+        </Suspense>
+      </group>
+    )
+  }
+  if (inventoryID === Pieces.laurBrush10) {
+    return (
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <LaurBrush
+            color={hexTerrainColor.laurFatLeaf}
+            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+            colorRoundCactus={hexTerrainColor.laurRoundCactus}
+            colorTriCactus={hexTerrainColor.laurTriCactus}
+            colorTriLeaf={hexTerrainColor.laurTriLeaf}
+          />
+        </Suspense>
+      </group>
+    )
+  }
+  if (inventoryID === Pieces.swampBrush10) {
+    return (
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <LaurBrush
+            color={hexTerrainColor.swampFatLeaf}
+            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+            colorRoundCactus={hexTerrainColor.swampRoundCactus}
+            colorTriCactus={hexTerrainColor.swampTriCactus}
+            colorTriLeaf={hexTerrainColor.swampTriLeaf}
+          />
+        </Suspense>
+      </group>
+    )
+  }
+  // TICALLA PALM
+  if (inventoryID.startsWith(PiecePrefixes.palm)) {
+    return (
+      <group
+        scale={[1, getOptionsForPalmHeight(inventoryID).scaleY, 1]}
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <TicallaPalm
+            color={hexTerrainColor.ticallaPalmCanopy}
+            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+            colorTrunk={hexTerrainColor.ticallaPalmTrunk}
+            colorNeedleFern={hexTerrainColor.ticallaNeedleFern}
+            colorPineappleFern={hexTerrainColor.ticallaPineappleFern}
+            colorTriLeaf={hexTerrainColor.ticallaTriLeaf}
+          />
+        </Suspense>
+      </group>
+    )
+  }
+  // LAUR PALM
+  if (inventoryID.startsWith(PiecePrefixes.laurPalm)) {
+    return (
+      <group
+        scale={[1, getOptionsForPalmHeight(inventoryID).scaleY, 1]}
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <LaurPalm
+            color={hexTerrainColor.ticallaPalmCanopy}
+            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+            colorTrunk={hexTerrainColor.ticallaPalmTrunk}
+            colorRoundCactus={hexTerrainColor.laurRoundCactus}
+            colorTriCactus={hexTerrainColor.laurTriCactus}
+            colorTriLeaf={hexTerrainColor.laurTriLeaf}
+          />
+        </Suspense>
+      </group>
+    )
+  }
   return <></>
 }

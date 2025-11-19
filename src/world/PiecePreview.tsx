@@ -51,12 +51,11 @@ import { Ladder } from './models/Ladder'
 import { LaurWallAddon } from './models/LaurAddon'
 import { Ruins2 } from './models/Ruins2'
 import { MarvelRuin } from './models/MarvelRuin'
-import { LaurPalmPreview, TicallaPalmPreview } from './models/TicallaPalm'
+import { LaurPalm, TicallaPalm } from './models/JunglePalm'
 import {
-  LaurBrushPreview,
-  SwampBrushPreview,
-  TicallaBrushPreview,
-} from './models/TicallaBrush'
+  LaurBrush,
+  TicallaBrush,
+} from './models/JungleBrush'
 import { RoadWall } from './models/RoadWall'
 import { Battlement } from './models/Battlement'
 import { Outcrop1 } from './models/Outcrop1'
@@ -439,7 +438,15 @@ export default function PiecePreview() {
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <TicallaPalmPreview opacity={PIECE_PREVIEW_OPACITY} />
+          <TicallaPalm
+            opacity={PIECE_PREVIEW_OPACITY}
+            color={hexTerrainColor.ticallaPalmCanopy}
+            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+            colorTrunk={hexTerrainColor.ticallaPalmTrunk}
+            colorNeedleFern={hexTerrainColor.ticallaNeedleFern}
+            colorPineappleFern={hexTerrainColor.ticallaPineappleFern}
+            colorTriLeaf={hexTerrainColor.ticallaTriLeaf}
+          />
         </Suspense>
       </group>
     )
@@ -452,7 +459,15 @@ export default function PiecePreview() {
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurPalmPreview opacity={PIECE_PREVIEW_OPACITY} />
+          <LaurPalm
+            opacity={PIECE_PREVIEW_OPACITY}
+            color={hexTerrainColor.ticallaPalmCanopy}
+            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+            colorTrunk={hexTerrainColor.ticallaPalmTrunk}
+            colorRoundCactus={hexTerrainColor.laurRoundCactus}
+            colorTriCactus={hexTerrainColor.laurTriCactus}
+            colorTriLeaf={hexTerrainColor.laurTriLeaf}
+          />
         </Suspense>
       </group>
     )
@@ -464,7 +479,14 @@ export default function PiecePreview() {
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurBrushPreview opacity={PIECE_PREVIEW_OPACITY} />
+          <LaurBrush
+            opacity={PIECE_PREVIEW_OPACITY}
+            color={hexTerrainColor.laurFatLeaf}
+            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+            colorRoundCactus={hexTerrainColor.laurRoundCactus}
+            colorTriCactus={hexTerrainColor.laurTriCactus}
+            colorTriLeaf={hexTerrainColor.laurTriLeaf}
+          />
         </Suspense>
       </group>
     )
@@ -476,7 +498,14 @@ export default function PiecePreview() {
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <TicallaBrushPreview opacity={PIECE_PREVIEW_OPACITY} />
+          <TicallaBrush
+            opacity={PIECE_PREVIEW_OPACITY}
+            color={hexTerrainColor.laurFatLeaf}
+            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+            colorPineappleFern={hexTerrainColor.ticallaPineappleFern}
+            colorNeedleFern={hexTerrainColor.ticallaNeedleFern}
+            colorTriLeaf={hexTerrainColor.ticallaTriLeaf}
+          />
         </Suspense>
       </group>
     )
@@ -488,7 +517,14 @@ export default function PiecePreview() {
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <SwampBrushPreview opacity={PIECE_PREVIEW_OPACITY} />
+          <LaurBrush
+            opacity={PIECE_PREVIEW_OPACITY}
+            color={hexTerrainColor.swampFatLeaf}
+            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+            colorRoundCactus={hexTerrainColor.swampRoundCactus}
+            colorTriCactus={hexTerrainColor.swampTriCactus}
+            colorTriLeaf={hexTerrainColor.swampTriLeaf}
+          />
         </Suspense>
       </group>
     )
