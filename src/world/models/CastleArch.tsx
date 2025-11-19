@@ -227,6 +227,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.CastleArchCapNear.geometry}
+          // This assumes boardHex.isObstacleOrigin from V1 state
           onPointerUp={(e) => onPointerUp(e, boardHex)}
           onPointerEnter={onPointerEnterNear}
           onPointerOut={onPointerOutNear}
@@ -237,9 +238,10 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.CastleArchCapMiddle.geometry}
+          // This assumes boardHex.isObstacleOrigin from V1 state
+          onPointerUp={onPointerUpMiddle}
           onPointerEnter={onPointerEnterMiddle}
           onPointerOut={onPointerOutMiddle}
-          onPointerUp={onPointerUpMiddle}
         >
           {basicModelMaterial(colorMiddle, isLightsAndShadowsRender)}
         </mesh>
@@ -247,6 +249,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.CastleArchCapFar.geometry}
+          // This assumes boardHex.isObstacleOrigin from V1 state
           onPointerEnter={onPointerEnterFar}
           onPointerOut={onPointerOutFar}
           onPointerUp={onPointerUpFar}

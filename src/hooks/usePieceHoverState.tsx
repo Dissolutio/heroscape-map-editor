@@ -37,6 +37,7 @@ export default function usePieceHoverState() {
   }
   return {
     isHovered,
+    // only used in castle arch/wall/base, TODO: deprecate
     onPointerEnterHex,
     onPointerEnterBoardPiece,
     onPointerOut,
