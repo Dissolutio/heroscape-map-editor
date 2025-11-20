@@ -14,18 +14,17 @@ Check `setsUsed`, and choose the corresponding pieces. (Caverns of valhalla does
 
 ## Separation of State (pieces) / Validation
 - Validation through BoardHexes, but render through BoardPieces
-- Add/Remove Piece will add to BoardPieces.
-- Top-level (HomePage) will call Service Worker to recalculate BoardHexes, when BoardPieces changes.
+- use worker?: HomePage calls Service Worker to recalculate BoardHexes, when BoardPieces changes.
 
 1. Land / EZ/Based Obstacles
-2. Laur Addons / Ruins / Ladders / Battlements / RoadWalls /
+2. Laur Addons / Ruins / Ladders / Battlements / RoadWalls / 
 
-## BowTie Jones requests
+## Bow Tie requests
 - Indicate which way piece is being shifted
 - Format painter
+- Select existing piece as pen mode
 - PDF 2 column format
 - PDF portrait as level format
-- Select existing piece as pen mode
 
 ## Obstacle bases
 When adding an outcrop (lavarock, rock, or glacier), also add a base.
@@ -76,22 +75,13 @@ Building pretty much exactly like you did in Virtualscape.
 - Multi-select pieces
 
 ## Local Storage Load/Save/Edit maps
+Old component for local storage space: `LocalStorageList.tsx`, check commits.
 
-Deleted the component for analyzing local storage space. `LocalStorageList.tsx`, check commits.
-
-Make a react component that can be shown in the modal like `CreateMapFormDialog.tsx`. The new component is for the user to save and load maps from local storage. They can also edit their local storage, to peruse and delete maps or other unused data stored in local storage. Some user settings may get saved there, and can be exported to a file/string and imported as easily.
-
-When user clicks SAVE/LOAD, show:
-    1. free space: KB unused capacity in local storage
-    2. unavailable space: KB used capacity in local storage that is not a hexoscape map that can be saved or loaded
-    3. map space: individual map objects of type MapFileState, their unique id can be their key, we can validate them with a function
-        * SAVE => Select map to overwrite if there is an existing key that matches the id of the map being saved, or save as a new map key in local storage 
-        * LOAD => Load selected map, user may select a map object from the list
-        * EDIT => Delete button for items in local storage, the delete button changes its text and turns red to verify and requires one more click to actually delete.
-
+A dialog to save, load, edit maps from local storage. 
+User settings could be exported.
 
 ## Settings / Preferences
-- Customizable Hotkeys,
+- Customizable Hotkeys
 - Customizeable Colors
 - Toggle Renegade style
 
