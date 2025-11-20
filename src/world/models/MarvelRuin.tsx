@@ -13,10 +13,7 @@ export function MarvelRuin({
   isLightsAndShadowsRender,
   showUpperFloor,
   showWallIntact,
-}: ModelComponentProps & {
-  showUpperFloor?: boolean
-  showWallIntact?: boolean
-}) {
+}: ModelComponentProps) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/marvel-ruins.glb') as any
   const currentColor =

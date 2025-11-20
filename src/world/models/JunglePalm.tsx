@@ -21,12 +21,7 @@ export function TicallaPalm({
   opacity,
   isHighlighted,
   isLightsAndShadowsRender,
-}: ModelComponentProps & {
-  colorTrunk: string
-  colorNeedleFern: string
-  colorPineappleFern: string
-  colorTriLeaf: string
-}) {
+}: ModelComponentProps) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-jungle.glb') as any
   const currentColor =
@@ -117,12 +112,7 @@ export function LaurPalm({
   opacity,
   isHighlighted,
   isLightsAndShadowsRender,
-}: ModelComponentProps & {
-  colorTrunk: string
-  colorRoundCactus: string
-  colorTriCactus: string
-  colorTriLeaf: string
-}) {
+}: ModelComponentProps) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-jungle.glb') as any
   const currentColor =

@@ -1,5 +1,4 @@
 import { useGLTF } from '@react-three/drei'
-import { HEXGRID_OBSTACLE_BASE_HEIGHT } from '../../utils/constants'
 import { basicModelMaterial } from './materials'
 import { laurBaseCylinderArgs } from './ObstacleBase'
 import type { ModelComponentProps } from './ModelComponentProps'

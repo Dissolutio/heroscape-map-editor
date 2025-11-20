@@ -11,20 +11,16 @@ import type { ModelComponentProps } from './ModelComponentProps'
 
 export function LaurBrush({
   color,
-  secondaryColor,
-  colorRoundCactus,
-  colorTriCactus,
-  colorTriLeaf,
+  secondaryColor = color,
+  colorRoundCactus = color,
+  colorTriCactus = color,
+  colorTriLeaf = color,
   highlightColor,
   boardPiece,
   opacity,
   isHighlighted,
   isLightsAndShadowsRender,
-}: ModelComponentProps & {
-  colorRoundCactus: string
-  colorTriCactus: string
-  colorTriLeaf: string
-}) {
+}: ModelComponentProps) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-jungle.glb') as any
   const currentColor =
@@ -46,7 +42,7 @@ export function LaurBrush({
   const currentColorBase =
     isHighlighted?.(boardPiece?.uid ?? '') && highlightColor
       ? highlightColor
-      : secondaryColor || color
+      : secondaryColor
   return (
     <>
       <mesh
@@ -99,20 +95,16 @@ export function LaurBrush({
 }
 export function TicallaBrush({
   color,
-  secondaryColor,
-  colorNeedleFern,
-  colorPineappleFern,
-  colorTriLeaf,
+  secondaryColor = color,
+  colorNeedleFern = color,
+  colorPineappleFern = color,
+  colorTriLeaf = color,
   highlightColor,
   boardPiece,
   opacity,
   isHighlighted,
   isLightsAndShadowsRender,
-}: ModelComponentProps & {
-  colorNeedleFern: string
-  colorPineappleFern: string
-  colorTriLeaf: string
-}) {
+}: ModelComponentProps) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-jungle.glb') as any
   const currentColor =

@@ -14,6 +14,11 @@ import { Outcrop4 } from './models/Outcrop4'
 import { Outcrop6 } from './models/Outcrop6'
 import { Ladder } from './models/Ladder'
 import { MarroHive6 } from './models/MarroHive6'
+import { ForestTree } from './models/ForestTree'
+import { BigTree415 } from './models/BigTree415'
+import { LaurBrush, TicallaBrush } from './models/JungleBrush'
+import { LaurPalm, TicallaPalm } from './models/JunglePalm'
+import { MarvelRuin } from './models/MarvelRuin'
 
 type RegistryEntry = {
   component: ComponentType<ModelComponentProps>
@@ -31,12 +36,20 @@ export const modelRegistry: Record<string, RegistryEntry> = {
   laurWallTrianglePillar: { component: LaurWallTrianglePillar },
   ruins2: { component: Ruins2 },
   ruins3: { component: Ruins3 },
+  marvelRuin: { component: MarvelRuin },
   startZone: { component: StartZone3D },
   outcrop1: { component: Outcrop1 },
   outcrop3: { component: Outcrop3 },
   outcrop4: { component: Outcrop4 },
   outcrop6: { component: Outcrop6 },
   hive: { component: MarroHive6 },
+  forestTree: { component: ForestTree },
+  bigForestTree: { component: BigTree415 },
+  ticallaBrush: { component: TicallaBrush },
+  laurBrush: { component: LaurBrush },
+  swampBrush: { component: LaurBrush },
+  ticallaPalm: { component: TicallaPalm },
+  laurPalm: { component: LaurPalm },
 }
 
 export function lookupModelComponent(inventoryID: string) {

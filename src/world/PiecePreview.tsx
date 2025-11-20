@@ -425,7 +425,12 @@ export default function PiecePreview() {
     return (
       <group position={[x, y, z]} rotation={[0, pieceRotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
-          <BigTree415 />
+          <BigTree415
+            opacity={PIECE_PREVIEW_OPACITY}
+            color={hexTerrainColor[HexTerrain.tree]}
+            secondaryColor={hexTerrainColor[HexTerrain.ruin]}
+            colorBase={hexTerrainColor.treeBase}
+          />
         </Suspense>
       </group>
     )

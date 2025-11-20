@@ -1,3 +1,5 @@
+import React, { Suspense } from 'react'
+import type { ThreeEvent } from '@react-three/fiber'
 import { Vector3 } from 'three'
 import useBoundStore from '../store/store'
 import { type BoardPiece, HexTerrain, PiecePrefixes, Pieces } from '../types'
@@ -14,20 +16,11 @@ import {
   getRoadWallOptions,
   getRuinsOptions,
 } from './models/piece-adjustments'
-import type { ThreeEvent } from '@react-three/fiber'
-import React, { Suspense } from 'react'
 import ModelLoader from './models/ModelLoader'
-import { Ruins2 } from './models/Ruins2'
-import { Ruins3 } from './models/Ruins3'
-import { MarvelRuin } from './models/MarvelRuin'
 import { GlyphModel } from './models/Glyph'
 import { hexTerrainColor } from './maphex/hexColors'
 import ObstacleBase from './models/ObstacleBase'
-import { ForestTree } from './models/ForestTree'
-import { LaurPalm, TicallaPalm } from './models/JunglePalm'
 import usePieceHoverState from '../hooks/usePieceHoverState'
-import { Outcrop4 } from './models/Outcrop4'
-import { LaurBrush, TicallaBrush } from './models/JungleBrush'
 
 export const MapBoardPiece3D = ({
   boardPiece,
@@ -97,8 +90,11 @@ export const MapBoardPiece3D = ({
   // }
 
   // RUINS 2/3
-  const ruinsOptions = getRuinsOptions(rotation)
   if (inventoryID === Pieces.ruins2 || inventoryID === Pieces.ruins3) {
+    const ruinsOptions = getRuinsOptions(rotation)
+    const Comp = (inventoryID === Pieces.ruins2)
+      ? (lookupModelComponent('ruins2') ?? (React.Fragment))
+      : (lookupModelComponent('ruins3') ?? (React.Fragment))
     return (
       <group
         position={[
@@ -109,17 +105,11 @@ export const MapBoardPiece3D = ({
         rotation={[0, ruinsOptions.rotationY, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          {inventoryID === Pieces.ruins2 ? (
-            <Ruins2
+          <ModelWrapper {...interactivityProps}>
+            <Comp
               color={hexTerrainColor[HexTerrain.ruin]}
-              {...interactivityProps}
             />
-          ) : (
-            <Ruins3
-              color={hexTerrainColor[HexTerrain.ruin]}
-              {...interactivityProps}
-            />
-          )}
+          </ModelWrapper>
         </Suspense>
       </group>
     )
@@ -131,21 +121,22 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.marvelNoUpper ||
     inventoryID === Pieces.marvelNoUpperBroken
   ) {
+    const Comp = lookupModelComponent('marvelRuin') ?? (React.Fragment)
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
       >
-        <ModelWrapper {...interactivityProps}>
-          <Suspense fallback={<ModelLoader />}>
-            <MarvelRuin
+        <Suspense fallback={<ModelLoader />}>
+          <ModelWrapper {...interactivityProps}>
+            <Comp
               color={hexTerrainColor.marvelRuin}
               secondaryColor={hexTerrainColor.ladder}
               showUpperFloor={inventoryID === Pieces.marvel || inventoryID === Pieces.marvelBroken}
               showWallIntact={inventoryID === Pieces.marvel || inventoryID === Pieces.marvelNoUpper}
             />
-          </Suspense>
-        </ModelWrapper>
+          </ModelWrapper>
+        </Suspense>
       </group>
     )
   }
@@ -233,6 +224,7 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.glyphPower ||
     inventoryID === Pieces.glyphTreasure
   ) {
+    // const Comp = lookupModelComponent('glyph') ?? (React.Fragment)
     return (
       <group
         position={[
@@ -244,6 +236,9 @@ export const MapBoardPiece3D = ({
         rotation={[0, pieceRotation, 0]}
       >
         <GlyphModel boardPiece={boardPiece} />
+        {/* <ModelWrapper {...interactivityProps}>
+        <GlyphModel boardPiece={boardPiece} />
+        </ModelWrapper> */}
       </group>
     )
   }
@@ -315,6 +310,7 @@ export const MapBoardPiece3D = ({
   if (
     inventoryID === Pieces.glacier4
   ) {
+    const Comp = lookupModelComponent('outcrop4') ?? (React.Fragment)
     return (
       <>
         <group
@@ -322,7 +318,7 @@ export const MapBoardPiece3D = ({
           rotation={[0, getObstaclRotation(boardPiece.rotation), 0]}
         >
           <ModelWrapper {...interactivityProps}>
-            <Outcrop4
+            <Comp
               color={outcropColor}
             />
           </ModelWrapper>
@@ -458,6 +454,7 @@ export const MapBoardPiece3D = ({
   }
   // SINGLE HEX TREES
   if (isSingleHexTreePieceID(inventoryID)) {
+    const Comp = lookupModelComponent('forestTree') ?? (React.Fragment)
     return (
       <>
         <group
@@ -474,9 +471,11 @@ export const MapBoardPiece3D = ({
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <ForestTree
-              color={hexTerrainColor[HexTerrain.tree]}
-            />
+            <ModelWrapper {...interactivityProps}>
+              <Comp
+                color={hexTerrainColor[HexTerrain.tree]}
+              />
+            </ModelWrapper>
           </Suspense>
         </group>
         <ObstacleBase
@@ -489,79 +488,99 @@ export const MapBoardPiece3D = ({
     )
   }
   // BIG TREE
-  // if (inventoryID === Pieces.tree415) {
-  //   return (
-  //     <Suspense fallback={<ModelLoader />}>
-  //       <group
-  //         position={[
-  //           x,
-  //           y,
-  //           z
-  //         ]}
-  //         rotation={[0, pieceRotation, 0]}
-  //       >
-  //         <BigTree415 pid={pid} />
-  //       </group>
-  //     </Suspense>
-  //   )
-  // }
-  // JUNGLE BUSH
+  if (inventoryID === Pieces.tree415) {
+    const Comp = lookupModelComponent('bigForestTree') ?? (React.Fragment)
+    return (
+      <Suspense fallback={<ModelLoader />}>
+        <group
+          position={[
+            x,
+            y,
+            z
+          ]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={hexTerrainColor[HexTerrain.tree]}
+              secondaryColor={hexTerrainColor[HexTerrain.ruin]}
+              colorBase={hexTerrainColor.treeBase}
+            />
+          </ModelWrapper>
+        </group>
+      </Suspense>
+    )
+  }
+  // JUNGLE BRUSH
+  // Ticalla style
   if (inventoryID === Pieces.brush9) {
+
+    const Comp = lookupModelComponent('ticallaBrush') ?? (React.Fragment)
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <TicallaBrush
-            color={hexTerrainColor.laurFatLeaf}
-            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
-            colorPineappleFern={hexTerrainColor.ticallaPineappleFern}
-            colorNeedleFern={hexTerrainColor.ticallaNeedleFern}
-            colorTriLeaf={hexTerrainColor.ticallaTriLeaf}
-          />
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={hexTerrainColor.laurFatLeaf}
+              secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+              colorPineappleFern={hexTerrainColor.ticallaPineappleFern}
+              colorNeedleFern={hexTerrainColor.ticallaNeedleFern}
+              colorTriLeaf={hexTerrainColor.ticallaTriLeaf}
+            />
+          </ModelWrapper>
         </Suspense>
       </group>
     )
   }
+  // Laur style (+ swamp sub-style)
   if (inventoryID === Pieces.laurBrush10) {
+    const Comp = lookupModelComponent('laurBrush') ?? (React.Fragment)
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurBrush
-            color={hexTerrainColor.laurFatLeaf}
-            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
-            colorRoundCactus={hexTerrainColor.laurRoundCactus}
-            colorTriCactus={hexTerrainColor.laurTriCactus}
-            colorTriLeaf={hexTerrainColor.laurTriLeaf}
-          />
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={hexTerrainColor.laurFatLeaf}
+              secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+              colorRoundCactus={hexTerrainColor.laurRoundCactus}
+              colorTriCactus={hexTerrainColor.laurTriCactus}
+              colorTriLeaf={hexTerrainColor.laurTriLeaf}
+            />
+          </ModelWrapper>
         </Suspense>
       </group>
     )
   }
   if (inventoryID === Pieces.swampBrush10) {
+    const Comp = lookupModelComponent('swampBrush') ?? (React.Fragment)
     return (
       <group
         position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurBrush
-            color={hexTerrainColor.swampFatLeaf}
-            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
-            colorRoundCactus={hexTerrainColor.swampRoundCactus}
-            colorTriCactus={hexTerrainColor.swampTriCactus}
-            colorTriLeaf={hexTerrainColor.swampTriLeaf}
-          />
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={hexTerrainColor.laurFatLeaf}
+              secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+              colorRoundCactus={hexTerrainColor.laurRoundCactus}
+              colorTriCactus={hexTerrainColor.laurTriCactus}
+              colorTriLeaf={hexTerrainColor.laurTriLeaf}
+            />
+          </ModelWrapper>
         </Suspense>
       </group>
     )
   }
   // TICALLA PALM
   if (inventoryID.startsWith(PiecePrefixes.palm)) {
+    const Comp = lookupModelComponent('ticallaPalm') ?? (React.Fragment)
     return (
       <group
         scale={[1, getOptionsForPalmHeight(inventoryID).scaleY, 1]}
@@ -569,20 +588,23 @@ export const MapBoardPiece3D = ({
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <TicallaPalm
-            color={hexTerrainColor.ticallaPalmCanopy}
-            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
-            colorTrunk={hexTerrainColor.ticallaPalmTrunk}
-            colorNeedleFern={hexTerrainColor.ticallaNeedleFern}
-            colorPineappleFern={hexTerrainColor.ticallaPineappleFern}
-            colorTriLeaf={hexTerrainColor.ticallaTriLeaf}
-          />
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={hexTerrainColor.ticallaPalmCanopy}
+              secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+              colorTrunk={hexTerrainColor.ticallaPalmTrunk}
+              colorNeedleFern={hexTerrainColor.ticallaNeedleFern}
+              colorPineappleFern={hexTerrainColor.ticallaPineappleFern}
+              colorTriLeaf={hexTerrainColor.ticallaTriLeaf}
+            />
+          </ModelWrapper>
         </Suspense>
       </group>
     )
   }
   // LAUR PALM
   if (inventoryID.startsWith(PiecePrefixes.laurPalm)) {
+    const Comp = lookupModelComponent('laurPalm') ?? (React.Fragment)
     return (
       <group
         scale={[1, getOptionsForPalmHeight(inventoryID).scaleY, 1]}
@@ -590,14 +612,16 @@ export const MapBoardPiece3D = ({
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurPalm
-            color={hexTerrainColor.ticallaPalmCanopy}
-            secondaryColor={hexTerrainColor[HexTerrain.swamp]}
-            colorTrunk={hexTerrainColor.ticallaPalmTrunk}
-            colorRoundCactus={hexTerrainColor.laurRoundCactus}
-            colorTriCactus={hexTerrainColor.laurTriCactus}
-            colorTriLeaf={hexTerrainColor.laurTriLeaf}
-          />
+          <ModelWrapper {...interactivityProps}>
+            <Comp
+              color={hexTerrainColor.ticallaPalmCanopy}
+              secondaryColor={hexTerrainColor[HexTerrain.swamp]}
+              colorTrunk={hexTerrainColor.ticallaPalmTrunk}
+              colorRoundCactus={hexTerrainColor.laurRoundCactus}
+              colorTriCactus={hexTerrainColor.laurTriCactus}
+              colorTriLeaf={hexTerrainColor.laurTriLeaf}
+            />
+          </ModelWrapper>
         </Suspense>
       </group>
     )

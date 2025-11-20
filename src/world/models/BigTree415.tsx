@@ -1,57 +1,48 @@
 import { useGLTF } from '@react-three/drei'
-import type { ThreeEvent } from '@react-three/fiber'
-import usePieceHoverState from '../../hooks/usePieceHoverState'
-import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain } from '../../types'
-import { hexTerrainColor } from '../maphex/hexColors'
 import { basicDoubleSideModelMaterial, basicModelMaterial } from './materials'
-import { noop } from 'lodash'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import type { ModelComponentProps } from './ModelComponentProps'
 
 export function BigTree415({
-  pid,
+  color,
+  secondaryColor = color,
+  colorBase = color,
+  highlightColor,
+  boardPiece,
   opacity,
-}: { pid?: string; opacity?: number }) {
+  isHighlighted,
+  isLightsAndShadowsRender,
+}: ModelComponentProps) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/big-tree-415.glb') as any
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnterBoardPiece, onPointerOut } = usePieceHoverState()
-  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === pid
-  const isHighlighted = hoveredPieceID === pid || isSelected
-  const treeColor = isHighlighted
-    ? yellowColor
-    : hexTerrainColor[HexTerrain.tree]
-  const rockColor = isHighlighted
-    ? yellowColor
-    : hexTerrainColor[HexTerrain.ruin]
-  const opacityLevel = (opacity ?? pid) ? 1 : PIECE_PREVIEW_OPACITY
-  const pointerHandlers = pid
-    ? {
-      onPointerUp: (e: ThreeEvent<PointerEvent>) => {
-        e.stopPropagation()
-        if (e.button !== 0) return
-        toggleSelectedPieceID(isSelected ? '' : pid)
-      },
-      onPointerEnter: (e: ThreeEvent<PointerEvent>) =>
-        onPointerEnterBoardPiece(e, pid),
-      onPointerOut: (e: ThreeEvent<PointerEvent>) => onPointerOut(e),
-    }
-    : {}
+  const currentColor =
+    (isHighlighted?.(boardPiece?.uid ?? '') && highlightColor)
+      ? highlightColor
+      : color
+  const currentColorBase =
+    (isHighlighted?.(boardPiece?.uid ?? '') && highlightColor)
+      ? highlightColor
+      : colorBase || color
+  const currentSecondaryColor =
+    (isHighlighted?.(boardPiece?.uid ?? '') && highlightColor)
+      ? highlightColor
+      : secondaryColor
+        ? secondaryColor
+        : color
+  const opacityLevel = opacity ?? 1
   return (
-    <group {...pointerHandlers}>
+    <>
+      {/* 
+        Scaled to match reality: 
+        9-hex-heights clears the upper pillar edge,
+        13-hex-heights totally clears the pillars top X-arch 
+        */}
+      {/* PILLAR TOP ARCH */}
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.BigTreeBoulders.geometry}
       >
-        {basicModelMaterial(rockColor, isLightsAndShadowsRender, opacityLevel)}
+        {basicModelMaterial(currentSecondaryColor, !!isLightsAndShadowsRender, opacityLevel)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -59,8 +50,8 @@ export function BigTree415({
         geometry={nodes.BigTreeTree.geometry}
       >
         {basicDoubleSideModelMaterial(
-          treeColor,
-          isLightsAndShadowsRender,
+          currentColor,
+          !!isLightsAndShadowsRender,
           opacityLevel,
         )}
       </mesh>
@@ -70,13 +61,12 @@ export function BigTree415({
         geometry={nodes.BigTreeBase.geometry}
       >
         {basicModelMaterial(
-          hexTerrainColor.treeBase,
-          isLightsAndShadowsRender,
+          currentColorBase,
+          !!isLightsAndShadowsRender,
           opacityLevel,
         )}
       </mesh>
-    </group>
+    </>
   )
 }
-
 useGLTF.preload('/big-tree-415.glb')
