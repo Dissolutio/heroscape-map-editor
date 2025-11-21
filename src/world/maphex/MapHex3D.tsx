@@ -182,10 +182,10 @@ export const MapHex3D = ({
         boardHex={boardHex}
         position={new Vector3(x, y + 0.2, z)}
       />
-      <HexCapIDDisplay
+      {/* <HexCapIDDisplay
         boardHex={boardHex}
         position={new Vector3(x, y + 0.2, z)}
-      />
+      /> */}
       {isHeightRingedHex && <HeightRing position={new Vector3(x, y, z)} />}
       {isTopOutlinedInterlockHex && (
         <TopOutlineInterlockHex
