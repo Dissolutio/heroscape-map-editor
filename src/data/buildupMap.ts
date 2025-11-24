@@ -12,13 +12,9 @@ export function buildupVSFileMap(
   mapName: string,
 ): MapState {
   const hexMap = getHexMapForVSTiles(tiles, mapName)
-  // let { boardPieces } = blankMap
-  // const { boardHexes, hexMap } = blankMap
   const vsTilesAsBoardPieces: BoardPieces = tiles.flatMap((tile) => {
     const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
     const inventoryID = pieceCodes?.[getCodeForVSPersonalTile(tile)] ?? ''
-    // For VS Marvel ruin, should add a Concrete-6 and move ruin up one altitude
-    // Adjust rotation for ladders/battlements (VS starts them at rotation-5, instead of our rotation-0)
 
     // Adjust tile origin, since VS moves it per rotation for some pieces (our app rotates pieces around their one unmoving origin hex)
     const originHexCoords = getVSTileOriginCoords({
@@ -26,8 +22,9 @@ export function buildupVSFileMap(
       rotation: tile.rotation,
       template: piecesSoFar[inventoryID].template,
     })
+    // TODO: Adjust rotation for ladders/battlements (VS starts them at rotation-5, instead of our rotation-0)
 
-    // Special, for marvel ruin, place base and obstacle
+    // Marvel ruin, place base and obstacle
     if (tile.type === 11006 || tile.type === 11007) {
       return [
         {
@@ -46,7 +43,7 @@ export function buildupVSFileMap(
         },
       ]
     }
-    // Or return 1 piece
+    // Or just return 1 piece
     return [
       {
         uid: genPieceObjectUid(),
