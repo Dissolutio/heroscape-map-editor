@@ -394,7 +394,7 @@ export const MapBoardPiece3D = ({
   }
   // BATTLEMENT
   if (inventoryID === Pieces.battlement) {
-    const Comp = lookupModelComponent(inventoryID) ?? (React.Fragment)
+    const Comp = lookupModelComponent('battlement') ?? (React.Fragment)
     return (
       <group
         position={[
@@ -414,7 +414,7 @@ export const MapBoardPiece3D = ({
   }
   // LADDER
   if (inventoryID === Pieces.ladder) {
-    const Comp = lookupModelComponent(inventoryID) ?? (React.Fragment)
+    const Comp = lookupModelComponent('ladder') ?? (React.Fragment)
     return (
       <group
         position={[
