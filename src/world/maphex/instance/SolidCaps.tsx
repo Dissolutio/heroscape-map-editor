@@ -155,7 +155,7 @@ function SolidCapInstance({
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerOut}
       onPointerUp={handlePointerUp}
-      frustumCulled={false}
+      // frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
     />

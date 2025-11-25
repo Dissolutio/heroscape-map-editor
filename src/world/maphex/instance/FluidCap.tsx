@@ -145,7 +145,7 @@ function FluidCap({
       onPointerUp={handlePointerUp}
       onPointerEnter={handlePointerEnter}
       onPointerOut={handlePointerOut}
-      frustumCulled={false}
+      // frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
     />

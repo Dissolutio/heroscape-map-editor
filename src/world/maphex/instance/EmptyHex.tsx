@@ -100,7 +100,7 @@ function EmptyHex({
       onPointerUp={handleUp}
       onPointerEnter={handleEnter}
       onPointerOut={handleOut}
-      frustumCulled={false}
+      // frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
     />
