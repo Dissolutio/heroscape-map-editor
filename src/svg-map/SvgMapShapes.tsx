@@ -1,4 +1,3 @@
-import { Circle, Ellipse, G, Path, Polygon, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
   get24HexSvgPolygonPointsAt00,
@@ -71,8 +70,6 @@ export const SvgEmptyHex = () => {
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={borderWidth}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={OPACITY_EMPTY}
       />
     </>
@@ -95,7 +92,7 @@ export const SvgMultiHex1 = ({
         ? fillColor
         : getSvgHexBorderColor(hex)
       : ''
-  const glyphHexRadius = SVG_HEX_RADIUS / 1.4
+  const glyphHexRadius = SVG_HEX_RADIUS / 2
   const { points } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
@@ -116,8 +113,6 @@ export const SvgMultiHex1 = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       {/* SNOWFLAKE IDEA, this one looks like the original ice snowflakes in Heroscape */}
@@ -147,8 +142,6 @@ export const SvgMultiHex2 = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -175,8 +168,6 @@ export const SvgMultiHex3 = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -204,8 +195,6 @@ export const SvgCastleArchStraight3 = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -232,8 +221,6 @@ export const SvgMultiHex4 = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -260,8 +247,6 @@ export const SvgMultiHex5 = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -288,8 +273,6 @@ export const SvgMultiHex6 = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -318,8 +301,6 @@ export const SvgMultiHexMarvel6 = ({
         // stroke={borderColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -346,8 +327,6 @@ export const SvgMultiHex7 = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -374,8 +353,6 @@ export const SvgMultiHexWallWalk7 = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -402,8 +379,6 @@ export const SvgMultiHexWallWalk9 = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -430,8 +405,6 @@ export const SvgMultiHex24 = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -472,8 +445,6 @@ export const SvgLaurPillar = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <g transform={`rotate(${pieceRotation})`}>
@@ -481,16 +452,13 @@ export const SvgLaurPillar = ({
         {isSubLevel && (
           <SvgSubLevelWhiteBackerPolygon
             points={innerShapePoints}
-            borderWidth={SVG_BORDER_WIDTH / 2}
+            borderWidth={0}
           />
         )}
+        {/* TODO: redo innerShapePoints per master svg file */}
         <polygon
           points={innerShapePoints}
-          fill={fillColor}
-          stroke={borderColor}
-          strokeWidth={SVG_BORDER_WIDTH / 2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          fill={borderColor}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
@@ -514,8 +482,6 @@ export const SvgJungle = ({
         <polygon
           points={points}
           fill={svgColors.outlineJungle}
-          strokeLinecap="round"
-          strokeLinejoin="round"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
@@ -550,8 +516,6 @@ export const SvgHive6 = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       {/* Inner blob made in Inkscape, so not dynamic yet */}
@@ -683,8 +647,6 @@ export const SvgRuins2 = ({
           fill="transparent"
           stroke={'white'}
           strokeWidth={SVG_HEX_RADIUS / 5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
         />
       )}
       <path
@@ -692,8 +654,6 @@ export const SvgRuins2 = ({
         fill="transparent"
         stroke={fillColor}
         strokeWidth={SVG_HEX_RADIUS / 5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
       />
     </>
@@ -717,8 +677,6 @@ export const SvgRuins3 = ({
           fill="transparent"
           stroke={'white'}
           strokeWidth={SVG_HEX_RADIUS / 5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
         />
       )}
       <path
@@ -726,8 +684,6 @@ export const SvgRuins3 = ({
         fill="transparent"
         stroke={fillColor}
         strokeWidth={SVG_HEX_RADIUS / 5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
       />
     </>
@@ -753,8 +709,6 @@ export const SvgMarvelRuin = ({
           stroke={'white'}
           fillOpacity={0}
           strokeWidth={2 * SVG_BORDER_WIDTH}
-          strokeLinecap="round"
-          strokeLinejoin="round"
         />
       )}
       <path
@@ -762,8 +716,6 @@ export const SvgMarvelRuin = ({
         fillOpacity={0}
         stroke={fillColorSub}
         strokeWidth={2 * SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -789,8 +741,6 @@ export const SvgBoardPieceLaurWallShort = ({
         fill={fillColor}
         stroke={fillColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -816,8 +766,6 @@ export const SvgBoardPieceLaurWallLong = ({
         fill={borderColor} // RENEGADE: they have all border color, community might want regular fill
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -843,8 +791,6 @@ export const SvgBoardPieceLaurWallLongArch = ({
         fill={'transparent'}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -870,8 +816,6 @@ export const SvgBoardPieceLaurWallRuin = ({
         fill={borderColor} // Renegade just does a pink rectangle
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -899,8 +843,6 @@ export const SvgRoadWall = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -929,8 +871,6 @@ export const SvgBattlement = ({
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH / 2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -959,8 +899,6 @@ export const SvgLadder = ({
         fill={fillColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 4}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -983,8 +921,6 @@ export const SvgStartZone = ({
           fill={'white'}
           stroke={'white'}
           strokeWidth={SVG_BORDER_WIDTH / 4}
-          strokeLinecap="round"
-          strokeLinejoin="round"
         />
       )}
       <circle
@@ -993,8 +929,6 @@ export const SvgStartZone = ({
         fill={fillColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 4}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -1025,8 +959,6 @@ export const SvgCastleCorner = ({
         fill={svgColors.castleInterior}
         stroke={svgColors.castleInterior}
         strokeWidth={SVG_BORDER_WIDTH / 4}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -1057,8 +989,6 @@ export const SvgCastleStraight = ({
         fill={svgColors.castleInterior}
         stroke={svgColors.castleInterior}
         strokeWidth={SVG_BORDER_WIDTH / 4}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -1091,8 +1021,6 @@ export const SvgCastleEnd = ({
         fill={svgColors.castleInterior}
         stroke={svgColors.castleInterior}
         strokeWidth={SVG_BORDER_WIDTH / 4}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -1125,8 +1053,6 @@ export const SvgCastleArch = ({
         fill={svgColors.castleInterior}
         stroke={svgColors.castleInterior}
         strokeWidth={SVG_BORDER_WIDTH / 4}
-        strokeLinecap="round"
-        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -1165,8 +1091,6 @@ export const SvgTree415 = ({
           fill={fillColor}
           stroke={borderColor}
           strokeWidth={SVG_BORDER_WIDTH}
-          strokeLinecap="round"
-          strokeLinejoin="round"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
@@ -1257,8 +1181,6 @@ export const SvgOutcrop6 = ({
           fill={fillColor}
           stroke={borderColor}
           strokeWidth={SVG_BORDER_WIDTH}
-          strokeLinecap="round"
-          strokeLinejoin="round"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
@@ -1354,8 +1276,6 @@ export const SvgOutcrop3 = ({
           fill={fillColor}
           stroke={borderColor}
           strokeWidth={SVG_BORDER_WIDTH}
-          strokeLinecap="round"
-          strokeLinejoin="round"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
@@ -1436,15 +1356,19 @@ export const SvgOutcrop4 = ({
           fill={fillColor}
           stroke={borderColor}
           strokeWidth={SVG_BORDER_WIDTH}
-          strokeLinecap="round"
-          strokeLinejoin="round"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
       <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={
+          isSubLevel
+            ? hex.terrain === HexTerrain.glacier
+              ? OPACITY_SUBLEVEL
+              : OPACITY_SUBLEVEL * 2
+            : 1
+        }
         style={hexTextStyle}
         x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
@@ -1454,7 +1378,13 @@ export const SvgOutcrop4 = ({
       <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={
+          isSubLevel
+            ? hex.terrain === HexTerrain.glacier
+              ? OPACITY_SUBLEVEL
+              : OPACITY_SUBLEVEL * 2
+            : 1
+        }
         style={hexTextStyle}
         x={
           (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
@@ -1467,7 +1397,13 @@ export const SvgOutcrop4 = ({
       <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={
+          isSubLevel
+            ? hex.terrain === HexTerrain.glacier
+              ? OPACITY_SUBLEVEL
+              : OPACITY_SUBLEVEL * 2
+            : 1
+        }
         style={hexTextStyle}
         x={
           (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
@@ -1480,7 +1416,13 @@ export const SvgOutcrop4 = ({
       <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={
+          isSubLevel
+            ? hex.terrain === HexTerrain.glacier
+              ? OPACITY_SUBLEVEL
+              : OPACITY_SUBLEVEL * 2
+            : 1
+        }
         style={hexTextStyle}
         x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}
@@ -1500,8 +1442,6 @@ const SvgSubLevelWhiteBackerPolygon = ({
       fill={'white'}
       stroke={'white'}
       strokeWidth={borderWidth ?? SVG_BORDER_WIDTH}
-      strokeLinecap="round"
-      strokeLinejoin="round"
     />
   )
 }
