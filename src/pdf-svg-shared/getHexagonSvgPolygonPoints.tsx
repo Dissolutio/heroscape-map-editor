@@ -189,12 +189,12 @@ export function getCastleArchShapeSvgPolygonPoints(
     { x: -apothem + insetAtMidpoints, y: 0 }, // midpoint left side
     {
       x: -(apothem / 2) + borderWidth * cos60,
-      y: (-3 / 4) * radius + borderWidth * sin60,
+      y: (-3 / 4) * radius + 1.15 * borderWidth,
     }, // midpoint top-left side
 
     {
       x: 2 * hexWidth + apothem / 2 - insetAtMidpoints * cos60,
-      y: (-3 / 4) * radius + insetAtMidpoints * sin60,
+      y: (-3 / 4) * radius + 1.15 * borderWidth,
     }, // midpoint top-right side far-hex
     { x: 2 * hexWidth + apothem - insetAtMidpoints, y: 0 }, // midpoint right side far-hex
 

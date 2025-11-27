@@ -265,10 +265,10 @@ export const PdfMapHex = ({
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-      inventoryID === Pieces.castleWallEnd
+        inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-            inventoryID === Pieces.castleWallStraight
+          inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
@@ -589,7 +589,7 @@ const PdfCastleArchText = ({
         fontSize: 0.8 * SVG_HEX_RADIUS,
         fontWeight: 'bold',
       }}
-      y={0.2 * SVG_HEX_RADIUS}
+      y={0.3 * SVG_HEX_RADIUS}
       // upside down text is flipped in parent component, and adjusted here
       x={pieceRotation === 180 ? -3.7 * SVG_HEX_APOTHEM : 0.3 * SVG_HEX_APOTHEM}
     >
