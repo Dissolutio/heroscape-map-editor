@@ -273,6 +273,12 @@ export default function PenModeControls() {
           </ListItemIcon>
           <span>Ruins 3</span>
         </MenuItem>
+        <MenuItem value={Pieces.fortifiedWall}>
+          <ListItemIcon>
+            <GiAncientRuins color={hexTerrainColor.ruin} />
+          </ListItemIcon>
+          <span>Fortified Wall</span>
+        </MenuItem>
         <Divider />
 
         {/* Trees */}

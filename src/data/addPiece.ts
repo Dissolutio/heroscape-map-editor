@@ -256,8 +256,8 @@ export function addPiece({
       addPieceError = { message: 'Unable to place ladder' }
     }
   }
-  // RUINS
-  if (piece.terrain === HexTerrain.ruin) {
+  // RUINS / FORTIFIED WALL
+  if (piece.terrain === HexTerrain.ruin || piece.terrain === HexTerrain.fortifiedWall) {
     const isSolidUnderAllSupportHexes = underHexIds.every((_, i) => {
       // Ruins only need to be supported under their center of mass, and we could be more liberal than this (allowing combinations of certain hexes)
       // See https://github.com/Dissolutio/heroscape-map-editor/issues/7

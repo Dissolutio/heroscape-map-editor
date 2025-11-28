@@ -81,6 +81,7 @@ export enum HexTerrain {
   hive = 'hive',
   // edge obstacle
   ruin = 'ruin',
+  fortifiedWall = 'fortifiedWall',
   marvelRuin = 'marvelRuin',
   // edge addon
   roadWall = 'roadWall',
@@ -284,6 +285,7 @@ export const Pieces = {
   // EdgeObstacles
   ruins2: `${PiecePrefixes.ruins}2`,
   ruins3: `${PiecePrefixes.ruins}3`,
+  fortifiedWall: 'fw',
   marvel: 'rm',
   marvelBroken: 'rmb', //b broken, like castlearch
   marvelNoUpper: 'rmn', //b broken, like castlearch

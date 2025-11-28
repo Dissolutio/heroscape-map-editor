@@ -926,6 +926,16 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: Pieces.ruins3,
     height: 5, // these have a template done, but pending vertex data approach
   },
+  [Pieces.fortifiedWall]: {
+    id: Pieces.fortifiedWall,
+    title: 'Fortified Wall',
+    terrain: HexTerrain.fortifiedWall,
+    isHexTerrainPiece: false,
+    isObstaclePiece: false,
+    size: 8,
+    template: Pieces.fortifiedWall,
+    height: 10,
+  },
   [Pieces.marvel]: {
     id: Pieces.marvel,
     title: 'Warehouse Ruin',

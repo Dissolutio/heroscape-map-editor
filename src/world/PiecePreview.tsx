@@ -66,6 +66,7 @@ import { Outcrop1Preview } from './models/Outcrop1'
 import { CastleWallPreview } from './models/CastleWalls'
 import { CastleBasePreview } from './models/CastleBases'
 import { CastleArchPreview } from './models/CastleArch'
+import { FortifiedWallPreview } from './models/FortifiedWall'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -163,6 +164,7 @@ export default function PiecePreview() {
   const isGlacier6Hex = pieceID === Pieces.glacier6
   const isRuin2Hex = pieceID === Pieces.ruins2
   const isRuin3Hex = pieceID === Pieces.ruins3
+  const isFortifiedWallHex = pieceID === Pieces.fortifiedWall
   const isMarvelRuinHex =
     pieceID === Pieces.marvel ||
     pieceID === Pieces.marvelBroken ||
@@ -518,6 +520,18 @@ export default function PiecePreview() {
       >
         <Suspense fallback={<ModelLoader />}>
           <Ruins3Preview />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isFortifiedWallHex && isSolidBeneath) {
+    return (
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <FortifiedWallPreview />
         </Suspense>
       </group>
     )
