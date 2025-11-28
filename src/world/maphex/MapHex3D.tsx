@@ -226,7 +226,7 @@ export const MapHex3D = ({
       {isStartZoneHex && (
         <group
           position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
-          rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, Math.PI / 2]}
+          rotation={[0, pieceRotation, Math.PI / 2]}
         >
           <StartZone3D boardHex={boardHex} />
         </group>

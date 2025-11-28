@@ -887,7 +887,7 @@ export function get4HexSvgPolygonPointsAt00(
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
-  const bottomYInner = radiusInner
+  // const bottomYInner = radiusInner
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 

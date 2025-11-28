@@ -292,7 +292,7 @@ export function addPiece({
 
         // write in vertical clearances for all the hexes a ruin borders
         // these are writing inside the loop for all ground-level hexes
-        Array(verticalObstructionTemplates[piece.id][i])
+        Array(verticalObstructionTemplates?.[piece.id]?.[i] ?? piece.height)
           .fill(0)
           .forEach((_, j) => {
             if (j === 0) {
