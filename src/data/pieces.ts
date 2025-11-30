@@ -938,7 +938,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.marvelBroken]: {
     id: Pieces.marvelBroken,
-    title: 'Warehouse Ruin - Destroyed Wall',
+    title: 'Warehouse Ruin - No Wall',
     terrain: HexTerrain.marvelRuin,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
@@ -958,7 +958,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.marvelNoUpperBroken]: {
     id: Pieces.marvelNoUpperBroken,
-    title: 'Warehouse Ruin- No Upper Floor and Destroyed Wall',
+    title: 'Warehouse Ruin- No Upper Floor / No Wall',
     terrain: HexTerrain.marvelRuin,
     isHexTerrainPiece: false,
     isObstaclePiece: true,

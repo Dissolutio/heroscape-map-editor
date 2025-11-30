@@ -1,16 +1,30 @@
 import { useMediaQuery } from '@mui/material'
-import { Document, Image, PDFViewer, Text, View } from '@react-pdf/renderer'
+import {
+  Document,
+  Font,
+  Image,
+  Page,
+  PDFViewer,
+  Text,
+  View,
+} from '@react-pdf/renderer'
 import useBoundStore from '../store/store'
+import { piecesSoFar } from '../data/pieces'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
 import type { HexMap } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
-import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
+import {
+  countTerrainSets,
+  getSetsUsedText,
+  decodePieceID,
+} from '../utils/map-utils'
 
 export function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
+  const isShowPDFInventory = useBoundStore((s) => s.isShowPDFInventory)
   const mapNotes = hexMap?.mapNotes ?? ''
   const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
   const isMobile = useMediaQuery('(max-width:800px)')
@@ -43,8 +57,12 @@ export function ReactPdfRoot() {
                 boardHexes={boardHexes}
                 boardPieces={boardPieces}
                 hexMap={hexMap}
-              /> */}
+                /> */}
             </PdfMapLevels6PerPage>
+            <PdfPieceInventory
+              isShowPDFInventory={isShowPDFInventory}
+              boardPieces={boardPieces}
+            />
           </Document>
         </PDFViewer>
       )}
@@ -148,5 +166,72 @@ const MapPortraitHeader = ({
         )}
       </View>
     </View>
+  )
+}
+
+const PdfPieceInventory = ({
+  isShowPDFInventory,
+  boardPieces,
+}: {
+  isShowPDFInventory: boolean
+  boardPieces: string[]
+}) => {
+  if (!isShowPDFInventory || !boardPieces.length) {
+    return null
+  }
+
+  // Decode placed pieces and count by inventoryID
+  const decoded = (boardPieces || []).map((id) => decodePieceID(id))
+  const counts: Record<string, number> = decoded.reduce(
+    (acc, p) => {
+      const inventoryID = p?.inventoryID
+      if (!inventoryID) return acc
+      acc[inventoryID] = (acc[inventoryID] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>,
+  )
+
+  const entries = Object.entries(counts)
+    .map(([id, count]) => ({ id, count, title: piecesSoFar[id]?.title ?? id }))
+    .sort((a, b) => a.title.localeCompare(b.title))
+
+  return (
+    <Page
+      // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
+      size="LETTER"
+      style={{
+        flexDirection: 'column',
+        maxHeight: '100vh',
+        padding: 5,
+      }}
+    >
+      <View
+        style={{
+          marginBottom: 8,
+          padding: 4,
+          flexDirection: 'column',
+        }}
+      >
+        <Text style={{ fontSize: '16px', marginBottom: 2 }}>Inventory</Text>
+
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+          {entries.map((e) => (
+            <View
+              key={e.id}
+              style={{
+                width: '50%',
+                flexDirection: 'row',
+                // justifyContent: 'space-between',
+                // paddingBottom: 2,
+              }}
+            >
+              <Text style={{ fontSize: '12px' }}>{e.title} </Text>
+              <Text style={{ fontSize: '12px' }}>x{e.count}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+    </Page>
   )
 }

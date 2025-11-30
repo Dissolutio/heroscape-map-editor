@@ -58,6 +58,10 @@ export interface UISlice {
   toggleIsOrthoCam: (b: boolean) => void
   userPieceInventory: PieceInventory
   updateUserPieceInventory: (n: PieceInventory) => void
+
+  // PDF STATE
+  isShowPDFInventory: boolean
+  toggleIsShowPDFInventory: (b: boolean) => void
 }
 
 const initialPenMode = 'select'
@@ -178,6 +182,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isOrthoCam = b
+      }),
+    ),
+  isShowPDFInventory: true,
+  toggleIsShowPDFInventory: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowPDFInventory = b
       }),
     ),
   currentDialog: '',

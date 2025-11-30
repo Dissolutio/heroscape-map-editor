@@ -24,8 +24,11 @@ export function processVirtualScapeArrayBuffer(arrayBuffer: ArrayBuffer) {
     tiles: [],
   }
 
-  // file version "0.0007" only one ever seen
   virtualScapeMap.version = getFloat64(dataView)
+  if (virtualScapeMap.version !== 0.0007) {
+    // older versions will not be parsed correctly, return and queue snackbar notification in LoadFileHiddenInputs.tsx
+    return virtualScapeMap
+  }
   virtualScapeMap.name = readCString(dataView)
   virtualScapeMap.author = readCString(dataView)
   virtualScapeMap.playerNumber = readCString(dataView)

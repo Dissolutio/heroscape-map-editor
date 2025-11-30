@@ -46,6 +46,7 @@ import { GlyphModel } from '../models/Glyph'
 import { StartZone3D } from '../models/StartZone3D'
 import { MarvelRuin } from '../models/MarvelRuin'
 import LaurWallTrianglePillar from '../models/LaurTrianglePillar'
+import { HexCapIDDisplay } from './HexCapIDDisplay'
 
 export const MapHex3D = ({
   boardHex,
@@ -181,6 +182,10 @@ export const MapHex3D = ({
         boardHex={boardHex}
         position={new Vector3(x, y + 0.2, z)}
       />
+      {/* <HexCapIDDisplay
+        boardHex={boardHex}
+        position={new Vector3(x, y + 0.2, z)}
+      /> */}
       {isHeightRingedHex && <HeightRing position={new Vector3(x, y, z)} />}
       {isTopOutlinedInterlockHex && (
         <TopOutlineInterlockHex

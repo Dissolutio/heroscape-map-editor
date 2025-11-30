@@ -10,6 +10,7 @@ import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 import { parse } from 'papaparse'
 import { piecesSoFar } from '../data/pieces'
 import { normalizeBoardPieces } from '../utils/map-utils'
+import { Button } from '@mui/material'
 
 export const personalInventoryTsvUploadElementID = 'tsvinventoryupload'
 export const uploadElementID = 'upload'
@@ -112,6 +113,29 @@ export const LoadFileHiddenInputs = () => {
 
     try {
       const vsMap = await readVirtualscapeMapFile(file)
+      if (vsMap.version.toString() !== '0.0007') {
+        const action: SnackbarAction = (snackbarId) => (
+          <>
+            <Button
+              type="button"
+              onClick={() => {
+                closeSnackbar(snackbarId)
+              }}
+            >
+              Dismiss
+            </Button>
+          </>
+        )
+
+        enqueueSnackbar({
+          message: `Sorry, this virtualscape map file is versioned ${vsMap.version}, and cannot be loaded into Hexoscape. You can try loading the map into the latest version of Virtualscape, and re-exporting it (which will update the file format)`,
+          variant: 'error',
+          autoHideDuration: null,
+          hideIconVariant: true,
+          action,
+        })
+        return
+      }
       const loadedMap = buildupVSFileMap(vsMap.tiles, vsMap.name || file.name)
       loadMap(loadedMap)
       enqueueSnackbar({
