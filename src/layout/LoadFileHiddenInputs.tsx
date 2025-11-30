@@ -116,18 +116,23 @@ export const LoadFileHiddenInputs = () => {
       if (vsMap.version.toString() !== '0.0007') {
         const action: SnackbarAction = (snackbarId) => (
           <>
-            <Button type="button" onClick={() => { closeSnackbar(snackbarId) }}>
+            <Button
+              type="button"
+              onClick={() => {
+                closeSnackbar(snackbarId)
+              }}
+            >
               Dismiss
             </Button>
           </>
-        );
+        )
 
         enqueueSnackbar({
           message: `Sorry, this virtualscape map file is versioned ${vsMap.version}, and cannot be loaded into Hexoscape. You can try loading the map into the latest version of Virtualscape, and re-exporting it (which will update the file format)`,
           variant: 'error',
           autoHideDuration: null,
           hideIconVariant: true,
-          action
+          action,
         })
         return
       }

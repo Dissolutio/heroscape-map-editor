@@ -274,9 +274,7 @@ const ViewPreferencesSwitchForm = () => {
   )
 }
 const PdfPreferencesSwitchForm = () => {
-  const isShowPDFInventory = useBoundStore(
-    (s) => s.isShowPDFInventory,
-  )
+  const isShowPDFInventory = useBoundStore((s) => s.isShowPDFInventory)
   const toggleIsShowPDFInventory = useBoundStore(
     (s) => s.toggleIsShowPDFInventory,
   )

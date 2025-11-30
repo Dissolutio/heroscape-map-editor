@@ -173,8 +173,8 @@ export default function PiecePreview() {
   const pieceRotation = (penModeRotation * -Math.PI) / 3
 
   const subterrainColor =
-    piece?.terrain === HexTerrain.swamp ?
-      hexTerrainColor.swampCap // override, to distinguish preview from swamp water
+    piece?.terrain === HexTerrain.swamp
+      ? hexTerrainColor.swampCap // override, to distinguish preview from swamp water
       : hexTerrainColor?.[piece?.terrain as keyof typeof hexTerrainColor]
 
   const landSubterrainMaterial = () => {

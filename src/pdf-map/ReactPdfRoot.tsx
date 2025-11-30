@@ -1,12 +1,24 @@
 import { useMediaQuery } from '@mui/material'
-import { Document, Font, Image, Page, PDFViewer, Text, View } from '@react-pdf/renderer'
+import {
+  Document,
+  Font,
+  Image,
+  Page,
+  PDFViewer,
+  Text,
+  View,
+} from '@react-pdf/renderer'
 import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
 import type { HexMap } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
-import { countTerrainSets, getSetsUsedText, decodePieceID } from '../utils/map-utils'
+import {
+  countTerrainSets,
+  getSetsUsedText,
+  decodePieceID,
+} from '../utils/map-utils'
 
 export function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -161,7 +173,7 @@ const PdfPieceInventory = ({
   isShowPDFInventory,
   boardPieces,
 }: {
-  isShowPDFInventory: boolean,
+  isShowPDFInventory: boolean
   boardPieces: string[]
 }) => {
   if (!isShowPDFInventory || !boardPieces.length) {
@@ -170,12 +182,15 @@ const PdfPieceInventory = ({
 
   // Decode placed pieces and count by inventoryID
   const decoded = (boardPieces || []).map((id) => decodePieceID(id))
-  const counts: Record<string, number> = decoded.reduce((acc, p) => {
-    const inventoryID = p?.inventoryID
-    if (!inventoryID) return acc
-    acc[inventoryID] = (acc[inventoryID] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  const counts: Record<string, number> = decoded.reduce(
+    (acc, p) => {
+      const inventoryID = p?.inventoryID
+      if (!inventoryID) return acc
+      acc[inventoryID] = (acc[inventoryID] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>,
+  )
 
   const entries = Object.entries(counts)
     .map(([id, count]) => ({ id, count, title: piecesSoFar[id]?.title ?? id }))
@@ -191,7 +206,6 @@ const PdfPieceInventory = ({
         padding: 5,
       }}
     >
-
       <View
         style={{
           marginBottom: 8,
@@ -199,8 +213,7 @@ const PdfPieceInventory = ({
           flexDirection: 'column',
         }}
       >
-        <Text
-          style={{ fontSize: '16px', marginBottom: 2 }}>Inventory</Text>
+        <Text style={{ fontSize: '16px', marginBottom: 2 }}>Inventory</Text>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
           {entries.map((e) => (
@@ -216,8 +229,7 @@ const PdfPieceInventory = ({
               <Text style={{ fontSize: '12px' }}>{e.title} </Text>
               <Text style={{ fontSize: '12px' }}>x{e.count}</Text>
             </View>
-          ))
-          }
+          ))}
         </View>
       </View>
     </Page>

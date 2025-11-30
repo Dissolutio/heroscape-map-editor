@@ -30,13 +30,7 @@ export const HexCapIDDisplay = ({
   //   return null
   // }
   return (
-    <Billboard
-      position={[
-        position.x,
-        position.y,
-        position.z,
-      ]}
-    >
+    <Billboard position={[position.x, position.y, position.z]}>
       <Text fontSize={0.3} color={'black'}>
         {`${boardHex.q}~${boardHex.r}~${boardHex.s}`}
       </Text>
