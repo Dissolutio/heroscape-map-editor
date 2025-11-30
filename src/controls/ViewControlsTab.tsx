@@ -144,6 +144,7 @@ export default function ViewControlsTab({
       </div>
       <Box>
         <ViewPreferencesSwitchForm />
+        <PdfPreferencesSwitchForm />
       </Box>
     </Box>
   )
@@ -213,6 +214,7 @@ const ViewPreferencesSwitchForm = () => {
               title="Enable/disable a black border around the top of land pieces, to help distinguish them from eachother"
             />
           }
+          title="Enable/disable a black border around the top of land pieces, to help distinguish them from eachother"
           label="Show piece outlines"
         />
         <FormControlLabel
@@ -223,6 +225,7 @@ const ViewPreferencesSwitchForm = () => {
               onChange={handleChangeLightsAndRender}
             />
           }
+          title="Enable/disable lights and shadows in the 3D view"
           label="Render Lights and Shadows"
         />
 
@@ -235,6 +238,7 @@ const ViewPreferencesSwitchForm = () => {
                 onChange={handleChangeHideTableTop}
               />
             }
+            title="Show/hide the table plane in 3D view, only available when lights and shadows are enabled"
             label="Hide TableTop"
           />
         )}
@@ -247,6 +251,7 @@ const ViewPreferencesSwitchForm = () => {
               onChange={handleChangeDisplayCapHeights}
             />
           }
+          title="Show/hide each hex's height, if a unit can be on that hex"
           label="Display Hex Heights"
         />
         <FormControlLabel
@@ -257,12 +262,45 @@ const ViewPreferencesSwitchForm = () => {
               onChange={handleChangeHQRender}
             />
           }
+          title="Enable/disable high quality render settings, currently just a more realistic hex cap"
           label="High Quality Render (Significant performance impact)"
         />
         {/* <FormControlLabel
           control={<Switch checked={isFrameloopDemand} onChange={handleChangeFrameloopDemand} />}
           label="Frameloop Demand"
         /> */}
+      </FormGroup>
+    </FormControl>
+  )
+}
+const PdfPreferencesSwitchForm = () => {
+  const isShowPDFInventory = useBoundStore(
+    (s) => s.isShowPDFInventory,
+  )
+  const toggleIsShowPDFInventory = useBoundStore(
+    (s) => s.toggleIsShowPDFInventory,
+  )
+  const handleChangeShowPDFInventory = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShowPDFInventory(event.target.checked)
+  }
+
+  return (
+    <FormControl component="fieldset" variant="standard">
+      <FormLabel component="legend">PDF options:</FormLabel>
+      <FormGroup>
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShowPDFInventory}
+              onChange={handleChangeShowPDFInventory}
+              title="Enable/disable a piece inventory on the PDF build instructions"
+            />
+          }
+          label="PDF piece inventory"
+        />
       </FormGroup>
     </FormControl>
   )
