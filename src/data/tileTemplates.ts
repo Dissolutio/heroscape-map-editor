@@ -2,6 +2,7 @@ import type { Dictionary } from 'lodash'
 import { type CubeCoordinate, Pieces } from '../types'
 import {
   CUBE_EAST,
+  CUBE_NE,
   CUBE_NW,
   CUBE_SE,
   CUBE_SW,
@@ -246,6 +247,24 @@ const ruins3 = [
   },
   ...ruinsCornerExterior,
 ]
+const fortifiedWall = [
+  ...basic3,
+  CUBE_SW,
+  CUBE_WEST,
+  CUBE_NE,
+  {
+    // top-right of wall footprint
+    q: 2,
+    r: -1,
+    s: -1,
+  },
+  {
+    // bottom-left of wall footprint
+    q: -2,
+    r: 1,
+    s: 1,
+  },
+]
 const tileTemplates: Dictionary<CubeCoordinate[]> = {
   '1': basic1,
   '2': basic2,
@@ -283,6 +302,7 @@ const tileTemplates: Dictionary<CubeCoordinate[]> = {
   // edge stuff below
   [Pieces.ruins2]: ruins2,
   [Pieces.ruins3]: ruins3,
+  [Pieces.fortifiedWall]: fortifiedWall,
   [Pieces.marvel]: marvel6,
   [Pieces.marvelBroken]: marvel6,
   // castle

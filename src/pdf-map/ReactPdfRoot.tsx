@@ -20,6 +20,15 @@ import {
   decodePieceID,
 } from '../utils/map-utils'
 
+Font.register({
+  family: 'Inter',
+  fonts: [
+    {
+      src: 'fonts/Inter_18pt-Bold.ttf',
+    },
+  ],
+})
+
 export function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)

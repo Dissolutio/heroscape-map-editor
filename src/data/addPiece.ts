@@ -256,8 +256,11 @@ export function addPiece({
       addPieceError = { message: 'Unable to place ladder' }
     }
   }
-  // RUINS
-  if (piece.terrain === HexTerrain.ruin) {
+  // RUINS / FORTIFIED WALL
+  if (
+    piece.terrain === HexTerrain.ruin ||
+    piece.terrain === HexTerrain.fortifiedWall
+  ) {
     const isSolidUnderAllSupportHexes = underHexIds.every((_, i) => {
       // Ruins only need to be supported under their center of mass, and we could be more liberal than this (allowing combinations of certain hexes)
       // See https://github.com/Dissolutio/heroscape-map-editor/issues/7
@@ -292,7 +295,7 @@ export function addPiece({
 
         // write in vertical clearances for all the hexes a ruin borders
         // these are writing inside the loop for all ground-level hexes
-        Array(verticalObstructionTemplates[piece.id][i])
+        Array(verticalObstructionTemplates?.[piece.id]?.[i] ?? piece.height)
           .fill(0)
           .forEach((_, j) => {
             if (j === 0) {

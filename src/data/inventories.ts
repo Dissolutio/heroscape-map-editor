@@ -48,7 +48,7 @@ Rumble at the Rift BB
 5 7-hex concrete
 6 3-hex concrete
 
-5 1-hex shadow tiles
+8 1-hex shadow tiles
 
 6 1-hex toxic
 5 1-hex toxic water

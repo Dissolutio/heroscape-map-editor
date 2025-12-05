@@ -158,7 +158,6 @@ export const hexTerrainColor = {
 }
 
 export const svgColors = {
-  // RENEGADE COLORS, unless noted
   empty: 'rgb(0, 0, 0)',
   // STARTZONES
   blueSZ: 'rgb(57, 61, 157)',
@@ -167,52 +166,66 @@ export const svgColors = {
   orangeSZ: 'rgb(230, 28, 36)',
   redSZ: 'rgb(192, 26, 44)',
   greenSZ: 'rgb(54, 127, 52)',
+
   // OUTLINES
-  outline1: 'rgb(230, 28, 36)',
-  outline2: 'rgb(229, 99, 26)',
-  outline3: 'rgb(17, 15, 14)',
-  outline7: 'rgb(175, 27, 148)',
-  outline24: 'rgb(188, 188, 186)',
-  outlineWater: 'rgb(43, 56, 139)', // ice, swampwater too
+  outline1: '#E50101', // renegade-hexoscape
+  outline2: '#E67421', // renegade-hexoscape
+  outline3: '#020202', // renegade-hexoscape
+  outline7: '#B02E94', // renegade-hexoscape
+  outline24: '#BDBDBD', // renegade-hexoscape
+  outlineWater: '#132E8E', // ice, swampwater too
   outlineLava: hexTerrainColor[HexTerrain.lava],
-  outlineWellspringWater: 'rgb(41, 56, 136)',
-  outlineTree: 'rgb(29, 60, 30)',
-  outlineJungle: 'rgb(121, 61, 26)',
-  outlineLaurWall: 'rgb(215, 38, 156)',
+  outlineTree: '#013E12',
+  outlineJungle: '#7E461E', // renegade-hexoscape
+  outlineSwampUnderbrush: 'rgb(99, 50, 21)', // renegade-hexoscape
+  outlineLaurWall: '#FF06C8',
   outlineCastleWall: 'rgb(80, 79, 84)',
+  outlineLavaOutcrop: 'rgb(121, 61, 26)', // renegade-hexoscape
+
   // OBSTACLES
   [HexTerrain.ladder]: 'rgb(173, 75, 35)',
   [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
-  // [HexTerrain.ruin]: 'rgb(82, 81, 81)', // choice from coolors
-  fillJungle: 'rgb(249, 233, 8)',
+  fillJungle: '#FFE606',
+  fillSwampUnderbrush: 'rgb(33, 56, 27)',
   [HexTerrain.palm]: 'rgb(67, 249, 57)',
-  [HexTerrain.tree]: 'rgb(51, 160, 62)',
-  [HexTerrain.laurWall]: 'rgb(98, 28, 96)',
+  [HexTerrain.tree]: '#269C48',
+  [HexTerrain.laurWall]: '#6B1463',
+  [HexTerrain.castle]: 'rgb(80, 79, 84)',
+  castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
+  [HexTerrain.lavaRockOutcrop]: '#FF0000',
+  lavaRockOutcropText: '#DAD0D0',
+  [HexTerrain.outcrop]: '#3E3C3E',
+
   // TERRAIN
-  [HexTerrain.grass]: 'rgb(0, 161, 0)',
-  [HexTerrain.rock]: 'rgb(98, 97, 98)',
+  [HexTerrain.grass]: '#269C48',
+  [HexTerrain.rock]: '#696767',
+  [HexTerrain.sand]: '#D9E176',
   [HexTerrain.road]: '#787D79',
+  roadDecor: '#696767',
+  outlineRoad5: '#696767',
+  [HexTerrain.swamp]: '#0E3D00',
+  [HexTerrain.dungeon]: '#73988D',
+  [HexTerrain.lavaField]: '#84090F',
+  [HexTerrain.asphalt]: '#121212',
+  [HexTerrain.concrete]: '#DEDEDE',
+  [HexTerrain.snow]: '#FFFFFF',
+  snowFlake: '#546CB3', // renegade-hexoscape
+
+  [HexTerrain.water]: '#25A8B0',
+  // [HexTerrain.wellspringWater]: 'rgb(225,194,255)', // used this in virtualscape to differentiate from snow
+  [HexTerrain.wellspringWater]: '#FFFFFF', // used this in virtualscape to differentiate from snow
+  [HexTerrain.swampWater]: '#ACA521',
+  [HexTerrain.lava]: '#FF0000',
+  [HexTerrain.shadow]: '#000000',
+  [HexTerrain.ice]: '#8EA3E8',
+  iceFlake: '#FFFFFF',
+
+  // GYLPHS
   // glyph: 'rgb(244, 106, 22)', // renegade
   // [HexTerrain.glyphPower]: 'rgb(64, 0, 0)', // virtualscape
-  [HexTerrain.glyphPower]: 'rgb(120, 1, 22)',
   // [HexTerrain.glyphTreasure]: 'rgb(245, 131, 0)',
+  [HexTerrain.glyphPower]: 'rgb(120, 1, 22)',
   [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
-  [HexTerrain.sand]: 'rgb(211, 231, 90)',
-  [HexTerrain.swamp]: 'rgb(27, 46, 22)',
-  [HexTerrain.dungeon]: 'rgb(124, 177, 152)',
-  [HexTerrain.lavaField]: 'rgb(163, 0, 41)',
-  [HexTerrain.snow]: 'rgb(255,255,255)',
-  [HexTerrain.water]: 'rgb(67, 172, 176)',
-  [HexTerrain.castle]: 'rgb(80, 79, 84)',
-  // castleInterior: 'rgb(182, 181, 186)', // french gray like hexTerrainColor.castle
-  castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
-  // [HexTerrain.wellspringWater]: 'rgb(255,255,255)', // Renegade uses white, white is too confusing
-  [HexTerrain.wellspringWater]: 'rgb(225,194,255)', // used this in virtualscape to differentiate from snow
-  [HexTerrain.swampWater]: 'rgb(162, 166, 32)',
-  [HexTerrain.ice]: 'rgb(148, 158, 215)',
-  [HexTerrain.outcrop]: '#3E3C3E',
-  iceFlake: 'rgb(242, 243, 250)', // there is variation in the snowflake color
-  snowFlake: '#629BD0', // there is variation in the snowflake color
 }
 // const renegadeValkyriePaintColors = {
 //     // selected by color picker on webp image of renegade paint set, so probably horrible

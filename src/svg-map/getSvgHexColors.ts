@@ -57,20 +57,22 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
     return svgColors.outline24
   }
   if (
+    isSolidTerrain &&
+    hex.terrain === HexTerrain.road &&
+    inventoryPiece.size === 5
+  ) {
+    return svgColors.outlineRoad5
+  }
+  if (
     hex.terrain === HexTerrain.hive ||
     hex.terrain === HexTerrain.water ||
+    hex.terrain === HexTerrain.wellspringWater ||
     hex.terrain === HexTerrain.swampWater ||
     hex.terrain === HexTerrain.ice ||
     hex.terrain === HexTerrain.lava ||
     hex.terrain === HexTerrain.shadow
   ) {
     return svgColors.outlineWater
-  }
-  if (hex.terrain === HexTerrain.lava) {
-    return svgColors.outlineLava
-  }
-  if (hex.terrain === HexTerrain.wellspringWater) {
-    return svgColors.outlineWellspringWater
   }
   if (isJungleTerrainHex(hex.terrain)) {
     return svgColors.outlineJungle
@@ -125,7 +127,6 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.startZone) {
     return hexTerrainColor[hex.inventoryID as keyof typeof hexTerrainColor]
   }
-  // Renegade shows brush and palm as same color
   if (hex.terrain === HexTerrain.brush) {
     return svgColors.fillJungle
   }
@@ -133,7 +134,9 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     return svgColors.outlineCastleWall
   }
   if (hex.terrain === HexTerrain.palm) {
-    return svgColors.palm
+    // Renegade shows brush and palm as same color
+    return svgColors.fillJungle // renegade-hexoscape
+    // return svgColors.palm
   }
   if (hex.terrain === HexTerrain.ruin) {
     return svgColors.ruin
@@ -151,7 +154,7 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     return svgColors.outcrop
   }
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
-    return svgColors.lavaField
+    return svgColors.lava
   }
   if (isCastleTerrain(hex.terrain)) {
     return svgColors.castle

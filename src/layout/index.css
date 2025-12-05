@@ -1,3 +1,14 @@
+@font-face {
+  font-family: "Inter";
+  /* Choose a descriptive name for your font */
+  src: url("fonts/Inter_18pt-Bold.ttf") format("truetype");
+  /* Path relative to public folder */
+  font-weight: normal;
+  /* Adjust as needed */
+  font-style: normal;
+  /* Adjust as needed */
+}
+
 /* many custom colors are not yet used */
 html {
   /* THEME */

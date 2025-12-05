@@ -119,6 +119,7 @@ export default function HomePage() {
                 cameraControlsRef={cameraControlsRef}
                 mapGroupRef={mapGroupRef}
                 controlsContainerRef={controlsContainerRef}
+                is2DOpen={is2DOpen}
               />
             </div>
           </ControlsWidthContextProvider>

@@ -135,6 +135,7 @@ export const pieceGroups = [
       Pieces.hive,
       Pieces.ruins2,
       Pieces.ruins3,
+      Pieces.fortifiedWall,
       Pieces.marvel,
       Pieces.marvelBroken,
       Pieces.laurWallSquarePillar,

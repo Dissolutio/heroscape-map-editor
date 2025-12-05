@@ -47,6 +47,7 @@ import { StartZone3D } from '../models/StartZone3D'
 import { MarvelRuin } from '../models/MarvelRuin'
 import LaurWallTrianglePillar from '../models/LaurTrianglePillar'
 import { HexCapIDDisplay } from './HexCapIDDisplay'
+import { FortifiedWall } from '../models/FortifiedWall'
 
 export const MapHex3D = ({
   boardHex,
@@ -141,6 +142,8 @@ export const MapHex3D = ({
     inventoryID === Pieces.ruins2 && boardHex.isObstacleOrigin
   const isRuin3OriginHex =
     inventoryID === Pieces.ruins3 && boardHex.isObstacleOrigin
+  const isFortifiedWallOriginHex =
+    inventoryID === Pieces.fortifiedWall && boardHex.isObstacleOrigin
   const isMarvelRuinOriginHex =
     (inventoryID === Pieces.marvel ||
       inventoryID === Pieces.marvelBroken ||
@@ -223,7 +226,7 @@ export const MapHex3D = ({
       {isStartZoneHex && (
         <group
           position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
-          rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, Math.PI / 2]}
+          rotation={[0, pieceRotation, Math.PI / 2]}
         >
           <StartZone3D boardHex={boardHex} />
         </group>
@@ -245,6 +248,13 @@ export const MapHex3D = ({
         >
           <Suspense fallback={<ModelLoader />}>
             <Ruins3 boardHex={boardHex} />
+          </Suspense>
+        </group>
+      )}
+      {isFortifiedWallOriginHex && (
+        <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
+          <Suspense fallback={<ModelLoader />}>
+            <FortifiedWall boardHex={boardHex} />
           </Suspense>
         </group>
       )}

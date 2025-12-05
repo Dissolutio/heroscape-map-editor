@@ -66,6 +66,7 @@ import { Outcrop1Preview } from './models/Outcrop1'
 import { CastleWallPreview } from './models/CastleWalls'
 import { CastleBasePreview } from './models/CastleBases'
 import { CastleArchPreview } from './models/CastleArch'
+import { FortifiedWallPreview } from './models/FortifiedWall'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -163,6 +164,7 @@ export default function PiecePreview() {
   const isGlacier6Hex = pieceID === Pieces.glacier6
   const isRuin2Hex = pieceID === Pieces.ruins2
   const isRuin3Hex = pieceID === Pieces.ruins3
+  const isFortifiedWallHex = pieceID === Pieces.fortifiedWall
   const isMarvelRuinHex =
     pieceID === Pieces.marvel ||
     pieceID === Pieces.marvelBroken ||
@@ -254,8 +256,8 @@ export default function PiecePreview() {
   const isEmptyBeneath = hoveredHex?.terrain === HexTerrain.empty
   const isCastleCapBeneath =
     hoveredHex?.terrain === HexTerrain.castle && !hoveredHex.isObstacleOrigin
-  const isSolidOrEmptyBeneath =
-    isSolidTerrainHex(hoveredHex.terrain) || isEmptyBeneath
+  const isSolidBeneath = isSolidTerrainHex(hoveredHex.terrain)
+  const isSolidOrEmptyBeneath = isSolidBeneath || isEmptyBeneath
   const isLandOrEmptyBeneath = isLandBeneath || isEmptyBeneath
 
   // Show land tiles, if hovering table/solid-land
@@ -501,7 +503,11 @@ export default function PiecePreview() {
   if (isRuin2Hex && isSolidOrEmptyBeneath) {
     return (
       <group
-        position={[x + ruinsOptions.xAdd, yBaseCap, z + ruinsOptions.zAdd]}
+        position={[
+          x + ruinsOptions.xAdd,
+          yBaseCap + HEXGRID_HEX_HEIGHT,
+          z + ruinsOptions.zAdd,
+        ]}
         rotation={[0, ruinsOptions.rotationY, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -513,11 +519,27 @@ export default function PiecePreview() {
   if (isRuin3Hex && isSolidOrEmptyBeneath) {
     return (
       <group
-        position={[x + ruinsOptions.xAdd, yBaseCap, z + ruinsOptions.zAdd]}
+        position={[
+          x + ruinsOptions.xAdd,
+          yBaseCap + HEXGRID_HEX_HEIGHT,
+          z + ruinsOptions.zAdd,
+        ]}
         rotation={[0, ruinsOptions.rotationY, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
           <Ruins3Preview />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isFortifiedWallHex && isSolidBeneath) {
+    return (
+      <group
+        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <FortifiedWallPreview />
         </Suspense>
       </group>
     )

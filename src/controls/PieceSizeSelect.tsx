@@ -3,16 +3,14 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import useBoundStore from '../store/store'
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
+import type { MouseEvent } from 'react'
 
 export default function PieceSizeSelect() {
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const togglePieceSize = useBoundStore((s) => s.togglePieceSize)
   const flatPieceSizes = useBoundStore((s) => s.flatPieceSizes)
   const { hotkeyLookup } = useHotkeyConfig()
-  const handleChange = (
-    _event: React.MouseEvent<HTMLElement>,
-    value: string,
-  ) => {
+  const handleChange = (_event: MouseEvent<HTMLElement>, value: string) => {
     togglePieceSize(Number.parseInt(value))
   }
   const isSizes = flatPieceSizes?.length > 0
