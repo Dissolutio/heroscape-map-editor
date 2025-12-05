@@ -257,8 +257,7 @@ export default function PiecePreview() {
   const isCastleCapBeneath =
     hoveredHex?.terrain === HexTerrain.castle && !hoveredHex.isObstacleOrigin
   const isSolidBeneath = isSolidTerrainHex(hoveredHex.terrain)
-  const isSolidOrEmptyBeneath =
-    isSolidBeneath || isEmptyBeneath
+  const isSolidOrEmptyBeneath = isSolidBeneath || isEmptyBeneath
   const isLandOrEmptyBeneath = isLandBeneath || isEmptyBeneath
 
   // Show land tiles, if hovering table/solid-land
@@ -504,7 +503,11 @@ export default function PiecePreview() {
   if (isRuin2Hex && isSolidOrEmptyBeneath) {
     return (
       <group
-        position={[x + ruinsOptions.xAdd, yBaseCap + HEXGRID_HEX_HEIGHT, z + ruinsOptions.zAdd]}
+        position={[
+          x + ruinsOptions.xAdd,
+          yBaseCap + HEXGRID_HEX_HEIGHT,
+          z + ruinsOptions.zAdd,
+        ]}
         rotation={[0, ruinsOptions.rotationY, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -516,7 +519,11 @@ export default function PiecePreview() {
   if (isRuin3Hex && isSolidOrEmptyBeneath) {
     return (
       <group
-        position={[x + ruinsOptions.xAdd, yBaseCap + HEXGRID_HEX_HEIGHT, z + ruinsOptions.zAdd]}
+        position={[
+          x + ruinsOptions.xAdd,
+          yBaseCap + HEXGRID_HEX_HEIGHT,
+          z + ruinsOptions.zAdd,
+        ]}
         rotation={[0, ruinsOptions.rotationY, 0]}
       >
         <Suspense fallback={<ModelLoader />}>

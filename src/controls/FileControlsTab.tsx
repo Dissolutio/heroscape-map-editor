@@ -46,17 +46,17 @@ export const FileControlsTab = ({
     setIsDownloadOpen(!isDownloadOpen)
   }
   const handleDownloadCurrent2DSvg = () => {
-    const svgElement = document.getElementById('2d-svg-view'); // Replace 'your-svg-id' with the actual ID
+    const svgElement = document.getElementById('2d-svg-view') // Replace 'your-svg-id' with the actual ID
     if (svgElement) {
-      const svgContent = svgElement.outerHTML;
-      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const svgContent = svgElement.outerHTML
+      const blob = new Blob([svgContent], { type: 'image/svg+xml' })
       const link = document.createElement('a')
       link.download = `${hexMap.name}-level-${viewingLevel}.svg`
-      link.href = URL.createObjectURL(blob);
+      link.href = URL.createObjectURL(blob)
       // document.body.appendChild(link)
       link.click()
       // document.body.removeChild(link)
-      URL.revokeObjectURL(link.href); // Clean up the Blob URL
+      URL.revokeObjectURL(link.href) // Clean up the Blob URL
     }
   }
   const handleDownloadPng = () => {
@@ -173,11 +173,13 @@ export const FileControlsTab = ({
           />
 
           {/* DOWNLOAD 2D-MODE SVG IMAGE */}
-          {is2DOpen && <ControlTabsListItemButton
-            primary="Download Current 2D Level as SVG"
-            onClick={handleDownloadCurrent2DSvg}
-            icon={<FcDownload />}
-          />}
+          {is2DOpen && (
+            <ControlTabsListItemButton
+              primary="Download Current 2D Level as SVG"
+              onClick={handleDownloadCurrent2DSvg}
+              icon={<FcDownload />}
+            />
+          )}
 
           {/* EXPAND DOWNLAD MAP FILE BTNS */}
           <ControlTabsListItemButton

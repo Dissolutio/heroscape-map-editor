@@ -24,9 +24,9 @@ Font.register({
   family: 'Inter',
   fonts: [
     {
-      src: 'fonts/Inter_18pt-Bold.ttf'
+      src: 'fonts/Inter_18pt-Bold.ttf',
     },
-  ]
+  ],
 })
 
 export function ReactPdfRoot() {

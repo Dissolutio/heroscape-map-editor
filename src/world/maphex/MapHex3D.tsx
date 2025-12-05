@@ -252,10 +252,7 @@ export const MapHex3D = ({
         </group>
       )}
       {isFortifiedWallOriginHex && (
-        <group
-          position={[x, yBaseCap, z]}
-          rotation={[0, pieceRotation, 0]}
-        >
+        <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
           <Suspense fallback={<ModelLoader />}>
             <FortifiedWall boardHex={boardHex} />
           </Suspense>

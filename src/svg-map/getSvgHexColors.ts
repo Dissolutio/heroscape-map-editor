@@ -56,7 +56,11 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   if (isSolidTerrain && is24Hex) {
     return svgColors.outline24
   }
-  if (isSolidTerrain && hex.terrain === HexTerrain.road && inventoryPiece.size === 5) {
+  if (
+    isSolidTerrain &&
+    hex.terrain === HexTerrain.road &&
+    inventoryPiece.size === 5
+  ) {
     return svgColors.outlineRoad5
   }
   if (

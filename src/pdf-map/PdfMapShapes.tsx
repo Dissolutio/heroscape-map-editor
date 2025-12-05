@@ -641,11 +641,7 @@ export const PdfSvgRuins2 = ({
   return (
     <>
       {isSubLevel && (
-        <Path
-          d={path}
-          stroke={'white'}
-          strokeWidth={SVG_HEX_RADIUS / 5}
-        />
+        <Path d={path} stroke={'white'} strokeWidth={SVG_HEX_RADIUS / 5} />
       )}
       <Path
         d={path}
@@ -695,11 +691,7 @@ export const PdfMarvelRuin = ({
   return (
     <>
       {isSubLevel && (
-        <Path
-          d={path}
-          stroke={'white'}
-          strokeWidth={2 * SVG_BORDER_WIDTH}
-        />
+        <Path d={path} stroke={'white'} strokeWidth={2 * SVG_BORDER_WIDTH} />
       )}
       <Path
         d={path}

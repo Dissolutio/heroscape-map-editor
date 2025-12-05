@@ -78,9 +78,7 @@ export const verticalSupportTemplates: Dictionary<number[]> = {
     // then the rest are not!
     0, 0, 0, 0, 0, 0, 0,
   ],
-  [Pieces.fortifiedWall]: [
-    1, 1, 1, 1, 0, 0, 0, 0
-  ]
+  [Pieces.fortifiedWall]: [1, 1, 1, 1, 0, 0, 0, 0],
 }
 
 //  LEGACY interiorHexTemplates: A failed approach which crossed wires with later notions of "auxiliary" hex (which can probably go away later) Was meant to represent the hexes of a ruin that must be supported by land for it to not fall down

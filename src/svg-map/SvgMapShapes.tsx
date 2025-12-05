@@ -54,10 +54,7 @@ export const SvgEmptyHex = () => {
   const fillColor = 'white'
   const borderColor = '#989898'
   const borderWidth = SVG_BORDER_WIDTH / 1.5
-  const { points } = getHexagonSvgPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-    borderWidth,
-  )
+  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, borderWidth)
   return (
     <>
       {/* {isSubLevel && (

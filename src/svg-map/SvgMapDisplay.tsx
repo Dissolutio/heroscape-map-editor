@@ -46,7 +46,7 @@ export const SvgMapDisplay = () => {
 
   return (
     <svg
-      id='2d-svg-view'
+      id="2d-svg-view"
       role="img"
       // ref={svgRef}
       viewBox={viewboxStr}

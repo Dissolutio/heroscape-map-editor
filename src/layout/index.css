@@ -1,79 +1,79 @@
-  @font-face {
-    font-family: "Inter";
-    /* Choose a descriptive name for your font */
-    src: url("fonts/Inter_18pt-Bold.ttf") format("truetype");
-    /* Path relative to public folder */
-    font-weight: normal;
-    /* Adjust as needed */
-    font-style: normal;
-    /* Adjust as needed */
-  }
+@font-face {
+  font-family: "Inter";
+  /* Choose a descriptive name for your font */
+  src: url("fonts/Inter_18pt-Bold.ttf") format("truetype");
+  /* Path relative to public folder */
+  font-weight: normal;
+  /* Adjust as needed */
+  font-style: normal;
+  /* Adjust as needed */
+}
 
-  /* many custom colors are not yet used */
-  html {
-    /* THEME */
-    --black: #222222;
-    --outer-space: #011307;
-    --white: #f7edf0;
-    --sub-white: #b4b4b4;
-    --gunmetal: #22333b;
-    --gunmetal-transparent: rgba(34, 50, 58, 0.6);
-    --gray: #5d576b;
-    --transparent-border: rgba(255, 255, 255, 0.1);
-    --controls-width: max(20vw, 300px);
-    overflow: hidden;
-  }
+/* many custom colors are not yet used */
+html {
+  /* THEME */
+  --black: #222222;
+  --outer-space: #011307;
+  --white: #f7edf0;
+  --sub-white: #b4b4b4;
+  --gunmetal: #22333b;
+  --gunmetal-transparent: rgba(34, 50, 58, 0.6);
+  --gray: #5d576b;
+  --transparent-border: rgba(255, 255, 255, 0.1);
+  --controls-width: max(20vw, 300px);
+  overflow: hidden;
+}
 
-  #root {
-    background-color: var(--white);
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-    max-width: 100vw;
-    min-height: 100vh;
+#root {
+  background-color: var(--white);
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  max-width: 100vw;
+  min-height: 100vh;
 
-    @media screen and (max-width: 900px) {
-      /* This makes it so that the user can scroll a tiny bit, 
+  @media screen and (max-width: 900px) {
+    /* This makes it so that the user can scroll a tiny bit, 
     triggering Android to hide browser chrome (more space).
     Have not tested this on Apple.
      */
-      min-height: 100.1vh;
-    }
-
-    /* background-color: var(--outer-space); */
-    /* color: var(--white); */
+    min-height: 100.1vh;
   }
 
-  .notistack-SnackbarContainer {
-    margin-top: 50px;
-  }
+  /* background-color: var(--outer-space); */
+  /* color: var(--white); */
+}
 
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
+.notistack-SnackbarContainer {
+  margin-top: 50px;
+}
 
-    to {
-      opacity: 1;
-    }
-  }
-
-  canvas {
-    touch-action: none;
-    /* This style prevents this TRAP: pinch-and-zoom into the canvas (because camera controls did not pick up the pinch but user device did) and losing the rest of the UI because camera controls starts working again and user cannot pinch zoom back out */
+@keyframes fade-in {
+  from {
     opacity: 0;
-    animation: fade-in 0.3s ease forwards;
   }
 
-  .stats-panel {
-    margin-left: 95vw;
-    margin-top: 68px;
+  to {
+    opacity: 1;
   }
+}
 
-  /* This gets the debug panel looking normal again, the water.css styles were messing with the button sizes, some colors */
-  /* 40px overrides the 20px that the panel currently has */
+canvas {
+  touch-action: none;
+  /* This style prevents this TRAP: pinch-and-zoom into the canvas (because camera controls did not pick up the pinch but user device did) and losing the rest of the UI because camera controls starts working again and user cannot pinch zoom back out */
+  opacity: 0;
+  animation: fade-in 0.3s ease forwards;
+}
 
-  /* .debug-panel strong {
+.stats-panel {
+  margin-left: 95vw;
+  margin-top: 68px;
+}
+
+/* This gets the debug panel looking normal again, the water.css styles were messing with the button sizes, some colors */
+/* 40px overrides the 20px that the panel currently has */
+
+/* .debug-panel strong {
   color: black !important;
 }
 .debug-panel button {
@@ -89,10 +89,10 @@
   height: 40px !important;
 } */
 
-  #error-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-  }
+#error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
