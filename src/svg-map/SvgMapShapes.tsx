@@ -52,11 +52,11 @@ import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
 export const SvgEmptyHex = () => {
   const fillColor = 'white'
-  const borderColor = 'black'
-  const borderWidth = SVG_EMPTYHEX_BORDER_WIDTH
+  const borderColor = '#989898'
+  const borderWidth = SVG_BORDER_WIDTH / 1.5
   const { points } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_EMPTYHEX_BORDER_WIDTH,
+    borderWidth,
   )
   return (
     <>
