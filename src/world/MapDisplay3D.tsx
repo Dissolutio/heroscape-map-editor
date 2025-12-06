@@ -24,7 +24,6 @@ import {
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
-import { useZoomCameraToMapCenter } from './camera/useZoomeCameraToMapCenter.tsx'
 import { MapHex3D } from './maphex/MapHex3D.tsx'
 import EmptyHexes from './maphex/instance/EmptyHex.tsx'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
@@ -57,10 +56,6 @@ export default function MapDisplay3D({
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const { hotkeyConfig } = useHotkeyConfig()
   useApplyHotkeys({ hotkeyConfig, cameraControlsRef, mapGroupRef })
-  useZoomCameraToMapCenter({
-    cameraControlsRef,
-    disabled: !boardHexesArr.length || false, // for when working on camera stuff
-  })
 
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
