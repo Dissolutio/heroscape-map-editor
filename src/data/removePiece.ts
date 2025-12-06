@@ -61,6 +61,7 @@ export function removePiece({
   // }
   if (
     piece.terrain === HexTerrain.ruin ||
+    piece.terrain === HexTerrain.fortifiedWall ||
     isObstacle ||
     isLandTile ||
     isCastleArch ||
