@@ -7,6 +7,7 @@ import {
   get4HexSvgPolygonPointsAt00,
   get5HexStraightSvgPolygonPointsAt00,
   get6HexSvgPolygonPointsAt00,
+  get7HexSvgBorderPathAt00,
   get7HexSvgPolygonPointsAt00,
   get7HexWallWalkSvgPolygonPointsAt00,
   get9HexWallWalkSvgPolygonPointsAt00,
@@ -53,6 +54,7 @@ import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 export const SvgEmptyHex = () => {
   const fillColor = 'white'
   const borderColor = '#989898'
+  // const borderWidth = SVG_BORDER_WIDTH / 1.5
   const borderWidth = SVG_BORDER_WIDTH / 1.5
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, borderWidth)
   return (
@@ -64,9 +66,10 @@ export const SvgEmptyHex = () => {
       )} */}
       <polygon
         points={points}
-        fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={borderWidth}
+        // fill={fillColor}
+        fill={'red'}
+        // stroke={borderColor}
+        // strokeWidth={borderWidth}
         opacity={OPACITY_EMPTY}
       />
     </>
@@ -316,12 +319,28 @@ export const SvgMultiHex7 = ({
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
+  const { path } = get7HexSvgBorderPathAt00(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon
         points={points}
         fill={fillColor}
+        // stroke={borderColor}
+        // strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
