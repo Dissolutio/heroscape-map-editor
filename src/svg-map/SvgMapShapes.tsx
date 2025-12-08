@@ -1,5 +1,6 @@
 import { piecesSoFar } from '../data/pieces'
 import {
+  get1HexOutlineSvgPolygonPoints,
   get24HexSvgPolygonPointsAt00,
   get2HexSvgPolygonPointsAt00,
   get3HexStraightSvgPolygonPointsAt00,
@@ -54,7 +55,8 @@ export const SvgEmptyHex = () => {
   const fillColor = 'white'
   const borderColor = '#989898'
   const borderWidth = SVG_BORDER_WIDTH / 1.5
-  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, borderWidth)
+  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, borderWidth)
   return (
     <>
       {/* {isSubLevel && (
@@ -65,8 +67,14 @@ export const SvgEmptyHex = () => {
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={borderWidth}
+        // stroke={fillColor}
+        opacity={OPACITY_EMPTY}
+      />
+      <polygon
+        points={outlinePoints}
+        // fillRule='evenodd'
+        fill={borderColor}
+        // stroke={borderColor}
         opacity={OPACITY_EMPTY}
       />
     </>
@@ -92,12 +100,11 @@ export const SvgMultiHex1 = ({
   const glyphHexRadius = SVG_HEX_RADIUS / 2
   const { points } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
   )
   const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(
     glyphHexRadius,
-    0,
   )
+  const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {isSubLevel && (
@@ -108,9 +115,14 @@ export const SvgMultiHex1 = ({
       <polygon
         points={isGlyph ? glyphPoints : points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <polygon
+        points={outlinePoints}
+        // fillRule='evenodd'
+        fill={borderColor}
+        stroke={borderColor}
+        opacity={OPACITY_EMPTY}
       />
       {/* SNOWFLAKE IDEA, this one looks like the original ice snowflakes in Heroscape */}
       {/* https://www.svgrepo.com/svg/60624/snowflake?edit=true */}
@@ -418,7 +430,6 @@ export const SvgLaurPillar = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points: fullHexPoints } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
   )
   const laurSquarePoints = getLaurPillarShape(
     SVG_HEX_RADIUS,

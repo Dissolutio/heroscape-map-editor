@@ -60,7 +60,6 @@ export const PdfEmptyHex = () => {
   const borderWidth = SVG_EMPTYHEX_BORDER_WIDTH
   const { points } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_EMPTYHEX_BORDER_WIDTH,
   )
   return (
     <>
@@ -95,11 +94,9 @@ export const PdfMultiHex1 = ({
   const glyphHexRadius = SVG_HEX_RADIUS / 1.4
   const { points } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
   )
   const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(
     glyphHexRadius,
-    0,
   )
   return (
     <>
@@ -449,7 +446,6 @@ export const PdfLaurPillar = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points: fullHexPoints } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
   )
   const laurSquarePoints = getLaurPillarShape(
     SVG_HEX_RADIUS,
