@@ -1,5 +1,6 @@
 import { piecesSoFar } from '../data/pieces'
 import {
+  get1HexSvgBorderPath,
   get24HexSvgPolygonPointsAt00,
   get2HexSvgPolygonPointsAt00,
   get3HexStraightSvgPolygonPointsAt00,
@@ -54,23 +55,20 @@ import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 export const SvgEmptyHex = () => {
   const fillColor = 'white'
   const borderColor = '#989898'
-  // const borderWidth = SVG_BORDER_WIDTH / 1.5
-  const borderWidth = SVG_BORDER_WIDTH / 1.5
-  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, borderWidth)
+  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const { path } = get1HexSvgBorderPath(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
-      {/* {isSubLevel && (
-        <SvgSubLevelWhiteBackerPolygon
-          points={points}
-        />
-      )} */}
       <polygon
         points={points}
-        // fill={fillColor}
-        fill={'red'}
-        // stroke={borderColor}
-        // strokeWidth={borderWidth}
+        fill={fillColor}
         opacity={OPACITY_EMPTY}
+      />
+      <path
+        d={path}
+        fill="transparent"
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
       />
     </>
   )
@@ -95,12 +93,11 @@ export const SvgMultiHex1 = ({
   const glyphHexRadius = SVG_HEX_RADIUS / 2
   const { points } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
   )
   const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(
     glyphHexRadius,
-    0,
   )
+  const { path } = get1HexSvgBorderPath(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {isSubLevel && (
@@ -111,6 +108,19 @@ export const SvgMultiHex1 = ({
       <polygon
         points={isGlyph ? glyphPoints : points}
         fill={fillColor}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
@@ -144,6 +154,21 @@ export const SvgMultiHex2 = ({
         strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+      {/* {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      /> */}
     </>
   )
 }
@@ -170,6 +195,21 @@ export const SvgMultiHex3 = ({
         strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+      {/* {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      /> */}
     </>
   )
 }
@@ -223,6 +263,21 @@ export const SvgMultiHex4 = ({
         strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+      {/* {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      /> */}
     </>
   )
 }
@@ -249,6 +304,21 @@ export const SvgMultiHex5 = ({
         strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+      {/* {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      /> */}
     </>
   )
 }
@@ -275,6 +345,21 @@ export const SvgMultiHex6 = ({
         strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+      {/* {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      /> */}
     </>
   )
 }
@@ -303,6 +388,21 @@ export const SvgMultiHexMarvel6 = ({
         strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+      {/* {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      /> */}
     </>
   )
 }
@@ -326,8 +426,6 @@ export const SvgMultiHex7 = ({
       <polygon
         points={points}
         fill={fillColor}
-        // stroke={borderColor}
-        // strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       {isSubLevel && (
@@ -423,6 +521,21 @@ export const SvgMultiHex24 = ({
         strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+      {/* {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      /> */}
     </>
   )
 }
@@ -437,7 +550,6 @@ export const SvgLaurPillar = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points: fullHexPoints } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
   )
   const laurSquarePoints = getLaurPillarShape(
     SVG_HEX_RADIUS,
@@ -463,6 +575,21 @@ export const SvgLaurPillar = ({
         strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+      {/* {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      /> */}
       <g transform={`rotate(${pieceRotation})`}>
         {/*  LAUR SQUARE/TRIANGLE BELOW */}
         {isSubLevel && (
@@ -1199,6 +1326,21 @@ export const SvgOutcrop6 = ({
           strokeWidth={SVG_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
+        {/* {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      /> */}
       </g>
       <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
@@ -1294,6 +1436,21 @@ export const SvgOutcrop3 = ({
           strokeWidth={SVG_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
+        {/* {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      /> */}
       </g>
       <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
@@ -1374,6 +1531,21 @@ export const SvgOutcrop4 = ({
           strokeWidth={SVG_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
+        {/* {isSubLevel && (
+        <path
+          d={path}
+          fill="transparent"
+          stroke={'white'}
+          strokeWidth={SVG_BORDER_WIDTH}
+        />
+      )}
+      <path
+        d={path}
+        fill="transparent"
+        stroke={borderColor}
+        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      /> */}
       </g>
       <text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}

@@ -634,30 +634,54 @@ export function getJungleTriangleShape(radius: number, borderWidth: number) {
 }
 export function getHexagonSvgPolygonPointsAt00(
   radius: number,
-  borderWidth: number,
 ) {
-  const halfBorder = borderWidth / 2
-  // Inner hexagon
-  const radiusInner = radius - halfBorder
-  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const rightXInner = apothemInner
-  const leftXInner = -apothemInner
-  const topYInner = -radiusInner
-  const bottomYInner = radiusInner
-  const bottomSideYInner = 0.5 * radiusInner
-  const topSideYInner = -0.5 * radiusInner
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const rightX = apothem
+  const leftX = -apothem
+  const bottomSideY = 0.5 * radius
+  const topSideY = -0.5 * radius
 
   // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
-    { x: 0, y: topYInner }, // top hex1
-    { x: rightXInner, y: topSideYInner }, // top-right
-    { x: rightXInner, y: bottomSideYInner }, //  bottom-right
-    { x: 0, y: bottomYInner }, // bottom
-    { x: leftXInner, y: bottomSideYInner }, // bottom-left
-    { x: leftXInner, y: topSideYInner }, // top-left
+    { x: 0, y: -radius }, // top hex1
+    { x: rightX, y: topSideY }, // top-right
+    { x: rightX, y: bottomSideY }, //  bottom-right
+    { x: 0, y: +radius }, // bottom
+    { x: leftX, y: bottomSideY }, // bottom-left
+    { x: leftX, y: topSideY }, // top-left
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
+}
+export function get1HexSvgBorderPath(
+  radius: number,
+  borderWidth: number
+) {
+  const halfBorder = borderWidth / 2
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const rightX = apothem
+  const leftX = -apothem
+  const bottomSideY = 0.5 * radius
+  const topSideY = -0.5 * radius
+
+  const corners: Point[] = [
+    { x: 0, y: -radius + halfBorder }, // top hex1
+    { x: rightX - halfBorder, y: topSideY }, // top-right
+    { x: rightX - halfBorder, y: bottomSideY }, //  bottom-right
+    { x: 0, y: +radius - halfBorder }, // bottom
+    { x: leftX + halfBorder, y: bottomSideY }, // bottom-left
+    { x: leftX + halfBorder, y: topSideY }, // top-left
+  ]
+  const path = `M ${corners[0].x},${corners[0].y} 
+  L ${corners[1].x},${corners[1].y}
+  L ${corners[2].x},${corners[2].y}
+  L ${corners[3].x},${corners[3].y}
+  L ${corners[4].x},${corners[4].y}
+  L ${corners[5].x},${corners[5].y}
+  L ${corners[0].x},${corners[0].y}
+  L ${corners[1].x},${corners[1].y}
+  `
+  return { path }
 }
 export function get2HexSvgPolygonPointsAt00(
   radius: number,
@@ -1297,13 +1321,24 @@ export function get7HexSvgBorderPathAt00(
   const path = `M ${corners[0].x},${corners[0].y} 
   L ${corners[1].x},${corners[1].y}
   L ${corners[2].x},${corners[2].y}
+  L ${corners[3].x},${corners[3].y}
+  L ${corners[4].x},${corners[4].y}
+  L ${corners[5].x},${corners[5].y}
+  L ${corners[6].x},${corners[6].y}
+  L ${corners[7].x},${corners[7].y}
+  L ${corners[8].x},${corners[8].y}
+  L ${corners[9].x},${corners[9].y}
+  L ${corners[10].x},${corners[10].y}
+  L ${corners[11].x},${corners[11].y}
+  L ${corners[12].x},${corners[12].y}
+  L ${corners[13].x},${corners[13].y}
+  L ${corners[14].x},${corners[14].y}
+  L ${corners[15].x},${corners[15].y}
+  L ${corners[16].x},${corners[16].y}
+  L ${corners[17].x},${corners[17].y}
+  L ${corners[0].x},${corners[0].y}
+  L ${corners[1].x},${corners[1].y}
   `
-  // L ${corners[3].x},${corners[3].y}
-  // L ${corners[4].x},${corners[4].y}
-  // L ${corners[5].x},${corners[5].y}
-  // L ${corners[6].x},${corners[6].y}
-  // L ${corners[7].x},${corners[7].y}
-  // L ${corners[8].x},${corners[8].y}
   return { path }
 }
 export function get24HexSvgPolygonPointsAt00(
