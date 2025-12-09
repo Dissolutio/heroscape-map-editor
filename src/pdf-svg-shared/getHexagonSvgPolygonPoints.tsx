@@ -632,26 +632,17 @@ export function getJungleTriangleShape(radius: number, borderWidth: number) {
     points,
   }
 }
-export function getHexagonSvgPolygonPointsAt00(
-  radius: number,
-) {
+export function getHexagonSvgPolygonPointsAt00(radius: number) {
   // Outer hexagon
   const apothem = (Math.sqrt(3) * radius) / 2
-  const rightX = apothem
-  const leftX = -apothem
-  const topY = -radius
-  const bottomY = radius
-  const bottomSideY = 0.5 * radius
-  const topSideY = -0.5 * radius
 
-  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
-    { x: 0, y: topY }, // top hex1
-    { x: rightX, y: topSideY }, // top-right
-    { x: rightX, y: bottomSideY }, //  bottom-right
-    { x: 0, y: bottomY }, // bottom
-    { x: leftX, y: bottomSideY }, // bottom-left
-    { x: leftX, y: topSideY }, // top-left
+    { x: 0, y: -radius }, // top hex1
+    { x: apothem, y: -0.5 * radius }, // top-right
+    { x: apothem, y: 0.5 * radius }, //  bottom-right
+    { x: 0, y: radius }, // bottom
+    { x: -apothem, y: 0.5 * radius }, // bottom-left
+    { x: -apothem, y: -0.5 * radius }, // top-left
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
@@ -662,145 +653,186 @@ export function get1HexOutlineSvgPolygonPoints(
 ) {
   // Outer hexagon
   const apothem = (Math.sqrt(3) * radius) / 2
-  const rightX = apothem
-  const leftX = -apothem
-  const topY = -radius
-  const bottomY = radius
-  const bottomSideY = 0.5 * radius
-  const topSideY = -0.5 * radius
 
   // Inner hexagon
   const radiusInner = radius - borderWidth
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const rightXInner = apothemInner
-  const leftXInner = -apothemInner
-  const topYInner = -radiusInner
-  const bottomYInner = radiusInner
-  const bottomSideYInner = 0.5 * radiusInner
-  const topSideYInner = -0.5 * radiusInner
 
   // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
     // OUTER
-    { x: 0, y: topY }, // top hex1
-    { x: rightX, y: topSideY }, // top-right
-    { x: rightX, y: bottomSideY }, //  bottom-right
-    { x: 0, y: bottomY }, // bottom
-    { x: leftX, y: bottomSideY }, // bottom-left
-    { x: leftX, y: topSideY }, // top-left
+    { x: 0, y: -radius }, // top hex1
+    { x: apothem, y: -0.5 * radius }, // top-right
+    { x: apothem, y: 0.5 * radius }, //  bottom-right
+    { x: 0, y: radius }, // bottom
+    { x: -apothem, y: 0.5 * radius }, // bottom-left
+    { x: -apothem, y: -0.5 * radius }, // top-left
     // MID
-    { x: 0, y: topY }, // top hex1
+    { x: 0, y: -radius }, // top hex1
     // INNER
-    { x: 0, y: topYInner }, // top hex1
-    { x: leftXInner, y: topSideYInner }, // top-left
-    { x: leftXInner, y: bottomSideYInner }, // bottom-left
-    { x: 0, y: bottomYInner }, // bottom
-    { x: rightXInner, y: bottomSideYInner }, //  bottom-right
-    { x: rightXInner, y: topSideYInner }, // top-right
-    { x: 0, y: topYInner }, // top hex1
+    { x: 0, y: -radiusInner }, // top hex1
+    { x: -apothemInner, y: -0.5 * radiusInner }, // top-left
+    { x: -apothemInner, y: 0.5 * radiusInner }, // bottom-left
+    { x: 0, y: radiusInner }, // bottom
+    { x: apothemInner, y: 0.5 * radiusInner }, //  bottom-right
+    { x: apothemInner, y: -0.5 * radiusInner }, // top-right
+    // END
+    { x: 0, y: -radiusInner }, // top hex1
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function get2HexSvgPolygonPointsAt00(
-  radius: number,
-  borderWidth: number,
-) {
+export function get2HexSvgPolygonPointsAt00(radius: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
-  const halfBorder = borderWidth / 2
-  const hexWidth = 2 * apothem
-  // Outer hexagon
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
-  // Inner hexagon
-  const radiusInner = radius - halfBorder
-  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const leftXInner = -apothemInner
-  const topYInner = -radiusInner
-  const bottomYInner = radiusInner
-  const bottomSideYInner = 0.5 * radiusInner
-  const topSideYInner = -0.5 * radiusInner
 
   // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
-    { x: 0, y: topYInner }, // top hex1
-    // { x: apothemInner, y: topSideYInner }, // top-right hex1
+    { x: 0, y: -radius }, // top hex1
 
-    { x: apothem, y: topSideYOuter + halfBorder }, // top-right hex1, top-left hex2 TWEENSIE
+    { x: apothem, y: -0.5 * radius }, // top-right hex1, top-left hex2 TWEENSIE
 
-    // { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
-    { x: hexWidth, y: topYInner }, //  top hex2
-    { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
-    { x: hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex2
-    { x: hexWidth, y: bottomYInner }, // bottom hex2
-    // { x: hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex2
+    { x: 2 * apothem, y: -radius }, //  top hex2
+    { x: 2 * apothem + apothem, y: -0.5 * radius }, // top-right hex2
+    { x: 2 * apothem + apothem, y: 0.5 * radius }, // bottom-right hex2
+    { x: 2 * apothem, y: radius }, // bottom hex2
 
-    { x: apothem, y: bottomSideYOuter - halfBorder }, // bottom-left hex2, bottom-right hex1 TWEENSIE
+    { x: apothem, y: 0.5 * radius }, // bottom-left hex2, bottom-right hex1 TWEENSIE
 
-    // { x: apothemInner, y: bottomSideYInner }, // bottom-right hex1
-    { x: 0, y: bottomYInner }, // bottom hex1
-    { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
-    { x: leftXInner, y: topSideYInner }, // top-left hex1
+    { x: 0, y: radius }, // bottom hex1
+    { x: -apothem, y: 0.5 * radius }, // bottom-left hex1
+    { x: -apothem, y: -0.5 * radius }, // top-left hex1
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function get3HexSvgPolygonPointsAt00(
+export function get2HexOutlineSvgPolygonPoints(
   radius: number,
   borderWidth: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
-  const halfBorder = borderWidth / 2
-  const hexWidth = 2 * apothem
-  // Outer hexagon
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  // Inner hexagon
-  const radiusInner = radius - halfBorder
+  const radiusInner = radius - borderWidth
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const leftXInner = -apothemInner
-  const topYInner = -radiusInner
-  const bottomSideYInner = 0.5 * radiusInner
-  const topSideYInner = -0.5 * radiusInner
+  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
+  const corners: Point[] = [
+    // OUTER
+    { x: 0, y: -radius }, // top hex1
+
+    { x: apothem, y: -0.5 * radius }, // top-right hex1, top-left hex2 TWEENSIE
+
+    { x: 2 * apothem, y: -radius }, //  top hex2
+    { x: 2 * apothem + apothem, y: -0.5 * radius }, // top-right hex2
+    { x: 2 * apothem + apothem, y: 0.5 * radius }, // bottom-right hex2
+    { x: 2 * apothem, y: radius }, // bottom hex2
+
+    { x: apothem, y: 0.5 * radius }, // bottom-left hex2, bottom-right hex1 TWEENSIE
+
+    { x: 0, y: radius }, // bottom hex1
+    { x: -apothem, y: 0.5 * radius }, // bottom-left hex1
+    { x: -apothem, y: -0.5 * radius }, // top-left hex1
+    //MID
+    { x: 0, y: -radius }, // top hex1
+    // INNER
+    { x: 0, y: -radiusInner }, // top hex1
+
+    { x: -apothemInner, y: -0.5 * radiusInner }, // top-left hex1
+    { x: -apothemInner, y: 0.5 * radiusInner }, // bottom-left hex1
+    { x: 0, y: radiusInner }, // bottom hex1
+
+    { x: apothem, y: 0.5 * radius - borderWidth }, // bottom-left hex2, bottom-right hex1 TWEENSIE
+
+    { x: 2 * apothem, y: radiusInner }, // bottom hex2
+    { x: 2 * apothem + apothemInner, y: 0.5 * radiusInner }, // bottom-right hex2
+    { x: 2 * apothem + apothemInner, y: -0.5 * radiusInner }, // top-right hex2
+    { x: 2 * apothem, y: -radiusInner }, //  top hex2
+
+    { x: apothem, y: -0.5 * radius + borderWidth }, // top-right hex1, top-left hex2 TWEENSIE
+    // END
+    { x: 0, y: -radiusInner }, // top hex1
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
+export function get3HexSvgPolygonPointsAt00(radius: number) {
+  const apothem = (Math.sqrt(3) * radius) / 2
 
   const corners: Point[] = [
     /* 
      /\/\
-    |    |
+    |1  2|
      \  /
-     |  |
+     | 3|
       \/
     */
-    { x: 0, y: topYInner }, // top hex1
-    // { x: rightXInner, y: topSideYInner }, // top-right hex1
+    { x: 0, y: -radius }, // top hex1
 
-    { x: apothem, y: topSideYOuter + halfBorder }, // top-right hex1, top-left hex2 TWEENSIE
+    { x: apothem, y: -0.5 * radius }, // top-right hex1, top-left hex2 TWEENSIE
 
-    // { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
-    { x: hexWidth, y: topYInner }, //  top hex2
-    { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
-    { x: hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex2
-    // { x: hexWidth, y: bottomYInner }, // bottom hex2
+    { x: 2 * apothem, y: -radius }, //  top hex2
+    { x: 2 * apothem + apothem, y: -0.5 * radius }, // top-right hex2
+    { x: 2 * apothem + apothem, y: 0.5 * radius }, // bottom-right hex2
 
     {
-      x: rightXOuter + apothemInner,
-      y: 1.5 * radius - 0.5 * radiusInner - 0.5 * borderWidth,
+      x: apothem + apothem,
+      y: 1.5 * radius - 0.5 * radius,
     }, // bottom hex2, top-right hex3 TWEENSIE
 
-    // { x: rightXOuter + apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-right hex3
-    { x: rightXOuter + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex3
-    { x: rightXOuter, y: 1.5 * radius + radiusInner }, // bottom hex3
-    { x: rightXOuter - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex3
-    // { x: rightXOuter - apothemInner, y: 1.5 * radius - 0.5 * radiusInner }, // top-left hex3
+    { x: apothem + apothem, y: 1.5 * radius + 0.5 * radius }, // bottom-right hex3
+    { x: apothem, y: 1.5 * radius + radius }, // bottom hex3
+    { x: apothem - apothem, y: 1.5 * radius + 0.5 * radius }, // bottom-left hex3
 
     {
-      x: rightXOuter - apothemInner,
-      y: 1.5 * radius - 0.5 * radiusInner - 0.5 * borderWidth,
+      x: apothem - apothem,
+      y: 1.5 * radius - 0.5 * radius,
     }, // top-left hex3, bottom hex1 TWEENSIE
 
-    // { x: topX, y: bottomYInner }, // bottom hex1
-    { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
-    { x: leftXInner, y: topSideYInner }, // top-left hex1
+    { x: -apothem, y: 0.5 * radius }, // bottom-left hex1
+    { x: -apothem, y: -0.5 * radius }, // top-left hex1
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
+export function get3HexOutlineSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const radiusInner = radius - borderWidth
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  // Outer hexagon
+  // Inner hexagon
+
+  const corners: Point[] = [
+    /* 
+     /\/\
+    |1  2|
+     \  /
+     | 3|
+      \/
+    */
+    { x: 0, y: -radius }, // top hex1
+
+    { x: apothem, y: -0.5 * radius }, // top-right hex1, top-left hex2 TWEENSIE
+
+    { x: 2 * apothem, y: -radius }, //  top hex2
+    { x: 2 * apothem + apothem, y: -0.5 * radius }, // top-right hex2
+    { x: 2 * apothem + apothem, y: 0.5 * radius }, // bottom-right hex2
+
+    {
+      x: apothem + apothem,
+      y: 1.5 * radius - 0.5 * radius,
+    }, // bottom hex2, top-right hex3 TWEENSIE
+
+    { x: apothem + apothem, y: 1.5 * radius + 0.5 * radius }, // bottom-right hex3
+    { x: apothem, y: 1.5 * radius + radius }, // bottom hex3
+    { x: apothem - apothem, y: 1.5 * radius + 0.5 * radius }, // bottom-left hex3
+
+    {
+      x: apothem - apothem,
+      y: 1.5 * radius - 0.5 * radius,
+    }, // top-left hex3, bottom hex1 TWEENSIE
+
+    { x: -apothem, y: 0.5 * radius }, // bottom-left hex1
+    { x: -apothem, y: -0.5 * radius }, // top-left hex1
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
@@ -1184,9 +1216,7 @@ export function getMarvel6HexSvgPolygonPointsAt00(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function get7HexSvgPolygonPointsAt00(
-  radius: number,
-) {
+export function get7HexSvgPolygonPointsAt00(radius: number) {
   // Outer hexagon
   const apothem = (Math.sqrt(3) * radius) / 2
   const hexWidth = 2 * apothem

@@ -58,9 +58,7 @@ export const PdfEmptyHex = () => {
   const fillColor = 'white'
   const borderColor = 'black'
   const borderWidth = SVG_EMPTYHEX_BORDER_WIDTH
-  const { points } = getHexagonSvgPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-  )
+  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   return (
     <>
       <Polygon
@@ -92,12 +90,8 @@ export const PdfMultiHex1 = ({
         : getSvgHexBorderColor(hex)
       : ''
   const glyphHexRadius = SVG_HEX_RADIUS / 1.4
-  const { points } = getHexagonSvgPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-  )
-  const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(
-    glyphHexRadius,
-  )
+  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(glyphHexRadius)
   return (
     <>
       {isSubLevel && (
@@ -124,10 +118,7 @@ export const PdfMultiHex2 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get2HexSvgPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
-  )
+  const { points } = get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   return (
     <>
       {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
@@ -150,10 +141,7 @@ export const PdfMultiHex3 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get3HexSvgPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
-  )
+  const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   return (
     <>
       {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
@@ -308,9 +296,7 @@ export const PdfMultiHex7 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get7HexSvgPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-  )
+  const { points } = get7HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   return (
     <>
       {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
@@ -443,9 +429,8 @@ export const PdfLaurPillar = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points: fullHexPoints } = getHexagonSvgPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-  )
+  const { points: fullHexPoints } =
+    getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const laurSquarePoints = getLaurPillarShape(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
@@ -1251,10 +1236,7 @@ export const PdfSvgOutcrop3 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get3HexSvgPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
-  )
+  const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>

@@ -2,6 +2,7 @@ import { piecesSoFar } from '../data/pieces'
 import {
   get1HexOutlineSvgPolygonPoints,
   get24HexSvgPolygonPointsAt00,
+  get2HexOutlineSvgPolygonPoints,
   get2HexSvgPolygonPointsAt00,
   get3HexStraightSvgPolygonPointsAt00,
   get3HexSvgPolygonPointsAt00,
@@ -56,14 +57,13 @@ export const SvgEmptyHex = () => {
   const borderColor = '#989898'
   // const borderWidth = SVG_BORDER_WIDTH / 1.5
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
-  const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
+  const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
   return (
     <>
-      <polygon
-        points={points}
-        fill={fillColor}
-        opacity={OPACITY_EMPTY}
-      />
+      <polygon points={points} fill={fillColor} opacity={OPACITY_EMPTY} />
       <polygon
         points={outlinePoints}
         fill={borderColor}
@@ -90,13 +90,12 @@ export const SvgMultiHex1 = ({
         : getSvgHexBorderColor(hex)
       : ''
   const glyphHexRadius = SVG_HEX_RADIUS / 2
-  const { points } = getHexagonSvgPolygonPointsAt00(
+  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(glyphHexRadius)
+  const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
   )
-  const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(
-    glyphHexRadius,
-  )
-  const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {isSubLevel && (
@@ -112,7 +111,7 @@ export const SvgMultiHex1 = ({
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={OPACITY_EMPTY}
+        opacity={OPACITY_SUBLEVEL}
       />
       {/* SNOWFLAKE IDEA, this one looks like the original ice snowflakes in Heroscape */}
       {/* https://www.svgrepo.com/svg/60624/snowflake?edit=true */}
@@ -129,7 +128,8 @@ export const SvgMultiHex2 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get2HexSvgPolygonPointsAt00(
+  const { points } = get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const { points: outlinePoints } = get2HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
@@ -139,9 +139,12 @@ export const SvgMultiHex2 = ({
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <polygon
+        points={outlinePoints}
+        fill={borderColor}
+        opacity={OPACITY_SUBLEVEL}
       />
     </>
   )
@@ -155,7 +158,8 @@ export const SvgMultiHex3 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get3HexSvgPolygonPointsAt00(
+  const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const { points: outlinePoints } = get2HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
@@ -165,9 +169,12 @@ export const SvgMultiHex3 = ({
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <polygon
+        points={outlinePoints}
+        fill={borderColor}
+        opacity={OPACITY_EMPTY}
       />
     </>
   )
@@ -314,10 +321,11 @@ export const SvgMultiHex7 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get7HexSvgPolygonPointsAt00(
+  const { points } = get7HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const { points: outlinePoints } = get7HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
   )
-  const { points: outlinePoints } = get7HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
@@ -421,9 +429,8 @@ export const SvgLaurPillar = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points: fullHexPoints } = getHexagonSvgPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-  )
+  const { points: fullHexPoints } =
+    getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const laurSquarePoints = getLaurPillarShape(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
@@ -1263,10 +1270,7 @@ export const SvgOutcrop3 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get3HexSvgPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
-  )
+  const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
