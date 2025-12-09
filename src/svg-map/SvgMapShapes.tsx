@@ -4,6 +4,7 @@ import {
   get24HexSvgPolygonPointsAt00,
   get2HexOutlineSvgPolygonPoints,
   get2HexSvgPolygonPointsAt00,
+  get3HexOutlineSvgPolygonPoints,
   get3HexStraightSvgPolygonPointsAt00,
   get3HexSvgPolygonPointsAt00,
   get4HexSvgPolygonPointsAt00,
@@ -159,7 +160,7 @@ export const SvgMultiHex3 = ({
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
-  const { points: outlinePoints } = get2HexOutlineSvgPolygonPoints(
+  const { points: outlinePoints } = get3HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )

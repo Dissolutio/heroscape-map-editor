@@ -809,30 +809,48 @@ export function get3HexOutlineSvgPolygonPoints(
      | 3|
       \/
     */
+    // OUTER
     { x: 0, y: -radius }, // top hex1
 
     { x: apothem, y: -0.5 * radius }, // top-right hex1, top-left hex2 TWEENSIE
 
     { x: 2 * apothem, y: -radius }, //  top hex2
-    { x: 2 * apothem + apothem, y: -0.5 * radius }, // top-right hex2
-    { x: 2 * apothem + apothem, y: 0.5 * radius }, // bottom-right hex2
+    { x: 3 * apothem, y: -0.5 * radius }, // top-right hex2
+    { x: 3 * apothem, y: 0.5 * radius }, // bottom-right hex2
 
-    {
-      x: apothem + apothem,
-      y: 1.5 * radius - 0.5 * radius,
-    }, // bottom hex2, top-right hex3 TWEENSIE
+    { x: 2 * apothem, y: radius }, // bottom hex2, top-right hex3 TWEENSIE
 
-    { x: apothem + apothem, y: 1.5 * radius + 0.5 * radius }, // bottom-right hex3
-    { x: apothem, y: 1.5 * radius + radius }, // bottom hex3
-    { x: apothem - apothem, y: 1.5 * radius + 0.5 * radius }, // bottom-left hex3
+    { x: 2 * apothem, y: 2 * radius }, // bottom-right hex3
+    { x: apothem, y: 2.5 * radius }, // bottom hex3
+    { x: 0, y: 2 * radius }, // bottom-left hex3
 
-    {
-      x: apothem - apothem,
-      y: 1.5 * radius - 0.5 * radius,
-    }, // top-left hex3, bottom hex1 TWEENSIE
+    { x: 0, y: radius }, // top-left hex3, bottom hex1 TWEENSIE
 
     { x: -apothem, y: 0.5 * radius }, // bottom-left hex1
     { x: -apothem, y: -0.5 * radius }, // top-left hex1
+    // MID
+    { x: 0, y: -radius }, // top hex1
+    // INNER
+    { x: 0, y: -radius + borderWidth }, // top hex1
+
+    { x: -apothemInner, y: -0.5 * radiusInner }, // top-left hex1
+    { x: -apothemInner, y: 0.5 * radiusInner }, // bottom-left hex1
+
+    { x: apothem - apothemInner, y: radius - 0.5 * borderWidth }, // bottom hex1, top-left hex3 TWEENSIE
+
+    { x: apothem - apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-left hex3
+    { x: apothem, y: 2.5 * radius - borderWidth }, // bottom hex3
+    { x: apothem + apothemInner, y: 1.5 * radius + 0.5 * radiusInner }, // bottom-right hex3
+
+    { x: apothem + apothemInner, y: radius - 0.5 * borderWidth }, // bottom hex2, top-right hex3 TWEENSIE
+
+    { x: 2 * apothem + apothemInner, y: 0.5 * radiusInner }, // bottom-right hex2
+    { x: 2 * apothem + apothemInner, y: -0.5 * radiusInner }, // top-right hex2
+    { x: 2 * apothem, y: -radius + borderWidth }, //  top hex2
+
+    { x: apothem, y: -0.5 * radius + borderWidth }, // top-right hex1, top-left hex2 TWEENSIE
+    // END
+    { x: 0, y: -radius + borderWidth }, // top hex1
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
