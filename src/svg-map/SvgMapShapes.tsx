@@ -20,6 +20,7 @@ import {
   getCastleEndShapeSvgPolygonPoints,
   getCastleStraightShapeSvgPolygonPoints,
   getHexagonSvgPolygonPointsAt00,
+  getInnerHexagonSvgPolygonPoints,
   getJungleTriangleShape,
   getLadderSvgPolygonPoints,
   getLaurLongWallSvgPolygonPoints,
@@ -53,6 +54,28 @@ import { svgColors } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from './svg-hive'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
+export const SvgHelperHex = () => {
+  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const { points: innerPoints } = getInnerHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
+  return (
+    <>
+      <polygon
+        points={points}
+        fill={'transparent'}
+        stroke='red'
+        strokeWidth={1}
+        opacity={OPACITY_EMPTY}
+      />
+      <polygon
+        points={innerPoints}
+        fill={'transparent'}
+        stroke='blue'
+        strokeWidth={1}
+        opacity={OPACITY_EMPTY}
+      />
+    </>
+  )
+}
 export const SvgEmptyHex = () => {
   const fillColor = 'white'
   const borderColor = '#989898'

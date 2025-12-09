@@ -1,4 +1,5 @@
 import type { Point } from '../types'
+import { SVG_BORDER_WIDTH } from '../utils/constants'
 import { cosDegrees, sinDegrees } from '../utils/hex-utils'
 
 // export function getHexagonSvgPolygonPoints(radius: number) {
@@ -643,6 +644,21 @@ export function getHexagonSvgPolygonPointsAt00(radius: number) {
     { x: 0, y: radius }, // bottom
     { x: -apothem, y: 0.5 * radius }, // bottom-left
     { x: -apothem, y: -0.5 * radius }, // top-left
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
+export function getInnerHexagonSvgPolygonPoints(radius: number) {
+  const radiusInner = radius - SVG_BORDER_WIDTH
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+
+  const corners: Point[] = [
+    { x: 0, y: -radiusInner }, // top hex1
+    { x: apothemInner, y: -0.5 * radiusInner }, // top-right
+    { x: apothemInner, y: 0.5 * radiusInner }, //  bottom-right
+    { x: 0, y: radiusInner }, // bottom
+    { x: -apothemInner, y: 0.5 * radiusInner }, // bottom-left
+    { x: -apothemInner, y: -0.5 * radiusInner }, // top-left
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }

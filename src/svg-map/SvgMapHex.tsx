@@ -40,6 +40,7 @@ import {
   SvgTree415,
   SvgLaurPillar,
   SvgJungle,
+  SvgHelperHex,
 } from './SvgMapShapes'
 
 const OPACITY_SUBLEVEL = 0.3
@@ -405,7 +406,9 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       piecesSoFar?.[inventoryID]?.template === '24') &&
     hex.isObstacleAuxiliary
   ) {
-    return null
+    return <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+      <SvgHelperHex />
+    </g>
   }
   if (
     isLandHex &&
