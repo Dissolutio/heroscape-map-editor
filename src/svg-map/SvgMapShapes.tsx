@@ -54,9 +54,9 @@ import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 export const SvgEmptyHex = () => {
   const fillColor = 'white'
   const borderColor = '#989898'
-  const borderWidth = SVG_BORDER_WIDTH / 1.5
+  // const borderWidth = SVG_BORDER_WIDTH / 1.5
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
-  const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, borderWidth)
+  const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {/* {isSubLevel && (
@@ -121,7 +121,6 @@ export const SvgMultiHex1 = ({
         points={outlinePoints}
         // fillRule='evenodd'
         fill={borderColor}
-        stroke={borderColor}
         opacity={OPACITY_EMPTY}
       />
       {/* SNOWFLAKE IDEA, this one looks like the original ice snowflakes in Heroscape */}
