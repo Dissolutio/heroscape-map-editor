@@ -246,10 +246,10 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-      inventoryID === Pieces.castleWallEnd
+        inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-            inventoryID === Pieces.castleWallStraight
+          inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
@@ -390,6 +390,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHelperHex />
       </g>
     )
   }
@@ -537,6 +538,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex24 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHelperHex />
       </g>
     )
   }

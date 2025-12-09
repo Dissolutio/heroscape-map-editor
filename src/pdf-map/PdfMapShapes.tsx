@@ -373,7 +373,6 @@ export const PdfMultiHex24 = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get24HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
   )
   return (
     <>

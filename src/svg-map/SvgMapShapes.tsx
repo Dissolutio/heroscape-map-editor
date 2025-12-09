@@ -1,6 +1,7 @@
 import { piecesSoFar } from '../data/pieces'
 import {
   get1HexOutlineSvgPolygonPoints,
+  get24HexOutlineSvgPolygonPoints,
   get24HexSvgPolygonPointsAt00,
   get2HexOutlineSvgPolygonPoints,
   get2HexSvgPolygonPointsAt00,
@@ -429,6 +430,9 @@ export const SvgMultiHex24 = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get24HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
+  )
+  const { points: outlinePoints } = get24HexOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
@@ -437,9 +441,12 @@ export const SvgMultiHex24 = ({
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <polygon
+        points={outlinePoints}
+        fill={borderColor}
+        opacity={OPACITY_EMPTY}
       />
     </>
   )
