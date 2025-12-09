@@ -8,6 +8,7 @@ import {
   get4HexSvgPolygonPointsAt00,
   get5HexStraightSvgPolygonPointsAt00,
   get6HexSvgPolygonPointsAt00,
+  get7HexOutlineSvgPolygonPoints,
   get7HexSvgPolygonPointsAt00,
   get7HexWallWalkSvgPolygonPointsAt00,
   get9HexWallWalkSvgPolygonPointsAt00,
@@ -43,11 +44,10 @@ import {
   OPACITY_EMPTY,
   OPACITY_SUBLEVEL,
   SVG_BORDER_WIDTH,
-  SVG_EMPTYHEX_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
-import { hexTerrainColor, svgColors } from '../world/maphex/hexColors'
+import { svgColors } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from './svg-hive'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
@@ -59,22 +59,14 @@ export const SvgEmptyHex = () => {
   const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
-      {/* {isSubLevel && (
-        <SvgSubLevelWhiteBackerPolygon
-          points={points}
-        />
-      )} */}
       <polygon
         points={points}
         fill={fillColor}
-        // stroke={fillColor}
         opacity={OPACITY_EMPTY}
       />
       <polygon
         points={outlinePoints}
-        // fillRule='evenodd'
         fill={borderColor}
-        // stroke={borderColor}
         opacity={OPACITY_EMPTY}
       />
     </>
@@ -119,7 +111,6 @@ export const SvgMultiHex1 = ({
       />
       <polygon
         points={outlinePoints}
-        // fillRule='evenodd'
         fill={borderColor}
         opacity={OPACITY_EMPTY}
       />
@@ -325,17 +316,20 @@ export const SvgMultiHex7 = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get7HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
   )
+  const { points: outlinePoints } = get7HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <polygon
+        points={outlinePoints}
+        fill={borderColor}
+        opacity={OPACITY_EMPTY}
       />
     </>
   )
