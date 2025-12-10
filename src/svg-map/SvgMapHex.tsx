@@ -473,6 +473,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex7 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHelperHex />
       </g>
     )
   }
