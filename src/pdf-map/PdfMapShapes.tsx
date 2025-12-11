@@ -28,7 +28,7 @@ import {
   getRoadWallSvgPolygonPoints,
   getRuins2SvgPolygonPoints,
   getRuins3SvgPolygonPoints,
-} from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
+} from '../pdf-svg-shared/getHexagonPdfPolygonPoints'
 import {
   getSvgHexBorderColor,
   getSvgHexFillColor,
@@ -40,8 +40,9 @@ import {
   Pieces,
 } from '../types'
 import {
+  OPACITY_EMPTY,
   OPACITY_SUBLEVEL,
-  SVG_BORDER_WIDTH,
+  PDF_BORDER_WIDTH,
   SVG_EMPTYHEX_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
@@ -57,7 +58,10 @@ export const PdfEmptyHex = () => {
   const fillColor = 'white'
   const borderColor = 'black'
   const borderWidth = SVG_EMPTYHEX_BORDER_WIDTH
-  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const { points } = getHexagonSvgPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    SVG_EMPTYHEX_BORDER_WIDTH,
+  )
   return (
     <>
       <Polygon
@@ -65,7 +69,9 @@ export const PdfEmptyHex = () => {
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={borderWidth}
-        opacity={0.1}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={OPACITY_EMPTY}
       />
     </>
   )
@@ -83,14 +89,20 @@ export const PdfMultiHex1 = ({
   const isEmptyHex = hex.terrain === 'empty'
   const fillColor = isEmptyHex ? 'white' : getSvgHexFillColor(hex)
   const borderColor =
-    SVG_BORDER_WIDTH > 0
+    PDF_BORDER_WIDTH > 0
       ? isGlyph
         ? fillColor
         : getSvgHexBorderColor(hex)
       : ''
   const glyphHexRadius = SVG_HEX_RADIUS / 1.4
-  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
-  const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(glyphHexRadius)
+  const { points } = getHexagonSvgPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    PDF_BORDER_WIDTH,
+  )
+  const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(
+    glyphHexRadius,
+    0,
+  )
   return (
     <>
       {isSubLevel && (
@@ -102,9 +114,14 @@ export const PdfMultiHex1 = ({
         points={isGlyph ? glyphPoints : points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+      {/* SNOWFLAKE IDEA, this one looks like the original ice snowflakes in Heroscape */}
+      {/* https://www.svgrepo.com/svg/60624/snowflake?edit=true */}
+      {/* <svg fill="#000000" height="100px" width="100px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="-48.96 -48.96 587.52 587.52" xml:space="preserve" transform="matrix(1, 0, 0, 1, 0, 0)rotate(0)"><g id="SVGRepo_bgCarrier" stroke-width="0" transform="translate(0,0), scale(1)"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="10.7712"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M470.758,288L470.758,288l-77.9,34.2l-128.7-77.2l128.7-77.2l77.9,34.2c1.3,0.6,2.7,0.8,4,0.8c3.8,0,7.5-2.2,9.2-6 c2.2-5.1-0.1-11-5.1-13.2l-64.9-28.5l45.2-27.1c4.7-2.8,6.3-9,3.4-13.7c-2.9-4.7-9-6.3-13.7-3.4l-46.1,27.7l7.5-70.2 c0.6-5.5-3.4-10.4-8.9-11s-10.4,3.4-11,8.9l-9.1,85.2l-126.4,75.9V77.5l69.2-49.1c4.5-3.2,5.6-9.4,2.4-13.9s-9.4-5.6-13.9-2.4 l-57.6,40.9V10c0-5.5-4.5-10-10-10s-10,4.5-10,10v42.5l-57.7-40.5c-4.5-3.2-10.8-2.1-13.9,2.4c-3.2,4.5-2.1,10.8,2.4,13.9 l69.1,48.5v150.4l-127.2-76.4l-8.2-84.7c-0.5-5.5-5.4-9.5-10.9-9s-9.5,5.4-9,10.9l6.8,69.9l-45.5-27.3c-4.7-2.8-10.9-1.3-13.7,3.4 c-2.8,4.7-1.3,10.9,3.4,13.7l45,27l-64.7,28.7c-5,2.2-7.3,8.1-5.1,13.2c1.7,3.7,5.3,6,9.1,6c1.4,0,2.7-0.3,4-0.9l77.5-34.4 l129,77.4l-129,77.4l-77.5-34.4c-5.1-2.2-11,0-13.2,5.1c-2.2,5,0,11,5.1,13.2l64.7,28.7l-45,27c-4.7,2.8-6.3,9-3.4,13.7 c1.9,3.1,5.2,4.9,8.6,4.9c1.8,0,3.5-0.5,5.1-1.4l45.5-27.3l-6.8,69.9c-0.5,5.5,3.5,10.4,9,10.9c0.3,0,0.7,0,1,0 c5.1,0,9.4-3.9,9.9-9l8.2-84.7l127.2-76.4v154.8l-68.8,43.9c-4.7,3-6,9.2-3.1,13.8c1.9,3,5.1,4.6,8.4,4.6c1.8,0,3.7-0.5,5.4-1.6 l58-37v38.8c0,5.5,4.5,10,10,10s10-4.5,10-10v-39.2l58,37.4c4.6,3,10.8,1.7,13.8-3c3-4.7,1.7-10.8-3-13.8l-68.7-44V262.6 l126.4,75.9l9.1,85.2c0.5,5.1,4.9,8.9,9.9,8.9c0.4,0,0.7,0,1.1-0.1c5.5-0.6,9.5-5.5,8.9-11l-7.5-70.2l46.1,27.7 c1.6,1,3.4,1.4,5.1,1.4c3.4,0,6.7-1.7,8.6-4.9c2.8-4.7,1.3-10.9-3.4-13.7l-45.2-27.1l64.9-28.5c5.1-2.2,7.4-8.1,5.1-13.2 C481.658,288.1,475.758,285.8,470.758,288z"></path> </g> </g> </g></svg> */}
     </>
   )
 }
@@ -116,8 +133,11 @@ export const PdfMultiHex2 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const { points } = get2HexSvgPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    PDF_BORDER_WIDTH,
+  )
   return (
     <>
       {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
@@ -125,7 +145,9 @@ export const PdfMultiHex2 = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -139,8 +161,11 @@ export const PdfMultiHex3 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const { points } = get3HexSvgPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    PDF_BORDER_WIDTH,
+  )
   return (
     <>
       {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
@@ -148,7 +173,9 @@ export const PdfMultiHex3 = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -162,10 +189,10 @@ export const PdfCastleArchStraight3 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get3HexStraightSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -174,7 +201,9 @@ export const PdfCastleArchStraight3 = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -188,10 +217,10 @@ export const PdfMultiHex4 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get4HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -200,7 +229,9 @@ export const PdfMultiHex4 = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -214,10 +245,10 @@ export const PdfMultiHex5 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get5HexStraightSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -226,7 +257,9 @@ export const PdfMultiHex5 = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -240,10 +273,10 @@ export const PdfMultiHex6 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get6HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -252,7 +285,9 @@ export const PdfMultiHex6 = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -266,10 +301,10 @@ export const PdfMultiHexMarvel6 = ({
   isSubLevel?: boolean
 }) => {
   // const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  // const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = getMarvel6HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -280,7 +315,9 @@ export const PdfMultiHexMarvel6 = ({
         fill={'rgb(220, 220, 220)'}
         // stroke={borderColor}
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -294,8 +331,11 @@ export const PdfMultiHex7 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get7HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const { points } = get7HexSvgPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    PDF_BORDER_WIDTH,
+  )
   return (
     <>
       {isSubLevel && <PdfSubLevelWhiteBackerPolygon points={points} />}
@@ -303,7 +343,9 @@ export const PdfMultiHex7 = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -317,10 +359,10 @@ export const PdfMultiHexWallWalk7 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get7HexWallWalkSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -329,7 +371,9 @@ export const PdfMultiHexWallWalk7 = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -343,10 +387,10 @@ export const PdfMultiHexWallWalk9 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get9HexWallWalkSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -355,7 +399,9 @@ export const PdfMultiHexWallWalk9 = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -369,9 +415,10 @@ export const PdfMultiHex24 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get24HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -380,7 +427,9 @@ export const PdfMultiHex24 = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -396,15 +445,16 @@ export const PdfJungle = ({
 }) => {
   const pieceHeightText = piecesSoFar[hex.inventoryID]?.height
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
-  const points = getJungleTriangleShape(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+  const points = getJungleTriangleShape(SVG_HEX_RADIUS, PDF_BORDER_WIDTH).points
   return (
     <>
       <G transform={`rotate(${pieceRotation})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        {/* renegade-hexoscape omits the triangle (which represents cactus orientation) for now */}
         <Polygon
           points={points}
           fill={svgColors.outlineJungle}
+          strokeLinecap="round"
+          strokeLinejoin="round"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </G>
@@ -426,16 +476,18 @@ export const PdfLaurPillar = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points: fullHexPoints } =
-    getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const { points: fullHexPoints } = getHexagonSvgPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    PDF_BORDER_WIDTH,
+  )
   const laurSquarePoints = getLaurPillarShape(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   ).squarePoints
   const laurTrianglePoints = getLaurPillarShape(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   ).trianglePoints
   const innerShapePoints =
     hex.inventoryID === Pieces.laurWallTrianglePillar
@@ -450,7 +502,9 @@ export const PdfLaurPillar = ({
         points={fullHexPoints}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <G transform={`rotate(${pieceRotation})`}>
@@ -458,14 +512,16 @@ export const PdfLaurPillar = ({
         {isSubLevel && (
           <PdfSubLevelWhiteBackerPolygon
             points={innerShapePoints}
-            borderWidth={SVG_BORDER_WIDTH / 2}
+            borderWidth={PDF_BORDER_WIDTH / 2}
           />
         )}
         <Polygon
           points={innerShapePoints}
           fill={fillColor}
           stroke={borderColor}
-          strokeWidth={SVG_BORDER_WIDTH / 2}
+          strokeWidth={PDF_BORDER_WIDTH / 2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </G>
@@ -481,10 +537,10 @@ export const PdfHive6 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get6HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -493,7 +549,9 @@ export const PdfHive6 = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       {isSubLevel && (
@@ -501,7 +559,7 @@ export const PdfHive6 = ({
           d={svgHiveBlobD}
           fill={'white'}
           stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 1.2}
+          strokeWidth={PDF_BORDER_WIDTH / 1.2}
           transform={`translate(${-2 * SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS})`}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
@@ -509,7 +567,7 @@ export const PdfHive6 = ({
       <Path
         d={svgHiveBlobD}
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 1.2}
+        strokeWidth={PDF_BORDER_WIDTH / 1.2}
         transform={`translate(${-2 * SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS})`}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
@@ -518,7 +576,7 @@ export const PdfHive6 = ({
         <Ellipse
           fill={'white'}
           stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 2}
+          strokeWidth={PDF_BORDER_WIDTH / 2}
           opacity={1}
           cx="9.4113"
           cy="82.45652"
@@ -528,7 +586,7 @@ export const PdfHive6 = ({
       )}
       <Ellipse
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 2}
+        strokeWidth={PDF_BORDER_WIDTH / 2}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         cx="9.4113"
         cy="82.45652"
@@ -540,7 +598,7 @@ export const PdfHive6 = ({
         <Ellipse
           fill={'white'}
           stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 2}
+          strokeWidth={PDF_BORDER_WIDTH / 2}
           opacity={1}
           cx="12.63397"
           cy="101.25543"
@@ -550,7 +608,7 @@ export const PdfHive6 = ({
       )}
       <Ellipse
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 2}
+        strokeWidth={PDF_BORDER_WIDTH / 2}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         cx="12.63397"
         cy="101.25543"
@@ -562,7 +620,7 @@ export const PdfHive6 = ({
         <Ellipse
           fill={'white'}
           stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 1.4}
+          strokeWidth={PDF_BORDER_WIDTH / 1.4}
           opacity={1}
           cx="49.15758"
           cy="77.35397"
@@ -572,7 +630,7 @@ export const PdfHive6 = ({
       )}
       <Ellipse
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 1.4}
+        strokeWidth={PDF_BORDER_WIDTH / 1.4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         cx="49.15758"
         cy="77.35397"
@@ -584,7 +642,7 @@ export const PdfHive6 = ({
         <Ellipse
           fill={'white'}
           stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 1.8}
+          strokeWidth={PDF_BORDER_WIDTH / 1.8}
           opacity={1}
           cx="49.96326"
           cy="98.30132"
@@ -594,7 +652,7 @@ export const PdfHive6 = ({
       )}
       <Ellipse
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 1.8}
+        strokeWidth={PDF_BORDER_WIDTH / 1.8}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         cx="49.96326"
         cy="98.30132"
@@ -612,19 +670,27 @@ export const PdfSvgRuins2 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  // const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   // const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   const { path } = getRuins2SvgPolygonPoints(SVG_HEX_RADIUS, 0)
 
   return (
     <>
       {isSubLevel && (
-        <Path d={path} stroke={'white'} strokeWidth={SVG_HEX_RADIUS / 5} />
+        <Path
+          d={path}
+          stroke={'white'}
+          strokeWidth={SVG_HEX_RADIUS / 5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       )}
       <Path
         d={path}
         stroke={fillColor}
         strokeWidth={SVG_HEX_RADIUS / 5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
       />
     </>
@@ -663,18 +729,26 @@ export const PdfMarvelRuin = ({
 }) => {
   // const fillColor = getSvgHexFillColor(hex)
   const fillColorSub = svgColors.outlineCastleWall
-  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  // const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS)
 
   return (
     <>
       {isSubLevel && (
-        <Path d={path} stroke={'white'} strokeWidth={2 * SVG_BORDER_WIDTH} />
+        <Path
+          d={path}
+          stroke={'white'}
+          strokeWidth={2 * PDF_BORDER_WIDTH}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       )}
       <Path
         d={path}
         stroke={fillColorSub}
-        strokeWidth={2 * SVG_BORDER_WIDTH}
+        strokeWidth={2 * PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -690,7 +764,7 @@ export const PdfBoardPieceLaurWallShort = ({
   const fillColor = getSvgHexFillColor(piece)
   const { points } = getLaurShortWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -699,7 +773,7 @@ export const PdfBoardPieceLaurWallShort = ({
         points={points}
         fill={fillColor}
         stroke={fillColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -715,7 +789,7 @@ export const PdfBoardPieceLaurWallLong = ({
   const borderColor = getSvgHexBorderColor(piece)
   const { points } = getLaurLongWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -724,7 +798,7 @@ export const PdfBoardPieceLaurWallLong = ({
         points={points}
         fill={borderColor} // RENEGADE: they have all border color, community might want regular fill
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -740,7 +814,7 @@ export const PdfBoardPieceLaurWallLongArch = ({
   const borderColor = getSvgHexBorderColor(piece)
   const { points } = getLaurLongWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -749,7 +823,7 @@ export const PdfBoardPieceLaurWallLongArch = ({
         points={points}
         // fill={borderColor} // RENEGADE: they have all border color, community might want regular fill
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -765,7 +839,7 @@ export const PdfBoardPieceLaurWallRuin = ({
   const borderColor = getSvgHexBorderColor(piece)
   const { points } = getLaurWallRuinSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    // SVG_BORDER_WIDTH,
+    // PDF_BORDER_WIDTH,
   )
   return (
     <>
@@ -774,7 +848,7 @@ export const PdfBoardPieceLaurWallRuin = ({
         points={points}
         fill={borderColor} // Renegade just does a pink rectangle
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -791,7 +865,7 @@ export const PdfRoadWall = ({
   const borderColor = getSvgHexBorderColor(piece)
   const { points } = getRoadWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
 
   return (
@@ -801,7 +875,9 @@ export const PdfRoadWall = ({
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        strokeWidth={PDF_BORDER_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -822,14 +898,16 @@ export const PdfBattlement = ({
       {isSubLevel && (
         <PdfSubLevelWhiteBackerPolygon
           points={points}
-          borderWidth={SVG_BORDER_WIDTH / 2}
+          borderWidth={PDF_BORDER_WIDTH / 2}
         />
       )}
       <Polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH / 2}
+        strokeWidth={PDF_BORDER_WIDTH / 2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -850,14 +928,14 @@ export const PdfLadder = ({
       {isSubLevel && (
         <PdfSubLevelWhiteBackerPolygon
           points={points}
-          borderWidth={SVG_BORDER_WIDTH / 4}
+          borderWidth={PDF_BORDER_WIDTH / 4}
         />
       )}
       <Polygon
         points={points}
         fill={fillColor}
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
+        strokeWidth={PDF_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -892,7 +970,7 @@ export const PdfStartZone = ({
           r={SVG_HEX_RADIUS / 2}
           fill={'white'}
           stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 4}
+          strokeWidth={PDF_BORDER_WIDTH / 4}
         />
       )}
       <Circle
@@ -900,7 +978,7 @@ export const PdfStartZone = ({
         // points={points}
         fill={fillColor}
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
+        strokeWidth={PDF_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -916,21 +994,23 @@ export const PdfCastleCorner = ({
   // const fillColor = getSvgHexFillColor(hex)
   const { points } = getCastleCornerShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
       {isSubLevel && (
         <PdfSubLevelWhiteBackerPolygon
           points={points}
-          borderWidth={SVG_BORDER_WIDTH / 4}
+          borderWidth={PDF_BORDER_WIDTH / 4}
         />
       )}
       <Polygon
         points={points}
         fill={svgColors.castleInterior}
         stroke={svgColors.castleInterior}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
+        strokeWidth={PDF_BORDER_WIDTH / 4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -946,21 +1026,23 @@ export const PdfCastleStraight = ({
   // const fillColor = getSvgHexFillColor(hex)
   const { points } = getCastleStraightShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
       {isSubLevel && (
         <PdfSubLevelWhiteBackerPolygon
           points={points}
-          borderWidth={SVG_BORDER_WIDTH / 4}
+          borderWidth={PDF_BORDER_WIDTH / 4}
         />
       )}
       <Polygon
         points={points}
         fill={svgColors.castleInterior}
         stroke={svgColors.castleInterior}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
+        strokeWidth={PDF_BORDER_WIDTH / 4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -977,22 +1059,24 @@ export const PdfCastleEnd = ({
   // const borderColor = getSvgHexBorderColor(hex)
   const { points } = getCastleEndShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
       {isSubLevel && (
         <PdfSubLevelWhiteBackerPolygon
           points={points}
-          // borderWidth={SVG_BORDER_WIDTH / 4}
-          borderWidth={SVG_BORDER_WIDTH / 4}
+          // borderWidth={PDF_BORDER_WIDTH / 4}
+          borderWidth={PDF_BORDER_WIDTH / 4}
         />
       )}
       <Polygon
         points={points}
         fill={svgColors.castleInterior}
         stroke={svgColors.castleInterior}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
+        strokeWidth={PDF_BORDER_WIDTH / 4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -1009,22 +1093,24 @@ export const PdfCastleArch = ({
   // const borderColor = getSvgHexBorderColor(hex)
   const { points } = getCastleArchShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   return (
     <>
       {isSubLevel && (
         <PdfSubLevelWhiteBackerPolygon
           points={points}
-          // borderWidth={SVG_BORDER_WIDTH / 4}
-          borderWidth={SVG_BORDER_WIDTH / 4}
+          // borderWidth={PDF_BORDER_WIDTH / 4}
+          borderWidth={PDF_BORDER_WIDTH / 4}
         />
       )}
       <Polygon
         points={points}
         fill={svgColors.castleInterior}
         stroke={svgColors.castleInterior}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
+        strokeWidth={PDF_BORDER_WIDTH / 4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -1048,10 +1134,10 @@ export const PdfSvgTree415 = ({
 }) => {
   const pieceHeightText = piecesSoFar[hex.inventoryID].height
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get4HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
@@ -1062,7 +1148,7 @@ export const PdfSvgTree415 = ({
           points={points}
           fill={fillColor}
           stroke={borderColor}
-          strokeWidth={SVG_BORDER_WIDTH}
+          strokeWidth={PDF_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </G>
@@ -1138,10 +1224,10 @@ export const PdfSvgOutcrop6 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get6HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
@@ -1152,7 +1238,7 @@ export const PdfSvgOutcrop6 = ({
           points={points}
           fill={fillColor}
           stroke={borderColor}
-          strokeWidth={SVG_BORDER_WIDTH}
+          strokeWidth={PDF_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </G>
@@ -1233,8 +1319,11 @@ export const PdfSvgOutcrop3 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const { points } = get3HexSvgPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    PDF_BORDER_WIDTH,
+  )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
@@ -1244,7 +1333,7 @@ export const PdfSvgOutcrop3 = ({
           points={points}
           fill={fillColor}
           stroke={borderColor}
-          strokeWidth={SVG_BORDER_WIDTH}
+          strokeWidth={PDF_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </G>
@@ -1310,10 +1399,10 @@ export const PdfSvgOutcrop4 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get4HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    PDF_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
@@ -1324,7 +1413,7 @@ export const PdfSvgOutcrop4 = ({
           points={points}
           fill={fillColor}
           stroke={borderColor}
-          strokeWidth={SVG_BORDER_WIDTH}
+          strokeWidth={PDF_BORDER_WIDTH}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </G>
@@ -1386,7 +1475,9 @@ const PdfSubLevelWhiteBackerPolygon = ({
       points={points}
       fill={'white'}
       stroke={'white'}
-      strokeWidth={borderWidth ?? SVG_BORDER_WIDTH}
+      strokeWidth={borderWidth ?? PDF_BORDER_WIDTH}
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   )
 }
