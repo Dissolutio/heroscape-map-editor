@@ -45,9 +45,9 @@ import {
   Pieces,
 } from '../types'
 import {
-  OPACITY_EMPTY,
   OPACITY_SUBLEVEL,
   SVG_BORDER_WIDTH,
+  SVG_EMPTYHEX_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
@@ -65,34 +65,31 @@ export const SvgHelperHex = () => {
         fill={'transparent'}
         stroke='red'
         strokeWidth={1}
-        opacity={OPACITY_EMPTY}
       />
       <polygon
         points={innerPoints}
         fill={'transparent'}
         stroke='blue'
         strokeWidth={1}
-        opacity={OPACITY_EMPTY}
       />
     </>
   )
 }
 export const SvgEmptyHex = () => {
   const fillColor = 'white'
-  const borderColor = '#989898'
-  // const borderWidth = SVG_BORDER_WIDTH / 1.5
+  const borderColor = '#CECECE'
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    SVG_EMPTYHEX_BORDER_WIDTH,
   )
   return (
     <>
-      <polygon points={points} fill={fillColor} opacity={OPACITY_EMPTY} />
+      <polygon points={points} fill={fillColor} />
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={OPACITY_EMPTY}
+      // opacity={OPACITY_EMPTY}
       />
     </>
   )
@@ -169,7 +166,7 @@ export const SvgMultiHex2 = ({
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={OPACITY_SUBLEVEL}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -199,7 +196,7 @@ export const SvgMultiHex3 = ({
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={OPACITY_EMPTY}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -362,7 +359,7 @@ export const SvgMultiHex7 = ({
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={OPACITY_EMPTY}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -443,10 +440,16 @@ export const SvgMultiHex24 = ({
         fill={fillColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
+      {isSubLevel &&
+        <polygon
+          points={outlinePoints}
+          fill={'white'}
+        />
+      }
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={OPACITY_EMPTY}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -1470,14 +1473,13 @@ export const SvgOutcrop4 = ({
 }
 const SvgSubLevelWhiteBackerPolygon = ({
   points,
-  borderWidth,
 }: { points: string; borderWidth?: number }) => {
   return (
     <polygon
       points={points}
       fill={'white'}
-      stroke={'white'}
-      strokeWidth={borderWidth ?? SVG_BORDER_WIDTH}
+    // stroke={'white'}
+    // strokeWidth={borderWidth ?? SVG_BORDER_WIDTH}
     />
   )
 }
