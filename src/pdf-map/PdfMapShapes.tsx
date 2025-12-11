@@ -40,14 +40,13 @@ import {
   Pieces,
 } from '../types'
 import {
-  OPACITY_EMPTY,
   OPACITY_SUBLEVEL,
   SVG_BORDER_WIDTH,
   SVG_EMPTYHEX_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
-import { hexTerrainColor, svgColors } from '../world/maphex/hexColors'
+import { svgColors } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from '../svg-map/svg-hive'
 import {
   hexTextStyle,
@@ -66,7 +65,7 @@ export const PdfEmptyHex = () => {
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={borderWidth}
-        opacity={OPACITY_EMPTY}
+        opacity={0.1}
       />
     </>
   )
@@ -397,17 +396,17 @@ export const PdfJungle = ({
 }) => {
   const pieceHeightText = piecesSoFar[hex.inventoryID]?.height
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
-  // const points = getJungleTriangleShape(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+  const points = getJungleTriangleShape(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
   return (
     <>
       <G transform={`rotate(${pieceRotation})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         {/* renegade-hexoscape omits the triangle (which represents cactus orientation) for now */}
-        {/* <Polygon
+        <Polygon
           points={points}
           fill={svgColors.outlineJungle}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        /> */}
+        />
       </G>
       <Text
         fill="rgb(35, 31, 32)"
