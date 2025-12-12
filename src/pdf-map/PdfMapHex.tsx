@@ -589,7 +589,7 @@ const PdfCastleArchText = ({
         fontSize: 0.8 * SVG_HEX_RADIUS,
         fontWeight: 'bold',
       }}
-      y={0.3 * SVG_HEX_RADIUS}
+      y={0.2 * SVG_HEX_RADIUS}
       // upside down text is flipped in parent component, and adjusted here
       x={pieceRotation === 180 ? -3.7 * SVG_HEX_APOTHEM : 0.3 * SVG_HEX_APOTHEM}
     >
