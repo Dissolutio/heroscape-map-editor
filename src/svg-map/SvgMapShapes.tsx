@@ -58,6 +58,7 @@ import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 export const SvgHelperHex = () => {
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: innerPoints } = getInnerHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
+  return null
   return (
     <>
       <polygon
@@ -108,7 +109,7 @@ export const SvgMultiHex1 = ({
   const borderColor =
     SVG_BORDER_WIDTH > 0
       ? isGlyph
-        ? fillColor
+        ? 'transparent'
         : getSvgHexBorderColor(hex)
       : ''
   const glyphHexRadius = SVG_HEX_RADIUS / 2
@@ -133,7 +134,7 @@ export const SvgMultiHex1 = ({
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={OPACITY_SUBLEVEL}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       {/* SNOWFLAKE IDEA, this one looks like the original ice snowflakes in Heroscape */}
       {/* https://www.svgrepo.com/svg/60624/snowflake?edit=true */}
