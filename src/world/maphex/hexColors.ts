@@ -232,7 +232,6 @@ export const svgColors = {
   [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
 }
 export const svgSubLevelColors = {
-
   // OUTLINES
   outline1: '#F4C5C5',
   outline2: '#F3DCCB',
@@ -270,7 +269,6 @@ export const svgSubLevelColors = {
   [HexTerrain.sand]: '#F4F7D0',
   [HexTerrain.water]: '#A6D5D8',
 
-
   [HexTerrain.road]: '#787D79',
   roadDecor: '#696767',
   outlineRoad5: '#696767',
@@ -297,7 +295,6 @@ export const svgSubLevelColors = {
   [HexTerrain.glyphPower]: 'rgb(120, 1, 22)',
   [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
 }
-
 
 // const renegadeValkyriePaintColors = {
 //     // selected by color picker on webp image of renegade paint set, so probably horrible

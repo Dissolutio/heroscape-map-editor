@@ -1402,9 +1402,7 @@ export function get7HexOutlineSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function get24HexSvgPolygonPointsAt00(
-  radius: number,
-) {
+export function get24HexSvgPolygonPointsAt00(radius: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
 
   const corners: Point[] = [
@@ -1431,7 +1429,7 @@ export function get24HexSvgPolygonPointsAt00(
 
     { x: 5 * apothem, y: 2.5 * radius }, // top-right hex4
 
-    { x: 5 * apothem, y: 3.5 * radius, }, // bottom-right hex4, top hex5 TWEENSIE
+    { x: 5 * apothem, y: 3.5 * radius }, // bottom-right hex4, top hex5 TWEENSIE
 
     { x: 6 * apothem, y: 4 * radius }, // top-right hex5, top-left hex6 TWEENSIE
 
@@ -1480,7 +1478,6 @@ export function get24HexSvgPolygonPointsAt00(
 
     { x: -apothem, y: 3.5 * radius }, // top hex15, bottom-left hex16 TWEENSIE
 
-
     { x: -apothem, y: 2.5 * radius }, // top-left hex16, bottom hex17 TWEENSIE
 
     { x: -2 * apothem, y: 2 * radius }, // bottom-left hex17
@@ -1495,7 +1492,7 @@ export function get24HexSvgPolygonPointsAt00(
 }
 export function get24HexOutlineSvgPolygonPoints(
   radius: number,
-  borderWidth: number
+  borderWidth: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
   // Inner hexagon
@@ -1527,7 +1524,7 @@ export function get24HexOutlineSvgPolygonPoints(
 
     { x: 5 * apothem, y: 2.5 * radius }, // top-right hex4
 
-    { x: 5 * apothem, y: 3.5 * radius, }, // bottom-right hex4, top hex5 TWEENSIE
+    { x: 5 * apothem, y: 3.5 * radius }, // bottom-right hex4, top hex5 TWEENSIE
 
     { x: 6 * apothem, y: 4 * radius }, // top-right hex5, top-left hex6 TWEENSIE
 
@@ -1574,7 +1571,6 @@ export function get24HexOutlineSvgPolygonPoints(
     { x: -2 * apothem, y: 4 * radius }, // top-left hex15
 
     { x: -apothem, y: 3.5 * radius }, // top hex15, bottom-left hex16 TWEENSIE
-
 
     { x: -apothem, y: 2.5 * radius }, // top-left hex16, bottom hex17 TWEENSIE
 
@@ -1635,22 +1631,34 @@ export function get24HexOutlineSvgPolygonPoints(
     { x: 9 * apothem + apothemInner, y: 7.5 * radius + radiusInner / 2 }, // bottom-right hex8
     { x: 9 * apothem + apothemInner, y: 7.5 * radius - radiusInner / 2 }, // top-right hex8
 
-    { x: 8 * apothem + apothemInner, y: 6 * radius + radiusInner / 2 + borderWidth }, // top-left hex8, bottom-right hex7 TWEENSIE
+    {
+      x: 8 * apothem + apothemInner,
+      y: 6 * radius + radiusInner / 2 + borderWidth,
+    }, // top-left hex8, bottom-right hex7 TWEENSIE
 
     { x: 8 * apothem + apothemInner, y: 6 * radius - radiusInner / 2 }, // top-right hex7
 
-    { x: 7 * apothem + apothemInner, y: 4.5 * radius + radiusInner / 2 + borderWidth }, // top hex7, bottom-right hex6 TWEENSIE
+    {
+      x: 7 * apothem + apothemInner,
+      y: 4.5 * radius + radiusInner / 2 + borderWidth,
+    }, // top hex7, bottom-right hex6 TWEENSIE
 
     { x: 7 * apothem + apothemInner, y: 4.5 * radius - radiusInner / 2 }, // top-right hex6
     { x: 7 * apothem, y: 4.5 * radius - radiusInner }, // top hex6
 
     { x: 6 * apothem, y: 4 * radius + borderWidth }, // top-left hex6, top-right hex5 TWEENSIE
 
-    { x: 4 * apothem + apothemInner, y: 3 * radius + radiusInner / 2 + borderWidth }, // top hex5, bottom-right hex4 TWEENSIE
+    {
+      x: 4 * apothem + apothemInner,
+      y: 3 * radius + radiusInner / 2 + borderWidth,
+    }, // top hex5, bottom-right hex4 TWEENSIE
 
     { x: 4 * apothem + apothemInner, y: 3 * radius - radiusInner / 2 }, // top-right hex4
 
-    { x: 3 * apothem + apothemInner, y: 1.5 * radius + radiusInner / 2 + borderWidth }, // top hex4, bottom-right hex3 TWEENSIE
+    {
+      x: 3 * apothem + apothemInner,
+      y: 1.5 * radius + radiusInner / 2 + borderWidth,
+    }, // top hex4, bottom-right hex3 TWEENSIE
 
     { x: 3 * apothem + apothemInner, y: 1.5 * radius - radiusInner / 2 }, // top-right hex3
 

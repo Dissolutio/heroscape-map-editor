@@ -57,20 +57,21 @@ import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
 export const SvgHelperHex = () => {
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
-  const { points: innerPoints } = getInnerHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
+  const { points: innerPoints } =
+    getInnerHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
   return null
   return (
     <>
       <polygon
         points={points}
         fill={'transparent'}
-        stroke='red'
+        stroke="red"
         strokeWidth={1}
       />
       <polygon
         points={innerPoints}
         fill={'transparent'}
-        stroke='blue'
+        stroke="blue"
         strokeWidth={1}
       />
     </>
@@ -90,7 +91,7 @@ export const SvgEmptyHex = () => {
       <polygon
         points={outlinePoints}
         fill={borderColor}
-      // opacity={OPACITY_EMPTY}
+        // opacity={OPACITY_EMPTY}
       />
     </>
   )
@@ -426,9 +427,7 @@ export const SvgMultiHex24 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points } = get24HexSvgPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-  )
+  const { points } = get24HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get24HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
@@ -441,12 +440,7 @@ export const SvgMultiHex24 = ({
         fill={fillColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
-      {isSubLevel &&
-        <polygon
-          points={outlinePoints}
-          fill={'white'}
-        />
-      }
+      {isSubLevel && <polygon points={outlinePoints} fill={'white'} />}
       <polygon
         points={outlinePoints}
         fill={borderColor}
@@ -1479,8 +1473,8 @@ const SvgSubLevelWhiteBackerPolygon = ({
     <polygon
       points={points}
       fill={'white'}
-    // stroke={'white'}
-    // strokeWidth={borderWidth ?? SVG_BORDER_WIDTH}
+      // stroke={'white'}
+      // strokeWidth={borderWidth ?? SVG_BORDER_WIDTH}
     />
   )
 }
