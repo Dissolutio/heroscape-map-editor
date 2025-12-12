@@ -814,8 +814,6 @@ export function get3HexOutlineSvgPolygonPoints(
   const apothem = (Math.sqrt(3) * radius) / 2
   const radiusInner = radius - borderWidth
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  // Outer hexagon
-  // Inner hexagon
 
   const corners: Point[] = [
     /* 
@@ -873,140 +871,190 @@ export function get3HexOutlineSvgPolygonPoints(
 }
 export function get3HexStraightSvgPolygonPointsAt00(
   radius: number,
-  borderWidth: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
-  const halfBorder = borderWidth / 2
-  const hexWidth = 2 * apothem
 
   // Outer hexagon
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
   // Inner hexagon
-  const radiusInner = radius - halfBorder
-  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const leftXInner = -apothemInner
-  const topYInner = -radiusInner
-  const bottomYInner = radiusInner
-  const bottomSideYInner = 0.5 * radiusInner
-  const topSideYInner = -0.5 * radiusInner
 
   const corners: Point[] = [
     /* 
     ⬢ ⬢ ⬢
     1 2 3
     */
-    { x: 0, y: topYInner }, // top hex1
-    // { x: rightXInner, y: topSideYInner }, // top-right hex1
+    { x: 0, y: -radius }, // top hex1
 
-    { x: apothem, y: topSideYOuter + halfBorder }, // top-right hex1, top-left hex2 TWEENSIE
+    { x: apothem, y: -0.5 * radius }, // top-right hex1, top-left hex2 TWEENSIE
 
-    // { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
-    { x: hexWidth, y: topYInner }, //  top hex2
-    { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
+    { x: 2 * apothem, y: -radius }, //  top hex2
+    { x: 2 * apothem + apothem, y: -0.5 * radius }, // top-right hex2
 
-    { x: 2 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex3
-    { x: 2 * hexWidth, y: topYInner }, //  top hex3
-    { x: 2 * hexWidth + apothemInner, y: topSideYInner }, // top-right hex3
-    { x: 2 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex3
-    { x: 2 * hexWidth, y: bottomYInner }, // bottom hex3
-    // { x: 2 * hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex3
+    { x: 4 * apothem - apothem, y: -0.5 * radius }, // top-left hex3
+    { x: 4 * apothem, y: -radius }, //  top hex3
+    { x: 5 * apothem, y: -0.5 * radius }, // top-right hex3
+    { x: 5 * apothem, y: 0.5 * radius }, // bottom-right hex3
+    { x: 4 * apothem, y: radius }, // bottom hex3
 
-    { x: 3 * apothem, y: bottomSideYOuter - halfBorder }, // bottom-left hex3, bottom-right hex2 TWEENSIE
+    { x: 3 * apothem, y: 0.5 * radius }, // bottom-left hex3, bottom-right hex2 TWEENSIE
 
-    // { x: hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex2
-    { x: hexWidth, y: bottomYInner }, // bottom hex2
-    // { x: hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex2
+    { x: 2 * apothem, y: radius }, // bottom hex2
 
-    { x: apothem, y: bottomSideYOuter - halfBorder }, // bottom-left hex2, bottom-right hex1 TWEENSIE
+    { x: apothem, y: 0.5 * radius }, // bottom-left hex2, bottom-right hex1 TWEENSIE
 
-    // { x: rightXInner, y: bottomSideYInner }, // bottom-right hex1
-    { x: 0, y: bottomYInner }, // bottom hex1
-    { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
-    { x: leftXInner, y: topSideYInner }, // top-left hex1
+    { x: 0, y: radius }, // bottom hex1
+    { x: -apothem, y: 0.5 * radius }, // bottom-left hex1
+    { x: -apothem, y: -0.5 * radius }, // top-left hex1
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
 export function get5HexStraightSvgPolygonPointsAt00(
   radius: number,
-  borderWidth: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
-  const halfBorder = borderWidth / 2
-  const hexWidth = 2 * apothem
-  const topX = 0
-  // Outer hexagon
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
-  // Inner hexagon
-  const radiusInner = radius - halfBorder
-  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  const leftXInner = -apothemInner
-  const topYInner = -radiusInner
-  const bottomYInner = radiusInner
-  const bottomSideYInner = 0.5 * radiusInner
-  const topSideYInner = -0.5 * radiusInner
 
   const corners: Point[] = [
     /* 
     ⬢ ⬢ ⬢ ⬢ ⬢
     1 2 3 4 5
     */
-    { x: topX, y: topYInner }, // top hex1
-    // { x: rightXInner, y: topSideYInner }, // top-right hex1
+    { x: 0, y: -radius }, // top hex1
 
-    { x: apothem, y: topSideYOuter + halfBorder }, // top-right hex1, top-left hex2 TWEENSIE
+    { x: apothem, y: -0.5 * radius }, // top-right hex1, top-left hex2 TWEENSIE
 
-    // { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
-    { x: hexWidth, y: topYInner }, //  top hex2
-    // { x: hexWidth + apothemInner, y: topSideYInner }, // top-right hex2
+    { x: 2 * apothem, y: -radius }, //  top hex2
 
-    { x: 3 * apothem, y: topSideYOuter + halfBorder }, // top-right hex2, top-left hex3 TWEENSIE
+    { x: 3 * apothem, y: -0.5 * radius }, // top-right hex2, top-left hex3 TWEENSIE
 
-    // { x: 2 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex3
-    { x: 2 * hexWidth, y: topYInner }, //  top hex3
-    // { x: 2 * hexWidth + apothemInner, y: topSideYInner }, // top-right hex3
+    { x: 4 * apothem, y: -radius }, //  top hex3
 
-    { x: 5 * apothem, y: topSideYOuter + halfBorder }, // top-right hex3, top-left hex4 TWEENSIE
+    { x: 5 * apothem, y: -0.5 * radius }, // top-right hex3, top-left hex4 TWEENSIE
 
-    // { x: 3 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex4
-    { x: 3 * hexWidth, y: topYInner }, //  top hex4
-    // { x: 3 * hexWidth + apothemInner, y: topSideYInner }, // top-right hex4
+    { x: 6 * apothem, y: -radius }, //  top hex4
 
-    { x: 7 * apothem, y: topSideYOuter + halfBorder }, // top-right hex4, top-left hex5 TWEENSIE
+    { x: 7 * apothem, y: -0.5 * radius }, // top-right hex4, top-left hex5 TWEENSIE
 
-    // { x: 4 * hexWidth - apothemInner, y: topSideYInner }, // top-left hex5
-    { x: 4 * hexWidth, y: topYInner }, //  top hex5
-    { x: 4 * hexWidth + apothemInner, y: topSideYInner }, // top-right hex5
-    { x: 4 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex5
-    { x: 4 * hexWidth, y: bottomYInner }, // bottom hex5
-    // { x: 4 * hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex5
+    { x: 8 * apothem, y: -radius }, //  top hex5
+    { x: 9 * apothem, y: -0.5 * radius }, // top-right hex5
+    { x: 9 * apothem, y: 0.5 * radius }, // bottom-right hex5
+    { x: 8 * apothem, y: radius }, // bottom hex5
 
-    { x: 7 * apothem, y: bottomSideYOuter - halfBorder }, // bottom-left hex5, bottom-right hex4 TWEENSIE
+    { x: 7 * apothem, y: 0.5 * radius }, // bottom-left hex5, bottom-right hex4 TWEENSIE
 
-    // { x: 3 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex4
-    { x: 3 * hexWidth, y: bottomYInner }, // bottom hex4
-    // { x: 3 * hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex4
+    { x: 6 * apothem, y: radius }, // bottom hex4
 
-    { x: 5 * apothem, y: bottomSideYOuter - halfBorder }, // bottom-left hex4, bottom-right hex3 TWEENSIE
+    { x: 5 * apothem, y: 0.5 * radius }, // bottom-left hex4, bottom-right hex3 TWEENSIE
 
-    // { x: 2 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex3
-    { x: 2 * hexWidth, y: bottomYInner }, // bottom hex3
-    // { x: 2 * hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex3
+    { x: 4 * apothem, y: radius }, // bottom hex3
 
-    { x: 3 * apothem, y: bottomSideYOuter - halfBorder }, // bottom-left hex3, bottom-right hex2 TWEENSIE
+    { x: 3 * apothem, y: 0.5 * radius }, // bottom-left hex3, bottom-right hex2 TWEENSIE
 
-    // { x: hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex2
-    { x: hexWidth, y: bottomYInner }, // bottom hex2
-    // { x: hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex2
+    { x: 2 * apothem, y: radius }, // bottom hex2
 
-    { x: apothem, y: bottomSideYOuter - halfBorder }, // bottom-left hex2, bottom-right hex1 TWEENSIE
+    { x: apothem, y: 0.5 * radius }, // bottom-left hex2, bottom-right hex1 TWEENSIE
 
-    // { x: rightXInner, y: bottomSideYInner }, // bottom-right hex1
-    { x: topX, y: bottomYInner }, // bottom hex1
-    { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
-    { x: leftXInner, y: topSideYInner }, // top-left hex1
+    { x: 0, y: radius }, // bottom hex1
+    { x: -apothem, y: 0.5 * radius }, // bottom-left hex1
+    { x: -apothem, y: -0.5 * radius }, // top-left hex1
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
+export function get5HexOutlineSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const radiusInner = radius - borderWidth
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+
+  const corners: Point[] = [
+    /* 
+    ⬢ ⬢ ⬢ ⬢ ⬢
+    1 2 3 4 5
+    */
+    // OUTER
+    { x: 0, y: -radius }, // top hex1
+
+    { x: apothem, y: -0.5 * radius }, // top-right hex1, top-left hex2 TWEENSIE
+
+    { x: 2 * apothem, y: -radius }, //  top hex2
+
+    { x: 3 * apothem, y: -0.5 * radius }, // top-right hex2, top-left hex3 TWEENSIE
+
+    { x: 4 * apothem, y: -radius }, //  top hex3
+
+    { x: 5 * apothem, y: -0.5 * radius }, // top-right hex3, top-left hex4 TWEENSIE
+
+    { x: 6 * apothem, y: -radius }, //  top hex4
+
+    { x: 7 * apothem, y: -0.5 * radius }, // top-right hex4, top-left hex5 TWEENSIE
+
+    { x: 8 * apothem, y: -radius }, //  top hex5
+    { x: 9 * apothem, y: -0.5 * radius }, // top-right hex5
+    { x: 9 * apothem, y: 0.5 * radius }, // bottom-right hex5
+    { x: 8 * apothem, y: radius }, // bottom hex5
+
+    { x: 7 * apothem, y: 0.5 * radius }, // bottom-left hex5, bottom-right hex4 TWEENSIE
+
+    { x: 6 * apothem, y: radius }, // bottom hex4
+
+    { x: 5 * apothem, y: 0.5 * radius }, // bottom-left hex4, bottom-right hex3 TWEENSIE
+
+    { x: 4 * apothem, y: radius }, // bottom hex3
+
+    { x: 3 * apothem, y: 0.5 * radius }, // bottom-left hex3, bottom-right hex2 TWEENSIE
+
+    { x: 2 * apothem, y: radius }, // bottom hex2
+
+    { x: apothem, y: 0.5 * radius }, // bottom-left hex2, bottom-right hex1 TWEENSIE
+
+    { x: 0, y: radius }, // bottom hex1
+    { x: -apothem, y: 0.5 * radius }, // bottom-left hex1
+    { x: -apothem, y: -0.5 * radius }, // top-left hex1
+    // MID
+    { x: 0, y: -radius }, // top hex1
+    { x: 0, y: -radius + borderWidth }, // top hex1
+    // INNER
+    { x: -apothemInner, y: -0.5 * radiusInner }, // top-left hex1
+    { x: -apothemInner, y: 0.5 * radiusInner }, // bottom-left hex1
+    { x: 0, y: radiusInner }, // bottom hex1
+
+    { x: apothem, y: 0.5 * radius - borderWidth }, // bottom-left hex2, bottom-right hex1 TWEENSIE
+
+    { x: 2 * apothem, y: radiusInner }, // bottom hex2
+
+    { x: 3 * apothem, y: 0.5 * radius - borderWidth }, // bottom-left hex3, bottom-right hex2 TWEENSIE
+
+    { x: 4 * apothem, y: radiusInner }, // bottom hex3
+
+    { x: 5 * apothem, y: 0.5 * radius - borderWidth }, // bottom-left hex4, bottom-right hex3 TWEENSIE
+
+    { x: 6 * apothem, y: radiusInner }, // bottom hex4
+
+    { x: 7 * apothem, y: 0.5 * radius - borderWidth }, // bottom-left hex5, bottom-right hex4 TWEENSIE
+
+    { x: 8 * apothem, y: radiusInner }, // bottom hex5
+    { x: 8 * apothem + apothemInner, y: 0.5 * radiusInner }, // bottom-right hex5
+    { x: 8 * apothem + apothemInner, y: -0.5 * radiusInner }, // top-right hex5
+    { x: 8 * apothem, y: -radiusInner }, //  top hex5
+
+    { x: 7 * apothem, y: -0.5 * radius + borderWidth }, // top-right hex4, top-left hex5 TWEENSIE
+
+    { x: 6 * apothem, y: -radiusInner }, //  top hex4
+
+    { x: 5 * apothem, y: -0.5 * radius + borderWidth }, // top-right hex3, top-left hex4 TWEENSIE
+
+    { x: 4 * apothem, y: -radiusInner }, //  top hex3
+
+    { x: 3 * apothem, y: -0.5 * radius + borderWidth }, // top-right hex2, top-left hex3 TWEENSIE
+
+    { x: 2 * apothem, y: -radiusInner }, //  top hex2
+
+    { x: apothem, y: -0.5 * radius + borderWidth }, // top-right hex1, top-left hex2 TWEENSIE
+
+    // END
+    { x: 0, y: -radius + borderWidth }, // top hex1
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }

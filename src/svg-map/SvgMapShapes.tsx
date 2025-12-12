@@ -9,6 +9,7 @@ import {
   get3HexStraightSvgPolygonPointsAt00,
   get3HexSvgPolygonPointsAt00,
   get4HexSvgPolygonPointsAt00,
+  get5HexOutlineSvgPolygonPoints,
   get5HexStraightSvgPolygonPointsAt00,
   get6HexSvgPolygonPointsAt00,
   get7HexOutlineSvgPolygonPoints,
@@ -59,7 +60,6 @@ export const SvgHelperHex = () => {
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: innerPoints } =
     getInnerHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
-  return null
   return (
     <>
       <polygon
@@ -91,7 +91,7 @@ export const SvgEmptyHex = () => {
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        // opacity={OPACITY_EMPTY}
+      // opacity={OPACITY_EMPTY}
       />
     </>
   )
@@ -212,10 +212,9 @@ export const SvgCastleArchStraight3 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get3HexStraightSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
   )
   return (
     <>
@@ -223,8 +222,6 @@ export const SvgCastleArchStraight3 = ({
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -267,6 +264,9 @@ export const SvgMultiHex5 = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get5HexStraightSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
+  )
+  const { points: outlinePoints } = get5HexOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
@@ -275,8 +275,11 @@ export const SvgMultiHex5 = ({
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <polygon
+        points={outlinePoints}
+        fill={borderColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -1473,8 +1476,8 @@ const SvgSubLevelWhiteBackerPolygon = ({
     <polygon
       points={points}
       fill={'white'}
-      // stroke={'white'}
-      // strokeWidth={borderWidth ?? SVG_BORDER_WIDTH}
+    // stroke={'white'}
+    // strokeWidth={borderWidth ?? SVG_BORDER_WIDTH}
     />
   )
 }
