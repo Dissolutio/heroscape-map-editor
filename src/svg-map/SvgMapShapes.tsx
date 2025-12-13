@@ -8,9 +8,11 @@ import {
   get3HexOutlineSvgPolygonPoints,
   get3HexStraightSvgPolygonPointsAt00,
   get3HexSvgPolygonPointsAt00,
+  get4HexOutlineSvgPolygonPoints,
   get4HexSvgPolygonPointsAt00,
   get5HexOutlineSvgPolygonPoints,
   get5HexStraightSvgPolygonPointsAt00,
+  get6HexOutlineSvgPolygonPoints,
   get6HexSvgPolygonPointsAt00,
   get7HexOutlineSvgPolygonPoints,
   get7HexSvgPolygonPointsAt00,
@@ -238,6 +240,9 @@ export const SvgMultiHex4 = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get4HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
+  )
+  const { points: outlinePoints } = get4HexOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
@@ -246,8 +251,11 @@ export const SvgMultiHex4 = ({
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <polygon
+        points={outlinePoints}
+        fill={borderColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -296,7 +304,10 @@ export const SvgMultiHex6 = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get6HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+  )
+  const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH
   )
   return (
     <>
@@ -304,8 +315,11 @@ export const SvgMultiHex6 = ({
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <polygon
+        points={outlinePoints}
+        fill={borderColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -546,7 +560,10 @@ export const SvgHive6 = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get6HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+  )
+  const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH
   )
   return (
     <>
@@ -554,8 +571,11 @@ export const SvgHive6 = ({
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <polygon
+        points={outlinePoints}
+        fill={borderColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       {/* Inner blob made in Inkscape, so not dynamic yet */}
@@ -564,7 +584,7 @@ export const SvgHive6 = ({
           d={svgHiveBlobD}
           fill={'white'}
           stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 1.2}
+          strokeWidth={SVG_BORDER_WIDTH / 2.4}
           transform={`translate(${-2 * SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS})`}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
@@ -573,7 +593,7 @@ export const SvgHive6 = ({
         d={svgHiveBlobD}
         fill={fillColor}
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 1.2}
+        strokeWidth={SVG_BORDER_WIDTH / 2.4}
         transform={`translate(${-2 * SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS})`}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
@@ -582,7 +602,7 @@ export const SvgHive6 = ({
         <ellipse
           fill={'transparent'}
           stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 2}
+          strokeWidth={SVG_BORDER_WIDTH / 4}
           opacity={1}
           cx="9.4113"
           cy="82.45652"
@@ -593,7 +613,7 @@ export const SvgHive6 = ({
       <ellipse
         fill={fillColor}
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 2}
+        strokeWidth={SVG_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         cx="9.4113"
         cy="82.45652"
@@ -604,7 +624,7 @@ export const SvgHive6 = ({
         <ellipse
           fill={'transparent'}
           stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 2}
+          strokeWidth={SVG_BORDER_WIDTH / 4}
           opacity={1}
           cx="12.63397"
           cy="101.25543"
@@ -615,7 +635,7 @@ export const SvgHive6 = ({
       <ellipse
         fill={fillColor}
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 2}
+        strokeWidth={SVG_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         cx="12.63397"
         cy="101.25543"
@@ -626,7 +646,7 @@ export const SvgHive6 = ({
         <ellipse
           fill={'transparent'}
           stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 1.4}
+          strokeWidth={SVG_BORDER_WIDTH / 2.8}
           opacity={1}
           cx="49.15758"
           cy="77.35397"
@@ -637,7 +657,7 @@ export const SvgHive6 = ({
       <ellipse
         fill={fillColor}
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 1.4}
+        strokeWidth={SVG_BORDER_WIDTH / 2.8}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         cx="49.15758"
         cy="77.35397"
@@ -648,7 +668,7 @@ export const SvgHive6 = ({
         <ellipse
           fill={'transparent'}
           stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 1.8}
+          strokeWidth={SVG_BORDER_WIDTH / 3.6}
           opacity={1}
           cx="49.96326"
           cy="98.30132"
@@ -659,7 +679,7 @@ export const SvgHive6 = ({
       <ellipse
         fill={fillColor}
         stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 1.8}
+        strokeWidth={SVG_BORDER_WIDTH / 3.6}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         cx="49.96326"
         cy="98.30132"
@@ -1119,6 +1139,9 @@ export const SvgTree415 = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get4HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
+  )
+  const { points: outlinePoints } = get4HexOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
@@ -1129,8 +1152,11 @@ export const SvgTree415 = ({
         <polygon
           points={points}
           fill={fillColor}
-          stroke={borderColor}
-          strokeWidth={SVG_BORDER_WIDTH}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        />
+        <polygon
+          points={outlinePoints}
+          fill={borderColor}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
@@ -1209,7 +1235,10 @@ export const SvgOutcrop6 = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get6HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+  )
+  const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
@@ -1219,8 +1248,11 @@ export const SvgOutcrop6 = ({
         <polygon
           points={points}
           fill={fillColor}
-          stroke={borderColor}
-          strokeWidth={SVG_BORDER_WIDTH}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        />
+        <polygon
+          points={outlinePoints}
+          fill={borderColor}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
@@ -1381,6 +1413,9 @@ export const SvgOutcrop4 = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get4HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
+  )
+  const { points: outlinePoints } = get4HexOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
@@ -1391,8 +1426,11 @@ export const SvgOutcrop4 = ({
         <polygon
           points={points}
           fill={fillColor}
-          stroke={borderColor}
-          strokeWidth={SVG_BORDER_WIDTH}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        />
+        <polygon
+          points={outlinePoints}
+          fill={borderColor}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
