@@ -31,6 +31,7 @@ import {
   getLaurPillarShape,
   getLaurShortWallSvgPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
+  getMarvel6HexOutlineSvgPolygonPoints,
   getMarvel6HexSvgPolygonPointsAt00,
   getMarvelRuinsShapeSvgPath,
   getRoadWallSvgPolygonPoints,
@@ -79,9 +80,13 @@ export const SvgHelperHex = () => {
     </>
   )
 }
-export const SvgEmptyHex = () => {
+export const SvgEmptyHex = ({
+  hex,
+}: {
+  hex: BoardHex
+}) => {
   const fillColor = 'white'
-  const borderColor = '#CECECE'
+  const borderColor = getSvgHexBorderColor(hex)
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -93,7 +98,6 @@ export const SvgEmptyHex = () => {
       <polygon
         points={outlinePoints}
         fill={borderColor}
-      // opacity={OPACITY_EMPTY}
       />
     </>
   )
@@ -326,28 +330,32 @@ export const SvgMultiHex6 = ({
   )
 }
 export const SvgMultiHexMarvel6 = ({
-  // hex,
+  hex,
   isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  // const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = getSvgHexFillColor(hex)
+  const borderColor = getSvgHexBorderColor(hex)
   const { points } = getMarvel6HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+  )
+  const { points: outlinePoints } = getMarvel6HexOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH
   )
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon
         points={points}
-        // fill={fillColor}
-        fill={'rgb(220, 220, 220)'}
-        // stroke={borderColor}
-        stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH}
+        fill={fillColor}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <polygon
+        points={outlinePoints}
+        fill={borderColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>

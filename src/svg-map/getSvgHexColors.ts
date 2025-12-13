@@ -28,7 +28,7 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   // TODO: color: refactor this to be more direct
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
   if (hex.terrain === 'empty') {
-    return 'black'
+    return '#CECECE'
   }
   let inventoryPiece: Piece
   if (isBoardHex(hex)) {

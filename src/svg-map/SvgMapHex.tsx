@@ -90,7 +90,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   if (hex.terrain === HexTerrain.empty) {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgEmptyHex />
+        <SvgEmptyHex hex={hex} />
       </g>
     )
   }
@@ -403,11 +403,13 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       piecesSoFar?.[inventoryID]?.template === '5' ||
       piecesSoFar?.[inventoryID]?.template === '6' ||
       piecesSoFar?.[inventoryID]?.template === '7' ||
+      piecesSoFar?.[inventoryID]?.template === Pieces.marvel ||
       piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 ||
       piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk9 ||
       piecesSoFar?.[inventoryID]?.template === '24') &&
     hex.isObstacleAuxiliary
   ) {
+    // return null
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgHelperHex />
@@ -530,6 +532,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHelperHex />
       </g>
     )
   }
