@@ -9,3 +9,20 @@ REMAINING TASKS (estimated at 1 hour each):
 8. Scale short walls (road walls), remove jungle orientation marker (unless we decide we want to keep)
 9. Restyle glyphs to renegade styles, colors, letters
 10. Put start zones, laur walls, glyphs on a separate level
+
+Stroke-width:
+Ruins 2
+Ruins 3
+Ruins Marvel
+
+Battlement
+Ladder
+Castle Corner / End / Straight / Arch
+StartZone
+
+Laur Pillar
+LaurWall Short
+LaurWall Arch
+LaurWall Ruin
+
+RoadWall

@@ -1357,6 +1357,7 @@ export const SvgOutcrop3 = ({
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const { points: outlinePoints } = get3HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
@@ -1365,8 +1366,11 @@ export const SvgOutcrop3 = ({
         <polygon
           points={points}
           fill={fillColor}
-          stroke={borderColor}
-          strokeWidth={SVG_BORDER_WIDTH}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        />
+        <polygon
+          points={outlinePoints}
+          fill={borderColor}
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
@@ -1536,8 +1540,6 @@ const SvgSubLevelWhiteBackerPolygon = ({
     <polygon
       points={points}
       fill={'white'}
-    // stroke={'white'}
-    // strokeWidth={borderWidth ?? SVG_BORDER_WIDTH}
     />
   )
 }
