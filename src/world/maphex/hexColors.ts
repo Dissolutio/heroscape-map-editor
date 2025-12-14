@@ -171,6 +171,7 @@ export const svgColors = {
   outline3: '#020202', // renegade-hexoscape
   outline7: '#B02E94', // renegade-hexoscape
   outline24: '#BDBDBD', // renegade-hexoscape
+  outlineMarvel: '#000000', // renegade-hexoscape
   outlineWater: '#132E8E', // ice, swampwater, wellspring-water too
   outlineWaterSubLevel: '#BBC3E1', // ice, swampwater too
   outlineLava: hexTerrainColor[HexTerrain.lava],
