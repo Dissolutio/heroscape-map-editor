@@ -16,7 +16,9 @@ import {
   get6HexSvgPolygonPointsAt00,
   get7HexOutlineSvgPolygonPoints,
   get7HexSvgPolygonPointsAt00,
+  get7HexWallWalkOutlineSvgPolygonPoints,
   get7HexWallWalkSvgPolygonPointsAt00,
+  get9HexWallWalkOutlineSvgPolygonPoints,
   get9HexWallWalkSvgPolygonPointsAt00,
   getBattlementSvgPolygonPoints,
   getCastleArchShapeSvgPolygonPoints,
@@ -59,27 +61,27 @@ import { svgColors } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from './svg-hive'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
-export const SvgHelperHex = () => {
-  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
-  const { points: innerPoints } =
-    getInnerHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
-  return (
-    <>
-      <polygon
-        points={points}
-        fill={'transparent'}
-        stroke="red"
-        strokeWidth={1}
-      />
-      <polygon
-        points={innerPoints}
-        fill={'transparent'}
-        stroke="blue"
-        strokeWidth={1}
-      />
-    </>
-  )
-}
+// export const SvgHelperHex = () => {
+//   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+//   const { points: innerPoints } =
+//     getInnerHexagonSvgPolygonPoints(SVG_HEX_RADIUS)
+//   return (
+//     <>
+//       <polygon
+//         points={points}
+//         fill={'transparent'}
+//         stroke="red"
+//         strokeWidth={1}
+//       />
+//       <polygon
+//         points={innerPoints}
+//         fill={'transparent'}
+//         stroke="blue"
+//         strokeWidth={1}
+//       />
+//     </>
+//   )
+// }
 export const SvgEmptyHex = ({
   hex,
 }: {
@@ -402,7 +404,10 @@ export const SvgMultiHexWallWalk7 = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get7HexWallWalkSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+  )
+  const { points: outlinePoints } = get7HexWallWalkOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH
   )
   return (
     <>
@@ -410,8 +415,11 @@ export const SvgMultiHexWallWalk7 = ({
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <polygon
+        points={outlinePoints}
+        fill={borderColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
@@ -428,6 +436,9 @@ export const SvgMultiHexWallWalk9 = ({
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { points } = get9HexWallWalkSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
+  )
+  const { points: outlinePoints } = get9HexWallWalkOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
@@ -436,8 +447,11 @@ export const SvgMultiHexWallWalk9 = ({
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      <polygon
+        points={outlinePoints}
+        fill={borderColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>

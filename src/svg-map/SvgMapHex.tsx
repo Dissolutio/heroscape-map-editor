@@ -40,7 +40,6 @@ import {
   SvgTree415,
   SvgLaurPillar,
   SvgJungle,
-  SvgHelperHex,
 } from './SvgMapShapes'
 
 const OPACITY_SUBLEVEL = 0.3
@@ -390,7 +389,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        <SvgHelperHex />
       </g>
     )
   }
@@ -412,7 +410,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     // return null
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgHelperHex />
       </g>
     )
   }
@@ -465,7 +462,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex5 hex={hex} isSubLevel={isSubLevel} />
-        <SvgHelperHex />
       </g>
     )
   }
@@ -479,7 +475,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex7 hex={hex} isSubLevel={isSubLevel} />
-        <SvgHelperHex />
       </g>
     )
   }
@@ -532,7 +527,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
-        <SvgHelperHex />
       </g>
     )
   }
@@ -546,7 +540,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex24 hex={hex} isSubLevel={isSubLevel} />
-        <SvgHelperHex />
       </g>
     )
   }
