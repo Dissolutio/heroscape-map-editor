@@ -26,7 +26,6 @@ import {
   getCastleEndShapeSvgPolygonPoints,
   getCastleStraightShapeSvgPolygonPoints,
   getHexagonSvgPolygonPointsAt00,
-  getInnerHexagonSvgPolygonPoints,
   getJungleTriangleShape,
   getLadderSvgPolygonPoints,
   getLaurLongWallSvgPolygonPoints,

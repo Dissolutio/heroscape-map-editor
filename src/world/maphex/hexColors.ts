@@ -235,10 +235,10 @@ export const svgSubLevelColors = {
   // OUTLINES
   outline1: '#F4C5C5',
   outline2: '#F3DCCB',
+  outline3: '#DAD0D0',
+  outline7: '#F0C7E7',
+  outline24: '#DEDEDE',
 
-  outline3: '#020202',
-  outline7: '#B02E94',
-  outline24: '#BDBDBD',
   outlineWater: '#132E8E', // ice, swampwater, wellspring-water too
   outlineWaterSubLevel: '#BBC3E1', // ice, swampwater too
   outlineLava: hexTerrainColor[HexTerrain.lava],

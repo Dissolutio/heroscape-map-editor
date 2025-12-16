@@ -648,21 +648,6 @@ export function getHexagonSvgPolygonPointsAt00(radius: number) {
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function getInnerHexagonSvgPolygonPoints(radius: number) {
-  const radiusInner = radius - SVG_BORDER_WIDTH
-  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-
-  const corners: Point[] = [
-    { x: 0, y: -radiusInner }, // top hex1
-    { x: apothemInner, y: -0.5 * radiusInner }, // top-right
-    { x: apothemInner, y: 0.5 * radiusInner }, //  bottom-right
-    { x: 0, y: radiusInner }, // bottom
-    { x: -apothemInner, y: 0.5 * radiusInner }, // bottom-left
-    { x: -apothemInner, y: -0.5 * radiusInner }, // top-left
-  ]
-  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
-  return { points, corners }
-}
 export function get1HexOutlineSvgPolygonPoints(
   radius: number,
   borderWidth: number,
@@ -868,6 +853,7 @@ export function get3HexOutlineSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
+// 3 hex straight is only castle arch for now (no outline needed)
 export function get3HexStraightSvgPolygonPointsAt00(
   radius: number,
 ) {
