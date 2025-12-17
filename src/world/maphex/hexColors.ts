@@ -197,10 +197,6 @@ export const svgColors = {
   [HexTerrain.outcrop]: '#3E3C3E',
 
   // TERRAIN
-  grassSubLevel: '#C3E9CD',
-  rockSubLevel: '#CDCDCD',
-  sandSubLevel: '#F4F7D0',
-  waterSubLevel: '#A6D5D8',
   [HexTerrain.grass]: '#269C48',
   [HexTerrain.rock]: '#696767',
   [HexTerrain.sand]: '#D9E176',
