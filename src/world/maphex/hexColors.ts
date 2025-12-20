@@ -185,7 +185,7 @@ export const svgColors = {
   outlineSwampUnderbrush: 'rgb(99, 50, 21)', // renegade-hexoscape
   outlineLaurWall: '#FF06C8',
   outlineCastleWall: 'rgb(80, 79, 84)',
-  outlineLavaOutcrop: 'rgb(121, 61, 26)', // renegade-hexoscape
+  outlineLavaOutcrop: '#7E461E', // renegade-hexoscape
 
   // OBSTACLES
   [HexTerrain.ladder]: 'rgb(173, 75, 35)',
@@ -249,7 +249,7 @@ export const svgSubLevelColors = {
   // outlineSwampUnderbrush: 'rgb(99, 50, 21)',
   outlineLaurWall: '#FFC8E9',
   // outlineCastleWall: 'rgb(80, 79, 84)',
-  // outlineLavaOutcrop: 'rgb(121, 61, 26)',
+  outlineLavaOutcrop: '#E8B590',
 
   // OBSTACLES
   // [HexTerrain.ladder]: 'rgb(173, 75, 35)',
@@ -262,7 +262,7 @@ export const svgSubLevelColors = {
   // [HexTerrain.castle]: 'rgb(80, 79, 84)',
   // castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
   // [HexTerrain.lavaRockOutcrop]: '#FF0000',
-  // lavaRockOutcropText: '#DAD0D0',
+  lavaRockOutcropText: '#DAD0D0',
   // [HexTerrain.outcrop]: '#3E3C3E',
 
   // TERRAIN
@@ -270,22 +270,22 @@ export const svgSubLevelColors = {
   [HexTerrain.rock]: '#CDCDCD',
   [HexTerrain.sand]: '#F4F7D0',
   [HexTerrain.water]: '#A6D5D8',
-
+  // #CDCDCD
   // [HexTerrain.road]: '#787D79',
   // roadDecor: '#696767',
   // outlineRoad5: '#696767',
   [HexTerrain.swamp]: '#9DAF96',
   // [HexTerrain.dungeon]: '#73988D',
-  // [HexTerrain.lavaField]: '#84090F',
+  [HexTerrain.lavaField]: '#A47F81',
   // [HexTerrain.asphalt]: '#121212',
-  // [HexTerrain.concrete]: '#DEDEDE',
+  [HexTerrain.concrete]: '#EEEEEE',
   [HexTerrain.snow]: '#FFFFFF',
   snowFlake: '#B0BEEC',
 
   [HexTerrain.wellspringWater]: '#FFFFFF', // used this in virtualscape to differentiate from snow
   [HexTerrain.swampWater]: '#D3D2B2',
-  // [HexTerrain.lava]: '#FF0000',
-  // [HexTerrain.shadow]: '#000000',
+  [HexTerrain.lava]: '#FFA7A7',
+  [HexTerrain.shadow]: '#2E2D2D',
   [HexTerrain.ice]: '#B4C2EF',
   iceFlake: '#FFFFFF',
 
