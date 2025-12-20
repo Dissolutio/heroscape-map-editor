@@ -10,6 +10,7 @@ import {
 } from '../utils/board-utils'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
+import { svgColors } from '../world/maphex/hexColors'
 import {
   SvgCastleArch,
   SvgCastleArchStraight3,
@@ -230,7 +231,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <text
-          fill="white"
+          fill={svgColors.evergreenText}
           // white text needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}

@@ -554,6 +554,7 @@ export const SvgJungle = ({
     <>
       <g transform={`rotate(${pieceRotation})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        {/* JUNGLE ORIENTATION MARKER */}
         <polygon
           points={points}
           fill={svgColors.outlineJungle}
@@ -561,7 +562,8 @@ export const SvgJungle = ({
         />
       </g>
       <text
-        fill="rgb(35, 31, 32)"
+        // fill="rgb(35, 31, 32)"
+        fill={svgColors.jungleText}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
       >
@@ -1182,7 +1184,7 @@ export const SvgTree415 = ({
         />
       </g>
       <text
-        fill="white"
+        fill={svgColors.evergreenText}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={{
