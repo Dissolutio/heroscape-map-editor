@@ -61,6 +61,7 @@ export enum HexTerrain {
   asphalt = 'asphalt',
   concrete = 'concrete',
   dungeon = 'dungeon',
+  ancientTerrain = 'ancientTerrain',
   // fluid land
   wellspringWater = 'wellspringWater',
   water = 'water',

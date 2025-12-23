@@ -205,7 +205,7 @@ export const svgColors = {
   [HexTerrain.grass]: '#269C48',
   [HexTerrain.rock]: '#696767',
   [HexTerrain.sand]: '#D9E176',
-  [HexTerrain.road]: '#787D79',
+  [HexTerrain.road]: '#DEDEDE',
   roadDecor: '#696767',
   outlineRoad5: '#696767',
   [HexTerrain.swamp]: '#0E3D00',
@@ -214,6 +214,7 @@ export const svgColors = {
   [HexTerrain.asphalt]: '#121212',
   [HexTerrain.concrete]: '#DEDEDE',
   [HexTerrain.snow]: '#FFFFFF',
+  [HexTerrain.ancientTerrain]: '#B55908',
   snowFlake: '#546CB3', // renegade-hexoscape
 
   [HexTerrain.water]: '#25A8B0',
@@ -271,13 +272,13 @@ export const svgSubLevelColors = {
   [HexTerrain.sand]: '#F4F7D0',
   [HexTerrain.water]: '#A6D5D8',
   // #CDCDCD
-  // [HexTerrain.road]: '#787D79',
-  // roadDecor: '#696767',
+  [HexTerrain.road]: '#EEEEEE',
+  // roadDecor: '#CDCDCD',
   // outlineRoad5: '#696767',
   [HexTerrain.swamp]: '#9DAF96',
-  // [HexTerrain.dungeon]: '#73988D',
+  [HexTerrain.dungeon]: '#C9D9D4',
   [HexTerrain.lavaField]: '#A47F81',
-  // [HexTerrain.asphalt]: '#121212',
+  [HexTerrain.asphalt]: '#7A7A7A',
   [HexTerrain.concrete]: '#EEEEEE',
   [HexTerrain.snow]: '#FFFFFF',
   snowFlake: '#B0BEEC',
@@ -287,6 +288,7 @@ export const svgSubLevelColors = {
   [HexTerrain.lava]: '#FFA7A7',
   [HexTerrain.shadow]: '#2E2D2D',
   [HexTerrain.ice]: '#B4C2EF',
+  [HexTerrain.ancientTerrain]: '#E4D0BE',
   iceFlake: '#FFFFFF',
 
   // GYLPHS

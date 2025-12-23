@@ -42,21 +42,10 @@ import {
   SvgLaurPillar,
   SvgJungle,
 } from './SvgMapShapes'
+import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
 const OPACITY_SUBLEVEL = 0.3
 
-const hexTextStyle = {
-  fontSize: 0.8 * SVG_HEX_RADIUS,
-  fontWeight: 'bold',
-}
-const singleHexObstacleHeightTextProps = (heightText: string) => ({
-  style: hexTextStyle,
-  y: 0.3 * SVG_HEX_RADIUS,
-  x:
-    heightText.toString().length === 2
-      ? -0.5 * SVG_HEX_APOTHEM
-      : -0.3 * SVG_HEX_APOTHEM,
-})
 const glyphTextProps = (glyphText: string) => ({
   style: {
     fontSize: 0.5 * SVG_HEX_RADIUS,
