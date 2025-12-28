@@ -220,11 +220,15 @@ export const Pieces = {
   lavaField24: `${PiecePrefixes.lavaField}24`,
   asphalt1: `${PiecePrefixes.asphalt}1`,
   asphalt2: `${PiecePrefixes.asphalt}2`,
+  asphalt3: `${PiecePrefixes.asphalt}3`,
   asphalt7: `${PiecePrefixes.asphalt}7`,
+  asphalt24: `${PiecePrefixes.asphalt}24`,
   concrete1: `${PiecePrefixes.concrete}1`,
   concrete2: `${PiecePrefixes.concrete}2`,
+  concrete3: `${PiecePrefixes.concrete}3`,
   concrete6: `${PiecePrefixes.concrete}6`, // base of marvel ruin
   concrete7: `${PiecePrefixes.concrete}7`,
+  concrete24: `${PiecePrefixes.concrete}24`,
   road1: `${PiecePrefixes.road}1`,
   road2: `${PiecePrefixes.road}2`,
   road5: `${PiecePrefixes.road}5`, // only land piece to have the straight-5 template, it's a bridge
