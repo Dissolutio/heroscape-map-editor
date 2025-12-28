@@ -363,7 +363,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       </g>
     )
   }
-  // LAUR PILLARS and SINGLE LAND
+  // LAUR PILLARS
   if (
     inventoryID === Pieces.laurWallSquarePillar ||
     inventoryID === Pieces.laurWallTrianglePillar

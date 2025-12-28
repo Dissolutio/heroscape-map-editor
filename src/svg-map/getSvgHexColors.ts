@@ -109,7 +109,7 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
 export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   // TODO: color: refactor this to be more direct
   if (hex.inventoryID === Pieces.laurWallShort) {
-    return svgColors[HexTerrain.laurWall]
+    return svgSubLevelColors[HexTerrain.laurWall]
   }
   if (
     isSolidTerrainHex(hex.terrain) ||
@@ -136,12 +136,11 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     return svgColors.fillJungle
   }
   if (hex.terrain === HexTerrain.marvelRuin) {
-    return svgColors.outlineCastleWall
+    return svgColors.castle
   }
   if (hex.terrain === HexTerrain.palm) {
     // Renegade shows brush and palm as same color
     return svgColors.fillJungle // renegade-hexoscape
-    // return svgColors.palm
   }
   if (hex.terrain === HexTerrain.ruin) {
     return svgColors.ruin

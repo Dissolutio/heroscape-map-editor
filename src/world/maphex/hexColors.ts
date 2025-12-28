@@ -184,7 +184,6 @@ export const svgColors = {
   outlineJungle: '#7E461E', // renegade-hexoscape
   outlineSwampUnderbrush: 'rgb(99, 50, 21)', // renegade-hexoscape
   outlineLaurWall: '#FF06C8',
-  outlineCastleWall: 'rgb(80, 79, 84)',
   outlineLavaOutcrop: '#7E461E', // renegade-hexoscape
 
   // OBSTACLES
@@ -192,7 +191,7 @@ export const svgColors = {
   [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
   fillJungle: '#FFE606',
   fillSwampUnderbrush: 'rgb(33, 56, 27)',
-  [HexTerrain.palm]: 'rgb(67, 249, 57)',
+  // [HexTerrain.palm]: 'rgb(67, 249, 57)', // virtualscape
   [HexTerrain.tree]: '#269C48',
   [HexTerrain.laurWall]: '#6B1463',
   [HexTerrain.castle]: 'rgb(80, 79, 84)',
@@ -249,7 +248,6 @@ export const svgSubLevelColors = {
   outlineJungle: '#E8B590',
   // outlineSwampUnderbrush: 'rgb(99, 50, 21)',
   outlineLaurWall: '#FFC8E9',
-  // outlineCastleWall: 'rgb(80, 79, 84)',
   outlineLavaOutcrop: '#E8B590',
 
   // OBSTACLES
