@@ -61,7 +61,7 @@ export const SvgMapDisplay = () => {
     >
       <title>2D Map Display</title>
 
-      <AxesHelper width={viewBox.width} length={viewBox.height} />
+      {/* <AxesHelper width={viewBox.width} length={viewBox.height} /> */}
       <g>
         {boardHexesArr.map((hex) => (
           <SvgMapHex key={hex.id} hex={hex} />
@@ -81,25 +81,25 @@ export const SvgMapDisplay = () => {
   )
 }
 
-const AxesHelper = ({ width, length }: { width: number; length: number }) => {
-  return (
-    <>
-      <line
-        x1={adjustXForNew00Centers}
-        y1={adjustYForNew00Centers}
-        x2={adjustXForNew00Centers}
-        y2={length}
-        stroke="red"
-        strokeWidth={0.5}
-      />
-      <line
-        x1={adjustXForNew00Centers}
-        y1={adjustYForNew00Centers}
-        x2={width}
-        y2={adjustYForNew00Centers}
-        stroke="blue"
-        strokeWidth={0.5}
-      />
-    </>
-  )
-}
+// const AxesHelper = ({ width, length }: { width: number; length: number }) => {
+//   return (
+//     <>
+//       <line
+//         x1={adjustXForNew00Centers}
+//         y1={adjustYForNew00Centers}
+//         x2={adjustXForNew00Centers}
+//         y2={length}
+//         stroke="red"
+//         strokeWidth={0.5}
+//       />
+//       <line
+//         x1={adjustXForNew00Centers}
+//         y1={adjustYForNew00Centers}
+//         x2={width}
+//         y2={adjustYForNew00Centers}
+//         stroke="blue"
+//         strokeWidth={0.5}
+//       />
+//     </>
+//   )
+// }
