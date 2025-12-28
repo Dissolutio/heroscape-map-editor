@@ -42,6 +42,7 @@ import {
 import {
   getSvgHexBorderColor,
   getSvgHexFillColor,
+  getSvgHexSubLevelFillColor,
 } from '../svg-map/getSvgHexColors'
 import {
   type BoardHex,
@@ -113,7 +114,7 @@ export const SvgMultiHex1 = ({
   isSubLevel?: boolean
   isGlyph?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
+  const fillColor = isSubLevel ? getSvgHexSubLevelFillColor(hex) : getSvgHexFillColor(hex)
   const borderColor =
     SVG_BORDER_WIDTH > 0
       ? isGlyph
@@ -773,14 +774,13 @@ export const SvgRuins3 = ({
   )
 }
 export const SvgMarvelRuin = ({
-  // hex,
+  hex,
   isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  // const fillColor = getSvgHexFillColor(hex)
-  const fillColorSub = svgColors.outlineCastleWall
+  const fillColor = getSvgHexFillColor(hex)
   // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS)
 
@@ -797,7 +797,7 @@ export const SvgMarvelRuin = ({
       <path
         d={path}
         fillOpacity={0}
-        stroke={fillColorSub}
+        stroke={fillColor}
         strokeWidth={2 * SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
