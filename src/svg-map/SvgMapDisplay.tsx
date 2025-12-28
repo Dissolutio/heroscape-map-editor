@@ -48,6 +48,8 @@ export const SvgMapDisplay = () => {
     <svg
       id="2d-svg-view"
       role="img"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
       // ref={svgRef}
       viewBox={viewboxStr}
       style={{
