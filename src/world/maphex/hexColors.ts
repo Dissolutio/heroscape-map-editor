@@ -251,18 +251,17 @@ export const svgSubLevelColors = {
   outlineLavaOutcrop: '#E8B590',
 
   // OBSTACLES
-  // [HexTerrain.ladder]: 'rgb(173, 75, 35)',
-  // [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
+  [HexTerrain.ladder]: '#D6A591',
+  [HexTerrain.ruin]: '#D08080', // virtualscape
   fillJungle: '#EBE5B5',
-  // fillSwampUnderbrush: 'rgb(33, 56, 27)',
-  // [HexTerrain.palm]: 'rgb(67, 249, 57)',
+  fillSwampUnderbrush: '#909C8D)',
   [HexTerrain.tree]: '#9CD7AD',
   [HexTerrain.laurWall]: '#E1C8DF',
-  // [HexTerrain.castle]: 'rgb(80, 79, 84)',
+  [HexTerrain.castle]: '#A8A7AA',
   // castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
   // [HexTerrain.lavaRockOutcrop]: '#FF0000',
   lavaRockOutcropText: '#DAD0D0',
-  // [HexTerrain.outcrop]: '#3E3C3E',
+  [HexTerrain.outcrop]: '#9F9E9F',
 
   // TERRAIN
   [HexTerrain.grass]: '#C3E9CD',
