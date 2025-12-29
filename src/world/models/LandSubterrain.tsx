@@ -218,6 +218,8 @@ export function Subterrain6B({ children }: PropsWithChildren) {
   // Have to adjust model left because original tile template was wrong choice, TODO: Blender update model
   return (
     <mesh
+      castShadow={isLightsAndShadowsRender}
+      receiveShadow={isLightsAndShadowsRender}
       position={[-2 * HEXGRID_HEX_APOTHEM, 0, 0]}
       geometry={nodes['Subterrain-6B'].geometry}
     >
