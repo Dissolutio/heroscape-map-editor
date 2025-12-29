@@ -67,8 +67,7 @@ export const hexTerrainColor = {
   [HexTerrain.ladder]: '#D15D23',
   [HexTerrain.battlement]: '#ACABB0',
   castleDoor: '#913B3F',
-  [HexTerrain.wallWalk]: '#97969C', //same as road
-  // [HexTerrain.road]: '#97969C',
+  [HexTerrain.wallWalk]: '#a8a597', //same as road
   [HexTerrain.road]: '#a8a597', // superfrog
   // roadCap: '#787D79',
   roadCap: '#929186', // superfrog
