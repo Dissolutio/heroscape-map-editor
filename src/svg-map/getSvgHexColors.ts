@@ -96,10 +96,10 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
     return svgColors.outlineWater
   }
   if (hex.terrain === HexTerrain.outcrop) {
-    return svgColors.outlineWater
+    return svgColors.outlineOutcrop
   }
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
-    return svgColors.outlineWater
+    return svgColors.outlineLavaOutcrop
   }
   if (isCastleTerrain(hex.terrain)) {
     return svgColors.castle
@@ -177,10 +177,10 @@ export const getSvgHexSubLevelBorderColor = (hex: BoardHex | DecodedPieceID) => 
     return svgSubLevelColors.outlineWater
   }
   if (hex.terrain === HexTerrain.outcrop) {
-    return svgSubLevelColors.outlineWater
+    return svgSubLevelColors.outlineOutcrop
   }
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
-    return svgSubLevelColors.outlineWater
+    return svgSubLevelColors.outlineLavaOutcrop
   }
   if (isCastleTerrain(hex.terrain)) {
     return svgSubLevelColors.castle

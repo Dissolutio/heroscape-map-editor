@@ -1251,6 +1251,7 @@ export const SvgOutcrop6 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const textColor = hex.terrain === HexTerrain.glacier ? 'black' : hex.terrain === HexTerrain.outcrop ? svgColors.outcropText : svgColors.lavaRockOutcropText
   const { points } = get6HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
   )
@@ -1275,7 +1276,7 @@ export const SvgOutcrop6 = ({
         />
       </g>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
@@ -1284,7 +1285,7 @@ export const SvgOutcrop6 = ({
         {'9'}
       </text>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={
@@ -1296,7 +1297,7 @@ export const SvgOutcrop6 = ({
         {'17'}
       </text>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={
@@ -1308,7 +1309,7 @@ export const SvgOutcrop6 = ({
         {'17'}
       </text>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
@@ -1317,7 +1318,7 @@ export const SvgOutcrop6 = ({
         {'9'}
       </text>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={
@@ -1329,7 +1330,7 @@ export const SvgOutcrop6 = ({
         {'17'}
       </text>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={
@@ -1352,6 +1353,7 @@ export const SvgOutcrop3 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const textColor = hex.terrain === HexTerrain.glacier ? 'black' : hex.terrain === HexTerrain.outcrop ? svgColors.outcropText : svgColors.lavaRockOutcropText
   const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get3HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
@@ -1371,7 +1373,7 @@ export const SvgOutcrop3 = ({
         />
       </g>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         // white text needs a little opacity boost
         // white text (not glaciers, so far) needs a little opacity boost
         opacity={
@@ -1388,7 +1390,7 @@ export const SvgOutcrop3 = ({
         {'5'}
       </text>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         // white text needs a little opacity boost
         // white text (not glaciers, so far) needs a little opacity boost
         opacity={
@@ -1405,7 +1407,7 @@ export const SvgOutcrop3 = ({
         {'9'}
       </text>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         // white text needs a little opacity boost
         // white text (not glaciers, so far) needs a little opacity boost
         opacity={
@@ -1433,6 +1435,7 @@ export const SvgOutcrop4 = ({
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const textColor = hex.terrain === HexTerrain.glacier ? 'black' : hex.terrain === HexTerrain.outcrop ? svgColors.outcropText : svgColors.lavaRockOutcropText
   const { points } = get4HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
   )
@@ -1457,7 +1460,7 @@ export const SvgOutcrop4 = ({
         />
       </g>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         // white text needs a little opacity boost
         opacity={
           isSubLevel
@@ -1473,7 +1476,7 @@ export const SvgOutcrop4 = ({
         {'7'}
       </text>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         // white text needs a little opacity boost
         opacity={
           isSubLevel
@@ -1492,7 +1495,7 @@ export const SvgOutcrop4 = ({
         {'11'}
       </text>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         // white text needs a little opacity boost
         opacity={
           isSubLevel
@@ -1511,7 +1514,7 @@ export const SvgOutcrop4 = ({
         {'11'}
       </text>
       <text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         // white text needs a little opacity boost
         opacity={
           isSubLevel

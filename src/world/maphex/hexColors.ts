@@ -185,6 +185,7 @@ export const svgColors = {
   outlineSwampUnderbrush: '#633215', // renegade-hexoscape
   outlineLaurWall: '#FF06C8',
   outlineLavaOutcrop: '#7E461E', // renegade-hexoscape
+  outlineOutcrop: '#7E461E', // renegade-hexoscape
 
   // OBSTACLES
   [HexTerrain.ladder]: 'rgb(173, 75, 35)',
@@ -197,6 +198,7 @@ export const svgColors = {
   [HexTerrain.castle]: 'rgb(80, 79, 84)',
   castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
   [HexTerrain.lavaRockOutcrop]: '#FF0000',
+  outcropText: '#DAD0D0',
   lavaRockOutcropText: '#DAD0D0',
   [HexTerrain.outcrop]: '#3E3C3E',
 
@@ -249,6 +251,7 @@ export const svgSubLevelColors = {
   outlineSwampUnderbrush: '#B1998A',
   outlineLaurWall: '#FFC8E9',
   outlineLavaOutcrop: '#E8B590',
+  outlineOutcrop: '#E8B590',
 
   // OBSTACLES
   [HexTerrain.ladder]: '#D6A591',
@@ -259,7 +262,8 @@ export const svgSubLevelColors = {
   [HexTerrain.laurWall]: '#E1C8DF',
   [HexTerrain.castle]: '#A8A7AA',
   // castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
-  // [HexTerrain.lavaRockOutcrop]: '#FF0000',
+  [HexTerrain.lavaRockOutcrop]: '#FFA7A7',
+  outcropText: '#DAD0D0',
   lavaRockOutcropText: '#DAD0D0',
   [HexTerrain.outcrop]: '#9F9E9F',
 

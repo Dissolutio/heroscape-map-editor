@@ -133,7 +133,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <text
-          fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+          fill={hex.terrain === HexTerrain.glacier ? 'black' : hex.terrain === HexTerrain.outcrop ? svgColors.outcropText : svgColors.lavaRockOutcropText}
           // white text (not glaciers, so far) needs a little opacity boost
           opacity={
             isSubLevel
