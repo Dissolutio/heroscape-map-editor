@@ -182,7 +182,7 @@ export const svgColors = {
   outlineWater: '#132E8E', // // hive, ALL fluid tiles
   outlineTree: '#013E12',
   outlineJungle: '#7E461E', // renegade-hexoscape
-  outlineSwampUnderbrush: 'rgb(99, 50, 21)', // renegade-hexoscape
+  outlineSwampUnderbrush: '#633215', // renegade-hexoscape
   outlineLaurWall: '#FF06C8',
   outlineLavaOutcrop: '#7E461E', // renegade-hexoscape
 
@@ -241,12 +241,12 @@ export const svgSubLevelColors = {
   outline3: '#DAD0D0',
   outline7: '#F0C7E7',
   outline24: '#DEDEDE',
+  outlineMarvel: '#808080',
   outlineWater: '#BBC3E1', // hive, ALL fluid tiles
   outlineGlyph: '#C5BCBC', // hive, ALL fluid tiles
-
   outlineTree: '#799681',
   outlineJungle: '#E8B590',
-  // outlineSwampUnderbrush: 'rgb(99, 50, 21)',
+  outlineSwampUnderbrush: '#B1998A',
   outlineLaurWall: '#FFC8E9',
   outlineLavaOutcrop: '#E8B590',
 
@@ -271,7 +271,7 @@ export const svgSubLevelColors = {
   // #CDCDCD
   [HexTerrain.road]: '#EEEEEE',
   // roadDecor: '#CDCDCD',
-  // outlineRoad5: '#696767',
+  outlineRoad5: '#B4B3B3',
   [HexTerrain.swamp]: '#9DAF96',
   [HexTerrain.dungeon]: '#C9D9D4',
   [HexTerrain.lavaField]: '#A47F81',
