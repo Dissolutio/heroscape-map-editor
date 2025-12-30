@@ -42,6 +42,7 @@ import {
 import {
   getSvgHexBorderColor,
   getSvgHexFillColor,
+  getSvgHexSubLevelBorderColor,
   getSvgHexSubLevelFillColor,
 } from '../svg-map/getSvgHexColors'
 import {
@@ -115,7 +116,7 @@ export const SvgMultiHex1 = ({
   isGlyph?: boolean
 }) => {
   const fillColor = isSubLevel ? getSvgHexSubLevelFillColor(hex) : getSvgHexFillColor(hex)
-  const borderColor =
+  const borderColor = isSubLevel ? getSvgHexSubLevelBorderColor(hex) :
     SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const glyphHexRadius = SVG_HEX_RADIUS / 2
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
@@ -136,13 +137,11 @@ export const SvgMultiHex1 = ({
         // glyphs are rendered a little smaller
         points={isGlyph ? glyphPoints : points}
         fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       {/* glyphs rendered with no outline */}
       {isGlyph ? null : <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />}
     </>
   )
