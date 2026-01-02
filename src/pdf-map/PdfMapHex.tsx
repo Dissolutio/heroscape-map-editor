@@ -46,18 +46,15 @@ import {
   PdfLaurPillar,
   PdfJungle,
 } from './PdfMapShapes'
+import { hexTextStyle } from '../svg-map/svgText'
 
-const hexTextStyle = {
-  fontSize: 0.6 * SVG_HEX_RADIUS,
-  fontWeight: 'bold',
-}
 const singleHexObstacleHeightTextProps = (heightText: string) => ({
   style: hexTextStyle,
-  y: 0.2 * SVG_HEX_RADIUS,
+  y: 0.3 * SVG_HEX_RADIUS,
   x:
     heightText.toString().length === 2
-      ? -0.35 * SVG_HEX_APOTHEM
-      : -0.15 * SVG_HEX_APOTHEM,
+      ? -0.6 * SVG_HEX_APOTHEM
+      : -0.3 * SVG_HEX_APOTHEM,
 })
 const glyphTextProps = (glyphText: string) => ({
   style: {
@@ -263,15 +260,6 @@ export const PdfMapHex = ({
   // CASTLE WALLS
   if (isCastleTerrain(hex.terrain) && hex.isObstacleOrigin) {
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
-    const castleText =
-      inventoryID === Pieces.castleBaseEnd ||
-      inventoryID === Pieces.castleWallEnd
-        ? 'E'
-        : inventoryID === Pieces.castleBaseStraight ||
-            inventoryID === Pieces.castleWallStraight
-          ? 'S'
-          : 'C'
-    const castleBaseWallText = `${castleText}${heightText}`
     //  Return Castle Corner
     if (
       hex.inventoryID === Pieces.castleBaseCorner ||
@@ -357,14 +345,9 @@ export const PdfMapHex = ({
         <Text
           fill="black"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-          style={{
-            fontSize: 0.4 * SVG_HEX_RADIUS,
-            fontWeight: 'bold',
-          }}
-          y={0.2 * SVG_HEX_RADIUS}
-          x={-0.2 * SVG_HEX_APOTHEM}
+          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
         >
-          {castleBaseWallText}
+          {pieceHeightText}
         </Text>
       </G>
     )
@@ -609,12 +592,7 @@ const PdfCastleWallBaseHeightText = ({
     <Text
       fill="black"
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      style={{
-        fontSize: 0.8 * SVG_HEX_RADIUS,
-        fontWeight: 'bold',
-      }}
-      y={0.3 * SVG_HEX_RADIUS}
-      x={-0.3 * SVG_HEX_APOTHEM}
+      {...singleHexObstacleHeightTextProps(heightText.toString())}
     >
       {heightText}
     </Text>
