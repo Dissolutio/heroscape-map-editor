@@ -721,14 +721,13 @@ export const PdfSvgRuins3 = ({
   )
 }
 export const PdfMarvelRuin = ({
-  // hex,
+  hex,
   isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  // const fillColor = getSvgHexFillColor(hex)
-  const fillColorSub = svgColors.outlineCastleWall
+  const fillColor = getSvgHexFillColor(hex)
   // const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS)
 
@@ -745,7 +744,7 @@ export const PdfMarvelRuin = ({
       )}
       <Path
         d={path}
-        stroke={fillColorSub}
+        stroke={fillColor}
         strokeWidth={2 * PDF_BORDER_WIDTH}
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -157,6 +157,8 @@ export const hexTerrainColor = {
 }
 export const svgColors = {
   empty: 'rgb(0, 0, 0)',
+  jungleText: '#000000',
+  evergreenText: '#FFFFFF',
   // STARTZONES
   blueSZ: 'rgb(57, 61, 157)',
   darkBlueSZ: 'rgb(21, 28, 51)',
@@ -165,45 +167,46 @@ export const svgColors = {
   redSZ: 'rgb(192, 26, 44)',
   greenSZ: 'rgb(54, 127, 52)',
 
+  // RENEGADE STARTZONES
+  reneBlueSZ: '#0C163A',
+  reneBrownSZ: '#7E461E',
+
   // OUTLINES
   outline1: '#E50101', // renegade-hexoscape
   outline2: '#E67421', // renegade-hexoscape
   outline3: '#020202', // renegade-hexoscape
   outline7: '#B02E94', // renegade-hexoscape
   outline24: '#BDBDBD', // renegade-hexoscape
-  outlineWater: '#132E8E', // ice, swampwater, wellspring-water too
-  outlineWaterSubLevel: '#BBC3E1', // ice, swampwater too
-  outlineLava: hexTerrainColor[HexTerrain.lava],
+  outlineMarvel: '#000000',
+  outlineGlyph: '#000000', // renegade-hexoscape
+  outlineWater: '#132E8E', // // hive, ALL fluid tiles
   outlineTree: '#013E12',
   outlineJungle: '#7E461E', // renegade-hexoscape
-  outlineSwampUnderbrush: 'rgb(99, 50, 21)', // renegade-hexoscape
+  outlineSwampUnderbrush: '#633215', // renegade-hexoscape
   outlineLaurWall: '#FF06C8',
-  outlineCastleWall: 'rgb(80, 79, 84)',
-  outlineLavaOutcrop: 'rgb(121, 61, 26)', // renegade-hexoscape
+  outlineLavaOutcrop: '#7E461E', // renegade-hexoscape
+  outlineOutcrop: '#7E461E', // renegade-hexoscape
 
   // OBSTACLES
   [HexTerrain.ladder]: 'rgb(173, 75, 35)',
   [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
   fillJungle: '#FFE606',
   fillSwampUnderbrush: 'rgb(33, 56, 27)',
-  [HexTerrain.palm]: 'rgb(67, 249, 57)',
+  // [HexTerrain.palm]: 'rgb(67, 249, 57)', // virtualscape
   [HexTerrain.tree]: '#269C48',
   [HexTerrain.laurWall]: '#6B1463',
   [HexTerrain.castle]: 'rgb(80, 79, 84)',
   castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
   [HexTerrain.lavaRockOutcrop]: '#FF0000',
+  outcropText: '#DAD0D0',
   lavaRockOutcropText: '#DAD0D0',
   [HexTerrain.outcrop]: '#3E3C3E',
 
   // TERRAIN
-  grassSubLevel: '#C3E9CD',
-  rockSubLevel: '#CDCDCD',
-  sandSubLevel: '#F4F7D0',
-  waterSubLevel: '#A6D5D8',
   [HexTerrain.grass]: '#269C48',
   [HexTerrain.rock]: '#696767',
   [HexTerrain.sand]: '#D9E176',
-  [HexTerrain.road]: '#787D79',
+  [HexTerrain.road]: '#DEDEDE',
   roadDecor: '#696767',
   outlineRoad5: '#696767',
   [HexTerrain.swamp]: '#0E3D00',
@@ -212,6 +215,7 @@ export const svgColors = {
   [HexTerrain.asphalt]: '#121212',
   [HexTerrain.concrete]: '#DEDEDE',
   [HexTerrain.snow]: '#FFFFFF',
+  [HexTerrain.ancientTerrain]: '#B55908',
   snowFlake: '#546CB3', // renegade-hexoscape
 
   [HexTerrain.water]: '#25A8B0',
@@ -231,68 +235,67 @@ export const svgColors = {
   [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
 }
 export const svgSubLevelColors = {
+  jungleText: '#C5BCBC',
+  evergreenText: '#FFFFFF',
   // OUTLINES
   outline1: '#F4C5C5',
   outline2: '#F3DCCB',
-
-  outline3: '#020202',
-  outline7: '#B02E94',
-  outline24: '#BDBDBD',
-  outlineWater: '#132E8E', // ice, swampwater, wellspring-water too
-  outlineWaterSubLevel: '#BBC3E1', // ice, swampwater too
-  outlineLava: hexTerrainColor[HexTerrain.lava],
-  outlineTree: '#013E12',
-  outlineJungle: '#7E461E',
-  outlineSwampUnderbrush: 'rgb(99, 50, 21)',
-  outlineLaurWall: '#FF06C8',
-  outlineCastleWall: 'rgb(80, 79, 84)',
-  outlineLavaOutcrop: 'rgb(121, 61, 26)',
+  outline3: '#DAD0D0',
+  outline7: '#F0C7E7',
+  outline24: '#DEDEDE',
+  outlineMarvel: '#808080',
+  outlineWater: '#BBC3E1', // hive, ALL fluid tiles
+  outlineGlyph: '#C5BCBC', // hive, ALL fluid tiles
+  outlineTree: '#799681',
+  outlineJungle: '#E8B590',
+  outlineSwampUnderbrush: '#B1998A',
+  outlineLaurWall: '#FFC8E9',
+  outlineLavaOutcrop: '#E8B590',
+  outlineOutcrop: '#E8B590',
 
   // OBSTACLES
-  [HexTerrain.ladder]: 'rgb(173, 75, 35)',
-  [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
-  fillJungle: '#FFE606',
-  fillSwampUnderbrush: 'rgb(33, 56, 27)',
-  [HexTerrain.palm]: 'rgb(67, 249, 57)',
-  [HexTerrain.tree]: '#269C48',
-  [HexTerrain.laurWall]: '#6B1463',
-  [HexTerrain.castle]: 'rgb(80, 79, 84)',
-  castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
-  [HexTerrain.lavaRockOutcrop]: '#FF0000',
+  [HexTerrain.ladder]: '#D6A591',
+  [HexTerrain.ruin]: '#D08080', // virtualscape
+  fillJungle: '#EBE5B5',
+  fillSwampUnderbrush: '#909C8D)',
+  [HexTerrain.tree]: '#9CD7AD',
+  [HexTerrain.laurWall]: '#E1C8DF',
+  [HexTerrain.castle]: '#A8A7AA',
+  // castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
+  [HexTerrain.lavaRockOutcrop]: '#FFA7A7',
+  outcropText: '#DAD0D0',
   lavaRockOutcropText: '#DAD0D0',
-  [HexTerrain.outcrop]: '#3E3C3E',
+  [HexTerrain.outcrop]: '#9F9E9F',
 
   // TERRAIN
   [HexTerrain.grass]: '#C3E9CD',
   [HexTerrain.rock]: '#CDCDCD',
   [HexTerrain.sand]: '#F4F7D0',
   [HexTerrain.water]: '#A6D5D8',
-
-  [HexTerrain.road]: '#787D79',
-  roadDecor: '#696767',
-  outlineRoad5: '#696767',
-  [HexTerrain.swamp]: '#0E3D00',
-  [HexTerrain.dungeon]: '#73988D',
-  [HexTerrain.lavaField]: '#84090F',
-  [HexTerrain.asphalt]: '#121212',
-  [HexTerrain.concrete]: '#DEDEDE',
+  // #CDCDCD
+  [HexTerrain.road]: '#EEEEEE',
+  // roadDecor: '#CDCDCD',
+  outlineRoad5: '#B4B3B3',
+  [HexTerrain.swamp]: '#9DAF96',
+  [HexTerrain.dungeon]: '#C9D9D4',
+  [HexTerrain.lavaField]: '#A47F81',
+  [HexTerrain.asphalt]: '#7A7A7A',
+  [HexTerrain.concrete]: '#EEEEEE',
   [HexTerrain.snow]: '#FFFFFF',
-  snowFlake: '#546CB3', // renegade-hexoscape
+  snowFlake: '#B0BEEC',
 
-  // [HexTerrain.wellspringWater]: 'rgb(225,194,255)', // used this in virtualscape to differentiate from snow
   [HexTerrain.wellspringWater]: '#FFFFFF', // used this in virtualscape to differentiate from snow
-  [HexTerrain.swampWater]: '#ACA521',
-  [HexTerrain.lava]: '#FF0000',
-  [HexTerrain.shadow]: '#000000',
-  [HexTerrain.ice]: '#8EA3E8',
+  [HexTerrain.swampWater]: '#D3D2B2',
+  [HexTerrain.lava]: '#FFA7A7',
+  [HexTerrain.shadow]: '#2E2D2D',
+  [HexTerrain.ice]: '#B4C2EF',
+  [HexTerrain.ancientTerrain]: '#E4D0BE',
   iceFlake: '#FFFFFF',
 
   // GYLPHS
   // glyph: 'rgb(244, 106, 22)', // renegade
-  // [HexTerrain.glyphPower]: 'rgb(64, 0, 0)', // virtualscape
-  // [HexTerrain.glyphTreasure]: 'rgb(245, 131, 0)',
-  [HexTerrain.glyphPower]: 'rgb(120, 1, 22)',
-  [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
+  // [HexTerrain.glyphPower]: 'rgb(120, 1, 22)',
+  // [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
 }
 
 // const renegadeValkyriePaintColors = {

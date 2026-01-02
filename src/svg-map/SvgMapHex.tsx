@@ -10,6 +10,7 @@ import {
 } from '../utils/board-utils'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
+import { svgColors } from '../world/maphex/hexColors'
 import {
   SvgCastleArch,
   SvgCastleArchStraight3,
@@ -40,23 +41,11 @@ import {
   SvgTree415,
   SvgLaurPillar,
   SvgJungle,
-  SvgHelperHex,
 } from './SvgMapShapes'
+import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
 const OPACITY_SUBLEVEL = 0.3
 
-const hexTextStyle = {
-  fontSize: 0.8 * SVG_HEX_RADIUS,
-  fontWeight: 'bold',
-}
-const singleHexObstacleHeightTextProps = (heightText: string) => ({
-  style: hexTextStyle,
-  y: 0.3 * SVG_HEX_RADIUS,
-  x:
-    heightText.toString().length === 2
-      ? -0.5 * SVG_HEX_APOTHEM
-      : -0.3 * SVG_HEX_APOTHEM,
-})
 const glyphTextProps = (glyphText: string) => ({
   style: {
     fontSize: 0.5 * SVG_HEX_RADIUS,
@@ -90,7 +79,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   if (hex.terrain === HexTerrain.empty) {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgEmptyHex />
+        <SvgEmptyHex hex={hex} />
       </g>
     )
   }
@@ -144,7 +133,13 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <text
-          fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+          fill={
+            hex.terrain === HexTerrain.glacier
+              ? 'black'
+              : hex.terrain === HexTerrain.outcrop
+                ? svgColors.outcropText
+                : svgColors.lavaRockOutcropText
+          }
           // white text (not glaciers, so far) needs a little opacity boost
           opacity={
             isSubLevel
@@ -231,7 +226,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <text
-          fill="white"
+          fill={svgColors.evergreenText}
           // white text needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
@@ -374,7 +369,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       </g>
     )
   }
-  // LAUR PILLARS and SINGLE LAND
+  // LAUR PILLARS
   if (
     inventoryID === Pieces.laurWallSquarePillar ||
     inventoryID === Pieces.laurWallTrianglePillar
@@ -390,7 +385,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        <SvgHelperHex />
       </g>
     )
   }
@@ -400,18 +394,17 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     (piecesSoFar?.[inventoryID]?.template === '2' ||
       piecesSoFar?.[inventoryID]?.template === '3' ||
       piecesSoFar?.[inventoryID]?.template === '4' ||
+      piecesSoFar?.[inventoryID]?.template === '5' ||
       piecesSoFar?.[inventoryID]?.template === '6' ||
       piecesSoFar?.[inventoryID]?.template === '7' ||
+      piecesSoFar?.[inventoryID]?.template === Pieces.marvel ||
       piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 ||
       piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk9 ||
       piecesSoFar?.[inventoryID]?.template === '24') &&
     hex.isObstacleAuxiliary
   ) {
-    return (
-      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgHelperHex />
-      </g>
-    )
+    // return null
+    return <g transform={`translate(${pixel.x}, ${pixel.y})`}></g>
   }
   if (
     isLandHex &&
@@ -475,7 +468,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex7 hex={hex} isSubLevel={isSubLevel} />
-        <SvgHelperHex />
       </g>
     )
   }
@@ -541,7 +533,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex24 hex={hex} isSubLevel={isSubLevel} />
-        <SvgHelperHex />
       </g>
     )
   }
