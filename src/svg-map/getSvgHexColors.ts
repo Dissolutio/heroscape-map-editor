@@ -57,16 +57,10 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   if (isSolidTerrain && is24Hex) {
     return svgColors.outline24
   }
-  if (
-    hex.terrain === HexTerrain.road &&
-    inventoryPiece.size === 5
-  ) {
+  if (hex.terrain === HexTerrain.road && inventoryPiece.size === 5) {
     return svgColors.outlineRoad5
   }
-  if (
-    hex.terrain === HexTerrain.concrete &&
-    inventoryPiece.size === 6
-  ) {
+  if (hex.terrain === HexTerrain.concrete && inventoryPiece.size === 6) {
     return svgColors.outlineMarvel
   }
   if (
@@ -106,7 +100,9 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   }
   return 'black'
 }
-export const getSvgHexSubLevelBorderColor = (hex: BoardHex | DecodedPieceID) => {
+export const getSvgHexSubLevelBorderColor = (
+  hex: BoardHex | DecodedPieceID,
+) => {
   // TODO: color: refactor this to be more direct
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
   if (hex.terrain === 'empty') {
@@ -138,16 +134,10 @@ export const getSvgHexSubLevelBorderColor = (hex: BoardHex | DecodedPieceID) => 
   if (isSolidTerrain && is24Hex) {
     return svgSubLevelColors.outline24
   }
-  if (
-    hex.terrain === HexTerrain.road &&
-    inventoryPiece.size === 5
-  ) {
+  if (hex.terrain === HexTerrain.road && inventoryPiece.size === 5) {
     return svgSubLevelColors.outlineRoad5
   }
-  if (
-    hex.terrain === HexTerrain.concrete &&
-    inventoryPiece.size === 6
-  ) {
+  if (hex.terrain === HexTerrain.concrete && inventoryPiece.size === 6) {
     return svgSubLevelColors.outlineMarvel
   }
   if (

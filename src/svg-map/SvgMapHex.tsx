@@ -133,7 +133,13 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <text
-          fill={hex.terrain === HexTerrain.glacier ? 'black' : hex.terrain === HexTerrain.outcrop ? svgColors.outcropText : svgColors.lavaRockOutcropText}
+          fill={
+            hex.terrain === HexTerrain.glacier
+              ? 'black'
+              : hex.terrain === HexTerrain.outcrop
+                ? svgColors.outcropText
+                : svgColors.lavaRockOutcropText
+          }
           // white text (not glaciers, so far) needs a little opacity boost
           opacity={
             isSubLevel
@@ -235,10 +241,10 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
     const castleText =
       inventoryID === Pieces.castleBaseEnd ||
-        inventoryID === Pieces.castleWallEnd
+      inventoryID === Pieces.castleWallEnd
         ? 'E'
         : inventoryID === Pieces.castleBaseStraight ||
-          inventoryID === Pieces.castleWallStraight
+            inventoryID === Pieces.castleWallStraight
           ? 'S'
           : 'C'
     const castleBaseWallText = `${castleText}${heightText}`
@@ -398,10 +404,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     hex.isObstacleAuxiliary
   ) {
     // return null
-    return (
-      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-      </g>
-    )
+    return <g transform={`translate(${pixel.x}, ${pixel.y})`}></g>
   }
   if (
     isLandHex &&
