@@ -239,15 +239,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   // CASTLE WALLS
   if (isCastleTerrain(hex.terrain) && hex.isObstacleOrigin) {
     const heightText = pieceHeightText > 0 ? pieceHeightText : ''
-    const castleText =
-      inventoryID === Pieces.castleBaseEnd ||
-      inventoryID === Pieces.castleWallEnd
-        ? 'E'
-        : inventoryID === Pieces.castleBaseStraight ||
-            inventoryID === Pieces.castleWallStraight
-          ? 'S'
-          : 'C'
-    const castleBaseWallText = `${castleText}${heightText}`
     //  Return Castle Corner
     if (
       hex.inventoryID === Pieces.castleBaseCorner ||
@@ -328,21 +319,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     }
     // Default return, simple 1-hex representation
     return (
-      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        <text
-          fill="black"
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-          style={{
-            fontSize: 0.4 * SVG_HEX_RADIUS,
-            fontWeight: 'bold',
-          }}
-          y={0.2 * SVG_HEX_RADIUS}
-          x={-0.2 * SVG_HEX_APOTHEM}
-        >
-          {castleBaseWallText}
-        </text>
-      </g>
+      null
     )
   }
   //  Marvel Ruin
@@ -403,8 +380,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       piecesSoFar?.[inventoryID]?.template === '24') &&
     hex.isObstacleAuxiliary
   ) {
-    // return null
-    return <g transform={`translate(${pixel.x}, ${pixel.y})`}></g>
+    return null
   }
   if (
     isLandHex &&
@@ -546,20 +522,18 @@ const SvgCastleArchText = ({
   isSubLevel: boolean
   pieceRotation: number
 }) => {
+  const archText = "D O O R"
   return (
     <text
       fill="black"
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      style={{
-        fontSize: 0.8 * SVG_HEX_RADIUS,
-        fontWeight: 'bold',
-      }}
+      {...singleHexObstacleHeightTextProps(archText.toString())}
       y={0.3 * SVG_HEX_RADIUS}
       // upside down text is flipped in parent component, and adjusted here
       x={pieceRotation === 180 ? -3.7 * SVG_HEX_APOTHEM : 0.3 * SVG_HEX_APOTHEM}
     >
       {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}
-      {'D O O R'}
+      {archText}
     </text>
   )
 }
@@ -574,10 +548,7 @@ const SvgCastleWallBaseHeightText = ({
     <text
       fill="black"
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      style={{
-        fontSize: 0.8 * SVG_HEX_RADIUS,
-        fontWeight: 'bold',
-      }}
+      {...singleHexObstacleHeightTextProps(heightText.toString())}
       y={0.3 * SVG_HEX_RADIUS}
       x={-0.3 * SVG_HEX_APOTHEM}
     >
