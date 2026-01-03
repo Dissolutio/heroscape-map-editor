@@ -58,7 +58,7 @@ import {
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
-import { svgColors } from '../world/maphex/hexColors'
+import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from './svg-hive'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
@@ -102,7 +102,6 @@ export const SvgEmptyHex = ({
     </>
   )
 }
-
 export const SvgMultiHex1 = ({
   hex,
   isSubLevel,
@@ -117,9 +116,7 @@ export const SvgMultiHex1 = ({
     : getSvgHexFillColor(hex)
   const borderColor = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex)
-    : SVG_BORDER_WIDTH > 0
-      ? getSvgHexBorderColor(hex)
-      : ''
+    : getSvgHexBorderColor(hex)
   const glyphHexRadius = SVG_HEX_RADIUS / 2
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(glyphHexRadius)
@@ -152,8 +149,12 @@ export const SvgMultiHex2 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
   const { points } = get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get2HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -165,12 +166,10 @@ export const SvgMultiHex2 = ({
       <polygon
         points={points}
         fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -182,8 +181,12 @@ export const SvgMultiHex3 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
   const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get3HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -195,17 +198,14 @@ export const SvgMultiHex3 = ({
       <polygon
         points={points}
         fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
 }
-
 export const SvgCastleArchStraight3 = ({
   hex,
   isSubLevel,
@@ -213,8 +213,13 @@ export const SvgCastleArchStraight3 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  // Has a separate shape for the "border"
+  // const borderColor = isSubLevel
+  //   ? getSvgHexSubLevelBorderColor(hex)
+  //   : getSvgHexBorderColor(hex)
   const { points } = get3HexStraightSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   return (
     <>
@@ -222,7 +227,6 @@ export const SvgCastleArchStraight3 = ({
       <polygon
         points={points}
         fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -234,8 +238,12 @@ export const SvgMultiHex4 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
   const { points } = get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get4HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -247,12 +255,10 @@ export const SvgMultiHex4 = ({
       <polygon
         points={points}
         fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -264,8 +270,12 @@ export const SvgMultiHex5 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
   const { points } = get5HexStraightSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get5HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -277,12 +287,10 @@ export const SvgMultiHex5 = ({
       <polygon
         points={points}
         fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -294,8 +302,12 @@ export const SvgMultiHex6 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
   const { points } = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -307,12 +319,10 @@ export const SvgMultiHex6 = ({
       <polygon
         points={points}
         fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -324,8 +334,12 @@ export const SvgMultiHexMarvel6 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = getSvgHexBorderColor(hex)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
   const { points } = getMarvel6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = getMarvel6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -337,12 +351,10 @@ export const SvgMultiHexMarvel6 = ({
       <polygon
         points={points}
         fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -354,8 +366,12 @@ export const SvgMultiHex7 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
   const { points } = get7HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get7HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -367,12 +383,10 @@ export const SvgMultiHex7 = ({
       <polygon
         points={points}
         fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -384,8 +398,12 @@ export const SvgMultiHexWallWalk7 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
   const { points } = get7HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get7HexWallWalkOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -397,12 +415,10 @@ export const SvgMultiHexWallWalk7 = ({
       <polygon
         points={points}
         fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -414,8 +430,12 @@ export const SvgMultiHexWallWalk9 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
   const { points } = get9HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get9HexWallWalkOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -427,12 +447,10 @@ export const SvgMultiHexWallWalk9 = ({
       <polygon
         points={points}
         fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -444,8 +462,12 @@ export const SvgMultiHex24 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
   const { points } = get24HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get24HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -457,13 +479,11 @@ export const SvgMultiHex24 = ({
       <polygon
         points={points}
         fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
       {isSubLevel && <polygon points={outlinePoints} fill={'white'} />}
       <polygon
         points={outlinePoints}
         fill={borderColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -531,6 +551,12 @@ export const SvgJungle = ({
   const pieceHeightText = piecesSoFar[hex.inventoryID]?.height
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   const points = getJungleTriangleShape(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
+  const textColor = isSubLevel
+    ? svgSubLevelColors.jungleText
+    : svgColors.jungleText
   return (
     <>
       <g transform={`rotate(${pieceRotation})`}>
@@ -538,14 +564,12 @@ export const SvgJungle = ({
         {/* JUNGLE ORIENTATION MARKER */}
         <polygon
           points={points}
-          fill={svgColors.outlineJungle}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+          fill={borderColor}
         />
       </g>
       <text
         // fill="rgb(35, 31, 32)"
-        fill={svgColors.jungleText}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        fill={textColor}
         {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
       >
         {pieceHeightText}
