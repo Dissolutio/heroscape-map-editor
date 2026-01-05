@@ -63,6 +63,9 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.concrete && inventoryPiece.size === 6) {
     return svgColors.outlineMarvel
   }
+  if (hex.terrain === HexTerrain.wallWalk && inventoryPiece.size === 9) {
+    return svgColors.outlineMarvel
+  }
   if (
     hex.terrain === HexTerrain.hive ||
     hex.terrain === HexTerrain.water ||
@@ -138,6 +141,9 @@ export const getSvgHexSubLevelBorderColor = (
     return svgSubLevelColors.outlineRoad5
   }
   if (hex.terrain === HexTerrain.concrete && inventoryPiece.size === 6) {
+    return svgSubLevelColors.outlineMarvel
+  }
+  if (hex.terrain === HexTerrain.wallWalk && inventoryPiece.size === 9) {
     return svgSubLevelColors.outlineMarvel
   }
   if (
