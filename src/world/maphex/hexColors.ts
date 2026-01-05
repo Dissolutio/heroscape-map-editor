@@ -207,6 +207,7 @@ export const svgColors = {
   [HexTerrain.rock]: '#696767',
   [HexTerrain.sand]: '#D9E176',
   [HexTerrain.road]: '#DEDEDE',
+  [HexTerrain.wallWalk]: '#DEDEDE',
   roadDecor: '#696767',
   outlineRoad5: '#696767',
   [HexTerrain.swamp]: '#0E3D00',
@@ -274,6 +275,7 @@ export const svgSubLevelColors = {
   [HexTerrain.water]: '#A6D5D8',
   // #CDCDCD
   [HexTerrain.road]: '#EEEEEE',
+  [HexTerrain.wallWalk]: '#EEEEEE',
   // roadDecor: '#CDCDCD',
   outlineRoad5: '#B4B3B3',
   [HexTerrain.swamp]: '#9DAF96',
