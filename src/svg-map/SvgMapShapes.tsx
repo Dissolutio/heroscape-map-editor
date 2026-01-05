@@ -163,14 +163,8 @@ export const SvgMultiHex2 = ({
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
-      <polygon
-        points={outlinePoints}
-        fill={borderColor}
-      />
+      <polygon points={points} fill={fillColor} />
+      <polygon points={outlinePoints} fill={borderColor} />
     </>
   )
 }
@@ -195,14 +189,8 @@ export const SvgMultiHex3 = ({
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
-      <polygon
-        points={outlinePoints}
-        fill={borderColor}
-      />
+      <polygon points={points} fill={fillColor} />
+      <polygon points={outlinePoints} fill={borderColor} />
     </>
   )
 }
@@ -224,10 +212,7 @@ export const SvgCastleArchStraight3 = ({
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
+      <polygon points={points} fill={fillColor} />
     </>
   )
 }
@@ -252,14 +237,8 @@ export const SvgMultiHex4 = ({
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
-      <polygon
-        points={outlinePoints}
-        fill={borderColor}
-      />
+      <polygon points={points} fill={fillColor} />
+      <polygon points={outlinePoints} fill={borderColor} />
     </>
   )
 }
@@ -284,14 +263,8 @@ export const SvgMultiHex5 = ({
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
-      <polygon
-        points={outlinePoints}
-        fill={borderColor}
-      />
+      <polygon points={points} fill={fillColor} />
+      <polygon points={outlinePoints} fill={borderColor} />
     </>
   )
 }
@@ -316,14 +289,8 @@ export const SvgMultiHex6 = ({
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
-      <polygon
-        points={outlinePoints}
-        fill={borderColor}
-      />
+      <polygon points={points} fill={fillColor} />
+      <polygon points={outlinePoints} fill={borderColor} />
     </>
   )
 }
@@ -348,14 +315,8 @@ export const SvgMultiHexMarvel6 = ({
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
-      <polygon
-        points={outlinePoints}
-        fill={borderColor}
-      />
+      <polygon points={points} fill={fillColor} />
+      <polygon points={outlinePoints} fill={borderColor} />
     </>
   )
 }
@@ -380,14 +341,8 @@ export const SvgMultiHex7 = ({
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
-      <polygon
-        points={outlinePoints}
-        fill={borderColor}
-      />
+      <polygon points={points} fill={fillColor} />
+      <polygon points={outlinePoints} fill={borderColor} />
     </>
   )
 }
@@ -412,14 +367,8 @@ export const SvgMultiHexWallWalk7 = ({
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
-      <polygon
-        points={outlinePoints}
-        fill={borderColor}
-      />
+      <polygon points={points} fill={fillColor} />
+      <polygon points={outlinePoints} fill={borderColor} />
     </>
   )
 }
@@ -444,14 +393,8 @@ export const SvgMultiHexWallWalk9 = ({
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
-      <polygon
-        points={outlinePoints}
-        fill={borderColor}
-      />
+      <polygon points={points} fill={fillColor} />
+      <polygon points={outlinePoints} fill={borderColor} />
     </>
   )
 }
@@ -476,15 +419,9 @@ export const SvgMultiHex24 = ({
   return (
     <>
       {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
+      <polygon points={points} fill={fillColor} />
       {isSubLevel && <polygon points={outlinePoints} fill={'white'} />}
-      <polygon
-        points={outlinePoints}
-        fill={borderColor}
-      />
+      <polygon points={outlinePoints} fill={borderColor} />
     </>
   )
 }
@@ -562,10 +499,7 @@ export const SvgJungle = ({
       <g transform={`rotate(${pieceRotation})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         {/* JUNGLE ORIENTATION MARKER */}
-        <polygon
-          points={points}
-          fill={borderColor}
-        />
+        <polygon points={points} fill={borderColor} />
       </g>
       <text
         // fill="rgb(35, 31, 32)"
@@ -1160,8 +1094,9 @@ export const SvgTree415 = ({
   isSubLevel?: boolean
 }) => {
   const pieceHeightText = piecesSoFar[hex.inventoryID].height
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = isSubLevel ? getSvgHexSubLevelFillColor(hex) : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel ? getSvgHexSubLevelBorderColor(hex) : getSvgHexBorderColor(hex)
+  const textColor = isSubLevel ? svgSubLevelColors.evergreenText : svgColors.evergreenText
   const { points } = get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get4HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -1175,16 +1110,14 @@ export const SvgTree415 = ({
         <polygon
           points={points}
           fill={fillColor}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
         <polygon
           points={outlinePoints}
           fill={borderColor}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
       <text
-        fill={svgColors.evergreenText}
+        fill={textColor}
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={{

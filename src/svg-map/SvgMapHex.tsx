@@ -10,7 +10,7 @@ import {
 } from '../utils/board-utils'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
-import { svgColors } from '../world/maphex/hexColors'
+import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
   SvgCastleArch,
   SvgCastleArchStraight3,
@@ -222,13 +222,13 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   }
   // Single hex trees
   if (isEvergreenTree(hex.terrain)) {
+    const textColor = isSubLevel ? svgSubLevelColors.evergreenText : svgColors.evergreenText
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <text
-          fill={svgColors.evergreenText}
+          fill={textColor}
           // white text needs a little opacity boost
-          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
         >
           {pieceHeightText}
@@ -318,9 +318,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       )
     }
     // Default return, simple 1-hex representation
-    return (
-      null
-    )
+    return null
   }
   //  Marvel Ruin
   if (
@@ -522,7 +520,7 @@ const SvgCastleArchText = ({
   isSubLevel: boolean
   pieceRotation: number
 }) => {
-  const archText = "D O O R"
+  const archText = 'D O O R'
   return (
     <text
       fill="black"
