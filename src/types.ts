@@ -112,12 +112,6 @@ export type Piece = {
   // TODO: account for 1 marvel wall => 4 variations, 1 castle arch => 2 variations
   isUninventoried?: boolean // so far just marvel-ruins-broken and castle-arch-no-door versions (these are just variations on their inventoried counterparts)
 }
-export type PieceSet = {
-  id: PieceSetIds
-  title: string // the human friendly name
-  inventory: PieceInventory
-  abbreviation: string
-}
 export enum PiecePrefixes {
   startZone = 'z',
   grass = 'g',
@@ -150,28 +144,6 @@ export enum PiecePrefixes {
   laurWall = 'lw',
   castleArch = 'ca',
   glyph = 'y',
-}
-export enum PieceSetIds {
-  // these inventory IDs are purposely short, to make their character length small for maximum-sized URL-shareable maps
-  aoaMaster1 = 'aoa',
-  mstk = 'mstk',
-  totk = 'totk',
-  battleForWellspring = 'bftw',
-  laurJungle = 'lj',
-  landsOfValhalla = 'lov',
-  watersOfValhalla = 'wov',
-  swampsOfValhalla = 'sov',
-  snowfieldsOfValhalla = 'sfov',
-  lavafieldsOfValhalla = 'lfov',
-  volcarren = 'volc',
-  ticallaJungle = 'tj',
-  forgottenForest = 'ff',
-  underdarkMaster = 'bftu',
-  fortress = 'fort',
-  marvel = 'marv',
-  thaelenkTundra = 'tt',
-  riseOfValkyrieMaster = 'rotv',
-  swarmOfMarroMaster = 'sotm',
 }
 export const Pieces = {
   startZone1: `${PiecePrefixes.startZone}1`,
