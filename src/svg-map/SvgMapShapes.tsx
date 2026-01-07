@@ -162,7 +162,6 @@ export const SvgMultiHex2 = ({
   )
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon points={points} fill={fillColor} />
       <polygon points={outlinePoints} fill={borderColor} />
     </>
@@ -188,7 +187,6 @@ export const SvgMultiHex3 = ({
   )
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon points={points} fill={fillColor} />
       <polygon points={outlinePoints} fill={borderColor} />
     </>
@@ -211,7 +209,6 @@ export const SvgCastleArchStraight3 = ({
   const { points } = get3HexStraightSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon points={points} fill={fillColor} />
     </>
   )
@@ -236,7 +233,6 @@ export const SvgMultiHex4 = ({
   )
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon points={points} fill={fillColor} />
       <polygon points={outlinePoints} fill={borderColor} />
     </>
@@ -262,7 +258,6 @@ export const SvgMultiHex5 = ({
   )
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon points={points} fill={fillColor} />
       <polygon points={outlinePoints} fill={borderColor} />
     </>
@@ -288,7 +283,6 @@ export const SvgMultiHex6 = ({
   )
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon points={points} fill={fillColor} />
       <polygon points={outlinePoints} fill={borderColor} />
     </>
@@ -314,7 +308,6 @@ export const SvgMultiHexMarvel6 = ({
   )
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon points={points} fill={fillColor} />
       <polygon points={outlinePoints} fill={borderColor} />
     </>
@@ -340,7 +333,6 @@ export const SvgMultiHex7 = ({
   )
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon points={points} fill={fillColor} />
       <polygon points={outlinePoints} fill={borderColor} />
     </>
@@ -366,7 +358,6 @@ export const SvgMultiHexWallWalk7 = ({
   )
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon points={points} fill={fillColor} />
       <polygon points={outlinePoints} fill={borderColor} />
     </>
@@ -392,7 +383,6 @@ export const SvgMultiHexWallWalk9 = ({
   )
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon points={points} fill={fillColor} />
       <polygon points={outlinePoints} fill={borderColor} />
     </>
@@ -418,7 +408,6 @@ export const SvgMultiHex24 = ({
   )
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon points={points} fill={fillColor} />
       {isSubLevel && <polygon points={outlinePoints} fill={'white'} />}
       <polygon points={outlinePoints} fill={borderColor} />
