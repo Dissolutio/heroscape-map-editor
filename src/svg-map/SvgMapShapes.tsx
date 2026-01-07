@@ -102,6 +102,40 @@ export const SvgEmptyHex = ({
     </>
   )
 }
+export const SvgSnowSnowflake = ({
+  hex,
+  isSubLevel,
+  isGlyph,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+  isGlyph?: boolean
+}) => {
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
+  const glyphHexRadius = SVG_HEX_RADIUS / 2
+  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(glyphHexRadius)
+  const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
+  )
+  return (
+    <>
+      <polygon
+        // glyphs are rendered a little smaller
+        points={isGlyph ? glyphPoints : points}
+        fill={fillColor}
+      />
+      {/* glyphs rendered with no outline */}
+      {isGlyph ? null : <polygon points={outlinePoints} fill={borderColor} />}
+    </>
+  )
+}
 export const SvgMultiHex1 = ({
   hex,
   isSubLevel,
@@ -126,12 +160,6 @@ export const SvgMultiHex1 = ({
   )
   return (
     <>
-      {isSubLevel && (
-        <SvgSubLevelWhiteBackerPolygon
-          // glyphs are rendered a little smaller
-          points={isGlyph ? glyphPoints : points}
-        />
-      )}
       <polygon
         // glyphs are rendered a little smaller
         points={isGlyph ? glyphPoints : points}

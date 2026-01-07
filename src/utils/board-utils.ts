@@ -7,6 +7,7 @@ export function isFluidTerrainHex(terrain: string) {
     terrain === HexTerrain.lava ||
     terrain === HexTerrain.swampWater ||
     terrain === HexTerrain.ice ||
+    terrain === HexTerrain.toxicWater ||
     terrain === HexTerrain.shadow
   )
 }
@@ -21,6 +22,7 @@ export function isSolidTerrainHex(terrain: string) {
     terrain === HexTerrain.concrete ||
     terrain === HexTerrain.asphalt ||
     terrain === HexTerrain.dungeon ||
+    terrain === HexTerrain.toxic ||
     terrain === HexTerrain.wallWalk ||
     terrain === HexTerrain.swamp
   )

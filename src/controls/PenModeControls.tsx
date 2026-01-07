@@ -161,6 +161,13 @@ export default function PenModeControls() {
           <span>Dungeon</span>
           <HotkeyText text={hotkeyLookup.togglePenModeDungeon} />
         </MenuItem>
+        <MenuItem value={PiecePrefixes.toxic}>
+          <ListItemIcon>
+            <TbHexagons color={hexTerrainColor.toxicWater} />
+          </ListItemIcon>
+          <span>Toxic</span>
+          <HotkeyText text={hotkeyLookup.togglePenModeToxic} />
+        </MenuItem>
         <Divider />
 
         {/* FLUID LAND BEGIN */}
@@ -177,6 +184,13 @@ export default function PenModeControls() {
           </ListItemIcon>
           <span>Wellspring Water</span>
           <HotkeyText text={hotkeyLookup.togglePenModeWellspringWater} />
+        </MenuItem>
+        <MenuItem value={PiecePrefixes.toxicWater}>
+          <ListItemIcon>
+            <BsHexagonHalf color={hexTerrainColor.toxicWater} />
+          </ListItemIcon>
+          <span>Toxic Water</span>
+          <HotkeyText text={hotkeyLookup.togglePenModeToxicWater} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.ice}>
           <ListItemIcon>

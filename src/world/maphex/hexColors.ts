@@ -69,6 +69,9 @@ export const hexTerrainColor = {
   castleDoor: '#913B3F',
   [HexTerrain.wallWalk]: '#a8a597', //same as road
   [HexTerrain.road]: '#a8a597', // superfrog
+  [HexTerrain.toxic]: '#93FF32', // superfrog
+  toxicCap: '#303030', // same as asphaltcap
+  [HexTerrain.toxicWater]: '#93FF32', // superfrog
   // roadCap: '#787D79',
   roadCap: '#929186', // superfrog
   [HexTerrain.roadWall]: '#787D79',
@@ -84,7 +87,6 @@ export const hexTerrainColor = {
   lavaFieldCap: '#484540', // superfrog
   // [HexTerrain.lava]: '#FA003F',
   [HexTerrain.lava]: '#b00100', // superfrog
-  // [HexTerrain.asphalt]: '#413370',
   [HexTerrain.asphalt]: '#363636', // superfrog
   // asphaltCap: '#4A3A7E',
   asphaltCap: '#303030', // superfrog
@@ -155,6 +157,24 @@ export const hexTerrainColor = {
   [Pieces.startZone7]: 'rgb(255,128,0)',
   [Pieces.startZone8]: 'rgb(128,0,255)',
 }
+export const terrainCapColors: { [terrain: string]: string } = {
+  [HexTerrain.empty]: hexTerrainColor.castle,
+  // these tiles have a totally different color for their subterrain
+  [HexTerrain.grass]: hexTerrainColor.grass,
+  [HexTerrain.rock]: hexTerrainColor.rock,
+  [HexTerrain.sand]: hexTerrainColor.sand,
+  [HexTerrain.toxic]: hexTerrainColor.toxicCap,
+  // these below have same color subterrain, so a little different shade on the cap for aesthetics
+  [HexTerrain.lavaField]: hexTerrainColor.lavaFieldCap,
+  [HexTerrain.road]: hexTerrainColor.roadCap,
+  [HexTerrain.wallWalk]: hexTerrainColor.roadCap,
+  [HexTerrain.dungeon]: hexTerrainColor.dungeonCap,
+  [HexTerrain.snow]: hexTerrainColor.snowCap,
+  [HexTerrain.asphalt]: hexTerrainColor.asphaltCap,
+  [HexTerrain.concrete]: hexTerrainColor.concreteCap,
+  [HexTerrain.swamp]: hexTerrainColor.swampCap,
+}
+
 export const svgColors = {
   empty: 'rgb(0, 0, 0)',
   jungleText: '#000000',
@@ -208,7 +228,6 @@ export const svgColors = {
   [HexTerrain.sand]: '#D9E176',
   [HexTerrain.road]: '#DEDEDE',
   [HexTerrain.wallWalk]: '#DEDEDE',
-  roadDecor: '#696767',
   outlineRoad5: '#696767',
   [HexTerrain.swamp]: '#0E3D00',
   [HexTerrain.dungeon]: '#73988D',
@@ -217,7 +236,13 @@ export const svgColors = {
   [HexTerrain.concrete]: '#DEDEDE',
   [HexTerrain.snow]: '#FFFFFF',
   [HexTerrain.ancientTerrain]: '#B55908',
-  snowFlake: '#546CB3', // renegade-hexoscape
+  [HexTerrain.toxic]: '#121212',
+  [HexTerrain.toxicWater]: '#0CEB00',
+  roadDecor: '#696767',
+  snowDecor: '#506CC7',
+  iceDecor: '#FFFFFF',
+  toxicLandDecor: '#0CEB00',
+  toxicWaterDecor: '#000000',
 
   [HexTerrain.water]: '#25A8B0',
   // [HexTerrain.wellspringWater]: 'rgb(225,194,255)', // used this in virtualscape to differentiate from snow
@@ -276,7 +301,6 @@ export const svgSubLevelColors = {
   // #CDCDCD
   [HexTerrain.road]: '#EEEEEE',
   [HexTerrain.wallWalk]: '#EEEEEE',
-  // roadDecor: '#CDCDCD',
   outlineRoad5: '#B4B3B3',
   [HexTerrain.swamp]: '#9DAF96',
   [HexTerrain.dungeon]: '#C9D9D4',
@@ -284,7 +308,11 @@ export const svgSubLevelColors = {
   [HexTerrain.asphalt]: '#7A7A7A',
   [HexTerrain.concrete]: '#EEEEEE',
   [HexTerrain.snow]: '#FFFFFF',
-  snowFlake: '#B0BEEC',
+  roadDecor: '#CDCDCD',
+  snowDecor: '#B0BEEC',
+  iceDecor: '#FFFFFF',
+  toxicLandDecor: '#B2F2AF',
+  toxicWaterDecor: '#DAD0D0',
 
   [HexTerrain.wellspringWater]: '#FFFFFF', // used this in virtualscape to differentiate from snow
   [HexTerrain.swampWater]: '#D3D2B2',
@@ -292,6 +320,8 @@ export const svgSubLevelColors = {
   [HexTerrain.shadow]: '#2E2D2D',
   [HexTerrain.ice]: '#B4C2EF',
   [HexTerrain.ancientTerrain]: '#E4D0BE',
+  [HexTerrain.toxic]: '#7A7A7A',
+  [HexTerrain.toxicWater]: '#B2F2AF',
   iceFlake: '#FFFFFF',
 
   // GYLPHS

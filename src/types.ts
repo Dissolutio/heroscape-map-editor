@@ -61,6 +61,7 @@ export enum HexTerrain {
   asphalt = 'asphalt',
   concrete = 'concrete',
   dungeon = 'dungeon',
+  toxic = 'toxic',
   ancientTerrain = 'ancientTerrain',
   // fluid land
   wellspringWater = 'wellspringWater',
@@ -69,6 +70,7 @@ export enum HexTerrain {
   ice = 'ice',
   swampWater = 'swampWater',
   shadow = 'shadow',
+  toxicWater = 'toxicWater',
   // hex obstacle
   laurWall = 'laurWall',
   laurWallAddon = 'laurWallAddon',
@@ -124,7 +126,10 @@ export enum PiecePrefixes {
   concrete = 'c',
   snow = 'sn',
   road = 'rd',
+  toxic = 'x',
+  ancientTerrain = 'at',
   wellspringWater = 'ww',
+  toxicWater = 'xw',
   water = 'w',
   lava = 'l',
   swampWater = 'ws',
@@ -204,7 +209,9 @@ export const Pieces = {
   road1: `${PiecePrefixes.road}1`,
   road2: `${PiecePrefixes.road}2`,
   road5: `${PiecePrefixes.road}5`, // only land piece to have the straight-5 template, it's a bridge
+  toxic1: `${PiecePrefixes.toxic}1`,
   wellspringWater1: `${PiecePrefixes.wellspringWater}1`,
+  toxicWater1: `${PiecePrefixes.toxicWater}1`,
   water1: `${PiecePrefixes.water}1`,
   water3: `${PiecePrefixes.water}3`,
   lava1: `${PiecePrefixes.lava}1`,
