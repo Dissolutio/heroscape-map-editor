@@ -395,6 +395,10 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       piecesSoFar?.[inventoryID]?.template === '24') &&
     hex.isObstacleAuxiliary
   ) {
+    // snow hexes display a snowflake
+    // toxic land hexes display a nuclear symbol
+    // toxic water hexes display a nuclear symbol
+    // road hexes display cobblestones
     return null
   }
   if (
