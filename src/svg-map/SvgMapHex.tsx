@@ -41,6 +41,9 @@ import {
   SvgTree415,
   SvgLaurPillar,
   SvgJungle,
+  SvgSnowSnowflake,
+  SvgIceSnowflake,
+  SvgHexDecor,
 } from './SvgMapShapes'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
@@ -357,30 +360,154 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   }
   // SINGLE HEX LAND
   if (isLandHex && piecesSoFar[inventoryID].size === 1) {
-    // const roadDecorScale = 11
-    const toxicDecorScale = 11
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        {/* <g transform={`translate(${roadDecorScale * -28.812}, ${roadDecorScale * -2038.11}) scale(${roadDecorScale})`}> */}
-        <g transform={`translate(${toxicDecorScale * -28.73}, ${toxicDecorScale * -1556.155}) scale(${toxicDecorScale})`}>
-          <path
-            d="M26.3712 1552.22C25.8891 1552.51 25.4843 1552.86 25.1434 1553.29C24.5812 1553.99 24.2677 1554.84 24.2354 1555.74L24.2305 1555.87H27.3811V1555.84C27.3811 1555.82 27.3846 1555.78 27.3888 1555.74C27.4331 1555.35 27.6517 1555.01 27.9897 1554.8L28.0558 1554.75L28.0354 1554.72C27.5259 1553.87 26.4864 1552.16 26.4801 1552.16C26.4752 1552.16 26.426 1552.19 26.3712 1552.22Z"
-            fill="blue" />
-          <path
-            d="M30.7949 1552.46C30.5109 1552.93 29.4111 1554.75 29.4083 1554.75C29.4069 1554.75 29.4315 1554.77 29.4624 1554.79C29.7646 1554.98 29.9817 1555.28 30.0513 1555.61C30.0668 1555.69 30.0801 1555.79 30.0801 1555.84V1555.87H33.2308L33.2258 1555.74C33.2097 1555.3 33.1317 1554.89 32.989 1554.49C32.6713 1553.6 32.0592 1552.84 31.2362 1552.31C31.1161 1552.23 30.9924 1552.16 30.9818 1552.16C30.9776 1552.16 30.894 1552.29 30.7949 1552.46Z"
-            fill="blue" />
-          <path
-            d="M28.6079 1555.02C28.1336 1555.08 27.7885 1555.5 27.8377 1555.95C27.8602 1556.16 27.9445 1556.33 28.0977 1556.47C28.2516 1556.62 28.4294 1556.7 28.648 1556.72C28.901 1556.75 29.1639 1556.66 29.3515 1556.49C29.6811 1556.18 29.7219 1555.7 29.4478 1555.35C29.2545 1555.11 28.9291 1554.98 28.6079 1555.02Z"
-            fill="blue" />
-          <path
-            d="M27.6989 1557.58C26.4339 1559.67 26.4859 1559.58 26.4964 1559.59C26.5133 1559.6 26.7248 1559.71 26.8436 1559.76C27.3208 1559.97 27.798 1560.1 28.3448 1560.15C28.5198 1560.16 28.9379 1560.16 29.1164 1560.15C29.6534 1560.1 30.1348 1559.98 30.6071 1559.77C30.7083 1559.72 30.9332 1559.61 30.9592 1559.59L30.9746 1559.58L30.217 1558.33C29.8003 1557.64 29.4467 1557.05 29.432 1557.03L29.4053 1556.99L29.3223 1557.02C29.179 1557.09 29.0258 1557.13 28.8627 1557.15C28.6245 1557.18 28.3595 1557.13 28.1374 1557.02L28.0559 1556.99L27.6989 1557.58Z"
-            fill="blue" />
-        </g>
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
   }
-  // EARLY RETURN: LAND AUXILIARY HEXES return null
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '2' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex2 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '4' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex4 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '3' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex3 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '5' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex5 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '7' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex7 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHexWallWalk7 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk9 &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHexWallWalk9 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '6' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex6 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === Pieces.marvel &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '24' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex24 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  // LAND AUXILIARY HEXES return just decor
   if (
     isLandHex &&
     (piecesSoFar?.[inventoryID]?.template === '2' ||
@@ -395,139 +522,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       piecesSoFar?.[inventoryID]?.template === '24') &&
     hex.isObstacleAuxiliary
   ) {
-    // snow hexes display a snowflake
-    // toxic land hexes display a nuclear symbol
-    // toxic water hexes display a nuclear symbol
-    // road hexes display cobblestones
-    return null
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '2' &&
-    hex.isObstacleOrigin
-  ) {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgMultiHex2 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '4' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex4 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '3' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex3 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '5' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex5 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '7' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex7 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHexWallWalk7 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk9 &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHexWallWalk9 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '6' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex6 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === Pieces.marvel &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '24' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex24 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
   }
