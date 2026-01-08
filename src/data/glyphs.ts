@@ -38,14 +38,14 @@ export const powerGlyphs: HexoscapeGlyphs = [
   {
     // Haukeland
     id: 'haukeland',
-    name: 'Quillivon (Sudden Movement)',
-    shortName: 'Sudden Movement',
-    glyphLetter: 'Q',
+    name: 'Haukeland (Healing)',
+    shortName: 'Healing',
+    glyphLetter: 'H',
     type: 'power',
     duration: 'temporary',
-    shortDescription: 'Move 3 figures',
+    shortDescription: 'Heal 3 wounds',
     description:
-      'Choose up to 3 of your figures other than the one on this Glyph. You may move each of the chosen figures up to 5 spaces.',
+      'When one of your figures stops here, you may remove up to 3 Wound Markers from across any of your Army Cards.',
   },
   {
     // Quillivon
@@ -333,6 +333,17 @@ the figure is safe.`,
     shortDescription: 'Disengage',
     description: 'Your figures are never attacked when leaving an engagement.',
   },
+  {
+    // Zipline
+    id: 'zipline',
+    name: 'Zipline',
+    shortName: 'Zipline',
+    glyphLetter: 'ZIP',
+    type: 'power',
+    duration: 'permanent',
+    shortDescription: 'Tactical Move',
+    description: 'Once per turn, when a Small or Medium figure ends its movement on a Zipline Glyph while moving normally, you may choose another Zipline Glyph within 6 spaces of that Zipline Glyph. Place that figure on a space within 1 of and on the same level as that Glyph. A figure that is engaged when it starts to zipline will take any leaving engagement attacks. Figures may move over a Zipline Glyph without stopping.',
+  },
 ]
 
 export const marvelGlyphs: HexoscapeGlyphs = [
@@ -435,7 +446,39 @@ export const treasureGlyphs: HexoscapeGlyphs = [
     description:
       'This figure rolls an additional die when attacking or defending against large or huge figures.',
   },
-
+  {
+    id: 'nanotoxinCoating',
+    name: "Nanotoxin Coating",
+    shortName: 'Nanotoxin Coating',
+    glyphLetter: 'NC',
+    type: 'treasure',
+    duration: 'permanent',
+    shortDescription: 'Extra wound',
+    description:
+      'After you inflict 1 or more wounds with a normal attack against an adjacent figure, you may flip this Glyph symbol-side up to add 1 additional wound. At the end of the round, flip this Glyph power-side up. When this Glyph is picked up, flip it symbol-side up.',
+  },
+  {
+    id: 'naniteShielding',
+    name: "Nanite Shielding",
+    shortName: 'Nanite Shielding',
+    glyphLetter: 'NS',
+    type: 'treasure',
+    duration: 'permanent',
+    shortDescription: 'Shield 1',
+    description:
+      'Before rolling defense dice, you may flip this Glyph symbol-side up to add 1 automatic shield to your roll. At the end of the round, flip this Glyph power-side up. Only Small or Medium figures can use this ability. When this Glyph is picked up, flip it symbol-side up.',
+  },
+  {
+    id: 'jumpPack',
+    name: "Jump Pack",
+    shortName: 'Jump Pack',
+    glyphLetter: 'JP',
+    type: 'treasure',
+    duration: 'permanent',
+    shortDescription: 'Temporary flying',
+    description:
+      'Before you start to move, you may flip this Glyph symbol-side up to gain the Flying Special Power for the rest of the movement. At the end of the round, flip this Glyph power-side up. Only Small or Medium figures can use this ability. When this Glyph is picked up, flip it symbol-side up.',
+  },
   // Temporary Treasure Glyphs
   {
     id: 'potionOfHealing',
@@ -687,6 +730,17 @@ export const customGlyphs: HexoscapeGlyphs = [
     shortDescription: 'D20 +2',
     description:
       'Whenever you roll the 20 sided die, you may add two to your die roll.',
+  },
+  {
+    id: 'dualigLodin',
+    name: 'Dualig Lodin',
+    shortName: 'D20 +/-1',
+    glyphLetter: 'DL',
+    type: 'power',
+    duration: 'permanent',
+    shortDescription: 'D20 +/- 1',
+    description:
+      'When any player rolls a 20-sided die, you may choose to add 1 to the result or subtract 1 from the result.',
   },
   {
     id: 'nifl',
