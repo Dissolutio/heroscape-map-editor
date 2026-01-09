@@ -342,7 +342,8 @@ the figure is safe.`,
     type: 'power',
     duration: 'permanent',
     shortDescription: 'Tactical Move',
-    description: 'Once per turn, when a Small or Medium figure ends its movement on a Zipline Glyph while moving normally, you may choose another Zipline Glyph within 6 spaces of that Zipline Glyph. Place that figure on a space within 1 of and on the same level as that Glyph. A figure that is engaged when it starts to zipline will take any leaving engagement attacks. Figures may move over a Zipline Glyph without stopping.',
+    description:
+      'Once per turn, when a Small or Medium figure ends its movement on a Zipline Glyph while moving normally, you may choose another Zipline Glyph within 6 spaces of that Zipline Glyph. Place that figure on a space within 1 of and on the same level as that Glyph. A figure that is engaged when it starts to zipline will take any leaving engagement attacks. Figures may move over a Zipline Glyph without stopping.',
   },
 ]
 
@@ -448,7 +449,7 @@ export const treasureGlyphs: HexoscapeGlyphs = [
   },
   {
     id: 'nanotoxinCoating',
-    name: "Nanotoxin Coating",
+    name: 'Nanotoxin Coating',
     shortName: 'Nanotoxin Coating',
     glyphLetter: 'NC',
     type: 'treasure',
@@ -459,7 +460,7 @@ export const treasureGlyphs: HexoscapeGlyphs = [
   },
   {
     id: 'naniteShielding',
-    name: "Nanite Shielding",
+    name: 'Nanite Shielding',
     shortName: 'Nanite Shielding',
     glyphLetter: 'NS',
     type: 'treasure',
@@ -470,7 +471,7 @@ export const treasureGlyphs: HexoscapeGlyphs = [
   },
   {
     id: 'jumpPack',
-    name: "Jump Pack",
+    name: 'Jump Pack',
     shortName: 'Jump Pack',
     glyphLetter: 'JP',
     type: 'treasure',

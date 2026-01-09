@@ -41,11 +41,9 @@ import {
   SvgTree415,
   SvgLaurPillar,
   SvgJungle,
-  SvgSnowSnowflake,
-  SvgIceSnowflake,
   SvgHexDecor,
 } from './SvgMapShapes'
-import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
+import { singleHexObstacleHeightTextProps } from './svgText'
 
 const OPACITY_SUBLEVEL = 0.3
 
@@ -225,7 +223,9 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   }
   // Single hex trees
   if (isEvergreenTree(hex.terrain)) {
-    const textColor = isSubLevel ? svgSubLevelColors.evergreenText : svgColors.evergreenText
+    const textColor = isSubLevel
+      ? svgSubLevelColors.evergreenText
+      : svgColors.evergreenText
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />

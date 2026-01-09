@@ -91,9 +91,9 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[3] ??
-        flatPieceSizes?.[2] ??
-        flatPieceSizes?.[1] ??
-        flatPieceSizes[0],
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
       )
     }
   }
@@ -101,10 +101,10 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[4] ??
-        flatPieceSizes?.[3] ??
-        flatPieceSizes?.[2] ??
-        flatPieceSizes?.[1] ??
-        flatPieceSizes[0],
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
       )
     }
   }
@@ -136,8 +136,7 @@ export const useApplyHotkeys = ({
   const togglePenModeToxic = () => togglePenMode(PiecePrefixes.toxic)
   const togglePenModeWellspringWater = () =>
     togglePenMode(PiecePrefixes.wellspringWater)
-  const togglePenModeToxicWater = () =>
-    togglePenMode(PiecePrefixes.toxicWater)
+  const togglePenModeToxicWater = () => togglePenMode(PiecePrefixes.toxicWater)
   const togglePenModeWater = () => togglePenMode(PiecePrefixes.water)
   const togglePenModeLava = () => togglePenMode(PiecePrefixes.lava)
   const togglePenModeIce = () => togglePenMode(PiecePrefixes.ice)

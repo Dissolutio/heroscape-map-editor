@@ -45,6 +45,7 @@ import {
   PdfSvgTree415,
   PdfLaurPillar,
   PdfJungle,
+  PdfSvgHexDecor,
 } from './PdfMapShapes'
 import { hexTextStyle } from '../svg-map/svgText'
 
@@ -390,23 +391,9 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
-  }
-  // EARLY RETURN: LAND AUXILIARY HEXES return null
-  if (
-    isLandHex &&
-    (piecesSoFar?.[inventoryID]?.template === '2' ||
-      piecesSoFar?.[inventoryID]?.template === '3' ||
-      piecesSoFar?.[inventoryID]?.template === '4' ||
-      piecesSoFar?.[inventoryID]?.template === '6' ||
-      piecesSoFar?.[inventoryID]?.template === '7' ||
-      piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 ||
-      piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk9 ||
-      piecesSoFar?.[inventoryID]?.template === '24') &&
-    hex.isObstacleAuxiliary
-  ) {
-    return null
   }
   if (
     isLandHex &&
@@ -418,6 +405,7 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHex2 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -431,6 +419,7 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHex4 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -444,6 +433,7 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHex3 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -457,6 +447,7 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHex5 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -470,6 +461,7 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHex7 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -483,6 +475,7 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHexWallWalk7 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -496,6 +489,7 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHexWallWalk9 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -509,6 +503,7 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHex6 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -522,6 +517,7 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -535,6 +531,28 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHex24 hex={hex} isSubLevel={isSubLevel} />
+        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
+  // LAND AUXILIARY HEXES return just decor
+  if (
+    isLandHex &&
+    (piecesSoFar?.[inventoryID]?.template === '2' ||
+      piecesSoFar?.[inventoryID]?.template === '3' ||
+      piecesSoFar?.[inventoryID]?.template === '4' ||
+      piecesSoFar?.[inventoryID]?.template === '6' ||
+      piecesSoFar?.[inventoryID]?.template === '7' ||
+      piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 ||
+      piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk9 ||
+      piecesSoFar?.[inventoryID]?.template === '24') &&
+    hex.isObstacleAuxiliary
+  ) {
+    return (
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
