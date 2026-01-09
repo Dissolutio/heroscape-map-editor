@@ -541,6 +541,7 @@ export const PdfMapHex = ({
     (piecesSoFar?.[inventoryID]?.template === '2' ||
       piecesSoFar?.[inventoryID]?.template === '3' ||
       piecesSoFar?.[inventoryID]?.template === '4' ||
+      piecesSoFar?.[inventoryID]?.template === '5' ||
       piecesSoFar?.[inventoryID]?.template === '6' ||
       piecesSoFar?.[inventoryID]?.template === '7' ||
       piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 ||
