@@ -8,52 +8,6 @@ SHORES:
 2 crashed ship walls
 3 cannons
 6 rope ladders
-
-FORESTS
-2 10H trees
-2 12H trees
-2 15H 4-hex trees
-
-URBAN LANDSCAPE OF VALHALLA
-1 24-hex asphalt
-2 7-hex asphalt
-1 3-hex asphalt
-4 2-hex asphalt
-2 1-hex asphalt
-
-1 24-hex concrete
-2 7-hex concrete
-1 3-hex concrete
-4 2-hex concrete
-2 1-hex concrete
-
-2 fortified walls
-
-CAVERNS OF VALHALLA
-2 24-hex dungeon
-5 7-hex dungeon
-2 3-hex dungeon
-2 2-hex dungeon
-7 1-hex dungeon
-
-6 1-hex shadow
-6 1-hex shadow (modified, with holes)
-
-3 1-hex rock outcrops
-1 3-hex rock outcrop
-
-Rumble at the Rift BB
-2 24-hex asphalt
-
-5 7-hex concrete
-6 3-hex concrete
-
-8 1-hex shadow tiles
-
-6 1-hex toxic
-5 1-hex toxic water
-
-2 fortified walls
 */
 
 export const maxSharedTerrainKit: PieceInventory = {
@@ -138,6 +92,16 @@ export const battleBox1PieceSet: PieceInventory = {
   [Pieces.rock7]: 2,
   [Pieces.water1]: 6,
   [Pieces.wellspringWater1]: 7,
+}
+// rumble at the rift
+export const battleBox2PieceSet: PieceInventory = {
+  [Pieces.asphalt24]: 2,
+  [Pieces.concrete7]: 5,
+  [Pieces.concrete3]: 6,
+  [Pieces.shadow1]: 8,
+  [Pieces.toxic1]: 6,
+  [Pieces.toxicWater1]: 5,
+  [Pieces.fortifiedWall]: 2,
 }
 export const landsPieceSet: PieceInventory = {
   [Pieces.grass1]: 10,
@@ -318,6 +282,19 @@ export const cavernsOfValhalla: PieceInventory = {
   [Pieces.outcrop1]: 3,
   [Pieces.outcrop3]: 1,
 }
+export const urbanLandscapeOfValhalla: PieceInventory = {
+  [Pieces.asphalt1]: 2,
+  [Pieces.asphalt2]: 4,
+  [Pieces.asphalt3]: 1,
+  [Pieces.asphalt7]: 2,
+  [Pieces.asphalt24]: 1,
+  [Pieces.concrete1]: 2,
+  [Pieces.concrete2]: 4,
+  [Pieces.concrete3]: 1,
+  [Pieces.concrete7]: 2,
+  [Pieces.concrete24]: 1,
+  [Pieces.fortifiedWall]: 2,
+}
 export const underdarkPieceSet: PieceInventory = {
   [Pieces.grass1]: 1,
   [Pieces.grass2]: 1,
@@ -336,7 +313,7 @@ export const underdarkPieceSet: PieceInventory = {
   [Pieces.sand3]: 0,
   [Pieces.sand7]: 3,
   [Pieces.water1]: 12,
-  [Pieces.shadow1]: 8,
+  [Pieces.shadow1]: 11,
   [Pieces.shadow3]: 1,
   [Pieces.outcrop1]: 3,
   [Pieces.outcrop3]: 1,

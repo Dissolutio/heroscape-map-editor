@@ -62,6 +62,7 @@ export const pieceGroups = [
       Pieces.swampWater1,
       Pieces.swampWater3,
       Pieces.swampWater6,
+      Pieces.toxicWater1,
     ],
   },
   {
@@ -105,6 +106,10 @@ export const pieceGroups = [
   {
     label: 'Road',
     pieces: [Pieces.road1, Pieces.road2, Pieces.road5],
+  },
+  {
+    label: 'Toxic',
+    pieces: [Pieces.toxic1],
   },
   {
     label: 'Obstacles & Jungle',

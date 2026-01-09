@@ -61,6 +61,7 @@ export enum HexTerrain {
   asphalt = 'asphalt',
   concrete = 'concrete',
   dungeon = 'dungeon',
+  toxic = 'toxic',
   ancientTerrain = 'ancientTerrain',
   // fluid land
   wellspringWater = 'wellspringWater',
@@ -69,6 +70,7 @@ export enum HexTerrain {
   ice = 'ice',
   swampWater = 'swampWater',
   shadow = 'shadow',
+  toxicWater = 'toxicWater',
   // hex obstacle
   laurWall = 'laurWall',
   laurWallAddon = 'laurWallAddon',
@@ -112,12 +114,6 @@ export type Piece = {
   // TODO: account for 1 marvel wall => 4 variations, 1 castle arch => 2 variations
   isUninventoried?: boolean // so far just marvel-ruins-broken and castle-arch-no-door versions (these are just variations on their inventoried counterparts)
 }
-export type PieceSet = {
-  id: PieceSetIds
-  title: string // the human friendly name
-  inventory: PieceInventory
-  abbreviation: string
-}
 export enum PiecePrefixes {
   startZone = 'z',
   grass = 'g',
@@ -130,7 +126,10 @@ export enum PiecePrefixes {
   concrete = 'c',
   snow = 'sn',
   road = 'rd',
+  toxic = 'x',
+  ancientTerrain = 'at',
   wellspringWater = 'ww',
+  toxicWater = 'xw',
   water = 'w',
   lava = 'l',
   swampWater = 'ws',
@@ -150,28 +149,6 @@ export enum PiecePrefixes {
   laurWall = 'lw',
   castleArch = 'ca',
   glyph = 'y',
-}
-export enum PieceSetIds {
-  // these inventory IDs are purposely short, to make their character length small for maximum-sized URL-shareable maps
-  aoaMaster1 = 'aoa',
-  mstk = 'mstk',
-  totk = 'totk',
-  battleForWellspring = 'bftw',
-  laurJungle = 'lj',
-  landsOfValhalla = 'lov',
-  watersOfValhalla = 'wov',
-  swampsOfValhalla = 'sov',
-  snowfieldsOfValhalla = 'sfov',
-  lavafieldsOfValhalla = 'lfov',
-  volcarren = 'volc',
-  ticallaJungle = 'tj',
-  forgottenForest = 'ff',
-  underdarkMaster = 'bftu',
-  fortress = 'fort',
-  marvel = 'marv',
-  thaelenkTundra = 'tt',
-  riseOfValkyrieMaster = 'rotv',
-  swarmOfMarroMaster = 'sotm',
 }
 export const Pieces = {
   startZone1: `${PiecePrefixes.startZone}1`,
@@ -232,7 +209,9 @@ export const Pieces = {
   road1: `${PiecePrefixes.road}1`,
   road2: `${PiecePrefixes.road}2`,
   road5: `${PiecePrefixes.road}5`, // only land piece to have the straight-5 template, it's a bridge
+  toxic1: `${PiecePrefixes.toxic}1`,
   wellspringWater1: `${PiecePrefixes.wellspringWater}1`,
+  toxicWater1: `${PiecePrefixes.toxicWater}1`,
   water1: `${PiecePrefixes.water}1`,
   water3: `${PiecePrefixes.water}3`,
   lava1: `${PiecePrefixes.lava}1`,

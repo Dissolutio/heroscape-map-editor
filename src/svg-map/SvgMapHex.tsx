@@ -41,8 +41,9 @@ import {
   SvgTree415,
   SvgLaurPillar,
   SvgJungle,
+  SvgHexDecor,
 } from './SvgMapShapes'
-import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
+import { singleHexObstacleHeightTextProps } from './svgText'
 
 const OPACITY_SUBLEVEL = 0.3
 
@@ -222,7 +223,9 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   }
   // Single hex trees
   if (isEvergreenTree(hex.terrain)) {
-    const textColor = isSubLevel ? svgSubLevelColors.evergreenText : svgColors.evergreenText
+    const textColor = isSubLevel
+      ? svgSubLevelColors.evergreenText
+      : svgColors.evergreenText
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
@@ -360,10 +363,151 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
   }
-  // EARLY RETURN: LAND AUXILIARY HEXES return null
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '2' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex2 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '4' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex4 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '3' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex3 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '5' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex5 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '7' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex7 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHexWallWalk7 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk9 &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHexWallWalk9 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '6' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex6 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === Pieces.marvel &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  if (
+    isLandHex &&
+    piecesSoFar?.[inventoryID]?.template === '24' &&
+    hex.isObstacleOrigin
+  ) {
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgMultiHex24 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  // LAND AUXILIARY HEXES return just decor
   if (
     isLandHex &&
     (piecesSoFar?.[inventoryID]?.template === '2' ||
@@ -378,135 +522,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       piecesSoFar?.[inventoryID]?.template === '24') &&
     hex.isObstacleAuxiliary
   ) {
-    return null
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '2' &&
-    hex.isObstacleOrigin
-  ) {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgMultiHex2 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '4' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex4 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '3' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex3 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '5' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex5 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '7' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex7 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk7 &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHexWallWalk7 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === Pieces.wallWalk9 &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHexWallWalk9 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '6' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex6 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === Pieces.marvel &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
-      </g>
-    )
-  }
-  if (
-    isLandHex &&
-    piecesSoFar?.[inventoryID]?.template === '24' &&
-    hex.isObstacleOrigin
-  ) {
-    return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgMultiHex24 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
   }

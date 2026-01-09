@@ -11,8 +11,8 @@ import type {
   DreiCapProps,
   InstanceRefType,
 } from '../instance-hex'
-import { terrainCapColors } from '../terrainCapColors'
 import { CylinderGeometry } from 'three'
+import { terrainCapColors } from '../hexColors'
 
 const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
   0.8515,
