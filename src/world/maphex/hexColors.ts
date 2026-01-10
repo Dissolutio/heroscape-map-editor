@@ -210,6 +210,7 @@ export const svgColors = {
   // OBSTACLES
   [HexTerrain.ladder]: 'rgb(173, 75, 35)',
   [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
+  [HexTerrain.fortifiedWall]: '#FF06C8',
   fillJungle: '#FFE606',
   fillSwampUnderbrush: 'rgb(33, 56, 27)',
   // [HexTerrain.palm]: 'rgb(67, 249, 57)', // virtualscape
@@ -282,6 +283,7 @@ export const svgSubLevelColors = {
   // OBSTACLES
   [HexTerrain.ladder]: '#D6A591',
   [HexTerrain.ruin]: '#D08080', // virtualscape
+  [HexTerrain.fortifiedWall]: '#FFC8E9',
   fillJungle: '#EBE5B5',
   fillSwampUnderbrush: '#909C8D)',
   [HexTerrain.tree]: '#9CD7AD',

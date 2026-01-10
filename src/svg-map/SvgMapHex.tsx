@@ -42,6 +42,7 @@ import {
   SvgLaurPillar,
   SvgJungle,
   SvgHexDecor,
+  SvgFortifiedWall,
 } from './SvgMapShapes'
 import { singleHexObstacleHeightTextProps } from './svgText'
 
@@ -111,6 +112,17 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgRuins3 hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  // Fortified Wall
+  if (inventoryID === Pieces.fortifiedWall && hex.isObstacleOrigin) {
+    console.log('🚀 ~ SvgMapHex ~ hex.isObstacleOrigin:', hex.isObstacleOrigin)
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgFortifiedWall hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
   }
