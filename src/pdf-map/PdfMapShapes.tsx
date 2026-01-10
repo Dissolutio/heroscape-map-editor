@@ -884,7 +884,7 @@ export const PdfSvgFortifiedWall = ({
     : getSvgHexFillColor(hex)
   const { points } = getFortifiedWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH * 2,
+    SVG_BORDER_WIDTH,
   )
 
   return <Polygon points={points} fill={fillColor} />
