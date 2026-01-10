@@ -554,7 +554,10 @@ export function getRuins3SvgPolygonPoints(radius: number, borderWidth: number) {
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners, path }
 }
-export function getFortifiedWallSvgPolygonPoints(radius: number, borderWidth: number) {
+export function getFortifiedWallSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const radiusInner = radius - borderWidth
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2

@@ -846,15 +846,15 @@ export const SvgFortifiedWall = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel ? getSvgHexSubLevelFillColor(hex) : getSvgHexFillColor(hex)
-  const { points } = getFortifiedWallSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH)
-
-  return (
-    <polygon
-      points={points}
-      fill={fillColor}
-    />
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const { points } = getFortifiedWallSvgPolygonPoints(
+    SVG_HEX_RADIUS,
+    SVG_BORDER_WIDTH,
   )
+
+  return <polygon points={points} fill={fillColor} />
 }
 export const SvgMarvelRuin = ({
   hex,

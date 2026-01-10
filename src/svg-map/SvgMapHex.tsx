@@ -117,7 +117,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   }
   // Fortified Wall
   if (inventoryID === Pieces.fortifiedWall && hex.isObstacleOrigin) {
-    console.log("🚀 ~ SvgMapHex ~ hex.isObstacleOrigin:", hex.isObstacleOrigin)
+    console.log('🚀 ~ SvgMapHex ~ hex.isObstacleOrigin:', hex.isObstacleOrigin)
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
