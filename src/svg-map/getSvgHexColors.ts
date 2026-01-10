@@ -194,6 +194,7 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     isFluidTerrainHex(hex.terrain) ||
     hex.terrain === HexTerrain.laurWall ||
     hex.terrain === HexTerrain.laurWallAddon ||
+    hex.terrain === HexTerrain.fortifiedWall ||
     hex.terrain === HexTerrain.roadWall ||
     hex.terrain === HexTerrain.glyphPower ||
     hex.terrain === HexTerrain.glyphTreasure ||
@@ -253,6 +254,7 @@ export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
     isFluidTerrainHex(hex.terrain) ||
     hex.terrain === HexTerrain.laurWall ||
     hex.terrain === HexTerrain.laurWallAddon ||
+    hex.terrain === HexTerrain.fortifiedWall ||
     hex.terrain === HexTerrain.roadWall ||
     hex.terrain === HexTerrain.glyphPower ||
     hex.terrain === HexTerrain.glyphTreasure ||

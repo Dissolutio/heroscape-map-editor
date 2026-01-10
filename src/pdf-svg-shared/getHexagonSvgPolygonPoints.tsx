@@ -554,6 +554,31 @@ export function getRuins3SvgPolygonPoints(radius: number, borderWidth: number) {
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners, path }
 }
+export function getFortifiedWallSvgPolygonPoints(radius: number, borderWidth: number) {
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const radiusInner = radius - borderWidth
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const corners: Point[] = [
+    /* 
+       /    
+    __V
+    */
+    { x: 0, y: radius - borderWidth }, // bottom-inside hex1
+    { x: -2 * apothem, y: radius - borderWidth }, // top-left hex2
+    { x: -2 * apothem, y: radius }, //  bottom hex2
+    { x: 0, y: radius }, // bottom-outside hex1
+    { x: apothem, y: radius / 2 }, //  bottom-right-outside hex1
+    { x: 2 * apothem, y: -radius }, //  bottom-right-outside hex3
+
+    // { x: 2 * apothem - borderWidth / 2, y: -radius - (borderWidth * ratio) }, //  bottom-right-inside hex3
+    { x: apothem + apothemInner, y: -1.5 * radius + 0.5 * radiusInner }, //  bottom-right // FROM MultiHex1
+
+    // { x: apothem - borderWidth / 2, y: (radius / 2) - (borderWidth * ratio) }, //  bottom-right-inside hex1
+    { x: apothemInner, y: 0.5 * radiusInner }, //  bottom-right // FROM MultiHex1
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points }
+}
 export function getMarvelRuinsShapeSvgPath(radius: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const hexWidth = 2 * apothem
