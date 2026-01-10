@@ -32,6 +32,7 @@ import {
 import {
   getSvgHexBorderColor,
   getSvgHexFillColor,
+  getSvgHexSubLevelFillColor,
 } from '../svg-map/getSvgHexColors'
 import {
   type BoardHex,
@@ -43,6 +44,7 @@ import {
   OPACITY_EMPTY,
   OPACITY_SUBLEVEL,
   PDF_BORDER_WIDTH,
+  SVG_BORDER_WIDTH,
   SVG_EMPTYHEX_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
@@ -53,6 +55,7 @@ import {
   hexTextStyle,
   singleHexObstacleHeightTextProps,
 } from '../svg-map/svgText'
+import { getFortifiedWallSvgPolygonPoints } from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
 
 export const PdfEmptyHex = () => {
   const fillColor = 'white'
@@ -867,6 +870,23 @@ export const PdfSvgRuins3 = ({
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
       />
     </>
+  )
+}
+export const PdfSvgFortifiedWall = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = isSubLevel ? getSvgHexSubLevelFillColor(hex) : getSvgHexFillColor(hex)
+  const { points } = getFortifiedWallSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH * 2)
+
+  return (
+    <Polygon
+      points={points}
+      fill={fillColor}
+    />
   )
 }
 export const PdfMarvelRuin = ({

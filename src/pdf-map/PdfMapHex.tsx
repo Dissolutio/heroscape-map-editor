@@ -46,6 +46,7 @@ import {
   PdfLaurPillar,
   PdfJungle,
   PdfSvgHexDecor,
+  PdfSvgFortifiedWall,
 } from './PdfMapShapes'
 import { hexTextStyle } from '../svg-map/svgText'
 
@@ -148,6 +149,15 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfSvgRuins2 hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
+  if (inventoryID === Pieces.fortifiedWall && hex.isObstacleOrigin) {
+    return (
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <PdfSvgFortifiedWall hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
