@@ -13,9 +13,11 @@ const adjustYForNew00Centers = -1 * SVG_HEX_RADIUS
 
 export const SvgMapDisplay = () => {
   const boardHexes = useBoundStore((state) => state.boardHexes)
-  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const boardPieces = useBoundStore((s) => {
+    return s.boardPieces;
+  })
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const decodedBoardPiecesArr = Object.keys(boardPieces)
+  const decodedBoardPiecesArr = boardPieces
     .map((id) => decodePieceID(id))
     .filter((p) => Boolean(p))
   const hexMap = useBoundStore((state) => state.hexMap)
