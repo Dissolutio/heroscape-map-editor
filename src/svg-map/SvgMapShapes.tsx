@@ -919,18 +919,17 @@ export const SvgBoardPieceLaurWallLong = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  console.log("🚀 ~ SvgBoardPieceLaurWallLong ~ piece:", piece)
-  const fillColor = isSubLevel ? getSvgHexSubLevelFillColor(piece) : getSvgHexFillColor(piece)
+  console.log('🚀 ~ SvgBoardPieceLaurWallLong ~ piece:', piece)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
   const { points } = getLaurLongWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
     <>
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
+      <polygon points={points} fill={fillColor} />
     </>
   )
 }
