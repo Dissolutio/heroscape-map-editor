@@ -150,9 +150,6 @@ export const MapHex3D = ({
       inventoryID === Pieces.marvelNoUpper ||
       inventoryID === Pieces.marvelNoUpperBroken) &&
     boardHex.isObstacleOrigin
-  const isCastleBaseEnd = inventoryID === Pieces.castleBaseEnd
-  const isCastleBaseStraight = inventoryID === Pieces.castleBaseStraight
-  const isCastleBaseCorner = inventoryID === Pieces.castleBaseCorner
   const isCastleWallEnd =
     inventoryID === Pieces.castleWallEnd && boardHex.isObstacleOrigin
   const isCastleWallStraight =
@@ -161,8 +158,7 @@ export const MapHex3D = ({
     inventoryID === Pieces.castleWallCorner && boardHex.isObstacleOrigin
   const isCastleWall =
     isCastleWallEnd || isCastleWallStraight || isCastleWallCorner
-  const isCastleBase =
-    isCastleBaseEnd || isCastleBaseStraight || isCastleBaseCorner
+  const isCastleBase = boardHex.terrain === HexTerrain.castleBase
   const isCastleArch =
     inventoryID === Pieces.castleArch || inventoryID === Pieces.castleArchNoDoor
 
@@ -196,9 +192,9 @@ export const MapHex3D = ({
             new Vector3(
               x,
               y *
-                (isFluidTerrainHex(boardHex.terrain)
-                  ? HEXGRID_HEXCAP_FLUID_SCALE
-                  : 1),
+              (isFluidTerrainHex(boardHex.terrain)
+                ? HEXGRID_HEXCAP_FLUID_SCALE
+                : 1),
               z,
             )
           }
@@ -622,8 +618,8 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-              selectedPieceID === boardHex.pieceID
-                ? hexTerrainColor[HexTerrain.castle]
+                selectedPieceID === boardHex.pieceID
+                ? hexTerrainColor[HexTerrain.castleBase]
                 : 'yellow'
             }
           />
@@ -649,9 +645,9 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+                  selectedPieceID === boardHex.pieceID
                   ? 'yellow'
-                  : hexTerrainColor[HexTerrain.castle]
+                  : hexTerrainColor[HexTerrain.castleWall]
               }
             />
           )}

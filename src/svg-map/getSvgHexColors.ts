@@ -98,8 +98,11 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgColors.outlineLavaOutcrop
   }
-  if (isCastleTerrain(hex.terrain)) {
-    return svgColors.castle
+  if (hex.terrain === HexTerrain.castleWall) {
+    return svgColors.castleWall
+  }
+  if (hex.terrain === HexTerrain.castleBase) {
+    return svgColors.castleBase
   }
   return 'black'
 }
@@ -178,8 +181,11 @@ export const getSvgHexSubLevelBorderColor = (
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgSubLevelColors.outlineLavaOutcrop
   }
-  if (isCastleTerrain(hex.terrain)) {
-    return svgSubLevelColors.castle
+  if (hex.terrain === HexTerrain.castleWall) {
+    return svgSubLevelColors.castleWall
+  }
+  if (hex.terrain === HexTerrain.castleBase) {
+    return svgSubLevelColors.castleBase
   }
   return 'black'
 }
@@ -215,7 +221,7 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     return svgColors.fillJungle
   }
   if (hex.terrain === HexTerrain.marvelRuin) {
-    return svgColors.castle
+    return svgColors.castleWall
   }
   if (hex.terrain === HexTerrain.palm) {
     // Renegade shows brush and palm as same color
@@ -239,8 +245,11 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgColors.lava
   }
-  if (isCastleTerrain(hex.terrain)) {
-    return svgColors.castle
+  if (hex.terrain === HexTerrain.castleWall) {
+    return svgColors.castleWall
+  }
+  if (hex.terrain === HexTerrain.castleBase) {
+    return svgColors.castleBase
   }
   return 'transparent'
 }
@@ -275,7 +284,7 @@ export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
     return svgSubLevelColors.fillJungle
   }
   if (hex.terrain === HexTerrain.marvelRuin) {
-    return svgSubLevelColors.castle
+    return svgSubLevelColors.castleWall
   }
   if (hex.terrain === HexTerrain.palm) {
     // Renegade shows brush and palm as same color
@@ -300,8 +309,11 @@ export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgSubLevelColors.lava
   }
-  if (isCastleTerrain(hex.terrain)) {
-    return svgSubLevelColors.castle
+  if (hex.terrain === HexTerrain.castleWall) {
+    return svgSubLevelColors.castleWall
+  }
+  if (hex.terrain === HexTerrain.castleBase) {
+    return svgSubLevelColors.castleBase
   }
   return 'transparent'
 }

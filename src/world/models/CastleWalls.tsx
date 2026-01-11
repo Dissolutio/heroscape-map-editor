@@ -22,12 +22,11 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
   const [capColor, setCapColor] = React.useState(
-    hexTerrainColor[HexTerrain.castle],
+    hexTerrainColor[HexTerrain.castleWall],
   )
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const toggleHoveredHex = useBoundStore((s) => s.toggleHoveredHex)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -41,7 +40,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const scaleY = (boardHex?.obstacleHeight ?? 9) + (1 - scaleYAdjust)
   const scale = new Vector3(1, scaleY, 1)
   const pieceID = boardHex.pieceID
-  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
+  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castleWall]
   const boardHexIdOfCapForWall = genBoardHexID({
     ...boardHex,
     altitude: boardHex.altitude + (boardHex?.obstacleHeight ?? 0),
@@ -56,7 +55,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const onPointerOutCap = (e: ThreeEvent<PointerEvent>) => {
     // toggleHoveredHex(undefined)
     onPointerOut(e)
-    setCapColor(hexTerrainColor[HexTerrain.castle])
+    setCapColor(hexTerrainColor[HexTerrain.castleWall])
     e.stopPropagation()
   }
   const bodyGeometry = pieceID.includes(Pieces.castleWallEnd)
@@ -132,7 +131,7 @@ export function CastleWallPreview({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
-  const capColor = hexTerrainColor[HexTerrain.castle]
+  const capColor = hexTerrainColor[HexTerrain.castleWall]
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -140,7 +139,7 @@ export function CastleWallPreview({
   // castle walls are 10 levels tall, UNLESS stacked on another wall, then they are 9 (they have a 1-level bottom base when on land)
   const scaleY = (isCastleUnder ? 8 : 9) + (1 - scaleYAdjust)
   const scale = new Vector3(1, scaleY, 1)
-  const color = hexTerrainColor[HexTerrain.castle]
+  const color = hexTerrainColor[HexTerrain.castleWall]
   const bodyGeometry = isCastleEnd
     ? nodes.CastleWallEndBody.geometry
     : isCastleStraight

@@ -23,7 +23,8 @@ export const virtualscapeTileColors: Dictionary<string> = {
   [HexTerrain.marvelRuin]: 'rgb(220, 220, 220)',
   [HexTerrain.outcrop]: 'rgb(180,180,180)',
   [HexTerrain.wallWalk]: 'rgb(190,190,190)',
-  [HexTerrain.castle]: 'rgb(220, 220, 220)',
+  [HexTerrain.castleBase]: 'rgb(220, 220, 220)',
+  [HexTerrain.castleWall]: 'rgb(220, 220, 220)',
   castle2: 'rgb(50, 50, 50)', // Castle tiles in virtualscape have a second color for the castle interior shape
   [HexTerrain.battlement]: 'rgb(80, 80, 80)',
   castleFlag: 'rgb(0,100,0)',
@@ -63,7 +64,8 @@ export const hexTerrainColor = {
   [HexTerrain.water]: '#028bc4', // superfrog
   [HexTerrain.wellspringWater]: '#BA70FF',
   [HexTerrain.ruin]: '#A2A0A6',
-  [HexTerrain.castle]: '#B6B5BA',
+  [HexTerrain.castleWall]: '#B6B5BA',
+  [HexTerrain.castleBase]: '#B6B5BA',
   [HexTerrain.ladder]: '#D15D23',
   [HexTerrain.battlement]: '#ACABB0',
   castleDoor: '#913B3F',
@@ -217,7 +219,8 @@ export const svgColors = {
   [HexTerrain.tree]: '#269C48',
   [HexTerrain.laurWall]: '#6B1463',
   [HexTerrain.laurWallAddon]: '#FF06C8',
-  [HexTerrain.castle]: 'rgb(80, 79, 84)',
+  [HexTerrain.castleWall]: 'rgb(80, 79, 84)',
+  [HexTerrain.castleBase]: 'rgb(80, 79, 84)',
   castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
   [HexTerrain.lavaRockOutcrop]: '#FF0000',
   outcropText: '#DAD0D0',
@@ -290,7 +293,8 @@ export const svgSubLevelColors = {
   [HexTerrain.tree]: '#9CD7AD',
   [HexTerrain.laurWall]: '#E1C8DF',
   [HexTerrain.laurWallAddon]: '#FFC8E9',
-  [HexTerrain.castle]: '#A8A7AA',
+  [HexTerrain.castleBase]: '#A8A7AA',
+  [HexTerrain.castleWall]: '#A8A7AA',
   // castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
   [HexTerrain.lavaRockOutcrop]: '#FFA7A7',
   outcropText: '#DAD0D0',

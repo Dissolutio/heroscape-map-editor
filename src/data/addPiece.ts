@@ -128,7 +128,7 @@ export function addPiece({
     })
   })
   const isCastleWallUnder = underHexIds.some(
-    (id) => newBoardHexes?.[id]?.terrain === HexTerrain.castle,
+    (id) => newBoardHexes?.[id]?.terrain === HexTerrain.castleWall,
   )
   const isPlacingWallWalkOnWall =
     piece.terrain === HexTerrain.wallWalk && isSpaceFree && isCastleWallUnder

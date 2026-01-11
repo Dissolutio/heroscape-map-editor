@@ -1288,7 +1288,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.castleBaseEnd]: {
     id: Pieces.castleBaseEnd,
     title: 'Fortress Wall Base (End)',
-    terrain: HexTerrain.castle,
+    terrain: HexTerrain.castleBase,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
@@ -1298,7 +1298,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.castleBaseStraight]: {
     id: Pieces.castleBaseStraight,
     title: 'Fortress Wall Base (Straight)',
-    terrain: HexTerrain.castle,
+    terrain: HexTerrain.castleBase,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
@@ -1308,7 +1308,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.castleBaseCorner]: {
     id: Pieces.castleBaseCorner,
     title: 'Fortress Wall Base (Corner)',
-    terrain: HexTerrain.castle,
+    terrain: HexTerrain.castleBase,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
@@ -1318,7 +1318,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.castleArch]: {
     id: Pieces.castleArch,
     title: 'Fortress Doorway',
-    terrain: HexTerrain.castle,
+    terrain: HexTerrain.castleWall,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
@@ -1328,7 +1328,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.castleArchNoDoor]: {
     id: Pieces.castleArchNoDoor,
     title: 'Fortress Doorway (No door)',
-    terrain: HexTerrain.castle,
+    terrain: HexTerrain.castleWall,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
@@ -1339,7 +1339,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.castleWallEnd]: {
     id: Pieces.castleWallEnd,
     title: 'Fortress Wall (End)',
-    terrain: HexTerrain.castle,
+    terrain: HexTerrain.castleWall,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
@@ -1349,7 +1349,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.castleWallStraight]: {
     id: Pieces.castleWallStraight,
     title: 'Fortress Wall (Straight)',
-    terrain: HexTerrain.castle,
+    terrain: HexTerrain.castleWall,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
@@ -1359,7 +1359,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   [Pieces.castleWallCorner]: {
     id: Pieces.castleWallCorner,
     title: 'Fortress Wall (Corner)',
-    terrain: HexTerrain.castle,
+    terrain: HexTerrain.castleWall,
     isHexTerrainPiece: false,
     isObstaclePiece: true,
     size: 1,
