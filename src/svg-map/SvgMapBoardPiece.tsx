@@ -13,6 +13,7 @@ export const SvgMapBoardPiece = ({
   piece,
   viewingLevel,
 }: { piece: DecodedPieceID; viewingLevel: number }) => {
+  console.log('🚀 ~ SvgMapBoardPiece ~ piece:', piece)
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
   const isSubLevel = altitudeAdjusted < viewingLevel
@@ -49,6 +50,7 @@ export const SvgMapBoardPiece = ({
 
   // LAUR LONGWALLS
   if (inventoryID === Pieces.laurWallLong) {
+    console.log('🚀 ~ SvgMapBoardPiece ~ inventoryID:', inventoryID)
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}

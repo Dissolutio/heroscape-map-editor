@@ -60,14 +60,14 @@ export const ReactPdfSvgMapDisplay = ({
     </Svg>
   )
 }
-const PdfSvgXYHelperLines = ({
-  length,
-  width,
-}: { length: number; width: number }) => {
-  return (
-    <>
-      <Line x1={0} x2={0} y1={0} y2={length} stroke="red" strokeWidth={0.5} />
-      <Line x1={0} x2={width} y1={0} y2={0} stroke="blue" strokeWidth={0.5} />
-    </>
-  )
-}
+// const PdfSvgXYHelperLines = ({
+//   length,
+//   width,
+// }: { length: number; width: number }) => {
+//   return (
+//     <>
+//       <Line x1={0} x2={0} y1={0} y2={length} stroke="red" strokeWidth={0.5} />
+//       <Line x1={0} x2={width} y1={0} y2={0} stroke="blue" strokeWidth={0.5} />
+//     </>
+//   )
+// }

@@ -216,6 +216,7 @@ export const svgColors = {
   // [HexTerrain.palm]: 'rgb(67, 249, 57)', // virtualscape
   [HexTerrain.tree]: '#269C48',
   [HexTerrain.laurWall]: '#6B1463',
+  [HexTerrain.laurWallAddon]: '#FF06C8',
   [HexTerrain.castle]: 'rgb(80, 79, 84)',
   castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
   [HexTerrain.lavaRockOutcrop]: '#FF0000',
@@ -288,6 +289,7 @@ export const svgSubLevelColors = {
   fillSwampUnderbrush: '#909C8D)',
   [HexTerrain.tree]: '#9CD7AD',
   [HexTerrain.laurWall]: '#E1C8DF',
+  [HexTerrain.laurWallAddon]: '#FFC8E9',
   [HexTerrain.castle]: '#A8A7AA',
   // castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
   [HexTerrain.lavaRockOutcrop]: '#FFA7A7',

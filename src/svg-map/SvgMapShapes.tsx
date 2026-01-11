@@ -919,21 +919,17 @@ export const SvgBoardPieceLaurWallLong = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const borderColor = getSvgHexBorderColor(piece)
+  console.log('🚀 ~ SvgBoardPieceLaurWallLong ~ piece:', piece)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
   const { points } = getLaurLongWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={borderColor} // RENEGADE: they have all border color, community might want regular fill
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
+      <polygon points={points} fill={fillColor} />
     </>
   )
 }

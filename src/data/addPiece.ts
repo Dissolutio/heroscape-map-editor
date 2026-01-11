@@ -171,7 +171,7 @@ export function addPiece({
     }
   }
   // ROADWALLS: Autoadd piece id, render from boardPieces
-  if (isPlacingRoadWall) {
+  else if (isPlacingRoadWall) {
     try {
       // Add the new roadwall piece
       newBoardPieces.push(pieceID)
@@ -180,7 +180,7 @@ export function addPiece({
     }
   }
   // BATTLEMENTS: Autoadd piece id, render from boardPieces
-  if (isPlacingBattlement) {
+  else if (isPlacingBattlement) {
     try {
       // Add the new battlement piece
       newBoardPieces.push(ladderBattlementPieceID)
@@ -192,7 +192,7 @@ export function addPiece({
   // ALL PIECES BELOW ARE RENDERED FROM BOARD HEXES
 
   // LADDERS
-  if (isLadderPieceID) {
+  else if (isLadderPieceID) {
     const isPlacingLadder =
       isLadderPieceID &&
       isSpaceFree &&
@@ -257,7 +257,7 @@ export function addPiece({
     }
   }
   // RUINS / FORTIFIED WALL
-  if (
+  else if (
     piece.terrain === HexTerrain.ruin ||
     piece.terrain === HexTerrain.fortifiedWall
   ) {
@@ -357,7 +357,7 @@ export function addPiece({
   }
 
   // CASTLE BASE
-  if (piece.id.includes(PiecePrefixes.castleBase)) {
+  else if (piece.id.includes(PiecePrefixes.castleBase)) {
     const isCastleBaseSupported = isPlacingOnTable || isSolidUnderAtLeastOne // castle bases are all 1-hex, currently
     const isPlacingCastleBase = isSpaceFree && isCastleBaseSupported
     if (isPlacingCastleBase) {
@@ -395,7 +395,7 @@ export function addPiece({
     newBoardPieces.push(pieceID)
   }
   // CASTLE ARCH (no error reporting)
-  if (isCastleArchPiece) {
+  else if (isCastleArchPiece) {
     const isSolidUnder2OuterHexes = underHexIds.every(
       (id, i) =>
         i === 1 ? true : isSolidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
@@ -457,7 +457,7 @@ export function addPiece({
     }
   }
   // CASTLE WALL (no error reporting)
-  if (isCastleWallPiece) {
+  else if (isCastleWallPiece) {
     const isCastleUnderAll = underHexIds.every(
       (id) =>
         newBoardHexes?.[id]?.pieceID.includes(PiecePrefixes.castleBase) ||
@@ -552,7 +552,7 @@ export function addPiece({
     }
   }
   // WALLWALK ONTO WALL
-  if (isPlacingWallWalkOnWall) {
+  else if (isPlacingWallWalkOnWall) {
     newHexIds.forEach((newHexID, iForEach) => {
       const hexAbove = newBoardHexes?.[overHexIds[iForEach]]
       const isSolidAbove = isSolidTerrainHex(hexAbove?.terrain)
@@ -575,7 +575,7 @@ export function addPiece({
     newBoardPieces.push(pieceID)
   }
   // OBSTACLES: trees, bushes, palms, glaciers, outcrops, laurPillar
-  if (isPlacingObstacle) {
+  else if (isPlacingObstacle) {
     newHexIds.forEach((newHexID, i) => {
       const hexUnderneath = newBoardHexes?.[underHexIds[i]]
       // remove caps covered by this obstacle
@@ -676,7 +676,7 @@ export function addPiece({
     newBoardPieces.push(pieceID)
   }
   // LAND
-  if (isPlacingLandTile) {
+  else if (isPlacingLandTile) {
     // castle-wallwalk placed here as normal land
     const isLandPieceSupported = isPlacingOnTable || isSolidUnderAtLeastOne
     if (isSpaceFree && isLandPieceSupported) {
