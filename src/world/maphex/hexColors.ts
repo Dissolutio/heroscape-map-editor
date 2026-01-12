@@ -257,6 +257,7 @@ export const svgColors = {
   [HexTerrain.shadow]: '#000000',
   [HexTerrain.ice]: '#8EA3E8',
   iceFlake: '#FFFFFF',
+  [HexTerrain.hive]: '#ACA521',
 
   // GYLPHS
   // glyph: 'rgb(244, 106, 22)', // renegade
@@ -331,6 +332,7 @@ export const svgSubLevelColors = {
   [HexTerrain.toxic]: '#7A7A7A',
   [HexTerrain.toxicWater]: '#B2F2AF',
   iceFlake: '#FFFFFF',
+  [HexTerrain.hive]: '#D3D2B2',
 
   // GYLPHS
   // glyph: 'rgb(244, 106, 22)', // renegade

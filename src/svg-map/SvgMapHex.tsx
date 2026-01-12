@@ -8,7 +8,7 @@ import {
   isJungleTerrainHex,
   isSolidTerrainHex,
 } from '../utils/board-utils'
-import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
+import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS, SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH } from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
@@ -143,7 +143,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   ) {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH} />
         <text
           fill={
             hex.terrain === HexTerrain.glacier
@@ -239,7 +239,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       : svgColors.evergreenText
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH} />
         <text
           fill={textColor}
           // white text needs a little opacity boost

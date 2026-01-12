@@ -206,6 +206,7 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     hex.terrain === HexTerrain.glyphTreasure ||
     hex.terrain === HexTerrain.tree ||
     hex.terrain === HexTerrain.battlement ||
+    hex.terrain === HexTerrain.hive ||
     hex.terrain === HexTerrain.ladder
   ) {
     return (
@@ -269,6 +270,7 @@ export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
     hex.terrain === HexTerrain.glyphTreasure ||
     hex.terrain === HexTerrain.tree ||
     hex.terrain === HexTerrain.battlement ||
+    hex.terrain === HexTerrain.hive ||
     hex.terrain === HexTerrain.ladder
   ) {
     return (

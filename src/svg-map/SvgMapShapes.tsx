@@ -58,6 +58,7 @@ import {
   SVG_EMPTYHEX_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
+  SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
 } from '../utils/constants'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from './svg-hive'
@@ -251,10 +252,12 @@ const SvgToxicNuclear = ({
 }
 export const SvgMultiHex1 = ({
   hex,
+  borderWidth = SVG_BORDER_WIDTH,
   isSubLevel,
   isGlyph,
 }: {
   hex: BoardHex
+  borderWidth?: number
   isSubLevel?: boolean
   isGlyph?: boolean
 }) => {
@@ -269,7 +272,7 @@ export const SvgMultiHex1 = ({
   const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(glyphHexRadius)
   const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    borderWidth,
   )
   return (
     <>
@@ -562,10 +565,7 @@ export const SvgLaurPillar = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points: fullHexPoints } =
-    getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const borderColor = isSubLevel ? getSvgHexSubLevelBorderColor(hex) : getSvgHexBorderColor(hex)
   const laurSquarePoints = getLaurPillarShape(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
@@ -581,28 +581,13 @@ export const SvgLaurPillar = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={fullHexPoints} />}
       {/* FULL HEX */}
-      <polygon
-        points={fullHexPoints}
-        fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
+      <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH} />
       <g transform={`rotate(${pieceRotation})`}>
         {/*  LAUR SQUARE/TRIANGLE BELOW */}
-        {isSubLevel && (
-          <SvgSubLevelWhiteBackerPolygon
-            points={innerShapePoints}
-            borderWidth={0}
-          />
-        )}
-        {/* TODO: redo innerShapePoints per master svg file */}
         <polygon
           points={innerShapePoints}
           fill={borderColor}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         />
       </g>
     </>
@@ -627,7 +612,7 @@ export const SvgJungle = ({
   return (
     <>
       <g transform={`rotate(${pieceRotation})`}>
-        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH} />
         {/* JUNGLE ORIENTATION MARKER */}
         <polygon points={points} fill={borderColor} />
       </g>
@@ -649,7 +634,7 @@ export const SvgHive6 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = getSvgHexBorderColor(hex)
   const { points } = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -864,7 +849,6 @@ export const SvgMarvelRuin = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS)
 
   return (
@@ -1249,7 +1233,7 @@ export const SvgTree415 = ({
   const { points } = get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get4HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
@@ -1330,8 +1314,8 @@ export const SvgOutcrop6 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const fillColor = isSubLevel ? getSvgHexSubLevelFillColor(hex) : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel ? getSvgHexSubLevelBorderColor(hex) : getSvgHexBorderColor(hex)
   const textColor =
     hex.terrain === HexTerrain.glacier
       ? 'black'
@@ -1341,7 +1325,7 @@ export const SvgOutcrop6 = ({
   const { points } = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
@@ -1436,7 +1420,7 @@ export const SvgOutcrop3 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = getSvgHexBorderColor(hex)
   const textColor =
     hex.terrain === HexTerrain.glacier
       ? 'black'
@@ -1446,7 +1430,7 @@ export const SvgOutcrop3 = ({
   const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get3HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
@@ -1526,7 +1510,7 @@ export const SvgOutcrop4 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = getSvgHexBorderColor(hex)
   const textColor =
     hex.terrain === HexTerrain.glacier
       ? 'black'
@@ -1536,7 +1520,7 @@ export const SvgOutcrop4 = ({
   const { points } = get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get4HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
