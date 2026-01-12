@@ -13,6 +13,7 @@ REMAINING TASKS (estimated at 1 hour each):
 - Put start zones, laur walls, glyphs on a separate level
 
 Old terrain to be updated:
+- Hive (just do text "Hive" to keep it simple & scaleable on svg export)
 Ruins 2
 Ruins 3
 Ruins Marvel

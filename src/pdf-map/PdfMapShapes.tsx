@@ -1588,7 +1588,13 @@ export const PdfSvgOutcrop4 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={
+          isSubLevel
+            ? hex.terrain === HexTerrain.glacier
+              ? OPACITY_SUBLEVEL
+              : OPACITY_SUBLEVEL * 2
+            : 1
+        }
         style={hexTextStyle}
         x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
@@ -1598,7 +1604,13 @@ export const PdfSvgOutcrop4 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={
+          isSubLevel
+            ? hex.terrain === HexTerrain.glacier
+              ? OPACITY_SUBLEVEL
+              : OPACITY_SUBLEVEL * 2
+            : 1
+        }
         style={hexTextStyle}
         x={
           (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
@@ -1611,7 +1623,13 @@ export const PdfSvgOutcrop4 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={
+          isSubLevel
+            ? hex.terrain === HexTerrain.glacier
+              ? OPACITY_SUBLEVEL
+              : OPACITY_SUBLEVEL * 2
+            : 1
+        }
         style={hexTextStyle}
         x={
           (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
@@ -1624,7 +1642,13 @@ export const PdfSvgOutcrop4 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         // white text needs a little opacity boost
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={
+          isSubLevel
+            ? hex.terrain === HexTerrain.glacier
+              ? OPACITY_SUBLEVEL
+              : OPACITY_SUBLEVEL * 2
+            : 1
+        }
         style={hexTextStyle}
         x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}

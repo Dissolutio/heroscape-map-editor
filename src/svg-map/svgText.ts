@@ -3,6 +3,7 @@ import { SVG_HEX_RADIUS, SVG_HEX_APOTHEM } from '../utils/constants'
 export const hexTextStyle = {
   fontSize: 0.93 * SVG_HEX_RADIUS,
   fontFamily: 'Inter',
+  fontWeight: 600
 }
 export const singleHexObstacleHeightTextProps = (heightText: string) => ({
   style: hexTextStyle,

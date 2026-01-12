@@ -43,6 +43,7 @@ import {
   SvgJungle,
   SvgHexDecor,
   SvgFortifiedWall,
+  getOutcropTextColor,
 } from './SvgMapShapes'
 import { singleHexObstacleHeightTextProps } from './svgText'
 
@@ -141,25 +142,12 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     inventoryID === Pieces.lavaRockOutcrop1 ||
     inventoryID === Pieces.glacier1
   ) {
+    const textColor = getOutcropTextColor({ hex, isSubLevel })
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH} />
         <text
-          fill={
-            hex.terrain === HexTerrain.glacier
-              ? 'black'
-              : hex.terrain === HexTerrain.outcrop
-                ? svgColors.outcropText
-                : svgColors.lavaRockOutcropText
-          }
-          // white text (not glaciers, so far) needs a little opacity boost
-          opacity={
-            isSubLevel
-              ? hex.terrain === HexTerrain.glacier
-                ? OPACITY_SUBLEVEL
-                : OPACITY_SUBLEVEL * 2
-              : 1
-          }
+          fill={textColor}
           {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
         >
           {pieceHeightText}

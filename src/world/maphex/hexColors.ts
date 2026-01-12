@@ -180,6 +180,7 @@ export const terrainCapColors: { [terrain: string]: string } = {
 export const svgColors = {
   empty: 'rgb(0, 0, 0)',
   jungleText: '#000000',
+  glacierText: '#000000',
   evergreenText: '#FFFFFF',
   // STARTZONES
   blueSZ: 'rgb(57, 61, 157)',
@@ -268,6 +269,7 @@ export const svgColors = {
 }
 export const svgSubLevelColors = {
   jungleText: '#C5BCBC',
+  glacierText: '#808080',
   evergreenText: '#FFFFFF',
   // OUTLINES
   outline1: '#F4C5C5',
