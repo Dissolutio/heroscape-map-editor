@@ -407,12 +407,13 @@ export function getLaurShortWallSvgPolygonPoints(
   radius: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
+  const height = 0.5 * radius
 
   const corners: Point[] = [
-    { x: 0.25 * apothem, y: 0.25 * radius }, // top-left of rectangle
-    { x: 1.75 * apothem, y: 0.25 * radius }, // top-right of rectangle
-    { x: 1.75 * apothem, y: -0.25 * radius }, //  bottom-right of rectangle
-    { x: 0.25 * apothem, y: -0.25 * radius }, // bottom-left of rectangle
+    { x: 0.25 * apothem, y: height / 2 }, // top-left of rectangle
+    { x: 1.75 * apothem, y: height / 2 }, // top-right of rectangle
+    { x: 1.75 * apothem, y: -height / 2 }, //  bottom-right of rectangle
+    { x: 0.25 * apothem, y: -height / 2 }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
@@ -420,11 +421,12 @@ export function getLaurShortWallSvgPolygonPoints(
 export function getLaurLongWallSvgPolygonPoints(
   radius: number,
 ) {
+  const height = 0.5 * radius
   const corners: Point[] = [
-    { x: radius - (radius / 10), y: radius / 10 }, // top-left of rectangle
-    { x: radius - (radius / 10) + radius + 2 * (radius / 10), y: radius / 10 }, // top-right of rectangle
-    { x: radius - (radius / 10) + radius + 2 * (radius / 10), y: -(radius / 10) }, //  bottom-right of rectangle
-    { x: radius - (radius / 10), y: -(radius / 10) }, // bottom-left of rectangle
+    { x: radius / 4, y: height / 2 }, // top-left of rectangle
+    { x: 3 * radius, y: height / 2 }, // top-right of rectangle
+    { x: 3 * radius, y: -height / 2 }, //  bottom-right of rectangle
+    { x: radius / 4, y: -height / 2 }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
@@ -432,17 +434,12 @@ export function getLaurLongWallSvgPolygonPoints(
 export function getLaurWallRuinSvgPolygonPoints(
   radius: number,
 ) {
-  const apothem = (Math.sqrt(3) * radius) / 2
-  // official ratio of rectangle in master svg: height=5.68 length=7.3
-  const height = (0.568) * radius
-  const length = (0.73) * 1.2 * radius
-  // const height = 5.68
-  // const length = 7.3
+  const height = 0.5 * radius
   const corners: Point[] = [
-    { x: (-apothem * 0.2) + apothem - length / 2, y: -height / 2 }, // top-left of rectangle
-    { x: (-apothem * 0.2) + apothem + length / 2, y: -height / 2 }, // top-right of rectangle
-    { x: (-apothem * 0.2) + apothem + length / 2, y: height / 2 }, // bottom-right of rectangle
-    { x: (-apothem * 0.2) + apothem - length / 2, y: height / 2 }, // bottom-left of rectangle
+    { x: radius / 4, y: -height / 2 }, // top-left of rectangle
+    { x: 1.1 * radius, y: -height / 2 }, // top-right of rectangle
+    { x: 1.1 * radius, y: height / 2 }, // bottom-right of rectangle
+    { x: radius / 4, y: height / 2 }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }

@@ -903,7 +903,6 @@ export const SvgBoardPieceLaurWallLong = ({
     : getSvgHexFillColor(piece)
   const { points } = getLaurLongWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    0,
   )
   return (
     <polygon
@@ -919,19 +918,17 @@ export const SvgBoardPieceLaurWallLongArch = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const borderColor = getSvgHexBorderColor(piece)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
   const { points } = getLaurLongWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
   )
   return (
-    <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={'transparent'}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
-    </>
+    <polygon
+      points={points}
+      fill={fillColor}
+    />
   )
 }
 export const SvgBoardPieceLaurWallRuin = ({
@@ -970,12 +967,10 @@ export const SvgRoadWall = ({
   )
 
   return (
-    <>
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
-    </>
+    <polygon
+      points={points}
+      fill={fillColor}
+    />
   )
 }
 export const SvgBattlement = ({
@@ -1163,8 +1158,6 @@ export const SvgCastleArch = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  // const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = getSvgHexBorderColor(hex)
   const { points } = getCastleArchShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
@@ -1174,7 +1167,6 @@ export const SvgCastleArch = ({
       {isSubLevel && (
         <SvgSubLevelWhiteBackerPolygon
           points={points}
-          // borderWidth={SVG_BORDER_WIDTH / 4}
           borderWidth={SVG_BORDER_WIDTH / 4}
         />
       )}
