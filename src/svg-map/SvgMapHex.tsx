@@ -8,7 +8,11 @@ import {
   isJungleTerrainHex,
   isSolidTerrainHex,
 } from '../utils/board-utils'
-import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
+import {
+  SVG_HEX_APOTHEM,
+  SVG_HEX_RADIUS,
+  SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
+} from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
@@ -43,6 +47,7 @@ import {
   SvgJungle,
   SvgHexDecor,
   SvgFortifiedWall,
+  getOutcropTextColor,
 } from './SvgMapShapes'
 import { singleHexObstacleHeightTextProps } from './svgText'
 
@@ -141,25 +146,16 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     inventoryID === Pieces.lavaRockOutcrop1 ||
     inventoryID === Pieces.glacier1
   ) {
+    const textColor = getOutcropTextColor({ hex, isSubLevel })
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <SvgMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+        />
         <text
-          fill={
-            hex.terrain === HexTerrain.glacier
-              ? 'black'
-              : hex.terrain === HexTerrain.outcrop
-                ? svgColors.outcropText
-                : svgColors.lavaRockOutcropText
-          }
-          // white text (not glaciers, so far) needs a little opacity boost
-          opacity={
-            isSubLevel
-              ? hex.terrain === HexTerrain.glacier
-                ? OPACITY_SUBLEVEL
-                : OPACITY_SUBLEVEL * 2
-              : 1
-          }
+          fill={textColor}
           {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
         >
           {pieceHeightText}
@@ -239,7 +235,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       : svgColors.evergreenText
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <SvgMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+        />
         <text
           fill={textColor}
           // white text needs a little opacity boost
@@ -552,14 +552,50 @@ const SvgCastleArchText = ({
   pieceRotation: number
 }) => {
   const archText = 'D O O R'
+  const textColor = isSubLevel
+    ? svgSubLevelColors.jungleText
+    : svgColors.jungleText
   return (
     <text
-      fill="black"
-      opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      fill={textColor}
       {...singleHexObstacleHeightTextProps(archText.toString())}
-      y={0.3 * SVG_HEX_RADIUS}
+      y={0.38 * SVG_HEX_RADIUS}
       // upside down text is flipped in parent component, and adjusted here
-      x={pieceRotation === 180 ? -3.7 * SVG_HEX_APOTHEM : 0.3 * SVG_HEX_APOTHEM}
+      x={pieceRotation === 180 ? -3.7 * SVG_HEX_APOTHEM : 0.1 * SVG_HEX_APOTHEM}
+    >
+      {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}
+      {archText}
+    </text>
+  )
+}
+export const SvgLaurWallArchText = ({
+  isSubLevel,
+  pieceRotation,
+}: {
+  isSubLevel: boolean
+  pieceRotation: number
+}) => {
+  const archText = 'ARCH'
+  const textColor = isSubLevel
+    ? svgSubLevelColors.evergreenText
+    : svgColors.evergreenText
+  // rotations that are hard to read: 150, 210
+  return (
+    <text
+      fill={textColor}
+      style={{
+        fontSize: 0.55 * SVG_HEX_RADIUS,
+        letterSpacing: 6,
+        fontFamily: 'Inter',
+        fontWeight: 600,
+      }}
+      y={0.2 * SVG_HEX_RADIUS}
+      // upside down text is flipped in parent component, and adjusted here
+      x={
+        pieceRotation === 150 || pieceRotation === 210
+          ? -2.75 * SVG_HEX_APOTHEM
+          : 0.65 * SVG_HEX_APOTHEM
+      }
     >
       {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}
       {archText}

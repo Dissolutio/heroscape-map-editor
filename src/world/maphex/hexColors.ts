@@ -23,7 +23,8 @@ export const virtualscapeTileColors: Dictionary<string> = {
   [HexTerrain.marvelRuin]: 'rgb(220, 220, 220)',
   [HexTerrain.outcrop]: 'rgb(180,180,180)',
   [HexTerrain.wallWalk]: 'rgb(190,190,190)',
-  [HexTerrain.castle]: 'rgb(220, 220, 220)',
+  [HexTerrain.castleBase]: 'rgb(220, 220, 220)',
+  [HexTerrain.castleWall]: 'rgb(220, 220, 220)',
   castle2: 'rgb(50, 50, 50)', // Castle tiles in virtualscape have a second color for the castle interior shape
   [HexTerrain.battlement]: 'rgb(80, 80, 80)',
   castleFlag: 'rgb(0,100,0)',
@@ -63,7 +64,8 @@ export const hexTerrainColor = {
   [HexTerrain.water]: '#028bc4', // superfrog
   [HexTerrain.wellspringWater]: '#BA70FF',
   [HexTerrain.ruin]: '#A2A0A6',
-  [HexTerrain.castle]: '#B6B5BA',
+  [HexTerrain.castleWall]: '#B6B5BA',
+  [HexTerrain.castleBase]: '#B6B5BA',
   [HexTerrain.ladder]: '#D15D23',
   [HexTerrain.battlement]: '#ACABB0',
   castleDoor: '#913B3F',
@@ -178,6 +180,7 @@ export const terrainCapColors: { [terrain: string]: string } = {
 export const svgColors = {
   empty: 'rgb(0, 0, 0)',
   jungleText: '#000000',
+  glacierText: '#000000',
   evergreenText: '#FFFFFF',
   // STARTZONES
   blueSZ: 'rgb(57, 61, 157)',
@@ -211,13 +214,15 @@ export const svgColors = {
   [HexTerrain.ladder]: 'rgb(173, 75, 35)',
   [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
   [HexTerrain.fortifiedWall]: '#FF06C8',
+  [HexTerrain.roadWall]: '#FF06C8',
   fillJungle: '#FFE606',
   fillSwampUnderbrush: 'rgb(33, 56, 27)',
   // [HexTerrain.palm]: 'rgb(67, 249, 57)', // virtualscape
   [HexTerrain.tree]: '#269C48',
   [HexTerrain.laurWall]: '#6B1463',
   [HexTerrain.laurWallAddon]: '#FF06C8',
-  [HexTerrain.castle]: 'rgb(80, 79, 84)',
+  [HexTerrain.castleWall]: 'rgb(80, 79, 84)',
+  [HexTerrain.castleBase]: 'rgb(80, 79, 84)',
   castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
   [HexTerrain.lavaRockOutcrop]: '#FF0000',
   outcropText: '#DAD0D0',
@@ -254,6 +259,7 @@ export const svgColors = {
   [HexTerrain.shadow]: '#000000',
   [HexTerrain.ice]: '#8EA3E8',
   iceFlake: '#FFFFFF',
+  [HexTerrain.hive]: '#ACA521',
 
   // GYLPHS
   // glyph: 'rgb(244, 106, 22)', // renegade
@@ -264,6 +270,7 @@ export const svgColors = {
 }
 export const svgSubLevelColors = {
   jungleText: '#C5BCBC',
+  glacierText: '#808080',
   evergreenText: '#FFFFFF',
   // OUTLINES
   outline1: '#F4C5C5',
@@ -285,12 +292,14 @@ export const svgSubLevelColors = {
   [HexTerrain.ladder]: '#D6A591',
   [HexTerrain.ruin]: '#D08080', // virtualscape
   [HexTerrain.fortifiedWall]: '#FFC8E9',
+  [HexTerrain.roadWall]: '#FFC8E9',
   fillJungle: '#EBE5B5',
   fillSwampUnderbrush: '#909C8D)',
   [HexTerrain.tree]: '#9CD7AD',
   [HexTerrain.laurWall]: '#E1C8DF',
   [HexTerrain.laurWallAddon]: '#FFC8E9',
-  [HexTerrain.castle]: '#A8A7AA',
+  [HexTerrain.castleBase]: '#A8A7AA',
+  [HexTerrain.castleWall]: '#A8A7AA',
   // castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
   [HexTerrain.lavaRockOutcrop]: '#FFA7A7',
   outcropText: '#DAD0D0',
@@ -327,6 +336,7 @@ export const svgSubLevelColors = {
   [HexTerrain.toxic]: '#7A7A7A',
   [HexTerrain.toxicWater]: '#B2F2AF',
   iceFlake: '#FFFFFF',
+  [HexTerrain.hive]: '#D3D2B2',
 
   // GYLPHS
   // glyph: 'rgb(244, 106, 22)', // renegade

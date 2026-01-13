@@ -58,6 +58,7 @@ import {
   SVG_EMPTYHEX_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
+  SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
 } from '../utils/constants'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from './svg-hive'
@@ -251,10 +252,12 @@ const SvgToxicNuclear = ({
 }
 export const SvgMultiHex1 = ({
   hex,
+  borderWidth = SVG_BORDER_WIDTH,
   isSubLevel,
   isGlyph,
 }: {
   hex: BoardHex
+  borderWidth?: number
   isSubLevel?: boolean
   isGlyph?: boolean
 }) => {
@@ -269,7 +272,7 @@ export const SvgMultiHex1 = ({
   const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(glyphHexRadius)
   const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    borderWidth,
   )
   return (
     <>
@@ -562,10 +565,9 @@ export const SvgLaurPillar = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const { points: fullHexPoints } =
-    getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
   const laurSquarePoints = getLaurPillarShape(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
@@ -581,29 +583,15 @@ export const SvgLaurPillar = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={fullHexPoints} />}
       {/* FULL HEX */}
-      <polygon
-        points={fullHexPoints}
-        fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      <SvgMultiHex1
+        hex={hex}
+        isSubLevel={isSubLevel}
+        borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
       />
       <g transform={`rotate(${pieceRotation})`}>
         {/*  LAUR SQUARE/TRIANGLE BELOW */}
-        {isSubLevel && (
-          <SvgSubLevelWhiteBackerPolygon
-            points={innerShapePoints}
-            borderWidth={0}
-          />
-        )}
-        {/* TODO: redo innerShapePoints per master svg file */}
-        <polygon
-          points={innerShapePoints}
-          fill={borderColor}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        />
+        <polygon points={innerShapePoints} fill={borderColor} />
       </g>
     </>
   )
@@ -627,7 +615,11 @@ export const SvgJungle = ({
   return (
     <>
       <g transform={`rotate(${pieceRotation})`}>
-        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <SvgMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+        />
         {/* JUNGLE ORIENTATION MARKER */}
         <polygon points={points} fill={borderColor} />
       </g>
@@ -649,11 +641,11 @@ export const SvgHive6 = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor = getSvgHexBorderColor(hex)
   const { points } = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
   )
   return (
     <>
@@ -864,7 +856,6 @@ export const SvgMarvelRuin = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
   const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS)
 
   return (
@@ -894,23 +885,11 @@ export const SvgBoardPieceLaurWallShort = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(piece)
-  const { points } = getLaurShortWallSvgPolygonPoints(
-    SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
-  )
-  return (
-    <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-        stroke={fillColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
-    </>
-  )
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
+  const { points } = getLaurShortWallSvgPolygonPoints(SVG_HEX_RADIUS)
+  return <polygon points={points} fill={fillColor} />
 }
 export const SvgBoardPieceLaurWallLong = ({
   piece,
@@ -919,19 +898,11 @@ export const SvgBoardPieceLaurWallLong = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  console.log('🚀 ~ SvgBoardPieceLaurWallLong ~ piece:', piece)
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
-  const { points } = getLaurLongWallSvgPolygonPoints(
-    SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
-  )
-  return (
-    <>
-      <polygon points={points} fill={fillColor} />
-    </>
-  )
+  const { points } = getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
+  return <polygon points={points} fill={fillColor} />
 }
 export const SvgBoardPieceLaurWallLongArch = ({
   piece,
@@ -940,23 +911,11 @@ export const SvgBoardPieceLaurWallLongArch = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const borderColor = getSvgHexBorderColor(piece)
-  const { points } = getLaurLongWallSvgPolygonPoints(
-    SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
-  )
-  return (
-    <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={'transparent'}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
-    </>
-  )
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
+  const { points } = getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
+  return <polygon points={points} fill={fillColor} />
 }
 export const SvgBoardPieceLaurWallRuin = ({
   piece,
@@ -965,23 +924,11 @@ export const SvgBoardPieceLaurWallRuin = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const borderColor = getSvgHexBorderColor(piece)
-  const { points } = getLaurWallRuinSvgPolygonPoints(
-    SVG_HEX_RADIUS,
-    // SVG_BORDER_WIDTH,
-  )
-  return (
-    <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={borderColor} // Renegade just does a pink rectangle
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
-    </>
-  )
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
+  const { points } = getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS)
+  return <polygon points={points} fill={fillColor} />
 }
 export const SvgRoadWall = ({
   piece,
@@ -990,25 +937,12 @@ export const SvgRoadWall = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(piece)
-  const borderColor = getSvgHexBorderColor(piece)
-  const { points } = getRoadWallSvgPolygonPoints(
-    SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
-  )
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
+  const { points } = getRoadWallSvgPolygonPoints(SVG_HEX_RADIUS, 0)
 
-  return (
-    <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
-    </>
-  )
+  return <polygon points={points} fill={fillColor} />
 }
 export const SvgBattlement = ({
   piece,
@@ -1195,8 +1129,6 @@ export const SvgCastleArch = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  // const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = getSvgHexBorderColor(hex)
   const { points } = getCastleArchShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
@@ -1206,7 +1138,6 @@ export const SvgCastleArch = ({
       {isSubLevel && (
         <SvgSubLevelWhiteBackerPolygon
           points={points}
-          // borderWidth={SVG_BORDER_WIDTH / 4}
           borderWidth={SVG_BORDER_WIDTH / 4}
         />
       )}
@@ -1249,7 +1180,7 @@ export const SvgTree415 = ({
   const { points } = get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get4HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
@@ -1323,6 +1254,28 @@ const outcrop6TextXYForRotation = [
   [posO3_1, posO3_6, posO3_7, posO4_5, posO6_1_5, posO3_2],
   [posO3_1, posO3_7, posO3_2, posO4_6, posO6_1_6, posO3_3],
 ]
+export const getOutcropTextColor = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const subLevelTextColor =
+    hex.terrain === HexTerrain.glacier
+      ? svgSubLevelColors.glacierText
+      : hex.terrain === HexTerrain.outcrop
+        ? svgSubLevelColors.outcropText
+        : svgSubLevelColors.lavaRockOutcropText
+  const currentLevelTextColor =
+    hex.terrain === HexTerrain.glacier
+      ? svgColors.glacierText
+      : hex.terrain === HexTerrain.outcrop
+        ? svgColors.outcropText
+        : svgColors.lavaRockOutcropText
+  const textColor = isSubLevel ? subLevelTextColor : currentLevelTextColor
+  return textColor
+}
 export const SvgOutcrop6 = ({
   hex,
   isSubLevel,
@@ -1330,38 +1283,33 @@ export const SvgOutcrop6 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const textColor =
-    hex.terrain === HexTerrain.glacier
-      ? 'black'
-      : hex.terrain === HexTerrain.outcrop
-        ? svgColors.outcropText
-        : svgColors.lavaRockOutcropText
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
+  const textColor = getOutcropTextColor({ hex, isSubLevel })
+  hex.terrain === HexTerrain.glacier
+    ? 'black'
+    : hex.terrain === HexTerrain.outcrop
+      ? svgColors.outcropText
+      : svgColors.lavaRockOutcropText
   const { points } = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
       <g transform={`rotate(${pieceRotation})`}>
         {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-        <polygon
-          points={points}
-          fill={fillColor}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        />
-        <polygon
-          points={outlinePoints}
-          fill={borderColor}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        />
+        <polygon points={points} fill={fillColor} />
+        <polygon points={outlinePoints} fill={borderColor} />
       </g>
       <text
         fill={textColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
@@ -1370,7 +1318,6 @@ export const SvgOutcrop6 = ({
       </text>
       <text
         fill={textColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
@@ -1382,7 +1329,6 @@ export const SvgOutcrop6 = ({
       </text>
       <text
         fill={textColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
@@ -1394,7 +1340,6 @@ export const SvgOutcrop6 = ({
       </text>
       <text
         fill={textColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}
@@ -1403,7 +1348,6 @@ export const SvgOutcrop6 = ({
       </text>
       <text
         fill={textColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0) +
@@ -1415,7 +1359,6 @@ export const SvgOutcrop6 = ({
       </text>
       <text
         fill={textColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
         style={hexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0) +
@@ -1435,46 +1378,28 @@ export const SvgOutcrop3 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const textColor =
-    hex.terrain === HexTerrain.glacier
-      ? 'black'
-      : hex.terrain === HexTerrain.outcrop
-        ? svgColors.outcropText
-        : svgColors.lavaRockOutcropText
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
+  const textColor = getOutcropTextColor({ hex, isSubLevel })
   const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get3HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
       <g transform={`rotate(${pieceRotation})`}>
         {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-        <polygon
-          points={points}
-          fill={fillColor}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        />
-        <polygon
-          points={outlinePoints}
-          fill={borderColor}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        />
+        <polygon points={points} fill={fillColor} />
+        <polygon points={outlinePoints} fill={borderColor} />
       </g>
       <text
         fill={textColor}
-        // white text needs a little opacity boost
-        // white text (not glaciers, so far) needs a little opacity boost
-        opacity={
-          isSubLevel
-            ? hex.terrain === HexTerrain.glacier
-              ? OPACITY_SUBLEVEL
-              : OPACITY_SUBLEVEL * 2
-            : 1
-        }
         style={hexTextStyle}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
@@ -1483,15 +1408,6 @@ export const SvgOutcrop3 = ({
       </text>
       <text
         fill={textColor}
-        // white text needs a little opacity boost
-        // white text (not glaciers, so far) needs a little opacity boost
-        opacity={
-          isSubLevel
-            ? hex.terrain === HexTerrain.glacier
-              ? OPACITY_SUBLEVEL
-              : OPACITY_SUBLEVEL * 2
-            : 1
-        }
         style={hexTextStyle}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
@@ -1500,15 +1416,6 @@ export const SvgOutcrop3 = ({
       </text>
       <text
         fill={textColor}
-        // white text needs a little opacity boost
-        // white text (not glaciers, so far) needs a little opacity boost
-        opacity={
-          isSubLevel
-            ? hex.terrain === HexTerrain.glacier
-              ? OPACITY_SUBLEVEL
-              : OPACITY_SUBLEVEL * 2
-            : 1
-        }
         style={hexTextStyle}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
@@ -1525,45 +1432,27 @@ export const SvgOutcrop4 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
-  const borderColor = SVG_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
-  const textColor =
-    hex.terrain === HexTerrain.glacier
-      ? 'black'
-      : hex.terrain === HexTerrain.outcrop
-        ? svgColors.outcropText
-        : svgColors.lavaRockOutcropText
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const borderColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
+  const textColor = getOutcropTextColor({ hex, isSubLevel })
   const { points } = get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get4HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
   )
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
       <g transform={`rotate(${pieceRotation})`}>
-        {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-        <polygon
-          points={points}
-          fill={fillColor}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        />
-        <polygon
-          points={outlinePoints}
-          fill={borderColor}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        />
+        <polygon points={points} fill={fillColor} />
+        <polygon points={outlinePoints} fill={borderColor} />
       </g>
       <text
         fill={textColor}
-        // white text needs a little opacity boost
-        opacity={
-          isSubLevel
-            ? hex.terrain === HexTerrain.glacier
-              ? OPACITY_SUBLEVEL
-              : OPACITY_SUBLEVEL * 2
-            : 1
-        }
         style={hexTextStyle}
         x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
@@ -1572,14 +1461,6 @@ export const SvgOutcrop4 = ({
       </text>
       <text
         fill={textColor}
-        // white text needs a little opacity boost
-        opacity={
-          isSubLevel
-            ? hex.terrain === HexTerrain.glacier
-              ? OPACITY_SUBLEVEL
-              : OPACITY_SUBLEVEL * 2
-            : 1
-        }
         style={hexTextStyle}
         x={
           (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
@@ -1591,14 +1472,6 @@ export const SvgOutcrop4 = ({
       </text>
       <text
         fill={textColor}
-        // white text needs a little opacity boost
-        opacity={
-          isSubLevel
-            ? hex.terrain === HexTerrain.glacier
-              ? OPACITY_SUBLEVEL
-              : OPACITY_SUBLEVEL * 2
-            : 1
-        }
         style={hexTextStyle}
         x={
           (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
@@ -1610,14 +1483,6 @@ export const SvgOutcrop4 = ({
       </text>
       <text
         fill={textColor}
-        // white text needs a little opacity boost
-        opacity={
-          isSubLevel
-            ? hex.terrain === HexTerrain.glacier
-              ? OPACITY_SUBLEVEL
-              : OPACITY_SUBLEVEL * 2
-            : 1
-        }
         style={hexTextStyle}
         x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}

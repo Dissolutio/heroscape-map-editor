@@ -403,77 +403,37 @@ export function getCastleStraightShapeSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function getLaurShortWallSvgPolygonPoints(
-  radius: number,
-  borderWidth: number,
-) {
+export function getLaurShortWallSvgPolygonPoints(radius: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
-  // Outer
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
+  const height = 0.5 * radius
 
   const corners: Point[] = [
-    // MORE FLUSH OPTIONS BUT LOOKS LIKE 2-HEX LAND
-    // { x: rightXOuter - borderWidth, y: topSideYOuter + (borderWidth / Math.sqrt(2)) }, // top-left of rectangle
-    // { x: apothem + borderWidth, y: topSideYOuter + (borderWidth / Math.sqrt(2)) }, // top-right of rectangle
-    // { x: apothem + borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, //  bottom-right of rectangle
-    // { x: rightXOuter - borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, // bottom-left of rectangle
-    // THIS DOES NOT LOOK LIKE RENEGADE, BUT IS MORE LEGIBLE AND DIFFERENTIATED FROM 2-HEX LAND
-    { x: rightXOuter - borderWidth, y: topSideYOuter + radius / 3 }, // top-left of rectangle
-    { x: apothem + borderWidth, y: topSideYOuter + radius / 3 }, // top-right of rectangle
-    { x: apothem + borderWidth, y: bottomSideYOuter - radius / 3 }, //  bottom-right of rectangle
-    { x: rightXOuter - borderWidth, y: bottomSideYOuter - radius / 3 }, // bottom-left of rectangle
+    { x: 0.25 * apothem, y: height / 2 }, // top-left of rectangle
+    { x: 1.75 * apothem, y: height / 2 }, // top-right of rectangle
+    { x: 1.75 * apothem, y: -height / 2 }, //  bottom-right of rectangle
+    { x: 0.25 * apothem, y: -height / 2 }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function getLaurLongWallSvgPolygonPoints(
-  radius: number,
-  borderWidth: number,
-) {
+export function getLaurLongWallSvgPolygonPoints(radius: number) {
+  const height = 0.5 * radius
   const corners: Point[] = [
-    { x: radius - (borderWidth || radius / 10), y: borderWidth || radius / 10 }, // top-left of rectangle
-    {
-      x:
-        radius -
-        (borderWidth || radius / 10) +
-        radius +
-        2 * (borderWidth || radius / 10),
-      y: borderWidth || radius / 10,
-    }, // top-right of rectangle
-    {
-      x:
-        radius -
-        (borderWidth || radius / 10) +
-        radius +
-        2 * (borderWidth || radius / 10),
-      y: -(borderWidth || radius / 10),
-    }, //  bottom-right of rectangle
-    {
-      x: radius - (borderWidth || radius / 10),
-      y: -(borderWidth || radius / 10),
-    }, // bottom-left of rectangle
+    { x: radius / 4, y: height / 2 }, // top-left of rectangle
+    { x: 3 * radius, y: height / 2 }, // top-right of rectangle
+    { x: 3 * radius, y: -height / 2 }, //  bottom-right of rectangle
+    { x: radius / 4, y: -height / 2 }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function getLaurWallRuinSvgPolygonPoints(
-  radius: number,
-  // borderWidth: number,
-) {
-  const apothem = (Math.sqrt(3) * radius) / 2
-  const hexWidth = 2 * apothem
-  // Outer
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
-  // Inner hexagon
+export function getLaurWallRuinSvgPolygonPoints(radius: number) {
+  const height = 0.5 * radius
   const corners: Point[] = [
-    { x: rightXOuter, y: topSideYOuter / 5 }, // top-left of rectangle
-    { x: hexWidth - apothem / 2, y: topSideYOuter / 5 }, // top-right of rectangle
-    { x: hexWidth - apothem / 2, y: bottomSideYOuter / 5 }, // bottom-right of rectangle
-    { x: rightXOuter, y: bottomSideYOuter / 5 }, // bottom-left of rectangle
+    { x: radius / 4, y: -height / 2 }, // top-left of rectangle
+    { x: 1.1 * radius, y: -height / 2 }, // top-right of rectangle
+    { x: 1.1 * radius, y: height / 2 }, // bottom-right of rectangle
+    { x: radius / 4, y: height / 2 }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
@@ -611,26 +571,22 @@ export function getLaurPillarShape(radius: number, borderWidth: number) {
   const halfBorder = borderWidth / 2
   // Inner hexagon
   const radiusInner = radius - halfBorder
-  const bottomSideYInner = 0.5 * radiusInner
-  const topSideYInner = -0.5 * radiusInner
+  const squareSideLength = 0.58 * radiusInner
 
-  const inset = 0.5 * radiusInner // the current laur pillar is definitely about 1/2 radius square
   const cos30 = cosDegrees(30)
+  const corners: Point[] = [
+    { x: -squareSideLength * cos30, y: -squareSideLength }, // top-left
+    { x: squareSideLength * cos30, y: -squareSideLength }, // top-right
+    { x: squareSideLength * cos30, y: squareSideLength }, // bottom-right
+    { x: -squareSideLength * cos30, y: squareSideLength }, // bottom-left
+  ]
   const cos60 = cosDegrees(60)
   const sin60 = sinDegrees(60)
-  const corners: Point[] = [
-    { x: -inset * cos30, y: topSideYInner }, // top-left
-    { x: inset * cos30, y: topSideYInner }, // top-right
-    { x: inset * cos30, y: bottomSideYInner }, // bottom-right
-    { x: -inset * cos30, y: bottomSideYInner }, // bottom-left
-  ]
+  const triangeSideLength = 0.77 * radiusInner
   const triangle: Point[] = [
-    // { x: -inset * cos30, y: -inset * sin30 }, // top-left
-    // { x: inset * cos30, y: -inset * sin30 }, // top-right
-    // { x: 0, y: inset }, // bottom
-    { x: inset * cos60, y: -inset * sin60 }, // top-right
-    { x: inset * cos60, y: inset * sin60 }, // bottom-right
-    { x: -inset, y: 0 }, // mid-left
+    { x: triangeSideLength * cos60, y: -triangeSideLength * sin60 }, // top-right
+    { x: triangeSideLength * cos60, y: triangeSideLength * sin60 }, // bottom-right
+    { x: -triangeSideLength, y: 0 }, // mid-left
   ]
   const squarePoints = corners.map((point) => `${point.x},${point.y}`).join(' ')
   const trianglePoints = triangle

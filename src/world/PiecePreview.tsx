@@ -255,7 +255,8 @@ export default function PiecePreview() {
     isFluidTerrainHex(hoveredHex?.terrain)
   const isEmptyBeneath = hoveredHex?.terrain === HexTerrain.empty
   const isCastleCapBeneath =
-    hoveredHex?.terrain === HexTerrain.castle && !hoveredHex.isObstacleOrigin
+    hoveredHex?.terrain === HexTerrain.castleWall &&
+    !hoveredHex.isObstacleOrigin
   const isSolidBeneath = isSolidTerrainHex(hoveredHex.terrain)
   const isSolidOrEmptyBeneath = isSolidBeneath || isEmptyBeneath
   const isLandOrEmptyBeneath = isLandBeneath || isEmptyBeneath

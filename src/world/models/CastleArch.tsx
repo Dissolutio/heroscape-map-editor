@@ -29,7 +29,7 @@ export function CastleArchPreview({ isDoor }: { isDoor: boolean }) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const color = hexTerrainColor[HexTerrain.castle]
+  const color = hexTerrainColor[HexTerrain.castleWall]
   const colorDoor = hexTerrainColor.castleDoor
 
   return (
@@ -108,24 +108,26 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const yellowColor = 'yellow'
-  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castle]
+  const color = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.castleWall]
   const colorDoor = isHighlighted ? yellowColor : hexTerrainColor.castleDoor
   const isDoor = !(boardHex.inventoryID === Pieces.castleArchNoDoor)
   const [colorNear, setColorNear] = React.useState(
-    hexTerrainColor[HexTerrain.castle],
+    hexTerrainColor[HexTerrain.castleWall],
   )
   const [colorMiddle, setColorMiddle] = React.useState(
-    hexTerrainColor[HexTerrain.castle],
+    hexTerrainColor[HexTerrain.castleWall],
   )
   const [colorFar, setColorFar] = React.useState(
-    hexTerrainColor[HexTerrain.castle],
+    hexTerrainColor[HexTerrain.castleWall],
   )
   const onPointerEnterNear = (e: ThreeEvent<PointerEvent>) => {
     setColorNear(yellowColor)
     e.stopPropagation()
   }
   const onPointerOutNear = (e: ThreeEvent<PointerEvent>) => {
-    setColorNear(hexTerrainColor[HexTerrain.castle])
+    setColorNear(hexTerrainColor[HexTerrain.castleWall])
     e.stopPropagation()
   }
   const onPointerEnterMiddle = (e: ThreeEvent<PointerEvent>) => {
@@ -133,7 +135,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
     e.stopPropagation()
   }
   const onPointerOutMiddle = (e: ThreeEvent<PointerEvent>) => {
-    setColorMiddle(hexTerrainColor[HexTerrain.castle])
+    setColorMiddle(hexTerrainColor[HexTerrain.castleWall])
     e.stopPropagation()
   }
   const onPointerEnterFar = (e: ThreeEvent<PointerEvent>) => {
@@ -141,7 +143,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
     e.stopPropagation()
   }
   const onPointerOutFar = (e: ThreeEvent<PointerEvent>) => {
-    setColorFar(hexTerrainColor[HexTerrain.castle])
+    setColorFar(hexTerrainColor[HexTerrain.castleWall])
     e.stopPropagation()
   }
   const isVerticalClearanceHex = !(
