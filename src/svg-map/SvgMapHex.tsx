@@ -586,7 +586,7 @@ export const SvgLaurWallArchText = ({
       style={{
         fontSize: 0.55 * SVG_HEX_RADIUS,
         letterSpacing: 6,
-        fontFamily: 'Inter',
+        // fontFamily: 'Inter',
         fontWeight: 600,
       }}
       y={0.2 * SVG_HEX_RADIUS}
