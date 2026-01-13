@@ -1,6 +1,6 @@
 import { type DecodedPieceID, Pieces } from '../types'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
-import { SvgLaurWallArchText } from './SvgMapHex';
+import { SvgLaurWallArchText } from './SvgMapHex'
 import {
   SvgBattlement,
   SvgBoardPieceLaurWallLong,
@@ -67,7 +67,11 @@ export const SvgMapBoardPiece = ({
         <SvgBoardPieceLaurWallLongArch piece={piece} isSubLevel={isSubLevel} />
         <g
           // flip upside down text, all other rotations are legible
-          transform={pieceRotation === 150 || pieceRotation === 210 ? 'rotate(-180)' : 'rotate(0)'}
+          transform={
+            pieceRotation === 150 || pieceRotation === 210
+              ? 'rotate(-180)'
+              : 'rotate(0)'
+          }
         >
           <SvgLaurWallArchText
             isSubLevel={isSubLevel}

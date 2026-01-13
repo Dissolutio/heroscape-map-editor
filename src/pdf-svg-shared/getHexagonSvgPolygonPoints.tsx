@@ -403,9 +403,7 @@ export function getCastleStraightShapeSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function getLaurShortWallSvgPolygonPoints(
-  radius: number,
-) {
+export function getLaurShortWallSvgPolygonPoints(radius: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const height = 0.5 * radius
 
@@ -418,9 +416,7 @@ export function getLaurShortWallSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function getLaurLongWallSvgPolygonPoints(
-  radius: number,
-) {
+export function getLaurLongWallSvgPolygonPoints(radius: number) {
   const height = 0.5 * radius
   const corners: Point[] = [
     { x: radius / 4, y: height / 2 }, // top-left of rectangle
@@ -431,9 +427,7 @@ export function getLaurLongWallSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export function getLaurWallRuinSvgPolygonPoints(
-  radius: number,
-) {
+export function getLaurWallRuinSvgPolygonPoints(radius: number) {
   const height = 0.5 * radius
   const corners: Point[] = [
     { x: radius / 4, y: -height / 2 }, // top-left of rectangle

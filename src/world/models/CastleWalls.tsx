@@ -40,7 +40,9 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const scaleY = (boardHex?.obstacleHeight ?? 9) + (1 - scaleYAdjust)
   const scale = new Vector3(1, scaleY, 1)
   const pieceID = boardHex.pieceID
-  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castleWall]
+  const color = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.castleWall]
   const boardHexIdOfCapForWall = genBoardHexID({
     ...boardHex,
     altitude: boardHex.altitude + (boardHex?.obstacleHeight ?? 0),

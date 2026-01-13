@@ -108,7 +108,9 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const yellowColor = 'yellow'
-  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castleWall]
+  const color = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.castleWall]
   const colorDoor = isHighlighted ? yellowColor : hexTerrainColor.castleDoor
   const isDoor = !(boardHex.inventoryID === Pieces.castleArchNoDoor)
   const [colorNear, setColorNear] = React.useState(

@@ -37,7 +37,9 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
     : pieceID.includes(Pieces.castleBaseStraight)
       ? nodes.CastleWallStraightCap.geometry
       : nodes.CastleWallCornerCap.geometry
-  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.castleBase]
+  const color = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.castleBase]
   const onPointerEnterCap = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
     onPointerEnter(e, boardHex)

@@ -8,7 +8,11 @@ import {
   isJungleTerrainHex,
   isSolidTerrainHex,
 } from '../utils/board-utils'
-import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS, SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH } from '../utils/constants'
+import {
+  SVG_HEX_APOTHEM,
+  SVG_HEX_RADIUS,
+  SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
+} from '../utils/constants'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
@@ -145,7 +149,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     const textColor = getOutcropTextColor({ hex, isSubLevel })
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH} />
+        <SvgMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+        />
         <text
           fill={textColor}
           {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
@@ -227,7 +235,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       : svgColors.evergreenText
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH} />
+        <SvgMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+        />
         <text
           fill={textColor}
           // white text needs a little opacity boost
@@ -567,13 +579,7 @@ export const SvgLaurWallArchText = ({
   const textColor = isSubLevel
     ? svgSubLevelColors.evergreenText
     : svgColors.evergreenText
-  // console.log("🚀 ~ SvgLaurWallArchText ~ pieceRotation:", pieceRotation)
-  // rotations that are hard to read: 150, 210 
-  const xAdjust = pieceRotation === 150
-    ? -2.5 * SVG_HEX_APOTHEM
-    : pieceRotation === 210
-      ? -1 * SVG_HEX_APOTHEM
-      : 0.3 * SVG_HEX_APOTHEM
+  // rotations that are hard to read: 150, 210
   return (
     <text
       fill={textColor}
@@ -581,11 +587,15 @@ export const SvgLaurWallArchText = ({
         fontSize: 0.55 * SVG_HEX_RADIUS,
         letterSpacing: 6,
         fontFamily: 'Inter',
-        fontWeight: 600
+        fontWeight: 600,
       }}
       y={0.2 * SVG_HEX_RADIUS}
       // upside down text is flipped in parent component, and adjusted here
-      x={pieceRotation === 150 || pieceRotation === 210 ? -2.75 * SVG_HEX_APOTHEM : 0.65 * SVG_HEX_APOTHEM}
+      x={
+        pieceRotation === 150 || pieceRotation === 210
+          ? -2.75 * SVG_HEX_APOTHEM
+          : 0.65 * SVG_HEX_APOTHEM
+      }
     >
       {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}
       {archText}
