@@ -883,7 +883,6 @@ export const SvgBoardPieceLaurWallShort = ({
     : getSvgHexFillColor(piece)
   const { points } = getLaurShortWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    200,
   )
   return (
     <polygon
@@ -923,7 +922,6 @@ export const SvgBoardPieceLaurWallLongArch = ({
   const borderColor = getSvgHexBorderColor(piece)
   const { points } = getLaurLongWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
   )
   return (
     <>
@@ -931,8 +929,6 @@ export const SvgBoardPieceLaurWallLongArch = ({
       <polygon
         points={points}
         fill={'transparent'}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
