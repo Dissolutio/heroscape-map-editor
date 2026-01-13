@@ -191,10 +191,6 @@ export const getSvgHexSubLevelBorderColor = (
 }
 
 export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
-  // TODO: color: refactor this to be more direct
-  if (hex.inventoryID === Pieces.laurWallShort) {
-    return svgColors[HexTerrain.laurWall]
-  }
   if (
     isSolidTerrainHex(hex.terrain) ||
     isFluidTerrainHex(hex.terrain) ||

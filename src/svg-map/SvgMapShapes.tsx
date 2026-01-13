@@ -878,22 +878,18 @@ export const SvgBoardPieceLaurWallShort = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(piece)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
   const { points } = getLaurShortWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    200,
   )
   return (
-    <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-        stroke={fillColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
-    </>
+    <polygon
+      points={points}
+      fill={fillColor}
+    />
   )
 }
 export const SvgBoardPieceLaurWallLong = ({
@@ -903,18 +899,18 @@ export const SvgBoardPieceLaurWallLong = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  console.log('🚀 ~ SvgBoardPieceLaurWallLong ~ piece:', piece)
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
   const { points } = getLaurLongWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    0,
   )
   return (
-    <>
-      <polygon points={points} fill={fillColor} />
-    </>
+    <polygon
+      points={points}
+      fill={fillColor}
+    />
   )
 }
 export const SvgBoardPieceLaurWallLongArch = ({
@@ -949,22 +945,17 @@ export const SvgBoardPieceLaurWallRuin = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const borderColor = getSvgHexBorderColor(piece)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
   const { points } = getLaurWallRuinSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    // SVG_BORDER_WIDTH,
   )
   return (
-    <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
-      <polygon
-        points={points}
-        fill={borderColor} // Renegade just does a pink rectangle
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
-    </>
+    <polygon
+      points={points}
+      fill={fillColor}
+    />
   )
 }
 export const SvgRoadWall = ({
@@ -974,22 +965,19 @@ export const SvgRoadWall = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(piece)
-  const borderColor = getSvgHexBorderColor(piece)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
   const { points } = getRoadWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    SVG_BORDER_WIDTH,
+    0,
   )
 
   return (
     <>
-      {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
       <polygon
         points={points}
         fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={SVG_BORDER_WIDTH}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )

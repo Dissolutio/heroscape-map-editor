@@ -463,17 +463,15 @@ export function getLaurWallRuinSvgPolygonPoints(
   // borderWidth: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
-  const hexWidth = 2 * apothem
   // Outer
-  const rightXOuter = apothem
   const topSideYOuter = -0.5 * radius
   const bottomSideYOuter = 0.5 * radius
   // Inner hexagon
   const corners: Point[] = [
-    { x: rightXOuter, y: topSideYOuter / 5 }, // top-left of rectangle
-    { x: hexWidth - apothem / 2, y: topSideYOuter / 5 }, // top-right of rectangle
-    { x: hexWidth - apothem / 2, y: bottomSideYOuter / 5 }, // bottom-right of rectangle
-    { x: rightXOuter, y: bottomSideYOuter / 5 }, // bottom-left of rectangle
+    { x: apothem / 2, y: topSideYOuter / 2 }, // top-left of rectangle
+    { x: apothem + apothem / 3, y: topSideYOuter / 2 }, // top-right of rectangle
+    { x: apothem + apothem / 3, y: bottomSideYOuter / 2 }, // bottom-right of rectangle
+    { x: apothem / 2, y: bottomSideYOuter / 2 }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
