@@ -62,6 +62,9 @@ export interface UISlice {
   // PDF STATE
   isShowPDFInventory: boolean
   toggleIsShowPDFInventory: (b: boolean) => void
+  // SVG STATE
+  is2DOverlayLevelEnabled: boolean
+  toggleIs2DOverlayLevelEnabled: (b: boolean) => void
 }
 
 const initialPenMode = 'select'
@@ -189,6 +192,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isShowPDFInventory = b
+      }),
+    ),
+  is2DOverlayLevelEnabled: false,
+  toggleIs2DOverlayLevelEnabled: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.is2DOverlayLevelEnabled = b
       }),
     ),
   currentDialog: '',

@@ -28,9 +28,13 @@ import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 export default function ViewControlsTab({
   cameraControlsRef,
   mapGroupRef,
+  is2DOpen,
+  isPdfOpen,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
+  is2DOpen: boolean
+  isPdfOpen: boolean
 }) {
   // const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const { publish } = useEvent()
@@ -145,6 +149,7 @@ export default function ViewControlsTab({
       <Box>
         <ViewPreferencesSwitchForm />
         <PdfPreferencesSwitchForm />
+        {(is2DOpen && !isPdfOpen) && <SVGPreferencesSwitchForm />}
       </Box>
     </Box>
   )
@@ -294,10 +299,41 @@ const PdfPreferencesSwitchForm = () => {
               size="small"
               checked={isShowPDFInventory}
               onChange={handleChangeShowPDFInventory}
-              title="Enable/disable a piece inventory on the PDF build instructions"
             />
           }
           label="PDF piece inventory"
+          title="Enable/disable a piece inventory on the PDF build instructions"
+        />
+      </FormGroup>
+    </FormControl>
+  )
+}
+
+const SVGPreferencesSwitchForm = () => {
+  const is2DOverlayLevelEnabled = useBoundStore((s) => s.is2DOverlayLevelEnabled)
+  const toggleIs2DOverlayLevelEnabled = useBoundStore(
+    (s) => s.toggleIs2DOverlayLevelEnabled,
+  )
+  const handleChangeis2DOverlayLevelEnabled = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIs2DOverlayLevelEnabled(event.target.checked)
+  }
+
+  return (
+    <FormControl component="fieldset" variant="standard">
+      <FormLabel component="legend">2D/SVG options:</FormLabel>
+      <FormGroup>
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={is2DOverlayLevelEnabled}
+              onChange={handleChangeis2DOverlayLevelEnabled}
+            />
+          }
+          label="View Objective Layer"
+          title="Enable/disable an overlay level of the map with startzones, objectives, and glyphs (they will not be shown on their placed levels)"
         />
       </FormGroup>
     </FormControl>

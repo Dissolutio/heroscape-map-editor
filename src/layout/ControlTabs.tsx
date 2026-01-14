@@ -46,11 +46,13 @@ export const ControlTabs = ({
   mapGroupRef,
   controlsContainerRef,
   is2DOpen,
+  isPdfOpen,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
   controlsContainerRef: React.RefObject<null>
   is2DOpen: boolean
+  isPdfOpen: boolean
 }) => {
   const [value, setValue] = React.useState(0)
   const { isSideControls } = useMuiMediaQuery()
@@ -198,6 +200,8 @@ export const ControlTabs = ({
           <ViewControlsTab
             cameraControlsRef={cameraControlsRef}
             mapGroupRef={mapGroupRef}
+            is2DOpen={is2DOpen}
+            isPdfOpen={isPdfOpen}
           />
         </CustomTabPanel>
       </Box>

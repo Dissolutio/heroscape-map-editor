@@ -133,6 +133,7 @@ export default function HomePage() {
                 mapGroupRef={mapGroupRef}
                 controlsContainerRef={controlsContainerRef}
                 is2DOpen={is2DOpen}
+                isPdfOpen={isPdfOpen}
               />
             </div>
           </ControlsWidthContextProvider>

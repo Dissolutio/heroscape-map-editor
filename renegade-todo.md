@@ -5,12 +5,13 @@ REMAINING TASKS (estimated at 1 hour each):
 ~~- Snowflake (snow/ice tiles)~~
 ~~- Road decor (road tiles)~~
 ~~- Toxic land / water~~
-- Laur walls/addons
-- Font scaling (evergreens, rock/lava outcrops, jungle, laur wall arch)
-- Road walls
+~~- Laur walls/addons~~
+~~- Font scaling (evergreens, rock/lava outcrops, jungle, laur wall arch)~~
+~~- Road walls~~
 - Glyphs
 - Startzones
-- Put start zones, laur walls, glyphs on a separate level
+- Objective/meta markers
+- Put start zones, glyphs, markers on a separate level
 
 Old terrain to be updated:
 - Hive (just do text "Hive" to keep it simple & scaleable on svg export)
