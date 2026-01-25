@@ -1,14 +1,3 @@
-## Refactor to render from BoardPieces
-- Compute caps from boardpieces
-
-## BowTie Jones requests
-- Indicate which way piece is being shifted
-- Format painter
-- PDF 2 column format
-- PDF portrait as level format
-- Select existing piece as pen mode
-
-
 ## What are BoardHexes used for
 - MapDisplay3D => empty/fluid/solid caps, => render pieces
 - MapHex3D => underHexTerrain
@@ -24,13 +13,14 @@
 - Top-level (HomePage) will call Service Worker to recalculate BoardHexes, when BoardPieces changes.
 
 1. Land / EZ/Based Obstacles
-2. Laur Addons / Castle Walls / Wall Walk / Ladder
+2. Laur Addons / Ruins / Ladders / Battlements / RoadWalls /
 
-## Build constraints and Inventory **NEW**
-You can add them to a map, it becomes part of  **HexMap**.
-It is an array of Set IDS.
-User must choose appropriate sets, it doesn't calculate # sets used.
-Display pieces used / left.
+## BowTie Jones requests
+- Indicate which way piece is being shifted
+- Format painter
+- PDF 2 column format
+- PDF portrait as level format
+- Select existing piece as pen mode
 
 ## Obstacle bases
 When adding an outcrop (lavarock, rock, or glacier), also add a base.
@@ -38,8 +28,8 @@ Check `setsUsed`, and choose the corresponding pieces. (Caverns of valhalla does
 
 ## PDF Build Instructions
 - Start Zones( as one layer)
+- Piece count as toggleable section
 - LaurWall Arch pdf/svg shape
-- 
 - LaurWall Ruins 2 & 3 pdf/svg shape
 - Wallwalk/Road pdf/svg decor
 
@@ -63,7 +53,7 @@ Then need some formatting options (1-pager, map key?), author name, maybe more.
 
 
 ## Home Page
-Cartographers => Maps Gallery
+Map/Authors Gallery
 New => Editor
 Load => Editor
 About => Info

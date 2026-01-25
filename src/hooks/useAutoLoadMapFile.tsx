@@ -107,7 +107,9 @@ const useAutoLoadMapFile = (props?: Props) => {
         console.error('🚀 ~ React.useEffect ~ error:', error)
         return
       }
-    } else if (localMapCache) {
+    }
+    // No url, but a last map, then load the last map
+    if (localMapCache) {
       loadMap(localMapCache)
       enqueueSnackbar({
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
