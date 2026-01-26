@@ -1,6 +1,6 @@
 import type { CameraControls } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-import type { Group, Object3DEventMap } from 'three'
+import { Box3, type Group, type Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
 import useBoundStore from '../store/store.ts'
 import {
@@ -34,6 +34,8 @@ import PiecePreview from './PiecePreview.tsx'
 import { useHotkeyConfig } from '../controls/useHotkeyConfig'
 import { useApplyHotkeys } from '../controls/useApplyHotkeys.tsx'
 import type React from 'react'
+import { useEffect } from 'react'
+import { zoomToMap } from '../utils/camera-utils.ts'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -57,6 +59,43 @@ export default function MapDisplay3D({
   const { hotkeyConfig } = useHotkeyConfig()
   const { length, width } = getBoardHexesRectangularMapDimensions(boardHexes)
   useApplyHotkeys({ hotkeyConfig, cameraControlsRef, mapGroupRef })
+  const mapID = useBoundStore((state) => state.hexMap.id)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only run on load new map
+  useEffect(() => {
+    if (mapGroupRef.current && cameraControlsRef.current) {
+      zoomToMap(mapGroupRef, cameraControlsRef, width, length)
+    }
+  }, [mapID])
+
+  // On initial mount, try to center the camera as soon as refs are available.
+  // We use requestAnimationFrame to retry until the refs are populated (or component unmounts).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: run once on mount and retry until refs exist
+  useEffect(() => {
+    let mounted = true
+    const maxAttempts = 120 // stop retrying after ~2 seconds at 60fps
+    let attempts = 0
+
+    const tryFit = () => {
+      if (!mounted) return
+      attempts += 1
+      console.log("🚀 ~ MapDisplay3D ~ boardHexes:", boardHexes)
+      if (mapGroupRef.current && cameraControlsRef.current && width > 0 && length > 0 && Number.isFinite(width) && Number.isFinite(length)) {
+        zoomToMap(mapGroupRef, cameraControlsRef, width, length)
+        return
+      }
+      if (attempts >= maxAttempts) {
+        // Give up after maxAttempts to avoid indefinite retries
+        return
+      }
+      requestAnimationFrame(tryFit)
+    }
+
+    tryFit()
+    return () => {
+      mounted = false
+    }
+    // run once on mount, AFTER boardhexes have been updated (but this does it every time boardHexes is updated....BUGFIX)
+  }, [boardHexes])
 
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
