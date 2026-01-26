@@ -66,6 +66,7 @@ import { BigTree415 } from './models/BigTree415'
 import { Outcrop3 } from './models/Outcrop3'
 import { Ruins3 } from './models/Ruins3'
 import { StartZone3D } from './models/StartZone3D'
+import { FortifiedWallPreview } from './models/FortifiedWall'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
