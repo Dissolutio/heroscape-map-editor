@@ -28,8 +28,8 @@ function isBoardHex(hex: BoardHex | BoardPiece): hex is BoardHex {
 export const getSvgHexBorderColor = (hex: BoardHex | BoardPiece) => {
   const terrain = piecesSoFar[hex.inventoryID].terrain
   // TODO: color: refactor this to be more direct
-  const isSolidTerrain = isSolidTerrainHex(hex.terrain)
-  if (hex.terrain === 'empty') {
+  const isSolidTerrain = isSolidTerrainHex(terrain)
+  if (terrain === 'empty') {
     return '#CECECE'
   }
   let inventoryPiece: Piece
@@ -58,27 +58,27 @@ export const getSvgHexBorderColor = (hex: BoardHex | BoardPiece) => {
   if (isSolidTerrain && is24Hex) {
     return svgColors.outline24
   }
-  if (hex.terrain === HexTerrain.road && inventoryPiece.size === 5) {
+  if (terrain === HexTerrain.road && inventoryPiece.size === 5) {
     return svgColors.outlineRoad5
   }
-  if (hex.terrain === HexTerrain.concrete && inventoryPiece.size === 6) {
+  if (terrain === HexTerrain.concrete && inventoryPiece.size === 6) {
     return svgColors.outlineMarvel
   }
-  if (hex.terrain === HexTerrain.wallWalk && inventoryPiece.size === 9) {
+  if (terrain === HexTerrain.wallWalk && inventoryPiece.size === 9) {
     return svgColors.outlineMarvel
   }
   if (
-    hex.terrain === HexTerrain.hive ||
-    hex.terrain === HexTerrain.water ||
-    hex.terrain === HexTerrain.wellspringWater ||
-    hex.terrain === HexTerrain.swampWater ||
-    hex.terrain === HexTerrain.ice ||
-    hex.terrain === HexTerrain.lava ||
-    hex.terrain === HexTerrain.shadow
+    terrain === HexTerrain.hive ||
+    terrain === HexTerrain.water ||
+    terrain === HexTerrain.wellspringWater ||
+    terrain === HexTerrain.swampWater ||
+    terrain === HexTerrain.ice ||
+    terrain === HexTerrain.lava ||
+    terrain === HexTerrain.shadow
   ) {
     return svgColors.outlineWater
   }
-  if (isJungleTerrainHex(hex.terrain)) {
+  if (isJungleTerrainHex(terrain)) {
     return svgColors.outlineJungle
   }
   if (isEvergreenTree(terrain)) {
@@ -90,26 +90,28 @@ export const getSvgHexBorderColor = (hex: BoardHex | BoardPiece) => {
   if (terrain === HexTerrain.glacier) {
     return svgColors.outlineWater
   }
-  if (hex.terrain === HexTerrain.outcrop) {
+  if (terrain === HexTerrain.outcrop) {
     return svgColors.outlineOutcrop
   }
-  if (hex.terrain === HexTerrain.lavaRockOutcrop) {
+  if (terrain === HexTerrain.lavaRockOutcrop) {
     return svgColors.outlineLavaOutcrop
   }
-  if (hex.terrain === HexTerrain.castleWall) {
+  if (terrain === HexTerrain.castleWall) {
     return svgColors.castleWall
   }
-  if (hex.terrain === HexTerrain.castleBase) {
+  if (terrain === HexTerrain.castleBase) {
     return svgColors.castleBase
   }
   return 'black'
 }
 export const getSvgHexSubLevelBorderColor = (
-  hex: BoardHex | DecodedPieceID,
+  hex: BoardHex | BoardPiece,
 ) => {
+  console.log("🚀 ~ getSvgHexSubLevelBorderColor ~ hex:", hex)
+  const terrain = piecesSoFar?.[hex?.inventoryID]?.terrain
   // TODO: color: refactor this to be more direct
-  const isSolidTerrain = isSolidTerrainHex(hex.terrain)
-  if (hex.terrain === 'empty') {
+  const isSolidTerrain = isSolidTerrainHex(terrain)
+  if (terrain === 'empty') {
     return '#CECECE'
   }
   let inventoryPiece: Piece
@@ -138,70 +140,71 @@ export const getSvgHexSubLevelBorderColor = (
   if (isSolidTerrain && is24Hex) {
     return svgSubLevelColors.outline24
   }
-  if (hex.terrain === HexTerrain.road && inventoryPiece.size === 5) {
+  if (terrain === HexTerrain.road && inventoryPiece.size === 5) {
     return svgSubLevelColors.outlineRoad5
   }
-  if (hex.terrain === HexTerrain.concrete && inventoryPiece.size === 6) {
+  if (terrain === HexTerrain.concrete && inventoryPiece.size === 6) {
     return svgSubLevelColors.outlineMarvel
   }
-  if (hex.terrain === HexTerrain.wallWalk && inventoryPiece.size === 9) {
+  if (terrain === HexTerrain.wallWalk && inventoryPiece.size === 9) {
     return svgSubLevelColors.outlineMarvel
   }
   if (
-    hex.terrain === HexTerrain.hive ||
-    hex.terrain === HexTerrain.water ||
-    hex.terrain === HexTerrain.wellspringWater ||
-    hex.terrain === HexTerrain.swampWater ||
-    hex.terrain === HexTerrain.ice ||
-    hex.terrain === HexTerrain.lava ||
-    hex.terrain === HexTerrain.shadow
+    terrain === HexTerrain.hive ||
+    terrain === HexTerrain.water ||
+    terrain === HexTerrain.wellspringWater ||
+    terrain === HexTerrain.swampWater ||
+    terrain === HexTerrain.ice ||
+    terrain === HexTerrain.lava ||
+    terrain === HexTerrain.shadow
   ) {
     return svgSubLevelColors.outlineWater
   }
-  if (isJungleTerrainHex(hex.terrain)) {
+  if (isJungleTerrainHex(terrain)) {
     return svgSubLevelColors.outlineJungle
   }
-  if (isEvergreenTree(hex.terrain)) {
+  if (isEvergreenTree(terrain)) {
     return svgSubLevelColors.outlineTree
   }
   if (
-    hex.terrain === HexTerrain.laurWall ||
-    hex.terrain === HexTerrain.laurWallAddon
+    terrain === HexTerrain.laurWall ||
+    terrain === HexTerrain.laurWallAddon
   ) {
     return svgSubLevelColors.outlineLaurWall
   }
-  if (hex.terrain === HexTerrain.glacier) {
+  if (terrain === HexTerrain.glacier) {
     return svgSubLevelColors.outlineWater
   }
-  if (hex.terrain === HexTerrain.outcrop) {
+  if (terrain === HexTerrain.outcrop) {
     return svgSubLevelColors.outlineOutcrop
   }
-  if (hex.terrain === HexTerrain.lavaRockOutcrop) {
+  if (terrain === HexTerrain.lavaRockOutcrop) {
     return svgSubLevelColors.outlineLavaOutcrop
   }
-  if (hex.terrain === HexTerrain.castleWall) {
+  if (terrain === HexTerrain.castleWall) {
     return svgSubLevelColors.castleWall
   }
-  if (hex.terrain === HexTerrain.castleBase) {
+  if (terrain === HexTerrain.castleBase) {
     return svgSubLevelColors.castleBase
   }
   return 'black'
 }
 
-export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
+export const getSvgHexFillColor = (hex: BoardHex | BoardPiece) => {
+  const terrain = piecesSoFar[hex.inventoryID].terrain
   if (
-    isSolidTerrainHex(hex.terrain) ||
-    isFluidTerrainHex(hex.terrain) ||
-    hex.terrain === HexTerrain.laurWall ||
-    hex.terrain === HexTerrain.laurWallAddon ||
-    hex.terrain === HexTerrain.fortifiedWall ||
-    hex.terrain === HexTerrain.roadWall ||
-    hex.terrain === HexTerrain.glyphPower ||
-    hex.terrain === HexTerrain.glyphTreasure ||
-    hex.terrain === HexTerrain.tree ||
-    hex.terrain === HexTerrain.battlement ||
-    hex.terrain === HexTerrain.hive ||
-    hex.terrain === HexTerrain.ladder
+    isSolidTerrainHex(terrain) ||
+    isFluidTerrainHex(terrain) ||
+    terrain === HexTerrain.laurWall ||
+    terrain === HexTerrain.laurWallAddon ||
+    terrain === HexTerrain.fortifiedWall ||
+    terrain === HexTerrain.roadWall ||
+    terrain === HexTerrain.glyphPower ||
+    terrain === HexTerrain.glyphTreasure ||
+    terrain === HexTerrain.tree ||
+    terrain === HexTerrain.battlement ||
+    terrain === HexTerrain.hive ||
+    terrain === HexTerrain.ladder
   ) {
     return (
       svgColors?.[terrain as keyof typeof svgColors] ??
@@ -212,13 +215,13 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   if (terrain === HexTerrain.startZone) {
     return hexTerrainColor[hex.inventoryID as keyof typeof hexTerrainColor]
   }
-  if (hex.terrain === HexTerrain.brush) {
+  if (terrain === HexTerrain.brush) {
     return svgColors.fillJungle
   }
-  if (hex.terrain === HexTerrain.marvelRuin) {
+  if (terrain === HexTerrain.marvelRuin) {
     return svgColors.castleWall
   }
-  if (hex.terrain === HexTerrain.palm) {
+  if (terrain === HexTerrain.palm) {
     // Renegade shows brush and palm as same color
     return svgColors.fillJungle // renegade-hexoscape
   }
@@ -237,78 +240,79 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   if (terrain === HexTerrain.outcrop) {
     return svgColors.outcrop
   }
-  if (hex.terrain === HexTerrain.lavaRockOutcrop) {
+  if (terrain === HexTerrain.lavaRockOutcrop) {
     return svgColors.lava
   }
-  if (hex.terrain === HexTerrain.castleWall) {
+  if (terrain === HexTerrain.castleWall) {
     return svgColors.castleWall
   }
-  if (hex.terrain === HexTerrain.castleBase) {
+  if (terrain === HexTerrain.castleBase) {
     return svgColors.castleBase
   }
   return 'transparent'
 }
-export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
+export const getSvgHexSubLevelFillColor = (hex: BoardHex | BoardPiece) => {
+  const terrain = piecesSoFar[hex.inventoryID].terrain
   // TODO: color: refactor this to be more direct
   if (hex.inventoryID === Pieces.laurWallShort) {
     return svgSubLevelColors[HexTerrain.laurWall]
   }
   if (
-    isSolidTerrainHex(hex.terrain) ||
-    isFluidTerrainHex(hex.terrain) ||
-    hex.terrain === HexTerrain.laurWall ||
-    hex.terrain === HexTerrain.laurWallAddon ||
-    hex.terrain === HexTerrain.fortifiedWall ||
-    hex.terrain === HexTerrain.roadWall ||
-    hex.terrain === HexTerrain.glyphPower ||
-    hex.terrain === HexTerrain.glyphTreasure ||
-    hex.terrain === HexTerrain.tree ||
-    hex.terrain === HexTerrain.battlement ||
-    hex.terrain === HexTerrain.hive ||
-    hex.terrain === HexTerrain.ladder
+    isSolidTerrainHex(terrain) ||
+    isFluidTerrainHex(terrain) ||
+    terrain === HexTerrain.laurWall ||
+    terrain === HexTerrain.laurWallAddon ||
+    terrain === HexTerrain.fortifiedWall ||
+    terrain === HexTerrain.roadWall ||
+    terrain === HexTerrain.glyphPower ||
+    terrain === HexTerrain.glyphTreasure ||
+    terrain === HexTerrain.tree ||
+    terrain === HexTerrain.battlement ||
+    terrain === HexTerrain.hive ||
+    terrain === HexTerrain.ladder
   ) {
     return (
-      svgSubLevelColors?.[hex.terrain as keyof typeof svgSubLevelColors] ??
-      virtualscapeTileColors[hex.terrain as keyof typeof virtualscapeTileColors]
+      svgSubLevelColors?.[terrain as keyof typeof svgSubLevelColors] ??
+      virtualscapeTileColors[terrain as keyof typeof virtualscapeTileColors]
     )
   }
   // StartZone: virtualscape colors, might be other designs
-  if (hex.terrain === HexTerrain.startZone) {
+  if (terrain === HexTerrain.startZone) {
     return hexTerrainColor[hex.inventoryID as keyof typeof hexTerrainColor]
   }
-  if (hex.terrain === HexTerrain.brush) {
+  if (terrain === HexTerrain.brush) {
     return svgSubLevelColors.fillJungle
   }
-  if (hex.terrain === HexTerrain.marvelRuin) {
+  if (terrain === HexTerrain.marvelRuin) {
     return svgSubLevelColors.castleWall
   }
-  if (hex.terrain === HexTerrain.palm) {
+  if (terrain === HexTerrain.palm) {
     // Renegade shows brush and palm as same color
     return svgSubLevelColors.fillJungle // renegade-hexoscape
     // return svgSubLevelColors.palm
   }
-  if (hex.terrain === HexTerrain.ruin) {
+  if (terrain === HexTerrain.ruin) {
     return svgSubLevelColors.ruin
   }
-  if (isEvergreenTree(hex.terrain)) {
+  if (isEvergreenTree(terrain)) {
     return svgSubLevelColors.tree
   }
-  if (hex.terrain === HexTerrain.hive) {
+  if (terrain === HexTerrain.hive) {
     return svgSubLevelColors.swampWater
   }
-  if (hex.terrain === HexTerrain.glacier) {
+  if (terrain === HexTerrain.glacier) {
     return svgSubLevelColors.ice
   }
-  if (hex.terrain === HexTerrain.outcrop) {
+  if (terrain === HexTerrain.outcrop) {
     return svgSubLevelColors.outcrop
   }
-  if (hex.terrain === HexTerrain.lavaRockOutcrop) {
+  if (terrain === HexTerrain.lavaRockOutcrop) {
     return svgSubLevelColors.lava
   }
-  if (hex.terrain === HexTerrain.castleWall) {
+  if (terrain === HexTerrain.castleWall) {
     return svgSubLevelColors.castleWall
   }
-  if (hex.terrain === HexTerrain.castleBase) {
+  if (terrain === HexTerrain.castleBase) {
     return svgSubLevelColors.castleBase
   }
   return 'transparent'
