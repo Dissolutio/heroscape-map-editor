@@ -14,7 +14,6 @@ import { ControlTabs } from './ControlTabs'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
-import type { BoardHexes } from '../types'
 import type { CameraControls } from '@react-three/drei'
 
 export default function HomePage() {
@@ -22,9 +21,6 @@ export default function HomePage() {
   const hexMap = useBoundStore((s) => s.hexMap)
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
   const controlsContainerRef = React.useRef(null)
-  // https://robohash.org/you.png?size=200x200
-  // USE EFFECT: automatically load up map from URL, OR from file
-  useAutoLoadMapFile()
 
   // MUI BREAKPOINTS
   //   xs, extra-small: 0px
@@ -63,6 +59,9 @@ export default function HomePage() {
       cameraControlsRef.current?.fitToBox(box, true)
     }
   }, [hexMap.id])
+
+  // USE EFFECT: automatically load up map from URL, OR from file
+  useAutoLoadMapFile({ mapGroupRef, cameraControlsRef })
 
   return (
     <>
