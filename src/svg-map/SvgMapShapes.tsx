@@ -1186,7 +1186,6 @@ export const SvgTree415 = ({
   return (
     <>
       <g transform={`rotate(${pieceRotation})`}>
-        {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
         <polygon points={points} fill={fillColor} />
         <polygon points={outlinePoints} fill={borderColor} />
       </g>
@@ -1290,11 +1289,6 @@ export const SvgOutcrop6 = ({
     ? getSvgHexSubLevelBorderColor(hex)
     : getSvgHexBorderColor(hex)
   const textColor = getOutcropTextColor({ hex, isSubLevel })
-  hex.terrain === HexTerrain.glacier
-    ? 'black'
-    : hex.terrain === HexTerrain.outcrop
-      ? svgColors.outcropText
-      : svgColors.lavaRockOutcropText
   const { points } = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -1304,7 +1298,6 @@ export const SvgOutcrop6 = ({
   return (
     <>
       <g transform={`rotate(${pieceRotation})`}>
-        {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
         <polygon points={points} fill={fillColor} />
         <polygon points={outlinePoints} fill={borderColor} />
       </g>
@@ -1394,7 +1387,6 @@ export const SvgOutcrop3 = ({
   return (
     <>
       <g transform={`rotate(${pieceRotation})`}>
-        {isSubLevel && <SvgSubLevelWhiteBackerPolygon points={points} />}
         <polygon points={points} fill={fillColor} />
         <polygon points={outlinePoints} fill={borderColor} />
       </g>

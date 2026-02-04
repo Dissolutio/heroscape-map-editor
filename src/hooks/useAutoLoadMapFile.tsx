@@ -1,11 +1,12 @@
 import { closeSnackbar, useSnackbar } from 'notistack'
-import React, { useEffect } from 'react'
+import React, { type RefObject, useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
 import type { BoardHexes } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
+  getBoardHexesRectangularMapDimensions,
   getBoardPiecesMaxLevel,
   normalizeBoardPieces,
 } from '../utils/map-utils'
@@ -14,12 +15,17 @@ import { LS_KEYS } from '../local-storage/keys'
 import { noop } from 'lodash'
 import { ROUTES } from '../ROUTES'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
+import { Box3, type Group, type Object3DEventMap } from 'three'
+import { zoomToMap } from '../utils/camera-utils'
+import type { CameraControls } from '@react-three/drei'
 
 type Props = {
   boardHexes?: BoardHexes
+  mapGroupRef: RefObject<Group<Object3DEventMap>>
+  cameraControlsRef: RefObject<CameraControls>
 }
 
-const useAutoLoadMapFile = (props?: Props) => {
+const useAutoLoadMapFile = (props: Props) => {
   const loadMap = useBoundStore((s) => s.loadMap)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const hexMap = useBoundStore((s) => s.hexMap)
@@ -89,12 +95,17 @@ const useAutoLoadMapFile = (props?: Props) => {
           action,
         })
         loadMap(jsonMap)
-        // enqueueSnackbar({
-        //   message: `Map data has been removed from your URL bar, to return it please press the back button in your browser.`,
-        //   variant: 'info',
-        //   autoHideDuration: 6000,
-        // })
         clearUndoHistory() // clear undo history, initial load should not be undoable
+        if (props.mapGroupRef.current && props.cameraControlsRef.current) {
+          // Create a new bounding box from the updated group.
+          const box = new Box3().setFromObject(props.mapGroupRef.current)
+          // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
+          props.cameraControlsRef.current?.fitToBox(box, true)
+        }
+        const { width, length } = getBoardHexesRectangularMapDimensions(jsonMap.boardHexes)
+        setTimeout(() => {
+          zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
+        }, 1000);
         return
 
         // biome-ignore lint/suspicious/noExplicitAny: <error could be anything>
@@ -113,6 +124,17 @@ const useAutoLoadMapFile = (props?: Props) => {
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
         variant: 'success',
       })
+
+      if (props.mapGroupRef.current && props.cameraControlsRef.current) {
+        // Create a new bounding box from the updated group.
+        const box = new Box3().setFromObject(props.mapGroupRef.current)
+        // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
+        props.cameraControlsRef.current?.fitToBox(box, true)
+      }
+      const { width, length } = getBoardHexesRectangularMapDimensions(localMapCache.boardHexes)
+      setTimeout(() => {
+        zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
+      }, 1000);
     } else {
       // No url and no prev state? auto load a file
 
@@ -146,6 +168,16 @@ const useAutoLoadMapFile = (props?: Props) => {
             boardPieces: normalizeBoardPieces(data.boardPieces),
             hexMap: data.hexMap,
           })
+          if (props.mapGroupRef.current && props.cameraControlsRef.current) {
+            // Create a new bounding box from the updated group.
+            const box = new Box3().setFromObject(props.mapGroupRef.current)
+            // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
+            props.cameraControlsRef.current?.fitToBox(box, true)
+          }
+          const { width, length } = getBoardHexesRectangularMapDimensions(props.boardHexes)
+          setTimeout(() => {
+            zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
+          }, 1000);
         } else {
           const jsonMap = buildupJsonFileMap(
             normalizeBoardPieces(data.boardPieces),
@@ -155,6 +187,10 @@ const useAutoLoadMapFile = (props?: Props) => {
             jsonMap.hexMap.name = fileName
           }
           loadMap(jsonMap)
+          const { width, length } = getBoardHexesRectangularMapDimensions(jsonMap.boardHexes)
+          setTimeout(() => {
+            zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
+          }, 1000);
         }
         enqueueSnackbar({
           // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,

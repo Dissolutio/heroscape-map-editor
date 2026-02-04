@@ -8,21 +8,19 @@ import CreateMapFormDialog from './CreateMapFormDialog'
 import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
 import useBoundStore from '../store/store'
-import type { Group, Object3DEventMap } from 'three'
+import { Box3, type Group, type Object3DEventMap } from 'three'
 import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
 import { ControlTabs } from './ControlTabs'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
+import type { CameraControls } from '@react-three/drei'
 
 export default function HomePage() {
-  const cameraControlsRef = React.useRef(null)
+  const cameraControlsRef = React.useRef<CameraControls>(null)
   const hexMap = useBoundStore((s) => s.hexMap)
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
   const controlsContainerRef = React.useRef(null)
-  // https://robohash.org/you.png?size=200x200
-  // USE EFFECT: automatically load up map from URL, OR from file
-  useAutoLoadMapFile()
 
   // MUI BREAKPOINTS
   //   xs, extra-small: 0px
@@ -41,6 +39,7 @@ export default function HomePage() {
     setIsPdfOpen(false)
     setIs2DOpen(s)
   }
+  // EFFECT: update doc title
   useEffect(() => {
     if (hexMap.name) {
       const prevTitle = document.title
@@ -50,6 +49,20 @@ export default function HomePage() {
       }
     }
   }, [hexMap.name])
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <run on map change>
+  useEffect(() => {
+    if (mapGroupRef.current && cameraControlsRef.current) {
+      // Create a new bounding box from the updated group.
+      const box = new Box3().setFromObject(mapGroupRef.current)
+      // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
+      cameraControlsRef.current?.fitToBox(box, true)
+    }
+  }, [hexMap.id])
+
+  // USE EFFECT: automatically load up map from URL, OR from file
+  useAutoLoadMapFile({ mapGroupRef, cameraControlsRef })
+
   return (
     <>
       <CreateMapFormDialog />
