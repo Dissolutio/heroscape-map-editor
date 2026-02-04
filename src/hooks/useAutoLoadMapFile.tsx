@@ -102,10 +102,12 @@ const useAutoLoadMapFile = (props: Props) => {
           // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
           props.cameraControlsRef.current?.fitToBox(box, true)
         }
-        const { width, length } = getBoardHexesRectangularMapDimensions(jsonMap.boardHexes)
+        const { width, length } = getBoardHexesRectangularMapDimensions(
+          jsonMap.boardHexes,
+        )
         setTimeout(() => {
           zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-        }, 1000);
+        }, 1000)
         return
 
         // biome-ignore lint/suspicious/noExplicitAny: <error could be anything>
@@ -131,10 +133,12 @@ const useAutoLoadMapFile = (props: Props) => {
         // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
         props.cameraControlsRef.current?.fitToBox(box, true)
       }
-      const { width, length } = getBoardHexesRectangularMapDimensions(localMapCache.boardHexes)
+      const { width, length } = getBoardHexesRectangularMapDimensions(
+        localMapCache.boardHexes,
+      )
       setTimeout(() => {
         zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-      }, 1000);
+      }, 1000)
     } else {
       // No url and no prev state? auto load a file
 
@@ -174,10 +178,12 @@ const useAutoLoadMapFile = (props: Props) => {
             // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
             props.cameraControlsRef.current?.fitToBox(box, true)
           }
-          const { width, length } = getBoardHexesRectangularMapDimensions(props.boardHexes)
+          const { width, length } = getBoardHexesRectangularMapDimensions(
+            props.boardHexes,
+          )
           setTimeout(() => {
             zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-          }, 1000);
+          }, 1000)
         } else {
           const jsonMap = buildupJsonFileMap(
             normalizeBoardPieces(data.boardPieces),
@@ -187,10 +193,12 @@ const useAutoLoadMapFile = (props: Props) => {
             jsonMap.hexMap.name = fileName
           }
           loadMap(jsonMap)
-          const { width, length } = getBoardHexesRectangularMapDimensions(jsonMap.boardHexes)
+          const { width, length } = getBoardHexesRectangularMapDimensions(
+            jsonMap.boardHexes,
+          )
           setTimeout(() => {
             zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-          }, 1000);
+          }, 1000)
         }
         enqueueSnackbar({
           // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
