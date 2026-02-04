@@ -1,5 +1,4 @@
 import type { Point } from '../types'
-import { SVG_BORDER_WIDTH } from '../utils/constants'
 import { cosDegrees, sinDegrees } from '../utils/hex-utils'
 
 // export function getHexagonSvgPolygonPoints(radius: number) {
@@ -1066,7 +1065,7 @@ export function get4HexOutlineSvgPolygonPoints(
   borderWidth: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
-  const radiusInner = radius - SVG_BORDER_WIDTH
+  const radiusInner = radius - borderWidth
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
 
   const corners: Point[] = [
