@@ -5,18 +5,14 @@ import usePieceHoverState from '../../hooks/usePieceHoverState'
 import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { noop } from 'lodash'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export function GlyphModel({
   boardHex,
   terrain,
 }: { boardHex: BoardHex; terrain: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/glyph.glb') as any
-  const texture = useTexture('glyph-valkyrie-logo.svg')
+  const { nodes } = useGLTF('/glyph-with-logo.glb') as any
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -37,43 +33,35 @@ export function GlyphModel({
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
   const color = isHighlighted ? yellowColor : glyphColor
   return (
-    <mesh
-      receiveShadow={isLightsAndShadowsRender}
-      castShadow={isLightsAndShadowsRender}
-      geometry={nodes.Glyph.geometry}
+    <group
       onPointerUp={(e) => onPointerUp(e)}
       onPointerEnter={(e) => onPointerEnter(e, boardHex)}
       onPointerOut={(e) => onPointerOut(e)}
     >
-      {basicModelMaterial(color, isLightsAndShadowsRender)}
-      {isDisplayCapHeights ? (
-        <Decal
-          depthTest
-          polygonOffsetFactor={-1} // The material should take precedence over the original
-          map={texture}
-        >
-          <meshStandardMaterial
-            map={texture}
-            polygonOffset
-            polygonOffsetFactor={-1} // The material should take precedence over the original
-            transparent={isDisplayCapHeights}
-            opacity={isDisplayCapHeights ? 0.4 : 1}
-          />
-        </Decal>
-      ) : (
-        <Decal
-          depthTest
-          polygonOffsetFactor={-1} // The material should take precedence over the original
-          map={texture}
-        />
-      )}
-    </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.Glyph.geometry}
+      >
+        {basicModelMaterial(color, isLightsAndShadowsRender)}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.GlyphValkyrieLogo.geometry}
+      >
+        {basicModelMaterial(
+          "white",
+          isLightsAndShadowsRender,
+        )}
+      </mesh>
+    </group>
   )
 }
 export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/glyph.glb') as any
-  const texture = useTexture('glyph-valkyrie-logo.svg')
+  const { nodes } = useGLTF('/glyph-with-logo.glb') as any
+  // const texture = useTexture('glyph-valkyrie-logo.svg')
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -82,31 +70,29 @@ export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
       ? hexTerrainColor[HexTerrain.glyphPower]
       : hexTerrainColor[HexTerrain.glyphTreasure]
   return (
-    <mesh
-      receiveShadow={isLightsAndShadowsRender}
-      castShadow={isLightsAndShadowsRender}
-      geometry={nodes.Glyph.geometry}
-    >
-      {basicModelMaterial(
-        color,
-        isLightsAndShadowsRender,
-        // PIECE_PREVIEW_OPACITY,
-      )}
-      <Decal
-        depthTest
-        polygonOffsetFactor={-1} // The material should take precedence over the original
-        map={texture}
+    <>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.Glyph.geometry}
       >
-        <meshStandardMaterial
-          map={texture}
-          polygonOffset
-          polygonOffsetFactor={-1} // The material should take precedence over the original
-          transparent
-          opacity={0.5}
-        />
-      </Decal>
-    </mesh>
+        {basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+        )}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.GlyphValkyrieLogo.geometry}
+      >
+        {basicModelMaterial(
+          "white",
+          isLightsAndShadowsRender,
+        )}
+      </mesh>
+    </>
   )
 }
 
-useGLTF.preload('/glyph.glb')
+useGLTF.preload('/glyph-with-logo.glb')
