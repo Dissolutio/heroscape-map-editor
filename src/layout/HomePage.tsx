@@ -15,10 +15,13 @@ import { useMuiMediaQuery } from './useMuiMediaQuery'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
 import type { CameraControls } from '@react-three/drei'
+import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
+import { zoomToMap } from '../utils/camera-utils'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef<CameraControls>(null)
   const hexMap = useBoundStore((s) => s.hexMap)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
   const controlsContainerRef = React.useRef(null)
 
@@ -39,6 +42,7 @@ export default function HomePage() {
     setIsPdfOpen(false)
     setIs2DOpen(s)
   }
+  const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // EFFECT: update doc title
   useEffect(() => {
     if (hexMap.name) {
@@ -52,12 +56,11 @@ export default function HomePage() {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <run on map change>
   useEffect(() => {
-    if (mapGroupRef.current && cameraControlsRef.current) {
-      // Create a new bounding box from the updated group.
-      const box = new Box3().setFromObject(mapGroupRef.current)
-      // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
-      cameraControlsRef.current?.fitToBox(box, true)
-    }
+    setTimeout(() => {
+      if (mapGroupRef.current && cameraControlsRef.current) {
+        zoomToMap(mapGroupRef, cameraControlsRef, width, length)
+      }
+    }, 500)
   }, [hexMap.id])
 
   // USE EFFECT: automatically load up map from URL, OR from file
