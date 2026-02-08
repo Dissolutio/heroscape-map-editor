@@ -42,9 +42,7 @@ export default function HomePage() {
     setIsPdfOpen(false)
     setIs2DOpen(s)
   }
-  const { width, length } = getBoardHexesRectangularMapDimensions(
-    boardHexes,
-  )
+  const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // EFFECT: update doc title
   useEffect(() => {
     if (hexMap.name) {

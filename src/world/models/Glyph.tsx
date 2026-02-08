@@ -50,10 +50,7 @@ export function GlyphModel({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.GlyphValkyrieLogo.geometry}
       >
-        {basicModelMaterial(
-          "white",
-          isLightsAndShadowsRender,
-        )}
+        {basicModelMaterial('white', isLightsAndShadowsRender)}
       </mesh>
     </group>
   )
@@ -76,20 +73,14 @@ export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Glyph.geometry}
       >
-        {basicModelMaterial(
-          color,
-          isLightsAndShadowsRender,
-        )}
+        {basicModelMaterial(color, isLightsAndShadowsRender)}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.GlyphValkyrieLogo.geometry}
       >
-        {basicModelMaterial(
-          "white",
-          isLightsAndShadowsRender,
-        )}
+        {basicModelMaterial('white', isLightsAndShadowsRender)}
       </mesh>
     </>
   )
