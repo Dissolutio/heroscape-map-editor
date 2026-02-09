@@ -37,30 +37,6 @@ const useAutoLoadMapFile = (props: Props) => {
 
   const [, navigate] = useLocation()
 
-  // helper: try to fit camera to map and then zoom; waits for refs up to a limit
-  const fitAndZoom = async (
-    mapGroupRef: RefObject<Group<Object3DEventMap>>,
-    cameraControlsRef: RefObject<CameraControls>,
-    width: number,
-    length: number,
-  ) => {
-    const maxAttempts = 120 // ~2 seconds at 60fps
-    let attempts = 0
-    // wait for refs to be available
-    while (attempts < maxAttempts) {
-      if (mapGroupRef.current && cameraControlsRef.current) break
-      // wait next frame
-      // eslint-disable-next-line no-await-in-loop
-      await new Promise<void>((r) => requestAnimationFrame(() => r()))
-      attempts++
-    }
-
-    if (!mapGroupRef.current || !cameraControlsRef.current) {
-      return
-    }
-    zoomToMap(mapGroupRef, cameraControlsRef, width, length)
-  }
-
   // USE EFFECT: Update viewing level when new map is loaded
   // biome-ignore lint/correctness/useExhaustiveDependencies: <only auto-update viewing level when map is loaded>
   React.useEffect(() => {
@@ -120,11 +96,20 @@ const useAutoLoadMapFile = (props: Props) => {
         })
         loadMap(jsonMap)
         clearUndoHistory() // clear undo history, initial load should not be undoable
+        if (props.mapGroupRef.current && props.cameraControlsRef.current) {
+          // Create a new bounding box from the updated group.
+          const box = new Box3().setFromObject(props.mapGroupRef.current)
+          // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
+          props.cameraControlsRef.current?.fitToBox(box, true)
+        }
         const { width, length } = getBoardHexesRectangularMapDimensions(
           jsonMap.boardHexes,
         )
-        fitAndZoom(props.mapGroupRef, props.cameraControlsRef, width, length)
+        setTimeout(() => {
+          zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
+        }, 1000)
         return
+
         // biome-ignore lint/suspicious/noExplicitAny: <error could be anything>
       } catch (error: any) {
         enqueueSnackbar({
@@ -142,10 +127,18 @@ const useAutoLoadMapFile = (props: Props) => {
         variant: 'success',
       })
 
+      if (props.mapGroupRef.current && props.cameraControlsRef.current) {
+        // Create a new bounding box from the updated group.
+        const box = new Box3().setFromObject(props.mapGroupRef.current)
+        // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
+        props.cameraControlsRef.current?.fitToBox(box, true)
+      }
       const { width, length } = getBoardHexesRectangularMapDimensions(
         localMapCache.boardHexes,
       )
-      fitAndZoom(props.mapGroupRef, props.cameraControlsRef, width, length)
+      setTimeout(() => {
+        zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
+      }, 1000)
     } else {
       // No url and no prev state? auto load a file
 
@@ -179,10 +172,18 @@ const useAutoLoadMapFile = (props: Props) => {
             boardPieces: normalizeBoardPieces(data.boardPieces),
             hexMap: data.hexMap,
           })
+          if (props.mapGroupRef.current && props.cameraControlsRef.current) {
+            // Create a new bounding box from the updated group.
+            const box = new Box3().setFromObject(props.mapGroupRef.current)
+            // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
+            props.cameraControlsRef.current?.fitToBox(box, true)
+          }
           const { width, length } = getBoardHexesRectangularMapDimensions(
             props.boardHexes,
           )
-          fitAndZoom(props.mapGroupRef, props.cameraControlsRef, width, length)
+          setTimeout(() => {
+            zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
+          }, 1000)
         } else {
           const jsonMap = buildupJsonFileMap(
             normalizeBoardPieces(data.boardPieces),
@@ -195,8 +196,9 @@ const useAutoLoadMapFile = (props: Props) => {
           const { width, length } = getBoardHexesRectangularMapDimensions(
             jsonMap.boardHexes,
           )
-          // use centralized helper that waits for refs and awaits fitToBox when possible
-          fitAndZoom(props.mapGroupRef, props.cameraControlsRef, width, length)
+          setTimeout(() => {
+            zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
+          }, 1000)
         }
         enqueueSnackbar({
           // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,

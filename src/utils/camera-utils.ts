@@ -32,9 +32,9 @@ export const zoomToMap = (
       width,
       width + length,
       length,
-      false,
+      true,
     )
-    cameraControlsRef.current?.rotateTo?.(0, 0, false)
+    cameraControlsRef.current?.rotateTo?.(0, 0, true)
     cameraControlsRef.current?.fitToBox?.(mapGroupRef.current, true)
   }
 }
