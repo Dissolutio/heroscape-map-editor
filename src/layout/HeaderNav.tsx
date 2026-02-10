@@ -12,22 +12,15 @@ import { useSnackbar } from 'notistack'
 import { MdFullscreen, MdFullscreenExit } from 'react-icons/md'
 import React from 'react'
 
-type Props = {
-  isPdfOpen: boolean
-  toggleIsPdfOpen: (arg0: boolean) => void
-  is2DOpen: boolean
-  toggleIs2DOpen: (arg0: boolean) => void
-}
 
-export function HeaderNav({
-  isPdfOpen,
-  toggleIsPdfOpen,
-  is2DOpen,
-  toggleIs2DOpen,
-}: Props) {
+export function HeaderNav() {
   // AppBar height is 64px when screen > 600px
   // AppBar height is 56px when screen < 600px
   const hexMap = useBoundStore((s) => s.hexMap)
+  const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
+  const toggleIsPdfOpen = useBoundStore((s) => s.toggleIsPdfOpen)
+  const toggleIs2DOpen = useBoundStore((s) => s.toggleIs2DOpen)
+  const is2DOpen = useBoundStore((s) => s.is2DOpen)
   const view3DOr2DIconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
   const { enqueueSnackbar } = useSnackbar()
   const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
@@ -77,8 +70,8 @@ export function HeaderNav({
   return (
     <AppBar
       position="static"
-      // sx={{ backgroundColor: 'var(--black)' }}
-      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+    // sx={{ backgroundColor: 'var(--black)' }}
+    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
         <Typography

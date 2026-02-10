@@ -19,6 +19,8 @@ import type { CameraControls } from '@react-three/drei'
 export default function HomePage() {
   const cameraControlsRef = React.useRef<CameraControls>(null)
   const hexMap = useBoundStore((s) => s.hexMap)
+  const is2DOpen = useBoundStore((s) => s.is2DOpen)
+  const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
   const controlsContainerRef = React.useRef(null)
 
@@ -30,15 +32,6 @@ export default function HomePage() {
   // xl, extra-large: 1536px
   const { isSideControls } = useMuiMediaQuery()
 
-  const [isPdfOpen, setIsPdfOpen] = React.useState(false)
-  const toggleIsPdfOpen = (s: boolean) => {
-    setIsPdfOpen(s)
-  }
-  const [is2DOpen, setIs2DOpen] = React.useState(false)
-  const toggleIs2DOpen = (s: boolean) => {
-    setIsPdfOpen(false)
-    setIs2DOpen(s)
-  }
   // EFFECT: update doc title
   useEffect(() => {
     if (hexMap.name) {
@@ -79,12 +72,7 @@ export default function HomePage() {
           margin: 0,
         }}
       >
-        <HeaderNav
-          isPdfOpen={isPdfOpen}
-          toggleIsPdfOpen={toggleIsPdfOpen}
-          is2DOpen={is2DOpen}
-          toggleIs2DOpen={toggleIs2DOpen}
-        />
+        <HeaderNav />
         <Box
           style={{
             display: 'flex',
@@ -132,8 +120,6 @@ export default function HomePage() {
                 cameraControlsRef={cameraControlsRef}
                 mapGroupRef={mapGroupRef}
                 controlsContainerRef={controlsContainerRef}
-                is2DOpen={is2DOpen}
-                isPdfOpen={isPdfOpen}
               />
             </div>
           </ControlsWidthContextProvider>
