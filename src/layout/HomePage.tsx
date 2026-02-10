@@ -15,14 +15,18 @@ import { useMuiMediaQuery } from './useMuiMediaQuery'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
 import type { CameraControls } from '@react-three/drei'
+import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef<CameraControls>(null)
   const hexMap = useBoundStore((s) => s.hexMap)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
   const is2DOpen = useBoundStore((s) => s.is2DOpen)
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
+  const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
   const controlsContainerRef = React.useRef(null)
+  const maxLevel = getBoardPiecesMaxLevel(boardPieces)
 
   // MUI BREAKPOINTS
   //   xs, extra-small: 0px
@@ -43,6 +47,7 @@ export default function HomePage() {
     }
   }, [hexMap.name])
 
+  // USE EFFECT: zoom to map and toggle viewing level when new map is loaded
   // biome-ignore lint/correctness/useExhaustiveDependencies: <run on map change>
   useEffect(() => {
     if (mapGroupRef.current && cameraControlsRef.current) {
@@ -51,6 +56,8 @@ export default function HomePage() {
       // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
       cameraControlsRef.current?.fitToBox(box, true)
     }
+    //Update viewing level when new map is loaded
+    toggleViewingLevel(maxLevel)
   }, [hexMap.id])
 
   // USE EFFECT: automatically load up map from URL, OR from file
