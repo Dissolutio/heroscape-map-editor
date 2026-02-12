@@ -8,14 +8,21 @@ export default function ViewingLevelInput() {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const is2DOpen = useBoundStore((s) => s.is2DOpen)
+  const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
+  const is2DOverlayLevelEnabled = useBoundStore(
+    (s) => s.is2DOverlayLevelEnabled,
+  )
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+  const overlayLevel = (maxLevel ?? 0) + 1
+  const allowedMaxLevel = is2DOverlayLevelEnabled && (is2DOpen && !isPdfOpen) ? overlayLevel : maxLevel
   const { hotkeyLookup } = useHotkeyConfig()
-  // Adjust viewing level down when it's over the max (TODO: viewingLevel: should be in map-slice unpaint?)
+  // Adjust viewing level down when it's over the allowed max (allow overlay level when toggle is enabled)
   useEffect(() => {
-    if (viewingLevel > maxLevel) {
-      toggleViewingLevel(maxLevel)
+    if (viewingLevel > (allowedMaxLevel ?? 0)) {
+      toggleViewingLevel(allowedMaxLevel ?? 0)
     }
-  }, [viewingLevel, maxLevel, toggleViewingLevel])
+  }, [viewingLevel, allowedMaxLevel, toggleViewingLevel])
 
   return (
     <Box
@@ -68,13 +75,13 @@ export default function ViewingLevelInput() {
             inputProps={{
               step: 1,
               min: 0,
-              max: maxLevel ?? 0,
+              max: is2DOverlayLevelEnabled ? overlayLevel : maxLevel ?? 0,
               type: 'number',
             }}
           />
         </Grid2>
         <Grid2 size={{ xs: 4 }}>
-          <Typography id="input-slider">{`of ${maxLevel}`}</Typography>
+          <Typography id="input-slider">{`of ${maxLevel}${is2DOverlayLevelEnabled ? ` (overlay ${overlayLevel})` : ''}`}</Typography>
         </Grid2>
       </Grid2>
     </Box>
