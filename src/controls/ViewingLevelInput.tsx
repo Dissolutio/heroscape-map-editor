@@ -81,7 +81,7 @@ export default function ViewingLevelInput() {
           />
         </Grid2>
         <Grid2 size={{ xs: 4 }}>
-          <Typography id="input-slider">{`of ${maxLevel}${is2DOverlayLevelEnabled ? ` (overlay ${overlayLevel})` : ''}`}</Typography>
+          <Typography id="input-slider">{`of ${maxLevel}${is2DOverlayLevelEnabled && is2DOpen ? ` (overlay ${overlayLevel})` : ''}`}</Typography>
         </Grid2>
       </Grid2>
     </Box>
