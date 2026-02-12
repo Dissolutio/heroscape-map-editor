@@ -1,5 +1,6 @@
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
+import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 import { HexTerrain, Pieces, type BoardHex } from '../types'
 import {
   isCastleTerrain,
@@ -67,6 +68,11 @@ const glyphTextProps = (glyphText: string) => ({
 
 export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const is2DOverlayLevelEnabled = useBoundStore(
+    (s) => s.is2DOverlayLevelEnabled,
+  )
+  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const overlayLevel = getBoardPiecesMaxLevel(boardPieces) + 1
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
   const { inventoryID } = decodePieceID(hex.pieceID)
@@ -204,15 +210,19 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     hex.terrain === HexTerrain.glyphPower ||
     hex.terrain === HexTerrain.glyphTreasure
   ) {
-    // const glyphShortName =
+    // When overlay view is enabled, glyphs should only be shown on the overlay level
+    const isOverlayViewing = is2DOverlayLevelEnabled && viewingLevel === overlayLevel
+    if (is2DOverlayLevelEnabled && !isOverlayViewing) {
+      return null
+    }
+    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1 isGlyph hex={hex} isSubLevel={isSubLevel} />
+        <SvgMultiHex1 isGlyph hex={hex} isSubLevel={specialIsSubLevel} />
         <text
           fill="white"
           // white text needs a little opacity boost
-          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          // {...glyphTextProps(`${pieceHeightText}`)}
+          opacity={specialIsSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           {...glyphTextProps('GL')}
         >
           {'GL'}
@@ -222,9 +232,14 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   }
   // Start Zones
   if (hex.terrain === HexTerrain.startZone) {
+    const isOverlayViewing = is2DOverlayLevelEnabled && viewingLevel === overlayLevel
+    if (is2DOverlayLevelEnabled && !isOverlayViewing) {
+      return null
+    }
+    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgStartZone hex={hex} isSubLevel={isSubLevel} />
+        <SvgStartZone hex={hex} isSubLevel={specialIsSubLevel} />
       </g>
     )
   }
