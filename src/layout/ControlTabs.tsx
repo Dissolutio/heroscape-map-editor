@@ -11,6 +11,7 @@ import { BuildControlsTab } from '../controls/BuildControlsTab'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 import { useControlsWidthContext } from '../controls/useControlWidth'
 import { Tooltip } from '@mui/material'
+import useBoundStore from '../store/store'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -45,13 +46,13 @@ export const ControlTabs = ({
   cameraControlsRef,
   mapGroupRef,
   controlsContainerRef,
-  is2DOpen,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
   controlsContainerRef: React.RefObject<null>
-  is2DOpen: boolean
 }) => {
+  const is2DOpen = useBoundStore((s) => s.is2DOpen)
+  const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
   const [value, setValue] = React.useState(0)
   const { isSideControls } = useMuiMediaQuery()
   const { isMediumControls, isSmallControls } = useControlsWidthContext()
@@ -198,6 +199,8 @@ export const ControlTabs = ({
           <ViewControlsTab
             cameraControlsRef={cameraControlsRef}
             mapGroupRef={mapGroupRef}
+            is2DOpen={is2DOpen}
+            isPdfOpen={isPdfOpen}
           />
         </CustomTabPanel>
       </Box>

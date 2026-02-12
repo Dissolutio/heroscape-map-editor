@@ -38,6 +38,10 @@ export interface UISlice {
   toggleHoveredHex: (hex?: BoardHex) => void
   viewingLevel: number
   toggleViewingLevel: (level: number) => void
+  is2DOpen: boolean
+  toggleIs2DOpen: (b: boolean) => void
+  isPdfOpen: boolean
+  toggleIsPdfOpen: (b: boolean) => void
   isHighQualityRender: boolean
   toggleIsHighQualityRender: (b: boolean) => void
   isLightsAndShadowsRender: boolean
@@ -62,6 +66,9 @@ export interface UISlice {
   // PDF STATE
   isShowPDFInventory: boolean
   toggleIsShowPDFInventory: (b: boolean) => void
+  // SVG STATE
+  is2DOverlayLevelEnabled: boolean
+  toggleIs2DOverlayLevelEnabled: (b: boolean) => void
 }
 
 const initialPenMode = 'select'
@@ -191,6 +198,13 @@ const createUISlice: StateCreator<
         s.isShowPDFInventory = b
       }),
     ),
+  is2DOverlayLevelEnabled: false,
+  toggleIs2DOverlayLevelEnabled: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.is2DOverlayLevelEnabled = b
+      }),
+    ),
   currentDialog: '',
   toggleIsNewMapDialogOpen: (b: boolean) =>
     set(
@@ -228,6 +242,21 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isLightsAndShadowsRender = b
+      }),
+    ),
+  is2DOpen: false,
+  toggleIs2DOpen: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isPdfOpen = false
+        s.is2DOpen = b
+      }),
+    ),
+  isPdfOpen: false,
+  toggleIsPdfOpen: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isPdfOpen = b
       }),
     ),
   isHighQualityRender: false,

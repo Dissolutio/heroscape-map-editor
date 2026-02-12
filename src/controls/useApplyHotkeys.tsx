@@ -43,8 +43,16 @@ export const useApplyHotkeys = ({
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
+  const is2DOpen = useBoundStore((s) => s.is2DOpen)
+  const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
+  const is2DOverlayLevelEnabled = useBoundStore(
+    (s) => s.is2DOverlayLevelEnabled,
+  )
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+  const overlayLevel = (maxLevel ?? 0) + 1
+  const allowedMaxLevel =
+    is2DOverlayLevelEnabled && is2DOpen && !isPdfOpen ? overlayLevel : maxLevel
   const isSizes = flatPieceSizes?.length > 0
   const { undo, redo } = useTemporalStore((state: AppState) => state)
 
@@ -66,10 +74,12 @@ export const useApplyHotkeys = ({
     }
   }
 
-  const incrementViewingLevel = () =>
-    toggleViewingLevel(Math.min(viewingLevel + 1, maxLevel))
-  const decrementViewingLevel = () =>
+  const incrementViewingLevel = () => {
+    toggleViewingLevel(Math.min(viewingLevel + 1, allowedMaxLevel))
+  }
+  const decrementViewingLevel = () => {
     toggleViewingLevel(Math.max(viewingLevel - 1, 0))
+  }
   const togglePieceSize1 = () => {
     if (isSizes) {
       togglePieceSize(flatPieceSizes[0])
