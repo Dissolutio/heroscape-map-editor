@@ -24,6 +24,7 @@ export default function ViewingLevelInput() {
         padding: '0.5em',
         border: '1px solid',
         borderColor:
+          // show user when they are viewing a lower level, highlight input yellow
           viewingLevel < maxLevel
             ? 'warning.main'
             : 'var(--transparent-border)',
