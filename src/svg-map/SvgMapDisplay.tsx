@@ -4,7 +4,10 @@ import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import {
   decodePieceID,
   getBoardHexesSvgMapDimensions,
+  getBoardPiecesMaxLevel,
 } from '../utils/map-utils'
+import { piecesSoFar } from '../data/pieces'
+import { HexTerrain } from '../types'
 import { SvgMapHex } from './SvgMapHex'
 import { SvgMapBoardPiece } from './SvgMapBoardPiece'
 
@@ -17,6 +20,9 @@ export const SvgMapDisplay = () => {
     return s.boardPieces
   })
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const is2DOverlayLevelEnabled = useBoundStore(
+    (s) => s.is2DOverlayLevelEnabled,
+  )
   const decodedBoardPiecesArr = boardPieces
     .map((id) => decodePieceID(id))
     .filter((p) => Boolean(p))
@@ -69,7 +75,18 @@ export const SvgMapDisplay = () => {
           <SvgMapHex key={hex.id} hex={hex} />
         ))}
         {decodedBoardPiecesArr
-          .filter((bp) => bp.altitude <= viewingLevel)
+          .filter((bp) => {
+            // when overlay mode is enabled, hide glyph/startzone/objective-like pieces
+            const overlayLevel = getBoardPiecesMaxLevel(boardPieces) + 1
+
+            if (is2DOverlayLevelEnabled) {
+              if (piecesSoFar[bp.inventoryID].isOverlayPiece) {
+                return viewingLevel === overlayLevel
+              }
+              return bp.altitude <= viewingLevel
+            }
+            return bp.altitude <= viewingLevel
+          })
           .sort((a, b) => a.altitude - b.altitude)
           .map((bp) => (
             <SvgMapBoardPiece
