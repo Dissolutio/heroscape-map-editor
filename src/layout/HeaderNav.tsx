@@ -12,7 +12,6 @@ import { useSnackbar } from 'notistack'
 import { MdFullscreen, MdFullscreenExit } from 'react-icons/md'
 import React from 'react'
 
-
 export function HeaderNav() {
   // AppBar height is 64px when screen > 600px
   // AppBar height is 56px when screen < 600px
@@ -70,8 +69,8 @@ export function HeaderNav() {
   return (
     <AppBar
       position="static"
-    // sx={{ backgroundColor: 'var(--black)' }}
-    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+      // sx={{ backgroundColor: 'var(--black)' }}
+      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
         <Typography

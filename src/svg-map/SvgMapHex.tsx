@@ -211,7 +211,8 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     hex.terrain === HexTerrain.glyphTreasure
   ) {
     // When overlay view is enabled, glyphs should only be shown on the overlay level
-    const isOverlayViewing = is2DOverlayLevelEnabled && viewingLevel === overlayLevel
+    const isOverlayViewing =
+      is2DOverlayLevelEnabled && viewingLevel === overlayLevel
     if (is2DOverlayLevelEnabled && !isOverlayViewing) {
       return null
     }
@@ -232,7 +233,8 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   }
   // Start Zones
   if (hex.terrain === HexTerrain.startZone) {
-    const isOverlayViewing = is2DOverlayLevelEnabled && viewingLevel === overlayLevel
+    const isOverlayViewing =
+      is2DOverlayLevelEnabled && viewingLevel === overlayLevel
     if (is2DOverlayLevelEnabled && !isOverlayViewing) {
       return null
     }

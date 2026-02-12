@@ -149,7 +149,7 @@ export default function ViewControlsTab({
       <Box>
         <ViewPreferencesSwitchForm />
         <PdfPreferencesSwitchForm />
-        {(is2DOpen && !isPdfOpen) && <SVGPreferencesSwitchForm />}
+        {is2DOpen && !isPdfOpen && <SVGPreferencesSwitchForm />}
       </Box>
     </Box>
   )
@@ -310,7 +310,9 @@ const PdfPreferencesSwitchForm = () => {
 }
 
 const SVGPreferencesSwitchForm = () => {
-  const is2DOverlayLevelEnabled = useBoundStore((s) => s.is2DOverlayLevelEnabled)
+  const is2DOverlayLevelEnabled = useBoundStore(
+    (s) => s.is2DOverlayLevelEnabled,
+  )
   const toggleIs2DOverlayLevelEnabled = useBoundStore(
     (s) => s.toggleIs2DOverlayLevelEnabled,
   )

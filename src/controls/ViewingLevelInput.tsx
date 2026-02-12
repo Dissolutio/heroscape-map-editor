@@ -15,7 +15,8 @@ export default function ViewingLevelInput() {
   )
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
   const overlayLevel = (maxLevel ?? 0) + 1
-  const allowedMaxLevel = is2DOverlayLevelEnabled && (is2DOpen && !isPdfOpen) ? overlayLevel : maxLevel
+  const allowedMaxLevel =
+    is2DOverlayLevelEnabled && is2DOpen && !isPdfOpen ? overlayLevel : maxLevel
   const { hotkeyLookup } = useHotkeyConfig()
   // Adjust viewing level down when it's over the allowed max (allow overlay level when toggle is enabled)
   useEffect(() => {
@@ -75,7 +76,7 @@ export default function ViewingLevelInput() {
             inputProps={{
               step: 1,
               min: 0,
-              max: is2DOverlayLevelEnabled ? overlayLevel : maxLevel ?? 0,
+              max: is2DOverlayLevelEnabled ? overlayLevel : (maxLevel ?? 0),
               type: 'number',
             }}
           />

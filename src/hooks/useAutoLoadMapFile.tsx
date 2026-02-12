@@ -33,7 +33,6 @@ const useAutoLoadMapFile = (props: Props) => {
 
   const [, navigate] = useLocation()
 
-
   // USE EFFECT: automatically load up map from URL, OR from file
   // biome-ignore lint/correctness/useExhaustiveDependencies: only run on-load
   useEffect(() => {
