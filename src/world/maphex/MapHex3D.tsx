@@ -109,8 +109,8 @@ export const MapHex3D = ({
   const isLadderHex =
     boardHex.terrain === HexTerrain.ladder && boardHex.isObstacleOrigin
   const isGlacier1Hex = inventoryID === Pieces.glacier1 && isObstacleHex
-  const isPowerGlyphHex = inventoryID === Pieces.glyphPower
-  const isTreasureGlyphHex = inventoryID === Pieces.glyphTreasure
+  const isPowerGlyphHex = boardHex.terrain === HexTerrain.glyphPower
+  const isTreasureGlyphHex = boardHex.terrain === HexTerrain.glyphTreasure
   const isOutcrop1Hex = inventoryID === Pieces.outcrop1 && isObstacleHex
   const isOutcrop3Hex =
     inventoryID === Pieces.outcrop3 && boardHex.isObstacleOrigin
@@ -619,7 +619,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-              selectedPieceID === boardHex.pieceID
+                selectedPieceID === boardHex.pieceID
                 ? hexTerrainColor[HexTerrain.castleBase]
                 : 'yellow'
             }
@@ -646,7 +646,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+                  selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castleWall]
               }

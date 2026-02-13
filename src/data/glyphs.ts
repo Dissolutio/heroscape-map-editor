@@ -1,14 +1,3 @@
-type HexoscapeGlyphs = {
-  id: string
-  name: string
-  shortName: string
-  glyphLetter: string
-  type: string // power, treasure, objective
-  duration: string // permanent, temporary
-  shortDescription: string
-  description: string
-}[]
-
 // const vsGlyphLetterToName = {
 //   '?': 'unknown',  // 14063
 //   A: 'astrid', // 14065
@@ -33,7 +22,9 @@ type HexoscapeGlyphs = {
 //   U: 'ulaniva', // 14085
 // }
 
-export const powerGlyphs: HexoscapeGlyphs = [
+import type { HexoscapeGlyph } from "../types"
+
+export const powerGlyphs: HexoscapeGlyph[] = [
   // TEMPORARY GLYPHS
   {
     // Haukeland
@@ -347,7 +338,7 @@ the figure is safe.`,
   },
 ]
 
-export const marvelGlyphs: HexoscapeGlyphs = [
+export const marvelGlyphs: HexoscapeGlyph[] = [
   {
     id: 'objectOfPower',
     name: 'Object of Power',
@@ -370,7 +361,7 @@ export const marvelGlyphs: HexoscapeGlyphs = [
   },
 ]
 
-export const treasureGlyphs: HexoscapeGlyphs = [
+export const treasureGlyphs: HexoscapeGlyph[] = [
   // Permanent Treasure Glyphs
   {
     id: 'heroicRune',
@@ -595,7 +586,7 @@ export const treasureGlyphs: HexoscapeGlyphs = [
   },
 ]
 
-export const c3vGlyphs: HexoscapeGlyphs = [
+export const c3vGlyphs: HexoscapeGlyph[] = [
   {
     id: 'frosa',
     name: 'Frosa',
@@ -685,7 +676,7 @@ export const c3vGlyphs: HexoscapeGlyphs = [
       'After moving and before attacking, you must roll the 20-sided die once for each figure adjacent to this figure. If you roll a 14 or higher, that figure receives 1 wound. Figures with the Lava Resistant special power are not affected by the Glyph of Searing Amulet.',
   },
 ]
-export const c3vPlaytestGlyphs: HexoscapeGlyphs = [
+export const c3vPlaytestGlyphs: HexoscapeGlyph[] = [
   {
     id: 'lorjaValda',
     name: 'Lorja Valda',
@@ -709,7 +700,7 @@ export const c3vPlaytestGlyphs: HexoscapeGlyphs = [
       'Once during each turn, a Hero you control may add one extra attack die when attacking normally.',
   },
 ]
-export const customGlyphs: HexoscapeGlyphs = [
+export const customGlyphs: HexoscapeGlyph[] = [
   {
     id: 'kasfa',
     name: 'Kasfa',

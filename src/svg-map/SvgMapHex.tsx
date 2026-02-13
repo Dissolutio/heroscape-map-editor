@@ -217,6 +217,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       return null
     }
     const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
+    const glyphLetter = piecesSoFar[inventoryID]?.glyphLetter ?? 'GL'
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 isGlyph hex={hex} isSubLevel={specialIsSubLevel} />
@@ -224,9 +225,9 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           fill="white"
           // white text needs a little opacity boost
           opacity={specialIsSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          {...glyphTextProps('GL')}
+          {...glyphTextProps(glyphLetter)}
         >
-          {'GL'}
+          {glyphLetter}
         </text>
       </g>
     )

@@ -112,6 +112,7 @@ export type Piece = {
   isHexTerrainPiece: boolean
   isObstaclePiece: boolean
   isOverlayPiece?: boolean
+  glyphLetter?: string
   landPrefix?: PiecePrefixes // Including this so land pieces can have their sizes computed for piece-size selection in the Controls
   // TODO: account for 1 marvel wall => 4 variations, 1 castle arch => 2 variations
   isUninventoried?: boolean // so far just marvel-ruins-broken and castle-arch-no-door versions (these are just variations on their inventoried counterparts)
@@ -351,4 +352,14 @@ export type AddRemovePieceReturn = {
   newBoardHexes: BoardHexes
   newBoardPieces: BoardPieces
   error: AddRemovePieceError
+}
+export type HexoscapeGlyph = {
+  id: string
+  name: string
+  shortName: string
+  glyphLetter: string
+  type: string // power, treasure, objective
+  duration: string // permanent, temporary
+  shortDescription: string
+  description: string
 }

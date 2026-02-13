@@ -16,7 +16,7 @@ import {
   GiWhiteTower,
 } from 'react-icons/gi'
 import useBoundStore from '../store/store'
-import { PiecePrefixes, Pieces } from '../types'
+import { HexoscapeGlyph, PiecePrefixes, Pieces } from '../types'
 import {
   TbHexagonalPyramid,
   TbHexagonLetterC,
@@ -47,6 +47,14 @@ import {
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
 import { piecesSoFar } from '../data/pieces'
+import {
+  powerGlyphs,
+  treasureGlyphs,
+  marvelGlyphs,
+  c3vGlyphs,
+  c3vPlaytestGlyphs,
+  customGlyphs,
+} from '../data/glyphs'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
@@ -54,6 +62,9 @@ export default function PenModeControls() {
   const togglePenMode = useBoundStore((state) => state.togglePenMode)
   const handleChange = (event: SelectChangeEvent) => {
     togglePenMode(event.target.value)
+  }
+  const getGlyphColor = (g: HexoscapeGlyph) => {
+    return g.type === 'power' ? hexTerrainColor.glyphPower : g.type === 'treasure' ? hexTerrainColor.glyphTreasure : 'white'
   }
   const { hotkeyLookup } = useHotkeyConfig()
   return (
@@ -575,29 +586,11 @@ export default function PenModeControls() {
           </ListItemIcon>
           <span>Arch (No Door)</span>
         </MenuItem>
-        {/* WALL WALK BEGIN */}
         <MenuItem value={PiecePrefixes.wallWalk}>
           <ListItemIcon>
             <TbHexagons />
           </ListItemIcon>
           <span>Wall Walk</span>
-        </MenuItem>
-
-        {/* GLYPHS */}
-        <Divider />
-        <MenuItem value={Pieces.glyphPower}>
-          <ListItemIcon>
-            <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
-          </ListItemIcon>
-          <span>Power Glyph</span>
-          <HotkeyText text={hotkeyLookup.togglePenModePowerGlyph} />
-        </MenuItem>
-        <MenuItem value={Pieces.glyphTreasure}>
-          <ListItemIcon>
-            <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
-          </ListItemIcon>
-          <span>Treasure Glyph</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeTreasureGlyph} />
         </MenuItem>
 
         {/* RoadWall, Battlements, Ladders */}
@@ -621,9 +614,35 @@ export default function PenModeControls() {
           <span>Ladder</span>
         </MenuItem>
 
-        {/* START ZONES BEGIN */}
+        {/* Marvel RUINS */}
         <Divider />
+        <MenuItem value={Pieces.marvel}>
+          <ListItemIcon>
+            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+          </ListItemIcon>
+          <span>Marvel Ruins</span>
+        </MenuItem>
+        <MenuItem value={Pieces.marvelBroken}>
+          <ListItemIcon>
+            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+          </ListItemIcon>
+          <span>Marvel Ruins - Wall Destroyed</span>
+        </MenuItem>
+        <MenuItem value={Pieces.marvelNoUpper}>
+          <ListItemIcon>
+            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+          </ListItemIcon>
+          <span>Marvel Ruins - No Upper Floor</span>
+        </MenuItem>
+        <MenuItem value={Pieces.marvelNoUpperBroken}>
+          <ListItemIcon>
+            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+          </ListItemIcon>
+          <span>Marvel Ruins - No Upper Floor, Wall Destroyed</span>
+        </MenuItem>
 
+        {/* START ZONES */}
+        <Divider />
         <MenuItem value={Pieces.startZone1}>
           <ListItemIcon>
             <TbHexagonNumber1Filled color={hexTerrainColor.z1} />
@@ -673,32 +692,126 @@ export default function PenModeControls() {
           <span>Start Zone: P8</span>
         </MenuItem>
 
-        {/* Marvel RUINS */}
+        {/* GENERIC GLYPHS */}
         <Divider />
-        <MenuItem value={Pieces.marvel}>
+        <MenuItem value={Pieces.glyphPower}>
           <ListItemIcon>
-            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+            <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
           </ListItemIcon>
-          <span>Marvel Ruins</span>
+          <span>Power Glyph</span>
+          <HotkeyText text={hotkeyLookup.togglePenModePowerGlyph} />
         </MenuItem>
-        <MenuItem value={Pieces.marvelBroken}>
+        <MenuItem value={Pieces.glyphTreasure}>
           <ListItemIcon>
-            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+            <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
           </ListItemIcon>
-          <span>Marvel Ruins - Wall Destroyed</span>
+          <span>Treasure Glyph</span>
+          <HotkeyText text={hotkeyLookup.togglePenModeTreasureGlyph} />
         </MenuItem>
-        <MenuItem value={Pieces.marvelNoUpper}>
+
+        {/* POWER GLYPHS */}
+        <Divider />
+        <MenuItem disabled>
           <ListItemIcon>
-            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+            <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
           </ListItemIcon>
-          <span>Marvel Ruins - No Upper Floor</span>
+          <span>Power Glyphs</span>
         </MenuItem>
-        <MenuItem value={Pieces.marvelNoUpperBroken}>
+        {powerGlyphs.map((g) => (
+          <MenuItem key={g.id} value={`${PiecePrefixes.glyph}${g.id}`} title={`Glyph of ${g.name}: ${g.description}`}>
+            <ListItemIcon>
+              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
+            </ListItemIcon>
+            <span>{g.shortName || g.name}</span>
+          </MenuItem>
+        ))}
+        {/* MARVEL GLYPHS */}
+        <Divider />
+        <MenuItem disabled>
           <ListItemIcon>
-            <GiAncientRuins color={hexTerrainColor.marvelRuin} />
+            <TbHexagonLetterPFilled color={hexTerrainColor.glyphPower} />
           </ListItemIcon>
-          <span>Marvel Ruins - No Upper Floor, Wall Destroyed</span>
+          <span>Marvel / Objective Glyphs</span>
         </MenuItem>
+        {marvelGlyphs.map((g) => (
+          <MenuItem key={g.id} value={`${PiecePrefixes.glyph}${g.id}`} title={`Glyph of ${g.name}: ${g.description}`}>
+            <ListItemIcon>
+              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
+            </ListItemIcon>
+            <span>{g.shortName || g.name}</span>
+          </MenuItem>
+        ))}
+        {/* TREASURE GLYPHS */}
+        <Divider />
+        <MenuItem disabled>
+          <ListItemIcon>
+            <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
+          </ListItemIcon>
+          <span>Treasure Glyphs</span>
+        </MenuItem>
+        {treasureGlyphs.map((g) => (
+          <MenuItem key={g.id} value={`${PiecePrefixes.glyph}${g.id}`} title={`Glyph of ${g.name}: ${g.description}`}>
+            <ListItemIcon>
+              <span
+                style={{
+                  fontWeight: 'bold',
+                  color: getGlyphColor(g)
+                }}>{g.glyphLetter}</span>
+            </ListItemIcon>
+            <span>{g.shortName || g.name}</span>
+          </MenuItem>
+        ))}
+        {/* C3V GLYPHS */}
+        <Divider />
+        <MenuItem disabled>
+          <ListItemIcon>
+            <TbHexagonLetterTFilled color={hexTerrainColor.glyphPower} />
+            <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
+          </ListItemIcon>
+          <span>C3V Glyphs</span>
+        </MenuItem>
+        {c3vGlyphs.map((g) => (
+          <MenuItem key={g.id} value={`${PiecePrefixes.glyph}${g.id}`} title={`Glyph of ${g.name}: ${g.description}`}>
+            <ListItemIcon>
+              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
+            </ListItemIcon>
+            <span>{g.shortName || g.name}</span>
+          </MenuItem>
+        ))}
+        <Divider />
+        <MenuItem disabled>
+          <ListItemIcon>
+            <TbHexagonLetterTFilled color={hexTerrainColor.glyphPower} />
+            <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
+          </ListItemIcon>
+          <span>C3V Playtest Glyphs</span>
+        </MenuItem>
+        {c3vPlaytestGlyphs.map((g) => (
+          <MenuItem key={g.id} value={`${PiecePrefixes.glyph}${g.id}`} title={`Glyph of ${g.name}: ${g.description}`}>
+            <ListItemIcon>
+              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
+            </ListItemIcon>
+            <span>{g.shortName || g.name}</span>
+          </MenuItem>
+        ))}
+        <Divider />
+        <MenuItem disabled>
+          <ListItemIcon>
+            <TbHexagonLetterTFilled color={hexTerrainColor.glyphPower} />
+            <TbHexagonLetterTFilled color={hexTerrainColor.glyphTreasure} />
+          </ListItemIcon>
+          <span>Custom Glyphs</span>
+        </MenuItem>
+        {customGlyphs.map((g) => (
+          <MenuItem key={g.id} value={`${PiecePrefixes.glyph}${g.id}`} title={`Glyph of ${g.name}: ${g.description}`}
+          >
+            <ListItemIcon>
+              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
+            </ListItemIcon>
+            <span>{g.shortName || g.name}</span>
+          </MenuItem>
+        ))}
+
       </Select>
     </FormControl>
   )
