@@ -2,6 +2,7 @@ import { Decal, useGLTF, useTexture } from '@react-three/drei'
 import useBoundStore from '../../store/store'
 import { HexTerrain, Pieces, type BoardHex } from '../../types'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
+import { piecesSoFar } from '../../data/pieces'
 import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
@@ -62,8 +63,12 @@ export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
+  // Use the piece's terrain (if present) so named glyphs (inventory IDs like
+  // `y<id>`) are colored correctly based on whether they're power or
+  // treasure glyphs.
+  const previewTerrain = piecesSoFar[inventoryID]?.terrain
   const color =
-    inventoryID === Pieces.glyphPower
+    previewTerrain === HexTerrain.glyphPower
       ? hexTerrainColor[HexTerrain.glyphPower]
       : hexTerrainColor[HexTerrain.glyphTreasure]
   return (
