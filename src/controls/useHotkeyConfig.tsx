@@ -51,7 +51,7 @@ export const defaultHotkeyConfig = {
   '5': 'togglePieceSize5',
   'shift+5': undefined,
   'alt+5': undefined,
-  '6': undefined,
+  '6': 'togglePieceSize6',
   'shift+6': undefined,
   'alt+6': undefined,
   '7': undefined,

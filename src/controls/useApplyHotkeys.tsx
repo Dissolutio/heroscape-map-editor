@@ -101,9 +101,9 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
+        flatPieceSizes?.[2] ??
+        flatPieceSizes?.[1] ??
+        flatPieceSizes[0],
       )
     }
   }
@@ -111,10 +111,22 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[4] ??
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
+        flatPieceSizes?.[3] ??
+        flatPieceSizes?.[2] ??
+        flatPieceSizes?.[1] ??
+        flatPieceSizes[0],
+      )
+    }
+  }
+  const togglePieceSize6 = () => {
+    if (isSizes) {
+      togglePieceSize(
+        flatPieceSizes?.[5] ??
+        flatPieceSizes?.[4] ??
+        flatPieceSizes?.[3] ??
+        flatPieceSizes?.[2] ??
+        flatPieceSizes?.[1] ??
+        flatPieceSizes[0],
       )
     }
   }
@@ -170,6 +182,7 @@ export const useApplyHotkeys = ({
     togglePieceSize3: togglePieceSize3,
     togglePieceSize4: togglePieceSize4,
     togglePieceSize5: togglePieceSize5,
+    togglePieceSize6: togglePieceSize6,
 
     cycleNextPieceRotation: cycleNextPieceRotation,
     cyclePrevPieceRotation: cyclePrevPieceRotation,
