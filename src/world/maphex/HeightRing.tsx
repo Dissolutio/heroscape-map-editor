@@ -77,7 +77,7 @@ export function TopOutlineInterlockHex({
     // STRANGE BUG FIX here below, coerce to number, eventhough it should already be a number
     ((boardHex?.interlockRotation ?? 0) +
       Number.parseInt(String(boardHex.pieceRotation))) %
-    6,
+      6,
   )
   if (boardHex.interlockType === '0') {
     return null
@@ -89,11 +89,7 @@ export function TopOutlineInterlockHex({
       position={new Vector3(position.x, position.y + 0.01, position.z)}
       frustumCulled={false}
     >
-      <lineBasicMaterial
-        attach="material"
-        color={color}
-        linewidth={1}
-      />
+      <lineBasicMaterial attach="material" color={color} linewidth={1} />
     </line_>
   ))
 }
