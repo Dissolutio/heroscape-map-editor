@@ -722,7 +722,11 @@ export default function PenModeControls() {
             <ListItemIcon>
               <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
             </ListItemIcon>
-            <span>{g.shortName || g.name}</span>
+            <span>{g.name}</span>
+            <div style={{
+              fontSize: '0.6em',
+              marginLeft: '0.5em'
+            }}>({g.shortName})</div>
           </MenuItem>
         ))}
         {/* MARVEL GLYPHS */}
@@ -738,7 +742,11 @@ export default function PenModeControls() {
             <ListItemIcon>
               <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
             </ListItemIcon>
-            <span>{g.shortName || g.name}</span>
+            <span>{g.name}</span>
+            <div style={{
+              fontSize: '0.6em',
+              marginLeft: '0.5em'
+            }}>({g.shortName})</div>
           </MenuItem>
         ))}
         {/* TREASURE GLYPHS */}
@@ -758,7 +766,11 @@ export default function PenModeControls() {
                   color: getGlyphColor(g)
                 }}>{g.glyphLetter}</span>
             </ListItemIcon>
-            <span>{g.shortName || g.name}</span>
+            <span>{g.name}</span>
+            <div style={{
+              fontSize: '0.6em',
+              marginLeft: '0.5em'
+            }}>({g.shortName})</div>
           </MenuItem>
         ))}
         {/* C3V GLYPHS */}
@@ -775,7 +787,11 @@ export default function PenModeControls() {
             <ListItemIcon>
               <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
             </ListItemIcon>
-            <span>{g.shortName || g.name}</span>
+            <span>{g.name}</span>
+            <div style={{
+              fontSize: '0.6em',
+              marginLeft: '0.5em'
+            }}>({g.shortName})</div>
           </MenuItem>
         ))}
         <Divider />
@@ -791,7 +807,11 @@ export default function PenModeControls() {
             <ListItemIcon>
               <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
             </ListItemIcon>
-            <span>{g.shortName || g.name}</span>
+            <span>{g.name}</span>
+            <div style={{
+              fontSize: '0.6em',
+              marginLeft: '0.5em'
+            }}>({g.shortName})</div>
           </MenuItem>
         ))}
         <Divider />
@@ -808,7 +828,11 @@ export default function PenModeControls() {
             <ListItemIcon>
               <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
             </ListItemIcon>
-            <span>{g.shortName || g.name}</span>
+            <span>{g.name}</span>
+            <div style={{
+              fontSize: '0.6em',
+              marginLeft: '0.5em'
+            }}>({g.shortName})</div>
           </MenuItem>
         ))}
 
