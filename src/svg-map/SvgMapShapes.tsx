@@ -1008,25 +1008,30 @@ export const SvgStartZone = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
+  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   // const borderColor = getSvgHexBorderColor(hex)
   return (
     <>
       {isSubLevel && (
-        <circle
-          r={SVG_HEX_RADIUS / 2}
+        <polygon
+          // glyphs are rendered a little smaller
+          points={points}
           fill={'white'}
-          stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 4}
         />
       )}
-      <circle
+      <polygon
+        points={points}
+        fill={fillColor}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      {/* <circle
         r={SVG_HEX_RADIUS / 2}
         // points={points}
         fill={fillColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
+      /> */}
     </>
   )
 }
