@@ -212,7 +212,7 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   }
   // StartZone: virtualscape colors, might be other designs
   if (hex.terrain === HexTerrain.startZone) {
-    return hexTerrainColor[hex.inventoryID as keyof typeof hexTerrainColor]
+    return svgColors?.[hex.inventoryID as keyof typeof svgColors]
   }
   if (hex.terrain === HexTerrain.brush) {
     return svgColors.fillJungle

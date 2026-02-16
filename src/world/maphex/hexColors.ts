@@ -178,6 +178,15 @@ export const terrainCapColors: { [terrain: string]: string } = {
 }
 
 export const svgColors = {
+  [Pieces.startZone1]: 'rgb(17, 10, 58)',
+  [Pieces.startZone2]: 'rgb(135, 67, 22)',
+  [Pieces.startZone3]: 'rgb(99, 132, 37)',
+  [Pieces.startZone4]: 'rgb(76, 40, 168)',
+  [Pieces.startZone5]: 'rgb(8, 87, 37)',
+  [Pieces.startZone6]: 'rgb(255, 125, 0)',
+  [Pieces.startZone7]: 'rgb(177, 0, 143)',
+  [Pieces.startZone8]: 'rgb(227, 0, 150)',
+  // [Pieces.startZone9]: 'rgb(213, 0, 22)',
   empty: 'rgb(0, 0, 0)',
   jungleText: '#000000',
   glacierText: '#000000',
