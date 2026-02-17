@@ -300,7 +300,9 @@ export default function PiecePreview() {
         ]}
         rotation={[0, pieceRotation, 0]}
       >
-        <LaurWallPillarPreview />
+        <Suspense fallback={<ModelLoader />}>
+          <LaurWallPillarPreview />
+        </Suspense>
       </group>
     )
   }
@@ -318,7 +320,9 @@ export default function PiecePreview() {
         ]}
         rotation={[0, pieceRotation, 0]}
       >
-        <LaurWallTrianglePillarPreview pieceRotation={pieceRotation} />
+        <Suspense fallback={<ModelLoader />}>
+          <LaurWallTrianglePillarPreview pieceRotation={pieceRotation} />
+        </Suspense>
       </group>
     )
   }
@@ -669,7 +673,9 @@ export default function PiecePreview() {
         ]}
         rotation={[0, pieceRotation, 0]}
       >
-        <RoadWallPreview />
+        <Suspense fallback={<ModelLoader />}>
+          <RoadWallPreview />
+        </Suspense>
       </group>
     )
   }
@@ -692,7 +698,9 @@ export default function PiecePreview() {
         ]}
         rotation={[0, (mirrorRotation * -Math.PI) / 3, 0]}
       >
-        <BattlementPreview />
+        <Suspense fallback={<ModelLoader />}>
+          <BattlementPreview />
+        </Suspense>
       </group>
     )
   }

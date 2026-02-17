@@ -15,6 +15,8 @@ import {
   getLadderBattlementOptions,
   getRoadWallOptions,
 } from './models/piece-adjustments'
+import { Suspense } from 'react'
+import ModelLoader from './models/ModelLoader'
 
 export const MapBoardPiece3D = ({
   pid,
@@ -50,7 +52,9 @@ export const MapBoardPiece3D = ({
         position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
-        <LaurWallAddon pid={pid} />
+        <Suspense fallback={<ModelLoader />}>
+          <LaurWallAddon pid={pid} />
+        </Suspense>
       </group>
     )
   }
@@ -66,7 +70,9 @@ export const MapBoardPiece3D = ({
         ]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
-        <Battlement pid={pid} />
+        <Suspense fallback={<ModelLoader />}>
+          <Battlement pid={pid} />
+        </Suspense>
       </group>
     )
   }
@@ -82,7 +88,9 @@ export const MapBoardPiece3D = ({
         ]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
-        <RoadWall pid={pid} />
+        <Suspense fallback={<ModelLoader />}>
+          <RoadWall pid={pid} />
+        </Suspense>
       </group>
     )
   }
