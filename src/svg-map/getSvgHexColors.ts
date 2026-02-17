@@ -274,10 +274,10 @@ export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
       virtualscapeTileColors[hex.terrain as keyof typeof virtualscapeTileColors]
     )
   }
-  // StartZone: virtualscape colors, might be other designs
-  if (hex.terrain === HexTerrain.startZone) {
-    return hexTerrainColor[hex.inventoryID as keyof typeof hexTerrainColor]
-  }
+  // SubLevel StartZones in 2D/SVG view are using opacity
+  // if (hex.terrain === HexTerrain.startZone) {
+  //   return svgSubLevelColors[hex.inventoryID as keyof typeof svgSubLevelColors]
+  // }
   if (hex.terrain === HexTerrain.brush) {
     return svgSubLevelColors.fillJungle
   }
