@@ -47,13 +47,13 @@ export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            color,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </>
   )
 }
 
-useGLTF.preload('/uncolored-decimated-marro-hive-6.glb')
+// useGltf.preload('/uncolored-decimated-marro-hive-6.glb')

@@ -68,4 +68,4 @@ export function FortifiedWallPreview() {
   )
 }
 
-useGLTF.preload('/FortifiedWall.glb')
+// useGltf.preload('/FortifiedWall.glb')

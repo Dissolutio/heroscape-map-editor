@@ -208,4 +208,4 @@ export function LaurPalmPreview({
   )
 }
 
-useGLTF.preload('/laur-jungle.glb')
+// useGltf.preload('/laur-jungle.glb')

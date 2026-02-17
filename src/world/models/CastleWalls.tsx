@@ -182,4 +182,4 @@ export function CastleWallPreview({
     </>
   )
 }
-useGLTF.preload('/adjustable-castle-walls.glb')
+// useGltf.preload('/adjustable-castle-walls.glb')

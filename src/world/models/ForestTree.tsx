@@ -49,10 +49,10 @@ export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            color,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
       {/* <Billboard
         position={[x, options.y + 1.5, z]}
@@ -66,4 +66,4 @@ export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
   )
 }
 
-useGLTF.preload('/forgotten-forest-tree-low-poly-colored.glb')
+// useGltf.preload('/forgotten-forest-tree-low-poly-colored.glb')

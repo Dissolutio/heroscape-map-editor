@@ -372,7 +372,7 @@ export function LaurWallAddonPreview({ inventoryID }: { inventoryID: string }) {
     </>
   )
 }
-useGLTF.preload('/laurwall-ruin-from-hs-models-blendfile.glb')
-useGLTF.preload('/laurwall-short-from-hs-models-blendfile.glb')
-useGLTF.preload('/laurwall-long-from-hs-models-blendfile.glb')
-useGLTF.preload('/laurwall-long-arch.glb')
+// useGltf.preload('/laurwall-ruin-from-hs-models-blendfile.glb')
+// useGltf.preload('/laurwall-short-from-hs-models-blendfile.glb')
+// useGltf.preload('/laurwall-long-from-hs-models-blendfile.glb')
+// useGltf.preload('/laurwall-long-arch.glb')

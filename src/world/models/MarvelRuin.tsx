@@ -136,4 +136,4 @@ export function MarvelRuinPreview({
   )
 }
 
-useGLTF.preload('/marvel-ruins.glb')
+// useGltf.preload('/marvel-ruins.glb')

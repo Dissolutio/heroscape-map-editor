@@ -90,4 +90,4 @@ export function Outcrop3Preview({
   )
 }
 
-useGLTF.preload('/uncolored-decimated-glacier-outcrop-3.glb')
+// useGltf.preload('/uncolored-decimated-glacier-outcrop-3.glb')

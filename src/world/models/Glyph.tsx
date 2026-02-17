@@ -86,4 +86,4 @@ export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
   )
 }
 
-useGLTF.preload('/glyph-with-logo.glb')
+// useGltf.preload('/glyph-with-logo.glb')

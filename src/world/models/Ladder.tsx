@@ -75,4 +75,4 @@ export function LadderPreview() {
   )
 }
 
-useGLTF.preload('/handmade-ladder.glb')
+// useGltf.preload('/handmade-ladder.glb')

@@ -284,4 +284,4 @@ export function TicallaBrushPreview({
     </>
   )
 }
-useGLTF.preload('/laur-jungle.glb')
+// useGltf.preload('/laur-jungle.glb')

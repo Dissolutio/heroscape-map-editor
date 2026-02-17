@@ -258,4 +258,4 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   )
 }
 
-useGLTF.preload('/castle-arch-handmade.glb')
+// useGltf.preload('/castle-arch-handmade.glb')

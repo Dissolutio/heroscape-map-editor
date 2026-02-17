@@ -62,4 +62,4 @@ export function RoadWallPreview({ opacity }: { opacity?: number }) {
     </>
   )
 }
-useGLTF.preload('/handmade-roadwall.glb')
+// useGltf.preload('/handmade-roadwall.glb')

@@ -135,7 +135,7 @@ export function Subterrain24({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_24.glb')
+// useGltf.preload('/subterrain_24.glb')
 
 export function Subterrain9({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -153,7 +153,7 @@ export function Subterrain9({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_9.glb')
+// useGltf.preload('/subterrain_9.glb')
 
 export function Subterrain7B({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -171,7 +171,7 @@ export function Subterrain7B({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_7B.glb')
+// useGltf.preload('/subterrain_7B.glb')
 
 export function Subterrain7({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -189,7 +189,7 @@ export function Subterrain7({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_7.glb')
+// useGltf.preload('/subterrain_7.glb')
 
 export function Subterrain6({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -207,7 +207,7 @@ export function Subterrain6({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_6.glb')
+// useGltf.preload('/subterrain_6.glb')
 
 export function Subterrain6B({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -227,7 +227,7 @@ export function Subterrain6B({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_6B.glb')
+// useGltf.preload('/subterrain_6B.glb')
 
 export function Subterrain5({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -245,7 +245,7 @@ export function Subterrain5({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_5.glb')
+// useGltf.preload('/subterrain_5.glb')
 
 export function Subterrain4({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -263,7 +263,7 @@ export function Subterrain4({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_4.glb')
+// useGltf.preload('/subterrain_4.glb')
 
 export function Subterrain3({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -281,7 +281,7 @@ export function Subterrain3({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_3.glb')
+// useGltf.preload('/subterrain_3.glb')
 
 export function Subterrain2({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -299,7 +299,7 @@ export function Subterrain2({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_2.glb')
+// useGltf.preload('/subterrain_2.glb')
 
 export function Subterrain1({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -317,4 +317,4 @@ export function Subterrain1({ children }: PropsWithChildren) {
     </mesh>
   )
 }
-useGLTF.preload('/subterrain_1.glb')
+// useGltf.preload('/subterrain_1.glb')

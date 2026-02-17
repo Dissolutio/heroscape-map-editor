@@ -181,4 +181,4 @@ export function LaurWallTrianglePillarPreview({
     </>
   )
 }
-useGLTF.preload('/laur-triangle-pillar-from-hs-blendfile.glb')
+// useGltf.preload('/laur-triangle-pillar-from-hs-blendfile.glb')

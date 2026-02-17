@@ -53,10 +53,10 @@ export default function BigTree415({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(rockColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              rockColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            rockColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -66,13 +66,13 @@ export default function BigTree415({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(treeColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              treeColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            treeColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </group>
   )
 }
 
-useGLTF.preload('/forest-tree15-colored-lowpoly.glb')
+// useGltf.preload('/forest-tree15-colored-lowpoly.glb')

@@ -64,7 +64,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
     </Instances>
   )
 }
-useGLTF.preload('/classic1-cap.glb')
+// useGltf.preload('/classic1-cap.glb')
 
 export default SolidCaps
 

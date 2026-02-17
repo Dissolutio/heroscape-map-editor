@@ -63,4 +63,4 @@ export function BattlementPreview({ opacity }: { opacity?: number }) {
   )
 }
 
-useGLTF.preload('/handmade-battlement.glb')
+// useGltf.preload('/handmade-battlement.glb')

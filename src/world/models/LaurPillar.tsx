@@ -149,4 +149,4 @@ export function LaurWallPillarPreview({
     </>
   )
 }
-// useGLTF.preload('/laurwall-pillar.glb')
+// // useGltf.preload('/laurwall-pillar.glb')

@@ -68,4 +68,4 @@ export function Ruins2Preview() {
   )
 }
 
-useGLTF.preload('/ruins2.glb')
+// useGltf.preload('/ruins2.glb')
