@@ -3,9 +3,7 @@ import useBoundStore from '../store/store'
 import { Pieces } from '../types'
 import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
 import {
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_HEIGHT,
-  HEXGRID_OBSTACLE_BASE_HEIGHT,
 } from '../utils/constants'
 import { decodePieceID, getBoardHex3DCoords } from '../utils/map-utils'
 import { Battlement } from './models/Battlement'
