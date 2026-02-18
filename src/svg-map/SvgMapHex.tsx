@@ -56,14 +56,35 @@ const OPACITY_SUBLEVEL = 0.3
 
 const glyphTextProps = (glyphText: string) => ({
   style: {
-    fontSize: 0.5 * SVG_HEX_RADIUS,
+    fontSize: glyphText.toString().length === 4 // NIFL
+      ? 0.6 * SVG_HEX_RADIUS
+      : glyphText.toString().length === 3 // ZIP
+        ? 0.6 * SVG_HEX_RADIUS
+        : glyphText.toString().length === 2
+          ? 0.7 * SVG_HEX_RADIUS
+          : glyphText.toString() === '?'
+            ? 0.9 * SVG_HEX_RADIUS
+            : 0.7 * SVG_HEX_RADIUS,
     fontWeight: 'bold',
   },
-  y: 0.2 * SVG_HEX_RADIUS,
-  x:
-    glyphText.toString().length === 2
-      ? -0.3 * SVG_HEX_RADIUS
-      : -0.15 * SVG_HEX_APOTHEM,
+  y: glyphText.toString().length === 4 // NIFL
+    ? 0.5 * SVG_HEX_RADIUS
+    : glyphText.toString().length === 3 // ZIP
+      ? 0.2 * SVG_HEX_RADIUS
+      : glyphText.toString().length === 2
+        ? 0.2 * SVG_HEX_RADIUS
+        : glyphText.toString() === '?'
+          ? 0.3 * SVG_HEX_RADIUS
+          : 0.2 * SVG_HEX_RADIUS,
+  x: glyphText.toString().length === 4 // NIFL
+    ? -0.50 * SVG_HEX_RADIUS
+    : glyphText.toString().length === 3 // ZIP
+      ? -0.38 * SVG_HEX_RADIUS
+      : glyphText.toString().length === 2
+        ? -0.35 * SVG_HEX_RADIUS
+        : glyphText.toString() === '?'
+          ? -0.26 * SVG_HEX_RADIUS
+          : -0.25 * SVG_HEX_RADIUS,
 })
 
 export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
@@ -217,12 +238,16 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       return null
     }
     const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
-    const glyphLetter = piecesSoFar[inventoryID]?.glyphLetter ?? 'GL'
+    const glyphLetter = piecesSoFar[inventoryID]?.glyphLetter ?? '?'
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1 isGlyph hex={hex} isSubLevel={specialIsSubLevel} />
+        <SvgMultiHex1
+          hex={hex}
+          isSubLevel={specialIsSubLevel}
+          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+        />
         <text
-          fill="white"
+          fill={specialIsSubLevel ? svgSubLevelColors.glyphText : svgColors.glyphText}
           // white text needs a little opacity boost
           opacity={specialIsSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           {...glyphTextProps(glyphLetter)}

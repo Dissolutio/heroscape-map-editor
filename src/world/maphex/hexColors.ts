@@ -191,6 +191,8 @@ export const svgColors = {
   jungleText: '#000000',
   glacierText: '#000000',
   evergreenText: '#FFFFFF',
+  glyphText: '#000000',
+  glyphBorder: '#000000',
   // STARTZONES
   blueSZ: 'rgb(57, 61, 157)',
   darkBlueSZ: 'rgb(21, 28, 51)',
@@ -271,16 +273,18 @@ export const svgColors = {
   [HexTerrain.hive]: '#ACA521',
 
   // GYLPHS
-  // glyph: 'rgb(244, 106, 22)', // renegade
   // [HexTerrain.glyphPower]: 'rgb(64, 0, 0)', // virtualscape
   // [HexTerrain.glyphTreasure]: 'rgb(245, 131, 0)',
-  [HexTerrain.glyphPower]: 'rgb(120, 1, 22)',
-  [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
+  // [HexTerrain.glyphPower]: 'rgb(120, 1, 22)',
+  // [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
+  [HexTerrain.glyphPower]: 'rgb(255, 124, 3)',
+  [HexTerrain.glyphTreasure]: 'rgb(255, 124, 3)',
 }
 export const svgSubLevelColors = {
   jungleText: '#C5BCBC',
   glacierText: '#808080',
   evergreenText: '#FFFFFF',
+  glyphText: '#C5BCBC',
   // OUTLINES
   outline1: '#F4C5C5',
   outline2: '#F3DCCB',
@@ -349,8 +353,9 @@ export const svgSubLevelColors = {
 
   // GYLPHS
   // glyph: 'rgb(244, 106, 22)', // renegade
-  // [HexTerrain.glyphPower]: 'rgb(120, 1, 22)',
-  // [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
+  [HexTerrain.glyphPower]: 'rgb(255, 169, 89)',
+  [HexTerrain.glyphTreasure]: 'rgb(255, 169, 89)',
+  glyphBorder: '#C5BCBC',
 }
 
 // const renegadeValkyriePaintColors = {
