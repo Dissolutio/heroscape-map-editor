@@ -2,9 +2,7 @@ import { Vector3 } from 'three'
 import useBoundStore from '../store/store'
 import { Pieces } from '../types'
 import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
-import {
-  HEXGRID_HEXCAP_HEIGHT,
-} from '../utils/constants'
+import { HEXGRID_HEXCAP_HEIGHT } from '../utils/constants'
 import { decodePieceID, getBoardHex3DCoords } from '../utils/map-utils'
 import { Battlement } from './models/Battlement'
 import { LaurWallAddon } from './models/LaurAddon'

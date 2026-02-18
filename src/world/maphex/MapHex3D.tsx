@@ -191,10 +191,11 @@ export const MapHex3D = ({
           position={
             new Vector3(
               x,
-              y - HEXGRID_HEX_HEIGHT +
-              (isFluidTerrainHex(boardHex.terrain)
-                ? HEXGRID_HEXCAP_FLUID_HEIGHT
-                : HEXGRID_HEX_HEIGHT),
+              y -
+                HEXGRID_HEX_HEIGHT +
+                (isFluidTerrainHex(boardHex.terrain)
+                  ? HEXGRID_HEXCAP_FLUID_HEIGHT
+                  : HEXGRID_HEX_HEIGHT),
               z,
             )
           }
