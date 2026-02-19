@@ -1435,7 +1435,8 @@ export const piecesSoFar: Dictionary<Piece> = {
           const key = `${PiecePrefixes.glyph}${g.id}`
           // Avoid overwriting existing entries
           if (piecesSoFar[key]) continue
-          const terrain = g.type === 'treasure' ? HexTerrain.glyphTreasure : HexTerrain.glyphPower
+          // objective type glyphs will be
+          const terrain = g.terrain
           piecesSoFar[key] = {
             id: key,
             title: g.name ?? g.shortName ?? g.id,

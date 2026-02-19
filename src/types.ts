@@ -359,6 +359,7 @@ export type HexoscapeGlyph = {
   shortName: string
   glyphLetter: string
   type: string // power, treasure, objective
+  terrain: string // power, treasure
   duration: string // permanent, temporary
   shortDescription: string
   description: string
