@@ -54,38 +54,28 @@ import { singleHexObstacleHeightTextProps } from './svgText'
 
 const OPACITY_SUBLEVEL = 0.3
 
-const glyphTextProps = (glyphText: string) => ({
-  style: {
-    fontSize: glyphText.toString().length === 4 // NIFL
+const glyphTextProps = (glyphText: string) => {
+  const fontSize = glyphText.toString().length === 4 // NIFL
+    ? 0.6 * SVG_HEX_RADIUS
+    : glyphText.toString().length === 3 // ZIP
       ? 0.6 * SVG_HEX_RADIUS
-      : glyphText.toString().length === 3 // ZIP
-        ? 0.6 * SVG_HEX_RADIUS
-        : glyphText.toString().length === 2
-          ? 0.7 * SVG_HEX_RADIUS
-          : glyphText.toString() === '?'
-            ? 0.9 * SVG_HEX_RADIUS
-            : 0.7 * SVG_HEX_RADIUS,
-    fontWeight: 'bold',
-  },
-  y: glyphText.toString().length === 4 // NIFL
-    ? 0.5 * SVG_HEX_RADIUS
-    : glyphText.toString().length === 3 // ZIP
-      ? 0.2 * SVG_HEX_RADIUS
       : glyphText.toString().length === 2
-        ? 0.2 * SVG_HEX_RADIUS
+        ? 0.7 * SVG_HEX_RADIUS
         : glyphText.toString() === '?'
-          ? 0.3 * SVG_HEX_RADIUS
-          : 0.2 * SVG_HEX_RADIUS,
-  x: glyphText.toString().length === 4 // NIFL
-    ? -0.50 * SVG_HEX_RADIUS
-    : glyphText.toString().length === 3 // ZIP
-      ? -0.38 * SVG_HEX_RADIUS
-      : glyphText.toString().length === 2
-        ? -0.35 * SVG_HEX_RADIUS
-        : glyphText.toString() === '?'
-          ? -0.26 * SVG_HEX_RADIUS
-          : -0.25 * SVG_HEX_RADIUS,
-})
+          ? 0.9 * SVG_HEX_RADIUS
+          : 0.7 * SVG_HEX_RADIUS
+
+  return {
+    // these properties make the text centered within the hexagon
+    // text-anchor="middle" dominant-baseline="central"
+    textAnchor: 'middle' as const,
+    dominantBaseline: 'central' as const,
+    style: {
+      fontSize,
+      fontWeight: 'bold',
+    },
+  }
+}
 
 export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
@@ -183,7 +173,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         />
         <text
           fill={textColor}
-          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+          {...singleHexObstacleHeightTextProps()}
         >
           {pieceHeightText}
         </text>
@@ -286,7 +276,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         <text
           fill={textColor}
           // white text needs a little opacity boost
-          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+          {...singleHexObstacleHeightTextProps()}
         >
           {pieceHeightText}
         </text>
@@ -601,10 +591,10 @@ const SvgCastleArchText = ({
   return (
     <text
       fill={textColor}
-      {...singleHexObstacleHeightTextProps(archText.toString())}
-      y={0.38 * SVG_HEX_RADIUS}
+      {...singleHexObstacleHeightTextProps()}
+      // y={(0.38 + 0.35) * SVG_HEX_RADIUS}
       // upside down text is flipped in parent component, and adjusted here
-      x={pieceRotation === 180 ? -3.7 * SVG_HEX_APOTHEM : 0.1 * SVG_HEX_APOTHEM}
+      x={pieceRotation === 180 ? -3.7 * SVG_HEX_APOTHEM - (0.3 * SVG_HEX_APOTHEM) : 0.1 * SVG_HEX_APOTHEM - (0.3 * SVG_HEX_APOTHEM)}
     >
       {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}
       {archText}
@@ -656,9 +646,9 @@ const SvgCastleWallBaseHeightText = ({
     <text
       fill="black"
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      {...singleHexObstacleHeightTextProps(heightText.toString())}
-      y={0.3 * SVG_HEX_RADIUS}
-      x={-0.3 * SVG_HEX_APOTHEM}
+      {...singleHexObstacleHeightTextProps()}
+    // y={0.3 * SVG_HEX_RADIUS}
+    // x={-0.3 * SVG_HEX_APOTHEM}
     >
       {heightText}
     </text>

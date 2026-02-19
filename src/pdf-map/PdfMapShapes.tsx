@@ -613,7 +613,7 @@ export const PdfJungle = ({
       <Text
         fill="rgb(35, 31, 32)"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+        {...singleHexObstacleHeightTextProps()}
       >
         {pieceHeightText}
       </Text>
@@ -1325,7 +1325,7 @@ export const PdfSvgTree415 = ({
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={{
-          ...singleHexObstacleHeightTextProps(pieceHeightText.toString()).style,
+          ...singleHexObstacleHeightTextProps().style,
         }}
         x={treeXYForRotation?.[hex?.pieceRotation]?.x ?? 0}
         y={treeXYForRotation?.[hex?.pieceRotation]?.y ?? 0}
