@@ -10,7 +10,12 @@ import { basicModelMaterial } from './materials'
 export function GlyphModel({
   boardHex,
   terrain,
-}: { boardHex: BoardHex; terrain: string }) {
+  isNamedGlyph
+}: {
+  boardHex: BoardHex;
+  terrain: string
+  isNamedGlyph: boolean
+}) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/glyph-with-logo.glb') as any
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
@@ -51,7 +56,7 @@ export function GlyphModel({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.GlyphValkyrieLogo.geometry}
       >
-        {basicModelMaterial('white', isLightsAndShadowsRender)}
+        {basicModelMaterial(isNamedGlyph ? color : 'white', isLightsAndShadowsRender)}
       </mesh>
     </group>
   )
