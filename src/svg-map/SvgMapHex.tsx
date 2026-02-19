@@ -347,20 +347,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     ) {
       return (
         <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-          <g transform={`rotate(${pieceRotation})`}>
-            <SvgCastleArchStraight3 hex={hex} isSubLevel={isSubLevel} />
-            <SvgCastleArch hex={hex} isSubLevel={isSubLevel} />
-
-            <g
-              // flip upside down text, all other rotations are legible
-              transform={pieceRotation === 180 ? 'rotate(-180)' : 'rotate(0)'}
-            >
-              <SvgCastleArchText
-                isSubLevel={isSubLevel}
-                pieceRotation={pieceRotation}
-              />
-            </g>
-          </g>
+          <SvgCastleArch hex={hex} isSubLevel={isSubLevel} />
         </g>
       )
     }
@@ -577,30 +564,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   return null
 }
 
-const SvgCastleArchText = ({
-  isSubLevel,
-  pieceRotation,
-}: {
-  isSubLevel: boolean
-  pieceRotation: number
-}) => {
-  const archText = 'D O O R'
-  const textColor = isSubLevel
-    ? svgSubLevelColors.jungleText
-    : svgColors.jungleText
-  return (
-    <text
-      fill={textColor}
-      {...singleHexObstacleHeightTextProps()}
-      // y={(0.38 + 0.35) * SVG_HEX_RADIUS}
-      // upside down text is flipped in parent component, and adjusted here
-      x={pieceRotation === 180 ? -3.7 * SVG_HEX_APOTHEM - (0.3 * SVG_HEX_APOTHEM) : 0.1 * SVG_HEX_APOTHEM - (0.3 * SVG_HEX_APOTHEM)}
-    >
-      {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}
-      {archText}
-    </text>
-  )
-}
 export const SvgLaurWallArchText = ({
   isSubLevel,
   pieceRotation,

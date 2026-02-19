@@ -1120,18 +1120,26 @@ export const SvgCastleEnd = ({
   )
 }
 export const SvgCastleArch = ({
-  // hex,
+  hex,
   isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   const { points } = getCastleArchShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
+  const archText = 'D O O R'
+  const textColor = isSubLevel
+    ? svgSubLevelColors.jungleText
+    : svgColors.jungleText
+  const isFlippedText = pieceRotation === 180 || pieceRotation === 120 || pieceRotation === 240
   return (
-    <>
+    <g transform={`rotate(${pieceRotation})`}>
+
+      <SvgCastleArchStraight3 hex={hex} isSubLevel={isSubLevel} />
       {isSubLevel && (
         <SvgSubLevelWhiteBackerPolygon
           points={points}
@@ -1145,7 +1153,19 @@ export const SvgCastleArch = ({
         strokeWidth={SVG_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
-    </>
+      <g
+        // flip upside down text, all other rotations are legible
+        transform={(isFlippedText) ? 'rotate(-180)' : 'rotate(0)'}
+      >
+        <text
+          fill={textColor}
+          {...singleHexObstacleHeightTextProps()}
+          x={(isFlippedText) ? -2 * SVG_HEX_APOTHEM : 2 * SVG_HEX_APOTHEM}
+        >
+          {archText}
+        </text>
+      </g>
+    </g>
   )
 }
 const twoCharNumberAdjust = -0.15 * SVG_HEX_RADIUS
