@@ -113,6 +113,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 0,
+    glyphLetter: '?'
   },
   [Pieces.glyphTreasure]: {
     id: Pieces.glyphTreasure,
@@ -124,6 +125,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 0,
+    glyphLetter: '?'
   },
 
   // INVENTORIED
