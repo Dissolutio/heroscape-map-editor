@@ -654,7 +654,7 @@ export default function PenModeControls() {
         <MenuItem value={Pieces.startZone1}>
           <ListItemIcon>
             <TbCircleNumber1Filled title="This is the color of the startzone circle in 3D & PDF view" color={hexTerrainColor[Pieces.startZone1]} />
-            <TbCircleNumber1Filled title="This is the color of the startzone circle in 3D & PDF view" color={svgColors[Pieces.startZone1]} />
+            <TbHexagonNumber1Filled title="This is the color of the startzone circle in 3D & PDF view" color={svgColors[Pieces.startZone1]} />
           </ListItemIcon>
           <span>Start Zone: P1</span>
         </MenuItem>
