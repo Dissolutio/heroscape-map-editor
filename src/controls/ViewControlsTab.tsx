@@ -268,7 +268,7 @@ const ViewPreferencesSwitchForm = () => {
             />
           }
           title="Enable/disable high quality render settings, currently just a more realistic hex cap"
-          label="High Quality Render (Significant performance impact)"
+          label="High Quality Render"
         />
         {/* <FormControlLabel
           control={<Switch checked={isFrameloopDemand} onChange={handleChangeFrameloopDemand} />}
