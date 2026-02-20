@@ -374,19 +374,22 @@ export const MapHex3D = ({
       {/* POWER GLYPHS */}
       {(isPowerGlyphHex || isTreasureGlyphHex) && (
         <>
+
           {isNamedGlyph && (
-            <Billboard
-              position={[
-                x,
-                // position.y + (boardHex?.obstacleHeight ?? 0) * HEXGRID_HEX_HEIGHT,
-                (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) + HEXGRID_HEX_HEIGHT / 3,
-                z,
-              ]}
-            >
-              <Text fontSize={0.14} color={'white'}>
-                {piecesSoFar?.[boardHex.inventoryID]?.title}
-              </Text>
-            </Billboard>
+            <Suspense>
+              <Billboard
+                position={[
+                  x,
+                  // position.y + (boardHex?.obstacleHeight ?? 0) * HEXGRID_HEX_HEIGHT,
+                  (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) + HEXGRID_HEX_HEIGHT / 3,
+                  z,
+                ]}
+              >
+                <Text fontSize={0.14} color={'white'}>
+                  {piecesSoFar?.[boardHex.inventoryID]?.title}
+                </Text>
+              </Billboard>
+            </Suspense>
           )}
           <group
             position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
