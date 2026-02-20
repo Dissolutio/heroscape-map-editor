@@ -54,17 +54,29 @@ import { singleHexObstacleHeightTextProps } from './svgText'
 
 const OPACITY_SUBLEVEL = 0.3
 
-const glyphTextProps = (glyphText: string) => ({
-  style: {
-    fontSize: 0.5 * SVG_HEX_RADIUS,
-    fontWeight: 'bold',
-  },
-  y: 0.2 * SVG_HEX_RADIUS,
-  x:
-    glyphText.toString().length === 2
-      ? -0.3 * SVG_HEX_RADIUS
-      : -0.15 * SVG_HEX_APOTHEM,
-})
+const glyphTextProps = (glyphText: string) => {
+  const fontSize =
+    glyphText.toString().length === 4 // NIFL
+      ? 0.6 * SVG_HEX_RADIUS
+      : glyphText.toString().length === 3 // ZIP
+        ? 0.6 * SVG_HEX_RADIUS
+        : glyphText.toString().length === 2
+          ? 0.7 * SVG_HEX_RADIUS
+          : glyphText.toString() === '?'
+            ? 0.9 * SVG_HEX_RADIUS
+            : 0.7 * SVG_HEX_RADIUS
+
+  return {
+    // these properties make the text centered within the hexagon
+    // text-anchor="middle" dominant-baseline="central"
+    textAnchor: 'middle' as const,
+    dominantBaseline: 'central' as const,
+    style: {
+      fontSize,
+      fontWeight: 'bold',
+    },
+  }
+}
 
 export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
@@ -160,10 +172,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           isSubLevel={isSubLevel}
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
         />
-        <text
-          fill={textColor}
-          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
-        >
+        <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
           {pieceHeightText}
         </text>
       </g>
@@ -217,16 +226,25 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       return null
     }
     const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
+    const glyphLetter = piecesSoFar[inventoryID]?.glyphLetter ?? '?'
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1 isGlyph hex={hex} isSubLevel={specialIsSubLevel} />
+        <SvgMultiHex1
+          hex={hex}
+          isSubLevel={specialIsSubLevel}
+          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+        />
         <text
-          fill="white"
+          fill={
+            specialIsSubLevel
+              ? svgSubLevelColors.glyphText
+              : svgColors.glyphText
+          }
           // white text needs a little opacity boost
           opacity={specialIsSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          {...glyphTextProps('GL')}
+          {...glyphTextProps(glyphLetter)}
         >
-          {'GL'}
+          {glyphLetter}
         </text>
       </g>
     )
@@ -260,7 +278,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         <text
           fill={textColor}
           // white text needs a little opacity boost
-          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+          {...singleHexObstacleHeightTextProps()}
         >
           {pieceHeightText}
         </text>
@@ -331,20 +349,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     ) {
       return (
         <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-          <g transform={`rotate(${pieceRotation})`}>
-            <SvgCastleArchStraight3 hex={hex} isSubLevel={isSubLevel} />
-            <SvgCastleArch hex={hex} isSubLevel={isSubLevel} />
-
-            <g
-              // flip upside down text, all other rotations are legible
-              transform={pieceRotation === 180 ? 'rotate(-180)' : 'rotate(0)'}
-            >
-              <SvgCastleArchText
-                isSubLevel={isSubLevel}
-                pieceRotation={pieceRotation}
-              />
-            </g>
-          </g>
+          <SvgCastleArch hex={hex} isSubLevel={isSubLevel} />
         </g>
       )
     }
@@ -561,30 +566,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   return null
 }
 
-const SvgCastleArchText = ({
-  isSubLevel,
-  pieceRotation,
-}: {
-  isSubLevel: boolean
-  pieceRotation: number
-}) => {
-  const archText = 'D O O R'
-  const textColor = isSubLevel
-    ? svgSubLevelColors.jungleText
-    : svgColors.jungleText
-  return (
-    <text
-      fill={textColor}
-      {...singleHexObstacleHeightTextProps(archText.toString())}
-      y={0.38 * SVG_HEX_RADIUS}
-      // upside down text is flipped in parent component, and adjusted here
-      x={pieceRotation === 180 ? -3.7 * SVG_HEX_APOTHEM : 0.1 * SVG_HEX_APOTHEM}
-    >
-      {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}
-      {archText}
-    </text>
-  )
-}
 export const SvgLaurWallArchText = ({
   isSubLevel,
   pieceRotation,
@@ -630,9 +611,9 @@ const SvgCastleWallBaseHeightText = ({
     <text
       fill="black"
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      {...singleHexObstacleHeightTextProps(heightText.toString())}
-      y={0.3 * SVG_HEX_RADIUS}
-      x={-0.3 * SVG_HEX_APOTHEM}
+      {...singleHexObstacleHeightTextProps()}
+      // y={0.3 * SVG_HEX_RADIUS}
+      // x={-0.3 * SVG_HEX_APOTHEM}
     >
       {heightText}
     </text>

@@ -5,6 +5,7 @@ import React from 'react'
 import { FcAddImage, FcDownload, FcLink, FcUpload } from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore, MdFolderZip } from 'react-icons/md'
 import useBoundStore from '../store/store'
+import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { DIALOGS } from '../layout/dialogNames'
@@ -57,6 +58,65 @@ export const FileControlsTab = ({
       link.click()
       // document.body.removeChild(link)
       URL.revokeObjectURL(link.href) // Clean up the Blob URL
+    }
+  }
+  const [isDownloadingAll, setIsDownloadingAll] = React.useState(false)
+
+  const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
+  const toggleIs2DOverlayLevelEnabled = useBoundStore(
+    (s) => s.toggleIs2DOverlayLevelEnabled,
+  )
+
+  const sleep = (ms: number) =>
+    new Promise((resolve) => {
+      setTimeout(resolve, ms)
+    })
+
+  const handleDownloadAll2DSvgs = async () => {
+    if (!hexMap) return
+    setIsDownloadingAll(true)
+    const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+    const overlayLevel = maxLevel + 1
+
+    // save current state to restore later
+    const prevViewingLevel = viewingLevel
+    const prevOverlayEnabled = useBoundStore.getState().is2DOverlayLevelEnabled
+
+    try {
+      // ensure overlay rendering logic is enabled so overlay pieces render only on the overlay level
+      toggleIs2DOverlayLevelEnabled(true)
+
+      for (let level = 1; level <= overlayLevel; level++) {
+        // set viewing level
+        toggleViewingLevel(level)
+        // wait for DOM to update
+        // small delay to allow React to re-render the SVG
+        // 100ms should be sufficient in most cases
+        // eslint-disable-next-line no-await-in-loop
+        await sleep(500)
+
+        const svgElement = document.getElementById('2d-svg-view')
+        if (svgElement) {
+          const svgContent = svgElement.outerHTML
+          const blob = new Blob([svgContent], { type: 'image/svg+xml' })
+          const link = document.createElement('a')
+          link.download = `${hexMap.name}-level-${level === overlayLevel ? 'overlay' : level}.svg`
+          link.href = URL.createObjectURL(blob)
+          link.click()
+          URL.revokeObjectURL(link.href)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to download all SVGs', err)
+      enqueueSnackbar({
+        message: 'Failed to download all SVGs',
+        variant: 'error',
+      })
+    } finally {
+      // restore previous state
+      toggleViewingLevel(prevViewingLevel)
+      toggleIs2DOverlayLevelEnabled(prevOverlayEnabled)
+      setIsDownloadingAll(false)
     }
   }
   const handleDownloadPng = () => {
@@ -178,6 +238,14 @@ export const FileControlsTab = ({
               primary="Download Current 2D Level as SVG"
               onClick={handleDownloadCurrent2DSvg}
               icon={<FcDownload />}
+            />
+          )}
+          {is2DOpen && (
+            <ControlTabsListItemButton
+              primary="Download All 2D Levels as SVG"
+              onClick={handleDownloadAll2DSvgs}
+              icon={<MdFolderZip />}
+              disabled={isDownloadingAll}
             />
           )}
 

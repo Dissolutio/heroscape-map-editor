@@ -53,6 +53,7 @@ import {
   Pieces,
 } from '../types'
 import {
+  HEXGRID_HEX_APOTHEM,
   OPACITY_SUBLEVEL,
   SVG_BORDER_WIDTH,
   SVG_EMPTYHEX_BORDER_WIDTH,
@@ -254,12 +255,10 @@ export const SvgMultiHex1 = ({
   hex,
   borderWidth = SVG_BORDER_WIDTH,
   isSubLevel,
-  isGlyph,
 }: {
   hex: BoardHex
   borderWidth?: number
   isSubLevel?: boolean
-  isGlyph?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
@@ -267,22 +266,15 @@ export const SvgMultiHex1 = ({
   const borderColor = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex)
     : getSvgHexBorderColor(hex)
-  const glyphHexRadius = SVG_HEX_RADIUS / 2
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
-  const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(glyphHexRadius)
   const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
     borderWidth,
   )
   return (
     <>
-      <polygon
-        // glyphs are rendered a little smaller
-        points={isGlyph ? glyphPoints : points}
-        fill={fillColor}
-      />
-      {/* glyphs rendered with no outline */}
-      {isGlyph ? null : <polygon points={outlinePoints} fill={borderColor} />}
+      <polygon points={points} fill={fillColor} />
+      <polygon points={outlinePoints} fill={borderColor} />
     </>
   )
 }
@@ -623,11 +615,7 @@ export const SvgJungle = ({
         {/* JUNGLE ORIENTATION MARKER */}
         <polygon points={points} fill={borderColor} />
       </g>
-      <text
-        // fill="rgb(35, 31, 32)"
-        fill={textColor}
-        {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
-      >
+      <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
         {pieceHeightText}
       </text>
     </>
@@ -1008,25 +996,24 @@ export const SvgStartZone = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
+  const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   // const borderColor = getSvgHexBorderColor(hex)
   return (
     <>
-      {isSubLevel && (
-        <circle
-          r={SVG_HEX_RADIUS / 2}
-          fill={'white'}
-          stroke={'white'}
-          strokeWidth={SVG_BORDER_WIDTH / 4}
-        />
-      )}
-      <circle
+      {isSubLevel && <polygon points={points} fill={'white'} />}
+      <polygon
+        points={points}
+        fill={fillColor}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+      />
+      {/* <circle
         r={SVG_HEX_RADIUS / 2}
         // points={points}
         fill={fillColor}
         stroke={'black'}
         strokeWidth={SVG_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
+      /> */}
     </>
   )
 }
@@ -1123,18 +1110,26 @@ export const SvgCastleEnd = ({
   )
 }
 export const SvgCastleArch = ({
-  // hex,
+  hex,
   isSubLevel,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
+  const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   const { points } = getCastleArchShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
+  const archText = 'D O O R'
+  const textColor = isSubLevel
+    ? svgSubLevelColors.jungleText
+    : svgColors.jungleText
+  const isFlippedText =
+    pieceRotation === 180 || pieceRotation === 120 || pieceRotation === 240
   return (
-    <>
+    <g transform={`rotate(${pieceRotation})`}>
+      <SvgCastleArchStraight3 hex={hex} isSubLevel={isSubLevel} />
       {isSubLevel && (
         <SvgSubLevelWhiteBackerPolygon
           points={points}
@@ -1148,10 +1143,21 @@ export const SvgCastleArch = ({
         strokeWidth={SVG_BORDER_WIDTH / 4}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
-    </>
+      <g
+        // flip upside down text, all other rotations are legible
+        transform={isFlippedText ? 'rotate(-180)' : 'rotate(0)'}
+      >
+        <text
+          fill={textColor}
+          {...singleHexObstacleHeightTextProps()}
+          x={isFlippedText ? -2 * SVG_HEX_APOTHEM : 2 * SVG_HEX_APOTHEM}
+        >
+          {archText}
+        </text>
+      </g>
+    </g>
   )
 }
-const twoCharNumberAdjust = -0.15 * SVG_HEX_RADIUS
 const treeXYForRotation = [
   { x: 0.9 * SVG_HEX_APOTHEM, y: SVG_HEX_RADIUS },
   { x: -0.6 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS },
@@ -1194,7 +1200,7 @@ export const SvgTree415 = ({
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={{
-          ...singleHexObstacleHeightTextProps(pieceHeightText.toString()).style,
+          ...singleHexObstacleHeightTextProps().style,
         }}
         x={treeXYForRotation?.[hex?.pieceRotation]?.x ?? 0}
         y={treeXYForRotation?.[hex?.pieceRotation]?.y ?? 0}
@@ -1205,29 +1211,29 @@ export const SvgTree415 = ({
   )
 }
 const posO3_1 = { x: -0.3 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS }
-const posO3_2 = { x: 1.7 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS }
-const posO3_3 = { x: 0.7 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS }
-const posO3_4 = { x: -1.3 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS }
-const posO3_5 = { x: -2.3 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS }
-const posO3_6 = { x: -1.3 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO3_7 = { x: 0.7 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO3_2 = { x: 2 * SVG_HEX_APOTHEM, y: 0 }
+const posO3_3 = { x: 1 * SVG_HEX_APOTHEM, y: 1.5 * SVG_HEX_RADIUS }
+const posO3_4 = { x: -1 * SVG_HEX_APOTHEM, y: 1.5 * SVG_HEX_RADIUS }
+const posO3_5 = { x: -2 * SVG_HEX_APOTHEM, y: 0 }
+const posO3_6 = { x: -1 * SVG_HEX_APOTHEM, y: -1.5 * SVG_HEX_RADIUS }
+const posO3_7 = { x: 1 * SVG_HEX_APOTHEM, y: -1.5 * SVG_HEX_RADIUS }
 
 // The 4-glacier has one more text spot than 3-glacier
-const posO4_1 = { x: 2.7 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS }
-const posO4_2 = { x: -0.2 * SVG_HEX_APOTHEM, y: 3.3 * SVG_HEX_RADIUS }
-const posO4_3 = { x: -3.2 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS }
-const posO4_4 = { x: -3.2 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
-const posO4_5 = { x: -0.3 * SVG_HEX_APOTHEM, y: -2.7 * SVG_HEX_RADIUS }
-const posO4_6 = { x: 2.7 * SVG_HEX_APOTHEM, y: -1.2 * SVG_HEX_RADIUS }
+const posO4_1 = { x: 3 * SVG_HEX_APOTHEM, y: 1.5 * SVG_HEX_RADIUS }
+const posO4_2 = { x: 0, y: 3 * SVG_HEX_RADIUS }
+const posO4_3 = { x: -3 * SVG_HEX_APOTHEM, y: 1.5 * SVG_HEX_RADIUS }
+const posO4_4 = { x: -3 * SVG_HEX_APOTHEM, y: -1.5 * SVG_HEX_RADIUS }
+const posO4_5 = { x: 0, y: -3 * SVG_HEX_RADIUS }
+const posO4_6 = { x: 3 * SVG_HEX_APOTHEM, y: -1.5 * SVG_HEX_RADIUS }
 
 // The 6-glacier has two more text spots than 4-glacier, but some are reused
-const posO6_1_1 = { x: 3.6 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS } // top right of glacier
-const posO6_2_1 = { x: -1.3 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS } // bottom left
-const posO6_2_2 = { x: 1.7 * SVG_HEX_APOTHEM, y: 3.3 * SVG_HEX_RADIUS }
-const posO6_2_3 = { x: -2.3 * SVG_HEX_APOTHEM, y: 3.3 * SVG_HEX_RADIUS }
-const posO6_2_4 = { x: -4.3 * SVG_HEX_APOTHEM, y: 0.3 * SVG_HEX_RADIUS }
-const posO6_1_5 = { x: -2.3 * SVG_HEX_APOTHEM, y: -2.7 * SVG_HEX_RADIUS }
-const posO6_1_6 = { x: 1.7 * SVG_HEX_APOTHEM, y: -2.7 * SVG_HEX_RADIUS }
+const posO6_1_1 = { x: 4 * SVG_HEX_APOTHEM, y: 0 } // top right of glacier
+const posO6_2_1 = { x: -1 * SVG_HEX_APOTHEM, y: 1.5 * SVG_HEX_RADIUS } // bottom left
+const posO6_2_2 = { x: 2 * SVG_HEX_APOTHEM, y: 3 * SVG_HEX_RADIUS }
+const posO6_2_3 = { x: -2 * SVG_HEX_APOTHEM, y: 3 * SVG_HEX_RADIUS }
+const posO6_2_4 = { x: -4 * SVG_HEX_APOTHEM, y: 0 }
+const posO6_1_5 = { x: -2 * SVG_HEX_APOTHEM, y: -3 * SVG_HEX_RADIUS }
+const posO6_1_6 = { x: 2 * SVG_HEX_APOTHEM, y: -3 * SVG_HEX_RADIUS }
 
 const outcrop3TextXYForRotation = [
   [posO3_1, posO3_2, posO3_3],
@@ -1303,37 +1309,32 @@ export const SvgOutcrop6 = ({
       </g>
       <text
         fill={textColor}
-        style={hexTextStyle}
-        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-        y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        {...singleHexObstacleHeightTextProps()}
+        // {...singleHexObstacleHeightTextProps()}
+        // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'9'}
       </text>
       <text
         fill={textColor}
-        style={hexTextStyle}
-        x={
-          (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
-          twoCharNumberAdjust
-        }
+        {...singleHexObstacleHeightTextProps()}
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
       >
         {'17'}
       </text>
       <text
         fill={textColor}
-        style={hexTextStyle}
-        x={
-          (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
-          twoCharNumberAdjust
-        }
+        {...singleHexObstacleHeightTextProps()}
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
         {'17'}
       </text>
       <text
         fill={textColor}
-        style={hexTextStyle}
+        {...singleHexObstacleHeightTextProps()}
         x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}
       >
@@ -1341,22 +1342,16 @@ export const SvgOutcrop6 = ({
       </text>
       <text
         fill={textColor}
-        style={hexTextStyle}
-        x={
-          (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0) +
-          twoCharNumberAdjust
-        }
+        {...singleHexObstacleHeightTextProps()}
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.y ?? 0}
       >
         {'17'}
       </text>
       <text
         fill={textColor}
-        style={hexTextStyle}
-        x={
-          (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0) +
-          twoCharNumberAdjust
-        }
+        {...singleHexObstacleHeightTextProps()}
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.y ?? 0}
       >
         {'17'}
@@ -1390,17 +1385,12 @@ export const SvgOutcrop3 = ({
         <polygon points={points} fill={fillColor} />
         <polygon points={outlinePoints} fill={borderColor} />
       </g>
-      <text
-        fill={textColor}
-        style={hexTextStyle}
-        x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-        y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
-      >
+      <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
         {'5'}
       </text>
       <text
         fill={textColor}
-        style={hexTextStyle}
+        {...singleHexObstacleHeightTextProps()}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
       >
@@ -1408,7 +1398,7 @@ export const SvgOutcrop3 = ({
       </text>
       <text
         fill={textColor}
-        style={hexTextStyle}
+        {...singleHexObstacleHeightTextProps()}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
@@ -1445,37 +1435,31 @@ export const SvgOutcrop4 = ({
       </g>
       <text
         fill={textColor}
-        style={hexTextStyle}
-        x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-        y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        {...singleHexObstacleHeightTextProps()}
+        // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'7'}
       </text>
       <text
         fill={textColor}
-        style={hexTextStyle}
-        x={
-          (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
-          twoCharNumberAdjust
-        }
+        {...singleHexObstacleHeightTextProps()}
+        x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
       >
         {'11'}
       </text>
       <text
         fill={textColor}
-        style={hexTextStyle}
-        x={
-          (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
-          twoCharNumberAdjust
-        }
+        {...singleHexObstacleHeightTextProps()}
+        x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
         {'11'}
       </text>
       <text
         fill={textColor}
-        style={hexTextStyle}
+        {...singleHexObstacleHeightTextProps()}
         x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}
       >

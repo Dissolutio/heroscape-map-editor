@@ -198,7 +198,7 @@ const createUISlice: StateCreator<
         s.isShowPDFInventory = b
       }),
     ),
-  is2DOverlayLevelEnabled: false,
+  is2DOverlayLevelEnabled: true,
   toggleIs2DOverlayLevelEnabled: (b: boolean) =>
     set(
       produce((s) => {

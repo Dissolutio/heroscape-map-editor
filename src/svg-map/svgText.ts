@@ -5,12 +5,11 @@ export const hexTextStyle = {
   fontFamily: 'Inter',
   fontWeight: 600,
 }
-export const singleHexObstacleHeightTextProps = (heightText: string) => ({
+export const singleHexObstacleHeightTextProps = () => ({
   style: hexTextStyle,
   // x: 0.7 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS
-  y: 0.35 * SVG_HEX_RADIUS,
-  x:
-    heightText.toString().length === 2
-      ? -0.55 * SVG_HEX_APOTHEM
-      : -0.3 * SVG_HEX_APOTHEM,
+  // these properties make the text centered within the hexagon
+  // text-anchor="middle" dominant-baseline="central"
+  textAnchor: 'middle' as const,
+  dominantBaseline: 'central' as const,
 })

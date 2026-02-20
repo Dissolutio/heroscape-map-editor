@@ -58,16 +58,15 @@ const singleHexObstacleHeightTextProps = (heightText: string) => ({
       ? -0.6 * SVG_HEX_APOTHEM
       : -0.3 * SVG_HEX_APOTHEM,
 })
-const glyphTextProps = (glyphText: string) => ({
+const glyphTextProps = () => ({
   style: {
     fontSize: 0.5 * SVG_HEX_RADIUS,
     fontWeight: 'bold',
   },
-  y: 0.2 * SVG_HEX_RADIUS,
-  x:
-    glyphText.toString().length === 2
-      ? -0.3 * SVG_HEX_RADIUS
-      : -0.15 * SVG_HEX_APOTHEM,
+  // these properties make the text centered within the hexagon
+  // text-anchor="middle" dominant-baseline="central"
+  textAnchor: 'middle' as const,
+  dominantBaseline: 'central' as const,
 })
 
 export const PdfMapHex = ({
@@ -228,7 +227,8 @@ export const PdfMapHex = ({
     hex.terrain === HexTerrain.glyphPower ||
     hex.terrain === HexTerrain.glyphTreasure
   ) {
-    // const glyphShortName =
+    // const isNamedGlyph =  (hex.terrain === HexTerrain.glyphPower || hex.terrain === HexTerrain.glyphTreasure) && (hex.inventoryID !== Pieces.glyphPower && hex.inventoryID !== Pieces.glyphTreasure)
+    const glyphLetter = piecesSoFar[hex.inventoryID]?.glyphLetter
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1 isGlyph hex={hex} isSubLevel={isSubLevel} />
@@ -237,9 +237,9 @@ export const PdfMapHex = ({
           // white text needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           // {...glyphTextProps(`${pieceHeightText}`)}
-          {...glyphTextProps('GL')}
+          {...glyphTextProps()}
         >
-          {'GL'}
+          {glyphLetter}
         </Text>
       </G>
     )

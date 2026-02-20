@@ -116,8 +116,8 @@ export default function PiecePreview() {
   const isFluidSubterrain = isFluidTerrainHex(piece?.terrain)
   const isLaurSquarePillarHex = piece.id === Pieces.laurWallSquarePillar
   const isLaurTrianglePillarHex = pieceID === Pieces.laurWallTrianglePillar
-  const isPowerGlyphHex = pieceID === Pieces.glyphPower
-  const isTreasureGlyphHex = pieceID === Pieces.glyphTreasure
+  const isPowerGlyphHex = piece?.terrain === HexTerrain.glyphPower
+  const isTreasureGlyphHex = piece?.terrain === HexTerrain.glyphTreasure
   const isTreeHex =
     pieceID === Pieces.tree10 ||
     pieceID === Pieces.tree11 ||

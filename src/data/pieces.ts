@@ -1,5 +1,13 @@
 import type { Dictionary } from 'lodash'
 import { HexTerrain, type Piece, PiecePrefixes, Pieces } from '../types'
+import {
+  powerGlyphs,
+  treasureGlyphs,
+  marvelGlyphs,
+  c3vGlyphs,
+  c3vPlaytestGlyphs,
+  customGlyphs,
+} from './glyphs'
 
 export const getPieceByTerrainAndSize = (terrain: string, size: number) => {
   const piece = piecesSoFar[`${terrain}${size}`]
@@ -105,6 +113,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 0,
+    glyphLetter: '?',
   },
   [Pieces.glyphTreasure]: {
     id: Pieces.glyphTreasure,
@@ -116,6 +125,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 0,
+    glyphLetter: '?',
   },
 
   // INVENTORIED
@@ -1407,3 +1417,41 @@ export const piecesSoFar: Dictionary<Piece> = {
     height: 3, // see example 3-6, pg 3 of RoadToTheForgottenForest rulebook https://github.com/Dissolutio/heroscape-map-editor/issues/2
   },
 }
+
+// Dynamically add specific glyph inventory entries for all defined glyphs.
+// Inventory key will be PiecePrefixes.glyph + glyph.id (e.g. 'yattack').
+;(function addGlyphs() {
+  const allGlyphArrays = [
+    powerGlyphs,
+    treasureGlyphs,
+    marvelGlyphs,
+    c3vGlyphs,
+    c3vPlaytestGlyphs,
+    customGlyphs,
+  ]
+  for (const glyphArr of allGlyphArrays) {
+    for (const g of glyphArr) {
+      try {
+        const key = `${PiecePrefixes.glyph}${g.id}`
+        // Avoid overwriting existing entries
+        if (piecesSoFar[key]) continue
+        // objective type glyphs will be
+        const terrain = g.terrain
+        piecesSoFar[key] = {
+          id: key,
+          title: g.name ?? g.shortName ?? g.id,
+          terrain,
+          isHexTerrainPiece: false,
+          isObstaclePiece: true,
+          isOverlayPiece: true,
+          size: 1,
+          template: '1',
+          height: 0,
+          glyphLetter: g.glyphLetter,
+        }
+      } catch {
+        // ignore errors here
+      }
+    }
+  }
+})()

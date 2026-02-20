@@ -48,6 +48,8 @@ import { MarvelRuin } from '../models/MarvelRuin'
 import LaurWallTrianglePillar from '../models/LaurTrianglePillar'
 import { HexCapIDDisplay } from './HexCapIDDisplay'
 import { FortifiedWall } from '../models/FortifiedWall'
+import { Billboard, Text } from '@react-three/drei'
+import { piecesSoFar } from '../../data/pieces'
 
 export const MapHex3D = ({
   boardHex,
@@ -109,8 +111,12 @@ export const MapHex3D = ({
   const isLadderHex =
     boardHex.terrain === HexTerrain.ladder && boardHex.isObstacleOrigin
   const isGlacier1Hex = inventoryID === Pieces.glacier1 && isObstacleHex
-  const isPowerGlyphHex = inventoryID === Pieces.glyphPower
-  const isTreasureGlyphHex = inventoryID === Pieces.glyphTreasure
+  const isPowerGlyphHex = boardHex.terrain === HexTerrain.glyphPower
+  const isTreasureGlyphHex = boardHex.terrain === HexTerrain.glyphTreasure
+  const isNamedGlyph =
+    (isPowerGlyphHex || isTreasureGlyphHex) &&
+    boardHex.inventoryID !== Pieces.glyphPower &&
+    boardHex.inventoryID !== Pieces.glyphTreasure
   const isOutcrop1Hex = inventoryID === Pieces.outcrop1 && isObstacleHex
   const isOutcrop3Hex =
     inventoryID === Pieces.outcrop3 && boardHex.isObstacleOrigin
@@ -370,14 +376,37 @@ export const MapHex3D = ({
       )}
       {/* POWER GLYPHS */}
       {(isPowerGlyphHex || isTreasureGlyphHex) && (
-        <group
-          position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
-          rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <GlyphModel boardHex={boardHex} terrain={boardHex.terrain} />
-          </Suspense>
-        </group>
+        <>
+          {isNamedGlyph && (
+            <Suspense>
+              <Billboard
+                position={[
+                  x,
+                  // position.y + (boardHex?.obstacleHeight ?? 0) * HEXGRID_HEX_HEIGHT,
+                  (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) +
+                    HEXGRID_HEX_HEIGHT / 3,
+                  z,
+                ]}
+              >
+                <Text fontSize={0.14} color={'white'}>
+                  {piecesSoFar?.[boardHex.inventoryID]?.title}
+                </Text>
+              </Billboard>
+            </Suspense>
+          )}
+          <group
+            position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
+            rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
+          >
+            <Suspense fallback={<ModelLoader />}>
+              <GlyphModel
+                isNamedGlyph={isNamedGlyph}
+                boardHex={boardHex}
+                terrain={boardHex.terrain}
+              />
+            </Suspense>
+          </group>
+        </>
       )}
       {isGlacier1Hex && (
         <>
