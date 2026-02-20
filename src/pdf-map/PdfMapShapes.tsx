@@ -49,7 +49,11 @@ import {
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
-import { pdfColors, svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
+import {
+  pdfColors,
+  svgColors,
+  svgSubLevelColors,
+} from '../world/maphex/hexColors'
 import { svgHiveBlobD } from '../svg-map/svg-hive'
 import {
   hexTextStyle,

@@ -16,7 +16,7 @@ import {
   GiWhiteTower,
 } from 'react-icons/gi'
 import useBoundStore from '../store/store'
-import { HexoscapeGlyph, PiecePrefixes, Pieces } from '../types'
+import { type HexoscapeGlyph, PiecePrefixes, Pieces } from '../types'
 import {
   TbCircleNumber1Filled,
   TbCircleNumber2Filled,
@@ -72,7 +72,11 @@ export default function PenModeControls() {
     togglePenMode(event.target.value)
   }
   const getGlyphColor = (g: HexoscapeGlyph) => {
-    return g.type === 'power' ? hexTerrainColor.glyphPower : g.type === 'treasure' ? hexTerrainColor.glyphTreasure : 'white'
+    return g.type === 'power'
+      ? hexTerrainColor.glyphPower
+      : g.type === 'treasure'
+        ? hexTerrainColor.glyphTreasure
+        : 'white'
   }
   const { hotkeyLookup } = useHotkeyConfig()
   return (
@@ -653,57 +657,105 @@ export default function PenModeControls() {
         <Divider />
         <MenuItem value={Pieces.startZone1}>
           <ListItemIcon>
-            <TbCircleNumber1Filled title="This is the color of the startzone circle in 3D & PDF view" color={hexTerrainColor[Pieces.startZone1]} />
-            <TbHexagonNumber1Filled title="This is the color of the startzone circle in 3D & PDF view" color={svgColors[Pieces.startZone1]} />
+            <TbCircleNumber1Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={hexTerrainColor[Pieces.startZone1]}
+            />
+            <TbHexagonNumber1Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={svgColors[Pieces.startZone1]}
+            />
           </ListItemIcon>
           <span>Start Zone: P1</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone2}>
           <ListItemIcon>
-            <TbCircleNumber2Filled title="This is the color of the startzone circle in 3D & PDF view" color={hexTerrainColor[Pieces.startZone2]} />
-            <TbHexagonNumber2Filled title="This is the color of the startzone circle in 3D & PDF view" color={svgColors[Pieces.startZone2]} />
+            <TbCircleNumber2Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={hexTerrainColor[Pieces.startZone2]}
+            />
+            <TbHexagonNumber2Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={svgColors[Pieces.startZone2]}
+            />
           </ListItemIcon>
           <span>Start Zone: P2</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone3}>
           <ListItemIcon>
-            <TbCircleNumber3Filled title="This is the color of the startzone circle in 3D & PDF view" color={hexTerrainColor[Pieces.startZone3]} />
-            <TbHexagonNumber3Filled title="This is the color of the startzone circle in 3D & PDF view" color={svgColors[Pieces.startZone3]} />
+            <TbCircleNumber3Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={hexTerrainColor[Pieces.startZone3]}
+            />
+            <TbHexagonNumber3Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={svgColors[Pieces.startZone3]}
+            />
           </ListItemIcon>
           <span>Start Zone: P3</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone4}>
           <ListItemIcon>
-            <TbCircleNumber4Filled title="This is the color of the startzone circle in 3D & PDF view" color={hexTerrainColor[Pieces.startZone4]} />
-            <TbHexagonNumber4Filled title="This is the color of the startzone circle in 3D & PDF view" color={svgColors[Pieces.startZone4]} />
+            <TbCircleNumber4Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={hexTerrainColor[Pieces.startZone4]}
+            />
+            <TbHexagonNumber4Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={svgColors[Pieces.startZone4]}
+            />
           </ListItemIcon>
           <span>Start Zone: P4</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone5}>
           <ListItemIcon>
-            <TbCircleNumber5Filled title="This is the color of the startzone circle in 3D & PDF view" color={hexTerrainColor[Pieces.startZone5]} />
-            <TbHexagonNumber5Filled title="This is the color of the startzone circle in 3D & PDF view" color={svgColors[Pieces.startZone5]} />
+            <TbCircleNumber5Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={hexTerrainColor[Pieces.startZone5]}
+            />
+            <TbHexagonNumber5Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={svgColors[Pieces.startZone5]}
+            />
           </ListItemIcon>
           <span>Start Zone: P5</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone6}>
           <ListItemIcon>
-            <TbCircleNumber6Filled title="This is the color of the startzone circle in 3D & PDF view" color={hexTerrainColor[Pieces.startZone6]} />
-            <TbHexagonNumber6Filled title="This is the color of the startzone circle in 3D & PDF view" color={svgColors[Pieces.startZone6]} />
+            <TbCircleNumber6Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={hexTerrainColor[Pieces.startZone6]}
+            />
+            <TbHexagonNumber6Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={svgColors[Pieces.startZone6]}
+            />
           </ListItemIcon>
           <span>Start Zone: P6</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone7}>
           <ListItemIcon>
-            <TbCircleNumber7Filled title="This is the color of the startzone circle in 3D & PDF view" color={hexTerrainColor[Pieces.startZone7]} />
-            <TbHexagonNumber7Filled title="This is the color of the startzone circle in 3D & PDF view" color={svgColors[Pieces.startZone7]} />
+            <TbCircleNumber7Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={hexTerrainColor[Pieces.startZone7]}
+            />
+            <TbHexagonNumber7Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={svgColors[Pieces.startZone7]}
+            />
           </ListItemIcon>
           <span>Start Zone: P7</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone8}>
           <ListItemIcon>
-            <TbCircleNumber8Filled title="This is the color of the startzone circle in 3D & PDF view" color={hexTerrainColor[Pieces.startZone8]} />
-            <TbHexagonNumber8Filled title="This is the color of the startzone hexagon in 2D/SVG view" color={svgColors[Pieces.startZone8]} />
+            <TbCircleNumber8Filled
+              title="This is the color of the startzone circle in 3D & PDF view"
+              color={hexTerrainColor[Pieces.startZone8]}
+            />
+            <TbHexagonNumber8Filled
+              title="This is the color of the startzone hexagon in 2D/SVG view"
+              color={svgColors[Pieces.startZone8]}
+            />
           </ListItemIcon>
           <span>Start Zone: P8</span>
         </MenuItem>
@@ -734,15 +786,25 @@ export default function PenModeControls() {
           <span>Power Glyphs</span>
         </MenuItem>
         {powerGlyphs.map((g) => (
-          <MenuItem key={g.id} value={`${PiecePrefixes.glyph}${g.id}`} title={`Glyph of ${g.name}: ${g.description}`}>
+          <MenuItem
+            key={g.id}
+            value={`${PiecePrefixes.glyph}${g.id}`}
+            title={`Glyph of ${g.name}: ${g.description}`}
+          >
             <ListItemIcon>
-              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
+              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
+                {g.glyphLetter}
+              </span>
             </ListItemIcon>
             <span>{g.name}</span>
-            <div style={{
-              fontSize: '0.6em',
-              marginLeft: '0.5em'
-            }}>({g.shortName})</div>
+            <div
+              style={{
+                fontSize: '0.6em',
+                marginLeft: '0.5em',
+              }}
+            >
+              ({g.shortName})
+            </div>
           </MenuItem>
         ))}
         {/* MARVEL GLYPHS */}
@@ -754,15 +816,25 @@ export default function PenModeControls() {
           <span>Marvel / Objective Glyphs</span>
         </MenuItem>
         {marvelGlyphs.map((g) => (
-          <MenuItem key={g.id} value={`${PiecePrefixes.glyph}${g.id}`} title={`Glyph of ${g.name}: ${g.description}`}>
+          <MenuItem
+            key={g.id}
+            value={`${PiecePrefixes.glyph}${g.id}`}
+            title={`Glyph of ${g.name}: ${g.description}`}
+          >
             <ListItemIcon>
-              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
+              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
+                {g.glyphLetter}
+              </span>
             </ListItemIcon>
             <span>{g.name}</span>
-            <div style={{
-              fontSize: '0.6em',
-              marginLeft: '0.5em'
-            }}>({g.shortName})</div>
+            <div
+              style={{
+                fontSize: '0.6em',
+                marginLeft: '0.5em',
+              }}
+            >
+              ({g.shortName})
+            </div>
           </MenuItem>
         ))}
         {/* TREASURE GLYPHS */}
@@ -774,19 +846,30 @@ export default function PenModeControls() {
           <span>Treasure Glyphs</span>
         </MenuItem>
         {treasureGlyphs.map((g) => (
-          <MenuItem key={g.id} value={`${PiecePrefixes.glyph}${g.id}`} title={`Glyph of ${g.name}: ${g.description}`}>
+          <MenuItem
+            key={g.id}
+            value={`${PiecePrefixes.glyph}${g.id}`}
+            title={`Glyph of ${g.name}: ${g.description}`}
+          >
             <ListItemIcon>
               <span
                 style={{
                   fontWeight: 'bold',
-                  color: getGlyphColor(g)
-                }}>{g.glyphLetter}</span>
+                  color: getGlyphColor(g),
+                }}
+              >
+                {g.glyphLetter}
+              </span>
             </ListItemIcon>
             <span>{g.name}</span>
-            <div style={{
-              fontSize: '0.6em',
-              marginLeft: '0.5em'
-            }}>({g.shortName})</div>
+            <div
+              style={{
+                fontSize: '0.6em',
+                marginLeft: '0.5em',
+              }}
+            >
+              ({g.shortName})
+            </div>
           </MenuItem>
         ))}
         {/* C3V GLYPHS */}
@@ -799,15 +882,25 @@ export default function PenModeControls() {
           <span>C3V Glyphs</span>
         </MenuItem>
         {c3vGlyphs.map((g) => (
-          <MenuItem key={g.id} value={`${PiecePrefixes.glyph}${g.id}`} title={`Glyph of ${g.name}: ${g.description}`}>
+          <MenuItem
+            key={g.id}
+            value={`${PiecePrefixes.glyph}${g.id}`}
+            title={`Glyph of ${g.name}: ${g.description}`}
+          >
             <ListItemIcon>
-              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
+              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
+                {g.glyphLetter}
+              </span>
             </ListItemIcon>
             <span>{g.name}</span>
-            <div style={{
-              fontSize: '0.6em',
-              marginLeft: '0.5em'
-            }}>({g.shortName})</div>
+            <div
+              style={{
+                fontSize: '0.6em',
+                marginLeft: '0.5em',
+              }}
+            >
+              ({g.shortName})
+            </div>
           </MenuItem>
         ))}
         <Divider />
@@ -819,15 +912,25 @@ export default function PenModeControls() {
           <span>C3V Playtest Glyphs</span>
         </MenuItem>
         {c3vPlaytestGlyphs.map((g) => (
-          <MenuItem key={g.id} value={`${PiecePrefixes.glyph}${g.id}`} title={`Glyph of ${g.name}: ${g.description}`}>
+          <MenuItem
+            key={g.id}
+            value={`${PiecePrefixes.glyph}${g.id}`}
+            title={`Glyph of ${g.name}: ${g.description}`}
+          >
             <ListItemIcon>
-              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
+              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
+                {g.glyphLetter}
+              </span>
             </ListItemIcon>
             <span>{g.name}</span>
-            <div style={{
-              fontSize: '0.6em',
-              marginLeft: '0.5em'
-            }}>({g.shortName})</div>
+            <div
+              style={{
+                fontSize: '0.6em',
+                marginLeft: '0.5em',
+              }}
+            >
+              ({g.shortName})
+            </div>
           </MenuItem>
         ))}
         <Divider />
@@ -839,19 +942,27 @@ export default function PenModeControls() {
           <span>Custom Glyphs</span>
         </MenuItem>
         {customGlyphs.map((g) => (
-          <MenuItem key={g.id} value={`${PiecePrefixes.glyph}${g.id}`} title={`Glyph of ${g.name}: ${g.description}`}
+          <MenuItem
+            key={g.id}
+            value={`${PiecePrefixes.glyph}${g.id}`}
+            title={`Glyph of ${g.name}: ${g.description}`}
           >
             <ListItemIcon>
-              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>{g.glyphLetter}</span>
+              <span style={{ fontWeight: 'bold', color: getGlyphColor(g) }}>
+                {g.glyphLetter}
+              </span>
             </ListItemIcon>
             <span>{g.name}</span>
-            <div style={{
-              fontSize: '0.6em',
-              marginLeft: '0.5em'
-            }}>({g.shortName})</div>
+            <div
+              style={{
+                fontSize: '0.6em',
+                marginLeft: '0.5em',
+              }}
+            >
+              ({g.shortName})
+            </div>
           </MenuItem>
         ))}
-
       </Select>
     </FormControl>
   )

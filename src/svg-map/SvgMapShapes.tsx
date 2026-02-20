@@ -273,10 +273,7 @@ export const SvgMultiHex1 = ({
   )
   return (
     <>
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
+      <polygon points={points} fill={fillColor} />
       <polygon points={outlinePoints} fill={borderColor} />
     </>
   )
@@ -618,10 +615,7 @@ export const SvgJungle = ({
         {/* JUNGLE ORIENTATION MARKER */}
         <polygon points={points} fill={borderColor} />
       </g>
-      <text
-        fill={textColor}
-        {...singleHexObstacleHeightTextProps()}
-      >
+      <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
         {pieceHeightText}
       </text>
     </>
@@ -1006,12 +1000,7 @@ export const SvgStartZone = ({
   // const borderColor = getSvgHexBorderColor(hex)
   return (
     <>
-      {isSubLevel && (
-        <polygon
-          points={points}
-          fill={'white'}
-        />
-      )}
+      {isSubLevel && <polygon points={points} fill={'white'} />}
       <polygon
         points={points}
         fill={fillColor}
@@ -1136,10 +1125,10 @@ export const SvgCastleArch = ({
   const textColor = isSubLevel
     ? svgSubLevelColors.jungleText
     : svgColors.jungleText
-  const isFlippedText = pieceRotation === 180 || pieceRotation === 120 || pieceRotation === 240
+  const isFlippedText =
+    pieceRotation === 180 || pieceRotation === 120 || pieceRotation === 240
   return (
     <g transform={`rotate(${pieceRotation})`}>
-
       <SvgCastleArchStraight3 hex={hex} isSubLevel={isSubLevel} />
       {isSubLevel && (
         <SvgSubLevelWhiteBackerPolygon
@@ -1156,12 +1145,12 @@ export const SvgCastleArch = ({
       />
       <g
         // flip upside down text, all other rotations are legible
-        transform={(isFlippedText) ? 'rotate(-180)' : 'rotate(0)'}
+        transform={isFlippedText ? 'rotate(-180)' : 'rotate(0)'}
       >
         <text
           fill={textColor}
           {...singleHexObstacleHeightTextProps()}
-          x={(isFlippedText) ? -2 * SVG_HEX_APOTHEM : 2 * SVG_HEX_APOTHEM}
+          x={isFlippedText ? -2 * SVG_HEX_APOTHEM : 2 * SVG_HEX_APOTHEM}
         >
           {archText}
         </text>
@@ -1321,18 +1310,16 @@ export const SvgOutcrop6 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-      // {...singleHexObstacleHeightTextProps()}
-      // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-      // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        // {...singleHexObstacleHeightTextProps()}
+        // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'9'}
       </text>
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-        x={
-          (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0)
-        }
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
       >
         {'17'}
@@ -1340,9 +1327,7 @@ export const SvgOutcrop6 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-        x={
-          (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0)
-        }
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
         {'17'}
@@ -1358,9 +1343,7 @@ export const SvgOutcrop6 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-        x={
-          (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0)
-        }
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.y ?? 0}
       >
         {'17'}
@@ -1368,9 +1351,7 @@ export const SvgOutcrop6 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-        x={
-          (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0)
-        }
+        x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.y ?? 0}
       >
         {'17'}
@@ -1404,10 +1385,7 @@ export const SvgOutcrop3 = ({
         <polygon points={points} fill={fillColor} />
         <polygon points={outlinePoints} fill={borderColor} />
       </g>
-      <text
-        fill={textColor}
-        {...singleHexObstacleHeightTextProps()}
-      >
+      <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
         {'5'}
       </text>
       <text
@@ -1458,17 +1436,15 @@ export const SvgOutcrop4 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-      // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-      // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'7'}
       </text>
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-        x={
-          (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0)
-        }
+        x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
       >
         {'11'}
@@ -1476,9 +1452,7 @@ export const SvgOutcrop4 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-        x={
-          (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0)
-        }
+        x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
         {'11'}

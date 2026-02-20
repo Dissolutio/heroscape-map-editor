@@ -105,7 +105,10 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.castleBase) {
     return svgColors.castleBase
   }
-  if (hex.terrain === HexTerrain.glyphPower || hex.terrain === HexTerrain.glyphTreasure) {
+  if (
+    hex.terrain === HexTerrain.glyphPower ||
+    hex.terrain === HexTerrain.glyphTreasure
+  ) {
     return svgColors.glyphBorder
   }
   return 'black'
@@ -191,7 +194,10 @@ export const getSvgHexSubLevelBorderColor = (
   if (hex.terrain === HexTerrain.castleBase) {
     return svgSubLevelColors.castleBase
   }
-  if (hex.terrain === HexTerrain.glyphPower || hex.terrain === HexTerrain.glyphTreasure) {
+  if (
+    hex.terrain === HexTerrain.glyphPower ||
+    hex.terrain === HexTerrain.glyphTreasure
+  ) {
     return svgSubLevelColors.glyphBorder
   }
   return 'black'

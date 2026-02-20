@@ -22,7 +22,7 @@
 //   U: 'ulaniva', // 14085
 // }
 
-import { HexTerrain, type HexoscapeGlyph } from "../types"
+import { HexTerrain, type HexoscapeGlyph } from '../types'
 
 export const powerGlyphs: HexoscapeGlyph[] = [
   // TEMPORARY GLYPHS

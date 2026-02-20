@@ -55,15 +55,16 @@ import { singleHexObstacleHeightTextProps } from './svgText'
 const OPACITY_SUBLEVEL = 0.3
 
 const glyphTextProps = (glyphText: string) => {
-  const fontSize = glyphText.toString().length === 4 // NIFL
-    ? 0.6 * SVG_HEX_RADIUS
-    : glyphText.toString().length === 3 // ZIP
+  const fontSize =
+    glyphText.toString().length === 4 // NIFL
       ? 0.6 * SVG_HEX_RADIUS
-      : glyphText.toString().length === 2
-        ? 0.7 * SVG_HEX_RADIUS
-        : glyphText.toString() === '?'
-          ? 0.9 * SVG_HEX_RADIUS
-          : 0.7 * SVG_HEX_RADIUS
+      : glyphText.toString().length === 3 // ZIP
+        ? 0.6 * SVG_HEX_RADIUS
+        : glyphText.toString().length === 2
+          ? 0.7 * SVG_HEX_RADIUS
+          : glyphText.toString() === '?'
+            ? 0.9 * SVG_HEX_RADIUS
+            : 0.7 * SVG_HEX_RADIUS
 
   return {
     // these properties make the text centered within the hexagon
@@ -171,10 +172,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           isSubLevel={isSubLevel}
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
         />
-        <text
-          fill={textColor}
-          {...singleHexObstacleHeightTextProps()}
-        >
+        <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
           {pieceHeightText}
         </text>
       </g>
@@ -237,7 +235,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
         />
         <text
-          fill={specialIsSubLevel ? svgSubLevelColors.glyphText : svgColors.glyphText}
+          fill={
+            specialIsSubLevel
+              ? svgSubLevelColors.glyphText
+              : svgColors.glyphText
+          }
           // white text needs a little opacity boost
           opacity={specialIsSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           {...glyphTextProps(glyphLetter)}
@@ -610,8 +612,8 @@ const SvgCastleWallBaseHeightText = ({
       fill="black"
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       {...singleHexObstacleHeightTextProps()}
-    // y={0.3 * SVG_HEX_RADIUS}
-    // x={-0.3 * SVG_HEX_APOTHEM}
+      // y={0.3 * SVG_HEX_RADIUS}
+      // x={-0.3 * SVG_HEX_APOTHEM}
     >
       {heightText}
     </text>

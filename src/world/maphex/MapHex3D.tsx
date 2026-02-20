@@ -113,7 +113,10 @@ export const MapHex3D = ({
   const isGlacier1Hex = inventoryID === Pieces.glacier1 && isObstacleHex
   const isPowerGlyphHex = boardHex.terrain === HexTerrain.glyphPower
   const isTreasureGlyphHex = boardHex.terrain === HexTerrain.glyphTreasure
-  const isNamedGlyph = (isPowerGlyphHex || isTreasureGlyphHex) && (boardHex.inventoryID !== Pieces.glyphPower && boardHex.inventoryID !== Pieces.glyphTreasure)
+  const isNamedGlyph =
+    (isPowerGlyphHex || isTreasureGlyphHex) &&
+    boardHex.inventoryID !== Pieces.glyphPower &&
+    boardHex.inventoryID !== Pieces.glyphTreasure
   const isOutcrop1Hex = inventoryID === Pieces.outcrop1 && isObstacleHex
   const isOutcrop3Hex =
     inventoryID === Pieces.outcrop3 && boardHex.isObstacleOrigin
@@ -195,10 +198,10 @@ export const MapHex3D = ({
             new Vector3(
               x,
               y -
-              HEXGRID_HEX_HEIGHT +
-              (isFluidTerrainHex(boardHex.terrain)
-                ? HEXGRID_HEXCAP_FLUID_HEIGHT
-                : HEXGRID_HEX_HEIGHT),
+                HEXGRID_HEX_HEIGHT +
+                (isFluidTerrainHex(boardHex.terrain)
+                  ? HEXGRID_HEXCAP_FLUID_HEIGHT
+                  : HEXGRID_HEX_HEIGHT),
               z,
             )
           }
@@ -374,14 +377,14 @@ export const MapHex3D = ({
       {/* POWER GLYPHS */}
       {(isPowerGlyphHex || isTreasureGlyphHex) && (
         <>
-
           {isNamedGlyph && (
             <Suspense>
               <Billboard
                 position={[
                   x,
                   // position.y + (boardHex?.obstacleHeight ?? 0) * HEXGRID_HEX_HEIGHT,
-                  (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) + HEXGRID_HEX_HEIGHT / 3,
+                  (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) +
+                    HEXGRID_HEX_HEIGHT / 3,
                   z,
                 ]}
               >
@@ -396,7 +399,11 @@ export const MapHex3D = ({
             rotation={[0, (boardHex.pieceRotation * -Math.PI) / 3, 0]}
           >
             <Suspense fallback={<ModelLoader />}>
-              <GlyphModel isNamedGlyph={isNamedGlyph} boardHex={boardHex} terrain={boardHex.terrain} />
+              <GlyphModel
+                isNamedGlyph={isNamedGlyph}
+                boardHex={boardHex}
+                terrain={boardHex.terrain}
+              />
             </Suspense>
           </group>
         </>
@@ -641,7 +648,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+              selectedPieceID === boardHex.pieceID
                 ? hexTerrainColor[HexTerrain.castleBase]
                 : 'yellow'
             }
@@ -668,7 +675,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                  selectedPieceID === boardHex.pieceID
+                selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castleWall]
               }

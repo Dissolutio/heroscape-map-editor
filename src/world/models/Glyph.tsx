@@ -10,9 +10,9 @@ import { basicModelMaterial } from './materials'
 export function GlyphModel({
   boardHex,
   terrain,
-  isNamedGlyph
+  isNamedGlyph,
 }: {
-  boardHex: BoardHex;
+  boardHex: BoardHex
   terrain: string
   isNamedGlyph: boolean
 }) {
@@ -56,7 +56,10 @@ export function GlyphModel({
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.GlyphValkyrieLogo.geometry}
       >
-        {basicModelMaterial(isNamedGlyph ? color : 'white', isLightsAndShadowsRender)}
+        {basicModelMaterial(
+          isNamedGlyph ? color : 'white',
+          isLightsAndShadowsRender,
+        )}
       </mesh>
     </group>
   )
