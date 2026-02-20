@@ -29,7 +29,7 @@ export const powerGlyphs: HexoscapeGlyph[] = [
   {
     // Haukeland
     id: '2',
-    name: 'Haukeland (Healing)',
+    name: 'Haukeland',
     shortName: 'Healing',
     glyphLetter: 'H',
     type: 'power',
@@ -41,7 +41,7 @@ export const powerGlyphs: HexoscapeGlyph[] = [
   },
   {
     id: '3',
-    name: 'Quillivon (Sudden Movement)',
+    name: 'Quillivon',
     shortName: 'Sudden Movement',
     glyphLetter: 'Q',
     type: 'power',
