@@ -1213,6 +1213,36 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 16,
   },
+  [Pieces.shroudshroom7]: {
+    id: Pieces.shroudshroom7,
+    title: 'Shroudshroom (7)',
+    terrain: HexTerrain.shroudshroom,
+    isHexTerrainPiece: false,
+    isObstaclePiece: true,
+    size: 1,
+    template: '1',
+    height: 7,
+  },
+  [Pieces.shroudshroom10]: {
+    id: Pieces.shroudshroom10,
+    title: 'Shroudshroom (10)',
+    terrain: HexTerrain.shroudshroom,
+    isHexTerrainPiece: false,
+    isObstaclePiece: true,
+    size: 1,
+    template: '1',
+    height: 10,
+  },
+  [Pieces.shroudshroom13]: {
+    id: Pieces.shroudshroom13,
+    title: 'Shroudshroom (13)',
+    terrain: HexTerrain.shroudshroom,
+    isHexTerrainPiece: false,
+    isObstaclePiece: true,
+    size: 3,
+    template: '3',
+    height: 13,
+  },
   // HEX-OBSTACLES with BASE fluid tiles
   [Pieces.glacier1]: {
     id: Pieces.glacier1,
@@ -1418,40 +1448,40 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
 }
 
-// Dynamically add specific glyph inventory entries for all defined glyphs.
-// Inventory key will be PiecePrefixes.glyph + glyph.id (e.g. 'yattack').
-;(function addGlyphs() {
-  const allGlyphArrays = [
-    powerGlyphs,
-    treasureGlyphs,
-    marvelGlyphs,
-    c3vGlyphs,
-    c3vPlaytestGlyphs,
-    customGlyphs,
-  ]
-  for (const glyphArr of allGlyphArrays) {
-    for (const g of glyphArr) {
-      try {
-        const key = `${PiecePrefixes.glyph}${g.id}`
-        // Avoid overwriting existing entries
-        if (piecesSoFar[key]) continue
-        // objective type glyphs will be
-        const terrain = g.terrain
-        piecesSoFar[key] = {
-          id: key,
-          title: g.name ?? g.shortName ?? g.id,
-          terrain,
-          isHexTerrainPiece: false,
-          isObstaclePiece: true,
-          isOverlayPiece: true,
-          size: 1,
-          template: '1',
-          height: 0,
-          glyphLetter: g.glyphLetter,
+  // Dynamically add specific glyph inventory entries for all defined glyphs.
+  // Inventory key will be PiecePrefixes.glyph + glyph.id (e.g. 'yattack').
+  ; (function addGlyphs() {
+    const allGlyphArrays = [
+      powerGlyphs,
+      treasureGlyphs,
+      marvelGlyphs,
+      c3vGlyphs,
+      c3vPlaytestGlyphs,
+      customGlyphs,
+    ]
+    for (const glyphArr of allGlyphArrays) {
+      for (const g of glyphArr) {
+        try {
+          const key = `${PiecePrefixes.glyph}${g.id}`
+          // Avoid overwriting existing entries
+          if (piecesSoFar[key]) continue
+          // objective type glyphs will be
+          const terrain = g.terrain
+          piecesSoFar[key] = {
+            id: key,
+            title: g.name ?? g.shortName ?? g.id,
+            terrain,
+            isHexTerrainPiece: false,
+            isObstaclePiece: true,
+            isOverlayPiece: true,
+            size: 1,
+            template: '1',
+            height: 0,
+            glyphLetter: g.glyphLetter,
+          }
+        } catch {
+          // ignore errors here
         }
-      } catch {
-        // ignore errors here
       }
     }
-  }
-})()
+  })()

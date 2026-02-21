@@ -8,9 +8,9 @@ import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
 
-export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
+export default function Shroudshroom7({ boardHex }: { boardHex?: BoardHex }) {
   const { nodes } = useGLTF(
-    '/forgotten-forest-tree-low-poly-colored.glb',
+    '/shroudshroom7.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(
@@ -33,9 +33,47 @@ export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex?.pieceID
   const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
-  const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.tree]
+  const colorCap = isHighlighted ? yellowColor : hexTerrainColor.shroudshroomDarkPurple
+  // const colorStipe = isHighlighted ? yellowColor : hexTerrainColor.shroudshroomLightPurple
+  // const colorGills = isHighlighted ? yellowColor : hexTerrainColor.shroudshroomGray
   return (
     <>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.Shroudshroom7.geometry}
+        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) =>
+          boardHex ? onPointerEnter(e, boardHex) : noop()
+        }
+        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+      >
+        {boardHex
+          ? basicModelMaterial(colorCap, isLightsAndShadowsRender)
+          : basicModelMaterial(
+            colorCap,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
+      </mesh>
+      {/* <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.Tree10_scanned.geometry}
+        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) =>
+          boardHex ? onPointerEnter(e, boardHex) : noop()
+        }
+        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+      >
+        {boardHex
+          ? basicModelMaterial(colorStipe, isLightsAndShadowsRender)
+          : basicModelMaterial(
+            colorStipe,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
+      </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -47,13 +85,13 @@ export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(color, isLightsAndShadowsRender)
+          ? basicModelMaterial(colorGills, isLightsAndShadowsRender)
           : basicModelMaterial(
-            color,
+            colorGills,
             isLightsAndShadowsRender,
             PIECE_PREVIEW_OPACITY,
           )}
-      </mesh>
+      </mesh> */}
     </>
   )
 }

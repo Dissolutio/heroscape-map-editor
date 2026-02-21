@@ -82,6 +82,7 @@ export enum HexTerrain {
   lavaRockOutcrop = 'lavaRockOutcrop',
   glacier = 'glacier',
   hive = 'hive',
+  shroudshroom = 'shroudshroom',
   // edge obstacle
   ruin = 'ruin',
   fortifiedWall = 'fortifiedWall',
@@ -145,6 +146,7 @@ export enum PiecePrefixes {
   outcrop = 'o',
   lavaRockOutcrop = 'ol',
   glacier = 'og',
+  shroudshroom = 'm',
   ruins = 'rs',
   wallWalk = 'cg',
   castleBase = 'cb',
@@ -269,6 +271,9 @@ export const Pieces = {
   glacier4: `${PiecePrefixes.glacier}4`,
   glacier6: `${PiecePrefixes.glacier}6`,
   hive: 'h',
+  shroudshroom7: `${PiecePrefixes.shroudshroom}7`,
+  shroudshroom10: `${PiecePrefixes.shroudshroom}10`,
+  shroudshroom13: `${PiecePrefixes.shroudshroom}13`,
   // EdgeObstacles
   ruins2: `${PiecePrefixes.ruins}2`,
   ruins3: `${PiecePrefixes.ruins}3`,
