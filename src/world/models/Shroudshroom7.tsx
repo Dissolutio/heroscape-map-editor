@@ -35,7 +35,8 @@ export default function Shroudshroom7({ boardHex }: { boardHex?: BoardHex }) {
   const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
   const colorCap = isHighlighted ? yellowColor : hexTerrainColor.shroudshroomDarkPurple
   const colorStipe = isHighlighted ? yellowColor : hexTerrainColor.shroudshroomLightPurple
-  const colorGills = isHighlighted ? yellowColor : hexTerrainColor.shroudshroomGray
+  const colorGills = isHighlighted ? yellowColor : hexTerrainColor.shroudshroomMediumPurple
+  const colorBase = isHighlighted ? yellowColor : hexTerrainColor.shroudshroomGray
   return (
     <>
       <mesh
@@ -85,9 +86,9 @@ export default function Shroudshroom7({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(colorStipe, isLightsAndShadowsRender)
+          ? basicModelMaterial(colorGills, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorStipe,
+            colorGills,
             isLightsAndShadowsRender,
             PIECE_PREVIEW_OPACITY,
           )}
@@ -103,9 +104,9 @@ export default function Shroudshroom7({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(colorGills, isLightsAndShadowsRender)
+          ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorGills,
+            colorBase,
             isLightsAndShadowsRender,
             PIECE_PREVIEW_OPACITY,
           )}
@@ -113,5 +114,3 @@ export default function Shroudshroom7({ boardHex }: { boardHex?: BoardHex }) {
     </>
   )
 }
-
-// useGltf.preload('/forgotten-forest-tree-low-poly-colored.glb')

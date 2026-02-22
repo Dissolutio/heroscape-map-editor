@@ -152,6 +152,7 @@ export const hexTerrainColor = {
   shroudshroomLightPurple: '#B553BD',
   shroudshroomDarkPurple: '#90009D',
   shroudshroomGray: '#535254',
+  shroudshroomMediumPurple: '#9A609F',
 
   // Virtualscape StartZones
   [Pieces.startZone1]: 'rgb(255,0,0)',
