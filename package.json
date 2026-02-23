@@ -34,7 +34,8 @@
     "react-image-crop": "^11.0.10",
     "wouter": "^3.3.5",
     "zundo": "^2.3.0",
-    "zustand": "^5.0.2"
+    "zustand": "^5.0.2",
+    "svg-text-to-path": "^1.0.1"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

@@ -1,5 +1,7 @@
 import { Box, ClickAwayListener, Collapse, List } from '@mui/material'
 import JSONCrush from 'jsoncrush'
+// @ts-ignore: no declaration file for 'svg-text-to-path'
+import * as Session from 'svg-text-to-path';
 import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
 import React from 'react'
 import { FcAddImage, FcDownload, FcLink, FcUpload } from 'react-icons/fc'
@@ -46,10 +48,25 @@ export const FileControlsTab = ({
     e?.stopPropagation()
     setIsDownloadOpen(!isDownloadOpen)
   }
-  const handleDownloadCurrent2DSvg = () => {
+  const convertSvgTextToPath = async (svgElement: HTMLElement): Promise<string> => {
+    // You may need to provide a Google API key or a local font path for the library to work correctly
+    const session = new Session(svgElement, {
+      googleApiKey: import.meta.env.VITE_GOOGLEFONTS_APIKEY, // Optional, if using web fonts
+    });
+    await session.replaceAll(); // This modifies the DOM element in place
+    return session.getSvgString(); // Get the modified SVG string
+  };
+  const handleDownloadCurrent2DSvg = async () => {
     const svgElement = document.getElementById('2d-svg-view') // Replace 'your-svg-id' with the actual ID
     if (svgElement) {
-      const svgContent = svgElement.outerHTML
+      let svgContent: string
+      try {
+        svgContent = await convertSvgTextToPath(svgElement)
+      } catch (_error) {
+        console.log("🚀 ~ handleDownloadCurrent2DSvg ~ _error:", _error)
+        svgContent = svgElement.outerHTML
+      }
+      // const svgContent = svgElement.outerHTML
       const blob = new Blob([svgContent], { type: 'image/svg+xml' })
       const link = document.createElement('a')
       link.download = `${hexMap.name}-level-${viewingLevel}.svg`
@@ -97,7 +114,12 @@ export const FileControlsTab = ({
 
         const svgElement = document.getElementById('2d-svg-view')
         if (svgElement) {
-          const svgContent = svgElement.outerHTML
+          let svgContent: string
+          try {
+            svgContent = await convertSvgTextToPath(svgElement)
+          } catch (_error) {
+            svgContent = svgElement.outerHTML
+          }
           const blob = new Blob([svgContent], { type: 'image/svg+xml' })
           const link = document.createElement('a')
           link.download = `${hexMap.name}-level-${level === overlayLevel ? 'overlay' : level}.svg`
