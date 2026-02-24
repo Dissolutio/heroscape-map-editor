@@ -47,7 +47,7 @@ export const MapHexIDDisplay = ({
   const isHexFluid = isFluidTerrainHex(boardHex?.terrain)
   const hexHeightTextColor =
     boardHex?.terrain === HexTerrain.ice ||
-    boardHex?.terrain === HexTerrain.snow
+      boardHex?.terrain === HexTerrain.snow
       ? 'black'
       : 'white'
   // TODO: make own component for cap heights
@@ -92,7 +92,10 @@ export const MapHexIDDisplay = ({
         position.z,
       ]}
     >
-      <Text fontSize={0.8} color={hexHeightTextColor}>
+      <Text
+        font='/fonts/Inter_18pt-Bold.ttf'
+        // fontWeight={800}
+        fontSize={0.8} color={hexHeightTextColor}>
         {/* {`${boardHex.terrain}:${boardHex.id}`} */}
         {/* {`${boardHex.id}`} */}
         {`${hexAltitudeForStandingOn === 1 ? '' : hexAltitudeForStandingOn}`}

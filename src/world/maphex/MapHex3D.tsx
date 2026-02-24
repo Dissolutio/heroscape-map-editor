@@ -422,7 +422,9 @@ export const MapHex3D = ({
                   z,
                 ]}
               >
-                <Text fontSize={0.14} color={'white'}>
+                <Text
+                  font='/fonts/Inter_18pt-Bold.ttf'
+                  fontSize={0.14} color={'white'}>
                   {piecesSoFar?.[boardHex.inventoryID]?.title}
                 </Text>
               </Billboard>
