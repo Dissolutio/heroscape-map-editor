@@ -10,7 +10,7 @@ import { noop } from 'lodash'
 
 export default function Shroudshroom7({ boardHex }: { boardHex?: BoardHex }) {
   const { nodes } = useGLTF(
-    '/shroudshroom7.glb',
+    '/shroudshroom7_2.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(

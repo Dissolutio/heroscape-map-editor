@@ -67,6 +67,9 @@ import { CastleWallPreview } from './models/CastleWalls'
 import { CastleBasePreview } from './models/CastleBases'
 import { CastleArchPreview } from './models/CastleArch'
 import { FortifiedWallPreview } from './models/FortifiedWall'
+import Shroudshroom7 from './models/Shroudshroom7'
+import Shroudshroom10 from './models/Shroudshroom10'
+import Shroudshroom13 from './models/Shroudshroom13'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -143,6 +146,9 @@ export default function PiecePreview() {
     pieceID === Pieces.laurPalm13 ||
     pieceID === Pieces.laurPalm14 ||
     pieceID === Pieces.laurPalm15
+  const isShroudshroom7Hex = pieceID === Pieces.shroudshroom7
+  const isShroudshroom10Hex = pieceID === Pieces.shroudshroom10
+  const isShroudshroom13Hex = pieceID === Pieces.shroudshroom13
   const isGlacier1Hex = pieceID === Pieces.glacier1
   const isOutcrop1Hex = pieceID === Pieces.outcrop1
   const isLavaRockOutcrop1Hex = pieceID === Pieces.lavaRockOutcrop1
@@ -218,11 +224,11 @@ export default function PiecePreview() {
   }
   const getLandMesh = () => {
     switch (
-      penModeSize === 6 && penMode === PiecePrefixes.concrete
-        ? '6B'
-        : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
-          ? '7B'
-          : `${penModeSize}`
+    penModeSize === 6 && penMode === PiecePrefixes.concrete
+      ? '6B'
+      : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
+        ? '7B'
+        : `${penModeSize}`
     ) {
       case '1':
         return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
@@ -294,8 +300,8 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
-            HEXGRID_HEX_HEIGHT,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
+          HEXGRID_HEX_HEIGHT,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -315,13 +321,49 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
           <LaurWallTrianglePillarPreview pieceRotation={pieceRotation} />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isShroudshroom7Hex && isSolidBeneath) {
+    return (
+      <group
+        position={[x, y, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <Shroudshroom7 />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isShroudshroom10Hex && isSolidBeneath) {
+    return (
+      <group
+        position={[x, y, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <Shroudshroom10 />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isShroudshroom13Hex && isSolidBeneath) {
+    return (
+      <group
+        position={[x, y, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <Shroudshroom13 />
         </Suspense>
       </group>
     )
@@ -600,8 +642,8 @@ export default function PiecePreview() {
         position={[
           x + getLadderBattlementOptions(ladderRotation).xAdd,
           y +
-            HEXGRID_HEXCAP_HEIGHT / 2 +
-            (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
+          HEXGRID_HEXCAP_HEIGHT / 2 +
+          (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
           z + getLadderBattlementOptions(ladderRotation).zAdd,
         ]}
         rotation={[0, (ladderRotation * -Math.PI) / 3, 0]}
