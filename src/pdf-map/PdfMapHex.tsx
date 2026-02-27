@@ -49,7 +49,10 @@ import {
 } from './PdfMapShapes'
 import { hexTextStyle } from '../svg-map/svgText'
 import { svgColors } from '../world/maphex/hexColors'
-import { xTransformForMultiHex3Rotation, yTransformForMultiHex3Rotation } from '../pdf-svg-shared/textRotations'
+import {
+  xTransformForMultiHex3Rotation,
+  yTransformForMultiHex3Rotation,
+} from '../pdf-svg-shared/textRotations'
 
 const singleHexObstacleHeightTextProps = (heightText: string) => ({
   style: hexTextStyle,
@@ -162,24 +165,18 @@ export const PdfMapHex = ({
     )
   }
   // Shroudshroom7
-  if (
-    inventoryID === Pieces.shroudshroom7
-  ) {
+  if (inventoryID === Pieces.shroudshroom7) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <Text
           fill={svgColors.shroudshroomText}
           // white text (not glaciers, so far) needs a little opacity boost
-          opacity={
-            isSubLevel
-              ? OPACITY_SUBLEVEL * 2
-              : 1
-          }
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           style={hexTextStyle}
-          textAnchor='middle'
-          dominantBaseline='central'
-        // {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+          textAnchor="middle"
+          dominantBaseline="central"
+          // {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
         >
           Y
         </Text>
@@ -187,24 +184,18 @@ export const PdfMapHex = ({
     )
   }
   // Shroudshroom10
-  if (
-    inventoryID === Pieces.shroudshroom10
-  ) {
+  if (inventoryID === Pieces.shroudshroom10) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <Text
           fill={svgColors.shroudshroomText}
           // white text (not glaciers, so far) needs a little opacity boost
-          opacity={
-            isSubLevel
-              ? OPACITY_SUBLEVEL * 2
-              : 1
-          }
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           style={hexTextStyle}
-          textAnchor='middle'
-          dominantBaseline='central'
-        // {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+          textAnchor="middle"
+          dominantBaseline="central"
+          // {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
         >
           M
         </Text>
@@ -212,10 +203,7 @@ export const PdfMapHex = ({
     )
   }
   // Shroudshroom13
-  if (
-    inventoryID === Pieces.shroudshroom13
-  ) {
-
+  if (inventoryID === Pieces.shroudshroom13) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <G transform={`rotate(${pieceRotation})`}>
@@ -225,13 +213,13 @@ export const PdfMapHex = ({
           fill={svgColors.shroudshroomText}
           opacity={
             isSubLevel
-              // white text needs a little opacity boost
-              ? OPACITY_SUBLEVEL * 2
+              ? // white text needs a little opacity boost
+                OPACITY_SUBLEVEL * 2
               : 1
           }
           style={hexTextStyle}
-          textAnchor='middle'
-          dominantBaseline='central'
+          textAnchor="middle"
+          dominantBaseline="central"
           x={xTransformForMultiHex3Rotation[hex?.pieceRotation ?? 0]}
           y={yTransformForMultiHex3Rotation[hex?.pieceRotation ?? 0]}
         >

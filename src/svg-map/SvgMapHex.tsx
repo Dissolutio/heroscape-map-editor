@@ -51,7 +51,10 @@ import {
   getOutcropTextColor,
 } from './SvgMapShapes'
 import { singleHexObstacleHeightTextProps } from './svgText'
-import { xTransformForMultiHex3Rotation, yTransformForMultiHex3Rotation } from '../pdf-svg-shared/textRotations'
+import {
+  xTransformForMultiHex3Rotation,
+  yTransformForMultiHex3Rotation,
+} from '../pdf-svg-shared/textRotations'
 
 const OPACITY_SUBLEVEL = 0.3
 
@@ -160,9 +163,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     )
   }
   // Shroudshroom7
-  if (
-    inventoryID === Pieces.shroudshroom7
-  ) {
+  if (inventoryID === Pieces.shroudshroom7) {
     const textColor = isSubLevel
       ? svgSubLevelColors.shroudshroomText
       : svgColors.shroudshroomText
@@ -180,9 +181,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     )
   }
   // Shroudshroom10
-  if (
-    inventoryID === Pieces.shroudshroom10
-  ) {
+  if (inventoryID === Pieces.shroudshroom10) {
     const textColor = isSubLevel
       ? svgSubLevelColors.shroudshroomText
       : svgColors.shroudshroomText
@@ -200,9 +199,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     )
   }
   // Shroudshroom13
-  if (
-    inventoryID === Pieces.shroudshroom13
-  ) {
+  if (inventoryID === Pieces.shroudshroom13) {
     const textColor = isSubLevel
       ? svgSubLevelColors.shroudshroomText
       : svgColors.shroudshroomText
@@ -214,8 +211,8 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         <text
           opacity={
             isSubLevel
-              // white text needs a little opacity boost
-              ? OPACITY_SUBLEVEL * 2
+              ? // white text needs a little opacity boost
+                OPACITY_SUBLEVEL * 2
               : 1
           }
           fill={textColor}
@@ -682,8 +679,8 @@ const SvgCastleWallBaseHeightText = ({
       fill="black"
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       {...singleHexObstacleHeightTextProps()}
-    // y={0.3 * SVG_HEX_RADIUS}
-    // x={-0.3 * SVG_HEX_APOTHEM}
+      // y={0.3 * SVG_HEX_RADIUS}
+      // x={-0.3 * SVG_HEX_APOTHEM}
     >
       {heightText}
     </text>

@@ -413,19 +413,28 @@ export default function PenModeControls() {
         <Divider />
         <MenuItem value={Pieces.shroudshroom7}>
           <ListItemIcon>
-            <GiMushroom scale={'120%'} color={hexTerrainColor.shroudshroomLightPurple} />
+            <GiMushroom
+              scale={'120%'}
+              color={hexTerrainColor.shroudshroomLightPurple}
+            />
           </ListItemIcon>
           <span>Shroudshroom 7</span>
         </MenuItem>
         <MenuItem value={Pieces.shroudshroom10}>
           <ListItemIcon>
-            <GiMushroom scale={'120%'} color={hexTerrainColor.shroudshroomLightPurple} />
+            <GiMushroom
+              scale={'120%'}
+              color={hexTerrainColor.shroudshroomLightPurple}
+            />
           </ListItemIcon>
           <span>Shroudshroom 10</span>
         </MenuItem>
         <MenuItem value={Pieces.shroudshroom13}>
           <ListItemIcon>
-            <GiMushroom scale={'120%'} color={hexTerrainColor.shroudshroomLightPurple} />
+            <GiMushroom
+              scale={'120%'}
+              color={hexTerrainColor.shroudshroomLightPurple}
+            />
           </ListItemIcon>
           <span>Shroudshroom 13</span>
         </MenuItem>

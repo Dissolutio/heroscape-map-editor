@@ -33,10 +33,18 @@ export default function Shroudshroom7({ boardHex }: { boardHex?: BoardHex }) {
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex?.pieceID
   const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
-  const colorCap = isHighlighted ? yellowColor : hexTerrainColor.shroudshroomDarkPurple
-  const colorStipe = isHighlighted ? yellowColor : hexTerrainColor.shroudshroomLightPurple
-  const colorGills = isHighlighted ? yellowColor : hexTerrainColor.shroudshroomMediumPurple
-  const colorBase = isHighlighted ? yellowColor : hexTerrainColor.shroudshroomGray
+  const colorCap = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shroudshroomDarkPurple
+  const colorStipe = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shroudshroomLightPurple
+  const colorGills = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shroudshroomMediumPurple
+  const colorBase = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shroudshroomGray
   return (
     <>
       <mesh
@@ -52,10 +60,10 @@ export default function Shroudshroom7({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorCap, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorCap,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorCap,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -70,10 +78,10 @@ export default function Shroudshroom7({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorStipe, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorStipe,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorStipe,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -88,10 +96,10 @@ export default function Shroudshroom7({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorGills, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorGills,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorGills,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -106,10 +114,10 @@ export default function Shroudshroom7({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorBase,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorBase,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </>
   )

@@ -101,12 +101,12 @@ export const MapHex3D = ({
     !isBigTreeBaseHex &&
     boardHex.terrain === HexTerrain.tree &&
     isObstacleHex
-  const isShroudshroom7Hex = boardHex.inventoryID === Pieces.shroudshroom7 &&
-    isObstacleHex
-  const isShroudshroom10Hex = boardHex.inventoryID === Pieces.shroudshroom10 &&
-    isObstacleHex
-  const isShroudshroom13Hex = boardHex.inventoryID === Pieces.shroudshroom13 &&
-    boardHex.isObstacleOrigin
+  const isShroudshroom7Hex =
+    boardHex.inventoryID === Pieces.shroudshroom7 && isObstacleHex
+  const isShroudshroom10Hex =
+    boardHex.inventoryID === Pieces.shroudshroom10 && isObstacleHex
+  const isShroudshroom13Hex =
+    boardHex.inventoryID === Pieces.shroudshroom13 && boardHex.isObstacleOrigin
   const isLaurSquarePillarHex =
     boardHex.inventoryID === Pieces.laurWallSquarePillar &&
     boardHex.isObstacleOrigin
@@ -207,10 +207,10 @@ export const MapHex3D = ({
             new Vector3(
               x,
               y -
-              HEXGRID_HEX_HEIGHT +
-              (isFluidTerrainHex(boardHex.terrain)
-                ? HEXGRID_HEXCAP_FLUID_HEIGHT
-                : HEXGRID_HEX_HEIGHT),
+                HEXGRID_HEX_HEIGHT +
+                (isFluidTerrainHex(boardHex.terrain)
+                  ? HEXGRID_HEXCAP_FLUID_HEIGHT
+                  : HEXGRID_HEX_HEIGHT),
               z,
             )
           }
@@ -306,11 +306,7 @@ export const MapHex3D = ({
       )}
       {isShroudshroom7Hex && (
         <group
-          position={[
-            x,
-            y - HEXGRID_HEX_HEIGHT,
-            z,
-          ]}
+          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -320,11 +316,7 @@ export const MapHex3D = ({
       )}
       {isShroudshroom10Hex && (
         <group
-          position={[
-            x,
-            y - HEXGRID_HEX_HEIGHT,
-            z,
-          ]}
+          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -334,11 +326,7 @@ export const MapHex3D = ({
       )}
       {isShroudshroom13Hex && (
         <group
-          position={[
-            x,
-            y - HEXGRID_HEX_HEIGHT,
-            z,
-          ]}
+          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -435,13 +423,15 @@ export const MapHex3D = ({
                   x,
                   // position.y + (boardHex?.obstacleHeight ?? 0) * HEXGRID_HEX_HEIGHT,
                   (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) +
-                  HEXGRID_HEX_HEIGHT / 3,
+                    HEXGRID_HEX_HEIGHT / 3,
                   z,
                 ]}
               >
                 <Text
-                  font='/fonts/Inter_18pt-Bold.ttf'
-                  fontSize={0.14} color={'white'}>
+                  font="/fonts/Inter_18pt-Bold.ttf"
+                  fontSize={0.14}
+                  color={'white'}
+                >
                   {piecesSoFar?.[boardHex.inventoryID]?.title}
                 </Text>
               </Billboard>
@@ -701,7 +691,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+              selectedPieceID === boardHex.pieceID
                 ? hexTerrainColor[HexTerrain.castleBase]
                 : 'yellow'
             }
@@ -728,7 +718,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                  selectedPieceID === boardHex.pieceID
+                selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castleWall]
               }

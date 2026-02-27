@@ -1,4 +1,4 @@
-import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from "../utils/constants"
+import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 
 export const xTransformForMultiHex3Rotation = [
   SVG_HEX_APOTHEM,
