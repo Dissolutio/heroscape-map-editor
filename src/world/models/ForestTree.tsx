@@ -54,14 +54,6 @@ export default function ForestTree({ boardHex }: { boardHex?: BoardHex }) {
               PIECE_PREVIEW_OPACITY,
             )}
       </mesh>
-      {/* <Billboard
-        position={[x, options.y + 1.5, z]}
-        rotation={[0, (rotation * -Math.PI) / 3, 0]}
-        scale={[1, 3, 1]}
-        onPointerEnter={e => e.stopPropagation()}
-      >
-        <Image url='tree-img.jpg'></Image>
-      </Billboard> */}
     </>
   )
 }

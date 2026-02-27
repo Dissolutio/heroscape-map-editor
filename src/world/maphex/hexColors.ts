@@ -149,6 +149,11 @@ export const hexTerrainColor = {
   swampTriCactus: '#7D9A32',
   swampRoundCactus: '#7D9A32',
 
+  shroudshroomLightPurple: '#B553BD',
+  shroudshroomDarkPurple: '#90009D',
+  shroudshroomGray: '#535254',
+  shroudshroomMediumPurple: '#B24EBC',
+
   // Virtualscape StartZones
   [Pieces.startZone1]: 'rgb(255,0,0)',
   [Pieces.startZone2]: 'rgb(0,255,0)',
@@ -214,6 +219,7 @@ export const pdfColors = {
   [HexTerrain.palm]: 'rgb(67, 249, 57)',
   [HexTerrain.tree]: 'rgb(51, 160, 62)',
   [HexTerrain.laurWall]: 'rgb(98, 28, 96)',
+  [HexTerrain.shroudshroom]: '#972BB2',
   // TERRAIN
   [HexTerrain.grass]: 'rgb(0, 161, 0)',
   [HexTerrain.rock]: 'rgb(98, 97, 98)',
@@ -257,6 +263,7 @@ export const svgColors = {
   jungleText: '#000000',
   glacierText: '#000000',
   evergreenText: '#FFFFFF',
+  shroudshroomText: '#FFFFFF',
   glyphText: '#000000',
   glyphBorder: '#000000',
   // STARTZONES
@@ -286,6 +293,7 @@ export const svgColors = {
   outlineLaurWall: '#FF06C8',
   outlineLavaOutcrop: '#7E461E', // renegade-hexoscape
   outlineOutcrop: '#7E461E', // renegade-hexoscape
+  outlineShroudshroom: '#7E461E', // renegade-hexoscape
 
   // OBSTACLES
   [HexTerrain.ladder]: 'rgb(173, 75, 35)',
@@ -298,6 +306,7 @@ export const svgColors = {
   [HexTerrain.tree]: '#269C48',
   [HexTerrain.laurWall]: '#6B1463',
   [HexTerrain.laurWallAddon]: '#FF06C8',
+  [HexTerrain.shroudshroom]: '#972BB2',
   [HexTerrain.castleWall]: 'rgb(80, 79, 84)',
   [HexTerrain.castleBase]: 'rgb(80, 79, 84)',
   castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
@@ -350,6 +359,7 @@ export const svgSubLevelColors = {
   jungleText: '#C5BCBC',
   glacierText: '#808080',
   evergreenText: '#FFFFFF',
+  shroudshroomText: '#FFFFFF',
   glyphText: '#C5BCBC',
   // OUTLINES
   outline1: '#F4C5C5',
@@ -366,6 +376,7 @@ export const svgSubLevelColors = {
   outlineLaurWall: '#FFC8E9',
   outlineLavaOutcrop: '#E8B590',
   outlineOutcrop: '#E8B590',
+  outlineShroudshroom: '#E8B590', // renegade-hexoscape
 
   // OBSTACLES
   [HexTerrain.ladder]: '#D6A591',
@@ -377,6 +388,7 @@ export const svgSubLevelColors = {
   [HexTerrain.tree]: '#9CD7AD',
   [HexTerrain.laurWall]: '#E1C8DF',
   [HexTerrain.laurWallAddon]: '#FFC8E9',
+  [HexTerrain.shroudshroom]: '#E4BAEE',
   [HexTerrain.castleBase]: '#A8A7AA',
   [HexTerrain.castleWall]: '#A8A7AA',
   // castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle

@@ -10,6 +10,7 @@ import {
   GiCrenulatedShield,
   GiJungle,
   GiLadder,
+  GiMushroom,
   GiPalmTree,
   GiPineTree,
   GiStoneWall,
@@ -406,6 +407,36 @@ export default function PenModeControls() {
             <GiPalmTree scale={'120%'} color={hexTerrainColor.laurPalm2} />
           </ListItemIcon>
           <span>Laur Palm 15</span>
+        </MenuItem>
+
+        {/* Shroudshrooms */}
+        <Divider />
+        <MenuItem value={Pieces.shroudshroom7}>
+          <ListItemIcon>
+            <GiMushroom
+              scale={'120%'}
+              color={hexTerrainColor.shroudshroomLightPurple}
+            />
+          </ListItemIcon>
+          <span>Shroudshroom 7</span>
+        </MenuItem>
+        <MenuItem value={Pieces.shroudshroom10}>
+          <ListItemIcon>
+            <GiMushroom
+              scale={'120%'}
+              color={hexTerrainColor.shroudshroomLightPurple}
+            />
+          </ListItemIcon>
+          <span>Shroudshroom 10</span>
+        </MenuItem>
+        <MenuItem value={Pieces.shroudshroom13}>
+          <ListItemIcon>
+            <GiMushroom
+              scale={'120%'}
+              color={hexTerrainColor.shroudshroomLightPurple}
+            />
+          </ListItemIcon>
+          <span>Shroudshroom 13</span>
         </MenuItem>
 
         {/* Outcrops / Hive Begin */}

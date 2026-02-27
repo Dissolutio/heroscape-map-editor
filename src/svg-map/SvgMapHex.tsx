@@ -51,6 +51,10 @@ import {
   getOutcropTextColor,
 } from './SvgMapShapes'
 import { singleHexObstacleHeightTextProps } from './svgText'
+import {
+  xTransformForMultiHex3Rotation,
+  yTransformForMultiHex3Rotation,
+} from '../pdf-svg-shared/textRotations'
 
 const OPACITY_SUBLEVEL = 0.3
 
@@ -155,6 +159,69 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgHive6 hex={hex} isSubLevel={isSubLevel} />
+      </g>
+    )
+  }
+  // Shroudshroom7
+  if (inventoryID === Pieces.shroudshroom7) {
+    const textColor = isSubLevel
+      ? svgSubLevelColors.shroudshroomText
+      : svgColors.shroudshroomText
+    return (
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <SvgMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+        />
+        <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
+          Y
+        </text>
+      </g>
+    )
+  }
+  // Shroudshroom10
+  if (inventoryID === Pieces.shroudshroom10) {
+    const textColor = isSubLevel
+      ? svgSubLevelColors.shroudshroomText
+      : svgColors.shroudshroomText
+    return (
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <SvgMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+        />
+        <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
+          M
+        </text>
+      </g>
+    )
+  }
+  // Shroudshroom13
+  if (inventoryID === Pieces.shroudshroom13) {
+    const textColor = isSubLevel
+      ? svgSubLevelColors.shroudshroomText
+      : svgColors.shroudshroomText
+    return (
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <g transform={`rotate(${pieceRotation})`}>
+          <SvgMultiHex3 hex={hex} isSubLevel={isSubLevel} />
+        </g>
+        <text
+          opacity={
+            isSubLevel
+              ? // white text needs a little opacity boost
+                OPACITY_SUBLEVEL * 2
+              : 1
+          }
+          fill={textColor}
+          {...singleHexObstacleHeightTextProps()}
+          x={xTransformForMultiHex3Rotation[hex?.pieceRotation ?? 0]}
+          y={yTransformForMultiHex3Rotation[hex?.pieceRotation ?? 0]}
+        >
+          A
+        </text>
       </g>
     )
   }

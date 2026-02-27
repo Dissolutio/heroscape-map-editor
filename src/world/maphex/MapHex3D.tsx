@@ -50,6 +50,9 @@ import { HexCapIDDisplay } from './HexCapIDDisplay'
 import { FortifiedWall } from '../models/FortifiedWall'
 import { Billboard, Text } from '@react-three/drei'
 import { piecesSoFar } from '../../data/pieces'
+import Shroudshroom7 from '../models/Shroudshroom7'
+import Shroudshroom10 from '../models/Shroudshroom10'
+import Shroudshroom13 from '../models/Shroudshroom13'
 
 export const MapHex3D = ({
   boardHex,
@@ -98,6 +101,12 @@ export const MapHex3D = ({
     !isBigTreeBaseHex &&
     boardHex.terrain === HexTerrain.tree &&
     isObstacleHex
+  const isShroudshroom7Hex =
+    boardHex.inventoryID === Pieces.shroudshroom7 && isObstacleHex
+  const isShroudshroom10Hex =
+    boardHex.inventoryID === Pieces.shroudshroom10 && isObstacleHex
+  const isShroudshroom13Hex =
+    boardHex.inventoryID === Pieces.shroudshroom13 && boardHex.isObstacleOrigin
   const isLaurSquarePillarHex =
     boardHex.inventoryID === Pieces.laurWallSquarePillar &&
     boardHex.isObstacleOrigin
@@ -295,6 +304,36 @@ export const MapHex3D = ({
           />
         </>
       )}
+      {isShroudshroom7Hex && (
+        <group
+          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <Shroudshroom7 boardHex={boardHex} />
+          </Suspense>
+        </group>
+      )}
+      {isShroudshroom10Hex && (
+        <group
+          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <Shroudshroom10 boardHex={boardHex} />
+          </Suspense>
+        </group>
+      )}
+      {isShroudshroom13Hex && (
+        <group
+          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <Shroudshroom13 boardHex={boardHex} />
+          </Suspense>
+        </group>
+      )}
       {/* GROUP GETS onPointerUpPaintPiece */}
       {isLaurSquarePillarHex && (
         <group
@@ -388,7 +427,11 @@ export const MapHex3D = ({
                   z,
                 ]}
               >
-                <Text fontSize={0.14} color={'white'}>
+                <Text
+                  font="/fonts/Inter_18pt-Bold.ttf"
+                  fontSize={0.14}
+                  color={'white'}
+                >
                   {piecesSoFar?.[boardHex.inventoryID]?.title}
                 </Text>
               </Billboard>

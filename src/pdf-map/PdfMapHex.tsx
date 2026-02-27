@@ -1,4 +1,4 @@
-import { Ellipse, G, Text } from '@react-pdf/renderer'
+import { G, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
@@ -10,11 +10,10 @@ import {
 } from '../utils/board-utils'
 import {
   OPACITY_SUBLEVEL,
-  SVG_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
 } from '../utils/constants'
-import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
+import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   PdfCastleArch,
   PdfCastleCorner,
@@ -49,6 +48,11 @@ import {
   PdfSvgFortifiedWall,
 } from './PdfMapShapes'
 import { hexTextStyle } from '../svg-map/svgText'
+import { svgColors } from '../world/maphex/hexColors'
+import {
+  xTransformForMultiHex3Rotation,
+  yTransformForMultiHex3Rotation,
+} from '../pdf-svg-shared/textRotations'
 
 const singleHexObstacleHeightTextProps = (heightText: string) => ({
   style: hexTextStyle,
@@ -157,6 +161,70 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfSvgFortifiedWall hex={hex} isSubLevel={isSubLevel} />
+      </G>
+    )
+  }
+  // Shroudshroom7
+  if (inventoryID === Pieces.shroudshroom7) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <Text
+          fill={svgColors.shroudshroomText}
+          // white text (not glaciers, so far) needs a little opacity boost
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          style={hexTextStyle}
+          textAnchor="middle"
+          dominantBaseline="central"
+          // {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+        >
+          Y
+        </Text>
+      </G>
+    )
+  }
+  // Shroudshroom10
+  if (inventoryID === Pieces.shroudshroom10) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <Text
+          fill={svgColors.shroudshroomText}
+          // white text (not glaciers, so far) needs a little opacity boost
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          style={hexTextStyle}
+          textAnchor="middle"
+          dominantBaseline="central"
+          // {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+        >
+          M
+        </Text>
+      </G>
+    )
+  }
+  // Shroudshroom13
+  if (inventoryID === Pieces.shroudshroom13) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHex3 hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <Text
+          fill={svgColors.shroudshroomText}
+          opacity={
+            isSubLevel
+              ? // white text needs a little opacity boost
+                OPACITY_SUBLEVEL * 2
+              : 1
+          }
+          style={hexTextStyle}
+          textAnchor="middle"
+          dominantBaseline="central"
+          x={xTransformForMultiHex3Rotation[hex?.pieceRotation ?? 0]}
+          y={yTransformForMultiHex3Rotation[hex?.pieceRotation ?? 0]}
+        >
+          A
+        </Text>
       </G>
     )
   }
