@@ -432,8 +432,20 @@ export default function PenModeControls() {
         <MenuItem value={Pieces.shroudshroom13}>
           <ListItemIcon>
             <GiMushroom
-              scale={'120%'}
               color={hexTerrainColor.shroudshroomLightPurple}
+              style={{ fontSize: '0.8rem' }}
+            />
+            <GiMushroom
+              color={hexTerrainColor.shroudshroomLightPurple}
+              style={{
+                fontSize: '0.8rem',
+                marginLeft: '-0.3rem',
+                marginTop: '0.2rem',
+              }}
+            />
+            <GiMushroom
+              color={hexTerrainColor.shroudshroomLightPurple}
+              style={{ fontSize: '0.8rem', marginLeft: '-0.3rem' }}
             />
           </ListItemIcon>
           <span>Shroudshroom 13</span>
