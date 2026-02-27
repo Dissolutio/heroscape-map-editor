@@ -90,6 +90,9 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   ) {
     return svgColors.outlineLaurWall
   }
+  if (hex.terrain === HexTerrain.shroudshroom) {
+    return svgColors.outlineShroudshroom
+  }
   if (hex.terrain === HexTerrain.glacier) {
     return svgColors.outlineWater
   }
@@ -179,6 +182,9 @@ export const getSvgHexSubLevelBorderColor = (
   ) {
     return svgSubLevelColors.outlineLaurWall
   }
+  if (hex.terrain === HexTerrain.shroudshroom) {
+    return svgSubLevelColors.outlineShroudshroom
+  }
   if (hex.terrain === HexTerrain.glacier) {
     return svgSubLevelColors.outlineWater
   }
@@ -237,6 +243,10 @@ export const getPdfHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     // Renegade shows brush and palm as same color
     return pdfColors.fillJungle // renegade-hexoscape
   }
+  if (hex.terrain === HexTerrain.shroudshroom) {
+    // Renegade shows brush and palm as same color
+    return pdfColors[HexTerrain.shroudshroom] // renegade-hexoscape
+  }
   if (hex.terrain === HexTerrain.ruin) {
     return pdfColors.ruin
   }
@@ -289,6 +299,9 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   }
   if (hex.terrain === HexTerrain.brush) {
     return svgColors.fillJungle
+  }
+  if (hex.terrain === HexTerrain.shroudshroom) {
+    return svgColors.shroudshroom
   }
   if (hex.terrain === HexTerrain.marvelRuin) {
     return svgColors.castleWall
@@ -356,6 +369,9 @@ export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
   }
   if (hex.terrain === HexTerrain.marvelRuin) {
     return svgSubLevelColors.castleWall
+  }
+  if (hex.terrain === HexTerrain.shroudshroom) {
+    return svgSubLevelColors.shroudshroom
   }
   if (hex.terrain === HexTerrain.palm) {
     // Renegade shows brush and palm as same color
