@@ -209,4 +209,20 @@ export const terrainSetsByShortID = {
     hsOrgId: '30',
     releaseDate: '03/2026',
   },
+  AA: {
+    name: 'Ancient Lands of Valhalla',
+    abbreviation: 'ALoV',
+    inventory: setInventories.ancientLandsOfValhalla,
+    id: 'AA',
+    hsOrgId: '31', // not confirmed
+    releaseDate: '06/2026', // not confirmed
+  },
+  BB: {
+    name: 'Battle for Blackscar',
+    abbreviation: 'BfB',
+    inventory: setInventories.battleBox3PieceSet,
+    id: 'BB',
+    hsOrgId: '32', // not confirmed
+    releaseDate: '06/2026', // not confirmed
+  },
 }
