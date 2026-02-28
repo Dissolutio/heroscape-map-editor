@@ -106,7 +106,7 @@ export const defaultHotkeyConfig = {
   m: undefined,
   'shift+m': undefined,
   'alt+m': undefined,
-  n: undefined,
+  n: 'togglePenModeAncientTerrain',
   'shift+n': undefined,
   'alt+n': undefined,
   o: 'togglePenModeRoad',

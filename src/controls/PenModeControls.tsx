@@ -192,6 +192,13 @@ export default function PenModeControls() {
           <span>Toxic</span>
           <HotkeyText text={hotkeyLookup.togglePenModeToxic} />
         </MenuItem>
+        <MenuItem value={PiecePrefixes.ancientTerrain}>
+          <ListItemIcon>
+            <TbHexagons color={hexTerrainColor.ancientTerrain} />
+          </ListItemIcon>
+          <span>Ancient Terrain</span>
+          <HotkeyText text={hotkeyLookup.togglePenModeAncientTerrain} />
+        </MenuItem>
         <Divider />
 
         {/* FLUID LAND BEGIN */}
@@ -1029,4 +1036,5 @@ const penModeText: { [key: string]: string } = {
   ws: 'swamp water',
   sh: 'shadow',
   cg: 'wall walk',
+  at: 'ancient terrain',
 }

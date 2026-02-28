@@ -714,6 +714,61 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 1,
   },
+  [Pieces.ancientTerrain1]: {
+    id: Pieces.ancientTerrain1,
+    title: '1-hex Ancient Terrain',
+    terrain: HexTerrain.ancientTerrain,
+    landPrefix: PiecePrefixes.ancientTerrain,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    size: 1,
+    template: '1',
+    height: 1,
+  },
+  [Pieces.ancientTerrain2]: {
+    id: Pieces.ancientTerrain2,
+    title: '2-hex Ancient Terrain',
+    terrain: HexTerrain.ancientTerrain,
+    landPrefix: PiecePrefixes.ancientTerrain,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    size: 2,
+    template: '2',
+    height: 1,
+  },
+  [Pieces.ancientTerrain3]: {
+    id: Pieces.ancientTerrain3,
+    title: '3-hex Ancient Terrain',
+    terrain: HexTerrain.ancientTerrain,
+    landPrefix: PiecePrefixes.ancientTerrain,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    size: 3,
+    template: '3',
+    height: 1,
+  },
+  [Pieces.ancientTerrain7]: {
+    id: Pieces.ancientTerrain7,
+    title: '7-hex Ancient Terrain',
+    terrain: HexTerrain.ancientTerrain,
+    landPrefix: PiecePrefixes.ancientTerrain,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    size: 7,
+    template: '7',
+    height: 1,
+  },
+  [Pieces.ancientTerrain24]: {
+    id: Pieces.ancientTerrain24,
+    title: '24-hex Ancient Terrain',
+    terrain: HexTerrain.ancientTerrain,
+    landPrefix: PiecePrefixes.ancientTerrain,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    size: 24,
+    template: '24',
+    height: 1,
+  },
   /* FLUID / HALF-HEIGHT PIECES */
   [Pieces.wellspringWater1]: {
     id: Pieces.wellspringWater1,
@@ -1448,40 +1503,40 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
 }
 
-// Dynamically add specific glyph inventory entries for all defined glyphs.
-// Inventory key will be PiecePrefixes.glyph + glyph.id (e.g. 'yattack').
-;(function addGlyphs() {
-  const allGlyphArrays = [
-    powerGlyphs,
-    treasureGlyphs,
-    marvelGlyphs,
-    c3vGlyphs,
-    c3vPlaytestGlyphs,
-    customGlyphs,
-  ]
-  for (const glyphArr of allGlyphArrays) {
-    for (const g of glyphArr) {
-      try {
-        const key = `${PiecePrefixes.glyph}${g.id}`
-        // Avoid overwriting existing entries
-        if (piecesSoFar[key]) continue
-        // objective type glyphs will be
-        const terrain = g.terrain
-        piecesSoFar[key] = {
-          id: key,
-          title: g.name ?? g.shortName ?? g.id,
-          terrain,
-          isHexTerrainPiece: false,
-          isObstaclePiece: true,
-          isOverlayPiece: true,
-          size: 1,
-          template: '1',
-          height: 0,
-          glyphLetter: g.glyphLetter,
+  // Dynamically add specific glyph inventory entries for all defined glyphs.
+  // Inventory key will be PiecePrefixes.glyph + glyph.id (e.g. 'yattack').
+  ; (function addGlyphs() {
+    const allGlyphArrays = [
+      powerGlyphs,
+      treasureGlyphs,
+      marvelGlyphs,
+      c3vGlyphs,
+      c3vPlaytestGlyphs,
+      customGlyphs,
+    ]
+    for (const glyphArr of allGlyphArrays) {
+      for (const g of glyphArr) {
+        try {
+          const key = `${PiecePrefixes.glyph}${g.id}`
+          // Avoid overwriting existing entries
+          if (piecesSoFar[key]) continue
+          // objective type glyphs will be
+          const terrain = g.terrain
+          piecesSoFar[key] = {
+            id: key,
+            title: g.name ?? g.shortName ?? g.id,
+            terrain,
+            isHexTerrainPiece: false,
+            isObstaclePiece: true,
+            isOverlayPiece: true,
+            size: 1,
+            template: '1',
+            height: 0,
+            glyphLetter: g.glyphLetter,
+          }
+        } catch {
+          // ignore errors here
         }
-      } catch {
-        // ignore errors here
       }
     }
-  }
-})()
+  })()

@@ -23,6 +23,7 @@ export function isSolidTerrainHex(terrain: string) {
     terrain === HexTerrain.asphalt ||
     terrain === HexTerrain.dungeon ||
     terrain === HexTerrain.toxic ||
+    terrain === HexTerrain.ancientTerrain ||
     terrain === HexTerrain.wallWalk ||
     terrain === HexTerrain.swamp
   )
