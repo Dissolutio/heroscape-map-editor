@@ -71,29 +71,31 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
           </Typography>
         )}
         <Collapse in={isSetUsedOpen} timeout="auto">
-          {Object.values(terrainSetsByShortID).map((set) => (
-            <TextField
-              key={set.id}
-              variant="outlined"
-              margin="dense"
-              defaultValue={
-                isCreateNewMap ? 0 : countStringInArrayLoop(setsUsed, set.id)
-              }
-              slotProps={{
-                htmlInput: { min: 0 },
-              }}
-              color={
-                !isCreateNewMap && countStringInArrayLoop(setsUsed, set.id) > 0
-                  ? 'success'
-                  : undefined
-              }
-              focused
-              name={`${setsUsedInputNameForFormData}${set.id}`}
-              label={`${set.name} - ${set.abbreviation}`}
-              title={`${set.name} - ${set.abbreviation}`}
-              type="number"
-            />
-          ))}
+          {Object.values(terrainSetsByShortID)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((set) => (
+              <TextField
+                key={set.id}
+                variant="outlined"
+                margin="dense"
+                defaultValue={
+                  isCreateNewMap ? 0 : countStringInArrayLoop(setsUsed, set.id)
+                }
+                slotProps={{
+                  htmlInput: { min: 0 },
+                }}
+                color={
+                  !isCreateNewMap && countStringInArrayLoop(setsUsed, set.id) > 0
+                    ? 'success'
+                    : undefined
+                }
+                focused
+                name={`${setsUsedInputNameForFormData}${set.id}`}
+                label={`${set.name} - ${set.abbreviation}`}
+                title={`${set.name} - ${set.abbreviation}`}
+                type="number"
+              />
+            ))}
         </Collapse>
       </CardContent>
       <CardActions disableSpacing>
