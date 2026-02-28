@@ -151,10 +151,10 @@ export const hexTerrainColor = {
   swampTriCactus: '#7D9A32',
   swampRoundCactus: '#7D9A32',
 
-  shroudshroomLightPurple: '#B553BD',
-  shroudshroomDarkPurple: '#90009D',
-  shroudshroomGray: '#535254',
-  shroudshroomMediumPurple: '#B24EBC',
+  shroudshroomLightPurple: '#9171C1', // stipes
+  shroudshroomMediumPurple: '#8663BB', // gills
+  shroudshroomDarkPurple: '#4F3477', // caps
+  shroudshroomGray: '#535254', // base
 
   // Virtualscape StartZones
   [Pieces.startZone1]: 'rgb(255,0,0)',
