@@ -85,7 +85,8 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
                   htmlInput: { min: 0 },
                 }}
                 color={
-                  !isCreateNewMap && countStringInArrayLoop(setsUsed, set.id) > 0
+                  !isCreateNewMap &&
+                  countStringInArrayLoop(setsUsed, set.id) > 0
                     ? 'success'
                     : undefined
                 }

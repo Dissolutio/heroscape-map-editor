@@ -101,9 +101,9 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[3] ??
-        flatPieceSizes?.[2] ??
-        flatPieceSizes?.[1] ??
-        flatPieceSizes[0],
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
       )
     }
   }
@@ -111,10 +111,10 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[4] ??
-        flatPieceSizes?.[3] ??
-        flatPieceSizes?.[2] ??
-        flatPieceSizes?.[1] ??
-        flatPieceSizes[0],
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
       )
     }
   }
@@ -122,11 +122,11 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[5] ??
-        flatPieceSizes?.[4] ??
-        flatPieceSizes?.[3] ??
-        flatPieceSizes?.[2] ??
-        flatPieceSizes?.[1] ??
-        flatPieceSizes[0],
+          flatPieceSizes?.[4] ??
+          flatPieceSizes?.[3] ??
+          flatPieceSizes?.[2] ??
+          flatPieceSizes?.[1] ??
+          flatPieceSizes[0],
       )
     }
   }
@@ -156,7 +156,8 @@ export const useApplyHotkeys = ({
   const togglePenModeConcrete = () => togglePenMode(PiecePrefixes.concrete)
   const togglePenModeDungeon = () => togglePenMode(PiecePrefixes.dungeon)
   const togglePenModeToxic = () => togglePenMode(PiecePrefixes.toxic)
-  const togglePenModeAncientTerrain = () => togglePenMode(PiecePrefixes.ancientTerrain)
+  const togglePenModeAncientTerrain = () =>
+    togglePenMode(PiecePrefixes.ancientTerrain)
   const togglePenModeWellspringWater = () =>
     togglePenMode(PiecePrefixes.wellspringWater)
   const togglePenModeToxicWater = () => togglePenMode(PiecePrefixes.toxicWater)
