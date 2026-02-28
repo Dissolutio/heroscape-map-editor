@@ -215,6 +215,11 @@ export const Pieces = {
   road2: `${PiecePrefixes.road}2`,
   road5: `${PiecePrefixes.road}5`, // only land piece to have the straight-5 template, it's a bridge
   toxic1: `${PiecePrefixes.toxic}1`,
+  ancientTerrain1: `${PiecePrefixes.ancientTerrain}1`,
+  ancientTerrain2: `${PiecePrefixes.ancientTerrain}2`,
+  ancientTerrain3: `${PiecePrefixes.ancientTerrain}3`,
+  ancientTerrain7: `${PiecePrefixes.ancientTerrain}7`,
+  ancientTerrain24: `${PiecePrefixes.ancientTerrain}24`,
   wellspringWater1: `${PiecePrefixes.wellspringWater}1`,
   toxicWater1: `${PiecePrefixes.toxicWater}1`,
   water1: `${PiecePrefixes.water}1`,

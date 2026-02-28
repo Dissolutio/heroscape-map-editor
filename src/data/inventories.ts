@@ -71,6 +71,16 @@ export const aoa1PieceSet: PieceInventory = {
   [Pieces.laurWallRuin1]: 2,
   [Pieces.laurWallLong]: 1,
 }
+export const ancientLandsOfValhalla: PieceInventory = {
+  [Pieces.ancientTerrain1]: 10,
+  [Pieces.ancientTerrain2]: 5,
+  [Pieces.ancientTerrain3]: 3,
+  [Pieces.ancientTerrain7]: 3,
+  [Pieces.ancientTerrain24]: 2,
+  [Pieces.shroudshroom7]: 2,
+  [Pieces.shroudshroom10]: 1,
+  [Pieces.shroudshroom13]: 1,
+}
 export const ruinsOfValhallaPieceSet: PieceInventory = {
   [Pieces.laurWallTrianglePillar]: 4,
   [Pieces.laurWallPillarStackable]: 6,
@@ -102,6 +112,17 @@ export const battleBox2PieceSet: PieceInventory = {
   [Pieces.toxic1]: 6,
   [Pieces.toxicWater1]: 5,
   [Pieces.fortifiedWall]: 2,
+}
+// battle for blackscar
+export const battleBox3PieceSet: PieceInventory = {
+  [Pieces.dungeon1]: 2,
+  [Pieces.dungeon7]: 3,
+  [Pieces.shadow1]: 8,
+  [Pieces.ancientTerrain1]: 4,
+  [Pieces.ancientTerrain3]: 4,
+  [Pieces.ancientTerrain7]: 2,
+  [Pieces.ancientTerrain24]: 2,
+  [Pieces.shroudshroom7]: 2,
 }
 export const landsPieceSet: PieceInventory = {
   [Pieces.grass1]: 10,

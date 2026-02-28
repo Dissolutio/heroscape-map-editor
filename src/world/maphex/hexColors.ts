@@ -71,6 +71,8 @@ export const hexTerrainColor = {
   castleDoor: '#913B3F',
   [HexTerrain.wallWalk]: '#a8a597', //same as road
   [HexTerrain.road]: '#a8a597', // superfrog
+  [HexTerrain.ancientTerrain]: '#379590', // https://coolors.co/379590-feea00-4f3477-3f612d-b6863e
+  ancientTerrainCap: '#B6863E',
   [HexTerrain.toxic]: '#93FF32', // superfrog
   toxicCap: '#303030', // same as asphaltcap
   [HexTerrain.toxicWater]: '#93FF32', // superfrog
@@ -149,10 +151,10 @@ export const hexTerrainColor = {
   swampTriCactus: '#7D9A32',
   swampRoundCactus: '#7D9A32',
 
-  shroudshroomLightPurple: '#B553BD',
-  shroudshroomDarkPurple: '#90009D',
-  shroudshroomGray: '#535254',
-  shroudshroomMediumPurple: '#B24EBC',
+  shroudshroomLightPurple: '#9171C1', // stipes
+  shroudshroomMediumPurple: '#8663BB', // gills
+  shroudshroomDarkPurple: '#4F3477', // caps
+  shroudshroomGray: '#535254', // base
 
   // Virtualscape StartZones
   [Pieces.startZone1]: 'rgb(255,0,0)',
@@ -171,6 +173,7 @@ export const terrainCapColors: { [terrain: string]: string } = {
   [HexTerrain.rock]: hexTerrainColor.rock,
   [HexTerrain.sand]: hexTerrainColor.sand,
   [HexTerrain.toxic]: hexTerrainColor.toxicCap,
+  [HexTerrain.ancientTerrain]: hexTerrainColor.ancientTerrainCap,
   // these below have same color subterrain, so a little different shade on the cap for aesthetics
   [HexTerrain.lavaField]: hexTerrainColor.lavaFieldCap,
   [HexTerrain.road]: hexTerrainColor.roadCap,
@@ -234,6 +237,7 @@ export const pdfColors = {
   [HexTerrain.swamp]: 'rgb(27, 46, 22)',
   [HexTerrain.dungeon]: 'rgb(124, 177, 152)',
   [HexTerrain.lavaField]: 'rgb(163, 0, 41)',
+  [HexTerrain.ancientTerrain]: 'rgb(181, 89, 8)',
   [HexTerrain.snow]: 'rgb(255,255,255)',
   [HexTerrain.water]: 'rgb(67, 172, 176)',
   [HexTerrain.castleWall]: 'rgb(80, 79, 84)',
