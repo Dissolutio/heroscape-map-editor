@@ -58,23 +58,12 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          // ? basicModelMaterial(colorCap, isLightsAndShadowsRender)
-          ? <meshPhysicalMaterial
-            color={colorCap}
-            metalness={0.9}
-            roughness={0.05}
-            // roughness={0.8}
-            clearcoat={1.0}
-            // Enable iridescence
-            iridescence={1.0}
-            iridescenceIOR={1.5} // Index of Refraction
-            iridescenceThicknessRange={[100, 400]} // Thickness in nanometers
-          />
+          ? basicModelMaterial(colorCap, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorCap,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorCap,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       {/* <mesh
         receiveShadow={isLightsAndShadowsRender}

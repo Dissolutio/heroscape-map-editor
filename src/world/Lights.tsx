@@ -18,42 +18,6 @@ export default function Lights({
         groundColor={'#080820'}
         intensity={0.5}
       />
-      {!isLightsAndShadowsRender && (
-        <>
-          <pointLight
-            position={[width / 3, initialHeight, length / 3]}
-            color={'white'}
-            castShadow={isLightsAndShadowsRender}
-            intensity={1000}
-            shadow-mapSize-height={512}
-            shadow-mapSize-width={512}
-          />
-          <pointLight
-            position={[width / 3, initialHeight, (2 * length) / 3]}
-            color={'white'}
-            castShadow={isLightsAndShadowsRender}
-            intensity={1000}
-            shadow-mapSize-height={512}
-            shadow-mapSize-width={512}
-          />
-          <pointLight
-            position={[(2 * width) / 3, initialHeight, length / 3]}
-            color={'white'}
-            castShadow={isLightsAndShadowsRender}
-            intensity={1000}
-            shadow-mapSize-height={512}
-            shadow-mapSize-width={512}
-          />
-          <pointLight
-            position={[(2 * width) / 3, initialHeight, (2 * length) / 3]}
-            color={'white'}
-            castShadow={isLightsAndShadowsRender}
-            intensity={1000}
-            shadow-mapSize-height={512}
-            shadow-mapSize-width={512}
-          />
-        </>
-      )}
       {isLightsAndShadowsRender && (
         <>
           <TransformControls
@@ -65,7 +29,7 @@ export default function Lights({
             <pointLight
               color={'white'}
               castShadow={isLightsAndShadowsRender}
-              intensity={1000}
+              intensity={200}
               shadow-mapSize-height={512}
               shadow-mapSize-width={512}
             />
@@ -79,7 +43,7 @@ export default function Lights({
             <pointLight
               color={'yellow'}
               castShadow={isLightsAndShadowsRender}
-              intensity={1000}
+              intensity={200}
               shadow-mapSize-height={512}
               shadow-mapSize-width={512}
             />
@@ -93,7 +57,7 @@ export default function Lights({
             <pointLight
               color={'red'}
               castShadow={isLightsAndShadowsRender}
-              intensity={1000}
+              intensity={200}
               shadow-mapSize-height={512}
               shadow-mapSize-width={512}
             />
@@ -107,7 +71,7 @@ export default function Lights({
             <pointLight
               color={'orange'}
               castShadow={isLightsAndShadowsRender}
-              intensity={1000}
+              intensity={200}
               shadow-mapSize-height={512}
               shadow-mapSize-width={512}
             />
