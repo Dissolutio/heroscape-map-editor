@@ -50,6 +50,22 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       castShadow={isLightsAndShadowsRender}
     >
       {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />}
+      {/* <meshPhysicalMaterial
+        // ref={matRef}
+        // Base Copper Color
+        color="#b87333" 
+        metalness={1.0}
+        roughness={0.2}
+        
+        // Iridescent/Verdigris Wash Effect
+        clearcoat={0.5}
+        clearcoatRoughness={0.1}
+        sheen={1}
+        sheenColor="#408080" // Verdigris Green
+        sheenRoughness={0.5}
+        // Alternative: Use a map for more complex, patchy verdigris
+        // map={verdigrisTexture} 
+      /> */}
       {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
       {boardHexArr.map((hex, i) => (
         <SolidCapInstance
