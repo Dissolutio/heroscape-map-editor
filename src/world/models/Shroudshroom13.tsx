@@ -60,10 +60,10 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorCap, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorCap,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorCap,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -78,10 +78,10 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorStipe, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorStipe,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorStipe,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -96,10 +96,10 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorGills, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorGills,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorGills,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -114,10 +114,10 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorBase,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorBase,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </>
   )
