@@ -50,7 +50,7 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Shroudshroom13.geometry}
+        geometry={nodes.Shroudshroom13Cap.geometry}
         onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
         onPointerEnter={(e) =>
           boardHex ? onPointerEnter(e, boardHex) : noop()
@@ -65,10 +65,10 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
               PIECE_PREVIEW_OPACITY,
             )}
       </mesh>
-      {/* <mesh
+      <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Shroudshroom7Stipe.geometry}
+        geometry={nodes.Shroudshroom13Stipe.geometry}
         onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
         onPointerEnter={(e) =>
           boardHex ? onPointerEnter(e, boardHex) : noop()
@@ -78,15 +78,15 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorStipe, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorStipe,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorStipe,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Shroudshroom7Gills.geometry}
+        geometry={nodes.Shroudshroom13Gills.geometry}
         onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
         onPointerEnter={(e) =>
           boardHex ? onPointerEnter(e, boardHex) : noop()
@@ -96,15 +96,15 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorGills, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorGills,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorGills,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Shroudshroom7Base.geometry}
+        geometry={nodes.Shroudshroom13Base.geometry}
         onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
         onPointerEnter={(e) =>
           boardHex ? onPointerEnter(e, boardHex) : noop()
@@ -114,11 +114,11 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorBase,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
-      </mesh> */}
+              colorBase,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
+      </mesh>
     </>
   )
 }
