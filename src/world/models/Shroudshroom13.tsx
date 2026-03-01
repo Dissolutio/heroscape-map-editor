@@ -50,7 +50,7 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Shroudshroom13.geometry}
+        geometry={nodes.Shroudshroom13Cap.geometry}
         onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
         onPointerEnter={(e) =>
           boardHex ? onPointerEnter(e, boardHex) : noop()
@@ -60,15 +60,15 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorCap, isLightsAndShadowsRender)
           : basicModelMaterial(
-              colorCap,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            colorCap,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
-      {/* <mesh
+      <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Shroudshroom7Stipe.geometry}
+        geometry={nodes.Shroudshroom13Stipe.geometry}
         onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
         onPointerEnter={(e) =>
           boardHex ? onPointerEnter(e, boardHex) : noop()
@@ -86,7 +86,7 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Shroudshroom7Gills.geometry}
+        geometry={nodes.Shroudshroom13Gills.geometry}
         onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
         onPointerEnter={(e) =>
           boardHex ? onPointerEnter(e, boardHex) : noop()
@@ -104,7 +104,7 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Shroudshroom7Base.geometry}
+        geometry={nodes.Shroudshroom13Base.geometry}
         onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
         onPointerEnter={(e) =>
           boardHex ? onPointerEnter(e, boardHex) : noop()
@@ -118,7 +118,7 @@ export default function Shroudshroom13({ boardHex }: { boardHex?: BoardHex }) {
             isLightsAndShadowsRender,
             PIECE_PREVIEW_OPACITY,
           )}
-      </mesh> */}
+      </mesh>
     </>
   )
 }
