@@ -3,11 +3,13 @@ import React, { type RefObject, useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import type { BoardHexes } from '../types'
+import type { BoardHexes, BoardPiece } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
   getBoardHexesRectangularMapDimensions,
+  decodePieceID,
   getBoardPiecesMaxLevel,
+  inflateBoardPiecesFromIds,
   normalizeBoardPieces,
 } from '../utils/map-utils'
 import { Button } from '@mui/material'
@@ -18,6 +20,7 @@ import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
 import { Box3, type Group, type Object3DEventMap } from 'three'
 import { zoomToMap } from '../utils/camera-utils'
 import type { CameraControls } from '@react-three/drei'
+import { nanoid } from 'nanoid'
 
 type Props = {
   mapGroupRef: RefObject<Group<Object3DEventMap>>
@@ -45,6 +48,7 @@ const useAutoLoadMapFile = (props: Props) => {
       try {
         const { hexMap, boardPieces } =
           parseMapDataArrayFromCrushed(urlMapString)
+        const fullBoardPieces = inflateBoardPiecesFromIds(boardPieces)
         const jsonMap = buildupJsonFileMap(boardPieces, hexMap)
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()

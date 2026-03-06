@@ -44,8 +44,8 @@ export interface BoardHex extends CubeCoordinate {
   isVerticalClearanceHex?: boolean // These are hexes that are above the origin/auxiliary hexes
 }
 export type BoardPiece = {
-  uid: string // new unique instance id (e.g., 'bp_abc123' or uuid/v4/nanoid)
   // boardPieceID: string // existing encoded string like 'qraID+pieceUID' (keeps export format)
+  uid: string // new unique instance id (e.g., 'bp_abc123' or uuid/v4/nanoid)
   inventoryID: string
   altitude: number
   rotation: number
