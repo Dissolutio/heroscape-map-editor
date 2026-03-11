@@ -225,7 +225,7 @@ export const pdfColors = {
   [HexTerrain.shroudshroom]: '#972BB2',
   // TERRAIN
   [HexTerrain.grass]: 'rgb(0, 161, 0)',
-  [HexTerrain.rock]: 'rgb(98, 97, 98)',
+  // [HexTerrain.rock]: 'rgb(105, 103, 103)',
   [HexTerrain.road]: '#DEDEDE',
   [HexTerrain.wallWalk]: '#DEDEDE',
   // glyph: 'rgb(244, 106, 22)', // renegade
