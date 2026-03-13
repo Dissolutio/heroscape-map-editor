@@ -46,10 +46,10 @@ const useAutoLoadMapFile = (props: Props) => {
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
-        const { hexMap, boardPieces } =
+        const { hexMap, boardPiecesEncodedArr } =
           parseMapDataArrayFromCrushed(urlMapString)
-        const fullBoardPieces = inflateBoardPiecesFromIds(boardPieces)
-        const jsonMap = buildupJsonFileMap(boardPieces, hexMap)
+        const fullBoardPieces = inflateBoardPiecesFromIds(boardPiecesEncodedArr)
+        const jsonMap = buildupJsonFileMap(boardPiecesEncodedArr, hexMap)
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
         }
