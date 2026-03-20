@@ -78,7 +78,7 @@ export const PdfEmptyHex = () => {
         strokeWidth={borderWidth}
         strokeLinecap="round"
         strokeLinejoin="round"
-      // opacity={OPACITY_EMPTY}
+        // opacity={OPACITY_EMPTY}
       />
     </>
   )
