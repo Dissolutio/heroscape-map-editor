@@ -63,7 +63,7 @@ import { getFortifiedWallSvgPolygonPoints } from '../pdf-svg-shared/getHexagonSv
 
 export const PdfEmptyHex = () => {
   const fillColor = 'white'
-  const borderColor = 'black'
+  const borderColor = '#F5F5F5'
   const borderWidth = SVG_EMPTYHEX_BORDER_WIDTH
   const { points } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
@@ -78,7 +78,7 @@ export const PdfEmptyHex = () => {
         strokeWidth={borderWidth}
         strokeLinecap="round"
         strokeLinejoin="round"
-        opacity={OPACITY_EMPTY}
+      // opacity={OPACITY_EMPTY}
       />
     </>
   )
