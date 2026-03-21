@@ -211,7 +211,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           opacity={
             isSubLevel
               ? // white text needs a little opacity boost
-                OPACITY_SUBLEVEL * 2
+              OPACITY_SUBLEVEL * 2
               : 1
           }
           fill={textColor}
@@ -632,40 +632,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   return null
 }
 
-export const SvgLaurWallArchText = ({
-  isSubLevel,
-  pieceRotation,
-}: {
-  isSubLevel: boolean
-  pieceRotation: number
-}) => {
-  const archText = 'ARCH'
-  const textColor = isSubLevel
-    ? svgSubLevelColors.evergreenText
-    : svgColors.evergreenText
-  // rotations that are hard to read: 150, 210
-  return (
-    <text
-      fill={textColor}
-      style={{
-        fontSize: 0.55 * SVG_HEX_RADIUS,
-        letterSpacing: 6,
-        // fontFamily: 'Inter',
-        fontWeight: 600,
-      }}
-      y={0.2 * SVG_HEX_RADIUS}
-      // upside down text is flipped in parent component, and adjusted here
-      x={
-        pieceRotation === 150 || pieceRotation === 210
-          ? -2.75 * SVG_HEX_APOTHEM
-          : 0.65 * SVG_HEX_APOTHEM
-      }
-    >
-      {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}
-      {archText}
-    </text>
-  )
-}
 const SvgCastleWallBaseHeightText = ({
   isSubLevel,
   heightText,
@@ -678,8 +644,8 @@ const SvgCastleWallBaseHeightText = ({
       fill="black"
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       {...singleHexObstacleHeightTextProps()}
-      // y={0.3 * SVG_HEX_RADIUS}
-      // x={-0.3 * SVG_HEX_APOTHEM}
+    // y={0.3 * SVG_HEX_RADIUS}
+    // x={-0.3 * SVG_HEX_APOTHEM}
     >
       {heightText}
     </text>
