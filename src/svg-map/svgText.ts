@@ -1,15 +1,14 @@
-import { SVG_HEX_RADIUS, SVG_HEX_APOTHEM } from '../utils/constants'
+import { SVG_HEX_RADIUS } from '../utils/constants'
 
 export const hexTextStyle = {
   fontSize: 0.93 * SVG_HEX_RADIUS,
-  fontFamily: 'Inter',
+  fontFamily: 'Inter, Arial, Helvetica, sans-serif',
   fontWeight: 600,
 }
 export const singleHexObstacleHeightTextProps = () => ({
   style: hexTextStyle,
-  // x: 0.7 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS
-  // these properties make the text centered within the hexagon
-  // text-anchor="middle" dominant-baseline="central"
+  // Keep centering compatible with non-browser SVG viewers.
+  // dominant-baseline is inconsistently implemented outside browsers.
   textAnchor: 'middle' as const,
-  dominantBaseline: 'central' as const,
+  dy: '0.35em',
 })

@@ -71,10 +71,9 @@ const glyphTextProps = (glyphText: string) => {
             : 0.7 * SVG_HEX_RADIUS
 
   return {
-    // these properties make the text centered within the hexagon
-    // text-anchor="middle" dominant-baseline="central"
+    // Use dy-based vertical centering for better compatibility in native SVG viewers.
     textAnchor: 'middle' as const,
-    dominantBaseline: 'central' as const,
+    dy: '0.35em',
     style: {
       fontSize,
       fontWeight: 'bold',
@@ -633,40 +632,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   return null
 }
 
-export const SvgLaurWallArchText = ({
-  isSubLevel,
-  pieceRotation,
-}: {
-  isSubLevel: boolean
-  pieceRotation: number
-}) => {
-  const archText = 'ARCH'
-  const textColor = isSubLevel
-    ? svgSubLevelColors.evergreenText
-    : svgColors.evergreenText
-  // rotations that are hard to read: 150, 210
-  return (
-    <text
-      fill={textColor}
-      style={{
-        fontSize: 0.55 * SVG_HEX_RADIUS,
-        letterSpacing: 6,
-        // fontFamily: 'Inter',
-        fontWeight: 600,
-      }}
-      y={0.2 * SVG_HEX_RADIUS}
-      // upside down text is flipped in parent component, and adjusted here
-      x={
-        pieceRotation === 150 || pieceRotation === 210
-          ? -2.75 * SVG_HEX_APOTHEM
-          : 0.65 * SVG_HEX_APOTHEM
-      }
-    >
-      {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}
-      {archText}
-    </text>
-  )
-}
 const SvgCastleWallBaseHeightText = ({
   isSubLevel,
   heightText,

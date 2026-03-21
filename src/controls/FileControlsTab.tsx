@@ -4,14 +4,18 @@ import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
 import React from 'react'
 import { FcAddImage, FcDownload, FcLink, FcUpload } from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore, MdFolderZip } from 'react-icons/md'
-import useBoundStore from '../store/store'
-import { getBoardPiecesMaxLevel } from '../utils/map-utils'
-import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
-import { ControlTabsListItemButton } from './ControlTabsListItemButton'
-import { DIALOGS } from '../layout/dialogNames'
-import { LoadMapButtons } from '../layout/LoadMapButtons'
 import { getUrlMapString } from '../data/jsonCrush'
+import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
+import { LoadMapButtons } from '../layout/LoadMapButtons'
+import { DIALOGS } from '../layout/dialogNames'
+import useBoundStore from '../store/store'
 import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
+import {
+  downloadSvgString,
+  serializeSvgWithEmbeddedFont,
+} from '../svg-map/exportSvg'
+import { getBoardPiecesMaxLevel } from '../utils/map-utils'
+import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
 export const FileControlsTab = ({
   is2DOpen,
@@ -46,18 +50,11 @@ export const FileControlsTab = ({
     e?.stopPropagation()
     setIsDownloadOpen(!isDownloadOpen)
   }
-  const handleDownloadCurrent2DSvg = () => {
+  const handleDownloadCurrent2DSvg = async () => {
     const svgElement = document.getElementById('2d-svg-view') // Replace 'your-svg-id' with the actual ID
-    if (svgElement) {
-      const svgContent = svgElement.outerHTML
-      const blob = new Blob([svgContent], { type: 'image/svg+xml' })
-      const link = document.createElement('a')
-      link.download = `${hexMap.name}-level-${viewingLevel}.svg`
-      link.href = URL.createObjectURL(blob)
-      // document.body.appendChild(link)
-      link.click()
-      // document.body.removeChild(link)
-      URL.revokeObjectURL(link.href) // Clean up the Blob URL
+    if (svgElement instanceof SVGSVGElement) {
+      const svgContent = await serializeSvgWithEmbeddedFont(svgElement)
+      downloadSvgString(`${hexMap.name}-level-${viewingLevel}.svg`, svgContent)
     }
   }
   const [isDownloadingAll, setIsDownloadingAll] = React.useState(false)
@@ -96,14 +93,12 @@ export const FileControlsTab = ({
         await sleep(500)
 
         const svgElement = document.getElementById('2d-svg-view')
-        if (svgElement) {
-          const svgContent = svgElement.outerHTML
-          const blob = new Blob([svgContent], { type: 'image/svg+xml' })
-          const link = document.createElement('a')
-          link.download = `${hexMap.name}-level-${level === overlayLevel ? 'overlay' : level}.svg`
-          link.href = URL.createObjectURL(blob)
-          link.click()
-          URL.revokeObjectURL(link.href)
+        if (svgElement instanceof SVGSVGElement) {
+          const svgContent = await serializeSvgWithEmbeddedFont(svgElement)
+          downloadSvgString(
+            `${hexMap.name}-level-${level === overlayLevel ? 'overlay' : level}.svg`,
+            svgContent,
+          )
         }
       }
     } catch (err) {

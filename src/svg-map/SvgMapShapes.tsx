@@ -905,6 +905,42 @@ export const SvgBoardPieceLaurWallLongArch = ({
   const { points } = getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
   return <polygon points={points} fill={fillColor} />
 }
+export const SvgLaurWallArchText = ({
+  isSubLevel,
+  pieceRotation,
+}: {
+  isSubLevel: boolean
+  pieceRotation: number
+}) => {
+  const archText = 'ARCH'
+  const textColor = isSubLevel
+    ? svgSubLevelColors.evergreenText
+    : svgColors.evergreenText
+  // rotations that are hard to read: 150, 210
+  return (
+    <text
+      fill={textColor}
+      style={{
+        fontSize: 0.55 * SVG_HEX_RADIUS,
+        letterSpacing: 6,
+        // fontFamily: 'Inter',
+        fontFamily: 'Inter, Arial, Helvetica, sans-serif',
+        fontWeight: 600,
+      }}
+      // {...singleHexObstacleHeightTextProps()}
+      y={0.2 * SVG_HEX_RADIUS}
+      // upside down text is flipped in parent component, and adjusted here
+      x={
+        pieceRotation === 150 || pieceRotation === 210
+          ? -2.75 * SVG_HEX_APOTHEM
+          : 0.65 * SVG_HEX_APOTHEM
+      }
+    >
+      {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}
+      {archText}
+    </text>
+  )
+}
 export const SvgBoardPieceLaurWallRuin = ({
   piece,
   isSubLevel,
