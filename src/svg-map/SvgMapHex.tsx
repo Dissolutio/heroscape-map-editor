@@ -211,7 +211,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           opacity={
             isSubLevel
               ? // white text needs a little opacity boost
-              OPACITY_SUBLEVEL * 2
+                OPACITY_SUBLEVEL * 2
               : 1
           }
           fill={textColor}
@@ -644,8 +644,8 @@ const SvgCastleWallBaseHeightText = ({
       fill="black"
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       {...singleHexObstacleHeightTextProps()}
-    // y={0.3 * SVG_HEX_RADIUS}
-    // x={-0.3 * SVG_HEX_APOTHEM}
+      // y={0.3 * SVG_HEX_RADIUS}
+      // x={-0.3 * SVG_HEX_APOTHEM}
     >
       {heightText}
     </text>

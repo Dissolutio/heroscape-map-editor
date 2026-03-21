@@ -1346,9 +1346,9 @@ export const SvgOutcrop6 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-      // {...singleHexObstacleHeightTextProps()}
-      // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-      // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        // {...singleHexObstacleHeightTextProps()}
+        // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'9'}
       </text>
@@ -1472,8 +1472,8 @@ export const SvgOutcrop4 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-      // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-      // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'7'}
       </text>
