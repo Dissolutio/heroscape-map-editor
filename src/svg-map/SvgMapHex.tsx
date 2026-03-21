@@ -71,10 +71,9 @@ const glyphTextProps = (glyphText: string) => {
             : 0.7 * SVG_HEX_RADIUS
 
   return {
-    // these properties make the text centered within the hexagon
-    // text-anchor="middle" dominant-baseline="central"
+    // Use dy-based vertical centering for better compatibility in native SVG viewers.
     textAnchor: 'middle' as const,
-    dominantBaseline: 'central' as const,
+    dy: '0.35em',
     style: {
       fontSize,
       fontWeight: 'bold',
