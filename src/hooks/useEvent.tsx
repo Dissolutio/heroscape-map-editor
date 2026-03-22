@@ -2,8 +2,9 @@ import type { Dictionary } from 'lodash'
 import {
   type PropsWithChildren,
   createContext,
+  useCallback,
   useContext,
-  useState,
+  useRef,
 } from 'react'
 
 type EventContextType = {
@@ -15,28 +16,28 @@ type EventContextType = {
 const EventContext = createContext<EventContextType>(undefined!)
 
 export const EventProvider = ({ children }: PropsWithChildren) => {
-  const [events, setEvents] = useState<Dictionary<(() => void)[]>>({})
+  const eventsRef = useRef<Dictionary<(() => void)[]>>({})
 
-  const subscribe = (eventName: string, callback: () => void) => {
-    setEvents((prevEvents) => ({
-      ...prevEvents,
-      [eventName]: [...(prevEvents[eventName] || []), callback],
-    }))
-  }
+  const subscribe = useCallback((eventName: string, callback: () => void) => {
+    eventsRef.current = {
+      ...eventsRef.current,
+      [eventName]: [...(eventsRef.current[eventName] || []), callback],
+    }
+  }, [])
 
-  const unsubscribe = (eventName: string, callback: () => void) => {
-    setEvents((prevEvents) => ({
-      ...prevEvents,
-      [eventName]: (prevEvents[eventName] || []).filter(
+  const unsubscribe = useCallback((eventName: string, callback: () => void) => {
+    eventsRef.current = {
+      ...eventsRef.current,
+      [eventName]: (eventsRef.current[eventName] || []).filter(
         (cb) => cb !== callback,
       ),
-    }))
-  }
+    }
+  }, [])
 
-  const publish = (eventName: string) => {
-    const arr = events?.[eventName] ?? []
+  const publish = useCallback((eventName: string) => {
+    const arr = eventsRef.current?.[eventName] ?? []
     arr.forEach((callback) => callback())
-  }
+  }, [])
 
   return (
     <EventContext.Provider value={{ subscribe, unsubscribe, publish }}>
