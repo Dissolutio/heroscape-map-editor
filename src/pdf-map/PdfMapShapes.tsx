@@ -55,11 +55,8 @@ import {
   svgSubLevelColors,
 } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from '../svg-map/svg-hive'
-import {
-  hexTextStyle,
-  singleHexObstacleHeightTextProps,
-} from '../svg-map/svgText'
 import { getFortifiedWallSvgPolygonPoints } from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
+import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 
 export const PdfEmptyHex = () => {
   const fillColor = 'white'
@@ -617,7 +614,7 @@ export const PdfJungle = ({
       <Text
         fill="rgb(35, 31, 32)"
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        {...singleHexObstacleHeightTextProps()}
+        {...pdfTextProps()}
       >
         {pieceHeightText}
       </Text>
@@ -1329,7 +1326,7 @@ export const PdfSvgTree415 = ({
         // white text needs a little opacity boost
         opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
         style={{
-          ...singleHexObstacleHeightTextProps().style,
+          ...pdfTextProps().style,
         }}
         x={treeXYForRotation?.[hex?.pieceRotation]?.x ?? 0}
         y={treeXYForRotation?.[hex?.pieceRotation]?.y ?? 0}
@@ -1417,7 +1414,7 @@ export const PdfSvgOutcrop6 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
@@ -1426,7 +1423,7 @@ export const PdfSvgOutcrop6 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
           twoCharNumberAdjust
@@ -1438,7 +1435,7 @@ export const PdfSvgOutcrop6 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
           twoCharNumberAdjust
@@ -1450,7 +1447,7 @@ export const PdfSvgOutcrop6 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}
       >
@@ -1459,7 +1456,7 @@ export const PdfSvgOutcrop6 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0) +
           twoCharNumberAdjust
@@ -1471,7 +1468,7 @@ export const PdfSvgOutcrop6 = ({
       <Text
         fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
         opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0) +
           twoCharNumberAdjust
@@ -1520,7 +1517,7 @@ export const PdfSvgOutcrop3 = ({
               : OPACITY_SUBLEVEL * 2
             : 1
         }
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
@@ -1537,7 +1534,7 @@ export const PdfSvgOutcrop3 = ({
               : OPACITY_SUBLEVEL * 2
             : 1
         }
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
       >
@@ -1554,7 +1551,7 @@ export const PdfSvgOutcrop3 = ({
               : OPACITY_SUBLEVEL * 2
             : 1
         }
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
       >
@@ -1599,7 +1596,7 @@ export const PdfSvgOutcrop4 = ({
               : OPACITY_SUBLEVEL * 2
             : 1
         }
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
@@ -1615,7 +1612,7 @@ export const PdfSvgOutcrop4 = ({
               : OPACITY_SUBLEVEL * 2
             : 1
         }
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={
           (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
           twoCharNumberAdjust
@@ -1634,7 +1631,7 @@ export const PdfSvgOutcrop4 = ({
               : OPACITY_SUBLEVEL * 2
             : 1
         }
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={
           (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
           twoCharNumberAdjust
@@ -1653,7 +1650,7 @@ export const PdfSvgOutcrop4 = ({
               : OPACITY_SUBLEVEL * 2
             : 1
         }
-        style={hexTextStyle}
+        style={pdfHexTextStyle}
         x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}
       >

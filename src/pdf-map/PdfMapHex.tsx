@@ -47,21 +47,13 @@ import {
   PdfSvgHexDecor,
   PdfSvgFortifiedWall,
 } from './PdfMapShapes'
-import { hexTextStyle } from '../svg-map/svgText'
 import { svgColors } from '../world/maphex/hexColors'
 import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
+import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 
-const singleHexObstacleHeightTextProps = (heightText: string) => ({
-  style: hexTextStyle,
-  y: 0.3 * SVG_HEX_RADIUS,
-  x:
-    heightText.toString().length === 2
-      ? -0.6 * SVG_HEX_APOTHEM
-      : -0.3 * SVG_HEX_APOTHEM,
-})
 const glyphTextProps = () => ({
   style: {
     fontSize: 0.5 * SVG_HEX_RADIUS,
@@ -173,10 +165,10 @@ export const PdfMapHex = ({
           fill={svgColors.shroudshroomText}
           // white text (not glaciers, so far) needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          style={hexTextStyle}
+          style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-          // {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+          // {...pdfTextProps()}
         >
           Y
         </Text>
@@ -192,10 +184,10 @@ export const PdfMapHex = ({
           fill={svgColors.shroudshroomText}
           // white text (not glaciers, so far) needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          style={hexTextStyle}
+          style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-          // {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+          // {...pdfTextProps()}
         >
           M
         </Text>
@@ -217,7 +209,7 @@ export const PdfMapHex = ({
                 OPACITY_SUBLEVEL * 2
               : 1
           }
-          style={hexTextStyle}
+          style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
           x={xTransformForMultiHex3Rotation[hex?.pieceRotation ?? 0]}
@@ -247,7 +239,7 @@ export const PdfMapHex = ({
                 : OPACITY_SUBLEVEL * 2
               : 1
           }
-          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+          {...pdfTextProps()}
         >
           {pieceHeightText}
         </Text>
@@ -329,7 +321,7 @@ export const PdfMapHex = ({
           fill="white"
           // white text needs a little opacity boost
           opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+          {...pdfTextProps()}
         >
           {pieceHeightText}
         </Text>
@@ -424,7 +416,7 @@ export const PdfMapHex = ({
         <Text
           fill="black"
           opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-          {...singleHexObstacleHeightTextProps(pieceHeightText.toString())}
+          {...pdfTextProps()}
         >
           {pieceHeightText}
         </Text>
@@ -689,7 +681,7 @@ const PdfCastleWallBaseHeightText = ({
     <Text
       fill="black"
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      {...singleHexObstacleHeightTextProps(heightText.toString())}
+      {...pdfTextProps()}
     >
       {heightText}
     </Text>
