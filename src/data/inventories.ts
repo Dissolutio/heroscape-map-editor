@@ -108,7 +108,7 @@ export const battleBox2PieceSet: PieceInventory = {
   [Pieces.asphalt24]: 2,
   [Pieces.concrete7]: 5,
   [Pieces.concrete3]: 6,
-  [Pieces.shadow1]: 8,
+  [Pieces.shadow1]: 5,
   [Pieces.toxic1]: 6,
   [Pieces.toxicWater1]: 5,
   [Pieces.fortifiedWall]: 2,
