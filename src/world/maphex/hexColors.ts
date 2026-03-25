@@ -148,6 +148,12 @@ export const hexTerrainColor = {
   shroudshroomDarkPurple: '#4F3477', // caps
   shroudshroomGray: '#535254', // base
 
+  cannonBarrel: '#4C4743',
+  cannonCarriage: '#675642',
+  // cannonWheels: '#393836',
+  cannonWheels: '#4A4845',
+  cannonBase: '#675642',
+
   // Virtualscape StartZones
   [Pieces.startZone1]: 'rgb(255,0,0)',
   [Pieces.startZone2]: 'rgb(0,255,0)',
