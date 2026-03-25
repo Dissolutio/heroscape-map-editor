@@ -1,4 +1,5 @@
 import { Line, Svg } from '@react-pdf/renderer'
+import { piecesSoFar } from '../data/pieces'
 import type { BoardHex, DecodedPieceID, PdfMapAltitudeChunk } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { PdfMapHex } from './PdfMapHex'
@@ -19,7 +20,7 @@ export const ReactPdfSvgMapDisplay = ({
   boardHexesArr,
   boardPiecesArr,
   viewingLevel,
-  // chunk,
+  chunk,
 }: ReactPdfSvgMapDisplayProps) => {
   const emptyHexesArr = boardHexesArr.filter((hex) => hex.terrain === 'empty')
   const nonEmptyHexesArr = boardHexesArr.filter(
@@ -27,6 +28,7 @@ export const ReactPdfSvgMapDisplay = ({
   )
   const adjustXForNew00Centers = 1.5 * SVG_HEX_APOTHEM
   const adjustYForNew00Centers = 1.2 * SVG_HEX_RADIUS
+  const isOverlayViewing = Boolean(chunk?.isOverlay)
   const subLevelHexes = nonEmptyHexesArr.filter(
     (h) => h.altitude < viewingLevel,
   )
@@ -35,20 +37,40 @@ export const ReactPdfSvgMapDisplay = ({
     <Svg viewBox={viewBoxStr}>
       {/* <PdfSvgXYHelperLines length={length} width={width} /> */}
       {emptyHexesArr.map((hex) => (
-        <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
+        <PdfMapHex
+          key={hex.id}
+          hex={hex}
+          viewingLevel={viewingLevel}
+          isOverlayViewing={isOverlayViewing}
+        />
       ))}
       {subLevelHexes
         .sort((a, b) => a.altitude - b.altitude)
         .map((hex) => (
-          <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
+          <PdfMapHex
+            key={hex.id}
+            hex={hex}
+            viewingLevel={viewingLevel}
+            isOverlayViewing={isOverlayViewing}
+          />
         ))}
       {nonEmptyHexesArr
         .filter((h) => h.altitude === viewingLevel)
         .map((hex) => (
-          <PdfMapHex key={hex.id} hex={hex} viewingLevel={viewingLevel} />
+          <PdfMapHex
+            key={hex.id}
+            hex={hex}
+            viewingLevel={viewingLevel}
+            isOverlayViewing={isOverlayViewing}
+          />
         ))}
       {boardPiecesArr
-        .filter((bp) => bp.altitude <= viewingLevel)
+        .filter((bp) => {
+          if (piecesSoFar[bp.inventoryID].isOverlayPiece) {
+            return isOverlayViewing
+          }
+          return bp.altitude <= viewingLevel
+        })
         .sort((a, b) => a.altitude - b.altitude)
         .map((bp) => (
           <PdfMapBoardPiece

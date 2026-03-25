@@ -214,15 +214,14 @@ export const pdfColors = {
   outlineJungle: 'rgb(121, 61, 26)',
   outlineLaurWall: 'rgb(215, 38, 156)',
   outlineCastleWall: 'rgb(80, 79, 84)',
-  // OBSTACLES
-  [HexTerrain.ladder]: 'rgb(173, 75, 35)',
-  [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
-  // [HexTerrain.ruin]: 'rgb(82, 81, 81)', // choice from coolors
-  fillJungle: 'rgb(249, 233, 8)',
-  [HexTerrain.palm]: 'rgb(67, 249, 57)',
-  [HexTerrain.tree]: 'rgb(51, 160, 62)',
-  [HexTerrain.laurWall]: 'rgb(98, 28, 96)',
-  [HexTerrain.shroudshroom]: '#972BB2',
+
+  outlineMarvel: '#000000',
+  outlineGlyph: '#000000', // renegade-hexoscape
+  outlineSwampUnderbrush: '#633215', // renegade-hexoscape
+  outlineLavaOutcrop: '#7E461E', // renegade-hexoscape
+  outlineOutcrop: '#7E461E', // renegade-hexoscape
+  outlineShroudshroom: '#7E461E', // renegade-hexoscape
+
   // TERRAIN
   [HexTerrain.grass]: 'rgb(0, 161, 0)',
   // [HexTerrain.rock]: 'rgb(105, 103, 103)',
@@ -250,8 +249,29 @@ export const pdfColors = {
   [HexTerrain.lava]: '#FF0000',
   [HexTerrain.ice]: 'rgb(148, 158, 215)',
   [HexTerrain.outcrop]: '#3E3C3E',
+
+  // DECOR
   iceFlake: 'rgb(242, 243, 250)', // there is variation in the snowflake color
   snowFlake: '#629BD0', // there is variation in the snowflake color
+
+  // OBSTACLES
+  [HexTerrain.ladder]: 'rgb(173, 75, 35)',
+  [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
+  // [HexTerrain.ruin]: 'rgb(82, 81, 81)', // choice from coolors
+  fillJungle: 'rgb(249, 233, 8)',
+  [HexTerrain.palm]: 'rgb(67, 249, 57)',
+  [HexTerrain.tree]: 'rgb(51, 160, 62)',
+  [HexTerrain.laurWall]: 'rgb(98, 28, 96)',
+  [HexTerrain.shroudshroom]: '#972BB2',
+
+  [HexTerrain.fortifiedWall]: '#FF06C8',
+  [HexTerrain.roadWall]: '#FF06C8',
+  fillSwampUnderbrush: 'rgb(33, 56, 27)',
+  // [HexTerrain.palm]: 'rgb(67, 249, 57)', // virtualscape
+  [HexTerrain.laurWallAddon]: '#FF06C8',
+  [HexTerrain.lavaRockOutcrop]: '#FF0000',
+  outcropText: '#DAD0D0',
+  lavaRockOutcropText: '#DAD0D0',
 }
 export const svgColors = {
   [Pieces.startZone1]: 'rgb(177, 0, 143)',

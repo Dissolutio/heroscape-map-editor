@@ -68,7 +68,12 @@ const glyphTextProps = () => ({
 export const PdfMapHex = ({
   hex,
   viewingLevel,
-}: { hex: BoardHex; viewingLevel: number }) => {
+  isOverlayViewing,
+}: {
+  hex: BoardHex
+  viewingLevel: number
+  isOverlayViewing: boolean
+}) => {
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
   const { inventoryID } = hex
@@ -287,15 +292,19 @@ export const PdfMapHex = ({
     hex.terrain === HexTerrain.glyphPower ||
     hex.terrain === HexTerrain.glyphTreasure
   ) {
+    if (!isOverlayViewing) {
+      return null
+    }
+    const specialIsSubLevel = false
     // const isNamedGlyph =  (hex.terrain === HexTerrain.glyphPower || hex.terrain === HexTerrain.glyphTreasure) && (hex.inventoryID !== Pieces.glyphPower && hex.inventoryID !== Pieces.glyphTreasure)
     const glyphLetter = piecesSoFar[hex.inventoryID]?.glyphLetter
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 isGlyph hex={hex} isSubLevel={isSubLevel} />
+        <PdfMultiHex1 isGlyph hex={hex} isSubLevel={specialIsSubLevel} />
         <Text
           fill="white"
           // white text needs a little opacity boost
-          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          opacity={specialIsSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           // {...glyphTextProps(`${pieceHeightText}`)}
           {...glyphTextProps()}
         >
@@ -306,9 +315,13 @@ export const PdfMapHex = ({
   }
   // Start Zones
   if (hex.terrain === HexTerrain.startZone) {
+    if (!isOverlayViewing) {
+      return null
+    }
+    const specialIsSubLevel = false
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfStartZone hex={hex} isSubLevel={isSubLevel} />
+        <PdfStartZone hex={hex} isSubLevel={specialIsSubLevel} />
       </G>
     )
   }
