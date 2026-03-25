@@ -346,6 +346,8 @@ export type VirtualScapeTile = {
 }
 export type PdfMapAltitudeChunk = {
   altitude: number
+  label?: string
+  isOverlay?: boolean
   hexes: BoardHex[]
   pieces: DecodedPieceID[]
 }

@@ -57,7 +57,7 @@ export const PdfMapLevels6PerPage = ({
                     key={i}
                   >
                     <Text style={{ fontSize: '10px' }}>
-                      Level: {group.altitude}
+                      {group.label ?? `Level: ${group.altitude}`}
                     </Text>
                     <ReactPdfSvgMapDisplay
                       chunk={chunk[i]}
@@ -79,7 +79,7 @@ export const PdfMapLevels6PerPage = ({
                     key={i}
                   >
                     <Text style={{ fontSize: '10px' }}>
-                      Level: {group.altitude}
+                      {group.label ?? `Level: ${group.altitude}`}
                     </Text>
                     <ReactPdfSvgMapDisplay
                       chunk={chunk[i]}
@@ -135,6 +135,19 @@ const getBoardHexAndPieceChunks = (
 
   // Sort combined groups by altitude
   combinedGroups.sort((a, b) => a.altitude - b.altitude)
+
+  const overlayAltitude =
+    combinedGroups.length > 0
+      ? combinedGroups[combinedGroups.length - 1].altitude + 1
+      : 1
+
+  combinedGroups.push({
+    altitude: overlayAltitude,
+    label: 'Glyphs and Start Zones',
+    isOverlay: true,
+    hexes: [],
+    pieces: [],
+  })
 
   // Chunk combined groups into chunks of 6
   const chunks = []
