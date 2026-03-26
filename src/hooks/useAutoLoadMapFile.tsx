@@ -20,7 +20,6 @@ import { zoomToMap } from '../utils/camera-utils'
 import type { CameraControls } from '@react-three/drei'
 
 type Props = {
-  boardHexes?: BoardHexes
   mapGroupRef: RefObject<Group<Object3DEventMap>>
   cameraControlsRef: RefObject<CameraControls>
 }
@@ -153,43 +152,22 @@ const useAutoLoadMapFile = (props: Props) => {
       // AUTO JSON
       const fileName = '/json-maps/AoA_1_The_Shattered_Table.json'
       fetch(fileName).then(async (response) => {
-        // const data = response.json()
         const data = await response.json()
 
-        if (props?.boardHexes) {
-          loadMap({
-            boardHexes: props.boardHexes,
-            boardPieces: normalizeBoardPieces(data.boardPieces),
-            hexMap: data.hexMap,
-          })
-          if (props.mapGroupRef.current && props.cameraControlsRef.current) {
-            // Create a new bounding box from the updated group.
-            const box = new Box3().setFromObject(props.mapGroupRef.current)
-            // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
-            props.cameraControlsRef.current?.fitToBox(box, true)
-          }
-          const { width, length } = getBoardHexesRectangularMapDimensions(
-            props.boardHexes,
-          )
-          setTimeout(() => {
-            zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-          }, 1000)
-        } else {
-          const jsonMap = buildupJsonFileMap(
-            normalizeBoardPieces(data.boardPieces),
-            data.hexMap,
-          )
-          if (!jsonMap.hexMap.name) {
-            jsonMap.hexMap.name = fileName
-          }
-          loadMap(jsonMap)
-          const { width, length } = getBoardHexesRectangularMapDimensions(
-            jsonMap.boardHexes,
-          )
-          setTimeout(() => {
-            zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-          }, 1000)
+        const jsonMap = buildupJsonFileMap(
+          normalizeBoardPieces(data.boardPieces),
+          data.hexMap,
+        )
+        if (!jsonMap.hexMap.name) {
+          jsonMap.hexMap.name = fileName
         }
+        loadMap(jsonMap)
+        const { width, length } = getBoardHexesRectangularMapDimensions(
+          jsonMap.boardHexes,
+        )
+        setTimeout(() => {
+          zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
+        }, 1000)
         enqueueSnackbar({
           // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
           message: 'WELCOME!',
