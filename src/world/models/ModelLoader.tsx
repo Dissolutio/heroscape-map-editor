@@ -5,7 +5,9 @@ export default function ModelLoader() {
   const { progress } = useProgress()
 
   // local state that will be updated once per second so the UI refreshes at a consistent interval
-  const [displayProgress, setDisplayProgress] = React.useState<number>(Math.round(progress))
+  const [displayProgress, setDisplayProgress] = React.useState<number>(
+    Math.round(progress),
+  )
 
   // keep a ref to the latest progress so the interval callback can read it without needing to recreate the interval
   const progressRef = React.useRef<number>(progress)
@@ -28,4 +30,3 @@ export default function ModelLoader() {
     </Html>
   )
 }
-

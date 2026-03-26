@@ -125,13 +125,13 @@ const getBoardHexAndPieceChunks = (
   const groupedPiecesByAltitude = groupBy(filteredBoardPieces, 'altitude')
 
   // Combine hexes and pieces into a single array of altitude groups
-  const combinedGroups = Object.keys(groupedHexesByAltitude).map(
-    (altitude) => ({
-      altitude: Number(altitude),
-      hexes: groupedHexesByAltitude[altitude] || [],
-      pieces: groupedPiecesByAltitude[altitude] || [],
-    }),
-  )
+  const combinedGroups: PdfMapAltitudeChunk[] = Object.keys(
+    groupedHexesByAltitude,
+  ).map((altitude) => ({
+    altitude: Number(altitude),
+    hexes: groupedHexesByAltitude[altitude] || [],
+    pieces: groupedPiecesByAltitude[altitude] || [],
+  }))
 
   // Sort combined groups by altitude
   combinedGroups.sort((a, b) => a.altitude - b.altitude)
