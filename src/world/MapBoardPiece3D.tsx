@@ -5,7 +5,10 @@ import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
 import { HEXGRID_HEXCAP_HEIGHT } from '../utils/constants'
 import { decodePieceID, getBoardHex3DCoords } from '../utils/map-utils'
 import { Battlement } from './models/Battlement'
-import { LaurWallAddon } from './models/LaurAddon'
+import { LaurWallArchAddon } from './models/LaurWallArchModel'
+import { LaurWallLongAddon } from './models/LaurWallLongModel'
+import { LaurWallRuinAddon } from './models/LaurWallRuinModel'
+import { LaurWallShortAddon } from './models/LaurWallShortModel'
 import { RoadWall } from './models/RoadWall'
 import {
   getLadderBattlementOptions,
@@ -36,12 +39,10 @@ export const MapBoardPiece3D = ({
     return null
   }
 
-  // LAURWALL ADDON
   if (
-    inventoryID === Pieces.laurWallShort ||
     inventoryID === Pieces.laurWallRuin1 ||
-    inventoryID === Pieces.laurWallArch ||
-    inventoryID === Pieces.laurWallLong
+    inventoryID === Pieces.laurWallRuin2 ||
+    inventoryID === Pieces.laurWallRuin3
   ) {
     return (
       <group
@@ -49,7 +50,52 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallAddon pid={pid} />
+          <LaurWallRuinAddon pid={pid} />
+        </Suspense>
+      </group>
+    )
+  }
+
+  if (
+    inventoryID === Pieces.laurWallShort ||
+    inventoryID === Pieces.laurWallShortStackable
+  ) {
+    return (
+      <group
+        position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
+        rotation={[0, (rotation * -Math.PI) / 3, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <LaurWallShortAddon pid={pid} />
+        </Suspense>
+      </group>
+    )
+  }
+
+  if (
+    inventoryID === Pieces.laurWallLong ||
+    inventoryID === Pieces.laurWallLongStackable
+  ) {
+    return (
+      <group
+        position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
+        rotation={[0, (rotation * -Math.PI) / 3, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <LaurWallLongAddon pid={pid} />
+        </Suspense>
+      </group>
+    )
+  }
+
+  if (inventoryID === Pieces.laurWallArch) {
+    return (
+      <group
+        position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
+        rotation={[0, (rotation * -Math.PI) / 3, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <LaurWallArchAddon pid={pid} />
         </Suspense>
       </group>
     )
