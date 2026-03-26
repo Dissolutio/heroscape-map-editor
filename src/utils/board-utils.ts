@@ -33,8 +33,12 @@ export function isRenderedFromPieceIDPiece(inventoryID: string) {
     inventoryID === Pieces.battlement ||
     inventoryID === Pieces.roadWall ||
     inventoryID === Pieces.laurWallRuin1 ||
+    inventoryID === Pieces.laurWallRuin2 ||
+    inventoryID === Pieces.laurWallRuin3 ||
     inventoryID === Pieces.laurWallShort ||
+    inventoryID === Pieces.laurWallShortStackable ||
     inventoryID === Pieces.laurWallLong ||
+    inventoryID === Pieces.laurWallLongStackable ||
     inventoryID === Pieces.laurWallArch
   )
 }
