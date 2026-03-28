@@ -54,6 +54,7 @@ import Shroudshroom7 from '../models/Shroudshroom7'
 import Shroudshroom10 from '../models/Shroudshroom10'
 import Shroudshroom13 from '../models/Shroudshroom13'
 import Cannon from '../models/Cannon'
+import { RopeLadder } from '../models/RopeLadder'
 
 export const MapHex3D = ({
   boardHex,
@@ -314,7 +315,8 @@ export const MapHex3D = ({
         >
           <Suspense fallback={<ModelLoader />}>
             {/* <Shroudshroom7 boardHex={boardHex} /> */}
-            <Cannon boardHex={boardHex} />
+            {/* <Cannon boardHex={boardHex} /> */}
+            <RopeLadder boardHex={boardHex} />
           </Suspense>
         </group>
       )}
