@@ -91,9 +91,15 @@ export const hexTerrainColor = {
   lavaFieldCap: '#484540', // superfrog
   // [HexTerrain.lava]: '#FA003F',
   [HexTerrain.lava]: '#b00100', // superfrog
-  [HexTerrain.asphalt]: '#363636', // superfrog
+  // [HexTerrain.asphalt]: '#363636', // superfrog
+  // [HexTerrain.asphalt]: '#003552', // superfrog
+  [HexTerrain.asphalt]: '#003552', // superfrog
+  // [HexTerrain.asphalt]: '#00283D', // superfrog
   // asphaltCap: '#4A3A7E',
-  asphaltCap: '#303030', // superfrog
+  // asphaltCap: '#00283D', // superfrog
+  // asphaltCap: '#003552', // superfrog
+  asphaltCap: '#004266', // superfrog
+  // asphaltCap: '#003552', // superfrog
   // [HexTerrain.concrete]: '#D0D4DC',
   [HexTerrain.concrete]: '#a0a090', // superfrog
   // concreteCap: '#DCDFE5',
