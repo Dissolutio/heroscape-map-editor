@@ -91,37 +91,20 @@ export const hexTerrainColor = {
   lavaFieldCap: '#484540', // superfrog
   // [HexTerrain.lava]: '#FA003F',
   [HexTerrain.lava]: '#b00100', // superfrog
-  // [HexTerrain.asphalt]: '#363636', // superfrog
-  // [HexTerrain.asphalt]: '#003552', // superfrog
   [HexTerrain.asphalt]: '#003552', // superfrog
-  // [HexTerrain.asphalt]: '#00283D', // superfrog
-  // asphaltCap: '#4A3A7E',
-  // asphaltCap: '#00283D', // superfrog
-  // asphaltCap: '#003552', // superfrog
   asphaltCap: '#004266', // superfrog
-  // asphaltCap: '#003552', // superfrog
-  // [HexTerrain.concrete]: '#D0D4DC',
   [HexTerrain.concrete]: '#a0a090', // superfrog
-  // concreteCap: '#DCDFE5',
   concreteCap: '#a2a493', // superfrog
-  // [HexTerrain.dungeon]: '#6E675E',
   [HexTerrain.dungeon]: '#7a7972', // superfrog
-  // dungeonCap: '#ACB9A2',
   dungeonCap: '#b3b1aa', // superfrog
-  // [HexTerrain.shadow]: '#362E38',
   [HexTerrain.shadow]: '#0f0f0d', // superfrog
   [HexTerrain.outcrop]: '#5F5464',
   hiveModel1: '#668958',
   // swampCap: '#136600',
   swampCap: '#31743c', // superfrog
-  // [HexTerrain.swamp]: '#0f4f00',
   [HexTerrain.swamp]: '#776c36', // superfrog
-  // [HexTerrain.laurWall]: '#7F7CAF',
   [HexTerrain.laurWall]: '#999999',
-  // [HexTerrain.laurWallAddon]: '#7F7CAF',
-  // laurModelColor2: '#7774AA',
   laurModelColor2: '#909090',
-  // [HexTerrain.swampWater]: '#37590D', //dark moss green
   [HexTerrain.swampWater]: '#7a6c35', // superfrog
 
   [HexTerrain.palm]: '#0f4f00', // only gets used as subterrain color, not in model
