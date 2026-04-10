@@ -56,6 +56,7 @@ import Shroudshroom13 from '../models/Shroudshroom13'
 import Cannon from '../models/Cannon'
 import { RopeLadder } from '../models/RopeLadder'
 import { ShipBow } from '../models/ShipBow'
+import { ShipWall } from '../models/ShipWall'
 
 export const MapHex3D = ({
   boardHex,
@@ -317,7 +318,8 @@ export const MapHex3D = ({
           <Suspense fallback={<ModelLoader />}>
             {/* <Shroudshroom7 boardHex={boardHex} /> */}
             {/* <Cannon boardHex={boardHex} /> */}
-            <ShipBow boardHex={boardHex} />
+            {/* <ShipBow boardHex={boardHex} /> */}
+            <ShipWall boardHex={boardHex} />
           </Suspense>
         </group>
       )}
