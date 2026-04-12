@@ -211,7 +211,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           opacity={
             isSubLevel
               ? // white text needs a little opacity boost
-                OPACITY_SUBLEVEL * 2
+              OPACITY_SUBLEVEL * 2
               : 1
           }
           fill={textColor}
@@ -220,6 +220,42 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           y={yTransformForMultiHex3Rotation[hex?.pieceRotation ?? 0]}
         >
           A
+        </text>
+      </g>
+    )
+  }
+  // Cannon
+  if (inventoryID === Pieces.cannon) {
+    const textColor = isSubLevel
+      ? svgSubLevelColors.shroudshroomText
+      : svgColors.shroudshroomText
+    return (
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <SvgMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+        />
+        <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
+          C
+        </text>
+      </g>
+    )
+  }
+  // Rope Ladder
+  if (inventoryID === Pieces.ropeLadder) {
+    const textColor = isSubLevel
+      ? svgSubLevelColors.shroudshroomText
+      : svgColors.shroudshroomText
+    return (
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <SvgMultiHex1
+          hex={hex}
+          isSubLevel={isSubLevel}
+          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+        />
+        <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
+          R
         </text>
       </g>
     )
@@ -644,8 +680,8 @@ const SvgCastleWallBaseHeightText = ({
       fill="black"
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       {...singleHexObstacleHeightTextProps()}
-      // y={0.3 * SVG_HEX_RADIUS}
-      // x={-0.3 * SVG_HEX_APOTHEM}
+    // y={0.3 * SVG_HEX_RADIUS}
+    // x={-0.3 * SVG_HEX_APOTHEM}
     >
       {heightText}
     </text>

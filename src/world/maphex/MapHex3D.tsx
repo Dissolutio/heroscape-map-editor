@@ -55,8 +55,6 @@ import Shroudshroom10 from '../models/Shroudshroom10'
 import Shroudshroom13 from '../models/Shroudshroom13'
 import Cannon from '../models/Cannon'
 import { RopeLadder } from '../models/RopeLadder'
-import { ShipBow } from '../models/ShipBow'
-import { ShipWall } from '../models/ShipWall'
 
 export const MapHex3D = ({
   boardHex,
@@ -113,6 +111,9 @@ export const MapHex3D = ({
     boardHex.inventoryID === Pieces.shroudshroom10 && isObstacleHex
   const isShroudshroom13Hex =
     boardHex.inventoryID === Pieces.shroudshroom13 && boardHex.isObstacleOrigin
+  const isCannonHex = boardHex.inventoryID === Pieces.cannon && isObstacleHex
+  const isRopeLadderHex =
+    boardHex.inventoryID === Pieces.ropeLadder && isObstacleHex
   const isLaurSquarePillarHex =
     boardHex.inventoryID === Pieces.laurWallSquarePillar &&
     boardHex.isObstacleOrigin
@@ -316,10 +317,7 @@ export const MapHex3D = ({
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            {/* <Shroudshroom7 boardHex={boardHex} /> */}
-            {/* <Cannon boardHex={boardHex} /> */}
-            {/* <ShipBow boardHex={boardHex} /> */}
-            <ShipWall boardHex={boardHex} />
+            <Shroudshroom7 boardHex={boardHex} />
           </Suspense>
         </group>
       )}
@@ -340,6 +338,26 @@ export const MapHex3D = ({
         >
           <Suspense fallback={<ModelLoader />}>
             <Shroudshroom13 boardHex={boardHex} />
+          </Suspense>
+        </group>
+      )}
+      {isCannonHex && (
+        <group
+          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <Cannon boardHex={boardHex} />
+          </Suspense>
+        </group>
+      )}
+      {isRopeLadderHex && (
+        <group
+          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <RopeLadder boardHex={boardHex} />
           </Suspense>
         </group>
       )}

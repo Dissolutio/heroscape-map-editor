@@ -173,7 +173,7 @@ export const PdfMapHex = ({
           style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-          // {...pdfTextProps()}
+        // {...pdfTextProps()}
         >
           Y
         </Text>
@@ -192,7 +192,7 @@ export const PdfMapHex = ({
           style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-          // {...pdfTextProps()}
+        // {...pdfTextProps()}
         >
           M
         </Text>
@@ -211,7 +211,7 @@ export const PdfMapHex = ({
           opacity={
             isSubLevel
               ? // white text needs a little opacity boost
-                OPACITY_SUBLEVEL * 2
+              OPACITY_SUBLEVEL * 2
               : 1
           }
           style={pdfHexTextStyle}
@@ -221,6 +221,40 @@ export const PdfMapHex = ({
           y={yTransformForMultiHex3Rotation[hex?.pieceRotation ?? 0]}
         >
           A
+        </Text>
+      </G>
+    )
+  }
+  // Cannon
+  if (inventoryID === Pieces.cannon) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <Text
+          fill={svgColors.shroudshroomText}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          style={pdfHexTextStyle}
+          textAnchor="middle"
+          dominantBaseline="central"
+        >
+          C
+        </Text>
+      </G>
+    )
+  }
+  // Rope Ladder
+  if (inventoryID === Pieces.ropeLadder) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <Text
+          fill={svgColors.shroudshroomText}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          style={pdfHexTextStyle}
+          textAnchor="middle"
+          dominantBaseline="central"
+        >
+          R
         </Text>
       </G>
     )

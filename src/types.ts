@@ -147,6 +147,8 @@ export enum PiecePrefixes {
   lavaRockOutcrop = 'ol',
   glacier = 'og',
   shroudshroom = 'm',
+  cannon = 'cn',
+  ropeLadder = 'rl',
   ruins = 'rs',
   wallWalk = 'cg',
   castleBase = 'cb',
@@ -279,6 +281,8 @@ export const Pieces = {
   shroudshroom7: `${PiecePrefixes.shroudshroom}7`,
   shroudshroom10: `${PiecePrefixes.shroudshroom}10`,
   shroudshroom13: `${PiecePrefixes.shroudshroom}13`,
+  cannon: `${PiecePrefixes.cannon}`,
+  ropeLadder: `${PiecePrefixes.ropeLadder}`,
   // EdgeObstacles
   ruins2: `${PiecePrefixes.ruins}2`,
   ruins3: `${PiecePrefixes.ruins}3`,

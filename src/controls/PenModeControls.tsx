@@ -457,6 +457,18 @@ export default function PenModeControls() {
           </ListItemIcon>
           <span>Shroudshroom 13</span>
         </MenuItem>
+        <MenuItem value={Pieces.cannon}>
+          <ListItemIcon>
+            <TbHexagonLetterC color={hexTerrainColor.cannonCarriage} />
+          </ListItemIcon>
+          <span>Cannon 3</span>
+        </MenuItem>
+        <MenuItem value={Pieces.ropeLadder}>
+          <ListItemIcon>
+            <GiLadder color={hexTerrainColor.ladder} />
+          </ListItemIcon>
+          <span>Rope Ladder 7</span>
+        </MenuItem>
 
         {/* Outcrops / Hive Begin */}
         <Divider />
