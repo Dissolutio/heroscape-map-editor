@@ -138,6 +138,8 @@ export const pieceGroups = [
       Pieces.glacier4,
       Pieces.glacier6,
       Pieces.hive,
+      Pieces.shipWall,
+      Pieces.shipBow,
       Pieces.cannon,
       Pieces.ropeLadder,
       Pieces.ruins2,

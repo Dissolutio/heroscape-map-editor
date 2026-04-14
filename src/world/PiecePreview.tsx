@@ -75,6 +75,8 @@ import Shroudshroom10 from './models/Shroudshroom10'
 import Shroudshroom13 from './models/Shroudshroom13'
 import Cannon from './models/Cannon'
 import { RopeLadder } from './models/RopeLadder'
+import { ShipWall } from './models/ShipWall'
+import { ShipBow } from './models/ShipBow'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -154,6 +156,8 @@ export default function PiecePreview() {
   const isShroudshroom7Hex = pieceID === Pieces.shroudshroom7
   const isShroudshroom10Hex = pieceID === Pieces.shroudshroom10
   const isShroudshroom13Hex = pieceID === Pieces.shroudshroom13
+  const isShipWallHex = pieceID === Pieces.shipWall
+  const isShipBowHex = pieceID === Pieces.shipBow
   const isCannonHex = pieceID === Pieces.cannon
   const isRopeLadderHex = pieceID === Pieces.ropeLadder
   const isGlacier1Hex = pieceID === Pieces.glacier1
@@ -385,6 +389,30 @@ export default function PiecePreview() {
       <group position={[x, y, z]} rotation={[0, pieceRotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
           <Shroudshroom13 />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isShipWallHex && isSolidOrEmptyBeneath) {
+    return (
+      <group
+        position={[x, y, z]}
+        rotation={[0, getObstaclRotation(penModeRotation), 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <ShipWall />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isShipBowHex && isSolidOrEmptyBeneath) {
+    return (
+      <group
+        position={[x, y, z]}
+        rotation={[0, getObstaclRotation(penModeRotation), 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <ShipBow />
         </Suspense>
       </group>
     )

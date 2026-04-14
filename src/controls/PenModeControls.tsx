@@ -17,7 +17,7 @@ import {
   GiWhiteTower,
 } from 'react-icons/gi'
 import useBoundStore from '../store/store'
-import { type HexoscapeGlyph, PiecePrefixes, Pieces } from '../types'
+import { HexTerrain, type HexoscapeGlyph, PiecePrefixes, Pieces } from '../types'
 import {
   TbCircleNumber1Filled,
   TbCircleNumber2Filled,
@@ -198,6 +198,13 @@ export default function PenModeControls() {
           </ListItemIcon>
           <span>Ancient Terrain</span>
           <HotkeyText text={hotkeyLookup.togglePenModeAncientTerrain} />
+        </MenuItem>
+        <MenuItem value={PiecePrefixes.wood}>
+          <ListItemIcon>
+            <TbHexagons color={hexTerrainColor.wood} />
+          </ListItemIcon>
+          <span>Wood</span>
+          <HotkeyText text={hotkeyLookup.togglePenModeWood} />
         </MenuItem>
         <Divider />
 
@@ -457,17 +464,43 @@ export default function PenModeControls() {
           </ListItemIcon>
           <span>Shroudshroom 13</span>
         </MenuItem>
+
+        {/* Shores of Valhalla */}
+        <Divider />
         <MenuItem value={Pieces.cannon}>
           <ListItemIcon>
             <TbHexagonLetterC color={hexTerrainColor.cannonCarriage} />
           </ListItemIcon>
-          <span>Cannon 3</span>
+          <span>Cannon</span>
         </MenuItem>
         <MenuItem value={Pieces.ropeLadder}>
           <ListItemIcon>
             <GiLadder color={hexTerrainColor.ladder} />
           </ListItemIcon>
-          <span>Rope Ladder 7</span>
+          <span>Rope Ladder</span>
+        </MenuItem>
+        <MenuItem value={Pieces.shipWall}>
+          <ListItemIcon>
+            <TbHexagonLetterS
+              color={hexTerrainColor[HexTerrain.wood]}
+              style={{ fontSize: '0.8rem' }}
+            />
+            <TbHexagonLetterS
+              color={hexTerrainColor[HexTerrain.wood]}
+              style={{ fontSize: '0.8rem', marginLeft: '-0.4rem' }}
+            />
+            <TbHexagonLetterS
+              color={hexTerrainColor[HexTerrain.wood]}
+              style={{ fontSize: '0.8rem', marginLeft: '-0.4rem' }}
+            />
+          </ListItemIcon>
+          <span>Ship Wall</span>
+        </MenuItem>
+        <MenuItem value={Pieces.shipBow}>
+          <ListItemIcon>
+            <TbHexagons color={hexTerrainColor[HexTerrain.wood]} />
+          </ListItemIcon>
+          <span>Ship Bow</span>
         </MenuItem>
 
         {/* Outcrops / Hive Begin */}

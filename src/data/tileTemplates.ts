@@ -230,6 +230,20 @@ const wallWalk9 = [
 ]
 
 const ruinsCornerExterior = [CUBE_NW, CUBE_WEST]
+const shipBow = [...basic2, CUBE_SW,
+{
+  // SW of CUBE_SW
+  q: -2,
+  r: 2,
+  s: 0,
+},
+{
+  // SE of 2nd hex
+  q: 1,
+  r: 1,
+  s: -2,
+},
+]
 const ruins2 = [...glacier6, ...ruinsCornerExterior]
 const ruins3 = [
   ...glacier6,
@@ -299,6 +313,8 @@ const tileTemplates: Dictionary<CubeCoordinate[]> = {
   [Pieces.glacier4]: glacier4,
   [Pieces.glacier6]: glacier6,
   [Pieces.hive]: glacier6,
+  [Pieces.shipBow]: shipBow,
+  [Pieces.shipWall]: straight3,
   // edge stuff below
   [Pieces.ruins2]: ruins2,
   [Pieces.ruins3]: ruins3,

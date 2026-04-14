@@ -35,7 +35,7 @@ export function ShipWall({ boardHex }: { boardHex?: BoardHex }) {
   const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
   const color = isHighlighted
     ? yellowColor
-    : hexTerrainColor.ladder
+    : '#8A4342'
   return (
     <>
       <mesh

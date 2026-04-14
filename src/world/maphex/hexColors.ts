@@ -81,6 +81,13 @@ export const hexTerrainColor = {
   [HexTerrain.roadWall]: '#787D79',
   // [HexTerrain.snow]: '#EEEBFF',
   [HexTerrain.snow]: '#c0bec6', // superfrog
+  // [HexTerrain.wood]: '#532927',
+  // [HexTerrain.wood]: '#60302E',
+  // [HexTerrain.wood]: '#6E3735',
+  [HexTerrain.wood]: '#7C3E3C',
+  // woodCap: '#452221',
+  // woodCap: '#60302E',
+  woodCap: '#6E3735',
   // [`${HexTerrain.snow}Cap`]: '#FFF',
   [`${HexTerrain.snow}Cap`]: '#bcbdc5', // superfrog
   // [HexTerrain.ice]: '#C3D9E9',
@@ -173,6 +180,7 @@ export const terrainCapColors: { [terrain: string]: string } = {
   [HexTerrain.toxic]: hexTerrainColor.toxicCap,
   [HexTerrain.ancientTerrain]: hexTerrainColor.ancientTerrainCap,
   // these below have same color subterrain, so a little different shade on the cap for aesthetics
+  [HexTerrain.wood]: hexTerrainColor.woodCap,
   [HexTerrain.lavaField]: hexTerrainColor.lavaFieldCap,
   [HexTerrain.road]: hexTerrainColor.roadCap,
   [HexTerrain.wallWalk]: hexTerrainColor.roadCap,

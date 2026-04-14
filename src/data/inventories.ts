@@ -1,15 +1,6 @@
 import { type PieceInventory, Pieces } from '../types'
 export * as setInventories from './inventories'
 
-/* 
-SHORES:
-12 2-hex wood
-1 crashed ship bow
-2 crashed ship walls
-3 cannons
-6 rope ladders
-*/
-
 export const maxSharedTerrainKit: PieceInventory = {
   // https://www.heroscapers.com/threads/max-shared-terrain-kit-mstk.64183/
   [Pieces.grass1]: 10,
@@ -80,6 +71,13 @@ export const ancientLandsOfValhalla: PieceInventory = {
   [Pieces.shroudshroom7]: 2,
   [Pieces.shroudshroom10]: 1,
   [Pieces.shroudshroom13]: 1,
+}
+export const shoresOfValhalla: PieceInventory = {
+  [Pieces.wood2]: 12,
+  [Pieces.shipBow]: 1,
+  [Pieces.shipWall]: 2,
+  [Pieces.cannon]: 3,
+  [Pieces.ropeLadder]: 6,
 }
 export const ruinsOfValhallaPieceSet: PieceInventory = {
   [Pieces.laurWallTrianglePillar]: 4,

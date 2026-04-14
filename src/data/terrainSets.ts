@@ -185,14 +185,14 @@ export const terrainSetsByShortID = {
     hsOrgId: '17',
     releaseDate: '09/2024',
   },
-  // X: {
-  //   name: 'Shores of Valhlla',
-  //   abbreviation: 'ShoV',
-  //   inventory: setInventories.shoresOfValhalla,
-  //   id: 'X',
-  //   hsOrgId: '27',
-  //   releaseDate: '03/2026',
-  // },
+  X: {
+    name: 'Shores of Valhlla',
+    abbreviation: 'ShoV',
+    inventory: setInventories.shoresOfValhalla,
+    id: 'X',
+    hsOrgId: '27',
+    releaseDate: '03/2026',
+  },
   Y: {
     name: 'Urban Landscape of Valhalla',
     abbreviation: 'ULoV',
