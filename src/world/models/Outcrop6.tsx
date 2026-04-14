@@ -34,7 +34,9 @@ export default function Outcrop6({
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex.pieceID
   const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
-  const iceColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ice]
+  const iceColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.glacier]
   const outcropColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.outcrop]
@@ -61,7 +63,7 @@ export function Outcrop6Preview() {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const color = hexTerrainColor[HexTerrain.ice]
+  const color = hexTerrainColor[HexTerrain.glacier]
 
   return (
     <>
