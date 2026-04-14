@@ -83,8 +83,10 @@ export const hexTerrainColor = {
   [HexTerrain.snow]: '#c0bec6', // superfrog
   // [`${HexTerrain.snow}Cap`]: '#FFF',
   [`${HexTerrain.snow}Cap`]: '#bcbdc5', // superfrog
+  // [HexTerrain.ice]: '#C3D9E9',
+  [HexTerrain.ice]: '#A6C6DD',
   // [HexTerrain.ice]: '#55DBCB',
-  [HexTerrain.ice]: '#ced5cc', // superfrog
+  // [HexTerrain.ice]: '#ced5cc', // superfrog
   // [HexTerrain.lavaField]: '#A30029',
   [HexTerrain.glacier]: '#ced5cc',
   [HexTerrain.lavaField]: '#881c05', // superfrog
