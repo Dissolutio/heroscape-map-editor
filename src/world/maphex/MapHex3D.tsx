@@ -40,13 +40,13 @@ import {
   getRuinsOptions,
 } from '../models/piece-adjustments'
 import HeightRing, { TopOutlineInterlockHex } from './HeightRing'
-import { MapHexIDDisplay } from './MapHexIDDisplay'
+import { HexCapHeightTextDisplay } from './HexCapHeightTextDisplay'
 import { hexTerrainColor } from './hexColors'
 import { GlyphModel } from '../models/Glyph'
 import { StartZone3D } from '../models/StartZone3D'
 import { MarvelRuin } from '../models/MarvelRuin'
 import LaurWallTrianglePillar from '../models/LaurTrianglePillar'
-import { HexCapIDDisplay } from './HexCapIDDisplay'
+import { Hex3DCoordinateText } from './Hex3DCoordinateText'
 import { FortifiedWall } from '../models/FortifiedWall'
 import { Billboard, Text } from '@react-three/drei'
 import { piecesSoFar } from '../../data/pieces'
@@ -67,7 +67,9 @@ export const MapHex3D = ({
     (s) => s.isTopOutlinedInterlockHexes,
   )
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isVisible = boardHex.altitude <= viewingLevel
+  // isVisible: clearance hexes allowed just in case you enable Hex3DCoordinateText
+  const isVisible =
+    boardHex.isVerticalClearanceHex || boardHex.altitude <= viewingLevel
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const inventoryID = boardHex.inventoryID
@@ -192,14 +194,14 @@ export const MapHex3D = ({
   //   HEXGRID_HEXCAP_FLUID_HEIGHT / 3
   return (
     <>
-      <MapHexIDDisplay
+      <HexCapHeightTextDisplay
         boardHex={boardHex}
         position={new Vector3(x, y + 0.2, z)}
       />
-      {/* <HexCapIDDisplay
+      <Hex3DCoordinateText
         boardHex={boardHex}
         position={new Vector3(x, y + 0.2, z)}
-      /> */}
+      />
       {isHeightRingedHex && <HeightRing position={new Vector3(x, y, z)} />}
       {isTopOutlinedInterlockHex && (
         <TopOutlineInterlockHex

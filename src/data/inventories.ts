@@ -284,6 +284,8 @@ export const ms2PieceSet: PieceInventory = {
   [Pieces.swamp3]: 2,
   [Pieces.swamp7]: 10,
   [Pieces.swamp24]: 2,
+  [Pieces.grass1]: 1,
+  [Pieces.grass2]: 1,
   [Pieces.rock1]: 1,
   [Pieces.rock2]: 1,
   [Pieces.rock3]: 1,
