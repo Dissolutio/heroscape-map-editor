@@ -68,7 +68,8 @@ export const MapHex3D = ({
   )
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   // isVisible: clearance hexes allowed just in case you enable Hex3DCoordinateText
-  const isVisible = boardHex.isVerticalClearanceHex || boardHex.altitude <= viewingLevel
+  const isVisible =
+    boardHex.isVerticalClearanceHex || boardHex.altitude <= viewingLevel
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const inventoryID = boardHex.inventoryID

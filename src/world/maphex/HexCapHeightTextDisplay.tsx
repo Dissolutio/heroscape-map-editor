@@ -47,7 +47,7 @@ export const HexCapHeightTextDisplay = ({
   const isHexFluid = isFluidTerrainHex(boardHex?.terrain)
   const hexHeightTextColor =
     boardHex?.terrain === HexTerrain.ice ||
-      boardHex?.terrain === HexTerrain.snow
+    boardHex?.terrain === HexTerrain.snow
       ? 'black'
       : 'white'
   // TODO: make own component for cap heights
