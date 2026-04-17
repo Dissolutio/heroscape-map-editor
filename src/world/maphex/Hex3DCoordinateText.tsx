@@ -15,7 +15,7 @@ import { genBoardHexID, getBoardPiecesMaxLevel } from '../../utils/map-utils'
   MapHexIDDisplay
   This component is expensive to render if there are a lot of hexes
  */
-export const HexCapIDDisplay = ({
+export const Hex3DCoordinateText = ({
   position,
   boardHex,
 }: {

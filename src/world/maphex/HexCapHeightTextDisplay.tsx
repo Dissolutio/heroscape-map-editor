@@ -15,7 +15,7 @@ import { genBoardHexID, getBoardPiecesMaxLevel } from '../../utils/map-utils'
   MapHexIDDisplay
   This component is expensive to render if there are a lot of hexes
  */
-export const MapHexIDDisplay = ({
+export const HexCapHeightTextDisplay = ({
   position,
   boardHex,
 }: {
@@ -47,7 +47,7 @@ export const MapHexIDDisplay = ({
   const isHexFluid = isFluidTerrainHex(boardHex?.terrain)
   const hexHeightTextColor =
     boardHex?.terrain === HexTerrain.ice ||
-    boardHex?.terrain === HexTerrain.snow
+      boardHex?.terrain === HexTerrain.snow
       ? 'black'
       : 'white'
   // TODO: make own component for cap heights
