@@ -259,6 +259,44 @@ export const PdfMapHex = ({
       </G>
     )
   }
+  // Ship Wall (placeholder: replace with custom ship wall shape)
+  if (inventoryID === Pieces.shipWall && hex.isObstacleOrigin) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHex3 hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <Text
+          fill={svgColors.shroudshroomText}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          style={pdfHexTextStyle}
+          textAnchor="middle"
+          dominantBaseline="central"
+        >
+          SW
+        </Text>
+      </G>
+    )
+  }
+  // Ship Bow (placeholder: replace with custom ship bow shape)
+  if (inventoryID === Pieces.shipBow && hex.isObstacleOrigin) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHex5 hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <Text
+          fill={svgColors.shroudshroomText}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          style={pdfHexTextStyle}
+          textAnchor="middle"
+          dominantBaseline="central"
+        >
+          SB
+        </Text>
+      </G>
+    )
+  }
   // Outcrop/Glacier/LavaOutcrop 1's
   if (
     inventoryID === Pieces.outcrop1 ||

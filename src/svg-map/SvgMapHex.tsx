@@ -260,6 +260,40 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       </g>
     )
   }
+  // Ship Wall (placeholder: replace with custom ship wall shape)
+  if (inventoryID === Pieces.shipWall && hex.isObstacleOrigin) {
+    return (
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <g transform={`rotate(${pieceRotation})`}>
+          <SvgMultiHex3 hex={hex} isSubLevel={isSubLevel} />
+        </g>
+        <text
+          fill={svgColors.shroudshroomText}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          {...singleHexObstacleHeightTextProps()}
+        >
+          SW
+        </text>
+      </g>
+    )
+  }
+  // Ship Bow (placeholder: replace with custom ship bow shape)
+  if (inventoryID === Pieces.shipBow && hex.isObstacleOrigin) {
+    return (
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <g transform={`rotate(${pieceRotation})`}>
+          <SvgMultiHex5 hex={hex} isSubLevel={isSubLevel} />
+        </g>
+        <text
+          fill={svgColors.shroudshroomText}
+          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+          {...singleHexObstacleHeightTextProps()}
+        >
+          SB
+        </text>
+      </g>
+    )
+  }
   // Outcrop/glacier/LavaOutcrop 1's
   if (
     inventoryID === Pieces.outcrop1 ||
