@@ -209,10 +209,10 @@ export const MapHex3D = ({
             new Vector3(
               x,
               y -
-              HEXGRID_HEX_HEIGHT +
-              (isFluidTerrainHex(boardHex.terrain)
-                ? HEXGRID_HEXCAP_FLUID_HEIGHT
-                : HEXGRID_HEX_HEIGHT),
+                HEXGRID_HEX_HEIGHT +
+                (isFluidTerrainHex(boardHex.terrain)
+                  ? HEXGRID_HEXCAP_FLUID_HEIGHT
+                  : HEXGRID_HEX_HEIGHT),
               z,
             )
           }
@@ -425,7 +425,7 @@ export const MapHex3D = ({
                   x,
                   // position.y + (boardHex?.obstacleHeight ?? 0) * HEXGRID_HEX_HEIGHT,
                   (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) +
-                  HEXGRID_HEX_HEIGHT / 3,
+                    HEXGRID_HEX_HEIGHT / 3,
                   z,
                 ]}
               >
@@ -693,7 +693,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+              selectedPieceID === boardHex.pieceID
                 ? hexTerrainColor[HexTerrain.castleBase]
                 : 'yellow'
             }
@@ -720,7 +720,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex.pieceID ||
-                  selectedPieceID === boardHex.pieceID
+                selectedPieceID === boardHex.pieceID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castleWall]
               }
