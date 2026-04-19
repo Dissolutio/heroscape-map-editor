@@ -399,6 +399,7 @@ export const SvgMultiHex5 = ({
     </>
   )
 }
+
 export const SvgMultiHex6 = ({
   hex,
   isSubLevel,
@@ -1194,6 +1195,102 @@ export const SvgCastleArch = ({
     </g>
   )
 }
+
+export const SvgShipWall = ({
+  hex,
+  isSubLevel,
+  pieceRotation,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+  pieceRotation: number
+}) => {
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  return (
+    <g transform={`rotate(${pieceRotation})`}>
+      {/* Placeholder until custom ship wall geometry is added. */}
+      <circle
+        fill={fillColor}
+        r={SVG_HEX_RADIUS * 0.7}
+      />
+    </g>
+  )
+}
+export const SvgShipBow = ({
+  hex,
+  isSubLevel,
+  pieceRotation,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+  pieceRotation: number
+}) => {
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  return (
+    <g transform={`rotate(${pieceRotation})`}>
+      {/* Placeholder until custom ship bow geometry is added. */}
+      <circle
+        fill={fillColor}
+        r={SVG_HEX_RADIUS * 0.7}
+      />
+    </g>
+  )
+}
+
+export const SvgCannon = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const arrowColor = '#FFFFFF'
+  return (
+    <>
+      {/* Placeholder until custom cannon 2D geometry is added. */}
+      <circle
+        fill={fillColor}
+        r={SVG_HEX_RADIUS * 0.7}
+      />
+      <text fill={arrowColor} {...singleHexObstacleHeightTextProps()}>
+        R
+      </text>
+    </>
+  )
+}
+
+export const SvgRopeLadder = ({
+  hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const arrowColor = '#FFFFFF'
+  return (
+    <>
+      {/* Placeholder until custom rope-ladder 2D geometry is added. */}
+      <circle
+        fill={fillColor}
+        r={SVG_HEX_RADIUS * 0.7}
+      />
+      <text fill={arrowColor} {...singleHexObstacleHeightTextProps()}>
+        R
+      </text>
+    </>
+  )
+}
+
 const treeXYForRotation = [
   { x: 0.9 * SVG_HEX_APOTHEM, y: SVG_HEX_RADIUS },
   { x: -0.6 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS },
@@ -1346,9 +1443,9 @@ export const SvgOutcrop6 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-        // {...singleHexObstacleHeightTextProps()}
-        // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-        // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+      // {...singleHexObstacleHeightTextProps()}
+      // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+      // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'9'}
       </text>
@@ -1472,8 +1569,8 @@ export const SvgOutcrop4 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-        // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-        // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+      // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+      // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'7'}
       </text>

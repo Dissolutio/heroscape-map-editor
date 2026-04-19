@@ -344,6 +344,10 @@ export const svgColors = {
   outcropText: '#DAD0D0',
   lavaRockOutcropText: '#DAD0D0',
   [HexTerrain.outcrop]: '#3E3C3E',
+  [HexTerrain.shipWall]: '#9E5424',
+  [HexTerrain.shipBow]: '#9E5424',
+  [HexTerrain.ropeLadder]: '#FF06C8',
+  [HexTerrain.cannon]: '#000000',
 
   // TERRAIN
   [HexTerrain.grass]: '#269C48',
@@ -426,6 +430,10 @@ export const svgSubLevelColors = {
   outcropText: '#DAD0D0',
   lavaRockOutcropText: '#DAD0D0',
   [HexTerrain.outcrop]: '#9F9E9F',
+  [HexTerrain.shipWall]: '#D2B9A9',
+  [HexTerrain.shipBow]: '#D2B9A9',
+  [HexTerrain.ropeLadder]: '#FFC8E9',
+  [HexTerrain.cannon]: '#000000',
 
   // TERRAIN
   [HexTerrain.grass]: '#C3E9CD',

@@ -48,6 +48,10 @@ import {
   SvgJungle,
   SvgHexDecor,
   SvgFortifiedWall,
+  SvgShipWall,
+  SvgShipBow,
+  SvgCannon,
+  SvgRopeLadder,
   getOutcropTextColor,
 } from './SvgMapShapes'
 import { singleHexObstacleHeightTextProps } from './svgText'
@@ -226,71 +230,47 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   }
   // Cannon
   if (inventoryID === Pieces.cannon) {
-    const textColor = isSubLevel
-      ? svgSubLevelColors.shroudshroomText
-      : svgColors.shroudshroomText
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1
+        <SvgCannon
           hex={hex}
           isSubLevel={isSubLevel}
-          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
         />
-        <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
-          C
-        </text>
       </g>
     )
   }
   // Rope Ladder
   if (inventoryID === Pieces.ropeLadder) {
-    const textColor = isSubLevel
-      ? svgSubLevelColors.shroudshroomText
-      : svgColors.shroudshroomText
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgMultiHex1
+        <SvgRopeLadder
           hex={hex}
           isSubLevel={isSubLevel}
-          borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
         />
-        <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
-          R
-        </text>
       </g>
     )
   }
-  // Ship Wall (placeholder: replace with custom ship wall shape)
+  // Ship Wall
   if (inventoryID === Pieces.shipWall && hex.isObstacleOrigin) {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex3 hex={hex} isSubLevel={isSubLevel} />
-        </g>
-        <text
-          fill={svgColors.shroudshroomText}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          {...singleHexObstacleHeightTextProps()}
-        >
-          SW
-        </text>
+        <SvgShipWall
+          hex={hex}
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
       </g>
     )
   }
-  // Ship Bow (placeholder: replace with custom ship bow shape)
+  // Ship Bow
   if (inventoryID === Pieces.shipBow && hex.isObstacleOrigin) {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex5 hex={hex} isSubLevel={isSubLevel} />
-        </g>
-        <text
-          fill={svgColors.shroudshroomText}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          {...singleHexObstacleHeightTextProps()}
-        >
-          SB
-        </text>
+        <SvgShipBow
+          hex={hex}
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
       </g>
     )
   }

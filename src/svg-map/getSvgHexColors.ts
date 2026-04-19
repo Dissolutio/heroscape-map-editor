@@ -223,7 +223,11 @@ export const getPdfHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     hex.terrain === HexTerrain.tree ||
     hex.terrain === HexTerrain.battlement ||
     hex.terrain === HexTerrain.hive ||
-    hex.terrain === HexTerrain.ladder
+    hex.terrain === HexTerrain.ladder ||
+    hex.terrain === HexTerrain.shipWall ||
+    hex.terrain === HexTerrain.shipBow ||
+    hex.terrain === HexTerrain.ropeLadder ||
+    hex.terrain === HexTerrain.cannon
   ) {
     return (
       pdfColors?.[hex.terrain as keyof typeof pdfColors] ??
@@ -287,7 +291,11 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
     hex.terrain === HexTerrain.tree ||
     hex.terrain === HexTerrain.battlement ||
     hex.terrain === HexTerrain.hive ||
-    hex.terrain === HexTerrain.ladder
+    hex.terrain === HexTerrain.ladder ||
+    hex.terrain === HexTerrain.shipWall ||
+    hex.terrain === HexTerrain.shipBow ||
+    hex.terrain === HexTerrain.ropeLadder ||
+    hex.terrain === HexTerrain.cannon
   ) {
     return (
       svgColors?.[hex.terrain as keyof typeof svgColors] ??
@@ -354,7 +362,11 @@ export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
     hex.terrain === HexTerrain.tree ||
     hex.terrain === HexTerrain.battlement ||
     hex.terrain === HexTerrain.hive ||
-    hex.terrain === HexTerrain.ladder
+    hex.terrain === HexTerrain.ladder ||
+    hex.terrain === HexTerrain.shipWall ||
+    hex.terrain === HexTerrain.shipBow ||
+    hex.terrain === HexTerrain.ropeLadder ||
+    hex.terrain === HexTerrain.cannon
   ) {
     return (
       svgSubLevelColors?.[hex.terrain as keyof typeof svgSubLevelColors] ??

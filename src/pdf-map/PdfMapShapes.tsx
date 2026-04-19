@@ -75,7 +75,7 @@ export const PdfEmptyHex = () => {
         strokeWidth={borderWidth}
         strokeLinecap="round"
         strokeLinejoin="round"
-        // opacity={OPACITY_EMPTY}
+      // opacity={OPACITY_EMPTY}
       />
     </>
   )
@@ -1285,6 +1285,113 @@ export const PdfCastleArch = ({
     </>
   )
 }
+
+export const PdfShipWall = ({
+  isSubLevel,
+  pieceRotation,
+}: {
+  isSubLevel?: boolean
+  pieceRotation: number
+}) => {
+  const fillColor = pdfColors.shipWall
+  return (
+    <G transform={`rotate(${pieceRotation})`} opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}>
+      {/* Placeholder until custom ship wall geometry is added. */}
+      <Circle
+        style={{
+          fill: fillColor
+        }}
+        r={SVG_HEX_RADIUS * 0.7}
+      />
+    </G>
+  )
+}
+
+export const PdfShipBow = ({
+  isSubLevel,
+  pieceRotation,
+}: {
+  isSubLevel?: boolean
+  pieceRotation: number
+}) => {
+  const fillColor = pdfColors.shipBow
+  return (
+    <G transform={`rotate(${pieceRotation})`} opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}>
+      {/* Placeholder until custom ship wall geometry is added. */}
+      <Circle
+        style={{
+          fill: fillColor
+        }}
+        r={SVG_HEX_RADIUS * 0.7}
+      />
+    </G>
+  )
+}
+
+export const PdfCannon = ({
+  isSubLevel,
+  pieceRotation
+}: {
+  isSubLevel?: boolean
+  pieceRotation: number
+}) => {
+  const fillColor = pdfColors.cannon
+  return (
+    <>
+      {/* Placeholder until custom ship wall geometry is added. */}
+      <G transform={`rotate(${pieceRotation})`} opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}>
+        <Circle
+          style={{
+            fill: fillColor
+          }}
+          r={SVG_HEX_RADIUS * 0.7}
+        />
+      </G>
+      <Text
+        fill={'#FFFFFF'}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={pdfHexTextStyle}
+        textAnchor="middle"
+        dominantBaseline="central"
+      >
+        C
+      </Text>
+    </>
+  )
+}
+
+export const PdfRopeLadder = ({
+  isSubLevel,
+  pieceRotation
+}: {
+  isSubLevel?: boolean
+  pieceRotation: number
+}) => {
+  const fillColor = pdfColors.ropeLadder
+  return (
+    <>
+      {/* Placeholder until custom ship wall geometry is added. */}
+      <G transform={`rotate(${pieceRotation})`} opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}>
+        <Circle
+          style={{
+            fill: fillColor
+          }}
+          r={SVG_HEX_RADIUS * 0.7}
+        />
+      </G>
+      <Text
+        fill={'#FFFFFF'}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        style={pdfHexTextStyle}
+        textAnchor="middle"
+        dominantBaseline="central"
+      >
+        RL
+      </Text>
+    </>
+  )
+}
+
 const twoCharNumberAdjust = -0.15 * SVG_HEX_RADIUS
 const treeXYForRotation = [
   { x: 0.9 * SVG_HEX_APOTHEM, y: SVG_HEX_RADIUS },

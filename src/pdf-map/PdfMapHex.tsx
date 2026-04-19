@@ -46,6 +46,10 @@ import {
   PdfJungle,
   PdfSvgHexDecor,
   PdfSvgFortifiedWall,
+  PdfShipWall,
+  PdfShipBow,
+  PdfCannon,
+  PdfRopeLadder,
 } from './PdfMapShapes'
 import { svgColors } from '../world/maphex/hexColors'
 import {
@@ -229,16 +233,7 @@ export const PdfMapHex = ({
   if (inventoryID === Pieces.cannon) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        <Text
-          fill={svgColors.shroudshroomText}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          style={pdfHexTextStyle}
-          textAnchor="middle"
-          dominantBaseline="central"
-        >
-          C
-        </Text>
+        <PdfCannon isSubLevel={isSubLevel} pieceRotation={pieceRotation} />
       </G>
     )
   }
@@ -246,16 +241,7 @@ export const PdfMapHex = ({
   if (inventoryID === Pieces.ropeLadder) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        <Text
-          fill={svgColors.shroudshroomText}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          style={pdfHexTextStyle}
-          textAnchor="middle"
-          dominantBaseline="central"
-        >
-          R
-        </Text>
+        <PdfRopeLadder isSubLevel={isSubLevel} pieceRotation={pieceRotation} />
       </G>
     )
   }
@@ -263,18 +249,10 @@ export const PdfMapHex = ({
   if (inventoryID === Pieces.shipWall && hex.isObstacleOrigin) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <G transform={`rotate(${pieceRotation})`}>
-          <PdfMultiHex3 hex={hex} isSubLevel={isSubLevel} />
-        </G>
-        <Text
-          fill={svgColors.shroudshroomText}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          style={pdfHexTextStyle}
-          textAnchor="middle"
-          dominantBaseline="central"
-        >
-          SW
-        </Text>
+        <PdfShipWall
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
       </G>
     )
   }
@@ -282,18 +260,10 @@ export const PdfMapHex = ({
   if (inventoryID === Pieces.shipBow && hex.isObstacleOrigin) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <G transform={`rotate(${pieceRotation})`}>
-          <PdfMultiHex5 hex={hex} isSubLevel={isSubLevel} />
-        </G>
-        <Text
-          fill={svgColors.shroudshroomText}
-          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          style={pdfHexTextStyle}
-          textAnchor="middle"
-          dominantBaseline="central"
-        >
-          SB
-        </Text>
+        <PdfShipBow
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
       </G>
     )
   }
