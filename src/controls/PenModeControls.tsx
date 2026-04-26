@@ -241,7 +241,7 @@ export default function PenModeControls() {
           <ListItemIcon>
             <BsHexagonHalf color={hexTerrainColor.lava} />
           </ListItemIcon>
-          <span>Lava</span>
+          <span>Molten Lava</span>
           <HotkeyText text={hotkeyLookup.togglePenModeLava} />
         </MenuItem>
         <MenuItem value={PiecePrefixes.swampWater}>
@@ -1077,7 +1077,7 @@ const penModeText: { [key: string]: string } = {
   w: 'water',
   ww: 'wellspring water',
   i: 'ice',
-  l: 'lava',
+  l: 'molten lava',
   ws: 'swamp water',
   sh: 'shadow',
   cg: 'wall walk',

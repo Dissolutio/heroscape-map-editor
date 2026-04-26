@@ -827,7 +827,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lava1]: {
     id: Pieces.lava1,
-    title: '1-hex Lava',
+    title: '1-hex Molten Lava',
     terrain: HexTerrain.lava,
     landPrefix: PiecePrefixes.lava,
     isHexTerrainPiece: true,
@@ -838,7 +838,7 @@ export const piecesSoFar: Dictionary<Piece> = {
   },
   [Pieces.lava3]: {
     id: Pieces.lava3,
-    title: '3-hex Lava',
+    title: '3-hex Molten Lava',
     terrain: HexTerrain.lava,
     landPrefix: PiecePrefixes.lava,
     isHexTerrainPiece: true,
