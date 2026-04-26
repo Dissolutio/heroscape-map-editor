@@ -10,7 +10,7 @@ import { noop } from 'lodash'
 
 export function RopeLadder({ boardHex }: { boardHex?: BoardHex }) {
   const { nodes } = useGLTF(
-    '/rope-ladder.glb',
+    '/rope-ladder_v2.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(
