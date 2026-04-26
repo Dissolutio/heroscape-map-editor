@@ -39,6 +39,7 @@ import {
   getRoadWallSvgPolygonPoints,
   getRuins2SvgPolygonPoints,
   getRuins3SvgPolygonPoints,
+  getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
 import {
   getSvgHexBorderColor,
@@ -1208,13 +1209,11 @@ export const SvgShipWall = ({
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
+  const { points } = getShipWallSvgPolygonPoints(SVG_HEX_RADIUS, 0)
+
   return (
     <g transform={`rotate(${pieceRotation})`}>
-      {/* Placeholder until custom ship wall geometry is added. */}
-      <circle
-        fill={fillColor}
-        r={SVG_HEX_RADIUS * 0.7}
-      />
+      <polygon points={points} fill={fillColor} />
     </g>
   )
 }
@@ -1241,27 +1240,86 @@ export const SvgShipBow = ({
   )
 }
 
+const generateArrowPath = (width: number, heightRatio?: number) => {
+  const height = width * (heightRatio ?? (7 / 12))
+  // width
+  // height
+  // the points
+  //       *\
+  //       | \
+  // 1--*--*  \
+  // |  0,0    *
+  // *--*--*  /
+  //       | /
+  //       */
+  const widthD = width * 0.71975
+  const widthC = width / 2
+  const widthB = widthD - widthC
+  const widthA = widthC - widthB
+  // the widths
+  // d = b + c
+  // c = a + b
+  // c = w / 2
+  // *-----w-----*
+  // *---d---*
+  //         *\
+  //         | \
+  // *-c-*-b-*  \
+  // |       *-a-*
+  // *-c-*-b-*  /
+  //         | /
+  //         */
+  const heightH = height / 3
+  // the heights
+  //       *\
+  //       h \
+  // *--*--*  \
+  // h        *
+  // *--*--*  /
+  //       h /
+  //       */
+  return `M -${widthC} -${heightH / 2}
+    h ${widthC}
+    h ${widthB}
+    v ${-heightH}
+    l ${widthA} ${1.5 * heightH}
+    l ${-widthA} ${1.5 * heightH}
+    v ${-heightH}
+    h ${-widthB}
+    h ${-widthC}
+    Z`
+}
+
 export const SvgCannon = ({
   hex,
   isSubLevel,
+  pieceRotation
 }: {
   hex: BoardHex
+  pieceRotation: number
   isSubLevel?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
   const arrowColor = '#FFFFFF'
+
+  const iconRadius = SVG_HEX_RADIUS * 0.5
+  const iconDiameter = iconRadius * 2
+  // renegade spec svg: arrow width is 12, circle width is 17.46
+  const arrowWidth = (iconDiameter * (12 / 17.46))
   return (
     <>
-      {/* Placeholder until custom cannon 2D geometry is added. */}
       <circle
         fill={fillColor}
-        r={SVG_HEX_RADIUS * 0.7}
+        r={iconRadius}
       />
-      <text fill={arrowColor} {...singleHexObstacleHeightTextProps()}>
-        R
-      </text>
+      <path
+        fill={arrowColor}
+        // d={generateArrowPath(SVG_HEX_RADIUS * 0.8)}
+        d={generateArrowPath(arrowWidth)}
+        transform={`rotate(${pieceRotation})`}
+      />
     </>
   )
 }
@@ -1269,25 +1327,47 @@ export const SvgCannon = ({
 export const SvgRopeLadder = ({
   hex,
   isSubLevel,
+  pieceRotation
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  pieceRotation: number
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
   const arrowColor = '#FFFFFF'
+
+  const iconRadius = SVG_HEX_RADIUS * 0.4
+  const iconDiameter = iconRadius * 2
+  // renegade spec svg: arrow width is 12, circle width is 17.46
+  // const arrowWidth = (iconDiameter * (12 / 17.46))
+  const arrowWidth = iconDiameter / 1.3
   return (
-    <>
-      {/* Placeholder until custom rope-ladder 2D geometry is added. */}
-      <circle
-        fill={fillColor}
-        r={SVG_HEX_RADIUS * 0.7}
-      />
-      <text fill={arrowColor} {...singleHexObstacleHeightTextProps()}>
-        R
-      </text>
-    </>
+    <g transform={`rotate(${pieceRotation})`}>
+      <g transform={`translate(${SVG_HEX_APOTHEM},0)`}>
+        {/* Placeholder until custom rope-ladder 2D geometry is added. */}
+        <rect
+          fill={fillColor}
+          width={iconDiameter}
+          height={iconDiameter}
+          x={-iconDiameter / 2}
+          y={-iconDiameter / 2}
+        />
+        <path
+          fill={arrowColor}
+          // d={generateArrowPath(SVG_HEX_RADIUS * 0.8)}
+          d={generateArrowPath(arrowWidth)}
+          transform={'translate(0, -17)'}
+        />
+        <path
+          fill={arrowColor}
+          // d={generateArrowPath(SVG_HEX_RADIUS * 0.8)}
+          d={generateArrowPath(arrowWidth)}
+          transform={'translate(-0, 15),rotate(180)'}
+        />
+      </g>
+    </g>
   )
 }
 

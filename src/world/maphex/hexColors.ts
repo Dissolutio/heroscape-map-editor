@@ -243,6 +243,7 @@ export const pdfColors = {
   [HexTerrain.dungeon]: 'rgb(124, 177, 152)',
   [HexTerrain.lavaField]: 'rgb(163, 0, 41)',
   [HexTerrain.ancientTerrain]: 'rgb(181, 89, 8)',
+  [HexTerrain.wood]: 'rgb(158, 84, 36)',
   [HexTerrain.snow]: 'rgb(255,255,255)',
   [HexTerrain.water]: 'rgb(67, 172, 176)',
   [HexTerrain.castleWall]: 'rgb(80, 79, 84)',
@@ -263,13 +264,13 @@ export const pdfColors = {
   // OBSTACLES
   [HexTerrain.ladder]: 'rgb(173, 75, 35)',
   [HexTerrain.ruin]: 'rgb(160, 0, 0)', // virtualscape
-  // [HexTerrain.ruin]: 'rgb(82, 81, 81)', // choice from coolors
   fillJungle: 'rgb(249, 233, 8)',
   [HexTerrain.palm]: 'rgb(67, 249, 57)',
   [HexTerrain.tree]: 'rgb(51, 160, 62)',
   [HexTerrain.laurWall]: 'rgb(98, 28, 96)',
   [HexTerrain.shroudshroom]: '#972BB2',
-
+  [HexTerrain.shipWall]: '#9E5424',
+  [HexTerrain.shipBow]: '#9E5424',
   [HexTerrain.fortifiedWall]: '#FF06C8',
   [HexTerrain.roadWall]: '#FF06C8',
   fillSwampUnderbrush: 'rgb(33, 56, 27)',
@@ -363,6 +364,7 @@ export const svgColors = {
   [HexTerrain.concrete]: '#DEDEDE',
   [HexTerrain.snow]: '#FFFFFF',
   [HexTerrain.ancientTerrain]: '#B55908',
+  [HexTerrain.wood]: '#9E5424',
   [HexTerrain.toxic]: '#121212',
   [HexTerrain.toxicWater]: '#0CEB00',
   roadDecor: '#696767',
@@ -433,7 +435,8 @@ export const svgSubLevelColors = {
   [HexTerrain.shipWall]: '#D2B9A9',
   [HexTerrain.shipBow]: '#D2B9A9',
   [HexTerrain.ropeLadder]: '#FFC8E9',
-  [HexTerrain.cannon]: '#000000',
+  // [HexTerrain.cannon]: '#2E2D2D',
+  [HexTerrain.cannon]: '#858585',
 
   // TERRAIN
   [HexTerrain.grass]: '#C3E9CD',

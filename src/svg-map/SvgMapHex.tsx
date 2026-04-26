@@ -235,6 +235,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         <SvgCannon
           hex={hex}
           isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
         />
       </g>
     )
@@ -246,6 +247,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         <SvgRopeLadder
           hex={hex}
           isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
         />
       </g>
     )

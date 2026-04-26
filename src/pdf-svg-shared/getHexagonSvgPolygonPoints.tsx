@@ -86,6 +86,52 @@ export function getRoadWallSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
+export function getShipWallSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const halfBorder = borderWidth / 2
+  const hexWidth = 2 * apothem
+  const topX = 0
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const rightXInner = apothemInner
+  const leftXInner = -apothemInner
+  const bottomYInner = radiusInner
+  const bottomSideYInner = 0.5 * radiusInner
+
+  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
+  const corners: Point[] = [
+    /* 
+     ______
+    |      |
+    \/\/\/\/
+
+     */
+    { x: leftXInner, y: bottomSideYInner - radius / 4 }, // top-left rectangle in hex1
+    { x: leftXInner, y: bottomSideYInner }, // bottom-left hex1
+    { x: topX, y: bottomYInner }, // bottom hex1
+    { x: rightXInner, y: bottomSideYInner }, // bottom-right hex1
+
+    { x: hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex2
+    { x: hexWidth, y: bottomYInner }, // bottom hex2
+    { x: hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex2
+
+    { x: 2 * hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex3
+    { x: 2 * hexWidth, y: bottomYInner }, // bottom hex3
+    { x: 2 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex3
+    { x: 2 * hexWidth + apothemInner, y: bottomSideYInner - radius / 4 }, // top-right rectangle in hex3
+
+    // { x: 3 * hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex4
+    // { x: 3 * hexWidth, y: bottomYInner }, // bottom hex4
+    // { x: 3 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex4
+    // { x: 3 * hexWidth + apothemInner, y: bottomSideYInner - radius / 4 }, // top-right rectangle in hex4
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
 export function getBattlementSvgPolygonPoints(
   radius: number,
   borderWidth: number,
