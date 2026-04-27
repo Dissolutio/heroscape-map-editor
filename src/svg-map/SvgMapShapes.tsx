@@ -39,6 +39,7 @@ import {
   getRoadWallSvgPolygonPoints,
   getRuins2SvgPolygonPoints,
   getRuins3SvgPolygonPoints,
+  getShipBowSvgPolygonPoints,
   getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
 import {
@@ -1229,13 +1230,11 @@ export const SvgShipBow = ({
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
+  const { points } = getShipBowSvgPolygonPoints(SVG_HEX_RADIUS, 0)
+
   return (
     <g transform={`rotate(${pieceRotation})`}>
-      {/* Placeholder until custom ship bow geometry is added. */}
-      <circle
-        fill={fillColor}
-        r={SVG_HEX_RADIUS * 0.7}
-      />
+      <polygon points={points} fill={fillColor} />
     </g>
   )
 }
