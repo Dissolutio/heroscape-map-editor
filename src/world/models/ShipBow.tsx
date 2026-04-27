@@ -10,7 +10,7 @@ import { noop } from 'lodash'
 
 export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
   const { nodes } = useGLTF(
-    '/ship-bow.glb',
+    '/ship-bow_v2.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(
