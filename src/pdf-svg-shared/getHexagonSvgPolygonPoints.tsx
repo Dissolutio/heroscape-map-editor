@@ -1,4 +1,5 @@
 import type { Point } from '../types'
+import { SVG_HEX_APOTHEM } from '../utils/constants'
 import { cosDegrees, sinDegrees } from '../utils/hex-utils'
 
 // export function getHexagonSvgPolygonPoints(radius: number) {
@@ -131,6 +132,55 @@ export function getShipWallSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
+export function generateArrowPath(width: number, heightRatio?: number) {
+  const height = width * (heightRatio ?? (7 / 12))
+  // width
+  // height
+  // the points
+  //       *\
+  //       | \
+  // 1--*--*  \
+  // |  0,0    *
+  // *--*--*  /
+  //       | /
+  //       */
+  const widthD = width * 0.71975
+  const widthC = width / 2
+  const widthB = widthD - widthC
+  const widthA = widthC - widthB
+  // the widths
+  // d = b + c
+  // c = a + b
+  // c = w / 2
+  // *-----w-----*
+  // *---d---*
+  //         *\
+  //         | \
+  // *-c-*-b-*  \
+  // |       *-a-*
+  // *-c-*-b-*  /
+  //         | /
+  //         */
+  const heightH = height / 3
+  // the heights
+  //       *\
+  //       h \
+  // *--*--*  \
+  // h        *
+  // *--*--*  /
+  //       h /
+  //       */
+  return `M -${widthC} -${heightH / 2}
+    h ${widthC}
+    h ${widthB}
+    v ${-heightH}
+    l ${widthA} ${1.5 * heightH}
+    l ${-widthA} ${1.5 * heightH}
+    v ${-heightH}
+    h ${-widthB}
+    h ${-widthC}
+    Z`
+}
 export function getShipBowSvgPolygonPoints(
   radius: number,
   borderWidth: number,
@@ -145,17 +195,25 @@ export function getShipBowSvgPolygonPoints(
   const rightXInner = apothemInner
   const leftXInner = -apothemInner
   const topYInner = -radiusInner
+  const topYOuter = -radius
   const topSideYInner = -0.5 * radiusInner
 
-  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
+  const bootBaseY = topYOuter - radius
+  const bootBaseX = 0
+  const slope = -0.5774
+  const boot2X = -30 // 0 > x > -86.6
+  const boot2Y = slope * boot2X + bootBaseY
   const corners: Point[] = [
-    /* 
-     /\/\/\
+    /*   
+    |\
+    ||/\/\/\
     |______|
-    
      */
     { x: leftXInner, y: topSideYInner + radius / 4 }, // bottom-left rectangle in hex1
-    { x: leftXInner, y: topSideYInner }, // top-left hex1
+
+    { x: boot2X, y: boot2Y }, // top-left of boot
+    { x: bootBaseX, y: bootBaseY }, // top-right of boot
+
     { x: topX, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right hex1
 
@@ -167,11 +225,6 @@ export function getShipBowSvgPolygonPoints(
     { x: 2 * hexWidth, y: topYInner }, // bottom hex3
     { x: 2 * hexWidth + apothemInner, y: topSideYInner }, // bottom-right hex3
     { x: 2 * hexWidth + apothemInner, y: topSideYInner + radius / 4 }, // bottom-right rectangle in hex3
-
-    // { x: 3 * hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex4
-    // { x: 3 * hexWidth, y: bottomYInner }, // bottom hex4
-    // { x: 3 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex4
-    // { x: 3 * hexWidth + apothemInner, y: bottomSideYInner - radius / 4 }, // top-right rectangle in hex4
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }

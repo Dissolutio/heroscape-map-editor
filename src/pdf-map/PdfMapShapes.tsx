@@ -1,4 +1,4 @@
-import { Circle, Ellipse, G, Path, Polygon, Text } from '@react-pdf/renderer'
+import { Circle, Ellipse, G, Path, Polygon, Rect, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
   get24HexSvgPolygonPointsAt00,
@@ -33,6 +33,7 @@ import {
   getSvgHexBorderColor,
   getSvgHexSubLevelFillColor,
   getPdfHexFillColor,
+  getSvgHexFillColor,
 } from '../svg-map/getSvgHexColors'
 import {
   type BoardHex,
@@ -55,7 +56,7 @@ import {
   svgSubLevelColors,
 } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from '../svg-map/svg-hive'
-import { getFortifiedWallSvgPolygonPoints } from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
+import { generateArrowPath, getFortifiedWallSvgPolygonPoints, getShipBowSvgPolygonPoints, getShipWallSvgPolygonPoints } from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 
 export const PdfEmptyHex = () => {
@@ -1287,107 +1288,134 @@ export const PdfCastleArch = ({
 }
 
 export const PdfShipWall = ({
+  hex,
   isSubLevel,
   pieceRotation,
 }: {
+  hex: BoardHex
   isSubLevel?: boolean
   pieceRotation: number
 }) => {
-  const fillColor = pdfColors.shipWall
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const { points } = getShipWallSvgPolygonPoints(SVG_HEX_RADIUS, 0)
   return (
-    <G transform={`rotate(${pieceRotation})`} opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}>
-      {/* Placeholder until custom ship wall geometry is added. */}
-      <Circle
-        style={{
-          fill: fillColor
-        }}
-        r={SVG_HEX_RADIUS * 0.7}
+    <G transform={`rotate(${pieceRotation})`}
+    >
+      <Polygon
+        fill={fillColor}
+        points={points}
       />
     </G>
   )
 }
 
 export const PdfShipBow = ({
+  hex,
   isSubLevel,
   pieceRotation,
 }: {
+  hex: BoardHex
   isSubLevel?: boolean
   pieceRotation: number
 }) => {
-  const fillColor = pdfColors.shipBow
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const { points } = getShipBowSvgPolygonPoints(SVG_HEX_RADIUS, 0)
   return (
-    <G transform={`rotate(${pieceRotation})`} opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}>
-      {/* Placeholder until custom ship wall geometry is added. */}
-      <Circle
-        style={{
-          fill: fillColor
-        }}
-        r={SVG_HEX_RADIUS * 0.7}
+    <G
+      transform={`rotate(${pieceRotation})`}
+    >
+      <Polygon
+        fill={fillColor}
+        points={points}
       />
     </G>
   )
 }
 
 export const PdfCannon = ({
+  hex,
   isSubLevel,
   pieceRotation
 }: {
+  hex: BoardHex
   isSubLevel?: boolean
   pieceRotation: number
 }) => {
-  const fillColor = pdfColors.cannon
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const arrowColor = '#FFFFFF'
+
+  const iconRadius = SVG_HEX_RADIUS * 0.5
+  const iconDiameter = iconRadius * 2
+  // renegade spec svg: arrow width is 12, circle width is 17.46
+  const arrowWidth = (iconDiameter * (12 / 17.46))
   return (
     <>
-      {/* Placeholder until custom ship wall geometry is added. */}
-      <G transform={`rotate(${pieceRotation})`} opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}>
+      <G transform={`rotate(${pieceRotation})`}>
         <Circle
           style={{
             fill: fillColor
           }}
           r={SVG_HEX_RADIUS * 0.7}
         />
+        <Path
+          fill={arrowColor}
+          d={generateArrowPath(arrowWidth)}
+          transform={`rotate(${pieceRotation})`}
+        />
       </G>
-      <Text
-        fill={'#FFFFFF'}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-        style={pdfHexTextStyle}
-        textAnchor="middle"
-        dominantBaseline="central"
-      >
-        C
-      </Text>
     </>
   )
 }
 
 export const PdfRopeLadder = ({
+  hex,
   isSubLevel,
   pieceRotation
 }: {
+  hex: BoardHex
   isSubLevel?: boolean
   pieceRotation: number
 }) => {
-  const fillColor = pdfColors.ropeLadder
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const arrowColor = '#FFFFFF'
+  const iconRadius = SVG_HEX_RADIUS * 0.4
+  const iconDiameter = iconRadius * 2
+  // renegade spec svg: arrow width is 12, circle width is 17.46
+  // const arrowWidth = (iconDiameter * (12 / 17.46))
+  const arrowWidth = iconDiameter / 1.3
   return (
     <>
       {/* Placeholder until custom ship wall geometry is added. */}
-      <G transform={`rotate(${pieceRotation})`} opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}>
-        <Circle
-          style={{
-            fill: fillColor
-          }}
-          r={SVG_HEX_RADIUS * 0.7}
-        />
+      <G
+        transform={`rotate(${pieceRotation})`}>
+        <G transform={`translate(${SVG_HEX_APOTHEM},0)`}>
+          <Rect
+            fill={fillColor}
+            width={iconDiameter}
+            height={iconDiameter}
+            x={-iconDiameter / 2}
+            y={-iconDiameter / 2}
+          />
+          <Path
+            fill={arrowColor}
+            d={generateArrowPath(arrowWidth)}
+            transform={'translate(0, -17)'}
+          />
+          <Path
+            fill={arrowColor}
+            d={generateArrowPath(arrowWidth)}
+            transform={'translate(-0, 15),rotate(180)'}
+          />
+        </G>
       </G>
-      <Text
-        fill={'#FFFFFF'}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-        style={pdfHexTextStyle}
-        textAnchor="middle"
-        dominantBaseline="central"
-      >
-        RL
-      </Text>
     </>
   )
 }

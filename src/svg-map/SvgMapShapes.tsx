@@ -1,5 +1,6 @@
 import { piecesSoFar } from '../data/pieces'
 import {
+  generateArrowPath,
   get1HexOutlineSvgPolygonPoints,
   get24HexOutlineSvgPolygonPoints,
   get24HexSvgPolygonPointsAt00,
@@ -1237,56 +1238,6 @@ export const SvgShipBow = ({
       <polygon points={points} fill={fillColor} />
     </g>
   )
-}
-
-const generateArrowPath = (width: number, heightRatio?: number) => {
-  const height = width * (heightRatio ?? (7 / 12))
-  // width
-  // height
-  // the points
-  //       *\
-  //       | \
-  // 1--*--*  \
-  // |  0,0    *
-  // *--*--*  /
-  //       | /
-  //       */
-  const widthD = width * 0.71975
-  const widthC = width / 2
-  const widthB = widthD - widthC
-  const widthA = widthC - widthB
-  // the widths
-  // d = b + c
-  // c = a + b
-  // c = w / 2
-  // *-----w-----*
-  // *---d---*
-  //         *\
-  //         | \
-  // *-c-*-b-*  \
-  // |       *-a-*
-  // *-c-*-b-*  /
-  //         | /
-  //         */
-  const heightH = height / 3
-  // the heights
-  //       *\
-  //       h \
-  // *--*--*  \
-  // h        *
-  // *--*--*  /
-  //       h /
-  //       */
-  return `M -${widthC} -${heightH / 2}
-    h ${widthC}
-    h ${widthB}
-    v ${-heightH}
-    l ${widthA} ${1.5 * heightH}
-    l ${-widthA} ${1.5 * heightH}
-    v ${-heightH}
-    h ${-widthB}
-    h ${-widthC}
-    Z`
 }
 
 export const SvgCannon = ({

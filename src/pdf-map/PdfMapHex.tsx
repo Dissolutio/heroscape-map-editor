@@ -233,7 +233,10 @@ export const PdfMapHex = ({
   if (inventoryID === Pieces.cannon) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfCannon isSubLevel={isSubLevel} pieceRotation={pieceRotation} />
+        <PdfCannon
+          hex={hex}
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation} />
       </G>
     )
   }
@@ -241,7 +244,10 @@ export const PdfMapHex = ({
   if (inventoryID === Pieces.ropeLadder) {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfRopeLadder isSubLevel={isSubLevel} pieceRotation={pieceRotation} />
+        <PdfRopeLadder
+          hex={hex}
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation} />
       </G>
     )
   }
@@ -250,6 +256,7 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfShipWall
+          hex={hex}
           isSubLevel={isSubLevel}
           pieceRotation={pieceRotation}
         />
@@ -261,6 +268,7 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfShipBow
+          hex={hex}
           isSubLevel={isSubLevel}
           pieceRotation={pieceRotation}
         />
