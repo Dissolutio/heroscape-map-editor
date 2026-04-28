@@ -48,6 +48,9 @@ import {
   SvgJungle,
   SvgHexDecor,
   SvgFortifiedWall,
+  SvgShipWall,
+  SvgShipBow,
+  SvgCannon,
   getOutcropTextColor,
 } from './SvgMapShapes'
 import { singleHexObstacleHeightTextProps } from './svgText'
@@ -221,6 +224,42 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         >
           A
         </text>
+      </g>
+    )
+  }
+  // Cannon
+  if (inventoryID === Pieces.cannon) {
+    return (
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <SvgCannon
+          hex={hex}
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
+      </g>
+    )
+  }
+  // Ship Wall
+  if (inventoryID === Pieces.shipWall && hex.isObstacleOrigin) {
+    return (
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <SvgShipWall
+          hex={hex}
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
+      </g>
+    )
+  }
+  // Ship Bow
+  if (inventoryID === Pieces.shipBow && hex.isObstacleOrigin) {
+    return (
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <SvgShipBow
+          hex={hex}
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
       </g>
     )
   }

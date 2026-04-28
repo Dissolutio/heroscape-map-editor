@@ -55,6 +55,7 @@ export enum HexTerrain {
   rock = 'rock',
   sand = 'sand',
   road = 'road',
+  wood = 'wood',
   snow = 'snow',
   lavaField = 'lavaField',
   swamp = 'swamp',
@@ -95,6 +96,12 @@ export enum HexTerrain {
   castleWall = 'castleWall',
   castleBase = 'castleBase',
   wallWalk = 'wallWalk',
+  // shores of valhalla
+  shipWall = 'shipWall',
+  shipBow = 'shipBow',
+  cannon = 'cannon',
+  ropeLadder = 'ropeLadder',
+
   // other
   glyphPower = 'glyphPower',
   glyphTreasure = 'glyphTreasure',
@@ -132,6 +139,7 @@ export enum PiecePrefixes {
   road = 'rd',
   toxic = 'x',
   ancientTerrain = 'at',
+  wood = 'wd',
   wellspringWater = 'ww',
   toxicWater = 'xw',
   water = 'w',
@@ -220,6 +228,7 @@ export const Pieces = {
   ancientTerrain3: `${PiecePrefixes.ancientTerrain}3`,
   ancientTerrain7: `${PiecePrefixes.ancientTerrain}7`,
   ancientTerrain24: `${PiecePrefixes.ancientTerrain}24`,
+  wood2: `${PiecePrefixes.wood}2`,
   wellspringWater1: `${PiecePrefixes.wellspringWater}1`,
   toxicWater1: `${PiecePrefixes.toxicWater}1`,
   water1: `${PiecePrefixes.water}1`,
@@ -279,6 +288,10 @@ export const Pieces = {
   shroudshroom7: `${PiecePrefixes.shroudshroom}7`,
   shroudshroom10: `${PiecePrefixes.shroudshroom}10`,
   shroudshroom13: `${PiecePrefixes.shroudshroom}13`,
+  shipWall: 'sl',
+  shipBow: 'sb',
+  cannon: 'cn',
+  ropeLadder: 'rl',
   // EdgeObstacles
   ruins2: `${PiecePrefixes.ruins}2`,
   ruins3: `${PiecePrefixes.ruins}3`,

@@ -158,6 +158,7 @@ export const useApplyHotkeys = ({
   const togglePenModeToxic = () => togglePenMode(PiecePrefixes.toxic)
   const togglePenModeAncientTerrain = () =>
     togglePenMode(PiecePrefixes.ancientTerrain)
+  const togglePenModeWood = () => togglePenMode(PiecePrefixes.wood)
   const togglePenModeWellspringWater = () =>
     togglePenMode(PiecePrefixes.wellspringWater)
   const togglePenModeToxicWater = () => togglePenMode(PiecePrefixes.toxicWater)
@@ -209,6 +210,7 @@ export const useApplyHotkeys = ({
     togglePenModeDungeon: togglePenModeDungeon,
     togglePenModeToxic: togglePenModeToxic,
     togglePenModeAncientTerrain: togglePenModeAncientTerrain,
+    togglePenModeWood: togglePenModeWood,
     togglePenModeWellspringWater: togglePenModeWellspringWater,
     togglePenModeToxicWater: togglePenModeToxicWater,
     togglePenModeWater: togglePenModeWater,

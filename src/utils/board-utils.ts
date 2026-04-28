@@ -24,12 +24,14 @@ export function isSolidTerrainHex(terrain: string) {
     terrain === HexTerrain.dungeon ||
     terrain === HexTerrain.toxic ||
     terrain === HexTerrain.ancientTerrain ||
+    terrain === HexTerrain.wood ||
     terrain === HexTerrain.wallWalk ||
     terrain === HexTerrain.swamp
   )
 }
 export function isRenderedFromPieceIDPiece(inventoryID: string) {
   return (
+    inventoryID === Pieces.ropeLadder ||
     inventoryID === Pieces.battlement ||
     inventoryID === Pieces.roadWall ||
     inventoryID === Pieces.laurWallRuin1 ||

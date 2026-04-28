@@ -171,6 +171,19 @@ export default function MapDisplay3D({
         rotation: penModeRotation,
       })
     }
+    // ROPELADDER
+    else if (piece?.id === Pieces.ropeLadder) {
+      error = paintTile({
+        piece,
+        clickedHexCoords,
+        // altitude: clickedHexAltitude,
+        // rotation: penModeRotation,
+        // piece,
+        // clickedHexCoords: roadWallClickedHexCoords,
+        altitude: clickedHexAltitude - 1,
+        rotation: penModeRotation,
+      })
+    }
     // LADDER ONTO LADDER
     else if (
       piece?.id === Pieces.ladder &&

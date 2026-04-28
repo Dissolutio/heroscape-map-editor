@@ -1,5 +1,5 @@
 import { Page, Text, View } from '@react-pdf/renderer'
-import { groupBy, keyBy } from 'lodash'
+import { groupBy, keyBy, uniq } from 'lodash'
 import type { PropsWithChildren } from 'react'
 import {
   type BoardHexes,
@@ -111,23 +111,35 @@ const getBoardHexAndPieceChunks = (
     .filter((pieceID) => {
       const id = decodePieceID(pieceID).inventoryID
       return (
+        id === Pieces.ropeLadder ||
         id === Pieces.battlement ||
         id === Pieces.roadWall ||
-        id === Pieces.laurWallLong ||
+        id === Pieces.laurWallRuin1 ||
+        id === Pieces.laurWallRuin2 ||
+        id === Pieces.laurWallRuin3 ||
         id === Pieces.laurWallShort ||
-        id === Pieces.laurWallRuin1
+        id === Pieces.laurWallShortStackable ||
+        id === Pieces.laurWallLong ||
+        id === Pieces.laurWallLongStackable ||
+        id === Pieces.laurWallArch
       )
     })
-    .map((pieceID) => decodePieceID(pieceID))
+    // move pieces up 1 altitude, otherwise a battlement on bottom level causes level-0 to show in pdf
+    .map((pieceID) => ({
+      ...decodePieceID(pieceID),
+      altitude: decodePieceID(pieceID).altitude + 1,
+    }))
+  // .map((pieceID) => decodePieceID(pieceID))
 
   // Group hexes and pieces by altitude
   const groupedHexesByAltitude = groupBy(filteredBoardHexes, 'altitude')
   const groupedPiecesByAltitude = groupBy(filteredBoardPieces, 'altitude')
 
   // Combine hexes and pieces into a single array of altitude groups
-  const combinedGroups: PdfMapAltitudeChunk[] = Object.keys(
-    groupedHexesByAltitude,
-  ).map((altitude) => ({
+  const combinedGroups: PdfMapAltitudeChunk[] = uniq([
+    ...Object.keys(groupedPiecesByAltitude),
+    ...Object.keys(groupedHexesByAltitude),
+  ]).map((altitude) => ({
     altitude: Number(altitude),
     hexes: groupedHexesByAltitude[altitude] || [],
     pieces: groupedPiecesByAltitude[altitude] || [],

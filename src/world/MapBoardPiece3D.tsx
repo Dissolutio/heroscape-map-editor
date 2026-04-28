@@ -2,7 +2,7 @@ import { Vector3 } from 'three'
 import useBoundStore from '../store/store'
 import { Pieces } from '../types'
 import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
-import { HEXGRID_HEXCAP_HEIGHT } from '../utils/constants'
+import { HEXGRID_HEX_HEIGHT, HEXGRID_HEXCAP_HEIGHT } from '../utils/constants'
 import { decodePieceID, getBoardHex3DCoords } from '../utils/map-utils'
 import { Battlement } from './models/Battlement'
 import { LaurWallArchAddon } from './models/LaurWallArchModel'
@@ -16,6 +16,7 @@ import {
 } from './models/piece-adjustments'
 import { Suspense } from 'react'
 import ModelLoader from './models/ModelLoader'
+import { RopeLadder } from './models/RopeLadder'
 
 export const MapBoardPiece3D = ({
   pid,
@@ -114,6 +115,20 @@ export const MapBoardPiece3D = ({
       >
         <Suspense fallback={<ModelLoader />}>
           <Battlement pid={pid} />
+        </Suspense>
+      </group>
+    )
+  }
+
+  // ROPE LADDER
+  if (inventoryID === Pieces.ropeLadder) {
+    return (
+      <group
+        position={[x, y + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, (rotation * -Math.PI) / 3, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <RopeLadder pid={pid} />
         </Suspense>
       </group>
     )

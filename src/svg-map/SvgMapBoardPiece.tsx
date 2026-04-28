@@ -8,6 +8,7 @@ import {
   SvgBoardPieceLaurWallShort,
   SvgLaurWallArchText,
   SvgRoadWall,
+  SvgRopeLadder,
 } from './SvgMapShapes'
 
 export const SvgMapBoardPiece = ({
@@ -23,6 +24,18 @@ export const SvgMapBoardPiece = ({
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible) {
     return null
+  }
+  // RopeLadders
+  if (inventoryID === Pieces.ropeLadder) {
+    return (
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <SvgRopeLadder
+          piece={piece}
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
+      </g>
+    )
   }
   // BATTLEMENTS
   if (inventoryID === Pieces.battlement) {

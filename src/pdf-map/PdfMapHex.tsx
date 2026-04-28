@@ -46,6 +46,9 @@ import {
   PdfJungle,
   PdfSvgHexDecor,
   PdfSvgFortifiedWall,
+  PdfShipWall,
+  PdfShipBow,
+  PdfCannon,
 } from './PdfMapShapes'
 import { svgColors } from '../world/maphex/hexColors'
 import {
@@ -222,6 +225,42 @@ export const PdfMapHex = ({
         >
           A
         </Text>
+      </G>
+    )
+  }
+  // Cannon
+  if (inventoryID === Pieces.cannon) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfCannon
+          hex={hex}
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
+      </G>
+    )
+  }
+  // Ship Wall (placeholder: replace with custom ship wall shape)
+  if (inventoryID === Pieces.shipWall && hex.isObstacleOrigin) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfShipWall
+          hex={hex}
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
+      </G>
+    )
+  }
+  // Ship Bow (placeholder: replace with custom ship bow shape)
+  if (inventoryID === Pieces.shipBow && hex.isObstacleOrigin) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfShipBow
+          hex={hex}
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
       </G>
     )
   }

@@ -53,6 +53,9 @@ import { piecesSoFar } from '../../data/pieces'
 import Shroudshroom7 from '../models/Shroudshroom7'
 import Shroudshroom10 from '../models/Shroudshroom10'
 import Shroudshroom13 from '../models/Shroudshroom13'
+import Cannon from '../models/Cannon'
+import { ShipWall } from '../models/ShipWall'
+import { ShipBow } from '../models/ShipBow'
 
 export const MapHex3D = ({
   boardHex,
@@ -109,6 +112,11 @@ export const MapHex3D = ({
     boardHex.inventoryID === Pieces.shroudshroom10 && isObstacleHex
   const isShroudshroom13Hex =
     boardHex.inventoryID === Pieces.shroudshroom13 && boardHex.isObstacleOrigin
+  const isShipWallHex =
+    boardHex.inventoryID === Pieces.shipWall && boardHex.isObstacleOrigin
+  const isShipBowHex =
+    boardHex.inventoryID === Pieces.shipBow && boardHex.isObstacleOrigin
+  const isCannonHex = boardHex.inventoryID === Pieces.cannon && isObstacleHex
   const isLaurSquarePillarHex =
     boardHex.inventoryID === Pieces.laurWallSquarePillar &&
     boardHex.isObstacleOrigin
@@ -333,6 +341,36 @@ export const MapHex3D = ({
         >
           <Suspense fallback={<ModelLoader />}>
             <Shroudshroom13 boardHex={boardHex} />
+          </Suspense>
+        </group>
+      )}
+      {isShipWallHex && (
+        <group
+          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, getObstaclRotation(boardHex.pieceRotation), 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <ShipWall boardHex={boardHex} />
+          </Suspense>
+        </group>
+      )}
+      {isShipBowHex && (
+        <group
+          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, getObstaclRotation(boardHex.pieceRotation), 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <ShipBow boardHex={boardHex} />
+          </Suspense>
+        </group>
+      )}
+      {isCannonHex && (
+        <group
+          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <Cannon boardHex={boardHex} />
           </Suspense>
         </group>
       )}

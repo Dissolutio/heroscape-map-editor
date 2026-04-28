@@ -1,4 +1,5 @@
 import type { Point } from '../types'
+import { SVG_HEX_APOTHEM } from '../utils/constants'
 import { cosDegrees, sinDegrees } from '../utils/hex-utils'
 
 // export function getHexagonSvgPolygonPoints(radius: number) {
@@ -85,6 +86,267 @@ export function getRoadWallSvgPolygonPoints(
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
+}
+export function getShipWallSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const halfBorder = borderWidth / 2
+  const hexWidth = 2 * apothem
+  const topX = 0
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const rightXInner = apothemInner
+  const leftXInner = -apothemInner
+  const topYInner = -radiusInner
+  const topSideYInner = -0.5 * radiusInner
+
+  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
+  const corners: Point[] = [
+    /* 
+     /\/\/\
+    |______|
+    
+     */
+    { x: leftXInner, y: topSideYInner + radius / 4 }, // bottom-left rectangle in hex1
+    { x: leftXInner, y: topSideYInner }, // top-left hex1
+    { x: topX, y: topYInner }, // top hex1
+    { x: rightXInner, y: topSideYInner }, // top-right hex1
+
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
+    { x: hexWidth, y: topYInner }, // bottom hex2
+    { x: hexWidth + apothemInner, y: topSideYInner }, // bottom-right hex2
+
+    { x: 2 * hexWidth - apothemInner, y: topSideYInner }, // bottom-left hex3
+    { x: 2 * hexWidth, y: topYInner }, // bottom hex3
+    { x: 2 * hexWidth + apothemInner, y: topSideYInner }, // bottom-right hex3
+    { x: 2 * hexWidth + apothemInner, y: topSideYInner + radius / 4 }, // bottom-right rectangle in hex3
+
+    // { x: 3 * hexWidth - apothemInner, y: bottomSideYInner }, // bottom-left hex4
+    // { x: 3 * hexWidth, y: bottomYInner }, // bottom hex4
+    // { x: 3 * hexWidth + apothemInner, y: bottomSideYInner }, // bottom-right hex4
+    // { x: 3 * hexWidth + apothemInner, y: bottomSideYInner - radius / 4 }, // top-right rectangle in hex4
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
+export function generateArrowPath(width: number, heightRatio?: number) {
+  const height = width * (heightRatio ?? 7 / 12)
+  // width
+  // height
+  // the points
+  //       *\
+  //       | \
+  // 1--*--*  \
+  // |  0,0    *
+  // *--*--*  /
+  //       | /
+  //       */
+  const widthD = width * 0.71975
+  const widthC = width / 2
+  const widthB = widthD - widthC
+  const widthA = widthC - widthB
+  // the widths
+  // d = b + c
+  // c = a + b
+  // c = w / 2
+  // *-----w-----*
+  // *---d---*
+  //         *\
+  //         | \
+  // *-c-*-b-*  \
+  // |       *-a-*
+  // *-c-*-b-*  /
+  //         | /
+  //         */
+  const heightH = height / 3
+  // the heights
+  //       *\
+  //       h \
+  // *--*--*  \
+  // h        *
+  // *--*--*  /
+  //       h /
+  //       */
+  return `M -${widthC} -${heightH / 2}
+    h ${widthC}
+    h ${widthB}
+    v ${-heightH}
+    l ${widthA} ${1.5 * heightH}
+    l ${-widthA} ${1.5 * heightH}
+    v ${-heightH}
+    h ${-widthB}
+    h ${-widthC}
+    Z`
+}
+export function getShipBowSvgPolygonPoints(
+  radius: number,
+  borderWidth: number,
+) {
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const halfBorder = borderWidth / 2
+  const hexWidth = 2 * apothem
+  const topX = 0
+  // Inner hexagon
+  const radiusInner = radius - halfBorder
+  const apothemInner = (Math.sqrt(3) * radiusInner) / 2
+  const rightXInner = apothemInner
+  const leftXInner = -apothemInner
+  const topYInner = -radiusInner
+  const topYOuter = -radius
+  const topSideYInner = -0.5 * radiusInner
+
+  const bootBaseY = topYOuter - radius
+  const bootBaseX = 0
+  const slope = 0.5774
+  const boot2X = -30 // 0 > x > -86.6
+  const boot2Y = slope * boot2X + bootBaseY
+  const corners: Point[] = [
+    /*   
+    |\
+    ||/\/\/\
+    |______|
+     */
+    { x: leftXInner, y: topSideYInner + radius / 4 }, // bottom-left rectangle in hex1
+
+    { x: boot2X, y: boot2Y }, // top-left of boot
+    { x: bootBaseX, y: bootBaseY }, // top-right of boot
+
+    { x: topX, y: topYInner }, // top hex1
+    { x: rightXInner, y: topSideYInner }, // top-right hex1
+
+    { x: hexWidth - apothemInner, y: topSideYInner }, // top-left hex2
+    { x: hexWidth, y: topYInner }, // bottom hex2
+    { x: hexWidth + apothemInner, y: topSideYInner }, // bottom-right hex2
+
+    { x: 2 * hexWidth - apothemInner, y: topSideYInner }, // bottom-left hex3
+    { x: 2 * hexWidth, y: topYInner }, // bottom hex3
+    { x: 2 * hexWidth + apothemInner, y: topSideYInner }, // bottom-right hex3
+    { x: 2 * hexWidth + apothemInner, y: topSideYInner + radius / 4 }, // bottom-right rectangle in hex3
+  ]
+  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
+  return { points, corners }
+}
+export const genWoodPlankPath1 = (radius: number, borderWidth: number) => {
+  const radiusInner = radius - borderWidth
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const apothemInner = (Math.sqrt(3) * (radius - borderWidth)) / 2
+  const gutterThickness = radiusInner / 25
+  const xOffsetOfJunction = -radiusInner / 20
+  const m = radiusInner / 2 / apothemInner
+  const b1 = radiusInner
+  const getXB1 = (y: number, m: number) => {
+    const x = (y + b1) / m
+    return x
+  }
+
+  const y1 = radiusInner * -0.75 - gutterThickness
+  const y3 = radiusInner * -0.75 + gutterThickness
+  const y5 = radiusInner * -0.25 - gutterThickness
+  const y7 = radiusInner * -0.25 + gutterThickness
+  const x3 = getXB1(y3, m)
+  const x12 = getXB1(y3, -m)
+  const x4 = (x3 + x12) / 2 + gutterThickness
+  const x11 = (x3 + x12) / 2 - gutterThickness
+  const corners: Point[] = [
+    /* 
+    y=mx + b  
+    
+     1 ________ 2
+    12____  ____ 3
+        11||4
+          ||
+    9___10||5_____6
+    8_____________7
+     */
+    { x: getXB1(y1, -m), y: y1 }, // 1
+    { x: getXB1(y1, m), y: y1 }, // 2
+    { x: getXB1(y3, m), y: y3 }, // 3
+    { x: x4 + xOffsetOfJunction, y: y3 }, // 4
+
+    { x: x4 + xOffsetOfJunction, y: y5 }, // 5
+    { x: apothem, y: y5 }, // 6
+    { x: apothem, y: y7 }, // 7
+    { x: -apothemInner, y: y7 }, // 8
+    { x: -apothemInner, y: y5 }, // 9
+    { x: x11 + xOffsetOfJunction, y: y5 }, // 10
+    { x: x11 + xOffsetOfJunction, y: y3 }, // 11
+    { x: getXB1(y3, -m), y: y3 }, // 12
+  ]
+  const path = `M ${corners[0].x},${corners[0].y} 
+    L ${corners[1].x},${corners[1].y}
+    L ${corners[2].x},${corners[2].y}
+    L ${corners[3].x},${corners[3].y}
+    L ${corners[4].x},${corners[4].y}
+    L ${corners[5].x},${corners[5].y}
+    L ${corners[6].x},${corners[6].y}
+    L ${corners[7].x},${corners[7].y}
+    L ${corners[8].x},${corners[8].y}
+    L ${corners[9].x},${corners[9].y}
+    L ${corners[10].x},${corners[10].y}
+    L ${corners[11].x},${corners[11].y}
+  Z
+  `
+  return { path }
+}
+export const genWoodPlankPath2 = (radius: number, borderWidth: number) => {
+  const radiusInner = radius - borderWidth
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const apothemInner = (Math.sqrt(3) * (radius - borderWidth)) / 2
+  const gutterThickness = radiusInner / 25
+  const y1 = radiusInner * 0.25 - gutterThickness
+  const y2 = radiusInner * 0.25 + gutterThickness
+  const corners: Point[] = [
+    /* 
+    1_____________2
+    4_____________3
+     */
+    { x: -apothemInner, y: y1 }, // 1
+    { x: apothem, y: y1 }, // 2
+    { x: apothem, y: y2 }, // 3
+    { x: -apothemInner, y: y2 }, // 4
+  ]
+  const path = `M ${corners[0].x},${corners[0].y} 
+  L ${corners[1].x},${corners[1].y}
+  L ${corners[2].x},${corners[2].y}
+  L ${corners[3].x},${corners[3].y}
+  Z
+  `
+  return { path }
+}
+export const genWoodPlankPath3 = (radius: number, borderWidth: number) => {
+  const radiusInner = radius - borderWidth
+  const apothemInner = (Math.sqrt(3) * (radius - borderWidth)) / 2
+  const gutterThickness = radiusInner / 25
+  const m = radiusInner / 2 / apothemInner
+  const b = -radiusInner
+  const getXForY = (y: number, m: number) => {
+    return (y + b) / m
+  }
+
+  const y1 = radiusInner * 0.75 - gutterThickness
+  const y3 = radiusInner * 0.75 + gutterThickness
+  const corners: Point[] = [
+    /* 
+    y=mx + b  
+
+    1_____________2
+     4___________3
+    */
+    { x: getXForY(y1, -m), y: y1 }, // 1
+    { x: getXForY(y1, m), y: y1 }, // 2
+    { x: getXForY(y3, m), y: y3 }, // 3
+    { x: getXForY(y3, -m), y: y3 }, // 4
+  ]
+  const path = `M ${corners[0].x},${corners[0].y} 
+  L ${corners[1].x},${corners[1].y}
+  L ${corners[2].x},${corners[2].y}
+  L ${corners[3].x},${corners[3].y}
+  Z
+  `
+  return { path }
 }
 export function getBattlementSvgPolygonPoints(
   radius: number,

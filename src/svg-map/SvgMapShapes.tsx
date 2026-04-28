@@ -1,5 +1,9 @@
 import { piecesSoFar } from '../data/pieces'
 import {
+  generateArrowPath,
+  genWoodPlankPath1,
+  genWoodPlankPath2,
+  genWoodPlankPath3,
   get1HexOutlineSvgPolygonPoints,
   get24HexOutlineSvgPolygonPoints,
   get24HexSvgPolygonPointsAt00,
@@ -39,6 +43,8 @@ import {
   getRoadWallSvgPolygonPoints,
   getRuins2SvgPolygonPoints,
   getRuins3SvgPolygonPoints,
+  getShipBowSvgPolygonPoints,
+  getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
 import {
   getSvgHexBorderColor,
@@ -51,6 +57,7 @@ import {
   type DecodedPieceID,
   HexTerrain,
   Pieces,
+  Point,
 } from '../types'
 import {
   HEXGRID_HEX_APOTHEM,
@@ -132,6 +139,11 @@ export const SvgHexDecor = ({
       {hex.terrain === HexTerrain.toxicWater && (
         <SvgToxicNuclear isToxicWater isSubLevel={isSubLevel} />
       )}
+      {hex.terrain === HexTerrain.wood && (
+        <g transform={`rotate(${hex.isObstacleAuxiliary ? '180' : '0'})`}>
+          <SvgWoodMarkings isSubLevel={isSubLevel} />
+        </g>
+      )}
     </>
   )
 }
@@ -207,6 +219,31 @@ const SvgRoadCobblestone = ({
           fill={fillColor}
         />
       </g>
+    </>
+  )
+}
+const SvgWoodMarkings = ({
+  isSubLevel,
+}: {
+  isSubLevel?: boolean
+}) => {
+  // const fillColor = 'black'
+  const fillColor = isSubLevel ? svgSubLevelColors.cannon : svgColors.cannon
+
+  return (
+    <>
+      <path
+        d={genWoodPlankPath1(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).path}
+        fill={fillColor}
+      />
+      <path
+        d={genWoodPlankPath2(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).path}
+        fill={fillColor}
+      />
+      <path
+        d={genWoodPlankPath3(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).path}
+        fill={fillColor}
+      />
     </>
   )
 }
@@ -399,6 +436,7 @@ export const SvgMultiHex5 = ({
     </>
   )
 }
+
 export const SvgMultiHex6 = ({
   hex,
   isSubLevel,
@@ -1194,6 +1232,126 @@ export const SvgCastleArch = ({
     </g>
   )
 }
+
+export const SvgShipWall = ({
+  hex,
+  isSubLevel,
+  pieceRotation,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+  pieceRotation: number
+}) => {
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const { points } = getShipWallSvgPolygonPoints(SVG_HEX_RADIUS, 0)
+
+  return (
+    <g transform={`rotate(${pieceRotation})`}>
+      <polygon points={points} fill={fillColor} />
+    </g>
+  )
+}
+export const SvgShipBow = ({
+  hex,
+  isSubLevel,
+  pieceRotation,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+  pieceRotation: number
+}) => {
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const { points } = getShipBowSvgPolygonPoints(SVG_HEX_RADIUS, 0)
+
+  return (
+    <g transform={`rotate(${pieceRotation})`}>
+      <polygon points={points} fill={fillColor} />
+    </g>
+  )
+}
+
+export const SvgCannon = ({
+  hex,
+  isSubLevel,
+  pieceRotation,
+}: {
+  hex: BoardHex
+  pieceRotation: number
+  isSubLevel?: boolean
+}) => {
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
+  const arrowColor = '#FFFFFF'
+
+  const iconRadius = SVG_HEX_RADIUS * 0.5
+  const iconDiameter = iconRadius * 2
+  // renegade spec svg: arrow width is 12, circle width is 17.46
+  const arrowWidth = iconDiameter * (12 / 17.46)
+  return (
+    <>
+      <circle fill={fillColor} r={iconRadius} />
+      <path
+        fill={arrowColor}
+        // d={generateArrowPath(SVG_HEX_RADIUS * 0.8)}
+        d={generateArrowPath(arrowWidth)}
+        transform={`rotate(${pieceRotation})`}
+      />
+    </>
+  )
+}
+
+export const SvgRopeLadder = ({
+  piece,
+  isSubLevel,
+  pieceRotation,
+}: {
+  piece: DecodedPieceID
+  isSubLevel?: boolean
+  pieceRotation: number
+}) => {
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
+  const arrowColor = '#FFFFFF'
+
+  const iconRadius = SVG_HEX_RADIUS * 0.4
+  const iconDiameter = iconRadius * 2
+  // renegade spec svg: arrow width is 12, circle width is 17.46
+  // const arrowWidth = (iconDiameter * (12 / 17.46))
+  const arrowWidth = iconDiameter / 1.3
+  return (
+    <g transform={`rotate(${pieceRotation})`}>
+      <g transform={`translate(${SVG_HEX_APOTHEM},0)`}>
+        {/* Placeholder until custom rope-ladder 2D geometry is added. */}
+        <rect
+          fill={fillColor}
+          width={iconDiameter}
+          height={iconDiameter}
+          x={-iconDiameter / 2}
+          y={-iconDiameter / 2}
+        />
+        <path
+          fill={arrowColor}
+          // d={generateArrowPath(SVG_HEX_RADIUS * 0.8)}
+          d={generateArrowPath(arrowWidth)}
+          transform={'translate(0, -17)'}
+        />
+        <path
+          fill={arrowColor}
+          // d={generateArrowPath(SVG_HEX_RADIUS * 0.8)}
+          d={generateArrowPath(arrowWidth)}
+          transform={'translate(-0, 15),rotate(180)'}
+        />
+      </g>
+    </g>
+  )
+}
+
 const treeXYForRotation = [
   { x: 0.9 * SVG_HEX_APOTHEM, y: SVG_HEX_RADIUS },
   { x: -0.6 * SVG_HEX_APOTHEM, y: 1.7 * SVG_HEX_RADIUS },

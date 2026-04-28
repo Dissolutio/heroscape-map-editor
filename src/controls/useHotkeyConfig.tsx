@@ -70,7 +70,7 @@ export const defaultHotkeyConfig = {
   a: 'togglePenModeAsphalt',
   'shift+a': undefined,
   'alt+a': undefined,
-  b: undefined,
+  b: 'togglePenModeWood',
   'shift+b': undefined,
   'alt+b': undefined,
   c: 'togglePenModeConcrete',
