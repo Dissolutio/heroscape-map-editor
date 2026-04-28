@@ -200,7 +200,7 @@ export function getShipBowSvgPolygonPoints(
 
   const bootBaseY = topYOuter - radius
   const bootBaseX = 0
-  const slope = -0.5774
+  const slope = 0.5774
   const boot2X = -30 // 0 > x > -86.6
   const boot2Y = slope * boot2X + bootBaseY
   const corners: Point[] = [
