@@ -124,7 +124,7 @@ export const MapBoardPiece3D = ({
   if (inventoryID === Pieces.ropeLadder) {
     return (
       <group
-        position={[x, y + HEXGRID_HEX_HEIGHT, z]}
+        position={[x, y, z]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>

@@ -180,7 +180,7 @@ export default function MapDisplay3D({
         // rotation: penModeRotation,
         // piece,
         // clickedHexCoords: roadWallClickedHexCoords,
-        altitude: clickedHexAltitude - 1,
+        altitude: clickedHexAltitude,
         rotation: penModeRotation,
       })
     }
