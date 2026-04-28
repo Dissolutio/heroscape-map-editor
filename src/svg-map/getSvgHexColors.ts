@@ -72,6 +72,7 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
     hex.terrain === HexTerrain.hive ||
     hex.terrain === HexTerrain.water ||
     hex.terrain === HexTerrain.wellspringWater ||
+    hex.terrain === HexTerrain.toxicWater ||
     hex.terrain === HexTerrain.swampWater ||
     hex.terrain === HexTerrain.ice ||
     hex.terrain === HexTerrain.lava ||
@@ -164,6 +165,7 @@ export const getSvgHexSubLevelBorderColor = (
     hex.terrain === HexTerrain.hive ||
     hex.terrain === HexTerrain.water ||
     hex.terrain === HexTerrain.wellspringWater ||
+    hex.terrain === HexTerrain.toxicWater ||
     hex.terrain === HexTerrain.swampWater ||
     hex.terrain === HexTerrain.ice ||
     hex.terrain === HexTerrain.lava ||
