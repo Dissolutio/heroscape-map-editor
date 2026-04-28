@@ -56,7 +56,7 @@ import {
   svgSubLevelColors,
 } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from '../svg-map/svg-hive'
-import { generateArrowPath, getFortifiedWallSvgPolygonPoints, getShipBowSvgPolygonPoints, getShipWallSvgPolygonPoints } from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
+import { generateArrowPath, genWoodPlankPath1, genWoodPlankPath2, genWoodPlankPath3, getFortifiedWallSvgPolygonPoints, getShipBowSvgPolygonPoints, getShipWallSvgPolygonPoints } from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 
 export const PdfEmptyHex = () => {
@@ -108,6 +108,11 @@ export const PdfSvgHexDecor = ({
       {hex.terrain === HexTerrain.toxicWater && (
         <PdfSvgToxicNuclear isToxicWater isSubLevel={isSubLevel} />
       )}
+      {hex.terrain === HexTerrain.wood && (
+        <G transform={`rotate(${hex.isObstacleAuxiliary ? '180' : '0'})`}>
+          <PdfSvgWoodMarkings isSubLevel={isSubLevel} />
+        </G>
+      )}
     </>
   )
 }
@@ -148,6 +153,34 @@ const PdfSvgIceSnowflake = ({
           fill={fillColor}
         />
       </G>
+    </>
+  )
+}
+const PdfSvgWoodMarkings = ({
+  isSubLevel,
+}: {
+  isSubLevel?: boolean
+}) => {
+  const fillColor = isSubLevel
+    ? svgSubLevelColors.cannon
+    : svgColors.cannon
+  return (
+    <>
+      <Path
+        // d={genWoodPlankPath1(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).path}
+        d={genWoodPlankPath1(SVG_HEX_RADIUS, PDF_BORDER_WIDTH * 1.1).path}
+        fill={fillColor}
+      />
+      <Path
+        // d={genWoodPlankPath2(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).path}
+        d={genWoodPlankPath2(SVG_HEX_RADIUS, PDF_BORDER_WIDTH * 1.1).path}
+        fill={fillColor}
+      />
+      <Path
+        // d={genWoodPlankPath3(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).path}
+        d={genWoodPlankPath3(SVG_HEX_RADIUS, PDF_BORDER_WIDTH * 1.1).path}
+        fill={fillColor}
+      />
     </>
   )
 }

@@ -1,6 +1,9 @@
 import { piecesSoFar } from '../data/pieces'
 import {
   generateArrowPath,
+  genWoodPlankPath1,
+  genWoodPlankPath2,
+  genWoodPlankPath3,
   get1HexOutlineSvgPolygonPoints,
   get24HexOutlineSvgPolygonPoints,
   get24HexSvgPolygonPointsAt00,
@@ -54,6 +57,7 @@ import {
   type DecodedPieceID,
   HexTerrain,
   Pieces,
+  Point,
 } from '../types'
 import {
   HEXGRID_HEX_APOTHEM,
@@ -135,6 +139,11 @@ export const SvgHexDecor = ({
       {hex.terrain === HexTerrain.toxicWater && (
         <SvgToxicNuclear isToxicWater isSubLevel={isSubLevel} />
       )}
+      {hex.terrain === HexTerrain.wood && (
+        <g transform={`rotate(${hex.isObstacleAuxiliary ? '180' : '0'})`}>
+          <SvgWoodMarkings isSubLevel={isSubLevel} />
+        </g>
+      )}
     </>
   )
 }
@@ -210,6 +219,34 @@ const SvgRoadCobblestone = ({
           fill={fillColor}
         />
       </g>
+    </>
+  )
+}
+const SvgWoodMarkings = ({
+  isSubLevel,
+}: {
+  isSubLevel?: boolean
+}) => {
+  // const fillColor = 'black'
+  const fillColor = isSubLevel
+    ? svgSubLevelColors.cannon
+    : svgColors.cannon
+
+
+  return (
+    <>
+      <path
+        d={genWoodPlankPath1(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).path}
+        fill={fillColor}
+      />
+      <path
+        d={genWoodPlankPath2(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).path}
+        fill={fillColor}
+      />
+      <path
+        d={genWoodPlankPath3(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).path}
+        fill={fillColor}
+      />
     </>
   )
 }

@@ -229,6 +229,134 @@ export function getShipBowSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
+export const genWoodPlankPath1 = (
+  radius: number,
+  borderWidth: number,
+) => {
+  const radiusInner = radius - borderWidth
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const apothemInner = (Math.sqrt(3) * (radius - borderWidth)) / 2
+  const gutterThickness = radiusInner / 25
+  const xOffsetOfJunction = -radiusInner / 20
+  const m = (radiusInner / 2) / apothemInner
+  const b1 = radiusInner
+  const getXB1 = (y: number, m: number) => {
+    const x = (y + b1) / m
+    return x
+  }
+
+  const y1 = (radiusInner * -0.75) - gutterThickness
+  const y3 = (radiusInner * -0.75) + gutterThickness
+  const y5 = (radiusInner * -0.25) - gutterThickness
+  const y7 = (radiusInner * -0.25) + gutterThickness
+  const x3 = getXB1(y3, m)
+  const x12 = getXB1(y3, -m)
+  const x4 = (x3 + x12) / 2 + gutterThickness
+  const x11 = (x3 + x12) / 2 - gutterThickness
+  const corners: Point[] = [
+    /* 
+    y=mx + b  
+    
+     1 ________ 2
+    12____  ____ 3
+        11||4
+          ||
+    9___10||5_____6
+    8_____________7
+     */
+    { x: getXB1(y1, -m), y: y1 }, // 1
+    { x: getXB1(y1, m), y: y1 }, // 2
+    { x: getXB1(y3, m), y: y3 }, // 3
+    { x: x4 + xOffsetOfJunction, y: y3 }, // 4
+
+    { x: x4 + xOffsetOfJunction, y: y5 }, // 5
+    { x: apothem, y: y5 }, // 6
+    { x: apothem, y: y7 }, // 7
+    { x: -apothemInner, y: y7 }, // 8
+    { x: -apothemInner, y: y5 }, // 9
+    { x: x11 + xOffsetOfJunction, y: y5 }, // 10
+    { x: x11 + xOffsetOfJunction, y: y3 }, // 11
+    { x: getXB1(y3, -m), y: y3 }, // 12
+  ]
+  const path = `M ${corners[0].x},${corners[0].y} 
+    L ${corners[1].x},${corners[1].y}
+    L ${corners[2].x},${corners[2].y}
+    L ${corners[3].x},${corners[3].y}
+    L ${corners[4].x},${corners[4].y}
+    L ${corners[5].x},${corners[5].y}
+    L ${corners[6].x},${corners[6].y}
+    L ${corners[7].x},${corners[7].y}
+    L ${corners[8].x},${corners[8].y}
+    L ${corners[9].x},${corners[9].y}
+    L ${corners[10].x},${corners[10].y}
+    L ${corners[11].x},${corners[11].y}
+  Z
+  `
+  return { path }
+}
+export const genWoodPlankPath2 = (
+  radius: number,
+  borderWidth: number,
+) => {
+  const radiusInner = radius - borderWidth
+  const apothem = (Math.sqrt(3) * radius) / 2
+  const apothemInner = (Math.sqrt(3) * (radius - borderWidth)) / 2
+  const gutterThickness = radiusInner / 25
+  const y1 = (radiusInner * 0.25) - gutterThickness
+  const y2 = (radiusInner * 0.25) + gutterThickness
+  const corners: Point[] = [
+    /* 
+    1_____________2
+    4_____________3
+     */
+    { x: -apothemInner, y: y1 }, // 1
+    { x: apothem, y: y1 }, // 2
+    { x: apothem, y: y2 }, // 3
+    { x: -apothemInner, y: y2 }, // 4
+  ]
+  const path = `M ${corners[0].x},${corners[0].y} 
+  L ${corners[1].x},${corners[1].y}
+  L ${corners[2].x},${corners[2].y}
+  L ${corners[3].x},${corners[3].y}
+  Z
+  `
+  return { path }
+}
+export const genWoodPlankPath3 = (
+  radius: number,
+  borderWidth: number,
+) => {
+  const radiusInner = radius - borderWidth
+  const apothemInner = (Math.sqrt(3) * (radius - borderWidth)) / 2
+  const gutterThickness = radiusInner / 25
+  const m = radiusInner / 2 / apothemInner
+  const b = -radiusInner
+  const getXForY = (y: number, m: number) => {
+    return (y + b) / m
+  }
+
+  const y1 = (radiusInner * 0.75) - gutterThickness
+  const y3 = (radiusInner * 0.75) + gutterThickness
+  const corners: Point[] = [
+    /* 
+    y=mx + b  
+
+    1_____________2
+     4___________3
+    */
+    { x: getXForY(y1, -m), y: y1 }, // 1
+    { x: getXForY(y1, m), y: y1 }, // 2
+    { x: getXForY(y3, m), y: y3 }, // 3
+    { x: getXForY(y3, -m), y: y3 }, // 4
+  ]
+  const path = `M ${corners[0].x},${corners[0].y} 
+  L ${corners[1].x},${corners[1].y}
+  L ${corners[2].x},${corners[2].y}
+  L ${corners[3].x},${corners[3].y}
+  Z
+  `
+  return { path }
+}
 export function getBattlementSvgPolygonPoints(
   radius: number,
   borderWidth: number,
