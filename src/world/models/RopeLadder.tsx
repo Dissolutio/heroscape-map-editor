@@ -8,7 +8,7 @@ import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
 
-export function RopeLadder({ boardHex }: { boardHex?: BoardHex }) {
+export function RopeLadder({ pid }: { pid?: string }) {
   const { nodes } = useGLTF(
     '/rope-ladder_v2.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -17,7 +17,7 @@ export function RopeLadder({ boardHex }: { boardHex?: BoardHex }) {
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -25,14 +25,14 @@ export function RopeLadder({ boardHex }: { boardHex?: BoardHex }) {
     if (event.button !== 0) {
       return
     }
-    if (boardHex) {
-      toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    if (pid) {
+      toggleSelectedPieceID(isSelected ? '' : pid)
     }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.pieceID
-  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted
     ? yellowColor
     : hexTerrainColor.ladder
@@ -42,13 +42,13 @@ export function RopeLadder({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.RopeLadder.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
+          pid ? onPointerEnterPID(e, pid) : noop()
         }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
             color,

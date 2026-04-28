@@ -111,11 +111,17 @@ const getBoardHexAndPieceChunks = (
     .filter((pieceID) => {
       const id = decodePieceID(pieceID).inventoryID
       return (
+        id === Pieces.ropeLadder ||
         id === Pieces.battlement ||
         id === Pieces.roadWall ||
-        id === Pieces.laurWallLong ||
+        id === Pieces.laurWallRuin1 ||
+        id === Pieces.laurWallRuin2 ||
+        id === Pieces.laurWallRuin3 ||
         id === Pieces.laurWallShort ||
-        id === Pieces.laurWallRuin1
+        id === Pieces.laurWallShortStackable ||
+        id === Pieces.laurWallLong ||
+        id === Pieces.laurWallLongStackable ||
+        id === Pieces.laurWallArch
       )
     })
     .map((pieceID) => decodePieceID(pieceID))

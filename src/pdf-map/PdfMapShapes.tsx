@@ -1407,17 +1407,17 @@ export const PdfCannon = ({
 }
 
 export const PdfRopeLadder = ({
-  hex,
+  piece,
   isSubLevel,
   pieceRotation
 }: {
-  hex: BoardHex
+  piece: DecodedPieceID
   isSubLevel?: boolean
   pieceRotation: number
 }) => {
   const fillColor = isSubLevel
-    ? getSvgHexSubLevelFillColor(hex)
-    : getSvgHexFillColor(hex)
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
   const arrowColor = '#FFFFFF'
   const iconRadius = SVG_HEX_RADIUS * 0.4
   const iconDiameter = iconRadius * 2
@@ -1425,31 +1425,28 @@ export const PdfRopeLadder = ({
   // const arrowWidth = (iconDiameter * (12 / 17.46))
   const arrowWidth = iconDiameter / 1.3
   return (
-    <>
-      {/* Placeholder until custom ship wall geometry is added. */}
-      <G
-        transform={`rotate(${pieceRotation})`}>
-        <G transform={`translate(${SVG_HEX_APOTHEM},0)`}>
-          <Rect
-            fill={fillColor}
-            width={iconDiameter}
-            height={iconDiameter}
-            x={-iconDiameter / 2}
-            y={-iconDiameter / 2}
-          />
-          <Path
-            fill={arrowColor}
-            d={generateArrowPath(arrowWidth)}
-            transform={'translate(0, -17)'}
-          />
-          <Path
-            fill={arrowColor}
-            d={generateArrowPath(arrowWidth)}
-            transform={'translate(-0, 15),rotate(180)'}
-          />
-        </G>
+    <G
+      transform={`rotate(${pieceRotation})`}>
+      <G transform={`translate(${SVG_HEX_APOTHEM},0)`}>
+        <Rect
+          fill={fillColor}
+          width={iconDiameter}
+          height={iconDiameter}
+          x={-iconDiameter / 2}
+          y={-iconDiameter / 2}
+        />
+        <Path
+          fill={arrowColor}
+          d={generateArrowPath(arrowWidth)}
+          transform={'translate(0, -17)'}
+        />
+        <Path
+          fill={arrowColor}
+          d={generateArrowPath(arrowWidth)}
+          transform={'translate(-0, 15),rotate(180)'}
+        />
       </G>
-    </>
+    </G>
   )
 }
 

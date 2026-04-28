@@ -8,6 +8,7 @@ import {
   PdfBoardPieceLaurWallRuin,
   PdfBoardPieceLaurWallShort,
   PdfRoadWall,
+  PdfRopeLadder,
 } from './PdfMapShapes'
 
 export const PdfMapBoardPiece = ({
@@ -23,6 +24,17 @@ export const PdfMapBoardPiece = ({
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible) {
     return null
+  }
+  // RopeLadders
+  if (inventoryID === Pieces.ropeLadder) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfRopeLadder
+          piece={piece}
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation} />
+      </G>
+    )
   }
   // BATTLEMENTS
   if (inventoryID === Pieces.battlement) {

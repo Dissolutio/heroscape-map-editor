@@ -31,6 +31,7 @@ export function isSolidTerrainHex(terrain: string) {
 }
 export function isRenderedFromPieceIDPiece(inventoryID: string) {
   return (
+    inventoryID === Pieces.ropeLadder ||
     inventoryID === Pieces.battlement ||
     inventoryID === Pieces.roadWall ||
     inventoryID === Pieces.laurWallRuin1 ||

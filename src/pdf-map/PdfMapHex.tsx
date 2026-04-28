@@ -49,7 +49,6 @@ import {
   PdfShipWall,
   PdfShipBow,
   PdfCannon,
-  PdfRopeLadder,
 } from './PdfMapShapes'
 import { svgColors } from '../world/maphex/hexColors'
 import {
@@ -234,17 +233,6 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfCannon
-          hex={hex}
-          isSubLevel={isSubLevel}
-          pieceRotation={pieceRotation} />
-      </G>
-    )
-  }
-  // Rope Ladder
-  if (inventoryID === Pieces.ropeLadder) {
-    return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfRopeLadder
           hex={hex}
           isSubLevel={isSubLevel}
           pieceRotation={pieceRotation} />

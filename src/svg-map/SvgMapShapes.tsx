@@ -1312,17 +1312,17 @@ export const SvgCannon = ({
 }
 
 export const SvgRopeLadder = ({
-  hex,
+  piece,
   isSubLevel,
   pieceRotation
 }: {
-  hex: BoardHex
+  piece: DecodedPieceID
   isSubLevel?: boolean
   pieceRotation: number
 }) => {
   const fillColor = isSubLevel
-    ? getSvgHexSubLevelFillColor(hex)
-    : getSvgHexFillColor(hex)
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
   const arrowColor = '#FFFFFF'
 
   const iconRadius = SVG_HEX_RADIUS * 0.4

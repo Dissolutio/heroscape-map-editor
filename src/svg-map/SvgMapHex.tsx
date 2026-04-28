@@ -51,7 +51,6 @@ import {
   SvgShipWall,
   SvgShipBow,
   SvgCannon,
-  SvgRopeLadder,
   getOutcropTextColor,
 } from './SvgMapShapes'
 import { singleHexObstacleHeightTextProps } from './svgText'
@@ -233,18 +232,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgCannon
-          hex={hex}
-          isSubLevel={isSubLevel}
-          pieceRotation={pieceRotation}
-        />
-      </g>
-    )
-  }
-  // Rope Ladder
-  if (inventoryID === Pieces.ropeLadder) {
-    return (
-      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgRopeLadder
           hex={hex}
           isSubLevel={isSubLevel}
           pieceRotation={pieceRotation}

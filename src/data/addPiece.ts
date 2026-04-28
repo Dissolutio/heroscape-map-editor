@@ -161,8 +161,17 @@ export function addPiece({
     isBattlementPieceID && isBattlementPieceSupported_true
   const isPlacingRoadWall = isRoadWallPieceID && isRoadWallPieceSupported_true
 
+  // ROPE LADDER: Autoadd piece id, render from boardPieces
+  if (piece.terrain === HexTerrain.ropeLadder) {
+    try {
+      // add the new rope ladder piece
+      newBoardPieces.push(pieceID)
+    } catch (error) {
+      addPieceError = { message: 'Unable to place rope ladder', error }
+    }
+  }
   // LAUR WALL ADDONS: Autoadd piece id, render from boardPieces
-  if (piece.terrain === HexTerrain.laurWallAddon) {
+  else if (piece.terrain === HexTerrain.laurWallAddon) {
     try {
       // add the new laur addon piece
       newBoardPieces.push(pieceID)

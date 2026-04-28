@@ -54,7 +54,6 @@ import Shroudshroom7 from '../models/Shroudshroom7'
 import Shroudshroom10 from '../models/Shroudshroom10'
 import Shroudshroom13 from '../models/Shroudshroom13'
 import Cannon from '../models/Cannon'
-import { RopeLadder } from '../models/RopeLadder'
 import { ShipWall } from '../models/ShipWall'
 import { ShipBow } from '../models/ShipBow'
 
@@ -118,8 +117,6 @@ export const MapHex3D = ({
   const isShipBowHex =
     boardHex.inventoryID === Pieces.shipBow && boardHex.isObstacleOrigin
   const isCannonHex = boardHex.inventoryID === Pieces.cannon && isObstacleHex
-  const isRopeLadderHex =
-    boardHex.inventoryID === Pieces.ropeLadder && isObstacleHex
   const isLaurSquarePillarHex =
     boardHex.inventoryID === Pieces.laurWallSquarePillar &&
     boardHex.isObstacleOrigin
@@ -374,16 +371,6 @@ export const MapHex3D = ({
         >
           <Suspense fallback={<ModelLoader />}>
             <Cannon boardHex={boardHex} />
-          </Suspense>
-        </group>
-      )}
-      {isRopeLadderHex && (
-        <group
-          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
-          rotation={[0, pieceRotation, 0]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <RopeLadder boardHex={boardHex} />
           </Suspense>
         </group>
       )}
