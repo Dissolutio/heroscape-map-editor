@@ -32,7 +32,8 @@ export const SvgMapBoardPiece = ({
         <SvgRopeLadder
           piece={piece}
           isSubLevel={isSubLevel}
-          pieceRotation={pieceRotation} />
+          pieceRotation={pieceRotation}
+        />
       </g>
     )
   }

@@ -230,19 +230,21 @@ const wallWalk9 = [
 ]
 
 const ruinsCornerExterior = [CUBE_NW, CUBE_WEST]
-const shipBow = [...basic2, CUBE_NW,
-{
-  // E of CUBE_EAST
-  q: 2,
-  r: 0,
-  s: -2,
-},
-{
-  // NE of CUBE_NW
-  q: 1,
-  r: -2,
-  s: 1,
-},
+const shipBow = [
+  ...basic2,
+  CUBE_NW,
+  {
+    // E of CUBE_EAST
+    q: 2,
+    r: 0,
+    s: -2,
+  },
+  {
+    // NE of CUBE_NW
+    q: 1,
+    r: -2,
+    s: 1,
+  },
 ]
 const ruins2 = [...glacier6, ...ruinsCornerExterior]
 const ruins3 = [

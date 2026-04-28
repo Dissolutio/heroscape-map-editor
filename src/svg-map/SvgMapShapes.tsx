@@ -228,10 +228,7 @@ const SvgWoodMarkings = ({
   isSubLevel?: boolean
 }) => {
   // const fillColor = 'black'
-  const fillColor = isSubLevel
-    ? svgSubLevelColors.cannon
-    : svgColors.cannon
-
+  const fillColor = isSubLevel ? svgSubLevelColors.cannon : svgColors.cannon
 
   return (
     <>
@@ -1280,7 +1277,7 @@ export const SvgShipBow = ({
 export const SvgCannon = ({
   hex,
   isSubLevel,
-  pieceRotation
+  pieceRotation,
 }: {
   hex: BoardHex
   pieceRotation: number
@@ -1294,13 +1291,10 @@ export const SvgCannon = ({
   const iconRadius = SVG_HEX_RADIUS * 0.5
   const iconDiameter = iconRadius * 2
   // renegade spec svg: arrow width is 12, circle width is 17.46
-  const arrowWidth = (iconDiameter * (12 / 17.46))
+  const arrowWidth = iconDiameter * (12 / 17.46)
   return (
     <>
-      <circle
-        fill={fillColor}
-        r={iconRadius}
-      />
+      <circle fill={fillColor} r={iconRadius} />
       <path
         fill={arrowColor}
         // d={generateArrowPath(SVG_HEX_RADIUS * 0.8)}
@@ -1314,7 +1308,7 @@ export const SvgCannon = ({
 export const SvgRopeLadder = ({
   piece,
   isSubLevel,
-  pieceRotation
+  pieceRotation,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
@@ -1510,9 +1504,9 @@ export const SvgOutcrop6 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-      // {...singleHexObstacleHeightTextProps()}
-      // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-      // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        // {...singleHexObstacleHeightTextProps()}
+        // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'9'}
       </text>
@@ -1636,8 +1630,8 @@ export const SvgOutcrop4 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-      // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-      // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'7'}
       </text>

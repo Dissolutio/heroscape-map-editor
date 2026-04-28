@@ -33,18 +33,12 @@ export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex?.pieceID
   const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
-  const colorBarrel = isHighlighted
-    ? yellowColor
-    : hexTerrainColor.cannonBarrel
+  const colorBarrel = isHighlighted ? yellowColor : hexTerrainColor.cannonBarrel
   const colorCarriage = isHighlighted
     ? yellowColor
     : hexTerrainColor.cannonCarriage
-  const colorWheels = isHighlighted
-    ? yellowColor
-    : hexTerrainColor.cannonWheels
-  const colorBase = isHighlighted
-    ? yellowColor
-    : hexTerrainColor.cannonBase
+  const colorWheels = isHighlighted ? yellowColor : hexTerrainColor.cannonWheels
+  const colorBase = isHighlighted ? yellowColor : hexTerrainColor.cannonBase
   return (
     <>
       <mesh
@@ -60,10 +54,10 @@ export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorBarrel, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorBarrel,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorBarrel,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -78,10 +72,10 @@ export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorCarriage, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorCarriage,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorCarriage,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -96,10 +90,10 @@ export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorWheels, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorWheels,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorWheels,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -114,10 +108,10 @@ export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorBase,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorBase,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </>
   )

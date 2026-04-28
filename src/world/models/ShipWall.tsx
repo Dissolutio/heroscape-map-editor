@@ -33,9 +33,7 @@ export function ShipWall({ boardHex }: { boardHex?: BoardHex }) {
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === boardHex?.pieceID
   const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
-  const color = isHighlighted
-    ? yellowColor
-    : '#8A4342'
+  const color = isHighlighted ? yellowColor : '#8A4342'
   return (
     <>
       <mesh
@@ -51,10 +49,10 @@ export function ShipWall({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-            color,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              color,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </>
   )

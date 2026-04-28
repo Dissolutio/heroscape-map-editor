@@ -125,7 +125,10 @@ const getBoardHexAndPieceChunks = (
       )
     })
     // move pieces up 1 altitude, otherwise a battlement on bottom level causes level-0 to show in pdf
-    .map((pieceID) => ({ ...decodePieceID(pieceID), altitude: decodePieceID(pieceID).altitude + 1 }))
+    .map((pieceID) => ({
+      ...decodePieceID(pieceID),
+      altitude: decodePieceID(pieceID).altitude + 1,
+    }))
   // .map((pieceID) => decodePieceID(pieceID))
 
   // Group hexes and pieces by altitude
@@ -133,16 +136,14 @@ const getBoardHexAndPieceChunks = (
   const groupedPiecesByAltitude = groupBy(filteredBoardPieces, 'altitude')
 
   // Combine hexes and pieces into a single array of altitude groups
-  const combinedGroups: PdfMapAltitudeChunk[] = uniq([...
-    Object.keys(
-      groupedPiecesByAltitude,
-    ), ...Object.keys(
-      groupedHexesByAltitude,
-    )]).map((altitude) => ({
-      altitude: Number(altitude),
-      hexes: groupedHexesByAltitude[altitude] || [],
-      pieces: groupedPiecesByAltitude[altitude] || [],
-    }))
+  const combinedGroups: PdfMapAltitudeChunk[] = uniq([
+    ...Object.keys(groupedPiecesByAltitude),
+    ...Object.keys(groupedHexesByAltitude),
+  ]).map((altitude) => ({
+    altitude: Number(altitude),
+    hexes: groupedHexesByAltitude[altitude] || [],
+    pieces: groupedPiecesByAltitude[altitude] || [],
+  }))
 
   // Sort combined groups by altitude
   combinedGroups.sort((a, b) => a.altitude - b.altitude)

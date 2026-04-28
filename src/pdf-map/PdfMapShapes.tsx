@@ -1,4 +1,12 @@
-import { Circle, Ellipse, G, Path, Polygon, Rect, Text } from '@react-pdf/renderer'
+import {
+  Circle,
+  Ellipse,
+  G,
+  Path,
+  Polygon,
+  Rect,
+  Text,
+} from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
   get24HexSvgPolygonPointsAt00,
@@ -56,7 +64,15 @@ import {
   svgSubLevelColors,
 } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from '../svg-map/svg-hive'
-import { generateArrowPath, genWoodPlankPath1, genWoodPlankPath2, genWoodPlankPath3, getFortifiedWallSvgPolygonPoints, getShipBowSvgPolygonPoints, getShipWallSvgPolygonPoints } from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
+import {
+  generateArrowPath,
+  genWoodPlankPath1,
+  genWoodPlankPath2,
+  genWoodPlankPath3,
+  getFortifiedWallSvgPolygonPoints,
+  getShipBowSvgPolygonPoints,
+  getShipWallSvgPolygonPoints,
+} from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 
 export const PdfEmptyHex = () => {
@@ -76,7 +92,7 @@ export const PdfEmptyHex = () => {
         strokeWidth={borderWidth}
         strokeLinecap="round"
         strokeLinejoin="round"
-      // opacity={OPACITY_EMPTY}
+        // opacity={OPACITY_EMPTY}
       />
     </>
   )
@@ -161,9 +177,7 @@ const PdfSvgWoodMarkings = ({
 }: {
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel
-    ? svgSubLevelColors.cannon
-    : svgColors.cannon
+  const fillColor = isSubLevel ? svgSubLevelColors.cannon : svgColors.cannon
   return (
     <>
       <Path
@@ -1334,12 +1348,8 @@ export const PdfShipWall = ({
     : getSvgHexFillColor(hex)
   const { points } = getShipWallSvgPolygonPoints(SVG_HEX_RADIUS, 0)
   return (
-    <G transform={`rotate(${pieceRotation})`}
-    >
-      <Polygon
-        fill={fillColor}
-        points={points}
-      />
+    <G transform={`rotate(${pieceRotation})`}>
+      <Polygon fill={fillColor} points={points} />
     </G>
   )
 }
@@ -1358,13 +1368,8 @@ export const PdfShipBow = ({
     : getSvgHexFillColor(hex)
   const { points } = getShipBowSvgPolygonPoints(SVG_HEX_RADIUS, 0)
   return (
-    <G
-      transform={`rotate(${pieceRotation})`}
-    >
-      <Polygon
-        fill={fillColor}
-        points={points}
-      />
+    <G transform={`rotate(${pieceRotation})`}>
+      <Polygon fill={fillColor} points={points} />
     </G>
   )
 }
@@ -1372,7 +1377,7 @@ export const PdfShipBow = ({
 export const PdfCannon = ({
   hex,
   isSubLevel,
-  pieceRotation
+  pieceRotation,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
@@ -1386,13 +1391,13 @@ export const PdfCannon = ({
   const iconRadius = SVG_HEX_RADIUS * 0.5
   const iconDiameter = iconRadius * 2
   // renegade spec svg: arrow width is 12, circle width is 17.46
-  const arrowWidth = (iconDiameter * (12 / 17.46))
+  const arrowWidth = iconDiameter * (12 / 17.46)
   return (
     <>
       <G transform={`rotate(${pieceRotation})`}>
         <Circle
           style={{
-            fill: fillColor
+            fill: fillColor,
           }}
           r={SVG_HEX_RADIUS * 0.7}
         />
@@ -1409,7 +1414,7 @@ export const PdfCannon = ({
 export const PdfRopeLadder = ({
   piece,
   isSubLevel,
-  pieceRotation
+  pieceRotation,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
@@ -1425,8 +1430,7 @@ export const PdfRopeLadder = ({
   // const arrowWidth = (iconDiameter * (12 / 17.46))
   const arrowWidth = iconDiameter / 1.3
   return (
-    <G
-      transform={`rotate(${pieceRotation})`}>
+    <G transform={`rotate(${pieceRotation})`}>
       <G transform={`translate(${SVG_HEX_APOTHEM},0)`}>
         <Rect
           fill={fillColor}

@@ -176,7 +176,7 @@ export const PdfMapHex = ({
           style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-        // {...pdfTextProps()}
+          // {...pdfTextProps()}
         >
           Y
         </Text>
@@ -195,7 +195,7 @@ export const PdfMapHex = ({
           style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-        // {...pdfTextProps()}
+          // {...pdfTextProps()}
         >
           M
         </Text>
@@ -214,7 +214,7 @@ export const PdfMapHex = ({
           opacity={
             isSubLevel
               ? // white text needs a little opacity boost
-              OPACITY_SUBLEVEL * 2
+                OPACITY_SUBLEVEL * 2
               : 1
           }
           style={pdfHexTextStyle}
@@ -235,7 +235,8 @@ export const PdfMapHex = ({
         <PdfCannon
           hex={hex}
           isSubLevel={isSubLevel}
-          pieceRotation={pieceRotation} />
+          pieceRotation={pieceRotation}
+        />
       </G>
     )
   }

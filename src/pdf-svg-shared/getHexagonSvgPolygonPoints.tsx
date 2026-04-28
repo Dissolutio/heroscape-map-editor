@@ -133,7 +133,7 @@ export function getShipWallSvgPolygonPoints(
   return { points, corners }
 }
 export function generateArrowPath(width: number, heightRatio?: number) {
-  const height = width * (heightRatio ?? (7 / 12))
+  const height = width * (heightRatio ?? 7 / 12)
   // width
   // height
   // the points
@@ -229,26 +229,23 @@ export function getShipBowSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-export const genWoodPlankPath1 = (
-  radius: number,
-  borderWidth: number,
-) => {
+export const genWoodPlankPath1 = (radius: number, borderWidth: number) => {
   const radiusInner = radius - borderWidth
   const apothem = (Math.sqrt(3) * radius) / 2
   const apothemInner = (Math.sqrt(3) * (radius - borderWidth)) / 2
   const gutterThickness = radiusInner / 25
   const xOffsetOfJunction = -radiusInner / 20
-  const m = (radiusInner / 2) / apothemInner
+  const m = radiusInner / 2 / apothemInner
   const b1 = radiusInner
   const getXB1 = (y: number, m: number) => {
     const x = (y + b1) / m
     return x
   }
 
-  const y1 = (radiusInner * -0.75) - gutterThickness
-  const y3 = (radiusInner * -0.75) + gutterThickness
-  const y5 = (radiusInner * -0.25) - gutterThickness
-  const y7 = (radiusInner * -0.25) + gutterThickness
+  const y1 = radiusInner * -0.75 - gutterThickness
+  const y3 = radiusInner * -0.75 + gutterThickness
+  const y5 = radiusInner * -0.25 - gutterThickness
+  const y7 = radiusInner * -0.25 + gutterThickness
   const x3 = getXB1(y3, m)
   const x12 = getXB1(y3, -m)
   const x4 = (x3 + x12) / 2 + gutterThickness
@@ -294,16 +291,13 @@ export const genWoodPlankPath1 = (
   `
   return { path }
 }
-export const genWoodPlankPath2 = (
-  radius: number,
-  borderWidth: number,
-) => {
+export const genWoodPlankPath2 = (radius: number, borderWidth: number) => {
   const radiusInner = radius - borderWidth
   const apothem = (Math.sqrt(3) * radius) / 2
   const apothemInner = (Math.sqrt(3) * (radius - borderWidth)) / 2
   const gutterThickness = radiusInner / 25
-  const y1 = (radiusInner * 0.25) - gutterThickness
-  const y2 = (radiusInner * 0.25) + gutterThickness
+  const y1 = radiusInner * 0.25 - gutterThickness
+  const y2 = radiusInner * 0.25 + gutterThickness
   const corners: Point[] = [
     /* 
     1_____________2
@@ -322,10 +316,7 @@ export const genWoodPlankPath2 = (
   `
   return { path }
 }
-export const genWoodPlankPath3 = (
-  radius: number,
-  borderWidth: number,
-) => {
+export const genWoodPlankPath3 = (radius: number, borderWidth: number) => {
   const radiusInner = radius - borderWidth
   const apothemInner = (Math.sqrt(3) * (radius - borderWidth)) / 2
   const gutterThickness = radiusInner / 25
@@ -335,8 +326,8 @@ export const genWoodPlankPath3 = (
     return (y + b) / m
   }
 
-  const y1 = (radiusInner * 0.75) - gutterThickness
-  const y3 = (radiusInner * 0.75) + gutterThickness
+  const y1 = radiusInner * 0.75 - gutterThickness
+  const y3 = radiusInner * 0.75 + gutterThickness
   const corners: Point[] = [
     /* 
     y=mx + b  

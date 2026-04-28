@@ -32,7 +32,8 @@ export const PdfMapBoardPiece = ({
         <PdfRopeLadder
           piece={piece}
           isSubLevel={isSubLevel}
-          pieceRotation={pieceRotation} />
+          pieceRotation={pieceRotation}
+        />
       </G>
     )
   }

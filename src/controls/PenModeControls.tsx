@@ -17,7 +17,12 @@ import {
   GiWhiteTower,
 } from 'react-icons/gi'
 import useBoundStore from '../store/store'
-import { HexTerrain, type HexoscapeGlyph, PiecePrefixes, Pieces } from '../types'
+import {
+  HexTerrain,
+  type HexoscapeGlyph,
+  PiecePrefixes,
+  Pieces,
+} from '../types'
 import {
   TbCircleNumber1Filled,
   TbCircleNumber2Filled,

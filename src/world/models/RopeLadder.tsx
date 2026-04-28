@@ -33,9 +33,7 @@ export function RopeLadder({ pid }: { pid?: string }) {
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === pid
   const isHighlighted = hoveredPieceID === pid || isSelected
-  const color = isHighlighted
-    ? yellowColor
-    : hexTerrainColor.ladder
+  const color = isHighlighted ? yellowColor : hexTerrainColor.ladder
   return (
     <>
       <mesh
@@ -43,18 +41,16 @@ export function RopeLadder({ pid }: { pid?: string }) {
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.RopeLadder.geometry}
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          pid ? onPointerEnterPID(e, pid) : noop()
-        }
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid) : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
         {pid
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-            color,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              color,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </>
   )
