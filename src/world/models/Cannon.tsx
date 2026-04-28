@@ -10,7 +10,7 @@ import { noop } from 'lodash'
 
 export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
   const { nodes } = useGLTF(
-    '/cannon_v2.glb',
+    '/cannon.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(
