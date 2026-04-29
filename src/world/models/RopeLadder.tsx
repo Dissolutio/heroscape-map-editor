@@ -48,10 +48,10 @@ export function RopeLadder({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(woodColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-            woodColor,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              woodColor,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -64,10 +64,10 @@ export function RopeLadder({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(ropeColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-            ropeColor,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              ropeColor,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </>
   )

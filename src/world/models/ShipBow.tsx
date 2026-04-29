@@ -34,15 +34,33 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
   const isSelected = selectedPieceID === boardHex?.pieceID
   const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor.shipWood
-  const colorShipBowIron = isHighlighted ? yellowColor : hexTerrainColor.shipBowIron
-  const colorShipBowFigureheadBody = isHighlighted ? yellowColor : hexTerrainColor.shipBowFigureheadBody
-  const colorShipBowFigureheadWings = isHighlighted ? yellowColor : hexTerrainColor.shipBowFigureheadWings
-  const colorShipBowFigureheadEyes = isHighlighted ? yellowColor : hexTerrainColor.shipBowFigureheadEyes
-  const colorShipBowFigureheadTongue = isHighlighted ? yellowColor : hexTerrainColor.shipBowFigureheadTongue
-  const colorShipBowFigureheadBeak = isHighlighted ? yellowColor : hexTerrainColor.shipBowFigureheadBeak
-  const colorShipBowFigureheadTail = isHighlighted ? yellowColor : hexTerrainColor.shipBowFigureheadTail
-  const colorShipBowFigureheadMane = isHighlighted ? yellowColor : hexTerrainColor.shipBowFigureheadMane
-  const colorShipBowFigureheadHooves = isHighlighted ? yellowColor : hexTerrainColor.shipBowFigureheadHooves
+  const colorShipBowIron = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shipBowIron
+  const colorShipBowFigureheadBody = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shipBowFigureheadBody
+  const colorShipBowFigureheadWings = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shipBowFigureheadWings
+  const colorShipBowFigureheadEyes = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shipBowFigureheadEyes
+  const colorShipBowFigureheadTongue = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shipBowFigureheadTongue
+  const colorShipBowFigureheadBeak = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shipBowFigureheadBeak
+  const colorShipBowFigureheadTail = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shipBowFigureheadTail
+  const colorShipBowFigureheadMane = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shipBowFigureheadMane
+  const colorShipBowFigureheadHooves = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.shipBowFigureheadHooves
   return (
     <>
       <mesh
@@ -76,10 +94,10 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(colorShipBowIron, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorShipBowIron,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorShipBowIron,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -92,12 +110,15 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(colorShipBowFigureheadBody, isLightsAndShadowsRender)
+          ? basicModelMaterial(
+              colorShipBowFigureheadBody,
+              isLightsAndShadowsRender,
+            )
           : basicModelMaterial(
-            colorShipBowFigureheadBody,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorShipBowFigureheadBody,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -110,12 +131,15 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(colorShipBowFigureheadWings, isLightsAndShadowsRender)
+          ? basicModelMaterial(
+              colorShipBowFigureheadWings,
+              isLightsAndShadowsRender,
+            )
           : basicModelMaterial(
-            colorShipBowFigureheadWings,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorShipBowFigureheadWings,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -128,12 +152,15 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(colorShipBowFigureheadEyes, isLightsAndShadowsRender)
+          ? basicModelMaterial(
+              colorShipBowFigureheadEyes,
+              isLightsAndShadowsRender,
+            )
           : basicModelMaterial(
-            colorShipBowFigureheadEyes,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorShipBowFigureheadEyes,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -146,12 +173,15 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(colorShipBowFigureheadTongue, isLightsAndShadowsRender)
+          ? basicModelMaterial(
+              colorShipBowFigureheadTongue,
+              isLightsAndShadowsRender,
+            )
           : basicModelMaterial(
-            colorShipBowFigureheadTongue,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorShipBowFigureheadTongue,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -164,12 +194,15 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(colorShipBowFigureheadBeak, isLightsAndShadowsRender)
+          ? basicModelMaterial(
+              colorShipBowFigureheadBeak,
+              isLightsAndShadowsRender,
+            )
           : basicModelMaterial(
-            colorShipBowFigureheadBeak,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorShipBowFigureheadBeak,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -182,12 +215,15 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(colorShipBowFigureheadTail, isLightsAndShadowsRender)
+          ? basicModelMaterial(
+              colorShipBowFigureheadTail,
+              isLightsAndShadowsRender,
+            )
           : basicModelMaterial(
-            colorShipBowFigureheadTail,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorShipBowFigureheadTail,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -200,12 +236,15 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(colorShipBowFigureheadMane, isLightsAndShadowsRender)
+          ? basicModelMaterial(
+              colorShipBowFigureheadMane,
+              isLightsAndShadowsRender,
+            )
           : basicModelMaterial(
-            colorShipBowFigureheadMane,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorShipBowFigureheadMane,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -218,12 +257,15 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
       >
         {boardHex
-          ? basicModelMaterial(colorShipBowFigureheadHooves, isLightsAndShadowsRender)
+          ? basicModelMaterial(
+              colorShipBowFigureheadHooves,
+              isLightsAndShadowsRender,
+            )
           : basicModelMaterial(
-            colorShipBowFigureheadHooves,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorShipBowFigureheadHooves,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </>
   )
