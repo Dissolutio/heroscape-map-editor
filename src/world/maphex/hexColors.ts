@@ -68,8 +68,8 @@ export const hexTerrainColor = {
   roadCap: '#929186', // superfrog
   [HexTerrain.roadWall]: '#787D79',
   [HexTerrain.snow]: '#c0bec6', // superfrog
-  [HexTerrain.wood]: '#7C3E3C',
-  woodCap: '#6E3735',
+  [HexTerrain.wood]: '#603B2A',
+  woodCap: '#714632',
   [`${HexTerrain.snow}Cap`]: '#bcbdc5', // superfrog
   [HexTerrain.ice]: '#A6C6DD',
   [HexTerrain.glacier]: '#ced5cc',
@@ -133,6 +133,18 @@ export const hexTerrainColor = {
   cannonCarriage: '#675642',
   cannonWheels: '#4A4845',
   cannonBase: '#675642',
+
+  shipWood: '#603B2A',
+  shipRope: '#8D773F',
+  shipBowIron: '#462D20',
+  shipBowFigureheadBody: '#F5C800',
+  shipBowFigureheadWings: '#C8AD6A',
+  shipBowFigureheadEyes: '#F59E00',
+  shipBowFigureheadTongue: '#A94536',
+  shipBowFigureheadBeak: '#FFD61F',
+  shipBowFigureheadTail: '#603B2A',
+  shipBowFigureheadMane: '#774B3E',
+  shipBowFigureheadHooves: '#000',
 
   // Virtualscape StartZones
   [Pieces.startZone1]: 'rgb(255,0,0)',

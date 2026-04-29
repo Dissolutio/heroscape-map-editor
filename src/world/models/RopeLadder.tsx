@@ -10,7 +10,7 @@ import { noop } from 'lodash'
 
 export function RopeLadder({ pid }: { pid?: string }) {
   const { nodes } = useGLTF(
-    '/rope-ladder.glb',
+    '/rope-ladder_v2.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(
@@ -33,24 +33,41 @@ export function RopeLadder({ pid }: { pid?: string }) {
   const yellowColor = 'yellow'
   const isSelected = selectedPieceID === pid
   const isHighlighted = hoveredPieceID === pid || isSelected
-  const color = isHighlighted ? yellowColor : hexTerrainColor.ladder
+  const woodColor = isHighlighted ? yellowColor : hexTerrainColor.shipWood
+  const ropeColor = isHighlighted ? yellowColor : hexTerrainColor.shipRope
   return (
     <>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.RopeLadder.geometry}
+        geometry={nodes.RopeLadderWood.geometry}
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid) : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
         {pid
-          ? basicModelMaterial(color, isLightsAndShadowsRender)
+          ? basicModelMaterial(woodColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            woodColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.RopeLadderRope.geometry}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid) : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
+      >
+        {pid
+          ? basicModelMaterial(ropeColor, isLightsAndShadowsRender)
+          : basicModelMaterial(
+            ropeColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </>
   )
