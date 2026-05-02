@@ -1,4 +1,4 @@
-import type { MapState } from "../types"
+import type { MapFileState, MapState } from "../types"
 import { inflateBoardPiecesFromIds, normalizeBoardPieces } from "../utils/map-utils";
 import { LS_KEYS } from "./keys"
 
@@ -6,7 +6,7 @@ function isPlainObject(value: unknown) {
   return Object.prototype.toString.call(value) === '[object Object]';
 }
 
-export function loadMapFromLocalStorage(ls_key: string): MapState | null {
+export function loadMapFromLocalStorage(ls_key: string): MapFileState | null {
   try {
     // const raw = localStorage.getItem(LS_KEYS.lastMap)
     const raw = localStorage.getItem(ls_key)
@@ -18,12 +18,12 @@ export function loadMapFromLocalStorage(ls_key: string): MapState | null {
 
     // handle legacy format where map stored boardPieces as {[pieceID: string]: string}
     if (isPlainObject(parsed.boardPieces) && Object.keys(parsed.boardPieces).length && typeof Object.keys(parsed.boardPieces)[0] === 'string') {
-      const migrated1 = inflateBoardPiecesFromIds(normalizeBoardPieces(parsed.boardPieces))
+      const migrated1 = normalizeBoardPieces(parsed.boardPieces)
       return { hexMap: parsed.hexMap, boardPieces: migrated1 }
     }
     // handle legacy format where map stored boardPieces as string[]
     if (Array.isArray(parsed.boardPieces) && parsed.boardPieces.length && typeof parsed.boardPieces[0] === 'string') {
-      const migrated2 = inflateBoardPiecesFromIds(parsed.boardPieces as string[])
+      const migrated2 = parsed.boardPieces as string[]
       return { hexMap: parsed.hexMap, boardPieces: migrated2 }
     }
 

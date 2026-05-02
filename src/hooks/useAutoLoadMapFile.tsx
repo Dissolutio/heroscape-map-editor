@@ -3,13 +3,10 @@ import React, { type RefObject, useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import type { BoardHexes, BoardPiece } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
   getBoardHexesRectangularMapDimensions,
-  decodePieceID,
   getBoardPiecesMaxLevel,
-  inflateBoardPiecesFromIds,
   normalizeBoardPieces,
 } from '../utils/map-utils'
 import { Button } from '@mui/material'
@@ -20,7 +17,7 @@ import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
 import { Box3, type Group, type Object3DEventMap } from 'three'
 import { zoomToMap } from '../utils/camera-utils'
 import type { CameraControls } from '@react-three/drei'
-import { nanoid } from 'nanoid'
+import type { BoardHexes } from '../types'
 
 type Props = {
   mapGroupRef: RefObject<Group<Object3DEventMap>>
@@ -43,12 +40,13 @@ const useAutoLoadMapFile = (props: Props) => {
     const urlMapString = queryParams.get('m')
     const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
     const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
+    const localMapCacheMapState = buildupJsonFileMap(localMapCache.boardPieces, localMapCache.hexMap)
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
         const { hexMap, boardPiecesEncodedArr } =
           parseMapDataArrayFromCrushed(urlMapString)
-        const fullBoardPieces = inflateBoardPiecesFromIds(boardPiecesEncodedArr)
+        // const fullBoardPieces = inflateBoardPiecesFromIds(boardPiecesEncodedArr)
         const jsonMap = buildupJsonFileMap(boardPiecesEncodedArr, hexMap)
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
@@ -60,10 +58,10 @@ const useAutoLoadMapFile = (props: Props) => {
               variant="contained"
               onClick={() => {
                 // load last map instead, close original snackbar, open a new one, remove map from URL bar
-                localMapCache ? loadMap(localMapCache) : noop()
+                localMapCache ? loadMap(localMapCacheMapState) : noop()
                 closeSnackbar(snackbarId)
                 enqueueSnackbar({
-                  message: `Loaded last map instead: ${localMapCache.hexMap.name}`,
+                  message: `Loaded last map instead: ${localMapCacheMapState.hexMap.name}`,
                   variant: 'success',
                 })
                 navigate(ROUTES.heroscapeHome)
@@ -113,8 +111,8 @@ const useAutoLoadMapFile = (props: Props) => {
         console.error('🚀 ~ React.useEffect ~ error:', error)
         return
       }
-    } else if (localMapCache) {
-      loadMap(localMapCache)
+    } else if (localMapCacheMapState) {
+      loadMap(localMapCacheMapState)
       enqueueSnackbar({
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
         variant: 'success',
