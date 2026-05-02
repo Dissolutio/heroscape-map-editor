@@ -65,7 +65,10 @@ export default function HomePage() {
 
   return (
     <>
-      <CreateMapFormDialog />
+      <CreateMapFormDialog
+        mapGroupRef={mapGroupRef}
+        cameraControlsRef={cameraControlsRef}
+      />
       <EditMapFormDialog />
       <EditPieceInventoryDialog />
       <ViewMapInventoryDialog />
