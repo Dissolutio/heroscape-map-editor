@@ -1,12 +1,11 @@
 import { closeSnackbar, useSnackbar } from 'notistack'
-import React, { type RefObject, useEffect } from 'react'
+import { type RefObject, useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
   getBoardHexesRectangularMapDimensions,
-  getBoardPiecesMaxLevel,
   normalizeBoardPieces,
 } from '../utils/map-utils'
 import { Button } from '@mui/material'
@@ -41,6 +40,14 @@ const useAutoLoadMapFile = (props: Props) => {
     const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
     const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
     const localMapCacheMapState = buildupJsonFileMap(localMapCache.boardPieces, localMapCache.hexMap)
+    const queueMapAutoZoom = (boardHexes: BoardHexes): void => {
+      const { width, length } = getBoardHexesRectangularMapDimensions(
+        boardHexes,
+      )
+      setTimeout(() => {
+        zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
+      }, 1000)
+    }
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
@@ -87,18 +94,7 @@ const useAutoLoadMapFile = (props: Props) => {
         })
         loadMap(jsonMap)
         clearUndoHistory() // clear undo history, initial load should not be undoable
-        if (props.mapGroupRef.current && props.cameraControlsRef.current) {
-          // Create a new bounding box from the updated group.
-          const box = new Box3().setFromObject(props.mapGroupRef.current)
-          // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
-          props.cameraControlsRef.current?.fitToBox(box, true)
-        }
-        const { width, length } = getBoardHexesRectangularMapDimensions(
-          jsonMap.boardHexes,
-        )
-        setTimeout(() => {
-          zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-        }, 1000)
+        queueMapAutoZoom(jsonMap.boardHexes)
         return
 
         // biome-ignore lint/suspicious/noExplicitAny: <error could be anything>
@@ -118,18 +114,7 @@ const useAutoLoadMapFile = (props: Props) => {
         variant: 'success',
       })
 
-      if (props.mapGroupRef.current && props.cameraControlsRef.current) {
-        // Create a new bounding box from the updated group.
-        const box = new Box3().setFromObject(props.mapGroupRef.current)
-        // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
-        props.cameraControlsRef.current?.fitToBox(box, true)
-      }
-      const { width, length } = getBoardHexesRectangularMapDimensions(
-        localMapCache.boardHexes,
-      )
-      setTimeout(() => {
-        zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-      }, 1000)
+      queueMapAutoZoom(localMapCacheMapState.boardHexes)
     } else {
       // No url and no prev state? auto load a file
 
@@ -164,19 +149,13 @@ const useAutoLoadMapFile = (props: Props) => {
           jsonMap.hexMap.name = fileName
         }
         loadMap(jsonMap)
-        const { width, length } = getBoardHexesRectangularMapDimensions(
-          jsonMap.boardHexes,
-        )
-        setTimeout(() => {
-          zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-        }, 1000)
         enqueueSnackbar({
-          // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
           message: 'WELCOME!',
           variant: 'success',
           autoHideDuration: 5000,
         })
         clearUndoHistory() // clear undo history, initial load should not be undoable
+        queueMapAutoZoom(jsonMap.boardHexes)
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
