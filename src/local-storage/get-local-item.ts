@@ -1,5 +1,5 @@
 import type { MapFileState, MapState } from "../types"
-import { inflateBoardPiecesFromIds, normalizeBoardPieces } from "../utils/map-utils";
+import { encodeBoardPiecesToIds, inflateBoardPiecesFromIds, normalizeBoardPieces } from "../utils/map-utils";
 import { LS_KEYS } from "./keys"
 
 function isPlainObject(value: unknown) {
@@ -25,6 +25,10 @@ export function loadMapFromLocalStorage(ls_key: string): MapFileState | null {
     if (Array.isArray(parsed.boardPieces) && parsed.boardPieces.length && typeof parsed.boardPieces[0] === 'string') {
       const migrated2 = parsed.boardPieces as string[]
       return { hexMap: parsed.hexMap, boardPieces: migrated2 }
+    }
+    // handle upcoming format where map stored boardPieces as BoardPiece[]
+    if (Array.isArray(parsed.boardPieces) && parsed.boardPieces.length && isPlainObject(parsed.boardPieces[0])) {
+      return { hexMap: parsed.hexMap, boardPieces: encodeBoardPiecesToIds(parsed.boardPieces) }
     }
 
     // already new shape

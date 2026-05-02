@@ -303,6 +303,7 @@ export const getSetsUsedText = (setsUsed: string[]) => {
   })
   return res.join('')
 }
+
 export const inflateBoardPiecesFromIds = (ids: string[]): BoardPiece[] => {
   return ids.map((id) => {
     const {
@@ -320,6 +321,20 @@ export const inflateBoardPiecesFromIds = (ids: string[]): BoardPiece[] => {
     }
   })
 }
+
+export const encodeBoardPiecesToIds = (
+  boardPieces: BoardPiece[],
+): BoardPiecesEncodedArr => {
+  return boardPieces.map((piece) => {
+    const boardHexID = genBoardHexID({
+      ...piece.pieceCoords,
+      altitude: piece.altitude,
+    })
+
+    return genPieceID(boardHexID, piece.inventoryID, piece.rotation)
+  })
+}
+
 export function countStringInArrayLoop(arr: string[], targetString: string) {
   let count = 0
   for (let i = 0; i < arr.length; i++) {
