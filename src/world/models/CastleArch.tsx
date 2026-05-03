@@ -100,13 +100,13 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const isSelected = selectedPieceID === boardHex.pieceID
+  const isSelected = selectedPieceID === boardHex?.boardPieceUID
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
-  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
+  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
   const yellowColor = 'yellow'
   const color = isHighlighted
     ? yellowColor
@@ -188,7 +188,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
   }
 
   // Early return non-origin hexes

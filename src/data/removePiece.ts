@@ -71,7 +71,7 @@ export function removePiece({
   ) {
     // restore caps to under hexes
     const pieceBoardHexes = Object.values(newBoardHexes).filter(
-      (bh) => bh?.pieceID === pieceID,
+      (bh) => bh?.boardPieceUID === uid,
     )
     const underHexIds = pieceBoardHexes.map((cubeCoord) =>
       genBoardHexID({ ...cubeCoord, altitude: (cubeCoord.altitude ?? 0) - 1 }),

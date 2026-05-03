@@ -78,8 +78,8 @@ export default function MapDisplay3D({
 
     // Select Hex
     if (penMode === 'select') {
-      if (hex.pieceID) {
-        toggleSelectedPieceID(hex.pieceID)
+      if (hex.boardPieceUID) {
+        toggleSelectedPieceID(hex.boardPieceUID)
       }
       return
     }
@@ -214,7 +214,7 @@ export default function MapDisplay3D({
         autoHideDuration: 5000,
       })
       // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
-      toggleSelectedPieceID(hex.pieceID)
+      toggleSelectedPieceID(hex.boardPieceUID ?? '')
     }
     // Placed new piece, deselect piece
     else {

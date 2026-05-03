@@ -31,6 +31,7 @@ export interface BoardHex extends CubeCoordinate {
   id: string
   altitude: number
   pieceID: string // tileID=qraID + piece-UID
+  boardPieceUID?: string // uid of the matching BoardPiece in boardPieces array
   inventoryID: string // just the piece UID
   terrain: string
   pieceRotation: number

@@ -18,7 +18,7 @@ export function MarvelRuin({
   const { nodes } = useGLTF('/marvel-ruins.glb') as any
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const isSelected = selectedPieceID === boardHex.pieceID
+  const isSelected = selectedPieceID === boardHex?.boardPieceUID
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -30,9 +30,9 @@ export function MarvelRuin({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
   }
-  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
+  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
   const yellowColor = 'yellow'
   const color = isHighlighted ? yellowColor : hexTerrainColor.marvelRuin
   const colorUpperFloor = isHighlighted ? yellowColor : hexTerrainColor.ladder

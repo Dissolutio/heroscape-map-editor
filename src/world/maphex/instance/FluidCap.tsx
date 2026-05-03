@@ -83,7 +83,7 @@ function FluidCap({
   const color =
     hexTerrainColor[boardHex.terrain as keyof typeof hexTerrainColor]
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === boardHex.pieceID
+  const isSelected = selectedPieceID === boardHex?.boardPieceUID
 
   // Effect: Initial color/position
   React.useEffect(() => {
@@ -102,12 +102,12 @@ function FluidCap({
 
   // update color when piece is hovered
   React.useEffect(() => {
-    if (hoveredPieceID === boardHex.pieceID) {
+    if (hoveredPieceID === boardHex?.boardPieceUID) {
       // ref.current.color.set('yellow')
     } else {
       ref.current.color.set(color)
     }
-  }, [boardHex.pieceID, hoveredPieceID, color])
+  }, [boardHex.boardPieceUID, hoveredPieceID, color])
 
   const handlePointerEnter = (e: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
@@ -133,7 +133,7 @@ function FluidCap({
       return
     }
     if (penMode === 'select') {
-      toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+      toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
     } else {
       onPointerUp(e, boardHex)
     }

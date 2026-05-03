@@ -33,8 +33,8 @@ export default function LaurWallTrianglePillar({
     (s) => s.isLightsAndShadowsRender,
   )
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex.pieceID
-  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
+  const isSelected = selectedPieceID === boardHex?.boardPieceUID
+  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
   const color = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.laurWall]

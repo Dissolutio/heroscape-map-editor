@@ -87,7 +87,7 @@ function SolidCapInstance({
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const color = terrainCapColors[boardHex.terrain]
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === boardHex.pieceID
+  const isSelected = selectedPieceID === boardHex?.boardPieceUID
 
   // Effect: Initial color/position
   React.useEffect(() => {
@@ -109,12 +109,12 @@ function SolidCapInstance({
 
   // update color when piece is hovered
   React.useEffect(() => {
-    if (hoveredPieceID === boardHex.pieceID) {
+    if (hoveredPieceID === boardHex?.boardPieceUID) {
       // ref.current.color.set('yellow')
     } else {
       ref?.current?.color?.set?.(color)
     }
-  }, [boardHex.pieceID, hoveredPieceID, color])
+  }, [boardHex.boardPieceUID, hoveredPieceID, color])
 
   const handlePointerEnter = (e: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {
@@ -142,7 +142,7 @@ function SolidCapInstance({
       return
     }
     if (penMode === 'select') {
-      toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+      toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
     } else {
       onPointerUp(e, boardHex)
     }

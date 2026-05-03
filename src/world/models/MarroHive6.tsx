@@ -24,13 +24,13 @@ export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
       return
     }
     if (boardHex) {
-      toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+      toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
     }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.pieceID
-  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
+  const isSelected = selectedPieceID === boardHex?.boardPieceUID
+  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor.hiveModel1
   return (
     <>

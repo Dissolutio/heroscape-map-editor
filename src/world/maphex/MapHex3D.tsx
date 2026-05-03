@@ -730,8 +730,8 @@ export const MapHex3D = ({
             y={yBaseCap}
             z={z}
             color={
-              hoveredPieceID === boardHex.pieceID ||
-              selectedPieceID === boardHex.pieceID
+              hoveredPieceID === boardHex?.boardPieceUID ||
+              selectedPieceID === boardHex?.boardPieceUID
                 ? hexTerrainColor[HexTerrain.castleBase]
                 : 'yellow'
             }
@@ -757,8 +757,8 @@ export const MapHex3D = ({
               y={yBaseCap}
               z={z}
               color={
-                hoveredPieceID === boardHex.pieceID ||
-                selectedPieceID === boardHex.pieceID
+                hoveredPieceID === boardHex?.boardPieceUID ||
+                selectedPieceID === boardHex?.boardPieceUID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castleWall]
               }

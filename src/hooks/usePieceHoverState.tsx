@@ -14,7 +14,7 @@ export default function usePieceHoverState() {
     e.stopPropagation()
     setIsHovered(true)
     hoverTimeout.current = window.setTimeout(() => {
-      toggleHoveredPieceID(boardHex.pieceID)
+      toggleHoveredPieceID(boardHex.boardPieceUID ?? '')
       toggleHoveredHex(boardHex)
     }, 50) // Adjust the delay (in milliseconds) as needed
   }
