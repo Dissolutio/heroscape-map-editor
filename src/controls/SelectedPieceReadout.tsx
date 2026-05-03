@@ -1,12 +1,12 @@
 import { Card, CardActions, CardContent, Typography } from '@mui/material'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
-import { decodePieceID } from '../utils/map-utils'
 import DeletePieceButton from './DeletePieceButton'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
 const SelectedPieceReadout = () => {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
   const {
     // isLargeScreenWidth,
     isSmallScreenWidth,
@@ -15,13 +15,11 @@ const SelectedPieceReadout = () => {
   if (!selectedPieceID) {
     return null
   }
-  const {
-    inventoryID,
-    altitude,
-    rotation,
-    // boardHexID,
-    // pieceCoords
-  } = decodePieceID(selectedPieceID)
+  const boardPiece = boardPieces.find((bp) => bp.uid === selectedPieceID)
+  if (!boardPiece) {
+    return null
+  }
+  const { inventoryID, altitude, rotation } = boardPiece
   const piece = piecesSoFar[inventoryID]
 
   if (isSmallScreenWidth) {

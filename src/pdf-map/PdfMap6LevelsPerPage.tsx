@@ -2,14 +2,14 @@ import { Page, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy, uniq } from 'lodash'
 import type { PropsWithChildren } from 'react'
 import {
+  type BoardPiece,
   type BoardHexes,
-  type BoardPiecesEncodedArr,
   type PdfMapAltitudeChunk,
   Pieces,
 } from '../types'
 import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
 import {
-  decodePieceID,
+  boardPieceToDecodedPieceID,
   getBoardHexesSvgMapDimensions,
 } from '../utils/map-utils'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
@@ -17,7 +17,7 @@ export const PdfMapLevels6PerPage = ({
   boardHexes,
   boardPieces,
   children,
-}: PropsWithChildren<{ boardHexes: BoardHexes; boardPieces: BoardPiecesEncodedArr }>) => {
+}: PropsWithChildren<{ boardHexes: BoardHexes; boardPieces: BoardPiece[] }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesWithoutEmpties = keyBy(
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
@@ -28,7 +28,7 @@ export const PdfMapLevels6PerPage = ({
     boardPieces,
   )
   const decodedBoardPiecesArr = boardPieces
-    .map((id) => decodePieceID(id))
+    .map((bp) => boardPieceToDecodedPieceID(bp))
     .filter((p) => Boolean(p))
   return (
     <>
@@ -102,14 +102,14 @@ export const PdfMapLevels6PerPage = ({
 
 const getBoardHexAndPieceChunks = (
   boardHexes: BoardHexes,
-  boardPieces: BoardPiecesEncodedArr,
+  boardPieces: BoardPiece[],
 ): PdfMapAltitudeChunk[][] => {
   const filteredBoardHexes = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
   )
   const filteredBoardPieces = boardPieces
-    .filter((pieceID) => {
-      const id = decodePieceID(pieceID).inventoryID
+    .filter((boardPiece) => {
+      const id = boardPiece.inventoryID
       return (
         id === Pieces.ropeLadder ||
         id === Pieces.battlement ||
@@ -125,11 +125,13 @@ const getBoardHexAndPieceChunks = (
       )
     })
     // move pieces up 1 altitude, otherwise a battlement on bottom level causes level-0 to show in pdf
-    .map((pieceID) => ({
-      ...decodePieceID(pieceID),
-      altitude: decodePieceID(pieceID).altitude + 1,
-    }))
-  // .map((pieceID) => decodePieceID(pieceID))
+    .map((boardPiece) => {
+      const decodedPiece = boardPieceToDecodedPieceID(boardPiece)
+      return {
+        ...decodedPiece,
+        altitude: decodedPiece.altitude + 1,
+      }
+    })
 
   // Group hexes and pieces by altitude
   const groupedHexesByAltitude = groupBy(filteredBoardHexes, 'altitude')

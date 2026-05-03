@@ -276,11 +276,11 @@ export function genBoardHexID(hex: CubeCoordinate & { altitude: number }) {
     */
   return `${hex.altitude}~${hex.q}~${hex.r}`
 }
-export const getBoardPiecesMaxLevel = (boardPieces: BoardPiecesEncodedArr) => {
+export const getBoardPiecesMaxLevel = (boardPieces: BoardPiece[]) => {
   const maxLevel =
     1 +
     boardPieces
-      .map((bp) => decodePieceID(bp).altitude) // get their altitudes
+      .map((bp) => bp.altitude) // get their altitudes
       .sort((a, b) => b - a)[0] // sort them high to low and grab the first
   return Number.isNaN(maxLevel) ? 0 : maxLevel
 }
@@ -335,6 +335,23 @@ export const encodeBoardPiecesToIds = (
   })
 }
 
+/**
+ * Convert a BoardPiece to the DecodedPieceID shape expected by rendering components.
+ * The uid becomes the boardPieceID for use as a React key.
+ */
+export const boardPieceToDecodedPieceID = (bp: BoardPiece): DecodedPieceID => {
+  const boardHexID = genBoardHexID({ ...bp.pieceCoords, altitude: bp.altitude })
+  return {
+    boardPieceID: bp.uid,
+    inventoryID: bp.inventoryID,
+    altitude: bp.altitude,
+    rotation: bp.rotation,
+    boardHexID,
+    pieceCoords: bp.pieceCoords,
+    terrain: piecesSoFar[bp.inventoryID]?.terrain ?? 'empty',
+  }
+}
+
 export function countStringInArrayLoop(arr: string[], targetString: string) {
   let count = 0
   for (let i = 0; i < arr.length; i++) {
@@ -346,16 +363,30 @@ export function countStringInArrayLoop(arr: string[], targetString: string) {
 }
 
 /**
- * Normalize BoardPieces to an array of pieceIDs (strings).
- * Supports legacy object format and new array format (version 1).
+ * Normalize BoardPieces to an array of BoardPiece objects.
+ * Supports legacy object format (version 0), legacy string[] format, and new BoardPiece[] format.
  */
-export function normalizeBoardPieces(boardPieces: BoardPiecesEncodedArr): string[] {
-  if (Array.isArray(boardPieces)) {
-    return boardPieces
+export function normalizeBoardPieces(boardPieces: unknown): BoardPiece[] {
+  // New format: BoardPiece[]
+  if (
+    Array.isArray(boardPieces) &&
+    boardPieces.length > 0 &&
+    typeof boardPieces[0] === 'object' &&
+    boardPieces[0] !== null &&
+    'uid' in boardPieces[0]
+  ) {
+    return boardPieces as BoardPiece[]
   }
+  // Legacy format: string[]
+  if (
+    Array.isArray(boardPieces) &&
+    (boardPieces.length === 0 || typeof boardPieces[0] === 'string')
+  ) {
+    return inflateBoardPiecesFromIds(boardPieces as string[])
+  }
+  // Legacy object format: { [pieceID: string]: string }
   if (typeof boardPieces === 'object' && boardPieces !== null) {
-    return Object.keys(boardPieces)
+    return inflateBoardPiecesFromIds(Object.keys(boardPieces as object))
   }
-  // ERROR, since currently there's only 2 versions
   return []
 }

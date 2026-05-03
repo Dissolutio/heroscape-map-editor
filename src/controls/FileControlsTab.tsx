@@ -141,7 +141,7 @@ export const FileControlsTab = ({
     const hexMapToUse = { ...hexMap, mapPortraitBase64: '', mapNotes: '' }
     const myUrl = getUrlMapString({
       hexMap: hexMapToUse,
-      boardPiecesEncodedArr: boardPieces,
+      boardPieces: boardPieces,
     })
     const fullUrl = `${window.location.origin + window.location.pathname}?m=${myUrl}`
     if (fullUrl.length > 2082) {

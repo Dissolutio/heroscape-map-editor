@@ -3,7 +3,7 @@ import {
   type AddRemovePieceError,
   type AddRemovePieceReturn,
   type BoardHexes,
-  type BoardPiecesEncodedArr,
+  type BoardPieces,
   HexTerrain,
   PiecePrefixes,
   Pieces,
@@ -13,13 +13,13 @@ import {
   isRenderedFromPieceIDPiece,
   isSolidTerrainHex,
 } from '../utils/board-utils'
-import { decodePieceID, genBoardHexID } from '../utils/map-utils'
+import { genBoardHexID } from '../utils/map-utils'
 import { piecesSoFar } from './pieces'
 
 export type RemovePieceArgs = {
-  pieceID: string
+  uid: string
   boardHexes: BoardHexes
-  boardPieces: BoardPiecesEncodedArr
+  boardPieces: BoardPieces
 }
 
 export function removePiece({
@@ -27,16 +27,20 @@ export function removePiece({
   boardHexes,
   boardPieces,
   // input
-  pieceID,
+  uid,
 }: RemovePieceArgs): AddRemovePieceReturn {
   let error: AddRemovePieceError
-  const { inventoryID } = decodePieceID(pieceID)
+  const boardPiece = boardPieces.find((bp) => bp.uid === uid)
+  if (!boardPiece) {
+    return { newBoardHexes: boardHexes, newBoardPieces: boardPieces, error }
+  }
+  const { inventoryID } = boardPiece
   const piece = piecesSoFar[inventoryID]
   // Shallow copy boardHexes (if needed)
   const newBoardHexes = { ...boardHexes }
-  // Remove only the first occurrence of pieceID from the array
-  const idx = boardPieces.indexOf(pieceID)
-  const newBoardPieces: BoardPiecesEncodedArr =
+  // Remove only the first occurrence of uid from the array
+  const idx = boardPieces.findIndex((bp) => bp.uid === uid)
+  const newBoardPieces: BoardPieces =
     idx === -1
       ? [...boardPieces]
       : [...boardPieces.slice(0, idx), ...boardPieces.slice(idx + 1)]
@@ -86,9 +90,9 @@ export function removePiece({
       }
     }
     // remove the hexes
-    // Remove all hexes from newBoardHexes that have the given pieceID
+    // Remove all hexes from newBoardHexes that have the given uid
     for (const hexID of Object.keys(newBoardHexes)) {
-      if (newBoardHexes[hexID]?.pieceID === pieceID) {
+      if (newBoardHexes[hexID]?.boardPieceUID === uid) {
         delete newBoardHexes[hexID]
       }
     }

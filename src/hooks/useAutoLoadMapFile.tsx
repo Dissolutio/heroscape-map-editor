@@ -6,11 +6,11 @@ import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
   getBoardHexesRectangularMapDimensions,
+  inflateBoardPiecesFromIds,
   normalizeBoardPieces,
 } from '../utils/map-utils'
 import { Button } from '@mui/material'
 import { LS_KEYS } from '../local-storage/keys'
-import { noop } from 'lodash'
 import { ROUTES } from '../ROUTES'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
 import { Box3, type Group, type Object3DEventMap } from 'three'
@@ -39,7 +39,9 @@ const useAutoLoadMapFile = (props: Props) => {
     const urlMapString = queryParams.get('m')
     const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
     const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
-    const localMapCacheMapState = buildupJsonFileMap(localMapCache.boardPieces, localMapCache.hexMap)
+    const localMapCacheMapState = localMapCache
+      ? buildupJsonFileMap(normalizeBoardPieces(localMapCache.boardPieces), localMapCache.hexMap)
+      : undefined
     const queueMapAutoZoom = (boardHexes: BoardHexes): void => {
       const { width, length } = getBoardHexesRectangularMapDimensions(
         boardHexes,
@@ -53,29 +55,31 @@ const useAutoLoadMapFile = (props: Props) => {
       try {
         const { hexMap, boardPiecesEncodedArr } =
           parseMapDataArrayFromCrushed(urlMapString)
-        // const fullBoardPieces = inflateBoardPiecesFromIds(boardPiecesEncodedArr)
-        const jsonMap = buildupJsonFileMap(boardPiecesEncodedArr, hexMap)
+        const inflatedBoardPieces = inflateBoardPiecesFromIds(boardPiecesEncodedArr)
+        const jsonMap = buildupJsonFileMap(inflatedBoardPieces, hexMap)
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
         }
         const action = () => (
           <>
-            <Button
-              color="info"
-              variant="contained"
-              onClick={() => {
-                // load last map instead, close original snackbar, open a new one, remove map from URL bar
-                localMapCache ? loadMap(localMapCacheMapState) : noop()
-                closeSnackbar(snackbarId)
-                enqueueSnackbar({
-                  message: `Loaded last map instead: ${localMapCacheMapState.hexMap.name}`,
-                  variant: 'success',
-                })
-                navigate(ROUTES.heroscapeHome)
-              }}
-            >
-              Load last map instead
-            </Button>
+            {localMapCacheMapState ? (
+              <Button
+                color="info"
+                variant="contained"
+                onClick={() => {
+                  // load last map instead, close original snackbar, open a new one, remove map from URL bar
+                  loadMap(localMapCacheMapState)
+                  closeSnackbar(snackbarId)
+                  enqueueSnackbar({
+                    message: `Loaded last map instead: ${localMapCacheMapState.hexMap.name}`,
+                    variant: 'success',
+                  })
+                  navigate(ROUTES.heroscapeHome)
+                }}
+              >
+                Load last map instead
+              </Button>
+            ) : null}
             <Button
               color="warning"
               variant="contained"

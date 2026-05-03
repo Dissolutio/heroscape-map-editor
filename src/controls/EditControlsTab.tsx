@@ -12,33 +12,27 @@ import {
 } from '@mui/material'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import type { BoardPiecesEncodedArr } from '../types'
+import type { BoardPiece } from '../types'
 import {
   MAX_HEXAGON_MAP_DIMENSION,
   MAX_RECTANGLE_MAP_DIMENSION,
 } from '../utils/constants'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
-import { decodePieceID, genBoardHexID, genPieceID } from '../utils/map-utils'
 import { FcVlc } from 'react-icons/fc'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
-  boardPieces: BoardPiecesEncodedArr,
+  boardPieces: BoardPiece[],
 ) => {
-  const newBoardPieces = boardPieces.map((pid) => {
-    const {
-      inventoryID,
-      altitude,
-      rotation,
-      // boardHexID,
-      pieceCoords,
-    } = decodePieceID(pid)
+  const newBoardPieces = boardPieces.map((boardPiece) => {
+    const { pieceCoords } = boardPiece
     const newPieceCoords = hexUtilsAdd(pieceCoords, HEX_DIRECTIONS[direction])
-    const newBoardHexID = genBoardHexID({ ...newPieceCoords, altitude })
-    const newPieceID = genPieceID(newBoardHexID, inventoryID, rotation)
-    return newPieceID
+    return {
+      ...boardPiece,
+      pieceCoords: newPieceCoords,
+    }
   })
   return newBoardPieces
 }

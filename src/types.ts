@@ -3,7 +3,7 @@ export type MapState = MapFileState & {
 }
 export type MapFileState = {
   hexMap: HexMap
-  boardPieces: string[] // just an array of piece IDs, which include q coordinate, r coordinate, altitude, and rotation
+  boardPieces: BoardPiece[] // array of BoardPiece objects
 }
 export type HexMap = {
   id: string
@@ -385,7 +385,7 @@ export type DecodedPieceID = {
 }
 export type AddRemovePieceReturn = {
   newBoardHexes: BoardHexes
-  newBoardPieces: BoardPiecesEncodedArr
+  newBoardPieces: BoardPieces
   error: AddRemovePieceError
 }
 export type HexoscapeGlyph = {

@@ -1,9 +1,9 @@
 import { Vector3 } from 'three'
 import useBoundStore from '../store/store'
-import { Pieces } from '../types'
+import { type BoardPiece, Pieces } from '../types'
 import { isRenderedFromPieceIDPiece } from '../utils/board-utils'
 import { HEXGRID_HEX_HEIGHT, HEXGRID_HEXCAP_HEIGHT } from '../utils/constants'
-import { decodePieceID, getBoardHex3DCoords } from '../utils/map-utils'
+import { getBoardHex3DCoords } from '../utils/map-utils'
 import { Battlement } from './models/Battlement'
 import { LaurWallArchAddon } from './models/LaurWallArchModel'
 import { LaurWallLongAddon } from './models/LaurWallLongModel'
@@ -19,11 +19,11 @@ import ModelLoader from './models/ModelLoader'
 import { RopeLadder } from './models/RopeLadder'
 
 export const MapBoardPiece3D = ({
-  pid,
+  bp,
 }: {
-  pid: string
+  bp: BoardPiece
 }) => {
-  const { inventoryID, altitude, rotation, pieceCoords } = decodePieceID(pid)
+  const { inventoryID, altitude, rotation, pieceCoords, uid } = bp
   const { x, z, y } = getBoardHex3DCoords({ ...pieceCoords, altitude })
   const {
     x: xLaurWall,
@@ -51,7 +51,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallRuinAddon pid={pid} />
+          <LaurWallRuinAddon pid={uid} />
         </Suspense>
       </group>
     )
@@ -67,7 +67,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallShortAddon pid={pid} />
+          <LaurWallShortAddon pid={uid} />
         </Suspense>
       </group>
     )
@@ -83,7 +83,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallLongAddon pid={pid} />
+          <LaurWallLongAddon pid={uid} />
         </Suspense>
       </group>
     )
@@ -96,7 +96,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallArchAddon pid={pid} />
+          <LaurWallArchAddon pid={uid} />
         </Suspense>
       </group>
     )
@@ -114,7 +114,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Battlement pid={pid} />
+          <Battlement pid={uid} />
         </Suspense>
       </group>
     )
@@ -128,7 +128,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <RopeLadder pid={pid} />
+          <RopeLadder pid={uid} />
         </Suspense>
       </group>
     )
@@ -146,7 +146,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <RoadWall pid={pid} />
+          <RoadWall pid={uid} />
         </Suspense>
       </group>
     )

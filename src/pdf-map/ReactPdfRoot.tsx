@@ -12,12 +12,11 @@ import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
-import type { HexMap } from '../types'
+import type { BoardPiece, HexMap } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
 import {
   countTerrainSets,
   getSetsUsedText,
-  decodePieceID,
 } from '../utils/map-utils'
 
 Font.register({
@@ -183,18 +182,15 @@ const PdfPieceInventory = ({
   boardPieces,
 }: {
   isShowPDFInventory: boolean
-  boardPieces: string[]
+  boardPieces: BoardPiece[]
 }) => {
   if (!isShowPDFInventory || !boardPieces.length) {
     return null
   }
 
-  // Decode placed pieces and count by inventoryID
-  const decoded = (boardPieces || []).map((id) => decodePieceID(id))
-  const counts: Record<string, number> = decoded.reduce(
+  const counts: Record<string, number> = (boardPieces || []).reduce(
     (acc, p) => {
-      const inventoryID = p?.inventoryID
-      if (!inventoryID) return acc
+      const inventoryID = p.inventoryID
       acc[inventoryID] = (acc[inventoryID] || 0) + 1
       return acc
     },
@@ -207,7 +203,6 @@ const PdfPieceInventory = ({
 
   return (
     <Page
-      // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
       size="LETTER"
       style={{
         flexDirection: 'column',

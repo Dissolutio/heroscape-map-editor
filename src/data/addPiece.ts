@@ -1,9 +1,11 @@
 import { clone } from 'lodash'
+import { nanoid } from 'nanoid'
 import {
   type AddRemovePieceError,
   type AddRemovePieceReturn,
   type BoardHexes,
-  type BoardPiecesEncodedArr,
+  type BoardPiece,
+  type BoardPieces,
   type CubeCoordinate,
   HexTerrain,
   type Piece,
@@ -34,18 +36,21 @@ export function addPiece({
   placementAltitude,
   rotation,
   isVsTile,
+  uid: incomingUid,
 }: {
   piece: Piece
   boardHexes: BoardHexes
-  boardPieces: BoardPiecesEncodedArr
+  boardPieces: BoardPieces
   pieceCoords: CubeCoordinate
   placementAltitude: number
   rotation: number
   isVsTile: boolean
+  uid?: string
 }): AddRemovePieceReturn {
   let addPieceError: AddRemovePieceError
+  const uid = incomingUid ?? nanoid(10)
   const newBoardHexes = clone(boardHexes)
-  const newBoardPieces = clone(boardPieces)
+  const newBoardPieces: BoardPieces = clone(boardPieces)
   const piecePlaneCoords = getPieceTemplateCoords({
     clickedHex: { q: pieceCoords.q, r: pieceCoords.r, s: pieceCoords.s },
     rotation,
@@ -165,7 +170,7 @@ export function addPiece({
   if (piece.terrain === HexTerrain.ropeLadder) {
     try {
       // add the new rope ladder piece
-      newBoardPieces.push(pieceID)
+      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
     } catch (error) {
       addPieceError = { message: 'Unable to place rope ladder', error }
     }
@@ -174,7 +179,7 @@ export function addPiece({
   else if (piece.terrain === HexTerrain.laurWallAddon) {
     try {
       // add the new laur addon piece
-      newBoardPieces.push(pieceID)
+      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
     } catch (error) {
       addPieceError = { message: 'Unable to place laur wall addon', error }
     }
@@ -183,7 +188,7 @@ export function addPiece({
   else if (isPlacingRoadWall) {
     try {
       // Add the new roadwall piece
-      newBoardPieces.push(pieceID)
+      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
     } catch (error) {
       addPieceError = { message: 'Unable to place roadwall', error }
     }
@@ -192,7 +197,7 @@ export function addPiece({
   else if (isPlacingBattlement) {
     try {
       // Add the new battlement piece
-      newBoardPieces.push(ladderBattlementPieceID)
+      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation: ladderBattlementPieceRotation, pieceCoords })
     } catch (error) {
       addPieceError = { message: 'Unable to place battlement', error }
     }
@@ -223,6 +228,7 @@ export function addPiece({
           altitude: newPieceAltitude,
           terrain: piece.terrain,
           pieceID: ladderBattlementPieceID,
+          boardPieceUID: uid,
           inventoryID: piece.id,
           pieceRotation: ladderBattlementPieceRotation,
           isObstacleOrigin: true, // ladders have one origin, and one vertical clearance auxiliary
@@ -250,6 +256,7 @@ export function addPiece({
               altitude: clearanceHexAltitude,
               terrain: piece.terrain,
               pieceID: ladderBattlementPieceID,
+              boardPieceUID: uid,
               inventoryID: piece.id,
               pieceRotation: ladderBattlementPieceRotation,
               isObstacleOrigin: false, // ladders have one origin, and one vertical clearance auxiliary
@@ -260,7 +267,7 @@ export function addPiece({
           })
       })
       // add the new ladder piece
-      newBoardPieces.push(ladderBattlementPieceID)
+      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation: ladderBattlementPieceRotation, pieceCoords })
     } else {
       addPieceError = { message: 'Unable to place ladder' }
     }
@@ -326,6 +333,7 @@ export function addPiece({
                 altitude: clearanceHexAltitude,
                 terrain: piece.terrain,
                 pieceID,
+                boardPieceUID: uid,
                 inventoryID: piece.id,
                 pieceRotation: rotation,
                 isVerticalClearanceHex: true,
@@ -342,6 +350,7 @@ export function addPiece({
           altitude: newPieceAltitude,
           terrain: piece.terrain,
           pieceID,
+          boardPieceUID: uid,
           inventoryID: piece.id,
           pieceRotation: rotation,
           isObstacleOrigin: isObstacleOrigin,
@@ -349,7 +358,7 @@ export function addPiece({
         }
       })
       // add the new piece
-      newBoardPieces.push(pieceID)
+      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
     } else {
       if (!isSpaceFreeForRuin) {
         addPieceError = { message: 'Not enough space for ruin' }
@@ -387,6 +396,7 @@ export function addPiece({
           altitude: newPieceAltitude,
           terrain: piece.terrain,
           pieceID,
+          boardPieceUID: uid,
           inventoryID: piece.id,
           pieceRotation: rotation,
           isObstacleOrigin: true,
@@ -401,7 +411,7 @@ export function addPiece({
       }
     }
     // add the new piece
-    newBoardPieces.push(pieceID)
+    newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
   }
   // CASTLE ARCH (no error reporting)
   else if (isCastleArchPiece) {
@@ -430,6 +440,7 @@ export function addPiece({
           altitude: newPieceAltitude,
           terrain: piece.terrain,
           pieceID,
+          boardPieceUID: uid,
           inventoryID: piece.id,
           pieceRotation: rotation,
           isObstacleOrigin: i === 0, // The first boardHex is marked to render the obstacle model
@@ -455,6 +466,7 @@ export function addPiece({
               altitude: clearanceHexAltitude,
               terrain: piece.terrain,
               pieceID,
+              boardPieceUID: uid,
               inventoryID: piece.id,
               pieceRotation: rotation,
               isVerticalClearanceHex: true,
@@ -462,7 +474,7 @@ export function addPiece({
           })
       })
       // add the new piece
-      newBoardPieces.push(pieceID)
+      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
     }
   }
   // CASTLE WALL (no error reporting)
@@ -507,6 +519,7 @@ export function addPiece({
             altitude: wallAltitude,
             terrain: piece.terrain,
             pieceID,
+            boardPieceUID: uid,
             inventoryID: piece.id,
             pieceRotation: rotation,
             isObstacleOrigin: i === 0, // first hex marks the wall/arch model
@@ -524,6 +537,7 @@ export function addPiece({
             altitude: wallAltitude,
             terrain: piece.terrain,
             pieceID,
+            boardPieceUID: uid,
             inventoryID: piece.id,
             pieceRotation: rotation,
             isObstacleOrigin: i === 0, // The first boardHex is marked to render the obstacle model
@@ -550,6 +564,7 @@ export function addPiece({
               altitude: clearanceHexAltitude,
               terrain: piece.terrain,
               pieceID,
+              boardPieceUID: uid,
               inventoryID: piece.id,
               pieceRotation: rotation,
               isVerticalClearanceHex: true,
@@ -557,7 +572,7 @@ export function addPiece({
           })
       })
       // add the new piece
-      newBoardPieces.push(pieceID)
+      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
     }
   }
   // WALLWALK ONTO WALL
@@ -573,6 +588,7 @@ export function addPiece({
         altitude: newPieceAltitude,
         terrain: piece.terrain,
         pieceID,
+        boardPieceUID: uid,
         inventoryID: piece.id,
         pieceRotation: rotation,
         isCap: !isSolidAbove,
@@ -581,7 +597,7 @@ export function addPiece({
       }
     })
     // add the new piece
-    newBoardPieces.push(pieceID)
+    newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
   }
   // OBSTACLES: trees, bushes, palms, glaciers, outcrops, laurPillar
   else if (isPlacingObstacle) {
@@ -600,6 +616,7 @@ export function addPiece({
         altitude: newPieceAltitude,
         terrain: piece.terrain,
         pieceID,
+        boardPieceUID: uid,
         inventoryID: piece.id,
         pieceRotation: rotation,
         isObstacleOrigin: i === 0, //only the first hex is an origin (because we made the template arrays this way. with origin hex at index 0)
@@ -632,6 +649,7 @@ export function addPiece({
                   altitude: clearanceHexAltitude,
                   terrain: piece.terrain,
                   pieceID,
+                  boardPieceUID: uid,
                   inventoryID: piece.id,
                   pieceRotation: rotation,
                   isVerticalClearanceHex: true,
@@ -667,6 +685,7 @@ export function addPiece({
                 altitude: clearanceHexAltitude,
                 terrain: piece.terrain,
                 pieceID,
+                boardPieceUID: uid,
                 inventoryID: piece.id,
                 pieceRotation: rotation,
                 isVerticalClearanceHex: true,
@@ -682,7 +701,7 @@ export function addPiece({
     })
 
     // add the new piece
-    newBoardPieces.push(pieceID)
+    newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
   }
   // LAND
   else if (isPlacingLandTile) {
@@ -709,6 +728,7 @@ export function addPiece({
             altitude: newPieceAltitude,
             terrain: piece.terrain,
             pieceID,
+            boardPieceUID: uid,
             inventoryID: piece.id,
             pieceRotation: rotation,
             isCap: !isSolidAbove, // not a cap if solid hex directly above
@@ -723,7 +743,7 @@ export function addPiece({
         addPieceError = { message: 'Could not place land tile', error }
       }
       // add the new piece
-      newBoardPieces.push(pieceID)
+      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
     }
   }
   return { newBoardHexes, newBoardPieces, error: addPieceError }

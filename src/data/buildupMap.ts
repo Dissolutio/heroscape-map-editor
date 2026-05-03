@@ -1,7 +1,8 @@
 import { clone } from 'lodash'
 import {
   type BoardHexes,
-  type BoardPiecesEncodedArr,
+  type BoardPiece,
+  type BoardPieces,
   type HexMap,
   type MapState,
   Pieces,
@@ -9,7 +10,6 @@ import {
 } from '../types'
 import { hexUtilsOddRToCube } from '../utils/hex-utils'
 import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
-import { decodePieceID } from '../utils/map-utils'
 import { addPiece } from './addPiece'
 import { pieceCodes } from './pieceCodes'
 import { piecesSoFar } from './pieces'
@@ -48,11 +48,11 @@ export default function buildupVSFileMap(
     boardPieces,
   }
 }
-function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: string[]) {
+function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: BoardPiece[]) {
   // adding the laur addons will only work if pillars are already down
   return arr.sort((a, b) => {
-    const aPieceID = decodePieceID(a).inventoryID
-    const bPieceID = decodePieceID(b).inventoryID
+    const aPieceID = a.inventoryID
+    const bPieceID = b.inventoryID
     if (
       aPieceID === Pieces.laurWallRuin1 ||
       aPieceID === Pieces.laurWallLong ||
@@ -75,13 +75,13 @@ function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: string[]) {
   })
 }
 export function buildupJsonFileMap(
-  boardPieces: BoardPiecesEncodedArr,
+  boardPieces: BoardPiece[],
   hexMap: HexMap,
 ): MapState {
   // For JSON maps, the map dimensions are free, we do not have to compute them
   let initialBoardHexes: BoardHexes = {}
   const initialBoardPieces = clone(boardPieces)
-  let finalBoardPieces: BoardPiecesEncodedArr = []
+  let finalBoardPieces: BoardPieces = []
   if (hexMap.shape === 'rectangle') {
     initialBoardHexes = makeRectangleScenario({
       length: hexMap.length,
@@ -95,7 +95,7 @@ export function buildupJsonFileMap(
     }).boardHexes
   }
   const boardPiecesSortedByAltitude = initialBoardPieces.sort((a, b) => {
-    if (decodePieceID(a).altitude > decodePieceID(b).altitude) {
+    if (a.altitude > b.altitude) {
       return 1 // Move 'targetValue' to the end
     }
     return -1 // Move 'targetValue' to the end
@@ -105,13 +105,7 @@ export function buildupJsonFileMap(
   )
   const newBoardHexes = piecesArray.reduce(
     (prev: BoardHexes, curr): BoardHexes => {
-      const {
-        pieceCoords,
-        altitude: placementAltitude,
-        rotation,
-        inventoryID,
-      } = decodePieceID(curr)
-      const piece = piecesSoFar[inventoryID]
+      const piece = piecesSoFar[curr.inventoryID]
       if (!piece) {
         return prev // Should probably handle this different, errors etc.
       }
@@ -121,10 +115,11 @@ export function buildupJsonFileMap(
         piece,
         boardHexes: prev,
         boardPieces: finalBoardPieces,
-        pieceCoords,
-        placementAltitude: placementAltitude, // z is altitude is virtualscape, y is altitude in our app
-        rotation: rotation,
+        pieceCoords: curr.pieceCoords,
+        placementAltitude: curr.altitude,
+        rotation: curr.rotation,
         isVsTile: false,
+        uid: curr.uid,
       })
       finalBoardPieces = newBoardPieces
       return newBoardHexes
