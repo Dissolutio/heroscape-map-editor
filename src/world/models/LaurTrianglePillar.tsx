@@ -22,9 +22,9 @@ export default function LaurWallTrianglePillar({
   onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF(
     '/laur-triangle-pillar-from-hs-blendfile.glb',
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   // const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
@@ -115,9 +115,9 @@ export function LaurWallTrianglePillarPreview({
   pieceRotation: number
   opacity?: number
 }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF(
     '/laur-triangle-pillar-from-hs-blendfile.glb',
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   // const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
   const isLightsAndShadowsRender = useBoundStore(

@@ -54,7 +54,7 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
+    toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
   }
   return (
     <>

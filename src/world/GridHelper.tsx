@@ -37,6 +37,7 @@ const AxesLevelHelper = () => {
     <group>
       {new Array(20).fill(0).map((_, i) => (
         <axesHelper
+          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
           key={i}
           scale={[10, HEXGRID_HEX_HEIGHT, 10]}
           position={new Vector3(0, HEXGRID_HEX_HEIGHT * i, 0)}

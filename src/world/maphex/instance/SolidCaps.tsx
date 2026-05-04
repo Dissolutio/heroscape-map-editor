@@ -142,7 +142,7 @@ function SolidCapInstance({
       return
     }
     if (penMode === 'select') {
-      toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
+      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
     } else {
       onPointerUp(e, boardHex)
     }

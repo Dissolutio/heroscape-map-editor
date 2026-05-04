@@ -26,7 +26,7 @@ export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
       return
     }
     if (boardHex) {
-      toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
+      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
     }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)

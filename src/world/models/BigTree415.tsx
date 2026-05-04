@@ -25,7 +25,7 @@ export default function BigTree415({ boardHex }: { boardHex?: BoardHex }) {
       return
     }
     if (boardHex) {
-      toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
+      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
     }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)

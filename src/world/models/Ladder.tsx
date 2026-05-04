@@ -32,7 +32,7 @@ export function Ladder({
     if (penMode === Pieces.ladder) {
       onPointerUp(event, boardHex)
     } else {
-      toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
+      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
     }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)

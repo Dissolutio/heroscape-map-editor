@@ -14,10 +14,7 @@ import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
 import type { BoardPiece, HexMap } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
-import {
-  countTerrainSets,
-  getSetsUsedText,
-} from '../utils/map-utils'
+import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
 
 Font.register({
   family: 'Inter',

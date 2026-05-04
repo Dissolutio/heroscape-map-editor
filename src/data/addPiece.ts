@@ -170,7 +170,13 @@ export function addPiece({
   if (piece.terrain === HexTerrain.ropeLadder) {
     try {
       // add the new rope ladder piece
-      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
+      newBoardPieces.push({
+        uid,
+        inventoryID: piece.id,
+        altitude: placementAltitude,
+        rotation,
+        pieceCoords,
+      })
     } catch (error) {
       addPieceError = { message: 'Unable to place rope ladder', error }
     }
@@ -179,7 +185,13 @@ export function addPiece({
   else if (piece.terrain === HexTerrain.laurWallAddon) {
     try {
       // add the new laur addon piece
-      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
+      newBoardPieces.push({
+        uid,
+        inventoryID: piece.id,
+        altitude: placementAltitude,
+        rotation,
+        pieceCoords,
+      })
     } catch (error) {
       addPieceError = { message: 'Unable to place laur wall addon', error }
     }
@@ -188,7 +200,13 @@ export function addPiece({
   else if (isPlacingRoadWall) {
     try {
       // Add the new roadwall piece
-      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
+      newBoardPieces.push({
+        uid,
+        inventoryID: piece.id,
+        altitude: placementAltitude,
+        rotation,
+        pieceCoords,
+      })
     } catch (error) {
       addPieceError = { message: 'Unable to place roadwall', error }
     }
@@ -197,7 +215,13 @@ export function addPiece({
   else if (isPlacingBattlement) {
     try {
       // Add the new battlement piece
-      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation: ladderBattlementPieceRotation, pieceCoords })
+      newBoardPieces.push({
+        uid,
+        inventoryID: piece.id,
+        altitude: placementAltitude,
+        rotation: ladderBattlementPieceRotation,
+        pieceCoords,
+      })
     } catch (error) {
       addPieceError = { message: 'Unable to place battlement', error }
     }
@@ -267,7 +291,13 @@ export function addPiece({
           })
       })
       // add the new ladder piece
-      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation: ladderBattlementPieceRotation, pieceCoords })
+      newBoardPieces.push({
+        uid,
+        inventoryID: piece.id,
+        altitude: placementAltitude,
+        rotation: ladderBattlementPieceRotation,
+        pieceCoords,
+      })
     } else {
       addPieceError = { message: 'Unable to place ladder' }
     }
@@ -358,7 +388,13 @@ export function addPiece({
         }
       })
       // add the new piece
-      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
+      newBoardPieces.push({
+        uid,
+        inventoryID: piece.id,
+        altitude: placementAltitude,
+        rotation,
+        pieceCoords,
+      })
     } else {
       if (!isSpaceFreeForRuin) {
         addPieceError = { message: 'Not enough space for ruin' }
@@ -411,7 +447,13 @@ export function addPiece({
       }
     }
     // add the new piece
-    newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
+    newBoardPieces.push({
+      uid,
+      inventoryID: piece.id,
+      altitude: placementAltitude,
+      rotation,
+      pieceCoords,
+    })
   }
   // CASTLE ARCH (no error reporting)
   else if (isCastleArchPiece) {
@@ -474,7 +516,13 @@ export function addPiece({
           })
       })
       // add the new piece
-      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
+      newBoardPieces.push({
+        uid,
+        inventoryID: piece.id,
+        altitude: placementAltitude,
+        rotation,
+        pieceCoords,
+      })
     }
   }
   // CASTLE WALL (no error reporting)
@@ -572,7 +620,13 @@ export function addPiece({
           })
       })
       // add the new piece
-      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
+      newBoardPieces.push({
+        uid,
+        inventoryID: piece.id,
+        altitude: placementAltitude,
+        rotation,
+        pieceCoords,
+      })
     }
   }
   // WALLWALK ONTO WALL
@@ -597,7 +651,13 @@ export function addPiece({
       }
     })
     // add the new piece
-    newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
+    newBoardPieces.push({
+      uid,
+      inventoryID: piece.id,
+      altitude: placementAltitude,
+      rotation,
+      pieceCoords,
+    })
   }
   // OBSTACLES: trees, bushes, palms, glaciers, outcrops, laurPillar
   else if (isPlacingObstacle) {
@@ -701,7 +761,13 @@ export function addPiece({
     })
 
     // add the new piece
-    newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
+    newBoardPieces.push({
+      uid,
+      inventoryID: piece.id,
+      altitude: placementAltitude,
+      rotation,
+      pieceCoords,
+    })
   }
   // LAND
   else if (isPlacingLandTile) {
@@ -743,7 +809,13 @@ export function addPiece({
         addPieceError = { message: 'Could not place land tile', error }
       }
       // add the new piece
-      newBoardPieces.push({ uid, inventoryID: piece.id, altitude: placementAltitude, rotation, pieceCoords })
+      newBoardPieces.push({
+        uid,
+        inventoryID: piece.id,
+        altitude: placementAltitude,
+        rotation,
+        pieceCoords,
+      })
     }
   }
   return { newBoardHexes, newBoardPieces, error: addPieceError }

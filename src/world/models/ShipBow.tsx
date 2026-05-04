@@ -26,7 +26,7 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
       return
     }
     if (boardHex) {
-      toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
+      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
     }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
@@ -76,10 +76,10 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-            color,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              color,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}

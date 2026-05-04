@@ -95,9 +95,7 @@ export default function CreateMapFormDialog(props: Props) {
     setMapShape((event.target as HTMLInputElement).value)
   }
   const queueMapAutoZoom = (boardHexes: BoardHexes): void => {
-    const { width, length } = getBoardHexesRectangularMapDimensions(
-      boardHexes,
-    )
+    const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
     setTimeout(() => {
       zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
     }, 1000)

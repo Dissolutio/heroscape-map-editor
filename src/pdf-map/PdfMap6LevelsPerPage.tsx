@@ -17,7 +17,10 @@ export const PdfMapLevels6PerPage = ({
   boardHexes,
   boardPieces,
   children,
-}: PropsWithChildren<{ boardHexes: BoardHexes; boardPieces: BoardPiece[] }>) => {
+}: PropsWithChildren<{
+  boardHexes: BoardHexes
+  boardPieces: BoardPiece[]
+}>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesWithoutEmpties = keyBy(
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),

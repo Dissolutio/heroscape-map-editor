@@ -40,12 +40,14 @@ const useAutoLoadMapFile = (props: Props) => {
     const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
     const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
     const localMapCacheMapState = localMapCache
-      ? buildupJsonFileMap(normalizeBoardPieces(localMapCache.boardPieces), localMapCache.hexMap)
+      ? buildupJsonFileMap(
+          normalizeBoardPieces(localMapCache.boardPieces),
+          localMapCache.hexMap,
+        )
       : undefined
     const queueMapAutoZoom = (boardHexes: BoardHexes): void => {
-      const { width, length } = getBoardHexesRectangularMapDimensions(
-        boardHexes,
-      )
+      const { width, length } =
+        getBoardHexesRectangularMapDimensions(boardHexes)
       setTimeout(() => {
         zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
       }, 1000)
@@ -55,7 +57,9 @@ const useAutoLoadMapFile = (props: Props) => {
       try {
         const { hexMap, boardPiecesEncodedArr } =
           parseMapDataArrayFromCrushed(urlMapString)
-        const inflatedBoardPieces = inflateBoardPiecesFromIds(boardPiecesEncodedArr)
+        const inflatedBoardPieces = inflateBoardPiecesFromIds(
+          boardPiecesEncodedArr,
+        )
         const jsonMap = buildupJsonFileMap(inflatedBoardPieces, hexMap)
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()

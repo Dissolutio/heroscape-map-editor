@@ -188,7 +188,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
+    toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
   }
 
   // Early return non-origin hexes

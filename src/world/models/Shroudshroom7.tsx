@@ -26,7 +26,7 @@ export default function Shroudshroom7({ boardHex }: { boardHex?: BoardHex }) {
       return
     }
     if (boardHex) {
-      toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
+      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
     }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)

@@ -30,7 +30,7 @@ export function MarvelRuin({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.boardPieceUID ?? '')
+    toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
   }
   const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
   const yellowColor = 'yellow'

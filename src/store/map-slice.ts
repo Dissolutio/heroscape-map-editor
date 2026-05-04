@@ -35,10 +35,7 @@ type PaintTileArgs = {
 // we can offer them the chance to load their last map instead of the URL (in useAutoLoadMapFile.tsx)
 const localLastMap = loadMapFromLocalStorage(LS_KEYS.lastMap)
 if (localLastMap) {
-  localStorage.setItem(
-    LS_KEYS.lastMapCache,
-    JSON.stringify(localLastMap),
-  )
+  localStorage.setItem(LS_KEYS.lastMapCache, JSON.stringify(localLastMap))
 }
 
 const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({

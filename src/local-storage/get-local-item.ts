@@ -1,6 +1,6 @@
-import type { MapFileState } from "../types"
-import { normalizeBoardPieces } from "../utils/map-utils";
-import { LS_KEYS } from "./keys"
+import type { MapFileState } from '../types'
+import { normalizeBoardPieces } from '../utils/map-utils'
+import { LS_KEYS } from './keys'
 
 export function loadMapFromLocalStorage(ls_key: string): MapFileState | null {
   try {
