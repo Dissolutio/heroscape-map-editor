@@ -1,23 +1,22 @@
 import { closeSnackbar, useSnackbar } from 'notistack'
-import React, { type RefObject, useEffect } from 'react'
+import { type RefObject, useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
-import type { BoardHexes } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
   getBoardHexesRectangularMapDimensions,
-  getBoardPiecesMaxLevel,
+  inflateBoardPiecesFromIds,
   normalizeBoardPieces,
 } from '../utils/map-utils'
 import { Button } from '@mui/material'
 import { LS_KEYS } from '../local-storage/keys'
-import { noop } from 'lodash'
 import { ROUTES } from '../ROUTES'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
 import { Box3, type Group, type Object3DEventMap } from 'three'
 import { zoomToMap } from '../utils/camera-utils'
 import type { CameraControls } from '@react-three/drei'
+import type { BoardHexes } from '../types'
 
 type Props = {
   mapGroupRef: RefObject<Group<Object3DEventMap>>
@@ -40,33 +39,51 @@ const useAutoLoadMapFile = (props: Props) => {
     const urlMapString = queryParams.get('m')
     const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
     const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
+    const localMapCacheMapState = localMapCache
+      ? buildupJsonFileMap(
+          normalizeBoardPieces(localMapCache.boardPieces),
+          localMapCache.hexMap,
+        )
+      : undefined
+    const queueMapAutoZoom = (boardHexes: BoardHexes): void => {
+      const { width, length } =
+        getBoardHexesRectangularMapDimensions(boardHexes)
+      setTimeout(() => {
+        zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
+      }, 1000)
+    }
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
       try {
-        const { hexMap, boardPieces } =
+        const { hexMap, boardPiecesEncodedArr } =
           parseMapDataArrayFromCrushed(urlMapString)
-        const jsonMap = buildupJsonFileMap(boardPieces, hexMap)
+        const inflatedBoardPieces = inflateBoardPiecesFromIds(
+          boardPiecesEncodedArr,
+        )
+        const jsonMap = buildupJsonFileMap(inflatedBoardPieces, hexMap)
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
         }
         const action = () => (
           <>
-            <Button
-              color="info"
-              variant="contained"
-              onClick={() => {
-                // load last map instead, close original snackbar, open a new one, remove map from URL bar
-                localMapCache ? loadMap(localMapCache) : noop()
-                closeSnackbar(snackbarId)
-                enqueueSnackbar({
-                  message: `Loaded last map instead: ${localMapCache.hexMap.name}`,
-                  variant: 'success',
-                })
-                navigate(ROUTES.heroscapeHome)
-              }}
-            >
-              Load last map instead
-            </Button>
+            {localMapCacheMapState ? (
+              <Button
+                color="info"
+                variant="contained"
+                onClick={() => {
+                  // load last map instead, close original snackbar, open a new one, remove map from URL bar
+                  loadMap(localMapCacheMapState)
+                  closeSnackbar(snackbarId)
+                  enqueueSnackbar({
+                    message: `Loaded last map instead: ${localMapCacheMapState.hexMap.name}`,
+                    variant: 'success',
+                  })
+                  navigate(ROUTES.heroscapeHome)
+                }}
+              >
+                Load last map instead
+              </Button>
+            ) : null}
             <Button
               color="warning"
               variant="contained"
@@ -85,18 +102,7 @@ const useAutoLoadMapFile = (props: Props) => {
         })
         loadMap(jsonMap)
         clearUndoHistory() // clear undo history, initial load should not be undoable
-        if (props.mapGroupRef.current && props.cameraControlsRef.current) {
-          // Create a new bounding box from the updated group.
-          const box = new Box3().setFromObject(props.mapGroupRef.current)
-          // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
-          props.cameraControlsRef.current?.fitToBox(box, true)
-        }
-        const { width, length } = getBoardHexesRectangularMapDimensions(
-          jsonMap.boardHexes,
-        )
-        setTimeout(() => {
-          zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-        }, 1000)
+        queueMapAutoZoom(jsonMap.boardHexes)
         return
 
         // biome-ignore lint/suspicious/noExplicitAny: <error could be anything>
@@ -109,25 +115,14 @@ const useAutoLoadMapFile = (props: Props) => {
         console.error('🚀 ~ React.useEffect ~ error:', error)
         return
       }
-    } else if (localMapCache) {
-      loadMap(localMapCache)
+    } else if (localMapCacheMapState) {
+      loadMap(localMapCacheMapState)
       enqueueSnackbar({
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
         variant: 'success',
       })
 
-      if (props.mapGroupRef.current && props.cameraControlsRef.current) {
-        // Create a new bounding box from the updated group.
-        const box = new Box3().setFromObject(props.mapGroupRef.current)
-        // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
-        props.cameraControlsRef.current?.fitToBox(box, true)
-      }
-      const { width, length } = getBoardHexesRectangularMapDimensions(
-        localMapCache.boardHexes,
-      )
-      setTimeout(() => {
-        zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-      }, 1000)
+      queueMapAutoZoom(localMapCacheMapState.boardHexes)
     } else {
       // No url and no prev state? auto load a file
 
@@ -162,19 +157,13 @@ const useAutoLoadMapFile = (props: Props) => {
           jsonMap.hexMap.name = fileName
         }
         loadMap(jsonMap)
-        const { width, length } = getBoardHexesRectangularMapDimensions(
-          jsonMap.boardHexes,
-        )
-        setTimeout(() => {
-          zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-        }, 1000)
         enqueueSnackbar({
-          // message: `Loaded map "${jsonMap.hexMap.name}" from file: "${fileName}"`,
           message: 'WELCOME!',
           variant: 'success',
           autoHideDuration: 5000,
         })
         clearUndoHistory() // clear undo history, initial load should not be undoable
+        queueMapAutoZoom(jsonMap.boardHexes)
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

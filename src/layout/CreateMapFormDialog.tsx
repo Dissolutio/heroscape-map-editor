@@ -29,6 +29,12 @@ import {
   InputSetsUsedCard,
   setsUsedInputNameForFormData,
 } from './InputSetsUsedCard'
+import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
+import type { BoardHexes } from '../types'
+import type { Group } from 'three'
+import type { Object3DEventMap } from 'three'
+import type { CameraControls } from '@react-three/drei'
+import { zoomToMap } from '../utils/camera-utils'
 
 const hexagonMarks = [
   {
@@ -58,10 +64,20 @@ const rectangleMarks = [
     label: 'Large',
   },
 ]
+type Props = {
+  mapGroupRef: React.RefObject<Group<Object3DEventMap>>
+  cameraControlsRef: React.RefObject<CameraControls>
+}
 
-export default function CreateMapFormDialog() {
+export default function CreateMapFormDialog(props: Props) {
   const [, navigate] = useLocation()
   const fullScreen = useMediaQuery('(max-width:900px)')
+  // new map form state
+  const [mapName, setMapName] = React.useState(() => genRandomMapName())
+  const [mapShape, setMapShape] = React.useState('rectangle')
+  const [mapWidth, setMapWidth] = React.useState(20)
+  const [mapLength, setMapLength] = React.useState(20)
+  const [mapSize, setMapSize] = React.useState(10)
   const loadMap = useBoundStore((state) => state.loadMap)
   // const { clear: clearUndoHistory } = useBoundStore.temporal.getState()
   const toggleIsNewMapDialogOpen = useBoundStore(
@@ -75,17 +91,17 @@ export default function CreateMapFormDialog() {
   )
   const handleClose = () => toggleIsNewMapDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
-  // new map form state
-  const [mapName, setMapName] = React.useState(() => genRandomMapName())
-  const [mapShape, setMapShape] = React.useState('rectangle')
   const handleChangeMapShape = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMapShape((event.target as HTMLInputElement).value)
   }
-  const [mapWidth, setMapWidth] = React.useState(20)
-  const [mapLength, setMapLength] = React.useState(20)
-  const [mapSize, setMapSize] = React.useState(10)
+  const queueMapAutoZoom = (boardHexes: BoardHexes): void => {
+    const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
+    setTimeout(() => {
+      zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
+    }, 1000)
+  }
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    // setsUsed is uncontrolled and extracted from form data
+    // setsUsed is uncontrolled react form state, we extract it from form data
     const formData = new FormData(event.currentTarget)
     // biome-ignore lint/suspicious/noExplicitAny: <form data not well understood>
     const formJson = Object.fromEntries((formData as any).entries())
@@ -128,6 +144,7 @@ export default function CreateMapFormDialog() {
       message: `Created new map: ${editedMapState.hexMap.name}`,
       autoHideDuration: 5000,
     })
+    queueMapAutoZoom(editedMapState.boardHexes)
   }
 
   return (

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import useBoundStore from '../store/store'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import {
-  decodePieceID,
+  boardPieceToDecodedPieceID,
   getBoardHexesSvgMapDimensions,
   getBoardPiecesMaxLevel,
 } from '../utils/map-utils'
@@ -24,7 +24,7 @@ export const SvgMapDisplay = () => {
     (s) => s.is2DOverlayLevelEnabled,
   )
   const decodedBoardPiecesArr = boardPieces
-    .map((id) => decodePieceID(id))
+    .map((bp) => boardPieceToDecodedPieceID(bp))
     .filter((p) => Boolean(p))
   const hexMap = useBoundStore((state) => state.hexMap)
   const mapDimensions = getBoardHexesSvgMapDimensions(boardHexes)

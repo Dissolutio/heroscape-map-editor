@@ -19,11 +19,11 @@ export default function JungleBrush({ boardHex }: { boardHex?: BoardHex }) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === boardHex?.pieceID
-  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
+  const isSelected = selectedPieceID === boardHex?.boardPieceUID
+  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
   if (boardHex?.inventoryID === Pieces.laurBrush10) {
     return (
       <group

@@ -26,13 +26,13 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
       return
     }
     if (boardHex) {
-      toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
     }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.pieceID
-  const isHighlighted = hoveredPieceID === boardHex?.pieceID || isSelected
+  const isSelected = selectedPieceID === boardHex?.boardPieceUID
+  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor.shipWood
   const colorShipBowIron = isHighlighted
     ? yellowColor
@@ -76,10 +76,10 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         {boardHex
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-            color,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              color,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}

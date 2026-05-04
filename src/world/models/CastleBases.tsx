@@ -20,12 +20,12 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const isSelected = selectedPieceID === boardHex.pieceID
+  const isSelected = selectedPieceID === boardHex?.boardPieceUID
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
-  const isHighlighted = hoveredPieceID === boardHex.pieceID || isSelected
+  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
   const yellowColor = 'yellow'
   const bodyGeometry = pieceID.includes(Pieces.castleBaseEnd)
     ? nodes.CastleWallEndBody.geometry
@@ -54,7 +54,7 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardHex.pieceID)
+    toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
   }
   return (
     <>

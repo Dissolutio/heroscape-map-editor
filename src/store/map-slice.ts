@@ -11,10 +11,11 @@ import type {
 import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
 import { normalizeBoardPieces } from '../utils/map-utils'
+import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 
 export interface MapSlice extends MapState {
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
-  unpaintTile: (pieceID: string) => void
+  unpaintTile: (uid: string) => void
   loadMap: (map: MapState) => void
   addMapPortraitBase64: (pic: string) => void
   changeMapName: (val: string) => void
@@ -30,19 +31,11 @@ type PaintTileArgs = {
   rotation: number
 }
 
-// Here, we cache the local map in case the user is loading a URL, we can offer them the chance to load their last map instead (in useAutoLoadMapFile)
-let localLastMap: { state: MapState } | undefined
-if (localStorage.getItem(LS_KEYS.lastMap)) {
-  localLastMap = JSON.parse(localStorage?.getItem(LS_KEYS.lastMap) ?? '{}')
-  if (localLastMap?.state) {
-    localStorage.setItem(
-      LS_KEYS.lastMapCache,
-      JSON.stringify({
-        ...localLastMap.state,
-        boardPieces: normalizeBoardPieces(localLastMap.state.boardPieces),
-      }),
-    )
-  }
+// Here, we duplicate lastMap in case the user is loading a URL, which will immediately overwrite lastMap,
+// we can offer them the chance to load their last map instead of the URL (in useAutoLoadMapFile.tsx)
+const localLastMap = loadMapFromLocalStorage(LS_KEYS.lastMap)
+if (localLastMap) {
+  localStorage.setItem(LS_KEYS.lastMapCache, JSON.stringify(localLastMap))
 }
 
 const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
@@ -92,11 +85,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     })
     return error
   },
-  unpaintTile: (pieceID: string) =>
+  unpaintTile: (uid: string) =>
     set((state) => {
       return produce(state, (draft) => {
         const { newBoardHexes, newBoardPieces } = removePiece({
-          pieceID,
+          uid,
           boardHexes: draft.boardHexes,
           boardPieces: draft.boardPieces,
         })

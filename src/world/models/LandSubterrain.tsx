@@ -10,15 +10,16 @@ import { FLUID_CAP_OPACITY } from '../maphex/instance/FluidCap'
 import { HEXGRID_HEX_APOTHEM } from '../../utils/constants'
 
 export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
-  const { inventoryID, pieceID } = boardHex
+  const { inventoryID } = boardHex
+  const boardPieceUid = boardHex?.boardPieceUID ?? ''
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === pieceID
-  const isHovered = hoveredPieceID === pieceID
+  const isSelected = selectedPieceID === boardPieceUid
+  const isHovered = hoveredPieceID === boardPieceUid
   const pieceTerrain = boardHex.terrain
   const isDirtSubterrain =
     pieceTerrain === HexTerrain.grass ||
@@ -54,7 +55,7 @@ export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : pieceID)
+    toggleSelectedPieceID(isSelected ? '' : boardPieceUid)
   }
   const material = () => {
     if (isLightsAndShadowsRender) {
@@ -112,7 +113,7 @@ export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
   return (
     <group
       onPointerUp={onPointerUp}
-      onPointerEnter={(e) => onPointerEnterPID(e, pieceID)}
+      onPointerEnter={(e) => onPointerEnterPID(e, boardPieceUid)}
       onPointerOut={(e) => onPointerOut(e)}
     >
       {getMesh()}

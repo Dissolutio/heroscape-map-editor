@@ -3,7 +3,7 @@ export type MapState = MapFileState & {
 }
 export type MapFileState = {
   hexMap: HexMap
-  boardPieces: string[] // just an array of piece IDs, which include q coordinate, r coordinate, altitude, and rotation
+  boardPieces: BoardPiece[] // array of BoardPiece objects
 }
 export type HexMap = {
   id: string
@@ -31,6 +31,7 @@ export interface BoardHex extends CubeCoordinate {
   id: string
   altitude: number
   pieceID: string // tileID=qraID + piece-UID
+  boardPieceUID?: string // uid of the matching BoardPiece in boardPieces array
   inventoryID: string // just the piece UID
   terrain: string
   pieceRotation: number
@@ -43,7 +44,16 @@ export interface BoardHex extends CubeCoordinate {
   obstacleHeight?: number // used to find the cap hex when clicking a castle wall (it's 9 up with a base, 8 up when wall-on-wall)
   isVerticalClearanceHex?: boolean // These are hexes that are above the origin/auxiliary hexes
 }
-export type BoardPieces = string[]
+export type BoardPiece = {
+  // boardPieceID: string // existing encoded string like 'qraID+pieceUID' (keeps export format)
+  uid: string // new unique instance id (e.g., 'bp_abc123' or uuid/v4/nanoid)
+  inventoryID: string
+  altitude: number
+  rotation: number
+  pieceCoords: CubeCoordinate
+}
+export type BoardPieces = BoardPiece[]
+export type BoardPiecesEncodedArr = string[]
 export type BoardHexes = {
   [qraID: string]: BoardHex
 }

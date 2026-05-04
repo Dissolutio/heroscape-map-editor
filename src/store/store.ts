@@ -20,7 +20,6 @@ const useBoundStore = create<AppState>()(
         // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
         partialize: (state) => {
           return {
-            boardHexes: state.boardHexes,
             boardPieces: state.boardPieces,
             hexMap: state.hexMap,
           }
