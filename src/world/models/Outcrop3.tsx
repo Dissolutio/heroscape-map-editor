@@ -2,17 +2,17 @@ import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain } from '../../types'
+import { HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export default function Outcrop3({
-  boardHex,
+  pid,
   isGlacier,
   isLavaRock,
 }: {
-  boardHex: BoardHex
+  pid: string
   isGlacier?: boolean
   isLavaRock?: boolean
 }) {
@@ -22,7 +22,7 @@ export default function Outcrop3({
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -30,12 +30,12 @@ export default function Outcrop3({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
+    toggleSelectedPieceID(isSelected ? '' : pid)
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
-  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
   const iceColor = hexTerrainColor[HexTerrain.glacier]
   const lavaColor = isHighlighted
     ? yellowColor
@@ -51,7 +51,7 @@ export default function Outcrop3({
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.glacier_3_with_holes.geometry}
       onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+      onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={onPointerOut}
     >
       {basicModelMaterial(color, isLightsAndShadowsRender)}

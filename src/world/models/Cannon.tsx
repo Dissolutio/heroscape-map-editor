@@ -2,13 +2,13 @@ import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain } from '../../types'
+import { HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
 
-export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
+export default function Cannon({ pid }: { pid?: string }) {
   const { nodes } = useGLTF(
     '/cannon.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -17,7 +17,7 @@ export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -25,14 +25,14 @@ export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
     if (event.button !== 0) {
       return
     }
-    if (boardHex) {
-      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
+    if (pid) {
+      toggleSelectedPieceID(isSelected ? '' : pid)
     }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
-  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
   const colorBarrel = isHighlighted ? yellowColor : hexTerrainColor.cannonBarrel
   const colorCarriage = isHighlighted
     ? yellowColor
@@ -45,13 +45,11 @@ export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Barrel_V2.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(colorBarrel, isLightsAndShadowsRender)
           : basicModelMaterial(
               colorBarrel,
@@ -63,13 +61,11 @@ export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Carriage_V2.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(colorCarriage, isLightsAndShadowsRender)
           : basicModelMaterial(
               colorCarriage,
@@ -81,13 +77,11 @@ export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Wheels_V2.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(colorWheels, isLightsAndShadowsRender)
           : basicModelMaterial(
               colorWheels,
@@ -99,13 +93,11 @@ export default function Cannon({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.CircleBase_V2.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
           : basicModelMaterial(
               colorBase,

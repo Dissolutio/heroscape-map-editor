@@ -241,7 +241,13 @@ export default function MapDisplay3D({
           onPointerUp={onPointerUpPaintPiece}
         />
         {boardPieces.map((bp) => {
-          return <MapBoardPiece3D key={bp.uid} bp={bp} />
+          return (
+            <MapBoardPiece3D
+              key={bp.uid}
+              bp={bp}
+              onPointerUpPaintPiece={onPointerUpPaintPiece}
+            />
+          )
         })}
         {boardHexesArr.map((bh) => {
           return (

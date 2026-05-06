@@ -2,7 +2,7 @@ import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain } from '../../types'
+import { type BoardHex, type BoardPiece, HexTerrain } from '../../types'
 import {
   HEXGRID_OBSTACLE_BASE_HEIGHT,
   PIECE_PREVIEW_OPACITY,
@@ -12,10 +12,10 @@ import { basicModelMaterial } from './materials'
 import { laurBaseCylinderArgs } from './ObstacleBase'
 
 export default function LaurWallPillar({
-  boardHex,
+  bp,
   onPointerUp,
 }: {
-  boardHex: BoardHex
+  bp: BoardPiece
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
@@ -25,10 +25,18 @@ export default function LaurWallPillar({
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
-  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
+  const isSelected = selectedPieceID === bp.uid
+  const isHighlighted = hoveredPieceID === bp.uid || isSelected
+  const partialHex = {
+    ...bp.pieceCoords,
+    boardPieceUID: bp.uid,
+    altitude: bp.altitude + 1,
+    inventoryID: bp.inventoryID,
+    pieceID: '',
+    pieceRotation: bp.rotation,
+  } as BoardHex
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
   const color = isHighlighted ? yellowColor : pillarColor
@@ -36,8 +44,8 @@ export default function LaurWallPillar({
   return (
     <>
       <group
-        onPointerUp={(e) => onPointerUp(e, boardHex)}
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerUp={(e) => onPointerUp(e, partialHex)}
+        onPointerEnter={(e) => onPointerEnterPID(e, bp.uid)}
         onPointerOut={(e) => onPointerOut(e)}
       >
         {/* Scaled to match reality: 9 clears the upper pillar edge, 13 totally clears the pillars top X-arch */}
