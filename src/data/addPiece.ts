@@ -51,6 +51,15 @@ export function addPiece({
   const uid = incomingUid ?? nanoid(10)
   const newBoardHexes = clone(boardHexes)
   const newBoardPieces: BoardPieces = clone(boardPieces)
+  const addBoardPiece = (pieceRotation = rotation) => {
+    newBoardPieces.push({
+      uid,
+      inventoryID: piece.id,
+      altitude: placementAltitude,
+      rotation: pieceRotation,
+      pieceCoords,
+    })
+  }
   const piecePlaneCoords = getPieceTemplateCoords({
     clickedHex: { q: pieceCoords.q, r: pieceCoords.r, s: pieceCoords.s },
     rotation,
@@ -171,13 +180,7 @@ export function addPiece({
   if (piece.terrain === HexTerrain.ropeLadder) {
     try {
       // add the new rope ladder piece
-      newBoardPieces.push({
-        uid,
-        inventoryID: piece.id,
-        altitude: placementAltitude,
-        rotation,
-        pieceCoords,
-      })
+      addBoardPiece(rotation)
     } catch (error) {
       addPieceError = { message: 'Unable to place rope ladder', error }
     }
@@ -186,13 +189,7 @@ export function addPiece({
   else if (piece.terrain === HexTerrain.laurWallAddon) {
     try {
       // add the new laur addon piece
-      newBoardPieces.push({
-        uid,
-        inventoryID: piece.id,
-        altitude: placementAltitude,
-        rotation,
-        pieceCoords,
-      })
+      addBoardPiece(rotation)
     } catch (error) {
       addPieceError = { message: 'Unable to place laur wall addon', error }
     }
@@ -201,13 +198,7 @@ export function addPiece({
   else if (isPlacingRoadWall) {
     try {
       // Add the new roadwall piece
-      newBoardPieces.push({
-        uid,
-        inventoryID: piece.id,
-        altitude: placementAltitude,
-        rotation,
-        pieceCoords,
-      })
+      addBoardPiece(rotation)
     } catch (error) {
       addPieceError = { message: 'Unable to place roadwall', error }
     }
@@ -216,13 +207,7 @@ export function addPiece({
   else if (isPlacingBattlement) {
     try {
       // Add the new battlement piece
-      newBoardPieces.push({
-        uid,
-        inventoryID: piece.id,
-        altitude: placementAltitude,
-        rotation: ladderBattlementPieceRotation,
-        pieceCoords,
-      })
+      addBoardPiece(ladderBattlementPieceRotation)
     } catch (error) {
       addPieceError = { message: 'Unable to place battlement', error }
     }
@@ -292,13 +277,7 @@ export function addPiece({
           })
       })
       // add the new ladder piece
-      newBoardPieces.push({
-        uid,
-        inventoryID: piece.id,
-        altitude: placementAltitude,
-        rotation: ladderBattlementPieceRotation,
-        pieceCoords,
-      })
+      addBoardPiece(ladderBattlementPieceRotation)
     } else {
       addPieceError = { message: 'Unable to place ladder' }
     }
@@ -389,13 +368,7 @@ export function addPiece({
         }
       })
       // add the new piece
-      newBoardPieces.push({
-        uid,
-        inventoryID: piece.id,
-        altitude: placementAltitude,
-        rotation,
-        pieceCoords,
-      })
+      addBoardPiece(rotation)
     } else {
       if (!isSpaceFreeForRuin) {
         addPieceError = { message: 'Not enough space for ruin' }
@@ -439,6 +412,7 @@ export function addPiece({
           isObstacleOrigin: true,
         }
       })
+      addBoardPiece(rotation)
     } else {
       if (!isSpaceFree) {
         addPieceError = { message: 'No space free for castle base' }
@@ -447,14 +421,6 @@ export function addPiece({
         addPieceError = { message: 'Castle base is not supported there' }
       }
     }
-    // add the new piece
-    newBoardPieces.push({
-      uid,
-      inventoryID: piece.id,
-      altitude: placementAltitude,
-      rotation,
-      pieceCoords,
-    })
   }
   // CASTLE ARCH (no error reporting)
   else if (isCastleArchPiece) {
@@ -517,13 +483,19 @@ export function addPiece({
           })
       })
       // add the new piece
-      newBoardPieces.push({
-        uid,
-        inventoryID: piece.id,
-        altitude: placementAltitude,
-        rotation,
-        pieceCoords,
-      })
+      addBoardPiece(rotation)
+    } else {
+      if (!isCastleArchSupported) {
+        addPieceError = {
+          message: 'Castle arch must be supported by its outer hexes or be placed on the table',
+        }
+      }
+      if (!isSpaceFree) {
+        addPieceError = { message: 'No space free for castle arch' }
+      }
+      if (!isVerticalClearanceForPiece) {
+        addPieceError = { message: 'Not enough vertical clearance for castle arch' }
+      }
     }
   }
   // CASTLE WALL (no error reporting)
@@ -621,13 +593,19 @@ export function addPiece({
           })
       })
       // add the new piece
-      newBoardPieces.push({
-        uid,
-        inventoryID: piece.id,
-        altitude: placementAltitude,
-        rotation,
-        pieceCoords,
-      })
+      addBoardPiece(rotation)
+    } else {
+      if (!isCastleWallSupported) {
+        addPieceError = {
+          message: 'Castle wall must be supported by solid terrain, the table, or existing castle pieces',
+        }
+      }
+      if (!isSpaceFree) {
+        addPieceError = { message: 'No space free for castle wall' }
+      }
+      if (!isVerticalClearanceForPiece) {
+        addPieceError = { message: 'Not enough vertical clearance for castle wall' }
+      }
     }
   }
   // WALLWALK ONTO WALL
@@ -652,13 +630,7 @@ export function addPiece({
       }
     })
     // add the new piece
-    newBoardPieces.push({
-      uid,
-      inventoryID: piece.id,
-      altitude: placementAltitude,
-      rotation,
-      pieceCoords,
-    })
+    addBoardPiece(rotation)
   }
   // OBSTACLES: trees, bushes, palms, glaciers, outcrops, laurPillar
   else if (isPlacingObstacle) {
@@ -762,13 +734,17 @@ export function addPiece({
     })
 
     // add the new piece
-    newBoardPieces.push({
-      uid,
-      inventoryID: piece.id,
-      altitude: placementAltitude,
-      rotation,
-      pieceCoords,
-    })
+    addBoardPiece(rotation)
+  } else if (piece.isObstaclePiece) {
+    if (!isSpaceFree) {
+      addPieceError = { message: 'Not enough space for obstacle' }
+    }
+    if (!isVerticalClearanceForPiece) {
+      addPieceError = { message: 'Not enough vertical clearance for obstacle' }
+    }
+    if (!isObstaclePieceSupported) {
+      addPieceError = { message: 'Obstacle is not supported there' }
+    }
   }
   // LAND
   else if (isPlacingLandTile) {
@@ -810,14 +786,22 @@ export function addPiece({
         addPieceError = { message: 'Could not place land tile', error }
       }
       // add the new piece
-      newBoardPieces.push({
-        uid,
-        inventoryID: piece.id,
-        altitude: placementAltitude,
-        rotation,
-        pieceCoords,
-      })
+      addBoardPiece(rotation)
+    } else {
+      if (!isSpaceFree) {
+        addPieceError = { message: 'No space free for land tile' }
+      }
+      if (!isLandPieceSupported) {
+        addPieceError = { message: 'Land tile is not supported there' }
+      }
     }
   }
+  const hasBoardPiece = newBoardPieces.some((p) => p.uid === uid)
+  if (!hasBoardPiece && !addPieceError) {
+    addPieceError = {
+      message: `Unhandled piece placement for ${piece.id} (${piece.terrain})`,
+    }
+  }
+
   return { newBoardHexes, newBoardPieces, error: addPieceError }
 }
