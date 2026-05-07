@@ -99,6 +99,7 @@ const useAutoLoadMapFile = (props: Props) => {
           message: `Loaded map from URL: ${jsonMap.hexMap.name}.`,
           variant: 'success',
           action,
+          autoHideDuration: null,
         })
         loadMap(jsonMap)
         clearUndoHistory() // clear undo history, initial load should not be undoable
