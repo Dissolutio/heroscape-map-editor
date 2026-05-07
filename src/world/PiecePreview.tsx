@@ -10,6 +10,7 @@ import {
   getRuinsOptions,
 } from './models/piece-adjustments'
 import {
+  genBoardHexID,
   getBoardHex3DCoords,
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils'
@@ -80,7 +81,21 @@ import { ShipBow } from './models/ShipBow'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
+  const hoveredPiece = boardPieces.find((bp) => bp.uid === hoveredPieceID)
   const penMode = useBoundStore((s) => s.penMode)
+  const hoveredPieceSupportHexID = hoveredPiece && hoveredPiece.inventoryID === Pieces.ladder && penMode === Pieces.ladder
+    ? genBoardHexID({
+      ...hoveredPiece.pieceCoords,
+      altitude: hoveredPiece.altitude,
+    })
+    : ''
+  const hoveredPieceSupportHex = hoveredPieceSupportHexID
+    ? boardHexes?.[hoveredPieceSupportHexID]
+    : undefined
+  const hoveredHexForPreview = hoveredHex ?? hoveredPieceSupportHex
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const penModeSize = useBoundStore((s) => s.pieceSize)
 
@@ -101,7 +116,7 @@ export default function PiecePreview() {
   const pieceID = piece?.id ?? ''
 
   //EARLY RETURN:  Only show preview if hovering a valid hex, a piece is defined, penMode is not 'select', and map picture not being taken
-  if (!hoveredHex || !piece || penMode === 'select' || isTakingPicture) {
+  if (!hoveredHexForPreview || !piece || penMode === 'select' || isTakingPicture) {
     return null
   }
 
@@ -109,18 +124,19 @@ export default function PiecePreview() {
   const isBattlement = pieceID === Pieces.battlement
   const mirrorRotation = (penModeRotation + 3) % 6
   const { x, y, z, yWithBase, yBase, yBaseCap, yGlyph, yGlyphFluidUnder } =
-    getBoardHex3DCoords(hoveredHex)
-  const isUnderHexFluid = isFluidTerrainHex(hoveredHex?.terrain)
-  const isUnderHexLadder = hoveredHex.inventoryID === Pieces.ladder
+    getBoardHex3DCoords(hoveredHexForPreview)
+  const isUnderHexFluid = isFluidTerrainHex(hoveredHexForPreview?.terrain)
+  const isUnderHexLadder = hoveredPiece?.inventoryID === Pieces.ladder
+  console.log("🚀 ~ PiecePreview ~ isUnderHexLadder:", isUnderHexLadder)
   const isUnderHexLaurPillar =
-    hoveredHex.inventoryID === Pieces.laurWallSquarePillar ||
-    hoveredHex.inventoryID === Pieces.laurWallTrianglePillar
+    hoveredHexForPreview.inventoryID === Pieces.laurWallSquarePillar ||
+    hoveredHexForPreview.inventoryID === Pieces.laurWallTrianglePillar
   const isUnderHexCastleWallArch =
-    hoveredHex.inventoryID === Pieces.castleArch ||
-    hoveredHex.inventoryID === Pieces.castleArchNoDoor ||
-    hoveredHex.inventoryID === Pieces.castleWallCorner ||
-    hoveredHex.inventoryID === Pieces.castleWallEnd ||
-    hoveredHex.inventoryID === Pieces.castleWallStraight
+    hoveredHexForPreview.inventoryID === Pieces.castleArch ||
+    hoveredHexForPreview.inventoryID === Pieces.castleArchNoDoor ||
+    hoveredHexForPreview.inventoryID === Pieces.castleWallCorner ||
+    hoveredHexForPreview.inventoryID === Pieces.castleWallEnd ||
+    hoveredHexForPreview.inventoryID === Pieces.castleWallStraight
   const isLaurWallAddon = piece?.terrain === HexTerrain.laurWallAddon
   const isSolidSubterrain = isSolidTerrainHex(piece?.terrain)
   const isFluidSubterrain = isFluidTerrainHex(piece?.terrain)
@@ -235,11 +251,11 @@ export default function PiecePreview() {
   }
   const getLandMesh = () => {
     switch (
-      penModeSize === 6 && penMode === PiecePrefixes.concrete
-        ? '6B'
-        : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
-          ? '7B'
-          : `${penModeSize}`
+    penModeSize === 6 && penMode === PiecePrefixes.concrete
+      ? '6B'
+      : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
+        ? '7B'
+        : `${penModeSize}`
     ) {
       case '1':
         return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
@@ -268,13 +284,13 @@ export default function PiecePreview() {
     }
   }
   const isLandBeneath =
-    isSolidTerrainHex(hoveredHex?.terrain) ||
-    isFluidTerrainHex(hoveredHex?.terrain)
-  const isEmptyBeneath = hoveredHex?.terrain === HexTerrain.empty
+    isSolidTerrainHex(hoveredHexForPreview?.terrain) ||
+    isFluidTerrainHex(hoveredHexForPreview?.terrain)
+  const isEmptyBeneath = hoveredHexForPreview?.terrain === HexTerrain.empty
   const isCastleCapBeneath =
-    hoveredHex?.terrain === HexTerrain.castleWall &&
-    !hoveredHex.isObstacleOrigin
-  const isSolidBeneath = isSolidTerrainHex(hoveredHex.terrain)
+    hoveredHexForPreview?.terrain === HexTerrain.castleWall &&
+    !hoveredHexForPreview.isObstacleOrigin
+  const isSolidBeneath = isSolidTerrainHex(hoveredHexForPreview.terrain)
   const isSolidOrEmptyBeneath = isSolidBeneath || isEmptyBeneath
   const isLandOrEmptyBeneath = isLandBeneath || isEmptyBeneath
 
@@ -334,8 +350,8 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
-            HEXGRID_HEX_HEIGHT,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
+          HEXGRID_HEX_HEIGHT,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -355,7 +371,7 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -702,15 +718,15 @@ export default function PiecePreview() {
   // }
   if (isLadderHex && (isUnderHexLadder || isLandOrEmptyBeneath)) {
     const ladderRotation = isUnderHexLadder
-      ? hoveredHex.pieceRotation
+      ? hoveredPiece.rotation
       : penModeRotation
     return (
       <group
         position={[
           x + getLadderBattlementOptions(ladderRotation).xAdd,
           y +
-            HEXGRID_HEXCAP_HEIGHT / 2 +
-            (isUnderHexLadder ? HEXGRID_HEX_HEIGHT : 0),
+          HEXGRID_HEXCAP_HEIGHT / 2 +
+          (isUnderHexLadder ? 2 * HEXGRID_HEX_HEIGHT : 0),
           z + getLadderBattlementOptions(ladderRotation).zAdd,
         ]}
         rotation={[0, (ladderRotation * -Math.PI) / 3, 0]}
@@ -765,8 +781,8 @@ export default function PiecePreview() {
   }
   if (isRoadWall) {
     const roadWallClickedHexCoords = {
-      ...getRoadWallClickedHexCoords(hoveredHex, penModeRotation),
-      altitude: hoveredHex.altitude - 1,
+      ...getRoadWallClickedHexCoords(hoveredHexForPreview, penModeRotation),
+      altitude: hoveredHexForPreview.altitude - 1,
     }
     const {
       x: xRoadWall,
@@ -790,8 +806,8 @@ export default function PiecePreview() {
   }
   if (isBattlement) {
     const battlementClickedHexCoords = {
-      ...hoveredHex,
-      altitude: hoveredHex.altitude - 1,
+      ...hoveredHexForPreview,
+      altitude: hoveredHexForPreview.altitude - 1,
     }
     const {
       x: xBattlement,
