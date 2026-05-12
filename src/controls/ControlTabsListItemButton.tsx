@@ -5,7 +5,7 @@ import { useControlsWidthContext } from './useControlWidth'
 
 type Props = {
   primary: string
-  onClick: React.MouseEventHandler<HTMLDivElement> | undefined
+  onClick: () => void
   icon: React.ReactNode
   endIcon?: React.ReactNode
   title?: string
