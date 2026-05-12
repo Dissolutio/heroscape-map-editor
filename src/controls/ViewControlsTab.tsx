@@ -69,11 +69,6 @@ export default function ViewControlsTab({
   const resetCamera = () => {
     cameraControlsRef?.current?.reset(true)
   }
-  const useZoomToMap = () => {
-    if (mapGroupRef.current) {
-      zoomToMap(mapGroupRef, cameraControlsRef, width, length)
-    }
-  }
   const handleToggleOrthoCam = () => {
     toggleIsOrthoCam(!isOrthoCam)
   }
@@ -99,7 +94,7 @@ export default function ViewControlsTab({
           <ControlTabsListItemButton
             title="Center the camera on entire map"
             primary="Zoom to map"
-            onClick={useZoomToMap}
+            onClick={() => zoomToMap(mapGroupRef, cameraControlsRef, width, length)}
             icon={<FcCollect />}
           />
 
