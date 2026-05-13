@@ -120,6 +120,7 @@ export function buildupJsonFileMap(
         rotation: curr.rotation,
         isVsTile: false,
         uid: curr.uid,
+        permissive: true,
       })
       finalBoardPieces = newBoardPieces
       return newBoardHexes
