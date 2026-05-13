@@ -151,13 +151,8 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   )
   const onPointerUpMiddle = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
-    const myCube: CubeCoordinate = {
-      q: boardHex.q,
-      r: boardHex.r,
-      s: boardHex.s,
-    }
     const middleCube = hexUtilsAdd(
-      myCube,
+      boardHex,
       hexUtilsGetNeighborForRotation(boardHex.pieceRotation),
     )
     const middleBaseHex =
