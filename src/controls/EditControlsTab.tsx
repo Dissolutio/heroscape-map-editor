@@ -11,6 +11,7 @@ import {
   Typography,
 } from '@mui/material'
 import { buildupJsonFileMap } from '../data/buildupMap'
+import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import type { BoardPiece } from '../types'
 import {
@@ -21,6 +22,7 @@ import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { FcVlc } from 'react-icons/fc'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
+import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
@@ -41,12 +43,50 @@ export const EditControlsTab = () => {
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
   const loadMap = useBoundStore((s) => s.loadMap)
+  const movePiece = useBoundStore((s) => s.movePiece)
+  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const {
     // isLargeScreenWidth,
     isSmallScreenWidth,
     isMediumScreenWidth,
   } = useMuiMediaQuery()
   // const inventory = useLocalPieceInventory()
+
+  const selectedBoardPiece = selectedPieceID
+    ? boardPieces.find((bp) => bp.uid === selectedPieceID)
+    : undefined
+  const selectedPiece = selectedBoardPiece
+    ? piecesSoFar[selectedBoardPiece.inventoryID]
+    : undefined
+
+  const moveSelectedPiece = (direction: number) => {
+    if (!selectedBoardPiece) return
+    movePiece({
+      uid: selectedBoardPiece.uid,
+      newPieceCoords: hexUtilsAdd(
+        selectedBoardPiece.pieceCoords,
+        HEX_DIRECTIONS[direction],
+      ),
+    })
+  }
+  const rotateSelectedPiece = (direction: 1 | -1) => {
+    if (!selectedBoardPiece || !selectedPiece) return
+    const possibleRotations = getPossibleRotationsForPenMode(
+      selectedBoardPiece.inventoryID,
+    )
+    const currentIdx = possibleRotations.findIndex(
+      (r) => r === selectedBoardPiece.rotation,
+    )
+    // if current rotation is somehow not in the list, snap to 0
+    const baseIdx = currentIdx === -1 ? 0 : currentIdx
+    const nextIdx =
+      (baseIdx + direction + possibleRotations.length) % possibleRotations.length
+    movePiece({
+      uid: selectedBoardPiece.uid,
+      newPieceCoords: selectedBoardPiece.pieceCoords,
+      newRotation: possibleRotations[nextIdx],
+    })
+  }
 
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
@@ -340,6 +380,85 @@ export const EditControlsTab = () => {
           </ButtonGroup>
         </CardContent>
       </Card>
+
+      {selectedBoardPiece && (
+        <Card>
+          <CardContent>
+            <Typography
+              gutterBottom
+              sx={{ color: 'text.secondary', fontSize: 14 }}
+            >
+              Selected: {selectedPiece?.title ?? selectedBoardPiece.inventoryID}
+            </Typography>
+            <Typography sx={{ fontSize: 11, color: 'text.secondary', mb: 1 }}>
+              Altitude: {selectedBoardPiece.altitude + 1} &nbsp; Rotation:{' '}
+              {selectedBoardPiece.rotation}
+            </Typography>
+            <ButtonGroup aria-label="Move selected piece" size="small">
+              <Button
+                title="Move selected piece 1 hex left"
+                onClick={() => moveSelectedPiece(3)}
+                sx={{ fontSize: buttonFontSize }}
+              >
+                Left
+              </Button>
+              <Button
+                title="Move selected piece 1 hex up-left"
+                onClick={() => moveSelectedPiece(4)}
+                sx={{ fontSize: buttonFontSize }}
+              >
+                Up L
+              </Button>
+              <Button
+                title="Move selected piece 1 hex up-right"
+                onClick={() => moveSelectedPiece(5)}
+                sx={{ fontSize: buttonFontSize }}
+              >
+                Up R
+              </Button>
+            </ButtonGroup>
+            <ButtonGroup aria-label="Move selected piece 2" size="small">
+              <Button
+                title="Move selected piece 1 hex right"
+                onClick={() => moveSelectedPiece(0)}
+                sx={{ fontSize: buttonFontSize }}
+              >
+                Right
+              </Button>
+              <Button
+                title="Move selected piece 1 hex down-right"
+                onClick={() => moveSelectedPiece(1)}
+                sx={{ fontSize: buttonFontSize }}
+              >
+                Dn R
+              </Button>
+              <Button
+                title="Move selected piece 1 hex down-left"
+                onClick={() => moveSelectedPiece(2)}
+                sx={{ fontSize: buttonFontSize }}
+              >
+                Dn L
+              </Button>
+            </ButtonGroup>
+            <ButtonGroup aria-label="Rotate selected piece" size="small" sx={{ mt: 1 }}>
+              <Button
+                title="Rotate selected piece counter-clockwise"
+                onClick={() => rotateSelectedPiece(-1)}
+                sx={{ fontSize: buttonFontSize }}
+              >
+                ↺ CCW
+              </Button>
+              <Button
+                title="Rotate selected piece clockwise"
+                onClick={() => rotateSelectedPiece(1)}
+                sx={{ fontSize: buttonFontSize }}
+              >
+                CW ↻
+              </Button>
+            </ButtonGroup>
+          </CardContent>
+        </Card>
+      )}
 
       {import.meta.env.DEV && (
         <Button onClick={handleClickLogState}>Log state</Button>
