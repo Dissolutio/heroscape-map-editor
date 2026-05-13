@@ -15,22 +15,30 @@
 - PDF styles, update to match SVG
 - PDF style option: disable land tile piece outline colors (make black)
 - PDF style option: disable hexgrid lines over sub-levels
+- Add 3D object, UI, and PDF/SVG for Objective/meta markers
 
 ## Todo EZ
 - Move wallwalk in pen mode selector to be closer to road
 - Add a hotkey for wallwalk
 - Middle click a piece to make it the pen mode
 - Hotkey for rotating camera azimuth angle by 15 degree increments
-- PDF style option: enable legacy Virtualscape colors
+- Format painter (paint tiles to be grass etc.)
 - In View Map Inventory dialog, clicking the line item selects it for your terrain placer
+- Outcrop bases into inventory
 - PDF 2 column format
 - PDF portrait as level format
-- Format painter (paint tiles to be grass etc.)
-- Outcrop bases into inventory
 - PDF: way to add options Sets Used list(or more than 1 in general perhaps)
+- PDF style option: enable legacy Virtualscape colors
+- SVG Hive update with text "Hive" instead of non-scaleable bubbles
+- SVG Ruins 2 redo as scaleable  (no stroke, only fill)
+- SVG Ruins 3 redo as scaleable  (no stroke, only fill)
+- SVG Ruins Marvel redo as scaleable  (no stroke, only fill)
+- SVG Battlement redo as scaleable path (no stroke, only fill)
+- SVG Ladder redo as scaleable path (no stroke, only fill)
+- SVG Castle Corner / End / Straight / Arch redo as scaleable path (no stroke, only fill)
 
 ## Todo
-- Personal Inventory
+- Personal Inventory: let users enter their own piece count and save that inventory in local storage as a set for Sets Used
 - When piece preview is active, scrolling should rotate the piece, not zoom the camera
 - A way to double stack fluid tiles (which is as tall as one solid tile minus the cap)
 - Hotkey setup
@@ -91,3 +99,25 @@ When user clicks SAVE/LOAD, show:
         * SAVE => Select map to overwrite if there is an existing key that matches the id of the map being saved, or save as a new map key in local storage 
         * LOAD => Load selected map, user may select a map object from the list
         * EDIT => Delete button for items in local storage, the delete button changes its text and turns red to verify and requires one more click to actually delete.
+
+
+
+We use BoardHexes state in files as follows:
+<!-- 3D -->
+- `MapDisplay3D.tsx` compute instanced caps, map dimensions, adjust clicked hex in onPointerUpPaintPiece
+- `CastleArch.tsx`, `CastleWall.tsx` generate hex for click handler
+
+- `MapBoardPiece.tsx` is underhex terrain fluid, for positioning of glyphs, laur pillars, startzones
+- `PiecePreview.tsx` lookup hovered hex for ladder
+- `HexCapHeightTextDisplay.tsx` is underhex terrain fluid, for positioning
+
+- `World.tsx` map dimensions to position lights, axes helper
+- `useApplyHotkeys.tsx` map dimensions for camera autozoom
+- `ViewControlsTab.tsx` map dimensions for camera autozoom
+<!-- SVG/PDF -->
+- `SvgMapDisplay.tsx` compute svg dimensions 
+- `PdfMap6LevelsPerPage.tsx` compute svg dimensions, calculates per level chunks 
+- `ReactPdfSvgMapDisplay.tsx` renders chunks and boardhexes
+- `ReactPdfRoot.tsx`  `ReactPdfDownloadLink.tsx` pass props
+<!-- MISC -->
+- `EditControlsTab.tsx` dev log
