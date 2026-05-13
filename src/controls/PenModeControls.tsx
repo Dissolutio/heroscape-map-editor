@@ -703,6 +703,7 @@ export default function PenModeControls() {
             <TbHexagons />
           </ListItemIcon>
           <span>Wall Walk</span>
+          <HotkeyText text={hotkeyLookup.togglePenModeWallWalk} />
         </MenuItem>
 
         {/* RoadWall, Battlements, Ladders */}
