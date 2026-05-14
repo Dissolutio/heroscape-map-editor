@@ -42,6 +42,7 @@ export const EditControlsTab = () => {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
+  const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const loadMap = useBoundStore((s) => s.loadMap)
   const movePiece = useBoundStore((s) => s.movePiece)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
@@ -95,6 +96,7 @@ export const EditControlsTab = () => {
     console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
     console.log('🚀 ~ Controls ~ boardPieces:', boardPieces)
     console.log('🚀 ~ Controls ~ hexMap:', hexMap)
+    console.log('🚀 ~ Controls ~ conflictedPieceUIDs:', conflictedPieceUIDs)
   }
   // const handleTrimMap = (boardHexesToTrim: BoardHexes): BoardHexes => {
   //   // const boardHexArr = Object.values(boardHexes)
