@@ -127,22 +127,59 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         if (!boardPiece) return
         const piece = piecesSoFar[boardPiece.inventoryID]
         if (!piece) return
-        // 1. Remove the piece (clears its hexes from boardHexes, removes from boardPieces)
-        const { newBoardHexes: clearedHexes, newBoardPieces: clearedPieces } =
+
+        // 1. Remove the moving piece, clearing its hex ownership
+        let { newBoardHexes: workingHexes, newBoardPieces: workingPieces } =
           removePiece({
             uid,
             boardHexes: draft.boardHexes,
             boardPieces: draft.boardPieces,
           })
-        // 2. Re-add at new position, permissive (always succeeds)
-        const {
-          newBoardHexes,
-          newBoardPieces,
-          displacedUIDs,
-        } = addPiece({
+
+        const newConflicts = new Set<string>()
+
+        // 2. Restore hexes for every previously-conflicted piece.
+        //    When this piece overwrote another's hexes, those hexes now carry this
+        //    piece's UID (or are gone after step 1). We remove each conflicted piece
+        //    from boardPieces then re-add it so its hex entries are fresh and correct.
+        for (const conflictedUID of draft.conflictedPieceUIDs) {
+          if (conflictedUID === uid) continue
+          const conflictedBP = workingPieces.find((bp) => bp.uid === conflictedUID)
+          if (!conflictedBP) continue
+          const conflictedPiece = piecesSoFar[conflictedBP.inventoryID]
+          if (!conflictedPiece) continue
+          // Remove from the pieces array (hexes are already absent/overwritten)
+          const removeResult = removePiece({
+            uid: conflictedUID,
+            boardHexes: workingHexes,
+            boardPieces: workingPieces,
+          })
+          // Re-add with fresh hexes
+          const addResult = addPiece({
+            piece: conflictedPiece,
+            boardHexes: removeResult.newBoardHexes,
+            boardPieces: removeResult.newBoardPieces,
+            pieceCoords: conflictedBP.pieceCoords,
+            placementAltitude: conflictedBP.altitude,
+            rotation: conflictedBP.rotation,
+            isVsTile: false,
+            uid: conflictedUID,
+            permissive: true,
+          })
+          workingHexes = addResult.newBoardHexes
+          workingPieces = addResult.newBoardPieces
+          // Track any residual conflicts among the restored pieces themselves
+          for (const duid of (addResult.displacedUIDs ?? [])) {
+            newConflicts.add(duid)
+          }
+          if (addResult.displacedUIDs?.length) newConflicts.add(conflictedUID)
+        }
+
+        // 3. Place the moving piece at its new position
+        const { newBoardHexes, newBoardPieces, displacedUIDs } = addPiece({
           piece,
-          boardHexes: clearedHexes,
-          boardPieces: clearedPieces,
+          boardHexes: workingHexes,
+          boardPieces: workingPieces,
           pieceCoords: newPieceCoords,
           placementAltitude: newAltitude ?? boardPiece.altitude,
           rotation: newRotation ?? boardPiece.rotation,
@@ -152,15 +189,13 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         })
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
-        // 3. Update conflict tracking
-        const conflicts = new Set(
-          draft.conflictedPieceUIDs.filter((id) => id !== uid),
-        )
+
+        // 4. Update conflict tracking: only pieces displaced by the final placement remain conflicted
         for (const duid of (displacedUIDs ?? [])) {
-          conflicts.add(duid)
+          newConflicts.add(duid)
         }
-        if (displacedUIDs?.length) conflicts.add(uid)
-        draft.conflictedPieceUIDs = [...conflicts]
+        if (displacedUIDs?.length) newConflicts.add(uid)
+        draft.conflictedPieceUIDs = [...newConflicts]
       })
     }),
   mapPortraitBase64: '',
