@@ -88,6 +88,16 @@ export const EditControlsTab = () => {
       newRotation: possibleRotations[nextIdx],
     })
   }
+  const moveSelectedPieceAltitude = (delta: 1 | -1) => {
+    if (!selectedBoardPiece) return
+    const newAltitude = selectedBoardPiece.altitude + delta
+    if (newAltitude < 0) return
+    movePiece({
+      uid: selectedBoardPiece.uid,
+      newPieceCoords: selectedBoardPiece.pieceCoords,
+      newAltitude,
+    })
+  }
 
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
@@ -456,6 +466,23 @@ export const EditControlsTab = () => {
                 sx={{ fontSize: buttonFontSize }}
               >
                 CW ↻
+              </Button>
+            </ButtonGroup>
+            <ButtonGroup aria-label="Move selected piece altitude" size="small" sx={{ mt: 1 }}>
+              <Button
+                title="Move selected piece up one level"
+                onClick={() => moveSelectedPieceAltitude(1)}
+                sx={{ fontSize: buttonFontSize }}
+              >
+                ↑ Up
+              </Button>
+              <Button
+                title="Move selected piece down one level"
+                disabled={selectedBoardPiece.altitude <= 0}
+                onClick={() => moveSelectedPieceAltitude(-1)}
+                sx={{ fontSize: buttonFontSize }}
+              >
+                ↓ Down
               </Button>
             </ButtonGroup>
           </CardContent>
