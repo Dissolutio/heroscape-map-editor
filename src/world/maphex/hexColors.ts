@@ -226,6 +226,8 @@ export const pdfColors = {
   [HexTerrain.ancientTerrain]: 'rgb(181, 89, 8)',
   [HexTerrain.wood]: 'rgb(158, 84, 36)',
   [HexTerrain.snow]: 'rgb(255,255,255)',
+  [HexTerrain.toxic]: '#121212',
+  [HexTerrain.toxicWater]: '#0CEB00',
   [HexTerrain.water]: 'rgb(67, 172, 176)',
   [HexTerrain.castleWall]: 'rgb(80, 79, 84)',
   [HexTerrain.castleBase]: 'rgb(80, 79, 84)',
