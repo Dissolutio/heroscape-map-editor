@@ -46,6 +46,8 @@ export const EditControlsTab = () => {
   const loadMap = useBoundStore((s) => s.loadMap)
   const movePiece = useBoundStore((s) => s.movePiece)
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const {
     // isLargeScreenWidth,
     isSmallScreenWidth,
@@ -97,6 +99,10 @@ export const EditControlsTab = () => {
       newPieceCoords: selectedBoardPiece.pieceCoords,
       newAltitude,
     })
+    // piece top is at newAltitude + 1; raise viewing level if it would be hidden
+    if (delta === 1 && newAltitude + 1 > viewingLevel) {
+      toggleViewingLevel(newAltitude + 1)
+    }
   }
 
   const toggleIsEditMapDialogOpen = useBoundStore(
