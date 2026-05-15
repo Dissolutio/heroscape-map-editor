@@ -9,6 +9,7 @@ export const SVG_BORDER_WIDTH = SVG_HEX_RADIUS * 0.3046303818
 AKA hex-radius: 9.848, border-width: 3
 per AllMapTiles/1hex-new.svg, hex radius is 8.348, stroke width is 3, so half stroke is 1.5, stroke is half-in half-out, 8.348 + 1.5 = 9.848,  3 / 9.848 = 0.3046303818
  */
+export const PDF_EMPTYHEX_BORDER_WIDTH = SVG_HEX_RADIUS / 50 // per AllMapTiles/GridBG.svg hex radius is 10, stroke width is 2, so half stroke is 1, stroke is half-in half-out, 10 + 1 = 11,  2 / 11 = 0.18181818181
 export const SVG_EMPTYHEX_BORDER_WIDTH = SVG_HEX_RADIUS * 0.18181818181 // per AllMapTiles/GridBG.svg hex radius is 10, stroke width is 2, so half stroke is 1, stroke is half-in half-out, 10 + 1 = 11,  2 / 11 = 0.18181818181
 export const SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH = SVG_HEX_RADIUS * 0.201612903 // per AllMapTiles/1hex-new.svg hex radius is 8.92, stroke width is 2, so half stroke is 1, stroke is half-in half-out, 8.92 + 1 = 9.92,  2 / 9.92 = 0.2016129030
 export const SVG_LAUR = SVG_HEX_RADIUS * 0.201612903 // per AllMapTiles/1hex-new.svg hex radius is 8.92, stroke width is 2, so half stroke is 1, stroke is half-in half-out, 8.92 + 1 = 9.92,  2 / 9.92 = 0.2016129030

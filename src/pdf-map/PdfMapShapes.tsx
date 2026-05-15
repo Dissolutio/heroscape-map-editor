@@ -53,6 +53,7 @@ import {
   OPACITY_EMPTY,
   OPACITY_SUBLEVEL,
   PDF_BORDER_WIDTH,
+  PDF_EMPTYHEX_BORDER_WIDTH,
   SVG_BORDER_WIDTH,
   SVG_EMPTYHEX_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
@@ -76,12 +77,12 @@ import {
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 
 export const PdfEmptyHex = () => {
-  const fillColor = 'white'
-  const borderColor = '#F5F5F5'
-  const borderWidth = SVG_EMPTYHEX_BORDER_WIDTH
+  // const fillColor = 'transparent'
+  const borderColor = '#c1bfbf'
+  const borderWidth = PDF_EMPTYHEX_BORDER_WIDTH
   const { points } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
-    SVG_EMPTYHEX_BORDER_WIDTH,
+    PDF_EMPTYHEX_BORDER_WIDTH,
   )
   return (
     <>
