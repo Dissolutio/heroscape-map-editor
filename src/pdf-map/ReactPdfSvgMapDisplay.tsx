@@ -36,14 +36,6 @@ export const ReactPdfSvgMapDisplay = ({
   return (
     <Svg viewBox={viewBoxStr}>
       {/* <PdfSvgXYHelperLines length={length} width={width} /> */}
-      {emptyHexesArr.map((hex) => (
-        <PdfMapHex
-          key={hex.id}
-          hex={hex}
-          viewingLevel={viewingLevel}
-          isOverlayViewing={isOverlayViewing}
-        />
-      ))}
       {subLevelHexes
         .sort((a, b) => a.altitude - b.altitude)
         .map((hex) => (
@@ -54,6 +46,14 @@ export const ReactPdfSvgMapDisplay = ({
             isOverlayViewing={isOverlayViewing}
           />
         ))}
+      {emptyHexesArr.map((hex) => (
+        <PdfMapHex
+          key={hex.id}
+          hex={hex}
+          viewingLevel={viewingLevel}
+          isOverlayViewing={isOverlayViewing}
+        />
+      ))}
       {nonEmptyHexesArr
         .filter((h) => h.altitude === viewingLevel)
         .map((hex) => (
