@@ -251,12 +251,6 @@ export function getCodeForVSPersonalTile(tile: VirtualScapeTile) {
   }
   if (
     tile.type === 17000 &&
-    (tile?.personal?.name ?? '').toLowerCase().includes('pillar')
-  ) {
-    return 17101 // is now the laurPillar code, never existed in virtualscape
-  }
-  if (
-    tile.type === 17000 &&
     (tile?.personal?.name ?? '').toLowerCase().includes('wellspring')
   ) {
     return 17001

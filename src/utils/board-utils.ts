@@ -55,15 +55,13 @@ export function isCastleTerrain(terrain: string) {
 }
 
 export function isBridgingObstaclePieceID(id: string) {
-  // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
+  // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE (be placed without all hexes supported underneath)
   return (
     id === Pieces.glacier4 ||
     id === Pieces.glacier6 ||
-    id === Pieces.hive ||
-    id === Pieces.marvel ||
-    id === Pieces.marvelNoUpper ||
-    id === Pieces.marvelBroken ||
-    id === Pieces.marvelNoUpperBroken
+    id === Pieces.glacier3 ||
+    id === Pieces.outcrop3 ||
+    id === Pieces.lavaRockOutcrop3
   )
 }
 export const getBoardHexObstacleOriginsAndHexesAndEmpties = (
