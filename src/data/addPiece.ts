@@ -151,13 +151,15 @@ export function addPiece({
     !isPlacingWallWalkOnWall
   const isObstaclePieceSupported =
     isSolidUnderAll ||
+    // Some obstacles, and glyphs/startzones, can be placed on fluid tiles
     ((piece.id === Pieces.laurWallSquarePillar ||
       piece.id === Pieces.laurWallTrianglePillar ||
-      isGlyphPiece ||
       piece.id === Pieces.shipBow ||
       piece.id === Pieces.shipWall ||
+      piece.id === Pieces.cannon ||
+      isGlyphPiece ||
       isStartZonePiece) &&
-      isLandUnderAll) || // Some obstacles, and glyphs, can be placed on fluid tiles, per Renegade
+      isLandUnderAll) ||
     (isBridgingObstaclePieceID(piece.id) && isSolidUnderAtLeastOne) || // some multi-hex fluid-tile based obstacles (glaciers-4/6, hive) can bridge over gaps
     (isPlacingOnTable && !isGlyphPiece) // glyphs cannot go directly on table
   const isLadderPieceSupported =

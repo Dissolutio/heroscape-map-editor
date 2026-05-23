@@ -217,10 +217,10 @@ export const MapHex3D = ({
             new Vector3(
               x,
               y -
-                HEXGRID_HEX_HEIGHT +
-                (isFluidTerrainHex(boardHex.terrain)
-                  ? HEXGRID_HEXCAP_FLUID_HEIGHT
-                  : HEXGRID_HEX_HEIGHT),
+              HEXGRID_HEX_HEIGHT +
+              (isFluidTerrainHex(boardHex.terrain)
+                ? HEXGRID_HEXCAP_FLUID_HEIGHT
+                : HEXGRID_HEX_HEIGHT),
               z,
             )
           }
@@ -366,7 +366,7 @@ export const MapHex3D = ({
       )}
       {isCannonHex && (
         <group
-          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+          position={[x, y - HEXGRID_HEX_HEIGHT - (isUnderHexFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : 0), z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -463,7 +463,7 @@ export const MapHex3D = ({
                   x,
                   // position.y + (boardHex?.obstacleHeight ?? 0) * HEXGRID_HEX_HEIGHT,
                   (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) +
-                    HEXGRID_HEX_HEIGHT / 3,
+                  HEXGRID_HEX_HEIGHT / 3,
                   z,
                 ]}
               >
@@ -731,7 +731,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex?.boardPieceUID ||
-              selectedPieceID === boardHex?.boardPieceUID
+                selectedPieceID === boardHex?.boardPieceUID
                 ? hexTerrainColor[HexTerrain.castleBase]
                 : 'yellow'
             }
@@ -758,7 +758,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex?.boardPieceUID ||
-                selectedPieceID === boardHex?.boardPieceUID
+                  selectedPieceID === boardHex?.boardPieceUID
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castleWall]
               }
