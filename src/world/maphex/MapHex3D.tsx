@@ -346,7 +346,7 @@ export const MapHex3D = ({
       )}
       {isShipWallHex && (
         <group
-          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+          position={[x, y - HEXGRID_HEX_HEIGHT - (isUnderHexFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : 0), z]}
           rotation={[0, getObstaclRotation(boardHex.pieceRotation), 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -356,7 +356,7 @@ export const MapHex3D = ({
       )}
       {isShipBowHex && (
         <group
-          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+          position={[x, y - HEXGRID_HEX_HEIGHT - (isUnderHexFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : 0), z]}
           rotation={[0, getObstaclRotation(boardHex.pieceRotation), 0]}
         >
           <Suspense fallback={<ModelLoader />}>
