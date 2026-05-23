@@ -1394,19 +1394,17 @@ export const PdfCannon = ({
   const arrowWidth = iconDiameter * (12 / 17.46)
   return (
     <>
-      <G transform={`rotate(${pieceRotation})`}>
-        <Circle
-          style={{
-            fill: fillColor,
-          }}
-          r={SVG_HEX_RADIUS * 0.7}
-        />
-        <Path
-          fill={arrowColor}
-          d={generateArrowPath(arrowWidth)}
-          transform={`rotate(${pieceRotation})`}
-        />
-      </G>
+      <Circle
+        style={{
+          fill: fillColor,
+        }}
+        r={SVG_HEX_RADIUS * 0.7}
+      />
+      <Path
+        fill={arrowColor}
+        d={generateArrowPath(arrowWidth)}
+        transform={`rotate(${pieceRotation})`}
+      />
     </>
   )
 }
