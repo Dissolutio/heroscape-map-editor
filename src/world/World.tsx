@@ -16,6 +16,7 @@ import TakeAPictureBox from './camera/TakeAPictureBox'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import type { Group, Object3DEventMap } from 'three'
 import type React from 'react'
+import { useEffect, useState } from 'react'
 
 const World = ({
   cameraControlsRef,
@@ -33,6 +34,7 @@ const World = ({
   )
   const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const [isTabActive, setIsTabActive] = useState(true)
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
@@ -41,6 +43,18 @@ const World = ({
     toggleHoveredPieceID('')
     // toggleSelectedPieceID('')
   }
+
+
+
+  useEffect(() => {
+    const handleVisibility = () => setIsTabActive(!document.hidden)
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [])
+
+
+
+
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
       <div
@@ -63,7 +77,8 @@ const World = ({
           onPointerLeave={() => {
             toggleHoveredPieceID('')
           }}
-          frameloop={isFrameloopDemand ? 'demand' : undefined}
+          /* Setting frameloop to "never" entirely halts the GPU loop when idle */
+          frameloop={!isTabActive ? 'never' : isFrameloopDemand ? 'demand' : 'always'}
           hidden={isHidden}
           shadows={isLightsAndShadowsRender}
         >
