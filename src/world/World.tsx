@@ -88,10 +88,18 @@ const World = ({
             fov={CAMERA_FOV}
             makeDefault={!isOrthoCam}
           />
+          {/* // Example: FOV set to 15 (instead of the standard 50-75) and moved 1000 units away */}
+          {/* <PerspectiveCamera
+            makeDefault={!isOrthoCam}
+            fov={15}
+            position={[500, 500, 1000]}
+            near={10}
+            far={2000}
+          /> */}
           <OrthographicCamera
+            makeDefault={isOrthoCam}
             position={[100, 1000, 100]}
             zoom={30}
-            makeDefault={isOrthoCam}
           />
           {/* Stats displays the fps */}
           {!isHidden && import.meta.env.DEV && (
