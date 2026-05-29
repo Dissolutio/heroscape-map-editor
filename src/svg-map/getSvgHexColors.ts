@@ -110,6 +110,9 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.castleBase) {
     return svgColors.castleBase
   }
+  if (hex.terrain === HexTerrain.roadWall) {
+    return svgColors.roadWall
+  }
   if (
     hex.terrain === HexTerrain.glyphPower ||
     hex.terrain === HexTerrain.glyphTreasure
