@@ -37,6 +37,7 @@ export function addPiece({
   rotation,
   isVsTile,
   uid: incomingUid,
+  permissive = false,
 }: {
   piece: Piece
   boardHexes: BoardHexes
@@ -46,11 +47,19 @@ export function addPiece({
   rotation: number
   isVsTile: boolean
   uid?: string
+  permissive?: boolean
 }): AddRemovePieceReturn {
   let addPieceError: AddRemovePieceError
   const uid = incomingUid ?? nanoid(10)
   const newBoardHexes = clone(boardHexes)
   const newBoardPieces: BoardPieces = clone(boardPieces)
+  const displacedUIDs = new Set<string>()
+  const trackDisplaced = (hexID: string) => {
+    const existing = newBoardHexes[hexID]
+    if (existing?.boardPieceUID && existing.boardPieceUID !== uid) {
+      displacedUIDs.add(existing.boardPieceUID)
+    }
+  }
   const piecePlaneCoords = getPieceTemplateCoords({
     clickedHex: { q: pieceCoords.q, r: pieceCoords.r, s: pieceCoords.s },
     rotation,
@@ -146,11 +155,11 @@ export function addPiece({
   const isCastleWallUnder = underHexIds.some(
     (id) => newBoardHexes?.[id]?.terrain === HexTerrain.castleWall,
   )
-  const isPlacingWallWalkOnWall =
-    piece.terrain === HexTerrain.wallWalk && isSpaceFree && isCastleWallUnder
+  const isWallWalkOnWallType = piece.terrain === HexTerrain.wallWalk && isCastleWallUnder
   const isPlacingLandTile =
     (isFluidTerrainHex(piece.terrain) || isSolidTerrainHex(piece.terrain)) &&
-    !isPlacingWallWalkOnWall
+    !isWallWalkOnWallType
+  // isObstaclePieceSupported: EXCEPTION MADE FOR OBSTACLES WITH FLUID BASES, THEY CAN BRIDGE
   const isObstaclePieceSupported =
     isSolidUnderAll ||
     // Some obstacles, and glyphs/startzones, can be placed on fluid tiles
@@ -226,7 +235,7 @@ export function addPiece({
       isSpaceFree &&
       isVerticalClearanceForPiece &&
       isLadderPieceSupported
-    if (isPlacingLadder) {
+    if (isPlacingLadder || permissive) {
       newHexIds.forEach((newHexID, i) => {
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]
         // remove caps covered by this obstacle
@@ -234,6 +243,7 @@ export function addPiece({
           newBoardHexes[hexUnderneath.id].isCap = false
         }
         // write in the new hex
+        trackDisplaced(newHexID)
         newBoardHexes[newHexID] = {
           id: newHexID,
           q: piecePlaneCoords[i].q,
@@ -262,6 +272,7 @@ export function addPiece({
               ...piecePlaneCoords[i],
               altitude: clearanceHexAltitude,
             })
+            trackDisplaced(clearanceID)
             newBoardHexes[clearanceID] = {
               id: clearanceID,
               q: piecePlaneCoords[i].q,
@@ -318,7 +329,7 @@ export function addPiece({
       isSpaceFreeForRuin &&
       isSolidUnderAllSupportHexes &&
       isVerticalClearanceForPiece
-    if (isPlacingRuin) {
+    if (isPlacingRuin || permissive) {
       newHexIds.forEach((newHexID, i) => {
         const isObstacleOrigin = i === 0 // hacking off the template order, should be 0 but we shift the template for ruins, (because then the wallWalk template handily matches the vertical clearance of a ruin)
         const isObstacleAuxiliary = i > 0
@@ -337,8 +348,9 @@ export function addPiece({
               ...piecePlaneCoords[i],
               altitude: clearanceHexAltitude,
             })
-            if (!newBoardHexes[clearanceID]) {
+            if (!newBoardHexes[clearanceID] || permissive) {
               // BUGFIX: only write in vertical clearance if nothing is already there? But...this seems an incomplete solution
+              trackDisplaced(clearanceID)
               newBoardHexes[clearanceID] = {
                 id: clearanceID,
                 q: piecePlaneCoords[i].q,
@@ -356,6 +368,7 @@ export function addPiece({
           })
 
         // write in the new ruin hex origin and auxiliary
+        trackDisplaced(newHexID)
         newBoardHexes[newHexID] = {
           id: newHexID,
           q: piecePlaneCoords[i].q,
@@ -392,16 +405,17 @@ export function addPiece({
   else if (piece.id.includes(PiecePrefixes.castleBase)) {
     const isCastleBaseSupported = isPlacingOnTable || isSolidUnderAtLeastOne // castle bases are all 1-hex, currently
     const isPlacingCastleBase = isSpaceFree && isCastleBaseSupported
-    if (isPlacingCastleBase) {
+    if (isPlacingCastleBase || permissive) {
       newHexIds.forEach((newHexID, i) => {
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]
         const isSolidUnderneath = isSolidTerrainHex(hexUnderneath?.terrain)
-        if (isSolidUnderneath || isPlacingOnTable) {
+        if (hexUnderneath && (isSolidUnderneath || isPlacingOnTable)) {
           // covers up the cap below
           // remove old cap
           newBoardHexes[hexUnderneath.id].isCap = false
         }
-        newBoardHexes[hexUnderneath.id].isCap = false
+        if (hexUnderneath) newBoardHexes[hexUnderneath.id].isCap = false
+        trackDisplaced(newHexID)
         newBoardHexes[newHexID] = {
           id: newHexID,
           q: piecePlaneCoords[i].q,
@@ -439,12 +453,13 @@ export function addPiece({
       isCastleArchSupported &&
       isSpaceFree &&
       isVerticalClearanceForPiece
-    if (isPlacingCastleArch) {
+    if (isPlacingCastleArch || permissive) {
       newHexIds.forEach((newHexID, i) => {
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]
         const obstacleHeight = piece.height
         // remove the cap from land hex below
-        newBoardHexes[hexUnderneath.id].isCap = false
+        if (hexUnderneath) newBoardHexes[hexUnderneath.id].isCap = false
+        trackDisplaced(newHexID)
         newBoardHexes[newHexID] = {
           id: newHexID,
           q: piecePlaneCoords[i].q,
@@ -471,6 +486,7 @@ export function addPiece({
               ...piecePlaneCoords[i],
               altitude: clearanceHexAltitude,
             })
+            trackDisplaced(clearanceID)
             newBoardHexes[clearanceID] = {
               id: clearanceID,
               q: piecePlaneCoords[i].q,
@@ -520,7 +536,7 @@ export function addPiece({
       isCastleWallSupported &&
       isSpaceFree &&
       isVerticalClearanceForPiece
-    if (isPlacingCastleWall) {
+    if (isPlacingCastleWall || permissive) {
       newHexIds.forEach((newHexID, i) => {
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]
         const isHexUnderneathCastleBase = hexUnderneath?.pieceID.includes(
@@ -539,6 +555,7 @@ export function addPiece({
            A naked castle-base (which is rare and weird) is a piece we track.
            But once a wall is placed on the base, we only track the wall piece, and overwrite the base piece.
            */
+          trackDisplaced(hexUnderneath.id)
           newBoardHexes[hexUnderneath.id] = {
             id: hexUnderneath.id,
             q: piecePlaneCoords[i].q,
@@ -556,7 +573,8 @@ export function addPiece({
           }
         } else {
           // remove the cap from land hex below
-          newBoardHexes[hexUnderneath.id].isCap = false
+          if (hexUnderneath) newBoardHexes[hexUnderneath.id].isCap = false
+          trackDisplaced(newHexID)
           newBoardHexes[newHexID] = {
             id: newHexID,
             q: piecePlaneCoords[i].q,
@@ -584,6 +602,7 @@ export function addPiece({
               ...piecePlaneCoords[i],
               altitude: clearanceHexAltitude,
             })
+            trackDisplaced(clearanceID)
             newBoardHexes[clearanceID] = {
               id: clearanceID,
               q: piecePlaneCoords[i].q,
@@ -619,10 +638,11 @@ export function addPiece({
     }
   }
   // WALLWALK ONTO WALL
-  else if (isPlacingWallWalkOnWall) {
+  else if (isWallWalkOnWallType && (isSpaceFree || permissive)) {
     newHexIds.forEach((newHexID, iForEach) => {
       const hexAbove = newBoardHexes?.[overHexIds[iForEach]]
       const isSolidAbove = isSolidTerrainHex(hexAbove?.terrain)
+      trackDisplaced(newHexID)
       newBoardHexes[newHexID] = {
         id: newHexID,
         q: piecePlaneCoords[iForEach].q,
@@ -643,7 +663,7 @@ export function addPiece({
     addBoardPiece(rotation)
   }
   // OBSTACLES: trees, bushes, palms, glaciers, outcrops, laurPillar
-  else if (isPlacingObstacle) {
+  else if (piece.isObstaclePiece && (isPlacingObstacle || permissive)) {
     newHexIds.forEach((newHexID, i) => {
       const hexUnderneath = newBoardHexes?.[underHexIds[i]]
       // remove caps covered by this obstacle
@@ -651,6 +671,7 @@ export function addPiece({
         newBoardHexes[hexUnderneath.id].isCap = false
       }
       // write in the new base level hexes (origin+auxiliaries)
+      trackDisplaced(newHexID)
       newBoardHexes[newHexID] = {
         id: newHexID,
         q: piecePlaneCoords[i].q,
@@ -682,8 +703,9 @@ export function addPiece({
                 ...piecePlaneCoords[i],
                 altitude: clearanceHexAltitude,
               })
-              if (!newBoardHexes[clearanceID]) {
+              if (!newBoardHexes[clearanceID] || permissive) {
                 // BUGFIX: only write in vertical clearance if nothing is already there? But...this seems an incomplete solution
+                trackDisplaced(clearanceID)
                 newBoardHexes[clearanceID] = {
                   id: clearanceID,
                   q: piecePlaneCoords[i].q,
@@ -720,6 +742,7 @@ export function addPiece({
                 ...piecePlaneCoords[i],
                 altitude: clearanceHexAltitude,
               })
+              trackDisplaced(clearanceID)
               newBoardHexes[clearanceID] = {
                 id: clearanceID,
                 q: piecePlaneCoords[i].q,
@@ -745,7 +768,7 @@ export function addPiece({
 
     // add the new piece
     addBoardPiece(rotation)
-  } else if (piece.isObstaclePiece) {
+  } else if (piece.isObstaclePiece && !permissive) {
     if (!isSpaceFree) {
       addPieceError = { message: 'Not enough space for obstacle' }
     }
@@ -760,19 +783,20 @@ export function addPiece({
   else if (isPlacingLandTile) {
     // castle-wallwalk placed here as normal land
     const isLandPieceSupported = isPlacingOnTable || isSolidUnderAtLeastOne
-    if (isSpaceFree && isLandPieceSupported) {
+    if ((isSpaceFree && isLandPieceSupported) || permissive) {
       try {
         newHexIds.forEach((newHexID, iForEach) => {
           const hexUnderneath = newBoardHexes?.[underHexIds[iForEach]]
           const hexAbove = newBoardHexes?.[overHexIds[iForEach]]
           const isSolidAbove = isSolidTerrainHex(hexAbove?.terrain)
           const isSolidUnderneath = isSolidTerrainHex(hexUnderneath?.terrain)
-          if (isSolidUnderneath || isPlacingOnTable) {
+          if (hexUnderneath && (isSolidUnderneath || isPlacingOnTable)) {
             // solids and fluids can replace the cap below
             // remove cap beneath this land hex
             newBoardHexes[hexUnderneath.id].isCap = false
           }
 
+          trackDisplaced(newHexID)
           newBoardHexes[newHexID] = {
             id: newHexID,
             q: piecePlaneCoords[iForEach].q,
@@ -813,5 +837,5 @@ export function addPiece({
     }
   }
 
-  return { newBoardHexes, newBoardPieces, error: addPieceError }
+  return { newBoardHexes, newBoardPieces, error: addPieceError, displacedUIDs: [...displacedUIDs] }
 }

@@ -387,6 +387,7 @@ export type AddRemovePieceReturn = {
   newBoardHexes: BoardHexes
   newBoardPieces: BoardPieces
   error: AddRemovePieceError
+  displacedUIDs?: string[] // UIDs of pieces whose hexes were overwritten by this placement
 }
 export type HexoscapeGlyph = {
   id: string
