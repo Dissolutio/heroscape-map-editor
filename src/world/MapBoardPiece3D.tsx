@@ -295,10 +295,16 @@ export const MapBoardPiece3D = ({
   if (inventoryID === Pieces.shipWall) {
     return (
       <group
-        position={[x,
+        position={[
+          x,
           // either gets moved down to fluid level, or up to solid cap level
-          y - HEXGRID_HEX_HEIGHT - (isUnderHexFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : -HEXGRID_HEXCAP_HEIGHT / 2),
-          z]}
+          y -
+            HEXGRID_HEX_HEIGHT -
+            (isUnderHexFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : -HEXGRID_HEXCAP_HEIGHT / 2),
+          z,
+        ]}
         rotation={[0, getObstaclRotation(rotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -311,10 +317,16 @@ export const MapBoardPiece3D = ({
   if (inventoryID === Pieces.shipBow) {
     return (
       <group
-        position={[x,
+        position={[
+          x,
           // either gets moved down to fluid level, or up to solid cap level
-          y - HEXGRID_HEX_HEIGHT - (isUnderHexFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : -HEXGRID_HEXCAP_HEIGHT / 2),
-          z]}
+          y -
+            HEXGRID_HEX_HEIGHT -
+            (isUnderHexFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : -HEXGRID_HEXCAP_HEIGHT / 2),
+          z,
+        ]}
         rotation={[0, getObstaclRotation(rotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -411,7 +423,7 @@ export const MapBoardPiece3D = ({
             position={[
               x,
               (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) +
-              HEXGRID_HEX_HEIGHT / 3,
+                HEXGRID_HEX_HEIGHT / 3,
               z,
             ]}
           >
@@ -578,9 +590,13 @@ export const MapBoardPiece3D = ({
       if (underHexTerrain !== HexTerrain.ladder) return false
       let checkAlt = altitude - 1
       while (checkAlt >= 0) {
-        const checkHex = boardHexes?.[genBoardHexID({ ...pieceCoords, altitude: checkAlt })]
+        const checkHex =
+          boardHexes?.[genBoardHexID({ ...pieceCoords, altitude: checkAlt })]
         if (!checkHex) return false
-        if (checkHex.terrain === HexTerrain.ladder) { checkAlt--; continue }
+        if (checkHex.terrain === HexTerrain.ladder) {
+          checkAlt--
+          continue
+        }
         return isFluidTerrainHex(checkHex.terrain)
       }
       return false
@@ -590,7 +606,11 @@ export const MapBoardPiece3D = ({
         position={[
           x + getLadderBattlementOptions(rotation).xAdd,
           // either gets moved down to fluid level, or up to solid cap level
-          y - HEXGRID_HEX_HEIGHT - (isLadderChainOnFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : -HEXGRID_HEXCAP_HEIGHT / 2),
+          y -
+            HEXGRID_HEX_HEIGHT -
+            (isLadderChainOnFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : -HEXGRID_HEXCAP_HEIGHT / 2),
           z + getLadderBattlementOptions(rotation).zAdd,
         ]}
         rotation={[0, pieceRotation, 0]}

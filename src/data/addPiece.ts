@@ -489,14 +489,17 @@ export function addPiece({
     } else {
       if (!isCastleArchSupported) {
         addPieceError = {
-          message: 'Castle arch must be supported by its outer hexes or be placed on the table',
+          message:
+            'Castle arch must be supported by its outer hexes or be placed on the table',
         }
       }
       if (!isSpaceFree) {
         addPieceError = { message: 'No space free for castle arch' }
       }
       if (!isVerticalClearanceForPiece) {
-        addPieceError = { message: 'Not enough vertical clearance for castle arch' }
+        addPieceError = {
+          message: 'Not enough vertical clearance for castle arch',
+        }
       }
     }
   }
@@ -599,14 +602,17 @@ export function addPiece({
     } else {
       if (!isCastleWallSupported) {
         addPieceError = {
-          message: 'Castle wall must be supported by solid terrain, the table, or existing castle pieces',
+          message:
+            'Castle wall must be supported by solid terrain, the table, or existing castle pieces',
         }
       }
       if (!isSpaceFree) {
         addPieceError = { message: 'No space free for castle wall' }
       }
       if (!isVerticalClearanceForPiece) {
-        addPieceError = { message: 'Not enough vertical clearance for castle wall' }
+        addPieceError = {
+          message: 'Not enough vertical clearance for castle wall',
+        }
       }
     }
   }

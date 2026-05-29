@@ -26,10 +26,7 @@ export const PdfMapLevels6PerPage = ({
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
     'id',
   )
-  const chunksOf6Levels = get6LevelChunk(
-    boardHexesWithoutEmpties,
-    boardPieces,
-  )
+  const chunksOf6Levels = get6LevelChunk(boardHexesWithoutEmpties, boardPieces)
   const decodedBoardPiecesArr = boardPieces
     .map((bp) => boardPieceToDecodedPieceID(bp))
     .filter((p) => Boolean(p))

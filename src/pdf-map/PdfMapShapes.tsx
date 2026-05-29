@@ -91,7 +91,7 @@ export const PdfEmptyHex = () => {
         // fill={fillColor}
         stroke={borderColor}
         strokeWidth={borderWidth}
-      // opacity={OPACITY_EMPTY}
+        // opacity={OPACITY_EMPTY}
       />
     </>
   )
@@ -838,11 +838,7 @@ export const PdfSvgRuins2 = ({
   return (
     <>
       {isSubLevel && (
-        <Path
-          d={path}
-          stroke={'white'}
-          strokeWidth={SVG_HEX_RADIUS / 5}
-        />
+        <Path d={path} stroke={'white'} strokeWidth={SVG_HEX_RADIUS / 5} />
       )}
       <Path
         d={path}
@@ -908,11 +904,7 @@ export const PdfMarvelRuin = ({
   return (
     <>
       {isSubLevel && (
-        <Path
-          d={path}
-          stroke={'white'}
-          strokeWidth={2 * PDF_BORDER_WIDTH}
-        />
+        <Path d={path} stroke={'white'} strokeWidth={2 * PDF_BORDER_WIDTH} />
       )}
       <Path
         d={path}

@@ -94,7 +94,9 @@ export default function ViewControlsTab({
           <ControlTabsListItemButton
             title="Center the camera on entire map"
             primary="Zoom to map"
-            onClick={() => zoomToMap(mapGroupRef, cameraControlsRef, width, length)}
+            onClick={() =>
+              zoomToMap(mapGroupRef, cameraControlsRef, width, length)
+            }
             icon={<FcCollect />}
           />
 
