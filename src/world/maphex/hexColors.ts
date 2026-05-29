@@ -223,6 +223,7 @@ export const pdfColors = {
   [HexTerrain.swamp]: 'rgb(27, 46, 22)',
   [HexTerrain.dungeon]: 'rgb(124, 177, 152)',
   [HexTerrain.lavaField]: 'rgb(163, 0, 41)',
+  [HexTerrain.asphalt]: '#121212',
   [HexTerrain.ancientTerrain]: 'rgb(181, 89, 8)',
   [HexTerrain.wood]: 'rgb(158, 84, 36)',
   [HexTerrain.snow]: 'rgb(255,255,255)',
