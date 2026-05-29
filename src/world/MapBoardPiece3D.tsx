@@ -295,7 +295,10 @@ export const MapBoardPiece3D = ({
   if (inventoryID === Pieces.shipWall) {
     return (
       <group
-        position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+        position={[x,
+          // either gets moved down to fluid level, or up to solid cap level
+          y - HEXGRID_HEX_HEIGHT - (isUnderHexFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : -HEXGRID_HEXCAP_HEIGHT / 2),
+          z]}
         rotation={[0, getObstaclRotation(rotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -308,7 +311,10 @@ export const MapBoardPiece3D = ({
   if (inventoryID === Pieces.shipBow) {
     return (
       <group
-        position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+        position={[x,
+          // either gets moved down to fluid level, or up to solid cap level
+          y - HEXGRID_HEX_HEIGHT - (isUnderHexFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : -HEXGRID_HEXCAP_HEIGHT / 2),
+          z]}
         rotation={[0, getObstaclRotation(rotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -583,7 +589,8 @@ export const MapBoardPiece3D = ({
       <group
         position={[
           x + getLadderBattlementOptions(rotation).xAdd,
-          y - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_HEIGHT / 2 - (isLadderChainOnFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : 0),
+          // either gets moved down to fluid level, or up to solid cap level
+          y - HEXGRID_HEX_HEIGHT - (isLadderChainOnFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : -HEXGRID_HEXCAP_HEIGHT / 2),
           z + getLadderBattlementOptions(rotation).zAdd,
         ]}
         rotation={[0, pieceRotation, 0]}

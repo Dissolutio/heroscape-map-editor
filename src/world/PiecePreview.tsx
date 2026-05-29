@@ -426,7 +426,8 @@ export default function PiecePreview() {
   if (isShipWallHex && isLandOrEmptyBeneath) {
     return (
       <group
-        position={[x, y - (isUnderHexFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : 0), z]}
+        // either gets moved down to fluid level, or up to solid cap level
+        position={[x, y - (isUnderHexFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : -HEXGRID_HEXCAP_HEIGHT / 2), z]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -438,7 +439,8 @@ export default function PiecePreview() {
   if (isShipBowHex && isLandOrEmptyBeneath) {
     return (
       <group
-        position={[x, y - (isUnderHexFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : 0), z]}
+        // either gets moved down to fluid level, or up to solid cap level
+        position={[x, y - (isUnderHexFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : -HEXGRID_HEXCAP_HEIGHT / 2), z]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
