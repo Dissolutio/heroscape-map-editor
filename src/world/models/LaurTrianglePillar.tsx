@@ -3,7 +3,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { FrontSide, DoubleSide } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain } from '../../types'
+import { type BoardHex, type BoardPiece, HexTerrain } from '../../types'
 import {
   HEXGRID_OBSTACLE_BASE_HEIGHT,
   PIECE_PREVIEW_OPACITY,
@@ -13,11 +13,11 @@ import { basicModelMaterial } from './materials'
 import { laurBaseCylinderArgs } from './ObstacleBase'
 
 export default function LaurWallTrianglePillar({
-  boardHex,
+  bp,
   onPointerUp,
   pieceRotation,
 }: {
-  boardHex: BoardHex
+  bp: BoardPiece
   pieceRotation: number
   onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
@@ -28,13 +28,21 @@ export default function LaurWallTrianglePillar({
   ) as any
   // const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
-  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
+  const isSelected = selectedPieceID === bp.uid
+  const isHighlighted = hoveredPieceID === bp.uid || isSelected
+  const partialHex = {
+    ...bp.pieceCoords,
+    boardPieceUID: bp.uid,
+    altitude: bp.altitude + 1,
+    inventoryID: bp.inventoryID,
+    pieceID: '',
+    pieceRotation: bp.rotation,
+  } as BoardHex
   const color = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.laurWall]
@@ -53,8 +61,8 @@ export default function LaurWallTrianglePillar({
   return (
     <>
       <group
-        onPointerUp={(e) => onPointerUp?.(e, boardHex)}
-        onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+        onPointerUp={(e) => onPointerUp?.(e, partialHex)}
+        onPointerEnter={(e) => onPointerEnterPID(e, bp.uid)}
         onPointerOut={(e) => onPointerOut(e)}
       >
         <mesh

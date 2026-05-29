@@ -1,6 +1,6 @@
 import { Decal, useGLTF, useTexture } from '@react-three/drei'
 import useBoundStore from '../../store/store'
-import { HexTerrain, Pieces, type BoardHex } from '../../types'
+import { HexTerrain, Pieces } from '../../types'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import { piecesSoFar } from '../../data/pieces'
 import type { ThreeEvent } from '@react-three/fiber'
@@ -8,11 +8,11 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 
 export function GlyphModel({
-  boardHex,
+  pid,
   terrain,
   isNamedGlyph,
 }: {
-  boardHex: BoardHex
+  pid: string
   terrain: string
   isNamedGlyph: boolean
 }) {
@@ -23,7 +23,7 @@ export function GlyphModel({
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -31,17 +31,17 @@ export function GlyphModel({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
+    toggleSelectedPieceID(isSelected ? '' : pid)
   }
   const glyphColor = hexTerrainColor[terrain as keyof typeof hexTerrainColor]
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
-  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted ? yellowColor : glyphColor
   return (
     <group
       onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+      onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
     >
       <mesh

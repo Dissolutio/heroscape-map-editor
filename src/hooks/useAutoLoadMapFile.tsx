@@ -64,42 +64,47 @@ const useAutoLoadMapFile = (props: Props) => {
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
         }
-        const action = () => (
-          <>
-            {localMapCacheMapState ? (
+        // Skip the snackbar notification for DEV env
+        if (!import.meta.env.DEV) {
+          const action = () => (
+            <>
+              {localMapCacheMapState ? (
+                <Button
+                  color="info"
+                  variant="contained"
+                  onClick={() => {
+                    // load last map instead, close original snackbar, open a new one, remove map from URL bar
+                    loadMap(localMapCacheMapState)
+                    closeSnackbar(snackbarId)
+                    enqueueSnackbar({
+                      message: `Loaded last map instead: ${localMapCacheMapState.hexMap.name}`,
+                      variant: 'success',
+                    })
+                    navigate(ROUTES.heroscapeHome)
+                  }}
+                >
+                  Load last map instead
+                </Button>
+              ) : null}
               <Button
-                color="info"
+                color="warning"
                 variant="contained"
                 onClick={() => {
-                  // load last map instead, close original snackbar, open a new one, remove map from URL bar
-                  loadMap(localMapCacheMapState)
                   closeSnackbar(snackbarId)
-                  enqueueSnackbar({
-                    message: `Loaded last map instead: ${localMapCacheMapState.hexMap.name}`,
-                    variant: 'success',
-                  })
-                  navigate(ROUTES.heroscapeHome)
                 }}
               >
-                Load last map instead
+                Close
               </Button>
-            ) : null}
-            <Button
-              color="warning"
-              variant="contained"
-              onClick={() => {
-                closeSnackbar(snackbarId)
-              }}
-            >
-              Close
-            </Button>
-          </>
-        )
-        const snackbarId = enqueueSnackbar({
-          message: `Loaded map from URL: ${jsonMap.hexMap.name}.`,
-          variant: 'success',
-          action,
-        })
+            </>
+          )
+
+          const snackbarId = enqueueSnackbar({
+            message: `Loaded map from URL: ${jsonMap.hexMap.name}.`,
+            variant: 'success',
+            action,
+            autoHideDuration: null,
+          })
+        }
         loadMap(jsonMap)
         clearUndoHistory() // clear undo history, initial load should not be undoable
         queueMapAutoZoom(jsonMap.boardHexes)

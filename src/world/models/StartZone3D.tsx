@@ -1,17 +1,19 @@
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import type { BoardHex } from '../../types'
+
 import { hexTerrainColor } from '../maphex/hexColors'
 import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
 
 export function StartZone3D({
-  boardHex,
+  pid,
+  inventoryID,
 }: {
-  boardHex: BoardHex
+  pid: string
+  inventoryID: string
 }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -19,19 +21,19 @@ export function StartZone3D({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
+    toggleSelectedPieceID(isSelected ? '' : pid)
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
-  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted
     ? yellowColor
-    : hexTerrainColor[boardHex.inventoryID as keyof typeof hexTerrainColor]
+    : hexTerrainColor[inventoryID as keyof typeof hexTerrainColor]
   return (
     <mesh
       onPointerUp={onPointerUp}
-      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+      onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
       rotation={[0, Math.PI / 2, 0]}
     >

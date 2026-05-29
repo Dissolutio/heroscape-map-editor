@@ -148,6 +148,13 @@ export default function PenModeControls() {
           <span>Road</span>
           <HotkeyText text={hotkeyLookup.togglePenModeRoad} />
         </MenuItem>
+        <MenuItem value={PiecePrefixes.wallWalk}>
+          <ListItemIcon>
+            <TbHexagons color={hexTerrainColor.road} />
+          </ListItemIcon>
+          <span>Wall Walk</span>
+          <HotkeyText text={hotkeyLookup.togglePenModeWallWalk} />
+        </MenuItem>
         <MenuItem value={PiecePrefixes.lavaField}>
           <ListItemIcon>
             <TbHexagons color={hexTerrainColor.lavaField} />
@@ -637,6 +644,7 @@ export default function PenModeControls() {
           <span>Marro Hive 6</span>
         </MenuItem>
 
+        {/* Castle Bases, Walls */}
         <Divider />
         <MenuItem value={Pieces.castleBaseEnd}>
           <ListItemIcon>
@@ -697,12 +705,6 @@ export default function PenModeControls() {
             <GiCastle />
           </ListItemIcon>
           <span>Arch (No Door)</span>
-        </MenuItem>
-        <MenuItem value={PiecePrefixes.wallWalk}>
-          <ListItemIcon>
-            <TbHexagons />
-          </ListItemIcon>
-          <span>Wall Walk</span>
         </MenuItem>
 
         {/* RoadWall, Battlements, Ladders */}

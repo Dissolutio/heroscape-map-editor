@@ -26,16 +26,13 @@ export const PdfMapLevels6PerPage = ({
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
     'id',
   )
-  const boardHexAndPieceChunks = getBoardHexAndPieceChunks(
-    boardHexesWithoutEmpties,
-    boardPieces,
-  )
+  const chunksOf6Levels = get6LevelChunk(boardHexesWithoutEmpties, boardPieces)
   const decodedBoardPiecesArr = boardPieces
     .map((bp) => boardPieceToDecodedPieceID(bp))
     .filter((p) => Boolean(p))
   return (
     <>
-      {boardHexAndPieceChunks.map((chunk, i) => (
+      {chunksOf6Levels.map((chunk, i) => (
         <Page
           // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
           key={i}
@@ -103,7 +100,7 @@ export const PdfMapLevels6PerPage = ({
   )
 }
 
-const getBoardHexAndPieceChunks = (
+const get6LevelChunk = (
   boardHexes: BoardHexes,
   boardPieces: BoardPiece[],
 ): PdfMapAltitudeChunk[][] => {
