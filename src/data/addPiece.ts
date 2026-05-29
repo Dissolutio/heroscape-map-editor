@@ -163,7 +163,7 @@ export function addPiece({
     (isBridgingObstaclePieceID(piece.id) && isSolidUnderAtLeastOne) || // some multi-hex fluid-tile based obstacles (glaciers-4/6, hive) can bridge over gaps
     (isPlacingOnTable && !isGlyphPiece) // glyphs cannot go directly on table
   const isLadderPieceSupported =
-    isPlacingOnTable || isSolidUnderAll || isLadderAuxiliaryUnderAll
+    isPlacingOnTable || isLandUnderAll || isLadderAuxiliaryUnderAll
   const isBattlementPieceSupported_true = true // TODO: validate pieces
   const isPlacingObstacle =
     piece.isObstaclePiece &&

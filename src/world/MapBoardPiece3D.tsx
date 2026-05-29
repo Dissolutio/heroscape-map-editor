@@ -405,7 +405,7 @@ export const MapBoardPiece3D = ({
             position={[
               x,
               (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) +
-                HEXGRID_HEX_HEIGHT / 3,
+              HEXGRID_HEX_HEIGHT / 3,
               z,
             ]}
           >
@@ -566,11 +566,24 @@ export const MapBoardPiece3D = ({
   }
 
   if (inventoryID === Pieces.ladder) {
+    // Walk down through any chain of ladder hexes to find if the bottom terrain is fluid
+    const isLadderChainOnFluid = (() => {
+      if (isUnderHexFluid) return true
+      if (underHexTerrain !== HexTerrain.ladder) return false
+      let checkAlt = altitude - 1
+      while (checkAlt >= 0) {
+        const checkHex = boardHexes?.[genBoardHexID({ ...pieceCoords, altitude: checkAlt })]
+        if (!checkHex) return false
+        if (checkHex.terrain === HexTerrain.ladder) { checkAlt--; continue }
+        return isFluidTerrainHex(checkHex.terrain)
+      }
+      return false
+    })()
     return (
       <group
         position={[
           x + getLadderBattlementOptions(rotation).xAdd,
-          y - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_HEIGHT / 2,
+          y - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_HEIGHT / 2 - (isLadderChainOnFluid ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT : 0),
           z + getLadderBattlementOptions(rotation).zAdd,
         ]}
         rotation={[0, pieceRotation, 0]}
