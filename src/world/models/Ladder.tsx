@@ -2,16 +2,16 @@ import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain, Pieces } from '../../types'
+import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export function Ladder({
-  boardHex,
+  bp,
   onPointerUp,
 }: {
-  boardHex: BoardHex
+  bp: BoardPiece
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -21,8 +21,16 @@ export function Ladder({
   )
   const penMode = useBoundStore((s) => s.penMode)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const partialHex = {
+    ...bp.pieceCoords,
+    boardPieceUID: bp.uid,
+    altitude: bp.altitude + 1,
+    inventoryID: bp.inventoryID,
+    pieceID: '',
+    pieceRotation: bp.rotation,
+  } as BoardHex
   const handleOnPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
@@ -30,15 +38,15 @@ export function Ladder({
       return
     }
     if (penMode === Pieces.ladder) {
-      onPointerUp(event, boardHex)
+      onPointerUp(event, partialHex)
     } else {
-      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
+      toggleSelectedPieceID(isSelected ? '' : bp.uid)
     }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
-  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
+  const isSelected = selectedPieceID === bp.uid
+  const isHighlighted = hoveredPieceID === bp.uid || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ladder]
   return (
     <mesh
@@ -46,7 +54,7 @@ export function Ladder({
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Ladder.geometry}
       onPointerUp={handleOnPointerUp}
-      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+      onPointerEnter={(e) => onPointerEnterPID(e, bp.uid)}
       onPointerOut={(e) => onPointerOut(e)}
     >
       {basicModelMaterial(color, isLightsAndShadowsRender)}

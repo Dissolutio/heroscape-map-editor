@@ -2,20 +2,20 @@ import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import type { BoardHex } from '../../types'
+
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { noop } from 'lodash'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
-export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
+export default function MarroHive6({ pid }: { pid?: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/uncolored-decimated-marro-hive-6.glb') as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -23,14 +23,14 @@ export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
     if (event.button !== 0) {
       return
     }
-    if (boardHex) {
-      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
+    if (pid) {
+      toggleSelectedPieceID(isSelected ? '' : pid)
     }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
-  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor.hiveModel1
   return (
     <>
@@ -38,13 +38,11 @@ export default function MarroHive6({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Marro_Hive.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
               color,

@@ -2,13 +2,13 @@ import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain } from '../../types'
+import { HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
 
-export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
+export function ShipBow({ pid }: { pid?: string }) {
   const { nodes } = useGLTF(
     '/ship-bow_v2.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -17,7 +17,7 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -25,14 +25,14 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
     if (event.button !== 0) {
       return
     }
-    if (boardHex) {
-      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
+    if (pid) {
+      toggleSelectedPieceID(isSelected ? '' : pid)
     }
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
-  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor.shipWood
   const colorShipBowIron = isHighlighted
     ? yellowColor
@@ -67,13 +67,11 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBow.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
               color,
@@ -85,13 +83,11 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowIron.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(colorShipBowIron, isLightsAndShadowsRender)
           : basicModelMaterial(
               colorShipBowIron,
@@ -103,13 +99,11 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowFigureheadBody.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(
               colorShipBowFigureheadBody,
               isLightsAndShadowsRender,
@@ -124,13 +118,11 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowFigureheadWings.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(
               colorShipBowFigureheadWings,
               isLightsAndShadowsRender,
@@ -145,13 +137,11 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowFigureheadEyes.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(
               colorShipBowFigureheadEyes,
               isLightsAndShadowsRender,
@@ -166,13 +156,11 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowFigureheadTongue.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(
               colorShipBowFigureheadTongue,
               isLightsAndShadowsRender,
@@ -187,13 +175,11 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowFigureheadBeak.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(
               colorShipBowFigureheadBeak,
               isLightsAndShadowsRender,
@@ -208,13 +194,11 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowFigureheadTail.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(
               colorShipBowFigureheadTail,
               isLightsAndShadowsRender,
@@ -229,13 +213,11 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowFigureheadMane.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(
               colorShipBowFigureheadMane,
               isLightsAndShadowsRender,
@@ -250,13 +232,11 @@ export function ShipBow({ boardHex }: { boardHex?: BoardHex }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowFigureheadHooves.geometry}
-        onPointerUp={(e) => (boardHex ? onPointerUp(e) : noop())}
-        onPointerEnter={(e) =>
-          boardHex ? onPointerEnter(e, boardHex) : noop()
-        }
-        onPointerOut={(e) => (boardHex ? onPointerOut(e) : noop())}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
-        {boardHex
+        {pid
           ? basicModelMaterial(
               colorShipBowFigureheadHooves,
               isLightsAndShadowsRender,

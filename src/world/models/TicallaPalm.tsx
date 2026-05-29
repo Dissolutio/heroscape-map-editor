@@ -2,13 +2,16 @@ import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain, PiecePrefixes, Pieces } from '../../types'
+import { HexTerrain, PiecePrefixes, Pieces } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 
-export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
+export default function TicallaPalm({
+  pid,
+  inventoryID,
+}: { pid: string; inventoryID: string }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
@@ -16,17 +19,17 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
+    toggleSelectedPieceID(isSelected ? '' : pid)
   }
   const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
-  const isHighlighted = hoveredPieceID === boardHex?.boardPieceUID || isSelected
-  if (boardHex.inventoryID.startsWith(PiecePrefixes.laurPalm)) {
+  const isSelected = selectedPieceID === pid
+  const isHighlighted = hoveredPieceID === pid || isSelected
+  if (inventoryID.startsWith(PiecePrefixes.laurPalm)) {
     return (
       <>
         <group
           onPointerUp={(e) => onPointerUp(e)}
-          onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+          onPointerEnter={(e) => onPointerEnterPID(e, pid)}
           onPointerOut={(e) => onPointerOut(e)}
         >
           <LaurPalmPreview isHighlighted={isHighlighted} />
@@ -37,7 +40,7 @@ export default function TicallaPalm({ boardHex }: { boardHex: BoardHex }) {
   return (
     <group
       onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnter(e, boardHex)}
+      onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
     >
       <TicallaPalmPreview isHighlighted={isHighlighted} />
