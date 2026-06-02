@@ -51,15 +51,6 @@ export function addPiece({
   const uid = incomingUid ?? nanoid(10)
   const newBoardHexes = clone(boardHexes)
   const newBoardPieces: BoardPieces = clone(boardPieces)
-  const addBoardPiece = (pieceRotation = rotation) => {
-    newBoardPieces.push({
-      uid,
-      inventoryID: piece.id,
-      altitude: placementAltitude,
-      rotation: pieceRotation,
-      pieceCoords,
-    })
-  }
   const piecePlaneCoords = getPieceTemplateCoords({
     clickedHex: { q: pieceCoords.q, r: pieceCoords.r, s: pieceCoords.s },
     rotation,
@@ -67,6 +58,17 @@ export function addPiece({
     isVsTile,
   })
   const originOfTile = isVsTile ? piecePlaneCoords[0] : pieceCoords // vs moves it around per rotation, our app will probably not
+  // For VS tiles, store the Hexoscape-native origin in the BoardPiece so that
+  // renderers using boardPiece.pieceCoords get the correct anchor position.
+  const addBoardPiece = (pieceRotation = rotation) => {
+    newBoardPieces.push({
+      uid,
+      inventoryID: piece.id,
+      altitude: placementAltitude,
+      rotation: pieceRotation,
+      pieceCoords: originOfTile,
+    })
+  }
   const pieceHexID = genBoardHexID({
     ...originOfTile,
     altitude: placementAltitude,
