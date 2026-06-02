@@ -20,10 +20,10 @@ export default function JungleBrush({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : pid)
+    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
   }
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === pid
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const isSelected = selectedPieceIDs.includes(pid)
   const isHighlighted = hoveredPieceID === pid || isSelected
   if (inventoryID === Pieces.laurBrush10) {
     return (

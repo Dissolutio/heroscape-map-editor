@@ -24,8 +24,8 @@ export default function LandSubterrain({
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === boardPieceUid
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const isSelected = selectedPieceIDs.includes(boardPieceUid)
   const isHovered = hoveredPieceID === boardPieceUid
   const pieceTerrain = terrain
   const isDirtSubterrain =
@@ -62,7 +62,7 @@ export default function LandSubterrain({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardPieceUid)
+    toggleSelectedPieceID(boardPieceUid, event.shiftKey || event.ctrlKey || event.metaKey)
   }
   const material = () => {
     if (isLightsAndShadowsRender) {

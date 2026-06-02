@@ -37,13 +37,13 @@ export function LaurWallArchModel({
 export function LaurWallArchAddon({ pid }: { pid: string }) {
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === pid
+  const isSelected = selectedPieceIDs.includes(pid)
   const isHighlighted = hoveredPieceID === pid || isSelected
   const pillarColor = isHighlighted
     ? yellowColor
@@ -53,7 +53,7 @@ export function LaurWallArchAddon({ pid }: { pid: string }) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : pid)
+    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
   }
 
   return (

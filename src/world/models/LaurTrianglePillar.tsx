@@ -21,7 +21,7 @@ export default function LaurWallTrianglePillar({
   pieceRotation: number
   onPointerUp?: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const { nodes } = useGLTF(
     '/laur-triangle-pillar-from-hs-blendfile.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -33,7 +33,7 @@ export default function LaurWallTrianglePillar({
     (s) => s.isLightsAndShadowsRender,
   )
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === bp.uid
+  const isSelected = selectedPieceIDs.includes(bp.uid)
   const isHighlighted = hoveredPieceID === bp.uid || isSelected
   const partialHex = {
     ...bp.pieceCoords,

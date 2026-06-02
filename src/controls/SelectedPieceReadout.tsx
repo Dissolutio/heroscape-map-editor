@@ -5,17 +5,17 @@ import DeletePieceButton from './DeletePieceButton'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
 const SelectedPieceReadout = () => {
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const {
     // isLargeScreenWidth,
     isSmallScreenWidth,
     // isMediumScreenWidth,
   } = useMuiMediaQuery()
-  if (!selectedPieceID) {
+  if (!selectedPieceIDs.length) {
     return null
   }
-  const boardPiece = boardPieces.find((bp) => bp.uid === selectedPieceID)
+  const boardPiece = boardPieces.find((bp) => bp.uid === selectedPieceIDs[0])
   if (!boardPiece) {
     return null
   }

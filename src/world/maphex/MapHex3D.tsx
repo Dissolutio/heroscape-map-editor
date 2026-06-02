@@ -34,7 +34,7 @@ export const MapHex3D = ({
   const isVisible =
     boardHex.isVerticalClearanceHex || boardHex.altitude <= viewingLevel
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const { x, y, z, yBase, yBaseCap } = getBoardHex3DCoords(boardHex)
 
   const isShowEmptyHexes =
@@ -103,7 +103,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex?.boardPieceUID ||
-              selectedPieceID === boardHex?.boardPieceUID
+              selectedPieceIDs.includes(boardHex?.boardPieceUID ?? '')
                 ? hexTerrainColor[HexTerrain.castleBase]
                 : 'yellow'
             }
@@ -131,7 +131,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex?.boardPieceUID ||
-                selectedPieceID === boardHex?.boardPieceUID
+                selectedPieceIDs.includes(boardHex?.boardPieceUID ?? '')
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castleWall]
               }

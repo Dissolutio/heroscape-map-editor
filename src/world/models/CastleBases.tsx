@@ -17,10 +17,10 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
   const pieceID = boardHex.pieceID
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
+  const isSelected = selectedPieceIDs.includes(boardHex?.boardPieceUID ?? '')
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -54,7 +54,7 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
+    toggleSelectedPieceID(boardHex.boardPieceUID ?? '', event.shiftKey || event.ctrlKey || event.metaKey)
   }
   return (
     <>

@@ -24,7 +24,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const [capColor, setCapColor] = React.useState(
     hexTerrainColor[HexTerrain.castleWall],
   )
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
@@ -34,7 +34,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isHighlighted =
     hoveredPieceID === boardHex?.boardPieceUID ||
-    selectedPieceID === boardHex?.boardPieceUID
+    selectedPieceIDs.includes(boardHex?.boardPieceUID ?? '')
   const yellowColor = 'yellow'
   const scaleYAdjust = 0.01 // just a little to get it out of the subterrain
   // castle walls are 10 levels tall, UNLESS stacked on another wall, then they are 9 (they have a 1-level bottom base when on land)
@@ -78,9 +78,8 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
       return
     }
     toggleSelectedPieceID(
-      selectedPieceID === boardHex?.boardPieceUID
-        ? ''
-        : (boardHex.boardPieceUID ?? ''),
+      boardHex.boardPieceUID ?? '',
+      event.shiftKey || event.ctrlKey || event.metaKey,
     )
   }
 

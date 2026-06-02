@@ -82,8 +82,6 @@ function FluidCap({
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const color =
     hexTerrainColor[boardHex.terrain as keyof typeof hexTerrainColor]
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
 
   // Effect: Initial color/position
   React.useEffect(() => {
@@ -133,7 +131,10 @@ function FluidCap({
       return
     }
     if (penMode === 'select') {
-      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
+      toggleSelectedPieceID(
+        boardHex.boardPieceUID ?? '',
+        e.shiftKey || e.ctrlKey || e.metaKey,
+      )
     } else {
       onPointerUp(e, boardHex)
     }

@@ -39,7 +39,7 @@ export const useApplyHotkeys = ({
   const isCameraDisabled = useBoundStore((s) => s.isCameraDisabled)
   const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
   const unpaintTile = useBoundStore((s) => s.unpaintTile)
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -57,8 +57,8 @@ export const useApplyHotkeys = ({
   const { undo, redo } = useTemporalStore((state: AppState) => state)
 
   const deleteSelectedPiece = () => {
-    if (selectedPieceID) {
-      unpaintTile(selectedPieceID)
+    if (selectedPieceIDs.length) {
+      for (const id of selectedPieceIDs) unpaintTile(id)
       toggleSelectedPieceID('')
     }
   }

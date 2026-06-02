@@ -30,8 +30,8 @@ export interface UISlice {
   toggleIsPieceInventoryDialogOpen: (b: boolean) => void
 
   // WORLD STATE
-  selectedPieceID: string
-  toggleSelectedPieceID: (id: string) => void
+  selectedPieceIDs: string[]
+  toggleSelectedPieceID: (id: string, multiSelect?: boolean) => void
   hoveredPieceID: string
   toggleHoveredPieceID: (id: string) => void
   hoveredHex: BoardHex | undefined
@@ -80,11 +80,29 @@ const createUISlice: StateCreator<
   [],
   UISlice
 > = (set) => ({
-  selectedPieceID: '',
-  toggleSelectedPieceID: (pieceID: string) =>
+  selectedPieceIDs: [],
+  toggleSelectedPieceID: (pieceID: string, multiSelect?: boolean) =>
     set(
       produce((state) => {
-        state.selectedPieceID = pieceID
+        if (!pieceID) {
+          state.selectedPieceIDs = []
+        } else if (multiSelect) {
+          const idx = state.selectedPieceIDs.indexOf(pieceID)
+          if (idx === -1) {
+            state.selectedPieceIDs.push(pieceID)
+          } else {
+            state.selectedPieceIDs.splice(idx, 1)
+          }
+        } else {
+          if (
+            state.selectedPieceIDs.length === 1 &&
+            state.selectedPieceIDs[0] === pieceID
+          ) {
+            state.selectedPieceIDs = []
+          } else {
+            state.selectedPieceIDs = [pieceID]
+          }
+        }
       }),
     ),
   hoveredPieceID: '',

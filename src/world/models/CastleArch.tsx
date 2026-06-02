@@ -98,9 +98,9 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/castle-arch-handmade.glb') as any
   const boardHexes = useBoundStore((s) => s.boardHexes)
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
+  const isSelected = selectedPieceIDs.includes(boardHex?.boardPieceUID ?? '')
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -183,7 +183,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
+    toggleSelectedPieceID(boardHex.boardPieceUID ?? '', event.shiftKey || event.ctrlKey || event.metaKey)
   }
 
   // Early return non-origin hexes

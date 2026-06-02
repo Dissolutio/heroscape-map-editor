@@ -45,7 +45,7 @@ export const EditControlsTab = () => {
   const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const loadMap = useBoundStore((s) => s.loadMap)
   const movePiece = useBoundStore((s) => s.movePiece)
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const {
@@ -55,8 +55,8 @@ export const EditControlsTab = () => {
   } = useMuiMediaQuery()
   // const inventory = useLocalPieceInventory()
 
-  const selectedBoardPiece = selectedPieceID
-    ? boardPieces.find((bp) => bp.uid === selectedPieceID)
+  const selectedBoardPiece = selectedPieceIDs.length > 0
+    ? boardPieces.find((bp) => bp.uid === selectedPieceIDs[0])
     : undefined
   const selectedPiece = selectedBoardPiece
     ? piecesSoFar[selectedBoardPiece.inventoryID]

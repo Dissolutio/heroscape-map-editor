@@ -26,12 +26,12 @@ export default function Cannon({ pid }: { pid?: string }) {
       return
     }
     if (pid) {
-      toggleSelectedPieceID(isSelected ? '' : pid)
+      toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
     }
   }
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === pid
+  const isSelected = selectedPieceIDs.includes(pid)
   const isHighlighted = hoveredPieceID === pid || isSelected
   const colorBarrel = isHighlighted ? yellowColor : hexTerrainColor.cannonBarrel
   const colorCarriage = isHighlighted

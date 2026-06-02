@@ -26,12 +26,12 @@ export function RopeLadder({ pid }: { pid?: string }) {
       return
     }
     if (pid) {
-      toggleSelectedPieceID(isSelected ? '' : pid)
+      toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
     }
   }
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === pid
+  const isSelected = selectedPieceIDs.includes(pid)
   const isHighlighted = hoveredPieceID === pid || isSelected
   const woodColor = isHighlighted ? yellowColor : hexTerrainColor.shipWood
   const ropeColor = isHighlighted ? yellowColor : hexTerrainColor.shipRope

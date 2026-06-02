@@ -3,7 +3,7 @@ import useBoundStore from '../store/store'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
 const DeletePieceButton = () => {
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const {
     // isLargeScreenWidth,
     isSmallScreenWidth,
@@ -12,7 +12,7 @@ const DeletePieceButton = () => {
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const unpaintTile = useBoundStore((s) => s.unpaintTile)
   const deletePiece = () => {
-    unpaintTile(selectedPieceID)
+    for (const id of selectedPieceIDs) unpaintTile(id)
     toggleSelectedPieceID('')
   }
 

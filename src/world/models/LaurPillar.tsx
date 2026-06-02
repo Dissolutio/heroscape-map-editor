@@ -18,7 +18,7 @@ export default function LaurWallPillar({
   bp: BoardPiece
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-pillar-from-hs-blendfile.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
@@ -27,7 +27,7 @@ export default function LaurWallPillar({
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === bp.uid
+  const isSelected = selectedPieceIDs.includes(bp.uid)
   const isHighlighted = hoveredPieceID === bp.uid || isSelected
   const partialHex = {
     ...bp.pieceCoords,
