@@ -13,7 +13,6 @@ import { getBoardHex3DCoords } from '../../utils/map-utils'
 import { CastleArch } from '../models/CastleArch'
 import CastleBase from '../models/CastleBases'
 import { CastleWall } from '../models/CastleWalls'
-import LandSubterrain from '../models/LandSubterrain'
 import ModelLoader from '../models/ModelLoader'
 import ObstacleBase from '../models/ObstacleBase'
 import HeightRing, { TopOutlineInterlockHex } from './HeightRing'
@@ -44,11 +43,6 @@ export const MapHex3D = ({
     (isSolidTerrainHex(boardHex.terrain) && !boardHex.isCap) || isShowEmptyHexes
   const isTopOutlinedInterlockHex =
     isTopOutlinedInterlockHexes && !isTakingPicture
-
-  const isSolidSubterrain =
-    isSolidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
-  const isFluidSubterrain =
-    isFluidTerrainHex(boardHex.terrain) && boardHex.isObstacleOrigin
 
   const inventoryID = boardHex.inventoryID
   const pieceRotation = (boardHex.pieceRotation * -Math.PI) / 3
@@ -91,25 +85,6 @@ export const MapHex3D = ({
           }
           boardHex={boardHex}
         />
-      )}
-
-      {isSolidSubterrain && (
-        <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
-          <Suspense fallback={<ModelLoader />}>
-            <LandSubterrain boardHex={boardHex} />
-          </Suspense>
-        </group>
-      )}
-      {isFluidSubterrain && (
-        <group
-          position={[x, yBaseCap, z]}
-          rotation={[0, pieceRotation, 0]}
-          scale={[1, HEXGRID_HEXCAP_FLUID_SCALE, 1]}
-        >
-          <Suspense fallback={<ModelLoader />}>
-            <LandSubterrain boardHex={boardHex} />
-          </Suspense>
-        </group>
       )}
 
       {isCastleBase && (
