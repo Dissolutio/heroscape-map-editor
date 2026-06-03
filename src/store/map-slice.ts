@@ -96,7 +96,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.boardPieces = newBoardPieces
         // update conflict tracking
         const conflicts = new Set(draft.conflictedPieceUIDs)
-        for (const duid of (displacedUIDs ?? [])) {
+        for (const duid of displacedUIDs ?? []) {
           conflicts.add(duid)
         }
         draft.conflictedPieceUIDs = [...conflicts]
@@ -120,7 +120,12 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         )
       })
     }),
-  movePiece: ({ uid, newPieceCoords, newAltitude, newRotation }: MovePieceArgs) =>
+  movePiece: ({
+    uid,
+    newPieceCoords,
+    newAltitude,
+    newRotation,
+  }: MovePieceArgs) =>
     set((state) => {
       return produce(state, (draft) => {
         const boardPiece = draft.boardPieces.find((bp) => bp.uid === uid)
@@ -144,7 +149,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         //    from boardPieces then re-add it so its hex entries are fresh and correct.
         for (const conflictedUID of draft.conflictedPieceUIDs) {
           if (conflictedUID === uid) continue
-          const conflictedBP = workingPieces.find((bp) => bp.uid === conflictedUID)
+          const conflictedBP = workingPieces.find(
+            (bp) => bp.uid === conflictedUID,
+          )
           if (!conflictedBP) continue
           const conflictedPiece = piecesSoFar[conflictedBP.inventoryID]
           if (!conflictedPiece) continue
@@ -169,7 +176,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           workingHexes = addResult.newBoardHexes
           workingPieces = addResult.newBoardPieces
           // Track any residual conflicts among the restored pieces themselves
-          for (const duid of (addResult.displacedUIDs ?? [])) {
+          for (const duid of addResult.displacedUIDs ?? []) {
             newConflicts.add(duid)
           }
           if (addResult.displacedUIDs?.length) newConflicts.add(conflictedUID)
@@ -191,7 +198,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.boardPieces = newBoardPieces
 
         // 4. Update conflict tracking: only pieces displaced by the final placement remain conflicted
-        for (const duid of (displacedUIDs ?? [])) {
+        for (const duid of displacedUIDs ?? []) {
           newConflicts.add(duid)
         }
         if (displacedUIDs?.length) newConflicts.add(uid)

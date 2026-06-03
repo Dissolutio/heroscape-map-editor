@@ -44,16 +44,12 @@ const World = ({
     // toggleSelectedPieceID('')
   }
 
-
-
   useEffect(() => {
     const handleVisibility = () => setIsTabActive(!document.hidden)
     document.addEventListener('visibilitychange', handleVisibility)
-    return () => document.removeEventListener('visibilitychange', handleVisibility)
+    return () =>
+      document.removeEventListener('visibilitychange', handleVisibility)
   }, [])
-
-
-
 
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
@@ -78,7 +74,9 @@ const World = ({
             toggleHoveredPieceID('')
           }}
           /* Setting frameloop to "never" entirely halts the GPU loop when idle */
-          frameloop={!isTabActive ? 'never' : isFrameloopDemand ? 'demand' : 'always'}
+          frameloop={
+            !isTabActive ? 'never' : isFrameloopDemand ? 'demand' : 'always'
+          }
           hidden={isHidden}
           shadows={isLightsAndShadowsRender}
         >

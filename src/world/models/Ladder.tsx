@@ -40,7 +40,10 @@ export function Ladder({
     if (penMode === Pieces.ladder) {
       onPointerUp(event, partialHex)
     } else {
-      toggleSelectedPieceID(bp.uid, event.shiftKey || event.ctrlKey || event.metaKey)
+      toggleSelectedPieceID(
+        bp.uid,
+        event.shiftKey || event.ctrlKey || event.metaKey,
+      )
     }
   }
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)

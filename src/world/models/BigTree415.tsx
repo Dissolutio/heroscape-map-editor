@@ -25,12 +25,15 @@ export default function BigTree415({ pid }: { pid?: string }) {
       return
     }
     if (pid) {
-      toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
+      toggleSelectedPieceID(
+        pid,
+        event.shiftKey || event.ctrlKey || event.metaKey,
+      )
     }
   }
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
-  const isSelected = pid ? selectedPieceIDs.includes(pid) : false
+  const isSelected = selectedPieceIDs.includes(pid ?? '')
   const isHighlighted = hoveredPieceID === pid || isSelected
   const treeColor = isHighlighted
     ? yellowColor
@@ -53,10 +56,10 @@ export default function BigTree415({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(rockColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              rockColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            rockColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -66,10 +69,10 @@ export default function BigTree415({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(treeColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              treeColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            treeColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </group>
   )

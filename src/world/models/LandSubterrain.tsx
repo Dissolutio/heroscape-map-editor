@@ -62,7 +62,10 @@ export default function LandSubterrain({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(boardPieceUid, event.shiftKey || event.ctrlKey || event.metaKey)
+    toggleSelectedPieceID(
+      boardPieceUid,
+      event.shiftKey || event.ctrlKey || event.metaKey,
+    )
   }
   const material = () => {
     if (isLightsAndShadowsRender) {

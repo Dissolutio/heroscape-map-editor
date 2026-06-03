@@ -155,7 +155,8 @@ export function addPiece({
   const isCastleWallUnder = underHexIds.some(
     (id) => newBoardHexes?.[id]?.terrain === HexTerrain.castleWall,
   )
-  const isWallWalkOnWallType = piece.terrain === HexTerrain.wallWalk && isCastleWallUnder
+  const isWallWalkOnWallType =
+    piece.terrain === HexTerrain.wallWalk && isCastleWallUnder
   const isPlacingLandTile =
     (isFluidTerrainHex(piece.terrain) || isSolidTerrainHex(piece.terrain)) &&
     !isWallWalkOnWallType
@@ -837,5 +838,10 @@ export function addPiece({
     }
   }
 
-  return { newBoardHexes, newBoardPieces, error: addPieceError, displacedUIDs: [...displacedUIDs] }
+  return {
+    newBoardHexes,
+    newBoardPieces,
+    error: addPieceError,
+    displacedUIDs: [...displacedUIDs],
+  }
 }

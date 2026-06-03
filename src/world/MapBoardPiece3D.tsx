@@ -705,7 +705,9 @@ export const MapBoardPiece3D = ({
       <group
         position={[x, yBaseCap, z]}
         rotation={[0, pieceRotation, 0]}
-        scale={isFluidLandPiece ? [1, HEXGRID_HEXCAP_FLUID_SCALE, 1] : undefined}
+        scale={
+          isFluidLandPiece ? [1, HEXGRID_HEXCAP_FLUID_SCALE, 1] : undefined
+        }
       >
         <Suspense fallback={<ModelLoader />}>
           <LandSubterrain

@@ -55,9 +55,10 @@ export const EditControlsTab = () => {
   } = useMuiMediaQuery()
   // const inventory = useLocalPieceInventory()
 
-  const selectedBoardPiece = selectedPieceIDs.length > 0
-    ? boardPieces.find((bp) => bp.uid === selectedPieceIDs[0])
-    : undefined
+  const selectedBoardPiece =
+    selectedPieceIDs.length > 0
+      ? boardPieces.find((bp) => bp.uid === selectedPieceIDs[0])
+      : undefined
   const selectedPiece = selectedBoardPiece
     ? piecesSoFar[selectedBoardPiece.inventoryID]
     : undefined
@@ -83,7 +84,8 @@ export const EditControlsTab = () => {
     // if current rotation is somehow not in the list, snap to 0
     const baseIdx = currentIdx === -1 ? 0 : currentIdx
     const nextIdx =
-      (baseIdx + direction + possibleRotations.length) % possibleRotations.length
+      (baseIdx + direction + possibleRotations.length) %
+      possibleRotations.length
     movePiece({
       uid: selectedBoardPiece.uid,
       newPieceCoords: selectedBoardPiece.pieceCoords,
@@ -458,7 +460,11 @@ export const EditControlsTab = () => {
                 Dn L
               </Button>
             </ButtonGroup>
-            <ButtonGroup aria-label="Rotate selected piece" size="small" sx={{ mt: 1 }}>
+            <ButtonGroup
+              aria-label="Rotate selected piece"
+              size="small"
+              sx={{ mt: 1 }}
+            >
               <Button
                 title="Rotate selected piece counter-clockwise"
                 onClick={() => rotateSelectedPiece(-1)}
@@ -474,7 +480,11 @@ export const EditControlsTab = () => {
                 CW ↻
               </Button>
             </ButtonGroup>
-            <ButtonGroup aria-label="Move selected piece altitude" size="small" sx={{ mt: 1 }}>
+            <ButtonGroup
+              aria-label="Move selected piece altitude"
+              size="small"
+              sx={{ mt: 1 }}
+            >
               <Button
                 title="Move selected piece up one level"
                 onClick={() => moveSelectedPieceAltitude(1)}

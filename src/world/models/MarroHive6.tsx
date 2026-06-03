@@ -24,12 +24,15 @@ export default function MarroHive6({ pid }: { pid?: string }) {
       return
     }
     if (pid) {
-      toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
+      toggleSelectedPieceID(
+        pid,
+        event.shiftKey || event.ctrlKey || event.metaKey,
+      )
     }
   }
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceIDs.includes(pid)
+  const isSelected = selectedPieceIDs.includes(pid ?? '')
   const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor.hiveModel1
   return (
@@ -45,10 +48,10 @@ export default function MarroHive6({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            color,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </>
   )
