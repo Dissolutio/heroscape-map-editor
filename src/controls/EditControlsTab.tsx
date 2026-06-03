@@ -64,15 +64,18 @@ export const EditControlsTab = () => {
     : undefined
 
   const moveSelectedPiece = (direction: number) => {
-    for (const bp of selectedBoardPieces) {
+    for (const [i, bp] of selectedBoardPieces.entries()) {
+      if (i === 1) useBoundStore.temporal.getState().pause()
       movePiece({
         uid: bp.uid,
         newPieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
       })
     }
+    if (selectedBoardPieces.length > 1) useBoundStore.temporal.getState().resume()
   }
   const rotateSelectedPiece = (direction: 1 | -1) => {
-    for (const bp of selectedBoardPieces) {
+    for (const [i, bp] of selectedBoardPieces.entries()) {
+      if (i === 1) useBoundStore.temporal.getState().pause()
       const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
       const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
       // if current rotation is somehow not in the list, snap to 0
@@ -86,12 +89,18 @@ export const EditControlsTab = () => {
         newRotation: possibleRotations[nextIdx],
       })
     }
+    if (selectedBoardPieces.length > 1) useBoundStore.temporal.getState().resume()
   }
   const moveSelectedPieceAltitude = (delta: 1 | -1) => {
     let maxNewAltitude = 0
-    for (const bp of selectedBoardPieces) {
+    let paused = false
+    for (const [i, bp] of selectedBoardPieces.entries()) {
       const newAltitude = bp.altitude + delta
       if (newAltitude < 0) continue
+      if (i === 1) {
+        useBoundStore.temporal.getState().pause()
+        paused = true
+      }
       maxNewAltitude = Math.max(maxNewAltitude, newAltitude)
       movePiece({
         uid: bp.uid,
@@ -99,6 +108,7 @@ export const EditControlsTab = () => {
         newAltitude,
       })
     }
+    if (paused) useBoundStore.temporal.getState().resume()
     // piece top is at newAltitude + 1; raise viewing level if it would be hidden
     if (delta === 1 && maxNewAltitude + 1 > viewingLevel) {
       toggleViewingLevel(maxNewAltitude + 1)
