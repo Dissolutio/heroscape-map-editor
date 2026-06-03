@@ -58,7 +58,12 @@ export const useApplyHotkeys = ({
 
   const deleteSelectedPiece = () => {
     if (selectedPieceIDs.length) {
-      for (const id of selectedPieceIDs) unpaintTile(id)
+      for (const [i, id] of selectedPieceIDs.entries()) {
+        if (i === 1) useBoundStore.temporal.getState().pause()
+        unpaintTile(id)
+      }
+      if (selectedPieceIDs.length > 1)
+        useBoundStore.temporal.getState().resume()
       toggleSelectedPieceID('')
     }
   }
