@@ -55,55 +55,53 @@ export const EditControlsTab = () => {
   } = useMuiMediaQuery()
   // const inventory = useLocalPieceInventory()
 
-  const selectedBoardPiece =
-    selectedPieceIDs.length > 0
-      ? boardPieces.find((bp) => bp.uid === selectedPieceIDs[0])
-      : undefined
+  const selectedBoardPieces = boardPieces.filter((bp) =>
+    selectedPieceIDs.includes(bp.uid),
+  )
+  const selectedBoardPiece = selectedBoardPieces[0]
   const selectedPiece = selectedBoardPiece
     ? piecesSoFar[selectedBoardPiece.inventoryID]
     : undefined
 
   const moveSelectedPiece = (direction: number) => {
-    if (!selectedBoardPiece) return
-    movePiece({
-      uid: selectedBoardPiece.uid,
-      newPieceCoords: hexUtilsAdd(
-        selectedBoardPiece.pieceCoords,
-        HEX_DIRECTIONS[direction],
-      ),
-    })
+    for (const bp of selectedBoardPieces) {
+      movePiece({
+        uid: bp.uid,
+        newPieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
+      })
+    }
   }
   const rotateSelectedPiece = (direction: 1 | -1) => {
-    if (!selectedBoardPiece || !selectedPiece) return
-    const possibleRotations = getPossibleRotationsForPenMode(
-      selectedBoardPiece.inventoryID,
-    )
-    const currentIdx = possibleRotations.findIndex(
-      (r) => r === selectedBoardPiece.rotation,
-    )
-    // if current rotation is somehow not in the list, snap to 0
-    const baseIdx = currentIdx === -1 ? 0 : currentIdx
-    const nextIdx =
-      (baseIdx + direction + possibleRotations.length) %
-      possibleRotations.length
-    movePiece({
-      uid: selectedBoardPiece.uid,
-      newPieceCoords: selectedBoardPiece.pieceCoords,
-      newRotation: possibleRotations[nextIdx],
-    })
+    for (const bp of selectedBoardPieces) {
+      const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
+      const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
+      // if current rotation is somehow not in the list, snap to 0
+      const baseIdx = currentIdx === -1 ? 0 : currentIdx
+      const nextIdx =
+        (baseIdx + direction + possibleRotations.length) %
+        possibleRotations.length
+      movePiece({
+        uid: bp.uid,
+        newPieceCoords: bp.pieceCoords,
+        newRotation: possibleRotations[nextIdx],
+      })
+    }
   }
   const moveSelectedPieceAltitude = (delta: 1 | -1) => {
-    if (!selectedBoardPiece) return
-    const newAltitude = selectedBoardPiece.altitude + delta
-    if (newAltitude < 0) return
-    movePiece({
-      uid: selectedBoardPiece.uid,
-      newPieceCoords: selectedBoardPiece.pieceCoords,
-      newAltitude,
-    })
+    let maxNewAltitude = 0
+    for (const bp of selectedBoardPieces) {
+      const newAltitude = bp.altitude + delta
+      if (newAltitude < 0) continue
+      maxNewAltitude = Math.max(maxNewAltitude, newAltitude)
+      movePiece({
+        uid: bp.uid,
+        newPieceCoords: bp.pieceCoords,
+        newAltitude,
+      })
+    }
     // piece top is at newAltitude + 1; raise viewing level if it would be hidden
-    if (delta === 1 && newAltitude + 1 > viewingLevel) {
-      toggleViewingLevel(newAltitude + 1)
+    if (delta === 1 && maxNewAltitude + 1 > viewingLevel) {
+      toggleViewingLevel(maxNewAltitude + 1)
     }
   }
 
@@ -494,7 +492,7 @@ export const EditControlsTab = () => {
               </Button>
               <Button
                 title="Move selected piece down one level"
-                disabled={selectedBoardPiece.altitude <= 0}
+                disabled={selectedBoardPieces.every((bp) => bp.altitude <= 0)}
                 onClick={() => moveSelectedPieceAltitude(-1)}
                 sx={{ fontSize: buttonFontSize }}
               >
