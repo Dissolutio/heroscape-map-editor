@@ -100,6 +100,10 @@ const createUISlice: StateCreator<
             state.selectedPieceIDs.push(pieceID)
           } else {
             state.selectedPieceIDs.splice(idx, 1)
+            // Clear hover highlight so the deselected piece stops being yellow
+            if (state.hoveredPieceID === pieceID) {
+              state.hoveredPieceID = ''
+            }
           }
         } else {
           if (

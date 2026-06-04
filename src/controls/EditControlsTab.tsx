@@ -5,13 +5,9 @@ import {
   Card,
   CardContent,
   List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Typography,
 } from '@mui/material'
 import { buildupJsonFileMap } from '../data/buildupMap'
-import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import type { BoardPiece } from '../types'
 import {
@@ -22,7 +18,6 @@ import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { FcVlc } from 'react-icons/fc'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
-import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
@@ -44,161 +39,21 @@ export const EditControlsTab = () => {
   const hexMap = useBoundStore((s) => s.hexMap)
   const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const loadMap = useBoundStore((s) => s.loadMap)
-  const movePiece = useBoundStore((s) => s.movePiece)
-  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
   const {
     // isLargeScreenWidth,
     isSmallScreenWidth,
     isMediumScreenWidth,
   } = useMuiMediaQuery()
-  // const inventory = useLocalPieceInventory()
 
-  const selectedBoardPieces = boardPieces.filter((bp) =>
-    selectedPieceIDs.includes(bp.uid),
-  )
-  const selectedBoardPiece = selectedBoardPieces[0]
-  const selectedPiece = selectedBoardPiece
-    ? piecesSoFar[selectedBoardPiece.inventoryID]
-    : undefined
+  const clearPreview = () => setPiecePreviews(null)
 
-  // --- Preview helpers (compute what the pieces look like after an operation) ---
   const previewAllPiecesMove = (direction: number) => {
     setPiecePreviews(
       boardPieces.map((bp) => ({
         ...bp,
         pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
       })),
-    )
-  }
-  const previewMove = (direction: number) => {
-    setPiecePreviews(
-      selectedBoardPieces.map((bp) => ({
-        ...bp,
-        pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
-      })),
-    )
-  }
-  const previewRotate = (direction: 1 | -1) => {
-    setPiecePreviews(
-      selectedBoardPieces.map((bp) => {
-        const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
-        const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
-        const baseIdx = currentIdx === -1 ? 0 : currentIdx
-        const nextIdx =
-          (baseIdx + direction + possibleRotations.length) %
-          possibleRotations.length
-        return { ...bp, rotation: possibleRotations[nextIdx] }
-      }),
-    )
-  }
-  const previewAltitude = (delta: 1 | -1) => {
-    setPiecePreviews(
-      selectedBoardPieces
-        .filter((bp) => bp.altitude + delta >= 0)
-        .map((bp) => ({ ...bp, altitude: bp.altitude + delta })),
-    )
-  }
-  const clearPreview = () => setPiecePreviews(null)
-
-  // Zundo batching pattern used in moveSelectedPiece, rotateSelectedPiece, and
-  // moveSelectedPieceAltitude: the first action (i===0) runs normally so zundo
-  // records the pre-batch snapshot into history. We pause on i===1 so all
-  // subsequent actions are not individually tracked, then resume() after the
-  // loop. This collapses the entire multi-piece operation into a single undo step.
-  const moveSelectedPiece = (direction: number) => {
-    setPiecePreviews(null)
-    for (const [i, bp] of selectedBoardPieces.entries()) {
-      if (i === 1) useBoundStore.temporal.getState().pause()
-      movePiece({
-        uid: bp.uid,
-        newPieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
-      })
-    }
-    if (selectedBoardPieces.length > 1)
-      useBoundStore.temporal.getState().resume()
-    // Refresh preview from the new positions so pressing Enter repeatedly
-    // always shows the correct next-step arrow.
-    const movedPieces = selectedBoardPieces.map((bp) => ({
-      ...bp,
-      pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
-    }))
-    setPiecePreviews(
-      movedPieces.map((bp) => ({
-        ...bp,
-        pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
-      })),
-    )
-  }
-  const rotateSelectedPiece = (direction: 1 | -1) => {
-    setPiecePreviews(null)
-    for (const [i, bp] of selectedBoardPieces.entries()) {
-      if (i === 1) useBoundStore.temporal.getState().pause()
-      const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
-      const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
-      // if current rotation is somehow not in the list, snap to 0
-      const baseIdx = currentIdx === -1 ? 0 : currentIdx
-      const nextIdx =
-        (baseIdx + direction + possibleRotations.length) %
-        possibleRotations.length
-      movePiece({
-        uid: bp.uid,
-        newPieceCoords: bp.pieceCoords,
-        newRotation: possibleRotations[nextIdx],
-      })
-    }
-    if (selectedBoardPieces.length > 1)
-      useBoundStore.temporal.getState().resume()
-    // Refresh preview: show what the NEXT rotation click would produce
-    setPiecePreviews(
-      selectedBoardPieces.map((bp) => {
-        const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
-        const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
-        const baseIdx = currentIdx === -1 ? 0 : currentIdx
-        // Two steps from current == one step from the new (post-action) rotation
-        const nextIdx =
-          (baseIdx + direction * 2 + possibleRotations.length * 2) %
-          possibleRotations.length
-        return { ...bp, rotation: possibleRotations[nextIdx] }
-      }),
-    )
-  }
-  const moveSelectedPieceAltitude = (delta: 1 | -1) => {
-    setPiecePreviews(null)
-    let maxNewAltitude = 0
-    // paused tracks whether pause() was called, since pieces at altitude 0
-    // are skipped and i===1 alone doesn't reliably identify the second processed piece.
-    let paused = false
-    for (const [i, bp] of selectedBoardPieces.entries()) {
-      const newAltitude = bp.altitude + delta
-      if (newAltitude < 0) continue
-      if (i === 1) {
-        useBoundStore.temporal.getState().pause()
-        paused = true
-      }
-      maxNewAltitude = Math.max(maxNewAltitude, newAltitude)
-      movePiece({
-        uid: bp.uid,
-        newPieceCoords: bp.pieceCoords,
-        newAltitude,
-      })
-    }
-    if (paused) useBoundStore.temporal.getState().resume()
-    // piece top is at newAltitude + 1; raise viewing level if it would be hidden
-    if (delta === 1 && maxNewAltitude + 1 > viewingLevel) {
-      toggleViewingLevel(maxNewAltitude + 1)
-    }
-    // Refresh preview from the new altitudes so pressing Enter repeatedly
-    // always shows the correct next-step arrow.
-    const movedPieces = selectedBoardPieces
-      .filter((bp) => bp.altitude + delta >= 0)
-      .map((bp) => ({ ...bp, altitude: bp.altitude + delta }))
-    setPiecePreviews(
-      movedPieces
-        .filter((bp) => bp.altitude + delta >= 0)
-        .map((bp) => ({ ...bp, altitude: bp.altitude + delta })),
     )
   }
 
@@ -527,182 +382,6 @@ export const EditControlsTab = () => {
           </ButtonGroup>
         </CardContent>
       </Card>
-
-      {selectedBoardPiece && (
-        <Card>
-          <CardContent>
-            <Typography
-              gutterBottom
-              sx={{ color: 'text.secondary', fontSize: 14 }}
-              title={
-                selectedBoardPieces.length > 1
-                  ? selectedBoardPieces
-                    .map(
-                      (bp) =>
-                        `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
-                    )
-                    .join('\n')
-                  : undefined
-              }
-            >
-              {selectedBoardPieces.length > 1
-                ? `${selectedBoardPieces.length} pieces selected`
-                : `Selected: ${selectedPiece?.title ?? selectedBoardPiece.inventoryID
-                }`}
-            </Typography>
-            <Typography sx={{ fontSize: 11, color: 'text.secondary', mb: 1 }}>
-              {selectedBoardPieces.length > 1 ? (
-                (() => {
-                  const altitudes = selectedBoardPieces.map((bp) => bp.altitude + 1)
-                  const rotations = selectedBoardPieces.map((bp) => bp.rotation)
-                  const minAlt = Math.min(...altitudes)
-                  const maxAlt = Math.max(...altitudes)
-                  const allSameRot = rotations.every((r) => r === rotations[0])
-                  return (
-                    <>
-                      Alt: {minAlt === maxAlt ? minAlt : `${minAlt}–${maxAlt}`}
-                      &nbsp; Rot:{' '}
-                      {allSameRot ? rotations[0] : 'mixed'}
-                    </>
-                  )
-                })()
-              ) : (
-                <>
-                  Altitude: {selectedBoardPiece.altitude + 1} &nbsp; Rotation:{' '}
-                  {selectedBoardPiece.rotation}
-                </>
-              )}
-            </Typography>
-            <ButtonGroup aria-label="Move selected piece" size="small">
-              <Button
-                title="Move selected piece 1 hex left"
-                onClick={() => moveSelectedPiece(3)}
-                onMouseEnter={() => previewMove(3)}
-                onMouseLeave={clearPreview}
-                onFocus={() => previewMove(3)}
-                onBlur={clearPreview}
-                sx={{ fontSize: buttonFontSize }}
-              >
-                Left
-              </Button>
-              <Button
-                title="Move selected piece 1 hex up-left"
-                onClick={() => moveSelectedPiece(4)}
-                onMouseEnter={() => previewMove(4)}
-                onMouseLeave={clearPreview}
-                onFocus={() => previewMove(4)}
-                onBlur={clearPreview}
-                sx={{ fontSize: buttonFontSize }}
-              >
-                Up L
-              </Button>
-              <Button
-                title="Move selected piece 1 hex up-right"
-                onClick={() => moveSelectedPiece(5)}
-                onMouseEnter={() => previewMove(5)}
-                onMouseLeave={clearPreview}
-                onFocus={() => previewMove(5)}
-                onBlur={clearPreview}
-                sx={{ fontSize: buttonFontSize }}
-              >
-                Up R
-              </Button>
-            </ButtonGroup>
-            <ButtonGroup aria-label="Move selected piece 2" size="small">
-              <Button
-                title="Move selected piece 1 hex right"
-                onClick={() => moveSelectedPiece(0)}
-                onMouseEnter={() => previewMove(0)}
-                onMouseLeave={clearPreview}
-                onFocus={() => previewMove(0)}
-                onBlur={clearPreview}
-                sx={{ fontSize: buttonFontSize }}
-              >
-                Right
-              </Button>
-              <Button
-                title="Move selected piece 1 hex down-right"
-                onClick={() => moveSelectedPiece(1)}
-                onMouseEnter={() => previewMove(1)}
-                onMouseLeave={clearPreview}
-                onFocus={() => previewMove(1)}
-                onBlur={clearPreview}
-                sx={{ fontSize: buttonFontSize }}
-              >
-                Dn R
-              </Button>
-              <Button
-                title="Move selected piece 1 hex down-left"
-                onClick={() => moveSelectedPiece(2)}
-                onMouseEnter={() => previewMove(2)}
-                onMouseLeave={clearPreview}
-                onFocus={() => previewMove(2)}
-                onBlur={clearPreview}
-                sx={{ fontSize: buttonFontSize }}
-              >
-                Dn L
-              </Button>
-            </ButtonGroup>
-            <ButtonGroup
-              aria-label="Rotate selected piece"
-              size="small"
-              sx={{ mt: 1 }}
-            >
-              <Button
-                title="Rotate selected piece counter-clockwise"
-                onClick={() => rotateSelectedPiece(-1)}
-                onMouseEnter={() => previewRotate(-1)}
-                onMouseLeave={clearPreview}
-                onFocus={() => previewRotate(-1)}
-                onBlur={clearPreview}
-                sx={{ fontSize: buttonFontSize }}
-              >
-                ↺ CCW
-              </Button>
-              <Button
-                title="Rotate selected piece clockwise"
-                onClick={() => rotateSelectedPiece(1)}
-                onMouseEnter={() => previewRotate(1)}
-                onMouseLeave={clearPreview}
-                onFocus={() => previewRotate(1)}
-                onBlur={clearPreview}
-                sx={{ fontSize: buttonFontSize }}
-              >
-                CW ↻
-              </Button>
-            </ButtonGroup>
-            <ButtonGroup
-              aria-label="Move selected piece altitude"
-              size="small"
-              sx={{ mt: 1 }}
-            >
-              <Button
-                title="Move selected piece up one level"
-                onClick={() => moveSelectedPieceAltitude(1)}
-                onMouseEnter={() => previewAltitude(1)}
-                onMouseLeave={clearPreview}
-                onFocus={() => previewAltitude(1)}
-                onBlur={clearPreview}
-                sx={{ fontSize: buttonFontSize }}
-              >
-                ↑ Up
-              </Button>
-              <Button
-                title="Move selected piece down one level"
-                disabled={selectedBoardPieces.every((bp) => bp.altitude <= 0)}
-                onClick={() => moveSelectedPieceAltitude(-1)}
-                onMouseEnter={() => previewAltitude(-1)}
-                onMouseLeave={clearPreview}
-                onFocus={() => previewAltitude(-1)}
-                onBlur={clearPreview}
-                sx={{ fontSize: buttonFontSize }}
-              >
-                ↓ Down
-              </Button>
-            </ButtonGroup>
-          </CardContent>
-        </Card>
-      )}
 
       {import.meta.env.DEV && (
         <Button onClick={handleClickLogState}>Log state</Button>
