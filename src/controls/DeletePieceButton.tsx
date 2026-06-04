@@ -42,7 +42,7 @@ const DeletePieceButton = () => {
         fontSize: isSmallScreenWidth ? 10 : 12,
       }}
     >
-      Delete Piece
+      {`Delete Piece${selectedPieceIDs.length > 1 ? 's' : ''}`}
     </Button>
   )
 }
