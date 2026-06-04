@@ -487,12 +487,44 @@ export const EditControlsTab = () => {
             <Typography
               gutterBottom
               sx={{ color: 'text.secondary', fontSize: 14 }}
+              title={
+                selectedBoardPieces.length > 1
+                  ? selectedBoardPieces
+                    .map(
+                      (bp) =>
+                        `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
+                    )
+                    .join('\n')
+                  : undefined
+              }
             >
-              Selected: {selectedPiece?.title ?? selectedBoardPiece.inventoryID}
+              {selectedBoardPieces.length > 1
+                ? `${selectedBoardPieces.length} pieces selected`
+                : `Selected: ${selectedPiece?.title ?? selectedBoardPiece.inventoryID
+                }`}
             </Typography>
             <Typography sx={{ fontSize: 11, color: 'text.secondary', mb: 1 }}>
-              Altitude: {selectedBoardPiece.altitude + 1} &nbsp; Rotation:{' '}
-              {selectedBoardPiece.rotation}
+              {selectedBoardPieces.length > 1 ? (
+                (() => {
+                  const altitudes = selectedBoardPieces.map((bp) => bp.altitude + 1)
+                  const rotations = selectedBoardPieces.map((bp) => bp.rotation)
+                  const minAlt = Math.min(...altitudes)
+                  const maxAlt = Math.max(...altitudes)
+                  const allSameRot = rotations.every((r) => r === rotations[0])
+                  return (
+                    <>
+                      Alt: {minAlt === maxAlt ? minAlt : `${minAlt}–${maxAlt}`}
+                      &nbsp; Rot:{' '}
+                      {allSameRot ? rotations[0] : 'mixed'}
+                    </>
+                  )
+                })()
+              ) : (
+                <>
+                  Altitude: {selectedBoardPiece.altitude + 1} &nbsp; Rotation:{' '}
+                  {selectedBoardPiece.rotation}
+                </>
+              )}
             </Typography>
             <ButtonGroup aria-label="Move selected piece" size="small">
               <Button
