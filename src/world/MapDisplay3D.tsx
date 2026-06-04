@@ -31,6 +31,7 @@ import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import { enqueueSnackbar } from 'notistack'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import PiecePreview from './PiecePreview.tsx'
+import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
 import { useHotkeyConfig } from '../controls/useHotkeyConfig'
 import { useApplyHotkeys } from '../controls/useApplyHotkeys.tsx'
 import type React from 'react'
@@ -104,15 +105,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     const clickedHexAltitude = clickedHex.altitude
 
     // Castle W/A: use cap coords and altitude
@@ -234,6 +235,7 @@ export default function MapDisplay3D({
       <TableSurfaceMesh width={width} length={length} />
       <group ref={mapGroupRef}>
         <PiecePreview />
+        <OperationPiecePreviews />
         <EmptyHexes
           boardHexArr={instanceBoardHexes.emptyHexCaps}
           onPointerUp={onPointerUpPaintPiece}

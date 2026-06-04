@@ -11,7 +11,9 @@ const DeletePieceButton = () => {
   } = useMuiMediaQuery()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const unpaintTile = useBoundStore((s) => s.unpaintTile)
+  const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
   const deletePiece = () => {
+    setPiecePreviews(null)
     // Zundo batching: let the first delete run normally so zundo records the
     // pre-batch snapshot into history, then pause so intermediate deletes are
     // not individually tracked. resume() after the loop collapses everything
@@ -30,6 +32,8 @@ const DeletePieceButton = () => {
       // color="error"
       size="small"
       onClick={deletePiece}
+      onMouseEnter={() => setPiecePreviews([])}
+      onMouseLeave={() => setPiecePreviews(null)}
       title="Hotkey: delete"
       sx={{
         p: 0,

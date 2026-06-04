@@ -48,6 +48,7 @@ export const EditControlsTab = () => {
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
+  const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
   const {
     // isLargeScreenWidth,
     isSmallScreenWidth,
@@ -63,12 +64,44 @@ export const EditControlsTab = () => {
     ? piecesSoFar[selectedBoardPiece.inventoryID]
     : undefined
 
+  // --- Preview helpers (compute what the pieces look like after an operation) ---
+  const previewMove = (direction: number) => {
+    setPiecePreviews(
+      selectedBoardPieces.map((bp) => ({
+        ...bp,
+        pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
+      })),
+    )
+  }
+  const previewRotate = (direction: 1 | -1) => {
+    setPiecePreviews(
+      selectedBoardPieces.map((bp) => {
+        const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
+        const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
+        const baseIdx = currentIdx === -1 ? 0 : currentIdx
+        const nextIdx =
+          (baseIdx + direction + possibleRotations.length) %
+          possibleRotations.length
+        return { ...bp, rotation: possibleRotations[nextIdx] }
+      }),
+    )
+  }
+  const previewAltitude = (delta: 1 | -1) => {
+    setPiecePreviews(
+      selectedBoardPieces
+        .filter((bp) => bp.altitude + delta >= 0)
+        .map((bp) => ({ ...bp, altitude: bp.altitude + delta })),
+    )
+  }
+  const clearPreview = () => setPiecePreviews(null)
+
   // Zundo batching pattern used in moveSelectedPiece, rotateSelectedPiece, and
   // moveSelectedPieceAltitude: the first action (i===0) runs normally so zundo
   // records the pre-batch snapshot into history. We pause on i===1 so all
   // subsequent actions are not individually tracked, then resume() after the
   // loop. This collapses the entire multi-piece operation into a single undo step.
   const moveSelectedPiece = (direction: number) => {
+    setPiecePreviews(null)
     for (const [i, bp] of selectedBoardPieces.entries()) {
       if (i === 1) useBoundStore.temporal.getState().pause()
       movePiece({
@@ -80,6 +113,7 @@ export const EditControlsTab = () => {
       useBoundStore.temporal.getState().resume()
   }
   const rotateSelectedPiece = (direction: 1 | -1) => {
+    setPiecePreviews(null)
     for (const [i, bp] of selectedBoardPieces.entries()) {
       if (i === 1) useBoundStore.temporal.getState().pause()
       const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
@@ -99,6 +133,7 @@ export const EditControlsTab = () => {
       useBoundStore.temporal.getState().resume()
   }
   const moveSelectedPieceAltitude = (delta: 1 | -1) => {
+    setPiecePreviews(null)
     let maxNewAltitude = 0
     // paused tracks whether pause() was called, since pieces at altitude 0
     // are skipped and i===1 alone doesn't reliably identify the second processed piece.
@@ -435,6 +470,8 @@ export const EditControlsTab = () => {
               <Button
                 title="Move selected piece 1 hex left"
                 onClick={() => moveSelectedPiece(3)}
+                onMouseEnter={() => previewMove(3)}
+                onMouseLeave={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 Left
@@ -442,6 +479,8 @@ export const EditControlsTab = () => {
               <Button
                 title="Move selected piece 1 hex up-left"
                 onClick={() => moveSelectedPiece(4)}
+                onMouseEnter={() => previewMove(4)}
+                onMouseLeave={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 Up L
@@ -449,6 +488,8 @@ export const EditControlsTab = () => {
               <Button
                 title="Move selected piece 1 hex up-right"
                 onClick={() => moveSelectedPiece(5)}
+                onMouseEnter={() => previewMove(5)}
+                onMouseLeave={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 Up R
@@ -458,6 +499,8 @@ export const EditControlsTab = () => {
               <Button
                 title="Move selected piece 1 hex right"
                 onClick={() => moveSelectedPiece(0)}
+                onMouseEnter={() => previewMove(0)}
+                onMouseLeave={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 Right
@@ -465,6 +508,8 @@ export const EditControlsTab = () => {
               <Button
                 title="Move selected piece 1 hex down-right"
                 onClick={() => moveSelectedPiece(1)}
+                onMouseEnter={() => previewMove(1)}
+                onMouseLeave={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 Dn R
@@ -472,6 +517,8 @@ export const EditControlsTab = () => {
               <Button
                 title="Move selected piece 1 hex down-left"
                 onClick={() => moveSelectedPiece(2)}
+                onMouseEnter={() => previewMove(2)}
+                onMouseLeave={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 Dn L
@@ -485,6 +532,8 @@ export const EditControlsTab = () => {
               <Button
                 title="Rotate selected piece counter-clockwise"
                 onClick={() => rotateSelectedPiece(-1)}
+                onMouseEnter={() => previewRotate(-1)}
+                onMouseLeave={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 ↺ CCW
@@ -492,6 +541,8 @@ export const EditControlsTab = () => {
               <Button
                 title="Rotate selected piece clockwise"
                 onClick={() => rotateSelectedPiece(1)}
+                onMouseEnter={() => previewRotate(1)}
+                onMouseLeave={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 CW ↻
@@ -505,6 +556,8 @@ export const EditControlsTab = () => {
               <Button
                 title="Move selected piece up one level"
                 onClick={() => moveSelectedPieceAltitude(1)}
+                onMouseEnter={() => previewAltitude(1)}
+                onMouseLeave={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 ↑ Up
@@ -513,6 +566,8 @@ export const EditControlsTab = () => {
                 title="Move selected piece down one level"
                 disabled={selectedBoardPieces.every((bp) => bp.altitude <= 0)}
                 onClick={() => moveSelectedPieceAltitude(-1)}
+                onMouseEnter={() => previewAltitude(-1)}
+                onMouseLeave={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 ↓ Down

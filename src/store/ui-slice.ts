@@ -2,7 +2,7 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { AppState } from './store'
-import type { BoardHex, PieceInventory } from '../types'
+import type { BoardHex, BoardPiece, PieceInventory } from '../types'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 
@@ -62,6 +62,10 @@ export interface UISlice {
   toggleIsOrthoCam: (b: boolean) => void
   userPieceInventory: PieceInventory
   updateUserPieceInventory: (n: PieceInventory) => void
+
+  // OPERATION PREVIEW STATE
+  piecePreviews: BoardPiece[] | null
+  setPiecePreviews: (pieces: BoardPiece[] | null) => void
 
   // PDF STATE
   isShowPDFInventory: boolean
@@ -179,6 +183,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.penModeRotation = n
+      }),
+    ),
+  piecePreviews: null,
+  setPiecePreviews: (pieces: BoardPiece[] | null) =>
+    set(
+      produce((s) => {
+        s.piecePreviews = pieces
       }),
     ),
   isShowStartZones: true,
