@@ -61,10 +61,10 @@ export default function Shroudshroom10({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(colorCap, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorCap,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorCap,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -77,10 +77,10 @@ export default function Shroudshroom10({ pid }: { pid?: string }) {
         {pid
           ? basicDoubleSideModelMaterial(colorStipe, isLightsAndShadowsRender)
           : basicDoubleSideModelMaterial(
-            colorStipe,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorStipe,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -93,10 +93,10 @@ export default function Shroudshroom10({ pid }: { pid?: string }) {
         {pid
           ? basicDoubleSideModelMaterial(colorGills, isLightsAndShadowsRender)
           : basicDoubleSideModelMaterial(
-            colorGills,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorGills,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -109,10 +109,10 @@ export default function Shroudshroom10({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorBase,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorBase,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </>
   )

@@ -56,10 +56,10 @@ export default function BigTree415({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(rockColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-            rockColor,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              rockColor,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -69,10 +69,10 @@ export default function BigTree415({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(treeColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-            treeColor,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              treeColor,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </group>
   )

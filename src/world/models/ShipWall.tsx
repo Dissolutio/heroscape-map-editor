@@ -50,10 +50,10 @@ export function ShipWall({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-            color,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              color,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </>
   )

@@ -55,10 +55,10 @@ export default function Cannon({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(colorBarrel, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorBarrel,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorBarrel,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -71,10 +71,10 @@ export default function Cannon({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(colorCarriage, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorCarriage,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorCarriage,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -87,10 +87,10 @@ export default function Cannon({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(colorWheels, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorWheels,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorWheels,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -103,10 +103,10 @@ export default function Cannon({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
           : basicModelMaterial(
-            colorBase,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              colorBase,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </>
   )

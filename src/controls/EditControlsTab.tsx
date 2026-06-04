@@ -76,7 +76,8 @@ export const EditControlsTab = () => {
         newPieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
       })
     }
-    if (selectedBoardPieces.length > 1) useBoundStore.temporal.getState().resume()
+    if (selectedBoardPieces.length > 1)
+      useBoundStore.temporal.getState().resume()
   }
   const rotateSelectedPiece = (direction: 1 | -1) => {
     for (const [i, bp] of selectedBoardPieces.entries()) {
@@ -94,7 +95,8 @@ export const EditControlsTab = () => {
         newRotation: possibleRotations[nextIdx],
       })
     }
-    if (selectedBoardPieces.length > 1) useBoundStore.temporal.getState().resume()
+    if (selectedBoardPieces.length > 1)
+      useBoundStore.temporal.getState().resume()
   }
   const moveSelectedPieceAltitude = (delta: 1 | -1) => {
     let maxNewAltitude = 0
