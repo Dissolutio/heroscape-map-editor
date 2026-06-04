@@ -63,6 +63,11 @@ export const EditControlsTab = () => {
     ? piecesSoFar[selectedBoardPiece.inventoryID]
     : undefined
 
+  // Zundo batching pattern used in moveSelectedPiece, rotateSelectedPiece, and
+  // moveSelectedPieceAltitude: the first action (i===0) runs normally so zundo
+  // records the pre-batch snapshot into history. We pause on i===1 so all
+  // subsequent actions are not individually tracked, then resume() after the
+  // loop. This collapses the entire multi-piece operation into a single undo step.
   const moveSelectedPiece = (direction: number) => {
     for (const [i, bp] of selectedBoardPieces.entries()) {
       if (i === 1) useBoundStore.temporal.getState().pause()
@@ -93,6 +98,8 @@ export const EditControlsTab = () => {
   }
   const moveSelectedPieceAltitude = (delta: 1 | -1) => {
     let maxNewAltitude = 0
+    // paused tracks whether pause() was called, since pieces at altitude 0
+    // are skipped and i===1 alone doesn't reliably identify the second processed piece.
     let paused = false
     for (const [i, bp] of selectedBoardPieces.entries()) {
       const newAltitude = bp.altitude + delta

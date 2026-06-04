@@ -12,6 +12,10 @@ const DeletePieceButton = () => {
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const unpaintTile = useBoundStore((s) => s.unpaintTile)
   const deletePiece = () => {
+    // Zundo batching: let the first delete run normally so zundo records the
+    // pre-batch snapshot into history, then pause so intermediate deletes are
+    // not individually tracked. resume() after the loop collapses everything
+    // into a single undo step.
     for (const [i, id] of selectedPieceIDs.entries()) {
       if (i === 1) useBoundStore.temporal.getState().pause()
       unpaintTile(id)
