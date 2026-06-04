@@ -1,4 +1,4 @@
-import { Card, CardActions, CardContent, Tooltip, Typography } from '@mui/material'
+import { Button, Card, CardActions, CardContent, Tooltip, Typography } from '@mui/material'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import DeletePieceButton from './DeletePieceButton'
@@ -96,6 +96,21 @@ const SelectedPieceReadout = () => {
               m: 0,
             }}
           >
+            <DeletePieceButton />
+            <Button >
+              Why are we here?
+            </Button>
+            <DeletePieceButton />
+            <DeletePieceButton />
+            <DeletePieceButton />
+            <DeletePieceButton />
+            <DeletePieceButton />
+            <DeletePieceButton />
+            <DeletePieceButton />
+            <DeletePieceButton />
+            <DeletePieceButton />
+            <DeletePieceButton />
+            <DeletePieceButton />
             <DeletePieceButton />
           </CardActions>
         </Card>

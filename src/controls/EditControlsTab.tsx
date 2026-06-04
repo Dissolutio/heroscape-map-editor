@@ -119,6 +119,18 @@ export const EditControlsTab = () => {
     }
     if (selectedBoardPieces.length > 1)
       useBoundStore.temporal.getState().resume()
+    // Refresh preview from the new positions so pressing Enter repeatedly
+    // always shows the correct next-step arrow.
+    const movedPieces = selectedBoardPieces.map((bp) => ({
+      ...bp,
+      pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
+    }))
+    setPiecePreviews(
+      movedPieces.map((bp) => ({
+        ...bp,
+        pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
+      })),
+    )
   }
   const rotateSelectedPiece = (direction: 1 | -1) => {
     setPiecePreviews(null)
@@ -139,6 +151,19 @@ export const EditControlsTab = () => {
     }
     if (selectedBoardPieces.length > 1)
       useBoundStore.temporal.getState().resume()
+    // Refresh preview: show what the NEXT rotation click would produce
+    setPiecePreviews(
+      selectedBoardPieces.map((bp) => {
+        const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
+        const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
+        const baseIdx = currentIdx === -1 ? 0 : currentIdx
+        // Two steps from current == one step from the new (post-action) rotation
+        const nextIdx =
+          (baseIdx + direction * 2 + possibleRotations.length * 2) %
+          possibleRotations.length
+        return { ...bp, rotation: possibleRotations[nextIdx] }
+      }),
+    )
   }
   const moveSelectedPieceAltitude = (delta: 1 | -1) => {
     setPiecePreviews(null)
@@ -165,6 +190,16 @@ export const EditControlsTab = () => {
     if (delta === 1 && maxNewAltitude + 1 > viewingLevel) {
       toggleViewingLevel(maxNewAltitude + 1)
     }
+    // Refresh preview from the new altitudes so pressing Enter repeatedly
+    // always shows the correct next-step arrow.
+    const movedPieces = selectedBoardPieces
+      .filter((bp) => bp.altitude + delta >= 0)
+      .map((bp) => ({ ...bp, altitude: bp.altitude + delta }))
+    setPiecePreviews(
+      movedPieces
+        .filter((bp) => bp.altitude + delta >= 0)
+        .map((bp) => ({ ...bp, altitude: bp.altitude + delta })),
+    )
   }
 
   const toggleIsEditMapDialogOpen = useBoundStore(
