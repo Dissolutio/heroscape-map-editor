@@ -34,6 +34,8 @@ const DeletePieceButton = () => {
       onClick={deletePiece}
       onMouseEnter={() => setPiecePreviews([])}
       onMouseLeave={() => setPiecePreviews(null)}
+      onFocus={() => setPiecePreviews([])}
+      onBlur={() => setPiecePreviews(null)}
       title="Hotkey: delete"
       sx={{
         p: 0,

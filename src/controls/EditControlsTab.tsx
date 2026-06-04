@@ -414,6 +414,8 @@ export const EditControlsTab = () => {
               onClick={() => movePieces(3)}
               onMouseEnter={() => previewAllPiecesMove(3)}
               onMouseLeave={clearPreview}
+              onFocus={() => previewAllPiecesMove(3)}
+              onBlur={clearPreview}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -425,6 +427,8 @@ export const EditControlsTab = () => {
               onClick={() => movePieces(4)}
               onMouseEnter={() => previewAllPiecesMove(4)}
               onMouseLeave={clearPreview}
+              onFocus={() => previewAllPiecesMove(4)}
+              onBlur={clearPreview}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -436,6 +440,8 @@ export const EditControlsTab = () => {
               onClick={() => movePieces(5)}
               onMouseEnter={() => previewAllPiecesMove(5)}
               onMouseLeave={clearPreview}
+              onFocus={() => previewAllPiecesMove(5)}
+              onBlur={clearPreview}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -449,6 +455,8 @@ export const EditControlsTab = () => {
               onClick={() => movePieces(0)}
               onMouseEnter={() => previewAllPiecesMove(0)}
               onMouseLeave={clearPreview}
+              onFocus={() => previewAllPiecesMove(0)}
+              onBlur={clearPreview}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -460,6 +468,8 @@ export const EditControlsTab = () => {
               onClick={() => movePieces(1)}
               onMouseEnter={() => previewAllPiecesMove(1)}
               onMouseLeave={clearPreview}
+              onFocus={() => previewAllPiecesMove(1)}
+              onBlur={clearPreview}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -471,6 +481,8 @@ export const EditControlsTab = () => {
               onClick={() => movePieces(2)}
               onMouseEnter={() => previewAllPiecesMove(2)}
               onMouseLeave={clearPreview}
+              onFocus={() => previewAllPiecesMove(2)}
+              onBlur={clearPreview}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -532,6 +544,8 @@ export const EditControlsTab = () => {
                 onClick={() => moveSelectedPiece(3)}
                 onMouseEnter={() => previewMove(3)}
                 onMouseLeave={clearPreview}
+                onFocus={() => previewMove(3)}
+                onBlur={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 Left
@@ -541,6 +555,8 @@ export const EditControlsTab = () => {
                 onClick={() => moveSelectedPiece(4)}
                 onMouseEnter={() => previewMove(4)}
                 onMouseLeave={clearPreview}
+                onFocus={() => previewMove(4)}
+                onBlur={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 Up L
@@ -550,6 +566,8 @@ export const EditControlsTab = () => {
                 onClick={() => moveSelectedPiece(5)}
                 onMouseEnter={() => previewMove(5)}
                 onMouseLeave={clearPreview}
+                onFocus={() => previewMove(5)}
+                onBlur={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 Up R
@@ -561,6 +579,8 @@ export const EditControlsTab = () => {
                 onClick={() => moveSelectedPiece(0)}
                 onMouseEnter={() => previewMove(0)}
                 onMouseLeave={clearPreview}
+                onFocus={() => previewMove(0)}
+                onBlur={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 Right
@@ -570,6 +590,8 @@ export const EditControlsTab = () => {
                 onClick={() => moveSelectedPiece(1)}
                 onMouseEnter={() => previewMove(1)}
                 onMouseLeave={clearPreview}
+                onFocus={() => previewMove(1)}
+                onBlur={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 Dn R
@@ -579,6 +601,8 @@ export const EditControlsTab = () => {
                 onClick={() => moveSelectedPiece(2)}
                 onMouseEnter={() => previewMove(2)}
                 onMouseLeave={clearPreview}
+                onFocus={() => previewMove(2)}
+                onBlur={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 Dn L
@@ -594,6 +618,8 @@ export const EditControlsTab = () => {
                 onClick={() => rotateSelectedPiece(-1)}
                 onMouseEnter={() => previewRotate(-1)}
                 onMouseLeave={clearPreview}
+                onFocus={() => previewRotate(-1)}
+                onBlur={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 ↺ CCW
@@ -603,6 +629,8 @@ export const EditControlsTab = () => {
                 onClick={() => rotateSelectedPiece(1)}
                 onMouseEnter={() => previewRotate(1)}
                 onMouseLeave={clearPreview}
+                onFocus={() => previewRotate(1)}
+                onBlur={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 CW ↻
@@ -618,6 +646,8 @@ export const EditControlsTab = () => {
                 onClick={() => moveSelectedPieceAltitude(1)}
                 onMouseEnter={() => previewAltitude(1)}
                 onMouseLeave={clearPreview}
+                onFocus={() => previewAltitude(1)}
+                onBlur={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 ↑ Up
@@ -628,6 +658,8 @@ export const EditControlsTab = () => {
                 onClick={() => moveSelectedPieceAltitude(-1)}
                 onMouseEnter={() => previewAltitude(-1)}
                 onMouseLeave={clearPreview}
+                onFocus={() => previewAltitude(-1)}
+                onBlur={clearPreview}
                 sx={{ fontSize: buttonFontSize }}
               >
                 ↓ Down
