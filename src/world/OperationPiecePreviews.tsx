@@ -1,17 +1,31 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { ArrowHelper, Vector3, type Group, type Mesh } from 'three'
+import {
+  CylinderGeometry,
+  MeshBasicMaterial,
+  Mesh,
+  Quaternion,
+  Vector3,
+  type Group,
+} from 'three'
+import type { Mesh as ThreeMesh } from 'three'
 import useBoundStore from '../store/store'
 import type { BoardPiece } from '../types'
-import { HEXGRID_HEX_HEIGHT, PIECE_PREVIEW_OPACITY } from '../utils/constants'
+import { HEXGRID_HEX_HEIGHT } from '../utils/constants'
 import { MapBoardPiece3D } from './MapBoardPiece3D'
 import type { ThreeEvent } from '@react-three/fiber'
 import type { BoardHex } from '../types'
 import { getBoardHex3DCoords } from '../utils/map-utils'
 
-const ARROW_COLOR = 0xffaa00 // bright orange
+// Ghost pieces use a lower opacity so the arrow pops against them
+const OPERATION_PREVIEW_OPACITY = 0.35
+const ARROW_COLOR = 0xff8800
+const SHAFT_RADIUS = 0.055
+const HEAD_RADIUS = 0.16
+const HEAD_LENGTH_FRAC = 0.32 // fraction of total length used for the arrowhead
 
-// Draws an ArrowHelper from the original piece's position to the preview position.
+// Draws a thick cylinder+cone arrow from the original piece to the preview position.
+// Uses depthTest:false so it always renders on top of geometry.
 // Only renders when there is an actual positional difference (skips rotation-only changes).
 function PreviewArrow({
   originalBp,
@@ -29,44 +43,87 @@ function PreviewArrow({
     altitude: previewBp.altitude + 1,
   })
 
-  // Float the arrow above each piece's top surface so it isn't occluded
-  const oy = oyBase + HEXGRID_HEX_HEIGHT * 0.6
-  const py = pyBase + HEXGRID_HEX_HEIGHT * 0.6
+  // Float above the top surface so the arrow clears the piece geometry
+  const floatY = HEXGRID_HEX_HEIGHT * 0.7
+  const from = new Vector3(ox, oyBase + floatY, oz)
+  const to = new Vector3(px, pyBase + floatY, pz)
 
-  const from = new Vector3(ox, oy, oz)
-  const to = new Vector3(px, py, pz)
   const dir = to.clone().sub(from)
   const length = dir.length()
 
-  const arrowRef = useRef<ArrowHelper | null>(null)
+  const groupRef = useRef<Group>(null)
+  const shaftRef = useRef<ThreeMesh | null>(null)
+  const headRef = useRef<ThreeMesh | null>(null)
 
-  // Dispose geometry/materials when the component unmounts
+  // Pulsing opacity via useFrame
+  useFrame(({ clock }) => {
+    const pulse = 0.65 + 0.35 * Math.sin(clock.getElapsedTime() * 4)
+    if (shaftRef.current) {
+      ; (shaftRef.current.material as MeshBasicMaterial).opacity = pulse
+    }
+    if (headRef.current) {
+      ; (headRef.current.material as MeshBasicMaterial).opacity = pulse
+    }
+  })
+
   useEffect(() => {
     return () => {
-      if (arrowRef.current) {
-        arrowRef.current.line.geometry.dispose()
-        arrowRef.current.cone.geometry.dispose()
-      }
+      shaftRef.current?.geometry.dispose()
+      headRef.current?.geometry.dispose()
     }
   }, [])
 
   if (length < 0.01) return null
 
   dir.normalize()
-  const headLength = Math.min(length * 0.35, 0.5)
-  const headWidth = Math.min(length * 0.22, 0.35)
 
-  if (!arrowRef.current) {
-    arrowRef.current = new ArrowHelper(dir, from, length, ARROW_COLOR, headLength, headWidth)
-    // Keep arrow on top of any transparent surfaces
-    arrowRef.current.renderOrder = 1
+  const headLength = length * HEAD_LENGTH_FRAC
+  const shaftLength = length - headLength
+
+  // Cylinders point along +Y by default; rotate to match direction vector
+  const up = new Vector3(0, 1, 0)
+  const quat = new Quaternion().setFromUnitVectors(up, dir)
+
+  // Shaft midpoint and head base
+  const shaftMid = from.clone().addScaledVector(dir, shaftLength / 2)
+  const headBase = from.clone().addScaledVector(dir, shaftLength + headLength / 2)
+
+  const arrowMat = () =>
+    new MeshBasicMaterial({
+      color: ARROW_COLOR,
+      transparent: true,
+      opacity: 1,
+      depthTest: false,
+    })
+
+  if (!shaftRef.current) {
+    const geo = new CylinderGeometry(SHAFT_RADIUS, SHAFT_RADIUS, shaftLength, 8)
+    shaftRef.current = new Mesh(geo, arrowMat())
   } else {
-    arrowRef.current.setDirection(dir)
-    arrowRef.current.setLength(length, headLength, headWidth)
-    arrowRef.current.position.copy(from)
+    shaftRef.current.geometry.dispose()
+    shaftRef.current.geometry = new CylinderGeometry(SHAFT_RADIUS, SHAFT_RADIUS, shaftLength, 8)
   }
+  shaftRef.current.position.copy(shaftMid)
+  shaftRef.current.quaternion.copy(quat)
+  shaftRef.current.renderOrder = 999
 
-  return <primitive object={arrowRef.current} />
+  if (!headRef.current) {
+    const geo = new CylinderGeometry(0, HEAD_RADIUS, headLength, 12)
+    headRef.current = new Mesh(geo, arrowMat())
+  } else {
+    headRef.current.geometry.dispose()
+    headRef.current.geometry = new CylinderGeometry(0, HEAD_RADIUS, headLength, 12)
+  }
+  headRef.current.position.copy(headBase)
+  headRef.current.quaternion.copy(quat)
+  headRef.current.renderOrder = 999
+
+  return (
+    <group ref={groupRef}>
+      <primitive object={shaftRef.current} />
+      <primitive object={headRef.current} />
+    </group>
+  )
 }
 
 function OperationPiecePreviewItem({
@@ -83,13 +140,13 @@ function OperationPiecePreviewItem({
   useFrame(() => {
     if (!groupRef.current) return
     groupRef.current.traverse((child) => {
-      const mesh = child as Mesh
+      const mesh = child as ThreeMesh
       if (!mesh.isMesh) return
       const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
       for (const mat of mats) {
-        if (!mat.transparent || mat.opacity !== PIECE_PREVIEW_OPACITY) {
+        if (!mat.transparent || mat.opacity !== OPERATION_PREVIEW_OPACITY) {
           mat.transparent = true
-          mat.opacity = PIECE_PREVIEW_OPACITY
+          mat.opacity = OPERATION_PREVIEW_OPACITY
           mat.needsUpdate = true
         }
       }
@@ -131,3 +188,4 @@ export function OperationPiecePreviews() {
     </>
   )
 }
+
