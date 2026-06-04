@@ -3,7 +3,7 @@ import useBoundStore from '../store/store'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
 const DeletePieceButton = () => {
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const {
     // isLargeScreenWidth,
     isSmallScreenWidth,
@@ -11,8 +11,23 @@ const DeletePieceButton = () => {
   } = useMuiMediaQuery()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const unpaintTile = useBoundStore((s) => s.unpaintTile)
+  const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
+  const setPendingUndoSelectionRestore = useBoundStore(
+    (s) => s.setPendingUndoSelectionRestore,
+  )
   const deletePiece = () => {
-    unpaintTile(selectedPieceID)
+    setPiecePreviews(null)
+    // Save the IDs so undo() can re-select them
+    setPendingUndoSelectionRestore([...selectedPieceIDs])
+    // Zundo batching: let the first delete run normally so zundo records the
+    // pre-batch snapshot into history, then pause so intermediate deletes are
+    // not individually tracked. resume() after the loop collapses everything
+    // into a single undo step.
+    for (const [i, id] of selectedPieceIDs.entries()) {
+      if (i === 1) useBoundStore.temporal.getState().pause()
+      unpaintTile(id)
+    }
+    if (selectedPieceIDs.length > 1) useBoundStore.temporal.getState().resume()
     toggleSelectedPieceID('')
   }
 
@@ -22,13 +37,17 @@ const DeletePieceButton = () => {
       // color="error"
       size="small"
       onClick={deletePiece}
+      onMouseEnter={() => setPiecePreviews([])}
+      onMouseLeave={() => setPiecePreviews(null)}
+      onFocus={() => setPiecePreviews([])}
+      onBlur={() => setPiecePreviews(null)}
       title="Hotkey: delete"
       sx={{
         p: 0,
         fontSize: isSmallScreenWidth ? 10 : 12,
       }}
     >
-      Delete Piece
+      {`Delete Piece${selectedPieceIDs.length > 1 ? 's' : ''}`}
     </Button>
   )
 }

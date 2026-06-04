@@ -2,7 +2,7 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { AppState } from './store'
-import type { BoardHex, PieceInventory } from '../types'
+import type { BoardHex, BoardPiece, PieceInventory } from '../types'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 
@@ -30,8 +30,8 @@ export interface UISlice {
   toggleIsPieceInventoryDialogOpen: (b: boolean) => void
 
   // WORLD STATE
-  selectedPieceID: string
-  toggleSelectedPieceID: (id: string) => void
+  selectedPieceIDs: string[]
+  toggleSelectedPieceID: (id: string, multiSelect?: boolean) => void
   hoveredPieceID: string
   toggleHoveredPieceID: (id: string) => void
   hoveredHex: BoardHex | undefined
@@ -63,6 +63,14 @@ export interface UISlice {
   userPieceInventory: PieceInventory
   updateUserPieceInventory: (n: PieceInventory) => void
 
+  // OPERATION PREVIEW STATE
+  piecePreviews: BoardPiece[] | null
+  setPiecePreviews: (pieces: BoardPiece[] | null) => void
+
+  // POST-DELETE UNDO RE-SELECTION
+  pendingUndoSelectionRestore: string[] | null
+  setPendingUndoSelectionRestore: (ids: string[] | null) => void
+
   // PDF STATE
   isShowPDFInventory: boolean
   toggleIsShowPDFInventory: (b: boolean) => void
@@ -80,11 +88,33 @@ const createUISlice: StateCreator<
   [],
   UISlice
 > = (set) => ({
-  selectedPieceID: '',
-  toggleSelectedPieceID: (pieceID: string) =>
+  selectedPieceIDs: [],
+  toggleSelectedPieceID: (pieceID: string, multiSelect?: boolean) =>
     set(
       produce((state) => {
-        state.selectedPieceID = pieceID
+        if (!pieceID) {
+          state.selectedPieceIDs = []
+        } else if (multiSelect) {
+          const idx = state.selectedPieceIDs.indexOf(pieceID)
+          if (idx === -1) {
+            state.selectedPieceIDs.push(pieceID)
+          } else {
+            state.selectedPieceIDs.splice(idx, 1)
+            // Clear hover highlight so the deselected piece stops being yellow
+            if (state.hoveredPieceID === pieceID) {
+              state.hoveredPieceID = ''
+            }
+          }
+        } else {
+          if (
+            state.selectedPieceIDs.length === 1 &&
+            state.selectedPieceIDs[0] === pieceID
+          ) {
+            state.selectedPieceIDs = []
+          } else {
+            state.selectedPieceIDs = [pieceID]
+          }
+        }
       }),
     ),
   hoveredPieceID: '',
@@ -161,6 +191,20 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.penModeRotation = n
+      }),
+    ),
+  piecePreviews: null,
+  setPiecePreviews: (pieces: BoardPiece[] | null) =>
+    set(
+      produce((s) => {
+        s.piecePreviews = pieces
+      }),
+    ),
+  pendingUndoSelectionRestore: null,
+  setPendingUndoSelectionRestore: (ids: string[] | null) =>
+    set(
+      produce((s) => {
+        s.pendingUndoSelectionRestore = ids
       }),
     ),
   isShowStartZones: true,

@@ -18,9 +18,9 @@ export function MarvelRuin({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/marvel-ruins.glb') as any
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const isSelected = selectedPieceID === pid
+  const isSelected = selectedPieceIDs.includes(pid)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -32,7 +32,7 @@ export function MarvelRuin({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : pid)
+    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
   }
   const isHighlighted = hoveredPieceID === pid || isSelected
   const yellowColor = 'yellow'

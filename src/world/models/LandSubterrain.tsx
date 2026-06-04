@@ -3,24 +3,31 @@ import type { ThreeEvent } from '@react-three/fiber'
 import React, { type PropsWithChildren } from 'react'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardHex, HexTerrain, Pieces } from '../../types'
+import { HexTerrain, Pieces } from '../../types'
 import { isFluidTerrainHex } from '../../utils/board-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { FLUID_CAP_OPACITY } from '../maphex/instance/FluidCap'
 import { HEXGRID_HEX_APOTHEM } from '../../utils/constants'
 
-export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
-  const { inventoryID } = boardHex
-  const boardPieceUid = boardHex?.boardPieceUID ?? ''
+export default function LandSubterrain({
+  inventoryID,
+  terrain,
+  uid,
+}: {
+  inventoryID: string
+  terrain: string
+  uid: string
+}) {
+  const boardPieceUid = uid
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === boardPieceUid
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const isSelected = selectedPieceIDs.includes(boardPieceUid)
   const isHovered = hoveredPieceID === boardPieceUid
-  const pieceTerrain = boardHex.terrain
+  const pieceTerrain = terrain
   const isDirtSubterrain =
     pieceTerrain === HexTerrain.grass ||
     pieceTerrain === HexTerrain.sand ||
@@ -55,7 +62,10 @@ export default function LandSubterrain({ boardHex }: { boardHex: BoardHex }) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : boardPieceUid)
+    toggleSelectedPieceID(
+      boardPieceUid,
+      event.shiftKey || event.ctrlKey || event.metaKey,
+    )
   }
   const material = () => {
     if (isLightsAndShadowsRender) {

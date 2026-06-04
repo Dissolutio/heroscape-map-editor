@@ -82,12 +82,8 @@ function SolidCapInstance({
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
-  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const penMode = useBoundStore((s) => s.penMode)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const color = terrainCapColors[boardHex.terrain]
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
-  const isSelected = selectedPieceID === boardHex?.boardPieceUID
 
   // Effect: Initial color/position
   React.useEffect(() => {
@@ -141,11 +137,7 @@ function SolidCapInstance({
     if (e.button !== 0) {
       return
     }
-    if (penMode === 'select') {
-      toggleSelectedPieceID(isSelected ? '' : (boardHex.boardPieceUID ?? ''))
-    } else {
-      onPointerUp(e, boardHex)
-    }
+    onPointerUp(e, boardHex)
   }
 
   return (

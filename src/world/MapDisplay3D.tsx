@@ -31,6 +31,7 @@ import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import { enqueueSnackbar } from 'notistack'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import PiecePreview from './PiecePreview.tsx'
+import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
 import { useHotkeyConfig } from '../controls/useHotkeyConfig'
 import { useApplyHotkeys } from '../controls/useApplyHotkeys.tsx'
 import type React from 'react'
@@ -79,7 +80,10 @@ export default function MapDisplay3D({
     // Select Hex
     if (penMode === 'select') {
       if (hex.boardPieceUID) {
-        toggleSelectedPieceID(hex.boardPieceUID)
+        toggleSelectedPieceID(
+          hex.boardPieceUID,
+          event.shiftKey || event.ctrlKey || event.metaKey,
+        )
       }
       return
     }
@@ -214,7 +218,10 @@ export default function MapDisplay3D({
         autoHideDuration: 5000,
       })
       // as a hacky thing, if we didn't paint a piece maybe the user was trying to select one
-      toggleSelectedPieceID(hex.boardPieceUID ?? '')
+      toggleSelectedPieceID(
+        hex.boardPieceUID ?? '',
+        event.shiftKey || event.ctrlKey || event.metaKey,
+      )
     }
     // Placed new piece, deselect piece
     else {
@@ -228,6 +235,7 @@ export default function MapDisplay3D({
       <TableSurfaceMesh width={width} length={length} />
       <group ref={mapGroupRef}>
         <PiecePreview />
+        <OperationPiecePreviews />
         <EmptyHexes
           boardHexArr={instanceBoardHexes.emptyHexCaps}
           onPointerUp={onPointerUpPaintPiece}

@@ -1,58 +1,67 @@
-## Refactor to render from BoardPieces
-- Compute caps from boardpieces
+## Current todo
+- Move/rotate placed pieces
+- Validation through BoardHexes, but render through BoardPieces
+- Multi-select pieces
+- Road tiles need their own textured/complex cap for 3D high quality render
+- Wood tiles need their own textured/complex-geometry cap for 3D high quality render
+- Ancient terrain in 3D should have darker brown color
+- Hexagon shaped maps should produce a map with same side-length as map size (1 smaller than current)
+- Display inventory usage info in pen mode selector
+- Organize pen mode selector according to Sets Used in the map
+- StartZones should not have a vertical clearance, should not be blocked by vertical clearance
+- PDF/SVG level logo from Renegade
+- PDF option to enable overlay layer
+- PDF/SVG option to show overlay pieces on own level
+- PDF styles, update to match SVG
+- PDF style option: disable land tile piece outline colors (make black)
+- PDF style option: disable hexgrid lines over sub-levels
 
-## BowTie Jones requests
-- Indicate which way piece is being shifted
-- Format painter
+## Todo EZ
+- Move wallwalk in pen mode selector to be closer to road
+- Add a hotkey for wallwalk
+- Middle click a piece to make it the pen mode
+- Hotkey for rotating camera azimuth angle by 15 degree increments
+- PDF style option: enable legacy Virtualscape colors
+- In View Map Inventory dialog, clicking the line item selects it for your terrain placer
 - PDF 2 column format
 - PDF portrait as level format
-- Select existing piece as pen mode
+- Format painter (paint tiles to be grass etc.)
+- Outcrop bases into inventory
+- PDF: way to add options Sets Used list(or more than 1 in general perhaps)
+
+## Todo
+- Personal Inventory
+- When piece preview is active, scrolling should rotate the piece, not zoom the camera
+- A way to double stack fluid tiles (which is as tall as one solid tile minus the cap)
+- Hotkey setup
+- More hotkeys
+- Indicate which way piece is being shifted
+- Conversion guide for which pieces could be substituted for other pieces, when converting map
+- Convert current map to personal inventory
+- Calculate which sets a map could be built with
+- Output virtualscape file (needs mappings, and refactor of VS file input code)
+- Adjustable lights: color, intensity, persisted position
+- Add a Snow tree model
+- Update laur jungle to official models
+- Import new figure-as-terrain pieces from VirtualScape (needs mappings)
+- Add Arena of the Planeswalker terrain (Shandalar water and sand boards, as well as the Shandalar ruins A/B)
+- Allow cycling through sizes for similar terrains, just like how land pieces do. Like outcrops, hotkey 1,2,3 for their sizes
+- Land tile size select: Hotkeys 1, 2, 3, 4, 5 could always map to sizes 1, 2, 3, 7, 24
+- Move all pieces up or down a level (requires new boardHexes/validation todo to be done)
+- Customizeable Colors: PDF/SVG & 3D
 
 
-## What are BoardHexes used for
-- MapDisplay3D => empty/fluid/solid caps, => render pieces
-- MapHex3D => underHexTerrain
-- ReactPdfDownloadLink / ReactPdfRoot => PdfMapLevels6PerPage => ReactPdfSvgMapDisplay => render
-- CastleArch: calculate clicked hex
-- useZoomCameraToMapCenter: width/height of map
-- World: width/height of map
-- Controls: log state
+## Suggestion TODOs
+- Remove the white from the glyphs. Additionally, don't display hex heights above glyphs making it easier to label the glyphs online [link to comment](https://discord.com/channels/212408450750218244/1433872869040980059/1495569069338923098)
 
-## Separation of State (pieces) / Validation
-- Validation through BoardHexes, but render through BoardPieces
-- Add/Remove Piece will add to BoardPieces.
-- Top-level (HomePage) will call Service Worker to recalculate BoardHexes, when BoardPieces changes.
-
-1. Land / EZ/Based Obstacles
-2. Laur Addons / Castle Walls / Wall Walk / Ladder
-
-## Build constraints and Inventory **NEW**
-You can add them to a map, it becomes part of  **HexMap**.
-It is an array of Set IDS.
-User must choose appropriate sets, it doesn't calculate # sets used.
-Display pieces used / left.
-
-## Obstacle bases
-When adding an outcrop (lavarock, rock, or glacier), also add a base.
-Check `setsUsed`, and choose the corresponding pieces. (Caverns of valhalla doesn't have shadow-3 bases for the triple outcrop, you combine 3 "modified" shadow-1 spaces)
 
 ## PDF Build Instructions
-- Start Zones( as one layer)
-- LaurWall Arch pdf/svg shape
-- 
-- LaurWall Ruins 2 & 3 pdf/svg shape
-- Wallwalk/Road pdf/svg decor
-
 - Ladder Summaries
-- Map Key(see LeftOn4Ya's ultimate key, Renegade key, and old Hasbro key)
+- PDF Add a map Legend for all the pieces that are in the map
 - Fortress Banner (see GaryLASQ site)
-- Tree415 Boulders? (see GaryLASQ site, or old Hasbro docs)
-
-Then need some formatting options (1-pager, map key?), author name, maybe more.
 
 ## 3D Models
 - Winter trees
-- Toxic tiles
 - New evergreen trees
 - Refine Laur Ruin1 (redo)
 - Laur Ruin2 Ruin3
@@ -71,18 +80,7 @@ About => Info
 ## 2D SVG Builder
 Building pretty much exactly like you did in Virtualscape.
 
-## Build & Editing Features
-
-* Grab terrain as pen.
-* Paint format as pen
-* Quick rotate pieces somehow. 
-
-## Multi-Select & Copy/Paste  
-- Multi-select pieces
-
 ## Local Storage Load/Save/Edit maps
-
-Deleted the component for analyzing local storage space. `LocalStorageList.tsx`, check commits.
 
 Make a react component that can be shown in the modal like `CreateMapFormDialog.tsx`. The new component is for the user to save and load maps from local storage. They can also edit their local storage, to peruse and delete maps or other unused data stored in local storage. Some user settings may get saved there, and can be exported to a file/string and imported as easily.
 
@@ -93,13 +91,3 @@ When user clicks SAVE/LOAD, show:
         * SAVE => Select map to overwrite if there is an existing key that matches the id of the map being saved, or save as a new map key in local storage 
         * LOAD => Load selected map, user may select a map object from the list
         * EDIT => Delete button for items in local storage, the delete button changes its text and turns red to verify and requires one more click to actually delete.
-
-
-## Settings / Preferences
-- Customizable Hotkeys,
-- Customizeable Colors
-- Toggle Renegade style
-
-## Update Inventories for Pieces with Variations (Marvel Ruin, Castle Arch)
-- Marvel ruin counts once in inventories, but has 4 variations
-- Castle arch counts once in inventories, but has 2 variations

@@ -19,7 +19,7 @@ export function GlyphModel({
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/glyph-with-logo.glb') as any
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -31,11 +31,11 @@ export function GlyphModel({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(isSelected ? '' : pid)
+    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
   }
   const glyphColor = hexTerrainColor[terrain as keyof typeof hexTerrainColor]
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === pid
+  const isSelected = selectedPieceIDs.includes(pid)
   const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted ? yellowColor : glyphColor
   return (

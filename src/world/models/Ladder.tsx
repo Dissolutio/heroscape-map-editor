@@ -40,12 +40,15 @@ export function Ladder({
     if (penMode === Pieces.ladder) {
       onPointerUp(event, partialHex)
     } else {
-      toggleSelectedPieceID(isSelected ? '' : bp.uid)
+      toggleSelectedPieceID(
+        bp.uid,
+        event.shiftKey || event.ctrlKey || event.metaKey,
+      )
     }
   }
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
-  const isSelected = selectedPieceID === bp.uid
+  const isSelected = selectedPieceIDs.includes(bp.uid)
   const isHighlighted = hoveredPieceID === bp.uid || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.ladder]
   return (

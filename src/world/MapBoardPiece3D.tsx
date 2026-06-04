@@ -5,11 +5,12 @@ import { Vector3 } from 'three'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
-import { isFluidTerrainHex } from '../utils/board-utils'
+import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import {
   HEXGRID_GLYPH_HEIGHT,
   HEXGRID_HEX_HEIGHT,
   HEXGRID_HEXCAP_FLUID_HEIGHT,
+  HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
 } from '../utils/constants'
 import { genBoardHexID, getBoardHex3DCoords } from '../utils/map-utils'
@@ -56,6 +57,7 @@ import { StartZone3D } from './models/StartZone3D'
 import JungleBrush from './models/TicallaBrush'
 import TicallaPalm from './models/TicallaPalm'
 import { hexTerrainColor } from './maphex/hexColors'
+import LandSubterrain from './models/LandSubterrain'
 
 export const MapBoardPiece3D = ({
   bp,
@@ -65,6 +67,7 @@ export const MapBoardPiece3D = ({
   onPointerUpPaintPiece: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) => {
   const { inventoryID, altitude, rotation, pieceCoords, uid } = bp
+  const piece = piecesSoFar[inventoryID]
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const { x, z, y, yBase, yBaseCap, yWithBase, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
@@ -690,6 +693,28 @@ export const MapBoardPiece3D = ({
       <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
           <MarvelRuin pid={uid} inventoryID={inventoryID} />
+        </Suspense>
+      </group>
+    )
+  }
+
+  const isFluidLandPiece = piece && isFluidTerrainHex(piece.terrain)
+  const isSolidLandPiece = piece && isSolidTerrainHex(piece.terrain)
+  if (isFluidLandPiece || isSolidLandPiece) {
+    return (
+      <group
+        position={[x, yBaseCap, z]}
+        rotation={[0, pieceRotation, 0]}
+        scale={
+          isFluidLandPiece ? [1, HEXGRID_HEXCAP_FLUID_SCALE, 1] : undefined
+        }
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <LandSubterrain
+            inventoryID={inventoryID}
+            terrain={piece.terrain}
+            uid={uid}
+          />
         </Suspense>
       </group>
     )

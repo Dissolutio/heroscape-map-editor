@@ -14,6 +14,7 @@ import {
 } from '../utils/map-utils'
 import type { RefObject } from 'react'
 import { zoomToMap } from '../utils/camera-utils'
+import { undoWithSelectionRestore } from '../utils/undoWithSelectionRestore'
 
 export const useApplyHotkeys = ({
   cameraControlsRef,
@@ -39,7 +40,7 @@ export const useApplyHotkeys = ({
   const isCameraDisabled = useBoundStore((s) => s.isCameraDisabled)
   const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
   const unpaintTile = useBoundStore((s) => s.unpaintTile)
-  const selectedPieceID = useBoundStore((s) => s.selectedPieceID)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -54,11 +55,24 @@ export const useApplyHotkeys = ({
   const allowedMaxLevel =
     is2DOverlayLevelEnabled && is2DOpen && !isPdfOpen ? overlayLevel : maxLevel
   const isSizes = flatPieceSizes?.length > 0
-  const { undo, redo } = useTemporalStore((state: AppState) => state)
+  const { redo } = useTemporalStore((state: AppState) => state)
 
   const deleteSelectedPiece = () => {
-    if (selectedPieceID) {
-      unpaintTile(selectedPieceID)
+    if (selectedPieceIDs.length) {
+      // Save the IDs so undo() can re-select them
+      useBoundStore
+        .getState()
+        .setPendingUndoSelectionRestore([...selectedPieceIDs])
+      // Zundo batching: let the first delete run normally so zundo records the
+      // pre-batch snapshot into history, then pause so intermediate deletes are
+      // not individually tracked. resume() after the loop collapses everything
+      // into a single undo step.
+      for (const [i, id] of selectedPieceIDs.entries()) {
+        if (i === 1) useBoundStore.temporal.getState().pause()
+        unpaintTile(id)
+      }
+      if (selectedPieceIDs.length > 1)
+        useBoundStore.temporal.getState().resume()
       toggleSelectedPieceID('')
     }
   }
@@ -130,7 +144,7 @@ export const useApplyHotkeys = ({
       )
     }
   }
-  const undoWorld = undo
+  const undoWorld = undoWithSelectionRestore
   const redoWorld = redo
   const cycleNextPieceRotation = () => {
     doPenModeRotation(penMode, penModeRotation, togglePenModeRotation)

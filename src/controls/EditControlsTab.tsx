@@ -5,9 +5,6 @@ import {
   Card,
   CardContent,
   List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   Typography,
 } from '@mui/material'
 import { buildupJsonFileMap } from '../data/buildupMap'
@@ -40,13 +37,25 @@ export const EditControlsTab = () => {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
+  const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const loadMap = useBoundStore((s) => s.loadMap)
+  const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
   const {
     // isLargeScreenWidth,
     isSmallScreenWidth,
     isMediumScreenWidth,
   } = useMuiMediaQuery()
-  // const inventory = useLocalPieceInventory()
+
+  const clearPreview = () => setPiecePreviews(null)
+
+  const previewAllPiecesMove = (direction: number) => {
+    setPiecePreviews(
+      boardPieces.map((bp) => ({
+        ...bp,
+        pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
+      })),
+    )
+  }
 
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
@@ -55,6 +64,7 @@ export const EditControlsTab = () => {
     console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
     console.log('🚀 ~ Controls ~ boardPieces:', boardPieces)
     console.log('🚀 ~ Controls ~ hexMap:', hexMap)
+    console.log('🚀 ~ Controls ~ conflictedPieceUIDs:', conflictedPieceUIDs)
   }
   // const handleTrimMap = (boardHexesToTrim: BoardHexes): BoardHexes => {
   //   // const boardHexArr = Object.values(boardHexes)
@@ -91,6 +101,14 @@ export const EditControlsTab = () => {
     const newBoardPieces = shiftInDirectionBoardPieces(direction, boardPieces)
     const newMap = buildupJsonFileMap(newBoardPieces, hexMap)
     loadMap(newMap)
+    // Refresh the preview from the new positions so hovering while clicking
+    // always shows the correct next-step arrow (not a zero-length one).
+    setPiecePreviews(
+      newBoardPieces.map((bp) => ({
+        ...bp,
+        pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
+      })),
+    )
   }
   const handleClickAddMapLengthX = () => {
     const newHexMap = {
@@ -284,6 +302,10 @@ export const EditControlsTab = () => {
             <Button
               title="Move all pieces 1 hex left"
               onClick={() => movePieces(3)}
+              onMouseEnter={() => previewAllPiecesMove(3)}
+              onMouseLeave={clearPreview}
+              onFocus={() => previewAllPiecesMove(3)}
+              onBlur={clearPreview}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -293,6 +315,10 @@ export const EditControlsTab = () => {
             <Button
               title="Move all pieces 1 hex up-left"
               onClick={() => movePieces(4)}
+              onMouseEnter={() => previewAllPiecesMove(4)}
+              onMouseLeave={clearPreview}
+              onFocus={() => previewAllPiecesMove(4)}
+              onBlur={clearPreview}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -302,6 +328,10 @@ export const EditControlsTab = () => {
             <Button
               title="Move all pieces 1 hex up-right"
               onClick={() => movePieces(5)}
+              onMouseEnter={() => previewAllPiecesMove(5)}
+              onMouseLeave={clearPreview}
+              onFocus={() => previewAllPiecesMove(5)}
+              onBlur={clearPreview}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -313,6 +343,10 @@ export const EditControlsTab = () => {
             <Button
               title="Move all pieces 1 hex right"
               onClick={() => movePieces(0)}
+              onMouseEnter={() => previewAllPiecesMove(0)}
+              onMouseLeave={clearPreview}
+              onFocus={() => previewAllPiecesMove(0)}
+              onBlur={clearPreview}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -322,6 +356,10 @@ export const EditControlsTab = () => {
             <Button
               title="Move all pieces 1 hex down-right"
               onClick={() => movePieces(1)}
+              onMouseEnter={() => previewAllPiecesMove(1)}
+              onMouseLeave={clearPreview}
+              onFocus={() => previewAllPiecesMove(1)}
+              onBlur={clearPreview}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -331,6 +369,10 @@ export const EditControlsTab = () => {
             <Button
               title="Move all pieces 1 hex down-left"
               onClick={() => movePieces(2)}
+              onMouseEnter={() => previewAllPiecesMove(2)}
+              onMouseLeave={clearPreview}
+              onFocus={() => previewAllPiecesMove(2)}
+              onBlur={clearPreview}
               sx={{
                 fontSize: buttonFontSize,
               }}
