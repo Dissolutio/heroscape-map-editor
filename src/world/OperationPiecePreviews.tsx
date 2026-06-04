@@ -34,11 +34,19 @@ function PreviewArrow({
   originalBp: BoardPiece
   previewBp: BoardPiece
 }) {
-  const { x: ox, z: oz, yBaseCap: oyBase } = getBoardHex3DCoords({
+  const {
+    x: ox,
+    z: oz,
+    yBaseCap: oyBase,
+  } = getBoardHex3DCoords({
     ...originalBp.pieceCoords,
     altitude: originalBp.altitude + 1,
   })
-  const { x: px, z: pz, yBaseCap: pyBase } = getBoardHex3DCoords({
+  const {
+    x: px,
+    z: pz,
+    yBaseCap: pyBase,
+  } = getBoardHex3DCoords({
     ...previewBp.pieceCoords,
     altitude: previewBp.altitude + 1,
   })
@@ -59,10 +67,10 @@ function PreviewArrow({
   useFrame(({ clock }) => {
     const pulse = 0.65 + 0.35 * Math.sin(clock.getElapsedTime() * 4)
     if (shaftRef.current) {
-      ; (shaftRef.current.material as MeshBasicMaterial).opacity = pulse
+      ;(shaftRef.current.material as MeshBasicMaterial).opacity = pulse
     }
     if (headRef.current) {
-      ; (headRef.current.material as MeshBasicMaterial).opacity = pulse
+      ;(headRef.current.material as MeshBasicMaterial).opacity = pulse
     }
   })
 
@@ -86,7 +94,9 @@ function PreviewArrow({
 
   // Shaft midpoint and head base
   const shaftMid = from.clone().addScaledVector(dir, shaftLength / 2)
-  const headBase = from.clone().addScaledVector(dir, shaftLength + headLength / 2)
+  const headBase = from
+    .clone()
+    .addScaledVector(dir, shaftLength + headLength / 2)
 
   const arrowMat = () =>
     new MeshBasicMaterial({
@@ -101,7 +111,12 @@ function PreviewArrow({
     shaftRef.current = new Mesh(geo, arrowMat())
   } else {
     shaftRef.current.geometry.dispose()
-    shaftRef.current.geometry = new CylinderGeometry(SHAFT_RADIUS, SHAFT_RADIUS, shaftLength, 8)
+    shaftRef.current.geometry = new CylinderGeometry(
+      SHAFT_RADIUS,
+      SHAFT_RADIUS,
+      shaftLength,
+      8,
+    )
   }
   shaftRef.current.position.copy(shaftMid)
   shaftRef.current.quaternion.copy(quat)
@@ -112,7 +127,12 @@ function PreviewArrow({
     headRef.current = new Mesh(geo, arrowMat())
   } else {
     headRef.current.geometry.dispose()
-    headRef.current.geometry = new CylinderGeometry(0, HEAD_RADIUS, headLength, 12)
+    headRef.current.geometry = new CylinderGeometry(
+      0,
+      HEAD_RADIUS,
+      headLength,
+      12,
+    )
   }
   headRef.current.position.copy(headBase)
   headRef.current.quaternion.copy(quat)
@@ -142,7 +162,9 @@ function OperationPiecePreviewItem({
     groupRef.current.traverse((child) => {
       const mesh = child as ThreeMesh
       if (!mesh.isMesh) return
-      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+      const mats = Array.isArray(mesh.material)
+        ? mesh.material
+        : [mesh.material]
       for (const mat of mats) {
         if (!mat.transparent || mat.opacity !== OPERATION_PREVIEW_OPACITY) {
           mat.transparent = true
@@ -188,4 +210,3 @@ export function OperationPiecePreviews() {
     </>
   )
 }
-

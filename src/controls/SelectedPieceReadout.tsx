@@ -34,4 +34,3 @@ const SelectedPieceReadout = () => {
 }
 
 export default SelectedPieceReadout
-

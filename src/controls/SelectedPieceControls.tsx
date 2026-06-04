@@ -40,11 +40,11 @@ export function SelectedPieceControls() {
 
   const tooltipLines = isMulti
     ? selectedBoardPieces
-      .map(
-        (bp) =>
-          `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
-      )
-      .join('\n')
+        .map(
+          (bp) =>
+            `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
+        )
+        .join('\n')
     : ''
 
   const altitudes = selectedBoardPieces.map((bp) => bp.altitude + 1)
@@ -273,7 +273,11 @@ export function SelectedPieceControls() {
       </ButtonGroup>
 
       {/* Rotate */}
-      <ButtonGroup aria-label="Rotate selected piece" size="small" sx={{ mt: 0.5 }}>
+      <ButtonGroup
+        aria-label="Rotate selected piece"
+        size="small"
+        sx={{ mt: 0.5 }}
+      >
         <Button
           title="Rotate selected piece counter-clockwise"
           onClick={() => rotateSelectedPiece(-1)}
@@ -299,7 +303,11 @@ export function SelectedPieceControls() {
       </ButtonGroup>
 
       {/* Altitude */}
-      <ButtonGroup aria-label="Move selected piece altitude" size="small" sx={{ mt: 0.5 }}>
+      <ButtonGroup
+        aria-label="Move selected piece altitude"
+        size="small"
+        sx={{ mt: 0.5 }}
+      >
         <Button
           title="Move selected piece up one level"
           onClick={() => moveSelectedPieceAltitude(1)}

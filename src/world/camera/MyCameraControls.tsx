@@ -31,10 +31,10 @@ export default function MyCameraControls({
     cameraControlsRef.current?.rotate(Math.PI / 180, 0, true)
   })
   useHotkeys('mod+left', () => {
-    cameraControlsRef.current?.rotate(15 * -Math.PI / 180, 0, true)
+    cameraControlsRef.current?.rotate((15 * -Math.PI) / 180, 0, true)
   })
   useHotkeys('mod+right', () => {
-    cameraControlsRef.current?.rotate(15 * Math.PI / 180, 0, true)
+    cameraControlsRef.current?.rotate((15 * Math.PI) / 180, 0, true)
   })
   useHotkeys('mod+up', () => {
     isOrthoCam

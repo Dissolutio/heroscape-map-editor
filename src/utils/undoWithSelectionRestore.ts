@@ -17,7 +17,9 @@ export function undoWithSelectionRestore() {
   } = useBoundStore.getState()
 
   // Snapshot the pending IDs before calling undo (undo may trigger re-renders)
-  const ids = pendingUndoSelectionRestore ? [...pendingUndoSelectionRestore] : null
+  const ids = pendingUndoSelectionRestore
+    ? [...pendingUndoSelectionRestore]
+    : null
   setPendingUndoSelectionRestore(null)
 
   useBoundStore.temporal.getState().undo()
