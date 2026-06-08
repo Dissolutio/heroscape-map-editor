@@ -169,6 +169,13 @@ export default function PiecesGridDialog({
       width: 90,
       align: 'center',
       headerAlign: 'center',
+      renderCell: (params) => (
+        <Box
+          component="span"
+        >
+          {params.row.altitude + 1}
+        </Box>
+      ),
     },
     {
       field: 'isConflicted',
