@@ -9,17 +9,22 @@ import useBoundStore from '../store/store'
  * undos do not eat or misapply saved delete selections.
  */
 export function undoWithSelectionRestore() {
-  const { toggleSelectedPieceID, popPendingUndoSelectionRestore, boardPieces } =
-    useBoundStore.getState()
+  const {
+    toggleSelectedPieceID,
+    popPendingUndoSelectionRestore,
+    pushPendingRedoSelectionRestore,
+  } = useBoundStore.getState()
   const temporalState = useBoundStore.temporal.getState()
-  const nextUndoState = temporalState.pastStates.at(-1)
-  const nextUndoPieceCount = nextUndoState?.boardPieces?.length ?? 0
-  const shouldRestoreSelection =
-    !!nextUndoState && nextUndoPieceCount > boardPieces.length
+  const pieceCountBeforeUndo = useBoundStore.getState().boardPieces.length
 
   temporalState.undo()
 
-  const ids = shouldRestoreSelection ? popPendingUndoSelectionRestore() : null
+  const pieceCountAfterUndo = useBoundStore.getState().boardPieces.length
+  const isUndoingDelete = pieceCountAfterUndo > pieceCountBeforeUndo
+  const ids = isUndoingDelete ? popPendingUndoSelectionRestore() : null
+  if (ids?.length) {
+    pushPendingRedoSelectionRestore(ids)
+  }
 
   if (ids?.length) {
     const { boardPieces: restoredBoardPieces } = useBoundStore.getState()
@@ -32,6 +37,31 @@ export function undoWithSelectionRestore() {
       for (const id of restoredIds.slice(1)) {
         toggleSelectedPieceID(id, true)
       }
+    }
+  }
+}
+
+/**
+ * Wraps zundo's `redo()` and restores delete selection metadata so a
+ * subsequent undo of that redone delete can re-select the affected pieces.
+ */
+export function redoWithSelectionRestore() {
+  const {
+    popPendingRedoSelectionRestore,
+    pushPendingUndoSelectionRestoreFromRedo,
+  } = useBoundStore.getState()
+  const temporalState = useBoundStore.temporal.getState()
+  const pieceCountBeforeRedo = useBoundStore.getState().boardPieces.length
+
+  temporalState.redo()
+
+  const pieceCountAfterRedo = useBoundStore.getState().boardPieces.length
+  const isRedoingDelete = pieceCountAfterRedo < pieceCountBeforeRedo
+
+  if (isRedoingDelete) {
+    const ids = popPendingRedoSelectionRestore()
+    if (ids?.length) {
+      pushPendingUndoSelectionRestoreFromRedo(ids)
     }
   }
 }

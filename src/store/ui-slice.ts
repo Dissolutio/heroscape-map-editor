@@ -75,7 +75,11 @@ export interface UISlice {
   // POST-DELETE UNDO RE-SELECTION
   pendingUndoSelectionRestoreStack: string[][]
   pushPendingUndoSelectionRestore: (ids: string[]) => void
+  pushPendingUndoSelectionRestoreFromRedo: (ids: string[]) => void
   popPendingUndoSelectionRestore: () => string[] | null
+  pendingRedoSelectionRestoreStack: string[][]
+  pushPendingRedoSelectionRestore: (ids: string[]) => void
+  popPendingRedoSelectionRestore: () => string[] | null
 
   // PDF STATE
   isShowPDFInventory: boolean
@@ -211,6 +215,17 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         if (ids.length) {
+          // Any new mutation branch invalidates redo metadata from older undos.
+          s.pendingRedoSelectionRestoreStack = []
+          s.pendingUndoSelectionRestoreStack.push([...ids])
+        }
+      }),
+    ),
+  pushPendingUndoSelectionRestoreFromRedo: (ids: string[]) =>
+    set(
+      produce((s) => {
+        if (ids.length) {
+          // During redo replay, preserve remaining redo metadata for later steps.
           s.pendingUndoSelectionRestoreStack.push([...ids])
         }
       }),
@@ -220,6 +235,28 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         const stack = s.pendingUndoSelectionRestoreStack
+        popped = stack.length ? [...stack[stack.length - 1]] : null
+        if (stack.length) {
+          stack.pop()
+        }
+      }),
+    )
+    return popped
+  },
+  pendingRedoSelectionRestoreStack: [],
+  pushPendingRedoSelectionRestore: (ids: string[]) =>
+    set(
+      produce((s) => {
+        if (ids.length) {
+          s.pendingRedoSelectionRestoreStack.push([...ids])
+        }
+      }),
+    ),
+  popPendingRedoSelectionRestore: () => {
+    let popped: string[] | null = null
+    set(
+      produce((s) => {
+        const stack = s.pendingRedoSelectionRestoreStack
         popped = stack.length ? [...stack[stack.length - 1]] : null
         if (stack.length) {
           stack.pop()
