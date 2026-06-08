@@ -40,11 +40,13 @@ const useAutoLoadMapFile = (props: Props) => {
     const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
     const localMapCacheMapState = localMapCache
       ? buildupJsonFileMap(
-        normalizeBoardPieces(localMapCache.boardPieces),
-        localMapCache.hexMap,
-      )
+          normalizeBoardPieces(localMapCache.boardPieces),
+          localMapCache.hexMap,
+        )
       : undefined
-    const loadMapWithoutUndo = (mapState: ReturnType<typeof buildupJsonFileMap>) => {
+    const loadMapWithoutUndo = (
+      mapState: ReturnType<typeof buildupJsonFileMap>,
+    ) => {
       const temporal = useBoundStore.temporal.getState()
       temporal.pause()
       loadMap(mapState)

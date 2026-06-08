@@ -31,8 +31,8 @@ interface ZoomToPieceArgs {
   cameraControlsRef: RefObject<CameraControls>
   boardHexes: BoardHexes
   targetUID: string
-  mapWidth: number,
-  mapLength: number,
+  mapWidth: number
+  mapLength: number
 }
 
 /**
@@ -45,7 +45,7 @@ export const zoomToPiece = ({
   boardHexes,
   targetUID,
   mapWidth,
-  mapLength
+  mapLength,
 }: ZoomToPieceArgs) => {
   // Set focus state and timestamp for opacity animation
   const now = performance.now()

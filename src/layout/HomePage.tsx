@@ -73,9 +73,7 @@ export default function HomePage() {
       <EditMapFormDialog />
       <EditPieceInventoryDialog />
       <ViewMapInventoryDialog />
-      <PiecesGridDialog
-        cameraControlsRef={cameraControlsRef}
-      />
+      <PiecesGridDialog cameraControlsRef={cameraControlsRef} />
       <div
         style={{
           display: 'flex',

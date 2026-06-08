@@ -12,7 +12,7 @@ import { MdGridView } from 'react-icons/md'
 
 export const BuildControlsTab = () => {
   // const inventory = useLocalPieceInventory()
-  const conflictedPieceUIDs = useBoundStore(s => s.conflictedPieceUIDs)
+  const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const isViewMapInventoryDialogOpen =
     useBoundStore((state) => state.currentDialog) === DIALOGS.viewMapInventory
   const isViewPiecesGridOpen =
@@ -34,7 +34,9 @@ export const BuildControlsTab = () => {
           icon={<FcTodoList />}
         />
         <ControlTabsListItemButton
-          title={'View all pieces in a grid, conflicted pieces at the top, can zoom camera to piece'}
+          title={
+            'View all pieces in a grid, conflicted pieces at the top, can zoom camera to piece'
+          }
           primary={'View Pieces Grid'}
           isError={conflictedPieceUIDs.length > 0}
           onClick={() =>

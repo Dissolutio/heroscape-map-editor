@@ -15,11 +15,7 @@ const UndoRedoButtonGroup = () => {
     (state: any) => state,
   )
   return (
-    <ButtonGroup
-      sx={{ padding: '10px' }}
-      variant="contained"
-      size={'small'}
-    >
+    <ButtonGroup sx={{ padding: '10px' }} variant="contained" size={'small'}>
       {/* <Button onClick={() => useBoundStore.temporal.getState().clear()}>CLEAR</Button> */}
       <Button
         // variant="contained"

@@ -43,9 +43,7 @@ type Props = {
   cameraControlsRef: React.RefObject<CameraControls>
 }
 
-export default function PiecesGridDialog({
-  cameraControlsRef,
-}: Props) {
+export default function PiecesGridDialog({ cameraControlsRef }: Props) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
@@ -58,9 +56,11 @@ export default function PiecesGridDialog({
     (s) => s.pushPendingUndoSelectionRestore,
   )
   // const [selectedRowIds, setSelectedRowIds] = useState([]);
-  const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
+  const [rowSelectionModel, setRowSelectionModel] =
+    useState<GridRowSelectionModel>([])
   const fullScreen = useMediaQuery('(max-width:900px)')
-  const { width: mapWidth, length: mapLength } = getBoardHexesRectangularMapDimensions(boardHexes)
+  const { width: mapWidth, length: mapLength } =
+    getBoardHexesRectangularMapDimensions(boardHexes)
   const isOpen = currentDialog === DIALOGS.viewPiecesGrid
   const conflictedUIDSet = new Set(conflictedPieceUIDs)
 
@@ -81,11 +81,20 @@ export default function PiecesGridDialog({
         boardHexes,
         targetUID: row.id,
         mapWidth,
-        mapLength
+        mapLength,
       })
       toggleSelectedPieceID(row.id)
       handleClose()
-    }, [cameraControlsRef, boardHexes, mapWidth, mapLength, toggleSelectedPieceID, handleClose])
+    },
+    [
+      cameraControlsRef,
+      boardHexes,
+      mapWidth,
+      mapLength,
+      toggleSelectedPieceID,
+      handleClose,
+    ],
+  )
 
   // Build rows: one per unique board piece with its data
   const rows: PieceRow[] = boardPieces
@@ -183,11 +192,7 @@ export default function PiecesGridDialog({
       align: 'center',
       headerAlign: 'center',
       renderCell: (params) => (
-        <Box
-          component="span"
-        >
-          {params.row.altitude + 1}
-        </Box>
+        <Box component="span">{params.row.altitude + 1}</Box>
       ),
     },
     {
@@ -240,7 +245,7 @@ export default function PiecesGridDialog({
     }
     if (rowSelectionModel.length > 1) useBoundStore.temporal.getState().resume()
     toggleSelectedPieceID('')
-  };
+  }
   return (
     <Dialog
       open={isOpen}
@@ -262,7 +267,14 @@ export default function PiecesGridDialog({
       </DialogTitle>
       <DialogContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {boardPieces.length === 0 ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flex: 1,
+            }}
+          >
             <CircularProgress />
           </Box>
         ) : (
@@ -293,7 +305,7 @@ export default function PiecesGridDialog({
               pageSizeOptions={[10, 25, 50, 100]}
               checkboxSelection
               onRowSelectionModelChange={(newRowSelectionModel) => {
-                setRowSelectionModel(newRowSelectionModel);
+                setRowSelectionModel(newRowSelectionModel)
               }}
               rowSelectionModel={rowSelectionModel}
               disableColumnSelector

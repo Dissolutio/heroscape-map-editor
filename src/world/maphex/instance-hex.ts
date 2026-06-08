@@ -7,15 +7,15 @@ import type { BoardHex } from '../../types'
 
 export type CylinderGeometryArgs =
   | [
-    radiusTop?: number | undefined,
-    radiusBottom?: number | undefined,
-    height?: number | undefined,
-    radialSegments?: number | undefined,
-    heightSegments?: number | undefined,
-    openEnded?: boolean | undefined,
-    thetaStart?: number | undefined,
-    thetaLength?: number | undefined,
-  ]
+      radiusTop?: number | undefined,
+      radiusBottom?: number | undefined,
+      height?: number | undefined,
+      radialSegments?: number | undefined,
+      heightSegments?: number | undefined,
+      openEnded?: boolean | undefined,
+      thetaStart?: number | undefined,
+      thetaLength?: number | undefined,
+    ]
   | undefined
 export type DreiCapProps = {
   boardHexArr: BoardHex[]
