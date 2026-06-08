@@ -16,6 +16,7 @@ import { DIALOGS } from './dialogNames'
 import { piecesSoFar } from '../data/pieces'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { zoomToPiece } from '../utils/camera-utils'
+import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 
 interface PieceRow {
   id: string
@@ -42,7 +43,7 @@ export default function PiecesGridDialog({
   const toggleCurrentDialog = useBoundStore((s) => s.toggleCurrentDialog)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const fullScreen = useMediaQuery('(max-width:900px)')
-
+  const { width: mapWidth, length: mapLength } = getBoardHexesRectangularMapDimensions(boardHexes)
   const isOpen = currentDialog === DIALOGS.viewPiecesGrid
 
   const handleClose = () => {
@@ -54,6 +55,8 @@ export default function PiecesGridDialog({
       cameraControlsRef,
       boardHexes,
       targetUID: row.id,
+      mapWidth,
+      mapLength
     })
     toggleSelectedPieceID(row.id)
     handleClose()

@@ -1,10 +1,12 @@
 import { Instance, Instances, useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
 import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
+import { calculateFocusOpacity } from '../../../utils/focus-opacity'
 import type {
   BoardHexPieceProps,
   CylinderGeometryArgs,
@@ -12,6 +14,7 @@ import type {
   InstanceRefType,
 } from '../instance-hex'
 import { CylinderGeometry } from 'three'
+import type { Material } from 'three'
 import { terrainCapColors } from '../hexColors'
 
 const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
@@ -25,7 +28,12 @@ const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
   undefined,
 ]
 
-const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
+const SolidCaps = ({
+  boardHexArr,
+  onPointerUp,
+  focusedPieceUID,
+  focusStartTime,
+}: DreiCapProps) => {
   const ref = React.useRef<InstanceRefType>(null)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/classic1-cap.glb') as any
@@ -34,6 +42,33 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
     (s) => s.isLightsAndShadowsRender,
   )
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+
+  // Apply material opacity based on focus state
+  useFrame(() => {
+    const material = ref.current?.material
+    if (!material) return
+
+    const opacity = calculateFocusOpacity(
+      focusedPieceUID ?? null,
+      focusStartTime ?? null,
+    )
+
+    // Handle both single material and array of materials
+    const materials = Array.isArray(material) ? material : [material]
+    for (const mat of materials) {
+      if (!mat || typeof mat !== 'object') continue
+      const m = mat as Material
+
+      // Only update if opacity changed significantly (avoid thrashing)
+      if (Math.abs((m.opacity ?? 1) - opacity) > 0.001) {
+        m.opacity = opacity
+        m.transparent = opacity < 1
+        m.depthWrite = opacity >= 1
+        m.needsUpdate = true
+      }
+    }
+  })
+
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
   const basicCapGeometry = new CylinderGeometry(...baseSolidCapCylinderArgs)

@@ -1,9 +1,12 @@
 import React from 'react'
 import type { Material, Mesh, Group } from 'three'
 import { useFrame } from '@react-three/fiber'
+import { calculateFocusOpacity } from '../utils/focus-opacity'
 
 type Props = {
-  opacity: number
+  focusedPieceUID?: string | null
+  focusStartTime?: number | null
+  pieceUID?: string
   children: React.ReactNode
 }
 
@@ -15,16 +18,27 @@ const setMaterialOpacity = (material: Material, opacity: number) => {
 }
 
 /**
- * Applies a single opacity value to every mesh under the wrapped piece.
- * This lets us fade whole pieces without plumbing opacity through every model.
+ * Applies animated opacity to every mesh under the wrapped piece based on focus state.
+ * Smoothly animates all pieces back to full opacity after zoom animation completes.
  */
-export default function PieceOpacityGroup({ opacity, children }: Props) {
+export default function PieceOpacityGroup({
+  focusedPieceUID,
+  focusStartTime,
+  pieceUID,
+  children,
+}: Props) {
   const groupRef = React.useRef<Group>(null)
 
   useFrame(() => {
-    if (opacity >= 1) return
     const group = groupRef.current
     if (!group) return
+
+    // Calculate opacity dynamically based on current focus state
+    const opacity = calculateFocusOpacity(
+      focusedPieceUID ?? null,
+      focusStartTime ?? null,
+      pieceUID,
+    )
 
     group.traverse((child) => {
       if (!('isMesh' in child) || !(child as Mesh).isMesh) return

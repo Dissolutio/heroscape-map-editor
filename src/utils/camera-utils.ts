@@ -31,18 +31,27 @@ interface ZoomToPieceArgs {
   cameraControlsRef: RefObject<CameraControls>
   boardHexes: BoardHexes
   targetUID: string
+  mapWidth: number,
+  mapLength: number,
 }
 
 /**
  * Zoom the camera to focus on a specific piece on the map.
  * The camera frames the piece's occupied hexes so clipping planes stay correct.
+ * Pieces will fade to 0.22 opacity immediately, then fade back to 1.0 over 2 seconds (after 1.2s hold).
  */
 export const zoomToPiece = ({
   cameraControlsRef,
   boardHexes,
   targetUID,
+  mapWidth,
+  mapLength
 }: ZoomToPieceArgs) => {
+  // Set focus state and timestamp for opacity animation
+  const now = performance.now()
   useBoundStore.getState().setFocusedPieceUID(targetUID)
+  useBoundStore.getState().setFocusStartTime(now)
+
   if (clearFocusTimeoutId) {
     clearTimeout(clearFocusTimeoutId)
   }
@@ -52,6 +61,7 @@ export const zoomToPiece = ({
   )
   if (!pieceHexes.length) {
     useBoundStore.getState().setFocusedPieceUID(null)
+    useBoundStore.getState().setFocusStartTime(null)
     return
   }
 
@@ -64,11 +74,20 @@ export const zoomToPiece = ({
   // Give a little breathing room around the piece so the camera doesn't clip it.
   box.expandByScalar(HEXGRID_HEX_RADIUS * 1.25)
 
+  cameraControlsRef.current?.setPosition?.(
+    mapWidth,
+    mapWidth + mapLength,
+    mapLength,
+    true,
+  )
+  cameraControlsRef.current?.rotateTo?.(0, 0, true)
   cameraControlsRef.current?.fitToBox?.(box, true)
 
+  // Clear focus state after opacity animation completes (1200ms hold + 2000ms fade-in)
   clearFocusTimeoutId = setTimeout(() => {
     if (useBoundStore.getState().focusedPieceUID === targetUID) {
       useBoundStore.getState().setFocusedPieceUID(null)
+      useBoundStore.getState().setFocusStartTime(null)
     }
-  }, 1200)
+  }, 3200)
 }

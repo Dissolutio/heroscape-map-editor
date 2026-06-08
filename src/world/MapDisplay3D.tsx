@@ -56,6 +56,7 @@ export default function MapDisplay3D({
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const focusedPieceUID = useBoundStore((s) => s.focusedPieceUID)
+  const focusStartTime = useBoundStore((s) => s.focusStartTime)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const { hotkeyConfig } = useHotkeyConfig()
   useApplyHotkeys({ hotkeyConfig, cameraControlsRef, mapGroupRef })
@@ -245,15 +246,23 @@ export default function MapDisplay3D({
         <SolidCaps
           boardHexArr={instanceBoardHexes.solidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
+          focusedPieceUID={focusedPieceUID}
+          focusStartTime={focusStartTime}
         />
         <FluidCaps
           boardHexArr={instanceBoardHexes.fluidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
+          focusedPieceUID={focusedPieceUID}
+          focusStartTime={focusStartTime}
         />
         {boardPieces.map((bp) => {
-          const opacity = focusedPieceUID && focusedPieceUID !== bp.uid ? 0.22 : 1
           return (
-            <PieceOpacityGroup key={bp.uid} opacity={opacity}>
+            <PieceOpacityGroup
+              key={bp.uid}
+              pieceUID={bp.uid}
+              focusedPieceUID={focusedPieceUID}
+              focusStartTime={focusStartTime}
+            >
               <MapBoardPiece3D
                 bp={bp}
                 onPointerUpPaintPiece={onPointerUpPaintPiece}
