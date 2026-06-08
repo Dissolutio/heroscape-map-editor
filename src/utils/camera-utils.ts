@@ -5,6 +5,9 @@ import type { CameraControls } from '@react-three/drei'
 import type { BoardHexes } from '../types'
 import { getBoardHex3DCoords } from './map-utils'
 import { HEXGRID_HEX_RADIUS } from './constants'
+import useBoundStore from '../store/store'
+
+let clearFocusTimeoutId: ReturnType<typeof setTimeout> | undefined
 
 export const zoomToMap = (
   mapGroupRef: RefObject<Group<Object3DEventMap>>,
@@ -39,10 +42,18 @@ export const zoomToPiece = ({
   boardHexes,
   targetUID,
 }: ZoomToPieceArgs) => {
+  useBoundStore.getState().setFocusedPieceUID(targetUID)
+  if (clearFocusTimeoutId) {
+    clearTimeout(clearFocusTimeoutId)
+  }
+
   const pieceHexes = Object.values(boardHexes).filter(
     (hex) => hex.boardPieceUID === targetUID,
   )
-  if (!pieceHexes.length) return
+  if (!pieceHexes.length) {
+    useBoundStore.getState().setFocusedPieceUID(null)
+    return
+  }
 
   const box = new Box3()
   for (const hex of pieceHexes) {
@@ -51,7 +62,13 @@ export const zoomToPiece = ({
   }
 
   // Give a little breathing room around the piece so the camera doesn't clip it.
-  box.expandByScalar(HEXGRID_HEX_RADIUS * 5)
+  box.expandByScalar(HEXGRID_HEX_RADIUS * 1.25)
 
   cameraControlsRef.current?.fitToBox?.(box, true)
+
+  clearFocusTimeoutId = setTimeout(() => {
+    if (useBoundStore.getState().focusedPieceUID === targetUID) {
+      useBoundStore.getState().setFocusedPieceUID(null)
+    }
+  }, 1200)
 }

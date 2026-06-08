@@ -63,6 +63,9 @@ export interface UISlice {
   userPieceInventory: PieceInventory
   updateUserPieceInventory: (n: PieceInventory) => void
 
+  focusedPieceUID: string | null
+  setFocusedPieceUID: (uid: string | null) => void
+
   // OPERATION PREVIEW STATE
   piecePreviews: BoardPiece[] | null
   setPiecePreviews: (pieces: BoardPiece[] | null) => void
@@ -233,6 +236,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isOrthoCam = b
+      }),
+    ),
+  focusedPieceUID: null,
+  setFocusedPieceUID: (uid: string | null) =>
+    set(
+      produce((s) => {
+        s.focusedPieceUID = uid
       }),
     ),
   isShowPDFInventory: true,

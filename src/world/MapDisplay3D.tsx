@@ -26,6 +26,7 @@ import {
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import { MapHex3D } from './maphex/MapHex3D.tsx'
 import EmptyHexes from './maphex/instance/EmptyHex.tsx'
+import PieceOpacityGroup from './PieceOpacityGroup'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
 import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import { enqueueSnackbar } from 'notistack'
@@ -54,6 +55,7 @@ export default function MapDisplay3D({
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const focusedPieceUID = useBoundStore((s) => s.focusedPieceUID)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const { hotkeyConfig } = useHotkeyConfig()
   useApplyHotkeys({ hotkeyConfig, cameraControlsRef, mapGroupRef })
@@ -105,15 +107,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     const clickedHexAltitude = clickedHex.altitude
 
     // Castle W/A: use cap coords and altitude
@@ -249,12 +251,14 @@ export default function MapDisplay3D({
           onPointerUp={onPointerUpPaintPiece}
         />
         {boardPieces.map((bp) => {
+          const opacity = focusedPieceUID && focusedPieceUID !== bp.uid ? 0.22 : 1
           return (
-            <MapBoardPiece3D
-              key={bp.uid}
-              bp={bp}
-              onPointerUpPaintPiece={onPointerUpPaintPiece}
-            />
+            <PieceOpacityGroup key={bp.uid} opacity={opacity}>
+              <MapBoardPiece3D
+                bp={bp}
+                onPointerUpPaintPiece={onPointerUpPaintPiece}
+              />
+            </PieceOpacityGroup>
           )
         })}
         {boardHexesArr.map((bh) => {
