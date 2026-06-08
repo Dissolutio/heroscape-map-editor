@@ -1,33 +1,30 @@
 import useBoundStore from '../store/store'
 
 /**
- * Wraps zundo's `undo()` so that, when the most recent undoable action was a
- * delete, the restored piece IDs are automatically re-selected.
+ * Wraps zundo's `undo()` so that, when the next undoable action is a delete,
+ * the restored piece IDs are automatically re-selected.
  *
- * After undo() the restored boardPieces are checked synchronously — only IDs
- * that are actually present in the new state are selected, which means stale
- * `pendingUndoSelectionRestore` values (from a delete followed by other
- * actions) safely produce no spurious selections.
+ * Selection snapshots are stored in LIFO order and only consumed when undo
+ * will increase piece count (i.e. a delete is being undone), so non-delete
+ * undos do not eat or misapply saved delete selections.
  */
 export function undoWithSelectionRestore() {
-  const {
-    pendingUndoSelectionRestore,
-    setPendingUndoSelectionRestore,
-    toggleSelectedPieceID,
-  } = useBoundStore.getState()
+  const { toggleSelectedPieceID, popPendingUndoSelectionRestore, boardPieces } =
+    useBoundStore.getState()
+  const temporalState = useBoundStore.temporal.getState()
+  const nextUndoState = temporalState.pastStates.at(-1)
+  const nextUndoPieceCount = nextUndoState?.boardPieces?.length ?? 0
+  const shouldRestoreSelection =
+    !!nextUndoState && nextUndoPieceCount > boardPieces.length
 
-  // Snapshot the pending IDs before calling undo (undo may trigger re-renders)
-  const ids = pendingUndoSelectionRestore
-    ? [...pendingUndoSelectionRestore]
-    : null
-  setPendingUndoSelectionRestore(null)
+  temporalState.undo()
 
-  useBoundStore.temporal.getState().undo()
+  const ids = shouldRestoreSelection ? popPendingUndoSelectionRestore() : null
 
   if (ids?.length) {
-    const { boardPieces } = useBoundStore.getState()
+    const { boardPieces: restoredBoardPieces } = useBoundStore.getState()
     const restoredIds = ids.filter((id) =>
-      boardPieces.some((bp) => bp.uid === id),
+      restoredBoardPieces.some((bp) => bp.uid === id),
     )
     if (restoredIds.length) {
       // Select first ID (clears any existing selection), then multi-select the rest

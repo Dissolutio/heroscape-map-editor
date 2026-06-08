@@ -73,8 +73,9 @@ export interface UISlice {
   setPiecePreviews: (pieces: BoardPiece[] | null) => void
 
   // POST-DELETE UNDO RE-SELECTION
-  pendingUndoSelectionRestore: string[] | null
-  setPendingUndoSelectionRestore: (ids: string[] | null) => void
+  pendingUndoSelectionRestoreStack: string[][]
+  pushPendingUndoSelectionRestore: (ids: string[]) => void
+  popPendingUndoSelectionRestore: () => string[] | null
 
   // PDF STATE
   isShowPDFInventory: boolean
@@ -205,13 +206,28 @@ const createUISlice: StateCreator<
         s.piecePreviews = pieces
       }),
     ),
-  pendingUndoSelectionRestore: null,
-  setPendingUndoSelectionRestore: (ids: string[] | null) =>
+  pendingUndoSelectionRestoreStack: [],
+  pushPendingUndoSelectionRestore: (ids: string[]) =>
     set(
       produce((s) => {
-        s.pendingUndoSelectionRestore = ids
+        if (ids.length) {
+          s.pendingUndoSelectionRestoreStack.push([...ids])
+        }
       }),
     ),
+  popPendingUndoSelectionRestore: () => {
+    let popped: string[] | null = null
+    set(
+      produce((s) => {
+        const stack = s.pendingUndoSelectionRestoreStack
+        popped = stack.length ? [...stack[stack.length - 1]] : null
+        if (stack.length) {
+          stack.pop()
+        }
+      }),
+    )
+    return popped
+  },
   isShowStartZones: true,
   toggleIsShowStartZones: (b: boolean) =>
     set(

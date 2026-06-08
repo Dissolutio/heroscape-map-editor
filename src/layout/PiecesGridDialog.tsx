@@ -13,10 +13,16 @@ import type { CameraControls } from '@react-three/drei'
 import useBoundStore from '../store/store'
 import { DIALOGS } from './dialogNames'
 import { piecesSoFar } from '../data/pieces'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridToolbar,
+  type GridColDef,
+  type GridRowSelectionModel,
+} from '@mui/x-data-grid'
 import { zoomToPiece } from '../utils/camera-utils'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import { pieceGroups } from '../data/pieceGroups'
+import { useCallback, useState } from 'react'
 
 interface PieceRow {
   id: string
@@ -46,6 +52,13 @@ export default function PiecesGridDialog({
   const currentDialog = useBoundStore((s) => s.currentDialog)
   const toggleCurrentDialog = useBoundStore((s) => s.toggleCurrentDialog)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const unpaintTile = useBoundStore((s) => s.unpaintTile)
+  const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
+  const pushPendingUndoSelectionRestore = useBoundStore(
+    (s) => s.pushPendingUndoSelectionRestore,
+  )
+  // const [selectedRowIds, setSelectedRowIds] = useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
   const fullScreen = useMediaQuery('(max-width:900px)')
   const { width: mapWidth, length: mapLength } = getBoardHexesRectangularMapDimensions(boardHexes)
   const isOpen = currentDialog === DIALOGS.viewPiecesGrid
@@ -58,21 +71,21 @@ export default function PiecesGridDialog({
     })
   })
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     toggleCurrentDialog('')
-  }
-
-  const handleZoomToPiece = (row: PieceRow) => {
-    zoomToPiece({
-      cameraControlsRef,
-      boardHexes,
-      targetUID: row.id,
-      mapWidth,
-      mapLength
-    })
-    toggleSelectedPieceID(row.id)
-    handleClose()
-  }
+  }, [toggleCurrentDialog])
+  const handleZoomToPiece = useCallback(
+    (row: PieceRow) => {
+      zoomToPiece({
+        cameraControlsRef,
+        boardHexes,
+        targetUID: row.id,
+        mapWidth,
+        mapLength
+      })
+      toggleSelectedPieceID(row.id)
+      handleClose()
+    }, [cameraControlsRef, boardHexes, mapWidth, mapLength, toggleSelectedPieceID, handleClose])
 
   // Build rows: one per unique board piece with its data
   const rows: PieceRow[] = boardPieces
@@ -213,6 +226,21 @@ export default function PiecesGridDialog({
     },
   ]
 
+  const handleBulkDelete = () => {
+    setPiecePreviews(null)
+    // Save the IDs so undo() can re-select them
+    pushPendingUndoSelectionRestore(rowSelectionModel.map(String))
+    // Zundo batching: let the first delete run normally so zundo records the
+    // pre-batch snapshot into history, then pause so intermediate deletes are
+    // not individually tracked. resume() after the loop collapses everything
+    // into a single undo step.
+    for (const [i, id] of rowSelectionModel.entries()) {
+      if (i === 1) useBoundStore.temporal.getState().pause()
+      unpaintTile(String(id))
+    }
+    if (rowSelectionModel.length > 1) useBoundStore.temporal.getState().resume()
+    toggleSelectedPieceID('')
+  };
   return (
     <Dialog
       open={isOpen}
@@ -238,23 +266,54 @@ export default function PiecesGridDialog({
             <CircularProgress />
           </Box>
         ) : (
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: { pageSize: 100, page: 0 },
-              },
-            }}
-            pageSizeOptions={[10, 25, 50, 100]}
-            disableRowSelectionOnClick
-            sx={{
-              flex: 1,
-              '& .MuiDataGrid-root': {
-                border: 'none',
-              },
-            }}
-          />
+          <>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={handleBulkDelete}
+              disabled={rowSelectionModel.length === 0}
+              sx={{ mb: 2 }}
+            >
+              Delete Selected ({rowSelectionModel.length})
+            </Button>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              initialState={{
+                pagination: {
+                  paginationModel: { pageSize: 100, page: 0 },
+                },
+                filter: {
+                  filterModel: {
+                    items: [],
+                    quickFilterExcludeHiddenColumns: true,
+                  },
+                },
+              }}
+              pageSizeOptions={[10, 25, 50, 100]}
+              checkboxSelection
+              onRowSelectionModelChange={(newRowSelectionModel) => {
+                setRowSelectionModel(newRowSelectionModel);
+              }}
+              rowSelectionModel={rowSelectionModel}
+              disableColumnSelector
+              disableDensitySelector
+              slots={{ toolbar: GridToolbar }}
+              slotProps={{
+                toolbar: {
+                  csvOptions: { disableToolbarButton: true },
+                  printOptions: { disableToolbarButton: true },
+                  showQuickFilter: true,
+                },
+              }}
+              sx={{
+                flex: 1,
+                '& .MuiDataGrid-root': {
+                  border: 'none',
+                },
+              }}
+            />
+          </>
         )}
       </DialogContent>
       <DialogActions>

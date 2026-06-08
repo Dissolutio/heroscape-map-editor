@@ -62,7 +62,7 @@ export const useApplyHotkeys = ({
       // Save the IDs so undo() can re-select them
       useBoundStore
         .getState()
-        .setPendingUndoSelectionRestore([...selectedPieceIDs])
+        .pushPendingUndoSelectionRestore([...selectedPieceIDs])
       // Zundo batching: let the first delete run normally so zundo records the
       // pre-batch snapshot into history, then pause so intermediate deletes are
       // not individually tracked. resume() after the loop collapses everything
@@ -115,9 +115,9 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
+        flatPieceSizes?.[2] ??
+        flatPieceSizes?.[1] ??
+        flatPieceSizes[0],
       )
     }
   }
@@ -125,10 +125,10 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[4] ??
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
+        flatPieceSizes?.[3] ??
+        flatPieceSizes?.[2] ??
+        flatPieceSizes?.[1] ??
+        flatPieceSizes[0],
       )
     }
   }
@@ -136,11 +136,11 @@ export const useApplyHotkeys = ({
     if (isSizes) {
       togglePieceSize(
         flatPieceSizes?.[5] ??
-          flatPieceSizes?.[4] ??
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
+        flatPieceSizes?.[4] ??
+        flatPieceSizes?.[3] ??
+        flatPieceSizes?.[2] ??
+        flatPieceSizes?.[1] ??
+        flatPieceSizes[0],
       )
     }
   }
