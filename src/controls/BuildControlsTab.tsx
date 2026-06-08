@@ -1,4 +1,4 @@
-import { Container, List } from '@mui/material'
+import { Box, Container, List } from '@mui/material'
 import PenModeControls from './PenModeControls'
 import PieceSizeSelect from './PieceSizeSelect'
 import RotationSelect from './RotationSelect'
@@ -12,6 +12,7 @@ import { MdGridView } from 'react-icons/md'
 
 export const BuildControlsTab = () => {
   // const inventory = useLocalPieceInventory()
+  const conflictedPieceUIDs = useBoundStore(s => s.conflictedPieceUIDs)
   const isViewMapInventoryDialogOpen =
     useBoundStore((state) => state.currentDialog) === DIALOGS.viewMapInventory
   const isViewPiecesGridOpen =
@@ -33,8 +34,9 @@ export const BuildControlsTab = () => {
           icon={<FcTodoList />}
         />
         <ControlTabsListItemButton
-          title={'View all pieces in a grid, sortable and zoomable'}
+          title={'View all pieces in a grid, conflicted pieces at the top, can zoom camera to piece'}
           primary={'View Pieces Grid'}
+          isError={conflictedPieceUIDs.length > 0}
           onClick={() =>
             toggleCurrentDialog(
               isViewPiecesGridOpen ? '' : DIALOGS.viewPiecesGrid,
@@ -50,8 +52,16 @@ export const BuildControlsTab = () => {
           justifyContent: 'space-around',
         }}
       >
-        <PenModeControls />
         <UndoRedoButtonGroup />
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+        }}
+      >
+        <PenModeControls />
       </div>
       {/* <div style={{ padding: '0px 20px' }}>
         {isUseInventory && !Number.isNaN(remainingCount)

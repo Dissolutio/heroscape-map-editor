@@ -86,13 +86,11 @@ export default function PenModeControls() {
   }
   const { hotkeyLookup } = useHotkeyConfig()
   return (
-    <FormControl variant="filled" size="small">
-      <InputLabel id="pen-terrain-select-label">Terrain</InputLabel>
+    <FormControl fullWidth variant="filled">
+      <InputLabel id="pen-terrain-select-label">Pen Mode</InputLabel>
       <Select
-        autoWidth
-        sx={{
-          minWidth: 100,
-        }}
+        // autoWidth
+        fullWidth
         MenuProps={{
           anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
         }}

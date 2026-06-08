@@ -10,6 +10,7 @@ type Props = {
   endIcon?: React.ReactNode
   title?: string
   disabled?: boolean
+  isError?: boolean
 }
 
 export const ControlTabsListItemButton = ({
@@ -19,6 +20,7 @@ export const ControlTabsListItemButton = ({
   endIcon,
   title,
   disabled,
+  isError
 }: Props) => {
   const { isSmallControls, isMediumControls } = useControlsWidthContext()
   const listItemTextStyleProps = {
@@ -33,6 +35,11 @@ export const ControlTabsListItemButton = ({
       sx={{
         minHeight: 32,
         width: '100%',
+        boxShadow:
+          isError
+            ? '3px 0 3px #d32f2f, -3px 0 3px  #d32f2f'
+            : '',
+        color: isError ? 'error.main' : 'text.secondary'
       }}
       title={title}
       disabled={disabled}
@@ -40,6 +47,7 @@ export const ControlTabsListItemButton = ({
       <ListItemIcon
         sx={{
           minWidth: 26,
+          color: isError ? 'error.main' : 'text.secondary'
         }}
       >
         {icon}
