@@ -72,7 +72,7 @@ export const zoomToPiece = ({
   }
 
   // Give a little breathing room around the piece so the camera doesn't clip it.
-  box.expandByScalar(HEXGRID_HEX_RADIUS * 1.25)
+  box.expandByScalar(HEXGRID_HEX_RADIUS * 5)
 
   cameraControlsRef.current?.setPosition?.(
     mapWidth,
