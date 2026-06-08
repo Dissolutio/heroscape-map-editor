@@ -14,6 +14,38 @@ import { LS_KEYS } from '../local-storage/keys'
 import { normalizeBoardPieces } from '../utils/map-utils'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 
+function computeConflictedPieceUIDs(boardPieces: MapState['boardPieces']) {
+  const conflicts = new Set<string>()
+  let workingHexes: MapState['boardHexes'] = {}
+  let workingPieces: MapState['boardPieces'] = []
+
+  for (const boardPiece of normalizeBoardPieces(boardPieces)) {
+    const piece = piecesSoFar[boardPiece.inventoryID]
+    if (!piece) continue
+
+    const result = addPiece({
+      piece,
+      boardHexes: workingHexes,
+      boardPieces: workingPieces,
+      pieceCoords: boardPiece.pieceCoords,
+      placementAltitude: boardPiece.altitude,
+      rotation: boardPiece.rotation,
+      isVsTile: false,
+      uid: boardPiece.uid,
+      permissive: true,
+    })
+
+    workingHexes = result.newBoardHexes
+    workingPieces = result.newBoardPieces
+    for (const displacedUID of result.displacedUIDs ?? []) {
+      conflicts.add(displacedUID)
+      conflicts.add(boardPiece.uid)
+    }
+  }
+
+  return [...conflicts]
+}
+
 export interface MapSlice extends MapState {
   conflictedPieceUIDs: string[]
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
@@ -70,12 +102,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     let error: AddRemovePieceError
     set((state) => {
       return produce(state, (draft) => {
-        const {
-          newBoardHexes,
-          newBoardPieces,
-          error: addPieceError,
-          displacedUIDs,
-        } = addPiece({
+        const { newBoardHexes, newBoardPieces, error: addPieceError } = addPiece({
           piece,
           boardHexes: draft.boardHexes,
           boardPieces: draft.boardPieces,
@@ -94,12 +121,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
             : state.viewingLevel
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
-        // update conflict tracking
-        const conflicts = new Set(draft.conflictedPieceUIDs)
-        for (const duid of displacedUIDs ?? []) {
-          conflicts.add(duid)
-        }
-        draft.conflictedPieceUIDs = [...conflicts]
+        // Recompute from boardPieces so conflict state stays correct even after load/rehydrate drift.
+        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(newBoardPieces)
       })
     })
     return error
@@ -221,7 +244,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         }
 
         // 3. Place the moving piece at its new position
-        const { newBoardHexes, newBoardPieces, displacedUIDs } = addPiece({
+        const { newBoardHexes, newBoardPieces } = addPiece({
           piece,
           boardHexes: workingHexes,
           boardPieces: workingPieces,
@@ -235,12 +258,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
 
-        // 4. Update conflict tracking: only pieces displaced by the final placement remain conflicted
-        for (const duid of displacedUIDs ?? []) {
-          newConflicts.add(duid)
-        }
-        if (displacedUIDs?.length) newConflicts.add(uid)
-        draft.conflictedPieceUIDs = [...newConflicts]
+        // Recompute globally so move and paint use the same conflict source of truth.
+        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(newBoardPieces)
       })
     }),
   mapPortraitBase64: '',
@@ -281,7 +300,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.boardHexes = mapState.boardHexes
         draft.hexMap = mapState.hexMap
         draft.boardPieces = mapState.boardPieces
-        draft.conflictedPieceUIDs = []
+        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
+          mapState.boardPieces,
+        )
       })
     }),
 })
