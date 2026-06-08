@@ -36,9 +36,11 @@ type Props = {
 export default function PiecesGridDialog({
   cameraControlsRef,
 }: Props) {
+  const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const currentDialog = useBoundStore((s) => s.currentDialog)
   const toggleCurrentDialog = useBoundStore((s) => s.toggleCurrentDialog)
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const fullScreen = useMediaQuery('(max-width:900px)')
 
   const isOpen = currentDialog === DIALOGS.viewPiecesGrid
@@ -50,9 +52,10 @@ export default function PiecesGridDialog({
   const handleZoomToPiece = (row: PieceRow) => {
     zoomToPiece({
       cameraControlsRef,
-      boardPieces,
+      boardHexes,
       targetUID: row.id,
     })
+    toggleSelectedPieceID(row.id)
     handleClose()
   }
 
