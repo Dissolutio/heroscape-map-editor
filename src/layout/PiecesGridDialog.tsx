@@ -10,18 +10,21 @@ import {
 } from '@mui/material'
 import type React from 'react'
 import type { CameraControls } from '@react-three/drei'
-import type { Group, Object3DEventMap } from 'three'
 import useBoundStore from '../store/store'
 import { DIALOGS } from './dialogNames'
 import { piecesSoFar } from '../data/pieces'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { zoomToPiece } from '../utils/camera-utils'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
+import { pieceGroups } from '../data/pieceGroups'
 
 interface PieceRow {
   id: string
   pieceName: string
+  isConflicted: boolean
   inventoryID: string
+  terrain: string
+  pieceSize: number
   q: number
   r: number
   s: number
@@ -39,12 +42,21 @@ export default function PiecesGridDialog({
 }: Props) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const currentDialog = useBoundStore((s) => s.currentDialog)
   const toggleCurrentDialog = useBoundStore((s) => s.toggleCurrentDialog)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const fullScreen = useMediaQuery('(max-width:900px)')
   const { width: mapWidth, length: mapLength } = getBoardHexesRectangularMapDimensions(boardHexes)
   const isOpen = currentDialog === DIALOGS.viewPiecesGrid
+  const conflictedUIDSet = new Set(conflictedPieceUIDs)
+
+  const pieceOrderByInventoryID = new Map<string, number>()
+  pieceGroups.forEach((group, groupIndex) => {
+    group.pieces.forEach((pieceID, pieceIndex) => {
+      pieceOrderByInventoryID.set(pieceID, groupIndex * 1000 + pieceIndex)
+    })
+  })
 
   const handleClose = () => {
     toggleCurrentDialog('')
@@ -63,21 +75,63 @@ export default function PiecesGridDialog({
   }
 
   // Build rows: one per unique board piece with its data
-  const rows: PieceRow[] = boardPieces.map((bp) => {
-    const piece = piecesSoFar[bp.inventoryID]
-    const pieceName = piece?.title ?? 'Unknown Piece'
-    return {
-      id: bp.uid,
-      pieceName,
-      inventoryID: bp.inventoryID,
-      q: bp.pieceCoords.q,
-      r: bp.pieceCoords.r,
-      s: bp.pieceCoords.s,
-      altitude: bp.altitude,
-      rotation: bp.rotation,
-      count: 1, // each row is one piece instance
-    }
-  })
+  const rows: PieceRow[] = boardPieces
+    .map((bp) => {
+      const piece = piecesSoFar[bp.inventoryID]
+      const pieceName = piece?.title ?? 'Unknown Piece'
+      return {
+        id: bp.uid,
+        pieceName,
+        isConflicted: conflictedUIDSet.has(bp.uid),
+        inventoryID: bp.inventoryID,
+        terrain: piece?.terrain ?? 'unknown',
+        pieceSize: piece?.size ?? 0,
+        q: bp.pieceCoords.q,
+        r: bp.pieceCoords.r,
+        s: bp.pieceCoords.s,
+        altitude: bp.altitude,
+        rotation: bp.rotation,
+        count: 1, // each row is one piece instance
+      }
+    })
+    .sort((a, b) => {
+      if (a.isConflicted !== b.isConflicted) {
+        return a.isConflicted ? -1 : 1
+      }
+
+      const aGroupOrder = pieceOrderByInventoryID.get(a.inventoryID)
+      const bGroupOrder = pieceOrderByInventoryID.get(b.inventoryID)
+      const aHasGroupOrder = aGroupOrder !== undefined
+      const bHasGroupOrder = bGroupOrder !== undefined
+
+      if (aHasGroupOrder && bHasGroupOrder && aGroupOrder !== bGroupOrder) {
+        return aGroupOrder - bGroupOrder
+      }
+      if (aHasGroupOrder !== bHasGroupOrder) {
+        return aHasGroupOrder ? -1 : 1
+      }
+
+      // Fallback grouping keeps same terrain and size variants adjacent.
+      if (a.terrain !== b.terrain) {
+        return a.terrain.localeCompare(b.terrain)
+      }
+      if (a.pieceSize !== b.pieceSize) {
+        return a.pieceSize - b.pieceSize
+      }
+      if (a.pieceName !== b.pieceName) {
+        return a.pieceName.localeCompare(b.pieceName)
+      }
+      if (a.altitude !== b.altitude) {
+        return a.altitude - b.altitude
+      }
+      if (a.q !== b.q) {
+        return a.q - b.q
+      }
+      if (a.r !== b.r) {
+        return a.r - b.r
+      }
+      return a.s - b.s
+    })
 
   // Count pieces by type for summary
   const pieceCountsByType = boardPieces.reduce(
@@ -96,30 +150,17 @@ export default function PiecesGridDialog({
       headerName: 'Piece Name',
       flex: 1.5,
       minWidth: 150,
-    },
-    {
-      field: 'q',
-      headerName: 'Q',
-      type: 'number',
-      width: 60,
-      align: 'center',
-      headerAlign: 'center',
-    },
-    {
-      field: 'r',
-      headerName: 'R',
-      type: 'number',
-      width: 60,
-      align: 'center',
-      headerAlign: 'center',
-    },
-    {
-      field: 's',
-      headerName: 'S',
-      type: 'number',
-      width: 60,
-      align: 'center',
-      headerAlign: 'center',
+      renderCell: (params) => (
+        <Box
+          component="span"
+          sx={{
+            color: params.row.isConflicted ? 'error.main' : 'text.secondary',
+            fontWeight: params.row.isConflicted ? 700 : 400,
+          }}
+        >
+          {params.row.pieceName}
+        </Box>
+      ),
     },
     {
       field: 'altitude',
@@ -130,12 +171,22 @@ export default function PiecesGridDialog({
       headerAlign: 'center',
     },
     {
-      field: 'rotation',
-      headerName: 'Rotation',
-      type: 'number',
-      width: 90,
+      field: 'isConflicted',
+      headerName: 'Conflicted',
+      width: 110,
       align: 'center',
       headerAlign: 'center',
+      renderCell: (params) => (
+        <Box
+          component="span"
+          sx={{
+            color: params.row.isConflicted ? 'error.main' : 'text.secondary',
+            fontWeight: params.row.isConflicted ? 700 : 400,
+          }}
+        >
+          {params.row.isConflicted ? 'Yes' : 'No'}
+        </Box>
+      ),
     },
     {
       field: 'actions',
