@@ -107,17 +107,55 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   unpaintTile: (uid: string) =>
     set((state) => {
       return produce(state, (draft) => {
-        const { newBoardHexes, newBoardPieces } = removePiece({
-          uid,
-          boardHexes: draft.boardHexes,
-          boardPieces: draft.boardPieces,
-        })
-        draft.boardHexes = newBoardHexes
-        draft.boardPieces = newBoardPieces
-        // remove from conflict tracking
-        draft.conflictedPieceUIDs = draft.conflictedPieceUIDs.filter(
-          (id) => id !== uid,
-        )
+        // 1. Remove the piece being deleted
+        let { newBoardHexes: workingHexes, newBoardPieces: workingPieces } =
+          removePiece({
+            uid,
+            boardHexes: draft.boardHexes,
+            boardPieces: draft.boardPieces,
+          })
+
+        const newConflicts = new Set<string>()
+
+        // 2. Restore hexes for previously-conflicted pieces (same as in movePiece)
+        for (const conflictedUID of draft.conflictedPieceUIDs) {
+          if (conflictedUID === uid) continue
+          const conflictedBP = workingPieces.find(
+            (bp) => bp.uid === conflictedUID,
+          )
+          if (!conflictedBP) continue
+          const conflictedPiece = piecesSoFar[conflictedBP.inventoryID]
+          if (!conflictedPiece) continue
+          // Remove from the pieces array (hexes are already absent/overwritten)
+          const removeResult = removePiece({
+            uid: conflictedUID,
+            boardHexes: workingHexes,
+            boardPieces: workingPieces,
+          })
+          // Re-add with fresh hexes
+          const addResult = addPiece({
+            piece: conflictedPiece,
+            boardHexes: removeResult.newBoardHexes,
+            boardPieces: removeResult.newBoardPieces,
+            pieceCoords: conflictedBP.pieceCoords,
+            placementAltitude: conflictedBP.altitude,
+            rotation: conflictedBP.rotation,
+            isVsTile: false,
+            uid: conflictedUID,
+            permissive: true,
+          })
+          workingHexes = addResult.newBoardHexes
+          workingPieces = addResult.newBoardPieces
+          // Track any residual conflicts among the restored pieces themselves
+          for (const duid of addResult.displacedUIDs ?? []) {
+            newConflicts.add(duid)
+          }
+          if (addResult.displacedUIDs?.length) newConflicts.add(conflictedUID)
+        }
+
+        draft.boardHexes = workingHexes
+        draft.boardPieces = workingPieces
+        draft.conflictedPieceUIDs = [...newConflicts]
       })
     }),
   movePiece: ({
