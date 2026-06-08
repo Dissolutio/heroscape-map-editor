@@ -1,7 +1,5 @@
 ## Current todo
-- Move/rotate placed pieces
 - Validation through BoardHexes, but render through BoardPieces
-- Multi-select pieces
 - Road tiles need their own textured/complex cap for 3D high quality render
 - Wood tiles need their own textured/complex-geometry cap for 3D high quality render
 - Ancient terrain in 3D should have darker brown color
@@ -17,10 +15,7 @@
 - PDF style option: disable hexgrid lines over sub-levels
 
 ## Todo EZ
-- Move wallwalk in pen mode selector to be closer to road
-- Add a hotkey for wallwalk
 - Middle click a piece to make it the pen mode
-- Hotkey for rotating camera azimuth angle by 15 degree increments
 - PDF style option: enable legacy Virtualscape colors
 - In View Map Inventory dialog, clicking the line item selects it for your terrain placer
 - PDF 2 column format
