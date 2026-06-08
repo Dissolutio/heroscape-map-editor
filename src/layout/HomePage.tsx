@@ -16,6 +16,7 @@ import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
 import type { CameraControls } from '@react-three/drei'
 import { getBoardPiecesMaxLevel } from '../utils/map-utils'
+import PiecesGridDialog from './PiecesGridDialog'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef<CameraControls>(null)
@@ -72,6 +73,9 @@ export default function HomePage() {
       <EditMapFormDialog />
       <EditPieceInventoryDialog />
       <ViewMapInventoryDialog />
+      <PiecesGridDialog
+        cameraControlsRef={cameraControlsRef}
+      />
       <div
         style={{
           display: 'flex',

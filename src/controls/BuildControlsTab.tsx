@@ -8,11 +8,14 @@ import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import useBoundStore from '../store/store'
 import { DIALOGS } from '../layout/dialogNames'
 import { FcTodoList } from 'react-icons/fc'
+import { MdGridView } from 'react-icons/md'
 
 export const BuildControlsTab = () => {
   // const inventory = useLocalPieceInventory()
   const isViewMapInventoryDialogOpen =
     useBoundStore((state) => state.currentDialog) === DIALOGS.viewMapInventory
+  const isViewPiecesGridOpen =
+    useBoundStore((state) => state.currentDialog) === DIALOGS.viewPiecesGrid
   const toggleCurrentDialog = useBoundStore(
     (state) => state.toggleCurrentDialog,
   )
@@ -28,6 +31,16 @@ export const BuildControlsTab = () => {
             )
           }
           icon={<FcTodoList />}
+        />
+        <ControlTabsListItemButton
+          title={'View all pieces in a grid, sortable and zoomable'}
+          primary={'View Pieces Grid'}
+          onClick={() =>
+            toggleCurrentDialog(
+              isViewPiecesGridOpen ? '' : DIALOGS.viewPiecesGrid,
+            )
+          }
+          icon={<MdGridView />}
         />
       </List>
       <div
