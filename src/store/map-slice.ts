@@ -15,6 +15,11 @@ import { normalizeBoardPieces } from '../utils/map-utils'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 
 function computeConflictedPieceUIDs(boardPieces: MapState['boardPieces']) {
+  const { conflictedPieceUIDs } = rebuildBoardStateFromPieces(boardPieces)
+  return conflictedPieceUIDs
+}
+
+function rebuildBoardStateFromPieces(boardPieces: MapState['boardPieces']) {
   const conflicts = new Set<string>()
   let workingHexes: MapState['boardHexes'] = {}
   let workingPieces: MapState['boardPieces'] = []
@@ -43,13 +48,18 @@ function computeConflictedPieceUIDs(boardPieces: MapState['boardPieces']) {
     }
   }
 
-  return [...conflicts]
+  return {
+    boardHexes: workingHexes,
+    boardPieces: workingPieces,
+    conflictedPieceUIDs: [...conflicts],
+  }
 }
 
 export interface MapSlice extends MapState {
   conflictedPieceUIDs: string[]
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
   unpaintTile: (uid: string) => void
+  convertTerrainForPieces: (args: ConvertTerrainArgs) => number
   movePiece: (args: MovePieceArgs) => void
   loadMap: (map: MapState) => void
   addMapPortraitBase64: (pic: string) => void
@@ -71,6 +81,11 @@ type MovePieceArgs = {
   newPieceCoords: CubeCoordinate
   newAltitude?: number
   newRotation?: number
+}
+
+type ConvertTerrainArgs = {
+  selectedUIDs: string[]
+  targetInventoryBySourceInventory: Record<string, string>
 }
 
 // Here, we duplicate lastMap in case the user is loading a URL, which will immediately overwrite lastMap,
@@ -185,6 +200,57 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.conflictedPieceUIDs = [...newConflicts]
       })
     }),
+  convertTerrainForPieces: ({
+    selectedUIDs,
+    targetInventoryBySourceInventory,
+  }: ConvertTerrainArgs): number => {
+    let convertedCount = 0
+    set((state) => {
+      return produce(state, (draft) => {
+        let workingHexes = draft.boardHexes
+        let workingPieces = draft.boardPieces
+
+        for (const uid of selectedUIDs) {
+          const boardPiece = workingPieces.find((bp) => bp.uid === uid)
+          if (!boardPiece) continue
+
+          const targetInventoryID =
+            targetInventoryBySourceInventory[boardPiece.inventoryID]
+          if (!targetInventoryID || targetInventoryID === boardPiece.inventoryID) {
+            continue
+          }
+          const targetPiece = piecesSoFar[targetInventoryID]
+          if (!targetPiece) continue
+
+          const removeResult = removePiece({
+            uid,
+            boardHexes: workingHexes,
+            boardPieces: workingPieces,
+          })
+          const addResult = addPiece({
+            piece: targetPiece,
+            boardHexes: removeResult.newBoardHexes,
+            boardPieces: removeResult.newBoardPieces,
+            pieceCoords: boardPiece.pieceCoords,
+            placementAltitude: boardPiece.altitude,
+            rotation: boardPiece.rotation,
+            isVsTile: false,
+            uid,
+            permissive: true,
+          })
+
+          workingHexes = addResult.newBoardHexes
+          workingPieces = addResult.newBoardPieces
+          convertedCount += 1
+        }
+
+        draft.boardHexes = workingHexes
+        draft.boardPieces = workingPieces
+        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(workingPieces)
+      })
+    })
+    return convertedCount
+  },
   movePiece: ({
     uid,
     newPieceCoords,
