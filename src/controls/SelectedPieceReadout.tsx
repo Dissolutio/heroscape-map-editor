@@ -12,7 +12,7 @@ const SelectedPieceReadout = () => {
   const firstBp = boardPieces.find((bp) => selectedPieceIDs.includes(bp.uid))
   if (!firstBp) return null
 
-  const cardWidth = isSmallScreenWidth ? 150 : 170
+  const cardWidth = isSmallScreenWidth ? 160 : 185
 
   return (
     <div

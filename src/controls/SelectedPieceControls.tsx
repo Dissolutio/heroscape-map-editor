@@ -1,9 +1,12 @@
 import { Button, ButtonGroup, Tooltip, Typography } from '@mui/material'
+import { useState } from 'react'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
+import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
 import DeletePieceButton from './DeletePieceButton'
+import { ConvertTerrainDialog } from './ConvertTerrainDialog'
 
 const FONT_SIZE = 8
 
@@ -33,6 +36,13 @@ export function SelectedPieceControls() {
 
   const isMulti = selectedBoardPieces.length > 1
 
+  const hasLandPieces = selectedBoardPieces.some((bp) => {
+    const terrain = piecesSoFar[bp.inventoryID]?.terrain ?? ''
+    return isSolidTerrainHex(terrain) || isFluidTerrainHex(terrain)
+  })
+
+  const [isConvertDialogOpen, setIsConvertDialogOpen] = useState(false)
+
   // --- Info readout ---
   const titleLabel = isMulti
     ? `${selectedBoardPieces.length} pieces selected`
@@ -40,11 +50,11 @@ export function SelectedPieceControls() {
 
   const tooltipLines = isMulti
     ? selectedBoardPieces
-        .map(
-          (bp) =>
-            `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
-        )
-        .join('\n')
+      .map(
+        (bp) =>
+          `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
+      )
+      .join('\n')
     : ''
 
   const altitudes = selectedBoardPieces.map((bp) => bp.altitude + 1)
@@ -337,6 +347,24 @@ export function SelectedPieceControls() {
       <ButtonGroup size="small" sx={{ mt: 0.5 }}>
         <DeletePieceButton />
       </ButtonGroup>
+
+      {/* Convert Terrain */}
+      <Button
+        size="small"
+        fullWidth
+        variant="outlined"
+        disabled={!hasLandPieces}
+        title="Convert selected terrain tiles to a different terrain type"
+        onClick={() => setIsConvertDialogOpen(true)}
+        sx={{ mt: 0.5, fontSize: FONT_SIZE }}
+      >
+        Convert Terrain
+      </Button>
+      <ConvertTerrainDialog
+        open={isConvertDialogOpen}
+        onClose={() => setIsConvertDialogOpen(false)}
+        pieceUIDs={selectedPieceIDs}
+      />
     </>
   )
 }
