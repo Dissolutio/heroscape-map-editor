@@ -32,6 +32,7 @@ interface PieceRow {
   id: string
   pieceName: string
   isConflicted: boolean
+  isLandPiece: boolean
   isSubterrainBuried: boolean
   isBuried: boolean
   inventoryID: string
@@ -182,10 +183,12 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
     .map((bp) => {
       const piece = piecesSoFar[bp.inventoryID]
       const pieceName = piece?.title ?? 'Unknown Piece'
+      const isLandPiece = isLandTerrain(piece?.terrain ?? '')
       return {
         id: bp.uid,
         pieceName,
         isConflicted: conflictedUIDSet.has(bp.uid),
+        isLandPiece,
         isSubterrainBuried: isSubterrainBuriedForPiece(
           bp.inventoryID,
           bp.pieceCoords,
@@ -250,6 +253,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
     boardPieces,
     conflictedUIDSet,
     isBuriedForPiece,
+      isLandTerrain,
     isSubterrainBuriedForPiece,
     pieceOrderByInventoryID,
   ])
@@ -323,7 +327,11 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       headerAlign: 'center',
       renderCell: (params) => (
         <Box component="span">
-          {params.row.isSubterrainBuried ? 'Yes' : 'No'}
+          {params.row.isLandPiece
+            ? params.row.isSubterrainBuried
+              ? 'Yes'
+              : 'No'
+            : '-'}
         </Box>
       ),
     },
@@ -335,7 +343,9 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       align: 'center',
       headerAlign: 'center',
       renderCell: (params) => (
-        <Box component="span">{params.row.isBuried ? 'Yes' : 'No'}</Box>
+        <Box component="span">
+          {params.row.isLandPiece ? (params.row.isBuried ? 'Yes' : 'No') : '-'}
+        </Box>
       ),
     },
     {
