@@ -159,7 +159,7 @@ export const lavaFieldsPieceSet: PieceInventory = {
   [Pieces.lavaRockOutcrop1]: 3,
   [Pieces.lavaRockOutcrop3]: 1,
   [Pieces.lava1]: 20,
-  [Pieces.lava3]: 20,
+  [Pieces.lava3]: 3,
 }
 export const roadsOfValhallaPieceSet: PieceInventory = {
   [Pieces.road1]: 16,
