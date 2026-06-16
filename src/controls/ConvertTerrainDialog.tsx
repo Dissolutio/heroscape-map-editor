@@ -1,4 +1,5 @@
 import {
+  Alert,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -32,9 +33,15 @@ function formatTerrainLabel(terrain: string) {
 function TerrainStackPreview({
   title,
   counts,
+  convertedCount,
+  unchangedAlreadyTargetCount,
+  unchangedUnsupportedSizeCount,
 }: {
   title: string
   counts: Record<string, number>
+  convertedCount?: number
+  unchangedAlreadyTargetCount?: number
+  unchangedUnsupportedSizeCount?: number
 }) {
   const tiles = Object.entries(counts)
     .flatMap(([terrain, count]) =>
@@ -100,6 +107,36 @@ function TerrainStackPreview({
             />
           ))}
       </Stack>
+      {(convertedCount !== undefined ||
+        unchangedAlreadyTargetCount !== undefined ||
+        unchangedUnsupportedSizeCount !== undefined) && (
+          <Stack direction="row" gap={0.5} sx={{ mt: 0.5, flexWrap: 'wrap' }}>
+            {convertedCount !== undefined && (
+              <Chip
+                size="small"
+                color="success"
+                variant="outlined"
+                label={`Converts ${convertedCount}`}
+              />
+            )}
+            {unchangedAlreadyTargetCount !== undefined && (
+              <Chip
+                size="small"
+                color={unchangedAlreadyTargetCount > 0 ? 'info' : 'default'}
+                variant="outlined"
+                label={`Unchanged (already target) ${unchangedAlreadyTargetCount}`}
+              />
+            )}
+            {unchangedUnsupportedSizeCount !== undefined && (
+              <Chip
+                size="small"
+                color={unchangedUnsupportedSizeCount > 0 ? 'warning' : 'default'}
+                variant="outlined"
+                label={`Unchanged (size unsupported) ${unchangedUnsupportedSizeCount}`}
+              />
+            )}
+          </Stack>
+        )}
     </Paper>
   )
 }
@@ -186,29 +223,49 @@ export function ConvertTerrainDialog({ open, onClose, pieceUIDs }: Props) {
   )
 
   const compatibleTargetTerrains = useMemo(() => {
-    if (selectedLandPieces.length === 0) return []
-    const selectedSizes = new Set(selectedLandPieces.map((p) => p.pieceSize))
-    return Array.from(landPieceInventoryByTerrainAndSize.entries())
-      .filter(([terrain, bySize]) => {
-        const supportsAllSizes = Array.from(selectedSizes).every((size) =>
-          bySize.has(size),
-        )
-        if (!supportsAllSizes) return false
-        const wouldChangeAtLeastOne = selectedLandPieces.some((p) => {
-          const targetInventoryID = bySize.get(p.pieceSize)
-          return targetInventoryID && targetInventoryID !== p.inventoryID
-        })
-        return Boolean(wouldChangeAtLeastOne) && terrain !== ''
-      })
-      .map(([terrain]) => terrain)
+    return Array.from(landPieceInventoryByTerrainAndSize.keys())
+      .filter((terrain) => terrain !== '')
       .sort((a, b) =>
         formatTerrainLabel(a).localeCompare(formatTerrainLabel(b)),
       )
-  }, [landPieceInventoryByTerrainAndSize, selectedLandPieces])
+  }, [landPieceInventoryByTerrainAndSize])
+
+  const targetBySize = useMemo(
+    () =>
+      targetTerrain
+        ? landPieceInventoryByTerrainAndSize.get(targetTerrain) ?? null
+        : null,
+    [landPieceInventoryByTerrainAndSize, targetTerrain],
+  )
+
+  const conversionImpact = useMemo(() => {
+    return selectedLandPieces.reduce(
+      (acc, p) => {
+        if (!targetBySize) {
+          return acc
+        }
+        const targetInventoryID = targetBySize.get(p.pieceSize)
+        if (!targetInventoryID) {
+          acc.unaffectedBySize += 1
+          return acc
+        }
+        if (targetInventoryID === p.inventoryID) {
+          acc.unaffectedAlreadyTarget += 1
+          return acc
+        }
+        acc.converted += 1
+        return acc
+      },
+      {
+        converted: 0,
+        unaffectedBySize: 0,
+        unaffectedAlreadyTarget: 0,
+      },
+    )
+  }, [selectedLandPieces, targetBySize])
 
   const previewTargetTerrainCounts = useMemo(() => {
     if (!targetTerrain) return selectedLandCountsByTerrain
-    const targetBySize = landPieceInventoryByTerrainAndSize.get(targetTerrain)
     if (!targetBySize) return selectedLandCountsByTerrain
     return selectedLandPieces.reduce(
       (acc, p) => {
@@ -223,9 +280,9 @@ export function ConvertTerrainDialog({ open, onClose, pieceUIDs }: Props) {
       {} as Record<string, number>,
     )
   }, [
-    landPieceInventoryByTerrainAndSize,
     selectedLandCountsByTerrain,
     selectedLandPieces,
+    targetBySize,
     targetTerrain,
   ])
 
@@ -241,7 +298,6 @@ export function ConvertTerrainDialog({ open, onClose, pieceUIDs }: Props) {
 
   const handleConvert = () => {
     if (!targetTerrain || selectedLandPieces.length === 0) return
-    const targetBySize = landPieceInventoryByTerrainAndSize.get(targetTerrain)
     if (!targetBySize) return
 
     const mapping = selectedLandPieces.reduce(
@@ -349,6 +405,15 @@ export function ConvertTerrainDialog({ open, onClose, pieceUIDs }: Props) {
               </Select>
             </FormControl>
           </Stack>
+          {conversionImpact.unaffectedBySize > 0 && (
+            <Alert severity="warning" sx={{ py: 0.5 }}>
+              {conversionImpact.unaffectedBySize} selected land tile
+              {conversionImpact.unaffectedBySize === 1 ? '' : 's'} will remain
+              unchanged because the target terrain does not support
+              {conversionImpact.unaffectedBySize === 1 ? ' its' : ' their'}{' '}
+              piece size.
+            </Alert>
+          )}
           <Stack
             direction={{ xs: 'column', md: 'row' }}
             gap={1.5}
@@ -359,6 +424,9 @@ export function ConvertTerrainDialog({ open, onClose, pieceUIDs }: Props) {
             <TerrainStackPreview
               title="Current Terrain Mix"
               counts={selectedLandCountsByTerrain}
+              convertedCount={selectedLandPieces.length}
+              unchangedAlreadyTargetCount={0}
+              unchangedUnsupportedSizeCount={0}
             />
             <Typography variant="h4" sx={{ opacity: 0.7 }}>
               {'->'}
@@ -366,6 +434,11 @@ export function ConvertTerrainDialog({ open, onClose, pieceUIDs }: Props) {
             <TerrainStackPreview
               title="Converted Terrain Mix"
               counts={previewTargetTerrainCounts}
+              convertedCount={conversionImpact.converted}
+              unchangedAlreadyTargetCount={
+                conversionImpact.unaffectedAlreadyTarget
+              }
+              unchangedUnsupportedSizeCount={conversionImpact.unaffectedBySize}
             />
           </Stack>
         </Stack>
