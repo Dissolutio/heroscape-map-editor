@@ -8,19 +8,24 @@ import CreateMapFormDialog from './CreateMapFormDialog'
 import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
 import useBoundStore from '../store/store'
-import { Box3, type Group, type Object3DEventMap } from 'three'
 import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
 import { ControlTabs } from './ControlTabs'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
 import type { CameraControls } from '@react-three/drei'
-import { getBoardPiecesMaxLevel } from '../utils/map-utils'
+import type { Group, Object3DEventMap } from 'three'
+import {
+  getBoardPiecesMaxLevel,
+  getBoardHexesRectangularMapDimensions,
+} from '../utils/map-utils'
 import PiecesGridDialog from './PiecesGridDialog'
+import { zoomToMap } from '../utils/camera-utils'
 
 export default function HomePage() {
   const cameraControlsRef = React.useRef<CameraControls>(null)
   const hexMap = useBoundStore((s) => s.hexMap)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const is2DOpen = useBoundStore((s) => s.is2DOpen)
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
@@ -28,6 +33,7 @@ export default function HomePage() {
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
   const controlsContainerRef = React.useRef(null)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+  const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
 
   // MUI BREAKPOINTS
   //   xs, extra-small: 0px
@@ -52,10 +58,7 @@ export default function HomePage() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <run on map change>
   useEffect(() => {
     if (mapGroupRef.current && cameraControlsRef.current) {
-      // Create a new bounding box from the updated group.
-      const box = new Box3().setFromObject(mapGroupRef.current)
-      // Tell CameraControls to fit to the new bounding box (this magically allows zoomToMap (and hotkey usage) to work again, do not know how)
-      cameraControlsRef.current?.fitToBox(box, true)
+      zoomToMap(mapGroupRef, cameraControlsRef, width, length)
     }
     //Update viewing level when new map is loaded
     toggleViewingLevel(maxLevel)
