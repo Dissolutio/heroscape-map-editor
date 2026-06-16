@@ -1,7 +1,10 @@
-import { Button, ButtonGroup, Tooltip, Typography } from '@mui/material'
+import { Box, Button, ButtonGroup, Tooltip, Typography } from '@mui/material'
 import { piecesSoFar } from '../data/pieces'
+import getPieceTemplateCoords from '../data/rotationTransforms'
 import useBoundStore from '../store/store'
+import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
+import { genBoardHexID } from '../utils/map-utils'
 import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
 import DeletePieceButton from './DeletePieceButton'
 import { ConvertTerrainQuickSelect } from './ConvertTerrainQuickSelect'
@@ -20,7 +23,9 @@ const FONT_SIZE = 8
  */
 export function SelectedPieceControls() {
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const movePiece = useBoundStore((s) => s.movePiece)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
@@ -33,6 +38,61 @@ export function SelectedPieceControls() {
   if (!firstBp) return null
 
   const isMulti = selectedBoardPieces.length > 1
+
+  // --- Status computations ---
+  const conflictedUIDSet = new Set(conflictedPieceUIDs)
+  const isLandTerrain = (terrain: string) =>
+    isSolidTerrainHex(terrain) || isFluidTerrainHex(terrain)
+
+  type BP = (typeof selectedBoardPieces)[number]
+  const getLandFootprint = (bp: BP) => {
+    const piece = piecesSoFar[bp.inventoryID]
+    if (!piece || !isLandTerrain(piece.terrain)) return null
+    return getPieceTemplateCoords({
+      clickedHex: bp.pieceCoords,
+      rotation: bp.rotation,
+      template: piece.template,
+      isVsTile: false,
+    })
+  }
+  const checkSubterrainBuried = (bp: BP) => {
+    const piece = piecesSoFar[bp.inventoryID]
+    if (!piece) return false
+    const footprint = getLandFootprint(bp)
+    if (!footprint?.length) return false
+    const topAlt = bp.altitude + 1
+    const isFluid = isFluidTerrainHex(piece.terrain)
+    const footprintIds = new Set(
+      footprint.map((c) => genBoardHexID({ ...c, altitude: topAlt })),
+    )
+    return footprint.every((c) =>
+      Object.values(HEX_DIRECTIONS).every((dir) => {
+        const nID = genBoardHexID({ ...hexUtilsAdd(c, dir), altitude: topAlt })
+        if (footprintIds.has(nID)) return true
+        const nTerrain = boardHexes[nID]?.terrain ?? ''
+        return isFluid ? isLandTerrain(nTerrain) : isSolidTerrainHex(nTerrain)
+      }),
+    )
+  }
+  const checkBuried = (bp: BP) => {
+    const footprint = getLandFootprint(bp)
+    if (!footprint?.length) return false
+    const topAlt = bp.altitude + 1
+    return footprint.every((c) => {
+      const aboveTerrain =
+        boardHexes[genBoardHexID({ ...c, altitude: topAlt + 1 })]?.terrain ?? ''
+      return isLandTerrain(aboveTerrain)
+    })
+  }
+  const pieceStatuses = selectedBoardPieces.map((bp) => ({
+    isConflicted: conflictedUIDSet.has(bp.uid),
+    isLandPiece: isLandTerrain(piecesSoFar[bp.inventoryID]?.terrain ?? ''),
+    isSubterrainBuried: checkSubterrainBuried(bp),
+    isBuried: checkBuried(bp),
+  }))
+  const conflictedCount = pieceStatuses.filter((s) => s.isConflicted).length
+  const buriedCount = pieceStatuses.filter((s) => s.isLandPiece && s.isBuried).length
+  const subBuriedCount = pieceStatuses.filter((s) => s.isLandPiece && s.isSubterrainBuried).length
 
   // --- Info readout ---
   const titleLabel = isMulti
@@ -197,9 +257,36 @@ export function SelectedPieceControls() {
           {titleLabel}
         </Typography>
       </Tooltip>
-      <Typography sx={{ fontSize: 10, color: 'text.secondary', mb: 1 }}>
+      <Typography sx={{ fontSize: 10, color: 'text.secondary', mb: conflictedCount + buriedCount + subBuriedCount > 0 ? 0.25 : 1 }}>
         Alt: {altLabel} &nbsp; Rot: {rotLabel}
       </Typography>
+
+      {/* Status indicators */}
+      {(conflictedCount > 0 || buriedCount > 0 || subBuriedCount > 0) && (
+        <Box sx={{ mb: 0.75 }}>
+          {conflictedCount > 0 && (
+            <Typography
+              title="Piece collides with other pieces"
+              sx={{ fontSize: 10, color: 'error.main', fontWeight: 700, lineHeight: 1.4 }}>
+              {isMulti ? `${conflictedCount} conflicted` : 'Conflicted'}
+            </Typography>
+          )}
+          {buriedCount > 0 && (
+            <Typography
+              title="No hexes from this piece show to the surface"
+              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}>
+              {isMulti ? `${buriedCount} buried` : 'Buried'}
+            </Typography>
+          )}
+          {subBuriedCount > 0 && (
+            <Typography
+              title="The sides of this piece do not show to the outside"
+              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}>
+              {isMulti ? `${subBuriedCount} subterrain-buried` : 'Subterrain-buried'}
+            </Typography>
+          )}
+        </Box>
+      )}
 
       {/* Translate */}
       <ButtonGroup aria-label="Move selected piece row 1" size="small">
