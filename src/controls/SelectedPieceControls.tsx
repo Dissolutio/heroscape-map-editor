@@ -1,12 +1,10 @@
 import { Button, ButtonGroup, Tooltip, Typography } from '@mui/material'
-import { useState } from 'react'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
-import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
 import DeletePieceButton from './DeletePieceButton'
-import { ConvertTerrainDialog } from './ConvertTerrainDialog'
+import { ConvertTerrainQuickSelect } from './ConvertTerrainQuickSelect'
 
 const FONT_SIZE = 8
 
@@ -35,13 +33,6 @@ export function SelectedPieceControls() {
   if (!firstBp) return null
 
   const isMulti = selectedBoardPieces.length > 1
-
-  const hasLandPieces = selectedBoardPieces.some((bp) => {
-    const terrain = piecesSoFar[bp.inventoryID]?.terrain ?? ''
-    return isSolidTerrainHex(terrain) || isFluidTerrainHex(terrain)
-  })
-
-  const [isConvertDialogOpen, setIsConvertDialogOpen] = useState(false)
 
   // --- Info readout ---
   const titleLabel = isMulti
@@ -349,22 +340,7 @@ export function SelectedPieceControls() {
       </ButtonGroup>
 
       {/* Convert Terrain */}
-      <Button
-        size="small"
-        fullWidth
-        variant="outlined"
-        disabled={!hasLandPieces}
-        title="Convert selected terrain tiles to a different terrain type"
-        onClick={() => setIsConvertDialogOpen(true)}
-        sx={{ mt: 0.5, fontSize: FONT_SIZE }}
-      >
-        Convert Terrain
-      </Button>
-      <ConvertTerrainDialog
-        open={isConvertDialogOpen}
-        onClose={() => setIsConvertDialogOpen(false)}
-        pieceUIDs={selectedPieceIDs}
-      />
+      <ConvertTerrainQuickSelect pieceUIDs={selectedPieceIDs} />
     </>
   )
 }

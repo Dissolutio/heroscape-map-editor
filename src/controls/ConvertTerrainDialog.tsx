@@ -337,7 +337,7 @@ export function ConvertTerrainDialog({ open, onClose, pieceUIDs }: Props) {
         <Stack gap={2} sx={{ pt: 0.5 }}>
           <Typography variant="body2" color="text.secondary">
             Convert selected land tiles to another terrain while preserving
-            piece size, rotation, altitude, and structure.
+            piece size, rotation, and altitude.
           </Typography>
           <Stack direction={{ xs: 'column', md: 'row' }} gap={1.25}>
             <Paper variant="outlined" sx={{ p: 1.25, flex: 1 }}>
