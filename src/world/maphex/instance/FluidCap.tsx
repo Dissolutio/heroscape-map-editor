@@ -1,5 +1,6 @@
 import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
@@ -9,6 +10,7 @@ import {
   INSTANCE_LIMIT,
 } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
+import { calculateFocusOpacity } from '../../../utils/focus-opacity'
 import { hexTerrainColor } from '../hexColors'
 import type {
   BoardHexPieceProps,
@@ -16,6 +18,7 @@ import type {
   DreiCapProps,
   InstanceRefType,
 } from '../instance-hex'
+import type { Material } from 'three'
 
 const baseFluidCapCylinderArgs: CylinderGeometryArgs = [
   0.9,
@@ -28,12 +31,44 @@ const baseFluidCapCylinderArgs: CylinderGeometryArgs = [
   undefined,
 ]
 export const FLUID_CAP_OPACITY = 0.85
-const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
+const FluidCaps = ({
+  boardHexArr,
+  onPointerUp,
+  focusedPieceUID,
+  focusStartTime,
+}: DreiCapProps) => {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const ref = React.useRef<InstanceRefType>(null)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+
+  // Apply material opacity based on focus state
+  useFrame(() => {
+    const material = ref.current?.material
+    if (!material) return
+
+    // Calculate opacity: base 0.85 for fluid caps, reduced if another piece is focused
+    const focusOpacity = calculateFocusOpacity(
+      focusedPieceUID ?? null,
+      focusStartTime ?? null,
+    )
+    const targetOpacity = focusOpacity < 1 ? focusOpacity : FLUID_CAP_OPACITY
+
+    // Handle both single material and array of materials
+    const materials = Array.isArray(material) ? material : [material]
+    for (const mat of materials) {
+      if (!mat || typeof mat !== 'object') continue
+      const m = mat as Material
+
+      // Only update if opacity changed significantly (avoid thrashing)
+      if (Math.abs((m.opacity ?? FLUID_CAP_OPACITY) - targetOpacity) > 0.001) {
+        m.opacity = targetOpacity
+        m.needsUpdate = true
+      }
+    }
+  })
+
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
   return (

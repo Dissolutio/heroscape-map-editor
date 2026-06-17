@@ -1,18 +1,21 @@
-import { Button } from '@mui/material'
+import { Button, ButtonGroup } from '@mui/material'
 import { FcRedo, FcUndo } from 'react-icons/fc'
 import useTemporalStore from '../hooks/useTemporalStore'
-import ControlButtonGroup from './ControlButtonGroup'
-import { undoWithSelectionRestore } from '../utils/undoWithSelectionRestore'
+import {
+  redoWithSelectionRestore,
+  undoWithSelectionRestore,
+} from '../utils/undoWithSelectionRestore'
 
 const UndoRedoButtonGroup = () => {
   // we do things strange in this component to have react pastStates/futureStates and show
   // the user a count of actions in either direction
   // const { undo, redo } = useBoundStore.temporal.getState()
-  const { redo, pastStates, futureStates } = useTemporalStore(
+  const { pastStates, futureStates } = useTemporalStore(
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     (state: any) => state,
   )
   return (
-    <ControlButtonGroup>
+    <ButtonGroup sx={{ padding: '10px' }} variant="contained" size={'small'}>
       {/* <Button onClick={() => useBoundStore.temporal.getState().clear()}>CLEAR</Button> */}
       <Button
         // variant="contained"
@@ -29,14 +32,14 @@ const UndoRedoButtonGroup = () => {
         variant="contained"
         title={`(ctrl/cmd + Y) (${futureStates.length} redoable actions)`}
         aria-label={`Redo (${pastStates.length} undoable actions)`}
-        onClick={() => redo()}
+        onClick={() => redoWithSelectionRestore()}
         startIcon={<FcRedo size={16} />}
         size="small"
         style={{ fontSize: '0.7em' }}
       >
         Redo
       </Button>
-    </ControlButtonGroup>
+    </ButtonGroup>
   )
 }
 

@@ -1,93 +1,82 @@
-## Current todo
-- Move/rotate placed pieces
-- Validation through BoardHexes, but render through BoardPieces
-- Multi-select pieces
-- Road tiles need their own textured/complex cap for 3D high quality render
-- Wood tiles need their own textured/complex-geometry cap for 3D high quality render
+## General TODO
+- Objective markers that you can adjust the labels for (example, the start positions of specific figures in Renegade web scenarios)
+- New piece: Exit spaces, or some kind of other generalized hex marker that isn't a start zone or an objective, to match current Renegade web scenarios
+- Ability to build Ruins at Laur's Edge pieces on top of corresponding Laur Wall pieces (pillars/long walls can stack etc.)
+- OHS (Online Heroscape) pictures: Remove the white from the glyphs. Additionally, don't display hex heights above glyphs making it easier to label the glyphs online
+- OHS: Add a toggle that invokes all the desired settings to get a good image for OHS (semi transparency to palm leaves, more compatible glyph spaces, don't display table, perhaps even display overhung sections on the side as a separate section)
+- Pieces with conflicts need to display a special way when we have them selected, such that it will be apparent what they are conflicting with and easy to see what's going on
+- Onion Skin 3D mode: Current viewing level opacity is 1, but pieces on other levels will go down by distance from viewing level ( to make building from instructions easier, maybe other use cases also)
+- Display inventory usage info in pen mode selector (so you can select one that is available easily)
 - Ancient terrain in 3D should have darker brown color
 - Hexagon shaped maps should produce a map with same side-length as map size (1 smaller than current)
-- Display inventory usage info in pen mode selector
-- Organize pen mode selector according to Sets Used in the map
-- StartZones should not have a vertical clearance, should not be blocked by vertical clearance
-- PDF/SVG level logo from Renegade
-- PDF option to enable overlay layer
-- PDF/SVG option to show overlay pieces on own level
-- PDF styles, update to match SVG
-- PDF style option: disable land tile piece outline colors (make black)
-- PDF style option: disable hexgrid lines over sub-levels
-
-## Todo EZ
-- Move wallwalk in pen mode selector to be closer to road
-- Add a hotkey for wallwalk
+- StartZones should not have a vertical clearance, should not be blocked by vertical clearance of obstacles (so they can be placed adjacent to ruins/fortified-walls)
 - Middle click a piece to make it the pen mode
-- Hotkey for rotating camera azimuth angle by 15 degree increments
-- PDF style option: enable legacy Virtualscape colors
-- In View Map Inventory dialog, clicking the line item selects it for your terrain placer
-- PDF 2 column format
-- PDF portrait as level format
-- Format painter (paint tiles to be grass etc.)
-- Outcrop bases into inventory
-- PDF: way to add options Sets Used list(or more than 1 in general perhaps)
-
-## Todo
-- Personal Inventory
+- In View Map Inventory dialog, clicking a terrain from the list selects it for Pen Mode
+- Format painter (set as grass, then click land pieces to convert them to grass)
+- Outcrop bases into inventory (when you use a 3-hex rock outcrop and your terrain constraints are using Battle for the Underdark, a 3-hex shadow with holes should be "used up", and if your terrain constraints are using a Caverns of Valhalla, 3 1-hex shadows with holes should be "used up" -- these "with holes" piece variations do not exist yet)
+- Personal Inventory: a form to adjust your exact piece inventory, with "add set" buttons and all available sets for easy entry, and also per-piece adjustments for entry of counts that do not conform to just set inventories (pieces break, old expansions included amounts of terrain)
 - When piece preview is active, scrolling should rotate the piece, not zoom the camera
-- A way to double stack fluid tiles (which is as tall as one solid tile minus the cap)
-- Hotkey setup
-- More hotkeys
-- Indicate which way piece is being shifted
-- Conversion guide for which pieces could be substituted for other pieces, when converting map
-- Convert current map to personal inventory
+- A way to double stack (or even beyond) fluid tiles (which is as tall as one solid tile minus the cap) in any combination.
+- Hotkey setup: let users edit which key combinations (from the possible combinations)  with which app actions
+- More hotkeys: add more app actions, all available terrains, etc. so that more hotkeys are available
+- Convert current map to fit personal inventory and conversion guide for which pieces could be substituted for other pieces, when converting map
 - Calculate which sets a map could be built with
 - Output virtualscape file (needs mappings, and refactor of VS file input code)
-- Adjustable lights: color, intensity, persisted position
-- Add a Snow tree model
-- Update laur jungle to official models
+- Adjustable lights: color, intensity, persisted position, light types, etc. (enable glow-in-the-dark of toxic/shroudshroom tiles)
 - Import new figure-as-terrain pieces from VirtualScape (needs mappings)
 - Add Arena of the Planeswalker terrain (Shandalar water and sand boards, as well as the Shandalar ruins A/B)
-- Allow cycling through sizes for similar terrains, just like how land pieces do. Like outcrops, hotkey 1,2,3 for their sizes
-- Land tile size select: Hotkeys 1, 2, 3, 4, 5 could always map to sizes 1, 2, 3, 7, 24
-- Move all pieces up or down a level (requires new boardHexes/validation todo to be done)
+- Allow cycling through sizes for similar terrains, just like how land pieces do. For example rock outcrops, hotkeyd 1 & 3 for their sizes
+- Land tile size select: Hotkeys 1, 2, 3, 4, 5 should always map to sizes 1, 2, 3, 7, 24, put special sizes on hotkeys 6+
 - Customizeable Colors: PDF/SVG & 3D
+- A major UI overhaul, as it becomes apparent what items need to be surfaced to always viewable, and what can be hidden away in a menu or dialog (i.e. current pen mode, viewing level, and piece errors probably need to be always visible)
+- Add copy/paste and templates: Be able to multi-select a group of pieces, and copy/paste it to another spot on your map. Also, to be able to save a conglomeration of pieces as a template to be re-used in other maps (the bilateral symmetry templates are a good candidate here as presets)
 
+## INFO TODO
+- A tutorial of some kind
+- A general FAQ/help page with links and buttons that help users find and access features (maybe do this after a UI overhaul)
 
-## Suggestion TODOs
-- Remove the white from the glyphs. Additionally, don't display hex heights above glyphs making it easier to label the glyphs online [link to comment](https://discord.com/channels/212408450750218244/1433872869040980059/1495569069338923098)
-
-
-## PDF Build Instructions
-- Ladder Summaries
+## PDF/SVG TODO
+- PDF/SVG level logo from Renegade publications (just looks nicer and more official)
+- PDF/SVG option to show overlay pieces on own level
+- PDF: way to add multiple Sets Used list
+- PDF option to enable overlay layer
+- PDF styles update to match SVG (sub terrain less-saturated-colors)
+- PDF style option: disable land tile piece outline colors (make black)
+- PDF style option: disable hexgrid lines over sub-levels
+- PDF style option: use original Virtualscape colors
+- PDF 2 column format
+- PDF portrait as level format (6 levels per page, first level slot would be the map image)
+- Ladder Summaries (in overlay layer, maybe display ladders with total number of ladder pieces they include)
 - PDF Add a map Legend for all the pieces that are in the map
-- Fortress Banner (see GaryLASQ site)
 
-## 3D Models
-- Winter trees
-- New evergreen trees
-- Refine Laur Ruin1 (redo)
-- Laur Ruin2 Ruin3
-- Refine Marvel
-- Fortress Banner
+## Blender TODO
+- Make top section of Laur Long Walls and Arch skinnier, so it fits inside of the bottom (for stackability)
+- Clickable section to build terrain on ship walls/bow
+- Road tiles need their own textured/complex cap for 3D high quality render
+- Wood tiles need their own textured/complex-geometry cap for 3D high quality render
+- All solid land tiles need textures to avoid the geometry-induced jank of current high-quality render mode
+- Update Winter trees with more realistic model
+- Contemporary evergreen trees
+- Refine Laur Ruin1 3D model (redo)
+- Make Laur Ruin2 Ruin3 models
+- Refine Marvel (thicker, add texture image)
+- Fortress Banner (3D model and svg -- see GaryLASQ site maps for svg idea)
 - Refine Laur Palm Leaves
 - Refine Ticalla Palm Leaves
 
-
-## Home Page
-Cartographers => Maps Gallery
+## DOWNRIVER TODO
+### New Home Page TODO
+Cartographers => Maps Gallery (database of some kind?)
 New => Editor
 Load => Editor
-About => Info
+About => Info/Tutorial
 
-## 2D SVG Builder
+### 2D SVG Builder TODO
 Building pretty much exactly like you did in Virtualscape.
 
-## Local Storage Load/Save/Edit maps
+### Database TODO
+A database, so users can sign in and share maps with a shorter URL, and save maps and browse maps and find maps and select groups of maps and see the total terrain, or select a map group based off of available terrain etc. Still has to be free for everyone, so holding off as long as possible (estimated $20-40/month cost at estimated usage in 1 year, up to maybe $100/month if map creation and Heroscape player-count skyrocket over several years, no clue if this is possible or likely)
 
-Make a react component that can be shown in the modal like `CreateMapFormDialog.tsx`. The new component is for the user to save and load maps from local storage. They can also edit their local storage, to peruse and delete maps or other unused data stored in local storage. Some user settings may get saved there, and can be exported to a file/string and imported as easily.
-
-When user clicks SAVE/LOAD, show:
-    1. free space: KB unused capacity in local storage
-    2. unavailable space: KB used capacity in local storage that is not a hexoscape map that can be saved or loaded
-    3. map space: individual map objects of type MapFileState, their unique id can be their key, we can validate them with a function
-        * SAVE => Select map to overwrite if there is an existing key that matches the id of the map being saved, or save as a new map key in local storage 
-        * LOAD => Load selected map, user may select a map object from the list
-        * EDIT => Delete button for items in local storage, the delete button changes its text and turns red to verify and requires one more click to actually delete.
+### GAME TODO
+The original project was a way to play a game of heroscape against my buddy in the browser. So, eventually, this is the dream. What does it need? Well:
+1. A breakdown of all the unit powers (card abilities, whatever you wanna call it) into categories. Some are explicit, after moving and before attacking, before taking a turn with, after rolling initiative, etc. These are very handy triggers when it comes to coding up abilities. Other categories include what they do, like buff defense or attack, buff starting move for adjacent figures, buff re-rolls of dice during attack or defense, debuff move when engaged, etc. The idea is to get as many abilities grouped together, with minimal outliers, such that coding up the exceptions to game state for these abilities can be batched, and even modified. For example, some characters have Double Attack. This ability could be generalized as Multi-Attack, with an input of "How Many Attacks", and now it can accomodate Triple Attack etc.

@@ -25,7 +25,6 @@ type Props = {
 
 const useAutoLoadMapFile = (props: Props) => {
   const loadMap = useBoundStore((s) => s.loadMap)
-  const { clear: clearUndoHistory } = useBoundStore.temporal.getState()
   const { enqueueSnackbar } = useSnackbar()
   const searchString = useSearch()
 
@@ -45,6 +44,15 @@ const useAutoLoadMapFile = (props: Props) => {
           localMapCache.hexMap,
         )
       : undefined
+    const loadMapWithoutUndo = (
+      mapState: ReturnType<typeof buildupJsonFileMap>,
+    ) => {
+      const temporal = useBoundStore.temporal.getState()
+      temporal.pause()
+      loadMap(mapState)
+      temporal.clear()
+      temporal.resume()
+    }
     const queueMapAutoZoom = (boardHexes: BoardHexes): void => {
       const { width, length } =
         getBoardHexesRectangularMapDimensions(boardHexes)
@@ -74,7 +82,7 @@ const useAutoLoadMapFile = (props: Props) => {
                   variant="contained"
                   onClick={() => {
                     // load last map instead, close original snackbar, open a new one, remove map from URL bar
-                    loadMap(localMapCacheMapState)
+                    loadMapWithoutUndo(localMapCacheMapState)
                     closeSnackbar(snackbarId)
                     enqueueSnackbar({
                       message: `Loaded last map instead: ${localMapCacheMapState.hexMap.name}`,
@@ -105,8 +113,7 @@ const useAutoLoadMapFile = (props: Props) => {
             autoHideDuration: null,
           })
         }
-        loadMap(jsonMap)
-        clearUndoHistory() // clear undo history, initial load should not be undoable
+        loadMapWithoutUndo(jsonMap)
         queueMapAutoZoom(jsonMap.boardHexes)
         return
 
@@ -121,7 +128,7 @@ const useAutoLoadMapFile = (props: Props) => {
         return
       }
     } else if (localMapCacheMapState) {
-      loadMap(localMapCacheMapState)
+      loadMapWithoutUndo(localMapCacheMapState)
       enqueueSnackbar({
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
         variant: 'success',
@@ -161,13 +168,12 @@ const useAutoLoadMapFile = (props: Props) => {
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = fileName
         }
-        loadMap(jsonMap)
+        loadMapWithoutUndo(jsonMap)
         enqueueSnackbar({
           message: 'WELCOME!',
           variant: 'success',
           autoHideDuration: 5000,
         })
-        clearUndoHistory() // clear undo history, initial load should not be undoable
         queueMapAutoZoom(jsonMap.boardHexes)
       })
     }

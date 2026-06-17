@@ -26,6 +26,7 @@ import {
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import { MapHex3D } from './maphex/MapHex3D.tsx'
 import EmptyHexes from './maphex/instance/EmptyHex.tsx'
+import PieceOpacityGroup from './PieceOpacityGroup'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
 import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import { enqueueSnackbar } from 'notistack'
@@ -54,6 +55,8 @@ export default function MapDisplay3D({
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const focusedPieceUID = useBoundStore((s) => s.focusedPieceUID)
+  const focusStartTime = useBoundStore((s) => s.focusStartTime)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const { hotkeyConfig } = useHotkeyConfig()
   useApplyHotkeys({ hotkeyConfig, cameraControlsRef, mapGroupRef })
@@ -243,18 +246,28 @@ export default function MapDisplay3D({
         <SolidCaps
           boardHexArr={instanceBoardHexes.solidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
+          focusedPieceUID={focusedPieceUID}
+          focusStartTime={focusStartTime}
         />
         <FluidCaps
           boardHexArr={instanceBoardHexes.fluidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
+          focusedPieceUID={focusedPieceUID}
+          focusStartTime={focusStartTime}
         />
         {boardPieces.map((bp) => {
           return (
-            <MapBoardPiece3D
+            <PieceOpacityGroup
               key={bp.uid}
-              bp={bp}
-              onPointerUpPaintPiece={onPointerUpPaintPiece}
-            />
+              pieceUID={bp.uid}
+              focusedPieceUID={focusedPieceUID}
+              focusStartTime={focusStartTime}
+            >
+              <MapBoardPiece3D
+                bp={bp}
+                onPointerUpPaintPiece={onPointerUpPaintPiece}
+              />
+            </PieceOpacityGroup>
           )
         })}
         {boardHexesArr.map((bh) => {

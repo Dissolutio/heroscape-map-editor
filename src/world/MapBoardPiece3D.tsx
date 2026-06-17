@@ -58,6 +58,7 @@ import JungleBrush from './models/TicallaBrush'
 import TicallaPalm from './models/TicallaPalm'
 import { hexTerrainColor } from './maphex/hexColors'
 import LandSubterrain from './models/LandSubterrain'
+import { SnowEvergreenTree } from './models/SnowEvergreenTree'
 
 export const MapBoardPiece3D = ({
   bp,
@@ -213,9 +214,7 @@ export const MapBoardPiece3D = ({
   if (
     inventoryID === Pieces.tree10 ||
     inventoryID === Pieces.tree11 ||
-    inventoryID === Pieces.tree12 ||
-    inventoryID === Pieces.snowTree10 ||
-    inventoryID === Pieces.snowTree12
+    inventoryID === Pieces.tree12
   ) {
     const treeOptions = getOptionsForTreeHeight(inventoryID)
     return (
@@ -227,6 +226,23 @@ export const MapBoardPiece3D = ({
         >
           <Suspense fallback={<ModelLoader />}>
             <ForestTree pid={uid} />
+          </Suspense>
+        </group>
+        <ObstacleBase x={x} y={yBase} z={z} color={hexTerrainColor.treeBase} />
+      </>
+    )
+  }
+  if (inventoryID === Pieces.snowTree10 || inventoryID === Pieces.snowTree12) {
+    const treeOptions = getOptionsForTreeHeight(inventoryID)
+    return (
+      <>
+        <group
+          scale={[treeOptions.scaleX, treeOptions.scaleY, treeOptions.scaleX]}
+          position={[x, yWithBase + treeOptions.y, z]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <SnowEvergreenTree pid={uid} />
           </Suspense>
         </group>
         <ObstacleBase x={x} y={yBase} z={z} color={hexTerrainColor.treeBase} />

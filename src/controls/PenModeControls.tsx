@@ -1,8 +1,10 @@
 import { Divider, ListItemIcon } from '@mui/material'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
-import MenuItem from '@mui/material/MenuItem'
+import MuiMenuItem, { type MenuItemProps } from '@mui/material/MenuItem'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
+import Button from '@mui/material/Button'
+import { useMemo } from 'react'
 import {
   GiAncientRuins,
   GiArrowCursor,
@@ -69,11 +71,19 @@ import {
   c3vPlaytestGlyphs,
   customGlyphs,
 } from '../data/glyphs'
+import {
+  getAvailableLandPrefixesForSets,
+  getSetConstrainedInventory,
+} from '../utils/terrain-constraints'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
   const lastPenMode = useBoundStore((state) => state.lastPenMode)
+  const setsUsed = useBoundStore((state) => state.hexMap?.setsUsed ?? [])
   const togglePenMode = useBoundStore((state) => state.togglePenMode)
+  const toggleIsEditMapDialogOpen = useBoundStore(
+    (state) => state.toggleIsEditMapDialogOpen,
+  )
   const handleChange = (event: SelectChangeEvent) => {
     togglePenMode(event.target.value)
   }
@@ -84,15 +94,115 @@ export default function PenModeControls() {
         ? hexTerrainColor.glyphTreasure
         : 'white'
   }
+  const setConstrainedInventory = useMemo(() => {
+    return getSetConstrainedInventory(setsUsed)
+  }, [setsUsed])
+  const hasSetConstraints = setsUsed.length > 0
+  const availableLandPrefixes = useMemo(() => {
+    return getAvailableLandPrefixesForSets(setsUsed)
+  }, [setsUsed])
+  const alwaysVisiblePenValues = useMemo(
+    () =>
+      new Set<string>([
+        'select',
+        lastPenMode,
+        Pieces.glyphPower,
+        Pieces.glyphTreasure,
+        Pieces.startZone1,
+        Pieces.startZone2,
+        Pieces.startZone3,
+        Pieces.startZone4,
+        Pieces.startZone5,
+        Pieces.startZone6,
+        Pieces.startZone7,
+        Pieces.startZone8,
+      ]),
+    [lastPenMode],
+  )
+  const filteredByAlias: Record<string, string[]> = {
+    [Pieces.castleArchNoDoor]: [Pieces.castleArch],
+    [Pieces.marvelBroken]: [Pieces.marvel],
+    [Pieces.marvelNoUpper]: [Pieces.marvel],
+    [Pieces.marvelNoUpperBroken]: [Pieces.marvel],
+  }
+  const filteredPrefixModes = new Set<string>([
+    PiecePrefixes.grass,
+    PiecePrefixes.rock,
+    PiecePrefixes.sand,
+    PiecePrefixes.road,
+    PiecePrefixes.wallWalk,
+    PiecePrefixes.lavaField,
+    PiecePrefixes.snow,
+    PiecePrefixes.concrete,
+    PiecePrefixes.asphalt,
+    PiecePrefixes.swamp,
+    PiecePrefixes.dungeon,
+    PiecePrefixes.toxic,
+    PiecePrefixes.ancientTerrain,
+    PiecePrefixes.wood,
+    PiecePrefixes.water,
+    PiecePrefixes.wellspringWater,
+    PiecePrefixes.toxicWater,
+    PiecePrefixes.ice,
+    PiecePrefixes.lava,
+    PiecePrefixes.swampWater,
+    PiecePrefixes.shadow,
+  ])
+  const isPieceAvailable = (pieceID: string) => {
+    if (!hasSetConstraints) {
+      return true
+    }
+    if ((setConstrainedInventory[pieceID] ?? 0) > 0) {
+      return true
+    }
+    const aliases = filteredByAlias[pieceID] ?? []
+    return aliases.some((alias) => (setConstrainedInventory[alias] ?? 0) > 0)
+  }
+  const isPrefixAvailable = (prefix: string) => {
+    if (!hasSetConstraints) {
+      return true
+    }
+    return availableLandPrefixes.has(prefix)
+  }
+  const shouldShowMenuValue = (value: unknown) => {
+    if (!hasSetConstraints) {
+      return true
+    }
+    if (typeof value !== 'string') {
+      return true
+    }
+    if (
+      value === penMode ||
+      alwaysVisiblePenValues.has(value) ||
+      value.startsWith(PiecePrefixes.startZone) ||
+      value.startsWith(PiecePrefixes.glyph)
+    ) {
+      return true
+    }
+    if (filteredPrefixModes.has(value)) {
+      return isPrefixAvailable(value)
+    }
+    return isPieceAvailable(value)
+  }
+  type FilteredMenuItemProps = MenuItemProps & { 'data-value'?: unknown }
+  const MenuItem = ({ value, ...props }: FilteredMenuItemProps) => {
+    const menuValue = (value ?? props['data-value']) as
+      | string
+      | number
+      | readonly string[]
+      | undefined
+    if (!shouldShowMenuValue(menuValue)) {
+      return null
+    }
+    return <MuiMenuItem {...props} value={menuValue} />
+  }
   const { hotkeyLookup } = useHotkeyConfig()
   return (
-    <FormControl variant="filled" size="small">
-      <InputLabel id="pen-terrain-select-label">Terrain</InputLabel>
+    <FormControl fullWidth variant="filled">
+      <InputLabel id="pen-terrain-select-label">Pen Mode</InputLabel>
       <Select
-        autoWidth
-        sx={{
-          minWidth: 100,
-        }}
+        // autoWidth
+        fullWidth
         MenuProps={{
           anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
         }}
@@ -346,6 +456,18 @@ export default function PenModeControls() {
         <Divider />
 
         {/* Trees */}
+        <MenuItem value={Pieces.snowTree10}>
+          <ListItemIcon>
+            <GiPineTree color={hexTerrainColor.snow} />
+          </ListItemIcon>
+          <span>Snow Tree 10</span>
+        </MenuItem>
+        <MenuItem value={Pieces.snowTree12}>
+          <ListItemIcon>
+            <GiPineTree color={hexTerrainColor.snow} />
+          </ListItemIcon>
+          <span>Snow Tree 12</span>
+        </MenuItem>
         <MenuItem value={Pieces.tree10}>
           <ListItemIcon>
             <GiPineTree color={hexTerrainColor.grass} />
@@ -754,6 +876,46 @@ export default function PenModeControls() {
           </ListItemIcon>
           <span>Marvel Ruins - No Upper Floor, Wall Destroyed</span>
         </MenuItem>
+
+        {hasSetConstraints && (
+          <>
+            <Divider />
+            <MuiMenuItem
+              disableRipple
+              disableTouchRipple
+              onClick={(event) => event.preventDefault()}
+              sx={{
+                alignItems: 'flex-start',
+                cursor: 'default',
+                display: 'block',
+                py: 1,
+              }}
+            >
+              <span
+                style={{
+                  display: 'block',
+                  fontSize: '0.8em',
+                  marginBottom: '0.35rem',
+                  whiteSpace: 'normal',
+                }}
+              >
+                Additional terrain and obstacle options are hidden because this
+                map has terrain set constraints.
+              </span>
+              <Button
+                size="small"
+                variant="outlined"
+                onMouseDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  toggleIsEditMapDialogOpen(true)
+                }}
+              >
+                Edit Constraints
+              </Button>
+            </MuiMenuItem>
+          </>
+        )}
 
         {/* START ZONES */}
         <Divider />

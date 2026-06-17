@@ -3,4 +3,5 @@ export const DIALOGS = {
   editMap: 'editMap',
   viewMapInventory: 'viewMapInventory',
   editPersonalInventory: 'editPersonalInventory',
+  viewPiecesGrid: 'viewPiecesGrid',
 }

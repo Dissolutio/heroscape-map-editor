@@ -1,4 +1,5 @@
 import { DoubleSide } from 'three'
+import type * as THREE from 'three'
 
 export const getMaterialForOutcrop = (
   isHQ: boolean,
@@ -23,24 +24,34 @@ export const basicModelMaterial = (
   color: string,
   isHQ: boolean,
   opacity?: number,
+  handleBeforeCompile?: (
+    parameters: THREE.WebGLProgramParametersWithUniforms,
+    renderer: THREE.WebGLRenderer,
+  ) => void,
 ) =>
   isHQ ? (
     <meshStandardMaterial
       color={color}
       transparent={(opacity ?? 1) !== 1}
       opacity={opacity ?? 1}
+      onBeforeCompile={handleBeforeCompile}
     />
   ) : (
     <meshMatcapMaterial
       color={color}
       transparent={(opacity ?? 1) !== 1}
       opacity={opacity ?? 1}
+      onBeforeCompile={handleBeforeCompile}
     />
   )
 export const basicDoubleSideModelMaterial = (
   color: string,
   isHQ: boolean,
   opacity?: number,
+  handleBeforeCompile?: (
+    parameters: THREE.WebGLProgramParametersWithUniforms,
+    renderer: THREE.WebGLRenderer,
+  ) => void,
 ) =>
   isHQ ? (
     <meshStandardMaterial
@@ -48,6 +59,7 @@ export const basicDoubleSideModelMaterial = (
       color={color}
       transparent={(opacity ?? 1) !== 1}
       opacity={opacity ?? 1}
+      onBeforeCompile={handleBeforeCompile}
     />
   ) : (
     <meshMatcapMaterial
@@ -55,5 +67,6 @@ export const basicDoubleSideModelMaterial = (
       color={color}
       transparent={(opacity ?? 1) !== 1}
       opacity={opacity ?? 1}
+      onBeforeCompile={handleBeforeCompile}
     />
   )

@@ -78,6 +78,7 @@ import Cannon from './models/Cannon'
 import { RopeLadder } from './models/RopeLadder'
 import { ShipWall } from './models/ShipWall'
 import { ShipBow } from './models/ShipBow'
+import { SnowEvergreenTree } from './models/SnowEvergreenTree'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -177,6 +178,8 @@ export default function PiecePreview() {
     pieceID === Pieces.tree10 ||
     pieceID === Pieces.tree11 ||
     pieceID === Pieces.tree12
+  const isSnowTreeHex =
+    pieceID === Pieces.snowTree10 || pieceID === Pieces.snowTree12
   const isBigTreeHex = pieceID.endsWith(Pieces.tree415)
 
   // const isShowEmptyHexes =
@@ -541,6 +544,27 @@ export default function PiecePreview() {
       >
         <Suspense fallback={<ModelLoader />}>
           <ForestTree />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isSnowTreeHex && isSolidOrEmptyBeneath) {
+    return (
+      <group
+        scale={[
+          getOptionsForTreeHeight(pieceID).scaleX,
+          getOptionsForTreeHeight(pieceID).scaleY,
+          getOptionsForTreeHeight(pieceID).scaleX,
+        ]}
+        position={[
+          x,
+          yWithBase + getOptionsForTreeHeight(pieceID).y + HEXGRID_HEX_HEIGHT,
+          z,
+        ]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <SnowEvergreenTree />
         </Suspense>
       </group>
     )

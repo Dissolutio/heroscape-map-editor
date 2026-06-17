@@ -1,11 +1,10 @@
-import useBoundStore, { type AppState } from '../store/store'
+import useBoundStore from '../store/store'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { PiecePrefixes, Pieces } from '../types'
 import {
   doPenModeCounterRotation,
   doPenModeRotation,
 } from './getPossibleRotationsForPenMode'
-import useTemporalStore from '../hooks/useTemporalStore'
 import type { Group, Object3DEventMap } from 'three'
 import type { CameraControls } from '@react-three/drei'
 import {
@@ -14,7 +13,10 @@ import {
 } from '../utils/map-utils'
 import type { RefObject } from 'react'
 import { zoomToMap } from '../utils/camera-utils'
-import { undoWithSelectionRestore } from '../utils/undoWithSelectionRestore'
+import {
+  redoWithSelectionRestore,
+  undoWithSelectionRestore,
+} from '../utils/undoWithSelectionRestore'
 
 export const useApplyHotkeys = ({
   cameraControlsRef,
@@ -55,14 +57,13 @@ export const useApplyHotkeys = ({
   const allowedMaxLevel =
     is2DOverlayLevelEnabled && is2DOpen && !isPdfOpen ? overlayLevel : maxLevel
   const isSizes = flatPieceSizes?.length > 0
-  const { redo } = useTemporalStore((state: AppState) => state)
 
   const deleteSelectedPiece = () => {
     if (selectedPieceIDs.length) {
       // Save the IDs so undo() can re-select them
       useBoundStore
         .getState()
-        .setPendingUndoSelectionRestore([...selectedPieceIDs])
+        .pushPendingUndoSelectionRestore([...selectedPieceIDs])
       // Zundo batching: let the first delete run normally so zundo records the
       // pre-batch snapshot into history, then pause so intermediate deletes are
       // not individually tracked. resume() after the loop collapses everything
@@ -145,7 +146,7 @@ export const useApplyHotkeys = ({
     }
   }
   const undoWorld = undoWithSelectionRestore
-  const redoWorld = redo
+  const redoWorld = redoWithSelectionRestore
   const cycleNextPieceRotation = () => {
     doPenModeRotation(penMode, penModeRotation, togglePenModeRotation)
   }

@@ -20,6 +20,8 @@ export type CylinderGeometryArgs =
 export type DreiCapProps = {
   boardHexArr: BoardHex[]
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
+  focusedPieceUID?: string | null
+  focusStartTime?: number | null
 }
 export type BoardHexPieceProps = {
   boardHex: BoardHex

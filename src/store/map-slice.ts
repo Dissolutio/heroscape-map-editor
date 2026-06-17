@@ -3,21 +3,105 @@ import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { removePiece } from '../data/removePiece'
 import { piecesSoFar } from '../data/pieces'
+import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type {
   AddRemovePieceError,
   CubeCoordinate,
   MapState,
   Piece,
 } from '../types'
+import { PiecePrefixes } from '../types'
 import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
 import { normalizeBoardPieces } from '../utils/map-utils'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
+import { getAvailableLandPrefixesForSets } from '../utils/terrain-constraints'
+
+function computeConflictedPieceUIDs(boardPieces: MapState['boardPieces']) {
+  const { conflictedPieceUIDs } = rebuildBoardStateFromPieces(boardPieces)
+  return conflictedPieceUIDs
+}
+
+function rebuildBoardStateFromPieces(boardPieces: MapState['boardPieces']) {
+  const conflicts = new Set<string>()
+  let workingHexes: MapState['boardHexes'] = {}
+  let workingPieces: MapState['boardPieces'] = []
+
+  for (const boardPiece of normalizeBoardPieces(boardPieces)) {
+    const piece = piecesSoFar[boardPiece.inventoryID]
+    if (!piece) continue
+
+    const result = addPiece({
+      piece,
+      boardHexes: workingHexes,
+      boardPieces: workingPieces,
+      pieceCoords: boardPiece.pieceCoords,
+      placementAltitude: boardPiece.altitude,
+      rotation: boardPiece.rotation,
+      isVsTile: false,
+      uid: boardPiece.uid,
+      permissive: true,
+    })
+
+    workingHexes = result.newBoardHexes
+    workingPieces = result.newBoardPieces
+    for (const displacedUID of result.displacedUIDs ?? []) {
+      conflicts.add(displacedUID)
+      conflicts.add(boardPiece.uid)
+    }
+  }
+
+  return {
+    boardHexes: workingHexes,
+    boardPieces: workingPieces,
+    conflictedPieceUIDs: [...conflicts],
+  }
+}
+
+const preferredConstrainedPenModes: PiecePrefixes[] = [
+  PiecePrefixes.grass,
+  PiecePrefixes.rock,
+  PiecePrefixes.sand,
+  PiecePrefixes.water,
+  PiecePrefixes.wellspringWater,
+  PiecePrefixes.toxicWater,
+  PiecePrefixes.swampWater,
+  PiecePrefixes.ice,
+  PiecePrefixes.lava,
+  PiecePrefixes.shadow,
+  PiecePrefixes.road,
+  PiecePrefixes.wallWalk,
+  PiecePrefixes.lavaField,
+  PiecePrefixes.snow,
+  PiecePrefixes.swamp,
+  PiecePrefixes.dungeon,
+  PiecePrefixes.toxic,
+  PiecePrefixes.ancientTerrain,
+  PiecePrefixes.asphalt,
+  PiecePrefixes.concrete,
+  PiecePrefixes.wood,
+]
+
+function getPreferredConstrainedPenMode(setsUsed?: string[]) {
+  const availablePrefixes = getAvailableLandPrefixesForSets(setsUsed)
+  if (availablePrefixes.size === 0) {
+    return undefined
+  }
+  const preferred = preferredConstrainedPenModes.find((prefix) =>
+    availablePrefixes.has(prefix),
+  )
+  return preferred ?? [...availablePrefixes][0]
+}
+
+function getDefaultSizeForLandPrefix(prefix: string) {
+  return getNewPieceSizeForPenMode(prefix, 'select', 0).newSize
+}
 
 export interface MapSlice extends MapState {
   conflictedPieceUIDs: string[]
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
   unpaintTile: (uid: string) => void
+  convertTerrainForPieces: (args: ConvertTerrainArgs) => number
   movePiece: (args: MovePieceArgs) => void
   loadMap: (map: MapState) => void
   addMapPortraitBase64: (pic: string) => void
@@ -39,6 +123,11 @@ type MovePieceArgs = {
   newPieceCoords: CubeCoordinate
   newAltitude?: number
   newRotation?: number
+}
+
+type ConvertTerrainArgs = {
+  selectedUIDs: string[]
+  targetInventoryBySourceInventory: Record<string, string>
 }
 
 // Here, we duplicate lastMap in case the user is loading a URL, which will immediately overwrite lastMap,
@@ -74,7 +163,6 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           newBoardHexes,
           newBoardPieces,
           error: addPieceError,
-          displacedUIDs,
         } = addPiece({
           piece,
           boardHexes: draft.boardHexes,
@@ -94,12 +182,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
             : state.viewingLevel
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
-        // update conflict tracking
-        const conflicts = new Set(draft.conflictedPieceUIDs)
-        for (const duid of displacedUIDs ?? []) {
-          conflicts.add(duid)
-        }
-        draft.conflictedPieceUIDs = [...conflicts]
+        // Recompute from boardPieces so conflict state stays correct even after load/rehydrate drift.
+        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(newBoardPieces)
       })
     })
     return error
@@ -158,6 +242,60 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.conflictedPieceUIDs = [...newConflicts]
       })
     }),
+  convertTerrainForPieces: ({
+    selectedUIDs,
+    targetInventoryBySourceInventory,
+  }: ConvertTerrainArgs): number => {
+    let convertedCount = 0
+    set((state) => {
+      return produce(state, (draft) => {
+        let workingHexes = draft.boardHexes
+        let workingPieces = draft.boardPieces
+
+        for (const uid of selectedUIDs) {
+          const boardPiece = workingPieces.find((bp) => bp.uid === uid)
+          if (!boardPiece) continue
+
+          const targetInventoryID =
+            targetInventoryBySourceInventory[boardPiece.inventoryID]
+          if (
+            !targetInventoryID ||
+            targetInventoryID === boardPiece.inventoryID
+          ) {
+            continue
+          }
+          const targetPiece = piecesSoFar[targetInventoryID]
+          if (!targetPiece) continue
+
+          const removeResult = removePiece({
+            uid,
+            boardHexes: workingHexes,
+            boardPieces: workingPieces,
+          })
+          const addResult = addPiece({
+            piece: targetPiece,
+            boardHexes: removeResult.newBoardHexes,
+            boardPieces: removeResult.newBoardPieces,
+            pieceCoords: boardPiece.pieceCoords,
+            placementAltitude: boardPiece.altitude,
+            rotation: boardPiece.rotation,
+            isVsTile: false,
+            uid,
+            permissive: true,
+          })
+
+          workingHexes = addResult.newBoardHexes
+          workingPieces = addResult.newBoardPieces
+          convertedCount += 1
+        }
+
+        draft.boardHexes = workingHexes
+        draft.boardPieces = workingPieces
+        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(workingPieces)
+      })
+    })
+    return convertedCount
+  },
   movePiece: ({
     uid,
     newPieceCoords,
@@ -221,7 +359,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         }
 
         // 3. Place the moving piece at its new position
-        const { newBoardHexes, newBoardPieces, displacedUIDs } = addPiece({
+        const { newBoardHexes, newBoardPieces } = addPiece({
           piece,
           boardHexes: workingHexes,
           boardPieces: workingPieces,
@@ -235,12 +373,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
 
-        // 4. Update conflict tracking: only pieces displaced by the final placement remain conflicted
-        for (const duid of displacedUIDs ?? []) {
-          newConflicts.add(duid)
-        }
-        if (displacedUIDs?.length) newConflicts.add(uid)
-        draft.conflictedPieceUIDs = [...newConflicts]
+        // Recompute globally so move and paint use the same conflict source of truth.
+        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(newBoardPieces)
       })
     }),
   mapPortraitBase64: '',
@@ -260,6 +394,17 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     set((state) => {
       return produce(state, (draft) => {
         draft.hexMap.setsUsed = val
+        const constrainedPenMode = getPreferredConstrainedPenMode(val)
+        if (!constrainedPenMode) {
+          return
+        }
+        const isCurrentLastPenModeAvailable = getAvailableLandPrefixesForSets(
+          val,
+        ).has(draft.lastPenMode)
+        if (!isCurrentLastPenModeAvailable) {
+          draft.lastPenMode = constrainedPenMode
+          draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
+        }
       })
     }),
   changeAuthorName: (val: string) =>
@@ -281,7 +426,14 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.boardHexes = mapState.boardHexes
         draft.hexMap = mapState.hexMap
         draft.boardPieces = mapState.boardPieces
-        draft.conflictedPieceUIDs = []
+        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
+          mapState.boardPieces,
+        )
+        const constrainedPenMode =
+          getPreferredConstrainedPenMode(mapState.hexMap?.setsUsed) ??
+          PiecePrefixes.grass
+        draft.lastPenMode = constrainedPenMode
+        draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
       })
     }),
 })

@@ -115,10 +115,14 @@ Each hex on the board has a unique ID that is derived from its Q and R coordinat
 ### Adding New Terrain Pieces
 
 To add new terrain pieces, follow these steps:
-1. **Create the 3D Model**: Use Blender to create the 3D model of the new terrain piece.
+1. **Create the 3D Model**: Use Blender to create the 3D model of the new terrain piece. Try to put the origin of the mesh right on the bottom of where it will sit, and right in the center of the hex that will be the object's origin in Hexoscape.
 2. **Export as .glb**: Export the model as a `.glb` file.
 3. **Add to Project**: Add the `.glb` file to the appropriate directory in the project.
 4. **Create a React Component for the Model**: Run the `.glb` through [`gltfjsx`](https://gltf.pmnd.rs/), for example.
 5. **Update UI**: Update the user interface to allow users to select and place the new terrain piece. (as the project is under development, this step is subject to considerable change)
 
 By following these steps, you can expand the application to support new releases of Heroscape terrain.
+
+UPDATE NOTES: 
+- `Ctrl+leftarrow/Ctrl+rightarrow`: Hotkey for rotating camera azimuth angle by 15 degree increments
+- Bugfix: Deleting a piece now properly restores any pieces that were conflicting with the deleted piece

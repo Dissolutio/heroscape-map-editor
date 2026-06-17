@@ -63,13 +63,23 @@ export interface UISlice {
   userPieceInventory: PieceInventory
   updateUserPieceInventory: (n: PieceInventory) => void
 
+  focusedPieceUID: string | null
+  setFocusedPieceUID: (uid: string | null) => void
+  focusStartTime: number | null
+  setFocusStartTime: (time: number | null) => void
+
   // OPERATION PREVIEW STATE
   piecePreviews: BoardPiece[] | null
   setPiecePreviews: (pieces: BoardPiece[] | null) => void
 
   // POST-DELETE UNDO RE-SELECTION
-  pendingUndoSelectionRestore: string[] | null
-  setPendingUndoSelectionRestore: (ids: string[] | null) => void
+  pendingUndoSelectionRestoreStack: string[][]
+  pushPendingUndoSelectionRestore: (ids: string[]) => void
+  pushPendingUndoSelectionRestoreFromRedo: (ids: string[]) => void
+  popPendingUndoSelectionRestore: () => string[] | null
+  pendingRedoSelectionRestoreStack: string[][]
+  pushPendingRedoSelectionRestore: (ids: string[]) => void
+  popPendingRedoSelectionRestore: () => string[] | null
 
   // PDF STATE
   isShowPDFInventory: boolean
@@ -200,13 +210,61 @@ const createUISlice: StateCreator<
         s.piecePreviews = pieces
       }),
     ),
-  pendingUndoSelectionRestore: null,
-  setPendingUndoSelectionRestore: (ids: string[] | null) =>
+  pendingUndoSelectionRestoreStack: [],
+  pushPendingUndoSelectionRestore: (ids: string[]) =>
     set(
       produce((s) => {
-        s.pendingUndoSelectionRestore = ids
+        if (ids.length) {
+          // Any new mutation branch invalidates redo metadata from older undos.
+          s.pendingRedoSelectionRestoreStack = []
+          s.pendingUndoSelectionRestoreStack.push([...ids])
+        }
       }),
     ),
+  pushPendingUndoSelectionRestoreFromRedo: (ids: string[]) =>
+    set(
+      produce((s) => {
+        if (ids.length) {
+          // During redo replay, preserve remaining redo metadata for later steps.
+          s.pendingUndoSelectionRestoreStack.push([...ids])
+        }
+      }),
+    ),
+  popPendingUndoSelectionRestore: () => {
+    let popped: string[] | null = null
+    set(
+      produce((s) => {
+        const stack = s.pendingUndoSelectionRestoreStack
+        popped = stack.length ? [...stack[stack.length - 1]] : null
+        if (stack.length) {
+          stack.pop()
+        }
+      }),
+    )
+    return popped
+  },
+  pendingRedoSelectionRestoreStack: [],
+  pushPendingRedoSelectionRestore: (ids: string[]) =>
+    set(
+      produce((s) => {
+        if (ids.length) {
+          s.pendingRedoSelectionRestoreStack.push([...ids])
+        }
+      }),
+    ),
+  popPendingRedoSelectionRestore: () => {
+    let popped: string[] | null = null
+    set(
+      produce((s) => {
+        const stack = s.pendingRedoSelectionRestoreStack
+        popped = stack.length ? [...stack[stack.length - 1]] : null
+        if (stack.length) {
+          stack.pop()
+        }
+      }),
+    )
+    return popped
+  },
   isShowStartZones: true,
   toggleIsShowStartZones: (b: boolean) =>
     set(
@@ -233,6 +291,20 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isOrthoCam = b
+      }),
+    ),
+  focusedPieceUID: null,
+  setFocusedPieceUID: (uid: string | null) =>
+    set(
+      produce((s) => {
+        s.focusedPieceUID = uid
+      }),
+    ),
+  focusStartTime: null,
+  setFocusStartTime: (time: number | null) =>
+    set(
+      produce((s) => {
+        s.focusStartTime = time
       }),
     ),
   isShowPDFInventory: true,
