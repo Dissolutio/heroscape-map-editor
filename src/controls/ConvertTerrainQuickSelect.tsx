@@ -3,9 +3,11 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  type SxProps,
+  type Theme,
   type SelectChangeEvent,
 } from '@mui/material'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useId, useMemo } from 'react'
 import { useSnackbar } from 'notistack'
 import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
@@ -24,14 +26,23 @@ function formatTerrainLabel(terrain: string) {
  */
 export function ConvertTerrainQuickSelect({
   pieceUIDs,
+  label = 'Convert terrain',
+  compact = false,
+  alwaysRender = false,
+  sx,
 }: {
   pieceUIDs: string[]
+  label?: string
+  compact?: boolean
+  alwaysRender?: boolean
+  sx?: SxProps<Theme>
 }) {
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const convertTerrainForPieces = useBoundStore(
     (s) => s.convertTerrainForPieces,
   )
   const { enqueueSnackbar } = useSnackbar()
+  const id = useId()
 
   const isLandTerrain = useCallback((terrain: string) => {
     return isSolidTerrainHex(terrain) || isFluidTerrainHex(terrain)
@@ -116,28 +127,41 @@ export function ConvertTerrainQuickSelect({
     }
   }
 
-  if (selectedLandPieces.length === 0 || availableTerrains.length === 0) {
+  if (!alwaysRender && (selectedLandPieces.length === 0 || availableTerrains.length === 0)) {
     return null
   }
 
+  const isDisabled = selectedLandPieces.length === 0 || availableTerrains.length === 0
+  const labelId = `quick-convert-terrain-label-${id}`
+
   return (
-    <FormControl fullWidth size="small" sx={{ mt: 0.5 }}>
+    <FormControl fullWidth size="small" sx={{ mt: compact ? 0 : 0.5, ...sx }}>
       <InputLabel
-        id="quick-convert-terrain-label"
-        sx={{ fontSize: 10, top: '-2px' }}
+        id={labelId}
+        sx={{ fontSize: compact ? 9 : 10, top: compact ? '-4px' : '-2px' }}
       >
-        Convert terrain
+        {label}
       </InputLabel>
       <Select
-        labelId="quick-convert-terrain-label"
-        label="Convert terrain"
+        labelId={labelId}
+        label={label}
         // Always empty — selecting immediately fires conversion and resets
         value=""
         onChange={handleChange}
-        sx={{ fontSize: 10 }}
+        disabled={isDisabled}
+        sx={{ fontSize: compact ? 9 : 10 }}
       >
+        {isDisabled && (
+          <MenuItem value="" disabled sx={{ fontSize: compact ? 10 : 12 }}>
+            No eligible land selected
+          </MenuItem>
+        )}
         {availableTerrains.map((terrain) => (
-          <MenuItem key={terrain} value={terrain} sx={{ fontSize: 12 }}>
+          <MenuItem
+            key={terrain}
+            value={terrain}
+            sx={{ fontSize: compact ? 10 : 12 }}
+          >
             {formatTerrainLabel(terrain)}
           </MenuItem>
         ))}

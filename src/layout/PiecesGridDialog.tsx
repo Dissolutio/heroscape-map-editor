@@ -11,7 +11,7 @@ import {
 import type React from 'react'
 import type { CameraControls } from '@react-three/drei'
 import useBoundStore from '../store/store'
-import { ConvertTerrainDialog } from '../controls/ConvertTerrainDialog'
+import { ConvertTerrainQuickSelect } from '../controls/ConvertTerrainQuickSelect'
 import { DIALOGS } from './dialogNames'
 import { piecesSoFar } from '../data/pieces'
 import {
@@ -66,7 +66,6 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
   // const [selectedRowIds, setSelectedRowIds] = useState([]);
   const [rowSelectionModel, setRowSelectionModel] =
     useState<GridRowSelectionModel>([])
-  const [isConvertDialogOpen, setIsConvertDialogOpen] = useState(false)
   const fullScreen = useMediaQuery('(max-width:900px)')
   const { width: mapWidth, length: mapLength } =
     getBoardHexesRectangularMapDimensions(boardHexes)
@@ -352,6 +351,31 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       ),
     },
     {
+      field: 'quickConvert',
+      headerName: 'Quick Convert',
+      width: 150,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => (
+        <Box
+          sx={{ width: '100%' }}
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
+        >
+          {params.row.isLandPiece ? (
+            <ConvertTerrainQuickSelect
+              pieceUIDs={[params.row.id]}
+              compact
+              label="Convert"
+            />
+          ) : (
+            <Box component="span">-</Box>
+          )}
+        </Box>
+      ),
+    },
+    {
       field: 'actions',
       headerName: 'Actions',
       width: 150,
@@ -421,15 +445,12 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
           </Box>
         ) : (
           <>
-            <Button
-              variant="contained"
-              onClick={() => setIsConvertDialogOpen(true)}
-              disabled={rowSelectionModel.length === 0}
-              title="Change selected pieces from one terrain to another"
+            <ConvertTerrainQuickSelect
+              pieceUIDs={rowSelectionModel.map(String)}
+              label={`Convert Terrain (${rowSelectionModel.length})`}
+              alwaysRender
               sx={{ mb: 1.5 }}
-            >
-              Convert Terrain ({rowSelectionModel.length})
-            </Button>
+            />
             <Button
               variant="contained"
               color="error"
@@ -480,11 +501,6 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
           </>
         )}
       </DialogContent>
-      <ConvertTerrainDialog
-        open={isConvertDialogOpen}
-        onClose={() => setIsConvertDialogOpen(false)}
-        pieceUIDs={rowSelectionModel.map(String)}
-      />
       <DialogActions>
         <Button onClick={handleClose}>Close</Button>
       </DialogActions>
