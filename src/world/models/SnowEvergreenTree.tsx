@@ -41,33 +41,36 @@ export function SnowEvergreenTree({ pid }: { pid?: string }) {
 
   // 1. SAFELY INITIALIZE UNIFORMS OUTSIDE ONBEFORECOMPILE
   // This explicitly prevents WebGL from receiving malformed or un-instantiated variables
-  const customUniforms = useMemo(() => ({
-    snowColor: { value: new THREE.Color(hexTerrainColor[HexTerrain.snow]) }, // Enforces a valid THREE sequence
-    snowThreshold: { value: 0.15 },
-    snowSoftness: { value: 0.25 }
-  }), []);
+  const customUniforms = useMemo(
+    () => ({
+      snowColor: { value: new THREE.Color(hexTerrainColor[HexTerrain.snow]) }, // Enforces a valid THREE sequence
+      snowThreshold: { value: 0.15 },
+      snowSoftness: { value: 0.25 },
+    }),
+    [],
+  )
 
   const handleBeforeCompile = (
     shader: THREE.WebGLProgramParametersWithUniforms,
-    _renderer: THREE.WebGLRenderer
+    _renderer: THREE.WebGLRenderer,
   ): void => {
     // Assign uniform references safely
-    shader.uniforms.snowColor = customUniforms.snowColor;
-    shader.uniforms.snowThreshold = customUniforms.snowThreshold;
-    shader.uniforms.snowSoftness = customUniforms.snowSoftness;
+    shader.uniforms.snowColor = customUniforms.snowColor
+    shader.uniforms.snowThreshold = customUniforms.snowThreshold
+    shader.uniforms.snowSoftness = customUniforms.snowSoftness
 
     // 2. Vertex Shader Modifications
     shader.vertexShader = `
       varying vec3 vLocalPos;
       varying vec3 vWorldNormal;
       ${shader.vertexShader}
-    `;
+    `
     shader.vertexShader = shader.vertexShader.replace(
       'void main() {',
       `void main() {
        vLocalPos = position;
-       vWorldNormal = normalize(inverse(transpose(mat3(modelMatrix))) * normal);`
-    );
+       vWorldNormal = normalize(inverse(transpose(mat3(modelMatrix))) * normal);`,
+    )
 
     // 3. Fragment Shader Structural Injection
     shader.fragmentShader = `
@@ -77,7 +80,7 @@ export function SnowEvergreenTree({ pid }: { pid?: string }) {
       uniform float snowThreshold;
       uniform float snowSoftness;
       ${shader.fragmentShader}
-    `;
+    `
 
     // 4. The Inverted Mathematics (The look you liked!)
     shader.fragmentShader = shader.fragmentShader.replace(
@@ -94,17 +97,16 @@ export function SnowEvergreenTree({ pid }: { pid?: string }) {
        float snowFactor = edgeFactor * upwardDot;
        
        float snowMask = smoothstep(snowThreshold, snowThreshold + snowSoftness, snowFactor);
-       snowMask = clamp(snowMask, 0.0, 1.0);`
-    );
+       snowMask = clamp(snowMask, 0.0, 1.0);`,
+    )
 
     // 5. Output Color Override
     shader.fragmentShader = shader.fragmentShader.replace(
       '#include <opaque_fragment>',
       `#include <opaque_fragment>
-       gl_FragColor.rgb = mix(gl_FragColor.rgb, snowColor, snowMask);`
-    );
-  };
-
+       gl_FragColor.rgb = mix(gl_FragColor.rgb, snowColor, snowMask);`,
+    )
+  }
 
   return (
     <>
@@ -117,17 +119,21 @@ export function SnowEvergreenTree({ pid }: { pid?: string }) {
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
         {pid
-          ? basicModelMaterial(color, isLightsAndShadowsRender, undefined, handleBeforeCompile)
+          ? basicModelMaterial(
+              color,
+              isLightsAndShadowsRender,
+              undefined,
+              handleBeforeCompile,
+            )
           : basicModelMaterial(
-            color,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-            handleBeforeCompile,
-          )}
+              color,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+              handleBeforeCompile,
+            )}
       </mesh>
     </>
   )
 }
 
 // useGltf.preload('/forgotten-forest-tree-low-poly-colored.glb')
-

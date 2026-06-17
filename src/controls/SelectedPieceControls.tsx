@@ -91,8 +91,12 @@ export function SelectedPieceControls() {
     isBuried: checkBuried(bp),
   }))
   const conflictedCount = pieceStatuses.filter((s) => s.isConflicted).length
-  const buriedCount = pieceStatuses.filter((s) => s.isLandPiece && s.isBuried).length
-  const subBuriedCount = pieceStatuses.filter((s) => s.isLandPiece && s.isSubterrainBuried).length
+  const buriedCount = pieceStatuses.filter(
+    (s) => s.isLandPiece && s.isBuried,
+  ).length
+  const subBuriedCount = pieceStatuses.filter(
+    (s) => s.isLandPiece && s.isSubterrainBuried,
+  ).length
 
   // --- Info readout ---
   const titleLabel = isMulti
@@ -101,11 +105,11 @@ export function SelectedPieceControls() {
 
   const tooltipLines = isMulti
     ? selectedBoardPieces
-      .map(
-        (bp) =>
-          `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
-      )
-      .join('\n')
+        .map(
+          (bp) =>
+            `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
+        )
+        .join('\n')
     : ''
 
   const altitudes = selectedBoardPieces.map((bp) => bp.altitude + 1)
@@ -257,7 +261,13 @@ export function SelectedPieceControls() {
           {titleLabel}
         </Typography>
       </Tooltip>
-      <Typography sx={{ fontSize: 10, color: 'text.secondary', mb: conflictedCount + buriedCount + subBuriedCount > 0 ? 0.25 : 1 }}>
+      <Typography
+        sx={{
+          fontSize: 10,
+          color: 'text.secondary',
+          mb: conflictedCount + buriedCount + subBuriedCount > 0 ? 0.25 : 1,
+        }}
+      >
         Alt: {altLabel} &nbsp; Rot: {rotLabel}
       </Typography>
 
@@ -267,22 +277,32 @@ export function SelectedPieceControls() {
           {conflictedCount > 0 && (
             <Typography
               title="Piece collides with other pieces"
-              sx={{ fontSize: 10, color: 'error.main', fontWeight: 700, lineHeight: 1.4 }}>
+              sx={{
+                fontSize: 10,
+                color: 'error.main',
+                fontWeight: 700,
+                lineHeight: 1.4,
+              }}
+            >
               {isMulti ? `${conflictedCount} conflicted` : 'Conflicted'}
             </Typography>
           )}
           {buriedCount > 0 && (
             <Typography
               title="No hexes from this piece show to the surface"
-              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}>
+              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+            >
               {isMulti ? `${buriedCount} buried` : 'Buried'}
             </Typography>
           )}
           {subBuriedCount > 0 && (
             <Typography
               title="The sides of this piece do not show to the outside"
-              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}>
-              {isMulti ? `${subBuriedCount} subterrain-buried` : 'Subterrain-buried'}
+              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+            >
+              {isMulti
+                ? `${subBuriedCount} subterrain-buried`
+                : 'Subterrain-buried'}
             </Typography>
           )}
         </Box>

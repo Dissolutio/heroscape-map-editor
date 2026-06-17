@@ -112,7 +112,11 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
   }, [])
 
   const getLandFootprintAtTopAltitude = useCallback(
-    (inventoryID: string, pieceCoords: { q: number; r: number; s: number }, rotation: number) => {
+    (
+      inventoryID: string,
+      pieceCoords: { q: number; r: number; s: number },
+      rotation: number,
+    ) => {
       const piece = piecesSoFar[inventoryID]
       if (!piece) return null
       const isLandPiece = isLandTerrain(piece.terrain)
@@ -129,22 +133,36 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
   )
 
   const isSubterrainBuriedForPiece = useCallback(
-    (inventoryID: string, pieceCoords: { q: number; r: number; s: number }, rotation: number, pieceAltitude: number) => {
+    (
+      inventoryID: string,
+      pieceCoords: { q: number; r: number; s: number },
+      rotation: number,
+      pieceAltitude: number,
+    ) => {
       const piece = piecesSoFar[inventoryID]
       if (!piece) return false
-      const footprint = getLandFootprintAtTopAltitude(inventoryID, pieceCoords, rotation)
+      const footprint = getLandFootprintAtTopAltitude(
+        inventoryID,
+        pieceCoords,
+        rotation,
+      )
       if (!footprint?.length) return false
 
       const topAltitude = pieceAltitude + 1
       const isFluidPiece = isFluidTerrainHex(piece.terrain)
       const footprintIds = new Set(
-        footprint.map((coord) => genBoardHexID({ ...coord, altitude: topAltitude })),
+        footprint.map((coord) =>
+          genBoardHexID({ ...coord, altitude: topAltitude }),
+        ),
       )
 
       return footprint.every((coord) => {
         return Object.values(HEX_DIRECTIONS).every((direction) => {
           const neighborCoord = hexUtilsAdd(coord, direction)
-          const neighborID = genBoardHexID({ ...neighborCoord, altitude: topAltitude })
+          const neighborID = genBoardHexID({
+            ...neighborCoord,
+            altitude: topAltitude,
+          })
 
           if (footprintIds.has(neighborID)) {
             return true
@@ -162,18 +180,28 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
   )
 
   const isBuriedForPiece = useCallback(
-    (inventoryID: string, pieceCoords: { q: number; r: number; s: number }, rotation: number, pieceAltitude: number) => {
-      const footprint = getLandFootprintAtTopAltitude(inventoryID, pieceCoords, rotation)
+    (
+      inventoryID: string,
+      pieceCoords: { q: number; r: number; s: number },
+      rotation: number,
+      pieceAltitude: number,
+    ) => {
+      const footprint = getLandFootprintAtTopAltitude(
+        inventoryID,
+        pieceCoords,
+        rotation,
+      )
       if (!footprint?.length) return false
 
       const topAltitude = pieceAltitude + 1
       return footprint.every((coord) => {
-        const aboveHex = boardHexes[
-          genBoardHexID({
-            ...coord,
-            altitude: topAltitude + 1,
-          })
-        ]
+        const aboveHex =
+          boardHexes[
+            genBoardHexID({
+              ...coord,
+              altitude: topAltitude + 1,
+            })
+          ]
         const aboveTerrain = aboveHex?.terrain ?? ''
         return isLandTerrain(aboveTerrain)
       })
@@ -182,84 +210,88 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
   )
 
   // Build rows: one per unique board piece with its data
-  const rows: PieceRow[] = useMemo(() => boardPieces
-    .map((bp) => {
-      const piece = piecesSoFar[bp.inventoryID]
-      const pieceName = piece?.title ?? 'Unknown Piece'
-      const isLandPiece = isLandTerrain(piece?.terrain ?? '')
-      return {
-        id: bp.uid,
-        pieceName,
-        isConflicted: conflictedUIDSet.has(bp.uid),
-        isLandPiece,
-        isSubterrainBuried: isSubterrainBuriedForPiece(
-          bp.inventoryID,
-          bp.pieceCoords,
-          bp.rotation,
-          bp.altitude,
-        ),
-        isBuried: isBuriedForPiece(
-          bp.inventoryID,
-          bp.pieceCoords,
-          bp.rotation,
-          bp.altitude,
-        ),
-        inventoryID: bp.inventoryID,
-        terrain: piece?.terrain ?? 'unknown',
-        pieceSize: piece?.size ?? 0,
-        q: bp.pieceCoords.q,
-        r: bp.pieceCoords.r,
-        s: bp.pieceCoords.s,
-        altitude: bp.altitude,
-        rotation: bp.rotation,
-        count: 1, // each row is one piece instance
-      }
-    })
-    .sort((a, b) => {
-      if (a.isConflicted !== b.isConflicted) {
-        return a.isConflicted ? -1 : 1
-      }
+  const rows: PieceRow[] = useMemo(
+    () =>
+      boardPieces
+        .map((bp) => {
+          const piece = piecesSoFar[bp.inventoryID]
+          const pieceName = piece?.title ?? 'Unknown Piece'
+          const isLandPiece = isLandTerrain(piece?.terrain ?? '')
+          return {
+            id: bp.uid,
+            pieceName,
+            isConflicted: conflictedUIDSet.has(bp.uid),
+            isLandPiece,
+            isSubterrainBuried: isSubterrainBuriedForPiece(
+              bp.inventoryID,
+              bp.pieceCoords,
+              bp.rotation,
+              bp.altitude,
+            ),
+            isBuried: isBuriedForPiece(
+              bp.inventoryID,
+              bp.pieceCoords,
+              bp.rotation,
+              bp.altitude,
+            ),
+            inventoryID: bp.inventoryID,
+            terrain: piece?.terrain ?? 'unknown',
+            pieceSize: piece?.size ?? 0,
+            q: bp.pieceCoords.q,
+            r: bp.pieceCoords.r,
+            s: bp.pieceCoords.s,
+            altitude: bp.altitude,
+            rotation: bp.rotation,
+            count: 1, // each row is one piece instance
+          }
+        })
+        .sort((a, b) => {
+          if (a.isConflicted !== b.isConflicted) {
+            return a.isConflicted ? -1 : 1
+          }
 
-      const aGroupOrder = pieceOrderByInventoryID.get(a.inventoryID)
-      const bGroupOrder = pieceOrderByInventoryID.get(b.inventoryID)
-      const aHasGroupOrder = aGroupOrder !== undefined
-      const bHasGroupOrder = bGroupOrder !== undefined
+          const aGroupOrder = pieceOrderByInventoryID.get(a.inventoryID)
+          const bGroupOrder = pieceOrderByInventoryID.get(b.inventoryID)
+          const aHasGroupOrder = aGroupOrder !== undefined
+          const bHasGroupOrder = bGroupOrder !== undefined
 
-      if (aHasGroupOrder && bHasGroupOrder && aGroupOrder !== bGroupOrder) {
-        return aGroupOrder - bGroupOrder
-      }
-      if (aHasGroupOrder !== bHasGroupOrder) {
-        return aHasGroupOrder ? -1 : 1
-      }
+          if (aHasGroupOrder && bHasGroupOrder && aGroupOrder !== bGroupOrder) {
+            return aGroupOrder - bGroupOrder
+          }
+          if (aHasGroupOrder !== bHasGroupOrder) {
+            return aHasGroupOrder ? -1 : 1
+          }
 
-      // Fallback grouping keeps same terrain and size variants adjacent.
-      if (a.terrain !== b.terrain) {
-        return a.terrain.localeCompare(b.terrain)
-      }
-      if (a.pieceSize !== b.pieceSize) {
-        return a.pieceSize - b.pieceSize
-      }
-      if (a.pieceName !== b.pieceName) {
-        return a.pieceName.localeCompare(b.pieceName)
-      }
-      if (a.altitude !== b.altitude) {
-        return a.altitude - b.altitude
-      }
-      if (a.q !== b.q) {
-        return a.q - b.q
-      }
-      if (a.r !== b.r) {
-        return a.r - b.r
-      }
-      return a.s - b.s
-    }), [
-    boardPieces,
-    conflictedUIDSet,
-    isBuriedForPiece,
-    isLandTerrain,
-    isSubterrainBuriedForPiece,
-    pieceOrderByInventoryID,
-  ])
+          // Fallback grouping keeps same terrain and size variants adjacent.
+          if (a.terrain !== b.terrain) {
+            return a.terrain.localeCompare(b.terrain)
+          }
+          if (a.pieceSize !== b.pieceSize) {
+            return a.pieceSize - b.pieceSize
+          }
+          if (a.pieceName !== b.pieceName) {
+            return a.pieceName.localeCompare(b.pieceName)
+          }
+          if (a.altitude !== b.altitude) {
+            return a.altitude - b.altitude
+          }
+          if (a.q !== b.q) {
+            return a.q - b.q
+          }
+          if (a.r !== b.r) {
+            return a.r - b.r
+          }
+          return a.s - b.s
+        }),
+    [
+      boardPieces,
+      conflictedUIDSet,
+      isBuriedForPiece,
+      isLandTerrain,
+      isSubterrainBuriedForPiece,
+      pieceOrderByInventoryID,
+    ],
+  )
 
   // Count pieces by type for summary
   const pieceCountsByType = boardPieces.reduce(
@@ -324,7 +356,8 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
     {
       field: 'isSubterrainBuried',
       headerName: 'Is Subterrain Buried',
-      description: 'If this is a land tile, is it surrounded by adjacent land tiles such that you cannot see the sides of this piece',
+      description:
+        'If this is a land tile, is it surrounded by adjacent land tiles such that you cannot see the sides of this piece',
       width: 170,
       align: 'center',
       headerAlign: 'center',
@@ -341,7 +374,8 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
     {
       field: 'isBuried',
       headerName: 'Is Buried',
-      description: 'If this is a land tile, is each hex above it occupied by other land tiles such that no hexes from this piece show to the surface',
+      description:
+        'If this is a land tile, is each hex above it occupied by other land tiles such that no hexes from this piece show to the surface',
       width: 110,
       align: 'center',
       headerAlign: 'center',
@@ -389,7 +423,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
           variant="outlined"
           onClick={() => handleZoomToPiece(params.row as PieceRow)}
           sx={{
-            fontSize: '8px'
+            fontSize: '8px',
           }}
         >
           Zoom To
@@ -529,7 +563,12 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
                   onClick={handleBulkDelete}
                   disabled={rowSelectionModel.length === 0}
                   title="Delete the selected pieces"
-                  sx={{ minHeight: 44, fontWeight: 600, px: 2.25, whiteSpace: 'nowrap' }}
+                  sx={{
+                    minHeight: 44,
+                    fontWeight: 600,
+                    px: 2.25,
+                    whiteSpace: 'nowrap',
+                  }}
                 >
                   Delete Selected ({rowSelectionModel.length})
                 </Button>

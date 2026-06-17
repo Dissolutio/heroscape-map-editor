@@ -35,7 +35,9 @@ export function getAvailableLandPrefixesForSets(setsUsed?: string[]) {
   return prefixes
 }
 
-export function getConstrainedLandInventoryByTerrainAndSize(setsUsed?: string[]) {
+export function getConstrainedLandInventoryByTerrainAndSize(
+  setsUsed?: string[],
+) {
   const lookup = new Map<string, Map<number, string>>()
 
   for (const [pieceID, count] of Object.entries(

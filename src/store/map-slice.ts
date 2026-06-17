@@ -258,7 +258,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
 
           const targetInventoryID =
             targetInventoryBySourceInventory[boardPiece.inventoryID]
-          if (!targetInventoryID || targetInventoryID === boardPiece.inventoryID) {
+          if (
+            !targetInventoryID ||
+            targetInventoryID === boardPiece.inventoryID
+          ) {
             continue
           }
           const targetPiece = piecesSoFar[targetInventoryID]

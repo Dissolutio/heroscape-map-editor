@@ -24,7 +24,10 @@ export const basicModelMaterial = (
   color: string,
   isHQ: boolean,
   opacity?: number,
-  handleBeforeCompile?: (parameters: THREE.WebGLProgramParametersWithUniforms, renderer: THREE.WebGLRenderer) => void
+  handleBeforeCompile?: (
+    parameters: THREE.WebGLProgramParametersWithUniforms,
+    renderer: THREE.WebGLRenderer,
+  ) => void,
 ) =>
   isHQ ? (
     <meshStandardMaterial
@@ -45,7 +48,10 @@ export const basicDoubleSideModelMaterial = (
   color: string,
   isHQ: boolean,
   opacity?: number,
-  handleBeforeCompile?: (parameters: THREE.WebGLProgramParametersWithUniforms, renderer: THREE.WebGLRenderer) => void
+  handleBeforeCompile?: (
+    parameters: THREE.WebGLProgramParametersWithUniforms,
+    renderer: THREE.WebGLRenderer,
+  ) => void,
 ) =>
   isHQ ? (
     <meshStandardMaterial

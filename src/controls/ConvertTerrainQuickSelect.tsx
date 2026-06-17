@@ -160,8 +160,7 @@ export function ConvertTerrainQuickSelect({
   const hiddenForConstraintsCount =
     terrainsValidForSelectedPieces.length - availableTerrains.length
   const showConstraintNotice =
-    !compact &&
-    (hiddenForSelectionCount > 0 || hiddenForConstraintsCount > 0)
+    !compact && (hiddenForSelectionCount > 0 || hiddenForConstraintsCount > 0)
   const constraintNoticeText =
     hiddenForSelectionCount > 0 && hiddenForConstraintsCount > 0
       ? 'Some terrain options are unavailable for the selected pieces or hidden by terrain set constraints.'
@@ -205,11 +204,15 @@ export function ConvertTerrainQuickSelect({
     }
   }
 
-  if (!alwaysRender && (selectedLandPieces.length === 0 || availableTerrains.length === 0)) {
+  if (
+    !alwaysRender &&
+    (selectedLandPieces.length === 0 || availableTerrains.length === 0)
+  ) {
     return null
   }
 
-  const isDisabled = selectedLandPieces.length === 0 || availableTerrains.length === 0
+  const isDisabled =
+    selectedLandPieces.length === 0 || availableTerrains.length === 0
   const disabledMessage =
     selectedLandPieces.length === 0
       ? 'No eligible land selected'
@@ -232,17 +235,14 @@ export function ConvertTerrainQuickSelect({
         ...sx,
         '& .MuiOutlinedInput-root': prominent
           ? {
-            minHeight: 44,
-            borderRadius: 1.5,
-            backgroundColor: 'background.paper',
-          }
+              minHeight: 44,
+              borderRadius: 1.5,
+              backgroundColor: 'background.paper',
+            }
           : undefined,
       }}
     >
-      <InputLabel
-        id={labelId}
-        sx={{ fontSize: labelFontSize, top: labelTop }}
-      >
+      <InputLabel id={labelId} sx={{ fontSize: labelFontSize, top: labelTop }}>
         {label}
       </InputLabel>
       <Select
