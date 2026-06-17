@@ -3,12 +3,15 @@ import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { removePiece } from '../data/removePiece'
 import { piecesSoFar } from '../data/pieces'
+import { terrainSetsByShortID } from '../data/terrainSets'
+import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type {
   AddRemovePieceError,
   CubeCoordinate,
   MapState,
   Piece,
 } from '../types'
+import { PiecePrefixes } from '../types'
 import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
 import { normalizeBoardPieces } from '../utils/map-utils'
@@ -53,6 +56,65 @@ function rebuildBoardStateFromPieces(boardPieces: MapState['boardPieces']) {
     boardPieces: workingPieces,
     conflictedPieceUIDs: [...conflicts],
   }
+}
+
+const preferredConstrainedPenModes: PiecePrefixes[] = [
+  PiecePrefixes.grass,
+  PiecePrefixes.rock,
+  PiecePrefixes.sand,
+  PiecePrefixes.water,
+  PiecePrefixes.wellspringWater,
+  PiecePrefixes.toxicWater,
+  PiecePrefixes.swampWater,
+  PiecePrefixes.ice,
+  PiecePrefixes.lava,
+  PiecePrefixes.shadow,
+  PiecePrefixes.road,
+  PiecePrefixes.wallWalk,
+  PiecePrefixes.lavaField,
+  PiecePrefixes.snow,
+  PiecePrefixes.swamp,
+  PiecePrefixes.dungeon,
+  PiecePrefixes.toxic,
+  PiecePrefixes.ancientTerrain,
+  PiecePrefixes.asphalt,
+  PiecePrefixes.concrete,
+  PiecePrefixes.wood,
+]
+
+function getAvailableLandPrefixesForSets(setsUsed?: string[]) {
+  const prefixes = new Set<string>()
+  for (const setID of setsUsed ?? []) {
+    const set = terrainSetsByShortID[setID as keyof typeof terrainSetsByShortID]
+    if (!set?.inventory) {
+      continue
+    }
+    for (const [pieceID, count] of Object.entries(set.inventory)) {
+      if ((Number(count) || 0) <= 0) {
+        continue
+      }
+      const landPrefix = piecesSoFar[pieceID]?.landPrefix
+      if (landPrefix) {
+        prefixes.add(landPrefix)
+      }
+    }
+  }
+  return prefixes
+}
+
+function getPreferredConstrainedPenMode(setsUsed?: string[]) {
+  const availablePrefixes = getAvailableLandPrefixesForSets(setsUsed)
+  if (availablePrefixes.size === 0) {
+    return undefined
+  }
+  const preferred = preferredConstrainedPenModes.find((prefix) =>
+    availablePrefixes.has(prefix),
+  )
+  return preferred ?? [...availablePrefixes][0]
+}
+
+function getDefaultSizeForLandPrefix(prefix: string) {
+  return getNewPieceSizeForPenMode(prefix, 'select', 0).newSize
 }
 
 export interface MapSlice extends MapState {
@@ -349,6 +411,17 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     set((state) => {
       return produce(state, (draft) => {
         draft.hexMap.setsUsed = val
+        const constrainedPenMode = getPreferredConstrainedPenMode(val)
+        if (!constrainedPenMode) {
+          return
+        }
+        const isCurrentLastPenModeAvailable = getAvailableLandPrefixesForSets(
+          val,
+        ).has(draft.lastPenMode)
+        if (!isCurrentLastPenModeAvailable) {
+          draft.lastPenMode = constrainedPenMode
+          draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
+        }
       })
     }),
   changeAuthorName: (val: string) =>
@@ -373,6 +446,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           mapState.boardPieces,
         )
+        const constrainedPenMode =
+          getPreferredConstrainedPenMode(mapState.hexMap?.setsUsed) ??
+          PiecePrefixes.grass
+        draft.lastPenMode = constrainedPenMode
+        draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
       })
     }),
 })
