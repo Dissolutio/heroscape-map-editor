@@ -34,3 +34,28 @@ export function getAvailableLandPrefixesForSets(setsUsed?: string[]) {
 
   return prefixes
 }
+
+export function getConstrainedLandInventoryByTerrainAndSize(setsUsed?: string[]) {
+  const lookup = new Map<string, Map<number, string>>()
+
+  for (const [pieceID, count] of Object.entries(
+    getSetConstrainedInventory(setsUsed),
+  )) {
+    if ((count ?? 0) <= 0) {
+      continue
+    }
+
+    const piece = piecesSoFar[pieceID]
+    if (!piece?.isHexTerrainPiece || !piece.terrain) {
+      continue
+    }
+
+    if (!lookup.has(piece.terrain)) {
+      lookup.set(piece.terrain, new Map<number, string>())
+    }
+
+    lookup.get(piece.terrain)?.set(piece.size, piece.id)
+  }
+
+  return lookup
+}

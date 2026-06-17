@@ -1,5 +1,4 @@
 import {
-  Box,
   Button,
   Divider,
   FormControl,
@@ -15,7 +14,7 @@ import { useSnackbar } from 'notistack'
 import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
-import { getAvailableLandPrefixesForSets } from '../utils/terrain-constraints'
+import { getConstrainedLandInventoryByTerrainAndSize } from '../utils/terrain-constraints'
 
 function formatTerrainLabel(terrain: string) {
   if (!terrain) return 'Unknown'
@@ -92,8 +91,8 @@ export function ConvertTerrainQuickSelect({
   )
 
   const hasSetConstraints = setsUsed.length > 0
-  const availableLandPrefixes = useMemo(
-    () => getAvailableLandPrefixesForSets(setsUsed),
+  const constrainedLandInventoryByTerrainAndSize = useMemo(
+    () => getConstrainedLandInventoryByTerrainAndSize(setsUsed),
     [setsUsed],
   )
   const allTerrains = useMemo(
@@ -104,7 +103,12 @@ export function ConvertTerrainQuickSelect({
     [landPieceInventoryByTerrainAndSize],
   )
 
-  const availableTerrains = useMemo(
+  const selectedPieceSizes = useMemo(
+    () => new Set(selectedLandPieces.map((piece) => piece.pieceSize)),
+    [selectedLandPieces],
+  )
+
+  const terrainsValidForSelectedPieces = useMemo(
     () =>
       Array.from(landPieceInventoryByTerrainAndSize.entries())
         .filter(([terrain, targetBySize]) => {
@@ -112,24 +116,58 @@ export function ConvertTerrainQuickSelect({
             return false
           }
 
-          if (!hasSetConstraints) {
-            return true
-          }
-
-          return Array.from(targetBySize.values()).some((inventoryID) => {
-            const landPrefix = piecesSoFar[inventoryID]?.landPrefix
-            return landPrefix ? availableLandPrefixes.has(landPrefix) : false
+          return Array.from(selectedPieceSizes).some((pieceSize) => {
+            return targetBySize.has(pieceSize)
           })
         })
         .map(([terrain]) => terrain)
         .sort((a, b) =>
           formatTerrainLabel(a).localeCompare(formatTerrainLabel(b)),
         ),
-    [availableLandPrefixes, hasSetConstraints, landPieceInventoryByTerrainAndSize],
+    [landPieceInventoryByTerrainAndSize, selectedPieceSizes],
   )
-  const hiddenTerrainCount = allTerrains.length - availableTerrains.length
+
+  const availableTerrains = useMemo(
+    () =>
+      Array.from(
+        (hasSetConstraints
+          ? constrainedLandInventoryByTerrainAndSize
+          : landPieceInventoryByTerrainAndSize
+        ).entries(),
+      )
+        .filter(([terrain, targetBySize]) => {
+          if (terrain === '') {
+            return false
+          }
+
+          return Array.from(selectedPieceSizes).some((pieceSize) => {
+            return targetBySize.has(pieceSize)
+          })
+        })
+        .map(([terrain]) => terrain)
+        .sort((a, b) =>
+          formatTerrainLabel(a).localeCompare(formatTerrainLabel(b)),
+        ),
+    [
+      hasSetConstraints,
+      constrainedLandInventoryByTerrainAndSize,
+      landPieceInventoryByTerrainAndSize,
+      selectedPieceSizes,
+    ],
+  )
+  const hiddenForSelectionCount =
+    allTerrains.length - terrainsValidForSelectedPieces.length
+  const hiddenForConstraintsCount =
+    terrainsValidForSelectedPieces.length - availableTerrains.length
   const showConstraintNotice =
-    !compact && hasSetConstraints && hiddenTerrainCount > 0
+    !compact &&
+    (hiddenForSelectionCount > 0 || hiddenForConstraintsCount > 0)
+  const constraintNoticeText =
+    hiddenForSelectionCount > 0 && hiddenForConstraintsCount > 0
+      ? 'Some terrain options are unavailable for the selected pieces or hidden by terrain set constraints.'
+      : hiddenForSelectionCount > 0
+        ? 'Some terrain options are unavailable for the selected pieces.'
+        : 'Some terrain options are hidden because this map has terrain set constraints.'
 
   const handleChange = (event: SelectChangeEvent) => {
     const targetTerrain = event.target.value
@@ -194,10 +232,10 @@ export function ConvertTerrainQuickSelect({
         ...sx,
         '& .MuiOutlinedInput-root': prominent
           ? {
-              minHeight: 44,
-              borderRadius: 1.5,
-              backgroundColor: 'background.paper',
-            }
+            minHeight: 44,
+            borderRadius: 1.5,
+            backgroundColor: 'background.paper',
+          }
           : undefined,
       }}
     >
@@ -252,20 +290,21 @@ export function ConvertTerrainQuickSelect({
                   whiteSpace: 'normal',
                 }}
               >
-                Some terrain options are hidden because this map has terrain
-                set constraints.
+                {constraintNoticeText}
               </span>
-              <Button
-                size="small"
-                variant="outlined"
-                onMouseDown={(event) => event.stopPropagation()}
-                onClick={(event) => {
-                  event.stopPropagation()
-                  toggleIsEditMapDialogOpen(true)
-                }}
-              >
-                Edit Constraints
-              </Button>
+              {hasSetConstraints && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onMouseDown={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    toggleIsEditMapDialogOpen(true)
+                  }}
+                >
+                  Edit Constraints
+                </Button>
+              )}
             </MenuItem>
           </>
         )}
