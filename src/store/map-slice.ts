@@ -3,7 +3,6 @@ import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { removePiece } from '../data/removePiece'
 import { piecesSoFar } from '../data/pieces'
-import { terrainSetsByShortID } from '../data/terrainSets'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type {
   AddRemovePieceError,
@@ -16,6 +15,7 @@ import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
 import { normalizeBoardPieces } from '../utils/map-utils'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
+import { getAvailableLandPrefixesForSets } from '../utils/terrain-constraints'
 
 function computeConflictedPieceUIDs(boardPieces: MapState['boardPieces']) {
   const { conflictedPieceUIDs } = rebuildBoardStateFromPieces(boardPieces)
@@ -81,26 +81,6 @@ const preferredConstrainedPenModes: PiecePrefixes[] = [
   PiecePrefixes.concrete,
   PiecePrefixes.wood,
 ]
-
-function getAvailableLandPrefixesForSets(setsUsed?: string[]) {
-  const prefixes = new Set<string>()
-  for (const setID of setsUsed ?? []) {
-    const set = terrainSetsByShortID[setID as keyof typeof terrainSetsByShortID]
-    if (!set?.inventory) {
-      continue
-    }
-    for (const [pieceID, count] of Object.entries(set.inventory)) {
-      if ((Number(count) || 0) <= 0) {
-        continue
-      }
-      const landPrefix = piecesSoFar[pieceID]?.landPrefix
-      if (landPrefix) {
-        prefixes.add(landPrefix)
-      }
-    }
-  }
-  return prefixes
-}
 
 function getPreferredConstrainedPenMode(setsUsed?: string[]) {
   const availablePrefixes = getAvailableLandPrefixesForSets(setsUsed)

@@ -1,4 +1,7 @@
 import {
+  Box,
+  Button,
+  Divider,
   FormControl,
   InputLabel,
   MenuItem,
@@ -12,6 +15,7 @@ import { useSnackbar } from 'notistack'
 import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
+import { getAvailableLandPrefixesForSets } from '../utils/terrain-constraints'
 
 function formatTerrainLabel(terrain: string) {
   if (!terrain) return 'Unknown'
@@ -28,16 +32,22 @@ export function ConvertTerrainQuickSelect({
   pieceUIDs,
   label = 'Convert terrain',
   compact = false,
+  prominent = false,
   alwaysRender = false,
   sx,
 }: {
   pieceUIDs: string[]
   label?: string
   compact?: boolean
+  prominent?: boolean
   alwaysRender?: boolean
   sx?: SxProps<Theme>
 }) {
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const setsUsed = useBoundStore((s) => s.hexMap?.setsUsed ?? [])
+  const toggleIsEditMapDialogOpen = useBoundStore(
+    (s) => s.toggleIsEditMapDialogOpen,
+  )
   const convertTerrainForPieces = useBoundStore(
     (s) => s.convertTerrainForPieces,
   )
@@ -81,15 +91,45 @@ export function ConvertTerrainQuickSelect({
     [boardPieces, uidSet, isLandTerrain],
   )
 
+  const hasSetConstraints = setsUsed.length > 0
+  const availableLandPrefixes = useMemo(
+    () => getAvailableLandPrefixesForSets(setsUsed),
+    [setsUsed],
+  )
+  const allTerrains = useMemo(
+    () =>
+      Array.from(landPieceInventoryByTerrainAndSize.keys()).filter(
+        (terrain) => terrain !== '',
+      ),
+    [landPieceInventoryByTerrainAndSize],
+  )
+
   const availableTerrains = useMemo(
     () =>
-      Array.from(landPieceInventoryByTerrainAndSize.keys())
-        .filter((terrain) => terrain !== '')
+      Array.from(landPieceInventoryByTerrainAndSize.entries())
+        .filter(([terrain, targetBySize]) => {
+          if (terrain === '') {
+            return false
+          }
+
+          if (!hasSetConstraints) {
+            return true
+          }
+
+          return Array.from(targetBySize.values()).some((inventoryID) => {
+            const landPrefix = piecesSoFar[inventoryID]?.landPrefix
+            return landPrefix ? availableLandPrefixes.has(landPrefix) : false
+          })
+        })
+        .map(([terrain]) => terrain)
         .sort((a, b) =>
           formatTerrainLabel(a).localeCompare(formatTerrainLabel(b)),
         ),
-    [landPieceInventoryByTerrainAndSize],
+    [availableLandPrefixes, hasSetConstraints, landPieceInventoryByTerrainAndSize],
   )
+  const hiddenTerrainCount = allTerrains.length - availableTerrains.length
+  const showConstraintNotice =
+    !compact && hasSetConstraints && hiddenTerrainCount > 0
 
   const handleChange = (event: SelectChangeEvent) => {
     const targetTerrain = event.target.value
@@ -132,13 +172,38 @@ export function ConvertTerrainQuickSelect({
   }
 
   const isDisabled = selectedLandPieces.length === 0 || availableTerrains.length === 0
+  const disabledMessage =
+    selectedLandPieces.length === 0
+      ? 'No eligible land selected'
+      : hasSetConstraints
+        ? 'No constrained terrain options available'
+        : 'No terrain options available'
   const labelId = `quick-convert-terrain-label-${id}`
+  const controlSize = compact ? 'small' : prominent ? 'medium' : 'small'
+  const labelFontSize = compact ? 9 : prominent ? 12 : 10
+  const labelTop = compact ? '-4px' : prominent ? undefined : '-2px'
+  const selectFontSize = compact ? 9 : prominent ? 12 : 10
+  const menuItemFontSize = compact ? 10 : prominent ? 12 : 12
 
   return (
-    <FormControl fullWidth size="small" sx={{ mt: compact ? 0 : 0.5, ...sx }}>
+    <FormControl
+      fullWidth
+      size={controlSize}
+      sx={{
+        mt: compact ? 0 : 0.5,
+        ...sx,
+        '& .MuiOutlinedInput-root': prominent
+          ? {
+              minHeight: 44,
+              borderRadius: 1.5,
+              backgroundColor: 'background.paper',
+            }
+          : undefined,
+      }}
+    >
       <InputLabel
         id={labelId}
-        sx={{ fontSize: compact ? 9 : 10, top: compact ? '-4px' : '-2px' }}
+        sx={{ fontSize: labelFontSize, top: labelTop }}
       >
         {label}
       </InputLabel>
@@ -149,22 +214,61 @@ export function ConvertTerrainQuickSelect({
         value=""
         onChange={handleChange}
         disabled={isDisabled}
-        sx={{ fontSize: compact ? 9 : 10 }}
+        sx={{ fontSize: selectFontSize }}
       >
         {isDisabled && (
-          <MenuItem value="" disabled sx={{ fontSize: compact ? 10 : 12 }}>
-            No eligible land selected
+          <MenuItem value="" disabled sx={{ fontSize: menuItemFontSize }}>
+            {disabledMessage}
           </MenuItem>
         )}
         {availableTerrains.map((terrain) => (
           <MenuItem
             key={terrain}
             value={terrain}
-            sx={{ fontSize: compact ? 10 : 12 }}
+            sx={{ fontSize: menuItemFontSize }}
           >
             {formatTerrainLabel(terrain)}
           </MenuItem>
         ))}
+        {showConstraintNotice && (
+          <>
+            <Divider />
+            <MenuItem
+              disableRipple
+              disableTouchRipple
+              onClick={(event) => event.preventDefault()}
+              sx={{
+                alignItems: 'flex-start',
+                cursor: 'default',
+                display: 'block',
+                py: 1,
+              }}
+            >
+              <span
+                style={{
+                  display: 'block',
+                  fontSize: '0.8em',
+                  marginBottom: '0.35rem',
+                  whiteSpace: 'normal',
+                }}
+              >
+                Some terrain options are hidden because this map has terrain
+                set constraints.
+              </span>
+              <Button
+                size="small"
+                variant="outlined"
+                onMouseDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  toggleIsEditMapDialogOpen(true)
+                }}
+              >
+                Edit Constraints
+              </Button>
+            </MenuItem>
+          </>
+        )}
       </Select>
     </FormControl>
   )

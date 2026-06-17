@@ -71,7 +71,10 @@ import {
   c3vPlaytestGlyphs,
   customGlyphs,
 } from '../data/glyphs'
-import { terrainSetsByShortID } from '../data/terrainSets'
+import {
+  getAvailableLandPrefixesForSets,
+  getSetConstrainedInventory,
+} from '../utils/terrain-constraints'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
@@ -92,31 +95,12 @@ export default function PenModeControls() {
         : 'white'
   }
   const setConstrainedInventory = useMemo(() => {
-    return setsUsed.reduce<Record<string, number>>((acc, setID) => {
-      const set = terrainSetsByShortID[setID as keyof typeof terrainSetsByShortID]
-      if (!set) {
-        return acc
-      }
-      for (const [pieceID, count] of Object.entries(set.inventory ?? {})) {
-        acc[pieceID] = (acc[pieceID] ?? 0) + Number(count)
-      }
-      return acc
-    }, {})
+    return getSetConstrainedInventory(setsUsed)
   }, [setsUsed])
   const hasSetConstraints = setsUsed.length > 0
   const availableLandPrefixes = useMemo(() => {
-    const prefixes = new Set<string>()
-    for (const [pieceID, count] of Object.entries(setConstrainedInventory)) {
-      if (count <= 0) {
-        continue
-      }
-      const landPrefix = piecesSoFar[pieceID]?.landPrefix
-      if (landPrefix) {
-        prefixes.add(landPrefix)
-      }
-    }
-    return prefixes
-  }, [setConstrainedInventory])
+    return getAvailableLandPrefixesForSets(setsUsed)
+  }, [setsUsed])
   const alwaysVisiblePenValues = useMemo(
     () =>
       new Set<string>([
