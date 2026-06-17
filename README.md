@@ -123,6 +123,8 @@ To add new terrain pieces, follow these steps:
 
 By following these steps, you can expand the application to support new releases of Heroscape terrain.
 
-UPDATE NOTES: 
-- `Ctrl+leftarrow/Ctrl+rightarrow`: Hotkey for rotating camera azimuth angle by 15 degree increments
-- Bugfix: Deleting a piece now properly restores any pieces that were conflicting with the deleted piece
+LATEST UPDATE NOTES:
+- FEATURE: Pieces Grid, a table of all your map's pieces, with conflicted pieces displayed at the top when you open it (from the Build Tab click on "View Pieces Grid"). It appears red when there are conflicting pieces detected.
+- UI: Selector now says "Pen Mode" instead of "Terrain"
+- UI: Selector only shows terrains that exist in current map's terrain constraints (only building with Snowfields? Only see snow, ice, and snow trees)
+- TERRAIN: snowy evergreen trees are now in the app. They use the same model as regular evergreen trees plus a shader, but this may get updated in the future. You can place them if building without constraints or with SnowFields of Valhalla.
