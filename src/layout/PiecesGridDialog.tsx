@@ -6,6 +6,7 @@ import {
   Button,
   CircularProgress,
   Box,
+  Typography,
   useMediaQuery,
 } from '@mui/material'
 import type React from 'react'
@@ -445,22 +446,6 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
           </Box>
         ) : (
           <>
-            <ConvertTerrainQuickSelect
-              pieceUIDs={rowSelectionModel.map(String)}
-              label={`Convert Terrain (${rowSelectionModel.length})`}
-              alwaysRender
-              sx={{ mb: 1.5 }}
-            />
-            <Button
-              variant="contained"
-              color="error"
-              onClick={handleBulkDelete}
-              disabled={rowSelectionModel.length === 0}
-              title="Delete the selected pieces"
-              sx={{ mb: 2 }}
-            >
-              Delete Selected ({rowSelectionModel.length})
-            </Button>
             <DataGrid
               rows={rows}
               columns={columns}
@@ -477,6 +462,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
               }}
               pageSizeOptions={[10, 25, 50, 100]}
               checkboxSelection
+              disableRowSelectionOnClick
               onRowSelectionModelChange={(newRowSelectionModel) => {
                 setRowSelectionModel(newRowSelectionModel)
               }}
@@ -498,6 +484,57 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
                 },
               }}
             />
+            <Box
+              sx={{
+                mt: 1,
+                mb: 1,
+                px: 1.25,
+                py: 1,
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 1.5,
+                backgroundColor: 'action.hover',
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: 1,
+                  alignItems: { xs: 'stretch', sm: 'center' },
+                }}
+              >
+                <Typography
+                  variant="overline"
+                  sx={{
+                    color: 'text.secondary',
+                    whiteSpace: 'nowrap',
+                    lineHeight: 1.2,
+                    minWidth: { sm: 'auto' },
+                    pt: { sm: 0.25 },
+                  }}
+                >
+                  Bulk Actions
+                </Typography>
+                <ConvertTerrainQuickSelect
+                  pieceUIDs={rowSelectionModel.map(String)}
+                  label={`Convert Terrain (${rowSelectionModel.length})`}
+                  prominent
+                  alwaysRender
+                  sx={{ flex: 1, mt: 0 }}
+                />
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={handleBulkDelete}
+                  disabled={rowSelectionModel.length === 0}
+                  title="Delete the selected pieces"
+                  sx={{ minHeight: 44, fontWeight: 600, px: 2.25, whiteSpace: 'nowrap' }}
+                >
+                  Delete Selected ({rowSelectionModel.length})
+                </Button>
+              </Box>
+            </Box>
           </>
         )}
       </DialogContent>
