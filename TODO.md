@@ -71,15 +71,3 @@ Building pretty much exactly like you did in Virtualscape.
 
 ## Database TODO
 A database, so users can sign in and share maps with a shorter URL, and save maps and browse maps and find maps and select groups of maps and see the total terrain etc. Still has to be free for everyone, so hold out on this one as long as possible ($$$)
-
-## Local Storage Load/Save/Edit maps
-
-Make a react component that can be shown in the modal like `CreateMapFormDialog.tsx`. The new component is for the user to save and load maps from local storage. They can also edit their local storage, to peruse and delete maps or other unused data stored in local storage. Some user settings may get saved there, and can be exported to a file/string and imported as easily.
-
-When user clicks SAVE/LOAD, show:
-    1. free space: KB unused capacity in local storage
-    2. unavailable space: KB used capacity in local storage that is not a hexoscape map that can be saved or loaded
-    3. map space: individual map objects of type MapFileState, their unique id can be their key, we can validate them with a function
-        * SAVE => Select map to overwrite if there is an existing key that matches the id of the map being saved, or save as a new map key in local storage 
-        * LOAD => Load selected map, user may select a map object from the list
-        * EDIT => Delete button for items in local storage, the delete button changes its text and turns red to verify and requires one more click to actually delete.
