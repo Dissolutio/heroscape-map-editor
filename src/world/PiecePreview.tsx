@@ -78,6 +78,7 @@ import Cannon from './models/Cannon'
 import { RopeLadder } from './models/RopeLadder'
 import { ShipWall } from './models/ShipWall'
 import { ShipBow } from './models/ShipBow'
+import { SnowEvergreenTree } from './models/SnowEvergreenTree'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -88,12 +89,12 @@ export default function PiecePreview() {
   const penMode = useBoundStore((s) => s.penMode)
   const hoveredPieceSupportHexID =
     hoveredPiece &&
-    hoveredPiece.inventoryID === Pieces.ladder &&
-    penMode === Pieces.ladder
+      hoveredPiece.inventoryID === Pieces.ladder &&
+      penMode === Pieces.ladder
       ? genBoardHexID({
-          ...hoveredPiece.pieceCoords,
-          altitude: hoveredPiece.altitude,
-        })
+        ...hoveredPiece.pieceCoords,
+        altitude: hoveredPiece.altitude,
+      })
       : ''
   const hoveredPieceSupportHex = hoveredPieceSupportHexID
     ? boardHexes?.[hoveredPieceSupportHexID]
@@ -146,7 +147,7 @@ export default function PiecePreview() {
     while (checkAlt >= 0) {
       const checkHex =
         boardHexes?.[
-          genBoardHexID({ ...hoveredPiece?.pieceCoords, altitude: checkAlt })
+        genBoardHexID({ ...hoveredPiece?.pieceCoords, altitude: checkAlt })
         ]
       if (!checkHex) return false
       if (checkHex.terrain === HexTerrain.ladder) {
@@ -177,6 +178,9 @@ export default function PiecePreview() {
     pieceID === Pieces.tree10 ||
     pieceID === Pieces.tree11 ||
     pieceID === Pieces.tree12
+  const isSnowTreeHex =
+    pieceID === Pieces.snowTree10 ||
+    pieceID === Pieces.snowTree12
   const isBigTreeHex = pieceID.endsWith(Pieces.tree415)
 
   // const isShowEmptyHexes =
@@ -280,11 +284,11 @@ export default function PiecePreview() {
   }
   const getLandMesh = () => {
     switch (
-      penModeSize === 6 && penMode === PiecePrefixes.concrete
-        ? '6B'
-        : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
-          ? '7B'
-          : `${penModeSize}`
+    penModeSize === 6 && penMode === PiecePrefixes.concrete
+      ? '6B'
+      : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
+        ? '7B'
+        : `${penModeSize}`
     ) {
       case '1':
         return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
@@ -379,8 +383,8 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
-            HEXGRID_HEX_HEIGHT,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
+          HEXGRID_HEX_HEIGHT,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -400,7 +404,7 @@ export default function PiecePreview() {
           (isUnderHexFluid
             ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
             : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+          HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -445,9 +449,9 @@ export default function PiecePreview() {
         position={[
           x,
           y -
-            (isUnderHexFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : -HEXGRID_HEXCAP_HEIGHT / 2),
+          (isUnderHexFluid
+            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+            : -HEXGRID_HEXCAP_HEIGHT / 2),
           z,
         ]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
@@ -465,9 +469,9 @@ export default function PiecePreview() {
         position={[
           x,
           y -
-            (isUnderHexFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : -HEXGRID_HEXCAP_HEIGHT / 2),
+          (isUnderHexFluid
+            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+            : -HEXGRID_HEXCAP_HEIGHT / 2),
           z,
         ]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
@@ -484,9 +488,9 @@ export default function PiecePreview() {
         position={[
           x,
           y -
-            (isUnderHexFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : 0),
+          (isUnderHexFluid
+            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+            : 0),
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -541,6 +545,27 @@ export default function PiecePreview() {
       >
         <Suspense fallback={<ModelLoader />}>
           <ForestTree />
+        </Suspense>
+      </group>
+    )
+  }
+  if (isSnowTreeHex && isSolidOrEmptyBeneath) {
+    return (
+      <group
+        scale={[
+          getOptionsForTreeHeight(pieceID).scaleX,
+          getOptionsForTreeHeight(pieceID).scaleY,
+          getOptionsForTreeHeight(pieceID).scaleX,
+        ]}
+        position={[
+          x,
+          yWithBase + getOptionsForTreeHeight(pieceID).y + HEXGRID_HEX_HEIGHT,
+          z,
+        ]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <Suspense fallback={<ModelLoader />}>
+          <SnowEvergreenTree />
         </Suspense>
       </group>
     )
@@ -780,11 +805,11 @@ export default function PiecePreview() {
         position={[
           x + getLadderBattlementOptions(ladderRotation).xAdd,
           y +
-            HEXGRID_HEXCAP_HEIGHT / 2 +
-            (isUnderHexLadder ? 2 * HEXGRID_HEX_HEIGHT : 0) -
-            (isLadderChainOnFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : 0),
+          HEXGRID_HEXCAP_HEIGHT / 2 +
+          (isUnderHexLadder ? 2 * HEXGRID_HEX_HEIGHT : 0) -
+          (isLadderChainOnFluid
+            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+            : 0),
           z + getLadderBattlementOptions(ladderRotation).zAdd,
         ]}
         rotation={[0, (ladderRotation * -Math.PI) / 3, 0]}

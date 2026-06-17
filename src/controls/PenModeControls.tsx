@@ -344,6 +344,18 @@ export default function PenModeControls() {
         <Divider />
 
         {/* Trees */}
+        <MenuItem value={Pieces.snowTree10}>
+          <ListItemIcon>
+            <GiPineTree color={hexTerrainColor.snow} />
+          </ListItemIcon>
+          <span>Snow Tree 10</span>
+        </MenuItem>
+        <MenuItem value={Pieces.snowTree12}>
+          <ListItemIcon>
+            <GiPineTree color={hexTerrainColor.snow} />
+          </ListItemIcon>
+          <span>Snow Tree 12</span>
+        </MenuItem>
         <MenuItem value={Pieces.tree10}>
           <ListItemIcon>
             <GiPineTree color={hexTerrainColor.grass} />
