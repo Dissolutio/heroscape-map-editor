@@ -193,10 +193,10 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
         {pid
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-            color,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              color,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -221,10 +221,10 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
         {pid
           ? basicModelMaterial(buildableColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-            buildableColor,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              buildableColor,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -249,10 +249,10 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
         {pid
           ? basicModelMaterial(buildableColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-            buildableColor,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+              buildableColor,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY,
+            )}
       </mesh>
     </>
   )
