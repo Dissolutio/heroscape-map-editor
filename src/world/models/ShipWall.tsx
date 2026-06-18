@@ -10,7 +10,7 @@ import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { isSolidTerrainHex } from '../../utils/board-utils'
 import { hexUtilsAdd } from '../../utils/hex-utils'
-import { CUBE_EAST, CUBE_NE } from '../../utils/constants'
+import { hexUtilsGetShipBuildableCoords } from '../../utils/hex-utils'
 import { genBoardHexID } from '../../utils/map-utils'
 import { piecesSoFar } from '../../data/pieces'
 import { noop } from 'lodash'
@@ -46,14 +46,12 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
 
   const getForwardBuildableCoords = (): CubeCoordinate | null => {
     if (!bp) return null
-    return hexUtilsAdd(bp.pieceCoords, CUBE_NE)
+    return hexUtilsGetShipBuildableCoords(bp.pieceCoords, bp.rotation).forward
   }
 
   const getAftBuildableCoords = (): CubeCoordinate | null => {
     if (!bp) return null
-    const forwardCoords = getForwardBuildableCoords()
-    if (!forwardCoords) return null
-    return hexUtilsAdd(forwardCoords, CUBE_EAST)
+    return hexUtilsGetShipBuildableCoords(bp.pieceCoords, bp.rotation).aft
   }
 
   const getForwardBuildableHex = (): BoardHex => {

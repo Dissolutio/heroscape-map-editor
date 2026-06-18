@@ -625,7 +625,7 @@ export const MapBoardPiece3D = ({
         position={[
           x + getLadderBattlementOptions(rotation).xAdd,
           // either gets moved down to fluid level, or up to solid cap level
-          y -
+          y - HEXGRID_HEX_HEIGHT -
           (isLadderChainOnFluid
             ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
             : -HEXGRID_HEXCAP_HEIGHT / 2),
