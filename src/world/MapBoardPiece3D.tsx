@@ -49,7 +49,7 @@ import Ruins2 from './models/Ruins2'
 import Ruins3 from './models/Ruins3'
 import { RopeLadder } from './models/RopeLadder'
 import { ShipBow } from './models/ShipBow'
-import { ShipWall } from './models/ShipWall'
+import { ShipWall } from './models/ShipWall.tsx'
 import Shroudshroom10 from './models/Shroudshroom10'
 import Shroudshroom13 from './models/Shroudshroom13'
 import Shroudshroom7 from './models/Shroudshroom7'
@@ -167,7 +167,7 @@ export const MapBoardPiece3D = ({
       <group
         position={[
           x + getLadderBattlementOptions(rotation).xAdd,
-          y + HEXGRID_HEXCAP_HEIGHT / 2,
+          y - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_HEIGHT / 2,
           z + getLadderBattlementOptions(rotation).zAdd,
         ]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
@@ -327,7 +327,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, getObstaclRotation(rotation), 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <ShipWall pid={uid} />
+          <ShipWall pid={uid} bp={bp} onPointerUp={onPointerUpPaintPiece} />
         </Suspense>
       </group>
     )
@@ -626,7 +626,6 @@ export const MapBoardPiece3D = ({
           x + getLadderBattlementOptions(rotation).xAdd,
           // either gets moved down to fluid level, or up to solid cap level
           y -
-          HEXGRID_HEX_HEIGHT -
           (isLadderChainOnFluid
             ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
             : -HEXGRID_HEXCAP_HEIGHT / 2),
