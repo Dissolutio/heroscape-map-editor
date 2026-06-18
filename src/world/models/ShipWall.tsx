@@ -10,7 +10,7 @@ import { noop } from 'lodash'
 
 export function ShipWall({ pid }: { pid?: string }) {
   const { nodes } = useGLTF(
-    '/ship-wall.glb',
+    '/ship-wall_v2.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(
@@ -50,10 +50,42 @@ export function ShipWall({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            color,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.ShipWallForwardBuildable.geometry}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
+      >
+        {pid
+          ? basicModelMaterial(color, isLightsAndShadowsRender)
+          : basicModelMaterial(
+            color,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.ShipWallAftBuildable.geometry}
+        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
+        onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
+      >
+        {pid
+          ? basicModelMaterial(color, isLightsAndShadowsRender)
+          : basicModelMaterial(
+            color,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </>
   )
