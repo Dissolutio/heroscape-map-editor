@@ -189,6 +189,23 @@ export const hexUtilsGetNeighborForRotation = (
   const rot = rotation % 6
   return HEX_DIRECTIONS[rot]
 }
+
+export function hexUtilsGetShipBuildableCoords(
+  origin: CubeCoordinate,
+  rotation: number,
+): {
+  forward: CubeCoordinate
+  aft: CubeCoordinate
+} {
+  const normalizedRotation = ((rotation % 6) + 6) % 6
+  const forwardDirection = hexUtilsGetNeighborForRotation(
+    (normalizedRotation + 5) % 6,
+  )
+  const aftStepDirection = hexUtilsGetNeighborForRotation(normalizedRotation)
+  const forward = hexUtilsAdd(origin, forwardDirection)
+  const aft = hexUtilsAdd(forward, aftStepDirection)
+  return { forward, aft }
+}
 export function sinDegrees(degrees: number) {
   const radians = degrees * (Math.PI / 180)
   return Math.sin(radians)

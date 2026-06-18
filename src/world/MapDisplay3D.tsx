@@ -203,7 +203,16 @@ export default function MapDisplay3D({
         rotation: clickedHex.pieceRotation,
       })
     }
-    // Clicked a regular land cap
+    // SOLID LAND TILE (includes ship bow buildable sections)
+    else if (isSolidTerrainHex(piece?.terrain)) {
+      error = paintTile({
+        piece,
+        clickedHexCoords,
+        altitude: clickedHexAltitude,
+        rotation: penModeRotation,
+      })
+    }
+    // Clicked a regular land cap (fallback)
     else {
       error = paintTile({
         piece,
