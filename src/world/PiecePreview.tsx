@@ -326,7 +326,13 @@ export default function PiecePreview() {
   const isSolidOrEmptyBeneath = isSolidBeneath || isEmptyBeneath
   const isLandOrEmptyBeneath = isLandBeneath || isEmptyBeneath
   const isPillarPenMode = isLaurSquarePillarHex || isLaurTrianglePillarHex
-  const canStackOnPillar = isPillarPenMode && isUnderHexLaurPillar
+  const isMatchingPillarStackTarget =
+    (isLaurSquarePillarHex &&
+      hoveredHexForPreview.inventoryID === Pieces.laurWallSquarePillar) ||
+    (isLaurTrianglePillarHex &&
+      hoveredHexForPreview.inventoryID === Pieces.laurWallTrianglePillar)
+  const canStackOnPillar =
+    isPillarPenMode && isUnderHexLaurPillar && isMatchingPillarStackTarget
   const supportingPillar = canStackOnPillar
     ? boardPieces.find((bp) => bp.uid === hoveredHexForPreview.boardPieceUID)
     : undefined
@@ -334,7 +340,7 @@ export default function PiecePreview() {
     ? {
       ...hoveredHexForPreview,
       altitude: (supportingPillar?.altitude ?? hoveredHexForPreview.altitude) +
-        10,
+        9,
     }
     : null
   const stackPreviewCoords = stackPreviewHex
@@ -399,7 +405,7 @@ export default function PiecePreview() {
         position={[
           canStackOnPillar ? stackPreviewCoords?.x ?? x : x,
           canStackOnPillar
-            ? stackPreviewCoords?.yWithBase ?? yWithBase
+            ? HEXGRID_HEX_HEIGHT + (stackPreviewCoords?.yWithBase ?? yWithBase)
             : (isUnderHexFluid
               ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
               : yGlyph + HEXGRID_GLYPH_HEIGHT) +
@@ -421,11 +427,12 @@ export default function PiecePreview() {
         position={[
           canStackOnPillar ? stackPreviewCoords?.x ?? x : x,
           canStackOnPillar
-            ? stackPreviewCoords?.yWithBase ?? yWithBase
+            ? HEXGRID_HEX_HEIGHT + (stackPreviewCoords?.yWithBase ?? yWithBase)
             : (isUnderHexFluid
               ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
-              : yGlyph + HEXGRID_GLYPH_HEIGHT - HEXGRID_HEXCAP_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+              : yGlyph + HEXGRID_GLYPH_HEIGHT) +
+            HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
+            HEXGRID_HEX_HEIGHT,
           canStackOnPillar ? stackPreviewCoords?.z ?? z : z,
         ]}
         rotation={[0, stackPreviewRotation, 0]}

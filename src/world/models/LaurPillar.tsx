@@ -2,7 +2,7 @@ import { useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardHex, type BoardPiece, HexTerrain } from '../../types'
+import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../../types'
 import {
   HEXGRID_OBSTACLE_BASE_HEIGHT,
   PIECE_PREVIEW_OPACITY,
@@ -19,6 +19,7 @@ export default function LaurWallPillar({
   onPointerUp: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
 }) {
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-pillar-from-hs-blendfile.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
@@ -42,6 +43,19 @@ export default function LaurWallPillar({
   const interiorPillarColor = hexTerrainColor.laurModelColor2
   const color = isHighlighted ? yellowColor : pillarColor
   const interiorColor = isHighlighted ? yellowColor : interiorPillarColor
+  const hasSupportingPillar = boardPieces.some((piece) => {
+    const isPillarType =
+      piece.inventoryID === Pieces.laurWallSquarePillar ||
+      piece.inventoryID === Pieces.laurWallTrianglePillar
+    return (
+      isPillarType &&
+      piece.pieceCoords.q === bp.pieceCoords.q &&
+      piece.pieceCoords.r === bp.pieceCoords.r &&
+      piece.pieceCoords.s === bp.pieceCoords.s &&
+      piece.altitude === bp.altitude - 9
+    )
+  })
+  const isShowBaseMesh = !hasSupportingPillar
   return (
     <>
       <group
@@ -78,15 +92,17 @@ export default function LaurWallPillar({
         >
           {basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
         </mesh>
-        <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
-          <mesh
-            receiveShadow={isLightsAndShadowsRender}
-            castShadow={isLightsAndShadowsRender}
-          >
-            <cylinderGeometry args={laurBaseCylinderArgs} />
-            {basicModelMaterial(color, isLightsAndShadowsRender)}
-          </mesh>
-        </group>
+        {isShowBaseMesh && (
+          <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
+            <mesh
+              receiveShadow={isLightsAndShadowsRender}
+              castShadow={isLightsAndShadowsRender}
+            >
+              <cylinderGeometry args={laurBaseCylinderArgs} />
+              {basicModelMaterial(color, isLightsAndShadowsRender)}
+            </mesh>
+          </group>
+        )}
       </group>
     </>
   )

@@ -98,9 +98,14 @@ export default function MapDisplay3D({
     const isLaurPillarClicked =
       hex.inventoryID === Pieces.laurWallSquarePillar ||
       hex.inventoryID === Pieces.laurWallTrianglePillar
-    const isPillarPenMode =
-      piece?.id === Pieces.laurWallSquarePillar ||
+    const isSquarePillarPenMode = piece?.id === Pieces.laurWallSquarePillar
+    const isTrianglePillarPenMode =
       piece?.id === Pieces.laurWallTrianglePillar
+    const isMatchingPillarStackTarget =
+      (isSquarePillarPenMode &&
+        hex.inventoryID === Pieces.laurWallSquarePillar) ||
+      (isTrianglePillarPenMode &&
+        hex.inventoryID === Pieces.laurWallTrianglePillar)
     const boardHexIdOfCapForWall = genBoardHexID({
       ...hex,
       altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
@@ -207,12 +212,12 @@ export default function MapDisplay3D({
       })
     }
     // PILLAR ONTO PILLAR
-    else if (isPillarPenMode && isLaurPillarClicked) {
+    else if (isMatchingPillarStackTarget && isLaurPillarClicked) {
       const supportingPillar = boardPieces.find(
         (bp) => bp.uid === clickedHex.boardPieceUID,
       )
       const stackAltitude =
-        (supportingPillar?.altitude ?? clickedHexAltitude) + 10
+        (supportingPillar?.altitude ?? clickedHexAltitude) + 9
       error = paintTile({
         piece,
         clickedHexCoords,
