@@ -87,7 +87,7 @@ export function MarvelRuinPreview({
   isWallIntact: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/marvel-ruins.glb') as any
+  const { nodes } = useGLTF('/marvel-ruins_v2.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
