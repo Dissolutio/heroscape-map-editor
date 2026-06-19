@@ -90,12 +90,12 @@ export default function PiecePreview() {
   const penMode = useBoundStore((s) => s.penMode)
   const hoveredPieceSupportHexID =
     hoveredPiece &&
-      hoveredPiece.inventoryID === Pieces.ladder &&
-      penMode === Pieces.ladder
+    hoveredPiece.inventoryID === Pieces.ladder &&
+    penMode === Pieces.ladder
       ? genBoardHexID({
-        ...hoveredPiece.pieceCoords,
-        altitude: hoveredPiece.altitude,
-      })
+          ...hoveredPiece.pieceCoords,
+          altitude: hoveredPiece.altitude,
+        })
       : ''
   const hoveredPieceSupportHex = hoveredPieceSupportHexID
     ? boardHexes?.[hoveredPieceSupportHexID]
@@ -148,7 +148,7 @@ export default function PiecePreview() {
     while (checkAlt >= 0) {
       const checkHex =
         boardHexes?.[
-        genBoardHexID({ ...hoveredPiece?.pieceCoords, altitude: checkAlt })
+          genBoardHexID({ ...hoveredPiece?.pieceCoords, altitude: checkAlt })
         ]
       if (!checkHex) return false
       if (checkHex.terrain === HexTerrain.ladder) {
@@ -284,11 +284,11 @@ export default function PiecePreview() {
   }
   const getLandMesh = () => {
     switch (
-    penModeSize === 6 && penMode === PiecePrefixes.concrete
-      ? '6B'
-      : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
-        ? '7B'
-        : `${penModeSize}`
+      penModeSize === 6 && penMode === PiecePrefixes.concrete
+        ? '6B'
+        : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
+          ? '7B'
+          : `${penModeSize}`
     ) {
       case '1':
         return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
@@ -339,17 +339,15 @@ export default function PiecePreview() {
     : undefined
   const stackPreviewHex = canStackOnPillar
     ? {
-      ...hoveredHexForPreview,
-      altitude: (supportingPillar?.altitude ?? hoveredHexForPreview.altitude) +
-        9,
-    }
+        ...hoveredHexForPreview,
+        altitude:
+          (supportingPillar?.altitude ?? hoveredHexForPreview.altitude) + 9,
+      }
     : null
   const stackPreviewCoords = stackPreviewHex
     ? getBoardHex3DCoords(stackPreviewHex)
     : null
-  const stackPillarYOffset = canStackOnPillar
-    ? HEXGRID_OBSTACLE_BASE_HEIGHT
-    : 0
+  const stackPillarYOffset = canStackOnPillar ? HEXGRID_OBSTACLE_BASE_HEIGHT : 0
   const stackPreviewRotation =
     canStackOnPillar && hoveredHexForPreview?.pieceRotation !== undefined
       ? (hoveredHexForPreview.pieceRotation * -Math.PI) / 3
@@ -407,17 +405,17 @@ export default function PiecePreview() {
     return (
       <group
         position={[
-          canStackOnPillar ? stackPreviewCoords?.x ?? x : x,
+          canStackOnPillar ? (stackPreviewCoords?.x ?? x) : x,
           canStackOnPillar
             ? HEXGRID_HEX_HEIGHT +
-            (stackPreviewCoords?.yWithBase ?? yWithBase) -
-            stackPillarYOffset
+              (stackPreviewCoords?.yWithBase ?? yWithBase) -
+              stackPillarYOffset
             : (isUnderHexFluid
-              ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
-              : yGlyph + HEXGRID_GLYPH_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
-            HEXGRID_HEX_HEIGHT,
-          canStackOnPillar ? stackPreviewCoords?.z ?? z : z,
+                ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
+                : yGlyph + HEXGRID_GLYPH_HEIGHT) +
+              HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
+              HEXGRID_HEX_HEIGHT,
+          canStackOnPillar ? (stackPreviewCoords?.z ?? z) : z,
         ]}
         rotation={[0, stackPreviewRotation, 0]}
       >
@@ -431,17 +429,17 @@ export default function PiecePreview() {
     return (
       <group
         position={[
-          canStackOnPillar ? stackPreviewCoords?.x ?? x : x,
+          canStackOnPillar ? (stackPreviewCoords?.x ?? x) : x,
           canStackOnPillar
             ? HEXGRID_HEX_HEIGHT +
-            (stackPreviewCoords?.yWithBase ?? yWithBase) -
-            stackPillarYOffset
+              (stackPreviewCoords?.yWithBase ?? yWithBase) -
+              stackPillarYOffset
             : (isUnderHexFluid
-              ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
-              : yGlyph + HEXGRID_GLYPH_HEIGHT) +
-            HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
-            HEXGRID_HEX_HEIGHT,
-          canStackOnPillar ? stackPreviewCoords?.z ?? z : z,
+                ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
+                : yGlyph + HEXGRID_GLYPH_HEIGHT) +
+              HEXGRID_HEXCAP_FLUID_HEIGHT / 2 +
+              HEXGRID_HEX_HEIGHT,
+          canStackOnPillar ? (stackPreviewCoords?.z ?? z) : z,
         ]}
         rotation={[0, stackPreviewRotation, 0]}
       >
@@ -488,9 +486,9 @@ export default function PiecePreview() {
         position={[
           x,
           y -
-          (isUnderHexFluid
-            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-            : -HEXGRID_HEXCAP_HEIGHT / 2),
+            (isUnderHexFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : -HEXGRID_HEXCAP_HEIGHT / 2),
           z,
         ]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
@@ -508,9 +506,9 @@ export default function PiecePreview() {
         position={[
           x,
           y -
-          (isUnderHexFluid
-            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-            : -HEXGRID_HEXCAP_HEIGHT / 2),
+            (isUnderHexFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : -HEXGRID_HEXCAP_HEIGHT / 2),
           z,
         ]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
@@ -527,9 +525,9 @@ export default function PiecePreview() {
         position={[
           x,
           y -
-          (isUnderHexFluid
-            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-            : 0),
+            (isUnderHexFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : 0),
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -844,11 +842,11 @@ export default function PiecePreview() {
         position={[
           x + getLadderBattlementOptions(ladderRotation).xAdd,
           y +
-          HEXGRID_HEXCAP_HEIGHT / 2 +
-          (isUnderHexLadder ? 2 * HEXGRID_HEX_HEIGHT : 0) -
-          (isLadderChainOnFluid
-            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-            : 0),
+            HEXGRID_HEXCAP_HEIGHT / 2 +
+            (isUnderHexLadder ? 2 * HEXGRID_HEX_HEIGHT : 0) -
+            (isLadderChainOnFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : 0),
           z + getLadderBattlementOptions(ladderRotation).zAdd,
         ]}
         rotation={[0, (ladderRotation * -Math.PI) / 3, 0]}
