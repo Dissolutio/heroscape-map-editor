@@ -115,15 +115,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-        q: boardHexes[boardHexIdOfCapForWall].q,
-        r: boardHexes[boardHexIdOfCapForWall].r,
-        s: boardHexes[boardHexIdOfCapForWall].s,
-      }
+          q: boardHexes[boardHexIdOfCapForWall].q,
+          r: boardHexes[boardHexIdOfCapForWall].r,
+          s: boardHexes[boardHexIdOfCapForWall].s,
+        }
       : {
-        q: hex.q,
-        r: hex.r,
-        s: hex.s,
-      }
+          q: hex.q,
+          r: hex.r,
+          s: hex.s,
+        }
     const clickedHexAltitude = clickedHex.altitude
 
     // Castle W/A: use cap coords and altitude

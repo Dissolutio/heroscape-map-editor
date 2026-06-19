@@ -95,15 +95,16 @@ export default function PiecePreview() {
   const piece = piecesSoFar[pieceKey]
   const hoveredPieceSupportHexID = hoveredPiece
     ? genBoardHexID({
-      ...hoveredPiece.pieceCoords,
-      altitude: hoveredPiece.altitude,
-    })
+        ...hoveredPiece.pieceCoords,
+        altitude: hoveredPiece.altitude,
+      })
     : ''
   const hoveredPieceSupportHex = hoveredPieceSupportHexID
     ? boardHexes?.[hoveredPieceSupportHexID]
     : undefined
   const isHoveringPreviewSupportPiece =
-    (hoveredPiece?.inventoryID === Pieces.ladder && penMode === Pieces.ladder) ||
+    (hoveredPiece?.inventoryID === Pieces.ladder &&
+      penMode === Pieces.ladder) ||
     piece?.terrain === HexTerrain.laurWallAddon
   const hoveredHexForPreview =
     hoveredHex ??
@@ -150,7 +151,7 @@ export default function PiecePreview() {
     while (checkAlt >= 0) {
       const checkHex =
         boardHexes?.[
-        genBoardHexID({ ...hoveredPiece?.pieceCoords, altitude: checkAlt })
+          genBoardHexID({ ...hoveredPiece?.pieceCoords, altitude: checkAlt })
         ]
       if (!checkHex) return false
       if (checkHex.terrain === HexTerrain.ladder) {
@@ -288,11 +289,11 @@ export default function PiecePreview() {
   }
   const getLandMesh = () => {
     switch (
-    penModeSize === 6 && penMode === PiecePrefixes.concrete
-      ? '6B'
-      : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
-        ? '7B'
-        : `${penModeSize}`
+      penModeSize === 6 && penMode === PiecePrefixes.concrete
+        ? '6B'
+        : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
+          ? '7B'
+          : `${penModeSize}`
     ) {
       case '1':
         return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
@@ -398,7 +399,11 @@ export default function PiecePreview() {
     }
     return (
       <group
-        position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z + HEXGRID_HEXCAP_FLUID_HEIGHT / 2]}
+        position={[
+          x,
+          yWithBase + HEXGRID_HEX_HEIGHT,
+          z + HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
+        ]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>{laurPreview}</Suspense>
@@ -490,9 +495,9 @@ export default function PiecePreview() {
         position={[
           x,
           y -
-          (isUnderHexFluid
-            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-            : -HEXGRID_HEXCAP_HEIGHT / 2),
+            (isUnderHexFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : -HEXGRID_HEXCAP_HEIGHT / 2),
           z,
         ]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
@@ -510,9 +515,9 @@ export default function PiecePreview() {
         position={[
           x,
           y -
-          (isUnderHexFluid
-            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-            : -HEXGRID_HEXCAP_HEIGHT / 2),
+            (isUnderHexFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : -HEXGRID_HEXCAP_HEIGHT / 2),
           z,
         ]}
         rotation={[0, getObstaclRotation(penModeRotation), 0]}
@@ -529,9 +534,9 @@ export default function PiecePreview() {
         position={[
           x,
           y -
-          (isUnderHexFluid
-            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-            : 0),
+            (isUnderHexFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : 0),
           z,
         ]}
         rotation={[0, pieceRotation, 0]}
@@ -846,11 +851,11 @@ export default function PiecePreview() {
         position={[
           x + getLadderBattlementOptions(ladderRotation).xAdd,
           y +
-          HEXGRID_HEXCAP_HEIGHT / 2 +
-          (isUnderHexLadder ? 2 * HEXGRID_HEX_HEIGHT : 0) -
-          (isLadderChainOnFluid
-            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-            : 0),
+            HEXGRID_HEXCAP_HEIGHT / 2 +
+            (isUnderHexLadder ? 2 * HEXGRID_HEX_HEIGHT : 0) -
+            (isLadderChainOnFluid
+              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+              : 0),
           z + getLadderBattlementOptions(ladderRotation).zAdd,
         ]}
         rotation={[0, (ladderRotation * -Math.PI) / 3, 0]}
