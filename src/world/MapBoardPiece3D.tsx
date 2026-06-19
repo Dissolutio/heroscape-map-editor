@@ -11,6 +11,7 @@ import {
   HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
+  HEXGRID_OBSTACLE_BASE_HEIGHT,
 } from '../utils/constants'
 import { genBoardHexID, getBoardHex3DCoords } from '../utils/map-utils'
 import BigTree415 from './models/BigTree415'
@@ -69,6 +70,7 @@ export const MapBoardPiece3D = ({
   const { inventoryID, altitude, rotation, pieceCoords, uid } = bp
   const piece = piecesSoFar[inventoryID]
   const boardHexes = useBoundStore((s) => s.boardHexes)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
   const { x, z, y, yBase, yBaseCap, yWithBase, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const underHexID = genBoardHexID({ ...pieceCoords, altitude })
@@ -81,9 +83,24 @@ export const MapBoardPiece3D = ({
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const pieceRotation = (rotation * -Math.PI) / 3
   const ruinsOptions = getRuinsOptions(rotation)
+  const hasSupportingPillar = boardPieces.some((piece) => {
+    const isPillarType =
+      piece.inventoryID === Pieces.laurWallSquarePillar ||
+      piece.inventoryID === Pieces.laurWallTrianglePillar
+    return (
+      isPillarType &&
+      piece.pieceCoords.q === bp.pieceCoords.q &&
+      piece.pieceCoords.r === bp.pieceCoords.r &&
+      piece.pieceCoords.s === bp.pieceCoords.s &&
+      piece.altitude === bp.altitude - 9
+    )
+  })
+  const pillarStackYOffset = hasSupportingPillar
+    ? HEXGRID_OBSTACLE_BASE_HEIGHT
+    : 0
   const laurPillarHeight = isUnderHexFluid
     ? yWithBase - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_FLUID_HEIGHT
-    : yWithBase
+    : yWithBase - pillarStackYOffset
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = altitude + 1 <= viewingLevel
   const isPowerGlyph = inventoryID === Pieces.glyphPower

@@ -23,6 +23,7 @@ import {
   HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
+  HEXGRID_OBSTACLE_BASE_HEIGHT,
   PIECE_PREVIEW_OPACITY,
 } from '../utils/constants'
 import { Suspense } from 'react'
@@ -346,6 +347,9 @@ export default function PiecePreview() {
   const stackPreviewCoords = stackPreviewHex
     ? getBoardHex3DCoords(stackPreviewHex)
     : null
+  const stackPillarYOffset = canStackOnPillar
+    ? HEXGRID_OBSTACLE_BASE_HEIGHT
+    : 0
   const stackPreviewRotation =
     canStackOnPillar && hoveredHexForPreview?.pieceRotation !== undefined
       ? (hoveredHexForPreview.pieceRotation * -Math.PI) / 3
@@ -405,7 +409,9 @@ export default function PiecePreview() {
         position={[
           canStackOnPillar ? stackPreviewCoords?.x ?? x : x,
           canStackOnPillar
-            ? HEXGRID_HEX_HEIGHT + (stackPreviewCoords?.yWithBase ?? yWithBase)
+            ? HEXGRID_HEX_HEIGHT +
+            (stackPreviewCoords?.yWithBase ?? yWithBase) -
+            stackPillarYOffset
             : (isUnderHexFluid
               ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
               : yGlyph + HEXGRID_GLYPH_HEIGHT) +
@@ -416,7 +422,7 @@ export default function PiecePreview() {
         rotation={[0, stackPreviewRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallPillarPreview />
+          <LaurWallPillarPreview showBaseMesh={!canStackOnPillar} />
         </Suspense>
       </group>
     )
@@ -427,7 +433,9 @@ export default function PiecePreview() {
         position={[
           canStackOnPillar ? stackPreviewCoords?.x ?? x : x,
           canStackOnPillar
-            ? HEXGRID_HEX_HEIGHT + (stackPreviewCoords?.yWithBase ?? yWithBase)
+            ? HEXGRID_HEX_HEIGHT +
+            (stackPreviewCoords?.yWithBase ?? yWithBase) -
+            stackPillarYOffset
             : (isUnderHexFluid
               ? yGlyphFluidUnder + HEXGRID_GLYPH_HEIGHT + HEXGRID_HEX_HEIGHT
               : yGlyph + HEXGRID_GLYPH_HEIGHT) +
@@ -438,7 +446,10 @@ export default function PiecePreview() {
         rotation={[0, stackPreviewRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallTrianglePillarPreview pieceRotation={stackPreviewRotation} />
+          <LaurWallTrianglePillarPreview
+            pieceRotation={stackPreviewRotation}
+            showBaseMesh={!canStackOnPillar}
+          />
         </Suspense>
       </group>
     )

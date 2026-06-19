@@ -109,8 +109,10 @@ export default function LaurWallPillar({
 }
 export function LaurWallPillarPreview({
   opacity,
+  showBaseMesh = true,
 }: {
   opacity?: number
+  showBaseMesh?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useGLTF('/laur-pillar-from-hs-blendfile.glb') as any
@@ -161,15 +163,17 @@ export function LaurWallPillarPreview({
           opacityLevel,
         )}
       </mesh>
-      <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
-        <mesh
-          receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender}
-        >
-          <cylinderGeometry args={laurBaseCylinderArgs} />
-          {basicModelMaterial(color, isLightsAndShadowsRender)}
-        </mesh>
-      </group>
+      {showBaseMesh && (
+        <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
+          <mesh
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
+          >
+            <cylinderGeometry args={laurBaseCylinderArgs} />
+            {basicModelMaterial(color, isLightsAndShadowsRender)}
+          </mesh>
+        </group>
+      )}
     </>
   )
 }

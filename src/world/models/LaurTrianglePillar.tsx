@@ -136,9 +136,11 @@ export default function LaurWallTrianglePillar({
 export function LaurWallTrianglePillarPreview({
   opacity,
   pieceRotation,
+  showBaseMesh = true,
 }: {
   pieceRotation: number
   opacity?: number
+  showBaseMesh?: boolean
 }) {
   const { nodes } = useGLTF(
     '/laur-triangle-pillar-from-hs-blendfile.glb',
@@ -195,14 +197,16 @@ export function LaurWallTrianglePillarPreview({
           opacityLevel,
         )}
       </mesh>
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        rotation={[0, pieceRotation, 0]}
-      >
-        <cylinderGeometry args={laurBaseCylinderArgs} />
-        {basicModelMaterial(color, isLightsAndShadowsRender)}
-      </mesh>
+      {showBaseMesh && (
+        <mesh
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <cylinderGeometry args={laurBaseCylinderArgs} />
+          {basicModelMaterial(color, isLightsAndShadowsRender)}
+        </mesh>
+      )}
     </>
   )
 }
