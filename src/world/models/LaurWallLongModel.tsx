@@ -14,7 +14,7 @@ type LaurWallLongModelProps = {
   opacity?: number
 }
 
-export function LaurWallLongModel({
+function LaurWallLongModel({
   pillarColor,
   interiorPillarColor,
   isLightsAndShadowsRender,
@@ -23,7 +23,7 @@ export function LaurWallLongModel({
   const {
     nodes: { LaurWallLong, LaurWallLongDecorDeep },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  } = useGLTF('/laurwall-long-from-hs-models-blendfile.glb') as any
+  } = useGLTF('/laurwall-long_v2.glb') as any
 
   return (
     <>
