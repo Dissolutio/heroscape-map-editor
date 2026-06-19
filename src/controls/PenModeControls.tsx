@@ -79,7 +79,7 @@ import {
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
   const lastPenMode = useBoundStore((state) => state.lastPenMode)
-  const setsUsed = useBoundStore((state) => state.hexMap?.setsUsed ?? [])
+  const setsUsed = useBoundStore((state) => state.hexMap.setsUsed)
   const togglePenMode = useBoundStore((state) => state.togglePenMode)
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
@@ -97,7 +97,7 @@ export default function PenModeControls() {
   const setConstrainedInventory = useMemo(() => {
     return getSetConstrainedInventory(setsUsed)
   }, [setsUsed])
-  const hasSetConstraints = setsUsed.length > 0
+  const hasSetConstraints = (setsUsed ?? []).length > 0
   const availableLandPrefixes = useMemo(() => {
     return getAvailableLandPrefixesForSets(setsUsed)
   }, [setsUsed])
@@ -124,6 +124,9 @@ export default function PenModeControls() {
     [Pieces.marvelBroken]: [Pieces.marvel],
     [Pieces.marvelNoUpper]: [Pieces.marvel],
     [Pieces.marvelNoUpperBroken]: [Pieces.marvel],
+    [Pieces.laurWallShort]: [Pieces.laurWallShortStackable],
+    [Pieces.laurWallLong]: [Pieces.laurWallLongStackable],
+    [Pieces.laurWallRuin1]: [Pieces.laurWallRuin2, Pieces.laurWallRuin3],
   }
   const filteredPrefixModes = new Set<string>([
     PiecePrefixes.grass,

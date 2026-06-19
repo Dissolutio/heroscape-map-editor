@@ -98,6 +98,13 @@ export default function MapDisplay3D({
     const isLaurPillarClicked =
       hex.inventoryID === Pieces.laurWallSquarePillar ||
       hex.inventoryID === Pieces.laurWallTrianglePillar
+    const isSquarePillarPenMode = piece?.id === Pieces.laurWallSquarePillar
+    const isTrianglePillarPenMode = piece?.id === Pieces.laurWallTrianglePillar
+    const isMatchingPillarStackTarget =
+      (isSquarePillarPenMode &&
+        hex.inventoryID === Pieces.laurWallSquarePillar) ||
+      (isTrianglePillarPenMode &&
+        hex.inventoryID === Pieces.laurWallTrianglePillar)
     const boardHexIdOfCapForWall = genBoardHexID({
       ...hex,
       altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
@@ -108,15 +115,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     const clickedHexAltitude = clickedHex.altitude
 
     // Castle W/A: use cap coords and altitude
@@ -146,10 +153,9 @@ export default function MapDisplay3D({
       error = paintTile({
         piece,
         clickedHexCoords,
-        altitude: clickedHexAltitude - 1,
+        altitude: clickedHexAltitude,
         rotation: penModeRotation,
       })
-      console.log('🚀 ~ error:', error)
     }
     // BATTLEMENT
     else if (piece?.id === Pieces.battlement) {
@@ -200,6 +206,20 @@ export default function MapDisplay3D({
         piece,
         clickedHexCoords: clickedHexCoords,
         altitude: clickedHexAltitude + 1,
+        rotation: clickedHex.pieceRotation,
+      })
+    }
+    // PILLAR ONTO PILLAR
+    else if (isMatchingPillarStackTarget && isLaurPillarClicked) {
+      const supportingPillar = boardPieces.find(
+        (bp) => bp.uid === clickedHex.boardPieceUID,
+      )
+      const stackAltitude =
+        (supportingPillar?.altitude ?? clickedHexAltitude) + 9
+      error = paintTile({
+        piece,
+        clickedHexCoords,
+        altitude: stackAltitude,
         rotation: clickedHex.pieceRotation,
       })
     }

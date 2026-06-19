@@ -7,11 +7,11 @@ import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import {
-  HEXGRID_GLYPH_HEIGHT,
   HEXGRID_HEX_HEIGHT,
   HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
+  HEXGRID_OBSTACLE_BASE_HEIGHT,
 } from '../utils/constants'
 import { genBoardHexID, getBoardHex3DCoords } from '../utils/map-utils'
 import BigTree415 from './models/BigTree415'
@@ -70,6 +70,7 @@ export const MapBoardPiece3D = ({
   const { inventoryID, altitude, rotation, pieceCoords, uid } = bp
   const piece = piecesSoFar[inventoryID]
   const boardHexes = useBoundStore((s) => s.boardHexes)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
   const { x, z, y, yBase, yBaseCap, yWithBase, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const underHexID = genBoardHexID({ ...pieceCoords, altitude })
@@ -82,9 +83,24 @@ export const MapBoardPiece3D = ({
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const pieceRotation = (rotation * -Math.PI) / 3
   const ruinsOptions = getRuinsOptions(rotation)
+  const hasSupportingPillar = boardPieces.some((piece) => {
+    const isPillarType =
+      piece.inventoryID === Pieces.laurWallSquarePillar ||
+      piece.inventoryID === Pieces.laurWallTrianglePillar
+    return (
+      isPillarType &&
+      piece.pieceCoords.q === bp.pieceCoords.q &&
+      piece.pieceCoords.r === bp.pieceCoords.r &&
+      piece.pieceCoords.s === bp.pieceCoords.s &&
+      piece.altitude === bp.altitude - 9
+    )
+  })
+  const pillarStackYOffset = hasSupportingPillar
+    ? HEXGRID_OBSTACLE_BASE_HEIGHT
+    : 0
   const laurPillarHeight = isUnderHexFluid
     ? yWithBase - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_FLUID_HEIGHT
-    : yWithBase
+    : yWithBase - pillarStackYOffset
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isVisible = altitude + 1 <= viewingLevel
   const isPowerGlyph = inventoryID === Pieces.glyphPower
@@ -106,7 +122,7 @@ export const MapBoardPiece3D = ({
   ) {
     return (
       <group
-        position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
+        position={new Vector3(xLaurWall, yLaurWall - pillarStackYOffset, zLaurWall)}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -122,7 +138,7 @@ export const MapBoardPiece3D = ({
   ) {
     return (
       <group
-        position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
+        position={new Vector3(xLaurWall, yLaurWall - pillarStackYOffset, zLaurWall)}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -138,7 +154,7 @@ export const MapBoardPiece3D = ({
   ) {
     return (
       <group
-        position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
+        position={new Vector3(xLaurWall, yLaurWall - pillarStackYOffset, zLaurWall)}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -151,7 +167,7 @@ export const MapBoardPiece3D = ({
   if (inventoryID === Pieces.laurWallArch) {
     return (
       <group
-        position={new Vector3(xLaurWall, yLaurWall, zLaurWall)}
+        position={new Vector3(xLaurWall, yLaurWall - pillarStackYOffset, zLaurWall)}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -315,10 +331,10 @@ export const MapBoardPiece3D = ({
           x,
           // either gets moved down to fluid level, or up to solid cap level
           y -
-            HEXGRID_HEX_HEIGHT -
-            (isUnderHexFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : -HEXGRID_HEXCAP_HEIGHT / 2),
+          HEXGRID_HEX_HEIGHT -
+          (isUnderHexFluid
+            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+            : -HEXGRID_HEXCAP_HEIGHT / 2),
           z,
         ]}
         rotation={[0, getObstaclRotation(rotation), 0]}
@@ -337,10 +353,10 @@ export const MapBoardPiece3D = ({
           x,
           // either gets moved down to fluid level, or up to solid cap level
           y -
-            HEXGRID_HEX_HEIGHT -
-            (isUnderHexFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : -HEXGRID_HEXCAP_HEIGHT / 2),
+          HEXGRID_HEX_HEIGHT -
+          (isUnderHexFluid
+            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+            : -HEXGRID_HEXCAP_HEIGHT / 2),
           z,
         ]}
         rotation={[0, getObstaclRotation(rotation), 0]}
@@ -439,7 +455,7 @@ export const MapBoardPiece3D = ({
             position={[
               x,
               (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) +
-                HEXGRID_HEX_HEIGHT / 3,
+              HEXGRID_HEX_HEIGHT / 3,
               z,
             ]}
           >
@@ -623,10 +639,10 @@ export const MapBoardPiece3D = ({
           x + getLadderBattlementOptions(rotation).xAdd,
           // either gets moved down to fluid level, or up to solid cap level
           y -
-            HEXGRID_HEX_HEIGHT -
-            (isLadderChainOnFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : -HEXGRID_HEXCAP_HEIGHT / 2),
+          HEXGRID_HEX_HEIGHT -
+          (isLadderChainOnFluid
+            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+            : -HEXGRID_HEXCAP_HEIGHT / 2),
           z + getLadderBattlementOptions(rotation).zAdd,
         ]}
         rotation={[0, pieceRotation, 0]}

@@ -21,7 +21,7 @@ export function LaurWallArchModel({
   const {
     nodes: { LaurWallLongArch },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  } = useGLTF('/laurwall-long-arch.glb') as any
+  } = useGLTF('/laurwall-long-arch_v2.glb') as any
 
   return (
     <mesh
