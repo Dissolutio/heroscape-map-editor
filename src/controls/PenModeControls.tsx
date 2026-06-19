@@ -124,6 +124,9 @@ export default function PenModeControls() {
     [Pieces.marvelBroken]: [Pieces.marvel],
     [Pieces.marvelNoUpper]: [Pieces.marvel],
     [Pieces.marvelNoUpperBroken]: [Pieces.marvel],
+    [Pieces.laurWallShort]: [Pieces.laurWallShortStackable],
+    [Pieces.laurWallLong]: [Pieces.laurWallLongStackable],
+    [Pieces.laurWallRuin1]: [Pieces.laurWallRuin2, Pieces.laurWallRuin3],
   }
   const filteredPrefixModes = new Set<string>([
     PiecePrefixes.grass,
