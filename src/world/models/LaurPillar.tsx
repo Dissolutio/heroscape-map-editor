@@ -25,17 +25,18 @@ export default function LaurWallPillar({
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(bp.uid)
   const isHighlighted = hoveredPieceID === bp.uid || isSelected
   const partialHex = {
     ...bp.pieceCoords,
     boardPieceUID: bp.uid,
-    altitude: bp.altitude + 1,
+    altitude: bp.altitude,
     inventoryID: bp.inventoryID,
     pieceID: '',
     pieceRotation: bp.rotation,
+    terrain: HexTerrain.laurWall,
   } as BoardHex
   const pillarColor = hexTerrainColor[HexTerrain.laurWall]
   const interiorPillarColor = hexTerrainColor.laurModelColor2
@@ -45,7 +46,7 @@ export default function LaurWallPillar({
     <>
       <group
         onPointerUp={(e) => onPointerUp(e, partialHex)}
-        onPointerEnter={(e) => onPointerEnterPID(e, bp.uid)}
+        onPointerEnter={(e) => onPointerEnter(e, partialHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
         {/* Scaled to match reality: 9 clears the upper pillar edge, 13 totally clears the pillars top X-arch */}

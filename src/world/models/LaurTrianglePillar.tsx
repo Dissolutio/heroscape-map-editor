@@ -28,7 +28,7 @@ export default function LaurWallTrianglePillar({
   ) as any
   // const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -38,10 +38,11 @@ export default function LaurWallTrianglePillar({
   const partialHex = {
     ...bp.pieceCoords,
     boardPieceUID: bp.uid,
-    altitude: bp.altitude + 1,
+    altitude: bp.altitude,
     inventoryID: bp.inventoryID,
     pieceID: '',
     pieceRotation: bp.rotation,
+    terrain: HexTerrain.laurWall,
   } as BoardHex
   const color = isHighlighted
     ? yellowColor
@@ -62,7 +63,7 @@ export default function LaurWallTrianglePillar({
     <>
       <group
         onPointerUp={(e) => onPointerUp?.(e, partialHex)}
-        onPointerEnter={(e) => onPointerEnterPID(e, bp.uid)}
+        onPointerEnter={(e) => onPointerEnter(e, partialHex)}
         onPointerOut={(e) => onPointerOut(e)}
       >
         <mesh
