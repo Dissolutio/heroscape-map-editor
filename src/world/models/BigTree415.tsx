@@ -10,7 +10,7 @@ import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export default function BigTree415({ pid }: { pid?: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/forest-tree15-colored-lowpoly.glb') as any
+  const { nodes } = useGLTF('/big-tree-415.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -41,6 +41,9 @@ export default function BigTree415({ pid }: { pid?: string }) {
   const rockColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.ruin]
+  const baseColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor.treeBase
 
   return (
     <group
@@ -51,28 +54,41 @@ export default function BigTree415({ pid }: { pid?: string }) {
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Tree_large_rocks_scanned001_1.geometry}
+        geometry={nodes.BigTreeBoulders.geometry}
       >
         {pid
           ? basicModelMaterial(rockColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              rockColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            rockColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Tree_large_rocks_scanned001_2.geometry}
+        geometry={nodes.BigTreeTree.geometry}
       >
         {pid
           ? basicModelMaterial(treeColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              treeColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            treeColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
+      </mesh>
+      <mesh
+        receiveShadow={isLightsAndShadowsRender}
+        castShadow={isLightsAndShadowsRender}
+        geometry={nodes.BigTreeBase.geometry}
+      >
+        {pid
+          ? basicModelMaterial(baseColor, isLightsAndShadowsRender)
+          : basicModelMaterial(
+            baseColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </group>
   )

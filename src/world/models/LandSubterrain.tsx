@@ -8,6 +8,7 @@ import { isFluidTerrainHex } from '../../utils/board-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { FLUID_CAP_OPACITY } from '../maphex/instance/FluidCap'
 import { HEXGRID_HEX_APOTHEM } from '../../utils/constants'
+import { piecesSoFar } from '../../data/pieces'
 
 export default function LandSubterrain({
   inventoryID,
@@ -34,7 +35,9 @@ export default function LandSubterrain({
     pieceTerrain === HexTerrain.rock
   const baseColor = isDirtSubterrain
     ? hexTerrainColor[HexTerrain.dirt]
-    : hexTerrainColor[pieceTerrain as keyof typeof hexTerrainColor]
+    : inventoryID === Pieces.tree415 ?
+      hexTerrainColor.treeBase
+      : hexTerrainColor[pieceTerrain as keyof typeof hexTerrainColor]
   const [color, setColor] = React.useState('red')
   const regex = /\d+/g
 
@@ -69,7 +72,7 @@ export default function LandSubterrain({
   }
   const material = () => {
     if (isLightsAndShadowsRender) {
-      if (isFluidTerrainHex(pieceTerrain)) {
+      if (isFluidTerrainHex(pieceTerrain) || inventoryID === Pieces.tree415) {
         return (
           <meshStandardMaterial
             color={color}
@@ -81,7 +84,7 @@ export default function LandSubterrain({
       return <meshStandardMaterial color={color} />
     }
     // not high quality render below
-    if (isFluidTerrainHex(pieceTerrain)) {
+    if (isFluidTerrainHex(pieceTerrain) || inventoryID === Pieces.tree415) {
       return (
         <meshLambertMaterial
           color={color}
@@ -93,6 +96,9 @@ export default function LandSubterrain({
     return <meshMatcapMaterial color={color} />
   }
   const getMesh = () => {
+    if (inventoryID === Pieces.tree415) {
+      return <Subterrain4>{material()}</Subterrain4>
+    }
     switch (pieceSize) {
       case '1':
         return <Subterrain1>{material()}</Subterrain1>
