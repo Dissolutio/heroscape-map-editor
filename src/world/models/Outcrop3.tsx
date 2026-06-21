@@ -36,7 +36,9 @@ export default function Outcrop3({
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(pid)
   const isHighlighted = hoveredPieceID === pid || isSelected
-  const iceColor = isHighlighted ? yellowColor : hexTerrainColor[HexTerrain.glacier]
+  const iceColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.glacier]
   const lavaColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.lavaField]

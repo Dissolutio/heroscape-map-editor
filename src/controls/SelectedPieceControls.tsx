@@ -6,7 +6,10 @@ import getPieceTemplateCoords from '../data/rotationTransforms'
 import useBoundStore from '../store/store'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
-import { genBoardHexID, getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
+import {
+  genBoardHexID,
+  getBoardHexesRectangularMapDimensions,
+} from '../utils/map-utils'
 import { zoomToPieces } from '../utils/camera-utils'
 import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
 import DeletePieceButton from './DeletePieceButton'
@@ -114,11 +117,11 @@ export function SelectedPieceControls({
 
   const tooltipLines = isMulti
     ? selectedBoardPieces
-      .map(
-        (bp) =>
-          `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
-      )
-      .join('\n')
+        .map(
+          (bp) =>
+            `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
+        )
+        .join('\n')
     : ''
 
   const altitudes = selectedBoardPieces.map((bp) => bp.altitude + 1)

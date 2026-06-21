@@ -14,7 +14,7 @@ export default function LandSubterrain({
   terrain,
   uid,
   colorOverride,
-  isFluidOverride
+  isFluidOverride,
 }: {
   inventoryID: string
   terrain: string
@@ -34,9 +34,11 @@ export default function LandSubterrain({
     terrain === HexTerrain.grass ||
     terrain === HexTerrain.sand ||
     terrain === HexTerrain.rock
-  const baseColor = colorOverride ?? (isDirtSubterrain
-    ? hexTerrainColor[HexTerrain.dirt]
-    : hexTerrainColor[terrain as keyof typeof hexTerrainColor])
+  const baseColor =
+    colorOverride ??
+    (isDirtSubterrain
+      ? hexTerrainColor[HexTerrain.dirt]
+      : hexTerrainColor[terrain as keyof typeof hexTerrainColor])
   const [color, setColor] = React.useState('red')
   const regex = /\d+/g
 
@@ -64,10 +66,7 @@ export default function LandSubterrain({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(
-      uid,
-      event.shiftKey || event.ctrlKey || event.metaKey,
-    )
+    toggleSelectedPieceID(uid, event.shiftKey || event.ctrlKey || event.metaKey)
   }
   const material = () => {
     if (isLightsAndShadowsRender) {
