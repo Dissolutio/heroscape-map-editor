@@ -1,10 +1,13 @@
 import { Box, Button, ButtonGroup, Tooltip, Typography } from '@mui/material'
+import type { CameraControls } from '@react-three/drei'
+import type { RefObject } from 'react'
 import { piecesSoFar } from '../data/pieces'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import useBoundStore from '../store/store'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
-import { genBoardHexID } from '../utils/map-utils'
+import { genBoardHexID, getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
+import { zoomToPieces } from '../utils/camera-utils'
 import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
 import DeletePieceButton from './DeletePieceButton'
 import { ConvertTerrainQuickSelect } from './ConvertTerrainQuickSelect'
@@ -21,7 +24,11 @@ const FONT_SIZE = 8
  *
  * Designed to live inside SelectedPieceReadout so it floats over the 3D view.
  */
-export function SelectedPieceControls() {
+export function SelectedPieceControls({
+  cameraControlsRef,
+}: {
+  cameraControlsRef: RefObject<CameraControls>
+}) {
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
@@ -30,6 +37,8 @@ export function SelectedPieceControls() {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
+  const { width: mapWidth, length: mapLength } =
+    getBoardHexesRectangularMapDimensions(boardHexes)
 
   const selectedBoardPieces = boardPieces.filter((bp) =>
     selectedPieceIDs.includes(bp.uid),
@@ -105,11 +114,11 @@ export function SelectedPieceControls() {
 
   const tooltipLines = isMulti
     ? selectedBoardPieces
-        .map(
-          (bp) =>
-            `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
-        )
-        .join('\n')
+      .map(
+        (bp) =>
+          `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
+      )
+      .join('\n')
     : ''
 
   const altitudes = selectedBoardPieces.map((bp) => bp.altitude + 1)
@@ -235,6 +244,16 @@ export function SelectedPieceControls() {
     )
   }
 
+  const handleZoomToSelected = () => {
+    zoomToPieces({
+      cameraControlsRef,
+      boardHexes,
+      targetUIDs: selectedPieceIDs,
+      mapWidth,
+      mapLength,
+    })
+  }
+
   return (
     <>
       {/* Info readout */}
@@ -307,6 +326,15 @@ export function SelectedPieceControls() {
           )}
         </Box>
       )}
+
+      <Button
+        size="small"
+        title={`Zoom to selected terrain${selectedPieceIDs.length > 1 ? 's' : ''}`}
+        onClick={handleZoomToSelected}
+        sx={{ fontSize: FONT_SIZE, mt: 0.25, mb: 0.5, width: '100%' }}
+      >
+        {`Zoom To Selected${selectedPieceIDs.length > 1 ? ' Pieces' : ' Piece'}`}
+      </Button>
 
       {/* Translate */}
       <ButtonGroup aria-label="Move selected piece row 1" size="small">
