@@ -8,7 +8,7 @@ export const terrainSetsByShortID = {
     id: 'C',
     hsOrgId: '11',
     releaseDate: '08/2024',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   E: {
     name: 'Battle for the Wellspring',
@@ -17,7 +17,7 @@ export const terrainSetsByShortID = {
     id: 'E',
     hsOrgId: '12',
     releaseDate: '08/2024',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   J: {
     name: 'Swamps of Valhalla',
@@ -26,7 +26,7 @@ export const terrainSetsByShortID = {
     id: 'J',
     hsOrgId: '16',
     releaseDate: '02/2025',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   G: {
     name: 'Snow Fields of Valhalla',
@@ -35,7 +35,7 @@ export const terrainSetsByShortID = {
     id: 'G',
     hsOrgId: '15',
     releaseDate: '02/2025',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   H: {
     name: 'Lava Fields of Valhalla',
@@ -44,7 +44,7 @@ export const terrainSetsByShortID = {
     id: 'H',
     hsOrgId: '18',
     releaseDate: '08/2025',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   I: {
     name: 'Roads of Valhalla',
@@ -53,7 +53,7 @@ export const terrainSetsByShortID = {
     id: 'I',
     hsOrgId: '19',
     releaseDate: '10/2025',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   F: {
     name: 'Lands of Valhalla',
@@ -62,7 +62,7 @@ export const terrainSetsByShortID = {
     id: 'F',
     hsOrgId: '13',
     releaseDate: '10/2024',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   K: {
     name: 'Waters of Valhalla',
@@ -71,7 +71,7 @@ export const terrainSetsByShortID = {
     id: 'K',
     hsOrgId: '14',
     releaseDate: '10/2024',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   D: {
     name: "Ruins at Laur's Edge",
@@ -80,7 +80,7 @@ export const terrainSetsByShortID = {
     id: 'D',
     hsOrgId: '20',
     releaseDate: '10/2025',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   L: {
     name: "Grove at Laur's Edge",
@@ -89,7 +89,7 @@ export const terrainSetsByShortID = {
     id: 'L',
     hsOrgId: '8', // same as ticalla, for now
     releaseDate: '08/2024',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   V: {
     name: 'Caverns of Valhalla',
@@ -98,7 +98,7 @@ export const terrainSetsByShortID = {
     id: 'V',
     hsOrgId: '28',
     releaseDate: '02/2026',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   W: {
     name: 'Forests of Valhalla',
@@ -107,7 +107,7 @@ export const terrainSetsByShortID = {
     id: 'W',
     hsOrgId: '26',
     releaseDate: '04/2026',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   M: {
     name: 'Ticalla Jungle',
@@ -116,7 +116,7 @@ export const terrainSetsByShortID = {
     id: 'M',
     hsOrgId: '8',
     releaseDate: '06/2008',
-    era: 'classic'
+    era: 'classic',
   },
   S: {
     name: 'Rise of the Valkyrie',
@@ -125,7 +125,7 @@ export const terrainSetsByShortID = {
     id: 'S',
     hsOrgId: '1',
     releaseDate: '08/2004',
-    era: 'classic'
+    era: 'classic',
   },
   T: {
     name: 'Swarm of the Marro',
@@ -134,7 +134,7 @@ export const terrainSetsByShortID = {
     id: 'T',
     hsOrgId: '2',
     releaseDate: '08/2007',
-    era: 'classic'
+    era: 'classic',
   },
   U: {
     name: 'Battle for the Underdark',
@@ -143,7 +143,7 @@ export const terrainSetsByShortID = {
     id: 'U',
     hsOrgId: '3',
     releaseDate: '2010',
-    era: 'classic'
+    era: 'classic',
   },
   N: {
     name: 'Fortress of the Archkyrie',
@@ -152,7 +152,7 @@ export const terrainSetsByShortID = {
     id: 'N',
     hsOrgId: '5',
     releaseDate: '08/2006',
-    era: 'classic'
+    era: 'classic',
   },
   O: {
     name: 'Marvel: The Conflict Begins',
@@ -161,7 +161,7 @@ export const terrainSetsByShortID = {
     id: 'O',
     hsOrgId: '9',
     releaseDate: '2007',
-    era: 'classic'
+    era: 'classic',
   },
   P: {
     name: 'Thaelenk Tundra',
@@ -170,7 +170,7 @@ export const terrainSetsByShortID = {
     id: 'P',
     hsOrgId: '6',
     releaseDate: '05/2006',
-    era: 'classic'
+    era: 'classic',
   },
   Q: {
     name: 'Volcarran Wasteland',
@@ -179,7 +179,7 @@ export const terrainSetsByShortID = {
     id: 'Q',
     hsOrgId: '7',
     releaseDate: '08/2005',
-    era: 'classic'
+    era: 'classic',
   },
   R: {
     name: 'Road to the Forgotten Forest',
@@ -188,7 +188,7 @@ export const terrainSetsByShortID = {
     id: 'R',
     hsOrgId: '4',
     releaseDate: '07/2005',
-    era: 'classic'
+    era: 'classic',
   },
   A: {
     name: 'Max Shared Terrain Kit',
@@ -197,7 +197,7 @@ export const terrainSetsByShortID = {
     id: 'A',
     // hsOrgId: '', // has no id on hs.org
     releaseDate: '08/2024',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   B: {
     name: 'Tournament Organizer Terrain Kit',
@@ -206,7 +206,7 @@ export const terrainSetsByShortID = {
     id: 'B',
     hsOrgId: '17',
     releaseDate: '09/2024',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   X: {
     name: 'Shores of Valhlla',
@@ -215,7 +215,7 @@ export const terrainSetsByShortID = {
     id: 'X',
     hsOrgId: '27',
     releaseDate: '03/2026',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   Y: {
     name: 'Urban Landscape of Valhalla',
@@ -224,7 +224,7 @@ export const terrainSetsByShortID = {
     id: 'Y',
     hsOrgId: '29',
     releaseDate: '05/2026',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   Z: {
     name: 'Rumble at the Rift',
@@ -233,7 +233,7 @@ export const terrainSetsByShortID = {
     id: 'Z',
     hsOrgId: '30',
     releaseDate: '03/2026',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   AA: {
     name: 'Ancient Lands of Valhalla',
@@ -242,7 +242,7 @@ export const terrainSetsByShortID = {
     id: 'AA',
     hsOrgId: '31',
     releaseDate: '06/2026',
-    era: 'contemporary'
+    era: 'contemporary',
   },
   BB: {
     name: 'Battle for Blackscar',
@@ -251,6 +251,6 @@ export const terrainSetsByShortID = {
     id: 'BB',
     hsOrgId: '32',
     releaseDate: '06/2026',
-    era: 'contemporary'
+    era: 'contemporary',
   },
 }

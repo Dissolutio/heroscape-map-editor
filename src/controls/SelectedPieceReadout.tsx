@@ -1,9 +1,15 @@
 import { Card, CardContent } from '@mui/material'
+import type { CameraControls } from '@react-three/drei'
+import type { RefObject } from 'react'
 import useBoundStore from '../store/store'
 import { SelectedPieceControls } from './SelectedPieceControls'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 
-const SelectedPieceReadout = () => {
+const SelectedPieceReadout = ({
+  cameraControlsRef,
+}: {
+  cameraControlsRef: RefObject<CameraControls>
+}) => {
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const { isSmallScreenWidth } = useMuiMediaQuery()
@@ -26,7 +32,7 @@ const SelectedPieceReadout = () => {
     >
       <Card sx={{ width: cardWidth, p: 0 }}>
         <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-          <SelectedPieceControls />
+          <SelectedPieceControls cameraControlsRef={cameraControlsRef} />
         </CardContent>
       </Card>
     </div>

@@ -13,28 +13,32 @@ export default function LandSubterrain({
   inventoryID,
   terrain,
   uid,
+  colorOverride,
+  isFluidOverride,
 }: {
   inventoryID: string
   terrain: string
   uid: string
+  colorOverride?: string
+  isFluidOverride?: boolean
 }) {
-  const boardPieceUid = uid
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
-  const isSelected = selectedPieceIDs.includes(boardPieceUid)
-  const isHovered = hoveredPieceID === boardPieceUid
-  const pieceTerrain = terrain
+  const isSelected = selectedPieceIDs.includes(uid)
+  const isHovered = hoveredPieceID === uid
   const isDirtSubterrain =
-    pieceTerrain === HexTerrain.grass ||
-    pieceTerrain === HexTerrain.sand ||
-    pieceTerrain === HexTerrain.rock
-  const baseColor = isDirtSubterrain
-    ? hexTerrainColor[HexTerrain.dirt]
-    : hexTerrainColor[pieceTerrain as keyof typeof hexTerrainColor]
+    terrain === HexTerrain.grass ||
+    terrain === HexTerrain.sand ||
+    terrain === HexTerrain.rock
+  const baseColor =
+    colorOverride ??
+    (isDirtSubterrain
+      ? hexTerrainColor[HexTerrain.dirt]
+      : hexTerrainColor[terrain as keyof typeof hexTerrainColor])
   const [color, setColor] = React.useState('red')
   const regex = /\d+/g
 
@@ -62,14 +66,11 @@ export default function LandSubterrain({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(
-      boardPieceUid,
-      event.shiftKey || event.ctrlKey || event.metaKey,
-    )
+    toggleSelectedPieceID(uid, event.shiftKey || event.ctrlKey || event.metaKey)
   }
   const material = () => {
     if (isLightsAndShadowsRender) {
-      if (isFluidTerrainHex(pieceTerrain)) {
+      if (isFluidOverride || isFluidTerrainHex(terrain)) {
         return (
           <meshStandardMaterial
             color={color}
@@ -81,7 +82,7 @@ export default function LandSubterrain({
       return <meshStandardMaterial color={color} />
     }
     // not high quality render below
-    if (isFluidTerrainHex(pieceTerrain)) {
+    if (isFluidOverride || isFluidTerrainHex(terrain)) {
       return (
         <meshLambertMaterial
           color={color}
@@ -93,6 +94,12 @@ export default function LandSubterrain({
     return <meshMatcapMaterial color={color} />
   }
   const getMesh = () => {
+    if (inventoryID === Pieces.tree415) {
+      return <Subterrain4>{material()}</Subterrain4>
+    }
+    if (inventoryID === Pieces.hive) {
+      return <Subterrain6>{material()}</Subterrain6>
+    }
     switch (pieceSize) {
       case '1':
         return <Subterrain1>{material()}</Subterrain1>
@@ -123,7 +130,7 @@ export default function LandSubterrain({
   return (
     <group
       onPointerUp={onPointerUp}
-      onPointerEnter={(e) => onPointerEnterPID(e, boardPieceUid)}
+      onPointerEnter={(e) => onPointerEnterPID(e, uid)}
       onPointerOut={(e) => onPointerOut(e)}
     >
       {getMesh()}

@@ -272,23 +272,16 @@ export const MapBoardPiece3D = ({
   }
 
   if (inventoryID === Pieces.tree415) {
-    const bigTreeOptions = getOptionsForBigTree(rotation)
     return (
       <>
-        <Suspense fallback={<ModelLoader />}>
-          <group
-            position={[
-              x + bigTreeOptions.xAdd,
-              yWithBase,
-              z + bigTreeOptions.zAdd,
-            ]}
-            scale={0.038}
-            rotation={[0, bigTreeOptions.rotationY, 0]}
-          >
+        <group
+          position={[x, y - HEXGRID_HEX_HEIGHT, z]}
+          rotation={[0, pieceRotation, 0]}
+        >
+          <Suspense fallback={<ModelLoader />}>
             <BigTree415 pid={uid} />
-          </group>
-        </Suspense>
-        <ObstacleBase x={x} y={yBase} z={z} color={hexTerrainColor.treeBase} />
+          </Suspense>
+        </group>
       </>
     )
   }
@@ -535,13 +528,21 @@ export const MapBoardPiece3D = ({
             <Outcrop1 isGlacier={isGlacier} isLavaRock={isLavaRock} pid={uid} />
           </Suspense>
         </group>
-        <ObstacleBase
-          x={x}
-          y={yBase}
-          z={z}
-          color={baseColor}
-          isFluidBase={true}
-        />
+        <group
+          position={[x, yBaseCap, z]}
+          rotation={[0, pieceRotation, 0]}
+          scale={[1, HEXGRID_HEXCAP_FLUID_SCALE, 1]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <LandSubterrain
+              colorOverride={baseColor}
+              inventoryID={inventoryID}
+              terrain={piece.terrain}
+              uid={uid}
+              isFluidOverride={true}
+            />
+          </Suspense>
+        </group>
       </>
     )
   }
@@ -568,13 +569,21 @@ export const MapBoardPiece3D = ({
             <Outcrop3 isGlacier={isGlacier} isLavaRock={isLavaRock} pid={uid} />
           </Suspense>
         </group>
-        <ObstacleBase
-          x={x}
-          y={yBase}
-          z={z}
-          color={baseColor}
-          isFluidBase={true}
-        />
+        <group
+          position={[x, yBaseCap, z]}
+          rotation={[0, pieceRotation, 0]}
+          scale={[1, HEXGRID_HEXCAP_FLUID_SCALE, 1]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <LandSubterrain
+              colorOverride={baseColor}
+              inventoryID={inventoryID}
+              terrain={piece.terrain}
+              uid={uid}
+              isFluidOverride={true}
+            />
+          </Suspense>
+        </group>
       </>
     )
   }
@@ -590,13 +599,21 @@ export const MapBoardPiece3D = ({
             <Outcrop4 isGlacier={true} pid={uid} />
           </Suspense>
         </group>
-        <ObstacleBase
-          x={x}
-          y={yBase}
-          z={z}
-          color={hexTerrainColor[HexTerrain.ice]}
-          isFluidBase={true}
-        />
+        <group
+          position={[x, yBaseCap, z]}
+          rotation={[0, pieceRotation, 0]}
+          scale={[1, HEXGRID_HEXCAP_FLUID_SCALE, 1]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <LandSubterrain
+              colorOverride={hexTerrainColor[HexTerrain.ice]}
+              inventoryID={inventoryID}
+              terrain={piece.terrain}
+              uid={uid}
+              isFluidOverride={true}
+            />
+          </Suspense>
+        </group>
       </>
     )
   }
@@ -612,13 +629,21 @@ export const MapBoardPiece3D = ({
             <Outcrop6 isGlacier={true} pid={uid} />
           </Suspense>
         </group>
-        <ObstacleBase
-          x={x}
-          y={yBase}
-          z={z}
-          color={hexTerrainColor[HexTerrain.ice]}
-          isFluidBase={true}
-        />
+        <group
+          position={[x, yBaseCap, z]}
+          rotation={[0, pieceRotation, 0]}
+          scale={[1, HEXGRID_HEXCAP_FLUID_SCALE, 1]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <LandSubterrain
+              colorOverride={hexTerrainColor[HexTerrain.ice]}
+              inventoryID={inventoryID}
+              terrain={piece.terrain}
+              uid={uid}
+              isFluidOverride={true}
+            />
+          </Suspense>
+        </group>
       </>
     )
   }
@@ -673,13 +698,21 @@ export const MapBoardPiece3D = ({
             <MarroHive6 pid={uid} />
           </Suspense>
         </group>
-        <ObstacleBase
-          x={x}
-          y={yBase}
-          z={z}
-          color={hexTerrainColor[HexTerrain.swampWater]}
-          isFluidBase={true}
-        />
+        <group
+          position={[x, yBaseCap, z]}
+          rotation={[0, pieceRotation, 0]}
+          scale={[1, HEXGRID_HEXCAP_FLUID_SCALE, 1]}
+        >
+          <Suspense fallback={<ModelLoader />}>
+            <LandSubterrain
+              colorOverride={hexTerrainColor[HexTerrain.swampWater]}
+              inventoryID={inventoryID}
+              terrain={piece.terrain}
+              uid={uid}
+              isFluidOverride={true}
+            />
+          </Suspense>
+        </group>
       </>
     )
   }

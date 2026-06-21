@@ -667,15 +667,7 @@ export default function PiecePreview() {
   }
   if (isBigTreeHex && isSolidOrEmptyBeneath) {
     return (
-      <group
-        position={[
-          x + getOptionsForBigTree(penModeRotation).xAdd,
-          yWithBase + HEXGRID_HEX_HEIGHT,
-          z + getOptionsForBigTree(penModeRotation).zAdd,
-        ]}
-        scale={0.038}
-        rotation={[0, getOptionsForBigTree(penModeRotation).rotationY, 0]}
-      >
+      <group position={[x, y, z]} rotation={[0, pieceRotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
           <BigTree415 />
         </Suspense>

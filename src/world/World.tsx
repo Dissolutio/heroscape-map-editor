@@ -124,7 +124,7 @@ const World = ({
           <MyCameraControls cameraControlsRef={cameraControlsRef} />
           <TakeAPictureBox />
         </Canvas>
-        <SelectedPieceReadout />
+        <SelectedPieceReadout cameraControlsRef={cameraControlsRef} />
         {/* <HoveredPieceReadout /> */}
       </div>
     </ClickAwayListener>

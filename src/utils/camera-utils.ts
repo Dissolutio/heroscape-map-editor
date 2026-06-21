@@ -35,6 +35,14 @@ interface ZoomToPieceArgs {
   mapLength: number
 }
 
+interface ZoomToPiecesArgs {
+  cameraControlsRef: RefObject<CameraControls>
+  boardHexes: BoardHexes
+  targetUIDs: string[]
+  mapWidth: number
+  mapLength: number
+}
+
 /**
  * Zoom the camera to focus on a specific piece on the map.
  * The camera frames the piece's occupied hexes so clipping planes stay correct.
@@ -90,4 +98,41 @@ export const zoomToPiece = ({
       useBoundStore.getState().setFocusStartTime(null)
     }
   }, 3200)
+}
+
+/**
+ * Zoom the camera to frame one or more pieces by their occupied hexes.
+ */
+export const zoomToPieces = ({
+  cameraControlsRef,
+  boardHexes,
+  targetUIDs,
+  mapWidth,
+  mapLength,
+}: ZoomToPiecesArgs) => {
+  const targetUIDSet = new Set(targetUIDs)
+  const pieceHexes = Object.values(boardHexes).filter((hex) =>
+    targetUIDSet.has(hex.boardPieceUID),
+  )
+
+  if (!pieceHexes.length) {
+    return
+  }
+
+  // Framing through a world-space bounds box keeps clipping planes stable.
+  const box = new Box3()
+  for (const hex of pieceHexes) {
+    const { x, y, z } = getBoardHex3DCoords(hex)
+    box.expandByPoint(new Vector3(x, y, z))
+  }
+  box.expandByScalar(HEXGRID_HEX_RADIUS * 5)
+
+  cameraControlsRef.current?.setPosition?.(
+    mapWidth,
+    mapWidth + mapLength,
+    mapLength,
+    true,
+  )
+  cameraControlsRef.current?.rotateTo?.(0, 0, true)
+  cameraControlsRef.current?.fitToBox?.(box, true)
 }
