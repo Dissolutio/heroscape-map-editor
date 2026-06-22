@@ -99,6 +99,7 @@ function getDefaultSizeForLandPrefix(prefix: string) {
 
 export interface MapSlice extends MapState {
   conflictedPieceUIDs: string[]
+  recomputeConflicts: () => void
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
   unpaintTile: (uid: string) => void
   convertTerrainForPieces: (args: ConvertTerrainArgs) => number
@@ -150,6 +151,12 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   },
   boardPieces: [],
   conflictedPieceUIDs: [],
+  recomputeConflicts: () =>
+    set((state) =>
+      produce(state, (draft) => {
+        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(draft.boardPieces)
+      }),
+    ),
   paintTile: ({
     piece,
     clickedHexCoords,
