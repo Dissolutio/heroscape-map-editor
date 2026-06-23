@@ -2,6 +2,7 @@ import { ClickAwayListener } from '@mui/material'
 import {
   Billboard,
   type CameraControls,
+  Environment,
   OrthographicCamera,
   PerspectiveCamera,
   Stats,
@@ -110,7 +111,10 @@ const World = ({
           hidden={isHidden}
           shadows={isLightsAndShadowsRender}
         >
-          <color attach="background" args={['white']} />
+          <Environment preset="sunset" />
+
+
+          {/* <color attach="background" args={["white"]} /> */}
           <PerspectiveCamera
             position={[10, 10, 10]}
             fov={CAMERA_FOV}
