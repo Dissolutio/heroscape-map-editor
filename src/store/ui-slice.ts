@@ -424,7 +424,7 @@ const createUISlice: StateCreator<
         s.isPdfOpen = b
       }),
     ),
-  isHighQualityRender: false,
+  isHighQualityRender: true,
   toggleIsHighQualityRender: (b: boolean) =>
     set(
       produce((s) => {

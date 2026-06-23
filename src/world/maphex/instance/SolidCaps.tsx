@@ -2,6 +2,7 @@ import { Instance, Instances, useGLTF } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { useFrame } from '@react-three/fiber'
 import React from 'react'
+import type { BufferGeometry } from 'three'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
 import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
@@ -16,6 +17,7 @@ import type {
 import { CylinderGeometry } from 'three'
 import type { Material } from 'three'
 import { terrainCapColors } from '../hexColors'
+import { HexTerrain } from '../../../types'
 
 const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
   0.8515,
@@ -28,89 +30,143 @@ const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
   undefined,
 ]
 
+type GLTFNodes = Record<string, { geometry?: BufferGeometry }>
+
+
+function isRoadStyleTerrain(terrain: string) {
+  return terrain === HexTerrain.road || terrain === HexTerrain.wallWalk
+}
+
 const SolidCaps = ({
   boardHexArr,
   onPointerUp,
   focusedPieceUID,
   focusStartTime,
 }: DreiCapProps) => {
-  const ref = React.useRef<InstanceRefType>(null)
+  const classicRef = React.useRef<InstanceRefType>(null)
+  const roadRef = React.useRef<InstanceRefType>(null)
+  const { nodes } = useGLTF('/classic1-cap.glb') as { nodes: GLTFNodes }
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/classic1-cap.glb') as any
+  const { nodes: rockNodes, materials: rockMaterials } = useGLTF('/rock-cap-leafit.glb') as any
+  // const { nodes, materials } = useGLTF('/grass-cap-leafit.glb') as any
+
+  const { nodes: roadNodes, materials: roadMaterials } = useGLTF('/road-cap-textured.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
 
+  const visibleHexes = boardHexArr.filter((bh) => bh.altitude <= viewingLevel)
+  const roadHexes = visibleHexes.filter((bh) => isRoadStyleTerrain(bh.terrain))
+  const nonRoadHexes = visibleHexes.filter(
+    (bh) => !isRoadStyleTerrain(bh.terrain),
+  )
+
+  const basicCapGeometry = React.useMemo(
+    () => new CylinderGeometry(...baseSolidCapCylinderArgs),
+    [],
+  )
+  const classicHighQualityGeometry = nodes.Classic1_Cap.geometry
+  const roadHighQualityGeometry = roadNodes.RoadCapTextured.geometry
+  const roadHighQualityMaterial = roadMaterials.Material
+
   // Apply material opacity based on focus state
   useFrame(() => {
-    const material = ref.current?.material
-    if (!material) return
-
     const opacity = calculateFocusOpacity(
       focusedPieceUID ?? null,
       focusStartTime ?? null,
     )
 
-    // Handle both single material and array of materials
-    const materials = Array.isArray(material) ? material : [material]
-    for (const mat of materials) {
-      if (!mat || typeof mat !== 'object') continue
-      const m = mat as Material
+    for (const instancesRef of [classicRef, roadRef]) {
+      const material = instancesRef.current?.material
+      if (!material) continue
 
-      // Only update if opacity changed significantly (avoid thrashing)
-      if (Math.abs((m.opacity ?? 1) - opacity) > 0.001) {
-        m.opacity = opacity
-        m.transparent = opacity < 1
-        m.depthWrite = opacity >= 1
-        m.needsUpdate = true
+      // Handle both single material and array of materials
+      const materials = Array.isArray(material) ? material : [material]
+      for (const mat of materials) {
+        if (!mat || typeof mat !== 'object') continue
+        const m = mat as Material
+
+        // Only update if opacity changed significantly (avoid thrashing)
+        if (Math.abs((m.opacity ?? 1) - opacity) > 0.001) {
+          m.opacity = opacity
+          m.transparent = opacity < 1
+          m.depthWrite = opacity >= 1
+          m.needsUpdate = true
+        }
       }
     }
   })
 
   if (boardHexArr.length === 0) return null
-  const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
-  const basicCapGeometry = new CylinderGeometry(...baseSolidCapCylinderArgs)
-  return (
+
+  const renderCaps = (
+    hexes: typeof boardHexArr,
+    geometry: BufferGeometry,
+    ref: React.RefObject<InstanceRefType>,
+  ) => (
     <Instances
       limit={INSTANCE_LIMIT}
-      range={range}
+      range={hexes.length}
       ref={ref}
       frustumCulled={false}
+      geometry={geometry}
+      material={roadHighQualityMaterial}
+      // geometry={
+      //   isHighQualityRender ? nodes.GrassCapLeafit.geometry : basicCapGeometry
+      // }
       geometry={
-        isHighQualityRender ? nodes.Classic1_Cap.geometry : basicCapGeometry
+        isHighQualityRender ? nodes.RockCapLeafit.geometry : basicCapGeometry
       }
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
+      // material={materials.GrassCap}
+      material={materials.RockCap}
     >
-      {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />}
-      {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
-      {boardHexArr.map((hex, i) => (
+      {isHighQualityRender ? <></> : <meshMatcapMaterial />}
+      {hexes.map((hex) => (
         <SolidCapInstance
           key={hex.id}
           boardHex={hex}
           onPointerUp={onPointerUp}
-          isVisible={range >= i}
           isLightsAndShadowsRender={isLightsAndShadowsRender}
           isHighQualityRender={isHighQualityRender}
         />
       ))}
     </Instances>
   )
+
+  if (!isHighQualityRender) {
+    return renderCaps(visibleHexes, basicCapGeometry, classicRef)
+  }
+
+  if (!classicHighQualityGeometry) {
+    return renderCaps(visibleHexes, basicCapGeometry, classicRef)
+  }
+
+  return (
+    <>
+      {nonRoadHexes.length > 0 &&
+        renderCaps(nonRoadHexes, classicHighQualityGeometry, classicRef)}
+      {roadHexes.length > 0 &&
+        renderCaps(
+          roadHexes,
+          roadHighQualityGeometry,
+          roadRef,
+        )}
+    </>
+  )
 }
-// useGltf.preload('/classic1-cap.glb')
 
 export default SolidCaps
 
 function SolidCapInstance({
   boardHex,
   onPointerUp,
-  isVisible,
   isLightsAndShadowsRender,
   isHighQualityRender,
 }: BoardHexPieceProps & {
-  isVisible: boolean
   isLightsAndShadowsRender: boolean
   isHighQualityRender: boolean
 }) {
@@ -118,7 +174,7 @@ function SolidCapInstance({
   const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const color = terrainCapColors[boardHex.terrain]
+  const color = isHighQualityRender ? '#EBEBEB' : terrainCapColors[boardHex.terrain]
 
   // Effect: Initial color/position
   React.useEffect(() => {
@@ -148,26 +204,17 @@ function SolidCapInstance({
   }, [boardHex.boardPieceUID, hoveredPieceID, color])
 
   const handlePointerEnter = (e: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     e.stopPropagation() // prevent this hover from passing through and affecting behind
     onPointerEnter(e, boardHex)
     ref?.current?.color?.set?.('yellow')
   }
   const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     // if (hoveredPieceID !== boardHex.pieceID) {
     ref?.current?.color?.set?.(color)
     onPointerOut(e)
     // }
   }
   const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (e.button !== 0) {
       return
@@ -182,7 +229,7 @@ function SolidCapInstance({
       onPointerLeave={handlePointerOut}
       onPointerUp={handlePointerUp}
       frustumCulled={false}
-      receiveShadow={isLightsAndShadowsRender}
+      // receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
     />
   )
