@@ -11,6 +11,8 @@ type ReactPdfSvgMapDisplayProps = {
   boardHexesArr: BoardHex[]
   boardPiecesArr: DecodedPieceID[]
   viewingLevel: number
+  isPdfColorBorders: boolean
+  isShowPdfOverlayOnPlacedLevel: boolean
   chunk?: PdfMapAltitudeChunk
 }
 
@@ -20,6 +22,8 @@ export const ReactPdfSvgMapDisplay = ({
   boardHexesArr,
   boardPiecesArr,
   viewingLevel,
+  isPdfColorBorders,
+  isShowPdfOverlayOnPlacedLevel,
   chunk,
 }: ReactPdfSvgMapDisplayProps) => {
   const emptyHexesArr = boardHexesArr.filter((hex) => hex.terrain === 'empty')
@@ -44,6 +48,8 @@ export const ReactPdfSvgMapDisplay = ({
             hex={hex}
             viewingLevel={viewingLevel}
             isOverlayViewing={isOverlayViewing}
+            isPdfColorBorders={isPdfColorBorders}
+            isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
           />
         ))}
       {emptyHexesArr.map((hex) => (
@@ -52,6 +58,8 @@ export const ReactPdfSvgMapDisplay = ({
           hex={hex}
           viewingLevel={viewingLevel}
           isOverlayViewing={isOverlayViewing}
+          isPdfColorBorders={isPdfColorBorders}
+          isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
         />
       ))}
       {nonEmptyHexesArr
@@ -62,12 +70,17 @@ export const ReactPdfSvgMapDisplay = ({
             hex={hex}
             viewingLevel={viewingLevel}
             isOverlayViewing={isOverlayViewing}
+            isPdfColorBorders={isPdfColorBorders}
+            isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
           />
         ))}
       {boardPiecesArr
         .filter((bp) => {
           if (piecesSoFar[bp.inventoryID].isOverlayPiece) {
-            return isOverlayViewing
+            return (
+              isOverlayViewing ||
+              (isShowPdfOverlayOnPlacedLevel && bp.altitude <= viewingLevel)
+            )
           }
           return bp.altitude <= viewingLevel
         })

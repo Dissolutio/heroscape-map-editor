@@ -281,10 +281,12 @@ export const PdfMultiHex1 = ({
   hex,
   isSubLevel,
   isGlyph,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
   isGlyph?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const isEmptyHex = hex.terrain === 'empty'
   const fillColor = isEmptyHex ? 'white' : getPdfHexFillColor(hex)
@@ -292,7 +294,9 @@ export const PdfMultiHex1 = ({
     PDF_BORDER_WIDTH > 0
       ? isGlyph
         ? fillColor
-        : getSvgHexBorderColor(hex)
+        : useTerrainBorderColor
+          ? getSvgHexBorderColor(hex)
+          : 'black'
       : ''
   const glyphHexRadius = SVG_HEX_RADIUS / 1.4
   const { points } = getHexagonSvgPolygonPointsAt00(
@@ -323,12 +327,19 @@ export const PdfMultiHex1 = ({
 export const PdfMultiHex2 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = getPdfHexFillColor(hex)
-  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor =
+    PDF_BORDER_WIDTH > 0
+      ? useTerrainBorderColor
+        ? getSvgHexBorderColor(hex)
+        : 'black'
+      : ''
   const { points } = get2HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -349,12 +360,19 @@ export const PdfMultiHex2 = ({
 export const PdfMultiHex3 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = getPdfHexFillColor(hex)
-  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor =
+    PDF_BORDER_WIDTH > 0
+      ? useTerrainBorderColor
+        ? getSvgHexBorderColor(hex)
+        : 'black'
+      : ''
   const { points } = get3HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -401,12 +419,19 @@ export const PdfCastleArchStraight3 = ({
 export const PdfMultiHex4 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = getPdfHexFillColor(hex)
-  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor =
+    PDF_BORDER_WIDTH > 0
+      ? useTerrainBorderColor
+        ? getSvgHexBorderColor(hex)
+        : 'black'
+      : ''
   const { points } = get4HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -427,12 +452,19 @@ export const PdfMultiHex4 = ({
 export const PdfMultiHex5 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = getPdfHexFillColor(hex)
-  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor =
+    PDF_BORDER_WIDTH > 0
+      ? useTerrainBorderColor
+        ? getSvgHexBorderColor(hex)
+        : 'black'
+      : ''
   const { points } = get5HexStraightSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -453,12 +485,19 @@ export const PdfMultiHex5 = ({
 export const PdfMultiHex6 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = getPdfHexFillColor(hex)
-  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor =
+    PDF_BORDER_WIDTH > 0
+      ? useTerrainBorderColor
+        ? getSvgHexBorderColor(hex)
+        : 'black'
+      : ''
   const { points } = get6HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -503,12 +542,19 @@ export const PdfMultiHexMarvel6 = ({
 export const PdfMultiHex7 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = getPdfHexFillColor(hex)
-  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor =
+    PDF_BORDER_WIDTH > 0
+      ? useTerrainBorderColor
+        ? getSvgHexBorderColor(hex)
+        : 'black'
+      : ''
   const { points } = get7HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -529,12 +575,19 @@ export const PdfMultiHex7 = ({
 export const PdfMultiHexWallWalk7 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = getPdfHexFillColor(hex)
-  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor =
+    PDF_BORDER_WIDTH > 0
+      ? useTerrainBorderColor
+        ? getSvgHexBorderColor(hex)
+        : 'black'
+      : ''
   const { points } = get7HexWallWalkSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -555,12 +608,19 @@ export const PdfMultiHexWallWalk7 = ({
 export const PdfMultiHexWallWalk9 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = getPdfHexFillColor(hex)
-  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor =
+    PDF_BORDER_WIDTH > 0
+      ? useTerrainBorderColor
+        ? getSvgHexBorderColor(hex)
+        : 'black'
+      : ''
   const { points } = get9HexWallWalkSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -581,12 +641,19 @@ export const PdfMultiHexWallWalk9 = ({
 export const PdfMultiHex24 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = getPdfHexFillColor(hex)
-  const borderColor = PDF_BORDER_WIDTH > 0 ? getSvgHexBorderColor(hex) : ''
+  const borderColor =
+    PDF_BORDER_WIDTH > 0
+      ? useTerrainBorderColor
+        ? getSvgHexBorderColor(hex)
+        : 'black'
+      : ''
   const { points } = get24HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,

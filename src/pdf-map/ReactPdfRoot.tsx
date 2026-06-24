@@ -35,6 +35,11 @@ export function ReactPdfRoot() {
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
   const isShowPDFInventory = useBoundStore((s) => s.isShowPDFInventory)
+  const isPdfColorBorders = useBoundStore((s) => s.isPdfColorBorders)
+  const isShowPdfOverlayLayer = useBoundStore((s) => s.isShowPdfOverlayLayer)
+  const isShowPdfOverlayOnPlacedLevel = useBoundStore(
+    (s) => s.isShowPdfOverlayOnPlacedLevel,
+  )
   const mapNotes = hexMap?.mapNotes ?? ''
   const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
   const isMobile = useMediaQuery('(max-width:800px)')
@@ -57,6 +62,9 @@ export function ReactPdfRoot() {
             <PdfMapLevels6PerPage
               boardHexes={boardHexes}
               boardPieces={boardPieces}
+              isPdfColorBorders={isPdfColorBorders}
+              isShowPdfOverlayLayer={isShowPdfOverlayLayer}
+              isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
             >
               <MapPortraitHeader
                 hexMap={hexMap}

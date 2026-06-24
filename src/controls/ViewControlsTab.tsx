@@ -280,10 +280,39 @@ const PdfPreferencesSwitchForm = () => {
   const toggleIsShowPDFInventory = useBoundStore(
     (s) => s.toggleIsShowPDFInventory,
   )
+  const isPdfColorBorders = useBoundStore((s) => s.isPdfColorBorders)
+  const toggleIsPdfColorBorders = useBoundStore(
+    (s) => s.toggleIsPdfColorBorders,
+  )
+  const isShowPdfOverlayLayer = useBoundStore((s) => s.isShowPdfOverlayLayer)
+  const toggleIsShowPdfOverlayLayer = useBoundStore(
+    (s) => s.toggleIsShowPdfOverlayLayer,
+  )
+  const isShowPdfOverlayOnPlacedLevel = useBoundStore(
+    (s) => s.isShowPdfOverlayOnPlacedLevel,
+  )
+  const toggleIsShowPdfOverlayOnPlacedLevel = useBoundStore(
+    (s) => s.toggleIsShowPdfOverlayOnPlacedLevel,
+  )
   const handleChangeShowPDFInventory = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIsShowPDFInventory(event.target.checked)
+  }
+  const handleChangePdfColorBorders = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsPdfColorBorders(event.target.checked)
+  }
+  const handleChangeShowPdfOverlayLayer = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShowPdfOverlayLayer(event.target.checked)
+  }
+  const handleChangeShowPdfOverlayOnPlacedLevel = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShowPdfOverlayOnPlacedLevel(event.target.checked)
   }
 
   return (
@@ -300,6 +329,39 @@ const PdfPreferencesSwitchForm = () => {
           }
           label="PDF piece inventory"
           title="Enable/disable a piece inventory on the PDF build instructions"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isPdfColorBorders}
+              onChange={handleChangePdfColorBorders}
+            />
+          }
+          label="PDF Color Borders"
+          title="Enable/disable hex-count based color borders for land tiles in PDF output"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShowPdfOverlayLayer}
+              onChange={handleChangeShowPdfOverlayLayer}
+            />
+          }
+          label="Show Overlay Layer"
+          title="Enable/disable a dedicated PDF overlay layer for start zones and glyphs"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShowPdfOverlayOnPlacedLevel}
+              onChange={handleChangeShowPdfOverlayOnPlacedLevel}
+            />
+          }
+          label="Show StartZones/Glyphs on placed level"
+          title="Enable/disable rendering start zones and glyphs on their placed map levels in PDF"
         />
       </FormGroup>
     </FormControl>
