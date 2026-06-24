@@ -10,11 +10,15 @@ import {
   Typography,
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
-import { parse, unparse } from 'papaparse'
+import { unparse } from 'papaparse'
 import { piecesSoFar } from '../data/pieces'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
-import { getTerrainSetsForEra, type TerrainSet } from '../utils/terrain-set-utils'
+import {
+  getTerrainSetsForEra,
+  type TerrainSet,
+} from '../utils/terrain-set-utils.ts'
+import { parsePieceInventoryFile } from '../utils/piece-inventory'
 
 const InventoryForm = () => {
   const { enqueueSnackbar } = useSnackbar()
@@ -137,71 +141,36 @@ const InventoryForm = () => {
     })
   }
 
-  const readCountCell = (row: Record<string, string>): number => {
-    const countValue =
-      row.Count ??
-      row.count ??
-      row.Quantity ??
-      row.quantity ??
-      row.Qty ??
-      row.qty ??
-      '0'
-    const parsed = Number.parseInt(`${countValue ?? ''}`, 10)
-    return Number.isNaN(parsed) ? 0 : Math.max(0, parsed)
-  }
-
-  const readPieceIDCell = (row: Record<string, string>): string => {
-    return `${row.ID ?? row.id ?? row.PieceID ?? row.pieceID ?? row['Piece ID'] ?? ''
-      }`.trim()
-  }
-
-  const handleInventoryFileImport = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleInventoryFileImport = async (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0]
     if (!file) {
       return
     }
 
-    parse<Record<string, string>>(file, {
-      header: true,
-      delimiter: '',
-      skipEmptyLines: 'greedy',
-      complete: (results) => {
-        const nextInventory = { ...blankPieceInventory }
-        let importedRows = 0
+    try {
+      const { inventory, importedRows } = await parsePieceInventoryFile(file)
 
-        for (const row of results.data) {
-          const pieceID = readPieceIDCell(row)
-          if (
-            !pieceID ||
-            !Object.prototype.hasOwnProperty.call(blankPieceInventory, pieceID)
-          ) {
-            continue
-          }
-          nextInventory[pieceID] = readCountCell(row)
-          importedRows += 1
-        }
-
-        if (importedRows === 0) {
-          enqueueSnackbar({
-            message: 'No valid inventory rows found in file',
-            variant: 'warning',
-          })
-          return
-        }
-
-        setPieceInventory(nextInventory)
+      if (importedRows === 0) {
         enqueueSnackbar({
-          message: `Loaded personal inventory from ${file.name}`,
-          variant: 'success',
+          message: 'No valid inventory rows found in file',
+          variant: 'warning',
         })
-      },
-      error: (error) => {
-        enqueueSnackbar({
-          message: `Failed to load inventory file: ${error.message}`,
-          variant: 'error',
-        })
-      },
-    })
+        return
+      }
+
+      setPieceInventory(inventory)
+      enqueueSnackbar({
+        message: `Loaded personal inventory from ${file.name}`,
+        variant: 'success',
+      })
+    } catch (error) {
+      enqueueSnackbar({
+        message: `Failed to load inventory file: ${(error as Error).message}`,
+        variant: 'error',
+      })
+    }
 
     event.target.value = ''
   }

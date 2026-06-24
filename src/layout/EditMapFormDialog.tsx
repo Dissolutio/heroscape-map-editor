@@ -21,6 +21,12 @@ export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
   const mapName = useBoundStore((state) => state.hexMap.name)
   const changeSetsUsed = useBoundStore((state) => state.changeSetsUsed)
+  const terrainConstraintSource = useBoundStore(
+    (state) => state.terrainConstraintSource,
+  )
+  const syncTerrainConstraintPenMode = useBoundStore(
+    (state) => state.syncTerrainConstraintPenMode,
+  )
 
   const changeMapName = useBoundStore((state) => state.changeMapName)
   const authorName = useBoundStore((state) => state.hexMap.author)
@@ -60,11 +66,13 @@ export default function EditMapFormDialog() {
       })
       return newSetsUsed
     }
-    const newSetsUsed = getSetsUsedFormData()
+    const newSetsUsed =
+      terrainConstraintSource === 'setsUsed' ? getSetsUsedFormData() : []
     changeMapName(newMapName)
     changeAuthorName(newAuthorName)
     changeMapNotes(newMapNotes)
     changeSetsUsed(newSetsUsed)
+    syncTerrainConstraintPenMode()
     addMapPortraitBase64(imgSrc)
     enqueueSnackbar({
       message: 'Updated Map',

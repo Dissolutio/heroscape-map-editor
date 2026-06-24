@@ -2,7 +2,12 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { AppState } from './store'
-import type { BoardHex, BoardPiece, PieceInventory } from '../types'
+import type {
+  BoardHex,
+  BoardPiece,
+  PieceInventory,
+  TerrainConstraintSource,
+} from '../types'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 
@@ -62,6 +67,15 @@ export interface UISlice {
   toggleIsOrthoCam: (b: boolean) => void
   userPieceInventory: PieceInventory
   updateUserPieceInventory: (n: PieceInventory) => void
+  terrainConstraintSource: TerrainConstraintSource
+  customConstraintInventory: PieceInventory
+  customConstraintInventoryFileName: string
+  updateTerrainConstraintSource: (source: TerrainConstraintSource) => void
+  updateCustomConstraintInventory: (args: {
+    inventory: PieceInventory
+    fileName: string
+  }) => void
+  clearCustomConstraintInventory: () => void
 
   focusedPieceUID: string | null
   setFocusedPieceUID: (uid: string | null) => void
@@ -415,6 +429,29 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.userPieceInventory = n
+      }),
+    ),
+  terrainConstraintSource: 'setsUsed',
+  customConstraintInventory: blankPieceInventory,
+  customConstraintInventoryFileName: '',
+  updateTerrainConstraintSource: (source: TerrainConstraintSource) =>
+    set(
+      produce((s) => {
+        s.terrainConstraintSource = source
+      }),
+    ),
+  updateCustomConstraintInventory: ({ inventory, fileName }) =>
+    set(
+      produce((s) => {
+        s.customConstraintInventory = inventory
+        s.customConstraintInventoryFileName = fileName
+      }),
+    ),
+  clearCustomConstraintInventory: () =>
+    set(
+      produce((s) => {
+        s.customConstraintInventory = blankPieceInventory
+        s.customConstraintInventoryFileName = ''
       }),
     ),
 })

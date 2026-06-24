@@ -79,6 +79,12 @@ export default function CreateMapFormDialog(props: Props) {
   const [mapLength, setMapLength] = React.useState(20)
   const [mapSize, setMapSize] = React.useState(10)
   const loadMap = useBoundStore((state) => state.loadMap)
+  const terrainConstraintSource = useBoundStore(
+    (state) => state.terrainConstraintSource,
+  )
+  const syncTerrainConstraintPenMode = useBoundStore(
+    (state) => state.syncTerrainConstraintPenMode,
+  )
   // const { clear: clearUndoHistory } = useBoundStore.temporal.getState()
   const toggleIsNewMapDialogOpen = useBoundStore(
     (state) => state.toggleIsNewMapDialogOpen,
@@ -115,18 +121,19 @@ export default function CreateMapFormDialog(props: Props) {
       })
       return newSetsUsed
     }
-    const newSetsUsed = getSetsUsedFormData()
+    const newSetsUsed =
+      terrainConstraintSource === 'setsUsed' ? getSetsUsedFormData() : []
     const blankMap =
       mapShape === 'rectangle'
         ? makeRectangleScenario({
-            mapName,
-            width: mapWidth,
-            length: mapLength,
-          })
+          mapName,
+          width: mapWidth,
+          length: mapLength,
+        })
         : makeHexagonScenario({
-            mapName,
-            size: mapSize,
-          })
+          mapName,
+          size: mapSize,
+        })
     const editedMapState = {
       ...blankMap,
       hexMap: {
@@ -135,6 +142,7 @@ export default function CreateMapFormDialog(props: Props) {
       },
     }
     loadMap(editedMapState)
+    syncTerrainConstraintPenMode()
     changeMapNotes('')
     addMapPortraitBase64('')
     // clearUndoHistory is commented above, imported

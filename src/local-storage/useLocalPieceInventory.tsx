@@ -1,26 +1,40 @@
+import { useEffect } from 'react'
 import { useLocalStorage } from './useLocalStorage'
 import type { PieceInventory } from '../types'
 import { LS_KEYS } from './keys'
 import { blankPieceInventory } from '../inventory/blankInventory'
-
-const normalizePieceInventory = (
-  maybeInventory?: PieceInventory,
-): PieceInventory => {
-  const normalized: PieceInventory = { ...blankPieceInventory }
-  for (const pieceID of Object.keys(blankPieceInventory)) {
-    const value = maybeInventory?.[pieceID]
-    const count = Number.isFinite(value) ? Number(value) : 0
-    normalized[pieceID] = Math.max(0, Math.floor(count))
-  }
-  return normalized
-}
+import { normalizePieceInventory } from '../utils/piece-inventory'
+import useBoundStore from '../store/store'
 
 export const useLocalPieceInventory = () => {
   const [storedPieceInventory, setStoredPieceInventory] = useLocalStorage(
     LS_KEYS.pieceInventory,
     blankPieceInventory,
   )
+  const updateUserPieceInventory = useBoundStore(
+    (state) => state.updateUserPieceInventory,
+  )
+  const syncTerrainConstraintPenMode = useBoundStore(
+    (state) => state.syncTerrainConstraintPenMode,
+  )
+  const terrainConstraintSource = useBoundStore(
+    (state) => state.terrainConstraintSource,
+  )
   const pieceInventory = normalizePieceInventory(storedPieceInventory)
+
+  // Keep the zustand copy in sync so terrain-constraint consumers can read the
+  // user's inventory without each component touching localStorage directly.
+  useEffect(() => {
+    updateUserPieceInventory(pieceInventory)
+    if (terrainConstraintSource === 'personalInventory') {
+      syncTerrainConstraintPenMode()
+    }
+  }, [
+    pieceInventory,
+    syncTerrainConstraintPenMode,
+    terrainConstraintSource,
+    updateUserPieceInventory,
+  ])
 
   const setPieceInventory = (nextPieceInventory: PieceInventory) => {
     setStoredPieceInventory(normalizePieceInventory(nextPieceInventory))

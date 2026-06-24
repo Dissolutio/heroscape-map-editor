@@ -15,10 +15,13 @@ import { piecesSoFar } from '../data/pieces'
 import { yellow } from '@mui/material/colors'
 import {
   countPiecesUsedWithLaurStacking,
-  getCombinedInventory,
   type LaurReconcileDetail,
   reconcileLaurLegacyToStackableUsage,
 } from './laurInventoryReconcile'
+import {
+  getEffectiveTerrainConstraintInventory,
+  hasActiveTerrainConstraints,
+} from '../utils/terrain-constraints'
 
 const ViewMapInventoryDialog = () => {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -32,11 +35,29 @@ const ViewMapInventoryDialog = () => {
 
   const hexMap = useBoundStore((state) => state.hexMap)
   const boardPieces = useBoundStore((state) => state.boardPieces)
+  const terrainConstraintSource = useBoundStore(
+    (state) => state.terrainConstraintSource,
+  )
+  const customConstraintInventory = useBoundStore(
+    (state) => state.customConstraintInventory,
+  )
+  const customConstraintInventoryFileName = useBoundStore(
+    (state) => state.customConstraintInventoryFileName,
+  )
+  const userPieceInventory = useBoundStore((state) => state.userPieceInventory)
 
-  const combinedInventory = getCombinedInventory(hexMap?.setsUsed ?? [])
+  const combinedInventory = getEffectiveTerrainConstraintInventory({
+    setsUsed: hexMap?.setsUsed ?? [],
+    terrainConstraintSource,
+    customConstraintInventory,
+    userPieceInventory,
+  })
   const piecesUsedBeforeReconcile = countPiecesUsedWithLaurStacking(boardPieces)
-  const hasConstraints =
-    Array.isArray(hexMap?.setsUsed) && hexMap.setsUsed.length > 0
+  const hasConstraints = hasActiveTerrainConstraints({
+    setsUsed: hexMap?.setsUsed ?? [],
+    terrainConstraintSource,
+    customConstraintInventoryFileName,
+  })
 
   const { reconciledUsedInventory, conversionsByStackableID } = hasConstraints
     ? reconcileLaurLegacyToStackableUsage({
@@ -150,7 +171,7 @@ const ViewMapInventoryDialog = () => {
                   )}
                   {isNotAllowed && !skipAlert && (
                     <span style={{ marginLeft: 8, fontWeight: 'bold' }}>
-                      (Not allowed by sets)
+                      (Not allowed by constraints)
                     </span>
                   )}
                 </Box>
