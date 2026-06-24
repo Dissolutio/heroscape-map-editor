@@ -28,6 +28,12 @@ const isLaurSquarePillarPiece = (pieceID: string) =>
 const isLaurTrianglePillarPiece = (pieceID: string) =>
   pieceID === Pieces.laurWallTrianglePillar
 
+const isLaurShortPiece = (pieceID: string) =>
+  pieceID === Pieces.laurWallShort || pieceID === Pieces.laurWallShortStackable
+
+const isLaurLongPiece = (pieceID: string) =>
+  pieceID === Pieces.laurWallLong || pieceID === Pieces.laurWallLongStackable
+
 const getBoardPieceCoordAltitudeKey = (piece: BoardPiece) => {
   const { q, r, s } = piece.pieceCoords
   return `${q}~${r}~${s}~${piece.altitude}`
@@ -50,6 +56,14 @@ export const countPiecesUsedWithLaurStacking = (
   boardPieces: BoardPiece[],
 ): Record<string, number> => {
   const pillarCoordAltitudes = new Set<string>()
+  const shortCoordRotationAltitudes = new Set<string>()
+  const longCoordRotationAltitudes = new Set<string>()
+
+  const getCoordRotationAltitudeKey = (piece: BoardPiece) => {
+    const { q, r, s } = piece.pieceCoords
+    return `${q}~${r}~${s}~${piece.rotation}~${piece.altitude}`
+  }
+
   for (const piece of boardPieces) {
     if (
       isLaurSquarePillarPiece(piece.inventoryID) ||
@@ -57,11 +71,28 @@ export const countPiecesUsedWithLaurStacking = (
     ) {
       pillarCoordAltitudes.add(getBoardPieceCoordAltitudeKey(piece))
     }
+    if (isLaurShortPiece(piece.inventoryID)) {
+      shortCoordRotationAltitudes.add(getCoordRotationAltitudeKey(piece))
+    }
+    if (isLaurLongPiece(piece.inventoryID)) {
+      longCoordRotationAltitudes.add(getCoordRotationAltitudeKey(piece))
+    }
   }
 
   const pieceHasSupportingPillarBelow = (piece: BoardPiece) => {
     const belowKey = `${piece.pieceCoords.q}~${piece.pieceCoords.r}~${piece.pieceCoords.s}~${piece.altitude - LAUR_STACK_ALTITUDE_DELTA}`
     return pillarCoordAltitudes.has(belowKey)
+  }
+
+  const pieceHasSameAddonTypeAboveOrBelow = (
+    piece: BoardPiece,
+    lineKeys: Set<string>,
+  ) => {
+    const { q, r, s } = piece.pieceCoords
+    const rotation = piece.rotation
+    const aboveKey = `${q}~${r}~${s}~${rotation}~${piece.altitude + LAUR_STACK_ALTITUDE_DELTA}`
+    const belowKey = `${q}~${r}~${s}~${rotation}~${piece.altitude - LAUR_STACK_ALTITUDE_DELTA}`
+    return lineKeys.has(aboveKey) || lineKeys.has(belowKey)
   }
 
   const used: Record<string, number> = {}
@@ -79,14 +110,22 @@ export const countPiecesUsedWithLaurStacking = (
 
     if (
       inventoryID === Pieces.laurWallShort &&
-      pieceHasSupportingPillarBelow(boardPiece)
+      (pieceHasSupportingPillarBelow(boardPiece) ||
+        pieceHasSameAddonTypeAboveOrBelow(
+          boardPiece,
+          shortCoordRotationAltitudes,
+        ))
     ) {
       remappedInventoryID = Pieces.laurWallShortStackable
     }
 
     if (
       inventoryID === Pieces.laurWallLong &&
-      pieceHasSupportingPillarBelow(boardPiece)
+      (pieceHasSupportingPillarBelow(boardPiece) ||
+        pieceHasSameAddonTypeAboveOrBelow(
+          boardPiece,
+          longCoordRotationAltitudes,
+        ))
     ) {
       remappedInventoryID = Pieces.laurWallLongStackable
     }
