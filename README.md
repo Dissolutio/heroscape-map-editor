@@ -124,7 +124,8 @@ To add new terrain pieces, follow these steps:
 By following these steps, you can expand the application to support new releases of Heroscape terrain.
 
 LATEST UPDATE NOTES:
-- FEATURE: Pieces Grid, a table of all your map's pieces, with conflicted pieces displayed at the top when you open it (from the Build Tab click on "View Pieces Grid"). It appears red when there are conflicting pieces detected.
-- UI: Selector now says "Pen Mode" instead of "Terrain"
-- UI: Selector only shows terrains that exist in current map's terrain constraints (only building with Snowfields? Only see snow, ice, and snow trees)
-- TERRAIN: snowy evergreen trees are now in the app. They use the same model as regular evergreen trees plus a shader, but this may get updated in the future. You can place them if building without constraints or with SnowFields of Valhalla.
+- PERSONAL INVENTORY: You can now edit your personal inventory of tiles in the Edit tab. You can download the inventory as a `.csv` or `.tsv` file, or upload an inventory file. So you can ask someone to build a map, send them your inventory file, and they can use that file as terrain constraints in Hexoscape. So, setting terrain constraints has an extra step, but you can build with your personal inventory now.
+- PDF: 3 new toggles to change your output: Show Color Borders (7-hex are purple outline, etc.), Show Overlay Layer (glyphs/startzones as last level), Show on Placed Level (show glyphs/startzones on the level they're actually placed, too)
+- LAUR WALL INVENTORY: When you build laur wall stuff on upper pillar levels, inventory requires stackable pieces. When you build on the bottom pillar level, inventory will exhaust non-stackable pieces before using stackable ones.
+- BUGFIX: No more camera reset when you place a named glyph or turn on hex height display. (3d text was buggy)
+- BUGFIX: If an action causes piece conflicts, then Undoing that action will now remove those conflicts. (conflicts were persisting even after Undo)
