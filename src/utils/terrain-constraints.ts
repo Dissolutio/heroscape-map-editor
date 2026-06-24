@@ -82,7 +82,9 @@ export function getAvailableLandPrefixesForInventory(
 }
 
 export function getAvailableLandPrefixesForSets(setsUsed?: string[]) {
-  return getAvailableLandPrefixesForInventory(getSetConstrainedInventory(setsUsed))
+  return getAvailableLandPrefixesForInventory(
+    getSetConstrainedInventory(setsUsed),
+  )
 }
 
 export function getConstrainedLandInventoryByTerrainAndSizeFromInventory(

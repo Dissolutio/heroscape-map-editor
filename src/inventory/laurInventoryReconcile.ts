@@ -7,19 +7,19 @@ export const RECONCILABLE_LAUR_PIECE_PAIRS: Array<{
   legacyID: string
   stackableID: string
 }> = [
-    {
-      legacyID: Pieces.laurWallSquarePillar,
-      stackableID: Pieces.laurWallPillarStackable,
-    },
-    {
-      legacyID: Pieces.laurWallShort,
-      stackableID: Pieces.laurWallShortStackable,
-    },
-    {
-      legacyID: Pieces.laurWallLong,
-      stackableID: Pieces.laurWallLongStackable,
-    },
-  ]
+  {
+    legacyID: Pieces.laurWallSquarePillar,
+    stackableID: Pieces.laurWallPillarStackable,
+  },
+  {
+    legacyID: Pieces.laurWallShort,
+    stackableID: Pieces.laurWallShortStackable,
+  },
+  {
+    legacyID: Pieces.laurWallLong,
+    stackableID: Pieces.laurWallLongStackable,
+  },
+]
 
 const isLaurSquarePillarPiece = (pieceID: string) =>
   pieceID === Pieces.laurWallSquarePillar ||
@@ -33,7 +33,9 @@ const getBoardPieceCoordAltitudeKey = (piece: BoardPiece) => {
   return `${q}~${r}~${s}~${piece.altitude}`
 }
 
-export const getCombinedInventory = (setsUsed: string[]): Record<string, number> => {
+export const getCombinedInventory = (
+  setsUsed: string[],
+): Record<string, number> => {
   const combined: Record<string, number> = {}
   for (const setID of setsUsed) {
     const set = terrainSetsByShortID[setID as keyof typeof terrainSetsByShortID]

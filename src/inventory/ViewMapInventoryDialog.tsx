@@ -61,13 +61,13 @@ const ViewMapInventoryDialog = () => {
 
   const { reconciledUsedInventory, conversionsByStackableID } = hasConstraints
     ? reconcileLaurLegacyToStackableUsage({
-      usedInventory: piecesUsedBeforeReconcile,
-      availableInventory: combinedInventory,
-    })
+        usedInventory: piecesUsedBeforeReconcile,
+        availableInventory: combinedInventory,
+      })
     : {
-      reconciledUsedInventory: piecesUsedBeforeReconcile,
-      conversionsByStackableID: {} as Record<string, LaurReconcileDetail>,
-    }
+        reconciledUsedInventory: piecesUsedBeforeReconcile,
+        conversionsByStackableID: {} as Record<string, LaurReconcileDetail>,
+      }
 
   const piecesUsed = reconciledUsedInventory
 

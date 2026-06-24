@@ -175,7 +175,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   recomputeConflicts: () =>
     set((state) =>
       produce(state, (draft) => {
-        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(draft.boardPieces)
+        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
+          draft.boardPieces,
+        )
       }),
     ),
   paintTile: ({
@@ -439,8 +441,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           draft.terrainConstraintSource === 'setsUsed'
             ? getAvailableLandPrefixesForSets(val).has(draft.lastPenMode)
             : getAvailableLandPrefixesForInventory(constrainedInventory).has(
-              draft.lastPenMode,
-            )
+                draft.lastPenMode,
+              )
         if (!isCurrentLastPenModeAvailable) {
           draft.lastPenMode = constrainedPenMode
           draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
@@ -456,9 +458,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           customConstraintInventory: draft.customConstraintInventory,
           userPieceInventory: draft.userPieceInventory,
         })
-        const constrainedPenMode = getPreferredConstrainedPenModeFromInventory(
-          constrainedInventory,
-        )
+        const constrainedPenMode =
+          getPreferredConstrainedPenModeFromInventory(constrainedInventory)
         if (!constrainedPenMode) {
           return
         }
@@ -503,8 +504,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         const constrainedPenMode =
           (draft.terrainConstraintSource === 'setsUsed'
             ? getPreferredConstrainedPenMode(mapState.hexMap?.setsUsed)
-            : getPreferredConstrainedPenModeFromInventory(constrainedInventory)) ??
-          PiecePrefixes.grass
+            : getPreferredConstrainedPenModeFromInventory(
+                constrainedInventory,
+              )) ?? PiecePrefixes.grass
         draft.lastPenMode = constrainedPenMode
         draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
       })

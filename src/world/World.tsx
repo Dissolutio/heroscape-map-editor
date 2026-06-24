@@ -41,11 +41,7 @@ function BillboardWarmup() {
   // before user-facing billboards are toggled on.
   return (
     <Billboard position={[0, 0, 0]}>
-      <Text
-        font="/fonts/Inter_18pt-Bold.ttf"
-        fontSize={0.14}
-        color={'white'}
-      >
+      <Text font="/fonts/Inter_18pt-Bold.ttf" fontSize={0.14} color={'white'}>
         .
       </Text>
     </Billboard>

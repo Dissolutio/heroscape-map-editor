@@ -271,10 +271,10 @@ export function ConvertTerrainQuickSelect({
         ...sx,
         '& .MuiOutlinedInput-root': prominent
           ? {
-            minHeight: 44,
-            borderRadius: 1.5,
-            backgroundColor: 'background.paper',
-          }
+              minHeight: 44,
+              borderRadius: 1.5,
+              backgroundColor: 'background.paper',
+            }
           : undefined,
       }}
     >

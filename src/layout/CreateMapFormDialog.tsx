@@ -126,14 +126,14 @@ export default function CreateMapFormDialog(props: Props) {
     const blankMap =
       mapShape === 'rectangle'
         ? makeRectangleScenario({
-          mapName,
-          width: mapWidth,
-          length: mapLength,
-        })
+            mapName,
+            width: mapWidth,
+            length: mapLength,
+          })
         : makeHexagonScenario({
-          mapName,
-          size: mapSize,
-        })
+            mapName,
+            size: mapSize,
+          })
     const editedMapState = {
       ...blankMap,
       hexMap: {

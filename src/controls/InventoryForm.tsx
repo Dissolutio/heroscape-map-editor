@@ -54,14 +54,13 @@ const InventoryForm = () => {
     [],
   )
 
-  const classicTerrainSets = useMemo(
-    () => getTerrainSetsForEra('classic'),
-    [],
-  )
+  const classicTerrainSets = useMemo(() => getTerrainSetsForEra('classic'), [])
 
   // Convert a set inventory into readable tooltip lines so users can inspect
   // exactly what will be added or removed before clicking a button.
-  const getTerrainContentsText = (terrainSetInventory: Record<string, number>) => {
+  const getTerrainContentsText = (
+    terrainSetInventory: Record<string, number>,
+  ) => {
     return Object.entries(terrainSetInventory)
       .filter(([, count]) => count > 0)
       .sort(([pieceIDA], [pieceIDB]) => {
@@ -217,12 +216,15 @@ const InventoryForm = () => {
         </Stack>
 
         <Typography variant="body2" color="text.secondary">
-          Tracked piece types: {inventoryPieceIDs.length} | Total pieces: {totalPieces}
+          Tracked piece types: {inventoryPieceIDs.length} | Total pieces:{' '}
+          {totalPieces}
         </Typography>
 
         <Divider />
 
-        <Typography variant="subtitle1">Add or Remove Full Terrain Sets</Typography>
+        <Typography variant="subtitle1">
+          Add or Remove Full Terrain Sets
+        </Typography>
         <Typography variant="subtitle2" color="text.secondary">
           Contemporary
         </Typography>
