@@ -77,7 +77,9 @@ export const PdfMapLevels6PerPage = ({
                       length={length}
                       viewingLevel={group.altitude}
                       isPdfColorBorders={isPdfColorBorders}
-                      isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+                      isShowPdfOverlayOnPlacedLevel={
+                        isShowPdfOverlayOnPlacedLevel
+                      }
                     />
                   </RowWrapper>
                 ) : null,
@@ -101,7 +103,9 @@ export const PdfMapLevels6PerPage = ({
                       length={length}
                       viewingLevel={group.altitude}
                       isPdfColorBorders={isPdfColorBorders}
-                      isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+                      isShowPdfOverlayOnPlacedLevel={
+                        isShowPdfOverlayOnPlacedLevel
+                      }
                     />
                   </RowWrapper>
                 ) : null,

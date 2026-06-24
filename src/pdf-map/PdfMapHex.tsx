@@ -180,7 +180,7 @@ export const PdfMapHex = ({
           style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-        // {...pdfTextProps()}
+          // {...pdfTextProps()}
         >
           Y
         </Text>
@@ -199,7 +199,7 @@ export const PdfMapHex = ({
           style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-        // {...pdfTextProps()}
+          // {...pdfTextProps()}
         >
           M
         </Text>
@@ -218,7 +218,7 @@ export const PdfMapHex = ({
           opacity={
             isSubLevel
               ? // white text needs a little opacity boost
-              OPACITY_SUBLEVEL * 2
+                OPACITY_SUBLEVEL * 2
               : 1
           }
           style={pdfHexTextStyle}
@@ -336,7 +336,10 @@ export const PdfMapHex = ({
     hex.terrain === HexTerrain.glyphTreasure
   ) {
     const isPlacedLevelViewing = hex.altitude === viewingLevel
-    if (!isOverlayViewing && !(isShowPdfOverlayOnPlacedLevel && isPlacedLevelViewing)) {
+    if (
+      !isOverlayViewing &&
+      !(isShowPdfOverlayOnPlacedLevel && isPlacedLevelViewing)
+    ) {
       return null
     }
     const specialIsSubLevel = false
@@ -360,7 +363,10 @@ export const PdfMapHex = ({
   // Start Zones
   if (hex.terrain === HexTerrain.startZone) {
     const isPlacedLevelViewing = hex.altitude === viewingLevel
-    if (!isOverlayViewing && !(isShowPdfOverlayOnPlacedLevel && isPlacedLevelViewing)) {
+    if (
+      !isOverlayViewing &&
+      !(isShowPdfOverlayOnPlacedLevel && isPlacedLevelViewing)
+    ) {
       return null
     }
     const specialIsSubLevel = false

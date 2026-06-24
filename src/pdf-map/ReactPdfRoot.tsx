@@ -207,9 +207,9 @@ const PdfPieceInventory = ({
 
   const counts = hasConstraints
     ? reconcileLaurLegacyToStackableUsage({
-      usedInventory: countsBeforeReconcile,
-      availableInventory: combinedInventory,
-    }).reconciledUsedInventory
+        usedInventory: countsBeforeReconcile,
+        availableInventory: combinedInventory,
+      }).reconciledUsedInventory
     : countsBeforeReconcile
 
   const entries = Object.entries(counts)
