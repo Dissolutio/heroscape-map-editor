@@ -42,7 +42,7 @@ export function ReactPdfRoot() {
   )
   const mapNotes = hexMap?.mapNotes ?? ''
   const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
-  const isMobile = useMediaQuery('(max-width:800px)')
+  // const isMobile = useMediaQuery('(max-width:800px)')
   return (
     <div
       style={{
@@ -54,37 +54,33 @@ export function ReactPdfRoot() {
         margin: 0,
       }}
     >
-      {isMobile ? (
+      {/* {isMobile ? (
         <ReactPdfDownloadLink>Download</ReactPdfDownloadLink>
-      ) : (
-        <PDFViewer width={'100%'} height={'100%'}>
-          <Document title={hexMap.name}>
-            <PdfMapLevels6PerPage
-              boardHexes={boardHexes}
-              boardPieces={boardPieces}
-              isPdfColorBorders={isPdfColorBorders}
-              isShowPdfOverlayLayer={isShowPdfOverlayLayer}
-              isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
-            >
-              <MapPortraitHeader
-                hexMap={hexMap}
-                mapPortraitBase64={mapPortraitBase64}
-                mapNotes={mapNotes}
-              />
-              {/* <MyCustomHeaderHeroscapeLogo
+      ) : ( */}
+      <PDFViewer width={'100%'} height={'100%'}>
+        <Document title={hexMap.name}>
+          <PdfMapLevels6PerPage
+            boardHexes={boardHexes}
+            boardPieces={boardPieces}
+          >
+            <MapPortraitHeader
+              hexMap={hexMap}
+              mapPortraitBase64={mapPortraitBase64}
+              mapNotes={mapNotes}
+            />
+            {/* <MyCustomHeaderHeroscapeLogo
                 boardHexes={boardHexes}
                 boardPieces={boardPieces}
                 hexMap={hexMap}
                 /> */}
-            </PdfMapLevels6PerPage>
-            <PdfPieceInventory
-              isShowPDFInventory={isShowPDFInventory}
-              boardPieces={boardPieces}
-              setsUsed={hexMap.setsUsed ?? []}
-            />
-          </Document>
-        </PDFViewer>
-      )}
+          </PdfMapLevels6PerPage>
+          <PdfPieceInventory
+            isShowPDFInventory={isShowPDFInventory}
+            boardPieces={boardPieces}
+          />
+        </Document>
+      </PDFViewer>
+      {/* )} */}
     </div>
   )
 }

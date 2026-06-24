@@ -69,8 +69,8 @@ export function HeaderNav() {
   return (
     <AppBar
       position="static"
-      // sx={{ backgroundColor: 'var(--black)' }}
-      // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
+    // sx={{ backgroundColor: 'var(--black)' }}
+    // sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }} //drawer is 1200, appbar is 1100
     >
       <Toolbar>
         <Typography
@@ -130,7 +130,7 @@ export function HeaderNav() {
           {document.fullscreenElement ? <MdFullscreenExit /> : <MdFullscreen />}
         </IconButton>
         {/* MOBILE: No render pdf, does not seem to work on mobile, direct download on button click instead */}
-        {isSmallScreenWidth ? (
+        {/* {isSmallScreenWidth ? (
           <ReactPdfDownloadLink>
             <IconButton
               size={
@@ -148,23 +148,23 @@ export function HeaderNav() {
             </IconButton>
           </ReactPdfDownloadLink>
         ) : (
-          // NOT ON MOBILE: You can view the pdf, can download from that view
-          <IconButton
-            size={
-              isSmallScreenWidth
-                ? 'small'
-                : isMediumScreenWidth
-                  ? undefined
-                  : 'large'
-            }
-            title={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
-            aria-label={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
-            sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
-            onClick={() => toggleIsPdfOpen(!isPdfOpen)}
-          >
-            <FcPrint />
-          </IconButton>
-        )}
+          // NOT ON MOBILE: You can view the pdf, can download from that view */}
+        <IconButton
+          size={
+            isSmallScreenWidth
+              ? 'small'
+              : isMediumScreenWidth
+                ? undefined
+                : 'large'
+          }
+          title={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
+          aria-label={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
+          sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
+          onClick={() => toggleIsPdfOpen(!isPdfOpen)}
+        >
+          <FcPrint />
+        </IconButton>
+        {/* )} */}
         <IconButton
           size={
             isSmallScreenWidth
