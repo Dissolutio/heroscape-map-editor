@@ -280,10 +280,19 @@ const PdfPreferencesSwitchForm = () => {
   const toggleIsShowPDFInventory = useBoundStore(
     (s) => s.toggleIsShowPDFInventory,
   )
+  const isPdfColorBorders = useBoundStore((s) => s.isPdfColorBorders)
+  const toggleIsPdfColorBorders = useBoundStore(
+    (s) => s.toggleIsPdfColorBorders,
+  )
   const handleChangeShowPDFInventory = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIsShowPDFInventory(event.target.checked)
+  }
+  const handleChangePdfColorBorders = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsPdfColorBorders(event.target.checked)
   }
 
   return (
@@ -300,6 +309,17 @@ const PdfPreferencesSwitchForm = () => {
           }
           label="PDF piece inventory"
           title="Enable/disable a piece inventory on the PDF build instructions"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isPdfColorBorders}
+              onChange={handleChangePdfColorBorders}
+            />
+          }
+          label="PDF Color Borders"
+          title="Enable/disable hex-count based color borders for land tiles in PDF output"
         />
       </FormGroup>
     </FormControl>

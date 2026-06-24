@@ -16,10 +16,12 @@ import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 export const PdfMapLevels6PerPage = ({
   boardHexes,
   boardPieces,
+  isPdfColorBorders,
   children,
 }: PropsWithChildren<{
   boardHexes: BoardHexes
   boardPieces: BoardPiece[]
+  isPdfColorBorders: boolean
 }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesWithoutEmpties = keyBy(
@@ -66,6 +68,7 @@ export const PdfMapLevels6PerPage = ({
                       width={width}
                       length={length}
                       viewingLevel={group.altitude}
+                      isPdfColorBorders={isPdfColorBorders}
                     />
                   </RowWrapper>
                 ) : null,
@@ -88,6 +91,7 @@ export const PdfMapLevels6PerPage = ({
                       width={width}
                       length={length}
                       viewingLevel={group.altitude}
+                      isPdfColorBorders={isPdfColorBorders}
                     />
                   </RowWrapper>
                 ) : null,

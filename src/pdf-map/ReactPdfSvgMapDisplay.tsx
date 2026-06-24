@@ -11,6 +11,7 @@ type ReactPdfSvgMapDisplayProps = {
   boardHexesArr: BoardHex[]
   boardPiecesArr: DecodedPieceID[]
   viewingLevel: number
+  isPdfColorBorders: boolean
   chunk?: PdfMapAltitudeChunk
 }
 
@@ -20,6 +21,7 @@ export const ReactPdfSvgMapDisplay = ({
   boardHexesArr,
   boardPiecesArr,
   viewingLevel,
+  isPdfColorBorders,
   chunk,
 }: ReactPdfSvgMapDisplayProps) => {
   const emptyHexesArr = boardHexesArr.filter((hex) => hex.terrain === 'empty')
@@ -44,6 +46,7 @@ export const ReactPdfSvgMapDisplay = ({
             hex={hex}
             viewingLevel={viewingLevel}
             isOverlayViewing={isOverlayViewing}
+            isPdfColorBorders={isPdfColorBorders}
           />
         ))}
       {emptyHexesArr.map((hex) => (
@@ -52,6 +55,7 @@ export const ReactPdfSvgMapDisplay = ({
           hex={hex}
           viewingLevel={viewingLevel}
           isOverlayViewing={isOverlayViewing}
+          isPdfColorBorders={isPdfColorBorders}
         />
       ))}
       {nonEmptyHexesArr
@@ -62,6 +66,7 @@ export const ReactPdfSvgMapDisplay = ({
             hex={hex}
             viewingLevel={viewingLevel}
             isOverlayViewing={isOverlayViewing}
+            isPdfColorBorders={isPdfColorBorders}
           />
         ))}
       {boardPiecesArr

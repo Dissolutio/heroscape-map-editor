@@ -98,6 +98,8 @@ export interface UISlice {
   // PDF STATE
   isShowPDFInventory: boolean
   toggleIsShowPDFInventory: (b: boolean) => void
+  isPdfColorBorders: boolean
+  toggleIsPdfColorBorders: (b: boolean) => void
   // SVG STATE
   is2DOverlayLevelEnabled: boolean
   toggleIs2DOverlayLevelEnabled: (b: boolean) => void
@@ -326,6 +328,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isShowPDFInventory = b
+      }),
+    ),
+  isPdfColorBorders: false,
+  toggleIsPdfColorBorders: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isPdfColorBorders = b
       }),
     ),
   is2DOverlayLevelEnabled: true,
