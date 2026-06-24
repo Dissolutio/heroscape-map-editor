@@ -15,6 +15,11 @@ import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
 import type { BoardPiece, HexMap } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
 import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
+import {
+  countPiecesUsedWithLaurStacking,
+  getCombinedInventory,
+  reconcileLaurLegacyToStackableUsage,
+} from '../inventory/laurInventoryReconcile'
 
 Font.register({
   family: 'Inter',
@@ -67,6 +72,7 @@ export function ReactPdfRoot() {
             <PdfPieceInventory
               isShowPDFInventory={isShowPDFInventory}
               boardPieces={boardPieces}
+              setsUsed={hexMap.setsUsed ?? []}
             />
           </Document>
         </PDFViewer>
@@ -177,22 +183,26 @@ const MapPortraitHeader = ({
 const PdfPieceInventory = ({
   isShowPDFInventory,
   boardPieces,
+  setsUsed,
 }: {
   isShowPDFInventory: boolean
   boardPieces: BoardPiece[]
+  setsUsed: string[]
 }) => {
   if (!isShowPDFInventory || !boardPieces.length) {
     return null
   }
 
-  const counts: Record<string, number> = (boardPieces || []).reduce(
-    (acc, p) => {
-      const inventoryID = p.inventoryID
-      acc[inventoryID] = (acc[inventoryID] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>,
-  )
+  const countsBeforeReconcile = countPiecesUsedWithLaurStacking(boardPieces)
+  const hasConstraints = Array.isArray(setsUsed) && setsUsed.length > 0
+  const combinedInventory = getCombinedInventory(setsUsed)
+
+  const counts = hasConstraints
+    ? reconcileLaurLegacyToStackableUsage({
+        usedInventory: countsBeforeReconcile,
+        availableInventory: combinedInventory,
+      }).reconciledUsedInventory
+    : countsBeforeReconcile
 
   const entries = Object.entries(counts)
     .map(([id, count]) => ({ id, count, title: piecesSoFar[id]?.title ?? id }))

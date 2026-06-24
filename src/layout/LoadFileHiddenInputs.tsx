@@ -5,21 +5,16 @@ import { ROUTES } from '../ROUTES'
 import buildupVSFileMap, { buildupJsonFileMap } from '../data/buildupMap'
 import { readVirtualscapeMapFile } from '../data/readVirtualscapeMapFile'
 import useBoundStore from '../store/store'
-import type { MapFileState, PieceInventory } from '../types'
-import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
-import { parse } from 'papaparse'
-import { piecesSoFar } from '../data/pieces'
+import type { MapFileState } from '../types'
 import { normalizeBoardPieces } from '../utils/map-utils'
 import { Button } from '@mui/material'
 
-export const personalInventoryTsvUploadElementID = 'tsvinventoryupload'
 export const uploadElementID = 'upload'
 export const jsonUploadElementID = 'jsonupload'
 export const virtualScapeUploadElementID = 'vsupload'
 
 export const LoadFileHiddenInputs = () => {
   const loadMap = useBoundStore((state) => state.loadMap)
-  const inventory = useLocalPieceInventory()
   const [, navigate] = useLocation()
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const closeSnackbarIDAction: SnackbarAction = (snackbarId: SnackbarKey) => (
@@ -158,43 +153,6 @@ export const LoadFileHiddenInputs = () => {
     event.target.value = '' // Reset the input value, otherwise choosing same file again will do nothing
   }
 
-  const readPersonalInventoryTsvFile = async (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file: File | undefined = event?.target?.files?.[0]
-
-    if (!file) {
-      return
-    }
-
-    try {
-      parse<Record<string, string>>(file, {
-        delimiter: '\t',
-        header: true,
-        complete: (results) => {
-          const newPieceInventory: PieceInventory = {}
-          for (const datum of results.data) {
-            console.log('🚀 ~ results.data.forEach ~ datum:', datum)
-            if (datum.ID && piecesSoFar[datum.ID]) {
-              newPieceInventory[datum.ID] = Number.parseInt(datum.Count)
-            }
-          }
-          inventory.setPieceInventory(newPieceInventory)
-          console.log(
-            '🚀 ~ readPersonalInventoryTsvFile ~ inventory:',
-            inventory.pieceInventory,
-          )
-        },
-        error: (err) => {
-          console.error(err)
-        },
-      })
-    } catch (error: unknown) {
-      console.error(error)
-    }
-    event.target.value = '' // Reset the input value, otherwise choosing same file again will do nothing
-  }
-
   return (
     <>
       <input
@@ -217,13 +175,6 @@ export const LoadFileHiddenInputs = () => {
         style={hiddenStyle}
         accept=".hsc"
         onChange={readVSFile}
-      />
-      <input
-        id={personalInventoryTsvUploadElementID}
-        type="file"
-        style={hiddenStyle}
-        accept=".tsv"
-        onChange={readPersonalInventoryTsvFile}
       />
     </>
   )

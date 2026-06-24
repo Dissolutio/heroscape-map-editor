@@ -72,14 +72,26 @@ import {
   customGlyphs,
 } from '../data/glyphs'
 import {
+  getAvailableLandPrefixesForInventory,
   getAvailableLandPrefixesForSets,
-  getSetConstrainedInventory,
+  getEffectiveTerrainConstraintInventory,
+  hasActiveTerrainConstraints,
 } from '../utils/terrain-constraints'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
   const lastPenMode = useBoundStore((state) => state.lastPenMode)
   const setsUsed = useBoundStore((state) => state.hexMap.setsUsed)
+  const terrainConstraintSource = useBoundStore(
+    (state) => state.terrainConstraintSource,
+  )
+  const customConstraintInventory = useBoundStore(
+    (state) => state.customConstraintInventory,
+  )
+  const customConstraintInventoryFileName = useBoundStore(
+    (state) => state.customConstraintInventoryFileName,
+  )
+  const userPieceInventory = useBoundStore((state) => state.userPieceInventory)
   const togglePenMode = useBoundStore((state) => state.togglePenMode)
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
@@ -94,13 +106,29 @@ export default function PenModeControls() {
         ? hexTerrainColor.glyphTreasure
         : 'white'
   }
-  const setConstrainedInventory = useMemo(() => {
-    return getSetConstrainedInventory(setsUsed)
-  }, [setsUsed])
-  const hasSetConstraints = (setsUsed ?? []).length > 0
+  const constrainedInventory = useMemo(() => {
+    return getEffectiveTerrainConstraintInventory({
+      setsUsed,
+      terrainConstraintSource,
+      customConstraintInventory,
+      userPieceInventory,
+    })
+  }, [
+    customConstraintInventory,
+    setsUsed,
+    terrainConstraintSource,
+    userPieceInventory,
+  ])
+  const hasSetConstraints = hasActiveTerrainConstraints({
+    setsUsed,
+    terrainConstraintSource,
+    customConstraintInventoryFileName,
+  })
   const availableLandPrefixes = useMemo(() => {
-    return getAvailableLandPrefixesForSets(setsUsed)
-  }, [setsUsed])
+    return terrainConstraintSource === 'setsUsed'
+      ? getAvailableLandPrefixesForSets(setsUsed)
+      : getAvailableLandPrefixesForInventory(constrainedInventory)
+  }, [constrainedInventory, setsUsed, terrainConstraintSource])
   const alwaysVisiblePenValues = useMemo(
     () =>
       new Set<string>([
@@ -155,11 +183,11 @@ export default function PenModeControls() {
     if (!hasSetConstraints) {
       return true
     }
-    if ((setConstrainedInventory[pieceID] ?? 0) > 0) {
+    if ((constrainedInventory[pieceID] ?? 0) > 0) {
       return true
     }
     const aliases = filteredByAlias[pieceID] ?? []
-    return aliases.some((alias) => (setConstrainedInventory[alias] ?? 0) > 0)
+    return aliases.some((alias) => (constrainedInventory[alias] ?? 0) > 0)
   }
   const isPrefixAvailable = (prefix: string) => {
     if (!hasSetConstraints) {
@@ -903,7 +931,7 @@ export default function PenModeControls() {
                 }}
               >
                 Additional terrain and obstacle options are hidden because this
-                map has terrain set constraints.
+                map has active terrain constraints.
               </span>
               <Button
                 size="small"

@@ -15,7 +15,12 @@ import type { AppState } from './store'
 import { LS_KEYS } from '../local-storage/keys'
 import { normalizeBoardPieces } from '../utils/map-utils'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
-import { getAvailableLandPrefixesForSets } from '../utils/terrain-constraints'
+import {
+  getAvailableLandPrefixesForInventory,
+  getAvailableLandPrefixesForSets,
+  getEffectiveTerrainConstraintInventory,
+} from '../utils/terrain-constraints'
+import { normalizePieceInventory } from '../utils/piece-inventory'
 
 function computeConflictedPieceUIDs(boardPieces: MapState['boardPieces']) {
   const { conflictedPieceUIDs } = rebuildBoardStateFromPieces(boardPieces)
@@ -93,12 +98,28 @@ function getPreferredConstrainedPenMode(setsUsed?: string[]) {
   return preferred ?? [...availablePrefixes][0]
 }
 
+function getPreferredConstrainedPenModeFromInventory(
+  constrainedInventory?: Record<string, number>,
+) {
+  const availablePrefixes = getAvailableLandPrefixesForInventory(
+    normalizePieceInventory(constrainedInventory),
+  )
+  if (availablePrefixes.size === 0) {
+    return undefined
+  }
+  const preferred = preferredConstrainedPenModes.find((prefix) =>
+    availablePrefixes.has(prefix),
+  )
+  return preferred ?? [...availablePrefixes][0]
+}
+
 function getDefaultSizeForLandPrefix(prefix: string) {
   return getNewPieceSizeForPenMode(prefix, 'select', 0).newSize
 }
 
 export interface MapSlice extends MapState {
   conflictedPieceUIDs: string[]
+  recomputeConflicts: () => void
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
   unpaintTile: (uid: string) => void
   convertTerrainForPieces: (args: ConvertTerrainArgs) => number
@@ -107,6 +128,7 @@ export interface MapSlice extends MapState {
   addMapPortraitBase64: (pic: string) => void
   changeMapName: (val: string) => void
   changeSetsUsed: (val: string[]) => void
+  syncTerrainConstraintPenMode: () => void
   changeAuthorName: (val: string) => void
   changeMapNotes: (val: string) => void
 }
@@ -150,6 +172,14 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   },
   boardPieces: [],
   conflictedPieceUIDs: [],
+  recomputeConflicts: () =>
+    set((state) =>
+      produce(state, (draft) => {
+        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
+          draft.boardPieces,
+        )
+      }),
+    ),
   paintTile: ({
     piece,
     clickedHexCoords,
@@ -394,14 +424,50 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     set((state) => {
       return produce(state, (draft) => {
         draft.hexMap.setsUsed = val
-        const constrainedPenMode = getPreferredConstrainedPenMode(val)
+        const constrainedInventory = getEffectiveTerrainConstraintInventory({
+          setsUsed: val,
+          terrainConstraintSource: draft.terrainConstraintSource,
+          customConstraintInventory: draft.customConstraintInventory,
+          userPieceInventory: draft.userPieceInventory,
+        })
+        const constrainedPenMode =
+          draft.terrainConstraintSource === 'setsUsed'
+            ? getPreferredConstrainedPenMode(val)
+            : getPreferredConstrainedPenModeFromInventory(constrainedInventory)
         if (!constrainedPenMode) {
           return
         }
-        const isCurrentLastPenModeAvailable = getAvailableLandPrefixesForSets(
-          val,
-        ).has(draft.lastPenMode)
+        const isCurrentLastPenModeAvailable =
+          draft.terrainConstraintSource === 'setsUsed'
+            ? getAvailableLandPrefixesForSets(val).has(draft.lastPenMode)
+            : getAvailableLandPrefixesForInventory(constrainedInventory).has(
+                draft.lastPenMode,
+              )
         if (!isCurrentLastPenModeAvailable) {
+          draft.lastPenMode = constrainedPenMode
+          draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
+        }
+      })
+    }),
+  syncTerrainConstraintPenMode: () =>
+    set((state) => {
+      return produce(state, (draft) => {
+        const constrainedInventory = getEffectiveTerrainConstraintInventory({
+          setsUsed: draft.hexMap.setsUsed,
+          terrainConstraintSource: draft.terrainConstraintSource,
+          customConstraintInventory: draft.customConstraintInventory,
+          userPieceInventory: draft.userPieceInventory,
+        })
+        const constrainedPenMode =
+          getPreferredConstrainedPenModeFromInventory(constrainedInventory)
+        if (!constrainedPenMode) {
+          return
+        }
+        if (
+          !getAvailableLandPrefixesForInventory(constrainedInventory).has(
+            draft.lastPenMode,
+          )
+        ) {
           draft.lastPenMode = constrainedPenMode
           draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
         }
@@ -429,9 +495,18 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           mapState.boardPieces,
         )
+        const constrainedInventory = getEffectiveTerrainConstraintInventory({
+          setsUsed: mapState.hexMap?.setsUsed,
+          terrainConstraintSource: draft.terrainConstraintSource,
+          customConstraintInventory: draft.customConstraintInventory,
+          userPieceInventory: draft.userPieceInventory,
+        })
         const constrainedPenMode =
-          getPreferredConstrainedPenMode(mapState.hexMap?.setsUsed) ??
-          PiecePrefixes.grass
+          (draft.terrainConstraintSource === 'setsUsed'
+            ? getPreferredConstrainedPenMode(mapState.hexMap?.setsUsed)
+            : getPreferredConstrainedPenModeFromInventory(
+                constrainedInventory,
+              )) ?? PiecePrefixes.grass
         draft.lastPenMode = constrainedPenMode
         draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
       })

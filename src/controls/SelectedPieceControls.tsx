@@ -117,11 +117,11 @@ export function SelectedPieceControls({
 
   const tooltipLines = isMulti
     ? selectedBoardPieces
-      .map(
-        (bp) =>
-          `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
-      )
-      .join('\n')
+        .map(
+          (bp) =>
+            `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
+        )
+        .join('\n')
     : ''
 
   const altitudes = selectedBoardPieces.map((bp) => bp.altitude + 1)

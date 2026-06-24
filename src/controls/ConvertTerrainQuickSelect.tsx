@@ -14,7 +14,11 @@ import { useSnackbar } from 'notistack'
 import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
-import { getConstrainedLandInventoryByTerrainAndSize } from '../utils/terrain-constraints'
+import {
+  getConstrainedLandInventoryByTerrainAndSizeFromInventory,
+  getEffectiveTerrainConstraintInventory,
+  hasActiveTerrainConstraints,
+} from '../utils/terrain-constraints'
 
 function formatTerrainLabel(terrain: string) {
   if (!terrain) return 'Unknown'
@@ -44,6 +48,16 @@ export function ConvertTerrainQuickSelect({
 }) {
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const setsUsed = useBoundStore((s) => s.hexMap?.setsUsed ?? [])
+  const terrainConstraintSource = useBoundStore(
+    (s) => s.terrainConstraintSource,
+  )
+  const customConstraintInventory = useBoundStore(
+    (s) => s.customConstraintInventory,
+  )
+  const customConstraintInventoryFileName = useBoundStore(
+    (s) => s.customConstraintInventoryFileName,
+  )
+  const userPieceInventory = useBoundStore((s) => s.userPieceInventory)
   const toggleIsEditMapDialogOpen = useBoundStore(
     (s) => s.toggleIsEditMapDialogOpen,
   )
@@ -90,10 +104,32 @@ export function ConvertTerrainQuickSelect({
     [boardPieces, uidSet, isLandTerrain],
   )
 
-  const hasSetConstraints = setsUsed.length > 0
+  const constrainedInventory = useMemo(
+    () =>
+      getEffectiveTerrainConstraintInventory({
+        setsUsed,
+        terrainConstraintSource,
+        customConstraintInventory,
+        userPieceInventory,
+      }),
+    [
+      customConstraintInventory,
+      setsUsed,
+      terrainConstraintSource,
+      userPieceInventory,
+    ],
+  )
+  const hasSetConstraints = hasActiveTerrainConstraints({
+    setsUsed,
+    terrainConstraintSource,
+    customConstraintInventoryFileName,
+  })
   const constrainedLandInventoryByTerrainAndSize = useMemo(
-    () => getConstrainedLandInventoryByTerrainAndSize(setsUsed),
-    [setsUsed],
+    () =>
+      getConstrainedLandInventoryByTerrainAndSizeFromInventory(
+        constrainedInventory,
+      ),
+    [constrainedInventory],
   )
   const allTerrains = useMemo(
     () =>
@@ -166,7 +202,7 @@ export function ConvertTerrainQuickSelect({
       ? 'Some terrain options are unavailable for the selected pieces or hidden by terrain set constraints.'
       : hiddenForSelectionCount > 0
         ? 'Some terrain options are unavailable for the selected pieces.'
-        : 'Some terrain options are hidden because this map has terrain set constraints.'
+        : 'Some terrain options are hidden because this map has active terrain constraints.'
 
   const handleChange = (event: SelectChangeEvent) => {
     const targetTerrain = event.target.value

@@ -21,8 +21,12 @@ import {
 } from '../utils/map-utils'
 import PiecesGridDialog from './PiecesGridDialog'
 import { zoomToMap } from '../utils/camera-utils'
+import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 
 export default function HomePage() {
+  // Keep the persisted personal inventory mirrored into zustand so terrain
+  // constraints can use it even before the inventory dialog is opened.
+  useLocalPieceInventory()
   const cameraControlsRef = React.useRef<CameraControls>(null)
   const hexMap = useBoundStore((s) => s.hexMap)
   const boardHexes = useBoundStore((s) => s.boardHexes)

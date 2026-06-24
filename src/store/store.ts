@@ -22,6 +22,10 @@ const useBoundStore = create<AppState>()(
           return {
             boardPieces: state.boardPieces,
             hexMap: state.hexMap,
+            terrainConstraintSource: state.terrainConstraintSource,
+            customConstraintInventory: state.customConstraintInventory,
+            customConstraintInventoryFileName:
+              state.customConstraintInventoryFileName,
           }
         },
         skipHydration: true,

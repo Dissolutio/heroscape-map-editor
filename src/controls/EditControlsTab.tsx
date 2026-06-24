@@ -16,8 +16,10 @@ import {
 } from '../utils/constants'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { FcVlc } from 'react-icons/fc'
+import { FcRules } from 'react-icons/fc'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
+import { DIALOGS } from '../layout/dialogNames'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
@@ -59,6 +61,12 @@ export const EditControlsTab = () => {
 
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
+  )
+  const isPieceInventoryDialogOpen =
+    useBoundStore((state) => state.currentDialog) ===
+    DIALOGS.editPersonalInventory
+  const toggleIsPieceInventoryDialogOpen = useBoundStore(
+    (state) => state.toggleIsPieceInventoryDialogOpen,
   )
   const handleClickLogState = () => {
     console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
@@ -205,6 +213,14 @@ export const EditControlsTab = () => {
           primary={'Edit Map Details'}
           onClick={() => toggleIsEditMapDialogOpen(true)}
           icon={<FcVlc />}
+        />
+        <ControlTabsListItemButton
+          title={'Edit and save your personal terrain inventory'}
+          primary={'Edit Personal Inventory'}
+          onClick={() =>
+            toggleIsPieceInventoryDialogOpen(!isPieceInventoryDialogOpen)
+          }
+          icon={<FcRules />}
         />
       </List>
 

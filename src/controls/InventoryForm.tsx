@@ -1,151 +1,279 @@
-import { Button, Container } from '@mui/material'
-import * as pieceSets from '../data/inventories'
+import { type ChangeEvent, useMemo } from 'react'
+import {
+  Box,
+  Button,
+  Container,
+  Divider,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material'
+import { useSnackbar } from 'notistack'
+import { unparse } from 'papaparse'
 import { piecesSoFar } from '../data/pieces'
+import { blankPieceInventory } from '../inventory/blankInventory'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
+import {
+  getTerrainSetsForEra,
+  type TerrainSet,
+} from '../utils/terrain-set-utils.ts'
+import { parsePieceInventoryFile } from '../utils/piece-inventory'
 
 const InventoryForm = () => {
+  const { enqueueSnackbar } = useSnackbar()
   const {
     addSet,
     removeSet,
     clearPieceInventory,
     pieceInventory,
-    // setPieceInventory
+    setPieceInventory,
   } = useLocalPieceInventory()
+
+  const inventoryPieceIDs = useMemo(
+    () =>
+      Object.keys(blankPieceInventory).sort((a, b) => {
+        const titleA = piecesSoFar[a]?.title ?? a
+        const titleB = piecesSoFar[b]?.title ?? b
+        return titleA.localeCompare(titleB)
+      }),
+    [],
+  )
+
+  const pieceRows = inventoryPieceIDs.map((pieceID) => ({
+    ID: pieceID,
+    Title: piecesSoFar[pieceID]?.title ?? pieceID,
+    Count: pieceInventory[pieceID] ?? 0,
+  }))
+
+  const totalPieces = pieceRows.reduce((sum, row) => sum + row.Count, 0)
+
+  // Group the terrain set buttons by era while keeping the shared type/date ordering.
+  const contemporaryTerrainSets = useMemo(
+    () => getTerrainSetsForEra('contemporary'),
+    [],
+  )
+
+  const classicTerrainSets = useMemo(() => getTerrainSetsForEra('classic'), [])
+
+  // Convert a set inventory into readable tooltip lines so users can inspect
+  // exactly what will be added or removed before clicking a button.
+  const getTerrainContentsText = (
+    terrainSetInventory: Record<string, number>,
+  ) => {
+    return Object.entries(terrainSetInventory)
+      .filter(([, count]) => count > 0)
+      .sort(([pieceIDA], [pieceIDB]) => {
+        const titleA = piecesSoFar[pieceIDA]?.title ?? pieceIDA
+        const titleB = piecesSoFar[pieceIDB]?.title ?? pieceIDB
+        return titleA.localeCompare(titleB)
+      })
+      .map(([pieceID, count]) => {
+        const pieceTitle = piecesSoFar[pieceID]?.title ?? pieceID
+        return `${count}x ${pieceTitle}`
+      })
+      .join('\n')
+  }
+
+  const renderTerrainSetButtons = (terrainSet: TerrainSet) => {
+    const tooltipText = `${terrainSet.abbreviation}\n${getTerrainContentsText(terrainSet.inventory)}`
+
+    return (
+      <Stack direction="row" spacing={1} key={terrainSet.id}>
+        <Tooltip
+          title={<Box sx={{ whiteSpace: 'pre-line' }}>{tooltipText}</Box>}
+          enterDelay={250}
+        >
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => addSet(terrainSet.inventory)}
+            sx={{ textTransform: 'none' }}
+          >
+            + {terrainSet.name}
+          </Button>
+        </Tooltip>
+        <Tooltip
+          title={<Box sx={{ whiteSpace: 'pre-line' }}>{tooltipText}</Box>}
+          enterDelay={250}
+        >
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => removeSet(terrainSet.inventory)}
+            sx={{ textTransform: 'none' }}
+          >
+            - {terrainSet.name}
+          </Button>
+        </Tooltip>
+      </Stack>
+    )
+  }
+
+  const updateSinglePieceCount = (pieceID: string, valueRaw: string) => {
+    const nextCount = Number.parseInt(valueRaw, 10)
+    setPieceInventory({
+      ...pieceInventory,
+      [pieceID]: Number.isNaN(nextCount) ? 0 : Math.max(0, nextCount),
+    })
+  }
+
+  const handleDownloadInventory = (delimiter: ',' | '\t') => {
+    const fileSuffix = delimiter === '\t' ? 'tsv' : 'csv'
+    const serialized = unparse(pieceRows, {
+      header: true,
+      delimiter,
+      newline: '\n',
+    })
+    const blobType =
+      delimiter === '\t' ? 'text/tab-separated-values' : 'text/csv'
+    const blob = new Blob([serialized], { type: `${blobType};charset=utf-8;` })
+    const objectUrl = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = objectUrl
+    anchor.download = `hexoscape-piece-inventory.${fileSuffix}`
+    anchor.click()
+    URL.revokeObjectURL(objectUrl)
+    enqueueSnackbar({
+      message: `Downloaded personal inventory as .${fileSuffix.toUpperCase()}`,
+      variant: 'success',
+    })
+  }
+
+  const handleInventoryFileImport = async (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    try {
+      const { inventory, importedRows } = await parsePieceInventoryFile(file)
+
+      if (importedRows === 0) {
+        enqueueSnackbar({
+          message: 'No valid inventory rows found in file',
+          variant: 'warning',
+        })
+        return
+      }
+
+      setPieceInventory(inventory)
+      enqueueSnackbar({
+        message: `Loaded personal inventory from ${file.name}`,
+        variant: 'success',
+      })
+    } catch (error) {
+      enqueueSnackbar({
+        message: `Failed to load inventory file: ${(error as Error).message}`,
+        variant: 'error',
+      })
+    }
+
+    event.target.value = ''
+  }
 
   return (
     <div>
       <Container
         sx={{
           padding: 1,
-          display: 'flex',
-          flexDirection: 'row',
-          flexWrap: 'wrap',
+          display: 'grid',
+          gap: 2,
         }}
       >
-        <Button onClick={() => clearPieceInventory()}>
-          Clear Piece Inventory
-        </Button>
-        <Button onClick={() => addSet(pieceSets.aoa1PieceSet)}>
-          Add aoa1PieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.aoa1PieceSet)}>
-          Remove aoa1PieceSet
-        </Button>
+        <Typography variant="h6">Personal Piece Inventory</Typography>
+        <Typography variant="body2" color="text.secondary">
+          Add or subtract full sets, then fine-tune individual piece counts.
+        </Typography>
 
-        <Button onClick={() => addSet(pieceSets.battleBox1PieceSet)}>
-          Add battleBox1PieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.battleBox1PieceSet)}>
-          Remove battleBox1PieceSet
-        </Button>
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          <Button variant="outlined" onClick={clearPieceInventory}>
+            Reset to Blank Inventory
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => handleDownloadInventory(',')}
+          >
+            Download CSV
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => handleDownloadInventory('\t')}
+          >
+            Download TSV
+          </Button>
+          <Button variant="contained" component="label">
+            Load CSV or TSV
+            <input
+              hidden
+              type="file"
+              accept=".csv,.tsv,text/csv,text/tab-separated-values"
+              onChange={handleInventoryFileImport}
+            />
+          </Button>
+        </Stack>
 
-        <Button onClick={() => addSet(pieceSets.landsPieceSet)}>
-          Add landsPieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.landsPieceSet)}>
-          Remove landsPieceSet
-        </Button>
+        <Typography variant="body2" color="text.secondary">
+          Tracked piece types: {inventoryPieceIDs.length} | Total pieces:{' '}
+          {totalPieces}
+        </Typography>
 
-        <Button onClick={() => addSet(pieceSets.snowsPieceSet)}>
-          Add snowsPieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.snowsPieceSet)}>
-          Remove snowsPieceSet
-        </Button>
+        <Divider />
 
-        <Button onClick={() => addSet(pieceSets.swampsPieceSet)}>
-          Add swampsPieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.swampsPieceSet)}>
-          Remove swampsPieceSet
-        </Button>
+        <Typography variant="subtitle1">
+          Add or Remove Full Terrain Sets
+        </Typography>
+        <Typography variant="subtitle2" color="text.secondary">
+          Contemporary
+        </Typography>
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          {contemporaryTerrainSets.map(renderTerrainSetButtons)}
+        </Stack>
 
-        <Button onClick={() => addSet(pieceSets.watersPieceSet)}>
-          Add watersPieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.watersPieceSet)}>
-          Remove watersPieceSet
-        </Button>
+        <Typography variant="subtitle2" color="text.secondary">
+          Classic
+        </Typography>
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          {classicTerrainSets.map(renderTerrainSetButtons)}
+        </Stack>
 
-        <Button onClick={() => addSet(pieceSets.laurJunglePieceSet)}>
-          Add laurJunglePieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.laurJunglePieceSet)}>
-          Remove laurJunglePieceSet
-        </Button>
+        <Divider />
 
-        <Button onClick={() => addSet(pieceSets.underdarkPieceSet)}>
-          Add underdarkPieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.underdarkPieceSet)}>
-          Remove underdarkPieceSet
-        </Button>
-
-        <Button onClick={() => addSet(pieceSets.ticallaJunglePieceSet)}>
-          Add ticallaJunglePieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.ticallaJunglePieceSet)}>
-          Remove ticallaJunglePieceSet
-        </Button>
-
-        <Button onClick={() => addSet(pieceSets.fortressPieceSet)}>
-          Add fortressPieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.fortressPieceSet)}>
-          Remove fortressPieceSet
-        </Button>
-
-        <Button onClick={() => addSet(pieceSets.marvelPieceSet)}>
-          Add marvelPieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.marvelPieceSet)}>
-          Remove marvelPieceSet
-        </Button>
-
-        <Button onClick={() => addSet(pieceSets.thaelenkPieceSet)}>
-          Add thaelenkPieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.thaelenkPieceSet)}>
-          Remove thaelenkPieceSet
-        </Button>
-
-        <Button onClick={() => addSet(pieceSets.volcarrenPieceSet)}>
-          Add volcarrenPieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.volcarrenPieceSet)}>
-          Remove volcarrenPieceSet
-        </Button>
-
-        <Button onClick={() => addSet(pieceSets.forgottenForestPieceSet)}>
-          Add forgottenForestPieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.forgottenForestPieceSet)}>
-          Remove forgottenForestPieceSet
-        </Button>
-
-        <Button onClick={() => addSet(pieceSets.ms2PieceSet)}>
-          Add ms2PieceSet
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.ms2PieceSet)}>
-          Remove ms2PieceSet
-        </Button>
-
-        <Button onClick={() => addSet(pieceSets.ms1PieceSet)}>
-          Add Master Set 1: RoTV
-        </Button>
-        <Button onClick={() => removeSet(pieceSets.ms1PieceSet)}>
-          Remove Master Set 1: RoTV
-        </Button>
+        <Typography variant="subtitle1">Piece Counts</Typography>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+            gap: 1,
+            pb: 2,
+          }}
+        >
+          {inventoryPieceIDs.map((pieceID) => {
+            const piece = piecesSoFar[pieceID]
+            return (
+              <TextField
+                key={pieceID}
+                label={piece?.title ?? pieceID}
+                type="number"
+                size="small"
+                value={pieceInventory[pieceID] ?? 0}
+                onChange={(event) =>
+                  updateSinglePieceCount(pieceID, event.target.value)
+                }
+                slotProps={{
+                  htmlInput: {
+                    min: 0,
+                    step: 1,
+                  },
+                }}
+                helperText={pieceID}
+              />
+            )
+          })}
+        </Box>
       </Container>
-      {Object.values(piecesSoFar)
-        .filter((p) => !p?.isUninventoried)
-        .map((piece) => {
-          return (
-            <li key={piece.id}>
-              {piece.title}: {pieceInventory[piece.id]}
-            </li>
-          )
-        })}
     </div>
   )
 }
