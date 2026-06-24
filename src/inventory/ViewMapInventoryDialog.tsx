@@ -4,18 +4,21 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Icon,
+  Tooltip,
   useMediaQuery,
 } from '@mui/material'
 import React from 'react'
 import { DIALOGS } from '../layout/dialogNames'
 import useBoundStore from '../store/store'
-import { terrainSetsByShortID } from '../data/terrainSets'
 import { Box } from '@mui/system'
-import { FcBiohazard } from 'react-icons/fc'
 import { piecesSoFar } from '../data/pieces'
 import { yellow } from '@mui/material/colors'
-import type { BoardPiece } from '../types'
+import {
+  countPiecesUsedWithLaurStacking,
+  getCombinedInventory,
+  type LaurReconcileDetail,
+  reconcileLaurLegacyToStackableUsage,
+} from './laurInventoryReconcile'
 
 const ViewMapInventoryDialog = () => {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -30,31 +33,22 @@ const ViewMapInventoryDialog = () => {
   const hexMap = useBoundStore((state) => state.hexMap)
   const boardPieces = useBoundStore((state) => state.boardPieces)
 
-  // Get combined inventory for all sets used
-  function getCombinedInventory(setsUsed: string[]): Record<string, number> {
-    const combined: Record<string, number> = {}
-    for (const setID of setsUsed) {
-      const set =
-        terrainSetsByShortID[setID as keyof typeof terrainSetsByShortID]
-      for (const [pieceID, count] of Object.entries(set?.inventory ?? {})) {
-        combined[pieceID] = (combined[pieceID] || 0) + (count as number)
-      }
-    }
-    return combined
-  }
-
-  // Count pieces used in the map
-  function countPiecesUsed(boardPieces: BoardPiece[]): Record<string, number> {
-    const used: Record<string, number> = {}
-    for (const boardPiece of boardPieces) {
-      const inventoryID = boardPiece.inventoryID
-      used[inventoryID] = (used?.[inventoryID] ?? 0) + 1
-    }
-    return used
-  }
-
   const combinedInventory = getCombinedInventory(hexMap?.setsUsed ?? [])
-  const piecesUsed = countPiecesUsed(boardPieces)
+  const piecesUsedBeforeReconcile = countPiecesUsedWithLaurStacking(boardPieces)
+  const hasConstraints =
+    Array.isArray(hexMap?.setsUsed) && hexMap.setsUsed.length > 0
+
+  const { reconciledUsedInventory, conversionsByStackableID } = hasConstraints
+    ? reconcileLaurLegacyToStackableUsage({
+      usedInventory: piecesUsedBeforeReconcile,
+      availableInventory: combinedInventory,
+    })
+    : {
+      reconciledUsedInventory: piecesUsedBeforeReconcile,
+      conversionsByStackableID: {} as Record<string, LaurReconcileDetail>,
+    }
+
+  const piecesUsed = reconciledUsedInventory
 
   // Merge all pieceIDs from combinedInventory and piecesUsed
   const allPieceIDs = Array.from(
@@ -101,9 +95,6 @@ const ViewMapInventoryDialog = () => {
     return 0
   })
 
-  const hasConstraints =
-    Array.isArray(hexMap?.setsUsed) && hexMap.setsUsed.length > 0
-
   return (
     <React.Fragment>
       <Dialog
@@ -118,6 +109,7 @@ const ViewMapInventoryDialog = () => {
             {sortedPieceIDs.map((pieceID) => {
               const available = combinedInventory[pieceID] || 0
               const usedCount = piecesUsed[pieceID] || 0
+              const conversion = conversionsByStackableID[pieceID]
               const isOver = usedCount > available && available > 0
               const isExact = usedCount === available && available > 0
               const isNotAllowed = available === 0 && usedCount > 0
@@ -139,6 +131,23 @@ const ViewMapInventoryDialog = () => {
                     {piecesSoFar[pieceID]?.title || pieceID}: {usedCount}{' '}
                     {available > 0 ? `/ ${available}` : ''}
                   </span>
+                  {conversion && (
+                    <Tooltip
+                      title={`${conversion.converted} ${piecesSoFar[conversion.stackableID]?.title ?? conversion.stackableID} counted as non-stacking usage because ${piecesSoFar[conversion.legacyID]?.title ?? conversion.legacyID} exceeded available constrained inventory.`}
+                    >
+                      <span
+                        style={{
+                          marginLeft: 4,
+                          fontSize: 10,
+                          lineHeight: 1,
+                          cursor: 'help',
+                          userSelect: 'none',
+                        }}
+                      >
+                        *
+                      </span>
+                    </Tooltip>
+                  )}
                   {isNotAllowed && !skipAlert && (
                     <span style={{ marginLeft: 8, fontWeight: 'bold' }}>
                       (Not allowed by sets)
