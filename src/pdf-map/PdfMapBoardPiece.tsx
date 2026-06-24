@@ -47,9 +47,6 @@ export const PdfMapBoardPiece = ({
       </G>
     )
   }
-
-  // LADDERS
-
   // ROADWALLS
   if (inventoryID === Pieces.roadWall) {
     return (
@@ -60,7 +57,6 @@ export const PdfMapBoardPiece = ({
       </G>
     )
   }
-
   // LAUR LONGWALLS
   if (inventoryID === Pieces.laurWallLong) {
     return (
