@@ -1,9 +1,11 @@
 import { ClickAwayListener } from '@mui/material'
 import {
+  Billboard,
   type CameraControls,
   OrthographicCamera,
   PerspectiveCamera,
   Stats,
+  Text,
 } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import SelectedPieceReadout from '../controls/SelectedPieceReadout'
@@ -17,6 +19,38 @@ import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import type { Group, Object3DEventMap } from 'three'
 import type React from 'react'
 import { useEffect, useState } from 'react'
+
+const BILLBOARD_WARMUP_MS = 4000
+
+function BillboardWarmup() {
+  const [isVisible, setIsVisible] = useState(true)
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setIsVisible(false)
+    }, BILLBOARD_WARMUP_MS)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [])
+
+  if (!isVisible) {
+    return null
+  }
+
+  // Keep this tiny and off-screen: it only exists to force billboard init
+  // before user-facing billboards are toggled on.
+  return (
+    <Billboard position={[0, 0, 0]}>
+      <Text
+        font="/fonts/Inter_18pt-Bold.ttf"
+        fontSize={0.14}
+        color={'white'}
+      >
+        .
+      </Text>
+    </Billboard>
+  )
+}
 
 const World = ({
   cameraControlsRef,
@@ -119,6 +153,7 @@ const World = ({
             mapGroupRef={mapGroupRef}
             cameraControlsRef={cameraControlsRef}
           />
+          <BillboardWarmup />
           <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}
           <MyCameraControls cameraControlsRef={cameraControlsRef} />
