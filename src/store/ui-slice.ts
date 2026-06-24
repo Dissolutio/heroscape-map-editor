@@ -100,6 +100,10 @@ export interface UISlice {
   toggleIsShowPDFInventory: (b: boolean) => void
   isPdfColorBorders: boolean
   toggleIsPdfColorBorders: (b: boolean) => void
+  isShowPdfOverlayLayer: boolean
+  toggleIsShowPdfOverlayLayer: (b: boolean) => void
+  isShowPdfOverlayOnPlacedLevel: boolean
+  toggleIsShowPdfOverlayOnPlacedLevel: (b: boolean) => void
   // SVG STATE
   is2DOverlayLevelEnabled: boolean
   toggleIs2DOverlayLevelEnabled: (b: boolean) => void
@@ -335,6 +339,28 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isPdfColorBorders = b
+      }),
+    ),
+  isShowPdfOverlayLayer: true,
+  toggleIsShowPdfOverlayLayer: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowPdfOverlayLayer = b
+        // Prevent impossible state where overlay content would be hidden everywhere.
+        if (!b && !s.isShowPdfOverlayOnPlacedLevel) {
+          s.isShowPdfOverlayOnPlacedLevel = true
+        }
+      }),
+    ),
+  isShowPdfOverlayOnPlacedLevel: false,
+  toggleIsShowPdfOverlayOnPlacedLevel: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowPdfOverlayOnPlacedLevel = b
+        // Prevent impossible state where overlay content would be hidden everywhere.
+        if (!b && !s.isShowPdfOverlayLayer) {
+          s.isShowPdfOverlayLayer = true
+        }
       }),
     ),
   is2DOverlayLevelEnabled: true,

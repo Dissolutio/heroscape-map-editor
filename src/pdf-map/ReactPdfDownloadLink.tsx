@@ -8,6 +8,10 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
   const isPdfColorBorders = useBoundStore((s) => s.isPdfColorBorders)
+  const isShowPdfOverlayLayer = useBoundStore((s) => s.isShowPdfOverlayLayer)
+  const isShowPdfOverlayOnPlacedLevel = useBoundStore(
+    (s) => s.isShowPdfOverlayOnPlacedLevel,
+  )
   return (
     <PDFDownloadLink
       document={
@@ -16,6 +20,8 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
             boardHexes={boardHexes}
             boardPieces={boardPieces}
             isPdfColorBorders={isPdfColorBorders}
+            isShowPdfOverlayLayer={isShowPdfOverlayLayer}
+            isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
           />
         </Document>
       }

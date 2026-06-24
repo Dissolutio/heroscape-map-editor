@@ -17,18 +17,26 @@ export const PdfMapLevels6PerPage = ({
   boardHexes,
   boardPieces,
   isPdfColorBorders,
+  isShowPdfOverlayLayer,
+  isShowPdfOverlayOnPlacedLevel,
   children,
 }: PropsWithChildren<{
   boardHexes: BoardHexes
   boardPieces: BoardPiece[]
   isPdfColorBorders: boolean
+  isShowPdfOverlayLayer: boolean
+  isShowPdfOverlayOnPlacedLevel: boolean
 }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesWithoutEmpties = keyBy(
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
     'id',
   )
-  const chunksOf6Levels = get6LevelChunk(boardHexesWithoutEmpties, boardPieces)
+  const chunksOf6Levels = get6LevelChunk(
+    boardHexesWithoutEmpties,
+    boardPieces,
+    isShowPdfOverlayLayer,
+  )
   const decodedBoardPiecesArr = boardPieces
     .map((bp) => boardPieceToDecodedPieceID(bp))
     .filter((p) => Boolean(p))
@@ -69,6 +77,7 @@ export const PdfMapLevels6PerPage = ({
                       length={length}
                       viewingLevel={group.altitude}
                       isPdfColorBorders={isPdfColorBorders}
+                      isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
                     />
                   </RowWrapper>
                 ) : null,
@@ -92,6 +101,7 @@ export const PdfMapLevels6PerPage = ({
                       length={length}
                       viewingLevel={group.altitude}
                       isPdfColorBorders={isPdfColorBorders}
+                      isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
                     />
                   </RowWrapper>
                 ) : null,
@@ -107,6 +117,7 @@ export const PdfMapLevels6PerPage = ({
 const get6LevelChunk = (
   boardHexes: BoardHexes,
   boardPieces: BoardPiece[],
+  isShowPdfOverlayLayer: boolean,
 ): PdfMapAltitudeChunk[][] => {
   const filteredBoardHexes = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
@@ -154,18 +165,20 @@ const get6LevelChunk = (
   // Sort combined groups by altitude
   combinedGroups.sort((a, b) => a.altitude - b.altitude)
 
-  const overlayAltitude =
-    combinedGroups.length > 0
-      ? combinedGroups[combinedGroups.length - 1].altitude + 1
-      : 1
+  if (isShowPdfOverlayLayer) {
+    const overlayAltitude =
+      combinedGroups.length > 0
+        ? combinedGroups[combinedGroups.length - 1].altitude + 1
+        : 1
 
-  combinedGroups.push({
-    altitude: overlayAltitude,
-    label: 'Glyphs and Start Zones',
-    isOverlay: true,
-    hexes: [],
-    pieces: [],
-  })
+    combinedGroups.push({
+      altitude: overlayAltitude,
+      label: 'Glyphs and Start Zones',
+      isOverlay: true,
+      hexes: [],
+      pieces: [],
+    })
+  }
 
   // Chunk combined groups into chunks of 6
   const chunks = []

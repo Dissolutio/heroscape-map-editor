@@ -73,11 +73,13 @@ export const PdfMapHex = ({
   viewingLevel,
   isOverlayViewing,
   isPdfColorBorders,
+  isShowPdfOverlayOnPlacedLevel,
 }: {
   hex: BoardHex
   viewingLevel: number
   isOverlayViewing: boolean
   isPdfColorBorders: boolean
+  isShowPdfOverlayOnPlacedLevel: boolean
 }) => {
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
@@ -178,7 +180,7 @@ export const PdfMapHex = ({
           style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-          // {...pdfTextProps()}
+        // {...pdfTextProps()}
         >
           Y
         </Text>
@@ -197,7 +199,7 @@ export const PdfMapHex = ({
           style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-          // {...pdfTextProps()}
+        // {...pdfTextProps()}
         >
           M
         </Text>
@@ -216,7 +218,7 @@ export const PdfMapHex = ({
           opacity={
             isSubLevel
               ? // white text needs a little opacity boost
-                OPACITY_SUBLEVEL * 2
+              OPACITY_SUBLEVEL * 2
               : 1
           }
           style={pdfHexTextStyle}
@@ -333,7 +335,8 @@ export const PdfMapHex = ({
     hex.terrain === HexTerrain.glyphPower ||
     hex.terrain === HexTerrain.glyphTreasure
   ) {
-    if (!isOverlayViewing) {
+    const isPlacedLevelViewing = hex.altitude === viewingLevel
+    if (!isOverlayViewing && !(isShowPdfOverlayOnPlacedLevel && isPlacedLevelViewing)) {
       return null
     }
     const specialIsSubLevel = false
@@ -356,7 +359,8 @@ export const PdfMapHex = ({
   }
   // Start Zones
   if (hex.terrain === HexTerrain.startZone) {
-    if (!isOverlayViewing) {
+    const isPlacedLevelViewing = hex.altitude === viewingLevel
+    if (!isOverlayViewing && !(isShowPdfOverlayOnPlacedLevel && isPlacedLevelViewing)) {
       return null
     }
     const specialIsSubLevel = false

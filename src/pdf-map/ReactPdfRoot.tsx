@@ -36,6 +36,10 @@ export function ReactPdfRoot() {
   const hexMap = useBoundStore((s) => s.hexMap)
   const isShowPDFInventory = useBoundStore((s) => s.isShowPDFInventory)
   const isPdfColorBorders = useBoundStore((s) => s.isPdfColorBorders)
+  const isShowPdfOverlayLayer = useBoundStore((s) => s.isShowPdfOverlayLayer)
+  const isShowPdfOverlayOnPlacedLevel = useBoundStore(
+    (s) => s.isShowPdfOverlayOnPlacedLevel,
+  )
   const mapNotes = hexMap?.mapNotes ?? ''
   const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
   const isMobile = useMediaQuery('(max-width:800px)')
@@ -59,6 +63,8 @@ export function ReactPdfRoot() {
               boardHexes={boardHexes}
               boardPieces={boardPieces}
               isPdfColorBorders={isPdfColorBorders}
+              isShowPdfOverlayLayer={isShowPdfOverlayLayer}
+              isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
             >
               <MapPortraitHeader
                 hexMap={hexMap}
@@ -201,9 +207,9 @@ const PdfPieceInventory = ({
 
   const counts = hasConstraints
     ? reconcileLaurLegacyToStackableUsage({
-        usedInventory: countsBeforeReconcile,
-        availableInventory: combinedInventory,
-      }).reconciledUsedInventory
+      usedInventory: countsBeforeReconcile,
+      availableInventory: combinedInventory,
+    }).reconciledUsedInventory
     : countsBeforeReconcile
 
   const entries = Object.entries(counts)
