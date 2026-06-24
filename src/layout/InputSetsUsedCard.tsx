@@ -12,9 +12,9 @@ import * as React from 'react'
 import { styled } from '@mui/material/styles'
 import Card from '@mui/material/Card'
 import useBoundStore from '../store/store'
-import { terrainSetsByShortID } from '../data/terrainSets'
 import { FcExpand } from 'react-icons/fc'
 import { countStringInArrayLoop, getSetsUsedText } from '../utils/map-utils'
+import { getTerrainSetsForEra } from '../utils/terrain-set-utils'
 
 export const setsUsedInputNameForFormData = 'terrainSet'
 type Props = {
@@ -25,6 +25,16 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
   const setsUsed = hexMap?.setsUsed ?? []
   const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
   const [isSetUsedOpen, setIsSetUsedOpen] = React.useState(false)
+  // Reuse the shared terrain set ordering so this dialog stays in sync with
+  // the inventory screen.
+  const contemporaryTerrainSets = React.useMemo(
+    () => getTerrainSetsForEra('contemporary'),
+    [],
+  )
+  const classicTerrainSets = React.useMemo(
+    () => getTerrainSetsForEra('classic'),
+    [],
+  )
   const toggleIsSetsUsedOpen = () => {
     setIsSetUsedOpen(!isSetUsedOpen)
   }
@@ -71,32 +81,59 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
           </Typography>
         )}
         <Collapse in={isSetUsedOpen} timeout="auto">
-          {Object.values(terrainSetsByShortID)
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map((set) => (
-              <TextField
-                key={set.id}
-                variant="outlined"
-                margin="dense"
-                defaultValue={
-                  isCreateNewMap ? 0 : countStringInArrayLoop(setsUsed, set.id)
-                }
-                slotProps={{
-                  htmlInput: { min: 0 },
-                }}
-                color={
-                  !isCreateNewMap &&
-                  countStringInArrayLoop(setsUsed, set.id) > 0
-                    ? 'success'
-                    : undefined
-                }
-                focused
-                name={`${setsUsedInputNameForFormData}${set.id}`}
-                label={`${set.name} - ${set.abbreviation}`}
-                title={`${set.name} - ${set.abbreviation}`}
-                type="number"
-              />
-            ))}
+          <Typography variant="subtitle2" sx={{ mt: 1 }}>
+            Contemporary
+          </Typography>
+          {contemporaryTerrainSets.map((set) => (
+            <TextField
+              key={set.id}
+              variant="outlined"
+              margin="dense"
+              defaultValue={
+                isCreateNewMap ? 0 : countStringInArrayLoop(setsUsed, set.id)
+              }
+              slotProps={{
+                htmlInput: { min: 0 },
+              }}
+              color={
+                !isCreateNewMap && countStringInArrayLoop(setsUsed, set.id) > 0
+                  ? 'success'
+                  : undefined
+              }
+              focused
+              name={`${setsUsedInputNameForFormData}${set.id}`}
+              label={`${set.name} - ${set.abbreviation}`}
+              title={`${set.name} - ${set.abbreviation}`}
+              type="number"
+            />
+          ))}
+
+          <Typography variant="subtitle2" sx={{ mt: 2 }}>
+            Classic
+          </Typography>
+          {classicTerrainSets.map((set) => (
+            <TextField
+              key={set.id}
+              variant="outlined"
+              margin="dense"
+              defaultValue={
+                isCreateNewMap ? 0 : countStringInArrayLoop(setsUsed, set.id)
+              }
+              slotProps={{
+                htmlInput: { min: 0 },
+              }}
+              color={
+                !isCreateNewMap && countStringInArrayLoop(setsUsed, set.id) > 0
+                  ? 'success'
+                  : undefined
+              }
+              focused
+              name={`${setsUsedInputNameForFormData}${set.id}`}
+              label={`${set.name} - ${set.abbreviation}`}
+              title={`${set.name} - ${set.abbreviation}`}
+              type="number"
+            />
+          ))}
         </Collapse>
       </CardContent>
       <CardActions disableSpacing>

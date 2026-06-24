@@ -6,14 +6,15 @@ import {
   Divider,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
 import { parse, unparse } from 'papaparse'
 import { piecesSoFar } from '../data/pieces'
-import { terrainSetsByShortID } from '../data/terrainSets'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
+import { getTerrainSetsForEra, type TerrainSet } from '../utils/terrain-set-utils'
 
 const InventoryForm = () => {
   const { enqueueSnackbar } = useSnackbar()
@@ -42,6 +43,69 @@ const InventoryForm = () => {
   }))
 
   const totalPieces = pieceRows.reduce((sum, row) => sum + row.Count, 0)
+
+  // Group the terrain set buttons by era while keeping the shared type/date ordering.
+  const contemporaryTerrainSets = useMemo(
+    () => getTerrainSetsForEra('contemporary'),
+    [],
+  )
+
+  const classicTerrainSets = useMemo(
+    () => getTerrainSetsForEra('classic'),
+    [],
+  )
+
+  // Convert a set inventory into readable tooltip lines so users can inspect
+  // exactly what will be added or removed before clicking a button.
+  const getTerrainContentsText = (terrainSetInventory: Record<string, number>) => {
+    return Object.entries(terrainSetInventory)
+      .filter(([, count]) => count > 0)
+      .sort(([pieceIDA], [pieceIDB]) => {
+        const titleA = piecesSoFar[pieceIDA]?.title ?? pieceIDA
+        const titleB = piecesSoFar[pieceIDB]?.title ?? pieceIDB
+        return titleA.localeCompare(titleB)
+      })
+      .map(([pieceID, count]) => {
+        const pieceTitle = piecesSoFar[pieceID]?.title ?? pieceID
+        return `${count}x ${pieceTitle}`
+      })
+      .join('\n')
+  }
+
+  const renderTerrainSetButtons = (terrainSet: TerrainSet) => {
+    const tooltipText = `${terrainSet.abbreviation}\n${getTerrainContentsText(terrainSet.inventory)}`
+
+    return (
+      <Stack direction="row" spacing={1} key={terrainSet.id}>
+        <Tooltip
+          title={<Box sx={{ whiteSpace: 'pre-line' }}>{tooltipText}</Box>}
+          enterDelay={250}
+        >
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => addSet(terrainSet.inventory)}
+            sx={{ textTransform: 'none' }}
+          >
+            + {terrainSet.name}
+          </Button>
+        </Tooltip>
+        <Tooltip
+          title={<Box sx={{ whiteSpace: 'pre-line' }}>{tooltipText}</Box>}
+          enterDelay={250}
+        >
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => removeSet(terrainSet.inventory)}
+            sx={{ textTransform: 'none' }}
+          >
+            - {terrainSet.name}
+          </Button>
+        </Tooltip>
+      </Stack>
+    )
+  }
 
   const updateSinglePieceCount = (pieceID: string, valueRaw: string) => {
     const nextCount = Number.parseInt(valueRaw, 10)
@@ -190,25 +254,18 @@ const InventoryForm = () => {
         <Divider />
 
         <Typography variant="subtitle1">Add or Remove Full Terrain Sets</Typography>
+        <Typography variant="subtitle2" color="text.secondary">
+          Contemporary
+        </Typography>
         <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-          {Object.values(terrainSetsByShortID).map((terrainSet) => (
-            <Stack direction="row" spacing={1} key={terrainSet.id}>
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={() => addSet(terrainSet.inventory)}
-              >
-                + {terrainSet.abbreviation}
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={() => removeSet(terrainSet.inventory)}
-              >
-                - {terrainSet.abbreviation}
-              </Button>
-            </Stack>
-          ))}
+          {contemporaryTerrainSets.map(renderTerrainSetButtons)}
+        </Stack>
+
+        <Typography variant="subtitle2" color="text.secondary">
+          Classic
+        </Typography>
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          {classicTerrainSets.map(renderTerrainSetButtons)}
         </Stack>
 
         <Divider />
