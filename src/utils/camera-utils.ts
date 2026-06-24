@@ -112,7 +112,7 @@ export const zoomToPieces = ({
 }: ZoomToPiecesArgs) => {
   const targetUIDSet = new Set(targetUIDs)
   const pieceHexes = Object.values(boardHexes).filter((hex) =>
-    targetUIDSet.has(hex.boardPieceUID),
+    hex.boardPieceUID && targetUIDSet.has(hex.boardPieceUID),
   )
 
   if (!pieceHexes.length) {
