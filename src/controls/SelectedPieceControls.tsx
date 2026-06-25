@@ -96,15 +96,29 @@ export function SelectedPieceControls({
       return isLandTerrain(aboveTerrain)
     })
   }
+  const checkPartiallyBuried = (bp: BP) => {
+    const footprint = getLandFootprint(bp)
+    if (!footprint?.length) return false
+    const topAlt = bp.altitude + 1
+    return footprint.some((c) => {
+      const aboveTerrain =
+        boardHexes[genBoardHexID({ ...c, altitude: topAlt + 1 })]?.terrain ?? ''
+      return isLandTerrain(aboveTerrain)
+    })
+  }
   const pieceStatuses = selectedBoardPieces.map((bp) => ({
     isConflicted: conflictedUIDSet.has(bp.uid),
     isLandPiece: isLandTerrain(piecesSoFar[bp.inventoryID]?.terrain ?? ''),
     isSubterrainBuried: checkSubterrainBuried(bp),
     isBuried: checkBuried(bp),
+    isPartiallyBuried: checkPartiallyBuried(bp),
   }))
   const conflictedCount = pieceStatuses.filter((s) => s.isConflicted).length
   const buriedCount = pieceStatuses.filter(
     (s) => s.isLandPiece && s.isBuried,
+  ).length
+  const partiallyBuriedCount = pieceStatuses.filter(
+    (s) => s.isLandPiece && s.isPartiallyBuried,
   ).length
   const subBuriedCount = pieceStatuses.filter(
     (s) => s.isLandPiece && s.isSubterrainBuried,
@@ -117,11 +131,11 @@ export function SelectedPieceControls({
 
   const tooltipLines = isMulti
     ? selectedBoardPieces
-        .map(
-          (bp) =>
-            `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
-        )
-        .join('\n')
+      .map(
+        (bp) =>
+          `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
+      )
+      .join('\n')
     : ''
 
   const altitudes = selectedBoardPieces.map((bp) => bp.altitude + 1)
@@ -287,48 +301,65 @@ export function SelectedPieceControls({
         sx={{
           fontSize: 10,
           color: 'text.secondary',
-          mb: conflictedCount + buriedCount + subBuriedCount > 0 ? 0.25 : 1,
+          mb:
+            conflictedCount + buriedCount + partiallyBuriedCount + subBuriedCount >
+              0
+              ? 0.25
+              : 1,
         }}
       >
         Alt: {altLabel} &nbsp; Rot: {rotLabel}
       </Typography>
 
       {/* Status indicators */}
-      {(conflictedCount > 0 || buriedCount > 0 || subBuriedCount > 0) && (
-        <Box sx={{ mb: 0.75 }}>
-          {conflictedCount > 0 && (
-            <Typography
-              title="Piece collides with other pieces"
-              sx={{
-                fontSize: 10,
-                color: 'error.main',
-                fontWeight: 700,
-                lineHeight: 1.4,
-              }}
-            >
-              {isMulti ? `${conflictedCount} conflicted` : 'Conflicted'}
-            </Typography>
-          )}
-          {buriedCount > 0 && (
-            <Typography
-              title="No hexes from this piece show to the surface"
-              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
-            >
-              {isMulti ? `${buriedCount} buried` : 'Buried'}
-            </Typography>
-          )}
-          {subBuriedCount > 0 && (
-            <Typography
-              title="The sides of this piece do not show to the outside"
-              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
-            >
-              {isMulti
-                ? `${subBuriedCount} subterrain-buried`
-                : 'Subterrain-buried'}
-            </Typography>
-          )}
-        </Box>
-      )}
+      {(conflictedCount > 0 ||
+        buriedCount > 0 ||
+        partiallyBuriedCount > 0 ||
+        subBuriedCount > 0) && (
+          <Box sx={{ mb: 0.75 }}>
+            {conflictedCount > 0 && (
+              <Typography
+                title="Piece collides with other pieces"
+                sx={{
+                  fontSize: 10,
+                  color: 'error.main',
+                  fontWeight: 700,
+                  lineHeight: 1.4,
+                }}
+              >
+                {isMulti ? `${conflictedCount} conflicted` : 'Conflicted'}
+              </Typography>
+            )}
+            {buriedCount > 0 && (
+              <Typography
+                title="No hexes from this piece show to the surface"
+                sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+              >
+                {isMulti ? `${buriedCount} buried` : 'Buried'}
+              </Typography>
+            )}
+            {partiallyBuriedCount > 0 && (
+              <Typography
+                title="At least one hex from this piece is covered by land above it"
+                sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+              >
+                {isMulti
+                  ? `${partiallyBuriedCount} partially buried`
+                  : 'Partially buried'}
+              </Typography>
+            )}
+            {subBuriedCount > 0 && (
+              <Typography
+                title="The sides of this piece do not show to the outside"
+                sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+              >
+                {isMulti
+                  ? `${subBuriedCount} subterrain-buried`
+                  : 'Subterrain-buried'}
+              </Typography>
+            )}
+          </Box>
+        )}
 
       <Button
         variant="outlined"
