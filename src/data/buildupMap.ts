@@ -8,7 +8,11 @@ import {
   Pieces,
   type VirtualScapeTile,
 } from '../types'
-import { hexUtilsOddRToCube } from '../utils/hex-utils'
+import {
+  HEX_DIRECTIONS,
+  hexUtilsAdd,
+  hexUtilsOddRToCube,
+} from '../utils/hex-utils'
 import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
 import { addPiece } from './addPiece'
 import { pieceCodes } from './pieceCodes'
@@ -78,20 +82,35 @@ export function buildupJsonFileMap(
   boardPieces: BoardPiece[],
   hexMap: HexMap,
 ): MapState {
+  const shouldMigrateLegacyHexagonMap =
+    hexMap.shape === 'hexagon' && (hexMap?.version ?? 0) < 1
+  const migratedHexMap: HexMap = shouldMigrateLegacyHexagonMap
+    ? {
+      ...hexMap,
+      version: 1,
+      length: hexMap.length + 1,
+      width: hexMap.width + 1,
+    }
+    : {
+      ...hexMap,
+      version: hexMap.version ?? 1,
+    }
+
+
   // For JSON maps, the map dimensions are free, we do not have to compute them
   let initialBoardHexes: BoardHexes = {}
   const initialBoardPieces = clone(boardPieces)
   let finalBoardPieces: BoardPieces = []
-  if (hexMap.shape === 'rectangle') {
+  if (migratedHexMap.shape === 'rectangle') {
     initialBoardHexes = makeRectangleScenario({
-      length: hexMap.length,
-      width: hexMap.width,
-      mapName: hexMap.name,
+      length: migratedHexMap.length,
+      width: migratedHexMap.width,
+      mapName: migratedHexMap.name,
     }).boardHexes
   } else {
     initialBoardHexes = makeHexagonScenario({
-      size: hexMap.length,
-      mapName: hexMap.name,
+      size: migratedHexMap.length,
+      mapName: migratedHexMap.name,
     }).boardHexes
   }
   const boardPiecesSortedByAltitude = initialBoardPieces.sort((a, b) => {
@@ -130,10 +149,11 @@ export function buildupJsonFileMap(
 
   return {
     boardHexes: newBoardHexes,
-    hexMap: hexMap,
+    hexMap: migratedHexMap,
     boardPieces: finalBoardPieces,
   }
 }
+
 function getBlankHexoscapeMapForVSTiles(
   tiles: VirtualScapeTile[],
   mapName: string,
