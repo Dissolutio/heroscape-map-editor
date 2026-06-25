@@ -221,7 +221,7 @@ export const marvelPieceSet: PieceInventory = {
   [Pieces.concrete6]: 1,
 }
 export const thaelenkPieceSet: PieceInventory = {
-  [Pieces.glacier1]: 1,
+  [Pieces.glacier1]: 3,
   [Pieces.glacier3]: 1,
   [Pieces.glacier4]: 1,
   [Pieces.glacier6]: 1,
