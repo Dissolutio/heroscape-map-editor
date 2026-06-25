@@ -51,11 +51,19 @@ type HexagonScenarioOptions = {
 export function makeHexagonScenario(
   options?: HexagonScenarioOptions,
 ): MapState {
-  const mapSize = options?.size ?? 12
-  const size = Math.min(mapSize, MAX_HEXAGON_MAP_DIMENSION)
-  if (mapSize > MAX_HEXAGON_MAP_DIMENSION) {
+  const mapSideLength = options?.size ?? 12
+  const size = Math.max(
+    1,
+    Math.min(mapSideLength, MAX_HEXAGON_MAP_DIMENSION),
+  )
+  if (mapSideLength > MAX_HEXAGON_MAP_DIMENSION) {
     console.error(
       `Maximum map dimension for hexagon shaped map: ${MAX_HEXAGON_MAP_DIMENSION}. You passed an option larger than ${MAX_HEXAGON_MAP_DIMENSION} to makeHexagonScenario`,
+    )
+  }
+  if (mapSideLength < 1) {
+    console.error(
+      'Minimum map dimension for hexagon shaped map is 1. You passed an option smaller than 1 to makeHexagonScenario',
     )
   }
   const hexMap = {
@@ -67,7 +75,7 @@ export function makeHexagonScenario(
     length: size,
   }
 
-  const boardHexes: BoardHexes = generateHexagon(size)
+  const boardHexes: BoardHexes = generateHexagon(size - 1)
   return {
     boardHexes,
     hexMap,
