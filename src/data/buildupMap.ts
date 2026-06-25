@@ -86,16 +86,15 @@ export function buildupJsonFileMap(
     hexMap.shape === 'hexagon' && (hexMap?.version ?? 0) < 1
   const migratedHexMap: HexMap = shouldMigrateLegacyHexagonMap
     ? {
-      ...hexMap,
-      version: 1,
-      length: hexMap.length + 1,
-      width: hexMap.width + 1,
-    }
+        ...hexMap,
+        version: 1,
+        length: hexMap.length + 1,
+        width: hexMap.width + 1,
+      }
     : {
-      ...hexMap,
-      version: hexMap.version ?? 1,
-    }
-
+        ...hexMap,
+        version: hexMap.version ?? 1,
+      }
 
   // For JSON maps, the map dimensions are free, we do not have to compute them
   let initialBoardHexes: BoardHexes = {}

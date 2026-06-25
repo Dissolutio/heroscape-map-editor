@@ -53,10 +53,7 @@ export function makeHexagonScenario(
   options?: HexagonScenarioOptions,
 ): MapState {
   const mapSideLength = options?.size ?? 12
-  const size = Math.max(
-    1,
-    Math.min(mapSideLength, MAX_HEXAGON_MAP_DIMENSION),
-  )
+  const size = Math.max(1, Math.min(mapSideLength, MAX_HEXAGON_MAP_DIMENSION))
   if (mapSideLength > MAX_HEXAGON_MAP_DIMENSION) {
     console.error(
       `Maximum map dimension for hexagon shaped map: ${MAX_HEXAGON_MAP_DIMENSION}. You passed an option larger than ${MAX_HEXAGON_MAP_DIMENSION} to makeHexagonScenario`,
