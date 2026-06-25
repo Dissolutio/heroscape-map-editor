@@ -12,7 +12,7 @@ import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
-import type { BoardPiece, HexMap } from '../types'
+import { HexTerrain, type BoardPiece, type HexMap } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
 import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
 import {
@@ -207,14 +207,127 @@ const PdfPieceInventory = ({
 
   const counts = hasConstraints
     ? reconcileLaurLegacyToStackableUsage({
-        usedInventory: countsBeforeReconcile,
-        availableInventory: combinedInventory,
-      }).reconciledUsedInventory
+      usedInventory: countsBeforeReconcile,
+      availableInventory: combinedInventory,
+    }).reconciledUsedInventory
     : countsBeforeReconcile
 
+  const getInventoryCategoryRank = (piece: {
+    terrain?: string
+    isHexTerrainPiece?: boolean
+    isObstaclePiece?: boolean
+  }) => {
+    if (piece.terrain === HexTerrain.glyphPower || piece.terrain === HexTerrain.glyphTreasure) {
+      return 2
+    }
+    if (piece.terrain === HexTerrain.startZone) {
+      return 3
+    }
+    if (piece.isHexTerrainPiece) {
+      return 0
+    }
+    if (piece.isObstaclePiece) {
+      return 1
+    }
+    return 1
+  }
+
   const entries = Object.entries(counts)
-    .map(([id, count]) => ({ id, count, title: piecesSoFar[id]?.title ?? id }))
-    .sort((a, b) => a.title.localeCompare(b.title))
+    .map(([id, count]) => {
+      const piece = piecesSoFar[id]
+      return {
+        id,
+        count,
+        title: piece?.title ?? id,
+        terrain: piece?.terrain ?? '',
+        size: piece?.size ?? Number.MAX_SAFE_INTEGER,
+        isHexTerrainPiece: piece?.isHexTerrainPiece ?? false,
+        isObstaclePiece: piece?.isObstaclePiece ?? false,
+      }
+    })
+    .sort((a, b) => {
+      const categoryRankA = getInventoryCategoryRank(a)
+      const categoryRankB = getInventoryCategoryRank(b)
+      if (categoryRankA !== categoryRankB) {
+        return categoryRankA - categoryRankB
+      }
+
+      const terrainOrder = a.terrain.localeCompare(b.terrain)
+      if (terrainOrder !== 0) {
+        return terrainOrder
+      }
+
+      if (a.isHexTerrainPiece && b.isHexTerrainPiece && a.size !== b.size) {
+        return a.size - b.size
+      }
+
+      const titleOrder = a.title.localeCompare(b.title)
+      if (titleOrder !== 0) {
+        return titleOrder
+      }
+
+      return a.id.localeCompare(b.id)
+    })
+
+  type InventoryRow =
+    | {
+      kind: 'header'
+      id: string
+      title: string
+    }
+    | {
+      kind: 'piece'
+      id: string
+      title: string
+      count: number
+    }
+
+  const getSectionKey = (entry: {
+    terrain?: string
+    isHexTerrainPiece?: boolean
+    isObstaclePiece?: boolean
+  }) => {
+    const categoryRank = getInventoryCategoryRank(entry)
+    if (categoryRank === 0) return 'land'
+    if (categoryRank === 1) return 'obstacles'
+    return 'glyphsStartzones'
+  }
+
+  const sectionLabelByKey: Record<string, string> = {
+    land: 'Land',
+    obstacles: 'Obstacles',
+    glyphsStartzones: 'Glyphs/StartZones',
+  }
+
+  const entriesWithHeaders: InventoryRow[] = []
+  let currentSectionKey = ''
+  for (const entry of entries) {
+    const sectionKey = getSectionKey(entry)
+    if (sectionKey !== currentSectionKey) {
+      entriesWithHeaders.push({
+        kind: 'header',
+        id: `header-${sectionKey}`,
+        title: sectionLabelByKey[sectionKey],
+      })
+      currentSectionKey = sectionKey
+    }
+
+    entriesWithHeaders.push({
+      kind: 'piece',
+      id: entry.id,
+      title: entry.title,
+      count: entry.count,
+    })
+  }
+
+  const columnCount = 3
+  const rowsPerColumn = Math.ceil(entriesWithHeaders.length / columnCount)
+  const entryColumns = Array.from({ length: columnCount }, (_, columnIndex) =>
+    entriesWithHeaders.slice(
+      columnIndex * rowsPerColumn,
+      (columnIndex + 1) * rowsPerColumn,
+    ),
+  )
 
   return (
     <Page
@@ -234,19 +347,43 @@ const PdfPieceInventory = ({
       >
         <Text style={{ fontSize: '16px', marginBottom: 2 }}>Inventory</Text>
 
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          {entries.map((e) => (
+        <View style={{ flexDirection: 'row' }}>
+          {entryColumns.map((column, columnIndex) => (
             <View
-              key={e.id}
+              key={`inventory-column-${columnIndex + 1}`}
               style={{
-                width: '50%',
-                flexDirection: 'row',
-                // justifyContent: 'space-between',
-                // paddingBottom: 2,
+                width: '33.33%',
+                flexDirection: 'column',
               }}
             >
-              <Text style={{ fontSize: '12px' }}>{e.title} </Text>
-              <Text style={{ fontSize: '12px' }}>x{e.count}</Text>
+              {column.map((e) => (
+                e.kind === 'header'
+                  ? (
+                    <Text
+                      key={e.id}
+                      style={{
+                        fontSize: '10px',
+                        fontWeight: 'bold',
+                        textDecoration: 'underline',
+                        marginTop: 2,
+                        marginBottom: 2,
+                      }}
+                    >
+                      {e.title}
+                    </Text>
+                  )
+                  : (
+                    <View
+                      key={e.id}
+                      style={{
+                        flexDirection: 'row',
+                      }}
+                    >
+                      <Text style={{ fontSize: '8px' }}>{e.title} </Text>
+                      <Text style={{ fontSize: '8px' }}>x{e.count}</Text>
+                    </View>
+                  )
+              ))}
             </View>
           ))}
         </View>
