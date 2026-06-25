@@ -7,18 +7,44 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
+import { useEffect } from 'react'
 
 export default function ForestTree({ pid }: { pid?: string }) {
-  const { nodes } = useGLTF(
+  const gltf = useGLTF(
     '/forgotten-forest-tree-low-poly-colored.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
+  const { nodes } = gltf
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+
+  useEffect(() => {
+    return () => {
+      // We don't implement this step because we want the JS cache
+      // useGLTF.clear('/forgotten-forest-tree-low-poly-colored.glb') // free JS cache
+
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      gltf.scene.traverse((child: any) => {
+        if (child.isMesh) {
+          child.geometry?.dispose()
+          const mats = Array.isArray(child.material)
+            ? child.material : [child.material]
+          for (const mat of mats) {
+            for (const key of Object.keys(mat)) {
+              if (mat[key]?.isTexture) mat[key].dispose()
+            }
+            mat.dispose()
+          }
+        }
+        if (child.skeleton) child.skeleton.dispose()
+      })
+    }
+  }, [gltf])
+
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
@@ -50,10 +76,10 @@ export default function ForestTree({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            color,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </>
   )
