@@ -165,6 +165,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     id: '',
     name: '',
     author: '',
+    version: 1,
     // sets: '',
     shape: 'rectangle',
     width: 20,

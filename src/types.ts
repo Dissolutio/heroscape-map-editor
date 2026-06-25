@@ -9,6 +9,7 @@ export type HexMap = {
   id: string
   name: string
   author: string
+  version?: number
   // sets: string
   shape: string // 'hexagon' | 'rectangle'
   length: number // for hexagon shaped maps width=length=size
