@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import { Vector3 } from 'three'
@@ -20,7 +20,7 @@ type Props = {
 
 export function CastleWall({ boardHex, onPointerUp }: Props) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
+  const { nodes } = useDisposableGLTF('/adjustable-castle-walls.glb') as any
   const [capColor, setCapColor] = React.useState(
     hexTerrainColor[HexTerrain.castleWall],
   )
@@ -134,7 +134,7 @@ export function CastleWallPreview({
   isCastleUnder?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
+  const { nodes } = useDisposableGLTF('/adjustable-castle-walls.glb') as any
   const capColor = hexTerrainColor[HexTerrain.castleWall]
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,

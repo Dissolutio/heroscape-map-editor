@@ -220,7 +220,7 @@ export const MapBoardPiece3D = ({
       <group
         position={[
           x + getRoadWallOptions(rotation).xAdd,
-          y,
+          y - HEXGRID_HEX_HEIGHT,
           z + getRoadWallOptions(rotation).zAdd,
         ]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
@@ -332,10 +332,10 @@ export const MapBoardPiece3D = ({
           x,
           // either gets moved down to fluid level, or up to solid cap level
           y -
-            HEXGRID_HEX_HEIGHT -
-            (isUnderHexFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : -HEXGRID_HEXCAP_HEIGHT / 2),
+          HEXGRID_HEX_HEIGHT -
+          (isUnderHexFluid
+            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+            : -HEXGRID_HEXCAP_HEIGHT / 2),
           z,
         ]}
         rotation={[0, getObstaclRotation(rotation), 0]}
@@ -354,10 +354,10 @@ export const MapBoardPiece3D = ({
           x,
           // either gets moved down to fluid level, or up to solid cap level
           y -
-            HEXGRID_HEX_HEIGHT -
-            (isUnderHexFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : -HEXGRID_HEXCAP_HEIGHT / 2),
+          HEXGRID_HEX_HEIGHT -
+          (isUnderHexFluid
+            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+            : -HEXGRID_HEXCAP_HEIGHT / 2),
           z,
         ]}
         rotation={[0, getObstaclRotation(rotation), 0]}
@@ -456,7 +456,7 @@ export const MapBoardPiece3D = ({
             position={[
               x,
               (isUnderHexFluid ? yGlyphFluidUnder : yGlyph) +
-                HEXGRID_HEX_HEIGHT / 3,
+              HEXGRID_HEX_HEIGHT / 3,
               z,
             ]}
           >
@@ -672,10 +672,10 @@ export const MapBoardPiece3D = ({
           x + getLadderBattlementOptions(rotation).xAdd,
           // either gets moved down to fluid level, or up to solid cap level
           y -
-            HEXGRID_HEX_HEIGHT -
-            (isLadderChainOnFluid
-              ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
-              : -HEXGRID_HEXCAP_HEIGHT / 2),
+          HEXGRID_HEX_HEIGHT -
+          (isLadderChainOnFluid
+            ? HEXGRID_HEX_HEIGHT - HEXGRID_HEXCAP_FLUID_HEIGHT
+            : -HEXGRID_HEXCAP_HEIGHT / 2),
           z + getLadderBattlementOptions(rotation).zAdd,
         ]}
         rotation={[0, pieceRotation, 0]}

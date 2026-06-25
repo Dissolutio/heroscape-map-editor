@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -17,7 +17,7 @@ export default function Outcrop3({
   isLavaRock?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-3.glb') as any
+  const { nodes } = useDisposableGLTF('/uncolored-decimated-glacier-outcrop-3.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -68,7 +68,7 @@ export function Outcrop3Preview({
   isLavaRock?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/uncolored-decimated-glacier-outcrop-3.glb') as any
+  const { nodes } = useDisposableGLTF('/uncolored-decimated-glacier-outcrop-3.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

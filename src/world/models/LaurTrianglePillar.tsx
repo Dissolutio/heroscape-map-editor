@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import { FrontSide, DoubleSide } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
@@ -23,11 +23,11 @@ export default function LaurWallTrianglePillar({
 }) {
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const boardPieces = useBoundStore((s) => s.boardPieces)
-  const { nodes } = useGLTF(
+  const { nodes } = useDisposableGLTF(
     '/laur-triangle-pillar-from-hs-blendfile.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
-  // const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
+  // const { nodes } = useDisposableGLTF('/laur-triangle-pillar.glb') as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnter, onPointerOut } = usePieceHoverState()
   const isLightsAndShadowsRender = useBoundStore(
@@ -142,11 +142,11 @@ export function LaurWallTrianglePillarPreview({
   opacity?: number
   showBaseMesh?: boolean
 }) {
-  const { nodes } = useGLTF(
+  const { nodes } = useDisposableGLTF(
     '/laur-triangle-pillar-from-hs-blendfile.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
-  // const { nodes } = useGLTF('/laur-triangle-pillar.glb') as any
+  // const { nodes } = useDisposableGLTF('/laur-triangle-pillar.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

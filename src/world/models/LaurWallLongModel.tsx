@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -23,7 +23,7 @@ function LaurWallLongModel({
   const {
     nodes: { LaurWallLong, LaurWallLongDecorDeep },
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  } = useGLTF('/laurwall-long_v2.glb') as any
+  } = useDisposableGLTF('/laurwall-long_v2.glb') as any
 
   return (
     <>

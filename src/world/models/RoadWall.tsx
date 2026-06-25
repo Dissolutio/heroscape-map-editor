@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -9,7 +9,7 @@ import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export function RoadWall({ pid }: { pid: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/handmade-roadwall.glb') as any
+  const { nodes } = useDisposableGLTF('/handmade-roadwall.glb') as any
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
@@ -48,7 +48,7 @@ export function RoadWall({ pid }: { pid: string }) {
 }
 export function RoadWallPreview({ opacity }: { opacity?: number }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/handmade-roadwall.glb') as any
+  const { nodes } = useDisposableGLTF('/handmade-roadwall.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

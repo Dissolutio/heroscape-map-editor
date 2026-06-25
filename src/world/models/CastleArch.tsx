@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
@@ -25,7 +25,7 @@ type Props = {
 
 export function CastleArchPreview({ isDoor }: { isDoor: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/castle-arch-handmade.glb') as any
+  const { nodes } = useDisposableGLTF('/castle-arch-handmade.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -96,7 +96,7 @@ export function CastleArchPreview({ isDoor }: { isDoor: boolean }) {
 }
 export function CastleArch({ boardHex, onPointerUp }: Props) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/castle-arch-handmade.glb') as any
+  const { nodes } = useDisposableGLTF('/castle-arch-handmade.glb') as any
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)

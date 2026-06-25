@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -15,7 +15,7 @@ type Props = {
 // These were made after the castle walls and are VERY SIMILAR. TODO: DRY
 export default function CastleBase({ boardHex, onPointerUp }: Props) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
+  const { nodes } = useDisposableGLTF('/adjustable-castle-walls.glb') as any
   const pieceID = boardHex.pieceID
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
@@ -108,7 +108,7 @@ export function CastleBasePreview({
   isCastleStraight?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/adjustable-castle-walls.glb') as any
+  const { nodes } = useDisposableGLTF('/adjustable-castle-walls.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

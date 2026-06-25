@@ -1,4 +1,5 @@
-import { Decal, useGLTF, useTexture } from '@react-three/drei'
+import { Decal, useTexture } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import useBoundStore from '../../store/store'
 import { HexTerrain, Pieces } from '../../types'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
@@ -17,7 +18,7 @@ export function GlyphModel({
   isNamedGlyph: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/glyph-with-logo.glb') as any
+  const { nodes } = useDisposableGLTF('/glyph-with-logo.glb') as any
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const isLightsAndShadowsRender = useBoundStore(
@@ -66,7 +67,7 @@ export function GlyphModel({
 }
 export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/glyph-with-logo.glb') as any
+  const { nodes } = useDisposableGLTF('/glyph-with-logo.glb') as any
   // const texture = useTexture('glyph-valkyrie-logo.svg')
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,

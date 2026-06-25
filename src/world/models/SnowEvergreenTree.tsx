@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -10,7 +10,7 @@ import { noop } from 'lodash'
 import * as THREE from 'three'
 import { useMemo } from 'react'
 export function SnowEvergreenTree({ pid }: { pid?: string }) {
-  const { nodes } = useGLTF(
+  const { nodes } = useDisposableGLTF(
     '/forgotten-forest-tree-low-poly-colored.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
