@@ -22,6 +22,7 @@ import {
 import PiecesGridDialog from './PiecesGridDialog'
 import { zoomToMap } from '../utils/camera-utils'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
+import EditObjectiveMarkersDialog from './EditObjectiveMarkersDialog'
 
 export default function HomePage() {
   // Keep the persisted personal inventory mirrored into zustand so terrain
@@ -78,6 +79,7 @@ export default function HomePage() {
         cameraControlsRef={cameraControlsRef}
       />
       <EditMapFormDialog />
+      <EditObjectiveMarkersDialog />
       <EditPieceInventoryDialog />
       <ViewMapInventoryDialog />
       <PiecesGridDialog cameraControlsRef={cameraControlsRef} />

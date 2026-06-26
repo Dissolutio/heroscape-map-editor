@@ -10,11 +10,17 @@ export const getUrlMapString = ({
   hexMap: HexMap
   boardPieces: BoardPiece[]
 }) => {
+  const shareableHexMap: HexMap = {
+    ...hexMap,
+    mapPortraitBase64: '',
+    mapNotes: '',
+    objectiveMarkerMetadataByUID: undefined,
+  }
   const boardPiecesEncodedArr = encodeBoardPiecesToIds(boardPieces)
   return encodeURI(
     JSONCrush.crush(
       JSON.stringify([
-        hexMap, // 1
+        shareableHexMap, // 1
         ...boardPiecesEncodedArr,
       ]),
     ),

@@ -155,6 +155,10 @@ export const hexTerrainColor = {
   [Pieces.startZone6]: 'rgb(0,255,255)',
   [Pieces.startZone7]: 'rgb(255,128,0)',
   [Pieces.startZone8]: 'rgb(128,0,255)',
+  [Pieces.objectiveMarkerType11]: 'rgb(215,45,45)',
+  [Pieces.objectiveMarkerType12]: 'rgb(215,45,45)',
+  [Pieces.objectiveMarkerType21]: 'rgb(45,110,215)',
+  [Pieces.objectiveMarkerType22]: 'rgb(45,110,215)',
 }
 export const terrainCapColors: { [terrain: string]: string } = {
   [HexTerrain.empty]: hexTerrainColor.castle,
@@ -270,6 +274,10 @@ export const svgColors = {
   [Pieces.startZone6]: 'rgb(99, 132, 37)',
   [Pieces.startZone7]: 'rgb(255, 125, 0)',
   [Pieces.startZone8]: 'rgb(76, 40, 168)',
+  [Pieces.objectiveMarkerType11]: 'rgb(215,45,45)',
+  [Pieces.objectiveMarkerType12]: 'rgb(215,45,45)',
+  [Pieces.objectiveMarkerType21]: 'rgb(45,110,215)',
+  [Pieces.objectiveMarkerType22]: 'rgb(45,110,215)',
   // [Pieces.startZone9]: 'rgb(213, 0, 22)',
   empty: 'rgb(0, 0, 0)',
   jungleText: '#000000',

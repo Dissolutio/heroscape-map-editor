@@ -138,10 +138,9 @@ export const FileControlsTab = ({
   //   }
   // }
   const onClickCopy = async () => {
-    const hexMapToUse = { ...hexMap, mapPortraitBase64: '', mapNotes: '' }
     const myUrl = getUrlMapString({
-      hexMap: hexMapToUse,
-      boardPieces: boardPieces,
+      hexMap,
+      boardPieces,
     })
     const fullUrl = `${window.location.origin + window.location.pathname}?m=${myUrl}`
     if (fullUrl.length > 2082) {

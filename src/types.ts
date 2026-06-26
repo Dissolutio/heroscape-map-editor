@@ -18,6 +18,11 @@ export type HexMap = {
   // properties below are written as BLANK STRINGS in URL-shareable format
   mapPortraitBase64?: string // a base64 representation of image of map (taken or submitted by user)
   mapNotes?: string // notes about the map, added by user
+  objectiveMarkerMetadataByUID?: Record<string, ObjectiveMarkerMetadata>
+}
+export type ObjectiveMarkerMetadata = {
+  iconText: string
+  label: string
 }
 export type CubeCoordinate = {
   q: number
@@ -117,6 +122,7 @@ export enum HexTerrain {
   glyphPower = 'glyphPower',
   glyphTreasure = 'glyphTreasure',
   startZone = 'startZone',
+  objectiveMarker = 'objectiveMarker',
   _vsPersonal = '_vsPersonal',
   _vsFigure = '_vsFigure',
 }
@@ -150,6 +156,8 @@ export type Piece = {
 }
 export enum PiecePrefixes {
   startZone = 'z',
+  objectiveMarker1 = 'om1',
+  objectiveMarker2 = 'om2',
   grass = 'g',
   rock = 'r',
   sand = 's',
@@ -195,6 +203,10 @@ export const Pieces = {
   startZone6: `${PiecePrefixes.startZone}6`,
   startZone7: `${PiecePrefixes.startZone}7`,
   startZone8: `${PiecePrefixes.startZone}8`,
+  objectiveMarkerType11: `${PiecePrefixes.objectiveMarker1}1`,
+  objectiveMarkerType12: `${PiecePrefixes.objectiveMarker1}2`,
+  objectiveMarkerType21: `${PiecePrefixes.objectiveMarker2}1`,
+  objectiveMarkerType22: `${PiecePrefixes.objectiveMarker2}2`,
   // these inventory IDs are purposely short, to make their character length small for maximum-sized URL-shareable maps
   grass1: `${PiecePrefixes.grass}1`,
   grass2: `${PiecePrefixes.grass}2`,

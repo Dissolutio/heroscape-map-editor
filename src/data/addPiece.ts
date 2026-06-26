@@ -108,6 +108,7 @@ export function addPiece({
     piece.terrain === HexTerrain.glyphPower ||
     piece.terrain === HexTerrain.glyphTreasure
   const isStartZonePiece = piece.terrain === HexTerrain.startZone
+  const isObjectiveMarkerPiece = piece.terrain === HexTerrain.objectiveMarker
   // Validate
   const isPlacingOnTable = underHexIds.every(
     (id) => (newBoardHexes?.[id]?.terrain ?? '') === HexTerrain.empty,
@@ -170,7 +171,8 @@ export function addPiece({
       piece.id === Pieces.shipWall ||
       piece.id === Pieces.cannon ||
       isGlyphPiece ||
-      isStartZonePiece) &&
+      isStartZonePiece ||
+      isObjectiveMarkerPiece) &&
       isLandUnderAll) ||
     (isBridgingObstaclePieceID(piece.id) && isSolidUnderAtLeastOne) || // some multi-hex fluid-tile based obstacles (glaciers-4/6, hive) can bridge over gaps
     (isPlacingOnTable && !isGlyphPiece) // glyphs cannot go directly on table

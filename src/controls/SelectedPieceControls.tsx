@@ -1,4 +1,11 @@
-import { Box, Button, ButtonGroup, Tooltip, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
 import type { RefObject } from 'react'
 import { piecesSoFar } from '../data/pieces'
@@ -14,6 +21,10 @@ import { zoomToPieces } from '../utils/camera-utils'
 import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
 import DeletePieceButton from './DeletePieceButton'
 import { ConvertTerrainQuickSelect } from './ConvertTerrainQuickSelect'
+import {
+  isObjectiveMarkerInventoryID,
+  sanitizeObjectiveMarkerMetadataDraft,
+} from '../utils/objective-markers'
 
 const FONT_SIZE = 8
 
@@ -49,7 +60,24 @@ export function SelectedPieceControls({
   const firstBp = selectedBoardPieces[0]
   if (!firstBp) return null
 
+  const objectiveMarkerMetadataByUID = useBoundStore(
+    (s) => s.hexMap.objectiveMarkerMetadataByUID ?? {},
+  )
+  const updateObjectiveMarkerMetadata = useBoundStore(
+    (s) => s.updateObjectiveMarkerMetadata,
+  )
+  const finalizeObjectiveMarkerMetadata = useBoundStore(
+    (s) => s.finalizeObjectiveMarkerMetadata,
+  )
+
   const isMulti = selectedBoardPieces.length > 1
+  const isSingleObjectiveMarker =
+    !isMulti && isObjectiveMarkerInventoryID(firstBp.inventoryID)
+  const singleObjectiveMarkerMetadata = isSingleObjectiveMarker
+    ? sanitizeObjectiveMarkerMetadataDraft(
+      objectiveMarkerMetadataByUID[firstBp.uid] ?? {},
+    )
+    : null
 
   // --- Status computations ---
   const conflictedUIDSet = new Set(conflictedPieceUIDs)
@@ -131,11 +159,11 @@ export function SelectedPieceControls({
 
   const tooltipLines = isMulti
     ? selectedBoardPieces
-        .map(
-          (bp) =>
-            `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
-        )
-        .join('\n')
+      .map(
+        (bp) =>
+          `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
+      )
+      .join('\n')
     : ''
 
   const altitudes = selectedBoardPieces.map((bp) => bp.altitude + 1)
@@ -306,7 +334,7 @@ export function SelectedPieceControls({
               buriedCount +
               partiallyBuriedCount +
               subBuriedCount >
-            0
+              0
               ? 0.25
               : 1,
         }}
@@ -319,50 +347,50 @@ export function SelectedPieceControls({
         buriedCount > 0 ||
         partiallyBuriedCount > 0 ||
         subBuriedCount > 0) && (
-        <Box sx={{ mb: 0.75 }}>
-          {conflictedCount > 0 && (
-            <Typography
-              title="Piece collides with other pieces"
-              sx={{
-                fontSize: 10,
-                color: 'error.main',
-                fontWeight: 700,
-                lineHeight: 1.4,
-              }}
-            >
-              {isMulti ? `${conflictedCount} conflicted` : 'Conflicted'}
-            </Typography>
-          )}
-          {buriedCount > 0 && (
-            <Typography
-              title="No hexes from this piece show to the surface"
-              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
-            >
-              {isMulti ? `${buriedCount} buried` : 'Buried'}
-            </Typography>
-          )}
-          {partiallyBuriedCount > 0 && (
-            <Typography
-              title="At least one hex from this piece is covered by land above it"
-              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
-            >
-              {isMulti
-                ? `${partiallyBuriedCount} partially buried`
-                : 'Partially buried'}
-            </Typography>
-          )}
-          {subBuriedCount > 0 && (
-            <Typography
-              title="The sides of this piece do not show to the outside"
-              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
-            >
-              {isMulti
-                ? `${subBuriedCount} subterrain-buried`
-                : 'Subterrain-buried'}
-            </Typography>
-          )}
-        </Box>
-      )}
+          <Box sx={{ mb: 0.75 }}>
+            {conflictedCount > 0 && (
+              <Typography
+                title="Piece collides with other pieces"
+                sx={{
+                  fontSize: 10,
+                  color: 'error.main',
+                  fontWeight: 700,
+                  lineHeight: 1.4,
+                }}
+              >
+                {isMulti ? `${conflictedCount} conflicted` : 'Conflicted'}
+              </Typography>
+            )}
+            {buriedCount > 0 && (
+              <Typography
+                title="No hexes from this piece show to the surface"
+                sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+              >
+                {isMulti ? `${buriedCount} buried` : 'Buried'}
+              </Typography>
+            )}
+            {partiallyBuriedCount > 0 && (
+              <Typography
+                title="At least one hex from this piece is covered by land above it"
+                sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+              >
+                {isMulti
+                  ? `${partiallyBuriedCount} partially buried`
+                  : 'Partially buried'}
+              </Typography>
+            )}
+            {subBuriedCount > 0 && (
+              <Typography
+                title="The sides of this piece do not show to the outside"
+                sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+              >
+                {isMulti
+                  ? `${subBuriedCount} subterrain-buried`
+                  : 'Subterrain-buried'}
+              </Typography>
+            )}
+          </Box>
+        )}
 
       <Button
         variant="outlined"
@@ -511,6 +539,40 @@ export function SelectedPieceControls({
       <ButtonGroup size="small" sx={{ mt: 0.5 }}>
         <DeletePieceButton />
       </ButtonGroup>
+
+      {isSingleObjectiveMarker && singleObjectiveMarkerMetadata && (
+        <Box sx={{ mt: 0.75 }}>
+          <TextField
+            label="Icon Text"
+            value={singleObjectiveMarkerMetadata.iconText}
+            inputProps={{ maxLength: 2 }}
+            helperText="Up to 2 characters"
+            onChange={(event) => {
+              updateObjectiveMarkerMetadata(firstBp.uid, {
+                iconText: event.target.value,
+              })
+            }}
+            onBlur={() => finalizeObjectiveMarkerMetadata()}
+            size="small"
+            fullWidth
+            sx={{ mb: 0.75 }}
+          />
+          <TextField
+            label="Label"
+            value={singleObjectiveMarkerMetadata.label}
+            inputProps={{ maxLength: 80 }}
+            helperText="Up to 80 characters"
+            onChange={(event) => {
+              updateObjectiveMarkerMetadata(firstBp.uid, {
+                label: event.target.value,
+              })
+            }}
+            onBlur={() => finalizeObjectiveMarkerMetadata()}
+            size="small"
+            fullWidth
+          />
+        </Box>
+      )}
 
       {/* Convert Terrain */}
       <ConvertTerrainQuickSelect pieceUIDs={selectedPieceIDs} />
