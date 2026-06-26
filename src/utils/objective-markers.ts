@@ -44,7 +44,9 @@ export function sanitizeObjectiveMarkerMetadata(
   )
   return {
     iconText:
-      iconText.length > 0 ? iconText : getObjectiveMarkerDefaultIconText(defaultOrder),
+      iconText.length > 0
+        ? iconText
+        : getObjectiveMarkerDefaultIconText(defaultOrder),
     label: sanitizeObjectiveMarkerLabel(metadata.label ?? ''),
   }
 }
@@ -61,5 +63,7 @@ export function sanitizeObjectiveMarkerMetadataDraft(
 export function getObjectiveMarkerBoardPiecesInCreationOrder(
   boardPieces: BoardPiece[],
 ) {
-  return boardPieces.filter((bp) => isObjectiveMarkerInventoryID(bp.inventoryID))
+  return boardPieces.filter((bp) =>
+    isObjectiveMarkerInventoryID(bp.inventoryID),
+  )
 }

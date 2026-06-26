@@ -19,7 +19,9 @@ import {
 
 export default function EditObjectiveMarkersDialog() {
   const currentDialog = useBoundStore((state) => state.currentDialog)
-  const toggleCurrentDialog = useBoundStore((state) => state.toggleCurrentDialog)
+  const toggleCurrentDialog = useBoundStore(
+    (state) => state.toggleCurrentDialog,
+  )
   const boardPieces = useBoundStore((state) => state.boardPieces)
   const metadataByUID = useBoundStore(
     (state) => state.hexMap.objectiveMarkerMetadataByUID ?? {},
@@ -38,7 +40,8 @@ export default function EditObjectiveMarkersDialog() {
 
   const isOpen = currentDialog === DIALOGS.editObjectiveMarkers
   const markers = useMemo(
-    () => boardPieces.filter((bp) => isObjectiveMarkerInventoryID(bp.inventoryID)),
+    () =>
+      boardPieces.filter((bp) => isObjectiveMarkerInventoryID(bp.inventoryID)),
     [boardPieces],
   )
 

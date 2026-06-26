@@ -68,7 +68,9 @@ export const EditControlsTab = () => {
   const toggleIsPieceInventoryDialogOpen = useBoundStore(
     (state) => state.toggleIsPieceInventoryDialogOpen,
   )
-  const toggleCurrentDialog = useBoundStore((state) => state.toggleCurrentDialog)
+  const toggleCurrentDialog = useBoundStore(
+    (state) => state.toggleCurrentDialog,
+  )
   const isObjectiveMarkerDialogOpen =
     useBoundStore((state) => state.currentDialog) ===
     DIALOGS.editObjectiveMarkers
