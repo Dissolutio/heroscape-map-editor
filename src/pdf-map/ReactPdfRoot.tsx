@@ -207,9 +207,9 @@ const PdfPieceInventory = ({
 
   const counts = hasConstraints
     ? reconcileLaurLegacyToStackableUsage({
-      usedInventory: countsBeforeReconcile,
-      availableInventory: combinedInventory,
-    }).reconciledUsedInventory
+        usedInventory: countsBeforeReconcile,
+        availableInventory: combinedInventory,
+      }).reconciledUsedInventory
     : countsBeforeReconcile
 
   const getInventoryCategoryRank = (piece: {
@@ -217,7 +217,10 @@ const PdfPieceInventory = ({
     isHexTerrainPiece?: boolean
     isObstaclePiece?: boolean
   }) => {
-    if (piece.terrain === HexTerrain.glyphPower || piece.terrain === HexTerrain.glyphTreasure) {
+    if (
+      piece.terrain === HexTerrain.glyphPower ||
+      piece.terrain === HexTerrain.glyphTreasure
+    ) {
       return 2
     }
     if (piece.terrain === HexTerrain.startZone) {
@@ -271,16 +274,16 @@ const PdfPieceInventory = ({
 
   type InventoryRow =
     | {
-      kind: 'header'
-      id: string
-      title: string
-    }
+        kind: 'header'
+        id: string
+        title: string
+      }
     | {
-      kind: 'piece'
-      id: string
-      title: string
-      count: number
-    }
+        kind: 'piece'
+        id: string
+        title: string
+        count: number
+      }
 
   const getSectionKey = (entry: {
     terrain?: string
@@ -356,34 +359,32 @@ const PdfPieceInventory = ({
                 flexDirection: 'column',
               }}
             >
-              {column.map((e) => (
-                e.kind === 'header'
-                  ? (
-                    <Text
-                      key={e.id}
-                      style={{
-                        fontSize: '10px',
-                        fontWeight: 'bold',
-                        textDecoration: 'underline',
-                        marginTop: 2,
-                        marginBottom: 2,
-                      }}
-                    >
-                      {e.title}
-                    </Text>
-                  )
-                  : (
-                    <View
-                      key={e.id}
-                      style={{
-                        flexDirection: 'row',
-                      }}
-                    >
-                      <Text style={{ fontSize: '8px' }}>{e.title} </Text>
-                      <Text style={{ fontSize: '8px' }}>x{e.count}</Text>
-                    </View>
-                  )
-              ))}
+              {column.map((e) =>
+                e.kind === 'header' ? (
+                  <Text
+                    key={e.id}
+                    style={{
+                      fontSize: '10px',
+                      fontWeight: 'bold',
+                      textDecoration: 'underline',
+                      marginTop: 2,
+                      marginBottom: 2,
+                    }}
+                  >
+                    {e.title}
+                  </Text>
+                ) : (
+                  <View
+                    key={e.id}
+                    style={{
+                      flexDirection: 'row',
+                    }}
+                  >
+                    <Text style={{ fontSize: '8px' }}>{e.title} </Text>
+                    <Text style={{ fontSize: '8px' }}>x{e.count}</Text>
+                  </View>
+                ),
+              )}
             </View>
           ))}
         </View>

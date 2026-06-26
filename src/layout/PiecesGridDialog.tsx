@@ -198,10 +198,10 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       return footprint.every((coord) => {
         const aboveHex =
           boardHexes[
-          genBoardHexID({
-            ...coord,
-            altitude: topAltitude + 1,
-          })
+            genBoardHexID({
+              ...coord,
+              altitude: topAltitude + 1,
+            })
           ]
         const aboveTerrain = aboveHex?.terrain ?? ''
         return isLandTerrain(aboveTerrain)
@@ -228,10 +228,10 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       return footprint.some((coord) => {
         const aboveHex =
           boardHexes[
-          genBoardHexID({
-            ...coord,
-            altitude: topAltitude + 1,
-          })
+            genBoardHexID({
+              ...coord,
+              altitude: topAltitude + 1,
+            })
           ]
         const aboveTerrain = aboveHex?.terrain ?? ''
         return isLandTerrain(aboveTerrain)
