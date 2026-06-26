@@ -37,6 +37,7 @@ import {
   TbHexagonalPyramid,
   TbHexagonLetterC,
   TbHexagonLetterE,
+  TbHexagonLetterO,
   TbHexagonLetterPFilled,
   TbHexagonLetterS,
   TbHexagonLetterTFilled,
@@ -145,6 +146,8 @@ export default function PenModeControls() {
         Pieces.startZone6,
         Pieces.startZone7,
         Pieces.startZone8,
+        PiecePrefixes.objectiveMarker1,
+        PiecePrefixes.objectiveMarker2,
       ]),
     [lastPenMode],
   )
@@ -1044,6 +1047,20 @@ export default function PenModeControls() {
           <span>Start Zone: P8</span>
         </MenuItem>
 
+        <Divider />
+        <MenuItem value={PiecePrefixes.objectiveMarker1}>
+          <ListItemIcon>
+            <TbHexagonLetterO color={hexTerrainColor.glyphPower} />
+          </ListItemIcon>
+          <span>Objective Marker: Type 1</span>
+        </MenuItem>
+        <MenuItem value={PiecePrefixes.objectiveMarker2}>
+          <ListItemIcon>
+            <TbHexagonLetterO color={hexTerrainColor.glyphTreasure} />
+          </ListItemIcon>
+          <span>Objective Marker: Type 2</span>
+        </MenuItem>
+
         {/* GENERIC GLYPHS */}
         <Divider />
         <MenuItem value={Pieces.glyphPower}>
@@ -1271,4 +1288,6 @@ const penModeText: { [key: string]: string } = {
   sh: 'shadow',
   cg: 'wall walk',
   at: 'ancient terrain',
+  om1: 'objective marker type 1',
+  om2: 'objective marker type 2',
 }

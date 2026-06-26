@@ -17,6 +17,12 @@ export const getUrlMapString = ({
   hexMap: HexMap
   boardPieces: BoardPiece[]
 }) => {
+  const shareableHexMap: HexMap = {
+    ...hexMap,
+    mapPortraitBase64: '',
+    mapNotes: '',
+    objectiveMarkerMetadataByUID: undefined,
+  }
   const boardPiecesEncodedArr = encodeBoardPiecesToIds(boardPieces)
   // mapPortraitBase64/mapNotes are written as blank strings in URL-shareable
   // format (see HexMap type) since they can be arbitrarily large and can

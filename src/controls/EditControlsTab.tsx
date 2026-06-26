@@ -68,6 +68,10 @@ export const EditControlsTab = () => {
   const toggleIsPieceInventoryDialogOpen = useBoundStore(
     (state) => state.toggleIsPieceInventoryDialogOpen,
   )
+  const toggleCurrentDialog = useBoundStore((state) => state.toggleCurrentDialog)
+  const isObjectiveMarkerDialogOpen =
+    useBoundStore((state) => state.currentDialog) ===
+    DIALOGS.editObjectiveMarkers
   const handleClickLogState = () => {
     console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
     console.log('🚀 ~ Controls ~ boardPieces:', boardPieces)
@@ -219,6 +223,16 @@ export const EditControlsTab = () => {
           primary={'Edit Personal Inventory'}
           onClick={() =>
             toggleIsPieceInventoryDialogOpen(!isPieceInventoryDialogOpen)
+          }
+          icon={<FcRules />}
+        />
+        <ControlTabsListItemButton
+          title={'Edit objective marker icon text and labels'}
+          primary={'Edit Objective Markers'}
+          onClick={() =>
+            toggleCurrentDialog(
+              isObjectiveMarkerDialogOpen ? '' : DIALOGS.editObjectiveMarkers,
+            )
           }
           icon={<FcRules />}
         />

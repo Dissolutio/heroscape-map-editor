@@ -498,7 +498,11 @@ export const MapBoardPiece3D = ({
     inventoryID === Pieces.startZone5 ||
     inventoryID === Pieces.startZone6 ||
     inventoryID === Pieces.startZone7 ||
-    inventoryID === Pieces.startZone8
+    inventoryID === Pieces.startZone8 ||
+    inventoryID === Pieces.objectiveMarkerType11 ||
+    inventoryID === Pieces.objectiveMarkerType12 ||
+    inventoryID === Pieces.objectiveMarkerType21 ||
+    inventoryID === Pieces.objectiveMarkerType22
   ) {
     return (
       <group

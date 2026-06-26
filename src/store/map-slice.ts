@@ -8,6 +8,7 @@ import type {
   AddRemovePieceError,
   CubeCoordinate,
   MapState,
+  ObjectiveMarkerMetadata,
   Piece,
 } from '../types'
 import { PiecePrefixes } from '../types'
@@ -21,6 +22,41 @@ import {
   getEffectiveTerrainConstraintInventory,
 } from '../utils/terrain-constraints'
 import { normalizePieceInventory } from '../utils/piece-inventory'
+import {
+  getObjectiveMarkerBoardPiecesInCreationOrder,
+  isObjectiveMarkerInventoryID,
+  sanitizeObjectiveMarkerMetadata,
+  sanitizeObjectiveMarkerMetadataDraft,
+} from '../utils/objective-markers'
+
+function normalizeObjectiveMarkerMetadata(args: {
+  boardPieces: MapState['boardPieces']
+  currentMetadataByUID?: Record<string, ObjectiveMarkerMetadata>
+}) {
+  const objectiveMarkers = getObjectiveMarkerBoardPiecesInCreationOrder(
+    args.boardPieces,
+  )
+  const current = args.currentMetadataByUID ?? {}
+  const normalized: Record<string, ObjectiveMarkerMetadata> = {}
+  let nextDefaultOrder =
+    Object.values(current).reduce((max, metadata) => {
+      const parsed = Number.parseInt(metadata.iconText ?? '', 10)
+      return Number.isFinite(parsed) ? Math.max(max, parsed) : max
+    }, 0) + 1
+
+  for (const [index, marker] of objectiveMarkers.entries()) {
+    const fallbackOrder = current[marker.uid] ? index + 1 : nextDefaultOrder
+    normalized[marker.uid] = sanitizeObjectiveMarkerMetadata(
+      current[marker.uid] ?? {},
+      fallbackOrder,
+    )
+    if (!current[marker.uid]) {
+      nextDefaultOrder += 1
+    }
+  }
+
+  return normalized
+}
 
 function computeConflictedPieceUIDs(boardPieces: MapState['boardPieces']) {
   const { conflictedPieceUIDs } = rebuildBoardStateFromPieces(boardPieces)
@@ -131,6 +167,11 @@ export interface MapSlice extends MapState {
   syncTerrainConstraintPenMode: () => void
   changeAuthorName: (val: string) => void
   changeMapNotes: (val: string) => void
+  updateObjectiveMarkerMetadata: (
+    uid: string,
+    metadata: Partial<ObjectiveMarkerMetadata>,
+  ) => void
+  finalizeObjectiveMarkerMetadata: () => void
 }
 
 type PaintTileArgs = {
@@ -170,6 +211,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     shape: 'rectangle',
     width: 20,
     length: 20,
+    objectiveMarkerMetadataByUID: {},
   },
   boardPieces: [],
   conflictedPieceUIDs: [],
@@ -213,6 +255,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
             : state.viewingLevel
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
+        draft.hexMap.objectiveMarkerMetadataByUID =
+          normalizeObjectiveMarkerMetadata({
+            boardPieces: newBoardPieces,
+            currentMetadataByUID: draft.hexMap.objectiveMarkerMetadataByUID,
+          })
         // Recompute from boardPieces so conflict state stays correct even after load/rehydrate drift.
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(newBoardPieces)
       })
@@ -270,6 +317,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
 
         draft.boardHexes = workingHexes
         draft.boardPieces = workingPieces
+        draft.hexMap.objectiveMarkerMetadataByUID =
+          normalizeObjectiveMarkerMetadata({
+            boardPieces: workingPieces,
+            currentMetadataByUID: draft.hexMap.objectiveMarkerMetadataByUID,
+          })
         draft.conflictedPieceUIDs = [...newConflicts]
       })
     }),
@@ -322,6 +374,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
 
         draft.boardHexes = workingHexes
         draft.boardPieces = workingPieces
+        draft.hexMap.objectiveMarkerMetadataByUID =
+          normalizeObjectiveMarkerMetadata({
+            boardPieces: workingPieces,
+            currentMetadataByUID: draft.hexMap.objectiveMarkerMetadataByUID,
+          })
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(workingPieces)
       })
     })
@@ -403,6 +460,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         })
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
+        draft.hexMap.objectiveMarkerMetadataByUID =
+          normalizeObjectiveMarkerMetadata({
+            boardPieces: newBoardPieces,
+            currentMetadataByUID: draft.hexMap.objectiveMarkerMetadataByUID,
+          })
 
         // Recompute globally so move and paint use the same conflict source of truth.
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(newBoardPieces)
@@ -442,8 +504,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           draft.terrainConstraintSource === 'setsUsed'
             ? getAvailableLandPrefixesForSets(val).has(draft.lastPenMode)
             : getAvailableLandPrefixesForInventory(constrainedInventory).has(
-                draft.lastPenMode,
-              )
+              draft.lastPenMode,
+            )
         if (!isCurrentLastPenModeAvailable) {
           draft.lastPenMode = constrainedPenMode
           draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
@@ -487,12 +549,48 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.hexMap.mapNotes = val
       })
     }),
+  updateObjectiveMarkerMetadata: (
+    uid: string,
+    metadata: Partial<ObjectiveMarkerMetadata>,
+  ) =>
+    set((state) => {
+      return produce(state, (draft) => {
+        const marker = draft.boardPieces.find((bp) => bp.uid === uid)
+        if (!marker || !isObjectiveMarkerInventoryID(marker.inventoryID)) {
+          return
+        }
+        const current = draft.hexMap.objectiveMarkerMetadataByUID?.[uid] ?? {}
+        if (!draft.hexMap.objectiveMarkerMetadataByUID) {
+          draft.hexMap.objectiveMarkerMetadataByUID = {}
+        }
+        draft.hexMap.objectiveMarkerMetadataByUID[uid] =
+          sanitizeObjectiveMarkerMetadataDraft({
+            ...current,
+            ...metadata,
+          })
+      })
+    }),
+  finalizeObjectiveMarkerMetadata: () =>
+    set((state) => {
+      return produce(state, (draft) => {
+        draft.hexMap.objectiveMarkerMetadataByUID =
+          normalizeObjectiveMarkerMetadata({
+            boardPieces: draft.boardPieces,
+            currentMetadataByUID: draft.hexMap.objectiveMarkerMetadataByUID,
+          })
+      })
+    }),
   loadMap: (mapState: MapState) =>
     set((state) => {
       return produce(state, (draft) => {
         draft.boardHexes = mapState.boardHexes
         draft.hexMap = mapState.hexMap
         draft.boardPieces = mapState.boardPieces
+        draft.hexMap.objectiveMarkerMetadataByUID =
+          normalizeObjectiveMarkerMetadata({
+            boardPieces: mapState.boardPieces,
+            currentMetadataByUID: mapState.hexMap.objectiveMarkerMetadataByUID,
+          })
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           mapState.boardPieces,
         )
@@ -506,8 +604,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           (draft.terrainConstraintSource === 'setsUsed'
             ? getPreferredConstrainedPenMode(mapState.hexMap?.setsUsed)
             : getPreferredConstrainedPenModeFromInventory(
-                constrainedInventory,
-              )) ?? PiecePrefixes.grass
+              constrainedInventory,
+            )) ?? PiecePrefixes.grass
         draft.lastPenMode = constrainedPenMode
         draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
       })
