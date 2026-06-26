@@ -220,7 +220,7 @@ export const MapBoardPiece3D = ({
       <group
         position={[
           x + getRoadWallOptions(rotation).xAdd,
-          y,
+          y - HEXGRID_HEX_HEIGHT,
           z + getRoadWallOptions(rotation).zAdd,
         ]}
         rotation={[0, (rotation * -Math.PI) / 3, 0]}

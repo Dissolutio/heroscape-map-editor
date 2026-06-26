@@ -47,7 +47,7 @@ export function ConvertTerrainQuickSelect({
   sx?: SxProps<Theme>
 }) {
   const boardPieces = useBoundStore((s) => s.boardPieces)
-  const setsUsed = useBoundStore((s) => s.hexMap?.setsUsed ?? [])
+  const setsUsed = useBoundStore((s) => s.hexMap.setsUsed)
   const terrainConstraintSource = useBoundStore(
     (s) => s.terrainConstraintSource,
   )
@@ -107,7 +107,7 @@ export function ConvertTerrainQuickSelect({
   const constrainedInventory = useMemo(
     () =>
       getEffectiveTerrainConstraintInventory({
-        setsUsed,
+        setsUsed: setsUsed ?? [],
         terrainConstraintSource,
         customConstraintInventory,
         userPieceInventory,
@@ -120,7 +120,7 @@ export function ConvertTerrainQuickSelect({
     ],
   )
   const hasSetConstraints = hasActiveTerrainConstraints({
-    setsUsed,
+    setsUsed: setsUsed ?? [],
     terrainConstraintSource,
     customConstraintInventoryFileName,
   })

@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -21,7 +21,9 @@ export default function LaurWallPillar({
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/laur-pillar-from-hs-blendfile.glb') as any
+  const { nodes } = useDisposableGLTF(
+    '/laur-pillar-from-hs-blendfile.glb',
+  ) as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -115,8 +117,10 @@ export function LaurWallPillarPreview({
   showBaseMesh?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/laur-pillar-from-hs-blendfile.glb') as any
-  // const { nodes } = useGLTF('/laurwall-pillar.glb') as any
+  const { nodes } = useDisposableGLTF(
+    '/laur-pillar-from-hs-blendfile.glb',
+  ) as any
+  // const { nodes } = useDisposableGLTF('/laurwall-pillar.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

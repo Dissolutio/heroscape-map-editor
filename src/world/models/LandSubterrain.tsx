@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import React, { type PropsWithChildren } from 'react'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
@@ -139,7 +139,7 @@ export default function LandSubterrain({
 }
 export function Subterrain24({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/subterrain_24.glb') as any
+  const { nodes } = useDisposableGLTF('/subterrain_24.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -157,7 +157,7 @@ export function Subterrain24({ children }: PropsWithChildren) {
 
 export function Subterrain9({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/subterrain_9.glb') as any
+  const { nodes } = useDisposableGLTF('/subterrain_9.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -175,7 +175,7 @@ export function Subterrain9({ children }: PropsWithChildren) {
 
 export function Subterrain7B({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/subterrain_7B.glb') as any
+  const { nodes } = useDisposableGLTF('/subterrain_7B.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -193,7 +193,7 @@ export function Subterrain7B({ children }: PropsWithChildren) {
 
 export function Subterrain7({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/subterrain_7.glb') as any
+  const { nodes } = useDisposableGLTF('/subterrain_7.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -211,7 +211,7 @@ export function Subterrain7({ children }: PropsWithChildren) {
 
 export function Subterrain6({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/subterrain_6.glb') as any
+  const { nodes } = useDisposableGLTF('/subterrain_6.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -229,7 +229,7 @@ export function Subterrain6({ children }: PropsWithChildren) {
 
 export function Subterrain6B({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/subterrain_6B.glb') as any
+  const { nodes } = useDisposableGLTF('/subterrain_6B.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -249,7 +249,7 @@ export function Subterrain6B({ children }: PropsWithChildren) {
 
 export function Subterrain5({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/subterrain_5.glb') as any
+  const { nodes } = useDisposableGLTF('/subterrain_5.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -267,7 +267,7 @@ export function Subterrain5({ children }: PropsWithChildren) {
 
 export function Subterrain4({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/subterrain_4.glb') as any
+  const { nodes } = useDisposableGLTF('/subterrain_4.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -285,7 +285,7 @@ export function Subterrain4({ children }: PropsWithChildren) {
 
 export function Subterrain3({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/subterrain_3.glb') as any
+  const { nodes } = useDisposableGLTF('/subterrain_3.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -303,7 +303,7 @@ export function Subterrain3({ children }: PropsWithChildren) {
 
 export function Subterrain2({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/subterrain_2.glb') as any
+  const { nodes } = useDisposableGLTF('/subterrain_2.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -321,7 +321,7 @@ export function Subterrain2({ children }: PropsWithChildren) {
 
 export function Subterrain1({ children }: PropsWithChildren) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/subterrain_1.glb') as any
+  const { nodes } = useDisposableGLTF('/subterrain_1.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

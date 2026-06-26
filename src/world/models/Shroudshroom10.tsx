@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -9,7 +9,7 @@ import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
 
 export default function Shroudshroom10({ pid }: { pid?: string }) {
-  const { nodes } = useGLTF(
+  const { nodes } = useDisposableGLTF(
     '/shroudshroom10.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any

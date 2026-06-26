@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 import useBoundStore from '../../store/store'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
@@ -17,7 +17,7 @@ export function MarvelRuin({
   inventoryID: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/marvel-ruins_v2.glb') as any
+  const { nodes } = useDisposableGLTF('/marvel-ruins_v2.glb') as any
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isSelected = selectedPieceIDs.includes(pid)
@@ -87,7 +87,7 @@ export function MarvelRuinPreview({
   isWallIntact: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/marvel-ruins_v2.glb') as any
+  const { nodes } = useDisposableGLTF('/marvel-ruins_v2.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

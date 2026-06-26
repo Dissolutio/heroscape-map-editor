@@ -1,9 +1,10 @@
-import { Instance, Instances, useGLTF } from '@react-three/drei'
+import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { useFrame } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
+import { useDisposableGLTF } from '../../models/useDisposableGLTF'
 import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { calculateFocusOpacity } from '../../../utils/focus-opacity'
@@ -36,7 +37,7 @@ const SolidCaps = ({
 }: DreiCapProps) => {
   const ref = React.useRef<InstanceRefType>(null)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/classic1-cap.glb') as any
+  const { nodes } = useDisposableGLTF('/classic1-cap.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,

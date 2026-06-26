@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import React, { useState } from 'react'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
@@ -26,7 +26,7 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
     'forward' | 'aft' | null
   >(null)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/ship-wall_v2.glb') as any
+  const { nodes } = useDisposableGLTF('/ship-wall_v2.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

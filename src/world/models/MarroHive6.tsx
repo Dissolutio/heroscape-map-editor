@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -10,7 +10,9 @@ import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export default function MarroHive6({ pid }: { pid?: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/uncolored-decimated-marro-hive-6.glb') as any
+  const { nodes } = useDisposableGLTF(
+    '/uncolored-decimated-marro-hive-6.glb',
+  ) as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,

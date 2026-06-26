@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -65,7 +65,7 @@ export function LaurBrushPreview({
   isHighlighted?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/laur-jungle.glb') as any
+  const { nodes } = useDisposableGLTF('/laur-jungle.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -136,7 +136,7 @@ export function SwampBrushPreview({
   isHighlighted?: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/laur-jungle.glb') as any
+  const { nodes } = useDisposableGLTF('/laur-jungle.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -212,7 +212,7 @@ export function TicallaBrushPreview({
   opacity?: number
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useGLTF('/laur-jungle.glb') as any
+  const { nodes } = useDisposableGLTF('/laur-jungle.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

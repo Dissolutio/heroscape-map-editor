@@ -1,4 +1,4 @@
-import { useGLTF } from '@react-three/drei'
+import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import React, { useState } from 'react'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
@@ -25,7 +25,7 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
   const [hoveredBuildableSection, setHoveredBuildableSection] = useState<
     'forward' | 'aft' | null
   >(null)
-  const { nodes } = useGLTF(
+  const { nodes } = useDisposableGLTF(
     '/ship-bow_v3.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
