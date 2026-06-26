@@ -11,8 +11,9 @@ function makeCacheKey(path: string | string[]) {
 
 function disposeGltfResources(gltf: unknown) {
   // Read the scene defensively because GLTF typing here is intentionally loose.
-  const scene = (gltf as { scene?: { traverse?: (cb: (child: unknown) => void) => void } })
-    .scene
+  const scene = (
+    gltf as { scene?: { traverse?: (cb: (child: unknown) => void) => void } }
+  ).scene
 
   // Some assets may not expose a traversable scene; nothing to dispose in that case.
   if (!scene?.traverse) {
@@ -42,7 +43,9 @@ function disposeGltfResources(gltf: unknown) {
         }
 
         // Dispose textures referenced by material properties before disposing the material.
-        for (const value of Object.values(material as Record<string, unknown>)) {
+        for (const value of Object.values(
+          material as Record<string, unknown>,
+        )) {
           const possibleTexture = value as {
             isTexture?: boolean
             dispose?: () => void
@@ -52,9 +55,8 @@ function disposeGltfResources(gltf: unknown) {
             possibleTexture.dispose?.()
           }
         }
-
         // Finally release the material program/state itself.
-        ; (material as { dispose?: () => void }).dispose?.()
+        ;(material as { dispose?: () => void }).dispose?.()
       }
     }
 

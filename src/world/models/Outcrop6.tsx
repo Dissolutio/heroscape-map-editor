@@ -15,7 +15,9 @@ export default function Outcrop6({
   pid: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useDisposableGLTF('/uncolored-decimated-glacier-outcrop-6.glb') as any
+  const { nodes } = useDisposableGLTF(
+    '/uncolored-decimated-glacier-outcrop-6.glb',
+  ) as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -59,7 +61,9 @@ export default function Outcrop6({
 }
 export function Outcrop6Preview() {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useDisposableGLTF('/uncolored-decimated-glacier-outcrop-6.glb') as any
+  const { nodes } = useDisposableGLTF(
+    '/uncolored-decimated-glacier-outcrop-6.glb',
+  ) as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
