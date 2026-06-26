@@ -96,15 +96,29 @@ export function SelectedPieceControls({
       return isLandTerrain(aboveTerrain)
     })
   }
+  const checkPartiallyBuried = (bp: BP) => {
+    const footprint = getLandFootprint(bp)
+    if (!footprint?.length) return false
+    const topAlt = bp.altitude + 1
+    return footprint.some((c) => {
+      const aboveTerrain =
+        boardHexes[genBoardHexID({ ...c, altitude: topAlt + 1 })]?.terrain ?? ''
+      return isLandTerrain(aboveTerrain)
+    })
+  }
   const pieceStatuses = selectedBoardPieces.map((bp) => ({
     isConflicted: conflictedUIDSet.has(bp.uid),
     isLandPiece: isLandTerrain(piecesSoFar[bp.inventoryID]?.terrain ?? ''),
     isSubterrainBuried: checkSubterrainBuried(bp),
     isBuried: checkBuried(bp),
+    isPartiallyBuried: checkPartiallyBuried(bp),
   }))
   const conflictedCount = pieceStatuses.filter((s) => s.isConflicted).length
   const buriedCount = pieceStatuses.filter(
     (s) => s.isLandPiece && s.isBuried,
+  ).length
+  const partiallyBuriedCount = pieceStatuses.filter(
+    (s) => s.isLandPiece && s.isPartiallyBuried,
   ).length
   const subBuriedCount = pieceStatuses.filter(
     (s) => s.isLandPiece && s.isSubterrainBuried,
@@ -287,14 +301,24 @@ export function SelectedPieceControls({
         sx={{
           fontSize: 10,
           color: 'text.secondary',
-          mb: conflictedCount + buriedCount + subBuriedCount > 0 ? 0.25 : 1,
+          mb:
+            conflictedCount +
+              buriedCount +
+              partiallyBuriedCount +
+              subBuriedCount >
+            0
+              ? 0.25
+              : 1,
         }}
       >
         Alt: {altLabel} &nbsp; Rot: {rotLabel}
       </Typography>
 
       {/* Status indicators */}
-      {(conflictedCount > 0 || buriedCount > 0 || subBuriedCount > 0) && (
+      {(conflictedCount > 0 ||
+        buriedCount > 0 ||
+        partiallyBuriedCount > 0 ||
+        subBuriedCount > 0) && (
         <Box sx={{ mb: 0.75 }}>
           {conflictedCount > 0 && (
             <Typography
@@ -315,6 +339,16 @@ export function SelectedPieceControls({
               sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
             >
               {isMulti ? `${buriedCount} buried` : 'Buried'}
+            </Typography>
+          )}
+          {partiallyBuriedCount > 0 && (
+            <Typography
+              title="At least one hex from this piece is covered by land above it"
+              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+            >
+              {isMulti
+                ? `${partiallyBuriedCount} partially buried`
+                : 'Partially buried'}
             </Typography>
           )}
           {subBuriedCount > 0 && (

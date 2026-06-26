@@ -37,6 +37,7 @@ interface PieceRow {
   isLandPiece: boolean
   isSubterrainBuried: boolean
   isBuried: boolean
+  isPartiallyBuried: boolean
   inventoryID: string
   terrain: string
   pieceSize: number
@@ -209,6 +210,36 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
     [boardHexes, getLandFootprintAtTopAltitude, isLandTerrain],
   )
 
+  const isPartiallyBuriedForPiece = useCallback(
+    (
+      inventoryID: string,
+      pieceCoords: { q: number; r: number; s: number },
+      rotation: number,
+      pieceAltitude: number,
+    ) => {
+      const footprint = getLandFootprintAtTopAltitude(
+        inventoryID,
+        pieceCoords,
+        rotation,
+      )
+      if (!footprint?.length) return false
+
+      const topAltitude = pieceAltitude + 1
+      return footprint.some((coord) => {
+        const aboveHex =
+          boardHexes[
+            genBoardHexID({
+              ...coord,
+              altitude: topAltitude + 1,
+            })
+          ]
+        const aboveTerrain = aboveHex?.terrain ?? ''
+        return isLandTerrain(aboveTerrain)
+      })
+    },
+    [boardHexes, getLandFootprintAtTopAltitude, isLandTerrain],
+  )
+
   // Build rows: one per unique board piece with its data
   const rows: PieceRow[] = useMemo(
     () =>
@@ -229,6 +260,12 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
               bp.altitude,
             ),
             isBuried: isBuriedForPiece(
+              bp.inventoryID,
+              bp.pieceCoords,
+              bp.rotation,
+              bp.altitude,
+            ),
+            isPartiallyBuried: isPartiallyBuriedForPiece(
               bp.inventoryID,
               bp.pieceCoords,
               bp.rotation,
@@ -288,6 +325,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       conflictedUIDSet,
       isBuriedForPiece,
       isLandTerrain,
+      isPartiallyBuriedForPiece,
       isSubterrainBuriedForPiece,
       pieceOrderByInventoryID,
     ],
@@ -382,6 +420,24 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       renderCell: (params) => (
         <Box component="span">
           {params.row.isLandPiece ? (params.row.isBuried ? 'Yes' : 'No') : '-'}
+        </Box>
+      ),
+    },
+    {
+      field: 'isPartiallyBuried',
+      headerName: 'Partially Buried',
+      description:
+        'If this is a land tile, does at least one hex above it contain another land tile',
+      width: 140,
+      align: 'center',
+      headerAlign: 'center',
+      renderCell: (params) => (
+        <Box component="span">
+          {params.row.isLandPiece
+            ? params.row.isPartiallyBuried
+              ? 'Yes'
+              : 'No'
+            : '-'}
         </Box>
       ),
     },
