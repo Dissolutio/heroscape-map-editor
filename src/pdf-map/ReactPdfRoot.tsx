@@ -4,6 +4,7 @@ import {
   Font,
   Image,
   Page,
+  PDFDownloadLink,
   PDFViewer,
   Text,
   View,
@@ -11,8 +12,7 @@ import {
 import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
-import { ReactPdfDownloadLink } from './ReactPdfDownloadLink'
-import { HexTerrain, type BoardPiece, type HexMap } from '../types'
+import { type BoardHexes, type BoardPieces, HexTerrain, type BoardPiece, type HexMap } from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
 import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
 import {
@@ -20,6 +20,7 @@ import {
   getCombinedInventory,
   reconcileLaurLegacyToStackableUsage,
 } from '../inventory/laurInventoryReconcile'
+import type { PropsWithChildren } from 'react'
 
 Font.register({
   family: 'Inter',
@@ -40,8 +41,6 @@ export function ReactPdfRoot() {
   const isShowPdfOverlayOnPlacedLevel = useBoundStore(
     (s) => s.isShowPdfOverlayOnPlacedLevel,
   )
-  const mapNotes = hexMap?.mapNotes ?? ''
-  const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
   const isMobile = useMediaQuery('(max-width:800px)')
   return (
     <div
@@ -55,37 +54,94 @@ export function ReactPdfRoot() {
       }}
     >
       {isMobile ? (
-        <ReactPdfDownloadLink>Download</ReactPdfDownloadLink>
+        <ReactPdfDownloadLink>
+          Download build instructions .pdf for: {hexMap.name} by {hexMap.author}
+        </ReactPdfDownloadLink>
       ) : (
-        <PDFViewer width={'100%'} height={'100%'}>
-          <Document title={hexMap.name}>
-            <PdfMapLevels6PerPage
-              boardHexes={boardHexes}
-              boardPieces={boardPieces}
-              isPdfColorBorders={isPdfColorBorders}
-              isShowPdfOverlayLayer={isShowPdfOverlayLayer}
-              isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
-            >
-              <MapPortraitHeader
-                hexMap={hexMap}
-                mapPortraitBase64={mapPortraitBase64}
-                mapNotes={mapNotes}
-              />
-              {/* <MyCustomHeaderHeroscapeLogo
-                boardHexes={boardHexes}
-                boardPieces={boardPieces}
-                hexMap={hexMap}
-                /> */}
-            </PdfMapLevels6PerPage>
-            <PdfPieceInventory
-              isShowPDFInventory={isShowPDFInventory}
-              boardPieces={boardPieces}
-              setsUsed={hexMap.setsUsed ?? []}
-            />
-          </Document>
+        <PDFViewer showToolbar={false} width={'100%'} height={'100%'}>
+          <PdfDocument
+            hexMap={hexMap}
+            boardHexes={boardHexes}
+            boardPieces={boardPieces}
+            isPdfColorBorders={isPdfColorBorders}
+            isShowPdfOverlayLayer={isShowPdfOverlayLayer}
+            isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+            isShowPDFInventory={isShowPDFInventory}
+          />
         </PDFViewer>
       )}
     </div>
+  )
+}
+
+
+const PdfDocument = ({
+  hexMap,
+  boardHexes,
+  boardPieces,
+  isPdfColorBorders,
+  isShowPdfOverlayLayer,
+  isShowPdfOverlayOnPlacedLevel,
+  isShowPDFInventory,
+}: {
+  hexMap: HexMap
+  boardHexes: BoardHexes
+  boardPieces: BoardPieces
+  isPdfColorBorders: boolean
+  isShowPdfOverlayLayer: boolean
+  isShowPdfOverlayOnPlacedLevel: boolean
+  isShowPDFInventory: boolean
+}) => {
+  return (
+    <Document title={hexMap.name}>
+      <PdfMapLevels6PerPage
+        boardHexes={boardHexes}
+        boardPieces={boardPieces}
+        isPdfColorBorders={isPdfColorBorders}
+        isShowPdfOverlayLayer={isShowPdfOverlayLayer}
+        isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+      >
+        <MapPortraitHeader
+          hexMap={hexMap}
+          mapPortraitBase64={hexMap?.mapPortraitBase64 ?? ''}
+          mapNotes={hexMap?.mapNotes ?? ''}
+        />
+      </PdfMapLevels6PerPage>
+      <PdfPieceInventory
+        isShowPDFInventory={isShowPDFInventory}
+        boardPieces={boardPieces}
+        setsUsed={hexMap.setsUsed ?? []}
+      />
+    </Document>
+  )
+}
+export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
+  const boardHexes = useBoundStore((s) => s.boardHexes)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const hexMap = useBoundStore((s) => s.hexMap)
+  const isPdfColorBorders = useBoundStore((s) => s.isPdfColorBorders)
+  const isShowPdfOverlayLayer = useBoundStore((s) => s.isShowPdfOverlayLayer)
+  const isShowPDFInventory = useBoundStore((s) => s.isShowPDFInventory)
+  const isShowPdfOverlayOnPlacedLevel = useBoundStore(
+    (s) => s.isShowPdfOverlayOnPlacedLevel,
+  )
+  return (
+    <PDFDownloadLink
+      document={
+        <PdfDocument
+          hexMap={hexMap}
+          boardHexes={boardHexes}
+          boardPieces={boardPieces}
+          isPdfColorBorders={isPdfColorBorders}
+          isShowPdfOverlayLayer={isShowPdfOverlayLayer}
+          isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+          isShowPDFInventory={isShowPDFInventory}
+        />
+      }
+      fileName={`${hexMap.name}.pdf`}
+    >
+      {props.children}
+    </PDFDownloadLink>
   )
 }
 
@@ -207,9 +263,9 @@ const PdfPieceInventory = ({
 
   const counts = hasConstraints
     ? reconcileLaurLegacyToStackableUsage({
-        usedInventory: countsBeforeReconcile,
-        availableInventory: combinedInventory,
-      }).reconciledUsedInventory
+      usedInventory: countsBeforeReconcile,
+      availableInventory: combinedInventory,
+    }).reconciledUsedInventory
     : countsBeforeReconcile
 
   const getInventoryCategoryRank = (piece: {
@@ -243,7 +299,7 @@ const PdfPieceInventory = ({
         count,
         title: piece?.title ?? id,
         terrain: piece?.terrain ?? '',
-        size: piece?.size ?? Number.MAX_SAFE_INTEGER,
+        size: piece?.size ?? 0,
         isHexTerrainPiece: piece?.isHexTerrainPiece ?? false,
         isObstaclePiece: piece?.isObstaclePiece ?? false,
       }
@@ -274,16 +330,16 @@ const PdfPieceInventory = ({
 
   type InventoryRow =
     | {
-        kind: 'header'
-        id: string
-        title: string
-      }
+      kind: 'header'
+      id: string
+      title: string
+    }
     | {
-        kind: 'piece'
-        id: string
-        title: string
-        count: number
-      }
+      kind: 'piece'
+      id: string
+      title: string
+      count: number
+    }
 
   const getSectionKey = (entry: {
     terrain?: string
