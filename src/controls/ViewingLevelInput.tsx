@@ -1,4 +1,4 @@
-import { Box, Grid2, Input, Typography } from '@mui/material'
+import { Box, Grid, Input, Typography } from '@mui/material'
 import useBoundStore from '../store/store'
 import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 import { useHotkeyConfig } from './useHotkeyConfig'
@@ -42,8 +42,8 @@ export default function ViewingLevelInput() {
             : '',
       }}
     >
-      <Grid2 container spacing={2} sx={{ alignItems: 'center' }}>
-        <Grid2 size={{ xs: 5 }}>
+      <Grid container spacing={2} sx={{ alignItems: 'center' }}>
+        <Grid size={{ xs: 5 }}>
           <div
             style={{
               display: 'flex',
@@ -65,8 +65,8 @@ export default function ViewingLevelInput() {
               {`${(hotkeyLookup.decrementViewingLevel)?.toUpperCase()}`}
             </span>
           </div>
-        </Grid2>
-        <Grid2 size={{ xs: 3 }}>
+        </Grid>
+        <Grid size={{ xs: 3 }}>
           <Input
             value={viewingLevel}
             size="small"
@@ -80,11 +80,11 @@ export default function ViewingLevelInput() {
               type: 'number',
             }}
           />
-        </Grid2>
-        <Grid2 size={{ xs: 4 }}>
+        </Grid>
+        <Grid size={{ xs: 4 }}>
           <Typography id="input-slider">{`of ${maxLevel}${is2DOverlayLevelEnabled && is2DOpen ? ` (overlay ${overlayLevel})` : ''}`}</Typography>
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
     </Box>
   )
 }

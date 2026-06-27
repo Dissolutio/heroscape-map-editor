@@ -8,6 +8,7 @@ import {
   type SxProps,
   type Theme,
   type SelectChangeEvent,
+  Box,
 } from '@mui/material'
 import { useCallback, useId, useMemo } from 'react'
 import { useSnackbar } from 'notistack'
@@ -271,10 +272,10 @@ export function ConvertTerrainQuickSelect({
         ...sx,
         '& .MuiOutlinedInput-root': prominent
           ? {
-              minHeight: 44,
-              borderRadius: 1.5,
-              backgroundColor: 'background.paper',
-            }
+            minHeight: 44,
+            borderRadius: 1.5,
+            backgroundColor: 'background.paper',
+          }
           : undefined,
       }}
     >
@@ -305,6 +306,46 @@ export function ConvertTerrainQuickSelect({
           </MenuItem>
         ))}
         {showConstraintNotice && (
+          <Box>
+            <Divider />
+            <MenuItem
+              disableRipple
+              disableTouchRipple
+              onClick={(event) => event.preventDefault()}
+              sx={{
+                alignItems: 'flex-start',
+                cursor: 'default',
+                display: 'block',
+                py: 1,
+              }}
+            >
+              <span
+                style={{
+                  display: 'block',
+                  fontSize: '0.8em',
+                  marginBottom: '0.35rem',
+                  whiteSpace: 'normal',
+                }}
+              >
+                {constraintNoticeText}
+              </span>
+              {hasSetConstraints && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onMouseDown={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    toggleIsEditMapDialogOpen(true)
+                  }}
+                >
+                  Edit Constraints
+                </Button>
+              )}
+            </MenuItem>
+          </Box>
+        )}
+        {/* {showConstraintNotice && (
           <>
             <Divider />
             <MenuItem
@@ -343,7 +384,7 @@ export function ConvertTerrainQuickSelect({
               )}
             </MenuItem>
           </>
-        )}
+        )} */}
       </Select>
     </FormControl>
   )

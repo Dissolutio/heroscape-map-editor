@@ -1,4 +1,4 @@
-import { Divider, ListItemIcon } from '@mui/material'
+import { Box, Divider, ListItemIcon } from '@mui/material'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MuiMenuItem, { type MenuItemProps } from '@mui/material/MenuItem'
@@ -910,10 +910,10 @@ export default function PenModeControls() {
           </ListItemIcon>
           <span>Marvel Ruins - No Upper Floor, Wall Destroyed</span>
         </MenuItem>
+        <Divider />
 
         {hasSetConstraints && (
-          <>
-            <Divider />
+          <Box>
             <MuiMenuItem
               disableRipple
               disableTouchRipple
@@ -948,7 +948,7 @@ export default function PenModeControls() {
                 Edit Constraints
               </Button>
             </MuiMenuItem>
-          </>
+          </Box>
         )}
 
         {/* START ZONES */}
