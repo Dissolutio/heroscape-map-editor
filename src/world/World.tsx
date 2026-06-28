@@ -19,6 +19,9 @@ import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import type { Group, Object3DEventMap } from 'three'
 import type React from 'react'
 import { useEffect, useState } from 'react'
+import { EffectComposer, SSAO } from '@react-three/postprocessing';
+import { BlendFunction } from 'postprocessing';
+
 
 const BILLBOARD_WARMUP_MS = 4000
 
@@ -154,6 +157,14 @@ const World = ({
           {/* {!isTakingPicture && <GridHelper />} */}
           <MyCameraControls cameraControlsRef={cameraControlsRef} />
           <TakeAPictureBox />
+          <EffectComposer enableNormalPass>
+            <SSAO
+              blendFunction={BlendFunction.DIVIDE} // How the shadow blends with the scene
+              samples={30} // Higher means better quality, but heavier on the GPU
+              radius={10} // How far the effect spreads
+              intensity={1.5} // Strength of the shadow
+            />
+          </EffectComposer>
         </Canvas>
         <SelectedPieceReadout cameraControlsRef={cameraControlsRef} />
         {/* <HoveredPieceReadout /> */}
