@@ -14,9 +14,9 @@ export default function Outcrop4({
   isGlacier: boolean
   pid: string
 }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF(
     '/uncolored-decimated-glacier-outcrop-4.glb',
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -60,9 +60,9 @@ export default function Outcrop4({
   )
 }
 export function Outcrop4Preview() {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF(
     '/uncolored-decimated-glacier-outcrop-4.glb',
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
