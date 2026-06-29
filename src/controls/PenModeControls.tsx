@@ -236,6 +236,11 @@ export default function PenModeControls() {
         fullWidth
         MenuProps={{
           anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
+          // When multiple tabs open, Select malfunctions and won't scroll past focus, add 4 props below to fix:
+          // autoFocus: false,
+          // disableAutoFocusItem: true,
+          // disableEnforceFocus: true,
+          // disableScrollLock: true
         }}
         labelId="pen-terrain-select-label"
         id="pen-terrain-select"
