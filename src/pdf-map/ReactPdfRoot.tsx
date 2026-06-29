@@ -58,7 +58,7 @@ export function ReactPdfRoot() {
           Download build instructions .pdf for: {hexMap.name} by {hexMap.author}
         </ReactPdfDownloadLink>
       ) : (
-        <PDFViewer showToolbar={false} width={'100%'} height={'100%'}>
+        <PDFViewer width={'100%'} height={'100%'}>
           <PdfDocument
             hexMap={hexMap}
             boardHexes={boardHexes}
