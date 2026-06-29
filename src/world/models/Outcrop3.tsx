@@ -16,9 +16,9 @@ export default function Outcrop3({
   isGlacier?: boolean
   isLavaRock?: boolean
 }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF(
     '/uncolored-decimated-glacier-outcrop-3.glb',
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -69,9 +69,9 @@ export function Outcrop3Preview({
   isGlacier?: boolean
   isLavaRock?: boolean
 }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF(
     '/uncolored-decimated-glacier-outcrop-3.glb',
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
