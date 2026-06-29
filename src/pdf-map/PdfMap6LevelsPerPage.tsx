@@ -181,7 +181,7 @@ const get6LevelChunk = (
 
     combinedGroups.push({
       altitude: overlayAltitude,
-      label: 'Glyphs and Start Zones',
+      label: 'Start Zones, Glyphs, Objectives',
       isOverlay: true,
       hexes: [],
       pieces: [],

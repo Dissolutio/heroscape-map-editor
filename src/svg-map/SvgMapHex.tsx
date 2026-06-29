@@ -52,6 +52,7 @@ import {
   SvgShipBow,
   SvgCannon,
   getOutcropTextColor,
+  SvgObjectiveMarker,
 } from './SvgMapShapes'
 import { singleHexObstacleHeightTextProps } from './svgText'
 import {
@@ -214,7 +215,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           opacity={
             isSubLevel
               ? // white text needs a little opacity boost
-                OPACITY_SUBLEVEL * 2
+              OPACITY_SUBLEVEL * 2
               : 1
           }
           fill={textColor}
@@ -365,6 +366,22 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgStartZone hex={hex} isSubLevel={specialIsSubLevel} />
+      </g>
+    )
+  }
+  // OBJECTIVE MARKERS
+  if (hex.terrain === HexTerrain.objectiveMarker) {
+    const isOverlayViewing =
+      is2DOverlayLevelEnabled && viewingLevel === overlayLevel
+    if (is2DOverlayLevelEnabled && !isOverlayViewing) {
+      return null
+    }
+    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
+    return (
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgObjectiveMarker hex={hex} isSubLevel={specialIsSubLevel} />
       </g>
     )
   }
@@ -683,8 +700,8 @@ const SvgCastleWallBaseHeightText = ({
       fill="black"
       opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       {...singleHexObstacleHeightTextProps()}
-      // y={0.3 * SVG_HEX_RADIUS}
-      // x={-0.3 * SVG_HEX_APOTHEM}
+    // y={0.3 * SVG_HEX_RADIUS}
+    // x={-0.3 * SVG_HEX_APOTHEM}
     >
       {heightText}
     </text>
