@@ -91,7 +91,7 @@ export const PdfEmptyHex = () => {
         // fill={fillColor}
         stroke={borderColor}
         strokeWidth={borderWidth}
-      // opacity={OPACITY_EMPTY}
+        // opacity={OPACITY_EMPTY}
       />
     </>
   )
@@ -284,12 +284,18 @@ export const PdfObjectiveMarker = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const isWhiteType = hex.inventoryID === Pieces.objectiveMarkerType11 || hex.inventoryID === Pieces.objectiveMarkerType12
-  const isBlackType = hex.inventoryID === Pieces.objectiveMarkerType21 || hex.inventoryID === Pieces.objectiveMarkerType22
-  const is1Hex = hex.inventoryID === Pieces.objectiveMarkerType11 || hex.inventoryID === Pieces.objectiveMarkerType21
+  const isWhiteType =
+    hex.inventoryID === Pieces.objectiveMarkerType11 ||
+    hex.inventoryID === Pieces.objectiveMarkerType12
+  const isBlackType =
+    hex.inventoryID === Pieces.objectiveMarkerType21 ||
+    hex.inventoryID === Pieces.objectiveMarkerType22
+  const is1Hex =
+    hex.inventoryID === Pieces.objectiveMarkerType11 ||
+    hex.inventoryID === Pieces.objectiveMarkerType21
   // const is2Hex = hex.inventoryID === Pieces.objectiveMarkerType12 || hex.inventoryID === Pieces.objectiveMarkerType22
-  const borderColor1 = isWhiteType ? (isSubLevel ? '#C5BCBC' : 'black') : 'white'
-  const fillColor1 = isBlackType ? (isSubLevel ? '#C5BCBC' : 'black') : 'white'
+  const borderColor = isWhiteType ? (isSubLevel ? '#C5BCBC' : 'black') : 'white'
+  const fillColor = isBlackType ? (isSubLevel ? '#C5BCBC' : 'black') : 'white'
   const { points: points1 } = getHexagonSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -302,8 +308,8 @@ export const PdfObjectiveMarker = ({
     <>
       <Polygon
         points={is1Hex ? points1 : points2}
-        fill={fillColor1}
-        stroke={borderColor1}
+        fill={fillColor}
+        stroke={borderColor}
         strokeWidth={PDF_BORDER_WIDTH}
       />
     </>
@@ -328,7 +334,9 @@ export const PdfMultiHex1 = ({
         ? fillColor
         : useTerrainBorderColor
           ? getSvgHexBorderColor(hex)
-          : hex.terrain === HexTerrain.asphalt ? 'gray' : 'black'
+          : hex.terrain === HexTerrain.asphalt
+            ? 'gray'
+            : 'black'
       : ''
   const glyphHexRadius = SVG_HEX_RADIUS / 1.4
   const { points } = getHexagonSvgPolygonPointsAt00(
@@ -370,7 +378,9 @@ export const PdfMultiHex2 = ({
     PDF_BORDER_WIDTH > 0
       ? useTerrainBorderColor
         ? getSvgHexBorderColor(hex)
-        : hex.terrain === HexTerrain.asphalt ? 'gray' : 'black'
+        : hex.terrain === HexTerrain.asphalt
+          ? 'gray'
+          : 'black'
       : ''
   const { points } = get2HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
@@ -403,7 +413,9 @@ export const PdfMultiHex3 = ({
     PDF_BORDER_WIDTH > 0
       ? useTerrainBorderColor
         ? getSvgHexBorderColor(hex)
-        : hex.terrain === HexTerrain.asphalt ? 'gray' : 'black'
+        : hex.terrain === HexTerrain.asphalt
+          ? 'gray'
+          : 'black'
       : ''
   const { points } = get3HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
@@ -462,7 +474,9 @@ export const PdfMultiHex4 = ({
     PDF_BORDER_WIDTH > 0
       ? useTerrainBorderColor
         ? getSvgHexBorderColor(hex)
-        : hex.terrain === HexTerrain.asphalt ? 'gray' : 'black'
+        : hex.terrain === HexTerrain.asphalt
+          ? 'gray'
+          : 'black'
       : ''
   const { points } = get4HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
@@ -495,7 +509,9 @@ export const PdfMultiHex5 = ({
     PDF_BORDER_WIDTH > 0
       ? useTerrainBorderColor
         ? getSvgHexBorderColor(hex)
-        : hex.terrain === HexTerrain.asphalt ? 'gray' : 'black'
+        : hex.terrain === HexTerrain.asphalt
+          ? 'gray'
+          : 'black'
       : ''
   const { points } = get5HexStraightSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
@@ -528,7 +544,9 @@ export const PdfMultiHex6 = ({
     PDF_BORDER_WIDTH > 0
       ? useTerrainBorderColor
         ? getSvgHexBorderColor(hex)
-        : hex.terrain === HexTerrain.asphalt ? 'gray' : 'black'
+        : hex.terrain === HexTerrain.asphalt
+          ? 'gray'
+          : 'black'
       : ''
   const { points } = get6HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
@@ -585,7 +603,9 @@ export const PdfMultiHex7 = ({
     PDF_BORDER_WIDTH > 0
       ? useTerrainBorderColor
         ? getSvgHexBorderColor(hex)
-        : hex.terrain === HexTerrain.asphalt ? 'gray' : 'black'
+        : hex.terrain === HexTerrain.asphalt
+          ? 'gray'
+          : 'black'
       : ''
   const { points } = get7HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
@@ -618,7 +638,9 @@ export const PdfMultiHexWallWalk7 = ({
     PDF_BORDER_WIDTH > 0
       ? useTerrainBorderColor
         ? getSvgHexBorderColor(hex)
-        : hex.terrain === HexTerrain.asphalt ? 'gray' : 'black'
+        : hex.terrain === HexTerrain.asphalt
+          ? 'gray'
+          : 'black'
       : ''
   const { points } = get7HexWallWalkSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
@@ -651,7 +673,9 @@ export const PdfMultiHexWallWalk9 = ({
     PDF_BORDER_WIDTH > 0
       ? useTerrainBorderColor
         ? getSvgHexBorderColor(hex)
-        : hex.terrain === HexTerrain.asphalt ? 'gray' : 'black'
+        : hex.terrain === HexTerrain.asphalt
+          ? 'gray'
+          : 'black'
       : ''
   const { points } = get9HexWallWalkSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,
@@ -684,7 +708,9 @@ export const PdfMultiHex24 = ({
     PDF_BORDER_WIDTH > 0
       ? useTerrainBorderColor
         ? getSvgHexBorderColor(hex)
-        : hex.terrain === HexTerrain.asphalt ? 'gray' : 'black'
+        : hex.terrain === HexTerrain.asphalt
+          ? 'gray'
+          : 'black'
       : ''
   const { points } = get24HexSvgPolygonPointsAt00(
     SVG_HEX_RADIUS,

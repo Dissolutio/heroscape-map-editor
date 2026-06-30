@@ -12,7 +12,13 @@ import {
 import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
-import { type BoardHexes, type BoardPieces, HexTerrain, type BoardPiece, type HexMap } from '../types'
+import {
+  type BoardHexes,
+  type BoardPieces,
+  HexTerrain,
+  type BoardPiece,
+  type HexMap,
+} from '../types'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
 import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
 import {
@@ -73,7 +79,6 @@ export function ReactPdfRoot() {
     </div>
   )
 }
-
 
 const PdfDocument = ({
   hexMap,
@@ -263,9 +268,9 @@ const PdfPieceInventory = ({
 
   const counts = hasConstraints
     ? reconcileLaurLegacyToStackableUsage({
-      usedInventory: countsBeforeReconcile,
-      availableInventory: combinedInventory,
-    }).reconciledUsedInventory
+        usedInventory: countsBeforeReconcile,
+        availableInventory: combinedInventory,
+      }).reconciledUsedInventory
     : countsBeforeReconcile
 
   const getInventoryCategoryRank = (piece: {
@@ -330,16 +335,16 @@ const PdfPieceInventory = ({
 
   type InventoryRow =
     | {
-      kind: 'header'
-      id: string
-      title: string
-    }
+        kind: 'header'
+        id: string
+        title: string
+      }
     | {
-      kind: 'piece'
-      id: string
-      title: string
-      count: number
-    }
+        kind: 'piece'
+        id: string
+        title: string
+        count: number
+      }
 
   const getSectionKey = (entry: {
     terrain?: string

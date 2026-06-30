@@ -297,9 +297,15 @@ export const SvgObjectiveMarker = ({
   borderWidth?: number
   isSubLevel?: boolean
 }) => {
-  const isWhiteType = hex.inventoryID === Pieces.objectiveMarkerType11 || hex.inventoryID === Pieces.objectiveMarkerType12
-  const isBlackType = hex.inventoryID === Pieces.objectiveMarkerType21 || hex.inventoryID === Pieces.objectiveMarkerType22
-  const is1Hex = hex.inventoryID === Pieces.objectiveMarkerType11 || hex.inventoryID === Pieces.objectiveMarkerType21
+  const isWhiteType =
+    hex.inventoryID === Pieces.objectiveMarkerType11 ||
+    hex.inventoryID === Pieces.objectiveMarkerType12
+  const isBlackType =
+    hex.inventoryID === Pieces.objectiveMarkerType21 ||
+    hex.inventoryID === Pieces.objectiveMarkerType22
+  const is1Hex =
+    hex.inventoryID === Pieces.objectiveMarkerType11 ||
+    hex.inventoryID === Pieces.objectiveMarkerType21
   // const is2Hex = hex.inventoryID === Pieces.objectiveMarkerType12 || hex.inventoryID === Pieces.objectiveMarkerType22
   const borderColor = isWhiteType ? (isSubLevel ? '#C5BCBC' : 'black') : 'white'
   const fillColor = isBlackType ? (isSubLevel ? '#C5BCBC' : 'black') : 'white'
@@ -316,7 +322,10 @@ export const SvgObjectiveMarker = ({
   return (
     <>
       <polygon points={is1Hex ? points1 : points2} fill={fillColor} />
-      <polygon points={is1Hex ? outlinePoints1 : outlinePoints2} fill={borderColor} />
+      <polygon
+        points={is1Hex ? outlinePoints1 : outlinePoints2}
+        fill={borderColor}
+      />
     </>
   )
 }
@@ -1536,9 +1545,9 @@ export const SvgOutcrop6 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-      // {...singleHexObstacleHeightTextProps()}
-      // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-      // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        // {...singleHexObstacleHeightTextProps()}
+        // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'9'}
       </text>
@@ -1662,8 +1671,8 @@ export const SvgOutcrop4 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-      // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-      // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'7'}
       </text>
