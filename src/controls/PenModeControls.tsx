@@ -244,11 +244,20 @@ export default function PenModeControls() {
         fullWidth
         MenuProps={{
           anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
-          // When multiple tabs open, Select malfunctions and won't scroll past focus, add 4 props below to fix:
+          // When multiple tabs open, Select malfunctions and won't scroll past focus, add props below to fix:
           autoFocus: !isDuplicateTab,
           disableAutoFocusItem: isDuplicateTab,
           disableEnforceFocus: isDuplicateTab,
           disableScrollLock: isDuplicateTab,
+          keepMounted: true, // Prevent menu from being destroyed when closed
+          slotProps: {
+            paper: {
+              sx: {
+                pointerEvents: 'auto', // Ensure clicks can reach menu items
+                zIndex: 1300, // Explicitly set z-index for portal menu
+              },
+            },
+          },
         }}
         labelId={inputLabelId}
         id={selectId}
