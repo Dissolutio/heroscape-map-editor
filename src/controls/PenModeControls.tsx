@@ -78,25 +78,30 @@ import {
   getEffectiveTerrainConstraintInventory,
   hasActiveTerrainConstraints,
 } from '../utils/terrain-constraints'
+import { useHasOtherTabs } from '../hooks/useHasOtherTabs'
 
 export default function PenModeControls() {
-  const penMode = useBoundStore((state) => state.penMode)
-  const lastPenMode = useBoundStore((state) => state.lastPenMode)
-  const setsUsed = useBoundStore((state) => state.hexMap.setsUsed)
+  const penMode = useBoundStore((s) => s.penMode)
+  const lastPenMode = useBoundStore((s) => s.lastPenMode)
+  const setsUsed = useBoundStore((s) => s.hexMap.setsUsed)
   const terrainConstraintSource = useBoundStore(
-    (state) => state.terrainConstraintSource,
+    (s) => s.terrainConstraintSource,
   )
   const customConstraintInventory = useBoundStore(
-    (state) => state.customConstraintInventory,
+    (s) => s.customConstraintInventory,
   )
   const customConstraintInventoryFileName = useBoundStore(
-    (state) => state.customConstraintInventoryFileName,
+    (s) => s.customConstraintInventoryFileName,
   )
-  const userPieceInventory = useBoundStore((state) => state.userPieceInventory)
-  const togglePenMode = useBoundStore((state) => state.togglePenMode)
+  const userPieceInventory = useBoundStore((s) => s.userPieceInventory)
+  const togglePenMode = useBoundStore((s) => s.togglePenMode)
   const toggleIsEditMapDialogOpen = useBoundStore(
-    (state) => state.toggleIsEditMapDialogOpen,
+    (s) => s.toggleIsEditMapDialogOpen,
   )
+  const { isDuplicateTab, tabId } = useHasOtherTabs()
+  const inputLabelId = `pen-terrain-select-label-${tabId}`
+  const selectId = `pen-terrain-select-${tabId}`
+
   const handleChange = (event: SelectChangeEvent) => {
     togglePenMode(event.target.value)
   }
@@ -233,20 +238,20 @@ export default function PenModeControls() {
   const { hotkeyLookup } = useHotkeyConfig()
   return (
     <FormControl fullWidth variant="filled">
-      <InputLabel id="pen-terrain-select-label">Pen Mode</InputLabel>
+      <InputLabel id={inputLabelId}>Pen Mode</InputLabel>
       <Select
         // autoWidth
         fullWidth
         MenuProps={{
           anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
           // When multiple tabs open, Select malfunctions and won't scroll past focus, add 4 props below to fix:
-          // autoFocus: false,
-          // disableAutoFocusItem: true,
-          // disableEnforceFocus: true,
-          // disableScrollLock: true
+          autoFocus: !isDuplicateTab,
+          disableAutoFocusItem: isDuplicateTab,
+          disableEnforceFocus: isDuplicateTab,
+          disableScrollLock: isDuplicateTab,
         }}
-        labelId="pen-terrain-select-label"
-        id="pen-terrain-select"
+        labelId={inputLabelId}
+        id={selectId}
         value={penMode}
         onChange={handleChange}
       >
