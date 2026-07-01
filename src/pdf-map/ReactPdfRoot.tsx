@@ -268,9 +268,9 @@ const PdfPieceInventory = ({
 
   const counts = hasConstraints
     ? reconcileLaurLegacyToStackableUsage({
-        usedInventory: countsBeforeReconcile,
-        availableInventory: combinedInventory,
-      }).reconciledUsedInventory
+      usedInventory: countsBeforeReconcile,
+      availableInventory: combinedInventory,
+    }).reconciledUsedInventory
     : countsBeforeReconcile
 
   const getInventoryCategoryRank = (piece: {
@@ -335,16 +335,16 @@ const PdfPieceInventory = ({
 
   type InventoryRow =
     | {
-        kind: 'header'
-        id: string
-        title: string
-      }
+      kind: 'header'
+      id: string
+      title: string
+    }
     | {
-        kind: 'piece'
-        id: string
-        title: string
-        count: number
-      }
+      kind: 'piece'
+      id: string
+      title: string
+      count: number
+    }
 
   const getSectionKey = (entry: {
     terrain?: string
@@ -386,12 +386,33 @@ const PdfPieceInventory = ({
 
   const columnCount = 3
   const rowsPerColumn = Math.ceil(entriesWithHeaders.length / columnCount)
-  const entryColumns = Array.from({ length: columnCount }, (_, columnIndex) =>
-    entriesWithHeaders.slice(
-      columnIndex * rowsPerColumn,
-      (columnIndex + 1) * rowsPerColumn,
-    ),
+  const remaining = [...entriesWithHeaders]
+  const entryColumns = Array.from(
+    { length: columnCount },
+    (_, colIndex): InventoryRow[] => {
+      const isLastColumn = colIndex === columnCount - 1
+      const column: InventoryRow[] = []
+      for (let row = 0; row < rowsPerColumn; row++) {
+        if (remaining.length === 0) break
+        // Don't place a header as the last row of a non-last column — it would
+        // be orphaned from its items which continue in the next column.
+        if (
+          !isLastColumn &&
+          row === rowsPerColumn - 1 &&
+          remaining[0].kind === 'header'
+        ) {
+          break
+        }
+        const item = remaining.shift()
+        if (item) column.push(item)
+      }
+      return column
+    },
   )
+  // Flush any overflow (e.g. caused by skipped header slots) into the last column
+  if (remaining.length > 0) {
+    entryColumns[columnCount - 1].push(...remaining)
+  }
 
   return (
     <Page
