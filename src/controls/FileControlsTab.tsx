@@ -33,6 +33,7 @@ export const FileControlsTab = ({
   const [isUploadOpen, setIsUploadOpen] = React.useState(false)
   const [isDownloadOpen, setIsDownloadOpen] = React.useState(false)
   const [isDownloadPhotoOpen, setIsDownloadPhotoOpen] = React.useState(false)
+  const [isShareOpen, setIsShareOpen] = React.useState(false)
   const isNewMapDialogOpen =
     useBoundStore((state) => state.currentDialog) === DIALOGS.newMap
   // const toggleIsPieceInventoryDialogOpen = useBoundStore(
@@ -137,13 +138,35 @@ export const FileControlsTab = ({
   //     element.click()
   //   }
   // }
-  const onClickCopy = async () => {
-    const hexMapToUse = { ...hexMap, mapPortraitBase64: '', mapNotes: '' }
+  const buildShareUrl = () => {
     const myUrl = getUrlMapString({
       hexMap: hexMapToUse,
       boardPieces: boardPieces,
     })
-    const fullUrl = `${window.location.origin + window.location.pathname}?m=${myUrl}`
+    return `${window.location.origin + window.location.pathname}?m=${myUrl}`
+  }
+  const handleShareError = (err: unknown) => {
+    console.log('Attempted clipboard write, failed:', err)
+    const action: SnackbarAction = (snackbarId: SnackbarKey) => (
+      <>
+        <button
+          type="button"
+          onClick={() => {
+            closeSnackbar(snackbarId)
+          }}
+        >
+          Dismiss
+        </button>
+      </>
+    )
+    enqueueSnackbar({
+      message: 'Failed to copy to clipboard',
+      variant: 'error',
+      action: action,
+    })
+  }
+  const onClickCopy = async () => {
+    const fullUrl = buildShareUrl()
     if (fullUrl.length > 2082) {
       enqueueSnackbar({
         message:
@@ -159,26 +182,37 @@ export const FileControlsTab = ({
         variant: 'success',
       })
     } catch (err) {
-      console.log('Attempted clipboard write, failed:', err)
-      const action: SnackbarAction = (snackbarId: SnackbarKey) => (
-        <>
-          <button
-            type="button"
-            onClick={() => {
-              closeSnackbar(snackbarId)
-            }}
-          >
-            Dismiss
-          </button>
-        </>
-      )
-      enqueueSnackbar({
-        message: 'Failed to copy url to clipboard',
-        // message: `${err?.message ?? ''}`,
-        variant: 'error',
-        action: action,
-      })
+      handleShareError(err)
     }
+  }
+  const onClickCopyMarkdownLink = async () => {
+    const fullUrl = buildShareUrl()
+    if (fullUrl.length > 2082) {
+      enqueueSnackbar({
+        message:
+          'Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.',
+        variant: 'error',
+      })
+      return
+    }
+    const label = `${hexMap.name || 'Map'}${hexMap.author ? ` by ${hexMap.author}` : ''
+      }`
+    const markdownLink = `[${label}](${fullUrl})`
+    try {
+      await navigator.clipboard.writeText(markdownLink)
+      enqueueSnackbar({
+        message: 'Copied markdown link to clipboard!',
+        variant: 'success',
+      })
+    } catch (err) {
+      handleShareError(err)
+    }
+  }
+  const handleClickShare = (
+    e: React.MouseEvent<HTMLDivElement> | undefined,
+  ) => {
+    e?.stopPropagation()
+    setIsShareOpen(!isShareOpen)
   }
   const handleClickDownloadPhoto = (
     e: React.MouseEvent<HTMLDivElement> | undefined,
@@ -190,6 +224,7 @@ export const FileControlsTab = ({
     setIsUploadOpen(false)
     setIsDownloadOpen(false)
     setIsDownloadPhotoOpen(false)
+    setIsShareOpen(false)
   }
   return (
     <Box role="presentation" onClick={handleClickAway}>
@@ -212,12 +247,29 @@ export const FileControlsTab = ({
             icon={<FcAddImage />}
           />
 
-          {/* COPY URL */}
+          {/* SHARE URL */}
           <ControlTabsListItemButton
-            primary="Copy Shareable URL"
-            onClick={onClickCopy}
+            primary="Share Map URL"
+            onClick={handleClickShare}
             icon={<FcLink />}
+            endIcon={isShareOpen ? <MdExpandLess /> : <MdExpandMore />}
           />
+          <Collapse in={isShareOpen} timeout="auto">
+            <List component="div">
+              <ControlTabsListItemButton
+                primary="Copy URL"
+                title="Copies a plain link to this map that you can paste anywhere — in a browser, chat, or email."
+                onClick={onClickCopy}
+                icon={<FcLink />}
+              />
+              <ControlTabsListItemButton
+                primary="Copy as Markdown Link"
+                title="Copies a formatted link (e.g. for Slack or Discord) that shows the map name instead of a raw URL."
+                onClick={onClickCopyMarkdownLink}
+                icon={<FcLink />}
+              />
+            </List>
+          </Collapse>
 
           {/* DOWNLOAD 2D-MODE SVG IMAGE */}
           {is2DOpen && (
