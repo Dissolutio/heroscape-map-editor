@@ -140,9 +140,8 @@ export const FileControlsTab = ({
   //   }
   // }
   const buildShareUrl = () => {
-    const hexMapToUse = { ...hexMap, mapPortraitBase64: '', mapNotes: '' }
     const myUrl = getUrlMapString({
-      hexMap: hexMapToUse,
+      hexMap: hexMap,
       boardPieces: boardPieces,
     })
     return `${window.location.origin + window.location.pathname}?m=${myUrl}`
@@ -197,9 +196,8 @@ export const FileControlsTab = ({
       })
       return
     }
-    const label = `${hexMap.name || 'Map'}${
-      hexMap.author ? ` by ${hexMap.author}` : ''
-    }`
+    const label = `${hexMap.name || 'Map'}${hexMap.author ? ` by ${hexMap.author}` : ''
+      }`
     const markdownLink = `[${label}](${fullUrl})`
     try {
       await navigator.clipboard.writeText(markdownLink)
