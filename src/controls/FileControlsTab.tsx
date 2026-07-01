@@ -2,6 +2,7 @@ import { Box, ClickAwayListener, Collapse, List } from '@mui/material'
 import JSONCrush from 'jsoncrush'
 import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
 import React from 'react'
+import { FaDiscord, FaSlack } from 'react-icons/fa'
 import { FcAddImage, FcDownload, FcLink, FcUpload } from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore, MdFolderZip } from 'react-icons/md'
 import { getUrlMapString } from '../data/jsonCrush'
@@ -269,6 +270,12 @@ export const FileControlsTab = ({
                 title="Copies a formatted link (e.g. for Slack or Discord) that shows the map name instead of a raw URL."
                 onClick={onClickCopyMarkdownLink}
                 icon={<FcLink />}
+                endIcon={
+                  <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                    <FaDiscord />
+                    <FaSlack />
+                  </Box>
+                }
               />
             </List>
           </Collapse>
