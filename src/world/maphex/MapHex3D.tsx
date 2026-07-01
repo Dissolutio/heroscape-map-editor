@@ -104,8 +104,8 @@ export const MapHex3D = ({
             color={
               hoveredPieceID === boardHex?.boardPieceUID ||
               selectedPieceIDs.includes(boardHex?.boardPieceUID ?? '')
-                ? hexTerrainColor[HexTerrain.castleBase]
-                : 'yellow'
+                ? 'yellow'
+                : hexTerrainColor[HexTerrain.castleBase]
             }
           />
         </>

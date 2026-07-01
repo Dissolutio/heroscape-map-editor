@@ -22,8 +22,8 @@ export const EditPieceInventoryDialog = () => {
     <Dialog
       open={isPieceInventoryDialogOpen}
       onClose={handleClose}
-      fullScreen={true}
       fullWidth={true}
+      maxWidth={'xl'}
     >
       <DialogTitle>Edit Personal Inventory</DialogTitle>
       <DialogContent>

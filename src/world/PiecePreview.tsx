@@ -461,7 +461,7 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isShroudshroom7Hex && isSolidBeneath) {
+  if (isShroudshroom7Hex && isLandOrEmptyBeneath) {
     return (
       <group position={[x, y, z]} rotation={[0, pieceRotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
@@ -470,7 +470,7 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isShroudshroom10Hex && isSolidBeneath) {
+  if (isShroudshroom10Hex && isLandOrEmptyBeneath) {
     return (
       <group position={[x, y, z]} rotation={[0, pieceRotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
@@ -479,7 +479,7 @@ export default function PiecePreview() {
       </group>
     )
   }
-  if (isShroudshroom13Hex && isSolidBeneath) {
+  if (isShroudshroom13Hex && isLandOrEmptyBeneath) {
     return (
       <group position={[x, y, z]} rotation={[0, pieceRotation, 0]}>
         <Suspense fallback={<ModelLoader />}>

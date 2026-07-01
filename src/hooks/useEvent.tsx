@@ -13,7 +13,7 @@ type EventContextType = {
   unsubscribe: (eventName: string, callback: () => void) => void
 }
 
-const EventContext = createContext<EventContextType>(undefined!)
+const EventContext = createContext<EventContextType | undefined>(undefined)
 
 export const EventProvider = ({ children }: PropsWithChildren) => {
   const eventsRef = useRef<Dictionary<(() => void)[]>>({})
@@ -36,6 +36,7 @@ export const EventProvider = ({ children }: PropsWithChildren) => {
 
   const publish = useCallback((eventName: string) => {
     const arr = eventsRef.current?.[eventName] ?? []
+    // biome-ignore lint/complexity/noForEach: <explanation>
     arr.forEach((callback) => callback())
   }, [])
 
@@ -48,5 +49,9 @@ export const EventProvider = ({ children }: PropsWithChildren) => {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export default function useEvent() {
-  return useContext(EventContext)
+  const context = useContext(EventContext)
+  if (!context) {
+    throw new Error('useEvent must be used within EventProvider')
+  }
+  return context
 }
