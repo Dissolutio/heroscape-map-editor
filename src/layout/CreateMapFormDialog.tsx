@@ -126,14 +126,14 @@ export default function CreateMapFormDialog(props: Props) {
     const blankMap =
       mapShape === 'rectangle'
         ? makeRectangleScenario({
-            mapName,
-            width: mapWidth,
-            length: mapLength,
-          })
+          mapName,
+          width: mapWidth,
+          length: mapLength,
+        })
         : makeHexagonScenario({
-            mapName,
-            size: mapSize,
-          })
+          mapName,
+          size: mapSize,
+        })
     const editedMapState = {
       ...blankMap,
       hexMap: {
@@ -262,8 +262,8 @@ export default function CreateMapFormDialog(props: Props) {
             </>
           ) : (
             <Box sx={{ marginY: '1em' }}>
+              <div>Map radius/side-length: </div>
               <Slider
-                // size='small'
                 min={1}
                 max={MAX_HEXAGON_MAP_DIMENSION}
                 value={mapSize}
