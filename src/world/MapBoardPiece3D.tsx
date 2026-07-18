@@ -63,9 +63,11 @@ import { SnowEvergreenTree } from './models/SnowEvergreenTree'
 export const MapBoardPiece3D = ({
   bp,
   onPointerUpPaintPiece,
+  onContextMenuPiece,
 }: {
   bp: BoardPiece
   onPointerUpPaintPiece: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
+  onContextMenuPiece?: (e: ThreeEvent<PointerEvent>, pieceID: string) => void
 }) => {
   const { inventoryID, altitude, rotation, pieceCoords, uid } = bp
   const piece = piecesSoFar[inventoryID]
@@ -129,7 +131,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallRuinAddon pid={uid} />
+          <LaurWallRuinAddon pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -147,7 +149,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallShortAddon pid={uid} />
+          <LaurWallShortAddon pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -165,7 +167,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallLongAddon pid={uid} />
+          <LaurWallLongAddon pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -180,7 +182,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallArchAddon pid={uid} />
+          <LaurWallArchAddon pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -198,7 +200,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Battlement pid={uid} />
+          <Battlement pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -209,7 +211,7 @@ export const MapBoardPiece3D = ({
     return (
       <group position={[x, y, z]} rotation={[0, (rotation * -Math.PI) / 3, 0]}>
         <Suspense fallback={<ModelLoader />}>
-          <RopeLadder pid={uid} />
+          <RopeLadder pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -227,7 +229,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <RoadWall pid={uid} />
+          <RoadWall pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -247,7 +249,7 @@ export const MapBoardPiece3D = ({
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <ForestTree pid={uid} />
+            <ForestTree pid={uid} onContextMenu={onContextMenuPiece} />
           </Suspense>
         </group>
         <ObstacleBase x={x} y={yBase} z={z} color={hexTerrainColor.treeBase} />
@@ -264,7 +266,7 @@ export const MapBoardPiece3D = ({
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <SnowEvergreenTree pid={uid} />
+            <SnowEvergreenTree pid={uid} onContextMenu={onContextMenuPiece} />
           </Suspense>
         </group>
         <ObstacleBase x={x} y={yBase} z={z} color={hexTerrainColor.treeBase} />
@@ -280,7 +282,7 @@ export const MapBoardPiece3D = ({
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <BigTree415 pid={uid} />
+            <BigTree415 pid={uid} onContextMenu={onContextMenuPiece} />
           </Suspense>
         </group>
       </>
@@ -294,7 +296,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Shroudshroom7 pid={uid} />
+          <Shroudshroom7 pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -307,7 +309,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Shroudshroom10 pid={uid} />
+          <Shroudshroom10 pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -320,7 +322,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Shroudshroom13 pid={uid} />
+          <Shroudshroom13 pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -377,7 +379,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Cannon pid={uid} />
+          <Cannon pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -421,7 +423,7 @@ export const MapBoardPiece3D = ({
     return (
       <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
-          <JungleBrush pid={uid} inventoryID={inventoryID} />
+          <JungleBrush pid={uid} inventoryID={inventoryID} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -443,7 +445,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <TicallaPalm pid={uid} inventoryID={inventoryID} />
+          <TicallaPalm pid={uid} inventoryID={inventoryID} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -483,6 +485,7 @@ export const MapBoardPiece3D = ({
                   ? HexTerrain.glyphTreasure
                   : HexTerrain.glyphPower
               }
+              onContextMenu={onContextMenuPiece}
             />
           </Suspense>
         </group>
@@ -509,7 +512,7 @@ export const MapBoardPiece3D = ({
             : [0, Math.PI / 6, 0]
         }
       >
-        <StartZone3D pid={uid} inventoryID={inventoryID} />
+        <StartZone3D pid={uid} inventoryID={inventoryID} onContextMenu={onContextMenuPiece} />
       </group>
     )
   }
@@ -530,7 +533,7 @@ export const MapBoardPiece3D = ({
       <>
         <group position={[x, yWithBase, z]} rotation={[0, pieceRotation, 0]}>
           <Suspense fallback={<ModelLoader />}>
-            <Outcrop1 isGlacier={isGlacier} isLavaRock={isLavaRock} pid={uid} />
+            <Outcrop1 isGlacier={isGlacier} isLavaRock={isLavaRock} pid={uid} onContextMenu={onContextMenuPiece} />
           </Suspense>
         </group>
         <group
@@ -545,6 +548,7 @@ export const MapBoardPiece3D = ({
               terrain={piece.terrain}
               uid={uid}
               isFluidOverride={true}
+              onContextMenu={onContextMenuPiece}
             />
           </Suspense>
         </group>
@@ -571,7 +575,7 @@ export const MapBoardPiece3D = ({
           rotation={[0, getObstaclRotation(rotation), 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <Outcrop3 isGlacier={isGlacier} isLavaRock={isLavaRock} pid={uid} />
+            <Outcrop3 isGlacier={isGlacier} isLavaRock={isLavaRock} pid={uid} onContextMenu={onContextMenuPiece} />
           </Suspense>
         </group>
         <group
@@ -586,6 +590,7 @@ export const MapBoardPiece3D = ({
               terrain={piece.terrain}
               uid={uid}
               isFluidOverride={true}
+              onContextMenu={onContextMenuPiece}
             />
           </Suspense>
         </group>
@@ -601,7 +606,7 @@ export const MapBoardPiece3D = ({
           rotation={[0, getObstaclRotation(rotation), 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <Outcrop4 isGlacier={true} pid={uid} />
+            <Outcrop4 isGlacier={true} pid={uid} onContextMenu={onContextMenuPiece} />
           </Suspense>
         </group>
         <group
@@ -616,6 +621,7 @@ export const MapBoardPiece3D = ({
               terrain={piece.terrain}
               uid={uid}
               isFluidOverride={true}
+              onContextMenu={onContextMenuPiece}
             />
           </Suspense>
         </group>
@@ -631,7 +637,7 @@ export const MapBoardPiece3D = ({
           rotation={[0, getObstaclRotation(rotation), 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <Outcrop6 isGlacier={true} pid={uid} />
+            <Outcrop6 isGlacier={true} pid={uid} onContextMenu={onContextMenuPiece} />
           </Suspense>
         </group>
         <group
@@ -646,6 +652,7 @@ export const MapBoardPiece3D = ({
               terrain={piece.terrain}
               uid={uid}
               isFluidOverride={true}
+              onContextMenu={onContextMenuPiece}
             />
           </Suspense>
         </group>
@@ -700,7 +707,7 @@ export const MapBoardPiece3D = ({
           rotation={[0, getObstaclRotation(rotation), 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <MarroHive6 pid={uid} />
+            <MarroHive6 pid={uid} onContextMenu={onContextMenuPiece} />
           </Suspense>
         </group>
         <group
@@ -715,6 +722,7 @@ export const MapBoardPiece3D = ({
               terrain={piece.terrain}
               uid={uid}
               isFluidOverride={true}
+              onContextMenu={onContextMenuPiece}
             />
           </Suspense>
         </group>
@@ -729,7 +737,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, ruinsOptions.rotationY, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Ruins2 pid={uid} />
+          <Ruins2 pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -742,7 +750,7 @@ export const MapBoardPiece3D = ({
         rotation={[0, ruinsOptions.rotationY, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <Ruins3 pid={uid} />
+          <Ruins3 pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -752,7 +760,7 @@ export const MapBoardPiece3D = ({
     return (
       <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
-          <FortifiedWall pid={uid} />
+          <FortifiedWall pid={uid} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -767,7 +775,7 @@ export const MapBoardPiece3D = ({
     return (
       <group position={[x, yBaseCap, z]} rotation={[0, pieceRotation, 0]}>
         <Suspense fallback={<ModelLoader />}>
-          <MarvelRuin pid={uid} inventoryID={inventoryID} />
+          <MarvelRuin pid={uid} inventoryID={inventoryID} onContextMenu={onContextMenuPiece} />
         </Suspense>
       </group>
     )
@@ -789,6 +797,7 @@ export const MapBoardPiece3D = ({
             inventoryID={inventoryID}
             terrain={piece.terrain}
             uid={uid}
+            onContextMenu={onContextMenuPiece}
           />
         </Suspense>
       </group>

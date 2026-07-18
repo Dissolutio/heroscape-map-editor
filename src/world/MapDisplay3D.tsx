@@ -40,9 +40,11 @@ import type React from 'react'
 export default function MapDisplay3D({
   cameraControlsRef,
   mapGroupRef,
+  onContextMenuPiece,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
+  onContextMenuPiece?: (e: ThreeEvent<PointerEvent>, pieceID: string) => void
 }) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
@@ -275,12 +277,14 @@ export default function MapDisplay3D({
         <SolidCaps
           boardHexArr={instanceBoardHexes.solidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
+          onContextMenu={onContextMenuPiece}
           focusedPieceUID={focusedPieceUID}
           focusStartTime={focusStartTime}
         />
         <FluidCaps
           boardHexArr={instanceBoardHexes.fluidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
+          onContextMenu={onContextMenuPiece}
           focusedPieceUID={focusedPieceUID}
           focusStartTime={focusStartTime}
         />
@@ -295,6 +299,7 @@ export default function MapDisplay3D({
               <MapBoardPiece3D
                 bp={bp}
                 onPointerUpPaintPiece={onPointerUpPaintPiece}
+                onContextMenuPiece={onContextMenuPiece}
               />
             </PieceOpacityGroup>
           )

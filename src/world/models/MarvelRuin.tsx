@@ -8,13 +8,16 @@ import { Pieces } from '../../types'
 import { DoubleSide } from 'three'
 import { basicDoubleSideModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { usePiecePointerHandler } from '../../hooks/usePiecePointerHandler'
 
 export function MarvelRuin({
   pid,
   inventoryID,
+  onContextMenu,
 }: {
   pid: string
   inventoryID: string
+  onContextMenu?: (e: ThreeEvent<PointerEvent>, pieceID: string) => void
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/marvel-ruins_v2.glb') as any
@@ -26,14 +29,13 @@ export function MarvelRuin({
   )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
-  }
+  const { handlePointerUp } = usePiecePointerHandler({
+    pieceID: pid,
+    onLeftClick: (_, isMultiSelect) => {
+      toggleSelectedPieceID(pid, isMultiSelect)
+    },
+    onRightClick: onContextMenu,
+  })
   const isHighlighted = hoveredPieceID === pid || isSelected
   const yellowColor = 'yellow'
   const color = isHighlighted ? yellowColor : hexTerrainColor.marvelRuin
@@ -46,7 +48,7 @@ export function MarvelRuin({
     <group
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
-      onPointerUp={(e) => onPointerUp(e)}
+      onPointerUp={handlePointerUp}
     >
       <mesh
         receiveShadow={isLightsAndShadowsRender}

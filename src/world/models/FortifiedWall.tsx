@@ -6,11 +6,14 @@ import { HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { usePiecePointerHandler } from '../../hooks/usePiecePointerHandler'
 
 export function FortifiedWall({
   pid,
+  onContextMenu,
 }: {
   pid: string
+  onContextMenu?: (e: ThreeEvent<PointerEvent>, pieceID: string) => void
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/FortifiedWall.glb') as any
@@ -20,14 +23,13 @@ export function FortifiedWall({
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
-  }
+  const { handlePointerUp } = usePiecePointerHandler({
+    pieceID: pid,
+    onLeftClick: (_, isMultiSelect) => {
+      toggleSelectedPieceID(pid, isMultiSelect)
+    },
+    onRightClick: onContextMenu,
+  })
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(pid)
@@ -37,7 +39,7 @@ export function FortifiedWall({
     <mesh
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
-      onPointerUp={(e) => onPointerUp(e)}
+      onPointerUp={handlePointerUp}
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
       geometry={nodes.FortifiedWall.geometry}

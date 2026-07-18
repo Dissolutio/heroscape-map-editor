@@ -7,8 +7,9 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
+import { usePiecePointerHandler } from '../../hooks/usePiecePointerHandler'
 
-export default function ForestTree({ pid }: { pid?: string }) {
+export default function ForestTree({ pid, onContextMenu }: { pid?: string; onContextMenu?: (e: ThreeEvent<PointerEvent>, pieceID: string) => void }) {
   const gltf = useDisposableGLTF(
     '/forgotten-forest-tree-low-poly-colored.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -20,20 +21,15 @@ export default function ForestTree({ pid }: { pid?: string }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    if (pid) {
-      toggleSelectedPieceID(
-        pid,
-        event.shiftKey || event.ctrlKey || event.metaKey,
-      )
-    }
-  }
+  const { handlePointerUp } = usePiecePointerHandler({
+    pieceID: pid ?? '',
+    onLeftClick: (_, isMultiSelect) => {
+      if (pid) {
+        toggleSelectedPieceID(pid, isMultiSelect)
+      }
+    },
+    onRightClick: onContextMenu,
+  })
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(pid ?? '')
@@ -45,17 +41,17 @@ export default function ForestTree({ pid }: { pid?: string }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Tree10_scanned.geometry}
-        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerUp={handlePointerUp}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
         {pid
           ? basicModelMaterial(color, isLightsAndShadowsRender)
           : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            color,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </>
   )

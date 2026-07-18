@@ -6,13 +6,16 @@ import { HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { usePiecePointerHandler } from '../../hooks/usePiecePointerHandler'
 
 export default function Outcrop4({
   isGlacier,
   pid,
+  onContextMenu,
 }: {
   isGlacier: boolean
   pid: string
+  onContextMenu?: (e: ThreeEvent<PointerEvent>, pieceID: string) => void
 }) {
   const { nodes } = useDisposableGLTF(
     '/uncolored-decimated-glacier-outcrop-4.glb',
@@ -24,14 +27,13 @@ export default function Outcrop4({
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
-  }
+  const { handlePointerUp } = usePiecePointerHandler({
+    pieceID: pid,
+    onLeftClick: (_, isMultiSelect) => {
+      toggleSelectedPieceID(pid, isMultiSelect)
+    },
+    onRightClick: onContextMenu,
+  })
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(pid)
@@ -50,7 +52,7 @@ export default function Outcrop4({
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.glacier_4_with_holes.geometry}
-        onPointerUp={(e) => onPointerUp(e)}
+        onPointerUp={handlePointerUp}
         onPointerEnter={(e) => onPointerEnterPID(e, pid)}
         onPointerOut={onPointerOut}
       >

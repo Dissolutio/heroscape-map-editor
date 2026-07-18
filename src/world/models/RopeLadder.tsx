@@ -7,8 +7,9 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
+import { usePiecePointerHandler } from '../../hooks/usePiecePointerHandler'
 
-export function RopeLadder({ pid }: { pid?: string }) {
+export function RopeLadder({ pid, onContextMenu }: { pid?: string; onContextMenu?: (e: ThreeEvent<PointerEvent>, pieceID: string) => void }) {
   const { nodes } = useDisposableGLTF(
     '/rope-ladder_v2.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -19,19 +20,15 @@ export function RopeLadder({ pid }: { pid?: string }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    if (pid) {
-      toggleSelectedPieceID(
-        pid,
-        event.shiftKey || event.ctrlKey || event.metaKey,
-      )
-    }
-  }
+  const { handlePointerUp } = usePiecePointerHandler({
+    pieceID: pid ?? '',
+    onLeftClick: (_, isMultiSelect) => {
+      if (pid) {
+        toggleSelectedPieceID(pid, isMultiSelect)
+      }
+    },
+    onRightClick: onContextMenu,
+  })
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(pid ?? '')
@@ -44,33 +41,33 @@ export function RopeLadder({ pid }: { pid?: string }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.RopeLadderWood.geometry}
-        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerUp={handlePointerUp}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid) : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
         {pid
           ? basicModelMaterial(woodColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              woodColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            woodColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.RopeLadderRope.geometry}
-        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerUp={handlePointerUp}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid) : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
         {pid
           ? basicModelMaterial(ropeColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              ropeColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            ropeColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </>
   )

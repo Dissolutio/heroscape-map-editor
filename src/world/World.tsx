@@ -8,7 +8,9 @@ import {
   Text,
 } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
+import type { ThreeEvent } from '@react-three/fiber'
 import SelectedPieceReadout from '../controls/SelectedPieceReadout'
+import { PieceContextMenu } from '../controls/PieceContextMenu'
 import useBoundStore from '../store/store'
 import { CAMERA_FOV } from '../utils/constants'
 import Lights from './Lights'
@@ -57,6 +59,15 @@ const World = ({
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
   isHidden: boolean
 }) => {
+  // Context menu state - moved outside Canvas to avoid R3F canvas rendering issues
+  const [contextMenuState, setContextMenuState] = useState<{
+    anchorEl: HTMLElement | null
+    pieceID: string
+  }>({
+    anchorEl: null,
+    pieceID: '',
+  })
+
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const isLightsAndShadowsRender = useBoundStore(
@@ -72,6 +83,35 @@ const World = ({
   const handleClickAway = () => {
     toggleHoveredPieceID('')
     // toggleSelectedPieceID('')
+  }
+
+  // Context menu handlers
+  const handleOpenContextMenu = (event: ThreeEvent<PointerEvent>, pieceID: string) => {
+    event.stopPropagation()
+
+    // Create a synthetic anchor element at the pointer position
+    const anchorElement = document.createElement('div')
+    anchorElement.style.position = 'fixed'
+    anchorElement.style.left = `${event.nativeEvent.clientX}px`
+    anchorElement.style.top = `${event.nativeEvent.clientY}px`
+    anchorElement.style.pointerEvents = 'none'
+    anchorElement.style.visibility = 'hidden'
+    document.body.appendChild(anchorElement)
+
+    setContextMenuState({
+      anchorEl: anchorElement,
+      pieceID,
+    })
+  }
+
+  const handleCloseContextMenu = () => {
+    if (contextMenuState.anchorEl?.parentElement) {
+      contextMenuState.anchorEl.parentElement.removeChild(contextMenuState.anchorEl)
+    }
+    setContextMenuState({
+      anchorEl: null,
+      pieceID: '',
+    })
   }
 
   useEffect(() => {
@@ -148,6 +188,7 @@ const World = ({
           <MapDisplay3D
             mapGroupRef={mapGroupRef}
             cameraControlsRef={cameraControlsRef}
+            onContextMenuPiece={handleOpenContextMenu}
           />
           <BillboardWarmup />
           <Lights width={width} length={length} />
@@ -157,6 +198,11 @@ const World = ({
         </Canvas>
         <SelectedPieceReadout cameraControlsRef={cameraControlsRef} />
         {/* <HoveredPieceReadout /> */}
+        <PieceContextMenu
+          anchorEl={contextMenuState.anchorEl}
+          pieceID={contextMenuState.pieceID}
+          onClose={handleCloseContextMenu}
+        />
       </div>
     </ClickAwayListener>
   )

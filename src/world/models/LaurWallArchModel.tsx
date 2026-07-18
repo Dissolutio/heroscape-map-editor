@@ -6,6 +6,7 @@ import { HexTerrain } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { usePiecePointerHandler } from '../../hooks/usePiecePointerHandler'
 
 type LaurWallArchModelProps = {
   pillarColor: string
@@ -34,7 +35,7 @@ export function LaurWallArchModel({
   )
 }
 
-export function LaurWallArchAddon({ pid }: { pid: string }) {
+export function LaurWallArchAddon({ pid, onContextMenu }: { pid: string; onContextMenu?: (e: ThreeEvent<PointerEvent>, pieceID: string) => void }) {
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
@@ -42,23 +43,23 @@ export function LaurWallArchAddon({ pid }: { pid: string }) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
+  const { handlePointerUp } = usePiecePointerHandler({
+    pieceID: pid,
+    onLeftClick: (_, isMultiSelect) => {
+      toggleSelectedPieceID(pid, isMultiSelect)
+    },
+    onRightClick: onContextMenu,
+  })
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(pid)
   const isHighlighted = hoveredPieceID === pid || isSelected
   const pillarColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.laurWall]
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation()
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
-  }
 
   return (
     <group
-      onPointerUp={(e) => onPointerUp(e)}
+      onPointerUp={handlePointerUp}
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
     >

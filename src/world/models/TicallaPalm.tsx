@@ -5,22 +5,23 @@ import useBoundStore from '../../store/store'
 import { HexTerrain, PiecePrefixes, Pieces } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { usePiecePointerHandler } from '../../hooks/usePiecePointerHandler'
 
 export default function TicallaPalm({
   pid,
   inventoryID,
-}: { pid: string; inventoryID: string }) {
+  onContextMenu,
+}: { pid: string; inventoryID: string; onContextMenu?: (e: ThreeEvent<PointerEvent>, pieceID: string) => void }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
-  }
+  const { handlePointerUp } = usePiecePointerHandler({
+    pieceID: pid,
+    onLeftClick: (_, isMultiSelect) => {
+      toggleSelectedPieceID(pid, isMultiSelect)
+    },
+    onRightClick: onContextMenu,
+  })
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const isSelected = selectedPieceIDs.includes(pid)
   const isHighlighted = hoveredPieceID === pid || isSelected
@@ -28,7 +29,7 @@ export default function TicallaPalm({
     return (
       <>
         <group
-          onPointerUp={(e) => onPointerUp(e)}
+          onPointerUp={handlePointerUp}
           onPointerEnter={(e) => onPointerEnterPID(e, pid)}
           onPointerOut={(e) => onPointerOut(e)}
         >
@@ -39,7 +40,7 @@ export default function TicallaPalm({
   }
   return (
     <group
-      onPointerUp={(e) => onPointerUp(e)}
+      onPointerUp={handlePointerUp}
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
     >

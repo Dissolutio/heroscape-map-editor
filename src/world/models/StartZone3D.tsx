@@ -7,13 +7,16 @@ import {
   HEXGRID_HEX_RADIUS,
   HEXGRID_HEXCAP_HEIGHT,
 } from '../../utils/constants'
+import { usePiecePointerHandler } from '../../hooks/usePiecePointerHandler'
 
 export function StartZone3D({
   pid,
   inventoryID,
+  onContextMenu,
 }: {
   pid: string
   inventoryID: string
+  onContextMenu?: (e: ThreeEvent<PointerEvent>, pieceID: string) => void
 }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
@@ -27,6 +30,13 @@ export function StartZone3D({
     }
     toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
   }
+  const { handlePointerUp } = usePiecePointerHandler({
+    pieceID: pid,
+    onLeftClick: (_, isMultiSelect) => {
+      toggleSelectedPieceID(pid, isMultiSelect)
+    },
+    onRightClick: onContextMenu,
+  })
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(pid)
@@ -37,7 +47,7 @@ export function StartZone3D({
     : colorScheme[inventoryID as keyof typeof colorScheme]
   return (
     <mesh
-      onPointerUp={onPointerUp}
+      onPointerUp={handlePointerUp}
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
       rotation={[0, Math.PI / 2, 0]}

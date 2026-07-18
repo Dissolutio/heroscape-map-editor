@@ -7,8 +7,15 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { noop } from 'lodash'
+import { usePiecePointerHandler } from '../../hooks/usePiecePointerHandler'
 
-export default function Cannon({ pid }: { pid?: string }) {
+export default function Cannon({
+  pid,
+  onContextMenu,
+}: {
+  pid?: string
+  onContextMenu?: (e: ThreeEvent<PointerEvent>, pieceID: string) => void
+}) {
   const { nodes } = useDisposableGLTF(
     '/cannon.glb',
     // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -19,19 +26,17 @@ export default function Cannon({ pid }: { pid?: string }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    if (pid) {
-      toggleSelectedPieceID(
-        pid,
-        event.shiftKey || event.ctrlKey || event.metaKey,
-      )
-    }
-  }
+
+  const { handlePointerUp } = usePiecePointerHandler({
+    pieceID: pid ?? '',
+    onLeftClick: (_, isMultiSelect) => {
+      if (pid) {
+        toggleSelectedPieceID(pid, isMultiSelect)
+      }
+    },
+    onRightClick: onContextMenu,
+  })
+
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(pid ?? '')
@@ -48,65 +53,65 @@ export default function Cannon({ pid }: { pid?: string }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Barrel_V2.geometry}
-        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerUp={(e) => (pid ? handlePointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
         {pid
           ? basicModelMaterial(colorBarrel, isLightsAndShadowsRender)
           : basicModelMaterial(
-              colorBarrel,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            colorBarrel,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Carriage_V2.geometry}
-        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerUp={(e) => (pid ? handlePointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
         {pid
           ? basicModelMaterial(colorCarriage, isLightsAndShadowsRender)
           : basicModelMaterial(
-              colorCarriage,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            colorCarriage,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Wheels_V2.geometry}
-        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerUp={(e) => (pid ? handlePointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
         {pid
           ? basicModelMaterial(colorWheels, isLightsAndShadowsRender)
           : basicModelMaterial(
-              colorWheels,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            colorWheels,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.CircleBase_V2.geometry}
-        onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+        onPointerUp={(e) => (pid ? handlePointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
       >
         {pid
           ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
           : basicModelMaterial(
-              colorBase,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            colorBase,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </>
   )

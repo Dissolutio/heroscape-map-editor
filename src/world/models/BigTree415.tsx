@@ -7,8 +7,9 @@ import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { noop } from 'lodash'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { usePiecePointerHandler } from '../../hooks/usePiecePointerHandler'
 
-export default function BigTree415({ pid }: { pid?: string }) {
+export default function BigTree415({ pid, onContextMenu }: { pid?: string; onContextMenu?: (e: ThreeEvent<PointerEvent>, pieceID: string) => void }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/big-tree-415.glb') as any
   const isLightsAndShadowsRender = useBoundStore(
@@ -17,20 +18,15 @@ export default function BigTree415({ pid }: { pid?: string }) {
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-
-  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
-    if (pid) {
-      toggleSelectedPieceID(
-        pid,
-        event.shiftKey || event.ctrlKey || event.metaKey,
-      )
-    }
-  }
+  const { handlePointerUp } = usePiecePointerHandler({
+    pieceID: pid ?? '',
+    onLeftClick: (_, isMultiSelect) => {
+      if (pid) {
+        toggleSelectedPieceID(pid, isMultiSelect)
+      }
+    },
+    onRightClick: onContextMenu,
+  })
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(pid ?? '')
@@ -45,7 +41,7 @@ export default function BigTree415({ pid }: { pid?: string }) {
 
   return (
     <group
-      onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
+      onPointerUp={handlePointerUp}
       onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
       onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
     >
@@ -57,10 +53,10 @@ export default function BigTree415({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(rockColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              rockColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            rockColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -70,10 +66,10 @@ export default function BigTree415({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(treeColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              treeColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            treeColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -83,10 +79,10 @@ export default function BigTree415({ pid }: { pid?: string }) {
         {pid
           ? basicModelMaterial(baseColor, isLightsAndShadowsRender)
           : basicModelMaterial(
-              baseColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
+            baseColor,
+            isLightsAndShadowsRender,
+            PIECE_PREVIEW_OPACITY,
+          )}
       </mesh>
     </group>
   )

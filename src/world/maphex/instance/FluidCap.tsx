@@ -34,6 +34,7 @@ export const FLUID_CAP_OPACITY = 0.85
 const FluidCaps = ({
   boardHexArr,
   onPointerUp,
+  onContextMenu,
   focusedPieceUID,
   focusStartTime,
 }: DreiCapProps) => {
@@ -103,6 +104,7 @@ export default FluidCaps
 function FluidCap({
   boardHex,
   onPointerUp,
+  onContextMenu,
   isVisible,
   isLightsAndShadowsRender,
 }: BoardHexPieceProps & {
@@ -159,17 +161,29 @@ function FluidCap({
     if (!isVisible) {
       return
     }
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (e.button !== 0) {
+    if (e.button === 0) {
+      // Left click
+      onPointerUp(e, boardHex)
+    }
+    // Ignore middle mouse (button 1) and other buttons
+  }
+  const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
+    if (!isVisible) {
       return
     }
-    onPointerUp(e, boardHex)
+    if (e.button === 2 && onContextMenu) {
+      // Right click - use onPointerDown to catch it before browser context menu
+      e.nativeEvent.preventDefault()
+      e.stopPropagation()
+      onContextMenu(e, boardHex.id)
+    }
   }
 
   return (
     <Instance
       ref={ref}
       onPointerUp={handlePointerUp}
+      onPointerDown={handlePointerDown}
       onPointerEnter={handlePointerEnter}
       onPointerOut={handlePointerOut}
       frustumCulled={false}
