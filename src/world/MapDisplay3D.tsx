@@ -36,6 +36,7 @@ import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
 import { useHotkeyConfig } from '../controls/useHotkeyConfig'
 import { useApplyHotkeys } from '../controls/useApplyHotkeys.tsx'
 import type React from 'react'
+import { getOnionSkinOpacity, ONION_SKIN_MAX_DISTANCE } from '../utils/onion-skin'
 
 export default function MapDisplay3D({
   cameraControlsRef,
@@ -54,6 +55,7 @@ export default function MapDisplay3D({
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isOnionSkinMode = useBoundStore((s) => s.isOnionSkinMode)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const focusedPieceUID = useBoundStore((s) => s.focusedPieceUID)
   const focusStartTime = useBoundStore((s) => s.focusStartTime)
@@ -65,6 +67,7 @@ export default function MapDisplay3D({
     boardHexesArr,
     isTakingPicture,
     viewingLevel,
+    isOnionSkinMode,
   )
 
   const onPointerUpPaintPiece = (
@@ -115,15 +118,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     const clickedHexAltitude = clickedHex.altitude
 
     // Castle W/A: use cap coords and altitude
@@ -285,12 +288,22 @@ export default function MapDisplay3D({
           focusStartTime={focusStartTime}
         />
         {boardPieces.map((bp) => {
+          const altitudeAdjusted = bp.altitude + 1
+          const distanceFromView = Math.abs(viewingLevel - altitudeAdjusted)
+          const isVisible = isOnionSkinMode
+            ? distanceFromView <= ONION_SKIN_MAX_DISTANCE
+            : altitudeAdjusted <= viewingLevel
+          if (!isVisible) return null
+          const onionOpacity = isOnionSkinMode
+            ? getOnionSkinOpacity(distanceFromView)
+            : 1
           return (
             <PieceOpacityGroup
               key={bp.uid}
               pieceUID={bp.uid}
               focusedPieceUID={focusedPieceUID}
               focusStartTime={focusStartTime}
+              onionOpacity={onionOpacity}
             >
               <MapBoardPiece3D
                 bp={bp}
@@ -300,12 +313,26 @@ export default function MapDisplay3D({
           )
         })}
         {boardHexesArr.map((bh) => {
+          const distanceFromView = Math.abs(viewingLevel - bh.altitude)
+          const isVisible = bh.isVerticalClearanceHex
+            ? true
+            : isOnionSkinMode
+              ? distanceFromView <= ONION_SKIN_MAX_DISTANCE
+              : bh.altitude <= viewingLevel
+          if (!isVisible) return null
+          const onionOpacity = isOnionSkinMode
+            ? getOnionSkinOpacity(distanceFromView)
+            : 1
           return (
-            <MapHex3D
+            <PieceOpacityGroup
               key={bh.id}
-              boardHex={bh}
-              onPointerUpPaintPiece={onPointerUpPaintPiece}
-            />
+              onionOpacity={onionOpacity}
+            >
+              <MapHex3D
+                boardHex={bh}
+                onPointerUpPaintPiece={onPointerUpPaintPiece}
+              />
+            </PieceOpacityGroup>
           )
         })}
       </group>
@@ -323,9 +350,14 @@ function getInstanceBoardHexes(
   boardHexesArr: BoardHex[],
   isTakingPicture: boolean,
   viewingLevel: number,
+  isOnionSkinMode: boolean,
 ) {
   return boardHexesArr
-    .filter((bh) => bh.altitude <= viewingLevel)
+    .filter((bh) => {
+      if (bh.isVerticalClearanceHex) return true
+      if (!isOnionSkinMode) return bh.altitude <= viewingLevel
+      return Math.abs(bh.altitude - viewingLevel) <= ONION_SKIN_MAX_DISTANCE
+    })
     .reduce(
       (result: InstanceBoardHexes, current) => {
         const isCap = current.isCap // land hexes that are covered, obstacle origin/auxiliary hexes, vertical clearance hexes

@@ -8,6 +8,7 @@ import { useDisposableGLTF } from '../../models/useDisposableGLTF'
 import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { calculateFocusOpacity } from '../../../utils/focus-opacity'
+import { getOnionSkinOpacity } from '../../../utils/onion-skin'
 import type {
   BoardHexPieceProps,
   CylinderGeometryArgs,
@@ -35,69 +36,106 @@ const SolidCaps = ({
   focusedPieceUID,
   focusStartTime,
 }: DreiCapProps) => {
-  const ref = React.useRef<InstanceRefType>(null)
+  const refMap = React.useRef<Record<number, InstanceRefType | null>>({})
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/classic1-cap.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isOnionSkinMode = useBoundStore((s) => s.isOnionSkinMode)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
 
-  // Apply material opacity based on focus state
-  useFrame(() => {
-    const material = ref.current?.material
-    if (!material) return
+  const hexGroups = React.useMemo(() => {
+    const groups = new Map<number, typeof boardHexArr>()
+    if (!isOnionSkinMode) {
+      groups.set(0, boardHexArr)
+      return groups
+    }
+    for (const hex of boardHexArr) {
+      const distance = Math.abs(hex.altitude - viewingLevel)
+      const bucket = groups.get(distance)
+      if (bucket) {
+        bucket.push(hex)
+      } else {
+        groups.set(distance, [hex])
+      }
+    }
+    return new Map([...groups.entries()].sort((a, b) => a[0] - b[0]))
+  }, [boardHexArr, viewingLevel, isOnionSkinMode])
 
+  useFrame(() => {
     const opacity = calculateFocusOpacity(
       focusedPieceUID ?? null,
       focusStartTime ?? null,
     )
 
-    // Handle both single material and array of materials
-    const materials = Array.isArray(material) ? material : [material]
-    for (const mat of materials) {
-      if (!mat || typeof mat !== 'object') continue
-      const m = mat as Material
+    for (const [distance, ref] of Object.entries(refMap.current)) {
+      const instance = ref
+      if (!instance) continue
+      const groupOpacity = isOnionSkinMode
+        ? opacity * getOnionSkinOpacity(Number(distance))
+        : opacity
 
-      // Only update if opacity changed significantly (avoid thrashing)
-      if (Math.abs((m.opacity ?? 1) - opacity) > 0.001) {
-        m.opacity = opacity
-        m.transparent = opacity < 1
-        m.depthWrite = opacity >= 1
-        m.needsUpdate = true
+      const material = instance.material
+      if (!material) continue
+      const materials = Array.isArray(material) ? material : [material]
+      for (const mat of materials) {
+        if (!mat || typeof mat !== 'object') continue
+        const m = mat as Material
+        if (Math.abs((m.opacity ?? 1) - groupOpacity) > 0.001) {
+          m.opacity = groupOpacity
+          m.transparent = groupOpacity < 1
+          m.depthWrite = groupOpacity >= 1
+          m.needsUpdate = true
+        }
       }
     }
   })
 
   if (boardHexArr.length === 0) return null
-  const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
   const basicCapGeometry = new CylinderGeometry(...baseSolidCapCylinderArgs)
   return (
-    <Instances
-      limit={INSTANCE_LIMIT}
-      range={range}
-      ref={ref}
-      frustumCulled={false}
-      geometry={
-        isHighQualityRender ? nodes.Classic1_Cap.geometry : basicCapGeometry
-      }
-      receiveShadow={isLightsAndShadowsRender}
-      castShadow={isLightsAndShadowsRender}
-    >
-      {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />}
-      {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
-      {boardHexArr.map((hex, i) => (
-        <SolidCapInstance
-          key={hex.id}
-          boardHex={hex}
-          onPointerUp={onPointerUp}
-          isVisible={range >= i}
-          isLightsAndShadowsRender={isLightsAndShadowsRender}
-          isHighQualityRender={isHighQualityRender}
-        />
-      ))}
-    </Instances>
+    <>
+      {Array.from(hexGroups.entries()).map(([distance, hexGroup]) => {
+        const opacity = isOnionSkinMode
+          ? getOnionSkinOpacity(distance)
+          : 1
+        return (
+          <Instances
+            key={distance}
+            limit={INSTANCE_LIMIT}
+            range={hexGroup.length}
+            ref={(element) => {
+              refMap.current[distance] = element
+            }}
+            frustumCulled={false}
+            geometry={
+              isHighQualityRender ? nodes.Classic1_Cap.geometry : basicCapGeometry
+            }
+            receiveShadow={isLightsAndShadowsRender}
+            castShadow={isLightsAndShadowsRender}
+          >
+            {isHighQualityRender ? (
+              <meshStandardMaterial transparent opacity={opacity} />
+            ) : (
+              <meshMatcapMaterial transparent opacity={opacity} />
+            )}
+            {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
+            {hexGroup.map((hex, i) => (
+              <SolidCapInstance
+                key={`${hex.id}-${distance}`}
+                boardHex={hex}
+                onPointerUp={onPointerUp}
+                isVisible={hexGroup.length >= i}
+                isLightsAndShadowsRender={isLightsAndShadowsRender}
+                isHighQualityRender={isHighQualityRender}
+              />
+            ))}
+          </Instances>
+        )
+      })}
+    </>
   )
 }
 // useGltf.preload('/classic1-cap.glb')

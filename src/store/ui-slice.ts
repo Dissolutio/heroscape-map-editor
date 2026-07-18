@@ -57,6 +57,8 @@ export interface UISlice {
   toggleIsHideTableTop: (b: boolean) => void
   isTopOutlinedInterlockHexes: boolean
   toggleIsTopOutlinedInterlockHexes: (b: boolean) => void
+  isOnionSkinMode: boolean
+  toggleIsOnionSkinMode: (b: boolean) => void
   isFrameloopDemand: boolean
   toggleIsFrameloopDemand: (b: boolean) => void
   isTakingPicture: boolean
@@ -461,6 +463,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isHideTableTop = b
+      }),
+    ),
+  isOnionSkinMode: false,
+  toggleIsOnionSkinMode: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isOnionSkinMode = b
       }),
     ),
   isTopOutlinedInterlockHexes: true, // helps see the pieces from above, when they're same terrain

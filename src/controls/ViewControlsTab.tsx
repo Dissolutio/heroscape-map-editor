@@ -194,6 +194,13 @@ const ViewPreferencesSwitchForm = () => {
   const handleChangeHQRender = (event: React.ChangeEvent<HTMLInputElement>) => {
     toggleIsHighQualityRender(event.target.checked)
   }
+  const isOnionSkinMode = useBoundStore((s) => s.isOnionSkinMode)
+  const toggleIsOnionSkinMode = useBoundStore((s) => s.toggleIsOnionSkinMode)
+  const handleChangeOnionSkinMode = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsOnionSkinMode(event.target.checked)
+  }
   const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
   const toggleIsDisplayCapHeights = useBoundStore(
     (s) => s.toggleIsDisplayCapHeights,
@@ -288,6 +295,17 @@ const ViewPreferencesSwitchForm = () => {
           }
           title="Enable/disable high quality render settings, currently just a more realistic hex cap"
           label="High Quality Render"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isOnionSkinMode}
+              onChange={handleChangeOnionSkinMode}
+            />
+          }
+          title="Enable/disable onion skin viewing mode for altitude opacity"
+          label="Onion Skin Mode"
         />
         {/* <FormControlLabel
           control={<Switch checked={isFrameloopDemand} onChange={handleChangeFrameloopDemand} />}

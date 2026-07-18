@@ -7,6 +7,7 @@ type Props = {
   focusedPieceUID?: string | null
   focusStartTime?: number | null
   pieceUID?: string
+  onionOpacity?: number
   children: React.ReactNode
 }
 
@@ -25,6 +26,7 @@ export default function PieceOpacityGroup({
   focusedPieceUID,
   focusStartTime,
   pieceUID,
+  onionOpacity,
   children,
 }: Props) {
   const groupRef = React.useRef<Group>(null)
@@ -34,11 +36,12 @@ export default function PieceOpacityGroup({
     if (!group) return
 
     // Calculate opacity dynamically based on current focus state
-    const opacity = calculateFocusOpacity(
-      focusedPieceUID ?? null,
-      focusStartTime ?? null,
-      pieceUID,
-    )
+    const opacity =
+      calculateFocusOpacity(
+        focusedPieceUID ?? null,
+        focusStartTime ?? null,
+        pieceUID,
+      ) * (onionOpacity ?? 1)
 
     group.traverse((child) => {
       if (!('isMesh' in child) || !(child as Mesh).isMesh) return

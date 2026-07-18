@@ -11,6 +11,7 @@ import {
 } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { calculateFocusOpacity } from '../../../utils/focus-opacity'
+import { getOnionSkinOpacity } from '../../../utils/onion-skin'
 import { hexTerrainColor } from '../hexColors'
 import type {
   BoardHexPieceProps,
@@ -40,61 +41,96 @@ const FluidCaps = ({
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const ref = React.useRef<InstanceRefType>(null)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isOnionSkinMode = useBoundStore((s) => s.isOnionSkinMode)
+  const refMap = React.useRef<Record<number, InstanceRefType | null>>({})
+
+  const hexGroups = React.useMemo(() => {
+    const groups = new Map<number, typeof boardHexArr>()
+    if (!isOnionSkinMode) {
+      groups.set(0, boardHexArr)
+      return groups
+    }
+    for (const hex of boardHexArr) {
+      const distance = Math.abs(hex.altitude - viewingLevel)
+      const bucket = groups.get(distance)
+      if (bucket) {
+        bucket.push(hex)
+      } else {
+        groups.set(distance, [hex])
+      }
+    }
+    return new Map([...groups.entries()].sort((a, b) => a[0] - b[0]))
+  }, [boardHexArr, viewingLevel, isOnionSkinMode])
 
   // Apply material opacity based on focus state
   useFrame(() => {
-    const material = ref.current?.material
-    if (!material) return
-
-    // Calculate opacity: base 0.85 for fluid caps, reduced if another piece is focused
     const focusOpacity = calculateFocusOpacity(
       focusedPieceUID ?? null,
       focusStartTime ?? null,
     )
-    const targetOpacity = focusOpacity < 1 ? focusOpacity : FLUID_CAP_OPACITY
 
-    // Handle both single material and array of materials
-    const materials = Array.isArray(material) ? material : [material]
-    for (const mat of materials) {
-      if (!mat || typeof mat !== 'object') continue
-      const m = mat as Material
+    for (const [distance, instance] of Object.entries(refMap.current)) {
+      if (!instance) continue
+      const onionOpacity = isOnionSkinMode
+        ? getOnionSkinOpacity(Number(distance))
+        : 1
+      const targetOpacity =
+        (focusOpacity < 1 ? focusOpacity : FLUID_CAP_OPACITY) * onionOpacity
 
-      // Only update if opacity changed significantly (avoid thrashing)
-      if (Math.abs((m.opacity ?? FLUID_CAP_OPACITY) - targetOpacity) > 0.001) {
-        m.opacity = targetOpacity
-        m.needsUpdate = true
+      const material = instance.material
+      if (!material) continue
+      const materials = Array.isArray(material) ? material : [material]
+      for (const mat of materials) {
+        if (!mat || typeof mat !== 'object') continue
+        const m = mat as Material
+        if (Math.abs((m.opacity ?? FLUID_CAP_OPACITY) - targetOpacity) > 0.001) {
+          m.opacity = targetOpacity
+          m.transparent = targetOpacity < 1
+          m.depthWrite = targetOpacity >= 1
+          m.needsUpdate = true
+        }
       }
     }
   })
 
   if (boardHexArr.length === 0) return null
-  const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
   return (
-    <Instances
-      limit={INSTANCE_LIMIT}
-      range={range} // no way there would be this many fluid caps, but with an overhang on every other hex, maybe
-      ref={ref}
-      frustumCulled={false}
-      receiveShadow={isLightsAndShadowsRender}
-    >
-      <cylinderGeometry args={baseFluidCapCylinderArgs} />
-      {isLightsAndShadowsRender ? (
-        <meshStandardMaterial transparent opacity={FLUID_CAP_OPACITY} />
-      ) : (
-        <meshLambertMaterial transparent opacity={FLUID_CAP_OPACITY} />
-      )}
-      {boardHexArr.map((hex, i) => (
-        <FluidCap
-          key={`${hex.id + i}fluid`}
-          boardHex={hex}
-          onPointerUp={onPointerUp}
-          isVisible={range >= i}
-          isLightsAndShadowsRender={isLightsAndShadowsRender}
-        />
-      ))}
-    </Instances>
+    <>
+      {Array.from(hexGroups.entries()).map(([distance, hexGroup]) => {
+        const opacity = isOnionSkinMode
+          ? getOnionSkinOpacity(distance)
+          : FLUID_CAP_OPACITY
+        return (
+          <Instances
+            key={distance}
+            limit={INSTANCE_LIMIT}
+            range={hexGroup.length}
+            ref={(element) => {
+              refMap.current[distance] = element
+            }}
+            frustumCulled={false}
+            receiveShadow={isLightsAndShadowsRender}
+          >
+            <cylinderGeometry args={baseFluidCapCylinderArgs} />
+            {isLightsAndShadowsRender ? (
+              <meshStandardMaterial transparent opacity={opacity} />
+            ) : (
+              <meshLambertMaterial transparent opacity={opacity} />
+            )}
+            {hexGroup.map((hex, i) => (
+              <FluidCap
+                key={`${hex.id}-${distance}fluid`}
+                boardHex={hex}
+                onPointerUp={onPointerUp}
+                isVisible={hexGroup.length >= i}
+                isLightsAndShadowsRender={isLightsAndShadowsRender}
+              />
+            ))}
+          </Instances>
+        )
+      })}
+    </>
   )
 }
 
@@ -125,8 +161,8 @@ function FluidCap({
     ref.current.position.set(
       x,
       y -
-        (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
-        0.001,
+      (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
+      0.001,
       z,
     )
   }, [boardHex])

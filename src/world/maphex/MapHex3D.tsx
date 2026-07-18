@@ -10,6 +10,7 @@ import {
   HEXGRID_HEX_HEIGHT,
 } from '../../utils/constants'
 import { getBoardHex3DCoords } from '../../utils/map-utils'
+import { ONION_SKIN_MAX_DISTANCE } from '../../utils/onion-skin'
 import { CastleArch } from '../models/CastleArch'
 import CastleBase from '../models/CastleBases'
 import { CastleWall } from '../models/CastleWalls'
@@ -31,8 +32,13 @@ export const MapHex3D = ({
     (s) => s.isTopOutlinedInterlockHexes,
   )
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isOnionSkinMode = useBoundStore((s) => s.isOnionSkinMode)
+  const distanceFromView = Math.abs(boardHex.altitude - viewingLevel)
   const isVisible =
-    boardHex.isVerticalClearanceHex || boardHex.altitude <= viewingLevel
+    boardHex.isVerticalClearanceHex ||
+    (isOnionSkinMode
+      ? distanceFromView <= ONION_SKIN_MAX_DISTANCE
+      : boardHex.altitude <= viewingLevel)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const { x, y, z, yBase, yBaseCap } = getBoardHex3DCoords(boardHex)
@@ -76,10 +82,10 @@ export const MapHex3D = ({
             new Vector3(
               x,
               y -
-                HEXGRID_HEX_HEIGHT +
-                (isFluidTerrainHex(boardHex.terrain)
-                  ? HEXGRID_HEXCAP_FLUID_HEIGHT
-                  : HEXGRID_HEX_HEIGHT),
+              HEXGRID_HEX_HEIGHT +
+              (isFluidTerrainHex(boardHex.terrain)
+                ? HEXGRID_HEXCAP_FLUID_HEIGHT
+                : HEXGRID_HEX_HEIGHT),
               z,
             )
           }
@@ -103,7 +109,7 @@ export const MapHex3D = ({
             z={z}
             color={
               hoveredPieceID === boardHex?.boardPieceUID ||
-              selectedPieceIDs.includes(boardHex?.boardPieceUID ?? '')
+                selectedPieceIDs.includes(boardHex?.boardPieceUID ?? '')
                 ? 'yellow'
                 : hexTerrainColor[HexTerrain.castleBase]
             }
@@ -131,7 +137,7 @@ export const MapHex3D = ({
               z={z}
               color={
                 hoveredPieceID === boardHex?.boardPieceUID ||
-                selectedPieceIDs.includes(boardHex?.boardPieceUID ?? '')
+                  selectedPieceIDs.includes(boardHex?.boardPieceUID ?? '')
                   ? 'yellow'
                   : hexTerrainColor[HexTerrain.castleWall]
               }
