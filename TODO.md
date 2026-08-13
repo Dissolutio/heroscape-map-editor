@@ -1,5 +1,8 @@
 ## TODO
 <!-- MORE IMPORTANT ABOVE -->
+- Map inventory and available terrain should be always visible. Not in separate modal.
+- Malfunctioning on Edge, Firefox, and maybe Samsung 8.
+- When no color outlines for land pieces, we must distinguish between Asphalt and Shadow better ( maybe blue outlines for fluid tiles?)
 - Personal Inventory: a form to adjust your exact piece inventory, with "add set" buttons and all available sets for easy entry, and also per-piece adjustments for entry of counts that do not conform to just set inventories (pieces break, old expansions included amounts of terrain)
 - Objective markers that you can adjust the labels for (example, the start positions of specific figures in Renegade web scenarios)
 - New piece: Exit spaces, or some kind of other generalized hex marker that isn't a start zone or an objective, to match current Renegade web scenarios
