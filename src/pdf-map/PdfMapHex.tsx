@@ -183,7 +183,7 @@ export const PdfMapHex = ({
           style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-        // {...pdfTextProps()}
+          // {...pdfTextProps()}
         >
           Y
         </Text>
@@ -202,7 +202,7 @@ export const PdfMapHex = ({
           style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-        // {...pdfTextProps()}
+          // {...pdfTextProps()}
         >
           M
         </Text>
@@ -221,7 +221,7 @@ export const PdfMapHex = ({
           opacity={
             isSubLevel
               ? // white text needs a little opacity boost
-              OPACITY_SUBLEVEL * 2
+                OPACITY_SUBLEVEL * 2
               : 1
           }
           style={pdfHexTextStyle}
@@ -542,6 +542,22 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfObjectiveMarker hex={hex} isSubLevel={specialIsSubLevel} />
+        <Text
+          fill={svgColors.shroudshroomText}
+          opacity={
+            isSubLevel
+              ? // white text needs a little opacity boost
+                OPACITY_SUBLEVEL * 2
+              : 1
+          }
+          style={pdfHexTextStyle}
+          textAnchor="middle"
+          dominantBaseline="central"
+          x={xTransformForMultiHex3Rotation[hex?.pieceRotation ?? 0]}
+          y={yTransformForMultiHex3Rotation[hex?.pieceRotation ?? 0]}
+        >
+          A
+        </Text>
       </G>
     )
   }

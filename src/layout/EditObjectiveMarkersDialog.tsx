@@ -48,7 +48,8 @@ export default function EditObjectiveMarkersDialog() {
       <DialogContent>
         {markers.length === 0 ? (
           <Typography sx={{ pt: 1 }}>
-            No objective markers are currently placed on the map.
+            No objective markers are currently placed on the map. You can place
+            them like start zones or glyphs.
           </Typography>
         ) : (
           <Stack spacing={2} sx={{ pt: 1 }}>
