@@ -11,9 +11,9 @@
 //   });
 // };
 // Example usage
-// const armyCards = decodeArmyCards(cardDataDotOrg);
+// const armyCards = decodeArmyCards(armyCardsDotOrg);
 
-const armyCardsRaw = [
+export const armyCardsDotOrg = [
   {
     SDW: '10th Regiment of Foot',
     standardCost: '75',
