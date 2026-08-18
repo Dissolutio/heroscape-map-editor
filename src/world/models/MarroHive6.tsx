@@ -9,9 +9,9 @@ import { noop } from 'lodash'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 
 export default function MarroHive6({ pid }: { pid?: string }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF(
     '/uncolored-decimated-marro-hive-6.glb',
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isLightsAndShadowsRender = useBoundStore(

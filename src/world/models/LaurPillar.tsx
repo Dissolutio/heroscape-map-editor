@@ -20,9 +20,9 @@ export default function LaurWallPillar({
 }) {
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const boardPieces = useBoundStore((s) => s.boardPieces)
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF(
     '/laur-pillar-from-hs-blendfile.glb',
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -116,9 +116,9 @@ export function LaurWallPillarPreview({
   opacity?: number
   showBaseMesh?: boolean
 }) {
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF(
     '/laur-pillar-from-hs-blendfile.glb',
+    // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   ) as any
   // const { nodes } = useDisposableGLTF('/laurwall-pillar.glb') as any
   const isLightsAndShadowsRender = useBoundStore(

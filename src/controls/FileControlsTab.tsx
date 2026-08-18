@@ -196,8 +196,9 @@ export const FileControlsTab = ({
       })
       return
     }
-    const label = `${hexMap.name || 'Map'}${hexMap.author ? ` by ${hexMap.author}` : ''
-      }`
+    const label = `${hexMap.name || 'Map'}${
+      hexMap.author ? ` by ${hexMap.author}` : ''
+    }`
     const markdownLink = `[${label}](${fullUrl})`
     try {
       await navigator.clipboard.writeText(markdownLink)
