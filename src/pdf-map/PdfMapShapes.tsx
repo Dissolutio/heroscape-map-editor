@@ -286,7 +286,7 @@ const getPdfHexBorderForView = (
       ? isSubLevel
         ? getSvgHexSubLevelBorderColor(hex)
         : getSvgHexBorderColor(hex)
-      : 'black'
+      : (isSubLevel ? svgSubLevelColors.glacierText /* less saturated black, like jungle text */ : svgColors.glacierText)
     : ''
 
 export const PdfMultiHex1 = ({
@@ -640,7 +640,7 @@ export const PdfJungle = ({
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <Polygon
           points={points}
-          fill={isSubLevel ? getSvgHexSubLevelFillColor(hex) : pdfColors.outlineJungle}
+          fill={isSubLevel ? svgSubLevelColors.outlineJungle : svgColors.outlineJungle}
         />
       </G>
       <Text fill={textColor} {...pdfTextProps()}>
@@ -1097,7 +1097,32 @@ export const PdfCastleArch = ({
     />
   )
 }
-
+export const PdfCastleArchText = ({
+  isSubLevel,
+  pieceRotation,
+}: {
+  isSubLevel: boolean
+  pieceRotation: number
+}) => {
+  const textColor = isSubLevel
+    ? svgSubLevelColors.glacierText
+    : svgColors.glacierText
+  return (
+    <Text
+      fill={textColor}
+      style={{
+        fontSize: 0.8 * SVG_HEX_RADIUS,
+        fontWeight: 'bold',
+      }}
+      y={0.2 * SVG_HEX_RADIUS}
+      // upside down text is flipped in parent component, and adjusted here
+      x={pieceRotation === 180 ? -3.7 * SVG_HEX_APOTHEM : 0.3 * SVG_HEX_APOTHEM}
+    >
+      {/* TODO: this style will need adjustment for international/other languages, where char length changes */}
+      {'D O O R'}
+    </Text>
+  )
+}
 export const PdfShipWall = ({
   hex,
   isSubLevel,
@@ -1325,6 +1350,13 @@ export const PdfSvgOutcrop6 = ({
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
+  const glacierTextColor = isSubLevel
+    ? svgSubLevelColors.glacierText
+    : svgColors.glacierText
+  const outcropTextColor = isSubLevel
+    ? svgSubLevelColors.outcropText
+    : svgColors.outcropText
+  const textColor = hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
@@ -1337,7 +1369,7 @@ export const PdfSvgOutcrop6 = ({
         />
       </G>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
@@ -1345,7 +1377,7 @@ export const PdfSvgOutcrop6 = ({
         {'9'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
@@ -1356,7 +1388,7 @@ export const PdfSvgOutcrop6 = ({
         {'17'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
@@ -1367,7 +1399,7 @@ export const PdfSvgOutcrop6 = ({
         {'17'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
         y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}
@@ -1375,7 +1407,7 @@ export const PdfSvgOutcrop6 = ({
         {'9'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[4]?.x ?? 0) +
@@ -1386,7 +1418,7 @@ export const PdfSvgOutcrop6 = ({
         {'17'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={
           (outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[5]?.x ?? 0) +
@@ -1412,6 +1444,13 @@ export const PdfSvgOutcrop3 = ({
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
+  const glacierTextColor = isSubLevel
+    ? svgSubLevelColors.glacierText
+    : svgColors.glacierText
+  const outcropTextColor = isSubLevel
+    ? svgSubLevelColors.outcropText
+    : svgColors.outcropText
+  const textColor = hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
@@ -1424,7 +1463,7 @@ export const PdfSvgOutcrop3 = ({
         />
       </G>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
@@ -1432,7 +1471,7 @@ export const PdfSvgOutcrop3 = ({
         {'5'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[1]?.y ?? 0}
@@ -1440,7 +1479,7 @@ export const PdfSvgOutcrop3 = ({
         {'9'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0}
         y={outcrop3TextXYForRotation?.[hex?.pieceRotation]?.[2]?.y ?? 0}
@@ -1463,6 +1502,13 @@ export const PdfSvgOutcrop4 = ({
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
+  const glacierTextColor = isSubLevel
+    ? svgSubLevelColors.glacierText
+    : svgColors.glacierText
+  const outcropTextColor = isSubLevel
+    ? svgSubLevelColors.outcropText
+    : svgColors.outcropText
+  const textColor = hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
@@ -1475,7 +1521,7 @@ export const PdfSvgOutcrop4 = ({
         />
       </G>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
@@ -1483,7 +1529,7 @@ export const PdfSvgOutcrop4 = ({
         {'7'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={
           (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[1]?.x ?? 0) +
@@ -1494,7 +1540,7 @@ export const PdfSvgOutcrop4 = ({
         {'11'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={
           (outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[2]?.x ?? 0) +
@@ -1505,7 +1551,7 @@ export const PdfSvgOutcrop4 = ({
         {'11'}
       </Text>
       <Text
-        fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+        fill={textColor}
         style={pdfHexTextStyle}
         x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.x ?? 0}
         y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[3]?.y ?? 0}

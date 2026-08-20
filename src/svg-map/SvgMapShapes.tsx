@@ -1018,23 +1018,18 @@ export const SvgBattlement = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(piece)
-  const borderColor = getSvgHexBorderColor(piece)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
+  const borderColor = isSubLevel ? svgColors.battlementBorder : svgSubLevelColors.battlementBorder
   const { points } = getBattlementSvgPolygonPoints(SVG_HEX_RADIUS, 0)
   return (
     <>
-      {isSubLevel && (
-        <SvgSubLevelWhiteBackerPolygon
-          points={points}
-          borderWidth={SVG_BORDER_WIDTH / 2}
-        />
-      )}
       <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH / 2}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )

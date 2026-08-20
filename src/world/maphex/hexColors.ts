@@ -286,6 +286,7 @@ export const svgColors = {
   shroudshroomText: '#FFFFFF',
   glyphText: '#000000',
   glyphBorder: '#000000',
+  battlementBorder: '#000000',
   // STARTZONES
   blueSZ: 'rgb(57, 61, 157)',
   darkBlueSZ: 'rgb(21, 28, 51)',
@@ -328,6 +329,7 @@ export const svgColors = {
   [HexTerrain.shroudshroom]: '#972BB2',
   [HexTerrain.castleWall]: 'rgb(80, 79, 84)',
   [HexTerrain.castleBase]: 'rgb(80, 79, 84)',
+  [HexTerrain.battlement]: 'rgb(80, 79, 84)',
   castleInterior: 'rgb(208, 212, 220)', // light french gray, based off of hexTerrainColor.castle
   [HexTerrain.lavaRockOutcrop]: '#FF0000',
   outcropText: '#DAD0D0',
@@ -412,6 +414,7 @@ export const svgSubLevelColors = {
   [HexTerrain.shroudshroom]: '#E4BAEE',
   [HexTerrain.castleBase]: '#A8A7AA',
   [HexTerrain.castleWall]: '#A8A7AA',
+  [HexTerrain.battlement]: '#A8A7AA',
   [HexTerrain.lavaRockOutcrop]: '#FFA7A7',
   outcropText: '#DAD0D0',
   lavaRockOutcropText: '#DAD0D0',
@@ -458,6 +461,7 @@ export const svgSubLevelColors = {
   [HexTerrain.glyphPower]: 'rgb(255, 169, 89)',
   [HexTerrain.glyphTreasure]: 'rgb(255, 169, 89)',
   glyphBorder: '#C5BCBC',
+  battlementBorder: '#C5BCBC',
 }
 
 // const renegadeValkyriePaintColors = {
