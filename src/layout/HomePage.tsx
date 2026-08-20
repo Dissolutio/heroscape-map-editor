@@ -1,9 +1,6 @@
 import { Box } from '@mui/material'
-import React, { useEffect } from 'react'
+import React, { lazy, Suspense, useEffect } from 'react'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
-import { ReactPdfRoot } from '../pdf-map/ReactPdfRoot'
-import { SvgMapDisplay } from '../svg-map/SvgMapDisplay'
-import World from '../world/World'
 import CreateMapFormDialog from './CreateMapFormDialog'
 import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
@@ -22,6 +19,10 @@ import {
 import PiecesGridDialog from './PiecesGridDialog'
 import { zoomToMap } from '../utils/camera-utils'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
+// 1. Define your lazy-loaded components
+const ReactPdfRoot = lazy(() => import('../pdf-map/ReactPdfRoot'));
+const SvgMapDisplay = lazy(() => import('../svg-map/SvgMapDisplay'));
+const World = lazy(() => import('../world/World'));
 
 export default function HomePage() {
   // Keep the persisted personal inventory mirrored into zustand so terrain
@@ -112,13 +113,25 @@ export default function HomePage() {
               height: isSideControls ? '100%' : '70vh',
             }}
           >
-            {isPdfOpen && <ReactPdfRoot />}
-            {is2DOpen && !isPdfOpen && <SvgMapDisplay />}
-            <World
-              isHidden={is2DOpen || isPdfOpen}
-              cameraControlsRef={cameraControlsRef}
-              mapGroupRef={mapGroupRef}
-            />
+            {isPdfOpen && (
+              <Suspense fallback={<div>Loading page...</div>}>
+                <ReactPdfRoot />
+              </Suspense>
+            )}
+            {is2DOpen && !isPdfOpen && (
+              <Suspense fallback={<div>Loading page...</div>}>
+                <SvgMapDisplay />
+              </Suspense>
+            )}
+            {!is2DOpen && !isPdfOpen && (
+              <Suspense fallback={<div>Loading page...</div>}>
+                <World
+                  isHidden={is2DOpen || isPdfOpen}
+                  cameraControlsRef={cameraControlsRef}
+                  mapGroupRef={mapGroupRef}
+                />
+              </Suspense>
+            )}
           </Box>
           <ControlsWidthContextProvider containerRef={controlsContainerRef}>
             <div

@@ -38,7 +38,7 @@ Font.register({
   ],
 })
 
-export function ReactPdfRoot() {
+function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
@@ -84,6 +84,7 @@ export function ReactPdfRoot() {
     </div>
   )
 }
+export default ReactPdfRoot
 
 const PdfDocument = ({
   hexMap,
