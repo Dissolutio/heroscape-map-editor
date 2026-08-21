@@ -488,20 +488,6 @@ export const PdfMapHex = ({
       )
     }
   }
-  //  Marvel Ruin
-  if (
-    hex.inventoryID === Pieces.marvel ||
-    hex.inventoryID === Pieces.marvelBroken
-  ) {
-    return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
-        <PdfMarvelRuin hex={hex} isSubLevel={isSubLevel} />
-      </G>
-    )
-  }
   // JUNGLE
   if (isJungleTerrainHex(hex.terrain)) {
     return (
