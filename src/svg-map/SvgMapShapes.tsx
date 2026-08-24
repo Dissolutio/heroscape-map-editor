@@ -1117,25 +1117,16 @@ export const SvgCastleCorner = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  // const fillColor = getSvgHexFillColor(hex)
+  const fillColor = isSubLevel ? svgSubLevelColors.castleInterior : svgColors.castleInterior
   const { points } = getCastleCornerShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
     <>
-      {isSubLevel && (
-        <SvgSubLevelWhiteBackerPolygon
-          points={points}
-          borderWidth={SVG_BORDER_WIDTH / 4}
-        />
-      )}
       <polygon
         points={points}
-        fill={svgColors.castleInterior}
-        stroke={svgColors.castleInterior}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        fill={fillColor}
       />
     </>
   )
@@ -1147,25 +1138,16 @@ export const SvgCastleStraight = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  // const fillColor = getSvgHexFillColor(hex)
+  const fillColor = isSubLevel ? svgSubLevelColors.castleInterior : svgColors.castleInterior
   const { points } = getCastleStraightShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
     <>
-      {isSubLevel && (
-        <SvgSubLevelWhiteBackerPolygon
-          points={points}
-          borderWidth={SVG_BORDER_WIDTH / 4}
-        />
-      )}
       <polygon
         points={points}
-        fill={svgColors.castleInterior}
-        stroke={svgColors.castleInterior}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        fill={fillColor}
       />
     </>
   )
@@ -1177,27 +1159,16 @@ export const SvgCastleEnd = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  // const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = getSvgHexBorderColor(hex)
+  const fillColor = isSubLevel ? svgSubLevelColors.castleInterior : svgColors.castleInterior
   const { points } = getCastleEndShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
     <>
-      {isSubLevel && (
-        <SvgSubLevelWhiteBackerPolygon
-          points={points}
-          // borderWidth={SVG_BORDER_WIDTH / 4}
-          borderWidth={SVG_BORDER_WIDTH / 4}
-        />
-      )}
       <polygon
         points={points}
-        fill={svgColors.castleInterior}
-        stroke={svgColors.castleInterior}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+        fill={fillColor}
       />
     </>
   )

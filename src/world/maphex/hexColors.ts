@@ -415,6 +415,7 @@ export const svgSubLevelColors = {
   [HexTerrain.castleBase]: '#A8A7AA',
   [HexTerrain.castleWall]: '#A8A7AA',
   [HexTerrain.battlement]: '#A8A7AA',
+  castleInterior: 'rgb(232, 234, 238)', // (14.6% saturation, 92.0% lightness) based off of white background
   [HexTerrain.lavaRockOutcrop]: '#FFA7A7',
   outcropText: '#DAD0D0',
   lavaRockOutcropText: '#DAD0D0',
