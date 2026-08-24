@@ -1579,7 +1579,7 @@ export function getMarvel6HexOutlineSvgPolygonPoints(
   borderWidth: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
-  const radiusInner = radius - borderWidth / 2
+  const radiusInner = radius - borderWidth
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
 
   const corners: Point[] = [
@@ -1594,7 +1594,7 @@ export function getMarvel6HexOutlineSvgPolygonPoints(
     { x: 0, y: -radius }, // top hex1
     { x: apothem, y: -0.5 * radius }, // top-right hex1
 
-    { x: apothem, y: 0.5 * radius }, // bottom-right hex1, top hex2
+    { x: apothem, y: 0.5 * radius }, // bottom-right hex1, top hex2 TWEENSIE
 
     { x: 2 * apothem, y: radius }, // top-right hex2, top-left hex3
 
@@ -1629,13 +1629,13 @@ export function getMarvel6HexOutlineSvgPolygonPoints(
     { x: -apothem, y: -0.5 * radius }, // top-right hex6, top-left hex1
 
     { x: -apothem, y: -0.5 * radius }, // top-left hex1
+
     //MID
     { x: 0, y: -radius }, // top hex1
     { x: 0, y: -radiusInner }, // top hex1
-    // INNER
-    { x: -apothemInner, y: -0.5 * radiusInner }, // top-left hex1
 
-    { x: -apothem, y: -0.5 * radius + borderWidth / 2 }, // top-right hex6, top-left hex1 TWEENSIE
+    // INNER
+    { x: -apothem, y: -0.5 * radius + borderWidth }, // top-left hex1, top-right hex6 TWEENSIE
 
     { x: -(2 * apothem), y: -radiusInner }, // top hex6
     { x: -(2 * apothem) + -apothemInner, y: -0.5 * radiusInner }, // top-left hex6
@@ -1643,8 +1643,8 @@ export function getMarvel6HexOutlineSvgPolygonPoints(
 
     {
       x: -(2 * apothem) + apothem - apothemInner,
-      y: 1.5 * radius - 0.5 * radiusInner - borderWidth / 2,
-    }, // top-left hex5, bottom hex6 TWEENSIE
+      y: 1.5 * radius - 0.5 * radiusInner - borderWidth,
+    }, // bottom hex6, top-left hex5 TWEENSIE
 
     {
       x: -(2 * apothem) + apothem - apothemInner,
@@ -1652,20 +1652,20 @@ export function getMarvel6HexOutlineSvgPolygonPoints(
     }, // bottom-left hex5
     { x: -(2 * apothem) + apothem, y: 1.5 * radius + radiusInner }, // bottom hex5
 
-    { x: 0, y: 1.5 * radius + 0.5 * radiusInner - borderWidth / 2 / 2 }, // bottom-left hex2, bottom-right hex5 TWEENSIE
+    { x: 0, y: 1.5 * radius + 0.5 * radiusInner - borderWidth / 2 }, // bottom-left hex2, bottom-right hex5 TWEENSIE
 
     { x: 0.5 * 2 * apothem, y: 1.5 * radius + radiusInner }, // bottom hex2
 
     {
       x: 2 * apothem,
-      y: 1.5 * radius + 0.5 * radiusInner - borderWidth / 2 / 2,
+      y: 1.5 * radius + 0.5 * radiusInner - borderWidth / 2,
     }, // bottom-left hex3, bottom-right hex2 TWEENSIE
 
     { x: 1.5 * 2 * apothem, y: 1.5 * radius + radiusInner }, // bottom hex3
 
     {
       x: 4 * apothem,
-      y: 1.5 * radius + 0.5 * radiusInner - borderWidth / 2 / 2,
+      y: 1.5 * radius + 0.5 * radiusInner - borderWidth / 2,
     }, // bottom-left hex4, bottom-right hex3 TWEENSIE
 
     { x: 2.5 * 2 * apothem, y: 1.5 * radius + radiusInner }, // bottom hex4
@@ -1681,17 +1681,17 @@ export function getMarvel6HexOutlineSvgPolygonPoints(
 
     {
       x: 4 * apothem,
-      y: 1.5 * radius - 0.5 * radiusInner + borderWidth / 2 / 2,
+      y: 1.5 * radius - 0.5 * radiusInner + borderWidth / 2,
     }, // top-right hex3, top-left hex4 TWEENSIE
 
     { x: 1.5 * 2 * apothem, y: 1.5 * radius - radiusInner }, // top hex3
 
     {
       x: 2 * apothem,
-      y: 1.5 * radius - 0.5 * radiusInner + borderWidth / 2 / 2,
+      y: 1.5 * radius - 0.5 * radiusInner + borderWidth / 2,
     }, // top-right hex2, top-left hex3 TWEENSIE
 
-    { x: apothemInner, y: 0.5 * radiusInner + borderWidth / 2 }, // bottom-right hex1, top hex2 TWEENSIE
+    { x: apothemInner, y: 0.5 * radiusInner + borderWidth }, // bottom-right hex1, top hex2 TWEENSIE
 
     { x: apothemInner, y: -0.5 * radiusInner }, // top-right hex1
 
