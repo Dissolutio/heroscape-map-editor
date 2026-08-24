@@ -472,7 +472,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
         <SvgMarvelRuin hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
