@@ -827,7 +827,7 @@ export const SvgRuins2 = ({
         fill="transparent"
         stroke={fillColor}
         strokeWidth={SVG_HEX_RADIUS / 5}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -857,7 +857,7 @@ export const SvgRuins3 = ({
         fill="transparent"
         stroke={fillColor}
         strokeWidth={SVG_HEX_RADIUS / 5}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
