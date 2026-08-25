@@ -147,7 +147,6 @@ const World = ({
                 /> */}
           <MapDisplay3D
             mapGroupRef={mapGroupRef}
-            cameraControlsRef={cameraControlsRef}
           />
           <BillboardWarmup />
           <Lights width={width} length={length} />

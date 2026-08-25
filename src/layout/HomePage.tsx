@@ -23,6 +23,8 @@ import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 const ReactPdfRoot = lazy(() => import('../pdf-map/ReactPdfRoot'));
 const SvgMapDisplay = lazy(() => import('../svg-map/SvgMapDisplay'));
 const World = lazy(() => import('../world/World'));
+import { useHotkeyConfig } from '../controls/useHotkeyConfig'
+import { useApplyHotkeys } from '../controls/useApplyHotkeys'
 
 export default function HomePage() {
   // Keep the persisted personal inventory mirrored into zustand so terrain
@@ -71,6 +73,8 @@ export default function HomePage() {
 
   // USE EFFECT: automatically load up map from URL, OR from file
   useAutoLoadMapFile({ mapGroupRef, cameraControlsRef })
+  const { hotkeyConfig } = useHotkeyConfig()
+  useApplyHotkeys({ hotkeyConfig, cameraControlsRef, mapGroupRef })
 
   return (
     <>

@@ -33,15 +33,11 @@ import { enqueueSnackbar } from 'notistack'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import PiecePreview from './PiecePreview.tsx'
 import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
-import { useHotkeyConfig } from '../controls/useHotkeyConfig'
-import { useApplyHotkeys } from '../controls/useApplyHotkeys.tsx'
 import type React from 'react'
 
 export default function MapDisplay3D({
-  cameraControlsRef,
   mapGroupRef,
 }: {
-  cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -58,8 +54,6 @@ export default function MapDisplay3D({
   const focusedPieceUID = useBoundStore((s) => s.focusedPieceUID)
   const focusStartTime = useBoundStore((s) => s.focusStartTime)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
-  const { hotkeyConfig } = useHotkeyConfig()
-  useApplyHotkeys({ hotkeyConfig, cameraControlsRef, mapGroupRef })
 
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
@@ -115,15 +109,15 @@ export default function MapDisplay3D({
       : hex
     const clickedHexCoords = isCastleWallArchClicked
       ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
+        q: boardHexes[boardHexIdOfCapForWall].q,
+        r: boardHexes[boardHexIdOfCapForWall].r,
+        s: boardHexes[boardHexIdOfCapForWall].s,
+      }
       : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
+        q: hex.q,
+        r: hex.r,
+        s: hex.s,
+      }
     const clickedHexAltitude = clickedHex.altitude
 
     // Castle W/A: use cap coords and altitude
