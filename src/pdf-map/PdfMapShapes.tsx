@@ -930,7 +930,7 @@ export const PdfBattlement = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getPdfHexFillForView(piece, isSubLevel)
-  const borderColor = getPdfHexBorderForView(piece, isSubLevel)
+  const borderColor = isSubLevel ? svgSubLevelColors.battlementBorder : svgColors.battlementBorder
   const { points } = getBattlementSvgPolygonPoints(SVG_HEX_RADIUS, 0)
   return (
     <Polygon
