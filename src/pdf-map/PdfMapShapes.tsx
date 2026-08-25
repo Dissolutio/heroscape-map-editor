@@ -949,12 +949,13 @@ export const PdfLadder = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
+  const borderColor = isSubLevel ? svgColors.battlementBorder : svgSubLevelColors.battlementBorder
   const { points } = getLadderSvgPolygonPoints(SVG_HEX_RADIUS, 0)
   return (
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={'black'}
+      stroke={borderColor}
       strokeWidth={PDF_BORDER_WIDTH / 4}
     />
   )
