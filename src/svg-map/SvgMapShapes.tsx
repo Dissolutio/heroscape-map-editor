@@ -886,7 +886,9 @@ export const SvgMarvelRuin = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
   const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS)
 
   return (
@@ -1021,7 +1023,7 @@ export const SvgBattlement = ({
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
-  const borderColor = isSubLevel ? svgColors.battlementBorder : svgSubLevelColors.battlementBorder
+  const borderColor = isSubLevel ? svgSubLevelColors.battlementBorder : svgColors.battlementBorder
   const { points } = getBattlementSvgPolygonPoints(SVG_HEX_RADIUS, 0)
   return (
     <>
