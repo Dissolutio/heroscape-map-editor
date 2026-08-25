@@ -1020,7 +1020,7 @@ export const PdfCastleCorner = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel ? svgSubLevelColors.castleWall : pdfColors.castleInterior
+  const fillColor = isSubLevel ? svgSubLevelColors.castleInterior : svgColors.castleInterior
   const { points } = getCastleCornerShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -1029,8 +1029,6 @@ export const PdfCastleCorner = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={fillColor}
-      strokeWidth={PDF_BORDER_WIDTH / 4}
     />
   )
 }
@@ -1041,7 +1039,7 @@ export const PdfCastleStraight = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel ? svgSubLevelColors.castleWall : pdfColors.castleInterior
+  const fillColor = isSubLevel ? svgSubLevelColors.castleInterior : svgColors.castleInterior
   const { points } = getCastleStraightShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -1050,8 +1048,6 @@ export const PdfCastleStraight = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={fillColor}
-      strokeWidth={PDF_BORDER_WIDTH / 4}
     />
   )
 }
@@ -1062,7 +1058,7 @@ export const PdfCastleEnd = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel ? svgSubLevelColors.castleWall : pdfColors.castleInterior
+  const fillColor = isSubLevel ? svgSubLevelColors.castleInterior : svgColors.castleInterior
   const { points } = getCastleEndShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -1071,8 +1067,6 @@ export const PdfCastleEnd = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={fillColor}
-      strokeWidth={PDF_BORDER_WIDTH / 4}
     />
   )
 }
@@ -1083,7 +1077,7 @@ export const PdfCastleArch = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel ? svgSubLevelColors.castleWall : pdfColors.castleInterior
+  const fillColor = isSubLevel ? svgSubLevelColors.castleInterior : svgColors.castleInterior
   const { points } = getCastleArchShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
