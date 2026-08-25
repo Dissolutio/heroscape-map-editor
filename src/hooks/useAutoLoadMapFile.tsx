@@ -25,24 +25,43 @@ type Props = {
 
 const useAutoLoadMapFile = (props: Props) => {
   const loadMap = useBoundStore((s) => s.loadMap)
+  const toggleIs2DOpen = useBoundStore((s) => s.toggleIs2DOpen)
+  const toggleIsPdfOpen = useBoundStore((s) => s.toggleIsPdfOpen)
   const { enqueueSnackbar } = useSnackbar()
   const searchString = useSearch()
 
   const [, navigate] = useLocation()
+
+  const applyViewModeFromQuery = (queryParams: URLSearchParams) => {
+    const viewMode = queryParams.get('v')
+    if (viewMode === 'a') {
+      toggleIsPdfOpen(true)
+      return
+    }
+
+    if (viewMode === 'b') {
+      toggleIs2DOpen(true)
+      return
+    }
+
+    toggleIs2DOpen(false)
+    toggleIsPdfOpen(false)
+  }
 
   // USE EFFECT: automatically load up map from URL, OR from file
   // biome-ignore lint/correctness/useExhaustiveDependencies: only run on-load
   useEffect(() => {
     // Map might be loaded from local storage already
     const queryParams = new URLSearchParams(searchString)
+    applyViewModeFromQuery(queryParams)
     const urlMapString = queryParams.get('m')
     const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
     const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
     const localMapCacheMapState = localMapCache
       ? buildupJsonFileMap(
-          normalizeBoardPieces(localMapCache.boardPieces),
-          localMapCache.hexMap,
-        )
+        normalizeBoardPieces(localMapCache.boardPieces),
+        localMapCache.hexMap,
+      )
       : undefined
     const loadMapWithoutUndo = (
       mapState: ReturnType<typeof buildupJsonFileMap>,
