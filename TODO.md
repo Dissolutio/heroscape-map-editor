@@ -1,6 +1,7 @@
 ## TODO
-<!-- MORE IMPORTANT ABOVE -->
+- New PDF Format: Cover Sheet with inventory on 1st page
 - Marvel Ruin Wall Destroyed: placing it removes some caps that are walkable, removes Hex Height display for OHS-view
+- Update conflicted states for ship pieces (account for level 0)
 - Map inventory and available terrain should be always visible. Not in separate modal.
 - Malfunctioning on Edge, Firefox, and maybe Samsung 8.
 - When no color outlines for land pieces, we must distinguish between Asphalt and Shadow better ( maybe blue outlines for fluid tiles?)
