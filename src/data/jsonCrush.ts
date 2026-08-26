@@ -3,6 +3,13 @@ import type { BoardPiece, BoardPiecesEncodedArr, HexMap } from '../types'
 import { isHexMap } from '../utils/type-checker'
 import { encodeBoardPiecesToIds } from '../utils/map-utils'
 
+// JSONCrush's compression scans every substring (length 2-50) of the input
+// with repeated indexOf calls, which is effectively O(n^2). Large blobs like
+// a base64 map portrait image (can be 1MB+) make it hang the page for
+// minutes, so anything that can't fit in a URL anyway must be stripped
+// before we ever hand the string to JSONCrush.
+const MAX_CRUSH_INPUT_LENGTH = 20_000
+
 export const getUrlMapString = ({
   hexMap,
   boardPieces,
@@ -11,14 +18,22 @@ export const getUrlMapString = ({
   boardPieces: BoardPiece[]
 }) => {
   const boardPiecesEncodedArr = encodeBoardPiecesToIds(boardPieces)
-  return encodeURI(
-    JSONCrush.crush(
-      JSON.stringify([
-        hexMap, // 1
-        ...boardPiecesEncodedArr,
-      ]),
-    ),
-  )
+  // mapPortraitBase64/mapNotes are written as blank strings in URL-shareable
+  // format (see HexMap type) since they can be arbitrarily large and can
+  // never actually fit in a URL.
+  const urlSafeHexMap: HexMap = {
+    ...hexMap,
+    mapPortraitBase64: '',
+    mapNotes: '',
+  }
+  const uncrushed = JSON.stringify([
+    urlSafeHexMap, // 1
+    ...boardPiecesEncodedArr,
+  ])
+  if (uncrushed.length > MAX_CRUSH_INPUT_LENGTH) {
+    throw new Error('Map is too large to be stored in a URL')
+  }
+  return encodeURI(JSONCrush.crush(uncrushed))
 }
 type ParsedJSONCrushMap = {
   hexMap: HexMap
