@@ -36,13 +36,9 @@ import {
 export default function ViewControlsTab({
   cameraControlsRef,
   mapGroupRef,
-  is2DOpen,
-  isPdfOpen,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
-  is2DOpen: boolean
-  isPdfOpen: boolean
 }) {
   // const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const { publish } = useEvent()
