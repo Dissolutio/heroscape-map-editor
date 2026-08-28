@@ -41,7 +41,7 @@ export default function Lights({
             showZ={!isTakingPicture}
           >
             <pointLight
-              color={'yellow'}
+              color={'white'}
               castShadow={isLightsAndShadowsRender}
               intensity={200}
               shadow-mapSize-height={512}
@@ -55,7 +55,7 @@ export default function Lights({
             showZ={!isTakingPicture}
           >
             <pointLight
-              color={'red'}
+              color={'white'}
               castShadow={isLightsAndShadowsRender}
               intensity={200}
               shadow-mapSize-height={512}
@@ -69,7 +69,7 @@ export default function Lights({
             showZ={!isTakingPicture}
           >
             <pointLight
-              color={'orange'}
+              color={'white'}
               castShadow={isLightsAndShadowsRender}
               intensity={200}
               shadow-mapSize-height={512}
