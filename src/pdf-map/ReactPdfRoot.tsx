@@ -26,6 +26,7 @@ import {
   getCombinedInventory,
   reconcileLaurLegacyToStackableUsage,
 } from '../inventory/laurInventoryReconcile'
+import { PDF_RENDER_FORMATS } from '../utils/constants'
 import type { PropsWithChildren } from 'react'
 
 Font.register({
@@ -47,6 +48,7 @@ export function ReactPdfRoot() {
   const isShowPdfOverlayOnPlacedLevel = useBoundStore(
     (s) => s.isShowPdfOverlayOnPlacedLevel,
   )
+  const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const isMobile = useMediaQuery('(max-width:800px)')
   return (
     <div
@@ -73,6 +75,7 @@ export function ReactPdfRoot() {
             isShowPdfOverlayLayer={isShowPdfOverlayLayer}
             isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
             isShowPDFInventory={isShowPDFInventory}
+            pdfRenderFormat={pdfRenderFormat}
           />
         </PDFViewer>
       )}
@@ -81,6 +84,168 @@ export function ReactPdfRoot() {
 }
 
 const PdfDocument = ({
+  hexMap,
+  boardHexes,
+  boardPieces,
+  isPdfColorBorders,
+  isShowPdfOverlayLayer,
+  isShowPdfOverlayOnPlacedLevel,
+  isShowPDFInventory,
+  pdfRenderFormat,
+}: {
+  hexMap: HexMap
+  boardHexes: BoardHexes
+  boardPieces: BoardPieces
+  isPdfColorBorders: boolean
+  isShowPdfOverlayLayer: boolean
+  isShowPdfOverlayOnPlacedLevel: boolean
+  isShowPDFInventory: boolean
+  pdfRenderFormat: 'coversheet' | 'shortHeader'
+}) => {
+  if (pdfRenderFormat === PDF_RENDER_FORMATS.COVERSHEET) {
+    return (
+      <PdfDocumentCoverSheet
+        hexMap={hexMap}
+        boardHexes={boardHexes}
+        boardPieces={boardPieces}
+        isPdfColorBorders={isPdfColorBorders}
+        isShowPdfOverlayLayer={isShowPdfOverlayLayer}
+        isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+        isShowPDFInventory={isShowPDFInventory}
+      />
+    )
+  }
+
+  return (
+    <PdfDocumentShortHeader
+      hexMap={hexMap}
+      boardHexes={boardHexes}
+      boardPieces={boardPieces}
+      isPdfColorBorders={isPdfColorBorders}
+      isShowPdfOverlayLayer={isShowPdfOverlayLayer}
+      isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+      isShowPDFInventory={isShowPDFInventory}
+    />
+  )
+}
+
+/**
+ * Coversheet format: First page features centered title, author, and map image.
+ * Second page contains instructions, third page contains inventory (if enabled).
+ * Layout emphasizes the map as the focal point.
+ */
+const PdfDocumentCoverSheet = ({
+  hexMap,
+  boardHexes,
+  boardPieces,
+  isPdfColorBorders,
+  isShowPdfOverlayLayer,
+  isShowPdfOverlayOnPlacedLevel,
+  isShowPDFInventory,
+}: {
+  hexMap: HexMap
+  boardHexes: BoardHexes
+  boardPieces: BoardPieces
+  isPdfColorBorders: boolean
+  isShowPdfOverlayLayer: boolean
+  isShowPdfOverlayOnPlacedLevel: boolean
+  isShowPDFInventory: boolean
+}) => {
+  return (
+    <Document title={hexMap.name}>
+      {/* Coversheet page */}
+      <Page
+        size="LETTER"
+        style={{
+          flexDirection: 'column',
+          padding: 30,
+          alignItems: 'center',
+          justifyContent: 'space-around',
+        }}
+      >
+        {/* Title and Author */}
+        <View style={{ alignItems: 'center', marginBottom: 20 }}>
+          <Text
+            style={{
+              fontSize: 32,
+              fontWeight: 'bold',
+              marginBottom: 10,
+            }}
+          >
+            {hexMap.name}
+          </Text>
+          {hexMap.author && (
+            <Text
+              style={{
+                fontSize: 16,
+              }}
+            >
+              by {hexMap.author}
+            </Text>
+          )}
+        </View>
+
+        {/* Map Image - centered and takes majority of space */}
+        {hexMap.mapPortraitBase64 && (
+          <View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <Image
+              src={hexMap.mapPortraitBase64}
+              style={{
+                maxHeight: '400px',
+                maxWidth: '100%',
+                width: 'auto',
+                height: 'auto',
+              }}
+            />
+          </View>
+        )}
+
+        {/* Sets Used */}
+        {hexMap.setsUsed && hexMap.setsUsed.length > 0 && (
+          <View style={{ alignItems: 'center', marginTop: 20 }}>
+            <Text
+              style={{
+                fontSize: 12,
+                marginBottom: 5,
+              }}
+            >
+              Requires:
+            </Text>
+            <Text
+              style={{
+                fontSize: 11,
+              }}
+            >
+              {getSetsUsedText(hexMap.setsUsed)}
+            </Text>
+          </View>
+        )}
+      </Page>
+
+      {/* Map Levels Page(s) */}
+      <PdfMapLevels6PerPage
+        boardHexes={boardHexes}
+        boardPieces={boardPieces}
+        isPdfColorBorders={isPdfColorBorders}
+        isShowPdfOverlayLayer={isShowPdfOverlayLayer}
+        isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+      />
+
+      {/* Inventory Page(s) */}
+      <PdfPieceInventory
+        isShowPDFInventory={isShowPDFInventory}
+        boardPieces={boardPieces}
+        setsUsed={hexMap.setsUsed ?? []}
+      />
+    </Document>
+  )
+}
+
+/**
+ * Short Header format: Traditional layout with header info, instructions, and inventory.
+ * Similar to the legacy format but with room for future customization.
+ */
+const PdfDocumentShortHeader = ({
   hexMap,
   boardHexes,
   boardPieces,
@@ -130,6 +295,7 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const isShowPdfOverlayOnPlacedLevel = useBoundStore(
     (s) => s.isShowPdfOverlayOnPlacedLevel,
   )
+  const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   return (
     <PDFDownloadLink
       document={
@@ -141,6 +307,7 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
           isShowPdfOverlayLayer={isShowPdfOverlayLayer}
           isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
           isShowPDFInventory={isShowPDFInventory}
+          pdfRenderFormat={pdfRenderFormat}
         />
       }
       fileName={`${hexMap.name}.pdf`}
