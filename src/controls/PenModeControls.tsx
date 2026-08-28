@@ -962,7 +962,7 @@ export default function PenModeControls() {
               color={hexTerrainColor[Pieces.startZone1]}
             />
             <TbHexagonNumber1Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
+              title="This is the color of the startzone circle in 2D/SVG view"
               color={svgColors[Pieces.startZone1]}
             />
           </ListItemIcon>
@@ -975,7 +975,7 @@ export default function PenModeControls() {
               color={hexTerrainColor[Pieces.startZone2]}
             />
             <TbHexagonNumber2Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
+              title="This is the color of the startzone circle in 2D/SVG view"
               color={svgColors[Pieces.startZone2]}
             />
           </ListItemIcon>
@@ -988,7 +988,7 @@ export default function PenModeControls() {
               color={hexTerrainColor[Pieces.startZone3]}
             />
             <TbHexagonNumber3Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
+              title="This is the color of the startzone circle in 2D/SVG view"
               color={svgColors[Pieces.startZone3]}
             />
           </ListItemIcon>
@@ -1001,7 +1001,7 @@ export default function PenModeControls() {
               color={hexTerrainColor[Pieces.startZone4]}
             />
             <TbHexagonNumber4Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
+              title="This is the color of the startzone circle in 2D/SVG view"
               color={svgColors[Pieces.startZone4]}
             />
           </ListItemIcon>
@@ -1014,7 +1014,7 @@ export default function PenModeControls() {
               color={hexTerrainColor[Pieces.startZone5]}
             />
             <TbHexagonNumber5Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
+              title="This is the color of the startzone circle in 2D/SVG view"
               color={svgColors[Pieces.startZone5]}
             />
           </ListItemIcon>
@@ -1027,7 +1027,7 @@ export default function PenModeControls() {
               color={hexTerrainColor[Pieces.startZone6]}
             />
             <TbHexagonNumber6Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
+              title="This is the color of the startzone circle in 2D/SVG view"
               color={svgColors[Pieces.startZone6]}
             />
           </ListItemIcon>
@@ -1040,7 +1040,7 @@ export default function PenModeControls() {
               color={hexTerrainColor[Pieces.startZone7]}
             />
             <TbHexagonNumber7Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
+              title="This is the color of the startzone circle in 2D/SVG view"
               color={svgColors[Pieces.startZone7]}
             />
           </ListItemIcon>
