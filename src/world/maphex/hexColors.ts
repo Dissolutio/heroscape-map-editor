@@ -51,7 +51,7 @@ export const hexTerrainColor = {
   [HexTerrain.tree]: '#355A44',
   treeBase: '#A34C00',
   [HexTerrain.water]: '#028bc4', // superfrog
-  [HexTerrain.wellspringWater]: '#BA70FF',
+  [HexTerrain.wellspringWater]: '#F5EDF3', // #BA70FF old
   [HexTerrain.ruin]: '#A2A0A6',
   [HexTerrain.castleWall]: '#B6B5BA',
   [HexTerrain.castleBase]: '#B6B5BA',
