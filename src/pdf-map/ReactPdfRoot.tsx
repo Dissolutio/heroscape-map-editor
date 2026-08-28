@@ -190,7 +190,7 @@ const MapPortraitHeader = ({
             svgProps={{
               height: '70%',
             }}
-            fillColor="red"
+            fillColor="black"
           />
         </View>
         <Text style={{ fontSize: '20px' }}>{hexMap.name}</Text>
@@ -268,9 +268,9 @@ const PdfPieceInventory = ({
 
   const counts = hasConstraints
     ? reconcileLaurLegacyToStackableUsage({
-        usedInventory: countsBeforeReconcile,
-        availableInventory: combinedInventory,
-      }).reconciledUsedInventory
+      usedInventory: countsBeforeReconcile,
+      availableInventory: combinedInventory,
+    }).reconciledUsedInventory
     : countsBeforeReconcile
 
   const getInventoryCategoryRank = (piece: {
@@ -335,16 +335,16 @@ const PdfPieceInventory = ({
 
   type InventoryRow =
     | {
-        kind: 'header'
-        id: string
-        title: string
-      }
+      kind: 'header'
+      id: string
+      title: string
+    }
     | {
-        kind: 'piece'
-        id: string
-        title: string
-        count: number
-      }
+      kind: 'piece'
+      id: string
+      title: string
+      count: number
+    }
 
   const getSectionKey = (entry: {
     terrain?: string
