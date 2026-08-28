@@ -6,6 +6,9 @@ import {
   List,
   FormControl,
   FormLabel,
+  Select,
+  MenuItem,
+  type SelectChangeEvent,
 } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
 import React from 'react'
@@ -24,6 +27,11 @@ import type { Group, Object3DEventMap } from 'three'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { zoomToMap } from '../utils/camera-utils'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
+import {
+  PDF_RENDER_FORMATS,
+  PDF_FORMAT_LABELS,
+  PDF_FORMAT_DESCRIPTIONS,
+} from '../utils/constants'
 
 export default function ViewControlsTab({
   cameraControlsRef,
@@ -294,6 +302,8 @@ const PdfPreferencesSwitchForm = () => {
   const toggleIsShowPdfOverlayOnPlacedLevel = useBoundStore(
     (s) => s.toggleIsShowPdfOverlayOnPlacedLevel,
   )
+  const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
+  const setPdfRenderFormat = useBoundStore((s) => s.setPdfRenderFormat)
   const handleChangeShowPDFInventory = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -313,6 +323,11 @@ const PdfPreferencesSwitchForm = () => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIsShowPdfOverlayOnPlacedLevel(event.target.checked)
+  }
+  const handleChangePdfRenderFormat = (
+    event: SelectChangeEvent<'coversheet' | 'shortHeader'>,
+  ) => {
+    setPdfRenderFormat(event.target.value as 'coversheet' | 'shortHeader')
   }
 
   return (
@@ -363,6 +378,23 @@ const PdfPreferencesSwitchForm = () => {
           label="Show StartZones/Glyphs on placed level"
           title="Enable/disable rendering start zones and glyphs on their placed map levels in PDF"
         />
+        <FormControl size="small" fullWidth sx={{ mt: 1 }}>
+          <FormLabel component="legend" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
+            PDF Layout Format
+          </FormLabel>
+          <Select
+            value={pdfRenderFormat}
+            onChange={handleChangePdfRenderFormat}
+            title={PDF_FORMAT_DESCRIPTIONS[pdfRenderFormat]}
+          >
+            <MenuItem value={PDF_RENDER_FORMATS.COVERSHEET}>
+              {PDF_FORMAT_LABELS[PDF_RENDER_FORMATS.COVERSHEET]}
+            </MenuItem>
+            <MenuItem value={PDF_RENDER_FORMATS.SHORT_HEADER}>
+              {PDF_FORMAT_LABELS[PDF_RENDER_FORMATS.SHORT_HEADER]}
+            </MenuItem>
+          </Select>
+        </FormControl>
       </FormGroup>
     </FormControl>
   )

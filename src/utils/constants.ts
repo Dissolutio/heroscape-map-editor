@@ -64,6 +64,22 @@ export const EVENTS = {
   mapPortrait: 'mapPortrait',
 }
 
+export const PDF_RENDER_FORMATS = {
+  COVERSHEET: 'coversheet',
+  SHORT_HEADER: 'shortHeader',
+} as const
+
+export const PDF_FORMAT_LABELS = {
+  [PDF_RENDER_FORMATS.COVERSHEET]: 'Coversheet Format',
+  [PDF_RENDER_FORMATS.SHORT_HEADER]: 'Short Header Format',
+} as const
+
+export const PDF_FORMAT_DESCRIPTIONS = {
+  [PDF_RENDER_FORMATS.COVERSHEET]:
+    'Centered layout with title, map image, and sets used on first page',
+  [PDF_RENDER_FORMATS.SHORT_HEADER]: 'Legacy format with instructions and inventory',
+} as const
+
 export const LAYOUT_POINTY = {
   f0: Math.sqrt(3.0),
   f1: Math.sqrt(3.0) / 2.0,
