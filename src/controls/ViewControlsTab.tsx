@@ -154,7 +154,7 @@ export default function ViewControlsTab({
       <Box>
         <ViewPreferencesSwitchForm />
         <PdfPreferencesSwitchForm />
-        {is2DOpen && !isPdfOpen && <SVGPreferencesSwitchForm />}
+        <SVGPreferencesSwitchForm />
       </Box>
     </Box>
   )
@@ -213,7 +213,7 @@ const ViewPreferencesSwitchForm = () => {
 
   return (
     <FormControl component="fieldset" variant="standard">
-      <FormLabel component="legend">View options:</FormLabel>
+      <FormLabel component="legend">3D View options:</FormLabel>
       <FormGroup>
         <FormControlLabel
           control={
