@@ -109,6 +109,8 @@ export interface UISlice {
   // SVG STATE
   is2DOverlayLevelEnabled: boolean
   toggleIs2DOverlayLevelEnabled: (b: boolean) => void
+  useLegacyStartZones: boolean
+  toggleUseLegacyStartZones: (b: boolean) => void
 }
 
 const initialPenMode = 'select'
@@ -377,6 +379,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.is2DOverlayLevelEnabled = b
+      }),
+    ),
+  useLegacyStartZones: false,
+  toggleUseLegacyStartZones: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.useLegacyStartZones = b
       }),
     ),
   currentDialog: '',

@@ -96,6 +96,7 @@ export default function PenModeControls() {
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
   )
+  const useLegacyStartZones = useBoundStore(s => s.useLegacyStartZones)
   const handleChange = (event: SelectChangeEvent) => {
     togglePenMode(event.target.value)
   }
@@ -228,6 +229,42 @@ export default function PenModeControls() {
     return <MuiMenuItem {...props} value={menuValue} />
   }
   const { hotkeyLookup } = useHotkeyConfig()
+  const StartZoneIcon = ({ zone, pieceId }: { zone: number; pieceId: string }) => {
+    const circleMap = {
+      1: TbCircleNumber1Filled,
+      2: TbCircleNumber2Filled,
+      3: TbCircleNumber3Filled,
+      4: TbCircleNumber4Filled,
+      5: TbCircleNumber5Filled,
+      6: TbCircleNumber6Filled,
+      7: TbCircleNumber7Filled,
+      8: TbCircleNumber8Filled,
+    } as const
+    const hexagonMap = {
+      1: TbHexagonNumber1Filled,
+      2: TbHexagonNumber2Filled,
+      3: TbHexagonNumber3Filled,
+      4: TbHexagonNumber4Filled,
+      5: TbHexagonNumber5Filled,
+      6: TbHexagonNumber6Filled,
+      7: TbHexagonNumber7Filled,
+      8: TbHexagonNumber8Filled,
+    } as const
+    const zoneKey = zone as keyof typeof circleMap
+    const CircleIcon = circleMap[zoneKey]
+    const HexagonIcon = hexagonMap[zoneKey]
+    return useLegacyStartZones ? (
+      <CircleIcon
+        title="This is the color of the startzone circle in 3D & PDF view"
+        color={hexTerrainColor[pieceId]}
+      />
+    ) : (
+      <HexagonIcon
+        title="This is the color of the startzone hexagon in 2D/SVG view"
+        color={svgColors[pieceId]}
+      />
+    )
+  }
   return (
     <FormControl fullWidth variant="filled">
       <InputLabel id="pen-terrain-select-label">Pen Mode</InputLabel>
@@ -957,105 +994,49 @@ export default function PenModeControls() {
         <Divider />
         <MenuItem value={Pieces.startZone1}>
           <ListItemIcon>
-            <TbCircleNumber1Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
-              color={hexTerrainColor[Pieces.startZone1]}
-            />
-            <TbHexagonNumber1Filled
-              title="This is the color of the startzone circle in 2D/SVG view"
-              color={svgColors[Pieces.startZone1]}
-            />
+            <StartZoneIcon pieceId={Pieces.startZone1} zone={1} />
           </ListItemIcon>
           <span>Start Zone: P1</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone2}>
           <ListItemIcon>
-            <TbCircleNumber2Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
-              color={hexTerrainColor[Pieces.startZone2]}
-            />
-            <TbHexagonNumber2Filled
-              title="This is the color of the startzone circle in 2D/SVG view"
-              color={svgColors[Pieces.startZone2]}
-            />
+            <StartZoneIcon pieceId={Pieces.startZone2} zone={2} />
           </ListItemIcon>
           <span>Start Zone: P2</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone3}>
           <ListItemIcon>
-            <TbCircleNumber3Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
-              color={hexTerrainColor[Pieces.startZone3]}
-            />
-            <TbHexagonNumber3Filled
-              title="This is the color of the startzone circle in 2D/SVG view"
-              color={svgColors[Pieces.startZone3]}
-            />
+            <StartZoneIcon pieceId={Pieces.startZone3} zone={3} />
           </ListItemIcon>
           <span>Start Zone: P3</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone4}>
           <ListItemIcon>
-            <TbCircleNumber4Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
-              color={hexTerrainColor[Pieces.startZone4]}
-            />
-            <TbHexagonNumber4Filled
-              title="This is the color of the startzone circle in 2D/SVG view"
-              color={svgColors[Pieces.startZone4]}
-            />
+            <StartZoneIcon pieceId={Pieces.startZone4} zone={4} />
           </ListItemIcon>
           <span>Start Zone: P4</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone5}>
           <ListItemIcon>
-            <TbCircleNumber5Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
-              color={hexTerrainColor[Pieces.startZone5]}
-            />
-            <TbHexagonNumber5Filled
-              title="This is the color of the startzone circle in 2D/SVG view"
-              color={svgColors[Pieces.startZone5]}
-            />
+            <StartZoneIcon pieceId={Pieces.startZone5} zone={5} />
           </ListItemIcon>
           <span>Start Zone: P5</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone6}>
           <ListItemIcon>
-            <TbCircleNumber6Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
-              color={hexTerrainColor[Pieces.startZone6]}
-            />
-            <TbHexagonNumber6Filled
-              title="This is the color of the startzone circle in 2D/SVG view"
-              color={svgColors[Pieces.startZone6]}
-            />
+            <StartZoneIcon pieceId={Pieces.startZone6} zone={6} />
           </ListItemIcon>
           <span>Start Zone: P6</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone7}>
           <ListItemIcon>
-            <TbCircleNumber7Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
-              color={hexTerrainColor[Pieces.startZone7]}
-            />
-            <TbHexagonNumber7Filled
-              title="This is the color of the startzone circle in 2D/SVG view"
-              color={svgColors[Pieces.startZone7]}
-            />
+            <StartZoneIcon pieceId={Pieces.startZone7} zone={7} />
           </ListItemIcon>
           <span>Start Zone: P7</span>
         </MenuItem>
         <MenuItem value={Pieces.startZone8}>
           <ListItemIcon>
-            <TbCircleNumber8Filled
-              title="This is the color of the startzone circle in 3D & PDF view"
-              color={hexTerrainColor[Pieces.startZone8]}
-            />
-            <TbHexagonNumber8Filled
-              title="This is the color of the startzone hexagon in 2D/SVG view"
-              color={svgColors[Pieces.startZone8]}
-            />
+            <StartZoneIcon pieceId={Pieces.startZone8} zone={8} />
           </ListItemIcon>
           <span>Start Zone: P8</span>
         </MenuItem>

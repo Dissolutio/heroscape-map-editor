@@ -300,6 +300,10 @@ const PdfPreferencesSwitchForm = () => {
   )
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const setPdfRenderFormat = useBoundStore((s) => s.setPdfRenderFormat)
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
+  const toggleUseLegacyStartZones = useBoundStore(
+    (s) => s.toggleUseLegacyStartZones,
+  )
   const handleChangeShowPDFInventory = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -324,6 +328,11 @@ const PdfPreferencesSwitchForm = () => {
     event: SelectChangeEvent<'coversheet' | 'shortHeader'>,
   ) => {
     setPdfRenderFormat(event.target.value as 'coversheet' | 'shortHeader')
+  }
+  const handleChangeUseLegacyStartZones = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleUseLegacyStartZones(event.target.checked)
   }
 
   return (
@@ -374,6 +383,17 @@ const PdfPreferencesSwitchForm = () => {
           label="Show StartZones/Glyphs on placed level"
           title="Enable/disable rendering start zones and glyphs on their placed map levels in PDF"
         />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={useLegacyStartZones}
+              onChange={handleChangeUseLegacyStartZones}
+            />
+          }
+          label="Use Legacy Start Zones"
+          title="Enable/disable rendering start zones in PDF/2D views styled as they were in Virtualscape (circles, different colors)"
+        />
         <FormControl size="small" fullWidth sx={{ mt: 1 }}>
           <FormLabel component="legend" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
             PDF Layout Format
@@ -403,10 +423,19 @@ const SVGPreferencesSwitchForm = () => {
   const toggleIs2DOverlayLevelEnabled = useBoundStore(
     (s) => s.toggleIs2DOverlayLevelEnabled,
   )
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
+  const toggleUseLegacyStartZones = useBoundStore(
+    (s) => s.toggleUseLegacyStartZones,
+  )
   const handleChangeis2DOverlayLevelEnabled = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIs2DOverlayLevelEnabled(event.target.checked)
+  }
+  const handleChangeUseLegacyStartZones = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleUseLegacyStartZones(event.target.checked)
   }
 
   return (
@@ -423,6 +452,17 @@ const SVGPreferencesSwitchForm = () => {
           }
           label="View Objective Layer"
           title="Enable/disable an overlay level of the map with startzones, objectives, and glyphs (they will not be shown on their placed levels)"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={useLegacyStartZones}
+              onChange={handleChangeUseLegacyStartZones}
+            />
+          }
+          label="Use Legacy Start Zones"
+          title="Enable/disable hexagon-shaped start zones (legacy style)"
         />
       </FormGroup>
     </FormControl>

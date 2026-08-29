@@ -46,6 +46,7 @@ import {
   getShipBowSvgPolygonPoints,
   getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
+import useBoundStore from '../store/store'
 import {
   getSvgHexBorderColor,
   getSvgHexFillColor,
@@ -68,7 +69,7 @@ import {
   SVG_HEX_RADIUS,
   SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
 } from '../utils/constants'
-import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
+import { svgColors, svgSubLevelColors, virtualscapeTileColors } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from './svg-hive'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
@@ -1069,25 +1070,44 @@ export const SvgStartZone = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
+  const useLegacyStartZones = useBoundStore(s => s.useLegacyStartZones)
+  const fillColor = useLegacyStartZones
+    ? virtualscapeTileColors[hex.inventoryID]
+    : svgColors[hex.inventoryID]
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   // const borderColor = getSvgHexBorderColor(hex)
   return (
     <>
-      {isSubLevel && <polygon points={points} fill={'white'} />}
-      <polygon
-        points={points}
-        fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
-      {/* <circle
-        r={SVG_HEX_RADIUS / 2}
-        // points={points}
-        fill={fillColor}
-        stroke={'black'}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      /> */}
+      {useLegacyStartZones ? (
+        // Legacy circle shape
+        <>
+          {isSubLevel && (
+            <circle
+              r={SVG_HEX_RADIUS / 2}
+              fill={'white'}
+              stroke={'white'}
+              strokeWidth={SVG_BORDER_WIDTH / 4}
+            />
+          )}
+          <circle
+            r={SVG_HEX_RADIUS / 2}
+            fill={fillColor}
+            stroke={'black'}
+            strokeWidth={SVG_BORDER_WIDTH / 4}
+            opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+          />
+        </>
+      ) : (
+        // Contemporary hexagon shape
+        <>
+          {isSubLevel && <polygon points={points} fill={'white'} />}
+          <polygon
+            points={points}
+            fill={fillColor}
+            opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+          />
+        </>
+      )}
     </>
   )
 }
@@ -1504,9 +1524,9 @@ export const SvgOutcrop6 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-        // {...singleHexObstacleHeightTextProps()}
-        // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-        // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+      // {...singleHexObstacleHeightTextProps()}
+      // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+      // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'9'}
       </text>
@@ -1630,8 +1650,8 @@ export const SvgOutcrop4 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-        // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-        // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+      // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+      // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'7'}
       </text>
