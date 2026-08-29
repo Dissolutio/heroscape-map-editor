@@ -36,6 +36,14 @@ export const virtualscapeTileColors: Dictionary<string> = {
   [HexTerrain.hive]: 'rgb(193,121,65)',
   [HexTerrain._vsFigure]: 'rgb(255, 255, 255)',
   [HexTerrain._vsPersonal]: 'rgb(160, 160, 160)',
+  [Pieces.startZone1]: 'rgb(255,0,0)',
+  [Pieces.startZone2]: 'rgb(0,255,0)',
+  [Pieces.startZone3]: 'rgb(0,0,255)',
+  [Pieces.startZone4]: 'rgb(255,255,0)',
+  [Pieces.startZone5]: 'rgb(255,0,255)',
+  [Pieces.startZone6]: 'rgb(0,255,255)',
+  [Pieces.startZone7]: 'rgb(255,128,0)',
+  [Pieces.startZone8]: 'rgb(128,0,255)',
 }
 
 export const hexTerrainColor = {

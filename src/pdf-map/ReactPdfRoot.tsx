@@ -48,6 +48,7 @@ export function ReactPdfRoot() {
   const isShowPdfOverlayOnPlacedLevel = useBoundStore(
     (s) => s.isShowPdfOverlayOnPlacedLevel,
   )
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const isMobile = useMediaQuery('(max-width:800px)')
   return (
@@ -75,6 +76,7 @@ export function ReactPdfRoot() {
             isShowPdfOverlayLayer={isShowPdfOverlayLayer}
             isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
             isShowPDFInventory={isShowPDFInventory}
+            useLegacyStartZones={useLegacyStartZones}
             pdfRenderFormat={pdfRenderFormat}
           />
         </PDFViewer>
@@ -91,6 +93,7 @@ const PdfDocument = ({
   isShowPdfOverlayLayer,
   isShowPdfOverlayOnPlacedLevel,
   isShowPDFInventory,
+  useLegacyStartZones,
   pdfRenderFormat,
 }: {
   hexMap: HexMap
@@ -100,6 +103,7 @@ const PdfDocument = ({
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowPDFInventory: boolean
+  useLegacyStartZones: boolean
   pdfRenderFormat: 'coversheet' | 'shortHeader'
 }) => {
   if (pdfRenderFormat === PDF_RENDER_FORMATS.COVERSHEET) {
@@ -112,6 +116,7 @@ const PdfDocument = ({
         isShowPdfOverlayLayer={isShowPdfOverlayLayer}
         isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
         isShowPDFInventory={isShowPDFInventory}
+        useLegacyStartZones={useLegacyStartZones}
       />
     )
   }
@@ -125,6 +130,7 @@ const PdfDocument = ({
       isShowPdfOverlayLayer={isShowPdfOverlayLayer}
       isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
       isShowPDFInventory={isShowPDFInventory}
+      useLegacyStartZones={useLegacyStartZones}
     />
   )
 }
@@ -142,6 +148,7 @@ const PdfDocumentCoverSheet = ({
   isShowPdfOverlayLayer,
   isShowPdfOverlayOnPlacedLevel,
   isShowPDFInventory,
+  useLegacyStartZones,
 }: {
   hexMap: HexMap
   boardHexes: BoardHexes
@@ -150,6 +157,7 @@ const PdfDocumentCoverSheet = ({
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowPDFInventory: boolean
+  useLegacyStartZones: boolean
 }) => {
   return (
     <Document title={hexMap.name}>
@@ -229,6 +237,7 @@ const PdfDocumentCoverSheet = ({
         isPdfColorBorders={isPdfColorBorders}
         isShowPdfOverlayLayer={isShowPdfOverlayLayer}
         isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+        useLegacyStartZones={useLegacyStartZones}
       />
 
       {/* Inventory Page(s) */}
@@ -252,6 +261,7 @@ const PdfDocumentShortHeader = ({
   isPdfColorBorders,
   isShowPdfOverlayLayer,
   isShowPdfOverlayOnPlacedLevel,
+  useLegacyStartZones,
   isShowPDFInventory,
 }: {
   hexMap: HexMap
@@ -260,6 +270,7 @@ const PdfDocumentShortHeader = ({
   isPdfColorBorders: boolean
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
+  useLegacyStartZones: boolean
   isShowPDFInventory: boolean
 }) => {
   return (
@@ -270,6 +281,7 @@ const PdfDocumentShortHeader = ({
         isPdfColorBorders={isPdfColorBorders}
         isShowPdfOverlayLayer={isShowPdfOverlayLayer}
         isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+        useLegacyStartZones={useLegacyStartZones}
       >
         <MapPortraitHeader
           hexMap={hexMap}
@@ -295,6 +307,7 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const isShowPdfOverlayOnPlacedLevel = useBoundStore(
     (s) => s.isShowPdfOverlayOnPlacedLevel,
   )
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   return (
     <PDFDownloadLink
@@ -307,6 +320,7 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
           isShowPdfOverlayLayer={isShowPdfOverlayLayer}
           isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
           isShowPDFInventory={isShowPDFInventory}
+          useLegacyStartZones={useLegacyStartZones}
           pdfRenderFormat={pdfRenderFormat}
         />
       }

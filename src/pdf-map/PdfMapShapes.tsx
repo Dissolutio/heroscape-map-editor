@@ -63,6 +63,7 @@ import {
   pdfColors,
   svgColors,
   svgSubLevelColors,
+  virtualscapeTileColors,
 } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from '../svg-map/svg-hive'
 import {
@@ -91,7 +92,7 @@ export const PdfEmptyHex = () => {
         // fill={fillColor}
         stroke={borderColor}
         strokeWidth={borderWidth}
-        // opacity={OPACITY_EMPTY}
+      // opacity={OPACITY_EMPTY}
       />
     </>
   )
@@ -1168,43 +1169,54 @@ export const PdfLadder = ({
 export const PdfStartZone = ({
   hex,
   isSubLevel,
+  useLegacyStartZones,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useLegacyStartZones?: boolean
 }) => {
-  const fillColor = getPdfHexFillColor(hex)
+  const fillColor = useLegacyStartZones
+    ? virtualscapeTileColors?.[hex.inventoryID]
+    : svgColors?.[hex.inventoryID]
   // const borderColor = getSvgHexBorderColor(hex)
   // const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0)
   return (
     <>
-      {/* Renegade style start zones, full hex coverage, below, show as one level for exactness */}
-      {/* {isSubLevel && (
-        <Polygon
-          points={points}
-          fill={'white'}
-        />
+      {useLegacyStartZones ? (
+        // Legacy circle shape
+        <>
+          {isSubLevel && (
+            <Circle
+              r={SVG_HEX_RADIUS / 2}
+              fill={'white'}
+              stroke={'white'}
+              strokeWidth={PDF_BORDER_WIDTH / 4}
+            />
+          )}
+          <Circle
+            r={SVG_HEX_RADIUS / 2}
+            fill={fillColor}
+            stroke={'black'}
+            strokeWidth={PDF_BORDER_WIDTH / 4}
+            opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+          />
+        </>
+      ) : (
+        // Contemporary hexagon shape
+        <>
+          {isSubLevel && (
+            <Polygon
+              points={getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+              fill={'white'}
+            />
+          )}
+          <Polygon
+            points={getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+            fill={fillColor}
+            opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
+          />
+        </>
       )}
-      <Polygon
-        points={points}
-        fill={fillColor}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      /> */}
-      {isSubLevel && (
-        <Circle
-          r={SVG_HEX_RADIUS / 2}
-          fill={'white'}
-          stroke={'white'}
-          strokeWidth={PDF_BORDER_WIDTH / 4}
-        />
-      )}
-      <Circle
-        r={SVG_HEX_RADIUS / 2}
-        // points={points}
-        fill={fillColor}
-        stroke={'black'}
-        strokeWidth={PDF_BORDER_WIDTH / 4}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
     </>
   )
 }
