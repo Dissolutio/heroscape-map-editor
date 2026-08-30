@@ -77,7 +77,8 @@ export const PDF_FORMAT_LABELS = {
 export const PDF_FORMAT_DESCRIPTIONS = {
   [PDF_RENDER_FORMATS.COVERSHEET]:
     'Centered layout with title, map image, and sets used on first page',
-  [PDF_RENDER_FORMATS.SHORT_HEADER]: 'Legacy format with instructions and inventory',
+  [PDF_RENDER_FORMATS.SHORT_HEADER]:
+    'Legacy format with instructions and inventory',
 } as const
 
 export const LAYOUT_POINTY = {

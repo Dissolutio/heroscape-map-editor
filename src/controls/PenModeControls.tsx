@@ -96,7 +96,7 @@ export default function PenModeControls() {
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
   )
-  const useLegacyStartZones = useBoundStore(s => s.useLegacyStartZones)
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const handleChange = (event: SelectChangeEvent) => {
     togglePenMode(event.target.value)
   }
@@ -229,7 +229,10 @@ export default function PenModeControls() {
     return <MuiMenuItem {...props} value={menuValue} />
   }
   const { hotkeyLookup } = useHotkeyConfig()
-  const StartZoneIcon = ({ zone, pieceId }: { zone: number; pieceId: string }) => {
+  const StartZoneIcon = ({
+    zone,
+    pieceId,
+  }: { zone: number; pieceId: string }) => {
     const circleMap = {
       1: TbCircleNumber1Filled,
       2: TbCircleNumber2Filled,

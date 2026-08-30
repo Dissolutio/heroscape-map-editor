@@ -69,7 +69,11 @@ import {
   SVG_HEX_RADIUS,
   SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
 } from '../utils/constants'
-import { svgColors, svgSubLevelColors, virtualscapeTileColors } from '../world/maphex/hexColors'
+import {
+  svgColors,
+  svgSubLevelColors,
+  virtualscapeTileColors,
+} from '../world/maphex/hexColors'
 import { svgHiveBlobD } from './svg-hive'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
@@ -1070,7 +1074,7 @@ export const SvgStartZone = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const useLegacyStartZones = useBoundStore(s => s.useLegacyStartZones)
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const fillColor = useLegacyStartZones
     ? virtualscapeTileColors[hex.inventoryID]
     : svgColors[hex.inventoryID]
@@ -1524,9 +1528,9 @@ export const SvgOutcrop6 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-      // {...singleHexObstacleHeightTextProps()}
-      // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-      // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        // {...singleHexObstacleHeightTextProps()}
+        // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'9'}
       </text>
@@ -1650,8 +1654,8 @@ export const SvgOutcrop4 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-      // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-      // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'7'}
       </text>

@@ -74,7 +74,7 @@ export const PdfMapHex = ({
   isOverlayViewing,
   isPdfColorBorders,
   isShowPdfOverlayOnPlacedLevel,
-  useLegacyStartZones
+  useLegacyStartZones,
 }: {
   hex: BoardHex
   viewingLevel: number
@@ -182,7 +182,7 @@ export const PdfMapHex = ({
           style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-        // {...pdfTextProps()}
+          // {...pdfTextProps()}
         >
           Y
         </Text>
@@ -201,7 +201,7 @@ export const PdfMapHex = ({
           style={pdfHexTextStyle}
           textAnchor="middle"
           dominantBaseline="central"
-        // {...pdfTextProps()}
+          // {...pdfTextProps()}
         >
           M
         </Text>
@@ -220,7 +220,7 @@ export const PdfMapHex = ({
           opacity={
             isSubLevel
               ? // white text needs a little opacity boost
-              OPACITY_SUBLEVEL * 2
+                OPACITY_SUBLEVEL * 2
               : 1
           }
           style={pdfHexTextStyle}
@@ -374,7 +374,11 @@ export const PdfMapHex = ({
     const specialIsSubLevel = false
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfStartZone hex={hex} isSubLevel={specialIsSubLevel} useLegacyStartZones={useLegacyStartZones} />
+        <PdfStartZone
+          hex={hex}
+          isSubLevel={specialIsSubLevel}
+          useLegacyStartZones={useLegacyStartZones}
+        />
       </G>
     )
   }

@@ -503,9 +503,11 @@ export const MapBoardPiece3D = ({
     return (
       <group
         position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
-        rotation={useLegacyStartZones ?
-          [0, pieceRotation, Math.PI / 2]
-          : [0, Math.PI / 6, 0]}
+        rotation={
+          useLegacyStartZones
+            ? [0, pieceRotation, Math.PI / 2]
+            : [0, Math.PI / 6, 0]
+        }
       >
         <StartZone3D pid={uid} inventoryID={inventoryID} />
       </group>

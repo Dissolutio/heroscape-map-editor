@@ -92,7 +92,7 @@ export const PdfEmptyHex = () => {
         // fill={fillColor}
         stroke={borderColor}
         strokeWidth={borderWidth}
-      // opacity={OPACITY_EMPTY}
+        // opacity={OPACITY_EMPTY}
       />
     </>
   )

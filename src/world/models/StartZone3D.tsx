@@ -3,7 +3,10 @@ import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 
 import { hexTerrainColor, svgColors } from '../maphex/hexColors'
-import { HEXGRID_HEX_RADIUS, HEXGRID_HEXCAP_HEIGHT } from '../../utils/constants'
+import {
+  HEXGRID_HEX_RADIUS,
+  HEXGRID_HEXCAP_HEIGHT,
+} from '../../utils/constants'
 
 export function StartZone3D({
   pid,
@@ -43,16 +46,8 @@ export function StartZone3D({
         <circleGeometry args={[HEXGRID_HEX_RADIUS / 2.1, 32]} />
       ) : (
         <cylinderGeometry
-          args={[
-            0.6515,
-            0.6615,
-            0.2,
-            6,
-            undefined,
-            false,
-            0,
-            undefined,
-          ]} />
+          args={[0.6515, 0.6615, 0.2, 6, undefined, false, 0, undefined]}
+        />
       )}
       <meshMatcapMaterial color={color} />
     </mesh>
