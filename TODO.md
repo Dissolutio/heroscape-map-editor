@@ -1,5 +1,6 @@
 ## TODO
 <!-- MORE IMPORTANT ABOVE -->
+- Marvel Ruin Wall Destroyed: placing it removes some caps that are walkable, removes Hex Height display for OHS-view
 - Map inventory and available terrain should be always visible. Not in separate modal.
 - Malfunctioning on Edge, Firefox, and maybe Samsung 8.
 - When no color outlines for land pieces, we must distinguish between Asphalt and Shadow better ( maybe blue outlines for fluid tiles?)
@@ -25,10 +26,9 @@
 - Land tile size select: Hotkeys 1, 2, 3, 4, 5 should always map to sizes 1, 2, 3, 7, 24, put special sizes on hotkeys 6+
 ## PDF/SVG TODO
 - PDF/SVG level logo from Renegade publications (just looks nicer and more official)
-- PDF/SVG option to show overlay pieces on own level
+- PDF/SVG overlay level options parity
 - PDF: way to add multiple Sets Used list
-- PDF option to enable overlay layer
-- PDF styles update to match SVG (sub terrain less-saturated-colors)
+- PDF style parity with SVG (sublevel less-saturated-colors)
 - PDF style option: disable land tile piece outline colors (make black)
 - PDF style option: disable hexgrid lines over sub-levels
 - PDF style option: use original Virtualscape colors
