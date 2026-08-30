@@ -201,6 +201,15 @@ const ViewPreferencesSwitchForm = () => {
   ) => {
     toggleIsHideTableTop(event.target.checked)
   }
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
+  const toggleUseLegacyStartZones = useBoundStore(
+    (s) => s.toggleUseLegacyStartZones,
+  )
+  const handleChangeUseLegacyStartZones = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleUseLegacyStartZones(event.target.checked)
+  }
   // const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   // const toggleIsFrameloopDemand = useBoundStore((s) => s.toggleIsFrameloopDemand)
   // const handleChangeFrameloopDemand = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -275,6 +284,17 @@ const ViewPreferencesSwitchForm = () => {
           control={<Switch checked={isFrameloopDemand} onChange={handleChangeFrameloopDemand} />}
           label="Frameloop Demand"
         /> */}
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={useLegacyStartZones}
+              onChange={handleChangeUseLegacyStartZones}
+            />
+          }
+          label="Use Legacy Start Zones"
+          title="Enable/disable rendering start zones in PDF/2D views styled as they were in Virtualscape (circles, different colors)"
+        />
       </FormGroup>
     </FormControl>
   )
