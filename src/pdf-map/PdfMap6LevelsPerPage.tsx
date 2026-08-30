@@ -19,6 +19,7 @@ export const PdfMapLevels6PerPage = ({
   isPdfColorBorders,
   isShowPdfOverlayLayer,
   isShowPdfOverlayOnPlacedLevel,
+  useLegacyStartZones,
   children,
 }: PropsWithChildren<{
   boardHexes: BoardHexes
@@ -26,6 +27,7 @@ export const PdfMapLevels6PerPage = ({
   isPdfColorBorders: boolean
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
+  useLegacyStartZones: boolean
 }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const boardHexesWithoutEmpties = keyBy(
@@ -80,6 +82,7 @@ export const PdfMapLevels6PerPage = ({
                       isShowPdfOverlayOnPlacedLevel={
                         isShowPdfOverlayOnPlacedLevel
                       }
+                      useLegacyStartZones={useLegacyStartZones}
                     />
                   </RowWrapper>
                 ) : null,
@@ -106,6 +109,7 @@ export const PdfMapLevels6PerPage = ({
                       isShowPdfOverlayOnPlacedLevel={
                         isShowPdfOverlayOnPlacedLevel
                       }
+                      useLegacyStartZones={useLegacyStartZones}
                     />
                   </RowWrapper>
                 ) : null,

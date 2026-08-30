@@ -6,6 +6,9 @@ import {
   List,
   FormControl,
   FormLabel,
+  Select,
+  MenuItem,
+  type SelectChangeEvent,
 } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
 import React from 'react'
@@ -24,17 +27,18 @@ import type { Group, Object3DEventMap } from 'three'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { zoomToMap } from '../utils/camera-utils'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
+import {
+  PDF_RENDER_FORMATS,
+  PDF_FORMAT_LABELS,
+  PDF_FORMAT_DESCRIPTIONS,
+} from '../utils/constants'
 
 export default function ViewControlsTab({
   cameraControlsRef,
   mapGroupRef,
-  is2DOpen,
-  isPdfOpen,
 }: {
   cameraControlsRef: React.RefObject<CameraControls>
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
-  is2DOpen: boolean
-  isPdfOpen: boolean
 }) {
   // const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const { publish } = useEvent()
@@ -45,6 +49,9 @@ export default function ViewControlsTab({
   const toggleIsTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
   const isTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
   const boardHexes = useBoundStore((s) => s.boardHexes)
+  const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
+  const is2DOpen = useBoundStore((s) => s.is2DOpen) && !isPdfOpen
+  const is3DOpen = !is2DOpen && !isPdfOpen
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const onClickDisableCamera = (e: any) => {
   //   const targetId = e?.nativeEvent?.target?.id ?? ''
@@ -80,73 +87,79 @@ export default function ViewControlsTab({
   }
   return (
     <Box sx={{ width: '100%', height: '100%' }} role="presentation">
-      <div
-        style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          padding: 0,
-        }}
-      >
-        <List>
-          {/* Center map in camera view */}
-          <ControlTabsListItemButton
-            title="Center the camera on entire map"
-            primary="Zoom to map"
-            onClick={() =>
-              zoomToMap(mapGroupRef, cameraControlsRef, width, length)
-            }
-            icon={<FcCollect />}
-          />
+      {is3DOpen && (
+        <div
+          style={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: 0,
+          }}
+        >
+          <List>
+            {/* Center map in camera view */}
+            <ControlTabsListItemButton
+              title="Center the camera on entire map"
+              primary="Zoom to map"
+              onClick={() =>
+                zoomToMap(mapGroupRef, cameraControlsRef, width, length)
+              }
+              icon={<FcCollect />}
+            />
 
-          {/* Lock Camera Controls */}
-          <ControlTabsListItemButton
-            title={
-              isCamerDisabled
-                ? 'Unlock camera controls'
-                : 'Lock camera controls'
-            }
-            primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'}
-            onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
-            icon={isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />}
-          />
+            {/* Lock Camera Controls */}
+            <ControlTabsListItemButton
+              title={
+                isCamerDisabled
+                  ? 'Unlock camera controls'
+                  : 'Lock camera controls'
+              }
+              primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'}
+              onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
+              icon={
+                isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />
+              }
+            />
 
-          {/* Reset camera defaults */}
-          <ControlTabsListItemButton
-            title={'Reset camera defaults'}
-            primary="Reset camera"
-            onClick={resetCamera}
-            icon={<FcSynchronize />}
-          />
+            {/* Reset camera defaults */}
+            <ControlTabsListItemButton
+              title={'Reset camera defaults'}
+              primary="Reset camera"
+              onClick={resetCamera}
+              icon={<FcSynchronize />}
+            />
 
-          {/* Switch camera orthographic/perspective */}
-          <ControlTabsListItemButton
-            title={
-              isOrthoCam
-                ? 'Switch to perspective camera'
-                : 'Switch to orthographic camera'
-            }
-            primary={
-              isOrthoCam ? 'Use perspective camera' : 'Use orthographic camera'
-            }
-            onClick={handleToggleOrthoCam}
-            icon={<FcSwitchCamera />}
-          />
+            {/* Switch camera orthographic/perspective */}
+            <ControlTabsListItemButton
+              title={
+                isOrthoCam
+                  ? 'Switch to perspective camera'
+                  : 'Switch to orthographic camera'
+              }
+              primary={
+                isOrthoCam
+                  ? 'Use perspective camera'
+                  : 'Use orthographic camera'
+              }
+              onClick={handleToggleOrthoCam}
+              icon={<FcSwitchCamera />}
+            />
 
-          {/* Take map picture PNG */}
-          <ControlTabsListItemButton
-            title={'Take map picture .PNG'}
-            primary="Take map picture .PNG"
-            onClick={handleTakeAMapPicture}
-            icon={<FcOldTimeCamera />}
-          />
-        </List>
-      </div>
+            {/* Take map picture PNG */}
+            <ControlTabsListItemButton
+              title={'Take map picture .PNG'}
+              primary="Take map picture .PNG"
+              onClick={handleTakeAMapPicture}
+              icon={<FcOldTimeCamera />}
+            />
+          </List>
+        </div>
+      )}
       <Box>
-        <ViewPreferencesSwitchForm />
-        <PdfPreferencesSwitchForm />
-        {is2DOpen && !isPdfOpen && <SVGPreferencesSwitchForm />}
+        {is3DOpen && <ViewPreferencesSwitchForm />}
+        {isPdfOpen && <PdfPreferencesSwitchForm />}
+        {is2DOpen && <SVGPreferencesSwitchForm />}
       </Box>
     </Box>
   )
@@ -197,6 +210,15 @@ const ViewPreferencesSwitchForm = () => {
   ) => {
     toggleIsHideTableTop(event.target.checked)
   }
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
+  const toggleUseLegacyStartZones = useBoundStore(
+    (s) => s.toggleUseLegacyStartZones,
+  )
+  const handleChangeUseLegacyStartZones = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleUseLegacyStartZones(event.target.checked)
+  }
   // const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   // const toggleIsFrameloopDemand = useBoundStore((s) => s.toggleIsFrameloopDemand)
   // const handleChangeFrameloopDemand = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,7 +227,7 @@ const ViewPreferencesSwitchForm = () => {
 
   return (
     <FormControl component="fieldset" variant="standard">
-      <FormLabel component="legend">View options:</FormLabel>
+      <FormLabel component="legend">3D View options:</FormLabel>
       <FormGroup>
         <FormControlLabel
           control={
@@ -271,6 +293,17 @@ const ViewPreferencesSwitchForm = () => {
           control={<Switch checked={isFrameloopDemand} onChange={handleChangeFrameloopDemand} />}
           label="Frameloop Demand"
         /> */}
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={useLegacyStartZones}
+              onChange={handleChangeUseLegacyStartZones}
+            />
+          }
+          label="Use Legacy Start Zones"
+          title="Enable/disable rendering start zones in PDF/2D views styled as they were in Virtualscape (circles, different colors)"
+        />
       </FormGroup>
     </FormControl>
   )
@@ -294,6 +327,12 @@ const PdfPreferencesSwitchForm = () => {
   const toggleIsShowPdfOverlayOnPlacedLevel = useBoundStore(
     (s) => s.toggleIsShowPdfOverlayOnPlacedLevel,
   )
+  const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
+  const setPdfRenderFormat = useBoundStore((s) => s.setPdfRenderFormat)
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
+  const toggleUseLegacyStartZones = useBoundStore(
+    (s) => s.toggleUseLegacyStartZones,
+  )
   const handleChangeShowPDFInventory = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -313,6 +352,16 @@ const PdfPreferencesSwitchForm = () => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIsShowPdfOverlayOnPlacedLevel(event.target.checked)
+  }
+  const handleChangePdfRenderFormat = (
+    event: SelectChangeEvent<'coversheet' | 'shortHeader'>,
+  ) => {
+    setPdfRenderFormat(event.target.value as 'coversheet' | 'shortHeader')
+  }
+  const handleChangeUseLegacyStartZones = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleUseLegacyStartZones(event.target.checked)
   }
 
   return (
@@ -363,6 +412,34 @@ const PdfPreferencesSwitchForm = () => {
           label="Show StartZones/Glyphs on placed level"
           title="Enable/disable rendering start zones and glyphs on their placed map levels in PDF"
         />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={useLegacyStartZones}
+              onChange={handleChangeUseLegacyStartZones}
+            />
+          }
+          label="Use Legacy Start Zones"
+          title="Enable/disable rendering start zones in PDF/2D views styled as they were in Virtualscape (circles, different colors)"
+        />
+        <FormControl size="small" fullWidth sx={{ mt: 1 }}>
+          <FormLabel component="legend" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
+            PDF Layout Format
+          </FormLabel>
+          <Select
+            value={pdfRenderFormat}
+            onChange={handleChangePdfRenderFormat}
+            title={PDF_FORMAT_DESCRIPTIONS[pdfRenderFormat]}
+          >
+            <MenuItem value={PDF_RENDER_FORMATS.COVERSHEET}>
+              {PDF_FORMAT_LABELS[PDF_RENDER_FORMATS.COVERSHEET]}
+            </MenuItem>
+            <MenuItem value={PDF_RENDER_FORMATS.SHORT_HEADER}>
+              {PDF_FORMAT_LABELS[PDF_RENDER_FORMATS.SHORT_HEADER]}
+            </MenuItem>
+          </Select>
+        </FormControl>
       </FormGroup>
     </FormControl>
   )
@@ -375,10 +452,19 @@ const SVGPreferencesSwitchForm = () => {
   const toggleIs2DOverlayLevelEnabled = useBoundStore(
     (s) => s.toggleIs2DOverlayLevelEnabled,
   )
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
+  const toggleUseLegacyStartZones = useBoundStore(
+    (s) => s.toggleUseLegacyStartZones,
+  )
   const handleChangeis2DOverlayLevelEnabled = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIs2DOverlayLevelEnabled(event.target.checked)
+  }
+  const handleChangeUseLegacyStartZones = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleUseLegacyStartZones(event.target.checked)
   }
 
   return (
@@ -395,6 +481,17 @@ const SVGPreferencesSwitchForm = () => {
           }
           label="View Objective Layer"
           title="Enable/disable an overlay level of the map with startzones, objectives, and glyphs (they will not be shown on their placed levels)"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={useLegacyStartZones}
+              onChange={handleChangeUseLegacyStartZones}
+            />
+          }
+          label="Use Legacy Start Zones"
+          title="Enable/disable hexagon-shaped start zones (legacy style)"
         />
       </FormGroup>
     </FormControl>

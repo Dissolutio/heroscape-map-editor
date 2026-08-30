@@ -74,12 +74,14 @@ export const PdfMapHex = ({
   isOverlayViewing,
   isPdfColorBorders,
   isShowPdfOverlayOnPlacedLevel,
+  useLegacyStartZones,
 }: {
   hex: BoardHex
   viewingLevel: number
   isOverlayViewing: boolean
   isPdfColorBorders: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
+  useLegacyStartZones: boolean
 }) => {
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
@@ -372,7 +374,11 @@ export const PdfMapHex = ({
     const specialIsSubLevel = false
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfStartZone hex={hex} isSubLevel={specialIsSubLevel} />
+        <PdfStartZone
+          hex={hex}
+          isSubLevel={specialIsSubLevel}
+          useLegacyStartZones={useLegacyStartZones}
+        />
       </G>
     )
   }

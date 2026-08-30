@@ -13,6 +13,7 @@ type ReactPdfSvgMapDisplayProps = {
   viewingLevel: number
   isPdfColorBorders: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
+  useLegacyStartZones: boolean
   chunk?: PdfMapAltitudeChunk
 }
 
@@ -24,6 +25,7 @@ export const ReactPdfSvgMapDisplay = ({
   viewingLevel,
   isPdfColorBorders,
   isShowPdfOverlayOnPlacedLevel,
+  useLegacyStartZones,
   chunk,
 }: ReactPdfSvgMapDisplayProps) => {
   const emptyHexesArr = boardHexesArr.filter((hex) => hex.terrain === 'empty')
@@ -50,6 +52,7 @@ export const ReactPdfSvgMapDisplay = ({
             isOverlayViewing={isOverlayViewing}
             isPdfColorBorders={isPdfColorBorders}
             isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+            useLegacyStartZones={useLegacyStartZones}
           />
         ))}
       {emptyHexesArr.map((hex) => (
@@ -60,6 +63,7 @@ export const ReactPdfSvgMapDisplay = ({
           isOverlayViewing={isOverlayViewing}
           isPdfColorBorders={isPdfColorBorders}
           isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+          useLegacyStartZones={useLegacyStartZones}
         />
       ))}
       {nonEmptyHexesArr
@@ -72,6 +76,7 @@ export const ReactPdfSvgMapDisplay = ({
             isOverlayViewing={isOverlayViewing}
             isPdfColorBorders={isPdfColorBorders}
             isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+            useLegacyStartZones={useLegacyStartZones}
           />
         ))}
       {boardPiecesArr

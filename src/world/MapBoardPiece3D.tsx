@@ -71,6 +71,7 @@ export const MapBoardPiece3D = ({
   const piece = piecesSoFar[inventoryID]
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const { x, z, y, yBase, yBaseCap, yWithBase, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const underHexID = genBoardHexID({ ...pieceCoords, altitude })
@@ -502,7 +503,11 @@ export const MapBoardPiece3D = ({
     return (
       <group
         position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
-        rotation={[0, pieceRotation, Math.PI / 2]}
+        rotation={
+          useLegacyStartZones
+            ? [0, pieceRotation, Math.PI / 2]
+            : [0, Math.PI / 6, 0]
+        }
       >
         <StartZone3D pid={uid} inventoryID={inventoryID} />
       </group>

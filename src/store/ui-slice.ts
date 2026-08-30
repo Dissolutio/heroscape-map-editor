@@ -104,9 +104,13 @@ export interface UISlice {
   toggleIsShowPdfOverlayLayer: (b: boolean) => void
   isShowPdfOverlayOnPlacedLevel: boolean
   toggleIsShowPdfOverlayOnPlacedLevel: (b: boolean) => void
+  pdfRenderFormat: 'coversheet' | 'shortHeader'
+  setPdfRenderFormat: (format: 'coversheet' | 'shortHeader') => void
   // SVG STATE
   is2DOverlayLevelEnabled: boolean
   toggleIs2DOverlayLevelEnabled: (b: boolean) => void
+  useLegacyStartZones: boolean
+  toggleUseLegacyStartZones: (b: boolean) => void
 }
 
 const initialPenMode = 'select'
@@ -363,11 +367,25 @@ const createUISlice: StateCreator<
         }
       }),
     ),
+  pdfRenderFormat: 'coversheet',
+  setPdfRenderFormat: (format: 'coversheet' | 'shortHeader') =>
+    set(
+      produce((s) => {
+        s.pdfRenderFormat = format
+      }),
+    ),
   is2DOverlayLevelEnabled: true,
   toggleIs2DOverlayLevelEnabled: (b: boolean) =>
     set(
       produce((s) => {
         s.is2DOverlayLevelEnabled = b
+      }),
+    ),
+  useLegacyStartZones: false,
+  toggleUseLegacyStartZones: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.useLegacyStartZones = b
       }),
     ),
   currentDialog: '',

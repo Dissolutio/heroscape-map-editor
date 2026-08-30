@@ -2,8 +2,11 @@ import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 
-import { hexTerrainColor } from '../maphex/hexColors'
-import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
+import { hexTerrainColor, svgColors } from '../maphex/hexColors'
+import {
+  HEXGRID_HEX_RADIUS,
+  HEXGRID_HEXCAP_HEIGHT,
+} from '../../utils/constants'
 
 export function StartZone3D({
   pid,
@@ -15,6 +18,7 @@ export function StartZone3D({
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
@@ -27,9 +31,10 @@ export function StartZone3D({
   const yellowColor = 'yellow'
   const isSelected = selectedPieceIDs.includes(pid)
   const isHighlighted = hoveredPieceID === pid || isSelected
+  const colorScheme = useLegacyStartZones ? hexTerrainColor : svgColors
   const color = isHighlighted
     ? yellowColor
-    : hexTerrainColor[inventoryID as keyof typeof hexTerrainColor]
+    : colorScheme[inventoryID as keyof typeof colorScheme]
   return (
     <mesh
       onPointerUp={onPointerUp}
@@ -37,10 +42,14 @@ export function StartZone3D({
       onPointerOut={(e) => onPointerOut(e)}
       rotation={[0, Math.PI / 2, 0]}
     >
-      <circleGeometry args={[HEXGRID_HEX_RADIUS / 2.1, 32]} />
+      {useLegacyStartZones ? (
+        <circleGeometry args={[HEXGRID_HEX_RADIUS / 2.1, 32]} />
+      ) : (
+        <cylinderGeometry
+          args={[0.6515, 0.6615, 0.2, 6, undefined, false, 0, undefined]}
+        />
+      )}
       <meshMatcapMaterial color={color} />
-      {/* <ringGeometry args={[HEXGRID_HEX_RADIUS / 3, HEXGRID_HEX_RADIUS / 2.1, 32]} /> */}
-      {/* <meshStandardMaterial color={color} transparent opacity={0.2} /> */}
     </mesh>
   )
 }
