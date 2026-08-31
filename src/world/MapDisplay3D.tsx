@@ -1,4 +1,3 @@
-import type { CameraControls } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 
 import type { Group, Object3DEventMap } from 'three'
@@ -33,6 +32,7 @@ import { enqueueSnackbar } from 'notistack'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import PiecePreview from './PiecePreview.tsx'
 import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
+import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
 import type React from 'react'
 
 export default function MapDisplay3D({
@@ -54,6 +54,7 @@ export default function MapDisplay3D({
   const focusedPieceUID = useBoundStore((s) => s.focusedPieceUID)
   const focusStartTime = useBoundStore((s) => s.focusStartTime)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  useMiddleClickPickPenMode()
 
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
