@@ -29,21 +29,6 @@ export function isSolidTerrainHex(terrain: string) {
     terrain === HexTerrain.swamp
   )
 }
-export function isRenderedFromPieceIDPiece(inventoryID: string) {
-  return (
-    inventoryID === Pieces.ropeLadder ||
-    inventoryID === Pieces.battlement ||
-    inventoryID === Pieces.roadWall ||
-    inventoryID === Pieces.laurWallRuin1 ||
-    inventoryID === Pieces.laurWallRuin2 ||
-    inventoryID === Pieces.laurWallRuin3 ||
-    inventoryID === Pieces.laurWallShort ||
-    inventoryID === Pieces.laurWallShortStackable ||
-    inventoryID === Pieces.laurWallLong ||
-    inventoryID === Pieces.laurWallLongStackable ||
-    inventoryID === Pieces.laurWallArch
-  )
-}
 export function isJungleTerrainHex(terrain: string) {
   return terrain === HexTerrain.brush || terrain === HexTerrain.palm
 }

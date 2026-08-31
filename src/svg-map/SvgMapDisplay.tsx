@@ -14,7 +14,7 @@ import { SvgMapBoardPiece } from './SvgMapBoardPiece'
 const adjustXForNew00Centers = -1 * SVG_HEX_APOTHEM
 const adjustYForNew00Centers = -1 * SVG_HEX_RADIUS
 
-export const SvgMapDisplay = () => {
+const SvgMapDisplay = () => {
   const boardHexes = useBoundStore((state) => state.boardHexes)
   const boardPieces = useBoundStore((s) => {
     return s.boardPieces
@@ -99,7 +99,7 @@ export const SvgMapDisplay = () => {
     </svg>
   )
 }
-
+export default SvgMapDisplay
 // const AxesHelper = ({ width, length }: { width: number; length: number }) => {
 //   return (
 //     <>

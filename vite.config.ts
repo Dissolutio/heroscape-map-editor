@@ -3,15 +3,16 @@ import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     sentryVitePlugin({
       org: "hexoscape",
-      project: "hexoscape"
-    })],
-
+      project: "hexoscape",
+      telemetry: mode !== "development",
+    }),
+  ],
   build: {
-    sourcemap: true
-  }
-})
+    sourcemap: true,
+  },
+}));
