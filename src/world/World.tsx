@@ -145,9 +145,7 @@ const World = ({
                   scale={[width, 0, length]}
                 // rotation={new Euler(0, Math.PI, 0)}
                 /> */}
-          <MapDisplay3D
-            mapGroupRef={mapGroupRef}
-          />
+          <MapDisplay3D mapGroupRef={mapGroupRef} />
           <BillboardWarmup />
           <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}

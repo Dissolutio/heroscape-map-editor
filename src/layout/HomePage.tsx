@@ -20,9 +20,9 @@ import PiecesGridDialog from './PiecesGridDialog'
 import { zoomToMap } from '../utils/camera-utils'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 // 1. Define your lazy-loaded components
-const ReactPdfRoot = lazy(() => import('../pdf-map/ReactPdfRoot'));
-const SvgMapDisplay = lazy(() => import('../svg-map/SvgMapDisplay'));
-const World = lazy(() => import('../world/World'));
+const ReactPdfRoot = lazy(() => import('../pdf-map/ReactPdfRoot'))
+const SvgMapDisplay = lazy(() => import('../svg-map/SvgMapDisplay'))
+const World = lazy(() => import('../world/World'))
 import { useHotkeyConfig } from '../controls/useHotkeyConfig'
 import { useApplyHotkeys } from '../controls/useApplyHotkeys'
 

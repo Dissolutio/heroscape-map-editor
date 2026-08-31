@@ -8,10 +8,7 @@ import {
   PiecePrefixes,
   Pieces,
 } from '../types'
-import {
-  isFluidTerrainHex,
-  isSolidTerrainHex,
-} from '../utils/board-utils'
+import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { genBoardHexID } from '../utils/map-utils'
 import { piecesSoFar } from './pieces'
 
