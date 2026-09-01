@@ -22,8 +22,10 @@ import useBoundStore from '../store/store'
 import {
   HexTerrain,
   type HexoscapeGlyph,
+  PICK_PEN_MODE,
   PiecePrefixes,
   Pieces,
+  SELECT_PEN_MODE,
 } from '../types'
 import {
   TbCircleNumber1Filled,
@@ -34,6 +36,7 @@ import {
   TbCircleNumber6Filled,
   TbCircleNumber7Filled,
   TbCircleNumber8Filled,
+  TbColorPicker,
   TbHexagonalPyramid,
   TbHexagonLetterC,
   TbHexagonLetterE,
@@ -133,7 +136,8 @@ export default function PenModeControls() {
   const alwaysVisiblePenValues = useMemo(
     () =>
       new Set<string>([
-        'select',
+        SELECT_PEN_MODE,
+        PICK_PEN_MODE,
         lastPenMode,
         Pieces.glyphPower,
         Pieces.glyphTreasure,
@@ -287,12 +291,23 @@ export default function PenModeControls() {
         value={penMode}
         onChange={handleChange}
       >
-        <MenuItem value={'select'}>
+        <MenuItem value={SELECT_PEN_MODE}>
           <ListItemIcon>
             <GiArrowCursor />
           </ListItemIcon>
           <span>Select</span>
           <HotkeyText text={hotkeyLookup.togglePenModeSelect} />
+        </MenuItem>
+
+        <MenuItem
+          value={PICK_PEN_MODE}
+          title="Click a piece to make it the pen mode (middle-click does this in any pen mode)"
+        >
+          <ListItemIcon>
+            <TbColorPicker />
+          </ListItemIcon>
+          <span>Select Piece as Pen Mode</span>
+          <HotkeyText text={hotkeyLookup.togglePenModePick} />
         </MenuItem>
 
         <MenuItem value={lastPenMode}>

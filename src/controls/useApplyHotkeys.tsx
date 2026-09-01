@@ -1,6 +1,6 @@
 import useBoundStore from '../store/store'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { PiecePrefixes, Pieces } from '../types'
+import { PICK_PEN_MODE, PiecePrefixes, Pieces, SELECT_PEN_MODE } from '../types'
 import {
   doPenModeCounterRotation,
   doPenModeRotation,
@@ -155,7 +155,8 @@ export const useApplyHotkeys = ({
   }
   // Instead of one for select, and one for last, maybe combine them and cycle? Could also track
   // a history of pen modes, and cycle backwards.
-  const togglePenModeSelect = () => togglePenMode('select')
+  const togglePenModeSelect = () => togglePenMode(SELECT_PEN_MODE)
+  const togglePenModePick = () => togglePenMode(PICK_PEN_MODE)
   const togglePenModeLast = () => {
     toggleLastPenMode()
   }
@@ -209,6 +210,7 @@ export const useApplyHotkeys = ({
     redoWorld: redoWorld,
 
     togglePenModeSelect: togglePenModeSelect,
+    togglePenModePick: togglePenModePick,
     togglePenModeLast: togglePenModeLast,
     togglePenModePowerGlyph: togglePenModePowerGlyph,
     togglePenModeTreasureGlyph: togglePenModeTreasureGlyph,
