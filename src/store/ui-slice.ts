@@ -2,11 +2,13 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { AppState } from './store'
-import type {
-  BoardHex,
-  BoardPiece,
-  PieceInventory,
-  TerrainConstraintSource,
+import {
+  type BoardHex,
+  type BoardPiece,
+  PICK_PEN_MODE,
+  type PieceInventory,
+  SELECT_PEN_MODE,
+  type TerrainConstraintSource,
 } from '../types'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
@@ -113,7 +115,8 @@ export interface UISlice {
   toggleUseLegacyStartZones: (b: boolean) => void
 }
 
-const initialPenMode = 'select'
+const initialPenMode = SELECT_PEN_MODE
+const nonPaintingPenModes = new Set<string>([SELECT_PEN_MODE, PICK_PEN_MODE])
 
 const createUISlice: StateCreator<
   // https://immerjs.github.io/immer/#with-immer
@@ -126,6 +129,10 @@ const createUISlice: StateCreator<
   toggleSelectedPieceID: (pieceID: string, multiSelect?: boolean) =>
     set(
       produce((state) => {
+        // in pick pen mode a click is an eyedropper, not a selection
+        if (pieceID && state.penMode === PICK_PEN_MODE) {
+          return
+        }
         if (!pieceID) {
           state.selectedPieceIDs = []
         } else if (multiSelect) {
@@ -199,8 +206,11 @@ const createUISlice: StateCreator<
           state.penMode,
           state.pieceSize,
         )
-        // if switching to 'select', remeber the last pen mode
-        if (mode === 'select' && state.penMode !== 'select') {
+        // if switching to a non-painting mode, remeber the last pen mode
+        if (
+          nonPaintingPenModes.has(mode) &&
+          !nonPaintingPenModes.has(state.penMode)
+        ) {
           state.lastPenMode = state.penMode
           state.lastPenSize = state.pieceSize
         }

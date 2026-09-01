@@ -7,8 +7,10 @@ import {
   type AddRemovePieceError,
   type BoardHex,
   HexTerrain,
+  PICK_PEN_MODE,
   PiecePrefixes,
   Pieces,
+  SELECT_PEN_MODE,
 } from '../types.ts'
 import {
   isFluidTerrainHex,
@@ -75,8 +77,13 @@ export default function MapDisplay3D({
       return
     }
 
+    // Pick pen mode is handled by useMiddleClickPickPenMode, nothing to paint
+    if (penMode === PICK_PEN_MODE) {
+      return
+    }
+
     // Select Hex
-    if (penMode === 'select') {
+    if (penMode === SELECT_PEN_MODE) {
       if (hex.boardPieceUID) {
         toggleSelectedPieceID(
           hex.boardPieceUID,

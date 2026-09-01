@@ -121,16 +121,18 @@ export default function ViewControlsTab({
             primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'}
             onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
             icon={isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />}
-            endIcon={<HotkeyText text={hotkeyLookup.handleToggleIsCameraDisabled} />}
+            endIcon={
+              <HotkeyText text={hotkeyLookup.handleToggleIsCameraDisabled} />
+            }
           />
 
-            {/* Reset camera defaults */}
-            <ControlTabsListItemButton
-              title={'Reset camera defaults'}
-              primary="Reset camera"
-              onClick={resetCamera}
-              icon={<FcSynchronize />}
-            />
+          {/* Reset camera defaults */}
+          <ControlTabsListItemButton
+            title={'Reset camera defaults'}
+            primary="Reset camera"
+            onClick={resetCamera}
+            icon={<FcSynchronize />}
+          />
 
           {/* Switch camera orthographic/perspective */}
           <ControlTabsListItemButton
