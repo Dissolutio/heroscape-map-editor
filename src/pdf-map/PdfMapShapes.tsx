@@ -1101,8 +1101,8 @@ export const PdfCastleArchText = ({
   pieceRotation: number
 }) => {
   const textColor = isSubLevel
-    ? svgSubLevelColors.glacierText
-    : svgColors.glacierText
+    ? svgSubLevelColors.jungleText
+    : svgColors.jungleText
   return (
     <Text
       fill={textColor}

@@ -380,7 +380,7 @@ export const svgColors = {
 }
 export const svgSubLevelColors = {
   jungleText: '#C5BCBC',
-  glacierText: '#808080',
+  glacierText: '#808080', // glacier text & jungle text both black, but sub level they need different colors to be legible
   evergreenText: '#FFFFFF',
   shroudshroomText: '#FFFFFF',
   glyphText: '#C5BCBC',
