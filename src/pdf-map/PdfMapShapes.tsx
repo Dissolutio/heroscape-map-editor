@@ -658,10 +658,10 @@ export const PdfLaurPillar = ({
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(hex, isSubLevel)
-  const { points: fullHexPoints } = getHexagonPdfPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-    PDF_BORDER_WIDTH,
-  )
+  // const { points: fullHexPoints } = getHexagonPdfPolygonPointsAt00(
+  //   SVG_HEX_RADIUS,
+  //   PDF_BORDER_WIDTH,
+  // )
   const laurSquarePoints = getLaurPillarPdfShape(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -677,12 +677,7 @@ export const PdfLaurPillar = ({
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
-      <Polygon
-        points={fullHexPoints}
-        fill={fillColor}
-        stroke={borderColor}
-        strokeWidth={PDF_BORDER_WIDTH}
-      />
+      <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
       <G transform={`rotate(${pieceRotation})`}>
         <Polygon
           points={innerShapePoints}
