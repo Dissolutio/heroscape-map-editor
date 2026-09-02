@@ -304,7 +304,7 @@ const PdfDocumentShortHeader = ({
     </Document>
   )
 }
-export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
+const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)

@@ -75,6 +75,7 @@ export const FileControlsTab = ({
     if (!hexMap) return
     setIsDownloadingAll(true)
     const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+    // we place the overlay level as one level above the last piece
     const overlayLevel = maxLevel + 1
 
     // save current state to restore later
@@ -88,10 +89,7 @@ export const FileControlsTab = ({
       for (let level = 1; level <= overlayLevel; level++) {
         // set viewing level
         toggleViewingLevel(level)
-        // wait for DOM to update
-        // small delay to allow React to re-render the SVG
-        // 100ms should be sufficient in most cases
-        // eslint-disable-next-line no-await-in-loop
+        // eslint-disable-next-line no-await-in-loop reason:wait for DOM to update, small delay to allow React to re-render the SVG
         await sleep(500)
 
         const svgElement = document.getElementById('2d-svg-view')

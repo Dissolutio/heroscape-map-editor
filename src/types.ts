@@ -127,12 +127,6 @@ export type TerrainConstraintSource =
   | 'personalInventory'
   | 'inventoryFile'
 
-export type TerrainConstraintState = {
-  terrainConstraintSource: TerrainConstraintSource
-  customConstraintInventory?: PieceInventory
-  customConstraintInventoryFileName?: string
-}
-
 export type Piece = {
   id: string
   title: string // the human friendly name
