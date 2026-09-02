@@ -1,32 +1,30 @@
 ## TODO
+- If you enter some filters and search into Pieces Grid, then Zoom to Piece, all those filters and search are lost. State should persist?
+- Laur wall ruin pieces have 3 types, not accounted for currently (or miscounted, perhaps)
 - New PDF Format: Cover Sheet with inventory on 1st page
 - Marvel Ruin Wall Destroyed: placing it removes some caps that are walkable, removes Hex Height display for OHS-view
 - Update conflicted states for ship pieces (account for level 0)
-- Map inventory and available terrain should be always visible. Not in separate modal.
 - Malfunctioning on Edge, Firefox, and maybe Samsung 8.
-- When no color outlines for land pieces, we must distinguish between Asphalt and Shadow better ( maybe blue outlines for fluid tiles?)
 - Personal Inventory: a form to adjust your exact piece inventory, with "add set" buttons and all available sets for easy entry, and also per-piece adjustments for entry of counts that do not conform to just set inventories (pieces break, old expansions included amounts of terrain)
 - Objective markers that you can adjust the labels for (example, the start positions of specific figures in Renegade web scenarios)
 - New piece: Exit spaces, or some kind of other generalized hex marker that isn't a start zone or an objective, to match current Renegade web scenarios
 - OHS (Online Heroscape) pictures: Remove the white from the glyphs. Additionally, don't display hex heights above glyphs making it easier to label the glyphs online
 - OHS: Add a toggle that invokes all the desired settings to get a good image for OHS (semi transparency to palm leaves, more compatible glyph spaces, don't display table, perhaps even display overhung sections on the side as a separate section)
-- Display inventory usage info in pen mode selector (so you can select one that is available easily)
-- Ancient terrain in 3D should have darker brown color
 - Hexagon shaped maps should produce a map with same side-length as map size (1 smaller than current)
 - StartZones should not have a vertical clearance, should not be blocked by vertical clearance of obstacles (so they can be placed adjacent to ruins/fortified-walls)
 - Middle click a piece to make it the pen mode
 - In View Map Inventory dialog, clicking a terrain from the list selects it for Pen Mode
-<!-- LESS IMPORTANT BELOW -->
 - Onion Skin 3D mode: Current viewing level opacity is 1, but pieces on other levels will go down by distance from viewing level ( to make building from instructions easier, maybe other use cases also)
-<!-- - Format painter (set as grass, then click land pieces to convert them to grass) -->
 - Outcrop bases into inventory (when you use a 3-hex rock outcrop and your terrain constraints are using Battle for the Underdark, a 3-hex shadow with holes should be "used up", and if your terrain constraints are using a Caverns of Valhalla, 3 1-hex shadows with holes should be "used up" -- these "with holes" piece variations do not exist yet)
+## Hotkeys
 - Hotkey setup: let users edit which key combinations (from the possible combinations)  with which app actions
 - More hotkeys: add more app actions, all available terrains, etc. so that more hotkeys are available
-- Adjustable lights: color, intensity, persisted position, light types, etc. 
 - Allow cycling through sizes for similar terrains, just like how land pieces do. For example rock outcrops, hotkeyd 1 & 3 for their sizes
 - Land tile size select: Hotkeys 1, 2, 3, 4, 5 should always map to sizes 1, 2, 3, 7, 24, put special sizes on hotkeys 6+
+
 ## PDF/SVG TODO
 - PDF/SVG level logo from Renegade publications (just looks nicer and more official)
+- When no color outlines for land pieces, we must distinguish between Asphalt and Shadow better ( maybe blue outlines for fluid tiles?)
 - PDF/SVG overlay level options parity
 - PDF: way to add multiple Sets Used list
 - PDF style parity with SVG (sublevel less-saturated-colors)
@@ -35,11 +33,15 @@
 - PDF style option: use original Virtualscape colors
 - PDF 2 column format
 - PDF portrait as level format (6 levels per page, first level slot would be the map image)
+- Some classic piece shapes are not scale-friendly in SVG (as was desired for SVG export for Adobe Illustrator), ie marvel ruin, hive, etc.
 - Ladder Summaries (in overlay layer, maybe display ladders with total number of ladder pieces they include)
 - PDF Add a map Legend for all the pieces that are in the map
 
 ## Big TODO
+- Ancient terrain in 3D should have darker brown color
 - A major UI overhaul, as it becomes apparent what items need to be surfaced to always viewable, and what can be hidden away in a menu or dialog (i.e. current pen mode, viewing level, and piece errors probably need to be always visible)
+- Map inventory and available terrain should be always visible. Not in separate modal.
+- Display inventory usage info in pen mode selector (so you can select one that is available easily)
 - Pieces with conflicts need improved visibility
 - When piece preview is active, scrolling should rotate the piece, not zoom the camera
 - A way to double stack (or even beyond) fluid tiles (which is as tall as one solid tile minus the cap) in any combination.
@@ -53,6 +55,7 @@
 - Add Lighting Glow-in-the-dark of toxic tiles and shroudshroom pieces
 - A tutorial of some kind
 - A general FAQ/help page with links and buttons that help users find and access features (maybe do this after a UI overhaul)
+- Adjustable lights: color, intensity, persisted position, light types, etc. 
 
 ## Blender TODO
 - Road tiles need their own textured/complex cap for 3D high quality render

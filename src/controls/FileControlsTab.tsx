@@ -75,6 +75,7 @@ export const FileControlsTab = ({
     if (!hexMap) return
     setIsDownloadingAll(true)
     const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+    // we place the overlay level as one level above the last piece
     const overlayLevel = maxLevel + 1
 
     // save current state to restore later
@@ -88,10 +89,7 @@ export const FileControlsTab = ({
       for (let level = 1; level <= overlayLevel; level++) {
         // set viewing level
         toggleViewingLevel(level)
-        // wait for DOM to update
-        // small delay to allow React to re-render the SVG
-        // 100ms should be sufficient in most cases
-        // eslint-disable-next-line no-await-in-loop
+        // eslint-disable-next-line no-await-in-loop reason:wait for DOM to update, small delay to allow React to re-render the SVG
         await sleep(500)
 
         const svgElement = document.getElementById('2d-svg-view')
@@ -139,12 +137,13 @@ export const FileControlsTab = ({
   //     element.click()
   //   }
   // }
-  const buildShareUrl = () => {
+  const buildShareUrl = (viewMode?: 'a' | 'b') => {
     const myUrl = getUrlMapString({
       hexMap: hexMap,
       boardPieces: boardPieces,
     })
-    return `${window.location.origin + window.location.pathname}?m=${myUrl}`
+    const viewModeParam = viewMode ? `&v=${viewMode}` : ''
+    return `${window.location.origin + window.location.pathname}?m=${myUrl}${viewModeParam}`
   }
   const handleShareError = (err: unknown) => {
     console.log('Attempted clipboard write, failed:', err)
@@ -186,6 +185,12 @@ export const FileControlsTab = ({
       handleShareError(err)
     }
   }
+  const buildShareMarkdownLink = (fullUrl: string, labelSuffix?: string) => {
+    const label = `${hexMap.name || 'Map'}${
+      hexMap.author ? ` by ${hexMap.author}` : ''
+    }${labelSuffix ?? ''}`
+    return `[${label}](${fullUrl})`
+  }
   const onClickCopyMarkdownLink = async () => {
     const fullUrl = buildShareUrl()
     if (fullUrl.length > 2082) {
@@ -196,14 +201,55 @@ export const FileControlsTab = ({
       })
       return
     }
-    const label = `${hexMap.name || 'Map'}${
-      hexMap.author ? ` by ${hexMap.author}` : ''
-    }`
-    const markdownLink = `[${label}](${fullUrl})`
+    const markdownLink = buildShareMarkdownLink(fullUrl)
     try {
       await navigator.clipboard.writeText(markdownLink)
       enqueueSnackbar({
         message: 'Copied markdown link to clipboard!',
+        variant: 'success',
+      })
+    } catch (err) {
+      handleShareError(err)
+    }
+  }
+  const onClickCopyBuildInstructionsMarkdownLink = async () => {
+    const fullUrl = buildShareUrl('a')
+    if (fullUrl.length > 2082) {
+      enqueueSnackbar({
+        message:
+          'Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.',
+        variant: 'error',
+      })
+      return
+    }
+    const markdownLink = buildShareMarkdownLink(
+      fullUrl,
+      ' (Build Instructions)',
+    )
+    try {
+      await navigator.clipboard.writeText(markdownLink)
+      enqueueSnackbar({
+        message: 'Copied build instructions markdown link to clipboard!',
+        variant: 'success',
+      })
+    } catch (err) {
+      handleShareError(err)
+    }
+  }
+  const onClickCopyBuildInstructionsLink = async () => {
+    const fullUrl = buildShareUrl('a')
+    if (fullUrl.length > 2082) {
+      enqueueSnackbar({
+        message:
+          'Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.',
+        variant: 'error',
+      })
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(fullUrl)
+      enqueueSnackbar({
+        message: 'Copied shareable build instructions URL to clipboard!',
         variant: 'success',
       })
     } catch (err) {
@@ -268,6 +314,24 @@ export const FileControlsTab = ({
                 primary="Copy as Markdown Link"
                 title="Copies a formatted link (e.g. for Slack or Discord) that shows the map name instead of a raw URL."
                 onClick={onClickCopyMarkdownLink}
+                icon={<FcLink />}
+                endIcon={
+                  <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                    <FaDiscord />
+                    <FaSlack />
+                  </Box>
+                }
+              />
+              <ControlTabsListItemButton
+                primary="Copy Build Instructions URL"
+                title="Copies a link that opens this map directly in the build instructions (PDF) view."
+                onClick={onClickCopyBuildInstructionsLink}
+                icon={<FcLink />}
+              />
+              <ControlTabsListItemButton
+                primary="Copy Build Instructions as Markdown Link"
+                title="Copies a formatted link (e.g. for Slack or Discord) that opens this map directly in the build instructions (PDF) view."
+                onClick={onClickCopyBuildInstructionsMarkdownLink}
                 icon={<FcLink />}
                 endIcon={
                   <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>

@@ -127,12 +127,6 @@ export type TerrainConstraintSource =
   | 'personalInventory'
   | 'inventoryFile'
 
-export type TerrainConstraintState = {
-  terrainConstraintSource: TerrainConstraintSource
-  customConstraintInventory?: PieceInventory
-  customConstraintInventoryFileName?: string
-}
-
 export type Piece = {
   id: string
   title: string // the human friendly name
@@ -148,6 +142,10 @@ export type Piece = {
   // TODO: account for 1 marvel wall => 4 variations, 1 castle arch => 2 variations
   isUninventoried?: boolean // so far just marvel-ruins-broken and castle-arch-no-door versions (these are just variations on their inventoried counterparts)
 }
+// Pen modes that do not paint: 'select' picks pieces, 'pick' eyedroppers the clicked piece's pen mode
+export const SELECT_PEN_MODE = 'select'
+export const PICK_PEN_MODE = 'pick'
+
 export enum PiecePrefixes {
   startZone = 'z',
   grass = 'g',

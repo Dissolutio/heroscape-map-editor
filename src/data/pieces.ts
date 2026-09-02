@@ -9,10 +9,6 @@ import {
   customGlyphs,
 } from './glyphs'
 
-export const getPieceByTerrainAndSize = (terrain: string, size: number) => {
-  const piece = piecesSoFar[`${terrain}${size}`]
-  return piece
-}
 export const piecesSoFar: Dictionary<Piece> = {
   // UNINVENTORIED
   [Pieces.startZone1]: {

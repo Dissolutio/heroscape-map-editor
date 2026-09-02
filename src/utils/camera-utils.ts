@@ -1,6 +1,6 @@
 import type { RefObject } from 'react'
 import { Box3, Vector3 } from 'three'
-import type { Group, Object3DEventMap } from 'three'
+import type { Group, InstancedMesh, Object3DEventMap } from 'three'
 import type { CameraControls } from '@react-three/drei'
 import type { BoardHexes } from '../types'
 import { getBoardHex3DCoords } from './map-utils'
@@ -9,6 +9,19 @@ import useBoundStore from '../store/store'
 
 let clearFocusTimeoutId: ReturnType<typeof setTimeout> | undefined
 
+// InstancedMesh caches its bounding volumes, so they go stale when a new map
+// swaps in fresh instance matrices, which would frame the previous map's size.
+const refreshInstancedBounds = (group: Group<Object3DEventMap>) => {
+  group.updateWorldMatrix(true, true)
+  group.traverse((object) => {
+    const mesh = object as InstancedMesh
+    if (mesh.isInstancedMesh) {
+      mesh.computeBoundingBox()
+      mesh.computeBoundingSphere()
+    }
+  })
+}
+
 export const zoomToMap = (
   mapGroupRef: RefObject<Group<Object3DEventMap>>,
   cameraControlsRef: RefObject<CameraControls>,
@@ -16,6 +29,7 @@ export const zoomToMap = (
   length: number,
 ) => {
   if (mapGroupRef.current) {
+    refreshInstancedBounds(mapGroupRef.current)
     cameraControlsRef.current?.setPosition?.(
       width,
       width + length,

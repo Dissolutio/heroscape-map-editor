@@ -32,6 +32,8 @@ import {
   PDF_FORMAT_LABELS,
   PDF_FORMAT_DESCRIPTIONS,
 } from '../utils/constants'
+import { useHotkeyConfig } from './useHotkeyConfig'
+import { HotkeyText } from './HotKeyText'
 
 export default function ViewControlsTab({
   cameraControlsRef,
@@ -49,6 +51,7 @@ export default function ViewControlsTab({
   const toggleIsTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
   const isTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
   const boardHexes = useBoundStore((s) => s.boardHexes)
+  const { hotkeyLookup } = useHotkeyConfig()
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
   const is2DOpen = useBoundStore((s) => s.is2DOpen) && !isPdfOpen
   const is3DOpen = !is2DOpen && !isPdfOpen
@@ -87,75 +90,74 @@ export default function ViewControlsTab({
   }
   return (
     <Box sx={{ width: '100%', height: '100%' }} role="presentation">
-      {is3DOpen && (
-        <div
-          style={{
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: 0,
-          }}
-        >
-          <List>
-            {/* Center map in camera view */}
-            <ControlTabsListItemButton
-              title="Center the camera on entire map"
-              primary="Zoom to map"
-              onClick={() =>
-                zoomToMap(mapGroupRef, cameraControlsRef, width, length)
-              }
-              icon={<FcCollect />}
-            />
+      <div
+        style={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: 0,
+        }}
+      >
+        <List>
+          {/* Center map in camera view */}
+          <ControlTabsListItemButton
+            title="Center the camera on entire map"
+            primary="Zoom to map"
+            onClick={() =>
+              zoomToMap(mapGroupRef, cameraControlsRef, width, length)
+            }
+            icon={<FcCollect />}
+            endIcon={<HotkeyText text={hotkeyLookup.zoomToMap} />}
+          />
 
-            {/* Lock Camera Controls */}
-            <ControlTabsListItemButton
-              title={
-                isCamerDisabled
-                  ? 'Unlock camera controls'
-                  : 'Lock camera controls'
-              }
-              primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'}
-              onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
-              icon={
-                isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />
-              }
-            />
+          {/* Lock Camera Controls */}
+          <ControlTabsListItemButton
+            title={
+              isCamerDisabled
+                ? 'Unlock camera controls'
+                : 'Lock camera controls'
+            }
+            primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'}
+            onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
+            icon={isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />}
+            endIcon={
+              <HotkeyText text={hotkeyLookup.handleToggleIsCameraDisabled} />
+            }
+          />
 
-            {/* Reset camera defaults */}
-            <ControlTabsListItemButton
-              title={'Reset camera defaults'}
-              primary="Reset camera"
-              onClick={resetCamera}
-              icon={<FcSynchronize />}
-            />
+          {/* Reset camera defaults */}
+          <ControlTabsListItemButton
+            title={'Reset camera defaults'}
+            primary="Reset camera"
+            onClick={resetCamera}
+            icon={<FcSynchronize />}
+          />
 
-            {/* Switch camera orthographic/perspective */}
-            <ControlTabsListItemButton
-              title={
-                isOrthoCam
-                  ? 'Switch to perspective camera'
-                  : 'Switch to orthographic camera'
-              }
-              primary={
-                isOrthoCam
-                  ? 'Use perspective camera'
-                  : 'Use orthographic camera'
-              }
-              onClick={handleToggleOrthoCam}
-              icon={<FcSwitchCamera />}
-            />
+          {/* Switch camera orthographic/perspective */}
+          <ControlTabsListItemButton
+            title={
+              isOrthoCam
+                ? 'Switch to perspective camera'
+                : 'Switch to orthographic camera'
+            }
+            primary={
+              isOrthoCam ? 'Use perspective camera' : 'Use orthographic camera'
+            }
+            onClick={handleToggleOrthoCam}
+            icon={<FcSwitchCamera />}
+            endIcon={<HotkeyText text={hotkeyLookup.handleToggleIsOrthoCam} />}
+          />
 
-            {/* Take map picture PNG */}
-            <ControlTabsListItemButton
-              title={'Take map picture .PNG'}
-              primary="Take map picture .PNG"
-              onClick={handleTakeAMapPicture}
-              icon={<FcOldTimeCamera />}
-            />
-          </List>
-        </div>
-      )}
+          {/* Take map picture PNG */}
+          <ControlTabsListItemButton
+            title={'Take map picture .PNG'}
+            primary="Take map picture .PNG"
+            onClick={handleTakeAMapPicture}
+            icon={<FcOldTimeCamera />}
+          />
+        </List>
+      </div>
       <Box>
         {is3DOpen && <ViewPreferencesSwitchForm />}
         {isPdfOpen && <PdfPreferencesSwitchForm />}

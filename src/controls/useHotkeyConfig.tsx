@@ -143,6 +143,6 @@ export const defaultHotkeyConfig = {
   'shift+y': 'togglePenModeTreasureGlyph',
   'alt+y': undefined,
   z: 'togglePenModeSelect',
-  'shift+z': undefined,
+  'shift+z': 'togglePenModePick',
   'alt+z': undefined,
 }
