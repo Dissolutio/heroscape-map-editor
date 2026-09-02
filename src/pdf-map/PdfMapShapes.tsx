@@ -9,34 +9,42 @@ import {
 } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
-  get24HexSvgPolygonPointsAt00,
-  get2HexSvgPolygonPointsAt00,
-  get3HexStraightSvgPolygonPointsAt00,
-  get3HexSvgPolygonPointsAt00,
-  get4HexSvgPolygonPointsAt00,
-  get5HexStraightSvgPolygonPointsAt00,
-  get6HexSvgPolygonPointsAt00,
-  get7HexSvgPolygonPointsAt00,
-  get7HexWallWalkSvgPolygonPointsAt00,
-  get9HexWallWalkSvgPolygonPointsAt00,
+  generateArrowPath,
+  genWoodPlankPath1,
+  genWoodPlankPath2,
+  genWoodPlankPath3,
+  get24HexPdfPolygonPointsAt00,
+  get2HexPdfPolygonPointsAt00,
+  get3HexPdfPolygonPointsAt00,
+  get3HexStraightPdfPolygonPointsAt00,
+  get4HexPdfPolygonPointsAt00,
+  get5HexStraightPdfPolygonPointsAt00,
+  get6HexPdfPolygonPointsAt00,
+  get7HexPdfPolygonPointsAt00,
+  get7HexWallWalkPdfPolygonPointsAt00,
+  get9HexWallWalkPdfPolygonPointsAt00,
   getBattlementSvgPolygonPoints,
   getCastleArchShapeSvgPolygonPoints,
   getCastleCornerShapeSvgPolygonPoints,
   getCastleEndShapeSvgPolygonPoints,
   getCastleStraightShapeSvgPolygonPoints,
-  getHexagonSvgPolygonPointsAt00,
+  getFortifiedWallSvgPolygonPoints,
+  getHexagonPdfPolygonPointsAt00,
   getJungleTriangleShape,
   getLadderSvgPolygonPoints,
-  getLaurLongWallSvgPolygonPoints,
-  getLaurPillarShape,
+  getLaurLongWallPdfPolygonPoints,
+  getLaurPillarPdfShape,
+  getLaurShortWallPdfPolygonPoints,
   getLaurShortWallSvgPolygonPoints,
-  getLaurWallRuinSvgPolygonPoints,
-  getMarvel6HexSvgPolygonPointsAt00,
+  getLaurWallRuinPdfPolygonPoints,
+  getMarvel6HexPdfPolygonPointsAt00,
   getMarvelRuinsShapeSvgPath,
   getRoadWallSvgPolygonPoints,
   getRuins2SvgPolygonPoints,
   getRuins3SvgPolygonPoints,
-} from '../pdf-svg-shared/getHexagonPdfPolygonPoints'
+  getShipBowSvgPolygonPoints,
+  getShipWallSvgPolygonPoints,
+} from '../pdf-svg-shared/hexPolygonPoints'
 import {
   getSvgHexBorderColor,
   getSvgHexFillColor,
@@ -64,22 +72,13 @@ import {
   virtualscapeTileColors,
 } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from '../svg-map/svg-hive'
-import {
-  generateArrowPath,
-  genWoodPlankPath1,
-  genWoodPlankPath2,
-  genWoodPlankPath3,
-  getFortifiedWallSvgPolygonPoints,
-  getShipBowSvgPolygonPoints,
-  getShipWallSvgPolygonPoints,
-} from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 
 export const PdfEmptyHex = () => {
   // const fillColor = 'transparent'
   const borderColor = '#c1bfbf'
   const borderWidth = PDF_EMPTYHEX_BORDER_WIDTH
-  const { points } = getHexagonSvgPolygonPointsAt00(
+  const { points } = getHexagonPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_EMPTYHEX_BORDER_WIDTH,
   )
@@ -310,11 +309,11 @@ export const PdfMultiHex1 = ({
       ? fillColor
       : getPdfHexBorderForView(hex, isSubLevel, useTerrainBorderColor)
   const glyphHexRadius = SVG_HEX_RADIUS / 1.4
-  const { points } = getHexagonSvgPolygonPointsAt00(
+  const { points } = getHexagonPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const { points: glyphPoints } = getHexagonSvgPolygonPointsAt00(
+  const { points: glyphPoints } = getHexagonPdfPolygonPointsAt00(
     glyphHexRadius,
     0,
   )
@@ -342,7 +341,7 @@ export const PdfMultiHex2 = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const { points } = get2HexSvgPolygonPointsAt00(
+  const { points } = get2HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -370,7 +369,7 @@ export const PdfMultiHex3 = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const { points } = get3HexSvgPolygonPointsAt00(
+  const { points } = get3HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -392,7 +391,7 @@ export const PdfCastleArchStraight3 = ({
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(hex, isSubLevel)
-  const { points } = get3HexStraightSvgPolygonPointsAt00(
+  const { points } = get3HexStraightPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -420,7 +419,7 @@ export const PdfMultiHex4 = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const { points } = get4HexSvgPolygonPointsAt00(
+  const { points } = get4HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -448,7 +447,7 @@ export const PdfMultiHex5 = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const { points } = get5HexStraightSvgPolygonPointsAt00(
+  const { points } = get5HexStraightPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -476,7 +475,7 @@ export const PdfMultiHex6 = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const { points } = get6HexSvgPolygonPointsAt00(
+  const { points } = get6HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -496,7 +495,7 @@ export const PdfMultiHexMarvel6 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const { points } = getMarvel6HexSvgPolygonPointsAt00(
+  const { points } = getMarvel6HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -524,7 +523,7 @@ export const PdfMultiHex7 = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const { points } = get7HexSvgPolygonPointsAt00(
+  const { points } = get7HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -552,7 +551,7 @@ export const PdfMultiHexWallWalk7 = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const { points } = get7HexWallWalkSvgPolygonPointsAt00(
+  const { points } = get7HexWallWalkPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -580,7 +579,7 @@ export const PdfMultiHexWallWalk9 = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const { points } = get9HexWallWalkSvgPolygonPointsAt00(
+  const { points } = get9HexWallWalkPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -608,7 +607,7 @@ export const PdfMultiHex24 = ({
     isSubLevel,
     useTerrainBorderColor,
   )
-  const { points } = get24HexSvgPolygonPointsAt00(
+  const { points } = get24HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -659,15 +658,15 @@ export const PdfLaurPillar = ({
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(hex, isSubLevel)
-  const { points: fullHexPoints } = getHexagonSvgPolygonPointsAt00(
+  const { points: fullHexPoints } = getHexagonPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const laurSquarePoints = getLaurPillarShape(
+  const laurSquarePoints = getLaurPillarPdfShape(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   ).squarePoints
-  const laurTrianglePoints = getLaurPillarShape(
+  const laurTrianglePoints = getLaurPillarPdfShape(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   ).trianglePoints
@@ -705,7 +704,7 @@ export const PdfHive6 = ({
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(hex, isSubLevel)
-  const { points } = get6HexSvgPolygonPointsAt00(
+  const { points } = get6HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -824,7 +823,7 @@ export const PdfBoardPieceLaurWallShort = ({
 }) => {
   const fillColor = getPdfHexFillForView(piece, isSubLevel)
   const borderColor = getPdfHexBorderForView(piece, isSubLevel)
-  const { points } = getLaurShortWallSvgPolygonPoints(
+  const { points } = getLaurShortWallPdfPolygonPoints(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -846,7 +845,7 @@ export const PdfBoardPieceLaurWallLong = ({
 }) => {
   const fillColor = getPdfHexFillForView(piece, isSubLevel)
   const borderColor = getPdfHexBorderForView(piece, isSubLevel)
-  const { points } = getLaurLongWallSvgPolygonPoints(
+  const { points } = getLaurLongWallPdfPolygonPoints(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -868,7 +867,7 @@ export const PdfBoardPieceLaurWallLongArch = ({
 }) => {
   const fillColor = getPdfHexFillForView(piece, isSubLevel)
   const borderColor = getPdfHexBorderForView(piece, isSubLevel)
-  const { points } = getLaurLongWallSvgPolygonPoints(
+  const { points } = getLaurLongWallPdfPolygonPoints(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -890,7 +889,7 @@ export const PdfBoardPieceLaurWallRuin = ({
 }) => {
   const fillColor = getPdfHexFillForView(piece, isSubLevel)
   const borderColor = getPdfHexBorderForView(piece, isSubLevel)
-  const { points } = getLaurWallRuinSvgPolygonPoints(
+  const { points } = getLaurWallRuinPdfPolygonPoints(
     SVG_HEX_RADIUS,
     // PDF_BORDER_WIDTH,
   )
@@ -974,7 +973,7 @@ export const PdfStartZone = ({
     ? virtualscapeTileColors?.[hex.inventoryID]
     : svgColors?.[hex.inventoryID]
   // const borderColor = getSvgHexBorderColor(hex)
-  // const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0)
+  // const { points } = getHexagonPdfPolygonPointsAt00(SVG_HEX_RADIUS, 0)
   return (
     <>
       {useLegacyStartZones ? (
@@ -1001,12 +1000,12 @@ export const PdfStartZone = ({
         <>
           {isSubLevel && (
             <Polygon
-              points={getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+              points={getHexagonPdfPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
               fill={'white'}
             />
           )}
           <Polygon
-            points={getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
+            points={getHexagonPdfPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
             fill={fillColor}
             opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
           />
@@ -1256,7 +1255,7 @@ export const PdfSvgTree415 = ({
   const pieceHeightText = piecesSoFar[hex.inventoryID].height
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(hex, isSubLevel)
-  const { points } = get4HexSvgPolygonPointsAt00(
+  const { points } = get4HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -1342,7 +1341,7 @@ export const PdfSvgOutcrop6 = ({
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(hex, isSubLevel)
-  const { points } = get6HexSvgPolygonPointsAt00(
+  const { points } = get6HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -1436,7 +1435,7 @@ export const PdfSvgOutcrop3 = ({
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(hex, isSubLevel)
-  const { points } = get3HexSvgPolygonPointsAt00(
+  const { points } = get3HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
@@ -1494,7 +1493,7 @@ export const PdfSvgOutcrop4 = ({
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(hex, isSubLevel)
-  const { points } = get4HexSvgPolygonPointsAt00(
+  const { points } = get4HexPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )

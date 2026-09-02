@@ -45,7 +45,7 @@ import {
   getRuins3SvgPolygonPoints,
   getShipBowSvgPolygonPoints,
   getShipWallSvgPolygonPoints,
-} from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
+} from '../pdf-svg-shared/hexPolygonPoints'
 import useBoundStore from '../store/store'
 import {
   getSvgHexBorderColor,
