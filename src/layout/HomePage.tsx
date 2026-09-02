@@ -64,24 +64,27 @@ export default function HomePage() {
   // USE EFFECT: zoom to map and toggle viewing level when new map is loaded
   // biome-ignore lint/correctness/useExhaustiveDependencies: <run on map change>
   useEffect(() => {
-    if (mapGroupRef.current && cameraControlsRef.current) {
-      zoomToMap(mapGroupRef, cameraControlsRef, width, length)
+    const zoom = () => {
+      if (mapGroupRef.current && cameraControlsRef.current) {
+        zoomToMap(mapGroupRef, cameraControlsRef, width, length)
+      }
     }
+    zoom()
+    // Piece models and hex instances settle a beat after a map swap
+    const timeoutId = setTimeout(zoom, 1000)
     //Update viewing level when new map is loaded
     toggleViewingLevel(maxLevel)
+    return () => clearTimeout(timeoutId)
   }, [hexMap.id])
 
   // USE EFFECT: automatically load up map from URL, OR from file
-  useAutoLoadMapFile({ mapGroupRef, cameraControlsRef })
+  useAutoLoadMapFile()
   const { hotkeyConfig } = useHotkeyConfig()
   useApplyHotkeys({ hotkeyConfig, cameraControlsRef, mapGroupRef })
 
   return (
     <>
-      <CreateMapFormDialog
-        mapGroupRef={mapGroupRef}
-        cameraControlsRef={cameraControlsRef}
-      />
+      <CreateMapFormDialog />
       <EditMapFormDialog />
       <EditPieceInventoryDialog />
       <ViewMapInventoryDialog />

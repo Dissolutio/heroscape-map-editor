@@ -29,12 +29,6 @@ import {
   InputSetsUsedCard,
   setsUsedInputNameForFormData,
 } from './InputSetsUsedCard'
-import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
-import type { BoardHexes } from '../types'
-import type { Group } from 'three'
-import type { Object3DEventMap } from 'three'
-import type { CameraControls } from '@react-three/drei'
-import { zoomToMap } from '../utils/camera-utils'
 
 const hexagonMarks = [
   {
@@ -64,12 +58,8 @@ const rectangleMarks = [
     label: 'Large',
   },
 ]
-type Props = {
-  mapGroupRef: React.RefObject<Group<Object3DEventMap>>
-  cameraControlsRef: React.RefObject<CameraControls>
-}
 
-export default function CreateMapFormDialog(props: Props) {
+export default function CreateMapFormDialog() {
   const [, navigate] = useLocation()
   const fullScreen = useMediaQuery('(max-width:900px)')
   // new map form state
@@ -100,12 +90,6 @@ export default function CreateMapFormDialog(props: Props) {
   const handleChangeMapShape = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMapShape((event.target as HTMLInputElement).value)
   }
-  const queueMapAutoZoom = (boardHexes: BoardHexes): void => {
-    const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
-    setTimeout(() => {
-      zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-    }, 1000)
-  }
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     // setsUsed is uncontrolled react form state, we extract it from form data
     const formData = new FormData(event.currentTarget)
@@ -126,14 +110,14 @@ export default function CreateMapFormDialog(props: Props) {
     const blankMap =
       mapShape === 'rectangle'
         ? makeRectangleScenario({
-            mapName,
-            width: mapWidth,
-            length: mapLength,
-          })
+          mapName,
+          width: mapWidth,
+          length: mapLength,
+        })
         : makeHexagonScenario({
-            mapName,
-            size: mapSize,
-          })
+          mapName,
+          size: mapSize,
+        })
     const editedMapState = {
       ...blankMap,
       hexMap: {
@@ -152,7 +136,6 @@ export default function CreateMapFormDialog(props: Props) {
       message: `Created new map: ${editedMapState.hexMap.name}`,
       autoHideDuration: 5000,
     })
-    queueMapAutoZoom(editedMapState.boardHexes)
   }
 
   return (

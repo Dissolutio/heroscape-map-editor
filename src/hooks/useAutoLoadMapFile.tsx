@@ -1,11 +1,10 @@
 import { closeSnackbar, useSnackbar } from 'notistack'
-import { type RefObject, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
-  getBoardHexesRectangularMapDimensions,
   inflateBoardPiecesFromIds,
   normalizeBoardPieces,
 } from '../utils/map-utils'
@@ -13,17 +12,8 @@ import { Button } from '@mui/material'
 import { LS_KEYS } from '../local-storage/keys'
 import { ROUTES } from '../ROUTES'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
-import { Box3, type Group, type Object3DEventMap } from 'three'
-import { zoomToMap } from '../utils/camera-utils'
-import type { CameraControls } from '@react-three/drei'
-import type { BoardHexes } from '../types'
 
-type Props = {
-  mapGroupRef: RefObject<Group<Object3DEventMap>>
-  cameraControlsRef: RefObject<CameraControls>
-}
-
-const useAutoLoadMapFile = (props: Props) => {
+const useAutoLoadMapFile = () => {
   const loadMap = useBoundStore((s) => s.loadMap)
   const toggleIs2DOpen = useBoundStore((s) => s.toggleIs2DOpen)
   const toggleIsPdfOpen = useBoundStore((s) => s.toggleIsPdfOpen)
@@ -71,13 +61,6 @@ const useAutoLoadMapFile = (props: Props) => {
       loadMap(mapState)
       temporal.clear()
       temporal.resume()
-    }
-    const queueMapAutoZoom = (boardHexes: BoardHexes): void => {
-      const { width, length } =
-        getBoardHexesRectangularMapDimensions(boardHexes)
-      setTimeout(() => {
-        zoomToMap(props.mapGroupRef, props.cameraControlsRef, width, length)
-      }, 1000)
     }
     // If url map, load it and offer to load last local storage
     if (urlMapString) {
@@ -133,7 +116,6 @@ const useAutoLoadMapFile = (props: Props) => {
           })
         }
         loadMapWithoutUndo(jsonMap)
-        queueMapAutoZoom(jsonMap.boardHexes)
         return
 
         // biome-ignore lint/suspicious/noExplicitAny: <error could be anything>
@@ -152,8 +134,6 @@ const useAutoLoadMapFile = (props: Props) => {
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
         variant: 'success',
       })
-
-      queueMapAutoZoom(localMapCacheMapState.boardHexes)
     } else {
       // No url and no prev state? auto load a file
 
@@ -193,7 +173,6 @@ const useAutoLoadMapFile = (props: Props) => {
           variant: 'success',
           autoHideDuration: 5000,
         })
-        queueMapAutoZoom(jsonMap.boardHexes)
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
