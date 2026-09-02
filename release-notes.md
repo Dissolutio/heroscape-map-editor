@@ -3,7 +3,7 @@
 - Feature: Share URL for build instructions - regular URL and Markdown link buttons (you can link directly to your map's build instructions, but the map image & map notes you may have on your computer will NOT transfer)
 - Improvement: More legible personal piece inventory editing - clearer layout
 - Improvement: Hotkey text shown on relevant camera buttons, with tooltip on hover
-- Bug: Fixed camera zoom issue on new maps
+- Bug: Fixed camera zoom issue on newly created maps
 
 08-30-2026 AM
 - Bug:color: Share-URL button broke when trying to share a map with a picture 
