@@ -1,3 +1,10 @@
+09-02-2026
+- Feature: Middle-click a placed piece to select it as the current pen mode (with hotkey shift+z to do it with a left-click)
+- Feature: Share URL for build instructions - regular URL and Markdown link buttons (you can link directly to your map's build instructions, but the map image & map notes you may have on your computer will NOT transfer)
+- Improvement: More legible personal piece inventory editing - clearer layout
+- Improvement: Hotkey text shown on relevant camera buttons, with tooltip on hover
+- Bug: Fixed camera zoom issue on new maps
+
 08-30-2026 AM
 - Bug:color: Share-URL button broke when trying to share a map with a picture 
 - Feature: PDF Layout Format option (1 page coversheet) available in View tab
