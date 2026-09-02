@@ -708,6 +708,7 @@ export const PdfHive6 = ({
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
+  const blackColor = isSubLevel ? svgSubLevelColors.jungleText : svgColors.jungleText
   return (
     <>
       <Polygon
@@ -718,13 +719,13 @@ export const PdfHive6 = ({
       />
       <Path
         d={svgHiveBlobD}
-        stroke={'black'}
+        stroke={blackColor}
         strokeWidth={PDF_BORDER_WIDTH / 1.2}
         transform={`translate(${-2 * SVG_HEX_APOTHEM},${-SVG_HEX_RADIUS})`}
       />
 
       <Ellipse
-        stroke={'black'}
+        stroke={blackColor}
         strokeWidth={PDF_BORDER_WIDTH / 2}
         cx="9.4113"
         cy="82.45652"
@@ -733,7 +734,7 @@ export const PdfHive6 = ({
       />
 
       <Ellipse
-        stroke={'black'}
+        stroke={blackColor}
         strokeWidth={PDF_BORDER_WIDTH / 2}
         cx="12.63397"
         cy="101.25543"
@@ -742,7 +743,7 @@ export const PdfHive6 = ({
       />
 
       <Ellipse
-        stroke={'black'}
+        stroke={blackColor}
         strokeWidth={PDF_BORDER_WIDTH / 1.4}
         cx="49.15758"
         cy="77.35397"
@@ -751,7 +752,7 @@ export const PdfHive6 = ({
       />
 
       <Ellipse
-        stroke={'black'}
+        stroke={blackColor}
         strokeWidth={PDF_BORDER_WIDTH / 1.8}
         cx="49.96326"
         cy="98.30132"
