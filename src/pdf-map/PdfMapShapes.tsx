@@ -50,6 +50,7 @@ import {
   Pieces,
 } from '../types'
 import {
+  OPACITY_SUBLEVEL,
   PDF_BORDER_WIDTH,
   PDF_EMPTYHEX_BORDER_WIDTH,
   SVG_BORDER_WIDTH,
