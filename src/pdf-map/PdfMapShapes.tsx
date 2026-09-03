@@ -66,7 +66,6 @@ import {
   SVG_HEX_RADIUS,
 } from '../utils/constants'
 import {
-  pdfColors,
   svgColors,
   svgSubLevelColors,
   virtualscapeTileColors,
