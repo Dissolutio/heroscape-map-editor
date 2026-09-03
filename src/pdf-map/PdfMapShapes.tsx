@@ -908,7 +908,7 @@ export const PdfRoadWall = ({
   const fillColor = getPdfHexFillForView(piece, isSubLevel)
   const { points } = getRoadWallSvgPolygonPoints(
     SVG_HEX_RADIUS,
-    PDF_BORDER_WIDTH,
+    0
   )
 
   return (
