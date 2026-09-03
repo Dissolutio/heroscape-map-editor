@@ -677,12 +677,11 @@ const SvgCastleWallBaseHeightText = ({
   isSubLevel: boolean
   heightText: string
 }) => {
-  const blackColor = isSubLevel ? svgSubLevelColors.jungleText : svgColors.jungleText
+  const blackColor = isSubLevel
+    ? svgSubLevelColors.jungleText
+    : svgColors.jungleText
   return (
-    <text
-      fill={blackColor}
-      {...singleHexObstacleHeightTextProps()}
-    >
+    <text fill={blackColor} {...singleHexObstacleHeightTextProps()}>
       {heightText}
     </text>
   )

@@ -1023,7 +1023,9 @@ export const SvgBattlement = ({
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
-  const borderColor = isSubLevel ? svgSubLevelColors.battlementBorder : svgColors.battlementBorder
+  const borderColor = isSubLevel
+    ? svgSubLevelColors.battlementBorder
+    : svgColors.battlementBorder
   const { points } = getBattlementSvgPolygonPoints(SVG_HEX_RADIUS, 0)
   return (
     <>
@@ -1119,17 +1121,16 @@ export const SvgCastleCorner = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel ? svgSubLevelColors.castleInterior : svgColors.castleInterior
+  const fillColor = isSubLevel
+    ? svgSubLevelColors.castleInterior
+    : svgColors.castleInterior
   const { points } = getCastleCornerShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
     <>
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
+      <polygon points={points} fill={fillColor} />
     </>
   )
 }
@@ -1140,17 +1141,16 @@ export const SvgCastleStraight = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel ? svgSubLevelColors.castleInterior : svgColors.castleInterior
+  const fillColor = isSubLevel
+    ? svgSubLevelColors.castleInterior
+    : svgColors.castleInterior
   const { points } = getCastleStraightShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
     <>
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
+      <polygon points={points} fill={fillColor} />
     </>
   )
 }
@@ -1161,17 +1161,16 @@ export const SvgCastleEnd = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel ? svgSubLevelColors.castleInterior : svgColors.castleInterior
+  const fillColor = isSubLevel
+    ? svgSubLevelColors.castleInterior
+    : svgColors.castleInterior
   const { points } = getCastleEndShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
     <>
-      <polygon
-        points={points}
-        fill={fillColor}
-      />
+      <polygon points={points} fill={fillColor} />
     </>
   )
 }
@@ -1496,9 +1495,9 @@ export const SvgOutcrop6 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-      // {...singleHexObstacleHeightTextProps()}
-      // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-      // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        // {...singleHexObstacleHeightTextProps()}
+        // x={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop6TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'9'}
       </text>
@@ -1622,8 +1621,8 @@ export const SvgOutcrop4 = ({
       <text
         fill={textColor}
         {...singleHexObstacleHeightTextProps()}
-      // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
-      // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
+        // x={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.x ?? 0}
+        // y={outcrop4TextXYForRotation?.[hex?.pieceRotation]?.[0]?.y ?? 0}
       >
         {'7'}
       </text>

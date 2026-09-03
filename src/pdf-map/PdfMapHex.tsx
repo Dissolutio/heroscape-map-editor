@@ -283,7 +283,8 @@ export const PdfMapHex = ({
     const outcropTextColor = isSubLevel
       ? svgSubLevelColors.outcropText
       : svgColors.outcropText
-    const textColor = hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
+    const textColor =
+      hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
@@ -732,10 +733,7 @@ const PdfCastleWallBaseHeightText = ({
     ? svgSubLevelColors.jungleText
     : svgColors.jungleText
   return (
-    <Text
-      fill={textColor}
-      {...pdfTextProps()}
-    >
+    <Text fill={textColor} {...pdfTextProps()}>
       {heightText}
     </Text>
   )

@@ -637,7 +637,7 @@ export function getCastleStraightShapeSvgPolygonPoints(
 // PDF: rectangle sized to look good on pdf render
 export function getLaurShortWallPolygonPoints(
   radius: number,
-  heightFactor: number
+  heightFactor: number,
 ) {
   const apothem = (Math.sqrt(3) * radius) / 2
   const height = heightFactor * radius
@@ -673,8 +673,8 @@ export function getLaurLongWallPdfPolygonPoints(
   const corners: Point[] = [
     { x: leftX, y: borderWidth || radius / 10 }, // top-left of rectangle
     { x: rightX, y: borderWidth || radius / 10 }, // top-right of rectangle
-    { x: rightX, y: -(borderWidth || radius / 10), }, //  bottom-right of rectangle
-    { x: leftX, y: -(borderWidth || radius / 10), }, // bottom-left of rectangle
+    { x: rightX, y: -(borderWidth || radius / 10) }, //  bottom-right of rectangle
+    { x: leftX, y: -(borderWidth || radius / 10) }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
