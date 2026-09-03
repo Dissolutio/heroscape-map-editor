@@ -633,42 +633,20 @@ export function getCastleStraightShapeSvgPolygonPoints(
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
 }
-// SVG (2D): a simple rectangle sized by radius alone.
-export function getLaurShortWallSvgPolygonPoints(radius: number) {
+// SVG (2D): a simple rectangle sized by radius and a dialable height factor 0-1
+// PDF: rectangle sized to look good on pdf render
+export function getLaurShortWallPolygonPoints(
+  radius: number,
+  heightFactor: number
+) {
   const apothem = (Math.sqrt(3) * radius) / 2
-  const height = 0.5 * radius
+  const height = heightFactor * radius
 
   const corners: Point[] = [
     { x: 0.25 * apothem, y: height / 2 }, // top-left of rectangle
     { x: 1.75 * apothem, y: height / 2 }, // top-right of rectangle
     { x: 1.75 * apothem, y: -height / 2 }, //  bottom-right of rectangle
     { x: 0.25 * apothem, y: -height / 2 }, // bottom-left of rectangle
-  ]
-  const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
-  return { points, corners }
-}
-// PDF: rectangle sized relative to the hex side, insets by borderWidth.
-export function getLaurShortWallPdfPolygonPoints(
-  radius: number,
-  borderWidth: number,
-) {
-  const apothem = (Math.sqrt(3) * radius) / 2
-  // Outer
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
-
-  const corners: Point[] = [
-    // MORE FLUSH OPTIONS BUT LOOKS LIKE 2-HEX LAND
-    // { x: rightXOuter - borderWidth, y: topSideYOuter + (borderWidth / Math.sqrt(2)) }, // top-left of rectangle
-    // { x: apothem + borderWidth, y: topSideYOuter + (borderWidth / Math.sqrt(2)) }, // top-right of rectangle
-    // { x: apothem + borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, //  bottom-right of rectangle
-    // { x: rightXOuter - borderWidth, y: bottomSideYOuter - (borderWidth / Math.sqrt(2)) }, // bottom-left of rectangle
-    // THIS DOES NOT LOOK LIKE RENEGADE, BUT IS MORE LEGIBLE AND DIFFERENTIATED FROM 2-HEX LAND
-    { x: rightXOuter - borderWidth, y: topSideYOuter + radius / 3 }, // top-left of rectangle
-    { x: apothem + borderWidth, y: topSideYOuter + radius / 3 }, // top-right of rectangle
-    { x: apothem + borderWidth, y: bottomSideYOuter - radius / 3 }, //  bottom-right of rectangle
-    { x: rightXOuter - borderWidth, y: bottomSideYOuter - radius / 3 }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
@@ -690,28 +668,13 @@ export function getLaurLongWallPdfPolygonPoints(
   radius: number,
   borderWidth: number,
 ) {
+  const leftX = 0
+  const rightX = radius * 2.8
   const corners: Point[] = [
-    { x: radius - (borderWidth || radius / 10), y: borderWidth || radius / 10 }, // top-left of rectangle
-    {
-      x:
-        radius -
-        (borderWidth || radius / 10) +
-        radius +
-        2 * (borderWidth || radius / 10),
-      y: borderWidth || radius / 10,
-    }, // top-right of rectangle
-    {
-      x:
-        radius -
-        (borderWidth || radius / 10) +
-        radius +
-        2 * (borderWidth || radius / 10),
-      y: -(borderWidth || radius / 10),
-    }, //  bottom-right of rectangle
-    {
-      x: radius - (borderWidth || radius / 10),
-      y: -(borderWidth || radius / 10),
-    }, // bottom-left of rectangle
+    { x: leftX, y: borderWidth || radius / 10 }, // top-left of rectangle
+    { x: rightX, y: borderWidth || radius / 10 }, // top-right of rectangle
+    { x: rightX, y: -(borderWidth || radius / 10), }, //  bottom-right of rectangle
+    { x: leftX, y: -(borderWidth || radius / 10), }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
@@ -915,23 +878,22 @@ export function getLaurPillarPdfShape(radius: number, borderWidth: number) {
   const halfBorder = borderWidth / 2
   // Inner hexagon
   const radiusInner = radius - halfBorder
-  const bottomSideYInner = 0.5 * radiusInner
-  const topSideYInner = -0.5 * radiusInner
-
-  const inset = 0.5 * radiusInner // the current laur pillar is definitely about 1/2 radius square
+  const squareSideLength = 0.45 * radiusInner // the current laur pillar is definitely about 1/2 radius square
+  const topSideYInner = -squareSideLength
   const cos30 = cosDegrees(30)
   const corners: Point[] = [
-    { x: -inset * cos30, y: topSideYInner }, // top-left
-    { x: inset * cos30, y: topSideYInner }, // top-right
-    { x: inset * cos30, y: bottomSideYInner }, // bottom-right
-    { x: -inset * cos30, y: bottomSideYInner }, // bottom-left
+    { x: -squareSideLength * cos30, y: topSideYInner }, // top-left
+    { x: squareSideLength * cos30, y: topSideYInner }, // top-right
+    { x: squareSideLength * cos30, y: squareSideLength }, // bottom-right
+    { x: -squareSideLength * cos30, y: squareSideLength }, // bottom-left
   ]
   const cos60 = cosDegrees(60)
   const sin60 = sinDegrees(60)
+  const triangeSideLength = 0.6 * radiusInner
   const triangle: Point[] = [
-    { x: inset * cos60, y: -inset * sin60 }, // top-right
-    { x: inset * cos60, y: inset * sin60 }, // bottom-right
-    { x: -inset, y: 0 }, // mid-left
+    { x: triangeSideLength * cos60, y: -triangeSideLength * sin60 }, // top-right
+    { x: triangeSideLength * cos60, y: triangeSideLength * sin60 }, // bottom-right
+    { x: -triangeSideLength, y: 0 }, // mid-left
   ]
   const squarePoints = corners.map((point) => `${point.x},${point.y}`).join(' ')
   const trianglePoints = triangle

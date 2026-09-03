@@ -34,8 +34,8 @@ import {
   getLadderSvgPolygonPoints,
   getLaurLongWallPdfPolygonPoints,
   getLaurPillarPdfShape,
-  getLaurShortWallPdfPolygonPoints,
-  getLaurShortWallSvgPolygonPoints,
+  getLaurPillarShape,
+  getLaurShortWallPolygonPoints,
   getLaurWallRuinPdfPolygonPoints,
   getMarvel6HexPdfPolygonPointsAt00,
   getMarvelRuinsShapeSvgPath,
@@ -655,12 +655,9 @@ export const PdfLaurPillar = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getPdfHexFillForView(hex, isSubLevel)
-  const borderColor = getPdfHexBorderForView(hex, isSubLevel)
-  // const { points: fullHexPoints } = getHexagonPdfPolygonPointsAt00(
-  //   SVG_HEX_RADIUS,
-  //   PDF_BORDER_WIDTH,
-  // )
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex)
+    : getSvgHexBorderColor(hex)
   const laurSquarePoints = getLaurPillarPdfShape(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -681,8 +678,6 @@ export const PdfLaurPillar = ({
         <Polygon
           points={innerShapePoints}
           fill={fillColor}
-          stroke={borderColor}
-          strokeWidth={PDF_BORDER_WIDTH / 2}
         />
       </G>
     </>
@@ -818,9 +813,9 @@ export const PdfBoardPieceLaurWallShort = ({
 }) => {
   const fillColor = getPdfHexFillForView(piece, isSubLevel)
   const borderColor = getPdfHexBorderForView(piece, isSubLevel)
-  const { points } = getLaurShortWallPdfPolygonPoints(
+  const { points } = getLaurShortWallPolygonPoints(
     SVG_HEX_RADIUS,
-    PDF_BORDER_WIDTH,
+    0.2
   )
   return (
     <Polygon
@@ -838,8 +833,9 @@ export const PdfBoardPieceLaurWallLong = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const fillColor = getPdfHexFillForView(piece, isSubLevel)
-  const borderColor = getPdfHexBorderForView(piece, isSubLevel)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
   const { points } = getLaurLongWallPdfPolygonPoints(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -848,8 +844,6 @@ export const PdfBoardPieceLaurWallLong = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={borderColor}
-      strokeWidth={PDF_BORDER_WIDTH}
     />
   )
 }
@@ -860,8 +854,9 @@ export const PdfBoardPieceLaurWallLongArch = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const fillColor = getPdfHexFillForView(piece, isSubLevel)
-  const borderColor = getPdfHexBorderForView(piece, isSubLevel)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
   const { points } = getLaurLongWallPdfPolygonPoints(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -870,9 +865,44 @@ export const PdfBoardPieceLaurWallLongArch = ({
     <Polygon
       points={points}
       fill={fillColor}
-      stroke={borderColor}
-      strokeWidth={PDF_BORDER_WIDTH}
     />
+  )
+}
+// PdfLaurWallArchText
+export const PdfLaurWallArchText = ({
+  isSubLevel,
+  pieceRotation,
+}: {
+  isSubLevel: boolean
+  pieceRotation: number
+}) => {
+  const archText = 'ARCH'
+  const textColor = isSubLevel
+    ? svgSubLevelColors.evergreenText
+    : svgColors.evergreenText
+  // rotations that are hard to read: 150, 210
+  return (
+    <Text
+      fill={textColor}
+      style={{
+        fontSize: 0.55 * SVG_HEX_RADIUS,
+        letterSpacing: 6,
+        fontFamily: 'Inter',
+        // fontFamily: 'Inter, Arial, Helvetica, sans-serif',
+        fontWeight: 600,
+      }}
+      // {...singleHexObstacleHeightTextProps()}
+      y={0.2 * SVG_HEX_RADIUS}
+      // upside down text is flipped in parent component, and adjusted here
+      x={
+        pieceRotation === 150 || pieceRotation === 210
+          ? -2.75 * SVG_HEX_APOTHEM
+          : 0.65 * SVG_HEX_APOTHEM
+      }
+    >
+      {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}
+      {archText}
+    </Text>
   )
 }
 export const PdfBoardPieceLaurWallRuin = ({
