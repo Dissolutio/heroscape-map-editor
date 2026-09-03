@@ -18,7 +18,6 @@ export function getRoadWallSvgPolygonPoints(
   const bottomYInner = radiusInner
   const bottomSideYInner = 0.5 * radiusInner
 
-  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
     /* 
      ______
@@ -64,7 +63,6 @@ export function getShipWallSvgPolygonPoints(
   const topYInner = -radiusInner
   const topSideYInner = -0.5 * radiusInner
 
-  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
     /* 
      /\/\/\
@@ -1000,7 +998,6 @@ export function getHexagonPdfPolygonPointsAt00(
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 
-  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
     { x: 0, y: topYInner }, // top hex1
     { x: rightXInner, y: topSideYInner }, // top-right
@@ -1024,7 +1021,6 @@ export function get1HexOutlineSvgPolygonPoints(
   const radiusInner = radius - borderWidth
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
 
-  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
     // OUTER
     { x: 0, y: -radius }, // top hex1
@@ -1091,7 +1087,6 @@ export function get2HexPdfPolygonPointsAt00(
   const bottomSideYInner = 0.5 * radiusInner
   const topSideYInner = -0.5 * radiusInner
 
-  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
     { x: 0, y: topYInner }, // top hex1
     // { x: apothemInner, y: topSideYInner }, // top-right hex1
@@ -1123,7 +1118,6 @@ export function get2HexOutlineSvgPolygonPoints(
   const apothem = (Math.sqrt(3) * radius) / 2
   const radiusInner = radius - borderWidth
   const apothemInner = (Math.sqrt(3) * radiusInner) / 2
-  // using pen and paper geometry, find your way around the multi-hex (TODO: DRY: this could be programmatic)
   const corners: Point[] = [
     // OUTER
     { x: 0, y: -radius }, // top hex1
