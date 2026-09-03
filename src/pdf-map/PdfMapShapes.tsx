@@ -37,6 +37,7 @@ import {
   getLaurPillarShape,
   getLaurShortWallPolygonPoints,
   getLaurWallRuinPdfPolygonPoints,
+  getLaurWallRuinSvgPolygonPoints,
   getMarvel6HexPdfPolygonPointsAt00,
   getMarvelRuinsShapeSvgPath,
   getRoadWallSvgPolygonPoints,

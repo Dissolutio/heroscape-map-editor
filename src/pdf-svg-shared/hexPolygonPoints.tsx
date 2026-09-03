@@ -694,17 +694,17 @@ export function getLaurWallRuinSvgPolygonPoints(radius: number) {
 // PDF: rectangle positioned relative to the hex geometry instead.
 export function getLaurWallRuinPdfPolygonPoints(radius: number) {
   const apothem = (Math.sqrt(3) * radius) / 2
-  const hexWidth = 2 * apothem
   // Outer
-  const rightXOuter = apothem
-  const topSideYOuter = -0.5 * radius
-  const bottomSideYOuter = 0.5 * radius
+  const leftX = apothem / 5
+  const rightX = 1.25 * apothem
+  const bottomY = 0.1 * radius
+  const topY = -bottomY
   // Inner hexagon
   const corners: Point[] = [
-    { x: rightXOuter, y: topSideYOuter / 5 }, // top-left of rectangle
-    { x: hexWidth - apothem / 2, y: topSideYOuter / 5 }, // top-right of rectangle
-    { x: hexWidth - apothem / 2, y: bottomSideYOuter / 5 }, // bottom-right of rectangle
-    { x: rightXOuter, y: bottomSideYOuter / 5 }, // bottom-left of rectangle
+    { x: leftX, y: topY }, // top-left of rectangle
+    { x: rightX, y: topY }, // top-right of rectangle
+    { x: rightX, y: bottomY }, // bottom-right of rectangle
+    { x: leftX, y: bottomY }, // bottom-left of rectangle
   ]
   const points = corners.map((point) => `${point.x},${point.y}`).join(' ')
   return { points, corners }
