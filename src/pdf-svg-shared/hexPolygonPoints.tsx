@@ -920,18 +920,15 @@ export function getLaurPillarPdfShape(radius: number, borderWidth: number) {
 
   const inset = 0.5 * radiusInner // the current laur pillar is definitely about 1/2 radius square
   const cos30 = cosDegrees(30)
-  const cos60 = cosDegrees(60)
-  const sin60 = sinDegrees(60)
   const corners: Point[] = [
     { x: -inset * cos30, y: topSideYInner }, // top-left
     { x: inset * cos30, y: topSideYInner }, // top-right
     { x: inset * cos30, y: bottomSideYInner }, // bottom-right
     { x: -inset * cos30, y: bottomSideYInner }, // bottom-left
   ]
+  const cos60 = cosDegrees(60)
+  const sin60 = sinDegrees(60)
   const triangle: Point[] = [
-    // { x: -inset * cos30, y: -inset * sin30 }, // top-left
-    // { x: inset * cos30, y: -inset * sin30 }, // top-right
-    // { x: 0, y: inset }, // bottom
     { x: inset * cos60, y: -inset * sin60 }, // top-right
     { x: inset * cos60, y: inset * sin60 }, // bottom-right
     { x: -inset, y: 0 }, // mid-left

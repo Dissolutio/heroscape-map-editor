@@ -600,7 +600,7 @@ export const SvgLaurPillar = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const borderColor = isSubLevel
+  const fillColor = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex)
     : getSvgHexBorderColor(hex)
   const laurSquarePoints = getLaurPillarShape(
@@ -626,7 +626,7 @@ export const SvgLaurPillar = ({
       />
       <g transform={`rotate(${pieceRotation})`}>
         {/*  LAUR SQUARE/TRIANGLE BELOW */}
-        <polygon points={innerShapePoints} fill={borderColor} />
+        <polygon points={innerShapePoints} fill={fillColor} />
       </g>
     </>
   )

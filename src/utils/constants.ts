@@ -1,11 +1,11 @@
 export const HEXGRID_SPACING = 1 // removed for the sake of blender/grid niceness
 export const HEXGRID_HEX_RADIUS = 1
 export const HEXGRID_HEX_APOTHEM = (Math.sqrt(3) / 2) * HEXGRID_HEX_RADIUS
-export const SVG_HEX_RADIUS = 100
+export const SVG_HEX_RADIUS = 100 // PDF HEX RADIUS ALSO
 export const SVG_HEX_APOTHEM = (Math.sqrt(3) / 2) * SVG_HEX_RADIUS
 export const PDF_BORDER_WIDTH = SVG_HEX_RADIUS * 0.2 // until we catch pdfs up with svg from renegade work
 export const SVG_BORDER_WIDTH = SVG_HEX_RADIUS * 0.3046303818
-export const PDF_EMPTYHEX_BORDER_WIDTH = SVG_HEX_RADIUS / 50
+export const PDF_EMPTYHEX_BORDER_WIDTH = SVG_HEX_RADIUS * 0.02
 export const SVG_EMPTYHEX_BORDER_WIDTH = SVG_HEX_RADIUS * 0.18181818181 // per AllMapTiles/GridBG.svg hex radius is 10, stroke width is 2, so half stroke is 1, stroke is half-in half-out, 10 + 1 = 11,  2 / 11 = 0.18181818181
 export const SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH = SVG_HEX_RADIUS * 0.201612903 // per AllMapTiles/1hex-new.svg hex radius is 8.92, stroke width is 2, so half stroke is 1, stroke is half-in half-out, 8.92 + 1 = 9.92,  2 / 9.92 = 0.2016129030
 export const OPACITY_EMPTY = 0.1
