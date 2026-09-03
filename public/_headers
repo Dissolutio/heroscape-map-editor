@@ -1,3 +1,11 @@
+# Never cache the entry HTML so browsers always fetch the current asset manifest after a deploy
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Hashed build output can be cached forever since a new deploy always ships new filenames
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
 # Cache specific file extensions like .glb models for 1 year
 /*.glb
   Cache-Control: public, max-age=31536000, immutable

@@ -9,6 +9,7 @@ import './layout/index.css'
 import { ROUTES } from './ROUTES'
 import HomePage from './layout/HomePage'
 import { useMuiMediaQuery } from './layout/useMuiMediaQuery'
+import { reloadOnceForChunkError } from './utils/lazyWithRetry'
 
 const darkTheme = createTheme({
   palette: {
@@ -51,7 +52,14 @@ const App = () => {
         ? 12
         : 20
   return (
-    <Sentry.ErrorBoundary fallback={ErrorPage} showDialog>
+    <Sentry.ErrorBoundary
+      fallback={ErrorPage}
+      showDialog
+      onError={(error) => {
+        // stale-deployment chunk failures manifest as hook-order crashes (React #310); reload once to recover
+        reloadOnceForChunkError(error)
+      }}
+    >
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <EventProvider>

@@ -1,5 +1,5 @@
 import { Box } from '@mui/material'
-import React, { lazy, Suspense, useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
 import CreateMapFormDialog from './CreateMapFormDialog'
 import EditMapFormDialog from './EditMapFormDialog'
@@ -19,10 +19,11 @@ import {
 import PiecesGridDialog from './PiecesGridDialog'
 import { zoomToMap } from '../utils/camera-utils'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
+import { lazyWithRetry } from '../utils/lazyWithRetry'
 // 1. Define your lazy-loaded components
-const ReactPdfRoot = lazy(() => import('../pdf-map/ReactPdfRoot'))
-const SvgMapDisplay = lazy(() => import('../svg-map/SvgMapDisplay'))
-const World = lazy(() => import('../world/World'))
+const ReactPdfRoot = lazyWithRetry(() => import('../pdf-map/ReactPdfRoot'))
+const SvgMapDisplay = lazyWithRetry(() => import('../svg-map/SvgMapDisplay'))
+const World = lazyWithRetry(() => import('../world/World'))
 import { useHotkeyConfig } from '../controls/useHotkeyConfig'
 import { useApplyHotkeys } from '../controls/useApplyHotkeys'
 
