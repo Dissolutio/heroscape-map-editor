@@ -2,8 +2,8 @@ import { Line, Svg } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import type { BoardHex, DecodedPieceID, PdfMapAltitudeChunk } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
-import { PdfMapHex } from './PdfMapHex'
 import { PdfMapBoardPiece } from './PdfMapBoardPiece'
+import { PdfMapHex } from './PdfMapHex'
 
 type ReactPdfSvgMapDisplayProps = {
   width: number
@@ -49,11 +49,12 @@ export const ReactPdfSvgMapDisplay = ({
     }
     return bp.altitude <= viewingLevel
   })
+  // pieces sit on top of the hex they are placed on, so their displayed level is altitude + 1 (matches PdfMapBoardPiece)
   const subLevelPieces = visibleBoardPieces.filter(
-    (bp) => bp.altitude < viewingLevel,
+    (bp) => bp.altitude + 1 < viewingLevel,
   )
   const currentLevelPieces = visibleBoardPieces.filter(
-    (bp) => bp.altitude >= viewingLevel,
+    (bp) => bp.altitude + 1 >= viewingLevel,
   )
   const viewBoxStr = `${-adjustXForNew00Centers} ${-adjustYForNew00Centers} ${width + adjustXForNew00Centers} ${length + adjustYForNew00Centers}`
   const subLevelHexesEls = subLevelHexes
