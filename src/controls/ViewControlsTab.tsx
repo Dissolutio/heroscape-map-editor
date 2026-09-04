@@ -304,7 +304,7 @@ const ViewPreferencesSwitchForm = () => {
             />
           }
           label="Use Legacy Start Zones"
-          title="Enable/disable rendering start zones in PDF/2D views styled as they were in Virtualscape (circles, different colors)"
+          title="Enable/disable rendering start zones as circles and with classic colors"
         />
       </FormGroup>
     </FormControl>
@@ -328,6 +328,12 @@ const PdfPreferencesSwitchForm = () => {
   )
   const toggleIsShowPdfOverlayOnPlacedLevel = useBoundStore(
     (s) => s.toggleIsShowPdfOverlayOnPlacedLevel,
+  )
+  const isShowPdfGridLinesOverSublevels = useBoundStore(
+    (s) => s.isShowPdfGridLinesOverSublevels,
+  )
+  const toggleIsShowPdfGridLinesOverSublevels = useBoundStore(
+    (s) => s.toggleIsShowPdfGridLinesOverSublevels,
   )
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const setPdfRenderFormat = useBoundStore((s) => s.setPdfRenderFormat)
@@ -354,6 +360,11 @@ const PdfPreferencesSwitchForm = () => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIsShowPdfOverlayOnPlacedLevel(event.target.checked)
+  }
+  const handleChangeShowPdfGridLinesOverSublevels = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShowPdfGridLinesOverSublevels(event.target.checked)
   }
   const handleChangePdfRenderFormat = (
     event: SelectChangeEvent<'coversheet' | 'shortHeader'>,
@@ -418,12 +429,23 @@ const PdfPreferencesSwitchForm = () => {
           control={
             <Switch
               size="small"
+              checked={isShowPdfGridLinesOverSublevels}
+              onChange={handleChangeShowPdfGridLinesOverSublevels}
+            />
+          }
+          label="Show Grid Lines over Sublevels"
+          title="Enable/disable rendering the grid lines on top of sublevel pieces in PDF"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
               checked={useLegacyStartZones}
               onChange={handleChangeUseLegacyStartZones}
             />
           }
           label="Use Legacy Start Zones"
-          title="Enable/disable rendering start zones in PDF/2D views styled as they were in Virtualscape (circles, different colors)"
+          title="Enable/disable rendering start zones as circles and with classic colors"
         />
         <FormControl size="small" fullWidth sx={{ mt: 1 }}>
           <FormLabel component="legend" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
@@ -493,7 +515,7 @@ const SVGPreferencesSwitchForm = () => {
             />
           }
           label="Use Legacy Start Zones"
-          title="Enable/disable hexagon-shaped start zones (legacy style)"
+          title="Enable/disable rendering start zones as circles and with classic colors"
         />
       </FormGroup>
     </FormControl>

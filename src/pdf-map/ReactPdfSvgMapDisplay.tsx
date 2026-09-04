@@ -13,6 +13,7 @@ type ReactPdfSvgMapDisplayProps = {
   viewingLevel: number
   isPdfColorBorders: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
+  isShowGridLinesOverSublevels: boolean
   useLegacyStartZones: boolean
   chunk?: PdfMapAltitudeChunk
 }
@@ -25,6 +26,7 @@ export const ReactPdfSvgMapDisplay = ({
   viewingLevel,
   isPdfColorBorders,
   isShowPdfOverlayOnPlacedLevel,
+  isShowGridLinesOverSublevels,
   useLegacyStartZones,
   chunk,
 }: ReactPdfSvgMapDisplayProps) => {
@@ -38,34 +40,72 @@ export const ReactPdfSvgMapDisplay = ({
   const subLevelHexes = nonEmptyHexesArr.filter(
     (h) => h.altitude < viewingLevel,
   )
+  const visibleBoardPieces = boardPiecesArr.filter((bp) => {
+    if (piecesSoFar[bp.inventoryID].isOverlayPiece) {
+      return (
+        isOverlayViewing ||
+        (isShowPdfOverlayOnPlacedLevel && bp.altitude <= viewingLevel)
+      )
+    }
+    return bp.altitude <= viewingLevel
+  })
+  const subLevelPieces = visibleBoardPieces.filter(
+    (bp) => bp.altitude < viewingLevel,
+  )
+  const currentLevelPieces = visibleBoardPieces.filter(
+    (bp) => bp.altitude >= viewingLevel,
+  )
   const viewBoxStr = `${-adjustXForNew00Centers} ${-adjustYForNew00Centers} ${width + adjustXForNew00Centers} ${length + adjustYForNew00Centers}`
+  const subLevelHexesEls = subLevelHexes
+    .sort((a, b) => a.altitude - b.altitude)
+    .map((hex) => (
+      <PdfMapHex
+        key={hex.id}
+        hex={hex}
+        viewingLevel={viewingLevel}
+        isOverlayViewing={isOverlayViewing}
+        isPdfColorBorders={isPdfColorBorders}
+        isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+        useLegacyStartZones={useLegacyStartZones}
+      />
+    ))
+  const subLevelPiecesEls = subLevelPieces
+    .sort((a, b) => a.altitude - b.altitude)
+    .map((bp) => (
+      <PdfMapBoardPiece
+        key={bp.boardPieceID}
+        piece={bp}
+        viewingLevel={viewingLevel}
+      />
+    ))
+  const emptyHexesEls = emptyHexesArr.map((hex) => (
+    <PdfMapHex
+      key={hex.id}
+      hex={hex}
+      viewingLevel={viewingLevel}
+      isOverlayViewing={isOverlayViewing}
+      isPdfColorBorders={isPdfColorBorders}
+      isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+      useLegacyStartZones={useLegacyStartZones}
+    />
+  ))
   return (
     <Svg viewBox={viewBoxStr}>
       {/* <PdfSvgXYHelperLines length={length} width={width} /> */}
-      {subLevelHexes
-        .sort((a, b) => a.altitude - b.altitude)
-        .map((hex) => (
-          <PdfMapHex
-            key={hex.id}
-            hex={hex}
-            viewingLevel={viewingLevel}
-            isOverlayViewing={isOverlayViewing}
-            isPdfColorBorders={isPdfColorBorders}
-            isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
-            useLegacyStartZones={useLegacyStartZones}
-          />
-        ))}
-      {emptyHexesArr.map((hex) => (
-        <PdfMapHex
-          key={hex.id}
-          hex={hex}
-          viewingLevel={viewingLevel}
-          isOverlayViewing={isOverlayViewing}
-          isPdfColorBorders={isPdfColorBorders}
-          isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
-          useLegacyStartZones={useLegacyStartZones}
-        />
-      ))}
+      {/* rendering the empty hexes AFTER the sublevel hexes/pieces renders grid-lines over the sublevels */}
+      {isShowGridLinesOverSublevels ? (
+        <>
+          {subLevelHexesEls}
+          {subLevelPiecesEls}
+          {emptyHexesEls}
+        </>
+      ) : (
+        <>
+          {emptyHexesEls}
+          {subLevelHexesEls}
+          {subLevelPiecesEls}
+        </>
+      )}
       {nonEmptyHexesArr
         .filter((h) => h.altitude === viewingLevel)
         .map((hex) => (
@@ -79,16 +119,7 @@ export const ReactPdfSvgMapDisplay = ({
             useLegacyStartZones={useLegacyStartZones}
           />
         ))}
-      {boardPiecesArr
-        .filter((bp) => {
-          if (piecesSoFar[bp.inventoryID].isOverlayPiece) {
-            return (
-              isOverlayViewing ||
-              (isShowPdfOverlayOnPlacedLevel && bp.altitude <= viewingLevel)
-            )
-          }
-          return bp.altitude <= viewingLevel
-        })
+      {currentLevelPieces
         .sort((a, b) => a.altitude - b.altitude)
         .map((bp) => (
           <PdfMapBoardPiece

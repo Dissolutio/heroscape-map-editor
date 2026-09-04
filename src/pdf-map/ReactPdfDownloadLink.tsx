@@ -12,6 +12,9 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const isShowPdfOverlayOnPlacedLevel = useBoundStore(
     (s) => s.isShowPdfOverlayOnPlacedLevel,
   )
+  const isShowPdfGridLinesOverSublevels = useBoundStore(
+    (s) => s.isShowPdfGridLinesOverSublevels,
+  )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   return (
     <PDFDownloadLink
@@ -23,6 +26,7 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
             isPdfColorBorders={isPdfColorBorders}
             isShowPdfOverlayLayer={isShowPdfOverlayLayer}
             isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+            isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
             useLegacyStartZones={useLegacyStartZones}
           />
         </Document>

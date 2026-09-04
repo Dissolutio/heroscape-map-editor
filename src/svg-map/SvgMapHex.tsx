@@ -1,7 +1,10 @@
 import { piecesSoFar } from '../data/pieces'
+import {
+  xTransformForMultiHex3Rotation,
+  yTransformForMultiHex3Rotation,
+} from '../pdf-svg-shared/textRotations'
 import useBoundStore from '../store/store'
-import { getBoardPiecesMaxLevel } from '../utils/map-utils'
-import { HexTerrain, Pieces, type BoardHex } from '../types'
+import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
   isCastleTerrain,
   isEvergreenTree,
@@ -14,50 +17,47 @@ import {
   SVG_HEX_RADIUS,
   SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
 } from '../utils/constants'
+import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
+  SvgCannon,
   SvgCastleArch,
   SvgCastleArchStraight3,
   SvgCastleCorner,
   SvgCastleEnd,
   SvgCastleStraight,
   SvgEmptyHex,
+  SvgFortifiedWall,
+  SvgHexDecor,
   SvgHive6,
+  SvgJungle,
   SvgLadder,
+  SvgLaurPillar,
   SvgMarvelRuin,
   SvgMultiHex1,
   SvgMultiHex2,
-  SvgMultiHex24,
   SvgMultiHex3,
   SvgMultiHex4,
   SvgMultiHex5,
   SvgMultiHex6,
   SvgMultiHex7,
+  SvgMultiHex24,
   SvgMultiHexMarvel6,
   SvgMultiHexWallWalk7,
   SvgMultiHexWallWalk9,
   SvgOutcrop3,
   SvgOutcrop4,
   SvgOutcrop6,
-  SvgStartZone,
   SvgRuins2,
   SvgRuins3,
-  SvgTree415,
-  SvgLaurPillar,
-  SvgJungle,
-  SvgHexDecor,
-  SvgFortifiedWall,
-  SvgShipWall,
   SvgShipBow,
-  SvgCannon,
+  SvgShipWall,
+  SvgStartZone,
+  SvgTree415,
   getOutcropTextColor,
 } from './SvgMapShapes'
 import { singleHexObstacleHeightTextProps } from './svgText'
-import {
-  xTransformForMultiHex3Rotation,
-  yTransformForMultiHex3Rotation,
-} from '../pdf-svg-shared/textRotations'
 
 const OPACITY_SUBLEVEL = 0.3
 

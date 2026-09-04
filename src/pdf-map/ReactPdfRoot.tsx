@@ -48,6 +48,9 @@ function ReactPdfRoot() {
   const isShowPdfOverlayOnPlacedLevel = useBoundStore(
     (s) => s.isShowPdfOverlayOnPlacedLevel,
   )
+  const isShowPdfGridLinesOverSublevels = useBoundStore(
+    (s) => s.isShowPdfGridLinesOverSublevels,
+  )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const isMobile = useMediaQuery('(max-width:800px)')
@@ -75,6 +78,7 @@ function ReactPdfRoot() {
             isPdfColorBorders={isPdfColorBorders}
             isShowPdfOverlayLayer={isShowPdfOverlayLayer}
             isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+            isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
             isShowPDFInventory={isShowPDFInventory}
             useLegacyStartZones={useLegacyStartZones}
             pdfRenderFormat={pdfRenderFormat}
@@ -93,6 +97,7 @@ const PdfDocument = ({
   isPdfColorBorders,
   isShowPdfOverlayLayer,
   isShowPdfOverlayOnPlacedLevel,
+  isShowPdfGridLinesOverSublevels,
   isShowPDFInventory,
   useLegacyStartZones,
   pdfRenderFormat,
@@ -103,6 +108,7 @@ const PdfDocument = ({
   isPdfColorBorders: boolean
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
+  isShowPdfGridLinesOverSublevels: boolean
   isShowPDFInventory: boolean
   useLegacyStartZones: boolean
   pdfRenderFormat: 'coversheet' | 'shortHeader'
@@ -116,6 +122,7 @@ const PdfDocument = ({
         isPdfColorBorders={isPdfColorBorders}
         isShowPdfOverlayLayer={isShowPdfOverlayLayer}
         isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+        isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
         isShowPDFInventory={isShowPDFInventory}
         useLegacyStartZones={useLegacyStartZones}
       />
@@ -130,6 +137,7 @@ const PdfDocument = ({
       isPdfColorBorders={isPdfColorBorders}
       isShowPdfOverlayLayer={isShowPdfOverlayLayer}
       isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+      isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
       isShowPDFInventory={isShowPDFInventory}
       useLegacyStartZones={useLegacyStartZones}
     />
@@ -148,6 +156,7 @@ const PdfDocumentCoverSheet = ({
   isPdfColorBorders,
   isShowPdfOverlayLayer,
   isShowPdfOverlayOnPlacedLevel,
+  isShowPdfGridLinesOverSublevels,
   isShowPDFInventory,
   useLegacyStartZones,
 }: {
@@ -157,6 +166,7 @@ const PdfDocumentCoverSheet = ({
   isPdfColorBorders: boolean
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
+  isShowPdfGridLinesOverSublevels: boolean
   isShowPDFInventory: boolean
   useLegacyStartZones: boolean
 }) => {
@@ -244,6 +254,7 @@ const PdfDocumentCoverSheet = ({
         isPdfColorBorders={isPdfColorBorders}
         isShowPdfOverlayLayer={isShowPdfOverlayLayer}
         isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+        isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
         useLegacyStartZones={useLegacyStartZones}
       />
 
@@ -268,6 +279,7 @@ const PdfDocumentShortHeader = ({
   isPdfColorBorders,
   isShowPdfOverlayLayer,
   isShowPdfOverlayOnPlacedLevel,
+  isShowPdfGridLinesOverSublevels,
   useLegacyStartZones,
   isShowPDFInventory,
 }: {
@@ -277,6 +289,7 @@ const PdfDocumentShortHeader = ({
   isPdfColorBorders: boolean
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
+  isShowPdfGridLinesOverSublevels: boolean
   useLegacyStartZones: boolean
   isShowPDFInventory: boolean
 }) => {
@@ -288,6 +301,7 @@ const PdfDocumentShortHeader = ({
         isPdfColorBorders={isPdfColorBorders}
         isShowPdfOverlayLayer={isShowPdfOverlayLayer}
         isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+        isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
         useLegacyStartZones={useLegacyStartZones}
       >
         <MapPortraitHeader
@@ -314,6 +328,9 @@ const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const isShowPdfOverlayOnPlacedLevel = useBoundStore(
     (s) => s.isShowPdfOverlayOnPlacedLevel,
   )
+  const isShowPdfGridLinesOverSublevels = useBoundStore(
+    (s) => s.isShowPdfGridLinesOverSublevels,
+  )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   return (
@@ -326,6 +343,7 @@ const ReactPdfDownloadLink = (props: PropsWithChildren) => {
           isPdfColorBorders={isPdfColorBorders}
           isShowPdfOverlayLayer={isShowPdfOverlayLayer}
           isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+          isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
           isShowPDFInventory={isShowPDFInventory}
           useLegacyStartZones={useLegacyStartZones}
           pdfRenderFormat={pdfRenderFormat}

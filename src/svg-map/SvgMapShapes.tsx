@@ -1,12 +1,10 @@
 import { piecesSoFar } from '../data/pieces'
 import {
-  generateArrowPath,
   genWoodPlankPath1,
   genWoodPlankPath2,
   genWoodPlankPath3,
+  generateArrowPath,
   get1HexOutlineSvgPolygonPoints,
-  get24HexOutlineSvgPolygonPoints,
-  get24HexSvgPolygonPointsAt00,
   get2HexOutlineSvgPolygonPoints,
   get2HexSvgPolygonPointsAt00,
   get3HexOutlineSvgPolygonPoints,
@@ -24,6 +22,8 @@ import {
   get7HexWallWalkSvgPolygonPointsAt00,
   get9HexWallWalkOutlineSvgPolygonPoints,
   get9HexWallWalkSvgPolygonPointsAt00,
+  get24HexOutlineSvgPolygonPoints,
+  get24HexSvgPolygonPointsAt00,
   getBattlementSvgPolygonPoints,
   getCastleArchShapeSvgPolygonPoints,
   getCastleCornerShapeSvgPolygonPoints,
