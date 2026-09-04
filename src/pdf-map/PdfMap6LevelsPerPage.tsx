@@ -2,8 +2,8 @@ import { Page, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy, uniq } from 'lodash'
 import type { PropsWithChildren } from 'react'
 import {
-  type BoardPiece,
   type BoardHexes,
+  type BoardPiece,
   type PdfMapAltitudeChunk,
   Pieces,
 } from '../types'
@@ -70,7 +70,12 @@ export const PdfMapLevels6PerPage = ({
                     // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
                     key={i}
                   >
-                    <Text style={{ fontSize: '10px' }}>
+                    <Text
+                      style={{
+                        fontSize: '10px',
+                        fontFamily: 'Proxima Nova Condensed Black',
+                      }}
+                    >
                       {group.label ?? `Level: ${group.altitude}`}
                     </Text>
                     <ReactPdfSvgMapDisplay

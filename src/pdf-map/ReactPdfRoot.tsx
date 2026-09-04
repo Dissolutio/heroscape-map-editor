@@ -45,6 +45,14 @@ Font.register({
     },
   ],
 })
+Font.register({
+  family: 'Proxima Nova Condensed Black',
+  fonts: [
+    {
+      src: 'fonts/ProximaNovaCondensedBlack.otf',
+    },
+  ],
+})
 
 function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
