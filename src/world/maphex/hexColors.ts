@@ -68,8 +68,10 @@ export const hexTerrainColor = {
   castleDoor: '#913B3F',
   [HexTerrain.wallWalk]: '#a8a597', //same as road
   [HexTerrain.road]: '#a8a597', // superfrog
-  [HexTerrain.ancientTerrain]: '#379590', // https://coolors.co/379590-feea00-4f3477-3f612d-b6863e
-  ancientTerrainCap: '#B6863E',
+  // [HexTerrain.ancientTerrain]: '#379590', // https://coolors.co/379590-feea00-4f3477-3f612d-b6863e
+  [HexTerrain.ancientTerrain]: '#5c7175',
+  // ancientTerrainCap: '#B6863E',
+  ancientTerrainCap: '#8b5b43',
   [HexTerrain.toxic]: '#93FF32', // superfrog
   toxicCap: '#303030', // same as asphaltcap
   [HexTerrain.toxicWater]: '#93FF32', // superfrog
