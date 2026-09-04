@@ -22,6 +22,7 @@ import interlockRotationTemplates from './interlock-rotations'
 import interlockTemplates from './interlock-templates'
 import getPieceTemplateCoords from './rotationTransforms'
 import {
+  openBaseHexTemplates,
   verticalObstructionTemplates,
   verticalSupportTemplates,
 } from './vertical-obstruction-templates'
@@ -665,10 +666,12 @@ export function addPiece({
   }
   // OBSTACLES: trees, bushes, palms, glaciers, outcrops, laurPillar
   else if (piece.isObstaclePiece && (isPlacingObstacle || permissive)) {
+    const openBaseHexIndices = new Set(openBaseHexTemplates[piece.id] ?? [])
     newHexIds.forEach((newHexID, i) => {
+      const isOpenBaseHex = openBaseHexIndices.has(i)
       const hexUnderneath = newBoardHexes?.[underHexIds[i]]
-      // remove caps covered by this obstacle
-      if (hexUnderneath) {
+      // remove caps covered by this obstacle (open base hexes leave the cap below intact)
+      if (hexUnderneath && !isOpenBaseHex) {
         newBoardHexes[hexUnderneath.id].isCap = false
       }
       // write in the new base level hexes (origin+auxiliaries)
@@ -685,7 +688,8 @@ export function addPiece({
         inventoryID: piece.id,
         pieceRotation: rotation,
         isObstacleOrigin: i === 0, //only the first hex is an origin (because we made the template arrays this way. with origin hex at index 0)
-        isObstacleAuxiliary: i !== 0, // big tree, glaciers/outcrops, have aux hexes that render only a cap
+        isObstacleAuxiliary: i !== 0 && !isOpenBaseHex, // big tree, glaciers/outcrops, have aux hexes that render only a cap
+        isVerticalClearanceHex: isOpenBaseHex,
         obstacleHeight: piece.height,
       }
       //  if we have a vertical obstruction template for an obstacle, use it, otherwise use its height

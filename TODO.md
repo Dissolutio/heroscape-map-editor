@@ -1,4 +1,10 @@
 ## TODO
+- Similarly, it would be nice if wall walks were grouped with road. Or if there was a shortcut to them as they're the primary tile in competitive maps.
+- Any chance 1, 2, 3, 4, 5 could always be 1, 2, 3, 7, 24? Currently the Marvel ruin base inserts itself at 4 which makes concrete different than everything else.
+- SZs block RotV ruin and GI Joe Wall placement and vice versa
+- Group LoS blockers such as trees/outcrops/similar so that they can be rotated through like regular terrain. Not a shortcut to them directly, but once one of them is chosen, 1 for single, 3 for triple, etc. would help a ton
+- Remove the white from the glyphs. Additionally, don't display hex heights above glyphs (making it easier to label the glyphs online)
+- Start Zones have a Convert Terrain drop-down to change colors
 - If you enter some filters and search into Pieces Grid, then Zoom to Piece, all those filters and search are lost. State should persist?
 - Laur wall ruin pieces have 3 types, not accounted for currently (or miscounted, perhaps)
 - New PDF Format: Cover Sheet with inventory on 1st page

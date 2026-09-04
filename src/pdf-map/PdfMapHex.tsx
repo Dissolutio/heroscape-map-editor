@@ -1,5 +1,10 @@
 import { G, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
+import {
+  xTransformForMultiHex3Rotation,
+  yTransformForMultiHex3Rotation,
+} from '../pdf-svg-shared/textRotations'
+import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
   isCastleTerrain,
@@ -14,48 +19,44 @@ import {
   SVG_HEX_RADIUS,
 } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
+import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
+  PdfCannon,
   PdfCastleArch,
+  PdfCastleArchStraight3,
+  PdfCastleArchText,
   PdfCastleCorner,
   PdfCastleEnd,
   PdfCastleStraight,
   PdfEmptyHex,
   PdfHive6,
+  PdfJungle,
   PdfLadder,
+  PdfLaurPillar,
   PdfMarvelRuin,
   PdfMultiHex1,
   PdfMultiHex2,
-  PdfMultiHex24,
   PdfMultiHex3,
   PdfMultiHex4,
   PdfMultiHex5,
   PdfMultiHex6,
   PdfMultiHex7,
+  PdfMultiHex24,
   PdfMultiHexMarvel6,
-  PdfCastleArchStraight3,
   PdfMultiHexWallWalk7,
   PdfMultiHexWallWalk9,
+  PdfShipBow,
+  PdfShipWall,
   PdfStartZone,
+  PdfSvgFortifiedWall,
+  PdfSvgHexDecor,
   PdfSvgOutcrop3,
   PdfSvgOutcrop4,
   PdfSvgOutcrop6,
   PdfSvgRuins2,
   PdfSvgRuins3,
   PdfSvgTree415,
-  PdfLaurPillar,
-  PdfJungle,
-  PdfSvgHexDecor,
-  PdfSvgFortifiedWall,
-  PdfShipWall,
-  PdfShipBow,
-  PdfCannon,
 } from './PdfMapShapes'
-import { svgColors } from '../world/maphex/hexColors'
-import {
-  xTransformForMultiHex3Rotation,
-  yTransformForMultiHex3Rotation,
-} from '../pdf-svg-shared/textRotations'
-import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 
 const glyphTextProps = () => ({
   style: {
@@ -88,7 +89,9 @@ export const PdfMapHex = ({
   const { inventoryID } = hex
   const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
   const isAuxiliaryNotRenderedIn2D =
-    isObstaclePiece && (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
+    isObstaclePiece &&
+    !hex.isObstacleOrigin &&
+    (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
   const isVisible = hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
@@ -276,16 +279,24 @@ export const PdfMapHex = ({
     inventoryID === Pieces.lavaRockOutcrop1 ||
     inventoryID === Pieces.glacier1
   ) {
+    const glacierTextColor = isSubLevel
+      ? svgSubLevelColors.glacierText
+      : svgColors.glacierText
+    const outcropTextColor = isSubLevel
+      ? svgSubLevelColors.outcropText
+      : svgColors.outcropText
+    const textColor =
+      hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
         <Text
-          fill={hex.terrain === HexTerrain.glacier ? 'black' : 'white'}
+          fill={textColor}
           // white text (not glaciers, so far) needs a little opacity boost
           opacity={
             isSubLevel
               ? hex.terrain === HexTerrain.glacier
-                ? OPACITY_SUBLEVEL
+                ? 1
                 : OPACITY_SUBLEVEL * 2
               : 1
           }
@@ -479,20 +490,6 @@ export const PdfMapHex = ({
         </G>
       )
     }
-  }
-  //  Marvel Ruin
-  if (
-    hex.inventoryID === Pieces.marvel ||
-    hex.inventoryID === Pieces.marvelBroken
-  ) {
-    return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
-        <PdfMarvelRuin hex={hex} isSubLevel={isSubLevel} />
-      </G>
-    )
   }
   // JUNGLE
   if (isJungleTerrainHex(hex.terrain)) {
@@ -727,30 +724,6 @@ export const PdfMapHex = ({
   return null
 }
 
-const PdfCastleArchText = ({
-  isSubLevel,
-  pieceRotation,
-}: {
-  isSubLevel: boolean
-  pieceRotation: number
-}) => {
-  return (
-    <Text
-      fill="black"
-      opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      style={{
-        fontSize: 0.8 * SVG_HEX_RADIUS,
-        fontWeight: 'bold',
-      }}
-      y={0.2 * SVG_HEX_RADIUS}
-      // upside down text is flipped in parent component, and adjusted here
-      x={pieceRotation === 180 ? -3.7 * SVG_HEX_APOTHEM : 0.3 * SVG_HEX_APOTHEM}
-    >
-      {/* TODO: this style will need adjustment for international/other languages, where char length changes */}
-      {'D O O R'}
-    </Text>
-  )
-}
 const PdfCastleWallBaseHeightText = ({
   isSubLevel,
   heightText,
@@ -758,12 +731,11 @@ const PdfCastleWallBaseHeightText = ({
   isSubLevel: boolean
   heightText: string
 }) => {
+  const textColor = isSubLevel
+    ? svgSubLevelColors.jungleText
+    : svgColors.jungleText
   return (
-    <Text
-      fill="black"
-      opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      {...pdfTextProps()}
-    >
+    <Text fill={textColor} {...pdfTextProps()}>
       {heightText}
     </Text>
   )

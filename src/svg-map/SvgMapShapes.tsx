@@ -1,12 +1,10 @@
 import { piecesSoFar } from '../data/pieces'
 import {
-  generateArrowPath,
   genWoodPlankPath1,
   genWoodPlankPath2,
   genWoodPlankPath3,
+  generateArrowPath,
   get1HexOutlineSvgPolygonPoints,
-  get24HexOutlineSvgPolygonPoints,
-  get24HexSvgPolygonPointsAt00,
   get2HexOutlineSvgPolygonPoints,
   get2HexSvgPolygonPointsAt00,
   get3HexOutlineSvgPolygonPoints,
@@ -24,6 +22,8 @@ import {
   get7HexWallWalkSvgPolygonPointsAt00,
   get9HexWallWalkOutlineSvgPolygonPoints,
   get9HexWallWalkSvgPolygonPointsAt00,
+  get24HexOutlineSvgPolygonPoints,
+  get24HexSvgPolygonPointsAt00,
   getBattlementSvgPolygonPoints,
   getCastleArchShapeSvgPolygonPoints,
   getCastleCornerShapeSvgPolygonPoints,
@@ -35,7 +35,7 @@ import {
   getLadderSvgPolygonPoints,
   getLaurLongWallSvgPolygonPoints,
   getLaurPillarShape,
-  getLaurShortWallSvgPolygonPoints,
+  getLaurShortWallPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
   getMarvel6HexOutlineSvgPolygonPoints,
   getMarvel6HexSvgPolygonPointsAt00,
@@ -45,7 +45,7 @@ import {
   getRuins3SvgPolygonPoints,
   getShipBowSvgPolygonPoints,
   getShipWallSvgPolygonPoints,
-} from '../pdf-svg-shared/getHexagonSvgPolygonPoints'
+} from '../pdf-svg-shared/hexPolygonPoints'
 import useBoundStore from '../store/store'
 import {
   getSvgHexBorderColor,
@@ -600,7 +600,7 @@ export const SvgLaurPillar = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const borderColor = isSubLevel
+  const fillColor = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex)
     : getSvgHexBorderColor(hex)
   const laurSquarePoints = getLaurPillarShape(
@@ -626,7 +626,7 @@ export const SvgLaurPillar = ({
       />
       <g transform={`rotate(${pieceRotation})`}>
         {/*  LAUR SQUARE/TRIANGLE BELOW */}
-        <polygon points={innerShapePoints} fill={borderColor} />
+        <polygon points={innerShapePoints} fill={fillColor} />
       </g>
     </>
   )
@@ -827,7 +827,7 @@ export const SvgRuins2 = ({
         fill="transparent"
         stroke={fillColor}
         strokeWidth={SVG_HEX_RADIUS / 5}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -857,7 +857,7 @@ export const SvgRuins3 = ({
         fill="transparent"
         stroke={fillColor}
         strokeWidth={SVG_HEX_RADIUS / 5}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -886,7 +886,9 @@ export const SvgMarvelRuin = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(hex)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(hex)
+    : getSvgHexFillColor(hex)
   const { path } = getMarvelRuinsShapeSvgPath(SVG_HEX_RADIUS)
 
   return (
@@ -919,7 +921,7 @@ export const SvgBoardPieceLaurWallShort = ({
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
-  const { points } = getLaurShortWallSvgPolygonPoints(SVG_HEX_RADIUS)
+  const { points } = getLaurShortWallPolygonPoints(SVG_HEX_RADIUS, 0.5)
   return <polygon points={points} fill={fillColor} />
 }
 export const SvgBoardPieceLaurWallLong = ({
@@ -1018,23 +1020,20 @@ export const SvgBattlement = ({
   piece: DecodedPieceID
   isSubLevel?: boolean
 }) => {
-  const fillColor = getSvgHexFillColor(piece)
-  const borderColor = getSvgHexBorderColor(piece)
+  const fillColor = isSubLevel
+    ? getSvgHexSubLevelFillColor(piece)
+    : getSvgHexFillColor(piece)
+  const borderColor = isSubLevel
+    ? svgSubLevelColors.battlementBorder
+    : svgColors.battlementBorder
   const { points } = getBattlementSvgPolygonPoints(SVG_HEX_RADIUS, 0)
   return (
     <>
-      {isSubLevel && (
-        <SvgSubLevelWhiteBackerPolygon
-          points={points}
-          borderWidth={SVG_BORDER_WIDTH / 2}
-        />
-      )}
       <polygon
         points={points}
         fill={fillColor}
         stroke={borderColor}
         strokeWidth={SVG_BORDER_WIDTH / 2}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
       />
     </>
   )
@@ -1122,26 +1121,16 @@ export const SvgCastleCorner = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  // const fillColor = getSvgHexFillColor(hex)
+  const fillColor = isSubLevel
+    ? svgSubLevelColors.castleInterior
+    : svgColors.castleInterior
   const { points } = getCastleCornerShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
     <>
-      {isSubLevel && (
-        <SvgSubLevelWhiteBackerPolygon
-          points={points}
-          borderWidth={SVG_BORDER_WIDTH / 4}
-        />
-      )}
-      <polygon
-        points={points}
-        fill={svgColors.castleInterior}
-        stroke={svgColors.castleInterior}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
+      <polygon points={points} fill={fillColor} />
     </>
   )
 }
@@ -1152,26 +1141,16 @@ export const SvgCastleStraight = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  // const fillColor = getSvgHexFillColor(hex)
+  const fillColor = isSubLevel
+    ? svgSubLevelColors.castleInterior
+    : svgColors.castleInterior
   const { points } = getCastleStraightShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
     <>
-      {isSubLevel && (
-        <SvgSubLevelWhiteBackerPolygon
-          points={points}
-          borderWidth={SVG_BORDER_WIDTH / 4}
-        />
-      )}
-      <polygon
-        points={points}
-        fill={svgColors.castleInterior}
-        stroke={svgColors.castleInterior}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
+      <polygon points={points} fill={fillColor} />
     </>
   )
 }
@@ -1182,28 +1161,16 @@ export const SvgCastleEnd = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  // const fillColor = getSvgHexFillColor(hex)
-  // const borderColor = getSvgHexBorderColor(hex)
+  const fillColor = isSubLevel
+    ? svgSubLevelColors.castleInterior
+    : svgColors.castleInterior
   const { points } = getCastleEndShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
     SVG_BORDER_WIDTH,
   )
   return (
     <>
-      {isSubLevel && (
-        <SvgSubLevelWhiteBackerPolygon
-          points={points}
-          // borderWidth={SVG_BORDER_WIDTH / 4}
-          borderWidth={SVG_BORDER_WIDTH / 4}
-        />
-      )}
-      <polygon
-        points={points}
-        fill={svgColors.castleInterior}
-        stroke={svgColors.castleInterior}
-        strokeWidth={SVG_BORDER_WIDTH / 4}
-        opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-      />
+      <polygon points={points} fill={fillColor} />
     </>
   )
 }

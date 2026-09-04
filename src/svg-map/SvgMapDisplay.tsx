@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import {
@@ -6,10 +7,8 @@ import {
   getBoardHexesSvgMapDimensions,
   getBoardPiecesMaxLevel,
 } from '../utils/map-utils'
-import { piecesSoFar } from '../data/pieces'
-import { HexTerrain } from '../types'
-import { SvgMapHex } from './SvgMapHex'
 import { SvgMapBoardPiece } from './SvgMapBoardPiece'
+import { SvgMapHex } from './SvgMapHex'
 
 const adjustXForNew00Centers = -1 * SVG_HEX_APOTHEM
 const adjustYForNew00Centers = -1 * SVG_HEX_RADIUS

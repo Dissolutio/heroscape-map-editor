@@ -4,10 +4,8 @@ import {
   type DecodedPieceID,
   HexTerrain,
   type Piece,
-  Pieces,
 } from '../types'
 import {
-  isCastleTerrain,
   isEvergreenTree,
   isFluidTerrainHex,
   isJungleTerrainHex,
@@ -15,8 +13,6 @@ import {
 } from '../utils/board-utils'
 import { decodePieceID } from '../utils/map-utils'
 import {
-  hexTerrainColor,
-  pdfColors,
   svgColors,
   svgSubLevelColors,
   virtualscapeTileColors,
@@ -215,74 +211,6 @@ export const getSvgHexSubLevelBorderColor = (
   return 'black'
 }
 
-export const getPdfHexFillColor = (hex: BoardHex | DecodedPieceID) => {
-  if (
-    isSolidTerrainHex(hex.terrain) ||
-    isFluidTerrainHex(hex.terrain) ||
-    hex.terrain === HexTerrain.laurWall ||
-    hex.terrain === HexTerrain.laurWallAddon ||
-    hex.terrain === HexTerrain.fortifiedWall ||
-    hex.terrain === HexTerrain.roadWall ||
-    hex.terrain === HexTerrain.glyphPower ||
-    hex.terrain === HexTerrain.glyphTreasure ||
-    hex.terrain === HexTerrain.tree ||
-    hex.terrain === HexTerrain.battlement ||
-    hex.terrain === HexTerrain.hive ||
-    hex.terrain === HexTerrain.ladder ||
-    hex.terrain === HexTerrain.shipWall ||
-    hex.terrain === HexTerrain.shipBow ||
-    hex.terrain === HexTerrain.ropeLadder ||
-    hex.terrain === HexTerrain.cannon
-  ) {
-    return (
-      pdfColors?.[hex.terrain as keyof typeof pdfColors] ??
-      virtualscapeTileColors[hex.terrain as keyof typeof virtualscapeTileColors]
-    )
-  }
-  // StartZone: virtualscape colors, might be other designs
-  if (hex.terrain === HexTerrain.startZone) {
-    return pdfColors?.[hex.inventoryID as keyof typeof pdfColors]
-  }
-  if (hex.terrain === HexTerrain.brush) {
-    return pdfColors.fillJungle
-  }
-  if (hex.terrain === HexTerrain.marvelRuin) {
-    return pdfColors.castleWall
-  }
-  if (hex.terrain === HexTerrain.palm) {
-    // Renegade shows brush and palm as same color
-    return pdfColors.fillJungle // renegade-hexoscape
-  }
-  if (hex.terrain === HexTerrain.shroudshroom) {
-    // Renegade shows brush and palm as same color
-    return pdfColors[HexTerrain.shroudshroom] // renegade-hexoscape
-  }
-  if (hex.terrain === HexTerrain.ruin) {
-    return pdfColors.ruin
-  }
-  if (isEvergreenTree(hex.terrain)) {
-    return pdfColors.tree
-  }
-  if (hex.terrain === HexTerrain.hive) {
-    return pdfColors.swampWater
-  }
-  if (hex.terrain === HexTerrain.glacier) {
-    return pdfColors.ice
-  }
-  if (hex.terrain === HexTerrain.outcrop) {
-    return pdfColors.outcrop
-  }
-  if (hex.terrain === HexTerrain.lavaRockOutcrop) {
-    return pdfColors.lava
-  }
-  if (hex.terrain === HexTerrain.castleWall) {
-    return pdfColors.castleWall
-  }
-  if (hex.terrain === HexTerrain.castleBase) {
-    return pdfColors.castleBase
-  }
-  return 'transparent'
-}
 export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   if (
     isSolidTerrainHex(hex.terrain) ||

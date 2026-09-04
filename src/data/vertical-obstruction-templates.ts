@@ -45,6 +45,20 @@ export const verticalObstructionTemplates: Dictionary<number[]> = {
     3, 9,
   ],
 }
+/*
+ Template indices where a piece leaves the base level open: a figure can stand there
+ (so the hex underneath stays a cap), but no piece can be placed there, so the base
+ level hex is written as a vertical clearance hex instead of an obstacle hex.
+ marvel6 template order: [0]=(0,0,0) [1]=SE [2]=SW [3]=W [4]=(1,1,-2) [5]=(2,1,-3)
+ Indices 0 and 3 are the two hexes under the warehouse floor; 1 and 4 are only open
+ on the varieties whose middle wall is broken out.
+*/
+export const openBaseHexTemplates: Dictionary<number[]> = {
+  [Pieces.marvel]: [0, 3],
+  [Pieces.marvelNoUpper]: [0, 3],
+  [Pieces.marvelBroken]: [0, 1, 3, 4],
+  [Pieces.marvelNoUpperBroken]: [0, 1, 3, 4],
+}
 export const verticalSupportTemplates: Dictionary<number[]> = {
   /* 
    The order really matters here.

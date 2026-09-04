@@ -7,6 +7,7 @@ import {
   PdfBoardPieceLaurWallLongArch,
   PdfBoardPieceLaurWallRuin,
   PdfBoardPieceLaurWallShort,
+  PdfLaurWallArchText,
   PdfRoadWall,
   PdfRopeLadder,
 } from './PdfMapShapes'
@@ -73,6 +74,19 @@ export const PdfMapBoardPiece = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfBoardPieceLaurWallLongArch piece={piece} isSubLevel={isSubLevel} />
+        <G
+          // flip upside down text, all other rotations are legible
+          transform={
+            pieceRotation === 150 || pieceRotation === 210
+              ? 'rotate(-180)'
+              : 'rotate(0)'
+          }
+        >
+          <PdfLaurWallArchText
+            isSubLevel={isSubLevel}
+            pieceRotation={pieceRotation}
+          />
+        </G>
       </G>
     )
   }

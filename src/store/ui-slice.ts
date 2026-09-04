@@ -106,6 +106,8 @@ export interface UISlice {
   toggleIsShowPdfOverlayLayer: (b: boolean) => void
   isShowPdfOverlayOnPlacedLevel: boolean
   toggleIsShowPdfOverlayOnPlacedLevel: (b: boolean) => void
+  isShowPdfGridLinesOverSublevels: boolean
+  toggleIsShowPdfGridLinesOverSublevels: (b: boolean) => void
   pdfRenderFormat: 'coversheet' | 'shortHeader'
   setPdfRenderFormat: (format: 'coversheet' | 'shortHeader') => void
   // SVG STATE
@@ -375,6 +377,13 @@ const createUISlice: StateCreator<
         if (!b && !s.isShowPdfOverlayLayer) {
           s.isShowPdfOverlayLayer = true
         }
+      }),
+    ),
+  isShowPdfGridLinesOverSublevels: true,
+  toggleIsShowPdfGridLinesOverSublevels: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowPdfGridLinesOverSublevels = b
       }),
     ),
   pdfRenderFormat: 'coversheet',
