@@ -3,6 +3,7 @@
 - **Marvel Ruin Bug**: Hex heights should now display properly underneath a marvel ruin (with wall, 2 hex heights were missing, with wall destroyed, 4 hex heights were missing)
 - **Ancient terrain color**: updated in 3D render
 - **PDF Laur Wall/Pillars**: updated to mirror the 2D view/contemporary styles
+- **PDF Grid Lines toggle**: show grid lines under sublevel, or over sublevels
 
 09-02-2026
 - Feature: Middle-click a placed piece to select it as the current pen mode (with hotkey shift+z to do it with a left-click)
