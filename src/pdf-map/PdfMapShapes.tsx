@@ -9,11 +9,10 @@ import {
 } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
-  generateArrowPath,
   genWoodPlankPath1,
   genWoodPlankPath2,
   genWoodPlankPath3,
-  get24HexPdfPolygonPointsAt00,
+  generateArrowPath,
   get2HexPdfPolygonPointsAt00,
   get3HexPdfPolygonPointsAt00,
   get3HexStraightPdfPolygonPointsAt00,
@@ -23,6 +22,7 @@ import {
   get7HexPdfPolygonPointsAt00,
   get7HexWallWalkPdfPolygonPointsAt00,
   get9HexWallWalkPdfPolygonPointsAt00,
+  get24HexPdfPolygonPointsAt00,
   getBattlementSvgPolygonPoints,
   getCastleArchShapeSvgPolygonPoints,
   getCastleCornerShapeSvgPolygonPoints,
@@ -52,12 +52,15 @@ import {
   getSvgHexSubLevelBorderColor,
   getSvgHexSubLevelFillColor,
 } from '../svg-map/getSvgHexColors'
+import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
+import { svgHiveBlobD } from '../svg-map/svg-hive'
 import {
   type BoardHex,
   type DecodedPieceID,
   HexTerrain,
   Pieces,
 } from '../types'
+import { isFluidTerrainHex } from '../utils/board-utils'
 import {
   OPACITY_SUBLEVEL,
   PDF_BORDER_WIDTH,
@@ -71,8 +74,6 @@ import {
   svgSubLevelColors,
   virtualscapeTileColors,
 } from '../world/maphex/hexColors'
-import { svgHiveBlobD } from '../svg-map/svg-hive'
-import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 
 export const PdfEmptyHex = () => {
   // const fillColor = 'transparent'
@@ -286,9 +287,13 @@ const getPdfHexBorderForView = (
       ? isSubLevel
         ? getSvgHexSubLevelBorderColor(hex)
         : getSvgHexBorderColor(hex)
-      : isSubLevel
-        ? svgSubLevelColors.glacierText /* less saturated black, like jungle text */
-        : svgColors.glacierText
+      : isFluidTerrainHex(hex.terrain)
+        ? isSubLevel
+          ? getSvgHexSubLevelBorderColor(hex)
+          : getSvgHexBorderColor(hex)
+        : isSubLevel
+          ? svgSubLevelColors.glacierText
+          : svgColors.glacierText
     : ''
 
 export const PdfMultiHex1 = ({
