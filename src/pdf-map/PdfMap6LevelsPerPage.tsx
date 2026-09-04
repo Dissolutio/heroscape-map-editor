@@ -12,6 +12,7 @@ import {
   boardPieceToDecodedPieceID,
   getBoardHexesSvgMapDimensions,
 } from '../utils/map-utils'
+import { PdfLevelLogo } from './PdfLevelLogo'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 export const PdfMapLevels6PerPage = ({
   boardHexes,
@@ -70,14 +71,7 @@ export const PdfMapLevels6PerPage = ({
                     // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
                     key={i}
                   >
-                    <Text
-                      style={{
-                        fontSize: '10px',
-                        fontFamily: 'Proxima Nova Condensed Black',
-                      }}
-                    >
-                      {group.label ?? `Level: ${group.altitude}`}
-                    </Text>
+                    <PdfLevelChunkHeading group={group} />
                     <ReactPdfSvgMapDisplay
                       chunk={chunk[i]}
                       boardPiecesArr={decodedBoardPiecesArr}
@@ -105,9 +99,7 @@ export const PdfMapLevels6PerPage = ({
                     // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
                     key={i}
                   >
-                    <Text style={{ fontSize: '10px' }}>
-                      {group.label ?? `Level: ${group.altitude}`}
-                    </Text>
+                    <PdfLevelChunkHeading group={group} />
                     <ReactPdfSvgMapDisplay
                       chunk={chunk[i]}
                       boardPiecesArr={decodedBoardPiecesArr}
@@ -223,6 +215,22 @@ const HalfPageColumn = (props: PropsWithChildren) => {
     </View>
   )
 }
+const PdfLevelChunkHeading = ({ group }: { group: PdfMapAltitudeChunk }) => {
+  if (group.label) {
+    return (
+      <Text
+        style={{
+          fontSize: '10px',
+          fontFamily: 'Proxima Nova Condensed Black',
+        }}
+      >
+        {group.label}
+      </Text>
+    )
+  }
+  return <PdfLevelLogo level={group.altitude} width={60} />
+}
+
 const RowWrapper = (props: PropsWithChildren) => {
   return (
     <View

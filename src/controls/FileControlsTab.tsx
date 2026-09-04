@@ -7,10 +7,10 @@ import { FcAddImage, FcDownload, FcLink, FcUpload } from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore, MdFolderZip } from 'react-icons/md'
 import { getUrlMapString } from '../data/jsonCrush'
 import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
+import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
 import { LoadMapButtons } from '../layout/LoadMapButtons'
 import { DIALOGS } from '../layout/dialogNames'
 import useBoundStore from '../store/store'
-import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
 import {
   downloadSvgString,
   serializeSvgWithEmbeddedFont,
@@ -55,7 +55,10 @@ export const FileControlsTab = ({
   const handleDownloadCurrent2DSvg = async () => {
     const svgElement = document.getElementById('2d-svg-view') // Replace 'your-svg-id' with the actual ID
     if (svgElement instanceof SVGSVGElement) {
-      const svgContent = await serializeSvgWithEmbeddedFont(svgElement)
+      const svgContent = await serializeSvgWithEmbeddedFont(
+        svgElement,
+        viewingLevel,
+      )
       downloadSvgString(`${hexMap.name}-level-${viewingLevel}.svg`, svgContent)
     }
   }
@@ -94,9 +97,13 @@ export const FileControlsTab = ({
 
         const svgElement = document.getElementById('2d-svg-view')
         if (svgElement instanceof SVGSVGElement) {
-          const svgContent = await serializeSvgWithEmbeddedFont(svgElement)
+          const isOverlayLevel = level === overlayLevel
+          const svgContent = await serializeSvgWithEmbeddedFont(
+            svgElement,
+            isOverlayLevel ? undefined : level,
+          )
           downloadSvgString(
-            `${hexMap.name}-level-${level === overlayLevel ? 'overlay' : level}.svg`,
+            `${hexMap.name}-level-${isOverlayLevel ? 'overlay' : level}.svg`,
             svgContent,
           )
         }
