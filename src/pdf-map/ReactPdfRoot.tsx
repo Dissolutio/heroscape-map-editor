@@ -3,37 +3,45 @@ import {
   Document,
   Font,
   Image,
-  Page,
   PDFDownloadLink,
   PDFViewer,
+  Page,
   Text,
   View,
 } from '@react-pdf/renderer'
-import useBoundStore from '../store/store'
+import type { PropsWithChildren } from 'react'
 import { piecesSoFar } from '../data/pieces'
-import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
-import {
-  type BoardHexes,
-  type BoardPieces,
-  HexTerrain,
-  type BoardPiece,
-  type HexMap,
-} from '../types'
-import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
-import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
 import {
   countPiecesUsedWithLaurStacking,
   getCombinedInventory,
   reconcileLaurLegacyToStackableUsage,
 } from '../inventory/laurInventoryReconcile'
+import useBoundStore from '../store/store'
+import {
+  type BoardHexes,
+  type BoardPiece,
+  type BoardPieces,
+  type HexMap,
+  HexTerrain,
+} from '../types'
 import { PDF_RENDER_FORMATS } from '../utils/constants'
-import type { PropsWithChildren } from 'react'
+import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
+import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
+import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
 
 Font.register({
   family: 'Inter',
   fonts: [
     {
       src: 'fonts/Inter_18pt-Bold.ttf',
+    },
+  ],
+})
+Font.register({
+  family: 'InterItalic',
+  fonts: [
+    {
+      src: 'fonts/Inter_18pt-Italic.ttf',
     },
   ],
 })
@@ -189,6 +197,7 @@ const PdfDocumentCoverSheet = ({
               fontSize: 32,
               fontWeight: 'bold',
               marginBottom: 10,
+              fontFamily: 'Inter',
             }}
           >
             {hexMap.name}
@@ -197,6 +206,7 @@ const PdfDocumentCoverSheet = ({
             <Text
               style={{
                 fontSize: 16,
+                fontFamily: 'InterItalic',
               }}
             >
               by {hexMap.author}
