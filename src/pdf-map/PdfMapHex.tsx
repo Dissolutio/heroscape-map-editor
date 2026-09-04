@@ -1,5 +1,10 @@
 import { G, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
+import {
+  xTransformForMultiHex3Rotation,
+  yTransformForMultiHex3Rotation,
+} from '../pdf-svg-shared/textRotations'
+import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
   isCastleTerrain,
@@ -14,49 +19,44 @@ import {
   SVG_HEX_RADIUS,
 } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
+import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
+  PdfCannon,
   PdfCastleArch,
+  PdfCastleArchStraight3,
+  PdfCastleArchText,
   PdfCastleCorner,
   PdfCastleEnd,
   PdfCastleStraight,
   PdfEmptyHex,
   PdfHive6,
+  PdfJungle,
   PdfLadder,
+  PdfLaurPillar,
   PdfMarvelRuin,
   PdfMultiHex1,
   PdfMultiHex2,
-  PdfMultiHex24,
   PdfMultiHex3,
   PdfMultiHex4,
   PdfMultiHex5,
   PdfMultiHex6,
   PdfMultiHex7,
+  PdfMultiHex24,
   PdfMultiHexMarvel6,
-  PdfCastleArchStraight3,
   PdfMultiHexWallWalk7,
   PdfMultiHexWallWalk9,
+  PdfShipBow,
+  PdfShipWall,
   PdfStartZone,
+  PdfSvgFortifiedWall,
+  PdfSvgHexDecor,
   PdfSvgOutcrop3,
   PdfSvgOutcrop4,
   PdfSvgOutcrop6,
   PdfSvgRuins2,
   PdfSvgRuins3,
   PdfSvgTree415,
-  PdfLaurPillar,
-  PdfJungle,
-  PdfSvgHexDecor,
-  PdfSvgFortifiedWall,
-  PdfShipWall,
-  PdfShipBow,
-  PdfCannon,
-  PdfCastleArchText,
 } from './PdfMapShapes'
-import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
-import {
-  xTransformForMultiHex3Rotation,
-  yTransformForMultiHex3Rotation,
-} from '../pdf-svg-shared/textRotations'
-import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 
 const glyphTextProps = () => ({
   style: {
@@ -89,7 +89,9 @@ export const PdfMapHex = ({
   const { inventoryID } = hex
   const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
   const isAuxiliaryNotRenderedIn2D =
-    isObstaclePiece && (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
+    isObstaclePiece &&
+    !hex.isObstacleOrigin &&
+    (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
   const isVisible = hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)

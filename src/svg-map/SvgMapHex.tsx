@@ -96,7 +96,9 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   const { inventoryID } = decodePieceID(hex.pieceID)
   const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
   const isAuxiliaryNotRenderedIn2D =
-    isObstaclePiece && (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
+    isObstaclePiece &&
+    !hex.isObstacleOrigin &&
+    (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
   const isVisible = hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
