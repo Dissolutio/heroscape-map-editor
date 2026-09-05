@@ -2,8 +2,8 @@ import { Page, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy, uniq } from 'lodash'
 import type { PropsWithChildren } from 'react'
 import {
-  type BoardPiece,
   type BoardHexes,
+  type BoardPiece,
   type PdfMapAltitudeChunk,
   Pieces,
 } from '../types'
@@ -12,6 +12,7 @@ import {
   boardPieceToDecodedPieceID,
   getBoardHexesSvgMapDimensions,
 } from '../utils/map-utils'
+import { PdfLevelLogo } from './PdfLevelLogo'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 export const PdfMapLevels6PerPage = ({
   boardHexes,
@@ -20,6 +21,7 @@ export const PdfMapLevels6PerPage = ({
   isShowPdfOverlayLayer,
   isShowPdfOverlayOnPlacedLevel,
   isShowPdfGridLinesOverSublevels,
+  isShowPdfLevelLogo,
   useLegacyStartZones,
   children,
 }: PropsWithChildren<{
@@ -29,6 +31,7 @@ export const PdfMapLevels6PerPage = ({
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowPdfGridLinesOverSublevels: boolean
+  isShowPdfLevelLogo: boolean
   useLegacyStartZones: boolean
 }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
@@ -70,9 +73,10 @@ export const PdfMapLevels6PerPage = ({
                     // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
                     key={i}
                   >
-                    <Text style={{ fontSize: '10px' }}>
-                      {group.label ?? `Level: ${group.altitude}`}
-                    </Text>
+                    <PdfLevelChunkHeading
+                      group={group}
+                      isShowPdfLevelLogo={isShowPdfLevelLogo}
+                    />
                     <ReactPdfSvgMapDisplay
                       chunk={chunk[i]}
                       boardPiecesArr={decodedBoardPiecesArr}
@@ -100,9 +104,10 @@ export const PdfMapLevels6PerPage = ({
                     // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
                     key={i}
                   >
-                    <Text style={{ fontSize: '10px' }}>
-                      {group.label ?? `Level: ${group.altitude}`}
-                    </Text>
+                    <PdfLevelChunkHeading
+                      group={group}
+                      isShowPdfLevelLogo={isShowPdfLevelLogo}
+                    />
                     <ReactPdfSvgMapDisplay
                       chunk={chunk[i]}
                       boardPiecesArr={decodedBoardPiecesArr}
@@ -218,12 +223,38 @@ const HalfPageColumn = (props: PropsWithChildren) => {
     </View>
   )
 }
+const PdfLevelChunkHeading = ({
+  group,
+  isShowPdfLevelLogo,
+}: {
+  group: PdfMapAltitudeChunk
+  isShowPdfLevelLogo: boolean
+}) => {
+  if (group.label || !isShowPdfLevelLogo) {
+    return (
+      <Text
+        style={{
+          // The last level, the overlay layer, needs to be pushed down to line up with the chunks that have a level logo
+          // TODO this will change when we add different levels-per-page formats
+          marginTop: group.label === 'Glyphs and Start Zones' ? 12.5 : 0,
+          marginBottom: group.label === 'Glyphs and Start Zones' ? 12.5 : 0,
+          fontSize: '10px',
+          fontFamily: 'Proxima Nova Condensed Black',
+        }}
+      >
+        {group.label ?? `Level: ${group.altitude}`}
+      </Text>
+    )
+  }
+  return <PdfLevelLogo level={group.altitude} width={60} />
+}
+
 const RowWrapper = (props: PropsWithChildren) => {
   return (
     <View
       style={{
         flexBasis: '33%',
-        // maxHeight: '33%',
+        maxHeight: '33%',
       }}
     >
       {props.children}

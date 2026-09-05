@@ -3,37 +3,53 @@ import {
   Document,
   Font,
   Image,
-  Page,
   PDFDownloadLink,
   PDFViewer,
+  Page,
   Text,
   View,
 } from '@react-pdf/renderer'
-import useBoundStore from '../store/store'
+import type { PropsWithChildren } from 'react'
 import { piecesSoFar } from '../data/pieces'
-import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
-import {
-  type BoardHexes,
-  type BoardPieces,
-  HexTerrain,
-  type BoardPiece,
-  type HexMap,
-} from '../types'
-import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
-import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
 import {
   countPiecesUsedWithLaurStacking,
   getCombinedInventory,
   reconcileLaurLegacyToStackableUsage,
 } from '../inventory/laurInventoryReconcile'
+import useBoundStore from '../store/store'
+import {
+  type BoardHexes,
+  type BoardPiece,
+  type BoardPieces,
+  type HexMap,
+  HexTerrain,
+} from '../types'
 import { PDF_RENDER_FORMATS } from '../utils/constants'
-import type { PropsWithChildren } from 'react'
+import { getRequiredTerrainText } from '../utils/map-utils'
+import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
+import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
 
 Font.register({
   family: 'Inter',
   fonts: [
     {
       src: 'fonts/Inter_18pt-Bold.ttf',
+    },
+  ],
+})
+Font.register({
+  family: 'InterItalic',
+  fonts: [
+    {
+      src: 'fonts/Inter_18pt-Italic.ttf',
+    },
+  ],
+})
+Font.register({
+  family: 'Proxima Nova Condensed Black',
+  fonts: [
+    {
+      src: 'fonts/ProximaNovaCondensedBlack.otf',
     },
   ],
 })
@@ -51,6 +67,7 @@ function ReactPdfRoot() {
   const isShowPdfGridLinesOverSublevels = useBoundStore(
     (s) => s.isShowPdfGridLinesOverSublevels,
   )
+  const isShowPdfLevelLogo = useBoundStore((s) => s.isShowPdfLevelLogo)
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const isMobile = useMediaQuery('(max-width:800px)')
@@ -79,6 +96,7 @@ function ReactPdfRoot() {
             isShowPdfOverlayLayer={isShowPdfOverlayLayer}
             isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
             isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
+            isShowPdfLevelLogo={isShowPdfLevelLogo}
             isShowPDFInventory={isShowPDFInventory}
             useLegacyStartZones={useLegacyStartZones}
             pdfRenderFormat={pdfRenderFormat}
@@ -98,6 +116,7 @@ const PdfDocument = ({
   isShowPdfOverlayLayer,
   isShowPdfOverlayOnPlacedLevel,
   isShowPdfGridLinesOverSublevels,
+  isShowPdfLevelLogo,
   isShowPDFInventory,
   useLegacyStartZones,
   pdfRenderFormat,
@@ -109,6 +128,7 @@ const PdfDocument = ({
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowPdfGridLinesOverSublevels: boolean
+  isShowPdfLevelLogo: boolean
   isShowPDFInventory: boolean
   useLegacyStartZones: boolean
   pdfRenderFormat: 'coversheet' | 'shortHeader'
@@ -123,6 +143,7 @@ const PdfDocument = ({
         isShowPdfOverlayLayer={isShowPdfOverlayLayer}
         isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
         isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
+        isShowPdfLevelLogo={isShowPdfLevelLogo}
         isShowPDFInventory={isShowPDFInventory}
         useLegacyStartZones={useLegacyStartZones}
       />
@@ -138,6 +159,7 @@ const PdfDocument = ({
       isShowPdfOverlayLayer={isShowPdfOverlayLayer}
       isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
       isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
+      isShowPdfLevelLogo={isShowPdfLevelLogo}
       isShowPDFInventory={isShowPDFInventory}
       useLegacyStartZones={useLegacyStartZones}
     />
@@ -157,6 +179,7 @@ const PdfDocumentCoverSheet = ({
   isShowPdfOverlayLayer,
   isShowPdfOverlayOnPlacedLevel,
   isShowPdfGridLinesOverSublevels,
+  isShowPdfLevelLogo,
   isShowPDFInventory,
   useLegacyStartZones,
 }: {
@@ -167,6 +190,7 @@ const PdfDocumentCoverSheet = ({
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowPdfGridLinesOverSublevels: boolean
+  isShowPdfLevelLogo: boolean
   isShowPDFInventory: boolean
   useLegacyStartZones: boolean
 }) => {
@@ -189,6 +213,7 @@ const PdfDocumentCoverSheet = ({
               fontSize: 32,
               fontWeight: 'bold',
               marginBottom: 10,
+              fontFamily: 'Inter',
             }}
           >
             {hexMap.name}
@@ -197,9 +222,22 @@ const PdfDocumentCoverSheet = ({
             <Text
               style={{
                 fontSize: 16,
+                fontFamily: 'InterItalic',
               }}
             >
               by {hexMap.author}
+            </Text>
+          )}
+          {hexMap.mapNotes && (
+            <Text
+              style={{
+                fontSize: 11,
+                fontFamily: 'InterItalic',
+                marginTop: 8,
+                textAlign: 'center',
+              }}
+            >
+              {hexMap.mapNotes}
             </Text>
           )}
         </View>
@@ -230,18 +268,21 @@ const PdfDocumentCoverSheet = ({
           <View style={{ alignItems: 'center', marginTop: 20 }}>
             <Text
               style={{
-                fontSize: 12,
-                marginBottom: 5,
+                fontSize: 24,
+                marginBottom: 10,
+                // fontFamily: 'Inter',
+                textAlign: 'center',
               }}
             >
-              Requires:
+              Required Terrain
             </Text>
             <Text
               style={{
                 fontSize: 11,
+                textAlign: 'center',
               }}
             >
-              {getSetsUsedText(hexMap.setsUsed)}
+              {getRequiredTerrainText(hexMap.setsUsed)}
             </Text>
           </View>
         )}
@@ -255,6 +296,7 @@ const PdfDocumentCoverSheet = ({
         isShowPdfOverlayLayer={isShowPdfOverlayLayer}
         isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
         isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
+        isShowPdfLevelLogo={isShowPdfLevelLogo}
         useLegacyStartZones={useLegacyStartZones}
       />
 
@@ -280,6 +322,7 @@ const PdfDocumentShortHeader = ({
   isShowPdfOverlayLayer,
   isShowPdfOverlayOnPlacedLevel,
   isShowPdfGridLinesOverSublevels,
+  isShowPdfLevelLogo,
   useLegacyStartZones,
   isShowPDFInventory,
 }: {
@@ -290,6 +333,7 @@ const PdfDocumentShortHeader = ({
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowPdfGridLinesOverSublevels: boolean
+  isShowPdfLevelLogo: boolean
   useLegacyStartZones: boolean
   isShowPDFInventory: boolean
 }) => {
@@ -302,6 +346,7 @@ const PdfDocumentShortHeader = ({
         isShowPdfOverlayLayer={isShowPdfOverlayLayer}
         isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
         isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
+        isShowPdfLevelLogo={isShowPdfLevelLogo}
         useLegacyStartZones={useLegacyStartZones}
       >
         <MapPortraitHeader
@@ -331,6 +376,7 @@ const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const isShowPdfGridLinesOverSublevels = useBoundStore(
     (s) => s.isShowPdfGridLinesOverSublevels,
   )
+  const isShowPdfLevelLogo = useBoundStore((s) => s.isShowPdfLevelLogo)
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   return (
@@ -344,6 +390,7 @@ const ReactPdfDownloadLink = (props: PropsWithChildren) => {
           isShowPdfOverlayLayer={isShowPdfOverlayLayer}
           isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
           isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
+          isShowPdfLevelLogo={isShowPdfLevelLogo}
           isShowPDFInventory={isShowPDFInventory}
           useLegacyStartZones={useLegacyStartZones}
           pdfRenderFormat={pdfRenderFormat}
@@ -366,7 +413,7 @@ const MapPortraitHeader = ({
   mapNotes: string
 }) => {
   const notesHeight = 20 * Math.ceil(mapNotes.length / 134)
-  const terrainSetCounts = countTerrainSets(hexMap.setsUsed ?? [])
+  const requiredTerrainText = getRequiredTerrainText(hexMap?.setsUsed ?? [])
   return (
     <View
       style={{
@@ -406,23 +453,27 @@ const MapPortraitHeader = ({
           </Text>
         )}
       </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          flexGrow: 0,
-          padding: 0,
-          paddingBottom: 5,
-          alignContent: 'center',
-          alignItems: 'flex-start',
-          // flexBasis: 30,
-        }}
-      >
-        {Object.entries(terrainSetCounts).length > 0 && (
-          <Text style={{ fontSize: '10px' }}>
-            Requires: {getSetsUsedText(hexMap?.setsUsed ?? [])}
+      {requiredTerrainText && (
+        <View
+          style={{
+            flexDirection: 'row',
+            flexGrow: 0,
+            padding: 0,
+            paddingBottom: 5,
+            alignContent: 'center',
+            alignItems: 'flex-start',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: '10px',
+            }}
+          >
+            Required Terrain:{' '}
           </Text>
-        )}
-      </View>
+          <Text style={{ fontSize: '10px' }}>{requiredTerrainText}</Text>
+        </View>
+      )}
 
       <View
         style={{

@@ -1,5 +1,23 @@
+import {
+  LEVEL_LOGO_ASPECT_RATIO,
+  LEVEL_LOGO_LABEL_BASELINE_Y,
+  LEVEL_LOGO_LABEL_STROKE_WIDTH,
+  LEVEL_LOGO_LABEL_X,
+  LEVEL_LOGO_NUMBER_BASELINE_Y,
+  LEVEL_LOGO_NUMBER_STROKE_WIDTH,
+  LEVEL_LOGO_TEXT_BLOCK_HEIGHT,
+  LEVEL_LOGO_TEXT_FILL,
+  LEVEL_LOGO_TEXT_STROKE,
+  LEVEL_LOGO_WIDTH,
+  getLevelNumberDigits,
+} from '../pdf-svg-shared/levelLogoLayout'
+import { levelLogoShapes } from '../pdf-svg-shared/levelLogoShapes'
+import { LEVEL_LOGO_LABEL_PATH } from '../pdf-svg-shared/levelLogoTextPaths'
+
 const SVG_NS = 'http://www.w3.org/2000/svg'
 const INTER_FONT_FILE_PATH = '/fonts/Inter_18pt-Bold.ttf'
+/** Level logo occupies this fraction of the exported map's width. */
+const LEVEL_LOGO_WIDTH_RATIO = 0.2
 
 type OpenTypePath = {
   toPathData: (decimalPlaces?: number) => string
@@ -142,13 +160,115 @@ async function replaceTextNodesWithPaths(
   }
 }
 
+function appendLogoTextPath(
+  group: SVGGElement,
+  pathData: string,
+  transform: string | null,
+  strokeWidth: number | null,
+) {
+  const pathNode = document.createElementNS(SVG_NS, 'path')
+  pathNode.setAttribute('d', pathData)
+  if (transform) {
+    pathNode.setAttribute('transform', transform)
+  }
+  if (strokeWidth === null) {
+    pathNode.setAttribute('fill', LEVEL_LOGO_TEXT_FILL)
+  } else {
+    pathNode.setAttribute('fill', LEVEL_LOGO_TEXT_STROKE)
+    pathNode.setAttribute('stroke', LEVEL_LOGO_TEXT_STROKE)
+    pathNode.setAttribute('stroke-width', String(strokeWidth))
+    pathNode.setAttribute('stroke-linejoin', 'miter')
+    pathNode.setAttribute('stroke-miterlimit', '10')
+  }
+  group.appendChild(pathNode)
+}
+
+/**
+ * Draws the level plaque above the map in the exported SVG only. The viewBox is
+ * grown upwards so the logo never overlaps the map itself.
+ */
+function prependLevelLogo(clonedSvg: SVGSVGElement, level: number) {
+  const [viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight] = (
+    clonedSvg.getAttribute('viewBox') ?? ''
+  )
+    .trim()
+    .split(/[\s,]+/)
+    .map(Number)
+  if (
+    ![viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight].every(Number.isFinite) ||
+    !viewBoxWidth ||
+    !viewBoxHeight
+  ) {
+    return
+  }
+
+  const logoWidth = viewBoxWidth * LEVEL_LOGO_WIDTH_RATIO
+  const logoHeight = logoWidth / LEVEL_LOGO_ASPECT_RATIO
+  const scale = logoWidth / LEVEL_LOGO_WIDTH
+
+  clonedSvg.setAttribute(
+    'viewBox',
+    `${viewBoxX} ${viewBoxY - logoHeight} ${viewBoxWidth} ${viewBoxHeight + logoHeight}`,
+  )
+
+  const logoGroup = document.createElementNS(SVG_NS, 'g')
+  logoGroup.setAttribute(
+    'transform',
+    `translate(${viewBoxX} ${viewBoxY - logoHeight}) scale(${scale})`,
+  )
+
+  const artGroup = document.createElementNS(SVG_NS, 'g')
+  artGroup.setAttribute(
+    'transform',
+    `translate(0 ${LEVEL_LOGO_TEXT_BLOCK_HEIGHT})`,
+  )
+  for (const shape of levelLogoShapes) {
+    const pathNode = document.createElementNS(SVG_NS, 'path')
+    pathNode.setAttribute('d', shape.d)
+    pathNode.setAttribute('fill', shape.fill)
+    artGroup.appendChild(pathNode)
+  }
+  logoGroup.appendChild(artGroup)
+
+  // every stroked copy is drawn before any filled copy: emulates paint-order:stroke
+  const digits = getLevelNumberDigits(level)
+  const labelTransform = `translate(${LEVEL_LOGO_LABEL_X} ${LEVEL_LOGO_LABEL_BASELINE_Y})`
+  const digitTransform = (x: number) =>
+    `translate(${x} ${LEVEL_LOGO_NUMBER_BASELINE_Y})`
+  appendLogoTextPath(
+    logoGroup,
+    LEVEL_LOGO_LABEL_PATH,
+    labelTransform,
+    LEVEL_LOGO_LABEL_STROKE_WIDTH,
+  )
+  for (const digit of digits) {
+    appendLogoTextPath(
+      logoGroup,
+      digit.d,
+      digitTransform(digit.x),
+      LEVEL_LOGO_NUMBER_STROKE_WIDTH,
+    )
+  }
+  appendLogoTextPath(logoGroup, LEVEL_LOGO_LABEL_PATH, labelTransform, null)
+  for (const digit of digits) {
+    appendLogoTextPath(logoGroup, digit.d, digitTransform(digit.x), null)
+  }
+
+  clonedSvg.appendChild(logoGroup)
+}
+
 export async function serializeSvgWithEmbeddedFont(
   svgElement: SVGSVGElement,
+  levelLogoLevel?: number,
 ): Promise<string> {
   const sourceSvg = svgElement
   const clonedSvg = sourceSvg.cloneNode(true) as SVGSVGElement
 
   await replaceTextNodesWithPaths(sourceSvg, clonedSvg)
+
+  if (levelLogoLevel !== undefined) {
+    prependLevelLogo(clonedSvg, levelLogoLevel)
+  }
 
   if (!clonedSvg.getAttribute('xmlns')) {
     clonedSvg.setAttribute('xmlns', SVG_NS)

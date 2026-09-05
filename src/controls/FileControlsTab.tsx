@@ -7,10 +7,10 @@ import { FcAddImage, FcDownload, FcLink, FcUpload } from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore, MdFolderZip } from 'react-icons/md'
 import { getUrlMapString } from '../data/jsonCrush'
 import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
+import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
 import { LoadMapButtons } from '../layout/LoadMapButtons'
 import { DIALOGS } from '../layout/dialogNames'
 import useBoundStore from '../store/store'
-import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
 import {
   downloadSvgString,
   serializeSvgWithEmbeddedFont,
@@ -26,6 +26,9 @@ export const FileControlsTab = ({
   const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isShow2DExportLevelLogo = useBoundStore(
+    (s) => s.isShow2DExportLevelLogo,
+  )
   const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
   const toggleIsNewMapDialogOpen = useBoundStore(
     (state) => state.toggleIsNewMapDialogOpen,
@@ -55,7 +58,10 @@ export const FileControlsTab = ({
   const handleDownloadCurrent2DSvg = async () => {
     const svgElement = document.getElementById('2d-svg-view') // Replace 'your-svg-id' with the actual ID
     if (svgElement instanceof SVGSVGElement) {
-      const svgContent = await serializeSvgWithEmbeddedFont(svgElement)
+      const svgContent = await serializeSvgWithEmbeddedFont(
+        svgElement,
+        isShow2DExportLevelLogo ? viewingLevel : undefined,
+      )
       downloadSvgString(`${hexMap.name}-level-${viewingLevel}.svg`, svgContent)
     }
   }
@@ -94,9 +100,13 @@ export const FileControlsTab = ({
 
         const svgElement = document.getElementById('2d-svg-view')
         if (svgElement instanceof SVGSVGElement) {
-          const svgContent = await serializeSvgWithEmbeddedFont(svgElement)
+          const isOverlayLevel = level === overlayLevel
+          const svgContent = await serializeSvgWithEmbeddedFont(
+            svgElement,
+            isOverlayLevel || !isShow2DExportLevelLogo ? undefined : level,
+          )
           downloadSvgString(
-            `${hexMap.name}-level-${level === overlayLevel ? 'overlay' : level}.svg`,
+            `${hexMap.name}-level-${isOverlayLevel ? 'overlay' : level}.svg`,
             svgContent,
           )
         }

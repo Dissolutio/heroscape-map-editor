@@ -1,4 +1,4 @@
-import { Path, Svg, type SVGProps } from '@react-pdf/renderer'
+import { Path, type SVGProps, Svg } from '@react-pdf/renderer'
 
 export const PdfSvgHeroscapeLogo = ({
   svgProps,

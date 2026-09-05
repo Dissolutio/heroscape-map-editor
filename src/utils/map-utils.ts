@@ -1,4 +1,7 @@
+import { nanoid } from 'nanoid'
 import { Vector3 } from 'three'
+import { piecesSoFar } from '../data/pieces'
+import { terrainSetsByShortID } from '../data/terrainSets'
 import type {
   BoardHex,
   BoardHexes,
@@ -25,9 +28,6 @@ import {
   hexUtilsGetNeighborForRotation,
   hexUtilsGetRadialFarNeighborForRotation,
 } from './hex-utils'
-import { piecesSoFar } from '../data/pieces'
-import { terrainSetsByShortID } from '../data/terrainSets'
-import { nanoid } from 'nanoid'
 
 export const getBoardHexesRectangularMapDimensions = (
   boardHexes: BoardHexes,
@@ -301,6 +301,24 @@ export const getSetsUsedText = (setsUsed: string[]) => {
     return `${setNameText} ${countText}${isCommaAfter ? ', ' : ''}`
   })
   return res.join('')
+}
+
+export const getRequiredTerrainText = (setsUsed: string[]) => {
+  const terrainSetCounts = countTerrainSets(setsUsed)
+  const entries = Object.entries(terrainSetCounts)
+
+  if (!entries.length) {
+    return ''
+  }
+
+  const formattedEntries = entries.map(([key, count]) => {
+    const set = terrainSetsByShortID[key as keyof typeof terrainSetsByShortID]
+    const setLabel = set?.name ? set.name : key
+    const setType = set?.setType ? ` ${set.setType}` : ''
+    return `${setLabel}${setType} (x${count})`
+  })
+
+  return `${formattedEntries.join(', ')}`
 }
 
 export const inflateBoardPiecesFromIds = (ids: string[]): BoardPiece[] => {
