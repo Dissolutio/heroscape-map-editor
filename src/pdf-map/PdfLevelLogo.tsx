@@ -1,7 +1,9 @@
 import { G, Path, Svg } from '@react-pdf/renderer'
 import {
   LEVEL_LOGO_ASPECT_RATIO,
+  LEVEL_LOGO_LABEL_BASELINE_Y,
   LEVEL_LOGO_LABEL_STROKE_WIDTH,
+  LEVEL_LOGO_LABEL_X,
   LEVEL_LOGO_NUMBER_BASELINE_Y,
   LEVEL_LOGO_NUMBER_STROKE_WIDTH,
   LEVEL_LOGO_TEXT_BLOCK_HEIGHT,
@@ -12,6 +14,8 @@ import {
 } from '../pdf-svg-shared/levelLogoLayout'
 import { levelLogoShapes } from '../pdf-svg-shared/levelLogoShapes'
 import { LEVEL_LOGO_LABEL_PATH } from '../pdf-svg-shared/levelLogoTextPaths'
+
+const labelTransform = `translate(${LEVEL_LOGO_LABEL_X}, ${LEVEL_LOGO_LABEL_BASELINE_Y})`
 
 export const PdfLevelLogo = ({
   level,
@@ -35,6 +39,7 @@ export const PdfLevelLogo = ({
       {/* every stroked copy is drawn before any filled copy: emulates paint-order:stroke */}
       <Path
         d={LEVEL_LOGO_LABEL_PATH}
+        transform={labelTransform}
         fill={LEVEL_LOGO_TEXT_STROKE}
         stroke={LEVEL_LOGO_TEXT_STROKE}
         strokeWidth={LEVEL_LOGO_LABEL_STROKE_WIDTH}
@@ -54,7 +59,11 @@ export const PdfLevelLogo = ({
           />
         ))}
       </G>
-      <Path d={LEVEL_LOGO_LABEL_PATH} fill={LEVEL_LOGO_TEXT_FILL} />
+      <Path
+        d={LEVEL_LOGO_LABEL_PATH}
+        transform={labelTransform}
+        fill={LEVEL_LOGO_TEXT_FILL}
+      />
       <G transform={`translate(0, ${LEVEL_LOGO_NUMBER_BASELINE_Y})`}>
         {digits.map((digit, i) => (
           <Path

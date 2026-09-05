@@ -1,6 +1,8 @@
 import {
   LEVEL_LOGO_ASPECT_RATIO,
+  LEVEL_LOGO_LABEL_BASELINE_Y,
   LEVEL_LOGO_LABEL_STROKE_WIDTH,
+  LEVEL_LOGO_LABEL_X,
   LEVEL_LOGO_NUMBER_BASELINE_Y,
   LEVEL_LOGO_NUMBER_STROKE_WIDTH,
   LEVEL_LOGO_TEXT_BLOCK_HEIGHT,
@@ -230,12 +232,13 @@ function prependLevelLogo(clonedSvg: SVGSVGElement, level: number) {
 
   // every stroked copy is drawn before any filled copy: emulates paint-order:stroke
   const digits = getLevelNumberDigits(level)
+  const labelTransform = `translate(${LEVEL_LOGO_LABEL_X} ${LEVEL_LOGO_LABEL_BASELINE_Y})`
   const digitTransform = (x: number) =>
     `translate(${x} ${LEVEL_LOGO_NUMBER_BASELINE_Y})`
   appendLogoTextPath(
     logoGroup,
     LEVEL_LOGO_LABEL_PATH,
-    null,
+    labelTransform,
     LEVEL_LOGO_LABEL_STROKE_WIDTH,
   )
   for (const digit of digits) {
@@ -246,7 +249,7 @@ function prependLevelLogo(clonedSvg: SVGSVGElement, level: number) {
       LEVEL_LOGO_NUMBER_STROKE_WIDTH,
     )
   }
-  appendLogoTextPath(logoGroup, LEVEL_LOGO_LABEL_PATH, null, null)
+  appendLogoTextPath(logoGroup, LEVEL_LOGO_LABEL_PATH, labelTransform, null)
   for (const digit of digits) {
     appendLogoTextPath(logoGroup, digit.d, digitTransform(digit.x), null)
   }

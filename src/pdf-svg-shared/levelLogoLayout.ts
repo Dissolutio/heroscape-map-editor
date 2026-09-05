@@ -5,10 +5,11 @@ import {
 import {
   LEVEL_LOGO_DIGIT_ADVANCE_WIDTHS,
   LEVEL_LOGO_DIGIT_PATHS,
+  LEVEL_LOGO_LABEL_ADVANCE_WIDTH,
 } from './levelLogoTextPaths'
 
 /** Vertical space reserved above the plaque artwork for the "LEVEL 01" text. */
-export const LEVEL_LOGO_TEXT_BLOCK_HEIGHT = 12
+export const LEVEL_LOGO_TEXT_BLOCK_HEIGHT = 6
 
 export const LEVEL_LOGO_WIDTH = LEVEL_LOGO_VIEWBOX_WIDTH
 export const LEVEL_LOGO_HEIGHT =
@@ -18,13 +19,13 @@ export const LEVEL_LOGO_VIEWBOX = `0 0 ${LEVEL_LOGO_WIDTH} ${LEVEL_LOGO_HEIGHT}`
 
 export const LEVEL_LOGO_TEXT_FILL = '#3A2665'
 export const LEVEL_LOGO_TEXT_STROKE = '#ffffff'
-export const LEVEL_LOGO_LABEL_STROKE_WIDTH = 0.8
+export const LEVEL_LOGO_LABEL_STROKE_WIDTH = 1.2
 export const LEVEL_LOGO_NUMBER_STROKE_WIDTH = 1.2
 
-// x/baseline the glyph paths in levelLogoTextPaths.ts were baked at; changing
-// these requires regenerating that file.
-export const LEVEL_LOGO_TEXT_X = 2.5
-export const LEVEL_LOGO_NUMBER_BASELINE_Y = 16.5
+export const LEVEL_LOGO_LABEL_BASELINE_Y = 8
+export const LEVEL_LOGO_LABEL_X =
+  (LEVEL_LOGO_WIDTH - LEVEL_LOGO_LABEL_ADVANCE_WIDTH) / 2
+export const LEVEL_LOGO_NUMBER_BASELINE_Y = 18.5
 
 /** Maps never exceed 99 levels, so a 2-digit zero-padded number is enough. */
 export const formatLevelNumber = (level: number) =>
@@ -33,13 +34,15 @@ export const formatLevelNumber = (level: number) =>
 export type LevelLogoDigit = { d: string; x: number }
 
 export const getLevelNumberDigits = (level: number): LevelLogoDigit[] => {
-  let x = LEVEL_LOGO_TEXT_X
-  return formatLevelNumber(level)
-    .split('')
-    .map((char) => {
-      const digit = Number(char)
-      const placed = { d: LEVEL_LOGO_DIGIT_PATHS[digit], x }
-      x += LEVEL_LOGO_DIGIT_ADVANCE_WIDTHS[digit]
-      return placed
-    })
+  const digits = formatLevelNumber(level).split('').map(Number)
+  const totalWidth = digits.reduce(
+    (sum, digit) => sum + LEVEL_LOGO_DIGIT_ADVANCE_WIDTHS[digit],
+    0,
+  )
+  let x = (LEVEL_LOGO_WIDTH - totalWidth) / 2
+  return digits.map((digit) => {
+    const placed = { d: LEVEL_LOGO_DIGIT_PATHS[digit], x }
+    x += LEVEL_LOGO_DIGIT_ADVANCE_WIDTHS[digit]
+    return placed
+  })
 }
