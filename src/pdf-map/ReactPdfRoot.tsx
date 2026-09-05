@@ -25,7 +25,7 @@ import {
   HexTerrain,
 } from '../types'
 import { PDF_RENDER_FORMATS } from '../utils/constants'
-import { countTerrainSets, getSetsUsedText } from '../utils/map-utils'
+import { getRequiredTerrainText } from '../utils/map-utils'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
 
@@ -268,18 +268,21 @@ const PdfDocumentCoverSheet = ({
           <View style={{ alignItems: 'center', marginTop: 20 }}>
             <Text
               style={{
-                fontSize: 12,
-                marginBottom: 5,
+                fontSize: 24,
+                marginBottom: 10,
+                // fontFamily: 'Inter',
+                textAlign: 'center',
               }}
             >
-              Requires:
+              Required Terrain
             </Text>
             <Text
               style={{
                 fontSize: 11,
+                textAlign: 'center',
               }}
             >
-              {getSetsUsedText(hexMap.setsUsed)}
+              {getRequiredTerrainText(hexMap.setsUsed)}
             </Text>
           </View>
         )}
@@ -410,7 +413,7 @@ const MapPortraitHeader = ({
   mapNotes: string
 }) => {
   const notesHeight = 20 * Math.ceil(mapNotes.length / 134)
-  const terrainSetCounts = countTerrainSets(hexMap.setsUsed ?? [])
+  const requiredTerrainText = getRequiredTerrainText(hexMap?.setsUsed ?? [])
   return (
     <View
       style={{
@@ -450,23 +453,27 @@ const MapPortraitHeader = ({
           </Text>
         )}
       </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          flexGrow: 0,
-          padding: 0,
-          paddingBottom: 5,
-          alignContent: 'center',
-          alignItems: 'flex-start',
-          // flexBasis: 30,
-        }}
-      >
-        {Object.entries(terrainSetCounts).length > 0 && (
-          <Text style={{ fontSize: '10px' }}>
-            Requires: {getSetsUsedText(hexMap?.setsUsed ?? [])}
+      {requiredTerrainText && (
+        <View
+          style={{
+            flexDirection: 'row',
+            flexGrow: 0,
+            padding: 0,
+            paddingBottom: 5,
+            alignContent: 'center',
+            alignItems: 'flex-start',
+          }}
+        >
+          <Text
+            style={{
+              fontSize: '10px',
+            }}
+          >
+            Required Terrain:{' '}
           </Text>
-        )}
-      </View>
+          <Text style={{ fontSize: '10px' }}>{requiredTerrainText}</Text>
+        </View>
+      )}
 
       <View
         style={{
