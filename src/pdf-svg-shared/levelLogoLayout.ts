@@ -9,7 +9,7 @@ import {
 } from './levelLogoTextPaths'
 
 /** Vertical space reserved above the plaque artwork for the "LEVEL 01" text. */
-export const LEVEL_LOGO_TEXT_BLOCK_HEIGHT = 6
+export const LEVEL_LOGO_TEXT_BLOCK_HEIGHT = 7
 
 export const LEVEL_LOGO_WIDTH = LEVEL_LOGO_VIEWBOX_WIDTH
 export const LEVEL_LOGO_HEIGHT =
@@ -25,7 +25,7 @@ export const LEVEL_LOGO_NUMBER_STROKE_WIDTH = 1.2
 export const LEVEL_LOGO_LABEL_BASELINE_Y = 8
 export const LEVEL_LOGO_LABEL_X =
   (LEVEL_LOGO_WIDTH - LEVEL_LOGO_LABEL_ADVANCE_WIDTH) / 2
-export const LEVEL_LOGO_NUMBER_BASELINE_Y = 18.5
+export const LEVEL_LOGO_NUMBER_BASELINE_Y = 17.5
 
 /** Maps never exceed 99 levels, so a 2-digit zero-padded number is enough. */
 export const formatLevelNumber = (level: number) =>
