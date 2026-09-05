@@ -228,6 +228,18 @@ const PdfDocumentCoverSheet = ({
               by {hexMap.author}
             </Text>
           )}
+          {hexMap.mapNotes && (
+            <Text
+              style={{
+                fontSize: 11,
+                fontFamily: 'InterItalic',
+                marginTop: 8,
+                textAlign: 'center',
+              }}
+            >
+              {hexMap.mapNotes}
+            </Text>
+          )}
         </View>
 
         {/* Map Image - centered and takes majority of space */}
