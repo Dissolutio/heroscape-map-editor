@@ -110,6 +110,8 @@ export interface UISlice {
   toggleIsShowPdfGridLinesOverSublevels: (b: boolean) => void
   isShowPdfLevelLogo: boolean
   toggleIsShowPdfLevelLogo: (b: boolean) => void
+  isShowPdfTileLetters: boolean
+  toggleIsShowPdfTileLetters: (b: boolean) => void
   pdfRenderFormat: 'coversheet' | 'shortHeader'
   setPdfRenderFormat: (format: 'coversheet' | 'shortHeader') => void
   // SVG STATE
@@ -117,6 +119,8 @@ export interface UISlice {
   toggleIs2DOverlayLevelEnabled: (b: boolean) => void
   isShow2DExportLevelLogo: boolean
   toggleIsShow2DExportLevelLogo: (b: boolean) => void
+  isShow2DExportTileLetters: boolean
+  toggleIsShow2DExportTileLetters: (b: boolean) => void
   useLegacyStartZones: boolean
   toggleUseLegacyStartZones: (b: boolean) => void
 }
@@ -397,6 +401,13 @@ const createUISlice: StateCreator<
         s.isShowPdfLevelLogo = b
       }),
     ),
+  isShowPdfTileLetters: false,
+  toggleIsShowPdfTileLetters: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowPdfTileLetters = b
+      }),
+    ),
   pdfRenderFormat: 'coversheet',
   setPdfRenderFormat: (format: 'coversheet' | 'shortHeader') =>
     set(
@@ -416,6 +427,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isShow2DExportLevelLogo = b
+      }),
+    ),
+  isShow2DExportTileLetters: true,
+  toggleIsShow2DExportTileLetters: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShow2DExportTileLetters = b
       }),
     ),
   useLegacyStartZones: false,

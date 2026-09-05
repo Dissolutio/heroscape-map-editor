@@ -19,6 +19,11 @@ import {
   SVG_HEX_RADIUS,
 } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
+import {
+  getTerrainTileLetter,
+  getTileLetterPosition,
+  shouldDisplayTerrainTileLetter,
+} from '../utils/tileLetters'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
   PdfCannon,
@@ -69,12 +74,42 @@ const glyphTextProps = () => ({
   dominantBaseline: 'central' as const,
 })
 
+const TerrainTileLetterText = ({
+  hex,
+  viewingLevel,
+  enabled,
+}: {
+  hex: BoardHex
+  viewingLevel: number
+  enabled: boolean
+}) => {
+  if (!enabled || !shouldDisplayTerrainTileLetter(hex, viewingLevel)) {
+    return null
+  }
+  const terrainLetter = getTerrainTileLetter(hex.terrain)
+  if (!terrainLetter) {
+    return null
+  }
+  const position = getTileLetterPosition(hex)
+  return (
+    <Text
+      fill={terrainLetter.isBlack ? '#000000' : '#FFFFFF'}
+      {...pdfTextProps()}
+      x={position.x}
+      y={position.y}
+    >
+      {terrainLetter.letter}
+    </Text>
+  )
+}
+
 export const PdfMapHex = ({
   hex,
   viewingLevel,
   isOverlayViewing,
   isPdfColorBorders,
   isShowPdfOverlayOnPlacedLevel,
+  isShowPdfTileLetters,
   useLegacyStartZones,
 }: {
   hex: BoardHex
@@ -82,6 +117,7 @@ export const PdfMapHex = ({
   isOverlayViewing: boolean
   isPdfColorBorders: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
+  isShowPdfTileLetters: boolean
   useLegacyStartZones: boolean
 }) => {
   const pixel = hexUtilsHexToPixel(hex)
@@ -519,6 +555,11 @@ export const PdfMapHex = ({
           isSubLevel={isSubLevel}
           useTerrainBorderColor={isPdfColorBorders}
         />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
+        />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -536,6 +577,11 @@ export const PdfMapHex = ({
           hex={hex}
           isSubLevel={isSubLevel}
           useTerrainBorderColor={isPdfColorBorders}
+        />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
@@ -555,6 +601,11 @@ export const PdfMapHex = ({
           isSubLevel={isSubLevel}
           useTerrainBorderColor={isPdfColorBorders}
         />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
+        />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -572,6 +623,11 @@ export const PdfMapHex = ({
           hex={hex}
           isSubLevel={isSubLevel}
           useTerrainBorderColor={isPdfColorBorders}
+        />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
@@ -591,6 +647,11 @@ export const PdfMapHex = ({
           isSubLevel={isSubLevel}
           useTerrainBorderColor={isPdfColorBorders}
         />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
+        />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -608,6 +669,11 @@ export const PdfMapHex = ({
           hex={hex}
           isSubLevel={isSubLevel}
           useTerrainBorderColor={isPdfColorBorders}
+        />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
@@ -627,6 +693,11 @@ export const PdfMapHex = ({
           isSubLevel={isSubLevel}
           useTerrainBorderColor={isPdfColorBorders}
         />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
+        />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -644,6 +715,11 @@ export const PdfMapHex = ({
           hex={hex}
           isSubLevel={isSubLevel}
           useTerrainBorderColor={isPdfColorBorders}
+        />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
@@ -663,6 +739,11 @@ export const PdfMapHex = ({
           isSubLevel={isSubLevel}
           useTerrainBorderColor={isPdfColorBorders}
         />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
+        />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -677,6 +758,11 @@ export const PdfMapHex = ({
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
+        />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -694,6 +780,11 @@ export const PdfMapHex = ({
           hex={hex}
           isSubLevel={isSubLevel}
           useTerrainBorderColor={isPdfColorBorders}
+        />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>

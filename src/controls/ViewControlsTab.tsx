@@ -339,6 +339,10 @@ const PdfPreferencesSwitchForm = () => {
   const toggleIsShowPdfLevelLogo = useBoundStore(
     (s) => s.toggleIsShowPdfLevelLogo,
   )
+  const isShowPdfTileLetters = useBoundStore((s) => s.isShowPdfTileLetters)
+  const toggleIsShowPdfTileLetters = useBoundStore(
+    (s) => s.toggleIsShowPdfTileLetters,
+  )
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const setPdfRenderFormat = useBoundStore((s) => s.setPdfRenderFormat)
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
@@ -374,6 +378,11 @@ const PdfPreferencesSwitchForm = () => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIsShowPdfLevelLogo(event.target.checked)
+  }
+  const handleChangeShowPdfTileLetters = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShowPdfTileLetters(event.target.checked)
   }
   const handleChangePdfRenderFormat = (
     event: SelectChangeEvent<'coversheet' | 'shortHeader'>,
@@ -460,6 +469,17 @@ const PdfPreferencesSwitchForm = () => {
           control={
             <Switch
               size="small"
+              checked={isShowPdfTileLetters}
+              onChange={handleChangeShowPdfTileLetters}
+            />
+          }
+          label="Show Tile Letters"
+          title="Enable/disable terrain tile letters on current-level land in PDF output"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
               checked={useLegacyStartZones}
               onChange={handleChangeUseLegacyStartZones}
             />
@@ -502,6 +522,12 @@ const SVGPreferencesSwitchForm = () => {
   const toggleIsShow2DExportLevelLogo = useBoundStore(
     (s) => s.toggleIsShow2DExportLevelLogo,
   )
+  const isShow2DExportTileLetters = useBoundStore(
+    (s) => s.isShow2DExportTileLetters,
+  )
+  const toggleIsShow2DExportTileLetters = useBoundStore(
+    (s) => s.toggleIsShow2DExportTileLetters,
+  )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const toggleUseLegacyStartZones = useBoundStore(
     (s) => s.toggleUseLegacyStartZones,
@@ -515,6 +541,11 @@ const SVGPreferencesSwitchForm = () => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIsShow2DExportLevelLogo(event.target.checked)
+  }
+  const handleChangeShow2DExportTileLetters = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShow2DExportTileLetters(event.target.checked)
   }
   const handleChangeUseLegacyStartZones = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -547,6 +578,17 @@ const SVGPreferencesSwitchForm = () => {
           }
           label="Add Level Logo to SVG Exports"
           title="Enable/disable the illustrated level plaque added above the map when downloading SVGs (it is never shown in the 2D view itself)"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShow2DExportTileLetters}
+              onChange={handleChangeShow2DExportTileLetters}
+            />
+          }
+          label="Show Tile Letters"
+          title="Enable/disable terrain tile letters on current-level land in SVG output"
         />
         <FormControlLabel
           control={

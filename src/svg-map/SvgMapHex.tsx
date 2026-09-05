@@ -19,6 +19,11 @@ import {
 } from '../utils/constants'
 import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
+import {
+  getTerrainTileLetter,
+  getTileLetterPosition,
+  shouldDisplayTerrainTileLetter,
+} from '../utils/tileLetters'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
   SvgCannon,
@@ -84,8 +89,40 @@ const glyphTextProps = (glyphText: string) => {
   }
 }
 
+const TerrainTileLetterText = ({
+  hex,
+  viewingLevel,
+  enabled,
+}: {
+  hex: BoardHex
+  viewingLevel: number
+  enabled: boolean
+}) => {
+  if (!enabled || !shouldDisplayTerrainTileLetter(hex, viewingLevel)) {
+    return null
+  }
+  const terrainLetter = getTerrainTileLetter(hex.terrain)
+  if (!terrainLetter) {
+    return null
+  }
+  const position = getTileLetterPosition(hex)
+  return (
+    <text
+      fill={terrainLetter.isBlack ? '#000000' : '#FFFFFF'}
+      {...singleHexObstacleHeightTextProps()}
+      x={position.x}
+      y={position.y}
+    >
+      {terrainLetter.letter}
+    </text>
+  )
+}
+
 export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isShow2DExportTileLetters = useBoundStore(
+    (s) => s.isShow2DExportTileLetters,
+  )
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
   )
@@ -502,6 +539,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShow2DExportTileLetters}
+        />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
@@ -516,6 +558,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex2 hex={hex} isSubLevel={isSubLevel} />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShow2DExportTileLetters}
+        />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
@@ -530,6 +577,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex4 hex={hex} isSubLevel={isSubLevel} />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShow2DExportTileLetters}
+        />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
@@ -544,6 +596,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex3 hex={hex} isSubLevel={isSubLevel} />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShow2DExportTileLetters}
+        />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
@@ -558,6 +615,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex5 hex={hex} isSubLevel={isSubLevel} />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShow2DExportTileLetters}
+        />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
@@ -572,6 +634,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex7 hex={hex} isSubLevel={isSubLevel} />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShow2DExportTileLetters}
+        />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
@@ -586,6 +653,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHexWallWalk7 hex={hex} isSubLevel={isSubLevel} />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShow2DExportTileLetters}
+        />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
@@ -600,6 +672,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHexWallWalk9 hex={hex} isSubLevel={isSubLevel} />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShow2DExportTileLetters}
+        />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
@@ -614,6 +691,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex6 hex={hex} isSubLevel={isSubLevel} />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShow2DExportTileLetters}
+        />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
@@ -628,6 +710,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShow2DExportTileLetters}
+        />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )
@@ -642,6 +729,11 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
         <SvgMultiHex24 hex={hex} isSubLevel={isSubLevel} />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShow2DExportTileLetters}
+        />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
     )

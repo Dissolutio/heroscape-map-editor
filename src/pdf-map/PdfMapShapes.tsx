@@ -1280,9 +1280,7 @@ export const PdfSvgTree415 = ({
       </G>
       <Text
         fill="white"
-        style={{
-          ...pdfTextProps().style,
-        }}
+        style={pdfHexTextStyle}
         x={treeXYForRotation?.[hex?.pieceRotation]?.x ?? 0}
         y={treeXYForRotation?.[hex?.pieceRotation]?.y ?? 0}
       >
