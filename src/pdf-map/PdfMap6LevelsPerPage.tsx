@@ -21,6 +21,7 @@ export const PdfMapLevels6PerPage = ({
   isShowPdfOverlayLayer,
   isShowPdfOverlayOnPlacedLevel,
   isShowPdfGridLinesOverSublevels,
+  isShowPdfLevelLogo,
   useLegacyStartZones,
   children,
 }: PropsWithChildren<{
@@ -30,6 +31,7 @@ export const PdfMapLevels6PerPage = ({
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowPdfGridLinesOverSublevels: boolean
+  isShowPdfLevelLogo: boolean
   useLegacyStartZones: boolean
 }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
@@ -71,7 +73,10 @@ export const PdfMapLevels6PerPage = ({
                     // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
                     key={i}
                   >
-                    <PdfLevelChunkHeading group={group} />
+                    <PdfLevelChunkHeading
+                      group={group}
+                      isShowPdfLevelLogo={isShowPdfLevelLogo}
+                    />
                     <ReactPdfSvgMapDisplay
                       chunk={chunk[i]}
                       boardPiecesArr={decodedBoardPiecesArr}
@@ -99,7 +104,10 @@ export const PdfMapLevels6PerPage = ({
                     // biome-ignore lint/suspicious/noArrayIndexKey: <fine in this case>
                     key={i}
                   >
-                    <PdfLevelChunkHeading group={group} />
+                    <PdfLevelChunkHeading
+                      group={group}
+                      isShowPdfLevelLogo={isShowPdfLevelLogo}
+                    />
                     <ReactPdfSvgMapDisplay
                       chunk={chunk[i]}
                       boardPiecesArr={decodedBoardPiecesArr}
@@ -215,8 +223,14 @@ const HalfPageColumn = (props: PropsWithChildren) => {
     </View>
   )
 }
-const PdfLevelChunkHeading = ({ group }: { group: PdfMapAltitudeChunk }) => {
-  if (group.label) {
+const PdfLevelChunkHeading = ({
+  group,
+  isShowPdfLevelLogo,
+}: {
+  group: PdfMapAltitudeChunk
+  isShowPdfLevelLogo: boolean
+}) => {
+  if (group.label || !isShowPdfLevelLogo) {
     return (
       <Text
         style={{
@@ -224,7 +238,7 @@ const PdfLevelChunkHeading = ({ group }: { group: PdfMapAltitudeChunk }) => {
           fontFamily: 'Proxima Nova Condensed Black',
         }}
       >
-        {group.label}
+        {group.label ?? `Level: ${group.altitude}`}
       </Text>
     )
   }

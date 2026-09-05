@@ -1,14 +1,14 @@
 import {
   Box,
+  FormControl,
   FormControlLabel,
   FormGroup,
-  Switch,
-  List,
-  FormControl,
   FormLabel,
-  Select,
+  List,
   MenuItem,
+  Select,
   type SelectChangeEvent,
+  Switch,
 } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
 import React from 'react'
@@ -20,20 +20,20 @@ import {
   FcSynchronize,
   FcUnlock,
 } from 'react-icons/fc'
+import type { Group, Object3DEventMap } from 'three'
 import useEvent from '../hooks/useEvent'
 import useBoundStore from '../store/store'
-import { EVENTS } from '../utils/constants'
-import type { Group, Object3DEventMap } from 'three'
-import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { zoomToMap } from '../utils/camera-utils'
-import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
+import { EVENTS } from '../utils/constants'
 import {
-  PDF_RENDER_FORMATS,
-  PDF_FORMAT_LABELS,
   PDF_FORMAT_DESCRIPTIONS,
+  PDF_FORMAT_LABELS,
+  PDF_RENDER_FORMATS,
 } from '../utils/constants'
-import { useHotkeyConfig } from './useHotkeyConfig'
+import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
+import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { HotkeyText } from './HotKeyText'
+import { useHotkeyConfig } from './useHotkeyConfig'
 
 export default function ViewControlsTab({
   cameraControlsRef,
@@ -335,6 +335,10 @@ const PdfPreferencesSwitchForm = () => {
   const toggleIsShowPdfGridLinesOverSublevels = useBoundStore(
     (s) => s.toggleIsShowPdfGridLinesOverSublevels,
   )
+  const isShowPdfLevelLogo = useBoundStore((s) => s.isShowPdfLevelLogo)
+  const toggleIsShowPdfLevelLogo = useBoundStore(
+    (s) => s.toggleIsShowPdfLevelLogo,
+  )
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const setPdfRenderFormat = useBoundStore((s) => s.setPdfRenderFormat)
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
@@ -365,6 +369,11 @@ const PdfPreferencesSwitchForm = () => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIsShowPdfGridLinesOverSublevels(event.target.checked)
+  }
+  const handleChangeShowPdfLevelLogo = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShowPdfLevelLogo(event.target.checked)
   }
   const handleChangePdfRenderFormat = (
     event: SelectChangeEvent<'coversheet' | 'shortHeader'>,
@@ -440,6 +449,17 @@ const PdfPreferencesSwitchForm = () => {
           control={
             <Switch
               size="small"
+              checked={isShowPdfLevelLogo}
+              onChange={handleChangeShowPdfLevelLogo}
+            />
+          }
+          label="Show Level Logo"
+          title="Enable/disable the illustrated level plaque above each level in PDF, when disabled a plain text label is used instead"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
               checked={useLegacyStartZones}
               onChange={handleChangeUseLegacyStartZones}
             />
@@ -476,6 +496,12 @@ const SVGPreferencesSwitchForm = () => {
   const toggleIs2DOverlayLevelEnabled = useBoundStore(
     (s) => s.toggleIs2DOverlayLevelEnabled,
   )
+  const isShow2DExportLevelLogo = useBoundStore(
+    (s) => s.isShow2DExportLevelLogo,
+  )
+  const toggleIsShow2DExportLevelLogo = useBoundStore(
+    (s) => s.toggleIsShow2DExportLevelLogo,
+  )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const toggleUseLegacyStartZones = useBoundStore(
     (s) => s.toggleUseLegacyStartZones,
@@ -484,6 +510,11 @@ const SVGPreferencesSwitchForm = () => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIs2DOverlayLevelEnabled(event.target.checked)
+  }
+  const handleChangeShow2DExportLevelLogo = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShow2DExportLevelLogo(event.target.checked)
   }
   const handleChangeUseLegacyStartZones = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -505,6 +536,17 @@ const SVGPreferencesSwitchForm = () => {
           }
           label="View Objective Layer"
           title="Enable/disable an overlay level of the map with startzones, objectives, and glyphs (they will not be shown on their placed levels)"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShow2DExportLevelLogo}
+              onChange={handleChangeShow2DExportLevelLogo}
+            />
+          }
+          label="Add Level Logo to SVG Exports"
+          title="Enable/disable the illustrated level plaque added above the map when downloading SVGs (it is never shown in the 2D view itself)"
         />
         <FormControlLabel
           control={

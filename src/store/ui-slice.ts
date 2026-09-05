@@ -1,7 +1,8 @@
 import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
-import type { AppState } from './store'
+import { blankPieceInventory } from '../inventory/blankInventory'
+import { DIALOGS } from '../layout/dialogNames'
 import {
   type BoardHex,
   type BoardPiece,
@@ -10,8 +11,7 @@ import {
   SELECT_PEN_MODE,
   type TerrainConstraintSource,
 } from '../types'
-import { blankPieceInventory } from '../inventory/blankInventory'
-import { DIALOGS } from '../layout/dialogNames'
+import type { AppState } from './store'
 
 export interface UISlice {
   // TODO: persisted state below
@@ -108,11 +108,15 @@ export interface UISlice {
   toggleIsShowPdfOverlayOnPlacedLevel: (b: boolean) => void
   isShowPdfGridLinesOverSublevels: boolean
   toggleIsShowPdfGridLinesOverSublevels: (b: boolean) => void
+  isShowPdfLevelLogo: boolean
+  toggleIsShowPdfLevelLogo: (b: boolean) => void
   pdfRenderFormat: 'coversheet' | 'shortHeader'
   setPdfRenderFormat: (format: 'coversheet' | 'shortHeader') => void
   // SVG STATE
   is2DOverlayLevelEnabled: boolean
   toggleIs2DOverlayLevelEnabled: (b: boolean) => void
+  isShow2DExportLevelLogo: boolean
+  toggleIsShow2DExportLevelLogo: (b: boolean) => void
   useLegacyStartZones: boolean
   toggleUseLegacyStartZones: (b: boolean) => void
 }
@@ -386,6 +390,13 @@ const createUISlice: StateCreator<
         s.isShowPdfGridLinesOverSublevels = b
       }),
     ),
+  isShowPdfLevelLogo: true,
+  toggleIsShowPdfLevelLogo: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowPdfLevelLogo = b
+      }),
+    ),
   pdfRenderFormat: 'coversheet',
   setPdfRenderFormat: (format: 'coversheet' | 'shortHeader') =>
     set(
@@ -398,6 +409,13 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.is2DOverlayLevelEnabled = b
+      }),
+    ),
+  isShow2DExportLevelLogo: true,
+  toggleIsShow2DExportLevelLogo: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShow2DExportLevelLogo = b
       }),
     ),
   useLegacyStartZones: false,

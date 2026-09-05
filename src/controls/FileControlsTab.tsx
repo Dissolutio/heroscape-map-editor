@@ -26,6 +26,9 @@ export const FileControlsTab = ({
   const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isShow2DExportLevelLogo = useBoundStore(
+    (s) => s.isShow2DExportLevelLogo,
+  )
   const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
   const toggleIsNewMapDialogOpen = useBoundStore(
     (state) => state.toggleIsNewMapDialogOpen,
@@ -57,7 +60,7 @@ export const FileControlsTab = ({
     if (svgElement instanceof SVGSVGElement) {
       const svgContent = await serializeSvgWithEmbeddedFont(
         svgElement,
-        viewingLevel,
+        isShow2DExportLevelLogo ? viewingLevel : undefined,
       )
       downloadSvgString(`${hexMap.name}-level-${viewingLevel}.svg`, svgContent)
     }
@@ -100,7 +103,7 @@ export const FileControlsTab = ({
           const isOverlayLevel = level === overlayLevel
           const svgContent = await serializeSvgWithEmbeddedFont(
             svgElement,
-            isOverlayLevel ? undefined : level,
+            isOverlayLevel || !isShow2DExportLevelLogo ? undefined : level,
           )
           downloadSvgString(
             `${hexMap.name}-level-${isOverlayLevel ? 'overlay' : level}.svg`,
