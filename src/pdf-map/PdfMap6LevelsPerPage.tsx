@@ -234,6 +234,10 @@ const PdfLevelChunkHeading = ({
     return (
       <Text
         style={{
+          // The last level, the overlay layer, needs to be pushed down to line up with the chunks that have a level logo
+          // TODO this will change when we add different levels-per-page formats
+          marginTop: group.label === 'Glyphs and Start Zones' ? 12.5 : 0,
+          marginBottom: group.label === 'Glyphs and Start Zones' ? 12.5 : 0,
           fontSize: '10px',
           fontFamily: 'Proxima Nova Condensed Black',
         }}
