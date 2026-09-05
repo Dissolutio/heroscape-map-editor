@@ -7,20 +7,22 @@ import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import {
-  HEXGRID_HEX_HEIGHT,
   HEXGRID_HEXCAP_FLUID_HEIGHT,
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
+  HEXGRID_HEX_HEIGHT,
   HEXGRID_OBSTACLE_BASE_HEIGHT,
 } from '../utils/constants'
 import { genBoardHexID, getBoardHex3DCoords } from '../utils/map-utils'
-import BigTree415 from './models/BigTree415'
+import { hexTerrainColor } from './maphex/hexColors'
 import { Battlement } from './models/Battlement'
+import BigTree415 from './models/BigTree415'
 import Cannon from './models/Cannon'
 import ForestTree from './models/ForestTree'
 import { FortifiedWall } from './models/FortifiedWall'
 import { GlyphModel } from './models/Glyph'
 import { Ladder } from './models/Ladder'
+import LandSubterrain from './models/LandSubterrain'
 import LaurPillar from './models/LaurPillar'
 import LaurWallTrianglePillar from './models/LaurTrianglePillar'
 import { LaurWallArchAddon } from './models/LaurWallArchModel'
@@ -29,13 +31,25 @@ import { LaurWallRuinAddon } from './models/LaurWallRuinModel'
 import { LaurWallShortAddon } from './models/LaurWallShortModel'
 import MarroHive6 from './models/MarroHive6'
 import { MarvelRuin } from './models/MarvelRuin'
-import { RoadWall } from './models/RoadWall'
 import ModelLoader from './models/ModelLoader'
 import ObstacleBase from './models/ObstacleBase'
 import { Outcrop1 } from './models/Outcrop1'
 import Outcrop3 from './models/Outcrop3'
 import Outcrop4 from './models/Outcrop4'
 import Outcrop6 from './models/Outcrop6'
+import { RoadWall } from './models/RoadWall'
+import { RopeLadder } from './models/RopeLadder'
+import Ruins2 from './models/Ruins2'
+import Ruins3 from './models/Ruins3'
+import { ShipBow } from './models/ShipBow'
+import { ShipWall } from './models/ShipWall.tsx'
+import Shroudshroom7 from './models/Shroudshroom7'
+import Shroudshroom10 from './models/Shroudshroom10'
+import Shroudshroom13 from './models/Shroudshroom13'
+import { SnowEvergreenTree } from './models/SnowEvergreenTree'
+import { StartZone3D } from './models/StartZone3D'
+import JungleBrush from './models/TicallaBrush'
+import TicallaPalm from './models/TicallaPalm'
 import {
   getLadderBattlementOptions,
   getObstaclRotation,
@@ -45,20 +59,6 @@ import {
   getRoadWallOptions,
   getRuinsOptions,
 } from './models/piece-adjustments'
-import Ruins2 from './models/Ruins2'
-import Ruins3 from './models/Ruins3'
-import { RopeLadder } from './models/RopeLadder'
-import { ShipBow } from './models/ShipBow'
-import { ShipWall } from './models/ShipWall.tsx'
-import Shroudshroom10 from './models/Shroudshroom10'
-import Shroudshroom13 from './models/Shroudshroom13'
-import Shroudshroom7 from './models/Shroudshroom7'
-import { StartZone3D } from './models/StartZone3D'
-import JungleBrush from './models/TicallaBrush'
-import TicallaPalm from './models/TicallaPalm'
-import { hexTerrainColor } from './maphex/hexColors'
-import LandSubterrain from './models/LandSubterrain'
-import { SnowEvergreenTree } from './models/SnowEvergreenTree'
 
 export const MapBoardPiece3D = ({
   bp,
@@ -781,7 +781,7 @@ export const MapBoardPiece3D = ({
         position={[x, yBaseCap, z]}
         rotation={[0, pieceRotation, 0]}
         scale={
-          isFluidLandPiece ? [1, HEXGRID_HEXCAP_FLUID_SCALE, 1] : undefined
+          isFluidLandPiece ? [1, HEXGRID_HEXCAP_FLUID_SCALE, 1] : [1, 1, 1]
         }
       >
         <Suspense fallback={<ModelLoader />}>
