@@ -254,7 +254,7 @@ const RowWrapper = (props: PropsWithChildren) => {
     <View
       style={{
         flexBasis: '33%',
-        // maxHeight: '33%',
+        maxHeight: '33%',
       }}
     >
       {props.children}
