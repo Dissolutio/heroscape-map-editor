@@ -1,7 +1,7 @@
 import JSONCrush from 'jsoncrush'
 import type { BoardPiece, BoardPiecesEncodedArr, HexMap } from '../types'
-import { isHexMap } from '../utils/type-checker'
 import { encodeBoardPiecesToIds } from '../utils/map-utils'
+import { isHexMap } from '../utils/type-checker'
 
 // JSONCrush's compression scans every substring (length 2-50) of the input
 // with repeated indexOf calls, which is effectively O(n^2). Large blobs like
@@ -33,7 +33,11 @@ export const getUrlMapString = ({
   if (uncrushed.length > MAX_CRUSH_INPUT_LENGTH) {
     throw new Error('Map is too large to be stored in a URL')
   }
-  return encodeURI(JSONCrush.crush(uncrushed))
+  // Query-string values must use component encoding, not encodeURI. The
+  // compressed payload is arbitrary JSONCrush data and can legally include
+  // characters like commas, spaces, pluses, ampersands, etc. Those are not
+  // safe in a URL parameter unless percent-encoded.
+  return encodeURIComponent(JSONCrush.crush(uncrushed))
 }
 type ParsedJSONCrushMap = {
   hexMap: HexMap
@@ -44,7 +48,31 @@ type ParsedJSONCrushMap = {
 export function parseMapDataArrayFromCrushed(
   crushed: string,
 ): ParsedJSONCrushMap {
-  const data = JSON.parse(JSONCrush.uncrush(crushed))
+  const candidates = [crushed]
+
+  try {
+    candidates.push(decodeURIComponent(crushed))
+  } catch {
+    // Ignore invalid percent-encoding; the raw payload is already the best attempt.
+  }
+
+  let data: unknown[] | undefined
+
+  for (const candidate of candidates) {
+    try {
+      data = JSON.parse(JSONCrush.uncrush(candidate))
+      break
+    } catch {
+      // Try the next decoded form if this one is malformed.
+    }
+  }
+
+  if (!data || !Array.isArray(data)) {
+    throw new Error(
+      'Invalid shared map payload: could not decode JSON-crush data',
+    )
+  }
+
   let hexMap: HexMap | undefined = undefined
   const boardPiecesEncodedArr: BoardPiecesEncodedArr = []
 
