@@ -1,7 +1,11 @@
 import { piecesSoFar } from '../data/pieces'
 import {
   xTransformForMultiHex3Rotation,
+  xTransformForMultiHex7Rotation,
+  xTransformForMultiHex24Rotation,
   yTransformForMultiHex3Rotation,
+  yTransformForMultiHex7Rotation,
+  yTransformForMultiHex24Rotation,
 } from '../pdf-svg-shared/textRotations'
 import { type BoardHex, HexTerrain } from '../types'
 
@@ -67,12 +71,27 @@ export const shouldDisplayTerrainTileLetter = (
 
 export const getTileLetterPosition = (hex: BoardHex) => {
   const template = piecesSoFar[hex.inventoryID]?.template
-  if (template === '3' || template === '6' || template === '24') {
+  if (template === '3') {
     const rotationIndex = (hex?.pieceRotation ?? 0) % 6
     return {
       x: xTransformForMultiHex3Rotation[rotationIndex],
       y: yTransformForMultiHex3Rotation[rotationIndex],
     }
   }
+  if (template === '24') {
+    const rotationIndex = (hex?.pieceRotation ?? 0) % 6
+    return {
+      x: xTransformForMultiHex24Rotation[rotationIndex],
+      y: yTransformForMultiHex24Rotation[rotationIndex],
+    }
+  }
+  if (template === '7') {
+    const rotationIndex = (hex?.pieceRotation ?? 0) % 6
+    return {
+      x: xTransformForMultiHex7Rotation[rotationIndex],
+      y: yTransformForMultiHex7Rotation[rotationIndex],
+    }
+  }
+  // 1-hex, 2-hex, 7B(marvel) are on the origin hex
   return { x: 0, y: 0 }
 }
