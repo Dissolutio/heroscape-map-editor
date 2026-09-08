@@ -13,12 +13,13 @@ import {
   isJungleTerrainHex,
   isSolidTerrainHex,
 } from '../utils/board-utils'
-import {
-  OPACITY_SUBLEVEL,
-  SVG_HEX_APOTHEM,
-  SVG_HEX_RADIUS,
-} from '../utils/constants'
+import { OPACITY_SUBLEVEL, SVG_HEX_RADIUS } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
+import {
+  getTerrainTileLetter,
+  getTileLetterPosition,
+  shouldDisplayTerrainTileLetter,
+} from '../utils/tileLetters'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
   PdfCannon,
@@ -69,12 +70,42 @@ const glyphTextProps = () => ({
   dominantBaseline: 'central' as const,
 })
 
+const TerrainTileLetterText = ({
+  hex,
+  viewingLevel,
+  enabled,
+}: {
+  hex: BoardHex
+  viewingLevel: number
+  enabled: boolean
+}) => {
+  if (!enabled || !shouldDisplayTerrainTileLetter(hex, viewingLevel)) {
+    return null
+  }
+  const terrainLetter = getTerrainTileLetter(hex.terrain)
+  if (!terrainLetter) {
+    return null
+  }
+  const position = getTileLetterPosition(hex)
+  return (
+    <Text
+      fill={terrainLetter.isBlack ? '#000000' : '#FFFFFF'}
+      {...pdfTextProps()}
+      x={position.x}
+      y={position.y}
+    >
+      {terrainLetter.letter}
+    </Text>
+  )
+}
+
 export const PdfMapHex = ({
   hex,
   viewingLevel,
   isOverlayViewing,
   isPdfColorBorders,
   isShowPdfOverlayOnPlacedLevel,
+  isShowPdfTileLetters,
   useLegacyStartZones,
 }: {
   hex: BoardHex
@@ -82,6 +113,7 @@ export const PdfMapHex = ({
   isOverlayViewing: boolean
   isPdfColorBorders: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
+  isShowPdfTileLetters: boolean
   useLegacyStartZones: boolean
 }) => {
   const pixel = hexUtilsHexToPixel(hex)
@@ -519,6 +551,11 @@ export const PdfMapHex = ({
           isSubLevel={isSubLevel}
           useTerrainBorderColor={isPdfColorBorders}
         />
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
+        />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
@@ -529,15 +566,20 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHex2
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHex2
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={isPdfColorBorders}
+          />
+          <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <TerrainTileLetterText
           hex={hex}
-          isSubLevel={isSubLevel}
-          useTerrainBorderColor={isPdfColorBorders}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
-        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -547,15 +589,20 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHex4
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHex4
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={isPdfColorBorders}
+          />
+          <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <TerrainTileLetterText
           hex={hex}
-          isSubLevel={isSubLevel}
-          useTerrainBorderColor={isPdfColorBorders}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
-        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -565,15 +612,20 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHex3
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHex3
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={isPdfColorBorders}
+          />
+          <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <TerrainTileLetterText
           hex={hex}
-          isSubLevel={isSubLevel}
-          useTerrainBorderColor={isPdfColorBorders}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
-        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -583,15 +635,20 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHex5
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHex5
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={isPdfColorBorders}
+          />
+          <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <TerrainTileLetterText
           hex={hex}
-          isSubLevel={isSubLevel}
-          useTerrainBorderColor={isPdfColorBorders}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
-        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -601,15 +658,20 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHex7
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHex7
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={isPdfColorBorders}
+          />
+          <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <TerrainTileLetterText
           hex={hex}
-          isSubLevel={isSubLevel}
-          useTerrainBorderColor={isPdfColorBorders}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
-        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -619,15 +681,20 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHexWallWalk7
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHexWallWalk7
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={isPdfColorBorders}
+          />
+          <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <TerrainTileLetterText
           hex={hex}
-          isSubLevel={isSubLevel}
-          useTerrainBorderColor={isPdfColorBorders}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
-        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -637,15 +704,20 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHexWallWalk9
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHexWallWalk9
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={isPdfColorBorders}
+          />
+          <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <TerrainTileLetterText
           hex={hex}
-          isSubLevel={isSubLevel}
-          useTerrainBorderColor={isPdfColorBorders}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
-        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -655,15 +727,20 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHex6
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHex6
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={isPdfColorBorders}
+          />
+          <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <TerrainTileLetterText
           hex={hex}
-          isSubLevel={isSubLevel}
-          useTerrainBorderColor={isPdfColorBorders}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
-        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }
@@ -673,11 +750,16 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
-        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
+          <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <TerrainTileLetterText
+          hex={hex}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
+        />
       </G>
     )
   }
@@ -687,15 +769,20 @@ export const PdfMapHex = ({
     hex.isObstacleOrigin
   ) {
     return (
-      <G
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <PdfMultiHex24
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <G transform={`rotate(${pieceRotation})`}>
+          <PdfMultiHex24
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={isPdfColorBorders}
+          />
+          <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
+        </G>
+        <TerrainTileLetterText
           hex={hex}
-          isSubLevel={isSubLevel}
-          useTerrainBorderColor={isPdfColorBorders}
+          viewingLevel={viewingLevel}
+          enabled={isShowPdfTileLetters}
         />
-        <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
     )
   }

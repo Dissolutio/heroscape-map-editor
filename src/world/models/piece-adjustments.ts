@@ -126,9 +126,9 @@ export function getLadderBattlementOptions(rotation: number) {
       return { xAdd: HEXGRID_HEX_APOTHEM, zAdd: 0 }
   }
 }
-export function getRoadWallOptions(rotation: number) {
+export function getRoadWallOptions(rotation: number | string) {
   // const wallBlenderModelThickness = 0.075
-  switch (rotation) {
+  switch (Number(rotation)) {
     case 0:
       return { xAdd: -HEXGRID_HEX_APOTHEM, zAdd: HEXGRID_HEX_RADIUS / 2 }
     case 1:

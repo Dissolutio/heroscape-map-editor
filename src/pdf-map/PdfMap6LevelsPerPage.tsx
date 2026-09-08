@@ -22,6 +22,7 @@ export const PdfMapLevels6PerPage = ({
   isShowPdfOverlayOnPlacedLevel,
   isShowPdfGridLinesOverSublevels,
   isShowPdfLevelLogo,
+  isShowPdfTileLetters,
   useLegacyStartZones,
   children,
 }: PropsWithChildren<{
@@ -32,6 +33,7 @@ export const PdfMapLevels6PerPage = ({
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowPdfGridLinesOverSublevels: boolean
   isShowPdfLevelLogo: boolean
+  isShowPdfTileLetters: boolean
   useLegacyStartZones: boolean
 }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
@@ -91,6 +93,7 @@ export const PdfMapLevels6PerPage = ({
                       isShowGridLinesOverSublevels={
                         isShowPdfGridLinesOverSublevels
                       }
+                      isShowPdfTileLetters={isShowPdfTileLetters}
                       useLegacyStartZones={useLegacyStartZones}
                     />
                   </RowWrapper>
@@ -122,6 +125,7 @@ export const PdfMapLevels6PerPage = ({
                       isShowGridLinesOverSublevels={
                         isShowPdfGridLinesOverSublevels
                       }
+                      isShowPdfTileLetters={isShowPdfTileLetters}
                       useLegacyStartZones={useLegacyStartZones}
                     />
                   </RowWrapper>

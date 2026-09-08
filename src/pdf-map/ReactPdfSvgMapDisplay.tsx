@@ -14,6 +14,7 @@ type ReactPdfSvgMapDisplayProps = {
   isPdfColorBorders: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowGridLinesOverSublevels: boolean
+  isShowPdfTileLetters: boolean
   useLegacyStartZones: boolean
   chunk?: PdfMapAltitudeChunk
 }
@@ -27,6 +28,7 @@ export const ReactPdfSvgMapDisplay = ({
   isPdfColorBorders,
   isShowPdfOverlayOnPlacedLevel,
   isShowGridLinesOverSublevels,
+  isShowPdfTileLetters,
   useLegacyStartZones,
   chunk,
 }: ReactPdfSvgMapDisplayProps) => {
@@ -67,6 +69,7 @@ export const ReactPdfSvgMapDisplay = ({
         isOverlayViewing={isOverlayViewing}
         isPdfColorBorders={isPdfColorBorders}
         isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+        isShowPdfTileLetters={isShowPdfTileLetters}
         useLegacyStartZones={useLegacyStartZones}
       />
     ))
@@ -87,6 +90,7 @@ export const ReactPdfSvgMapDisplay = ({
       isOverlayViewing={isOverlayViewing}
       isPdfColorBorders={isPdfColorBorders}
       isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+      isShowPdfTileLetters={isShowPdfTileLetters}
       useLegacyStartZones={useLegacyStartZones}
     />
   ))
@@ -117,6 +121,7 @@ export const ReactPdfSvgMapDisplay = ({
             isOverlayViewing={isOverlayViewing}
             isPdfColorBorders={isPdfColorBorders}
             isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+            isShowPdfTileLetters={isShowPdfTileLetters}
             useLegacyStartZones={useLegacyStartZones}
           />
         ))}

@@ -26,9 +26,12 @@ export default function RotationSelect() {
   const { hotkeyLookup } = useHotkeyConfig()
   const handleChange = (
     _event: React.MouseEvent<HTMLElement>,
-    value: number,
+    value: number | string | null,
   ) => {
-    togglePenModeRotation(value)
+    if (value === null || value === undefined || value === '') {
+      return
+    }
+    togglePenModeRotation(Number(value))
   }
   const possibleRotations = getPossibleRotationsForPenMode(penMode)
   // biome-ignore lint/correctness/useExhaustiveDependencies: <only update when pen mode changes>
