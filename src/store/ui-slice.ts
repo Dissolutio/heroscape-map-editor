@@ -241,10 +241,10 @@ const createUISlice: StateCreator<
       }),
     ),
   penModeRotation: 0,
-  togglePenModeRotation: (n: number) =>
+  togglePenModeRotation: (n: number | string) =>
     set(
       produce((s) => {
-        s.penModeRotation = n
+        s.penModeRotation = Number(n)
       }),
     ),
   piecePreviews: null,
