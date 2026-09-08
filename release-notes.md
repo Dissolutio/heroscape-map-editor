@@ -1,3 +1,7 @@
+Sep-08-2026 PM
+- **PDF/SVG tile letters**: Many full-height and half-height tiles now have a letter on their tile as an abbreviation for their terrain, to help visually distinguish them in another way. This matches contemporary maps such as the 2026 GenCon map build instructions.
+- **Bugfix for roadwall**: The roadwall has had a strange bug where it displays in the center of the hex and does not visually "fit" right
+
 09-04-2026 PM
 - **PDF formats full text**: Both formats now display map notes, required sets
 - **Bugfix for convert liquid=>solid**: Display was going wonky when you converted fluid terrain to solid terrain. (half-height to full-height)
