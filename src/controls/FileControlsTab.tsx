@@ -1,5 +1,4 @@
 import { Box, ClickAwayListener, Collapse, List } from '@mui/material'
-import JSONCrush from 'jsoncrush'
 import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
 import React from 'react'
 import { FaDiscord, FaSlack } from 'react-icons/fa'
