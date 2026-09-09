@@ -1,5 +1,77 @@
-import useBoundStore from '../store/store'
+import { Suspense } from 'react'
 import { piecesSoFar } from '../data/pieces'
+import useBoundStore from '../store/store'
+import { HexTerrain, PiecePrefixes, Pieces } from '../types'
+import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
+import {
+  HEXGRID_GLYPH_HEIGHT,
+  HEXGRID_HEXCAP_FLUID_HEIGHT,
+  HEXGRID_HEXCAP_FLUID_SCALE,
+  HEXGRID_HEXCAP_HEIGHT,
+  HEXGRID_HEX_HEIGHT,
+  HEXGRID_OBSTACLE_BASE_HEIGHT,
+  PIECE_PREVIEW_OPACITY,
+} from '../utils/constants'
+import {
+  genBoardHexID,
+  getBoardHex3DCoords,
+  getRoadWallClickedHexCoords,
+} from '../utils/map-utils'
+import { hexTerrainColor } from './maphex/hexColors'
+import { FLUID_CAP_OPACITY } from './maphex/instance/FluidCap'
+import { BattlementPreview } from './models/Battlement'
+import BigTree415 from './models/BigTree415'
+import Cannon from './models/Cannon'
+import { CastleArchPreview } from './models/CastleArch'
+import { CastleBasePreview } from './models/CastleBases'
+import { CastleWallPreview } from './models/CastleWalls'
+import ForestTree from './models/ForestTree'
+import { FortifiedWallPreview } from './models/FortifiedWall'
+import { GlyphModel, GlyphModelPreview } from './models/Glyph'
+import { LadderPreview } from './models/Ladder'
+import {
+  Subterrain1,
+  Subterrain2,
+  Subterrain3,
+  Subterrain4,
+  Subterrain5,
+  Subterrain6,
+  Subterrain6B,
+  Subterrain7,
+  Subterrain7B,
+  Subterrain9,
+  Subterrain24,
+} from './models/LandSubterrain'
+import { LaurWallPillarPreview } from './models/LaurPillar'
+import { LaurWallTrianglePillarPreview } from './models/LaurTrianglePillar'
+import { LaurWallArchPreview } from './models/LaurWallArchModel'
+import { LaurWallLongPreview } from './models/LaurWallLongModel'
+import { LaurWallRuinPreview } from './models/LaurWallRuinModel'
+import { LaurWallShortPreview } from './models/LaurWallShortModel'
+import MarroHive6 from './models/MarroHive6'
+import { MarvelRuinPreview } from './models/MarvelRuin'
+import ModelLoader from './models/ModelLoader'
+import { Outcrop1Preview } from './models/Outcrop1'
+import { Outcrop3Preview } from './models/Outcrop3'
+import { Outcrop4Preview } from './models/Outcrop4'
+import { Outcrop6Preview } from './models/Outcrop6'
+import { RoadWallPreview } from './models/RoadWall'
+import { RopeLadder } from './models/RopeLadder'
+import { Ruins2Preview } from './models/Ruins2'
+import { Ruins3Preview } from './models/Ruins3'
+import { ShipBow } from './models/ShipBow'
+import { ShipWall } from './models/ShipWall'
+import Shroudshroom7 from './models/Shroudshroom7'
+import Shroudshroom10 from './models/Shroudshroom10'
+import Shroudshroom13 from './models/Shroudshroom13'
+import { SnowEvergreenTree } from './models/SnowEvergreenTree'
+import { StartZone3D } from './models/StartZone3D'
+import {
+  LaurBrushPreview,
+  SwampBrushPreview,
+  TicallaBrushPreview,
+} from './models/TicallaBrush'
+import { LaurPalmPreview, TicallaPalmPreview } from './models/TicallaPalm'
 import {
   getLadderBattlementOptions,
   getObstaclRotation,
@@ -9,77 +81,6 @@ import {
   getRoadWallOptions,
   getRuinsOptions,
 } from './models/piece-adjustments'
-import {
-  genBoardHexID,
-  getBoardHex3DCoords,
-  getRoadWallClickedHexCoords,
-} from '../utils/map-utils'
-import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
-import { HexTerrain, PiecePrefixes, Pieces } from '../types'
-import { LaurWallPillarPreview } from './models/LaurPillar'
-import {
-  HEXGRID_GLYPH_HEIGHT,
-  HEXGRID_HEX_HEIGHT,
-  HEXGRID_HEXCAP_FLUID_HEIGHT,
-  HEXGRID_HEXCAP_FLUID_SCALE,
-  HEXGRID_HEXCAP_HEIGHT,
-  HEXGRID_OBSTACLE_BASE_HEIGHT,
-  PIECE_PREVIEW_OPACITY,
-} from '../utils/constants'
-import { Suspense } from 'react'
-import ModelLoader from './models/ModelLoader'
-import {
-  Subterrain1,
-  Subterrain2,
-  Subterrain24,
-  Subterrain3,
-  Subterrain4,
-  Subterrain5,
-  Subterrain6,
-  Subterrain6B,
-  Subterrain7,
-  Subterrain7B,
-  Subterrain9,
-} from './models/LandSubterrain'
-import { hexTerrainColor } from './maphex/hexColors'
-import { FLUID_CAP_OPACITY } from './maphex/instance/FluidCap'
-import { GlyphModel, GlyphModelPreview } from './models/Glyph'
-import { LaurWallTrianglePillarPreview } from './models/LaurTrianglePillar'
-import ForestTree from './models/ForestTree'
-import BigTree415 from './models/BigTree415'
-import MarroHive6 from './models/MarroHive6'
-import { Outcrop3Preview } from './models/Outcrop3'
-import { Outcrop4Preview } from './models/Outcrop4'
-import { Outcrop6Preview } from './models/Outcrop6'
-import { LadderPreview } from './models/Ladder'
-import { LaurWallArchPreview } from './models/LaurWallArchModel'
-import { LaurWallLongPreview } from './models/LaurWallLongModel'
-import { LaurWallRuinPreview } from './models/LaurWallRuinModel'
-import { LaurWallShortPreview } from './models/LaurWallShortModel'
-import { Ruins2Preview } from './models/Ruins2'
-import { Ruins3Preview } from './models/Ruins3'
-import { MarvelRuinPreview } from './models/MarvelRuin'
-import { LaurPalmPreview, TicallaPalmPreview } from './models/TicallaPalm'
-import {
-  LaurBrushPreview,
-  SwampBrushPreview,
-  TicallaBrushPreview,
-} from './models/TicallaBrush'
-import { RoadWallPreview } from './models/RoadWall'
-import { BattlementPreview } from './models/Battlement'
-import { Outcrop1Preview } from './models/Outcrop1'
-import { CastleWallPreview } from './models/CastleWalls'
-import { CastleBasePreview } from './models/CastleBases'
-import { CastleArchPreview } from './models/CastleArch'
-import { FortifiedWallPreview } from './models/FortifiedWall'
-import Shroudshroom7 from './models/Shroudshroom7'
-import Shroudshroom10 from './models/Shroudshroom10'
-import Shroudshroom13 from './models/Shroudshroom13'
-import Cannon from './models/Cannon'
-import { RopeLadder } from './models/RopeLadder'
-import { ShipWall } from './models/ShipWall'
-import { ShipBow } from './models/ShipBow'
-import { SnowEvergreenTree } from './models/SnowEvergreenTree'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -180,6 +181,7 @@ export default function PiecePreview() {
   const isLaurTrianglePillarHex = pieceID === Pieces.laurWallTrianglePillar
   const isPowerGlyphHex = piece?.terrain === HexTerrain.glyphPower
   const isTreasureGlyphHex = piece?.terrain === HexTerrain.glyphTreasure
+  const isStartZoneHex = piece?.terrain === HexTerrain.startZone
   const isTreeHex =
     pieceID === Pieces.tree10 ||
     pieceID === Pieces.tree11 ||
@@ -826,6 +828,16 @@ export default function PiecePreview() {
         <Suspense fallback={<ModelLoader />}>
           <GlyphModelPreview inventoryID={pieceID} />
         </Suspense>
+      </group>
+    )
+  }
+  if (isStartZoneHex && isLandOrEmptyBeneath) {
+    return (
+      <group
+        position={[x, yBase + HEXGRID_HEX_HEIGHT, z]}
+        rotation={[0, pieceRotation, 0]}
+      >
+        <StartZone3D inventoryID={pieceID} />
       </group>
     )
   }
