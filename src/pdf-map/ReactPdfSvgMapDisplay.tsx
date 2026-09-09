@@ -80,6 +80,7 @@ export const ReactPdfSvgMapDisplay = ({
         key={bp.boardPieceID}
         piece={bp}
         viewingLevel={viewingLevel}
+        useLegacyStartZones={useLegacyStartZones}
       />
     ))
   const emptyHexesEls = emptyHexesArr.map((hex) => (
@@ -132,6 +133,7 @@ export const ReactPdfSvgMapDisplay = ({
             key={bp.boardPieceID}
             piece={bp}
             viewingLevel={viewingLevel}
+            useLegacyStartZones={useLegacyStartZones}
           />
         ))}
     </Svg>
