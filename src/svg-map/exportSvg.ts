@@ -40,6 +40,159 @@ type OpenTypeFont = {
 
 let interFontPromise: Promise<OpenTypeFont | null> | null = null
 
+type ClipperPoint = { X: number; Y: number }
+type ClipperPath = ClipperPoint[]
+
+type ClipperLibModule = {
+  ClipperOffset: new () => {
+    AddPaths: (paths: ClipperPath[], joinType: number, endType: number) => void
+    Execute: (solution: ClipperPath[], delta: number) => void
+  }
+  JoinType: { jtRound: number }
+  EndType: { etClosedPolygon: number }
+}
+
+let clipperLibPromise: Promise<ClipperLibModule | null> | null = null
+
+/** Coordinates are scaled up before handing them to clipper-lib, which requires integers. */
+const CLIPPER_SCALE = 1000
+
+async function getClipperLib(): Promise<ClipperLibModule | null> {
+  if (!clipperLibPromise) {
+    clipperLibPromise = (async () => {
+      try {
+        const clipperModule = (await import('clipper-lib')) as {
+          default?: ClipperLibModule
+        } & ClipperLibModule
+        return clipperModule.default ?? clipperModule
+      } catch (err) {
+        console.warn('Could not load clipper-lib for level logo outline.', err)
+        return null
+      }
+    })()
+  }
+  return clipperLibPromise
+}
+
+/** Flattens an SVG path's `M`/`L`/`C`/`Q`/`Z` commands into closed point rings (curves sampled into line segments). */
+function pathDataToRings(d: string): Array<Array<[number, number]>> {
+  const tokens = d.match(/[MLCQZ]|-?\d*\.?\d+(?:e[-+]?\d+)?/gi) ?? []
+  const rings: Array<Array<[number, number]>> = []
+  let current: Array<[number, number]> = []
+  let cx = 0
+  let cy = 0
+  let i = 0
+  const CURVE_STEPS = 8
+  const readNums = (count: number) => {
+    const nums: number[] = []
+    for (let k = 0; k < count; k += 1) {
+      nums.push(Number(tokens[i]))
+      i += 1
+    }
+    return nums
+  }
+  while (i < tokens.length) {
+    const cmd = String(tokens[i]).toUpperCase()
+    i += 1
+    if (cmd === 'M') {
+      if (current.length) rings.push(current)
+      const [x, y] = readNums(2)
+      cx = x
+      cy = y
+      current = [[x, y]]
+    } else if (cmd === 'L') {
+      const [x, y] = readNums(2)
+      cx = x
+      cy = y
+      current.push([x, y])
+    } else if (cmd === 'C') {
+      const [x1, y1, x2, y2, x, y] = readNums(6)
+      for (let s = 1; s <= CURVE_STEPS; s += 1) {
+        const t = s / CURVE_STEPS
+        const mt = 1 - t
+        const px =
+          mt * mt * mt * cx +
+          3 * mt * mt * t * x1 +
+          3 * mt * t * t * x2 +
+          t * t * t * x
+        const py =
+          mt * mt * mt * cy +
+          3 * mt * mt * t * y1 +
+          3 * mt * t * t * y2 +
+          t * t * t * y
+        current.push([px, py])
+      }
+      cx = x
+      cy = y
+    } else if (cmd === 'Q') {
+      const [x1, y1, x, y] = readNums(4)
+      for (let s = 1; s <= CURVE_STEPS; s += 1) {
+        const t = s / CURVE_STEPS
+        const mt = 1 - t
+        const px = mt * mt * cx + 2 * mt * t * x1 + t * t * x
+        const py = mt * mt * cy + 2 * mt * t * y1 + t * t * y
+        current.push([px, py])
+      }
+      cx = x
+      cy = y
+    } else if (cmd === 'Z') {
+      if (current.length) rings.push(current)
+      current = []
+    }
+  }
+  if (current.length) rings.push(current)
+  return rings
+}
+
+const outlinePathDataCache = new Map<string, string>()
+
+/**
+ * Computes a real filled vector outline (via polygon offsetting) instead of an SVG
+ * stroke, since stroke-width doesn't scale correctly when the exported SVG is
+ * opened and resized in Adobe Illustrator.
+ */
+async function getOutlinePathData(
+  pathData: string,
+  radius: number,
+): Promise<string | null> {
+  const cacheKey = `${pathData}|${radius}`
+  const cached = outlinePathDataCache.get(cacheKey)
+  if (cached !== undefined) return cached
+
+  const ClipperLib = await getClipperLib()
+  if (!ClipperLib) return null
+
+  const rings = pathDataToRings(pathData)
+  const clipperPaths: ClipperPath[] = rings.map((ring) =>
+    ring.map(([x, y]) => ({
+      X: Math.round(x * CLIPPER_SCALE),
+      Y: Math.round(y * CLIPPER_SCALE),
+    })),
+  )
+
+  const offset = new ClipperLib.ClipperOffset()
+  offset.AddPaths(
+    clipperPaths,
+    ClipperLib.JoinType.jtRound,
+    ClipperLib.EndType.etClosedPolygon,
+  )
+  const solution: ClipperPath[] = []
+  offset.Execute(solution, radius * CLIPPER_SCALE)
+
+  const outlinePathData = solution
+    .map((ring) => {
+      if (!ring.length) return ''
+      const points = ring.map(
+        (p) => `${p.X / CLIPPER_SCALE} ${p.Y / CLIPPER_SCALE}`,
+      )
+      return `M${points.join('L')}Z`
+    })
+    .join('')
+
+  outlinePathDataCache.set(cacheKey, outlinePathData)
+  return outlinePathData
+}
+
 function parseFirstNumericValue(value: string | null, fallback: number) {
   if (!value) return fallback
   const [firstToken] = value.trim().split(/[\s,]+/)
@@ -164,30 +317,38 @@ function appendLogoTextPath(
   group: SVGGElement,
   pathData: string,
   transform: string | null,
-  strokeWidth: number | null,
+  fill: string,
 ) {
   const pathNode = document.createElementNS(SVG_NS, 'path')
   pathNode.setAttribute('d', pathData)
   if (transform) {
     pathNode.setAttribute('transform', transform)
   }
-  if (strokeWidth === null) {
-    pathNode.setAttribute('fill', LEVEL_LOGO_TEXT_FILL)
-  } else {
-    pathNode.setAttribute('fill', LEVEL_LOGO_TEXT_STROKE)
-    pathNode.setAttribute('stroke', LEVEL_LOGO_TEXT_STROKE)
-    pathNode.setAttribute('stroke-width', String(strokeWidth))
-    pathNode.setAttribute('stroke-linejoin', 'miter')
-    pathNode.setAttribute('stroke-miterlimit', '10')
-  }
+  pathNode.setAttribute('fill', fill)
   group.appendChild(pathNode)
+}
+
+async function appendLogoTextOutline(
+  group: SVGGElement,
+  pathData: string,
+  transform: string,
+  radius: number,
+) {
+  const outlinePathData = await getOutlinePathData(pathData, radius)
+  // fall back to the plain glyph (no outline) if clipper-lib failed to load
+  appendLogoTextPath(
+    group,
+    outlinePathData ?? pathData,
+    transform,
+    LEVEL_LOGO_TEXT_STROKE,
+  )
 }
 
 /**
  * Draws the level plaque above the map in the exported SVG only. The viewBox is
  * grown upwards so the logo never overlaps the map itself.
  */
-function prependLevelLogo(clonedSvg: SVGSVGElement, level: number) {
+async function prependLevelLogo(clonedSvg: SVGSVGElement, level: number) {
   const [viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight] = (
     clonedSvg.getAttribute('viewBox') ?? ''
   )
@@ -230,28 +391,38 @@ function prependLevelLogo(clonedSvg: SVGSVGElement, level: number) {
   }
   logoGroup.appendChild(artGroup)
 
-  // every stroked copy is drawn before any filled copy: emulates paint-order:stroke
+  // the outline is drawn before the fill copy: emulates paint-order:stroke
   const digits = getLevelNumberDigits(level)
   const labelTransform = `translate(${LEVEL_LOGO_LABEL_X} ${LEVEL_LOGO_LABEL_BASELINE_Y})`
   const digitTransform = (x: number) =>
     `translate(${x} ${LEVEL_LOGO_NUMBER_BASELINE_Y})`
+  await appendLogoTextOutline(
+    logoGroup,
+    LEVEL_LOGO_LABEL_PATH,
+    labelTransform,
+    LEVEL_LOGO_LABEL_STROKE_WIDTH / 2,
+  )
+  for (const digit of digits) {
+    await appendLogoTextOutline(
+      logoGroup,
+      digit.d,
+      digitTransform(digit.x),
+      LEVEL_LOGO_NUMBER_STROKE_WIDTH / 2,
+    )
+  }
   appendLogoTextPath(
     logoGroup,
     LEVEL_LOGO_LABEL_PATH,
     labelTransform,
-    LEVEL_LOGO_LABEL_STROKE_WIDTH,
+    LEVEL_LOGO_TEXT_FILL,
   )
   for (const digit of digits) {
     appendLogoTextPath(
       logoGroup,
       digit.d,
       digitTransform(digit.x),
-      LEVEL_LOGO_NUMBER_STROKE_WIDTH,
+      LEVEL_LOGO_TEXT_FILL,
     )
-  }
-  appendLogoTextPath(logoGroup, LEVEL_LOGO_LABEL_PATH, labelTransform, null)
-  for (const digit of digits) {
-    appendLogoTextPath(logoGroup, digit.d, digitTransform(digit.x), null)
   }
 
   clonedSvg.appendChild(logoGroup)
@@ -267,7 +438,7 @@ export async function serializeSvgWithEmbeddedFont(
   await replaceTextNodesWithPaths(sourceSvg, clonedSvg)
 
   if (levelLogoLevel !== undefined) {
-    prependLevelLogo(clonedSvg, levelLogoLevel)
+    await prependLevelLogo(clonedSvg, levelLogoLevel)
   }
 
   if (!clonedSvg.getAttribute('xmlns')) {

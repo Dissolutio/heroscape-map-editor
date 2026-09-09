@@ -1,5 +1,10 @@
 import { G } from '@react-pdf/renderer'
-import { type DecodedPieceID, Pieces } from '../types'
+import {
+  type BoardHex,
+  type DecodedPieceID,
+  HexTerrain,
+  Pieces,
+} from '../types'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   PdfBattlement,
@@ -10,21 +15,51 @@ import {
   PdfLaurWallArchText,
   PdfRoadWall,
   PdfRopeLadder,
+  PdfStartZone,
 } from './PdfMapShapes'
 
 export const PdfMapBoardPiece = ({
   piece,
   viewingLevel,
-}: { piece: DecodedPieceID; viewingLevel: number }) => {
+  useLegacyStartZones,
+}: {
+  piece: DecodedPieceID
+  viewingLevel: number
+  useLegacyStartZones?: boolean
+}) => {
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
   const isSubLevel = altitudeAdjusted < viewingLevel
   const { inventoryID } = piece
   const isVisible = altitudeAdjusted <= viewingLevel
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
+  const boardPieceAsHex: BoardHex = {
+    id: piece.boardHexID,
+    q: piece.pieceCoords.q,
+    r: piece.pieceCoords.r,
+    s: piece.pieceCoords.s,
+    altitude: altitudeAdjusted,
+    pieceID: piece.boardPieceID,
+    boardPieceUID: piece.boardPieceID,
+    inventoryID: piece.inventoryID,
+    terrain: piece.terrain,
+    pieceRotation: piece.rotation,
+  }
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible) {
     return null
+  }
+  // Start Zones
+  if (piece.terrain === HexTerrain.startZone) {
+    return (
+      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <PdfStartZone
+          hex={boardPieceAsHex}
+          isSubLevel={isSubLevel}
+          useLegacyStartZones={useLegacyStartZones}
+        />
+      </G>
+    )
   }
   // RopeLadders
   if (inventoryID === Pieces.ropeLadder) {

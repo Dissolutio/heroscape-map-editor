@@ -20,6 +20,7 @@ import {
 import { genBoardHexID, genPieceID } from '../utils/map-utils'
 import interlockRotationTemplates from './interlock-rotations'
 import interlockTemplates from './interlock-templates'
+import { piecesSoFar } from './pieces'
 import getPieceTemplateCoords from './rotationTransforms'
 import {
   openBaseHexTemplates,
@@ -55,6 +56,7 @@ export function addPiece({
   const newBoardHexes = clone(boardHexes)
   const newBoardPieces: BoardPieces = clone(boardPieces)
   const displacedUIDs = new Set<string>()
+  let isDuplicateStartZone = false
   const trackDisplaced = (hexID: string) => {
     const existing = newBoardHexes[hexID]
     if (existing?.boardPieceUID && existing.boardPieceUID !== uid) {
@@ -191,8 +193,26 @@ export function addPiece({
     isBattlementPieceID && isBattlementPieceSupported_true
   const isPlacingRoadWall = isRoadWallPieceID && isRoadWallPieceSupported_true
 
+  // START ZONES: abstract overlays rendered from boardPieces, not physical boardHexes.
+  if (isStartZonePiece) {
+    isDuplicateStartZone = newBoardPieces.some((boardPiece) => {
+      const existingPiece = piecesSoFar[boardPiece.inventoryID]
+      return (
+        existingPiece?.terrain === HexTerrain.startZone &&
+        boardPiece.altitude === placementAltitude &&
+        boardPiece.pieceCoords.q === originOfTile.q &&
+        boardPiece.pieceCoords.r === originOfTile.r &&
+        boardPiece.pieceCoords.s === originOfTile.s
+      )
+    })
+
+    if (!isDuplicateStartZone) {
+      addBoardPiece(rotation)
+    }
+  }
+
   // ROPE LADDER: Autoadd piece id, render from boardPieces
-  if (piece.terrain === HexTerrain.ropeLadder) {
+  else if (piece.terrain === HexTerrain.ropeLadder) {
     try {
       // add the new rope ladder piece
       addBoardPiece(rotation)
@@ -836,7 +856,7 @@ export function addPiece({
     }
   }
   const hasBoardPiece = newBoardPieces.some((p) => p.uid === uid)
-  if (!hasBoardPiece && !addPieceError) {
+  if (!hasBoardPiece && !addPieceError && !isDuplicateStartZone) {
     addPieceError = {
       message: `Unhandled piece placement for ${piece.id} (${piece.terrain})`,
     }

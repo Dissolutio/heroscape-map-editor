@@ -1,4 +1,9 @@
 Sep-08-2026 PM
+- **StartZone bugs: conflicting with ruins**: StartZones will no longer conflict with other pieces they are placed next to, like ruins and fortified wall. Also, clicking a hex with a StartZone will no longer place a duplicate.
+- **PDF: Bugfix: small map level on last page**: If you had a page with less than 3 map levels on it, they would print too small
+- Some changes to make the SVG export images more friendly with other software
+
+Sep-08-2026
 - **PDF/SVG tile letters**: Many full-height and half-height tiles now have a letter on their tile as an abbreviation for their terrain, to help visually distinguish them in another way. This matches contemporary maps such as the 2026 GenCon map build instructions.
 - **Bugfix for roadwall**: The roadwall has had a strange bug where it displays in the center of the hex and does not visually "fit" right
 

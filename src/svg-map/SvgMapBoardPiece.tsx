@@ -1,4 +1,9 @@
-import { type DecodedPieceID, Pieces } from '../types'
+import {
+  type BoardHex,
+  type DecodedPieceID,
+  HexTerrain,
+  Pieces,
+} from '../types'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   SvgBattlement,
@@ -9,6 +14,7 @@ import {
   SvgLaurWallArchText,
   SvgRoadWall,
   SvgRopeLadder,
+  SvgStartZone,
 } from './SvgMapShapes'
 
 export const SvgMapBoardPiece = ({
@@ -21,9 +27,29 @@ export const SvgMapBoardPiece = ({
   const { inventoryID } = piece
   const isVisible = altitudeAdjusted <= viewingLevel
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
+  const boardPieceAsHex: BoardHex = {
+    id: piece.boardHexID,
+    q: piece.pieceCoords.q,
+    r: piece.pieceCoords.r,
+    s: piece.pieceCoords.s,
+    altitude: altitudeAdjusted,
+    pieceID: piece.boardPieceID,
+    boardPieceUID: piece.boardPieceID,
+    inventoryID: piece.inventoryID,
+    terrain: piece.terrain,
+    pieceRotation: piece.rotation,
+  }
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible) {
     return null
+  }
+  // Start Zones
+  if (piece.terrain === HexTerrain.startZone) {
+    return (
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <SvgStartZone hex={boardPieceAsHex} isSubLevel={isSubLevel} />
+      </g>
+    )
   }
   // RopeLadders
   if (inventoryID === Pieces.ropeLadder) {

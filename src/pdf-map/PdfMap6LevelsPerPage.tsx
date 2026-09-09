@@ -66,6 +66,7 @@ export const PdfMapLevels6PerPage = ({
           <View
             style={{
               flexDirection: 'row',
+              flexGrow: 1,
             }}
           >
             <HalfPageColumn>
@@ -220,6 +221,7 @@ const HalfPageColumn = (props: PropsWithChildren) => {
       style={{
         flexBasis: '50%',
         flexDirection: 'column',
+        flexShrink: 0,
         margin: 0,
       }}
     >

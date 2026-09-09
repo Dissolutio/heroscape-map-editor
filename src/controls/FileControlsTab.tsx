@@ -1,5 +1,4 @@
 import { Box, ClickAwayListener, Collapse, List } from '@mui/material'
-import JSONCrush from 'jsoncrush'
 import { type SnackbarAction, type SnackbarKey, useSnackbar } from 'notistack'
 import React from 'react'
 import { FaDiscord, FaSlack } from 'react-icons/fa'
@@ -56,13 +55,20 @@ export const FileControlsTab = ({
     setIsDownloadOpen(!isDownloadOpen)
   }
   const handleDownloadCurrent2DSvg = async () => {
-    const svgElement = document.getElementById('2d-svg-view') // Replace 'your-svg-id' with the actual ID
+    const svgElement = document.getElementById('2d-svg-view')
+    const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+    // we place the overlay level as one level above the last piece
+    const overlayLevel = maxLevel + 1
+    const isOverlayLevel = viewingLevel === overlayLevel
     if (svgElement instanceof SVGSVGElement) {
       const svgContent = await serializeSvgWithEmbeddedFont(
         svgElement,
         isShow2DExportLevelLogo ? viewingLevel : undefined,
       )
-      downloadSvgString(`${hexMap.name}-level-${viewingLevel}.svg`, svgContent)
+      downloadSvgString(
+        `${hexMap.name}-level-${isOverlayLevel ? 'overlay' : viewingLevel}.svg`,
+        svgContent,
+      )
     }
   }
   const [isDownloadingAll, setIsDownloadingAll] = React.useState(false)
