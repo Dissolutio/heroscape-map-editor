@@ -1,21 +1,21 @@
-import { useCallback, useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
+import type { ThreeEvent } from '@react-three/fiber'
+import { useCallback, useEffect, useRef } from 'react'
 import {
   CylinderGeometry,
-  MeshBasicMaterial,
+  type Group,
   Mesh,
+  MeshBasicMaterial,
   Quaternion,
   Vector3,
-  type Group,
 } from 'three'
 import type { Mesh as ThreeMesh } from 'three'
 import useBoundStore from '../store/store'
 import type { BoardPiece } from '../types'
-import { HEXGRID_HEX_HEIGHT } from '../utils/constants'
-import { MapBoardPiece3D } from './MapBoardPiece3D'
-import type { ThreeEvent } from '@react-three/fiber'
 import type { BoardHex } from '../types'
+import { HEXGRID_HEX_HEIGHT } from '../utils/constants'
 import { getBoardHex3DCoords } from '../utils/map-utils'
+import { MapBoardPiece3D } from './MapBoardPiece3D'
 
 // Ghost pieces use a lower opacity so the arrow pops against them
 const OPERATION_PREVIEW_OPACITY = 0.35
@@ -23,6 +23,15 @@ const ARROW_COLOR = 0xff8800
 const SHAFT_RADIUS = 0.055
 const HEAD_RADIUS = 0.16
 const HEAD_LENGTH_FRAC = 0.32 // fraction of total length used for the arrowhead
+
+// Create a stable material reference that will be reused for all arrow instances
+// This prevents GPU memory leaks from creating new materials on every render
+const arrowMaterialCache = new MeshBasicMaterial({
+  color: ARROW_COLOR,
+  transparent: true,
+  opacity: 1,
+  depthTest: false,
+})
 
 // Draws a thick cylinder+cone arrow from the original piece to the preview position.
 // Uses depthTest:false so it always renders on top of geometry.
@@ -98,17 +107,9 @@ function PreviewArrow({
     .clone()
     .addScaledVector(dir, shaftLength + headLength / 2)
 
-  const arrowMat = () =>
-    new MeshBasicMaterial({
-      color: ARROW_COLOR,
-      transparent: true,
-      opacity: 1,
-      depthTest: false,
-    })
-
   if (!shaftRef.current) {
     const geo = new CylinderGeometry(SHAFT_RADIUS, SHAFT_RADIUS, shaftLength, 8)
-    shaftRef.current = new Mesh(geo, arrowMat())
+    shaftRef.current = new Mesh(geo, arrowMaterialCache)
   } else {
     shaftRef.current.geometry.dispose()
     shaftRef.current.geometry = new CylinderGeometry(
@@ -124,7 +125,7 @@ function PreviewArrow({
 
   if (!headRef.current) {
     const geo = new CylinderGeometry(0, HEAD_RADIUS, headLength, 12)
-    headRef.current = new Mesh(geo, arrowMat())
+    headRef.current = new Mesh(geo, arrowMaterialCache)
   } else {
     headRef.current.geometry.dispose()
     headRef.current.geometry = new CylinderGeometry(
