@@ -771,27 +771,7 @@ export const MapBoardPiece3D = ({
     )
   }
 
-  const isFluidLandPiece = piece && isFluidTerrainHex(piece.terrain)
-  const isSolidLandPiece = piece && isSolidTerrainHex(piece.terrain)
-  if (isFluidLandPiece || isSolidLandPiece) {
-    return (
-      <group
-        position={[x, yBaseCap, z]}
-        rotation={[0, pieceRotation, 0]}
-        scale={
-          isFluidLandPiece ? [1, HEXGRID_HEXCAP_FLUID_SCALE, 1] : [1, 1, 1]
-        }
-      >
-        <Suspense fallback={<ModelLoader />}>
-          <LandSubterrain
-            inventoryID={inventoryID}
-            terrain={piece.terrain}
-            uid={uid}
-          />
-        </Suspense>
-      </group>
-    )
-  }
-
-  return <></>
+  // Ordinary land/water subterrain tiles are rendered via LandSubterrainInstanced
+  // in MapDisplay3D.tsx for performance, so nothing left to render here.
+  return null
 }
