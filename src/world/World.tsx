@@ -1,6 +1,7 @@
 import { ClickAwayListener } from '@mui/material'
 import {
   Billboard,
+  Bvh,
   type CameraControls,
   OrthographicCamera,
   PerspectiveCamera,
@@ -145,7 +146,9 @@ const World = ({
                   scale={[width, 0, length]}
                 // rotation={new Euler(0, Math.PI, 0)}
                 /> */}
-          <MapDisplay3D mapGroupRef={mapGroupRef} />
+          <Bvh firstHitOnly>
+            <MapDisplay3D mapGroupRef={mapGroupRef} />
+          </Bvh>
           <BillboardWarmup />
           <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}
