@@ -1,5 +1,4 @@
 ## TODO
-- Similarly, it would be nice if wall walks were grouped with road. Or if there was a shortcut to them as they're the primary tile in competitive maps.
 - Any chance 1, 2, 3, 4, 5 could always be 1, 2, 3, 7, 24? Currently the Marvel ruin base inserts itself at 4 which makes concrete different than everything else.
 - SZs block RotV ruin and GI Joe Wall placement and vice versa
 - Group LoS blockers such as trees/outcrops/similar so that they can be rotated through like regular terrain. Not a shortcut to them directly, but once one of them is chosen, 1 for single, 3 for triple, etc. would help a ton

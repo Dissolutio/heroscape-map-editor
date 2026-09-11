@@ -1,7 +1,8 @@
 import { type Object3DNode, extend } from '@react-three/fiber'
+import React from 'react'
 import { BufferGeometry, Color, Line, Vector3 } from 'three'
-import { hexPoints3DFromCenter } from '../../utils/map-utils'
 import type { BoardHex } from '../../types'
+import { hexPoints3DFromCenter } from '../../utils/map-utils'
 
 // this extension for line_ is because, if we just use <line></line> then we get an error:
 // Property 'geometry' does not exist on type 'SVGProps<SVGLineElement>'
@@ -72,13 +73,14 @@ export function TopOutlineInterlockHex({
   // console.log("🚀 ~ TopOutlineInterlockHex ~ boardHex.pieceRotation:", boardHex.pieceRotation, typeof boardHex.pieceRotation)
   const color = boardHex.terrain === 'asphalt' ? 'gray' : 'black'
   // 0,1,2,3,3B,4,4B,5,6
-  const geos = getGeo(
-    boardHex?.interlockType ?? '',
-    // STRANGE BUG FIX here below, coerce to number, eventhough it should already be a number
-    ((boardHex?.interlockRotation ?? 0) +
-      Number.parseInt(String(boardHex.pieceRotation))) %
+  const interlockRotation = React.useMemo(
+    () =>
+      ((boardHex?.interlockRotation ?? 0) +
+        Number.parseInt(String(boardHex.pieceRotation))) %
       6,
+    [boardHex.interlockRotation, boardHex.pieceRotation],
   )
+  const geos = getGeo(boardHex?.interlockType ?? '', interlockRotation)
   if (boardHex.interlockType === '0') {
     return null
   }
@@ -93,72 +95,48 @@ export function TopOutlineInterlockHex({
     </line_>
   ))
 }
+// Cache for interlock geometries to avoid GPU memory leaks
+const interlockGeoCache = new Map<number, BufferGeometry[]>()
+
+const createInterlockGeo = (rotation: number, size: number): BufferGeometry => {
+  const points = hexPoints.slice(0 + rotation, 0 + rotation + size)
+  return new BufferGeometry().setFromPoints(points)
+}
+
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 const getGeo = (interlockType: string, interlockRotation: number): any[] => {
+  const cacheKey = (interlockType.charCodeAt(0) << 16) | interlockRotation
+  const cached = interlockGeoCache.get(cacheKey)
+  if (cached) {
+    return cached
+  }
+
+  let geos: BufferGeometry[] = []
+
   if (interlockType === '1') {
-    return [getInterlock1Geo(interlockRotation)]
-  }
-  if (interlockType === '2') {
-    return [getInterlock2Geo(interlockRotation)]
-  }
-  if (interlockType === '3') {
-    return [getInterlock3Geo(interlockRotation)]
-  }
-  if (interlockType === '4') {
-    return [getInterlock4Geo(interlockRotation)]
-  }
-  if (interlockType === '5') {
-    return [getInterlock5Geo(interlockRotation)]
-  }
-  if (interlockType === '6') {
-    return [interlock6Geo]
-  }
-  if (interlockType === '3B') {
-    return [
-      getInterlock1Geo(interlockRotation + 5),
-      getInterlock2Geo(interlockRotation + 1),
+    geos = [createInterlockGeo(interlockRotation, 2)]
+  } else if (interlockType === '2') {
+    geos = [createInterlockGeo(interlockRotation, 3)]
+  } else if (interlockType === '3') {
+    geos = [createInterlockGeo(interlockRotation, 4)]
+  } else if (interlockType === '4') {
+    geos = [createInterlockGeo(interlockRotation, 5)]
+  } else if (interlockType === '5') {
+    geos = [createInterlockGeo(interlockRotation, 6)]
+  } else if (interlockType === '6') {
+    geos = [interlock6Geo]
+  } else if (interlockType === '3B') {
+    geos = [
+      createInterlockGeo(interlockRotation + 5, 2),
+      createInterlockGeo(interlockRotation + 1, 3),
+    ]
+  } else if (interlockType === '4B') {
+    geos = [
+      createInterlockGeo(interlockRotation + 1, 3),
+      createInterlockGeo(interlockRotation + 4, 3),
     ]
   }
-  if (interlockType === '4B') {
-    return [
-      getInterlock2Geo(interlockRotation + 1),
-      getInterlock2Geo(interlockRotation + 4),
-    ]
-  }
-  return []
-}
-const getInterlock1Geo = (interlockRotation: number) => {
-  const points = hexPoints.slice(
-    0 + interlockRotation,
-    0 + interlockRotation + 2,
-  )
-  return new BufferGeometry().setFromPoints(points)
-}
-const getInterlock2Geo = (interlockRotation: number) => {
-  const points = hexPoints.slice(
-    0 + interlockRotation,
-    0 + interlockRotation + 3,
-  )
-  return new BufferGeometry().setFromPoints(points)
-}
-const getInterlock3Geo = (interlockRotation: number) => {
-  const points = hexPoints.slice(
-    0 + interlockRotation,
-    0 + interlockRotation + 4,
-  )
-  return new BufferGeometry().setFromPoints(points)
-}
-const getInterlock4Geo = (interlockRotation: number) => {
-  const points = hexPoints.slice(
-    0 + interlockRotation,
-    0 + interlockRotation + 5,
-  )
-  return new BufferGeometry().setFromPoints(points)
-}
-const getInterlock5Geo = (interlockRotation: number) => {
-  const points = hexPoints.slice(
-    0 + interlockRotation,
-    0 + interlockRotation + 6,
-  )
-  return new BufferGeometry().setFromPoints(points)
+
+  interlockGeoCache.set(cacheKey, geos)
+  return geos
 }

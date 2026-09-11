@@ -25,3 +25,9 @@ dist-ssr
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Rust build artifacts
+src-tauri/target/
+
+# Tauri generated mobile artifacts (if applicable)
+src-tauri/gen/

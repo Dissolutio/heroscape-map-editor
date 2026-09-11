@@ -1,6 +1,7 @@
 import { ClickAwayListener } from '@mui/material'
 import {
   Billboard,
+  Bvh,
   type CameraControls,
   OrthographicCamera,
   PerspectiveCamera,
@@ -8,17 +9,17 @@ import {
   Text,
 } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
+import type React from 'react'
+import { useEffect, useState } from 'react'
+import type { Group, Object3DEventMap } from 'three'
 import SelectedPieceReadout from '../controls/SelectedPieceReadout'
 import useBoundStore from '../store/store'
 import { CAMERA_FOV } from '../utils/constants'
+import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import Lights from './Lights'
 import MapDisplay3D from './MapDisplay3D'
 import MyCameraControls from './camera/MyCameraControls'
 import TakeAPictureBox from './camera/TakeAPictureBox'
-import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
-import type { Group, Object3DEventMap } from 'three'
-import type React from 'react'
-import { useEffect, useState } from 'react'
 
 const BILLBOARD_WARMUP_MS = 4000
 
@@ -145,7 +146,9 @@ const World = ({
                   scale={[width, 0, length]}
                 // rotation={new Euler(0, Math.PI, 0)}
                 /> */}
-          <MapDisplay3D mapGroupRef={mapGroupRef} />
+          <Bvh firstHitOnly>
+            <MapDisplay3D mapGroupRef={mapGroupRef} />
+          </Bvh>
           <BillboardWarmup />
           <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}

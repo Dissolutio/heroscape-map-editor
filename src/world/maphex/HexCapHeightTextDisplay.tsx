@@ -1,14 +1,14 @@
 import { Billboard, Text } from '@react-three/drei'
 import { Color, type Vector3 } from 'three'
+import useBoundStore from '../../store/store'
 import {
+  type BoardHex,
   HexTerrain,
   Pieces,
-  type BoardHex,
   // HexTerrain,
 } from '../../types'
-import { HEXGRID_HEX_HEIGHT } from '../../utils/constants'
 import { isFluidTerrainHex } from '../../utils/board-utils'
-import useBoundStore from '../../store/store'
+import { HEXGRID_HEX_HEIGHT } from '../../utils/constants'
 import { genBoardHexID, getBoardPiecesMaxLevel } from '../../utils/map-utils'
 
 /* 
@@ -47,7 +47,8 @@ export const HexCapHeightTextDisplay = ({
   const isHexFluid = isFluidTerrainHex(boardHex?.terrain)
   const hexHeightTextColor =
     boardHex?.terrain === HexTerrain.ice ||
-    boardHex?.terrain === HexTerrain.snow
+    boardHex?.terrain === HexTerrain.snow ||
+    boardHex?.terrain === HexTerrain.toxicWater
       ? 'black'
       : 'white'
   // TODO: make own component for cap heights

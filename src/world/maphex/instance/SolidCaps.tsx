@@ -2,21 +2,21 @@ import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { useFrame } from '@react-three/fiber'
 import React from 'react'
+import { CylinderGeometry } from 'three'
+import type { Material } from 'three'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
-import { useDisposableGLTF } from '../../models/useDisposableGLTF'
 import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
-import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { calculateFocusOpacity } from '../../../utils/focus-opacity'
+import { getBoardHex3DCoords } from '../../../utils/map-utils'
+import { useDisposableGLTF } from '../../models/useDisposableGLTF'
+import { terrainCapColors } from '../hexColors'
 import type {
   BoardHexPieceProps,
   CylinderGeometryArgs,
   DreiCapProps,
   InstanceRefType,
 } from '../instance-hex'
-import { CylinderGeometry } from 'three'
-import type { Material } from 'three'
-import { terrainCapColors } from '../hexColors'
 
 const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
   0.8515,
@@ -28,6 +28,9 @@ const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
   Math.PI / 6,
   undefined,
 ]
+
+// Create geometry once at module level to avoid GPU memory leaks
+const basicCapGeometry = new CylinderGeometry(...baseSolidCapCylinderArgs)
 
 const SolidCaps = ({
   boardHexArr,
@@ -72,7 +75,6 @@ const SolidCaps = ({
 
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
-  const basicCapGeometry = new CylinderGeometry(...baseSolidCapCylinderArgs)
   return (
     <Instances
       limit={INSTANCE_LIMIT}

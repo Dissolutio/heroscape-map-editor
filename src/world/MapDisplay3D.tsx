@@ -1,7 +1,10 @@
 import type { ThreeEvent } from '@react-three/fiber'
 
+import { enqueueSnackbar } from 'notistack'
+import type React from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
+import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
 import useBoundStore from '../store/store.ts'
 import {
   type AddRemovePieceError,
@@ -25,17 +28,17 @@ import {
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
+import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
+import PieceOpacityGroup from './PieceOpacityGroup'
+import PiecePreview from './PiecePreview.tsx'
+import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import { MapHex3D } from './maphex/MapHex3D.tsx'
 import EmptyHexes from './maphex/instance/EmptyHex.tsx'
-import PieceOpacityGroup from './PieceOpacityGroup'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
 import SolidCaps from './maphex/instance/SolidCaps.tsx'
-import { enqueueSnackbar } from 'notistack'
-import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
-import PiecePreview from './PiecePreview.tsx'
-import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
-import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
-import type React from 'react'
+import LandSubterrainInstanced, {
+  getLandSubterrainInstanceData,
+} from './models/LandSubterrainInstanced.tsx'
 
 export default function MapDisplay3D({
   mapGroupRef,
@@ -61,6 +64,10 @@ export default function MapDisplay3D({
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
     isTakingPicture,
+    viewingLevel,
+  )
+  const landSubterrainData = getLandSubterrainInstanceData(
+    boardPieces,
     viewingLevel,
   )
 
@@ -283,6 +290,11 @@ export default function MapDisplay3D({
         <FluidCaps
           boardHexArr={instanceBoardHexes.fluidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
+          focusedPieceUID={focusedPieceUID}
+          focusStartTime={focusStartTime}
+        />
+        <LandSubterrainInstanced
+          data={landSubterrainData}
           focusedPieceUID={focusedPieceUID}
           focusStartTime={focusStartTime}
         />

@@ -1,9 +1,25 @@
 # Heroscape Map Editor
 
-This project is a Heroscape map editor built with React, TypeScript, and Vite. It allows users to create and edit Heroscape terrain maps using a web-based interface.
+## How to Install and Run
+
+### 🪟 Windows
+1. Download the installer from the [Official Windows Download](https://github.com/dissolutio/heroscape-map-editor/releases/latest/download/Hexoscape.msi).
+2. Double-click the `.msi` file to run the installer.
+3. *Note:* If a blue "Windows protected your PC" popup appears, click **More info** and then click **Run anyway**.
+
+### 🍏 macOS
+1. Download the app container from the [Official Mac Download](https://github.com/dissolutio/heroscape-map-editor/releases/latest/download/Hexoscape.dmg).
+2. Double-click the `.dmg` file, then **drag and drop** the application icon into your `Applications` folder.
+3. *Note:* If it says the developer cannot be verified, open your Mac's **System Settings > Privacy & Security**, scroll down, and click **Open Anyway**.
+
+### 🐧 Linux
+1. Download the package from the [Official Linux Download](https://github.com/dissolutio/heroscape-map-editor/releases/latest/download/Hexoscape.deb).
+2. Open your terminal and install it using: `sudo apt install ./Hexoscape_amd64.deb`
+
 
 ## Table of Contents
 
+- [How to Install and Run](#how-to-install-and-run)
 - [Getting Started](#getting-started)
 - [Libraries Used](#libraries-used)
 - [Blender Models](#blender-models)
@@ -12,7 +28,10 @@ This project is a Heroscape map editor built with React, TypeScript, and Vite. I
 - [App Requirements: What this editor intends to fulfill, eventually](./app-requirements.md)
 - [Vite Template: The README.md that was included by the initial Vite Typescript template](./vite-template-README.md)
 
+
 ## Getting Started
+
+This project is a Heroscape map editor built with React, TypeScript, and Vite.
 
 To get started with the project, follow these steps:
 

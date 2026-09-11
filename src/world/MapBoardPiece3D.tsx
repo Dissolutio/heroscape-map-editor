@@ -53,7 +53,6 @@ import TicallaPalm from './models/TicallaPalm'
 import {
   getLadderBattlementOptions,
   getObstaclRotation,
-  getOptionsForBigTree,
   getOptionsForPalmHeight,
   getOptionsForTreeHeight,
   getRoadWallOptions,
@@ -71,7 +70,6 @@ export const MapBoardPiece3D = ({
   const piece = piecesSoFar[inventoryID]
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
-  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const { x, z, y, yBase, yBaseCap, yWithBase, yGlyph, yGlyphFluidUnder } =
     getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const underHexID = genBoardHexID({ ...pieceCoords, altitude })
@@ -503,11 +501,11 @@ export const MapBoardPiece3D = ({
     return (
       <group
         position={[x, isUnderHexFluid ? yGlyphFluidUnder : yGlyph, z]}
-        rotation={
-          useLegacyStartZones
-            ? [0, pieceRotation, Math.PI / 2]
-            : [0, Math.PI / 6, 0]
-        }
+        // rotation={
+        //   useLegacyStartZones
+        //     ? [0, pieceRotation, Math.PI / 2]
+        //     : [0, Math.PI / 6, 0]
+        // }
       >
         <StartZone3D pid={uid} inventoryID={inventoryID} />
       </group>
@@ -773,27 +771,7 @@ export const MapBoardPiece3D = ({
     )
   }
 
-  const isFluidLandPiece = piece && isFluidTerrainHex(piece.terrain)
-  const isSolidLandPiece = piece && isSolidTerrainHex(piece.terrain)
-  if (isFluidLandPiece || isSolidLandPiece) {
-    return (
-      <group
-        position={[x, yBaseCap, z]}
-        rotation={[0, pieceRotation, 0]}
-        scale={
-          isFluidLandPiece ? [1, HEXGRID_HEXCAP_FLUID_SCALE, 1] : [1, 1, 1]
-        }
-      >
-        <Suspense fallback={<ModelLoader />}>
-          <LandSubterrain
-            inventoryID={inventoryID}
-            terrain={piece.terrain}
-            uid={uid}
-          />
-        </Suspense>
-      </group>
-    )
-  }
-
-  return <></>
+  // Ordinary land/water subterrain tiles are rendered via LandSubterrainInstanced
+  // in MapDisplay3D.tsx for performance, so nothing left to render here.
+  return null
 }
