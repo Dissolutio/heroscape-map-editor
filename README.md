@@ -14,7 +14,7 @@
 
 ### 🐧 Linux
 1. Download the package from the [Official Linux Download](https://github.com/dissolutio/heroscape-map-editor/releases/latest/download/Hexoscape.deb).
-2. Open your terminal and install it using: `sudo apt install ./Hexoscape_amd64.deb`
+2. Open your terminal and install it using: `sudo apt install ./Hexoscape.deb`
 
 
 ## Table of Contents
@@ -29,7 +29,7 @@
 - [Vite Template: The README.md that was included by the initial Vite Typescript template](./vite-template-README.md)
 
 
-## Getting Started
+## Getting Started on Development
 
 This project is a Heroscape map editor built with React, TypeScript, and Vite.
 
