@@ -66,4 +66,4 @@ jobs:
             See the assets to download this version and install.
           releaseDraft: false # <--- CHANGED TO FALSE to instantly publish the release
           prerelease: false
-          releaseAssetNamePattern: "[mainBinaryName]_[arch].[ext]"
+          releaseAssetNamePattern: "[mainBinaryName]_[arch][ext]"
