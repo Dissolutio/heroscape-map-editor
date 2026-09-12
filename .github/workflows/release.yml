@@ -2,10 +2,8 @@ name: Release Tauri Application
 
 on:
   push:
-    branches:
-      - main
     tags:
-      - "v*"
+      - "v*" # Removed 'branches: [main]' to prevent accidental non-versioned drafts
 
 permissions:
   contents: write
@@ -61,11 +59,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tauriScript: npx tauri # <--- Forces execution without package.json script
+          tauriScript: npx tauri
           tagName: ${{ github.ref_name }}
-          releaseName: ${{ github.ref_name }}
+          releaseName: "App Release ${{ github.ref_name }}"
           releaseBody: |
             See the assets to download this version and install.
-          releaseDraft: true
+          releaseDraft: false # <--- CHANGED TO FALSE to instantly publish the release
           prerelease: false
           assetNamePattern: "[name]_[arch].[ext]"
