@@ -1,4 +1,10 @@
 Sep-08-2026 PM
+- **3D StartZone previews**: See a preview now before you place a start zone
+- **Desktop App**: The app, when published to the web, will also be published as 3 desktop app downloads for Mac/Windows/Linux, and install instructions
+- **Hex Height Text: Toxic Water**: White text for hex height was not visible on toxic water, switched to black
+- **Fix Memory Leaks/Instancing Subterrains**: Code changes were made to further minimize RAM usage, improve graphics performance, improve ray casting speed
+
+Sep-08-2026 PM
 - **StartZone bugs: conflicting with ruins**: StartZones will no longer conflict with other pieces they are placed next to, like ruins and fortified wall. Also, clicking a hex with a StartZone will no longer place a duplicate.
 - **PDF: Bugfix: small map level on last page**: If you had a page with less than 3 map levels on it, they would print too small
 - Some changes to make the SVG export images more friendly with other software
