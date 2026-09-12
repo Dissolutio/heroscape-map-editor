@@ -1,4 +1,4 @@
-Sep-08-2026 PM
+Sep-12-2026
 - **3D StartZone previews**: See a preview now before you place a start zone
 - **Desktop App**: The app, when published to the web, will also be published as 3 desktop app downloads for Mac/Windows/Linux, and install instructions
 - **Hex Height Text: Toxic Water**: White text for hex height was not visible on toxic water, switched to black
