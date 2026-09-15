@@ -1,20 +1,18 @@
 import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
+import type { Color } from 'three'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
+import useBoundStore from '../../../store/store'
 import { HexTerrain } from '../../../types'
+import type { BoardHex } from '../../../types'
 import {
   HEXGRID_EMPTYHEX_HEIGHT,
   INSTANCE_LIMIT,
 } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { hexTerrainColor } from '../hexColors'
-import type {
-  BoardHexPieceProps,
-  CylinderGeometryArgs,
-  DreiCapProps,
-} from '../instance-hex'
-import useBoundStore from '../../../store/store'
+import type { CylinderGeometryArgs, DreiCapProps } from '../instance-hex'
 
 const baseEmptyCapCylinderArgs: CylinderGeometryArgs = [
   0.999,
@@ -28,17 +26,49 @@ const baseEmptyCapCylinderArgs: CylinderGeometryArgs = [
 ]
 const emptyHexColor = hexTerrainColor[HexTerrain.empty]
 
+// The PositionMesh proxy for whichever instance the pointer is currently interacting with
+type CapInstanceObject = { userData: { boardHex?: BoardHex }; color: Color }
+
 const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
   if (boardHexArr.length === 0) return null
+
+  // Single set of handlers shared by every empty hex in this batch, registered once on the
+  // parent InstancedMesh instead of per-hex. We read the current hex straight off the hit
+  // instance's userData -- kept in sync by each EmptyHex's own position effect below --
+  // rather than an instance index, so a hex that's moved/changed always resolves correctly.
+  const handleEnter = (e: ThreeEvent<PointerEvent>) => {
+    const target = e.object as unknown as CapInstanceObject
+    const boardHex = target.userData.boardHex
+    if (!boardHex) return
+    e.stopPropagation() // prevent this hover from passing through and affecting behind
+    onPointerEnter(e, boardHex)
+    target.color.set('yellow')
+  }
+  const handleOut = (e: ThreeEvent<PointerEvent>) => {
+    const target = e.object as unknown as CapInstanceObject
+    target.color.set(emptyHexColor)
+    onPointerOut(e)
+  }
+  const handleUp = (e: ThreeEvent<PointerEvent>) => {
+    const target = e.object as unknown as CapInstanceObject
+    const boardHex = target.userData.boardHex
+    if (!boardHex) return
+    onPointerUp(e, boardHex)
+  }
+
   return (
     <Instances
       range={boardHexArr.length}
       limit={INSTANCE_LIMIT}
       frustumCulled={false} // BUG: otherwise they disappear from view at unexpected angless
       receiveShadow={isLightsAndShadowsRender}
+      onPointerEnter={handleEnter}
+      onPointerOut={handleOut}
+      onPointerUp={handleUp}
     >
       <cylinderGeometry args={baseEmptyCapCylinderArgs} />
       {isLightsAndShadowsRender ? (
@@ -50,7 +80,6 @@ const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
         <EmptyHex
           key={`${hex.id + i}empty`}
           boardHex={hex}
-          onPointerUp={onPointerUp}
           isLightsAndShadowsRender={isLightsAndShadowsRender}
         />
       ))}
@@ -62,44 +91,29 @@ export default EmptyHexes
 
 function EmptyHex({
   boardHex,
-  onPointerUp,
   isLightsAndShadowsRender,
-}: BoardHexPieceProps & { isLightsAndShadowsRender: boolean }) {
+}: {
+  boardHex: BoardHex
+  isLightsAndShadowsRender: boolean
+}) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
 
-  // Effect: Initial color/position
+  // Effect: Initial color/position, and keep userData.boardHex current for the
+  // parent's pointer handlers
   React.useLayoutEffect(() => {
     const { x, z, y } = getBoardHex3DCoords(boardHex)
     if (ref.current) {
       ref.current?.color?.set?.(emptyHexColor)
       ref.current.position.set(x, y, z)
       ref.current.opacity = 0.5
+      ref.current.userData.boardHex = boardHex
     }
   }, [boardHex])
-
-  const handleEnter = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation() // prevent this hover from passing through and affecting behind
-    onPointerEnter(e, boardHex)
-    ref?.current?.color?.set?.('yellow')
-  }
-  const handleOut = (e: ThreeEvent<PointerEvent>) => {
-    if (ref.current) {
-      ref.current?.color?.set?.(emptyHexColor)
-    }
-    onPointerOut(e)
-  }
-  const handleUp = (e: ThreeEvent<PointerEvent>) => {
-    onPointerUp(e, boardHex)
-  }
 
   return (
     <Instance
       ref={ref}
-      onPointerUp={handleUp}
-      onPointerEnter={handleEnter}
-      onPointerOut={handleOut}
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
