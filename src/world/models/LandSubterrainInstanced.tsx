@@ -2,9 +2,15 @@ import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { useFrame } from '@react-three/fiber'
 import React from 'react'
-import type { Material } from 'three'
+import type { Color, Material } from 'three'
 import { Vector3 } from 'three'
 import { piecesSoFar } from '../../data/pieces'
+import {
+  pieceSubterrainRegistryRef,
+  useInstanceHighlightRegistry,
+  useInstanceHighlightSync,
+  useRegisterHighlightInstance,
+} from '../../hooks/useInstanceHighlightSync'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardPiece, HexTerrain, Pieces } from '../../types'
@@ -187,6 +193,10 @@ function SubterrainSizeGroup({
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
+  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
+  const highlightRegistry = useInstanceHighlightRegistry()
+  useInstanceHighlightSync(highlightRegistry, true)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF(GEOMETRY_FILE_BY_SIZE[size]) as any
   const geometry = nodes[GEOMETRY_NODE_BY_SIZE[size]]?.geometry
@@ -218,6 +228,37 @@ function SubterrainSizeGroup({
 
   if (!geometry) return null
 
+  // Single set of handlers shared by every instance in this size/terrain group, registered
+  // once on the parent InstancedMesh instead of per-item (drei still resolves the exact
+  // instance that was hit via its PositionMesh proxy). We read the hit instance's uid and
+  // current display color straight off its userData -- kept in sync by SubterrainInstance's
+  // own effects below -- rather than an instance index, so an item that's been re-terrained,
+  // rotated, or moved always resolves to its correct, current data.
+  const handlePointerEnter = (e: ThreeEvent<PointerEvent>) => {
+    const target = e.object as unknown as SubterrainInstanceObject
+    const uid = target.userData.uid
+    if (!uid) return
+    e.stopPropagation() // prevent this hover from passing through and affecting behind
+    onPointerEnterPID(e, uid)
+    target.color.set('yellow')
+  }
+  const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
+    const target = e.object as unknown as SubterrainInstanceObject
+    if (target.userData.displayColor) {
+      target.color.set(target.userData.displayColor)
+    }
+    onPointerOut(e)
+  }
+  const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation() // prevent pass through
+    // Early out right clicks(event.button=2), middle mouse clicks(1)
+    if (e.button !== 0) return
+    const target = e.object as unknown as SubterrainInstanceObject
+    const uid = target.userData.uid
+    if (!uid) return
+    toggleSelectedPieceID(uid, e.shiftKey || e.ctrlKey || e.metaKey)
+  }
+
   return (
     <Instances
       limit={INSTANCE_LIMIT}
@@ -227,6 +268,9 @@ function SubterrainSizeGroup({
       geometry={geometry}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
+      onPointerEnter={handlePointerEnter}
+      onPointerLeave={handlePointerOut}
+      onPointerUp={handlePointerUp}
     >
       {isLightsAndShadowsRender ? (
         <meshStandardMaterial
@@ -243,40 +287,38 @@ function SubterrainSizeGroup({
           key={item.uid}
           item={item}
           isLightsAndShadowsRender={isLightsAndShadowsRender}
+          highlightRegistry={highlightRegistry}
         />
       ))}
     </Instances>
   )
 }
 
+// The PositionMesh proxy for whichever instance the pointer is currently interacting with
+type SubterrainInstanceObject = {
+  userData: { uid?: string; displayColor?: string }
+  color: Color
+}
+
 function SubterrainInstance({
   item,
   isLightsAndShadowsRender,
+  highlightRegistry,
 }: {
   item: LandSubterrainInstanceDatum
   isLightsAndShadowsRender: boolean
+  highlightRegistry: ReturnType<typeof useInstanceHighlightRegistry>
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <drei Instance ref type>
   const ref = React.useRef<any>(null)
-  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
-  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
-  const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-
-  const isDirtSubterrain =
-    item.terrain === HexTerrain.grass ||
-    item.terrain === HexTerrain.sand ||
-    item.terrain === HexTerrain.rock
-  const baseColor = isDirtSubterrain
-    ? hexTerrainColor[HexTerrain.dirt]
-    : hexTerrainColor[item.terrain as keyof typeof hexTerrainColor]
-  const isSelected = selectedPieceIDs.includes(item.uid)
-  const displayColor = isSelected ? 'yellow' : baseColor
+  useRegisterHighlightInstance(highlightRegistry, item.uid, ref)
+  // Also register in the shared cross-batch registry so SolidCaps/FluidCaps can reach in.
+  useRegisterHighlightInstance(pieceSubterrainRegistryRef, item.uid, ref)
 
   // Subterrain-6B model is authored off-center from its hex origin (needs rotating with the piece)
   const xOffset = item.size === '6B' ? -2 * HEXGRID_HEX_APOTHEM : 0
 
-  // Effect: position/rotation/scale
+  // Effect: position/rotation/scale, and keep userData.uid current for the parent's pointer handlers
   React.useEffect(() => {
     if (!ref.current) return
     const rotatedOffset = new Vector3(xOffset, 0, 0).applyAxisAngle(
@@ -290,36 +332,41 @@ function SubterrainInstance({
     )
     ref.current.rotation.set(0, item.pieceRotation, 0)
     ref.current.scale.set(1, item.isFluid ? HEXGRID_HEXCAP_FLUID_SCALE : 1, 1)
-  }, [item.x, item.y, item.z, item.pieceRotation, item.isFluid, xOffset])
+    ref.current.userData.uid = item.uid
+  }, [
+    item.x,
+    item.y,
+    item.z,
+    item.pieceRotation,
+    item.isFluid,
+    xOffset,
+    item.uid,
+  ])
 
-  // Effect: color, reacting to hover/selection changes from anywhere (not just this instance's pointer events)
+  // Effect: base/display color, keyed on terrain (not hover/selection -- those are pushed
+  // imperatively to this instance by the parent's useInstanceHighlightSync when they change).
+  // Reads current selection/hover once via getState so a remount or terrain change lands on
+  // the correct color without subscribing this instance to the store.
   React.useEffect(() => {
     if (!ref.current) return
+    const isDirtSubterrain =
+      item.terrain === HexTerrain.grass ||
+      item.terrain === HexTerrain.sand ||
+      item.terrain === HexTerrain.rock
+    const baseColor = isDirtSubterrain
+      ? hexTerrainColor[HexTerrain.dirt]
+      : hexTerrainColor[item.terrain as keyof typeof hexTerrainColor]
+    const { hoveredPieceID, selectedPieceIDs } = useBoundStore.getState()
+    const isSelected = selectedPieceIDs.includes(item.uid)
+    const displayColor = isSelected ? 'yellow' : baseColor
+    ref.current.userData.baseColor = baseColor
+    ref.current.userData.displayColor = displayColor
     ref.current.color.set(hoveredPieceID === item.uid ? 'yellow' : displayColor)
-  }, [item.uid, hoveredPieceID, displayColor])
-
-  const handlePointerEnter = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation() // prevent this hover from passing through and affecting behind
-    onPointerEnterPID(e, item.uid)
-    ref?.current?.color?.set?.('yellow')
-  }
-  const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
-    ref?.current?.color?.set?.(displayColor)
-    onPointerOut(e)
-  }
-  const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (e.button !== 0) return
-    toggleSelectedPieceID(item.uid, e.shiftKey || e.ctrlKey || e.metaKey)
-  }
+  }, [item.uid, item.terrain])
 
   return (
     <Instance
       ref={ref}
-      onPointerEnter={handlePointerEnter}
-      onPointerLeave={handlePointerOut}
-      onPointerUp={handlePointerUp}
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}

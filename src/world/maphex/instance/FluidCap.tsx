@@ -2,23 +2,24 @@ import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { useFrame } from '@react-three/fiber'
 import React from 'react'
+import type { Color, Material } from 'three'
+import { setPieceSubterrainHovered } from '../../../hooks/useInstanceHighlightSync'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
+import type { BoardHex } from '../../../types'
 import {
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEX_HEIGHT,
   INSTANCE_LIMIT,
 } from '../../../utils/constants'
-import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { calculateFocusOpacity } from '../../../utils/focus-opacity'
+import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { hexTerrainColor } from '../hexColors'
 import type {
-  BoardHexPieceProps,
   CylinderGeometryArgs,
   DreiCapProps,
   InstanceRefType,
 } from '../instance-hex'
-import type { Material } from 'three'
 
 const baseFluidCapCylinderArgs: CylinderGeometryArgs = [
   0.9,
@@ -31,6 +32,10 @@ const baseFluidCapCylinderArgs: CylinderGeometryArgs = [
   undefined,
 ]
 export const FLUID_CAP_OPACITY = 0.85
+
+// The PositionMesh proxy for whichever instance the pointer is currently interacting with
+type CapInstanceObject = { userData: { boardHex?: BoardHex }; color: Color }
+
 const FluidCaps = ({
   boardHexArr,
   onPointerUp,
@@ -42,6 +47,7 @@ const FluidCaps = ({
   )
   const ref = React.useRef<InstanceRefType>(null)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
 
   // Apply material opacity based on focus state
   useFrame(() => {
@@ -71,6 +77,42 @@ const FluidCaps = ({
 
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
+
+  // Single set of handlers shared by every fluid cap in this batch, registered once on the
+  // parent InstancedMesh instead of per-hex (drei still resolves the exact instance that was
+  // hit via its PositionMesh proxy). We read the current hex straight off that instance's
+  // userData -- kept in sync by each FluidCap's own position/color effect below -- rather
+  // than an instance index, so a hex that's been re-terrained, rotated, or moved always
+  // resolves to its correct, current coordinates and color.
+  const handlePointerEnter = (e: ThreeEvent<PointerEvent>) => {
+    const target = e.object as unknown as CapInstanceObject
+    const boardHex = target.userData.boardHex
+    if (!boardHex) return
+    e.stopPropagation() // prevent this hover from passing through and affecting behind
+    onPointerEnter(e, boardHex)
+    target.color.set('yellow')
+    setPieceSubterrainHovered(boardHex.boardPieceUID, true)
+  }
+  const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
+    const target = e.object as unknown as CapInstanceObject
+    const boardHex = target.userData.boardHex
+    if (boardHex) {
+      target.color.set(
+        hexTerrainColor[boardHex.terrain as keyof typeof hexTerrainColor],
+      )
+      setPieceSubterrainHovered(boardHex.boardPieceUID, false)
+    }
+    onPointerOut(e)
+  }
+  const handlePointerUpLocal = (e: ThreeEvent<PointerEvent>) => {
+    // Early out right clicks(event.button=2), middle mouse clicks(1)
+    if (e.button !== 0) return
+    const target = e.object as unknown as CapInstanceObject
+    const boardHex = target.userData.boardHex
+    if (!boardHex) return
+    onPointerUp(e, boardHex)
+  }
+
   return (
     <Instances
       limit={INSTANCE_LIMIT}
@@ -78,6 +120,9 @@ const FluidCaps = ({
       ref={ref}
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
+      onPointerEnter={handlePointerEnter}
+      onPointerOut={handlePointerOut}
+      onPointerUp={handlePointerUpLocal}
     >
       <cylinderGeometry args={baseFluidCapCylinderArgs} />
       {isLightsAndShadowsRender ? (
@@ -89,8 +134,6 @@ const FluidCaps = ({
         <FluidCap
           key={`${hex.id + i}fluid`}
           boardHex={hex}
-          onPointerUp={onPointerUp}
-          isVisible={range >= i}
           isLightsAndShadowsRender={isLightsAndShadowsRender}
         />
       ))}
@@ -102,26 +145,23 @@ export default FluidCaps
 
 function FluidCap({
   boardHex,
-  onPointerUp,
-  isVisible,
   isLightsAndShadowsRender,
-}: BoardHexPieceProps & {
-  isVisible: boolean
+}: {
+  boardHex: BoardHex
   isLightsAndShadowsRender: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
-  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const color =
     hexTerrainColor[boardHex.terrain as keyof typeof hexTerrainColor]
 
-  // Effect: Initial color/position
+  // Effect: Initial color/position, and keep userData.boardHex current for the
+  // parent's pointer handlers (re-runs whenever this hex's terrain/coords change).
+  // Caps only ever highlight from their own direct hover (see handlePointerEnter/Out
+  // above), never from the shared piece uid, so the resting color here is always the
+  // plain terrain color, regardless of whether the parent subterrain is hovered.
   React.useEffect(() => {
     const { x, y, z } = getBoardHex3DCoords(boardHex)
-    ref.current.color.set(
-      hexTerrainColor[boardHex.terrain as keyof typeof hexTerrainColor],
-    )
     ref.current.position.set(
       x,
       y -
@@ -129,49 +169,13 @@ function FluidCap({
         0.001,
       z,
     )
-  }, [boardHex])
-
-  // update color when piece is hovered
-  React.useEffect(() => {
-    if (hoveredPieceID === boardHex?.boardPieceUID) {
-      // ref.current.color.set('yellow')
-    } else {
-      ref.current.color.set(color)
-    }
-  }, [boardHex.boardPieceUID, hoveredPieceID, color])
-
-  const handlePointerEnter = (e: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
-    e.stopPropagation() // prevent this hover from passing through and affecting behind
-    onPointerEnter(e, boardHex)
-    ref?.current?.color?.set?.('yellow')
-  }
-  const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
-    ref?.current?.color?.set?.(color)
-    onPointerOut(e)
-  }
-  const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
-    if (!isVisible) {
-      return
-    }
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (e.button !== 0) {
-      return
-    }
-    onPointerUp(e, boardHex)
-  }
+    ref.current.userData.boardHex = boardHex
+    ref.current.color.set(color)
+  }, [boardHex, color])
 
   return (
     <Instance
       ref={ref}
-      onPointerUp={handlePointerUp}
-      onPointerEnter={handlePointerEnter}
-      onPointerOut={handlePointerOut}
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
