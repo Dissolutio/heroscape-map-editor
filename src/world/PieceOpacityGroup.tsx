@@ -1,6 +1,6 @@
-import React from 'react'
-import type { Material, Mesh, Group } from 'three'
 import { useFrame } from '@react-three/fiber'
+import React from 'react'
+import type { Group, Material, Mesh } from 'three'
 import { calculateFocusOpacity } from '../utils/focus-opacity'
 
 type Props = {
@@ -28,6 +28,8 @@ export default function PieceOpacityGroup({
   children,
 }: Props) {
   const groupRef = React.useRef<Group>(null)
+  // Last applied opacity so a settled (unfocused) group can skip the traverse entirely.
+  const lastOpacityRef = React.useRef<number | null>(null)
 
   useFrame(() => {
     const group = groupRef.current
@@ -40,15 +42,19 @@ export default function PieceOpacityGroup({
       pieceUID,
     )
 
+    // Nothing changed since last frame and we're already at rest: skip the walk.
+    if (opacity === 1 && lastOpacityRef.current === 1) return
+    lastOpacityRef.current = opacity
+
     group.traverse((child) => {
       if (!('isMesh' in child) || !(child as Mesh).isMesh) return
       const mesh = child as Mesh
-      const materials = Array.isArray(mesh.material)
-        ? mesh.material
-        : [mesh.material]
-      for (const material of materials) {
-        if (!material) continue
-        setMaterialOpacity(material, opacity)
+      if (Array.isArray(mesh.material)) {
+        for (const material of mesh.material) {
+          if (material) setMaterialOpacity(material, opacity)
+        }
+      } else if (mesh.material) {
+        setMaterialOpacity(mesh.material, opacity)
       }
     })
   })

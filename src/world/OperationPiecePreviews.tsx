@@ -24,6 +24,15 @@ const SHAFT_RADIUS = 0.055
 const HEAD_RADIUS = 0.16
 const HEAD_LENGTH_FRAC = 0.32 // fraction of total length used for the arrowhead
 
+// Mutates one material toward the ghost-preview opacity, skipping the write once it matches.
+function applyPreviewOpacity(mat: ThreeMesh['material']) {
+  if (!mat || Array.isArray(mat)) return
+  if (mat.transparent && mat.opacity === OPERATION_PREVIEW_OPACITY) return
+  mat.transparent = true
+  mat.opacity = OPERATION_PREVIEW_OPACITY
+  mat.needsUpdate = true
+}
+
 // Create a stable material reference that will be reused for all arrow instances
 // This prevents GPU memory leaks from creating new materials on every render
 const arrowMaterialCache = new MeshBasicMaterial({
@@ -163,15 +172,12 @@ function OperationPiecePreviewItem({
     groupRef.current.traverse((child) => {
       const mesh = child as ThreeMesh
       if (!mesh.isMesh) return
-      const mats = Array.isArray(mesh.material)
-        ? mesh.material
-        : [mesh.material]
-      for (const mat of mats) {
-        if (!mat.transparent || mat.opacity !== OPERATION_PREVIEW_OPACITY) {
-          mat.transparent = true
-          mat.opacity = OPERATION_PREVIEW_OPACITY
-          mat.needsUpdate = true
+      if (Array.isArray(mesh.material)) {
+        for (const mat of mesh.material) {
+          applyPreviewOpacity(mat)
         }
+      } else {
+        applyPreviewOpacity(mesh.material)
       }
     })
   })
