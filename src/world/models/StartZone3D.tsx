@@ -17,7 +17,6 @@ export function StartZone3D({
   pid?: string
   inventoryID: string
 }) {
-  console.log('🚀 ~ StartZone3D ~ pid:', pid)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -47,6 +46,7 @@ export function StartZone3D({
       onPointerUp={pid ? onPointerUp : undefined}
       onPointerEnter={pid ? (e) => onPointerEnterPID(e, pid) : undefined}
       onPointerOut={pid ? (e) => onPointerOut(e) : undefined}
+      rotation={useLegacyStartZones ? [-Math.PI / 2, 0, 0] : [0, 0, 0]}
     >
       {useLegacyStartZones ? (
         <circleGeometry args={[HEXGRID_HEX_RADIUS / 2.1, 32]} />
