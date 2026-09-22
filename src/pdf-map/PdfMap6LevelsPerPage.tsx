@@ -2,6 +2,14 @@ import { Page, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy, uniq } from 'lodash'
 import type { PropsWithChildren } from 'react'
 import {
+  LEVEL_LOGO_OUTLIER_LABEL_MARGIN,
+  LEVEL_LOGO_OVERLAY_LAYER_PDF_FONT_SIZE,
+  LEVEL_LOGO_OVERLAY_LAYER_PDF_LINE_HEIGHT,
+  LEVEL_LOGO_PDF_WIDTH,
+  NO_LEVEL_LOGO_OVERLAY_LAYER_PDF_FONT_SIZE,
+  NO_LEVEL_LOGO_OVERLAY_LAYER_PDF_LINE_HEIGHT,
+} from '../pdf-svg-shared/levelLogoLayout'
+import {
   type BoardHexes,
   type BoardPiece,
   type PdfMapAltitudeChunk,
@@ -237,22 +245,33 @@ const PdfLevelChunkHeading = ({
   isShowPdfLevelLogo: boolean
 }) => {
   if (group.label || !isShowPdfLevelLogo) {
+    const margin =
+      group.label === 'Glyphs and Start Zones' && isShowPdfLevelLogo
+        ? LEVEL_LOGO_OUTLIER_LABEL_MARGIN
+        : 0
+    console.log('🚀 ~ PdfLevelChunkHeading ~ margin:', margin)
     return (
       <Text
         style={{
           // The last level, the overlay layer, needs to be pushed down to line up with the chunks that have a level logo
-          // TODO this will change when we add different levels-per-page formats
-          marginTop: group.label === 'Glyphs and Start Zones' ? 12.5 : 0,
-          marginBottom: group.label === 'Glyphs and Start Zones' ? 12.5 : 0,
-          fontSize: '10px',
-          fontFamily: 'Proxima Nova Condensed Black',
+          marginTop: margin,
+          marginBottom: margin,
+          fontSize: isShowPdfLevelLogo
+            ? LEVEL_LOGO_OVERLAY_LAYER_PDF_FONT_SIZE
+            : NO_LEVEL_LOGO_OVERLAY_LAYER_PDF_FONT_SIZE,
+          lineHeight: isShowPdfLevelLogo
+            ? LEVEL_LOGO_OVERLAY_LAYER_PDF_LINE_HEIGHT
+            : NO_LEVEL_LOGO_OVERLAY_LAYER_PDF_LINE_HEIGHT,
+          fontFamily: isShowPdfLevelLogo
+            ? 'Proxima Nova Condensed Black'
+            : undefined,
         }}
       >
         {group.label ?? `Level: ${group.altitude}`}
       </Text>
     )
   }
-  return <PdfLevelLogo level={group.altitude} width={60} />
+  return <PdfLevelLogo level={group.altitude} width={LEVEL_LOGO_PDF_WIDTH} />
 }
 
 const RowWrapper = (props: PropsWithChildren) => {
