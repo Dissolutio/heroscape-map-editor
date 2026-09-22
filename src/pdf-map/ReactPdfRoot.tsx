@@ -135,11 +135,29 @@ const PdfDocument = ({
   isShowPdfTileLetters: boolean
   isShowPDFInventory: boolean
   useLegacyStartZones: boolean
-  pdfRenderFormat: 'coversheet' | 'shortHeader'
+  pdfRenderFormat: 'coversheet' | 'shortHeader' | 'condensedCoversheet'
 }) => {
   if (pdfRenderFormat === PDF_RENDER_FORMATS.COVERSHEET) {
     return (
       <PdfDocumentCoverSheet
+        hexMap={hexMap}
+        boardHexes={boardHexes}
+        boardPieces={boardPieces}
+        isPdfColorBorders={isPdfColorBorders}
+        isShowPdfOverlayLayer={isShowPdfOverlayLayer}
+        isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+        isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
+        isShowPdfLevelLogo={isShowPdfLevelLogo}
+        isShowPdfTileLetters={isShowPdfTileLetters}
+        isShowPDFInventory={isShowPDFInventory}
+        useLegacyStartZones={useLegacyStartZones}
+      />
+    )
+  }
+
+  if (pdfRenderFormat === PDF_RENDER_FORMATS.CONDENSED_COVERSHEET) {
+    return (
+      <PdfDocumentCondensedCoverSheet
         hexMap={hexMap}
         boardHexes={boardHexes}
         boardPieces={boardPieces}
@@ -215,7 +233,7 @@ const PdfDocumentCoverSheet = ({
         }}
       >
         {/* Title and Author */}
-        <View style={{ alignItems: 'center', marginBottom: 20 }}>
+        <View style={{ alignItems: 'center', marginBottom: 15 }}>
           <Text
             style={{
               fontSize: 32,
@@ -240,9 +258,9 @@ const PdfDocumentCoverSheet = ({
             <Text
               style={{
                 fontSize: 11,
-                fontFamily: 'InterItalic',
+                // fontFamily: 'Inter',
                 marginTop: 8,
-                textAlign: 'center',
+                textAlign: 'left',
               }}
             >
               {hexMap.mapNotes}
@@ -278,7 +296,7 @@ const PdfDocumentCoverSheet = ({
               style={{
                 fontSize: 24,
                 marginBottom: 10,
-                // fontFamily: 'Inter',
+                fontFamily: 'Inter',
                 textAlign: 'center',
               }}
             >
@@ -314,6 +332,161 @@ const PdfDocumentCoverSheet = ({
         isShowPDFInventory={isShowPDFInventory}
         boardPieces={boardPieces}
         setsUsed={hexMap.setsUsed ?? []}
+      />
+    </Document>
+  )
+}
+
+/**
+ * Condensed Coversheet format: First page features centered title, author, map image,
+ * sets used, and condensed inventory section. Map levels on subsequent pages.
+ * Layout emphasizes the map with inventory integrated into the first page.
+ */
+const PdfDocumentCondensedCoverSheet = ({
+  hexMap,
+  boardHexes,
+  boardPieces,
+  isPdfColorBorders,
+  isShowPdfOverlayLayer,
+  isShowPdfOverlayOnPlacedLevel,
+  isShowPdfGridLinesOverSublevels,
+  isShowPdfLevelLogo,
+  isShowPdfTileLetters,
+  isShowPDFInventory,
+  useLegacyStartZones,
+}: {
+  hexMap: HexMap
+  boardHexes: BoardHexes
+  boardPieces: BoardPieces
+  isPdfColorBorders: boolean
+  isShowPdfOverlayLayer: boolean
+  isShowPdfOverlayOnPlacedLevel: boolean
+  isShowPdfGridLinesOverSublevels: boolean
+  isShowPdfLevelLogo: boolean
+  isShowPdfTileLetters: boolean
+  isShowPDFInventory: boolean
+  useLegacyStartZones: boolean
+}) => {
+  return (
+    <Document title={hexMap.name}>
+      {/* Coversheet page with integrated inventory */}
+      <Page
+        size="LETTER"
+        style={{
+          flexDirection: 'column',
+          padding: 30,
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* Title and Author */}
+        <View style={{ alignItems: 'center', marginBottom: 15 }}>
+          <Text
+            style={{
+              fontSize: 32,
+              fontWeight: 'bold',
+              marginBottom: 10,
+              fontFamily: 'Inter',
+            }}
+          >
+            {hexMap.name}
+          </Text>
+          {hexMap.author && (
+            <Text
+              style={{
+                fontSize: 16,
+                fontFamily: 'InterItalic',
+              }}
+            >
+              by {hexMap.author}
+            </Text>
+          )}
+          {hexMap.mapNotes && (
+            <Text
+              style={{
+                fontSize: 11,
+                fontFamily: 'InterItalic',
+                marginTop: 8,
+                textAlign: 'center',
+              }}
+            >
+              {hexMap.mapNotes}
+            </Text>
+          )}
+        </View>
+
+        {/* Map Image - smaller to accommodate inventory below */}
+        {hexMap.mapPortraitBase64 && (
+          <View
+            style={{
+              flexGrow: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Image
+              src={hexMap.mapPortraitBase64}
+              style={{
+                maxHeight: '400px',
+                maxWidth: '100%',
+                width: 'auto',
+                height: 'auto',
+              }}
+            />
+          </View>
+        )}
+
+        <View
+          style={{
+            flexGrow: 1,
+            justifyContent: 'flex-end',
+          }}
+        >
+          {/* Sets Used */}
+          {hexMap.setsUsed && hexMap.setsUsed.length > 0 && (
+            <View style={{ alignItems: 'center' }}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  marginBottom: 4,
+                  fontFamily: 'Inter',
+                  textAlign: 'center',
+                }}
+              >
+                Required Terrain
+              </Text>
+              <Text
+                style={{
+                  fontSize: 9,
+                  textAlign: 'center',
+                  // fontFamily: 'Inter',
+                }}
+              >
+                {getRequiredTerrainText(hexMap.setsUsed)}
+              </Text>
+            </View>
+          )}
+
+          {/* Condensed Inventory Section */}
+          <PdfPieceInventoryCondensed
+            isShowPDFInventory={isShowPDFInventory}
+            boardPieces={boardPieces}
+            setsUsed={hexMap.setsUsed ?? []}
+          />
+        </View>
+      </Page>
+
+      {/* Map Levels Page(s) */}
+      <PdfMapLevels6PerPage
+        boardHexes={boardHexes}
+        boardPieces={boardPieces}
+        isPdfColorBorders={isPdfColorBorders}
+        isShowPdfOverlayLayer={isShowPdfOverlayLayer}
+        isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
+        isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
+        isShowPdfLevelLogo={isShowPdfLevelLogo}
+        isShowPdfTileLetters={isShowPdfTileLetters}
+        useLegacyStartZones={useLegacyStartZones}
       />
     </Document>
   )
@@ -743,5 +916,231 @@ const PdfPieceInventory = ({
         </View>
       </View>
     </Page>
+  )
+}
+
+/**
+ * Condensed Inventory component for embedding in a page (not a full page itself).
+ * Renders at approximately 1/3 the size of the full-page inventory.
+ * Used in the Condensed Coversheet format.
+ */
+const PdfPieceInventoryCondensed = ({
+  isShowPDFInventory,
+  boardPieces,
+  setsUsed,
+}: {
+  isShowPDFInventory: boolean
+  boardPieces: BoardPiece[]
+  setsUsed: string[]
+}) => {
+  if (!isShowPDFInventory || !boardPieces.length) {
+    return null
+  }
+
+  const countsBeforeReconcile = countPiecesUsedWithLaurStacking(boardPieces)
+  const hasConstraints = Array.isArray(setsUsed) && setsUsed.length > 0
+  const combinedInventory = getCombinedInventory(setsUsed)
+
+  const counts = hasConstraints
+    ? reconcileLaurLegacyToStackableUsage({
+        usedInventory: countsBeforeReconcile,
+        availableInventory: combinedInventory,
+      }).reconciledUsedInventory
+    : countsBeforeReconcile
+
+  const getInventoryCategoryRank = (piece: {
+    terrain?: string
+    isHexTerrainPiece?: boolean
+    isObstaclePiece?: boolean
+  }) => {
+    if (
+      piece.terrain === HexTerrain.glyphPower ||
+      piece.terrain === HexTerrain.glyphTreasure
+    ) {
+      return 2
+    }
+    if (piece.terrain === HexTerrain.startZone) {
+      return 3
+    }
+    if (piece.isHexTerrainPiece) {
+      return 0
+    }
+    if (piece.isObstaclePiece) {
+      return 1
+    }
+    return 1
+  }
+
+  const entries = Object.entries(counts)
+    .map(([id, count]) => {
+      const piece = piecesSoFar[id]
+      return {
+        id,
+        count,
+        title: piece?.title ?? id,
+        terrain: piece?.terrain ?? '',
+        size: piece?.size ?? 0,
+        isHexTerrainPiece: piece?.isHexTerrainPiece ?? false,
+        isObstaclePiece: piece?.isObstaclePiece ?? false,
+      }
+    })
+    .sort((a, b) => {
+      const categoryRankA = getInventoryCategoryRank(a)
+      const categoryRankB = getInventoryCategoryRank(b)
+      if (categoryRankA !== categoryRankB) {
+        return categoryRankA - categoryRankB
+      }
+
+      const terrainOrder = a.terrain.localeCompare(b.terrain)
+      if (terrainOrder !== 0) {
+        return terrainOrder
+      }
+
+      if (a.isHexTerrainPiece && b.isHexTerrainPiece && a.size !== b.size) {
+        return a.size - b.size
+      }
+
+      const titleOrder = a.title.localeCompare(b.title)
+      if (titleOrder !== 0) {
+        return titleOrder
+      }
+
+      return a.id.localeCompare(b.id)
+    })
+
+  type InventoryRow =
+    | {
+        kind: 'header'
+        id: string
+        title: string
+      }
+    | {
+        kind: 'piece'
+        id: string
+        title: string
+        count: number
+      }
+
+  const getSectionKey = (entry: {
+    terrain?: string
+    isHexTerrainPiece?: boolean
+    isObstaclePiece?: boolean
+  }) => {
+    const categoryRank = getInventoryCategoryRank(entry)
+    if (categoryRank === 0) return 'land'
+    if (categoryRank === 1) return 'obstacles'
+    return 'glyphsStartzones'
+  }
+
+  const sectionLabelByKey: Record<string, string> = {
+    land: 'Land',
+    obstacles: 'Obstacles',
+    glyphsStartzones: 'Glyphs/StartZones',
+  }
+
+  const entriesWithHeaders: InventoryRow[] = []
+  let currentSectionKey = ''
+  for (const entry of entries) {
+    const sectionKey = getSectionKey(entry)
+    if (sectionKey !== currentSectionKey) {
+      entriesWithHeaders.push({
+        kind: 'header',
+        id: `header-${sectionKey}`,
+        title: sectionLabelByKey[sectionKey],
+      })
+      currentSectionKey = sectionKey
+    }
+
+    entriesWithHeaders.push({
+      kind: 'piece',
+      id: entry.id,
+      title: entry.title,
+      count: entry.count,
+    })
+  }
+
+  const columnCount = 4
+  const rowsPerColumn = Math.ceil(entriesWithHeaders.length / columnCount)
+  const remaining = [...entriesWithHeaders]
+  const entryColumns = Array.from(
+    { length: columnCount },
+    (_, colIndex): InventoryRow[] => {
+      const isLastColumn = colIndex === columnCount - 1
+      const column: InventoryRow[] = []
+      for (let row = 0; row < rowsPerColumn; row++) {
+        if (remaining.length === 0) break
+        // Don't place a header as the last row of a non-last column — it would
+        // be orphaned from its items which continue in the next column.
+        if (
+          !isLastColumn &&
+          row === rowsPerColumn - 1 &&
+          remaining[0].kind === 'header'
+        ) {
+          break
+        }
+        const item = remaining.shift()
+        if (item) column.push(item)
+      }
+      return column
+    },
+  )
+  // Flush any overflow (e.g. caused by skipped header slots) into the last column
+  if (remaining.length > 0) {
+    entryColumns[columnCount - 1].push(...remaining)
+  }
+
+  return (
+    <View
+      style={{
+        padding: 2,
+        flexDirection: 'column',
+        width: '100%',
+        borderTop: '1px solid #ccc',
+        paddingTop: 4,
+      }}
+    >
+      <Text style={{ fontSize: '8px', marginBottom: 2, fontWeight: 'bold' }}>
+        Inventory
+      </Text>
+
+      <View style={{ flexDirection: 'row' }}>
+        {entryColumns.map((column, columnIndex) => (
+          <View
+            key={`inventory-column-condensed-${columnIndex + 1}`}
+            style={{
+              width: '33.33%',
+              flexDirection: 'column',
+            }}
+          >
+            {column.map((e) =>
+              e.kind === 'header' ? (
+                <Text
+                  key={e.id}
+                  style={{
+                    fontSize: '8px',
+                    fontWeight: 'bold',
+                    textDecoration: 'underline',
+                    marginTop: 1,
+                    marginBottom: 1,
+                  }}
+                >
+                  {e.title}
+                </Text>
+              ) : (
+                <View
+                  key={e.id}
+                  style={{
+                    flexDirection: 'row',
+                  }}
+                >
+                  <Text style={{ fontSize: '8px' }}>{e.title} </Text>
+                  <Text style={{ fontSize: '8px' }}>x{e.count}</Text>
+                </View>
+              ),
+            )}
+          </View>
+        ))}
+      </View>
+    </View>
   )
 }

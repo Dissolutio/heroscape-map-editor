@@ -502,6 +502,9 @@ const PdfPreferencesSwitchForm = () => {
             <MenuItem value={PDF_RENDER_FORMATS.SHORT_HEADER}>
               {PDF_FORMAT_LABELS[PDF_RENDER_FORMATS.SHORT_HEADER]}
             </MenuItem>
+            <MenuItem value={PDF_RENDER_FORMATS.CONDENSED_COVERSHEET}>
+              {PDF_FORMAT_LABELS[PDF_RENDER_FORMATS.CONDENSED_COVERSHEET]}
+            </MenuItem>
           </Select>
         </FormControl>
       </FormGroup>
