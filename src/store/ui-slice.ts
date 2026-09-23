@@ -112,8 +112,10 @@ export interface UISlice {
   toggleIsShowPdfLevelLogo: (b: boolean) => void
   isShowPdfTileLetters: boolean
   toggleIsShowPdfTileLetters: (b: boolean) => void
-  pdfRenderFormat: 'coversheet' | 'shortHeader'
-  setPdfRenderFormat: (format: 'coversheet' | 'shortHeader') => void
+  pdfRenderFormat: 'coversheet' | 'shortHeader' | 'condensedCoversheet'
+  setPdfRenderFormat: (
+    format: 'coversheet' | 'shortHeader' | 'condensedCoversheet',
+  ) => void
   // SVG STATE
   is2DOverlayLevelEnabled: boolean
   toggleIs2DOverlayLevelEnabled: (b: boolean) => void
@@ -409,7 +411,9 @@ const createUISlice: StateCreator<
       }),
     ),
   pdfRenderFormat: 'coversheet',
-  setPdfRenderFormat: (format: 'coversheet' | 'shortHeader') =>
+  setPdfRenderFormat: (
+    format: 'coversheet' | 'shortHeader' | 'condensedCoversheet',
+  ) =>
     set(
       produce((s) => {
         s.pdfRenderFormat = format
