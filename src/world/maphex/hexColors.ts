@@ -45,6 +45,16 @@ export const virtualscapeTileColors: Dictionary<string> = {
   [Pieces.startZone7]: 'rgb(255,128,0)',
   [Pieces.startZone8]: 'rgb(128,0,255)',
 }
+export const virtualscapeSublevelTileColors: Dictionary<string> = {
+  [Pieces.startZone1]: 'rgb(255, 128, 128)',
+  [Pieces.startZone2]: 'rgb(128, 255, 128)',
+  [Pieces.startZone3]: 'rgb(128, 128, 255)',
+  [Pieces.startZone4]: 'rgb(255, 255, 128)',
+  [Pieces.startZone5]: 'rgb(255, 128, 255)',
+  [Pieces.startZone6]: 'rgb(128, 255, 255)',
+  [Pieces.startZone7]: 'rgb(255, 192, 128)',
+  [Pieces.startZone8]: 'rgb(192, 128, 255)',
+}
 
 export const hexTerrainColor = {
   ...virtualscapeTileColors,
@@ -323,7 +333,15 @@ export const svgSubLevelColors = {
   outlineLavaOutcrop: '#E8B590',
   outlineOutcrop: '#E8B590',
   outlineShroudshroom: '#E8B590', // renegade-hexoscape
-
+  // START ZONES
+  [Pieces.startZone1]: 'rgb(216, 128, 199)',
+  [Pieces.startZone2]: 'rgb(132, 171, 146)',
+  [Pieces.startZone3]: 'rgb(136, 132, 156)',
+  [Pieces.startZone4]: 'rgb(195, 161, 138)',
+  [Pieces.startZone5]: 'rgb(241, 128, 202)',
+  [Pieces.startZone6]: 'rgb(177, 194, 146)',
+  [Pieces.startZone7]: 'rgb(255, 190, 128)',
+  [Pieces.startZone8]: 'rgb(166, 148, 212)',
   // OBSTACLES
   [HexTerrain.ladder]: '#D6A591',
   [HexTerrain.ruin]: '#D08080', // virtualscape

@@ -70,6 +70,7 @@ import {
 import {
   svgColors,
   svgSubLevelColors,
+  virtualscapeSublevelTileColors,
   virtualscapeTileColors,
 } from '../world/maphex/hexColors'
 
@@ -985,44 +986,36 @@ export const PdfStartZone = ({
   useLegacyStartZones?: boolean
 }) => {
   const fillColor = useLegacyStartZones
-    ? virtualscapeTileColors?.[hex.inventoryID]
-    : svgColors?.[hex.inventoryID]
-  // const borderColor = getSvgHexBorderColor(hex)
-  // const { points } = getHexagonPdfPolygonPointsAt00(SVG_HEX_RADIUS, 0)
+    ? // legacy start zone colors
+      isSubLevel
+      ? virtualscapeSublevelTileColors[hex.inventoryID]
+      : virtualscapeTileColors[hex.inventoryID]
+    : // contemporary start zone colors
+      isSubLevel
+      ? svgSubLevelColors[hex.inventoryID]
+      : svgColors[hex.inventoryID]
   return (
     <>
       {useLegacyStartZones ? (
         // Legacy circle shape
         <>
-          {isSubLevel && (
-            <Circle
-              r={SVG_HEX_RADIUS / 2}
-              fill={'white'}
-              stroke={'white'}
-              strokeWidth={PDF_BORDER_WIDTH / 4}
-            />
-          )}
           <Circle
             r={SVG_HEX_RADIUS / 2}
+            fill={
+              isSubLevel ? svgSubLevelColors.jungleText : svgColors.jungleText
+            }
+          />
+          <Circle
+            r={SVG_HEX_RADIUS / 2 - PDF_BORDER_WIDTH / 2}
             fill={fillColor}
-            stroke={'black'}
-            strokeWidth={PDF_BORDER_WIDTH / 4}
-            opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
           />
         </>
       ) : (
         // Contemporary hexagon shape
         <>
-          {isSubLevel && (
-            <Polygon
-              points={getHexagonPdfPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
-              fill={'white'}
-            />
-          )}
           <Polygon
             points={getHexagonPdfPolygonPointsAt00(SVG_HEX_RADIUS, 0).points}
             fill={fillColor}
-            opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
           />
         </>
       )}
