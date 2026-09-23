@@ -385,9 +385,16 @@ const PdfPreferencesSwitchForm = () => {
     toggleIsShowPdfTileLetters(event.target.checked)
   }
   const handleChangePdfRenderFormat = (
-    event: SelectChangeEvent<'coversheet' | 'shortHeader'>,
+    event: SelectChangeEvent<
+      'coversheet' | 'shortHeader' | 'condensedCoversheet'
+    >,
   ) => {
-    setPdfRenderFormat(event.target.value as 'coversheet' | 'shortHeader')
+    setPdfRenderFormat(
+      event.target.value as
+        | 'coversheet'
+        | 'shortHeader'
+        | 'condensedCoversheet',
+    )
   }
   const handleChangeUseLegacyStartZones = (
     event: React.ChangeEvent<HTMLInputElement>,
