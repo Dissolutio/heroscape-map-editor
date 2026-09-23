@@ -57,11 +57,13 @@ export const EVENTS = {
 export const PDF_RENDER_FORMATS = {
   COVERSHEET: 'coversheet',
   SHORT_HEADER: 'shortHeader',
+  CONDENSED_COVERSHEET: 'condensedCoversheet',
 } as const
 
 export const PDF_FORMAT_LABELS = {
   [PDF_RENDER_FORMATS.COVERSHEET]: 'Coversheet Format',
   [PDF_RENDER_FORMATS.SHORT_HEADER]: 'Short Header Format',
+  [PDF_RENDER_FORMATS.CONDENSED_COVERSHEET]: 'Condensed Coversheet Format',
 } as const
 
 export const PDF_FORMAT_DESCRIPTIONS = {
@@ -69,6 +71,8 @@ export const PDF_FORMAT_DESCRIPTIONS = {
     'Centered layout with title, map image, and sets used on first page',
   [PDF_RENDER_FORMATS.SHORT_HEADER]:
     'Legacy format with instructions and inventory',
+  [PDF_RENDER_FORMATS.CONDENSED_COVERSHEET]:
+    'Coversheet format with inventory section on first page below sets used',
 } as const
 
 export const LAYOUT_POINTY = {

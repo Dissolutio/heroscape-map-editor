@@ -72,6 +72,7 @@ import {
 import {
   svgColors,
   svgSubLevelColors,
+  virtualscapeSublevelTileColors,
   virtualscapeTileColors,
 } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from './svg-hive'
@@ -1075,41 +1076,34 @@ export const SvgStartZone = ({
 }) => {
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const fillColor = useLegacyStartZones
-    ? virtualscapeTileColors[hex.inventoryID]
-    : svgColors[hex.inventoryID]
+    ? // legacy start zone colors
+      isSubLevel
+      ? virtualscapeSublevelTileColors[hex.inventoryID]
+      : virtualscapeTileColors[hex.inventoryID]
+    : // contemporary start zone colors
+      isSubLevel
+      ? svgSubLevelColors[hex.inventoryID]
+      : svgColors[hex.inventoryID]
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
-  // const borderColor = getSvgHexBorderColor(hex)
   return (
     <>
       {useLegacyStartZones ? (
         // Legacy circle shape
         <>
-          {isSubLevel && (
-            <circle
-              r={SVG_HEX_RADIUS / 2}
-              fill={'white'}
-              stroke={'white'}
-              strokeWidth={SVG_BORDER_WIDTH / 4}
-            />
-          )}
           <circle
             r={SVG_HEX_RADIUS / 2}
+            fill={
+              isSubLevel ? svgSubLevelColors.jungleText : svgColors.jungleText
+            }
+          />
+          <circle
+            r={SVG_HEX_RADIUS / 2 - SVG_BORDER_WIDTH / 4}
             fill={fillColor}
-            stroke={'black'}
-            strokeWidth={SVG_BORDER_WIDTH / 4}
-            opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
           />
         </>
       ) : (
         // Contemporary hexagon shape
-        <>
-          {isSubLevel && <polygon points={points} fill={'white'} />}
-          <polygon
-            points={points}
-            fill={fillColor}
-            opacity={isSubLevel ? OPACITY_SUBLEVEL : 1}
-          />
-        </>
+        <polygon points={points} fill={fillColor} />
       )}
     </>
   )

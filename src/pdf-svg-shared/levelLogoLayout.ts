@@ -27,6 +27,34 @@ export const LEVEL_LOGO_LABEL_X =
   (LEVEL_LOGO_WIDTH - LEVEL_LOGO_LABEL_ADVANCE_WIDTH) / 2
 export const LEVEL_LOGO_NUMBER_BASELINE_Y = 17.5
 
+/**
+ * Width used when rendering level logo in PDF pages.
+ * Correlates with the height calculation and outlier label margin alignment.
+ */
+export const LEVEL_LOGO_PDF_WIDTH = 60
+export const LEVEL_LOGO_OVERLAY_LAYER_PDF_FONT_SIZE = 14
+export const LEVEL_LOGO_OVERLAY_LAYER_PDF_LINE_HEIGHT = 1.4
+export const NO_LEVEL_LOGO_OVERLAY_LAYER_PDF_FONT_SIZE = 10
+export const NO_LEVEL_LOGO_OVERLAY_LAYER_PDF_LINE_HEIGHT = 1.2
+
+/**
+ * Calculates the rendered height of a level logo given its width.
+ * Uses the fixed aspect ratio to maintain proportions at any scale.
+ */
+export const getLevelLogoPdfHeight = (width: number): number =>
+  width / LEVEL_LOGO_ASPECT_RATIO
+
+/**
+ * Margin applied to outlier level labels (e.g., "Glyphs and Start Zones")
+ * to align them vertically with regular levels that have a logo rendered.
+ * Derived from the PDF logo width and its calculated height.
+ */
+export const LEVEL_LOGO_OUTLIER_LABEL_MARGIN =
+  (getLevelLogoPdfHeight(LEVEL_LOGO_PDF_WIDTH) -
+    LEVEL_LOGO_OVERLAY_LAYER_PDF_FONT_SIZE *
+      LEVEL_LOGO_OVERLAY_LAYER_PDF_LINE_HEIGHT) /
+  2
+
 /** Maps never exceed 99 levels, so a 2-digit zero-padded number is enough. */
 export const formatLevelNumber = (level: number) =>
   String(Math.min(99, Math.max(0, Math.round(level)))).padStart(2, '0')

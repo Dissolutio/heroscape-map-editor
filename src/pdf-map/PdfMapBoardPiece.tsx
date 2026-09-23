@@ -21,11 +21,15 @@ import {
 export const PdfMapBoardPiece = ({
   piece,
   viewingLevel,
+  overlayLevel,
   useLegacyStartZones,
+  is2DOverlayLevelEnabled,
 }: {
   piece: DecodedPieceID
   viewingLevel: number
+  overlayLevel: number
   useLegacyStartZones?: boolean
+  is2DOverlayLevelEnabled?: boolean
 }) => {
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
@@ -51,11 +55,14 @@ export const PdfMapBoardPiece = ({
   }
   // Start Zones
   if (piece.terrain === HexTerrain.startZone) {
+    const isOverlayViewing =
+      is2DOverlayLevelEnabled && viewingLevel === overlayLevel
+    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfStartZone
           hex={boardPieceAsHex}
-          isSubLevel={isSubLevel}
+          isSubLevel={specialIsSubLevel}
           useLegacyStartZones={useLegacyStartZones}
         />
       </G>

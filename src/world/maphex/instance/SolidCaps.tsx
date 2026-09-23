@@ -2,10 +2,10 @@ import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { useFrame } from '@react-three/fiber'
 import React from 'react'
-import { CylinderGeometry } from 'three'
-import type { Material } from 'three'
+import { Color, CylinderGeometry, type Material } from 'three'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
+import type { BoardHex } from '../../../types'
 import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
 import { calculateFocusOpacity } from '../../../utils/focus-opacity'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
@@ -103,6 +103,9 @@ const SolidCaps = ({
   )
 }
 // useGltf.preload('/classic1-cap.glb')
+
+// Create a single dummy color object at the module level to reuse for updates
+const _colorTemp = new Color()
 
 export default SolidCaps
 

@@ -1,8 +1,10 @@
 import { piecesSoFar } from '../data/pieces'
 import {
+  xTransformForMultiHex2Rotation,
   xTransformForMultiHex3Rotation,
   xTransformForMultiHex7Rotation,
   xTransformForMultiHex24Rotation,
+  yTransformForMultiHex2Rotation,
   yTransformForMultiHex3Rotation,
   yTransformForMultiHex7Rotation,
   yTransformForMultiHex24Rotation,
@@ -71,27 +73,31 @@ export const shouldDisplayTerrainTileLetter = (
 
 export const getTileLetterPosition = (hex: BoardHex) => {
   const template = piecesSoFar[hex.inventoryID]?.template
+  const rotationIndex = (hex?.pieceRotation ?? 0) % 6
+  if (template === '2') {
+    return {
+      x: xTransformForMultiHex2Rotation[rotationIndex],
+      y: yTransformForMultiHex2Rotation[rotationIndex],
+    }
+  }
   if (template === '3') {
-    const rotationIndex = (hex?.pieceRotation ?? 0) % 6
     return {
       x: xTransformForMultiHex3Rotation[rotationIndex],
       y: yTransformForMultiHex3Rotation[rotationIndex],
     }
   }
   if (template === '24') {
-    const rotationIndex = (hex?.pieceRotation ?? 0) % 6
     return {
       x: xTransformForMultiHex24Rotation[rotationIndex],
       y: yTransformForMultiHex24Rotation[rotationIndex],
     }
   }
   if (template === '7') {
-    const rotationIndex = (hex?.pieceRotation ?? 0) % 6
     return {
       x: xTransformForMultiHex7Rotation[rotationIndex],
       y: yTransformForMultiHex7Rotation[rotationIndex],
     }
   }
-  // 1-hex, 2-hex, 7B(marvel) are on the origin hex
+  // 1-hex, 7B(marvel) are on the origin hex
   return { x: 0, y: 0 }
 }

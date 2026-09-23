@@ -1,3 +1,4 @@
+import useBoundStore from '../store/store'
 import {
   type BoardHex,
   type DecodedPieceID,
@@ -20,11 +21,15 @@ import {
 export const SvgMapBoardPiece = ({
   piece,
   viewingLevel,
-}: { piece: DecodedPieceID; viewingLevel: number }) => {
+  overlayLevel,
+}: { piece: DecodedPieceID; viewingLevel: number; overlayLevel: number }) => {
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
   const isSubLevel = altitudeAdjusted < viewingLevel
   const { inventoryID } = piece
+  const is2DOverlayLevelEnabled = useBoundStore(
+    (s) => s.is2DOverlayLevelEnabled,
+  )
   const isVisible = altitudeAdjusted <= viewingLevel
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   const boardPieceAsHex: BoardHex = {
@@ -45,9 +50,12 @@ export const SvgMapBoardPiece = ({
   }
   // Start Zones
   if (piece.terrain === HexTerrain.startZone) {
+    const isOverlayViewing =
+      is2DOverlayLevelEnabled && viewingLevel === overlayLevel
+    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgStartZone hex={boardPieceAsHex} isSubLevel={isSubLevel} />
+        <SvgStartZone hex={boardPieceAsHex} isSubLevel={specialIsSubLevel} />
       </g>
     )
   }

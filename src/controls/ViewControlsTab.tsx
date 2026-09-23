@@ -385,9 +385,16 @@ const PdfPreferencesSwitchForm = () => {
     toggleIsShowPdfTileLetters(event.target.checked)
   }
   const handleChangePdfRenderFormat = (
-    event: SelectChangeEvent<'coversheet' | 'shortHeader'>,
+    event: SelectChangeEvent<
+      'coversheet' | 'shortHeader' | 'condensedCoversheet'
+    >,
   ) => {
-    setPdfRenderFormat(event.target.value as 'coversheet' | 'shortHeader')
+    setPdfRenderFormat(
+      event.target.value as
+        | 'coversheet'
+        | 'shortHeader'
+        | 'condensedCoversheet',
+    )
   }
   const handleChangeUseLegacyStartZones = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -429,8 +436,8 @@ const PdfPreferencesSwitchForm = () => {
               onChange={handleChangeShowPdfOverlayLayer}
             />
           }
-          label="Show Overlay Layer"
-          title="Enable/disable a dedicated PDF overlay layer for start zones and glyphs"
+          label="Show StartZones/Glyphs on last level"
+          title="Enable/disable a final level for start zones and glyphs"
         />
         <FormControlLabel
           control={
@@ -502,6 +509,9 @@ const PdfPreferencesSwitchForm = () => {
             <MenuItem value={PDF_RENDER_FORMATS.SHORT_HEADER}>
               {PDF_FORMAT_LABELS[PDF_RENDER_FORMATS.SHORT_HEADER]}
             </MenuItem>
+            <MenuItem value={PDF_RENDER_FORMATS.CONDENSED_COVERSHEET}>
+              {PDF_FORMAT_LABELS[PDF_RENDER_FORMATS.CONDENSED_COVERSHEET]}
+            </MenuItem>
           </Select>
         </FormControl>
       </FormGroup>
@@ -565,7 +575,7 @@ const SVGPreferencesSwitchForm = () => {
               onChange={handleChangeis2DOverlayLevelEnabled}
             />
           }
-          label="View Objective Layer"
+          label="Show Overlay Level"
           title="Enable/disable an overlay level of the map with startzones, objectives, and glyphs (they will not be shown on their placed levels)"
         />
         <FormControlLabel

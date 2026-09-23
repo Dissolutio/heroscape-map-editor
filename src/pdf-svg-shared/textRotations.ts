@@ -1,5 +1,21 @@
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 
+export const xTransformForMultiHex2Rotation = [
+  0,
+  0,
+  -SVG_HEX_APOTHEM,
+  -SVG_HEX_APOTHEM * 2,
+  -SVG_HEX_APOTHEM,
+  0,
+]
+export const yTransformForMultiHex2Rotation = [
+  0,
+  0,
+  SVG_HEX_RADIUS * 1.5,
+  0,
+  -SVG_HEX_RADIUS * 1.5,
+  0,
+]
 export const xTransformForMultiHex3Rotation = [
   SVG_HEX_APOTHEM,
   0,

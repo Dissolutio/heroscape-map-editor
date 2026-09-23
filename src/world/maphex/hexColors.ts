@@ -45,20 +45,30 @@ export const virtualscapeTileColors: Dictionary<string> = {
   [Pieces.startZone7]: 'rgb(255,128,0)',
   [Pieces.startZone8]: 'rgb(128,0,255)',
 }
+export const virtualscapeSublevelTileColors: Dictionary<string> = {
+  [Pieces.startZone1]: 'rgb(255, 128, 128)',
+  [Pieces.startZone2]: 'rgb(128, 255, 128)',
+  [Pieces.startZone3]: 'rgb(128, 128, 255)',
+  [Pieces.startZone4]: 'rgb(255, 255, 128)',
+  [Pieces.startZone5]: 'rgb(255, 128, 255)',
+  [Pieces.startZone6]: 'rgb(128, 255, 255)',
+  [Pieces.startZone7]: 'rgb(255, 192, 128)',
+  [Pieces.startZone8]: 'rgb(192, 128, 255)',
+}
 
 export const hexTerrainColor = {
   ...virtualscapeTileColors,
   [HexTerrain.empty]: '#CECECE',
-  [HexTerrain.glyphPower]: '#942a34', // superfrog
-  [HexTerrain.glyphTreasure]: '#847040', // superfrog
+  [HexTerrain.glyphPower]: '#942a34',
+  [HexTerrain.glyphTreasure]: '#847040',
   [HexTerrain.marvelRuin]: 'rgb(153, 51, 65)', // matched with concrete on coolors Cordovan : https://coolors.co/d0d4dc-993341-ce8147-607196-334139
-  [HexTerrain.grass]: '#7c9a3c', // superfrog
-  [HexTerrain.rock]: '#7b8481', // superfrog
-  [HexTerrain.sand]: '#be9e5f', // superfrog
-  [HexTerrain.dirt]: '#975a3a', // superfrog
+  [HexTerrain.grass]: '#7c9a3c',
+  [HexTerrain.rock]: '#7b8481',
+  [HexTerrain.sand]: '#be9e5f',
+  [HexTerrain.dirt]: '#975a3a',
   [HexTerrain.tree]: '#355A44',
   treeBase: '#A34C00',
-  [HexTerrain.water]: '#028bc4', // superfrog
+  [HexTerrain.water]: '#028bc4',
   [HexTerrain.wellspringWater]: '#F5EDF3', // #BA70FF old
   [HexTerrain.ruin]: '#A2A0A6',
   [HexTerrain.castleWall]: '#B6B5BA',
@@ -67,39 +77,46 @@ export const hexTerrainColor = {
   [HexTerrain.battlement]: '#ACABB0',
   castleDoor: '#913B3F',
   [HexTerrain.wallWalk]: '#a8a597', //same as road
-  [HexTerrain.road]: '#a8a597', // superfrog
+  [HexTerrain.road]: '#a8a597',
   // [HexTerrain.ancientTerrain]: '#379590', // https://coolors.co/379590-feea00-4f3477-3f612d-b6863e
   [HexTerrain.ancientTerrain]: '#5c7175',
   // ancientTerrainCap: '#B6863E',
   ancientTerrainCap: '#8b5b43',
-  [HexTerrain.toxic]: '#93FF32', // superfrog
+  [HexTerrain.toxic]: '#93FF32',
   toxicCap: '#303030', // same as asphaltcap
-  [HexTerrain.toxicWater]: '#93FF32', // superfrog
-  roadCap: '#929186', // superfrog
+  [HexTerrain.toxicWater]: '#93FF32',
+  roadCap: '#929186',
   [HexTerrain.roadWall]: '#787D79',
-  [HexTerrain.snow]: '#c0bec6', // superfrog
+  [HexTerrain.snow]: '#c0bec6',
   [HexTerrain.wood]: '#603B2A',
   woodCap: '#714632',
-  [`${HexTerrain.snow}Cap`]: '#bcbdc5', // superfrog
+  [`${HexTerrain.snow}Cap`]: '#bcbdc5',
   [HexTerrain.ice]: '#A6C6DD',
   [HexTerrain.glacier]: '#ced5cc',
-  [HexTerrain.lavaField]: '#881c05', // superfrog
-  lavaFieldCap: '#484540', // superfrog
-  [HexTerrain.lava]: '#b00100', // superfrog
-  [HexTerrain.asphalt]: '#003552', // superfrog
-  asphaltCap: '#004266', // superfrog
-  [HexTerrain.concrete]: '#a0a090', // superfrog
-  concreteCap: '#a2a493', // superfrog
-  [HexTerrain.dungeon]: '#7a7972', // superfrog
-  dungeonCap: '#b3b1aa', // superfrog
-  [HexTerrain.shadow]: '#0f0f0d', // superfrog
+  [HexTerrain.lavaField]: '#881c05',
+  lavaFieldCap: '#484540',
+  [HexTerrain.lava]: '#b00100',
+
+  // [HexTerrain.asphalt]: '#333333',
+  // asphaltCap: '#444444',
+  // asphaltCap: '#004266',
+
+  [HexTerrain.asphalt]: '#2d303c', // https://coolors.co/353846-c7ffed-bbc8ca-b592a0-9c7178
+  asphaltCap: '#3D4151',
+  // asphaltCap: '#2d303c',
+
+  [HexTerrain.concrete]: '#a0a090',
+  concreteCap: '#a2a493',
+  [HexTerrain.dungeon]: '#7a7972',
+  dungeonCap: '#b3b1aa',
+  [HexTerrain.shadow]: '#0f0f0d',
   [HexTerrain.outcrop]: '#5F5464',
   hiveModel1: '#668958',
-  swampCap: '#31743c', // superfrog
-  [HexTerrain.swamp]: '#776c36', // superfrog
+  swampCap: '#31743c',
+  [HexTerrain.swamp]: '#776c36',
   [HexTerrain.laurWall]: '#999999',
   laurModelColor2: '#909090',
-  [HexTerrain.swampWater]: '#7a6c35', // superfrog
+  [HexTerrain.swampWater]: '#7a6c35',
 
   [HexTerrain.palm]: '#0f4f00', // only gets used as subterrain color, not in model
   ticallaPalmModel1: '#B07156', // palm trunk
@@ -316,7 +333,15 @@ export const svgSubLevelColors = {
   outlineLavaOutcrop: '#E8B590',
   outlineOutcrop: '#E8B590',
   outlineShroudshroom: '#E8B590', // renegade-hexoscape
-
+  // START ZONES
+  [Pieces.startZone1]: 'rgb(216, 128, 199)',
+  [Pieces.startZone2]: 'rgb(132, 171, 146)',
+  [Pieces.startZone3]: 'rgb(136, 132, 156)',
+  [Pieces.startZone4]: 'rgb(195, 161, 138)',
+  [Pieces.startZone5]: 'rgb(241, 128, 202)',
+  [Pieces.startZone6]: 'rgb(177, 194, 146)',
+  [Pieces.startZone7]: 'rgb(255, 190, 128)',
+  [Pieces.startZone8]: 'rgb(166, 148, 212)',
   // OBSTACLES
   [HexTerrain.ladder]: '#D6A591',
   [HexTerrain.ruin]: '#D08080', // virtualscape

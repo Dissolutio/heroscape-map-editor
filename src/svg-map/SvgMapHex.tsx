@@ -393,20 +393,6 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
       </g>
     )
   }
-  // Start Zones
-  if (hex.terrain === HexTerrain.startZone) {
-    const isOverlayViewing =
-      is2DOverlayLevelEnabled && viewingLevel === overlayLevel
-    if (is2DOverlayLevelEnabled && !isOverlayViewing) {
-      return null
-    }
-    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
-    return (
-      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <SvgStartZone hex={hex} isSubLevel={specialIsSubLevel} />
-      </g>
-    )
-  }
   // Single hex trees
   if (isEvergreenTree(hex.terrain)) {
     const textColor = isSubLevel
