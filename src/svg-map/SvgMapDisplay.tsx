@@ -18,6 +18,7 @@ const SvgMapDisplay = () => {
   const boardPieces = useBoundStore((s) => {
     return s.boardPieces
   })
+  const overlayLevel = getBoardPiecesMaxLevel(boardPieces) + 1
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
@@ -92,6 +93,7 @@ const SvgMapDisplay = () => {
               key={bp.boardPieceID}
               piece={bp}
               viewingLevel={viewingLevel}
+              overlayLevel={overlayLevel}
             />
           ))}
       </g>

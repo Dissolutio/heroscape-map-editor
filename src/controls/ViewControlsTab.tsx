@@ -429,8 +429,8 @@ const PdfPreferencesSwitchForm = () => {
               onChange={handleChangeShowPdfOverlayLayer}
             />
           }
-          label="Show Overlay Layer"
-          title="Enable/disable a dedicated PDF overlay layer for start zones and glyphs"
+          label="Show StartZones/Glyphs on last level"
+          title="Enable/disable a final level for start zones and glyphs"
         />
         <FormControlLabel
           control={
@@ -568,7 +568,7 @@ const SVGPreferencesSwitchForm = () => {
               onChange={handleChangeis2DOverlayLevelEnabled}
             />
           }
-          label="View Objective Layer"
+          label="Show Overlay Level"
           title="Enable/disable an overlay level of the map with startzones, objectives, and glyphs (they will not be shown on their placed levels)"
         />
         <FormControlLabel

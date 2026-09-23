@@ -19,6 +19,7 @@ import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-uti
 import {
   boardPieceToDecodedPieceID,
   getBoardHexesSvgMapDimensions,
+  getBoardPiecesMaxLevel,
 } from '../utils/map-utils'
 import { PdfLevelLogo } from './PdfLevelLogo'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
@@ -32,6 +33,7 @@ export const PdfMapLevels6PerPage = ({
   isShowPdfLevelLogo,
   isShowPdfTileLetters,
   useLegacyStartZones,
+  is2DOverlayLevelEnabled,
   children,
 }: PropsWithChildren<{
   boardHexes: BoardHexes
@@ -43,8 +45,10 @@ export const PdfMapLevels6PerPage = ({
   isShowPdfLevelLogo: boolean
   isShowPdfTileLetters: boolean
   useLegacyStartZones: boolean
+  is2DOverlayLevelEnabled: boolean
 }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
+  const overlayLevel = getBoardPiecesMaxLevel(boardPieces) + 1
   const boardHexesWithoutEmpties = keyBy(
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
     'id',
@@ -95,6 +99,7 @@ export const PdfMapLevels6PerPage = ({
                       width={width}
                       length={length}
                       viewingLevel={group.altitude}
+                      overlayLevel={overlayLevel}
                       isPdfColorBorders={isPdfColorBorders}
                       isShowPdfOverlayOnPlacedLevel={
                         isShowPdfOverlayOnPlacedLevel
@@ -104,6 +109,7 @@ export const PdfMapLevels6PerPage = ({
                       }
                       isShowPdfTileLetters={isShowPdfTileLetters}
                       useLegacyStartZones={useLegacyStartZones}
+                      is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
                     />
                   </RowWrapper>
                 ) : null,
@@ -127,6 +133,7 @@ export const PdfMapLevels6PerPage = ({
                       width={width}
                       length={length}
                       viewingLevel={group.altitude}
+                      overlayLevel={overlayLevel}
                       isPdfColorBorders={isPdfColorBorders}
                       isShowPdfOverlayOnPlacedLevel={
                         isShowPdfOverlayOnPlacedLevel
@@ -136,6 +143,7 @@ export const PdfMapLevels6PerPage = ({
                       }
                       isShowPdfTileLetters={isShowPdfTileLetters}
                       useLegacyStartZones={useLegacyStartZones}
+                      is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
                     />
                   </RowWrapper>
                 ) : null,
@@ -249,7 +257,6 @@ const PdfLevelChunkHeading = ({
       group.label === 'Glyphs and Start Zones' && isShowPdfLevelLogo
         ? LEVEL_LOGO_OUTLIER_LABEL_MARGIN
         : 0
-    console.log('🚀 ~ PdfLevelChunkHeading ~ margin:', margin)
     return (
       <Text
         style={{

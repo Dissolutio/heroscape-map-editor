@@ -71,6 +71,9 @@ function ReactPdfRoot() {
   const isShowPdfTileLetters = useBoundStore((s) => s.isShowPdfTileLetters)
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
+  const is2DOverlayLevelEnabled = useBoundStore(
+    (s) => s.is2DOverlayLevelEnabled,
+  )
   const isMobile = useMediaQuery('(max-width:800px)')
   return (
     <div
@@ -101,6 +104,7 @@ function ReactPdfRoot() {
             isShowPdfTileLetters={isShowPdfTileLetters}
             isShowPDFInventory={isShowPDFInventory}
             useLegacyStartZones={useLegacyStartZones}
+            is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
             pdfRenderFormat={pdfRenderFormat}
           />
         </PDFViewer>
@@ -122,6 +126,7 @@ const PdfDocument = ({
   isShowPdfTileLetters,
   isShowPDFInventory,
   useLegacyStartZones,
+  is2DOverlayLevelEnabled,
   pdfRenderFormat,
 }: {
   hexMap: HexMap
@@ -135,6 +140,7 @@ const PdfDocument = ({
   isShowPdfTileLetters: boolean
   isShowPDFInventory: boolean
   useLegacyStartZones: boolean
+  is2DOverlayLevelEnabled: boolean
   pdfRenderFormat: 'coversheet' | 'shortHeader' | 'condensedCoversheet'
 }) => {
   if (pdfRenderFormat === PDF_RENDER_FORMATS.COVERSHEET) {
@@ -151,6 +157,7 @@ const PdfDocument = ({
         isShowPdfTileLetters={isShowPdfTileLetters}
         isShowPDFInventory={isShowPDFInventory}
         useLegacyStartZones={useLegacyStartZones}
+        is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
       />
     )
   }
@@ -169,6 +176,7 @@ const PdfDocument = ({
         isShowPdfTileLetters={isShowPdfTileLetters}
         isShowPDFInventory={isShowPDFInventory}
         useLegacyStartZones={useLegacyStartZones}
+        is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
       />
     )
   }
@@ -186,6 +194,7 @@ const PdfDocument = ({
       isShowPdfTileLetters={isShowPdfTileLetters}
       isShowPDFInventory={isShowPDFInventory}
       useLegacyStartZones={useLegacyStartZones}
+      is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
     />
   )
 }
@@ -207,6 +216,7 @@ const PdfDocumentCoverSheet = ({
   isShowPdfTileLetters,
   isShowPDFInventory,
   useLegacyStartZones,
+  is2DOverlayLevelEnabled,
 }: {
   hexMap: HexMap
   boardHexes: BoardHexes
@@ -219,6 +229,7 @@ const PdfDocumentCoverSheet = ({
   isShowPdfTileLetters: boolean
   isShowPDFInventory: boolean
   useLegacyStartZones: boolean
+  is2DOverlayLevelEnabled: boolean
 }) => {
   return (
     <Document title={hexMap.name}>
@@ -325,6 +336,7 @@ const PdfDocumentCoverSheet = ({
         isShowPdfLevelLogo={isShowPdfLevelLogo}
         isShowPdfTileLetters={isShowPdfTileLetters}
         useLegacyStartZones={useLegacyStartZones}
+        is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
       />
 
       {/* Inventory Page(s) */}
@@ -354,6 +366,7 @@ const PdfDocumentCondensedCoverSheet = ({
   isShowPdfTileLetters,
   isShowPDFInventory,
   useLegacyStartZones,
+  is2DOverlayLevelEnabled,
 }: {
   hexMap: HexMap
   boardHexes: BoardHexes
@@ -366,6 +379,7 @@ const PdfDocumentCondensedCoverSheet = ({
   isShowPdfTileLetters: boolean
   isShowPDFInventory: boolean
   useLegacyStartZones: boolean
+  is2DOverlayLevelEnabled: boolean
 }) => {
   return (
     <Document title={hexMap.name}>
@@ -487,6 +501,7 @@ const PdfDocumentCondensedCoverSheet = ({
         isShowPdfLevelLogo={isShowPdfLevelLogo}
         isShowPdfTileLetters={isShowPdfTileLetters}
         useLegacyStartZones={useLegacyStartZones}
+        is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
       />
     </Document>
   )
@@ -507,6 +522,7 @@ const PdfDocumentShortHeader = ({
   isShowPdfLevelLogo,
   isShowPdfTileLetters,
   useLegacyStartZones,
+  is2DOverlayLevelEnabled,
   isShowPDFInventory,
 }: {
   hexMap: HexMap
@@ -519,6 +535,7 @@ const PdfDocumentShortHeader = ({
   isShowPdfLevelLogo: boolean
   isShowPdfTileLetters: boolean
   useLegacyStartZones: boolean
+  is2DOverlayLevelEnabled: boolean
   isShowPDFInventory: boolean
 }) => {
   return (
@@ -533,6 +550,7 @@ const PdfDocumentShortHeader = ({
         isShowPdfLevelLogo={isShowPdfLevelLogo}
         isShowPdfTileLetters={isShowPdfTileLetters}
         useLegacyStartZones={useLegacyStartZones}
+        is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
       >
         <MapPortraitHeader
           hexMap={hexMap}
@@ -564,6 +582,9 @@ const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const isShowPdfLevelLogo = useBoundStore((s) => s.isShowPdfLevelLogo)
   const isShowPdfTileLetters = useBoundStore((s) => s.isShowPdfTileLetters)
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
+  const is2DOverlayLevelEnabled = useBoundStore(
+    (s) => s.is2DOverlayLevelEnabled,
+  )
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   return (
     <PDFDownloadLink
@@ -580,6 +601,7 @@ const ReactPdfDownloadLink = (props: PropsWithChildren) => {
           isShowPdfTileLetters={isShowPdfTileLetters}
           isShowPDFInventory={isShowPDFInventory}
           useLegacyStartZones={useLegacyStartZones}
+          is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
           pdfRenderFormat={pdfRenderFormat}
         />
       }
