@@ -410,7 +410,7 @@ const createUISlice: StateCreator<
         s.isShowPdfTileLetters = b
       }),
     ),
-  pdfRenderFormat: 'condensedCoversheet',
+  pdfRenderFormat: 'coversheet',
   setPdfRenderFormat: (
     format: 'coversheet' | 'shortHeader' | 'condensedCoversheet',
   ) =>
