@@ -1,10 +1,10 @@
 Sep-23-2026
-- **PDF/SVG StartZone render on own level**: It wasn't displaying properly, now it is
-- **PDF format condensed cover sheet**: As requested, new format puts the inventory right on the cover sheet, allowing a 5 level map to be printed double-sided onto 1 sheet of paper. 
+- **3D Asphalt color**: Now with less blue
 - **3D Legacy StartZone**: They were displaying at a right angle, fixed 
+- **PDF format condensed cover sheet**: As requested, new format puts the inventory right on the cover sheet, allowing a 5 level map to be printed double-sided onto 1 sheet of paper. 
+- **PDF/SVG StartZone render on own level**: It wasn't displaying properly, now it is
 - **PDF level logo alignment**: The StartZone/Glyph level was not aligning, should be better 
 - **Tile Letters on 2-hexers**: Now the letter will always display on the left-most hex 
-- **3D Asphalt color**: Now with less blue 
 
 Sep-12-2026
 - **3D StartZone previews**: See a preview now before you place a start zone
