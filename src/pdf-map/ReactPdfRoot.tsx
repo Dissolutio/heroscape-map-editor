@@ -441,7 +441,7 @@ const PdfDocumentCondensedCoverSheet = ({
             <Image
               src={hexMap.mapPortraitBase64}
               style={{
-                maxHeight: '400px',
+                maxHeight: '300px',
                 maxWidth: '100%',
                 width: 'auto',
                 height: 'auto',
@@ -458,7 +458,7 @@ const PdfDocumentCondensedCoverSheet = ({
         >
           {/* Sets Used */}
           {hexMap.setsUsed && hexMap.setsUsed.length > 0 && (
-            <View style={{ alignItems: 'center' }}>
+            <View style={{ alignItems: 'center', marginBottom: 10 }}>
               <Text
                 style={{
                   fontSize: 16,
@@ -706,7 +706,6 @@ const MapPortraitHeader = ({
             style={{
               height: '200px',
               width: 'auto',
-              // border: '1px solid red',
             }}
           />
         )}
@@ -1060,6 +1059,26 @@ const PdfPieceInventoryCondensed = ({
     glyphsStartzones: 'Glyphs/StartZones',
   }
 
+  // Determine layout based on number of different pieces
+  const pieceCount = entries.length
+  let columnCount: number
+  let headerFontSize: string
+  let pieceFontSize: string
+
+  if (pieceCount < 50) {
+    columnCount = 3
+    headerFontSize = '8px'
+    pieceFontSize = '8px'
+  } else if (pieceCount > 145) {
+    columnCount = 5
+    headerFontSize = '6px'
+    pieceFontSize = '6px'
+  } else {
+    columnCount = 4
+    headerFontSize = '8px'
+    pieceFontSize = '7px'
+  }
+
   const entriesWithHeaders: InventoryRow[] = []
   let currentSectionKey = ''
   for (const entry of entries) {
@@ -1080,8 +1099,6 @@ const PdfPieceInventoryCondensed = ({
       count: entry.count,
     })
   }
-
-  const columnCount = 4
   const rowsPerColumn = Math.ceil(entriesWithHeaders.length / columnCount)
   const remaining = [...entriesWithHeaders]
   const entryColumns = Array.from(
@@ -1130,7 +1147,7 @@ const PdfPieceInventoryCondensed = ({
           <View
             key={`inventory-column-condensed-${columnIndex + 1}`}
             style={{
-              width: '33.33%',
+              width: `${100 / columnCount}%`,
               flexDirection: 'column',
             }}
           >
@@ -1139,7 +1156,7 @@ const PdfPieceInventoryCondensed = ({
                 <Text
                   key={e.id}
                   style={{
-                    fontSize: '8px',
+                    fontSize: headerFontSize,
                     fontWeight: 'bold',
                     textDecoration: 'underline',
                     marginTop: 1,
@@ -1155,8 +1172,8 @@ const PdfPieceInventoryCondensed = ({
                     flexDirection: 'row',
                   }}
                 >
-                  <Text style={{ fontSize: '8px' }}>{e.title} </Text>
-                  <Text style={{ fontSize: '8px' }}>x{e.count}</Text>
+                  <Text style={{ fontSize: pieceFontSize }}>{e.title} </Text>
+                  <Text style={{ fontSize: pieceFontSize }}>x{e.count}</Text>
                 </View>
               ),
             )}
