@@ -1,4 +1,5 @@
-import { Box, Container, List } from '@mui/material'
+import { Container, List } from '@mui/material'
+import * as Sentry from '@sentry/react'
 import { FcTodoList } from 'react-icons/fc'
 import { MdGridView } from 'react-icons/md'
 import { DIALOGS } from '../layout/dialogNames'
@@ -11,7 +12,6 @@ import UndoRedoButtonGroup from './UndoRedoButtonGroup'
 import ViewingLevelInput from './ViewingLevelInput'
 
 export const BuildControlsTab = () => {
-  // const inventory = useLocalPieceInventory()
   const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const isViewMapInventoryDialogOpen =
     useBoundStore((state) => state.currentDialog) === DIALOGS.viewMapInventory
@@ -36,7 +36,7 @@ export const BuildControlsTab = () => {
         <ControlTabsListItemButton
           onClick={() => {
             setTimeout(() => {
-              throw new Error('Sentry Global Exception Test!')
+              Sentry.captureException(new Error('Sentry Direct Capture Test!'))
             }, 0)
           }}
           title={'Test source map tauri/sentry/github action integration'}
