@@ -392,7 +392,8 @@ export const svgSubLevelColors = {
   [HexTerrain.wellspringWater]: '#FFFFFF', // used this in virtualscape to differentiate from snow
   [HexTerrain.swampWater]: '#D3D2B2',
   [HexTerrain.lava]: '#FFA7A7',
-  [HexTerrain.shadow]: '#2E2D2D',
+  // [HexTerrain.shadow]: '#2E2D2D',
+  [HexTerrain.shadow]: '#808080',
   [HexTerrain.ice]: '#B4C2EF',
   [HexTerrain.toxic]: '#7A7A7A',
   [HexTerrain.toxicWater]: '#B2F2AF',
