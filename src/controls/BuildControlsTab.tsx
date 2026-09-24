@@ -1,14 +1,14 @@
 import { Box, Container, List } from '@mui/material'
+import { FcTodoList } from 'react-icons/fc'
+import { MdGridView } from 'react-icons/md'
+import { DIALOGS } from '../layout/dialogNames'
+import useBoundStore from '../store/store'
+import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import PenModeControls from './PenModeControls'
 import PieceSizeSelect from './PieceSizeSelect'
 import RotationSelect from './RotationSelect'
 import UndoRedoButtonGroup from './UndoRedoButtonGroup'
 import ViewingLevelInput from './ViewingLevelInput'
-import { ControlTabsListItemButton } from './ControlTabsListItemButton'
-import useBoundStore from '../store/store'
-import { DIALOGS } from '../layout/dialogNames'
-import { FcTodoList } from 'react-icons/fc'
-import { MdGridView } from 'react-icons/md'
 
 export const BuildControlsTab = () => {
   // const inventory = useLocalPieceInventory()
@@ -31,6 +31,14 @@ export const BuildControlsTab = () => {
               isViewMapInventoryDialogOpen ? '' : DIALOGS.viewMapInventory,
             )
           }
+          icon={<FcTodoList />}
+        />
+        <ControlTabsListItemButton
+          onClick={() => {
+            throw new Error('Sentry Source Map Integration Test!')
+          }}
+          title={'Test source map tauri/sentry/github action integration'}
+          primary={'Throw Test Error'}
           icon={<FcTodoList />}
         />
         <ControlTabsListItemButton
