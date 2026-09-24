@@ -309,7 +309,7 @@ export const svgColors = {
   // [HexTerrain.glyphPower]: 'rgb(120, 1, 22)',
   // [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
   [HexTerrain.glyphPower]: 'rgb(255, 124, 3)',
-  [HexTerrain.glyphTreasure]: 'rgb(255, 124, 3)',
+  [HexTerrain.glyphTreasure]: 'rgb(225, 191, 20)',
 }
 export const svgSubLevelColors = {
   jungleText: '#C5BCBC',
@@ -401,7 +401,8 @@ export const svgSubLevelColors = {
   // GYLPHS
   // glyph: 'rgb(244, 106, 22)', // renegade
   [HexTerrain.glyphPower]: 'rgb(255, 169, 89)',
-  [HexTerrain.glyphTreasure]: 'rgb(255, 169, 89)',
+  // [HexTerrain.glyphTreasure]: 'rgb(255, 169, 89)',
+  [HexTerrain.glyphTreasure]: 'rgb(240, 223, 138)',
   glyphBorder: '#C5BCBC',
   battlementBorder: '#C5BCBC',
 }

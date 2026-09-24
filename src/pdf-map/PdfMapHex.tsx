@@ -30,6 +30,8 @@ import {
   PdfCastleEnd,
   PdfCastleStraight,
   PdfEmptyHex,
+  PdfGlyphPower,
+  PdfGlyphTreasure,
   PdfHive6,
   PdfJungle,
   PdfLadder,
@@ -106,7 +108,7 @@ export const PdfMapHex = ({
   isPdfColorBorders,
   isShowPdfOverlayOnPlacedLevel,
   isShowPdfTileLetters,
-  useLegacyStartZones,
+  // useLegacyStartZones,
 }: {
   hex: BoardHex
   viewingLevel: number
@@ -376,28 +378,22 @@ export const PdfMapHex = ({
     )
   }
   // Glyphs
-  if (
-    hex.terrain === HexTerrain.glyphPower ||
-    hex.terrain === HexTerrain.glyphTreasure
-  ) {
-    const isPlacedLevelViewing = hex.altitude === viewingLevel
-    if (
-      !isOverlayViewing &&
-      !(isShowPdfOverlayOnPlacedLevel && isPlacedLevelViewing)
-    ) {
+  if (hex.terrain === HexTerrain.glyphPower) {
+    if (!isShowPdfOverlayOnPlacedLevel && !isOverlayViewing) {
       return null
     }
-    const specialIsSubLevel = false
+    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
     // const isNamedGlyph =  (hex.terrain === HexTerrain.glyphPower || hex.terrain === HexTerrain.glyphTreasure) && (hex.inventoryID !== Pieces.glyphPower && hex.inventoryID !== Pieces.glyphTreasure)
     const glyphLetter = piecesSoFar[hex.inventoryID]?.glyphLetter
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 isGlyph hex={hex} isSubLevel={specialIsSubLevel} />
+        <PdfGlyphPower hex={hex} isSubLevel={specialIsSubLevel} />
         <Text
-          fill="white"
-          // white text needs a little opacity boost
-          opacity={specialIsSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          // {...glyphTextProps(`${pieceHeightText}`)}
+          fill={
+            specialIsSubLevel
+              ? svgSubLevelColors.glyphText
+              : svgColors.glyphText
+          }
           {...glyphTextProps()}
         >
           {glyphLetter}
@@ -405,23 +401,25 @@ export const PdfMapHex = ({
       </G>
     )
   }
-  // Start Zones
-  if (hex.terrain === HexTerrain.startZone) {
-    const isPlacedLevelViewing = hex.altitude === viewingLevel
-    if (
-      !isOverlayViewing &&
-      !(isShowPdfOverlayOnPlacedLevel && isPlacedLevelViewing)
-    ) {
+  if (hex.terrain === HexTerrain.glyphTreasure) {
+    if (!isShowPdfOverlayOnPlacedLevel && !isOverlayViewing) {
       return null
     }
-    const specialIsSubLevel = false
+    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
+    const glyphLetter = piecesSoFar[hex.inventoryID]?.glyphLetter
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfStartZone
-          hex={hex}
-          isSubLevel={specialIsSubLevel}
-          useLegacyStartZones={useLegacyStartZones}
-        />
+        <PdfGlyphTreasure hex={hex} isSubLevel={specialIsSubLevel} />
+        <Text
+          fill={
+            specialIsSubLevel
+              ? svgSubLevelColors.glyphText
+              : svgColors.glyphText
+          }
+          {...glyphTextProps()}
+        >
+          {glyphLetter}
+        </Text>
       </G>
     )
   }

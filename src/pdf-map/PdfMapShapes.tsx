@@ -295,35 +295,81 @@ const getPdfHexBorderForView = (
           : svgColors.glacierText
     : ''
 
-export const PdfMultiHex1 = ({
-  hex,
+export const PdfGlyphTreasure = ({
+  // hex,
   isSubLevel,
-  isGlyph,
-  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  isGlyph?: boolean
-  useTerrainBorderColor?: boolean
 }) => {
-  const isEmptyHex = hex.terrain === 'empty'
-  const fillColor = isEmptyHex ? 'white' : getPdfHexFillForView(hex, isSubLevel)
-  const borderColor =
-    isGlyph && !isSubLevel
-      ? fillColor
-      : getPdfHexBorderForView(hex, isSubLevel, useTerrainBorderColor)
-  const glyphHexRadius = SVG_HEX_RADIUS / 1.4
+  const fillColor = isSubLevel
+    ? svgSubLevelColors.glyphTreasure
+    : svgColors.glyphTreasure
+  const borderColor = isSubLevel
+    ? svgSubLevelColors.glyphBorder
+    : svgColors.glyphBorder
   const { points } = getHexagonPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const { points: glyphPoints } = getHexagonPdfPolygonPointsAt00(
-    glyphHexRadius,
-    0,
+  return (
+    <Polygon
+      points={points}
+      fill={fillColor}
+      stroke={borderColor}
+      strokeWidth={PDF_BORDER_WIDTH}
+    />
+  )
+}
+export const PdfGlyphPower = ({
+  // hex,
+  isSubLevel,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+}) => {
+  const fillColor = isSubLevel
+    ? svgSubLevelColors.glyphPower
+    : svgColors.glyphPower
+  const borderColor = isSubLevel
+    ? svgSubLevelColors.glyphBorder
+    : svgColors.glyphBorder
+  const { points } = getHexagonPdfPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    PDF_BORDER_WIDTH,
   )
   return (
     <Polygon
-      points={isGlyph ? glyphPoints : points}
+      points={points}
+      fill={fillColor}
+      stroke={borderColor}
+      strokeWidth={PDF_BORDER_WIDTH}
+    />
+  )
+}
+export const PdfMultiHex1 = ({
+  hex,
+  isSubLevel,
+  useTerrainBorderColor = true,
+}: {
+  hex: BoardHex
+  isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
+}) => {
+  const isEmptyHex = hex.terrain === 'empty'
+  const fillColor = isEmptyHex ? 'white' : getPdfHexFillForView(hex, isSubLevel)
+  const borderColor = getPdfHexBorderForView(
+    hex,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
+  const { points } = getHexagonPdfPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    PDF_BORDER_WIDTH,
+  )
+  return (
+    <Polygon
+      points={points}
       fill={fillColor}
       stroke={borderColor}
       strokeWidth={PDF_BORDER_WIDTH}
