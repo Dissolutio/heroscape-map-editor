@@ -35,7 +35,9 @@ export const BuildControlsTab = () => {
         />
         <ControlTabsListItemButton
           onClick={() => {
-            throw new Error('Sentry Source Map Integration Test!')
+            setTimeout(() => {
+              throw new Error('Sentry Global Exception Test!')
+            }, 0)
           }}
           title={'Test source map tauri/sentry/github action integration'}
           primary={'Throw Test Error'}
