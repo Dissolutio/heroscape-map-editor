@@ -58,6 +58,10 @@ jobs:
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 1. Provide Sentry with your Auth token (Add this to your repo repository secrets)
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          # 2. Expose the tag name (e.g. v1.0.4) to your React code during compilation
+          VITE_RELEASE_VERSION: ${{ github.ref_name }}
         with:
           tauriScript: npx tauri
           tagName: ${{ github.ref_name }}
