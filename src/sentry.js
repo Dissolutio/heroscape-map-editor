@@ -14,7 +14,11 @@ Sentry.init({
   debug: true,
 
   // Whitelist Tauri v2 production environment protocols
-  allowUrls: [/tauri\.localhost/, /tauri:/],
+  allowUrls: [
+    /tauri\.localhost/, // Windows & Linux Desktop
+    /tauri:/, // macOS Desktop
+    /hexoscape/, // web app's live domain
+  ],
 
   // Link errors to your GitHub Git Tag release version
   release: `hexoscape@${import.meta.env.VITE_RELEASE_VERSION || 'local-development'}`,
