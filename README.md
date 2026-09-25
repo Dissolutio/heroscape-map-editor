@@ -27,6 +27,7 @@
 - [Scripts](#scripts)
 - [App Requirements: What this editor intends to fulfill, eventually](./app-requirements.md)
 - [Vite Template: The README.md that was included by the initial Vite Typescript template](./vite-template-README.md)
+- [License](#license)
 
 
 ## Getting Started on Development
@@ -142,9 +143,6 @@ To add new terrain pieces, follow these steps:
 
 By following these steps, you can expand the application to support new releases of Heroscape terrain.
 
-LATEST UPDATE NOTES:
-- PERSONAL INVENTORY: You can now edit your personal inventory of tiles in the Edit tab. You can download the inventory as a `.csv` or `.tsv` file, or upload an inventory file. So you can ask someone to build a map, send them your inventory file, and they can use that file as terrain constraints in Hexoscape. So, setting terrain constraints has an extra step, but you can build with your personal inventory now.
-- PDF: 3 new toggles to change your output: Show Color Borders (7-hex are purple outline, etc.), Show Overlay Layer (glyphs/startzones as last level), Show on Placed Level (show glyphs/startzones on the level they're actually placed, too)
-- LAUR WALL INVENTORY: When you build laur wall stuff on upper pillar levels, inventory requires stackable pieces. When you build on the bottom pillar level, inventory will exhaust non-stackable pieces before using stackable ones.
-- BUGFIX: No more camera reset when you place a named glyph or turn on hex height display. (3d text was buggy)
-- BUGFIX: If an action causes piece conflicts, then Undoing that action will now remove those conflicts. (conflicts were persisting even after Undo)
+## License
+
+This project is dedicated to the public domain under the [CC0 1.0 Universal](./LICENSE) waiver. You can copy, modify, and distribute the code without asking for permission or giving credit.
