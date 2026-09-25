@@ -5,7 +5,6 @@ const isProduction = import.meta.env.PROD
 Sentry.init({
   dsn: 'https://abf54ce42681460cbea61d773becd43d@o374574.ingest.us.sentry.io/5192792',
   enabled: isProduction,
-  debug: true,
   // Whitelist Tauri v2 production environment protocols
   allowUrls: [
     /tauri\.localhost/, // Windows & Linux Desktop
