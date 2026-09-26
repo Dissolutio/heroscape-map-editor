@@ -34,14 +34,6 @@ export const BuildControlsTab = () => {
           icon={<FcTodoList />}
         />
         <ControlTabsListItemButton
-          onClick={() => {
-            Sentry.captureException(new Error('Sentry Direct Capture Test!'))
-          }}
-          title={'Test source map tauri/sentry/github action integration'}
-          primary={'Throw Test Error'}
-          icon={<FcTodoList />}
-        />
-        <ControlTabsListItemButton
           title={
             'View all pieces in a grid, conflicted pieces at the top, can zoom camera to piece'
           }
