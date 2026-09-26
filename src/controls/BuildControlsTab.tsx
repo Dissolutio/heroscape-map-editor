@@ -1,5 +1,4 @@
 import { Container, List } from '@mui/material'
-import * as Sentry from '@sentry/react'
 import { FcTodoList } from 'react-icons/fc'
 import { MdGridView } from 'react-icons/md'
 import { DIALOGS } from '../layout/dialogNames'
