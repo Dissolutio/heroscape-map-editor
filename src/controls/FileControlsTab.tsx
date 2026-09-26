@@ -9,6 +9,7 @@ import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
 import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
 import { LoadMapButtons } from '../layout/LoadMapButtons'
 import { DIALOGS } from '../layout/dialogNames'
+import { isDesktop } from '../platform'
 import useBoundStore from '../store/store'
 import {
   downloadSvgString,
@@ -313,7 +314,7 @@ export const FileControlsTab = ({
 
           {/* SHARE URL */}
           <ControlTabsListItemButton
-            primary="Share Map URL"
+            primary={isDesktop ? 'Share Map URL on the Web' : 'Share Map URL'}
             onClick={handleClickShare}
             icon={<FcLink />}
             endIcon={isShareOpen ? <MdExpandLess /> : <MdExpandMore />}
