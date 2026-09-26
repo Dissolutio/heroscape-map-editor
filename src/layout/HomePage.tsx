@@ -1,6 +1,7 @@
 import { Box } from '@mui/material'
 import React, { Suspense, useEffect } from 'react'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
+import useAppUpdater from '../hooks/useAppUpdater'
 import CreateMapFormDialog from './CreateMapFormDialog'
 import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
@@ -80,6 +81,7 @@ export default function HomePage() {
 
   // USE EFFECT: automatically load up map from URL, OR from file
   useAutoLoadMapFile()
+  useAppUpdater()
   const { hotkeyConfig } = useHotkeyConfig()
   useApplyHotkeys({ hotkeyConfig, cameraControlsRef, mapGroupRef })
 
