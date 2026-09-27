@@ -1,32 +1,33 @@
 import { Box } from '@mui/material'
+import type { CameraControls } from '@react-three/drei'
 import React, { Suspense, useEffect } from 'react'
-import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
+import type { Group, Object3DEventMap } from 'three'
+import { ControlsWidthContextProvider } from '../controls/useControlWidth'
 import useAppUpdater from '../hooks/useAppUpdater'
+import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
+import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
+import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
+import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
+import useBoundStore from '../store/store'
+import { zoomToMap } from '../utils/camera-utils'
+import { lazyWithRetry } from '../utils/lazyWithRetry'
+import {
+  getBoardHexesRectangularMapDimensions,
+  getBoardPiecesMaxLevel,
+} from '../utils/map-utils'
+import { ControlTabs } from './ControlTabs'
 import CreateMapFormDialog from './CreateMapFormDialog'
 import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
-import useBoundStore from '../store/store'
-import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
-import { ControlTabs } from './ControlTabs'
-import { useMuiMediaQuery } from './useMuiMediaQuery'
-import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
-import { ControlsWidthContextProvider } from '../controls/useControlWidth'
-import type { CameraControls } from '@react-three/drei'
-import type { Group, Object3DEventMap } from 'three'
-import {
-  getBoardPiecesMaxLevel,
-  getBoardHexesRectangularMapDimensions,
-} from '../utils/map-utils'
+import LoadMapFromUrlDialog from './LoadMapFromUrlDialog'
 import PiecesGridDialog from './PiecesGridDialog'
-import { zoomToMap } from '../utils/camera-utils'
-import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
-import { lazyWithRetry } from '../utils/lazyWithRetry'
+import { useMuiMediaQuery } from './useMuiMediaQuery'
 // 1. Define your lazy-loaded components
 const ReactPdfRoot = lazyWithRetry(() => import('../pdf-map/ReactPdfRoot'))
 const SvgMapDisplay = lazyWithRetry(() => import('../svg-map/SvgMapDisplay'))
 const World = lazyWithRetry(() => import('../world/World'))
-import { useHotkeyConfig } from '../controls/useHotkeyConfig'
 import { useApplyHotkeys } from '../controls/useApplyHotkeys'
+import { useHotkeyConfig } from '../controls/useHotkeyConfig'
 
 export default function HomePage() {
   // Keep the persisted personal inventory mirrored into zustand so terrain
@@ -92,6 +93,7 @@ export default function HomePage() {
       <EditPieceInventoryDialog />
       <ViewMapInventoryDialog />
       <PiecesGridDialog cameraControlsRef={cameraControlsRef} />
+      <LoadMapFromUrlDialog />
       <div
         style={{
           display: 'flex',

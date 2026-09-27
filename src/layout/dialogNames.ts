@@ -4,4 +4,5 @@ export const DIALOGS = {
   viewMapInventory: 'viewMapInventory',
   editPersonalInventory: 'editPersonalInventory',
   viewPiecesGrid: 'viewPiecesGrid',
+  loadFromUrl: 'loadFromUrl',
 }
