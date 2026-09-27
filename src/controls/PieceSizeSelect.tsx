@@ -1,15 +1,17 @@
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import type { MouseEvent } from 'react'
 import useBoundStore from '../store/store'
 import { HotkeyText } from './HotKeyText'
+import { getPieceSizeHotkeyMap } from './useApplyHotkeys'
 import { useHotkeyConfig } from './useHotkeyConfig'
-import type { MouseEvent } from 'react'
 
 export default function PieceSizeSelect() {
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const togglePieceSize = useBoundStore((s) => s.togglePieceSize)
   const flatPieceSizes = useBoundStore((s) => s.flatPieceSizes)
   const { hotkeyLookup } = useHotkeyConfig()
+  const hotkeyMap = getPieceSizeHotkeyMap(flatPieceSizes)
   const handleChange = (_event: MouseEvent<HTMLElement>, value: string) => {
     togglePieceSize(Number.parseInt(value))
   }
@@ -35,19 +37,22 @@ export default function PieceSizeSelect() {
         <span>Piece size:</span>
         <span>
           {isSizes ? (
-            flatPieceSizes.map((s, i) => (
-              <ToggleButton
-                key={s}
-                value={`${s}`}
-                aria-label={`${s}-hex sized piece`}
-                title={`${s}-hex sized piece [hotkey ${i + 1}`}
-              >
-                {s}
-                <HotkeyText
-                  text={`${hotkeyLookup[`togglePieceSize${i + 1}`]}`}
-                />
-              </ToggleButton>
-            ))
+            flatPieceSizes.map((s) => {
+              const key = hotkeyMap.get(String(s)) ?? ''
+              const hotkeyText = hotkeyLookup[`togglePieceSize${key}`] ?? key
+
+              return (
+                <ToggleButton
+                  key={s}
+                  value={`${s}`}
+                  aria-label={`${s}-hex sized piece`}
+                  title={`${s}-hex sized piece [hotkey ${key || 'none'}]`}
+                >
+                  {s}
+                  <HotkeyText text={hotkeyText} />
+                </ToggleButton>
+              )
+            })
           ) : (
             <ToggleButton value={`${0}`} disabled>
               -
