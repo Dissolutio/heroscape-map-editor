@@ -1,17 +1,18 @@
+import { Button } from '@mui/material'
 import { closeSnackbar, useSnackbar } from 'notistack'
 import { useEffect } from 'react'
 import { useLocation, useSearch } from 'wouter'
+import { ROUTES } from '../ROUTES'
 import { buildupJsonFileMap } from '../data/buildupMap'
+import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
+import { LS_KEYS } from '../local-storage/keys'
 import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
   inflateBoardPiecesFromIds,
   normalizeBoardPieces,
 } from '../utils/map-utils'
-import { Button } from '@mui/material'
-import { LS_KEYS } from '../local-storage/keys'
-import { ROUTES } from '../ROUTES'
-import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
+import { getViewModeFromQueryParam } from '../utils/mapShareUrl'
 
 const useAutoLoadMapFile = () => {
   const loadMap = useBoundStore((s) => s.loadMap)
@@ -23,13 +24,13 @@ const useAutoLoadMapFile = () => {
   const [, navigate] = useLocation()
 
   const applyViewModeFromQuery = (queryParams: URLSearchParams) => {
-    const viewMode = queryParams.get('v')
-    if (viewMode === 'a') {
+    const viewMode = getViewModeFromQueryParam(queryParams.get('v'))
+    if (viewMode === 'pdf') {
       toggleIsPdfOpen(true)
       return
     }
 
-    if (viewMode === 'b') {
+    if (viewMode === '2d') {
       toggleIs2DOpen(true)
       return
     }

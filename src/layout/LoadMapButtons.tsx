@@ -1,10 +1,12 @@
-import { MdFolderZip, MdOutlineHexagon } from 'react-icons/md'
+import { MdFolderZip, MdLink, MdOutlineHexagon } from 'react-icons/md'
+import { ControlTabsListItemButton } from '../controls/ControlTabsListItemButton'
+import useBoundStore from '../store/store'
 import {
   jsonUploadElementID,
   uploadElementID,
   virtualScapeUploadElementID,
 } from './LoadFileHiddenInputs'
-import { ControlTabsListItemButton } from '../controls/ControlTabsListItemButton'
+import { DIALOGS } from './dialogNames'
 
 const useLoadMapButtons = () => {
   const handleClickGzipFileSelect = () => {
@@ -57,6 +59,9 @@ export const LoadMapButtons = () => {
     handleClickJsonFileSelect,
     handleClickVSFileSelect,
   } = useLoadMapButtons()
+  const toggleCurrentDialog = useBoundStore(
+    (state) => state.toggleCurrentDialog,
+  )
   return (
     <>
       <ControlTabsListItemButton
@@ -73,6 +78,11 @@ export const LoadMapButtons = () => {
         primary="Load Virtualscape file (.hsc)"
         onClick={handleClickVSFileSelect}
         icon={<MdOutlineHexagon />}
+      />
+      <ControlTabsListItemButton
+        primary="Load from URL"
+        onClick={() => toggleCurrentDialog(DIALOGS.loadFromUrl)}
+        icon={<MdLink />}
       />
     </>
   )
