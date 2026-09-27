@@ -1,22 +1,88 @@
-import useBoundStore from '../store/store'
-import { useHotkeys } from 'react-hotkeys-hook'
-import { PICK_PEN_MODE, PiecePrefixes, Pieces, SELECT_PEN_MODE } from '../types'
-import {
-  doPenModeCounterRotation,
-  doPenModeRotation,
-} from './getPossibleRotationsForPenMode'
-import type { Group, Object3DEventMap } from 'three'
 import type { CameraControls } from '@react-three/drei'
+import type { RefObject } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
+import type { Group, Object3DEventMap } from 'three'
+import useBoundStore from '../store/store'
+import { PICK_PEN_MODE, PiecePrefixes, Pieces, SELECT_PEN_MODE } from '../types'
+import { zoomToMap } from '../utils/camera-utils'
 import {
   getBoardHexesRectangularMapDimensions,
   getBoardPiecesMaxLevel,
 } from '../utils/map-utils'
-import type { RefObject } from 'react'
-import { zoomToMap } from '../utils/camera-utils'
 import {
   redoWithSelectionRestore,
   undoWithSelectionRestore,
 } from '../utils/undoWithSelectionRestore'
+import {
+  doPenModeCounterRotation,
+  doPenModeRotation,
+} from './getPossibleRotationsForPenMode'
+
+export const STANDARD_PIECE_SIZE_HOTKEYS = {
+  '1': 1,
+  '2': 2,
+  '3': 3,
+  '4': 7,
+  '5': 24,
+} as const
+
+export const PIECE_SIZE_OVERFLOW_HOTKEYS = ['6', '7', '8', '9', '0'] as const
+
+export const getPieceSizeForHotkey = (
+  hotkey: string,
+  flatPieceSizes: number[],
+): number | null => {
+  const standardSize =
+    STANDARD_PIECE_SIZE_HOTKEYS[
+      hotkey as keyof typeof STANDARD_PIECE_SIZE_HOTKEYS
+    ]
+
+  if (standardSize !== undefined) {
+    return flatPieceSizes.includes(standardSize) ? standardSize : null
+  }
+
+  const overflowIndex = PIECE_SIZE_OVERFLOW_HOTKEYS.indexOf(
+    hotkey as (typeof PIECE_SIZE_OVERFLOW_HOTKEYS)[number],
+  )
+  if (overflowIndex === -1) return null
+
+  const specialSizes = [...new Set(flatPieceSizes)]
+    .filter((size) => !STANDARD_PIECE_SIZES.has(size))
+    .sort((a, b) => a - b)
+
+  return specialSizes[overflowIndex] ?? null
+}
+
+export const getPieceSizeHotkeyMap = (flatPieceSizes: number[]) => {
+  const hotkeyMap = new Map<string, string>()
+  const standardKeys = Object.entries(STANDARD_PIECE_SIZE_HOTKEYS)
+  for (const [hotkey, size] of standardKeys) {
+    if (flatPieceSizes.includes(size)) {
+      hotkeyMap.set(String(size), hotkey)
+    }
+  }
+
+  const specialSizes = [...new Set(flatPieceSizes)]
+    .filter((size) => !STANDARD_PIECE_SIZES.has(size))
+    .sort((a, b) => a - b)
+
+  PIECE_SIZE_OVERFLOW_HOTKEYS.forEach((hotkey, index) => {
+    const size = specialSizes[index]
+    if (size !== undefined) {
+      hotkeyMap.set(String(size), hotkey)
+    }
+  })
+
+  return hotkeyMap
+}
+
+const STANDARD_PIECE_SIZES = new Set<number>([
+  STANDARD_PIECE_SIZE_HOTKEYS['1'],
+  STANDARD_PIECE_SIZE_HOTKEYS['2'],
+  STANDARD_PIECE_SIZE_HOTKEYS['3'],
+  STANDARD_PIECE_SIZE_HOTKEYS['4'],
+  STANDARD_PIECE_SIZE_HOTKEYS['5'],
+])
 
 export const useApplyHotkeys = ({
   cameraControlsRef,
@@ -95,56 +161,22 @@ export const useApplyHotkeys = ({
   const decrementViewingLevel = () => {
     toggleViewingLevel(Math.max(viewingLevel - 1, 0))
   }
-  const togglePieceSize1 = () => {
-    if (isSizes) {
-      togglePieceSize(flatPieceSizes[0])
-    }
+  const togglePieceSizeForHotkey = (hotkey: string) => {
+    if (!isSizes) return
+
+    const targetSize = getPieceSizeForHotkey(hotkey, flatPieceSizes)
+    if (targetSize === null) return
+
+    togglePieceSize(targetSize)
   }
-  const togglePieceSize2 = () => {
-    if (isSizes) {
-      togglePieceSize(flatPieceSizes?.[1] ?? flatPieceSizes[0])
-    }
-  }
-  const togglePieceSize3 = () => {
-    if (isSizes) {
-      togglePieceSize(
-        flatPieceSizes?.[2] ?? flatPieceSizes?.[1] ?? flatPieceSizes?.[0],
-      )
-    }
-  }
-  const togglePieceSize4 = () => {
-    if (isSizes) {
-      togglePieceSize(
-        flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-      )
-    }
-  }
-  const togglePieceSize5 = () => {
-    if (isSizes) {
-      togglePieceSize(
-        flatPieceSizes?.[4] ??
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-      )
-    }
-  }
-  const togglePieceSize6 = () => {
-    if (isSizes) {
-      togglePieceSize(
-        flatPieceSizes?.[5] ??
-          flatPieceSizes?.[4] ??
-          flatPieceSizes?.[3] ??
-          flatPieceSizes?.[2] ??
-          flatPieceSizes?.[1] ??
-          flatPieceSizes[0],
-      )
-    }
-  }
+
+  const togglePieceSize1 = () => togglePieceSizeForHotkey('1')
+  const togglePieceSize2 = () => togglePieceSizeForHotkey('2')
+  const togglePieceSize3 = () => togglePieceSizeForHotkey('3')
+  const togglePieceSize4 = () => togglePieceSizeForHotkey('4')
+  const togglePieceSize5 = () => togglePieceSizeForHotkey('5')
+  const togglePieceSize6 = () => togglePieceSizeForHotkey('6')
+  const togglePieceSize7 = () => togglePieceSizeForHotkey('7')
   const undoWorld = undoWithSelectionRestore
   const redoWorld = redoWithSelectionRestore
   const cycleNextPieceRotation = () => {
@@ -202,6 +234,7 @@ export const useApplyHotkeys = ({
     togglePieceSize4: togglePieceSize4,
     togglePieceSize5: togglePieceSize5,
     togglePieceSize6: togglePieceSize6,
+    togglePieceSize7: togglePieceSize7,
 
     cycleNextPieceRotation: cycleNextPieceRotation,
     cyclePrevPieceRotation: cyclePrevPieceRotation,

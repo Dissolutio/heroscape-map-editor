@@ -1,6 +1,6 @@
+import { useEffect } from 'react'
 import { LS_KEYS } from '../local-storage/keys'
 import { useLocalStorage } from '../local-storage/useLocalStorage'
-import { useEffect } from 'react'
 
 export const useHotkeyConfig = () => {
   const [hotkeyConfig, setHotkeyConfig] = useLocalStorage(
@@ -54,7 +54,7 @@ export const defaultHotkeyConfig = {
   '6': 'togglePieceSize6',
   'shift+6': undefined,
   'alt+6': undefined,
-  '7': undefined,
+  '7': 'togglePieceSize7',
   'shift+7': undefined,
   'alt+7': undefined,
   '8': undefined,
