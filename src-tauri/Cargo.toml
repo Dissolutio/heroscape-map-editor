@@ -1,6 +1,6 @@
 [package]
 name = "hexoscape"
-version = "1.0.13"
+version = "1.0.15"
 description = "HeroScape Map Editor"
 authors = ["John Moen"]
 license = "CC0"
