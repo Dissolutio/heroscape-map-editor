@@ -451,7 +451,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       field: 'isSubterrainBuried',
       headerName: 'Is Subterrain Buried',
       description:
-        'If this is a land tile, is it surrounded by adjacent land tiles such that you cannot see the sides of this piece',
+        'If this is a land tile, are all of its sides connected to other pieces',
       width: 170,
       align: 'center',
       headerAlign: 'center',

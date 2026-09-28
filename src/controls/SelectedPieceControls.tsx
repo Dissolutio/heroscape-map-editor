@@ -111,9 +111,10 @@ export function SelectedPieceControls({
     const footprint = getLandFootprint(bp)
     if (!footprint?.length) return false
     const topAlt = getSurfaceAltitude(bp) ?? bp.altitude + 1
+    const aboveAlt = Number.isInteger(topAlt) ? topAlt + 1 : topAlt + 0.5
     return footprint.every((c) => {
       const aboveTerrain =
-        boardHexes[genBoardHexID({ ...c, altitude: topAlt + 1 })]?.terrain ?? ''
+        boardHexes[genBoardHexID({ ...c, altitude: aboveAlt })]?.terrain ?? ''
       return isLandTerrain(aboveTerrain)
     })
   }
@@ -121,9 +122,10 @@ export function SelectedPieceControls({
     const footprint = getLandFootprint(bp)
     if (!footprint?.length) return false
     const topAlt = getSurfaceAltitude(bp) ?? bp.altitude + 1
+    const aboveAlt = Number.isInteger(topAlt) ? topAlt + 1 : topAlt + 0.5
     return footprint.some((c) => {
       const aboveTerrain =
-        boardHexes[genBoardHexID({ ...c, altitude: topAlt + 1 })]?.terrain ?? ''
+        boardHexes[genBoardHexID({ ...c, altitude: aboveAlt })]?.terrain ?? ''
       return isLandTerrain(aboveTerrain)
     })
   }
@@ -364,16 +366,18 @@ export function SelectedPieceControls({
               {isMulti ? `${buriedCount} buried` : 'Buried'}
             </Typography>
           )}
-          {partiallyBuriedCount > 0 && (
-            <Typography
-              title="At least one hex from this piece is covered by land above it"
-              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
-            >
-              {isMulti
-                ? `${partiallyBuriedCount} partially buried`
-                : 'Partially buried'}
-            </Typography>
-          )}
+          {/* {!isMulti && !buriedCount && partiallyBuriedCount > 0 && ( */}
+          {(!isMulti && !buriedCount && partiallyBuriedCount > 0) ||
+            (isMulti && partiallyBuriedCount > 0 && (
+              <Typography
+                title="At least one hex from this piece is covered by land above it"
+                sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+              >
+                {isMulti
+                  ? `${partiallyBuriedCount - buriedCount} partially buried`
+                  : 'Partially buried'}
+              </Typography>
+            ))}
           {subBuriedCount > 0 && (
             <Typography
               title="The sides of this piece do not show to the outside"
