@@ -209,12 +209,7 @@ function SubterrainSizeGroup({
     const material = ref.current?.material
     if (!material) return
 
-    const focusOpacity = calculateFocusOpacity(focusedPieceUID, focusStartTime)
-    const targetOpacity = isFluid
-      ? focusOpacity < 1
-        ? focusOpacity
-        : FLUID_CAP_OPACITY
-      : focusOpacity
+    const targetOpacity = calculateFocusOpacity(focusedPieceUID, focusStartTime)
 
     const materials = Array.isArray(material) ? material : [material]
     for (const mat of materials) {
@@ -243,11 +238,14 @@ function SubterrainSizeGroup({
     >
       {isLightsAndShadowsRender ? (
         <meshStandardMaterial
-          transparent={isFluid}
-          opacity={isFluid ? FLUID_CAP_OPACITY : 1}
+        // transparent={isFluid}
+        // opacity={isFluid ? FLUID_CAP_OPACITY : 1}
         />
       ) : isFluid ? (
-        <meshLambertMaterial transparent opacity={FLUID_CAP_OPACITY} />
+        <meshMatcapMaterial
+        // transparent
+        //  opacity={FLUID_CAP_OPACITY}
+        />
       ) : (
         <meshMatcapMaterial />
       )}

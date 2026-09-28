@@ -22,7 +22,6 @@ import {
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils'
 import { hexTerrainColor } from './maphex/hexColors'
-import { FLUID_CAP_OPACITY } from './maphex/instance/FluidCap'
 import { BattlementPreview } from './models/Battlement'
 import BigTree415 from './models/BigTree415'
 import Cannon from './models/Cannon'
@@ -31,7 +30,7 @@ import { CastleBasePreview } from './models/CastleBases'
 import { CastleWallPreview } from './models/CastleWalls'
 import ForestTree from './models/ForestTree'
 import { FortifiedWallPreview } from './models/FortifiedWall'
-import { GlyphModel, GlyphModelPreview } from './models/Glyph'
+import { GlyphModelPreview } from './models/Glyph'
 import { LadderPreview } from './models/Ladder'
 import {
   Subterrain1,
@@ -79,7 +78,6 @@ import { LaurPalmPreview, TicallaPalmPreview } from './models/TicallaPalm'
 import {
   getLadderBattlementOptions,
   getObstaclRotation,
-  getOptionsForBigTree,
   getOptionsForPalmHeight,
   getOptionsForTreeHeight,
   getRoadWallOptions,
@@ -281,7 +279,7 @@ export default function PiecePreview() {
         <meshLambertMaterial
           color={subterrainColor}
           transparent
-          opacity={FLUID_CAP_OPACITY}
+          opacity={PIECE_PREVIEW_OPACITY}
         />
       )
     }
@@ -289,7 +287,7 @@ export default function PiecePreview() {
       <meshMatcapMaterial
         color={subterrainColor}
         transparent
-        opacity={FLUID_CAP_OPACITY}
+        opacity={PIECE_PREVIEW_OPACITY}
       />
     )
   }
