@@ -8,6 +8,7 @@ import { zoomToMap } from '../utils/camera-utils'
 import {
   getBoardHexesRectangularMapDimensions,
   getBoardPiecesMaxLevel,
+  getCycleableLevels,
 } from '../utils/map-utils'
 import {
   redoWithSelectionRestore,
@@ -118,10 +119,13 @@ export const useApplyHotkeys = ({
     (s) => s.is2DOverlayLevelEnabled,
   )
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
-  const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+  const maxLevel = getBoardPiecesMaxLevel(boardPieces, boardHexes)
   const overlayLevel = (maxLevel ?? 0) + 1
   const allowedMaxLevel =
     is2DOverlayLevelEnabled && is2DOpen && !isPdfOpen ? overlayLevel : maxLevel
+  const cycleableLevels = getCycleableLevels(boardPieces, boardHexes).filter(
+    (level) => level <= allowedMaxLevel,
+  )
   const isSizes = flatPieceSizes?.length > 0
 
   const deleteSelectedPiece = () => {
@@ -156,10 +160,14 @@ export const useApplyHotkeys = ({
   }
 
   const incrementViewingLevel = () => {
-    toggleViewingLevel(Math.min(viewingLevel + 1, allowedMaxLevel))
+    const next = cycleableLevels.find((level) => level > viewingLevel)
+    toggleViewingLevel(next ?? allowedMaxLevel)
   }
   const decrementViewingLevel = () => {
-    toggleViewingLevel(Math.max(viewingLevel - 1, 0))
+    const priorLevels = cycleableLevels.filter((level) => level < viewingLevel)
+    toggleViewingLevel(
+      priorLevels.length ? priorLevels[priorLevels.length - 1] : 0,
+    )
   }
   const togglePieceSizeForHotkey = (hotkey: string) => {
     if (!isSizes) return

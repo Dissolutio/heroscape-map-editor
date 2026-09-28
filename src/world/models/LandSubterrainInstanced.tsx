@@ -7,7 +7,12 @@ import { Vector3 } from 'three'
 import { piecesSoFar } from '../../data/pieces'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardPiece, HexTerrain, Pieces } from '../../types'
+import {
+  type BoardHexes,
+  type BoardPiece,
+  HexTerrain,
+  Pieces,
+} from '../../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../../utils/board-utils'
 import {
   HEXGRID_HEXCAP_FLUID_SCALE,
@@ -15,7 +20,10 @@ import {
   INSTANCE_LIMIT,
 } from '../../utils/constants'
 import { calculateFocusOpacity } from '../../utils/focus-opacity'
-import { getBoardHex3DCoords } from '../../utils/map-utils'
+import {
+  getBoardHex3DCoords,
+  getSurfaceAltitudeByPieceUID,
+} from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { InstanceRefType } from '../maphex/instance-hex'
 import { FLUID_CAP_OPACITY } from '../maphex/instance/FluidCap'
@@ -103,11 +111,16 @@ export type LandSubterrainInstanceDatum = {
 // (non colorOverride'd) LandSubterrain rendering path.
 export function getLandSubterrainInstanceData(
   boardPieces: BoardPiece[],
+  boardHexes: BoardHexes,
   viewingLevel: number,
 ): LandSubterrainInstanceDatum[] {
   const data: LandSubterrainInstanceDatum[] = []
+  // Real surface altitude per piece uid (correctly half-level for fluid-on-fluid stacks),
+  // instead of assuming every land piece rises exactly one whole level from its support.
+  const surfaceByUID = getSurfaceAltitudeByPieceUID(boardHexes)
   for (const bp of boardPieces) {
-    if (bp.altitude + 1 > viewingLevel) continue
+    const surfaceAltitude = surfaceByUID.get(bp.uid) ?? bp.altitude + 1
+    if (surfaceAltitude > viewingLevel) continue
     if (NON_INSTANCED_SUBTERRAIN_PIECES.has(bp.inventoryID)) continue
     const piece = piecesSoFar[bp.inventoryID]
     if (!piece) continue
@@ -116,7 +129,7 @@ export function getLandSubterrainInstanceData(
     if (!isFluid && !isSolid) continue
     const { x, z, yBaseCap } = getBoardHex3DCoords({
       ...bp.pieceCoords,
-      altitude: bp.altitude + 1,
+      altitude: surfaceAltitude,
     })
     data.push({
       uid: bp.uid,

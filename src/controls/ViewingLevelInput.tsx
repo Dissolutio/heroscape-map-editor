@@ -1,22 +1,30 @@
 import { Box, Grid2, Input, Typography } from '@mui/material'
-import useBoundStore from '../store/store'
-import { getBoardPiecesMaxLevel } from '../utils/map-utils'
-import { useHotkeyConfig } from './useHotkeyConfig'
 import { useEffect } from 'react'
+import useBoundStore from '../store/store'
+import {
+  getBoardPiecesMaxLevel,
+  getCycleableLevels,
+  getOverlayLevel,
+} from '../utils/map-utils'
+import { useHotkeyConfig } from './useHotkeyConfig'
 
 export default function ViewingLevelInput() {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
   const is2DOpen = useBoundStore((s) => s.is2DOpen)
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
   )
-  const maxLevel = getBoardPiecesMaxLevel(boardPieces)
-  const overlayLevel = (maxLevel ?? 0) + 1
+  const maxLevel = getBoardPiecesMaxLevel(boardPieces, boardHexes)
+  const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
   const allowedMaxLevel =
     is2DOverlayLevelEnabled && is2DOpen && !isPdfOpen ? overlayLevel : maxLevel
+  const cycleableLevels = getCycleableLevels(boardPieces, boardHexes).filter(
+    (level) => level <= allowedMaxLevel,
+  )
   const { hotkeyLookup } = useHotkeyConfig()
   // Adjust viewing level down when it's over the allowed max (allow overlay level when toggle is enabled)
   useEffect(() => {
@@ -70,11 +78,21 @@ export default function ViewingLevelInput() {
           <Input
             value={viewingLevel}
             size="small"
-            onChange={(event) =>
-              toggleViewingLevel(Number.parseInt(event.target.value))
-            }
+            onChange={(event) => {
+              const entered = Number.parseFloat(event.target.value)
+              if (Number.isNaN(entered)) return
+              // snap freeform/step input to the nearest valid whole or half-fluid level
+              const nearest = cycleableLevels.reduce(
+                (best, level) =>
+                  Math.abs(level - entered) < Math.abs(best - entered)
+                    ? level
+                    : best,
+                cycleableLevels[0] ?? 0,
+              )
+              toggleViewingLevel(nearest)
+            }}
             inputProps={{
-              step: 1,
+              step: 0.5,
               min: 0,
               max: is2DOverlayLevelEnabled ? overlayLevel : (maxLevel ?? 0),
               type: 'number',

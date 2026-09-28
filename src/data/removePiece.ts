@@ -73,8 +73,10 @@ export function removePiece({
     const pieceBoardHexes = Object.values(newBoardHexes).filter(
       (bh) => bh?.boardPieceUID === uid,
     )
+    // Use the piece's own recorded support altitude (not surface altitude - 1), since a
+    // half-level fluid-on-fluid piece is only 0.5 above its support, not a whole level.
     const underHexIds = pieceBoardHexes.map((cubeCoord) =>
-      genBoardHexID({ ...cubeCoord, altitude: (cubeCoord.altitude ?? 0) - 1 }),
+      genBoardHexID({ ...cubeCoord, altitude: boardPiece.altitude }),
     )
     for (const underHexId of underHexIds) {
       if (

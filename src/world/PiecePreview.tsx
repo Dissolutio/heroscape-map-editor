@@ -2,7 +2,11 @@ import { Suspense } from 'react'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { HexTerrain, PiecePrefixes, Pieces } from '../types'
-import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
+import {
+  getLandAltitudeIncrement,
+  isFluidTerrainHex,
+  isSolidTerrainHex,
+} from '../utils/board-utils'
 import {
   HEXGRID_GLYPH_HEIGHT,
   HEXGRID_HEXCAP_FLUID_HEIGHT,
@@ -333,6 +337,14 @@ export default function PiecePreview() {
   const isSolidBeneath = isSolidTerrainHex(hoveredHexForPreview.terrain)
   const isSolidOrEmptyBeneath = isSolidBeneath || isEmptyBeneath
   const isLandOrEmptyBeneath = isLandBeneath || isEmptyBeneath
+  const isFluidBeneathForLandPreview = isFluidTerrainHex(
+    hoveredHexForPreview.terrain,
+  )
+  // Solid land can only go on a fluid hex once that fluid sits on a whole level (never on
+  // a half-level fluid cap); fluid can stack on a fluid hex at any level.
+  const canPlaceSolidOnFluid =
+    isFluidBeneathForLandPreview &&
+    Number.isInteger(hoveredHexForPreview.altitude)
   const isPillarPenMode = isLaurSquarePillarHex || isLaurTrianglePillarHex
   const isMatchingPillarStackTarget =
     (isLaurSquarePillarHex &&
@@ -360,14 +372,21 @@ export default function PiecePreview() {
       ? (hoveredHexForPreview.pieceRotation * -Math.PI) / 3
       : pieceRotation
 
-  // Show land tiles, if hovering table/solid-land
+  // Show land tiles: solid on solid/table/whole-level-fluid, fluid on solid/table/any fluid
   if (
-    ((isSolidSubterrain || isFluidSubterrain) && isSolidOrEmptyBeneath) ||
+    (isSolidSubterrain && (isSolidOrEmptyBeneath || canPlaceSolidOnFluid)) ||
+    (isFluidSubterrain &&
+      (isSolidOrEmptyBeneath || isFluidBeneathForLandPreview)) ||
     (isUnderHexCastleWallArch && piece?.terrain === HexTerrain.wallWalk)
   ) {
+    // A fluid tile stacked on another fluid only rises a half level (not a whole level)
+    const landAltitudeIncrement = getLandAltitudeIncrement(
+      piece?.terrain ?? '',
+      isFluidBeneathForLandPreview,
+    )
     return (
       <group
-        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        position={[x, yBaseCap + landAltitudeIncrement * HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
         scale={[1, isFluidSubterrain ? HEXGRID_HEXCAP_FLUID_SCALE : 1, 1]}
       >

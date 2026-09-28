@@ -13,9 +13,11 @@ import {
   Pieces,
 } from '../types'
 import {
+  getLandAltitudeIncrement,
   isBridgingObstaclePieceID,
   isFluidTerrainHex,
   isSolidTerrainHex,
+  isWholeLevelAltitude,
 } from '../utils/board-utils'
 import { genBoardHexID, genPieceID } from '../utils/map-utils'
 import interlockRotationTemplates from './interlock-rotations'
@@ -94,10 +96,17 @@ export function addPiece({
     piece.id,
     ladderBattlementPieceRotation,
   )
-  const newPieceAltitude = placementAltitude + 1
   const underHexIds = piecePlaneCoords.map((cubeCoord) =>
     genBoardHexID({ ...cubeCoord, altitude: placementAltitude }),
   )
+  // Fluid-on-fluid stacking rises only a half level; every other combination (including a
+  // fluid tile placed on solid/table) keeps the original whole-level rise.
+  const isFluidUnderAllForIncrement = underHexIds.every((id) =>
+    isFluidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
+  )
+  const newPieceAltitude =
+    placementAltitude +
+    getLandAltitudeIncrement(piece.terrain, isFluidUnderAllForIncrement)
   const newHexIds = piecePlaneCoords.map((cubeCoord) =>
     genBoardHexID({ ...cubeCoord, altitude: newPieceAltitude }),
   )
@@ -807,16 +816,27 @@ export function addPiece({
   // LAND
   else if (isPlacingLandTile) {
     // castle-wallwalk placed here as normal land
-    const isLandPieceSupported = isPlacingOnTable || isSolidUnderAtLeastOne
+    const isFluidUnderAtLeastOne = underHexIds.some((id) =>
+      isFluidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
+    )
+    const isLandPieceSupported =
+      isPlacingOnTable ||
+      isSolidUnderAtLeastOne ||
+      // fluid can always stack on fluid; solid can only land on fluid once it's whole-level
+      (isFluidTerrainHex(piece.terrain) && isFluidUnderAtLeastOne) ||
+      (isSolidTerrainHex(piece.terrain) &&
+        isFluidUnderAtLeastOne &&
+        isWholeLevelAltitude(placementAltitude))
     if ((isSpaceFree && isLandPieceSupported) || permissive) {
       try {
         newHexIds.forEach((newHexID, iForEach) => {
           const hexUnderneath = newBoardHexes?.[underHexIds[iForEach]]
           const hexAbove = newBoardHexes?.[overHexIds[iForEach]]
-          const isSolidAbove = isSolidTerrainHex(hexAbove?.terrain)
-          const isSolidUnderneath = isSolidTerrainHex(hexUnderneath?.terrain)
-          if (hexUnderneath && (isSolidUnderneath || isPlacingOnTable)) {
-            // solids and fluids can replace the cap below
+          const isSolidOrFluidAbove =
+            isSolidTerrainHex(hexAbove?.terrain) ||
+            isFluidTerrainHex(hexAbove?.terrain)
+          if (hexUnderneath) {
+            // solids and fluids can replace the cap below (fluid-on-fluid included)
             // remove cap beneath this land hex
             newBoardHexes[hexUnderneath.id].isCap = false
           }
@@ -833,7 +853,7 @@ export function addPiece({
             boardPieceUID: uid,
             inventoryID: piece.id,
             pieceRotation: rotation,
-            isCap: !isSolidAbove, // not a cap if solid hex directly above
+            isCap: !isSolidOrFluidAbove, // not a cap if solid/fluid hex directly above
             isObstacleOrigin: iForEach === 0, // mark subterrain origin hex
             isObstacleAuxiliary: iForEach !== 0, // mark non-origin hex
             interlockType: interlockTemplates[piece.template][iForEach],

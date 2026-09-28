@@ -19,7 +19,7 @@ import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-uti
 import {
   boardPieceToDecodedPieceID,
   getBoardHexesSvgMapDimensions,
-  getBoardPiecesMaxLevel,
+  getOverlayLevel,
 } from '../utils/map-utils'
 import { PdfLevelLogo } from './PdfLevelLogo'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
@@ -48,7 +48,7 @@ export const PdfMapLevels6PerPage = ({
   is2DOverlayLevelEnabled: boolean
 }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
-  const overlayLevel = getBoardPiecesMaxLevel(boardPieces) + 1
+  const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
   const boardHexesWithoutEmpties = keyBy(
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
     'id',
@@ -252,7 +252,10 @@ const PdfLevelChunkHeading = ({
   group: PdfMapAltitudeChunk
   isShowPdfLevelLogo: boolean
 }) => {
-  if (group.label || !isShowPdfLevelLogo) {
+  // The numeral plaque graphic only supports whole numbers; half-levels (fluid stacked on
+  // fluid) always fall back to the plain text heading, sized to line up with the logo.
+  const isWholeLevel = Number.isInteger(group.altitude)
+  if (group.label || !isShowPdfLevelLogo || !isWholeLevel) {
     const margin =
       group.label === 'Glyphs and Start Zones' && isShowPdfLevelLogo
         ? LEVEL_LOGO_OUTLIER_LABEL_MARGIN

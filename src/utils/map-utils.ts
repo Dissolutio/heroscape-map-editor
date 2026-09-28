@@ -10,6 +10,7 @@ import type {
   CubeCoordinate,
   DecodedPieceID,
 } from '../types'
+import { isFluidTerrainHex, isSolidTerrainHex } from './board-utils'
 import {
   HEXGRID_GLYPH_HEIGHT,
   HEXGRID_HEXCAP_FLUID_SCALE,
@@ -250,7 +251,8 @@ export function genPieceID(
 }
 export function decodePieceID(aqrrID: string): DecodedPieceID {
   const parsed = aqrrID.split('~')
-  const altitude = Number.parseInt(parsed[0])
+  // parseFloat (not parseInt): half-level fluid-on-fluid altitudes end in ".5"
+  const altitude = Number.parseFloat(parsed[0])
   const q = Number.parseInt(parsed[1])
   const r = Number.parseInt(parsed[2])
   const s = -q - r
@@ -275,13 +277,70 @@ export function genBoardHexID(hex: CubeCoordinate & { altitude: number }) {
     */
   return `${hex.altitude}~${hex.q}~${hex.r}`
 }
-export const getBoardPiecesMaxLevel = (boardPieces: BoardPiece[]) => {
-  const maxLevel =
-    1 +
-    boardPieces
-      .map((bp) => bp.altitude) // get their altitudes
-      .sort((a, b) => b - a)[0] // sort them high to low and grab the first
-  return Number.isNaN(maxLevel) ? 0 : maxLevel
+// Maps each BoardPiece uid to the real (possibly half-level) surface altitude of the
+// BoardHex(es) it wrote, by scanning boardHexes once. Land pieces need this since their
+// true surface altitude depends on whether they stacked on fluid (not just their own
+// support altitude + a fixed increment).
+export const getSurfaceAltitudeByPieceUID = (
+  boardHexes: BoardHexes,
+): Map<string, number> => {
+  const surfaceByUID = new Map<string, number>()
+  for (const hex of Object.values(boardHexes)) {
+    if (!hex.boardPieceUID) continue
+    const existing = surfaceByUID.get(hex.boardPieceUID)
+    if (existing === undefined || hex.altitude > existing) {
+      surfaceByUID.set(hex.boardPieceUID, hex.altitude)
+    }
+  }
+  return surfaceByUID
+}
+export const getBoardPiecesMaxLevel = (
+  boardPieces: BoardPiece[],
+  boardHexes: BoardHexes,
+) => {
+  if (!boardPieces.length) return 0
+  const surfaceByUID = getSurfaceAltitudeByPieceUID(boardHexes)
+  let maxLevel = 0
+  for (const bp of boardPieces) {
+    const piece = piecesSoFar[bp.inventoryID]
+    const isLand =
+      Boolean(piece) &&
+      (isSolidTerrainHex(piece.terrain) || isFluidTerrainHex(piece.terrain))
+    // Land pieces: use their real (possibly half-level) surface altitude from boardHexes.
+    // Everything else (obstacles etc.) keeps the original support+1 behavior.
+    const level = isLand
+      ? (surfaceByUID.get(bp.uid) ?? bp.altitude + 1)
+      : bp.altitude + 1
+    if (level > maxLevel) maxLevel = level
+  }
+  return maxLevel
+}
+// The overlay layer (glyphs/start zones) must always land on a whole level, even when
+// the tallest surface on the map is a half-level fluid stack.
+export const getOverlayLevel = (
+  boardPieces: BoardPiece[],
+  boardHexes: BoardHexes,
+) => Math.floor(getBoardPiecesMaxLevel(boardPieces, boardHexes)) + 1
+// Whole levels 0..floor(maxLevel), plus any half-level that actually has a land BoardHex
+// there (fluid-on-fluid stacks only), plus the overlay level. Used anywhere the viewing
+// level cycles/steps (hotkeys, the level number input, bulk SVG export).
+export const getCycleableLevels = (
+  boardPieces: BoardPiece[],
+  boardHexes: BoardHexes,
+): number[] => {
+  const maxLevel = getBoardPiecesMaxLevel(boardPieces, boardHexes)
+  const wholeLevels = Array.from(
+    { length: Math.floor(maxLevel) + 1 },
+    (_, i) => i,
+  )
+  const halfLevels = new Set<number>()
+  for (const hex of Object.values(boardHexes)) {
+    if (!Number.isInteger(hex.altitude) && hex.altitude <= maxLevel) {
+      halfLevels.add(hex.altitude)
+    }
+  }
+  const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
+  return [...wholeLevels, ...halfLevels, overlayLevel].sort((a, b) => a - b)
 }
 export function countTerrainSets(setsUsed: string[]): Record<string, number> {
   return setsUsed.reduce(

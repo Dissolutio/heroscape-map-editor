@@ -32,6 +32,11 @@ export const CUBE_NE = { q: 1, r: -1, s: 0 }
 // hex side male plug width: 7/32" (0.555625cm)
 // hex side female plug width: 6/32" (0.47625cm)
 export const HEXGRID_HEX_HEIGHT = 0.35 // 0.375 was BEST fit to the 24-hex tile scan, but castle-walls and ladders have already been tailored to 0.35!
+// Altitude (game-logic level number) increments. Solid land, obstacles, etc. always
+// rise a whole level. A fluid tile stacked directly on another fluid tile only rises
+// a half level (two stacked fluids reach the same height as one solid level).
+export const HEXGRID_LEVEL_INCREMENT = 1
+export const HEXGRID_FLUID_LEVEL_INCREMENT = 0.5
 export const HEXGRID_HEXCAP_HEIGHT = HEXGRID_HEX_HEIGHT / 7 // for solid tiles the cap is a seventh of the height
 export const HEXGRID_HEXCAP_FLUID_SCALE = 1 / 2 // fluid tiles are 3/7 the height of solid tiles in real life
 export const HEXGRID_HEXCAP_FLUID_HEIGHT =

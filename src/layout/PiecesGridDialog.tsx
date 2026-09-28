@@ -1,34 +1,34 @@
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Box,
   Button,
   CircularProgress,
-  Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Typography,
   useMediaQuery,
 } from '@mui/material'
-import type React from 'react'
-import type { CameraControls } from '@react-three/drei'
-import useBoundStore from '../store/store'
-import { ConvertTerrainQuickSelect } from '../controls/ConvertTerrainQuickSelect'
-import { DIALOGS } from './dialogNames'
-import { piecesSoFar } from '../data/pieces'
 import {
   DataGrid,
-  GridToolbar,
   type GridColDef,
   type GridRowSelectionModel,
+  GridToolbar,
 } from '@mui/x-data-grid'
-import { zoomToPiece } from '../utils/camera-utils'
-import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
-import { pieceGroups } from '../data/pieceGroups'
+import type { CameraControls } from '@react-three/drei'
+import type React from 'react'
 import { useCallback, useMemo, useState } from 'react'
+import { ConvertTerrainQuickSelect } from '../controls/ConvertTerrainQuickSelect'
+import { pieceGroups } from '../data/pieceGroups'
+import { piecesSoFar } from '../data/pieces'
 import getPieceTemplateCoords from '../data/rotationTransforms'
-import { genBoardHexID } from '../utils/map-utils'
-import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
+import useBoundStore from '../store/store'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
+import { zoomToPiece } from '../utils/camera-utils'
+import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
+import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
+import { genBoardHexID } from '../utils/map-utils'
+import { DIALOGS } from './dialogNames'
 
 interface PieceRow {
   id: string
@@ -45,6 +45,7 @@ interface PieceRow {
   r: number
   s: number
   altitude: number
+  surfaceAltitude: number
   rotation: number
   count: number
 }
@@ -133,12 +134,33 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
     [isLandTerrain],
   )
 
+  // The real surface altitude a piece was written at (only ever pieceAltitude + 0.5 for a
+  // stacked fluid, or + 1 otherwise) - found by checking which candidate hex it actually owns.
+  const getSurfaceAltitude = useCallback(
+    (
+      footprint: { q: number; r: number; s: number }[] | null,
+      pieceAltitude: number,
+      uid: string,
+    ) => {
+      if (!footprint?.length) return pieceAltitude + 1
+      const origin = footprint[0]
+      for (const candidate of [pieceAltitude + 0.5, pieceAltitude + 1]) {
+        const hex =
+          boardHexes[genBoardHexID({ ...origin, altitude: candidate })]
+        if (hex?.boardPieceUID === uid) return candidate
+      }
+      return pieceAltitude + 1
+    },
+    [boardHexes],
+  )
+
   const isSubterrainBuriedForPiece = useCallback(
     (
       inventoryID: string,
       pieceCoords: { q: number; r: number; s: number },
       rotation: number,
       pieceAltitude: number,
+      uid: string,
     ) => {
       const piece = piecesSoFar[inventoryID]
       if (!piece) return false
@@ -149,7 +171,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       )
       if (!footprint?.length) return false
 
-      const topAltitude = pieceAltitude + 1
+      const topAltitude = getSurfaceAltitude(footprint, pieceAltitude, uid)
       const isFluidPiece = isFluidTerrainHex(piece.terrain)
       const footprintIds = new Set(
         footprint.map((coord) =>
@@ -177,7 +199,12 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
         })
       })
     },
-    [boardHexes, getLandFootprintAtTopAltitude, isLandTerrain],
+    [
+      boardHexes,
+      getLandFootprintAtTopAltitude,
+      isLandTerrain,
+      getSurfaceAltitude,
+    ],
   )
 
   const isBuriedForPiece = useCallback(
@@ -186,6 +213,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       pieceCoords: { q: number; r: number; s: number },
       rotation: number,
       pieceAltitude: number,
+      uid: string,
     ) => {
       const footprint = getLandFootprintAtTopAltitude(
         inventoryID,
@@ -194,7 +222,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       )
       if (!footprint?.length) return false
 
-      const topAltitude = pieceAltitude + 1
+      const topAltitude = getSurfaceAltitude(footprint, pieceAltitude, uid)
       return footprint.every((coord) => {
         const aboveHex =
           boardHexes[
@@ -207,7 +235,12 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
         return isLandTerrain(aboveTerrain)
       })
     },
-    [boardHexes, getLandFootprintAtTopAltitude, isLandTerrain],
+    [
+      boardHexes,
+      getLandFootprintAtTopAltitude,
+      isLandTerrain,
+      getSurfaceAltitude,
+    ],
   )
 
   const isPartiallyBuriedForPiece = useCallback(
@@ -216,6 +249,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       pieceCoords: { q: number; r: number; s: number },
       rotation: number,
       pieceAltitude: number,
+      uid: string,
     ) => {
       const footprint = getLandFootprintAtTopAltitude(
         inventoryID,
@@ -224,7 +258,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       )
       if (!footprint?.length) return false
 
-      const topAltitude = pieceAltitude + 1
+      const topAltitude = getSurfaceAltitude(footprint, pieceAltitude, uid)
       return footprint.some((coord) => {
         const aboveHex =
           boardHexes[
@@ -237,7 +271,12 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
         return isLandTerrain(aboveTerrain)
       })
     },
-    [boardHexes, getLandFootprintAtTopAltitude, isLandTerrain],
+    [
+      boardHexes,
+      getLandFootprintAtTopAltitude,
+      isLandTerrain,
+      getSurfaceAltitude,
+    ],
   )
 
   // Build rows: one per unique board piece with its data
@@ -248,6 +287,11 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
           const piece = piecesSoFar[bp.inventoryID]
           const pieceName = piece?.title ?? 'Unknown Piece'
           const isLandPiece = isLandTerrain(piece?.terrain ?? '')
+          const footprint = getLandFootprintAtTopAltitude(
+            bp.inventoryID,
+            bp.pieceCoords,
+            bp.rotation,
+          )
           return {
             id: bp.uid,
             pieceName,
@@ -258,19 +302,23 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
               bp.pieceCoords,
               bp.rotation,
               bp.altitude,
+              bp.uid,
             ),
             isBuried: isBuriedForPiece(
               bp.inventoryID,
               bp.pieceCoords,
               bp.rotation,
               bp.altitude,
+              bp.uid,
             ),
             isPartiallyBuried: isPartiallyBuriedForPiece(
               bp.inventoryID,
               bp.pieceCoords,
               bp.rotation,
               bp.altitude,
+              bp.uid,
             ),
+            surfaceAltitude: getSurfaceAltitude(footprint, bp.altitude, bp.uid),
             inventoryID: bp.inventoryID,
             terrain: piece?.terrain ?? 'unknown',
             pieceSize: piece?.size ?? 0,
@@ -323,6 +371,8 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
     [
       boardPieces,
       conflictedUIDSet,
+      getLandFootprintAtTopAltitude,
+      getSurfaceAltitude,
       isBuriedForPiece,
       isLandTerrain,
       isPartiallyBuriedForPiece,
@@ -361,7 +411,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       ),
     },
     {
-      field: 'altitude',
+      field: 'surfaceAltitude',
       headerName: 'Altitude',
       description: 'The level this piece is on',
       type: 'number',
@@ -369,7 +419,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       align: 'center',
       headerAlign: 'center',
       renderCell: (params) => (
-        <Box component="span">{params.row.altitude + 1}</Box>
+        <Box component="span">{params.row.surfaceAltitude}</Box>
       ),
     },
     {

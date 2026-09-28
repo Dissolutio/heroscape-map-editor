@@ -16,6 +16,7 @@ import {
   SELECT_PEN_MODE,
 } from '../types.ts'
 import {
+  canPlaceLandTileOnHex,
   isFluidTerrainHex,
   isJungleTerrainHex,
   isLaurWallAddonPieceID,
@@ -68,6 +69,7 @@ export default function MapDisplay3D({
   )
   const landSubterrainData = getLandSubterrainInstanceData(
     boardPieces,
+    boardHexes,
     viewingLevel,
   )
 
@@ -232,8 +234,15 @@ export default function MapDisplay3D({
         rotation: clickedHex.pieceRotation,
       })
     }
-    // SOLID LAND TILE (includes ship bow buildable sections)
-    else if (isSolidTerrainHex(piece?.terrain)) {
+    // LAND TILE: solid or fluid (includes ship bow buildable sections). Gated so solid
+    // can't land on a half-level fluid cap, and both must target a hoverable land hex.
+    else if (
+      isSolidTerrainHex(piece?.terrain) ||
+      isFluidTerrainHex(piece?.terrain)
+    ) {
+      if (!canPlaceLandTileOnHex(piece.terrain, hex.terrain, hex.altitude)) {
+        return
+      }
       error = paintTile({
         piece,
         clickedHexCoords,

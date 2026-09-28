@@ -5,7 +5,7 @@ import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import {
   boardPieceToDecodedPieceID,
   getBoardHexesSvgMapDimensions,
-  getBoardPiecesMaxLevel,
+  getOverlayLevel,
 } from '../utils/map-utils'
 import { SvgMapBoardPiece } from './SvgMapBoardPiece'
 import { SvgMapHex } from './SvgMapHex'
@@ -18,7 +18,7 @@ const SvgMapDisplay = () => {
   const boardPieces = useBoundStore((s) => {
     return s.boardPieces
   })
-  const overlayLevel = getBoardPiecesMaxLevel(boardPieces) + 1
+  const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
@@ -77,8 +77,6 @@ const SvgMapDisplay = () => {
         {decodedBoardPiecesArr
           .filter((bp) => {
             // when overlay mode is enabled, hide glyph/startzone/objective-like pieces
-            const overlayLevel = getBoardPiecesMaxLevel(boardPieces) + 1
-
             if (is2DOverlayLevelEnabled) {
               if (piecesSoFar[bp.inventoryID].isOverlayPiece) {
                 return viewingLevel === overlayLevel

@@ -5,15 +5,15 @@ import { piecesSoFar } from '../data/pieces'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import useBoundStore from '../store/store'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
+import { zoomToPieces } from '../utils/camera-utils'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import {
   genBoardHexID,
   getBoardHexesRectangularMapDimensions,
 } from '../utils/map-utils'
-import { zoomToPieces } from '../utils/camera-utils'
-import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
-import DeletePieceButton from './DeletePieceButton'
 import { ConvertTerrainQuickSelect } from './ConvertTerrainQuickSelect'
+import DeletePieceButton from './DeletePieceButton'
+import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
 
 const FONT_SIZE = 8
 
@@ -67,12 +67,33 @@ export function SelectedPieceControls({
       isVsTile: false,
     })
   }
+  // The real surface altitude a piece was written at (only ever bp.altitude + 0.5 for a
+  // stacked fluid, or + 1 otherwise) - found by checking which candidate hex it actually owns.
+  const getSurfaceAltitude = (bp: BP): number | null => {
+    const footprint = getLandFootprint(bp)
+    if (!footprint?.length) return null
+    const origin = footprint[0]
+    for (const candidate of [bp.altitude + 0.5, bp.altitude + 1]) {
+      const hex = boardHexes[genBoardHexID({ ...origin, altitude: candidate })]
+      if (hex?.boardPieceUID === bp.uid) return candidate
+    }
+    return null
+  }
+  const isHalfLevelFluidPiece = (bp: BP) => {
+    const piece = piecesSoFar[bp.inventoryID]
+    if (!piece || !isFluidTerrainHex(piece.terrain)) return false
+    const surfaceAltitude = getSurfaceAltitude(bp)
+    return surfaceAltitude !== null && !Number.isInteger(surfaceAltitude)
+  }
+  // Only offer the half-level nudge when every selected piece is itself a half-level fluid
+  // tile (a fluid stacked on another fluid) - not encouraged for regular fluid/land pieces.
+  const allHalfLevelFluid = selectedBoardPieces.every(isHalfLevelFluidPiece)
   const checkSubterrainBuried = (bp: BP) => {
     const piece = piecesSoFar[bp.inventoryID]
     if (!piece) return false
     const footprint = getLandFootprint(bp)
     if (!footprint?.length) return false
-    const topAlt = bp.altitude + 1
+    const topAlt = getSurfaceAltitude(bp) ?? bp.altitude + 1
     const isFluid = isFluidTerrainHex(piece.terrain)
     const footprintIds = new Set(
       footprint.map((c) => genBoardHexID({ ...c, altitude: topAlt })),
@@ -89,7 +110,7 @@ export function SelectedPieceControls({
   const checkBuried = (bp: BP) => {
     const footprint = getLandFootprint(bp)
     if (!footprint?.length) return false
-    const topAlt = bp.altitude + 1
+    const topAlt = getSurfaceAltitude(bp) ?? bp.altitude + 1
     return footprint.every((c) => {
       const aboveTerrain =
         boardHexes[genBoardHexID({ ...c, altitude: topAlt + 1 })]?.terrain ?? ''
@@ -99,7 +120,7 @@ export function SelectedPieceControls({
   const checkPartiallyBuried = (bp: BP) => {
     const footprint = getLandFootprint(bp)
     if (!footprint?.length) return false
-    const topAlt = bp.altitude + 1
+    const topAlt = getSurfaceAltitude(bp) ?? bp.altitude + 1
     return footprint.some((c) => {
       const aboveTerrain =
         boardHexes[genBoardHexID({ ...c, altitude: topAlt + 1 })]?.terrain ?? ''
@@ -133,12 +154,14 @@ export function SelectedPieceControls({
     ? selectedBoardPieces
         .map(
           (bp) =>
-            `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${bp.altitude + 1}  rot:${bp.rotation}`,
+            `${piecesSoFar[bp.inventoryID]?.title ?? bp.inventoryID}  alt:${getSurfaceAltitude(bp) ?? bp.altitude + 1}  rot:${bp.rotation}`,
         )
         .join('\n')
     : ''
 
-  const altitudes = selectedBoardPieces.map((bp) => bp.altitude + 1)
+  const altitudes = selectedBoardPieces.map(
+    (bp) => getSurfaceAltitude(bp) ?? bp.altitude + 1,
+  )
   const rotations = selectedBoardPieces.map((bp) => bp.rotation)
   const minAlt = Math.min(...altitudes)
   const maxAlt = Math.max(...altitudes)
@@ -169,7 +192,7 @@ export function SelectedPieceControls({
       }),
     )
   }
-  const previewAltitude = (delta: 1 | -1) => {
+  const previewAltitude = (delta: number) => {
     setPiecePreviews(
       selectedBoardPieces
         .filter((bp) => bp.altitude + delta >= 0)
@@ -233,7 +256,7 @@ export function SelectedPieceControls({
     )
   }
 
-  const moveSelectedPieceAltitude = (delta: 1 | -1) => {
+  const moveSelectedPieceAltitude = (delta: number) => {
     setPiecePreviews(null)
     let maxNewAltitude = 0
     let paused = false
@@ -248,7 +271,7 @@ export function SelectedPieceControls({
       movePiece({ uid: bp.uid, newPieceCoords: bp.pieceCoords, newAltitude })
     }
     if (paused) useBoundStore.temporal.getState().resume()
-    if (delta === 1 && maxNewAltitude + 1 > viewingLevel) {
+    if (delta > 0 && maxNewAltitude + 1 > viewingLevel) {
       toggleViewingLevel(maxNewAltitude + 1)
     }
     const movedPieces = selectedBoardPieces
@@ -506,6 +529,39 @@ export function SelectedPieceControls({
           ↓ Down
         </Button>
       </ButtonGroup>
+
+      {/* Half-level altitude: only offered for a fluid tile stacked on another fluid */}
+      {allHalfLevelFluid && (
+        <ButtonGroup
+          aria-label="Move selected piece half-level"
+          size="small"
+          sx={{ mt: 0.5 }}
+        >
+          <Button
+            title="Move selected piece up half a level"
+            onClick={() => moveSelectedPieceAltitude(0.5)}
+            onMouseEnter={() => previewAltitude(0.5)}
+            onMouseLeave={clearPreview}
+            onFocus={() => previewAltitude(0.5)}
+            onBlur={clearPreview}
+            sx={{ fontSize: FONT_SIZE }}
+          >
+            ↑ Up ½
+          </Button>
+          <Button
+            title="Move selected piece down half a level"
+            disabled={selectedBoardPieces.every((bp) => bp.altitude <= 0)}
+            onClick={() => moveSelectedPieceAltitude(-0.5)}
+            onMouseEnter={() => previewAltitude(-0.5)}
+            onMouseLeave={clearPreview}
+            onFocus={() => previewAltitude(-0.5)}
+            onBlur={clearPreview}
+            sx={{ fontSize: FONT_SIZE }}
+          >
+            ↓ Down ½
+          </Button>
+        </ButtonGroup>
+      )}
 
       {/* Delete */}
       <ButtonGroup size="small" sx={{ mt: 0.5 }}>

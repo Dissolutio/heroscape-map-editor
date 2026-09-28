@@ -345,6 +345,37 @@ async function appendLogoTextOutline(
 }
 
 /**
+ * Plain text heading fallback for half-levels (fluid stacked on fluid): the numeral
+ * plaque graphic only supports whole numbers, so this draws "Level: 1.5" instead,
+ * sized/centered to occupy the same reserved header band as the plaque would.
+ */
+async function appendPlainLevelHeading(
+  clonedSvg: SVGSVGElement,
+  viewBoxX: number,
+  viewBoxY: number,
+  viewBoxWidth: number,
+  logoHeight: number,
+  level: number,
+) {
+  const interFont = await getInterFont()
+  if (!interFont) return
+  const label = `Level: ${level}`
+  const fontSizePx = logoHeight * 0.5
+  const advanceWidth = interFont.getAdvanceWidth(label, fontSizePx, {
+    kerning: true,
+  })
+  const x = viewBoxX + (viewBoxWidth - advanceWidth) / 2
+  const y = viewBoxY - logoHeight / 2 + fontSizePx * 0.35
+  const pathData = interFont
+    .getPath(label, x, y, fontSizePx, { kerning: true })
+    .toPathData(3)
+  const pathNode = document.createElementNS(SVG_NS, 'path')
+  pathNode.setAttribute('d', pathData)
+  pathNode.setAttribute('fill', LEVEL_LOGO_TEXT_FILL)
+  clonedSvg.appendChild(pathNode)
+}
+
+/**
  * Draws the level plaque above the map in the exported SVG only. The viewBox is
  * grown upwards so the logo never overlaps the map itself.
  */
@@ -371,6 +402,18 @@ async function prependLevelLogo(clonedSvg: SVGSVGElement, level: number) {
     'viewBox',
     `${viewBoxX} ${viewBoxY - logoHeight} ${viewBoxWidth} ${viewBoxHeight + logoHeight}`,
   )
+
+  if (!Number.isInteger(level)) {
+    await appendPlainLevelHeading(
+      clonedSvg,
+      viewBoxX,
+      viewBoxY,
+      viewBoxWidth,
+      logoHeight,
+      level,
+    )
+    return
+  }
 
   const logoGroup = document.createElementNS(SVG_NS, 'g')
   logoGroup.setAttribute(
