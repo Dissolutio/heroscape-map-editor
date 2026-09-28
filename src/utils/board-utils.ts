@@ -80,8 +80,8 @@ export function isWholeLevelAltitude(altitude: number) {
   return Number.isInteger(altitude)
 }
 // Governs what a land pen-mode (solid or fluid) is allowed to target: solid land can go
-// on solid/table/empty or on a fluid hex ONLY if that fluid sits on a whole level (never
-// on a half-level fluid cap); fluid can stack on solid/table/empty or on ANY fluid hex.
+// on solid/table/empty or on a fluid hex ONLY if that fluid sits on a half level (never
+// on a whole-level fluid cap); fluid can stack on solid/table/empty or on ANY fluid hex.
 export function canPlaceLandTileOnHex(
   pieceTerrain: string,
   hexTerrain: string | undefined,
@@ -91,7 +91,7 @@ export function canPlaceLandTileOnHex(
   if (isSolidTerrainHex(hexTerrain)) return true
   if (isFluidTerrainHex(hexTerrain)) {
     if (isFluidTerrainHex(pieceTerrain)) return true
-    return hexAltitude !== undefined && isWholeLevelAltitude(hexAltitude)
+    return hexAltitude !== undefined && !isWholeLevelAltitude(hexAltitude)
   }
   return false
 }

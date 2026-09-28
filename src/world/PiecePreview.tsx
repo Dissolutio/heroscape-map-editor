@@ -340,11 +340,11 @@ export default function PiecePreview() {
   const isFluidBeneathForLandPreview = isFluidTerrainHex(
     hoveredHexForPreview.terrain,
   )
-  // Solid land can only go on a fluid hex once that fluid sits on a whole level (never on
-  // a half-level fluid cap); fluid can stack on a fluid hex at any level.
+  // Solid land can only go on a fluid hex once that fluid sits on a half level (never on
+  // a whole-level fluid cap); fluid can stack on a fluid hex at any level.
   const canPlaceSolidOnFluid =
     isFluidBeneathForLandPreview &&
-    Number.isInteger(hoveredHexForPreview.altitude)
+    !Number.isInteger(hoveredHexForPreview.altitude)
   const isPillarPenMode = isLaurSquarePillarHex || isLaurTrianglePillarHex
   const isMatchingPillarStackTarget =
     (isLaurSquarePillarHex &&

@@ -822,11 +822,11 @@ export function addPiece({
     const isLandPieceSupported =
       isPlacingOnTable ||
       isSolidUnderAtLeastOne ||
-      // fluid can always stack on fluid; solid can only land on fluid once it's whole-level
+      // fluid can always stack on fluid; solid can only land on fluid once it's on a half-level
       (isFluidTerrainHex(piece.terrain) && isFluidUnderAtLeastOne) ||
       (isSolidTerrainHex(piece.terrain) &&
         isFluidUnderAtLeastOne &&
-        isWholeLevelAltitude(placementAltitude))
+        !isWholeLevelAltitude(placementAltitude))
     if ((isSpaceFree && isLandPieceSupported) || permissive) {
       try {
         newHexIds.forEach((newHexID, iForEach) => {
