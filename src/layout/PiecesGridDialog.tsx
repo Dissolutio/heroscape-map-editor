@@ -531,7 +531,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       renderCell: (params) => (
         <Button
           size="small"
-          title="Move the camera over to this piece, and briefly lower the opacity of all other pieces"
+          title="Move the camera to frame this piece"
           variant="outlined"
           onClick={() => handleZoomToPiece(params.row as PieceRow)}
           sx={{

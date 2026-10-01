@@ -1,13 +1,11 @@
 import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-import { useFrame } from '@react-three/fiber'
 import React from 'react'
-import { Color, CylinderGeometry, type Material } from 'three'
+import { Color, CylinderGeometry } from 'three'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
 import type { BoardHex } from '../../../types'
 import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
-import { calculateFocusOpacity } from '../../../utils/focus-opacity'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { useDisposableGLTF } from '../../models/useDisposableGLTF'
 import { terrainCapColors } from '../hexColors'
@@ -35,8 +33,6 @@ const basicCapGeometry = new CylinderGeometry(...baseSolidCapCylinderArgs)
 const SolidCaps = ({
   boardHexArr,
   onPointerUp,
-  focusedPieceUID,
-  focusStartTime,
 }: DreiCapProps) => {
   const ref = React.useRef<InstanceRefType>(null)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -46,32 +42,6 @@ const SolidCaps = ({
     (s) => s.isLightsAndShadowsRender,
   )
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-
-  // Apply material opacity based on focus state
-  useFrame(() => {
-    const material = ref.current?.material
-    if (!material) return
-
-    const opacity = calculateFocusOpacity(
-      focusedPieceUID ?? null,
-      focusStartTime ?? null,
-    )
-
-    // Handle both single material and array of materials
-    const materials = Array.isArray(material) ? material : [material]
-    for (const mat of materials) {
-      if (!mat || typeof mat !== 'object') continue
-      const m = mat as Material
-
-      // Only update if opacity changed significantly (avoid thrashing)
-      if (Math.abs((m.opacity ?? 1) - opacity) > 0.001) {
-        m.opacity = opacity
-        m.transparent = opacity < 1
-        m.depthWrite = opacity >= 1
-        m.needsUpdate = true
-      }
-    }
-  })
 
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length

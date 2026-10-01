@@ -30,7 +30,6 @@ import {
 } from '../utils/map-utils.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
-import PieceOpacityGroup from './PieceOpacityGroup'
 import PiecePreview from './PiecePreview.tsx'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import { MapHex3D } from './maphex/MapHex3D.tsx'
@@ -57,8 +56,6 @@ export default function MapDisplay3D({
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const focusedPieceUID = useBoundStore((s) => s.focusedPieceUID)
-  const focusStartTime = useBoundStore((s) => s.focusStartTime)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useMiddleClickPickPenMode()
 
@@ -293,33 +290,21 @@ export default function MapDisplay3D({
         <SolidCaps
           boardHexArr={instanceBoardHexes.solidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
-          focusedPieceUID={focusedPieceUID}
-          focusStartTime={focusStartTime}
         />
         <FluidCaps
           boardHexArr={instanceBoardHexes.fluidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
-          focusedPieceUID={focusedPieceUID}
-          focusStartTime={focusStartTime}
         />
         <LandSubterrainInstanced
           data={landSubterrainData}
-          focusedPieceUID={focusedPieceUID}
-          focusStartTime={focusStartTime}
         />
         {boardPieces.map((bp) => {
           return (
-            <PieceOpacityGroup
+            <MapBoardPiece3D
               key={bp.uid}
-              pieceUID={bp.uid}
-              focusedPieceUID={focusedPieceUID}
-              focusStartTime={focusStartTime}
-            >
-              <MapBoardPiece3D
-                bp={bp}
-                onPointerUpPaintPiece={onPointerUpPaintPiece}
-              />
-            </PieceOpacityGroup>
+              bp={bp}
+              onPointerUpPaintPiece={onPointerUpPaintPiece}
+            />
           )
         })}
         {boardHexesArr.map((bh) => {

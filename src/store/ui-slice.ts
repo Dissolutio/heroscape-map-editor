@@ -79,11 +79,6 @@ export interface UISlice {
   }) => void
   clearCustomConstraintInventory: () => void
 
-  focusedPieceUID: string | null
-  setFocusedPieceUID: (uid: string | null) => void
-  focusStartTime: number | null
-  setFocusStartTime: (time: number | null) => void
-
   // OPERATION PREVIEW STATE
   piecePreviews: BoardPiece[] | null
   setPiecePreviews: (pieces: BoardPiece[] | null) => void
@@ -337,20 +332,6 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isOrthoCam = b
-      }),
-    ),
-  focusedPieceUID: null,
-  setFocusedPieceUID: (uid: string | null) =>
-    set(
-      produce((s) => {
-        s.focusedPieceUID = uid
-      }),
-    ),
-  focusStartTime: null,
-  setFocusStartTime: (time: number | null) =>
-    set(
-      produce((s) => {
-        s.focusStartTime = time
       }),
     ),
   isShowPDFInventory: true,
