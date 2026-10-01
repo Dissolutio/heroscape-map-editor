@@ -1,9 +1,12 @@
 import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
-import { removePiece } from '../data/removePiece'
-import { piecesSoFar } from '../data/pieces'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
+import { piecesSoFar } from '../data/pieces'
+import { removePiece } from '../data/removePiece'
+import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
+import { LS_KEYS } from '../local-storage/keys'
+import { HexTerrain } from '../types'
 import type {
   AddRemovePieceError,
   CubeCoordinate,
@@ -11,16 +14,14 @@ import type {
   Piece,
 } from '../types'
 import { PiecePrefixes } from '../types'
-import type { AppState } from './store'
-import { LS_KEYS } from '../local-storage/keys'
 import { normalizeBoardPieces } from '../utils/map-utils'
-import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
+import { normalizePieceInventory } from '../utils/piece-inventory'
 import {
   getAvailableLandPrefixesForInventory,
   getAvailableLandPrefixesForSets,
   getEffectiveTerrainConstraintInventory,
 } from '../utils/terrain-constraints'
-import { normalizePieceInventory } from '../utils/piece-inventory'
+import type { AppState } from './store'
 
 function computeConflictedPieceUIDs(boardPieces: MapState['boardPieces']) {
   const { conflictedPieceUIDs } = rebuildBoardStateFromPieces(boardPieces)
@@ -282,6 +283,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
       return produce(state, (draft) => {
         let workingHexes = draft.boardHexes
         let workingPieces = draft.boardPieces
+        let occupancyChanged = false
 
         for (const uid of selectedUIDs) {
           const boardPiece = workingPieces.find((bp) => bp.uid === uid)
@@ -297,6 +299,16 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           }
           const targetPiece = piecesSoFar[targetInventoryID]
           if (!targetPiece) continue
+
+          const sourcePiece = piecesSoFar[boardPiece.inventoryID]
+          if (
+            sourcePiece?.terrain === HexTerrain.startZone &&
+            targetPiece.terrain === HexTerrain.startZone
+          ) {
+            boardPiece.inventoryID = targetInventoryID
+            convertedCount += 1
+            continue
+          }
 
           const removeResult = removePiece({
             uid,
@@ -317,12 +329,15 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
 
           workingHexes = addResult.newBoardHexes
           workingPieces = addResult.newBoardPieces
+          occupancyChanged = true
           convertedCount += 1
         }
 
-        draft.boardHexes = workingHexes
         draft.boardPieces = workingPieces
-        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(workingPieces)
+        if (occupancyChanged) {
+          draft.boardHexes = workingHexes
+          draft.conflictedPieceUIDs = computeConflictedPieceUIDs(workingPieces)
+        }
       })
     })
     return convertedCount

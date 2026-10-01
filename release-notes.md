@@ -1,3 +1,6 @@
+Oct-01-2026
+- **Convert start zone pieces**: Select start zone pieces, you can convert them to other start zone colors/players
+
 Sep-27-2026
 - **Hotkeys 1-5 map to sizes 1,2,3,7,24, 6-7 map to other sizes**: Many terrains have 5 "standard" sizes: 1,2,3,7, & 24-hexes. Now, when you have a solid or fluid (AKA full-height or half-height) terrain selected as your pen mode, the hotkeys numbered 1-5 will map to those 5 standards sizes. So pressing "5" will always select the 24-hexer for a terrain, or do nothing if there is no 24-hexer for that terrain Some terrains have a special size, like the marvel concrete 6-hex piece, or the ice/glacier 4-hex and 6-hex, or the castle wall-walk 7-hex and 9-hex. These special sizes will map to hotkeys 6-7 for all terrains.
 - **Desktop App now auto-updates**: When you start the app, it will check if there is a new version, and safely upgrade/restart if you confirm. I have only tested this on linux, not windows or mac.
