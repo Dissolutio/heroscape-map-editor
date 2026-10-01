@@ -17,6 +17,243 @@ import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode
 
 const FONT_SIZE = 8
 
+function PieceInfo({
+  title,
+  tooltip,
+  isMulti,
+  altitude,
+  rotation,
+  hasStatus,
+}: {
+  title: string
+  tooltip: string
+  isMulti: boolean
+  altitude: string
+  rotation: string
+  hasStatus: boolean
+}) {
+  return (
+    <>
+      <Tooltip
+        title={
+          isMulti ? (
+            <span style={{ whiteSpace: 'pre-line' }}>{tooltip}</span>
+          ) : (
+            ''
+          )
+        }
+        placement="left"
+        arrow
+        disableHoverListener={!isMulti}
+      >
+        <Typography
+          sx={{
+            fontSize: 11,
+            fontWeight: 600,
+            cursor: isMulti ? 'help' : 'default',
+            mb: 0.5,
+          }}
+        >
+          {title}
+        </Typography>
+      </Tooltip>
+      <Typography
+        sx={{ fontSize: 10, color: 'text.secondary', mb: hasStatus ? 0.25 : 1 }}
+      >
+        Alt: {altitude} &nbsp; Rot: {rotation}
+      </Typography>
+    </>
+  )
+}
+
+function PieceStatusIndicators({
+  isMulti,
+  conflicted,
+  buried,
+  partiallyBuried,
+  subBuried,
+}: {
+  isMulti: boolean
+  conflicted: number
+  buried: number
+  partiallyBuried: number
+  subBuried: number
+}) {
+  if (!conflicted && !buried && !partiallyBuried && !subBuried) return null
+
+  return (
+    <Box sx={{ mb: 0.75 }}>
+      {conflicted > 0 && (
+        <Typography
+          title="Piece collides with other pieces"
+          sx={{
+            fontSize: 10,
+            color: 'error.main',
+            fontWeight: 700,
+            lineHeight: 1.4,
+          }}
+        >
+          {isMulti ? `${conflicted} conflicted` : 'Conflicted'}
+        </Typography>
+      )}
+      {buried > 0 && (
+        <Typography
+          title="No hexes from this piece show to the surface"
+          sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+        >
+          {isMulti ? `${buried} buried` : 'Buried'}
+        </Typography>
+      )}
+      {partiallyBuried > 0 && (isMulti || buried === 0) && (
+        <Typography
+          title="At least one hex from this piece is covered by land above it"
+          sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+        >
+          {isMulti
+            ? `${partiallyBuried - buried} partially buried`
+            : 'Partially buried'}
+        </Typography>
+      )}
+      {subBuried > 0 && (
+        <Typography
+          title="All sides of this piece are connected to other pieces"
+          sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
+        >
+          {isMulti ? `${subBuried} subterrain-buried` : 'Subterrain-buried'}
+        </Typography>
+      )}
+    </Box>
+  )
+}
+
+function PieceTransformControls({
+  selectedPieceIDs,
+  canMoveDown,
+  allHalfLevelFluid,
+  onZoom,
+  onMove,
+  onRotate,
+  onAltitude,
+  onPreviewMove,
+  onPreviewRotate,
+  onPreviewAltitude,
+  onClearPreview,
+}: {
+  selectedPieceIDs: string[]
+  canMoveDown: boolean
+  allHalfLevelFluid: boolean
+  onZoom: () => void
+  onMove: (direction: number) => void
+  onRotate: (direction: 1 | -1) => void
+  onAltitude: (delta: number) => void
+  onPreviewMove: (direction: number) => void
+  onPreviewRotate: (direction: 1 | -1) => void
+  onPreviewAltitude: (delta: number) => void
+  onClearPreview: () => void
+}) {
+  const moveButton = (direction: number, title: string, label: string) => (
+    <Button
+      key={direction}
+      title={title}
+      onClick={() => onMove(direction)}
+      onMouseEnter={() => onPreviewMove(direction)}
+      onMouseLeave={onClearPreview}
+      onFocus={() => onPreviewMove(direction)}
+      onBlur={onClearPreview}
+      sx={{ fontSize: FONT_SIZE }}
+    >
+      {label}
+    </Button>
+  )
+  const rotateButton = (direction: 1 | -1, title: string, label: string) => (
+    <Button
+      key={direction}
+      title={title}
+      onClick={() => onRotate(direction)}
+      onMouseEnter={() => onPreviewRotate(direction)}
+      onMouseLeave={onClearPreview}
+      onFocus={() => onPreviewRotate(direction)}
+      onBlur={onClearPreview}
+      sx={{ fontSize: FONT_SIZE }}
+    >
+      {label}
+    </Button>
+  )
+  const altitudeButton = (delta: number, title: string, label: string) => (
+    <Button
+      key={delta}
+      title={title}
+      disabled={delta < 0 && !canMoveDown}
+      onClick={() => onAltitude(delta)}
+      onMouseEnter={() => onPreviewAltitude(delta)}
+      onMouseLeave={onClearPreview}
+      onFocus={() => onPreviewAltitude(delta)}
+      onBlur={onClearPreview}
+      sx={{ fontSize: FONT_SIZE }}
+    >
+      {label}
+    </Button>
+  )
+
+  return (
+    <>
+      <Button
+        variant="outlined"
+        size="small"
+        title={`Zoom to selected terrain${selectedPieceIDs.length > 1 ? 's' : ''}`}
+        onClick={onZoom}
+        sx={{ fontSize: FONT_SIZE, mt: 0.25, mb: 0.5, width: '100%' }}
+      >
+        {`Zoom To Selected${selectedPieceIDs.length > 1 ? ' Pieces' : ' Piece'}`}
+      </Button>
+      <ButtonGroup aria-label="Move selected piece row 1" size="small">
+        {moveButton(3, 'Move selected piece 1 hex left', '←')}
+        {moveButton(4, 'Move selected piece 1 hex up-left', '↖')}
+        {moveButton(5, 'Move selected piece 1 hex up-right', '↗')}
+      </ButtonGroup>
+      <ButtonGroup aria-label="Move selected piece row 2" size="small">
+        {moveButton(0, 'Move selected piece 1 hex right', '→')}
+        {moveButton(1, 'Move selected piece 1 hex down-right', '↘')}
+        {moveButton(2, 'Move selected piece 1 hex down-left', '↙')}
+      </ButtonGroup>
+      <ButtonGroup
+        aria-label="Rotate selected piece"
+        size="small"
+        sx={{ mt: 0.5 }}
+      >
+        {rotateButton(-1, 'Rotate selected piece counter-clockwise', '↺ CCW')}
+        {rotateButton(1, 'Rotate selected piece clockwise', 'CW ↻')}
+      </ButtonGroup>
+      <ButtonGroup
+        aria-label="Move selected piece altitude"
+        size="small"
+        sx={{ mt: 0.5 }}
+      >
+        {altitudeButton(1, 'Move selected piece up one level', '↑ Up')}
+        {altitudeButton(-1, 'Move selected piece down one level', '↓ Down')}
+      </ButtonGroup>
+      {allHalfLevelFluid && (
+        <ButtonGroup
+          aria-label="Move selected piece half-level"
+          size="small"
+          sx={{ mt: 0.5 }}
+        >
+          {altitudeButton(0.5, 'Move selected piece up half a level', '↑ Up ½')}
+          {altitudeButton(
+            -0.5,
+            'Move selected piece down half a level',
+            '↓ Down ½',
+          )}
+        </ButtonGroup>
+      )}
+      <ButtonGroup size="small" sx={{ mt: 0.5 }}>
+        <DeletePieceButton />
+      </ButtonGroup>
+      <ConvertTerrainQuickSelect pieceUIDs={selectedPieceIDs} />
+    </>
+  )
+}
+
 /**
  * All controls for manipulating the currently selected piece(s):
  * - title / alt / rot readout
@@ -298,282 +535,39 @@ export function SelectedPieceControls({
 
   return (
     <>
-      {/* Info readout */}
-      <Tooltip
-        title={
-          isMulti ? (
-            <span style={{ whiteSpace: 'pre-line' }}>{tooltipLines}</span>
-          ) : (
-            ''
-          )
-        }
-        placement="left"
-        arrow
-        disableHoverListener={!isMulti}
-      >
-        <Typography
-          sx={{
-            fontSize: 11,
-            fontWeight: 600,
-            cursor: isMulti ? 'help' : 'default',
-            mb: 0.5,
-          }}
-        >
-          {titleLabel}
-        </Typography>
-      </Tooltip>
-      <Typography
-        sx={{
-          fontSize: 10,
-          color: 'text.secondary',
-          mb:
-            conflictedCount +
-              buriedCount +
-              partiallyBuriedCount +
-              subBuriedCount >
-            0
-              ? 0.25
-              : 1,
-        }}
-      >
-        Alt: {altLabel} &nbsp; Rot: {rotLabel}
-      </Typography>
-
-      {/* Status indicators */}
-      {(conflictedCount > 0 ||
-        buriedCount > 0 ||
-        partiallyBuriedCount > 0 ||
-        subBuriedCount > 0) && (
-        <Box sx={{ mb: 0.75 }}>
-          {conflictedCount > 0 && (
-            <Typography
-              title="Piece collides with other pieces"
-              sx={{
-                fontSize: 10,
-                color: 'error.main',
-                fontWeight: 700,
-                lineHeight: 1.4,
-              }}
-            >
-              {isMulti ? `${conflictedCount} conflicted` : 'Conflicted'}
-            </Typography>
-          )}
-          {buriedCount > 0 && (
-            <Typography
-              title="No hexes from this piece show to the surface"
-              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
-            >
-              {isMulti ? `${buriedCount} buried` : 'Buried'}
-            </Typography>
-          )}
-          {/* {!isMulti && !buriedCount && partiallyBuriedCount > 0 && ( */}
-          {(!isMulti && !buriedCount && partiallyBuriedCount > 0) ||
-            (isMulti && partiallyBuriedCount > 0 && (
-              <Typography
-                title="At least one hex from this piece is covered by land above it"
-                sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
-              >
-                {isMulti
-                  ? `${partiallyBuriedCount - buriedCount} partially buried`
-                  : 'Partially buried'}
-              </Typography>
-            ))}
-          {subBuriedCount > 0 && (
-            <Typography
-              title="The sides of this piece do not show to the outside"
-              sx={{ fontSize: 10, color: 'text.secondary', lineHeight: 1.4 }}
-            >
-              {isMulti
-                ? `${subBuriedCount} subterrain-buried`
-                : 'Subterrain-buried'}
-            </Typography>
-          )}
-        </Box>
-      )}
-
-      <Button
-        variant="outlined"
-        size="small"
-        title={`Zoom to selected terrain${selectedPieceIDs.length > 1 ? 's' : ''}`}
-        onClick={handleZoomToSelected}
-        sx={{ fontSize: FONT_SIZE, mt: 0.25, mb: 0.5, width: '100%' }}
-      >
-        {`Zoom To Selected${selectedPieceIDs.length > 1 ? ' Pieces' : ' Piece'}`}
-      </Button>
-
-      {/* Translate */}
-      <ButtonGroup aria-label="Move selected piece row 1" size="small">
-        <Button
-          title="Move selected piece 1 hex left"
-          onClick={() => moveSelectedPiece(3)}
-          onMouseEnter={() => previewMove(3)}
-          onMouseLeave={clearPreview}
-          onFocus={() => previewMove(3)}
-          onBlur={clearPreview}
-          sx={{ fontSize: FONT_SIZE }}
-        >
-          ←
-        </Button>
-        <Button
-          title="Move selected piece 1 hex up-left"
-          onClick={() => moveSelectedPiece(4)}
-          onMouseEnter={() => previewMove(4)}
-          onMouseLeave={clearPreview}
-          onFocus={() => previewMove(4)}
-          onBlur={clearPreview}
-          sx={{ fontSize: FONT_SIZE }}
-        >
-          ↖
-        </Button>
-        <Button
-          title="Move selected piece 1 hex up-right"
-          onClick={() => moveSelectedPiece(5)}
-          onMouseEnter={() => previewMove(5)}
-          onMouseLeave={clearPreview}
-          onFocus={() => previewMove(5)}
-          onBlur={clearPreview}
-          sx={{ fontSize: FONT_SIZE }}
-        >
-          ↗
-        </Button>
-      </ButtonGroup>
-      <ButtonGroup aria-label="Move selected piece row 2" size="small">
-        <Button
-          title="Move selected piece 1 hex right"
-          onClick={() => moveSelectedPiece(0)}
-          onMouseEnter={() => previewMove(0)}
-          onMouseLeave={clearPreview}
-          onFocus={() => previewMove(0)}
-          onBlur={clearPreview}
-          sx={{ fontSize: FONT_SIZE }}
-        >
-          →
-        </Button>
-        <Button
-          title="Move selected piece 1 hex down-right"
-          onClick={() => moveSelectedPiece(1)}
-          onMouseEnter={() => previewMove(1)}
-          onMouseLeave={clearPreview}
-          onFocus={() => previewMove(1)}
-          onBlur={clearPreview}
-          sx={{ fontSize: FONT_SIZE }}
-        >
-          ↘
-        </Button>
-        <Button
-          title="Move selected piece 1 hex down-left"
-          onClick={() => moveSelectedPiece(2)}
-          onMouseEnter={() => previewMove(2)}
-          onMouseLeave={clearPreview}
-          onFocus={() => previewMove(2)}
-          onBlur={clearPreview}
-          sx={{ fontSize: FONT_SIZE }}
-        >
-          ↙
-        </Button>
-      </ButtonGroup>
-
-      {/* Rotate */}
-      <ButtonGroup
-        aria-label="Rotate selected piece"
-        size="small"
-        sx={{ mt: 0.5 }}
-      >
-        <Button
-          title="Rotate selected piece counter-clockwise"
-          onClick={() => rotateSelectedPiece(-1)}
-          onMouseEnter={() => previewRotate(-1)}
-          onMouseLeave={clearPreview}
-          onFocus={() => previewRotate(-1)}
-          onBlur={clearPreview}
-          sx={{ fontSize: FONT_SIZE }}
-        >
-          ↺ CCW
-        </Button>
-        <Button
-          title="Rotate selected piece clockwise"
-          onClick={() => rotateSelectedPiece(1)}
-          onMouseEnter={() => previewRotate(1)}
-          onMouseLeave={clearPreview}
-          onFocus={() => previewRotate(1)}
-          onBlur={clearPreview}
-          sx={{ fontSize: FONT_SIZE }}
-        >
-          CW ↻
-        </Button>
-      </ButtonGroup>
-
-      {/* Altitude */}
-      <ButtonGroup
-        aria-label="Move selected piece altitude"
-        size="small"
-        sx={{ mt: 0.5 }}
-      >
-        <Button
-          title="Move selected piece up one level"
-          onClick={() => moveSelectedPieceAltitude(1)}
-          onMouseEnter={() => previewAltitude(1)}
-          onMouseLeave={clearPreview}
-          onFocus={() => previewAltitude(1)}
-          onBlur={clearPreview}
-          sx={{ fontSize: FONT_SIZE }}
-        >
-          ↑ Up
-        </Button>
-        <Button
-          title="Move selected piece down one level"
-          disabled={selectedBoardPieces.every((bp) => bp.altitude <= 0)}
-          onClick={() => moveSelectedPieceAltitude(-1)}
-          onMouseEnter={() => previewAltitude(-1)}
-          onMouseLeave={clearPreview}
-          onFocus={() => previewAltitude(-1)}
-          onBlur={clearPreview}
-          sx={{ fontSize: FONT_SIZE }}
-        >
-          ↓ Down
-        </Button>
-      </ButtonGroup>
-
-      {/* Half-level altitude: only offered for a fluid tile stacked on another fluid */}
-      {allHalfLevelFluid && (
-        <ButtonGroup
-          aria-label="Move selected piece half-level"
-          size="small"
-          sx={{ mt: 0.5 }}
-        >
-          <Button
-            title="Move selected piece up half a level"
-            onClick={() => moveSelectedPieceAltitude(0.5)}
-            onMouseEnter={() => previewAltitude(0.5)}
-            onMouseLeave={clearPreview}
-            onFocus={() => previewAltitude(0.5)}
-            onBlur={clearPreview}
-            sx={{ fontSize: FONT_SIZE }}
-          >
-            ↑ Up ½
-          </Button>
-          <Button
-            title="Move selected piece down half a level"
-            disabled={selectedBoardPieces.every((bp) => bp.altitude <= 0)}
-            onClick={() => moveSelectedPieceAltitude(-0.5)}
-            onMouseEnter={() => previewAltitude(-0.5)}
-            onMouseLeave={clearPreview}
-            onFocus={() => previewAltitude(-0.5)}
-            onBlur={clearPreview}
-            sx={{ fontSize: FONT_SIZE }}
-          >
-            ↓ Down ½
-          </Button>
-        </ButtonGroup>
-      )}
-
-      {/* Delete */}
-      <ButtonGroup size="small" sx={{ mt: 0.5 }}>
-        <DeletePieceButton />
-      </ButtonGroup>
-
-      {/* Convert Terrain */}
-      <ConvertTerrainQuickSelect pieceUIDs={selectedPieceIDs} />
+      <PieceInfo
+        title={titleLabel}
+        tooltip={tooltipLines}
+        isMulti={isMulti}
+        altitude={altLabel}
+        rotation={rotLabel}
+        hasStatus={Boolean(
+          conflictedCount ||
+            buriedCount ||
+            partiallyBuriedCount ||
+            subBuriedCount,
+        )}
+      />
+      <PieceStatusIndicators
+        isMulti={isMulti}
+        conflicted={conflictedCount}
+        buried={buriedCount}
+        partiallyBuried={partiallyBuriedCount}
+        subBuried={subBuriedCount}
+      />
+      <PieceTransformControls
+        selectedPieceIDs={selectedPieceIDs}
+        canMoveDown={selectedBoardPieces.some((bp) => bp.altitude > 0)}
+        allHalfLevelFluid={allHalfLevelFluid}
+        onZoom={handleZoomToSelected}
+        onMove={moveSelectedPiece}
+        onRotate={rotateSelectedPiece}
+        onAltitude={moveSelectedPieceAltitude}
+        onPreviewMove={previewMove}
+        onPreviewRotate={previewRotate}
+        onPreviewAltitude={previewAltitude}
+        onClearPreview={clearPreview}
+      />
     </>
   )
 }
