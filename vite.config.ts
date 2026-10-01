@@ -8,18 +8,24 @@ const host = process.env.TAURI_DEV_HOST
 export default defineConfig(({ mode }) => {
   // Grab the release version injected by GitHub Actions, default to local-dev
   const releaseVersion = process.env.VITE_RELEASE_VERSION || 'local-development'
+  // Check if we are running in a CI/CD environment or production mode (only netlify and github-action have sentry token)
+  const isCI = !!process.env.SENTRY_AUTH_TOKEN
+  const isProduction = mode === 'production'
   return {
     plugins: [
       react(),
-      sentryVitePlugin({
-        org: 'hexoscape',
-        project: 'hexoscape',
-        telemetry: mode !== 'development',
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        release: {
-          name: `hexoscape@${releaseVersion}`,
-        },
-      }),
+      // Only include and activate Sentry if we are in production AND have a token/CI environment
+      isProduction && isCI
+        ? sentryVitePlugin({
+            org: 'hexoscape',
+            project: 'hexoscape',
+            telemetry: true,
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            release: {
+              name: `hexoscape@${releaseVersion}`,
+            },
+          })
+        : null,
     ],
     // prevent vite from obscuring rust errors
     clearScreen: false,
@@ -51,9 +57,55 @@ export default defineConfig(({ mode }) => {
         process.env.TAURI_ENV_PLATFORM === 'windows' ? 'chrome105' : 'safari13',
       // don't minify for debug builds
       minify: !process.env.TAURI_ENV_DEBUG,
-      // produce sourcemaps for debug builds
-      // sourcemap: !!process.env.TAURI_ENV_DEBUG,
-      sourcemap: true,
+      // must set true to produce sourcemaps for debug builds
+      sourcemap: isProduction && isCI,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            const modulePath = id.replace(/\\/g, '/')
+            if (!modulePath.includes('/node_modules/')) return
+
+            if (modulePath.includes('/@mui/x-data-grid/'))
+              return 'mui-data-grid'
+            if (
+              modulePath.includes('/@mui/') ||
+              modulePath.includes('/@emotion/')
+            ) {
+              return 'mui'
+            }
+
+            if (modulePath.includes('/three/build/three.module.js')) {
+              return 'three-core'
+            }
+            if (
+              /\/(?:@react-three|three-stdlib|three-mesh-bvh|camera-controls|troika-three-text|troika-three-utils|troika-worker-utils|webgl-sdf-generator)\//.test(
+                modulePath,
+              )
+            ) {
+              return 'three-ecosystem'
+            }
+
+            if (/\/pdfkit\//.test(modulePath)) return 'pdf-writer'
+            if (/\/yoga-layout\//.test(modulePath)) return 'pdf-layout'
+            if (
+              /\/(?:fontkit|brotli|hyphen|unicode-properties)\//.test(
+                modulePath,
+              )
+            ) {
+              return 'pdf-fonts'
+            }
+            if (modulePath.includes('/@react-pdf/')) return 'pdf-renderer'
+
+            if (
+              /\/(?:react|react-dom|scheduler|react-reconciler)\//.test(
+                modulePath,
+              )
+            ) {
+              return 'react-vendor'
+            }
+          },
+        },
+      },
     },
   }
 })
