@@ -295,9 +295,7 @@ export default function MapDisplay3D({
           boardHexArr={instanceBoardHexes.fluidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
         />
-        <LandSubterrainInstanced
-          data={landSubterrainData}
-        />
+        <LandSubterrainInstanced data={landSubterrainData} />
         {boardPieces.map((bp) => {
           return (
             <MapBoardPiece3D

@@ -1,10 +1,10 @@
+import type { CameraControls } from '@react-three/drei'
 import type { RefObject } from 'react'
 import { Box3, Vector3 } from 'three'
 import type { Group, InstancedMesh, Object3DEventMap } from 'three'
-import type { CameraControls } from '@react-three/drei'
 import type { BoardHexes } from '../types'
-import { getBoardHex3DCoords } from './map-utils'
 import { HEXGRID_HEX_RADIUS } from './constants'
+import { getBoardHex3DCoords } from './map-utils'
 
 // InstancedMesh caches its bounding volumes, so they go stale when a new map
 // swaps in fresh instance matrices, which would frame the previous map's size.

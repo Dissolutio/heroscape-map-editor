@@ -209,10 +209,7 @@ function SubterrainSizeGroup({
           opacity={isFluid ? FLUID_CAP_OPACITY : 1}
         />
       ) : isFluid ? (
-        <meshMatcapMaterial
-          transparent
-          opacity={FLUID_CAP_OPACITY}
-        />
+        <meshMatcapMaterial transparent opacity={FLUID_CAP_OPACITY} />
       ) : (
         <meshMatcapMaterial />
       )}

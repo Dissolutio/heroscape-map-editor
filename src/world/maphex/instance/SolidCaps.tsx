@@ -30,10 +30,7 @@ const baseSolidCapCylinderArgs: CylinderGeometryArgs = [
 // Create geometry once at module level to avoid GPU memory leaks
 const basicCapGeometry = new CylinderGeometry(...baseSolidCapCylinderArgs)
 
-const SolidCaps = ({
-  boardHexArr,
-  onPointerUp,
-}: DreiCapProps) => {
+const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
   const ref = React.useRef<InstanceRefType>(null)
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/classic1-cap.glb') as any

@@ -28,10 +28,7 @@ const baseFluidCapCylinderArgs: CylinderGeometryArgs = [
   undefined,
 ]
 export const FLUID_CAP_OPACITY = 0.85
-const FluidCaps = ({
-  boardHexArr,
-  onPointerUp,
-}: DreiCapProps) => {
+const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
