@@ -17,6 +17,13 @@ const materialCache = new Map<string, THREE.Material>()
 const callbackIds = new WeakMap<BeforeCompileHandler, number>()
 let nextCallbackId = 1
 
+export function clearGlobalMaterialCache(): void {
+  for (const material of materialCache.values()) {
+    material.dispose()
+  }
+  materialCache.clear()
+}
+
 function getCallbackId(callback?: BeforeCompileHandler): number {
   if (!callback) {
     return 0

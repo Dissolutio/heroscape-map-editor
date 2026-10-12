@@ -3,13 +3,22 @@ import { useEffect } from 'react'
 
 // Track active hook consumers per GLTF path so we only dispose once the last one unmounts.
 const gltfRefCounts = new Map<string, number>()
+const pendingDisposals = new Map<string, number>()
+let nextDisposalId = 1
 
 // Normalize path input to a stable key for ref counting.
 function makeCacheKey(path: string | string[]) {
-  return Array.isArray(path) ? path.join('||') : path
+  return JSON.stringify(path)
 }
 
 function disposeGltfResources(gltf: unknown) {
+  if (Array.isArray(gltf)) {
+    for (const asset of gltf) {
+      disposeGltfResources(asset)
+    }
+    return
+  }
+
   // Read the scene defensively because GLTF typing here is intentionally loose.
   const scene = (
     gltf as { scene?: { traverse?: (cb: (child: unknown) => void) => void } }
@@ -20,44 +29,17 @@ function disposeGltfResources(gltf: unknown) {
     return
   }
 
-  // Walk every node and explicitly free GPU resources owned by meshes.
+  // Walk every node and free only resources owned by the loaded asset.
   scene.traverse((child) => {
     const meshChild = child as {
       isMesh?: boolean
       geometry?: { dispose?: () => void }
-      material?: unknown
       skeleton?: { dispose?: () => void }
     }
 
     if (meshChild.isMesh) {
-      // Geometry buffers can be large, so release them as soon as the model is unused.
+      // Materials are shared globally and must outlive any individual GLTF asset.
       meshChild.geometry?.dispose?.()
-
-      const materials = Array.isArray(meshChild.material)
-        ? meshChild.material
-        : [meshChild.material]
-
-      for (const material of materials) {
-        if (!material || typeof material !== 'object') {
-          continue
-        }
-
-        // Dispose textures referenced by material properties before disposing the material.
-        for (const value of Object.values(
-          material as Record<string, unknown>,
-        )) {
-          const possibleTexture = value as {
-            isTexture?: boolean
-            dispose?: () => void
-          }
-
-          if (possibleTexture?.isTexture) {
-            possibleTexture.dispose?.()
-          }
-        }
-        // Finally release the material program/state itself.
-        ;(material as { dispose?: () => void }).dispose?.()
-      }
     }
 
     // Skinned assets may allocate skeleton buffers; release those too.
@@ -74,6 +56,7 @@ export function useDisposableGLTF(...args: Parameters<typeof useGLTF>) {
   useEffect(() => {
     // Register one active consumer for this model path.
     gltfRefCounts.set(cacheKey, (gltfRefCounts.get(cacheKey) ?? 0) + 1)
+    pendingDisposals.delete(cacheKey)
 
     return () => {
       // Unregister this consumer and only dispose when the final consumer is gone.
@@ -85,10 +68,27 @@ export function useDisposableGLTF(...args: Parameters<typeof useGLTF>) {
       }
 
       gltfRefCounts.delete(cacheKey)
-      // Keep JS-side loader cache, but free Three.js GPU resources.
-      disposeGltfResources(gltf)
+      const disposalId = nextDisposalId++
+      pendingDisposals.set(cacheKey, disposalId)
+
+      queueMicrotask(() => {
+        if (
+          gltfRefCounts.has(cacheKey) ||
+          pendingDisposals.get(cacheKey) !== disposalId
+        ) {
+          return
+        }
+
+        pendingDisposals.delete(cacheKey)
+        try {
+          disposeGltfResources(gltf)
+        } finally {
+          // Evict parsed geometry after confirming no replacement consumer mounted.
+          useGLTF.clear(path)
+        }
+      })
     }
-  }, [cacheKey, gltf])
+  }, [cacheKey, gltf, path])
 
   return gltf
 }

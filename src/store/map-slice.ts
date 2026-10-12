@@ -1,9 +1,11 @@
 import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
-import { removePiece } from '../data/removePiece'
-import { piecesSoFar } from '../data/pieces'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
+import { piecesSoFar } from '../data/pieces'
+import { removePiece } from '../data/removePiece'
+import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
+import { LS_KEYS } from '../local-storage/keys'
 import type {
   AddRemovePieceError,
   CubeCoordinate,
@@ -11,16 +13,15 @@ import type {
   Piece,
 } from '../types'
 import { PiecePrefixes } from '../types'
-import type { AppState } from './store'
-import { LS_KEYS } from '../local-storage/keys'
 import { normalizeBoardPieces } from '../utils/map-utils'
-import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
+import { normalizePieceInventory } from '../utils/piece-inventory'
 import {
   getAvailableLandPrefixesForInventory,
   getAvailableLandPrefixesForSets,
   getEffectiveTerrainConstraintInventory,
 } from '../utils/terrain-constraints'
-import { normalizePieceInventory } from '../utils/piece-inventory'
+import { clearGlobalMaterialCache } from '../world/models/materials'
+import type { AppState } from './store'
 
 function computeConflictedPieceUIDs(boardPieces: MapState['boardPieces']) {
   const { conflictedPieceUIDs } = rebuildBoardStateFromPieces(boardPieces)
@@ -487,8 +488,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.hexMap.mapNotes = val
       })
     }),
-  loadMap: (mapState: MapState) =>
-    set((state) => {
+  loadMap: (mapState: MapState) => {
+    clearGlobalMaterialCache()
+    return set((state) => {
       return produce(state, (draft) => {
         draft.boardHexes = mapState.boardHexes
         draft.hexMap = mapState.hexMap
@@ -511,7 +513,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.lastPenMode = constrainedPenMode
         draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
       })
-    }),
+    })
+  },
 })
 
 export default createMapSlice
