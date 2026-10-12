@@ -1,4 +1,3 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import { Vector3 } from 'three'
@@ -9,9 +8,10 @@ import {
   HEXGRID_HEX_HEIGHT,
   PIECE_PREVIEW_OPACITY,
 } from '../../utils/constants'
+import { genBoardHexID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { genBoardHexID } from '../../utils/map-utils'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 type Props = {
   boardHex: BoardHex
@@ -93,9 +93,8 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
         onPointerUp={onPointerUpBody}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={(e) => onPointerOut(e)}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender)}
-      </mesh>
+        material={basicModelMaterial(color, isLightsAndShadowsRender)}
+      />
       <group
         onPointerUp={(e) => onPointerUp(e, boardHex)}
         onPointerEnter={onPointerEnterCap}
@@ -106,18 +105,16 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.WallCap.geometry}
           position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
-        >
-          {basicModelMaterial(capColor, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicModelMaterial(capColor, isLightsAndShadowsRender)}
+        />
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={capGeometry}
           position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
           onPointerUp={(e) => onPointerUp(e, boardHex)}
-        >
-          {basicModelMaterial(capColor, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicModelMaterial(capColor, isLightsAndShadowsRender)}
+        />
       </group>
     </>
   )
@@ -162,25 +159,34 @@ export function CastleWallPreview({
         castShadow={isLightsAndShadowsRender}
         scale={scale}
         geometry={bodyGeometry}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
-      </mesh>
+        material={basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.WallCap.geometry}
         position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
-      >
-        {basicModelMaterial(capColor, isLightsAndShadowsRender, opacityLevel)}
-      </mesh>
+        material={basicModelMaterial(
+          capColor,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={capGeometry}
         position={[0, (scaleY - 1) * HEXGRID_HEX_HEIGHT, 0]}
-      >
-        {basicModelMaterial(capColor, isLightsAndShadowsRender, opacityLevel)}
-      </mesh>
+        material={basicModelMaterial(
+          capColor,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
+      />
     </>
   )
 }

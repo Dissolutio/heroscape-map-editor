@@ -1,4 +1,3 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
@@ -8,8 +7,9 @@ import {
   PIECE_PREVIEW_OPACITY,
 } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
-import { basicModelMaterial } from './materials'
 import { laurBaseCylinderArgs } from './ObstacleBase'
+import { basicModelMaterial } from './materials'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export default function LaurWallPillar({
   bp,
@@ -70,38 +70,34 @@ export default function LaurWallPillar({
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.PillarTop.geometry}
-        >
-          {basicModelMaterial(color, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicModelMaterial(color, isLightsAndShadowsRender)}
+        />
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.PillarSubDecorCore.geometry}
-        >
-          {basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
+        />
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.PillarFacade.geometry}
-        >
-          {basicModelMaterial(color, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicModelMaterial(color, isLightsAndShadowsRender)}
+        />
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.PillarFacadeInner.geometry}
-        >
-          {basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicModelMaterial(interiorColor, isLightsAndShadowsRender)}
+        />
         {isShowBaseMesh && (
           <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
             <mesh
               receiveShadow={isLightsAndShadowsRender}
               castShadow={isLightsAndShadowsRender}
+              material={basicModelMaterial(color, isLightsAndShadowsRender)}
             >
               <cylinderGeometry args={laurBaseCylinderArgs} />
-              {basicModelMaterial(color, isLightsAndShadowsRender)}
             </mesh>
           </group>
         )}
@@ -135,46 +131,50 @@ export function LaurWallPillarPreview({
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.PillarTop.geometry}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
-      </mesh>
+        material={basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.PillarSubDecorCore.geometry}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           interiorColor,
           isLightsAndShadowsRender,
           opacityLevel,
         )}
-      </mesh>
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.PillarFacade.geometry}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
-      </mesh>
+        material={basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.PillarFacadeInner.geometry}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           interiorColor,
           isLightsAndShadowsRender,
           opacityLevel,
         )}
-      </mesh>
+      />
       {showBaseMesh && (
         <group position={[0, -HEXGRID_OBSTACLE_BASE_HEIGHT / 2, 0]}>
           <mesh
             receiveShadow={isLightsAndShadowsRender}
             castShadow={isLightsAndShadowsRender}
+            material={basicModelMaterial(color, isLightsAndShadowsRender)}
           >
             <cylinderGeometry args={laurBaseCylinderArgs} />
-            {basicModelMaterial(color, isLightsAndShadowsRender)}
           </mesh>
         </group>
       )}

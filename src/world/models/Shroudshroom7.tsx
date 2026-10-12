@@ -1,12 +1,12 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
+import { noop } from 'lodash'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
-import { noop } from 'lodash'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export default function Shroudshroom7({ pid }: { pid?: string }) {
   const { nodes } = useDisposableGLTF(
@@ -57,15 +57,16 @@ export default function Shroudshroom7({ pid }: { pid?: string }) {
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(colorCap, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              colorCap,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(colorCap, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                colorCap,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -73,15 +74,16 @@ export default function Shroudshroom7({ pid }: { pid?: string }) {
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(colorStipe, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              colorStipe,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(colorStipe, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                colorStipe,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -89,15 +91,16 @@ export default function Shroudshroom7({ pid }: { pid?: string }) {
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(colorGills, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              colorGills,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(colorGills, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                colorGills,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -105,15 +108,16 @@ export default function Shroudshroom7({ pid }: { pid?: string }) {
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              colorBase,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                colorBase,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
     </>
   )
 }

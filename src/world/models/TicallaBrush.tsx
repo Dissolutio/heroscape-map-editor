@@ -1,11 +1,11 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain, Pieces } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export default function JungleBrush({
   pid,
@@ -86,45 +86,56 @@ export function LaurBrushPreview({
         geometry={nodes.LaurTriLeaf.geometry}
         // Trileaf is a little counter-clockwise on brush, unlike on palms
         rotation={[0, Math.PI / 6.5, 0]}
-      >
-        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorTriLeaf,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurFatLeaf.geometry}
-      >
-        {basicModelMaterial(colorFatLeaf, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorFatLeaf,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurTriCactus.geometry}
         // Cacti are closer together on brush than on palm
         rotation={[0, Math.PI / 1.5, 0]}
-      >
-        {basicModelMaterial(colorTriCactus, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorTriCactus,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurRoundCactus.geometry}
         // Cacti are closer together on brush than on palm
         rotation={[0, -Math.PI / 1.6, 0]}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           colorRoundCactus,
           isLightsAndShadowsRender,
           opacity,
         )}
-      </mesh>
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.JungleBase.geometry}
-      >
-        {basicModelMaterial(colorBase, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorBase,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
     </>
   )
 }
@@ -157,18 +168,24 @@ export function SwampBrushPreview({
         geometry={nodes.LaurTriLeaf.geometry}
         // Trileaf is a little counter-clockwise on brush, unlike on palms
         rotation={[0, Math.PI / 6.5, 0]}
-      >
-        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorTriLeaf,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurFatLeaf.geometry}
         // Trileaf is a little counter-clockwise on brush, unlike on palms
         rotation={[0, Math.PI / 6.5, 0]}
-      >
-        {basicModelMaterial(colorFatLeaf, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorFatLeaf,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
 
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -176,9 +193,12 @@ export function SwampBrushPreview({
         geometry={nodes.LaurTriCactus.geometry}
         // Cacti are closer together on brush than on palm
         rotation={[0, Math.PI / 1.5, 0]}
-      >
-        {basicModelMaterial(colorTriCactus, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorTriCactus,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
 
       <mesh
         receiveShadow={isLightsAndShadowsRender}
@@ -186,21 +206,23 @@ export function SwampBrushPreview({
         geometry={nodes.LaurRoundCactus.geometry}
         // Cacti are closer together on brush than on palm
         rotation={[0, -Math.PI / 1.6, 0]}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           colorRoundCactus,
           isLightsAndShadowsRender,
           opacity,
         )}
-      </mesh>
+      />
 
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.JungleBase.geometry}
-      >
-        {basicModelMaterial(colorBase, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorBase,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
     </>
   )
 }
@@ -230,45 +252,56 @@ export function TicallaBrushPreview({
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.TicallaTriLeaf.geometry}
-      >
-        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorTriLeaf,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurFatLeaf.geometry}
         rotation={[0, Math.PI / 1.6, 0]}
-      >
-        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorTriLeaf,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
 
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.JungleNeedleFern.geometry}
-      >
-        {basicModelMaterial(colorNeedleFern, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorNeedleFern,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
 
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.TicallaPineappleFern.geometry}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           colorPineappleFern,
           isLightsAndShadowsRender,
           opacity,
         )}
-      </mesh>
+      />
 
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.JungleBase.geometry}
-      >
-        {basicModelMaterial(colorBase, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorBase,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
     </>
   )
 }

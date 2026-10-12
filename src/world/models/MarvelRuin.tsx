@@ -1,13 +1,13 @@
 import { useDisposableGLTF } from './useDisposableGLTF'
 
-import useBoundStore from '../../store/store'
-import usePieceHoverState from '../../hooks/usePieceHoverState'
 import type { ThreeEvent } from '@react-three/fiber'
-import { hexTerrainColor } from '../maphex/hexColors'
-import { Pieces } from '../../types'
 import { DoubleSide } from 'three'
-import { basicDoubleSideModelMaterial } from './materials'
+import usePieceHoverState from '../../hooks/usePieceHoverState'
+import useBoundStore from '../../store/store'
+import { Pieces } from '../../types'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { hexTerrainColor } from '../maphex/hexColors'
+import { basicDoubleSideModelMaterial } from './materials'
 
 export function MarvelRuin({
   pid,
@@ -52,29 +52,29 @@ export function MarvelRuin({
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.MarvelRuinMain.geometry}
-      >
-        {basicDoubleSideModelMaterial(color, isLightsAndShadowsRender)}
-      </mesh>
+        material={basicDoubleSideModelMaterial(color, isLightsAndShadowsRender)}
+      />
       {isUpperFloor && (
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.MarvelRuinUpperFloor.geometry}
-        >
-          {basicDoubleSideModelMaterial(
+          material={basicDoubleSideModelMaterial(
             colorUpperFloor,
             isLightsAndShadowsRender,
           )}
-        </mesh>
+        />
       )}
       {isWallIntact && (
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.MarvelRuinRemoveableWall.geometry}
-        >
-          {basicDoubleSideModelMaterial(color, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicDoubleSideModelMaterial(
+            color,
+            isLightsAndShadowsRender,
+          )}
+        />
       )}
     </group>
   )
@@ -99,38 +99,35 @@ export function MarvelRuinPreview({
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.MarvelRuinMain.geometry}
-      >
-        {basicDoubleSideModelMaterial(
+        material={basicDoubleSideModelMaterial(
           color,
           isLightsAndShadowsRender,
           PIECE_PREVIEW_OPACITY,
         )}
-      </mesh>
+      />
       {isUpperFloor && (
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.MarvelRuinUpperFloor.geometry}
-        >
-          {basicDoubleSideModelMaterial(
+          material={basicDoubleSideModelMaterial(
             colorUpperFloor,
             isLightsAndShadowsRender,
             PIECE_PREVIEW_OPACITY,
           )}
-        </mesh>
+        />
       )}
       {isWallIntact && (
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.MarvelRuinRemoveableWall.geometry}
-        >
-          {basicDoubleSideModelMaterial(
+          material={basicDoubleSideModelMaterial(
             color,
             isLightsAndShadowsRender,
             PIECE_PREVIEW_OPACITY,
           )}
-        </mesh>
+        />
       )}
     </>
   )

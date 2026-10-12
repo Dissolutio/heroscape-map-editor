@@ -1,12 +1,12 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
-import { hexTerrainColor } from '../maphex/hexColors'
-import { basicModelMaterial } from './materials'
 import { noop } from 'lodash'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { hexTerrainColor } from '../maphex/hexColors'
+import { basicModelMaterial } from './materials'
 
 export default function MarroHive6({ pid }: { pid?: string }) {
   const { nodes } = useDisposableGLTF(
@@ -46,15 +46,16 @@ export default function MarroHive6({ pid }: { pid?: string }) {
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(color, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(color, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                color,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
     </>
   )
 }

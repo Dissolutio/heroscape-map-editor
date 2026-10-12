@@ -1,11 +1,11 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 type Props = {
   boardHex: BoardHex
@@ -68,9 +68,8 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
         onPointerUp={onPointerUpBody}
         onPointerEnter={(e) => onPointerEnter(e, boardHex)}
         onPointerOut={onPointerOut}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender)}
-      </mesh>
+        material={basicModelMaterial(color, isLightsAndShadowsRender)}
+      />
 
       {/* Each wall has a WallCap mesh, then each wall-type adds on its little directional indicator mesh */}
       <group
@@ -84,16 +83,14 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
           geometry={nodes.WallCap.geometry}
           onPointerEnter={onPointerEnterCap}
           onPointerOut={onPointerOutCap}
-        >
-          {basicModelMaterial(color, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicModelMaterial(color, isLightsAndShadowsRender)}
+        />
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={capGeometry}
-        >
-          {basicModelMaterial(color, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicModelMaterial(color, isLightsAndShadowsRender)}
+        />
       </group>
     </>
   )
@@ -130,25 +127,30 @@ export function CastleBasePreview({
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={bodyGeometry}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender)}
-      </mesh>
+        material={basicModelMaterial(color, isLightsAndShadowsRender)}
+      />
 
       {/* Each wall has a WallCap mesh, then each wall-type adds on its little directional indicator mesh */}
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.WallCap.geometry}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
-      </mesh>
+        material={basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={capGeometry}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
-      </mesh>
+        material={basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
+      />
     </>
   )
 }

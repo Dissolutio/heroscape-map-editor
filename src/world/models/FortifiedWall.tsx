@@ -1,11 +1,11 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export function FortifiedWall({
   pid,
@@ -41,9 +41,8 @@ export function FortifiedWall({
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
       geometry={nodes.FortifiedWall.geometry}
-    >
-      {basicModelMaterial(color, isLightsAndShadowsRender)}
-    </mesh>
+      material={basicModelMaterial(color, isLightsAndShadowsRender)}
+    />
   )
 }
 export function FortifiedWallPreview() {
@@ -58,13 +57,12 @@ export function FortifiedWallPreview() {
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.FortifiedWall.geometry}
-    >
-      {basicModelMaterial(
+      material={basicModelMaterial(
         color,
         isLightsAndShadowsRender,
         PIECE_PREVIEW_OPACITY,
       )}
-    </mesh>
+    />
   )
 }
 
