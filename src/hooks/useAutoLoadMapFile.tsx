@@ -13,6 +13,7 @@ import {
   normalizeBoardPieces,
 } from '../utils/map-utils'
 import { getViewModeFromQueryParam } from '../utils/mapShareUrl'
+import { warnDroppedPieces } from '../utils/warnDroppedPieces'
 
 const useAutoLoadMapFile = () => {
   const loadMap = useBoundStore((s) => s.loadMap)
@@ -86,6 +87,10 @@ const useAutoLoadMapFile = () => {
                   onClick={() => {
                     // load last map instead, close original snackbar, open a new one, remove map from URL bar
                     loadMapWithoutUndo(localMapCacheMapState)
+                    warnDroppedPieces(
+                      enqueueSnackbar,
+                      localMapCacheMapState.droppedPieces,
+                    )
                     closeSnackbar(snackbarId)
                     enqueueSnackbar({
                       message: `Loaded last map instead: ${localMapCacheMapState.hexMap.name}`,
@@ -117,6 +122,7 @@ const useAutoLoadMapFile = () => {
           })
         }
         loadMapWithoutUndo(jsonMap)
+        warnDroppedPieces(enqueueSnackbar, jsonMap.droppedPieces)
         return
 
         // biome-ignore lint/suspicious/noExplicitAny: <error could be anything>
@@ -135,6 +141,7 @@ const useAutoLoadMapFile = () => {
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
         variant: 'success',
       })
+      warnDroppedPieces(enqueueSnackbar, localMapCacheMapState.droppedPieces)
     } else {
       // No url and no prev state? auto load a file
 

@@ -19,6 +19,7 @@ import {
   encodeBoardPiecesToIds,
   genBoardHexID,
   getBoardPiecesMaxLevel,
+  getDroppedPiecesWarning,
   inflateBoardPiecesFromIds,
   normalizeBoardPieces,
 } from '../utils/map-utils'
@@ -203,27 +204,56 @@ describe('buildupJsonFileMap (the load path for files, links and localStorage)',
     expect(map.hexMap).toMatchObject({ version: 1, length: 6, width: 6 })
   })
 
-  it.fails(
-    'KNOWN GAP: pieces this app does not recognize are kept, not silently dropped',
-    () => {
-      // A shared link or file from a NEWER version can contain an inventoryID
-      // this version has never heard of (the desktop app auto-updates but is not
-      // always current). buildupJsonFileMap skips it ("Should probably handle
-      // this different, errors etc." says the comment in the source), the user
-      // gets a map with a hole in it and no warning, and the next autosave to
-      // localStorage / re-export makes the loss permanent.
-      //
-      // Keeping unknown pieces in boardPieces (without placing hexes) would
-      // preserve them, but see "removePiece" in place-and-remove.test.ts: that
-      // currently crashes on exactly such pieces, so the two fixes go together.
-      const withUnknown = [
-        piece('known', 'g1', q, r, 0),
-        piece('mystery', 'zz-from-the-future', q + 2, r, 0),
-      ]
-      const map = buildupJsonFileMap(withUnknown, rectangleMap())
-      expect(map.boardPieces.map((p) => p.uid)).toContain('mystery')
-    },
-  )
+  it('pieces this app does not recognize are dropped on load and reported', () => {
+    // A shared link or file from a NEWER version can contain an inventoryID
+    // this version has never heard of (the desktop app auto-updates but is not
+    // always current). Decision: such pieces never enter the app (nothing
+    // downstream has to cope with them), and the load result lists them so the
+    // UI can warn the user before the next autosave makes the loss permanent.
+    const withUnknown = [
+      piece('known', 'g1', q, r, 0),
+      piece('mystery', 'zz-from-the-future', q + 2, r, 0),
+    ]
+    const map = buildupJsonFileMap(withUnknown, rectangleMap())
+    expect(map.boardPieces.map((p) => p.uid)).toEqual(['known'])
+    expect(map.droppedPieces).toEqual([
+      { uid: 'mystery', inventoryID: 'zz-from-the-future' },
+    ])
+  })
+
+  it('a share link with an unknown piece id loads the rest and reports the drop', () => {
+    // share links carry "altitude~q~r~rotation~inventoryID" strings
+    const fromLink = inflateBoardPiecesFromIds([
+      `0~${q}~${r}~0~g1`,
+      `0~${q + 2}~${r}~0~zz-from-the-future`,
+    ])
+    const map = buildupJsonFileMap(fromLink, rectangleMap())
+    expect(map.boardPieces.map((p) => p.inventoryID)).toEqual(['g1'])
+    expect(map.droppedPieces.map((p) => p.inventoryID)).toEqual([
+      'zz-from-the-future',
+    ])
+  })
+
+  it('a map of known pieces reports nothing dropped', () => {
+    const map = buildupJsonFileMap([piece('a', 'g1', q, r, 0)], rectangleMap())
+    expect(map.droppedPieces).toEqual([])
+  })
+
+  it('the drop warning gives the count and each distinct unknown id once', () => {
+    expect(getDroppedPiecesWarning([])).toBeNull()
+    expect(
+      getDroppedPiecesWarning([
+        { uid: '1', inventoryID: 'zz1' },
+        { uid: '2', inventoryID: 'zz2' },
+        { uid: '3', inventoryID: 'zz1' },
+      ]),
+    ).toBe(
+      'Skipped 3 pieces this version of Hexoscape does not recognize (zz1, zz2). Updating the app may let you load them.',
+    )
+    expect(getDroppedPiecesWarning([{ uid: '1', inventoryID: 'zz1' }])).toBe(
+      'Skipped 1 piece this version of Hexoscape does not recognize (zz1). Updating the app may let you load them.',
+    )
+  })
 
   it.fails(
     'KNOWN GAP: loading is order-stable (re-loading a loaded map keeps the piece order)',

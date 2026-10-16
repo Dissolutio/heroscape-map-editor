@@ -47,7 +47,7 @@ export const ReactPdfSvgMapDisplay = ({
     (h) => h.altitude < viewingLevel,
   )
   const visibleBoardPieces = boardPiecesArr.filter((bp) => {
-    if (piecesSoFar[bp.inventoryID].isOverlayPiece) {
+    if (piecesSoFar[bp.inventoryID]?.isOverlayPiece) {
       return (
         isOverlayViewing ||
         (isShowPdfOverlayOnPlacedLevel && bp.altitude <= viewingLevel)

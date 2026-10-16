@@ -28,10 +28,18 @@ export function removePiece({
   let error: AddRemovePieceError
   const boardPiece = boardPieces.find((bp) => bp.uid === uid)
   if (!boardPiece) {
+    error = { message: `Cannot remove piece ${uid}: it is not on the board` }
     return { newBoardHexes: boardHexes, newBoardPieces: boardPieces, error }
   }
   const { inventoryID } = boardPiece
   const piece = piecesSoFar[inventoryID]
+  if (!piece) {
+    // Unknown pieces are dropped on load, so this should not happen; never throw.
+    error = {
+      message: `Cannot remove piece ${uid}: unknown inventoryID "${inventoryID}"`,
+    }
+    return { newBoardHexes: boardHexes, newBoardPieces: boardPieces, error }
+  }
   // Shallow copy boardHexes (if needed)
   const newBoardHexes = { ...boardHexes }
   // Remove only the first occurrence of uid from the array

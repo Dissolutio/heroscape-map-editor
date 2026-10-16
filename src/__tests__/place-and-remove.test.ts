@@ -298,6 +298,38 @@ describe('overlaps (how the real app places: permissive)', () => {
   })
 })
 
+describe('removePiece never throws', () => {
+  it('a piece whose inventoryID this app version does not know: returns an error', () => {
+    // Unknown pieces are dropped on load, so the store should never hold one;
+    // this is the backstop. It used to do `piecesSoFar[inventoryID].id` with
+    // no guard and throw a TypeError.
+    const table = makeTable()
+    const board = {
+      boardHexes: table.boardHexes,
+      boardPieces: [
+        {
+          uid: 'mystery',
+          inventoryID: 'zz-from-the-future',
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: table.center,
+        },
+      ],
+    }
+    const result = remove(board, 'mystery')
+    expect(result.error?.message).toMatch(/zz-from-the-future/)
+    expect(result.board).toEqual(board)
+  })
+
+  it('a uid that is not on the board: returns an error', () => {
+    const table = makeTable()
+    const result = remove(table, 'no-such-uid')
+    expect(result.error?.message).toMatch(/no-such-uid/)
+    expect(result.board.boardPieces).toBe(table.boardPieces)
+    expect(result.board.boardHexes).toBe(table.boardHexes)
+  })
+})
+
 describe('KNOWN GAPS in the engine', () => {
   for (const pieceID of THROWS_TODAY) {
     it.fails(`placing ${pieceID} does not throw`, () => {
@@ -313,31 +345,6 @@ describe('KNOWN GAPS in the engine', () => {
       ).not.toThrow()
     })
   }
-
-  it.fails(
-    'removePiece copes with a piece whose inventoryID this app version does not know',
-    () => {
-      // removePiece does `piecesSoFar[inventoryID].id` with no guard, so deleting
-      // (or moving, or converting) a piece that came from a newer app version
-      // throws a TypeError instead of just removing it. movePiece and
-      // convertTerrainForPieces guard against this in the store; unpaintTile
-      // does not. Pairs with the "unknown pieces are dropped on load" gap.
-      const table = makeTable()
-      const board = {
-        boardHexes: table.boardHexes,
-        boardPieces: [
-          {
-            uid: 'mystery',
-            inventoryID: 'zz-from-the-future',
-            altitude: 0,
-            rotation: 0,
-            pieceCoords: table.center,
-          },
-        ],
-      }
-      expect(() => remove(board, 'mystery')).not.toThrow()
-    },
-  )
 
   it.fails('addPiece does not mutate the board it was given', () => {
     // addPiece shallow-copies the hex map and then edits hex objects inside it

@@ -461,3 +461,37 @@ export function normalizeBoardPieces(boardPieces: unknown): BoardPiece[] {
   }
   return []
 }
+
+/** A saved piece that was left out of a loaded map because its inventoryID is unknown. */
+export type DroppedBoardPiece = Pick<BoardPiece, 'uid' | 'inventoryID'>
+
+/**
+ * Split loaded pieces into the ones this app version knows and the ones it
+ * does not (e.g. a map made in a newer version). Unknown pieces never enter
+ * the app; the caller reports `droppedPieces` to the user instead.
+ */
+export function dropUnknownBoardPieces(boardPieces: BoardPiece[]): {
+  boardPieces: BoardPiece[]
+  droppedPieces: DroppedBoardPiece[]
+} {
+  const known: BoardPiece[] = []
+  const droppedPieces: DroppedBoardPiece[] = []
+  for (const bp of boardPieces) {
+    if (bp?.inventoryID && piecesSoFar[bp.inventoryID]) {
+      known.push(bp)
+    } else {
+      droppedPieces.push({ uid: bp?.uid, inventoryID: bp?.inventoryID })
+    }
+  }
+  return { boardPieces: known, droppedPieces }
+}
+
+/** One user-facing warning for a load that dropped pieces, or null if none were. */
+export function getDroppedPiecesWarning(
+  droppedPieces: DroppedBoardPiece[],
+): string | null {
+  if (!droppedPieces.length) return null
+  const count = droppedPieces.length
+  const ids = [...new Set(droppedPieces.map((p) => String(p.inventoryID)))]
+  return `Skipped ${count} piece${count === 1 ? '' : 's'} this version of Hexoscape does not recognize (${ids.join(', ')}). Updating the app may let you load them.`
+}

@@ -14,6 +14,10 @@ import {
   hexUtilsOddRToCube,
 } from '../utils/hex-utils'
 import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
+import {
+  type DroppedBoardPiece,
+  dropUnknownBoardPieces,
+} from '../utils/map-utils'
 import { addPiece } from './addPiece'
 import { pieceCodes } from './pieceCodes'
 import { piecesSoFar } from './pieces'
@@ -78,10 +82,14 @@ function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: BoardPiece[]) {
     return 0 // Maintain original order
   })
 }
+export type JsonMapLoadResult = MapState & {
+  /** Pieces left out because this app version does not know their inventoryID. */
+  droppedPieces: DroppedBoardPiece[]
+}
 export function buildupJsonFileMap(
   boardPieces: BoardPiece[],
   hexMap: HexMap,
-): MapState {
+): JsonMapLoadResult {
   const shouldMigrateLegacyHexagonMap =
     hexMap.shape === 'hexagon' && (hexMap?.version ?? 0) < 1
   const migratedHexMap: HexMap = shouldMigrateLegacyHexagonMap
@@ -98,7 +106,9 @@ export function buildupJsonFileMap(
 
   // For JSON maps, the map dimensions are free, we do not have to compute them
   let initialBoardHexes: BoardHexes = {}
-  const initialBoardPieces = clone(boardPieces)
+  const { boardPieces: knownBoardPieces, droppedPieces } =
+    dropUnknownBoardPieces(boardPieces)
+  const initialBoardPieces = clone(knownBoardPieces)
   let finalBoardPieces: BoardPieces = []
   if (migratedHexMap.shape === 'rectangle') {
     initialBoardHexes = makeRectangleScenario({
@@ -125,7 +135,7 @@ export function buildupJsonFileMap(
     (prev: BoardHexes, curr): BoardHexes => {
       const piece = piecesSoFar[curr.inventoryID]
       if (!piece) {
-        return prev // Should probably handle this different, errors etc.
+        return prev // unreachable: unknown pieces were dropped above
       }
 
       // get the new board hexes and new board pieces
@@ -150,6 +160,7 @@ export function buildupJsonFileMap(
     boardHexes: newBoardHexes,
     hexMap: migratedHexMap,
     boardPieces: finalBoardPieces,
+    droppedPieces,
   }
 }
 
