@@ -364,6 +364,55 @@ describe('removePiece never throws', () => {
 })
 
 describe('KNOWN GAPS in the engine', () => {
+  it.fails(
+    'KNOWN GAP: strict addPiece rejects lwl2 at an integer rotation',
+    () => {
+      // The long Laur wall spans pillar to pillar over a hex VERTEX, so only
+      // half-step rotations (0.5 ... 5.5) are physical. The UI only offers
+      // those (getPossibleRotationsForPenMode), but the engine does not
+      // enforce it: the laurWallAddon branch records any rotation. A file,
+      // link or future caller can create an impossible wall.
+      // Fix with the edges-and-nodes work (see data/laurAddonFootprints.ts,
+      // which already returns null for this case).
+      const floor = withGrassFloor(makeTable())
+      const pillar = place({
+        board: floor,
+        pieceID: 'lwp',
+        at: floor.center,
+        altitude: 1,
+        uid: 'pillar',
+      })
+      expect(pillar.error).toBeUndefined()
+      const wall = place({
+        board: pillar.board,
+        pieceID: 'lwl2',
+        at: floor.center,
+        altitude: 10,
+        rotation: 1,
+      })
+      expect(wall.error).toBeDefined()
+    },
+  )
+
+  it.fails(
+    'KNOWN GAP: strict addPiece rejects a Laur wall add-on with no pillar under it',
+    () => {
+      // Add-ons hang off a Laur square or triangle pillar at their anchor hex,
+      // but strict placement never checks for one: lwl2 placed on bare grass
+      // is accepted. The pillar-support rule belongs to the edges-and-nodes
+      // work, so this is documented, not fixed.
+      const floor = withGrassFloor(makeTable())
+      const wall = place({
+        board: floor,
+        pieceID: 'lwl2',
+        at: floor.center,
+        altitude: 1,
+        rotation: 0.5,
+      })
+      expect(wall.error).toBeDefined()
+    },
+  )
+
   it.fails('addPiece does not mutate the board it was given', () => {
     // addPiece shallow-copies the hex map and then edits hex objects inside it
     // (e.g. clearing `isCap` on the hex underneath), so the CALLER'S board
