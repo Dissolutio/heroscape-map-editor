@@ -78,7 +78,7 @@ const SvgMapDisplay = () => {
           .filter((bp) => {
             // when overlay mode is enabled, hide glyph/startzone/objective-like pieces
             if (is2DOverlayLevelEnabled) {
-              if (piecesSoFar[bp.inventoryID].isOverlayPiece) {
+              if (piecesSoFar[bp.inventoryID]?.isOverlayPiece) {
                 return viewingLevel === overlayLevel
               }
               return bp.altitude <= viewingLevel
