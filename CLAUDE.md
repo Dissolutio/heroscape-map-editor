@@ -26,8 +26,10 @@ Checks: `npm test` (Vitest), `npx tsc -b`, `npx @biomejs/biome lint ./src`,
 
 ### Decisions
 
-- Work happens on `dev`, not `main`. Do not merge into `main` or `dev`, do not
-  force-push; the owner merges, tags and publishes releases.
+- Work happens on `dev`, not `main`. After reporting on a PR and getting the
+  owner's go-ahead, Claude merges it into `dev` (merge commit, no squash). The
+  owner tests `dev` before production. Never merge into `main`, never
+  force-push; the owner promotes to `main`, tags and publishes releases.
 - Unknown pieces on load: drop and warn. They never enter the app and never
   cause crashes (`buildupJsonFileMap` returns `droppedPieces`; the load sites
   show one warning).
