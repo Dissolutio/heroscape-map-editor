@@ -255,29 +255,43 @@ describe('buildupJsonFileMap (the load path for files, links and localStorage)',
     )
   })
 
-  it.fails(
-    'KNOWN GAP: loading is order-stable (re-loading a loaded map keeps the piece order)',
-    () => {
-      // The altitude sort in buildupJsonFileMap never returns 0 for equal
-      // altitudes (it returns -1 whichever way the pair is compared), which in
-      // practice REVERSES the pieces of each level on every load. Pieces are
-      // saved in the order they sit in boardPieces, so save -> load -> save
-      // flips the order each time. For non-overlapping pieces that is harmless,
-      // but "later pieces win a contested hex", so for maps with overlaps it
-      // changes which piece is reported as displaced after every reload.
-      // Fix: return 0 on ties (Array.prototype.sort is stable).
-      const three = [
-        piece('a', 'g1', q, r, 0),
-        piece('b', 'g1', q + 1, r, 0),
-        piece('c', 'g1', q + 2, r, 0),
-      ]
-      const once = buildupJsonFileMap(three, rectangleMap())
-      const twice = buildupJsonFileMap(once.boardPieces, rectangleMap())
-      expect(twice.boardPieces.map((p) => p.uid)).toEqual(
-        once.boardPieces.map((p) => p.uid),
-      )
-    },
-  )
+  it('loading is order-stable (re-loading a loaded map keeps the piece order)', () => {
+    // Pieces are saved in boardPieces order and "later pieces win a contested
+    // hex", so the load order must not change between save -> load -> save.
+    // (It used to reverse each altitude on every load: the altitude sort never
+    // returned 0 for ties.)
+    const three = [
+      piece('a', 'g1', q, r, 0),
+      piece('b', 'g1', q + 1, r, 0),
+      piece('c', 'g1', q + 2, r, 0),
+    ]
+    const once = buildupJsonFileMap(three, rectangleMap())
+    expect(once.boardPieces.map((p) => p.uid)).toEqual(['a', 'b', 'c'])
+    const twice = buildupJsonFileMap(once.boardPieces, rectangleMap())
+    expect(twice.boardPieces.map((p) => p.uid)).toEqual(
+      once.boardPieces.map((p) => p.uid),
+    )
+  })
+
+  it('load order: by altitude, then Laur add-ons, ladders and battlements last, original order kept within each', () => {
+    const mixed = [
+      piece('addon-1', 'lwl', q, r, 9),
+      piece('high', 'g1', q + 3, r, 2),
+      piece('ladder', 'ld', q + 4, r, 1),
+      piece('low-1', 'g1', q, r, 0),
+      piece('addon-2', 'lwr', q + 1, r, 9),
+      piece('low-2', 'g1', q + 1, r, 0),
+    ]
+    const map = buildupJsonFileMap(mixed, rectangleMap())
+    expect(map.boardPieces.map((p) => p.uid)).toEqual([
+      'low-1',
+      'low-2',
+      'high',
+      'ladder',
+      'addon-1',
+      'addon-2',
+    ])
+  })
 
   it('is deterministic: loading the same pieces twice gives identical hexes', () => {
     const pieces = [piece('a', 'g7', q, r, 0), piece('b', 'tr10', q, r, 1)]

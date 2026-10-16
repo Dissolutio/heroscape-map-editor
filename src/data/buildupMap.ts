@@ -56,31 +56,28 @@ export default function buildupVSFileMap(
     boardPieces,
   }
 }
-function sortLaurAddonsLaddersBattlementsToEndOfArray(arr: BoardPiece[]) {
-  // adding the laur addons will only work if pillars are already down
-  return arr.sort((a, b) => {
-    const aPieceID = a.inventoryID
-    const bPieceID = b.inventoryID
-    if (
-      aPieceID === Pieces.laurWallRuin1 ||
-      aPieceID === Pieces.laurWallLong ||
-      aPieceID === Pieces.laurWallShort ||
-      aPieceID === Pieces.ladder ||
-      aPieceID === Pieces.battlement
-    ) {
-      return 1 // Move 'targetValue' to the end
-    }
-    if (
-      bPieceID === Pieces.laurWallRuin1 ||
-      bPieceID === Pieces.laurWallLong ||
-      bPieceID === Pieces.laurWallShort ||
-      aPieceID === Pieces.ladder ||
-      aPieceID === Pieces.battlement
-    ) {
-      return -1 // Move 'targetValue' to the end
-    }
-    return 0 // Maintain original order
-  })
+// Placed after everything else on load: Laur add-ons need their pillars down
+// first, and ladders/battlements sit on what is below them.
+const PLACED_AFTER_SUPPORTS = new Set<string>([
+  Pieces.laurWallRuin1,
+  Pieces.laurWallLong,
+  Pieces.laurWallShort,
+  Pieces.ladder,
+  Pieces.battlement,
+])
+const isPlacedAfterSupports = (bp: BoardPiece) =>
+  PLACED_AFTER_SUPPORTS.has(bp.inventoryID)
+/**
+ * Load order: pieces that need supports go last, everything sorted by
+ * altitude. Array.prototype.sort is stable, so pieces that tie keep their
+ * saved order, which matters because a later piece wins a contested hex.
+ */
+function sortBoardPiecesForLoad(arr: BoardPiece[]) {
+  return arr.sort(
+    (a, b) =>
+      Number(isPlacedAfterSupports(a)) - Number(isPlacedAfterSupports(b)) ||
+      a.altitude - b.altitude,
+  )
 }
 export type JsonMapLoadResult = MapState & {
   /** Pieces left out because this app version does not know their inventoryID. */
@@ -122,15 +119,7 @@ export function buildupJsonFileMap(
       mapName: migratedHexMap.name,
     }).boardHexes
   }
-  const boardPiecesSortedByAltitude = initialBoardPieces.sort((a, b) => {
-    if (a.altitude > b.altitude) {
-      return 1 // Move 'targetValue' to the end
-    }
-    return -1 // Move 'targetValue' to the end
-  })
-  const piecesArray = sortLaurAddonsLaddersBattlementsToEndOfArray(
-    boardPiecesSortedByAltitude,
-  )
+  const piecesArray = sortBoardPiecesForLoad(initialBoardPieces)
   const newBoardHexes = piecesArray.reduce(
     (prev: BoardHexes, curr): BoardHexes => {
       const piece = piecesSoFar[curr.inventoryID]
