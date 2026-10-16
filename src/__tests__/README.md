@@ -17,6 +17,7 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `piece-registry.test.ts` | The "add a new terrain piece" checklist: every registry that must agree about a piece. **Read this first if you are adding terrain.** |
 | `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
 | `replay-conflicts.test.ts` | How conflicts are computed (`data/rebuildBoardState.ts`): what counts, what does not. |
+| `laur-addon-footprints.test.ts` | Which hexes lwl2/lwr2/lwr3 block (`data/laurAddonFootprints.ts`, not used by the app yet). |
 | `piece-ids-and-loading.test.ts` | Piece ids, the saved-map formats, and the load path (`buildupJsonFileMap`). |
 | `hex-grid.test.ts` | Cube coordinates, directions, rotation, grid generation, odd-r conversion. |
 | `edges-and-nodes.test.ts` | How edges and corners are represented today, and the acceptance checklist (`it.todo`) for the edge/node model. |
@@ -43,9 +44,9 @@ passed). That is the signal to change `it.fails` to `it` and keep it as a normal
 regression test. Each gap explains the defect, the suggested fix, and any
 assumption it makes, in the comment at the top of the test.
 
-Some checks are "ratchets" instead: a known list of exceptions (for example the
-three Laur pieces without a tile template in `piece-registry.test.ts`) that must
-shrink and may never grow.
+Some checks are "ratchets" instead: a known list of exceptions that must
+shrink and may never grow. None are open right now; the last one (Laur pieces
+without a tile template in `piece-registry.test.ts`) is now an empty list.
 
 ## Conventions
 
