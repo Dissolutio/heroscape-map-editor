@@ -107,25 +107,14 @@ describe('piece registry', () => {
     expect(collisions).toEqual([])
   })
 
-  it('every piece has a tile template, except the Laur pieces listed below', () => {
-    // KNOWN GAP (ratchet): addPiece() looks the footprint up unconditionally
-    // (rotationTransforms.ts -> tileTemplates[template].map), so placing any of
-    // these throws a TypeError. See "KNOWN GAP: placing ... throws" in
-    // place-and-remove.test.ts.
-    //
-    // Fix: add the three entries to data/tileTemplates.ts (each is a 1-hex
-    // footprint like laurWallLong / laurWallRuin1), then DELETE them from this
-    // list. This test also fails if a NEW piece lacks a template, which is the
-    // point of having it.
-    const KNOWN_MISSING = [
-      Pieces.laurWallLongStackable,
-      Pieces.laurWallRuin2,
-      Pieces.laurWallRuin3,
-    ].sort()
+  it('every piece has a tile template', () => {
+    // addPiece() looks the footprint up unconditionally (rotationTransforms.ts
+    // -> tileTemplates[template].map), so a piece without one throws when
+    // placed or loaded. Pieces that write no hexes (Laur add-ons, battlements)
+    // still need a 1-hex basic1 entry.
     const missing = allPieces
       .filter((p) => !(p.template in tileTemplates))
       .map((p) => p.id)
-      .sort()
-    expect(missing).toEqual(KNOWN_MISSING)
+    expect(missing).toEqual([])
   })
 })

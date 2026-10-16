@@ -17,6 +17,7 @@
  * and these tests see; the store only ever learns about overlaps.
  */
 import { beforeAll, describe, expect, it } from 'vitest'
+import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
 import { piecesSoFar } from '../data/pieces'
 import {
   type Table,
@@ -28,16 +29,12 @@ import {
   withGrassFloor,
 } from './helpers/board'
 
-// Pieces whose placement THROWS today (see piece-registry.test.ts: no tile
-// template). Excluded from the sweep and covered by their own gap tests below.
-const THROWS_TODAY = ['lwl2', 'lwr2', 'lwr3']
-
 // Glyph variants y2..y65 all share one code path with y0/y1; three is plenty.
 const isGlyphVariant = (id: string) =>
   /^y\d+$/.test(id) && !['y0', 'y1', 'y2'].includes(id)
 
 const SWEEP_PIECE_IDS = Object.keys(piecesSoFar).filter(
-  (id) => !THROWS_TODAY.includes(id) && !isGlyphVariant(id),
+  (id) => !isGlyphVariant(id),
 )
 
 describe('every registered piece can be placed on solid ground and removed again', () => {
@@ -46,8 +43,10 @@ describe('every registered piece can be placed on solid ground and removed again
     floor = withGrassFloor(makeTable())
   })
 
+  // Each piece at every rotation the UI offers for it (Laur long walls only
+  // at half-steps, Laur ruins and triangle pillars at all twelve).
   it.each(SWEEP_PIECE_IDS)('%s', (pieceID) => {
-    for (const rotation of [0, 1, 2, 3, 4, 5]) {
+    for (const rotation of getPossibleRotationsForPenMode(pieceID)) {
       const start = cloneBoard(floor)
       const placed = place({
         board: start,
@@ -298,6 +297,40 @@ describe('overlaps (how the real app places: permissive)', () => {
   })
 })
 
+describe('Laur wall add-ons have no grid expansion', () => {
+  // They render straight from boardPieces (addPiece's laurWallAddon branch
+  // only records the BoardPiece), so placing one must not write boardHexes.
+  // lwl2/lwr2/lwr3 used to throw here: they had no tile template.
+  it.each([
+    ['lwl2', 2.5],
+    ['lwr2', 1],
+    ['lwr2', 4.5],
+    ['lwr3', 3],
+    ['lwr3', 0.5],
+  ])('%s at rotation %s', (pieceID, rotation) => {
+    const floor = withGrassFloor(makeTable())
+    const placed = place({
+      board: floor,
+      pieceID: pieceID as string,
+      at: floor.center,
+      altitude: 9,
+      rotation: rotation as number,
+      uid: 'addon',
+    })
+    expect(placed.error).toBeUndefined()
+    expect(
+      placed.board.boardPieces[placed.board.boardPieces.length - 1],
+    ).toEqual({
+      uid: 'addon',
+      inventoryID: pieceID,
+      altitude: 9,
+      rotation,
+      pieceCoords: floor.center,
+    })
+    expect(placed.board.boardHexes).toEqual(floor.boardHexes)
+  })
+})
+
 describe('removePiece never throws', () => {
   it('a piece whose inventoryID this app version does not know: returns an error', () => {
     // Unknown pieces are dropped on load, so the store should never hold one;
@@ -331,21 +364,6 @@ describe('removePiece never throws', () => {
 })
 
 describe('KNOWN GAPS in the engine', () => {
-  for (const pieceID of THROWS_TODAY) {
-    it.fails(`placing ${pieceID} does not throw`, () => {
-      // addPiece reads tileTemplates[piece.template].map(...) before it does
-      // anything else, and these three pieces have no template entry, so the
-      // call dies with "undefined is not an object". They are alias variants
-      // hidden from the pen-mode dropdown, but they are placeable in code
-      // (and any saved map or link containing one would fail to load).
-      // Fix: add their templates in data/tileTemplates.ts.
-      const floor = withGrassFloor(makeTable())
-      expect(() =>
-        place({ board: floor, pieceID, at: floor.center, altitude: 1 }),
-      ).not.toThrow()
-    })
-  }
-
   it.fails('addPiece does not mutate the board it was given', () => {
     // addPiece shallow-copies the hex map and then edits hex objects inside it
     // (e.g. clearing `isCap` on the hex underneath), so the CALLER'S board
