@@ -3,6 +3,7 @@ import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import { piecesSoFar } from '../data/pieces'
+import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { removePiece } from '../data/removePiece'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 import { LS_KEYS } from '../local-storage/keys'
@@ -14,7 +15,6 @@ import type {
   Piece,
 } from '../types'
 import { PiecePrefixes } from '../types'
-import { normalizeBoardPieces } from '../utils/map-utils'
 import { normalizePieceInventory } from '../utils/piece-inventory'
 import {
   getAvailableLandPrefixesForInventory,
@@ -22,47 +22,6 @@ import {
   getEffectiveTerrainConstraintInventory,
 } from '../utils/terrain-constraints'
 import type { AppState } from './store'
-
-function computeConflictedPieceUIDs(boardPieces: MapState['boardPieces']) {
-  const { conflictedPieceUIDs } = rebuildBoardStateFromPieces(boardPieces)
-  return conflictedPieceUIDs
-}
-
-function rebuildBoardStateFromPieces(boardPieces: MapState['boardPieces']) {
-  const conflicts = new Set<string>()
-  let workingHexes: MapState['boardHexes'] = {}
-  let workingPieces: MapState['boardPieces'] = []
-
-  for (const boardPiece of normalizeBoardPieces(boardPieces)) {
-    const piece = piecesSoFar[boardPiece.inventoryID]
-    if (!piece) continue
-
-    const result = addPiece({
-      piece,
-      boardHexes: workingHexes,
-      boardPieces: workingPieces,
-      pieceCoords: boardPiece.pieceCoords,
-      placementAltitude: boardPiece.altitude,
-      rotation: boardPiece.rotation,
-      isVsTile: false,
-      uid: boardPiece.uid,
-      permissive: true,
-    })
-
-    workingHexes = result.newBoardHexes
-    workingPieces = result.newBoardPieces
-    for (const displacedUID of result.displacedUIDs ?? []) {
-      conflicts.add(displacedUID)
-      conflicts.add(boardPiece.uid)
-    }
-  }
-
-  return {
-    boardHexes: workingHexes,
-    boardPieces: workingPieces,
-    conflictedPieceUIDs: [...conflicts],
-  }
-}
 
 const preferredConstrainedPenModes: PiecePrefixes[] = [
   PiecePrefixes.grass,

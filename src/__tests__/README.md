@@ -1,0 +1,61 @@
+# Tests
+
+```sh
+npm install        # once on this branch: adds vitest and updates package-lock.json
+npm test           # run everything once
+npm run test:watch # re-run on save
+```
+
+These are **pure-logic tests** (hex math, placement rules, serialization, load).
+They run in Node with no browser, React, or three.js rendering, and finish in
+a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
+
+## What is here
+
+| File | Protects |
+| --- | --- |
+| `piece-registry.test.ts` | The "add a new terrain piece" checklist: every registry that must agree about a piece. **Read this first if you are adding terrain.** |
+| `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
+| `replay-conflicts.test.ts` | How conflicts are computed (`data/rebuildBoardState.ts`): what counts, what does not. |
+| `piece-ids-and-loading.test.ts` | Piece ids, the saved-map formats, and the load path (`buildupJsonFileMap`). |
+| `hex-grid.test.ts` | Cube coordinates, directions, rotation, grid generation, odd-r conversion. |
+| `edges-and-nodes.test.ts` | How edges and corners are represented today, and the acceptance checklist (`it.todo`) for the edge/node model. |
+| `terrain-constraints.test.ts` | Inventory normalization and set/personal/file constraints. |
+| `map-share-url.test.ts` | Parsing pasted share links. |
+| `helpers/board.ts` | `makeTable`, `place`, `remove`, `withGrassFloor`, `hexAt`: build boards without the store. |
+
+## Adding a new terrain piece
+
+Do the work, then run `npm test`. The registry and sweep tests name the piece and
+the missing step. Today the registrations a piece needs are: the `Pieces` constant
+(`types.ts`), its definition in `data/pieces.ts`, a footprint in
+`data/tileTemplates.ts`, an entry in `inventory/blankInventory.ts`, its place in
+the set inventories (`data/inventories.ts`), and a Virtualscape code in
+`data/pieceCodes.ts` if the old editor had it. The 3D model/loader and the
+SVG/PDF shapes are not checked by tests yet.
+
+## Known gaps: `it.fails`
+
+A test titled `KNOWN GAP: ...` is written as `it.fails(...)`. It states the
+behavior we **want**, and it **passes while the defect exists**. When someone fixes
+the defect, the test goes **red** (Vitest reports that a test expected to fail
+passed). That is the signal to change `it.fails` to `it` and keep it as a normal
+regression test. Each gap explains the defect, the suggested fix, and any
+assumption it makes, in the comment at the top of the test.
+
+Some checks are "ratchets" instead: a known list of exceptions (for example the
+three Laur pieces without a tile template in `piece-registry.test.ts`) that must
+shrink and may never grow.
+
+## Conventions
+
+- Test through `place` / `remove` / `rebuildBoardStateFromPieces`, not by editing
+  `boardHexes` by hand.
+- `place` is **strict** by default (reports rule violations, which is what the
+  placement preview sees). The real app paints and loads with `permissive: true`,
+  which never rejects and only reports displaced hexes; pass `permissive: true`
+  to test that mode.
+- `addPiece` edits hex objects inside the board you pass it. Clone first
+  (`cloneBoard`) if you reuse a starting board.
+- Do not pin altitudes of fluid-on-fluid stacking; that feature is being
+  reworked on `dev`.
