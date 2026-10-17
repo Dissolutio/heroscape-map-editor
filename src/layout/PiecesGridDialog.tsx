@@ -24,8 +24,8 @@ import { piecesSoFar } from '../data/pieces'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import useBoundStore from '../store/store'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
+import { makeBuriedStatusChecker } from '../utils/buriedStatus'
 import { zoomToPiece } from '../utils/camera-utils'
-import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import { genBoardHexID } from '../utils/map-utils'
 import { DIALOGS } from './dialogNames'
@@ -154,135 +154,9 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
     [boardHexes],
   )
 
-  const isSubterrainBuriedForPiece = useCallback(
-    (
-      inventoryID: string,
-      pieceCoords: { q: number; r: number; s: number },
-      rotation: number,
-      pieceAltitude: number,
-      uid: string,
-    ) => {
-      const piece = piecesSoFar[inventoryID]
-      if (!piece) return false
-      const footprint = getLandFootprintAtTopAltitude(
-        inventoryID,
-        pieceCoords,
-        rotation,
-      )
-      if (!footprint?.length) return false
-
-      const topAltitude = getSurfaceAltitude(footprint, pieceAltitude, uid)
-      const isFluidPiece = isFluidTerrainHex(piece.terrain)
-      const footprintIds = new Set(
-        footprint.map((coord) =>
-          genBoardHexID({ ...coord, altitude: topAltitude }),
-        ),
-      )
-
-      return footprint.every((coord) => {
-        return Object.values(HEX_DIRECTIONS).every((direction) => {
-          const neighborCoord = hexUtilsAdd(coord, direction)
-          const neighborID = genBoardHexID({
-            ...neighborCoord,
-            altitude: topAltitude,
-          })
-
-          if (footprintIds.has(neighborID)) {
-            return true
-          }
-
-          const neighborHex = boardHexes[neighborID]
-          const neighborTerrain = neighborHex?.terrain ?? ''
-          return isFluidPiece
-            ? isLandTerrain(neighborTerrain)
-            : isSolidTerrainHex(neighborTerrain)
-        })
-      })
-    },
-    [
-      boardHexes,
-      getLandFootprintAtTopAltitude,
-      isLandTerrain,
-      getSurfaceAltitude,
-    ],
-  )
-
-  const isBuriedForPiece = useCallback(
-    (
-      inventoryID: string,
-      pieceCoords: { q: number; r: number; s: number },
-      rotation: number,
-      pieceAltitude: number,
-      uid: string,
-    ) => {
-      const footprint = getLandFootprintAtTopAltitude(
-        inventoryID,
-        pieceCoords,
-        rotation,
-      )
-      if (!footprint?.length) return false
-
-      const topAltitude = getSurfaceAltitude(footprint, pieceAltitude, uid)
-      const aboveAltitude = Number.isInteger(topAltitude)
-        ? topAltitude + 1
-        : topAltitude + 0.5
-      return footprint.every((coord) => {
-        const aboveHex =
-          boardHexes[
-            genBoardHexID({
-              ...coord,
-              altitude: aboveAltitude,
-            })
-          ]
-        const aboveTerrain = aboveHex?.terrain ?? ''
-        return isLandTerrain(aboveTerrain)
-      })
-    },
-    [
-      boardHexes,
-      getLandFootprintAtTopAltitude,
-      isLandTerrain,
-      getSurfaceAltitude,
-    ],
-  )
-
-  const isPartiallyBuriedForPiece = useCallback(
-    (
-      inventoryID: string,
-      pieceCoords: { q: number; r: number; s: number },
-      rotation: number,
-      pieceAltitude: number,
-      uid: string,
-    ) => {
-      const footprint = getLandFootprintAtTopAltitude(
-        inventoryID,
-        pieceCoords,
-        rotation,
-      )
-      if (!footprint?.length) return false
-
-      const topAltitude = getSurfaceAltitude(footprint, pieceAltitude, uid)
-      const aboveAltitude = Number.isInteger(topAltitude)
-        ? topAltitude + 1
-        : topAltitude + 0.5
-      return footprint.some((coord) => {
-        const aboveHex =
-          boardHexes[
-            genBoardHexID({
-              ...coord,
-              altitude: aboveAltitude,
-            })
-          ]
-        const aboveTerrain = aboveHex?.terrain ?? ''
-        return isLandTerrain(aboveTerrain)
-      })
-    },
-    [
-      boardHexes,
-      getLandFootprintAtTopAltitude,
-      isLandTerrain,
-      getSurfaceAltitude,
-    ],
+  const checkBuriedStatus = useMemo(
+    () => makeBuriedStatusChecker(boardHexes, boardPieces),
+    [boardHexes, boardPieces],
   )
 
   // Build rows: one per unique board piece with its data
@@ -303,27 +177,11 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
             pieceName,
             isConflicted: conflictedUIDSet.has(bp.uid),
             isLandPiece,
-            isSubterrainBuried: isSubterrainBuriedForPiece(
-              bp.inventoryID,
-              bp.pieceCoords,
-              bp.rotation,
-              bp.altitude,
-              bp.uid,
-            ),
-            isBuried: isBuriedForPiece(
-              bp.inventoryID,
-              bp.pieceCoords,
-              bp.rotation,
-              bp.altitude,
-              bp.uid,
-            ),
-            isPartiallyBuried: isPartiallyBuriedForPiece(
-              bp.inventoryID,
-              bp.pieceCoords,
-              bp.rotation,
-              bp.altitude,
-              bp.uid,
-            ),
+            ...(checkBuriedStatus(bp) ?? {
+              isSubterrainBuried: false,
+              isBuried: false,
+              isPartiallyBuried: false,
+            }),
             surfaceAltitude: getSurfaceAltitude(footprint, bp.altitude, bp.uid),
             inventoryID: bp.inventoryID,
             terrain: piece?.terrain ?? 'unknown',
@@ -378,11 +236,9 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       boardPieces,
       conflictedUIDSet,
       getLandFootprintAtTopAltitude,
+      checkBuriedStatus,
       getSurfaceAltitude,
-      isBuriedForPiece,
       isLandTerrain,
-      isPartiallyBuriedForPiece,
-      isSubterrainBuriedForPiece,
       pieceOrderByInventoryID,
     ],
   )

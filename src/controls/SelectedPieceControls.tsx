@@ -6,6 +6,7 @@ import getPieceTemplateCoords from '../data/rotationTransforms'
 import useBoundStore from '../store/store'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { zoomToPieces } from '../utils/camera-utils'
+import { makeBuriedStatusChecker } from '../utils/buriedStatus'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import {
   genBoardHexID,
@@ -325,53 +326,15 @@ export function SelectedPieceControls({
   // Only offer the half-level nudge when every selected piece is itself a half-level fluid
   // tile (a fluid stacked on another fluid) - not encouraged for regular fluid/land pieces.
   const allHalfLevelFluid = selectedBoardPieces.every(isHalfLevelFluidPiece)
-  const checkSubterrainBuried = (bp: BP) => {
-    const piece = piecesSoFar[bp.inventoryID]
-    if (!piece) return false
-    const footprint = getLandFootprint(bp)
-    if (!footprint?.length) return false
-    const topAlt = getSurfaceAltitude(bp) ?? bp.altitude + 1
-    const isFluid = isFluidTerrainHex(piece.terrain)
-    const footprintIds = new Set(
-      footprint.map((c) => genBoardHexID({ ...c, altitude: topAlt })),
-    )
-    return footprint.every((c) =>
-      Object.values(HEX_DIRECTIONS).every((dir) => {
-        const nID = genBoardHexID({ ...hexUtilsAdd(c, dir), altitude: topAlt })
-        if (footprintIds.has(nID)) return true
-        const nTerrain = boardHexes[nID]?.terrain ?? ''
-        return isFluid ? isLandTerrain(nTerrain) : isSolidTerrainHex(nTerrain)
-      }),
-    )
-  }
-  const checkBuried = (bp: BP) => {
-    const footprint = getLandFootprint(bp)
-    if (!footprint?.length) return false
-    const topAlt = getSurfaceAltitude(bp) ?? bp.altitude + 1
-    const aboveAlt = Number.isInteger(topAlt) ? topAlt + 1 : topAlt + 0.5
-    return footprint.every((c) => {
-      const aboveTerrain =
-        boardHexes[genBoardHexID({ ...c, altitude: aboveAlt })]?.terrain ?? ''
-      return isLandTerrain(aboveTerrain)
-    })
-  }
-  const checkPartiallyBuried = (bp: BP) => {
-    const footprint = getLandFootprint(bp)
-    if (!footprint?.length) return false
-    const topAlt = getSurfaceAltitude(bp) ?? bp.altitude + 1
-    const aboveAlt = Number.isInteger(topAlt) ? topAlt + 1 : topAlt + 0.5
-    return footprint.some((c) => {
-      const aboveTerrain =
-        boardHexes[genBoardHexID({ ...c, altitude: aboveAlt })]?.terrain ?? ''
-      return isLandTerrain(aboveTerrain)
-    })
-  }
+  const checkBuriedStatus = makeBuriedStatusChecker(boardHexes, boardPieces)
   const pieceStatuses = selectedBoardPieces.map((bp) => ({
     isConflicted: conflictedUIDSet.has(bp.uid),
     isLandPiece: isLandTerrain(piecesSoFar[bp.inventoryID]?.terrain ?? ''),
-    isSubterrainBuried: checkSubterrainBuried(bp),
-    isBuried: checkBuried(bp),
-    isPartiallyBuried: checkPartiallyBuried(bp),
+    ...(checkBuriedStatus(bp) ?? {
+      isSubterrainBuried: false,
+      isBuried: false,
+      isPartiallyBuried: false,
+    }),
   }))
   const conflictedCount = pieceStatuses.filter((s) => s.isConflicted).length
   const buriedCount = pieceStatuses.filter(
