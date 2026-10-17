@@ -1,4 +1,10 @@
-import type { ProviderContext } from 'notistack'
+import { Button } from '@mui/material'
+import {
+  type ProviderContext,
+  type SnackbarKey,
+  closeSnackbar,
+} from 'notistack'
+import { createElement } from 'react'
 import type { JsonMapLoadResult } from '../data/buildupMap'
 import { getFluidStackWarning, getTallestFluidStack } from './fluidStacks'
 import { getDroppedPiecesWarning } from './map-utils'
@@ -32,5 +38,15 @@ export function warnIfTallFluidStack(
 ) {
   const message = getFluidStackWarning(runLength)
   if (!message) return
-  enqueueSnackbar({ message, variant: 'warning', autoHideDuration: 10000 })
+  enqueueSnackbar({
+    message,
+    variant: 'warning',
+    action: (snackbarId: SnackbarKey) =>
+      createElement(
+        Button,
+        { onClick: () => closeSnackbar(snackbarId) },
+        'Dismiss',
+      ),
+    autoHideDuration: null,
+  })
 }
