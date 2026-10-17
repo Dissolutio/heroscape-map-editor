@@ -59,12 +59,12 @@ export const LEVEL_LOGO_OUTLIER_LABEL_MARGIN =
 
 /**
  * Maps never exceed 99 levels, so a 2-digit zero-padded number is enough.
- * Half levels (fluid stacked on fluid) keep the padding and add ".5": "01.5".
+ * Half levels (fluid stacked on fluid) are not padded: "1.5", "10.5".
  */
 export const formatLevelNumber = (level: number) => {
   const halfLevels = Math.min(99 * 2 + 1, Math.max(0, Math.round(level * 2)))
-  const whole = String(Math.floor(halfLevels / 2)).padStart(2, '0')
-  return halfLevels % 2 ? `${whole}.5` : whole
+  const whole = String(Math.floor(halfLevels / 2))
+  return halfLevels % 2 ? `${whole}.5` : whole.padStart(2, '0')
 }
 
 export type LevelLogoDigit = { d: string; x: number }

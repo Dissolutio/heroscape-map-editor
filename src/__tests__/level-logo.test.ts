@@ -24,9 +24,9 @@ describe('formatLevelNumber', () => {
     [1, '01'],
     [12, '12'],
     [99, '99'],
-    [1.5, '01.5'],
+    [1.5, '1.5'],
     [10.5, '10.5'],
-    [0.5, '00.5'],
+    [0.5, '0.5'],
   ])('%s -> %s', (level, text) => {
     expect(formatLevelNumber(level)).toBe(text)
   })
@@ -36,7 +36,6 @@ describe('getLevelNumberDigits', () => {
   it('uses only traced outlines, including the decimal point', () => {
     const glyphs = getLevelNumberDigits(1.5)
     expect(glyphs.map((g) => g.d)).toEqual([
-      LEVEL_LOGO_DIGIT_PATHS[0],
       LEVEL_LOGO_DIGIT_PATHS[1],
       LEVEL_LOGO_DECIMAL_POINT_PATH,
       LEVEL_LOGO_DIGIT_PATHS[5],
@@ -45,7 +44,7 @@ describe('getLevelNumberDigits', () => {
   })
 
   it('advances past the decimal point by its own width', () => {
-    const [, one, dot, five] = getLevelNumberDigits(1.5)
+    const [one, dot, five] = getLevelNumberDigits(1.5)
     expect(five.x - dot.x).toBeCloseTo(LEVEL_LOGO_DECIMAL_POINT_ADVANCE_WIDTH)
     expect(dot.x).toBeGreaterThan(one.x)
   })
