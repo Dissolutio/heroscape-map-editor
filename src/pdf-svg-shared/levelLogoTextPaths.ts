@@ -24,3 +24,10 @@ export const LEVEL_LOGO_DIGIT_PATHS: string[] = [
 export const LEVEL_LOGO_DIGIT_ADVANCE_WIDTHS: number[] = [
   6.744, 5.328, 6.624, 6.648, 6.792, 6.744, 6.696, 6.156, 6.732, 6.696,
 ]
+
+// "." for half levels (fluid stacked on fluid), traced the same way at the same
+// size (12) as the digits above.
+export const LEVEL_LOGO_DECIMAL_POINT_PATH =
+  'M1.656 0.144C2.316 0.144 2.868-0.420 2.868-1.080C2.868-1.740 2.316-2.292 1.656-2.292C0.996-2.292 0.444-1.740 0.444-1.080C0.444-0.420 0.996 0.144 1.656 0.144Z'
+
+export const LEVEL_LOGO_DECIMAL_POINT_ADVANCE_WIDTH = 3.324
