@@ -1,4 +1,10 @@
-Oct-01-2026
+Oct-17-2026
+- **Light controls and remembered positions**: With lights and shadows enabled, use the new **Show Light Controls** toggle in the View tab to hide the repositioning handles without changing the lighting. Moved lights keep their positions when lighting is turned off and back on during the current session; positions are not saved in map files or restored after reloading the app.
+- **Altitude Smart Placement**: When you go to place a multi-hex piece, if it can't fit on that level, the app will check all the levels above it to see if it fits there.
+- **Stack fluid tiles on fluid tiles**: Water (and other fluid/half-height tiles) can now be placed on top of another fluid tile, and it rises half a level instead of a full level. Solid tiles can be placed on top of these half-level stacks. The level slider, hotkeys and SVG export include the half levels, and when every selected piece is a stacked fluid tile you get buttons to move it up or down half a level. Glyphs and start zones still go on a whole level above the map.
+- **Fluid tiles no longer see-through in 3D**: The transparency looked wrong with fluid stacked on fluid, so fluid tiles are now solid colors
+- **Focus a piece: no more fade**: The focus button now just moves the camera to frame the piece, without fading out everything else
+- **Laur wall bugfix**: Laur long wall (stackable) and the 2nd and 3rd Laur wall ruin styles could crash the editor when placed or loaded (they are half-implemented, buggy half first). Fixed.
 - **Convert start zone pieces**: Select start zone pieces, you can convert them to other start zone colors/players
 
 Sep-27-2026

@@ -173,6 +173,10 @@ const ViewPreferencesSwitchForm = () => {
   const toggleIsLightsAndShadowsRender = useBoundStore(
     (s) => s.toggleIsLightsAndShadowsRender,
   )
+  const isShowLightControls = useBoundStore((s) => s.isShowLightControls)
+  const toggleIsShowLightControls = useBoundStore(
+    (s) => s.toggleIsShowLightControls,
+  )
   const handleChangeLightsAndRender = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -254,6 +258,22 @@ const ViewPreferencesSwitchForm = () => {
           title="Enable/disable lights and shadows in the 3D view"
           label="Render Lights and Shadows"
         />
+
+        {isLightsAndShadowsRender && (
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={isShowLightControls}
+                onChange={(event) =>
+                  toggleIsShowLightControls(event.target.checked)
+                }
+              />
+            }
+            title="Show/hide the handles used to reposition lights"
+            label="Show Light Controls"
+          />
+        )}
 
         {isLightsAndShadowsRender && (
           <FormControlLabel

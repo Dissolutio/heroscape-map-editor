@@ -13,6 +13,8 @@ import {
 } from '../types'
 import type { AppState } from './store'
 
+export type LightPosition = [number, number, number]
+
 export interface UISlice {
   // TODO: persisted state below
   isShowStartZones: boolean
@@ -53,6 +55,10 @@ export interface UISlice {
   toggleIsHighQualityRender: (b: boolean) => void
   isLightsAndShadowsRender: boolean
   toggleIsLightsAndShadowsRender: (b: boolean) => void
+  isShowLightControls: boolean
+  toggleIsShowLightControls: (b: boolean) => void
+  lightPositions: Record<string, LightPosition>
+  updateLightPosition: (id: string, position: LightPosition) => void
   isDisplayCapHeights: boolean
   toggleIsDisplayCapHeights: (b: boolean) => void
   isHideTableTop: boolean
@@ -461,6 +467,20 @@ const createUISlice: StateCreator<
       }),
     ),
   isLightsAndShadowsRender: false,
+  isShowLightControls: true,
+  toggleIsShowLightControls: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowLightControls = b
+      }),
+    ),
+  lightPositions: {},
+  updateLightPosition: (id, position) =>
+    set(
+      produce((s) => {
+        s.lightPositions[id] = position
+      }),
+    ),
   toggleIsLightsAndShadowsRender: (b: boolean) =>
     set(
       produce((s) => {
