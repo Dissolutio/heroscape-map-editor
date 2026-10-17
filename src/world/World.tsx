@@ -106,13 +106,13 @@ const World = ({
             toggleHoveredPieceID('')
           }}
           /* Setting frameloop to "never" entirely halts the GPU loop when idle */
-          // frameloop={
-          //   !isTabActive ? 'never' : isFrameloopDemand ? 'demand' : 'always'
-          // }
+          frameloop={
+            !isTabActive ? 'never' : isFrameloopDemand ? 'demand' : 'always'
+          }
           hidden={isHidden}
           shadows={isLightsAndShadowsRender}
         >
-          <Stars
+          {/* <Stars
             radius={100}
             depth={50}
             count={50000}
@@ -120,8 +120,8 @@ const World = ({
             saturation={0}
             fade
             speed={1}
-          />
-          {/* <color attach="background" args={['white']} /> */}
+          /> */}
+          <color attach="background" args={['white']} />
           <PerspectiveCamera
             position={[10, 10, 10]}
             fov={CAMERA_FOV}
