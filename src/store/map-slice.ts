@@ -15,12 +15,14 @@ import type {
   Piece,
 } from '../types'
 import { PiecePrefixes } from '../types'
+import { normalizeBoardPieces } from '../utils/map-utils'
 import { normalizePieceInventory } from '../utils/piece-inventory'
 import {
   getAvailableLandPrefixesForInventory,
   getAvailableLandPrefixesForSets,
   getEffectiveTerrainConstraintInventory,
 } from '../utils/terrain-constraints'
+import { clearGlobalMaterialCache } from '../world/models/materials'
 import type { AppState } from './store'
 
 const preferredConstrainedPenModes: PiecePrefixes[] = [
@@ -461,8 +463,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.hexMap.mapNotes = val
       })
     }),
-  loadMap: (mapState: MapState) =>
-    set((state) => {
+  loadMap: (mapState: MapState) => {
+    clearGlobalMaterialCache()
+    return set((state) => {
       return produce(state, (draft) => {
         draft.boardHexes = mapState.boardHexes
         draft.hexMap = mapState.hexMap
@@ -485,7 +488,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.lastPenMode = constrainedPenMode
         draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
       })
-    }),
+    })
+  },
 })
 
 export default createMapSlice

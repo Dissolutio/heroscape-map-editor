@@ -1,4 +1,3 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
@@ -9,6 +8,7 @@ import {
   HexTerrain,
   Pieces,
 } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import {
   hexUtilsAdd,
   hexUtilsGetNeighborForRotation,
@@ -16,7 +16,7 @@ import {
 import { genBoardHexID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 type Props = {
   boardHex: BoardHex
@@ -39,58 +39,53 @@ export function CastleArchPreview({ isDoor }: { isDoor: boolean }) {
           receiveShadow={isLightsAndShadowsRender}
           castShadow
           geometry={nodes.ArchDoor.geometry}
-        >
-          {basicModelMaterial(
+          material={basicModelMaterial(
             colorDoor,
             isLightsAndShadowsRender,
             PIECE_PREVIEW_OPACITY,
           )}
-        </mesh>
+        />
       )}
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.CastleArchBody.geometry}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           color,
           isLightsAndShadowsRender,
           PIECE_PREVIEW_OPACITY,
         )}
-      </mesh>
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.CastleArchCapNear.geometry}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           color,
           isLightsAndShadowsRender,
           PIECE_PREVIEW_OPACITY,
         )}
-      </mesh>
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.CastleArchCapMiddle.geometry}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           color,
           isLightsAndShadowsRender,
           PIECE_PREVIEW_OPACITY,
         )}
-      </mesh>
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.CastleArchCapFar.geometry}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           color,
           isLightsAndShadowsRender,
           PIECE_PREVIEW_OPACITY,
         )}
-      </mesh>
+      />
     </>
   )
 }
@@ -209,18 +204,16 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
             castShadow
             geometry={nodes.ArchDoor.geometry}
             onPointerUp={(e) => onPointerUp(e, boardHex)}
-          >
-            {basicModelMaterial(colorDoor, isLightsAndShadowsRender)}
-          </mesh>
+            material={basicModelMaterial(colorDoor, isLightsAndShadowsRender)}
+          />
         )}
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.CastleArchBody.geometry}
           onPointerUp={onPointerUpBody}
-        >
-          {basicModelMaterial(color, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicModelMaterial(color, isLightsAndShadowsRender)}
+        />
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
@@ -228,9 +221,8 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
           onPointerUp={(e) => onPointerUp(e, boardHex)}
           onPointerEnter={onPointerEnterNear}
           onPointerOut={onPointerOutNear}
-        >
-          {basicModelMaterial(colorNear, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicModelMaterial(colorNear, isLightsAndShadowsRender)}
+        />
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
@@ -238,9 +230,8 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
           onPointerEnter={onPointerEnterMiddle}
           onPointerOut={onPointerOutMiddle}
           onPointerUp={onPointerUpMiddle}
-        >
-          {basicModelMaterial(colorMiddle, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicModelMaterial(colorMiddle, isLightsAndShadowsRender)}
+        />
         <mesh
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
@@ -248,9 +239,8 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
           onPointerEnter={onPointerEnterFar}
           onPointerOut={onPointerOutFar}
           onPointerUp={onPointerUpFar}
-        >
-          {basicModelMaterial(colorFar, isLightsAndShadowsRender)}
-        </mesh>
+          material={basicModelMaterial(colorFar, isLightsAndShadowsRender)}
+        />
       </group>
     </>
   )

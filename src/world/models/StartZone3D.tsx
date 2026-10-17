@@ -47,6 +47,15 @@ export function StartZone3D({
       onPointerEnter={pid ? (e) => onPointerEnterPID(e, pid) : undefined}
       onPointerOut={pid ? (e) => onPointerOut(e) : undefined}
       rotation={useLegacyStartZones ? [-Math.PI / 2, 0, 0] : [0, 0, 0]}
+      material={
+        pid
+          ? basicModelMaterial(color, isLightsAndShadowsRender)
+          : basicModelMaterial(
+              color,
+              isLightsAndShadowsRender,
+              PIECE_PREVIEW_OPACITY / 1.5,
+            )
+      }
     >
       {useLegacyStartZones ? (
         <circleGeometry args={[HEXGRID_HEX_RADIUS / 2.1, 32]} />
@@ -55,13 +64,6 @@ export function StartZone3D({
           args={[0.6515, 0.6615, 0.2, 6, undefined, false, 0, undefined]}
         />
       )}
-      {pid
-        ? basicModelMaterial(color, isLightsAndShadowsRender)
-        : basicModelMaterial(
-            color,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY / 1.5,
-          )}
       {/* <meshMatcapMaterial color={color} /> */}
     </mesh>
   )

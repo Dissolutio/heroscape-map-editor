@@ -1,12 +1,12 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
+import { noop } from 'lodash'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
-import { noop } from 'lodash'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export default function Cannon({ pid }: { pid?: string }) {
   const { nodes } = useDisposableGLTF(
@@ -51,15 +51,16 @@ export default function Cannon({ pid }: { pid?: string }) {
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(colorBarrel, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              colorBarrel,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(colorBarrel, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                colorBarrel,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -67,15 +68,16 @@ export default function Cannon({ pid }: { pid?: string }) {
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(colorCarriage, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              colorCarriage,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(colorCarriage, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                colorCarriage,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -83,15 +85,16 @@ export default function Cannon({ pid }: { pid?: string }) {
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(colorWheels, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              colorWheels,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(colorWheels, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                colorWheels,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -99,15 +102,16 @@ export default function Cannon({ pid }: { pid?: string }) {
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              colorBase,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(colorBase, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                colorBase,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
     </>
   )
 }

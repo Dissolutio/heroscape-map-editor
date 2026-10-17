@@ -1,10 +1,10 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain, PiecePrefixes, Pieces } from '../../types'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export default function TicallaPalm({
   pid,
@@ -79,56 +79,63 @@ export function TicallaPalmPreview({
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Palm_Trunk.geometry}
-      >
-        {basicModelMaterial(colorPalmTrunk, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorPalmTrunk,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Palm_Canopy.geometry}
-      >
-        {basicModelMaterial(colorPalmCanopy, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorPalmCanopy,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.JungleNeedleFern.geometry}
-      >
-        {basicModelMaterial(colorNeedleFern, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorNeedleFern,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.TicallaPineappleFern.geometry}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           colorPineappleFern,
           isLightsAndShadowsRender,
           opacity,
         )}
-      </mesh>
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.TicallaTriLeaf.geometry}
-      >
-        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorTriLeaf,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
 
-      {/* <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.PalmBrush.geometry}
-      >
-        {basicModelMaterial(colorBrush, isLightsAndShadowsRender, opacity)}
-      </mesh> */}
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.JungleBase.geometry}
-      >
-        {basicModelMaterial(colorBase, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorBase,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
     </>
   )
 }
@@ -164,49 +171,63 @@ export function LaurPalmPreview({
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Palm_Trunk.geometry}
-      >
-        {basicModelMaterial(colorPalmTrunk, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorPalmTrunk,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Palm_Canopy.geometry}
-      >
-        {basicModelMaterial(colorPalmCanopy, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorPalmCanopy,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurTriCactus.geometry}
-      >
-        {basicModelMaterial(colorTriCactus, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorTriCactus,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurRoundCactus.geometry}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           colorRoundCactus,
           isLightsAndShadowsRender,
           opacity,
         )}
-      </mesh>
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.LaurTriLeaf.geometry}
-      >
-        {basicModelMaterial(colorTriLeaf, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorTriLeaf,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
 
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.JungleBase.geometry}
-      >
-        {basicModelMaterial(colorBase, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          colorBase,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
     </>
   )
 }

@@ -6,16 +6,17 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
 import * as React from 'react'
-import useBoundStore from '../store/store'
 import ReactCropExampleApp from '../react-image-crop/ReactCropExampleApp'
 import 'react-image-crop/dist/ReactCrop.css'
-import { terrainSetsByShortID } from '../data/terrainSets'
-import { DIALOGS } from './dialogNames'
 import { useSnackbar } from 'notistack'
+import { terrainSetsByShortID } from '../data/terrainSets'
+import useBoundStore from '../store/store'
+import { clearMapShareUrlParams } from '../utils/mapShareUrl'
 import {
   InputSetsUsedCard,
   setsUsedInputNameForFormData,
 } from './InputSetsUsedCard'
+import { DIALOGS } from './dialogNames'
 
 export default function EditMapFormDialog() {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -74,6 +75,7 @@ export default function EditMapFormDialog() {
     changeSetsUsed(newSetsUsed)
     syncTerrainConstraintPenMode()
     addMapPortraitBase64(imgSrc)
+    clearMapShareUrlParams()
     enqueueSnackbar({
       message: 'Updated Map',
       variant: 'success',

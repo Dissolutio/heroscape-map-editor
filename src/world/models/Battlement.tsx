@@ -1,11 +1,11 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export function Battlement({ pid }: { pid: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -39,9 +39,8 @@ export function Battlement({ pid }: { pid: string }) {
       onPointerUp={(e) => onPointerUp(e)}
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
-    >
-      {basicModelMaterial(color, isLightsAndShadowsRender)}
-    </mesh>
+      material={basicModelMaterial(color, isLightsAndShadowsRender)}
+    />
   )
 }
 export function BattlementPreview({ opacity }: { opacity?: number }) {
@@ -57,9 +56,12 @@ export function BattlementPreview({ opacity }: { opacity?: number }) {
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Battlement.geometry}
-    >
-      {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
-    </mesh>
+      material={basicModelMaterial(
+        color,
+        isLightsAndShadowsRender,
+        opacityLevel,
+      )}
+    />
   )
 }
 

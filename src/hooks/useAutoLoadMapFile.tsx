@@ -12,7 +12,10 @@ import {
   inflateBoardPiecesFromIds,
   normalizeBoardPieces,
 } from '../utils/map-utils'
-import { getViewModeFromQueryParam } from '../utils/mapShareUrl'
+import {
+  getMapShareUrlParams,
+  getViewModeFromQueryParam,
+} from '../utils/mapShareUrl'
 import { warnDroppedPieces } from '../utils/warnDroppedPieces'
 
 const useAutoLoadMapFile = () => {
@@ -24,8 +27,8 @@ const useAutoLoadMapFile = () => {
 
   const [, navigate] = useLocation()
 
-  const applyViewModeFromQuery = (queryParams: URLSearchParams) => {
-    const viewMode = getViewModeFromQueryParam(queryParams.get('v'))
+  const applyViewModeFromQuery = (viewModeParam: string | null) => {
+    const viewMode = getViewModeFromQueryParam(viewModeParam)
     if (viewMode === 'pdf') {
       toggleIsPdfOpen(true)
       return
@@ -44,9 +47,9 @@ const useAutoLoadMapFile = () => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: only run on-load
   useEffect(() => {
     // Map might be loaded from local storage already
-    const queryParams = new URLSearchParams(searchString)
-    applyViewModeFromQuery(queryParams)
-    const urlMapString = queryParams.get('m')
+    const { m: urlMapString, v: viewModeParam } =
+      getMapShareUrlParams(searchString)
+    applyViewModeFromQuery(viewModeParam)
     const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
     const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
     const localMapCacheMapState = localMapCache

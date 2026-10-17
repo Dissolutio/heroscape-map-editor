@@ -1,19 +1,19 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
+import { noop } from 'lodash'
 import React, { useState } from 'react'
+import { piecesSoFar } from '../../data/pieces'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import type { BoardHex, BoardPiece, CubeCoordinate } from '../../types'
 import { HexTerrain } from '../../types'
-import { hexTerrainColor } from '../maphex/hexColors'
-import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { isSolidTerrainHex } from '../../utils/board-utils'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexUtilsAdd } from '../../utils/hex-utils'
 import { hexUtilsGetShipBuildableCoords } from '../../utils/hex-utils'
 import { genBoardHexID } from '../../utils/map-utils'
-import { piecesSoFar } from '../../data/pieces'
-import { noop } from 'lodash'
+import { hexTerrainColor } from '../maphex/hexColors'
+import { basicModelMaterial } from './materials'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 type ShipWallProps = {
   pid?: string
@@ -189,15 +189,16 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
         onPointerUp={(e) => (pid ? onPointerUpBody(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterNonBuildable(e) : noop())}
         onPointerOut={(e) => (pid ? onPointerOutNonBuildable(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(color, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(color, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                color,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -217,15 +218,16 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
               ? onPointerOutNonBuildable(e)
               : noop()
         }
-      >
-        {pid
-          ? basicModelMaterial(buildableColor, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              buildableColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(buildableColor, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                buildableColor,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -245,15 +247,16 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
               ? onPointerOutNonBuildable(e)
               : noop()
         }
-      >
-        {pid
-          ? basicModelMaterial(buildableColor, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              buildableColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(buildableColor, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                buildableColor,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
     </>
   )
 }
