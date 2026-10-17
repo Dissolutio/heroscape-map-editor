@@ -2,7 +2,8 @@
  * BURIED STATUS (utils/buriedStatus.ts)
  *
  * What the selected-piece readout and the pieces list report for a land piece:
- *  - buried: every hex of its surface has land directly on top
+ *  - buried: every hex of its surface has land resting directly on its cap
+ *    (a fluid cap only counts land that rests on fluid; see below)
  *  - partially buried: at least one does
  *  - subterrain buried: every side of it is covered by neighbouring land over
  *    its full height (a fluid piece's sides by any land, a solid piece's sides
@@ -12,10 +13,11 @@
  * and solid land on that rises the other half, back to a whole level.
  */
 import { describe, expect, it } from 'vitest'
+import { buildupJsonFileMap } from '../data/buildupMap'
 import type { CubeCoordinate } from '../types'
 import { makeBuriedStatusChecker } from '../utils/buriedStatus'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
-import { type Board, makeTable, place } from './helpers/board'
+import { type Board, hexAt, makeTable, place } from './helpers/board'
 
 type Placement = {
   pieceID: string
@@ -98,6 +100,80 @@ describe('buried / partially buried', () => {
       isBuried: false,
       isPartiallyBuried: true,
     })
+  })
+})
+
+describe('fluid caps: only buried when something rests on the fluid', () => {
+  // A fluid tile is physically half a level thick, so its real top is half a
+  // level below its in-app surface. Land resting on fluid (water stacked on
+  // water, or solid on a fluid stack) touches that cap. Land held up by a
+  // taller solid tile next to it leaves a visible gap, so the fluid is not
+  // buried. The owner's example map (lastMap, "Prison of Baldur"):
+  //  (0,0): water 0->1, water 1->1.5, grass 1.5->2
+  //  (1,0): water 0->1, with a 2-hex grass bridging over it at 1->2
+  //  (2,0): grass 0->1, the 2-hex grass resting on it
+  const piece = (
+    uid: string,
+    inventoryID: string,
+    q: number,
+    altitude: number,
+    rotation = 0,
+  ) => ({
+    uid,
+    inventoryID,
+    altitude,
+    rotation,
+    pieceCoords: { q, r: 0, s: -q },
+  })
+  const map = buildupJsonFileMap(
+    [
+      piece('water-a', 'w1', 0, 0),
+      piece('water-b', 'w1', 1, 0),
+      piece('grass-c', 'g1', 2, 0),
+      piece('bridge', 'g2', 2, 1, 3),
+      piece('stacked', 'w1', 0, 1, 3),
+      piece('grass-top', 'g1', 0, 1.5, 3),
+    ],
+    {
+      id: 'example',
+      name: 'Prison of Baldur',
+      author: '',
+      version: 1,
+      shape: 'rectangle',
+      width: 3,
+      length: 1,
+    },
+  )
+
+  it('the 2-hex grass really does sit over the single water at 1->2', () => {
+    expect(hexAt(map, { q: 1, r: 0, s: -1 }, 2)).toMatchObject({
+      boardPieceUID: 'bridge',
+    })
+  })
+
+  it('water with grass bridging over it from a taller support is NOT buried', () => {
+    expect(statusOf(map, 'water-b')).toMatchObject({
+      isBuried: false,
+      isPartiallyBuried: false,
+    })
+  })
+
+  it('water under stacked water, and stacked water under grass, are buried', () => {
+    expect(statusOf(map, 'water-a')).toMatchObject({ isBuried: true })
+    expect(statusOf(map, 'stacked')).toMatchObject({ isBuried: true })
+  })
+
+  it('a solid tile under the 2-hex grass is buried (solids have no gap)', () => {
+    expect(statusOf(map, 'grass-c')).toMatchObject({ isBuried: true })
+  })
+
+  it('grass resting entirely on whole-level water (older maps) does bury it', () => {
+    const table = makeTable()
+    const board = build(table, [
+      { pieceID: 'w1', at: table.center, altitude: 0, uid: 'water' },
+      { pieceID: 'g1', at: table.center, altitude: 1 },
+    ])
+    expect(statusOf(board, 'water')).toMatchObject({ isBuried: true })
   })
 })
 

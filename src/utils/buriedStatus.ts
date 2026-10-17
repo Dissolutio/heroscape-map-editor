@@ -6,9 +6,9 @@ import { HEX_DIRECTIONS, hexUtilsAdd } from './hex-utils'
 import { genBoardHexID, getSurfaceAltitudeByPieceUID } from './map-utils'
 
 export type BuriedStatus = {
-  /** Every surface hex has land directly on top of it. */
+  /** Every surface hex has land resting directly on its cap (see isCovered). */
   isBuried: boolean
-  /** At least one surface hex has land directly on top of it. */
+  /** At least one surface hex has land resting directly on its cap. */
   isPartiallyBuried: boolean
   /** Every side is covered by neighbouring land over the piece's full height. */
   isSubterrainBuried: boolean
@@ -35,16 +35,48 @@ export function makeBuriedStatusChecker(
 ) {
   const surfaceByUID = getSurfaceAltitudeByPieceUID(boardHexes)
   const placementByUID = new Map(boardPieces.map((bp) => [bp.uid, bp.altitude]))
+  const pieceByUID = new Map(boardPieces.map((bp) => [bp.uid, bp]))
 
   const landHexAt = (coord: CubeCoordinate, altitude: number) => {
     const hex = boardHexes[genBoardHexID({ ...coord, altitude })]
     return hex && isLandTerrain(hex.terrain) ? hex : undefined
   }
 
-  // Land directly on top of a surface at `surface`: a cover piece placed there
-  // tops out half a level or a whole level higher.
-  const isCovered = (coord: CubeCoordinate, surface: number) =>
-    Boolean(landHexAt(coord, surface + HALF) || landHexAt(coord, surface + 1))
+  const getFootprint = (bp: BoardPiece) => {
+    const piece = piecesSoFar[bp.inventoryID]
+    if (!piece) return []
+    return getPieceTemplateCoords({
+      clickedHex: bp.pieceCoords,
+      rotation: bp.rotation,
+      template: piece.template,
+      isVsTile: false,
+    })
+  }
+
+  // Does every hex under this piece's footprint hold fluid? Only then does it
+  // physically rest on the fluid caps; anything solid under it holds it up
+  // higher, leaving a gap over the (thinner) fluid tiles.
+  const restsOnFluid = (cover: BoardPiece) =>
+    getFootprint(cover).every((c) => {
+      const under =
+        boardHexes[genBoardHexID({ ...c, altitude: cover.altitude })]
+      return Boolean(under && isFluidTerrainHex(under.terrain))
+    })
+
+  // Land directly on top of a surface at `surface`: a cover piece placed at
+  // exactly that altitude (it tops out half a level or a whole level higher).
+  // A fluid tile is physically half a level thick, so its cap is only touched
+  // by a cover that rests on fluid; a solid cap is touched by any cover.
+  const isCovered = (
+    coord: CubeCoordinate,
+    surface: number,
+    isFluidPiece: boolean,
+  ) =>
+    [surface + HALF, surface + 1].some((h) => {
+      const cover = pieceByUID.get(landHexAt(coord, h)?.boardPieceUID ?? '')
+      if (!cover || cover.altitude !== surface) return false
+      return !isFluidPiece || restsOnFluid(cover)
+    })
 
   // Does the land in this column cover the whole band (bottom, top]? Each land
   // hex at altitude h covers its own piece's band (placement, h]. A hex that
@@ -74,21 +106,15 @@ export function makeBuriedStatusChecker(
   return (bp: BoardPiece): BuriedStatus | null => {
     const piece = piecesSoFar[bp.inventoryID]
     if (!piece || !isLandTerrain(piece.terrain)) return null
-    const footprint = getPieceTemplateCoords({
-      clickedHex: bp.pieceCoords,
-      rotation: bp.rotation,
-      template: piece.template,
-      isVsTile: false,
-    })
+    const footprint = getFootprint(bp)
     if (!footprint.length) return null
     const surface = surfaceByUID.get(bp.uid) ?? bp.altitude + 1
+    const isFluidPiece = isFluidTerrainHex(piece.terrain)
 
-    const covered = footprint.map((c) => isCovered(c, surface))
+    const covered = footprint.map((c) => isCovered(c, surface, isFluidPiece))
 
     const footprintKeys = new Set(footprint.map((c) => `${c.q},${c.r}`))
-    const counts = isFluidTerrainHex(piece.terrain)
-      ? isLandTerrain
-      : isSolidTerrainHex
+    const counts = isFluidPiece ? isLandTerrain : isSolidTerrainHex
     const isSubterrainBuried = footprint.every((c) =>
       Object.values(HEX_DIRECTIONS).every((dir) => {
         const n = hexUtilsAdd(c, dir)
