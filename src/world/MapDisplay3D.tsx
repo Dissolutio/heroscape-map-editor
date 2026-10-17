@@ -4,6 +4,7 @@ import { enqueueSnackbar } from 'notistack'
 import type React from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
+import getPieceTemplateCoords from '../data/rotationTransforms.ts'
 import { getSmartPlacementAltitude } from '../data/smartPlacement.ts'
 import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
 import useBoundStore from '../store/store.ts'
@@ -29,6 +30,8 @@ import {
   getBoardHexesRectangularMapDimensions,
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils.ts'
+import { getFluidRunLengthAt } from '../utils/fluidStacks.ts'
+import { warnIfTallFluidStack } from '../utils/warnAboutLoadedMap.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
 import PiecePreview from './PiecePreview.tsx'
@@ -256,6 +259,27 @@ export default function MapDisplay3D({
         altitude: placementAltitude,
         rotation: penModeRotation,
       })
+      // A fluid tile stacked on fluid tops out half a level up; warn when that
+      // makes a straight run taller than the real tiles line up.
+      if (!error && isFluidTerrainHex(piece.terrain)) {
+        const { boardHexes: hexesAfterPaint } = useBoundStore.getState()
+        const footprint = getPieceTemplateCoords({
+          clickedHex: clickedHexCoords,
+          rotation: penModeRotation,
+          template: piece.template,
+          isVsTile: false,
+        })
+        const runLength = Math.max(
+          ...footprint.map((coord) =>
+            getFluidRunLengthAt(
+              hexesAfterPaint,
+              coord,
+              placementAltitude + 0.5,
+            ),
+          ),
+        )
+        warnIfTallFluidStack(enqueueSnackbar, runLength)
+      }
     }
     // Clicked a regular land cap (fallback)
     else {

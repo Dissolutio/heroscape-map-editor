@@ -19,7 +19,7 @@ import {
   getViewModeFromQueryParam,
   parseMapShareUrlParams,
 } from '../utils/mapShareUrl'
-import { warnDroppedPieces } from '../utils/warnDroppedPieces'
+import { warnAboutLoadedMap } from '../utils/warnAboutLoadedMap'
 import { DIALOGS } from './dialogNames'
 
 export default function LoadMapFromUrlDialog() {
@@ -71,7 +71,7 @@ export default function LoadMapFromUrlDialog() {
         message: `Loaded map from URL: ${jsonMap.hexMap.name}`,
         variant: 'success',
       })
-      warnDroppedPieces(enqueueSnackbar, jsonMap.droppedPieces)
+      warnAboutLoadedMap(enqueueSnackbar, jsonMap)
       handleClose()
       // biome-ignore lint/suspicious/noExplicitAny: <error could be anything>
     } catch (error: any) {
