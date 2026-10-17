@@ -55,7 +55,6 @@ export const PIECE_PREVIEW_OPACITY = 0.8
 export const CAMERA_FOV = 65
 export const EVENTS = {
   savePng: 'savePng',
-  saveJpg: 'saveJpg',
   mapPortrait: 'mapPortrait',
 }
 
