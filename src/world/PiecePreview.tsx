@@ -377,10 +377,11 @@ export default function PiecePreview() {
       (isSolidOrEmptyBeneath || isFluidBeneathForLandPreview)) ||
     (isUnderHexCastleWallArch && piece?.terrain === HexTerrain.wallWalk)
   ) {
-    // A fluid tile stacked on another fluid only rises a half level (not a whole level)
+    // Fluid on fluid, and solid on a half-level fluid, rise a half level (not a whole level)
     const landAltitudeIncrement = getLandAltitudeIncrement(
       piece?.terrain ?? '',
       isFluidBeneathForLandPreview,
+      hoveredHexForPreview.altitude,
     )
     return (
       <group
