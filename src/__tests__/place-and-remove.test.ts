@@ -243,6 +243,87 @@ describe('placement rules (strict mode)', () => {
   })
 })
 
+describe('fluid-on-fluid stacking (half levels)', () => {
+  // A fluid tile on another fluid rises half a level (to an X.5 surface), and
+  // solid land placed on that half-level fluid rises the other half, back to a
+  // whole level. Solid on a whole-level fluid keeps the full-level rise, so
+  // maps saved before half levels existed load unchanged.
+  it('water on water tops out half a level higher, at 1.5', () => {
+    const table = makeTable()
+    const lower = place({
+      board: table,
+      pieceID: 'w1',
+      at: table.center,
+      altitude: 0,
+      uid: 'lower',
+    })
+    const upper = place({
+      board: lower.board,
+      pieceID: 'w1',
+      at: table.center,
+      altitude: 1,
+      uid: 'upper',
+    })
+    expect(upper.error).toBeUndefined()
+    expect(hexAt(upper.board, table.center, 1.5)).toMatchObject({
+      boardPieceUID: 'upper',
+      isCap: true,
+    })
+  })
+
+  it('grass on a half-level water stack rises half a level, to the whole level 2', () => {
+    const table = makeTable()
+    const lower = place({
+      board: table,
+      pieceID: 'w1',
+      at: table.center,
+      altitude: 0,
+    })
+    const upper = place({
+      board: lower.board,
+      pieceID: 'w1',
+      at: table.center,
+      altitude: 1,
+    })
+    const grass = place({
+      board: upper.board,
+      pieceID: 'g1',
+      at: table.center,
+      altitude: 1.5,
+      uid: 'grass',
+    })
+    expect(grass.error).toBeUndefined()
+    expect(hexAt(grass.board, table.center, 2)).toMatchObject({
+      boardPieceUID: 'grass',
+      terrain: 'grass',
+      isCap: true,
+    })
+    expect(hexAt(grass.board, table.center, 2.5)).toBeUndefined()
+    expect(hexAt(grass.board, table.center, 1.5)?.isCap).toBe(false)
+  })
+
+  it('grass on a whole-level water tile (permissive, as old maps load) still rises a full level', () => {
+    const table = makeTable()
+    const water = place({
+      board: table,
+      pieceID: 'w1',
+      at: table.center,
+      altitude: 0,
+    })
+    const grass = place({
+      board: water.board,
+      pieceID: 'g1',
+      at: table.center,
+      altitude: 1,
+      uid: 'grass',
+      permissive: true,
+    })
+    expect(hexAt(grass.board, table.center, 2)).toMatchObject({
+      boardPieceUID: 'grass',
+    })
+  })
+})
+
 describe('overlaps (how the real app places: permissive)', () => {
   it('a hex has exactly one owner: the later piece takes it and the earlier one is reported as displaced', () => {
     const table = makeTable()

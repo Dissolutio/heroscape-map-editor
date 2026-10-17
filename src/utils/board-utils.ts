@@ -66,13 +66,24 @@ export const getBoardHexObstacleOriginsAndHexesAndEmpties = (
 // The altitude a newly-placed land piece rises above whatever it is built on.
 // Only fluid-on-fluid stacking uses the half increment; every other combination
 // (solid on anything, or fluid on solid/table) keeps the original whole-level rise.
+// How far a land tile's surface rises above its placement altitude. A fluid on
+// fluid rises a half level (to X.5); a solid on a half-level fluid rises the other
+// half, back to a whole level. Everything else (including solid on a whole-level
+// fluid, as in maps saved before half levels existed) rises a whole level.
 export function getLandAltitudeIncrement(
   pieceTerrain: string,
   isUnderFluid: boolean,
+  placementAltitude: number,
 ) {
-  return isFluidTerrainHex(pieceTerrain) && isUnderFluid
-    ? HEXGRID_FLUID_LEVEL_INCREMENT
-    : HEXGRID_LEVEL_INCREMENT
+  if (!isUnderFluid) return HEXGRID_LEVEL_INCREMENT
+  if (isFluidTerrainHex(pieceTerrain)) return HEXGRID_FLUID_LEVEL_INCREMENT
+  if (
+    isSolidTerrainHex(pieceTerrain) &&
+    !isWholeLevelAltitude(placementAltitude)
+  ) {
+    return HEXGRID_FLUID_LEVEL_INCREMENT
+  }
+  return HEXGRID_LEVEL_INCREMENT
 }
 // Half-level altitudes (X.5) only ever come from fluid-on-fluid stacking. Since they are
 // always built from exact sums of 0.5/1 starting at 0, this is safe from float drift.

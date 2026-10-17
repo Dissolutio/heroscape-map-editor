@@ -99,14 +99,18 @@ export function addPiece({
   const underHexIds = piecePlaneCoords.map((cubeCoord) =>
     genBoardHexID({ ...cubeCoord, altitude: placementAltitude }),
   )
-  // Fluid-on-fluid stacking rises only a half level; every other combination (including a
-  // fluid tile placed on solid/table) keeps the original whole-level rise.
+  // Fluid on fluid, and solid on a half-level fluid, rise only a half level; every other
+  // combination (including a fluid tile placed on solid/table) rises a whole level.
   const isFluidUnderAllForIncrement = underHexIds.every((id) =>
     isFluidTerrainHex(newBoardHexes?.[id]?.terrain ?? ''),
   )
   const newPieceAltitude =
     placementAltitude +
-    getLandAltitudeIncrement(piece.terrain, isFluidUnderAllForIncrement)
+    getLandAltitudeIncrement(
+      piece.terrain,
+      isFluidUnderAllForIncrement,
+      placementAltitude,
+    )
   const newHexIds = piecePlaneCoords.map((cubeCoord) =>
     genBoardHexID({ ...cubeCoord, altitude: newPieceAltitude }),
   )
