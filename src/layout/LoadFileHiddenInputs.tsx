@@ -7,7 +7,7 @@ import { readVirtualscapeMapFile } from '../data/readVirtualscapeMapFile'
 import useBoundStore from '../store/store'
 import type { MapFileState } from '../types'
 import { normalizeBoardPieces } from '../utils/map-utils'
-import { warnDroppedPieces } from '../utils/warnDroppedPieces'
+import { warnAboutLoadedMap } from '../utils/warnAboutLoadedMap'
 import { Button } from '@mui/material'
 
 export const uploadElementID = 'upload'
@@ -49,7 +49,7 @@ export const LoadFileHiddenInputs = () => {
         message: `Loaded map: ${jsonMap.hexMap.name}`,
         variant: 'success',
       })
-      warnDroppedPieces(enqueueSnackbar, jsonMap.droppedPieces)
+      warnAboutLoadedMap(enqueueSnackbar, jsonMap)
       navigate(ROUTES.heroscapeHome)
       // clear() // clear undo history, initial load should not be undoable
     } catch (error: unknown) {
@@ -86,7 +86,7 @@ export const LoadFileHiddenInputs = () => {
         message: `Loaded map: ${jsonMap.hexMap.name}`,
         variant: 'success',
       })
-      warnDroppedPieces(enqueueSnackbar, jsonMap.droppedPieces)
+      warnAboutLoadedMap(enqueueSnackbar, jsonMap)
       navigate(ROUTES.heroscapeHome)
       // clear() // clear undo history, initial load should not be undoable
     } catch (error: unknown) {
