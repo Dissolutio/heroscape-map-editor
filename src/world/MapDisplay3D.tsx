@@ -4,6 +4,7 @@ import { enqueueSnackbar } from 'notistack'
 import type React from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
+import { getSmartPlacementAltitude } from '../data/smartPlacement.ts'
 import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
 import useBoundStore from '../store/store.ts'
 import {
@@ -133,6 +134,15 @@ export default function MapDisplay3D({
           s: hex.s,
         }
     const clickedHexAltitude = clickedHex.altitude
+    const placementAltitude = piece
+      ? getSmartPlacementAltitude({
+          boardHexes,
+          piece,
+          pieceCoords: clickedHexCoords,
+          altitude: clickedHexAltitude,
+          rotation: penModeRotation,
+        })
+      : clickedHexAltitude
 
     // Castle W/A: use cap coords and altitude
     if (isCastleWallArchClicked) {
@@ -144,7 +154,7 @@ export default function MapDisplay3D({
       error = paintTile({
         piece,
         clickedHexCoords: castleWallArchClickedHexCoords,
-        altitude: boardHexes[boardHexIdOfCapForWall].altitude,
+        altitude: placementAltitude,
         rotation: penModeRotation,
       })
     }
@@ -243,7 +253,7 @@ export default function MapDisplay3D({
       error = paintTile({
         piece,
         clickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: placementAltitude,
         rotation: penModeRotation,
       })
     }
@@ -252,7 +262,7 @@ export default function MapDisplay3D({
       error = paintTile({
         piece,
         clickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: placementAltitude,
         rotation: penModeRotation,
       })
     }

@@ -1,5 +1,6 @@
-import { Suspense } from 'react'
+import { Suspense, useMemo } from 'react'
 import { piecesSoFar } from '../data/pieces'
+import { getSmartPlacementAltitude } from '../data/smartPlacement'
 import useBoundStore from '../store/store'
 import { HexTerrain, PiecePrefixes, Pieces } from '../types'
 import {
@@ -109,10 +110,28 @@ export default function PiecePreview() {
     (hoveredPiece?.inventoryID === Pieces.ladder &&
       penMode === Pieces.ladder) ||
     piece?.terrain === HexTerrain.laurWallAddon
-  const hoveredHexForPreview =
+  const hoveredHexAtPointer =
     hoveredHex ??
     (isHoveringPreviewSupportPiece ? hoveredPieceSupportHex : undefined)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
+  const hoveredHexForPreview = useMemo(() => {
+    if (!piece || !hoveredHexAtPointer) return hoveredHexAtPointer
+    const altitude = getSmartPlacementAltitude({
+      boardHexes,
+      piece,
+      pieceCoords: hoveredHexAtPointer,
+      altitude: hoveredHexAtPointer.altitude,
+      rotation: penModeRotation,
+    })
+    if (altitude === hoveredHexAtPointer.altitude) return hoveredHexAtPointer
+    const support =
+      boardHexes[genBoardHexID({ ...hoveredHexAtPointer, altitude })]
+    return {
+      ...hoveredHexAtPointer,
+      altitude,
+      terrain: support?.terrain ?? HexTerrain.empty,
+    }
+  }, [boardHexes, piece, hoveredHexAtPointer, penModeRotation])
 
   /* Piece Preview:
   1. A solid/fluid/empty cap (preview anything except laur-addons)
