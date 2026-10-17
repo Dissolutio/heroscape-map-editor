@@ -3,6 +3,8 @@ import {
   LEVEL_LOGO_VIEWBOX_WIDTH,
 } from './levelLogoShapes'
 import {
+  LEVEL_LOGO_DECIMAL_POINT_ADVANCE_WIDTH,
+  LEVEL_LOGO_DECIMAL_POINT_PATH,
   LEVEL_LOGO_DIGIT_ADVANCE_WIDTHS,
   LEVEL_LOGO_DIGIT_PATHS,
   LEVEL_LOGO_LABEL_ADVANCE_WIDTH,
@@ -55,22 +57,38 @@ export const LEVEL_LOGO_OUTLIER_LABEL_MARGIN =
       LEVEL_LOGO_OVERLAY_LAYER_PDF_LINE_HEIGHT) /
   2
 
-/** Maps never exceed 99 levels, so a 2-digit zero-padded number is enough. */
-export const formatLevelNumber = (level: number) =>
-  String(Math.min(99, Math.max(0, Math.round(level)))).padStart(2, '0')
+/**
+ * Maps never exceed 99 levels, so a 2-digit zero-padded number is enough.
+ * Half levels (fluid stacked on fluid) keep the padding and add ".5": "01.5".
+ */
+export const formatLevelNumber = (level: number) => {
+  const halfLevels = Math.min(99 * 2 + 1, Math.max(0, Math.round(level * 2)))
+  const whole = String(Math.floor(halfLevels / 2)).padStart(2, '0')
+  return halfLevels % 2 ? `${whole}.5` : whole
+}
 
 export type LevelLogoDigit = { d: string; x: number }
 
+// Every character of the level number is drawn from a traced outline, never
+// live text, so exported SVGs scale cleanly in other software.
+const getGlyph = (char: string) =>
+  char === '.'
+    ? {
+        d: LEVEL_LOGO_DECIMAL_POINT_PATH,
+        advance: LEVEL_LOGO_DECIMAL_POINT_ADVANCE_WIDTH,
+      }
+    : {
+        d: LEVEL_LOGO_DIGIT_PATHS[Number(char)],
+        advance: LEVEL_LOGO_DIGIT_ADVANCE_WIDTHS[Number(char)],
+      }
+
 export const getLevelNumberDigits = (level: number): LevelLogoDigit[] => {
-  const digits = formatLevelNumber(level).split('').map(Number)
-  const totalWidth = digits.reduce(
-    (sum, digit) => sum + LEVEL_LOGO_DIGIT_ADVANCE_WIDTHS[digit],
-    0,
-  )
+  const glyphs = formatLevelNumber(level).split('').map(getGlyph)
+  const totalWidth = glyphs.reduce((sum, glyph) => sum + glyph.advance, 0)
   let x = (LEVEL_LOGO_WIDTH - totalWidth) / 2
-  return digits.map((digit) => {
-    const placed = { d: LEVEL_LOGO_DIGIT_PATHS[digit], x }
-    x += LEVEL_LOGO_DIGIT_ADVANCE_WIDTHS[digit]
+  return glyphs.map((glyph) => {
+    const placed = { d: glyph.d, x }
+    x += glyph.advance
     return placed
   })
 }

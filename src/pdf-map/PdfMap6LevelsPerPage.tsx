@@ -252,10 +252,8 @@ const PdfLevelChunkHeading = ({
   group: PdfMapAltitudeChunk
   isShowPdfLevelLogo: boolean
 }) => {
-  // The numeral plaque graphic only supports whole numbers; half-levels (fluid stacked on
-  // fluid) always fall back to the plain text heading, sized to line up with the logo.
-  const isWholeLevel = Number.isInteger(group.altitude)
-  if (group.label || !isShowPdfLevelLogo || !isWholeLevel) {
+  // Half levels (fluid stacked on fluid) get the plaque too, e.g. "LEVEL 01.5".
+  if (group.label || !isShowPdfLevelLogo) {
     const margin =
       group.label === 'Glyphs and Start Zones' && isShowPdfLevelLogo
         ? LEVEL_LOGO_OUTLIER_LABEL_MARGIN
