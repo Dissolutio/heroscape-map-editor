@@ -6,7 +6,8 @@
  *    (a fluid cap only counts land that rests on fluid; see below)
  *  - partially buried: at least one does
  *  - subterrain buried: every side of it is covered by neighbouring land over
- *    its full height (a fluid piece's sides by any land, a solid piece's sides
+ *    its full physical height (a fluid tile is half a level thick, with its
+ *    real top half a level below its in-app surface) (a fluid piece's sides by any land, a solid piece's sides
  *    only by solid land)
  *
  * Heights include fluid-on-fluid half levels: water on water tops out at X.5,
@@ -23,6 +24,7 @@ type Placement = {
   pieceID: string
   at: CubeCoordinate
   altitude: number
+  rotation?: number
   uid?: string
 }
 
@@ -235,15 +237,61 @@ describe('subterrain buried', () => {
     })
   })
 
-  it('stacked water is NOT covered by neighbours that stop below its top', () => {
-    // neighbours only reach 1; the stacked water's side runs 1 to 1.5
+  it('stacked water is covered by grass neighbours level with its real top', () => {
+    // Physically the stacked water spans 0.5 to 1 (each water tile is half a
+    // level thick), so grass 0->1 next to it hides its sides completely.
     const board = build(table, [
       { pieceID: 'w1', at: c, altitude: 0 },
       { pieceID: 'w1', at: c, altitude: 1, uid: 'stacked' },
       ...ring(c).map((at) => ({ pieceID: 'g1', at, altitude: 0 })),
     ])
     expect(statusOf(board, 'stacked')).toMatchObject({
+      isSubterrainBuried: true,
+    })
+  })
+
+  it('a side with land only bridging over it, nothing underneath, is open', () => {
+    // East of the stacked water: no tile, just a 2-hex grass reaching over
+    // from further east at 1->2. The water's side (0.5 to 1) is visible.
+    const east = hexUtilsAdd(c, HEX_DIRECTIONS[0])
+    const farEast = hexUtilsAdd(east, HEX_DIRECTIONS[0])
+    const board = build(table, [
+      { pieceID: 'w1', at: c, altitude: 0 },
+      { pieceID: 'w1', at: c, altitude: 1, uid: 'stacked' },
+      ...ring(c)
+        .slice(1)
+        .flatMap((at) => [
+          { pieceID: 'g1', at, altitude: 0 },
+          { pieceID: 'g1', at, altitude: 1 },
+        ]),
+      { pieceID: 'g1', at: farEast, altitude: 0 },
+      { pieceID: 'g2', at: farEast, altitude: 1, rotation: 3 },
+    ])
+    expect(hexAt(board, east, 2)).toBeDefined()
+    expect(statusOf(board, 'stacked')).toMatchObject({
       isSubterrainBuried: false,
+    })
+  })
+
+  it('grass on a fluid stack really spans 1 to 2, so grass neighbours that stop at 1 leave it open', () => {
+    const board = build(table, [
+      { pieceID: 'w1', at: c, altitude: 0 },
+      { pieceID: 'w1', at: c, altitude: 1 },
+      { pieceID: 'g1', at: c, altitude: 1.5, uid: 'grass' },
+      ...ring(c).map((at) => ({ pieceID: 'g1', at, altitude: 0 })),
+    ])
+    expect(statusOf(board, 'grass')).toMatchObject({
+      isSubterrainBuried: false,
+    })
+  })
+
+  it('water on the table ringed by water is covered', () => {
+    const board = build(table, [
+      { pieceID: 'w1', at: c, altitude: 0, uid: 'middle' },
+      ...ring(c).map((at) => ({ pieceID: 'w1', at, altitude: 0 })),
+    ])
+    expect(statusOf(board, 'middle')).toMatchObject({
+      isSubterrainBuried: true,
     })
   })
 

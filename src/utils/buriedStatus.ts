@@ -17,6 +17,18 @@ export type BuriedStatus = {
 // Altitudes are always multiples of a half level (see getLandAltitudeIncrement).
 const HALF = 0.5
 
+type Band = [bottom: number, top: number]
+
+/**
+ * The height a land hex physically fills, from its in-app surface altitude.
+ * A solid tile is a full level thick: (h - 1, h]. A fluid tile is half a level
+ * thick and its real top sits half a level below its in-app surface:
+ * (h - 1, h - 0.5]. So water on the table fills 0 to 0.5, water stacked on it
+ * (surface 1.5) fills 0.5 to 1, and grass on that stack (surface 2) fills 1 to 2.
+ */
+const physicalBand = (terrain: string, h: number): Band =>
+  isFluidTerrainHex(terrain) ? [h - 1, h - HALF] : [h - 1, h]
+
 const isLandTerrain = (terrain: string) =>
   isSolidTerrainHex(terrain) || isFluidTerrainHex(terrain)
 
@@ -24,17 +36,15 @@ const isLandTerrain = (terrain: string) =>
  * Builds a checker for the buried status of land pieces on one board. Returns
  * null for pieces that are not land (or are unknown).
  *
- * A land piece placed at altitude B with its surface at S occupies the band
- * (B, S]: a whole level, or a half level for fluid on fluid and for solid on a
- * half-level fluid. Every board hex is the top of such a band for the piece
- * that owns it, which is how neighbour coverage is measured.
+ * Both checks use physical heights, not in-app altitudes (see physicalBand):
+ * a cap is buried only by land resting on it, and a side is buried only when
+ * neighbouring land physically fills the piece's whole height beside it.
  */
 export function makeBuriedStatusChecker(
   boardHexes: BoardHexes,
   boardPieces: BoardPiece[],
 ) {
   const surfaceByUID = getSurfaceAltitudeByPieceUID(boardHexes)
-  const placementByUID = new Map(boardPieces.map((bp) => [bp.uid, bp.altitude]))
   const pieceByUID = new Map(boardPieces.map((bp) => [bp.uid, bp]))
 
   const landHexAt = (coord: CubeCoordinate, altitude: number) => {
@@ -78,25 +88,21 @@ export function makeBuriedStatusChecker(
       return !isFluidPiece || restsOnFluid(cover)
     })
 
-  // Does the land in this column cover the whole band (bottom, top]? Each land
-  // hex at altitude h covers its own piece's band (placement, h]. A hex that
-  // covers part of the band tops out at most one level above it.
+  // Does the land in this column cover the whole physical band (bottom, top]?
+  // Bands that touch it top out between bottom + 0.5 and top + 1.
   const isColumnCovering = (
     coord: CubeCoordinate,
-    bottom: number,
-    top: number,
+    [bottom, top]: Band,
     counts: (terrain: string) => boolean,
   ) => {
-    const bands: [number, number][] = []
+    const bands: Band[] = []
     for (let h = bottom + HALF; h <= top + 1; h += HALF) {
       const hex = landHexAt(coord, h)
-      if (!hex || !counts(hex.terrain)) continue
-      const base = placementByUID.get(hex.boardPieceUID ?? '') ?? h - 1
-      bands.push([base, h])
+      if (hex && counts(hex.terrain)) bands.push(physicalBand(hex.terrain, h))
     }
     for (let seg = bottom; seg < top; seg += HALF) {
       const isSegmentCovered = bands.some(
-        ([base, h]) => base <= seg && h >= seg + HALF,
+        ([lo, hi]) => lo <= seg && hi >= seg + HALF,
       )
       if (!isSegmentCovered) return false
     }
@@ -115,11 +121,12 @@ export function makeBuriedStatusChecker(
 
     const footprintKeys = new Set(footprint.map((c) => `${c.q},${c.r}`))
     const counts = isFluidPiece ? isLandTerrain : isSolidTerrainHex
+    const ownBand = physicalBand(piece.terrain, surface)
     const isSubterrainBuried = footprint.every((c) =>
       Object.values(HEX_DIRECTIONS).every((dir) => {
         const n = hexUtilsAdd(c, dir)
         if (footprintKeys.has(`${n.q},${n.r}`)) return true
-        return isColumnCovering(n, bp.altitude, surface, counts)
+        return isColumnCovering(n, ownBand, counts)
       }),
     )
 
