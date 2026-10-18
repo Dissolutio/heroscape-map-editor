@@ -435,6 +435,17 @@ export function countStringInArrayLoop(arr: string[], targetString: string) {
 
 type NormalizableBoardPiece = Omit<BoardPiece, 'uid'> & { uid?: unknown }
 
+export type DroppedBoardPiece = {
+  uid?: string
+  inventoryID?: string
+  reason: 'unknown' | 'malformed'
+}
+
+export type NormalizedBoardPieces = {
+  boardPieces: BoardPiece[]
+  droppedPieces: DroppedBoardPiece[]
+}
+
 const isSaneBoardPiece = (
   value: unknown,
 ): value is NormalizableBoardPiece => {
@@ -455,12 +466,27 @@ const isSaneBoardPiece = (
   )
 }
 
-const normalizePieceArray = (pieces: unknown[]): BoardPiece[] => {
+const getMalformedPiece = (value: unknown): DroppedBoardPiece => {
+  const malformed: DroppedBoardPiece = { reason: 'malformed' }
+  if (typeof value !== 'object' || value === null) return malformed
+
+  const piece = value as Record<string, unknown>
+  if (typeof piece.uid === 'string') malformed.uid = piece.uid
+  if (typeof piece.inventoryID === 'string')
+    malformed.inventoryID = piece.inventoryID
+  return malformed
+}
+
+const normalizePieceArray = (pieces: unknown[]): NormalizedBoardPieces => {
   const normalized: BoardPiece[] = []
   const usedUIDs = new Set<string>()
+  const droppedPieces: DroppedBoardPiece[] = []
 
   for (const value of pieces) {
-    if (!isSaneBoardPiece(value)) continue
+    if (!isSaneBoardPiece(value)) {
+      droppedPieces.push(getMalformedPiece(value))
+      continue
+    }
 
     const existingUID = value.uid
     let uid: string
@@ -480,19 +506,21 @@ const normalizePieceArray = (pieces: unknown[]): BoardPiece[] => {
     usedUIDs.add(uid)
   }
 
-  return (
+  const boardPieces =
     normalized.length === pieces.length &&
     normalized.every((piece, index) => piece === pieces[index])
-  )
-    ? (pieces as BoardPiece[])
-    : normalized
+      ? (pieces as BoardPiece[])
+      : normalized
+  return { boardPieces, droppedPieces }
 }
 
 /**
  * Normalize BoardPieces to an array of BoardPiece objects.
  * Supports legacy object format (version 0), legacy string[] format, and new BoardPiece[] format.
  */
-export function normalizeBoardPieces(boardPieces: unknown): BoardPiece[] {
+export function normalizeBoardPiecesWithDropped(
+  boardPieces: unknown,
+): NormalizedBoardPieces {
   if (Array.isArray(boardPieces)) {
     if (boardPieces.every((piece) => typeof piece === 'string')) {
       return normalizePieceArray(inflateBoardPiecesFromIds(boardPieces))
@@ -506,11 +534,12 @@ export function normalizeBoardPieces(boardPieces: unknown): BoardPiece[] {
       inflateBoardPiecesFromIds(Object.keys(boardPieces)),
     )
   }
-  return []
+  return { boardPieces: [], droppedPieces: [] }
 }
 
-/** A saved piece that was left out of a loaded map because its inventoryID is unknown. */
-export type DroppedBoardPiece = Pick<BoardPiece, 'uid' | 'inventoryID'>
+export function normalizeBoardPieces(boardPieces: unknown): BoardPiece[] {
+  return normalizeBoardPiecesWithDropped(boardPieces).boardPieces
+}
 
 /**
  * Split loaded pieces into the ones this app version knows and the ones it
@@ -527,7 +556,11 @@ export function dropUnknownBoardPieces(boardPieces: BoardPiece[]): {
     if (bp?.inventoryID && piecesSoFar[bp.inventoryID]) {
       known.push(bp)
     } else {
-      droppedPieces.push({ uid: bp?.uid, inventoryID: bp?.inventoryID })
+      droppedPieces.push({
+        uid: bp?.uid,
+        inventoryID: bp?.inventoryID,
+        reason: 'unknown',
+      })
     }
   }
   return { boardPieces: known, droppedPieces }
@@ -538,7 +571,29 @@ export function getDroppedPiecesWarning(
   droppedPieces: DroppedBoardPiece[],
 ): string | null {
   if (!droppedPieces.length) return null
-  const count = droppedPieces.length
-  const ids = [...new Set(droppedPieces.map((p) => String(p.inventoryID)))]
-  return `Skipped ${count} piece${count === 1 ? '' : 's'} this version of Hexoscape does not recognize (${ids.join(', ')}). Updating the app may let you load them.`
+  const unknownPieces = droppedPieces.filter(
+    (piece) => piece.reason === 'unknown',
+  )
+  const malformedCount = droppedPieces.length - unknownPieces.length
+  const details: string[] = []
+
+  if (unknownPieces.length) {
+    const ids = [
+      ...new Set(unknownPieces.map((piece) => String(piece.inventoryID))),
+    ]
+    const count = unknownPieces.length
+    details.push(
+      `${count} unknown piece${count === 1 ? '' : 's'} (${ids.join(', ')})`,
+    )
+  }
+  if (malformedCount) {
+    details.push(
+      `${malformedCount} malformed piece${malformedCount === 1 ? '' : 's'}`,
+    )
+  }
+
+  const updateMessage = unknownPieces.length
+    ? ' Updating the app may let you load unknown pieces.'
+    : ''
+  return `Skipped ${details.join(' and ')}.${updateMessage}`
 }

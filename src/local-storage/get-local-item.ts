@@ -1,5 +1,8 @@
 import type { MapFileState } from '../types'
-import { normalizeBoardPieces } from '../utils/map-utils'
+import {
+  normalizeBoardPiecesWithDropped,
+  type DroppedBoardPiece,
+} from '../utils/map-utils'
 import { isHexMap } from '../utils/type-checker'
 import { restoreMapPortrait } from './mapStorage'
 import { safeGetJSON } from './safeStorage'
@@ -7,6 +10,7 @@ import { safeGetJSON } from './safeStorage'
 export type LoadedLocalMap = {
   map: MapFileState
   hasInlinePortrait: boolean
+  droppedPieces: DroppedBoardPiece[]
 }
 
 export function readMapFromLocalStorage(ls_key: string): LoadedLocalMap | null {
@@ -30,12 +34,15 @@ export function readMapFromLocalStorage(ls_key: string): LoadedLocalMap | null {
     }
 
     // normalize boardPieces to BoardPiece[] regardless of legacy format
-    const boardPieces = normalizeBoardPieces(parsed.boardPieces)
+    const { boardPieces, droppedPieces } = normalizeBoardPiecesWithDropped(
+      parsed.boardPieces,
+    )
     return {
       map: { hexMap: restoreMapPortrait(parsed.hexMap), boardPieces },
       hasInlinePortrait:
         typeof parsed.hexMap.mapPortraitBase64 === 'string' &&
         parsed.hexMap.mapPortraitBase64.length > 0,
+      droppedPieces,
     }
   } catch (e) {
     console.warn('Failed loading last map from localStorage', e)

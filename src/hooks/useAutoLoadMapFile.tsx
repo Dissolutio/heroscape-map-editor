@@ -6,15 +6,12 @@ import { useLocation, useSearch } from 'wouter'
 import { ROUTES } from '../ROUTES'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
-import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
+import { readMapFromLocalStorage } from '../local-storage/get-local-item'
 import { LS_KEYS } from '../local-storage/keys'
 import { safeRemove } from '../local-storage/safeStorage'
 import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
-import {
-  inflateBoardPiecesFromIds,
-  normalizeBoardPieces,
-} from '../utils/map-utils'
+import { normalizeBoardPiecesWithDropped } from '../utils/map-utils'
 import {
   getMapShareUrlParams,
   getViewModeFromQueryParam,
@@ -56,11 +53,12 @@ const useAutoLoadMapFile = () => {
     safeRemove('hotkeyConfig')
     safeRemove('terrainConstraintState')
     safeRemove('lastMapCache')
-    const localMap = loadMapFromLocalStorage(LS_KEYS.lastMap)
+    const localMap = readMapFromLocalStorage(LS_KEYS.lastMap)
     const localMapState = localMap
       ? buildupJsonFileMap(
-          normalizeBoardPieces(localMap.boardPieces),
-          localMap.hexMap,
+          localMap.map.boardPieces,
+          localMap.map.hexMap,
+          localMap.droppedPieces,
         )
       : undefined
     const loadMapWithoutUndo = (
@@ -78,10 +76,14 @@ const useAutoLoadMapFile = () => {
       try {
         const { hexMap, boardPiecesEncodedArr } =
           parseMapDataArrayFromCrushed(urlMapString)
-        const inflatedBoardPieces = inflateBoardPiecesFromIds(
+        const normalizedPieces = normalizeBoardPiecesWithDropped(
           boardPiecesEncodedArr,
         )
-        const jsonMap = buildupJsonFileMap(inflatedBoardPieces, hexMap)
+        const jsonMap = buildupJsonFileMap(
+          normalizedPieces.boardPieces,
+          hexMap,
+          normalizedPieces.droppedPieces,
+        )
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
         }
@@ -175,9 +177,13 @@ const useAutoLoadMapFile = () => {
       fetch(fileName).then(async (response) => {
         const data = await response.json()
 
+        const normalizedPieces = normalizeBoardPiecesWithDropped(
+          data.boardPieces,
+        )
         const jsonMap = buildupJsonFileMap(
-          normalizeBoardPieces(data.boardPieces),
+          normalizedPieces.boardPieces,
           data.hexMap,
+          normalizedPieces.droppedPieces,
         )
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = fileName

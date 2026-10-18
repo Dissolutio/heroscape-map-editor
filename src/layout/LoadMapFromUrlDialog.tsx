@@ -14,7 +14,7 @@ import { buildupJsonFileMap } from '../data/buildupMap'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
 import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
-import { inflateBoardPiecesFromIds } from '../utils/map-utils'
+import { normalizeBoardPiecesWithDropped } from '../utils/map-utils'
 import {
   getViewModeFromQueryParam,
   parseMapShareUrlParams,
@@ -55,10 +55,14 @@ export default function LoadMapFromUrlDialog() {
     }
     try {
       const { hexMap, boardPiecesEncodedArr } = parseMapDataArrayFromCrushed(m)
-      const inflatedBoardPieces = inflateBoardPiecesFromIds(
+      const normalizedPieces = normalizeBoardPiecesWithDropped(
         boardPiecesEncodedArr,
       )
-      const jsonMap = buildupJsonFileMap(inflatedBoardPieces, hexMap)
+      const jsonMap = buildupJsonFileMap(
+        normalizedPieces.boardPieces,
+        hexMap,
+        normalizedPieces.droppedPieces,
+      )
       if (!jsonMap.hexMap.name) {
         jsonMap.hexMap.name = genRandomMapName()
       }

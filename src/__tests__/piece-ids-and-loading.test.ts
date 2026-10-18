@@ -10,7 +10,7 @@
  * Not covered: JSONCrush compression (data/jsonCrush.ts), which needs the real
  * `jsoncrush` package, and the Virtualscape reader/writer.
  */
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { piecesSoFar } from '../data/pieces'
 import type { BoardPiece, HexMap } from '../types'
@@ -22,7 +22,9 @@ import {
   getDroppedPiecesWarning,
   inflateBoardPiecesFromIds,
   normalizeBoardPieces,
+  normalizeBoardPiecesWithDropped,
 } from '../utils/map-utils'
+import { warnAboutLoadedMap } from '../utils/warnAboutLoadedMap'
 import { hexAt, makeTable } from './helpers/board'
 
 const piece = (
@@ -232,6 +234,80 @@ describe('normalizeBoardPieces (reads every saved-map format the app has had)', 
     expect(normalizeBoardPieces(['0~NaN~1~0~g1'])).toEqual([])
   })
 
+  it('reports malformed pieces as dropped during map loading', () => {
+    const legacy = [
+      piece('kept', 'g1', 1, 1),
+      {
+        uid: 'malformed',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: Number.NaN, r: 1, s: -1 },
+      },
+    ]
+    const normalized = normalizeBoardPiecesWithDropped(legacy)
+    const map = buildupJsonFileMap(
+      normalized.boardPieces,
+      rectangleMap(),
+      normalized.droppedPieces,
+    )
+
+    expect(map.boardPieces.map((p) => p.uid)).toEqual(['kept'])
+    expect(map.droppedPieces).toEqual([
+      { uid: 'malformed', inventoryID: 'g1', reason: 'malformed' },
+    ])
+  })
+
+  it('warns once with separate unknown and malformed counts', () => {
+    const legacy = [
+      piece('kept', 'g1', 1, 1),
+      piece('unknown', 'zz-from-the-future', 3, 1),
+      {
+        uid: 'malformed',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 1, r: Number.POSITIVE_INFINITY, s: -1 },
+      },
+    ]
+    const normalized = normalizeBoardPiecesWithDropped(legacy)
+    const map = buildupJsonFileMap(
+      normalized.boardPieces,
+      rectangleMap(),
+      normalized.droppedPieces,
+    )
+    const enqueueSnackbar = vi.fn()
+
+    warnAboutLoadedMap(enqueueSnackbar, map)
+
+    expect(map.droppedPieces).toHaveLength(2)
+    expect(getDroppedPiecesWarning(map.droppedPieces)).toBe(
+      'Skipped 1 unknown piece (zz-from-the-future) and 1 malformed piece. Updating the app may let you load unknown pieces.',
+    )
+    expect(enqueueSnackbar).toHaveBeenCalledTimes(1)
+    expect(enqueueSnackbar.mock.calls[0][0].message).toBe(
+      getDroppedPiecesWarning(map.droppedPieces),
+    )
+  })
+
+  it('reports no drops and preserves a clean piece array reference', () => {
+    const clean = [piece('known', 'g1', 1, 1)]
+    const normalized = normalizeBoardPiecesWithDropped(clean)
+    const map = buildupJsonFileMap(
+      normalized.boardPieces,
+      rectangleMap(),
+      normalized.droppedPieces,
+    )
+    const enqueueSnackbar = vi.fn()
+
+    warnAboutLoadedMap(enqueueSnackbar, map)
+
+    expect(normalized.boardPieces).toBe(clean)
+    expect(map.droppedPieces).toEqual([])
+    expect(getDroppedPiecesWarning(map.droppedPieces)).toBeNull()
+    expect(enqueueSnackbar).not.toHaveBeenCalled()
+  })
+
   it('loads the same uid-less legacy pieces with identical data apart from uids', () => {
     const legacy = [
       {
@@ -316,7 +392,11 @@ describe('buildupJsonFileMap (the load path for files, links and localStorage)',
     const map = buildupJsonFileMap(withUnknown, rectangleMap())
     expect(map.boardPieces.map((p) => p.uid)).toEqual(['known'])
     expect(map.droppedPieces).toEqual([
-      { uid: 'mystery', inventoryID: 'zz-from-the-future' },
+      {
+        uid: 'mystery',
+        inventoryID: 'zz-from-the-future',
+        reason: 'unknown',
+      },
     ])
   })
 
@@ -331,6 +411,7 @@ describe('buildupJsonFileMap (the load path for files, links and localStorage)',
     expect(map.droppedPieces.map((p) => p.inventoryID)).toEqual([
       'zz-from-the-future',
     ])
+    expect(map.droppedPieces.map((p) => p.reason)).toEqual(['unknown'])
   })
 
   it('a map of known pieces reports nothing dropped', () => {
@@ -342,15 +423,19 @@ describe('buildupJsonFileMap (the load path for files, links and localStorage)',
     expect(getDroppedPiecesWarning([])).toBeNull()
     expect(
       getDroppedPiecesWarning([
-        { uid: '1', inventoryID: 'zz1' },
-        { uid: '2', inventoryID: 'zz2' },
-        { uid: '3', inventoryID: 'zz1' },
+        { uid: '1', inventoryID: 'zz1', reason: 'unknown' },
+        { uid: '2', inventoryID: 'zz2', reason: 'unknown' },
+        { uid: '3', inventoryID: 'zz1', reason: 'unknown' },
       ]),
     ).toBe(
-      'Skipped 3 pieces this version of Hexoscape does not recognize (zz1, zz2). Updating the app may let you load them.',
+      'Skipped 3 unknown pieces (zz1, zz2). Updating the app may let you load unknown pieces.',
     )
-    expect(getDroppedPiecesWarning([{ uid: '1', inventoryID: 'zz1' }])).toBe(
-      'Skipped 1 piece this version of Hexoscape does not recognize (zz1). Updating the app may let you load them.',
+    expect(
+      getDroppedPiecesWarning([
+        { uid: '1', inventoryID: 'zz1', reason: 'unknown' },
+      ]),
+    ).toBe(
+      'Skipped 1 unknown piece (zz1). Updating the app may let you load unknown pieces.',
     )
   })
 
