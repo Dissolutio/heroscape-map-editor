@@ -14,6 +14,7 @@ import {
   type PlacementResolution,
   evaluatePlacement,
   isPlacementBlocked,
+  placementBlockedMessages,
   resolvePlacement,
 } from '../data/placement'
 import { getSmartPlacementAltitude } from '../data/smartPlacement'
@@ -156,6 +157,19 @@ describe('resolvePlacement', () => {
   })
 })
 
+describe('placementBlockedMessages', () => {
+  it('gives every physical refusal a message; land on whole-level fluid stays silent', () => {
+    expect(placementBlockedMessages).toEqual({
+      needsLaurPillar: 'Must add to Square/Triangle Pillar.',
+      notOnCastleWallTop:
+        'Only a castle wall or wall walk fits on a castle wall.',
+      castleArchNeedsLand: 'A castle arch has its own bases; place it on land.',
+      pillarShapesDiffer: 'Triangle and square pillars do not stack.',
+    })
+    expect(placementBlockedMessages.landTileNotOnHex).toBeUndefined()
+  })
+})
+
 describe('evaluatePlacement', () => {
   it('an empty target is ok, and reports the footprint', () => {
     const evaluation = evaluatePlacement(
@@ -262,6 +276,22 @@ describe('evaluatePlacement', () => {
       reason: 'needsLaurPillar',
     })
   })
+
+  it.each(placementCases.filter((c) => 'refused' in c.expected))(
+    'a refusal is blocked with its reason: $name',
+    ({ pieceID, rotation, setup, expected }) => {
+      const { board, hex } = setup()
+      const evaluation = evaluatePlacement(
+        board,
+        resolve(board, pieceID, hex, rotation),
+      )
+      expect(evaluation).toMatchObject({
+        status: 'blocked',
+        reason: 'refused' in expected ? expected.refused : undefined,
+        displacedUIDs: [],
+      })
+    },
+  )
 
   it('a second start zone on the same hex is blocked: it would do nothing', () => {
     const board = add(table, 'z1', c, 1)

@@ -5,7 +5,11 @@ import type React from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
 import getPieceTemplateCoords from '../data/rotationTransforms.ts'
-import { isPlacementBlocked, resolvePlacement } from '../data/placement.ts'
+import {
+  isPlacementBlocked,
+  placementBlockedMessages,
+  resolvePlacement,
+} from '../data/placement.ts'
 import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
 import useBoundStore from '../store/store.ts'
 import {
@@ -101,12 +105,9 @@ export default function MapDisplay3D({
       boardPieces,
     })
     if (isPlacementBlocked(placement)) {
-      if (placement.blocked === 'needsLaurPillar') {
-        enqueueSnackbar({
-          message: 'Must add to Square/Triangle Pillar.',
-          variant: 'warning',
-          autoHideDuration: 5000,
-        })
+      const message = placementBlockedMessages[placement.blocked]
+      if (message) {
+        enqueueSnackbar({ message, variant: 'warning', autoHideDuration: 5000 })
       }
       return
     }

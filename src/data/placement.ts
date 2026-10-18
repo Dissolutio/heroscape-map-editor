@@ -5,7 +5,7 @@ import type {
   CubeCoordinate,
   Piece,
 } from '../types'
-import { PiecePrefixes, Pieces } from '../types'
+import { HexTerrain, PiecePrefixes, Pieces } from '../types'
 import {
   canPlaceLandTileOnHex,
   isFluidTerrainHex,
@@ -28,13 +28,10 @@ export type PlacementBoard = {
   boardPieces: BoardPieces
 }
 
-/**
- * Which of the click rules picked the placement. The rules are tried in this
- * order, so e.g. a battlement clicked on a castle wall takes `castleCap`.
- */
+/** Which of the click rules picked the placement, tried in this order. */
 export type PlacementRule =
-  | 'castleCap' // clicked a castle wall/arch: go on top of its column
   | 'laurAddon' // a Laur add-on on a pillar, at the pillar's altitude
+  | 'castleCap' // a castle wall or wall walk on a castle wall/arch top
   | 'battlement' // the edge toward the pen rotation, one level down
   | 'roadWall' // the edge two steps clockwise of it, one level down
   | 'ropeLadder' // the clicked hex, one level down
@@ -45,7 +42,34 @@ export type PlacementRule =
 
 export type PlacementBlockedReason =
   | 'needsLaurPillar' // a Laur add-on clicked off a Square/Triangle Pillar
+  | 'notOnCastleWallTop' // only a castle wall or wall walk fits on one
+  | 'castleArchNeedsLand' // an arch's bases are attached: not on a wall top
+  | 'pillarShapesDiffer' // square and triangle pillars do not stack
   | 'landTileNotOnHex' // canPlaceLandTileOnHex said no
+
+/** What a refusal tells the user; a reason missing here is silent. */
+export const placementBlockedMessages: Partial<
+  Record<PlacementBlockedReason, string>
+> = {
+  needsLaurPillar: 'Must add to Square/Triangle Pillar.',
+  notOnCastleWallTop: 'Only a castle wall or wall walk fits on a castle wall.',
+  castleArchNeedsLand: 'A castle arch has its own bases; place it on land.',
+  pillarShapesDiffer: 'Triangle and square pillars do not stack.',
+}
+
+const isLaurPillarID = (id: string) =>
+  id === Pieces.laurWallSquarePillar || id === Pieces.laurWallTrianglePillar
+
+/**
+ * What can go on top of a castle wall or arch: another wall (walls have no
+ * base of their own; the base is a separate castle base piece) or a wall
+ * walk. An arch has its pillars' bases attached, so it cannot.
+ */
+const fitsOnCastleWallTop = (piece: Piece) =>
+  piece.id === Pieces.castleWallEnd ||
+  piece.id === Pieces.castleWallStraight ||
+  piece.id === Pieces.castleWallCorner ||
+  piece.terrain === HexTerrain.wallWalk
 
 export type ResolvedPlacement = {
   piece: Piece
@@ -71,8 +95,9 @@ export const isPlacementBlocked = (
  * handler: a board hex for caps, castle walls and arches, and a partial hex
  * for Laur pillars and ladders (see LaurPillar.tsx and Ladder.tsx).
  *
- * Only the two refusals block. Everything else resolves, even onto other
- * pieces: placement is permissive and displaces them (see evaluatePlacement).
+ * Only the physical rules block (see PlacementBlockedReason). Everything
+ * else resolves, even onto other pieces: placement is permissive and
+ * displaces them (see evaluatePlacement).
  * `ignoreUID` leaves a piece being moved out of the smart altitude.
  */
 export function resolvePlacement(
@@ -86,9 +111,7 @@ export function resolvePlacement(
   const isCastleWallArchClicked =
     hex.pieceID.includes(PiecePrefixes.castleWall) ||
     hex.pieceID.includes(PiecePrefixes.castleArch)
-  const isLaurPillarClicked =
-    hex.inventoryID === Pieces.laurWallSquarePillar ||
-    hex.inventoryID === Pieces.laurWallTrianglePillar
+  const isLaurPillarClicked = isLaurPillarID(hex.inventoryID)
   const isMatchingPillarStackTarget =
     (piece.id === Pieces.laurWallSquarePillar &&
       hex.inventoryID === Pieces.laurWallSquarePillar) ||
@@ -127,14 +150,21 @@ export function resolvePlacement(
       ignoreUID,
     })
 
-  // Castle W/A: use cap coords and altitude
-  if (isCastleWallArchClicked) {
-    return at('castleCap', smartAltitude())
-  }
   // Adding laur addon, put it at same level
   if (isLaurWallAddonPieceID(piece.id)) {
     if (!isLaurPillarClicked) return { blocked: 'needsLaurPillar' }
     return at('laurAddon', clickedAltitude)
+  }
+  // Castle W/A: use cap coords and altitude
+  if (isCastleWallArchClicked) {
+    if (
+      piece.id === Pieces.castleArch ||
+      piece.id === Pieces.castleArchNoDoor
+    ) {
+      return { blocked: 'castleArchNeedsLand' }
+    }
+    if (!fitsOnCastleWallTop(piece)) return { blocked: 'notOnCastleWallTop' }
+    return at('castleCap', smartAltitude())
   }
   if (piece.id === Pieces.battlement) {
     const mirrorRotation = (rotation + 3) % 6
@@ -159,7 +189,8 @@ export function resolvePlacement(
   if (piece.id === Pieces.ladder && hex?.inventoryID === Pieces.ladder) {
     return at('ladderStack', clickedAltitude + 1, clickedHex.pieceRotation)
   }
-  if (isMatchingPillarStackTarget && isLaurPillarClicked) {
+  if (isLaurPillarID(piece.id) && isLaurPillarClicked) {
+    if (!isMatchingPillarStackTarget) return { blocked: 'pillarShapesDiffer' }
     const supportingPillar = boardPieces.find(
       (bp) => bp.uid === clickedHex.boardPieceUID,
     )

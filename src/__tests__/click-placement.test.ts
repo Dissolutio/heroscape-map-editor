@@ -9,6 +9,7 @@
  */
 import { enqueueSnackbar } from 'notistack'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { placementBlockedMessages } from '../data/placement'
 import useBoundStore from '../store/store'
 import type { BoardHex } from '../types'
 import {
@@ -74,11 +75,8 @@ describe('click placement through the real handler', () => {
       expect(result.boardPieces).toEqual(board.boardPieces)
       // a refusal leaves the selection alone
       expect(result.selectedPieceIDs).toEqual([SELECTED_BEFORE_CLICK])
-      expect(snackbarMessages()).toEqual(
-        expected.refused === 'needsLaurPillar'
-          ? ['Must add to Square/Triangle Pillar.']
-          : [],
-      )
+      const message = placementBlockedMessages[expected.refused]
+      expect(snackbarMessages()).toEqual(message ? [message] : [])
       return
     }
     const { coords, altitude, rotation: placedRotation } = expected.placed
@@ -159,52 +157,56 @@ describe('click placement through the real handler', () => {
   )
 
   /**
-   * KNOWN GAP: the only things that connect to a castle wall's top are the
-   * bottom of another castle wall (without its base) and a wall-walk tile.
-   * Today a click on a wall puts any pen on the wall cap: the castle-wall
-   * rule in resolvePlacement runs before every other rule and checks nothing
-   * about the piece. Battlements, road walls and rope ladders also skip
-   * their edge offset there. Suggested fix: the castleCap rule returns
-   * `blocked` unless the piece is a castle wall/arch or a wall walk (the
-   * owner decides whether a refusal shows a message).
+   * The only things that connect to a castle wall's top are the bottom of
+   * another castle wall (without its base) and a wall-walk tile. Everything
+   * else is refused with a message and places nothing. (Was a KNOWN GAP:
+   * the castle-wall rule put any pen on the wall cap.)
    */
-  it.fails.each(['bt', 'rw', 'rl', 'g1', 'y0', 'tr10', 'ld'])(
-    'KNOWN GAP: only a castle wall or wall walk can go on a castle wall top, not %s',
+  it.each(['bt', 'rw', 'rl', 'g1', 'y0', 'tr10', 'ld'])(
+    'only a castle wall or wall walk can go on a castle wall top, not %s',
     (pieceID) => {
       const { board, hex } = onCastleWall()
-      expect(clickWithPen({ board, pieceID, hex }).added).toEqual([])
+      const result = clickWithPen({ board, pieceID, hex })
+      expect(result.added).toEqual([])
+      expect(result.selectedPieceIDs).toEqual([SELECTED_BEFORE_CLICK])
+      expect(snackbarMessages()).toEqual([
+        'Only a castle wall or wall walk fits on a castle wall.',
+      ])
     },
   )
 
   /**
-   * KNOWN GAP: a Laur add-on clicked on a castle wall is placed on the wall
-   * cap. Add-ons only attach to Laur pillars; the castle-wall rule runs
-   * before the "Must add to Square/Triangle Pillar" refusal. Suggested fix:
-   * check for an add-on before the castle-wall rule (same fix as above).
+   * Laur add-ons only attach to Laur pillars, castle walls included. (Was a
+   * KNOWN GAP: the castle-wall rule ran before the add-on refusal.)
    */
-  it.fails.each(['lws', 'lwa'])(
-    'KNOWN GAP: a Laur add-on (%s) clicked on a castle wall is not placed',
+  it.each(['lws', 'lwa'])(
+    'a Laur add-on (%s) clicked on a castle wall is not placed',
     (pieceID) => {
       const { board, hex } = onCastleWall()
-      expect(clickWithPen({ board, pieceID, hex }).added).toEqual([])
+      const result = clickWithPen({ board, pieceID, hex })
+      expect(result.added).toEqual([])
+      expect(snackbarMessages()).toEqual([
+        'Must add to Square/Triangle Pillar.',
+      ])
     },
   )
 
   /**
-   * KNOWN GAP: a triangle pillar cannot stack on a square pillar, or the
-   * other way round. Today the mismatched pillar falls through to the
-   * default rule and is placed at the lower pillar's base, overlapping it.
-   * Suggested fix: a pillar pen on a pillar of the other shape returns
-   * `blocked` in resolvePlacement.
+   * A triangle pillar cannot stack on a square pillar, or the other way
+   * round. (Was a KNOWN GAP: it was placed at the lower pillar's base.)
    */
-  it.fails.each([
+  it.each([
     { pieceID: 'lwt', on: 'square', setup: onPillar },
     { pieceID: 'lwp', on: 'triangle', setup: onTrianglePillar },
   ])(
-    'KNOWN GAP: a $pieceID pillar clicked on a $on pillar is not placed',
+    'a $pieceID pillar clicked on a $on pillar is not placed',
     ({ pieceID, setup }) => {
       const { board, hex } = setup()
-      expect(clickWithPen({ board, pieceID, hex }).added).toEqual([])
+      const result = clickWithPen({ board, pieceID, hex })
+      expect(result.added).toEqual([])
+      expect(snackbarMessages()).toEqual([
+        'Triangle and square pillars do not stack.',
+      ])
     },
   )
 })
