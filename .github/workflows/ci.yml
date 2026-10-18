@@ -33,6 +33,9 @@ jobs:
       - name: Lint
         run: npx @biomejs/biome lint ./src
 
+      - name: Format check
+        run: npx @biomejs/biome format ./src
+
       - name: Type-check
         run: npx tsc -b
 
