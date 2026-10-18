@@ -30,8 +30,10 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `settings.test.ts` | Versioned settings defaults, migration, debounced persistence, and store-state classification. |
 | `crash-feedback.test.ts` | The anonymous crash-report note sent to Sentry (`utils/crashFeedback.ts`): trimmed, capped, linked to the crash event, no name/email. |
 | `material-clones.test.ts` | The private material copies the move/rotate preview ghost uses (`utils/materialClones.ts`), so it never changes the cached materials real pieces share. |
+| `click-placement.test.ts` | What a left click with a piece pen places, per piece family, through the real click handler (`world/MapDisplay3D.tsx`) and the store, without rendering; plus the two refusals (Laur add-on off a pillar, land on a cap it cannot sit on) and undo. Cases are in `helpers/placementCases.ts`. |
 | `storage-known-gaps.test.ts` | Legacy constraint restoration and protection against hotkey mount overwrites. |
 | `helpers/board.ts` | `makeTable`, `place`, `remove`, `withGrassFloor`, `hexAt`: build boards without the store. |
+| `helpers/clickHandler.ts` | `clickWithPen`: drive the real click handler in Node (the test stubs MapDisplay3D's children; see `click-placement.test.ts`). |
 
 ## Adding a new terrain piece
 
