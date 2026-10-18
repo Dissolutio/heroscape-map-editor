@@ -74,14 +74,18 @@ function mustHex(board: Board, at: CubeCoordinate, altitude: number) {
 /** The grass floor's top hex at the middle of the table (altitude 1). */
 const onGrass = () => ({ board: table, hex: mustHex(table, c, 1) })
 
-/** A straight castle wall (uid CW) on the grass; its origin hex is clicked. */
-const onCastleWall = () => {
+/**
+ * A straight castle wall (uid CW) on the grass; its origin hex is clicked.
+ * Only another castle wall or a wall walk can go on a wall's top; the rest
+ * are KNOWN GAP tests in click-placement.test.ts.
+ */
+export const onCastleWall = () => {
   const board = add(table, 'cws', c, 1, 0, 'CW')
   return { board, hex: mustHex(board, c, 2) }
 }
 
 /** The hex LaurPillar.tsx passes: the pillar's coords at its own altitude. */
-function pillarPartialHex(board: Board, uid: string): BoardHex {
+export function pillarPartialHex(board: Board, uid: string): BoardHex {
   const bp = board.boardPieces.find((p) => p.uid === uid)
   if (!bp) throw new Error(`no pillar ${uid}`)
   return {
@@ -96,9 +100,15 @@ function pillarPartialHex(board: Board, uid: string): BoardHex {
 }
 
 /** A square pillar (uid P1, rotation 2) on the grass. */
-const onPillar = () => {
+export const onPillar = () => {
   const board = add(table, 'lwp', c, 1, 2, 'P1')
   return { board, hex: pillarPartialHex(board, 'P1') }
+}
+
+/** A triangle pillar (uid T2) on the grass. */
+export const onTrianglePillar = () => {
+  const board = add(table, 'lwt', c, 1, 0, 'T2')
+  return { board, hex: pillarPartialHex(board, 'T2') }
 }
 
 /** Two square pillars stacked (P1 at 1, P2 at 10); the top one is clicked. */
@@ -233,13 +243,6 @@ export const placementCases: PlacementCase[] = [
     expected: { placed: { coords: c, altitude: 1, rotation: 0 } },
   },
   {
-    name: 'glyph: on a castle wall goes on the wall cap',
-    pieceID: 'y0',
-    rotation: 0,
-    setup: onCastleWall,
-    expected: { placed: { coords: c, altitude: 11, rotation: 0 } },
-  },
-  {
     name: 'start zone: on grass',
     pieceID: 'z1',
     rotation: 0,
@@ -272,6 +275,13 @@ export const placementCases: PlacementCase[] = [
     expected: { placed: { coords: c, altitude: 11, rotation: 0 } },
   },
   {
+    name: 'castle wall: a wall walk goes on the wall cap',
+    pieceID: 'cg1',
+    rotation: 0,
+    setup: onCastleWall,
+    expected: { placed: { coords: c, altitude: 11, rotation: 0 } },
+  },
+  {
     name: 'castle arch: clicking a side hex uses that hex column cap',
     pieceID: 'cws',
     rotation: 0,
@@ -282,13 +292,6 @@ export const placementCases: PlacementCase[] = [
     expected: {
       placed: { coords: { q: 4, r: 4, s: -8 }, altitude: 11, rotation: 0 },
     },
-  },
-  {
-    name: 'castle wall: land clicked on a wall goes on the cap, no land gate',
-    pieceID: 'g1',
-    rotation: 0,
-    setup: onCastleWall,
-    expected: { placed: { coords: c, altitude: 11, rotation: 0 } },
   },
   // BATTLEMENT
   {
@@ -305,13 +308,6 @@ export const placementCases: PlacementCase[] = [
     setup: onGrass,
     expected: { placed: { coords: northWest, altitude: 0, rotation: 1 } },
   },
-  {
-    name: 'battlement: on a castle wall takes the castle-cap rule instead',
-    pieceID: 'bt',
-    rotation: 2,
-    setup: onCastleWall,
-    expected: { placed: { coords: c, altitude: 11, rotation: 2 } },
-  },
   // ROAD WALL
   {
     name: 'road wall: on grass, rotation 0',
@@ -326,13 +322,6 @@ export const placementCases: PlacementCase[] = [
     rotation: 1,
     setup: onGrass,
     expected: { placed: { coords: northEast, altitude: 0, rotation: 1 } },
-  },
-  {
-    name: 'road wall: on a castle wall takes the castle-cap rule',
-    pieceID: 'rw',
-    rotation: 0,
-    setup: onCastleWall,
-    expected: { placed: { coords: c, altitude: 11, rotation: 0 } },
   },
   // LADDER
   {
@@ -387,18 +376,8 @@ export const placementCases: PlacementCase[] = [
     name: 'pillar: triangle on triangle stacks',
     pieceID: 'lwt',
     rotation: 0,
-    setup: () => {
-      const board = add(table, 'lwt', c, 1, 0, 'T2')
-      return { board, hex: pillarPartialHex(board, 'T2') }
-    },
+    setup: onTrianglePillar,
     expected: { placed: { coords: c, altitude: 10, rotation: 0 } },
-  },
-  {
-    name: 'pillar: triangle on square does not stack, lands at its base',
-    pieceID: 'lwt',
-    rotation: 0,
-    setup: onPillar,
-    expected: { placed: { coords: c, altitude: 1, rotation: 0 } },
   },
   // ROPE LADDER
   {
@@ -407,13 +386,6 @@ export const placementCases: PlacementCase[] = [
     rotation: 1,
     setup: onGrass,
     expected: { placed: { coords: c, altitude: 0, rotation: 1 } },
-  },
-  {
-    name: 'rope ladder: on a castle wall takes the castle-cap rule',
-    pieceID: 'rl',
-    rotation: 1,
-    setup: onCastleWall,
-    expected: { placed: { coords: c, altitude: 11, rotation: 1 } },
   },
   // LAUR ADD-ONS
   {

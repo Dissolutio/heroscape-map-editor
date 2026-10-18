@@ -104,7 +104,7 @@ describe('resolvePlacement', () => {
   it('names the rule it took, castle walls first', () => {
     const wall = add(table, 'cws', c, 1, 0, 'CW')
     const wallHex = topHex(wall, c, 2)
-    expect(resolved(resolve(wall, 'bt', wallHex)).rule).toBe('castleCap')
+    expect(resolved(resolve(wall, 'cws', wallHex)).rule).toBe('castleCap')
     expect(resolved(resolve(table, 'bt', topHex(table))).rule).toBe(
       'battlement',
     )
@@ -124,13 +124,6 @@ describe('resolvePlacement', () => {
           blocked: 'needsLaurPillar',
         })
       }
-    })
-
-    it('a Laur add-on on a castle wall is not refused: the wall cap wins', () => {
-      const wall = add(table, 'cws', c, 1, 0, 'CW')
-      expect(resolved(resolve(wall, 'lws', topHex(wall, c, 2))).rule).toBe(
-        'castleCap',
-      )
     })
 
     it.each(['g1', 'r7', 'sw24'])(

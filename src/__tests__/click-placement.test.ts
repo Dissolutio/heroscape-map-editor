@@ -19,7 +19,12 @@ import {
   withGrassFloor,
 } from './helpers/board'
 import { SELECTED_BEFORE_CLICK, clickWithPen } from './helpers/clickHandler'
-import { placementCases } from './helpers/placementCases'
+import {
+  onCastleWall,
+  onPillar,
+  onTrianglePillar,
+  placementCases,
+} from './helpers/placementCases'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 vi.mock('../hooks/useMiddleClickPickPenMode.tsx', () => ({
@@ -150,6 +155,56 @@ describe('click placement through the real handler', () => {
         hex: {} as BoardHex,
       })
       expect(result.added).toEqual([])
+    },
+  )
+
+  /**
+   * KNOWN GAP: the only things that connect to a castle wall's top are the
+   * bottom of another castle wall (without its base) and a wall-walk tile.
+   * Today a click on a wall puts any pen on the wall cap: the castle-wall
+   * rule in resolvePlacement runs before every other rule and checks nothing
+   * about the piece. Battlements, road walls and rope ladders also skip
+   * their edge offset there. Suggested fix: the castleCap rule returns
+   * `blocked` unless the piece is a castle wall/arch or a wall walk (the
+   * owner decides whether a refusal shows a message).
+   */
+  it.fails.each(['bt', 'rw', 'rl', 'g1', 'y0', 'tr10', 'ld'])(
+    'KNOWN GAP: only a castle wall or wall walk can go on a castle wall top, not %s',
+    (pieceID) => {
+      const { board, hex } = onCastleWall()
+      expect(clickWithPen({ board, pieceID, hex }).added).toEqual([])
+    },
+  )
+
+  /**
+   * KNOWN GAP: a Laur add-on clicked on a castle wall is placed on the wall
+   * cap. Add-ons only attach to Laur pillars; the castle-wall rule runs
+   * before the "Must add to Square/Triangle Pillar" refusal. Suggested fix:
+   * check for an add-on before the castle-wall rule (same fix as above).
+   */
+  it.fails.each(['lws', 'lwa'])(
+    'KNOWN GAP: a Laur add-on (%s) clicked on a castle wall is not placed',
+    (pieceID) => {
+      const { board, hex } = onCastleWall()
+      expect(clickWithPen({ board, pieceID, hex }).added).toEqual([])
+    },
+  )
+
+  /**
+   * KNOWN GAP: a triangle pillar cannot stack on a square pillar, or the
+   * other way round. Today the mismatched pillar falls through to the
+   * default rule and is placed at the lower pillar's base, overlapping it.
+   * Suggested fix: a pillar pen on a pillar of the other shape returns
+   * `blocked` in resolvePlacement.
+   */
+  it.fails.each([
+    { pieceID: 'lwt', on: 'square', setup: onPillar },
+    { pieceID: 'lwp', on: 'triangle', setup: onTrianglePillar },
+  ])(
+    'KNOWN GAP: a $pieceID pillar clicked on a $on pillar is not placed',
+    ({ pieceID, setup }) => {
+      const { board, hex } = setup()
+      expect(clickWithPen({ board, pieceID, hex }).added).toEqual([])
     },
   )
 })
