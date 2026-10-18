@@ -12,6 +12,11 @@ export type E2ESnapshot = {
   selectedPieceIDs: string[]
   hoveredPieceID: string
   isOrthoCam: boolean
+  placementPreview: {
+    status: 'ok' | 'conflict' | 'blocked'
+    reason: string | null
+    footprintCount: number
+  } | null
 }
 
 export type E2EPieceSummary = {
@@ -47,5 +52,7 @@ export type E2ETestBridge = {
     position: [number, number, number],
     target: [number, number, number],
   ) => Promise<void>
+  /** Set pen controls for test setup only. */
+  setPen: (penMode: string, size: number, rotation?: number) => void
   stats: () => { calls: number; triangles: number }
 }

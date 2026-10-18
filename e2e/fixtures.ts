@@ -97,6 +97,37 @@ export async function clickHex(
   await clickCanvasAt(page, point, `Hex ${JSON.stringify(hex)}`)
 }
 
+/** Move the pointer to a hex using its projected canvas position. */
+export async function hoverHex(
+  page: Page,
+  hex: { q: number; r: number; altitude: number },
+) {
+  await waitForAppReady(page)
+  const point = await page.evaluate(
+    (h) => window.__TEST__?.screenPosOfHex(h) ?? null,
+    hex,
+  )
+  const canvas = await page.locator('canvas').first().boundingBox()
+  if (!point || !canvas) {
+    throw new Error(`Hex ${JSON.stringify(hex)} is not on screen`)
+  }
+  await page.mouse.move(canvas.x + point.x, canvas.y + point.y)
+}
+
+/** Set paint controls through the E2E-only setup hook. */
+export async function setPen(
+  page: Page,
+  penMode: string,
+  size: number,
+  rotation?: number,
+) {
+  await page.evaluate(
+    ({ mode, pieceSize, penRotation }) =>
+      window.__TEST__?.setPen(mode, pieceSize, penRotation),
+    { mode: penMode, pieceSize: size, penRotation: rotation },
+  )
+}
+
 export const test = base.extend({
   // Every test starts on the fixture map, loaded and ready.
   page: async ({ page }, use) => {

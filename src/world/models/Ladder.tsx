@@ -21,7 +21,8 @@ export function Ladder({
   )
   const penMode = useBoundStore((s) => s.penMode)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
+  const { onPointerEnter, onPointerEnterPID, onPointerOut } =
+    usePieceHoverState()
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const partialHex = {
     ...bp.pieceCoords,
@@ -57,7 +58,11 @@ export function Ladder({
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Ladder.geometry}
       onPointerUp={handleOnPointerUp}
-      onPointerEnter={(e) => onPointerEnterPID(e, bp.uid)}
+      onPointerEnter={(e) =>
+        penMode === Pieces.ladder
+          ? onPointerEnter(e, partialHex)
+          : onPointerEnterPID(e, bp.uid)
+      }
       onPointerOut={(e) => onPointerOut(e)}
       material={basicModelMaterial(color, isLightsAndShadowsRender)}
     />

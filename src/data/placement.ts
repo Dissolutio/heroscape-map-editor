@@ -108,13 +108,14 @@ export function resolvePlacement(
   pointerHex: BoardHex,
   rotation: number,
   board: PlacementBoard,
-  options: { ignoreUID?: string } = {},
+  options: { ignoreUID?: string; deferOffMapCheck?: boolean } = {},
 ): PlacementResolution {
   // e.g. ShipBow used to hand over `{}`; there is nothing to place on
   if (typeof pointerHex?.pieceID !== 'string') return { blocked: 'notAHex' }
   const resolution = resolveByRule(piece, pointerHex, rotation, board, options)
   if (
     !isPlacementBlocked(resolution) &&
+    !options.deferOffMapCheck &&
     hangsOffMap(board.boardHexes, resolution)
   ) {
     return { blocked: 'offMap' }
