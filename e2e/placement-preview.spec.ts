@@ -5,8 +5,7 @@ test('a solid land pen previews ok over a free hex', async ({ page }) => {
   await hoverHex(page, { q: 2, r: 2, altitude: 0 })
 
   await page.waitForFunction(
-    () =>
-      window.__TEST__?.snapshot().placementPreview?.status === 'ok',
+    () => window.__TEST__?.snapshot().placementPreview?.status === 'ok',
   )
   const snapshot = await page.evaluate(() => window.__TEST__?.snapshot())
   expect(snapshot?.placementPreview).toMatchObject({
