@@ -1,19 +1,33 @@
 import type { MapFileState } from '../types'
 import { normalizeBoardPieces } from '../utils/map-utils'
-import { LS_KEYS } from './keys'
+import { isHexMap } from '../utils/type-checker'
+import { restoreMapPortrait } from './mapStorage'
+import { safeGetJSON } from './safeStorage'
 
 export function loadMapFromLocalStorage(ls_key: string): MapFileState | null {
   try {
-    const raw = localStorage.getItem(ls_key)
-    if (!raw) return null
-    const preparsed = JSON.parse(raw)
+    const preparsed = safeGetJSON(ls_key)
     // zustand nests under 'state', we do not
-    const parsed = preparsed?.state ?? preparsed
-    if (!parsed) return null
+    const parsed =
+      typeof preparsed === 'object' &&
+      preparsed !== null &&
+      'state' in preparsed
+        ? preparsed.state
+        : preparsed
+    if (parsed === null) return null
+    if (
+      typeof parsed !== 'object' ||
+      !('hexMap' in parsed) ||
+      !isHexMap(parsed.hexMap) ||
+      !('boardPieces' in parsed)
+    ) {
+      console.warn(`Invalid map in localStorage key "${ls_key}"`)
+      return null
+    }
 
     // normalize boardPieces to BoardPiece[] regardless of legacy format
     const boardPieces = normalizeBoardPieces(parsed.boardPieces)
-    return { hexMap: parsed.hexMap, boardPieces }
+    return { hexMap: restoreMapPortrait(parsed.hexMap), boardPieces }
   } catch (e) {
     console.warn('Failed loading last map from localStorage', e)
     return null

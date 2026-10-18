@@ -7,6 +7,11 @@ import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { removePiece } from '../data/removePiece'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 import { LS_KEYS } from '../local-storage/keys'
+import {
+  saveMapPortrait,
+  withoutMapPortrait,
+} from '../local-storage/mapStorage'
+import { safeSetItem } from '../local-storage/safeStorage'
 import { HexTerrain } from '../types'
 import type {
   AddRemovePieceError,
@@ -118,7 +123,16 @@ type ConvertTerrainArgs = {
 // we can offer them the chance to load their last map instead of the URL (in useAutoLoadMapFile.tsx)
 const localLastMap = loadMapFromLocalStorage(LS_KEYS.lastMap)
 if (localLastMap) {
-  localStorage.setItem(LS_KEYS.lastMapCache, JSON.stringify(localLastMap))
+  const portraitSaved = saveMapPortrait(localLastMap.hexMap)
+  safeSetItem(
+    LS_KEYS.lastMapCache,
+    JSON.stringify({
+      ...localLastMap,
+      hexMap: portraitSaved
+        ? withoutMapPortrait(localLastMap.hexMap)
+        : localLastMap.hexMap,
+    }),
+  )
 }
 
 const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({

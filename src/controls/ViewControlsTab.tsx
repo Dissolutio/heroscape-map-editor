@@ -173,10 +173,10 @@ export default function ViewControlsTab({
             endIcon={<HotkeyText text={hotkeyLookup.handleToggleIsOrthoCam} />}
           />
 
-          {/* Take map picture PNG */}
+          {/* Take map picture */}
           <ControlTabsListItemButton
-            title={'Take map picture .PNG'}
-            primary="Take map picture .PNG"
+            title={'Take map picture'}
+            primary="Take map picture"
             onClick={handleTakeAMapPicture}
             icon={<FcOldTimeCamera />}
           />

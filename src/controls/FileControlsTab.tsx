@@ -134,13 +134,28 @@ export const FileControlsTab = ({
       setIsDownloadingAll(false)
     }
   }
-  const handleDownloadPng = () => {
-    const link = document.createElement('a')
-    link.download = `${hexMap.name}.png`
-    link.href = mapPortraitBase64
-    // document.body.appendChild(link)
-    link.click()
-    // document.body.removeChild(link)
+  const handleDownloadPng = async () => {
+    try {
+      const image = new Image()
+      image.src = mapPortraitBase64
+      await image.decode()
+      const canvas = document.createElement('canvas')
+      canvas.width = image.naturalWidth
+      canvas.height = image.naturalHeight
+      const context = canvas.getContext('2d')
+      if (!context) throw new Error('Could not create a download canvas')
+      context.drawImage(image, 0, 0)
+      const link = document.createElement('a')
+      link.download = `${hexMap.name}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    } catch (error) {
+      console.error('Failed to download map portrait as PNG', error)
+      enqueueSnackbar({
+        message: 'Could not download the map portrait as PNG.',
+        variant: 'error',
+      })
+    }
   }
   const handleDownloadJpg = () => {
     const link = document.createElement('a')
