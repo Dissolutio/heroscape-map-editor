@@ -38,7 +38,7 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `storage-known-gaps.test.ts` | Legacy constraint restoration and protection against hotkey mount overwrites. |
 | `virtualscape-import.test.ts` | Version 0.0007 Virtualscape binary import through `readVirtualscapeMapFile()` and `buildupVSFileMap()`: registered codes, positions, rotations, odd-r coordinates, and the known silent-drop gap for unknown codes. |
 | `map-roundtrip.test.ts` | JSON file, local autosave, and compressed share-link save/load round trips for multiple piece families, including stable map/piece data, rebuilt occupancy, no drops, and conflict recomputation. |
-| `store-undo-redo.test.ts` | The real Zustand/Zundo store: paint, unpaint, move, grouped multi-piece move, `loadMap` history/conflicts, and transient UI state versus autosave. |
+| `store-undo-redo.test.ts` | The real Zustand/Zundo store: paint, unpaint, move, multi-piece undo/redo when pausing after the first move, the no-history gotcha when pausing before it, `loadMap` history/conflicts, and transient UI state versus autosave. |
 | `helpers/board.ts` | `makeTable`, `place`, `remove`, `withGrassFloor`, `hexAt`: build boards without the store. |
 | `helpers/clickHandler.ts` | `clickWithPen`: drive the real click handler in Node (the test stubs MapDisplay3D's children; see `click-placement.test.ts`). |
 

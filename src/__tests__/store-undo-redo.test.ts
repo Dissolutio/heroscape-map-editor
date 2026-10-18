@@ -143,52 +143,100 @@ describe('real store undo and redo', () => {
     expect(snapshot()).toEqual(afterMove)
   })
 
-  // The multi-select UI pauses zundo while applying every move. The current
-  // pause/resume pair suppresses those updates instead of grouping them.
-  // A future fix should make the batch one undoable change.
-  it.fails(
-    'KNOWN GAP: paused multi-piece moves do not create one undo step',
-    () => {
-      loadWithoutHistory(
-        loadedMap([
-          {
-            uid: 'first',
-            inventoryID: 'g1',
-            altitude: 0,
-            rotation: 0,
-            pieceCoords: { q: 2, r: 2, s: -4 },
-          },
-          {
-            uid: 'second',
-            inventoryID: 'g1',
-            altitude: 0,
-            rotation: 0,
-            pieceCoords: { q: 7, r: 6, s: -13 },
-          },
-        ]),
-      )
-      const before = snapshot()
-      const temporal = store.temporal.getState()
-
-      temporal.pause()
-      store.getState().movePiece({
+  it('groups three moves when pausing after the first move', () => {
+    const pieces = [
+      {
         uid: 'first',
-        newPieceCoords: { q: 4, r: 3, s: -7 },
-      })
-      store.getState().movePiece({
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 2, r: 2, s: -4 },
+      },
+      {
         uid: 'second',
-        newPieceCoords: { q: 9, r: 8, s: -17 },
-      })
-      temporal.resume()
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 7, r: 6, s: -13 },
+      },
+      {
+        uid: 'third',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 3, r: 9, s: -12 },
+      },
+    ]
+    loadWithoutHistory(loadedMap(pieces))
+    const before = snapshot()
+    const temporal = store.temporal.getState()
+    const destinations = [
+      { q: 4, r: 3, s: -7 },
+      { q: 9, r: 8, s: -17 },
+      { q: 5, r: 10, s: -15 },
+    ]
 
-      const afterMoves = snapshot()
-      expect(historyLength()).toBe(1)
-      temporal.undo()
-      expect(snapshot()).toEqual(before)
-      temporal.redo()
-      expect(snapshot()).toEqual(afterMoves)
-    },
-  )
+    for (const [index, piece] of pieces.entries()) {
+      if (index === 1) temporal.pause()
+      const newPieceCoords = destinations[index]
+      if (!newPieceCoords) throw new Error('Missing move destination')
+      store.getState().movePiece({ uid: piece.uid, newPieceCoords })
+    }
+    temporal.resume()
+
+    const afterMoves = snapshot()
+    expect(historyLength()).toBe(1)
+    temporal.undo()
+    expect(snapshot()).toEqual(before)
+    temporal.redo()
+    expect(snapshot()).toEqual(afterMoves)
+  })
+
+  it('pausing before the first move records no undo state', () => {
+    const pieces = [
+      {
+        uid: 'first',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 2, r: 2, s: -4 },
+      },
+      {
+        uid: 'second',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 7, r: 6, s: -13 },
+      },
+      {
+        uid: 'third',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 3, r: 9, s: -12 },
+      },
+    ]
+    loadWithoutHistory(loadedMap(pieces))
+    const temporal = store.temporal.getState()
+    const destinations = [
+      { q: 4, r: 3, s: -7 },
+      { q: 9, r: 8, s: -17 },
+      { q: 5, r: 10, s: -15 },
+    ]
+
+    temporal.pause()
+    for (const [index, piece] of pieces.entries()) {
+      const newPieceCoords = destinations[index]
+      if (!newPieceCoords) throw new Error('Missing move destination')
+      store.getState().movePiece({ uid: piece.uid, newPieceCoords })
+    }
+    temporal.resume()
+
+    const afterMoves = snapshot()
+    expect(historyLength()).toBe(0)
+    temporal.undo()
+    expect(snapshot()).toEqual(afterMoves)
+  })
 
   it('records direct loadMap as one undo step and recomputes conflicts', () => {
     const before = snapshot()
