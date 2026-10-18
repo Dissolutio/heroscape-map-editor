@@ -13,6 +13,7 @@ import { hexUtilsGetShipBuildableCoords } from '../../utils/hex-utils'
 import { genBoardHexID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { shipDeckColor } from './shipDeckColor'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
 type ShipWallProps = {
@@ -176,9 +177,11 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
   const isSelected = selectedPieceIDs.includes(pid ?? '')
   const isHighlighted = hoveredPieceID === pid || isSelected
   const color = isHighlighted ? yellowColor : hexTerrainColor.shipWood
-  const buildableColor = hoveredBuildableSection
-    ? yellowColor
-    : hexTerrainColor.shipWood
+  // Hovering either deck section lights both (one colour for the two decks)
+  const buildableColor = shipDeckColor(
+    isHighlighted,
+    hoveredBuildableSection !== null,
+  )
 
   return (
     <>

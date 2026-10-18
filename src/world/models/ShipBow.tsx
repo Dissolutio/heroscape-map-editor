@@ -13,6 +13,7 @@ import { hexUtilsGetShipBuildableCoords } from '../../utils/hex-utils'
 import { genBoardHexID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { shipDeckColor } from './shipDeckColor'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
 type ShipBowProps = {
@@ -195,12 +196,14 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
   const isHighlighted = hoveredPieceID === pid || isSelected
 
   // Determine colors for buildable sections
-  const forwardBuildableColor =
-    hoveredBuildableSection === 'forward'
-      ? yellowColor
-      : hexTerrainColor.shipWood
-  const aftBuildableColor =
-    hoveredBuildableSection === 'aft' ? yellowColor : hexTerrainColor.shipWood
+  const forwardBuildableColor = shipDeckColor(
+    isHighlighted,
+    hoveredBuildableSection === 'forward',
+  )
+  const aftBuildableColor = shipDeckColor(
+    isHighlighted,
+    hoveredBuildableSection === 'aft',
+  )
   const color = isHighlighted ? yellowColor : hexTerrainColor.shipWood
   const colorShipBowIron = isHighlighted
     ? yellowColor
