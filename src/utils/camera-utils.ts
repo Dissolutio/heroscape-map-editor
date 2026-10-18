@@ -19,6 +19,17 @@ const refreshInstancedBounds = (group: Group<Object3DEventMap>) => {
   })
 }
 
+/**
+ * The current size of everything in the map group, with instanced bounds
+ * refreshed, or null if the group is empty. Used to tell when a newly loaded
+ * map has finished building before the camera frames it.
+ */
+export const getMapBoundsSize = (group: Group<Object3DEventMap>) => {
+  refreshInstancedBounds(group)
+  const box = new Box3().setFromObject(group)
+  return box.isEmpty() ? null : box.getSize(new Vector3())
+}
+
 export const zoomToMap = (
   mapGroupRef: RefObject<Group<Object3DEventMap>>,
   cameraControlsRef: RefObject<CameraControls>,
