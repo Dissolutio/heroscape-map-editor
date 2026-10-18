@@ -5,31 +5,21 @@ import type React from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
 import getPieceTemplateCoords from '../data/rotationTransforms.ts'
-import { getSmartPlacementAltitude } from '../data/smartPlacement.ts'
+import { isPlacementBlocked, resolvePlacement } from '../data/placement.ts'
 import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
 import useBoundStore from '../store/store.ts'
 import {
-  type AddRemovePieceError,
   type BoardHex,
   HexTerrain,
   PICK_PEN_MODE,
-  PiecePrefixes,
-  Pieces,
   SELECT_PEN_MODE,
 } from '../types.ts'
 import {
-  canPlaceLandTileOnHex,
   isFluidTerrainHex,
   isJungleTerrainHex,
-  isLaurWallAddonPieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils.ts'
-import {
-  genBoardHexID,
-  getBattlementClickedHexCoords,
-  getBoardHexesRectangularMapDimensions,
-  getRoadWallClickedHexCoords,
-} from '../utils/map-utils.ts'
+import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils.ts'
 import { getFluidRunLengthAt } from '../utils/fluidStacks.ts'
 import { warnIfTallFluidStack } from '../utils/warnAboutLoadedMap.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
@@ -78,7 +68,6 @@ export default function MapDisplay3D({
     event: ThreeEvent<PointerEvent>,
     hex: BoardHex,
   ) => {
-    let error: AddRemovePieceError
     event.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (event.button !== 0) {
@@ -104,191 +93,50 @@ export default function MapDisplay3D({
     }
     const pieceMode = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
     const piece = piecesSoFar[pieceMode]
-    const isCastleWallArchClicked =
-      hex.pieceID.includes(PiecePrefixes.castleWall) ||
-      hex.pieceID.includes(PiecePrefixes.castleArch)
-    const isLaurPillarClicked =
-      hex.inventoryID === Pieces.laurWallSquarePillar ||
-      hex.inventoryID === Pieces.laurWallTrianglePillar
-    const isSquarePillarPenMode = piece?.id === Pieces.laurWallSquarePillar
-    const isTrianglePillarPenMode = piece?.id === Pieces.laurWallTrianglePillar
-    const isMatchingPillarStackTarget =
-      (isSquarePillarPenMode &&
-        hex.inventoryID === Pieces.laurWallSquarePillar) ||
-      (isTrianglePillarPenMode &&
-        hex.inventoryID === Pieces.laurWallTrianglePillar)
-    const boardHexIdOfCapForWall = genBoardHexID({
-      ...hex,
-      altitude: hex.altitude + (hex?.obstacleHeight ?? 0),
-    })
-    // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
-    const clickedHex = isCastleWallArchClicked
-      ? boardHexes[boardHexIdOfCapForWall]
-      : hex
-    const clickedHexCoords = isCastleWallArchClicked
-      ? {
-          q: boardHexes[boardHexIdOfCapForWall].q,
-          r: boardHexes[boardHexIdOfCapForWall].r,
-          s: boardHexes[boardHexIdOfCapForWall].s,
-        }
-      : {
-          q: hex.q,
-          r: hex.r,
-          s: hex.s,
-        }
-    const clickedHexAltitude = clickedHex.altitude
-    const placementAltitude = piece
-      ? getSmartPlacementAltitude({
-          boardHexes,
-          piece,
-          pieceCoords: clickedHexCoords,
-          altitude: clickedHexAltitude,
-          rotation: penModeRotation,
-        })
-      : clickedHexAltitude
-
-    // Castle W/A: use cap coords and altitude
-    if (isCastleWallArchClicked) {
-      const castleWallArchClickedHexCoords = {
-        q: boardHexes[boardHexIdOfCapForWall].q,
-        r: boardHexes[boardHexIdOfCapForWall].r,
-        s: boardHexes[boardHexIdOfCapForWall].s,
-      }
-      error = paintTile({
-        piece,
-        clickedHexCoords: castleWallArchClickedHexCoords,
-        altitude: placementAltitude,
-        rotation: penModeRotation,
-      })
+    if (!piece) {
+      return
     }
-    // Adding laur addon, put it at same level
-    else if (isLaurWallAddonPieceID(piece?.id ?? '')) {
-      if (!isLaurPillarClicked) {
+    const placement = resolvePlacement(piece, hex, penModeRotation, {
+      boardHexes,
+      boardPieces,
+    })
+    if (isPlacementBlocked(placement)) {
+      if (placement.blocked === 'needsLaurPillar') {
         enqueueSnackbar({
           message: 'Must add to Square/Triangle Pillar.',
           variant: 'warning',
           autoHideDuration: 5000,
         })
-        return
       }
-      error = paintTile({
-        piece,
-        clickedHexCoords,
-        altitude: clickedHexAltitude,
-        rotation: penModeRotation,
-      })
+      return
     }
-    // BATTLEMENT
-    else if (piece?.id === Pieces.battlement) {
-      const battlementClickedHexCoords = getBattlementClickedHexCoords(
-        clickedHex,
-        penModeRotation,
-      )
-      const mirrorRotation = (penModeRotation + 3) % 6
-      error = paintTile({
-        piece,
-        clickedHexCoords: battlementClickedHexCoords,
-        altitude: clickedHexAltitude - 1,
-        rotation: mirrorRotation,
-      })
-    }
-    // ROADWALL
-    else if (piece?.id === Pieces.roadWall) {
-      const roadWallClickedHexCoords = getRoadWallClickedHexCoords(
-        clickedHex,
-        penModeRotation,
-      )
-      error = paintTile({
-        piece,
-        clickedHexCoords: roadWallClickedHexCoords,
-        altitude: clickedHexAltitude - 1,
-        rotation: penModeRotation,
-      })
-    }
-    // ROPELADDER
-    else if (piece?.id === Pieces.ropeLadder) {
-      error = paintTile({
-        piece,
-        clickedHexCoords,
-        // altitude: clickedHexAltitude,
-        // rotation: penModeRotation,
-        // piece,
-        // clickedHexCoords: roadWallClickedHexCoords,
-        altitude: clickedHexAltitude - 1,
-        rotation: penModeRotation,
-      })
-    }
-    // LADDER ONTO LADDER
-    else if (
-      piece?.id === Pieces.ladder &&
-      hex?.inventoryID === Pieces.ladder
+    const { coords, altitude, rotation } = placement
+    const error = paintTile({
+      piece,
+      clickedHexCoords: coords,
+      altitude,
+      rotation,
+    })
+    // A fluid tile stacked on fluid tops out half a level up; warn when that
+    // makes a straight run taller than the real tiles line up.
+    if (
+      !error &&
+      placement.rule === 'land' &&
+      isFluidTerrainHex(piece.terrain)
     ) {
-      error = paintTile({
-        piece,
-        clickedHexCoords: clickedHexCoords,
-        altitude: clickedHexAltitude + 1,
-        rotation: clickedHex.pieceRotation,
+      const { boardHexes: hexesAfterPaint } = useBoundStore.getState()
+      const footprint = getPieceTemplateCoords({
+        clickedHex: coords,
+        rotation,
+        template: piece.template,
+        isVsTile: false,
       })
-    }
-    // PILLAR ONTO PILLAR
-    else if (isMatchingPillarStackTarget && isLaurPillarClicked) {
-      const supportingPillar = boardPieces.find(
-        (bp) => bp.uid === clickedHex.boardPieceUID,
+      const runLength = Math.max(
+        ...footprint.map((coord) =>
+          getFluidRunLengthAt(hexesAfterPaint, coord, altitude + 0.5),
+        ),
       )
-      const stackAltitude =
-        (supportingPillar?.altitude ?? clickedHexAltitude) + 9
-      error = paintTile({
-        piece,
-        clickedHexCoords,
-        altitude: stackAltitude,
-        rotation: clickedHex.pieceRotation,
-      })
-    }
-    // LAND TILE: solid or fluid (includes ship bow buildable sections). Gated so solid
-    // can't land on a half-level fluid cap, and both must target a hoverable land hex.
-    else if (
-      isSolidTerrainHex(piece?.terrain) ||
-      isFluidTerrainHex(piece?.terrain)
-    ) {
-      if (!canPlaceLandTileOnHex(piece.terrain, hex.terrain, hex.altitude)) {
-        return
-      }
-      error = paintTile({
-        piece,
-        clickedHexCoords,
-        altitude: placementAltitude,
-        rotation: penModeRotation,
-      })
-      // A fluid tile stacked on fluid tops out half a level up; warn when that
-      // makes a straight run taller than the real tiles line up.
-      if (!error && isFluidTerrainHex(piece.terrain)) {
-        const { boardHexes: hexesAfterPaint } = useBoundStore.getState()
-        const footprint = getPieceTemplateCoords({
-          clickedHex: clickedHexCoords,
-          rotation: penModeRotation,
-          template: piece.template,
-          isVsTile: false,
-        })
-        const runLength = Math.max(
-          ...footprint.map((coord) =>
-            getFluidRunLengthAt(
-              hexesAfterPaint,
-              coord,
-              placementAltitude + 0.5,
-            ),
-          ),
-        )
-        warnIfTallFluidStack(enqueueSnackbar, runLength)
-      }
-    }
-    // Clicked a regular land cap (fallback)
-    else {
-      error = paintTile({
-        piece,
-        clickedHexCoords,
-        altitude: placementAltitude,
-        rotation: penModeRotation,
-      })
+      warnIfTallFluidStack(enqueueSnackbar, runLength)
     }
     // Error from add/remove piece, report error and select piece
     if (error) {
