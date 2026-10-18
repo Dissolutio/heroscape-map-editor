@@ -37,9 +37,7 @@ export const LoadFileHiddenInputs = () => {
     }
     try {
       const data = await readGzipMapFile(file)
-      const normalizedPieces = normalizeBoardPiecesWithDropped(
-        data.boardPieces,
-      )
+      const normalizedPieces = normalizeBoardPiecesWithDropped(data.boardPieces)
       const jsonMap = buildupJsonFileMap(
         normalizedPieces.boardPieces,
         data.hexMap,
@@ -78,9 +76,7 @@ export const LoadFileHiddenInputs = () => {
     }
     try {
       const data = await new Response(file).json()
-      const normalizedPieces = normalizeBoardPiecesWithDropped(
-        data.boardPieces,
-      )
+      const normalizedPieces = normalizeBoardPiecesWithDropped(data.boardPieces)
       const jsonMap = buildupJsonFileMap(
         normalizedPieces.boardPieces,
         data.hexMap,
