@@ -1,3 +1,4 @@
+import type { PlacementBlockedReason } from '../../data/placement'
 import type { BoardHex, CubeCoordinate } from '../../types'
 import { HexTerrain } from '../../types'
 import {
@@ -33,7 +34,7 @@ export type PlacementCase = {
           rotation: number
         }
       }
-    | { refused: 'needsLaurPillar' | 'landTileNotOnHex' }
+    | { refused: PlacementBlockedReason }
 }
 
 const table = withGrassFloor(makeTable(9))
@@ -81,6 +82,12 @@ const onGrass = () => ({ board: table, hex: mustHex(table, c, 1) })
  */
 export const onCastleWall = () => {
   const board = add(table, 'cws', c, 1, 0, 'CW')
+  return { board, hex: mustHex(board, c, 2) }
+}
+
+/** A castle arch (uid CA) on the grass; its origin hex is clicked. */
+export const onCastleArch = () => {
+  const board = add(table, 'ca', c, 1, 0, 'CA')
   return { board, hex: mustHex(board, c, 2) }
 }
 
@@ -282,11 +289,60 @@ export const placementCases: PlacementCase[] = [
     expected: { placed: { coords: c, altitude: 11, rotation: 0 } },
   },
   {
+    name: 'castle wall: a wall walk goes on an arch top',
+    pieceID: 'cg1',
+    rotation: 0,
+    setup: onCastleArch,
+    expected: { placed: { coords: c, altitude: 11, rotation: 0 } },
+  },
+  {
+    name: 'castle wall: a castle wall goes on an arch top',
+    pieceID: 'cws',
+    rotation: 0,
+    setup: onCastleArch,
+    expected: { placed: { coords: c, altitude: 11, rotation: 0 } },
+  },
+  {
+    name: 'castle refusal: an arch (bases attached) on a castle wall top',
+    pieceID: 'ca',
+    rotation: 0,
+    setup: onCastleWall,
+    expected: { refused: 'castleArchNeedsLand' },
+  },
+  {
+    name: 'castle refusal: an arch without a door on an arch top',
+    pieceID: 'cab',
+    rotation: 0,
+    setup: onCastleArch,
+    expected: { refused: 'castleArchNeedsLand' },
+  },
+  {
+    name: 'castle refusal: a castle wall base on a castle wall top',
+    pieceID: 'cbs',
+    rotation: 0,
+    setup: onCastleWall,
+    expected: { refused: 'notOnCastleWallTop' },
+  },
+  {
+    name: 'castle refusal: a battlement on an arch top',
+    pieceID: 'bt',
+    rotation: 0,
+    setup: onCastleArch,
+    expected: { refused: 'notOnCastleWallTop' },
+  },
+  {
+    name: 'castle arch: on grass',
+    pieceID: 'ca',
+    rotation: 0,
+    setup: onGrass,
+    expected: { placed: { coords: c, altitude: 1, rotation: 0 } },
+  },
+  {
     name: 'castle arch: clicking a side hex uses that hex column cap',
     pieceID: 'cws',
     rotation: 0,
     setup: () => {
-      const board = add(table, 'ca', c, 1, 0, 'CA')
+      const { board } = onCastleArch()
       return { board, hex: mustHex(board, { q: 4, r: 4, s: -8 }, 2) }
     },
     expected: {
