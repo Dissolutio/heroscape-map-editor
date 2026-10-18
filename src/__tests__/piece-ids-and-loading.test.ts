@@ -129,7 +129,7 @@ describe('normalizeBoardPieces (reads every saved-map format the app has had)', 
     expect(normalizeBoardPieces([])).toEqual([])
   })
 
-  it('KNOWN GAP: piece objects without a uid are rejected, not turned into NaN pieces', () => {
+  it('normalizes legacy piece objects without a uid', () => {
     // Older BoardPiece[] files have no uid. Normalize them by adding a uid
     // while retaining their piece data rather than decoding their array
     // indexes as piece IDs.

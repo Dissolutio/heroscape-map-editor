@@ -18,7 +18,7 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
 | `replay-conflicts.test.ts` | How conflicts are computed (`data/rebuildBoardState.ts`): what counts, what does not. |
 | `laur-addon-footprints.test.ts` | Which hexes lwl2/lwr2/lwr3 block (`data/laurAddonFootprints.ts`, not used by the app yet). |
-| `piece-ids-and-loading.test.ts` | Piece ids, the saved-map formats, and the load path (`buildupJsonFileMap`). |
+| `piece-ids-and-loading.test.ts` | Piece ids, legacy uid-less piece normalization, saved-map formats, and the load path (`buildupJsonFileMap`). |
 | `hex-grid.test.ts` | Cube coordinates, directions, rotation, grid generation, odd-r conversion. |
 | `edges-and-nodes.test.ts` | How edges and corners are represented today, and the acceptance checklist (`it.todo`) for the edge/node model. |
 | `terrain-constraints.test.ts` | Inventory normalization and set/personal/file constraints. |
