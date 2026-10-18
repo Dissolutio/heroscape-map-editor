@@ -433,31 +433,78 @@ export function countStringInArrayLoop(arr: string[], targetString: string) {
   return count
 }
 
+type NormalizableBoardPiece = Omit<BoardPiece, 'uid'> & { uid?: unknown }
+
+const isSaneBoardPiece = (
+  value: unknown,
+): value is NormalizableBoardPiece => {
+  if (typeof value !== 'object' || value === null) return false
+
+  const piece = value as Partial<NormalizableBoardPiece>
+  const coords = piece.pieceCoords
+  return (
+    typeof piece.inventoryID === 'string' &&
+    Number.isFinite(piece.altitude) &&
+    Number.isFinite(piece.rotation) &&
+    typeof coords === 'object' &&
+    coords !== null &&
+    Number.isFinite(coords.q) &&
+    Number.isFinite(coords.r) &&
+    Number.isFinite(coords.s) &&
+    coords.q + coords.r + coords.s === 0
+  )
+}
+
+const normalizePieceArray = (pieces: unknown[]): BoardPiece[] => {
+  const normalized: BoardPiece[] = []
+  const usedUIDs = new Set<string>()
+
+  for (const value of pieces) {
+    if (!isSaneBoardPiece(value)) continue
+
+    const existingUID = value.uid
+    let uid: string
+    if (
+      typeof existingUID === 'string' &&
+      existingUID.trim() !== '' &&
+      !usedUIDs.has(existingUID)
+    ) {
+      uid = existingUID
+      normalized.push(value as BoardPiece)
+    } else {
+      do {
+        uid = nanoid(10)
+      } while (usedUIDs.has(uid))
+      normalized.push({ ...value, uid })
+    }
+    usedUIDs.add(uid)
+  }
+
+  return (
+    normalized.length === pieces.length &&
+    normalized.every((piece, index) => piece === pieces[index])
+  )
+    ? (pieces as BoardPiece[])
+    : normalized
+}
+
 /**
  * Normalize BoardPieces to an array of BoardPiece objects.
  * Supports legacy object format (version 0), legacy string[] format, and new BoardPiece[] format.
  */
 export function normalizeBoardPieces(boardPieces: unknown): BoardPiece[] {
-  // New format: BoardPiece[]
-  if (
-    Array.isArray(boardPieces) &&
-    boardPieces.length > 0 &&
-    typeof boardPieces[0] === 'object' &&
-    boardPieces[0] !== null &&
-    'uid' in boardPieces[0]
-  ) {
-    return boardPieces as BoardPiece[]
+  if (Array.isArray(boardPieces)) {
+    if (boardPieces.every((piece) => typeof piece === 'string')) {
+      return normalizePieceArray(inflateBoardPiecesFromIds(boardPieces))
+    }
+    return normalizePieceArray(boardPieces)
   }
-  // Legacy format: string[]
-  if (
-    Array.isArray(boardPieces) &&
-    (boardPieces.length === 0 || typeof boardPieces[0] === 'string')
-  ) {
-    return inflateBoardPiecesFromIds(boardPieces as string[])
-  }
+
   // Legacy object format: { [pieceID: string]: string }
   if (typeof boardPieces === 'object' && boardPieces !== null) {
-    return inflateBoardPiecesFromIds(Object.keys(boardPieces as object))
+    return normalizePieceArray(
+      inflateBoardPiecesFromIds(Object.keys(boardPieces)),
+    )
   }
   return []
 }

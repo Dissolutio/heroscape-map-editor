@@ -127,19 +127,13 @@ describe('normalizeBoardPieces (reads every saved-map format the app has had)', 
     expect(normalizeBoardPieces([])).toEqual([])
   })
 
-  it.fails(
+  it(
     'KNOWN GAP: piece objects without a uid are rejected, not turned into NaN pieces',
     () => {
-      // A BoardPiece[] whose first element has no `uid` (hand-edited file, a
-      // build from before uids existed, a typo) fails the "current format" check,
-      // then falls through to the LAST branch, which treats the array as an
-      // object keyed by piece id: Object.keys([...]) is ["0", "1", ...], so each
-      // piece is "decoded" from the string "0" and comes back with inventoryID
-      // undefined and q/r/s/rotation NaN. Nothing throws; the corrupt pieces flow
-      // on into the map (and from there into localStorage on the next autosave).
+      // Older BoardPiece[] files have no uid. Normalize them by adding a uid
+      // while retaining their piece data rather than decoding their array
+      // indexes as piece IDs.
       //
-      // Either returning [] or throwing would be better; update this test to
-      // whichever you choose.
       const uidLess = [
         {
           inventoryID: 'g1',
@@ -148,17 +142,122 @@ describe('normalizeBoardPieces (reads every saved-map format the app has had)', 
           pieceCoords: { q: 1, r: 1, s: -2 },
         },
       ]
-      let result: BoardPiece[] = []
-      try {
-        result = normalizeBoardPieces(uidLess)
-      } catch {
-        // rejecting bad input is an acceptable outcome
-      }
+      const result = normalizeBoardPieces(uidLess)
       const isSane = (p: BoardPiece) =>
-        p.inventoryID in piecesSoFar && Number.isFinite(p.pieceCoords.q)
+        p.inventoryID in piecesSoFar &&
+        Number.isFinite(p.altitude) &&
+        Number.isFinite(p.rotation) &&
+        Number.isFinite(p.pieceCoords.q) &&
+        Number.isFinite(p.pieceCoords.r) &&
+        Number.isFinite(p.pieceCoords.s)
+      expect(result).toHaveLength(1)
       expect(result.every(isSane)).toBe(true)
+      expect(result[0]).toMatchObject({
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 1, r: 1, s: -2 },
+      })
+      expect(result[0].uid).toEqual(expect.any(String))
+      expect(result[0].uid.length).toBeGreaterThan(0)
     },
   )
+
+  it('gives several uid-less pieces distinct uids without changing their data', () => {
+    const uidLess = [
+      {
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 1, r: 1, s: -2 },
+      },
+      {
+        inventoryID: 'r7',
+        altitude: 2,
+        rotation: 3,
+        pieceCoords: { q: -2, r: 4, s: -2 },
+      },
+      {
+        inventoryID: 'g2',
+        altitude: 1,
+        rotation: 1.5,
+        pieceCoords: { q: 3, r: -1, s: -2 },
+      },
+    ]
+    const result = normalizeBoardPieces(uidLess)
+    const stripUID = ({ uid: _uid, ...rest }: BoardPiece) => rest
+
+    expect(result).toHaveLength(uidLess.length)
+    expect(new Set(result.map((p) => p.uid)).size).toBe(uidLess.length)
+    expect(result.map(stripUID)).toEqual(uidLess)
+  })
+
+  it('preserves existing uids on pieces that already have them', () => {
+    const existing = [
+      piece('kept-one', 'g1', 1, 1),
+      piece('kept-two', 'r7', -2, 4, 2, 3),
+    ]
+
+    expect(normalizeBoardPieces(existing)).toBe(existing)
+    expect(normalizeBoardPieces(existing).map((p) => p.uid)).toEqual([
+      'kept-one',
+      'kept-two',
+    ])
+  })
+
+  it('regenerates duplicate uids to keep every normalized piece unique', () => {
+    const duplicates = [
+      piece('reused', 'g1', 1, 1),
+      piece('reused', 'r7', -2, 4, 2, 3),
+    ]
+    const result = normalizeBoardPieces(duplicates)
+
+    expect(result[0].uid).toBe('reused')
+    expect(result[1].uid).toEqual(expect.any(String))
+    expect(result[1].uid).not.toBe('reused')
+    expect(new Set(result.map((p) => p.uid)).size).toBe(result.length)
+  })
+
+  it('does not return malformed piece coordinates from any saved format', () => {
+    const invalidLegacyObjects = [
+      {
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: Number.NaN, r: 1, s: -1 },
+      },
+    ]
+
+    expect(normalizeBoardPieces(invalidLegacyObjects)).toEqual([])
+    expect(normalizeBoardPieces(['0~NaN~1~0~g1'])).toEqual([])
+  })
+
+  it('loads the same uid-less legacy pieces with identical data apart from uids', () => {
+    const legacy = [
+      {
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 1, r: 1, s: -2 },
+      },
+      {
+        inventoryID: 'r7',
+        altitude: 2,
+        rotation: 3,
+        pieceCoords: { q: -2, r: 4, s: -2 },
+      },
+    ]
+    const load = () =>
+      buildupJsonFileMap(normalizeBoardPieces(legacy), rectangleMap())
+        .boardPieces
+    const first = load()
+    const second = load()
+    const stripUID = ({ uid: _uid, ...rest }: BoardPiece) => rest
+
+    expect(first.map(stripUID)).toEqual(second.map(stripUID))
+    expect(new Set(first.map((p) => p.uid)).size).toBe(first.length)
+    expect(first.every((p) => Number.isFinite(p.pieceCoords.q))).toBe(true)
+  })
 })
 
 describe('buildupJsonFileMap (the load path for files, links and localStorage)', () => {
