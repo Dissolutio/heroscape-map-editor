@@ -4,6 +4,12 @@ import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 import {
+  loadSettings,
+  resetSettings as resetStoredSettings,
+  SETTINGS_DEFAULTS,
+  type LightPosition,
+} from '../local-storage/settings'
+import {
   type BoardHex,
   type BoardPiece,
   PICK_PEN_MODE,
@@ -13,12 +19,13 @@ import {
 } from '../types'
 import type { AppState } from './store'
 
-export type LightPosition = [number, number, number]
+export type { LightPosition } from '../local-storage/settings'
 
 export interface UISlice {
-  // TODO: persisted state below
   isShowStartZones: boolean
   toggleIsShowStartZones: (s: boolean) => void
+  resetSettings: () => void
+  resetLightPositions: () => void
 
   // unpersisted state below
   lastPenMode: string
@@ -138,6 +145,7 @@ const createUISlice: StateCreator<
   [],
   UISlice
 > = (set) => ({
+  ...loadSettings(),
   selectedPieceIDs: [],
   toggleSelectedPieceID: (pieceID: string, multiSelect?: boolean) =>
     set(
@@ -186,8 +194,6 @@ const createUISlice: StateCreator<
       }),
     ),
   penMode: initialPenMode,
-  lastPenMode: 'g',
-  lastPenSize: 1,
   toggleLastPenMode: () =>
     set(
       produce((state) => {
@@ -219,7 +225,12 @@ const createUISlice: StateCreator<
           state.penMode,
           state.pieceSize,
         )
-        // if switching to a non-painting mode, remeber the last pen mode
+        // Keep the active painting mode and size available after a reload.
+        if (!nonPaintingPenModes.has(mode)) {
+          state.lastPenMode = mode
+          state.lastPenSize = newSize
+        }
+        // Preserve the painting mode when switching to a non-painting mode.
         if (
           nonPaintingPenModes.has(mode) &&
           !nonPaintingPenModes.has(state.penMode)
@@ -241,6 +252,9 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.pieceSize = n
+        if (!nonPaintingPenModes.has(s.penMode)) {
+          s.lastPenSize = n
+        }
       }),
     ),
   penModeRotation: 0,
@@ -312,7 +326,6 @@ const createUISlice: StateCreator<
     )
     return popped
   },
-  isShowStartZones: true,
   toggleIsShowStartZones: (b: boolean) =>
     set(
       produce((s) => {
@@ -333,28 +346,24 @@ const createUISlice: StateCreator<
         s.isCameraDisabled = b
       }),
     ),
-  isOrthoCam: true,
   toggleIsOrthoCam: (b: boolean) =>
     set(
       produce((s) => {
         s.isOrthoCam = b
       }),
     ),
-  isShowPDFInventory: true,
   toggleIsShowPDFInventory: (b: boolean) =>
     set(
       produce((s) => {
         s.isShowPDFInventory = b
       }),
     ),
-  isPdfColorBorders: false,
   toggleIsPdfColorBorders: (b: boolean) =>
     set(
       produce((s) => {
         s.isPdfColorBorders = b
       }),
     ),
-  isShowPdfOverlayLayer: true,
   toggleIsShowPdfOverlayLayer: (b: boolean) =>
     set(
       produce((s) => {
@@ -365,7 +374,6 @@ const createUISlice: StateCreator<
         }
       }),
     ),
-  isShowPdfOverlayOnPlacedLevel: false,
   toggleIsShowPdfOverlayOnPlacedLevel: (b: boolean) =>
     set(
       produce((s) => {
@@ -376,28 +384,24 @@ const createUISlice: StateCreator<
         }
       }),
     ),
-  isShowPdfGridLinesOverSublevels: true,
   toggleIsShowPdfGridLinesOverSublevels: (b: boolean) =>
     set(
       produce((s) => {
         s.isShowPdfGridLinesOverSublevels = b
       }),
     ),
-  isShowPdfLevelLogo: true,
   toggleIsShowPdfLevelLogo: (b: boolean) =>
     set(
       produce((s) => {
         s.isShowPdfLevelLogo = b
       }),
     ),
-  isShowPdfTileLetters: false,
   toggleIsShowPdfTileLetters: (b: boolean) =>
     set(
       produce((s) => {
         s.isShowPdfTileLetters = b
       }),
     ),
-  pdfRenderFormat: 'coversheet',
   setPdfRenderFormat: (
     format: 'coversheet' | 'shortHeader' | 'condensedCoversheet',
   ) =>
@@ -406,28 +410,24 @@ const createUISlice: StateCreator<
         s.pdfRenderFormat = format
       }),
     ),
-  is2DOverlayLevelEnabled: true,
   toggleIs2DOverlayLevelEnabled: (b: boolean) =>
     set(
       produce((s) => {
         s.is2DOverlayLevelEnabled = b
       }),
     ),
-  isShow2DExportLevelLogo: true,
   toggleIsShow2DExportLevelLogo: (b: boolean) =>
     set(
       produce((s) => {
         s.isShow2DExportLevelLogo = b
       }),
     ),
-  isShow2DExportTileLetters: true,
   toggleIsShow2DExportTileLetters: (b: boolean) =>
     set(
       produce((s) => {
         s.isShow2DExportTileLetters = b
       }),
     ),
-  useLegacyStartZones: false,
   toggleUseLegacyStartZones: (b: boolean) =>
     set(
       produce((s) => {
@@ -466,15 +466,12 @@ const createUISlice: StateCreator<
         s.viewingLevel = level
       }),
     ),
-  isLightsAndShadowsRender: false,
-  isShowLightControls: true,
   toggleIsShowLightControls: (b: boolean) =>
     set(
       produce((s) => {
         s.isShowLightControls = b
       }),
     ),
-  lightPositions: {},
   updateLightPosition: (id, position) =>
     set(
       produce((s) => {
@@ -502,28 +499,24 @@ const createUISlice: StateCreator<
         s.isPdfOpen = b
       }),
     ),
-  isHighQualityRender: false,
   toggleIsHighQualityRender: (b: boolean) =>
     set(
       produce((s) => {
         s.isHighQualityRender = b
       }),
     ),
-  isDisplayCapHeights: false,
   toggleIsDisplayCapHeights: (b: boolean) =>
     set(
       produce((s) => {
         s.isDisplayCapHeights = b
       }),
     ),
-  isHideTableTop: false,
   toggleIsHideTableTop: (b: boolean) =>
     set(
       produce((s) => {
         s.isHideTableTop = b
       }),
     ),
-  isTopOutlinedInterlockHexes: true, // helps see the pieces from above, when they're same terrain
   toggleIsTopOutlinedInterlockHexes: (b: boolean) =>
     set(
       produce((s) => {
@@ -544,9 +537,6 @@ const createUISlice: StateCreator<
         s.userPieceInventory = n
       }),
     ),
-  terrainConstraintSource: 'setsUsed',
-  customConstraintInventory: blankPieceInventory,
-  customConstraintInventoryFileName: '',
   updateTerrainConstraintSource: (source: TerrainConstraintSource) =>
     set(
       produce((s) => {
@@ -565,6 +555,16 @@ const createUISlice: StateCreator<
       produce((s) => {
         s.customConstraintInventory = blankPieceInventory
         s.customConstraintInventoryFileName = ''
+      }),
+    ),
+  resetSettings: () => {
+    resetStoredSettings()
+    set(SETTINGS_DEFAULTS)
+  },
+  resetLightPositions: () =>
+    set(
+      produce((s) => {
+        s.lightPositions = {}
       }),
     ),
 })

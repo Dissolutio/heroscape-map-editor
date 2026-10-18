@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 import { LS_KEYS } from '../local-storage/keys'
-import { saveMapPortrait } from '../local-storage/mapStorage'
+import { partializeMap, saveMapPortrait } from '../local-storage/mapStorage'
 import type { HexMap } from '../types'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
@@ -89,6 +89,10 @@ describe('separate map portrait storage', () => {
 
   it('stores the portrait separately without rewriting it on map/UI edits', async () => {
     const { default: store } = await import('../store/store')
+    expect(Object.keys(partializeMap(store.getState()))).toEqual([
+      'boardPieces',
+      'hexMap',
+    ])
     store.getState().loadMap({ hexMap, boardPieces: [], boardHexes: {} })
     store.getState().addMapPortraitBase64('portrait-a')
     const persisted = JSON.parse(values.get(LS_KEYS.lastMap) ?? '')

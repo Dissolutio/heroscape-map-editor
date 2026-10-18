@@ -8,7 +8,7 @@ export type ParsedPieceInventory = {
 }
 
 export const normalizePieceInventory = (
-  maybeInventory?: PieceInventory | null,
+  maybeInventory?: Record<string, unknown> | null,
 ): PieceInventory => {
   const normalized: PieceInventory = { ...blankPieceInventory }
 

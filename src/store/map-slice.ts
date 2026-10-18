@@ -493,14 +493,18 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           customConstraintInventory: draft.customConstraintInventory,
           userPieceInventory: draft.userPieceInventory,
         })
-        const constrainedPenMode =
-          (draft.terrainConstraintSource === 'setsUsed'
-            ? getPreferredConstrainedPenMode(mapState.hexMap?.setsUsed)
-            : getPreferredConstrainedPenModeFromInventory(
-                constrainedInventory,
-              )) ?? PiecePrefixes.grass
-        draft.lastPenMode = constrainedPenMode
-        draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
+        if (
+          !getAvailableLandPrefixesForInventory(constrainedInventory).has(
+            draft.lastPenMode,
+          )
+        ) {
+          const constrainedPenMode =
+            getPreferredConstrainedPenModeFromInventory(constrainedInventory)
+          if (constrainedPenMode) {
+            draft.lastPenMode = constrainedPenMode
+            draft.lastPenSize = getDefaultSizeForLandPrefix(constrainedPenMode)
+          }
+        }
       })
     })
   },

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 import { LS_KEYS } from '../local-storage/keys'
+import { loadSettings } from '../local-storage/settings'
 import { makeTable } from './helpers/board'
 
 const hotkeyStorage = vi.hoisted(() => ({
@@ -26,9 +27,7 @@ describe('storage known gaps', () => {
     vi.clearAllMocks()
   })
 
-  // Step 2 will restore settings; today's loader discards these fields and
-  // persist skips hydration. Keep this failing until that work lands.
-  it.fails('KNOWN GAP: constraint settings are not restored', () => {
+  it('restores legacy constraint settings from the saved map', () => {
     const { boardPieces } = makeTable(3)
     const settings = {
       terrainConstraintSource: 'inventoryFile',
@@ -49,10 +48,14 @@ describe('storage known gaps', () => {
       },
     }
     vi.stubGlobal('localStorage', {
-      getItem: () => JSON.stringify(saved),
+      getItem: (key: string) =>
+        key === LS_KEYS.settings ? null : JSON.stringify(saved),
     })
     try {
-      expect(loadMapFromLocalStorage(LS_KEYS.lastMap)).toMatchObject(settings)
+      expect(loadMapFromLocalStorage(LS_KEYS.lastMap)).toMatchObject({
+        boardPieces,
+      })
+      expect(loadSettings()).toMatchObject(settings)
     } finally {
       vi.unstubAllGlobals()
     }

@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -12,6 +13,7 @@ import {
 } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
 import React from 'react'
+import { useSnackbar } from 'notistack'
 import {
   FcCollect,
   FcLock,
@@ -43,7 +45,9 @@ export default function ViewControlsTab({
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) {
   // const { enqueueSnackbar, closeSnackbar } = useSnackbar()
+  const { enqueueSnackbar } = useSnackbar()
   const { publish } = useEvent()
+  const resetSettings = useBoundStore((s) => s.resetSettings)
   const isCamerDisabled = useBoundStore((s) => s.isCameraDisabled)
   const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
   const toggleIsOrthoCam = useBoundStore((s) => s.toggleIsOrthoCam)
@@ -97,6 +101,10 @@ export default function ViewControlsTab({
   }
   const handleToggleOrthoCam = () => {
     toggleIsOrthoCam(!isOrthoCam)
+  }
+  const handleResetSettings = () => {
+    resetSettings()
+    enqueueSnackbar('Settings reset to defaults', { variant: 'success' })
   }
   const handleTakeAMapPicture = () => {
     toggleIsTakingPicture(true)
@@ -182,10 +190,18 @@ export default function ViewControlsTab({
           />
         </List>
       </div>
-      <Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {is3DOpen && <ViewPreferencesSwitchForm />}
         {isPdfOpen && <PdfPreferencesSwitchForm />}
         {is2DOpen && <SVGPreferencesSwitchForm />}
+        <Button
+          onClick={handleResetSettings}
+          size="small"
+          title="Restore default settings"
+          variant="outlined"
+        >
+          Reset settings
+        </Button>
       </Box>
     </Box>
   )
@@ -201,6 +217,7 @@ const ViewPreferencesSwitchForm = () => {
   const toggleIsShowLightControls = useBoundStore(
     (s) => s.toggleIsShowLightControls,
   )
+  const resetLightPositions = useBoundStore((s) => s.resetLightPositions)
   const handleChangeLightsAndRender = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -284,19 +301,24 @@ const ViewPreferencesSwitchForm = () => {
         />
 
         {isLightsAndShadowsRender && (
-          <FormControlLabel
-            control={
-              <Switch
-                size="small"
-                checked={isShowLightControls}
-                onChange={(event) =>
-                  toggleIsShowLightControls(event.target.checked)
-                }
-              />
-            }
-            title="Show/hide the handles used to reposition lights"
-            label="Show Light Controls"
-          />
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={isShowLightControls}
+                  onChange={(event) =>
+                    toggleIsShowLightControls(event.target.checked)
+                  }
+                />
+              }
+              title="Show/hide the handles used to reposition lights"
+              label="Show Light Controls"
+            />
+            <Button size="small" onClick={resetLightPositions}>
+              Reset lights
+            </Button>
+          </Box>
         )}
 
         {isLightsAndShadowsRender && (
