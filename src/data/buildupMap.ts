@@ -80,12 +80,13 @@ function sortBoardPiecesForLoad(arr: BoardPiece[]) {
   )
 }
 export type JsonMapLoadResult = MapState & {
-  /** Pieces left out because this app version does not know their inventoryID. */
+  /** Pieces omitted because they are malformed or use an unknown inventoryID. */
   droppedPieces: DroppedBoardPiece[]
 }
 export function buildupJsonFileMap(
   boardPieces: BoardPiece[],
   hexMap: HexMap,
+  droppedMalformedPieces: DroppedBoardPiece[] = [],
 ): JsonMapLoadResult {
   const shouldMigrateLegacyHexagonMap =
     hexMap.shape === 'hexagon' && (hexMap?.version ?? 0) < 1
@@ -103,8 +104,9 @@ export function buildupJsonFileMap(
 
   // For JSON maps, the map dimensions are free, we do not have to compute them
   let initialBoardHexes: BoardHexes = {}
-  const { boardPieces: knownBoardPieces, droppedPieces } =
+  const { boardPieces: knownBoardPieces, droppedPieces: unknownPieces } =
     dropUnknownBoardPieces(boardPieces)
+  const droppedPieces = [...droppedMalformedPieces, ...unknownPieces]
   const initialBoardPieces = clone(knownBoardPieces)
   let finalBoardPieces: BoardPieces = []
   if (migratedHexMap.shape === 'rectangle') {
