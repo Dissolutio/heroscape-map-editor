@@ -24,6 +24,7 @@ import Lights from './Lights'
 import MapDisplay3D from './MapDisplay3D'
 import AutoZoomToMap from './camera/AutoZoomToMap'
 import MyCameraControls from './camera/MyCameraControls'
+import { DragContext } from './drag/DragContext'
 import TakeAPictureBox from './camera/TakeAPictureBox'
 
 const BILLBOARD_WARMUP_MS = 4000
@@ -167,6 +168,7 @@ const World = ({
           <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}
           <MyCameraControls cameraControlsRef={cameraControlsRef} />
+          <DragContext cameraControlsRef={cameraControlsRef} />
           <AutoZoomToMap
             cameraControlsRef={cameraControlsRef}
             mapGroupRef={mapGroupRef}

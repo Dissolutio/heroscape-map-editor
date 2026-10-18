@@ -9,8 +9,10 @@ export default function MyCameraControls({
   cameraControlsRef: React.RefObject<CameraControls>
 }) {
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
+  // A piece drag also locks it (see world/drag/dragController.ts, which
+  // locks it imperatively first: this prop alone comes too late)
   const isCameraDisabled = useBoundStore(
-    (s) => s.isCameraDisabled || s.isTakingPicture,
+    (s) => s.isCameraDisabled || s.isTakingPicture || s.isDraggingPiece,
   )
   useHotkeys('up', () => {
     cameraControlsRef?.current?.truck(0, -1, true)

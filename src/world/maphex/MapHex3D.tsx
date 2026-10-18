@@ -10,6 +10,7 @@ import {
   HEXGRID_HEX_HEIGHT,
 } from '../../utils/constants'
 import { getBoardHex3DCoords } from '../../utils/map-utils'
+import { pressPieceForDrag, reportDragTargetHex } from '../drag/dragController'
 import { CastleArch } from '../models/CastleArch'
 import CastleBase from '../models/CastleBases'
 import { CastleWall } from '../models/CastleWalls'
@@ -63,6 +64,16 @@ export const MapHex3D = ({
     return null
   }
 
+  // castle pieces render from their hexes: drag-to-move hooks (press to
+  // drag a selected one; while dragging another piece, this is a target)
+  const dragHandlers = {
+    onPointerDown: (e: ThreeEvent<PointerEvent>) =>
+      pressPieceForDrag(e, boardHex.boardPieceUID),
+    onPointerMove: (e: ThreeEvent<PointerEvent>) => {
+      if (reportDragTargetHex(boardHex)) e.stopPropagation()
+    },
+  }
+
   return (
     <>
       <HexCapHeightTextDisplay
@@ -89,7 +100,11 @@ export const MapHex3D = ({
 
       {isCastleBase && (
         <>
-          <group position={[x, yBase, z]} rotation={[0, pieceRotation, 0]}>
+          <group
+            position={[x, yBase, z]}
+            rotation={[0, pieceRotation, 0]}
+            {...dragHandlers}
+          >
             <Suspense fallback={<ModelLoader />}>
               <CastleBase
                 boardHex={boardHex}
@@ -116,6 +131,7 @@ export const MapHex3D = ({
           <group
             position={[x, yBase - 0.005, z]}
             rotation={[0, pieceRotation, 0]}
+            {...dragHandlers}
           >
             <Suspense fallback={<ModelLoader />}>
               <CastleWall
@@ -141,7 +157,11 @@ export const MapHex3D = ({
       )}
 
       {isCastleArch && (
-        <group position={[x, yBase, z]} rotation={[0, pieceRotation, 0]}>
+        <group
+          position={[x, yBase, z]}
+          rotation={[0, pieceRotation, 0]}
+          {...dragHandlers}
+        >
           <Suspense fallback={<ModelLoader />}>
             <CastleArch
               boardHex={boardHex}

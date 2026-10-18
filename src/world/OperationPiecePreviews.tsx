@@ -148,12 +148,17 @@ function PreviewArrow({
   )
 }
 
-function OperationPiecePreviewItem({
+const ignoreRaycast = () => undefined
+
+export function OperationPiecePreviewItem({
   originalBp,
   previewBp,
+  isRaycastable = true,
 }: {
   originalBp: BoardPiece
   previewBp: BoardPiece
+  /** false: the pointer passes through the ghost (a drag ghost sits under it) */
+  isRaycastable?: boolean
 }) {
   const groupRef = useRef<Group>(null)
   // The ghost's models use the same cached materials as the real pieces, so
@@ -173,6 +178,7 @@ function OperationPiecePreviewItem({
     groupRef.current.traverse((child) => {
       const mesh = child as ThreeMesh
       if (!mesh.isMesh) return
+      if (!isRaycastable) mesh.raycast = ignoreRaycast
       const current = Array.isArray(mesh.material)
         ? mesh.material
         : [mesh.material]

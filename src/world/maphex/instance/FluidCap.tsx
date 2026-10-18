@@ -4,6 +4,11 @@ import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
 import {
+  isDragPassThrough,
+  pressPieceForDrag,
+  reportDragTargetHex,
+} from '../../drag/dragController'
+import {
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEX_HEIGHT,
   INSTANCE_LIMIT,
@@ -110,6 +115,8 @@ function FluidCap({
     if (!isVisible) {
       return
     }
+    // the pointer sees through a piece being dragged
+    if (isDragPassThrough(boardHex.boardPieceUID)) return
     e.stopPropagation() // prevent this hover from passing through and affecting behind
     onPointerEnter(e, boardHex)
     ref?.current?.color?.set?.('yellow')
@@ -138,6 +145,12 @@ function FluidCap({
       onPointerUp={handlePointerUp}
       onPointerEnter={handlePointerEnter}
       onPointerOut={handlePointerOut}
+      onPointerDown={(e: ThreeEvent<PointerEvent>) =>
+        isVisible && pressPieceForDrag(e, boardHex.boardPieceUID)
+      }
+      onPointerMove={(e: ThreeEvent<PointerEvent>) =>
+        isVisible && reportDragTargetHex(boardHex) && e.stopPropagation()
+      }
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}

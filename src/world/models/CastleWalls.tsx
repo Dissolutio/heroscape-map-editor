@@ -3,6 +3,7 @@ import React from 'react'
 import { Vector3 } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
+import { isDragPassThrough } from '../drag/dragController'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import {
   HEXGRID_HEX_HEIGHT,
@@ -43,6 +44,8 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
     ? yellowColor
     : hexTerrainColor[HexTerrain.castleWall]
   const onPointerEnterCap = (e: ThreeEvent<PointerEvent>) => {
+    // the pointer sees through a wall being dragged
+    if (isDragPassThrough(boardHex.boardPieceUID)) return
     setCapColor('yellow')
     onPointerEnter(e, boardHex)
     e.stopPropagation()
