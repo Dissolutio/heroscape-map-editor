@@ -15,6 +15,7 @@ import type { BoardPiece } from '../types'
 import type { BoardHex } from '../types'
 import { HEXGRID_HEX_HEIGHT } from '../utils/constants'
 import { getBoardHex3DCoords } from '../utils/map-utils'
+import { createMaterialCloner } from '../utils/materialClones'
 import { MapBoardPiece3D } from './MapBoardPiece3D'
 
 // Ghost pieces use a lower opacity so the arrow pops against them
@@ -155,14 +156,29 @@ function OperationPiecePreviewItem({
   previewBp: BoardPiece
 }) {
   const groupRef = useRef<Group>(null)
+  // The ghost's models use the same cached materials as the real pieces, so
+  // it gets private clones to make see-through (see createMaterialCloner).
+  const clonerRef = useRef(createMaterialCloner())
+  useEffect(() => {
+    const cloner = clonerRef.current
+    return () => cloner.dispose()
+  }, [])
 
   // On every frame, traverse this group's children and ensure all mesh
-  // materials are semi-transparent. Using useFrame handles async GLTF loads.
+  // materials are semi-transparent clones. Using useFrame handles async GLTF
+  // loads, and re-renders that put the shared material back.
   useFrame(() => {
     if (!groupRef.current) return
+    const cloner = clonerRef.current
     groupRef.current.traverse((child) => {
       const mesh = child as ThreeMesh
       if (!mesh.isMesh) return
+      const current = Array.isArray(mesh.material)
+        ? mesh.material
+        : [mesh.material]
+      if (!current.every(cloner.isClone)) {
+        mesh.material = cloner.cloneMaterial(mesh.material)
+      }
       const mats = Array.isArray(mesh.material)
         ? mesh.material
         : [mesh.material]

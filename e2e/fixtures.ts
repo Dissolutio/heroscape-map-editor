@@ -3,23 +3,24 @@ import JSONCrush from 'jsoncrush'
 import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 
 /**
- * Same encoding as getUrlMapString in src/data/jsonCrush.ts: the map header
- * (portrait and notes blanked) followed by the encoded piece ids, crushed.
- */
-const FIXTURE_SHARE_PARAM = encodeURIComponent(
-  JSONCrush.crush(
-    JSON.stringify([
-      { ...FIXTURE_HEX_MAP, mapPortraitBase64: '', mapNotes: '' },
-      ...FIXTURE_PIECE_IDS,
-    ]),
-  ),
-)
-
-/**
+ * The app URL that loads this map. Same encoding as getUrlMapString in
+ * src/data/jsonCrush.ts: the map header (portrait and notes blanked) followed
+ * by the encoded piece ids, crushed.
+ *
  * Open `/hs` directly, not `/`: the router redirects `/` to `/hs` and drops
- * the query string. `e2e=1` turns on the test hooks; `m=` loads the fixture.
+ * the query string. `e2e=1` turns on the test hooks; `m=` loads the map.
  */
-export const FIXTURE_URL = `/hs?e2e=1&m=${FIXTURE_SHARE_PARAM}`
+export const mapUrl = (hexMap: object, pieceIds: string[]) =>
+  `/hs?e2e=1&m=${encodeURIComponent(
+    JSONCrush.crush(
+      JSON.stringify([
+        { ...hexMap, mapPortraitBase64: '', mapNotes: '' },
+        ...pieceIds,
+      ]),
+    ),
+  )}`
+
+export const FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS)
 
 const READY_TIMEOUT_MS = 60_000
 
