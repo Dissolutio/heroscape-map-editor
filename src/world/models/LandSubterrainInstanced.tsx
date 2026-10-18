@@ -87,7 +87,7 @@ const GEOMETRY_NODE_BY_SIZE: Record<SubterrainSize, string> = {
   '24': 'Subterrain_24',
 }
 
-function getSubterrainSize(inventoryID: string): SubterrainSize {
+export function getSubterrainSize(inventoryID: string): SubterrainSize {
   const regex = /\d+/g
   let size = inventoryID.match(regex)?.[0] ?? '1'
   if (size === '7' && inventoryID === Pieces.wallWalk7) {

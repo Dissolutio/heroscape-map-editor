@@ -27,6 +27,7 @@ const getDragSnapshot = (): E2EDragSnapshot | null => {
     state: phase,
     targetStatus: preview?.status ?? null,
     reason: preview?.reason ?? null,
+    footprintCount: preview?.footprintHexes.length ?? 0,
     targetHex: preview?.pointerHex ? { ...preview.pointerHex } : null,
   }
 }
