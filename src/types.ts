@@ -66,6 +66,7 @@ export enum HexTerrain {
   rock = 'rock',
   sand = 'sand',
   road = 'road',
+  wallWalk = 'wallWalk', // looks just like road, but for fortress set
   wood = 'wood',
   snow = 'snow',
   lavaField = 'lavaField',
@@ -106,7 +107,6 @@ export enum HexTerrain {
   // castle
   castleWall = 'castleWall',
   castleBase = 'castleBase',
-  wallWalk = 'wallWalk',
   // shores of valhalla
   shipWall = 'shipWall',
   shipBow = 'shipBow',
