@@ -50,12 +50,12 @@ export function createLocalMapAutosaveStorage(): MapAutosaveStorage {
       const portraitChanged =
         map.hexMap.id !== lastSavedMapId ||
         map.hexMap.mapPortraitBase64 !== lastSavedPortrait
+      let portraitResult: MapStorageResult = { ok: true }
       if (portraitChanged || hasInlinePortraitToMigrate) {
-        const portraitResult = saveMapPortrait(map.hexMap)
-        if (!portraitResult.ok) return portraitResult
+        portraitResult = saveMapPortrait(map.hexMap)
       }
 
-      const result = safeSetItem(
+      const mapResult = safeSetItem(
         LS_KEYS.lastMap,
         JSON.stringify({
           v: 1,
@@ -63,12 +63,15 @@ export function createLocalMapAutosaveStorage(): MapAutosaveStorage {
           boardPieces: map.boardPieces,
         }),
       )
-      if (result.ok) {
+      if (portraitResult.ok) {
         lastSavedMapId = map.hexMap.id
         lastSavedPortrait = map.hexMap.mapPortraitBase64
         hasInlinePortraitToMigrate = false
       }
-      return result
+      if (!portraitResult.ok && !mapResult.ok) {
+        return { ok: false, quota: portraitResult.quota || mapResult.quota }
+      }
+      return portraitResult.ok ? mapResult : portraitResult
     },
   }
 }
@@ -165,7 +168,7 @@ export function createMapAutosave<T extends AutosaveState>(
 
     if (isLoad) {
       if (state.isAutosaveHeld) {
-        writer.cancel()
+        writer.flush()
       } else if (mapChanged) {
         writer.writeNow(snapshot(state.hexMap, state.boardPieces))
       }

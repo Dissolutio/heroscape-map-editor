@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   createMapAutosave,
   createMapAutosaveWriter,
+  createLocalMapAutosaveStorage,
 } from '../local-storage/mapAutosave'
 import { LS_KEYS } from '../local-storage/keys'
 import type { AppState } from '../store/store'
@@ -125,12 +126,17 @@ describe('map autosave state gating', () => {
   beforeEach(() => {
     values.clear()
     vi.clearAllMocks()
+    browserStorage.setItem.mockImplementation((key, value) => {
+      return values.set(key, value)
+    })
     vi.stubGlobal('localStorage', browserStorage)
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     vi.useFakeTimers()
   })
 
   afterEach(() => {
     vi.useRealTimers()
+    vi.restoreAllMocks()
     vi.unstubAllGlobals()
   })
 
@@ -157,6 +163,32 @@ describe('map autosave state gating', () => {
     store.getState().changeAuthorName('Author')
     vi.advanceTimersByTime(750)
     expect(save).toHaveBeenCalledTimes(2)
+  })
+
+  it('flushes a pending prior-map edit before a held load', async () => {
+    const store = await createTestStore()
+    const save = vi.fn((_snapshot: MapSnapshot) => ({ ok: true as const }))
+    createMapAutosave(store, {
+      storage: { load: () => null, save },
+      onError: vi.fn(),
+      delay: 750,
+    })
+
+    store.getState().loadMap(makeMap('map-a'))
+    save.mockClear()
+    store.getState().changeMapName('Edited map A')
+    vi.advanceTimersByTime(300)
+
+    store.getState().loadMap(makeMap('share-map-b'), { holdAutosave: true })
+    expect(save).toHaveBeenCalledOnce()
+    expect(save.mock.calls[0][0].hexMap).toMatchObject({
+      id: 'map-a',
+      name: 'Edited map A',
+    })
+
+    vi.advanceTimersByTime(1000)
+    expect(save).toHaveBeenCalledOnce()
+    expect(save.mock.calls[0][0].hexMap.id).not.toBe('share-map-b')
   })
 
   it('saves deliberate map loads immediately', async () => {
@@ -256,6 +288,87 @@ describe('map autosave state gating', () => {
       LS_KEYS.lastMap,
       expect.any(String),
     )
+  })
+
+  it('saves the map after portrait failure and retries the portrait', () => {
+    let failPortrait = true
+    browserStorage.setItem.mockImplementation((key, value) => {
+      if (key === LS_KEYS.lastMapPortrait && failPortrait) {
+        failPortrait = false
+        throw new DOMException('Full', 'QuotaExceededError')
+      }
+      return values.set(key, value)
+    })
+    const storage = createLocalMapAutosaveStorage()
+    storage.load()
+    const onError = vi.fn()
+    const writer = createMapAutosaveWriter(storage, onError, 750)
+    const mapWithPortrait = {
+      hexMap: { ...hexMap, mapPortraitBase64: 'portrait-a' },
+      boardPieces: [],
+    }
+
+    expect(writer.writeNow(mapWithPortrait)).toBe(false)
+    expect(values.has(LS_KEYS.lastMap)).toBe(true)
+    expect(values.has(LS_KEYS.lastMapPortrait)).toBe(false)
+    expect(onError).toHaveBeenCalledOnce()
+    expect(onError).toHaveBeenCalledWith({ quota: true })
+
+    writer.schedule({
+      ...mapWithPortrait,
+      hexMap: { ...mapWithPortrait.hexMap, name: 'Edited after retry' },
+    })
+    vi.advanceTimersByTime(750)
+
+    expect(JSON.parse(values.get(LS_KEYS.lastMapPortrait) ?? '')).toEqual({
+      mapId: hexMap.id,
+      mapPortraitBase64: 'portrait-a',
+    })
+    expect(onError).toHaveBeenCalledOnce()
+  })
+
+  it('retries a failed map write without resaving a successful portrait', () => {
+    let failMap = true
+    browserStorage.setItem.mockImplementation((key, value) => {
+      if (key === LS_KEYS.lastMap && failMap) {
+        failMap = false
+        throw new Error('blocked')
+      }
+      return values.set(key, value)
+    })
+    const storage = createLocalMapAutosaveStorage()
+    storage.load()
+    const onError = vi.fn()
+    const writer = createMapAutosaveWriter(storage, onError, 750)
+    const mapWithPortrait = {
+      hexMap: { ...hexMap, mapPortraitBase64: 'portrait-a' },
+      boardPieces: [],
+    }
+
+    expect(writer.writeNow(mapWithPortrait)).toBe(false)
+    expect(values.has(LS_KEYS.lastMapPortrait)).toBe(true)
+    expect(values.has(LS_KEYS.lastMap)).toBe(false)
+    expect(onError).toHaveBeenCalledOnce()
+    expect(onError).toHaveBeenCalledWith({ quota: false })
+
+    writer.schedule({
+      ...mapWithPortrait,
+      hexMap: { ...mapWithPortrait.hexMap, name: 'Map retry' },
+    })
+    vi.advanceTimersByTime(750)
+
+    expect(values.has(LS_KEYS.lastMap)).toBe(true)
+    expect(
+      browserStorage.setItem.mock.calls.filter(
+        ([key]) => key === LS_KEYS.lastMapPortrait,
+      ),
+    ).toHaveLength(1)
+    expect(
+      browserStorage.setItem.mock.calls.filter(
+        ([key]) => key === LS_KEYS.lastMap,
+      ),
+    ).toHaveLength(2)
+    expect(onError).toHaveBeenCalledOnce()
   })
 })
 
