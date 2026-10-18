@@ -73,12 +73,14 @@ export const isPlacementBlocked = (
  *
  * Only the two refusals block. Everything else resolves, even onto other
  * pieces: placement is permissive and displaces them (see evaluatePlacement).
+ * `ignoreUID` leaves a piece being moved out of the smart altitude.
  */
 export function resolvePlacement(
   piece: Piece,
   pointerHex: BoardHex,
   rotation: number,
   { boardHexes, boardPieces }: PlacementBoard,
+  { ignoreUID }: { ignoreUID?: string } = {},
 ): PlacementResolution {
   const hex = pointerHex
   const isCastleWallArchClicked =
@@ -122,6 +124,7 @@ export function resolvePlacement(
       pieceCoords: coords,
       altitude: clickedAltitude,
       rotation,
+      ignoreUID,
     })
 
   // Castle W/A: use cap coords and altitude
