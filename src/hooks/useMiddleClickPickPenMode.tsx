@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { PICK_PEN_MODE, Pieces } from '../types'
+import { CLICK_DRAG_TOLERANCE_PX } from '../utils/constants'
 
 // These pieces have no pen mode of their own, they are painted via a listed variant
 const penModePieceAlias: Record<string, string> = {
@@ -12,8 +13,8 @@ const penModePieceAlias: Record<string, string> = {
   [Pieces.laurWallLongStackable]: Pieces.laurWallLong,
 }
 
-// Middle-drag is a camera dolly, left-drag orbits, so only a near-motionless click is a pick
-const CLICK_DRAG_TOLERANCE_PX = 5
+// Middle-drag is a camera dolly, left-drag orbits, so only a near-motionless
+// click (within CLICK_DRAG_TOLERANCE_PX) is a pick
 
 // Makes the currently hovered piece the pen mode (aka eyedropper/pick)
 function pickHoveredPieceAsPenMode() {
