@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   safeGetJSON,
+  safeHasItem,
   safeRemove,
   safeSetItem,
 } from '../local-storage/safeStorage'
@@ -43,6 +44,12 @@ describe('safe localStorage access', () => {
     values.set('broken', '{')
     expect(safeGetJSON('broken')).toBeNull()
     expect(console.warn).toHaveBeenCalledOnce()
+  })
+
+  it('reports whether a storage key exists', () => {
+    expect(safeHasItem('absent')).toBe(false)
+    values.set('present', 'null')
+    expect(safeHasItem('present')).toBe(true)
   })
 
   it.each(['null', 'false', '0', '""'])(

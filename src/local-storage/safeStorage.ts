@@ -11,6 +11,15 @@ export function safeGetJSON<T = unknown>(
   }
 }
 
+export function safeHasItem(key: string): boolean | null {
+  try {
+    return localStorage.getItem(key) !== null
+  } catch (error) {
+    console.warn(`Error checking localStorage key "${key}":`, error)
+    return null
+  }
+}
+
 export function safeSetItem(
   key: string,
   value: string,
@@ -30,10 +39,12 @@ export function safeSetItem(
   }
 }
 
-export function safeRemove(key: string): void {
+export function safeRemove(key: string): boolean {
   try {
     localStorage.removeItem(key)
+    return true
   } catch (error) {
     console.warn(`Error removing localStorage key "${key}":`, error)
+    return false
   }
 }

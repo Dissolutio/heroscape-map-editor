@@ -26,7 +26,8 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `safe-storage.test.ts` | Guarded browser storage access, corrupted JSON, and quota/security failures. |
 | `map-storage.test.ts` | Separate portraits, map-ID matching, legacy loads, and non-throwing autosave. |
 | `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
-| `storage-known-gaps.test.ts` | Constraint restoration (Step 2) and the fixed hotkey mount overwrite. |
+| `settings.test.ts` | Versioned settings defaults, migration, debounced persistence, and store-state classification. |
+| `storage-known-gaps.test.ts` | Legacy constraint restoration and protection against hotkey mount overwrites. |
 | `helpers/board.ts` | `makeTable`, `place`, `remove`, `withGrassFloor`, `hexAt`: build boards without the store. |
 
 ## Adding a new terrain piece

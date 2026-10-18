@@ -5,14 +5,7 @@ import type { HexMap } from '../types'
 import { LS_KEYS } from './keys'
 import { safeGetJSON, safeRemove, safeSetItem } from './safeStorage'
 
-type StoredMapState = Pick<
-  AppState,
-  | 'boardPieces'
-  | 'hexMap'
-  | 'terrainConstraintSource'
-  | 'customConstraintInventory'
-  | 'customConstraintInventoryFileName'
->
+type StoredMapState = Pick<AppState, 'boardPieces' | 'hexMap'>
 
 export function withoutMapPortrait(hexMap: HexMap): HexMap {
   const { mapPortraitBase64: _portrait, ...result } = hexMap
@@ -65,9 +58,6 @@ export function partializeMap(state: AppState): StoredMapState {
   return {
     boardPieces: state.boardPieces,
     hexMap: withoutMapPortrait(state.hexMap),
-    terrainConstraintSource: state.terrainConstraintSource,
-    customConstraintInventory: state.customConstraintInventory,
-    customConstraintInventoryFileName: state.customConstraintInventoryFileName,
   }
 }
 

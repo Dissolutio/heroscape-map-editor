@@ -1,0 +1,418 @@
+import { createStore } from 'zustand/vanilla'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { blankPieceInventory } from '../inventory/blankInventory'
+import { terrainSetsByShortID } from '../data/terrainSets'
+import { LS_KEYS } from '../local-storage/keys'
+import {
+  createSettingsWriter,
+  loadSettings,
+  migrateSettings,
+  pickSettings,
+  resetSettings,
+  serializeSettings,
+  SETTINGS_DEFAULTS,
+  SETTINGS_KEYS,
+  settingsChanged,
+  type SettingsValues,
+} from '../local-storage/settings'
+import type { AppState } from '../store/store'
+import { safeGetJSON } from '../local-storage/safeStorage'
+import {
+  getAvailableLandPrefixesForInventory,
+  getAvailableLandPrefixesForSets,
+} from '../utils/terrain-constraints'
+
+const values = new Map<string, string>()
+const storage = {
+  getItem: (key: string) => values.get(key) ?? null,
+  setItem: (key: string, value: string) => {
+    values.set(key, value)
+  },
+  removeItem: (key: string) => {
+    values.delete(key)
+  },
+}
+
+describe('settings persistence', () => {
+  beforeEach(() => {
+    values.clear()
+    vi.stubGlobal('localStorage', storage)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  it('uses defaults when no settings are stored', () => {
+    expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
+  })
+
+  it('round-trips changed values and writes only differences', () => {
+    const changed = {
+      ...SETTINGS_DEFAULTS,
+      isOrthoCam: false,
+      lightPositions: { key: [1, 2, 3] as [number, number, number] },
+    }
+    const serialized = serializeSettings(changed)
+    expect(serialized).toEqual({
+      v: 1,
+      values: {
+        isOrthoCam: false,
+        lightPositions: { key: [1, 2, 3] },
+      },
+    })
+    storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
+    expect(loadSettings()).toEqual(changed)
+  })
+
+  it('returns null when all settings equal their defaults', () => {
+    expect(serializeSettings(SETTINGS_DEFAULTS)).toBeNull()
+  })
+
+  it('removes the settings key on reset', () => {
+    storage.setItem(LS_KEYS.settings, JSON.stringify({ v: 1, values: {} }))
+    expect(resetSettings()).toBe(true)
+    expect(values.has(LS_KEYS.settings)).toBe(false)
+  })
+
+  it('validates each key independently and ignores unknown keys', () => {
+    storage.setItem(
+      LS_KEYS.settings,
+      JSON.stringify({
+        v: 1,
+        values: {
+          isOrthoCam: false,
+          pdfRenderFormat: 'invalid',
+          terrainConstraintSource: 'invalid',
+          lastPenMode: 5,
+          lastPenSize: Number.POSITIVE_INFINITY,
+          lightPositions: { bad: [1, Number.NaN, 3] },
+          customConstraintInventory: {
+            g1: 1.9,
+            g2: -4,
+            unknown: 20,
+          },
+          customConstraintInventoryFileName: 'valid.csv',
+          unknownSetting: true,
+        },
+      }),
+    )
+
+    expect(loadSettings()).toMatchObject({
+      isOrthoCam: false,
+      pdfRenderFormat: SETTINGS_DEFAULTS.pdfRenderFormat,
+      terrainConstraintSource: SETTINGS_DEFAULTS.terrainConstraintSource,
+      lastPenMode: SETTINGS_DEFAULTS.lastPenMode,
+      lastPenSize: SETTINGS_DEFAULTS.lastPenSize,
+      lightPositions: {},
+      customConstraintInventory: {
+        ...blankPieceInventory,
+        g1: 1,
+        g2: 0,
+      },
+      customConstraintInventoryFileName: 'valid.csv',
+    })
+  })
+
+  it('normalizes a saved custom constraint inventory', () => {
+    storage.setItem(
+      LS_KEYS.settings,
+      JSON.stringify({
+        v: 1,
+        values: { customConstraintInventory: { r3: 2.5 } },
+      }),
+    )
+    expect(loadSettings().customConstraintInventory).toEqual({
+      ...blankPieceInventory,
+      r3: 2,
+    })
+  })
+
+  it('uses defaults for corrupted JSON and an unsupported version', () => {
+    storage.setItem(LS_KEYS.settings, '{')
+    expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
+
+    storage.setItem(LS_KEYS.settings, JSON.stringify({ v: 2, values: {} }))
+    expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
+  })
+
+  it('keeps the v1 migration as an identity function', () => {
+    const blob = { v: 1, values: { isOrthoCam: false } }
+    expect(migrateSettings(blob)).toBe(blob)
+  })
+
+  it.each([false, true])(
+    'migrates constraint values from an old map (wrapped=%s)',
+    (wrapped) => {
+      const legacy = {
+        terrainConstraintSource: 'inventoryFile',
+        customConstraintInventory: { g1: 2.4, unknown: 4 },
+        customConstraintInventoryFileName: 'inventory.csv',
+      }
+      const savedMap = {
+        boardPieces: [],
+        hexMap: {},
+        ...legacy,
+      }
+      storage.setItem(
+        LS_KEYS.lastMap,
+        JSON.stringify(wrapped ? { state: savedMap } : savedMap),
+      )
+
+      expect(loadSettings()).toMatchObject({
+        ...legacy,
+        customConstraintInventory: {
+          ...blankPieceInventory,
+          g1: 2,
+        },
+      })
+      expect(safeGetJSON(LS_KEYS.settings)).toMatchObject({
+        v: 1,
+        values: {
+          terrainConstraintSource: 'inventoryFile',
+          customConstraintInventory: { g1: 2 },
+          customConstraintInventoryFileName: 'inventory.csv',
+        },
+      })
+    },
+  )
+
+  it('debounces settings changes, ignores unrelated state, and flushes now', () => {
+    vi.useFakeTimers()
+    const writes: (string | null)[] = []
+    const writer = createSettingsWriter(
+      {
+        setItem: (_key, value) => {
+          writes.push(value)
+          return true
+        },
+        removeItem: () => {
+          writes.push(null)
+          return true
+        },
+      },
+      300,
+    )
+    const initial = { ...SETTINGS_DEFAULTS }
+    const unrelated = {
+      ...initial,
+      hoveredPieceID: 'hovered',
+      currentDialog: 'dialog',
+      selectedPieceIDs: ['piece'],
+    }
+    if (settingsChanged(initial, unrelated)) {
+      writer.schedule(pickSettings(unrelated))
+    }
+    vi.advanceTimersByTime(500)
+    expect(writes).toEqual([])
+
+    const firstChange = { ...initial, isOrthoCam: false }
+    if (settingsChanged(initial, firstChange)) {
+      writer.schedule(firstChange)
+    }
+    vi.advanceTimersByTime(299)
+    expect(writes).toEqual([])
+    vi.advanceTimersByTime(1)
+    expect(writes).toHaveLength(1)
+
+    const nextChange = { ...firstChange, isPdfColorBorders: true }
+    const finalChange = { ...nextChange, isPdfColorBorders: false }
+    writer.schedule(nextChange)
+    vi.advanceTimersByTime(100)
+    writer.schedule(finalChange)
+    vi.advanceTimersByTime(299)
+    expect(writes).toHaveLength(1)
+    writer.flush()
+    expect(writes).toHaveLength(2)
+    expect(JSON.parse(writes[1] ?? '')).toEqual({
+      v: 1,
+      values: { isOrthoCam: false },
+    })
+  })
+
+  it('classifies every store data key exactly once', async () => {
+    const transientKeys = [
+      'selectedPieceIDs',
+      'hoveredPieceID',
+      'hoveredHex',
+      'piecePreviews',
+      'pendingUndoSelectionRestoreStack',
+      'pendingRedoSelectionRestoreStack',
+      'currentDialog',
+      'isTakingPicture',
+      'isCameraDisabled',
+      'is2DOpen',
+      'isPdfOpen',
+      'viewingLevel',
+      'penMode',
+      'pieceSize',
+      'penModeRotation',
+      'flatPieceSizes',
+      'userPieceInventory',
+      'isFrameloopDemand',
+    ]
+    const mapStateKeys = [
+      'boardHexes',
+      'hexMap',
+      'boardPieces',
+      'conflictedPieceUIDs',
+      'mapPortraitBase64',
+      'mapNotes',
+    ]
+
+    vi.resetModules()
+    const [{ default: createMapSlice }, { default: createUISlice }] =
+      await Promise.all([
+        import('../store/map-slice'),
+        import('../store/ui-slice'),
+      ])
+    const store = createStore<AppState>()((...args) => ({
+      ...createMapSlice(...args),
+      ...createUISlice(...args),
+    }))
+    const dataKeys = Object.entries(store.getState())
+      .filter(([, value]) => typeof value !== 'function')
+      .map(([key]) => key)
+    for (const key of dataKeys) {
+      const classifications = [
+        SETTINGS_KEYS.includes(key as keyof SettingsValues),
+        transientKeys.includes(key),
+        mapStateKeys.includes(key),
+      ].filter(Boolean)
+      expect(classifications, `${key} classification`).toHaveLength(1)
+    }
+  })
+
+  it('flushes a pending settings write on pagehide', async () => {
+    vi.useFakeTimers()
+    const handlers = new Map<string, (event?: Event) => void>()
+    const eventTarget = {
+      addEventListener: (type: string, listener: (event?: Event) => void) => {
+        handlers.set(type, listener)
+      },
+    }
+    vi.stubGlobal('window', eventTarget)
+    vi.stubGlobal('document', {
+      ...eventTarget,
+      visibilityState: 'visible',
+    })
+
+    vi.resetModules()
+    const { default: store } = await import('../store/store')
+    store.getState().toggleIsOrthoCam(false)
+    vi.advanceTimersByTime(299)
+    expect(values.has(LS_KEYS.settings)).toBe(false)
+
+    handlers.get('pagehide')?.()
+    expect(safeGetJSON(LS_KEYS.settings)).toEqual({
+      v: 1,
+      values: { isOrthoCam: false },
+    })
+  })
+
+  it.each(['setsUsed', 'personalInventory', 'inventoryFile'] as const)(
+    'reconciles an unavailable remembered pen for %s constraints',
+    async (terrainConstraintSource) => {
+      vi.resetModules()
+      const setID = Object.keys(terrainSetsByShortID).find(
+        (id) => getAvailableLandPrefixesForSets([id]).size > 0,
+      )
+      if (!setID) throw new Error('Expected a terrain set with land pieces')
+      const customConstraintInventory = { g1: 1 }
+      storage.setItem(
+        LS_KEYS.settings,
+        JSON.stringify({
+          v: 1,
+          values: {
+            terrainConstraintSource,
+            customConstraintInventory,
+            lastPenMode: 'unavailable',
+            lastPenSize: 5,
+          },
+        }),
+      )
+
+      const { default: store } = await import('../store/store')
+      const setsUsed = terrainConstraintSource === 'setsUsed' ? [setID] : []
+      const hexMap = {
+        id: 'constraints',
+        name: 'Constraints',
+        author: '',
+        shape: 'rectangle',
+        width: 3,
+        length: 3,
+        setsUsed,
+      }
+      if (terrainConstraintSource === 'personalInventory') {
+        store.getState().updateUserPieceInventory({ g1: 1 })
+        store.getState().syncTerrainConstraintPenMode()
+      } else {
+        store.getState().loadMap({
+          hexMap,
+          boardPieces: [],
+          boardHexes: {},
+        })
+      }
+      const available =
+        terrainConstraintSource === 'setsUsed'
+          ? getAvailableLandPrefixesForSets(setsUsed)
+          : getAvailableLandPrefixesForInventory({ g1: 1 })
+      expect(available.has(store.getState().lastPenMode)).toBe(true)
+      expect(store.getState().lastPenMode).not.toBe('unavailable')
+    },
+  )
+
+  it('preserves an allowed remembered pen mode and size when loading a map', async () => {
+    vi.resetModules()
+    storage.setItem(
+      LS_KEYS.settings,
+      JSON.stringify({
+        v: 1,
+        values: {
+          terrainConstraintSource: 'inventoryFile',
+          customConstraintInventory: { g1: 1 },
+          lastPenMode: 'g',
+          lastPenSize: 3,
+        },
+      }),
+    )
+    const { default: store } = await import('../store/store')
+    store.getState().loadMap({
+      hexMap: {
+        id: 'constraints',
+        name: 'Constraints',
+        author: '',
+        shape: 'rectangle',
+        width: 3,
+        length: 3,
+      },
+      boardPieces: [],
+      boardHexes: {},
+    })
+    expect(store.getState().lastPenMode).toBe('g')
+    expect(store.getState().lastPenSize).toBe(3)
+  })
+
+  it('resets every settings value and removes the stored settings blob', async () => {
+    vi.useFakeTimers()
+    vi.resetModules()
+    storage.setItem(
+      LS_KEYS.settings,
+      JSON.stringify({
+        v: 1,
+        values: {
+          isOrthoCam: false,
+          lightPositions: { 'front-left': [1, 2, 3] },
+        },
+      }),
+    )
+    const { default: store } = await import('../store/store')
+    store.getState().updateLightPosition('back-left', [3, 4, 5])
+    store.getState().resetSettings()
+    expect(pickSettings(store.getState())).toEqual(SETTINGS_DEFAULTS)
+    expect(values.has(LS_KEYS.settings)).toBe(false)
+    vi.advanceTimersByTime(300)
+    expect(values.has(LS_KEYS.settings)).toBe(false)
+  })
+})
