@@ -290,6 +290,47 @@ describe('normalizeBoardPieces (reads every saved-map format the app has had)', 
     )
   })
 
+  it('loads valid pieces and reports a missing-field entry without throwing', () => {
+    const savedPieces = [
+      piece('known', 'g1', 1, 1),
+      piece('unknown', 'zz-from-the-future', 3, 1),
+      {
+        uid: 'malformed',
+        inventoryID: 'g2',
+        altitude: 0,
+        pieceCoords: { q: 5, r: 1, s: -6 },
+      },
+    ]
+    const normalized = normalizeBoardPiecesWithDropped(savedPieces)
+    const map = buildupJsonFileMap(
+      normalized.boardPieces,
+      rectangleMap(),
+      normalized.droppedPieces,
+    )
+    const warning = getDroppedPiecesWarning(map.droppedPieces)
+    const enqueueSnackbar = vi.fn()
+
+    warnAboutLoadedMap(enqueueSnackbar, map)
+
+    expect(map.boardPieces.map((p) => p.uid)).toEqual(['known'])
+    expect(map.droppedPieces).toEqual(
+      expect.arrayContaining([
+        {
+          uid: 'unknown',
+          inventoryID: 'zz-from-the-future',
+          reason: 'unknown',
+        },
+        { uid: 'malformed', inventoryID: 'g2', reason: 'malformed' },
+      ]),
+    )
+    expect(map.droppedPieces).toHaveLength(2)
+    expect(warning).toBe(
+      'Skipped 1 unknown piece (zz-from-the-future) and 1 malformed piece. Updating the app may let you load unknown pieces.',
+    )
+    expect(enqueueSnackbar).toHaveBeenCalledTimes(1)
+    expect(enqueueSnackbar.mock.calls[0][0].message).toBe(warning)
+  })
+
   it('reports no drops and preserves a clean piece array reference', () => {
     const clean = [piece('known', 'g1', 1, 1)]
     const normalized = normalizeBoardPiecesWithDropped(clean)
