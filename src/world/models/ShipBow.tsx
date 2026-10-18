@@ -13,6 +13,7 @@ import { hexUtilsGetShipBuildableCoords } from '../../utils/hex-utils'
 import { genBoardHexID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { shipDeckColor } from './shipDeckColor'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
 type ShipBowProps = {
@@ -163,16 +164,22 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
     if (isSolidLandPenMode && onPointerUp) {
       const hex = getForwardBuildableHex()
       onPointerUp(e, hex)
+      e.stopPropagation()
+      return
     }
-    e.stopPropagation()
+    // any other pen: a click on the deck is a click on the ship
+    onPointerUpBody(e)
   }
 
   const onPointerUpAftBuildable = (e: ThreeEvent<PointerEvent>) => {
     if (isSolidLandPenMode && onPointerUp) {
       const hex = getAftBuildableHex()
       onPointerUp(e, hex)
+      e.stopPropagation()
+      return
     }
-    e.stopPropagation()
+    // any other pen: a click on the deck is a click on the ship
+    onPointerUpBody(e)
   }
 
   const onPointerUpBody = (event: ThreeEvent<PointerEvent>) => {
@@ -195,12 +202,14 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
   const isHighlighted = hoveredPieceID === pid || isSelected
 
   // Determine colors for buildable sections
-  const forwardBuildableColor =
-    hoveredBuildableSection === 'forward'
-      ? yellowColor
-      : hexTerrainColor.shipWood
-  const aftBuildableColor =
-    hoveredBuildableSection === 'aft' ? yellowColor : hexTerrainColor.shipWood
+  const forwardBuildableColor = shipDeckColor(
+    isHighlighted,
+    hoveredBuildableSection === 'forward',
+  )
+  const aftBuildableColor = shipDeckColor(
+    isHighlighted,
+    hoveredBuildableSection === 'aft',
+  )
   const color = isHighlighted ? yellowColor : hexTerrainColor.shipWood
   const colorShipBowIron = isHighlighted
     ? yellowColor
