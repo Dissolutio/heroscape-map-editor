@@ -145,15 +145,12 @@ describe('odd-r offset conversion (Virtualscape boundary)', () => {
     }
   })
 
-  it(
-    'KNOWN GAP (latent): offset <-> cube round-trips on negative odd rows',
-    () => {
-      for (const y of [-1, -3]) {
-        const cube = hexUtilsOddRToCube(0, y)
-        expect(hexUtilsCubeToOddR(cube)).toEqual({ x: 0, y })
-      }
-    },
-  )
+  it('KNOWN GAP (latent): offset <-> cube round-trips on negative odd rows', () => {
+    for (const y of [-1, -3]) {
+      const cube = hexUtilsOddRToCube(0, y)
+      expect(hexUtilsCubeToOddR(cube)).toEqual({ x: 0, y })
+    }
+  })
 
   it('round-trips cube -> odd-r -> cube for negative odd rows', () => {
     for (let r = -9; r < 0; r++) {

@@ -446,9 +446,7 @@ export type NormalizedBoardPieces = {
   droppedPieces: DroppedBoardPiece[]
 }
 
-const isSaneBoardPiece = (
-  value: unknown,
-): value is NormalizableBoardPiece => {
+const isSaneBoardPiece = (value: unknown): value is NormalizableBoardPiece => {
   if (typeof value !== 'object' || value === null) return false
 
   const piece = value as Partial<NormalizableBoardPiece>

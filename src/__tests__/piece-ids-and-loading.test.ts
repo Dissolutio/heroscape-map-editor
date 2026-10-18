@@ -129,41 +129,38 @@ describe('normalizeBoardPieces (reads every saved-map format the app has had)', 
     expect(normalizeBoardPieces([])).toEqual([])
   })
 
-  it(
-    'KNOWN GAP: piece objects without a uid are rejected, not turned into NaN pieces',
-    () => {
-      // Older BoardPiece[] files have no uid. Normalize them by adding a uid
-      // while retaining their piece data rather than decoding their array
-      // indexes as piece IDs.
-      //
-      const uidLess = [
-        {
-          inventoryID: 'g1',
-          altitude: 0,
-          rotation: 0,
-          pieceCoords: { q: 1, r: 1, s: -2 },
-        },
-      ]
-      const result = normalizeBoardPieces(uidLess)
-      const isSane = (p: BoardPiece) =>
-        p.inventoryID in piecesSoFar &&
-        Number.isFinite(p.altitude) &&
-        Number.isFinite(p.rotation) &&
-        Number.isFinite(p.pieceCoords.q) &&
-        Number.isFinite(p.pieceCoords.r) &&
-        Number.isFinite(p.pieceCoords.s)
-      expect(result).toHaveLength(1)
-      expect(result.every(isSane)).toBe(true)
-      expect(result[0]).toMatchObject({
+  it('KNOWN GAP: piece objects without a uid are rejected, not turned into NaN pieces', () => {
+    // Older BoardPiece[] files have no uid. Normalize them by adding a uid
+    // while retaining their piece data rather than decoding their array
+    // indexes as piece IDs.
+    //
+    const uidLess = [
+      {
         inventoryID: 'g1',
         altitude: 0,
         rotation: 0,
         pieceCoords: { q: 1, r: 1, s: -2 },
-      })
-      expect(result[0].uid).toEqual(expect.any(String))
-      expect(result[0].uid.length).toBeGreaterThan(0)
-    },
-  )
+      },
+    ]
+    const result = normalizeBoardPieces(uidLess)
+    const isSane = (p: BoardPiece) =>
+      p.inventoryID in piecesSoFar &&
+      Number.isFinite(p.altitude) &&
+      Number.isFinite(p.rotation) &&
+      Number.isFinite(p.pieceCoords.q) &&
+      Number.isFinite(p.pieceCoords.r) &&
+      Number.isFinite(p.pieceCoords.s)
+    expect(result).toHaveLength(1)
+    expect(result.every(isSane)).toBe(true)
+    expect(result[0]).toMatchObject({
+      inventoryID: 'g1',
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 1, r: 1, s: -2 },
+    })
+    expect(result[0].uid).toEqual(expect.any(String))
+    expect(result[0].uid.length).toBeGreaterThan(0)
+  })
 
   it('gives several uid-less pieces distinct uids without changing their data', () => {
     const uidLess = [
