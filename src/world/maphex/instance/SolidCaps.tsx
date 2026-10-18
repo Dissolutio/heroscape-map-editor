@@ -7,6 +7,8 @@ import useBoundStore from '../../../store/store'
 import type { BoardHex } from '../../../types'
 import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
+import { isE2EDeterministic } from '../../../e2e/isE2E'
+import { hashToUnit } from '../../../e2e/seededRandom'
 import { useDisposableGLTF } from '../../models/useDisposableGLTF'
 import { terrainCapColors } from '../hexColors'
 import type {
@@ -104,9 +106,11 @@ function SolidCapInstance({
       y - (isHighQualityRender ? HEXGRID_HEXCAP_HEIGHT : 0),
       z,
     )
+    // under ?e2e, a stable per-hex value so screenshots repeat
+    const unit = isE2EDeterministic ? hashToUnit(boardHex.id) : Math.random()
     ref.current.rotation.set(
       0,
-      Math.PI / 6 + (getRandomInteger(1, 6) * Math.PI) / 3,
+      Math.PI / 6 + (getRandomInteger(1, 6, unit) * Math.PI) / 3,
       0,
     )
   }, [boardHex, color, isHighQualityRender])
@@ -161,8 +165,8 @@ function SolidCapInstance({
   )
 }
 
-function getRandomInteger(min: number, max: number) {
+function getRandomInteger(min: number, max: number, unit = Math.random()) {
   const minimum = Math.ceil(min) // Ensure min is rounded up to the nearest whole number
   const maximum = Math.floor(max) // Ensure max is rounded down to the nearest whole number
-  return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum
+  return Math.floor(unit * (maximum - minimum + 1)) + minimum
 }

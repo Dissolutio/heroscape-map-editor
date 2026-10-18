@@ -52,3 +52,12 @@ test titled `KNOWN GAP: ...`: it passes while the defect exists and goes red
 when someone fixes it. Fixing one means changing it to `it`. Never flip one (or
 weaken a test) just to get green; a gap that goes red unexpectedly means the
 defect is not what was described, so report it.
+
+### Browser automation (Playwright)
+
+The 3D map is a canvas that Playwright cannot see into. Read
+[e2e/README.md](e2e/README.md) before driving the app in a browser. In short:
+open `/hs?e2e=1` (not `/`), wait for `window.__APP_READY__` instead of
+sleeping, read state from `window.__TEST__.snapshot()` and
+`[data-testid="app-status"]`, and click pieces at
+`window.__TEST__.screenPosOfPiece(uid)`, never at guessed coordinates.

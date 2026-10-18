@@ -26,6 +26,12 @@ dist-ssr
 # Sentry Config File
 .env.sentry-build-plugin
 
+# Playwright output
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 # Rust build artifacts
 src-tauri/target/
 
