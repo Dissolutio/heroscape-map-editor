@@ -1,3 +1,7 @@
+Oct-18-2026
+- **Desktop App: fullscreen no longer crashes**: Clicking "Enter fullscreen" in the desktop app crashed it. Now it makes the app window fullscreen, and "Exit fullscreen" brings it back.
+- **Auto zoom to the map, every time**: This was happening sometimes, now it should always work
+
 Oct-17-2026
 - **Altitude Smart Placement**: When you go to place a multi-hex piece, if it can't fit on that level, the app will check all the levels above it to see if it fits there.
 - **Light controls and remembered positions**: With lights and shadows enabled, use the new **Show Light Controls** toggle in the View tab to hide the repositioning handles without changing the lighting. Moved lights keep their positions when lighting is turned off and back on during the current session; positions are not saved in map files or restored after reloading the app.
