@@ -61,8 +61,10 @@ html {
 canvas {
   touch-action: none;
   /* This style prevents this TRAP: pinch-and-zoom into the canvas (because camera controls did not pick up the pinch but user device did) and losing the rest of the UI because camera controls starts working again and user cannot pinch zoom back out */
-  opacity: 0;
-  animation: fade-in 0.3s ease forwards;
+  /* Fade in from the animation's own "from" keyframe. Do NOT also set a base
+     opacity of 0: Linux WebKitGTK (the Tauri desktop app) sometimes never runs
+     the animation, which left the 3D canvas invisible until it remounted. */
+  animation: fade-in 0.3s ease;
 }
 
 .stats-panel {
