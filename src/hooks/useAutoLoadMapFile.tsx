@@ -55,21 +55,21 @@ const useAutoLoadMapFile = () => {
     applyViewModeFromQuery(viewModeParam)
     safeRemove('hotkeyConfig')
     safeRemove('terrainConstraintState')
-    const localMapCache =
-      loadMapFromLocalStorage(LS_KEYS.lastMapCache) ??
-      loadMapFromLocalStorage(LS_KEYS.lastMap)
-    const localMapCacheMapState = localMapCache
+    safeRemove('lastMapCache')
+    const localMap = loadMapFromLocalStorage(LS_KEYS.lastMap)
+    const localMapState = localMap
       ? buildupJsonFileMap(
-          normalizeBoardPieces(localMapCache.boardPieces),
-          localMapCache.hexMap,
+          normalizeBoardPieces(localMap.boardPieces),
+          localMap.hexMap,
         )
       : undefined
     const loadMapWithoutUndo = (
       mapState: ReturnType<typeof buildupJsonFileMap>,
+      holdAutosave = true,
     ) => {
       const temporal = useBoundStore.temporal.getState()
       temporal.pause()
-      loadMap(mapState)
+      loadMap(mapState, { holdAutosave })
       temporal.clear()
       temporal.resume()
     }
@@ -89,17 +89,17 @@ const useAutoLoadMapFile = () => {
         if (!import.meta.env.DEV) {
           const action = (snackbarId: SnackbarKey) => (
             <>
-              {localMapCacheMapState ? (
+              {localMapState ? (
                 <Button
                   color="info"
                   variant="contained"
                   onClick={() => {
                     // load last map instead, close original snackbar, open a new one, remove map from URL bar
-                    loadMapWithoutUndo(localMapCacheMapState)
-                    warnAboutLoadedMap(enqueueSnackbar, localMapCacheMapState)
+                    loadMapWithoutUndo(localMapState, false)
+                    warnAboutLoadedMap(enqueueSnackbar, localMapState)
                     closeSnackbar(snackbarId)
                     enqueueSnackbar({
-                      message: `Loaded last map instead: ${localMapCacheMapState.hexMap.name}`,
+                      message: `Loaded last map instead: ${localMapState.hexMap.name}`,
                       variant: 'success',
                     })
                     navigate(ROUTES.heroscapeHome)
@@ -142,13 +142,13 @@ const useAutoLoadMapFile = () => {
         console.error('🚀 ~ React.useEffect ~ error:', error)
         return
       }
-    } else if (localMapCacheMapState) {
-      loadMapWithoutUndo(localMapCacheMapState)
+    } else if (localMapState) {
+      loadMapWithoutUndo(localMapState)
       enqueueSnackbar({
-        message: `Loaded last map: ${localMapCacheMapState.hexMap.name}`,
+        message: `Loaded last map: ${localMapState.hexMap.name}`,
         variant: 'success',
       })
-      warnAboutLoadedMap(enqueueSnackbar, localMapCacheMapState)
+      warnAboutLoadedMap(enqueueSnackbar, localMapState)
     } else {
       // No url and no prev state? auto load a file
 

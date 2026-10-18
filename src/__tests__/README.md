@@ -24,7 +24,8 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `terrain-constraints.test.ts` | Inventory normalization and set/personal/file constraints. |
 | `map-share-url.test.ts` | Parsing pasted share links. |
 | `safe-storage.test.ts` | Guarded browser storage access, corrupted JSON, and quota/security failures. |
-| `map-storage.test.ts` | Separate portraits, map-ID matching, legacy loads, and non-throwing autosave. |
+| `map-storage.test.ts` | Old/new saved-map formats, separate portraits, and inline-portrait migration. |
+| `map-autosave.test.ts` | Debounced map writes, lifecycle flushes, hold/release gating, and failure retries. |
 | `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
 | `settings.test.ts` | Versioned settings defaults, migration, debounced persistence, and store-state classification. |
 | `storage-known-gaps.test.ts` | Legacy constraint restoration and protection against hotkey mount overwrites. |

@@ -1,14 +1,9 @@
 import { isEqual } from 'lodash'
 import { temporal } from 'zundo'
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 import { enqueueSnackbar } from 'notistack'
 import { LS_KEYS } from '../local-storage/keys'
-import {
-  mapStorage,
-  partializeMap,
-  saveMapPortrait,
-} from '../local-storage/mapStorage'
+import { createMapAutosave } from '../local-storage/mapAutosave'
 import {
   createSettingsWriter,
   pickSettings,
@@ -22,18 +17,10 @@ export type AppState = MapSlice & UISlice
 
 const useBoundStore = create<AppState>()(
   temporal(
-    persist(
-      (...a) => ({
-        ...createMapSlice(...a),
-        ...createUISlice(...a),
-      }),
-      {
-        name: LS_KEYS.lastMap, // name of the item in the storage (must be unique)
-        storage: mapStorage,
-        partialize: partializeMap,
-        skipHydration: true,
-      },
-    ),
+    (...a) => ({
+      ...createMapSlice(...a),
+      ...createUISlice(...a),
+    }),
     // undo/redo config object
     {
       limit: 30,
@@ -54,14 +41,7 @@ const useBoundStore = create<AppState>()(
   ),
 )
 
-useBoundStore.subscribe((state, previous) => {
-  if (
-    state.hexMap.id !== previous.hexMap.id ||
-    state.hexMap.mapPortraitBase64 !== previous.hexMap.mapPortraitBase64
-  ) {
-    saveMapPortrait(state.hexMap)
-  }
-})
+createMapAutosave(useBoundStore)
 
 const settingsWriter = createSettingsWriter(
   {

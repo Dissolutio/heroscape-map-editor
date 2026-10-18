@@ -4,10 +4,14 @@ import { isHexMap } from '../utils/type-checker'
 import { restoreMapPortrait } from './mapStorage'
 import { safeGetJSON } from './safeStorage'
 
-export function loadMapFromLocalStorage(ls_key: string): MapFileState | null {
+export type LoadedLocalMap = {
+  map: MapFileState
+  hasInlinePortrait: boolean
+}
+
+export function readMapFromLocalStorage(ls_key: string): LoadedLocalMap | null {
   try {
     const preparsed = safeGetJSON(ls_key)
-    // zustand nests under 'state', we do not
     const parsed =
       typeof preparsed === 'object' &&
       preparsed !== null &&
@@ -27,9 +31,18 @@ export function loadMapFromLocalStorage(ls_key: string): MapFileState | null {
 
     // normalize boardPieces to BoardPiece[] regardless of legacy format
     const boardPieces = normalizeBoardPieces(parsed.boardPieces)
-    return { hexMap: restoreMapPortrait(parsed.hexMap), boardPieces }
+    return {
+      map: { hexMap: restoreMapPortrait(parsed.hexMap), boardPieces },
+      hasInlinePortrait:
+        typeof parsed.hexMap.mapPortraitBase64 === 'string' &&
+        parsed.hexMap.mapPortraitBase64.length > 0,
+    }
   } catch (e) {
     console.warn('Failed loading last map from localStorage', e)
     return null
   }
+}
+
+export function loadMapFromLocalStorage(ls_key: string): MapFileState | null {
+  return readMapFromLocalStorage(ls_key)?.map ?? null
 }

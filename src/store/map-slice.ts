@@ -5,13 +5,6 @@ import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { removePiece } from '../data/removePiece'
-import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
-import { LS_KEYS } from '../local-storage/keys'
-import {
-  saveMapPortrait,
-  withoutMapPortrait,
-} from '../local-storage/mapStorage'
-import { safeSetItem } from '../local-storage/safeStorage'
 import { HexTerrain } from '../types'
 import type {
   AddRemovePieceError,
@@ -86,18 +79,24 @@ function getDefaultSizeForLandPrefix(prefix: string) {
 
 export interface MapSlice extends MapState {
   conflictedPieceUIDs: string[]
+  isAutosaveHeld: boolean
+  mapLoadRevision: number
   recomputeConflicts: () => void
   paintTile: (args: PaintTileArgs) => AddRemovePieceError
   unpaintTile: (uid: string) => void
   convertTerrainForPieces: (args: ConvertTerrainArgs) => number
   movePiece: (args: MovePieceArgs) => void
-  loadMap: (map: MapState) => void
+  loadMap: (map: MapState, options?: LoadMapOptions) => void
   addMapPortraitBase64: (pic: string) => void
   changeMapName: (val: string) => void
   changeSetsUsed: (val: string[]) => void
   syncTerrainConstraintPenMode: () => void
   changeAuthorName: (val: string) => void
   changeMapNotes: (val: string) => void
+}
+
+export type LoadMapOptions = {
+  holdAutosave?: boolean
 }
 
 type PaintTileArgs = {
@@ -119,22 +118,6 @@ type ConvertTerrainArgs = {
   targetInventoryBySourceInventory: Record<string, string>
 }
 
-// Here, we duplicate lastMap in case the user is loading a URL, which will immediately overwrite lastMap,
-// we can offer them the chance to load their last map instead of the URL (in useAutoLoadMapFile.tsx)
-const localLastMap = loadMapFromLocalStorage(LS_KEYS.lastMap)
-if (localLastMap) {
-  const portraitSaved = saveMapPortrait(localLastMap.hexMap)
-  safeSetItem(
-    LS_KEYS.lastMapCache,
-    JSON.stringify({
-      ...localLastMap,
-      hexMap: portraitSaved
-        ? withoutMapPortrait(localLastMap.hexMap)
-        : localLastMap.hexMap,
-    }),
-  )
-}
-
 const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   boardHexes: {},
   hexMap: {
@@ -149,6 +132,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   },
   boardPieces: [],
   conflictedPieceUIDs: [],
+  isAutosaveHeld: false,
+  mapLoadRevision: 0,
   recomputeConflicts: () =>
     set((state) =>
       produce(state, (draft) => {
@@ -477,7 +462,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.hexMap.mapNotes = val
       })
     }),
-  loadMap: (mapState: MapState) => {
+  loadMap: (mapState: MapState, options = {}) => {
     clearGlobalMaterialCache()
     return set((state) => {
       return produce(state, (draft) => {
@@ -487,6 +472,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           mapState.boardPieces,
         )
+        draft.isAutosaveHeld = options.holdAutosave ?? false
+        draft.mapLoadRevision += 1
         const constrainedInventory = getEffectiveTerrainConstraintInventory({
           setsUsed: mapState.hexMap?.setsUsed,
           terrainConstraintSource: draft.terrainConstraintSource,

@@ -62,7 +62,7 @@ export default function LoadMapFromUrlDialog() {
       if (!jsonMap.hexMap.name) {
         jsonMap.hexMap.name = genRandomMapName()
       }
-      loadMap(jsonMap)
+      loadMap(jsonMap, { holdAutosave: true })
       const viewMode = getViewModeFromQueryParam(v)
       toggleIsPdfOpen(viewMode === 'pdf')
       toggleIs2DOpen(viewMode === '2d')
