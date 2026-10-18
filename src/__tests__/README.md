@@ -28,6 +28,7 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `map-autosave.test.ts` | Debounced map writes, lifecycle flushes, hold/release gating, and failure retries. |
 | `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
 | `settings.test.ts` | Versioned settings defaults, migration, debounced persistence, and store-state classification. |
+| `crash-feedback.test.ts` | The anonymous crash-report note sent to Sentry (`utils/crashFeedback.ts`): trimmed, capped, linked to the crash event, no name/email. |
 | `storage-known-gaps.test.ts` | Legacy constraint restoration and protection against hotkey mount overwrites. |
 | `helpers/board.ts` | `makeTable`, `place`, `remove`, `withGrassFloor`, `hexAt`: build boards without the store. |
 
