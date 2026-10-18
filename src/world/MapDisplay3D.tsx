@@ -28,6 +28,7 @@ import { getFluidRunLengthAt } from '../utils/fluidStacks.ts'
 import { warnIfTallFluidStack } from '../utils/warnAboutLoadedMap.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
+import { DragPreview3D } from './drag/DragPreview3D.tsx'
 import PiecePreview from './PiecePreview.tsx'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import { MapHex3D } from './maphex/MapHex3D.tsx'
@@ -166,6 +167,7 @@ export default function MapDisplay3D({
       <group ref={mapGroupRef}>
         <PiecePreview />
         <OperationPiecePreviews />
+        <DragPreview3D />
         <EmptyHexes
           boardHexArr={instanceBoardHexes.emptyHexCaps}
           onPointerUp={onPointerUpPaintPiece}

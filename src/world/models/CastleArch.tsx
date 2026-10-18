@@ -2,6 +2,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
+import { isDragPassThrough } from '../drag/dragController'
 import {
   type BoardHex,
   type CubeCoordinate,
@@ -148,7 +149,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
     setColorMiddle(yellowColor)
     const hex = middleBaseHex()
     if (hex) onPointerEnter(e, hex)
-    else e.stopPropagation()
+    else if (!isDragPassThrough(boardHex.boardPieceUID)) e.stopPropagation()
   }
   const onPointerOutMiddle = (e: ThreeEvent<PointerEvent>) => {
     setColorMiddle(hexTerrainColor[HexTerrain.castleWall])
@@ -158,7 +159,7 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
     setColorFar(yellowColor)
     const hex = farBaseHex()
     if (hex) onPointerEnter(e, hex)
-    else e.stopPropagation()
+    else if (!isDragPassThrough(boardHex.boardPieceUID)) e.stopPropagation()
   }
   const onPointerOutFar = (e: ThreeEvent<PointerEvent>) => {
     setColorFar(hexTerrainColor[HexTerrain.castleWall])

@@ -2,6 +2,7 @@ import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
+import { reportDragTargetHex } from '../../drag/dragController'
 import { HexTerrain } from '../../../types'
 import {
   HEXGRID_EMPTYHEX_HEIGHT,
@@ -100,6 +101,9 @@ function EmptyHex({
       onPointerUp={handleUp}
       onPointerEnter={handleEnter}
       onPointerOut={handleOut}
+      onPointerMove={(e: ThreeEvent<PointerEvent>) =>
+        reportDragTargetHex(boardHex) && e.stopPropagation()
+      }
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}

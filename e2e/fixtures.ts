@@ -114,6 +114,72 @@ export async function hoverHex(
   await page.mouse.move(canvas.x + point.x, canvas.y + point.y)
 }
 
+/** A canvas point (from screenPosOf*) in page coordinates, for page.mouse. */
+async function toPagePoint(
+  page: Page,
+  point: { x: number; y: number } | null,
+  what: string,
+) {
+  const canvas = await page.locator('canvas').first().boundingBox()
+  if (!point || !canvas) throw new Error(`${what} is not on screen`)
+  return { x: canvas.x + point.x, y: canvas.y + point.y }
+}
+
+const piecePagePoint = async (page: Page, uid: string) =>
+  toPagePoint(
+    page,
+    await page.evaluate(
+      (id) => window.__TEST__?.screenPosOfPiece(id) ?? null,
+      uid,
+    ),
+    `Piece ${uid}`,
+  )
+
+const hexPagePoint = async (
+  page: Page,
+  hex: { q: number; r: number; altitude: number },
+) =>
+  toPagePoint(
+    page,
+    await page.evaluate((h) => window.__TEST__?.screenPosOfHex(h) ?? null, hex),
+    `Hex ${JSON.stringify(hex)}`,
+  )
+
+/**
+ * Press the left button on a piece and move to a hex in several steps (past
+ * the 5 px click tolerance), without releasing. Only an already selected
+ * piece starts a drag; on any other the camera orbits, as it does today.
+ */
+export async function startDrag(
+  page: Page,
+  uid: string,
+  toHex: { q: number; r: number; altitude: number },
+  steps = 8,
+) {
+  await waitForAppReady(page)
+  const from = await piecePagePoint(page, uid)
+  const to = await hexPagePoint(page, toHex)
+  await page.mouse.move(from.x, from.y)
+  await page.mouse.down()
+  for (let i = 1; i <= steps; i++) {
+    await page.mouse.move(
+      from.x + ((to.x - from.x) * i) / steps,
+      from.y + ((to.y - from.y) * i) / steps,
+    )
+  }
+}
+
+/** Drag a piece onto a hex and release there (see startDrag). */
+export async function dragPiece(
+  page: Page,
+  uid: string,
+  toHex: { q: number; r: number; altitude: number },
+  steps = 8,
+) {
+  await startDrag(page, uid, toHex, steps)
+  await page.mouse.up()
+}
+
 /** Set paint controls through the E2E-only setup hook. */
 export async function setPen(
   page: Page,

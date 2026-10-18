@@ -239,6 +239,8 @@ describe('settings persistence', () => {
       'hoveredPieceID',
       'hoveredHex',
       'piecePreviews',
+      'isDraggingPiece',
+      'dragPreview',
       'pendingUndoSelectionRestoreStack',
       'pendingRedoSelectionRestoreStack',
       'currentDialog',

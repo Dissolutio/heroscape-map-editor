@@ -1,6 +1,7 @@
 import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
+import type { DragPreview } from '../data/dragMove'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 import {
@@ -95,6 +96,15 @@ export interface UISlice {
   // OPERATION PREVIEW STATE
   piecePreviews: BoardPiece[] | null
   setPiecePreviews: (pieces: BoardPiece[] | null) => void
+
+  // DRAG-TO-MOVE (transient: never saved, never in undo history)
+  /** A selected piece is being dragged; the camera ignores the pointer. */
+  isDraggingPiece: boolean
+  dragPreview: DragPreview | null
+  setDragState: (
+    isDraggingPiece: boolean,
+    dragPreview: DragPreview | null,
+  ) => void
 
   // POST-DELETE UNDO RE-SELECTION
   pendingUndoSelectionRestoreStack: string[][]
@@ -271,6 +281,10 @@ const createUISlice: StateCreator<
         s.piecePreviews = pieces
       }),
     ),
+  isDraggingPiece: false,
+  dragPreview: null,
+  setDragState: (isDraggingPiece, dragPreview) =>
+    set({ isDraggingPiece, dragPreview }),
   pendingUndoSelectionRestoreStack: [],
   pushPendingUndoSelectionRestore: (ids: string[]) =>
     set(

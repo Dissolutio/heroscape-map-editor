@@ -45,6 +45,8 @@ export const HEXGRID_OBSTACLE_BASE_HEIGHT = HEXGRID_HEXCAP_FLUID_HEIGHT
 export const HEXGRID_EMPTYHEX_HEIGHT = HEXGRID_HEX_HEIGHT / 20
 export const HEXGRID_GLYPH_HEIGHT = 0.05
 export const HEXGRID_MAX_ALTITUDE = 100 // Arbitrary
+// A press that moves less than this is a click, not a drag (pick pen, drag-to-move)
+export const CLICK_DRAG_TOLERANCE_PX = 5
 export const MAX_RECTANGLE_MAP_DIMENSION = 40 // Arbitrary : BUT a 3ft/6ft table with 27mm based minis would be 34x68 hex rectangle
 export const MAX_HEXAGON_MAP_DIMENSION = 20 // Arbitrary
 export const INSTANCE_LIMIT =
