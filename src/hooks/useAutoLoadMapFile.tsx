@@ -1,6 +1,7 @@
-import { Button } from '@mui/material'
-import { closeSnackbar, useSnackbar } from 'notistack'
+import { Button, IconButton } from '@mui/material'
+import { type SnackbarKey, closeSnackbar, useSnackbar } from 'notistack'
 import { useEffect } from 'react'
+import { MdClose } from 'react-icons/md'
 import { useLocation, useSearch } from 'wouter'
 import { ROUTES } from '../ROUTES'
 import { buildupJsonFileMap } from '../data/buildupMap'
@@ -81,7 +82,7 @@ const useAutoLoadMapFile = () => {
         }
         // Skip the snackbar notification for DEV env
         if (!import.meta.env.DEV) {
-          const action = () => (
+          const action = (snackbarId: SnackbarKey) => (
             <>
               {localMapCacheMapState ? (
                 <Button
@@ -102,19 +103,20 @@ const useAutoLoadMapFile = () => {
                   Load last map instead
                 </Button>
               ) : null}
-              <Button
+              <IconButton
                 color="warning"
-                variant="contained"
+                title="Dismiss notification"
+                aria-label="Dismiss notification"
                 onClick={() => {
                   closeSnackbar(snackbarId)
                 }}
               >
-                Close
-              </Button>
+                <MdClose />
+              </IconButton>
             </>
           )
 
-          const snackbarId = enqueueSnackbar({
+          enqueueSnackbar({
             message: `Loaded map from URL: ${jsonMap.hexMap.name}.`,
             variant: 'success',
             action,

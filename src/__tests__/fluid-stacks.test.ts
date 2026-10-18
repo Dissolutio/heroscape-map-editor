@@ -69,7 +69,7 @@ describe('fluid stack runs', () => {
   it('only warns past 8', () => {
     expect(getFluidStackWarning(8)).toBeNull()
     expect(getFluidStackWarning(9)).toBe(
-      'Fluid tiles are a little more than half the height of solid tiles. Stacks of more than 8 start to stand taller than the map shows (10 fluid tiles are noticeably taller than 5 solid ones). Consider adding a note for builders in the map notes.',
+      'Fluid stacks are modeled at half height, but real tiles are slightly taller. Stacks over 8 may exceed the map (10 tiles are taller than 5 solid levels); note this for builders.',
     )
   })
 

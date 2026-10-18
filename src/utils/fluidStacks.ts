@@ -58,5 +58,5 @@ export function getTallestFluidStack(boardHexes: BoardHexes) {
 /** The user-facing warning for a fluid run of this length, or null if it is fine. */
 export function getFluidStackWarning(runLength: number): string | null {
   if (runLength <= MAX_FLUID_STACK_BEFORE_WARNING) return null
-  return `Fluid tiles are a little more than half the height of solid tiles. Stacks of more than ${MAX_FLUID_STACK_BEFORE_WARNING} start to stand taller than the map shows (10 fluid tiles are noticeably taller than 5 solid ones). Consider adding a note for builders in the map notes.`
+  return `Fluid stacks are modeled at half height, but real tiles are slightly taller. Stacks over ${MAX_FLUID_STACK_BEFORE_WARNING} may exceed the map (10 tiles are taller than 5 solid levels); note this for builders.`
 }
