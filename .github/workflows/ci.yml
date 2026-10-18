@@ -31,13 +31,16 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npx @biomejs/biome lint ./src
+        run: npx @biomejs/biome lint ./src ./e2e playwright.config.ts
 
       - name: Format check
-        run: npx @biomejs/biome format ./src
+        run: npx @biomejs/biome format ./src ./e2e playwright.config.ts
 
       - name: Type-check
         run: npx tsc -b
+
+      - name: Type-check e2e
+        run: npx tsc -p e2e
 
       - name: Test
         run: npm test
