@@ -2,12 +2,12 @@ import { Typography } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
-import { useSnackbar } from 'notistack'
 import React from 'react'
 import { FcPrint } from 'react-icons/fc'
 import { MdFullscreen, MdFullscreenExit } from 'react-icons/md'
 import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
 import useBoundStore from '../store/store'
+import { useFullscreen } from '../hooks/useFullscreen'
 import { lazyWithRetry } from '../utils/lazyWithRetry'
 import { getSetsUsedText } from '../utils/map-utils'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
@@ -27,10 +27,9 @@ export function HeaderNav() {
   const toggleIs2DOpen = useBoundStore((s) => s.toggleIs2DOpen)
   const is2DOpen = useBoundStore((s) => s.is2DOpen)
   const view3DOr2DIconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
-  const { enqueueSnackbar } = useSnackbar()
   const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
   const { isSmallScreenWidth, isMediumScreenWidth } = useMuiMediaQuery()
-  const [isFullscreen, setIsFullscreen] = React.useState(false)
+  const { isFullscreen, toggleFullscreen } = useFullscreen()
   const fontSizeHeaderMapName =
     isSmallScreenWidth && hexMap.name.length > 32
       ? '0.6em'
@@ -39,38 +38,6 @@ export function HeaderNav() {
         : hexMap.name.length > 32
           ? '0.8em'
           : '1em'
-
-  React.useEffect(() => {
-    function handleFullscreenChange() {
-      setIsFullscreen(Boolean(document.fullscreenElement))
-    }
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange)
-
-    // Initial check on component mount
-    setIsFullscreen(Boolean(document.fullscreenElement))
-
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange)
-    }
-  }, [])
-
-  function toggleFullscreen() {
-    if (!isFullscreen) {
-      // If not in fullscreen, request it with fallbacks
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen()
-      } else {
-        enqueueSnackbar({
-          message: 'Fullscreen mode not available',
-          variant: 'error',
-        })
-      }
-    } else {
-      // If in fullscreen, exit it with fallbacks
-      document?.exitFullscreen()
-    }
-  }
 
   return (
     <AppBar
@@ -124,16 +91,12 @@ export function HeaderNav() {
                 ? undefined
                 : 'large'
           }
-          aria-label={
-            document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'
-          }
-          title={
-            document.fullscreenElement ? 'Exit fullscreen' : 'Enter fullscreen'
-          }
+          aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+          title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
           sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
           onClick={() => toggleFullscreen()}
         >
-          {document.fullscreenElement ? <MdFullscreenExit /> : <MdFullscreen />}
+          {isFullscreen ? <MdFullscreenExit /> : <MdFullscreen />}
         </IconButton>
         {/* MOBILE: No render pdf, does not seem to work on mobile, direct download on button click instead */}
         {isSmallScreenWidth ? (
