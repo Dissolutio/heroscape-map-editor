@@ -544,21 +544,26 @@ export function normalizeBoardPieces(boardPieces: unknown): BoardPiece[] {
  * does not (e.g. a map made in a newer version). Unknown pieces never enter
  * the app; the caller reports `droppedPieces` to the user instead.
  */
-export function dropUnknownBoardPieces(boardPieces: BoardPiece[]): {
-  boardPieces: BoardPiece[]
+export function dropUnknownBoardPieces<
+  T extends Pick<BoardPiece, 'inventoryID'> & Partial<Pick<BoardPiece, 'uid'>>,
+>(
+  boardPieces: T[],
+): {
+  boardPieces: T[]
   droppedPieces: DroppedBoardPiece[]
 } {
-  const known: BoardPiece[] = []
+  const known: T[] = []
   const droppedPieces: DroppedBoardPiece[] = []
   for (const bp of boardPieces) {
     if (bp?.inventoryID && piecesSoFar[bp.inventoryID]) {
       known.push(bp)
     } else {
-      droppedPieces.push({
-        uid: bp?.uid,
+      const droppedPiece: DroppedBoardPiece = {
         inventoryID: bp?.inventoryID,
         reason: 'unknown',
-      })
+      }
+      if (bp?.uid !== undefined) droppedPiece.uid = bp.uid
+      droppedPieces.push(droppedPiece)
     }
   }
   return { boardPieces: known, droppedPieces }
