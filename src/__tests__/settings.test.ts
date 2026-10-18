@@ -22,6 +22,8 @@ import {
   getAvailableLandPrefixesForSets,
 } from '../utils/terrain-constraints'
 
+vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
+
 const values = new Map<string, string>()
 const storage = {
   getItem: (key: string) => values.get(key) ?? null,
@@ -251,6 +253,8 @@ describe('settings persistence', () => {
       'flatPieceSizes',
       'userPieceInventory',
       'isFrameloopDemand',
+      'isAutosaveHeld',
+      'mapLoadRevision',
     ]
     const mapStateKeys = [
       'boardHexes',
