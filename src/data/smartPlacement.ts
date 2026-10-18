@@ -13,12 +13,15 @@ export function getSmartPlacementAltitude({
   pieceCoords,
   altitude,
   rotation,
+  ignoreUID,
 }: {
   boardHexes: BoardHexes
   piece: Piece
   pieceCoords: CubeCoordinate
   altitude: number
   rotation: number
+  /** Leave this piece out, e.g. the piece being moved. */
+  ignoreUID?: string
 }): number {
   if (
     piece.isOverlayPiece ||
@@ -54,7 +57,7 @@ export function getSmartPlacementAltitude({
     ) {
       const id = genBoardHexID({ ...coords, altitude: level })
       const hex = boardHexes[id]
-      if (!hex) continue
+      if (!hex || (ignoreUID && hex.boardPieceUID === ignoreUID)) continue
       localHexes[id] = hex
       if (
         level < HEXGRID_MAX_ALTITUDE &&

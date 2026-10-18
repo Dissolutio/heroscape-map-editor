@@ -35,7 +35,7 @@ export const cubeToPixel = (hex: CubeCoordinate) => {
   return { x: x, y: y }
 }
 export function hexUtilsOddRToCube(x: number, y: number) {
-  const q = x - (y - (y % 2)) / 2
+  const q = x - (y - (y & 1)) / 2
   return { q, r: y, s: -q - y } // NOTE: Here I discovered JavaScript's negative zero: (-0 - 0)=>(-0) But at least: (-0).toString() => "0"
 }
 export function hexUtilsCubeToOddR(hex: CubeCoordinate) {
@@ -123,8 +123,8 @@ export function hexUtilsGenRectangleGrid(
 ): CubeCoordinate[] {
   const hexas: CubeCoordinate[] = []
   for (let r = 0; r < mapWidth; r++) {
-    const offset = Math.floor(r / 2) // or r>>1
-    for (let q = -offset; q < mapHeight - offset; q++) {
+    const firstQ = hexUtilsOddRToCube(0, r).q
+    for (let q = firstQ; q < mapHeight + firstQ; q++) {
       hexas.push({ q, r, s: -q - r })
     }
   }
