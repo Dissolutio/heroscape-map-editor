@@ -161,15 +161,21 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
   const onPointerUpForwardBuildable = (e: ThreeEvent<PointerEvent>) => {
     if (isSolidLandPenMode && onPointerUp) {
       onPointerUp(e, getForwardBuildableHex())
+      e.stopPropagation()
+      return
     }
-    e.stopPropagation()
+    // any other pen: a click on the deck is a click on the ship
+    onPointerUpBody(e)
   }
 
   const onPointerUpAftBuildable = (e: ThreeEvent<PointerEvent>) => {
     if (isSolidLandPenMode && onPointerUp) {
       onPointerUp(e, getAftBuildableHex())
+      e.stopPropagation()
+      return
     }
-    e.stopPropagation()
+    // any other pen: a click on the deck is a click on the ship
+    onPointerUpBody(e)
   }
 
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)

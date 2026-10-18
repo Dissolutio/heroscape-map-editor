@@ -164,16 +164,22 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
     if (isSolidLandPenMode && onPointerUp) {
       const hex = getForwardBuildableHex()
       onPointerUp(e, hex)
+      e.stopPropagation()
+      return
     }
-    e.stopPropagation()
+    // any other pen: a click on the deck is a click on the ship
+    onPointerUpBody(e)
   }
 
   const onPointerUpAftBuildable = (e: ThreeEvent<PointerEvent>) => {
     if (isSolidLandPenMode && onPointerUp) {
       const hex = getAftBuildableHex()
       onPointerUp(e, hex)
+      e.stopPropagation()
+      return
     }
-    e.stopPropagation()
+    // any other pen: a click on the deck is a click on the ship
+    onPointerUpBody(e)
   }
 
   const onPointerUpBody = (event: ThreeEvent<PointerEvent>) => {
