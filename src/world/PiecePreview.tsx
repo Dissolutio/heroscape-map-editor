@@ -1,7 +1,9 @@
-import { Suspense, useMemo } from 'react'
+import { Suspense, useEffect, useMemo } from 'react'
 import { piecesSoFar } from '../data/pieces'
+import { getPlacementPreviewState } from '../data/placementPreview'
 import { getSmartPlacementAltitude } from '../data/smartPlacement'
 import useBoundStore from '../store/store'
+import type { BoardHex } from '../types'
 import { HexTerrain, PiecePrefixes, Pieces } from '../types'
 import {
   getLandAltitudeIncrement,
@@ -23,6 +25,7 @@ import {
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils'
 import { hexTerrainColor } from './maphex/hexColors'
+import { PlacementFootprint } from './PlacementFootprint'
 import { BattlementPreview } from './models/Battlement'
 import BigTree415 from './models/BigTree415'
 import Cannon from './models/Cannon'
@@ -84,8 +87,97 @@ import {
   getRoadWallOptions,
   getRuinsOptions,
 } from './models/piece-adjustments'
+import { isE2E } from '../e2e/isE2E'
+import { setPlacementPreview } from '../e2e/placementPreviewStore'
 
 export default function PiecePreview() {
+  const hoveredHex = useBoundStore((s) => s.hoveredHex)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const penMode = useBoundStore((s) => s.penMode)
+  const penModeSize = useBoundStore((s) => s.pieceSize)
+  const penModeRotation = useBoundStore((s) => s.penModeRotation)
+  const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const pieceKey = penModeSize === 0 ? penMode : `${penMode}${penModeSize}`
+  const piece = piecesSoFar[pieceKey]
+  const previewState = useMemo(() => {
+    if (!hoveredHex || !piece || penMode === 'select' || isTakingPicture) {
+      return null
+    }
+    return getPlacementPreviewState(piece, hoveredHex, penModeRotation, {
+      boardHexes,
+      boardPieces,
+    })
+  }, [
+    boardHexes,
+    boardPieces,
+    hoveredHex,
+    isTakingPicture,
+    penMode,
+    penModeRotation,
+    piece,
+  ])
+
+  useEffect(() => {
+    if (!isE2E) return
+    setPlacementPreview(
+      previewState
+        ? {
+            status: previewState.evaluation.status,
+            reason: previewState.evaluation.reason ?? null,
+            footprintCount: previewState.evaluation.footprintHexes.length,
+          }
+        : null,
+    )
+  }, [previewState])
+
+  if (!hoveredHex || !piece || !previewState) return null
+
+  const { evaluation, resolution } = previewState
+  const hoveredSurfaceHex =
+    hoveredHex.obstacleHeight &&
+    (hoveredHex.pieceID.includes(PiecePrefixes.castleWall) ||
+      hoveredHex.pieceID.includes(PiecePrefixes.castleArch))
+      ? (boardHexes[
+          genBoardHexID({
+            ...hoveredHex,
+            altitude: hoveredHex.altitude + hoveredHex.obstacleHeight,
+          })
+        ] ?? hoveredHex)
+      : hoveredHex
+  const castleCapHex =
+    !('blocked' in resolution) && resolution.rule === 'castleCap'
+      ? (boardHexes[
+          genBoardHexID({
+            ...resolution.coords,
+            altitude: resolution.altitude,
+          })
+        ] ?? {
+          ...hoveredHex,
+          ...resolution.coords,
+          altitude: resolution.altitude,
+        })
+      : undefined
+
+  return (
+    <>
+      <PlacementFootprint
+        status={evaluation.status}
+        footprintHexes={evaluation.footprintHexes}
+        hoveredHex={hoveredSurfaceHex}
+      />
+      {evaluation.status !== 'blocked' && (
+        <PiecePreviewModel hoveredHexOverride={castleCapHex} />
+      )}
+    </>
+  )
+}
+
+function PiecePreviewModel({
+  hoveredHexOverride,
+}: {
+  hoveredHexOverride?: BoardHex
+}) {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const boardPieces = useBoundStore((s) => s.boardPieces)
@@ -113,25 +205,36 @@ export default function PiecePreview() {
   const hoveredHexAtPointer =
     hoveredHex ??
     (isHoveringPreviewSupportPiece ? hoveredPieceSupportHex : undefined)
+  const hoveredHexForModel =
+    isHoveringPreviewSupportPiece && hoveredPieceSupportHex
+      ? hoveredPieceSupportHex
+      : (hoveredHexOverride ?? hoveredHexAtPointer)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const hoveredHexForPreview = useMemo(() => {
-    if (!piece || !hoveredHexAtPointer) return hoveredHexAtPointer
+    if (hoveredHexOverride) return hoveredHexOverride
+    if (!piece || !hoveredHexForModel) return hoveredHexForModel
     const altitude = getSmartPlacementAltitude({
       boardHexes,
       piece,
-      pieceCoords: hoveredHexAtPointer,
-      altitude: hoveredHexAtPointer.altitude,
+      pieceCoords: hoveredHexForModel,
+      altitude: hoveredHexForModel.altitude,
       rotation: penModeRotation,
     })
-    if (altitude === hoveredHexAtPointer.altitude) return hoveredHexAtPointer
+    if (altitude === hoveredHexForModel.altitude) return hoveredHexForModel
     const support =
-      boardHexes[genBoardHexID({ ...hoveredHexAtPointer, altitude })]
+      boardHexes[genBoardHexID({ ...hoveredHexForModel, altitude })]
     return {
-      ...hoveredHexAtPointer,
+      ...hoveredHexForModel,
       altitude,
       terrain: support?.terrain ?? HexTerrain.empty,
     }
-  }, [boardHexes, piece, hoveredHexAtPointer, penModeRotation])
+  }, [
+    boardHexes,
+    hoveredHexForModel,
+    hoveredHexOverride,
+    penModeRotation,
+    piece,
+  ])
 
   /* Piece Preview:
   1. A solid/fluid/empty cap (preview anything except laur-addons)

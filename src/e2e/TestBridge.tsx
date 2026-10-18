@@ -6,6 +6,7 @@ import useBoundStore from '../store/store'
 import type { BoardHex, BoardPiece } from '../types'
 import { getBoardHex3DCoords } from '../utils/map-utils'
 import { isE2E } from './isE2E'
+import { getPlacementPreview } from './placementPreviewStore'
 import { getReady } from './readyStore'
 import type { E2ETestBridge, ScreenPoint } from './types'
 
@@ -77,6 +78,7 @@ function TestBridgeInner() {
           selectedPieceIDs: [...s.selectedPieceIDs],
           hoveredPieceID: s.hoveredPieceID,
           isOrthoCam: s.isOrthoCam,
+          placementPreview: getPlacementPreview(),
         }
       },
       listPieces: () =>
@@ -116,6 +118,14 @@ function TestBridgeInner() {
         await new Promise<void>((resolve) => {
           requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
         })
+      },
+      setPen: (penMode, size, rotation) => {
+        const store = useBoundStore.getState()
+        store.togglePenMode(penMode)
+        store.togglePieceSize(size)
+        if (rotation !== undefined) {
+          store.togglePenModeRotation(rotation)
+        }
       },
       stats: () => {
         const { calls, triangles } = get().gl.info.render
