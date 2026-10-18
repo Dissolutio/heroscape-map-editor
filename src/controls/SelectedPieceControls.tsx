@@ -274,7 +274,7 @@ export function SelectedPieceControls({
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
-  const movePiece = useBoundStore((s) => s.movePiece)
+  const movePieces = useBoundStore((s) => s.movePieces)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
@@ -406,15 +406,13 @@ export function SelectedPieceControls({
   // --- Action handlers ---
   const moveSelectedPiece = (direction: number) => {
     setPiecePreviews(null)
-    for (const [i, bp] of selectedBoardPieces.entries()) {
-      if (i === 1) useBoundStore.temporal.getState().pause()
-      movePiece({
+    // one store update: one undo step, and the pieces move as a group
+    movePieces({
+      moves: selectedBoardPieces.map((bp) => ({
         uid: bp.uid,
         newPieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
-      })
-    }
-    if (selectedBoardPieces.length > 1)
-      useBoundStore.temporal.getState().resume()
+      })),
+    })
     const movedPieces = selectedBoardPieces.map((bp) => ({
       ...bp,
       pieceCoords: hexUtilsAdd(bp.pieceCoords, HEX_DIRECTIONS[direction]),
@@ -429,22 +427,21 @@ export function SelectedPieceControls({
 
   const rotateSelectedPiece = (direction: 1 | -1) => {
     setPiecePreviews(null)
-    for (const [i, bp] of selectedBoardPieces.entries()) {
-      if (i === 1) useBoundStore.temporal.getState().pause()
-      const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
-      const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
-      const baseIdx = currentIdx === -1 ? 0 : currentIdx
-      const nextIdx =
-        (baseIdx + direction + possibleRotations.length) %
-        possibleRotations.length
-      movePiece({
-        uid: bp.uid,
-        newPieceCoords: bp.pieceCoords,
-        newRotation: possibleRotations[nextIdx],
-      })
-    }
-    if (selectedBoardPieces.length > 1)
-      useBoundStore.temporal.getState().resume()
+    movePieces({
+      moves: selectedBoardPieces.map((bp) => {
+        const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
+        const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
+        const baseIdx = currentIdx === -1 ? 0 : currentIdx
+        const nextIdx =
+          (baseIdx + direction + possibleRotations.length) %
+          possibleRotations.length
+        return {
+          uid: bp.uid,
+          newPieceCoords: bp.pieceCoords,
+          newRotation: possibleRotations[nextIdx],
+        }
+      }),
+    })
     setPiecePreviews(
       selectedBoardPieces.map((bp) => {
         const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
@@ -461,18 +458,14 @@ export function SelectedPieceControls({
   const moveSelectedPieceAltitude = (delta: number) => {
     setPiecePreviews(null)
     let maxNewAltitude = 0
-    let paused = false
-    for (const [i, bp] of selectedBoardPieces.entries()) {
+    const moves = []
+    for (const bp of selectedBoardPieces) {
       const newAltitude = bp.altitude + delta
       if (newAltitude < 0) continue
-      if (i === 1) {
-        useBoundStore.temporal.getState().pause()
-        paused = true
-      }
       maxNewAltitude = Math.max(maxNewAltitude, newAltitude)
-      movePiece({ uid: bp.uid, newPieceCoords: bp.pieceCoords, newAltitude })
+      moves.push({ uid: bp.uid, newPieceCoords: bp.pieceCoords, newAltitude })
     }
-    if (paused) useBoundStore.temporal.getState().resume()
+    movePieces({ moves })
     if (delta > 0 && maxNewAltitude + 1 > viewingLevel) {
       toggleViewingLevel(maxNewAltitude + 1)
     }

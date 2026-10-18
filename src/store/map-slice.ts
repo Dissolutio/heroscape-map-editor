@@ -2,6 +2,7 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
+import { type MovePieceArgs, applyPieceMoves } from '../data/movePieces'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { removePiece } from '../data/removePiece'
@@ -86,6 +87,8 @@ export interface MapSlice extends MapState {
   unpaintTile: (uid: string) => void
   convertTerrainForPieces: (args: ConvertTerrainArgs) => number
   movePiece: (args: MovePieceArgs) => void
+  /** Moves several pieces in one update (one undo step); see applyPieceMoves. */
+  movePieces: (args: { moves: MovePieceArgs[] }) => void
   loadMap: (map: MapState, options?: LoadMapOptions) => void
   addMapPortraitBase64: (pic: string) => void
   changeMapName: (val: string) => void
@@ -106,13 +109,6 @@ type PaintTileArgs = {
   rotation: number
 }
 
-type MovePieceArgs = {
-  uid: string
-  newPieceCoords: CubeCoordinate
-  newAltitude?: number
-  newRotation?: number
-}
-
 type ConvertTerrainArgs = {
   selectedUIDs: string[]
   targetInventoryBySourceInventory: Record<string, string>
@@ -131,7 +127,10 @@ export function getViewingLevelAfterPlacing(
   return placedAtLevel > viewingLevel ? placedAtLevel : viewingLevel
 }
 
-const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
+const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
+  set,
+  get,
+) => ({
   boardHexes: {},
   hexMap: {
     id: '',
@@ -313,91 +312,22 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
     })
     return convertedCount
   },
-  movePiece: ({
-    uid,
-    newPieceCoords,
-    newAltitude,
-    newRotation,
-  }: MovePieceArgs) =>
+  movePiece: (args: MovePieceArgs) => get().movePieces({ moves: [args] }),
+  movePieces: ({ moves }: { moves: MovePieceArgs[] }) =>
     set((state) => {
+      // one update, so the whole group is one undo step; with no known
+      // piece to move, produce returns the same state and nothing changes
       return produce(state, (draft) => {
-        const boardPiece = draft.boardPieces.find((bp) => bp.uid === uid)
-        if (!boardPiece) return
-        const piece = piecesSoFar[boardPiece.inventoryID]
-        if (!piece) return
-
-        // 1. Remove the moving piece, clearing its hex ownership
-        let { newBoardHexes: workingHexes, newBoardPieces: workingPieces } =
-          removePiece({
-            uid,
-            boardHexes: draft.boardHexes,
-            boardPieces: draft.boardPieces,
-          })
-
-        const newConflicts = new Set<string>()
-
-        // 2. Restore hexes for every previously-conflicted piece.
-        //    When this piece overwrote another's hexes, those hexes now carry this
-        //    piece's UID (or are gone after step 1). We remove each conflicted piece
-        //    from boardPieces then re-add it so its hex entries are fresh and correct.
-        for (const conflictedUID of draft.conflictedPieceUIDs) {
-          if (conflictedUID === uid) continue
-          const conflictedBP = workingPieces.find(
-            (bp) => bp.uid === conflictedUID,
-          )
-          if (!conflictedBP) continue
-          const conflictedPiece = piecesSoFar[conflictedBP.inventoryID]
-          if (!conflictedPiece) continue
-          // Remove from the pieces array (hexes are already absent/overwritten)
-          const removeResult = removePiece({
-            uid: conflictedUID,
-            boardHexes: workingHexes,
-            boardPieces: workingPieces,
-          })
-          // Re-add with fresh hexes
-          const addResult = addPiece({
-            piece: conflictedPiece,
-            boardHexes: removeResult.newBoardHexes,
-            boardPieces: removeResult.newBoardPieces,
-            pieceCoords: conflictedBP.pieceCoords,
-            placementAltitude: conflictedBP.altitude,
-            rotation: conflictedBP.rotation,
-            isVsTile: false,
-            uid: conflictedUID,
-            permissive: true,
-          })
-          workingHexes = addResult.newBoardHexes
-          workingPieces = addResult.newBoardPieces
-          // Track any residual conflicts among the restored pieces themselves
-          for (const duid of addResult.displacedUIDs ?? []) {
-            newConflicts.add(duid)
-          }
-          if (addResult.displacedUIDs?.length) newConflicts.add(conflictedUID)
-        }
-
-        // 3. Place the moving piece at its new position
-        const placementAltitude = newAltitude ?? boardPiece.altitude
-        const { newBoardHexes, newBoardPieces } = addPiece({
-          piece,
-          boardHexes: workingHexes,
-          boardPieces: workingPieces,
-          pieceCoords: newPieceCoords,
-          placementAltitude,
-          rotation: newRotation ?? boardPiece.rotation,
-          isVsTile: false,
-          uid,
-          permissive: true,
-        })
-        draft.boardHexes = newBoardHexes
-        draft.boardPieces = newBoardPieces
+        const moved = applyPieceMoves(draft, moves)
+        if (!moved) return
+        draft.boardHexes = moved.boardHexes
+        draft.boardPieces = moved.boardPieces
+        draft.conflictedPieceUIDs = moved.conflictedPieceUIDs
         // same as painting: keep a piece moved up into view
         draft.viewingLevel = getViewingLevelAfterPlacing(
           state.viewingLevel,
-          placementAltitude,
+          moved.highestAltitude,
         )
-
-        // Recompute globally so move and paint use the same conflict source of truth.
-        draft.conflictedPieceUIDs = computeConflictedPieceUIDs(newBoardPieces)
       })
     }),
   mapPortraitBase64: '',
