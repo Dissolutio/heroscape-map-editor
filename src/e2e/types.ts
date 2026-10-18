@@ -17,6 +17,24 @@ export type E2ESnapshot = {
     reason: string | null
     footprintCount: number
   } | null
+  /** A piece press or drag in progress (drag-to-move), or null. */
+  drag: E2EDragSnapshot | null
+}
+
+export type E2EDragSnapshot = {
+  /** 'pressed' until the pointer moves past the click tolerance. */
+  state: 'pressed' | 'dragging'
+  /** The drop's status at the current target, or null with no target. */
+  targetStatus: 'ok' | 'conflict' | 'blocked' | null
+  reason: string | null
+  /** The hex under the pointer (the dragged piece itself is see-through). */
+  targetHex: { q: number; r: number; s: number; altitude: number } | null
+}
+
+export type E2ECameraPose = {
+  position: [number, number, number]
+  target: [number, number, number]
+  zoom: number
 }
 
 export type E2EPieceSummary = {
@@ -52,6 +70,8 @@ export type E2ETestBridge = {
     position: [number, number, number],
     target: [number, number, number],
   ) => Promise<void>
+  /** Where the camera is and looks (rounded), to check it did not move. */
+  cameraPose: () => E2ECameraPose | null
   /** Set pen controls for test setup only. */
   setPen: (penMode: string, size: number, rotation?: number) => void
   stats: () => { calls: number; triangles: number }

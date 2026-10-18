@@ -52,12 +52,18 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   tree): map name, piece count, level, pen mode, how many pieces are selected.
 - `window.__TEST__.snapshot()`: the same, structured (`mapId`, `pieceCount`,
   `hexCount`, `viewingLevel`, `penMode`, `selectedPieceIDs`,
-  `hoveredPieceID`, `isOrthoCam`, `ready`, and `placementPreview`
-  (`status`, `reason`, and `footprintCount`, or `null`).
+  `hoveredPieceID`, `isOrthoCam`, `ready`, `placementPreview`
+  (`status`, `reason`, and `footprintCount`, or `null`), and `drag`: a piece
+  press or drag in progress, or `null` (`state` is `'pressed'` or
+  `'dragging'`; `targetStatus` is the drop's `'ok'`, `'conflict'` or
+  `'blocked'`, or `null` with no target; `reason`; `targetHex`, the hex under
+  the pointer, `{ q, r, s, altitude }` or `null`).
 - `window.__TEST__.listPieces()`: every placed piece (`uid`, `inventoryID`,
   `altitude`, `rotation`, `pieceCoords`). **uids are random on every load**:
   find pieces by `inventoryID` and coordinates (`findPieceUid` in
   `e2e/fixtures.ts`).
+- `window.__TEST__.cameraPose()`: the camera's `position`, `target` and
+  `zoom` (rounded), to check that something did not move the camera.
 - `window.__TEST__.stats()`: draw calls and triangles.
 
 The bridge is read-only apart from the camera and the setup-only `setPen`
@@ -82,6 +88,15 @@ the camera instantly with
 To test a pen hover, use `hoverHex(page, { q, r, altitude })` from
 `e2e/fixtures.ts`; it moves the mouse to
 `window.__TEST__.screenPosOfHex(...)`.
+
+To drag a piece, use `dragPiece(page, uid, { q, r, altitude })` from
+`e2e/fixtures.ts`: it presses at `screenPosOfPiece`, moves in several steps
+past the 5 px click tolerance, and releases at `screenPosOfHex`.
+`startDrag` does the same without releasing (for Esc, or to read
+`snapshot().drag` mid-drag; finish with `page.mouse.up()`). Only the one
+selected piece drags, in select mode; a drag that starts anywhere else orbits
+the camera. While dragging, the dragged piece is see-through to the pointer,
+so `drag.targetHex` over its own spot is the hex under it.
 
 Things that decide what a click does:
 

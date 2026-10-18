@@ -2,15 +2,34 @@ import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
+import { getDragState } from '../world/drag/dragController'
 import useBoundStore from '../store/store'
 import type { BoardHex, BoardPiece } from '../types'
 import { getBoardHex3DCoords } from '../utils/map-utils'
 import { isE2E } from './isE2E'
 import { getPlacementPreview } from './placementPreviewStore'
 import { getReady } from './readyStore'
-import type { E2ETestBridge, ScreenPoint } from './types'
+import type { E2EDragSnapshot, E2ETestBridge, ScreenPoint } from './types'
 
 const round1 = (n: number) => Math.round(n * 10) / 10
+const round4 = (n: number) => Math.round(n * 1e4) / 1e4
+const round4Vector = (v: Vector3): [number, number, number] => [
+  round4(v.x),
+  round4(v.y),
+  round4(v.z),
+]
+
+const getDragSnapshot = (): E2EDragSnapshot | null => {
+  const { phase } = getDragState()
+  if (phase === 'idle') return null
+  const preview = useBoundStore.getState().dragPreview
+  return {
+    state: phase,
+    targetStatus: preview?.status ?? null,
+    reason: preview?.reason ?? null,
+    targetHex: preview?.pointerHex ? { ...preview.pointerHex } : null,
+  }
+}
 
 /**
  * Installs `window.__TEST__`, a read-only view of the app (plus camera
@@ -79,6 +98,7 @@ function TestBridgeInner() {
           hoveredPieceID: s.hoveredPieceID,
           isOrthoCam: s.isOrthoCam,
           placementPreview: getPlacementPreview(),
+          drag: getDragSnapshot(),
         }
       },
       listPieces: () =>
@@ -118,6 +138,16 @@ function TestBridgeInner() {
         await new Promise<void>((resolve) => {
           requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
         })
+      },
+      cameraPose: () => {
+        const { controls, camera } = get()
+        const cameraControls = controls as CameraControls | null
+        if (!cameraControls) return null
+        return {
+          position: round4Vector(cameraControls.getPosition(new Vector3())),
+          target: round4Vector(cameraControls.getTarget(new Vector3())),
+          zoom: round4(camera.zoom),
+        }
       },
       setPen: (penMode, size, rotation) => {
         const store = useBoundStore.getState()
