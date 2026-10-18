@@ -45,7 +45,9 @@ export type PlacementBlockedReason =
   | 'notOnCastleWallTop' // only a castle wall or wall walk fits on one
   | 'castleArchNeedsLand' // an arch's bases are attached: not on a wall top
   | 'pillarShapesDiffer' // square and triangle pillars do not stack
+  | 'offMap' // part of the footprint is outside the map
   | 'landTileNotOnHex' // canPlaceLandTileOnHex said no
+  | 'notAHex' // the pointer handed over something that is not a hex
 
 /** What a refusal tells the user; a reason missing here is silent. */
 export const placementBlockedMessages: Partial<
@@ -55,6 +57,7 @@ export const placementBlockedMessages: Partial<
   notOnCastleWallTop: 'Only a castle wall or wall walk fits on a castle wall.',
   castleArchNeedsLand: 'A castle arch has its own bases; place it on land.',
   pillarShapesDiffer: 'Triangle and square pillars do not stack.',
+  offMap: 'That piece would hang off the edge of the map.',
 }
 
 const isLaurPillarID = (id: string) =>
@@ -104,8 +107,48 @@ export function resolvePlacement(
   piece: Piece,
   pointerHex: BoardHex,
   rotation: number,
+  board: PlacementBoard,
+  options: { ignoreUID?: string } = {},
+): PlacementResolution {
+  // e.g. ShipBow used to hand over `{}`; there is nothing to place on
+  if (typeof pointerHex?.pieceID !== 'string') return { blocked: 'notAHex' }
+  const resolution = resolveByRule(piece, pointerHex, rotation, board, options)
+  if (
+    !isPlacementBlocked(resolution) &&
+    hangsOffMap(board.boardHexes, resolution)
+  ) {
+    return { blocked: 'offMap' }
+  }
+  return resolution
+}
+
+/**
+ * Whether any hex of the piece's footprint is outside the map. Every map
+ * position has a table hex at altitude 0, and nothing removes those.
+ * Battlements and road walls sit on an edge of the clicked hex, so only
+ * that hex counts for them, and it is on the map: their stored coords are
+ * the neighbour across that edge.
+ */
+export function hangsOffMap(
+  boardHexes: BoardHexes,
+  { piece, coords, rotation, rule }: ResolvedPlacement,
+) {
+  if (rule === 'battlement' || rule === 'roadWall') return false
+  return getPieceTemplateCoords({
+    clickedHex: coords,
+    rotation,
+    template: piece.template,
+    isVsTile: false,
+  }).some((hex) => !boardHexes[genBoardHexID({ ...hex, altitude: 0 })])
+}
+
+/** The click rules, in order; resolvePlacement adds the map-edge check. */
+function resolveByRule(
+  piece: Piece,
+  pointerHex: BoardHex,
+  rotation: number,
   { boardHexes, boardPieces }: PlacementBoard,
-  { ignoreUID }: { ignoreUID?: string } = {},
+  { ignoreUID }: { ignoreUID?: string },
 ): PlacementResolution {
   const hex = pointerHex
   const isCastleWallArchClicked =
@@ -260,6 +303,14 @@ export function evaluatePlacement(
     isVsTile: false,
   })
   const footprintHexes = footprint.map((hex) => ({ ...hex, altitude }))
+  if (hangsOffMap(board.boardHexes, resolution)) {
+    return {
+      status: 'blocked',
+      displacedUIDs: [],
+      footprintHexes,
+      reason: 'offMap',
+    }
+  }
   // addPiece reads the hexes at the placement altitude (support) and writes
   // at most a level up plus the piece's full clearance.
   const clearance = Math.max(

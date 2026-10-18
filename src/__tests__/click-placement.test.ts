@@ -137,24 +137,49 @@ describe('click placement through the real handler', () => {
   })
 
   /**
-   * KNOWN GAP: ShipBow.tsx hands the handler an empty object (`{}`) when its
-   * deck is clicked with any pen but solid land, and the handler reads
-   * `hex.pieceID.includes(...)` on it, which throws a TypeError. The click
-   * should do nothing instead. Suggested fix: pass the real deck hex from
-   * ShipBow.tsx, or have the handler ignore a hex with no id.
+   * ShipBow.tsx used to hand the handler an empty object (`{}`) when its
+   * deck was clicked with any pen but solid land, and the handler threw
+   * reading `hex.pieceID`. ShipBow now ignores those clicks the way ShipWall
+   * does, and the resolver ignores a pointer that is not a hex. (Was a
+   * KNOWN GAP.)
    */
-  it.fails(
-    'KNOWN GAP: clicking a ship bow deck with a tree pen throws instead of doing nothing',
-    () => {
-      const table = withGrassFloor(makeTable(9))
-      const result = clickWithPen({
-        board: table,
-        pieceID: 'tr10',
-        hex: {} as BoardHex,
-      })
-      expect(result.added).toEqual([])
-    },
-  )
+  it('clicking a ship bow deck with a tree pen does nothing', () => {
+    const table = withGrassFloor(makeTable(9))
+    const result = clickWithPen({
+      board: table,
+      pieceID: 'tr10',
+      hex: {} as BoardHex,
+    })
+    expect(result.added).toEqual([])
+    expect(result.selectedPieceIDs).toEqual([SELECTED_BEFORE_CLICK])
+    expect(snackbarMessages()).toEqual([])
+  })
+
+  it('a piece that would hang off the map shows the message and places nothing', () => {
+    const table = withGrassFloor(makeTable(9))
+    const corner = hexAt(table, { q: 0, r: 0, s: 0 }, 1) as BoardHex
+    const result = clickWithPen({ board: table, pieceID: 'g7', hex: corner })
+    expect(result.added).toEqual([])
+    expect(result.board.boardHexes).toEqual(table.boardHexes)
+    expect(result.selectedPieceIDs).toEqual([SELECTED_BEFORE_CLICK])
+    expect(snackbarMessages()).toEqual([
+      'That piece would hang off the edge of the map.',
+    ])
+  })
+
+  it('a battlement on the map edge facing out is still placed (it sits on the edge)', () => {
+    const table = withGrassFloor(makeTable(9))
+    const corner = hexAt(table, { q: 0, r: 0, s: 0 }, 1) as BoardHex
+    // rotation 3 points west, off the map
+    const result = clickWithPen({
+      board: table,
+      pieceID: 'bt',
+      hex: corner,
+      rotation: 3,
+    })
+    expect(result.added).toHaveLength(1)
+    expect(snackbarMessages()).toEqual([])
+  })
 
   /**
    * The only things that connect to a castle wall's top are the bottom of
