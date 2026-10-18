@@ -23,7 +23,6 @@ import {
 } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { InstanceRefType } from '../maphex/instance-hex'
-import { FLUID_CAP_OPACITY } from '../maphex/instance/FluidCap'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
 // These pieces render their own colorOverride'd LandSubterrain in MapBoardPiece3D.tsx,
@@ -204,12 +203,9 @@ function SubterrainSizeGroup({
       castShadow={isLightsAndShadowsRender}
     >
       {isLightsAndShadowsRender ? (
-        <meshStandardMaterial
-          transparent={isFluid}
-          opacity={isFluid ? FLUID_CAP_OPACITY : 1}
-        />
+        <meshStandardMaterial transparent={isFluid} opacity={1} />
       ) : isFluid ? (
-        <meshMatcapMaterial transparent opacity={FLUID_CAP_OPACITY} />
+        <meshMatcapMaterial transparent opacity={1} />
       ) : (
         <meshMatcapMaterial />
       )}
