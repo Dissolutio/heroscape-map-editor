@@ -5,6 +5,7 @@ undo/redo), R3F/Three, Tauri 2. Biome: single quotes, no semicolons, 80 cols.
 Architecture, coordinate space and data model are described in
 [.github/agents/hexoscape.agent.md](.github/agents/hexoscape.agent.md); check
 the source before relying on it.
+For new terrain additions, use [docs/adding-a-piece.md](docs/adding-a-piece.md).
 
 Checks: `npm test` (Vitest), `npx tsc -b`, `npx @biomejs/biome lint ./src`,
 `npx @biomejs/biome format ./src`, `npm run build`. `npm run lint` and
