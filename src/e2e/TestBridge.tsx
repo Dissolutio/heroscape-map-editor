@@ -124,7 +124,7 @@ function TestBridgeInner() {
     }
     window.__TEST__ = bridge
     return () => {
-      delete window.__TEST__
+      window.__TEST__ = undefined
     }
   }, [get])
 

@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@playwright/test": "1.63.0",
     "@tauri-apps/cli": "^2.11.5",
     "@types/clipper-lib": "^6.4.0",
     "@types/lodash": "^4.17.13",

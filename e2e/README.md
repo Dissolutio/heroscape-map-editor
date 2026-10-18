@@ -7,10 +7,9 @@ is the one place they are documented.
 
 ## One-time setup
 
-Playwright is not in `package.json` yet. Add it, then fetch a browser:
+`@playwright/test` is a dev dependency. After `npm ci`, fetch its browser:
 
 ```sh
-npm install --save-dev @playwright/test
 npx playwright install chromium
 ```
 
@@ -25,7 +24,8 @@ production builds have them only with it. To load a known map add the share
 link parameter: `/hs?e2e=1&m=<crushed map>` (see `e2e/fixtures.ts`).
 
 `?e2e=1` also makes the cosmetic cap rotation repeatable, so screenshots match
-between runs.
+between runs. The rotation only shows with **High Quality Render** on; the
+default caps are plain hexagons.
 
 ## Waiting: use the ready signal, never a fixed sleep
 
@@ -82,9 +82,16 @@ Things that decide what a click does:
 - Only the **left button** acts; handlers listen to `pointerup`.
 - It depends on the **pen mode**. The app starts in `select`, where a click
   selects a piece. Paint modes place pieces instead.
-- A click that hits nothing clears the selection.
+- A click that hits nothing clears the selection. Clicking the only selected
+  piece again deselects it.
+- `screenPosOfPiece` aims at the piece's top surface. If another piece sits
+  on top (a stacked tile, a tree, a pillar), the click selects that one; such
+  a piece is only reachable from the side, if at all.
 - A tall piece in front can hide the target. If a click selects something
   else, check `snapshot().selectedPieceIDs` and move the camera.
+- The camera starts orthographic (top-down); `Insert` toggles perspective.
+  Switching does not re-frame the map, so call `setCamera` if pieces come
+  back `null`.
 
 ## Software WebGL
 

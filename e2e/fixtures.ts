@@ -43,13 +43,15 @@ type PieceMatch = {
  */
 export async function findPieceUid(page: Page, match: PieceMatch) {
   const uid = await page.evaluate((m) => {
-    const piece = window.__TEST__?.listPieces().find(
-      (p) =>
-        p.inventoryID === m.inventoryID &&
-        (m.q === undefined || p.pieceCoords.q === m.q) &&
-        (m.r === undefined || p.pieceCoords.r === m.r) &&
-        (m.altitude === undefined || p.altitude === m.altitude),
-    )
+    const piece = window.__TEST__
+      ?.listPieces()
+      .find(
+        (p) =>
+          p.inventoryID === m.inventoryID &&
+          (m.q === undefined || p.pieceCoords.q === m.q) &&
+          (m.r === undefined || p.pieceCoords.r === m.r) &&
+          (m.altitude === undefined || p.altitude === m.altitude),
+      )
     return piece?.uid ?? null
   }, match)
   if (!uid) {

@@ -121,8 +121,7 @@ function ReadySignalInner({
 
     const signature = [...camera.matrixWorld.elements, camera.zoom]
     const cameraMoved =
-      !armed.cameraSignature ||
-      !sameSignature(armed.cameraSignature, signature)
+      !armed.cameraSignature || !sameSignature(armed.cameraSignature, signature)
     armed.cameraSignature = signature
 
     if (armed.done) {

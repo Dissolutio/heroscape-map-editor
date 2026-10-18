@@ -52,6 +52,9 @@ describe('e2e fixture map', () => {
     )
     const coords = { q: 1, r: 2, s: -3 }
     expect(hexAt(map, coords, 1)).toMatchObject({ terrain: 'grass' })
-    expect(hexAt(map, coords, 2)).toMatchObject({ terrain: 'rock', isCap: true })
+    expect(hexAt(map, coords, 2)).toMatchObject({
+      terrain: 'rock',
+      isCap: true,
+    })
   })
 })
