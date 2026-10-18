@@ -194,7 +194,12 @@ export default function ViewControlsTab({
         {is3DOpen && <ViewPreferencesSwitchForm />}
         {isPdfOpen && <PdfPreferencesSwitchForm />}
         {is2DOpen && <SVGPreferencesSwitchForm />}
-        <Button onClick={handleResetSettings} size="small" variant="outlined">
+        <Button
+          onClick={handleResetSettings}
+          size="small"
+          title="Restore default settings"
+          variant="outlined"
+        >
           Reset settings
         </Button>
       </Box>

@@ -225,7 +225,12 @@ const createUISlice: StateCreator<
           state.penMode,
           state.pieceSize,
         )
-        // if switching to a non-painting mode, remeber the last pen mode
+        // Keep the active painting mode and size available after a reload.
+        if (!nonPaintingPenModes.has(mode)) {
+          state.lastPenMode = mode
+          state.lastPenSize = newSize
+        }
+        // Preserve the painting mode when switching to a non-painting mode.
         if (
           nonPaintingPenModes.has(mode) &&
           !nonPaintingPenModes.has(state.penMode)
@@ -247,6 +252,9 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.pieceSize = n
+        if (!nonPaintingPenModes.has(s.penMode)) {
+          s.lastPenSize = n
+        }
       }),
     ),
   penModeRotation: 0,

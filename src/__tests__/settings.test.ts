@@ -394,6 +394,27 @@ describe('settings persistence', () => {
     expect(store.getState().lastPenSize).toBe(3)
   })
 
+  it('remembers the active painting mode and size across a reload', async () => {
+    vi.useFakeTimers()
+    vi.resetModules()
+    const { default: store } = await import('../store/store')
+    store.getState().togglePenMode('r')
+    store.getState().togglePieceSize(3)
+    store.getState().togglePenMode('select')
+    vi.advanceTimersByTime(300)
+
+    expect(safeGetJSON(LS_KEYS.settings)).toMatchObject({
+      v: 1,
+      values: { lastPenMode: 'r', lastPenSize: 3 },
+    })
+
+    vi.resetModules()
+    const { default: reloadedStore } = await import('../store/store')
+    expect(reloadedStore.getState().penMode).toBe('select')
+    expect(reloadedStore.getState().lastPenMode).toBe('r')
+    expect(reloadedStore.getState().lastPenSize).toBe(3)
+  })
+
   it('resets every settings value and removes the stored settings blob', async () => {
     vi.useFakeTimers()
     vi.resetModules()
