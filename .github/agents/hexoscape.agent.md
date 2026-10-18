@@ -56,6 +56,7 @@ type MapState = MapFileState & { boardHexes: BoardHexes }
 - **Conflict mechanics:** permissive writes can replace a cell's owner; `addPiece` reports `displacedUIDs`, and store logic marks both incoming and displaced piece UIDs. A cell holds one owner, not every overlapping piece. Preserve replay/restoration and conflict recomputation when loading, moving, removing, or undoing pieces.
 
 ## COPILOT BEHAVIORAL DIRECTIVES
+- For new terrain registrations, follow the source-verified [piece guide](../../docs/adding-a-piece.md).
 - Verify current types, helpers, and callers before editing; this document is a navigation aid, not authority over source. Distinguish observed behavior, intended game rules, and proposed fixes; never invent APIs or enforcement guarantees.
 - Preserve the **0.35 Y-axis level constraint**, signed cube coordinates, placement/surface distinction, and established model offsets. Reuse coordinate conversions rather than duplicating formulas.
 - Keep `boardPieces`, derived `boardHexes`, stable instance UIDs, conflict tracking, serialization, and undo/redo consistent. Never treat each cap or clearance cell as a separate inventory piece.
