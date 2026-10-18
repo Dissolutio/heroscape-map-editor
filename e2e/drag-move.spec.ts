@@ -259,11 +259,49 @@ test('g. a drop that would hang off the map is refused with the message', async 
   await startDrag(page, g2, { q: 0, r: 0, altitude: 0 })
   await expect
     .poll(async () => (await snapshot(page))?.drag)
-    .toMatchObject({ targetStatus: 'blocked', reason: 'offMap' })
+    // the whole g2 footprint, the hex off the map included
+    .toMatchObject({
+      targetStatus: 'blocked',
+      reason: 'offMap',
+      footprintCount: 2,
+    })
   await page.mouse.up()
   await expect(
     page.getByText('That piece would hang off the edge of the map.'),
   ).toBeVisible()
   expect((await piece(page, g2))?.pieceCoords).toEqual({ q: 2, r: 2, s: -4 })
   expect((await snapshot(page))?.drag).toBeNull()
+})
+
+test('h. dropping a piece on a stack taller than the view raises the viewing level', async ({
+  page,
+}) => {
+  // grass at (1, 2); a rock stack three high at (3, 2), top surface level 3
+  await page.goto(
+    mapUrl(
+      {
+        id: 'e2e-drag-level',
+        name: 'E2E Drag Level',
+        author: 'e2e',
+        version: 1,
+        shape: 'rectangle',
+        width: 6,
+        length: 6,
+      },
+      ['0~1~2~0~g1', '0~3~2~0~r1', '1~3~2~0~r1', '2~3~2~0~r1'],
+    ),
+  )
+  await waitForAppReady(page)
+  const grass = await findPieceUid(page, { inventoryID: 'g1' })
+  await clickPiece(page, grass)
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual([grass])
+  const levelBefore = (await snapshot(page))?.viewingLevel ?? 0
+  expect(levelBefore).toBeLessThan(4)
+
+  await dragPiece(page, grass, { q: 3, r: 2, altitude: 3 })
+  await expect.poll(async () => (await piece(page, grass))?.altitude).toBe(3)
+  // the grass now tops the stack at level 4, and the view follows it
+  await expect.poll(async () => (await snapshot(page))?.viewingLevel).toBe(4)
 })

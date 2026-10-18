@@ -56,7 +56,10 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   (`status`, `reason`, and `footprintCount`, or `null`), and `drag`: a piece
   press or drag in progress, or `null` (`state` is `'pressed'` or
   `'dragging'`; `targetStatus` is the drop's `'ok'`, `'conflict'` or
-  `'blocked'`, or `null` with no target; `reason`; `targetHex`, the hex under
+  `'blocked'`, or `null` with no target; `reason`; `footprintCount`, the
+  hexes in the target footprint, off-map ones included (a target hanging off
+  the map is `blocked`/`offMap` with its full footprint); `targetHex`, the hex
+  under
   the pointer, `{ q, r, s, altitude }` or `null`).
 - `window.__TEST__.listPieces()`: every placed piece (`uid`, `inventoryID`,
   `altitude`, `rotation`, `pieceCoords`). **uids are random on every load**:

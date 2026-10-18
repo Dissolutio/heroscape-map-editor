@@ -133,7 +133,8 @@ export type DragTarget = {
  * Where the dragged piece would land with the pointer on `pointerHex`: the
  * same resolver and evaluator as pen placement (smart altitude included),
  * leaving the piece itself out so it does not collide with where it is now.
- * It keeps its rotation.
+ * It keeps its rotation. A target hanging off the map evaluates as blocked
+ * (offMap) with its full footprint, off-map hexes included.
  */
 export function evaluateDragTarget(
   board: PlacementBoard,
@@ -142,16 +143,16 @@ export function evaluateDragTarget(
   pointerHex: BoardHex,
   grabOffset: CubeCoordinate,
 ): DragTarget {
-  const options = { ignoreUID: bp.uid }
   const dropHex = getDropPointerHex(pointerHex, grabOffset, board.boardHexes)
-  const resolution = resolvePlacement(
-    piece,
-    dropHex,
-    bp.rotation,
-    board,
-    options,
-  )
-  const evaluation = evaluatePlacement(board, resolution, options)
+  // Like the pen hover, resolve a target that hangs off the map anyway, so
+  // its whole footprint shows; evaluatePlacement still blocks it (offMap).
+  const resolution = resolvePlacement(piece, dropHex, bp.rotation, board, {
+    ignoreUID: bp.uid,
+    deferOffMapCheck: true,
+  })
+  const evaluation = evaluatePlacement(board, resolution, {
+    ignoreUID: bp.uid,
+  })
   return { pointerHex, resolution, evaluation }
 }
 

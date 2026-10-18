@@ -118,6 +118,19 @@ type ConvertTerrainArgs = {
   targetInventoryBySourceInventory: Record<string, string>
 }
 
+/**
+ * The viewing level after placing (or moving) a piece at `altitude`: raised
+ * to the level of the piece's top (altitude + 1) when that is higher, never
+ * lowered.
+ */
+export function getViewingLevelAfterPlacing(
+  viewingLevel: number,
+  altitude: number,
+) {
+  const placedAtLevel = altitude + 1
+  return placedAtLevel > viewingLevel ? placedAtLevel : viewingLevel
+}
+
 const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
   boardHexes: {},
   hexMap: {
@@ -166,12 +179,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
           permissive: true,
         })
         error = addPieceError
-        // we added a piece. ___X go up piece height
-        const placedAtLevel = altitude + 1
-        draft.viewingLevel =
-          placedAtLevel > state.viewingLevel
-            ? state.viewingLevel + (placedAtLevel - state.viewingLevel)
-            : state.viewingLevel
+        draft.viewingLevel = getViewingLevelAfterPlacing(
+          state.viewingLevel,
+          altitude,
+        )
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
         // Recompute from boardPieces so conflict state stays correct even after load/rehydrate drift.
@@ -365,12 +376,13 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         }
 
         // 3. Place the moving piece at its new position
+        const placementAltitude = newAltitude ?? boardPiece.altitude
         const { newBoardHexes, newBoardPieces } = addPiece({
           piece,
           boardHexes: workingHexes,
           boardPieces: workingPieces,
           pieceCoords: newPieceCoords,
-          placementAltitude: newAltitude ?? boardPiece.altitude,
+          placementAltitude,
           rotation: newRotation ?? boardPiece.rotation,
           isVsTile: false,
           uid,
@@ -378,6 +390,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (set) => ({
         })
         draft.boardHexes = newBoardHexes
         draft.boardPieces = newBoardPieces
+        // same as painting: keep a piece moved up into view
+        draft.viewingLevel = getViewingLevelAfterPlacing(
+          state.viewingLevel,
+          placementAltitude,
+        )
 
         // Recompute globally so move and paint use the same conflict source of truth.
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(newBoardPieces)

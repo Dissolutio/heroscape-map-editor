@@ -27,6 +27,8 @@ export type E2EDragSnapshot = {
   /** The drop's status at the current target, or null with no target. */
   targetStatus: 'ok' | 'conflict' | 'blocked' | null
   reason: string | null
+  /** Hexes in the target footprint, off-map ones included (0: no target). */
+  footprintCount: number
   /** The hex under the pointer (the dragged piece itself is see-through). */
   targetHex: { q: number; r: number; s: number; altitude: number } | null
 }

@@ -24,10 +24,13 @@ import {
 } from '../data/dragMove'
 import { piecesSoFar } from '../data/pieces'
 import getPieceTemplateCoords from '../data/rotationTransforms'
+import { getViewingLevelAfterPlacing } from '../store/map-slice'
 import useBoundStore from '../store/store'
 import type { BoardHex, BoardPiece, CubeCoordinate } from '../types'
+import { PiecePrefixes } from '../types'
 import { CLICK_DRAG_TOLERANCE_PX } from '../utils/constants'
 import { cubeToPixel } from '../utils/hex-utils'
+import { getSubterrainSize } from '../world/models/LandSubterrainInstanced'
 import {
   type Board,
   cloneBoard,
@@ -396,8 +399,9 @@ describe('drag target and drop decision', () => {
     expect(decideDrop('ROCK', target).type).toBe('move')
   })
 
-  it('a blocked target cancels with the refusal message', () => {
+  it('a target hanging off the map keeps its whole footprint, and the drop is refused', () => {
     const { board } = fixtureBoard()
+    const before = cloneBoard(board)
     const g2: BoardPiece = {
       uid: 'G2',
       inventoryID: 'g2',
@@ -409,16 +413,55 @@ describe('drag target and drop decision', () => {
     const edge = hexAt(board, { q: -1, r: 3, s: -2 }, 0) as BoardHex
     const target = evaluateDragTarget(board, piecesSoFar.g2, g2, edge, noOffset)
     expect(target.evaluation.status).toBe('blocked')
+    expect(target.evaluation.reason).toBe('offMap')
+    // both hexes, the one on the map and the one off it
+    expect(target.evaluation.footprintHexes).toEqual([
+      { q: -1, r: 3, s: -2, altitude: 0 },
+      { q: -2, r: 3, s: -1, altitude: 0 },
+    ])
+    expect(hexAt(board, { q: -2, r: 3, s: -1 }, 0)).toBeUndefined()
     expect(decideDrop('G2', target)).toEqual({
       type: 'cancel',
       reason: 'offMap',
       message: 'That piece would hang off the edge of the map.',
     })
+    // the preview knows where it would hang; DragPreview3D shows no ghost
+    // for a blocked target, only the red footprint
     expect(getDragPreview(g2, target)).toMatchObject({
       status: 'blocked',
       reason: 'offMap',
-      previewBp: null,
+      footprintHexes: target.evaluation.footprintHexes,
+      previewBp: { pieceCoords: { q: -1, r: 3, s: -2 } },
     })
+    expect(board).toEqual(before)
+  })
+
+  it('a g24 dropped on the corner shows all 24 hexes, off-map ones included', () => {
+    const { board } = fixtureBoard()
+    const g24: BoardPiece = {
+      uid: 'G24',
+      inventoryID: 'g24',
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 2, r: 2, s: -4 },
+    }
+    const corner = hexAt(board, { q: 0, r: 0, s: 0 }, 0) as BoardHex
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.g24,
+      g24,
+      corner,
+      noOffset,
+    )
+    expect(target.evaluation).toMatchObject({
+      status: 'blocked',
+      reason: 'offMap',
+    })
+    const footprint = target.evaluation.footprintHexes
+    expect(footprint).toHaveLength(24)
+    expect(footprint.some((hex) => !hexAt(board, hex, 0))).toBe(true)
+    expect(footprint.some((hex) => hexAt(board, hex, 0))).toBe(true)
+    expect(decideDrop('G24', target).type).toBe('cancel')
   })
 
   it('no target (never over the map) cancels silently', () => {
@@ -479,5 +522,105 @@ describe('store: drag state and undo/autosave', () => {
       .boardPieces.find((bp) => bp.uid === 'ROCK')
     expect(back?.pieceCoords).toEqual({ q: 1, r: 2, s: -3 })
     expect(back?.altitude).toBe(1)
+  })
+})
+
+describe('viewing level after a move', () => {
+  const setUp = (viewingLevel: number) => {
+    const { board } = fixtureBoard()
+    useBoundStore.setState({
+      boardHexes: board.boardHexes,
+      boardPieces: board.boardPieces,
+      conflictedPieceUIDs: [],
+      viewingLevel,
+    })
+    useBoundStore.temporal.getState().clear()
+  }
+  const moveRock = (newAltitude: number) =>
+    useBoundStore.getState().movePiece({
+      uid: 'ROCK',
+      newPieceCoords: { q: 2, r: 2, s: -4 },
+      newAltitude,
+    })
+  const level = () => useBoundStore.getState().viewingLevel
+
+  it('is the same rule paintTile always used', () => {
+    // paintTile's original expression, before it became a shared helper
+    const original = (viewingLevel: number, altitude: number) => {
+      const placedAtLevel = altitude + 1
+      return placedAtLevel > viewingLevel
+        ? viewingLevel + (placedAtLevel - viewingLevel)
+        : viewingLevel
+    }
+    for (const viewingLevel of [0, 1, 2, 3, 5, 9]) {
+      for (const altitude of [0, 1, 2, 3, 4, 8, 12]) {
+        expect(getViewingLevelAfterPlacing(viewingLevel, altitude)).toBe(
+          original(viewingLevel, altitude),
+        )
+      }
+    }
+  })
+
+  it('rises when the piece lands above the current level', () => {
+    setUp(2)
+    moveRock(4)
+    expect(level()).toBe(5)
+  })
+
+  it.each([
+    [5, 4, 'equal'],
+    [8, 4, 'higher'],
+  ])(
+    'stays at %i when the piece lands at %i (level already %s)',
+    (start, altitude) => {
+      setUp(start)
+      moveRock(altitude)
+      expect(level()).toBe(start)
+    },
+  )
+
+  it('never goes down when a piece moves down', () => {
+    setUp(6)
+    moveRock(0)
+    expect(level()).toBe(6)
+  })
+
+  it('matches a click placement at the same altitude, through undo and redo', () => {
+    const run = (act: () => void) => {
+      setUp(1)
+      act()
+      const after = level()
+      useBoundStore.temporal.getState().undo()
+      const undone = level()
+      useBoundStore.temporal.getState().redo()
+      return { after, undone, redone: level() }
+    }
+    const moved = run(() => moveRock(4))
+    const painted = run(() =>
+      useBoundStore.getState().paintTile({
+        piece: piecesSoFar.r1,
+        clickedHexCoords: { q: 2, r: 2, s: -4 },
+        altitude: 4,
+        rotation: 0,
+      }),
+    )
+    expect(moved).toEqual(painted)
+    expect(moved.after).toBe(5)
+  })
+})
+
+describe('land ghost mesh', () => {
+  it('picks the same tile model the pen preview did for every land piece', () => {
+    for (const piece of Object.values(piecesSoFar)) {
+      if (!piece.landPrefix) continue
+      // the pen preview keyed the mesh on its pen mode and size
+      const penKey =
+        piece.size === 6 && piece.landPrefix === PiecePrefixes.concrete
+          ? '6B'
+          : piece.size === 7 && piece.landPrefix === PiecePrefixes.wallWalk
+            ? '7B'
+            : `${piece.size}`
+      expect(getSubterrainSize(piece.id), piece.id).toBe(penKey)
+    }
   })
 })
