@@ -1,11 +1,11 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 type LaurWallLongModelProps = {
   pillarColor: string
@@ -31,20 +31,22 @@ function LaurWallLongModel({
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={LaurWallLong.geometry}
-      >
-        {basicModelMaterial(pillarColor, isLightsAndShadowsRender, opacity)}
-      </mesh>
+        material={basicModelMaterial(
+          pillarColor,
+          isLightsAndShadowsRender,
+          opacity,
+        )}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={LaurWallLongDecorDeep.geometry}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           interiorPillarColor,
           isLightsAndShadowsRender,
           opacity,
         )}
-      </mesh>
+      />
     </>
   )
 }

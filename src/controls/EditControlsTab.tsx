@@ -7,19 +7,19 @@ import {
   List,
   Typography,
 } from '@mui/material'
+import { FcVlc } from 'react-icons/fc'
+import { FcRules } from 'react-icons/fc'
 import { buildupJsonFileMap } from '../data/buildupMap'
+import { DIALOGS } from '../layout/dialogNames'
+import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import useBoundStore from '../store/store'
-import type { BoardPiece } from '../types'
+import type { BoardPiece, MapFileState } from '../types'
 import {
   MAX_HEXAGON_MAP_DIMENSION,
   MAX_RECTANGLE_MAP_DIMENSION,
 } from '../utils/constants'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
-import { FcVlc } from 'react-icons/fc'
-import { FcRules } from 'react-icons/fc'
-import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
-import { DIALOGS } from '../layout/dialogNames'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
@@ -36,10 +36,10 @@ const shiftInDirectionBoardPieces = (
   return newBoardPieces
 }
 export const EditControlsTab = () => {
-  const boardHexes = useBoundStore((s) => s.boardHexes)
+  // const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
-  const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
+  // const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const loadMap = useBoundStore((s) => s.loadMap)
   const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
   const {
@@ -69,10 +69,11 @@ export const EditControlsTab = () => {
     (state) => state.toggleIsPieceInventoryDialogOpen,
   )
   const handleClickLogState = () => {
-    console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
-    console.log('🚀 ~ Controls ~ boardPieces:', boardPieces)
-    console.log('🚀 ~ Controls ~ hexMap:', hexMap)
-    console.log('🚀 ~ Controls ~ conflictedPieceUIDs:', conflictedPieceUIDs)
+    // console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
+    console.log({ boardPieces, hexMap } as MapFileState)
+    // console.log('🚀 ~ Controls ~ boardPieces:', boardPieces)
+    // console.log('🚀 ~ Controls ~ hexMap:', hexMap)
+    // console.log('🚀 ~ Controls ~ conflictedPieceUIDs:', conflictedPieceUIDs)
   }
   // const handleTrimMap = (boardHexesToTrim: BoardHexes): BoardHexes => {
   //   // const boardHexArr = Object.values(boardHexes)

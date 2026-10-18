@@ -2,15 +2,21 @@ import { Typography } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
+import { useSnackbar } from 'notistack'
+import React from 'react'
 import { FcPrint } from 'react-icons/fc'
+import { MdFullscreen, MdFullscreenExit } from 'react-icons/md'
 import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
-import { ReactPdfDownloadLink } from '../pdf-map/ReactPdfDownloadLink'
 import useBoundStore from '../store/store'
+import { lazyWithRetry } from '../utils/lazyWithRetry'
 import { getSetsUsedText } from '../utils/map-utils'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
-import { useSnackbar } from 'notistack'
-import { MdFullscreen, MdFullscreenExit } from 'react-icons/md'
-import React from 'react'
+
+const ReactPdfDownloadLink = lazyWithRetry(() =>
+  import('../pdf-map/ReactPdfDownloadLink').then((module) => ({
+    default: module.ReactPdfDownloadLink,
+  })),
+)
 
 export function HeaderNav() {
   // AppBar height is 64px when screen > 600px
@@ -131,22 +137,17 @@ export function HeaderNav() {
         </IconButton>
         {/* MOBILE: No render pdf, does not seem to work on mobile, direct download on button click instead */}
         {isSmallScreenWidth ? (
-          <ReactPdfDownloadLink>
-            <IconButton
-              size={
-                isSmallScreenWidth
-                  ? 'small'
-                  : isMediumScreenWidth
-                    ? undefined
-                    : 'large'
-              }
-              title={'Download pdf build instructions'}
-              aria-label={'Download pdf build instructions'}
-              sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
-            >
-              <FcPrint />
-            </IconButton>
-          </ReactPdfDownloadLink>
+          <React.Suspense fallback={null}>
+            <ReactPdfDownloadLink>
+              <IconButton
+                size="small"
+                title={'Download pdf build instructions'}
+                aria-label={'Download pdf build instructions'}
+              >
+                <FcPrint />
+              </IconButton>
+            </ReactPdfDownloadLink>
+          </React.Suspense>
         ) : (
           // NOT ON MOBILE: You can view the pdf, can download from that view
           <IconButton

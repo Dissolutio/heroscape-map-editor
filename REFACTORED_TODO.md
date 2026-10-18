@@ -2,13 +2,13 @@
 
 Source: [TODO.md](TODO.md). Architecture contract: [.github/agents/hexoscape.agent.md](.github/agents/hexoscape.agent.md).
 
-All 45 top-level source tasks are represented below, including the prose-only 2D Builder and Database tasks. The five homepage destinations remain acceptance scope under B20. Source IDs retain original order within each section: T = TODO, H = Hotkeys, P = PDF/SVG, B = Big TODO, M = Blender, S = 2D Builder, D = Database. The original file is unchanged.
+All 44 remaining top-level source tasks are represented below, including the prose-only 2D Builder and Database tasks. The five homepage destinations remain acceptance scope under B20. Source IDs retain original order within each section: T = TODO, H = Hotkeys, P = PDF/SVG, B = Big TODO, M = Blender, S = 2D Builder, D = Database.
 
 ## Execution Order
 
 | Stage | Work | Release Gate |
 | --- | --- | --- |
-| 1. Small, independent changes | T04, T05, T09, B03, then T03 | Each behavior verified independently; one task per Flash session. |
+| 1. Small, independent changes | T04, T05, T09, B03 | Each behavior verified independently; one task per Flash session. |
 | 2. Bounded settings and export work | H01, P01, P05 | Hotkey regression checks; paired SVG/PDF verification for export changes. |
 | 3. Resolve the separate pile | Answer Bucket 2 questions; acquire physical fixtures for T07/B06 and asset specifications for M01-M05 | Approved behavior, fixtures, and asset contracts before implementation. Reclassify only after answers. |
 | 4. Shared interaction foundations | B05; B14; S01 after selection/command semantics are agreed | One source of map mutation truth; input ownership and undo verified. |
@@ -30,23 +30,7 @@ Every implementation session must read the master agent and verify current sourc
 
 ## Bucket 1: Flash Ready
 
-Eight bounded work items. Each block is a standalone prompt for MAI 1.1 Flash. Shared-file dependencies still require sequential execution or careful integration.
-
-### T03 - Convert Start Zone Colors
-
-Source: TODO #3. Depends on: nothing.
-
-**Copy-Paste Prompt**
-
-```text
-Implement start-zone color conversion in Hexoscape. First read .github/agents/hexoscape.agent.md, src/controls/ConvertTerrainQuickSelect.tsx, src/controls/SelectedPieceControls.tsx, and the conversion action in src/store/map-slice.ts; verify start-zone identifiers in src/data/pieces.ts and src/data/pieceCodes.ts.
-
-When the existing selected-piece conversion control targets start-zone pieces, offer startZone1 through startZone8 using the existing labels/colors. Keep ordinary terrain options and behavior unchanged. For selections mixing start zones with physical terrain, disable start-zone conversion rather than partially applying it. Match existing selection availability rules elsewhere.
-
-Implement through the existing store conversion transaction. Preserve instance UID, position, altitude, rotation, selection, and one-step undo/redo. Per the master agent, start zones live in boardPieces only: conversion must not write boardHexes or create/displace occupancy conflicts. Do not generalize this exception to glyphs. Keep map serialization and the 0.35 Y-level convention unchanged.
-
-Verify each of the eight destination colors, a same-color no-op, applicable multi-selection, mixed-selection rejection, undo/redo, and save/load. Assert occupancy and physical-piece conflicts are unchanged. Run npm run build and report any checks not run. Do not modify unrelated conversion behavior.
-```
+Seven bounded work items remain. Each block is a standalone prompt for MAI 1.1 Flash. Shared-file dependencies still require sequential execution or careful integration.
 
 ### T04 - Preserve Pieces Grid Filters During Zoom
 

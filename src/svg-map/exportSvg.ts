@@ -345,6 +345,11 @@ async function appendLogoTextOutline(
 }
 
 /**
+ * Plain text heading fallback for half-levels (fluid stacked on fluid): the numeral
+ * plaque graphic only supports whole numbers, so this draws "Level: 1.5" instead,
+ * sized/centered to occupy the same reserved header band as the plaque would.
+ */
+/**
  * Draws the level plaque above the map in the exported SVG only. The viewBox is
  * grown upwards so the logo never overlaps the map itself.
  */

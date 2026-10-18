@@ -1,8 +1,13 @@
-import { Suspense } from 'react'
+import { Suspense, useMemo } from 'react'
 import { piecesSoFar } from '../data/pieces'
+import { getSmartPlacementAltitude } from '../data/smartPlacement'
 import useBoundStore from '../store/store'
 import { HexTerrain, PiecePrefixes, Pieces } from '../types'
-import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
+import {
+  getLandAltitudeIncrement,
+  isFluidTerrainHex,
+  isSolidTerrainHex,
+} from '../utils/board-utils'
 import {
   HEXGRID_GLYPH_HEIGHT,
   HEXGRID_HEXCAP_FLUID_HEIGHT,
@@ -18,7 +23,6 @@ import {
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils'
 import { hexTerrainColor } from './maphex/hexColors'
-import { FLUID_CAP_OPACITY } from './maphex/instance/FluidCap'
 import { BattlementPreview } from './models/Battlement'
 import BigTree415 from './models/BigTree415'
 import Cannon from './models/Cannon'
@@ -27,7 +31,7 @@ import { CastleBasePreview } from './models/CastleBases'
 import { CastleWallPreview } from './models/CastleWalls'
 import ForestTree from './models/ForestTree'
 import { FortifiedWallPreview } from './models/FortifiedWall'
-import { GlyphModel, GlyphModelPreview } from './models/Glyph'
+import { GlyphModelPreview } from './models/Glyph'
 import { LadderPreview } from './models/Ladder'
 import {
   Subterrain1,
@@ -75,7 +79,6 @@ import { LaurPalmPreview, TicallaPalmPreview } from './models/TicallaPalm'
 import {
   getLadderBattlementOptions,
   getObstaclRotation,
-  getOptionsForBigTree,
   getOptionsForPalmHeight,
   getOptionsForTreeHeight,
   getRoadWallOptions,
@@ -107,10 +110,28 @@ export default function PiecePreview() {
     (hoveredPiece?.inventoryID === Pieces.ladder &&
       penMode === Pieces.ladder) ||
     piece?.terrain === HexTerrain.laurWallAddon
-  const hoveredHexForPreview =
+  const hoveredHexAtPointer =
     hoveredHex ??
     (isHoveringPreviewSupportPiece ? hoveredPieceSupportHex : undefined)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
+  const hoveredHexForPreview = useMemo(() => {
+    if (!piece || !hoveredHexAtPointer) return hoveredHexAtPointer
+    const altitude = getSmartPlacementAltitude({
+      boardHexes,
+      piece,
+      pieceCoords: hoveredHexAtPointer,
+      altitude: hoveredHexAtPointer.altitude,
+      rotation: penModeRotation,
+    })
+    if (altitude === hoveredHexAtPointer.altitude) return hoveredHexAtPointer
+    const support =
+      boardHexes[genBoardHexID({ ...hoveredHexAtPointer, altitude })]
+    return {
+      ...hoveredHexAtPointer,
+      altitude,
+      terrain: support?.terrain ?? HexTerrain.empty,
+    }
+  }, [boardHexes, piece, hoveredHexAtPointer, penModeRotation])
 
   /* Piece Preview:
   1. A solid/fluid/empty cap (preview anything except laur-addons)
@@ -277,7 +298,7 @@ export default function PiecePreview() {
         <meshLambertMaterial
           color={subterrainColor}
           transparent
-          opacity={FLUID_CAP_OPACITY}
+          opacity={PIECE_PREVIEW_OPACITY}
         />
       )
     }
@@ -285,7 +306,7 @@ export default function PiecePreview() {
       <meshMatcapMaterial
         color={subterrainColor}
         transparent
-        opacity={FLUID_CAP_OPACITY}
+        opacity={PIECE_PREVIEW_OPACITY}
       />
     )
   }
@@ -333,6 +354,14 @@ export default function PiecePreview() {
   const isSolidBeneath = isSolidTerrainHex(hoveredHexForPreview.terrain)
   const isSolidOrEmptyBeneath = isSolidBeneath || isEmptyBeneath
   const isLandOrEmptyBeneath = isLandBeneath || isEmptyBeneath
+  const isFluidBeneathForLandPreview = isFluidTerrainHex(
+    hoveredHexForPreview.terrain,
+  )
+  // Solid land can only go on a fluid hex once that fluid sits on a half level (never on
+  // a whole-level fluid cap); fluid can stack on a fluid hex at any level.
+  const canPlaceSolidOnFluid =
+    isFluidBeneathForLandPreview &&
+    !Number.isInteger(hoveredHexForPreview.altitude)
   const isPillarPenMode = isLaurSquarePillarHex || isLaurTrianglePillarHex
   const isMatchingPillarStackTarget =
     (isLaurSquarePillarHex &&
@@ -360,14 +389,22 @@ export default function PiecePreview() {
       ? (hoveredHexForPreview.pieceRotation * -Math.PI) / 3
       : pieceRotation
 
-  // Show land tiles, if hovering table/solid-land
+  // Show land tiles: solid on solid/table/whole-level-fluid, fluid on solid/table/any fluid
   if (
-    ((isSolidSubterrain || isFluidSubterrain) && isSolidOrEmptyBeneath) ||
+    (isSolidSubterrain && (isSolidOrEmptyBeneath || canPlaceSolidOnFluid)) ||
+    (isFluidSubterrain &&
+      (isSolidOrEmptyBeneath || isFluidBeneathForLandPreview)) ||
     (isUnderHexCastleWallArch && piece?.terrain === HexTerrain.wallWalk)
   ) {
+    // Fluid on fluid, and solid on a half-level fluid, rise a half level (not a whole level)
+    const landAltitudeIncrement = getLandAltitudeIncrement(
+      piece?.terrain ?? '',
+      isFluidBeneathForLandPreview,
+      hoveredHexForPreview.altitude,
+    )
     return (
       <group
-        position={[x, yBaseCap + HEXGRID_HEX_HEIGHT, z]}
+        position={[x, yBaseCap + landAltitudeIncrement * HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
         scale={[1, isFluidSubterrain ? HEXGRID_HEXCAP_FLUID_SCALE : 1, 1]}
       >

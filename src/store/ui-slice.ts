@@ -13,6 +13,8 @@ import {
 } from '../types'
 import type { AppState } from './store'
 
+export type LightPosition = [number, number, number]
+
 export interface UISlice {
   // TODO: persisted state below
   isShowStartZones: boolean
@@ -53,6 +55,10 @@ export interface UISlice {
   toggleIsHighQualityRender: (b: boolean) => void
   isLightsAndShadowsRender: boolean
   toggleIsLightsAndShadowsRender: (b: boolean) => void
+  isShowLightControls: boolean
+  toggleIsShowLightControls: (b: boolean) => void
+  lightPositions: Record<string, LightPosition>
+  updateLightPosition: (id: string, position: LightPosition) => void
   isDisplayCapHeights: boolean
   toggleIsDisplayCapHeights: (b: boolean) => void
   isHideTableTop: boolean
@@ -78,11 +84,6 @@ export interface UISlice {
     fileName: string
   }) => void
   clearCustomConstraintInventory: () => void
-
-  focusedPieceUID: string | null
-  setFocusedPieceUID: (uid: string | null) => void
-  focusStartTime: number | null
-  setFocusStartTime: (time: number | null) => void
 
   // OPERATION PREVIEW STATE
   piecePreviews: BoardPiece[] | null
@@ -339,20 +340,6 @@ const createUISlice: StateCreator<
         s.isOrthoCam = b
       }),
     ),
-  focusedPieceUID: null,
-  setFocusedPieceUID: (uid: string | null) =>
-    set(
-      produce((s) => {
-        s.focusedPieceUID = uid
-      }),
-    ),
-  focusStartTime: null,
-  setFocusStartTime: (time: number | null) =>
-    set(
-      produce((s) => {
-        s.focusStartTime = time
-      }),
-    ),
   isShowPDFInventory: true,
   toggleIsShowPDFInventory: (b: boolean) =>
     set(
@@ -480,6 +467,20 @@ const createUISlice: StateCreator<
       }),
     ),
   isLightsAndShadowsRender: false,
+  isShowLightControls: true,
+  toggleIsShowLightControls: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowLightControls = b
+      }),
+    ),
+  lightPositions: {},
+  updateLightPosition: (id, position) =>
+    set(
+      produce((s) => {
+        s.lightPositions[id] = position
+      }),
+    ),
   toggleIsLightsAndShadowsRender: (b: boolean) =>
     set(
       produce((s) => {

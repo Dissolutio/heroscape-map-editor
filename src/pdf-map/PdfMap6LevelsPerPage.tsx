@@ -19,7 +19,7 @@ import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-uti
 import {
   boardPieceToDecodedPieceID,
   getBoardHexesSvgMapDimensions,
-  getBoardPiecesMaxLevel,
+  getOverlayLevel,
 } from '../utils/map-utils'
 import { PdfLevelLogo } from './PdfLevelLogo'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
@@ -48,7 +48,7 @@ export const PdfMapLevels6PerPage = ({
   is2DOverlayLevelEnabled: boolean
 }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
-  const overlayLevel = getBoardPiecesMaxLevel(boardPieces) + 1
+  const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
   const boardHexesWithoutEmpties = keyBy(
     Object.values(boardHexes).filter((hex) => hex.terrain !== 'empty'),
     'id',
@@ -252,6 +252,7 @@ const PdfLevelChunkHeading = ({
   group: PdfMapAltitudeChunk
   isShowPdfLevelLogo: boolean
 }) => {
+  // Half levels (fluid stacked on fluid) get the plaque too, e.g. "LEVEL 01.5".
   if (group.label || !isShowPdfLevelLogo) {
     const margin =
       group.label === 'Glyphs and Start Zones' && isShowPdfLevelLogo

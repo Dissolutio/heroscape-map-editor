@@ -1,12 +1,12 @@
 import { Decal, useTexture } from '@react-three/drei'
-import { useDisposableGLTF } from './useDisposableGLTF'
+import type { ThreeEvent } from '@react-three/fiber'
+import { piecesSoFar } from '../../data/pieces'
+import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain, Pieces } from '../../types'
-import usePieceHoverState from '../../hooks/usePieceHoverState'
-import { piecesSoFar } from '../../data/pieces'
-import type { ThreeEvent } from '@react-three/fiber'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export function GlyphModel({
   pid,
@@ -49,19 +49,17 @@ export function GlyphModel({
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Glyph.geometry}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender)}
-      </mesh>
+        material={basicModelMaterial(color, isLightsAndShadowsRender)}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.GlyphValkyrieLogo.geometry}
-      >
-        {basicModelMaterial(
+        material={basicModelMaterial(
           isNamedGlyph ? color : 'white',
           isLightsAndShadowsRender,
         )}
-      </mesh>
+      />
     </group>
   )
 }
@@ -86,16 +84,14 @@ export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Glyph.geometry}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender)}
-      </mesh>
+        material={basicModelMaterial(color, isLightsAndShadowsRender)}
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.GlyphValkyrieLogo.geometry}
-      >
-        {basicModelMaterial('white', isLightsAndShadowsRender)}
-      </mesh>
+        material={basicModelMaterial('white', isLightsAndShadowsRender)}
+      />
     </>
   )
 }

@@ -1,7 +1,6 @@
 ## TODO
 - Group LoS blockers such as trees/outcrops/similar so that they can be rotated through like regular terrain (how land types can toggle their size using hotkeys "1" - "7"). For example once an outcrop piece is chosen as the pen mode, then the hotkeys are 1 for 1-hex outcrop, 3 for 3-hex outcrop, etc.
 - Remove the white from the glyphs. Additionally, don't display hex heights above glyphs (making it easier to label the glyphs online). This is for when a user wants to make an OHS map, which is a top down view of a map for playing online heroscape on. Glyph spaces normally get edited at a later step and so less stuff displaying on those hexes would be nice.
-- Start Zones have a Convert Terrain drop-down to change colors (like current land pieces can convert terrain type, start zone pieces should be able to convert from startZone1 to startZone8 piece types )
 - If you enter some filters and search into Pieces Grid, then Zoom to Piece, all those filters and search are lost. State should persist?
 - The "Zoom to Piece" opacity effects that we have for pieces and caps is broken. We should just remove it, and if we want to build a more robust system for controlling each level's opacity in the future, we will.
 - Laur wall ruin pieces have 3 types, not accounted for currently (or miscounted, perhaps). We do not have 3D models for the 2 new types yet, but we will. Currently, we only have a way to play 1 type, so any display we have regarding more than 1 type is kind of confusing and misleading.

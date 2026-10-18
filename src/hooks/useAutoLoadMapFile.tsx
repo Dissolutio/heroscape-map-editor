@@ -1,6 +1,7 @@
-import { Button } from '@mui/material'
-import { closeSnackbar, useSnackbar } from 'notistack'
+import { Button, IconButton } from '@mui/material'
+import { type SnackbarKey, closeSnackbar, useSnackbar } from 'notistack'
 import { useEffect } from 'react'
+import { MdClose } from 'react-icons/md'
 import { useLocation, useSearch } from 'wouter'
 import { ROUTES } from '../ROUTES'
 import { buildupJsonFileMap } from '../data/buildupMap'
@@ -12,7 +13,11 @@ import {
   inflateBoardPiecesFromIds,
   normalizeBoardPieces,
 } from '../utils/map-utils'
-import { getViewModeFromQueryParam } from '../utils/mapShareUrl'
+import {
+  getMapShareUrlParams,
+  getViewModeFromQueryParam,
+} from '../utils/mapShareUrl'
+import { warnAboutLoadedMap } from '../utils/warnAboutLoadedMap'
 
 const useAutoLoadMapFile = () => {
   const loadMap = useBoundStore((s) => s.loadMap)
@@ -23,8 +28,8 @@ const useAutoLoadMapFile = () => {
 
   const [, navigate] = useLocation()
 
-  const applyViewModeFromQuery = (queryParams: URLSearchParams) => {
-    const viewMode = getViewModeFromQueryParam(queryParams.get('v'))
+  const applyViewModeFromQuery = (viewModeParam: string | null) => {
+    const viewMode = getViewModeFromQueryParam(viewModeParam)
     if (viewMode === 'pdf') {
       toggleIsPdfOpen(true)
       return
@@ -43,9 +48,9 @@ const useAutoLoadMapFile = () => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: only run on-load
   useEffect(() => {
     // Map might be loaded from local storage already
-    const queryParams = new URLSearchParams(searchString)
-    applyViewModeFromQuery(queryParams)
-    const urlMapString = queryParams.get('m')
+    const { m: urlMapString, v: viewModeParam } =
+      getMapShareUrlParams(searchString)
+    applyViewModeFromQuery(viewModeParam)
     const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
     const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
     const localMapCacheMapState = localMapCache
@@ -77,7 +82,7 @@ const useAutoLoadMapFile = () => {
         }
         // Skip the snackbar notification for DEV env
         if (!import.meta.env.DEV) {
-          const action = () => (
+          const action = (snackbarId: SnackbarKey) => (
             <>
               {localMapCacheMapState ? (
                 <Button
@@ -86,6 +91,7 @@ const useAutoLoadMapFile = () => {
                   onClick={() => {
                     // load last map instead, close original snackbar, open a new one, remove map from URL bar
                     loadMapWithoutUndo(localMapCacheMapState)
+                    warnAboutLoadedMap(enqueueSnackbar, localMapCacheMapState)
                     closeSnackbar(snackbarId)
                     enqueueSnackbar({
                       message: `Loaded last map instead: ${localMapCacheMapState.hexMap.name}`,
@@ -97,19 +103,20 @@ const useAutoLoadMapFile = () => {
                   Load last map instead
                 </Button>
               ) : null}
-              <Button
+              <IconButton
                 color="warning"
-                variant="contained"
+                title="Dismiss notification"
+                aria-label="Dismiss notification"
                 onClick={() => {
                   closeSnackbar(snackbarId)
                 }}
               >
-                Close
-              </Button>
+                <MdClose />
+              </IconButton>
             </>
           )
 
-          const snackbarId = enqueueSnackbar({
+          enqueueSnackbar({
             message: `Loaded map from URL: ${jsonMap.hexMap.name}.`,
             variant: 'success',
             action,
@@ -117,6 +124,7 @@ const useAutoLoadMapFile = () => {
           })
         }
         loadMapWithoutUndo(jsonMap)
+        warnAboutLoadedMap(enqueueSnackbar, jsonMap)
         return
 
         // biome-ignore lint/suspicious/noExplicitAny: <error could be anything>
@@ -135,6 +143,7 @@ const useAutoLoadMapFile = () => {
         message: `Loaded last map: ${localMapCache.hexMap.name}`,
         variant: 'success',
       })
+      warnAboutLoadedMap(enqueueSnackbar, localMapCacheMapState)
     } else {
       // No url and no prev state? auto load a file
 

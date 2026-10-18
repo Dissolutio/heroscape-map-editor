@@ -1,11 +1,11 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export function Ladder({
   bp,
@@ -59,9 +59,8 @@ export function Ladder({
       onPointerUp={handleOnPointerUp}
       onPointerEnter={(e) => onPointerEnterPID(e, bp.uid)}
       onPointerOut={(e) => onPointerOut(e)}
-    >
-      {basicModelMaterial(color, isLightsAndShadowsRender)}
-    </mesh>
+      material={basicModelMaterial(color, isLightsAndShadowsRender)}
+    />
   )
 }
 export function LadderPreview() {
@@ -76,13 +75,12 @@ export function LadderPreview() {
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.Ladder.geometry}
-    >
-      {basicModelMaterial(
+      material={basicModelMaterial(
         color,
         isLightsAndShadowsRender,
         PIECE_PREVIEW_OPACITY,
       )}
-    </mesh>
+    />
   )
 }
 

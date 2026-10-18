@@ -4,6 +4,8 @@ import { enqueueSnackbar } from 'notistack'
 import type React from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
+import getPieceTemplateCoords from '../data/rotationTransforms.ts'
+import { getSmartPlacementAltitude } from '../data/smartPlacement.ts'
 import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
 import useBoundStore from '../store/store.ts'
 import {
@@ -16,6 +18,7 @@ import {
   SELECT_PEN_MODE,
 } from '../types.ts'
 import {
+  canPlaceLandTileOnHex,
   isFluidTerrainHex,
   isJungleTerrainHex,
   isLaurWallAddonPieceID,
@@ -27,9 +30,10 @@ import {
   getBoardHexesRectangularMapDimensions,
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils.ts'
+import { getFluidRunLengthAt } from '../utils/fluidStacks.ts'
+import { warnIfTallFluidStack } from '../utils/warnAboutLoadedMap.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
-import PieceOpacityGroup from './PieceOpacityGroup'
 import PiecePreview from './PiecePreview.tsx'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import { MapHex3D } from './maphex/MapHex3D.tsx'
@@ -56,8 +60,6 @@ export default function MapDisplay3D({
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
-  const focusedPieceUID = useBoundStore((s) => s.focusedPieceUID)
-  const focusStartTime = useBoundStore((s) => s.focusStartTime)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useMiddleClickPickPenMode()
 
@@ -68,6 +70,7 @@ export default function MapDisplay3D({
   )
   const landSubterrainData = getLandSubterrainInstanceData(
     boardPieces,
+    boardHexes,
     viewingLevel,
   )
 
@@ -134,6 +137,15 @@ export default function MapDisplay3D({
           s: hex.s,
         }
     const clickedHexAltitude = clickedHex.altitude
+    const placementAltitude = piece
+      ? getSmartPlacementAltitude({
+          boardHexes,
+          piece,
+          pieceCoords: clickedHexCoords,
+          altitude: clickedHexAltitude,
+          rotation: penModeRotation,
+        })
+      : clickedHexAltitude
 
     // Castle W/A: use cap coords and altitude
     if (isCastleWallArchClicked) {
@@ -145,7 +157,7 @@ export default function MapDisplay3D({
       error = paintTile({
         piece,
         clickedHexCoords: castleWallArchClickedHexCoords,
-        altitude: boardHexes[boardHexIdOfCapForWall].altitude,
+        altitude: placementAltitude,
         rotation: penModeRotation,
       })
     }
@@ -232,21 +244,49 @@ export default function MapDisplay3D({
         rotation: clickedHex.pieceRotation,
       })
     }
-    // SOLID LAND TILE (includes ship bow buildable sections)
-    else if (isSolidTerrainHex(piece?.terrain)) {
+    // LAND TILE: solid or fluid (includes ship bow buildable sections). Gated so solid
+    // can't land on a half-level fluid cap, and both must target a hoverable land hex.
+    else if (
+      isSolidTerrainHex(piece?.terrain) ||
+      isFluidTerrainHex(piece?.terrain)
+    ) {
+      if (!canPlaceLandTileOnHex(piece.terrain, hex.terrain, hex.altitude)) {
+        return
+      }
       error = paintTile({
         piece,
         clickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: placementAltitude,
         rotation: penModeRotation,
       })
+      // A fluid tile stacked on fluid tops out half a level up; warn when that
+      // makes a straight run taller than the real tiles line up.
+      if (!error && isFluidTerrainHex(piece.terrain)) {
+        const { boardHexes: hexesAfterPaint } = useBoundStore.getState()
+        const footprint = getPieceTemplateCoords({
+          clickedHex: clickedHexCoords,
+          rotation: penModeRotation,
+          template: piece.template,
+          isVsTile: false,
+        })
+        const runLength = Math.max(
+          ...footprint.map((coord) =>
+            getFluidRunLengthAt(
+              hexesAfterPaint,
+              coord,
+              placementAltitude + 0.5,
+            ),
+          ),
+        )
+        warnIfTallFluidStack(enqueueSnackbar, runLength)
+      }
     }
     // Clicked a regular land cap (fallback)
     else {
       error = paintTile({
         piece,
         clickedHexCoords,
-        altitude: clickedHexAltitude,
+        altitude: placementAltitude,
         rotation: penModeRotation,
       })
     }
@@ -284,33 +324,19 @@ export default function MapDisplay3D({
         <SolidCaps
           boardHexArr={instanceBoardHexes.solidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
-          focusedPieceUID={focusedPieceUID}
-          focusStartTime={focusStartTime}
         />
         <FluidCaps
           boardHexArr={instanceBoardHexes.fluidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
-          focusedPieceUID={focusedPieceUID}
-          focusStartTime={focusStartTime}
         />
-        <LandSubterrainInstanced
-          data={landSubterrainData}
-          focusedPieceUID={focusedPieceUID}
-          focusStartTime={focusStartTime}
-        />
+        <LandSubterrainInstanced data={landSubterrainData} />
         {boardPieces.map((bp) => {
           return (
-            <PieceOpacityGroup
+            <MapBoardPiece3D
               key={bp.uid}
-              pieceUID={bp.uid}
-              focusedPieceUID={focusedPieceUID}
-              focusStartTime={focusStartTime}
-            >
-              <MapBoardPiece3D
-                bp={bp}
-                onPointerUpPaintPiece={onPointerUpPaintPiece}
-              />
-            </PieceOpacityGroup>
+              bp={bp}
+              onPointerUpPaintPiece={onPointerUpPaintPiece}
+            />
           )
         })}
         {boardHexesArr.map((bh) => {

@@ -1,24 +1,28 @@
 import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
-import { useFrame } from '@react-three/fiber'
 import React from 'react'
-import type { Material } from 'three'
 import { Vector3 } from 'three'
 import { piecesSoFar } from '../../data/pieces'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { type BoardPiece, HexTerrain, Pieces } from '../../types'
+import {
+  type BoardHexes,
+  type BoardPiece,
+  HexTerrain,
+  Pieces,
+} from '../../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../../utils/board-utils'
 import {
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEX_APOTHEM,
   INSTANCE_LIMIT,
 } from '../../utils/constants'
-import { calculateFocusOpacity } from '../../utils/focus-opacity'
-import { getBoardHex3DCoords } from '../../utils/map-utils'
+import {
+  getBoardHex3DCoords,
+  getSurfaceAltitudeByPieceUID,
+} from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { InstanceRefType } from '../maphex/instance-hex'
-import { FLUID_CAP_OPACITY } from '../maphex/instance/FluidCap'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
 // These pieces render their own colorOverride'd LandSubterrain in MapBoardPiece3D.tsx,
@@ -103,11 +107,16 @@ export type LandSubterrainInstanceDatum = {
 // (non colorOverride'd) LandSubterrain rendering path.
 export function getLandSubterrainInstanceData(
   boardPieces: BoardPiece[],
+  boardHexes: BoardHexes,
   viewingLevel: number,
 ): LandSubterrainInstanceDatum[] {
   const data: LandSubterrainInstanceDatum[] = []
+  // Real surface altitude per piece uid (correctly half-level for fluid-on-fluid stacks),
+  // instead of assuming every land piece rises exactly one whole level from its support.
+  const surfaceByUID = getSurfaceAltitudeByPieceUID(boardHexes)
   for (const bp of boardPieces) {
-    if (bp.altitude + 1 > viewingLevel) continue
+    const surfaceAltitude = surfaceByUID.get(bp.uid) ?? bp.altitude + 1
+    if (surfaceAltitude > viewingLevel) continue
     if (NON_INSTANCED_SUBTERRAIN_PIECES.has(bp.inventoryID)) continue
     const piece = piecesSoFar[bp.inventoryID]
     if (!piece) continue
@@ -116,7 +125,7 @@ export function getLandSubterrainInstanceData(
     if (!isFluid && !isSolid) continue
     const { x, z, yBaseCap } = getBoardHex3DCoords({
       ...bp.pieceCoords,
-      altitude: bp.altitude + 1,
+      altitude: surfaceAltitude,
     })
     data.push({
       uid: bp.uid,
@@ -134,12 +143,8 @@ export function getLandSubterrainInstanceData(
 
 export default function LandSubterrainInstanced({
   data,
-  focusedPieceUID,
-  focusStartTime,
 }: {
   data: LandSubterrainInstanceDatum[]
-  focusedPieceUID: string | null
-  focusStartTime: number | null
 }) {
   if (data.length === 0) return null
 
@@ -162,8 +167,6 @@ export default function LandSubterrainInstanced({
           size={items[0].size}
           isFluid={items[0].isFluid}
           items={items}
-          focusedPieceUID={focusedPieceUID}
-          focusStartTime={focusStartTime}
         />
       ))}
     </>
@@ -174,14 +177,10 @@ function SubterrainSizeGroup({
   size,
   isFluid,
   items,
-  focusedPieceUID,
-  focusStartTime,
 }: {
   size: SubterrainSize
   isFluid: boolean
   items: LandSubterrainInstanceDatum[]
-  focusedPieceUID: string | null
-  focusStartTime: number | null
 }) {
   const ref = React.useRef<InstanceRefType>(null)
   const isLightsAndShadowsRender = useBoundStore(
@@ -190,31 +189,6 @@ function SubterrainSizeGroup({
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF(GEOMETRY_FILE_BY_SIZE[size]) as any
   const geometry = nodes[GEOMETRY_NODE_BY_SIZE[size]]?.geometry
-
-  // Apply material opacity based on focus state, same convention as SolidCaps/FluidCaps
-  useFrame(() => {
-    const material = ref.current?.material
-    if (!material) return
-
-    const focusOpacity = calculateFocusOpacity(focusedPieceUID, focusStartTime)
-    const targetOpacity = isFluid
-      ? focusOpacity < 1
-        ? focusOpacity
-        : FLUID_CAP_OPACITY
-      : focusOpacity
-
-    const materials = Array.isArray(material) ? material : [material]
-    for (const mat of materials) {
-      if (!mat || typeof mat !== 'object') continue
-      const m = mat as Material
-      if (Math.abs((m.opacity ?? 1) - targetOpacity) > 0.001) {
-        m.opacity = targetOpacity
-        m.transparent = isFluid || targetOpacity < 1
-        m.depthWrite = !isFluid && targetOpacity >= 1
-        m.needsUpdate = true
-      }
-    }
-  })
 
   if (!geometry) return null
 
@@ -229,12 +203,9 @@ function SubterrainSizeGroup({
       castShadow={isLightsAndShadowsRender}
     >
       {isLightsAndShadowsRender ? (
-        <meshStandardMaterial
-          transparent={isFluid}
-          opacity={isFluid ? FLUID_CAP_OPACITY : 1}
-        />
+        <meshStandardMaterial transparent={isFluid} opacity={1} />
       ) : isFluid ? (
-        <meshLambertMaterial transparent opacity={FLUID_CAP_OPACITY} />
+        <meshMatcapMaterial transparent opacity={1} />
       ) : (
         <meshMatcapMaterial />
       )}

@@ -42,7 +42,7 @@ export default function HomePage() {
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
   const controlsContainerRef = React.useRef(null)
-  const maxLevel = getBoardPiecesMaxLevel(boardPieces)
+  const maxLevel = getBoardPiecesMaxLevel(boardPieces, boardHexes)
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
 
   // MUI BREAKPOINTS

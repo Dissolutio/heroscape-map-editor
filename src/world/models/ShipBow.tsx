@@ -1,19 +1,19 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
+import { noop } from 'lodash'
 import React, { useState } from 'react'
+import { piecesSoFar } from '../../data/pieces'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import type { BoardHex, BoardPiece, CubeCoordinate } from '../../types'
 import { HexTerrain } from '../../types'
-import { hexTerrainColor } from '../maphex/hexColors'
-import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { isSolidTerrainHex } from '../../utils/board-utils'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexUtilsAdd } from '../../utils/hex-utils'
 import { hexUtilsGetShipBuildableCoords } from '../../utils/hex-utils'
 import { genBoardHexID } from '../../utils/map-utils'
-import { piecesSoFar } from '../../data/pieces'
-import { noop } from 'lodash'
+import { hexTerrainColor } from '../maphex/hexColors'
+import { basicModelMaterial } from './materials'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 type ShipBowProps = {
   pid?: string
@@ -238,15 +238,16 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         onPointerUp={(e) => (pid ? onPointerUpBody(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterNonBuildable(e) : noop())}
         onPointerOut={(e) => (pid ? onPointerOutNonBuildable(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(color, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(color, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                color,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -268,15 +269,19 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         onPointerOut={(e) =>
           isSolidLandPenMode ? onPointerOutBuildable(e) : onPointerOut(e)
         }
-      >
-        {pid
-          ? basicModelMaterial(forwardBuildableColor, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              forwardBuildableColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(
+                forwardBuildableColor,
+                isLightsAndShadowsRender,
+              )
+            : basicModelMaterial(
+                forwardBuildableColor,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -298,15 +303,16 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         onPointerOut={(e) =>
           isSolidLandPenMode ? onPointerOutBuildable(e) : onPointerOut(e)
         }
-      >
-        {pid
-          ? basicModelMaterial(aftBuildableColor, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              aftBuildableColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(aftBuildableColor, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                aftBuildableColor,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -314,15 +320,16 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         onPointerUp={(e) => (pid ? onPointerUpBody(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterNonBuildable(e) : noop())}
         onPointerOut={(e) => (pid ? onPointerOutNonBuildable(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(colorShipBowIron, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              colorShipBowIron,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(colorShipBowIron, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                colorShipBowIron,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -330,18 +337,19 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         onPointerUp={(e) => (pid ? onPointerUpBody(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterNonBuildable(e) : noop())}
         onPointerOut={(e) => (pid ? onPointerOutNonBuildable(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(
-              colorShipBowFigureheadBody,
-              isLightsAndShadowsRender,
-            )
-          : basicModelMaterial(
-              colorShipBowFigureheadBody,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(
+                colorShipBowFigureheadBody,
+                isLightsAndShadowsRender,
+              )
+            : basicModelMaterial(
+                colorShipBowFigureheadBody,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -349,18 +357,19 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         onPointerUp={(e) => (pid ? onPointerUpBody(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterNonBuildable(e) : noop())}
         onPointerOut={(e) => (pid ? onPointerOutNonBuildable(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(
-              colorShipBowFigureheadWings,
-              isLightsAndShadowsRender,
-            )
-          : basicModelMaterial(
-              colorShipBowFigureheadWings,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(
+                colorShipBowFigureheadWings,
+                isLightsAndShadowsRender,
+              )
+            : basicModelMaterial(
+                colorShipBowFigureheadWings,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -368,18 +377,19 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         onPointerUp={(e) => (pid ? onPointerUpBody(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterNonBuildable(e) : noop())}
         onPointerOut={(e) => (pid ? onPointerOutNonBuildable(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(
-              colorShipBowFigureheadEyes,
-              isLightsAndShadowsRender,
-            )
-          : basicModelMaterial(
-              colorShipBowFigureheadEyes,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(
+                colorShipBowFigureheadEyes,
+                isLightsAndShadowsRender,
+              )
+            : basicModelMaterial(
+                colorShipBowFigureheadEyes,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -387,18 +397,19 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         onPointerUp={(e) => (pid ? onPointerUpBody(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterNonBuildable(e) : noop())}
         onPointerOut={(e) => (pid ? onPointerOutNonBuildable(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(
-              colorShipBowFigureheadTongue,
-              isLightsAndShadowsRender,
-            )
-          : basicModelMaterial(
-              colorShipBowFigureheadTongue,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(
+                colorShipBowFigureheadTongue,
+                isLightsAndShadowsRender,
+              )
+            : basicModelMaterial(
+                colorShipBowFigureheadTongue,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -406,18 +417,19 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         onPointerUp={(e) => (pid ? onPointerUpBody(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterNonBuildable(e) : noop())}
         onPointerOut={(e) => (pid ? onPointerOutNonBuildable(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(
-              colorShipBowFigureheadBeak,
-              isLightsAndShadowsRender,
-            )
-          : basicModelMaterial(
-              colorShipBowFigureheadBeak,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(
+                colorShipBowFigureheadBeak,
+                isLightsAndShadowsRender,
+              )
+            : basicModelMaterial(
+                colorShipBowFigureheadBeak,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -425,18 +437,19 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         onPointerUp={(e) => (pid ? onPointerUpBody(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterNonBuildable(e) : noop())}
         onPointerOut={(e) => (pid ? onPointerOutNonBuildable(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(
-              colorShipBowFigureheadTail,
-              isLightsAndShadowsRender,
-            )
-          : basicModelMaterial(
-              colorShipBowFigureheadTail,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(
+                colorShipBowFigureheadTail,
+                isLightsAndShadowsRender,
+              )
+            : basicModelMaterial(
+                colorShipBowFigureheadTail,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -444,18 +457,19 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         onPointerUp={(e) => (pid ? onPointerUpBody(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterNonBuildable(e) : noop())}
         onPointerOut={(e) => (pid ? onPointerOutNonBuildable(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(
-              colorShipBowFigureheadMane,
-              isLightsAndShadowsRender,
-            )
-          : basicModelMaterial(
-              colorShipBowFigureheadMane,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(
+                colorShipBowFigureheadMane,
+                isLightsAndShadowsRender,
+              )
+            : basicModelMaterial(
+                colorShipBowFigureheadMane,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -463,18 +477,19 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         onPointerUp={(e) => (pid ? onPointerUpBody(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterNonBuildable(e) : noop())}
         onPointerOut={(e) => (pid ? onPointerOutNonBuildable(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(
-              colorShipBowFigureheadHooves,
-              isLightsAndShadowsRender,
-            )
-          : basicModelMaterial(
-              colorShipBowFigureheadHooves,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(
+                colorShipBowFigureheadHooves,
+                isLightsAndShadowsRender,
+              )
+            : basicModelMaterial(
+                colorShipBowFigureheadHooves,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
     </>
   )
 }

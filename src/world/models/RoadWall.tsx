@@ -1,11 +1,11 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export function RoadWall({ pid }: { pid: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
@@ -40,9 +40,8 @@ export function RoadWall({ pid }: { pid: string }) {
         onPointerUp={(e) => onPointerUp(e)}
         onPointerEnter={(e) => onPointerEnterPID(e, pid)}
         onPointerOut={(e) => onPointerOut(e)}
-      >
-        {basicModelMaterial(color, isLightsAndShadowsRender)}
-      </mesh>
+        material={basicModelMaterial(color, isLightsAndShadowsRender)}
+      />
     </>
   )
 }
@@ -56,9 +55,16 @@ export function RoadWallPreview({ opacity }: { opacity?: number }) {
   const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
   return (
     <>
-      <mesh receiveShadow castShadow geometry={nodes.RoadWall.geometry}>
-        {basicModelMaterial(color, isLightsAndShadowsRender, opacityLevel)}
-      </mesh>
+      <mesh
+        receiveShadow
+        castShadow
+        geometry={nodes.RoadWall.geometry}
+        material={basicModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          opacityLevel,
+        )}
+      />
     </>
   )
 }

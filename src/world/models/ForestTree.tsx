@@ -1,12 +1,12 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
+import { noop } from 'lodash'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
-import { noop } from 'lodash'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export default function ForestTree({ pid }: { pid?: string }) {
   const gltf = useDisposableGLTF(
@@ -48,15 +48,16 @@ export default function ForestTree({ pid }: { pid?: string }) {
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid ?? '') : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(color, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              color,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(color, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                color,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
     </>
   )
 }

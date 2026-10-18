@@ -1,13 +1,12 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import React, { type PropsWithChildren } from 'react'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain, Pieces } from '../../types'
 import { isFluidTerrainHex } from '../../utils/board-utils'
-import { hexTerrainColor } from '../maphex/hexColors'
-import { FLUID_CAP_OPACITY } from '../maphex/instance/FluidCap'
 import { HEXGRID_HEX_APOTHEM } from '../../utils/constants'
+import { hexTerrainColor } from '../maphex/hexColors'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export default function LandSubterrain({
   inventoryID,
@@ -75,7 +74,7 @@ export default function LandSubterrain({
           <meshStandardMaterial
             color={color}
             transparent
-            opacity={FLUID_CAP_OPACITY}
+            // opacity={FLUID_CAP_OPACITY}
           />
         )
       }
@@ -87,7 +86,7 @@ export default function LandSubterrain({
         <meshLambertMaterial
           color={color}
           transparent
-          opacity={FLUID_CAP_OPACITY}
+          // opacity={FLUID_CAP_OPACITY}
         />
       )
     }

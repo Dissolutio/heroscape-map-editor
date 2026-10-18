@@ -15,7 +15,7 @@ import {
   downloadSvgString,
   serializeSvgWithEmbeddedFont,
 } from '../svg-map/exportSvg'
-import { getBoardPiecesMaxLevel } from '../utils/map-utils'
+import { getCycleableLevels, getOverlayLevel } from '../utils/map-utils'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
 export const FileControlsTab = ({
@@ -25,6 +25,7 @@ export const FileControlsTab = ({
 }) => {
   const hexMap = useBoundStore((s) => s.hexMap)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isShow2DExportLevelLogo = useBoundStore(
     (s) => s.isShow2DExportLevelLogo,
@@ -57,9 +58,8 @@ export const FileControlsTab = ({
   }
   const handleDownloadCurrent2DSvg = async () => {
     const svgElement = document.getElementById('2d-svg-view')
-    const maxLevel = getBoardPiecesMaxLevel(boardPieces)
-    // we place the overlay level as one level above the last piece
-    const overlayLevel = maxLevel + 1
+    // we place the overlay level as one whole level above the last piece
+    const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
     const isOverlayLevel = viewingLevel === overlayLevel
     if (svgElement instanceof SVGSVGElement) {
       const svgContent = await serializeSvgWithEmbeddedFont(
@@ -87,9 +87,12 @@ export const FileControlsTab = ({
   const handleDownloadAll2DSvgs = async () => {
     if (!hexMap) return
     setIsDownloadingAll(true)
-    const maxLevel = getBoardPiecesMaxLevel(boardPieces)
-    // we place the overlay level as one level above the last piece
-    const overlayLevel = maxLevel + 1
+    // we place the overlay level as one whole level above the last piece
+    const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
+    // whole levels, any half-levels that actually have fluid-on-fluid content, plus overlay
+    const levelsToExport = getCycleableLevels(boardPieces, boardHexes).filter(
+      (level) => level >= 1,
+    )
 
     // save current state to restore later
     const prevViewingLevel = viewingLevel
@@ -99,7 +102,7 @@ export const FileControlsTab = ({
       // ensure overlay rendering logic is enabled so overlay pieces render only on the overlay level
       toggleIs2DOverlayLevelEnabled(true)
 
-      for (let level = 1; level <= overlayLevel; level++) {
+      for (const level of levelsToExport) {
         // set viewing level
         toggleViewingLevel(level)
         // eslint-disable-next-line no-await-in-loop reason:wait for DOM to update, small delay to allow React to re-render the SVG

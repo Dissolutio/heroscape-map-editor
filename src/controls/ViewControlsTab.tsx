@@ -49,7 +49,7 @@ export default function ViewControlsTab({
   const toggleIsOrthoCam = useBoundStore((s) => s.toggleIsOrthoCam)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const toggleIsTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
-  const isTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
+  const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const { hotkeyLookup } = useHotkeyConfig()
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
@@ -71,8 +71,24 @@ export default function ViewControlsTab({
   React.useEffect(() => {
     if (!isTakingPicture) {
       clearTimeout(takePictureTimeout.current)
+      takePictureTimeout.current = undefined
+    } else if (!is3DOpen) {
+      clearTimeout(takePictureTimeout.current)
+      takePictureTimeout.current = undefined
+      toggleIsTakingPicture(false)
     }
-  }, [isTakingPicture])
+  }, [is3DOpen, isTakingPicture, toggleIsTakingPicture])
+
+  React.useEffect(
+    () => () => {
+      if (takePictureTimeout.current !== undefined) {
+        clearTimeout(takePictureTimeout.current)
+        takePictureTimeout.current = undefined
+        toggleIsTakingPicture(false)
+      }
+    },
+    [toggleIsTakingPicture],
+  )
 
   const id1 = 'camera-unlock-icon'
   const id2 = 'camera-lock-icon'
@@ -85,7 +101,15 @@ export default function ViewControlsTab({
   const handleTakeAMapPicture = () => {
     toggleIsTakingPicture(true)
     takePictureTimeout.current = window.setTimeout(() => {
-      publish(EVENTS.savePng)
+      takePictureTimeout.current = undefined
+      const { is2DOpen: show2D, isPdfOpen: showPdf } = useBoundStore.getState()
+      if (show2D || showPdf) {
+        toggleIsTakingPicture(false)
+        return
+      }
+      if (!publish(EVENTS.savePng)) {
+        toggleIsTakingPicture(false)
+      }
     }, 100) // Long enough to make some changes to the map and render
   }
   return (
@@ -173,6 +197,10 @@ const ViewPreferencesSwitchForm = () => {
   const toggleIsLightsAndShadowsRender = useBoundStore(
     (s) => s.toggleIsLightsAndShadowsRender,
   )
+  const isShowLightControls = useBoundStore((s) => s.isShowLightControls)
+  const toggleIsShowLightControls = useBoundStore(
+    (s) => s.toggleIsShowLightControls,
+  )
   const handleChangeLightsAndRender = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -254,6 +282,22 @@ const ViewPreferencesSwitchForm = () => {
           title="Enable/disable lights and shadows in the 3D view"
           label="Render Lights and Shadows"
         />
+
+        {isLightsAndShadowsRender && (
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={isShowLightControls}
+                onChange={(event) =>
+                  toggleIsShowLightControls(event.target.checked)
+                }
+              />
+            }
+            title="Show/hide the handles used to reposition lights"
+            label="Show Light Controls"
+          />
+        )}
 
         {isLightsAndShadowsRender && (
           <FormControlLabel

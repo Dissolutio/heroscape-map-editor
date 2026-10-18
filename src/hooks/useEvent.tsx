@@ -8,7 +8,7 @@ import {
 } from 'react'
 
 type EventContextType = {
-  publish: (eventName: string) => void
+  publish: (eventName: string) => boolean
   subscribe: (eventName: string, callback: () => void) => void
   unsubscribe: (eventName: string, callback: () => void) => void
 }
@@ -38,6 +38,7 @@ export const EventProvider = ({ children }: PropsWithChildren) => {
     const arr = eventsRef.current?.[eventName] ?? []
     // biome-ignore lint/complexity/noForEach: <explanation>
     arr.forEach((callback) => callback())
+    return arr.length > 0
   }, [])
 
   return (

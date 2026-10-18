@@ -1,11 +1,11 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export default function Outcrop3({
   pid,
@@ -57,9 +57,8 @@ export default function Outcrop3({
       onPointerUp={(e) => onPointerUp(e)}
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={onPointerOut}
-    >
-      {basicModelMaterial(color, isLightsAndShadowsRender)}
-    </mesh>
+      material={basicModelMaterial(color, isLightsAndShadowsRender)}
+    />
   )
 }
 export function Outcrop3Preview({
@@ -86,13 +85,12 @@ export function Outcrop3Preview({
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
       geometry={nodes.glacier_3_with_holes.geometry}
-    >
-      {basicModelMaterial(
+      material={basicModelMaterial(
         color,
         isLightsAndShadowsRender,
         PIECE_PREVIEW_OPACITY,
       )}
-    </mesh>
+    />
   )
 }
 

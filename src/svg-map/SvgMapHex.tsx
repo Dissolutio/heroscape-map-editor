@@ -17,7 +17,7 @@ import {
   SVG_HEX_RADIUS,
   SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
 } from '../utils/constants'
-import { getBoardPiecesMaxLevel } from '../utils/map-utils'
+import { getOverlayLevel } from '../utils/map-utils'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   getTerrainTileLetter,
@@ -127,7 +127,8 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
     (s) => s.is2DOverlayLevelEnabled,
   )
   const boardPieces = useBoundStore((s) => s.boardPieces)
-  const overlayLevel = getBoardPiecesMaxLevel(boardPieces) + 1
+  const boardHexes = useBoundStore((s) => s.boardHexes)
+  const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
   const { inventoryID } = decodePieceID(hex.pieceID)

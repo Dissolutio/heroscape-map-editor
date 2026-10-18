@@ -1,12 +1,12 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
 import type { ThreeEvent } from '@react-three/fiber'
+import { noop } from 'lodash'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, HexTerrain } from '../../types'
+import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
-import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
-import { noop } from 'lodash'
+import { useDisposableGLTF } from './useDisposableGLTF'
 
 export function RopeLadder({ pid }: { pid?: string }) {
   const { nodes } = useDisposableGLTF(
@@ -47,15 +47,16 @@ export function RopeLadder({ pid }: { pid?: string }) {
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid) : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(woodColor, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              woodColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(woodColor, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                woodColor,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -63,15 +64,16 @@ export function RopeLadder({ pid }: { pid?: string }) {
         onPointerUp={(e) => (pid ? onPointerUp(e) : noop())}
         onPointerEnter={(e) => (pid ? onPointerEnterPID(e, pid) : noop())}
         onPointerOut={(e) => (pid ? onPointerOut(e) : noop())}
-      >
-        {pid
-          ? basicModelMaterial(ropeColor, isLightsAndShadowsRender)
-          : basicModelMaterial(
-              ropeColor,
-              isLightsAndShadowsRender,
-              PIECE_PREVIEW_OPACITY,
-            )}
-      </mesh>
+        material={
+          pid
+            ? basicModelMaterial(ropeColor, isLightsAndShadowsRender)
+            : basicModelMaterial(
+                ropeColor,
+                isLightsAndShadowsRender,
+                PIECE_PREVIEW_OPACITY,
+              )
+        }
+      />
     </>
   )
 }

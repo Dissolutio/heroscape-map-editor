@@ -1,3 +1,16 @@
+Oct-17-2026
+- **Altitude Smart Placement**: When you go to place a multi-hex piece, if it can't fit on that level, the app will check all the levels above it to see if it fits there.
+- **Light controls and remembered positions**: With lights and shadows enabled, use the new **Show Light Controls** toggle in the View tab to hide the repositioning handles without changing the lighting. Moved lights keep their positions when lighting is turned off and back on during the current session; positions are not saved in map files or restored after reloading the app.
+- **Stack fluid tiles on fluid tiles**: Water (and other fluid/half-height tiles) can now be placed on top of another fluid tile, and it rises half a level instead of a full level. Solid tiles can be placed on top of these half-level stacks. The level slider, hotkeys and SVG export include the half levels, and when every selected piece is a stacked fluid tile you get buttons to move it up or down half a level. Glyphs and start zones still go on a whole level above the map.
+- **Convert start zone pieces**: Select start zone pieces, you can convert them to other start zone colors/players
+- **Fluid tiles no longer see-through in 3D**: The transparency looked wrong with fluid stacked on fluid, so fluid tiles are now solid colors
+- **Focus a piece: no more fade**: The focus button now just moves the camera to frame the piece, without fading out everything else
+
+Sep-27-2026
+- **Hotkeys 1-5 map to sizes 1,2,3,7,24, 6-7 map to other sizes**: Many terrains have 5 "standard" sizes: 1,2,3,7, & 24-hexes. Now, when you have a solid or fluid (AKA full-height or half-height) terrain selected as your pen mode, the hotkeys numbered 1-5 will map to those 5 standards sizes. So pressing "5" will always select the 24-hexer for a terrain, or do nothing if there is no 24-hexer for that terrain Some terrains have a special size, like the marvel concrete 6-hex piece, or the ice/glacier 4-hex and 6-hex, or the castle wall-walk 7-hex and 9-hex. These special sizes will map to hotkeys 6-7 for all terrains.
+- **Desktop App now auto-updates**: When you start the app, it will check if there is a new version, and safely upgrade/restart if you confirm. I have only tested this on linux, not windows or mac.
+- **New way to load map: paste in URL**: The desktop app did not have a way to load URL-shared maps, now you just paste the URL into a text box and you can load the map. This feature is also on the website.
+
 Sep-23-2026
 - **3D Asphalt color**: Now with less blue
 - **3D Legacy StartZone**: They were displaying at a right angle, fixed 

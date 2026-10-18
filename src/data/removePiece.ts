@@ -28,10 +28,18 @@ export function removePiece({
   let error: AddRemovePieceError
   const boardPiece = boardPieces.find((bp) => bp.uid === uid)
   if (!boardPiece) {
+    error = { message: `Cannot remove piece ${uid}: it is not on the board` }
     return { newBoardHexes: boardHexes, newBoardPieces: boardPieces, error }
   }
   const { inventoryID } = boardPiece
   const piece = piecesSoFar[inventoryID]
+  if (!piece) {
+    // Unknown pieces are dropped on load, so this should not happen; never throw.
+    error = {
+      message: `Cannot remove piece ${uid}: unknown inventoryID "${inventoryID}"`,
+    }
+    return { newBoardHexes: boardHexes, newBoardPieces: boardPieces, error }
+  }
   // Shallow copy boardHexes (if needed)
   const newBoardHexes = { ...boardHexes }
   // Remove only the first occurrence of uid from the array
@@ -73,8 +81,10 @@ export function removePiece({
     const pieceBoardHexes = Object.values(newBoardHexes).filter(
       (bh) => bh?.boardPieceUID === uid,
     )
+    // Use the piece's own recorded support altitude (not surface altitude - 1), since a
+    // half-level fluid-on-fluid piece is only 0.5 above its support, not a whole level.
     const underHexIds = pieceBoardHexes.map((cubeCoord) =>
-      genBoardHexID({ ...cubeCoord, altitude: (cubeCoord.altitude ?? 0) - 1 }),
+      genBoardHexID({ ...cubeCoord, altitude: boardPiece.altitude }),
     )
     for (const underHexId of underHexIds) {
       if (
