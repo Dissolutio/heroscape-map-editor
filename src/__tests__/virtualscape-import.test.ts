@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import buildupVSFileMap from '../data/buildupMap'
 import { pieceCodes } from '../data/pieceCodes'
 import { readVirtualscapeMapFile } from '../data/readVirtualscapeMapFile'
-import type { JsonMapLoadResult } from '../data/buildupMap'
 import { Pieces } from '../types'
 import { hexUtilsOddRToCube } from '../utils/hex-utils'
 import { warnAboutLoadedMap } from '../utils/warnAboutLoadedMap'
@@ -92,17 +91,17 @@ class MemoryFileReader {
 }
 
 afterEach(() => {
+  vi.restoreAllMocks()
   vi.unstubAllGlobals()
 })
 
 describe('Virtualscape binary import', () => {
-  it('reads supported codes and preserves known pieces, coordinates, and rotations', async () => {
+  it('reads supported codes, preserving positions and rotations with no drops', async () => {
     vi.stubGlobal('FileReader', MemoryFileReader)
     const file = makeVirtualscapeFile([
       { type: 1001, rotation: 2, posX: 1, posY: 3, posZ: 0 },
       { type: 2001, rotation: 5, posX: 4, posY: 2, posZ: 0 },
       { type: 3001, rotation: 3, posX: 6, posY: 4, posZ: 0 },
-      { type: 987654, rotation: 0, posX: 8, posY: 5, posZ: 0 },
     ])
 
     const virtualscapeMap = await readVirtualscapeMapFile(file)
@@ -111,15 +110,16 @@ describe('Virtualscape binary import', () => {
     expect(virtualscapeMap).toMatchObject({
       version: 0.0007,
       name: 'Virtualscape import',
-      tileCount: 4,
+      tileCount: 3,
     })
     expect(virtualscapeMap.tiles.map((tile) => tile.type)).toEqual([
-      1001, 2001, 3001, 987654,
+      1001, 2001, 3001,
     ])
     expect(pieceCodes['1001']).toBe(Pieces.grass1)
     expect(pieceCodes['2001']).toBe(Pieces.rock1)
     expect(pieceCodes['3001']).toBe(Pieces.sand1)
     expect(loaded.hexMap.name).toBe('Virtualscape import')
+    expect(loaded.droppedPieces).toEqual([])
     expect(loaded.boardPieces).toHaveLength(3)
     expect(
       loaded.boardPieces.map(
@@ -152,33 +152,64 @@ describe('Virtualscape binary import', () => {
     ])
   })
 
-  it.fails(
-    'KNOWN GAP: Virtualscape unknown codes are discarded without a dropped-piece warning',
-    async () => {
-      vi.stubGlobal('FileReader', MemoryFileReader)
-      const virtualscapeMap = await readVirtualscapeMapFile(
-        makeVirtualscapeFile([
-          { type: 987654, rotation: 0, posX: 2, posY: 2, posZ: 0 },
-        ]),
-      )
-      const loaded = buildupVSFileMap(
-        virtualscapeMap.tiles,
-        virtualscapeMap.name,
-      )
+  it('drops and warns for unknown Virtualscape codes without crashing', async () => {
+    vi.stubGlobal('FileReader', MemoryFileReader)
+    const virtualscapeMap = await readVirtualscapeMapFile(
+      makeVirtualscapeFile([
+        { type: 987654, rotation: 0, posX: 2, posY: 2, posZ: 0 },
+      ]),
+    )
+    const loaded = buildupVSFileMap(virtualscapeMap.tiles, virtualscapeMap.name)
 
-      expect(loaded).toHaveProperty('droppedPieces', [
-        { inventoryID: '987654', reason: 'unknown' },
-      ])
+    expect(loaded.boardPieces).toEqual([])
+    expect(loaded).toHaveProperty('droppedPieces', [
+      { inventoryID: '987654', reason: 'unknown' },
+    ])
 
-      const enqueueSnackbar = vi.fn()
-      warnAboutLoadedMap(enqueueSnackbar, loaded as JsonMapLoadResult)
-      expect(enqueueSnackbar).toHaveBeenCalledWith(
-        expect.objectContaining({
-          message:
-            'Skipped 1 unknown piece (987654). Updating the app may let you load unknown pieces.',
-          variant: 'warning',
-        }),
-      )
-    },
-  )
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const enqueueSnackbar = vi.fn()
+    warnAboutLoadedMap(enqueueSnackbar, loaded)
+    expect(enqueueSnackbar).toHaveBeenCalledOnce()
+    expect(enqueueSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'Skipped 1 unknown piece (987654). Updating the app may let you load unknown pieces.',
+        variant: 'warning',
+      }),
+    )
+  })
+
+  it('loads known pieces and reports unknown codes from a mixed file', async () => {
+    vi.stubGlobal('FileReader', MemoryFileReader)
+    const virtualscapeMap = await readVirtualscapeMapFile(
+      makeVirtualscapeFile([
+        { type: 1001, rotation: 2, posX: 1, posY: 3, posZ: 0 },
+        { type: 987654, rotation: 0, posX: 4, posY: 2, posZ: 0 },
+      ]),
+    )
+
+    const loaded = buildupVSFileMap(virtualscapeMap.tiles, virtualscapeMap.name)
+
+    expect(loaded.boardPieces).toHaveLength(1)
+    expect(loaded.boardPieces[0]).toMatchObject({
+      inventoryID: Pieces.grass1,
+      rotation: 2,
+      pieceCoords: hexUtilsOddRToCube(1, 3),
+    })
+    expect(loaded.droppedPieces).toEqual([
+      { inventoryID: '987654', reason: 'unknown' },
+    ])
+
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const enqueueSnackbar = vi.fn()
+    warnAboutLoadedMap(enqueueSnackbar, loaded)
+    expect(enqueueSnackbar).toHaveBeenCalledOnce()
+    expect(enqueueSnackbar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          'Skipped 1 unknown piece (987654). Updating the app may let you load unknown pieces.',
+        variant: 'warning',
+      }),
+    )
+  })
 })

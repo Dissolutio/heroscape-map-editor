@@ -144,6 +144,7 @@ export const LoadFileHiddenInputs = () => {
         message: `Loaded map: ${loadedMap.hexMap.name}`,
         variant: 'success',
       })
+      warnAboutLoadedMap(enqueueSnackbar, loadedMap)
       navigate(ROUTES.heroscapeHome)
     } catch (error: unknown) {
       const errorMessage =
