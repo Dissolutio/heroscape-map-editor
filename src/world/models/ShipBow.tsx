@@ -252,13 +252,7 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowForwardBuildable.geometry}
-        onPointerUp={(e) =>
-          isSolidLandPenMode && onPointerUp
-            ? onPointerUpForwardBuildable(e)
-            : onPointerUp
-              ? onPointerUp(e, {} as BoardHex)
-              : noop()
-        }
+        onPointerUp={(e) => (pid ? onPointerUpForwardBuildable(e) : noop())}
         onPointerEnter={(e) =>
           isSolidLandPenMode
             ? onPointerEnterForwardBuildable(e)
@@ -286,13 +280,7 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.ShipBowAftBuildable.geometry}
-        onPointerUp={(e) =>
-          isSolidLandPenMode && onPointerUp
-            ? onPointerUpAftBuildable(e)
-            : onPointerUp
-              ? onPointerUp(e, {} as BoardHex)
-              : noop()
-        }
+        onPointerUp={(e) => (pid ? onPointerUpAftBuildable(e) : noop())}
         onPointerEnter={(e) =>
           isSolidLandPenMode
             ? onPointerEnterAftBuildable(e)

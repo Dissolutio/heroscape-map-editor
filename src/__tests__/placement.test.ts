@@ -13,10 +13,12 @@ import { piecesSoFar } from '../data/pieces'
 import {
   type PlacementResolution,
   evaluatePlacement,
+  hangsOffMap,
   isPlacementBlocked,
   placementBlockedMessages,
   resolvePlacement,
 } from '../data/placement'
+import getPieceTemplateCoords from '../data/rotationTransforms'
 import { getSmartPlacementAltitude } from '../data/smartPlacement'
 import type { BoardHex, CubeCoordinate } from '../types'
 import { HexTerrain } from '../types'
@@ -29,6 +31,7 @@ import {
   withGrassFloor,
 } from './helpers/board'
 import { placementCases } from './helpers/placementCases'
+import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
 
 const table = withGrassFloor(makeTable(9))
 const c = table.center
@@ -165,8 +168,10 @@ describe('placementBlockedMessages', () => {
         'Only a castle wall or wall walk fits on a castle wall.',
       castleArchNeedsLand: 'A castle arch has its own bases; place it on land.',
       pillarShapesDiffer: 'Triangle and square pillars do not stack.',
+      offMap: 'That piece would hang off the edge of the map.',
     })
     expect(placementBlockedMessages.landTileNotOnHex).toBeUndefined()
+    expect(placementBlockedMessages.notAHex).toBeUndefined()
   })
 })
 
@@ -234,36 +239,41 @@ describe('evaluatePlacement', () => {
     ).toBe(1)
   })
 
-  it('reports footprint hexes that are off the board', () => {
+  /**
+   * Physical pieces cannot hang off the map: if any hex of the footprint is
+   * outside it, the placement is blocked. (Was a KNOWN GAP: strict addPiece
+   * counts hexes off the board as free space, so this came back 'ok'.)
+   */
+  it('a tile hanging off the board is not ok', () => {
     const corner = { q: 0, r: 0, s: 0 }
-    const evaluation = evaluatePlacement(
-      table,
-      resolve(table, 'g24', topHex(table, corner, 1)),
-    )
-    expect(evaluation.status).not.toBe('blocked') // a click still places it
-    expect(evaluation.displacedUIDs).toEqual([])
-    const offBoard = evaluation.footprintHexes.filter(
-      (hex) => !hexAt(table, hex, 0),
-    )
-    expect(offBoard.length).toBeGreaterThan(0)
+    const before = cloneBoard(table)
+    const resolution = resolve(table, 'g24', topHex(table, corner, 1))
+    expect(resolution).toEqual({ blocked: 'offMap' })
+    expect(evaluatePlacement(table, resolution)).toMatchObject({
+      status: 'blocked',
+      reason: 'offMap',
+    })
+    expect(table).toEqual(before)
   })
 
-  /**
-   * KNOWN GAP: a g24 dropped on the table corner hangs mostly off the board,
-   * but evaluatePlacement says 'ok' (green). Strict addPiece counts a land
-   * tile as supported when any one hex under it is solid, and hexes off the
-   * board as free space. A drag preview would show it green. Suggested fix:
-   * evaluatePlacement treats footprint hexes with no table hex under them
-   * as not ok (the future 'unsupported' status, or 'conflict'). Assumes the
-   * table's altitude-0 hexes are the board.
-   */
-  it.fails('KNOWN GAP: a tile hanging off the board is not ok', () => {
+  it('a resolved placement built by hand that hangs off is blocked too', () => {
     const corner = { q: 0, r: 0, s: 0 }
-    const evaluation = evaluatePlacement(
-      table,
-      resolve(table, 'g24', topHex(table, corner, 1)),
+    const before = cloneBoard(table)
+    const evaluation = evaluatePlacement(table, {
+      piece: piecesSoFar.g24,
+      coords: corner,
+      altitude: 1,
+      rotation: 0,
+      rule: 'land',
+    })
+    expect(evaluation.status).toBe('blocked')
+    expect(evaluation.reason).toBe('offMap')
+    // the footprint is still reported, e.g. for a red preview
+    expect(evaluation.footprintHexes).toHaveLength(24)
+    expect(evaluation.footprintHexes.some((hex) => !hexAt(table, hex, 0))).toBe(
+      true,
     )
-    expect(evaluation.status).not.toBe('ok')
+    expect(table).toEqual(before)
   })
 
   it('a refusal stays blocked, with its reason', () => {
@@ -335,4 +345,160 @@ describe('evaluatePlacement', () => {
       )
     },
   )
+})
+
+/**
+ * The map edge, checked against each map shape's own definition (from
+ * utils/hex-utils.ts), not against the table hexes the code looks up.
+ */
+describe('map edge', () => {
+  const rectangle = (rows: number, cols: number) => ({
+    board: makeRectangleScenario({ length: rows, width: cols }),
+    isOnMap: ({ q, r }: CubeCoordinate) =>
+      r >= 0 &&
+      r < rows &&
+      q >= -Math.floor(r / 2) &&
+      q < cols - Math.floor(r / 2),
+  })
+  const hexagon = (size: number) => {
+    const radius = size - 1
+    const offsetQ = radius % 2 === 0 ? radius / 2 : Math.floor(radius / 2 + 0.5)
+    return {
+      board: makeHexagonScenario({ size }),
+      isOnMap: ({ q, r }: CubeCoordinate) => {
+        const dq = q - offsetQ
+        const dr = r - radius
+        return Math.max(Math.abs(dq), Math.abs(dr), Math.abs(dq + dr)) <= radius
+      },
+    }
+  }
+  const maps = {
+    'rectangle 9x9': rectangle(9, 9),
+    'rectangle 5x8': rectangle(5, 8),
+    'rectangle 8x5': rectangle(8, 5),
+    'hexagon size 4': hexagon(4),
+    'hexagon size 5': hexagon(5),
+  }
+
+  it.each(Object.entries(maps))(
+    'the oracle matches the generated %s',
+    (_, { board, isOnMap }) => {
+      const tableHexes = Object.values(board.boardHexes)
+      expect(tableHexes.every(isOnMap)).toBe(true)
+      // and nothing just outside it counts as on the map
+      const ring = tableHexes.flatMap(({ q, r, s }) =>
+        [
+          [1, 0],
+          [-1, 0],
+          [0, 1],
+          [0, -1],
+          [1, -1],
+          [-1, 1],
+        ].map(([dq, dr]) => ({ q: q + dq, r: r + dr, s: s - dq - dr })),
+      )
+      for (const hex of ring) {
+        expect(isOnMap(hex)).toBe(hexAt(board, hex, 0) !== undefined)
+      }
+    },
+  )
+
+  const sweep = (
+    { board, isOnMap }: (typeof maps)[keyof typeof maps],
+    pieceID: string,
+    isBlocked: (origin: BoardHex, rotation: number) => boolean,
+  ) => {
+    const piece = piecesSoFar[pieceID]
+    let blocked = 0
+    let placed = 0
+    for (const origin of Object.values(board.boardHexes)) {
+      for (let rotation = 0; rotation < 6; rotation++) {
+        const footprint = getPieceTemplateCoords({
+          clickedHex: origin,
+          rotation,
+          template: piece.template,
+          isVsTile: false,
+        })
+        const hangsOff = !footprint.every(isOnMap)
+        expect(isBlocked(origin, rotation)).toBe(hangsOff)
+        if (hangsOff) blocked++
+        else placed++
+      }
+    }
+    expect(blocked).toBeGreaterThan(0)
+    return { placed }
+  }
+
+  describe.each(Object.entries(maps))('%s', (name, map) => {
+    it.each(['g2', 'g3', 'g7', 'g24', 'ca', 'rs2'])(
+      '%s at every hex and rotation hangs off exactly when its footprint does',
+      (pieceID) => {
+        const before = cloneBoard(map.board)
+        const { placed } = sweep(map, pieceID, (origin, rotation) =>
+          hangsOffMap(map.board.boardHexes, {
+            piece: piecesSoFar[pieceID],
+            coords: origin,
+            altitude: 0,
+            rotation,
+            rule: 'land',
+          }),
+        )
+        // some placement fits, so the check is not vacuous; a g24 does not
+        // fit at all on the smallest maps
+        const fits = pieceID !== 'g24' || name === 'rectangle 9x9'
+        if (fits) expect(placed).toBeGreaterThan(0)
+        expect(map.board).toEqual(before)
+      },
+    )
+  })
+
+  it.each(['rectangle 5x8', 'hexagon size 4'] as const)(
+    'resolvePlacement blocks a g2 at every hex and rotation of the %s exactly when it hangs off',
+    (name) => {
+      const map = maps[name]
+      const { placed } = sweep(map, 'g2', (origin, rotation) => {
+        const resolution = resolvePlacement(
+          piecesSoFar.g2,
+          origin,
+          rotation,
+          map.board,
+        )
+        return isPlacementBlocked(resolution) && resolution.blocked === 'offMap'
+      })
+      expect(placed).toBeGreaterThan(0)
+    },
+  )
+
+  it('a piece fully on the map right next to the edge is ok', () => {
+    const { board, isOnMap } = maps['rectangle 9x9']
+    const footprintOf = (hex: CubeCoordinate) =>
+      getPieceTemplateCoords({
+        clickedHex: hex,
+        rotation: 0,
+        template: piecesSoFar.g7.template,
+        isVsTile: false,
+      })
+    const neighbours = ({ q, r, s }: CubeCoordinate) =>
+      [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+        [1, -1],
+        [-1, 1],
+      ].map(([dq, dr]) => ({ q: q + dq, r: r + dr, s: s - dq - dr }))
+    // a g7 on the map whose footprint has neighbours off the map
+    const touchingEdge = Object.values(board.boardHexes).filter((hex) => {
+      const footprint = footprintOf(hex)
+      return (
+        footprint.every(isOnMap) &&
+        footprint.some((f) => neighbours(f).some((n) => !isOnMap(n)))
+      )
+    })
+    expect(touchingEdge.length).toBeGreaterThan(0)
+    for (const origin of touchingEdge) {
+      expect(
+        evaluatePlacement(board, resolve(board, 'g7', origin)).status,
+      ).toBe('ok')
+    }
+  })
 })

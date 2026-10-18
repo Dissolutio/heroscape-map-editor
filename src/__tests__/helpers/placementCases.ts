@@ -143,15 +143,25 @@ export const placementCases: PlacementCase[] = [
     expected: { placed: { coords: c, altitude: 1, rotation: 0 } },
   },
   {
-    name: 'land: g24 keeps the pen rotation',
-    pieceID: 'g24',
+    name: 'land: g7 keeps the pen rotation',
+    pieceID: 'g7',
     rotation: 2,
     setup: onGrass,
     expected: { placed: { coords: c, altitude: 1, rotation: 2 } },
   },
   {
-    name: 'land: g24 at the table corner is placed even off the board',
+    name: 'land refusal: g24 at the table corner would hang off the map',
     pieceID: 'g24',
+    rotation: 0,
+    setup: () => ({
+      board: table,
+      hex: mustHex(table, { q: 0, r: 0, s: 0 }, 1),
+    }),
+    expected: { refused: 'offMap' },
+  },
+  {
+    name: 'land: g1 in the table corner is fully on the map',
+    pieceID: 'g1',
     rotation: 0,
     setup: () => ({
       board: table,
