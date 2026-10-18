@@ -23,6 +23,10 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `edges-and-nodes.test.ts` | How edges and corners are represented today, and the acceptance checklist (`it.todo`) for the edge/node model. |
 | `terrain-constraints.test.ts` | Inventory normalization and set/personal/file constraints. |
 | `map-share-url.test.ts` | Parsing pasted share links. |
+| `safe-storage.test.ts` | Guarded browser storage access, corrupted JSON, and quota/security failures. |
+| `map-storage.test.ts` | Separate portraits, map-ID matching, legacy loads, and non-throwing autosave. |
+| `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
+| `storage-known-gaps.test.ts` | Constraint restoration (Step 2) and the fixed hotkey mount overwrite. |
 | `helpers/board.ts` | `makeTable`, `place`, `remove`, `withGrassFloor`, `hexAt`: build boards without the store. |
 
 ## Adding a new terrain piece

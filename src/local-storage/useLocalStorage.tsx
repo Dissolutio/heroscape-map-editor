@@ -1,19 +1,5 @@
 import { useEffect, useState } from 'react'
-
-// https://stackoverflow.com/questions/4391575/how-to-find-the-size-of-localstorage
-// GETS MEMORY OF LOCAL STORAGE
-
-// var _lsTotal = 0,
-//     _xLen, _x;
-// for (_x in localStorage) {
-//     if (!localStorage.hasOwnProperty(_x)) {
-//         continue;
-//     }
-//     _xLen = ((localStorage[_x].length + _x.length) * 2);
-//     _lsTotal += _xLen;
-//     console.log(_x.substr(0, 50) + " = " + (_xLen / 1024).toFixed(2) + " KB")
-// };
-// console.log("Total = " + (_lsTotal / 1024).toFixed(2) + " KB");
+import { safeGetJSON, safeSetItem } from './safeStorage'
 
 export function useLocalStorage<T>(
   key: string,
@@ -25,13 +11,7 @@ export function useLocalStorage<T>(
     if (typeof window === 'undefined') {
       return initialValue
     }
-    try {
-      const item = window.localStorage.getItem(key)
-      return item ? JSON.parse(item) : initialValue
-    } catch (error) {
-      console.warn(`Error reading localStorage key “${key}”:`, error)
-      return initialValue
-    }
+    return safeGetJSON<T>(key, initialValue) ?? initialValue
   }
 
   const [storedValue, setStoredValue] = useState<T>(() => readValue())
@@ -42,12 +22,14 @@ export function useLocalStorage<T>(
       console.warn(
         `Tried setting localStorage key “${key}” even though environment is not a client`,
       )
+      return
     }
     try {
       // Allow value to be a function so we have the same API as useState
       const newValue = value instanceof Function ? value(storedValue) : value
       // Save to local storage
-      window.localStorage.setItem(key, JSON.stringify(newValue))
+      const result = safeSetItem(key, JSON.stringify(newValue))
+      if (!result.ok) return
       // Save state
       setStoredValue(newValue)
       // We dispatch a custom event so every useLocalStorage hook are notified

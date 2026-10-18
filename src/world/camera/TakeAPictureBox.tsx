@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import useEvent from '../../hooks/useEvent'
 import useBoundStore from '../../store/store'
 import { EVENTS } from '../../utils/constants'
+import { canvasToMapPortrait } from '../../utils/mapPortrait'
 
 const TakeAPictureBox = () => {
   const { gl, scene, camera } = useThree()
@@ -17,7 +18,11 @@ const TakeAPictureBox = () => {
     const handleTakeMapPicture = () => {
       try {
         gl.render(scene, camera)
-        const screenshot = gl.domElement.toDataURL()
+        const screenshot = canvasToMapPortrait(
+          gl.domElement,
+          gl.domElement.width,
+          gl.domElement.height,
+        )
         addMapPortraitBase64(screenshot)
         enqueueSnackbar({
           message:

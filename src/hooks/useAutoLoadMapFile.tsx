@@ -6,7 +6,9 @@ import { useLocation, useSearch } from 'wouter'
 import { ROUTES } from '../ROUTES'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
+import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 import { LS_KEYS } from '../local-storage/keys'
+import { safeRemove } from '../local-storage/safeStorage'
 import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import {
@@ -51,8 +53,11 @@ const useAutoLoadMapFile = () => {
     const { m: urlMapString, v: viewModeParam } =
       getMapShareUrlParams(searchString)
     applyViewModeFromQuery(viewModeParam)
-    const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
-    const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
+    safeRemove('hotkeyConfig')
+    safeRemove('terrainConstraintState')
+    const localMapCache =
+      loadMapFromLocalStorage(LS_KEYS.lastMapCache) ??
+      loadMapFromLocalStorage(LS_KEYS.lastMap)
     const localMapCacheMapState = localMapCache
       ? buildupJsonFileMap(
           normalizeBoardPieces(localMapCache.boardPieces),
@@ -140,7 +145,7 @@ const useAutoLoadMapFile = () => {
     } else if (localMapCacheMapState) {
       loadMapWithoutUndo(localMapCacheMapState)
       enqueueSnackbar({
-        message: `Loaded last map: ${localMapCache.hexMap.name}`,
+        message: `Loaded last map: ${localMapCacheMapState.hexMap.name}`,
         variant: 'success',
       })
       warnAboutLoadedMap(enqueueSnackbar, localMapCacheMapState)

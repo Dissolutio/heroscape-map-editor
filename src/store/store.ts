@@ -2,9 +2,14 @@ import { isEqual } from 'lodash'
 import { temporal } from 'zundo'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { LS_KEYS } from '../local-storage/keys'
+import {
+  mapStorage,
+  partializeMap,
+  saveMapPortrait,
+} from '../local-storage/mapStorage'
 import createMapSlice, { type MapSlice } from './map-slice'
 import createUISlice, { type UISlice } from './ui-slice'
-import { LS_KEYS } from '../local-storage/keys'
 
 export type AppState = MapSlice & UISlice
 
@@ -17,17 +22,8 @@ const useBoundStore = create<AppState>()(
       }),
       {
         name: LS_KEYS.lastMap, // name of the item in the storage (must be unique)
-        // storage: createJSONStorage(() => sessionStorage), // (optional) by default, 'localStorage' is used
-        partialize: (state) => {
-          return {
-            boardPieces: state.boardPieces,
-            hexMap: state.hexMap,
-            terrainConstraintSource: state.terrainConstraintSource,
-            customConstraintInventory: state.customConstraintInventory,
-            customConstraintInventoryFileName:
-              state.customConstraintInventoryFileName,
-          }
-        },
+        storage: mapStorage,
+        partialize: partializeMap,
         skipHydration: true,
       },
     ),
@@ -50,5 +46,14 @@ const useBoundStore = create<AppState>()(
     },
   ),
 )
+
+useBoundStore.subscribe((state, previous) => {
+  if (
+    state.hexMap.id !== previous.hexMap.id ||
+    state.hexMap.mapPortraitBase64 !== previous.hexMap.mapPortraitBase64
+  ) {
+    saveMapPortrait(state.hexMap)
+  }
+})
 
 export default useBoundStore
