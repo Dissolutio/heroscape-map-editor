@@ -143,6 +143,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Hidden status text | `src/e2e/E2EStatus.tsx` |
 | Window typings | `src/e2e/e2e-globals.d.ts` |
 | Tests, fixtures | `e2e/` |
+| Viewing-level regression | `e2e/viewing-level.spec.ts` |
 
 All of it renders nothing and installs nothing unless the switch in `isE2E.ts`
 is on.
