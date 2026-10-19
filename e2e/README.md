@@ -59,7 +59,8 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   `'blocked'`, or `null` with no target; for a multi-selection it is the
   worst member status; `reason`; `footprintCount`, the total hexes in all
   target footprints, off-map ones included (a target hanging off the map is
-  `blocked`/`offMap` with its full footprint); `targetHex`, the hex under the
+  `blocked`/`offMap` with its full footprint; a group member outside the
+  altitude bounds is `blocked`/`outOfHeight`); `targetHex`, the hex under the
   pointer, `{ q, r, s, altitude }` or `null`).
 - `window.__TEST__.listPieces()`: every placed piece (`uid`, `inventoryID`,
   `altitude`, `rotation`, `pieceCoords`). **uids are random on every load**:

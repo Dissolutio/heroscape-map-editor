@@ -169,6 +169,8 @@ describe('placementBlockedMessages', () => {
       castleArchNeedsLand: 'A castle arch has its own bases; place it on land.',
       pillarShapesDiffer: 'Triangle and square pillars do not stack.',
       offMap: 'That piece would hang off the edge of the map.',
+      outOfHeight:
+        'Some pieces would end up below the ground or above the highest level.',
     })
     expect(placementBlockedMessages.landTileNotOnHex).toBeUndefined()
     expect(placementBlockedMessages.notAHex).toBeUndefined()
@@ -176,6 +178,21 @@ describe('placementBlockedMessages', () => {
 })
 
 describe('evaluatePlacement', () => {
+  it('checks height bounds only when the caller opts in', () => {
+    const resolution = {
+      piece: piecesSoFar.og4,
+      coords: c,
+      altitude: 90,
+      rotation: 0,
+      rule: 'default',
+    } satisfies Extract<PlacementResolution, { piece: unknown }>
+
+    expect(evaluatePlacement(table, resolution).reason).not.toBe('outOfHeight')
+    expect(
+      evaluatePlacement(table, resolution, { checkHeightBounds: true }),
+    ).toMatchObject({ status: 'blocked', reason: 'outOfHeight' })
+  })
+
   it('an empty target is ok, and reports the footprint', () => {
     const evaluation = evaluatePlacement(
       table,

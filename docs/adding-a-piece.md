@@ -140,6 +140,10 @@ small land piece is a good starting point; the worked example below follows
    classification and land support rules rather than adding a second
    conflicting rule. Add special placement logic only when the intended
    behavior is not already covered by the generic land or obstacle path.
+   Multi-piece drag evaluation additionally blocks members below altitude 0
+   or whose top, including vertical-obstruction clearance, exceeds
+   `HEXGRID_MAX_ALTITUDE`; this check is opt-in so click/pen placement retains
+   its existing behavior.
 7. **Cover the 2D and export views when the piece needs a distinct shape.**
    `SvgMapDisplay()` draws grid hexes through
    [`src/svg-map/SvgMapHex.tsx`](../src/svg-map/SvgMapHex.tsx) and piece-specific

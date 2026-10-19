@@ -17,6 +17,7 @@ import {
   getBattlementClickedHexCoords,
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils'
+import { HEXGRID_MAX_ALTITUDE } from '../utils/constants'
 import { addPiece } from './addPiece'
 import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
 import getPieceTemplateCoords from './rotationTransforms'
@@ -47,6 +48,7 @@ export type PlacementBlockedReason =
   | 'castleArchNeedsLand' // an arch's bases are attached: not on a wall top
   | 'pillarShapesDiffer' // square and triangle pillars do not stack
   | 'offMap' // part of the footprint is outside the map
+  | 'outOfHeight' // group member below ground or above the highest level
   | 'landTileNotOnHex' // canPlaceLandTileOnHex said no
   | 'notAHex' // the pointer handed over something that is not a hex
 
@@ -59,6 +61,8 @@ export const placementBlockedMessages: Partial<
   castleArchNeedsLand: 'A castle arch has its own bases; place it on land.',
   pillarShapesDiffer: 'Triangle and square pillars do not stack.',
   offMap: 'That piece would hang off the edge of the map.',
+  outOfHeight:
+    'Some pieces would end up below the ground or above the highest level.',
 }
 
 const isLaurPillarID = (id: string) =>
@@ -290,7 +294,10 @@ const PROBE_UID = 'placement-probe'
 export function evaluatePlacement(
   board: PlacementBoard,
   resolution: PlacementResolution,
-  { ignoreUID }: { ignoreUID?: IgnoredPieceUIDs } = {},
+  {
+    ignoreUID,
+    checkHeightBounds = false,
+  }: { ignoreUID?: IgnoredPieceUIDs; checkHeightBounds?: boolean } = {},
 ): PlacementEvaluation {
   if (isPlacementBlocked(resolution)) {
     return {
@@ -316,19 +323,30 @@ export function evaluatePlacement(
       reason: 'offMap',
     }
   }
-  // addPiece reads the hexes at the placement altitude (support) and writes
-  // at most a level up plus the piece's full clearance.
   const clearance = Math.max(
-    1,
     piece.height,
     ...(verticalObstructionTemplates[piece.id] ?? []),
   )
+  if (
+    checkHeightBounds &&
+    (altitude < 0 || altitude + clearance > HEXGRID_MAX_ALTITUDE)
+  ) {
+    return {
+      status: 'blocked',
+      displacedUIDs: [],
+      footprintHexes,
+      reason: 'outOfHeight',
+    }
+  }
+  // addPiece reads the hexes at the placement altitude (support) and writes
+  // at most a level up plus the piece's full clearance.
+  const probeClearance = Math.max(1, clearance)
   const ignoredUIDs = toIgnoredPieceUIDSet(ignoreUID)
   const localHexes: BoardHexes = {}
   for (const hexCoords of footprint) {
     for (
       let level = altitude;
-      level <= altitude + clearance + 2;
+      level <= altitude + probeClearance + 2;
       level += 0.5
     ) {
       const id = genBoardHexID({ ...hexCoords, altitude: level })
