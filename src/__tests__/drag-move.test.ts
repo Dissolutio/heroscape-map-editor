@@ -25,11 +25,15 @@ import {
 } from '../data/dragMove'
 import { piecesSoFar } from '../data/pieces'
 import getPieceTemplateCoords from '../data/rotationTransforms'
+import { verticalObstructionTemplates } from '../data/vertical-obstruction-templates'
 import { getViewingLevelAfterPlacing } from '../store/map-slice'
 import useBoundStore from '../store/store'
 import type { BoardHex, BoardPiece, CubeCoordinate } from '../types'
 import { PiecePrefixes } from '../types'
-import { CLICK_DRAG_TOLERANCE_PX } from '../utils/constants'
+import {
+  CLICK_DRAG_TOLERANCE_PX,
+  HEXGRID_MAX_ALTITUDE,
+} from '../utils/constants'
 import { cubeToPixel } from '../utils/hex-utils'
 import { getSubterrainSize } from '../world/models/LandSubterrainInstanced'
 import {
@@ -334,19 +338,30 @@ type GroupPieceSpec = {
   inventoryID: string
   q: number
   r: number
+  altitude?: number
   rotation?: number
+  permissive?: boolean
 }
 
 function groupBoard(specs: GroupPieceSpec[], size = 8): Board {
   let board: Board = makeTable(size)
-  for (const { uid, inventoryID, q, r, rotation = 0 } of specs) {
+  for (const {
+    uid,
+    inventoryID,
+    q,
+    r,
+    altitude = 0,
+    rotation = 0,
+    permissive = false,
+  } of specs) {
     const result = place({
       board,
       pieceID: inventoryID,
       at: { q, r, s: -q - r },
-      altitude: 0,
+      altitude,
       rotation,
       uid,
+      permissive,
     })
     expect(result.error).toBeUndefined()
     board = result.board
@@ -355,6 +370,100 @@ function groupBoard(specs: GroupPieceSpec[], size = 8): Board {
 }
 
 describe('multi-selection drag', () => {
+  it('blocks a group member dragged below altitude zero', () => {
+    const board = groupBoard([
+      { uid: 'LOW', inventoryID: 'g1', q: 1, r: 3 },
+      {
+        uid: 'HIGH',
+        inventoryID: 'g1',
+        q: 2,
+        r: 3,
+        altitude: 5,
+        permissive: true,
+      },
+    ])
+    const grabbed = board.boardPieces.find((bp) => bp.uid === 'HIGH')
+    const pointer = hexAt(board, { q: 3, r: 3, s: -6 }, 0)
+    if (!grabbed || !pointer) throw new Error('group fixture is incomplete')
+    const group = getDraggableSelectionGroup(
+      ['LOW', 'HIGH'],
+      'HIGH',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable group')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.g1,
+      grabbed,
+      pointer,
+      noOffset,
+      group,
+    )
+    const low = target.members.find((member) => member.uid === 'LOW')
+    if (!low) throw new Error('low member is missing')
+
+    expect(low.resolution).toMatchObject({ altitude: -5 })
+    expect(low.evaluation).toMatchObject({
+      status: 'blocked',
+      reason: 'outOfHeight',
+    })
+    expect(target.evaluation.status).toBe('blocked')
+    expect(decideDrop('HIGH', target)).toEqual({
+      type: 'cancel',
+      reason: 'outOfHeight',
+      message:
+        'Some pieces would end up below the ground or above the highest level.',
+    })
+  })
+
+  it('blocks a member whose vertical obstruction rises above the maximum', () => {
+    const board = groupBoard([
+      { uid: 'GRAB', inventoryID: 'g1', q: 1, r: 3 },
+      {
+        uid: 'GLACIER',
+        inventoryID: 'og4',
+        q: 4,
+        r: 3,
+        permissive: true,
+      },
+    ])
+    const grabbed = board.boardPieces.find((bp) => bp.uid === 'GRAB')
+    const surface = hexAt(board, { q: 1, r: 2, s: -3 }, 0)
+    if (!grabbed || !surface) throw new Error('group fixture is incomplete')
+    const pointer = { ...surface, altitude: 90 }
+    const group = getDraggableSelectionGroup(
+      ['GRAB', 'GLACIER'],
+      'GRAB',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable group')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.g1,
+      grabbed,
+      pointer,
+      noOffset,
+      group,
+    )
+    const glacier = target.members.find((member) => member.uid === 'GLACIER')
+    if (!glacier) throw new Error('glacier member is missing')
+
+    expect(glacier.resolution).toMatchObject({
+      altitude: 90,
+      piece: { height: 8 },
+    })
+    expect(glacier.evaluation).toMatchObject({
+      status: 'blocked',
+      reason: 'outOfHeight',
+    })
+    const clearance = Math.max(
+      piecesSoFar.og4.height,
+      ...(verticalObstructionTemplates.og4 ?? []),
+    )
+    expect(90 + clearance).toBeGreaterThan(HEXGRID_MAX_ALTITUDE)
+    expect(target.evaluation.status).toBe('blocked')
+  })
+
   it('starts only when the grabbed piece is in an all-draggable selection', () => {
     const draggable = [
       {

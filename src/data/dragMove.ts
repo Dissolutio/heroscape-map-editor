@@ -169,7 +169,8 @@ export type DragTargetMember = {
  * grabbed piece uses the pen resolver (including smart altitude), and the
  * remaining members keep their relative positions and rotations. Every
  * moving member is left out of placement checks. A target hanging off the
- * map evaluates as blocked (offMap) with its full footprint.
+ * map evaluates as blocked (offMap) with its full footprint; group members
+ * outside the altitude bounds evaluate as blocked (outOfHeight).
  */
 export function evaluateDragTarget(
   board: PlacementBoard,
@@ -186,13 +187,14 @@ export function evaluateDragTarget(
   ]
   const ignoredUIDs = members.map((member) => member.uid)
   // Like the pen hover, resolve a target that hangs off the map anyway, so
-  // its whole footprint shows; evaluatePlacement still blocks it (offMap).
+  // its whole footprint shows; evaluation blocks it (offMap).
   const resolution = resolvePlacement(piece, dropHex, bp.rotation, board, {
     ignoreUID: ignoredUIDs,
     deferOffMapCheck: true,
   })
   const evaluation = evaluatePlacement(board, resolution, {
     ignoreUID: ignoredUIDs,
+    checkHeightBounds: members.length > 1,
   })
   const grabbedCoords = isPlacementBlocked(resolution)
     ? dropHex
@@ -226,6 +228,7 @@ export function evaluateDragTarget(
         ? evaluation
         : evaluatePlacement(board, memberResolution, {
             ignoreUID: ignoredUIDs,
+            checkHeightBounds: members.length > 1,
           })
     const previewHex = isPlacementBlocked(memberResolution)
       ? { ...dropHex, altitude: member.altitude }
