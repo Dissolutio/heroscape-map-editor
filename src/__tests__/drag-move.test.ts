@@ -14,6 +14,7 @@ import {
   decideDrop,
   dragReducer,
   evaluateDragTarget,
+  getDraggableSelectionGroup,
   getDragPreview,
   getDropPointerHex,
   getGrabOffset,
@@ -38,6 +39,7 @@ import {
   makeTable,
   place,
 } from './helpers/board'
+import { commitMoveDecision } from '../world/drag/dragController'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 
@@ -326,6 +328,379 @@ function fixtureBoard() {
   return { board, rock }
 }
 const noOffset = { q: 0, r: 0, s: 0 }
+
+type GroupPieceSpec = {
+  uid: string
+  inventoryID: string
+  q: number
+  r: number
+  rotation?: number
+}
+
+function groupBoard(specs: GroupPieceSpec[], size = 8): Board {
+  let board: Board = makeTable(size)
+  for (const { uid, inventoryID, q, r, rotation = 0 } of specs) {
+    const result = place({
+      board,
+      pieceID: inventoryID,
+      at: { q, r, s: -q - r },
+      altitude: 0,
+      rotation,
+      uid,
+    })
+    expect(result.error).toBeUndefined()
+    board = result.board
+  }
+  return board
+}
+
+describe('multi-selection drag', () => {
+  it('starts only when the grabbed piece is in an all-draggable selection', () => {
+    const draggable = [
+      {
+        uid: 'A',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 1, r: 2, s: -3 },
+      },
+      {
+        uid: 'B',
+        inventoryID: 'r1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 2, r: 2, s: -4 },
+      },
+    ]
+    expect(getDraggableSelectionGroup(['A', 'B'], 'B', draggable)).toEqual(
+      draggable,
+    )
+    expect(
+      getDraggableSelectionGroup(['A', 'C'], 'A', [
+        ...draggable,
+        {
+          uid: 'C',
+          inventoryID: 'lws',
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: { q: 3, r: 2, s: -5 },
+        },
+      ]),
+    ).toBeNull()
+    expect(getDraggableSelectionGroup(['B'], 'A', draggable)).toBeNull()
+  })
+
+  it('applies one rigid delta to every member at all rotations', () => {
+    for (let rotation = 0; rotation < 6; rotation++) {
+      const board = groupBoard([
+        { uid: 'MULTI', inventoryID: 'g2', q: 1, r: 3, rotation },
+        { uid: 'OTHER', inventoryID: 'g1', q: 4, r: 3, rotation: 4 },
+      ])
+      const grabbed = board.boardPieces.find((bp) => bp.uid === 'MULTI')
+      const pointer = hexAt(board, { q: 1, r: 2, s: -3 }, 0)
+      if (!grabbed || !pointer) throw new Error('group fixture is incomplete')
+      const group = getDraggableSelectionGroup(
+        ['MULTI', 'OTHER'],
+        'MULTI',
+        board.boardPieces,
+      )
+      if (!group) throw new Error('expected draggable group')
+      const target = evaluateDragTarget(
+        board,
+        piecesSoFar.g2,
+        grabbed,
+        pointer,
+        noOffset,
+        group,
+      )
+
+      expect(target.evaluation.status).toBe('ok')
+      expect(target.members.map((member) => member.resolution)).toMatchObject([
+        {
+          coords: { q: 1, r: 2, s: -3 },
+          altitude: 0,
+          rotation,
+        },
+        {
+          coords: { q: 4, r: 2, s: -6 },
+          altitude: 0,
+          rotation: 4,
+        },
+      ])
+      const oldFootprint = getPieceTemplateCoords({
+        clickedHex: grabbed.pieceCoords,
+        rotation,
+        template: piecesSoFar.g2.template,
+        isVsTile: false,
+      })
+      const moved = target.members[0].resolution
+      if ('blocked' in moved) throw new Error('expected a placement')
+      const newFootprint = getPieceTemplateCoords({
+        clickedHex: moved.coords,
+        rotation: moved.rotation,
+        template: piecesSoFar.g2.template,
+        isVsTile: false,
+      })
+      expect(newFootprint).toEqual(
+        oldFootprint.map((hex) => ({
+          q: hex.q,
+          r: hex.r - 1,
+          s: hex.s + 1,
+        })),
+      )
+    }
+  })
+
+  it('keeps the grabbed multi-hex piece offset while shifting the group', () => {
+    const board = groupBoard([
+      { uid: 'MULTI', inventoryID: 'g2', q: 1, r: 3 },
+      { uid: 'OTHER', inventoryID: 'g1', q: 4, r: 3 },
+    ])
+    const grabbed = board.boardPieces.find((bp) => bp.uid === 'MULTI')
+    if (!grabbed) throw new Error('group fixture is incomplete')
+    const footprint = getPieceTemplateCoords({
+      clickedHex: grabbed.pieceCoords,
+      rotation: grabbed.rotation,
+      template: piecesSoFar.g2.template,
+      isVsTile: false,
+    })
+    const grabbedHex = footprint[1]
+    const pixel = cubeToPixel(grabbedHex)
+    const grabOffset = getGrabOffset(piecesSoFar.g2, grabbed, {
+      x: pixel.x,
+      z: pixel.y,
+    })
+    const destination = { q: 2, r: 2, s: -4 }
+    const pointerCoords = {
+      q: destination.q + grabOffset.q,
+      r: destination.r + grabOffset.r,
+      s: destination.s + grabOffset.s,
+    }
+    const pointer = hexAt(board, pointerCoords, 0)
+    if (!pointer) throw new Error('target fixture is off the map')
+    const group = getDraggableSelectionGroup(
+      ['MULTI', 'OTHER'],
+      'MULTI',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable group')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.g2,
+      grabbed,
+      pointer,
+      grabOffset,
+      group,
+    )
+
+    expect(target.members[0].resolution).toMatchObject({
+      coords: destination,
+      rotation: 0,
+    })
+    expect(target.members[0].evaluation.footprintHexes).toContainEqual(
+      expect.objectContaining(pointerCoords),
+    )
+    expect(target.members[1].resolution).toMatchObject({
+      coords: { q: 5, r: 2, s: -7 },
+    })
+  })
+
+  it('does not treat another moving member at its old spot as a conflict', () => {
+    const board = groupBoard([
+      { uid: 'A', inventoryID: 'g1', q: 1, r: 3 },
+      { uid: 'B', inventoryID: 'g1', q: 2, r: 3 },
+    ])
+    const grabbed = board.boardPieces.find((bp) => bp.uid === 'A')
+    const pointer = hexAt(board, { q: 2, r: 3, s: -5 }, 0)
+    if (!grabbed || !pointer) throw new Error('group fixture is incomplete')
+    const group = getDraggableSelectionGroup(['A', 'B'], 'A', board.boardPieces)
+    if (!group) throw new Error('expected draggable group')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.g1,
+      grabbed,
+      pointer,
+      noOffset,
+      group,
+    )
+
+    expect(target.evaluation.status).toBe('ok')
+    expect(target.evaluation.displacedUIDs).toEqual([])
+    expect(target.members.map((member) => member.evaluation.status)).toEqual([
+      'ok',
+      'ok',
+    ])
+    expect(target.members.map((member) => member.resolution)).toMatchObject([
+      { coords: { q: 2, r: 3, s: -5 } },
+      { coords: { q: 3, r: 3, s: -6 } },
+    ])
+  })
+
+  it('blocks the whole group when one member would hang off the map', () => {
+    const board = groupBoard(
+      [
+        { uid: 'A', inventoryID: 'g1', q: 2, r: 3 },
+        { uid: 'B', inventoryID: 'g1', q: 4, r: 3 },
+      ],
+      6,
+    )
+    const grabbed = board.boardPieces.find((bp) => bp.uid === 'A')
+    const pointer = hexAt(board, { q: 3, r: 3, s: -6 }, 0)
+    if (!grabbed || !pointer) throw new Error('group fixture is incomplete')
+    const group = getDraggableSelectionGroup(['A', 'B'], 'A', board.boardPieces)
+    if (!group) throw new Error('expected draggable group')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.g1,
+      grabbed,
+      pointer,
+      noOffset,
+      group,
+    )
+
+    expect(target.members.map((member) => member.evaluation.status)).toEqual([
+      'ok',
+      'blocked',
+    ])
+    expect(target.evaluation.status).toBe('blocked')
+    expect(decideDrop('A', target)).toEqual({
+      type: 'cancel',
+      reason: 'offMap',
+      message: 'That piece would hang off the edge of the map.',
+    })
+  })
+
+  it('uses blocked over conflict and conflict over ok for group status', () => {
+    const board = groupBoard(
+      [
+        { uid: 'A', inventoryID: 'g1', q: 1, r: 3 },
+        { uid: 'B', inventoryID: 'g1', q: 2, r: 3 },
+        { uid: 'C', inventoryID: 'g1', q: 4, r: 3 },
+        { uid: 'STATIONARY', inventoryID: 'g1', q: 3, r: 3 },
+      ],
+      6,
+    )
+    const grabbed = board.boardPieces.find((bp) => bp.uid === 'A')
+    const pointer = hexAt(board, { q: 2, r: 3, s: -5 }, 0)
+    if (!grabbed || !pointer) throw new Error('group fixture is incomplete')
+    const group = getDraggableSelectionGroup(
+      ['A', 'B', 'C'],
+      'A',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable group')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.g1,
+      grabbed,
+      pointer,
+      noOffset,
+      group,
+    )
+
+    expect(target.members.map((member) => member.evaluation.status)).toEqual([
+      'ok',
+      'conflict',
+      'blocked',
+    ])
+    expect(target.evaluation.status).toBe('blocked')
+  })
+
+  it('a stationary-piece conflict moves the group and is flagged in one undo step', () => {
+    const board = groupBoard([
+      { uid: 'A', inventoryID: 'g1', q: 1, r: 3 },
+      { uid: 'B', inventoryID: 'g1', q: 2, r: 3 },
+      { uid: 'STATIONARY', inventoryID: 'g1', q: 3, r: 3 },
+    ])
+    const grabbed = board.boardPieces.find((bp) => bp.uid === 'A')
+    const pointer = hexAt(board, { q: 2, r: 3, s: -5 }, 0)
+    if (!grabbed || !pointer) throw new Error('group fixture is incomplete')
+    const group = getDraggableSelectionGroup(['A', 'B'], 'A', board.boardPieces)
+    if (!group) throw new Error('expected draggable group')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.g1,
+      grabbed,
+      pointer,
+      noOffset,
+      group,
+    )
+    const decision = decideDrop('A', target)
+    if (decision.type !== 'move') throw new Error('expected a group move')
+
+    useBoundStore.setState({
+      boardHexes: board.boardHexes,
+      boardPieces: board.boardPieces,
+      conflictedPieceUIDs: [],
+      viewingLevel: 0,
+    })
+    useBoundStore.temporal.getState().clear()
+    const before = structuredClone({
+      boardHexes: useBoundStore.getState().boardHexes,
+      boardPieces: useBoundStore.getState().boardPieces,
+      viewingLevel: useBoundStore.getState().viewingLevel,
+    })
+    const movePieces = vi.spyOn(useBoundStore.getState(), 'movePieces')
+    commitMoveDecision(decision)
+
+    expect(target.evaluation.status).toBe('conflict')
+    expect(target.members[1].evaluation.displacedUIDs).toContain('STATIONARY')
+    expect(movePieces).toHaveBeenCalledTimes(1)
+    expect(movePieces).toHaveBeenCalledWith({ moves: decision.moves })
+    expect(useBoundStore.temporal.getState().pastStates).toHaveLength(1)
+    expect(useBoundStore.getState().conflictedPieceUIDs).toContain('STATIONARY')
+    expect(useBoundStore.getState().viewingLevel).toBe(1)
+
+    useBoundStore.temporal.getState().undo()
+    const undone = useBoundStore.getState()
+    expect({
+      boardHexes: undone.boardHexes,
+      boardPieces: undone.boardPieces,
+      viewingLevel: undone.viewingLevel,
+    }).toEqual(before)
+    movePieces.mockRestore()
+  })
+
+  it('a group preview adds no undo entry or autosave write', () => {
+    const board = groupBoard([
+      { uid: 'A', inventoryID: 'g1', q: 1, r: 3 },
+      { uid: 'B', inventoryID: 'g1', q: 2, r: 3 },
+    ])
+    const grabbed = board.boardPieces.find((bp) => bp.uid === 'A')
+    const pointer = hexAt(board, { q: 3, r: 3, s: -6 }, 0)
+    if (!grabbed || !pointer) throw new Error('group fixture is incomplete')
+    const group = getDraggableSelectionGroup(['A', 'B'], 'A', board.boardPieces)
+    if (!group) throw new Error('expected draggable group')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.g1,
+      grabbed,
+      pointer,
+      noOffset,
+      group,
+    )
+    const preview = getDragPreview(grabbed, target)
+
+    useBoundStore.setState({
+      boardHexes: board.boardHexes,
+      boardPieces: board.boardPieces,
+      conflictedPieceUIDs: [],
+      isDraggingPiece: false,
+      dragPreview: null,
+    })
+    useBoundStore.temporal.getState().clear()
+    const { boardPieces, boardHexes, hexMap } = useBoundStore.getState()
+    useBoundStore.getState().setDragState(true, preview)
+    useBoundStore.getState().setDragState(false, null)
+
+    expect(preview.members).toHaveLength(2)
+    expect(useBoundStore.temporal.getState().pastStates).toHaveLength(0)
+    const after = useBoundStore.getState()
+    expect(after.boardPieces).toBe(boardPieces)
+    expect(after.boardHexes).toBe(boardHexes)
+    expect(after.hexMap).toBe(hexMap)
+  })
+})
 
 describe('drag target and drop decision', () => {
   it('over its own start hex the rock resolves back where it is, and is ok', () => {

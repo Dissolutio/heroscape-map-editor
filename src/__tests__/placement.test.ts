@@ -214,6 +214,15 @@ describe('evaluatePlacement', () => {
     expect(moving.displacedUIDs).toEqual([])
   })
 
+  it('ignoreUID also accepts a set of moving pieces', () => {
+    const board = add(table, 'g7', c, 1, 0, 'G7')
+    const shifted = resolve(board, 'g7', topHex(board, east, 1), 0, 'G7')
+
+    expect(
+      evaluatePlacement(board, shifted, { ignoreUID: new Set(['G7']) }).status,
+    ).toBe('ok')
+  })
+
   it('a drop onto a stack uses the smart altitude and is ok', () => {
     let board: Board = makeTable(3)
     board = add(board, 'g1', { q: 0, r: 0, s: 0 }, 0)

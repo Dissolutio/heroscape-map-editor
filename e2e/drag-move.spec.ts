@@ -56,6 +56,22 @@ async function selectRock(page: Page) {
   return rock
 }
 
+async function shiftClickPiece(page: Page, uid: string) {
+  await waitForAppReady(page)
+  const position = await page.evaluate(
+    (id) => window.__TEST__?.screenPosOfPiece(id) ?? null,
+    uid,
+  )
+  if (!position) throw new Error(`Piece ${uid} is not on screen`)
+  await page
+    .locator('canvas')
+    .first()
+    .click({
+      position,
+      modifiers: ['Shift'],
+    })
+}
+
 /**
  * A left-drag over empty table at the lower left, as a user orbits the
  * camera (the lower right holds the selected-piece panel, over the canvas).
@@ -304,4 +320,54 @@ test('h. dropping a piece on a stack taller than the view raises the viewing lev
   await expect.poll(async () => (await piece(page, grass))?.altitude).toBe(3)
   // the grass now tops the stack at level 4, and the view follows it
   await expect.poll(async () => (await snapshot(page))?.viewingLevel).toBe(4)
+})
+
+test('i. drags a three-piece selection rigidly and one undo restores all three', async ({
+  page,
+}) => {
+  const group = await Promise.all([
+    findPieceUid(page, { inventoryID: 'g1', q: 0, r: 2 }),
+    findPieceUid(page, { inventoryID: 's1', q: 1, r: 3 }),
+    findPieceUid(page, { inventoryID: 'g1', q: 2, r: 2 }),
+  ])
+  await clickPiece(page, group[0])
+  await shiftClickPiece(page, group[1])
+  await shiftClickPiece(page, group[2])
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual(group)
+
+  const before = await page.evaluate(() => window.__TEST__?.listPieces())
+  const undoCountBefore = await undoCount(page)
+  const originals = group.map((uid) =>
+    before?.find((candidate) => candidate.uid === uid),
+  )
+  if (originals.some((piece) => !piece)) {
+    throw new Error('selected fixture pieces were not found')
+  }
+
+  await dragPiece(page, group[1], { q: 1, r: 1, altitude: 0 })
+  await expect
+    .poll(async () => {
+      const after = await page.evaluate(() => window.__TEST__?.listPieces())
+      return group.map(
+        (uid) => after?.find((candidate) => candidate.uid === uid)?.pieceCoords,
+      )
+    })
+    .toEqual([
+      { q: 0, r: 0, s: 0 },
+      { q: 1, r: 1, s: -2 },
+      { q: 2, r: 0, s: -2 },
+    ])
+  expect(await undoCount(page)).toBe(undoCountBefore + 1)
+
+  await undoButton(page).click()
+  await expect
+    .poll(async () => {
+      const after = await page.evaluate(() => window.__TEST__?.listPieces())
+      return group.map((uid) =>
+        after?.find((candidate) => candidate.uid === uid),
+      )
+    })
+    .toEqual(originals)
 })
