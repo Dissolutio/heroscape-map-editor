@@ -18,6 +18,7 @@ import {
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils'
 import { addPiece } from './addPiece'
+import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
 import getPieceTemplateCoords from './rotationTransforms'
 import { getSmartPlacementAltitude } from './smartPlacement'
 import { verticalObstructionTemplates } from './vertical-obstruction-templates'
@@ -108,7 +109,10 @@ export function resolvePlacement(
   pointerHex: BoardHex,
   rotation: number,
   board: PlacementBoard,
-  options: { ignoreUID?: string; deferOffMapCheck?: boolean } = {},
+  options: {
+    ignoreUID?: IgnoredPieceUIDs
+    deferOffMapCheck?: boolean
+  } = {},
 ): PlacementResolution {
   // e.g. ShipBow used to hand over `{}`; there is nothing to place on
   if (typeof pointerHex?.pieceID !== 'string') return { blocked: 'notAHex' }
@@ -149,7 +153,7 @@ function resolveByRule(
   pointerHex: BoardHex,
   rotation: number,
   { boardHexes, boardPieces }: PlacementBoard,
-  { ignoreUID }: { ignoreUID?: string },
+  { ignoreUID }: { ignoreUID?: IgnoredPieceUIDs },
 ): PlacementResolution {
   const hex = pointerHex
   const isCastleWallArchClicked =
@@ -280,13 +284,13 @@ const PROBE_UID = 'placement-probe'
  * strictly to check the rules, then permissively (as painting does) to see
  * what it displaces. It never replays the whole map.
  *
- * `ignoreUID` leaves a piece out of the probe, so a piece being moved does
- * not conflict with where it is now.
+ * `ignoreUID` leaves one or more moving pieces out of the probe, so a drag
+ * group does not conflict with its original positions.
  */
 export function evaluatePlacement(
   board: PlacementBoard,
   resolution: PlacementResolution,
-  { ignoreUID }: { ignoreUID?: string } = {},
+  { ignoreUID }: { ignoreUID?: IgnoredPieceUIDs } = {},
 ): PlacementEvaluation {
   if (isPlacementBlocked(resolution)) {
     return {
@@ -319,6 +323,7 @@ export function evaluatePlacement(
     piece.height,
     ...(verticalObstructionTemplates[piece.id] ?? []),
   )
+  const ignoredUIDs = toIgnoredPieceUIDSet(ignoreUID)
   const localHexes: BoardHexes = {}
   for (const hexCoords of footprint) {
     for (
@@ -328,13 +333,13 @@ export function evaluatePlacement(
     ) {
       const id = genBoardHexID({ ...hexCoords, altitude: level })
       const hex = board.boardHexes[id]
-      if (hex && (!ignoreUID || hex.boardPieceUID !== ignoreUID)) {
+      if (hex && !ignoredUIDs.has(hex.boardPieceUID ?? '')) {
         localHexes[id] = hex
       }
     }
   }
-  const boardPieces = ignoreUID
-    ? board.boardPieces.filter((bp) => bp.uid !== ignoreUID)
+  const boardPieces = ignoredUIDs.size
+    ? board.boardPieces.filter((bp) => !ignoredUIDs.has(bp.uid))
     : board.boardPieces
   const args = {
     piece,

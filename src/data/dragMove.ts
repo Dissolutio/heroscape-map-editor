@@ -3,11 +3,15 @@ import { HexTerrain } from '../types'
 import { CLICK_DRAG_TOLERANCE_PX, HEXGRID_HEX_RADIUS } from '../utils/constants'
 import { cubeToPixel } from '../utils/hex-utils'
 import { genBoardHexID } from '../utils/map-utils'
+import { piecesSoFar } from './pieces'
+import type { IgnoredPieceUIDs } from './ignoredPieceUIDs'
+import type { MovePieceArgs } from './movePieces'
 import {
   type PlacementBlockedReason,
   type PlacementBoard,
   type PlacementEvaluation,
   type PlacementResolution,
+  type ResolvedPlacement,
   evaluatePlacement,
   isPlacementBlocked,
   placementBlockedMessages,
@@ -16,9 +20,9 @@ import {
 import getPieceTemplateCoords from './rotationTransforms'
 
 /**
- * Drag-to-move for a piece already on the board: the pure parts (which
- * pieces may be dragged, the press/drag/drop state machine, the grab offset
- * and the drop decision). The pointer and camera wiring lives in
+ * Drag-to-move for selected pieces already on the board: the pure parts
+ * (which pieces may be dragged, the press/drag/drop state machine, the grab
+ * offset and the drop decision). Pointer and camera wiring lives in
  * world/drag/dragController.ts.
  */
 
@@ -39,6 +43,27 @@ const NOT_DRAGGABLE_TERRAINS: string[] = [
 
 export const isDraggablePiece = (piece: Piece | undefined): piece is Piece =>
   !!piece && !NOT_DRAGGABLE_TERRAINS.includes(piece.terrain)
+
+/** The selected members may move together only if all of them can move. */
+export function getDraggableSelectionGroup(
+  selectedPieceIDs: string[],
+  grabbedUID: string,
+  boardPieces: BoardPiece[],
+): BoardPiece[] | null {
+  if (!selectedPieceIDs.length || !selectedPieceIDs.includes(grabbedUID)) {
+    return null
+  }
+  const seen = new Set<string>()
+  const group: BoardPiece[] = []
+  for (const uid of selectedPieceIDs) {
+    if (seen.has(uid)) return null
+    seen.add(uid)
+    const bp = boardPieces.find((piece) => piece.uid === uid)
+    if (!bp || !isDraggablePiece(piecesSoFar[bp.inventoryID])) return null
+    group.push(bp)
+  }
+  return group
+}
 
 /** The hex (cube coordinates) under a point on the ground plane. */
 export function worldToCube(x: number, z: number): CubeCoordinate {
@@ -127,14 +152,24 @@ export type DragTarget = {
   pointerHex: BoardHex
   resolution: PlacementResolution
   evaluation: PlacementEvaluation
+  members: DragTargetMember[]
+}
+
+export type DragTargetMember = {
+  uid: string
+  bp: BoardPiece
+  piece: Piece
+  resolution: PlacementResolution
+  evaluation: PlacementEvaluation
+  previewHex: CubeCoordinate & { altitude: number }
 }
 
 /**
- * Where the dragged piece would land with the pointer on `pointerHex`: the
- * same resolver and evaluator as pen placement (smart altitude included),
- * leaving the piece itself out so it does not collide with where it is now.
- * It keeps its rotation. A target hanging off the map evaluates as blocked
- * (offMap) with its full footprint, off-map hexes included.
+ * Where the dragged group would land with the pointer on `pointerHex`: the
+ * grabbed piece uses the pen resolver (including smart altitude), and the
+ * remaining members keep their relative positions and rotations. Every
+ * moving member is left out of placement checks. A target hanging off the
+ * map evaluates as blocked (offMap) with its full footprint.
  */
 export function evaluateDragTarget(
   board: PlacementBoard,
@@ -142,18 +177,102 @@ export function evaluateDragTarget(
   bp: BoardPiece,
   pointerHex: BoardHex,
   grabOffset: CubeCoordinate,
+  movingPieces: BoardPiece[] = [bp],
 ): DragTarget {
   const dropHex = getDropPointerHex(pointerHex, grabOffset, board.boardHexes)
+  const members = [
+    bp,
+    ...movingPieces.filter((member) => member.uid !== bp.uid),
+  ]
+  const ignoredUIDs = members.map((member) => member.uid)
   // Like the pen hover, resolve a target that hangs off the map anyway, so
   // its whole footprint shows; evaluatePlacement still blocks it (offMap).
   const resolution = resolvePlacement(piece, dropHex, bp.rotation, board, {
-    ignoreUID: bp.uid,
+    ignoreUID: ignoredUIDs,
     deferOffMapCheck: true,
   })
   const evaluation = evaluatePlacement(board, resolution, {
-    ignoreUID: bp.uid,
+    ignoreUID: ignoredUIDs,
   })
-  return { pointerHex, resolution, evaluation }
+  const grabbedCoords = isPlacementBlocked(resolution)
+    ? dropHex
+    : resolution.coords
+  const delta = subtract(grabbedCoords, bp.pieceCoords)
+  const altitudeDelta = isPlacementBlocked(resolution)
+    ? 0
+    : resolution.altitude - bp.altitude
+
+  const targetMembers: DragTargetMember[] = []
+  for (const member of members) {
+    const memberPiece =
+      member.uid === bp.uid ? piece : piecesSoFar[member.inventoryID]
+    if (!memberPiece) continue
+    const memberResolution: PlacementResolution =
+      member.uid === bp.uid
+        ? resolution
+        : ({
+            piece: memberPiece,
+            coords: {
+              q: member.pieceCoords.q + delta.q,
+              r: member.pieceCoords.r + delta.r,
+              s: member.pieceCoords.s + delta.s,
+            },
+            altitude: member.altitude + altitudeDelta,
+            rotation: member.rotation,
+            rule: 'default',
+          } satisfies ResolvedPlacement)
+    const memberEvaluation =
+      member.uid === bp.uid
+        ? evaluation
+        : evaluatePlacement(board, memberResolution, {
+            ignoreUID: ignoredUIDs,
+          })
+    const previewHex = isPlacementBlocked(memberResolution)
+      ? { ...dropHex, altitude: member.altitude }
+      : {
+          ...memberResolution.coords,
+          altitude: memberResolution.altitude,
+        }
+    targetMembers.push({
+      uid: member.uid,
+      bp: member,
+      piece: memberPiece,
+      resolution: memberResolution,
+      evaluation: memberEvaluation,
+      previewHex,
+    })
+  }
+
+  const status = targetMembers.some(
+    (member) => member.evaluation.status === 'blocked',
+  )
+    ? 'blocked'
+    : targetMembers.some((member) => member.evaluation.status === 'conflict')
+      ? 'conflict'
+      : 'ok'
+  const worstMember = targetMembers.find(
+    (member) => member.evaluation.status === status,
+  )
+  const combinedEvaluation: PlacementEvaluation = {
+    status,
+    displacedUIDs: [
+      ...new Set(
+        targetMembers.flatMap((member) => member.evaluation.displacedUIDs),
+      ),
+    ],
+    footprintHexes: targetMembers.flatMap(
+      (member) => member.evaluation.footprintHexes,
+    ),
+    ...(worstMember?.evaluation.reason
+      ? { reason: worstMember.evaluation.reason }
+      : {}),
+  }
+  return {
+    pointerHex,
+    resolution,
+    evaluation: combinedEvaluation,
+    members: targetMembers,
+  }
 }
 
 export type DropDecision =
@@ -163,6 +282,7 @@ export type DropDecision =
       newPieceCoords: CubeCoordinate
       newAltitude: number
       newRotation: number
+      moves?: MovePieceArgs[]
     }
   | {
       type: 'cancel'
@@ -173,9 +293,9 @@ export type DropDecision =
     }
 
 /**
- * What a drop does: ok and conflict move the piece (a conflict displaces
- * and flags, like click placement), blocked cancels with the refusal's
- * message, and no target (never over the map) cancels silently.
+ * What a drop does: ok and conflict move the piece or group (a conflict
+ * displaces and flags, like click placement), blocked cancels with the
+ * refusal's message, and no target (never over the map) cancels silently.
  */
 export function decideDrop(
   uid: string,
@@ -190,12 +310,31 @@ export function decideDrop(
     const message = placementBlockedMessages[reason as PlacementBlockedReason]
     return { type: 'cancel', reason, ...(message ? { message } : {}) }
   }
+  const primary = isPlacementBlocked(resolution)
+    ? null
+    : {
+        uid,
+        newPieceCoords: resolution.coords,
+        newAltitude: resolution.altitude,
+        newRotation: resolution.rotation,
+      }
+  const moves = target.members.flatMap((member) =>
+    isPlacementBlocked(member.resolution)
+      ? []
+      : [
+          {
+            uid: member.uid,
+            newPieceCoords: member.resolution.coords,
+            newAltitude: member.resolution.altitude,
+            newRotation: member.resolution.rotation,
+          },
+        ],
+  )
+  if (!primary) return { type: 'cancel', reason: 'blocked' }
   return {
     type: 'move',
-    uid,
-    newPieceCoords: resolution.coords,
-    newAltitude: resolution.altitude,
-    newRotation: resolution.rotation,
+    ...primary,
+    ...(target.members.length > 1 ? { moves } : {}),
   }
 }
 
@@ -325,6 +464,17 @@ export type DragPreview = {
   footprintHexes: PlacementEvaluation['footprintHexes']
   /** The piece where it would land, or null when it cannot land. */
   previewBp: BoardPiece | null
+  /** Per-piece status and ghost data for a multi-selection drag. */
+  members?: DragPreviewMember[]
+}
+
+export type DragPreviewMember = {
+  uid: string
+  pointerHex: CubeCoordinate & { altitude: number }
+  status: PlacementEvaluation['status']
+  reason: string | null
+  footprintHexes: PlacementEvaluation['footprintHexes']
+  previewBp: BoardPiece | null
 }
 
 /** The preview for a drag target (or for no target yet). */
@@ -344,6 +494,15 @@ export function getDragPreview(
   }
   const { pointerHex, resolution, evaluation } = target
   const { q, r, s, altitude } = pointerHex
+  const previewBPFor = (member: DragTargetMember): BoardPiece | null =>
+    isPlacementBlocked(member.resolution)
+      ? null
+      : {
+          ...member.bp,
+          pieceCoords: member.resolution.coords,
+          altitude: member.resolution.altitude,
+          rotation: member.resolution.rotation,
+        }
   return {
     uid: bp.uid,
     pointerHex: { q, r, s, altitude },
@@ -358,5 +517,13 @@ export function getDragPreview(
           altitude: resolution.altitude,
           rotation: resolution.rotation,
         },
+    members: target.members.map((member) => ({
+      uid: member.uid,
+      pointerHex: member.previewHex,
+      status: member.evaluation.status,
+      reason: member.evaluation.reason ?? null,
+      footprintHexes: member.evaluation.footprintHexes,
+      previewBp: previewBPFor(member),
+    })),
   }
 }

@@ -3,6 +3,7 @@ import type { RootState, ThreeEvent } from '@react-three/fiber'
 import { enqueueSnackbar } from 'notistack'
 import type React from 'react'
 import {
+  type DropDecision,
   type DragCancelReason,
   type DragEvent,
   type DragState,
@@ -10,6 +11,7 @@ import {
   decideDrop,
   dragReducer,
   evaluateDragTarget,
+  getDraggableSelectionGroup,
   getDragPreview,
   getGrabOffset,
   initialDragState,
@@ -25,7 +27,7 @@ import { genBoardHexID } from '../../utils/map-utils'
 /**
  * Drag-to-move wiring: turns pointer events into the pure state machine in
  * data/dragMove.ts, locks the camera while a piece is pressed, updates the
- * drag preview in the store, and commits the drop with movePiece (one undo
+ * drag preview in the store, and commits the drop with movePieces (one undo
  * step). One module, because a drag outlives the mesh it started on.
  *
  * Pieces call `pressPieceForDrag` from onPointerDown and
@@ -34,7 +36,11 @@ import { genBoardHexID } from '../../utils/map-utils'
  */
 
 let state: DragState = initialDragState
-let dragged: { bp: BoardPiece; target: DragTarget | null } | null = null
+let dragged: {
+  bp: BoardPiece
+  members: BoardPiece[]
+  target: DragTarget | null
+} | null = null
 let targetKey = ''
 let cameraControlsRef: React.RefObject<CameraControls> | null = null
 let getR3F: (() => RootState) | null = null
@@ -207,9 +213,9 @@ function unlisten() {
 
 /**
  * onPointerDown on any rendering of a placed piece. Starts a press only
- * for the one selected, draggable piece in select mode with the left
- * button; otherwise the press is today's (the camera may orbit). Always
- * stops propagation so only the front-most piece decides.
+ * for the selected draggable piece(s) in select mode with the left button;
+ * otherwise the press is today's (the camera may orbit). Always stops
+ * propagation so only the front-most piece decides.
  */
 export function pressPieceForDrag(
   event: ThreeEvent<PointerEvent>,
@@ -219,14 +225,15 @@ export function pressPieceForDrag(
   if (!uid || event.button !== 0 || state.phase !== 'idle') return
   const { penMode, selectedPieceIDs, boardPieces } = useBoundStore.getState()
   if (penMode !== SELECT_PEN_MODE) return
-  if (selectedPieceIDs.length !== 1 || selectedPieceIDs[0] !== uid) return
-  const bp = boardPieces.find((piece) => piece.uid === uid)
+  const members = getDraggableSelectionGroup(selectedPieceIDs, uid, boardPieces)
+  if (!members) return
+  const bp = members.find((piece) => piece.uid === uid)
   const piece = bp && piecesSoFar[bp.inventoryID]
   if (!bp || !isDraggablePiece(piece)) return
 
   lockCamera()
   stopSwallowingClicks()
-  dragged = { bp, target: null }
+  dragged = { bp, members, target: null }
   targetKey = ''
   dispatch({
     type: 'press',
@@ -244,7 +251,9 @@ export const isDragging = () => state.phase === 'dragging'
 
 /** Whether a hover on this piece should be ignored (not stopped). */
 export const isDragPassThrough = (uid: string | undefined) =>
-  state.phase === 'dragging' && !!uid && uid === dragged?.bp.uid
+  state.phase === 'dragging' &&
+  !!uid &&
+  !!dragged?.members.some((member) => member.uid === uid)
 
 /**
  * onPointerMove on a hex surface (cap, table hex, castle top, a piece's
@@ -258,7 +267,9 @@ export function reportDragTargetHex(
   ownerUID = hex?.boardPieceUID,
 ): boolean {
   if (state.phase !== 'dragging' || !dragged || !hex) return false
-  if (ownerUID && ownerUID === dragged.bp.uid) return false
+  if (ownerUID && dragged.members.some((member) => member.uid === ownerUID)) {
+    return false
+  }
   hitThisMove = true
   if (hex.id !== targetKey) setTarget(hex)
   return true
@@ -300,6 +311,7 @@ function setTarget(hex: BoardHex | null) {
     dragged.bp,
     hex,
     grabOffset,
+    dragged.members,
   )
   setPreview(dragged.target)
 }
@@ -311,12 +323,25 @@ function setPreview(target: DragTarget | null) {
     .setDragState(true, getDragPreview(dragged.bp, target))
 }
 
+export function commitMoveDecision(
+  decision: Extract<DropDecision, { type: 'move' }>,
+) {
+  const moves = decision.moves ?? [
+    {
+      uid: decision.uid,
+      newPieceCoords: decision.newPieceCoords,
+      newAltitude: decision.newAltitude,
+      newRotation: decision.newRotation,
+    },
+  ]
+  useBoundStore.getState().movePieces({ moves })
+}
+
 function drop(target: DragTarget | null) {
   if (!dragged) return
   const decision = decideDrop(dragged.bp.uid, target)
   if (decision.type === 'move') {
-    const { type: _type, ...args } = decision
-    useBoundStore.getState().movePiece(args)
+    commitMoveDecision(decision)
     return
   }
   if (decision.message) {

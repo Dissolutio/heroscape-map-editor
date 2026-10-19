@@ -56,11 +56,11 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   (`status`, `reason`, and `footprintCount`, or `null`), and `drag`: a piece
   press or drag in progress, or `null` (`state` is `'pressed'` or
   `'dragging'`; `targetStatus` is the drop's `'ok'`, `'conflict'` or
-  `'blocked'`, or `null` with no target; `reason`; `footprintCount`, the
-  hexes in the target footprint, off-map ones included (a target hanging off
-  the map is `blocked`/`offMap` with its full footprint); `targetHex`, the hex
-  under
-  the pointer, `{ q, r, s, altitude }` or `null`).
+  `'blocked'`, or `null` with no target; for a multi-selection it is the
+  worst member status; `reason`; `footprintCount`, the total hexes in all
+  target footprints, off-map ones included (a target hanging off the map is
+  `blocked`/`offMap` with its full footprint); `targetHex`, the hex under the
+  pointer, `{ q, r, s, altitude }` or `null`).
 - `window.__TEST__.listPieces()`: every placed piece (`uid`, `inventoryID`,
   `altitude`, `rotation`, `pieceCoords`). **uids are random on every load**:
   find pieces by `inventoryID` and coordinates (`findPieceUid` in
@@ -96,10 +96,11 @@ To drag a piece, use `dragPiece(page, uid, { q, r, altitude })` from
 `e2e/fixtures.ts`: it presses at `screenPosOfPiece`, moves in several steps
 past the 5 px click tolerance, and releases at `screenPosOfHex`.
 `startDrag` does the same without releasing (for Esc, or to read
-`snapshot().drag` mid-drag; finish with `page.mouse.up()`). Only the one
-selected piece drags, in select mode; a drag that starts anywhere else orbits
-the camera. While dragging, the dragged piece is see-through to the pointer,
-so `drag.targetHex` over its own spot is the hex under it.
+`snapshot().drag` mid-drag; finish with `page.mouse.up()`). The one selected
+piece or an all-draggable selected group drags, in select mode; a drag that
+starts anywhere else or with a non-draggable member orbits the camera. While
+dragging, the moving pieces are see-through to the pointer, so
+`drag.targetHex` over their own spots is the hex under them.
 
 Things that decide what a click does:
 
