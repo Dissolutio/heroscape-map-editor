@@ -6,13 +6,12 @@ import { useLocation, useSearch } from 'wouter'
 import { ROUTES } from '../ROUTES'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { parseMapDataArrayFromCrushed } from '../data/jsonCrush'
+import { readMapFromLocalStorage } from '../local-storage/get-local-item'
 import { LS_KEYS } from '../local-storage/keys'
+import { safeRemove } from '../local-storage/safeStorage'
 import useBoundStore from '../store/store'
 import { genRandomMapName } from '../utils/genRandomMapName'
-import {
-  inflateBoardPiecesFromIds,
-  normalizeBoardPieces,
-} from '../utils/map-utils'
+import { normalizeBoardPiecesWithDropped } from '../utils/map-utils'
 import {
   getMapShareUrlParams,
   getViewModeFromQueryParam,
@@ -51,20 +50,24 @@ const useAutoLoadMapFile = () => {
     const { m: urlMapString, v: viewModeParam } =
       getMapShareUrlParams(searchString)
     applyViewModeFromQuery(viewModeParam)
-    const isLocal = localStorage.getItem(LS_KEYS.lastMapCache)
-    const localMapCache = isLocal ? JSON.parse(isLocal) : undefined
-    const localMapCacheMapState = localMapCache
+    safeRemove('hotkeyConfig')
+    safeRemove('terrainConstraintState')
+    safeRemove('lastMapCache')
+    const localMap = readMapFromLocalStorage(LS_KEYS.lastMap)
+    const localMapState = localMap
       ? buildupJsonFileMap(
-          normalizeBoardPieces(localMapCache.boardPieces),
-          localMapCache.hexMap,
+          localMap.map.boardPieces,
+          localMap.map.hexMap,
+          localMap.droppedPieces,
         )
       : undefined
     const loadMapWithoutUndo = (
       mapState: ReturnType<typeof buildupJsonFileMap>,
+      holdAutosave = true,
     ) => {
       const temporal = useBoundStore.temporal.getState()
       temporal.pause()
-      loadMap(mapState)
+      loadMap(mapState, { holdAutosave })
       temporal.clear()
       temporal.resume()
     }
@@ -73,10 +76,14 @@ const useAutoLoadMapFile = () => {
       try {
         const { hexMap, boardPiecesEncodedArr } =
           parseMapDataArrayFromCrushed(urlMapString)
-        const inflatedBoardPieces = inflateBoardPiecesFromIds(
+        const normalizedPieces = normalizeBoardPiecesWithDropped(
           boardPiecesEncodedArr,
         )
-        const jsonMap = buildupJsonFileMap(inflatedBoardPieces, hexMap)
+        const jsonMap = buildupJsonFileMap(
+          normalizedPieces.boardPieces,
+          hexMap,
+          normalizedPieces.droppedPieces,
+        )
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = genRandomMapName()
         }
@@ -84,17 +91,17 @@ const useAutoLoadMapFile = () => {
         if (!import.meta.env.DEV) {
           const action = (snackbarId: SnackbarKey) => (
             <>
-              {localMapCacheMapState ? (
+              {localMapState ? (
                 <Button
                   color="info"
                   variant="contained"
                   onClick={() => {
                     // load last map instead, close original snackbar, open a new one, remove map from URL bar
-                    loadMapWithoutUndo(localMapCacheMapState)
-                    warnAboutLoadedMap(enqueueSnackbar, localMapCacheMapState)
+                    loadMapWithoutUndo(localMapState, false)
+                    warnAboutLoadedMap(enqueueSnackbar, localMapState)
                     closeSnackbar(snackbarId)
                     enqueueSnackbar({
-                      message: `Loaded last map instead: ${localMapCacheMapState.hexMap.name}`,
+                      message: `Loaded last map instead: ${localMapState.hexMap.name}`,
                       variant: 'success',
                     })
                     navigate(ROUTES.heroscapeHome)
@@ -137,13 +144,13 @@ const useAutoLoadMapFile = () => {
         console.error('🚀 ~ React.useEffect ~ error:', error)
         return
       }
-    } else if (localMapCacheMapState) {
-      loadMapWithoutUndo(localMapCacheMapState)
+    } else if (localMapState) {
+      loadMapWithoutUndo(localMapState)
       enqueueSnackbar({
-        message: `Loaded last map: ${localMapCache.hexMap.name}`,
+        message: `Loaded last map: ${localMapState.hexMap.name}`,
         variant: 'success',
       })
-      warnAboutLoadedMap(enqueueSnackbar, localMapCacheMapState)
+      warnAboutLoadedMap(enqueueSnackbar, localMapState)
     } else {
       // No url and no prev state? auto load a file
 
@@ -170,9 +177,13 @@ const useAutoLoadMapFile = () => {
       fetch(fileName).then(async (response) => {
         const data = await response.json()
 
+        const normalizedPieces = normalizeBoardPiecesWithDropped(
+          data.boardPieces,
+        )
         const jsonMap = buildupJsonFileMap(
-          normalizeBoardPieces(data.boardPieces),
+          normalizedPieces.boardPieces,
           data.hexMap,
+          normalizedPieces.droppedPieces,
         )
         if (!jsonMap.hexMap.name) {
           jsonMap.hexMap.name = fileName

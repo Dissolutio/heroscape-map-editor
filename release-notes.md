@@ -1,3 +1,20 @@
+Oct-18-2026
+TLDR: Click and drag *most* pieces, including multi-selected pieces. Better piece previews. Saved user settings.
+
+- **Desktop App: fullscreen no longer crashes**: Clicking "Enter fullscreen" in the desktop app crashed it. Now it makes the app window fullscreen, and "Exit fullscreen" brings it back.
+- **Auto zoom to the map, every time**: This was happening sometimes, now it should always work
+- **Drag a piece to move it**: Drag and drop a piece once it is selected. (Works on most pieces: not laur wall stuff, ladders, battlements, roadwalls)
+- **Drag several pieces together**: You can drag your multi-selected pieces. (Unless one is unsupported)
+- **Preview before you place**: Hovering with the pen shows a green / orange / red footprint for where a piece would go
+- **Placement rules match the real pieces**: Only a castle wall bottom or wall walk connects to the top of a castle wall; battlements, road walls and rope ladders can't go on a castle wall; a castle arch must be placed on land; triangle and square Laur pillars can't stack on each other; Laur wall add-ons need a pillar and can't go on a castle wall. Placing a piece so it hangs off the edge of the map is blocked with a message instead of half-working.
+- **Ships**: Placing a ship bow near the map edge no longer crashes. The section on the bow/wall that wasn't highlighting correctly, does now.
+- **Lingering preview pollution**: The ghost preview could tint the real pieces' colors. Fixed.
+- **Map autosaves**: Our localStorage strategy looked like it was written by a Nagrub and threw errors like it was Jotun. It's way smarter now.
+- **Remembers your settings**: Your settings, your pen mode and size, and light positions are remembered between visits (this replaces the earlier note that light positions weren't saved after reloading). New **Reset settings** and **Reset lights** buttons put them back.
+- **Skipped pieces are reported when you load a map**: Maps with pieces this version doesn't know (for example from a newer version, or a Virtualscape file with unmapped codes) now load without them and show one warning listing what was skipped, instead of crashing or silently dropping them.
+- **Crash reports**: The crash report dialog is now a simple anonymous feedback form. It used to ask for your name and email, which was a weird default.
+- **Under the hood**: Dependency security fixes (build tools and the desktop updater's TLS library), a much larger automated test suite, and browser tests that run on every pull request.
+
 Oct-17-2026
 - **Altitude Smart Placement**: When you go to place a multi-hex piece, if it can't fit on that level, the app will check all the levels above it to see if it fits there.
 - **Light controls and remembered positions**: With lights and shadows enabled, use the new **Show Light Controls** toggle in the View tab to hide the repositioning handles without changing the lighting. Moved lights keep their positions when lighting is turned off and back on during the current session; positions are not saved in map files or restored after reloading the app.

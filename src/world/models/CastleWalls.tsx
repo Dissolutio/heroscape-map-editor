@@ -3,12 +3,12 @@ import React from 'react'
 import { Vector3 } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
+import { isDragPassThrough } from '../drag/dragController'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import {
   HEXGRID_HEX_HEIGHT,
   PIECE_PREVIEW_OPACITY,
 } from '../../utils/constants'
-import { genBoardHexID } from '../../utils/map-utils'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
@@ -25,7 +25,6 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
     hexTerrainColor[HexTerrain.castleWall],
   )
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
-  const boardHexes = useBoundStore((s) => s.boardHexes)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const isLightsAndShadowsRender = useBoundStore(
@@ -44,15 +43,11 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
   const color = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.castleWall]
-  const boardHexIdOfCapForWall = genBoardHexID({
-    ...boardHex,
-    altitude: boardHex.altitude + (boardHex?.obstacleHeight ?? 0),
-  })
-  const boardHexCap = boardHexes[boardHexIdOfCapForWall]
   const onPointerEnterCap = (e: ThreeEvent<PointerEvent>) => {
+    // the pointer sees through a wall being dragged
+    if (isDragPassThrough(boardHex.boardPieceUID)) return
     setCapColor('yellow')
-    // toggleHoveredHex(boardHexCap)
-    onPointerEnter(e, boardHexCap)
+    onPointerEnter(e, boardHex)
     e.stopPropagation()
   }
   const onPointerOutCap = (e: ThreeEvent<PointerEvent>) => {

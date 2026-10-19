@@ -1,6 +1,7 @@
 import type { ThreeEvent } from '@react-three/fiber'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
+import { isDragPassThrough } from '../drag/dragController'
 import { type BoardHex, HexTerrain, Pieces } from '../../types'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
@@ -41,6 +42,8 @@ export default function CastleBase({ boardHex, onPointerUp }: Props) {
     ? yellowColor
     : hexTerrainColor[HexTerrain.castleBase]
   const onPointerEnterCap = (e: ThreeEvent<PointerEvent>) => {
+    // the pointer sees through a base being dragged
+    if (isDragPassThrough(boardHex.boardPieceUID)) return
     e.stopPropagation()
     onPointerEnter(e, boardHex)
   }

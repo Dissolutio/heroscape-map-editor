@@ -11,6 +11,7 @@ import 'react-image-crop/dist/ReactCrop.css'
 import { useSnackbar } from 'notistack'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import useBoundStore from '../store/store'
+import { downscaleMapPortrait } from '../utils/mapPortrait'
 import { clearMapShareUrlParams } from '../utils/mapShareUrl'
 import {
   InputSetsUsedCard,
@@ -45,12 +46,18 @@ export default function EditMapFormDialog() {
   )
   const isEditMapDialogOpen =
     useBoundStore((state) => state.currentDialog) === DIALOGS.editMap
-  const handleClose = () => toggleIsEditMapDialogOpen(false)
+  const handleClose = () => {
+    if (!isSaving) toggleIsEditMapDialogOpen(false)
+  }
   const { enqueueSnackbar } = useSnackbar()
   const [newName, setNewName] = React.useState(mapName)
   const [newAuthor, setNewAuthor] = React.useState(authorName)
-  const handleSubmitEditMapForm = (event: React.FormEvent<HTMLFormElement>) => {
+  const [isSaving, setIsSaving] = React.useState(false)
+  const handleSubmitEditMapForm = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault()
+    if (isSaving) return
     const formData = new FormData(event.currentTarget)
     // biome-ignore lint/suspicious/noExplicitAny: <form data not well understood>
     const formJson = Object.fromEntries((formData as any).entries())
@@ -69,12 +76,29 @@ export default function EditMapFormDialog() {
     }
     const newSetsUsed =
       terrainConstraintSource === 'setsUsed' ? getSetsUsedFormData() : []
+    let portrait = imgSrc
+    if (imgSrc && imgSrc !== mapPortraitBase64) {
+      setIsSaving(true)
+      try {
+        portrait = await downscaleMapPortrait(imgSrc)
+      } catch (error) {
+        console.error('Failed processing map portrait', error)
+        enqueueSnackbar({
+          message:
+            'Could not process the map portrait. Please try another image.',
+          variant: 'error',
+        })
+        return
+      } finally {
+        setIsSaving(false)
+      }
+    }
     changeMapName(newMapName)
     changeAuthorName(newAuthorName)
     changeMapNotes(newMapNotes)
     changeSetsUsed(newSetsUsed)
     syncTerrainConstraintPenMode()
-    addMapPortraitBase64(imgSrc)
+    addMapPortraitBase64(portrait)
     clearMapShareUrlParams()
     enqueueSnackbar({
       message: 'Updated Map',
@@ -201,8 +225,12 @@ export default function EditMapFormDialog() {
         <ReactCropExampleApp imgSrc={imgSrc} setImgSrc={setImgSrc} />
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button type="submit">Submit</Button>
+        <Button onClick={handleClose} disabled={isSaving}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSaving}>
+          Submit
+        </Button>
       </DialogActions>
     </Dialog>
   )

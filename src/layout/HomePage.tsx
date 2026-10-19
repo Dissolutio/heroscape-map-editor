@@ -9,12 +9,8 @@ import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
 import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 import useBoundStore from '../store/store'
-import { zoomToMap } from '../utils/camera-utils'
 import { lazyWithRetry } from '../utils/lazyWithRetry'
-import {
-  getBoardHexesRectangularMapDimensions,
-  getBoardPiecesMaxLevel,
-} from '../utils/map-utils'
+import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 import { ControlTabs } from './ControlTabs'
 import CreateMapFormDialog from './CreateMapFormDialog'
 import EditMapFormDialog from './EditMapFormDialog'
@@ -43,7 +39,6 @@ export default function HomePage() {
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
   const controlsContainerRef = React.useRef(null)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces, boardHexes)
-  const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
 
   // MUI BREAKPOINTS
   //   xs, extra-small: 0px
@@ -64,20 +59,11 @@ export default function HomePage() {
     }
   }, [hexMap.name])
 
-  // USE EFFECT: zoom to map and toggle viewing level when new map is loaded
+  // USE EFFECT: toggle viewing level when new map is loaded. (Zooming to the
+  // new map happens inside the 3D scene, see world/camera/AutoZoomToMap.tsx.)
   // biome-ignore lint/correctness/useExhaustiveDependencies: <run on map change>
   useEffect(() => {
-    const zoom = () => {
-      if (mapGroupRef.current && cameraControlsRef.current) {
-        zoomToMap(mapGroupRef, cameraControlsRef, width, length)
-      }
-    }
-    zoom()
-    // Piece models and hex instances settle a beat after a map swap
-    const timeoutId = setTimeout(zoom, 1000)
-    //Update viewing level when new map is loaded
     toggleViewingLevel(maxLevel)
-    return () => clearTimeout(timeoutId)
   }, [hexMap.id])
 
   // USE EFFECT: automatically load up map from URL, OR from file

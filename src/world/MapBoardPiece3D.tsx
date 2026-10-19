@@ -14,6 +14,11 @@ import {
   HEXGRID_OBSTACLE_BASE_HEIGHT,
 } from '../utils/constants'
 import { genBoardHexID, getBoardHex3DCoords } from '../utils/map-utils'
+import {
+  isDragging,
+  pressPieceForDrag,
+  reportDragTargetHex,
+} from './drag/dragController'
 import { hexTerrainColor } from './maphex/hexColors'
 import { Battlement } from './models/Battlement'
 import BigTree415 from './models/BigTree415'
@@ -59,13 +64,39 @@ import {
   getRuinsOptions,
 } from './models/piece-adjustments'
 
-export const MapBoardPiece3D = ({
-  bp,
-  onPointerUpPaintPiece,
-}: {
+type MapBoardPiece3DProps = {
   bp: BoardPiece
   onPointerUpPaintPiece: (e: ThreeEvent<PointerEvent>, hex: BoardHex) => void
-}) => {
+}
+
+/**
+ * A placed piece's model. The group gives every model one place for
+ * drag-to-move (pointer events bubble up from the model's meshes): a press
+ * may start dragging this piece, and while another piece is dragged the
+ * model stands for the hex it stands on.
+ */
+export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
+  const { uid, pieceCoords, altitude } = props.bp
+  const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
+    if (!isDragging()) return
+    const { boardHexes } = useBoundStore.getState()
+    const support = boardHexes[genBoardHexID({ ...pieceCoords, altitude })]
+    if (reportDragTargetHex(support, uid)) e.stopPropagation()
+  }
+  return (
+    <group
+      onPointerDown={(e: ThreeEvent<PointerEvent>) => pressPieceForDrag(e, uid)}
+      onPointerMove={onPointerMove}
+    >
+      <MapBoardPiece3DModel {...props} />
+    </group>
+  )
+}
+
+const MapBoardPiece3DModel = ({
+  bp,
+  onPointerUpPaintPiece,
+}: MapBoardPiece3DProps) => {
   const { inventoryID, altitude, rotation, pieceCoords, uid } = bp
   const piece = piecesSoFar[inventoryID]
   const boardHexes = useBoundStore((s) => s.boardHexes)

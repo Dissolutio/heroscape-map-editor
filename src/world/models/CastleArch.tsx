@@ -2,6 +2,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
+import { isDragPassThrough } from '../drag/dragController'
 import {
   type BoardHex,
   type CubeCoordinate,
@@ -117,60 +118,65 @@ export function CastleArch({ boardHex, onPointerUp }: Props) {
   const [colorFar, setColorFar] = React.useState(
     hexTerrainColor[HexTerrain.castleWall],
   )
+  const middleBaseHex = () => {
+    const middleCube = hexUtilsAdd(
+      boardHex,
+      hexUtilsGetNeighborForRotation(boardHex.pieceRotation),
+    )
+    return boardHexes[
+      genBoardHexID({ ...middleCube, altitude: boardHex.altitude })
+    ]
+  }
+  const farBaseHex = () => {
+    const direction = hexUtilsGetNeighborForRotation(boardHex.pieceRotation)
+    const farCube: CubeCoordinate = hexUtilsAdd(
+      hexUtilsAdd({ q: boardHex.q, r: boardHex.r, s: boardHex.s }, direction),
+      direction,
+    )
+    return boardHexes[
+      genBoardHexID({ ...farCube, altitude: boardHex.altitude })
+    ]
+  }
   const onPointerEnterNear = (e: ThreeEvent<PointerEvent>) => {
     setColorNear(yellowColor)
-    e.stopPropagation()
+    onPointerEnter(e, boardHex)
   }
   const onPointerOutNear = (e: ThreeEvent<PointerEvent>) => {
     setColorNear(hexTerrainColor[HexTerrain.castleWall])
-    e.stopPropagation()
+    onPointerOut(e)
   }
   const onPointerEnterMiddle = (e: ThreeEvent<PointerEvent>) => {
     setColorMiddle(yellowColor)
-    e.stopPropagation()
+    const hex = middleBaseHex()
+    if (hex) onPointerEnter(e, hex)
+    else if (!isDragPassThrough(boardHex.boardPieceUID)) e.stopPropagation()
   }
   const onPointerOutMiddle = (e: ThreeEvent<PointerEvent>) => {
     setColorMiddle(hexTerrainColor[HexTerrain.castleWall])
-    e.stopPropagation()
+    onPointerOut(e)
   }
   const onPointerEnterFar = (e: ThreeEvent<PointerEvent>) => {
     setColorFar(yellowColor)
-    e.stopPropagation()
+    const hex = farBaseHex()
+    if (hex) onPointerEnter(e, hex)
+    else if (!isDragPassThrough(boardHex.boardPieceUID)) e.stopPropagation()
   }
   const onPointerOutFar = (e: ThreeEvent<PointerEvent>) => {
     setColorFar(hexTerrainColor[HexTerrain.castleWall])
-    e.stopPropagation()
+    onPointerOut(e)
   }
   const isVerticalClearanceHex = !(
     boardHex.isObstacleAuxiliary || boardHex.isObstacleOrigin
   )
   const onPointerUpMiddle = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
-    const middleCube = hexUtilsAdd(
-      boardHex,
-      hexUtilsGetNeighborForRotation(boardHex.pieceRotation),
-    )
-    const middleBaseHex =
-      boardHexes[genBoardHexID({ ...middleCube, altitude: boardHex.altitude })]
-    onPointerUp(e, middleBaseHex)
+    const hex = middleBaseHex()
+    if (hex) onPointerUp(e, hex)
   }
   const onPointerUpFar = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
-    const myCube: CubeCoordinate = {
-      q: boardHex.q,
-      r: boardHex.r,
-      s: boardHex.s,
-    }
-    const farCube = hexUtilsAdd(
-      hexUtilsAdd(
-        myCube,
-        hexUtilsGetNeighborForRotation(boardHex.pieceRotation),
-      ),
-      hexUtilsGetNeighborForRotation(boardHex.pieceRotation),
-    )
-    const farBaseHex =
-      boardHexes[genBoardHexID({ ...farCube, altitude: boardHex.altitude })]
-    onPointerUp(e, farBaseHex)
+    const hex = farBaseHex()
+    if (hex) onPointerUp(e, hex)
   }
   const onPointerUpBody = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation() // prevent pass through

@@ -5,6 +5,7 @@ undo/redo), R3F/Three, Tauri 2. Biome: single quotes, no semicolons, 80 cols.
 Architecture, coordinate space and data model are described in
 [.github/agents/hexoscape.agent.md](.github/agents/hexoscape.agent.md); check
 the source before relying on it.
+For new terrain additions, use [docs/adding-a-piece.md](docs/adding-a-piece.md).
 
 Checks: `npm test` (Vitest), `npx tsc -b`, `npx @biomejs/biome lint ./src`,
 `npx @biomejs/biome format ./src`, `npm run build`. `npm run lint` and
@@ -52,3 +53,12 @@ test titled `KNOWN GAP: ...`: it passes while the defect exists and goes red
 when someone fixes it. Fixing one means changing it to `it`. Never flip one (or
 weaken a test) just to get green; a gap that goes red unexpectedly means the
 defect is not what was described, so report it.
+
+### Browser automation (Playwright)
+
+The 3D map is a canvas that Playwright cannot see into. Read
+[e2e/README.md](e2e/README.md) before driving the app in a browser. In short:
+open `/hs?e2e=1` (not `/`), wait for `window.__APP_READY__` instead of
+sleeping, read state from `window.__TEST__.snapshot()` and
+`[data-testid="app-status"]`, and click pieces at
+`window.__TEST__.screenPosOfPiece(uid)`, never at guessed coordinates.

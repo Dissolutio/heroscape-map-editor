@@ -6,7 +6,7 @@ import buildupVSFileMap, { buildupJsonFileMap } from '../data/buildupMap'
 import { readVirtualscapeMapFile } from '../data/readVirtualscapeMapFile'
 import useBoundStore from '../store/store'
 import type { MapFileState } from '../types'
-import { normalizeBoardPieces } from '../utils/map-utils'
+import { normalizeBoardPiecesWithDropped } from '../utils/map-utils'
 import { warnAboutLoadedMap } from '../utils/warnAboutLoadedMap'
 import { Button } from '@mui/material'
 
@@ -37,9 +37,11 @@ export const LoadFileHiddenInputs = () => {
     }
     try {
       const data = await readGzipMapFile(file)
+      const normalizedPieces = normalizeBoardPiecesWithDropped(data.boardPieces)
       const jsonMap = buildupJsonFileMap(
-        normalizeBoardPieces(data.boardPieces),
+        normalizedPieces.boardPieces,
         data.hexMap,
+        normalizedPieces.droppedPieces,
       )
       if (!jsonMap.hexMap.name) {
         jsonMap.hexMap.name = file.name
@@ -74,9 +76,11 @@ export const LoadFileHiddenInputs = () => {
     }
     try {
       const data = await new Response(file).json()
+      const normalizedPieces = normalizeBoardPiecesWithDropped(data.boardPieces)
       const jsonMap = buildupJsonFileMap(
-        normalizeBoardPieces(data.boardPieces),
+        normalizedPieces.boardPieces,
         data.hexMap,
+        normalizedPieces.droppedPieces,
       )
       if (!jsonMap.hexMap.name) {
         jsonMap.hexMap.name = file.name
@@ -140,6 +144,7 @@ export const LoadFileHiddenInputs = () => {
         message: `Loaded map: ${loadedMap.hexMap.name}`,
         variant: 'success',
       })
+      warnAboutLoadedMap(enqueueSnackbar, loadedMap)
       navigate(ROUTES.heroscapeHome)
     } catch (error: unknown) {
       const errorMessage =

@@ -2,8 +2,15 @@ import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import { Color, CylinderGeometry } from 'three'
+import { isE2EDeterministic } from '../../../e2e/isE2E'
+import { hashToUnit } from '../../../e2e/seededRandom'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
+import {
+  isDragPassThrough,
+  pressPieceForDrag,
+  reportDragTargetHex,
+} from '../../drag/dragController'
 import type { BoardHex } from '../../../types'
 import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
@@ -104,9 +111,11 @@ function SolidCapInstance({
       y - (isHighQualityRender ? HEXGRID_HEXCAP_HEIGHT : 0),
       z,
     )
+    // under ?e2e, a stable per-hex value so screenshots repeat
+    const unit = isE2EDeterministic ? hashToUnit(boardHex.id) : Math.random()
     ref.current.rotation.set(
       0,
-      Math.PI / 6 + (getRandomInteger(1, 6) * Math.PI) / 3,
+      Math.PI / 6 + (getRandomInteger(1, 6, unit) * Math.PI) / 3,
       0,
     )
   }, [boardHex, color, isHighQualityRender])
@@ -124,6 +133,8 @@ function SolidCapInstance({
     if (!isVisible) {
       return
     }
+    // the pointer sees through a piece being dragged
+    if (isDragPassThrough(boardHex.boardPieceUID)) return
     e.stopPropagation() // prevent this hover from passing through and affecting behind
     onPointerEnter(e, boardHex)
     ref?.current?.color?.set?.('yellow')
@@ -154,6 +165,12 @@ function SolidCapInstance({
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerOut}
       onPointerUp={handlePointerUp}
+      onPointerDown={(e: ThreeEvent<PointerEvent>) =>
+        isVisible && pressPieceForDrag(e, boardHex.boardPieceUID)
+      }
+      onPointerMove={(e: ThreeEvent<PointerEvent>) =>
+        isVisible && reportDragTargetHex(boardHex) && e.stopPropagation()
+      }
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
@@ -161,8 +178,8 @@ function SolidCapInstance({
   )
 }
 
-function getRandomInteger(min: number, max: number) {
+function getRandomInteger(min: number, max: number, unit = Math.random()) {
   const minimum = Math.ceil(min) // Ensure min is rounded up to the nearest whole number
   const maximum = Math.floor(max) // Ensure max is rounded down to the nearest whole number
-  return Math.floor(Math.random() * (maximum - minimum + 1)) + minimum
+  return Math.floor(unit * (maximum - minimum + 1)) + minimum
 }

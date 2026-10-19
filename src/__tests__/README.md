@@ -18,12 +18,30 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
 | `replay-conflicts.test.ts` | How conflicts are computed (`data/rebuildBoardState.ts`): what counts, what does not. |
 | `laur-addon-footprints.test.ts` | Which hexes lwl2/lwr2/lwr3 block (`data/laurAddonFootprints.ts`, not used by the app yet). |
-| `piece-ids-and-loading.test.ts` | Piece ids, the saved-map formats, and the load path (`buildupJsonFileMap`). |
+| `piece-ids-and-loading.test.ts` | Piece ids, legacy uid-less piece normalization, saved-map formats, and the load path (`buildupJsonFileMap`). |
 | `hex-grid.test.ts` | Cube coordinates, directions, rotation, grid generation, odd-r conversion. |
 | `edges-and-nodes.test.ts` | How edges and corners are represented today, and the acceptance checklist (`it.todo`) for the edge/node model. |
 | `terrain-constraints.test.ts` | Inventory normalization and set/personal/file constraints. |
 | `map-share-url.test.ts` | Parsing pasted share links. |
+| `safe-storage.test.ts` | Guarded browser storage access, corrupted JSON, and quota/security failures. |
+| `map-storage.test.ts` | Old/new saved-map formats, separate portraits, and inline-portrait migration. |
+| `map-autosave.test.ts` | Debounced map writes, lifecycle flushes, hold/release gating, and failure retries. |
+| `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
+| `settings.test.ts` | Versioned settings defaults, migration, debounced persistence, and store-state classification. |
+| `crash-feedback.test.ts` | The anonymous crash-report note sent to Sentry (`utils/crashFeedback.ts`): trimmed, capped, linked to the crash event, no name/email. |
+| `material-clones.test.ts` | The private material copies the move/rotate preview ghost uses (`utils/materialClones.ts`), so it never changes the cached materials real pieces share. |
+| `click-placement.test.ts` | What a left click with a piece pen places, per piece family, through the real click handler (`world/MapDisplay3D.tsx`) and the store, without rendering; plus the refusals, each with its message (only a castle wall or wall walk on a castle wall/arch top, an arch never on one, Laur add-ons only on Laur pillars, square and triangle pillars never stacked on each other, nothing hanging off the map; land on a whole-level fluid cap stays silent), a ship bow deck click that does nothing, and undo. Cases are in `helpers/placementCases.ts`. |
+| `placement.test.ts` | `resolvePlacement` (where a click puts a piece, or the reason it is blocked; must match the click handler case for case), `placementBlockedMessages` including group-drag `outOfHeight`, and `evaluatePlacement` (ok / conflict / blocked from a footprint-only probe, `ignoreUID` for a moving piece, opt-in height bounds, never mutates its input) in `data/placement.ts`, and the map-edge rule (`hangsOffMap`) swept over rectangle and hexagon maps of several sizes against each shape's own definition. |
+| `placement-preview.test.ts` | `getPlacementPreviewState` (click-rule resolution plus placement evaluation, including map-edge footprints and non-mutation) and the distinct color/pattern styles in `world/placementPreviewStyle.ts`. |
+| `ship-deck-color.test.ts` | The ship bow/wall deck colour (`world/models/shipDeckColor.ts`): yellow with the rest of the piece when hovered or selected, or when that deck is hovered to build on. |
+| `drag-move.test.ts` | Drag-to-move (`data/dragMove.ts`): which pieces and selections can be dragged; the press/drag/drop state machine; multi-hex grab offsets and rigid multi-piece deltas at all six rotations; per-member status and combined blocked/conflict decisions, including group-only below-ground and vertical-clearance upper bounds; moving members ignored as conflicts; off-map refusal; one `movePieces` call/undo entry with conflict flags and viewing-level restoration; transient drag state versus autosave; and land ghost model parity. |
+| `storage-known-gaps.test.ts` | Legacy constraint restoration and protection against hotkey mount overwrites. |
+| `virtualscape-import.test.ts` | Version 0.0007 Virtualscape binary import through `readVirtualscapeMapFile()` and `buildupVSFileMap()`: registered codes, positions, rotations, odd-r coordinates, unknown-code drop reporting and warning, and empty drops for known-only files. |
+| `map-roundtrip.test.ts` | JSON file, local autosave, and compressed share-link save/load round trips for multiple piece families, including stable map/piece data, rebuilt occupancy, no drops, and conflict recomputation. |
+| `store-move-many.test.ts` | Moving several pieces in one store update (`movePieces`, `data/movePieces.ts`): one undo step with exact undo/redo, a rigid group shift without the movers displacing each other, displacing and restoring stationary pieces exactly as `movePiece` does, the viewing level, unknown uids, a no-op that records no history, UI fields and autosave. A frozen copy of the old `movePiece` pins that single moves and non-interfering group moves are unchanged. |
+| `store-undo-redo.test.ts` | The real Zustand/Zundo store: paint, unpaint, move, multi-piece undo/redo when pausing after the first move, the no-history gotcha when pausing before it, `loadMap` history/conflicts, and transient UI state versus autosave. |
 | `helpers/board.ts` | `makeTable`, `place`, `remove`, `withGrassFloor`, `hexAt`: build boards without the store. |
+| `helpers/clickHandler.ts` | `clickWithPen`: drive the real click handler in Node (the test stubs MapDisplay3D's children; see `click-placement.test.ts`). |
 
 ## Adding a new terrain piece
 

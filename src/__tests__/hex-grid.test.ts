@@ -145,20 +145,42 @@ describe('odd-r offset conversion (Virtualscape boundary)', () => {
     }
   })
 
-  it.fails(
-    'KNOWN GAP (latent): offset <-> cube round-trips on negative odd rows',
-    () => {
-      // hexUtilsOddRToCube uses `y % 2` (negative for negative y) while
-      // hexUtilsCubeToOddR uses `r & 1`. Today every Virtualscape map has
-      // non-negative rows so nothing hits this, but the agent notes say cube
-      // coordinates are intentionally signed and never clamped, and the same
-      // file is the natural home for the edge/node math. Fix: use `y & 1`.
-      for (const y of [-1, -3]) {
-        const cube = hexUtilsOddRToCube(0, y)
-        expect(hexUtilsCubeToOddR(cube)).toEqual({ x: 0, y })
+  it('KNOWN GAP (latent): offset <-> cube round-trips on negative odd rows', () => {
+    for (const y of [-1, -3]) {
+      const cube = hexUtilsOddRToCube(0, y)
+      expect(hexUtilsCubeToOddR(cube)).toEqual({ x: 0, y })
+    }
+  })
+
+  it('round-trips cube -> odd-r -> cube for negative odd rows', () => {
+    for (let r = -9; r < 0; r++) {
+      for (let q = -4; q <= 4; q++) {
+        const cube = { q, r, s: -q - r }
+        const offset = hexUtilsCubeToOddR(cube)
+        expect(hexUtilsOddRToCube(offset.x, offset.y)).toEqual(cube)
       }
-    },
-  )
+    }
+  })
+
+  it('keeps the previous odd-r conversion results for non-negative rows', () => {
+    for (let y = 0; y <= 9; y++) {
+      for (let x = -3; x <= 9; x++) {
+        const previousQ = x - (y - (y % 2)) / 2
+        expect(hexUtilsOddRToCube(x, y)).toEqual({
+          q: previousQ,
+          r: y,
+          s: -previousQ - y,
+        })
+
+        const q = x
+        const r = y
+        expect(hexUtilsCubeToOddR({ q, r, s: -q - r })).toEqual({
+          x: q + (r - (r & 1)) / 2,
+          y: r,
+        })
+      }
+    }
+  })
 })
 
 describe('moving by direction', () => {

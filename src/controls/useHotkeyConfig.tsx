@@ -1,23 +1,10 @@
-import { useEffect } from 'react'
-import { LS_KEYS } from '../local-storage/keys'
-import { useLocalStorage } from '../local-storage/useLocalStorage'
-
 export const useHotkeyConfig = () => {
-  const [hotkeyConfig, setHotkeyConfig] = useLocalStorage(
-    LS_KEYS.hotkeyConfig,
-    defaultHotkeyConfig,
-  )
+  const hotkeyConfig = defaultHotkeyConfig
   const hotkeyLookup = Object.fromEntries(
     Object.entries(hotkeyConfig).map(([key, value]) => [value, key]),
   )
 
-  // FOR DEVELOPMENT, when updating default hotkey config, activate this effect to update in app
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <on-mount>
-  useEffect(() => {
-    setHotkeyConfig(defaultHotkeyConfig)
-  }, [])
-
-  return { hotkeyConfig, setHotkeyConfig, hotkeyLookup }
+  return { hotkeyConfig, hotkeyLookup }
 }
 
 export const defaultHotkeyConfig = {

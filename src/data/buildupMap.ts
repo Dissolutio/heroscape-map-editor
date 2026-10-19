@@ -26,34 +26,46 @@ import { getCodeForVSPersonalTile } from './readVirtualscapeMapFile'
 export default function buildupVSFileMap(
   tiles: VirtualScapeTile[],
   mapName: string,
-): MapState {
+): VirtualScapeMapLoadResult {
   const blankMap = getBlankHexoscapeMapForVSTiles(tiles, mapName)
   let { boardPieces } = blankMap
   const { boardHexes, hexMap } = blankMap
-  const newBoardHexes = tiles.reduce((boardHexes: BoardHexes, tile) => {
-    const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
-    const id = pieceCodes?.[getCodeForVSPersonalTile(tile)] ?? ''
-    const piece = piecesSoFar[id]
-    if (!piece || !piece.terrain) {
-      return boardHexes // Should probably handle this different, errors etc.
+  const mappedTiles = tiles.map((tile) => {
+    const code = getCodeForVSPersonalTile(tile)
+    return {
+      tile,
+      inventoryID: pieceCodes?.[code] ?? String(code ?? tile.type),
     }
-    // get the new board hexes and new board pieces
-    const { newBoardHexes, newBoardPieces } = addPiece({
-      piece,
-      boardHexes,
-      boardPieces,
-      pieceCoords: tileCoords,
-      placementAltitude: tile.posZ, // z is altitude is virtualscape, y is altitude in our app
-      rotation: tile.rotation,
-      isVsTile: true,
-    })
-    boardPieces = newBoardPieces
-    return newBoardHexes
-  }, boardHexes)
+  })
+  const { boardPieces: knownTiles, droppedPieces } =
+    dropUnknownBoardPieces(mappedTiles)
+  const newBoardHexes = knownTiles.reduce(
+    (boardHexes: BoardHexes, { tile, inventoryID }) => {
+      const tileCoords = hexUtilsOddRToCube(tile.posX, tile.posY)
+      const piece = piecesSoFar[inventoryID]
+      if (!piece?.terrain) {
+        return boardHexes
+      }
+      // get the new board hexes and new board pieces
+      const { newBoardHexes, newBoardPieces } = addPiece({
+        piece,
+        boardHexes,
+        boardPieces,
+        pieceCoords: tileCoords,
+        placementAltitude: tile.posZ, // z is altitude is virtualscape, y is altitude in our app
+        rotation: tile.rotation,
+        isVsTile: true,
+      })
+      boardPieces = newBoardPieces
+      return newBoardHexes
+    },
+    boardHexes,
+  )
   return {
     boardHexes: newBoardHexes,
     hexMap: hexMap,
     boardPieces,
+    droppedPieces,
   }
 }
 // Placed after everything else on load: Laur add-ons need their pillars down
@@ -80,12 +92,17 @@ function sortBoardPiecesForLoad(arr: BoardPiece[]) {
   )
 }
 export type JsonMapLoadResult = MapState & {
-  /** Pieces left out because this app version does not know their inventoryID. */
+  /** Pieces omitted because they are malformed or use an unknown inventoryID. */
+  droppedPieces: DroppedBoardPiece[]
+}
+export type VirtualScapeMapLoadResult = MapState & {
+  /** Tiles omitted because their Virtualscape code is not recognized. */
   droppedPieces: DroppedBoardPiece[]
 }
 export function buildupJsonFileMap(
   boardPieces: BoardPiece[],
   hexMap: HexMap,
+  droppedMalformedPieces: DroppedBoardPiece[] = [],
 ): JsonMapLoadResult {
   const shouldMigrateLegacyHexagonMap =
     hexMap.shape === 'hexagon' && (hexMap?.version ?? 0) < 1
@@ -103,8 +120,9 @@ export function buildupJsonFileMap(
 
   // For JSON maps, the map dimensions are free, we do not have to compute them
   let initialBoardHexes: BoardHexes = {}
-  const { boardPieces: knownBoardPieces, droppedPieces } =
+  const { boardPieces: knownBoardPieces, droppedPieces: unknownPieces } =
     dropUnknownBoardPieces(boardPieces)
+  const droppedPieces = [...droppedMalformedPieces, ...unknownPieces]
   const initialBoardPieces = clone(knownBoardPieces)
   let finalBoardPieces: BoardPieces = []
   if (migratedHexMap.shape === 'rectangle') {

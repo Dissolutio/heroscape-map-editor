@@ -4,6 +4,7 @@ import { SnackbarProvider } from 'notistack'
 import { Redirect, Route, Switch } from 'wouter'
 
 import { EventProvider } from './hooks/useEvent'
+import CrashFallback from './layout/CrashFallback'
 import ErrorPage from './layout/ErrorPage'
 import './layout/index.css'
 import { ROUTES } from './ROUTES'
@@ -52,16 +53,16 @@ const App = () => {
         ? 12
         : 20
   return (
-    <Sentry.ErrorBoundary
-      fallback={ErrorPage}
-      showDialog
-      onError={(error) => {
-        // stale-deployment chunk failures manifest as hook-order crashes (React #310); reload once to recover
-        reloadOnceForChunkError(error)
-      }}
-    >
-      <ThemeProvider theme={darkTheme}>
-        <CssBaseline />
+    // ThemeProvider sits outside the ErrorBoundary so the crash fallback (MUI) is themed
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <Sentry.ErrorBoundary
+        fallback={CrashFallback}
+        onError={(error) => {
+          // stale-deployment chunk failures manifest as hook-order crashes (React #310); reload once to recover
+          reloadOnceForChunkError(error)
+        }}
+      >
         <EventProvider>
           <SnackbarProvider
             dense
@@ -84,8 +85,8 @@ const App = () => {
             </Switch>
           </SnackbarProvider>
         </EventProvider>
-      </ThemeProvider>
-    </Sentry.ErrorBoundary>
+      </Sentry.ErrorBoundary>
+    </ThemeProvider>
   )
 }
 

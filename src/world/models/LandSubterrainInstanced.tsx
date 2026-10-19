@@ -6,6 +6,13 @@ import { piecesSoFar } from '../../data/pieces'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import {
+  findPieceHexAt,
+  isDragPassThrough,
+  isDragging,
+  pressPieceForDrag,
+  reportDragTargetHex,
+} from '../drag/dragController'
+import {
   type BoardHexes,
   type BoardPiece,
   HexTerrain,
@@ -80,7 +87,7 @@ const GEOMETRY_NODE_BY_SIZE: Record<SubterrainSize, string> = {
   '24': 'Subterrain_24',
 }
 
-function getSubterrainSize(inventoryID: string): SubterrainSize {
+export function getSubterrainSize(inventoryID: string): SubterrainSize {
   const regex = /\d+/g
   let size = inventoryID.match(regex)?.[0] ?? '1'
   if (size === '7' && inventoryID === Pieces.wallWalk7) {
@@ -270,6 +277,8 @@ function SubterrainInstance({
   }, [item.uid, hoveredPieceID, displayColor])
 
   const handlePointerEnter = (e: ThreeEvent<PointerEvent>) => {
+    // the pointer sees through a piece being dragged
+    if (isDragPassThrough(item.uid)) return
     e.stopPropagation() // prevent this hover from passing through and affecting behind
     onPointerEnterPID(e, item.uid)
     ref?.current?.color?.set?.('yellow')
@@ -291,6 +300,15 @@ function SubterrainInstance({
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerOut}
       onPointerUp={handlePointerUp}
+      onPointerDown={(e: ThreeEvent<PointerEvent>) =>
+        pressPieceForDrag(e, item.uid)
+      }
+      onPointerMove={(e: ThreeEvent<PointerEvent>) =>
+        // a tile's side stands for its top in that column
+        isDragging() &&
+        reportDragTargetHex(findPieceHexAt(item.uid, e.point), item.uid) &&
+        e.stopPropagation()
+      }
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}

@@ -14,12 +14,17 @@ import type React from 'react'
 import { useEffect, useState } from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import SelectedPieceReadout from '../controls/SelectedPieceReadout'
+import { E2EStatus } from '../e2e/E2EStatus'
+import { ReadySignal } from '../e2e/ReadySignal'
+import { TestBridge } from '../e2e/TestBridge'
 import useBoundStore from '../store/store'
 import { CAMERA_FOV } from '../utils/constants'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import Lights from './Lights'
 import MapDisplay3D from './MapDisplay3D'
+import AutoZoomToMap from './camera/AutoZoomToMap'
 import MyCameraControls from './camera/MyCameraControls'
+import { DragContext } from './drag/DragContext'
 import TakeAPictureBox from './camera/TakeAPictureBox'
 
 const BILLBOARD_WARMUP_MS = 4000
@@ -163,8 +168,17 @@ const World = ({
           <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}
           <MyCameraControls cameraControlsRef={cameraControlsRef} />
+          <DragContext cameraControlsRef={cameraControlsRef} />
+          <AutoZoomToMap
+            cameraControlsRef={cameraControlsRef}
+            mapGroupRef={mapGroupRef}
+          />
           <TakeAPictureBox />
+          {/* Test hooks: render nothing unless isE2E (see e2e/README.md) */}
+          <ReadySignal mapGroupRef={mapGroupRef} />
+          <TestBridge />
         </Canvas>
+        <E2EStatus />
         <SelectedPieceReadout cameraControlsRef={cameraControlsRef} />
         {/* <HoveredPieceReadout /> */}
       </div>

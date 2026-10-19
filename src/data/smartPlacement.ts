@@ -4,6 +4,7 @@ import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HEXGRID_MAX_ALTITUDE } from '../utils/constants'
 import { genBoardHexID } from '../utils/map-utils'
 import { addPiece } from './addPiece'
+import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
 import getPieceTemplateCoords from './rotationTransforms'
 import { verticalObstructionTemplates } from './vertical-obstruction-templates'
 
@@ -13,12 +14,15 @@ export function getSmartPlacementAltitude({
   pieceCoords,
   altitude,
   rotation,
+  ignoreUID,
 }: {
   boardHexes: BoardHexes
   piece: Piece
   pieceCoords: CubeCoordinate
   altitude: number
   rotation: number
+  /** Leave these pieces out, e.g. the group being moved. */
+  ignoreUID?: IgnoredPieceUIDs
 }): number {
   if (
     piece.isOverlayPiece ||
@@ -42,6 +46,7 @@ export function getSmartPlacementAltitude({
   // clone or replay the whole map during pointer movement.
   const localHexes: BoardHexes = {}
   const candidates = new Set([altitude])
+  const ignoredUIDs = toIgnoredPieceUIDSet(ignoreUID)
   const clearance = Math.max(
     piece.height,
     ...(verticalObstructionTemplates[piece.id] ?? []),
@@ -54,7 +59,7 @@ export function getSmartPlacementAltitude({
     ) {
       const id = genBoardHexID({ ...coords, altitude: level })
       const hex = boardHexes[id]
-      if (!hex) continue
+      if (!hex || ignoredUIDs.has(hex.boardPieceUID ?? '')) continue
       localHexes[id] = hex
       if (
         level < HEXGRID_MAX_ALTITUDE &&

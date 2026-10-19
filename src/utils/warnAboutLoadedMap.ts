@@ -21,7 +21,7 @@ export function warnAboutLoadedMap(
 ) {
   const droppedMessage = getDroppedPiecesWarning(map.droppedPieces)
   if (droppedMessage) {
-    console.warn('Dropped unknown pieces on load', map.droppedPieces)
+    console.warn('Dropped pieces on load', map.droppedPieces)
     enqueueSnackbar({
       message: droppedMessage,
       variant: 'warning',

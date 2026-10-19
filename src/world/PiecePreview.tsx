@@ -1,17 +1,14 @@
-import { Suspense, useMemo } from 'react'
+import { Suspense, useEffect, useMemo } from 'react'
 import { piecesSoFar } from '../data/pieces'
+import { getPlacementPreviewState } from '../data/placementPreview'
 import { getSmartPlacementAltitude } from '../data/smartPlacement'
 import useBoundStore from '../store/store'
+import type { BoardHex } from '../types'
 import { HexTerrain, PiecePrefixes, Pieces } from '../types'
-import {
-  getLandAltitudeIncrement,
-  isFluidTerrainHex,
-  isSolidTerrainHex,
-} from '../utils/board-utils'
+import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import {
   HEXGRID_GLYPH_HEIGHT,
   HEXGRID_HEXCAP_FLUID_HEIGHT,
-  HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
   HEXGRID_HEX_HEIGHT,
   HEXGRID_OBSTACLE_BASE_HEIGHT,
@@ -22,7 +19,8 @@ import {
   getBoardHex3DCoords,
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils'
-import { hexTerrainColor } from './maphex/hexColors'
+import { LandPieceGhost } from './LandPieceGhost'
+import { PlacementFootprint } from './PlacementFootprint'
 import { BattlementPreview } from './models/Battlement'
 import BigTree415 from './models/BigTree415'
 import Cannon from './models/Cannon'
@@ -33,19 +31,6 @@ import ForestTree from './models/ForestTree'
 import { FortifiedWallPreview } from './models/FortifiedWall'
 import { GlyphModelPreview } from './models/Glyph'
 import { LadderPreview } from './models/Ladder'
-import {
-  Subterrain1,
-  Subterrain2,
-  Subterrain3,
-  Subterrain4,
-  Subterrain5,
-  Subterrain6,
-  Subterrain6B,
-  Subterrain7,
-  Subterrain7B,
-  Subterrain9,
-  Subterrain24,
-} from './models/LandSubterrain'
 import { LaurWallPillarPreview } from './models/LaurPillar'
 import { LaurWallTrianglePillarPreview } from './models/LaurTrianglePillar'
 import { LaurWallArchPreview } from './models/LaurWallArchModel'
@@ -84,8 +69,97 @@ import {
   getRoadWallOptions,
   getRuinsOptions,
 } from './models/piece-adjustments'
+import { isE2E } from '../e2e/isE2E'
+import { setPlacementPreview } from '../e2e/placementPreviewStore'
 
 export default function PiecePreview() {
+  const hoveredHex = useBoundStore((s) => s.hoveredHex)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const penMode = useBoundStore((s) => s.penMode)
+  const penModeSize = useBoundStore((s) => s.pieceSize)
+  const penModeRotation = useBoundStore((s) => s.penModeRotation)
+  const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const pieceKey = penModeSize === 0 ? penMode : `${penMode}${penModeSize}`
+  const piece = piecesSoFar[pieceKey]
+  const previewState = useMemo(() => {
+    if (!hoveredHex || !piece || penMode === 'select' || isTakingPicture) {
+      return null
+    }
+    return getPlacementPreviewState(piece, hoveredHex, penModeRotation, {
+      boardHexes,
+      boardPieces,
+    })
+  }, [
+    boardHexes,
+    boardPieces,
+    hoveredHex,
+    isTakingPicture,
+    penMode,
+    penModeRotation,
+    piece,
+  ])
+
+  useEffect(() => {
+    if (!isE2E) return
+    setPlacementPreview(
+      previewState
+        ? {
+            status: previewState.evaluation.status,
+            reason: previewState.evaluation.reason ?? null,
+            footprintCount: previewState.evaluation.footprintHexes.length,
+          }
+        : null,
+    )
+  }, [previewState])
+
+  if (!hoveredHex || !piece || !previewState) return null
+
+  const { evaluation, resolution } = previewState
+  const hoveredSurfaceHex =
+    hoveredHex.obstacleHeight &&
+    (hoveredHex.pieceID.includes(PiecePrefixes.castleWall) ||
+      hoveredHex.pieceID.includes(PiecePrefixes.castleArch))
+      ? (boardHexes[
+          genBoardHexID({
+            ...hoveredHex,
+            altitude: hoveredHex.altitude + hoveredHex.obstacleHeight,
+          })
+        ] ?? hoveredHex)
+      : hoveredHex
+  const castleCapHex =
+    !('blocked' in resolution) && resolution.rule === 'castleCap'
+      ? (boardHexes[
+          genBoardHexID({
+            ...resolution.coords,
+            altitude: resolution.altitude,
+          })
+        ] ?? {
+          ...hoveredHex,
+          ...resolution.coords,
+          altitude: resolution.altitude,
+        })
+      : undefined
+
+  return (
+    <>
+      <PlacementFootprint
+        status={evaluation.status}
+        footprintHexes={evaluation.footprintHexes}
+        hoveredHex={hoveredSurfaceHex}
+      />
+      {evaluation.status !== 'blocked' && (
+        <PiecePreviewModel hoveredHexOverride={castleCapHex} />
+      )}
+    </>
+  )
+}
+
+function PiecePreviewModel({
+  hoveredHexOverride,
+}: {
+  hoveredHexOverride?: BoardHex
+}) {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const boardPieces = useBoundStore((s) => s.boardPieces)
@@ -113,25 +187,36 @@ export default function PiecePreview() {
   const hoveredHexAtPointer =
     hoveredHex ??
     (isHoveringPreviewSupportPiece ? hoveredPieceSupportHex : undefined)
+  const hoveredHexForModel =
+    isHoveringPreviewSupportPiece && hoveredPieceSupportHex
+      ? hoveredPieceSupportHex
+      : (hoveredHexOverride ?? hoveredHexAtPointer)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const hoveredHexForPreview = useMemo(() => {
-    if (!piece || !hoveredHexAtPointer) return hoveredHexAtPointer
+    if (hoveredHexOverride) return hoveredHexOverride
+    if (!piece || !hoveredHexForModel) return hoveredHexForModel
     const altitude = getSmartPlacementAltitude({
       boardHexes,
       piece,
-      pieceCoords: hoveredHexAtPointer,
-      altitude: hoveredHexAtPointer.altitude,
+      pieceCoords: hoveredHexForModel,
+      altitude: hoveredHexForModel.altitude,
       rotation: penModeRotation,
     })
-    if (altitude === hoveredHexAtPointer.altitude) return hoveredHexAtPointer
+    if (altitude === hoveredHexForModel.altitude) return hoveredHexForModel
     const support =
-      boardHexes[genBoardHexID({ ...hoveredHexAtPointer, altitude })]
+      boardHexes[genBoardHexID({ ...hoveredHexForModel, altitude })]
     return {
-      ...hoveredHexAtPointer,
+      ...hoveredHexForModel,
       altitude,
       terrain: support?.terrain ?? HexTerrain.empty,
     }
-  }, [boardHexes, piece, hoveredHexAtPointer, penModeRotation])
+  }, [
+    boardHexes,
+    hoveredHexForModel,
+    hoveredHexOverride,
+    penModeRotation,
+    piece,
+  ])
 
   /* Piece Preview:
   1. A solid/fluid/empty cap (preview anything except laur-addons)
@@ -140,9 +225,6 @@ export default function PiecePreview() {
   4. 
   */
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
   const pieceID = piece?.id ?? ''
 
   //EARLY RETURN:  Only show preview if hovering a valid hex, a piece is defined, penMode is not 'select', and map picture not being taken
@@ -268,82 +350,6 @@ export default function PiecePreview() {
   const ruinsOptions = getRuinsOptions(penModeRotation)
   const pieceRotation = (penModeRotation * -Math.PI) / 3
 
-  const subterrainColor =
-    piece?.terrain === HexTerrain.swamp
-      ? hexTerrainColor.swampCap // override, to distinguish preview from swamp water
-      : hexTerrainColor?.[piece?.terrain as keyof typeof hexTerrainColor]
-
-  const landSubterrainMaterial = () => {
-    if (isLightsAndShadowsRender) {
-      if (isFluidTerrainHex(piece?.terrain)) {
-        return (
-          <meshStandardMaterial
-            color={subterrainColor}
-            transparent
-            opacity={PIECE_PREVIEW_OPACITY}
-          />
-        )
-      }
-      return (
-        <meshStandardMaterial
-          color={subterrainColor}
-          transparent
-          opacity={PIECE_PREVIEW_OPACITY}
-        />
-      )
-    }
-    // not high quality render below
-    if (isFluidTerrainHex(piece?.terrain)) {
-      return (
-        <meshLambertMaterial
-          color={subterrainColor}
-          transparent
-          opacity={PIECE_PREVIEW_OPACITY}
-        />
-      )
-    }
-    return (
-      <meshMatcapMaterial
-        color={subterrainColor}
-        transparent
-        opacity={PIECE_PREVIEW_OPACITY}
-      />
-    )
-  }
-  const getLandMesh = () => {
-    switch (
-      penModeSize === 6 && penMode === PiecePrefixes.concrete
-        ? '6B'
-        : penModeSize === 7 && penMode === PiecePrefixes.wallWalk
-          ? '7B'
-          : `${penModeSize}`
-    ) {
-      case '1':
-        return <Subterrain1>{landSubterrainMaterial()}</Subterrain1>
-      case '2':
-        return <Subterrain2>{landSubterrainMaterial()}</Subterrain2>
-      case '3':
-        return <Subterrain3>{landSubterrainMaterial()}</Subterrain3>
-      case '4':
-        return <Subterrain4>{landSubterrainMaterial()}</Subterrain4>
-      case '5':
-        return <Subterrain5>{landSubterrainMaterial()}</Subterrain5>
-      case '6':
-        return <Subterrain6>{landSubterrainMaterial()}</Subterrain6>
-      case '6B':
-        return <Subterrain6B>{landSubterrainMaterial()}</Subterrain6B>
-      case '7B':
-        return <Subterrain7B>{landSubterrainMaterial()}</Subterrain7B>
-      case '7':
-        return <Subterrain7>{landSubterrainMaterial()}</Subterrain7>
-      case '9':
-        return <Subterrain9>{landSubterrainMaterial()}</Subterrain9>
-      case '24':
-        return <Subterrain24>{landSubterrainMaterial()}</Subterrain24>
-      default:
-        return null
-    }
-  }
   const isLandBeneath =
     isSolidTerrainHex(hoveredHexForPreview?.terrain) ||
     isFluidTerrainHex(hoveredHexForPreview?.terrain)
@@ -396,20 +402,12 @@ export default function PiecePreview() {
       (isSolidOrEmptyBeneath || isFluidBeneathForLandPreview)) ||
     (isUnderHexCastleWallArch && piece?.terrain === HexTerrain.wallWalk)
   ) {
-    // Fluid on fluid, and solid on a half-level fluid, rise a half level (not a whole level)
-    const landAltitudeIncrement = getLandAltitudeIncrement(
-      piece?.terrain ?? '',
-      isFluidBeneathForLandPreview,
-      hoveredHexForPreview.altitude,
-    )
     return (
-      <group
-        position={[x, yBaseCap + landAltitudeIncrement * HEXGRID_HEX_HEIGHT, z]}
-        rotation={[0, pieceRotation, 0]}
-        scale={[1, isFluidSubterrain ? HEXGRID_HEXCAP_FLUID_SCALE : 1, 1]}
-      >
-        <Suspense fallback={<ModelLoader />}>{getLandMesh()}</Suspense>
-      </group>
+      <LandPieceGhost
+        piece={piece}
+        supportHex={hoveredHexForPreview}
+        rotation={penModeRotation}
+      />
     )
   }
   if (isLaurWallAddon && isUnderHexLaurPillar) {
