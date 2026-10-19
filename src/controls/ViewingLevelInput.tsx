@@ -82,19 +82,24 @@ export default function ViewingLevelInput() {
               const entered = Number.parseFloat(event.target.value)
               if (Number.isNaN(entered)) return
               // snap freeform/step input to the nearest valid whole or half-fluid level
-              const nearest = cycleableLevels.reduce(
-                (best, level) =>
-                  Math.abs(level - entered) < Math.abs(best - entered)
-                    ? level
-                    : best,
-                cycleableLevels[0] ?? 0,
-              )
+              const direction = Math.sign(entered - viewingLevel)
+              const nearest = cycleableLevels.reduce((best, level) => {
+                const distance = Math.abs(level - entered)
+                const bestDistance = Math.abs(best - entered)
+                return distance < bestDistance ||
+                  (distance === bestDistance &&
+                    (direction > 0
+                      ? level > best
+                      : direction < 0 && level < best))
+                  ? level
+                  : best
+              }, cycleableLevels[0] ?? 0)
               toggleViewingLevel(nearest)
             }}
             inputProps={{
               step: 0.5,
               min: 0,
-              max: is2DOverlayLevelEnabled ? overlayLevel : (maxLevel ?? 0),
+              max: allowedMaxLevel ?? 0,
               type: 'number',
             }}
           />

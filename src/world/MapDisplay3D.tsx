@@ -1,6 +1,7 @@
 import type { ThreeEvent } from '@react-three/fiber'
 
 import { enqueueSnackbar } from 'notistack'
+import { Suspense } from 'react'
 import type React from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import { piecesSoFar } from '../data/pieces.ts'
@@ -180,7 +181,9 @@ export default function MapDisplay3D({
           boardHexArr={instanceBoardHexes.fluidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
         />
-        <LandSubterrainInstanced data={landSubterrainData} />
+        <Suspense fallback={null}>
+          <LandSubterrainInstanced data={landSubterrainData} />
+        </Suspense>
         {boardPieces.map((bp) => {
           return (
             <MapBoardPiece3D
