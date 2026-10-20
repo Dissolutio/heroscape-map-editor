@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { enqueueSnackbar } from 'notistack'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { piecesSoFar } from '../data/pieces'
 import { LS_KEYS } from '../local-storage/keys'
@@ -72,6 +73,36 @@ afterEach(() => {
 })
 
 describe('real store undo and redo', () => {
+  it('loads fitted pieces and shows one map-dimensions notification', () => {
+    const edgePiece: BoardPiece = {
+      uid: 'edge-land',
+      inventoryID: 'g2',
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 4, r: 2, s: -6 },
+    }
+    const map = buildupJsonFileMap([edgePiece], {
+      ...hexMap,
+      width: 6,
+      length: 6,
+    })
+
+    store.getState().loadMap(map, { holdAutosave: true })
+
+    expect(store.getState().hexMap.width).toBe(7)
+    expect(store.getState().boardPieces).toHaveLength(1)
+    expect(store.getState().boardPieces[0]?.pieceCoords).toEqual(
+      edgePiece.pieceCoords,
+    )
+    expect(enqueueSnackbar).toHaveBeenCalledOnce()
+    expect(enqueueSnackbar).toHaveBeenCalledWith({
+      message: 'Hexoscape has adjusted your map dimensions to fit all pieces',
+      variant: 'info',
+      key: 'map-dimensions-adjusted',
+      preventDuplicate: true,
+    })
+  })
+
   it('undoes and redoes painting with exact boardPieces and boardHexes', () => {
     const before = snapshot()
     const error = store.getState().paintTile({

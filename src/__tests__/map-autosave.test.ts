@@ -8,6 +8,7 @@ import {
 import { LS_KEYS } from '../local-storage/keys'
 import type { AppState } from '../store/store'
 import type { MapSnapshot } from '../local-storage/mapAutosave'
+import { buildupJsonFileMap } from '../data/buildupMap'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 
@@ -288,6 +289,41 @@ describe('map autosave state gating', () => {
       LS_KEYS.lastMap,
       expect.any(String),
     )
+  })
+
+  it('does not autosave a fitted legacy share link until its first edit', async () => {
+    const store = await createTestStore()
+    createMapAutosave(store)
+    browserStorage.setItem.mockClear()
+    const fittedMap = buildupJsonFileMap(
+      [
+        {
+          uid: 'old-share-edge-piece',
+          inventoryID: 'g2',
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: { q: 4, r: 2, s: -6 },
+        },
+      ],
+      { ...hexMap, width: 6, length: 6 },
+    )
+
+    store.getState().loadMap(fittedMap, { holdAutosave: true })
+    vi.advanceTimersByTime(1000)
+
+    expect(fittedMap.dimensionsAdjusted).toBe(true)
+    expect(browserStorage.setItem).not.toHaveBeenCalledWith(
+      LS_KEYS.lastMap,
+      expect.any(String),
+    )
+    expect(values.has(LS_KEYS.lastMap)).toBe(false)
+
+    store.getState().changeMapName('Edited after load')
+    vi.advanceTimersByTime(750)
+
+    const saved = JSON.parse(values.get(LS_KEYS.lastMap) ?? '')
+    expect(saved.hexMap.width).toBe(7)
+    expect(saved.boardPieces).toHaveLength(1)
   })
 
   it('saves the map after portrait failure and retries the portrait', () => {

@@ -95,7 +95,11 @@ export function hexUtilsRotateAroundOrigin_000(
     ...hexUtilsAdd(rotatedVector, ORIGIN_000),
   }
 }
-export function hexUtilsGenHexagonGrid(mapRadius: number): CubeCoordinate[] {
+export function hexUtilsGenHexagonGrid(
+  mapRadius: number,
+  originQ = 0,
+  originR = 0,
+): CubeCoordinate[] {
   const hexas: CubeCoordinate[] = []
 
   // Calculate the offset to shift the hexagon down and to the right
@@ -109,9 +113,9 @@ export function hexUtilsGenHexagonGrid(mapRadius: number): CubeCoordinate[] {
     for (let r = r1; r <= r2; r++) {
       // Apply the offset to q and r
       hexas.push({
-        q: q + offsetQ,
-        r: r + offsetR,
-        s: -(q + offsetQ) - (r + offsetR),
+        q: q + offsetQ + originQ,
+        r: r + offsetR + originR,
+        s: -(q + offsetQ + originQ) - (r + offsetR + originR),
       })
     }
   }
@@ -120,10 +124,12 @@ export function hexUtilsGenHexagonGrid(mapRadius: number): CubeCoordinate[] {
 export function hexUtilsGenRectangleGrid(
   mapWidth: number,
   mapHeight: number,
+  originQ = 0,
+  originR = 0,
 ): CubeCoordinate[] {
   const hexas: CubeCoordinate[] = []
-  for (let r = 0; r < mapWidth; r++) {
-    const firstQ = hexUtilsOddRToCube(0, r).q
+  for (let r = originR; r < mapWidth + originR; r++) {
+    const firstQ = hexUtilsOddRToCube(0, r).q + originQ
     for (let q = firstQ; q < mapHeight + firstQ; q++) {
       hexas.push({ q, r, s: -q - r })
     }

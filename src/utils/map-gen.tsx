@@ -11,6 +11,8 @@ type RectangleScenarioOptions = {
   length?: number
   width?: number
   mapName?: string
+  originQ?: number
+  originR?: number
 }
 
 export function makeRectangleScenario(
@@ -36,9 +38,16 @@ export function makeRectangleScenario(
     shape: 'rectangle',
     width: mapWidth,
     length: mapLength,
+    ...(options?.originQ ? { originQ: options.originQ } : {}),
+    ...(options?.originR ? { originR: options.originR } : {}),
   }
 
-  const boardHexes: BoardHexes = generateRectangle(mapLength, mapWidth)
+  const boardHexes: BoardHexes = generateRectangle(
+    mapLength,
+    mapWidth,
+    options?.originQ ?? 0,
+    options?.originR ?? 0,
+  )
   return {
     boardHexes,
     hexMap,

@@ -91,6 +91,8 @@ function TestBridgeInner() {
           ready: getReady(),
           mapId: s.hexMap.id,
           mapName: s.hexMap.name,
+          mapWidth: s.hexMap.width,
+          mapLength: s.hexMap.length,
           pieceCount: s.boardPieces.length,
           hexCount: Object.keys(s.boardHexes).length,
           viewingLevel: s.viewingLevel,
