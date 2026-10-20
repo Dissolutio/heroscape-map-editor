@@ -1,4 +1,5 @@
 import { produce } from 'immer'
+import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
@@ -89,7 +90,10 @@ export interface MapSlice extends MapState {
   movePiece: (args: MovePieceArgs) => void
   /** Moves several pieces in one update (one undo step); see applyPieceMoves. */
   movePieces: (args: { moves: MovePieceArgs[] }) => void
-  loadMap: (map: MapState, options?: LoadMapOptions) => void
+  loadMap: (
+    map: MapState & { dimensionsAdjusted?: boolean },
+    options?: LoadMapOptions,
+  ) => void
   addMapPortraitBase64: (pic: string) => void
   changeMapName: (val: string) => void
   changeSetsUsed: (val: string[]) => void
@@ -409,9 +413,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.hexMap.mapNotes = val
       })
     }),
-  loadMap: (mapState: MapState, options = {}) => {
+  loadMap: (mapState, options = {}) => {
     clearGlobalMaterialCache()
-    return set((state) => {
+    const result = set((state) => {
       return produce(state, (draft) => {
         draft.boardHexes = mapState.boardHexes
         draft.hexMap = mapState.hexMap
@@ -441,6 +445,15 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         }
       })
     })
+    if (mapState.dimensionsAdjusted) {
+      enqueueSnackbar({
+        message: 'Hexoscape has adjusted your map dimensions to fit all pieces',
+        variant: 'info',
+        key: 'map-dimensions-adjusted',
+        preventDuplicate: true,
+      })
+    }
+    return result
   },
 })
 

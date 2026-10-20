@@ -5,6 +5,8 @@ export type E2ESnapshot = {
   ready: boolean
   mapId: string
   mapName: string
+  mapWidth: number
+  mapLength: number
   pieceCount: number
   hexCount: number
   viewingLevel: number

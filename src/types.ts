@@ -14,6 +14,8 @@ export type HexMap = {
   shape: string // 'hexagon' | 'rectangle'
   length: number // for hexagon shaped maps width=length=size
   width: number // for hexagon shaped maps width=length=size
+  originQ?: number
+  originR?: number
   setsUsed?: string[] // array of terrainSets Ids
   // properties below are written as BLANK STRINGS in URL-shareable format
   mapPortraitBase64?: string // a base64 representation of image of map (taken or submitted by user)

@@ -50,8 +50,8 @@ The canvas is invisible to accessibility snapshots, so read state in text:
 
 - `[data-testid="app-status"]` (visually hidden, still in the accessibility
   tree): map name, piece count, level, pen mode, how many pieces are selected.
-- `window.__TEST__.snapshot()`: the same, structured (`mapId`, `pieceCount`,
-  `hexCount`, `viewingLevel`, `penMode`, `selectedPieceIDs`,
+- `window.__TEST__.snapshot()`: the same, structured (`mapId`, `mapWidth`,
+  `mapLength`, `pieceCount`, `hexCount`, `viewingLevel`, `penMode`, `selectedPieceIDs`,
   `hoveredPieceID`, `isOrthoCam`, `ready`, `placementPreview`
   (`status`, `reason`, and `footprintCount`, or `null`), and `drag`: a piece
   press or drag in progress, or `null` (`state` is `'pressed'` or
@@ -144,6 +144,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Window typings | `src/e2e/e2e-globals.d.ts` |
 | Tests, fixtures | `e2e/` |
 | Viewing-level regression | `e2e/viewing-level.spec.ts` |
+| Load-time map fitting | `e2e/load-fits-map.spec.ts` |
 
 All of it renders nothing and installs nothing unless the switch in `isE2E.ts`
 is on.

@@ -13,15 +13,17 @@ import {
   hexUtilsAdd,
   hexUtilsOddRToCube,
 } from '../utils/hex-utils'
-import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
+import { generateHexagon, generateRectangle } from '../utils/hex-gen'
 import {
   type DroppedBoardPiece,
   dropUnknownBoardPieces,
 } from '../utils/map-utils'
 import { addPiece } from './addPiece'
+import { fitMapToPieces } from './fitMapToPieces'
 import { pieceCodes } from './pieceCodes'
 import { piecesSoFar } from './pieces'
 import { getCodeForVSPersonalTile } from './readVirtualscapeMapFile'
+import { makeRectangleScenario } from '../utils/map-gen'
 
 export default function buildupVSFileMap(
   tiles: VirtualScapeTile[],
@@ -94,6 +96,7 @@ function sortBoardPiecesForLoad(arr: BoardPiece[]) {
 export type JsonMapLoadResult = MapState & {
   /** Pieces omitted because they are malformed or use an unknown inventoryID. */
   droppedPieces: DroppedBoardPiece[]
+  dimensionsAdjusted?: boolean
 }
 export type VirtualScapeMapLoadResult = MapState & {
   /** Tiles omitted because their Virtualscape code is not recognized. */
@@ -123,19 +126,23 @@ export function buildupJsonFileMap(
   const { boardPieces: knownBoardPieces, droppedPieces: unknownPieces } =
     dropUnknownBoardPieces(boardPieces)
   const droppedPieces = [...droppedMalformedPieces, ...unknownPieces]
+  const fitted = fitMapToPieces(migratedHexMap, knownBoardPieces)
+  const fittedHexMap = fitted.hexMap
   const initialBoardPieces = clone(knownBoardPieces)
   let finalBoardPieces: BoardPieces = []
-  if (migratedHexMap.shape === 'rectangle') {
-    initialBoardHexes = makeRectangleScenario({
-      length: migratedHexMap.length,
-      width: migratedHexMap.width,
-      mapName: migratedHexMap.name,
-    }).boardHexes
+  if (fittedHexMap.shape === 'rectangle') {
+    initialBoardHexes = generateRectangle(
+      fittedHexMap.length,
+      fittedHexMap.width,
+      fittedHexMap.originQ ?? 0,
+      fittedHexMap.originR ?? 0,
+    )
   } else {
-    initialBoardHexes = makeHexagonScenario({
-      size: migratedHexMap.length,
-      mapName: migratedHexMap.name,
-    }).boardHexes
+    initialBoardHexes = generateHexagon(
+      Math.max(fittedHexMap.length, fittedHexMap.width) - 1,
+      fittedHexMap.originQ ?? 0,
+      fittedHexMap.originR ?? 0,
+    )
   }
   const piecesArray = sortBoardPiecesForLoad(initialBoardPieces)
   const newBoardHexes = piecesArray.reduce(
@@ -165,9 +172,10 @@ export function buildupJsonFileMap(
 
   return {
     boardHexes: newBoardHexes,
-    hexMap: migratedHexMap,
+    hexMap: fittedHexMap,
     boardPieces: finalBoardPieces,
     droppedPieces,
+    dimensionsAdjusted: fitted.changed,
   }
 }
 

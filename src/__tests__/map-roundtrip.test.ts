@@ -21,7 +21,7 @@ const hexMap: HexMap = {
   author: 'Test Builder',
   version: 1,
   shape: 'rectangle',
-  width: 20,
+  width: 22,
   length: 20,
 }
 
@@ -116,6 +116,35 @@ afterEach(() => {
 })
 
 describe('map persistence round trips', () => {
+  it('grows a map for an overhanging piece and preserves the fit on reload', () => {
+    const smallMap = { ...hexMap, width: 6, length: 6 }
+    const edgePiece: BoardPiece = {
+      uid: 'edge-land',
+      inventoryID: 'g2',
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 4, r: 2, s: -6 },
+    }
+    const firstLoad = buildupJsonFileMap([edgePiece], smallMap)
+
+    expect(firstLoad.dimensionsAdjusted).toBe(true)
+    expect(firstLoad.hexMap.width).toBe(7)
+    expect(firstLoad.boardPieces).toHaveLength(1)
+    expect(firstLoad.boardPieces[0]?.pieceCoords).toEqual(edgePiece.pieceCoords)
+
+    const savedMap = JSON.stringify({
+      hexMap: firstLoad.hexMap,
+      boardPieces: firstLoad.boardPieces,
+    })
+    const secondLoad = openJsonMapFile(savedMap)
+
+    expect(secondLoad.dimensionsAdjusted).toBe(false)
+    expect(secondLoad.hexMap).toEqual(firstLoad.hexMap)
+    expect(pieceDetails(secondLoad.boardPieces)).toEqual(
+      pieceDetails(firstLoad.boardPieces),
+    )
+  })
+
   it('saves and reopens the JSON file format with rebuilt conflicts', () => {
     const savedFile = JSON.stringify({ hexMap, boardPieces })
     const loaded = openJsonMapFile(savedFile)

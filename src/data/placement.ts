@@ -143,12 +143,26 @@ export function hangsOffMap(
   { piece, coords, rotation, rule }: ResolvedPlacement,
 ) {
   if (rule === 'battlement' || rule === 'roadWall') return false
+  return isFootprintOffMap(
+    (hex) => Boolean(boardHexes[genBoardHexID({ ...hex, altitude: 0 })]),
+    { piece, coords, rotation },
+  )
+}
+
+export function isFootprintOffMap(
+  hasTableHex: (coords: CubeCoordinate) => boolean,
+  {
+    piece,
+    coords,
+    rotation,
+  }: Pick<ResolvedPlacement, 'piece' | 'coords' | 'rotation'>,
+) {
   return getPieceTemplateCoords({
     clickedHex: coords,
     rotation,
     template: piece.template,
     isVsTile: false,
-  }).some((hex) => !boardHexes[genBoardHexID({ ...hex, altitude: 0 })])
+  }).some((hex) => !hasTableHex(hex))
 }
 
 /** The click rules, in order; resolvePlacement adds the map-edge check. */

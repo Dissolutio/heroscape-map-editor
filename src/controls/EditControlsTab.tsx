@@ -10,6 +10,7 @@ import {
 import { FcVlc } from 'react-icons/fc'
 import { FcRules } from 'react-icons/fc'
 import { buildupJsonFileMap } from '../data/buildupMap'
+import { resizeMap } from '../data/resizeMap'
 import { DIALOGS } from '../layout/dialogNames'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import useBoundStore from '../store/store'
@@ -119,81 +120,9 @@ export const EditControlsTab = () => {
       })),
     )
   }
-  const handleClickAddMapLengthX = () => {
-    const newHexMap = {
-      ...hexMap,
-      length: hexMap.length + 1,
-      width: hexMap.shape === 'hexagon' ? hexMap.width + 1 : hexMap.width,
-    }
-    if (hexMap.shape !== 'hexagon') {
-      const newMap = buildupJsonFileMap(boardPieces, newHexMap)
-      loadMap(newMap)
-    } else {
-      const shiftedEastPieces = shiftInDirectionBoardPieces(0, boardPieces)
-      const shiftedSouthEastPieces = shiftInDirectionBoardPieces(
-        1,
-        shiftedEastPieces,
-      )
-      const newMap = buildupJsonFileMap(shiftedSouthEastPieces, newHexMap)
-      loadMap(newMap)
-    }
-  }
-  const handleClickRemoveMapLengthX = () => {
-    const newHexMap = {
-      ...hexMap,
-      length: hexMap.length - 1,
-      width: hexMap.shape !== 'hexagon' ? hexMap.width : hexMap.width - 1,
-    }
-    if (hexMap.shape !== 'hexagon') {
-      const newMap = buildupJsonFileMap(boardPieces, newHexMap)
-      loadMap(newMap)
-    } else {
-      const shiftedWestPieces = shiftInDirectionBoardPieces(3, boardPieces)
-      const shiftedNorthWestPieces = shiftInDirectionBoardPieces(
-        4,
-        shiftedWestPieces,
-      )
-      const newMap = buildupJsonFileMap(shiftedNorthWestPieces, newHexMap)
-      loadMap(newMap)
-    }
-  }
-  const handleClickAddMapWidthY = () => {
-    const newHexMap = {
-      ...hexMap,
-      width: hexMap.width + 1,
-      length: hexMap.shape === 'hexagon' ? hexMap.length + 1 : hexMap.length,
-    }
-    if (hexMap.shape !== 'hexagon') {
-      const newMap = buildupJsonFileMap(boardPieces, newHexMap)
-      loadMap(newMap)
-    } else {
-      const shiftedEastPieces = shiftInDirectionBoardPieces(0, boardPieces)
-      const shiftedSouthEastPieces = shiftInDirectionBoardPieces(
-        1,
-        shiftedEastPieces,
-      )
-      const newMap = buildupJsonFileMap(shiftedSouthEastPieces, newHexMap)
-      loadMap(newMap)
-    }
-  }
-  const handleClickRemoveMapWidthY = () => {
-    const newHexMap = {
-      ...hexMap,
-      width: hexMap.width - 1,
-      length: hexMap.shape !== 'hexagon' ? hexMap.length : hexMap.length - 1,
-    }
-    if (hexMap.shape !== 'hexagon') {
-      const newMap = buildupJsonFileMap(boardPieces, newHexMap)
-      loadMap(newMap)
-    } else {
-      const shiftedWestPieces = shiftInDirectionBoardPieces(3, boardPieces)
-      const shiftedNorthWestPieces = shiftInDirectionBoardPieces(
-        4,
-        shiftedWestPieces,
-      )
-      const newMap = buildupJsonFileMap(shiftedNorthWestPieces, newHexMap)
-      loadMap(newMap)
-    }
+  const resizeAndLoad = (dimension: 'length' | 'width', delta: 1 | -1) => {
+    const resized = resizeMap(hexMap, boardPieces, dimension, delta)
+    loadMap(buildupJsonFileMap(resized.boardPieces, resized.hexMap))
   }
   const buttonFontSize = isSmallScreenWidth ? 8 : isMediumScreenWidth ? 8 : 8
   return (
@@ -251,7 +180,7 @@ export const EditControlsTab = () => {
                   ? 'Add one outer ring of hexes'
                   : 'Add one row of hexes to bottom'
               }
-              onClick={handleClickAddMapLengthX}
+              onClick={() => resizeAndLoad('length', 1)}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -268,7 +197,7 @@ export const EditControlsTab = () => {
                   ? 'Remove one outer ring of hexes'
                   : 'Remove one row of hexes from bottom'
               }
-              onClick={handleClickRemoveMapLengthX}
+              onClick={() => resizeAndLoad('length', -1)}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -283,7 +212,7 @@ export const EditControlsTab = () => {
                   hexMap.width >= MAX_RECTANGLE_MAP_DIMENSION)
               }
               title="Add one column of hexes to right side"
-              onClick={handleClickAddMapWidthY}
+              onClick={() => resizeAndLoad('width', 1)}
               sx={{
                 fontSize: buttonFontSize,
               }}
@@ -296,7 +225,7 @@ export const EditControlsTab = () => {
                 (hexMap.shape === 'rectangle' && hexMap.width <= 1)
               }
               title="Remove one column of hexes from right side"
-              onClick={handleClickRemoveMapWidthY}
+              onClick={() => resizeAndLoad('width', -1)}
               sx={{
                 fontSize: buttonFontSize,
               }}
