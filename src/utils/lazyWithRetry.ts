@@ -3,7 +3,7 @@ import { lazy, type ComponentType } from 'react'
 const RELOAD_FLAG = 'chunk-load-retry-reload'
 
 const isChunkLoadError = (error: unknown) =>
-  /Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed|Loading chunk|Minified React error #310/i.test(
+  /Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed|not a valid JavaScript MIME type|Loading chunk|Minified React error #310/i.test(
     (error as Error)?.message ?? '',
   )
 
