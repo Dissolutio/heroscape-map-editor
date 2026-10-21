@@ -3,12 +3,13 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
-import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
+import { isLaurAddonSupported } from '../data/laurAddonSupport'
 import { piecesSoFar } from '../data/pieces'
 import type { BoardPiece, CubeCoordinate, HexMap } from '../types'
 import { Pieces } from '../types'
 import { normalizeBoardPiecesWithDropped } from '../utils/map-utils'
-import { cloneBoard, makeTable, place } from './helpers/board'
+import { cloneBoard, makeTable, place, withGrassFloor } from './helpers/board'
+import type { Board } from './helpers/board'
 
 const center = makeTable(9).center
 const east = { q: center.q + 1, r: center.r, s: center.s - 1 }
@@ -16,6 +17,11 @@ const southeast = {
   q: center.q,
   r: center.r + 1,
   s: center.s - 1,
+}
+const farEastSoutheast = {
+  q: center.q + 1,
+  r: center.r + 1,
+  s: center.s - 2,
 }
 
 const piece = (
@@ -28,109 +34,229 @@ const piece = (
 
 const sorted = (uids: string[]) => [...uids].sort()
 
+const placeOnBoard = (
+  board: ReturnType<typeof cloneBoard>,
+  pieceID: string,
+  at: CubeCoordinate,
+  uid: string,
+  rotation = 0,
+  altitude = 0,
+) =>
+  place({
+    board,
+    pieceID,
+    at,
+    uid,
+    rotation,
+    altitude,
+    permissive: true,
+  }).board
+
+type AttachedCase = {
+  name: string
+  inventoryID: string
+  rotation: number
+  pillars: { at: CubeCoordinate; rotation: number }[]
+}
+
+const attachedCases: AttachedCase[] = [
+  {
+    name: 'short wall',
+    inventoryID: Pieces.laurWallShort,
+    rotation: 0,
+    pillars: [
+      { at: center, rotation: 0 },
+      { at: east, rotation: 0 },
+    ],
+  },
+  {
+    name: 'long wall',
+    inventoryID: Pieces.laurWallLong,
+    rotation: 0.5,
+    pillars: [
+      { at: center, rotation: 5 },
+      { at: farEastSoutheast, rotation: 2 },
+    ],
+  },
+  {
+    name: 'ruin',
+    inventoryID: Pieces.laurWallRuin2,
+    rotation: 0,
+    pillars: [{ at: center, rotation: 0 }],
+  },
+]
+
 describe('evaluateLaurAddonConflicts', () => {
   it.each([
-    [Pieces.laurWallShortStackable, 0, 12, 'registered height'],
-    [Pieces.laurWallLongStackable, 0.5, 10, 'footprint height'],
+    [Pieces.laurWallShortStackable, 0, 12],
+    [Pieces.laurWallLongStackable, 0.5, 12],
   ])(
-    'does not conflict for %s when %s altitude bands only touch',
-    (inventoryID, rotation, height, heightSource) => {
-      const addon = piece('lower', inventoryID, center, rotation, 0)
-      const upperAddon = piece('upper', inventoryID, center, rotation, height)
-      const footprint = getLaurAddonFootprint({
-        inventoryID,
-        anchor: center,
-        altitude: 0,
-        rotation,
-      })
-      expect(
-        footprint?.heightInLevels ?? piecesSoFar[inventoryID]?.height,
-        `${heightSource} should be used`,
-      ).toBe(height)
-      expect(evaluateLaurAddonConflicts([addon, upperAddon], {})).toEqual([])
+    'does not conflict when %s altitude bands only touch',
+    (inventoryID, rotation, height) => {
+      const lower = piece('lower', inventoryID, center, rotation, 0)
+      const upper = piece('upper', inventoryID, center, rotation, height)
+      expect(evaluateLaurAddonConflicts([lower, upper], {})).toEqual([])
     },
   )
 
   it.each([
     [Pieces.laurWallShortStackable, 0, 12],
-    [Pieces.laurWallLongStackable, 0.5, 10],
+    [Pieces.laurWallLongStackable, 0.5, 12],
   ])(
-    'conflicts for %s when their altitude bands overlap',
+    'flags both %s pieces when their altitude bands overlap',
     (inventoryID, rotation, height) => {
-      const addon = piece('lower', inventoryID, center, rotation, 0)
-      const upperAddon = piece(
-        'upper',
-        inventoryID,
-        center,
-        rotation,
-        height - 1,
-      )
-      expect(evaluateLaurAddonConflicts([addon, upperAddon], {})).toEqual([
+      const lower = piece('lower', inventoryID, center, rotation, 0)
+      const upper = piece('upper', inventoryID, center, rotation, height - 1)
+      expect(sorted(evaluateLaurAddonConflicts([lower, upper], {}))).toEqual([
         'lower',
         'upper',
       ])
     },
   )
 
-  it('flags both add-ons occupying the same canonical side', () => {
+  it.each(attachedCases)(
+    'does not flag a correctly attached $name on its end pillars',
+    ({ inventoryID, rotation, pillars }) => {
+      let board: Board = cloneBoard(makeTable(9))
+      for (const [
+        index,
+        { at, rotation: pillarRotation },
+      ] of pillars.entries()) {
+        board = placeOnBoard(
+          board,
+          Pieces.laurWallSquarePillar,
+          at,
+          `pillar-${index}`,
+          pillarRotation,
+        )
+      }
+      const addon = piece('addon', inventoryID, center, rotation)
+      const boardPieces = [...board.boardPieces, addon]
+
+      expect(isLaurAddonSupported({ boardPieces }, addon)).toBe('supported')
+      expect(evaluateLaurAddonConflicts(boardPieces, board.boardHexes)).toEqual(
+        [],
+      )
+    },
+  )
+
+  it.each([
+    {
+      addonID: Pieces.laurWallShort,
+      rotation: 0,
+      occupantID: Pieces.grass1,
+      location: 'end',
+    },
+    {
+      addonID: Pieces.laurWallShort,
+      rotation: 0,
+      occupantID: Pieces.tree10,
+      location: 'end',
+    },
+    {
+      addonID: Pieces.laurWallRuin2,
+      rotation: 0,
+      occupantID: Pieces.grass1,
+      location: 'blocked',
+    },
+    {
+      addonID: Pieces.laurWallRuin2,
+      rotation: 0,
+      occupantID: Pieces.tree10,
+      location: 'blocked',
+    },
+  ])(
+    'flags a non-pillar $location hex occupant for $addonID',
+    ({ addonID, rotation, occupantID }) => {
+      const occupied = placeOnBoard(
+        cloneBoard(makeTable(9)),
+        occupantID,
+        east,
+        'occupant',
+      )
+      const addon = piece('addon', addonID, center, rotation)
+      expect(
+        sorted(
+          evaluateLaurAddonConflicts(
+            [...occupied.boardPieces, addon],
+            occupied.boardHexes,
+          ),
+        ),
+      ).toEqual(['addon', 'occupant'])
+    },
+  )
+
+  it('does not flag two walls on different ports of the same pillar', () => {
+    expect(
+      evaluateLaurAddonConflicts(
+        [
+          piece('east-wall', Pieces.laurWallShort, center, 0),
+          piece('west-wall', Pieces.laurWallShort, center, 3),
+        ],
+        {},
+      ),
+    ).toEqual([])
+  })
+
+  it('does not flag pillars, including a stacked pillar, within an end band', () => {
+    let board: Board = cloneBoard(makeTable(9))
+    board = placeOnBoard(
+      board,
+      Pieces.laurWallSquarePillar,
+      center,
+      'base-pillar',
+      0,
+      0,
+    )
+    board = placeOnBoard(
+      board,
+      Pieces.laurWallPillarStackable,
+      center,
+      'stacked-pillar',
+      0,
+      8,
+    )
+    const addon = piece('addon', Pieces.laurWallShort, center, 0, 0)
+    expect(
+      evaluateLaurAddonConflicts(
+        [...board.boardPieces, addon],
+        board.boardHexes,
+      ),
+    ).toEqual([])
+  })
+
+  it('still flags a non-land obstacle at an attached pillar end', () => {
+    let board: Board = cloneBoard(withGrassFloor(makeTable(9)))
+    board = placeOnBoard(
+      board,
+      Pieces.laurWallSquarePillar,
+      center,
+      'pillar',
+      0,
+      1,
+    )
+    board = placeOnBoard(
+      board,
+      Pieces.laurWallSquarePillar,
+      east,
+      'far-pillar',
+      0,
+      1,
+    )
+    board = placeOnBoard(board, Pieces.tree10, center, 'tree', 0, 2)
+    const addon = piece('addon', Pieces.laurWallShort, center, 0, 1)
+
     expect(
       sorted(
         evaluateLaurAddonConflicts(
-          [
-            piece('a', Pieces.laurWallShort, center, 0),
-            piece('b', Pieces.laurWallShort, east, 3),
-          ],
-          {},
+          [...board.boardPieces, addon],
+          board.boardHexes,
         ),
       ),
-    ).toEqual(['a', 'b'])
+    ).toEqual(['addon', 'tree'])
   })
 
-  it('flags an add-on and land in a supported footprint altitude band', () => {
-    const land = place({
-      board: cloneBoard(makeTable(9)),
-      pieceID: 'g1',
-      at: east,
-      altitude: 0,
-      uid: 'land',
-      permissive: true,
-    }).board
-    expect(
-      sorted(
-        evaluateLaurAddonConflicts(
-          [
-            piece('addon', Pieces.laurWallRuin2, center, 0),
-            ...land.boardPieces,
-          ],
-          land.boardHexes,
-        ),
-      ),
-    ).toEqual(['addon', 'land'])
-  })
-
-  it('flags pieces placed over an existing add-on footprint', () => {
-    const land = place({
-      board: cloneBoard(makeTable(9)),
-      pieceID: 'g1',
-      at: east,
-      altitude: 0,
-      uid: 'later-land',
-      permissive: true,
-    }).board
-    expect(
-      sorted(
-        evaluateLaurAddonConflicts(
-          [
-            ...land.boardPieces,
-            piece('existing-addon', Pieces.laurWallRuin2, center, 0),
-          ],
-          land.boardHexes,
-        ),
-      ),
-    ).toEqual(['existing-addon', 'later-land'])
-  })
-
-  it('flags supported physical overlap between two add-on footprints', () => {
+  it('flags two add-ons whose blocked hexes overlap within their bands', () => {
     expect(
       sorted(
         evaluateLaurAddonConflicts(
@@ -144,16 +270,36 @@ describe('evaluateLaurAddonConflicts', () => {
     ).toEqual(['first', 'second'])
   })
 
-  it('does not mutate either input', () => {
-    const boardPieces = [piece('addon', Pieces.laurWallRuin2, center, 0)]
-    const beforePieces = structuredClone(boardPieces)
-    const boardHexes = {}
-    evaluateLaurAddonConflicts(boardPieces, boardHexes)
-    expect(boardPieces).toEqual(beforePieces)
-    expect(boardHexes).toEqual({})
+  it('keeps shared canonical side conflicts altitude-aware', () => {
+    const lower = piece('lower', Pieces.laurWallShort, center, 0, 0)
+    const adjacent = piece('adjacent', Pieces.laurWallShort, east, 3, 0)
+    const above = piece('above', Pieces.laurWallShort, east, 3, 12)
+    expect(sorted(evaluateLaurAddonConflicts([lower, adjacent], {}))).toEqual([
+      'adjacent',
+      'lower',
+    ])
+    expect(evaluateLaurAddonConflicts([lower, above], {})).toEqual([])
   })
 
-  it('skips canonical band checks when a Laur add-on has no registered height', () => {
+  it('does not mutate either board input', () => {
+    const board = placeOnBoard(
+      cloneBoard(makeTable(9)),
+      Pieces.grass1,
+      east,
+      'land',
+    )
+    const boardPieces = [
+      ...board.boardPieces,
+      piece('addon', Pieces.laurWallRuin2, center, 0),
+    ]
+    const beforePieces = structuredClone(boardPieces)
+    const beforeHexes = structuredClone(board.boardHexes)
+    evaluateLaurAddonConflicts(boardPieces, board.boardHexes)
+    expect(boardPieces).toEqual(beforePieces)
+    expect(board.boardHexes).toEqual(beforeHexes)
+  })
+
+  it('skips band checks when an add-on has no registered height', () => {
     const inventoryID = Pieces.laurWallShort
     const registeredPiece = piecesSoFar[inventoryID]
     if (!registeredPiece) throw new Error('Expected a registered Laur wall')
@@ -180,15 +326,6 @@ describe('evaluateLaurAddonConflicts', () => {
     } finally {
       piecesSoFar[inventoryID] = registeredPiece
     }
-  })
-
-  it('leaves unmeasured add-on footprints to the canonical-edge check', () => {
-    expect(
-      evaluateLaurAddonConflicts(
-        [piece('short', Pieces.laurWallShort, center, 0)],
-        {},
-      ),
-    ).toEqual([])
   })
 
   it('does not report conflicts in the public Library of Laur map', () => {

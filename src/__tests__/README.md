@@ -17,9 +17,9 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `piece-registry.test.ts` | The "add a new terrain piece" checklist: every registry that must agree about a piece. **Read this first if you are adding terrain.** |
 | `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
 | `replay-conflicts.test.ts` | How conflicts are computed (`data/rebuildBoardState.ts`): ordinary occupancy conflicts plus derived Laur conflicts. |
-| `laur-addon-footprints.test.ts` | Which hexes lwl2/lwr2/lwr3 block and the source's 10-level height (kept despite metadata being 12). |
+| `laur-addon-footprints.test.ts` | All eight Laur add-on attachment ends and blocked hexes, allowed rotation kinds, wrap-around geometry, registered heights, plus pending support-table, visual-model, and pointer-altitude verification todos. |
 | `laur-addon-placement.test.ts` | Laur side/vertex picking, canonical identity, allowed rotations, center tie-break, and non-mutation. |
-| `laur-addon-conflicts.test.ts` | Altitude-aware same-edge conflicts, supported physical footprint overlaps, reverse overlaps, missing registered heights, non-mutation, and the known-good map audit. |
+| `laur-addon-conflicts.test.ts` | Altitude-aware canonical-port conflicts, attachment-end pillar exceptions, blocked-cell land/non-add-on conflicts, blocked add-on overlap, stacked pillar exemptions, missing registered heights, non-mutation, and the known-good map audit. |
 | `laur-addon-support.test.ts` | Square/triangle pillar port tables, every add-on's required support ports and rotations, bridge endpoints, ruin anchors, stacked pillar altitudes, non-mutation, and the deferred stacked-hit-altitude check. |
 | `piece-ids-and-loading.test.ts` | Piece ids, legacy uid-less piece normalization, saved-map formats, and the load path (`buildupJsonFileMap`). |
 | `hex-grid.test.ts` | Cube coordinates, directions, rotation, grid generation, odd-r conversion. |

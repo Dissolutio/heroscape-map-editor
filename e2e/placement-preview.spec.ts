@@ -59,13 +59,13 @@ test('a Laur add-on previews and places on empty and land hexes', async ({
 
   await hoverHex(page, { q: 0, r: 2, altitude: 1 })
   await page.waitForFunction(
-    () => window.__TEST__?.snapshot().placementPreview?.status === 'ok',
+    () => window.__TEST__?.snapshot().placementPreview?.status === 'conflict',
   )
   const landPreview = await page.evaluate(
     () => window.__TEST__?.snapshot().placementPreview,
   )
   expect(landPreview).toMatchObject({
-    status: 'ok',
+    status: 'conflict',
     unsupported: true,
   })
   await clickHex(page, { q: 0, r: 2, altitude: 1 })

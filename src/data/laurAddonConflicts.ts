@@ -1,5 +1,11 @@
-import type { BoardHexes, BoardPieces, CubeCoordinate } from '../types'
-import { HexTerrain } from '../types'
+import type {
+  BoardHex,
+  BoardHexes,
+  BoardPiece,
+  BoardPieces,
+  CubeCoordinate,
+} from '../types'
+import { Pieces } from '../types'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { getLaurAddonFootprint } from './laurAddonFootprints'
 import { getLaurAddonCanonicalKey } from './laurAddonPlacement'
@@ -11,104 +17,172 @@ const overlapsAltitude = (
   height: number,
   otherAltitude: number,
 ) => otherAltitude >= altitude && otherAltitude < altitude + height
-const overlapsAltitudeBands = (
-  altitude: number,
-  height: number,
-  otherAltitude: number,
-  otherHeight: number,
-) => altitude < otherAltitude + otherHeight && otherAltitude < altitude + height
+
+type AltitudeBand = {
+  uid: string
+  altitude: number
+  height: number
+}
+
+type LaurAddon = {
+  piece: BoardPiece
+  canonicalKey: string | null
+  footprint: ReturnType<typeof getLaurAddonFootprint>
+  heightInLevels: number | undefined
+}
+
+const pillarIDs = new Set<string>([
+  Pieces.laurWallSquarePillar,
+  Pieces.laurWallPillarStackable,
+  Pieces.laurWallTrianglePillar,
+])
+
+function addToIndex<T>(index: Map<string, T[]>, key: string, value: T) {
+  const entries = index.get(key)
+  if (entries) entries.push(value)
+  else index.set(key, [value])
+}
+
+function flagOverlappingBands(bands: AltitudeBand[], conflicts: Set<string>) {
+  const ordered = [...bands].sort(
+    (a, b) =>
+      a.altitude - b.altitude ||
+      a.altitude + a.height - (b.altitude + b.height),
+  )
+  let greatestEnd = Number.NEGATIVE_INFINITY
+  let greatestEndUID: string | undefined
+
+  for (const band of ordered) {
+    if (band.altitude < greatestEnd && greatestEndUID) {
+      conflicts.add(band.uid)
+      conflicts.add(greatestEndUID)
+    }
+    const end = band.altitude + band.height
+    if (end > greatestEnd) {
+      greatestEnd = end
+      greatestEndUID = band.uid
+    }
+  }
+}
 
 /**
  * Evaluate derived Laur add-on conflicts without changing either board input.
- * Physical footprint checks deliberately use only measured footprint data.
+ * Physical checks use registered footprint data; shared attachment identities
+ * are checked separately from blocked-hex overlap.
  */
 export function evaluateLaurAddonConflicts(
   boardPieces: BoardPieces,
   boardHexes: BoardHexes,
 ) {
   const conflicts = new Set<string>()
-  const addons = boardPieces.flatMap((piece) => {
+  const pieceByUID = new Map(boardPieces.map((piece) => [piece.uid, piece]))
+  const addons: LaurAddon[] = boardPieces.flatMap((piece) => {
     if (!isLaurWallAddonPieceID(piece.inventoryID)) return []
-    const canonicalKey = getLaurAddonCanonicalKey(
-      piece.pieceCoords,
-      piece.rotation,
-    )
-    if (!canonicalKey) return []
     const footprint = getLaurAddonFootprint({
       inventoryID: piece.inventoryID,
       anchor: piece.pieceCoords,
       altitude: piece.altitude,
       rotation: piece.rotation,
     })
-    const heightInLevels =
-      footprint?.heightInLevels ?? piecesSoFar[piece.inventoryID]?.height
     return [
       {
         piece,
-        canonicalKey,
+        canonicalKey: getLaurAddonCanonicalKey(
+          piece.pieceCoords,
+          piece.rotation,
+        ),
         footprint,
-        heightInLevels,
+        heightInLevels:
+          footprint?.heightInLevels ?? piecesSoFar[piece.inventoryID]?.height,
       },
     ]
   })
 
-  for (let i = 0; i < addons.length; i++) {
-    const addon = addons[i]
-    for (let j = i + 1; j < addons.length; j++) {
-      const other = addons[j]
-      if (
-        addon.canonicalKey === other.canonicalKey &&
-        addon.heightInLevels !== undefined &&
-        other.heightInLevels !== undefined &&
-        overlapsAltitudeBands(
-          addon.piece.altitude,
-          addon.heightInLevels,
-          other.piece.altitude,
-          other.heightInLevels,
-        )
-      ) {
-        conflicts.add(addon.piece.uid)
-        conflicts.add(other.piece.uid)
-      }
-      if (!addon.footprint || !other.footprint) continue
-      if (
-        addon.footprint.blockedHexes.some((hex) =>
-          other.footprint?.blockedHexes.some(
-            (otherHex) => coordKey(hex) === coordKey(otherHex),
-          ),
-        ) &&
-        overlapsAltitudeBands(
-          addon.piece.altitude,
-          addon.footprint.heightInLevels,
-          other.piece.altitude,
-          other.footprint.heightInLevels,
-        )
-      ) {
-        conflicts.add(addon.piece.uid)
-        conflicts.add(other.piece.uid)
-      }
+  const bandsByCanonicalKey = new Map<string, AltitudeBand[]>()
+  const blockedBandsByCoordinate = new Map<string, AltitudeBand[]>()
+  for (const addon of addons) {
+    if (addon.heightInLevels !== undefined && addon.canonicalKey) {
+      addToIndex(bandsByCanonicalKey, addon.canonicalKey, {
+        uid: addon.piece.uid,
+        altitude: addon.piece.altitude,
+        height: addon.heightInLevels,
+      })
     }
-
-    if (!addon.footprint) continue
-    const blockedCells = new Set(addon.footprint.blockedHexes.map(coordKey))
-    for (const hex of Object.values(boardHexes)) {
-      if (
-        !hex.boardPieceUID ||
-        hex.boardPieceUID === addon.piece.uid ||
-        !blockedCells.has(coordKey(hex)) ||
-        !overlapsAltitude(
-          addon.piece.altitude,
-          addon.footprint.heightInLevels,
-          hex.altitude,
-        )
-      ) {
-        continue
-      }
-      if (hex.terrain !== HexTerrain.empty || hex.inventoryID || hex.pieceID) {
-        conflicts.add(addon.piece.uid)
-        conflicts.add(hex.boardPieceUID)
-      }
+    for (const hex of addon.footprint?.blockedHexes ?? []) {
+      addToIndex(blockedBandsByCoordinate, coordKey(hex), {
+        uid: addon.piece.uid,
+        altitude: addon.piece.altitude,
+        height: addon.footprint?.heightInLevels ?? 0,
+      })
     }
   }
+  for (const bands of bandsByCanonicalKey.values()) {
+    flagOverlappingBands(bands, conflicts)
+  }
+  for (const bands of blockedBandsByCoordinate.values()) {
+    flagOverlappingBands(bands, conflicts)
+  }
+
+  const occupantsByCoordinate = new Map<string, BoardHex[]>()
+  for (const hex of Object.values(boardHexes)) {
+    if (hex.boardPieceUID) {
+      addToIndex(occupantsByCoordinate, coordKey(hex), hex)
+    }
+  }
+  const pillarsByCoordinate = new Map<string, BoardPiece[]>()
+  for (const piece of boardPieces) {
+    if (pillarIDs.has(piece.inventoryID)) {
+      addToIndex(pillarsByCoordinate, coordKey(piece.pieceCoords), piece)
+    }
+  }
+
+  for (const addon of addons) {
+    const footprint = addon.footprint
+    if (!footprint) continue
+    const inspectHexes = (
+      coordinates: CubeCoordinate[],
+      attachmentEnds: boolean,
+    ) => {
+      for (const coordinate of coordinates) {
+        const hasPillarAtEnd =
+          attachmentEnds &&
+          (pillarsByCoordinate.get(coordKey(coordinate)) ?? []).some(
+            (pillar) =>
+              pillar.altitude >= footprint.altitude &&
+              pillar.altitude < footprint.altitude + footprint.heightInLevels,
+          )
+        const occupants: BoardHex[] = (
+          occupantsByCoordinate.get(coordKey(coordinate)) ?? []
+        ).filter((hex) =>
+          overlapsAltitude(
+            footprint.altitude,
+            footprint.heightInLevels,
+            hex.altitude,
+          ),
+        )
+        for (const hex of occupants) {
+          const uid: string | undefined = hex.boardPieceUID
+          if (!uid || uid === addon.piece.uid) continue
+
+          const inventoryID =
+            pieceByUID.get(uid)?.inventoryID ?? hex.inventoryID
+          if (
+            (attachmentEnds &&
+              (pillarIDs.has(inventoryID) ||
+                (hasPillarAtEnd &&
+                  piecesSoFar[inventoryID]?.isHexTerrainPiece))) ||
+            (!attachmentEnds && isLaurWallAddonPieceID(inventoryID))
+          ) {
+            continue
+          }
+          conflicts.add(addon.piece.uid)
+          conflicts.add(uid)
+        }
+      }
+    }
+    inspectHexes(footprint.endHexes, true)
+    inspectHexes(footprint.blockedHexes, false)
+  }
+
   return [...conflicts]
 }
