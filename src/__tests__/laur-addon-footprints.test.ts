@@ -12,6 +12,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
+import { piecesSoFar } from '../data/pieces'
 import { Pieces } from '../types'
 
 const anchor = { q: 5, r: 5, s: -10 }
@@ -98,12 +99,13 @@ describe('getLaurAddonFootprint', () => {
     }
   })
 
-  it('all three are 10 levels tall and keep the given altitude', () => {
+  it('keeps the footprint height at 10 despite 12-level registered metadata', () => {
     for (const id of ALL) {
       expect(footprint(id, 0.5)).toMatchObject({
         heightInLevels: 10,
         altitude: 9,
       })
+      expect(piecesSoFar[id]?.height).toBe(12)
     }
   })
 
@@ -119,4 +121,19 @@ describe('getLaurAddonFootprint', () => {
       footprint(Pieces.laurWallRuin2, 0.5),
     )
   })
+})
+
+describe('pending physical Laur add-on rules', () => {
+  it.todo(
+    'the support table lists verified add-on rotations for every square and triangle pillar rotation',
+  )
+  it.todo(
+    'the half-step blocked pair for lwl2 matches the measured 3D model footprint at every rotation',
+  )
+  it.todo(
+    'every Laur add-on type and allowed rotation has a verified horizontal and vertical footprint',
+  )
+  it.todo(
+    'unsupported pen placement and dragging use the owner-approved altitude when the pointer is not on a pillar',
+  )
 })

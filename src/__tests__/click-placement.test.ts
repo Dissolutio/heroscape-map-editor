@@ -200,19 +200,13 @@ describe('click placement through the real handler', () => {
     },
   )
 
-  /**
-   * Laur add-ons only attach to Laur pillars, castle walls included. (Was a
-   * KNOWN GAP: the castle-wall rule ran before the add-on refusal.)
-   */
   it.each(['lws', 'lwa'])(
-    'a Laur add-on (%s) clicked on a castle wall is not placed',
+    'a Laur add-on (%s) can be placed on a castle wall',
     (pieceID) => {
       const { board, hex } = onCastleWall()
       const result = clickWithPen({ board, pieceID, hex })
-      expect(result.added).toEqual([])
-      expect(snackbarMessages()).toEqual([
-        'Must add to Square/Triangle Pillar.',
-      ])
+      expect(result.added).toHaveLength(1)
+      expect(snackbarMessages()).toEqual([])
     },
   )
 

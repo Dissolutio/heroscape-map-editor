@@ -238,6 +238,7 @@ describe('settings persistence', () => {
       'selectedPieceIDs',
       'hoveredPieceID',
       'hoveredHex',
+      'hoveredWorldPoint',
       'piecePreviews',
       'isDraggingPiece',
       'dragPreview',

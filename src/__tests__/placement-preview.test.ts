@@ -58,12 +58,21 @@ describe('placement preview state', () => {
     expect(preview(tree, 'tr10').evaluation.status).toBe('conflict')
   })
 
-  it('reports a Laur add-on on grass as blocked with its reason', () => {
-    expect(preview(table, 'lws').evaluation).toMatchObject({
-      status: 'blocked',
-      reason: 'needsLaurPillar',
-      footprintHexes: [],
-    })
+  it('reports a Laur add-on on grass as placeable without a pillar', () => {
+    expect(preview(table, 'lws').evaluation.status).toBe('ok')
+  })
+
+  it('shows a same-edge Laur add-on preview as a conflict', () => {
+    const existing = place({
+      board: cloneBoard(table),
+      pieceID: 'lws',
+      at: center,
+      altitude: 1,
+      rotation: 0,
+      uid: 'existing-addon',
+      permissive: true,
+    }).board
+    expect(preview(existing, 'lws').evaluation.status).toBe('conflict')
   })
 
   it('reports an arch on a castle wall top as blocked', () => {

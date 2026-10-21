@@ -82,7 +82,7 @@ function FluidCap({
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnter, onPointerOut, onPointerMove } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const color =
     hexTerrainColor[boardHex.terrain as keyof typeof hexTerrainColor]
@@ -148,9 +148,11 @@ function FluidCap({
       onPointerDown={(e: ThreeEvent<PointerEvent>) =>
         isVisible && pressPieceForDrag(e, boardHex.boardPieceUID)
       }
-      onPointerMove={(e: ThreeEvent<PointerEvent>) =>
-        isVisible && reportDragTargetHex(boardHex) && e.stopPropagation()
-      }
+      onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+        if (!isVisible) return
+        onPointerMove(e)
+        if (reportDragTargetHex(boardHex)) e.stopPropagation()
+      }}
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}

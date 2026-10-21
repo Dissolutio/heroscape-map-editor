@@ -42,10 +42,10 @@ piece to load; unknown IDs are not retained as hidden pieces.
 One existing exception is important to preserve: pieces whose terrain is
 `laurWallAddon` take the Laur branch in `addPiece()`, which records only the
 `BoardPiece`. They have no `boardHexes` expansion and render from
-`boardPieces` in `MapBoardPiece3D`. The footprint data in
-[`src/data/laurAddonFootprints.ts`](../src/data/laurAddonFootprints.ts) is
-documented as future edges-and-nodes input and is not used by the app. Do not
-change that behavior as part of an unrelated piece addition.
+`boardPieces` in `MapBoardPiece3D`. Pen placement uses a world-hit resolver;
+conflict evaluation uses the measured data in
+[`src/data/laurAddonFootprints.ts`](../src/data/laurAddonFootprints.ts) only
+for `lwl2`, `lwr2`, and `lwr3`. Do not infer footprints for other add-ons.
 
 ## 2. Registration checklist, in order
 
@@ -206,12 +206,14 @@ Run `npm test`. The most relevant existing tests are:
 | [`src/__tests__/place-and-remove.test.ts`](../src/__tests__/place-and-remove.test.ts) | Places registered pieces at supported rotations and removes them; also covers strict placement stories. A missing template or unsupported piece branch tends to fail here. |
 | [`src/__tests__/terrain-constraints.test.ts`](../src/__tests__/terrain-constraints.test.ts) | Inventory normalization, set/personal/file constraints, and which land sizes are available from an inventory. |
 | [`src/__tests__/placement.test.ts`](../src/__tests__/placement.test.ts) | `resolvePlacement()`, placement blocking/evaluation, map-edge footprint sweeps, and parity with the shared placement cases. |
-| [`src/__tests__/click-placement.test.ts`](../src/__tests__/click-placement.test.ts) and [`src/__tests__/helpers/placementCases.ts`](../src/__tests__/helpers/placementCases.ts) | The real click handler, placement by family, refusals/messages, conflicts, and undo. Add a case here when a new piece needs a distinct click rule. |
+| [`src/__tests__/click-placement.test.ts`](../src/__tests__/click-placement.test.ts) and [`src/__tests__/helpers/placementCases.ts`](../src/__tests__/helpers/placementCases.ts) | The real click handler, placement by family, refusals/messages, conflicts, permissive Laur add-on placement, and undo. Add a case here when a new piece needs a distinct click rule. |
 | [`src/__tests__/placement-preview.test.ts`](../src/__tests__/placement-preview.test.ts) | Preview placement status/reason and preview styles; it does not render or screenshot the actual 3D model. |
 | [`src/__tests__/replay-conflicts.test.ts`](../src/__tests__/replay-conflicts.test.ts) | Conflict ownership and rebuild behavior when pieces overlap or are removed. |
 | [`src/__tests__/piece-ids-and-loading.test.ts`](../src/__tests__/piece-ids-and-loading.test.ts) | Encoded-ID round trips, uid regeneration/normalization, malformed/unknown pieces, and the `buildupJsonFileMap()` load path. |
 | [`src/__tests__/fluid-stacks.test.ts`](../src/__tests__/fluid-stacks.test.ts) | Current fluid-run counting and loaded-map warning behavior. It is not a reason to freeze a particular fluid-on-fluid placement altitude. |
-| [`src/__tests__/edges-and-nodes.test.ts`](../src/__tests__/edges-and-nodes.test.ts) and [`src/__tests__/laur-addon-footprints.test.ts`](../src/__tests__/laur-addon-footprints.test.ts) | Current edge/node coordinate facts and acceptance TODOs; Laur footprint helper behavior, which is not used by the app yet. |
+| [`src/__tests__/edges-and-nodes.test.ts`](../src/__tests__/edges-and-nodes.test.ts) and [`src/__tests__/laur-addon-footprints.test.ts`](../src/__tests__/laur-addon-footprints.test.ts) | Current edge/node coordinate facts and acceptance TODOs; measured Laur add-on footprints and their intentionally unchanged 10-level height. |
+| [`src/__tests__/laur-addon-placement.test.ts`](../src/__tests__/laur-addon-placement.test.ts) | Laur side/vertex picking, canonical identity, allowed rotations, center tie-break, and non-mutation. |
+| [`src/__tests__/laur-addon-conflicts.test.ts`](../src/__tests__/laur-addon-conflicts.test.ts) | Derived Laur edge/footprint conflict detection and the empty support-table seam. |
 
 There is no separate active exception-ratchet suite. The test README says the
 old Laur-without-template exception is now empty; the registry test currently

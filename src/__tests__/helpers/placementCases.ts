@@ -464,9 +464,9 @@ export const placementCases: PlacementCase[] = [
   {
     name: 'Laur add-on: arch on a pillar',
     pieceID: 'lwa',
-    rotation: 5,
+    rotation: 5.5,
     setup: onPillar,
-    expected: { placed: { coords: c, altitude: 1, rotation: 5 } },
+    expected: { placed: { coords: c, altitude: 1, rotation: 5.5 } },
   },
   {
     name: 'Laur add-on: on the upper pillar of a stack',
@@ -476,10 +476,10 @@ export const placementCases: PlacementCase[] = [
     expected: { placed: { coords: c, altitude: 10, rotation: 1 } },
   },
   {
-    name: 'Laur add-on refusal: not on a pillar',
+    name: 'Laur add-on: on land without a pillar',
     pieceID: 'lws',
     rotation: 0,
     setup: onGrass,
-    expected: { refused: 'needsLaurPillar' },
+    expected: { placed: { coords: c, altitude: 1, rotation: 0 } },
   },
 ]

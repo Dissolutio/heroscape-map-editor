@@ -120,16 +120,22 @@ describe('resolvePlacement', () => {
     expect(resolved(resolve(table, 'tr10', topHex(table))).rule).toBe('default')
   })
 
-  describe('blocked', () => {
-    it('a Laur add-on anywhere but a pillar needs a pillar', () => {
-      const ladder = add(table, 'ld', c, 1, 0, 'L1')
-      for (const hex of [topHex(table), topHex(ladder, c, 2)]) {
-        expect(resolve(ladder, 'lwl', hex)).toEqual({
-          blocked: 'needsLaurPillar',
-        })
-      }
-    })
+  it('places a Laur add-on on an empty table or occupied land surface', () => {
+    const emptyTable = makeTable(9)
+    const empty = resolve(emptyTable, 'lws', topHex(emptyTable, c, 0))
+    expect(isPlacementBlocked(empty)).toBe(false)
+    if (!isPlacementBlocked(empty)) {
+      expect(empty).toMatchObject({ coords: c, altitude: 0, rotation: 0 })
+    }
 
+    const occupied = resolve(table, 'lws', topHex(table, c, 1))
+    expect(isPlacementBlocked(occupied)).toBe(false)
+    if (!isPlacementBlocked(occupied)) {
+      expect(occupied).toMatchObject({ coords: c, altitude: 1, rotation: 0 })
+    }
+  })
+
+  describe('blocked', () => {
     it.each(['g1', 'r7', 'sw24'])(
       'solid %s cannot sit on a whole-level fluid cap',
       (pieceID) => {
@@ -163,7 +169,6 @@ describe('resolvePlacement', () => {
 describe('placementBlockedMessages', () => {
   it('gives every physical refusal a message; land on whole-level fluid stays silent', () => {
     expect(placementBlockedMessages).toEqual({
-      needsLaurPillar: 'Must add to Square/Triangle Pillar.',
       notOnCastleWallTop:
         'Only a castle wall or wall walk fits on a castle wall.',
       castleArchNeedsLand: 'A castle arch has its own bases; place it on land.',
@@ -300,17 +305,6 @@ describe('evaluatePlacement', () => {
       true,
     )
     expect(table).toEqual(before)
-  })
-
-  it('a refusal stays blocked, with its reason', () => {
-    expect(
-      evaluatePlacement(table, resolve(table, 'lws', topHex(table))),
-    ).toEqual({
-      status: 'blocked',
-      displacedUIDs: [],
-      footprintHexes: [],
-      reason: 'needsLaurPillar',
-    })
   })
 
   it.each(placementCases.filter((c) => 'refused' in c.expected))(

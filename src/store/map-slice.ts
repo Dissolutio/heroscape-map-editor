@@ -245,7 +245,12 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
 
         draft.boardHexes = workingHexes
         draft.boardPieces = workingPieces
-        draft.conflictedPieceUIDs = [...newConflicts]
+        draft.conflictedPieceUIDs = [
+          ...new Set([
+            ...newConflicts,
+            ...computeConflictedPieceUIDs(workingPieces),
+          ]),
+        ]
       })
     }),
   convertTerrainForPieces: ({
