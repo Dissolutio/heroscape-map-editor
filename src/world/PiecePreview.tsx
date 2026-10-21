@@ -144,6 +144,10 @@ export default function PiecePreview() {
               'blocked' in previewState.resolution
                 ? null
                 : previewState.resolution.altitude,
+            rotation:
+              'blocked' in previewState.resolution
+                ? null
+                : previewState.resolution.rotation,
           }
         : null,
     )

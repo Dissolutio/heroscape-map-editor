@@ -6,6 +6,7 @@ export type E2EPlacementPreview = {
   footprintCount: number
   unsupported: boolean
   altitude: number | null
+  rotation: number | null
 }
 
 let placementPreview: E2EPlacementPreview | null = null

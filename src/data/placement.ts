@@ -23,14 +23,16 @@ import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
 import getPieceTemplateCoords from './rotationTransforms'
 import { getSmartPlacementAltitude } from './smartPlacement'
 import { verticalObstructionTemplates } from './vertical-obstruction-templates'
-import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
-import { resolveLaurAddonEdge } from './laurAddonPlacement'
+import {
+  getLaurAddonAllowedRotations,
+  getLaurAddonCanonicalKey,
+  resolveLaurAddonEdge,
+} from './laurAddonPlacement'
 import { cubeToPixel } from '../utils/hex-utils'
 import {
   getLaurAddonStackAltitude,
   canLaurAddonStackOn,
 } from './laurAddonStacking'
-import { getLaurAddonCanonicalKey } from './laurAddonPlacement'
 import {
   areMatchingLaurPillarShapes,
   getLaurPillarStackAltitude,
@@ -246,7 +248,7 @@ function resolveByRule(
       coords,
       worldPoint ?? { x: center.x, z: center.y },
       requestedRotation,
-      getPossibleRotationsForPenMode(piece.id),
+      getLaurAddonAllowedRotations(piece.id, hex),
     )
     const resolvedRotation = edge?.rotation ?? requestedRotation
     const canStackOnHoveredAddon =

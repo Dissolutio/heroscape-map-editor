@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  LAUR_PILLAR_CORE_HEIGHT,
+  LAUR_PILLAR_HEIGHT,
+  LAUR_PILLAR_STACK_INCREMENT,
   getLaurPillarStackAltitude,
   hasSupportingLaurPillar,
   isLaurPillarID,
@@ -23,7 +26,10 @@ const pillar = (
 })
 
 describe('Laur pillar stacking', () => {
-  it('uses the owner-confirmed eight-level increment', () => {
+  it('uses measured pillar heights and the owner-confirmed stack step', () => {
+    expect(LAUR_PILLAR_HEIGHT).toBe(12)
+    expect(LAUR_PILLAR_CORE_HEIGHT).toBe(9.5)
+    expect(LAUR_PILLAR_STACK_INCREMENT).toBe(8)
     expect(getLaurPillarStackAltitude(1)).toBe(9)
   })
 
