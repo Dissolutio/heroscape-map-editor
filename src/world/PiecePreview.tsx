@@ -113,6 +113,7 @@ export default function PiecePreview() {
             status: previewState.evaluation.status,
             reason: previewState.evaluation.reason ?? null,
             footprintCount: previewState.evaluation.footprintHexes.length,
+            unsupported: previewState.unsupported,
           }
         : null,
     )
@@ -163,12 +164,14 @@ export default function PiecePreview() {
     <>
       <PlacementFootprint
         status={evaluation.status}
+        unsupported={previewState.unsupported}
         footprintHexes={evaluation.footprintHexes}
         hoveredHex={hoveredSurfaceHex}
       />
       {evaluation.status !== 'blocked' && (
         <PiecePreviewModel
           hoveredHexOverride={addonPreviewHex ?? castleCapHex}
+          unsupported={previewState.unsupported && evaluation.status === 'ok'}
           rotationOverride={
             'blocked' in resolution ? undefined : resolution.rotation
           }
@@ -181,9 +184,11 @@ export default function PiecePreview() {
 function PiecePreviewModel({
   hoveredHexOverride,
   rotationOverride,
+  unsupported,
 }: {
   hoveredHexOverride?: BoardHex
   rotationOverride?: number
+  unsupported: boolean
 }) {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
@@ -442,22 +447,22 @@ function PiecePreviewModel({
       pieceID === Pieces.laurWallRuin2 ||
       pieceID === Pieces.laurWallRuin3
     ) {
-      laurPreview = <LaurWallRuinPreview />
+      laurPreview = <LaurWallRuinPreview unsupported={unsupported} />
     }
     if (
       pieceID === Pieces.laurWallShort ||
       pieceID === Pieces.laurWallShortStackable
     ) {
-      laurPreview = <LaurWallShortPreview />
+      laurPreview = <LaurWallShortPreview unsupported={unsupported} />
     }
     if (
       pieceID === Pieces.laurWallLong ||
       pieceID === Pieces.laurWallLongStackable
     ) {
-      laurPreview = <LaurWallLongPreview />
+      laurPreview = <LaurWallLongPreview unsupported={unsupported} />
     }
     if (pieceID === Pieces.laurWallArch) {
-      laurPreview = <LaurWallArchPreview />
+      laurPreview = <LaurWallArchPreview unsupported={unsupported} />
     }
     return (
       <group
@@ -644,11 +649,7 @@ function PiecePreviewModel({
           getOptionsForTreeHeight(pieceID).scaleY,
           getOptionsForTreeHeight(pieceID).scaleX,
         ]}
-        position={[
-          x,
-          yWithBase + getOptionsForTreeHeight(pieceID).y + HEXGRID_HEX_HEIGHT,
-          z,
-        ]}
+        position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
@@ -665,11 +666,7 @@ function PiecePreviewModel({
           getOptionsForTreeHeight(pieceID).scaleY,
           getOptionsForTreeHeight(pieceID).scaleX,
         ]}
-        position={[
-          x,
-          yWithBase + getOptionsForTreeHeight(pieceID).y + HEXGRID_HEX_HEIGHT,
-          z,
-        ]}
+        position={[x, yWithBase + HEXGRID_HEX_HEIGHT, z]}
         rotation={[0, pieceRotation, 0]}
       >
         <Suspense fallback={<ModelLoader />}>

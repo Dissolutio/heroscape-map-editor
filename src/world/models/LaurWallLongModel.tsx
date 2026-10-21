@@ -4,6 +4,7 @@ import useBoundStore from '../../store/store'
 import { HexTerrain } from '../../types'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
+import { PLACEMENT_UNSUPPORTED_COLOR } from '../placementPreviewStyle'
 import { basicModelMaterial } from './materials'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
@@ -91,12 +92,20 @@ export function LaurWallLongAddon({ pid }: { pid: string }) {
   )
 }
 
-export function LaurWallLongPreview() {
+export function LaurWallLongPreview({
+  unsupported = false,
+}: {
+  unsupported?: boolean
+}) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const pillarColor = hexTerrainColor[HexTerrain.laurWall]
-  const interiorPillarColor = hexTerrainColor.laurModelColor2
+  const pillarColor = unsupported
+    ? PLACEMENT_UNSUPPORTED_COLOR
+    : hexTerrainColor[HexTerrain.laurWall]
+  const interiorPillarColor = unsupported
+    ? PLACEMENT_UNSUPPORTED_COLOR
+    : hexTerrainColor.laurModelColor2
 
   return (
     <LaurWallLongModel

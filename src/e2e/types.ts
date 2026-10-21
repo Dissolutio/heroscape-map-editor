@@ -18,6 +18,7 @@ export type E2ESnapshot = {
     status: 'ok' | 'conflict' | 'blocked'
     reason: string | null
     footprintCount: number
+    unsupported: boolean
   } | null
   /** A piece press or drag in progress (drag-to-move), or null. */
   drag: E2EDragSnapshot | null

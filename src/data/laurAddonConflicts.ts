@@ -42,11 +42,6 @@ export function evaluateLaurAddonConflicts(
     })
     const heightInLevels =
       footprint?.heightInLevels ?? piecesSoFar[piece.inventoryID]?.height
-    if (heightInLevels === undefined) {
-      throw new Error(
-        `Missing registered height for Laur add-on ${piece.inventoryID}`,
-      )
-    }
     return [
       {
         piece,

@@ -4,7 +4,6 @@ import { describe, expect, it } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
-import { isLaurAddonSupported } from '../data/laurAddonSupport'
 import { piecesSoFar } from '../data/pieces'
 import type { BoardPiece, CubeCoordinate, HexMap } from '../types'
 import { Pieces } from '../types'
@@ -154,6 +153,35 @@ describe('evaluateLaurAddonConflicts', () => {
     expect(boardHexes).toEqual({})
   })
 
+  it('skips canonical band checks when a Laur add-on has no registered height', () => {
+    const inventoryID = Pieces.laurWallShort
+    const registeredPiece = piecesSoFar[inventoryID]
+    if (!registeredPiece) throw new Error('Expected a registered Laur wall')
+    delete piecesSoFar[inventoryID]
+    try {
+      expect(() =>
+        evaluateLaurAddonConflicts(
+          [
+            piece('unknown-height-a', inventoryID, center, 0),
+            piece('unknown-height-b', inventoryID, center, 0),
+          ],
+          {},
+        ),
+      ).not.toThrow()
+      expect(
+        evaluateLaurAddonConflicts(
+          [
+            piece('unknown-height-a', inventoryID, center, 0),
+            piece('unknown-height-b', inventoryID, center, 0),
+          ],
+          {},
+        ),
+      ).toEqual([])
+    } finally {
+      piecesSoFar[inventoryID] = registeredPiece
+    }
+  })
+
   it('leaves unmeasured add-on footprints to the canonical-edge check', () => {
     expect(
       evaluateLaurAddonConflicts(
@@ -186,15 +214,4 @@ describe('evaluateLaurAddonConflicts', () => {
       }))
     expect(flaggedPieces).toEqual([])
   })
-})
-
-describe('Laur add-on support seam', () => {
-  it('returns unknown when no verified support table entry exists', () => {
-    const addon = piece('addon', Pieces.laurWallShort, center, 0)
-    expect(isLaurAddonSupported({ boardPieces: [] }, addon)).toBe('unknown')
-  })
-
-  it.todo(
-    'verified support-table values are keyed by pillar and add-on rotation',
-  )
 })

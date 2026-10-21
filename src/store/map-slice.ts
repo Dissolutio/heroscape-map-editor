@@ -7,6 +7,7 @@ import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { type MovePieceArgs, applyPieceMoves } from '../data/movePieces'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
+import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
 import { removePiece } from '../data/removePiece'
 import { HexTerrain } from '../types'
 import type {
@@ -82,6 +83,7 @@ function getDefaultSizeForLandPrefix(prefix: string) {
 
 export interface MapSlice extends MapState {
   conflictedPieceUIDs: string[]
+  unsupportedPieceUIDs: string[]
   isAutosaveHeld: boolean
   mapLoadRevision: number
   recomputeConflicts: () => void
@@ -149,6 +151,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
   },
   boardPieces: [],
   conflictedPieceUIDs: [],
+  unsupportedPieceUIDs: [],
   isAutosaveHeld: false,
   mapLoadRevision: 0,
   recomputeConflicts: () =>
@@ -157,6 +160,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           draft.boardPieces,
         )
+        draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+          boardPieces: draft.boardPieces,
+        })
       }),
     ),
   paintTile: ({
@@ -191,6 +197,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.boardPieces = newBoardPieces
         // Recompute from boardPieces so conflict state stays correct even after load/rehydrate drift.
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(newBoardPieces)
+        draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+          boardPieces: newBoardPieces,
+        })
       })
     })
     return error
@@ -252,6 +261,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
             ...evaluateLaurAddonConflicts(workingPieces, workingHexes),
           ]),
         ]
+        draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+          boardPieces: workingPieces,
+        })
       })
     }),
   convertTerrainForPieces: ({
@@ -317,6 +329,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         if (occupancyChanged) {
           draft.boardHexes = workingHexes
           draft.conflictedPieceUIDs = computeConflictedPieceUIDs(workingPieces)
+          draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+            boardPieces: workingPieces,
+          })
         }
       })
     })
@@ -333,6 +348,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.boardHexes = moved.boardHexes
         draft.boardPieces = moved.boardPieces
         draft.conflictedPieceUIDs = moved.conflictedPieceUIDs
+        draft.unsupportedPieceUIDs = moved.unsupportedPieceUIDs
         // same as painting: keep a piece moved up into view
         draft.viewingLevel = getViewingLevelAfterPlacing(
           state.viewingLevel,
@@ -429,6 +445,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           mapState.boardPieces,
         )
+        draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+          boardPieces: mapState.boardPieces,
+        })
         draft.isAutosaveHeld = options.holdAutosave ?? false
         draft.mapLoadRevision += 1
         const constrainedInventory = getEffectiveTerrainConstraintInventory({

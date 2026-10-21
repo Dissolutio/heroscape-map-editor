@@ -20,6 +20,7 @@ import {
   reportDragTargetHex,
 } from './drag/dragController'
 import { hexTerrainColor } from './maphex/hexColors'
+import { PlacementFootprint } from './PlacementFootprint'
 import { Battlement } from './models/Battlement'
 import BigTree415 from './models/BigTree415'
 import Cannon from './models/Cannon'
@@ -77,6 +78,10 @@ type MapBoardPiece3DProps = {
  */
 export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
   const { uid, pieceCoords, altitude } = props.bp
+  const isUnsupported = useBoundStore((s) =>
+    s.unsupportedPieceUIDs.includes(uid),
+  )
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
     if (!isDragging()) return
     const { boardHexes } = useBoundStore.getState()
@@ -89,6 +94,14 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
       onPointerMove={onPointerMove}
     >
       <MapBoardPiece3DModel {...props} />
+      {isUnsupported && altitude + 1 <= viewingLevel && (
+        <PlacementFootprint
+          status="ok"
+          unsupported
+          footprintHexes={[]}
+          hoveredHex={{ ...pieceCoords, altitude }}
+        />
+      )}
     </group>
   )
 }
