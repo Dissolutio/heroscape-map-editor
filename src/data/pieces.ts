@@ -1,12 +1,12 @@
 import type { Dictionary } from 'lodash'
 import { HexTerrain, type Piece, PiecePrefixes, Pieces } from '../types'
 import {
-  powerGlyphs,
-  treasureGlyphs,
-  marvelGlyphs,
   c3vGlyphs,
   c3vPlaytestGlyphs,
   customGlyphs,
+  marvelGlyphs,
+  powerGlyphs,
+  treasureGlyphs,
 } from './glyphs'
 
 export const piecesSoFar: Dictionary<Piece> = {
@@ -951,7 +951,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12, // game height was 10, errata 9
+    height: 11, // game height was 10, errata 9
   },
   [Pieces.laurWallPillarStackable]: {
     id: Pieces.laurWallPillarStackable,
@@ -961,7 +961,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12, // game height was 10, errata 9
+    height: 11, // game height was 10, errata 9, only adds 8 when stacked (male pillar top is 3 hexes tall)
   },
   [Pieces.laurWallTrianglePillar]: {
     id: Pieces.laurWallTrianglePillar,
@@ -971,7 +971,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12, // game height was 10, errata 9
+    height: 11, // game height was 10, errata 9, only adds 8 when stacked (male pillar top is 3 hexes tall)
   },
   [Pieces.laurWallShort]: {
     id: Pieces.laurWallShort,
@@ -991,7 +991,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallShort,
-    height: 12, // game height is 10
+    height: 12, // game height is 10, only adds 8 when stacked (male wall top is 3 hexes tall)
   },
   [Pieces.laurWallLong]: {
     id: Pieces.laurWallLong,
@@ -1011,7 +1011,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallLongStackable,
-    height: 12, // game height is 10
+    height: 12, // game height is 10, only adds 8 when stacked (male wall/arch top is 3 hexes tall)
   },
   [Pieces.laurWallArch]: {
     id: Pieces.laurWallArch,
@@ -1021,7 +1021,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallArch,
-    height: 12, // game height is 10
+    height: 12, // game height is 10, cannot stack on top of anything, can have laurWallLongStackable stacked on top (male arch top is 3 hexes tall)
   },
   [Pieces.laurWallRuin1]: {
     id: Pieces.laurWallRuin1,
@@ -1031,7 +1031,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallRuin1,
-    height: 10, //smallest ruin, no top part, game height is undefined (doesn't block adjacency)
+    height: 8, // smallest ruin, no top part, game height is undefined (doesn't block adjacency), can stack
   },
   [Pieces.laurWallRuin2]: {
     id: Pieces.laurWallRuin2,
@@ -1041,7 +1041,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallRuin2,
-    height: 12, // game height is undefined (doesn't block adjacency)
+    height: 12, // game height is undefined (doesn't block adjacency), cannot stack
   },
   [Pieces.laurWallRuin3]: {
     id: Pieces.laurWallRuin3,
@@ -1051,7 +1051,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallRuin3,
-    height: 12, // game height is undefined (doesn't block adjacency)
+    height: 12, // game height is undefined (doesn't block adjacency), cannot stack
   },
   // RUINS
   [Pieces.ruins2]: {
