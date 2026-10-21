@@ -197,16 +197,15 @@ export function getOptionsForTreeHeight(pieceID: string) {
   // We use the same model and just stretch it a little for the taller trees
   switch (treeHeight) {
     case 11:
-      return { scaleX: 0.039, scaleY: 0.04, y: 0 }
+      return { scaleX: 0.039, scaleY: 0.04 }
     case 12:
       return {
         scaleX: 0.04,
         scaleY: 0.044,
-        y: HEXGRID_HEX_HEIGHT / 10,
       }
     case 10:
-      return { scaleX: 0.038, scaleY: 0.038, y: 0 }
+      return { scaleX: 0.038, scaleY: 0.038 }
     default:
-      return { scaleX: 0.038, scaleY: 0.038, y: 0 }
+      return { scaleX: 0.038, scaleY: 0.038 }
   }
 }

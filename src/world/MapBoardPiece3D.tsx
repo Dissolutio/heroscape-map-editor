@@ -272,7 +272,7 @@ const MapBoardPiece3DModel = ({
       <>
         <group
           scale={[treeOptions.scaleX, treeOptions.scaleY, treeOptions.scaleX]}
-          position={[x, yWithBase + treeOptions.y, z]}
+          position={[x, yWithBase - HEXGRID_HEXCAP_HEIGHT / 10, z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -289,7 +289,7 @@ const MapBoardPiece3DModel = ({
       <>
         <group
           scale={[treeOptions.scaleX, treeOptions.scaleY, treeOptions.scaleX]}
-          position={[x, yWithBase + treeOptions.y, z]}
+          position={[x, yWithBase, z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
