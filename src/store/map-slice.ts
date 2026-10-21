@@ -3,6 +3,7 @@ import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
+import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { type MovePieceArgs, applyPieceMoves } from '../data/movePieces'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
@@ -248,7 +249,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.conflictedPieceUIDs = [
           ...new Set([
             ...newConflicts,
-            ...computeConflictedPieceUIDs(workingPieces),
+            ...evaluateLaurAddonConflicts(workingPieces, workingHexes),
           ]),
         ]
       })
