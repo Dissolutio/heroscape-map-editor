@@ -1,4 +1,15 @@
-import { clickHex, expect, hoverHex, setPen, test } from './fixtures'
+import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
+import {
+  clickHex,
+  clickPiece,
+  expect,
+  findPieceUid,
+  hoverHex,
+  mapUrl,
+  setPen,
+  test,
+  waitForAppReady,
+} from './fixtures'
 
 test('a solid land pen previews ok over a free hex', async ({ page }) => {
   await setPen(page, 'g', 1)
@@ -82,4 +93,79 @@ test('a Laur add-on previews and places on empty and land hexes', async ({
             piece.altitude === 1,
         ),
   )
+})
+
+test('a stackable Laur wall places eight levels above the wall it hits', async ({
+  page,
+}) => {
+  await page.goto(
+    mapUrl(FIXTURE_HEX_MAP, [...FIXTURE_PIECE_IDS, '1~0~2~0~lws2']),
+  )
+  await waitForAppReady(page)
+  const lowerUID = await findPieceUid(page, {
+    inventoryID: 'lws2',
+    q: 0,
+    r: 2,
+    altitude: 1,
+  })
+  await setPen(page, 'lws', 2, 0)
+  await clickPiece(page, lowerUID)
+  await page.waitForFunction(
+    () => window.__TEST__?.snapshot().pieceCount === 7,
+  )
+  const wallPieces = await page.evaluate(() =>
+    window.__TEST__
+      ?.listPieces()
+      .filter(
+        (piece) =>
+          piece.inventoryID === 'lws2' &&
+          piece.pieceCoords.q === 0 &&
+          piece.pieceCoords.r === 2,
+      ),
+  )
+  expect(wallPieces?.map((piece) => piece.altitude).sort()).toEqual([1, 9])
+})
+
+test('a stackable square pillar preview and placement use the +8 step', async ({
+  page,
+}) => {
+  await page.goto(
+    mapUrl(FIXTURE_HEX_MAP, [
+      ...FIXTURE_PIECE_IDS,
+      '1~0~2~0~lwp2',
+    ]),
+  )
+  await waitForAppReady(page)
+  const lowerUID = await findPieceUid(page, {
+    inventoryID: 'lwp2',
+    q: 0,
+    r: 2,
+    altitude: 1,
+  })
+  await setPen(page, 'lwp2', 0, 0)
+  const point = await page.evaluate(
+    (uid) => window.__TEST__?.screenPosOfPiece(uid) ?? null,
+    lowerUID,
+  )
+  const canvas = await page.locator('canvas').first().boundingBox()
+  if (!point || !canvas) throw new Error('Stacked pillar is not on screen')
+  await page.mouse.move(canvas.x + point.x, canvas.y + point.y)
+  await page.waitForFunction(
+    () => window.__TEST__?.snapshot().placementPreview?.altitude === 9,
+  )
+  await clickPiece(page, lowerUID)
+  await page.waitForFunction(
+    () => window.__TEST__?.snapshot().pieceCount === 7,
+  )
+  const pillars = await page.evaluate(() =>
+    window.__TEST__
+      ?.listPieces()
+      .filter(
+        (piece) =>
+          piece.inventoryID === 'lwp2' &&
+          piece.pieceCoords.q === 0 &&
+          piece.pieceCoords.r === 2,
+      ),
+  )
+  expect(pillars?.map((piece) => piece.altitude).sort()).toEqual([1, 9])
 })

@@ -26,6 +26,15 @@ they are not included in map files, autosaves, or share links. Add-ons remain
 boardPieces-only and do not expand `boardHexes`. They do not move
 automatically with pillars, and dragging is not enabled here.
 
+Laur stacking uses an eight-level increment. Matching square pillars
+(including the stackable square variant) and triangle pillars stack at
+`lower.altitude + 8`. A short stackable wall stacks on the same short
+stackable wall; a long stackable wall stacks on the same long stackable wall
+or an arch. The arch cannot stack on another piece. Ruin style 1 can stack on
+another style 1; styles 2 and 3 cannot stack. Legal stacks are not flagged as
+conflicts. A non-stackable wall placed over a wall remains allowed but is
+flagged as conflicted. Existing saved altitudes are not migrated.
+
 Conflict checks use the canonical identity for shared sides and vertices.
 Measured footprint conflicts are enabled only for `lwl2`, `lwr2`, and `lwr3`;
 other add-on footprints remain unmeasured and are not inferred. The footprint

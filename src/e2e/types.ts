@@ -19,6 +19,7 @@ export type E2ESnapshot = {
     reason: string | null
     footprintCount: number
     unsupported: boolean
+    altitude: number | null
   } | null
   /** A piece press or drag in progress (drag-to-move), or null. */
   drag: E2EDragSnapshot | null

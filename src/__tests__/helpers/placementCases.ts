@@ -112,15 +112,20 @@ export const onPillar = () => {
   return { board, hex: pillarPartialHex(board, 'P1') }
 }
 
+const onStackablePillar = () => {
+  const board = add(table, 'lwp2', c, 1, 2, 'P1')
+  return { board, hex: pillarPartialHex(board, 'P1') }
+}
+
 /** A triangle pillar (uid T2) on the grass. */
 export const onTrianglePillar = () => {
   const board = add(table, 'lwt', c, 1, 0, 'T2')
   return { board, hex: pillarPartialHex(board, 'T2') }
 }
 
-/** Two square pillars stacked (P1 at 1, P2 at 10); the top one is clicked. */
+/** Two square pillars stacked (P1 at 1, P2 at 9); the top one is clicked. */
 const onStackedPillar = () => {
-  const board = add(add(table, 'lwp', c, 1, 0, 'P1'), 'lwp', c, 10, 0, 'P2')
+  const board = add(add(table, 'lwp', c, 1, 0, 'P1'), 'lwp', c, 9, 0, 'P2')
   return { board, hex: pillarPartialHex(board, 'P2') }
 }
 
@@ -425,25 +430,39 @@ export const placementCases: PlacementCase[] = [
     expected: { placed: { coords: c, altitude: 1, rotation: 0 } },
   },
   {
-    name: 'pillar: on a matching pillar stacks 9 up, keeps its rotation',
+    name: 'pillar: stackable square pillar on grass',
+    pieceID: 'lwp2',
+    rotation: 0,
+    setup: onGrass,
+    expected: { placed: { coords: c, altitude: 1, rotation: 0 } },
+  },
+  {
+    name: 'pillar: on a matching pillar stacks 8 up, keeps its rotation',
     pieceID: 'lwp',
     rotation: 0,
     setup: onPillar,
-    expected: { placed: { coords: c, altitude: 10, rotation: 2 } },
+    expected: { placed: { coords: c, altitude: 9, rotation: 2 } },
   },
   {
     name: 'pillar: on a stacked pillar stacks again',
     pieceID: 'lwp',
     rotation: 0,
     setup: onStackedPillar,
-    expected: { placed: { coords: c, altitude: 19, rotation: 0 } },
+    expected: { placed: { coords: c, altitude: 17, rotation: 0 } },
   },
   {
     name: 'pillar: triangle on triangle stacks',
     pieceID: 'lwt',
     rotation: 0,
     setup: onTrianglePillar,
-    expected: { placed: { coords: c, altitude: 10, rotation: 0 } },
+    expected: { placed: { coords: c, altitude: 9, rotation: 0 } },
+  },
+  {
+    name: 'pillar: stackable square pillar stacks on a stackable pillar',
+    pieceID: 'lwp2',
+    rotation: 0,
+    setup: onStackablePillar,
+    expected: { placed: { coords: c, altitude: 9, rotation: 2 } },
   },
   // ROPE LADDER
   {
@@ -473,7 +492,7 @@ export const placementCases: PlacementCase[] = [
     pieceID: 'lws',
     rotation: 1,
     setup: onStackedPillar,
-    expected: { placed: { coords: c, altitude: 10, rotation: 1 } },
+    expected: { placed: { coords: c, altitude: 9, rotation: 1 } },
   },
   {
     name: 'Laur add-on: on land without a pillar',

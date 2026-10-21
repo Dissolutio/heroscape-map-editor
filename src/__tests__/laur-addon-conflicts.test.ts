@@ -72,6 +72,25 @@ describe('evaluateLaurAddonConflicts', () => {
     },
   )
 
+  it.each([
+    [Pieces.laurWallShortStackable, Pieces.laurWallShortStackable, 0],
+    [Pieces.laurWallLongStackable, Pieces.laurWallLongStackable, 0.5],
+    [Pieces.laurWallArch, Pieces.laurWallLongStackable, 0.5],
+  ])(
+    'does not flag the legal +8 stack %s under %s',
+    (lowerID, upperID, rotation) => {
+      expect(
+        evaluateLaurAddonConflicts(
+          [
+            piece('lower', lowerID, center, rotation, 1),
+            piece('upper', upperID, center, rotation, 9),
+          ],
+          {},
+        ),
+      ).toEqual([])
+    },
+  )
+
   it('flags both add-ons occupying the same canonical side', () => {
     expect(
       sorted(

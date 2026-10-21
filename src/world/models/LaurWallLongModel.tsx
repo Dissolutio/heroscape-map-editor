@@ -1,7 +1,9 @@
 import type { ThreeEvent } from '@react-three/fiber'
+import { getLaurAddonHitHex } from '../../data/laurAddonStacking'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { HexTerrain } from '../../types'
+import type { BoardHex, BoardPiece } from '../../types'
+import { HexTerrain, SELECT_PEN_MODE } from '../../types'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { PLACEMENT_UNSUPPORTED_COLOR } from '../placementPreviewStyle'
@@ -52,8 +54,19 @@ function LaurWallLongModel({
   )
 }
 
-export function LaurWallLongAddon({ pid }: { pid: string }) {
-  const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
+export function LaurWallLongAddon({
+  bp,
+  onPointerUpPaintPiece,
+}: {
+  bp: BoardPiece
+  onPointerUpPaintPiece: (
+    event: ThreeEvent<PointerEvent>,
+    hex: BoardHex,
+  ) => void
+}) {
+  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const penMode = useBoundStore((s) => s.penMode)
+  const pid = bp.uid
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
@@ -70,17 +83,22 @@ export function LaurWallLongAddon({ pid }: { pid: string }) {
     ? yellowColor
     : hexTerrainColor.laurModelColor2
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation()
     if (event.button !== 0) {
+      event.stopPropagation()
       return
     }
+    if (penMode !== SELECT_PEN_MODE) {
+      onPointerUpPaintPiece(event, getLaurAddonHitHex(bp))
+      return
+    }
+    event.stopPropagation()
     toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
   }
 
   return (
     <group
       onPointerUp={(e) => onPointerUp(e)}
-      onPointerEnter={(e) => onPointerEnterPID(e, pid)}
+      onPointerEnter={(e) => onPointerEnter(e, getLaurAddonHitHex(bp))}
       onPointerOut={(e) => onPointerOut(e)}
     >
       <LaurWallLongModel

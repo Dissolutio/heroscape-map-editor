@@ -26,6 +26,16 @@ import { verticalObstructionTemplates } from './vertical-obstruction-templates'
 import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
 import { resolveLaurAddonEdge } from './laurAddonPlacement'
 import { cubeToPixel } from '../utils/hex-utils'
+import {
+  getLaurAddonStackAltitude,
+  canLaurAddonStackOn,
+} from './laurAddonStacking'
+import { getLaurAddonCanonicalKey } from './laurAddonPlacement'
+import {
+  areMatchingLaurPillarShapes,
+  getLaurPillarStackAltitude,
+  isLaurPillarID,
+} from './laurPillarStacking'
 
 /** The two pieces of state placement reads. */
 export type PlacementBoard = {
@@ -65,9 +75,6 @@ export const placementBlockedMessages: Partial<
   outOfHeight:
     'Some pieces would end up below the ground or above the highest level.',
 }
-
-const isLaurPillarID = (id: string) =>
-  id === Pieces.laurWallSquarePillar || id === Pieces.laurWallTrianglePillar
 
 /**
  * What can go on top of a castle wall or arch: another wall (walls have no
@@ -186,11 +193,10 @@ function resolveByRule(
     hex.pieceID.includes(PiecePrefixes.castleWall) ||
     hex.pieceID.includes(PiecePrefixes.castleArch)
   const isLaurPillarClicked = isLaurPillarID(hex.inventoryID)
-  const isMatchingPillarStackTarget =
-    (piece.id === Pieces.laurWallSquarePillar &&
-      hex.inventoryID === Pieces.laurWallSquarePillar) ||
-    (piece.id === Pieces.laurWallTrianglePillar &&
-      hex.inventoryID === Pieces.laurWallTrianglePillar)
+  const isMatchingPillarStackTarget = areMatchingLaurPillarShapes(
+    piece.id,
+    hex.inventoryID,
+  )
   // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
   const clickedHex = isCastleWallArchClicked
     ? boardHexes[
@@ -228,13 +234,32 @@ function resolveByRule(
   // separately and the hit surface determines their altitude.
   if (isLaurWallAddonPieceID(piece.id)) {
     const center = cubeToPixel(coords)
+    const hoveredAddon = boardPieces.find(
+      (boardPiece) => boardPiece.uid === hex.boardPieceUID,
+    )
+    const stackBase =
+      hoveredAddon && canLaurAddonStackOn(piece.id, hoveredAddon.inventoryID)
+        ? hoveredAddon
+        : undefined
+    const requestedRotation = stackBase?.rotation ?? rotation
     const edge = resolveLaurAddonEdge(
       coords,
       worldPoint ?? { x: center.x, z: center.y },
-      rotation,
+      requestedRotation,
       getPossibleRotationsForPenMode(piece.id),
     )
-    return at('laurAddon', clickedAltitude, edge?.rotation ?? rotation)
+    const resolvedRotation = edge?.rotation ?? requestedRotation
+    const canStackOnHoveredAddon =
+      stackBase &&
+      getLaurAddonCanonicalKey(coords, resolvedRotation) ===
+        getLaurAddonCanonicalKey(stackBase.pieceCoords, stackBase.rotation)
+    return at(
+      'laurAddon',
+      canStackOnHoveredAddon
+        ? getLaurAddonStackAltitude(stackBase.altitude)
+        : clickedAltitude,
+      resolvedRotation,
+    )
   }
   // Castle W/A: use cap coords and altitude
   if (isCastleWallArchClicked) {
@@ -275,7 +300,9 @@ function resolveByRule(
     const supportingPillar = boardPieces.find(
       (bp) => bp.uid === clickedHex.boardPieceUID,
     )
-    const stackAltitude = (supportingPillar?.altitude ?? clickedAltitude) + 9
+    const stackAltitude = getLaurPillarStackAltitude(
+      supportingPillar?.altitude ?? clickedAltitude,
+    )
     return at('pillarStack', stackAltitude, clickedHex.pieceRotation)
   }
   // LAND TILE: solid or fluid (includes ship bow buildable sections). Gated so solid

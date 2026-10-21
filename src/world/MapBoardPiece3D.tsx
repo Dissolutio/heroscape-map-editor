@@ -3,6 +3,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { Suspense } from 'react'
 import { Vector3 } from 'three'
 import { piecesSoFar } from '../data/pieces'
+import { hasSupportingLaurPillar } from '../data/laurPillarStacking'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
@@ -126,18 +127,7 @@ const MapBoardPiece3DModel = ({
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const pieceRotation = (rotation * -Math.PI) / 3
   const ruinsOptions = getRuinsOptions(rotation)
-  const hasSupportingPillar = boardPieces.some((piece) => {
-    const isPillarType =
-      piece.inventoryID === Pieces.laurWallSquarePillar ||
-      piece.inventoryID === Pieces.laurWallTrianglePillar
-    return (
-      isPillarType &&
-      piece.pieceCoords.q === bp.pieceCoords.q &&
-      piece.pieceCoords.r === bp.pieceCoords.r &&
-      piece.pieceCoords.s === bp.pieceCoords.s &&
-      piece.altitude === bp.altitude - 9
-    )
-  })
+  const hasSupportingPillar = hasSupportingLaurPillar(boardPieces, bp)
   const pillarStackYOffset = hasSupportingPillar
     ? HEXGRID_OBSTACLE_BASE_HEIGHT
     : 0
@@ -171,7 +161,10 @@ const MapBoardPiece3DModel = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallRuinAddon pid={uid} />
+          <LaurWallRuinAddon
+            bp={bp}
+            onPointerUpPaintPiece={onPointerUpPaintPiece}
+          />
         </Suspense>
       </group>
     )
@@ -189,7 +182,10 @@ const MapBoardPiece3DModel = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallShortAddon pid={uid} />
+          <LaurWallShortAddon
+            bp={bp}
+            onPointerUpPaintPiece={onPointerUpPaintPiece}
+          />
         </Suspense>
       </group>
     )
@@ -207,7 +203,10 @@ const MapBoardPiece3DModel = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallLongAddon pid={uid} />
+          <LaurWallLongAddon
+            bp={bp}
+            onPointerUpPaintPiece={onPointerUpPaintPiece}
+          />
         </Suspense>
       </group>
     )
@@ -222,7 +221,10 @@ const MapBoardPiece3DModel = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallArchAddon pid={uid} />
+          <LaurWallArchAddon
+            bp={bp}
+            onPointerUpPaintPiece={onPointerUpPaintPiece}
+          />
         </Suspense>
       </group>
     )
@@ -425,7 +427,10 @@ const MapBoardPiece3DModel = ({
     )
   }
 
-  if (inventoryID === Pieces.laurWallSquarePillar) {
+  if (
+    inventoryID === Pieces.laurWallSquarePillar ||
+    inventoryID === Pieces.laurWallPillarStackable
+  ) {
     return (
       <group
         position={[x, laurPillarHeight, z]}

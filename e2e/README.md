@@ -111,9 +111,10 @@ Things that decide what a click does:
   selects a piece. Paint modes place pieces instead.
 - A click that hits nothing clears the selection. Clicking the only selected
   piece again deselects it.
-- `screenPosOfPiece` aims at the piece's top surface. If another piece sits
-  on top (a stacked tile, a tree, a pillar), the click selects that one; such
-  a piece is only reachable from the side, if at all.
+- `screenPosOfPiece` aims at the piece's top surface, except Laur add-ons, for
+  which it targets the add-on's canonical side/vertex feature point. If another
+  piece sits on top (a stacked tile, a tree, a pillar), the click selects that
+  one; such a piece is only reachable from the side, if at all.
 - A tall piece in front can hide the target. If a click selects something
   else, check `snapshot().selectedPieceIDs` and move the camera.
 - The camera starts orthographic (top-down); `Insert` toggles perspective.

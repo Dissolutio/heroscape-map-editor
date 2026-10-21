@@ -42,7 +42,10 @@ export function getLaurAddonCanonicalKey(
   return `vertex:${vertexCells.join('|')}`
 }
 
-function featurePoint(anchor: CubeCoordinate, rotation: number) {
+export function getLaurAddonFeaturePoint(
+  anchor: CubeCoordinate,
+  rotation: number,
+) {
   const center = cubeToPixel(anchor)
   const normalized = normalizeRotation(rotation)
   if (normalized === null) return null
@@ -77,7 +80,7 @@ export function resolveLaurAddonEdge(
 ): LaurAddonResolvedEdge | null {
   const candidates = allowedRotations.flatMap((rotation) => {
     const normalized = normalizeRotation(rotation)
-    const point = featurePoint(anchor, rotation)
+    const point = getLaurAddonFeaturePoint(anchor, rotation)
     const canonicalKey = getLaurAddonCanonicalKey(anchor, rotation)
     if (normalized === null || !point || !canonicalKey) return []
     return [
