@@ -91,6 +91,7 @@ describe('real store undo and redo', () => {
       ]),
     )
     expect(store.getState().conflictedPieceUIDs).toEqual([])
+    expect(store.getState().unsupportedPieceUIDs).toEqual(['first-addon'])
 
     const error = store.getState().paintTile({
       piece: piecesSoFar.lws,
@@ -106,25 +107,83 @@ describe('real store undo and redo', () => {
     expect(store.getState().conflictedPieceUIDs).toEqual(
       expect.arrayContaining(['first-addon', added.uid]),
     )
+    expect(store.getState().unsupportedPieceUIDs).toEqual(
+      expect.arrayContaining(['first-addon', added.uid]),
+    )
     expect(
       store.getState().boardPieces.every((piece) => !('conflict' in piece)),
     ).toBe(true)
 
     undoWithSelectionRestore()
     expect(store.getState().conflictedPieceUIDs).toEqual([])
+    expect(store.getState().unsupportedPieceUIDs).toEqual(['first-addon'])
     redoWithSelectionRestore()
     expect(store.getState().conflictedPieceUIDs).toEqual(
+      expect.arrayContaining(['first-addon', added.uid]),
+    )
+    expect(store.getState().unsupportedPieceUIDs).toEqual(
       expect.arrayContaining(['first-addon', added.uid]),
     )
 
     store.getState().unpaintTile(added.uid)
     expect(store.getState().conflictedPieceUIDs).toEqual([])
+    expect(store.getState().unsupportedPieceUIDs).toEqual(['first-addon'])
     undoWithSelectionRestore()
     expect(store.getState().conflictedPieceUIDs).toEqual(
       expect.arrayContaining(['first-addon', added.uid]),
     )
+    expect(store.getState().unsupportedPieceUIDs).toEqual(
+      expect.arrayContaining(['first-addon', added.uid]),
+    )
     redoWithSelectionRestore()
     expect(store.getState().conflictedPieceUIDs).toEqual([])
+    expect(store.getState().unsupportedPieceUIDs).toEqual(['first-addon'])
+  })
+
+  it('recomputes unsupported status when a Laur add-on moves to matching pillars', async () => {
+    const { redoWithSelectionRestore, undoWithSelectionRestore } = await import(
+      '../utils/undoWithSelectionRestore'
+    )
+    const anchor = { q: 4, r: 4, s: -8 }
+    const nearPillar = { q: 5, r: 4, s: -9 }
+    const farPillar = { q: 6, r: 4, s: -10 }
+    loadWithoutHistory(
+      loadedMap([
+        {
+          uid: 'moving-addon',
+          inventoryID: 'lws',
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: anchor,
+        },
+        {
+          uid: 'near-pillar',
+          inventoryID: 'lwp',
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: nearPillar,
+        },
+        {
+          uid: 'far-pillar',
+          inventoryID: 'lwp',
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: farPillar,
+        },
+      ]),
+    )
+    expect(store.getState().unsupportedPieceUIDs).toEqual(['moving-addon'])
+
+    store.getState().movePiece({
+      uid: 'moving-addon',
+      newPieceCoords: nearPillar,
+    })
+    expect(store.getState().unsupportedPieceUIDs).toEqual([])
+
+    undoWithSelectionRestore()
+    expect(store.getState().unsupportedPieceUIDs).toEqual(['moving-addon'])
+    redoWithSelectionRestore()
+    expect(store.getState().unsupportedPieceUIDs).toEqual([])
   })
 
   it('recomputes Laur footprint conflicts after map load and moving land', async () => {

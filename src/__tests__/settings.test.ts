@@ -258,6 +258,7 @@ describe('settings persistence', () => {
       'isFrameloopDemand',
       'isAutosaveHeld',
       'mapLoadRevision',
+      'unsupportedPieceUIDs',
     ]
     const mapStateKeys = [
       'boardHexes',

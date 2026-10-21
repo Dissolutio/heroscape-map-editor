@@ -3,6 +3,7 @@ import { addPiece } from './addPiece'
 import { piecesSoFar } from './pieces'
 import { computeConflictedPieceUIDs } from './rebuildBoardState'
 import { removePiece } from './removePiece'
+import { getUnsupportedLaurAddonUIDs } from './laurAddonSupport'
 
 export type MovePieceArgs = {
   uid: string
@@ -18,6 +19,7 @@ type MoveBoard = {
 }
 
 export type MovedBoard = MoveBoard & {
+  unsupportedPieceUIDs: string[]
   /** The highest altitude a piece was placed at (for the viewing level). */
   highestAltitude: number
 }
@@ -132,6 +134,9 @@ export function applyPieceMoves(
     boardPieces: workingPieces,
     // Recompute globally so move and paint use the same conflict source of truth.
     conflictedPieceUIDs: computeConflictedPieceUIDs(workingPieces),
+    unsupportedPieceUIDs: getUnsupportedLaurAddonUIDs({
+      boardPieces: workingPieces,
+    }),
     highestAltitude: Math.max(...resolved.map((m) => m.altitude)),
   }
 }

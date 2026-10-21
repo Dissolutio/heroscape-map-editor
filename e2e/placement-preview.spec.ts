@@ -26,7 +26,10 @@ test('a Laur add-on previews and places on empty and land hexes', async ({
   const emptyPreview = await page.evaluate(
     () => window.__TEST__?.snapshot().placementPreview,
   )
-  expect(emptyPreview?.status).toBe('ok')
+  expect(emptyPreview).toMatchObject({
+    status: 'ok',
+    unsupported: true,
+  })
   await clickHex(page, { q: 0, r: 0, altitude: 0 })
   await page.waitForFunction(
     () =>
@@ -41,6 +44,18 @@ test('a Laur add-on previews and places on empty and land hexes', async ({
             piece.altitude === 0,
         ),
   )
+  await page.waitForFunction(
+    () =>
+      window.__TEST__?.snapshot().placementPreview?.status === 'conflict' &&
+      window.__TEST__?.snapshot().placementPreview?.unsupported === true,
+  )
+  const conflictedPreview = await page.evaluate(
+    () => window.__TEST__?.snapshot().placementPreview,
+  )
+  expect(conflictedPreview).toMatchObject({
+    status: 'conflict',
+    unsupported: true,
+  })
 
   await hoverHex(page, { q: 0, r: 2, altitude: 1 })
   await page.waitForFunction(
@@ -49,7 +64,10 @@ test('a Laur add-on previews and places on empty and land hexes', async ({
   const landPreview = await page.evaluate(
     () => window.__TEST__?.snapshot().placementPreview,
   )
-  expect(landPreview?.status).toBe('ok')
+  expect(landPreview).toMatchObject({
+    status: 'ok',
+    unsupported: true,
+  })
   await clickHex(page, { q: 0, r: 2, altitude: 1 })
   await page.waitForFunction(
     () =>

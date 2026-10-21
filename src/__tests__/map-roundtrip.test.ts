@@ -141,8 +141,10 @@ describe('map persistence round trips', () => {
         expect.arrayContaining(addonUIDs),
       )
       expect(pieces.every((piece) => !('conflict' in piece))).toBe(true)
+      expect(pieces.every((piece) => !('unsupported' in piece))).toBe(true)
     }
     const savedFile = JSON.stringify({ hexMap, boardPieces: laurPieces })
+    expect(JSON.parse(savedFile)).not.toHaveProperty('unsupportedPieceUIDs')
     const fromFile = openJsonMapFile(savedFile)
     piecesConflict(fromFile.boardPieces)
 
@@ -155,6 +157,7 @@ describe('map persistence round trips', () => {
     })
     const saved = loadMapFromLocalStorage(LS_KEYS.lastMap)
     if (!saved) throw new Error('Expected the Laur autosave to load')
+    expect(saved).not.toHaveProperty('unsupportedPieceUIDs')
     const normalized = normalizeBoardPiecesWithDropped(saved.boardPieces)
     const fromAutosave = buildupJsonFileMap(
       normalized.boardPieces,

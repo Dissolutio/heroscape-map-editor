@@ -1,5 +1,6 @@
 import type { BoardHex, Piece } from '../types'
 import { evaluateLaurAddonConflicts } from './laurAddonConflicts'
+import { isLaurAddonSupported } from './laurAddonSupport'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import {
   type PlacementEvaluation,
@@ -12,6 +13,7 @@ import type { PlacementBoard } from './placement'
 export type PlacementPreviewState = {
   resolution: PlacementResolution
   evaluation: PlacementEvaluation
+  unsupported: boolean
 }
 
 export function getPlacementPreviewState(
@@ -26,6 +28,7 @@ export function getPlacementPreviewState(
     worldPoint,
   })
   const evaluation = evaluatePlacement(board, resolution)
+  let unsupported = false
   if (isLaurWallAddonPieceID(piece.id) && !('blocked' in resolution)) {
     const previewPiece = {
       uid: 'placement-preview-laur-addon',
@@ -34,17 +37,25 @@ export function getPlacementPreviewState(
       rotation: resolution.rotation,
       pieceCoords: resolution.coords,
     }
+    unsupported = isLaurAddonSupported(board, previewPiece) === 'unsupported'
     const conflicted = evaluateLaurAddonConflicts(
       [...board.boardPieces, previewPiece],
       board.boardHexes,
     ).includes(previewPiece.uid)
     if (conflicted && evaluation.status !== 'blocked') {
       evaluation.status = 'conflict'
-      evaluation.reason = 'Overlaps a Laur add-on footprint'
+      evaluation.reason = 'Conflicts with a Laur add-on'
+    }
+    if (unsupported) {
+      const supportReason = 'Missing required Laur pillar ports'
+      evaluation.reason = evaluation.reason
+        ? `${evaluation.reason}; ${supportReason}`
+        : supportReason
     }
   }
   return {
     resolution,
     evaluation,
+    unsupported,
   }
 }

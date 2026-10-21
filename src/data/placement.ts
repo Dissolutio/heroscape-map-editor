@@ -35,7 +35,7 @@ export type PlacementBoard = {
 
 /** Which of the click rules picked the placement, tried in this order. */
 export type PlacementRule =
-  | 'laurAddon' // a Laur add-on on a pillar, at the pillar's altitude
+  | 'laurAddon' // a Laur add-on on any hovered surface
   | 'castleCap' // a castle wall or wall walk on a castle wall/arch top
   | 'battlement' // the edge toward the pen rotation, one level down
   | 'roadWall' // the edge two steps clockwise of it, one level down
@@ -289,9 +289,8 @@ function resolveByRule(
   return at('default', smartAltitude())
 }
 
+/** Placement outcome; Laur support is reported separately from conflicts. */
 export type PlacementStatus = 'ok' | 'conflict' | 'blocked'
-// A future 'unsupported' (placed, but nothing physically holds it up) belongs
-// here; today strict support failures count as 'conflict'.
 
 export type PlacementEvaluation = {
   /**

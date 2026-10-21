@@ -59,7 +59,32 @@ describe('placement preview state', () => {
   })
 
   it('reports a Laur add-on on grass as placeable without a pillar', () => {
-    expect(preview(table, 'lws').evaluation.status).toBe('ok')
+    expect(preview(table, 'lws')).toMatchObject({
+      evaluation: { status: 'ok' },
+      unsupported: true,
+    })
+  })
+
+  it('reports a Laur add-on supported by matching pillars at both ends', () => {
+    const supportedBoard = place({
+      board: place({
+        board: cloneBoard(table),
+        pieceID: 'lwp',
+        at: center,
+        altitude: 1,
+        uid: 'anchor-pillar',
+        permissive: true,
+      }).board,
+      pieceID: 'lwp',
+      at: { q: center.q + 1, r: center.r, s: center.s - 1 },
+      altitude: 1,
+      uid: 'far-pillar',
+      permissive: true,
+    }).board
+    expect(preview(supportedBoard, 'lws')).toMatchObject({
+      evaluation: { status: 'ok' },
+      unsupported: false,
+    })
   })
 
   it('shows a same-edge Laur add-on preview as a conflict', () => {
@@ -72,7 +97,10 @@ describe('placement preview state', () => {
       uid: 'existing-addon',
       permissive: true,
     }).board
-    expect(preview(existing, 'lws').evaluation.status).toBe('conflict')
+    expect(preview(existing, 'lws')).toMatchObject({
+      evaluation: { status: 'conflict' },
+      unsupported: true,
+    })
   })
 
   it('reports an arch on a castle wall top as blocked', () => {
@@ -140,8 +168,20 @@ describe('placement preview state', () => {
 describe('placement preview styles', () => {
   it('maps each status to a distinct color and pattern', () => {
     const statuses: PlacementStatus[] = ['ok', 'conflict', 'blocked']
-    const styles = statuses.map(getPlacementPreviewStyle)
+    const styles = statuses.map((status) => getPlacementPreviewStyle(status))
     expect(new Set(styles.map((style) => style.color)).size).toBe(3)
     expect(new Set(styles.map((style) => style.pattern)).size).toBe(3)
+  })
+
+  it('keeps the conflict style and adds a cross for unsupported support', () => {
+    expect(getPlacementPreviewStyle('ok', true)).toMatchObject({
+      color: '#d97706',
+      secondaryPattern: 'cross',
+    })
+    expect(getPlacementPreviewStyle('conflict', true)).toMatchObject({
+      color: '#ea580c',
+      pattern: 'dashed',
+      secondaryPattern: 'cross',
+    })
   })
 })

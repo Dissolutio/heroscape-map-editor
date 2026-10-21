@@ -1,8 +1,13 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { buildupJsonFileMap } from '../data/buildupMap'
 import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
-import { isLaurAddonSupported } from '../data/laurAddonSupport'
-import type { BoardPiece, CubeCoordinate } from '../types'
+import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
+import { piecesSoFar } from '../data/pieces'
+import type { BoardPiece, CubeCoordinate, HexMap } from '../types'
 import { Pieces } from '../types'
+import { normalizeBoardPiecesWithDropped } from '../utils/map-utils'
 import { cloneBoard, makeTable, place } from './helpers/board'
 
 const center = makeTable(9).center
@@ -24,6 +29,49 @@ const piece = (
 const sorted = (uids: string[]) => [...uids].sort()
 
 describe('evaluateLaurAddonConflicts', () => {
+  it.each([
+    [Pieces.laurWallShortStackable, 0, 12, 'registered height'],
+    [Pieces.laurWallLongStackable, 0.5, 10, 'footprint height'],
+  ])(
+    'does not conflict for %s when %s altitude bands only touch',
+    (inventoryID, rotation, height, heightSource) => {
+      const addon = piece('lower', inventoryID, center, rotation, 0)
+      const upperAddon = piece('upper', inventoryID, center, rotation, height)
+      const footprint = getLaurAddonFootprint({
+        inventoryID,
+        anchor: center,
+        altitude: 0,
+        rotation,
+      })
+      expect(
+        footprint?.heightInLevels ?? piecesSoFar[inventoryID]?.height,
+        `${heightSource} should be used`,
+      ).toBe(height)
+      expect(evaluateLaurAddonConflicts([addon, upperAddon], {})).toEqual([])
+    },
+  )
+
+  it.each([
+    [Pieces.laurWallShortStackable, 0, 12],
+    [Pieces.laurWallLongStackable, 0.5, 10],
+  ])(
+    'conflicts for %s when their altitude bands overlap',
+    (inventoryID, rotation, height) => {
+      const addon = piece('lower', inventoryID, center, rotation, 0)
+      const upperAddon = piece(
+        'upper',
+        inventoryID,
+        center,
+        rotation,
+        height - 1,
+      )
+      expect(evaluateLaurAddonConflicts([addon, upperAddon], {})).toEqual([
+        'lower',
+        'upper',
+      ])
+    },
+  )
+
   it('flags both add-ons occupying the same canonical side', () => {
     expect(
       sorted(
@@ -105,6 +153,35 @@ describe('evaluateLaurAddonConflicts', () => {
     expect(boardHexes).toEqual({})
   })
 
+  it('skips canonical band checks when a Laur add-on has no registered height', () => {
+    const inventoryID = Pieces.laurWallShort
+    const registeredPiece = piecesSoFar[inventoryID]
+    if (!registeredPiece) throw new Error('Expected a registered Laur wall')
+    delete piecesSoFar[inventoryID]
+    try {
+      expect(() =>
+        evaluateLaurAddonConflicts(
+          [
+            piece('unknown-height-a', inventoryID, center, 0),
+            piece('unknown-height-b', inventoryID, center, 0),
+          ],
+          {},
+        ),
+      ).not.toThrow()
+      expect(
+        evaluateLaurAddonConflicts(
+          [
+            piece('unknown-height-a', inventoryID, center, 0),
+            piece('unknown-height-b', inventoryID, center, 0),
+          ],
+          {},
+        ),
+      ).toEqual([])
+    } finally {
+      piecesSoFar[inventoryID] = registeredPiece
+    }
+  })
+
   it('leaves unmeasured add-on footprints to the canonical-edge check', () => {
     expect(
       evaluateLaurAddonConflicts(
@@ -113,15 +190,28 @@ describe('evaluateLaurAddonConflicts', () => {
       ),
     ).toEqual([])
   })
-})
 
-describe('Laur add-on support seam', () => {
-  it('returns unknown when no verified support table entry exists', () => {
-    const addon = piece('addon', Pieces.laurWallShort, center, 0)
-    expect(isLaurAddonSupported({ boardPieces: [] }, addon)).toBe('unknown')
+  it('does not report conflicts in the public Library of Laur map', () => {
+    const data = JSON.parse(
+      readFileSync(
+        resolve(process.cwd(), 'public/json-maps/Web_4_Library_of_Laur.json'),
+        'utf8',
+      ),
+    ) as { hexMap: HexMap; boardPieces: unknown }
+    const normalized = normalizeBoardPiecesWithDropped(data.boardPieces)
+    const board = buildupJsonFileMap(normalized.boardPieces, data.hexMap)
+    const conflictedUIDs = evaluateLaurAddonConflicts(
+      board.boardPieces,
+      board.boardHexes,
+    )
+    const flaggedPieces = board.boardPieces
+      .filter((boardPiece) => conflictedUIDs.includes(boardPiece.uid))
+      .map(({ uid, inventoryID, pieceCoords, altitude }) => ({
+        uid,
+        inventoryID,
+        pieceCoords,
+        altitude,
+      }))
+    expect(flaggedPieces).toEqual([])
   })
-
-  it.todo(
-    'verified support-table values are keyed by pillar and add-on rotation',
-  )
 })

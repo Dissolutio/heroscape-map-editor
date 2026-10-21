@@ -3,6 +3,7 @@ import { HexTerrain } from '../types'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { getLaurAddonFootprint } from './laurAddonFootprints'
 import { getLaurAddonCanonicalKey } from './laurAddonPlacement'
+import { piecesSoFar } from './pieces'
 
 const coordKey = ({ q, r, s }: CubeCoordinate) => `${q},${r},${s}`
 const overlapsAltitude = (
@@ -33,16 +34,20 @@ export function evaluateLaurAddonConflicts(
       piece.rotation,
     )
     if (!canonicalKey) return []
+    const footprint = getLaurAddonFootprint({
+      inventoryID: piece.inventoryID,
+      anchor: piece.pieceCoords,
+      altitude: piece.altitude,
+      rotation: piece.rotation,
+    })
+    const heightInLevels =
+      footprint?.heightInLevels ?? piecesSoFar[piece.inventoryID]?.height
     return [
       {
         piece,
         canonicalKey,
-        footprint: getLaurAddonFootprint({
-          inventoryID: piece.inventoryID,
-          anchor: piece.pieceCoords,
-          altitude: piece.altitude,
-          rotation: piece.rotation,
-        }),
+        footprint,
+        heightInLevels,
       },
     ]
   })
@@ -51,7 +56,17 @@ export function evaluateLaurAddonConflicts(
     const addon = addons[i]
     for (let j = i + 1; j < addons.length; j++) {
       const other = addons[j]
-      if (addon.canonicalKey === other.canonicalKey) {
+      if (
+        addon.canonicalKey === other.canonicalKey &&
+        addon.heightInLevels !== undefined &&
+        other.heightInLevels !== undefined &&
+        overlapsAltitudeBands(
+          addon.piece.altitude,
+          addon.heightInLevels,
+          other.piece.altitude,
+          other.heightInLevels,
+        )
+      ) {
         conflicts.add(addon.piece.uid)
         conflicts.add(other.piece.uid)
       }

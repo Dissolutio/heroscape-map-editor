@@ -4,6 +4,7 @@ export type E2EPlacementPreview = {
   status: PlacementStatus
   reason: string | null
   footprintCount: number
+  unsupported: boolean
 }
 
 let placementPreview: E2EPlacementPreview | null = null
