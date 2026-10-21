@@ -2,9 +2,11 @@ import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
+import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
 import { getDragState } from '../world/drag/dragController'
 import useBoundStore from '../store/store'
 import type { BoardHex, BoardPiece } from '../types'
+import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { getBoardHex3DCoords } from '../utils/map-utils'
 import { isE2E } from './isE2E'
 import { getPlacementPreview } from './placementPreviewStore'
@@ -120,6 +122,16 @@ function TestBridgeInner() {
         const { boardPieces, boardHexes } = useBoundStore.getState()
         const bp = boardPieces.find((piece) => piece.uid === uid)
         if (!bp) return null
+        if (isLaurWallAddonPieceID(bp.inventoryID)) {
+          const feature = getLaurAddonFeaturePoint(bp.pieceCoords, bp.rotation)
+          if (feature) {
+            const { yWithBase } = getBoardHex3DCoords({
+              ...bp.pieceCoords,
+              altitude: bp.altitude + 1,
+            })
+            return project(feature.x, yWithBase, feature.z)
+          }
+        }
         const hex = getPieceTopHex(bp, boardHexes)
         // Pieces with no grid expansion (e.g. Laur wall add-ons) render
         // straight from boardPieces: fall back to the placement hex.

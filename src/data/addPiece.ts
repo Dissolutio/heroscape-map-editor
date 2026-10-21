@@ -29,6 +29,7 @@ import {
   verticalObstructionTemplates,
   verticalSupportTemplates,
 } from './vertical-obstruction-templates'
+import { getSupportingLaurPillar, isLaurPillarID } from './laurPillarStacking'
 
 export function addPiece({
   // state to mutate and return
@@ -57,11 +58,27 @@ export function addPiece({
   const uid = incomingUid ?? nanoid(10)
   const newBoardHexes = clone(boardHexes)
   const newBoardPieces: BoardPieces = clone(boardPieces)
+  const supportingLaurPillar = isLaurPillarID(piece.id)
+    ? getSupportingLaurPillar(boardPieces, {
+        uid,
+        inventoryID: piece.id,
+        pieceCoords,
+        rotation,
+        altitude: placementAltitude,
+      })
+    : undefined
   const displacedUIDs = new Set<string>()
   let isDuplicateStartZone = false
   const trackDisplaced = (hexID: string) => {
     const existing = newBoardHexes[hexID]
-    if (existing?.boardPieceUID && existing.boardPieceUID !== uid) {
+    if (
+      existing?.boardPieceUID &&
+      existing.boardPieceUID !== uid &&
+      !(
+        existing.boardPieceUID === supportingLaurPillar?.uid &&
+        existing.isVerticalClearanceHex
+      )
+    ) {
       displacedUIDs.add(existing.boardPieceUID)
     }
   }
@@ -117,6 +134,17 @@ export function addPiece({
   const overHexIds = piecePlaneCoords.map((cubeCoord) =>
     genBoardHexID({ ...cubeCoord, altitude: newPieceAltitude + 1 }),
   )
+  const isLaurPillarStack = Boolean(supportingLaurPillar)
+  const isLaurPillarStackSpaceFree =
+    isLaurPillarStack &&
+    newHexIds.every((id) => {
+      const hex = newBoardHexes[id]
+      return (
+        !hex ||
+        (hex.boardPieceUID === supportingLaurPillar?.uid &&
+          hex.isVerticalClearanceHex)
+      )
+    })
   const isCastleWallPiece = piece.id.includes(PiecePrefixes.castleWall)
   const isCastleArchPiece =
     piece.id === Pieces.castleArch || piece.id === Pieces.castleArchNoDoor
@@ -181,6 +209,7 @@ export function addPiece({
     isSolidUnderAll ||
     // Some obstacles, and glyphs/startzones, can be placed on fluid tiles
     ((piece.id === Pieces.laurWallSquarePillar ||
+      piece.id === Pieces.laurWallPillarStackable ||
       piece.id === Pieces.laurWallTrianglePillar ||
       piece.id === Pieces.shipBow ||
       piece.id === Pieces.shipWall ||
@@ -195,9 +224,9 @@ export function addPiece({
   const isBattlementPieceSupported_true = true // TODO: validate pieces
   const isPlacingObstacle =
     piece.isObstaclePiece &&
-    isSpaceFree &&
+    (isSpaceFree || isLaurPillarStackSpaceFree) &&
     isVerticalClearanceForPiece &&
-    isObstaclePieceSupported
+    (isObstaclePieceSupported || isLaurPillarStack)
   const isLadderPieceID = piece.terrain === HexTerrain.ladder
   const isBattlementPieceID = piece.terrain === HexTerrain.battlement
   const isRoadWallPieceID = piece.terrain === HexTerrain.roadWall

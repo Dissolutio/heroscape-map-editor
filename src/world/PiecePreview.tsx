@@ -1,11 +1,20 @@
 import { Suspense, useEffect, useMemo } from 'react'
+import { getLaurAddonHitHex } from '../data/laurAddonStacking'
 import { piecesSoFar } from '../data/pieces'
+import {
+  areMatchingLaurPillarShapes,
+  getLaurPillarStackAltitude,
+} from '../data/laurPillarStacking'
 import { getPlacementPreviewState } from '../data/placementPreview'
 import { getSmartPlacementAltitude } from '../data/smartPlacement'
 import useBoundStore from '../store/store'
 import type { BoardHex } from '../types'
 import { HexTerrain, PiecePrefixes, Pieces } from '../types'
-import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
+import {
+  isFluidTerrainHex,
+  isLaurWallAddonPieceID,
+  isSolidTerrainHex,
+} from '../utils/board-utils'
 import {
   HEXGRID_GLYPH_HEIGHT,
   HEXGRID_HEXCAP_FLUID_HEIGHT,
@@ -75,6 +84,7 @@ import { setPlacementPreview } from '../e2e/placementPreviewStore'
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
   const hoveredWorldPoint = useBoundStore((s) => s.hoveredWorldPoint)
+  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const penMode = useBoundStore((s) => s.penMode)
@@ -83,21 +93,37 @@ export default function PiecePreview() {
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const pieceKey = penModeSize === 0 ? penMode : `${penMode}${penModeSize}`
   const piece = piecesSoFar[pieceKey]
+  const hoveredAddon = boardPieces.find(
+    (boardPiece) =>
+      boardPiece.uid === hoveredPieceID &&
+      hoveredHex?.boardPieceUID === hoveredPieceID &&
+      isLaurWallAddonPieceID(boardPiece.inventoryID),
+  )
+  const placementPointerHex = useMemo(
+    () => (hoveredAddon ? getLaurAddonHitHex(hoveredAddon) : hoveredHex),
+    [hoveredAddon, hoveredHex],
+  )
   const previewState = useMemo(() => {
-    if (!hoveredHex || !piece || penMode === 'select' || isTakingPicture) {
+    if (
+      !placementPointerHex ||
+      !piece ||
+      penMode === 'select' ||
+      isTakingPicture
+    ) {
       return null
     }
     return getPlacementPreviewState(
       piece,
-      hoveredHex,
+      placementPointerHex,
       penModeRotation,
       { boardHexes, boardPieces },
-      hoveredWorldPoint,
+      hoveredAddon ? undefined : hoveredWorldPoint,
     )
   }, [
     boardHexes,
     boardPieces,
-    hoveredHex,
+    hoveredAddon,
+    placementPointerHex,
     hoveredWorldPoint,
     isTakingPicture,
     penMode,
@@ -114,25 +140,30 @@ export default function PiecePreview() {
             reason: previewState.evaluation.reason ?? null,
             footprintCount: previewState.evaluation.footprintHexes.length,
             unsupported: previewState.unsupported,
+            altitude:
+              'blocked' in previewState.resolution
+                ? null
+                : previewState.resolution.altitude,
           }
         : null,
     )
   }, [previewState])
 
-  if (!hoveredHex || !piece || !previewState) return null
+  if (!placementPointerHex || !piece || !previewState) return null
 
   const { evaluation, resolution } = previewState
   const hoveredSurfaceHex =
-    hoveredHex.obstacleHeight &&
-    (hoveredHex.pieceID.includes(PiecePrefixes.castleWall) ||
-      hoveredHex.pieceID.includes(PiecePrefixes.castleArch))
+    placementPointerHex.obstacleHeight &&
+    (placementPointerHex.pieceID.includes(PiecePrefixes.castleWall) ||
+      placementPointerHex.pieceID.includes(PiecePrefixes.castleArch))
       ? (boardHexes[
           genBoardHexID({
-            ...hoveredHex,
-            altitude: hoveredHex.altitude + hoveredHex.obstacleHeight,
+            ...placementPointerHex,
+            altitude:
+              placementPointerHex.altitude + placementPointerHex.obstacleHeight,
           })
-        ] ?? hoveredHex)
-      : hoveredHex
+        ] ?? placementPointerHex)
+      : placementPointerHex
   const castleCapHex =
     !('blocked' in resolution) && resolution.rule === 'castleCap'
       ? (boardHexes[
@@ -141,7 +172,7 @@ export default function PiecePreview() {
             altitude: resolution.altitude,
           })
         ] ?? {
-          ...hoveredHex,
+          ...placementPointerHex,
           ...resolution.coords,
           altitude: resolution.altitude,
         })
@@ -154,7 +185,7 @@ export default function PiecePreview() {
             altitude: resolution.altitude,
           })
         ] ?? {
-          ...hoveredHex,
+          ...placementPointerHex,
           ...resolution.coords,
           altitude: resolution.altitude,
         })
@@ -304,7 +335,9 @@ function PiecePreviewModel({
   const isLaurWallAddon = piece?.terrain === HexTerrain.laurWallAddon
   const isSolidSubterrain = isSolidTerrainHex(piece?.terrain)
   const isFluidSubterrain = isFluidTerrainHex(piece?.terrain)
-  const isLaurSquarePillarHex = piece.id === Pieces.laurWallSquarePillar
+  const isLaurSquarePillarHex =
+    piece.id === Pieces.laurWallSquarePillar ||
+    piece.id === Pieces.laurWallPillarStackable
   const isLaurTrianglePillarHex = pieceID === Pieces.laurWallTrianglePillar
   const isPowerGlyphHex = piece?.terrain === HexTerrain.glyphPower
   const isTreasureGlyphHex = piece?.terrain === HexTerrain.glyphTreasure
@@ -395,15 +428,16 @@ function PiecePreviewModel({
     !Number.isInteger(hoveredHexForPreview.altitude)
   const isUnderHexLaurPillar =
     hoveredHexForPreview.inventoryID === Pieces.laurWallSquarePillar ||
+    hoveredHexForPreview.inventoryID === Pieces.laurWallPillarStackable ||
     hoveredHexForPreview.inventoryID === Pieces.laurWallTrianglePillar ||
     hoveredPiece?.inventoryID === Pieces.laurWallSquarePillar ||
+    hoveredPiece?.inventoryID === Pieces.laurWallPillarStackable ||
     hoveredPiece?.inventoryID === Pieces.laurWallTrianglePillar
   const isPillarPenMode = isLaurSquarePillarHex || isLaurTrianglePillarHex
-  const isMatchingPillarStackTarget =
-    (isLaurSquarePillarHex &&
-      hoveredHexForPreview.inventoryID === Pieces.laurWallSquarePillar) ||
-    (isLaurTrianglePillarHex &&
-      hoveredHexForPreview.inventoryID === Pieces.laurWallTrianglePillar)
+  const isMatchingPillarStackTarget = areMatchingLaurPillarShapes(
+    piece.id,
+    hoveredHexForPreview.inventoryID,
+  )
   const canStackOnPillar =
     isPillarPenMode && isUnderHexLaurPillar && isMatchingPillarStackTarget
   const supportingPillar = canStackOnPillar
@@ -412,8 +446,9 @@ function PiecePreviewModel({
   const stackPreviewHex = canStackOnPillar
     ? {
         ...hoveredHexForPreview,
-        altitude:
-          (supportingPillar?.altitude ?? hoveredHexForPreview.altitude) + 9,
+        altitude: getLaurPillarStackAltitude(
+          supportingPillar?.altitude ?? hoveredHexForPreview.altitude,
+        ),
       }
     : null
   const stackPreviewCoords = stackPreviewHex

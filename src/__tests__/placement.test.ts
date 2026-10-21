@@ -9,7 +9,9 @@
  */
 import { describe, expect, it } from 'vitest'
 import { addPiece } from '../data/addPiece'
+import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { piecesSoFar } from '../data/pieces'
+import { getPlacementPreviewState } from '../data/placementPreview'
 import {
   type PlacementResolution,
   evaluatePlacement,
@@ -21,7 +23,7 @@ import {
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import { getSmartPlacementAltitude } from '../data/smartPlacement'
 import type { BoardHex, CubeCoordinate } from '../types'
-import { HexTerrain } from '../types'
+import { HexTerrain, Pieces } from '../types'
 import {
   type Board,
   cloneBoard,
@@ -71,6 +73,20 @@ function resolve(
   return resolvePlacement(piecesSoFar[pieceID], hex, rotation, board, {
     ignoreUID,
   })
+}
+
+function partialPieceHex(board: Board, uid: string): BoardHex {
+  const bp = board.boardPieces.find((piece) => piece.uid === uid)
+  if (!bp) throw new Error(`missing board piece ${uid}`)
+  return {
+    ...bp.pieceCoords,
+    boardPieceUID: bp.uid,
+    altitude: bp.altitude,
+    inventoryID: bp.inventoryID,
+    pieceID: '',
+    pieceRotation: bp.rotation,
+    terrain: HexTerrain.laurWallAddon,
+  } as BoardHex
 }
 
 function resolved(resolution: PlacementResolution) {
@@ -133,6 +149,110 @@ describe('resolvePlacement', () => {
     if (!isPlacementBlocked(occupied)) {
       expect(occupied).toMatchObject({ coords: c, altitude: 1, rotation: 0 })
     }
+  })
+
+  it('places a stackable square pillar eight levels above a stackable pillar', () => {
+    const board = add(
+      table,
+      Pieces.laurWallPillarStackable,
+      c,
+      1,
+      2,
+      'stackable-base',
+    )
+    const pointerHex = partialPieceHex(board, 'stackable-base')
+    const resolution = resolve(
+      board,
+      Pieces.laurWallPillarStackable,
+      pointerHex,
+    )
+    expect(resolved(resolution)).toMatchObject({
+      altitude: 9,
+      rotation: 2,
+      rule: 'pillarStack',
+    })
+  })
+
+  it('uses the eight-level pillar stack altitude in the preview', () => {
+    const board = add(
+      table,
+      Pieces.laurWallPillarStackable,
+      c,
+      1,
+      2,
+      'stackable-base',
+    )
+    const pointerHex = partialPieceHex(board, 'stackable-base')
+    const preview = getPlacementPreviewState(
+      piecesSoFar[Pieces.laurWallPillarStackable],
+      pointerHex,
+      0,
+      board,
+    )
+    expect(preview.resolution).toMatchObject({
+      altitude: 9,
+      rule: 'pillarStack',
+    })
+    expect(preview.evaluation.status).toBe('ok')
+  })
+
+  it.each([
+    [Pieces.laurWallShortStackable, Pieces.laurWallShortStackable, 0],
+    [Pieces.laurWallLongStackable, Pieces.laurWallLongStackable, 0.5],
+    [Pieces.laurWallArch, Pieces.laurWallLongStackable, 0.5],
+    [Pieces.laurWallRuin1, Pieces.laurWallRuin1, 0],
+  ])('places %s eight levels above %s', (lowerID, upperID, rotation) => {
+    const board = add(table, lowerID, c, 1, rotation, 'lower')
+    const resolution = resolve(
+      board,
+      upperID,
+      partialPieceHex(board, 'lower'),
+      rotation,
+    )
+    expect(resolved(resolution)).toMatchObject({
+      altitude: 9,
+      rotation,
+      rule: 'laurAddon',
+    })
+  })
+
+  it.each([Pieces.laurWallRuin2, Pieces.laurWallRuin3])(
+    'does not stack %s on a ruin',
+    (pieceID) => {
+      const board = add(table, Pieces.laurWallRuin1, c, 1, 0, 'lower')
+      const resolution = resolve(
+        board,
+        pieceID,
+        partialPieceHex(board, 'lower'),
+        0,
+      )
+      expect(resolved(resolution)).toMatchObject({
+        altitude: 1,
+        rule: 'laurAddon',
+      })
+    },
+  )
+
+  it('allows a non-stackable wall over a wall and flags the overlap', () => {
+    const board = add(table, Pieces.laurWallShortStackable, c, 1, 0, 'lower')
+    const pointerHex = partialPieceHex(board, 'lower')
+    const resolution = resolve(board, Pieces.laurWallShort, pointerHex, 0)
+    expect(isPlacementBlocked(resolution)).toBe(false)
+    if (isPlacementBlocked(resolution)) return
+    expect(resolution.altitude).toBe(1)
+    const upper = {
+      uid: 'upper',
+      inventoryID: Pieces.laurWallShort,
+      pieceCoords: resolution.coords,
+      rotation: resolution.rotation,
+      altitude: resolution.altitude,
+    }
+    expect(
+      evaluateLaurAddonConflicts(
+        [...board.boardPieces, upper],
+        board.boardHexes,
+      ),
+    ).toEqual(expect.arrayContaining(['lower', 'upper']))
   })
 
   describe('blocked', () => {

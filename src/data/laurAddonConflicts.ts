@@ -3,6 +3,10 @@ import { HexTerrain } from '../types'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { getLaurAddonFootprint } from './laurAddonFootprints'
 import { getLaurAddonCanonicalKey } from './laurAddonPlacement'
+import {
+  LAUR_ADDON_STACK_INCREMENT,
+  canLaurAddonStackOn,
+} from './laurAddonStacking'
 import { piecesSoFar } from './pieces'
 
 const coordKey = ({ q, r, s }: CubeCoordinate) => `${q},${r},${s}`
@@ -56,7 +60,17 @@ export function evaluateLaurAddonConflicts(
     const addon = addons[i]
     for (let j = i + 1; j < addons.length; j++) {
       const other = addons[j]
+      const [lower, upper] =
+        addon.piece.altitude < other.piece.altitude
+          ? [addon, other]
+          : [other, addon]
+      const isLegalStack =
+        addon.canonicalKey === other.canonicalKey &&
+        upper.piece.altitude - lower.piece.altitude ===
+          LAUR_ADDON_STACK_INCREMENT &&
+        canLaurAddonStackOn(upper.piece.inventoryID, lower.piece.inventoryID)
       if (
+        !isLegalStack &&
         addon.canonicalKey === other.canonicalKey &&
         addon.heightInLevels !== undefined &&
         other.heightInLevels !== undefined &&
@@ -72,6 +86,7 @@ export function evaluateLaurAddonConflicts(
       }
       if (!addon.footprint || !other.footprint) continue
       if (
+        !isLegalStack &&
         addon.footprint.blockedHexes.some((hex) =>
           other.footprint?.blockedHexes.some(
             (otherHex) => coordKey(hex) === coordKey(otherHex),

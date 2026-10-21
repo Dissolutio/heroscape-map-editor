@@ -259,6 +259,7 @@ describe('isLaurAddonSupported', () => {
   it('matches stacked pillar tops by their current BoardPiece altitude', () => {
     const addon = makePiece('stacked-wall', Pieces.laurWallShort, anchor, 0, 9)
     const boardPieces = [
+      makePiece('base-pillar', Pieces.laurWallSquarePillar, anchor, 0, 1),
       makePiece('stacked-anchor', Pieces.laurWallPillarStackable, anchor, 0, 9),
       makePiece(
         'stacked-far',
@@ -270,13 +271,12 @@ describe('isLaurAddonSupported', () => {
     ]
     expect(isLaurAddonSupported({ boardPieces }, addon)).toBe('supported')
     expect(
-      isLaurAddonSupported({ boardPieces }, { ...addon, altitude: 8 }),
+      getUnsupportedLaurAddonUIDs({ boardPieces: [...boardPieces, addon] }),
+    ).toEqual([])
+    expect(
+      isLaurAddonSupported({ boardPieces }, { ...addon, altitude: 10 }),
     ).toBe('unsupported')
   })
-
-  it.todo(
-    'verify the add-on hit altitude matches a stacked pillar top after the +8 stacking correction',
-  )
 
   it('does not mutate board inputs and returns only unsupported add-on UIDs', () => {
     const boardPieces = [
