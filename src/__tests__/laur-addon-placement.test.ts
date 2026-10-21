@@ -1,9 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
 import {
+  doPenModeCounterRotation,
+  doPenModeRotation,
+  getPossibleRotationsForPenMode,
+} from '../controls/getPossibleRotationsForPenMode'
+import {
+  getLaurAddonAllowedRotations,
   getLaurAddonCanonicalKey,
+  getLaurAddonPortRotations,
   resolveLaurAddonEdge,
 } from '../data/laurAddonPlacement'
+import { piecesSoFar } from '../data/pieces'
+import { resolvePlacement } from '../data/placement'
+import { getPlacementPreviewState } from '../data/placementPreview'
+import { hexAt, makeTable } from './helpers/board'
 import type { CubeCoordinate } from '../types'
 import { cubeToPixel, HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { Pieces } from '../types'
@@ -15,6 +25,21 @@ const allRotations = integerRotations.flatMap((rotation) => [
   rotation,
   rotation + 0.5,
 ])
+const addonIDs = [
+  Pieces.laurWallLong,
+  Pieces.laurWallArch,
+  Pieces.laurWallLongStackable,
+  Pieces.laurWallShort,
+  Pieces.laurWallShortStackable,
+  Pieces.laurWallRuin1,
+  Pieces.laurWallRuin2,
+  Pieces.laurWallRuin3,
+]
+const squarePillarIDs = [
+  Pieces.laurWallSquarePillar,
+  Pieces.laurWallPillarStackable,
+]
+const triangleRotations = allRotations
 
 function featurePoint(at: CubeCoordinate, rotation: number) {
   const center = cubeToPixel(at)
@@ -98,6 +123,115 @@ describe('resolveLaurAddonEdge', () => {
     [Pieces.laurWallRuin3, allRotations],
   ])('honors allowed rotations for %s', (pieceID, rotations) => {
     expect(getPossibleRotationsForPenMode(pieceID)).toEqual(rotations)
+  })
+
+  it.each(
+    squarePillarIDs.flatMap((pillarID) =>
+      integerRotations.flatMap((pillarRotation) =>
+        addonIDs.map((pieceID) => [pillarID, pillarRotation, pieceID] as const),
+      ),
+    ),
+  )(
+    'snaps %s at square pillar rotation %s to %s port options',
+    (pillarID, pillarRotation, pieceID) => {
+      const expectedCount =
+        pieceID === Pieces.laurWallRuin1 ||
+        pieceID === Pieces.laurWallRuin2 ||
+        pieceID === Pieces.laurWallRuin3
+          ? 4
+          : 2
+      expect(
+        getLaurAddonPortRotations(pieceID, pillarID, pillarRotation),
+      ).toHaveLength(expectedCount)
+    },
+  )
+
+  it.each(
+    triangleRotations.flatMap((pillarRotation) =>
+      addonIDs.map((pieceID) => [pillarRotation, pieceID] as const),
+    ),
+  )(
+    'snaps %s at triangle pillar rotation %s to the matching ports',
+    (pillarRotation, pieceID) => {
+      const isHalfStep = !Number.isInteger(pillarRotation)
+      const isRuin =
+        pieceID === Pieces.laurWallRuin1 ||
+        pieceID === Pieces.laurWallRuin2 ||
+        pieceID === Pieces.laurWallRuin3
+      const isLong =
+        pieceID === Pieces.laurWallLong ||
+        pieceID === Pieces.laurWallArch ||
+        pieceID === Pieces.laurWallLongStackable
+      const expectedCount = isRuin ? 3 : isLong === isHalfStep ? 3 : 0
+      expect(
+        getLaurAddonPortRotations(
+          pieceID,
+          Pieces.laurWallTrianglePillar,
+          pillarRotation,
+        ),
+      ).toHaveLength(expectedCount)
+    },
+  )
+
+  it('keeps free rotations when no pillar port matches or no pillar is hovered', () => {
+    const longRotations = getPossibleRotationsForPenMode(Pieces.laurWallLong)
+    expect(
+      getLaurAddonAllowedRotations(Pieces.laurWallLong, {
+        inventoryID: Pieces.laurWallTrianglePillar,
+        pieceRotation: 0,
+      }),
+    ).toEqual(longRotations)
+    expect(getLaurAddonAllowedRotations(Pieces.laurWallLong)).toEqual(
+      longRotations,
+    )
+  })
+
+  it('cycles hotkeys only through the constrained port rotations', () => {
+    const allowed = getLaurAddonAllowedRotations(Pieces.laurWallLong, {
+      inventoryID: Pieces.laurWallSquarePillar,
+      pieceRotation: 0,
+    })
+    expect(allowed).toEqual([1.5, 4.5])
+    let rotation = allowed[0]
+    const setRotation = (next: number) => {
+      rotation = next
+    }
+    doPenModeRotation(Pieces.laurWallLong, rotation, setRotation, allowed)
+    expect(rotation).toBe(4.5)
+    doPenModeRotation(Pieces.laurWallLong, rotation, setRotation, allowed)
+    expect(rotation).toBe(1.5)
+    doPenModeCounterRotation(
+      Pieces.laurWallLong,
+      rotation,
+      setRotation,
+      allowed,
+    )
+    expect(rotation).toBe(4.5)
+  })
+
+  it('uses the same port-snapped resolution for click and hover preview', () => {
+    const board = makeTable(9)
+    const tableHex = hexAt(board, anchor, 0)
+    if (!tableHex) throw new Error('missing test table hex')
+    const pointerHex = {
+      ...tableHex,
+      inventoryID: Pieces.laurWallSquarePillar,
+      pieceRotation: 0,
+      boardPieceUID: 'pillar',
+    }
+    const longWall = piecesSoFar[Pieces.laurWallLong]
+    const hitPoint = featurePoint(anchor, 4.5)
+    const clickResolution = resolvePlacement(longWall, pointerHex, 0.5, board, {
+      worldPoint: hitPoint,
+    })
+    const hoverResolution = getPlacementPreviewState(
+      longWall,
+      pointerHex,
+      0.5,
+      board,
+      hitPoint,
+    ).resolution
+    expect(hoverResolution).toEqual(clickResolution)
   })
 
   it('does not mutate the anchor or world hit point', () => {

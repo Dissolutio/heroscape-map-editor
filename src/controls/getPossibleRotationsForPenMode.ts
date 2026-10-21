@@ -19,26 +19,24 @@ export function doPenModeRotation(
   penMode: string,
   penModeRotation: number,
   togglePenModeRotation: (s: number) => void,
+  allowedRotations = getPossibleRotationsForPenMode(penMode),
 ) {
   // impl:
   // doPenModeRotation(penMode, penModeRotation, togglePenModeRotation)
-  const possibleRotations = getPossibleRotationsForPenMode(penMode)
-  const nextHighest = possibleRotations.findIndex((r) => r > penModeRotation)
-  togglePenModeRotation(possibleRotations[nextHighest === -1 ? 0 : nextHighest])
+  const nextHighest = allowedRotations.findIndex((r) => r > penModeRotation)
+  togglePenModeRotation(allowedRotations[nextHighest === -1 ? 0 : nextHighest])
 }
 export function doPenModeCounterRotation(
   penMode: string,
   penModeRotation: number,
   togglePenModeRotation: (s: number) => void,
+  allowedRotations = getPossibleRotationsForPenMode(penMode),
 ) {
   // impl:
   // doPenModeCounterRotation(penMode, penModeRotation, togglePenModeRotation)
-  const possibleRotations = getPossibleRotationsForPenMode(penMode)
   const nextLowest =
-    possibleRotations.findIndex((r) => r === penModeRotation) - 1
+    allowedRotations.findIndex((r) => r === penModeRotation) - 1
   togglePenModeRotation(
-    possibleRotations[
-      nextLowest < 0 ? possibleRotations.length - 1 : nextLowest
-    ],
+    allowedRotations[nextLowest < 0 ? allowedRotations.length - 1 : nextLowest],
   )
 }

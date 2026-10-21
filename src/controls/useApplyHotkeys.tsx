@@ -18,6 +18,7 @@ import {
   doPenModeCounterRotation,
   doPenModeRotation,
 } from './getPossibleRotationsForPenMode'
+import { getLaurAddonAllowedRotations } from '../data/laurAddonPlacement'
 
 export const STANDARD_PIECE_SIZE_HOTKEYS = {
   '1': 1,
@@ -104,6 +105,8 @@ export const useApplyHotkeys = ({
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const togglePenModeRotation = useBoundStore((s) => s.togglePenModeRotation)
+  const hoveredHex = useBoundStore((s) => s.hoveredHex)
+  const pieceSize = useBoundStore((s) => s.pieceSize)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const toggleIsOrthoCam = useBoundStore((s) => s.toggleIsOrthoCam)
   const isCameraDisabled = useBoundStore((s) => s.isCameraDisabled)
@@ -188,10 +191,22 @@ export const useApplyHotkeys = ({
   const undoWorld = undoWithSelectionRestore
   const redoWorld = redoWithSelectionRestore
   const cycleNextPieceRotation = () => {
-    doPenModeRotation(penMode, penModeRotation, togglePenModeRotation)
+    const pieceID = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
+    doPenModeRotation(
+      penMode,
+      penModeRotation,
+      togglePenModeRotation,
+      getLaurAddonAllowedRotations(pieceID, hoveredHex),
+    )
   }
   const cyclePrevPieceRotation = () => {
-    doPenModeCounterRotation(penMode, penModeRotation, togglePenModeRotation)
+    const pieceID = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
+    doPenModeCounterRotation(
+      penMode,
+      penModeRotation,
+      togglePenModeRotation,
+      getLaurAddonAllowedRotations(pieceID, hoveredHex),
+    )
   }
   // Instead of one for select, and one for last, maybe combine them and cycle? Could also track
   // a history of pen modes, and cycle backwards.

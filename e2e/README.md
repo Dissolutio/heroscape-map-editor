@@ -53,7 +53,8 @@ The canvas is invisible to accessibility snapshots, so read state in text:
 - `window.__TEST__.snapshot()`: the same, structured (`mapId`, `mapWidth`,
   `mapLength`, `pieceCount`, `hexCount`, `viewingLevel`, `penMode`, `selectedPieceIDs`,
   `hoveredPieceID`, `isOrthoCam`, `ready`, `placementPreview`
-  (`status`, `reason`, `footprintCount`, and `unsupported`, or `null`), and
+  (`status`, `reason`, `footprintCount`, `unsupported`, `altitude`, and
+  `rotation`, or `null`), and
   `drag`: a piece
   press or drag in progress, or `null` (`state` is `'pressed'` or
   `'dragging'`; `targetStatus` is the drop's `'ok'`, `'conflict'` or

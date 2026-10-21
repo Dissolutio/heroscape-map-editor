@@ -4,10 +4,21 @@
 
 Laur wall add-ons can be placed with the pen on any hovered board surface.
 The clicked surface supplies the anchor hex and altitude; no Laur pillar is
-required. The pointer's world-space position resolves the nearest allowed
-side or vertex, with the current pen rotation used at the exact hex center.
-Short walls use integer rotations, long walls and arches use half-step
-rotations, and ruins allow both.
+required. When the pointer is over a Laur pillar, the nearest rotation is
+chosen from the add-on's allowed rotations that match that pillar's ports.
+Square pillars offer two matching rotations for short walls, long walls and
+arches, and four for ruins. Triangle pillars offer three matching rotations
+of one kind; an incompatible side/vertex kind has no matches. With no match,
+or when the pointer is not over a pillar, rotation stays permissive and an
+unsupported placement is still shown in amber. The current pen rotation wins
+an exact hex-center tie.
+
+Piece `height` counts the whole blocked levels starting at the obstacle
+origin: the origin plus `height - 1` vertical-clearance levels. The first
+unblocked level is `origin altitude + height`. Measured Laur pillars block
+12 levels (core 9.5, top 12) and stack at an eight-level increment. The
+measured tree heights are recorded by piece ID in
+[pieceHeightAudit.ts](../src/data/pieceHeightAudit.ts).
 
 Placement never rejects or displaces a piece because of Laur support or
 conflicts. Support is derived from `boardPieces`: square pillars have ports

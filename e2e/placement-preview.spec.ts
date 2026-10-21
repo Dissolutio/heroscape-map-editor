@@ -169,3 +169,44 @@ test('a stackable square pillar preview and placement use the +8 step', async ({
   )
   expect(pillars?.map((piece) => piece.altitude).sort()).toEqual([1, 9])
 })
+
+test('Laur add-on previews snap to square and triangle pillar ports', async ({
+  page,
+}) => {
+  await page.goto(
+    mapUrl(FIXTURE_HEX_MAP, [
+      ...FIXTURE_PIECE_IDS,
+      '1~0~2~0~lwp',
+      '0~3~2~0~g1',
+      '1~3~2~0.5~lwt',
+    ]),
+  )
+  await waitForAppReady(page)
+
+  await setPen(page, 'lwl', 0, 0.5)
+  await hoverHex(page, { q: 0, r: 2, altitude: 14 })
+  await page.waitForFunction(
+    () => {
+      const rotation = window.__TEST__?.snapshot().placementPreview?.rotation
+      return rotation === 1.5 || rotation === 4.5
+    },
+  )
+  const squareRotation = await page.evaluate(
+    () => window.__TEST__?.snapshot().placementPreview?.rotation,
+  )
+  expect([1.5, 4.5]).toContain(squareRotation)
+
+  await setPen(page, 'lwl', 0, 1.5)
+  await hoverHex(page, { q: 3, r: 2, altitude: 14 })
+  await page.waitForFunction(
+    () => {
+      const rotation = window.__TEST__?.snapshot().placementPreview?.rotation
+      return rotation === 0.5 || rotation === 2.5 || rotation === 4.5
+    },
+  )
+  const trianglePreview = await page.evaluate(
+    () => window.__TEST__?.snapshot().placementPreview,
+  )
+  expect([0.5, 2.5, 4.5]).toContain(trianglePreview?.rotation)
+  expect(trianglePreview?.rotation).not.toBe(1.5)
+})

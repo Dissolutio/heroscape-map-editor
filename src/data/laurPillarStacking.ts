@@ -1,6 +1,13 @@
 import type { BoardPiece, BoardPieces } from '../types'
 import { Pieces } from '../types'
 
+/** Whole levels blocked by one Laur pillar, including its origin level. */
+export const LAUR_PILLAR_HEIGHT = 12
+
+/** Measured core height of a Laur pillar in levels. */
+export const LAUR_PILLAR_CORE_HEIGHT = 9.5
+
+/** Additional levels blocked by a pillar stacked on a matching pillar. */
 export const LAUR_PILLAR_STACK_INCREMENT = 8
 
 const squarePillarIDs = new Set<string>([

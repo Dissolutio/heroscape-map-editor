@@ -8,6 +8,7 @@ import {
   powerGlyphs,
   treasureGlyphs,
 } from './glyphs'
+import { LAUR_PILLAR_HEIGHT } from './laurPillarStacking'
 
 export const piecesSoFar: Dictionary<Piece> = {
   // UNINVENTORIED
@@ -951,7 +952,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 11, // game height was 10, errata 9
+    height: LAUR_PILLAR_HEIGHT, // core 9.5, top 12, stacking adds 8; male top 4
   },
   [Pieces.laurWallPillarStackable]: {
     id: Pieces.laurWallPillarStackable,
@@ -961,7 +962,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 11, // game height was 10, errata 9, only adds 8 when stacked (male pillar top is 3 hexes tall)
+    height: LAUR_PILLAR_HEIGHT, // core 9.5, top 12, stacking adds 8; male top 4
   },
   [Pieces.laurWallTrianglePillar]: {
     id: Pieces.laurWallTrianglePillar,
@@ -971,7 +972,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 11, // game height was 10, errata 9, only adds 8 when stacked (male pillar top is 3 hexes tall)
+    height: LAUR_PILLAR_HEIGHT, // core 9.5, top 12, stacking adds 8; male top 4
   },
   [Pieces.laurWallShort]: {
     id: Pieces.laurWallShort,
@@ -1082,7 +1083,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 8,
     template: Pieces.fortifiedWall,
-    height: 10,
+    height: 9,
   },
   [Pieces.marvel]: {
     id: Pieces.marvel,
@@ -1153,7 +1154,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 10,
+    height: 9,
   },
   [Pieces.tree11]: {
     id: Pieces.tree11,
@@ -1173,7 +1174,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12,
+    height: 11,
   },
   [Pieces.tree415]: {
     id: Pieces.tree415,

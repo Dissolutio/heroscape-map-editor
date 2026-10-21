@@ -1,4 +1,8 @@
-import type { CubeCoordinate } from '../types'
+import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
+import type { BoardHex, CubeCoordinate } from '../types'
+import { getPillarPorts } from './laurPillarPorts'
+import { isLaurPillarID } from './laurPillarStacking'
+import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { cubeToPixel, HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 
 export type LaurAddonPoint = { x: number; z: number }
@@ -7,6 +11,36 @@ export type LaurAddonResolvedEdge = {
   rotation: number
   canonicalKey: string
   kind: 'side' | 'vertex'
+}
+
+export function getLaurAddonPortRotations(
+  pieceID: string,
+  pillarInventoryID: string,
+  pillarRotation: number,
+) {
+  if (!isLaurWallAddonPieceID(pieceID) || !isLaurPillarID(pillarInventoryID)) {
+    return []
+  }
+  const ports = getPillarPorts(pillarInventoryID, pillarRotation)
+  return getPossibleRotationsForPenMode(pieceID).filter((rotation) =>
+    ports.includes(rotation),
+  )
+}
+
+export function getLaurAddonAllowedRotations(
+  pieceID: string,
+  pointerHex?: Pick<BoardHex, 'inventoryID' | 'pieceRotation'>,
+) {
+  const possibleRotations = getPossibleRotationsForPenMode(pieceID)
+  if (!pointerHex || !isLaurPillarID(pointerHex.inventoryID)) {
+    return possibleRotations
+  }
+  const portRotations = getLaurAddonPortRotations(
+    pieceID,
+    pointerHex.inventoryID,
+    pointerHex.pieceRotation,
+  )
+  return portRotations.length ? portRotations : possibleRotations
 }
 
 const normalizeRotation = (rotation: number) => {
