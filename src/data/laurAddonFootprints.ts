@@ -1,8 +1,7 @@
 /**
- * NOT USED YET. Input for the planned edges-and-nodes conflict work: which
- * land hexes a Laur wall add-on physically blocks. Nothing in addPiece, the
- * store or rendering calls this; Laur add-ons still have no grid expansion
- * and render straight from boardPieces.
+ * Which land hexes the conflict evaluator treats a Laur wall add-on as
+ * physically blocking. Add-ons still have no grid expansion and render
+ * straight from boardPieces.
  *
  * Covers lwl2 (laurWallLongStackable), lwr2 and lwr3 (laurWallRuin2/3). Each
  * sits on a Laur square or triangle pillar at `anchor` and reaches out from
@@ -19,7 +18,10 @@ import type { CubeCoordinate } from '../types'
 import { Pieces } from '../types'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 
-/** All three pieces are 10 levels tall. */
+/**
+ * The footprint source says 10 levels; registered metadata says 12 for these
+ * pieces. Keep this measured footprint value unchanged until verified.
+ */
 const LAUR_ADDON_HEIGHT_IN_LEVELS = 10
 
 const HALF_STEP_ONLY = new Set<string>([Pieces.laurWallLongStackable])

@@ -102,10 +102,20 @@ export default function MapDisplay3D({
     if (!piece) {
       return
     }
-    const placement = resolvePlacement(piece, hex, penModeRotation, {
-      boardHexes,
-      boardPieces,
-    })
+    const placement = resolvePlacement(
+      piece,
+      hex,
+      penModeRotation,
+      {
+        boardHexes,
+        boardPieces,
+      },
+      {
+        worldPoint: event.point
+          ? { x: event.point.x, z: event.point.z }
+          : undefined,
+      },
+    )
     if (isPlacementBlocked(placement)) {
       const message = placementBlockedMessages[placement.blocked]
       if (message) {

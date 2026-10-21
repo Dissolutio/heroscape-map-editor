@@ -73,6 +73,103 @@ afterEach(() => {
 })
 
 describe('real store undo and redo', () => {
+  it('recomputes Laur edge conflicts after paint, undo, redo, and remove', async () => {
+    const { redoWithSelectionRestore, undoWithSelectionRestore } = await import(
+      '../utils/undoWithSelectionRestore'
+    )
+    const anchor = { q: 4, r: 4, s: -8 }
+    const neighbor = { q: 5, r: 4, s: -9 }
+    loadWithoutHistory(
+      loadedMap([
+        {
+          uid: 'first-addon',
+          inventoryID: 'lws',
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: anchor,
+        },
+      ]),
+    )
+    expect(store.getState().conflictedPieceUIDs).toEqual([])
+
+    const error = store.getState().paintTile({
+      piece: piecesSoFar.lws,
+      clickedHexCoords: neighbor,
+      altitude: 0,
+      rotation: 3,
+    })
+    expect(error).toBeUndefined()
+    const added = store
+      .getState()
+      .boardPieces.find((piece) => piece.pieceCoords.q === neighbor.q)
+    if (!added) throw new Error('Expected the second Laur add-on')
+    expect(store.getState().conflictedPieceUIDs).toEqual(
+      expect.arrayContaining(['first-addon', added.uid]),
+    )
+    expect(
+      store.getState().boardPieces.every((piece) => !('conflict' in piece)),
+    ).toBe(true)
+
+    undoWithSelectionRestore()
+    expect(store.getState().conflictedPieceUIDs).toEqual([])
+    redoWithSelectionRestore()
+    expect(store.getState().conflictedPieceUIDs).toEqual(
+      expect.arrayContaining(['first-addon', added.uid]),
+    )
+
+    store.getState().unpaintTile(added.uid)
+    expect(store.getState().conflictedPieceUIDs).toEqual([])
+    undoWithSelectionRestore()
+    expect(store.getState().conflictedPieceUIDs).toEqual(
+      expect.arrayContaining(['first-addon', added.uid]),
+    )
+    redoWithSelectionRestore()
+    expect(store.getState().conflictedPieceUIDs).toEqual([])
+  })
+
+  it('recomputes Laur footprint conflicts after map load and moving land', async () => {
+    const { redoWithSelectionRestore, undoWithSelectionRestore } = await import(
+      '../utils/undoWithSelectionRestore'
+    )
+    const anchor = { q: 4, r: 4, s: -8 }
+    const landOrigin = { q: 2, r: 2, s: -4 }
+    const blockedHex = { q: 5, r: 4, s: -9 }
+    const map = loadedMap([
+      {
+        uid: 'measured-addon',
+        inventoryID: 'lwr2',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: anchor,
+      },
+      {
+        uid: 'moving-land',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: landOrigin,
+      },
+    ])
+    store.getState().loadMap(map, { holdAutosave: true })
+    expect(store.getState().conflictedPieceUIDs).toEqual([])
+
+    store.getState().movePiece({
+      uid: 'moving-land',
+      newPieceCoords: blockedHex,
+      newAltitude: 0,
+    })
+    expect(store.getState().conflictedPieceUIDs).toEqual(
+      expect.arrayContaining(['measured-addon', 'moving-land']),
+    )
+
+    undoWithSelectionRestore()
+    expect(store.getState().conflictedPieceUIDs).toEqual([])
+    redoWithSelectionRestore()
+    expect(store.getState().conflictedPieceUIDs).toEqual(
+      expect.arrayContaining(['measured-addon', 'moving-land']),
+    )
+  })
+
   it('loads fitted pieces and shows one map-dimensions notification', () => {
     const edgePiece: BoardPiece = {
       uid: 'edge-land',
@@ -311,6 +408,7 @@ describe('real store undo and redo', () => {
     store.getState().setDragState(true, null)
     store.getState().toggleHoveredPieceID('hovered')
     store.getState().toggleHoveredHex(Object.values(boardHexes)[0])
+    store.getState().toggleHoveredWorldPoint({ x: 1, z: 2 })
     store.getState().setDragState(false, null)
     store.getState().toggleHoveredPieceID('')
     store.getState().toggleHoveredHex(undefined)

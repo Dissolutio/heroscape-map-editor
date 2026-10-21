@@ -23,6 +23,9 @@ import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
 import getPieceTemplateCoords from './rotationTransforms'
 import { getSmartPlacementAltitude } from './smartPlacement'
 import { verticalObstructionTemplates } from './vertical-obstruction-templates'
+import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
+import { resolveLaurAddonEdge } from './laurAddonPlacement'
+import { cubeToPixel } from '../utils/hex-utils'
 
 /** The two pieces of state placement reads. */
 export type PlacementBoard = {
@@ -43,7 +46,6 @@ export type PlacementRule =
   | 'default' // anything else, on the clicked cap
 
 export type PlacementBlockedReason =
-  | 'needsLaurPillar' // a Laur add-on clicked off a Square/Triangle Pillar
   | 'notOnCastleWallTop' // only a castle wall or wall walk fits on one
   | 'castleArchNeedsLand' // an arch's bases are attached: not on a wall top
   | 'pillarShapesDiffer' // square and triangle pillars do not stack
@@ -56,7 +58,6 @@ export type PlacementBlockedReason =
 export const placementBlockedMessages: Partial<
   Record<PlacementBlockedReason, string>
 > = {
-  needsLaurPillar: 'Must add to Square/Triangle Pillar.',
   notOnCastleWallTop: 'Only a castle wall or wall walk fits on a castle wall.',
   castleArchNeedsLand: 'A castle arch has its own bases; place it on land.',
   pillarShapesDiffer: 'Triangle and square pillars do not stack.',
@@ -116,6 +117,7 @@ export function resolvePlacement(
   options: {
     ignoreUID?: IgnoredPieceUIDs
     deferOffMapCheck?: boolean
+    worldPoint?: { x: number; z: number }
   } = {},
 ): PlacementResolution {
   // e.g. ShipBow used to hand over `{}`; there is nothing to place on
@@ -171,7 +173,13 @@ function resolveByRule(
   pointerHex: BoardHex,
   rotation: number,
   { boardHexes, boardPieces }: PlacementBoard,
-  { ignoreUID }: { ignoreUID?: IgnoredPieceUIDs },
+  {
+    ignoreUID,
+    worldPoint,
+  }: {
+    ignoreUID?: IgnoredPieceUIDs
+    worldPoint?: { x: number; z: number }
+  },
 ): PlacementResolution {
   const hex = pointerHex
   const isCastleWallArchClicked =
@@ -216,10 +224,17 @@ function resolveByRule(
       ignoreUID,
     })
 
-  // Adding laur addon, put it at same level
+  // Laur add-ons may be placed on any hovered surface; support is evaluated
+  // separately and the hit surface determines their altitude.
   if (isLaurWallAddonPieceID(piece.id)) {
-    if (!isLaurPillarClicked) return { blocked: 'needsLaurPillar' }
-    return at('laurAddon', clickedAltitude)
+    const center = cubeToPixel(coords)
+    const edge = resolveLaurAddonEdge(
+      coords,
+      worldPoint ?? { x: center.x, z: center.y },
+      rotation,
+      getPossibleRotationsForPenMode(piece.id),
+    )
+    return at('laurAddon', clickedAltitude, edge?.rotation ?? rotation)
   }
   // Castle W/A: use cap coords and altitude
   if (isCastleWallArchClicked) {

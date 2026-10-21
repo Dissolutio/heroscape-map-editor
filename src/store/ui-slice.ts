@@ -53,6 +53,8 @@ export interface UISlice {
   toggleHoveredPieceID: (id: string) => void
   hoveredHex: BoardHex | undefined
   toggleHoveredHex: (hex?: BoardHex) => void
+  hoveredWorldPoint: { x: number; z: number } | undefined
+  toggleHoveredWorldPoint: (point?: { x: number; z: number }) => void
   viewingLevel: number
   toggleViewingLevel: (level: number) => void
   is2DOpen: boolean
@@ -201,6 +203,20 @@ const createUISlice: StateCreator<
     set(
       produce((state) => {
         state.hoveredHex = hex
+        if (!hex) state.hoveredWorldPoint = undefined
+      }),
+    ),
+  hoveredWorldPoint: undefined,
+  toggleHoveredWorldPoint: (point?: { x: number; z: number }) =>
+    set(
+      produce((state) => {
+        if (
+          state.hoveredWorldPoint?.x === point?.x &&
+          state.hoveredWorldPoint?.z === point?.z
+        ) {
+          return
+        }
+        state.hoveredWorldPoint = point
       }),
     ),
   penMode: initialPenMode,

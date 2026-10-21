@@ -116,6 +116,64 @@ afterEach(() => {
 })
 
 describe('map persistence round trips', () => {
+  it('rebuilds Laur add-on conflicts after JSON, autosave, and share-link round trips', () => {
+    const laurPieces: BoardPiece[] = [
+      {
+        uid: 'edge-a',
+        inventoryID: 'lws',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 3, r: 3, s: -6 },
+      },
+      {
+        uid: 'edge-b',
+        inventoryID: 'lws',
+        altitude: 0,
+        rotation: 3,
+        pieceCoords: { q: 4, r: 3, s: -7 },
+      },
+    ]
+    const piecesConflict = (pieces: BoardPiece[]) => {
+      const addonUIDs = pieces
+        .filter((piece) => piece.inventoryID === 'lws')
+        .map((piece) => piece.uid)
+      expect(computeConflictedPieceUIDs(pieces)).toEqual(
+        expect.arrayContaining(addonUIDs),
+      )
+      expect(pieces.every((piece) => !('conflict' in piece))).toBe(true)
+    }
+    const savedFile = JSON.stringify({ hexMap, boardPieces: laurPieces })
+    const fromFile = openJsonMapFile(savedFile)
+    piecesConflict(fromFile.boardPieces)
+
+    storageValues.clear()
+    vi.clearAllMocks()
+    vi.stubGlobal('localStorage', localStorageMock)
+    const autosave = createLocalMapAutosaveStorage()
+    expect(autosave.save({ hexMap, boardPieces: laurPieces })).toEqual({
+      ok: true,
+    })
+    const saved = loadMapFromLocalStorage(LS_KEYS.lastMap)
+    if (!saved) throw new Error('Expected the Laur autosave to load')
+    const normalized = normalizeBoardPiecesWithDropped(saved.boardPieces)
+    const fromAutosave = buildupJsonFileMap(
+      normalized.boardPieces,
+      saved.hexMap,
+      normalized.droppedPieces,
+    )
+    piecesConflict(fromAutosave.boardPieces)
+
+    const crushed = getUrlMapString({ hexMap, boardPieces: laurPieces })
+    const { m } = parseMapShareUrlParams(`https://hexoscape.com/?m=${crushed}`)
+    if (m === null) throw new Error('Expected the Laur share payload')
+    const decoded = parseMapDataArrayFromCrushed(m)
+    const fromShare = buildupJsonFileMap(
+      inflateBoardPiecesFromIds(decoded.boardPiecesEncodedArr),
+      decoded.hexMap,
+    )
+    piecesConflict(fromShare.boardPieces)
+  })
+
   it('grows a map for an overhanging piece and preserves the fit on reload', () => {
     const smallMap = { ...hexMap, width: 6, length: 6 }
     const edgePiece: BoardPiece = {

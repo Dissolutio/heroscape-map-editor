@@ -68,7 +68,7 @@ function EmptyHex({
 }: BoardHexPieceProps & { isLightsAndShadowsRender: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnter, onPointerOut, onPointerMove } = usePieceHoverState()
 
   // Effect: Initial color/position
   React.useLayoutEffect(() => {
@@ -101,9 +101,10 @@ function EmptyHex({
       onPointerUp={handleUp}
       onPointerEnter={handleEnter}
       onPointerOut={handleOut}
-      onPointerMove={(e: ThreeEvent<PointerEvent>) =>
-        reportDragTargetHex(boardHex) && e.stopPropagation()
-      }
+      onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+        onPointerMove(e)
+        if (reportDragTargetHex(boardHex)) e.stopPropagation()
+      }}
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
