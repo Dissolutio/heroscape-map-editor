@@ -1,9 +1,11 @@
 import { Box } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense, useEffect, useRef, useState } from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
 import useAppUpdater from '../hooks/useAppUpdater'
+import { isE2E, isWhatsNewE2EOptIn } from '../e2e/isE2E'
+import { useAppReady } from '../e2e/useAppReady'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
 import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
@@ -11,6 +13,13 @@ import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
 import useBoundStore from '../store/store'
 import { lazyWithRetry } from '../utils/lazyWithRetry'
 import { getBoardPiecesMaxLevel } from '../utils/map-utils'
+import { decideReleaseNotes, type ReleaseNoteEntry } from '../data/releaseNotes'
+import { LS_KEYS } from '../local-storage/keys'
+import {
+  safeGetJSON,
+  safeHasItem,
+  safeSetItem,
+} from '../local-storage/safeStorage'
 import { ControlTabs } from './ControlTabs'
 import CreateMapFormDialog from './CreateMapFormDialog'
 import EditMapFormDialog from './EditMapFormDialog'
@@ -18,6 +27,7 @@ import { HeaderNav } from './HeaderNav'
 import LoadMapFromUrlDialog from './LoadMapFromUrlDialog'
 import PiecesGridDialog from './PiecesGridDialog'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
+import WhatsNewDialog, { releaseNoteEntries } from './WhatsNewDialog'
 // 1. Define your lazy-loaded components
 const ReactPdfRoot = lazyWithRetry(() => import('../pdf-map/ReactPdfRoot'))
 const SvgMapDisplay = lazyWithRetry(() => import('../svg-map/SvgMapDisplay'))
@@ -39,6 +49,11 @@ export default function HomePage() {
   const mapGroupRef = React.useRef<Group<Object3DEventMap> | null>(null)
   const controlsContainerRef = React.useRef(null)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces, boardHexes)
+  const isAppReady = useAppReady()
+  const { isCheckingUpdate, isUpdatePromptOpen } = useAppUpdater()
+  const [isWhatsNewOpen, setIsWhatsNewOpen] = useState(false)
+  const [whatsNewEntries, setWhatsNewEntries] = useState<ReleaseNoteEntry[]>([])
+  const startupCheckHandled = useRef(false)
 
   // MUI BREAKPOINTS
   //   xs, extra-small: 0px
@@ -68,12 +83,60 @@ export default function HomePage() {
 
   // USE EFFECT: automatically load up map from URL, OR from file
   useAutoLoadMapFile()
-  useAppUpdater()
   const { hotkeyConfig } = useHotkeyConfig()
   useApplyHotkeys({ hotkeyConfig, cameraControlsRef, mapGroupRef })
 
+  useEffect(() => {
+    if (
+      startupCheckHandled.current ||
+      !isAppReady ||
+      isCheckingUpdate ||
+      isUpdatePromptOpen
+    ) {
+      return
+    }
+    startupCheckHandled.current = true
+
+    const hasStoredId = safeHasItem(LS_KEYS.whatsNewLastSeen)
+    if (hasStoredId === null) return
+    const storedId = hasStoredId
+      ? safeGetJSON<string>(LS_KEYS.whatsNewLastSeen)
+      : null
+    const decision = decideReleaseNotes(
+      releaseNoteEntries,
+      typeof storedId === 'string' ? storedId : null,
+      true,
+    )
+    if (decision.shouldStore && decision.newestId) {
+      safeSetItem(LS_KEYS.whatsNewLastSeen, JSON.stringify(decision.newestId))
+      return
+    }
+    if (decision.entriesToShow.length > 0 && (!isE2E || isWhatsNewE2EOptIn)) {
+      setWhatsNewEntries(decision.entriesToShow)
+      setIsWhatsNewOpen(true)
+    }
+  }, [isAppReady, isCheckingUpdate, isUpdatePromptOpen])
+
+  const openLatestWhatsNew = () => {
+    setWhatsNewEntries(releaseNoteEntries.slice(0, 5))
+    setIsWhatsNewOpen(true)
+  }
+
+  const closeWhatsNew = () => {
+    setIsWhatsNewOpen(false)
+    const newestId = releaseNoteEntries[0]?.id
+    if (newestId) {
+      safeSetItem(LS_KEYS.whatsNewLastSeen, JSON.stringify(newestId))
+    }
+  }
+
   return (
     <>
+      <WhatsNewDialog
+        open={isWhatsNewOpen}
+        entries={whatsNewEntries}
+        onClose={closeWhatsNew}
+      />
       <CreateMapFormDialog />
       <EditMapFormDialog />
       <EditPieceInventoryDialog />
@@ -90,7 +153,7 @@ export default function HomePage() {
           margin: 0,
         }}
       >
-        <HeaderNav />
+        <HeaderNav onOpenWhatsNew={openLatestWhatsNew} />
         <Box
           style={{
             display: 'flex',

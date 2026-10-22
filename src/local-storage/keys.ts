@@ -3,4 +3,5 @@ export const LS_KEYS = {
   lastMap: 'lastMap',
   lastMapPortrait: 'lastMapPortrait',
   settings: 'settings',
+  whatsNewLastSeen: 'whatsNewLastSeen',
 }

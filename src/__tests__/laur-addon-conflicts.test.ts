@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
+import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { piecesSoFar } from '../data/pieces'
 import type { BoardPiece, CubeCoordinate, HexMap } from '../types'
 import { Pieces } from '../types'
@@ -29,6 +30,66 @@ const piece = (
 const sorted = (uids: string[]) => [...uids].sort()
 
 describe('evaluateLaurAddonConflicts', () => {
+  it('loads the legacy stacking example and flags its stacked pillars', () => {
+    const data = JSON.parse(
+      readFileSync(
+        resolve(process.cwd(), 'public/json-maps/Stacking_Legacy_Example.json'),
+        'utf8',
+      ),
+    ) as { hexMap: HexMap; boardPieces: unknown }
+    const normalized = normalizeBoardPiecesWithDropped(data.boardPieces)
+    const board = buildupJsonFileMap(
+      normalized.boardPieces,
+      data.hexMap,
+      normalized.droppedPieces,
+    )
+
+    expect(board.droppedPieces).toEqual([])
+    expect(board.boardPieces).toHaveLength(normalized.boardPieces.length)
+    expect(Object.keys(board.boardHexes).length).toBeGreaterThan(0)
+
+    const conflictedPieceUIDs = computeConflictedPieceUIDs(board.boardPieces)
+    const pillarIDs = new Set<string>([
+      Pieces.laurWallSquarePillar,
+      Pieces.laurWallTrianglePillar,
+    ])
+    const stackedPillars = board.boardPieces.filter((piece) => {
+      if (piece.altitude !== 0 || !pillarIDs.has(piece.inventoryID))
+        return false
+      return board.boardPieces.some(
+        (other) =>
+          other.inventoryID === piece.inventoryID &&
+          other.altitude === 9 &&
+          other.rotation === piece.rotation &&
+          other.pieceCoords.q === piece.pieceCoords.q &&
+          other.pieceCoords.r === piece.pieceCoords.r &&
+          other.pieceCoords.s === piece.pieceCoords.s,
+      )
+    })
+    const stackedPillarUIDs = [
+      ...stackedPillars.map(({ uid }) => uid),
+      ...board.boardPieces
+        .filter(
+          (piece) =>
+            piece.altitude === 9 &&
+            stackedPillars.some(
+              (lower) =>
+                lower.inventoryID === piece.inventoryID &&
+                lower.rotation === piece.rotation &&
+                lower.pieceCoords.q === piece.pieceCoords.q &&
+                lower.pieceCoords.r === piece.pieceCoords.r &&
+                lower.pieceCoords.s === piece.pieceCoords.s,
+            ),
+        )
+        .map(({ uid }) => uid),
+    ]
+
+    expect(stackedPillars.length).toBeGreaterThan(0)
+    expect(conflictedPieceUIDs).toEqual(
+      expect.arrayContaining(stackedPillarUIDs),
+    )
+  })
+
   it.each([
     [Pieces.laurWallShortStackable, 0, 12, 'registered height'],
     [Pieces.laurWallLongStackable, 0.5, 10, 'footprint height'],

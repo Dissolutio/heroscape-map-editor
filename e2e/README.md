@@ -27,6 +27,10 @@ link parameter: `/hs?e2e=1&m=<crushed map>` (see `e2e/fixtures.ts`).
 between runs. The rotation only shows with **High Quality Render** on; the
 default caps are plain hexagons.
 
+The automatic What's New dialog is suppressed for `?e2e=1` runs. A test that
+needs to exercise it can explicitly opt in with `&whats-new=1`. The ordinary
+What's New button remains available in e2e runs.
+
 ## Waiting: use the ready signal, never a fixed sleep
 
 The map is "ready" when its bounding box has stopped changing, no model is
@@ -140,7 +144,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | What | Where |
 | --- | --- |
 | On/off switches (read once at load) | `src/e2e/isE2E.ts` |
-| Ready signal | `src/e2e/ReadySignal.tsx` (reuses `mapSettleTracker`) |
+| Ready signal | `src/e2e/ReadySignal.tsx` (reuses `mapSettleTracker`; window hooks remain e2e-only) |
 | `window.__TEST__` | `src/e2e/TestBridge.tsx` |
 | Preview test state | `src/e2e/placementPreviewStore.ts` |
 | Hidden status text | `src/e2e/E2EStatus.tsx` |
@@ -149,5 +153,6 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Viewing-level regression | `e2e/viewing-level.spec.ts` |
 | Load-time map fitting | `e2e/load-fits-map.spec.ts` |
 
-All of it renders nothing and installs nothing unless the switch in `isE2E.ts`
-is on.
+The map-settle tracker also feeds the app's startup UI in normal runs. The
+window bridge, hidden status element, deterministic rotation, and other
+browser-only hooks remain gated by `isE2E.ts`.
