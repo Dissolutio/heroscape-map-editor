@@ -1,4 +1,4 @@
-import { G, Text } from '@react-pdf/renderer'
+import { G, Text, Tspan } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
   xTransformForMultiHex3Rotation,
@@ -87,15 +87,21 @@ const TerrainTileLetterText = ({
   const marks = isShowBuriedMarks
     ? getBuriedMarksForHex(hex, viewingLevel, buriedMarksByUID)
     : ''
-  const annotation = getTerrainTileAnnotation(
+  const letter = getTerrainTileAnnotation(
     hex,
     viewingLevel,
     isShowTileLetters,
-    marks,
+    '',
   )
-  if (!annotation) return null
+  if (!letter && !marks) return null
   const terrainLetter = getTerrainTileLetter(hex.terrain)
   const position = getTileLetterPosition(hex)
+  const textStyle = letter
+    ? pdfHexTextStyle
+    : {
+        ...pdfHexTextStyle,
+        fontSize: pdfHexTextStyle.fontSize * 0.58,
+      }
   return (
     <Text
       fill={
@@ -106,10 +112,18 @@ const TerrainTileLetterText = ({
           : '#000000'
       }
       {...pdfTextProps()}
+      style={textStyle}
       x={position.x}
       y={position.y}
     >
-      {annotation}
+      {letter}
+      {letter && marks ? (
+        <Tspan fontSize={pdfHexTextStyle.fontSize * 0.58} dy="-0.6em">
+          {marks}
+        </Tspan>
+      ) : (
+        !letter && marks
+      )}
     </Text>
   )
 }
