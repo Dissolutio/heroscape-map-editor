@@ -33,6 +33,7 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `map-autosave.test.ts` | Debounced map writes, lifecycle flushes, hold/release gating, and failure retries. |
 | `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
 | `settings.test.ts` | Versioned settings defaults, migration, debounced persistence, and store-state classification. |
+| `tile-marks.test.ts` | Buried-status mark selection, letter/mark text composition, excluded piece families, and integration with the small buried-status board fixture. |
 | `release-notes.test.ts` | Release-note parsing and the pure first-visit / unseen-release decision. |
 | `release-notes-format.test.ts` | The root release notes' date-heading format and non-empty parsed entries. |
 | `crash-feedback.test.ts` | The anonymous crash-report note sent to Sentry (`utils/crashFeedback.ts`): trimmed, capped, linked to the crash event, no name/email. |

@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from '@react-pdf/renderer'
-import type { PropsWithChildren } from 'react'
+import { useMemo, type PropsWithChildren } from 'react'
 import { piecesSoFar } from '../data/pieces'
 import {
   countPiecesUsedWithLaurStacking,
@@ -26,6 +26,7 @@ import {
 } from '../types'
 import { PDF_RENDER_FORMATS } from '../utils/constants'
 import { getRequiredTerrainText } from '../utils/map-utils'
+import { makeBuriedMarksByUID, type BuriedMarksByUID } from '../utils/tileMarks'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
 
@@ -69,6 +70,7 @@ function ReactPdfRoot() {
   )
   const isShowPdfLevelLogo = useBoundStore((s) => s.isShowPdfLevelLogo)
   const isShowPdfTileLetters = useBoundStore((s) => s.isShowPdfTileLetters)
+  const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const is2DOverlayLevelEnabled = useBoundStore(
@@ -102,6 +104,7 @@ function ReactPdfRoot() {
             isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
             isShowPdfLevelLogo={isShowPdfLevelLogo}
             isShowPdfTileLetters={isShowPdfTileLetters}
+            isShowPdfBuriedMarks={isShowPdfBuriedMarks}
             isShowPDFInventory={isShowPDFInventory}
             useLegacyStartZones={useLegacyStartZones}
             is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
@@ -124,6 +127,7 @@ const PdfDocument = ({
   isShowPdfGridLinesOverSublevels,
   isShowPdfLevelLogo,
   isShowPdfTileLetters,
+  isShowPdfBuriedMarks,
   isShowPDFInventory,
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
@@ -138,11 +142,17 @@ const PdfDocument = ({
   isShowPdfGridLinesOverSublevels: boolean
   isShowPdfLevelLogo: boolean
   isShowPdfTileLetters: boolean
+  isShowPdfBuriedMarks: boolean
   isShowPDFInventory: boolean
   useLegacyStartZones: boolean
   is2DOverlayLevelEnabled: boolean
   pdfRenderFormat: 'coversheet' | 'shortHeader' | 'condensedCoversheet'
 }) => {
+  const buriedMarksByUID = useMemo(
+    () => makeBuriedMarksByUID(boardHexes, boardPieces),
+    [boardHexes, boardPieces],
+  )
+
   if (pdfRenderFormat === PDF_RENDER_FORMATS.COVERSHEET) {
     return (
       <PdfDocumentCoverSheet
@@ -155,6 +165,8 @@ const PdfDocument = ({
         isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
         isShowPdfLevelLogo={isShowPdfLevelLogo}
         isShowPdfTileLetters={isShowPdfTileLetters}
+        isShowPdfBuriedMarks={isShowPdfBuriedMarks}
+        buriedMarksByUID={buriedMarksByUID}
         isShowPDFInventory={isShowPDFInventory}
         useLegacyStartZones={useLegacyStartZones}
         is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
@@ -174,6 +186,8 @@ const PdfDocument = ({
         isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
         isShowPdfLevelLogo={isShowPdfLevelLogo}
         isShowPdfTileLetters={isShowPdfTileLetters}
+        isShowPdfBuriedMarks={isShowPdfBuriedMarks}
+        buriedMarksByUID={buriedMarksByUID}
         isShowPDFInventory={isShowPDFInventory}
         useLegacyStartZones={useLegacyStartZones}
         is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
@@ -192,6 +206,8 @@ const PdfDocument = ({
       isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
       isShowPdfLevelLogo={isShowPdfLevelLogo}
       isShowPdfTileLetters={isShowPdfTileLetters}
+      isShowPdfBuriedMarks={isShowPdfBuriedMarks}
+      buriedMarksByUID={buriedMarksByUID}
       isShowPDFInventory={isShowPDFInventory}
       useLegacyStartZones={useLegacyStartZones}
       is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
@@ -214,6 +230,8 @@ const PdfDocumentCoverSheet = ({
   isShowPdfGridLinesOverSublevels,
   isShowPdfLevelLogo,
   isShowPdfTileLetters,
+  isShowPdfBuriedMarks,
+  buriedMarksByUID,
   isShowPDFInventory,
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
@@ -227,6 +245,8 @@ const PdfDocumentCoverSheet = ({
   isShowPdfGridLinesOverSublevels: boolean
   isShowPdfLevelLogo: boolean
   isShowPdfTileLetters: boolean
+  isShowPdfBuriedMarks: boolean
+  buriedMarksByUID: BuriedMarksByUID
   isShowPDFInventory: boolean
   useLegacyStartZones: boolean
   is2DOverlayLevelEnabled: boolean
@@ -335,6 +355,8 @@ const PdfDocumentCoverSheet = ({
         isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
         isShowPdfLevelLogo={isShowPdfLevelLogo}
         isShowPdfTileLetters={isShowPdfTileLetters}
+        isShowPdfBuriedMarks={isShowPdfBuriedMarks}
+        buriedMarksByUID={buriedMarksByUID}
         useLegacyStartZones={useLegacyStartZones}
         is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
       />
@@ -364,6 +386,8 @@ const PdfDocumentCondensedCoverSheet = ({
   isShowPdfGridLinesOverSublevels,
   isShowPdfLevelLogo,
   isShowPdfTileLetters,
+  isShowPdfBuriedMarks,
+  buriedMarksByUID,
   isShowPDFInventory,
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
@@ -377,6 +401,8 @@ const PdfDocumentCondensedCoverSheet = ({
   isShowPdfGridLinesOverSublevels: boolean
   isShowPdfLevelLogo: boolean
   isShowPdfTileLetters: boolean
+  isShowPdfBuriedMarks: boolean
+  buriedMarksByUID: BuriedMarksByUID
   isShowPDFInventory: boolean
   useLegacyStartZones: boolean
   is2DOverlayLevelEnabled: boolean
@@ -500,6 +526,8 @@ const PdfDocumentCondensedCoverSheet = ({
         isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
         isShowPdfLevelLogo={isShowPdfLevelLogo}
         isShowPdfTileLetters={isShowPdfTileLetters}
+        isShowPdfBuriedMarks={isShowPdfBuriedMarks}
+        buriedMarksByUID={buriedMarksByUID}
         useLegacyStartZones={useLegacyStartZones}
         is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
       />
@@ -521,6 +549,8 @@ const PdfDocumentShortHeader = ({
   isShowPdfGridLinesOverSublevels,
   isShowPdfLevelLogo,
   isShowPdfTileLetters,
+  isShowPdfBuriedMarks,
+  buriedMarksByUID,
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
   isShowPDFInventory,
@@ -534,6 +564,8 @@ const PdfDocumentShortHeader = ({
   isShowPdfGridLinesOverSublevels: boolean
   isShowPdfLevelLogo: boolean
   isShowPdfTileLetters: boolean
+  isShowPdfBuriedMarks: boolean
+  buriedMarksByUID: BuriedMarksByUID
   useLegacyStartZones: boolean
   is2DOverlayLevelEnabled: boolean
   isShowPDFInventory: boolean
@@ -549,6 +581,8 @@ const PdfDocumentShortHeader = ({
         isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
         isShowPdfLevelLogo={isShowPdfLevelLogo}
         isShowPdfTileLetters={isShowPdfTileLetters}
+        isShowPdfBuriedMarks={isShowPdfBuriedMarks}
+        buriedMarksByUID={buriedMarksByUID}
         useLegacyStartZones={useLegacyStartZones}
         is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
       >
@@ -581,6 +615,7 @@ const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   )
   const isShowPdfLevelLogo = useBoundStore((s) => s.isShowPdfLevelLogo)
   const isShowPdfTileLetters = useBoundStore((s) => s.isShowPdfTileLetters)
+  const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
@@ -599,6 +634,7 @@ const ReactPdfDownloadLink = (props: PropsWithChildren) => {
           isShowPdfGridLinesOverSublevels={isShowPdfGridLinesOverSublevels}
           isShowPdfLevelLogo={isShowPdfLevelLogo}
           isShowPdfTileLetters={isShowPdfTileLetters}
+          isShowPdfBuriedMarks={isShowPdfBuriedMarks}
           isShowPDFInventory={isShowPDFInventory}
           useLegacyStartZones={useLegacyStartZones}
           is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}

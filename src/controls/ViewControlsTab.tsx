@@ -4,6 +4,7 @@ import {
   FormControl,
   FormControlLabel,
   FormGroup,
+  FormHelperText,
   FormLabel,
   List,
   MenuItem,
@@ -409,6 +410,10 @@ const PdfPreferencesSwitchForm = () => {
   const toggleIsShowPdfTileLetters = useBoundStore(
     (s) => s.toggleIsShowPdfTileLetters,
   )
+  const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
+  const toggleIsShowPdfBuriedMarks = useBoundStore(
+    (s) => s.toggleIsShowPdfBuriedMarks,
+  )
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const setPdfRenderFormat = useBoundStore((s) => s.setPdfRenderFormat)
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
@@ -449,6 +454,11 @@ const PdfPreferencesSwitchForm = () => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIsShowPdfTileLetters(event.target.checked)
+  }
+  const handleChangeShowPdfBuriedMarks = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShowPdfBuriedMarks(event.target.checked)
   }
   const handleChangePdfRenderFormat = (
     event: SelectChangeEvent<
@@ -553,6 +563,22 @@ const PdfPreferencesSwitchForm = () => {
           control={
             <Switch
               size="small"
+              checked={isShowPdfBuriedMarks}
+              onChange={handleChangeShowPdfBuriedMarks}
+            />
+          }
+          label="Show Buried-Tile Marks"
+          title="Mark land tiles whose tops or sides will be covered in PDF output"
+        />
+        <FormHelperText sx={{ ml: 5, mt: -0.5, mb: 1 }}>
+          * = the top of this tile will be covered. † = its sides will be
+          covered. Both = fully hidden, so any piece of the same size and kind
+          (solid for solid, fluid for fluid) works.
+        </FormHelperText>
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
               checked={useLegacyStartZones}
               onChange={handleChangeUseLegacyStartZones}
             />
@@ -604,6 +630,12 @@ const SVGPreferencesSwitchForm = () => {
   const toggleIsShow2DExportTileLetters = useBoundStore(
     (s) => s.toggleIsShow2DExportTileLetters,
   )
+  const isShow2DExportBuriedMarks = useBoundStore(
+    (s) => s.isShow2DExportBuriedMarks,
+  )
+  const toggleIsShow2DExportBuriedMarks = useBoundStore(
+    (s) => s.toggleIsShow2DExportBuriedMarks,
+  )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const toggleUseLegacyStartZones = useBoundStore(
     (s) => s.toggleUseLegacyStartZones,
@@ -622,6 +654,11 @@ const SVGPreferencesSwitchForm = () => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIsShow2DExportTileLetters(event.target.checked)
+  }
+  const handleChangeShow2DExportBuriedMarks = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShow2DExportBuriedMarks(event.target.checked)
   }
   const handleChangeUseLegacyStartZones = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -666,6 +703,22 @@ const SVGPreferencesSwitchForm = () => {
           label="Show Tile Letters"
           title="Enable/disable terrain tile letters on current-level land in SVG output"
         />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShow2DExportBuriedMarks}
+              onChange={handleChangeShow2DExportBuriedMarks}
+            />
+          }
+          label="Show Buried-Tile Marks"
+          title="Mark land tiles whose tops or sides will be covered in SVG output"
+        />
+        <FormHelperText sx={{ ml: 5, mt: -0.5, mb: 1 }}>
+          * = the top of this tile will be covered. † = its sides will be
+          covered. Both = fully hidden, so any piece of the same size and kind
+          (solid for solid, fluid for fluid) works.
+        </FormHelperText>
         <FormControlLabel
           control={
             <Switch
