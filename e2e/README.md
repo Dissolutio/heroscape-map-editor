@@ -30,6 +30,7 @@ default caps are plain hexagons.
 The automatic What's New dialog is suppressed for `?e2e=1` runs. A test that
 needs to exercise it can explicitly opt in with `&whats-new=1`. The ordinary
 What's New button remains available in e2e runs.
+The What's New spec reads the current release IDs from `release-notes.md`.
 
 ## Waiting: use the ready signal, never a fixed sleep
 
