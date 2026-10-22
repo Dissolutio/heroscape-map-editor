@@ -71,6 +71,19 @@ export const shouldDisplayTerrainTileLetter = (
   return true
 }
 
+export const getTerrainTileAnnotation = (
+  hex: BoardHex,
+  viewingLevel: number,
+  isShowTileLetters: boolean,
+  marks: string,
+) => {
+  const letter =
+    isShowTileLetters && shouldDisplayTerrainTileLetter(hex, viewingLevel)
+      ? (getTerrainTileLetter(hex.terrain)?.letter ?? '')
+      : ''
+  return `${letter}${marks}`
+}
+
 export const getTileLetterPosition = (hex: BoardHex) => {
   const template = piecesSoFar[hex.inventoryID]?.template
   const rotationIndex = (hex?.pieceRotation ?? 0) % 6

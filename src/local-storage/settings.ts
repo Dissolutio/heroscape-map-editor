@@ -34,9 +34,11 @@ export type SettingsValues = {
   isShowPdfGridLinesOverSublevels: boolean
   isShowPdfLevelLogo: boolean
   isShowPdfTileLetters: boolean
+  isShowPdfBuriedMarks: boolean
   is2DOverlayLevelEnabled: boolean
   isShow2DExportLevelLogo: boolean
   isShow2DExportTileLetters: boolean
+  isShow2DExportBuriedMarks: boolean
   lastPenMode: string
   lastPenSize: number
   lightPositions: Record<string, LightPosition>
@@ -63,9 +65,11 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   isShowPdfGridLinesOverSublevels: true,
   isShowPdfLevelLogo: true,
   isShowPdfTileLetters: false,
+  isShowPdfBuriedMarks: false,
   is2DOverlayLevelEnabled: true,
   isShow2DExportLevelLogo: true,
   isShow2DExportTileLetters: true,
+  isShow2DExportBuriedMarks: false,
   lastPenMode: 'g',
   lastPenSize: 1,
   lightPositions: {},
@@ -143,9 +147,11 @@ const validSettingValue = (
       'isShowPdfGridLinesOverSublevels',
       'isShowPdfLevelLogo',
       'isShowPdfTileLetters',
+      'isShowPdfBuriedMarks',
       'is2DOverlayLevelEnabled',
       'isShow2DExportLevelLogo',
       'isShow2DExportTileLetters',
+      'isShow2DExportBuriedMarks',
     ].includes(key)
   ) {
     return typeof value === 'boolean' ? value : undefined

@@ -132,6 +132,8 @@ export interface UISlice {
   toggleIsShowPdfLevelLogo: (b: boolean) => void
   isShowPdfTileLetters: boolean
   toggleIsShowPdfTileLetters: (b: boolean) => void
+  isShowPdfBuriedMarks: boolean
+  toggleIsShowPdfBuriedMarks: (b: boolean) => void
   pdfRenderFormat: 'coversheet' | 'shortHeader' | 'condensedCoversheet'
   setPdfRenderFormat: (
     format: 'coversheet' | 'shortHeader' | 'condensedCoversheet',
@@ -143,6 +145,8 @@ export interface UISlice {
   toggleIsShow2DExportLevelLogo: (b: boolean) => void
   isShow2DExportTileLetters: boolean
   toggleIsShow2DExportTileLetters: (b: boolean) => void
+  isShow2DExportBuriedMarks: boolean
+  toggleIsShow2DExportBuriedMarks: (b: boolean) => void
   useLegacyStartZones: boolean
   toggleUseLegacyStartZones: (b: boolean) => void
 }
@@ -432,6 +436,12 @@ const createUISlice: StateCreator<
         s.isShowPdfTileLetters = b
       }),
     ),
+  toggleIsShowPdfBuriedMarks: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowPdfBuriedMarks = b
+      }),
+    ),
   setPdfRenderFormat: (
     format: 'coversheet' | 'shortHeader' | 'condensedCoversheet',
   ) =>
@@ -456,6 +466,12 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isShow2DExportTileLetters = b
+      }),
+    ),
+  toggleIsShow2DExportBuriedMarks: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShow2DExportBuriedMarks = b
       }),
     ),
   toggleUseLegacyStartZones: (b: boolean) =>

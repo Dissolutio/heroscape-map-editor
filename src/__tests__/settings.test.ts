@@ -54,6 +54,8 @@ describe('settings persistence', () => {
     const changed = {
       ...SETTINGS_DEFAULTS,
       isOrthoCam: false,
+      isShowPdfBuriedMarks: true,
+      isShow2DExportBuriedMarks: true,
       lightPositions: { key: [1, 2, 3] as [number, number, number] },
     }
     const serialized = serializeSettings(changed)
@@ -61,6 +63,8 @@ describe('settings persistence', () => {
       v: 1,
       values: {
         isOrthoCam: false,
+        isShowPdfBuriedMarks: true,
+        isShow2DExportBuriedMarks: true,
         lightPositions: { key: [1, 2, 3] },
       },
     })
@@ -85,6 +89,8 @@ describe('settings persistence', () => {
         v: 1,
         values: {
           isOrthoCam: false,
+          isShowPdfBuriedMarks: 'yes',
+          isShow2DExportBuriedMarks: 1,
           pdfRenderFormat: 'invalid',
           terrainConstraintSource: 'invalid',
           lastPenMode: 5,
