@@ -33,6 +33,8 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `map-autosave.test.ts` | Debounced map writes, lifecycle flushes, hold/release gating, and failure retries. |
 | `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
 | `settings.test.ts` | Versioned settings defaults, migration, debounced persistence, and store-state classification. |
+| `release-notes.test.ts` | Release-note parsing and the pure first-visit / unseen-release decision. |
+| `release-notes-format.test.ts` | The root release notes' date-heading format and non-empty parsed entries. |
 | `crash-feedback.test.ts` | The anonymous crash-report note sent to Sentry (`utils/crashFeedback.ts`): trimmed, capped, linked to the crash event, no name/email. |
 | `material-clones.test.ts` | The private material copies the move/rotate preview ghost uses (`utils/materialClones.ts`), so it never changes the cached materials real pieces share. |
 | `click-placement.test.ts` | What a left click with a piece pen places, per piece family, through the real click handler (`world/MapDisplay3D.tsx`) and the store, without rendering; plus refusals and messages, permissive Laur add-on placement with pillar-port rotation snapping, +8 pillar stacking including the stackable square variant, map edges, a ship bow deck click that does nothing, and undo. Cases are in `helpers/placementCases.ts`. |
