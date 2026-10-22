@@ -2,14 +2,53 @@ name: Release Tauri Application
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - "v*" # Removed 'branches: [main]' to prevent accidental non-versioned drafts
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Compute and print the next release version without building
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      skip: ${{ steps.version.outputs.skip }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Compute release version
+        id: version
+        run: node scripts/next-version.mjs
+
+      - name: Print dry-run result
+        if: inputs.dry_run == true
+        run: echo "Dry run: computed v${{ steps.version.outputs.version }}"
+
   build-and-release:
+    needs: version
+    if: needs.version.outputs.skip != 'true' && inputs.dry_run != true
     strategy:
       matrix:
         include:
@@ -35,12 +74,14 @@ jobs:
       - name: Install frontend dependencies
         run: npm install
 
-      - name: Sync app version with git tag
+      - name: Sync app version with computed release version
+        env:
+          RELEASE_VERSION: ${{ needs.version.outputs.version }}
         shell: bash
         run: |
           node -e "
             const fs = require('fs');
-            const version = process.env.GITHUB_REF_NAME.replace(/^v/, '');
+            const version = process.env.RELEASE_VERSION;
             const confPath = 'src-tauri/tauri.conf.json';
             const conf = JSON.parse(fs.readFileSync(confPath, 'utf8'));
             conf.version = version;
@@ -73,19 +114,17 @@ jobs:
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 1. Provide Sentry with your Auth token (Add this to your repo repository secrets)
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          # 2. Expose the tag name (e.g. v1.0.4) to your React code during compilation
-          VITE_RELEASE_VERSION: ${{ github.ref_name }}
-          # 3. Sign updater artifacts (contents of ~/.tauri/hexoscape.key, add to repo secrets)
+          VITE_RELEASE_VERSION: ${{ needs.version.outputs.version }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tauriScript: npx tauri
-          tagName: ${{ github.ref_name }}
-          releaseName: "App Release ${{ github.ref_name }}"
+          tagName: v${{ needs.version.outputs.version }}
+          releaseName: "App Release v${{ needs.version.outputs.version }}"
+          releaseCommitish: ${{ github.sha }}
           releaseBody: |
             See the assets to download this version and install.
-          releaseDraft: false # <--- CHANGED TO FALSE to instantly publish the release
+          releaseDraft: false
           prerelease: false
           releaseAssetNamePattern: "[name][ext]"

@@ -26,6 +26,7 @@
 - [Blender Models](#blender-models)
 - [Quick Overview of How It Works](#quick-overview-of-how-it-works)
 - [Scripts](#scripts)
+- [Releasing](./docs/releasing.md)
 - [App Requirements: What this editor intends to fulfill, eventually](./app-requirements.md)
 - [Vite Template: The README.md that was included by the initial Vite Typescript template](./vite-template-README.md)
 - [License](#license)

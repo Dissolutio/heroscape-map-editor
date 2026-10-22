@@ -47,8 +47,8 @@ const sameSignature = (a: number[], b: number[]) =>
 
 /**
  * Publishes "the current map is fully loaded and the camera is still" as
- * `window.__APP_READY__`, `canvas[data-ready="true"]` and the hidden status
- * element, so Playwright can wait on something real instead of guessing.
+ * The app-ready store, and in e2e mode `window.__APP_READY__`,
+ * `canvas[data-ready="true"]` and the hidden status element.
  *
  * Ready means all of: the map's bounding box has stopped changing (same
  * tracker AutoZoomToMap uses), no loader has been active for LOADER_IDLE_MS,
@@ -63,7 +63,6 @@ export function ReadySignal({
 }: {
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
 }) {
-  if (!isE2E) return null
   return <ReadySignalInner mapGroupRef={mapGroupRef} />
 }
 
@@ -88,12 +87,14 @@ function ReadySignalInner({
 
   const publish = (ready: boolean) => {
     setReady(ready)
-    window.__APP_READY__ = ready
-    canvas.dataset.mapId = mapID
-    if (ready) {
-      canvas.dataset.ready = 'true'
-    } else {
-      delete canvas.dataset.ready
+    if (isE2E) {
+      window.__APP_READY__ = ready
+      canvas.dataset.mapId = mapID
+      if (ready) {
+        canvas.dataset.ready = 'true'
+      } else {
+        delete canvas.dataset.ready
+      }
     }
   }
 
@@ -108,9 +109,11 @@ function ReadySignalInner({
     return () => {
       armedRef.current = null
       setReady(false)
-      window.__APP_READY__ = undefined
-      delete canvas.dataset.ready
-      delete canvas.dataset.mapId
+      if (isE2E) {
+        window.__APP_READY__ = undefined
+        delete canvas.dataset.ready
+        delete canvas.dataset.mapId
+      }
     }
   }, [canvas])
 
