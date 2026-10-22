@@ -52,8 +52,8 @@ const sameSignature = (a: number[], b: number[]) =>
  *
  * Ready means all of: the map's bounding box has stopped changing (same
  * tracker AutoZoomToMap uses), no loader has been active for LOADER_IDLE_MS,
- * and the camera has stopped moving. Any change to the map, viewing level or
- * camera type clears it and starts over, and so does moving the camera.
+ * and the camera has stopped moving. E2E mode re-arms on map, level, camera
+ * type, or camera changes. Other builds stop tracking after the first ready.
  *
  * Assumes frames are being rendered. It calls invalidate() while waiting, so
  * it also works with frameloop="demand", but not with frameloop="never".
@@ -78,6 +78,7 @@ function ReadySignalInner({
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const armedRef = useRef<Armed | null>(null)
+  const hasPublishedReadyRef = useRef(false)
   // drei's loading manager: true while any GLTF/texture request is in flight
   const { active: isLoading } = useProgress()
   const isLoadingRef = useRef(isLoading)
@@ -86,6 +87,8 @@ function ReadySignalInner({
   }, [isLoading])
 
   const publish = (ready: boolean) => {
+    if (!isE2E && !ready && hasPublishedReadyRef.current) return
+    if (!isE2E && ready) hasPublishedReadyRef.current = true
     setReady(ready)
     if (isE2E) {
       window.__APP_READY__ = ready
@@ -101,6 +104,7 @@ function ReadySignalInner({
   // Re-arm whenever something that changes what is drawn changes.
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-arm on these inputs
   useEffect(() => {
+    if (!isE2E && hasPublishedReadyRef.current) return
     armedRef.current = arm(performance.now())
     publish(false)
   }, [mapID, boardPieces, boardHexes, viewingLevel, isOrthoCam])
@@ -108,8 +112,8 @@ function ReadySignalInner({
   useEffect(() => {
     return () => {
       armedRef.current = null
-      setReady(false)
       if (isE2E) {
+        setReady(false)
         window.__APP_READY__ = undefined
         delete canvas.dataset.ready
         delete canvas.dataset.mapId
@@ -117,7 +121,9 @@ function ReadySignalInner({
     }
   }, [canvas])
 
-  useFrame(({ camera, invalidate }) => {
+  useFrame((state) => {
+    if (!isE2E && hasPublishedReadyRef.current) return
+    const { camera, invalidate } = state
     const armed = armedRef.current
     if (!armed) return
     const now = performance.now()
