@@ -70,13 +70,13 @@ test('a Laur add-on previews and places on empty and land hexes', async ({
 
   await hoverHex(page, { q: 0, r: 2, altitude: 1 })
   await page.waitForFunction(
-    () => window.__TEST__?.snapshot().placementPreview?.status === 'ok',
+    () => window.__TEST__?.snapshot().placementPreview?.status === 'conflict',
   )
   const landPreview = await page.evaluate(
     () => window.__TEST__?.snapshot().placementPreview,
   )
   expect(landPreview).toMatchObject({
-    status: 'ok',
+    status: 'conflict',
     unsupported: true,
   })
   await clickHex(page, { q: 0, r: 2, altitude: 1 })
@@ -110,9 +110,7 @@ test('a stackable Laur wall places eight levels above the wall it hits', async (
   })
   await setPen(page, 'lws', 2, 0)
   await clickPiece(page, lowerUID)
-  await page.waitForFunction(
-    () => window.__TEST__?.snapshot().pieceCount === 7,
-  )
+  await page.waitForFunction(() => window.__TEST__?.snapshot().pieceCount === 7)
   const wallPieces = await page.evaluate(() =>
     window.__TEST__
       ?.listPieces()
@@ -130,10 +128,7 @@ test('a stackable square pillar preview and placement use the +8 step', async ({
   page,
 }) => {
   await page.goto(
-    mapUrl(FIXTURE_HEX_MAP, [
-      ...FIXTURE_PIECE_IDS,
-      '1~0~2~0~lwp2',
-    ]),
+    mapUrl(FIXTURE_HEX_MAP, [...FIXTURE_PIECE_IDS, '1~0~2~0~lwp2']),
   )
   await waitForAppReady(page)
   const lowerUID = await findPieceUid(page, {
@@ -154,9 +149,7 @@ test('a stackable square pillar preview and placement use the +8 step', async ({
     () => window.__TEST__?.snapshot().placementPreview?.altitude === 9,
   )
   await clickPiece(page, lowerUID)
-  await page.waitForFunction(
-    () => window.__TEST__?.snapshot().pieceCount === 7,
-  )
+  await page.waitForFunction(() => window.__TEST__?.snapshot().pieceCount === 7)
   const pillars = await page.evaluate(() =>
     window.__TEST__
       ?.listPieces()
@@ -185,12 +178,10 @@ test('Laur add-on previews snap to square and triangle pillar ports', async ({
 
   await setPen(page, 'lwl', 0, 0.5)
   await hoverHex(page, { q: 0, r: 2, altitude: 14 })
-  await page.waitForFunction(
-    () => {
-      const rotation = window.__TEST__?.snapshot().placementPreview?.rotation
-      return rotation === 1.5 || rotation === 4.5
-    },
-  )
+  await page.waitForFunction(() => {
+    const rotation = window.__TEST__?.snapshot().placementPreview?.rotation
+    return rotation === 1.5 || rotation === 4.5
+  })
   const squareRotation = await page.evaluate(
     () => window.__TEST__?.snapshot().placementPreview?.rotation,
   )
@@ -198,12 +189,10 @@ test('Laur add-on previews snap to square and triangle pillar ports', async ({
 
   await setPen(page, 'lwl', 0, 1.5)
   await hoverHex(page, { q: 3, r: 2, altitude: 14 })
-  await page.waitForFunction(
-    () => {
-      const rotation = window.__TEST__?.snapshot().placementPreview?.rotation
-      return rotation === 0.5 || rotation === 2.5 || rotation === 4.5
-    },
-  )
+  await page.waitForFunction(() => {
+    const rotation = window.__TEST__?.snapshot().placementPreview?.rotation
+    return rotation === 0.5 || rotation === 2.5 || rotation === 4.5
+  })
   const trianglePreview = await page.evaluate(
     () => window.__TEST__?.snapshot().placementPreview,
   )

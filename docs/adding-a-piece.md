@@ -211,7 +211,7 @@ Run `npm test`. The most relevant existing tests are:
 | [`src/__tests__/replay-conflicts.test.ts`](../src/__tests__/replay-conflicts.test.ts) | Conflict ownership and rebuild behavior when pieces overlap or are removed. |
 | [`src/__tests__/piece-ids-and-loading.test.ts`](../src/__tests__/piece-ids-and-loading.test.ts) | Encoded-ID round trips, uid regeneration/normalization, malformed/unknown pieces, and the `buildupJsonFileMap()` load path. |
 | [`src/__tests__/fluid-stacks.test.ts`](../src/__tests__/fluid-stacks.test.ts) | Current fluid-run counting and loaded-map warning behavior. It is not a reason to freeze a particular fluid-on-fluid placement altitude. |
-| [`src/__tests__/edges-and-nodes.test.ts`](../src/__tests__/edges-and-nodes.test.ts) and [`src/__tests__/laur-addon-footprints.test.ts`](../src/__tests__/laur-addon-footprints.test.ts) | Current edge/node coordinate facts and acceptance TODOs; measured Laur add-on footprints and their intentionally unchanged 10-level height. |
+| [`src/__tests__/edges-and-nodes.test.ts`](../src/__tests__/edges-and-nodes.test.ts) and [`src/__tests__/laur-addon-footprints.test.ts`](../src/__tests__/laur-addon-footprints.test.ts) | Current edge/node coordinate facts and acceptance TODOs; all eight owner-specified Laur add-on footprints and registered heights. |
 | [`src/__tests__/laur-addon-placement.test.ts`](../src/__tests__/laur-addon-placement.test.ts) | Laur side/vertex picking, canonical identity, allowed rotations, center tie-break, and non-mutation. |
 | [`src/__tests__/laur-addon-conflicts.test.ts`](../src/__tests__/laur-addon-conflicts.test.ts) | Derived Laur edge/footprint conflict detection and the empty support-table seam. |
 
