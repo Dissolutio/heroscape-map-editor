@@ -1,4 +1,5 @@
 import { G } from '@react-pdf/renderer'
+import { getLaurAddonExportSymbol } from '../pdf-svg-shared/laurAddonExportSymbol'
 import {
   type BoardHex,
   type DecodedPieceID,
@@ -35,6 +36,7 @@ export const PdfMapBoardPiece = ({
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
   const isSubLevel = altitudeAdjusted < viewingLevel
   const { inventoryID } = piece
+  const laurAddonSymbol = getLaurAddonExportSymbol(inventoryID)
   const isVisible = altitudeAdjusted <= viewingLevel
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   const boardPieceAsHex: BoardHex = {
@@ -101,7 +103,7 @@ export const PdfMapBoardPiece = ({
     )
   }
   // LAUR LONGWALLS
-  if (inventoryID === Pieces.laurWallLong) {
+  if (laurAddonSymbol === 'long') {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -110,7 +112,7 @@ export const PdfMapBoardPiece = ({
       </G>
     )
   }
-  if (inventoryID === Pieces.laurWallArch) {
+  if (laurAddonSymbol === 'arch') {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -133,7 +135,7 @@ export const PdfMapBoardPiece = ({
     )
   }
   // LAUR SHORTWALLS
-  if (inventoryID === Pieces.laurWallShort) {
+  if (laurAddonSymbol === 'short') {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -143,7 +145,7 @@ export const PdfMapBoardPiece = ({
     )
   }
   // LAUR RUINS
-  if (inventoryID === Pieces.laurWallRuin1) {
+  if (laurAddonSymbol === 'ruin') {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}

@@ -1,3 +1,4 @@
+import { getLaurAddonExportSymbol } from '../pdf-svg-shared/laurAddonExportSymbol'
 import useBoundStore from '../store/store'
 import {
   type BoardHex,
@@ -27,6 +28,7 @@ export const SvgMapBoardPiece = ({
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
   const isSubLevel = altitudeAdjusted < viewingLevel
   const { inventoryID } = piece
+  const laurAddonSymbol = getLaurAddonExportSymbol(inventoryID)
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
   )
@@ -96,7 +98,7 @@ export const SvgMapBoardPiece = ({
   }
 
   // LAUR LONGWALLS
-  if (inventoryID === Pieces.laurWallLong) {
+  if (laurAddonSymbol === 'long') {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -105,7 +107,7 @@ export const SvgMapBoardPiece = ({
       </g>
     )
   }
-  if (inventoryID === Pieces.laurWallArch) {
+  if (laurAddonSymbol === 'arch') {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -128,7 +130,7 @@ export const SvgMapBoardPiece = ({
     )
   }
   // LAUR SHORTWALLS
-  if (inventoryID === Pieces.laurWallShort) {
+  if (laurAddonSymbol === 'short') {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -138,7 +140,7 @@ export const SvgMapBoardPiece = ({
     )
   }
   // LAUR RUINS
-  if (inventoryID === Pieces.laurWallRuin1) {
+  if (laurAddonSymbol === 'ruin') {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}

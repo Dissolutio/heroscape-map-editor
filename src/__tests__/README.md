@@ -24,6 +24,7 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `laur-addon-placement.test.ts` | Laur side/vertex picking, canonical identity, port-snapped rotations for every pillar orientation and add-on, rotation hotkey cycling, click/preview parity, center tie-break, and non-mutation. |
 | `laur-addon-conflicts.test.ts` | Altitude-aware canonical-port conflicts, legal +8 stack exemptions, attachment-end pillar exceptions, blocked-cell land/non-add-on conflicts, blocked add-on overlap, reverse overlaps, missing registered heights, non-mutation, and the known-good map audit. |
 | `laur-addon-support.test.ts` | Square/triangle pillar port tables, every add-on's required support ports and rotations, bridge endpoints, ruin anchors, +8 stacked pillar support, and non-mutation. |
+| `laur-addon-exports.test.ts` | The shared Laur add-on SVG/PDF symbol mapping and a ratchet that every Laur wall add-on has an export symbol. |
 | `laur-pillar-stacking.test.ts` | Measured pillar heights and core height, the +8 stack increment, stack-support detection, stackable square pillar identification, and inventory reconciliation at the physical stack step. |
 | `pieceHeights.test.ts` | Every entry in the physical height audit matches its registered height, writes exactly that many origin/clearance cells, and distinguishes a free top-level tile from one overlapping the last blocked level. |
 | `piece-ids-and-loading.test.ts` | Piece ids, legacy uid-less piece normalization, saved-map formats, and the load path (`buildupJsonFileMap`). |
