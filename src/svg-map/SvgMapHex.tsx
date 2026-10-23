@@ -63,7 +63,7 @@ import {
   SvgTree415,
   getOutcropTextColor,
 } from './SvgMapShapes'
-import { singleHexObstacleHeightTextProps } from './svgText'
+import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
 const OPACITY_SUBLEVEL = 0.3
 
@@ -107,10 +107,13 @@ const TerrainTileLetterText = ({
   const marks = isShow2DExportBuriedMarks
     ? getBuriedMarksForHex(hex, viewingLevel, buriedMarksByUID)
     : ''
-  const annotation = getTerrainTileAnnotation(hex, viewingLevel, enabled, marks)
-  if (!annotation) return null
+  const letter = getTerrainTileAnnotation(hex, viewingLevel, enabled, '')
+  if (!letter && !marks) return null
   const terrainLetter = getTerrainTileLetter(hex.terrain)
   const position = getTileLetterPosition(hex)
+  const textStyle = letter
+    ? hexTextStyle
+    : { ...hexTextStyle, fontSize: hexTextStyle.fontSize * 0.58 }
   return (
     <text
       fill={
@@ -121,10 +124,24 @@ const TerrainTileLetterText = ({
           : '#000000'
       }
       {...singleHexObstacleHeightTextProps()}
+      style={textStyle}
       x={position.x}
       y={position.y}
     >
-      {annotation}
+      {letter}
+      {letter && marks ? (
+        <tspan
+          dy="-0.6em"
+          style={{
+            fontSize: hexTextStyle.fontSize * 0.58,
+            fontWeight: hexTextStyle.fontWeight,
+          }}
+        >
+          {marks}
+        </tspan>
+      ) : (
+        !letter && marks
+      )}
     </text>
   )
 }

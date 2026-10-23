@@ -266,9 +266,36 @@ async function replaceTextNodesWithPaths(
     const computedStyle = window.getComputedStyle(sourceText)
     const fontSizePx = parseFirstNumericValue(computedStyle.fontSize, 16)
     const x = parseFirstNumericValue(sourceText.getAttribute('x'), 0)
-    const y =
+    const parentY =
       parseFirstNumericValue(sourceText.getAttribute('y'), 0) +
       parseDyToPx(sourceText.getAttribute('dy'), fontSizePx)
+    const tspan = sourceText.querySelector('tspan')
+    const runs = tspan
+      ? Array.from(sourceText.childNodes).flatMap((node) => {
+          if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent ?? ''
+            return text.trim() ? [{ text, fontSizePx, y: parentY }] : []
+          }
+          if (
+            node.nodeType !== Node.ELEMENT_NODE ||
+            (node as Element).tagName.toLowerCase() !== 'tspan'
+          ) {
+            return []
+          }
+          const span = node as SVGTSpanElement
+          const spanStyle = window.getComputedStyle(span)
+          const spanFontSize = parseFirstNumericValue(
+            spanStyle.fontSize,
+            fontSizePx,
+          )
+          const text = span.textContent ?? ''
+          if (!text.trim()) return []
+          const spanY = span.hasAttribute('y')
+            ? parseFirstNumericValue(span.getAttribute('y'), parentY)
+            : parentY + parseDyToPx(span.getAttribute('dy'), spanFontSize)
+          return [{ text, fontSizePx: spanFontSize, y: spanY }]
+        })
+      : [{ text: textContent, fontSizePx, y: parentY }]
 
     const textAnchor = (
       sourceText.getAttribute('text-anchor') ||
@@ -276,10 +303,15 @@ async function replaceTextNodesWithPaths(
       'start'
     ).trim()
 
+    const advanceWidth = runs.reduce(
+      (width, run) =>
+        width +
+        interFont.getAdvanceWidth(run.text, run.fontSizePx, {
+          kerning: true,
+        }),
+      0,
+    )
     let xWithAnchor = x
-    const advanceWidth = interFont.getAdvanceWidth(textContent, fontSizePx, {
-      kerning: true,
-    })
 
     if (textAnchor === 'middle') {
       xWithAnchor -= advanceWidth / 2
@@ -287,29 +319,44 @@ async function replaceTextNodesWithPaths(
       xWithAnchor -= advanceWidth
     }
 
-    const pathData = interFont
-      .getPath(textContent, xWithAnchor, y, fontSizePx, {
+    const fill = sourceText.getAttribute('fill') || computedStyle.fill
+    const opacity = sourceText.getAttribute('opacity') || computedStyle.opacity
+    let runX = xWithAnchor
+    const pathNodes: SVGPathElement[] = []
+
+    for (const run of runs) {
+      const pathData = interFont
+        .getPath(run.text, runX, run.y, run.fontSizePx, {
+          kerning: true,
+        })
+        .toPathData(3)
+      const pathNode = document.createElementNS(SVG_NS, 'path')
+      pathNode.setAttribute('d', pathData)
+      pathNode.setAttribute('fill', fill || 'black')
+      if (opacity && opacity !== '1') {
+        pathNode.setAttribute('opacity', opacity)
+      }
+      pathNodes.push(pathNode)
+      runX += interFont.getAdvanceWidth(run.text, run.fontSizePx, {
         kerning: true,
       })
-      .toPathData(3)
-
-    const pathNode = document.createElementNS(SVG_NS, 'path')
-    pathNode.setAttribute('d', pathData)
-
-    const fill = sourceText.getAttribute('fill') || computedStyle.fill
-    pathNode.setAttribute('fill', fill || 'black')
-
-    const opacity = sourceText.getAttribute('opacity') || computedStyle.opacity
-    if (opacity && opacity !== '1') {
-      pathNode.setAttribute('opacity', opacity)
     }
 
     const transform = clonedText.getAttribute('transform')
-    if (transform) {
-      pathNode.setAttribute('transform', transform)
+    if (pathNodes.length === 1) {
+      if (transform) {
+        pathNodes[0].setAttribute('transform', transform)
+      }
+      clonedText.replaceWith(pathNodes[0])
+      continue
     }
 
-    clonedText.replaceWith(pathNode)
+    const groupNode = document.createElementNS(SVG_NS, 'g')
+    if (transform) groupNode.setAttribute('transform', transform)
+    for (const pathNode of pathNodes) {
+      groupNode.appendChild(pathNode)
+    }
+    clonedText.replaceWith(groupNode)
   }
 }
 
