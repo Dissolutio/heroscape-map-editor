@@ -24,7 +24,7 @@ import {
   getTerrainTileLetterColor,
   getTileLetterPosition,
 } from '../utils/tileLetters'
-import { getBuriedMarksForHex, type BuriedMarksByUID } from '../utils/tileMarks'
+import { type BuriedMarksByUID, getBuriedMarksForHex } from '../utils/tileMarks'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
   SvgCannon,
@@ -560,6 +560,7 @@ export const SvgMapHex = ({
   // LAUR PILLARS
   if (
     inventoryID === Pieces.laurWallSquarePillar ||
+    inventoryID === Pieces.laurWallPillarStackable ||
     inventoryID === Pieces.laurWallTrianglePillar
   ) {
     return (

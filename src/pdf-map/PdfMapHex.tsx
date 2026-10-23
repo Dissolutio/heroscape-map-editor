@@ -1,10 +1,10 @@
 import { G, Text } from '@react-pdf/renderer'
-import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
 import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
+import useBoundStore from '../store/store'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
@@ -21,9 +21,8 @@ import {
   getTerrainTileLetterColor,
   getTileLetterPosition,
 } from '../utils/tileLetters'
-import { getBuriedMarksForHex, type BuriedMarksByUID } from '../utils/tileMarks'
+import { type BuriedMarksByUID, getBuriedMarksForHex } from '../utils/tileMarks'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
-import { getPdfBuriedMarkOffset } from './pdfBuriedMarkPosition'
 import {
   PdfCannon,
   PdfCastleArch,
@@ -61,6 +60,7 @@ import {
   PdfSvgRuins3,
   PdfSvgTree415,
 } from './PdfMapShapes'
+import { getPdfBuriedMarkOffset } from './pdfBuriedMarkPosition'
 
 const glyphTextProps = () => ({
   style: {
@@ -599,6 +599,7 @@ export const PdfMapHex = ({
   // LAUR PILLARS
   if (
     inventoryID === Pieces.laurWallSquarePillar ||
+    inventoryID === Pieces.laurWallPillarStackable ||
     inventoryID === Pieces.laurWallTrianglePillar
   ) {
     return (
