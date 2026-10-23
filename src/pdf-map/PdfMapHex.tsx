@@ -1,4 +1,5 @@
 import { G, Text } from '@react-pdf/renderer'
+import useBoundStore from '../store/store'
 import { piecesSoFar } from '../data/pieces'
 import {
   xTransformForMultiHex3Rotation,
@@ -17,7 +18,7 @@ import { OPACITY_SUBLEVEL, SVG_HEX_RADIUS } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   getTerrainTileAnnotation,
-  getTerrainTileLetter,
+  getTerrainTileLetterColor,
   getTileLetterPosition,
 } from '../utils/tileLetters'
 import { getBuriedMarksForHex, type BuriedMarksByUID } from '../utils/tileMarks'
@@ -85,6 +86,13 @@ const TerrainTileLetterText = ({
   isShowBuriedMarks: boolean
   buriedMarksByUID: BuriedMarksByUID
 }) => {
+  const settings = useBoundStore.getState()
+  const genericCapColor =
+    hex.terrain === HexTerrain.generic
+      ? settings.genericSolidCapColor
+      : hex.terrain === HexTerrain.genericFluid
+        ? settings.genericFluidCapColor
+        : ''
   const marks = isShowBuriedMarks
     ? getBuriedMarksForHex(hex, viewingLevel, buriedMarksByUID)
     : ''
@@ -95,13 +103,12 @@ const TerrainTileLetterText = ({
     '',
   )
   if (!letter && !marks) return null
-  const terrainLetter = getTerrainTileLetter(hex.terrain)
+  const textFill = getTerrainTileLetterColor(
+    hex.terrain,
+    genericCapColor ?? '',
+    genericCapColor ?? '',
+  )
   const position = getTileLetterPosition(hex)
-  const textFill = terrainLetter
-    ? terrainLetter.isBlack
-      ? '#000000'
-      : '#FFFFFF'
-    : '#000000'
   const textStyle = letter
     ? pdfHexTextStyle
     : {
@@ -116,7 +123,7 @@ const TerrainTileLetterText = ({
     return (
       <>
         <Text
-          fill={textFill}
+          fill={textFill ?? '#000000'}
           {...pdfTextProps()}
           style={pdfHexTextStyle}
           x={position.x}
@@ -125,7 +132,7 @@ const TerrainTileLetterText = ({
           {letter}
         </Text>
         <Text
-          fill={textFill}
+          fill={textFill ?? '#000000'}
           {...pdfTextProps()}
           style={{
             ...pdfHexTextStyle,
@@ -142,7 +149,7 @@ const TerrainTileLetterText = ({
   }
   return (
     <Text
-      fill={textFill}
+      fill={textFill ?? '#000000'}
       {...pdfTextProps()}
       style={textStyle}
       x={position.x}

@@ -4,6 +4,9 @@ import type { PropsWithChildren } from 'react'
 import useBoundStore from '../store/store'
 import { makeBuriedMarksByUID } from '../utils/tileMarks'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
+import { registerPdfFonts } from './registerPdfFonts'
+
+registerPdfFonts()
 
 export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -20,6 +23,10 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const isShowPdfLevelLogo = useBoundStore((s) => s.isShowPdfLevelLogo)
   const isShowPdfTileLetters = useBoundStore((s) => s.isShowPdfTileLetters)
   const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
+  const genericTerrainColorsKey = useBoundStore(
+    (s) =>
+      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}`,
+  )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
@@ -31,7 +38,7 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   return (
     <PDFDownloadLink
       document={
-        <Document title={hexMap.name}>
+        <Document key={genericTerrainColorsKey} title={hexMap.name}>
           <PdfMapLevels6PerPage
             boardHexes={boardHexes}
             boardPieces={boardPieces}

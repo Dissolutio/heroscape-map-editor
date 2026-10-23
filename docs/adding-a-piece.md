@@ -190,6 +190,7 @@ render/export paths above.
 | Castle or wall | Distinguish a land-like wall walk from castle bases, walls, arches, battlements, and ladders. Those have explicit 3D dispatch and click rules; castle wall/arch tops use special placement handling. Test the exact family case, not just generic obstacle placement. |
 | Fluid tile | Classify it with the fluid terrains in `isFluidTerrainHex()`. The placement increment, fluid cap rendering, and loaded-map stack warning are separate concerns; test them without assuming a stable altitude for fluid-on-fluid stacks. |
 | Edge add-on | There is no first-class edge/node occupancy model today. Do not treat `laurAddonFootprints.ts` as active placement logic or change the existing `laurWallAddon` boardPieces-only behavior. **Needs owner input:** agree on identity, occupancy/conflict, click/hover, and export rules before implementing a new edge/node piece. |
+| Generic terrain | Use stable `gn*` solid and `gf*` fluid IDs. Generic pieces are unlimited and stay out of finite inventories and terrain-set records. Their four colors are device settings, not map data or share-link data; do not add Virtualscape codes. |
 
 For new obstacle dimensions, **Needs owner input:** confirm the physical support
 and clearance values against the actual piece. The current occupancy engine is

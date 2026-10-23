@@ -15,6 +15,9 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | File | Protects |
 | --- | --- |
 | `piece-registry.test.ts` | The "add a new terrain piece" checklist: every registry that must agree about a piece. **Read this first if you are adding terrain.** |
+| `generic-pieces.test.ts` | Generic solid/fluid registration, all footprint sizes on the table, solid/fluid stacking, buried marks, unlimited inventory handling, and piece-grid grouping. |
+| `generic-terrain-colors.test.ts` | Generic cap/side color resolution and contrast-based `?` letter color selection. |
+| `generic-letter-metrics.test.ts` | Ratchets every terrain letter against the PDF mark-width table and the Inter Bold font metrics. |
 | `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
 | `replay-conflicts.test.ts` | How conflicts are computed (`data/rebuildBoardState.ts`): ordinary occupancy conflicts plus derived Laur conflicts. |
 | `laur-addon-footprints.test.ts` | All eight Laur add-on attachment ends and blocked hexes, allowed rotation kinds, wrap-around geometry, registered heights, plus pending support-table, visual-model, and pointer-altitude verification todos. |

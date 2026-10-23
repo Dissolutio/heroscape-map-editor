@@ -21,7 +21,7 @@ import { getOverlayLevel } from '../utils/map-utils'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   getTerrainTileAnnotation,
-  getTerrainTileLetter,
+  getTerrainTileLetterColor,
   getTileLetterPosition,
 } from '../utils/tileLetters'
 import { getBuriedMarksForHex, type BuriedMarksByUID } from '../utils/tileMarks'
@@ -104,25 +104,30 @@ const TerrainTileLetterText = ({
   const isShow2DExportBuriedMarks = useBoundStore(
     (s) => s.isShow2DExportBuriedMarks,
   )
+  const genericCapColor = useBoundStore((s) =>
+    hex.terrain === HexTerrain.generic
+      ? s.genericSolidCapColor
+      : hex.terrain === HexTerrain.genericFluid
+        ? s.genericFluidCapColor
+        : null,
+  )
   const marks = isShow2DExportBuriedMarks
     ? getBuriedMarksForHex(hex, viewingLevel, buriedMarksByUID)
     : ''
   const letter = getTerrainTileAnnotation(hex, viewingLevel, enabled, '')
   if (!letter && !marks) return null
-  const terrainLetter = getTerrainTileLetter(hex.terrain)
+  const textColor = getTerrainTileLetterColor(
+    hex.terrain,
+    genericCapColor ?? '',
+    genericCapColor ?? '',
+  )
   const position = getTileLetterPosition(hex)
   const textStyle = letter
     ? hexTextStyle
     : { ...hexTextStyle, fontSize: hexTextStyle.fontSize * 0.58 }
   return (
     <text
-      fill={
-        terrainLetter
-          ? terrainLetter.isBlack
-            ? '#000000'
-            : '#FFFFFF'
-          : '#000000'
-      }
+      fill={textColor ?? '#000000'}
       {...singleHexObstacleHeightTextProps()}
       style={textStyle}
       x={position.x}
@@ -153,6 +158,14 @@ export const SvgMapHex = ({
   hex: BoardHex
   buriedMarksByUID: BuriedMarksByUID
 }) => {
+  const genericCapColor = useBoundStore((s) =>
+    hex.terrain === HexTerrain.generic
+      ? s.genericSolidCapColor
+      : hex.terrain === HexTerrain.genericFluid
+        ? s.genericFluidCapColor
+        : null,
+  )
+  void genericCapColor
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isShow2DExportTileLetters = useBoundStore(
     (s) => s.isShow2DExportTileLetters,

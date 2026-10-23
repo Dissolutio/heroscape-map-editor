@@ -45,6 +45,10 @@ export type SettingsValues = {
   terrainConstraintSource: TerrainConstraintSource
   customConstraintInventory: PieceInventory
   customConstraintInventoryFileName: string
+  genericSolidCapColor: string
+  genericSolidSideColor: string
+  genericFluidCapColor: string
+  genericFluidSideColor: string
 }
 
 export const SETTINGS_DEFAULTS: SettingsValues = {
@@ -76,11 +80,27 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   terrainConstraintSource: 'setsUsed',
   customConstraintInventory: blankPieceInventory,
   customConstraintInventoryFileName: '',
+  genericSolidCapColor: '#e63cc8',
+  genericSolidSideColor: '#a01e8c',
+  genericFluidCapColor: '#ff96e6',
+  genericFluidSideColor: '#c864b4',
 }
 
 export const SETTINGS_KEYS = Object.keys(
   SETTINGS_DEFAULTS,
 ) as (keyof SettingsValues)[]
+
+export function resetGenericTerrainColorSettings(
+  settings: SettingsValues,
+): SettingsValues {
+  return {
+    ...settings,
+    genericSolidCapColor: SETTINGS_DEFAULTS.genericSolidCapColor,
+    genericSolidSideColor: SETTINGS_DEFAULTS.genericSolidSideColor,
+    genericFluidCapColor: SETTINGS_DEFAULTS.genericFluidCapColor,
+    genericFluidSideColor: SETTINGS_DEFAULTS.genericFluidSideColor,
+  }
+}
 
 type SettingsBlob = {
   v: 1
@@ -167,6 +187,13 @@ const validSettingValue = (
     case 'customConstraintInventoryFileName':
     case 'lastPenMode':
       return typeof value === 'string' ? value : undefined
+    case 'genericSolidCapColor':
+    case 'genericSolidSideColor':
+    case 'genericFluidCapColor':
+    case 'genericFluidSideColor':
+      return typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value)
+        ? value
+        : undefined
     case 'lastPenSize':
       return typeof value === 'number' && Number.isFinite(value) && value > 0
         ? value

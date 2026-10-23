@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { piecesSoFar } from '../data/pieces'
-import { type BoardHex, type BoardPiece, Pieces } from '../types'
+import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { getTerrainTileAnnotation } from '../utils/tileLetters'
 import {
   getBuriedMarksForHex,
@@ -62,6 +62,14 @@ describe('buried tile marks', () => {
     expect(getTerrainTileAnnotation(grass, 1, true, '*†')).toBe('G*†')
     expect(getTerrainTileAnnotation(water, 1, true, '*')).toBe('*')
     expect(getTerrainTileAnnotation(grass, 1, false, '*')).toBe('*')
+  })
+
+  it('adds the question-mark letter and buried marks for Generic terrain', () => {
+    const solid = boardHex(Pieces.generic1, HexTerrain.generic)
+    const fluid = boardHex(Pieces.genericFluid1, HexTerrain.genericFluid)
+
+    expect(getTerrainTileAnnotation(solid, 1, true, '*†')).toBe('?*†')
+    expect(getTerrainTileAnnotation(fluid, 1, true, '*')).toBe('?*')
   })
 
   it.each([

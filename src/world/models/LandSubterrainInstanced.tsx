@@ -245,9 +245,17 @@ function SubterrainInstance({
     item.terrain === HexTerrain.grass ||
     item.terrain === HexTerrain.sand ||
     item.terrain === HexTerrain.rock
+  const genericSideColor = useBoundStore((s) =>
+    item.terrain === HexTerrain.generic
+      ? s.genericSolidSideColor
+      : item.terrain === HexTerrain.genericFluid
+        ? s.genericFluidSideColor
+        : null,
+  )
   const baseColor = isDirtSubterrain
     ? hexTerrainColor[HexTerrain.dirt]
-    : hexTerrainColor[item.terrain as keyof typeof hexTerrainColor]
+    : (genericSideColor ??
+      hexTerrainColor[item.terrain as keyof typeof hexTerrainColor])
   const isSelected = selectedPieceIDs.includes(item.uid)
   const displayColor = isSelected ? 'yellow' : baseColor
 

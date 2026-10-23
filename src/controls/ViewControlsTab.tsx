@@ -195,6 +195,7 @@ export default function ViewControlsTab({
         {is3DOpen && <ViewPreferencesSwitchForm />}
         {isPdfOpen && <PdfPreferencesSwitchForm />}
         {is2DOpen && <SVGPreferencesSwitchForm />}
+        <GenericTerrainColorsForm />
         <Button
           onClick={handleResetSettings}
           size="small"
@@ -207,6 +208,70 @@ export default function ViewControlsTab({
     </Box>
   )
 }
+
+const GenericTerrainColorsForm = () => {
+  const solidCap = useBoundStore((s) => s.genericSolidCapColor)
+  const solidSide = useBoundStore((s) => s.genericSolidSideColor)
+  const fluidCap = useBoundStore((s) => s.genericFluidCapColor)
+  const fluidSide = useBoundStore((s) => s.genericFluidSideColor)
+  const setSolidCap = useBoundStore((s) => s.setGenericSolidCapColor)
+  const setSolidSide = useBoundStore((s) => s.setGenericSolidSideColor)
+  const setFluidCap = useBoundStore((s) => s.setGenericFluidCapColor)
+  const setFluidSide = useBoundStore((s) => s.setGenericFluidSideColor)
+  const resetColors = useBoundStore((s) => s.resetGenericTerrainColors)
+
+  const colors = [
+    ['Solid cap', solidCap, setSolidCap],
+    ['Solid side', solidSide, setSolidSide],
+    ['Fluid cap', fluidCap, setFluidCap],
+    ['Fluid side', fluidSide, setFluidSide],
+  ] as const
+
+  return (
+    <Box
+      component="fieldset"
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 0.5,
+        m: 0,
+        px: 1,
+        pb: 1,
+        border: '1px solid',
+        borderColor: 'divider',
+      }}
+    >
+      <FormLabel component="legend">Generic piece colors</FormLabel>
+      {colors.map(([label, color, setColor]) => (
+        <label
+          key={label}
+          style={{
+            alignItems: 'center',
+            display: 'flex',
+            fontSize: '0.8rem',
+            gap: 6,
+          }}
+        >
+          <input
+            aria-label={`Generic ${label.toLowerCase()} color`}
+            type="color"
+            value={color}
+            onChange={(event) => setColor(event.target.value)}
+          />
+          {label}
+        </label>
+      ))}
+      <Button
+        onClick={resetColors}
+        size="small"
+        sx={{ gridColumn: '1 / -1', justifySelf: 'start' }}
+      >
+        Reset generic colors
+      </Button>
+    </Box>
+  )
+}
+
 const ViewPreferencesSwitchForm = () => {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,

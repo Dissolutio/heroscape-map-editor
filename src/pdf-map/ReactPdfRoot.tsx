@@ -1,7 +1,6 @@
 import { useMediaQuery } from '@mui/material'
 import {
   Document,
-  Font,
   Image,
   PDFDownloadLink,
   PDFViewer,
@@ -29,31 +28,9 @@ import { getRequiredTerrainText } from '../utils/map-utils'
 import { makeBuriedMarksByUID, type BuriedMarksByUID } from '../utils/tileMarks'
 import { PdfMapLevels6PerPage } from './PdfMap6LevelsPerPage'
 import { PdfSvgHeroscapeLogo } from './PdfSvgHeroscapeLogo'
+import { registerPdfFonts } from './registerPdfFonts'
 
-Font.register({
-  family: 'Inter',
-  fonts: [
-    {
-      src: 'fonts/Inter_18pt-Bold.ttf',
-    },
-  ],
-})
-Font.register({
-  family: 'InterItalic',
-  fonts: [
-    {
-      src: 'fonts/Inter_18pt-Italic.ttf',
-    },
-  ],
-})
-Font.register({
-  family: 'Proxima Nova Condensed Black',
-  fonts: [
-    {
-      src: 'fonts/ProximaNovaCondensedBlack.otf',
-    },
-  ],
-})
+registerPdfFonts()
 
 function ReactPdfRoot() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -71,6 +48,10 @@ function ReactPdfRoot() {
   const isShowPdfLevelLogo = useBoundStore((s) => s.isShowPdfLevelLogo)
   const isShowPdfTileLetters = useBoundStore((s) => s.isShowPdfTileLetters)
   const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
+  const genericTerrainColorsKey = useBoundStore(
+    (s) =>
+      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}`,
+  )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const is2DOverlayLevelEnabled = useBoundStore(
@@ -95,6 +76,7 @@ function ReactPdfRoot() {
       ) : (
         <PDFViewer width={'100%'} height={'100%'}>
           <PdfDocument
+            key={genericTerrainColorsKey}
             hexMap={hexMap}
             boardHexes={boardHexes}
             boardPieces={boardPieces}
@@ -616,6 +598,10 @@ const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const isShowPdfLevelLogo = useBoundStore((s) => s.isShowPdfLevelLogo)
   const isShowPdfTileLetters = useBoundStore((s) => s.isShowPdfTileLetters)
   const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
+  const genericTerrainColorsKey = useBoundStore(
+    (s) =>
+      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}`,
+  )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
@@ -625,6 +611,7 @@ const ReactPdfDownloadLink = (props: PropsWithChildren) => {
     <PDFDownloadLink
       document={
         <PdfDocument
+          key={genericTerrainColorsKey}
           hexMap={hexMap}
           boardHexes={boardHexes}
           boardPieces={boardPieces}

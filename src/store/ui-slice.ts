@@ -9,6 +9,7 @@ import {
   resetSettings as resetStoredSettings,
   SETTINGS_DEFAULTS,
   type LightPosition,
+  resetGenericTerrainColorSettings,
 } from '../local-storage/settings'
 import {
   type BoardHex,
@@ -27,6 +28,15 @@ export interface UISlice {
   toggleIsShowStartZones: (s: boolean) => void
   resetSettings: () => void
   resetLightPositions: () => void
+  genericSolidCapColor: string
+  genericSolidSideColor: string
+  genericFluidCapColor: string
+  genericFluidSideColor: string
+  setGenericSolidCapColor: (color: string) => void
+  setGenericSolidSideColor: (color: string) => void
+  setGenericFluidCapColor: (color: string) => void
+  setGenericFluidSideColor: (color: string) => void
+  resetGenericTerrainColors: () => void
 
   // unpersisted state below
   lastPenMode: string
@@ -607,6 +617,16 @@ const createUISlice: StateCreator<
     resetStoredSettings()
     set(SETTINGS_DEFAULTS)
   },
+  setGenericSolidCapColor: (color: string) =>
+    set({ genericSolidCapColor: color }),
+  setGenericSolidSideColor: (color: string) =>
+    set({ genericSolidSideColor: color }),
+  setGenericFluidCapColor: (color: string) =>
+    set({ genericFluidCapColor: color }),
+  setGenericFluidSideColor: (color: string) =>
+    set({ genericFluidSideColor: color }),
+  resetGenericTerrainColors: () =>
+    set((state) => resetGenericTerrainColorSettings(state)),
   resetLightPositions: () =>
     set(
       produce((s) => {

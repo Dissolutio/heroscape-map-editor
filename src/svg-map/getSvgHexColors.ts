@@ -5,6 +5,7 @@ import {
   HexTerrain,
   type Piece,
 } from '../types'
+import useBoundStore from '../store/store'
 import {
   isEvergreenTree,
   isFluidTerrainHex,
@@ -17,6 +18,7 @@ import {
   svgSubLevelColors,
   virtualscapeTileColors,
 } from '../world/maphex/hexColors'
+import { getGenericTerrainColors } from '../world/maphex/genericTerrainColors'
 
 function isBoardHex(hex: BoardHex | DecodedPieceID): hex is BoardHex {
   return (<BoardHex>hex).pieceRotation !== undefined
@@ -212,6 +214,11 @@ export const getSvgHexSubLevelBorderColor = (
 }
 
 export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
+  const genericColors = getGenericTerrainColors(
+    hex.terrain,
+    useBoundStore.getState(),
+  )
+  if (genericColors) return genericColors.cap
   if (
     isSolidTerrainHex(hex.terrain) ||
     isFluidTerrainHex(hex.terrain) ||
@@ -279,6 +286,11 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   return 'transparent'
 }
 export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
+  const genericColors = getGenericTerrainColors(
+    hex.terrain,
+    useBoundStore.getState(),
+  )
+  if (genericColors) return genericColors.side
   if (
     isSolidTerrainHex(hex.terrain) ||
     isFluidTerrainHex(hex.terrain) ||

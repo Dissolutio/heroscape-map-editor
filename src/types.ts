@@ -86,6 +86,8 @@ export enum HexTerrain {
   swampWater = 'swampWater',
   shadow = 'shadow',
   toxicWater = 'toxicWater',
+  generic = 'generic',
+  genericFluid = 'genericFluid',
   // hex obstacle
   laurWall = 'laurWall',
   laurWallAddon = 'laurWallAddon',
@@ -170,6 +172,8 @@ export enum PiecePrefixes {
   swampWater = 'ws',
   ice = 'i',
   shadow = 'sh',
+  generic = 'gn',
+  genericFluid = 'gf',
   tree = 'tr',
   snowTree = 'str',
   palm = 'tp',
@@ -267,6 +271,16 @@ export const Pieces = {
   ice6: `${PiecePrefixes.ice}6`,
   shadow1: `${PiecePrefixes.shadow}1`,
   shadow3: `${PiecePrefixes.shadow}3`,
+  generic1: `${PiecePrefixes.generic}1`,
+  generic2: `${PiecePrefixes.generic}2`,
+  generic3: `${PiecePrefixes.generic}3`,
+  generic7: `${PiecePrefixes.generic}7`,
+  generic24: `${PiecePrefixes.generic}24`,
+  genericFluid1: `${PiecePrefixes.genericFluid}1`,
+  genericFluid2: `${PiecePrefixes.genericFluid}2`,
+  genericFluid3: `${PiecePrefixes.genericFluid}3`,
+  genericFluid7: `${PiecePrefixes.genericFluid}7`,
+  genericFluid24: `${PiecePrefixes.genericFluid}24`,
   // EdgeAddons -- rendered from BoardPieces not BoardHexes
   roadWall: 'rw',
   battlement: 'bt',
@@ -338,6 +352,24 @@ export const Pieces = {
   glyphPower: `${PiecePrefixes.glyph}0`, // WIP glyphs
   glyphTreasure: `${PiecePrefixes.glyph}1`,
 }
+export const GENERIC_PIECE_IDS = [
+  Pieces.generic1,
+  Pieces.generic2,
+  Pieces.generic3,
+  Pieces.generic7,
+  Pieces.generic24,
+  Pieces.genericFluid1,
+  Pieces.genericFluid2,
+  Pieces.genericFluid3,
+  Pieces.genericFluid7,
+  Pieces.genericFluid24,
+] as const
+
+const genericPieceIDs = new Set<string>(GENERIC_PIECE_IDS)
+
+export const isGenericPieceID = (pieceID: string) =>
+  genericPieceIDs.has(pieceID)
+
 export type AddRemovePieceError =
   | undefined
   | { message?: string; error?: unknown }
