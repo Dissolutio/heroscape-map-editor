@@ -22,18 +22,17 @@ const overlapsAltitude = (
   otherAltitude: number,
 ) => otherAltitude >= altitude && otherAltitude < altitude + height
 
-const overlapsAltitudeBands = (
-  altitude: number,
-  height: number,
-  otherAltitude: number,
-  otherHeight: number,
-) => altitude < otherAltitude + otherHeight && otherAltitude < altitude + height
-
 type LaurAddon = {
   piece: BoardPiece
   canonicalKey: string
   footprint: ReturnType<typeof getLaurAddonFootprint>
   heightInLevels: number | undefined
+}
+
+type LaurAddonInterval = {
+  addon: LaurAddon
+  altitude: number
+  height: number
 }
 
 const pillarIDs = new Set<string>([
@@ -46,6 +45,27 @@ function addToIndex<T>(index: Map<string, T[]>, key: string, value: T) {
   const entries = index.get(key)
   if (entries) entries.push(value)
   else index.set(key, [value])
+}
+
+function addOverlappingIntervalConflicts(
+  intervals: LaurAddonInterval[],
+  conflicts: Set<string>,
+  isExempt: (first: LaurAddon, second: LaurAddon) => boolean,
+) {
+  intervals.sort((first, second) => first.altitude - second.altitude)
+  let active: LaurAddonInterval[] = []
+  for (const interval of intervals) {
+    active = active.filter(
+      (candidate) => candidate.altitude + candidate.height > interval.altitude,
+    )
+    for (const candidate of active) {
+      if (!(candidate.altitude < interval.altitude + interval.height)) continue
+      if (isExempt(candidate.addon, interval.addon)) continue
+      conflicts.add(candidate.addon.piece.uid)
+      conflicts.add(interval.addon.piece.uid)
+    }
+    active.push(interval)
+  }
 }
 
 /**
@@ -83,53 +103,46 @@ export function evaluateLaurAddonConflicts(
     ]
   })
 
-  for (let i = 0; i < addons.length; i++) {
-    const addon = addons[i]
-    for (let j = i + 1; j < addons.length; j++) {
-      const other = addons[j]
-      const [lower, upper] =
-        addon.piece.altitude < other.piece.altitude
-          ? [addon, other]
-          : [other, addon]
-      const isLegalStack =
-        addon.canonicalKey === other.canonicalKey &&
-        upper.piece.altitude - lower.piece.altitude ===
-          LAUR_ADDON_STACK_INCREMENT &&
-        canLaurAddonStackOn(upper.piece.inventoryID, lower.piece.inventoryID)
-      if (
-        !isLegalStack &&
-        addon.canonicalKey === other.canonicalKey &&
-        addon.heightInLevels !== undefined &&
-        other.heightInLevels !== undefined &&
-        overlapsAltitudeBands(
-          addon.piece.altitude,
-          addon.heightInLevels,
-          other.piece.altitude,
-          other.heightInLevels,
-        )
-      ) {
-        conflicts.add(addon.piece.uid)
-        conflicts.add(other.piece.uid)
-      }
-      if (!addon.footprint || !other.footprint) continue
-      if (
-        !isLegalStack &&
-        addon.footprint.blockedHexes.some((hex) =>
-          other.footprint?.blockedHexes.some(
-            (otherHex) => coordKey(hex) === coordKey(otherHex),
-          ),
-        ) &&
-        overlapsAltitudeBands(
-          addon.piece.altitude,
-          addon.footprint.heightInLevels,
-          other.piece.altitude,
-          other.footprint.heightInLevels,
-        )
-      ) {
-        conflicts.add(addon.piece.uid)
-        conflicts.add(other.piece.uid)
-      }
+  const isLegalStack = (first: LaurAddon, second: LaurAddon) => {
+    const [lower, upper] =
+      first.piece.altitude < second.piece.altitude
+        ? [first, second]
+        : [second, first]
+    return (
+      first.canonicalKey === second.canonicalKey &&
+      upper.piece.altitude - lower.piece.altitude ===
+        LAUR_ADDON_STACK_INCREMENT &&
+      canLaurAddonStackOn(upper.piece.inventoryID, lower.piece.inventoryID)
+    )
+  }
+
+  const addonsByCanonicalKey = new Map<string, LaurAddonInterval[]>()
+  for (const addon of addons) {
+    if (addon.heightInLevels === undefined) continue
+    addToIndex(addonsByCanonicalKey, addon.canonicalKey, {
+      addon,
+      altitude: addon.piece.altitude,
+      height: addon.heightInLevels,
+    })
+  }
+  for (const intervals of addonsByCanonicalKey.values()) {
+    addOverlappingIntervalConflicts(intervals, conflicts, isLegalStack)
+  }
+
+  const addonsByBlockedCoordinate = new Map<string, LaurAddonInterval[]>()
+  for (const addon of addons) {
+    const footprint = addon.footprint
+    if (!footprint) continue
+    for (const coordinate of footprint.blockedHexes) {
+      addToIndex(addonsByBlockedCoordinate, coordKey(coordinate), {
+        addon,
+        altitude: footprint.altitude,
+        height: footprint.heightInLevels,
+      })
     }
+  }
+  for (const intervals of addonsByBlockedCoordinate.values()) {
+    addOverlappingIntervalConflicts(intervals, conflicts, isLegalStack)
   }
 
   const occupantsByCoordinate = new Map<string, BoardHex[]>()

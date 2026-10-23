@@ -4,11 +4,25 @@ import { describe, expect, it } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
-import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
+import { getLaurAddonCanonicalKey } from '../data/laurAddonPlacement'
+import {
+  LAUR_ADDON_STACK_INCREMENT,
+  canLaurAddonStackOn,
+} from '../data/laurAddonStacking'
 import { isLaurAddonSupported } from '../data/laurAddonSupport'
 import { piecesSoFar } from '../data/pieces'
-import type { BoardPiece, CubeCoordinate, HexMap } from '../types'
-import { Pieces } from '../types'
+import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
+import {
+  type BoardHex,
+  type BoardHexes,
+  type BoardPiece,
+  type BoardPieces,
+  type CubeCoordinate,
+  type HexMap,
+  HexTerrain,
+  Pieces,
+} from '../types'
+import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { normalizeBoardPiecesWithDropped } from '../utils/map-utils'
 import { cloneBoard, makeTable, place, withGrassFloor } from './helpers/board'
 import type { Board } from './helpers/board'
@@ -53,6 +67,286 @@ const placeOnBoard = (
     altitude,
     permissive: true,
   }).board
+
+const coordKey = ({ q, r, s }: CubeCoordinate) => `${q},${r},${s}`
+const overlapsAltitude = (
+  altitude: number,
+  height: number,
+  otherAltitude: number,
+) => otherAltitude >= altitude && otherAltitude < altitude + height
+const overlapsAltitudeBands = (
+  altitude: number,
+  height: number,
+  otherAltitude: number,
+  otherHeight: number,
+) => altitude < otherAltitude + otherHeight && otherAltitude < altitude + height
+
+function bruteForceLaurAddonConflicts(
+  boardPieces: BoardPieces,
+  boardHexes: BoardHexes,
+) {
+  const conflicts = new Set<string>()
+  const pieceByUID = new Map(boardPieces.map((item) => [item.uid, item]))
+  const addons = boardPieces.flatMap((item) => {
+    if (!isLaurWallAddonPieceID(item.inventoryID)) return []
+    const canonicalKey = getLaurAddonCanonicalKey(
+      item.pieceCoords,
+      item.rotation,
+    )
+    if (!canonicalKey) return []
+    const footprint = getLaurAddonFootprint({
+      inventoryID: item.inventoryID,
+      anchor: item.pieceCoords,
+      altitude: item.altitude,
+      rotation: item.rotation,
+    })
+    return [
+      {
+        piece: item,
+        canonicalKey,
+        footprint,
+        heightInLevels:
+          footprint?.heightInLevels ?? piecesSoFar[item.inventoryID]?.height,
+      },
+    ]
+  })
+
+  for (let i = 0; i < addons.length; i++) {
+    const addon = addons[i]
+    for (let j = i + 1; j < addons.length; j++) {
+      const other = addons[j]
+      const [lower, upper] =
+        addon.piece.altitude < other.piece.altitude
+          ? [addon, other]
+          : [other, addon]
+      const isLegalStack =
+        addon.canonicalKey === other.canonicalKey &&
+        upper.piece.altitude - lower.piece.altitude ===
+          LAUR_ADDON_STACK_INCREMENT &&
+        canLaurAddonStackOn(upper.piece.inventoryID, lower.piece.inventoryID)
+      if (
+        !isLegalStack &&
+        addon.canonicalKey === other.canonicalKey &&
+        addon.heightInLevels !== undefined &&
+        other.heightInLevels !== undefined &&
+        overlapsAltitudeBands(
+          addon.piece.altitude,
+          addon.heightInLevels,
+          other.piece.altitude,
+          other.heightInLevels,
+        )
+      ) {
+        conflicts.add(addon.piece.uid)
+        conflicts.add(other.piece.uid)
+      }
+      if (!addon.footprint || !other.footprint) continue
+      if (
+        !isLegalStack &&
+        addon.footprint.blockedHexes.some((hex) =>
+          other.footprint?.blockedHexes.some(
+            (otherHex) => coordKey(hex) === coordKey(otherHex),
+          ),
+        ) &&
+        overlapsAltitudeBands(
+          addon.piece.altitude,
+          addon.footprint.heightInLevels,
+          other.piece.altitude,
+          other.footprint.heightInLevels,
+        )
+      ) {
+        conflicts.add(addon.piece.uid)
+        conflicts.add(other.piece.uid)
+      }
+    }
+  }
+
+  const occupantsByCoordinate = new Map<string, BoardHex[]>()
+  for (const hex of Object.values(boardHexes)) {
+    if (hex.boardPieceUID) {
+      const entries = occupantsByCoordinate.get(coordKey(hex))
+      if (entries) entries.push(hex)
+      else occupantsByCoordinate.set(coordKey(hex), [hex])
+    }
+  }
+  const pillarIDs = new Set<string>([
+    Pieces.laurWallSquarePillar,
+    Pieces.laurWallPillarStackable,
+    Pieces.laurWallTrianglePillar,
+  ])
+  const pillarsByCoordinate = new Map<string, BoardPiece[]>()
+  for (const item of boardPieces) {
+    if (!pillarIDs.has(item.inventoryID)) continue
+    const key = coordKey(item.pieceCoords)
+    const entries = pillarsByCoordinate.get(key)
+    if (entries) entries.push(item)
+    else pillarsByCoordinate.set(key, [item])
+  }
+
+  for (const addon of addons) {
+    const footprint = addon.footprint
+    if (!footprint) continue
+    const inspectHexes = (
+      coordinates: CubeCoordinate[],
+      attachmentEnds: boolean,
+    ) => {
+      for (const coordinate of coordinates) {
+        const hasPillarAtEnd =
+          attachmentEnds &&
+          (pillarsByCoordinate.get(coordKey(coordinate)) ?? []).some(
+            (pillar) =>
+              pillar.altitude >= footprint.altitude &&
+              pillar.altitude < footprint.altitude + footprint.heightInLevels,
+          )
+        const occupants: BoardHex[] = (
+          occupantsByCoordinate.get(coordKey(coordinate)) ?? []
+        ).filter((hex) =>
+          overlapsAltitude(
+            footprint.altitude,
+            footprint.heightInLevels,
+            hex.altitude,
+          ),
+        )
+        for (const hex of occupants) {
+          const uid: string | undefined = hex.boardPieceUID
+          if (!uid || uid === addon.piece.uid) continue
+          const inventoryID =
+            pieceByUID.get(uid)?.inventoryID ?? hex.inventoryID
+          if (
+            (attachmentEnds &&
+              (pillarIDs.has(inventoryID) ||
+                (hasPillarAtEnd &&
+                  piecesSoFar[inventoryID]?.isHexTerrainPiece))) ||
+            (!attachmentEnds && isLaurWallAddonPieceID(inventoryID))
+          ) {
+            continue
+          }
+          if (
+            hex.terrain !== HexTerrain.empty ||
+            hex.inventoryID ||
+            hex.pieceID
+          ) {
+            conflicts.add(addon.piece.uid)
+            conflicts.add(uid)
+          }
+        }
+      }
+    }
+    inspectHexes(footprint.endHexes, true)
+    inspectHexes(footprint.blockedHexes, false)
+  }
+
+  return [...conflicts]
+}
+
+const generatedAddonIDs = [
+  Pieces.laurWallShort,
+  Pieces.laurWallShortStackable,
+  Pieces.laurWallLong,
+  Pieces.laurWallLongStackable,
+  Pieces.laurWallArch,
+  Pieces.laurWallRuin1,
+  Pieces.laurWallRuin2,
+  Pieces.laurWallRuin3,
+]
+
+function makeGeneratedConflictBoard() {
+  const boardPieces: BoardPieces = []
+  const boardHexes: BoardHexes = {}
+  let seed = 0x51a7
+  const random = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0
+    return seed
+  }
+  const coordinates = () => {
+    const q = (random() % 17) - 8
+    const r = (random() % 17) - 8
+    return { q, r, s: -q - r }
+  }
+  const altitudes = [0, 1, 8, 9, 12, 16, 24]
+  const addOccupant = (
+    uid: string,
+    inventoryID: string,
+    at: CubeCoordinate,
+    altitude: number,
+  ) => {
+    const occupant: BoardPiece = {
+      uid,
+      inventoryID,
+      pieceCoords: at,
+      rotation: 0,
+      altitude,
+    }
+    boardPieces.push(occupant)
+    boardHexes[uid] = {
+      ...at,
+      id: `${uid}-hex`,
+      altitude,
+      pieceID: uid,
+      boardPieceUID: uid,
+      inventoryID,
+      terrain:
+        inventoryID === Pieces.grass1 ? HexTerrain.grass : HexTerrain.tree,
+      pieceRotation: 0,
+    }
+  }
+
+  for (let index = 0; index < 320; index++) {
+    const inventoryID = generatedAddonIDs[index % generatedAddonIDs.length]
+    const rotation =
+      inventoryID === Pieces.laurWallShort ||
+      inventoryID === Pieces.laurWallShortStackable
+        ? random() % 6
+        : inventoryID === Pieces.laurWallLong ||
+            inventoryID === Pieces.laurWallLongStackable ||
+            inventoryID === Pieces.laurWallArch
+          ? (random() % 6) + 0.5
+          : (random() % 12) / 2
+    boardPieces.push(
+      piece(
+        `generated-addon-${index}`,
+        inventoryID,
+        coordinates(),
+        rotation,
+        altitudes[random() % altitudes.length],
+      ),
+    )
+  }
+
+  for (let index = 0; index < 24; index++) {
+    const at = coordinates()
+    const altitude = altitudes[random() % altitudes.length]
+    addOccupant(
+      `pillar-base-${index}`,
+      index % 2 ? Pieces.laurWallSquarePillar : Pieces.laurWallTrianglePillar,
+      at,
+      altitude,
+    )
+    addOccupant(
+      `pillar-stack-${index}`,
+      Pieces.laurWallPillarStackable,
+      at,
+      altitude + LAUR_ADDON_STACK_INCREMENT,
+    )
+  }
+
+  for (let index = 0; index < 80; index++) {
+    addOccupant(
+      `generated-occupant-${index}`,
+      index % 2 ? Pieces.grass1 : Pieces.tree10,
+      coordinates(),
+      altitudes[random() % altitudes.length],
+    )
+  }
+
+  const stackAnchor = { q: 30, r: -11, s: -19 }
+  boardPieces.push(
+    piece('legal-short-base', Pieces.laurWallShortStackable, stackAnchor, 2, 1),
+    piece('legal-short-top', Pieces.laurWallShortStackable, stackAnchor, 2, 9),
+    piece('legal-long-base', Pieces.laurWallLongStackable, stackAnchor, 2.5, 1),
+    piece('legal-long-top', Pieces.laurWallArch, stackAnchor, 2.5, 9),
+  )
+  return { boardPieces, boardHexes }
+}
 
 type AttachedCase = {
   name: string
@@ -444,6 +738,13 @@ describe('evaluateLaurAddonConflicts', () => {
     } finally {
       piecesSoFar[inventoryID] = registeredPiece
     }
+  })
+
+  it('matches a brute-force reference on a generated mixed board', () => {
+    const { boardPieces, boardHexes } = makeGeneratedConflictBoard()
+    expect(sorted(evaluateLaurAddonConflicts(boardPieces, boardHexes))).toEqual(
+      sorted(bruteForceLaurAddonConflicts(boardPieces, boardHexes)),
+    )
   })
 
   it('does not report conflicts in the public Library of Laur map', () => {
