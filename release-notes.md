@@ -9,7 +9,7 @@ TLDR: Add reusable Generic terrain pieces with customizable colors, plus clearer
 - **What's New dialog**: See release notes for updates since your last visit. Release versions are now generated from the dated release notes.
 - **Legacy stacking example map**: A sample map is available to demonstrate older stacking behavior.
 - **Safari stale-file recovery**: If Safari loads a stale app file after an update, the app automatically retries once instead of leaving a broken screen.
-- **Under the hood**: Dependency security updates and improvements to automated release checks and tests.
+- **Under the hood**: Dependency security updates and improvements to automated release checks and tests. Piece placement no longer modifies the map data it is handed, and some unused code was removed; neither changes how the app looks or behaves.
 
 Oct-18-2026
 TLDR: Click and drag *most* pieces, including multi-selected pieces. Better piece previews. Saved user settings.
