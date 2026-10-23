@@ -80,17 +80,17 @@ export function getSmartPlacementAltitude({
       isVsTile: false,
       boardPieces: [],
     }
-    // addPiece shallow-copies its input but edits the hex objects themselves.
+    // addPiece clones the board hexes before editing them.
     const strict = addPiece({
       ...args,
-      boardHexes: structuredClone(localHexes),
+      boardHexes: localHexes,
     })
     if (strict.error) continue
     // Strict clearance rules allow some overlaps that permissive painting
     // would overwrite. Check the actual paint path as well.
     const painted = addPiece({
       ...args,
-      boardHexes: structuredClone(localHexes),
+      boardHexes: localHexes,
       permissive: true,
     })
     if (!painted.error && !painted.displacedUIDs?.length) return candidate

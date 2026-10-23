@@ -742,7 +742,15 @@ describe('evaluateLaurAddonConflicts', () => {
 
   it('matches a brute-force reference on a generated mixed board', () => {
     const { boardPieces, boardHexes } = makeGeneratedConflictBoard()
-    expect(sorted(evaluateLaurAddonConflicts(boardPieces, boardHexes))).toEqual(
+    const conflicts = evaluateLaurAddonConflicts(boardPieces, boardHexes)
+    expect(conflicts).not.toHaveLength(0)
+    expect(
+      boardPieces.some(
+        ({ inventoryID, uid }) =>
+          generatedAddonIDs.includes(inventoryID) && !conflicts.includes(uid),
+      ),
+    ).toBe(true)
+    expect(sorted(conflicts)).toEqual(
       sorted(bruteForceLaurAddonConflicts(boardPieces, boardHexes)),
     )
   })
