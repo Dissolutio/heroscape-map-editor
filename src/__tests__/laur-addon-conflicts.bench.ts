@@ -77,5 +77,10 @@ bench(
     durations.sort((left, right) => left - right)
     console.log(`median of five runs: ${durations[2].toFixed(1)} ms`)
   },
-  { iterations: 1, warmupIterations: 0 },
+  {
+    time: 1,
+    iterations: 1,
+    warmupTime: 0,
+    warmupIterations: 0,
+  },
 )
