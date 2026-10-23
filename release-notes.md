@@ -1,5 +1,5 @@
 Oct-23-2026
-TLDR: Add reusable Generic terrain pieces with customizable colors, plus clearer export rendering.
+TLDR: Add reusable Generic terrain pieces with customizable colors
 
 - **Generic terrain pieces**: Add Generic solid and fluid hexes in the sizes you need, without requiring inventory counts or terrain-set records. Choose separate cap and side colors for solid and fluid Generic terrain in the View tab; these colors are saved with your settings and used in 3D, 2D, PDF, and SVG views.
 - **Generic terrain export colors**: Generic terrain now keeps its correct colors at sub-levels in 2D, PDF, and SVG output.
@@ -7,9 +7,8 @@ TLDR: Add reusable Generic terrain pieces with customizable colors, plus clearer
 - **Laur add-on placement feedback**: Laur wall add-ons can be placed freely, while previews show whether they are supported or conflicted. When placing over a compatible pillar, rotation can snap to its ports.
 - **Laur add-on footprints and stacking**: Placement previews and conflict checks now account for add-on footprints, pillar support, and valid stacking, including measured piece heights and stacking increments. Unsupported add-ons remain placeable and are shown with a warning.
 - **What's New dialog**: See release notes for updates since your last visit. Release versions are now generated from the dated release notes.
-- **Legacy stacking example map**: A sample map is available to demonstrate older stacking behavior.
 - **Safari stale-file recovery**: If Safari loads a stale app file after an update, the app automatically retries once instead of leaving a broken screen.
-- **Under the hood**: Dependency security updates and improvements to automated release checks and tests. Piece placement no longer modifies the map data it is handed, and some unused code was removed; neither changes how the app looks or behaves.
+- **Under the hood**: Dev, security, and tidiness.
 
 Oct-18-2026
 TLDR: Click and drag *most* pieces, including multi-selected pieces. Better piece previews. Saved user settings.
