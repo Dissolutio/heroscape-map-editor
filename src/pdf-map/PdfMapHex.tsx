@@ -1,4 +1,4 @@
-import { G, Text, Tspan } from '@react-pdf/renderer'
+import { G, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
   xTransformForMultiHex3Rotation,
@@ -22,6 +22,7 @@ import {
 } from '../utils/tileLetters'
 import { getBuriedMarksForHex, type BuriedMarksByUID } from '../utils/tileMarks'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
+import { getPdfBuriedMarkOffset } from './pdfBuriedMarkPosition'
 import {
   PdfCannon,
   PdfCastleArch,
@@ -96,34 +97,58 @@ const TerrainTileLetterText = ({
   if (!letter && !marks) return null
   const terrainLetter = getTerrainTileLetter(hex.terrain)
   const position = getTileLetterPosition(hex)
+  const textFill = terrainLetter
+    ? terrainLetter.isBlack
+      ? '#000000'
+      : '#FFFFFF'
+    : '#000000'
   const textStyle = letter
     ? pdfHexTextStyle
     : {
         ...pdfHexTextStyle,
         fontSize: pdfHexTextStyle.fontSize * 0.58,
       }
+  if (letter && marks) {
+    const markOffset = getPdfBuriedMarkOffset(letter, pdfHexTextStyle.fontSize)
+    if (!markOffset) {
+      throw new Error('A terrain letter is required to position buried marks')
+    }
+    return (
+      <>
+        <Text
+          fill={textFill}
+          {...pdfTextProps()}
+          style={pdfHexTextStyle}
+          x={position.x}
+          y={position.y}
+        >
+          {letter}
+        </Text>
+        <Text
+          fill={textFill}
+          {...pdfTextProps()}
+          style={{
+            ...pdfHexTextStyle,
+            fontSize: pdfHexTextStyle.fontSize * 0.58,
+          }}
+          textAnchor="start"
+          x={position.x + markOffset.x}
+          y={position.y + markOffset.y}
+        >
+          {marks}
+        </Text>
+      </>
+    )
+  }
   return (
     <Text
-      fill={
-        terrainLetter
-          ? terrainLetter.isBlack
-            ? '#000000'
-            : '#FFFFFF'
-          : '#000000'
-      }
+      fill={textFill}
       {...pdfTextProps()}
       style={textStyle}
       x={position.x}
       y={position.y}
     >
-      {letter}
-      {letter && marks ? (
-        <Tspan fontSize={pdfHexTextStyle.fontSize * 0.58} dy="-0.6em">
-          {marks}
-        </Tspan>
-      ) : (
-        !letter && marks
-      )}
+      {letter || marks}
     </Text>
   )
 }

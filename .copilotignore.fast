@@ -1,7 +1,0 @@
-**/e2e/**
-**/*.test.ts
-**/*.test.tsx
-**/*.spec.ts
-**/*.spec.tsx
-playwright.config.ts
-vitest.config.ts
