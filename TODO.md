@@ -1,3 +1,10 @@
+## RECENT TODOS
+1. Generic piece type with the normal sizes: 1,2,3,7,24. One solid, one fluid. User can designate the colors for the subterrain and cap. Or the sides and cap, with the upcoming textures upgrade.
+2. We need Laur Ruins 2/3 from RaLE. We need models and we need pen modes, and we need SVG render to distinguish
+3. lighten sub-level shadow color
+4. Adopt a treasure glyph color for contemporary SVG display
+5. Add marker to Ancient Shroudshroom to denote orientation
+
 ## TODO
 - Group LoS blockers such as trees/outcrops/similar so that they can be rotated through like regular terrain (how land types can toggle their size using hotkeys "1" - "7"). For example once an outcrop piece is chosen as the pen mode, then the hotkeys are 1 for 1-hex outcrop, 3 for 3-hex outcrop, etc.
 - Remove the white from the glyphs. Additionally, don't display hex heights above glyphs (making it easier to label the glyphs online). This is for when a user wants to make an OHS map, which is a top down view of a map for playing online heroscape on. Glyph spaces normally get edited at a later step and so less stuff displaying on those hexes would be nice.
