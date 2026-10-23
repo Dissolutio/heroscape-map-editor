@@ -340,10 +340,9 @@ const PROBE_UID = 'placement-probe'
 /**
  * What placing `resolution` would do to `board`, without changing it.
  *
- * Like getSmartPlacementAltitude, this probes only the footprint's columns:
- * it copies that slice (addPiece edits the hex objects it is given), places
- * strictly to check the rules, then permissively (as painting does) to see
- * what it displaces. It never replays the whole map.
+ * Like getSmartPlacementAltitude, this probes only the footprint's columns,
+ * placing strictly to check the rules, then permissively (as painting does)
+ * to see what it displaces. It never replays the whole map.
  *
  * `ignoreUID` leaves one or more moving pieces out of the probe, so a drag
  * group does not conflict with its original positions.
@@ -425,10 +424,10 @@ export function evaluatePlacement(
     boardPieces,
     uid: PROBE_UID,
   }
-  const strict = addPiece({ ...args, boardHexes: structuredClone(localHexes) })
+  const strict = addPiece({ ...args, boardHexes: localHexes })
   const painted = addPiece({
     ...args,
-    boardHexes: structuredClone(localHexes),
+    boardHexes: localHexes,
     permissive: true,
   })
   const displacedUIDs = painted.displacedUIDs ?? []
