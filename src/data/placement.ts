@@ -12,32 +12,32 @@ import {
   isLaurWallAddonPieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
+import { HEXGRID_MAX_ALTITUDE } from '../utils/constants'
+import { cubeToPixel } from '../utils/hex-utils'
 import {
   genBoardHexID,
   getBattlementClickedHexCoords,
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils'
-import { HEXGRID_MAX_ALTITUDE } from '../utils/constants'
 import { addPiece } from './addPiece'
 import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
-import getPieceTemplateCoords from './rotationTransforms'
-import { getSmartPlacementAltitude } from './smartPlacement'
-import { verticalObstructionTemplates } from './vertical-obstruction-templates'
 import {
   getLaurAddonAllowedRotations,
   getLaurAddonCanonicalKey,
   resolveLaurAddonEdge,
 } from './laurAddonPlacement'
-import { cubeToPixel } from '../utils/hex-utils'
 import {
-  getLaurAddonStackAltitude,
   canLaurAddonStackOn,
+  getLaurAddonStackAltitude,
 } from './laurAddonStacking'
 import {
   areMatchingLaurPillarShapes,
   getLaurPillarStackAltitude,
   isLaurPillarID,
 } from './laurPillarStacking'
+import getPieceTemplateCoords from './rotationTransforms'
+import { getSmartPlacementAltitude } from './smartPlacement'
+import { verticalObstructionTemplates } from './vertical-obstruction-templates'
 
 /** The two pieces of state placement reads. */
 export type PlacementBoard = {
@@ -67,6 +67,9 @@ export type PlacementBlockedReason =
   | 'notAHex' // the pointer handed over something that is not a hex
 
 /** What a refusal tells the user; a reason missing here is silent. */
+export const LAUR_STACKABLE_VARIANT_UNAVAILABLE_MESSAGE =
+  'Non-stackable Laur pieces cannot be stacked, and their stackable versions are not in your inventory.'
+
 export const placementBlockedMessages: Partial<
   Record<PlacementBlockedReason, string>
 > = {

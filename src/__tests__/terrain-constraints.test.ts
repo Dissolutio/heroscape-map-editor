@@ -11,6 +11,7 @@
 import { describe, expect, it } from 'vitest'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import { blankPieceInventory } from '../inventory/blankInventory'
+import { Pieces } from '../types'
 import {
   normalizePieceInventory,
   parsePieceInventoryRows,
@@ -21,6 +22,7 @@ import {
   getEffectiveTerrainConstraintInventory,
   getSetConstrainedInventory,
   hasActiveTerrainConstraints,
+  isInventoryPieceAvailable,
 } from '../utils/terrain-constraints'
 
 describe('normalizePieceInventory', () => {
@@ -127,6 +129,19 @@ describe('set-based constraints', () => {
 })
 
 describe('what an inventory makes available', () => {
+  it('requires a Laur variant to have its own inventory when constrained', () => {
+    const inventory = { [Pieces.laurWallShortStackable]: 1 }
+    expect(
+      isInventoryPieceAvailable(Pieces.laurWallShortStackable, inventory, true),
+    ).toBe(true)
+    expect(
+      isInventoryPieceAvailable(Pieces.laurWallShort, inventory, true),
+    ).toBe(false)
+    expect(
+      isInventoryPieceAvailable(Pieces.laurWallShort, inventory, false),
+    ).toBe(true)
+  })
+
   it('lists the land prefixes that have at least one piece in stock', () => {
     const prefixes = getAvailableLandPrefixesForInventory({
       g1: 1,
