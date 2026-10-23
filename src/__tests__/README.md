@@ -87,7 +87,7 @@ without a tile template in `piece-registry.test.ts`) is now an empty list.
   placement preview sees). The real app paints and loads with `permissive: true`,
   which never rejects and only reports displaced hexes; pass `permissive: true`
   to test that mode.
-- `addPiece` edits hex objects inside the board you pass it. Clone first
-  (`cloneBoard`) if you reuse a starting board.
+- `addPiece` does not mutate the board you pass it. Use `cloneBoard` when a test
+  needs an independent copy of a starting board.
 - Do not pin altitudes of fluid-on-fluid stacking; that feature is being
   reworked on `dev`.
