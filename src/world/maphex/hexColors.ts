@@ -17,8 +17,6 @@ export const virtualscapeTileColors: Dictionary<string> = {
   [HexTerrain.lava]: 'rgb(255,64,64)',
   [HexTerrain.shadow]: 'rgb(0, 0, 0)',
   [HexTerrain.swampWater]: 'rgb(222,210,42)',
-  [HexTerrain.generic]: '#e63cc8',
-  [HexTerrain.genericFluid]: '#ff96e6',
   [HexTerrain.glyphPower]: 'rgb(64,0,0)',
   [HexTerrain.ruin]: 'rgb(160, 0, 0)',
   [HexTerrain.roadWall]: 'rgb(120, 120, 120)',
@@ -350,8 +348,8 @@ export const svgSubLevelColors = {
   [Pieces.startZone6]: 'rgb(177, 194, 146)',
   [Pieces.startZone7]: 'rgb(255, 190, 128)',
   [Pieces.startZone8]: 'rgb(166, 148, 212)',
-  [HexTerrain.generic]: '#a01e8c',
-  [HexTerrain.genericFluid]: '#c864b4',
+  [HexTerrain.generic]: '#f39ee4',
+  [HexTerrain.genericFluid]: '#ffcbf3',
   // OBSTACLES
   [HexTerrain.ladder]: '#D6A591',
   [HexTerrain.ruin]: '#D08080', // virtualscape

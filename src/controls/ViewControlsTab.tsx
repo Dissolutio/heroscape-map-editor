@@ -261,6 +261,10 @@ const GenericTerrainColorsForm = () => {
           {label}
         </label>
       ))}
+      <FormHelperText sx={{ gridColumn: '1 / -1', m: 0 }}>
+        Cap colors also drive SVG/PDF; 2D sub-level shades are derived
+        automatically. Side colors affect only 3D.
+      </FormHelperText>
       <Button
         onClick={resetColors}
         size="small"
