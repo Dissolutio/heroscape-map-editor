@@ -9,8 +9,10 @@ import { CLICK_DRAG_TOLERANCE_PX } from '../utils/constants'
 const penModePieceAlias: Record<string, string> = {
   [Pieces.laurWallRuin2]: Pieces.laurWallRuin1,
   [Pieces.laurWallRuin3]: Pieces.laurWallRuin1,
-  [Pieces.laurWallShortStackable]: Pieces.laurWallShort,
-  [Pieces.laurWallLongStackable]: Pieces.laurWallLong,
+}
+
+export function getPickedPenMode(inventoryID: string, landPrefix?: string) {
+  return landPrefix ?? penModePieceAlias[inventoryID] ?? inventoryID
 }
 
 // Middle-drag is a camera dolly, left-drag orbits, so only a near-motionless
@@ -26,10 +28,7 @@ function pickHoveredPieceAsPenMode() {
   const piece = boardPiece ? piecesSoFar[boardPiece.inventoryID] : undefined
   if (!boardPiece || !piece) return
   // Land pieces select a terrain pen mode plus the size of the clicked piece
-  const penMode =
-    piece.landPrefix ??
-    penModePieceAlias[boardPiece.inventoryID] ??
-    boardPiece.inventoryID
+  const penMode = getPickedPenMode(boardPiece.inventoryID, piece.landPrefix)
   state.togglePenMode(penMode)
   if (piece.landPrefix) {
     useBoundStore.getState().togglePieceSize(piece.size)

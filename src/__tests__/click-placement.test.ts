@@ -7,11 +7,15 @@
  * stubbed, and the stubbed EmptyHexes hands back the handler (see
  * helpers/clickHandler.ts). The cases live in helpers/placementCases.ts.
  */
-import { enqueueSnackbar } from 'notistack'
+import { closeSnackbar, enqueueSnackbar } from 'notistack'
+import type { ReactElement } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
+import { getLaurAddonHitHex } from '../data/laurAddonStacking'
 import { placementBlockedMessages } from '../data/placement'
 import useBoundStore from '../store/store'
 import type { BoardHex } from '../types'
+import { Pieces } from '../types'
 import {
   cloneBoard,
   hexAt,
@@ -27,7 +31,10 @@ import {
   placementCases,
 } from './helpers/placementCases'
 
-vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
+vi.mock('notistack', () => ({
+  closeSnackbar: vi.fn(),
+  enqueueSnackbar: vi.fn(),
+}))
 vi.mock('../hooks/useMiddleClickPickPenMode.tsx', () => ({
   useMiddleClickPickPenMode: () => undefined,
 }))
@@ -59,9 +66,47 @@ const snackbar = vi.mocked(enqueueSnackbar)
 const snackbarMessages = () =>
   snackbar.mock.calls.map((call) => (call[0] as { message?: string }).message)
 
+function onAddon(pieceID: string, rotation: number) {
+  const table = withGrassFloor(makeTable(9))
+  const { board } = place({
+    board: cloneBoard(table),
+    pieceID,
+    at: table.center,
+    altitude: 1,
+    rotation,
+    uid: 'addon-base',
+    permissive: true,
+  })
+  const addon = board.boardPieces.find(
+    (boardPiece) => boardPiece.uid === 'addon-base',
+  )
+  if (!addon) throw new Error('test setup: add-on base was not placed')
+  return { board, hex: getLaurAddonHitHex(addon), addon }
+}
+
 beforeEach(() => {
   snackbar.mockClear()
+  useBoundStore.setState((state) => ({
+    terrainConstraintSource: 'none',
+    customConstraintInventoryFileName: '',
+    customConstraintInventory: {},
+    hexMap: { ...state.hexMap, setsUsed: [] },
+  }))
 })
+
+function clickSnackbarAction(index: number, label: string) {
+  const options = snackbar.mock.calls[index]?.[0] as
+    | { action?: unknown }
+    | undefined
+  if (!options || typeof options.action !== 'function') {
+    throw new Error(`Expected ${label} snackbar action`)
+  }
+  const action = options.action('test-snackbar') as ReactElement<{
+    onClick?: (event: never) => void
+  }>
+  if (!action.props.onClick) throw new Error(`Expected ${label} button`)
+  action.props.onClick(undefined as never)
+}
 
 describe('click placement through the real handler', () => {
   it.each(placementCases)('$name', ({ pieceID, rotation, setup, expected }) => {
@@ -82,13 +127,15 @@ describe('click placement through the real handler', () => {
     const { coords, altitude, rotation: placedRotation } = expected.placed
     expect(result.added).toHaveLength(1)
     const [added] = result.added
-    expect(added.inventoryID).toBe(pieceID)
+    expect(added.inventoryID).toBe(expected.clickPieceID ?? pieceID)
     expect(added.pieceCoords).toEqual(coords)
     expect(added.rotation).toBe(placedRotation)
     if (altitude !== undefined) expect(added.altitude).toBe(altitude)
-    // a placement clears the selection and shows no error
+    // Placement clears selection; an automatic Laur switch is announced.
     expect(result.selectedPieceIDs).toEqual([])
-    expect(snackbarMessages()).toEqual([])
+    expect(snackbarMessages()).toEqual(
+      expected.clickPieceID ? ['Placed the stackable version'] : [],
+    )
   })
 
   it('a placement onto another piece flags the conflict', () => {
@@ -123,6 +170,100 @@ describe('click placement through the real handler', () => {
     expect(result.added).toEqual([])
     expect(snackbarMessages()).toEqual([])
     expect(result.selectedPieceIDs).toEqual([])
+  })
+
+  it('switches a non-stackable square pillar pen to the stackable version on a stack', () => {
+    const { board, hex } = onPillar()
+    const result = clickWithPen({
+      board,
+      pieceID: Pieces.laurWallSquarePillar,
+      hex,
+    })
+    expect(result.added).toHaveLength(1)
+    expect(result.added[0]).toMatchObject({
+      inventoryID: Pieces.laurWallPillarStackable,
+      altitude: 9,
+    })
+    expect(useBoundStore.getState().penMode).toBe(
+      Pieces.laurWallPillarStackable,
+    )
+    expect(snackbarMessages()).toEqual(['Placed the stackable version'])
+    clickSnackbarAction(0, 'Undo')
+    expect(useBoundStore.getState().boardPieces).toEqual(board.boardPieces)
+  })
+
+  it('switches a non-stackable short wall pen to the stackable version on a stack', () => {
+    const { board, hex, addon } = onAddon(Pieces.laurWallShortStackable, 0)
+    useBoundStore.setState({
+      terrainConstraintSource: 'inventoryFile',
+      customConstraintInventoryFileName: 'test-inventory.csv',
+      customConstraintInventory: {
+        [Pieces.laurWallShort]: 2,
+        [Pieces.laurWallShortStackable]: 2,
+      },
+    })
+    const result = clickWithPen({
+      board,
+      pieceID: Pieces.laurWallShort,
+      hex,
+    })
+    expect(result.added).toHaveLength(1)
+    expect(result.added[0]).toMatchObject({
+      inventoryID: Pieces.laurWallShortStackable,
+      altitude: 9,
+    })
+    expect(evaluateLaurAddonConflicts([addon, result.added[0]], {})).toEqual([])
+    expect(snackbarMessages()).toEqual(['Placed the stackable version'])
+  })
+
+  it('switches a non-stackable long wall pen to the stackable version on a stack', () => {
+    const { board, hex, addon } = onAddon(Pieces.laurWallLongStackable, 0.5)
+    const result = clickWithPen({
+      board,
+      pieceID: Pieces.laurWallLong,
+      hex,
+      rotation: 0.5,
+    })
+    expect(result.added).toHaveLength(1)
+    expect(result.added[0]).toMatchObject({
+      inventoryID: Pieces.laurWallLongStackable,
+      altitude: 9,
+    })
+    expect(evaluateLaurAddonConflicts([addon, result.added[0]], {})).toEqual([])
+    expect(snackbarMessages()).toEqual(['Placed the stackable version'])
+  })
+
+  it('asks before switching when the stackable variant is out of inventory', () => {
+    const { board, hex } = onAddon(Pieces.laurWallShortStackable, 0)
+    useBoundStore.setState({
+      terrainConstraintSource: 'inventoryFile',
+      customConstraintInventoryFileName: 'test-inventory.csv',
+      customConstraintInventory: {
+        [Pieces.laurWallShort]: 2,
+        [Pieces.laurWallShortStackable]: 0,
+      },
+    })
+    const result = clickWithPen({
+      board,
+      pieceID: Pieces.laurWallShort,
+      hex,
+    })
+    expect(result.added).toEqual([])
+    expect(useBoundStore.getState().penMode).toBe(Pieces.laurWallShort)
+    expect(snackbarMessages()).toEqual([
+      'Non-stackable Laur pieces cannot be stacked, and their stackable versions are not in your inventory.',
+    ])
+    clickSnackbarAction(0, 'Switch anyway')
+    expect(useBoundStore.getState().penMode).toBe(Pieces.laurWallShortStackable)
+    const boardPieces = useBoundStore.getState().boardPieces
+    expect(boardPieces[boardPieces.length - 1]).toMatchObject({
+      inventoryID: Pieces.laurWallShortStackable,
+      altitude: 9,
+    })
+    expect(snackbarMessages()).toEqual([
+      'Non-stackable Laur pieces cannot be stacked, and their stackable versions are not in your inventory.',
+      'Placed the stackable version',
+    ])
   })
 
   it('undo takes a click placement back off the board', () => {

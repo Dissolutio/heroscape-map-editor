@@ -33,6 +33,7 @@ export type PlacementCase = {
           altitude?: number
           rotation: number
         }
+        clickPieceID?: string
       }
     | { refused: PlacementBlockedReason }
 }
@@ -441,14 +442,20 @@ export const placementCases: PlacementCase[] = [
     pieceID: 'lwp',
     rotation: 0,
     setup: onPillar,
-    expected: { placed: { coords: c, altitude: 9, rotation: 2 } },
+    expected: {
+      placed: { coords: c, altitude: 9, rotation: 2 },
+      clickPieceID: 'lwp2',
+    },
   },
   {
     name: 'pillar: on a stacked pillar stacks again',
     pieceID: 'lwp',
     rotation: 0,
     setup: onStackedPillar,
-    expected: { placed: { coords: c, altitude: 17, rotation: 0 } },
+    expected: {
+      placed: { coords: c, altitude: 17, rotation: 0 },
+      clickPieceID: 'lwp2',
+    },
   },
   {
     name: 'pillar: triangle on triangle stacks',

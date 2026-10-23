@@ -1,10 +1,17 @@
 import { Divider, ListItemIcon } from '@mui/material'
+import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import MuiMenuItem, { type MenuItemProps } from '@mui/material/MenuItem'
 import Select, { type SelectChangeEvent } from '@mui/material/Select'
-import Button from '@mui/material/Button'
 import { useMemo } from 'react'
+import { BsHexagonHalf } from 'react-icons/bs'
+import { FaMountainCity } from 'react-icons/fa6'
+import {
+  FcAddColumn,
+  FcAddDatabase,
+  FcEnteringHeavenAlive,
+} from 'react-icons/fc'
 import {
   GiAncientRuins,
   GiArrowCursor,
@@ -18,15 +25,8 @@ import {
   GiStoneWall,
   GiWhiteTower,
 } from 'react-icons/gi'
-import useBoundStore from '../store/store'
-import {
-  HexTerrain,
-  type HexoscapeGlyph,
-  PICK_PEN_MODE,
-  PiecePrefixes,
-  Pieces,
-  SELECT_PEN_MODE,
-} from '../types'
+import { LiaMountainSolid } from 'react-icons/lia'
+import { PiCastleTurretLight } from 'react-icons/pi'
 import {
   TbCircleNumber1Filled,
   TbCircleNumber2Filled,
@@ -37,7 +37,6 @@ import {
   TbCircleNumber7Filled,
   TbCircleNumber8Filled,
   TbColorPicker,
-  TbHexagonalPyramid,
   TbHexagonLetterC,
   TbHexagonLetterE,
   TbHexagonLetterPFilled,
@@ -51,35 +50,37 @@ import {
   TbHexagonNumber6Filled,
   TbHexagonNumber7Filled,
   TbHexagonNumber8Filled,
+  TbHexagonalPyramid,
   TbHexagons,
 } from 'react-icons/tb'
-import { PiCastleTurretLight } from 'react-icons/pi'
-import { BsHexagonHalf } from 'react-icons/bs'
-import { hexTerrainColor, svgColors } from '../world/maphex/hexColors'
-import { LiaMountainSolid } from 'react-icons/lia'
-import { FaMountainCity } from 'react-icons/fa6'
 import {
-  FcAddColumn,
-  FcAddDatabase,
-  FcEnteringHeavenAlive,
-} from 'react-icons/fc'
-import { HotkeyText } from './HotKeyText'
-import { useHotkeyConfig } from './useHotkeyConfig'
-import { piecesSoFar } from '../data/pieces'
-import {
-  powerGlyphs,
-  treasureGlyphs,
-  marvelGlyphs,
   c3vGlyphs,
   c3vPlaytestGlyphs,
   customGlyphs,
+  marvelGlyphs,
+  powerGlyphs,
+  treasureGlyphs,
 } from '../data/glyphs'
+import { piecesSoFar } from '../data/pieces'
+import useBoundStore from '../store/store'
+import {
+  HexTerrain,
+  type HexoscapeGlyph,
+  PICK_PEN_MODE,
+  PiecePrefixes,
+  Pieces,
+  SELECT_PEN_MODE,
+} from '../types'
 import {
   getAvailableLandPrefixesForInventory,
   getAvailableLandPrefixesForSets,
   getEffectiveTerrainConstraintInventory,
   hasActiveTerrainConstraints,
+  isInventoryPieceAvailable,
 } from '../utils/terrain-constraints'
+import { hexTerrainColor, svgColors } from '../world/maphex/hexColors'
+import { HotkeyText } from './HotKeyText'
+import { useHotkeyConfig } from './useHotkeyConfig'
 
 export default function PenModeControls() {
   const penMode = useBoundStore((state) => state.penMode)
@@ -159,8 +160,6 @@ export default function PenModeControls() {
     [Pieces.marvelBroken]: [Pieces.marvel],
     [Pieces.marvelNoUpper]: [Pieces.marvel],
     [Pieces.marvelNoUpperBroken]: [Pieces.marvel],
-    [Pieces.laurWallShort]: [Pieces.laurWallShortStackable],
-    [Pieces.laurWallLong]: [Pieces.laurWallLongStackable],
     [Pieces.laurWallRuin1]: [Pieces.laurWallRuin2, Pieces.laurWallRuin3],
   }
   const filteredPrefixModes = new Set<string>([
@@ -189,14 +188,12 @@ export default function PenModeControls() {
     PiecePrefixes.genericFluid,
   ])
   const isPieceAvailable = (pieceID: string) => {
-    if (!hasSetConstraints) {
-      return true
-    }
-    if ((constrainedInventory[pieceID] ?? 0) > 0) {
-      return true
-    }
-    const aliases = filteredByAlias[pieceID] ?? []
-    return aliases.some((alias) => (constrainedInventory[alias] ?? 0) > 0)
+    return isInventoryPieceAvailable(
+      pieceID,
+      constrainedInventory,
+      hasSetConstraints,
+      filteredByAlias[pieceID] ?? [],
+    )
   }
   const isPrefixAvailable = (prefix: string) => {
     if (!hasSetConstraints) {
@@ -495,13 +492,19 @@ export default function PenModeControls() {
           <ListItemIcon>
             <GiWhiteTower color={hexTerrainColor.water} />
           </ListItemIcon>
-          <span>Laur Wall Pillar</span>
+          <span>{piecesSoFar[Pieces.laurWallSquarePillar].title}</span>
+        </MenuItem>
+        <MenuItem value={Pieces.laurWallPillarStackable}>
+          <ListItemIcon>
+            <GiWhiteTower color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>{piecesSoFar[Pieces.laurWallPillarStackable].title}</span>
         </MenuItem>
         <MenuItem value={Pieces.laurWallTrianglePillar}>
           <ListItemIcon>
             <GiWhiteTower color={hexTerrainColor.water} />
           </ListItemIcon>
-          <span>Laur Wall Triangle Pillar</span>
+          <span>{piecesSoFar[Pieces.laurWallTrianglePillar].title}</span>
         </MenuItem>
         <MenuItem value={Pieces.laurWallRuin1}>
           <ListItemIcon>
@@ -525,19 +528,31 @@ export default function PenModeControls() {
           <ListItemIcon>
             <FcAddDatabase color={hexTerrainColor.water} />
           </ListItemIcon>
-          <span>Laur Wall (Short)</span>
+          <span>{piecesSoFar[Pieces.laurWallShort].title}</span>
+        </MenuItem>
+        <MenuItem value={Pieces.laurWallShortStackable}>
+          <ListItemIcon>
+            <FcAddDatabase color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>{piecesSoFar[Pieces.laurWallShortStackable].title}</span>
         </MenuItem>
         <MenuItem value={Pieces.laurWallLong}>
           <ListItemIcon>
             <FcAddDatabase color={hexTerrainColor.water} />
           </ListItemIcon>
-          <span>Laur Wall (Long)</span>
+          <span>{piecesSoFar[Pieces.laurWallLong].title}</span>
+        </MenuItem>
+        <MenuItem value={Pieces.laurWallLongStackable}>
+          <ListItemIcon>
+            <FcAddDatabase color={hexTerrainColor.water} />
+          </ListItemIcon>
+          <span>{piecesSoFar[Pieces.laurWallLongStackable].title}</span>
         </MenuItem>
         <MenuItem value={Pieces.laurWallArch}>
           <ListItemIcon>
             <FcEnteringHeavenAlive color={hexTerrainColor.water} />
           </ListItemIcon>
-          <span>Laur Wall (Arch)</span>
+          <span>{piecesSoFar[Pieces.laurWallArch].title}</span>
         </MenuItem>
         <Divider />
 
