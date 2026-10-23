@@ -1,44 +1,5 @@
-import { Vector3 } from 'three'
 import { Pieces } from '../../types'
-import {
-  HEXGRID_HEX_APOTHEM,
-  HEXGRID_HEX_HEIGHT,
-  HEXGRID_HEX_RADIUS,
-} from '../../utils/constants'
-
-export function getLaurWallAddonPositionByRotation(rotation: number) {
-  const ruinPositionMap: { [key: string]: Vector3 } = {
-    '0': new Vector3(HEXGRID_HEX_APOTHEM, 0, 0),
-    '0.5': new Vector3(0.75, 0, HEXGRID_HEX_APOTHEM / 2),
-    '1': new Vector3(
-      HEXGRID_HEX_APOTHEM / 2 + 0.001,
-      0,
-      HEXGRID_HEX_APOTHEM - 0.114,
-    ),
-    '1.5': new Vector3(0.005, 0, HEXGRID_HEX_APOTHEM - 0.005),
-    '2': new Vector3(
-      -HEXGRID_HEX_APOTHEM / 2 - 0.001,
-      0,
-      HEXGRID_HEX_APOTHEM - 0.114,
-    ),
-    '2.5': new Vector3(-0.743, 0, HEXGRID_HEX_APOTHEM / 2 + 0.0018),
-    '3': new Vector3(-HEXGRID_HEX_APOTHEM + 0.01, 0, 0),
-    '3.5': new Vector3(-0.743, 0, -(HEXGRID_HEX_APOTHEM / 2) + 0.0018),
-    '4': new Vector3(
-      -HEXGRID_HEX_APOTHEM / 2 + 0.003,
-      0,
-      -HEXGRID_HEX_APOTHEM + 0.124,
-    ),
-    '4.5': new Vector3(0.005, 0, -HEXGRID_HEX_APOTHEM + 0.005),
-    '5': new Vector3(
-      HEXGRID_HEX_APOTHEM / 2 - 0.005,
-      0,
-      -HEXGRID_HEX_APOTHEM + 0.1235,
-    ),
-    '5.5': new Vector3(0.75, 0, -(HEXGRID_HEX_APOTHEM / 2 - 0.01)),
-  }
-  return ruinPositionMap?.[`${rotation}`] ?? new Vector3(0, 0, 0)
-}
+import { HEXGRID_HEX_APOTHEM, HEXGRID_HEX_RADIUS } from '../../utils/constants'
 
 export function getRuinsOptions(rotation: number) {
   switch (Number(rotation)) {

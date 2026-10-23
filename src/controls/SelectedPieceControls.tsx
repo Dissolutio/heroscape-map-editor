@@ -275,8 +275,6 @@ export function SelectedPieceControls({
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const movePieces = useBoundStore((s) => s.movePieces)
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
   const { width: mapWidth, length: mapLength } =
     getBoardHexesRectangularMapDimensions(boardHexes)
@@ -457,18 +455,13 @@ export function SelectedPieceControls({
 
   const moveSelectedPieceAltitude = (delta: number) => {
     setPiecePreviews(null)
-    let maxNewAltitude = 0
     const moves = []
     for (const bp of selectedBoardPieces) {
       const newAltitude = bp.altitude + delta
       if (newAltitude < 0) continue
-      maxNewAltitude = Math.max(maxNewAltitude, newAltitude)
       moves.push({ uid: bp.uid, newPieceCoords: bp.pieceCoords, newAltitude })
     }
     movePieces({ moves })
-    if (delta > 0 && maxNewAltitude + 1 > viewingLevel) {
-      toggleViewingLevel(maxNewAltitude + 1)
-    }
     const movedPieces = selectedBoardPieces
       .filter((bp) => bp.altitude + delta >= 0)
       .map((bp) => ({ ...bp, altitude: bp.altitude + delta }))
