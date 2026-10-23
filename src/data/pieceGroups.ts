@@ -32,6 +32,21 @@ export const pieceGroups = [
     ],
   },
   {
+    label: 'Generic',
+    pieces: [
+      Pieces.generic1,
+      Pieces.generic2,
+      Pieces.generic3,
+      Pieces.generic7,
+      Pieces.generic24,
+      Pieces.genericFluid1,
+      Pieces.genericFluid2,
+      Pieces.genericFluid3,
+      Pieces.genericFluid7,
+      Pieces.genericFluid24,
+    ],
+  },
+  {
     label: 'Dungeon & Shadow',
     pieces: [
       Pieces.dungeon1,

@@ -16,6 +16,7 @@ const terrainLetterAdvanceWidths: Record<string, number> = {
   R: 1342,
   S: 1340,
   W: 2106,
+  '?': 1149,
 }
 
 const markYOffsetEm =

@@ -63,6 +63,8 @@ export const hexTerrainColor = {
   [HexTerrain.glyphTreasure]: '#847040',
   [HexTerrain.marvelRuin]: 'rgb(153, 51, 65)', // matched with concrete on coolors Cordovan : https://coolors.co/d0d4dc-993341-ce8147-607196-334139
   [HexTerrain.grass]: '#7c9a3c',
+  [HexTerrain.generic]: '#a01e8c',
+  [HexTerrain.genericFluid]: '#c864b4',
   [HexTerrain.rock]: '#7b8481',
   [HexTerrain.sand]: '#be9e5f',
   [HexTerrain.dirt]: '#975a3a',
@@ -201,6 +203,8 @@ export const terrainCapColors: { [terrain: string]: string } = {
   [HexTerrain.asphalt]: hexTerrainColor.asphaltCap,
   [HexTerrain.concrete]: hexTerrainColor.concreteCap,
   [HexTerrain.swamp]: hexTerrainColor.swampCap,
+  [HexTerrain.generic]: '#e63cc8',
+  [HexTerrain.genericFluid]: '#ff96e6',
 }
 export const svgColors = {
   [Pieces.startZone1]: 'rgb(177, 0, 143)',
@@ -275,6 +279,8 @@ export const svgColors = {
 
   // TERRAIN
   [HexTerrain.grass]: '#269C48',
+  [HexTerrain.generic]: '#e63cc8',
+  [HexTerrain.genericFluid]: '#ff96e6',
   [HexTerrain.rock]: '#696767',
   [HexTerrain.sand]: '#D9E176',
   [HexTerrain.road]: '#DEDEDE',
@@ -342,6 +348,8 @@ export const svgSubLevelColors = {
   [Pieces.startZone6]: 'rgb(177, 194, 146)',
   [Pieces.startZone7]: 'rgb(255, 190, 128)',
   [Pieces.startZone8]: 'rgb(166, 148, 212)',
+  [HexTerrain.generic]: '#f39ee4',
+  [HexTerrain.genericFluid]: '#ffcbf3',
   // OBSTACLES
   [HexTerrain.ladder]: '#D6A591',
   [HexTerrain.ruin]: '#D08080', // virtualscape

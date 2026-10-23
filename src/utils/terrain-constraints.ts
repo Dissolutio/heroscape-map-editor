@@ -1,4 +1,5 @@
 import { piecesSoFar } from '../data/pieces'
+import { PiecePrefixes } from '../types'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import type { PieceInventory, TerrainConstraintSource } from '../types'
 import { normalizePieceInventory } from './piece-inventory'
@@ -66,6 +67,8 @@ export function getAvailableLandPrefixesForInventory(
   constrainedInventory?: PieceInventory,
 ) {
   const prefixes = new Set<string>()
+  prefixes.add(PiecePrefixes.generic)
+  prefixes.add(PiecePrefixes.genericFluid)
 
   for (const [pieceID, count] of Object.entries(constrainedInventory ?? {})) {
     if (count <= 0) {

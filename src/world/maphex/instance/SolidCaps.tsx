@@ -11,7 +11,7 @@ import {
   pressPieceForDrag,
   reportDragTargetHex,
 } from '../../drag/dragController'
-import type { BoardHex } from '../../../types'
+import { type BoardHex, HexTerrain } from '../../../types'
 import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { useDisposableGLTF } from '../../models/useDisposableGLTF'
@@ -46,6 +46,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
     (s) => s.isLightsAndShadowsRender,
   )
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
 
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
@@ -71,6 +72,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
           isVisible={range >= i}
           isLightsAndShadowsRender={isLightsAndShadowsRender}
           isHighQualityRender={isHighQualityRender}
+          genericSolidCapColor={genericSolidCapColor}
         />
       ))}
     </Instances>
@@ -89,16 +91,21 @@ function SolidCapInstance({
   isVisible,
   isLightsAndShadowsRender,
   isHighQualityRender,
+  genericSolidCapColor,
 }: BoardHexPieceProps & {
   isVisible: boolean
   isLightsAndShadowsRender: boolean
   isHighQualityRender: boolean
+  genericSolidCapColor: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut, onPointerMove } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const color = terrainCapColors[boardHex.terrain]
+  const color =
+    boardHex.terrain === HexTerrain.generic
+      ? genericSolidCapColor
+      : terrainCapColors[boardHex.terrain]
 
   // Effect: Initial color/position
   React.useEffect(() => {

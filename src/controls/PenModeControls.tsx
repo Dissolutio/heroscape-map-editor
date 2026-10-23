@@ -100,6 +100,8 @@ export default function PenModeControls() {
     (state) => state.toggleIsEditMapDialogOpen,
   )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
+  const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
+  const genericFluidCapColor = useBoundStore((s) => s.genericFluidCapColor)
   const handleChange = (event: SelectChangeEvent) => {
     togglePenMode(event.target.value)
   }
@@ -183,6 +185,8 @@ export default function PenModeControls() {
     PiecePrefixes.lava,
     PiecePrefixes.swampWater,
     PiecePrefixes.shadow,
+    PiecePrefixes.generic,
+    PiecePrefixes.genericFluid,
   ])
   const isPieceAvailable = (pieceID: string) => {
     if (!hasSetConstraints) {
@@ -419,6 +423,12 @@ export default function PenModeControls() {
           <span>Wood</span>
           <HotkeyText text={hotkeyLookup.togglePenModeWood} />
         </MenuItem>
+        <MenuItem value={PiecePrefixes.generic}>
+          <ListItemIcon>
+            <TbHexagons color={genericSolidCapColor} />
+          </ListItemIcon>
+          <span>Generic</span>
+        </MenuItem>
         <Divider />
 
         {/* FLUID LAND BEGIN */}
@@ -470,6 +480,12 @@ export default function PenModeControls() {
           </ListItemIcon>
           <span>Shadow</span>
           <HotkeyText text={hotkeyLookup.togglePenModeShadow} />
+        </MenuItem>
+        <MenuItem value={PiecePrefixes.genericFluid}>
+          <ListItemIcon>
+            <BsHexagonHalf color={genericFluidCapColor} />
+          </ListItemIcon>
+          <span>Generic (fluid)</span>
         </MenuItem>
 
         <Divider />

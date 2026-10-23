@@ -5,6 +5,7 @@ import {
   HexTerrain,
   type Piece,
 } from '../types'
+import useBoundStore from '../store/store'
 import {
   isEvergreenTree,
   isFluidTerrainHex,
@@ -17,6 +18,7 @@ import {
   svgSubLevelColors,
   virtualscapeTileColors,
 } from '../world/maphex/hexColors'
+import { getGenericTerrain2DColors } from '../world/maphex/genericTerrainColors'
 
 function isBoardHex(hex: BoardHex | DecodedPieceID): hex is BoardHex {
   return (<BoardHex>hex).pieceRotation !== undefined
@@ -70,6 +72,7 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
     hex.terrain === HexTerrain.wellspringWater ||
     hex.terrain === HexTerrain.toxicWater ||
     hex.terrain === HexTerrain.swampWater ||
+    hex.terrain === HexTerrain.genericFluid ||
     hex.terrain === HexTerrain.ice ||
     hex.terrain === HexTerrain.lava ||
     hex.terrain === HexTerrain.shadow
@@ -166,6 +169,7 @@ export const getSvgHexSubLevelBorderColor = (
     hex.terrain === HexTerrain.wellspringWater ||
     hex.terrain === HexTerrain.toxicWater ||
     hex.terrain === HexTerrain.swampWater ||
+    hex.terrain === HexTerrain.genericFluid ||
     hex.terrain === HexTerrain.ice ||
     hex.terrain === HexTerrain.lava ||
     hex.terrain === HexTerrain.shadow
@@ -212,6 +216,11 @@ export const getSvgHexSubLevelBorderColor = (
 }
 
 export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
+  const genericColors = getGenericTerrain2DColors(
+    hex.terrain,
+    useBoundStore.getState(),
+  )
+  if (genericColors) return genericColors.main
   if (
     isSolidTerrainHex(hex.terrain) ||
     isFluidTerrainHex(hex.terrain) ||
@@ -279,6 +288,11 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   return 'transparent'
 }
 export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
+  const genericColors = getGenericTerrain2DColors(
+    hex.terrain,
+    useBoundStore.getState(),
+  )
+  if (genericColors) return genericColors.subLevel
   if (
     isSolidTerrainHex(hex.terrain) ||
     isFluidTerrainHex(hex.terrain) ||

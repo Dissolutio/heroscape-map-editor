@@ -9,6 +9,7 @@ import {
   migrateSettings,
   pickSettings,
   resetSettings,
+  resetGenericTerrainColorSettings,
   serializeSettings,
   SETTINGS_DEFAULTS,
   SETTINGS_KEYS,
@@ -48,6 +49,12 @@ describe('settings persistence', () => {
 
   it('uses defaults when no settings are stored', () => {
     expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
+    expect(SETTINGS_DEFAULTS).toMatchObject({
+      genericSolidCapColor: '#e63cc8',
+      genericSolidSideColor: '#a01e8c',
+      genericFluidCapColor: '#ff96e6',
+      genericFluidSideColor: '#c864b4',
+    })
   })
 
   it('round-trips changed values and writes only differences', () => {
@@ -57,6 +64,10 @@ describe('settings persistence', () => {
       isShowPdfBuriedMarks: true,
       isShow2DExportBuriedMarks: true,
       lightPositions: { key: [1, 2, 3] as [number, number, number] },
+      genericSolidCapColor: '#123456',
+      genericSolidSideColor: '#234567',
+      genericFluidCapColor: '#345678',
+      genericFluidSideColor: '#456789',
     }
     const serialized = serializeSettings(changed)
     expect(serialized).toEqual({
@@ -66,6 +77,10 @@ describe('settings persistence', () => {
         isShowPdfBuriedMarks: true,
         isShow2DExportBuriedMarks: true,
         lightPositions: { key: [1, 2, 3] },
+        genericSolidCapColor: '#123456',
+        genericSolidSideColor: '#234567',
+        genericFluidCapColor: '#345678',
+        genericFluidSideColor: '#456789',
       },
     })
     storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
@@ -76,10 +91,30 @@ describe('settings persistence', () => {
     expect(serializeSettings(SETTINGS_DEFAULTS)).toBeNull()
   })
 
+  it('resets only the Generic colors without changing other settings', () => {
+    const changed = {
+      ...SETTINGS_DEFAULTS,
+      isOrthoCam: false,
+      genericSolidCapColor: '#123456',
+      genericSolidSideColor: '#234567',
+      genericFluidCapColor: '#345678',
+      genericFluidSideColor: '#456789',
+    }
+
+    expect(resetGenericTerrainColorSettings(changed)).toMatchObject({
+      isOrthoCam: false,
+      genericSolidCapColor: SETTINGS_DEFAULTS.genericSolidCapColor,
+      genericSolidSideColor: SETTINGS_DEFAULTS.genericSolidSideColor,
+      genericFluidCapColor: SETTINGS_DEFAULTS.genericFluidCapColor,
+      genericFluidSideColor: SETTINGS_DEFAULTS.genericFluidSideColor,
+    })
+  })
+
   it('removes the settings key on reset', () => {
     storage.setItem(LS_KEYS.settings, JSON.stringify({ v: 1, values: {} }))
     expect(resetSettings()).toBe(true)
     expect(values.has(LS_KEYS.settings)).toBe(false)
+    expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
   })
 
   it('validates each key independently and ignores unknown keys', () => {
@@ -96,6 +131,7 @@ describe('settings persistence', () => {
           lastPenMode: 5,
           lastPenSize: Number.POSITIVE_INFINITY,
           lightPositions: { bad: [1, Number.NaN, 3] },
+          genericSolidCapColor: 'pink',
           customConstraintInventory: {
             g1: 1.9,
             g2: -4,
@@ -114,6 +150,7 @@ describe('settings persistence', () => {
       lastPenMode: SETTINGS_DEFAULTS.lastPenMode,
       lastPenSize: SETTINGS_DEFAULTS.lastPenSize,
       lightPositions: {},
+      genericSolidCapColor: SETTINGS_DEFAULTS.genericSolidCapColor,
       customConstraintInventory: {
         ...blankPieceInventory,
         g1: 1,

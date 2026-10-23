@@ -54,6 +54,13 @@ export function LandPieceGhost({
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
+  const genericSideColor = useBoundStore((s) =>
+    piece.terrain === HexTerrain.generic
+      ? s.genericSolidSideColor
+      : piece.terrain === HexTerrain.genericFluid
+        ? s.genericFluidSideColor
+        : null,
+  )
   // the tile model loads later (Suspense), so check every frame
   useFrame(() => {
     if (isRaycastable || !groupRef.current) return
@@ -67,9 +74,10 @@ export function LandPieceGhost({
 
   const isFluidPiece = isFluidTerrainHex(piece.terrain)
   const subterrainColor =
-    piece.terrain === HexTerrain.swamp
+    genericSideColor ??
+    (piece.terrain === HexTerrain.swamp
       ? hexTerrainColor.swampCap // override, to distinguish preview from swamp water
-      : hexTerrainColor?.[piece.terrain as keyof typeof hexTerrainColor]
+      : hexTerrainColor?.[piece.terrain as keyof typeof hexTerrainColor])
 
   const landSubterrainMaterial = () => {
     if (isLightsAndShadowsRender) {
