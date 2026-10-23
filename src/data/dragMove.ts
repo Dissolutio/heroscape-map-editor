@@ -1,11 +1,13 @@
 import type { BoardHex, BoardPiece, CubeCoordinate, Piece } from '../types'
 import { HexTerrain } from '../types'
+import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { CLICK_DRAG_TOLERANCE_PX, HEXGRID_HEX_RADIUS } from '../utils/constants'
 import { cubeToPixel } from '../utils/hex-utils'
 import { genBoardHexID } from '../utils/map-utils'
-import { piecesSoFar } from './pieces'
 import type { IgnoredPieceUIDs } from './ignoredPieceUIDs'
 import type { MovePieceArgs } from './movePieces'
+import { applyPieceMoves } from './movePieces'
+import { piecesSoFar } from './pieces'
 import {
   type PlacementBlockedReason,
   type PlacementBoard,
@@ -17,6 +19,7 @@ import {
   placementBlockedMessages,
   resolvePlacement,
 } from './placement'
+import { computeConflictedPieceUIDs } from './rebuildBoardState'
 import getPieceTemplateCoords from './rotationTransforms'
 
 /**
@@ -27,18 +30,16 @@ import getPieceTemplateCoords from './rotationTransforms'
  */
 
 /**
- * Pieces with no hexes of their own (they live only in boardPieces and sit
- * on an edge or an overlay), plus pieces whose placement depends on what
- * they are attached to. Dragging these needs edge coordinates; not yet.
+ * Pieces whose placement depends on an edge, wall face, or start-zone rule
+ * remain non-draggable. Laur pillars and add-ons resolve through the normal
+ * placement rules and are intentionally not excluded.
  */
 const NOT_DRAGGABLE_TERRAINS: string[] = [
   HexTerrain.startZone,
   HexTerrain.battlement,
   HexTerrain.roadWall,
   HexTerrain.ropeLadder,
-  HexTerrain.laurWallAddon,
   HexTerrain.ladder, // hangs on a wall face
-  HexTerrain.laurWall, // Laur pillars: their add-ons would be left behind
 ]
 
 export const isDraggablePiece = (piece: Piece | undefined): piece is Piece =>
@@ -102,6 +103,12 @@ export function getGrabOffset(
   bp: BoardPiece,
   point: { x: number; z: number },
 ): CubeCoordinate {
+  // Add-ons have no footprint hex. Their anchor is the side/vertex chosen by
+  // resolvePlacement at the pointer, so carrying an offset would make them
+  // jump away from the picked port.
+  if (piece.terrain === HexTerrain.laurWallAddon) {
+    return { q: 0, r: 0, s: 0 }
+  }
   const footprint = getPieceTemplateCoords({
     clickedHex: bp.pieceCoords,
     rotation: bp.rotation,
@@ -162,6 +169,7 @@ export type DragTargetMember = {
   resolution: PlacementResolution
   evaluation: PlacementEvaluation
   previewHex: CubeCoordinate & { altitude: number }
+  unsupported: boolean
 }
 
 /**
@@ -179,6 +187,7 @@ export function evaluateDragTarget(
   pointerHex: BoardHex,
   grabOffset: CubeCoordinate,
   movingPieces: BoardPiece[] = [bp],
+  worldPoint?: { x: number; z: number },
 ): DragTarget {
   const dropHex = getDropPointerHex(pointerHex, grabOffset, board.boardHexes)
   const members = [
@@ -191,6 +200,7 @@ export function evaluateDragTarget(
   const resolution = resolvePlacement(piece, dropHex, bp.rotation, board, {
     ignoreUID: ignoredUIDs,
     deferOffMapCheck: true,
+    worldPoint,
   })
   const evaluation = evaluatePlacement(board, resolution, {
     ignoreUID: ignoredUIDs,
@@ -243,7 +253,47 @@ export function evaluateDragTarget(
       resolution: memberResolution,
       evaluation: memberEvaluation,
       previewHex,
+      unsupported: false,
     })
+  }
+
+  if (
+    members.some((member) => isLaurWallAddonPieceID(member.inventoryID)) &&
+    targetMembers.every(
+      (member) =>
+        !isPlacementBlocked(member.resolution) &&
+        member.evaluation.status !== 'blocked',
+    )
+  ) {
+    const simulated = applyPieceMoves(
+      {
+        ...board,
+        conflictedPieceUIDs: computeConflictedPieceUIDs(board.boardPieces),
+      },
+      targetMembers.flatMap((member) =>
+        isPlacementBlocked(member.resolution)
+          ? []
+          : [
+              {
+                uid: member.uid,
+                newPieceCoords: member.resolution.coords,
+                newAltitude: member.resolution.altitude,
+                newRotation: member.resolution.rotation,
+              },
+            ],
+      ),
+    )
+    if (simulated) {
+      for (const member of targetMembers) {
+        const conflicted = simulated.conflictedPieceUIDs.includes(member.uid)
+        member.unsupported =
+          isLaurWallAddonPieceID(member.piece.id) &&
+          simulated.unsupportedPieceUIDs.includes(member.uid)
+        if (conflicted && member.evaluation.status !== 'blocked') {
+          member.evaluation = { ...member.evaluation, status: 'conflict' }
+        }
+      }
+    }
   }
 
   const status = targetMembers.some(
@@ -478,6 +528,7 @@ export type DragPreviewMember = {
   reason: string | null
   footprintHexes: PlacementEvaluation['footprintHexes']
   previewBp: BoardPiece | null
+  unsupported: boolean
 }
 
 /** The preview for a drag target (or for no target yet). */
@@ -527,6 +578,7 @@ export function getDragPreview(
       reason: member.evaluation.reason ?? null,
       footprintHexes: member.evaluation.footprintHexes,
       previewBp: previewBPFor(member),
+      unsupported: member.unsupported,
     })),
   }
 }

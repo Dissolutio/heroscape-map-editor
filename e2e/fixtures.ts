@@ -180,6 +180,37 @@ export async function dragPiece(
   await page.mouse.up()
 }
 
+/** Press and drag between model positions reported by the app test bridge. */
+export async function startDragToPiece(
+  page: Page,
+  uid: string,
+  targetUID: string,
+  steps = 8,
+) {
+  await waitForAppReady(page)
+  const from = await piecePagePoint(page, uid)
+  const to = await piecePagePoint(page, targetUID)
+  await page.mouse.move(from.x, from.y)
+  await page.mouse.down()
+  for (let i = 1; i <= steps; i++) {
+    await page.mouse.move(
+      from.x + ((to.x - from.x) * i) / steps,
+      from.y + ((to.y - from.y) * i) / steps,
+    )
+  }
+}
+
+/** Drag a piece between model positions reported by the app test bridge. */
+export async function dragPieceToPiece(
+  page: Page,
+  uid: string,
+  targetUID: string,
+  steps = 8,
+) {
+  await startDragToPiece(page, uid, targetUID, steps)
+  await page.mouse.up()
+}
+
 /** Set paint controls through the E2E-only setup hook. */
 export async function setPen(
   page: Page,

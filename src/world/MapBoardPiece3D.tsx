@@ -2,8 +2,11 @@ import { Billboard, Text } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { Suspense } from 'react'
 import { Vector3 } from 'three'
+import {
+  hasSupportingLaurPillar,
+  isLaurPillarID,
+} from '../data/laurPillarStacking'
 import { piecesSoFar } from '../data/pieces'
-import { hasSupportingLaurPillar } from '../data/laurPillarStacking'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
@@ -15,13 +18,13 @@ import {
   HEXGRID_OBSTACLE_BASE_HEIGHT,
 } from '../utils/constants'
 import { genBoardHexID, getBoardHex3DCoords } from '../utils/map-utils'
+import { PlacementFootprint } from './PlacementFootprint'
 import {
   isDragging,
   pressPieceForDrag,
   reportDragTargetHex,
 } from './drag/dragController'
 import { hexTerrainColor } from './maphex/hexColors'
-import { PlacementFootprint } from './PlacementFootprint'
 import { Battlement } from './models/Battlement'
 import BigTree415 from './models/BigTree415'
 import Cannon from './models/Cannon'
@@ -86,8 +89,20 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
   const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
     if (!isDragging()) return
     const { boardHexes } = useBoundStore.getState()
-    const support = boardHexes[genBoardHexID({ ...pieceCoords, altitude })]
-    if (reportDragTargetHex(support, uid)) e.stopPropagation()
+    const support = isLaurPillarID(props.bp.inventoryID)
+      ? ({
+          ...pieceCoords,
+          boardPieceUID: uid,
+          altitude,
+          inventoryID: props.bp.inventoryID,
+          pieceID: '',
+          pieceRotation: props.bp.rotation,
+          terrain: HexTerrain.laurWall,
+        } as BoardHex)
+      : boardHexes[genBoardHexID({ ...pieceCoords, altitude })]
+    if (reportDragTargetHex(support, uid, { x: e.point.x, z: e.point.z })) {
+      e.stopPropagation()
+    }
   }
   return (
     <group

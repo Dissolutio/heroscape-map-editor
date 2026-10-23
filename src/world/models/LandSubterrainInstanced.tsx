@@ -6,13 +6,6 @@ import { piecesSoFar } from '../../data/pieces'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import {
-  findPieceHexAt,
-  isDragPassThrough,
-  isDragging,
-  pressPieceForDrag,
-  reportDragTargetHex,
-} from '../drag/dragController'
-import {
   type BoardHexes,
   type BoardPiece,
   HexTerrain,
@@ -28,6 +21,13 @@ import {
   getBoardHex3DCoords,
   getSurfaceAltitudeByPieceUID,
 } from '../../utils/map-utils'
+import {
+  findPieceHexAt,
+  isDragPassThrough,
+  isDragging,
+  pressPieceForDrag,
+  reportDragTargetHex,
+} from '../drag/dragController'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { InstanceRefType } from '../maphex/instance-hex'
 import { useDisposableGLTF } from './useDisposableGLTF'
@@ -314,7 +314,10 @@ function SubterrainInstance({
       onPointerMove={(e: ThreeEvent<PointerEvent>) =>
         // a tile's side stands for its top in that column
         isDragging() &&
-        reportDragTargetHex(findPieceHexAt(item.uid, e.point), item.uid) &&
+        reportDragTargetHex(findPieceHexAt(item.uid, e.point), item.uid, {
+          x: e.point.x,
+          z: e.point.z,
+        }) &&
         e.stopPropagation()
       }
       frustumCulled={false}

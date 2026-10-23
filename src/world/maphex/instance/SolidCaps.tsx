@@ -6,14 +6,14 @@ import { isE2EDeterministic } from '../../../e2e/isE2E'
 import { hashToUnit } from '../../../e2e/seededRandom'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
+import { type BoardHex, HexTerrain } from '../../../types'
+import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
+import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import {
   isDragPassThrough,
   pressPieceForDrag,
   reportDragTargetHex,
 } from '../../drag/dragController'
-import { type BoardHex, HexTerrain } from '../../../types'
-import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
-import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { useDisposableGLTF } from '../../models/useDisposableGLTF'
 import { terrainCapColors } from '../hexColors'
 import type {
@@ -178,7 +178,14 @@ function SolidCapInstance({
       onPointerMove={(e: ThreeEvent<PointerEvent>) => {
         if (!isVisible) return
         onPointerMove(e)
-        if (reportDragTargetHex(boardHex)) e.stopPropagation()
+        if (
+          reportDragTargetHex(boardHex, undefined, {
+            x: e.point.x,
+            z: e.point.z,
+          })
+        ) {
+          e.stopPropagation()
+        }
       }}
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}

@@ -2,7 +2,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import useBoundStore from '../store/store'
 import type { BoardHex } from '../types'
-import { isDragPassThrough } from '../world/drag/dragController'
+import { isDragPassThrough, isDragging } from '../world/drag/dragController'
 
 export default function usePieceHoverState() {
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
@@ -17,7 +17,7 @@ export default function usePieceHoverState() {
   const onPointerEnter = (e: ThreeEvent<PointerEvent>, boardHex: BoardHex) => {
     // the pointer sees through a piece being dragged (no stopPropagation)
     if (isDragPassThrough(boardHex.boardPieceUID)) return
-    e.stopPropagation()
+    if (!isDragging()) e.stopPropagation()
     const point = { x: e.point.x, z: e.point.z }
     setIsHovered(true)
     hoverTimeout.current = window.setTimeout(() => {
@@ -31,7 +31,7 @@ export default function usePieceHoverState() {
   }
   const onPointerEnterPID = (e: ThreeEvent<PointerEvent>, pid: string) => {
     if (isDragPassThrough(pid)) return
-    e.stopPropagation()
+    if (!isDragging()) e.stopPropagation()
     setIsHovered(true)
     hoverTimeout.current = window.setTimeout(() => {
       toggleHoveredPieceID(pid)

@@ -2,20 +2,20 @@ import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
-import { reportDragTargetHex } from '../../drag/dragController'
+import useBoundStore from '../../../store/store'
 import { HexTerrain } from '../../../types'
 import {
   HEXGRID_EMPTYHEX_HEIGHT,
   INSTANCE_LIMIT,
 } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
+import { reportDragTargetHex } from '../../drag/dragController'
 import { hexTerrainColor } from '../hexColors'
 import type {
   BoardHexPieceProps,
   CylinderGeometryArgs,
   DreiCapProps,
 } from '../instance-hex'
-import useBoundStore from '../../../store/store'
 
 const baseEmptyCapCylinderArgs: CylinderGeometryArgs = [
   0.999,
@@ -103,7 +103,14 @@ function EmptyHex({
       onPointerOut={handleOut}
       onPointerMove={(e: ThreeEvent<PointerEvent>) => {
         onPointerMove(e)
-        if (reportDragTargetHex(boardHex)) e.stopPropagation()
+        if (
+          reportDragTargetHex(boardHex, undefined, {
+            x: e.point.x,
+            z: e.point.z,
+          })
+        ) {
+          e.stopPropagation()
+        }
       }}
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
