@@ -15,6 +15,7 @@ import {
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
   HEXGRID_HEX_HEIGHT,
+  HEXGRID_HEX_RADIUS,
   HEXGRID_OBSTACLE_BASE_HEIGHT,
 } from '../utils/constants'
 import { genBoardHexID, getBoardHex3DCoords } from '../utils/map-utils'
@@ -86,6 +87,15 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
     s.unsupportedPieceUIDs.includes(uid),
   )
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const isPivot =
+    selectedPieceIDs.length > 1 &&
+    selectedPieceIDs[selectedPieceIDs.length - 1] === uid
+  const isVisible = altitude + 1 <= viewingLevel
+  const { x, y, z } = getBoardHex3DCoords({
+    ...pieceCoords,
+    altitude: altitude + 1,
+  })
   const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
     if (!isDragging()) return
     const { boardHexes } = useBoundStore.getState()
@@ -118,6 +128,27 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
           footprintHexes={[]}
           hoveredHex={{ ...pieceCoords, altitude }}
         />
+      )}
+      {isPivot && isVisible && (
+        <mesh
+          position={[
+            x,
+            y - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_HEIGHT + 0.03,
+            z,
+          ]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          raycast={() => null}
+          renderOrder={30}
+        >
+          <ringGeometry
+            args={[HEXGRID_HEX_RADIUS * 0.72, HEXGRID_HEX_RADIUS * 0.82, 6]}
+          />
+          <meshBasicMaterial
+            color="#00e5ff"
+            depthTest={false}
+            toneMapped={false}
+          />
+        </mesh>
       )}
     </group>
   )
