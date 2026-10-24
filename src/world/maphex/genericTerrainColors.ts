@@ -60,8 +60,19 @@ export function getGenericTerrain2DColors(
       : terrain === HexTerrain.genericFluid
         ? settings.genericFluidCapColor
         : null
-  if (!capColor) return null
+  return getGenericTerrain2DColorsFromCap(terrain, capColor)
+}
 
+export function getGenericTerrain2DColorsFromCap(
+  terrain: string,
+  capColor: string | null,
+) {
+  if (
+    (terrain !== HexTerrain.generic && terrain !== HexTerrain.genericFluid) ||
+    !capColor
+  ) {
+    return null
+  }
   return {
     main: capColor,
     subLevel: blendHexWithWhite(capColor),

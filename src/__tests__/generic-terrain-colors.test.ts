@@ -9,6 +9,7 @@ import { getTerrainTileLetterColor } from '../utils/tileLetters'
 import {
   blendHexWithWhite,
   getGenericTerrain2DColors,
+  getGenericTerrain2DColorsFromCap,
   getGenericTerrainColors,
 } from '../world/maphex/genericTerrainColors'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
@@ -92,6 +93,24 @@ describe('Generic terrain colors and letter contrast', () => {
     })
     expect(
       getGenericTerrain2DColors(HexTerrain.grass, SETTINGS_DEFAULTS),
+    ).toBeNull()
+  })
+
+  it('resolves SVG colors from the subscribed cap color', () => {
+    expect(
+      getGenericTerrain2DColorsFromCap(HexTerrain.generic, '#00bfff'),
+    ).toEqual({
+      main: '#00bfff',
+      subLevel: '#80dfff',
+    })
+    expect(
+      getGenericTerrain2DColorsFromCap(HexTerrain.genericFluid, '#00ff00'),
+    ).toEqual({
+      main: '#00ff00',
+      subLevel: '#80ff80',
+    })
+    expect(
+      getGenericTerrain2DColorsFromCap(HexTerrain.grass, '#00bfff'),
     ).toBeNull()
   })
 

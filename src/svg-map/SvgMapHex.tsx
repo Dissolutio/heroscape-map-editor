@@ -158,14 +158,6 @@ export const SvgMapHex = ({
   hex: BoardHex
   buriedMarksByUID: BuriedMarksByUID
 }) => {
-  const genericCapColor = useBoundStore((s) =>
-    hex.terrain === HexTerrain.generic
-      ? s.genericSolidCapColor
-      : hex.terrain === HexTerrain.genericFluid
-        ? s.genericFluidCapColor
-        : null,
-  )
-  void genericCapColor
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isShow2DExportTileLetters = useBoundStore(
     (s) => s.isShow2DExportTileLetters,
