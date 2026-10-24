@@ -186,23 +186,29 @@ export function evaluateDragTarget(
   worldPoint?: { x: number; z: number },
 ): DragTarget {
   const dropHex = getDropPointerHex(pointerHex, grabOffset, board.boardHexes)
-  const edgeTarget = getEdgeDragTarget(piece, bp, dropHex, worldPoint)
   const members = [
     bp,
     ...movingPieces.filter((member) => member.uid !== bp.uid),
   ]
+  const groupEdgeDrag = members.length > 1 && isEdgeDragPiece(piece)
+  const groupEdgeTarget = groupEdgeDrag
+    ? getEdgeDragTarget(piece, bp, dropHex)
+    : null
+  const edgeTarget = groupEdgeDrag
+    ? null
+    : getEdgeDragTarget(piece, bp, dropHex, worldPoint)
   const ignoredUIDs = members.map((member) => member.uid)
   // Like the pen hover, resolve a target that hangs off the map anyway, so
   // its whole footprint shows; evaluation blocks it (offMap).
   const resolution = resolvePlacement(
     piece,
     dropHex,
-    edgeTarget?.rotation ?? bp.rotation,
+    edgeTarget?.rotation ?? groupEdgeTarget?.rotation ?? bp.rotation,
     board,
     {
       ignoreUID: ignoredUIDs,
       deferOffMapCheck: true,
-      worldPoint,
+      worldPoint: groupEdgeDrag ? undefined : worldPoint,
     },
   )
   const evaluation = evaluatePlacement(board, resolution, {
@@ -212,7 +218,12 @@ export function evaluateDragTarget(
   const grabbedCoords = isPlacementBlocked(resolution)
     ? dropHex
     : resolution.coords
-  const delta = subtract(grabbedCoords, bp.pieceCoords)
+  const delta = groupEdgeDrag
+    ? subtract(
+        dropHex,
+        getEdgeSupportCoords(piece, bp.pieceCoords, bp.rotation),
+      )
+    : subtract(grabbedCoords, bp.pieceCoords)
   const altitudeDelta = isPlacementBlocked(resolution)
     ? 0
     : resolution.altitude - bp.altitude
@@ -247,7 +258,8 @@ export function evaluateDragTarget(
           })
     const memberEdgeIndex =
       member.uid === bp.uid
-        ? edgeTarget?.edgeIndex
+        ? (edgeTarget?.edgeIndex ??
+          (groupEdgeDrag ? groupEdgeTarget?.edgeIndex : undefined))
         : getEdgeDragTarget(
             memberPiece,
             { ...member, pieceCoords: rigidCoords },
@@ -754,7 +766,9 @@ export function getDragTargetKey(
   bp: BoardPiece,
   hex: BoardHex,
   worldPoint?: { x: number; z: number },
+  isGroupDrag = false,
 ) {
+  if (isGroupDrag && isEdgeDragPiece(piece)) return hex.id
   const edgeTarget = getEdgeDragTarget(piece, bp, hex, worldPoint)
   if (edgeTarget) return `${hex.id}:edge:${edgeTarget.edgeIndex}`
   if (piece.terrain === HexTerrain.laurWallAddon && worldPoint) {

@@ -276,7 +276,13 @@ export function reportDragTargetHex(
   hitThisMove = true
   const piece = piecesSoFar[dragged.bp.inventoryID]
   const key = piece
-    ? getDragTargetKey(piece, dragged.bp, hex, worldPoint)
+    ? getDragTargetKey(
+        piece,
+        dragged.bp,
+        hex,
+        worldPoint,
+        dragged.members.length > 1,
+      )
     : hex.id
   if (key !== targetKey) setTarget(hex, worldPoint)
   return true
@@ -313,7 +319,13 @@ function setTarget(
   }
   const piece = piecesSoFar[dragged.bp.inventoryID]
   targetKey = piece
-    ? getDragTargetKey(piece, dragged.bp, hex, worldPoint)
+    ? getDragTargetKey(
+        piece,
+        dragged.bp,
+        hex,
+        worldPoint,
+        dragged.members.length > 1,
+      )
     : hex.id
   const { boardHexes, boardPieces } = useBoundStore.getState()
   const grabOffset = state.phase === 'dragging' ? state.grabOffset : null
