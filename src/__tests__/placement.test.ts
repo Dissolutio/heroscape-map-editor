@@ -141,6 +141,57 @@ describe('resolvePlacement', () => {
     expect(resolved(resolve(table, 'tr10', topHex(table))).rule).toBe('default')
   })
 
+  it('resolves a start zone at the hovered surface altitude', () => {
+    const bareTableHex = topHex(table, c, 0)
+    const bareTable = resolve(table, 'z1', bareTableHex)
+    expect(resolved(bareTable)).toMatchObject({
+      coords: c,
+      altitude: 0,
+      rule: 'default',
+    })
+    expect(evaluatePlacement(table, bareTable).status).toBe('ok')
+
+    const land = add(table, 'g1', c, 0)
+    const onLand = resolve(land, 'z1', topHex(land, c, 1))
+    expect(resolved(onLand)).toMatchObject({
+      coords: c,
+      altitude: 1,
+      rule: 'default',
+    })
+    expect(evaluatePlacement(land, onLand).status).toBe('ok')
+
+    const fluid = add(table, 'w1', c, 0)
+    const onFluid = resolve(fluid, 'z1', topHex(fluid, c, 1))
+    expect(resolved(onFluid)).toMatchObject({
+      coords: c,
+      altitude: 1,
+      rule: 'default',
+    })
+    expect(evaluatePlacement(fluid, onFluid).status).toBe('ok')
+
+    const stacked = add(land, 'r1', c, 1)
+    const onStack = resolve(stacked, 'z1', topHex(stacked, c, 2))
+    expect(resolved(onStack)).toMatchObject({
+      coords: c,
+      altitude: 2,
+      rule: 'default',
+    })
+    expect(evaluatePlacement(stacked, onStack).status).toBe('ok')
+  })
+
+  it('blocks a start zone whose hovered hex is off the map', () => {
+    const offMapHex = {
+      ...topHex(table, c, 0),
+      q: 100,
+      r: 100,
+      s: -200,
+    }
+    expect(resolve(table, 'z1', offMapHex)).toEqual({ blocked: 'offMap' })
+    expect(
+      evaluatePlacement(table, resolve(table, 'z1', offMapHex)),
+    ).toMatchObject({ status: 'blocked', reason: 'offMap' })
+  })
+
   describe('Laur stackable pen placement decision', () => {
     it.each([
       [Pieces.laurWallSquarePillar, Pieces.laurWallPillarStackable],
@@ -419,7 +470,7 @@ describe('resolvePlacement', () => {
 })
 
 describe('placementBlockedMessages', () => {
-  it('gives every physical refusal a message; land on whole-level fluid stays silent', () => {
+  it('gives every physical refusal and duplicate start zones a message', () => {
     expect(placementBlockedMessages).toEqual({
       notOnCastleWallTop:
         'Only a castle wall or wall walk fits on a castle wall.',
@@ -428,6 +479,7 @@ describe('placementBlockedMessages', () => {
       offMap: 'That piece would hang off the edge of the map.',
       outOfHeight:
         'Some pieces would end up below the ground or above the highest level.',
+      duplicateStartZone: 'A start zone is already on that hex.',
     })
     expect(placementBlockedMessages.landTileNotOnHex).toBeUndefined()
     expect(placementBlockedMessages.notAHex).toBeUndefined()
@@ -581,7 +633,11 @@ describe('evaluatePlacement', () => {
       board,
       resolve(board, 'z1', topHex(board)),
     )
-    expect(evaluation.status).toBe('blocked')
+    expect(evaluation).toMatchObject({
+      status: 'blocked',
+      reason: 'duplicateStartZone',
+    })
+    expect(placementBlockedMessages.duplicateStartZone).toBeTruthy()
   })
 
   it.each(placementCases)(

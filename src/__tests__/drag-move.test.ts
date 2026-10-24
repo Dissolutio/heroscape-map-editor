@@ -16,6 +16,7 @@ import {
   evaluateDragTarget,
   getDragPreview,
   getDraggableSelectionGroup,
+  getDragTargetKey,
   getDropPointerHex,
   getGrabOffset,
   initialDragState,
@@ -73,10 +74,11 @@ describe('isDraggablePiece', () => {
     expect(isDraggablePiece(piecesSoFar[id])).toBe(true)
   })
 
-  it.each([
-    ['z1', 'start zone'],
-    ['ld', 'ladder'],
-  ])('%s cannot: %s', (id) => {
+  it('a start zone can be dragged', () => {
+    expect(isDraggablePiece(piecesSoFar.z1)).toBe(true)
+  })
+
+  it.each([['ld', 'ladder']])('%s cannot: %s', (id) => {
     expect(isDraggablePiece(piecesSoFar[id])).toBe(false)
   })
 
@@ -521,6 +523,125 @@ describe('multi-selection drag', () => {
       ]),
     ).toBeNull()
     expect(getDraggableSelectionGroup(['B'], 'A', draggable)).toBeNull()
+  })
+
+  it('moves a start-zone group rigidly with other draggable families', () => {
+    const board = groupBoard([
+      { uid: 'ZONE', inventoryID: 'z1', q: 1, r: 3, rotation: 2 },
+      { uid: 'ROCK', inventoryID: 'r1', q: 2, r: 2, rotation: 4 },
+    ])
+    const zone = board.boardPieces.find((bp) => bp.uid === 'ZONE')
+    const pointer = hexAt(board, { q: 3, r: 3, s: -6 }, 0)
+    if (!zone || !pointer) throw new Error('start-zone fixture is incomplete')
+    const group = getDraggableSelectionGroup(
+      ['ZONE', 'ROCK'],
+      'ZONE',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable start-zone group')
+
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.z1,
+      zone,
+      pointer,
+      noOffset,
+      group,
+    )
+    expect(target.evaluation.status).toBe('ok')
+    expect(target.members.map((member) => member.resolution)).toMatchObject([
+      {
+        coords: { q: 3, r: 3, s: -6 },
+        altitude: 0,
+        rotation: 2,
+      },
+      {
+        coords: { q: 4, r: 2, s: -6 },
+        altitude: 0,
+        rotation: 4,
+      },
+    ])
+    expect(getDragPreview(zone, target).members).toHaveLength(2)
+  })
+
+  it('blocks a start-zone group if a moved zone would duplicate a stationary one', () => {
+    const board = groupBoard([
+      { uid: 'MOVE1', inventoryID: 'z1', q: 1, r: 3 },
+      { uid: 'MOVE2', inventoryID: 'z2', q: 2, r: 3 },
+      { uid: 'STAY', inventoryID: 'z3', q: 3, r: 3 },
+    ])
+    const grabbed = board.boardPieces.find((bp) => bp.uid === 'MOVE1')
+    const pointer = hexAt(board, { q: 3, r: 3, s: -6 }, 0)
+    if (!grabbed || !pointer)
+      throw new Error('duplicate start-zone fixture is incomplete')
+    const group = getDraggableSelectionGroup(
+      ['MOVE1', 'MOVE2'],
+      'MOVE1',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable start-zone group')
+
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.z1,
+      grabbed,
+      pointer,
+      noOffset,
+      group,
+    )
+    expect(target.evaluation).toMatchObject({
+      status: 'blocked',
+      reason: 'duplicateStartZone',
+    })
+    expect(decideDrop('MOVE1', target)).toEqual({
+      type: 'cancel',
+      reason: 'duplicateStartZone',
+      message: 'A start zone is already on that hex.',
+    })
+    expect(board.boardPieces.map((bp) => bp.uid)).toEqual([
+      'MOVE1',
+      'MOVE2',
+      'STAY',
+    ])
+  })
+
+  it('previews a start-zone drag from frozen board state without mutation', () => {
+    const board = groupBoard([
+      { uid: 'ZONE', inventoryID: 'z1', q: 1, r: 3 },
+      { uid: 'OTHER', inventoryID: 'g1', q: 2, r: 3 },
+    ])
+    const zone = board.boardPieces.find((bp) => bp.uid === 'ZONE')
+    const pointer = hexAt(board, { q: 3, r: 3, s: -6 }, 0)
+    if (!zone || !pointer)
+      throw new Error('frozen start-zone fixture is incomplete')
+    const before = structuredClone(board)
+    const frozenBoard: Board = {
+      ...board,
+      boardHexes: Object.fromEntries(
+        Object.entries(board.boardHexes).map(([id, hex]) => [
+          id,
+          Object.freeze({ ...hex }),
+        ]),
+      ),
+      boardPieces: board.boardPieces.map((bp) =>
+        Object.freeze({
+          ...bp,
+          pieceCoords: Object.freeze({ ...bp.pieceCoords }),
+        }),
+      ),
+    }
+
+    const target = evaluateDragTarget(
+      frozenBoard,
+      piecesSoFar.z1,
+      zone,
+      pointer,
+      noOffset,
+      frozenBoard.boardPieces,
+    )
+
+    expect(target.evaluation.status).toBe('ok')
+    expect(board).toEqual(before)
   })
 
   it('applies one rigid delta to every member at all rotations', () => {
@@ -1400,6 +1521,93 @@ describe('store: drag state and undo/autosave', () => {
       .boardPieces.find((bp) => bp.uid === 'ROCK')
     expect(back?.pieceCoords).toEqual({ q: 1, r: 2, s: -3 })
     expect(back?.altitude).toBe(1)
+  })
+
+  it('a start-zone group drop is one undo step and undo restores the group', () => {
+    const board = groupBoard([
+      { uid: 'ZONE', inventoryID: 'z1', q: 1, r: 3 },
+      { uid: 'ROCK', inventoryID: 'r1', q: 2, r: 2 },
+    ])
+    const zone = board.boardPieces.find((bp) => bp.uid === 'ZONE')
+    const pointer = hexAt(board, { q: 3, r: 3, s: -6 }, 0)
+    if (!zone || !pointer) throw new Error('start-zone fixture is incomplete')
+    const group = getDraggableSelectionGroup(
+      ['ZONE', 'ROCK'],
+      'ZONE',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable start-zone group')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.z1,
+      zone,
+      pointer,
+      noOffset,
+      group,
+    )
+    const decision = decideDrop('ZONE', target)
+    if (decision.type !== 'move') throw new Error('expected a group move')
+
+    useBoundStore.setState({
+      boardHexes: board.boardHexes,
+      boardPieces: board.boardPieces,
+      conflictedPieceUIDs: [],
+      unsupportedPieceUIDs: [],
+      viewingLevel: 0,
+    })
+    useBoundStore.temporal.getState().clear()
+    const before = structuredClone({
+      boardHexes: board.boardHexes,
+      boardPieces: board.boardPieces,
+    })
+    commitMoveDecision(decision)
+    expect(history()).toBe(1)
+    expect(useBoundStore.getState().boardPieces).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          uid: 'ZONE',
+          pieceCoords: { q: 3, r: 3, s: -6 },
+        }),
+        expect.objectContaining({
+          uid: 'ROCK',
+          pieceCoords: { q: 4, r: 2, s: -6 },
+        }),
+      ]),
+    )
+
+    useBoundStore.temporal.getState().undo()
+    expect(history()).toBe(0)
+    expect(useBoundStore.getState()).toMatchObject(before)
+  })
+
+  it('dropping a start zone on its own hex records no undo entry', () => {
+    const board = groupBoard([
+      { uid: 'ZONE', inventoryID: 'z1', q: 1, r: 3 },
+      { uid: 'ROCK', inventoryID: 'r1', q: 2, r: 2 },
+    ])
+    const zone = board.boardPieces.find((bp) => bp.uid === 'ZONE')
+    const pointer = hexAt(board, { q: 1, r: 3, s: -4 }, 0)
+    if (!zone || !pointer) throw new Error('start-zone fixture is incomplete')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.z1,
+      zone,
+      pointer,
+      noOffset,
+    )
+    const decision = decideDrop('ZONE', target)
+    if (decision.type !== 'move') throw new Error('expected a start-zone move')
+
+    useBoundStore.setState({
+      boardHexes: board.boardHexes,
+      boardPieces: board.boardPieces,
+      conflictedPieceUIDs: [],
+      unsupportedPieceUIDs: [],
+      viewingLevel: 0,
+    })
+    useBoundStore.temporal.getState().clear()
+    commitMoveDecision(decision)
+    expect(history()).toBe(0)
   })
 
   it('a mixed Laur group drop is one undo step and restores all derived state', () => {
