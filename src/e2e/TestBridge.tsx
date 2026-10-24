@@ -172,7 +172,10 @@ function TestBridgeInner() {
             anchor.z + offset.zAdd,
           )
         }
-        if (bp.inventoryID === Pieces.ropeLadder) {
+        if (
+          bp.inventoryID === Pieces.ladder ||
+          bp.inventoryID === Pieces.ropeLadder
+        ) {
           const bounds = new Box3()
           get().scene.traverse((object) => {
             if (object.userData.boardPieceUID === uid) {

@@ -29,16 +29,63 @@ import getPieceTemplateCoords from './rotationTransforms'
  * world/drag/dragController.ts.
  */
 
-/**
- * Ladders still need placement rules that do not work for rigid drag
- * targeting. The other edge pieces resolve through the pen rules.
- */
-const NOT_DRAGGABLE_TERRAINS: string[] = [
-  HexTerrain.ladder, // hangs on a wall face
-]
-
 export const isDraggablePiece = (piece: Piece | undefined): piece is Piece =>
-  !!piece && !NOT_DRAGGABLE_TERRAINS.includes(piece.terrain)
+  !!piece
+
+// The ladder-origin hit adds one level, and ladderStack adds one more.
+const LADDER_STACK_ALTITUDE_STEP = 2
+
+function ladderAtStackAltitude(
+  boardPieces: BoardPiece[],
+  ladder: BoardPiece,
+  altitude: number,
+): BoardPiece | undefined {
+  return boardPieces.find(
+    (candidate) =>
+      candidate.inventoryID === Pieces.ladder &&
+      candidate.altitude === altitude &&
+      candidate.rotation === ladder.rotation &&
+      candidate.pieceCoords.q === ladder.pieceCoords.q &&
+      candidate.pieceCoords.r === ladder.pieceCoords.r &&
+      candidate.pieceCoords.s === ladder.pieceCoords.s,
+  )
+}
+
+function getLadderStackAbove(
+  ladder: BoardPiece,
+  boardPieces: BoardPiece[],
+): BoardPiece[] {
+  const above: BoardPiece[] = []
+  let current = ladder
+  while (true) {
+    const next = ladderAtStackAltitude(
+      boardPieces,
+      current,
+      current.altitude + LADDER_STACK_ALTITUDE_STEP,
+    )
+    if (!next) return above
+    above.push(next)
+    current = next
+  }
+}
+
+function getLadderStackMembers(
+  ladder: BoardPiece,
+  boardPieces: BoardPiece[],
+): BoardPiece[] {
+  const stack = [ladder, ...getLadderStackAbove(ladder, boardPieces)]
+  let current = ladder
+  while (true) {
+    const below = ladderAtStackAltitude(
+      boardPieces,
+      current,
+      current.altitude - LADDER_STACK_ALTITUDE_STEP,
+    )
+    if (!below) return stack
+    stack.unshift(below)
+    current = below
+  }
+}
 
 /** The selected members may move together only if all of them can move. */
 export function getDraggableSelectionGroup(
@@ -57,6 +104,15 @@ export function getDraggableSelectionGroup(
     const bp = boardPieces.find((piece) => piece.uid === uid)
     if (!bp || !isDraggablePiece(piecesSoFar[bp.inventoryID])) return null
     group.push(bp)
+  }
+  for (let index = 0; index < group.length; index++) {
+    const ladder = group[index]
+    if (ladder.inventoryID !== Pieces.ladder) continue
+    for (const above of getLadderStackAbove(ladder, boardPieces)) {
+      if (seen.has(above.uid)) continue
+      seen.add(above.uid)
+      group.push(above)
+    }
   }
   return group
 }
@@ -167,6 +223,34 @@ export type DragTargetMember = {
   edgeIndex?: number
 }
 
+function hasMovingLadderSupport(
+  member: DragTargetMember,
+  members: DragTargetMember[],
+): boolean {
+  if (member.piece.id !== Pieces.ladder || 'blocked' in member.resolution) {
+    return false
+  }
+  const memberResolution = member.resolution
+  return members.some((candidate) => {
+    if (
+      candidate.uid === member.uid ||
+      candidate.piece.id !== Pieces.ladder ||
+      'blocked' in candidate.resolution
+    ) {
+      return false
+    }
+    const candidateResolution = candidate.resolution
+    return (
+      candidateResolution.altitude + LADDER_STACK_ALTITUDE_STEP ===
+        memberResolution.altitude &&
+      candidateResolution.rotation === memberResolution.rotation &&
+      candidateResolution.coords.q === memberResolution.coords.q &&
+      candidateResolution.coords.r === memberResolution.coords.r &&
+      candidateResolution.coords.s === memberResolution.coords.s
+    )
+  })
+}
+
 /**
  * Where the dragged group would land with the pointer on `pointerHex`: the
  * grabbed piece uses the pen resolver (including smart altitude), and the
@@ -226,6 +310,17 @@ export function evaluateDragTarget(
   const altitudeDelta = isPlacementBlocked(resolution)
     ? 0
     : resolution.altitude - bp.altitude
+  const draggedLadderStackUIDs =
+    piece.id === Pieces.ladder
+      ? new Set(
+          getLadderStackMembers(bp, board.boardPieces).map(
+            (member) => member.uid,
+          ),
+        )
+      : new Set<string>()
+  const ladderRotationDelta = isPlacementBlocked(resolution)
+    ? 0
+    : resolution.rotation - bp.rotation
 
   const targetMembers: DragTargetMember[] = []
   for (const member of members) {
@@ -237,6 +332,9 @@ export function evaluateDragTarget(
       r: member.pieceCoords.r + delta.r,
       s: member.pieceCoords.s + delta.s,
     }
+    const memberRotation = draggedLadderStackUIDs.has(member.uid)
+      ? (member.rotation + ladderRotationDelta + 6) % 6
+      : member.rotation
     const memberResolution: PlacementResolution =
       member.uid === bp.uid
         ? resolution
@@ -245,7 +343,7 @@ export function evaluateDragTarget(
             memberPiece,
             rigidCoords,
             member.altitude + altitudeDelta,
-            member.rotation,
+            memberRotation,
             ignoredUIDs,
           )
     const memberEvaluation =
@@ -306,8 +404,14 @@ export function evaluateDragTarget(
     })
   }
 
+  const hasLaurWallAddon = members.some((member) =>
+    isLaurWallAddonPieceID(member.inventoryID),
+  )
+  const hasMovingLadderStack = targetMembers.some((member) =>
+    hasMovingLadderSupport(member, targetMembers),
+  )
   if (
-    members.some((member) => isLaurWallAddonPieceID(member.inventoryID)) &&
+    (hasLaurWallAddon || hasMovingLadderStack) &&
     targetMembers.every(
       (member) =>
         !isPlacementBlocked(member.resolution) &&
@@ -335,10 +439,23 @@ export function evaluateDragTarget(
     if (simulated) {
       for (const member of targetMembers) {
         const conflicted = simulated.conflictedPieceUIDs.includes(member.uid)
-        member.unsupported =
-          isLaurWallAddonPieceID(member.piece.id) &&
-          simulated.unsupportedPieceUIDs.includes(member.uid)
-        if (conflicted && member.evaluation.status !== 'blocked') {
+        if (isLaurWallAddonPieceID(member.piece.id)) {
+          member.unsupported = simulated.unsupportedPieceUIDs.includes(
+            member.uid,
+          )
+        }
+        if (hasMovingLadderSupport(member, targetMembers)) {
+          member.evaluation = {
+            ...member.evaluation,
+            status: conflicted ? 'conflict' : 'ok',
+            reason: conflicted ? 'Overlaps other pieces' : undefined,
+          }
+        }
+        if (
+          conflicted &&
+          member.evaluation.status !== 'blocked' &&
+          hasLaurWallAddon
+        ) {
           member.evaluation = { ...member.evaluation, status: 'conflict' }
         }
       }
