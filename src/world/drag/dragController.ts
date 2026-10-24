@@ -12,6 +12,7 @@ import {
   dragReducer,
   evaluateDragTarget,
   getDragPreview,
+  getDragTargetKey,
   getDraggableSelectionGroup,
   getGrabOffset,
   initialDragState,
@@ -21,12 +22,7 @@ import {
 } from '../../data/dragMove'
 import { piecesSoFar } from '../../data/pieces'
 import useBoundStore from '../../store/store'
-import {
-  type BoardHex,
-  type BoardPiece,
-  HexTerrain,
-  SELECT_PEN_MODE,
-} from '../../types'
+import { type BoardHex, type BoardPiece, SELECT_PEN_MODE } from '../../types'
 import { genBoardHexID } from '../../utils/map-utils'
 
 /**
@@ -279,11 +275,10 @@ export function reportDragTargetHex(
   }
   hitThisMove = true
   const piece = piecesSoFar[dragged.bp.inventoryID]
-  const pointKey =
-    piece?.terrain === HexTerrain.laurWallAddon && worldPoint
-      ? `:${worldPoint.x}:${worldPoint.z}`
-      : ''
-  if (`${hex.id}${pointKey}` !== targetKey) setTarget(hex, worldPoint)
+  const key = piece
+    ? getDragTargetKey(piece, dragged.bp, hex, worldPoint)
+    : hex.id
+  if (key !== targetKey) setTarget(hex, worldPoint)
   return true
 }
 
@@ -317,11 +312,9 @@ function setTarget(
     return
   }
   const piece = piecesSoFar[dragged.bp.inventoryID]
-  const pointKey =
-    piece?.terrain === HexTerrain.laurWallAddon && worldPoint
-      ? `:${worldPoint.x}:${worldPoint.z}`
-      : ''
-  targetKey = `${hex.id}${pointKey}`
+  targetKey = piece
+    ? getDragTargetKey(piece, dragged.bp, hex, worldPoint)
+    : hex.id
   const { boardHexes, boardPieces } = useBoundStore.getState()
   const grabOffset = state.phase === 'dragging' ? state.grabOffset : null
   if (!piece || !grabOffset) return

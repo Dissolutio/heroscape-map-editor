@@ -145,6 +145,19 @@ const hexPagePoint = async (
     `Hex ${JSON.stringify(hex)}`,
   )
 
+const hexEdgePagePoint = async (
+  page: Page,
+  hex: { q: number; r: number; altitude: number; edge: number },
+) =>
+  toPagePoint(
+    page,
+    await page.evaluate(
+      (target) => window.__TEST__?.screenPosOfHexEdge(target) ?? null,
+      hex,
+    ),
+    `Edge ${JSON.stringify(hex)}`,
+  )
+
 /**
  * Press the left button on a piece and move to a hex in several steps (past
  * the 5 px click tolerance), without releasing. Only an already selected
@@ -178,6 +191,26 @@ export async function dragPiece(
 ) {
   await startDrag(page, uid, toHex, steps)
   await page.mouse.up()
+}
+
+/** Press and drag a piece to one edge of a hex without releasing. */
+export async function startDragToHexEdge(
+  page: Page,
+  uid: string,
+  target: { q: number; r: number; altitude: number; edge: number },
+  steps = 8,
+) {
+  await waitForAppReady(page)
+  const from = await piecePagePoint(page, uid)
+  const to = await hexEdgePagePoint(page, target)
+  await page.mouse.move(from.x, from.y)
+  await page.mouse.down()
+  for (let i = 1; i <= steps; i++) {
+    await page.mouse.move(
+      from.x + ((to.x - from.x) * i) / steps,
+      from.y + ((to.y - from.y) * i) / steps,
+    )
+  }
 }
 
 /** Press and drag between model positions reported by the app test bridge. */

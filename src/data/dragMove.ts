@@ -1,10 +1,10 @@
 import type { BoardHex, BoardPiece, CubeCoordinate, Piece } from '../types'
-import { HexTerrain } from '../types'
+import { HexTerrain, Pieces } from '../types'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { CLICK_DRAG_TOLERANCE_PX, HEXGRID_HEX_RADIUS } from '../utils/constants'
-import { cubeToPixel } from '../utils/hex-utils'
+import { cubeToPixel, hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
 import { genBoardHexID } from '../utils/map-utils'
-import type { IgnoredPieceUIDs } from './ignoredPieceUIDs'
+import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
 import type { MovePieceArgs } from './movePieces'
 import { applyPieceMoves } from './movePieces'
 import { piecesSoFar } from './pieces'
@@ -30,15 +30,11 @@ import getPieceTemplateCoords from './rotationTransforms'
  */
 
 /**
- * Pieces whose placement depends on an edge, wall face, or start-zone rule
- * remain non-draggable. Laur pillars and add-ons resolve through the normal
- * placement rules and are intentionally not excluded.
+ * Start zones and ladders still need placement rules that do not work for
+ * rigid drag targeting. The other edge pieces resolve through the pen rules.
  */
 const NOT_DRAGGABLE_TERRAINS: string[] = [
   HexTerrain.startZone,
-  HexTerrain.battlement,
-  HexTerrain.roadWall,
-  HexTerrain.ropeLadder,
   HexTerrain.ladder, // hangs on a wall face
 ]
 
@@ -103,10 +99,9 @@ export function getGrabOffset(
   bp: BoardPiece,
   point: { x: number; z: number },
 ): CubeCoordinate {
-  // Add-ons have no footprint hex. Their anchor is the side/vertex chosen by
-  // resolvePlacement at the pointer, so carrying an offset would make them
-  // jump away from the picked port.
-  if (piece.terrain === HexTerrain.laurWallAddon) {
+  // Attachment pieces follow the edge or port resolved directly under the
+  // pointer; their BoardPiece anchor is not the clicked support hex.
+  if (piece.terrain === HexTerrain.laurWallAddon || isEdgeDragPiece(piece)) {
     return { q: 0, r: 0, s: 0 }
   }
   const footprint = getPieceTemplateCoords({
@@ -170,6 +165,7 @@ export type DragTargetMember = {
   evaluation: PlacementEvaluation
   previewHex: CubeCoordinate & { altitude: number }
   unsupported: boolean
+  edgeIndex?: number
 }
 
 /**
@@ -190,6 +186,7 @@ export function evaluateDragTarget(
   worldPoint?: { x: number; z: number },
 ): DragTarget {
   const dropHex = getDropPointerHex(pointerHex, grabOffset, board.boardHexes)
+  const edgeTarget = getEdgeDragTarget(piece, bp, dropHex, worldPoint)
   const members = [
     bp,
     ...movingPieces.filter((member) => member.uid !== bp.uid),
@@ -197,11 +194,17 @@ export function evaluateDragTarget(
   const ignoredUIDs = members.map((member) => member.uid)
   // Like the pen hover, resolve a target that hangs off the map anyway, so
   // its whole footprint shows; evaluation blocks it (offMap).
-  const resolution = resolvePlacement(piece, dropHex, bp.rotation, board, {
-    ignoreUID: ignoredUIDs,
-    deferOffMapCheck: true,
-    worldPoint,
-  })
+  const resolution = resolvePlacement(
+    piece,
+    dropHex,
+    edgeTarget?.rotation ?? bp.rotation,
+    board,
+    {
+      ignoreUID: ignoredUIDs,
+      deferOffMapCheck: true,
+      worldPoint,
+    },
+  )
   const evaluation = evaluatePlacement(board, resolution, {
     ignoreUID: ignoredUIDs,
     checkHeightBounds: members.length > 1,
@@ -219,20 +222,22 @@ export function evaluateDragTarget(
     const memberPiece =
       member.uid === bp.uid ? piece : piecesSoFar[member.inventoryID]
     if (!memberPiece) continue
+    const rigidCoords = {
+      q: member.pieceCoords.q + delta.q,
+      r: member.pieceCoords.r + delta.r,
+      s: member.pieceCoords.s + delta.s,
+    }
     const memberResolution: PlacementResolution =
       member.uid === bp.uid
         ? resolution
-        : ({
-            piece: memberPiece,
-            coords: {
-              q: member.pieceCoords.q + delta.q,
-              r: member.pieceCoords.r + delta.r,
-              s: member.pieceCoords.s + delta.s,
-            },
-            altitude: member.altitude + altitudeDelta,
-            rotation: member.rotation,
-            rule: 'default',
-          } satisfies ResolvedPlacement)
+        : resolveRigidMemberPlacement(
+            board,
+            memberPiece,
+            rigidCoords,
+            member.altitude + altitudeDelta,
+            member.rotation,
+            ignoredUIDs,
+          )
     const memberEvaluation =
       member.uid === bp.uid
         ? evaluation
@@ -240,12 +245,44 @@ export function evaluateDragTarget(
             ignoreUID: ignoredUIDs,
             checkHeightBounds: members.length > 1,
           })
-    const previewHex = isPlacementBlocked(memberResolution)
-      ? { ...dropHex, altitude: member.altitude }
-      : {
-          ...memberResolution.coords,
-          altitude: memberResolution.altitude,
-        }
+    const memberEdgeIndex =
+      member.uid === bp.uid
+        ? edgeTarget?.edgeIndex
+        : getEdgeDragTarget(
+            memberPiece,
+            { ...member, pieceCoords: rigidCoords },
+            rigidCoords,
+          )?.edgeIndex
+    const previewHex =
+      member.uid === bp.uid && edgeTarget
+        ? {
+            q: dropHex.q,
+            r: dropHex.r,
+            s: dropHex.s,
+            altitude: dropHex.altitude,
+          }
+        : memberEdgeIndex !== undefined
+          ? {
+              ...getEdgeSupportCoords(
+                memberPiece,
+                isPlacementBlocked(memberResolution)
+                  ? rigidCoords
+                  : memberResolution.coords,
+                isPlacementBlocked(memberResolution)
+                  ? member.rotation
+                  : memberResolution.rotation,
+              ),
+              altitude:
+                (isPlacementBlocked(memberResolution)
+                  ? member.altitude + altitudeDelta
+                  : memberResolution.altitude) + 1,
+            }
+          : isPlacementBlocked(memberResolution)
+            ? { ...dropHex, altitude: member.altitude }
+            : {
+                ...memberResolution.coords,
+                altitude: memberResolution.altitude,
+              }
     targetMembers.push({
       uid: member.uid,
       bp: member,
@@ -254,6 +291,7 @@ export function evaluateDragTarget(
       evaluation: memberEvaluation,
       previewHex,
       unsupported: false,
+      ...(memberEdgeIndex === undefined ? {} : { edgeIndex: memberEdgeIndex }),
     })
   }
 
@@ -529,6 +567,7 @@ export type DragPreviewMember = {
   footprintHexes: PlacementEvaluation['footprintHexes']
   previewBp: BoardPiece | null
   unsupported: boolean
+  edgeIndex?: number
 }
 
 /** The preview for a drag target (or for no target yet). */
@@ -579,6 +618,147 @@ export function getDragPreview(
       footprintHexes: member.evaluation.footprintHexes,
       previewBp: previewBPFor(member),
       unsupported: member.unsupported,
+      ...(member.edgeIndex === undefined
+        ? {}
+        : { edgeIndex: member.edgeIndex }),
     })),
   }
+}
+
+const isEdgeDragPiece = (piece: Piece) =>
+  piece.id === Pieces.battlement ||
+  piece.id === Pieces.roadWall ||
+  piece.id === Pieces.ropeLadder
+
+function resolveRigidMemberPlacement(
+  board: PlacementBoard,
+  piece: Piece,
+  coords: CubeCoordinate,
+  altitude: number,
+  rotation: number,
+  ignoredUIDs: IgnoredPieceUIDs,
+): PlacementResolution {
+  if (!isEdgeDragPiece(piece)) {
+    return { piece, coords, altitude, rotation, rule: 'default' }
+  }
+
+  const edgeIndex =
+    piece.id === Pieces.battlement ? (rotation + 3) % 6 : rotation
+  const supportCoords = getEdgeSupportCoords(piece, coords, rotation)
+  if (piece.id === Pieces.battlement || piece.id === Pieces.roadWall) {
+    if (!board.boardHexes[genBoardHexID({ ...supportCoords, altitude: 0 })]) {
+      return { blocked: 'offMap' }
+    }
+  }
+
+  const supportID = genBoardHexID({
+    ...supportCoords,
+    altitude: altitude + 1,
+  })
+  const existingSupport = board.boardHexes[supportID]
+  const ignored = toIgnoredPieceUIDSet(ignoredUIDs)
+  const support =
+    existingSupport && !ignored.has(existingSupport.boardPieceUID ?? '')
+      ? existingSupport
+      : {
+          ...supportCoords,
+          altitude: altitude + 1,
+          id: supportID,
+          pieceID: '',
+          inventoryID: '',
+          terrain: HexTerrain.empty,
+          pieceRotation: 0,
+        }
+
+  return resolvePlacement(piece, support, edgeIndex, board, {
+    ignoreUID: ignoredUIDs,
+    deferOffMapCheck: true,
+  })
+}
+
+function getEdgeSupportCoords(
+  piece: Piece,
+  coords: CubeCoordinate,
+  rotation: number,
+): CubeCoordinate {
+  if (piece.id !== Pieces.battlement && piece.id !== Pieces.roadWall) {
+    return coords
+  }
+  const edgeIndex =
+    piece.id === Pieces.battlement ? (rotation + 3) % 6 : rotation
+  const neighbor = hexUtilsGetNeighborForRotation(
+    piece.id === Pieces.battlement ? edgeIndex : (edgeIndex + 4) % 6,
+  )
+  return {
+    q: coords.q - neighbor.q,
+    r: coords.r - neighbor.r,
+    s: coords.s - neighbor.s,
+  }
+}
+
+export type DragEdgeTarget = {
+  /** Edge of the hovered hex, numbered like the placement rotation. */
+  edgeIndex: number
+  /** Rotation expected by resolvePlacement for the selected edge. */
+  rotation: number
+}
+
+/**
+ * Select the nearest edge midpoint of a hovered hex. At a tie (including a
+ * pointer exactly at the center), retain the piece's existing attachment
+ * edge, then use the lowest edge index for a deterministic fallback.
+ */
+export function getEdgeDragTarget(
+  piece: Piece,
+  bp: BoardPiece,
+  pointerHex: CubeCoordinate,
+  worldPoint?: { x: number; z: number },
+): DragEdgeTarget | null {
+  if (!isEdgeDragPiece(piece)) return null
+  const currentEdge =
+    piece.id === Pieces.battlement
+      ? (bp.rotation + 3) % 6
+      : ((bp.rotation % 6) + 6) % 6
+  if (!worldPoint) {
+    return { edgeIndex: currentEdge, rotation: currentEdge }
+  }
+
+  const center = cubeToPixel(pointerHex)
+  const distances = Array.from({ length: 6 }, (_, edgeIndex) => {
+    const neighbor = hexUtilsGetNeighborForRotation(edgeIndex)
+    const neighborCenter = cubeToPixel({
+      q: pointerHex.q + neighbor.q,
+      r: pointerHex.r + neighbor.r,
+      s: pointerHex.s + neighbor.s,
+    })
+    const edgeX = (center.x + neighborCenter.x) / 2
+    const edgeZ = (center.y + neighborCenter.y) / 2
+    return {
+      edgeIndex,
+      distance: Math.hypot(worldPoint.x - edgeX, worldPoint.z - edgeZ),
+    }
+  })
+  const nearestDistance = Math.min(...distances.map(({ distance }) => distance))
+  const tied = distances.filter(
+    ({ distance }) => Math.abs(distance - nearestDistance) < 1e-5,
+  )
+  const edgeIndex =
+    tied.find(({ edgeIndex: candidate }) => candidate === currentEdge)
+      ?.edgeIndex ?? tied[0].edgeIndex
+  return { edgeIndex, rotation: edgeIndex }
+}
+
+/** A stable cache key: edge pieces only need reevaluation when the edge changes. */
+export function getDragTargetKey(
+  piece: Piece,
+  bp: BoardPiece,
+  hex: BoardHex,
+  worldPoint?: { x: number; z: number },
+) {
+  const edgeTarget = getEdgeDragTarget(piece, bp, hex, worldPoint)
+  if (edgeTarget) return `${hex.id}:edge:${edgeTarget.edgeIndex}`
+  if (piece.terrain === HexTerrain.laurWallAddon && worldPoint) {
+    return `${hex.id}:${worldPoint.x}:${worldPoint.z}`
+  }
+  return hex.id
 }
