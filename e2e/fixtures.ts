@@ -68,9 +68,7 @@ export async function waitForAppReady(page: Page, timeout = READY_TIMEOUT_MS) {
             ? {
                 ...debug,
                 frameAgeMs:
-                  debug.lastFrameAt === null
-                    ? null
-                    : now - debug.lastFrameAt,
+                  debug.lastFrameAt === null ? null : now - debug.lastFrameAt,
                 loaderIdleMs: now - debug.lastLoaderActiveAt,
               }
             : null,
