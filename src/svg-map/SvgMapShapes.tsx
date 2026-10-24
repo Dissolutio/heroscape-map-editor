@@ -75,6 +75,7 @@ import {
   virtualscapeSublevelTileColors,
   virtualscapeTileColors,
 } from '../world/maphex/hexColors'
+import { getGenericTerrain2DColorsFromCap } from '../world/maphex/genericTerrainColors'
 import { svgHiveBlobD } from './svg-hive'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
@@ -294,6 +295,23 @@ const SvgToxicNuclear = ({
     </>
   )
 }
+const useSvgHexFillColor = (hex: BoardHex, isSubLevel?: boolean) => {
+  const genericCapColor = useBoundStore((s) =>
+    hex.terrain === HexTerrain.generic
+      ? s.genericSolidCapColor
+      : hex.terrain === HexTerrain.genericFluid
+        ? s.genericFluidCapColor
+        : null,
+  )
+  const genericColors = getGenericTerrain2DColorsFromCap(
+    hex.terrain,
+    genericCapColor,
+  )
+  if (genericColors) {
+    return isSubLevel ? genericColors.subLevel : genericColors.main
+  }
+  return isSubLevel ? getSvgHexSubLevelFillColor(hex) : getSvgHexFillColor(hex)
+}
 export const SvgMultiHex1 = ({
   hex,
   borderWidth = SVG_BORDER_WIDTH,
@@ -303,9 +321,7 @@ export const SvgMultiHex1 = ({
   borderWidth?: number
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel
-    ? getSvgHexSubLevelFillColor(hex)
-    : getSvgHexFillColor(hex)
+  const fillColor = useSvgHexFillColor(hex, isSubLevel)
   const borderColor = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex)
     : getSvgHexBorderColor(hex)
@@ -328,9 +344,7 @@ export const SvgMultiHex2 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel
-    ? getSvgHexSubLevelFillColor(hex)
-    : getSvgHexFillColor(hex)
+  const fillColor = useSvgHexFillColor(hex, isSubLevel)
   const borderColor = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex)
     : getSvgHexBorderColor(hex)
@@ -353,9 +367,7 @@ export const SvgMultiHex3 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel
-    ? getSvgHexSubLevelFillColor(hex)
-    : getSvgHexFillColor(hex)
+  const fillColor = useSvgHexFillColor(hex, isSubLevel)
   const borderColor = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex)
     : getSvgHexBorderColor(hex)
@@ -500,9 +512,7 @@ export const SvgMultiHex7 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel
-    ? getSvgHexSubLevelFillColor(hex)
-    : getSvgHexFillColor(hex)
+  const fillColor = useSvgHexFillColor(hex, isSubLevel)
   const borderColor = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex)
     : getSvgHexBorderColor(hex)
@@ -575,9 +585,7 @@ export const SvgMultiHex24 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const fillColor = isSubLevel
-    ? getSvgHexSubLevelFillColor(hex)
-    : getSvgHexFillColor(hex)
+  const fillColor = useSvgHexFillColor(hex, isSubLevel)
   const borderColor = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex)
     : getSvgHexBorderColor(hex)
