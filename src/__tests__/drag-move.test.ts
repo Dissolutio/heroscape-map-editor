@@ -66,14 +66,14 @@ describe('isDraggablePiece', () => {
     'lwp',
     'lwt',
     'lws',
+    'bt',
+    'rw',
+    'rl',
   ])('%s can be dragged', (id) => {
     expect(isDraggablePiece(piecesSoFar[id])).toBe(true)
   })
 
   it.each([
-    ['bt', 'battlement (edge piece)'],
-    ['rw', 'road wall (edge piece)'],
-    ['rl', 'rope ladder (edge piece)'],
     ['z1', 'start zone'],
     ['ld', 'ladder'],
   ])('%s cannot: %s', (id) => {
@@ -517,7 +517,7 @@ describe('multi-selection drag', () => {
     expect(
       getDraggableSelectionGroup(['A', 'C'], 'A', [
         ...draggable,
-        { ...addon, inventoryID: 'bt' },
+        { ...addon, inventoryID: 'ld' },
       ]),
     ).toBeNull()
     expect(getDraggableSelectionGroup(['B'], 'A', draggable)).toBeNull()

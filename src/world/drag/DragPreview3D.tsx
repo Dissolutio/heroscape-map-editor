@@ -66,8 +66,13 @@ export function DragPreview3D() {
             <PlacementFootprint
               status={member.status}
               unsupported={member.unsupported}
-              footprintHexes={member.footprintHexes}
+              footprintHexes={
+                member.edgeIndex === undefined
+                  ? member.footprintHexes
+                  : [member.pointerHex]
+              }
               hoveredHex={member.pointerHex}
+              edgeRotation={member.edgeIndex}
             />
             {showGhost && isLand && landGhost()}
             {showGhost &&

@@ -70,6 +70,13 @@ export type E2ETestBridge = {
     r: number
     altitude: number
   }) => ScreenPoint | null
+  /** A point just inside one of a hex's six edges. */
+  screenPosOfHexEdge: (hex: {
+    q: number
+    r: number
+    altitude: number
+    edge: number
+  }) => ScreenPoint | null
   /**
    * Instantly (no animation) move the camera. Resolves once the move has been
    * rendered, so await it. Needs the tab visible (rAF does not run in hidden

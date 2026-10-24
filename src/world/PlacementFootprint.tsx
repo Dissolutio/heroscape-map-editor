@@ -14,8 +14,8 @@ import type { CubeCoordinate } from '../types'
 import { HEXGRID_HEX_RADIUS } from '../utils/constants'
 import { getBoardHex3DCoords } from '../utils/map-utils'
 import {
-  getPlacementPreviewStyle,
   PLACEMENT_UNSUPPORTED_COLOR,
+  getPlacementPreviewStyle,
 } from './placementPreviewStyle'
 
 type Props = {
@@ -23,6 +23,7 @@ type Props = {
   unsupported?: boolean
   footprintHexes: (CubeCoordinate & { altitude: number })[]
   hoveredHex: CubeCoordinate & { altitude: number }
+  edgeRotation?: number
 }
 
 const FOOTPRINT_RADIUS = HEXGRID_HEX_RADIUS * 0.94
@@ -78,6 +79,36 @@ function makeHexOutline() {
   return geometry
 }
 
+function makeHexEdge(rotation: number) {
+  const centerAngle = (rotation * Math.PI) / 3
+  const edgeHalfAngle = Math.PI / 6
+  const startAngle = centerAngle - edgeHalfAngle
+  const endAngle = centerAngle + edgeHalfAngle
+  const start: [number, number, number] = [
+    Math.cos(startAngle) * FOOTPRINT_RADIUS,
+    0,
+    Math.sin(startAngle) * FOOTPRINT_RADIUS,
+  ]
+  const end: [number, number, number] = [
+    Math.cos(endAngle) * FOOTPRINT_RADIUS,
+    0,
+    Math.sin(endAngle) * FOOTPRINT_RADIUS,
+  ]
+  const geometry = new BufferGeometry()
+  geometry.setAttribute(
+    'position',
+    new BufferAttribute(new Float32Array([...start, ...end]), 3),
+  )
+  geometry.setAttribute(
+    'lineDistance',
+    new BufferAttribute(
+      new Float32Array([0, Math.hypot(end[0] - start[0], end[2] - start[2])]),
+      1,
+    ),
+  )
+  return geometry
+}
+
 function makeCross() {
   const radius = FOOTPRINT_RADIUS * 0.42
   const geometry = new BufferGeometry()
@@ -109,11 +140,16 @@ export function PlacementFootprint({
   unsupported = false,
   footprintHexes,
   hoveredHex,
+  edgeRotation,
 }: Props) {
   const style = getPlacementPreviewStyle(status, unsupported)
   const hexes = footprintHexes.length ? footprintHexes : [hoveredHex]
   const fillGeometry = useMemo(makeHexShape, [])
   const outlineGeometry = useMemo(makeHexOutline, [])
+  const edgeGeometry = useMemo(
+    () => (edgeRotation === undefined ? null : makeHexEdge(edgeRotation)),
+    [edgeRotation],
+  )
   const crossGeometry = useMemo(makeCross, [])
   const materials = useMemo(
     () => ({
@@ -172,9 +208,10 @@ export function PlacementFootprint({
     () => () => {
       fillGeometry.dispose()
       outlineGeometry.dispose()
+      edgeGeometry?.dispose()
       crossGeometry.dispose()
     },
-    [fillGeometry, outlineGeometry, crossGeometry],
+    [fillGeometry, outlineGeometry, edgeGeometry, crossGeometry],
   )
 
   return (
@@ -205,13 +242,22 @@ export function PlacementFootprint({
               raycast={ignoreRaycast}
               renderOrder={22}
             />
+            {edgeGeometry && (
+              <lineSegments
+                geometry={edgeGeometry}
+                material={materials.outline}
+                position={[x, y + 0.017, z]}
+                raycast={ignoreRaycast}
+                renderOrder={23}
+              />
+            )}
             {style.pattern === 'cross' && (
               <lineSegments
                 geometry={crossGeometry}
                 material={materials.cross}
                 position={[x, y + 0.016, z]}
                 raycast={ignoreRaycast}
-                renderOrder={23}
+                renderOrder={24}
               />
             )}
             {style.secondaryPattern === 'cross' && (
@@ -220,7 +266,7 @@ export function PlacementFootprint({
                 material={materials.secondaryCross}
                 position={[x, y + 0.018, z]}
                 raycast={ignoreRaycast}
-                renderOrder={24}
+                renderOrder={25}
               />
             )}
           </group>

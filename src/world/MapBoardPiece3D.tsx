@@ -106,6 +106,7 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
   }
   return (
     <group
+      userData={{ boardPieceUID: uid }}
       onPointerDown={(e: ThreeEvent<PointerEvent>) => pressPieceForDrag(e, uid)}
       onPointerMove={onPointerMove}
     >
