@@ -109,9 +109,11 @@ To drag a piece, use `dragPiece(page, uid, { q, r, altitude })` from
 past the 5 px click tolerance, and releases at `screenPosOfHex`.
 `startDrag` does the same without releasing (for Esc, or to read
 `snapshot().drag` mid-drag; finish with `page.mouse.up()`). The one selected
-piece or an all-draggable selected group drags, in select mode; a drag that
-starts anywhere else or with a non-draggable member orbits the camera. While
-dragging, the moving pieces are see-through to the pointer, so
+piece or an all-draggable selected group drags, in select mode, including
+start zones. Dropping a start zone onto an occupied start-zone position is
+refused so it cannot disappear. A drag that starts anywhere else or with a
+non-draggable member orbits the camera. While dragging, the moving pieces are
+see-through to the pointer, so
 `drag.targetHex` over their own spots is the hex under them.
 For a target that is itself a model (for example, a Laur pillar port), use
 `dragPieceToPiece(page, uid, targetUID)`; it uses the bridge's

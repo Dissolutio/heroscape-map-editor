@@ -297,6 +297,57 @@ test('Laur pillar drag moves the selected pillar and undo restores it', async ({
     .toEqual({ q: 1, r: 3, s: -4 })
 })
 
+test('a start zone drags to another hex and undo restores it', async ({
+  page,
+}, testInfo: TestInfo) => {
+  const startZoneURL = mapUrl(
+    {
+      id: 'e2e-start-zone-drag',
+      name: 'E2E Start Zone Drag',
+      author: 'e2e',
+      version: 1,
+      shape: 'rectangle',
+      width: 6,
+      length: 6,
+    },
+    ['0~1~2~0~z1'],
+  )
+  await page.goto(startZoneURL)
+  await waitForAppReady(page)
+  const zone = await findPieceUid(page, {
+    inventoryID: 'z1',
+    q: 1,
+    r: 2,
+  })
+  await clickPiece(page, zone)
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual([zone])
+
+  const undos = await undoCount(page)
+  await startDrag(page, zone, { q: 3, r: 2, altitude: 0 })
+  await expect
+    .poll(async () => (await snapshot(page))?.drag)
+    .toMatchObject({
+      state: 'dragging',
+      targetStatus: 'ok',
+      targetHex: { q: 3, r: 2, altitude: 0 },
+    })
+  await page.screenshot({
+    path: testInfo.outputPath('start-zone-drag-preview.png'),
+  })
+  await page.mouse.up()
+  await expect
+    .poll(async () => (await piece(page, zone))?.pieceCoords)
+    .toEqual({ q: 3, r: 2, s: -5 })
+  expect(await undoCount(page)).toBe(undos + 1)
+
+  await undoButton(page).click()
+  await expect
+    .poll(async () => (await piece(page, zone))?.pieceCoords)
+    .toEqual({ q: 1, r: 2, s: -3 })
+})
+
 test('Laur add-on drag snaps to another pillar port', async ({ page }) => {
   await page.goto(LAUR_URL)
   await waitForAppReady(page)

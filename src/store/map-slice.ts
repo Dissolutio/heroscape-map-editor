@@ -340,10 +340,28 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
   movePiece: (args: MovePieceArgs) => get().movePieces({ moves: [args] }),
   movePieces: ({ moves }: { moves: MovePieceArgs[] }) =>
     set((state) => {
-      // one update, so the whole group is one undo step; with no known
-      // piece to move, produce returns the same state and nothing changes
+      const effectiveMoves = moves.filter((move, index) => {
+        if (
+          moves.findIndex((candidate) => candidate.uid === move.uid) !== index
+        )
+          return false
+        const boardPiece = state.boardPieces.find(
+          (piece) => piece.uid === move.uid,
+        )
+        return (
+          boardPiece !== undefined &&
+          (boardPiece.pieceCoords.q !== move.newPieceCoords.q ||
+            boardPiece.pieceCoords.r !== move.newPieceCoords.r ||
+            boardPiece.pieceCoords.s !== move.newPieceCoords.s ||
+            boardPiece.altitude !== (move.newAltitude ?? boardPiece.altitude) ||
+            boardPiece.rotation !== (move.newRotation ?? boardPiece.rotation))
+        )
+      })
+      if (!effectiveMoves.length) return state
+      // One update makes the whole group one undo step. No-op moves should
+      // not reorder board pieces or create history entries.
       return produce(state, (draft) => {
-        const moved = applyPieceMoves(draft, moves)
+        const moved = applyPieceMoves(draft, effectiveMoves)
         if (!moved) return
         draft.boardHexes = moved.boardHexes
         draft.boardPieces = moved.boardPieces

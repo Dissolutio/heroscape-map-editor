@@ -30,11 +30,10 @@ import getPieceTemplateCoords from './rotationTransforms'
  */
 
 /**
- * Start zones and ladders still need placement rules that do not work for
- * rigid drag targeting. The other edge pieces resolve through the pen rules.
+ * Ladders still need placement rules that do not work for rigid drag
+ * targeting. The other edge pieces resolve through the pen rules.
  */
 const NOT_DRAGGABLE_TERRAINS: string[] = [
-  HexTerrain.startZone,
   HexTerrain.ladder, // hangs on a wall face
 ]
 

@@ -21,6 +21,7 @@ import {
 } from '../utils/map-utils'
 import { addPiece } from './addPiece'
 import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
+import { piecesSoFar } from './pieces'
 import {
   getLaurAddonAllowedRotations,
   getLaurAddonCanonicalKey,
@@ -65,6 +66,7 @@ export type PlacementBlockedReason =
   | 'outOfHeight' // group member below ground or above the highest level
   | 'landTileNotOnHex' // canPlaceLandTileOnHex said no
   | 'notAHex' // the pointer handed over something that is not a hex
+  | 'duplicateStartZone' // one start zone per support hex and altitude
 
 /** What a refusal tells the user; a reason missing here is silent. */
 export const LAUR_STACKABLE_VARIANT_UNAVAILABLE_MESSAGE =
@@ -79,6 +81,7 @@ export const placementBlockedMessages: Partial<
   offMap: 'That piece would hang off the edge of the map.',
   outOfHeight:
     'Some pieces would end up below the ground or above the highest level.',
+  duplicateStartZone: 'A start zone is already on that hex.',
 }
 
 /**
@@ -424,6 +427,26 @@ export function evaluatePlacement(
   const boardPieces = ignoredUIDs.size
     ? board.boardPieces.filter((bp) => !ignoredUIDs.has(bp.uid))
     : board.boardPieces
+  if (
+    piece.terrain === HexTerrain.startZone &&
+    boardPieces.some((bp) => {
+      const existingPiece = piecesSoFar[bp.inventoryID]
+      return (
+        existingPiece?.terrain === HexTerrain.startZone &&
+        bp.altitude === altitude &&
+        bp.pieceCoords.q === coords.q &&
+        bp.pieceCoords.r === coords.r &&
+        bp.pieceCoords.s === coords.s
+      )
+    })
+  ) {
+    return {
+      status: 'blocked',
+      displacedUIDs: [],
+      footprintHexes,
+      reason: 'duplicateStartZone',
+    }
+  }
   const args = {
     piece,
     pieceCoords: coords,
