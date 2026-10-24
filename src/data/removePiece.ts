@@ -92,7 +92,10 @@ export function removePiece({
         isSolidTerrainHex(newBoardHexes?.[underHexId]?.terrain) ||
         isFluidTerrainHex(newBoardHexes?.[underHexId]?.terrain)
       ) {
-        newBoardHexes[underHexId].isCap = true
+        newBoardHexes[underHexId] = {
+          ...newBoardHexes[underHexId],
+          isCap: true,
+        }
       }
     }
     // remove the hexes
