@@ -1,7 +1,14 @@
 import { Box, Button, ButtonGroup, Tooltip, Typography } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
+import { enqueueSnackbar } from 'notistack'
 import type { RefObject } from 'react'
+import { getGroupRotationBlockedReason } from '../data/evaluateGroupRotation'
 import { piecesSoFar } from '../data/pieces'
+import { rotateGroupAroundPivot } from '../data/rotateGroup'
+import {
+  placementBlockedMessages,
+  type PlacementBlockedReason,
+} from '../data/placement'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import useBoundStore from '../store/store'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
@@ -14,7 +21,7 @@ import {
 } from '../utils/map-utils'
 import { ConvertTerrainQuickSelect } from './ConvertTerrainQuickSelect'
 import DeletePieceButton from './DeletePieceButton'
-import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
+import { getRotationByListStep } from './getPossibleRotationsForPenMode'
 
 const FONT_SIZE = 8
 
@@ -152,6 +159,7 @@ function PieceTransformControls({
   onPreviewAltitude: (delta: number) => void
   onClearPreview: () => void
 }) {
+  const isMulti = selectedPieceIDs.length > 1
   const moveButton = (direction: number, title: string, label: string) => (
     <Button
       key={direction}
@@ -218,12 +226,28 @@ function PieceTransformControls({
         {moveButton(2, 'Move selected piece 1 hex down-left', '↙')}
       </ButtonGroup>
       <ButtonGroup
-        aria-label="Rotate selected piece"
+        aria-label={
+          isMulti
+            ? 'Rotate selected pieces around the last selected piece'
+            : 'Rotate selected piece'
+        }
         size="small"
         sx={{ mt: 0.5 }}
       >
-        {rotateButton(-1, 'Rotate selected piece counter-clockwise', '↺ CCW')}
-        {rotateButton(1, 'Rotate selected piece clockwise', 'CW ↻')}
+        {rotateButton(
+          -1,
+          isMulti
+            ? 'Rotate selected pieces around the last selected piece counter-clockwise'
+            : 'Rotate selected piece counter-clockwise',
+          '↺ CCW',
+        )}
+        {rotateButton(
+          1,
+          isMulti
+            ? 'Rotate selected pieces around the last selected piece clockwise'
+            : 'Rotate selected piece clockwise',
+          'CW ↻',
+        )}
       </ButtonGroup>
       <ButtonGroup
         aria-label="Move selected piece altitude"
@@ -380,15 +404,38 @@ export function SelectedPieceControls({
     )
   }
   const previewRotate = (direction: 1 | -1) => {
+    if (isMulti) {
+      const moves = rotateGroupAroundPivot(
+        selectedBoardPieces,
+        selectedPieceIDs[selectedPieceIDs.length - 1],
+        direction,
+      )
+      const movesByUID = new Map(moves.map((move) => [move.uid, move]))
+      setPiecePreviews(
+        selectedBoardPieces.map((bp) => {
+          const move = movesByUID.get(bp.uid)
+          if (!move) {
+            throw new Error(`Missing rotation preview for ${bp.uid}`)
+          }
+          return {
+            ...bp,
+            pieceCoords: move.newPieceCoords,
+            rotation: move.newRotation ?? bp.rotation,
+          }
+        }),
+      )
+      return
+    }
     setPiecePreviews(
       selectedBoardPieces.map((bp) => {
-        const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
-        const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
-        const baseIdx = currentIdx === -1 ? 0 : currentIdx
-        const nextIdx =
-          (baseIdx + direction + possibleRotations.length) %
-          possibleRotations.length
-        return { ...bp, rotation: possibleRotations[nextIdx] }
+        return {
+          ...bp,
+          rotation: getRotationByListStep(
+            bp.inventoryID,
+            bp.rotation,
+            direction,
+          ),
+        }
       }),
     )
   }
@@ -424,31 +471,57 @@ export function SelectedPieceControls({
   }
 
   const rotateSelectedPiece = (direction: 1 | -1) => {
+    if (isMulti) {
+      const moves = rotateGroupAroundPivot(
+        selectedBoardPieces,
+        selectedPieceIDs[selectedPieceIDs.length - 1],
+        direction,
+      )
+      const blockedReason = getGroupRotationBlockedReason(
+        { boardHexes, boardPieces },
+        selectedBoardPieces,
+        moves,
+      )
+      if (blockedReason) {
+        enqueueSnackbar({
+          message:
+            placementBlockedMessages[blockedReason as PlacementBlockedReason] ??
+            'That rotation is blocked.',
+          variant: 'warning',
+          autoHideDuration: 5000,
+        })
+        setPiecePreviews(null)
+        return
+      }
+      setPiecePreviews(null)
+      movePieces({ moves })
+      return
+    }
     setPiecePreviews(null)
     movePieces({
       moves: selectedBoardPieces.map((bp) => {
-        const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
-        const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
-        const baseIdx = currentIdx === -1 ? 0 : currentIdx
-        const nextIdx =
-          (baseIdx + direction + possibleRotations.length) %
-          possibleRotations.length
         return {
           uid: bp.uid,
           newPieceCoords: bp.pieceCoords,
-          newRotation: possibleRotations[nextIdx],
+          newRotation: getRotationByListStep(
+            bp.inventoryID,
+            bp.rotation,
+            direction,
+          ),
         }
       }),
     })
     setPiecePreviews(
       selectedBoardPieces.map((bp) => {
-        const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
-        const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
-        const baseIdx = currentIdx === -1 ? 0 : currentIdx
-        const nextIdx =
-          (baseIdx + direction * 2 + possibleRotations.length * 2) %
-          possibleRotations.length
-        return { ...bp, rotation: possibleRotations[nextIdx] }
+        return {
+          ...bp,
+          rotation: getRotationByListStep(
+            bp.inventoryID,
+            bp.rotation,
+            direction,
+            2,
+          ),
+        }
       }),
     )
   }

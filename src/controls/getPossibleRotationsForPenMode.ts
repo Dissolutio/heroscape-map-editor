@@ -15,6 +15,24 @@ export function getPossibleRotationsForPenMode(penMode: string) {
       ? partialRotations
       : regularRotations
 }
+
+export function getRotationByListStep(
+  pieceID: string,
+  currentRotation: number,
+  direction: 1 | -1,
+  steps = 1,
+) {
+  const possibleRotations = getPossibleRotationsForPenMode(pieceID)
+  const currentIdx = possibleRotations.findIndex(
+    (rotation) => rotation === currentRotation,
+  )
+  const baseIdx = currentIdx === -1 ? 0 : currentIdx
+  const nextIdx =
+    (baseIdx + direction * steps + possibleRotations.length * steps) %
+    possibleRotations.length
+  return possibleRotations[nextIdx]
+}
+
 export function doPenModeRotation(
   penMode: string,
   penModeRotation: number,
