@@ -6,7 +6,8 @@ export default defineConfig({
   testDir: 'e2e',
   testMatch: '**/*.spec.ts',
   // Software WebGL is slow: give the map room to load.
-  timeout: 60_000,
+  // Leave room for waitForAppReady's 60s timeout to report its diagnostics.
+  timeout: 75_000,
   expect: { timeout: 15_000 },
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

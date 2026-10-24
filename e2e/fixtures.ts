@@ -23,12 +23,70 @@ export const mapUrl = (hexMap: object, pieceIds: string[]) =>
 export const FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS)
 
 const READY_TIMEOUT_MS = 60_000
+const pageErrors = new WeakMap<Page, string[]>()
+
+function capturePageErrors(page: Page) {
+  let errors = pageErrors.get(page)
+  if (errors) return errors
+  errors = []
+  const addError = (message: string) => {
+    errors?.push(message)
+    if (errors && errors.length > 10) errors.shift()
+  }
+  page.on('console', (message) => {
+    if (message.type() === 'error') addError(message.text())
+  })
+  page.on('pageerror', (error) => addError(error.message))
+  pageErrors.set(page, errors)
+  return errors
+}
 
 /** Resolves once the current map is loaded and the camera is still. */
 export async function waitForAppReady(page: Page, timeout = READY_TIMEOUT_MS) {
-  await page.waitForFunction(() => window.__APP_READY__ === true, null, {
-    timeout,
-  })
+  const errors = capturePageErrors(page)
+  try {
+    await page.waitForFunction(() => window.__APP_READY__ === true, null, {
+      timeout,
+    })
+  } catch (error) {
+    if (!String(error).includes('Timeout')) throw error
+    let snapshot: unknown
+    try {
+      snapshot = await page.evaluate(() => {
+        const now = performance.now()
+        const debug = window.__READY_DEBUG__
+        const canvas = document.querySelector('canvas')
+        return {
+          appReady: window.__APP_READY__ ?? false,
+          documentHidden: document.hidden,
+          url: window.location.href,
+          status: document.querySelector('[data-testid="app-status"]')
+            ?.textContent,
+          canvasReady: canvas?.dataset.ready ?? null,
+          canvasMapID: canvas?.dataset.mapId ?? null,
+          readyDebug: debug
+            ? {
+                ...debug,
+                frameAgeMs:
+                  debug.lastFrameAt === null
+                    ? null
+                    : now - debug.lastFrameAt,
+                loaderIdleMs: now - debug.lastLoaderActiveAt,
+              }
+            : null,
+        }
+      })
+    } catch {
+      snapshot = { unavailable: 'page closed or evaluation failed' }
+    }
+    throw new Error(
+      `App-ready timeout after ${timeout} ms.\n${String(error)}\nDiagnostics: ${JSON.stringify(
+        { snapshot, consoleErrors: errors },
+        null,
+        2,
+      )}`,
+    )
+  }
 }
 
 type PieceMatch = {
@@ -228,6 +286,7 @@ export async function setPen(
 export const test = base.extend({
   // Every test starts on the fixture map, loaded and ready.
   page: async ({ page }, use) => {
+    capturePageErrors(page)
     await page.goto(FIXTURE_URL)
     await waitForAppReady(page)
     await use(page)
