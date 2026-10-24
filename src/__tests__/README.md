@@ -28,6 +28,7 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `laur-pillar-stacking.test.ts` | Measured pillar heights and core height, the +8 stack increment, stack-support detection, stackable square pillar identification, and inventory reconciliation at the physical stack step. |
 | `pieceHeights.test.ts` | Every entry in the physical height audit matches its registered height, writes exactly that many origin/clearance cells, and distinguishes a free top-level tile from one overlapping the last blocked level. |
 | `piece-ids-and-loading.test.ts` | Piece ids, legacy uid-less piece normalization, saved-map formats, and the load path (`buildupJsonFileMap`). |
+| `buildup-map-load-order.test.ts` | Same-altitude support/overlap order for newer add-ons through `buildupJsonFileMap`, derived conflict/support state, a ladder control, and JSON save/reload idempotence. |
 | `hex-grid.test.ts` | Cube coordinates, directions, rotation, grid generation, odd-r conversion. |
 | `edges-and-nodes.test.ts` | How edges and corners are represented today, and the acceptance checklist (`it.todo`) for the edge/node model. |
 | `terrain-constraints.test.ts` | Inventory normalization, set/personal/file constraints, and exact pen-mode availability under inventory constraints. |
