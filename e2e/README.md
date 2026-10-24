@@ -48,6 +48,9 @@ await page.waitForFunction(() => window.__APP_READY__ === true)
 
 The signal needs frames to be rendering. It copes with `frameloop="demand"`
 but not with a hidden tab (the app stops rendering when `document.hidden`).
+`waitForAppReady` includes an e2e-only `window.__READY_DEBUG__` snapshot and
+recent browser console errors when it times out. The test timeout leaves 15
+seconds after its 60-second wait for that diagnostic to be reported.
 
 ## Reading state: `window.__TEST__` and the status element
 

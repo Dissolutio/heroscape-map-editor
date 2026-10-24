@@ -31,6 +31,14 @@ type Armed = {
   done: boolean
 }
 
+type ReadyInputs = {
+  mapID: string
+  boardPieces: unknown
+  boardHexes: unknown
+  viewingLevel: number
+  isOrthoCam: boolean
+}
+
 const arm = (now: number): Armed => ({
   tracker: createMapSettleTracker(now),
   mapSettled: false,
@@ -79,6 +87,8 @@ function ReadySignalInner({
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const armedRef = useRef<Armed | null>(null)
   const hasPublishedReadyRef = useRef(false)
+  const armInputsRef = useRef<ReadyInputs | null>(null)
+  const armCountRef = useRef(0)
   // drei's loading manager: true while any GLTF/texture request is in flight
   const { active: isLoading } = useProgress()
   const isLoadingRef = useRef(isLoading)
@@ -92,6 +102,12 @@ function ReadySignalInner({
     setReady(ready)
     if (isE2E) {
       window.__APP_READY__ = ready
+      const debug = window.__READY_DEBUG__
+      if (debug) {
+        debug.ready = ready
+        debug.mapID = mapID
+        if (ready) debug.lastReadyAt = performance.now()
+      }
       canvas.dataset.mapId = mapID
       if (ready) {
         canvas.dataset.ready = 'true'
@@ -105,7 +121,47 @@ function ReadySignalInner({
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-arm on these inputs
   useEffect(() => {
     if (!isE2E && hasPublishedReadyRef.current) return
-    armedRef.current = arm(performance.now())
+    const now = performance.now()
+    armedRef.current = arm(now)
+    if (isE2E) {
+      const previous = armInputsRef.current
+      const changes: string[] = []
+      if (!previous || !window.__READY_DEBUG__) changes.push('initial')
+      else {
+        if (previous.mapID !== mapID) changes.push('mapID')
+        if (previous.boardPieces !== boardPieces) changes.push('boardPieces')
+        if (previous.boardHexes !== boardHexes) changes.push('boardHexes')
+        if (previous.viewingLevel !== viewingLevel) changes.push('viewingLevel')
+        if (previous.isOrthoCam !== isOrthoCam) changes.push('isOrthoCam')
+      }
+      armInputsRef.current = {
+        mapID,
+        boardPieces,
+        boardHexes,
+        viewingLevel,
+        isOrthoCam,
+      }
+      armCountRef.current++
+      window.__READY_DEBUG__ = {
+        mapID,
+        mapSettled: false,
+        framesSinceSettle: 0,
+        lastLoaderActiveAt: now,
+        loaderActive: isLoadingRef.current,
+        cameraStableFrames: 0,
+        lastFrameAt: null,
+        frameCount: 0,
+        armedAt: now,
+        armCount: armCountRef.current,
+        lastArmChanges: changes,
+        ready: false,
+        lastReadyAt: window.__READY_DEBUG__?.lastReadyAt ?? null,
+        boardPieceCount: boardPieces.length,
+        boardHexCount: Object.keys(boardHexes).length,
+        viewingLevel,
+        isOrthoCam,
+      }
+    }
     publish(false)
   }, [mapID, boardPieces, boardHexes, viewingLevel, isOrthoCam])
 
@@ -115,6 +171,7 @@ function ReadySignalInner({
       if (isE2E) {
         setReady(false)
         window.__APP_READY__ = undefined
+        window.__READY_DEBUG__ = undefined
         delete canvas.dataset.ready
         delete canvas.dataset.mapId
       }
@@ -127,6 +184,16 @@ function ReadySignalInner({
     const armed = armedRef.current
     if (!armed) return
     const now = performance.now()
+    if (isE2E) {
+      const debug = window.__READY_DEBUG__
+      if (debug) {
+        debug.lastFrameAt = now
+        debug.frameCount++
+        debug.mapID = mapID
+        debug.loaderActive = isLoadingRef.current
+        if (isLoadingRef.current) debug.lastLoaderActiveAt = now
+      }
+    }
 
     const signature = [...camera.matrixWorld.elements, camera.zoom]
     const cameraMoved =
@@ -160,6 +227,17 @@ function ReadySignalInner({
       !cameraMoved
         ? armed.cameraStableFrames + 1
         : 0
+    if (isE2E) {
+      const debug = window.__READY_DEBUG__
+      if (debug) {
+        debug.mapSettled = armed.mapSettled
+        debug.framesSinceSettle = armed.framesSinceSettle
+        debug.lastLoaderActiveAt = isLoadingRef.current
+          ? now
+          : armed.lastLoaderActiveAt
+        debug.cameraStableFrames = armed.cameraStableFrames
+      }
+    }
 
     if (
       armed.mapSettled &&
