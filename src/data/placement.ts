@@ -386,9 +386,15 @@ export function evaluatePlacement(
     piece.height,
     ...(verticalObstructionTemplates[piece.id] ?? []),
   )
+  const minimumAltitude =
+    resolution.rule === 'battlement' ||
+    resolution.rule === 'roadWall' ||
+    resolution.rule === 'ropeLadder'
+      ? -1
+      : 0
   if (
     checkHeightBounds &&
-    (altitude < 0 || altitude + clearance > HEXGRID_MAX_ALTITUDE)
+    (altitude < minimumAltitude || altitude + clearance > HEXGRID_MAX_ALTITUDE)
   ) {
     return {
       status: 'blocked',

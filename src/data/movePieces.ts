@@ -1,9 +1,9 @@
 import type { BoardHexes, BoardPieces, CubeCoordinate, Piece } from '../types'
 import { addPiece } from './addPiece'
+import { getUnsupportedLaurAddonUIDs } from './laurAddonSupport'
 import { piecesSoFar } from './pieces'
 import { computeConflictedPieceUIDs } from './rebuildBoardState'
 import { removePiece } from './removePiece'
-import { getUnsupportedLaurAddonUIDs } from './laurAddonSupport'
 
 export type MovePieceArgs = {
   uid: string
@@ -34,7 +34,7 @@ export type MovedBoard = MoveBoard & {
  *
  * Returns null, touching nothing, when no move names a known piece. A uid
  * given twice moves by its first entry. `addPiece` and `removePiece` edit
- * the hex objects they are given; inside the store those are Immer drafts.
+ * their own working board copies; the input board remains unchanged.
  */
 export function applyPieceMoves(
   board: MoveBoard,

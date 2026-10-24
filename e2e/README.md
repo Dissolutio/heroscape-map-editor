@@ -113,6 +113,9 @@ dragging, the moving pieces are see-through to the pointer, so
 For a target that is itself a model (for example, a Laur pillar port), use
 `dragPieceToPiece(page, uid, targetUID)`; it uses the bridge's
 `screenPosOfPiece` for both endpoints.
+For a specific edge of a hovered hex, use `startDragToHexEdge` and
+`window.__TEST__.screenPosOfHexEdge`; the helper aims just inside that edge
+while still letting the app resolve the real hovered hex and pointer point.
 
 Things that decide what a click does:
 
@@ -122,9 +125,10 @@ Things that decide what a click does:
 - A click that hits nothing clears the selection. Clicking the only selected
   piece again deselects it.
 - `screenPosOfPiece` aims at the piece's top surface, except Laur add-ons, for
-  which it targets the add-on's canonical side/vertex feature point. If another
-  piece sits on top (a stacked tile, a tree, a pillar), the click selects that
-  one; such a piece is only reachable from the side, if at all.
+  which it targets the add-on's canonical side/vertex feature point, and the
+  boardPieces-only edge pieces, for which it targets their rendered model.
+  If another piece sits on top (a stacked tile, a tree, a pillar), the click
+  selects that one; such a piece is only reachable from the side, if at all.
 - A tall piece in front can hide the target. If a click selects something
   else, check `snapshot().selectedPieceIDs` and move the camera.
 - The camera starts orthographic (top-down); `Insert` toggles perspective.
