@@ -123,6 +123,9 @@ For a specific edge of a hovered hex, use `startDragToHexEdge` and
 while still letting the app resolve the real hovered hex and pointer point.
 Dragging a ladder moves the grabbed ladder and every contiguous ladder above
 it; ladders below it stay in place.
+While a drag is active, the mouse wheel rotates the piece or dragged group;
+for ladders, the pointer's sector on the hovered hex sets the ladder's
+orientation instead.
 
 Things that decide what a click does:
 

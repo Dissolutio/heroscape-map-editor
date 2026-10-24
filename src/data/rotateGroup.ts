@@ -1,6 +1,13 @@
-import type { BoardPiece } from '../types'
+import type { BoardPiece, CubeCoordinate } from '../types'
 import { hexUtilsRotateAroundOrigin_000 } from '../utils/hex-utils'
 import type { MovePieceArgs } from './movePieces'
+
+export function rotateCubeCoordinate(
+  coords: CubeCoordinate,
+  direction: 1 | -1,
+): CubeCoordinate {
+  return hexUtilsRotateAroundOrigin_000(coords, direction === 1 ? 1 : 5)
+}
 
 export function rotateGroupAroundPivot(
   boardPieces: readonly BoardPiece[],
@@ -18,10 +25,7 @@ export function rotateGroupAroundPivot(
       r: piece.pieceCoords.r - pivot.pieceCoords.r,
       s: piece.pieceCoords.s - pivot.pieceCoords.s,
     }
-    const rotated = hexUtilsRotateAroundOrigin_000(
-      relative,
-      direction === 1 ? 1 : 5,
-    )
+    const rotated = rotateCubeCoordinate(relative, direction)
     return {
       uid: piece.uid,
       newPieceCoords: {
