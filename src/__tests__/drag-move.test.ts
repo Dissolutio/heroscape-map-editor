@@ -967,6 +967,42 @@ describe('drag target and drop decision', () => {
     expect(decideDrop('ADDON', target).type).toBe('move')
   })
 
+  it('a conflicted add-on can preview a drag from frozen store state', () => {
+    const board = groupBoard([
+      { uid: 'ADDON', inventoryID: 'lwr', q: 3, r: 3 },
+      { uid: 'LAND', inventoryID: 'g1', q: 4, r: 3 },
+    ])
+    const addon = board.boardPieces.find((bp) => bp.uid === 'ADDON')
+    const destination = { q: 2, r: 4, s: -6 }
+    const targetHex = hexAt(board, destination, 0)
+    if (!addon || !targetHex)
+      throw new Error('conflicted add-on fixture missing')
+
+    const before = structuredClone(board)
+    const frozenBoard: Board = {
+      ...board,
+      boardHexes: Object.fromEntries(
+        Object.entries(board.boardHexes).map(([id, hex]) => [
+          id,
+          Object.freeze({ ...hex }),
+        ]),
+      ),
+    }
+    const target = evaluateDragTarget(
+      frozenBoard,
+      piecesSoFar.lwr,
+      addon,
+      targetHex,
+      noOffset,
+      [addon],
+      worldPointAt(destination),
+    )
+
+    expect(target.resolution).toMatchObject({ coords: destination })
+    expect(target.members[0].unsupported).toBe(true)
+    expect(board).toEqual(before)
+  })
+
   it('a pillar lands on empty land with smart altitude', () => {
     const board = groupBoard([
       { uid: 'PILLAR', inventoryID: 'lwp', q: 1, r: 3 },

@@ -333,6 +333,53 @@ test('Laur add-on drag snaps to another pillar port', async ({ page }) => {
   })
 })
 
+test('a conflicted Laur ruin can still be selected and dragged', async ({
+  page,
+}) => {
+  const conflictedLaurURL = mapUrl(
+    {
+      ...LAUR_MAP,
+      id: 'e2e-conflicted-laur-ruin',
+      name: 'E2E Conflicted Laur Ruin',
+    },
+    ['0~3~3~0~lwr', '0~4~3~0~g1'],
+  )
+  await page.goto(conflictedLaurURL)
+  await waitForAppReady(page)
+  const ruins = await page.evaluate(() =>
+    window.__TEST__
+      ?.listPieces()
+      .filter((piece) => piece.inventoryID === 'lwr'),
+  )
+  expect(ruins).toHaveLength(1)
+  const ruinUID = ruins?.[0]?.uid
+  if (!ruinUID) throw new Error('No Laur ruin was loaded')
+
+  await clickPiece(page, ruinUID)
+  const selected = (await snapshot(page))?.selectedPieceIDs
+  expect(selected).toHaveLength(1)
+  expect(selected).toContain(ruinUID)
+  const selectedRuin = selected?.[0]
+  if (!selectedRuin) throw new Error('No Laur ruin was selected')
+
+  await startDrag(page, selectedRuin, { q: 2, r: 4, altitude: 0 })
+  await expect
+    .poll(async () => (await snapshot(page))?.drag?.state)
+    .toBe('dragging')
+  await expect
+    .poll(async () => (await snapshot(page))?.drag?.targetHex)
+    .toEqual({
+      q: 2,
+      r: 4,
+      s: -6,
+      altitude: 0,
+    })
+  await page.mouse.up()
+  await expect
+    .poll(async () => (await piece(page, selectedRuin))?.pieceCoords)
+    .toEqual({ q: 2, r: 4, s: -6 })
+})
+
 test('Laur add-on drag preview shows its unsupported amber state', async ({
   page,
 }, testInfo: TestInfo) => {
