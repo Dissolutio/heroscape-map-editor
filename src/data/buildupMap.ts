@@ -70,14 +70,22 @@ export default function buildupVSFileMap(
     droppedPieces,
   }
 }
-// Placed after everything else on load: Laur add-ons need their pillars down
-// first, and ladders/battlements sit on what is below them.
+// Replay support-dependent placements last. Ladders write boardHexes and need
+// their supporting surface first; the boardPieces-only add-ons still need a
+// stable supports-first order in the saved piece list.
 const PLACED_AFTER_SUPPORTS = new Set<string>([
   Pieces.laurWallRuin1,
   Pieces.laurWallLong,
   Pieces.laurWallShort,
+  Pieces.laurWallShortStackable,
+  Pieces.laurWallLongStackable,
+  Pieces.laurWallArch,
+  Pieces.laurWallRuin2,
+  Pieces.laurWallRuin3,
   Pieces.ladder,
   Pieces.battlement,
+  Pieces.roadWall,
+  Pieces.ropeLadder,
 ])
 const isPlacedAfterSupports = (bp: BoardPiece) =>
   PLACED_AFTER_SUPPORTS.has(bp.inventoryID)
