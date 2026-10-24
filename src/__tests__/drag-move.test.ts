@@ -70,16 +70,13 @@ describe('isDraggablePiece', () => {
     'bt',
     'rw',
     'rl',
+    'ld',
   ])('%s can be dragged', (id) => {
     expect(isDraggablePiece(piecesSoFar[id])).toBe(true)
   })
 
   it('a start zone can be dragged', () => {
     expect(isDraggablePiece(piecesSoFar.z1)).toBe(true)
-  })
-
-  it.each([['ld', 'ladder']])('%s cannot: %s', (id) => {
-    expect(isDraggablePiece(piecesSoFar[id])).toBe(false)
   })
 
   it('an unknown piece cannot', () => {
@@ -516,10 +513,14 @@ describe('multi-selection drag', () => {
     expect(
       getDraggableSelectionGroup(['A', 'C'], 'A', [...draggable, addon]),
     ).toEqual([draggable[0], addon])
+    const ladder = { ...addon, inventoryID: 'ld' }
+    expect(
+      getDraggableSelectionGroup(['A', 'C'], 'A', [...draggable, ladder]),
+    ).toEqual([draggable[0], ladder])
     expect(
       getDraggableSelectionGroup(['A', 'C'], 'A', [
         ...draggable,
-        { ...addon, inventoryID: 'ld' },
+        { ...addon, inventoryID: 'unknown' },
       ]),
     ).toBeNull()
     expect(getDraggableSelectionGroup(['B'], 'A', draggable)).toBeNull()

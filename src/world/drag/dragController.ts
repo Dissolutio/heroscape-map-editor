@@ -22,7 +22,12 @@ import {
 } from '../../data/dragMove'
 import { piecesSoFar } from '../../data/pieces'
 import useBoundStore from '../../store/store'
-import { type BoardHex, type BoardPiece, SELECT_PEN_MODE } from '../../types'
+import {
+  type BoardHex,
+  type BoardPiece,
+  Pieces,
+  SELECT_PEN_MODE,
+} from '../../types'
 import { genBoardHexID } from '../../utils/map-utils'
 
 /**
@@ -273,19 +278,42 @@ export function reportDragTargetHex(
   if (ownerUID && dragged.members.some((member) => member.uid === ownerUID)) {
     return false
   }
+  const targetHex = getLadderDragTargetHex(hex, ownerUID)
   hitThisMove = true
   const piece = piecesSoFar[dragged.bp.inventoryID]
   const key = piece
     ? getDragTargetKey(
         piece,
         dragged.bp,
-        hex,
+        targetHex,
         worldPoint,
         dragged.members.length > 1,
       )
-    : hex.id
-  if (key !== targetKey) setTarget(hex, worldPoint)
+    : targetHex.id
+  if (key !== targetKey) setTarget(targetHex, worldPoint)
   return true
+}
+
+function getLadderDragTargetHex(
+  hex: BoardHex,
+  ownerUID: string | undefined,
+): BoardHex {
+  if (
+    !ownerUID ||
+    piecesSoFar[dragged?.bp.inventoryID ?? '']?.id !== Pieces.ladder
+  ) {
+    return hex
+  }
+  const { boardHexes, boardPieces } = useBoundStore.getState()
+  const target = boardPieces.find((piece) => piece.uid === ownerUID)
+  if (target?.inventoryID !== Pieces.ladder) return hex
+
+  const originID = genBoardHexID({
+    ...target.pieceCoords,
+    altitude: target.altitude + 1,
+  })
+  const origin = boardHexes[originID]
+  return origin?.boardPieceUID === target.uid ? origin : hex
 }
 
 /**
