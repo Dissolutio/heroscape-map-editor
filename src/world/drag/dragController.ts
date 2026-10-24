@@ -3,16 +3,16 @@ import type { RootState, ThreeEvent } from '@react-three/fiber'
 import { enqueueSnackbar } from 'notistack'
 import type React from 'react'
 import {
-  type DropDecision,
   type DragCancelReason,
   type DragEvent,
   type DragState,
   type DragTarget,
+  type DropDecision,
   decideDrop,
   dragReducer,
   evaluateDragTarget,
-  getDraggableSelectionGroup,
   getDragPreview,
+  getDraggableSelectionGroup,
   getGrabOffset,
   initialDragState,
   isDraggablePiece,
@@ -21,7 +21,12 @@ import {
 } from '../../data/dragMove'
 import { piecesSoFar } from '../../data/pieces'
 import useBoundStore from '../../store/store'
-import { type BoardHex, type BoardPiece, SELECT_PEN_MODE } from '../../types'
+import {
+  type BoardHex,
+  type BoardPiece,
+  HexTerrain,
+  SELECT_PEN_MODE,
+} from '../../types'
 import { genBoardHexID } from '../../utils/map-utils'
 
 /**
@@ -260,18 +265,25 @@ export const isDragPassThrough = (uid: string | undefined) =>
  * support). Returns true when it took the move as the drag target, so the
  * caller stops propagation; false while not dragging, and for anything the
  * dragged piece owns (`ownerUID`, the hex's piece by default), so the
- * pointer passes through to what is beneath.
+ * pointer passes through to what is beneath. `worldPoint` preserves the
+ * raycast x/z for Laur add-on side and vertex resolution.
  */
 export function reportDragTargetHex(
   hex: BoardHex | undefined,
   ownerUID = hex?.boardPieceUID,
+  worldPoint?: { x: number; z: number },
 ): boolean {
   if (state.phase !== 'dragging' || !dragged || !hex) return false
   if (ownerUID && dragged.members.some((member) => member.uid === ownerUID)) {
     return false
   }
   hitThisMove = true
-  if (hex.id !== targetKey) setTarget(hex)
+  const piece = piecesSoFar[dragged.bp.inventoryID]
+  const pointKey =
+    piece?.terrain === HexTerrain.laurWallAddon && worldPoint
+      ? `:${worldPoint.x}:${worldPoint.z}`
+      : ''
+  if (`${hex.id}${pointKey}` !== targetKey) setTarget(hex, worldPoint)
   return true
 }
 
@@ -293,16 +305,24 @@ export function findPieceHexAt(
   return best
 }
 
-function setTarget(hex: BoardHex | null) {
+function setTarget(
+  hex: BoardHex | null,
+  worldPoint?: { x: number; z: number },
+) {
   if (!dragged) return
-  targetKey = hex?.id ?? ''
   if (!hex) {
+    targetKey = ''
     dragged.target = null
     setPreview(null)
     return
   }
-  const { boardHexes, boardPieces } = useBoundStore.getState()
   const piece = piecesSoFar[dragged.bp.inventoryID]
+  const pointKey =
+    piece?.terrain === HexTerrain.laurWallAddon && worldPoint
+      ? `:${worldPoint.x}:${worldPoint.z}`
+      : ''
+  targetKey = `${hex.id}${pointKey}`
+  const { boardHexes, boardPieces } = useBoundStore.getState()
   const grabOffset = state.phase === 'dragging' ? state.grabOffset : null
   if (!piece || !grabOffset) return
   dragged.target = evaluateDragTarget(
@@ -312,6 +332,7 @@ function setTarget(hex: BoardHex | null) {
     hex,
     grabOffset,
     dragged.members,
+    worldPoint,
   )
   setPreview(dragged.target)
 }

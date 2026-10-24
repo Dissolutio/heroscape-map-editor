@@ -3,19 +3,19 @@ import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
-import {
-  isDragPassThrough,
-  pressPieceForDrag,
-  reportDragTargetHex,
-} from '../../drag/dragController'
+import { HexTerrain } from '../../../types'
 import {
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEX_HEIGHT,
   INSTANCE_LIMIT,
 } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
+import {
+  isDragPassThrough,
+  pressPieceForDrag,
+  reportDragTargetHex,
+} from '../../drag/dragController'
 import { hexTerrainColor } from '../hexColors'
-import { HexTerrain } from '../../../types'
 import type {
   BoardHexPieceProps,
   CylinderGeometryArgs,
@@ -156,7 +156,14 @@ function FluidCap({
       onPointerMove={(e: ThreeEvent<PointerEvent>) => {
         if (!isVisible) return
         onPointerMove(e)
-        if (reportDragTargetHex(boardHex)) e.stopPropagation()
+        if (
+          reportDragTargetHex(boardHex, undefined, {
+            x: e.point.x,
+            z: e.point.z,
+          })
+        ) {
+          e.stopPropagation()
+        }
       }}
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}

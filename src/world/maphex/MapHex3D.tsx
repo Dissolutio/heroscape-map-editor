@@ -70,7 +70,14 @@ export const MapHex3D = ({
     onPointerDown: (e: ThreeEvent<PointerEvent>) =>
       pressPieceForDrag(e, boardHex.boardPieceUID),
     onPointerMove: (e: ThreeEvent<PointerEvent>) => {
-      if (reportDragTargetHex(boardHex)) e.stopPropagation()
+      if (
+        reportDragTargetHex(boardHex, undefined, {
+          x: e.point.x,
+          z: e.point.z,
+        })
+      ) {
+        e.stopPropagation()
+      }
     },
   }
 

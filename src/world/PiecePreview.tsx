@@ -1,12 +1,14 @@
 import { Suspense, useEffect, useMemo } from 'react'
 import { getLaurAddonHitHex } from '../data/laurAddonStacking'
-import { piecesSoFar } from '../data/pieces'
 import {
   areMatchingLaurPillarShapes,
   getLaurPillarStackAltitude,
 } from '../data/laurPillarStacking'
+import { piecesSoFar } from '../data/pieces'
 import { getPlacementPreviewState } from '../data/placementPreview'
 import { getSmartPlacementAltitude } from '../data/smartPlacement'
+import { isE2E } from '../e2e/isE2E'
+import { setPlacementPreview } from '../e2e/placementPreviewStore'
 import useBoundStore from '../store/store'
 import type { BoardHex } from '../types'
 import { HexTerrain, PiecePrefixes, Pieces } from '../types'
@@ -29,6 +31,7 @@ import {
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils'
 import { LandPieceGhost } from './LandPieceGhost'
+import { LaurAddonPreview } from './LaurAddonPreview'
 import { PlacementFootprint } from './PlacementFootprint'
 import { BattlementPreview } from './models/Battlement'
 import BigTree415 from './models/BigTree415'
@@ -42,10 +45,6 @@ import { GlyphModelPreview } from './models/Glyph'
 import { LadderPreview } from './models/Ladder'
 import { LaurWallPillarPreview } from './models/LaurPillar'
 import { LaurWallTrianglePillarPreview } from './models/LaurTrianglePillar'
-import { LaurWallArchPreview } from './models/LaurWallArchModel'
-import { LaurWallLongPreview } from './models/LaurWallLongModel'
-import { LaurWallRuinPreview } from './models/LaurWallRuinModel'
-import { LaurWallShortPreview } from './models/LaurWallShortModel'
 import MarroHive6 from './models/MarroHive6'
 import { MarvelRuinPreview } from './models/MarvelRuin'
 import ModelLoader from './models/ModelLoader'
@@ -78,8 +77,6 @@ import {
   getRoadWallOptions,
   getRuinsOptions,
 } from './models/piece-adjustments'
-import { isE2E } from '../e2e/isE2E'
-import { setPlacementPreview } from '../e2e/placementPreviewStore'
 
 export default function PiecePreview() {
   const hoveredHex = useBoundStore((s) => s.hoveredHex)
@@ -480,40 +477,14 @@ function PiecePreviewModel({
     )
   }
   if (isLaurWallAddon) {
-    let laurPreview = null
-    if (
-      pieceID === Pieces.laurWallRuin1 ||
-      pieceID === Pieces.laurWallRuin2 ||
-      pieceID === Pieces.laurWallRuin3
-    ) {
-      laurPreview = <LaurWallRuinPreview unsupported={unsupported} />
-    }
-    if (
-      pieceID === Pieces.laurWallShort ||
-      pieceID === Pieces.laurWallShortStackable
-    ) {
-      laurPreview = <LaurWallShortPreview unsupported={unsupported} />
-    }
-    if (
-      pieceID === Pieces.laurWallLong ||
-      pieceID === Pieces.laurWallLongStackable
-    ) {
-      laurPreview = <LaurWallLongPreview unsupported={unsupported} />
-    }
-    if (pieceID === Pieces.laurWallArch) {
-      laurPreview = <LaurWallArchPreview unsupported={unsupported} />
-    }
     return (
-      <group
-        position={[
-          x,
-          yWithBase + HEXGRID_HEX_HEIGHT,
-          z + HEXGRID_HEXCAP_FLUID_HEIGHT / 2,
-        ]}
-        rotation={[0, pieceRotation, 0]}
-      >
-        <Suspense fallback={<ModelLoader />}>{laurPreview}</Suspense>
-      </group>
+      <LaurAddonPreview
+        piece={piece}
+        coords={hoveredHexForPreview}
+        altitude={hoveredHexForPreview.altitude}
+        rotation={resolvedRotation}
+        unsupported={unsupported}
+      />
     )
   }
   if (isLaurSquarePillarHex && (isLandOrEmptyBeneath || canStackOnPillar)) {

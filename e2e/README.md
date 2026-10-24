@@ -63,7 +63,8 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   `drag`: a piece
   press or drag in progress, or `null` (`state` is `'pressed'` or
   `'dragging'`; `targetStatus` is the drop's `'ok'`, `'conflict'` or
-  `'blocked'`, or `null` with no target; for a multi-selection it is the
+  `'blocked'`, or `null` with no target; `unsupported` marks a dragged
+  Laur add-on missing required support ports; for a multi-selection it is the
   worst member status; `reason`; `footprintCount`, the total hexes in all
   target footprints, off-map ones included (a target hanging off the map is
   `blocked`/`offMap` with its full footprint; a group member outside the
@@ -109,6 +110,9 @@ piece or an all-draggable selected group drags, in select mode; a drag that
 starts anywhere else or with a non-draggable member orbits the camera. While
 dragging, the moving pieces are see-through to the pointer, so
 `drag.targetHex` over their own spots is the hex under them.
+For a target that is itself a model (for example, a Laur pillar port), use
+`dragPieceToPiece(page, uid, targetUID)`; it uses the bridge's
+`screenPosOfPiece` for both endpoints.
 
 Things that decide what a click does:
 

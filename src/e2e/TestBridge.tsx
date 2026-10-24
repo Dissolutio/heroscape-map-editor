@@ -3,11 +3,11 @@ import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
 import { Vector3 } from 'three'
 import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
-import { getDragState } from '../world/drag/dragController'
 import useBoundStore from '../store/store'
 import type { BoardHex, BoardPiece } from '../types'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { getBoardHex3DCoords } from '../utils/map-utils'
+import { getDragState } from '../world/drag/dragController'
 import { isE2E } from './isE2E'
 import { getPlacementPreview } from './placementPreviewStore'
 import { getReady } from './readyStore'
@@ -22,13 +22,17 @@ const round4Vector = (v: Vector3): [number, number, number] => [
 ]
 
 const getDragSnapshot = (): E2EDragSnapshot | null => {
-  const { phase } = getDragState()
-  if (phase === 'idle') return null
+  const dragState = getDragState()
+  if (dragState.phase === 'idle') return null
   const preview = useBoundStore.getState().dragPreview
+  const draggedMember = preview?.members?.find(
+    (member) => member.uid === dragState.uid,
+  )
   return {
-    state: phase,
+    state: dragState.phase,
     targetStatus: preview?.status ?? null,
     reason: preview?.reason ?? null,
+    unsupported: draggedMember?.unsupported ?? false,
     footprintCount: preview?.footprintHexes.length ?? 0,
     targetHex: preview?.pointerHex ? { ...preview.pointerHex } : null,
   }

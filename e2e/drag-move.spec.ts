@@ -1,4 +1,6 @@
 import type { Page } from '@playwright/test'
+import type { TestInfo } from '@playwright/test'
+import { FIXTURE_HEX_MAP } from './fixture-map'
 import {
   clickPiece,
   dragPiece,
@@ -6,6 +8,7 @@ import {
   findPieceUid,
   mapUrl,
   startDrag,
+  startDragToPiece,
   test,
   waitForAppReady,
 } from './fixtures'
@@ -34,6 +37,24 @@ const views = [
   { name: 'orthographic', perspective: false },
   { name: 'perspective', perspective: true },
 ]
+
+const LAUR_MAP = {
+  ...FIXTURE_HEX_MAP,
+  id: 'e2e-laur-drag',
+  name: 'E2E Laur Drag',
+  width: 8,
+  length: 8,
+}
+const LAUR_PIECES = [
+  '0~1~3~0~lwp',
+  '0~2~3~0~lwp',
+  '0~1~4~0~lwp',
+  '0~2~4~0~lwp',
+  '0~5~4~0~lwp',
+  '0~6~4~0~lwp',
+  '0~1~4~0~lws',
+]
+const LAUR_URL = mapUrl(LAUR_MAP, LAUR_PIECES)
 
 async function useView(page: Page, perspective: boolean) {
   if (!perspective) return
@@ -245,6 +266,108 @@ test('e. a camera locked with End stays locked through a drag', async ({
   // still locked: an orbit drag over empty table does not move it
   await orbitDrag(page)
   expect(await cameraPose(page)).toEqual(pose)
+})
+
+test('Laur pillar drag moves the selected pillar and undo restores it', async ({
+  page,
+}) => {
+  await page.goto(LAUR_URL)
+  await waitForAppReady(page)
+  const pillar = await findPieceUid(page, {
+    inventoryID: 'lwp',
+    q: 1,
+    r: 3,
+  })
+  await clickPiece(page, pillar)
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual([pillar])
+
+  const undos = await undoCount(page)
+  await dragPiece(page, pillar, { q: 4, r: 3, altitude: 0 })
+  await expect
+    .poll(async () => (await piece(page, pillar))?.pieceCoords)
+    .toEqual({ q: 4, r: 3, s: -7 })
+  expect((await piece(page, pillar))?.inventoryID).toBe('lwp')
+  expect(await undoCount(page)).toBe(undos + 1)
+
+  await undoButton(page).click()
+  await expect
+    .poll(async () => (await piece(page, pillar))?.pieceCoords)
+    .toEqual({ q: 1, r: 3, s: -4 })
+})
+
+test('Laur add-on drag snaps to another pillar port', async ({ page }) => {
+  await page.goto(LAUR_URL)
+  await waitForAppReady(page)
+  const addon = await findPieceUid(page, {
+    inventoryID: 'lws',
+    q: 1,
+    r: 4,
+  })
+  const targetPillar = await findPieceUid(page, {
+    inventoryID: 'lwp',
+    q: 5,
+    r: 4,
+  })
+  await clickPiece(page, addon)
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual([addon])
+
+  await startDragToPiece(page, addon, targetPillar)
+  await expect
+    .poll(async () => (await snapshot(page))?.drag)
+    .toMatchObject({
+      state: 'dragging',
+      targetHex: { q: 5, r: 4, altitude: 0 },
+    })
+  await page.mouse.up()
+  await expect
+    .poll(async () => (await piece(page, addon))?.pieceCoords)
+    .toEqual({ q: 5, r: 4, s: -9 })
+  expect(await piece(page, addon)).toMatchObject({
+    inventoryID: 'lws',
+    altitude: 0,
+    rotation: 0,
+  })
+})
+
+test('Laur add-on drag preview shows its unsupported amber state', async ({
+  page,
+}, testInfo: TestInfo) => {
+  await page.goto(LAUR_URL)
+  await waitForAppReady(page)
+  const addon = await findPieceUid(page, {
+    inventoryID: 'lws',
+    q: 1,
+    r: 4,
+  })
+  await clickPiece(page, addon)
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual([addon])
+
+  await startDrag(page, addon, { q: 4, r: 3, altitude: 0 })
+  await expect
+    .poll(async () => (await snapshot(page))?.drag)
+    .toMatchObject({
+      state: 'dragging',
+      targetStatus: 'ok',
+      unsupported: true,
+      targetHex: { q: 4, r: 3, altitude: 0 },
+    })
+  await page.screenshot({
+    path: testInfo.outputPath('laur-addon-drag-unsupported.png'),
+  })
+
+  await page.keyboard.press('Escape')
+  await page.mouse.up()
+  expect((await piece(page, addon))?.pieceCoords).toEqual({
+    q: 1,
+    r: 4,
+    s: -5,
+  })
 })
 
 test('g. a drop that would hang off the map is refused with the message', async ({

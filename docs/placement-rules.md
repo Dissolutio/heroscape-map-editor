@@ -35,7 +35,8 @@ orange conflict style remains and an amber cross adds a second signal.
 Conflict and support status are derived state, not fields on `BoardPiece`;
 they are not included in map files, autosaves, or share links. Add-ons remain
 boardPieces-only and do not expand `boardHexes`. They do not move
-automatically with pillars, and dragging is not enabled here.
+automatically with pillars; users can move a whole wall system by explicitly
+multi-selecting its pieces before dragging.
 
 Laur stacking uses an eight-level increment. Matching square pillars
 (including the stackable square variant) and triangle pillars stack at
