@@ -8,6 +8,7 @@ import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
 import type { MovePieceArgs } from './movePieces'
 import { applyPieceMoves } from './movePieces'
 import { piecesSoFar } from './pieces'
+import { getNearestHexEdgeIndex } from './dragRotation'
 import {
   type PlacementBlockedReason,
   type PlacementBoard,
@@ -66,24 +67,6 @@ function getLadderStackAbove(
     if (!next) return above
     above.push(next)
     current = next
-  }
-}
-
-function getLadderStackMembers(
-  ladder: BoardPiece,
-  boardPieces: BoardPiece[],
-): BoardPiece[] {
-  const stack = [ladder, ...getLadderStackAbove(ladder, boardPieces)]
-  let current = ladder
-  while (true) {
-    const below = ladderAtStackAltitude(
-      boardPieces,
-      current,
-      current.altitude - LADDER_STACK_ALTITUDE_STEP,
-    )
-    if (!below) return stack
-    stack.unshift(below)
-    current = below
   }
 }
 
@@ -310,18 +293,6 @@ export function evaluateDragTarget(
   const altitudeDelta = isPlacementBlocked(resolution)
     ? 0
     : resolution.altitude - bp.altitude
-  const draggedLadderStackUIDs =
-    piece.id === Pieces.ladder
-      ? new Set(
-          getLadderStackMembers(bp, board.boardPieces).map(
-            (member) => member.uid,
-          ),
-        )
-      : new Set<string>()
-  const ladderRotationDelta = isPlacementBlocked(resolution)
-    ? 0
-    : resolution.rotation - bp.rotation
-
   const targetMembers: DragTargetMember[] = []
   for (const member of members) {
     const memberPiece =
@@ -332,9 +303,6 @@ export function evaluateDragTarget(
       r: member.pieceCoords.r + delta.r,
       s: member.pieceCoords.s + delta.s,
     }
-    const memberRotation = draggedLadderStackUIDs.has(member.uid)
-      ? (member.rotation + ladderRotationDelta + 6) % 6
-      : member.rotation
     const memberResolution: PlacementResolution =
       member.uid === bp.uid
         ? resolution
@@ -343,7 +311,7 @@ export function evaluateDragTarget(
             memberPiece,
             rigidCoords,
             member.altitude + altitudeDelta,
-            memberRotation,
+            member.rotation,
             ignoredUIDs,
           )
     const memberEvaluation =
@@ -851,28 +819,7 @@ export function getEdgeDragTarget(
     return { edgeIndex: currentEdge, rotation: currentEdge }
   }
 
-  const center = cubeToPixel(pointerHex)
-  const distances = Array.from({ length: 6 }, (_, edgeIndex) => {
-    const neighbor = hexUtilsGetNeighborForRotation(edgeIndex)
-    const neighborCenter = cubeToPixel({
-      q: pointerHex.q + neighbor.q,
-      r: pointerHex.r + neighbor.r,
-      s: pointerHex.s + neighbor.s,
-    })
-    const edgeX = (center.x + neighborCenter.x) / 2
-    const edgeZ = (center.y + neighborCenter.y) / 2
-    return {
-      edgeIndex,
-      distance: Math.hypot(worldPoint.x - edgeX, worldPoint.z - edgeZ),
-    }
-  })
-  const nearestDistance = Math.min(...distances.map(({ distance }) => distance))
-  const tied = distances.filter(
-    ({ distance }) => Math.abs(distance - nearestDistance) < 1e-5,
-  )
-  const edgeIndex =
-    tied.find(({ edgeIndex: candidate }) => candidate === currentEdge)
-      ?.edgeIndex ?? tied[0].edgeIndex
+  const edgeIndex = getNearestHexEdgeIndex(pointerHex, worldPoint, currentEdge)
   return { edgeIndex, rotation: edgeIndex }
 }
 

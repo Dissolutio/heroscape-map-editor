@@ -6,6 +6,7 @@ import {
   getDraggableSelectionGroup,
 } from '../data/dragMove'
 import { applyPieceMoves } from '../data/movePieces'
+import { rotateDragMembers } from '../data/dragRotation'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import useBoundStore from '../store/store'
@@ -247,13 +248,14 @@ describe('ladder drag placement', () => {
     )
     if (!group) throw new Error('expected ladder stack group')
     const ladderSurface = targetHex(targetBoard, destination, 2)
+    const transformed = rotateDragMembers(group, grabbed.uid, noOffset, 3)
     const target = evaluateDragTarget(
       targetBoard,
       piecesSoFar[Pieces.ladder],
-      grabbed,
-      ladderSurface,
-      noOffset,
-      group,
+      transformed.bp,
+      { ...ladderSurface, pieceRotation: 4 },
+      transformed.grabOffset,
+      transformed.members,
     )
     expect(target.resolution).toMatchObject({
       rule: 'ladderStack',
