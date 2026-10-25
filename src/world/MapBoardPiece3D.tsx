@@ -141,7 +141,13 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
           renderOrder={30}
         >
           <ringGeometry
-            args={[HEXGRID_HEX_RADIUS * 0.72, HEXGRID_HEX_RADIUS * 0.82, 6]}
+            args={[
+              HEXGRID_HEX_RADIUS * 0.72,
+              HEXGRID_HEX_RADIUS * 0.82,
+              6,
+              1,
+              Math.PI / 6,
+            ]}
           />
           <meshBasicMaterial
             color="#00e5ff"
