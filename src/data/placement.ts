@@ -390,7 +390,6 @@ export function evaluatePlacement(
     ...(verticalObstructionTemplates[piece.id] ?? []),
   )
   const minimumAltitude =
-    resolution.rule === 'land' ||
     resolution.rule === 'battlement' ||
     resolution.rule === 'roadWall' ||
     resolution.rule === 'ropeLadder'

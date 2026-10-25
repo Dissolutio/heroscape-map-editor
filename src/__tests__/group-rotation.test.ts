@@ -20,7 +20,6 @@ import type {
 } from '../types'
 import { HexTerrain, Pieces } from '../types'
 import { hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
-import { genBoardHexID } from '../utils/map-utils'
 import { makeTable, place } from './helpers/board'
 import type { Board } from './helpers/board'
 
@@ -422,50 +421,6 @@ describe('existing single-piece rotation steps', () => {
 })
 
 describe('group rotation placement checks', () => {
-  it('keeps table-level land pieces at their valid -1 placement altitude', () => {
-    const table = makeTable(12)
-    const selected = [
-      uidPiece('pivot', Pieces.grass1, at(4, 4), -1),
-      uidPiece('member', Pieces.rock1, at(5, 4), -1),
-    ]
-    const moves = rotateGroupAroundPivot(selected, 'pivot', 1)
-    expect(
-      getGroupRotationBlockedReason(table, selected, moves),
-    ).toBeUndefined()
-  })
-
-  it('allows a browser-loaded three-piece table group to rotate in bounds', () => {
-    const map = buildupJsonFileMap(
-      [
-        uidPiece('first', Pieces.grass1, at(2, 4), -1),
-        uidPiece('second', Pieces.rock1, at(6, 4), -1),
-        uidPiece('pivot', Pieces.sand1, at(4, 4), -1),
-      ],
-      hexMap,
-    )
-    const selected = map.boardPieces
-    const moves = rotateGroupAroundPivot(selected, 'pivot', 1)
-    expect(getGroupRotationBlockedReason(map, selected, moves)).toBeUndefined()
-  })
-
-  it('restores tabletop hexes where the rotated group started', () => {
-    loadStore([
-      uidPiece('first', Pieces.grass1, at(2, 4), -1),
-      uidPiece('second', Pieces.rock1, at(6, 4), -1),
-      uidPiece('pivot', Pieces.sand1, at(4, 4), -1),
-    ])
-    const selected = store.getState().boardPieces
-    const moves = rotateGroupAroundPivot(selected, 'pivot', 1)
-    store.getState().movePieces({ moves })
-
-    for (const coords of [at(2, 4), at(6, 4)]) {
-      const tableHex =
-        store.getState().boardHexes[genBoardHexID({ ...coords, altitude: 0 })]
-      expect(tableHex?.terrain).toBe(HexTerrain.empty)
-      expect(tableHex?.isCap).toBe(true)
-    }
-  })
-
   it('blocks a member that would move off the map', () => {
     const table = makeTable(5)
     const onMap = new Set(

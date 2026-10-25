@@ -102,22 +102,6 @@ export function removePiece({
     // Remove all hexes from newBoardHexes that have the given uid
     for (const hexID of Object.keys(newBoardHexes)) {
       if (newBoardHexes[hexID]?.boardPieceUID === uid) {
-        const hex = newBoardHexes[hexID]
-        if (isLandTile && boardPiece.altitude === -1 && hex.altitude === 0) {
-          newBoardHexes[hexID] = {
-            id: hex.id,
-            q: hex.q,
-            r: hex.r,
-            s: hex.s,
-            altitude: 0,
-            terrain: HexTerrain.empty,
-            pieceID: '',
-            inventoryID: '',
-            pieceRotation: 0,
-            isCap: true,
-          }
-          continue
-        }
         delete newBoardHexes[hexID]
       }
     }

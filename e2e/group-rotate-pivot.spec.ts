@@ -16,7 +16,7 @@ const ROTATION_MAP = {
   width: 12,
   length: 12,
 }
-const ROTATION_PIECES = ['-1~2~4~0~g1', '-1~6~4~0~r1', '-1~4~4~0~s1']
+const ROTATION_PIECES = ['0~2~4~0~g1', '0~6~4~0~r1', '0~4~4~0~s1']
 const ROTATION_URL = mapUrl(ROTATION_MAP, ROTATION_PIECES)
 
 const piece = async (page: Page, uid: string) =>
