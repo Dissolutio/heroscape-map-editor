@@ -3,6 +3,8 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import type { ThreeEvent } from '@react-three/fiber'
 import useBoundStore from '../../store/store'
 import type { BoardHex, BoardPiece } from '../../types'
+import { SELECT_PEN_MODE } from '../../types'
+import type { RotationPivot } from '../../data/rotationPivot'
 import MapDisplay3D from '../../world/MapDisplay3D'
 import type { Board } from './board'
 import { takeCapturedHandler } from './handlerCapture'
@@ -56,6 +58,7 @@ export function clickWithPen({
     penModeRotation: rotation,
     viewingLevel: 30,
   }
+
   useBoundStore.setState(state)
   // A server render reads the store's initial state (zustand passes it as the
   // server snapshot), so the component's hooks see it only if it is set there.
@@ -84,5 +87,53 @@ export function clickWithPen({
     board: { boardHexes: after.boardHexes, boardPieces: after.boardPieces },
     selectedPieceIDs: after.selectedPieceIDs,
     conflictedPieceUIDs: after.conflictedPieceUIDs,
+  }
+}
+
+export function clickWithSelection({
+  board,
+  hex,
+  selectedPieceIDs,
+  rotationPivot = null,
+  shiftKey = false,
+}: {
+  board: Board
+  hex: BoardHex
+  selectedPieceIDs: string[]
+  rotationPivot?: RotationPivot | null
+  shiftKey?: boolean
+}): { selectedPieceIDs: string[]; rotationPivot: RotationPivot | null } {
+  const { boardHexes, boardPieces } = structuredClone(board)
+  const state = {
+    boardHexes,
+    boardPieces,
+    conflictedPieceUIDs: [],
+    selectedPieceIDs,
+    rotationPivot,
+    penMode: SELECT_PEN_MODE,
+    viewingLevel: 30,
+  }
+  useBoundStore.setState(state)
+  Object.assign(useBoundStore.getInitialState(), state)
+  takeCapturedHandler()
+  renderToStaticMarkup(
+    createElement(MapDisplay3D, { mapGroupRef: { current: null } }),
+  )
+  const captured = takeCapturedHandler()
+  if (!captured) throw new Error('test helper: handler was not captured')
+  captured(
+    {
+      button: 0,
+      shiftKey,
+      ctrlKey: false,
+      metaKey: false,
+      stopPropagation: () => undefined,
+    } as unknown as ThreeEvent<PointerEvent>,
+    hex,
+  )
+  const after = useBoundStore.getState()
+  return {
+    selectedPieceIDs: after.selectedPieceIDs,
+    rotationPivot: after.rotationPivot,
   }
 }

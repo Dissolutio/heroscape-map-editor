@@ -165,6 +165,79 @@ describe('rotateGroupAroundPivot', () => {
     }
   })
 
+  it('rotates a multi-hex group around a non-origin footprint hex', () => {
+    const table = makeTable(15)
+    const placed = place({
+      board: table,
+      pieceID: Pieces.grass3,
+      at: at(5, 5),
+      altitude: 0,
+      uid: 'tile',
+    })
+    const tile = placed.board.boardPieces.find((piece) => piece.uid === 'tile')
+    if (!tile) throw new Error('Missing multi-hex pivot piece')
+    const pivotHex = Object.values(placed.board.boardHexes).find(
+      (hex) =>
+        hex.boardPieceUID === tile.uid &&
+        (hex.q !== tile.pieceCoords.q || hex.r !== tile.pieceCoords.r),
+    )
+    if (!pivotHex) throw new Error('Missing non-origin pivot hex')
+    const member = uidPiece('member', Pieces.rock1, at(9, 5), 0, 4)
+    const selected = [tile, member]
+    const pivotCoords = {
+      q: pivotHex.q,
+      r: pivotHex.r,
+      s: pivotHex.s,
+    }
+    const tileDefinition = piecesSoFar[tile.inventoryID]
+    if (!tileDefinition) throw new Error('Missing tile definition')
+    const originalTileFootprint = getPieceTemplateCoords({
+      clickedHex: tile.pieceCoords,
+      rotation: tile.rotation,
+      template: tileDefinition.template,
+      isVsTile: false,
+    })
+
+    let current = selected
+    for (let step = 0; step < 6; step += 1) {
+      const moves = rotateGroupAroundPivot(current, pivotCoords, 1)
+      current = current.map((piece) => {
+        const move = moves.find((candidate) => candidate.uid === piece.uid)
+        if (!move) throw new Error(`Missing move for ${piece.uid}`)
+        return {
+          ...piece,
+          pieceCoords: move.newPieceCoords,
+          rotation: move.newRotation ?? piece.rotation,
+        }
+      })
+      if (step === 0) {
+        const tileMove = current.find((piece) => piece.uid === 'tile')
+        const memberMove = current.find((piece) => piece.uid === 'member')
+        if (!tileMove || !memberMove) throw new Error('Missing rotated pieces')
+        expect(memberMove.pieceCoords).toEqual(
+          rotateAroundPivot(member.pieceCoords, pivotCoords, 1),
+        )
+        const movedTileDefinition = piecesSoFar[tileMove.inventoryID]
+        if (!movedTileDefinition)
+          throw new Error('Missing moved tile definition')
+        const movedFootprint = getPieceTemplateCoords({
+          clickedHex: tileMove.pieceCoords,
+          rotation: tileMove.rotation,
+          template: movedTileDefinition.template,
+          isVsTile: false,
+        })
+        expect(sortedCoordKeys(movedFootprint)).toEqual(
+          sortedCoordKeys(
+            originalTileFootprint.map((hex) =>
+              rotateAroundPivot(hex, pivotCoords, 1),
+            ),
+          ),
+        )
+      }
+    }
+    expect(current).toEqual(selected)
+  })
+
   it('rejects a pivot that is not in the selected pieces', () => {
     expect(() => rotateGroupAroundPivot(members, 'missing', 1)).toThrow(
       'Rotation pivot missing is not in the selected pieces',
@@ -214,6 +287,53 @@ describe('rotation equivariance', () => {
               move.newRotation ?? rotation,
             ),
           ).toBe(true)
+        }
+      }
+    },
+  )
+
+  it.each(registeredPieces)(
+    'rotates $id equivariantly around a non-origin footprint pivot',
+    (piece) => {
+      const pivotTile = piecesSoFar[Pieces.grass3]
+      const pivotTileCoords = at(7, 8)
+      const pivotHex = getPieceTemplateCoords({
+        clickedHex: pivotTileCoords,
+        rotation: 0,
+        template: pivotTile.template,
+        isVsTile: false,
+      }).find((hex) => coordKey(hex) !== coordKey(pivotTileCoords))
+      if (!pivotHex) throw new Error('Missing non-origin pivot footprint hex')
+
+      for (const rotation of getPossibleRotationsForPenMode(piece.id)) {
+        for (const direction of [1, -1] as const) {
+          const member = uidPiece('member', piece.id, anchor, 2, rotation)
+          const pivotPiece = uidPiece(
+            'pivot-tile',
+            Pieces.grass3,
+            pivotTileCoords,
+          )
+          const move = rotateGroupAroundPivot(
+            [member, pivotPiece],
+            pivotHex,
+            direction,
+          ).find((candidate) => candidate.uid === 'member')
+          if (!move) throw new Error(`Missing move for ${piece.id}`)
+          const originalFootprint = getPieceTemplateCoords({
+            clickedHex: anchor,
+            rotation,
+            template: piece.template,
+            isVsTile: false,
+          }).map((coord) => rotateAroundPivot(coord, pivotHex, direction))
+          const movedFootprint = getPieceTemplateCoords({
+            clickedHex: move.newPieceCoords,
+            rotation: move.newRotation ?? rotation,
+            template: piece.template,
+            isVsTile: false,
+          })
+          expect(sortedCoordKeys(movedFootprint)).toEqual(
+            sortedCoordKeys(originalFootprint),
+          )
         }
       }
     },

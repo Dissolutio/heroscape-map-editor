@@ -299,7 +299,10 @@ function SubterrainInstance({
     e.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (e.button !== 0) return
-    toggleSelectedPieceID(item.uid, e.shiftKey || e.ctrlKey || e.metaKey)
+    toggleSelectedPieceID(item.uid, e.shiftKey || e.ctrlKey || e.metaKey, {
+      x: e.point.x,
+      z: e.point.z,
+    })
   }
 
   return (

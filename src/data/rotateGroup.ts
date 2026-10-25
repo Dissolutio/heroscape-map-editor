@@ -11,27 +11,33 @@ export function rotateCubeCoordinate(
 
 export function rotateGroupAroundPivot(
   boardPieces: readonly BoardPiece[],
-  pivotUID: string,
+  pivot: string | CubeCoordinate,
   direction: 1 | -1,
 ): MovePieceArgs[] {
-  const pivot = boardPieces.find((piece) => piece.uid === pivotUID)
-  if (!pivot) {
-    throw new Error(`Rotation pivot ${pivotUID} is not in the selected pieces`)
+  let pivotCoords: CubeCoordinate
+  if (typeof pivot === 'string') {
+    const pivotPiece = boardPieces.find((piece) => piece.uid === pivot)
+    if (!pivotPiece) {
+      throw new Error(`Rotation pivot ${pivot} is not in the selected pieces`)
+    }
+    pivotCoords = pivotPiece.pieceCoords
+  } else {
+    pivotCoords = pivot
   }
 
   return boardPieces.map((piece) => {
     const relative = {
-      q: piece.pieceCoords.q - pivot.pieceCoords.q,
-      r: piece.pieceCoords.r - pivot.pieceCoords.r,
-      s: piece.pieceCoords.s - pivot.pieceCoords.s,
+      q: piece.pieceCoords.q - pivotCoords.q,
+      r: piece.pieceCoords.r - pivotCoords.r,
+      s: piece.pieceCoords.s - pivotCoords.s,
     }
     const rotated = rotateCubeCoordinate(relative, direction)
     return {
       uid: piece.uid,
       newPieceCoords: {
-        q: pivot.pieceCoords.q + rotated.q,
-        r: pivot.pieceCoords.r + rotated.r,
-        s: pivot.pieceCoords.s + rotated.s,
+        q: pivotCoords.q + rotated.q,
+        r: pivotCoords.r + rotated.r,
+        s: pivotCoords.s + rotated.s,
       },
       newRotation: (((piece.rotation + direction) % 6) + 6) % 6,
     }

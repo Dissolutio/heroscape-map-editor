@@ -3,6 +3,7 @@ import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
 import { Box3, Vector3 } from 'three'
 import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
+import { resolveRotationPivot } from '../data/rotationPivot'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, Pieces } from '../types'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
@@ -110,6 +111,13 @@ function TestBridgeInner() {
           viewingLevel: s.viewingLevel,
           penMode: s.penMode,
           selectedPieceIDs: [...s.selectedPieceIDs],
+          rotationPivot:
+            resolveRotationPivot(
+              s.selectedPieceIDs,
+              s.boardPieces,
+              s.boardHexes,
+              s.rotationPivot,
+            ) ?? null,
           hoveredPieceID: s.hoveredPieceID,
           isOrthoCam: s.isOrthoCam,
           placementPreview: getPlacementPreview(),

@@ -177,9 +177,12 @@ export default function MapDisplay3D({
     // Select Hex
     if (penMode === SELECT_PEN_MODE) {
       if (hex.boardPieceUID) {
+        const isMultiSelect = event.shiftKey || event.ctrlKey || event.metaKey
         toggleSelectedPieceID(
           hex.boardPieceUID,
-          event.shiftKey || event.ctrlKey || event.metaKey,
+          isMultiSelect,
+          event.point ? { x: event.point.x, z: event.point.z } : undefined,
+          hex,
         )
       }
       return

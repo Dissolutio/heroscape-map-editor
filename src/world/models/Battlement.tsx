@@ -29,7 +29,11 @@ export function Battlement({ pid }: { pid: string }) {
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
+    toggleSelectedPieceID(
+      pid,
+      event.shiftKey || event.ctrlKey || event.metaKey,
+      { x: event.point.x, z: event.point.z },
+    )
   }
   return (
     <mesh

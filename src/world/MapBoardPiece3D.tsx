@@ -7,6 +7,7 @@ import {
   isLaurPillarID,
 } from '../data/laurPillarStacking'
 import { piecesSoFar } from '../data/pieces'
+import { resolveRotationPivot } from '../data/rotationPivot'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
@@ -88,13 +89,27 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
   )
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const rotationPivot = useBoundStore((s) => s.rotationPivot)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
   const isPivot =
     selectedPieceIDs.length > 1 &&
     selectedPieceIDs[selectedPieceIDs.length - 1] === uid
+  const resolvedPivot = isPivot
+    ? resolveRotationPivot(
+        selectedPieceIDs,
+        boardPieces,
+        boardHexes,
+        rotationPivot,
+      )
+    : undefined
+  const pivotCoords = resolvedPivot?.coords ?? pieceCoords
+  const pivotAltitude = resolvedPivot?.surfaceAltitude ?? altitude + 1
   const isVisible = altitude + 1 <= viewingLevel
+  const isPivotVisible = pivotAltitude <= viewingLevel
   const { x, y, z } = getBoardHex3DCoords({
-    ...pieceCoords,
-    altitude: altitude + 1,
+    ...pivotCoords,
+    altitude: pivotAltitude,
   })
   const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
     if (!isDragging()) return
@@ -129,7 +144,7 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
           hoveredHex={{ ...pieceCoords, altitude }}
         />
       )}
-      {isPivot && isVisible && (
+      {isPivot && isVisible && isPivotVisible && (
         <mesh
           position={[
             x,

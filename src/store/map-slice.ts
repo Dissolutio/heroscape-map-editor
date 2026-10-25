@@ -361,6 +361,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       // One update makes the whole group one undo step. No-op moves should
       // not reorder board pieces or create history entries.
       return produce(state, (draft) => {
+        const pivotUID =
+          state.selectedPieceIDs[state.selectedPieceIDs.length - 1]
+        if (effectiveMoves.some((move) => move.uid === pivotUID)) {
+          draft.rotationPivot = null
+        }
         const moved = applyPieceMoves(draft, effectiveMoves)
         if (!moved) return
         draft.boardHexes = moved.boardHexes
@@ -460,6 +465,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.boardHexes = mapState.boardHexes
         draft.hexMap = mapState.hexMap
         draft.boardPieces = mapState.boardPieces
+        draft.rotationPivot = null
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           mapState.boardPieces,
         )

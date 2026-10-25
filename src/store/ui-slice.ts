@@ -2,6 +2,12 @@ import { produce } from 'immer'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { DragPreview } from '../data/dragMove'
+import {
+  createRotationPivot,
+  getClosestOwnedPieceHex,
+  shouldSetRotationPivotOnClick,
+  type RotationPivot,
+} from '../data/rotationPivot'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 import {
@@ -58,7 +64,14 @@ export interface UISlice {
 
   // WORLD STATE
   selectedPieceIDs: string[]
-  toggleSelectedPieceID: (id: string, multiSelect?: boolean) => void
+  toggleSelectedPieceID: (
+    id: string,
+    multiSelect?: boolean,
+    pointerPoint?: { x: number; z: number },
+    clickedHex?: BoardHex,
+  ) => void
+  rotationPivot: RotationPivot | null
+  setRotationPivot: (pivot: RotationPivot | null) => void
   hoveredPieceID: string
   toggleHoveredPieceID: (id: string) => void
   hoveredHex: BoardHex | undefined
@@ -173,13 +186,48 @@ const createUISlice: StateCreator<
 > = (set) => ({
   ...loadSettings(),
   selectedPieceIDs: [],
-  toggleSelectedPieceID: (pieceID: string, multiSelect?: boolean) =>
+  rotationPivot: null,
+  toggleSelectedPieceID: (
+    pieceID: string,
+    multiSelect?: boolean,
+    pointerPoint?: { x: number; z: number },
+    clickedHex?: BoardHex,
+  ) =>
     set(
       produce((state) => {
         // in pick pen mode a click is an eyedropper, not a selection
         if (pieceID && state.penMode === PICK_PEN_MODE) {
           return
         }
+        const hitHex =
+          (pointerPoint
+            ? getClosestOwnedPieceHex(state.boardHexes, pieceID, pointerPoint)
+            : undefined) ??
+          (clickedHex?.boardPieceUID === pieceID ? clickedHex : undefined)
+        if (
+          pieceID &&
+          hitHex &&
+          shouldSetRotationPivotOnClick(
+            state.selectedPieceIDs,
+            state.boardPieces,
+            state.boardHexes,
+            state.rotationPivot,
+            hitHex,
+            Boolean(multiSelect),
+          )
+        ) {
+          const piece = state.boardPieces.find(
+            (candidate: BoardPiece) => candidate.uid === pieceID,
+          )
+          const pivot = piece && createRotationPivot(piece, hitHex)
+          if (pivot) {
+            state.rotationPivot = pivot
+            return
+          }
+        }
+
+        const wasSelected = state.selectedPieceIDs.includes(pieceID)
+        state.rotationPivot = null
         if (!pieceID) {
           state.selectedPieceIDs = []
         } else if (multiSelect) {
@@ -203,6 +251,26 @@ const createUISlice: StateCreator<
             state.selectedPieceIDs = [pieceID]
           }
         }
+
+        if (
+          pieceID &&
+          !wasSelected &&
+          state.selectedPieceIDs[state.selectedPieceIDs.length - 1] ===
+            pieceID &&
+          hitHex
+        ) {
+          const piece = state.boardPieces.find(
+            (candidate: BoardPiece) => candidate.uid === pieceID,
+          )
+          const pivot = piece && createRotationPivot(piece, hitHex)
+          if (pivot) state.rotationPivot = pivot
+        }
+      }),
+    ),
+  setRotationPivot: (pivot: RotationPivot | null) =>
+    set(
+      produce((state) => {
+        state.rotationPivot = pivot
       }),
     ),
   hoveredPieceID: '',

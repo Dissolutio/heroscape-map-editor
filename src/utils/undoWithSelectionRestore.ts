@@ -20,6 +20,7 @@ export function undoWithSelectionRestore() {
   temporalState.undo()
   useBoundStore.getState().recomputeConflicts()
   useBoundStore.getState().setPiecePreviews(null)
+  useBoundStore.getState().setRotationPivot(null)
 
   const pieceCountAfterUndo = useBoundStore.getState().boardPieces.length
   const isUndoingDelete = pieceCountAfterUndo > pieceCountBeforeUndo
@@ -58,6 +59,7 @@ export function redoWithSelectionRestore() {
   temporalState.redo()
   useBoundStore.getState().recomputeConflicts()
   useBoundStore.getState().setPiecePreviews(null)
+  useBoundStore.getState().setRotationPivot(null)
 
   const pieceCountAfterRedo = useBoundStore.getState().boardPieces.length
   const isRedoingDelete = pieceCountAfterRedo < pieceCountBeforeRedo
