@@ -16,6 +16,10 @@ export function getPossibleRotationsForPenMode(penMode: string) {
       : regularRotations
 }
 
+export function hasIntegerRotationSteps(pieceID: string) {
+  return getPossibleRotationsForPenMode(pieceID).every(Number.isInteger)
+}
+
 export function getRotationByListStep(
   pieceID: string,
   currentRotation: number,

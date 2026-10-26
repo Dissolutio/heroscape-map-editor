@@ -339,6 +339,44 @@ describe('rotation equivariance', () => {
     },
   )
 
+  it.each(registeredPieces)(
+    'rotates a single $id equivariantly around a non-origin pivot',
+    (piece) => {
+      const pivotTile = piecesSoFar[Pieces.grass3]
+      const pivotTileCoords = at(7, 8)
+      const pivotHex = getPieceTemplateCoords({
+        clickedHex: pivotTileCoords,
+        rotation: 0,
+        template: pivotTile.template,
+        isVsTile: false,
+      }).find((hex) => coordKey(hex) !== coordKey(pivotTileCoords))
+      if (!pivotHex) throw new Error('Missing non-origin pivot footprint hex')
+
+      for (const rotation of getPossibleRotationsForPenMode(piece.id)) {
+        for (const direction of [1, -1] as const) {
+          const member = uidPiece('member', piece.id, anchor, 2, rotation)
+          const move = rotateGroupAroundPivot([member], pivotHex, direction)[0]
+          if (!move) throw new Error(`Missing move for ${piece.id}`)
+          const originalFootprint = getPieceTemplateCoords({
+            clickedHex: anchor,
+            rotation,
+            template: piece.template,
+            isVsTile: false,
+          }).map((coord) => rotateAroundPivot(coord, pivotHex, direction))
+          const movedFootprint = getPieceTemplateCoords({
+            clickedHex: move.newPieceCoords,
+            rotation: move.newRotation ?? rotation,
+            template: piece.template,
+            isVsTile: false,
+          })
+          expect(sortedCoordKeys(movedFootprint)).toEqual(
+            sortedCoordKeys(originalFootprint),
+          )
+        }
+      }
+    },
+  )
+
   it('keeps edge support hexes and rope-ladder anchors equivariant', () => {
     const edgeSupport = (
       pieceID: string,
@@ -541,6 +579,57 @@ describe('existing single-piece rotation steps', () => {
 })
 
 describe('group rotation placement checks', () => {
+  it('blocks a single multi-hex rotation that would move off the map', () => {
+    const table = makeTable(5)
+    const coordinates = Object.values(table.boardHexes)
+      .filter((hex) => hex.altitude === 0)
+      .map(({ q, r, s }) => ({ q, r, s }))
+    let blocked = false
+
+    for (const anchor of coordinates) {
+      const placed = place({
+        board: table,
+        pieceID: Pieces.grass3,
+        at: anchor,
+        altitude: 0,
+        uid: 'tile',
+      })
+      if (placed.error) continue
+      const tile = placed.board.boardPieces.find(
+        (piece) => piece.uid === 'tile',
+      )
+      if (!tile) continue
+      const pivotHex = Object.values(placed.board.boardHexes).find(
+        (hex) =>
+          hex.boardPieceUID === tile.uid &&
+          !hex.isVerticalClearanceHex &&
+          (hex.q !== tile.pieceCoords.q || hex.r !== tile.pieceCoords.r),
+      )
+      if (!pivotHex) continue
+      const pivotCoords = {
+        q: pivotHex.q,
+        r: pivotHex.r,
+        s: pivotHex.s,
+      }
+
+      for (const direction of [1, -1] as const) {
+        const moves = rotateGroupAroundPivot([tile], pivotCoords, direction)
+        const reason = getGroupRotationBlockedReason(
+          placed.board,
+          [tile],
+          moves,
+        )
+        if (reason === 'offMap') {
+          blocked = true
+          break
+        }
+      }
+      if (blocked) break
+    }
+
+    expect(blocked).toBe(true)
+  })
+
   it('blocks a member that would move off the map', () => {
     const table = makeTable(5)
     const onMap = new Set(

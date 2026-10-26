@@ -8,7 +8,7 @@ import { type MovePieceArgs, applyPieceMoves } from '../data/movePieces'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
-import { reanchorRotationPivotAfterGroupRotation } from '../data/rotationPivot'
+import { reanchorRotationPivotAfterRotation } from '../data/rotationPivot'
 import { removePiece } from '../data/removePiece'
 import { HexTerrain } from '../types'
 import type {
@@ -378,7 +378,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
           state.selectedPieceIDs[state.selectedPieceIDs.length - 1]
         if (effectiveMoves.some((move) => move.uid === pivotUID)) {
           draft.rotationPivot = preserveRotationPivot
-            ? reanchorRotationPivotAfterGroupRotation(
+            ? reanchorRotationPivotAfterRotation(
                 state.selectedPieceIDs,
                 state.boardPieces,
                 state.boardHexes,

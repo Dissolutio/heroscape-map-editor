@@ -257,7 +257,8 @@ const createUISlice: StateCreator<
           !wasSelected &&
           state.selectedPieceIDs[state.selectedPieceIDs.length - 1] ===
             pieceID &&
-          hitHex
+          hitHex &&
+          (multiSelect || state.selectedPieceIDs.length > 1)
         ) {
           const piece = state.boardPieces.find(
             (candidate: BoardPiece) => candidate.uid === pieceID,

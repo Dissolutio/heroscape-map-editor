@@ -1,10 +1,16 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import {
+  getRotationByListStep,
+  hasIntegerRotationSteps,
+} from '../controls/getPossibleRotationsForPenMode'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import {
   createRotationPivot,
   getClosestOwnedPieceHex,
+  isRotationPivotAtPieceOrigin,
   resolveRotationPivot,
   shouldSetRotationPivotOnClick,
+  shouldShowRotationPivotMarker,
 } from '../data/rotationPivot'
 import { rotateGroupAroundPivot } from '../data/rotateGroup'
 import { Pieces, type BoardHex, type BoardPiece } from '../types'
@@ -190,6 +196,57 @@ describe('group rotation pivot resolution', () => {
     ).toBeUndefined()
   })
 
+  it('shows the marker for groups and multi-hex single selections only', () => {
+    const other = board.boardPieces.find((piece) => piece.uid === 'other')
+    if (!other) throw new Error('test setup: missing one-hex piece')
+
+    expect(
+      shouldShowRotationPivotMarker(
+        ['tile'],
+        'tile',
+        board.boardHexes,
+        tile.pieceCoords,
+        tile.pieceCoords,
+      ),
+    ).toBe(true)
+    expect(
+      shouldShowRotationPivotMarker(
+        ['other'],
+        'other',
+        board.boardHexes,
+        other.pieceCoords,
+        other.pieceCoords,
+      ),
+    ).toBe(false)
+    expect(
+      shouldShowRotationPivotMarker(
+        ['other'],
+        'other',
+        board.boardHexes,
+        other.pieceCoords,
+        clickedHex,
+      ),
+    ).toBe(true)
+    expect(
+      shouldShowRotationPivotMarker(
+        ['other', 'tile'],
+        'tile',
+        board.boardHexes,
+        tile.pieceCoords,
+        tile.pieceCoords,
+      ),
+    ).toBe(true)
+    expect(
+      shouldShowRotationPivotMarker(
+        ['other', 'tile'],
+        'other',
+        board.boardHexes,
+        other.pieceCoords,
+        other.pieceCoords,
+      ),
+    ).toBe(false)
+  })
+
   it('only treats another clicked footprint hex of the last piece as a pivot click', () => {
     const originHex =
       board.boardHexes[
@@ -246,7 +303,177 @@ describe('group rotation pivot resolution', () => {
         clickedHex,
         false,
       ),
-    ).toBe(false)
+    ).toBe(true)
+  })
+
+  it('keeps initial single-selection clicks and one-hex clicks on the origin', async () => {
+    const { store } = await loadStore()
+    const temporal = store.temporal.getState()
+    temporal.pause()
+    store.getState().loadMap(
+      buildupJsonFileMap(board.boardPieces, {
+        id: 'pivot-single-click',
+        name: 'Pivot single click',
+        author: '',
+        shape: 'rectangle',
+        width: 12,
+        length: 12,
+      }),
+      { holdAutosave: true },
+    )
+    temporal.clear()
+    temporal.resume()
+
+    store.getState().toggleSelectedPieceID('tile', false, undefined, clickedHex)
+    expect(store.getState().selectedPieceIDs).toEqual(['tile'])
+    expect(store.getState().rotationPivot).toBeNull()
+
+    store.getState().toggleSelectedPieceID('tile', false, undefined, clickedHex)
+    expect(store.getState().selectedPieceIDs).toEqual(['tile'])
+    expect(store.getState().rotationPivot?.coords).toEqual({
+      q: clickedHex.q,
+      r: clickedHex.r,
+      s: clickedHex.s,
+    })
+
+    store.getState().toggleSelectedPieceID('tile', false, undefined, clickedHex)
+    expect(store.getState().selectedPieceIDs).toEqual([])
+
+    const otherPiece = board.boardPieces.find((piece) => piece.uid === 'other')
+    if (!otherPiece) throw new Error('test setup: missing one-hex piece')
+    const otherOriginHex =
+      board.boardHexes[
+        genBoardHexID({
+          ...otherPiece.pieceCoords,
+          altitude: 1,
+        })
+      ]
+    if (!otherOriginHex) throw new Error('test setup: missing one-hex origin')
+
+    store
+      .getState()
+      .toggleSelectedPieceID('other', false, undefined, otherOriginHex)
+    expect(store.getState().selectedPieceIDs).toEqual(['other'])
+    expect(store.getState().rotationPivot).toBeNull()
+    store
+      .getState()
+      .toggleSelectedPieceID('other', false, undefined, otherOriginHex)
+    expect(store.getState().selectedPieceIDs).toEqual([])
+  })
+
+  it.each([1, -1] as const)(
+    'rotates one selected multi-hex piece around its non-origin pivot six times (%i)',
+    async (direction) => {
+      const { store } = await loadStore()
+      const temporal = store.temporal.getState()
+      temporal.pause()
+      store.getState().loadMap(
+        buildupJsonFileMap(tileBoard.boardPieces, {
+          id: 'pivot-single-rotation',
+          name: 'Pivot single rotation',
+          author: '',
+          shape: 'rectangle',
+          width: 12,
+          length: 12,
+        }),
+        { holdAutosave: true },
+      )
+      temporal.clear()
+      temporal.resume()
+      const state = store.getState()
+      const singleTile = state.boardPieces.find((piece) => piece.uid === 'tile')
+      if (!singleTile) throw new Error('test setup: missing multi-hex tile')
+      const singlePivotHex = otherHex(
+        Object.values(state.boardHexes),
+        singleTile,
+      )
+      if (!singlePivotHex)
+        throw new Error('test setup: missing non-origin footprint hex')
+      const singlePivot = createRotationPivot(singleTile, singlePivotHex)
+      if (!singlePivot) throw new Error('test setup: could not create pivot')
+      store.setState({
+        selectedPieceIDs: ['tile'],
+        rotationPivot: singlePivot,
+      })
+
+      const original = {
+        pieceCoords: singleTile.pieceCoords,
+        rotation: singleTile.rotation,
+      }
+      const rotateOnce = () => {
+        const currentState = store.getState()
+        const currentPiece = currentState.boardPieces.find(
+          (piece) => piece.uid === 'tile',
+        )
+        const resolved = resolveRotationPivot(
+          currentState.selectedPieceIDs,
+          currentState.boardPieces,
+          currentState.boardHexes,
+          currentState.rotationPivot,
+        )
+        if (!currentPiece || !resolved) {
+          throw new Error('test setup: single-piece pivot is unresolved')
+        }
+        const moves = rotateGroupAroundPivot(
+          [currentPiece],
+          resolved.coords,
+          direction,
+        )
+        currentState.movePieces({ moves, preserveRotationPivot: true })
+        expect(
+          resolveRotationPivot(
+            store.getState().selectedPieceIDs,
+            store.getState().boardPieces,
+            store.getState().boardHexes,
+            store.getState().rotationPivot,
+          ),
+        ).toEqual({
+          coords: singlePivot.coords,
+          surfaceAltitude: singlePivot.surfaceAltitude,
+        })
+      }
+
+      for (let step = 0; step < 6; step += 1) {
+        rotateOnce()
+        if (step === 1) {
+          const afterTwo = store
+            .getState()
+            .boardPieces.find((piece) => piece.uid === 'tile')
+          expect(afterTwo?.rotation).toBe(
+            (original.rotation + 2 * direction + 6) % 6,
+          )
+        }
+      }
+
+      const afterSix = store
+        .getState()
+        .boardPieces.find((piece) => piece.uid === 'tile')
+      expect(afterSix?.pieceCoords).toEqual(original.pieceCoords)
+      expect(afterSix?.rotation).toBe(original.rotation)
+    },
+  )
+
+  it('keeps origin rotation on the existing step list and rejects fractional sets for non-origin pivots', () => {
+    expect(
+      isRotationPivotAtPieceOrigin(tile.pieceCoords, tile.pieceCoords),
+    ).toBe(true)
+    expect(isRotationPivotAtPieceOrigin(tile.pieceCoords, clickedHex)).toBe(
+      false,
+    )
+    expect(getRotationByListStep(Pieces.grass3, 0, 1)).toBe(1)
+    expect(getRotationByListStep(Pieces.laurWallLong, 0.5, 1)).toBe(1.5)
+    expect(hasIntegerRotationSteps(Pieces.grass3)).toBe(true)
+    expect(
+      [
+        Pieces.laurWallLong,
+        Pieces.laurWallArch,
+        Pieces.laurWallLongStackable,
+        Pieces.laurWallTrianglePillar,
+        Pieces.laurWallRuin1,
+        Pieces.laurWallRuin2,
+        Pieces.laurWallRuin3,
+      ].every((pieceID) => !hasIntegerRotationSteps(pieceID)),
+    ).toBe(true)
   })
 
   it('does not revive a pivot after the selection changes away and back', async () => {
@@ -394,6 +621,90 @@ describe('group rotation pivot resolution', () => {
       expect(getPieces()).toEqual(originalPieces)
     },
   )
+
+  it('undoes each single-piece pivot rotation separately and falls back to origin', async () => {
+    const { store, undoWithSelectionRestore } = await loadStore()
+    const temporal = store.temporal.getState()
+    temporal.pause()
+    store.getState().loadMap(
+      buildupJsonFileMap(tileBoard.boardPieces, {
+        id: 'pivot-single-undo',
+        name: 'Pivot single undo',
+        author: '',
+        shape: 'rectangle',
+        width: 12,
+        length: 12,
+      }),
+      { holdAutosave: true },
+    )
+    temporal.clear()
+    temporal.resume()
+    const state = store.getState()
+    const singleTile = state.boardPieces.find((piece) => piece.uid === 'tile')
+    if (!singleTile) throw new Error('test setup: missing multi-hex tile')
+    const singlePivotHex = otherHex(Object.values(state.boardHexes), singleTile)
+    if (!singlePivotHex)
+      throw new Error('test setup: missing non-origin footprint hex')
+    const singlePivot = createRotationPivot(singleTile, singlePivotHex)
+    if (!singlePivot) throw new Error('test setup: could not create pivot')
+    store.setState({
+      selectedPieceIDs: ['tile'],
+      rotationPivot: singlePivot,
+    })
+
+    const original = {
+      pieceCoords: singleTile.pieceCoords,
+      rotation: singleTile.rotation,
+    }
+    const rotateOnce = () => {
+      const currentState = store.getState()
+      const currentPiece = currentState.boardPieces.find(
+        (piece) => piece.uid === 'tile',
+      )
+      const resolved = resolveRotationPivot(
+        currentState.selectedPieceIDs,
+        currentState.boardPieces,
+        currentState.boardHexes,
+        currentState.rotationPivot,
+      )
+      if (!currentPiece || !resolved) {
+        throw new Error('test setup: single-piece pivot is unresolved')
+      }
+      currentState.movePieces({
+        moves: rotateGroupAroundPivot([currentPiece], resolved.coords, 1),
+        preserveRotationPivot: true,
+      })
+    }
+
+    rotateOnce()
+    const afterFirst = store
+      .getState()
+      .boardPieces.find((piece) => piece.uid === 'tile')
+    rotateOnce()
+    expect(store.temporal.getState().pastStates).toHaveLength(2)
+    undoWithSelectionRestore()
+    const afterOneUndo = store
+      .getState()
+      .boardPieces.find((piece) => piece.uid === 'tile')
+    expect(afterOneUndo?.pieceCoords).toEqual(afterFirst?.pieceCoords)
+    expect(afterOneUndo?.rotation).toBe(afterFirst?.rotation)
+    expect(store.getState().rotationPivot).toBeNull()
+    expect(
+      resolveRotationPivot(
+        store.getState().selectedPieceIDs,
+        store.getState().boardPieces,
+        store.getState().boardHexes,
+        store.getState().rotationPivot,
+      )?.coords,
+    ).toEqual(afterOneUndo?.pieceCoords)
+
+    undoWithSelectionRestore()
+    const afterTwoUndos = store
+      .getState()
+      .boardPieces.find((piece) => piece.uid === 'tile')
+    expect(afterTwoUndos?.pieceCoords).toEqual(original.pieceCoords)
+    expect(afterTwoUndos?.rotation).toBe(original.rotation)
+  })
 
   it('undoes group rotations and falls back to the pivot piece origin', async () => {
     const { store, undoWithSelectionRestore } = await loadStore()

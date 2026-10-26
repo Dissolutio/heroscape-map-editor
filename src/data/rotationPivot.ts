@@ -57,11 +57,37 @@ const getOriginSurfaceAltitude = (
 const sameCoords = (a: CubeCoordinate, b: CubeCoordinate) =>
   a.q === b.q && a.r === b.r && a.s === b.s
 
+export const isRotationPivotAtPieceOrigin = (
+  pieceCoords: CubeCoordinate,
+  pivotCoords: CubeCoordinate,
+) => sameCoords(pieceCoords, pivotCoords)
+
+export function shouldShowRotationPivotMarker(
+  selectedPieceIDs: readonly string[],
+  uid: string,
+  boardHexes: BoardHexes,
+  pieceCoords: CubeCoordinate,
+  pivotCoords: CubeCoordinate,
+): boolean {
+  if (selectedPieceIDs[selectedPieceIDs.length - 1] !== uid) return false
+  if (selectedPieceIDs.length > 1) return true
+
+  const footprintCoords = new Set(
+    Object.values(boardHexes)
+      .filter((hex) => hex.boardPieceUID === uid && !hex.isVerticalClearanceHex)
+      .map((hex) => `${hex.q},${hex.r},${hex.s}`),
+  )
+  return (
+    footprintCoords.size > 1 ||
+    !isRotationPivotAtPieceOrigin(pieceCoords, pivotCoords)
+  )
+}
+
 export function createRotationPivot(
   piece: BoardPiece,
   hex: BoardHex,
 ): RotationPivot | null {
-  if (hex.boardPieceUID !== piece.uid) return null
+  if (hex.boardPieceUID !== piece.uid || hex.isVerticalClearanceHex) return null
 
   return {
     uid: piece.uid,
@@ -109,7 +135,7 @@ export function resolveRotationPivot(
   }
 }
 
-export function reanchorRotationPivotAfterGroupRotation(
+export function reanchorRotationPivotAfterRotation(
   selectedPieceIDs: readonly string[],
   previousBoardPieces: readonly BoardPiece[],
   previousBoardHexes: BoardHexes,
@@ -166,7 +192,7 @@ export function shouldSetRotationPivotOnClick(
   clickedHex: BoardHex,
   isMultiSelect: boolean,
 ): boolean {
-  if (isMultiSelect || selectedPieceIDs.length < 2) return false
+  if (isMultiSelect || selectedPieceIDs.length === 0) return false
 
   const lastSelectedUID = selectedPieceIDs[selectedPieceIDs.length - 1]
   const resolved = resolveRotationPivot(
@@ -183,13 +209,15 @@ export function shouldSetRotationPivotOnClick(
     return false
   }
 
-  return (
-    clickedHex.boardPieceUID === lastSelectedUID &&
+  const ownedHex =
     boardHexes[
       genBoardHexID({
         ...clickedHex,
         altitude: clickedHex.altitude,
       })
-    ]?.boardPieceUID === clickedHex.boardPieceUID
+    ]
+  return (
+    ownedHex?.boardPieceUID === lastSelectedUID &&
+    !ownedHex.isVerticalClearanceHex
   )
 }

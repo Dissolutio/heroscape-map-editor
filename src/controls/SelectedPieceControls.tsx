@@ -4,7 +4,10 @@ import { enqueueSnackbar } from 'notistack'
 import type { RefObject } from 'react'
 import { getGroupRotationBlockedReason } from '../data/evaluateGroupRotation'
 import { piecesSoFar } from '../data/pieces'
-import { resolveRotationPivot } from '../data/rotationPivot'
+import {
+  isRotationPivotAtPieceOrigin,
+  resolveRotationPivot,
+} from '../data/rotationPivot'
 import { rotateGroupAroundPivot } from '../data/rotateGroup'
 import {
   placementBlockedMessages,
@@ -22,7 +25,10 @@ import {
 } from '../utils/map-utils'
 import { ConvertTerrainQuickSelect } from './ConvertTerrainQuickSelect'
 import DeletePieceButton from './DeletePieceButton'
-import { getRotationByListStep } from './getPossibleRotationsForPenMode'
+import {
+  getRotationByListStep,
+  hasIntegerRotationSteps,
+} from './getPossibleRotationsForPenMode'
 
 const FONT_SIZE = 8
 
@@ -318,6 +324,13 @@ export function SelectedPieceControls({
   if (!firstBp) return null
 
   const isMulti = selectedBoardPieces.length > 1
+  const hasNonOriginPivot =
+    !isMulti &&
+    groupRotationPivot !== undefined &&
+    !isRotationPivotAtPieceOrigin(
+      firstBp.pieceCoords,
+      groupRotationPivot.coords,
+    )
 
   // --- Status computations ---
   const conflictedUIDSet = new Set(conflictedPieceUIDs)
@@ -412,7 +425,11 @@ export function SelectedPieceControls({
     )
   }
   const previewRotate = (direction: 1 | -1) => {
-    if (isMulti) {
+    if (isMulti || hasNonOriginPivot) {
+      if (!isMulti && !hasIntegerRotationSteps(firstBp.inventoryID)) {
+        setPiecePreviews(null)
+        return
+      }
       const moves = rotateGroupAroundPivot(
         selectedBoardPieces,
         groupRotationPivot?.coords ??
@@ -480,6 +497,16 @@ export function SelectedPieceControls({
   }
 
   const rotateSelectedPiece = (direction: 1 | -1) => {
+    const showBlockedRotation = (reason?: PlacementBlockedReason) => {
+      enqueueSnackbar({
+        message: reason
+          ? placementBlockedMessages[reason]
+          : 'That rotation is blocked.',
+        variant: 'warning',
+        autoHideDuration: 5000,
+      })
+    }
+
     if (isMulti) {
       const moves = rotateGroupAroundPivot(
         selectedBoardPieces,
@@ -493,13 +520,7 @@ export function SelectedPieceControls({
         moves,
       )
       if (blockedReason) {
-        enqueueSnackbar({
-          message:
-            placementBlockedMessages[blockedReason as PlacementBlockedReason] ??
-            'That rotation is blocked.',
-          variant: 'warning',
-          autoHideDuration: 5000,
-        })
+        showBlockedRotation(blockedReason)
         setPiecePreviews(null)
         return
       }
@@ -507,6 +528,35 @@ export function SelectedPieceControls({
       movePieces({ moves, preserveRotationPivot: true })
       return
     }
+
+    if (hasNonOriginPivot && groupRotationPivot) {
+      if (!hasIntegerRotationSteps(firstBp.inventoryID)) {
+        showBlockedRotation()
+        setPiecePreviews(null)
+        return
+      }
+
+      const moves = rotateGroupAroundPivot(
+        selectedBoardPieces,
+        groupRotationPivot.coords,
+        direction,
+      )
+      const blockedReason = getGroupRotationBlockedReason(
+        { boardHexes, boardPieces },
+        selectedBoardPieces,
+        moves,
+      )
+      if (blockedReason) {
+        showBlockedRotation(blockedReason)
+        setPiecePreviews(null)
+        return
+      }
+
+      setPiecePreviews(null)
+      movePieces({ moves, preserveRotationPivot: true })
+      return
+    }
+
     setPiecePreviews(null)
     movePieces({
       moves: selectedBoardPieces.map((bp) => {
