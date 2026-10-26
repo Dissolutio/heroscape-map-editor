@@ -169,6 +169,79 @@ describe('click placement through the real handler', () => {
     expect(currentPivotClick.rotationPivot).toBeNull()
   })
 
+  it('moves a single piece pivot on a plain click without toggling selection', () => {
+    const table = makeTable(12)
+    const board = place({
+      board: cloneBoard(table),
+      pieceID: Pieces.grass3,
+      at: table.center,
+      altitude: 0,
+      uid: 'tile',
+    }).board
+    const clickedHex = Object.values(board.boardHexes).find(
+      (hex) =>
+        hex.boardPieceUID === 'tile' &&
+        (hex.q !== table.center.q || hex.r !== table.center.r),
+    )
+    if (!clickedHex) throw new Error('test setup: missing non-origin hex')
+
+    const selecting = clickWithSelection({
+      board,
+      hex: clickedHex,
+      selectedPieceIDs: [],
+    })
+    expect(selecting.selectedPieceIDs).toEqual(['tile'])
+    expect(selecting.rotationPivot).toBeNull()
+
+    const pivotClick = clickWithSelection({
+      board,
+      hex: clickedHex,
+      selectedPieceIDs: ['tile'],
+    })
+    expect(pivotClick.selectedPieceIDs).toEqual(['tile'])
+    expect(pivotClick.rotationPivot).toMatchObject({
+      uid: 'tile',
+      coords: { q: clickedHex.q, r: clickedHex.r, s: clickedHex.s },
+    })
+
+    const originHex = Object.values(board.boardHexes).find(
+      (hex) =>
+        hex.boardPieceUID === 'tile' &&
+        hex.q === table.center.q &&
+        hex.r === table.center.r,
+    )
+    if (!originHex) throw new Error('test setup: missing origin hex')
+    const movePivotToOrigin = clickWithSelection({
+      board,
+      hex: originHex,
+      selectedPieceIDs: ['tile'],
+      rotationPivot: pivotClick.rotationPivot,
+    })
+    expect(movePivotToOrigin.selectedPieceIDs).toEqual(['tile'])
+    expect(movePivotToOrigin.rotationPivot?.coords).toMatchObject({
+      q: table.center.q,
+      r: table.center.r,
+      s: table.center.s,
+    })
+    const deselectAtOrigin = clickWithSelection({
+      board,
+      hex: originHex,
+      selectedPieceIDs: ['tile'],
+      rotationPivot: movePivotToOrigin.rotationPivot,
+    })
+    expect(deselectAtOrigin.selectedPieceIDs).toEqual([])
+    expect(deselectAtOrigin.rotationPivot).toBeNull()
+
+    const currentPivotClick = clickWithSelection({
+      board,
+      hex: clickedHex,
+      selectedPieceIDs: ['tile'],
+      rotationPivot: pivotClick.rotationPivot,
+    })
+    expect(currentPivotClick.selectedPieceIDs).toEqual([])
+    expect(currentPivotClick.rotationPivot).toBeNull()
+  })
+
   it.each(placementCases)('$name', ({ pieceID, rotation, setup, expected }) => {
     const { board, hex } = setup()
     const before = cloneBoard(board)

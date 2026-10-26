@@ -173,6 +173,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Viewing-level regression | `e2e/viewing-level.spec.ts` |
 | Load-time map fitting | `e2e/load-fits-map.spec.ts` |
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
+| Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 
 The map-settle tracker also feeds the app's startup UI in normal runs. The
 window bridge, hidden status element, deterministic rotation, and other
