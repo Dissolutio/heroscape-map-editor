@@ -91,8 +91,7 @@ function getFittingHexagonFootprints(
   const originQ = hexMap.originQ ?? 0
   const originR = hexMap.originR ?? 0
   const centerQ =
-    originQ +
-    (radius % 2 === 0 ? radius / 2 : Math.floor(radius / 2 + 0.5))
+    originQ + (radius % 2 === 0 ? radius / 2 : Math.floor(radius / 2 + 0.5))
   const centerR = originR + radius
   const centerS = -centerQ - centerR
   let extents: HexagonExtents = {
@@ -145,18 +144,15 @@ function getFittingRectangleFootprints(
     const coords = getPieceFootprintCoords(boardPiece)
     if (coords.length === 0) continue
 
-    const nextExtents = coords.reduce(
-      (next, { q, r }) => {
-        const col = q + Math.floor(r / 2)
-        return {
-          minR: Math.min(next.minR, r),
-          maxR: Math.max(next.maxR, r),
-          minCol: Math.min(next.minCol, col),
-          maxCol: Math.max(next.maxCol, col),
-        }
-      },
-      extents,
-    )
+    const nextExtents = coords.reduce((next, { q, r }) => {
+      const col = q + Math.floor(r / 2)
+      return {
+        minR: Math.min(next.minR, r),
+        maxR: Math.max(next.maxR, r),
+        minCol: Math.min(next.minCol, col),
+        maxCol: Math.max(next.maxCol, col),
+      }
+    }, extents)
     if (
       nextExtents.maxR - nextExtents.minR + 1 > maxLength ||
       nextExtents.maxCol - nextExtents.minCol + 1 > maxWidth
