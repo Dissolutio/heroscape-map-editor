@@ -11,6 +11,7 @@ import {
   resolveRotationPivot,
   shouldShowRotationPivotMarker,
 } from '../data/rotationPivot'
+import { shouldRenderPlacedPiece } from '../data/startZoneVisibility'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
@@ -95,6 +96,8 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
   const rotationPivot = useBoundStore((s) => s.rotationPivot)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
+  const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
+  if (!shouldRenderPlacedPiece(props.bp, isShowStartZones)) return null
   const isLastSelected = selectedPieceIDs[selectedPieceIDs.length - 1] === uid
   const resolvedPivot = isLastSelected
     ? resolveRotationPivot(

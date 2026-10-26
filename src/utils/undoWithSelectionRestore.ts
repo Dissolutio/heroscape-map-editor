@@ -1,4 +1,5 @@
 import useBoundStore from '../store/store'
+import { filterVisiblePieceIDs } from '../data/startZoneVisibility'
 
 /**
  * Wraps zundo's `undo()` so that, when the next undoable action is a delete,
@@ -26,20 +27,22 @@ export function undoWithSelectionRestore() {
   const isUndoingDelete = pieceCountAfterUndo > pieceCountBeforeUndo
   const ids = isUndoingDelete ? popPendingUndoSelectionRestore() : null
   if (ids?.length) {
-    pushPendingRedoSelectionRestore(ids)
-  }
-
-  if (ids?.length) {
-    const { boardPieces: restoredBoardPieces } = useBoundStore.getState()
-    const restoredIds = ids.filter((id) =>
-      restoredBoardPieces.some((bp) => bp.uid === id),
+    const { boardPieces: restoredBoardPieces, isShowStartZones } =
+      useBoundStore.getState()
+    const restoredIds = filterVisiblePieceIDs(
+      ids.filter((id) => restoredBoardPieces.some((bp) => bp.uid === id)),
+      restoredBoardPieces,
+      isShowStartZones,
     )
     if (restoredIds.length) {
+      pushPendingRedoSelectionRestore(restoredIds)
       // Select first ID (clears any existing selection), then multi-select the rest
       toggleSelectedPieceID(restoredIds[0])
       for (const id of restoredIds.slice(1)) {
         toggleSelectedPieceID(id, true)
       }
+    } else {
+      toggleSelectedPieceID('')
     }
   }
 }

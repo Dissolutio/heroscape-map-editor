@@ -87,6 +87,17 @@ describe('settings persistence', () => {
     expect(loadSettings()).toEqual(changed)
   })
 
+  it('ignores a stale start-zone visibility setting without rewriting it', () => {
+    const staleSettings = JSON.stringify({
+      v: 1,
+      values: { isShowStartZones: false },
+    })
+    storage.setItem(LS_KEYS.settings, staleSettings)
+
+    expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
+    expect(values.get(LS_KEYS.settings)).toBe(staleSettings)
+  })
+
   it('returns null when all settings equal their defaults', () => {
     expect(serializeSettings(SETTINGS_DEFAULTS)).toBeNull()
   })
@@ -291,6 +302,7 @@ describe('settings persistence', () => {
       'currentDialog',
       'isTakingPicture',
       'isCameraDisabled',
+      'isShowStartZones',
       'is2DOpen',
       'isPdfOpen',
       'viewingLevel',

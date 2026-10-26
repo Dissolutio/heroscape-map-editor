@@ -10,6 +10,7 @@ import {
   getLaurStackableVariantID,
 } from '../data/laurVariantPenModes.ts'
 import { piecesSoFar } from '../data/pieces.ts'
+import { START_ZONES_HIDDEN_MESSAGE } from '../data/startZoneVisibility.ts'
 import {
   LAUR_STACKABLE_VARIANT_UNAVAILABLE_MESSAGE,
   type ResolvedPlacement,
@@ -321,6 +322,15 @@ export default function MapDisplay3D({
     }
     // Placed new piece, deselect piece
     else {
+      if (
+        piece.terrain === HexTerrain.startZone &&
+        !useBoundStore.getState().isShowStartZones
+      ) {
+        enqueueSnackbar({
+          message: START_ZONES_HIDDEN_MESSAGE,
+          variant: 'info',
+        })
+      }
       toggleSelectedPieceID('')
     }
   }

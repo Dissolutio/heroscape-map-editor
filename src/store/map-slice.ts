@@ -9,6 +9,10 @@ import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
 import { reanchorRotationPivotAfterRotation } from '../data/rotationPivot'
+import {
+  filterVisiblePieceIDs,
+  isStartZoneBoardPiece,
+} from '../data/startZoneVisibility'
 import { removePiece } from '../data/removePiece'
 import { HexTerrain } from '../types'
 import type {
@@ -482,6 +486,23 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     clearGlobalMaterialCache()
     const result = set((state) => {
       return produce(state, (draft) => {
+        const piecesBeforeLoad = draft.boardPieces
+        if (!draft.isShowStartZones) {
+          draft.selectedPieceIDs = filterVisiblePieceIDs(
+            draft.selectedPieceIDs,
+            [...piecesBeforeLoad, ...mapState.boardPieces],
+            false,
+          )
+          if (
+            isStartZoneBoardPiece(
+              piecesBeforeLoad.find(
+                (piece) => piece.uid === draft.hoveredPieceID,
+              ),
+            )
+          ) {
+            draft.hoveredPieceID = ''
+          }
+        }
         draft.boardHexes = mapState.boardHexes
         draft.hexMap = mapState.hexMap
         draft.boardPieces = mapState.boardPieces
