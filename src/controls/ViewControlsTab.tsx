@@ -11,6 +11,7 @@ import {
   Select,
   type SelectChangeEvent,
   Switch,
+  Tooltip,
 } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
 import React from 'react'
@@ -37,6 +38,9 @@ import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
+
+const GENERIC_PIECE_COLORS_TOOLTIP =
+  'Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D.'
 
 export default function ViewControlsTab({
   cameraControlsRef,
@@ -241,7 +245,14 @@ const GenericTerrainColorsForm = () => {
         borderColor: 'divider',
       }}
     >
-      <FormLabel component="legend">Generic piece colors</FormLabel>
+      <Tooltip title={GENERIC_PIECE_COLORS_TOOLTIP} describeChild>
+        <FormLabel
+          component="legend"
+          aria-label={`Generic piece colors. ${GENERIC_PIECE_COLORS_TOOLTIP}`}
+        >
+          Generic piece colors
+        </FormLabel>
+      </Tooltip>
       {colors.map(([label, color, setColor]) => (
         <label
           key={label}
@@ -261,10 +272,6 @@ const GenericTerrainColorsForm = () => {
           {label}
         </label>
       ))}
-      <FormHelperText sx={{ gridColumn: '1 / -1', m: 0 }}>
-        Cap colors also drive SVG/PDF; 2D sub-level shades are derived
-        automatically. Side colors affect only 3D.
-      </FormHelperText>
       <Button
         onClick={resetColors}
         size="small"
