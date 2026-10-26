@@ -5,23 +5,174 @@ import {
   hexUtilsGenRectangleGrid,
 } from '../utils/hex-utils'
 import { genBoardHexID } from '../utils/map-utils'
+import {
+  MAX_HEXAGON_MAP_DIMENSION,
+  MAX_RECTANGLE_MAP_DIMENSION,
+} from '../utils/constants'
 import getPieceTemplateCoords from './rotationTransforms'
 import { piecesSoFar } from './pieces'
 
 const rimPieces = new Set([Pieces.battlement, Pieces.roadWall])
 
-function getFootprintCoords(boardPieces: readonly BoardPiece[]) {
-  return boardPieces.flatMap((boardPiece) => {
-    const piece = piecesSoFar[boardPiece.inventoryID]
-    if (!piece || rimPieces.has(piece.id)) return []
+// The UI allows 20 hexagon cells per side; four extra rings preserve overhangs.
+export const MAX_HEXAGON_FIT_RADIUS = MAX_HEXAGON_MAP_DIMENSION - 1 + 4
+// The UI allows 40 rectangle cells per side; eight extra cells allow growth.
+export const MAX_RECTANGLE_FIT_DIMENSION = MAX_RECTANGLE_MAP_DIMENSION + 8
 
-    return getPieceTemplateCoords({
-      clickedHex: boardPiece.pieceCoords,
-      rotation: boardPiece.rotation,
-      template: piece.template,
-      isVsTile: false,
-    })
+type HexagonExtents = {
+  minQ: number
+  maxQ: number
+  minR: number
+  maxR: number
+  minS: number
+  maxS: number
+}
+
+type RectangleExtents = {
+  minR: number
+  maxR: number
+  minCol: number
+  maxCol: number
+}
+
+type FittingFootprints = {
+  footprintCoords: ReturnType<typeof getPieceTemplateCoords>
+  droppedPieces: BoardPiece[]
+}
+
+function getPieceFootprintCoords(boardPiece: BoardPiece) {
+  const piece = piecesSoFar[boardPiece.inventoryID]
+  if (!piece || rimPieces.has(piece.id)) return []
+
+  return getPieceTemplateCoords({
+    clickedHex: boardPiece.pieceCoords,
+    rotation: boardPiece.rotation,
+    template: piece.template,
+    isVsTile: false,
   })
+}
+
+function addHexagonCoordsToExtents(
+  extents: HexagonExtents,
+  coords: ReturnType<typeof getPieceTemplateCoords>,
+): HexagonExtents {
+  return coords.reduce(
+    (next, { q, r, s }) => ({
+      minQ: Math.min(next.minQ, q),
+      maxQ: Math.max(next.maxQ, q),
+      minR: Math.min(next.minR, r),
+      maxR: Math.max(next.maxR, r),
+      minS: Math.min(next.minS, s),
+      maxS: Math.max(next.maxS, s),
+    }),
+    extents,
+  )
+}
+
+function getHexagonFitRadius(extents: HexagonExtents) {
+  const centerQ = Math.floor((extents.minQ + extents.maxQ) / 2)
+  const centerR = Math.floor((extents.minR + extents.maxR) / 2)
+  const centerS = -centerQ - centerR
+  return Math.max(
+    Math.abs(extents.minQ - centerQ),
+    Math.abs(extents.maxQ - centerQ),
+    Math.abs(extents.minR - centerR),
+    Math.abs(extents.maxR - centerR),
+    Math.abs(extents.minS - centerS),
+    Math.abs(extents.maxS - centerS),
+  )
+}
+
+function getFittingHexagonFootprints(
+  hexMap: HexMap,
+  boardPieces: readonly BoardPiece[],
+): FittingFootprints {
+  const radius = Math.max(1, hexMap.length, hexMap.width) - 1
+  const originQ = hexMap.originQ ?? 0
+  const originR = hexMap.originR ?? 0
+  const centerQ =
+    originQ + (radius % 2 === 0 ? radius / 2 : Math.floor(radius / 2 + 0.5))
+  const centerR = originR + radius
+  const centerS = -centerQ - centerR
+  let extents: HexagonExtents = {
+    minQ: centerQ - radius,
+    maxQ: centerQ + radius,
+    minR: centerR - radius,
+    maxR: centerR + radius,
+    minS: centerS - radius,
+    maxS: centerS + radius,
+  }
+  const maxRadius = Math.max(radius, MAX_HEXAGON_FIT_RADIUS)
+  const footprintCoords: ReturnType<typeof getPieceTemplateCoords> = []
+  const droppedPieces: BoardPiece[] = []
+
+  for (const boardPiece of boardPieces) {
+    const coords = getPieceFootprintCoords(boardPiece)
+    if (coords.length === 0) continue
+
+    const nextExtents = addHexagonCoordsToExtents(extents, coords)
+    if (getHexagonFitRadius(nextExtents) > maxRadius) {
+      droppedPieces.push(boardPiece)
+      continue
+    }
+
+    extents = nextExtents
+    footprintCoords.push(...coords)
+  }
+
+  return { footprintCoords, droppedPieces }
+}
+
+function getFittingRectangleFootprints(
+  hexMap: HexMap,
+  boardPieces: readonly BoardPiece[],
+): FittingFootprints {
+  const originQ = hexMap.originQ ?? 0
+  const originR = hexMap.originR ?? 0
+  let extents: RectangleExtents = {
+    minR: originR,
+    maxR: originR + hexMap.length - 1,
+    minCol: originQ,
+    maxCol: originQ + hexMap.width - 1,
+  }
+  const maxLength = Math.max(hexMap.length, MAX_RECTANGLE_FIT_DIMENSION)
+  const maxWidth = Math.max(hexMap.width, MAX_RECTANGLE_FIT_DIMENSION)
+  const footprintCoords: ReturnType<typeof getPieceTemplateCoords> = []
+  const droppedPieces: BoardPiece[] = []
+
+  for (const boardPiece of boardPieces) {
+    const coords = getPieceFootprintCoords(boardPiece)
+    if (coords.length === 0) continue
+
+    const nextExtents = coords.reduce((next, { q, r }) => {
+      const col = q + Math.floor(r / 2)
+      return {
+        minR: Math.min(next.minR, r),
+        maxR: Math.max(next.maxR, r),
+        minCol: Math.min(next.minCol, col),
+        maxCol: Math.max(next.maxCol, col),
+      }
+    }, extents)
+    if (
+      nextExtents.maxR - nextExtents.minR + 1 > maxLength ||
+      nextExtents.maxCol - nextExtents.minCol + 1 > maxWidth
+    ) {
+      droppedPieces.push(boardPiece)
+      continue
+    }
+
+    extents = nextExtents
+    footprintCoords.push(...coords)
+  }
+
+  return { footprintCoords, droppedPieces }
+}
+
+function withDroppedPieces(
+  result: { hexMap: HexMap; changed: boolean },
+  droppedPieces: BoardPiece[],
+) {
+  return droppedPieces.length ? { ...result, droppedPieces } : result
 }
 
 function getRectangleMapWithPieces(
@@ -73,9 +224,19 @@ function getRectangleMapWithPieces(
 export function fitMapToPieces(
   hexMap: HexMap,
   boardPieces: readonly BoardPiece[],
-): { hexMap: HexMap; changed: boolean } {
-  const footprintCoords = getFootprintCoords(boardPieces)
-  if (footprintCoords.length === 0) return { hexMap, changed: false }
+): {
+  hexMap: HexMap
+  changed: boolean
+  droppedPieces?: BoardPiece[]
+} {
+  const fitting =
+    hexMap.shape === 'hexagon'
+      ? getFittingHexagonFootprints(hexMap, boardPieces)
+      : getFittingRectangleFootprints(hexMap, boardPieces)
+  const { footprintCoords, droppedPieces } = fitting
+  if (footprintCoords.length === 0) {
+    return withDroppedPieces({ hexMap, changed: false }, droppedPieces)
+  }
 
   if (hexMap.shape === 'hexagon') {
     let radius = Math.max(1, hexMap.length, hexMap.width) - 1
@@ -115,29 +276,35 @@ export function fitMapToPieces(
           originQ !== (hexMap.originQ ?? 0) ||
           originR !== (hexMap.originR ?? 0)
         if (!changed) {
-          return { hexMap, changed: false }
+          return withDroppedPieces({ hexMap, changed: false }, droppedPieces)
         }
-        return {
-          hexMap: {
-            ...hexMap,
-            length: size,
-            width: size,
-            ...(originQ !== 0 || hexMap.originQ !== undefined
-              ? { originQ }
-              : {}),
-            ...(originR !== 0 || hexMap.originR !== undefined
-              ? { originR }
-              : {}),
+        return withDroppedPieces(
+          {
+            hexMap: {
+              ...hexMap,
+              length: size,
+              width: size,
+              ...(originQ !== 0 || hexMap.originQ !== undefined
+                ? { originQ }
+                : {}),
+              ...(originR !== 0 || hexMap.originR !== undefined
+                ? { originR }
+                : {}),
+            },
+            changed: true,
           },
-          changed: true,
-        }
+          droppedPieces,
+        )
       }
       radius += 1
     }
   }
 
   const nextHexMap = getRectangleMapWithPieces(hexMap, footprintCoords)
-  return { hexMap: nextHexMap, changed: nextHexMap !== hexMap }
+  return withDroppedPieces(
+    { hexMap: nextHexMap, changed: nextHexMap !== hexMap },
+    droppedPieces,
+  )
 }
 
 export function doesPieceFitOnMap(

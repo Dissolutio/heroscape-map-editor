@@ -14,6 +14,7 @@ import {
   hexUtilsOddRToCube,
 } from '../utils/hex-utils'
 import { generateHexagon, generateRectangle } from '../utils/hex-gen'
+import { makeRectangleScenario } from '../utils/map-gen'
 import {
   type DroppedBoardPiece,
   dropUnknownBoardPieces,
@@ -23,7 +24,6 @@ import { fitMapToPieces } from './fitMapToPieces'
 import { pieceCodes } from './pieceCodes'
 import { piecesSoFar } from './pieces'
 import { getCodeForVSPersonalTile } from './readVirtualscapeMapFile'
-import { makeRectangleScenario } from '../utils/map-gen'
 
 export default function buildupVSFileMap(
   tiles: VirtualScapeTile[],
@@ -102,7 +102,7 @@ function sortBoardPiecesForLoad(arr: BoardPiece[]) {
   )
 }
 export type JsonMapLoadResult = MapState & {
-  /** Pieces omitted because they are malformed or use an unknown inventoryID. */
+  /** Pieces omitted because they are malformed, unknown, or too far away. */
   droppedPieces: DroppedBoardPiece[]
   dimensionsAdjusted?: boolean
 }
@@ -136,7 +136,17 @@ export function buildupJsonFileMap(
   const droppedPieces = [...droppedMalformedPieces, ...unknownPieces]
   const fitted = fitMapToPieces(migratedHexMap, knownBoardPieces)
   const fittedHexMap = fitted.hexMap
-  const initialBoardPieces = clone(knownBoardPieces)
+  const droppedForFit = new Set(fitted.droppedPieces ?? [])
+  const initialBoardPieces = clone(
+    knownBoardPieces.filter((boardPiece) => !droppedForFit.has(boardPiece)),
+  )
+  droppedPieces.push(
+    ...(fitted.droppedPieces ?? []).map(({ uid, inventoryID }) => ({
+      uid,
+      inventoryID,
+      reason: 'too-far' as const,
+    })),
+  )
   let finalBoardPieces: BoardPieces = []
   if (fittedHexMap.shape === 'rectangle') {
     initialBoardHexes = generateRectangle(
