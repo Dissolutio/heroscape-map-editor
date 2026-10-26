@@ -61,6 +61,7 @@ describe('settings persistence', () => {
     const changed = {
       ...SETTINGS_DEFAULTS,
       isOrthoCam: false,
+      isShowStartZones: false,
       isShowPdfBuriedMarks: true,
       isShow2DExportBuriedMarks: true,
       lightPositions: { key: [1, 2, 3] as [number, number, number] },
@@ -74,6 +75,7 @@ describe('settings persistence', () => {
       v: 1,
       values: {
         isOrthoCam: false,
+        isShowStartZones: false,
         isShowPdfBuriedMarks: true,
         isShow2DExportBuriedMarks: true,
         lightPositions: { key: [1, 2, 3] },

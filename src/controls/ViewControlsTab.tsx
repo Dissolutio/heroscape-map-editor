@@ -36,6 +36,7 @@ import {
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { HotkeyText } from './HotKeyText'
+import MapLensToggles from './MapLensToggles'
 import { useHotkeyConfig } from './useHotkeyConfig'
 
 export default function ViewControlsTab({
@@ -192,7 +193,12 @@ export default function ViewControlsTab({
         </List>
       </div>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-        {is3DOpen && <ViewPreferencesSwitchForm />}
+        {is3DOpen && (
+          <>
+            <ViewPreferencesSwitchForm />
+            <MapLensToggles />
+          </>
+        )}
         {isPdfOpen && <PdfPreferencesSwitchForm />}
         {is2DOpen && <SVGPreferencesSwitchForm />}
         <GenericTerrainColorsForm />

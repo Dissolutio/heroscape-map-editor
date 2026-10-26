@@ -3,6 +3,7 @@ import {
   FormControl,
   FormControlLabel,
   FormGroup,
+  FormHelperText,
   FormLabel,
   Switch,
 } from '@mui/material'
@@ -12,7 +13,7 @@ const MapLensToggles = () => {
   const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
   const toggleIsShowStartZones = useBoundStore((s) => s.toggleIsShowStartZones)
   return (
-    <Container>
+    <Container disableGutters sx={{ mt: 1 }}>
       <FormControl component="fieldset">
         <FormLabel component="legend">Map Lenses</FormLabel>
         <FormGroup aria-label="map lens toggles" row>
@@ -29,6 +30,10 @@ const MapLensToggles = () => {
             labelPlacement="start"
           />
         </FormGroup>
+        <FormHelperText>
+          Hides start zones in the 3D view only. 2D and PDF exports are not
+          affected.
+        </FormHelperText>
       </FormControl>
     </Container>
   )

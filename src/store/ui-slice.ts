@@ -8,6 +8,10 @@ import {
   shouldSetRotationPivotOnClick,
   type RotationPivot,
 } from '../data/rotationPivot'
+import {
+  filterVisiblePieceIDs,
+  isStartZoneBoardPiece,
+} from '../data/startZoneVisibility'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 import {
@@ -197,6 +201,17 @@ const createUISlice: StateCreator<
       produce((state) => {
         // in pick pen mode a click is an eyedropper, not a selection
         if (pieceID && state.penMode === PICK_PEN_MODE) {
+          return
+        }
+        if (
+          pieceID &&
+          !state.isShowStartZones &&
+          isStartZoneBoardPiece(
+            state.boardPieces.find(
+              (candidate: BoardPiece) => candidate.uid === pieceID,
+            ),
+          )
+        ) {
           return
         }
         const hitHex =
@@ -442,6 +457,34 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isShowStartZones = b
+        if (!b) {
+          s.selectedPieceIDs = filterVisiblePieceIDs(
+            s.selectedPieceIDs,
+            s.boardPieces,
+            false,
+          )
+          const lastSelectedUID =
+            s.selectedPieceIDs[s.selectedPieceIDs.length - 1]
+          const pivotPiece = s.boardPieces.find(
+            (piece: BoardPiece) => piece.uid === s.rotationPivot?.uid,
+          )
+          if (
+            s.rotationPivot &&
+            (s.rotationPivot.uid !== lastSelectedUID ||
+              isStartZoneBoardPiece(pivotPiece))
+          ) {
+            s.rotationPivot = null
+          }
+          if (
+            isStartZoneBoardPiece(
+              s.boardPieces.find(
+                (piece: BoardPiece) => piece.uid === s.hoveredPieceID,
+              ),
+            )
+          ) {
+            s.hoveredPieceID = ''
+          }
+        }
       }),
     ),
   isTakingPicture: false,

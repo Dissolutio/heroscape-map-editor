@@ -30,6 +30,10 @@ import {
   shortestRotationSteps,
 } from '../../data/dragRotation'
 import { piecesSoFar } from '../../data/pieces'
+import {
+  isStartZoneBoardPiece,
+  START_ZONES_HIDDEN_MESSAGE,
+} from '../../data/startZoneVisibility'
 import useBoundStore from '../../store/store'
 import {
   type BoardHex,
@@ -290,9 +294,15 @@ export function pressPieceForDrag(
 ) {
   event.stopPropagation()
   if (!uid || event.button !== 0 || state.phase !== 'idle') return
-  const { penMode, selectedPieceIDs, boardPieces } = useBoundStore.getState()
+  const { penMode, selectedPieceIDs, boardPieces, isShowStartZones } =
+    useBoundStore.getState()
   if (penMode !== SELECT_PEN_MODE) return
-  const members = getDraggableSelectionGroup(selectedPieceIDs, uid, boardPieces)
+  const members = getDraggableSelectionGroup(
+    selectedPieceIDs,
+    uid,
+    boardPieces,
+    isShowStartZones,
+  )
   if (!members) return
   const bp = members.find((piece) => piece.uid === uid)
   const piece = bp && piecesSoFar[bp.inventoryID]
@@ -469,7 +479,19 @@ export function commitMoveDecision(
       newRotation: decision.newRotation,
     },
   ]
-  useBoundStore.getState().movePieces({ moves })
+  const store = useBoundStore.getState()
+  const movingStartZone = moves.some((move) =>
+    isStartZoneBoardPiece(
+      store.boardPieces.find((piece) => piece.uid === move.uid),
+    ),
+  )
+  store.movePieces({ moves })
+  if (movingStartZone && !store.isShowStartZones) {
+    enqueueSnackbar({
+      message: START_ZONES_HIDDEN_MESSAGE,
+      variant: 'info',
+    })
+  }
 }
 
 function drop(target: DragTarget | null) {
