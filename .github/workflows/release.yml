@@ -44,7 +44,8 @@ jobs:
 
       - name: Print dry-run result
         if: inputs.dry_run == true
-        run: echo "Dry run: computed v${{ steps.version.outputs.version }}"
+        run: |
+          echo "Dry run: computed v${{ steps.version.outputs.version }}"
 
   build-and-release:
     needs: version
