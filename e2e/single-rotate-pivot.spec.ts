@@ -2,7 +2,6 @@ import type { Page } from '@playwright/test'
 import { FIXTURE_HEX_MAP } from './fixture-map'
 import {
   clickHex,
-  clickPiece,
   expect,
   findPieceUid,
   mapUrl,
@@ -39,14 +38,12 @@ test('rotates one multi-hex piece around a clicked footprint hex and undoes', as
     q: 4,
     r: 4,
   })
-  await clickPiece(page, tile)
+  await clickHex(page, { q: 5, r: 4, altitude: 1 })
   await expect
     .poll(() =>
       page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
     )
     .toEqual([tile])
-
-  await clickHex(page, { q: 5, r: 4, altitude: 1 })
   await expect
     .poll(() => page.evaluate(() => window.__TEST__?.snapshot().rotationPivot))
     .toEqual({
