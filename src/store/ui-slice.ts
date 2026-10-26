@@ -42,10 +42,12 @@ export interface UISlice {
   genericSolidSideColor: string
   genericFluidCapColor: string
   genericFluidSideColor: string
+  rememberedMapAuthor: string
   setGenericSolidCapColor: (color: string) => void
   setGenericSolidSideColor: (color: string) => void
   setGenericFluidCapColor: (color: string) => void
   setGenericFluidSideColor: (color: string) => void
+  setRememberedMapAuthor: (name: string) => void
   resetGenericTerrainColors: () => void
 
   // unpersisted state below
@@ -189,6 +191,7 @@ const createUISlice: StateCreator<
   UISlice
 > = (set) => ({
   ...loadSettings(),
+  setRememberedMapAuthor: (name: string) => set({ rememberedMapAuthor: name }),
   isShowStartZones: true,
   selectedPieceIDs: [],
   rotationPivot: null,

@@ -68,6 +68,7 @@ describe('settings persistence', () => {
       genericSolidSideColor: '#234567',
       genericFluidCapColor: '#345678',
       genericFluidSideColor: '#456789',
+      rememberedMapAuthor: 'Map Builder',
     }
     const serialized = serializeSettings(changed)
     expect(serialized).toEqual({
@@ -81,6 +82,7 @@ describe('settings persistence', () => {
         genericSolidSideColor: '#234567',
         genericFluidCapColor: '#345678',
         genericFluidSideColor: '#456789',
+        rememberedMapAuthor: 'Map Builder',
       },
     })
     storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
@@ -143,6 +145,7 @@ describe('settings persistence', () => {
           lastPenSize: Number.POSITIVE_INFINITY,
           lightPositions: { bad: [1, Number.NaN, 3] },
           genericSolidCapColor: 'pink',
+          rememberedMapAuthor: 42,
           customConstraintInventory: {
             g1: 1.9,
             g2: -4,
@@ -162,6 +165,7 @@ describe('settings persistence', () => {
       lastPenSize: SETTINGS_DEFAULTS.lastPenSize,
       lightPositions: {},
       genericSolidCapColor: SETTINGS_DEFAULTS.genericSolidCapColor,
+      rememberedMapAuthor: SETTINGS_DEFAULTS.rememberedMapAuthor,
       customConstraintInventory: {
         ...blankPieceInventory,
         g1: 1,
