@@ -41,6 +41,8 @@ import { useHotkeyConfig } from './useHotkeyConfig'
 
 const GENERIC_PIECE_COLORS_TOOLTIP =
   'Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D.'
+const BURIED_MARKS_TOOLTIP =
+  '* = the top of this tile will be covered. † = its sides will be covered. Both = fully hidden, so any piece of the same size and kind (solid for solid, fluid for fluid) works.'
 
 export default function ViewControlsTab({
   cameraControlsRef,
@@ -656,22 +658,20 @@ const PdfPreferencesSwitchForm = () => {
           label="Show Tile Letters"
           title="Enable/disable terrain tile letters on current-level land in PDF output"
         />
-        <FormControlLabel
-          control={
-            <Switch
-              size="small"
-              checked={isShowPdfBuriedMarks}
-              onChange={handleChangeShowPdfBuriedMarks}
-            />
-          }
-          label="Show Buried-Tile Marks"
-          title="Mark land tiles whose tops or sides will be covered in PDF output"
-        />
-        <FormHelperText sx={{ ml: 5, mt: -0.5, mb: 1 }}>
-          * = the top of this tile will be covered. † = its sides will be
-          covered. Both = fully hidden, so any piece of the same size and kind
-          (solid for solid, fluid for fluid) works.
-        </FormHelperText>
+        <Tooltip title={BURIED_MARKS_TOOLTIP} describeChild>
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={isShowPdfBuriedMarks}
+                onChange={handleChangeShowPdfBuriedMarks}
+                aria-label={`Show Buried-Tile Marks. ${BURIED_MARKS_TOOLTIP}`}
+              />
+            }
+            label="Show Buried-Tile Marks"
+            title="Mark land tiles whose tops or sides will be covered in PDF output"
+          />
+        </Tooltip>
         <FormControlLabel
           control={
             <Switch
