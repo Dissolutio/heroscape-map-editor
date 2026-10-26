@@ -5,6 +5,22 @@
 4. Adopt a treasure glyph color for contemporary SVG display
 5. Add marker to Ancient Shroudshroom to denote orientation
 
+
+## QUICK FIXES AND POLISH (noted 2026-10-25 while hand-testing; small, mostly independent)
+- Asphalt border color: when the PDF/SVG color outlines are turned off, solid land gets black borders and fluid land blue borders, so a field of Asphalt tiles (black) cannot be told apart. Use a gray border for Asphalt tiles when color borders are off (SVG and PDF, shared helper).
+- Wheel-rotate hint snackbar: only show "Scroll the mouse wheel to rotate while you drag." for drags where the wheel works. Ladders (sector rule), Laur add-ons and a lone battlement/road wall/rope ladder ignore the wheel, so no hint for those (`shouldRotateDragWithWheel` already knows; decide in `showWheelHint`, and consider showing it the first time a wheel-capable piece is dragged instead of the first drag of any piece).
+- Move the long text under "Generic Piece Colors" into a tooltip on the field label: "Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D."
+- Move the long text under "Show Buried Tile Marks" into a tooltip: "* = the top of this tile will be covered. † = its sides will be covered. Both = fully hidden, so any piece of the same size and kind (solid for solid, fluid for fluid) works."
+- View Controls tab: only show the camera options (zoom to map, lock camera, reset camera, orthographic toggle, take map picture, camera hotkeys) in the 3D view.
+- Create New Map dialog: offer the same fields as Edit Map Details (author was missing), except maybe the picture. Optionally remember the author name in local storage if the user wants.
+- Rotate hotkeys (the two rotate-piece keys): work whenever a piece is selected in select pen mode, not only while hovering a hex, and also while click-dragging (for ladders and other pointer-controlled rotations the key still applies until the pointer next moves and the sector rule takes over again).
+- Map picture crop flow: crop and submit should be one step; show clearly what is cropped in and out and do not discard the cropped-off part, so the crop can be readjusted; offer the crop right after taking a map picture (like checking a photo on a camera's screen).
+- Navbar view-mode buttons: the 2D/3D icon buttons swap one way, the PDF button does not switch at all. Redesign this small state machine so it is clear (for example a single segmented control: 3D / 2D / PDF with the active one highlighted).
+
+## SELECTION (design these together)
+- Clicking an empty hex should deselect the current selection, like clicking the canvas background. Held back until selection history exists (below), because it makes an accidental deselect more likely.
+- Separate undo/redo history for the selection itself, so assembling a big selection and accidentally deselecting it does not mean reselecting piece by piece, and so individual piece selections do not pollute the map's undo/redo. Build it together with selection-expanding tools (a right-click context menu: select same piece type, select connected, select level, invert, and so on) and with empty-hex deselect. Design note for the PM: needs its own hotkeys (for example Ctrl+Shift+Z for selection undo, or Alt+Z) that do not collide with map undo, and a decision on whether map undo should also restore selection (it does today for deletes, see `undoWithSelectionRestore`).
+
 ## TODO
 - Group LoS blockers such as trees/outcrops/similar so that they can be rotated through like regular terrain (how land types can toggle their size using hotkeys "1" - "7"). For example once an outcrop piece is chosen as the pen mode, then the hotkeys are 1 for 1-hex outcrop, 3 for 3-hex outcrop, etc.
 - Remove the white from the glyphs. Additionally, don't display hex heights above glyphs (making it easier to label the glyphs online). This is for when a user wants to make an OHS map, which is a top down view of a map for playing online heroscape on. Glyph spaces normally get edited at a later step and so less stuff displaying on those hexes would be nice.
@@ -54,6 +70,9 @@
   * About => Info/Tutorial
   * Download Desktop App => Just like README, offer the downloads from the releases page
   
+- Shareable map image URL (idea, 2026-10-25): users already share a link to a map with the PDF view open in the app, so they no longer need to host build instructions on Drive or Dropbox. Next wish: a URL that returns an IMAGE of the map (optionally with camera angle properties) that can be used as an image source on heroscape.org, so people stop hosting two files per map. Feasibility notes: the app is a static client app, so an image URL needs a small server-side piece. The 2D SVG could be produced by a serverless function if the SVG renderer runs under Node; the 3D view needs WebGL, so it would take a headless-browser render (for example Playwright/Chromium on a small container, or a managed browser-rendering service), with caching and abuse limits. Maps travel in the share link, so very large maps may exceed URL length limits; a database with short map ids would remove that limit (see Database). Research and cost first.
+- Background color for the 3D view (user setting), or the Drei Stars component as a background option.
+
 ## Blender TODO
 - Road tiles need their own textured/complex cap for 3D high quality render
 - Wood tiles need their own textured/complex-geometry cap for 3D high quality render
