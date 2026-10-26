@@ -1,28 +1,29 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ThreeEvent } from '@react-three/fiber'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { decideDrop, evaluateDragTarget } from '../data/dragMove'
 import {
+  WHEEL_ROTATION_COOLDOWN_MS,
+  WHEEL_ROTATION_IDLE_RESET_MS,
   accumulateWheelRotation,
   getLadderSectorRotation,
   initialWheelRotationAccumulator,
   rotateDragMembers,
-  shouldRotateDragWithWheel,
   shortestRotationSteps,
-  WHEEL_ROTATION_COOLDOWN_MS,
-  WHEEL_ROTATION_IDLE_RESET_MS,
+  shouldRotateDragWithWheel,
+  shouldShowWheelHint,
 } from '../data/dragRotation'
-import { decideDrop, evaluateDragTarget } from '../data/dragMove'
-import { piecesSoFar } from '../data/pieces'
 import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
 import { getLaurAddonHitHex } from '../data/laurAddonStacking'
+import { piecesSoFar } from '../data/pieces'
+import useBoundStore from '../store/store'
 import type { BoardHex, BoardPiece } from '../types'
-import { SELECT_PEN_MODE } from '../types'
+import { Pieces, SELECT_PEN_MODE } from '../types'
 import { HEX_DIRECTIONS, cubeToPixel } from '../utils/hex-utils'
 import {
   commitMoveDecision,
   pressPieceForDrag,
 } from '../world/drag/dragController'
-import useBoundStore from '../store/store'
-import { hexAt, makeTable, place, type Board } from './helpers/board'
+import { type Board, hexAt, makeTable, place } from './helpers/board'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 
@@ -304,6 +305,54 @@ describe('drag rotation transforms', () => {
 
   it('allows a wheel step for a group grabbed by an edge piece', () => {
     expect(shouldRotateDragWithWheel(piecesSoFar.bt, 2)).toBe(true)
+  })
+
+  it.each([
+    ['land tile', piecesSoFar.g1, 1],
+    ['multi-hex tile', piecesSoFar.g2, 1],
+    ['obstacle', piecesSoFar.tr10, 1],
+    ['glyph', piecesSoFar[Pieces.glyphPower], 1],
+    ['start zone', piecesSoFar[Pieces.startZone1], 1],
+    ['Laur pillar', piecesSoFar.lwp, 1],
+    ['group led by an edge piece', piecesSoFar.bt, 2],
+  ])('shows the wheel hint for a %s drag', (_name, piece, memberCount) => {
+    expect(shouldShowWheelHint(piece, memberCount, false)).toBe(true)
+  })
+
+  it.each([
+    ['ladder', piecesSoFar.ld, 1],
+    ['ladder stack', piecesSoFar.ld, 2],
+    ['Laur add-on', piecesSoFar.lws, 1],
+    ['lone battlement', piecesSoFar.bt, 1],
+    ['lone road wall', piecesSoFar.rw, 1],
+    ['lone rope ladder', piecesSoFar.rl, 1],
+  ])(
+    'does not show or consume the wheel hint for a %s drag',
+    (_name, piece, memberCount) => {
+      expect(shouldShowWheelHint(piece, memberCount, false)).toBe(false)
+    },
+  )
+
+  it('shows the hint for a wheel-capable drag after a ladder and only once', () => {
+    let hasShownWheelHint = false
+    const showHint = (
+      piece: (typeof piecesSoFar)[string],
+      memberCount: number,
+    ) => {
+      const shouldShow = shouldShowWheelHint(
+        piece,
+        memberCount,
+        hasShownWheelHint,
+      )
+      if (shouldShow) hasShownWheelHint = true
+      return shouldShow
+    }
+
+    expect(showHint(piecesSoFar.ld, 1)).toBe(false)
+    expect(hasShownWheelHint).toBe(false)
+    expect(showHint(piecesSoFar.g1, 1)).toBe(true)
+    expect(showHint(piecesSoFar.g1, 1)).toBe(false)
+    expect(hasShownWheelHint).toBe(true)
   })
 
   it('keeps the Laur add-on pointer-resolved rotation during evaluation', () => {

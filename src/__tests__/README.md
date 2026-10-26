@@ -6,9 +6,9 @@ npm test           # run everything once
 npm run test:watch # re-run on save
 ```
 
-These are **pure-logic tests** (hex math, placement rules, serialization, load).
-They run in Node with no browser, React, or three.js rendering, and finish in
-a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
+Most tests are **pure-logic tests** (hex math, placement rules, serialization,
+load). They run in Node with no browser or three.js rendering. The focused
+export-border test also renders minimal SVG and PDF output.
 
 ## What is here
 
@@ -17,6 +17,7 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `piece-registry.test.ts` | The "add a new terrain piece" checklist: every registry that must agree about a piece. **Read this first if you are adding terrain.** |
 | `generic-pieces.test.ts` | Generic solid/fluid registration, all footprint sizes on the table, solid/fluid stacking, buried marks, unlimited inventory handling, and piece-grid grouping. |
 | `generic-terrain-colors.test.ts` | Generic cap/side color resolution and contrast-based `?` letter color selection. |
+| `export-border-color.test.ts` | Shared SVG/PDF border-color decisions for every terrain, SVG Asphalt markup, and rendered PDF output with outlines on/off, including sub-levels. |
 | `generic-letter-metrics.test.ts` | Ratchets every terrain letter against the PDF mark-width table and the Inter Bold font metrics. |
 | `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
 | `replay-conflicts.test.ts` | How conflicts are computed (`data/rebuildBoardState.ts`): ordinary occupancy conflicts plus derived Laur conflicts. |

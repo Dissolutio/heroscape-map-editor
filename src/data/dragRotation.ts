@@ -83,6 +83,14 @@ export function shouldRotateDragWithWheel(piece: Piece, memberCount: number) {
   return !isEdgePiece || memberCount > 1
 }
 
+export function shouldShowWheelHint(
+  piece: Piece,
+  memberCount: number,
+  hasShownWheelHint: boolean,
+) {
+  return !hasShownWheelHint && shouldRotateDragWithWheel(piece, memberCount)
+}
+
 /** The shortest signed step count; an exact half-turn is clockwise. */
 export function shortestRotationSteps(from: number, to: number) {
   const forward = normalizeRotationSteps(to - from)

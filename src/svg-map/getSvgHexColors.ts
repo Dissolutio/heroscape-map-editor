@@ -1,11 +1,12 @@
 import { piecesSoFar } from '../data/pieces'
+import { getExportBorderColor } from '../pdf-svg-shared/exportBorderColor'
+import useBoundStore from '../store/store'
 import {
   type BoardHex,
   type DecodedPieceID,
   HexTerrain,
   type Piece,
 } from '../types'
-import useBoundStore from '../store/store'
 import {
   isEvergreenTree,
   isFluidTerrainHex,
@@ -13,18 +14,18 @@ import {
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import { decodePieceID } from '../utils/map-utils'
+import { getGenericTerrain2DColors } from '../world/maphex/genericTerrainColors'
 import {
   svgColors,
   svgSubLevelColors,
   virtualscapeTileColors,
 } from '../world/maphex/hexColors'
-import { getGenericTerrain2DColors } from '../world/maphex/genericTerrainColors'
 
 function isBoardHex(hex: BoardHex | DecodedPieceID): hex is BoardHex {
   return (<BoardHex>hex).pieceRotation !== undefined
 }
 
-export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
+const getSvgHexColorOutline = (hex: BoardHex | DecodedPieceID) => {
   // TODO: color: refactor this to be more direct
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
   if (hex.terrain === 'empty') {
@@ -120,9 +121,24 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   }
   return 'black'
 }
-export const getSvgHexSubLevelBorderColor = (
+export const getSvgHexBorderColor = (
   hex: BoardHex | DecodedPieceID,
+  useTerrainBorderColor = useBoundStore.getState().isPdfColorBorders,
 ) => {
+  const colorBorder = getSvgHexColorOutline(hex)
+  return getExportBorderColor({
+    terrain: hex.terrain,
+    isFluid: isFluidTerrainHex(hex.terrain),
+    isSubLevel: false,
+    useTerrainBorderColor,
+    colorBorder,
+    defaultBorderColor: isSolidTerrainHex(hex.terrain)
+      ? svgColors.glacierText
+      : colorBorder,
+  })
+}
+
+const getSvgHexSubLevelColorOutline = (hex: BoardHex | DecodedPieceID) => {
   // TODO: color: refactor this to be more direct
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
   if (hex.terrain === 'empty') {
@@ -213,6 +229,22 @@ export const getSvgHexSubLevelBorderColor = (
     return svgSubLevelColors.glyphBorder
   }
   return 'black'
+}
+export const getSvgHexSubLevelBorderColor = (
+  hex: BoardHex | DecodedPieceID,
+  useTerrainBorderColor = useBoundStore.getState().isPdfColorBorders,
+) => {
+  const colorBorder = getSvgHexSubLevelColorOutline(hex)
+  return getExportBorderColor({
+    terrain: hex.terrain,
+    isFluid: isFluidTerrainHex(hex.terrain),
+    isSubLevel: true,
+    useTerrainBorderColor,
+    colorBorder,
+    defaultBorderColor: isSolidTerrainHex(hex.terrain)
+      ? svgSubLevelColors.glacierText
+      : colorBorder,
+  })
 }
 
 export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
