@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  getPossibleRotationsForPenMode,
   getRotationByListStep,
   hasIntegerRotationSteps,
 } from '../controls/getPossibleRotationsForPenMode'
@@ -306,7 +307,50 @@ describe('group rotation pivot resolution', () => {
     ).toBe(true)
   })
 
-  it('keeps initial single-selection clicks and one-hex clicks on the origin', async () => {
+  it('keeps fractional-step Laur pieces from owning a non-origin pivot hex', () => {
+    const fractionalPieceIDs = [
+      Pieces.laurWallLong,
+      Pieces.laurWallArch,
+      Pieces.laurWallLongStackable,
+      Pieces.laurWallTrianglePillar,
+      Pieces.laurWallRuin1,
+      Pieces.laurWallRuin2,
+      Pieces.laurWallRuin3,
+    ]
+
+    for (const pieceID of fractionalPieceIDs) {
+      for (const rotation of getPossibleRotationsForPenMode(pieceID)) {
+        const table = makeTable(12)
+        const placed = place({
+          board: table,
+          pieceID,
+          at: table.center,
+          altitude: 0,
+          rotation,
+          uid: pieceID,
+          permissive: true,
+        })
+        const piece = placed.board.boardPieces.find(
+          (candidate) => candidate.uid === pieceID,
+        )
+        if (!piece) throw new Error(`test setup: missing ${pieceID}`)
+        const ownedFootprintHexes = Object.values(
+          placed.board.boardHexes,
+        ).filter(
+          (hex) => hex.boardPieceUID === pieceID && !hex.isVerticalClearanceHex,
+        )
+        const uniqueCoords = new Set(
+          ownedFootprintHexes.map((hex) => `${hex.q},${hex.r},${hex.s}`),
+        )
+        expect(uniqueCoords.size).toBeLessThanOrEqual(1)
+        for (const hex of ownedFootprintHexes) {
+          expect(hex).toMatchObject(piece.pieceCoords)
+        }
+      }
+    }
+  })
+
+  it('sets a first-click pivot and keeps one-hex pivots at the origin', async () => {
     const { store } = await loadStore()
     const temporal = store.temporal.getState()
     temporal.pause()
@@ -326,10 +370,6 @@ describe('group rotation pivot resolution', () => {
 
     store.getState().toggleSelectedPieceID('tile', false, undefined, clickedHex)
     expect(store.getState().selectedPieceIDs).toEqual(['tile'])
-    expect(store.getState().rotationPivot).toBeNull()
-
-    store.getState().toggleSelectedPieceID('tile', false, undefined, clickedHex)
-    expect(store.getState().selectedPieceIDs).toEqual(['tile'])
     expect(store.getState().rotationPivot?.coords).toEqual({
       q: clickedHex.q,
       r: clickedHex.r,
@@ -338,6 +378,7 @@ describe('group rotation pivot resolution', () => {
 
     store.getState().toggleSelectedPieceID('tile', false, undefined, clickedHex)
     expect(store.getState().selectedPieceIDs).toEqual([])
+    expect(store.getState().rotationPivot).toBeNull()
 
     const otherPiece = board.boardPieces.find((piece) => piece.uid === 'other')
     if (!otherPiece) throw new Error('test setup: missing one-hex piece')
@@ -354,7 +395,9 @@ describe('group rotation pivot resolution', () => {
       .getState()
       .toggleSelectedPieceID('other', false, undefined, otherOriginHex)
     expect(store.getState().selectedPieceIDs).toEqual(['other'])
-    expect(store.getState().rotationPivot).toBeNull()
+    expect(store.getState().rotationPivot?.coords).toEqual(
+      otherPiece.pieceCoords,
+    )
     store
       .getState()
       .toggleSelectedPieceID('other', false, undefined, otherOriginHex)

@@ -169,7 +169,7 @@ describe('click placement through the real handler', () => {
     expect(currentPivotClick.rotationPivot).toBeNull()
   })
 
-  it('moves a single piece pivot on a plain click without toggling selection', () => {
+  it('sets a single-piece pivot on first click and moves it without toggling', () => {
     const table = makeTable(12)
     const board = place({
       board: cloneBoard(table),
@@ -185,21 +185,13 @@ describe('click placement through the real handler', () => {
     )
     if (!clickedHex) throw new Error('test setup: missing non-origin hex')
 
-    const selecting = clickWithSelection({
+    const firstClick = clickWithSelection({
       board,
       hex: clickedHex,
       selectedPieceIDs: [],
     })
-    expect(selecting.selectedPieceIDs).toEqual(['tile'])
-    expect(selecting.rotationPivot).toBeNull()
-
-    const pivotClick = clickWithSelection({
-      board,
-      hex: clickedHex,
-      selectedPieceIDs: ['tile'],
-    })
-    expect(pivotClick.selectedPieceIDs).toEqual(['tile'])
-    expect(pivotClick.rotationPivot).toMatchObject({
+    expect(firstClick.selectedPieceIDs).toEqual(['tile'])
+    expect(firstClick.rotationPivot).toMatchObject({
       uid: 'tile',
       coords: { q: clickedHex.q, r: clickedHex.r, s: clickedHex.s },
     })
@@ -215,7 +207,7 @@ describe('click placement through the real handler', () => {
       board,
       hex: originHex,
       selectedPieceIDs: ['tile'],
-      rotationPivot: pivotClick.rotationPivot,
+      rotationPivot: firstClick.rotationPivot,
     })
     expect(movePivotToOrigin.selectedPieceIDs).toEqual(['tile'])
     expect(movePivotToOrigin.rotationPivot?.coords).toMatchObject({
@@ -236,7 +228,7 @@ describe('click placement through the real handler', () => {
       board,
       hex: clickedHex,
       selectedPieceIDs: ['tile'],
-      rotationPivot: pivotClick.rotationPivot,
+      rotationPivot: firstClick.rotationPivot,
     })
     expect(currentPivotClick.selectedPieceIDs).toEqual([])
     expect(currentPivotClick.rotationPivot).toBeNull()
