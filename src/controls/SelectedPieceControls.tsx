@@ -504,7 +504,7 @@ export function SelectedPieceControls({
         return
       }
       setPiecePreviews(null)
-      movePieces({ moves })
+      movePieces({ moves, preserveRotationPivot: true })
       return
     }
     setPiecePreviews(null)

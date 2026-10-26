@@ -6,6 +6,7 @@ import {
   resolveRotationPivot,
   shouldSetRotationPivotOnClick,
 } from '../data/rotationPivot'
+import { rotateGroupAroundPivot } from '../data/rotateGroup'
 import { Pieces, type BoardHex, type BoardPiece } from '../types'
 import { genBoardHexID, getBoardHex3DCoords } from '../utils/map-utils'
 import { makeTable, place } from './helpers/board'
@@ -98,6 +99,26 @@ describe('group rotation pivot resolution', () => {
       z: position.z,
     })
     expect(resolved).toEqual(clickedHex)
+  })
+
+  it('chooses the topmost owned non-clearance hex at the nearest q,r', () => {
+    const layeredHexes = [0, 2, 1].map((altitude) => ({
+      ...clickedHex,
+      id: genBoardHexID({ ...clickedHex, altitude }),
+      altitude,
+      isVerticalClearanceHex: false,
+    }))
+    const layeredBoardHexes = Object.fromEntries(
+      layeredHexes.map((hex) => [hex.id, hex]),
+    )
+    const position = getBoardHex3DCoords(clickedHex)
+
+    expect(
+      getClosestOwnedPieceHex(layeredBoardHexes, 'tile', {
+        x: position.x,
+        z: position.z,
+      }),
+    ).toEqual(layeredHexes[1])
   })
 
   it.each([
@@ -275,6 +296,216 @@ describe('group rotation pivot resolution', () => {
         store.getState().rotationPivot,
       )?.coords,
     ).toEqual(tile.pieceCoords)
+  })
+
+  it.each([1, -1] as const)(
+    'keeps a clicked non-origin pivot through six consecutive rotations (%i)',
+    async (direction) => {
+      const { store } = await loadStore()
+      const temporal = store.temporal.getState()
+      temporal.pause()
+      store.getState().loadMap(
+        buildupJsonFileMap(board.boardPieces, {
+          id: 'pivot-group-rotation',
+          name: 'Pivot group rotation',
+          author: '',
+          shape: 'rectangle',
+          width: 12,
+          length: 12,
+        }),
+        { holdAutosave: true },
+      )
+      temporal.clear()
+      temporal.resume()
+      store.setState({
+        selectedPieceIDs: ['other', 'tile'],
+        rotationPivot: pivot,
+      })
+
+      const getPieces = () =>
+        store
+          .getState()
+          .boardPieces.map(({ uid, pieceCoords, rotation }) => ({
+            uid,
+            pieceCoords,
+            rotation,
+          }))
+          .sort((a, b) => a.uid.localeCompare(b.uid))
+      const originalPieces = getPieces()
+      const rotateOnce = () => {
+        const state = store.getState()
+        const selectedPieces = state.boardPieces.filter((piece) =>
+          state.selectedPieceIDs.includes(piece.uid),
+        )
+        const resolvedPivot = resolveRotationPivot(
+          state.selectedPieceIDs,
+          state.boardPieces,
+          state.boardHexes,
+          state.rotationPivot,
+        )
+        if (!resolvedPivot) {
+          throw new Error('test setup: group pivot is unresolved')
+        }
+        state.movePieces({
+          moves: rotateGroupAroundPivot(
+            selectedPieces,
+            resolvedPivot.coords,
+            direction,
+          ),
+          preserveRotationPivot: true,
+        })
+      }
+      const expectClickedPivot = () => {
+        const state = store.getState()
+        const movedPivotPiece = state.boardPieces.find(
+          (piece) => piece.uid === pivot.uid,
+        )
+        if (!movedPivotPiece) {
+          throw new Error('test setup: rotated pivot piece is missing')
+        }
+        expect(state.rotationPivot).toMatchObject({
+          uid: pivot.uid,
+          coords: pivot.coords,
+          pieceCoords: movedPivotPiece.pieceCoords,
+          pieceAltitude: movedPivotPiece.altitude,
+          surfaceAltitude: pivot.surfaceAltitude,
+        })
+        expect(
+          resolveRotationPivot(
+            state.selectedPieceIDs,
+            state.boardPieces,
+            state.boardHexes,
+            state.rotationPivot,
+          ),
+        ).toEqual({
+          coords: pivot.coords,
+          surfaceAltitude: pivot.surfaceAltitude,
+        })
+      }
+
+      rotateOnce()
+      expectClickedPivot()
+      rotateOnce()
+      expectClickedPivot()
+      for (let step = 2; step < 6; step += 1) {
+        rotateOnce()
+        expectClickedPivot()
+      }
+      expect(getPieces()).toEqual(originalPieces)
+    },
+  )
+
+  it('undoes group rotations and falls back to the pivot piece origin', async () => {
+    const { store, undoWithSelectionRestore } = await loadStore()
+    const temporal = store.temporal.getState()
+    temporal.pause()
+    store.getState().loadMap(
+      buildupJsonFileMap(board.boardPieces, {
+        id: 'pivot-group-undo',
+        name: 'Pivot group undo',
+        author: '',
+        shape: 'rectangle',
+        width: 12,
+        length: 12,
+      }),
+      { holdAutosave: true },
+    )
+    temporal.clear()
+    temporal.resume()
+    store.setState({
+      selectedPieceIDs: ['other', 'tile'],
+      rotationPivot: pivot,
+    })
+
+    const getPieces = () =>
+      store
+        .getState()
+        .boardPieces.map(({ uid, pieceCoords, rotation }) => ({
+          uid,
+          pieceCoords,
+          rotation,
+        }))
+        .sort((a, b) => a.uid.localeCompare(b.uid))
+    const originalPieces = getPieces()
+    const rotateOnce = () => {
+      const state = store.getState()
+      const selectedPieces = state.boardPieces.filter((piece) =>
+        state.selectedPieceIDs.includes(piece.uid),
+      )
+      const resolvedPivot = resolveRotationPivot(
+        state.selectedPieceIDs,
+        state.boardPieces,
+        state.boardHexes,
+        state.rotationPivot,
+      )
+      if (!resolvedPivot) {
+        throw new Error('test setup: group pivot is unresolved')
+      }
+      state.movePieces({
+        moves: rotateGroupAroundPivot(selectedPieces, resolvedPivot.coords, 1),
+        preserveRotationPivot: true,
+      })
+    }
+
+    rotateOnce()
+    const afterFirstRotation = getPieces()
+    rotateOnce()
+    expect(store.getState().rotationPivot?.coords).toEqual(pivot.coords)
+
+    undoWithSelectionRestore()
+    expect(getPieces()).toEqual(afterFirstRotation)
+    expect(store.getState().rotationPivot).toBeNull()
+    expect(
+      resolveRotationPivot(
+        store.getState().selectedPieceIDs,
+        store.getState().boardPieces,
+        store.getState().boardHexes,
+        store.getState().rotationPivot,
+      )?.coords,
+    ).toEqual(
+      store.getState().boardPieces.find((piece) => piece.uid === 'tile')
+        ?.pieceCoords,
+    )
+
+    undoWithSelectionRestore()
+    expect(getPieces()).toEqual(originalPieces)
+    expect(store.getState().rotationPivot).toBeNull()
+  })
+
+  it('resets the pivot for single-piece rotations and deletion', async () => {
+    const { store } = await loadStore()
+    const temporal = store.temporal.getState()
+    temporal.pause()
+    store.getState().loadMap(
+      buildupJsonFileMap(board.boardPieces, {
+        id: 'pivot-reset-ordinary',
+        name: 'Pivot reset ordinary',
+        author: '',
+        shape: 'rectangle',
+        width: 12,
+        length: 12,
+      }),
+      { holdAutosave: true },
+    )
+    temporal.clear()
+    temporal.resume()
+    store.setState({ selectedPieceIDs: ['tile'] })
+    store.getState().setRotationPivot(pivot)
+
+    const tilePiece = store
+      .getState()
+      .boardPieces.find((piece) => piece.uid === 'tile')
+    if (!tilePiece) throw new Error('test setup: missing tile')
+    store.getState().movePiece({
+      uid: tilePiece.uid,
+      newPieceCoords: tilePiece.pieceCoords,
+      newRotation: (tilePiece.rotation + 1) % 6,
+    })
+    expect(store.getState().rotationPivot).toBeNull()
+
+    store.getState().setRotationPivot(pivot)
+    store.getState().unpaintTile('tile')
+    expect(store.getState().rotationPivot).toBeNull()
   })
 
   it('clears the transient pivot on map load, movement, undo and redo', async () => {

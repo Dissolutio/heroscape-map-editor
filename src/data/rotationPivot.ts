@@ -24,19 +24,21 @@ export function getClosestOwnedPieceHex(
   )
   if (!ownedHexes.length) return undefined
 
-  return ownedHexes.reduce((nearest, candidate) => {
-    const candidatePosition = getBoardHex3DCoords(candidate)
-    const nearestPosition = getBoardHex3DCoords(nearest)
-    const candidateDistance = Math.hypot(
-      candidatePosition.x - point.x,
-      candidatePosition.z - point.z,
-    )
-    const nearestDistance = Math.hypot(
-      nearestPosition.x - point.x,
-      nearestPosition.z - point.z,
-    )
-    return candidateDistance < nearestDistance ? candidate : nearest
-  })
+  return ownedHexes
+    .map((hex) => {
+      const position = getBoardHex3DCoords(hex)
+      return {
+        hex,
+        distance: Math.hypot(position.x - point.x, position.z - point.z),
+      }
+    })
+    .sort(
+      (a, b) =>
+        a.distance - b.distance ||
+        a.hex.q - b.hex.q ||
+        a.hex.r - b.hex.r ||
+        b.hex.altitude - a.hex.altitude,
+    )[0]?.hex
 }
 
 const getOriginSurfaceAltitude = (
@@ -104,6 +106,55 @@ export function resolveRotationPivot(
   return {
     coords: piece.pieceCoords,
     surfaceAltitude: getOriginSurfaceAltitude(piece, boardHexes),
+  }
+}
+
+export function reanchorRotationPivotAfterGroupRotation(
+  selectedPieceIDs: readonly string[],
+  previousBoardPieces: readonly BoardPiece[],
+  previousBoardHexes: BoardHexes,
+  nextBoardPieces: readonly BoardPiece[],
+  nextBoardHexes: BoardHexes,
+  rotationPivot: RotationPivot | null,
+): RotationPivot | null {
+  const uid = selectedPieceIDs[selectedPieceIDs.length - 1]
+  if (!uid || rotationPivot?.uid !== uid) return null
+
+  const previousPiece = previousBoardPieces.find((piece) => piece.uid === uid)
+  if (
+    !previousPiece ||
+    rotationPivot.pieceAltitude !== previousPiece.altitude ||
+    !sameCoords(rotationPivot.pieceCoords, previousPiece.pieceCoords)
+  ) {
+    return null
+  }
+
+  const pivotHexID = genBoardHexID({
+    ...rotationPivot.coords,
+    altitude: rotationPivot.surfaceAltitude,
+  })
+  const previousPivotHex = previousBoardHexes[pivotHexID]
+  if (
+    previousPivotHex?.boardPieceUID !== uid ||
+    previousPivotHex.isVerticalClearanceHex
+  ) {
+    return null
+  }
+
+  const nextPiece = nextBoardPieces.find((piece) => piece.uid === uid)
+  const nextPivotHex = nextBoardHexes[pivotHexID]
+  if (
+    !nextPiece ||
+    nextPivotHex?.boardPieceUID !== uid ||
+    nextPivotHex.isVerticalClearanceHex
+  ) {
+    return null
+  }
+
+  return {
+    ...rotationPivot,
+    pieceCoords: { ...nextPiece.pieceCoords },
+    pieceAltitude: nextPiece.altitude,
   }
 }
 

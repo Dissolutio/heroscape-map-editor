@@ -204,7 +204,59 @@ test('rotates around a clicked non-origin hex of a multi-hex pivot piece', async
       pieceCoords: { q: 5, r: 3, s: -8 },
       rotation: 1,
     })
+  await expect
+    .poll(() => page.evaluate(() => window.__TEST__?.snapshot().rotationPivot))
+    .toEqual({
+      coords: { q: 5, r: 4, s: -9 },
+      surfaceAltitude: 1,
+    })
   expect(await undoCount(page)).toBe(undos + 1)
+
+  const afterFirstRotation = {
+    first: await piece(page, first),
+    second: await piece(page, second),
+    pivot: await piece(page, pivot),
+  }
+  await page
+    .locator(
+      'button[title="Rotate selected pieces around the pivot hex clockwise"]',
+    )
+    .click()
+  await waitForAppReady(page)
+
+  await expect
+    .poll(() => piece(page, first))
+    .toMatchObject({
+      pieceCoords: { q: 8, r: 1, s: -9 },
+      rotation: 2,
+    })
+  await expect
+    .poll(() => piece(page, second))
+    .toMatchObject({
+      pieceCoords: { q: 4, r: 5, s: -9 },
+      rotation: 2,
+    })
+  await expect
+    .poll(() => piece(page, pivot))
+    .toMatchObject({
+      pieceCoords: { q: 6, r: 3, s: -9 },
+      rotation: 2,
+    })
+  await expect
+    .poll(() => page.evaluate(() => window.__TEST__?.snapshot().rotationPivot))
+    .toEqual({
+      coords: { q: 5, r: 4, s: -9 },
+      surfaceAltitude: 1,
+    })
+  expect(await undoCount(page)).toBe(undos + 2)
+
+  await undoButton(page).click()
+  await waitForAppReady(page)
+  await expect.poll(() => piece(page, first)).toEqual(afterFirstRotation.first)
+  await expect
+    .poll(() => piece(page, second))
+    .toEqual(afterFirstRotation.second)
+  await expect.poll(() => piece(page, pivot)).toEqual(afterFirstRotation.pivot)
 
   await undoButton(page).click()
   await waitForAppReady(page)
