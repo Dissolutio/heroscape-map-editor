@@ -23,7 +23,11 @@ import {
   place,
   withGrassFloor,
 } from './helpers/board'
-import { SELECTED_BEFORE_CLICK, clickWithPen } from './helpers/clickHandler'
+import {
+  SELECTED_BEFORE_CLICK,
+  clickWithPen,
+  clickWithSelection,
+} from './helpers/clickHandler'
 import {
   onCastleWall,
   onPillar,
@@ -109,6 +113,62 @@ function clickSnackbarAction(index: number, label: string) {
 }
 
 describe('click placement through the real handler', () => {
+  it('sets a multi-hex group pivot from the clicked hex without changing selection', () => {
+    const table = makeTable(12)
+    let board = place({
+      board: cloneBoard(table),
+      pieceID: Pieces.grass3,
+      at: table.center,
+      altitude: 0,
+      uid: 'tile',
+    }).board
+    board = place({
+      board,
+      pieceID: Pieces.grass1,
+      at: { q: table.center.q + 4, r: table.center.r, s: table.center.s - 4 },
+      altitude: 0,
+      uid: 'other',
+    }).board
+    const clickedHex = Object.values(board.boardHexes).find(
+      (hex) =>
+        hex.boardPieceUID === 'tile' &&
+        (hex.q !== table.center.q || hex.r !== table.center.r),
+    )
+    if (!clickedHex) throw new Error('test setup: missing non-origin hex')
+
+    const pivotClick = clickWithSelection({
+      board,
+      hex: clickedHex,
+      selectedPieceIDs: ['other', 'tile'],
+    })
+    expect(pivotClick.selectedPieceIDs).toEqual(['other', 'tile'])
+    expect(pivotClick.rotationPivot).toMatchObject({
+      uid: 'tile',
+      coords: { q: clickedHex.q, r: clickedHex.r, s: clickedHex.s },
+    })
+
+    const shiftSelection = clickWithSelection({
+      board,
+      hex: clickedHex,
+      selectedPieceIDs: ['other'],
+      shiftKey: true,
+    })
+    expect(shiftSelection.selectedPieceIDs).toEqual(['other', 'tile'])
+    expect(shiftSelection.rotationPivot).toMatchObject({
+      uid: 'tile',
+      coords: { q: clickedHex.q, r: clickedHex.r, s: clickedHex.s },
+    })
+
+    const currentPivotClick = clickWithSelection({
+      board,
+      hex: clickedHex,
+      selectedPieceIDs: ['other', 'tile'],
+      rotationPivot: pivotClick.rotationPivot,
+    })
+    expect(currentPivotClick.selectedPieceIDs).toEqual(['tile'])
+    expect(currentPivotClick.rotationPivot).toBeNull()
+  })
+
   it.each(placementCases)('$name', ({ pieceID, rotation, setup, expected }) => {
     const { board, hex } = setup()
     const before = cloneBoard(board)

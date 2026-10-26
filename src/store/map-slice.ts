@@ -8,6 +8,7 @@ import { type MovePieceArgs, applyPieceMoves } from '../data/movePieces'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
+import { reanchorRotationPivotAfterGroupRotation } from '../data/rotationPivot'
 import { removePiece } from '../data/removePiece'
 import { HexTerrain } from '../types'
 import type {
@@ -92,7 +93,10 @@ export interface MapSlice extends MapState {
   convertTerrainForPieces: (args: ConvertTerrainArgs) => number
   movePiece: (args: MovePieceArgs) => void
   /** Moves several pieces in one update (one undo step); see applyPieceMoves. */
-  movePieces: (args: { moves: MovePieceArgs[] }) => void
+  movePieces: (args: {
+    moves: MovePieceArgs[]
+    preserveRotationPivot?: boolean
+  }) => void
   loadMap: (
     map: MapState & { dimensionsAdjusted?: boolean },
     options?: LoadMapOptions,
@@ -207,6 +211,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
   unpaintTile: (uid: string) =>
     set((state) => {
       return produce(state, (draft) => {
+        draft.rotationPivot = null
         // 1. Remove the piece being deleted
         let { newBoardHexes: workingHexes, newBoardPieces: workingPieces } =
           removePiece({
@@ -338,7 +343,13 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     return convertedCount
   },
   movePiece: (args: MovePieceArgs) => get().movePieces({ moves: [args] }),
-  movePieces: ({ moves }: { moves: MovePieceArgs[] }) =>
+  movePieces: ({
+    moves,
+    preserveRotationPivot = false,
+  }: {
+    moves: MovePieceArgs[]
+    preserveRotationPivot?: boolean
+  }) =>
     set((state) => {
       const effectiveMoves = moves.filter((move, index) => {
         if (
@@ -363,6 +374,20 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       return produce(state, (draft) => {
         const moved = applyPieceMoves(draft, effectiveMoves)
         if (!moved) return
+        const pivotUID =
+          state.selectedPieceIDs[state.selectedPieceIDs.length - 1]
+        if (effectiveMoves.some((move) => move.uid === pivotUID)) {
+          draft.rotationPivot = preserveRotationPivot
+            ? reanchorRotationPivotAfterGroupRotation(
+                state.selectedPieceIDs,
+                state.boardPieces,
+                state.boardHexes,
+                moved.boardPieces,
+                moved.boardHexes,
+                state.rotationPivot,
+              )
+            : null
+        }
         draft.boardHexes = moved.boardHexes
         draft.boardPieces = moved.boardPieces
         draft.conflictedPieceUIDs = moved.conflictedPieceUIDs
@@ -460,6 +485,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.boardHexes = mapState.boardHexes
         draft.hexMap = mapState.hexMap
         draft.boardPieces = mapState.boardPieces
+        draft.rotationPivot = null
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           mapState.boardPieces,
         )

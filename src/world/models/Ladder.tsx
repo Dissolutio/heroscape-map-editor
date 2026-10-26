@@ -44,6 +44,7 @@ export function Ladder({
       toggleSelectedPieceID(
         bp.uid,
         event.shiftKey || event.ctrlKey || event.metaKey,
+        { x: event.point.x, z: event.point.z },
       )
     }
   }

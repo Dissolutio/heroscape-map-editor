@@ -92,7 +92,11 @@ export function LaurWallShortAddon({
       return
     }
     event.stopPropagation()
-    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
+    toggleSelectedPieceID(
+      pid,
+      event.shiftKey || event.ctrlKey || event.metaKey,
+      { x: event.point.x, z: event.point.z },
+    )
   }
 
   return (

@@ -154,6 +154,7 @@ export function ShipWall({ pid, bp, onPointerUp }: ShipWallProps) {
       toggleSelectedPieceID(
         pid,
         event.shiftKey || event.ctrlKey || event.metaKey,
+        { x: event.point.x, z: event.point.z },
       )
     }
   }

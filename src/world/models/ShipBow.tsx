@@ -192,6 +192,7 @@ export function ShipBow({ pid, bp, onPointerUp }: ShipBowProps) {
       toggleSelectedPieceID(
         pid,
         event.shiftKey || event.ctrlKey || event.metaKey,
+        { x: event.point.x, z: event.point.z },
       )
     }
   }

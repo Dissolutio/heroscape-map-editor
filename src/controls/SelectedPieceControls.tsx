@@ -4,6 +4,7 @@ import { enqueueSnackbar } from 'notistack'
 import type { RefObject } from 'react'
 import { getGroupRotationBlockedReason } from '../data/evaluateGroupRotation'
 import { piecesSoFar } from '../data/pieces'
+import { resolveRotationPivot } from '../data/rotationPivot'
 import { rotateGroupAroundPivot } from '../data/rotateGroup'
 import {
   placementBlockedMessages,
@@ -228,7 +229,7 @@ function PieceTransformControls({
       <ButtonGroup
         aria-label={
           isMulti
-            ? 'Rotate selected pieces around the last selected piece'
+            ? 'Rotate selected pieces around the pivot hex'
             : 'Rotate selected piece'
         }
         size="small"
@@ -237,14 +238,14 @@ function PieceTransformControls({
         {rotateButton(
           -1,
           isMulti
-            ? 'Rotate selected pieces around the last selected piece counter-clockwise'
+            ? 'Rotate selected pieces around the pivot hex counter-clockwise'
             : 'Rotate selected piece counter-clockwise',
           '↺ CCW',
         )}
         {rotateButton(
           1,
           isMulti
-            ? 'Rotate selected pieces around the last selected piece clockwise'
+            ? 'Rotate selected pieces around the pivot hex clockwise'
             : 'Rotate selected piece clockwise',
           'CW ↻',
         )}
@@ -297,6 +298,7 @@ export function SelectedPieceControls({
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const storedRotationPivot = useBoundStore((s) => s.rotationPivot)
   const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const movePieces = useBoundStore((s) => s.movePieces)
   const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
@@ -305,6 +307,12 @@ export function SelectedPieceControls({
 
   const selectedBoardPieces = boardPieces.filter((bp) =>
     selectedPieceIDs.includes(bp.uid),
+  )
+  const groupRotationPivot = resolveRotationPivot(
+    selectedPieceIDs,
+    boardPieces,
+    boardHexes,
+    storedRotationPivot,
   )
   const firstBp = selectedBoardPieces[0]
   if (!firstBp) return null
@@ -407,7 +415,8 @@ export function SelectedPieceControls({
     if (isMulti) {
       const moves = rotateGroupAroundPivot(
         selectedBoardPieces,
-        selectedPieceIDs[selectedPieceIDs.length - 1],
+        groupRotationPivot?.coords ??
+          selectedPieceIDs[selectedPieceIDs.length - 1],
         direction,
       )
       const movesByUID = new Map(moves.map((move) => [move.uid, move]))
@@ -474,7 +483,8 @@ export function SelectedPieceControls({
     if (isMulti) {
       const moves = rotateGroupAroundPivot(
         selectedBoardPieces,
-        selectedPieceIDs[selectedPieceIDs.length - 1],
+        groupRotationPivot?.coords ??
+          selectedPieceIDs[selectedPieceIDs.length - 1],
         direction,
       )
       const blockedReason = getGroupRotationBlockedReason(
@@ -494,7 +504,7 @@ export function SelectedPieceControls({
         return
       }
       setPiecePreviews(null)
-      movePieces({ moves })
+      movePieces({ moves, preserveRotationPivot: true })
       return
     }
     setPiecePreviews(null)

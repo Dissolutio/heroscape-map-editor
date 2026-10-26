@@ -12,6 +12,10 @@ export type E2ESnapshot = {
   viewingLevel: number
   penMode: string
   selectedPieceIDs: string[]
+  rotationPivot: {
+    coords: { q: number; r: number; s: number }
+    surfaceAltitude: number
+  } | null
   hoveredPieceID: string
   isOrthoCam: boolean
   placementPreview: {

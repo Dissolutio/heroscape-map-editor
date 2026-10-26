@@ -279,6 +279,7 @@ describe('settings persistence', () => {
   it('classifies every store data key exactly once', async () => {
     const transientKeys = [
       'selectedPieceIDs',
+      'rotationPivot',
       'hoveredPieceID',
       'hoveredHex',
       'hoveredWorldPoint',
