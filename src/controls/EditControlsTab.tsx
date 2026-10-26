@@ -132,7 +132,6 @@ export const EditControlsTab = () => {
           ? `${remainingCount} remaining`
           : ''}
       </div> */}
-      {/* <MapLensToggles /> */}
       {/* <LocalStorageList /> */}
       <List>
         {/* OPEN EDIT MAP DETAILS DIALOG */}

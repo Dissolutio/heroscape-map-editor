@@ -36,7 +36,6 @@ import {
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { HotkeyText } from './HotKeyText'
-import MapLensToggles from './MapLensToggles'
 import { useHotkeyConfig } from './useHotkeyConfig'
 
 export default function ViewControlsTab({
@@ -193,12 +192,7 @@ export default function ViewControlsTab({
         </List>
       </div>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-        {is3DOpen && (
-          <>
-            <ViewPreferencesSwitchForm />
-            <MapLensToggles />
-          </>
-        )}
+        {is3DOpen && <ViewPreferencesSwitchForm />}
         {isPdfOpen && <PdfPreferencesSwitchForm />}
         {is2DOpen && <SVGPreferencesSwitchForm />}
         <GenericTerrainColorsForm />
@@ -337,11 +331,20 @@ const ViewPreferencesSwitchForm = () => {
   const toggleUseLegacyStartZones = useBoundStore(
     (s) => s.toggleUseLegacyStartZones,
   )
+  const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
+  const toggleIsShowStartZones = useBoundStore((s) => s.toggleIsShowStartZones)
   const handleChangeUseLegacyStartZones = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleUseLegacyStartZones(event.target.checked)
   }
+  const handleChangeShowStartZones = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShowStartZones(event.target.checked)
+  }
+  const showStartZonesTooltip =
+    'Hides start zones in the 3D view only. 2D and PDF exports are not affected. Turns back on every time you open the app.'
   // const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   // const toggleIsFrameloopDemand = useBoundStore((s) => s.toggleIsFrameloopDemand)
   // const handleChangeFrameloopDemand = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -447,6 +450,18 @@ const ViewPreferencesSwitchForm = () => {
           }
           label="Use Legacy Start Zones"
           title="Enable/disable rendering start zones as circles and with classic colors"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShowStartZones}
+              onChange={handleChangeShowStartZones}
+              title={showStartZonesTooltip}
+            />
+          }
+          label="Show Start Zones"
+          title={showStartZonesTooltip}
         />
       </FormGroup>
     </FormControl>

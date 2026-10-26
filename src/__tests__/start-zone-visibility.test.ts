@@ -3,6 +3,7 @@ import { enqueueSnackbar } from 'notistack'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { getDraggableSelectionGroup } from '../data/dragMove'
+import { LS_KEYS } from '../local-storage/keys'
 import {
   filterVisiblePieceIDs,
   START_ZONES_HIDDEN_MESSAGE,
@@ -76,6 +77,21 @@ afterEach(() => {
 })
 
 describe('start-zone visibility', () => {
+  it('starts with zones shown when storage contains a stale hidden setting', () => {
+    const staleSettings = JSON.stringify({
+      v: 1,
+      values: { isShowStartZones: false },
+    })
+    vi.stubGlobal('localStorage', {
+      getItem: (key: string) =>
+        key === LS_KEYS.settings ? staleSettings : null,
+      setItem: () => undefined,
+      removeItem: () => undefined,
+    })
+
+    expect(createTestStore().getState().isShowStartZones).toBe(true)
+  })
+
   it('renders placed start zones only while the setting is on', () => {
     expect(
       shouldRenderPlacedPiece({ inventoryID: Pieces.startZone1 }, false),

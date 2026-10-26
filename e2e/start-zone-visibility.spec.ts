@@ -53,6 +53,7 @@ test('hides placed start zones without affecting selection on show', async ({
     )
     .toEqual([])
 
+  await page.mouse.move(0, 0)
   await page.screenshot({ path: 'docs/evidence/start-zones-hidden-3d.png' })
 
   await clickPiece(page, zone)
@@ -82,4 +83,11 @@ test('hides placed start zones without affecting selection on show', async ({
       page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
     )
     .toEqual([zone])
+
+  await page.reload()
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+  await expect(
+    page.getByRole('checkbox', { name: 'Show Start Zones' }),
+  ).toBeChecked()
 })

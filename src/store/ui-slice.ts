@@ -189,6 +189,7 @@ const createUISlice: StateCreator<
   UISlice
 > = (set) => ({
   ...loadSettings(),
+  isShowStartZones: true,
   selectedPieceIDs: [],
   rotationPivot: null,
   toggleSelectedPieceID: (
