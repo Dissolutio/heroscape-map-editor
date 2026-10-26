@@ -25,7 +25,8 @@ against user-supplied maps during normal use.
 | Package on `main` | Severity and advisory | Vulnerable range | Patched version on `dev` | Path | Triage |
 | --- | --- | --- | --- | --- | --- |
 | `vite` 6.4.3 | High: GHSA-587h-7wmj-h5pm; Moderate: GHSA-698v-4r3x-3vcv, GHSA-r825-w8mm-5pxw, GHSA-9jrq-w75r-8gcw, GHSA-rq7h-c2jc-7f22 | `<=6.4.3` | 6.4.5 | `package.json`, `package-lock.json` | Build/dev only. Realistic exposure is limited to a developer running the vulnerable Vite tooling, particularly its Windows editor-launch handling; it is not in the shipped app. |
-| `vitest` / `@vitest/mocker` 4.1.11 | Moderate: GHSA-qxg6-89mg-rqv8, GHSA-xp26-3454-mjgp | `>=2.1.0-beta.7 <4.1.12` (first advisory); `>=4.1.11 <4.1.12` (second) | 4.1.12 | `package.json`, `package-lock.json` | Test-only tooling. Risk requires running the vulnerable test runner/mocker; Hexoscape does not run it against maps or share links in production. |
+| `vitest` 4.1.11 | Moderate via `@vitest/mocker`: GHSA-qxg6-89mg-rqv8, GHSA-xp26-3454-mjgp | `2.1.0-beta.1`–`4.1.11` | 4.1.12 | `package.json`, `package-lock.json` | Test-only tooling. Risk requires running the vulnerable test runner/mocker; Hexoscape does not run it against maps or share links in production. |
+| `@vitest/mocker` 4.1.11 | Moderate: GHSA-qxg6-89mg-rqv8, GHSA-xp26-3454-mjgp | `>=2.1.0-beta.7 <4.1.12`; `>=4.1.11 <4.1.12` | 4.1.12 | `package-lock.json` | Test-only tooling. Risk requires a vulnerable mock registration or Windows redirect path while running tests; user-supplied maps and share links do not reach this code. |
 
 Both fixes are already present in `dev`'s manifest and lockfile: `vite` 6.4.5
 and `vitest`/`@vitest/mocker` 4.1.12. `npm audit --json` on `dev` reports
