@@ -2,6 +2,9 @@
 
 Source data: `docs/textures-inventory.md` / `.json` (measured facts about the images in `textures/`). `Textures.md` was a rough sketch and is superseded by this file.
 
+See [the texture asset pipeline](textures-pipeline.md) for packing commands,
+repair details, and the manifest/output format.
+
 ## Goal
 Replace per-piece subterrain GLBs + caps with per-hex instanced cells (cap + sides) that look up textures by terrain. Today's pipeline stays as the Lowest graphics tier.
 
