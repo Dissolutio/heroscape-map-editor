@@ -380,6 +380,7 @@ function PiecePreviewModel({
   const isGlacier1Hex = pieceID === Pieces.glacier1
   const isOutcrop1Hex = pieceID === Pieces.outcrop1
   const isLavaRockOutcrop1Hex = pieceID === Pieces.lavaRockOutcrop1
+  const isToxicOutcrop1Hex = pieceID === Pieces.toxicOutcrop1
   const isCastleBaseEnd = pieceID === Pieces.castleBaseEnd
   const isCastleBaseStraight = pieceID === Pieces.castleBaseStraight
   const isCastleBaseCorner = pieceID === Pieces.castleBaseCorner
@@ -393,6 +394,7 @@ function PiecePreviewModel({
   const isLadderHex = piece?.terrain === HexTerrain.ladder
   const isOutcrop3Hex = pieceID === Pieces.outcrop3
   const isLavaRockOutcrop3Hex = pieceID === Pieces.lavaRockOutcrop3
+  const isToxicOutcrop3Hex = pieceID === Pieces.toxicOutcrop3
   const isGlacier3Hex = pieceID === Pieces.glacier3
   const isGlacier4Hex = pieceID === Pieces.glacier4
   const isGlacier6Hex = pieceID === Pieces.glacier6
@@ -634,7 +636,10 @@ function PiecePreviewModel({
     )
   }
   if (
-    (isGlacier1Hex || isOutcrop1Hex || isLavaRockOutcrop1Hex) &&
+    (isGlacier1Hex ||
+      isOutcrop1Hex ||
+      isLavaRockOutcrop1Hex ||
+      isToxicOutcrop1Hex) &&
     isSolidOrEmptyBeneath
   ) {
     return (
@@ -646,6 +651,7 @@ function PiecePreviewModel({
           <Outcrop1Preview
             isLavaRock={isLavaRockOutcrop1Hex}
             isGlacier={isGlacier1Hex}
+            isToxic={isToxicOutcrop1Hex}
           />
         </Suspense>
       </group>
@@ -962,7 +968,10 @@ function PiecePreviewModel({
     )
   }
   if (
-    (isOutcrop3Hex || isLavaRockOutcrop3Hex || isGlacier3Hex) &&
+    (isOutcrop3Hex ||
+      isLavaRockOutcrop3Hex ||
+      isToxicOutcrop3Hex ||
+      isGlacier3Hex) &&
     isSolidOrEmptyBeneath
   ) {
     return (
@@ -974,6 +983,7 @@ function PiecePreviewModel({
           <Outcrop3Preview
             isGlacier={piece?.terrain === HexTerrain.glacier}
             isLavaRock={piece?.terrain === HexTerrain.lavaRockOutcrop}
+            isToxic={piece?.terrain === HexTerrain.toxicOutcrop}
           />
         </Suspense>
       </group>

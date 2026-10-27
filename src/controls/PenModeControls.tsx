@@ -816,6 +816,33 @@ export default function PenModeControls() {
           </ListItemIcon>
           <span>Lava Rock Outcrop 3</span>
         </MenuItem>
+        <MenuItem value={Pieces.toxicOutcrop1}>
+          <ListItemIcon>
+            <TbHexagonalPyramid color={hexTerrainColor[HexTerrain.toxic]} />
+          </ListItemIcon>
+          <span>Toxic Rock Outcrop 1</span>
+        </MenuItem>
+        <MenuItem value={Pieces.toxicOutcrop3}>
+          <ListItemIcon>
+            <TbHexagonalPyramid
+              color={hexTerrainColor[HexTerrain.toxic]}
+              style={{ fontSize: '0.8rem' }}
+            />
+            <TbHexagonalPyramid
+              color={hexTerrainColor[HexTerrain.toxic]}
+              style={{
+                fontSize: '0.8rem',
+                marginLeft: '-0.5rem',
+                marginTop: '0.2rem',
+              }}
+            />
+            <TbHexagonalPyramid
+              color={hexTerrainColor[HexTerrain.toxic]}
+              style={{ fontSize: '0.8rem', marginLeft: '-0.5rem' }}
+            />
+          </ListItemIcon>
+          <span>Toxic Rock Outcrop 3</span>
+        </MenuItem>
         <MenuItem value={Pieces.glacier1}>
           <ListItemIcon>
             <TbHexagonalPyramid color={hexTerrainColor.ice} />

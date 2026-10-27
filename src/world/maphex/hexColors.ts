@@ -22,6 +22,7 @@ export const virtualscapeTileColors: Dictionary<string> = {
   [HexTerrain.roadWall]: 'rgb(120, 120, 120)',
   [HexTerrain.marvelRuin]: 'rgb(220, 220, 220)',
   [HexTerrain.outcrop]: 'rgb(180,180,180)',
+  [HexTerrain.toxicOutcrop]: 'rgb(147,255,50)',
   [HexTerrain.wallWalk]: 'rgb(190,190,190)',
   [HexTerrain.castleBase]: 'rgb(220, 220, 220)',
   [HexTerrain.castleWall]: 'rgb(220, 220, 220)',
@@ -85,6 +86,7 @@ export const hexTerrainColor = {
   // ancientTerrainCap: '#B6863E',
   ancientTerrainCap: '#8b5b43',
   [HexTerrain.toxic]: '#93FF32',
+  [HexTerrain.toxicOutcrop]: '#93FF32',
   toxicCap: '#303030', // same as asphaltcap
   [HexTerrain.toxicWater]: '#93FF32',
   roadCap: '#929186',
@@ -295,6 +297,7 @@ export const svgColors = {
   [HexTerrain.ancientTerrain]: '#B55908',
   [HexTerrain.wood]: '#9E5424',
   [HexTerrain.toxic]: '#121212',
+  [HexTerrain.toxicOutcrop]: '#0CEB00',
   [HexTerrain.toxicWater]: '#0CEB00',
   roadDecor: '#696767',
   snowDecor: '#506CC7',
@@ -403,6 +406,7 @@ export const svgSubLevelColors = {
   [HexTerrain.shadow]: '#2E2D2D',
   [HexTerrain.ice]: '#B4C2EF',
   [HexTerrain.toxic]: '#7A7A7A',
+  [HexTerrain.toxicOutcrop]: '#B2F2AF',
   [HexTerrain.toxicWater]: '#B2F2AF',
   [HexTerrain.hive]: '#D3D2B2',
 

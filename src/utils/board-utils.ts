@@ -52,7 +52,8 @@ export function isBridgingObstaclePieceID(id: string) {
     id === Pieces.glacier6 ||
     id === Pieces.glacier3 ||
     id === Pieces.outcrop3 ||
-    id === Pieces.lavaRockOutcrop3
+    id === Pieces.lavaRockOutcrop3 ||
+    id === Pieces.toxicOutcrop3
   )
 }
 export const getBoardHexObstacleOriginsAndHexesAndEmpties = (

@@ -374,6 +374,7 @@ export const PdfMapHex = ({
   if (
     inventoryID === Pieces.outcrop1 ||
     inventoryID === Pieces.lavaRockOutcrop1 ||
+    inventoryID === Pieces.toxicOutcrop1 ||
     inventoryID === Pieces.glacier1
   ) {
     const glacierTextColor = isSubLevel
@@ -408,6 +409,7 @@ export const PdfMapHex = ({
   if (
     inventoryID === Pieces.outcrop3 ||
     inventoryID === Pieces.lavaRockOutcrop3 ||
+    inventoryID === Pieces.toxicOutcrop3 ||
     inventoryID === Pieces.glacier3
   ) {
     return (

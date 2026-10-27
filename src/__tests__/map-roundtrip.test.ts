@@ -116,6 +116,40 @@ afterEach(() => {
 })
 
 describe('map persistence round trips', () => {
+  it.each(['CC', 'DD', 'EE'])(
+    'preserves set %s through JSON, autosave, and share-link round trips',
+    (setID) => {
+      const mapWithSet = { ...hexMap, setsUsed: [setID] }
+      const emptyPieces: BoardPiece[] = []
+      const fromFile = openJsonMapFile(
+        JSON.stringify({ hexMap: mapWithSet, boardPieces: emptyPieces }),
+      )
+      expect(fromFile.hexMap.setsUsed).toEqual([setID])
+
+      storageValues.clear()
+      vi.clearAllMocks()
+      vi.stubGlobal('localStorage', localStorageMock)
+      const autosave = createLocalMapAutosaveStorage()
+      expect(
+        autosave.save({ hexMap: mapWithSet, boardPieces: emptyPieces }),
+      ).toEqual({ ok: true })
+      expect(loadMapFromLocalStorage(LS_KEYS.lastMap)?.hexMap.setsUsed).toEqual(
+        [setID],
+      )
+
+      const crushed = getUrlMapString({
+        hexMap: mapWithSet,
+        boardPieces: emptyPieces,
+      })
+      const { m } = parseMapShareUrlParams(
+        `https://hexoscape.com/?m=${crushed}`,
+      )
+      if (m === null) throw new Error('Expected a shared map payload')
+      const decoded = parseMapDataArrayFromCrushed(m)
+      expect(decoded.hexMap.setsUsed).toEqual([setID])
+    },
+  )
+
   it('rebuilds Laur add-on conflicts after JSON, autosave, and share-link round trips', () => {
     const laurPieces: BoardPiece[] = [
       {

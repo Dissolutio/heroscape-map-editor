@@ -1569,7 +1569,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     height: 7,
   },
   [Pieces.toxicOutcrop3]: {
-    id: Pieces.lavaRockOutcrop3,
+    id: Pieces.toxicOutcrop3,
     title: 'Toxic Rock Outcrop (3)',
     terrain: HexTerrain.toxicOutcrop,
     isHexTerrainPiece: false,

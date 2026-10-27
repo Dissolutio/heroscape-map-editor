@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { MEASURED_PIECE_HEIGHTS } from '../data/pieceHeightAudit'
 import { piecesSoFar } from '../data/pieces'
+import { verticalObstructionTemplates } from '../data/vertical-obstruction-templates'
 import { Pieces } from '../types'
 import { makeTable, place } from './helpers/board'
 
@@ -56,5 +57,11 @@ describe('measured piece heights', () => {
 
   it('keeps Big Tree 415 at its registered height', () => {
     expect(piecesSoFar[Pieces.tree415].height).toBe(15)
+  })
+
+  it('uses lava outcrop clearance values for the toxic 3-hex outcrop', () => {
+    expect(verticalObstructionTemplates[Pieces.toxicOutcrop3]).toEqual(
+      verticalObstructionTemplates[Pieces.lavaRockOutcrop3],
+    )
   })
 })

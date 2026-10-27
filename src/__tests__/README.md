@@ -14,7 +14,7 @@ export-border test also renders minimal SVG and PDF output.
 
 | File | Protects |
 | --- | --- |
-| `piece-registry.test.ts` | The "add a new terrain piece" checklist: every registry that must agree about a piece. **Read this first if you are adding terrain.** |
+| `piece-registry.test.ts` | The "add a new terrain piece" checklist: every registry that must agree about a piece, including piece-grid groups. **Read this first if you are adding terrain.** |
 | `generic-pieces.test.ts` | Generic solid/fluid registration, all footprint sizes on the table, solid/fluid stacking, buried marks, unlimited inventory handling, and piece-grid grouping. |
 | `generic-terrain-colors.test.ts` | Generic cap/side color resolution and contrast-based `?` letter color selection. |
 | `land-hex-instances.test.ts` | Per-hex land instance construction, level and piece exclusions, six-direction side culling, and flat cap/side color selection. |
