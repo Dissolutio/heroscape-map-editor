@@ -18,6 +18,7 @@ export-border test also renders minimal SVG and PDF output.
 | `generic-pieces.test.ts` | Generic solid/fluid registration, all footprint sizes on the table, solid/fluid stacking, buried marks, unlimited inventory handling, and piece-grid grouping. |
 | `generic-terrain-colors.test.ts` | Generic cap/side color resolution and contrast-based `?` letter color selection. |
 | `land-hex-instances.test.ts` | Per-hex land instance construction, level and piece exclusions, six-direction side culling, and flat cap/side color selection. |
+| `land-hex-geometry.test.ts` | Per-hex prism geometry: every side quad indexes its own four vertices, faces outward, and cap triangles are intact. |
 | `export-border-color.test.ts` | Shared SVG/PDF border-color decisions for every terrain, SVG Asphalt markup, and rendered PDF output with outlines on/off, including sub-levels. |
 | `generic-letter-metrics.test.ts` | Ratchets every terrain letter against the PDF mark-width table and the Inter Bold font metrics. |
 | `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
