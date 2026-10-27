@@ -27,6 +27,10 @@ link parameter: `/hs?e2e=1&m=<crushed map>` (see `e2e/fixtures.ts`).
 between runs. The rotation only shows with **High Quality Render** on; the
 default caps are plain hexagons.
 
+For the development-only per-hex land renderer, add `&perHexLand=1` to an
+`/hs?e2e=1` URL. It is session-only and off by default; all other rendering
+continues to use the current path.
+
 The automatic What's New dialog is suppressed for `?e2e=1` runs. A test that
 needs to exercise it can explicitly opt in with `&whats-new=1`. The ordinary
 What's New button remains available in e2e runs.
