@@ -30,21 +30,8 @@ import {
 } from '../drag/dragController'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { InstanceRefType } from '../maphex/instance-hex'
+import { NON_INSTANCED_SUBTERRAIN_PIECES } from './landHexInstances'
 import { useDisposableGLTF } from './useDisposableGLTF'
-
-// These pieces render their own colorOverride'd LandSubterrain in MapBoardPiece3D.tsx,
-// so they are excluded here to avoid double rendering. Keep in sync with that file.
-const NON_INSTANCED_SUBTERRAIN_PIECES = new Set<string>([
-  Pieces.glacier1,
-  Pieces.outcrop1,
-  Pieces.lavaRockOutcrop1,
-  Pieces.glacier3,
-  Pieces.lavaRockOutcrop3,
-  Pieces.outcrop3,
-  Pieces.glacier4,
-  Pieces.glacier6,
-  Pieces.hive,
-])
 
 type SubterrainSize =
   | '1'
