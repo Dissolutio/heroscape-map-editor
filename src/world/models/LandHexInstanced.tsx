@@ -24,8 +24,12 @@ import {
   reportDragTargetHex,
 } from '../drag/dragController'
 import {
+  buildLandHexInstanceIndex,
   type LandHexInstanceDatum,
-  getLandHexDisplayColors,
+  getLandHexHighlightValue,
+  getLandHexHoverTransition,
+  type LandHexHoverTarget,
+  type LandHexInstanceIndex,
 } from './landHexInstances'
 
 const vertices = Array.from({ length: 6 }, (_, index) => {
@@ -218,7 +222,9 @@ function makeLandMaterial(isLightsAndShadowsRender: boolean, isFluid: boolean) {
         }
         vLandSurfaceColor =
           landSurfaceKind > 0.5 ? landCapColor : landSideColor;
-        vLandHighlight = landHighlight;`,
+        vLandHighlight = landSurfaceKind > 0.5
+          ? mod(landHighlight, 2.0)
+          : step(2.0, landHighlight);`,
       )
     shader.fragmentShader = shader.fragmentShader
       .replace(
@@ -237,7 +243,7 @@ function makeLandMaterial(isLightsAndShadowsRender: boolean, isFluid: boolean) {
         );`,
       )
   }
-  material.customProgramCacheKey = () => 'land-hex-instance-colors-v1'
+  material.customProgramCacheKey = () => 'land-hex-instance-colors-v2'
   return material
 }
 
@@ -246,7 +252,8 @@ function updateInstanceMesh(
   geometry: BufferGeometry,
   items: LandHexInstanceDatum[],
   selectedIDs: Set<string>,
-  hoveredPieceID: string,
+  hovered: LandHexHoverTarget,
+  surface: 'cap' | 'side' | 'both',
 ) {
   if (!mesh) return
 
@@ -279,14 +286,14 @@ function updateInstanceMesh(
 
   mesh.count = items.length
   items.forEach((item, index) => {
-    const isHighlighted =
-      selectedIDs.has(item.uid) || hoveredPieceID === item.uid
-    const displayColors = getLandHexDisplayColors(item, isHighlighted)
-    color.set(displayColors.cap).toArray(capColorAttribute.array, index * 3)
-    color.set(displayColors.side).toArray(sideColorAttribute.array, index * 3)
+    color.set(item.capColor).toArray(capColorAttribute.array, index * 3)
+    color.set(item.sideColor).toArray(sideColorAttribute.array, index * 3)
     sideMaskAttribute.setX(index, item.sideMask)
     capVisibleAttribute.setX(index, Number(item.capVisible))
-    highlightAttribute.setX(index, Number(isHighlighted))
+    highlightAttribute.setX(
+      index,
+      getLandHexHighlightValue(item, hovered, selectedIDs, surface),
+    )
     levelsAttribute.setX(index, item.levels)
     capLayerAttribute.setX(index, item.capLayer)
     sideLayerAttribute.setX(index, item.sideLayer)
@@ -307,9 +314,49 @@ function updateInstanceMesh(
     capLayerAttribute,
     sideLayerAttribute,
   ]) {
+    attribute.clearUpdateRanges()
     attribute.needsUpdate = true
   }
+  mesh.instanceMatrix.clearUpdateRanges()
   mesh.instanceMatrix.needsUpdate = true
+}
+
+function writeLandHighlightValues(
+  geometry: BufferGeometry,
+  items: LandHexInstanceDatum[],
+  indices: Iterable<number>,
+  selectedIDs: Set<string>,
+  hovered: LandHexHoverTarget,
+  surface: 'cap' | 'side' | 'both',
+) {
+  const attribute = geometry.getAttribute(
+    'landHighlight',
+  ) as InstancedBufferAttribute
+  const updatedIndices = [...indices]
+  if (updatedIndices.length === 0) return
+  for (const index of updatedIndices) {
+    const item = items[index]
+    if (!item) continue
+    attribute.setX(
+      index,
+      getLandHexHighlightValue(item, hovered, selectedIDs, surface),
+    )
+    attribute.addUpdateRange(index, 1)
+  }
+  attribute.needsUpdate = true
+}
+
+function getHoverAffectedIndices(
+  transition: ReturnType<typeof getLandHexHoverTransition>,
+  surface: 'cap' | 'side' | 'both',
+) {
+  const updates =
+    surface === 'cap'
+      ? transition.capUpdates
+      : surface === 'side'
+        ? transition.sideUpdates
+        : [...transition.sideUpdates, ...transition.capUpdates]
+  return new Set(updates.map(({ index }) => index))
 }
 
 function handleSideSelection(
@@ -343,10 +390,9 @@ export default function LandHexInstanced({
     (s) => s.isLightsAndShadowsRender,
   )
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
-  const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const { onPointerEnter, onPointerEnterPID, onPointerOut, onPointerMove } =
-    usePieceHoverState()
+    usePieceHoverState({ trackIsHovered: false })
   const solidData = React.useMemo(
     () => data.filter((item) => !item.isFluid),
     [data],
@@ -354,6 +400,14 @@ export default function LandHexInstanced({
   const fluidData = React.useMemo(
     () => data.filter((item) => item.isFluid),
     [data],
+  )
+  const solidIndex = React.useMemo(
+    () => buildLandHexInstanceIndex(solidData),
+    [solidData],
+  )
+  const fluidIndex = React.useMemo(
+    () => buildLandHexInstanceIndex(fluidData),
+    [fluidData],
   )
   const capGeometry = React.useMemo(
     () => buildCapGeometry(solidData.length),
@@ -386,6 +440,9 @@ export default function LandHexInstanced({
     () => new Set(selectedPieceIDs),
     [selectedPieceIDs],
   )
+  const hoverTargetRef = React.useRef<LandHexHoverTarget>(null)
+  const hoverLeaveFrameRef = React.useRef<number | null>(null)
+  const previousSelectedIDsRef = React.useRef(selectedIDs)
   const shadowProps = {
     receiveShadow: isLightsAndShadowsRender,
     castShadow: isLightsAndShadowsRender,
@@ -393,36 +450,139 @@ export default function LandHexInstanced({
   }
 
   React.useEffect(() => {
+    const currentSelectedIDs = new Set(
+      useBoundStore.getState().selectedPieceIDs,
+    )
     updateInstanceMesh(
       capRef.current,
       capGeometry,
       solidData,
-      selectedIDs,
-      hoveredPieceID,
+      currentSelectedIDs,
+      hoverTargetRef.current,
+      'cap',
     )
     updateInstanceMesh(
       sideRef.current,
       sideGeometry,
       solidData,
-      selectedIDs,
-      hoveredPieceID,
+      currentSelectedIDs,
+      hoverTargetRef.current,
+      'side',
     )
     updateInstanceMesh(
       fluidRef.current,
       fluidGeometry,
       fluidData,
-      selectedIDs,
-      hoveredPieceID,
+      currentSelectedIDs,
+      hoverTargetRef.current,
+      'both',
     )
+  }, [capGeometry, fluidData, fluidGeometry, sideGeometry, solidData])
+
+  React.useEffect(() => {
+    const previousSelectedIDs = previousSelectedIDsRef.current
+    const changedUIDs = new Set([...previousSelectedIDs, ...selectedIDs])
+    for (const uid of [...changedUIDs]) {
+      if (previousSelectedIDs.has(uid) === selectedIDs.has(uid)) {
+        changedUIDs.delete(uid)
+      }
+    }
+
+    if (changedUIDs.size > 0) {
+      const updateSelection = (
+        mesh: InstancedMesh | null,
+        geometry: BufferGeometry,
+        items: LandHexInstanceDatum[],
+        index: LandHexInstanceIndex,
+        surface: 'side' | 'both',
+      ) => {
+        if (!mesh) return
+        const indices = new Set<number>()
+        for (const uid of changedUIDs) {
+          for (const instanceIndex of index.indicesByUID.get(uid) ?? []) {
+            indices.add(instanceIndex)
+          }
+        }
+        writeLandHighlightValues(
+          geometry,
+          items,
+          indices,
+          selectedIDs,
+          hoverTargetRef.current,
+          surface,
+        )
+      }
+      updateSelection(
+        sideRef.current,
+        sideGeometry,
+        solidData,
+        solidIndex,
+        'side',
+      )
+      updateSelection(
+        fluidRef.current,
+        fluidGeometry,
+        fluidData,
+        fluidIndex,
+        'both',
+      )
+    }
+    previousSelectedIDsRef.current = selectedIDs
   }, [
-    capGeometry,
     fluidData,
     fluidGeometry,
-    hoveredPieceID,
+    fluidIndex,
     selectedIDs,
     sideGeometry,
     solidData,
+    solidIndex,
   ])
+
+  React.useEffect(
+    () => () => {
+      if (hoverLeaveFrameRef.current !== null) {
+        window.cancelAnimationFrame(hoverLeaveFrameRef.current)
+      }
+    },
+    [],
+  )
+
+  const updateHoverTarget = (next: LandHexHoverTarget) => {
+    const previous = hoverTargetRef.current
+    if (
+      previous?.uid === next?.uid &&
+      previous?.hexID === next?.hexID &&
+      previous?.isCap === next?.isCap
+    ) {
+      return
+    }
+    const selected = new Set(useBoundStore.getState().selectedPieceIDs)
+    const updateHover = (
+      mesh: InstancedMesh | null,
+      geometry: BufferGeometry,
+      items: LandHexInstanceDatum[],
+      index: LandHexInstanceIndex,
+      surface: 'cap' | 'side' | 'both',
+    ) => {
+      if (!mesh) return
+      const transition = getLandHexHoverTransition(previous, next, index)
+      const indices = getHoverAffectedIndices(transition, surface)
+      if (indices.size > 0) {
+        writeLandHighlightValues(
+          geometry,
+          items,
+          indices,
+          selected,
+          next,
+          surface,
+        )
+      }
+    }
+    updateHover(capRef.current, capGeometry, solidData, solidIndex, 'cap')
+    updateHover(sideRef.current, sideGeometry, solidData, solidIndex, 'side')
+    updateHover(fluidRef.current, fluidGeometry, fluidData, fluidIndex, 'both')
+    hoverTargetRef.current = next
+  }
 
   const handlePointerEnter = (
     event: ThreeEvent<PointerEvent>,
@@ -431,11 +591,36 @@ export default function LandHexInstanced({
   ) => {
     if (isDragPassThrough(item.uid)) return
     event.stopPropagation()
+    if (hoverLeaveFrameRef.current !== null) {
+      window.cancelAnimationFrame(hoverLeaveFrameRef.current)
+      hoverLeaveFrameRef.current = null
+    }
+    updateHoverTarget({
+      uid: item.uid,
+      hexID: item.hex.id,
+      isCap,
+    })
     if (isCap) {
       onPointerEnter(event, item.hex)
     } else {
       onPointerEnterPID(event, item.uid)
     }
+  }
+  const handlePointerLeave = (
+    event: ThreeEvent<PointerEvent>,
+    item: LandHexInstanceDatum,
+  ) => {
+    const target = hoverTargetRef.current
+    if (target?.uid === item.uid && target.hexID === item.hex.id) {
+      if (hoverLeaveFrameRef.current !== null) {
+        window.cancelAnimationFrame(hoverLeaveFrameRef.current)
+      }
+      hoverLeaveFrameRef.current = window.requestAnimationFrame(() => {
+        hoverLeaveFrameRef.current = null
+        if (hoverTargetRef.current === target) updateHoverTarget(null)
+      })
+    }
+    onPointerOut(event)
   }
   const handlePointerMove = (
     event: ThreeEvent<PointerEvent>,
@@ -461,7 +646,10 @@ export default function LandHexInstanced({
       const item = getItem(event, solidData)
       if (item) handlePointerEnter(event, item, true)
     },
-    onPointerLeave: (event: ThreeEvent<PointerEvent>) => onPointerOut(event),
+    onPointerLeave: (event: ThreeEvent<PointerEvent>) => {
+      const item = getItem(event, solidData)
+      if (item) handlePointerLeave(event, item)
+    },
     onPointerUp: (event: ThreeEvent<PointerEvent>) => {
       const item = getItem(event, solidData)
       if (item) onPointerUpPaintPiece(event, item.hex)
@@ -481,6 +669,10 @@ export default function LandHexInstanced({
       const item = getItem(event, solidData)
       if (item) handlePointerEnter(event, item, false)
     },
+    onPointerLeave: (event: ThreeEvent<PointerEvent>) => {
+      const item = getItem(event, solidData)
+      if (item) handlePointerLeave(event, item)
+    },
     onPointerUp: (event: ThreeEvent<PointerEvent>) => {
       const item = getItem(event, solidData)
       if (item) handleSideSelection(event, item.uid, toggleSelectedPieceID)
@@ -493,7 +685,10 @@ export default function LandHexInstanced({
         handlePointerEnter(event, item, (event.faceIndex ?? 0) < 6)
       }
     },
-    onPointerLeave: (event: ThreeEvent<PointerEvent>) => onPointerOut(event),
+    onPointerLeave: (event: ThreeEvent<PointerEvent>) => {
+      const item = getItem(event, fluidData)
+      if (item) handlePointerLeave(event, item)
+    },
     onPointerUp: (event: ThreeEvent<PointerEvent>) => {
       const item = getItem(event, fluidData)
       if (!item) return
@@ -509,7 +704,30 @@ export default function LandHexInstanced({
     },
     onPointerMove: (event: ThreeEvent<PointerEvent>) => {
       const item = getItem(event, fluidData)
-      if (item) handlePointerMove(event, item)
+      if (item) {
+        if (!isDragPassThrough(item.uid)) {
+          const nextTarget = {
+            uid: item.uid,
+            hexID: item.hex.id,
+            isCap: (event.faceIndex ?? 0) < 6,
+          }
+          const previous = hoverTargetRef.current
+          if (
+            previous?.uid !== nextTarget.uid ||
+            previous?.hexID !== nextTarget.hexID ||
+            previous?.isCap !== nextTarget.isCap
+          ) {
+            onPointerOut(event)
+            if (nextTarget.isCap) {
+              onPointerEnter(event, item.hex)
+            } else {
+              onPointerEnterPID(event, item.uid)
+            }
+            updateHoverTarget(nextTarget)
+          }
+        }
+        handlePointerMove(event, item)
+      }
     },
   }
 
