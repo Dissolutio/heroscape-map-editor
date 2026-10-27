@@ -4,7 +4,11 @@ import useBoundStore from '../store/store'
 import type { BoardHex } from '../types'
 import { isDragPassThrough, isDragging } from '../world/drag/dragController'
 
-export default function usePieceHoverState() {
+export default function usePieceHoverState({
+  trackIsHovered = true,
+}: {
+  trackIsHovered?: boolean
+} = {}) {
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
   const toggleHoveredHex = useBoundStore((s) => s.toggleHoveredHex)
   const toggleHoveredWorldPoint = useBoundStore(
@@ -19,7 +23,7 @@ export default function usePieceHoverState() {
     if (isDragPassThrough(boardHex.boardPieceUID)) return
     if (!isDragging()) e.stopPropagation()
     const point = { x: e.point.x, z: e.point.z }
-    setIsHovered(true)
+    if (trackIsHovered) setIsHovered(true)
     hoverTimeout.current = window.setTimeout(() => {
       toggleHoveredPieceID(boardHex.boardPieceUID ?? '')
       toggleHoveredHex(boardHex)
@@ -32,14 +36,14 @@ export default function usePieceHoverState() {
   const onPointerEnterPID = (e: ThreeEvent<PointerEvent>, pid: string) => {
     if (isDragPassThrough(pid)) return
     if (!isDragging()) e.stopPropagation()
-    setIsHovered(true)
+    if (trackIsHovered) setIsHovered(true)
     hoverTimeout.current = window.setTimeout(() => {
       toggleHoveredPieceID(pid)
     }, 50) // Adjust the delay (in milliseconds) as needed
   }
   const onPointerOut = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
-    setIsHovered(false)
+    if (trackIsHovered) setIsHovered(false)
     toggleHoveredHex(undefined)
     clearTimeout(hoverTimeout.current)
   }

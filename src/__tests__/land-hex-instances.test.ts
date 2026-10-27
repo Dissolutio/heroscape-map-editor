@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { cloneBoard, makeTable, place, type Board } from './helpers/board'
 import { Pieces, type BoardHex } from '../types'
 import {
+  buildLandHexInstanceIndex,
   buildLandHexInstanceData,
   getLandHexColors,
   getLandHexDisplayColors,
+  getLandHexHighlightValue,
+  getLandHexHoverTransition,
   getLandHexSideVisibilityMask,
   NON_INSTANCED_SUBTERRAIN_PIECES,
 } from '../world/models/landHexInstances'
@@ -246,7 +249,140 @@ describe('land hex colors', () => {
     })
   })
 
-  it('highlights both surfaces without changing their base colors', () => {
+  describe('land hex hover highlighting', () => {
+    const items = [
+      { uid: 'first', hex: { id: 'hex-a' } },
+      { uid: 'first', hex: { id: 'hex-b' } },
+      { uid: 'second', hex: { id: 'hex-c' } },
+    ]
+    const index = buildLandHexInstanceIndex(items)
+
+    it('indexes every piece instance and each hex', () => {
+      expect(index.indicesByUID).toEqual(
+        new Map([
+          ['first', [0, 1]],
+          ['second', [2]],
+        ]),
+      )
+      expect(index.indexByHexID).toEqual(
+        new Map([
+          ['hex-a', 0],
+          ['hex-b', 1],
+          ['hex-c', 2],
+        ]),
+      )
+    })
+
+    it('turns the previous piece off and the next piece on', () => {
+      expect(
+        getLandHexHoverTransition(
+          { uid: 'first', hexID: 'hex-a', isCap: true },
+          { uid: 'second', hexID: 'hex-c', isCap: true },
+          index,
+        ),
+      ).toEqual({
+        sideUpdates: [
+          { index: 0, isHighlighted: false },
+          { index: 1, isHighlighted: false },
+          { index: 2, isHighlighted: true },
+        ],
+        capUpdates: [
+          { index: 0, isHighlighted: false },
+          { index: 2, isHighlighted: true },
+        ],
+      })
+    })
+
+    it('changes only the cap when moving across one piece', () => {
+      expect(
+        getLandHexHoverTransition(
+          { uid: 'first', hexID: 'hex-a', isCap: true },
+          { uid: 'first', hexID: 'hex-b', isCap: true },
+          index,
+        ),
+      ).toEqual({
+        sideUpdates: [],
+        capUpdates: [
+          { index: 0, isHighlighted: false },
+          { index: 1, isHighlighted: true },
+        ],
+      })
+    })
+
+    it('turns the cap off when pointer movement reaches the same tile sides', () => {
+      expect(
+        getLandHexHoverTransition(
+          { uid: 'first', hexID: 'hex-a', isCap: true },
+          { uid: 'first', hexID: 'hex-a', isCap: false },
+          index,
+        ),
+      ).toEqual({
+        sideUpdates: [],
+        capUpdates: [{ index: 0, isHighlighted: false }],
+      })
+    })
+
+    it('turns the hovered piece and cap off when leaving', () => {
+      expect(
+        getLandHexHoverTransition(
+          { uid: 'first', hexID: 'hex-a', isCap: true },
+          null,
+          index,
+        ),
+      ).toEqual({
+        sideUpdates: [
+          { index: 0, isHighlighted: false },
+          { index: 1, isHighlighted: false },
+        ],
+        capUpdates: [{ index: 0, isHighlighted: false }],
+      })
+    })
+
+    it('encodes cap hover separately from highlighted sides', () => {
+      const item = items[0]
+      expect(
+        getLandHexHighlightValue(
+          item,
+          { uid: item.uid, hexID: 'hex-a', isCap: true },
+          new Set(),
+        ),
+      ).toBe(3)
+      expect(
+        getLandHexHighlightValue(
+          item,
+          { uid: item.uid, hexID: 'hex-a', isCap: true },
+          new Set(),
+          'cap',
+        ),
+      ).toBe(1)
+      expect(
+        getLandHexHighlightValue(
+          item,
+          { uid: item.uid, hexID: 'hex-a', isCap: false },
+          new Set(),
+          'side',
+        ),
+      ).toBe(2)
+      expect(
+        getLandHexHighlightValue(
+          item,
+          { uid: item.uid, hexID: 'hex-a', isCap: false },
+          new Set(),
+        ),
+      ).toBe(2)
+      expect(
+        getLandHexHighlightValue(
+          item,
+          { uid: item.uid, hexID: 'hex-a', isCap: true },
+          new Set([item.uid]),
+        ),
+      ).toBe(3)
+      expect(getLandHexHighlightValue(item, null, new Set([item.uid]))).toBe(2)
+      expect(getLandHexHighlightValue(item, null, new Set())).toBe(0)
+    })
+  })
+
+  it('highlights caps and sides independently without changing base colors', () => {
     const datum = { capColor: '#123456', sideColor: '#abcdef' }
     expect(getLandHexDisplayColors(datum, false)).toEqual({
       cap: '#123456',
@@ -254,6 +390,14 @@ describe('land hex colors', () => {
     })
     expect(getLandHexDisplayColors(datum, true)).toEqual({
       cap: 'yellow',
+      side: 'yellow',
+    })
+    expect(getLandHexDisplayColors(datum, true, false)).toEqual({
+      cap: 'yellow',
+      side: '#abcdef',
+    })
+    expect(getLandHexDisplayColors(datum, false, true)).toEqual({
+      cap: '#123456',
       side: 'yellow',
     })
   })
