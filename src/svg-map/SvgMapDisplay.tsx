@@ -32,7 +32,6 @@ const SvgMapDisplay = () => {
   )
   const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isPdfColorBorders = useBoundStore((s) => s.isPdfColorBorders)
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
   )
@@ -90,7 +89,7 @@ const SvgMapDisplay = () => {
       <title>2D Map Display</title>
 
       {/* <AxesHelper width={viewBox.width} length={viewBox.height} /> */}
-      <g key={String(isPdfColorBorders)}>
+      <g>
         {boardHexesArr.map((hex) => (
           <SvgMapHex
             key={hex.id}

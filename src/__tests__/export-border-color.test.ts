@@ -86,75 +86,70 @@ describe('SVG/PDF export border color decision', () => {
     },
   )
 
-  it.each([
-    [Pieces.asphalt1, SvgMultiHex1, svgColors.outline1],
-    [Pieces.asphalt2, SvgMultiHex2, svgColors.outline2],
-    [Pieces.asphalt3, SvgMultiHex3, svgColors.outline3],
-    [Pieces.asphalt7, SvgMultiHex7, svgColors.outline7],
-    [Pieces.asphalt24, SvgMultiHex24, svgColors.outline24],
-  ] as [
-    string,
-    ComponentType<{ hex: BoardHex; isSubLevel?: boolean }>,
-    string,
-  ][])(
-    'changes only the border color in SVG for %s with color outlines off',
-    (inventoryID, Shape, coloredBorder) => {
-      const hex = {
-        boardPieceID: `${inventoryID}-board-piece`,
-        inventoryID,
-        altitude: 0,
-        rotation: 0,
-        boardHexID: '0~0~0',
-        pieceCoords: { q: 0, r: 0, s: 0 },
-        terrain: HexTerrain.asphalt,
-      } as unknown as BoardHex
-
-      useBoundStore.setState({ isPdfColorBorders: true })
-      const coloredMarkup = renderToStaticMarkup(createElement(Shape, { hex }))
-      useBoundStore.setState({ isPdfColorBorders: false })
-      const grayscaleMarkup = renderToStaticMarkup(
-        createElement(Shape, { hex }),
-      )
-
-      expect(grayscaleMarkup).toContain(`fill="${ASPHALT_BORDER_COLOR}"`)
-      expect(coloredMarkup).toContain(`fill="${coloredBorder}"`)
-      expect(
-        grayscaleMarkup.replace(
-          `fill="${ASPHALT_BORDER_COLOR}"`,
-          `fill="${coloredBorder}"`,
+  it('keeps SVG map markup unchanged for either PDF border setting', () => {
+    const fixtures = [
+      [Pieces.asphalt1, HexTerrain.asphalt, SvgMultiHex1, false],
+      [Pieces.asphalt2, HexTerrain.asphalt, SvgMultiHex2, false],
+      [Pieces.asphalt3, HexTerrain.asphalt, SvgMultiHex3, false],
+      [Pieces.asphalt7, HexTerrain.asphalt, SvgMultiHex7, false],
+      [Pieces.asphalt24, HexTerrain.asphalt, SvgMultiHex24, false],
+      [Pieces.asphalt1, HexTerrain.asphalt, SvgMultiHex1, true],
+      [Pieces.grass1, HexTerrain.grass, SvgMultiHex1, false],
+      [Pieces.grass2, HexTerrain.grass, SvgMultiHex2, false],
+      [Pieces.water1, HexTerrain.water, SvgMultiHex1, false],
+    ] as [
+      string,
+      HexTerrain,
+      ComponentType<{ hex: BoardHex; isSubLevel?: boolean }>,
+      boolean,
+    ][]
+    const renderSvgMap = (isPdfColorBorders: boolean) => {
+      useBoundStore.setState({ isPdfColorBorders })
+      return renderToStaticMarkup(
+        createElement(
+          'svg',
+          { xmlns: 'http://www.w3.org/2000/svg' },
+          ...fixtures.map(
+            ([inventoryID, terrain, Shape, isSubLevel], index) => {
+              const hex = {
+                boardPieceID: `${inventoryID}-board-piece-${index}`,
+                inventoryID,
+                altitude: isSubLevel ? 0 : 1,
+                rotation: 0,
+                boardHexID: `${index}~0~${-index}`,
+                pieceCoords: { q: index, r: 0, s: -index },
+                terrain,
+              } as unknown as BoardHex
+              const positionIndex = isSubLevel ? 0 : index
+              return createElement(
+                'g',
+                {
+                  key: index,
+                  transform: `translate(${positionIndex * 150} 0)`,
+                },
+                createElement(Shape, { hex, isSubLevel }),
+              )
+            },
+          ),
         ),
-      ).toBe(coloredMarkup)
-    },
-  )
+      )
+    }
 
-  it('keeps the sub-level Asphalt shade and changes only its SVG border', () => {
-    const hex = {
-      boardPieceID: `${Pieces.asphalt1}-board-piece`,
-      inventoryID: Pieces.asphalt1,
-      altitude: 0,
-      rotation: 0,
-      boardHexID: '0~0~0',
-      pieceCoords: { q: 0, r: 0, s: 0 },
-      terrain: HexTerrain.asphalt,
-    } as unknown as BoardHex
+    const markupWithColorSettingOn = renderSvgMap(true)
+    const markupWithColorSettingOff = renderSvgMap(false)
 
-    useBoundStore.setState({ isPdfColorBorders: true })
-    const coloredMarkup = renderToStaticMarkup(
-      createElement(SvgMultiHex1, { hex, isSubLevel: true }),
+    expect(markupWithColorSettingOff).toBe(markupWithColorSettingOn)
+    expect(markupWithColorSettingOff).toContain(`fill="${svgColors.outline1}"`)
+    expect(markupWithColorSettingOff).toContain(`fill="${svgColors.outline2}"`)
+    expect(markupWithColorSettingOff).toContain(`fill="${svgColors.outline3}"`)
+    expect(markupWithColorSettingOff).toContain(`fill="${svgColors.outline7}"`)
+    expect(markupWithColorSettingOff).toContain(`fill="${svgColors.outline24}"`)
+    expect(markupWithColorSettingOff).toContain(
+      `fill="${svgSubLevelColors.outline1}"`,
     )
-    useBoundStore.setState({ isPdfColorBorders: false })
-    const grayscaleMarkup = renderToStaticMarkup(
-      createElement(SvgMultiHex1, { hex, isSubLevel: true }),
+    expect(markupWithColorSettingOff).toContain(
+      `fill="${svgColors.outlineWater}"`,
     )
-
-    expect(grayscaleMarkup).toContain('fill="#7A7A7A"')
-    expect(grayscaleMarkup).toContain(`fill="${ASPHALT_SUBLEVEL_BORDER_COLOR}"`)
-    expect(
-      grayscaleMarkup.replace(
-        `fill="${ASPHALT_SUBLEVEL_BORDER_COLOR}"`,
-        `fill="${svgSubLevelColors.outline1}"`,
-      ),
-    ).toBe(coloredMarkup)
   })
 
   it('renders the gray Asphalt border in PDF output with color outlines off', async () => {

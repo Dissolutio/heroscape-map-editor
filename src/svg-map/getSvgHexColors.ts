@@ -123,7 +123,7 @@ const getSvgHexColorOutline = (hex: BoardHex | DecodedPieceID) => {
 }
 export const getSvgHexBorderColor = (
   hex: BoardHex | DecodedPieceID,
-  useTerrainBorderColor = useBoundStore.getState().isPdfColorBorders,
+  useTerrainBorderColor = true,
 ) => {
   const colorBorder = getSvgHexColorOutline(hex)
   return getExportBorderColor({
@@ -232,7 +232,7 @@ const getSvgHexSubLevelColorOutline = (hex: BoardHex | DecodedPieceID) => {
 }
 export const getSvgHexSubLevelBorderColor = (
   hex: BoardHex | DecodedPieceID,
-  useTerrainBorderColor = useBoundStore.getState().isPdfColorBorders,
+  useTerrainBorderColor = true,
 ) => {
   const colorBorder = getSvgHexSubLevelColorOutline(hex)
   return getExportBorderColor({
