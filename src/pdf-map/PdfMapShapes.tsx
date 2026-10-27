@@ -8,6 +8,7 @@ import {
   Text,
 } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
+import { getExportBorderColor } from '../pdf-svg-shared/exportBorderColor'
 import {
   genWoodPlankPath1,
   genWoodPlankPath2,
@@ -280,20 +281,22 @@ const getPdfHexBorderForView = (
   hex: BoardHex | DecodedPieceID,
   isSubLevel?: boolean,
   useTerrainBorderColor = true,
-) =>
-  PDF_BORDER_WIDTH > 0
-    ? useTerrainBorderColor
-      ? isSubLevel
-        ? getSvgHexSubLevelBorderColor(hex)
-        : getSvgHexBorderColor(hex)
-      : isFluidTerrainHex(hex.terrain)
-        ? isSubLevel
-          ? getSvgHexSubLevelBorderColor(hex)
-          : getSvgHexBorderColor(hex)
-        : isSubLevel
-          ? svgSubLevelColors.glacierText
-          : svgColors.glacierText
-    : ''
+) => {
+  if (PDF_BORDER_WIDTH <= 0) return ''
+  const colorBorder = isSubLevel
+    ? getSvgHexSubLevelBorderColor(hex, true)
+    : getSvgHexBorderColor(hex, true)
+  return getExportBorderColor({
+    terrain: hex.terrain,
+    isFluid: isFluidTerrainHex(hex.terrain),
+    isSubLevel: Boolean(isSubLevel),
+    useTerrainBorderColor,
+    colorBorder,
+    defaultBorderColor: isSubLevel
+      ? svgSubLevelColors.glacierText
+      : svgColors.glacierText,
+  })
+}
 
 export const PdfMultiHex1 = ({
   hex,

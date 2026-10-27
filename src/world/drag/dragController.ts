@@ -26,13 +26,14 @@ import {
   initialWheelRotationAccumulator,
   normalizeRotationSteps,
   rotateDragMembers,
-  shouldRotateDragWithWheel,
   shortestRotationSteps,
+  shouldRotateDragWithWheel,
+  shouldShowWheelHint,
 } from '../../data/dragRotation'
 import { piecesSoFar } from '../../data/pieces'
 import {
-  isStartZoneBoardPiece,
   START_ZONES_HIDDEN_MESSAGE,
+  isStartZoneBoardPiece,
 } from '../../data/startZoneVisibility'
 import useBoundStore from '../../store/store'
 import {
@@ -539,7 +540,14 @@ function end() {
 }
 
 function showWheelHint() {
-  if (hasShownWheelHint) return
+  if (!dragged) return
+  const piece = piecesSoFar[dragged.bp.inventoryID]
+  if (
+    !piece ||
+    !shouldShowWheelHint(piece, dragged.members.length, hasShownWheelHint)
+  ) {
+    return
+  }
   hasShownWheelHint = true
   enqueueSnackbar({
     key: 'drag-rotate-wheel-hint',
