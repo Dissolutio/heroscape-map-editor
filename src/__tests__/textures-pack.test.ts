@@ -12,7 +12,31 @@ import {
 
 const root = fileURLToPath(new URL('../..', import.meta.url))
 const outputRoot = `${root}/public/textures`
-const manifest = JSON.parse(readFileSync(`${outputRoot}/manifest.json`, 'utf8'))
+type TerrainManifest = {
+  capDiffuseLayer: number
+  capDiffusePbrLayer: number
+  capOrmLayer: number
+  capNormalLayer: number
+  sideDiffuseLayer: number
+  sideOrmLayer: number
+  sideNormalLayer: number
+  flatColor: string | null
+  allowRandomRotation: boolean
+  isFluid: boolean
+}
+type TextureFile = {
+  width: number
+  height: number
+  frameWidth: number
+  frameHeight: number
+  layers: number
+}
+const manifest = JSON.parse(
+  readFileSync(`${outputRoot}/manifest.json`, 'utf8'),
+) as {
+  terrains: Record<string, TerrainManifest>
+  files: Record<string, TextureFile>
+}
 
 function readTexture(name: string) {
   return PNG.sync.read(readFileSync(`${outputRoot}/${name}`))
@@ -66,16 +90,7 @@ describe('packed terrain textures', () => {
   })
 
   it('keeps manifest layer indices and strip dimensions in range', () => {
-    for (const [filename, details] of Object.entries(manifest.files) as [
-      string,
-      {
-        width: number
-        height: number
-        frameWidth: number
-        frameHeight: number
-        layers: number
-      },
-    ][]) {
+    for (const [filename, details] of Object.entries(manifest.files)) {
       const image = readTexture(filename)
       expect(image.width).toBe(details.width)
       expect(image.height).toBe(details.height)
@@ -139,8 +154,8 @@ describe('packed terrain textures', () => {
 
   it('uses the flat cap-normal layer for every fluid terrain', () => {
     const flatLayer = 2
-    for (const [name, terrain] of Object.entries(manifest.terrains)) {
-      if (terrainTextures[name].isFluid) {
+    for (const terrain of Object.values(manifest.terrains)) {
+      if (terrain.isFluid) {
         expect(terrain.capNormalLayer).toBe(flatLayer)
       }
     }
