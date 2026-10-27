@@ -101,7 +101,7 @@ export function buildSideGeometry(instanceCount: number) {
   return buildGeometry(positions, kinds, directions, indices, instanceCount)
 }
 
-function buildFluidGeometry(instanceCount: number) {
+export function buildFluidGeometry(instanceCount: number) {
   const cap = buildCapGeometry(0)
   const sides = buildSideGeometry(0)
   const capPositions = cap.getAttribute('position').array
@@ -110,15 +110,15 @@ function buildFluidGeometry(instanceCount: number) {
   const sideKinds = sides.getAttribute('landSurfaceKind').array
   const capDirections = cap.getAttribute('landDirection').array
   const sideDirections = sides.getAttribute('landDirection').array
+  const capIndices = cap.getIndex()?.array ?? []
+  const sideIndices = sides.getIndex()?.array ?? []
+  const capVertexCount = cap.getAttribute('position').count
   const positions = [...capPositions, ...sidePositions]
   const kinds = [...capKinds, ...sideKinds]
   const directions = [...capDirections, ...sideDirections]
   const indices = [
-    ...Array.from({ length: cap.getAttribute('position').count }, (_, i) => i),
-    ...Array.from(
-      { length: sides.getAttribute('position').count },
-      (_, i) => i + cap.getAttribute('position').count,
-    ),
+    ...capIndices,
+    ...Array.from(sideIndices, (index) => index + capVertexCount),
   ]
   cap.dispose()
   sides.dispose()
@@ -433,6 +433,12 @@ export default function LandHexInstanced({
     () => makeLandMaterial(isLightsAndShadowsRender, true),
     [isLightsAndShadowsRender],
   )
+  React.useEffect(() => () => capGeometry.dispose(), [capGeometry])
+  React.useEffect(() => () => sideGeometry.dispose(), [sideGeometry])
+  React.useEffect(() => () => fluidGeometry.dispose(), [fluidGeometry])
+  React.useEffect(() => () => capMaterial.dispose(), [capMaterial])
+  React.useEffect(() => () => sideMaterial.dispose(), [sideMaterial])
+  React.useEffect(() => () => fluidMaterial.dispose(), [fluidMaterial])
   const capRef = React.useRef<InstancedMesh>(null)
   const sideRef = React.useRef<InstancedMesh>(null)
   const fluidRef = React.useRef<InstancedMesh>(null)
@@ -737,13 +743,17 @@ export default function LandHexInstanced({
         <>
           <instancedMesh
             ref={capRef}
-            args={[capGeometry, capMaterial, solidData.length]}
+            args={[undefined, undefined, solidData.length]}
+            geometry={capGeometry}
+            material={capMaterial}
             {...shadowProps}
             {...capEvents}
           />
           <instancedMesh
             ref={sideRef}
-            args={[sideGeometry, sideMaterial, solidData.length]}
+            args={[undefined, undefined, solidData.length]}
+            geometry={sideGeometry}
+            material={sideMaterial}
             {...shadowProps}
             {...sideEvents}
           />
@@ -752,7 +762,9 @@ export default function LandHexInstanced({
       {fluidData.length > 0 && (
         <instancedMesh
           ref={fluidRef}
-          args={[fluidGeometry, fluidMaterial, fluidData.length]}
+          args={[undefined, undefined, fluidData.length]}
+          geometry={fluidGeometry}
+          material={fluidMaterial}
           {...shadowProps}
           {...fluidEvents}
         />

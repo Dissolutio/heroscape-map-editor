@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildCapGeometry,
+  buildFluidGeometry,
   buildSideGeometry,
 } from '../world/models/LandHexInstanced'
 
@@ -59,5 +60,68 @@ describe('per-hex land geometry', () => {
     const index = geometry.getIndex()
     expect(geometry.getAttribute('position').count).toBe(18)
     for (let i = 0; i < 18; i += 1) expect(index?.getX(i)).toBe(i)
+  })
+
+  it('fluid triangles preserve cap and side faces and point outward', () => {
+    const geometry = buildFluidGeometry(0)
+    const position = geometry.getAttribute('position')
+    const directions = geometry.getAttribute('landDirection')
+    const kinds = geometry.getAttribute('landSurfaceKind')
+    const index = geometry.getIndex()
+    const capVertexCount = 18
+    const capIndexCount = 18
+    expect(position.count).toBe(42)
+    expect(index?.count).toBe(54)
+
+    for (let side = 0; side < 6; side += 1) {
+      const start = capIndexCount + side * 6
+      const used = new Set<number>()
+      for (let i = start; i < start + 6; i += 1) {
+        used.add(index?.getX(i) ?? -1)
+      }
+      expect([...used].sort((a, b) => a - b)).toEqual([
+        capVertexCount + side * 4,
+        capVertexCount + side * 4 + 1,
+        capVertexCount + side * 4 + 2,
+        capVertexCount + side * 4 + 3,
+      ])
+    }
+
+    const point = (vertex: number) => [
+      position.getX(vertex),
+      position.getY(vertex),
+      position.getZ(vertex),
+    ]
+    for (let i = 0; i < (index?.count ?? 0); i += 3) {
+      const vertices = [
+        index?.getX(i) ?? -1,
+        index?.getX(i + 1) ?? -1,
+        index?.getX(i + 2) ?? -1,
+      ]
+      const [a, b, c] = vertices.map(point)
+      const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]]
+      const v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]]
+      const normal = [
+        u[1] * v[2] - u[2] * v[1],
+        u[2] * v[0] - u[0] * v[2],
+        u[0] * v[1] - u[1] * v[0],
+      ]
+      const kind = kinds.getX(vertices[0])
+      const direction = directions.getX(vertices[0])
+
+      for (const vertex of vertices.slice(1)) {
+        expect(kinds.getX(vertex)).toBe(kind)
+        expect(directions.getX(vertex)).toBe(direction)
+      }
+
+      if (kind > 0.5) {
+        expect(normal[1]).toBeGreaterThan(0)
+      } else {
+        const midpoint = [(a[0] + c[0]) / 2, (a[2] + c[2]) / 2]
+        expect(
+          normal[0] * midpoint[0] + normal[2] * midpoint[1],
+        ).toBeGreaterThan(0)
+      }
+    }
   })
 })
