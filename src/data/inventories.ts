@@ -41,6 +41,29 @@ export const tournamentOrganizerTerrainKitPieceSet: PieceInventory = {
   [Pieces.laurWallLong]: 4,
   [Pieces.laurBrush10]: 12,
 }
+export const tournamentOrganizerTerrainKit2PieceSet: PieceInventory = {
+  // This is Renegade's latest terrain kit for stores and tournament organizers.
+  /* 
+  It contains:
+  - 2x aoa1PieceSet
+  - 1x landsPieceSet
+  - 1x laurJunglePieceSet
+  - 1x lavaFieldsPieceSet
+  - 1x cavernsOfValhalla
+  - 1x battleBox1PieceSet
+  */
+}
+export const organizedPlayExpeditionsKitsPromo: PieceInventory = {
+  [Pieces.laurWallTrianglePillar]: 2,
+  [Pieces.laurWallArch]: 1,
+}
+export const toxicWastelandsOfValhalla: PieceInventory = {
+  [Pieces.toxic1]: 8,
+  [Pieces.toxic3]: 4,
+  [Pieces.toxicWater1]: 12, // 6 of them with holes for receiving contemporary outcrops (from lavaFields, caverns, toxic wastelands)
+  [Pieces.toxicOutcrop1]: 3,
+  [Pieces.toxicOutcrop3]: 1,
+}
 export const aoa1PieceSet: PieceInventory = {
   [Pieces.grass1]: 10,
   [Pieces.grass2]: 6,
