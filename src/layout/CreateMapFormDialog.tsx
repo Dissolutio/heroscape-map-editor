@@ -1,4 +1,4 @@
-import { Box, IconButton, useMediaQuery } from '@mui/material'
+import { Box, Checkbox, IconButton, useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -29,6 +29,11 @@ import {
   InputSetsUsedCard,
   setsUsedInputNameForFormData,
 } from './InputSetsUsedCard'
+import {
+  MAP_AUTHOR_FIELD_NAME,
+  MAP_NOTES_FIELD_NAME,
+  MapAuthorNotesFields,
+} from './MapAuthorNotesFields'
 
 const hexagonMarks = [
   {
@@ -68,6 +73,17 @@ export default function CreateMapFormDialog() {
   const [mapWidth, setMapWidth] = React.useState(20)
   const [mapLength, setMapLength] = React.useState(20)
   const [mapSize, setMapSize] = React.useState(10)
+  const rememberedMapAuthor = useBoundStore(
+    (state) => state.rememberedMapAuthor,
+  )
+  const setRememberedMapAuthor = useBoundStore(
+    (state) => state.setRememberedMapAuthor,
+  )
+  const [mapAuthor, setMapAuthor] = React.useState(rememberedMapAuthor)
+  const [mapNotes, setMapNotes] = React.useState('')
+  const [rememberAuthor, setRememberAuthor] = React.useState(
+    rememberedMapAuthor.length > 0,
+  )
   const loadMap = useBoundStore((state) => state.loadMap)
   const terrainConstraintSource = useBoundStore(
     (state) => state.terrainConstraintSource,
@@ -87,6 +103,24 @@ export default function CreateMapFormDialog() {
   )
   const handleClose = () => toggleIsNewMapDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
+  React.useEffect(() => {
+    if (!isNewMapDialogOpen) return
+    const author = useBoundStore.getState().rememberedMapAuthor
+    setMapAuthor(author)
+    setMapNotes('')
+    setRememberAuthor(author.length > 0)
+  }, [isNewMapDialogOpen])
+  const handleAuthorChange = (author: string) => {
+    setMapAuthor(author)
+    if (rememberAuthor) setRememberedMapAuthor(author)
+  }
+  const handleRememberAuthorChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const checked = event.target.checked
+    setRememberAuthor(checked)
+    setRememberedMapAuthor(checked ? mapAuthor : '')
+  }
   const handleChangeMapShape = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMapShape((event.target as HTMLInputElement).value)
   }
@@ -95,6 +129,8 @@ export default function CreateMapFormDialog() {
     const formData = new FormData(event.currentTarget)
     // biome-ignore lint/suspicious/noExplicitAny: <form data not well understood>
     const formJson = Object.fromEntries((formData as any).entries())
+    const newMapAuthor = formJson[MAP_AUTHOR_FIELD_NAME]
+    const newMapNotes = formJson[MAP_NOTES_FIELD_NAME]
     const getSetsUsedFormData = () => {
       const newSetsUsed: string[] = []
       Object.values(terrainSetsByShortID).map((set) => {
@@ -113,10 +149,14 @@ export default function CreateMapFormDialog() {
             mapName,
             width: mapWidth,
             length: mapLength,
+            author: newMapAuthor,
+            mapNotes: newMapNotes,
           })
         : makeHexagonScenario({
             mapName,
             size: mapSize,
+            author: newMapAuthor,
+            mapNotes: newMapNotes,
           })
     const editedMapState = {
       ...blankMap,
@@ -127,7 +167,7 @@ export default function CreateMapFormDialog() {
     }
     loadMap(editedMapState)
     syncTerrainConstraintPenMode()
-    changeMapNotes('')
+    changeMapNotes(newMapNotes)
     addMapPortraitBase64('')
     // clearUndoHistory is commented above, imported
     // clearUndoHistory()
@@ -167,9 +207,11 @@ export default function CreateMapFormDialog() {
             }}
           >
             <TextField
+              id="newMapName"
               autoFocus
               required
               value={mapName}
+              name="newMapName"
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 setMapName(event.target.value)
               }}
@@ -261,6 +303,23 @@ export default function CreateMapFormDialog() {
           )}
           {/* TERRAIN SETS */}
           <InputSetsUsedCard isCreateNewMap />
+          <MapAuthorNotesFields
+            authorName={mapAuthor}
+            onAuthorNameChange={handleAuthorChange}
+            mapNotes={mapNotes}
+            onMapNotesChange={setMapNotes}
+            authorControl={
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={rememberAuthor}
+                    onChange={handleRememberAuthorChange}
+                  />
+                }
+                label="Remember my name for new maps"
+              />
+            }
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>

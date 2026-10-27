@@ -48,6 +48,7 @@ export type SettingsValues = {
   genericSolidSideColor: string
   genericFluidCapColor: string
   genericFluidSideColor: string
+  rememberedMapAuthor: string
 }
 
 export const SETTINGS_DEFAULTS: SettingsValues = {
@@ -82,6 +83,7 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   genericSolidSideColor: '#a01e8c',
   genericFluidCapColor: '#ff96e6',
   genericFluidSideColor: '#c864b4',
+  rememberedMapAuthor: '',
 }
 
 export const SETTINGS_KEYS = Object.keys(
@@ -183,6 +185,7 @@ const validSettingValue = (
       return isRecord(value) ? normalizePieceInventory(value) : undefined
     case 'customConstraintInventoryFileName':
     case 'lastPenMode':
+    case 'rememberedMapAuthor':
       return typeof value === 'string' ? value : undefined
     case 'genericSolidCapColor':
     case 'genericSolidSideColor':

@@ -37,7 +37,9 @@ a couple of seconds. Rendering (3D, SVG, PDF) is not covered yet.
 | `map-storage.test.ts` | Old/new saved-map formats, separate portraits, and inline-portrait migration. |
 | `map-autosave.test.ts` | Debounced map writes, lifecycle flushes, hold/release gating, and failure retries. |
 | `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
-| `settings.test.ts` | Versioned settings defaults, migration, debounced persistence, stale session-only visibility settings, and store-state classification. |
+| `settings.test.ts` | Versioned settings defaults, migration, remembered map author validation and round-trip, debounced persistence, stale session-only visibility settings, and store-state classification. |
+| `new-map-details.test.ts` | New-map author and notes through JSON loading and share-link serialization, including empty metadata. |
+| `view-mode.test.ts` | Active 3D, SVG, and PDF view selection, including PDF precedence. |
 | `start-zone-visibility.test.ts` | Start-zone 3D visibility, selection filtering and pivot cleanup, hidden drag-group exclusion, map-load filtering, and undo selection restoration while hidden. |
 | `tile-marks.test.ts` | Buried-status mark selection, letter/mark text composition, excluded piece families, and integration with the small buried-status board fixture. |
 | `pdf-buried-mark-position.test.ts` | PDF-only mark offsets scale with the registered Inter glyph advances and leave marks-only tiles unshifted. |

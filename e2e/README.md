@@ -175,6 +175,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
+| View tooltips, camera visibility, and new-map author details | `e2e/ui-polish.spec.ts` |
 
 The map-settle tracker also feeds the app's startup UI in normal runs. The
 window bridge, hidden status element, deterministic rotation, and other

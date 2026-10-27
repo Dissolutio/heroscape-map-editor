@@ -14,6 +14,11 @@ import useBoundStore from '../store/store'
 import { downscaleMapPortrait } from '../utils/mapPortrait'
 import { clearMapShareUrlParams } from '../utils/mapShareUrl'
 import {
+  MAP_AUTHOR_FIELD_NAME,
+  MAP_NOTES_FIELD_NAME,
+  MapAuthorNotesFields,
+} from './MapAuthorNotesFields'
+import {
   InputSetsUsedCard,
   setsUsedInputNameForFormData,
 } from './InputSetsUsedCard'
@@ -52,6 +57,7 @@ export default function EditMapFormDialog() {
   const { enqueueSnackbar } = useSnackbar()
   const [newName, setNewName] = React.useState(mapName)
   const [newAuthor, setNewAuthor] = React.useState(authorName)
+  const [newNotes, setNewNotes] = React.useState(mapNotes)
   const [isSaving, setIsSaving] = React.useState(false)
   const handleSubmitEditMapForm = async (
     event: React.FormEvent<HTMLFormElement>,
@@ -62,8 +68,8 @@ export default function EditMapFormDialog() {
     // biome-ignore lint/suspicious/noExplicitAny: <form data not well understood>
     const formJson = Object.fromEntries((formData as any).entries())
     const newMapName = formJson.newMapName
-    const newAuthorName = formJson.newAuthorName
-    const newMapNotes = formJson.mapNotes
+    const newAuthorName = formJson[MAP_AUTHOR_FIELD_NAME]
+    const newMapNotes = formJson[MAP_NOTES_FIELD_NAME]
     const getSetsUsedFormData = () => {
       const newSetsUsed: string[] = []
       Object.values(terrainSetsByShortID).map((set) => {
@@ -140,7 +146,7 @@ export default function EditMapFormDialog() {
     if (isEditMapDialogOpen) {
       setNewName(mapName)
       setNewAuthor(authorName)
-      changeMapNotes(mapNotes)
+      setNewNotes(mapNotes)
       setImgSrc(mapPortraitBase64)
     }
   }, [isEditMapDialogOpen])
@@ -186,42 +192,12 @@ export default function EditMapFormDialog() {
         {/* TERRAIN SETS */}
         <InputSetsUsedCard />
 
-        {/* MAP AUTHOR */}
-        <Box
-          sx={{
-            p: '1em 4px',
-          }}
-        >
-          <TextField
-            id="newAuthorName"
-            name="newAuthorName"
-            value={newAuthor}
-            onChange={(e) => setNewAuthor(e.target.value)}
-            margin="dense"
-            label="Map Author"
-            type="text"
-            fullWidth
-            variant="outlined"
-          />
-        </Box>
-
-        {/* MAP NOTES */}
-        <Box
-          sx={{
-            p: '1em 4px',
-          }}
-        >
-          <TextField
-            id="mapNotes"
-            name="mapNotes"
-            label="Map Notes"
-            defaultValue={mapNotes}
-            placeholder="Your notes here..."
-            fullWidth
-            multiline
-            rows={4}
-          />
-        </Box>
+        <MapAuthorNotesFields
+          authorName={newAuthor}
+          onAuthorNameChange={setNewAuthor}
+          mapNotes={newNotes}
+          onMapNotesChange={setNewNotes}
+        />
         <ReactCropExampleApp imgSrc={imgSrc} setImgSrc={setImgSrc} />
       </DialogContent>
       <DialogActions>

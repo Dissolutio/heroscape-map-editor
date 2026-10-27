@@ -11,6 +11,7 @@ import {
   Select,
   type SelectChangeEvent,
   Switch,
+  Tooltip,
 } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
 import React from 'react'
@@ -37,6 +38,12 @@ import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
+import { getViewMode } from './viewMode'
+
+const GENERIC_PIECE_COLORS_TOOLTIP =
+  'Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D.'
+const BURIED_MARKS_TOOLTIP =
+  '* = the top of this tile will be covered. † = its sides will be covered. Both = fully hidden, so any piece of the same size and kind (solid for solid, fluid for fluid) works.'
 
 export default function ViewControlsTab({
   cameraControlsRef,
@@ -59,7 +66,7 @@ export default function ViewControlsTab({
   const { hotkeyLookup } = useHotkeyConfig()
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
   const is2DOpen = useBoundStore((s) => s.is2DOpen) && !isPdfOpen
-  const is3DOpen = !is2DOpen && !isPdfOpen
+  const is3DOpen = getViewMode(is2DOpen, isPdfOpen) === '3d'
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const onClickDisableCamera = (e: any) => {
   //   const targetId = e?.nativeEvent?.target?.id ?? ''
@@ -132,64 +139,72 @@ export default function ViewControlsTab({
           padding: 0,
         }}
       >
-        <List>
-          {/* Center map in camera view */}
-          <ControlTabsListItemButton
-            title="Center the camera on entire map"
-            primary="Zoom to map"
-            onClick={() =>
-              zoomToMap(mapGroupRef, cameraControlsRef, width, length)
-            }
-            icon={<FcCollect />}
-            endIcon={<HotkeyText text={hotkeyLookup.zoomToMap} />}
-          />
+        {is3DOpen && (
+          <List>
+            {/* Center map in camera view */}
+            <ControlTabsListItemButton
+              title="Center the camera on entire map"
+              primary="Zoom to map"
+              onClick={() =>
+                zoomToMap(mapGroupRef, cameraControlsRef, width, length)
+              }
+              icon={<FcCollect />}
+              endIcon={<HotkeyText text={hotkeyLookup.zoomToMap} />}
+            />
 
-          {/* Lock Camera Controls */}
-          <ControlTabsListItemButton
-            title={
-              isCamerDisabled
-                ? 'Unlock camera controls'
-                : 'Lock camera controls'
-            }
-            primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'}
-            onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
-            icon={isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />}
-            endIcon={
-              <HotkeyText text={hotkeyLookup.handleToggleIsCameraDisabled} />
-            }
-          />
+            {/* Lock Camera Controls */}
+            <ControlTabsListItemButton
+              title={
+                isCamerDisabled
+                  ? 'Unlock camera controls'
+                  : 'Lock camera controls'
+              }
+              primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'}
+              onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
+              icon={
+                isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />
+              }
+              endIcon={
+                <HotkeyText text={hotkeyLookup.handleToggleIsCameraDisabled} />
+              }
+            />
 
-          {/* Reset camera defaults */}
-          <ControlTabsListItemButton
-            title={'Reset camera defaults'}
-            primary="Reset camera"
-            onClick={resetCamera}
-            icon={<FcSynchronize />}
-          />
+            {/* Reset camera defaults */}
+            <ControlTabsListItemButton
+              title={'Reset camera defaults'}
+              primary="Reset camera"
+              onClick={resetCamera}
+              icon={<FcSynchronize />}
+            />
 
-          {/* Switch camera orthographic/perspective */}
-          <ControlTabsListItemButton
-            title={
-              isOrthoCam
-                ? 'Switch to perspective camera'
-                : 'Switch to orthographic camera'
-            }
-            primary={
-              isOrthoCam ? 'Use perspective camera' : 'Use orthographic camera'
-            }
-            onClick={handleToggleOrthoCam}
-            icon={<FcSwitchCamera />}
-            endIcon={<HotkeyText text={hotkeyLookup.handleToggleIsOrthoCam} />}
-          />
+            {/* Switch camera orthographic/perspective */}
+            <ControlTabsListItemButton
+              title={
+                isOrthoCam
+                  ? 'Switch to perspective camera'
+                  : 'Switch to orthographic camera'
+              }
+              primary={
+                isOrthoCam
+                  ? 'Use perspective camera'
+                  : 'Use orthographic camera'
+              }
+              onClick={handleToggleOrthoCam}
+              icon={<FcSwitchCamera />}
+              endIcon={
+                <HotkeyText text={hotkeyLookup.handleToggleIsOrthoCam} />
+              }
+            />
 
-          {/* Take map picture */}
-          <ControlTabsListItemButton
-            title={'Take map picture'}
-            primary="Take map picture"
-            onClick={handleTakeAMapPicture}
-            icon={<FcOldTimeCamera />}
-          />
-        </List>
+            {/* Take map picture */}
+            <ControlTabsListItemButton
+              title={'Take map picture'}
+              primary="Take map picture"
+              onClick={handleTakeAMapPicture}
+              icon={<FcOldTimeCamera />}
+            />
+          </List>
+        )}
       </div>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {is3DOpen && <ViewPreferencesSwitchForm />}
@@ -241,7 +256,14 @@ const GenericTerrainColorsForm = () => {
         borderColor: 'divider',
       }}
     >
-      <FormLabel component="legend">Generic piece colors</FormLabel>
+      <Tooltip title={GENERIC_PIECE_COLORS_TOOLTIP} describeChild>
+        <FormLabel
+          component="legend"
+          aria-label={`Generic piece colors. ${GENERIC_PIECE_COLORS_TOOLTIP}`}
+        >
+          Generic piece colors
+        </FormLabel>
+      </Tooltip>
       {colors.map(([label, color, setColor]) => (
         <label
           key={label}
@@ -261,10 +283,6 @@ const GenericTerrainColorsForm = () => {
           {label}
         </label>
       ))}
-      <FormHelperText sx={{ gridColumn: '1 / -1', m: 0 }}>
-        Cap colors also drive SVG/PDF; 2D sub-level shades are derived
-        automatically. Side colors affect only 3D.
-      </FormHelperText>
       <Button
         onClick={resetColors}
         size="small"
@@ -649,22 +667,20 @@ const PdfPreferencesSwitchForm = () => {
           label="Show Tile Letters"
           title="Enable/disable terrain tile letters on current-level land in PDF output"
         />
-        <FormControlLabel
-          control={
-            <Switch
-              size="small"
-              checked={isShowPdfBuriedMarks}
-              onChange={handleChangeShowPdfBuriedMarks}
-            />
-          }
-          label="Show Buried-Tile Marks"
-          title="Mark land tiles whose tops or sides will be covered in PDF output"
-        />
-        <FormHelperText sx={{ ml: 5, mt: -0.5, mb: 1 }}>
-          * = the top of this tile will be covered. † = its sides will be
-          covered. Both = fully hidden, so any piece of the same size and kind
-          (solid for solid, fluid for fluid) works.
-        </FormHelperText>
+        <Tooltip title={BURIED_MARKS_TOOLTIP} describeChild>
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={isShowPdfBuriedMarks}
+                onChange={handleChangeShowPdfBuriedMarks}
+                aria-label={`Show Buried-Tile Marks. ${BURIED_MARKS_TOOLTIP}`}
+              />
+            }
+            label="Show Buried-Tile Marks"
+            title="Mark land tiles whose tops or sides will be covered in PDF output"
+          />
+        </Tooltip>
         <FormControlLabel
           control={
             <Switch
