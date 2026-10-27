@@ -60,6 +60,7 @@ describe('settings persistence', () => {
   it('round-trips changed values and writes only differences', () => {
     const changed = {
       ...SETTINGS_DEFAULTS,
+      graphicsTier: 'high' as const,
       isOrthoCam: false,
       isShowPdfBuriedMarks: true,
       isShow2DExportBuriedMarks: true,
@@ -75,6 +76,7 @@ describe('settings persistence', () => {
       v: 1,
       values: {
         isOrthoCam: false,
+        graphicsTier: 'high' as const,
         isShowPdfBuriedMarks: true,
         isShow2DExportBuriedMarks: true,
         lightPositions: { key: [1, 2, 3] },
@@ -108,6 +110,7 @@ describe('settings persistence', () => {
     const changed = {
       ...SETTINGS_DEFAULTS,
       isOrthoCam: false,
+      graphicsTier: 'high' as const,
       genericSolidCapColor: '#123456',
       genericSolidSideColor: '#234567',
       genericFluidCapColor: '#345678',
@@ -116,6 +119,7 @@ describe('settings persistence', () => {
 
     expect(resetGenericTerrainColorSettings(changed)).toMatchObject({
       isOrthoCam: false,
+      graphicsTier: 'high',
       genericSolidCapColor: SETTINGS_DEFAULTS.genericSolidCapColor,
       genericSolidSideColor: SETTINGS_DEFAULTS.genericSolidSideColor,
       genericFluidCapColor: SETTINGS_DEFAULTS.genericFluidCapColor,
@@ -137,6 +141,7 @@ describe('settings persistence', () => {
         v: 1,
         values: {
           isOrthoCam: false,
+          graphicsTier: 'fast',
           isShowPdfBuriedMarks: 'yes',
           isShow2DExportBuriedMarks: 1,
           pdfRenderFormat: 'invalid',
@@ -319,6 +324,9 @@ describe('settings persistence', () => {
       'isAutosaveHeld',
       'mapLoadRevision',
       'unsupportedPieceUIDs',
+      'effectiveGraphicsTier',
+      'textureLoadStatus',
+      'textureLoadProgress',
     ]
     const mapStateKeys = [
       'boardHexes',
