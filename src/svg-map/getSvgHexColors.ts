@@ -104,6 +104,9 @@ const getSvgHexColorOutline = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgColors.outlineLavaOutcrop
   }
+  if (hex.terrain === HexTerrain.toxicOutcrop) {
+    return svgColors[HexTerrain.toxicOutcrop]
+  }
   if (hex.terrain === HexTerrain.castleWall) {
     return svgColors.castleWall
   }
@@ -216,6 +219,9 @@ const getSvgHexSubLevelColorOutline = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgSubLevelColors.outlineLavaOutcrop
   }
+  if (hex.terrain === HexTerrain.toxicOutcrop) {
+    return svgSubLevelColors[HexTerrain.toxicOutcrop]
+  }
   if (hex.terrain === HexTerrain.castleWall) {
     return svgSubLevelColors.castleWall
   }
@@ -311,6 +317,9 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgColors.lava
   }
+  if (hex.terrain === HexTerrain.toxicOutcrop) {
+    return svgColors[HexTerrain.toxicOutcrop]
+  }
   if (hex.terrain === HexTerrain.castleWall) {
     return svgColors.castleWall
   }
@@ -383,6 +392,9 @@ export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
   }
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgSubLevelColors.lava
+  }
+  if (hex.terrain === HexTerrain.toxicOutcrop) {
+    return svgSubLevelColors[HexTerrain.toxicOutcrop]
   }
   if (hex.terrain === HexTerrain.castleWall) {
     return svgSubLevelColors.castleWall

@@ -23,6 +23,12 @@ import {
   SvgMultiHex7,
   SvgMultiHex24,
 } from '../svg-map/SvgMapShapes'
+import {
+  getSvgHexBorderColor,
+  getSvgHexFillColor,
+  getSvgHexSubLevelBorderColor,
+  getSvgHexSubLevelFillColor,
+} from '../svg-map/getSvgHexColors'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
@@ -42,6 +48,22 @@ afterEach(() => {
 })
 
 describe('SVG/PDF export border color decision', () => {
+  it('uses toxic green colors for toxic outcrops at both map levels', () => {
+    const hex = {
+      inventoryID: Pieces.toxicOutcrop1,
+      terrain: HexTerrain.toxicOutcrop,
+    } as unknown as BoardHex
+
+    expect(getSvgHexBorderColor(hex)).toBe(svgColors[HexTerrain.toxicOutcrop])
+    expect(getSvgHexFillColor(hex)).toBe(svgColors[HexTerrain.toxicOutcrop])
+    expect(getSvgHexSubLevelBorderColor(hex)).toBe(
+      svgSubLevelColors[HexTerrain.toxicOutcrop],
+    )
+    expect(getSvgHexSubLevelFillColor(hex)).toBe(
+      svgSubLevelColors[HexTerrain.toxicOutcrop],
+    )
+  })
+
   it.each(Object.values(HexTerrain))(
     'preserves the established border policy for %s',
     (terrain) => {

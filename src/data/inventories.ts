@@ -20,6 +20,14 @@ export const maxSharedTerrainKit: PieceInventory = {
   [Pieces.sand24]: 0, // 1 when using LandsOfValhalla, totk 0
   [Pieces.water1]: 12, // totk 12
 }
+const sumInventories = (...inventories: PieceInventory[]): PieceInventory =>
+  inventories.reduce<PieceInventory>((total, inventory) => {
+    for (const [pieceID, count] of Object.entries(inventory)) {
+      total[pieceID] = (total[pieceID] ?? 0) + count
+    }
+    return total
+  }, {})
+
 export const tournamentOrganizerTerrainKitPieceSet: PieceInventory = {
   // This is intended by Renegade to make 4 maps, the community may come up with a system as well
   [Pieces.grass1]: 64, // 16
@@ -40,18 +48,6 @@ export const tournamentOrganizerTerrainKitPieceSet: PieceInventory = {
   [Pieces.laurWallSquarePillar]: 8,
   [Pieces.laurWallLong]: 4,
   [Pieces.laurBrush10]: 12,
-}
-export const tournamentOrganizerTerrainKit2PieceSet: PieceInventory = {
-  // This is Renegade's latest terrain kit for stores and tournament organizers.
-  /* 
-  It contains:
-  - 2x aoa1PieceSet
-  - 1x landsPieceSet
-  - 1x laurJunglePieceSet
-  - 1x lavaFieldsPieceSet
-  - 1x cavernsOfValhalla
-  - 1x battleBox1PieceSet
-  */
 }
 export const organizedPlayExpeditionsKitsPromo: PieceInventory = {
   [Pieces.laurWallTrianglePillar]: 2,
@@ -362,3 +358,23 @@ export const underdarkPieceSet: PieceInventory = {
   [Pieces.outcrop1]: 3,
   [Pieces.outcrop3]: 1,
 }
+// This is Renegade's latest terrain kit for stores and tournament organizers.
+/*
+It contains:
+- 2x aoa1PieceSet
+- 1x landsPieceSet
+- 1x laurJunglePieceSet
+- 1x lavaFieldsPieceSet
+- 1x cavernsOfValhalla
+- 1x battleBox1PieceSet
+*/
+export const tournamentOrganizerTerrainKit2PieceSet: PieceInventory =
+  sumInventories(
+    aoa1PieceSet,
+    aoa1PieceSet,
+    landsPieceSet,
+    laurJunglePieceSet,
+    lavaFieldsPieceSet,
+    cavernsOfValhalla,
+    battleBox1PieceSet,
+  )

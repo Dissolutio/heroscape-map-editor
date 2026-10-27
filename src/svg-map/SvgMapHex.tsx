@@ -346,6 +346,7 @@ export const SvgMapHex = ({
   if (
     inventoryID === Pieces.outcrop1 ||
     inventoryID === Pieces.lavaRockOutcrop1 ||
+    inventoryID === Pieces.toxicOutcrop1 ||
     inventoryID === Pieces.glacier1
   ) {
     const textColor = getOutcropTextColor({ hex, isSubLevel })
@@ -366,6 +367,7 @@ export const SvgMapHex = ({
   if (
     inventoryID === Pieces.outcrop3 ||
     inventoryID === Pieces.lavaRockOutcrop3 ||
+    inventoryID === Pieces.toxicOutcrop3 ||
     inventoryID === Pieces.glacier3
   ) {
     return (

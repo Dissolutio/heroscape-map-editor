@@ -124,7 +124,7 @@ export const pieceGroups = [
   },
   {
     label: 'Toxic',
-    pieces: [Pieces.toxic1],
+    pieces: [Pieces.toxic1, Pieces.toxic3],
   },
   {
     label: 'Obstacles & Jungle',
@@ -148,6 +148,8 @@ export const pieceGroups = [
       Pieces.outcrop3,
       Pieces.lavaRockOutcrop1,
       Pieces.lavaRockOutcrop3,
+      Pieces.toxicOutcrop1,
+      Pieces.toxicOutcrop3,
       Pieces.glacier1,
       Pieces.glacier3,
       Pieces.glacier4,

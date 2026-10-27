@@ -11,10 +11,12 @@ export default function Outcrop3({
   pid,
   isGlacier,
   isLavaRock,
+  isToxic,
 }: {
   pid: string
   isGlacier?: boolean
   isLavaRock?: boolean
+  isToxic?: boolean
 }) {
   const { nodes } = useDisposableGLTF(
     '/uncolored-decimated-glacier-outcrop-3.glb',
@@ -48,10 +50,19 @@ export default function Outcrop3({
   const lavaColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.lavaField]
+  const toxicColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.toxic]
   const outcropColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.outcrop]
-  const color = isGlacier ? iceColor : isLavaRock ? lavaColor : outcropColor
+  const color = isGlacier
+    ? iceColor
+    : isLavaRock
+      ? lavaColor
+      : isToxic
+        ? toxicColor
+        : outcropColor
 
   return (
     <mesh
@@ -68,9 +79,11 @@ export default function Outcrop3({
 export function Outcrop3Preview({
   isGlacier,
   isLavaRock,
+  isToxic,
 }: {
   isGlacier?: boolean
   isLavaRock?: boolean
+  isToxic?: boolean
 }) {
   const { nodes } = useDisposableGLTF(
     '/uncolored-decimated-glacier-outcrop-3.glb',
@@ -81,8 +94,15 @@ export function Outcrop3Preview({
   )
   const iceColor = hexTerrainColor[HexTerrain.glacier]
   const lavaColor = hexTerrainColor[HexTerrain.lavaField]
+  const toxicColor = hexTerrainColor[HexTerrain.toxic]
   const outcropColor = hexTerrainColor[HexTerrain.outcrop]
-  const color = isGlacier ? iceColor : isLavaRock ? lavaColor : outcropColor
+  const color = isGlacier
+    ? iceColor
+    : isLavaRock
+      ? lavaColor
+      : isToxic
+        ? toxicColor
+        : outcropColor
 
   return (
     <mesh

@@ -643,20 +643,29 @@ const MapBoardPiece3DModel = ({
   if (
     inventoryID === Pieces.glacier1 ||
     inventoryID === Pieces.outcrop1 ||
-    inventoryID === Pieces.lavaRockOutcrop1
+    inventoryID === Pieces.lavaRockOutcrop1 ||
+    inventoryID === Pieces.toxicOutcrop1
   ) {
     const isGlacier = inventoryID === Pieces.glacier1
     const isLavaRock = inventoryID === Pieces.lavaRockOutcrop1
+    const isToxic = inventoryID === Pieces.toxicOutcrop1
     const baseColor = isGlacier
       ? hexTerrainColor[HexTerrain.ice]
       : isLavaRock
         ? hexTerrainColor[HexTerrain.lava]
-        : hexTerrainColor[HexTerrain.shadow]
+        : isToxic
+          ? hexTerrainColor[HexTerrain.toxic]
+          : hexTerrainColor[HexTerrain.shadow]
     return (
       <>
         <group position={[x, yWithBase, z]} rotation={[0, pieceRotation, 0]}>
           <Suspense fallback={<ModelLoader />}>
-            <Outcrop1 isGlacier={isGlacier} isLavaRock={isLavaRock} pid={uid} />
+            <Outcrop1
+              isGlacier={isGlacier}
+              isLavaRock={isLavaRock}
+              isToxic={isToxic}
+              pid={uid}
+            />
           </Suspense>
         </group>
         <group
@@ -681,15 +690,19 @@ const MapBoardPiece3DModel = ({
   if (
     inventoryID === Pieces.glacier3 ||
     inventoryID === Pieces.lavaRockOutcrop3 ||
-    inventoryID === Pieces.outcrop3
+    inventoryID === Pieces.outcrop3 ||
+    inventoryID === Pieces.toxicOutcrop3
   ) {
     const isGlacier = inventoryID === Pieces.glacier3
     const isLavaRock = inventoryID === Pieces.lavaRockOutcrop3
+    const isToxic = inventoryID === Pieces.toxicOutcrop3
     const baseColor = isGlacier
       ? hexTerrainColor[HexTerrain.ice]
       : isLavaRock
         ? hexTerrainColor[HexTerrain.lava]
-        : hexTerrainColor[HexTerrain.shadow]
+        : isToxic
+          ? hexTerrainColor[HexTerrain.toxic]
+          : hexTerrainColor[HexTerrain.shadow]
     return (
       <>
         <group
@@ -697,7 +710,12 @@ const MapBoardPiece3DModel = ({
           rotation={[0, getObstaclRotation(rotation), 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <Outcrop3 isGlacier={isGlacier} isLavaRock={isLavaRock} pid={uid} />
+            <Outcrop3
+              isGlacier={isGlacier}
+              isLavaRock={isLavaRock}
+              isToxic={isToxic}
+              pid={uid}
+            />
           </Suspense>
         </group>
         <group

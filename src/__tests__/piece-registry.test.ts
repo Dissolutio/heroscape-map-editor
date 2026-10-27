@@ -22,6 +22,7 @@ import { pieceCodes } from '../data/pieceCodes'
 import { piecesSoFar } from '../data/pieces'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import tileTemplates from '../data/tileTemplates'
+import { pieceGroups } from '../data/pieceGroups'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { Pieces } from '../types'
 
@@ -116,5 +117,16 @@ describe('piece registry', () => {
       .filter((p) => !(p.template in tileTemplates))
       .map((p) => p.id)
     expect(missing).toEqual([])
+  })
+
+  it('places toxic land and outcrops in their piece-grid groups', () => {
+    expect(
+      pieceGroups.find((group) => group.label === 'Toxic')?.pieces,
+    ).toEqual([Pieces.toxic1, Pieces.toxic3])
+    expect(
+      pieceGroups.find((group) => group.label === 'Obstacles & Jungle')?.pieces,
+    ).toEqual(
+      expect.arrayContaining([Pieces.toxicOutcrop1, Pieces.toxicOutcrop3]),
+    )
   })
 })

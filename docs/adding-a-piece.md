@@ -203,7 +203,7 @@ Run `npm test`. The most relevant existing tests are:
 
 | Test | What it catches |
 | --- | --- |
-| [`src/__tests__/piece-registry.test.ts`](../src/__tests__/piece-registry.test.ts) | The `Pieces`/`piecesSoFar` ID mapping, definition keys, blank inventory, Virtualscape code targets, boxed-set inventory IDs/counts, land size versus template length, duplicate `(terrain, size)` land definitions, and a template for every piece. It does not test model dispatch, previews, or piece-group/menu wiring. |
+| [`src/__tests__/piece-registry.test.ts`](../src/__tests__/piece-registry.test.ts) | The `Pieces`/`piecesSoFar` ID mapping, definition keys, blank inventory, Virtualscape code targets, boxed-set inventory IDs/counts, piece-grid groups, land size versus template length, duplicate `(terrain, size)` land definitions, and a template for every piece. It does not test model dispatch, previews, or pen-menu wiring. |
 | [`src/__tests__/place-and-remove.test.ts`](../src/__tests__/place-and-remove.test.ts) | Places registered pieces at supported rotations and removes them; also covers strict placement stories. A missing template or unsupported piece branch tends to fail here. |
 | [`src/__tests__/terrain-constraints.test.ts`](../src/__tests__/terrain-constraints.test.ts) | Inventory normalization, set/personal/file constraints, and which land sizes are available from an inventory. |
 | [`src/__tests__/placement.test.ts`](../src/__tests__/placement.test.ts) | `resolvePlacement()`, placement blocking/evaluation, map-edge footprint sweeps, and parity with the shared placement cases. |
@@ -227,9 +227,9 @@ place/remove round trip through the helpers in
 [`src/__tests__/helpers/board.ts`](../src/__tests__/helpers/board.ts). For a
 special placement rule, add the story to `placementCases.ts` so both the
 resolver and click-handler tests exercise it. Add serialization assertions if
-the piece has a special encoded ID. A model or PDF/SVG change still needs a
-browser/manual output check because those renderers are not covered by the
-pure-logic suite.
+the piece has a special encoded ID. A model or PDF/SVG change still needs a browser/manual output check: focused
+tests cover shared export colors and minimal output, but not the full renderer
+dispatch or visual appearance.
 
 `it.fails` tests titled `KNOWN GAP: ...` are intentional: they pass while a
 known defect exists and turn red when that defect is fixed. When fixing that
