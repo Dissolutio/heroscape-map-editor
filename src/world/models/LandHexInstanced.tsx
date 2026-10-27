@@ -36,7 +36,7 @@ const vertices = Array.from({ length: 6 }, (_, index) => {
   }
 })
 
-function buildCapGeometry(instanceCount: number) {
+export function buildCapGeometry(instanceCount: number) {
   const positions: number[] = []
   const kinds: number[] = []
   const directions: number[] = []
@@ -58,14 +58,14 @@ function buildCapGeometry(instanceCount: number) {
     )
     kinds.push(1, 1, 1)
     directions.push(-1, -1, -1)
-    const start = indices.length
+    const start = side * 3 // first vertex of this triangle (3 vertices per triangle)
     indices.push(start, start + 1, start + 2)
   }
 
   return buildGeometry(positions, kinds, directions, indices, instanceCount)
 }
 
-function buildSideGeometry(instanceCount: number) {
+export function buildSideGeometry(instanceCount: number) {
   const positions: number[] = []
   const kinds: number[] = []
   const directions: number[] = []
@@ -90,7 +90,7 @@ function buildSideGeometry(instanceCount: number) {
     )
     kinds.push(0, 0, 0, 0)
     directions.push(side, side, side, side)
-    const start = indices.length
+    const start = side * 4 // first vertex of this quad (4 vertices per quad; NOT indices.length, which grows by 6)
     indices.push(start, start + 1, start + 2, start, start + 2, start + 3)
   }
 
