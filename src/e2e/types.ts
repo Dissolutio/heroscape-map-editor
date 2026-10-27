@@ -9,6 +9,7 @@ export type E2ESnapshot = {
   mapLength: number
   pieceCount: number
   hexCount: number
+  landInstanceCounts: { solid: number; fluid: number }
   viewingLevel: number
   penMode: string
   selectedPieceIDs: string[]
@@ -94,5 +95,5 @@ export type E2ETestBridge = {
   cameraPose: () => E2ECameraPose | null
   /** Set pen controls for test setup only. */
   setPen: (penMode: string, size: number, rotation?: number) => void
-  stats: () => { calls: number; triangles: number }
+  stats: () => { calls: number; triangles: number; frames: number }
 }

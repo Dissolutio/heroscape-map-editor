@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { cloneBoard, makeTable, place } from './helpers/board'
+import { cloneBoard, makeTable, place, type Board } from './helpers/board'
 import { Pieces, type BoardHex } from '../types'
 import {
   buildLandHexInstanceData,
   getLandHexColors,
   getLandHexDisplayColors,
   getLandHexSideVisibilityMask,
+  NON_INSTANCED_SUBTERRAIN_PIECES,
 } from '../world/models/landHexInstances'
 
 const genericColors = {
@@ -44,12 +45,12 @@ describe('land hex instance data', () => {
     expect(data).toHaveLength(2)
     expect(data.map(({ isFluid }) => isFluid)).toEqual([false, true])
     expect(data.map(({ levels }) => levels)).toEqual([1, 1])
-    expect(data.map(({ capLayer, sideLayer }) => [capLayer, sideLayer])).toEqual(
-      [
-        [-1, -1],
-        [-1, -1],
-      ],
-    )
+    expect(
+      data.map(({ capLayer, sideLayer }) => [capLayer, sideLayer]),
+    ).toEqual([
+      [-1, -1],
+      [-1, -1],
+    ])
     expect(
       buildLandHexInstanceData(
         second.board.boardHexes,
@@ -60,22 +61,41 @@ describe('land hex instance data', () => {
     ).toHaveLength(0)
   })
 
-  it('omits unsupported and explicitly excluded piece families', () => {
-    const table = makeTable(9)
-    const placed = place({
-      board: table,
-      pieceID: Pieces.glacier1,
-      at: table.center,
-      altitude: 0,
-      permissive: true,
+  it('omits every explicitly excluded piece family', () => {
+    const table = makeTable(25)
+    let board: Board = table
+    const excludedIDs = [
+      Pieces.glacier1,
+      Pieces.outcrop1,
+      Pieces.lavaRockOutcrop1,
+      Pieces.glacier3,
+      Pieces.lavaRockOutcrop3,
+      Pieces.outcrop3,
+      Pieces.glacier4,
+      Pieces.glacier6,
+      Pieces.hive,
+    ]
+
+    excludedIDs.forEach((pieceID, index) => {
+      const q = table.center.q + index * 2 - 8
+      const placed = place({
+        board,
+        pieceID,
+        at: { q, r: table.center.r, s: -q - table.center.r },
+        altitude: 0,
+        permissive: true,
+      })
+      board = placed.board
     })
+
     const data = buildLandHexInstanceData(
-      placed.board.boardHexes,
-      placed.board.boardPieces,
+      board.boardHexes,
+      board.boardPieces,
       5,
       genericColors,
     )
 
+    expect(new Set(excludedIDs)).toEqual(NON_INSTANCED_SUBTERRAIN_PIECES)
     expect(data).toEqual([])
   })
 })
@@ -116,9 +136,9 @@ describe('land hex side visibility', () => {
           candidate.altitude === 1,
       ) as BoardHex
 
-      expect(
-        getLandHexSideVisibilityMask(hex, neighbor.board.boardHexes),
-      ).toBe(0b111111 ^ (1 << direction))
+      expect(getLandHexSideVisibilityMask(hex, neighbor.board.boardHexes)).toBe(
+        0b111111 ^ (1 << direction),
+      )
     })
   })
 
@@ -160,8 +180,9 @@ describe('land hex side visibility', () => {
         hex.altitude === 1,
     ) as BoardHex
 
-    expect(getLandHexSideVisibilityMask(fluidHex, fluidNeighbor.board.boardHexes))
-      .toBe(0b111110)
+    expect(
+      getLandHexSideVisibilityMask(fluidHex, fluidNeighbor.board.boardHexes),
+    ).toBe(0b111110)
     expect(
       getLandHexSideVisibilityMask(
         fluidNextToSolid,
@@ -185,9 +206,9 @@ describe('land hex side visibility', () => {
         candidate.altitude === 1,
     ) as BoardHex
 
-    expect(
-      getLandHexSideVisibilityMask(hex, placed.board.boardHexes),
-    ).toBe(0b111111)
+    expect(getLandHexSideVisibilityMask(hex, placed.board.boardHexes)).toBe(
+      0b111111,
+    )
 
     const higher = place({
       board: cloneBoard(placed.board),

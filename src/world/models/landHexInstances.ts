@@ -67,10 +67,7 @@ export function getLandHexColors(
 
   const terrainColors = hexTerrainColor as Record<string, string>
   return {
-    cap:
-      genericCapColor ??
-      terrainCapColors[terrain] ??
-      terrainColors[terrain],
+    cap: genericCapColor ?? terrainCapColors[terrain] ?? terrainColors[terrain],
     side:
       genericSideColor ??
       (isDirtSubterrain
@@ -102,9 +99,7 @@ export function getLandHexSideVisibilityMask(
       HEX_DIRECTIONS[direction],
     )
     const neighbor =
-      boardHexes[
-        genBoardHexID({ ...neighborCoords, altitude: hex.altitude })
-      ]
+      boardHexes[genBoardHexID({ ...neighborCoords, altitude: hex.altitude })]
     const coveredByLand =
       neighbor &&
       (isSolidTerrainHex(neighbor.terrain) ||

@@ -2,7 +2,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 
 import { Button } from '@mui/material'
 import { closeSnackbar, enqueueSnackbar } from 'notistack'
-import { Suspense } from 'react'
+import { Suspense, useMemo } from 'react'
 import type React from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import {
@@ -46,6 +46,7 @@ import {
   hasActiveTerrainConstraints,
 } from '../utils/terrain-constraints.ts'
 import { warnIfTallFluidStack } from '../utils/warnAboutLoadedMap.ts'
+import { isPerHexLandEnabled } from '../e2e/isE2E.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
 import PiecePreview from './PiecePreview.tsx'
@@ -58,6 +59,8 @@ import SolidCaps from './maphex/instance/SolidCaps.tsx'
 import LandSubterrainInstanced, {
   getLandSubterrainInstanceData,
 } from './models/LandSubterrainInstanced.tsx'
+import LandHexInstanced from './models/LandHexInstanced.tsx'
+import { buildLandHexInstanceData } from './models/landHexInstances.ts'
 
 function getAvailableLaurStackableInventory(): PieceInventory | undefined {
   const state = useBoundStore.getState()
@@ -143,20 +146,47 @@ export default function MapDisplay3D({
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
+  const genericSolidSideColor = useBoundStore((s) => s.genericSolidSideColor)
+  const genericFluidCapColor = useBoundStore((s) => s.genericFluidCapColor)
+  const genericFluidSideColor = useBoundStore((s) => s.genericFluidSideColor)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useMiddleClickPickPenMode()
 
+  const landHexData = useMemo(
+    () =>
+      isPerHexLandEnabled
+        ? buildLandHexInstanceData(boardHexes, boardPieces, viewingLevel, {
+            genericSolidCapColor,
+            genericSolidSideColor,
+            genericFluidCapColor,
+            genericFluidSideColor,
+          })
+        : [],
+    [
+      boardHexes,
+      boardPieces,
+      viewingLevel,
+      genericSolidCapColor,
+      genericSolidSideColor,
+      genericFluidCapColor,
+      genericFluidSideColor,
+    ],
+  )
+  const perHexLandIDs = useMemo(
+    () => new Set(landHexData.map((item) => item.hex.id)),
+    [landHexData],
+  )
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
     isTakingPicture,
     viewingLevel,
+    perHexLandIDs,
   )
-  const landSubterrainData = getLandSubterrainInstanceData(
-    boardPieces,
-    boardHexes,
-    viewingLevel,
-  )
+  const landSubterrainData = isPerHexLandEnabled
+    ? []
+    : getLandSubterrainInstanceData(boardPieces, boardHexes, viewingLevel)
 
   const onPointerUpPaintPiece = (
     event: ThreeEvent<PointerEvent>,
@@ -356,7 +386,14 @@ export default function MapDisplay3D({
           onPointerUp={onPointerUpPaintPiece}
         />
         <Suspense fallback={null}>
-          <LandSubterrainInstanced data={landSubterrainData} />
+          {isPerHexLandEnabled ? (
+            <LandHexInstanced
+              data={landHexData}
+              onPointerUpPaintPiece={onPointerUpPaintPiece}
+            />
+          ) : (
+            <LandSubterrainInstanced data={landSubterrainData} />
+          )}
         </Suspense>
         {boardPieces.map((bp) => {
           return (
@@ -391,6 +428,7 @@ function getInstanceBoardHexes(
   boardHexesArr: BoardHex[],
   isTakingPicture: boolean,
   viewingLevel: number,
+  perHexLandIDs: Set<string>,
 ) {
   return boardHexesArr
     .filter((bh) => bh.altitude <= viewingLevel)
@@ -404,14 +442,15 @@ function getInstanceBoardHexes(
         const isSubTerrain =
           isSolidTerrainHex(current?.terrain) ||
           (isJungleTerrainHex(current?.terrain) && current.isObstacleOrigin)
+        const isPerHexLand = perHexLandIDs.has(current.id)
         // const isSubTerrain = isSolidTerrainHex(current.terrain) || isFluidTerrainHex(current.terrain)
         if (isEmptyCap) {
           result.emptyHexCaps.push(current)
         }
-        if (isSolidCap) {
+        if (isSolidCap && !isPerHexLand) {
           result.solidHexCaps.push(current)
         }
-        if (isFluidCap) {
+        if (isFluidCap && !isPerHexLand) {
           result.fluidHexCaps.push(current)
         }
         if (isSubTerrain) {
