@@ -43,6 +43,105 @@ export type LandHexInstanceDatum = {
   sideColor: string
 }
 
+export type LandHexHoverTarget = {
+  uid: string
+  hexID: string
+  isCap: boolean
+} | null
+
+export type LandHexInstanceIndex = {
+  indicesByUID: Map<string, number[]>
+  indexByHexID: Map<string, number>
+}
+
+type LandHexInstanceKey = {
+  uid: string
+  hex: Pick<BoardHex, 'id'>
+}
+
+export type LandHexHoverTransition = {
+  sideUpdates: { index: number; isHighlighted: boolean }[]
+  capUpdates: { index: number; isHighlighted: boolean }[]
+}
+
+const LAND_CAP_HIGHLIGHT = 1
+const LAND_SIDE_HIGHLIGHT = 2
+
+export function buildLandHexInstanceIndex(
+  items: LandHexInstanceKey[],
+): LandHexInstanceIndex {
+  const indicesByUID = new Map<string, number[]>()
+  const indexByHexID = new Map<string, number>()
+
+  items.forEach((item, index) => {
+    const indices = indicesByUID.get(item.uid)
+    if (indices) {
+      indices.push(index)
+    } else {
+      indicesByUID.set(item.uid, [index])
+    }
+    indexByHexID.set(item.hex.id, index)
+  })
+
+  return { indicesByUID, indexByHexID }
+}
+
+export function getLandHexHoverTransition(
+  previous: LandHexHoverTarget,
+  next: LandHexHoverTarget,
+  index: LandHexInstanceIndex,
+): LandHexHoverTransition {
+  const sideUpdates: LandHexHoverTransition['sideUpdates'] = []
+  const capUpdates: LandHexHoverTransition['capUpdates'] = []
+
+  if (previous?.uid !== next?.uid) {
+    for (const instanceIndex of index.indicesByUID.get(previous?.uid ?? '') ??
+      []) {
+      sideUpdates.push({ index: instanceIndex, isHighlighted: false })
+    }
+    for (const instanceIndex of index.indicesByUID.get(next?.uid ?? '') ?? []) {
+      sideUpdates.push({ index: instanceIndex, isHighlighted: true })
+    }
+  }
+
+  const previousCapHexID = previous?.isCap ? previous.hexID : undefined
+  const nextCapHexID = next?.isCap ? next.hexID : undefined
+  if (previousCapHexID !== nextCapHexID) {
+    const previousIndex = previousCapHexID
+      ? index.indexByHexID.get(previousCapHexID)
+      : undefined
+    const nextIndex = nextCapHexID
+      ? index.indexByHexID.get(nextCapHexID)
+      : undefined
+    if (previousIndex !== undefined) {
+      capUpdates.push({ index: previousIndex, isHighlighted: false })
+    }
+    if (nextIndex !== undefined) {
+      capUpdates.push({ index: nextIndex, isHighlighted: true })
+    }
+  }
+
+  return { sideUpdates, capUpdates }
+}
+
+export function getLandHexHighlightValue(
+  item: LandHexInstanceKey,
+  hovered: LandHexHoverTarget,
+  selectedIDs: ReadonlySet<string>,
+  surface: 'cap' | 'side' | 'both' = 'both',
+) {
+  const capHighlighted = hovered?.isCap && hovered.hexID === item.hex.id
+  const sideHighlighted = selectedIDs.has(item.uid) || hovered?.uid === item.uid
+  if (surface === 'cap') return Number(capHighlighted)
+  if (surface === 'side') {
+    return sideHighlighted ? LAND_SIDE_HIGHLIGHT : 0
+  }
+  return (
+    (capHighlighted ? LAND_CAP_HIGHLIGHT : 0) +
+    (sideHighlighted ? LAND_SIDE_HIGHLIGHT : 0)
+  )
+}
+
 export function getLandHexColors(
   terrain: string,
   genericColors: GenericTerrainColorSettings,
@@ -79,11 +178,13 @@ export function getLandHexColors(
 
 export function getLandHexDisplayColors(
   datum: Pick<LandHexInstanceDatum, 'capColor' | 'sideColor'>,
-  isHighlighted: boolean,
+  capHighlighted: boolean,
+  sideHighlighted = capHighlighted,
 ) {
-  return isHighlighted
-    ? { cap: 'yellow', side: 'yellow' }
-    : { cap: datum.capColor, side: datum.sideColor }
+  return {
+    cap: capHighlighted ? 'yellow' : datum.capColor,
+    side: sideHighlighted ? 'yellow' : datum.sideColor,
+  }
 }
 
 export function getLandHexSideVisibilityMask(
