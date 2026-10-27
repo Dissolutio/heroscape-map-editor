@@ -1,4 +1,5 @@
 import { produce } from 'immer'
+import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { DragPreview } from '../data/dragMove'
@@ -18,9 +19,14 @@ import {
   loadSettings,
   resetSettings as resetStoredSettings,
   SETTINGS_DEFAULTS,
+  type GraphicsTier,
   type LightPosition,
   resetGenericTerrainColorSettings,
 } from '../local-storage/settings'
+import {
+  loadTerrainTextureArrays,
+  type TextureLoadStatus,
+} from '../world/textures/terrainTextureArrays'
 import {
   type BoardHex,
   type BoardPiece,
@@ -34,6 +40,11 @@ import type { AppState } from './store'
 export type { LightPosition } from '../local-storage/settings'
 
 export interface UISlice {
+  graphicsTier: GraphicsTier
+  setGraphicsTier: (tier: GraphicsTier) => Promise<void>
+  effectiveGraphicsTier: GraphicsTier
+  textureLoadStatus: TextureLoadStatus
+  textureLoadProgress: { loaded: number; total: number }
   isShowStartZones: boolean
   toggleIsShowStartZones: (s: boolean) => void
   resetSettings: () => void
@@ -182,6 +193,7 @@ export interface UISlice {
 
 const initialPenMode = SELECT_PEN_MODE
 const nonPaintingPenModes = new Set<string>([SELECT_PEN_MODE, PICK_PEN_MODE])
+let graphicsTierLoadGeneration = 0
 
 const createUISlice: StateCreator<
   // https://immerjs.github.io/immer/#with-immer
@@ -191,6 +203,58 @@ const createUISlice: StateCreator<
   UISlice
 > = (set) => ({
   ...loadSettings(),
+  effectiveGraphicsTier: 'low',
+  textureLoadStatus: 'idle',
+  textureLoadProgress: { loaded: 0, total: 0 },
+  setGraphicsTier: async (tier) => {
+    const request = ++graphicsTierLoadGeneration
+    set({
+      graphicsTier: tier,
+      effectiveGraphicsTier: 'low',
+      textureLoadStatus: tier === 'low' ? 'idle' : 'loading',
+      textureLoadProgress: { loaded: 0, total: 0 },
+    })
+    if (tier === 'low') return
+
+    let result: Awaited<ReturnType<typeof loadTerrainTextureArrays>>
+    try {
+      result = await loadTerrainTextureArrays(tier, {
+        onProgress: (loaded, total) => {
+          if (request !== graphicsTierLoadGeneration) return
+          set({ textureLoadProgress: { loaded, total } })
+        },
+      })
+    } catch (error) {
+      result = {
+        error: error instanceof Error ? error : new Error(String(error)),
+        status: 'error',
+      }
+    }
+
+    if (request !== graphicsTierLoadGeneration) return
+    if (result.status === 'ready') {
+      set({
+        effectiveGraphicsTier: tier,
+        textureLoadStatus: 'ready',
+        textureLoadProgress: {
+          loaded: result.textures ? Object.keys(result.textures).length : 0,
+          total: tier === 'medium' ? 2 : 6,
+        },
+      })
+      return
+    }
+
+    set({
+      effectiveGraphicsTier: 'low',
+      textureLoadStatus: 'error',
+    })
+    enqueueSnackbar({
+      message: `Could not load terrain textures: ${result.error.message}`,
+      variant: 'error',
+      preventDuplicate: true,
+      key: 'terrain-texture-load-error',
+    })
+  },
   setRememberedMapAuthor: (name: string) => set({ rememberedMapAuthor: name }),
   isShowStartZones: true,
   selectedPieceIDs: [],
@@ -729,8 +793,14 @@ const createUISlice: StateCreator<
       }),
     ),
   resetSettings: () => {
+    graphicsTierLoadGeneration += 1
     resetStoredSettings()
-    set(SETTINGS_DEFAULTS)
+    set({
+      ...SETTINGS_DEFAULTS,
+      effectiveGraphicsTier: 'low',
+      textureLoadStatus: 'idle',
+      textureLoadProgress: { loaded: 0, total: 0 },
+    })
   },
   setGenericSolidCapColor: (color: string) =>
     set({ genericSolidCapColor: color }),

@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -27,6 +28,7 @@ import {
 import type { Group, Object3DEventMap } from 'three'
 import useEvent from '../hooks/useEvent'
 import useBoundStore from '../store/store'
+import type { GraphicsTier } from '../local-storage/settings'
 import { zoomToMap } from '../utils/camera-utils'
 import { EVENTS } from '../utils/constants'
 import {
@@ -39,6 +41,7 @@ import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
 import { getViewMode } from './viewMode'
+import { isPerHexLandEnabled } from '../e2e/isE2E'
 
 const GENERIC_PIECE_COLORS_TOOLTIP =
   'Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D.'
@@ -295,6 +298,10 @@ const GenericTerrainColorsForm = () => {
 }
 
 const ViewPreferencesSwitchForm = () => {
+  const graphicsTier = useBoundStore((s) => s.graphicsTier)
+  const setGraphicsTier = useBoundStore((s) => s.setGraphicsTier)
+  const textureLoadStatus = useBoundStore((s) => s.textureLoadStatus)
+  const textureLoadProgress = useBoundStore((s) => s.textureLoadProgress)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -373,6 +380,56 @@ const ViewPreferencesSwitchForm = () => {
     <FormControl component="fieldset" variant="standard">
       <FormLabel component="legend">3D View options:</FormLabel>
       <FormGroup>
+        {isPerHexLandEnabled && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            <Tooltip title="Medium and High download texture images the first time you choose them (about 2.7 MB for Medium, about 3.5 MB for High). Lowest uses no images.">
+              <FormLabel
+                id="graphics-tier-label"
+                component="label"
+                htmlFor="graphics-tier-select"
+              >
+                Graphics
+              </FormLabel>
+            </Tooltip>
+            <FormControl size="small">
+              <Select
+                id="graphics-tier-select"
+                labelId="graphics-tier-label"
+                data-testid="graphics-tier-select"
+                value={graphicsTier}
+                onChange={(event: SelectChangeEvent) => {
+                  void setGraphicsTier(event.target.value as GraphicsTier)
+                }}
+              >
+                <MenuItem value="low">Lowest</MenuItem>
+                <MenuItem value="medium">Medium (textures)</MenuItem>
+                <MenuItem value="high">High (PBR textures)</MenuItem>
+              </Select>
+            </FormControl>
+            {textureLoadStatus === 'loading' && (
+              <Box
+                aria-live="polite"
+                data-testid="graphics-texture-status"
+                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+              >
+                <CircularProgress aria-label="Loading textures" size={16} />
+                <span>
+                  Loading textures ({textureLoadProgress.loaded}/
+                  {textureLoadProgress.total})
+                </span>
+              </Box>
+            )}
+            {textureLoadStatus === 'ready' && (
+              <span
+                aria-live="polite"
+                data-testid="graphics-texture-status"
+                style={{ fontSize: '0.75rem' }}
+              >
+                Textures ready
+              </span>
+            )}
+          </Box>
+        )}
         <FormControlLabel
           control={
             <Switch

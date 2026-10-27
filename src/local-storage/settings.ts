@@ -11,12 +11,14 @@ import {
 } from './safeStorage'
 
 export type LightPosition = [number, number, number]
+export type GraphicsTier = 'low' | 'medium' | 'high'
 export type PdfRenderFormat =
   | 'coversheet'
   | 'shortHeader'
   | 'condensedCoversheet'
 
 export type SettingsValues = {
+  graphicsTier: GraphicsTier
   isOrthoCam: boolean
   isLightsAndShadowsRender: boolean
   isShowLightControls: boolean
@@ -52,6 +54,7 @@ export type SettingsValues = {
 }
 
 export const SETTINGS_DEFAULTS: SettingsValues = {
+  graphicsTier: 'low',
   isOrthoCam: true,
   isLightsAndShadowsRender: false,
   isShowLightControls: true,
@@ -177,6 +180,10 @@ const validSettingValue = (
   }
 
   switch (key) {
+    case 'graphicsTier':
+      return value === 'low' || value === 'medium' || value === 'high'
+        ? value
+        : undefined
     case 'pdfRenderFormat':
       return isPdfRenderFormat(value) ? value : undefined
     case 'terrainConstraintSource':
