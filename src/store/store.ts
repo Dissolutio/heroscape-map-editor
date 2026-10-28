@@ -1,4 +1,3 @@
-import { isEqual } from 'lodash'
 import { temporal } from 'zundo'
 import { create } from 'zustand'
 import { enqueueSnackbar } from 'notistack'
@@ -36,9 +35,9 @@ const useBoundStore = create<AppState>()(
           }
         },
         equality: (pastState, currentState) =>
-          isEqual(pastState.boardHexes, currentState.boardHexes) &&
-          isEqual(pastState.boardPieces, currentState.boardPieces) &&
-          isEqual(pastState.hexMap, currentState.hexMap),
+          pastState.boardHexes === currentState.boardHexes &&
+          pastState.boardPieces === currentState.boardPieces &&
+          pastState.hexMap === currentState.hexMap,
       },
     ),
   ),

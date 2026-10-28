@@ -1,8 +1,10 @@
 import { TransformControls } from '@react-three/drei'
+import { useThree } from '@react-three/fiber'
 import { useState } from 'react'
 import type { PointLight } from 'three'
 import useBoundStore from '../store/store'
 import type { LightPosition } from '../store/ui-slice'
+import { invalidateShadowMap } from './shadowInvalidation'
 
 export default function Lights({
   width,
@@ -38,6 +40,7 @@ function MovablePointLight({
   defaultPosition,
 }: { id: string; defaultPosition: LightPosition }) {
   const [light, setLight] = useState<PointLight | null>(null)
+  const shadowMap = useThree((state) => state.gl.shadowMap)
   const position = useBoundStore((s) => s.lightPositions[id])
   const updateLightPosition = useBoundStore((s) => s.updateLightPosition)
   const isShowLightControls = useBoundStore((s) => s.isShowLightControls)
@@ -69,6 +72,7 @@ function MovablePointLight({
               light.position.z,
             ])
           }
+          onObjectChange={() => invalidateShadowMap(shadowMap)}
         />
       )}
     </>

@@ -437,16 +437,37 @@ function writeLandHighlightValues(
   ) as InstancedBufferAttribute
   const updatedIndices = [...indices]
   if (updatedIndices.length === 0) return
-  for (const index of updatedIndices) {
+  const validIndices = updatedIndices.filter((index) => items[index])
+  if (validIndices.length === 0) return
+  for (const index of validIndices) {
     const item = items[index]
-    if (!item) continue
     attribute.setX(
       index,
       getFiniteLandHexHighlightValue(item, hovered, selectedIDs, surface),
     )
-    attribute.addUpdateRange(index, 1)
   }
+  mergeLandHexHighlightUpdateRanges(attribute, validIndices)
   attribute.needsUpdate = true
+}
+
+export function mergeLandHexHighlightUpdateRanges(
+  attribute: InstancedBufferAttribute,
+  indices: Iterable<number>,
+) {
+  let start = Number.POSITIVE_INFINITY
+  let end = Number.NEGATIVE_INFINITY
+  for (const range of attribute.updateRanges) {
+    start = Math.min(start, range.start)
+    end = Math.max(end, range.start + range.count)
+  }
+  for (const index of indices) {
+    start = Math.min(start, index)
+    end = Math.max(end, index + 1)
+  }
+  if (!Number.isFinite(start) || end <= start) return false
+  attribute.clearUpdateRanges()
+  attribute.addUpdateRange(start, end - start)
+  return true
 }
 
 function getHoverAffectedIndices(

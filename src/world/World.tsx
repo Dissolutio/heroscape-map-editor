@@ -27,6 +27,7 @@ import AutoZoomToMap from './camera/AutoZoomToMap'
 import MyCameraControls from './camera/MyCameraControls'
 import { DragContext } from './drag/DragContext'
 import TakeAPictureBox from './camera/TakeAPictureBox'
+import ShadowMapInvalidator from './ShadowMapInvalidator'
 import {
   PerformanceOverlay,
   PerformanceProbeGate,
@@ -183,6 +184,7 @@ const World = ({
             )}
           </Bvh>
           <PerformanceProbeGate />
+          <ShadowMapInvalidator />
           <BillboardWarmup />
           <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}
