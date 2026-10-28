@@ -16,9 +16,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  e2e:
+  # The suite runs on software WebGL with one worker per job, so one job takes
+  # 10+ minutes and grows with every spec. Three shards run in parallel.
+  e2e-shard:
+    name: e2e (shard ${{ matrix.shard }}/3)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
 
     steps:
       - name: Checkout repository
@@ -37,15 +44,29 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
-        run: npm run test:e2e
+        run: npm run test:e2e -- --shard=${{ matrix.shard }}/3
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-shard-${{ matrix.shard }}
           path: |
             playwright-report/
             test-results/
           retention-days: 7
           if-no-files-found: ignore
+
+  # Keeps the single check name "e2e" for branch protection and humans.
+  e2e:
+    name: e2e
+    needs: e2e-shard
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: All shards passed
+        run: |
+          if [ "${{ needs.e2e-shard.result }}" != "success" ]; then
+            echo "e2e shards result: ${{ needs.e2e-shard.result }}"
+            exit 1
+          fi
