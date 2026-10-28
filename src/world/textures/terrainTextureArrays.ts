@@ -74,6 +74,21 @@ let manifestPromise: Promise<TerrainTextureManifest> | undefined
 let loadedManifest: TerrainTextureManifest | undefined
 let generation = 0
 
+export function getTerrainTextureArrayStats() {
+  let cpuBytes = 0
+  for (const texture of loadedTextures.values()) {
+    const data = texture.source.data?.data
+    if (ArrayBuffer.isView(data)) cpuBytes += data.byteLength
+  }
+  return {
+    cpuBytes,
+    manifestBytes: loadedManifest
+      ? JSON.stringify(loadedManifest).length * 2
+      : 0,
+    textureArrayCount: loadedTextures.size,
+  }
+}
+
 export function getTerrainTextureStrips(
   tier: GraphicsTier,
 ): TerrainTextureFileName[] {

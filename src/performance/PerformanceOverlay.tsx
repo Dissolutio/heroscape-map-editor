@@ -193,8 +193,10 @@ async function runBenchmark() {
         .toggleIsLightsAndShadowsRender(configuration.lights)
       await nextFrame()
       await nextFrame()
+      controller.resetDrawCallSources()
       const camera = await measurePhase('orbit', performanceSeconds)
       const pointer = await measurePhase('pointer', performanceSeconds)
+      const resources = controller.takeSnapshot()
       const result = {
         renderer:
           new URLSearchParams(window.location.search).get('perHexLand') === '1'
@@ -207,8 +209,9 @@ async function runBenchmark() {
           canvasHeight: document.querySelector('canvas')?.clientHeight ?? 0,
           drawingBufferWidth: document.querySelector('canvas')?.width ?? 0,
           drawingBufferHeight: document.querySelector('canvas')?.height ?? 0,
-          glRenderer: controller.takeSnapshot().glRenderer,
+          glRenderer: resources.glRenderer,
         },
+        resources,
         camera,
         pointer,
       }
@@ -332,6 +335,10 @@ export function PerformanceOverlay() {
         `Raycast: ${snapshot.raycastMsPerPointerMove.toFixed(3)} ms/pointer`,
         `React MapDisplay3D: ${snapshot.reactCommitsPerSecond.toFixed(1)} commits/s, ${snapshot.reactRenderMsPerSecond.toFixed(1)} ms/s`,
         `Scene objects: ${snapshot.sceneObjects} | subscribers: ${snapshot.storeSubscribers} | timers: ${snapshot.pendingTimers} | rAF: ${snapshot.pendingAnimationFrames}`,
+        `Typed arrays: ${(snapshot.typedArrayBytes / 1048576).toFixed(1)} MiB total | geometry ${(snapshot.geometryTypedArrayBytes / 1048576).toFixed(1)} MiB | texture ${(snapshot.textureCpuBytes / 1048576).toFixed(1)} MiB`,
+        `Instances: ${snapshot.instanceMeshCount} meshes | matrices ${(snapshot.instanceMatrixBytes / 1048576).toFixed(1)} MiB | ${snapshot.instanceAttributeCount} attributes / ${(snapshot.instanceAttributeBytes / 1048576).toFixed(1)} MiB`,
+        `Texture arrays: ${snapshot.textureArrayCount} | decoded CPU ${(snapshot.decodedTextureCpuBytes / 1048576).toFixed(1)} MiB | manifest ${(snapshot.manifestBytes / 1024).toFixed(1)} KiB`,
+        `Top draw-call sources: ${snapshot.topDrawCallSources.map(({ source, drawCalls, triangles }) => `${source} ${drawCalls} calls / ${triangles} tris`).join('; ') || 'Collecting…'}`,
         `DPR: ${snapshot.devicePixelRatio} | canvas: ${snapshot.canvasWidth}×${snapshot.canvasHeight} CSS / ${snapshot.drawingBufferWidth}×${snapshot.drawingBufferHeight} px`,
         `GL renderer: ${snapshot.glRenderer}`,
       ]

@@ -1,5 +1,14 @@
-import { Raycaster, type Scene, type WebGLRenderer } from 'three'
+import {
+  InstancedMesh,
+  InstancedBufferAttribute,
+  Mesh,
+  Raycaster,
+  type BufferAttribute,
+  type Scene,
+  type WebGLRenderer,
+} from 'three'
 import useBoundStore from '../store/store'
+import { getTerrainTextureArrayStats } from '../world/textures/terrainTextureArrays'
 import { getTrackedStoreSubscribers } from './performanceFlags'
 
 export {
@@ -33,6 +42,23 @@ export type PerformanceSnapshot = {
   drawingBufferWidth: number
   drawingBufferHeight: number
   glRenderer: string
+  typedArrayBytes: number
+  geometryTypedArrayBytes: number
+  textureCpuBytes: number
+  instanceMeshCount: number
+  instanceMatrixBytes: number
+  instanceAttributeCount: number
+  instanceAttributeBytes: number
+  decodedTextureCpuBytes: number
+  manifestBytes: number
+  textureArrayCount: number
+  topDrawCallSources: DrawCallSource[]
+}
+
+export type DrawCallSource = {
+  source: string
+  drawCalls: number
+  triangles: number
 }
 
 export type LeakSample = Pick<
@@ -64,6 +90,9 @@ let lastPointerEvents = 0
 let lastRaycastTimeMs = 0
 let lastReactCommits = 0
 let lastReactRenderTimeMs = 0
+const drawCallTotals = new Map<string, DrawCallSource>()
+const instrumentedMeshes = new Set<Mesh>()
+const originalOnBeforeRender = new WeakMap<Mesh, Mesh['onBeforeRender']>()
 
 const getSceneObjectCount = (scene: Scene) => {
   let count = 0
@@ -71,6 +100,147 @@ const getSceneObjectCount = (scene: Scene) => {
     count += 1
   })
   return count
+}
+
+function addArrayBytes(value: unknown, seen: Set<ArrayBufferLike>) {
+  if (!ArrayBuffer.isView(value)) return 0
+  const buffer = value.buffer
+  if (seen.has(buffer)) return 0
+  seen.add(buffer)
+  return buffer.byteLength
+}
+
+function getPieceSource(object: Mesh) {
+  let current: Mesh | null = object
+  while (current) {
+    const inventoryID = current.userData.inventoryID
+    if (typeof inventoryID === 'string') return inventoryID
+    current = current.parent as Mesh | null
+  }
+  return 'Land / other'
+}
+
+function getDrawTriangles(mesh: Mesh, renderGroup: unknown) {
+  const geometry = mesh.geometry
+  const totalCount =
+    geometry.index?.count ?? geometry.getAttribute('position')?.count ?? 0
+  const groupCount =
+    renderGroup &&
+    typeof renderGroup === 'object' &&
+    'count' in renderGroup &&
+    typeof renderGroup.count === 'number'
+      ? renderGroup.count
+      : geometry.drawRange.count
+  const count = Math.min(totalCount, groupCount)
+  return (
+    Math.floor(count / 3) * (mesh instanceof InstancedMesh ? mesh.count : 1)
+  )
+}
+
+function instrumentDrawCallSources(scene: Scene) {
+  scene.traverse((object) => {
+    if (!(object instanceof Mesh) || originalOnBeforeRender.has(object)) return
+    const original = object.onBeforeRender
+    originalOnBeforeRender.set(object, original)
+    instrumentedMeshes.add(object)
+    object.onBeforeRender = function (
+      this: Mesh,
+      renderer,
+      renderedScene,
+      camera,
+      geometry,
+      material,
+      group,
+    ) {
+      const source = getPieceSource(this)
+      const total = drawCallTotals.get(source) ?? {
+        source,
+        drawCalls: 0,
+        triangles: 0,
+      }
+      total.drawCalls += 1
+      total.triangles += getDrawTriangles(this, group)
+      drawCallTotals.set(source, total)
+      original.call(
+        this,
+        renderer,
+        renderedScene,
+        camera,
+        geometry,
+        material,
+        group,
+      )
+    }
+  })
+}
+
+export function getSceneMemoryStats(scene: Scene) {
+  const allBuffers = new Set<ArrayBufferLike>()
+  const geometryBuffers = new Set<ArrayBufferLike>()
+  const textureBuffers = new Set<ArrayBufferLike>()
+  const instanceMatrixBuffers = new Set<ArrayBufferLike>()
+  const instanceAttributeBuffers = new Set<ArrayBufferLike>()
+  let instanceMeshCount = 0
+  let instanceAttributeCount = 0
+
+  scene.traverse((object) => {
+    const mesh = object as Mesh
+    if (mesh.geometry) {
+      for (const attribute of Object.values(mesh.geometry.attributes)) {
+        if (attribute instanceof InstancedBufferAttribute) {
+          instanceAttributeCount += 1
+          addArrayBytes(attribute.array, instanceAttributeBuffers)
+        } else {
+          addArrayBytes((attribute as BufferAttribute).array, geometryBuffers)
+        }
+      }
+      if (mesh.geometry.index) {
+        addArrayBytes(mesh.geometry.index.array, geometryBuffers)
+      }
+    }
+    if (mesh instanceof InstancedMesh) {
+      instanceMeshCount += 1
+      addArrayBytes(mesh.instanceMatrix.array, instanceMatrixBuffers)
+      if (mesh.instanceColor) {
+        addArrayBytes(mesh.instanceColor.array, instanceAttributeBuffers)
+      }
+    }
+    if (mesh.material) {
+      const materials = Array.isArray(mesh.material)
+        ? mesh.material
+        : [mesh.material]
+      for (const material of materials) {
+        for (const value of Object.values(material)) {
+          if (value && typeof value === 'object' && 'isTexture' in value) {
+            const texture = value as {
+              image?: { data?: unknown }
+              source?: { data?: { data?: unknown } }
+            }
+            addArrayBytes(
+              texture.source?.data?.data ?? texture.image?.data,
+              textureBuffers,
+            )
+          }
+        }
+      }
+    }
+  })
+
+  for (const buffer of geometryBuffers) allBuffers.add(buffer)
+  for (const buffer of textureBuffers) allBuffers.add(buffer)
+  for (const buffer of instanceMatrixBuffers) allBuffers.add(buffer)
+  for (const buffer of instanceAttributeBuffers) allBuffers.add(buffer)
+  const byteLength = (buffers: Set<ArrayBufferLike>) =>
+    [...buffers].reduce((total, buffer) => total + buffer.byteLength, 0)
+  return {
+    typedArrayBytes: byteLength(allBuffers),
+    geometryTypedArrayBytes: byteLength(geometryBuffers),
+    textureCpuBytes: byteLength(textureBuffers),
+    instanceMeshCount,
+    instanceMatrixBytes: byteLength(instanceMatrixBuffers),
+    instanceAttributeCount,
+    instanceAttributeBytes: byteLength(instanceAttributeBuffers),
+  }
 }
 
 const recordStoreUpdate: StoreListener = () => {
@@ -82,6 +252,8 @@ export function startPerformanceCollection(
   renderer: WebGLRenderer,
   scene: Scene,
 ) {
+  drawCallTotals.clear()
+  instrumentedMeshes.clear()
   frameTimes = []
   previousFrameTime = undefined
   storeUpdates = 0
@@ -211,6 +383,7 @@ export function startPerformanceCollection(
   }
 
   const takeSnapshot = (): PerformanceSnapshot => {
+    instrumentDrawCallSources(scene)
     const now = performance.now()
     const elapsedSeconds = Math.max((now - lastSnapshotAt) / 1000, 0.001)
     const recentFrames = frameTimes.slice(-60)
@@ -257,6 +430,13 @@ export function startPerformanceCollection(
       drawingBufferWidth: canvas.width,
       drawingBufferHeight: canvas.height,
       glRenderer: String(context.getParameter(context.RENDERER)),
+      ...getSceneMemoryStats(scene),
+      decodedTextureCpuBytes: getTerrainTextureArrayStats().cpuBytes,
+      manifestBytes: getTerrainTextureArrayStats().manifestBytes,
+      textureArrayCount: getTerrainTextureArrayStats().textureArrayCount,
+      topDrawCallSources: [...drawCallTotals.values()]
+        .sort((a, b) => b.drawCalls - a.drawCalls)
+        .slice(0, 15),
     }
     lastSnapshotAt = now
     lastStoreUpdates = storeUpdates
@@ -270,6 +450,8 @@ export function startPerformanceCollection(
   return {
     sampleFrame,
     takeSnapshot,
+    instrumentDrawCallSources: () => instrumentDrawCallSources(scene),
+    resetDrawCallSources: () => drawCallTotals.clear(),
     frameStatsSince: (start: number) => {
       const values = frameTimes.slice(start)
       if (!values.length) return { averageMs: 0, p95Ms: 0, count: 0 }
@@ -293,6 +475,14 @@ export function startPerformanceCollection(
     }),
     frameCount: () => frameTimes.length,
     stop: () => {
+      for (const mesh of instrumentedMeshes) {
+        const original = originalOnBeforeRender.get(mesh)
+        if (original && mesh.onBeforeRender !== original) {
+          mesh.onBeforeRender = original
+        }
+        originalOnBeforeRender.delete(mesh)
+      }
+      instrumentedMeshes.clear()
       canvas.removeEventListener('pointermove', onPointerMove, true)
       unsubscribe()
       if (Raycaster.prototype.intersectObject === timedIntersectObject) {

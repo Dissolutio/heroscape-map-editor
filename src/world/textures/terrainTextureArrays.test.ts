@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   disposeTerrainTextureArrays,
   getCachedTerrainTextureArrays,
+  getTerrainTextureArrayStats,
   getTerrainTextureStrips,
   loadTerrainTextureArrays,
   sliceTextureArrayLayers,
@@ -236,6 +237,21 @@ describe('terrain texture array loading', () => {
     )
     expect(result.textures['caps-orm.png']?.colorSpace).toBe(NoColorSpace)
     expect(result.textures['sides-normal.png']?.colorSpace).toBe(NoColorSpace)
+  })
+
+  it('reports the retained texture-array and manifest CPU sizes', async () => {
+    const manifest = smallManifest()
+    const result = await loadTerrainTextureArrays('medium', {
+      fetch: async () => response(manifest),
+      decodeImage: async (_bytes, fileName) => decodePixels(manifest)(fileName),
+    })
+
+    expect(result.status).toBe('ready')
+    expect(getTerrainTextureArrayStats()).toEqual({
+      cpuBytes: 2 * 4 * 4 * 2,
+      manifestBytes: JSON.stringify(manifest).length * 2,
+      textureArrayCount: 2,
+    })
   })
 
   it('retries failed strips and disposes cached GPU textures', async () => {
