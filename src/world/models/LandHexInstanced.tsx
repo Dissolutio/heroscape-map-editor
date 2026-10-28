@@ -292,7 +292,7 @@ function updateInstanceMesh(
     capVisibleAttribute.setX(index, Number(item.capVisible))
     highlightAttribute.setX(
       index,
-      getLandHexHighlightValue(item, hovered, selectedIDs, surface),
+      getFiniteLandHexHighlightValue(item, hovered, selectedIDs, surface),
     )
     levelsAttribute.setX(index, item.levels)
     capLayerAttribute.setX(index, item.capLayer)
@@ -321,6 +321,16 @@ function updateInstanceMesh(
   mesh.instanceMatrix.needsUpdate = true
 }
 
+function getFiniteLandHexHighlightValue(
+  item: LandHexInstanceDatum,
+  hovered: LandHexHoverTarget,
+  selectedIDs: Set<string>,
+  surface: 'cap' | 'side' | 'both',
+) {
+  const value = getLandHexHighlightValue(item, hovered, selectedIDs, surface)
+  return Number.isFinite(value) ? value : 0
+}
+
 function writeLandHighlightValues(
   geometry: BufferGeometry,
   items: LandHexInstanceDatum[],
@@ -339,7 +349,7 @@ function writeLandHighlightValues(
     if (!item) continue
     attribute.setX(
       index,
-      getLandHexHighlightValue(item, hovered, selectedIDs, surface),
+      getFiniteLandHexHighlightValue(item, hovered, selectedIDs, surface),
     )
     attribute.addUpdateRange(index, 1)
   }
