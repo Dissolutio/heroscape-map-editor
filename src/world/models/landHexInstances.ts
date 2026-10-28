@@ -9,8 +9,11 @@ import {
 import { isFluidTerrainHex, isSolidTerrainHex } from '../../utils/board-utils'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../../utils/hex-utils'
 import { getBoardHex3DCoords, genBoardHexID } from '../../utils/map-utils'
+import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
+import type { GraphicsTier } from '../../local-storage/settings'
 import type { GenericTerrainColorSettings } from '../maphex/genericTerrainColors'
 import { hexTerrainColor, terrainCapColors } from '../maphex/hexColors'
+import type { TerrainTextureManifest } from '../textures/terrainTextureManifest'
 
 export const NON_INSTANCED_SUBTERRAIN_PIECES = new Set<string>([
   Pieces.glacier1,
@@ -37,8 +40,9 @@ export type LandHexInstanceDatum = {
   y: number
   z: number
   levels: number
-  capLayer: -1
-  sideLayer: -1
+  capLayer: number
+  sideLayer: number
+  rotationSteps: number
   sideMask: number
   capVisible: boolean
   capColor: string
@@ -68,6 +72,97 @@ export type LandHexHoverTransition = {
 
 const LAND_CAP_HIGHLIGHT = 1
 const LAND_SIDE_HIGHLIGHT = 2
+
+export const LAND_HEX_TEXTURE_TERRAIN_NAMES: Partial<
+  Record<HexTerrain, string>
+> = {
+  [HexTerrain.ancientTerrain]: 'Ancient',
+  [HexTerrain.asphalt]: 'Asphalt',
+  [HexTerrain.concrete]: 'Concrete',
+  [HexTerrain.dungeon]: 'Dungeon',
+  [HexTerrain.grass]: 'Grass',
+  [HexTerrain.ice]: 'Ice',
+  [HexTerrain.lava]: 'Lava',
+  [HexTerrain.lavaField]: 'LavaField',
+  [HexTerrain.rock]: 'Rock',
+  [HexTerrain.road]: 'Road',
+  [HexTerrain.sand]: 'Sand',
+  [HexTerrain.snow]: 'Snow',
+  [HexTerrain.swamp]: 'Swamp',
+  [HexTerrain.toxic]: 'ToxicLand',
+  [HexTerrain.toxicWater]: 'ToxicWater',
+  [HexTerrain.wallWalk]: 'WallWalk',
+  [HexTerrain.water]: 'Water',
+  [HexTerrain.wellspringWater]: 'WellspringWater',
+  [HexTerrain.wood]: 'Wood',
+}
+
+export const LAND_HEX_UNTEXTURED_TERRAINS = [
+  HexTerrain.generic,
+  HexTerrain.genericFluid,
+  HexTerrain.shadow,
+  HexTerrain.swampWater,
+] as const
+
+export function getLandHexManifestTerrainName(terrain: string) {
+  return LAND_HEX_TEXTURE_TERRAIN_NAMES[terrain as HexTerrain] ?? null
+}
+
+export function getLandHexTextureLayers(
+  terrain: string,
+  hexID: string,
+  manifest: TerrainTextureManifest | undefined,
+  tier: GraphicsTier,
+) {
+  const manifestTerrainName = getLandHexManifestTerrainName(terrain)
+  const layers = manifestTerrainName
+    ? manifest?.terrains[manifestTerrainName]
+    : undefined
+  const enabled = tier !== 'low' && Boolean(manifest && layers)
+  const allowRandomRotation =
+    terrain === HexTerrain.ice || terrain === HexTerrain.toxicWater
+  return {
+    capLayer: enabled
+      ? tier === 'high'
+        ? (layers?.capDiffusePbrLayer ?? -1)
+        : (layers?.capDiffuseLayer ?? -1)
+      : -1,
+    sideLayer: enabled ? (layers?.sideDiffuseLayer ?? -1) : -1,
+    rotationSteps:
+      enabled && allowRandomRotation ? getStableRotationStep(hexID) : 0,
+  }
+}
+
+export function getStableRotationStep(id: string) {
+  let hash = 2166136261
+  for (let index = 0; index < id.length; index += 1) {
+    hash = Math.imul(hash ^ id.charCodeAt(index), 16777619)
+  }
+  return (hash >>> 0) % 6
+}
+
+/**
+ * UV bounds follow the pointy-top cap vertices in LandHexInstanced.tsx:
+ * x spans ±sqrt(3)R/2 and z spans ±R. Keep the shader formula in sync.
+ */
+export function getLandHexCapUV(
+  x: number,
+  z: number,
+  rotationSteps = 0,
+  radius = HEXGRID_HEX_RADIUS,
+) {
+  const angle = (((rotationSteps % 6) + 6) % 6) * (Math.PI / 3)
+  const rotatedX = x * Math.cos(angle) + z * Math.sin(angle)
+  const rotatedZ = -x * Math.sin(angle) + z * Math.cos(angle)
+  return {
+    u: rotatedX / (Math.sqrt(3) * radius) + 0.5,
+    v: rotatedZ / (2 * radius) + 0.5,
+  }
+}
+
+export function getLandHexSideUV(u: number, y: number, height: number) {
+  return [u, 1 - y / height] as const
+}
 
 export function buildLandHexInstanceIndex(
   items: LandHexInstanceKey[],
@@ -219,6 +314,8 @@ export function buildLandHexInstanceData(
   boardPieces: BoardPiece[],
   viewingLevel: number,
   genericColors: GenericTerrainColorSettings,
+  manifest?: TerrainTextureManifest,
+  tier: GraphicsTier = 'low',
 ): LandHexInstanceDatum[] {
   const piecesByUID = new Map(boardPieces.map((piece) => [piece.uid, piece]))
 
@@ -246,6 +343,12 @@ export function buildLandHexInstanceData(
 
       const colors = getLandHexColors(hex.terrain, genericColors)
       const { x, z, yBaseCap } = getBoardHex3DCoords(hex)
+      const textureLayers = getLandHexTextureLayers(
+        hex.terrain,
+        hex.id,
+        manifest,
+        tier,
+      )
 
       return [
         {
@@ -257,8 +360,7 @@ export function buildLandHexInstanceData(
           y: yBaseCap,
           z,
           levels: hex.altitude,
-          capLayer: -1 as const,
-          sideLayer: -1 as const,
+          ...textureLayers,
           sideMask: getLandHexSideVisibilityMask(hex, boardHexes),
           capVisible: !colors.isFluid || Boolean(hex.isCap),
           capColor: colors.cap,

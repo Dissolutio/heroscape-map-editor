@@ -3,6 +3,7 @@ import { ClampToEdgeWrapping, NoColorSpace, SRGBColorSpace } from 'three'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   disposeTerrainTextureArrays,
+  getCachedTerrainTextureArrays,
   getTerrainTextureStrips,
   loadTerrainTextureArrays,
   sliceTextureArrayLayers,
@@ -211,6 +212,11 @@ describe('terrain texture array loading', () => {
       )
       expect(first.textures['sides-diffuse.png']?.generateMipmaps).toBe(true)
       expect(first.textures['sides-diffuse.png']?.anisotropy).toBe(4)
+      expect(getCachedTerrainTextureArrays('medium')).toEqual({
+        manifest,
+        textures: first.textures,
+      })
+      expect(getCachedTerrainTextureArrays('low')).toBeNull()
     }
   })
 

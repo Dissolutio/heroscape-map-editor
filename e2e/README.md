@@ -30,6 +30,8 @@ default caps are plain hexagons.
 For the development-only per-hex land renderer, add `&perHexLand=1` to an
 `/hs?e2e=1` URL. It is session-only and off by default; all other rendering
 continues to use the current path.
+For tier-start coverage, `&graphicsTier=medium` or `&graphicsTier=high` selects
+the initial tier only when both `e2e=1` and `perHexLand=1` are present.
 
 The automatic What's New dialog is suppressed for `?e2e=1` runs. A test that
 needs to exercise it can explicitly opt in with `&whats-new=1`. The ordinary
@@ -180,7 +182,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
 | View tooltips, camera visibility, and new-map author details | `e2e/ui-polish.spec.ts` |
-| Per-hex land pixels across lights toggles | `e2e/per-hex-land.spec.ts` |
+| Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |
 | Lazy Graphics tier texture loading in per-hex land mode | `e2e/graphics-tier.spec.ts` |
 
 The map-settle tracker also feeds the app's startup UI in normal runs. The

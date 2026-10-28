@@ -1,4 +1,4 @@
-import type { ThreeEvent } from '@react-three/fiber'
+import { useThree, type ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import {
   Color,
@@ -10,11 +10,12 @@ import {
   Object3D,
   type BufferGeometry,
   BufferGeometry as ThreeBufferGeometry,
+  type DataArrayTexture,
   type InstancedMesh,
 } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import type { BoardHex } from '../../types'
+import type { BoardHex, BoardHexes, BoardPiece } from '../../types'
 import { HEXGRID_HEX_RADIUS, HEXGRID_HEX_HEIGHT } from '../../utils/constants'
 import {
   findPieceHexAt,
@@ -23,8 +24,12 @@ import {
   pressPieceForDrag,
   reportDragTargetHex,
 } from '../drag/dragController'
+import { getCachedTerrainTextureArrays } from '../textures/terrainTextureArrays'
+import type { GenericTerrainColorSettings } from '../maphex/genericTerrainColors'
 import {
+  buildLandHexInstanceData,
   buildLandHexInstanceIndex,
+  getLandHexSideUV,
   type LandHexInstanceDatum,
   getLandHexHighlightValue,
   getLandHexHoverTransition,
@@ -44,6 +49,7 @@ export function buildCapGeometry(instanceCount: number) {
   const positions: number[] = []
   const kinds: number[] = []
   const directions: number[] = []
+  const sideUVs: number[] = []
   const indices: number[] = []
 
   for (let side = 0; side < 6; side += 1) {
@@ -62,17 +68,26 @@ export function buildCapGeometry(instanceCount: number) {
     )
     kinds.push(1, 1, 1)
     directions.push(-1, -1, -1)
+    sideUVs.push(0, 0, 0, 0, 0, 0)
     const start = side * 3 // first vertex of this triangle (3 vertices per triangle)
     indices.push(start, start + 1, start + 2)
   }
 
-  return buildGeometry(positions, kinds, directions, indices, instanceCount)
+  return buildGeometry(
+    positions,
+    kinds,
+    directions,
+    sideUVs,
+    indices,
+    instanceCount,
+  )
 }
 
 export function buildSideGeometry(instanceCount: number) {
   const positions: number[] = []
   const kinds: number[] = []
   const directions: number[] = []
+  const sideUVs: number[] = []
   const indices: number[] = []
 
   for (let side = 0; side < 6; side += 1) {
@@ -94,11 +109,24 @@ export function buildSideGeometry(instanceCount: number) {
     )
     kinds.push(0, 0, 0, 0)
     directions.push(side, side, side, side)
+    sideUVs.push(
+      ...getLandHexSideUV(0, 0, HEXGRID_HEX_HEIGHT),
+      ...getLandHexSideUV(0, HEXGRID_HEX_HEIGHT, HEXGRID_HEX_HEIGHT),
+      ...getLandHexSideUV(1, HEXGRID_HEX_HEIGHT, HEXGRID_HEX_HEIGHT),
+      ...getLandHexSideUV(1, 0, HEXGRID_HEX_HEIGHT),
+    )
     const start = side * 4 // first vertex of this quad (4 vertices per quad; NOT indices.length, which grows by 6)
     indices.push(start, start + 1, start + 2, start, start + 2, start + 3)
   }
 
-  return buildGeometry(positions, kinds, directions, indices, instanceCount)
+  return buildGeometry(
+    positions,
+    kinds,
+    directions,
+    sideUVs,
+    indices,
+    instanceCount,
+  )
 }
 
 export function buildFluidGeometry(instanceCount: number) {
@@ -110,12 +138,15 @@ export function buildFluidGeometry(instanceCount: number) {
   const sideKinds = sides.getAttribute('landSurfaceKind').array
   const capDirections = cap.getAttribute('landDirection').array
   const sideDirections = sides.getAttribute('landDirection').array
+  const capUVs = cap.getAttribute('landSideUv').array
+  const sideUVs = sides.getAttribute('landSideUv').array
   const capIndices = cap.getIndex()?.array ?? []
   const sideIndices = sides.getIndex()?.array ?? []
   const capVertexCount = cap.getAttribute('position').count
   const positions = [...capPositions, ...sidePositions]
   const kinds = [...capKinds, ...sideKinds]
   const directions = [...capDirections, ...sideDirections]
+  const combinedUVs = [...capUVs, ...sideUVs]
   const indices = [
     ...capIndices,
     ...Array.from(sideIndices, (index) => index + capVertexCount),
@@ -123,13 +154,21 @@ export function buildFluidGeometry(instanceCount: number) {
   cap.dispose()
   sides.dispose()
 
-  return buildGeometry(positions, kinds, directions, indices, instanceCount)
+  return buildGeometry(
+    positions,
+    kinds,
+    directions,
+    combinedUVs,
+    indices,
+    instanceCount,
+  )
 }
 
 function buildGeometry(
   positions: number[],
   kinds: number[],
   directions: number[],
+  sideUVs: number[],
   indices: number[],
   instanceCount: number,
 ) {
@@ -140,6 +179,7 @@ function buildGeometry(
     'landDirection',
     new Float32BufferAttribute(directions, 1),
   )
+  geometry.setAttribute('landSideUv', new Float32BufferAttribute(sideUVs, 2))
   geometry.setIndex(indices)
   const attributes: [string, InstancedBufferAttribute][] = [
     [
@@ -151,11 +191,7 @@ function buildGeometry(
       new InstancedBufferAttribute(new Float32Array(instanceCount * 3), 3),
     ],
     [
-      'landSideMask',
-      new InstancedBufferAttribute(new Float32Array(instanceCount), 1),
-    ],
-    [
-      'landCapVisible',
+      'landVisibility',
       new InstancedBufferAttribute(new Float32Array(instanceCount), 1),
     ],
     [
@@ -163,12 +199,8 @@ function buildGeometry(
       new InstancedBufferAttribute(new Float32Array(instanceCount), 1),
     ],
     [
-      'capLayer',
-      new InstancedBufferAttribute(new Float32Array(instanceCount).fill(-1), 1),
-    ],
-    [
-      'sideLayer',
-      new InstancedBufferAttribute(new Float32Array(instanceCount).fill(-1), 1),
+      'landTextureData',
+      new InstancedBufferAttribute(new Float32Array(instanceCount * 3), 3),
     ],
     [
       'levels',
@@ -184,7 +216,16 @@ function buildGeometry(
   return geometry
 }
 
-function makeLandMaterial(isLightsAndShadowsRender: boolean, isFluid: boolean) {
+function glslFloat(value: number) {
+  return Number.isInteger(value) ? `${value}.0` : `${value}`
+}
+
+function makeLandMaterial(
+  isLightsAndShadowsRender: boolean,
+  isFluid: boolean,
+  capTexture?: DataArrayTexture,
+  sideTexture?: DataArrayTexture,
+) {
   const material = isLightsAndShadowsRender
     ? new MeshStandardMaterial()
     : new MeshMatcapMaterial()
@@ -193,24 +234,58 @@ function makeLandMaterial(isLightsAndShadowsRender: boolean, isFluid: boolean) {
     material.transparent = true
     material.opacity = 0.8
   }
+  const capTextureDeclaration = capTexture
+    ? 'uniform sampler2DArray uLandCapDiffuse;'
+    : ''
+  const sideTextureDeclaration = sideTexture
+    ? 'uniform sampler2DArray uLandSideDiffuse;'
+    : ''
+  const capTextureSample = capTexture
+    ? `if (vLandSurfaceKind > 0.5 && vLandTextureLayer >= 0.0) {
+           landTextureColor = texture(
+             uLandCapDiffuse,
+             vec3(vLandTextureUv, vLandTextureLayer)
+           ).rgb;
+         }`
+    : ''
+  const sideTextureSample = sideTexture
+    ? `if (vLandSurfaceKind < 0.5 && vLandTextureLayer >= 0.0) {
+           landTextureColor = texture(
+             uLandSideDiffuse,
+             vec3(vLandTextureUv, vLandTextureLayer)
+           ).rgb;
+         }`
+    : ''
   material.onBeforeCompile = (shader) => {
+    if (capTexture) {
+      shader.uniforms.uLandCapDiffuse = { value: capTexture }
+    }
+    if (sideTexture) {
+      shader.uniforms.uLandSideDiffuse = { value: sideTexture }
+    }
     shader.vertexShader = shader.vertexShader
       .replace(
         '#include <common>',
         `#include <common>
         attribute vec3 landCapColor;
         attribute vec3 landSideColor;
-        attribute float landSideMask;
-        attribute float landCapVisible;
+        attribute float landVisibility;
         attribute float landHighlight;
         attribute float landSurfaceKind;
         attribute float landDirection;
+        attribute vec2 landSideUv;
+        attribute vec3 landTextureData;
         varying vec3 vLandSurfaceColor;
-        varying float vLandHighlight;`,
+        varying float vLandHighlight;
+        varying vec2 vLandTextureUv;
+        varying float vLandTextureLayer;
+        varying float vLandSurfaceKind;`,
       )
       .replace(
         '#include <begin_vertex>',
         `#include <begin_vertex>
+        float landSideMask = mod(landVisibility, 64.0);
+        float landCapVisible = step(64.0, landVisibility);
         if (landSurfaceKind < 0.5) {
           float sideVisible = mod(
             floor(landSideMask / exp2(landDirection)),
@@ -224,26 +299,49 @@ function makeLandMaterial(isLightsAndShadowsRender: boolean, isFluid: boolean) {
           landSurfaceKind > 0.5 ? landCapColor : landSideColor;
         vLandHighlight = landSurfaceKind > 0.5
           ? mod(landHighlight, 2.0)
-          : step(2.0, landHighlight);`,
+          : step(2.0, landHighlight);
+        float capAngle = landTextureData.z * 1.0471975512;
+        vec2 capPosition = vec2(
+          position.x * cos(capAngle) + position.z * sin(capAngle),
+          -position.x * sin(capAngle) + position.z * cos(capAngle)
+        );
+        vLandTextureUv = landSurfaceKind > 0.5
+          ? vec2(
+              capPosition.x / ${glslFloat(Math.sqrt(3) * HEXGRID_HEX_RADIUS)} + 0.5,
+              capPosition.y / ${glslFloat(2 * HEXGRID_HEX_RADIUS)} + 0.5
+            )
+          : landSideUv;
+        vLandTextureLayer =
+          landSurfaceKind > 0.5 ? landTextureData.x : landTextureData.y;
+        vLandSurfaceKind = landSurfaceKind;`,
       )
     shader.fragmentShader = shader.fragmentShader
       .replace(
         '#include <common>',
         `#include <common>
         varying vec3 vLandSurfaceColor;
-        varying float vLandHighlight;`,
+        varying float vLandHighlight;
+        varying vec2 vLandTextureUv;
+        varying float vLandTextureLayer;
+        varying float vLandSurfaceKind;
+        ${capTextureDeclaration}
+        ${sideTextureDeclaration}`,
       )
       .replace(
         '#include <color_fragment>',
         `#include <color_fragment>
+        vec3 landTextureColor = vLandSurfaceColor;
+        ${capTextureSample}
+        ${sideTextureSample}
         diffuseColor.rgb = mix(
-          vLandSurfaceColor,
+          landTextureColor,
           vec3(1.0, 1.0, 0.0),
           vLandHighlight
         );`,
       )
   }
-  material.customProgramCacheKey = () => 'land-hex-instance-colors-v2'
+  material.customProgramCacheKey = () =>
+    `land-hex-instance-colors-v3-${Number(Boolean(capTexture))}-${Number(Boolean(sideTexture))}`
   return material
 }
 
@@ -263,11 +361,8 @@ function updateInstanceMesh(
   const sideColorAttribute = geometry.getAttribute(
     'landSideColor',
   ) as InstancedBufferAttribute
-  const sideMaskAttribute = geometry.getAttribute(
-    'landSideMask',
-  ) as InstancedBufferAttribute
-  const capVisibleAttribute = geometry.getAttribute(
-    'landCapVisible',
+  const visibilityAttribute = geometry.getAttribute(
+    'landVisibility',
   ) as InstancedBufferAttribute
   const highlightAttribute = geometry.getAttribute(
     'landHighlight',
@@ -275,11 +370,8 @@ function updateInstanceMesh(
   const levelsAttribute = geometry.getAttribute(
     'levels',
   ) as InstancedBufferAttribute
-  const capLayerAttribute = geometry.getAttribute(
-    'capLayer',
-  ) as InstancedBufferAttribute
-  const sideLayerAttribute = geometry.getAttribute(
-    'sideLayer',
+  const textureDataAttribute = geometry.getAttribute(
+    'landTextureData',
   ) as InstancedBufferAttribute
   const transform = new Object3D()
   const color = new Color()
@@ -288,15 +380,18 @@ function updateInstanceMesh(
   items.forEach((item, index) => {
     color.set(item.capColor).toArray(capColorAttribute.array, index * 3)
     color.set(item.sideColor).toArray(sideColorAttribute.array, index * 3)
-    sideMaskAttribute.setX(index, item.sideMask)
-    capVisibleAttribute.setX(index, Number(item.capVisible))
+    visibilityAttribute.setX(index, item.sideMask + (item.capVisible ? 64 : 0))
     highlightAttribute.setX(
       index,
       getFiniteLandHexHighlightValue(item, hovered, selectedIDs, surface),
     )
     levelsAttribute.setX(index, item.levels)
-    capLayerAttribute.setX(index, item.capLayer)
-    sideLayerAttribute.setX(index, item.sideLayer)
+    textureDataAttribute.setXYZ(
+      index,
+      item.capLayer,
+      item.sideLayer,
+      item.rotationSteps,
+    )
 
     transform.position.set(item.x, item.y, item.z)
     transform.scale.set(1, item.isFluid ? 0.5 : 1, 1)
@@ -307,12 +402,10 @@ function updateInstanceMesh(
   for (const attribute of [
     capColorAttribute,
     sideColorAttribute,
-    sideMaskAttribute,
-    capVisibleAttribute,
+    visibilityAttribute,
     highlightAttribute,
     levelsAttribute,
-    capLayerAttribute,
-    sideLayerAttribute,
+    textureDataAttribute,
   ]) {
     attribute.clearUpdateRanges()
     attribute.needsUpdate = true
@@ -387,20 +480,62 @@ function handleSideSelection(
 }
 
 export default function LandHexInstanced({
-  data,
+  boardHexes,
+  boardPieces,
+  viewingLevel,
+  genericColors,
   onPointerUpPaintPiece,
 }: {
-  data: LandHexInstanceDatum[]
+  boardHexes: BoardHexes
+  boardPieces: BoardPiece[]
+  viewingLevel: number
+  genericColors: GenericTerrainColorSettings
   onPointerUpPaintPiece: (
     event: ThreeEvent<PointerEvent>,
     hex: BoardHex,
   ) => void
 }) {
+  const effectiveGraphicsTier = useBoundStore((s) => s.effectiveGraphicsTier)
+  const textureLoadStatus = useBoundStore((s) => s.textureLoadStatus)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const isWebGL2 = useThree((state) => state.gl.capabilities.isWebGL2)
+  const textureArrays = React.useMemo(
+    () =>
+      textureLoadStatus === 'ready' && isWebGL2
+        ? getCachedTerrainTextureArrays(effectiveGraphicsTier)
+        : null,
+    [effectiveGraphicsTier, isWebGL2, textureLoadStatus],
+  )
+  const data = React.useMemo(
+    () =>
+      buildLandHexInstanceData(
+        boardHexes,
+        boardPieces,
+        viewingLevel,
+        genericColors,
+        textureArrays?.manifest,
+        effectiveGraphicsTier,
+      ),
+    [
+      boardHexes,
+      boardPieces,
+      effectiveGraphicsTier,
+      genericColors,
+      textureArrays,
+      viewingLevel,
+    ],
+  )
+  const capTexture =
+    textureArrays?.textures[
+      effectiveGraphicsTier === 'high'
+        ? 'caps-diffuse-pbr.png'
+        : 'caps-diffuse.png'
+    ]
+  const sideTexture = textureArrays?.textures['sides-diffuse.png']
   const { onPointerEnter, onPointerEnterPID, onPointerOut, onPointerMove } =
     usePieceHoverState({ trackIsHovered: false })
   const solidData = React.useMemo(
@@ -432,16 +567,29 @@ export default function LandHexInstanced({
     [fluidData.length],
   )
   const capMaterial = React.useMemo(
-    () => makeLandMaterial(isLightsAndShadowsRender, false),
-    [isLightsAndShadowsRender],
+    () =>
+      makeLandMaterial(
+        isLightsAndShadowsRender,
+        false,
+        capTexture,
+        sideTexture,
+      ),
+    [capTexture, isLightsAndShadowsRender, sideTexture],
   )
   const sideMaterial = React.useMemo(
-    () => makeLandMaterial(isLightsAndShadowsRender, false),
-    [isLightsAndShadowsRender],
+    () =>
+      makeLandMaterial(
+        isLightsAndShadowsRender,
+        false,
+        capTexture,
+        sideTexture,
+      ),
+    [capTexture, isLightsAndShadowsRender, sideTexture],
   )
   const fluidMaterial = React.useMemo(
-    () => makeLandMaterial(isLightsAndShadowsRender, true),
-    [isLightsAndShadowsRender],
+    () =>
+      makeLandMaterial(isLightsAndShadowsRender, true, capTexture, sideTexture),
+    [capTexture, isLightsAndShadowsRender, sideTexture],
   )
   React.useEffect(() => () => capGeometry.dispose(), [capGeometry])
   React.useEffect(() => () => sideGeometry.dispose(), [sideGeometry])

@@ -210,3 +210,116 @@ test('per-hex land pixels stay colored across lights and shadows toggles', async
     expect(snapshot?.selectedPieceIDs).toEqual([solidUID])
   }
 })
+
+test('diffuse textures survive tier and lighting changes', async ({ page }) => {
+  const errors: string[] = []
+  page.on('console', (message) => {
+    if (message.type() === 'error') errors.push(message.text())
+  })
+  page.on('pageerror', (error) => errors.push(error.message))
+
+  const map = mapUrl(FIXTURE_HEX_MAP, [...FIXTURE_PIECE_IDS, '0~2~3~0~w1'])
+  await page.goto(`${map}&perHexLand=1&graphicsTier=medium`)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+  await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+    'Textures ready',
+  )
+
+  const graphics = page.getByTestId('graphics-tier-select')
+  const lights = page.getByRole('checkbox', {
+    name: 'Render Lights and Shadows',
+  })
+  const grassUID = await findPieceUid(page, {
+    inventoryID: 'g1',
+    q: 0,
+    r: 2,
+  })
+  const waterUID = await findPieceUid(page, {
+    inventoryID: 'w1',
+    q: 2,
+    r: 3,
+  })
+  const camera = await page.evaluate(() => window.__TEST__?.cameraPose())
+  if (!camera) throw new Error('The e2e camera bridge is unavailable')
+  await page.evaluate(
+    ({ target }) =>
+      window.__TEST__?.setCamera(
+        [target[0] + 8, target[1] + 12, target[2] + 8],
+        target,
+      ),
+    camera,
+  )
+  await waitForAppReady(page)
+
+  const points = await page.evaluate(
+    ({ grassUID, waterUID }) => {
+      const bridge = window.__TEST__
+      if (!bridge) throw new Error('The e2e map bridge is unavailable')
+      const grass = bridge.screenPosOfPiece(grassUID)
+      const water = bridge.screenPosOfPiece(waterUID)
+      const background = bridge.screenPosOfHex({
+        q: 3,
+        r: 2,
+        altitude: 0,
+      })
+      if (!grass || !water || !background) {
+        throw new Error('A diffuse-texture sample point is not on screen')
+      }
+      return { grass, water, background }
+    },
+    { grassUID, waterUID },
+  )
+  const canvas = await page.locator('canvas').first().boundingBox()
+  if (!canvas) throw new Error('The WebGL canvas is not visible')
+
+  const expectTexturedCaps = async () => {
+    const colors = await sampleCanvasPoints(page, points)
+    expect(maxChannelDelta(colors.grass, [124, 154, 60])).toBeGreaterThan(20)
+    expect(maxChannelDelta(colors.water, [53, 162, 208])).toBeGreaterThan(20)
+  }
+  const expectVisibleTiles = async () => {
+    const colors = await sampleCanvasPoints(page, points)
+    expect(lightness(colors.grass)).toBeGreaterThan(35)
+    expect(maxChannelDelta(colors.grass, colors.background)).toBeGreaterThan(35)
+    expect(maxChannelDelta(colors.water, colors.background)).toBeGreaterThan(35)
+  }
+  const chooseTier = async (label: string) => {
+    await graphics.click()
+    await page.getByRole('option', { name: label }).click()
+    await waitForAppReady(page)
+  }
+
+  await expect(graphics).toContainText('Medium (textures)')
+  await expect(lights).not.toBeChecked()
+  await expectTexturedCaps()
+  await page.mouse.move(canvas.x + points.grass.x, canvas.y + points.grass.y)
+  await waitForAppReady(page)
+  const hovered = await sampleCanvasPoints(page, { grass: points.grass })
+  expect(maxChannelDelta(hovered.grass, [255, 255, 0])).toBeLessThan(80)
+
+  await chooseTier('Lowest')
+  await expectVisibleTiles()
+  await chooseTier('Medium (textures)')
+  await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+    'Textures ready',
+  )
+  await expectTexturedCaps()
+
+  await chooseTier('High (alternate caps)')
+  await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+    'Textures ready',
+  )
+  await expect(lights).toBeChecked()
+  await expectTexturedCaps()
+
+  await chooseTier('Lowest')
+  await expectVisibleTiles()
+  await lights.uncheck()
+  await waitForAppReady(page)
+  await expectVisibleTiles()
+  await lights.check()
+  await waitForAppReady(page)
+  await expectVisibleTiles()
+  expect(errors).toEqual([])
+})
