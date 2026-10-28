@@ -33,8 +33,17 @@ export default function ShadowMapInvalidator() {
         this: typeof shadowMap,
         ...args: Parameters<typeof originalRender>
       ) {
-        renderCount += 1
-        gl.domElement.dataset.shadowRenderCount = String(renderCount)
+        // three calls shadowMap.render every frame and returns early when
+        // nothing is dirty, so count only the calls that really draw shadows
+        const [lights] = args
+        const willRender =
+          this.enabled &&
+          (this.autoUpdate || this.needsUpdate) &&
+          lights.length > 0
+        if (willRender) {
+          renderCount += 1
+          gl.domElement.dataset.shadowRenderCount = String(renderCount)
+        }
         return originalRender.apply(this, args)
       }
       shadowMap.render = trackedRender
