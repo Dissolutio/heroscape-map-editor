@@ -25,7 +25,9 @@ test('refreshes shadows for a late piece mount but not for camera orbit', async 
 
   const shadowCount = async () =>
     Number(
-      await page.locator('canvas').getAttribute('data-shadow-render-count'),
+      await page
+        .locator('canvas[data-engine]')
+        .getAttribute('data-shadow-render-count'),
     )
   const beforePlacement = await shadowCount()
   await setPen(page, 'gn', 1)
