@@ -1,25 +1,26 @@
 Oct-27-2026
-TLDR: Add reusable Generic terrain pieces with customizable colors
+TLDR: Generic pieces. Buried piece markers. Asphalt isn't black on black. New release terrain kits, some new terrain. Better stackable Laur pieces. Drag and drop all multi-selected piece types. Spin the scroll wheel while dragging, to spin piece. Choose your pivot for rotations.
 
-- **Generic terrain pieces**: Add Generic solid and fluid hexes in the sizes you need, without requiring inventory counts or terrain-set records. Choose separate cap and side colors for solid and fluid Generic terrain in the View tab; these colors are saved with your settings and used in 3D, 2D, PDF, and SVG views.
-- **Generic terrain export colors**: Generic terrain now keeps its correct colors at sub-levels in 2D, PDF, and SVG output.
+The goal with the latest changes, before textures come in and maybe cause bugs, is to make map-building FASTER. More to come after we polish the looks a little bit.
+
+- **Generic terrain pieces**: Add Generic solid and fluid hexes in the sizes you need, without requiring inventory counts or terrain-set records. Choose separate cap and side colors for solid and fluid Generic terrain in the View tab; these colors are saved with your settings and used in 3D, 2D, and PDF views.
 - **Buried-tile marks in build instructions**: Optional marks identify land tiles whose tops or sides will be covered. Turn them on separately for PDF and 2D/SVG exports; PDF marks use superscripts and have improved spacing.
-- **Laur add-on placement feedback**: Laur wall add-ons can be placed freely, while previews show whether they are supported or conflicted. When placing over a compatible pillar, rotation can snap to its ports.
-- **Laur add-on footprints and stacking**: Placement previews and conflict checks now account for add-on footprints, pillar support, and valid stacking, including measured piece heights and stacking increments. Unsupported add-ons remain placeable and are shown with a warning.
-- **What's New dialog**: See release notes for updates since your last visit. Release versions are now generated from the dated release notes.
-- **Safari stale-file recovery**: If Safari loads a stale app file after an update, the app automatically retries once instead of leaving a broken screen.
-- **Drag more pieces**: Laur pillars and wall add-ons, battlements, road walls, rope ladders, start zones and ladders can now be dragged, alone or several selected together. Dragging a ladder moves it and every ladder stacked above it. Conflicted Laur add-ons can be dragged too, so you can fix them.
-- **Rotate a selection around a pivot hex**: With one or more pieces selected, the rotate buttons turn them together, 60 degrees at a time, around a cyan hex marker. Click a different hex of the last selected piece to move the pivot. A rotation that would not fit is refused.
+- **Laur add-on placement feedback**: Laur wall add-ons, when you are placing them, try hovering around the hex you want to place in. The algo should be smart about where the piece is going to go.
+- **Laur add-on footprints and stacking**: More color feedback to advise you as you build.
+- **What's New dialog**: See release notes for updates since your last visit.
+- **Safari stale-file recovery**: Safari was breaking sometimes when Hexoscape updated, that should stop.
+- **Drag more pieces**: Laur pillars and wall add-ons, battlements, road walls, rope ladders, start zones and ladders can now be dragged, alone or several selected together. Dragging a ladder moves it and every ladder stacked above it.
+- **Rotate a selection around a pivot hex**: With one or more pieces selected, the rotate buttons turn them together, 60 degrees at a time, around a cyan hex marker. Click a different hex of the last selected piece to move the pivot. If it cannot fit, it won't rotate.
 - **Rotate while you drag**: Scroll the mouse wheel while dragging to rotate the piece or group around the part you are holding. Ladders rotate to face the side of the hex your pointer is on.
 - **Hide start zones in 3D**: A new switch in the View tab hides start zones in the 3D view, handy for photos. They come back on every visit, so nobody loses their zones by accident.
 - **Maps grow to fit on load**: If a loaded map has pieces hanging past its edge, the map grows to fit and tells you. Pieces absurdly far away are left out with a warning instead of freezing the app.
-- **Stackable Laur pen modes**: The stackable pillar, short wall and long wall each have their own pen mode. Placing a regular pillar or wall on a stack switches to the stackable version for you, with Undo.
-- **Laur symbols in exports**: Stackable walls, ruins 2 and 3 and the stackable pillar now show up in 2D and PDF build instructions.
+- **Stackable Laur pen modes**: The stackable pillar, short wall and long wall each have their own pen mode. Placing a regular pillar or wall on a stack switches to the stackable version for you.
+- **Laur symbols in exports**: Stackable walls, ruins 2 and 3 and the stackable pillar now show up in 2D and PDF build instructions. Ruins 2 and 3 (the Ruinds at Laur's Edge variants) still need 3D models, but we're getting closer to a full distinction. Note: The original Laur ruins variant from AoA can physically stack, the 2 new ones from RALE physically cannot.
 - **Asphalt border in PDF**: With colored outlines turned off, Asphalt gets a readable gray border instead of black on black.
 - **View tab tidy-up**: Long explanations moved into tooltips, and the camera options only show in the 3D view.
-- **New map dialog**: Create New Map now asks for the author and notes, like Edit Map Details, with an optional "Remember my name for new maps".
+- **New map dialog**: Create New Map now asks for the author and notes, like Edit Map Details, with an optional "Remember my name for new maps"
 - **New terrain: Toxic Wastelands of Valhalla, Tournament Organizer Terrain Kit 2, Organized Play Expeditions Kits Promo**: Pick them in your terrain constraints. New pieces: the 3-hex Toxic tile and Toxic Rock Outcrops (1 and 3).
-- **Under the hood**: Dev, security, and tidiness.
+- **Under the hood**: Tests, security, and tidiness.
 
 Oct-18-2026
 TLDR: Click and drag *most* pieces, including multi-selected pieces. Better piece previews. Saved user settings.
