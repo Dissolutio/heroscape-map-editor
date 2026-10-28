@@ -95,6 +95,18 @@ describe('safe localStorage access', () => {
     expect(console.warn).toHaveBeenCalledTimes(3)
   })
 
+  it('silently handles missing storage in Node', () => {
+    vi.stubGlobal('localStorage', undefined)
+    expect(safeGetJSON('test', 'fallback')).toBe('fallback')
+    expect(safeHasItem('test')).toBeNull()
+    expect(safeSetItem('test', 'value')).toEqual({
+      ok: false,
+      quota: false,
+    })
+    expect(safeRemove('test')).toBe(false)
+    expect(console.warn).not.toHaveBeenCalled()
+  })
+
   it('guards access to the localStorage property itself', () => {
     vi.stubGlobal('localStorage', undefined)
     Object.defineProperty(globalThis, 'localStorage', {
