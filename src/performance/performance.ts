@@ -10,9 +10,16 @@ import {
 import useBoundStore from '../store/store'
 import { getTerrainTextureArrayStats } from '../world/textures/terrainTextureArrays'
 import { getTrackedStoreSubscribers } from './performanceFlags'
+import {
+  getPerformanceTimingTotals,
+  resetPerformanceTimingTotals,
+  startPerformanceTiming,
+  finishPerformanceTiming,
+} from './performanceTiming'
 
 export {
   isPerformanceBenchmark,
+  isPerformanceEventsDisabled,
   isPerformanceEnabled,
   performanceSeconds,
 } from './performanceFlags'
@@ -30,6 +37,13 @@ export type PerformanceSnapshot = {
   storeUpdatesPerSecond: number
   pointerEventsPerSecond: number
   raycastMsPerPointerMove: number
+  pointerEventMsPerPointerMove: number
+  r3fDispatchMsPerPointerMove: number
+  appPointerHandlerMsPerPointerMove: number
+  r3fBookkeepingMsPerPointerMove: number
+  pointerOtherMsPerPointerMove: number
+  dragControllerMsPerPointerMove: number
+  hoverStoreWriteMsPerPointerMove: number
   reactCommitsPerSecond: number
   reactRenderMsPerSecond: number
   sceneObjects: number
@@ -90,7 +104,11 @@ let lastPointerEvents = 0
 let lastRaycastTimeMs = 0
 let lastReactCommits = 0
 let lastReactRenderTimeMs = 0
+let lastTimingTotals: Record<string, number> = {}
+let pointerMoveStartedAt: number | null = null
 const drawCallTotals = new Map<string, DrawCallSource>()
+const drawCallFrameTotals = new Map<string, DrawCallSource>()
+let drawCallFrames = 0
 const instrumentedMeshes = new Set<Mesh>()
 const originalOnBeforeRender = new WeakMap<Mesh, Mesh['onBeforeRender']>()
 
@@ -153,14 +171,14 @@ function instrumentDrawCallSources(scene: Scene) {
       group,
     ) {
       const source = getPieceSource(this)
-      const total = drawCallTotals.get(source) ?? {
+      const total = drawCallFrameTotals.get(source) ?? {
         source,
         drawCalls: 0,
         triangles: 0,
       }
       total.drawCalls += 1
       total.triangles += getDrawTriangles(this, group)
-      drawCallTotals.set(source, total)
+      drawCallFrameTotals.set(source, total)
       original.call(
         this,
         renderer,
@@ -172,6 +190,22 @@ function instrumentDrawCallSources(scene: Scene) {
       )
     }
   })
+}
+
+function finishDrawCallFrame() {
+  if (drawCallFrameTotals.size === 0) return
+  for (const [source, frame] of drawCallFrameTotals) {
+    const total = drawCallTotals.get(source) ?? {
+      source,
+      drawCalls: 0,
+      triangles: 0,
+    }
+    total.drawCalls += frame.drawCalls
+    total.triangles += frame.triangles
+    drawCallTotals.set(source, total)
+  }
+  drawCallFrames += 1
+  drawCallFrameTotals.clear()
 }
 
 export function getSceneMemoryStats(scene: Scene) {
@@ -202,6 +236,7 @@ export function getSceneMemoryStats(scene: Scene) {
       instanceMeshCount += 1
       addArrayBytes(mesh.instanceMatrix.array, instanceMatrixBuffers)
       if (mesh.instanceColor) {
+        instanceAttributeCount += 1
         addArrayBytes(mesh.instanceColor.array, instanceAttributeBuffers)
       }
     }
@@ -253,7 +288,11 @@ export function startPerformanceCollection(
   scene: Scene,
 ) {
   drawCallTotals.clear()
+  drawCallFrameTotals.clear()
+  drawCallFrames = 0
   instrumentedMeshes.clear()
+  resetPerformanceTimingTotals()
+  lastTimingTotals = {}
   frameTimes = []
   previousFrameTime = undefined
   storeUpdates = 0
@@ -270,10 +309,18 @@ export function startPerformanceCollection(
   pendingTimers = new Set()
   pendingAnimationFrames = new Set()
 
-  const onPointerMove = () => {
+  const onPointerMoveCapture = (event: PointerEvent) => {
+    if (event.target !== canvas) return
     pointerEvents += 1
+    pointerMoveStartedAt = startPerformanceTiming()
   }
-  canvas.addEventListener('pointermove', onPointerMove, true)
+  const onPointerMoveBubble = (event: PointerEvent) => {
+    if (event.target !== canvas) return
+    finishPerformanceTiming('pointer.event', pointerMoveStartedAt)
+    pointerMoveStartedAt = null
+  }
+  window.addEventListener('pointermove', onPointerMoveCapture, true)
+  window.addEventListener('pointermove', onPointerMoveBubble)
   const unsubscribe = useBoundStore.subscribe(recordStoreUpdate)
 
   const originalIntersectObject = Raycaster.prototype.intersectObject
@@ -365,6 +412,7 @@ export function startPerformanceCollection(
   window.cancelAnimationFrame = cancelAnimationFrameWithTracking
 
   const sampleFrame = (now: number) => {
+    finishDrawCallFrame()
     if (previousFrameTime !== undefined) {
       frameTimes.push(now - previousFrameTime)
       if (frameTimes.length > 12000) frameTimes.shift()
@@ -383,6 +431,7 @@ export function startPerformanceCollection(
   }
 
   const takeSnapshot = (): PerformanceSnapshot => {
+    finishDrawCallFrame()
     instrumentDrawCallSources(scene)
     const now = performance.now()
     const elapsedSeconds = Math.max((now - lastSnapshotAt) / 1000, 0.001)
@@ -401,6 +450,18 @@ export function startPerformanceCollection(
             }
           ).memory?.usedJSHeapSize
         : undefined
+    const timingTotals = getPerformanceTimingTotals()
+    const pointerMoveCount = Math.max(pointerEvents - lastPointerEvents, 1)
+    const timingDelta = (name: string) =>
+      (timingTotals[name] ?? 0) - (lastTimingTotals[name] ?? 0)
+    const pointerEventMsPerPointerMove =
+      timingDelta('pointer.event') / pointerMoveCount
+    const r3fDispatchMsPerPointerMove =
+      timingDelta('r3f.pointerMove') / pointerMoveCount
+    const appPointerHandlerMsPerPointerMove =
+      timingDelta('app.pointerHandler') / pointerMoveCount
+    const raycastMsPerPointerMove =
+      (raycastTimeMs - lastRaycastTimeMs) / pointerMoveCount
     const snapshot: PerformanceSnapshot = {
       fps: frameAverageMs ? 1000 / frameAverageMs : 0,
       frameAverageMs,
@@ -414,9 +475,26 @@ export function startPerformanceCollection(
       storeUpdatesPerSecond: (storeUpdates - lastStoreUpdates) / elapsedSeconds,
       pointerEventsPerSecond:
         (pointerEvents - lastPointerEvents) / elapsedSeconds,
-      raycastMsPerPointerMove:
-        (raycastTimeMs - lastRaycastTimeMs) /
-        Math.max(pointerEvents - lastPointerEvents, 1),
+      raycastMsPerPointerMove,
+      pointerEventMsPerPointerMove,
+      r3fDispatchMsPerPointerMove,
+      appPointerHandlerMsPerPointerMove,
+      r3fBookkeepingMsPerPointerMove: Math.max(
+        0,
+        r3fDispatchMsPerPointerMove -
+          raycastMsPerPointerMove -
+          appPointerHandlerMsPerPointerMove,
+      ),
+      pointerOtherMsPerPointerMove: Math.max(
+        0,
+        pointerEventMsPerPointerMove - r3fDispatchMsPerPointerMove,
+      ),
+      dragControllerMsPerPointerMove:
+        (timingDelta('drag.pointerMoveCapture') +
+          timingDelta('drag.pointerMove')) /
+        pointerMoveCount,
+      hoverStoreWriteMsPerPointerMove:
+        timingDelta('store.toggleHoveredWorldPoint') / pointerMoveCount,
       reactCommitsPerSecond: (reactCommits - lastReactCommits) / elapsedSeconds,
       reactRenderMsPerSecond:
         (reactRenderTimeMs - lastReactRenderTimeMs) / elapsedSeconds,
@@ -435,6 +513,11 @@ export function startPerformanceCollection(
       manifestBytes: getTerrainTextureArrayStats().manifestBytes,
       textureArrayCount: getTerrainTextureArrayStats().textureArrayCount,
       topDrawCallSources: [...drawCallTotals.values()]
+        .map((source) => ({
+          ...source,
+          drawCalls: source.drawCalls / Math.max(drawCallFrames, 1),
+          triangles: source.triangles / Math.max(drawCallFrames, 1),
+        }))
         .sort((a, b) => b.drawCalls - a.drawCalls)
         .slice(0, 15),
     }
@@ -444,6 +527,7 @@ export function startPerformanceCollection(
     lastRaycastTimeMs = raycastTimeMs
     lastReactCommits = reactCommits
     lastReactRenderTimeMs = reactRenderTimeMs
+    lastTimingTotals = timingTotals
     return snapshot
   }
 
@@ -451,7 +535,11 @@ export function startPerformanceCollection(
     sampleFrame,
     takeSnapshot,
     instrumentDrawCallSources: () => instrumentDrawCallSources(scene),
-    resetDrawCallSources: () => drawCallTotals.clear(),
+    resetDrawCallSources: () => {
+      drawCallTotals.clear()
+      drawCallFrameTotals.clear()
+      drawCallFrames = 0
+    },
     frameStatsSince: (start: number) => {
       const values = frameTimes.slice(start)
       if (!values.length) return { averageMs: 0, p95Ms: 0, count: 0 }
@@ -466,13 +554,23 @@ export function startPerformanceCollection(
         count: values.length,
       }
     },
-    counterTotals: () => ({
-      storeUpdates,
-      pointerEvents,
-      raycastTimeMs,
-      reactCommits,
-      reactRenderTimeMs,
-    }),
+    counterTotals: () => {
+      const timings = getPerformanceTimingTotals()
+      return {
+        storeUpdates,
+        pointerEvents,
+        raycastTimeMs,
+        reactCommits,
+        reactRenderTimeMs,
+        pointerEventMs: timings['pointer.event'] ?? 0,
+        r3fDispatchMs: timings['r3f.pointerMove'] ?? 0,
+        appPointerHandlerMs: timings['app.pointerHandler'] ?? 0,
+        dragControllerMs:
+          (timings['drag.pointerMoveCapture'] ?? 0) +
+          (timings['drag.pointerMove'] ?? 0),
+        hoverStoreWriteMs: timings['store.toggleHoveredWorldPoint'] ?? 0,
+      }
+    },
     frameCount: () => frameTimes.length,
     stop: () => {
       for (const mesh of instrumentedMeshes) {
@@ -483,7 +581,8 @@ export function startPerformanceCollection(
         originalOnBeforeRender.delete(mesh)
       }
       instrumentedMeshes.clear()
-      canvas.removeEventListener('pointermove', onPointerMove, true)
+      window.removeEventListener('pointermove', onPointerMoveCapture, true)
+      window.removeEventListener('pointermove', onPointerMoveBubble)
       unsubscribe()
       if (Raycaster.prototype.intersectObject === timedIntersectObject) {
         Raycaster.prototype.intersectObject = originalIntersectObject

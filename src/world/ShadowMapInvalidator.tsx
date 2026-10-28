@@ -6,6 +6,7 @@ import { isE2EDeterministic } from '../e2e/isE2E'
 import {
   requestShadowUpdate,
   shouldInvalidateShadowMap,
+  subscribeToModelMounts,
   updateShadowSettleWindow,
 } from './shadowInvalidation'
 
@@ -38,6 +39,10 @@ export default function ShadowMapInvalidator() {
         noteShadowTrigger(gl, `store:${changed.join(',')}`)
         requestShadowUpdate(shadowMap, settleWindow.current)
       }
+    })
+    const unsubscribeModelMounts = subscribeToModelMounts(window, () => {
+      noteShadowTrigger(gl, 'model-mount')
+      requestShadowUpdate(shadowMap, settleWindow.current)
     })
 
     let restoreRender: (() => void) | undefined
@@ -72,6 +77,7 @@ export default function ShadowMapInvalidator() {
 
     return () => {
       unsubscribe()
+      unsubscribeModelMounts()
       restoreRender?.()
       shadowMap.autoUpdate = originalAutoUpdate
       requestShadowUpdate(shadowMap, settleWindow.current)

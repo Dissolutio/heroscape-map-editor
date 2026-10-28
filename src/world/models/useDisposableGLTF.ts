@@ -1,5 +1,6 @@
 import { useGLTF } from '@react-three/drei'
 import { useEffect } from 'react'
+import { notifyModelMounted } from '../shadowInvalidation'
 
 // Track active hook consumers per GLTF path so we only dispose once the last one unmounts.
 const gltfRefCounts = new Map<string, number>()
@@ -54,6 +55,7 @@ export function useDisposableGLTF(...args: Parameters<typeof useGLTF>) {
   const cacheKey = makeCacheKey(path)
 
   useEffect(() => {
+    if (typeof window !== 'undefined') notifyModelMounted(window)
     // Register one active consumer for this model path.
     gltfRefCounts.set(cacheKey, (gltfRefCounts.get(cacheKey) ?? 0) + 1)
     pendingDisposals.delete(cacheKey)

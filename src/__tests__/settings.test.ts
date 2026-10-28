@@ -62,6 +62,7 @@ describe('settings persistence', () => {
       ...SETTINGS_DEFAULTS,
       graphicsTier: 'high' as const,
       isOrthoCam: false,
+      useHighQualityForPicture: true,
       isShowPdfBuriedMarks: true,
       isShow2DExportBuriedMarks: true,
       lightPositions: { key: [1, 2, 3] as [number, number, number] },
@@ -76,6 +77,7 @@ describe('settings persistence', () => {
       v: 1,
       values: {
         isOrthoCam: false,
+        useHighQualityForPicture: true,
         graphicsTier: 'high' as const,
         isShowPdfBuriedMarks: true,
         isShow2DExportBuriedMarks: true,

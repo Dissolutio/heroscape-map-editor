@@ -24,6 +24,7 @@ export type SettingsValues = {
   isShowLightControls: boolean
   isTopOutlinedInterlockHexes: boolean
   isHighQualityRender: boolean
+  useHighQualityForPicture: boolean
   isDisplayCapHeights: boolean
   isHideTableTop: boolean
   useLegacyStartZones: boolean
@@ -60,6 +61,7 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   isShowLightControls: true,
   isTopOutlinedInterlockHexes: true,
   isHighQualityRender: false,
+  useHighQualityForPicture: false,
   isDisplayCapHeights: false,
   isHideTableTop: false,
   useLegacyStartZones: false,
@@ -159,6 +161,7 @@ const validSettingValue = (
       'isShowLightControls',
       'isTopOutlinedInterlockHexes',
       'isHighQualityRender',
+      'useHighQualityForPicture',
       'isDisplayCapHeights',
       'isHideTableTop',
       'useLegacyStartZones',

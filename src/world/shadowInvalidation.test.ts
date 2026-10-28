@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   invalidateShadowMap,
+  notifyModelMounted,
   requestShadowUpdate,
   SHADOW_SETTLE_FRAMES,
   shouldInvalidateShadowMap,
+  subscribeToModelMounts,
   type ShadowRelevantState,
   updateShadowSettleWindow,
 } from './shadowInvalidation'
@@ -60,6 +62,21 @@ describe('static shadow map invalidation', () => {
     const shadowMap = { needsUpdate: false }
     invalidateShadowMap(shadowMap)
     expect(shadowMap.needsUpdate).toBe(true)
+  })
+
+  it('requests a refresh when a preloaded model mounts after loading is idle', () => {
+    const shadowMap = { needsUpdate: false }
+    const window = { framesRemaining: 0 }
+    const eventTarget = new EventTarget()
+    const unsubscribe = subscribeToModelMounts(eventTarget, () =>
+      requestShadowUpdate(shadowMap, window),
+    )
+
+    notifyModelMounted(eventTarget)
+
+    expect(shadowMap.needsUpdate).toBe(true)
+    expect(window.framesRemaining).toBe(SHADOW_SETTLE_FRAMES)
+    unsubscribe()
   })
 
   it('keeps shadows dirty across settling frames and pending model loads', () => {

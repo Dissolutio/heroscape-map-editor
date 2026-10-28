@@ -9,6 +9,8 @@ const query = (() => {
 })()
 
 export const isPerformanceEnabled = query.get('perf') === '1'
+export const isPerformanceEventsDisabled =
+  isPerformanceEnabled && query.get('perfNoEvents') === '1'
 export const isPerformanceBenchmark = query.get('bench') === '1'
 export const performanceSeconds = (() => {
   const parsed = Number(query.get('perfSeconds'))

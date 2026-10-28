@@ -1,6 +1,10 @@
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import useBoundStore from '../store/store'
+import {
+  finishPerformanceTiming,
+  startPerformanceTiming,
+} from '../performance/performanceTiming'
 import type { BoardHex } from '../types'
 import { isDragPassThrough, isDragging } from '../world/drag/dragController'
 import {
@@ -71,43 +75,63 @@ export default function usePieceHoverState({
   )
 
   const onPointerEnter = (e: ThreeEvent<PointerEvent>, boardHex: BoardHex) => {
-    // the pointer sees through a piece being dragged (no stopPropagation)
-    if (isDragPassThrough(boardHex.boardPieceUID)) return
-    if (!isDragging()) e.stopPropagation()
-    const point = { x: e.point.x, z: e.point.z }
-    if (trackIsHovered) setIsHovered(true)
-    if (hoverTimeout.current !== null) {
-      window.clearTimeout(hoverTimeout.current)
-    }
-    hoverTimeout.current = window.setTimeout(() => {
-      hoverTimeout.current = null
-      toggleHoveredPieceID(boardHex.boardPieceUID ?? '')
-      toggleHoveredHex(boardHex)
-      if (shouldTrackHoveredWorldPoint(useBoundStore.getState().penMode)) {
-        scheduleWorldPoint(point)
+    const startedAt = startPerformanceTiming()
+    try {
+      // the pointer sees through a piece being dragged (no stopPropagation)
+      if (isDragPassThrough(boardHex.boardPieceUID)) return
+      if (!isDragging()) e.stopPropagation()
+      const point = { x: e.point.x, z: e.point.z }
+      if (trackIsHovered) setIsHovered(true)
+      if (hoverTimeout.current !== null) {
+        window.clearTimeout(hoverTimeout.current)
       }
-    }, 50) // Adjust the delay (in milliseconds) as needed
+      hoverTimeout.current = window.setTimeout(() => {
+        hoverTimeout.current = null
+        toggleHoveredPieceID(boardHex.boardPieceUID ?? '')
+        toggleHoveredHex(boardHex)
+        if (shouldTrackHoveredWorldPoint(useBoundStore.getState().penMode)) {
+          scheduleWorldPoint(point)
+        }
+      }, 50) // Adjust the delay (in milliseconds) as needed
+    } finally {
+      finishPerformanceTiming('app.pointerHandler', startedAt)
+    }
   }
   const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
-    scheduleWorldPoint({ x: e.point.x, z: e.point.z })
+    const startedAt = startPerformanceTiming()
+    try {
+      scheduleWorldPoint({ x: e.point.x, z: e.point.z })
+    } finally {
+      finishPerformanceTiming('app.pointerHandler', startedAt)
+    }
   }
   const onPointerEnterPID = (e: ThreeEvent<PointerEvent>, pid: string) => {
-    if (isDragPassThrough(pid)) return
-    if (!isDragging()) e.stopPropagation()
-    if (trackIsHovered) setIsHovered(true)
-    if (hoverTimeout.current !== null) {
-      window.clearTimeout(hoverTimeout.current)
+    const startedAt = startPerformanceTiming()
+    try {
+      if (isDragPassThrough(pid)) return
+      if (!isDragging()) e.stopPropagation()
+      if (trackIsHovered) setIsHovered(true)
+      if (hoverTimeout.current !== null) {
+        window.clearTimeout(hoverTimeout.current)
+      }
+      hoverTimeout.current = window.setTimeout(() => {
+        hoverTimeout.current = null
+        toggleHoveredPieceID(pid)
+      }, 50) // Adjust the delay (in milliseconds) as needed
+    } finally {
+      finishPerformanceTiming('app.pointerHandler', startedAt)
     }
-    hoverTimeout.current = window.setTimeout(() => {
-      hoverTimeout.current = null
-      toggleHoveredPieceID(pid)
-    }, 50) // Adjust the delay (in milliseconds) as needed
   }
   const onPointerOut = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation()
-    if (trackIsHovered) setIsHovered(false)
-    toggleHoveredHex(undefined)
-    cancelHoverWork()
+    const startedAt = startPerformanceTiming()
+    try {
+      e.stopPropagation()
+      if (trackIsHovered) setIsHovered(false)
+      toggleHoveredHex(undefined)
+      cancelHoverWork()
+    } finally {
+      finishPerformanceTiming('app.pointerHandler', startedAt)
+    }
   }
   return {
     isHovered,
