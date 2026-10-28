@@ -10,34 +10,37 @@ import {
   settingsChanged,
 } from '../local-storage/settings'
 import { safeRemove, safeSetItem } from '../local-storage/safeStorage'
+import { trackStoreSubscriptions } from '../performance/performanceFlags'
 import createMapSlice, { type MapSlice } from './map-slice'
 import createUISlice, { type UISlice } from './ui-slice'
 
 export type AppState = MapSlice & UISlice
 
 const useBoundStore = create<AppState>()(
-  temporal(
-    (...a) => ({
-      ...createMapSlice(...a),
-      ...createUISlice(...a),
-    }),
-    // undo/redo config object
-    {
-      limit: 30,
-      // onSave: (state) => console.log('saved', state),
-      partialize: (state) => {
-        return {
-          boardHexes: state.boardHexes,
-          boardPieces: state.boardPieces,
-          hexMap: state.hexMap,
-          viewingLevel: state.viewingLevel,
-        }
+  trackStoreSubscriptions(
+    temporal(
+      (...a) => ({
+        ...createMapSlice(...a),
+        ...createUISlice(...a),
+      }),
+      // undo/redo config object
+      {
+        limit: 30,
+        // onSave: (state) => console.log('saved', state),
+        partialize: (state) => {
+          return {
+            boardHexes: state.boardHexes,
+            boardPieces: state.boardPieces,
+            hexMap: state.hexMap,
+            viewingLevel: state.viewingLevel,
+          }
+        },
+        equality: (pastState, currentState) =>
+          isEqual(pastState.boardHexes, currentState.boardHexes) &&
+          isEqual(pastState.boardPieces, currentState.boardPieces) &&
+          isEqual(pastState.hexMap, currentState.hexMap),
       },
-      equality: (pastState, currentState) =>
-        isEqual(pastState.boardHexes, currentState.boardHexes) &&
-        isEqual(pastState.boardPieces, currentState.boardPieces) &&
-        isEqual(pastState.hexMap, currentState.hexMap),
-    },
+    ),
   ),
 )
 

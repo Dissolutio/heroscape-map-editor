@@ -33,6 +33,17 @@ continues to use the current path.
 For tier-start coverage, `&graphicsTier=medium` or `&graphicsTier=high` selects
 the initial tier only when both `e2e=1` and `perHexLand=1` are present.
 
+Add `&perf=1` to show the performance overlay in both development and production
+builds. It samples frame-time average/p95, FPS, renderer resources, heap when
+available, store updates, pointer moves, raycast time, and pending async work.
+`&perf=1&bench=1` starts the benchmark once per browser session. The overlay's
+Run button measures camera orbit and synthetic pointer sweep for the currently
+selected renderer with lights off/on; `&perHexLand=1` also adds Medium when its
+textures load. `&perfSeconds=N` sets each phase length (1–60 seconds; default
+2). Use Copy JSON to collect the report. The 120-second leak sweep is a separate
+button in the overlay. These timings are software-rendering comparisons, not
+real-device FPS.
+
 The automatic What's New dialog is suppressed for `?e2e=1` runs. A test that
 needs to exercise it can explicitly opt in with `&whats-new=1`. The ordinary
 What's New button remains available in e2e runs.
@@ -184,6 +195,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | View tooltips, camera visibility, and new-map author details | `e2e/ui-polish.spec.ts` |
 | Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |
 | Lazy Graphics tier texture loading in per-hex land mode | `e2e/graphics-tier.spec.ts` |
+| Opt-in performance overlay | `e2e/performance.spec.ts` |
 
 The map-settle tracker also feeds the app's startup UI in normal runs. The
 window bridge, hidden status element, deterministic rotation, and other
