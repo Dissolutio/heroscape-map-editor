@@ -10,10 +10,7 @@ import {
 } from './shadowInvalidation'
 
 // e2e only: records why a shadow update was requested, so a failing test can say
-function noteShadowTrigger(
-  gl: { domElement: HTMLCanvasElement },
-  why: string,
-) {
+function noteShadowTrigger(gl: { domElement: HTMLCanvasElement }, why: string) {
   if (!isE2EDeterministic) return
   const list = JSON.parse(gl.domElement.dataset.shadowTriggers ?? '[]')
   list.push(why)
