@@ -1,0 +1,59 @@
+export type ShadowRelevantState = {
+  boardHexes: unknown
+  boardPieces: unknown
+  hexMap: unknown
+  lightPositions: unknown
+  viewingLevel: number
+  isLightsAndShadowsRender: boolean
+  graphicsTier: string
+  effectiveGraphicsTier: string
+  isShowStartZones: boolean
+}
+
+export type ShadowUpdateWindow = {
+  framesRemaining: number
+}
+
+export const SHADOW_SETTLE_FRAMES = 3
+
+export function shouldInvalidateShadowMap(
+  previous: ShadowRelevantState,
+  current: ShadowRelevantState,
+) {
+  return (
+    previous.boardHexes !== current.boardHexes ||
+    previous.boardPieces !== current.boardPieces ||
+    previous.hexMap !== current.hexMap ||
+    previous.lightPositions !== current.lightPositions ||
+    previous.viewingLevel !== current.viewingLevel ||
+    previous.isLightsAndShadowsRender !== current.isLightsAndShadowsRender ||
+    previous.graphicsTier !== current.graphicsTier ||
+    previous.effectiveGraphicsTier !== current.effectiveGraphicsTier ||
+    previous.isShowStartZones !== current.isShowStartZones
+  )
+}
+
+export function invalidateShadowMap(shadowMap: { needsUpdate: boolean }) {
+  shadowMap.needsUpdate = true
+}
+
+export function requestShadowUpdate(
+  shadowMap: { needsUpdate: boolean },
+  window: ShadowUpdateWindow,
+) {
+  window.framesRemaining = SHADOW_SETTLE_FRAMES
+  invalidateShadowMap(shadowMap)
+}
+
+export function updateShadowSettleWindow(
+  shadowMap: { needsUpdate: boolean },
+  window: ShadowUpdateWindow,
+  hasPendingLoads: boolean,
+) {
+  if (hasPendingLoads) {
+    window.framesRemaining = SHADOW_SETTLE_FRAMES
+  }
+  if (window.framesRemaining === 0) return
+  invalidateShadowMap(shadowMap)
+  window.framesRemaining -= 1
+}

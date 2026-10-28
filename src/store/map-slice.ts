@@ -1,4 +1,5 @@
 import { produce } from 'immer'
+import { isEqual } from 'lodash'
 import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
@@ -484,6 +485,16 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     }),
   loadMap: (mapState, options = {}) => {
     clearGlobalMaterialCache()
+    const current = get()
+    const boardPieces = isEqual(current.boardPieces, mapState.boardPieces)
+      ? current.boardPieces
+      : mapState.boardPieces
+    const boardHexes = isEqual(current.boardHexes, mapState.boardHexes)
+      ? current.boardHexes
+      : mapState.boardHexes
+    const hexMap = isEqual(current.hexMap, mapState.hexMap)
+      ? current.hexMap
+      : mapState.hexMap
     const result = set((state) => {
       return produce(state, (draft) => {
         const piecesBeforeLoad = draft.boardPieces
@@ -503,9 +514,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
             draft.hoveredPieceID = ''
           }
         }
-        draft.boardHexes = mapState.boardHexes
-        draft.hexMap = mapState.hexMap
-        draft.boardPieces = mapState.boardPieces
+        draft.boardHexes = boardHexes
+        draft.hexMap = hexMap
+        draft.boardPieces = boardPieces
         draft.rotationPivot = null
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           mapState.boardPieces,

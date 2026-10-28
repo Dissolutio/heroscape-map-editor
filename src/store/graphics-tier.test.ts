@@ -108,4 +108,17 @@ describe('graphics tier store state', () => {
     })
     expect(enqueueSnackbar).not.toHaveBeenCalled()
   })
+
+  it('seeds the placement preview from the latest pointer hit on pen switch', async () => {
+    const store = await createUISliceStore()
+    const { clearLastPointerWorldPoint, rememberPointerWorldPoint } =
+      await import('../world/hoverWorldPoint')
+    store.getState().togglePenMode('select')
+    rememberPointerWorldPoint({ x: 2, z: 3 })
+
+    store.getState().togglePenMode('g')
+
+    expect(store.getState().hoveredWorldPoint).toEqual({ x: 2, z: 3 })
+    clearLastPointerWorldPoint()
+  })
 })

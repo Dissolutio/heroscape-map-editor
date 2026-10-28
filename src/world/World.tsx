@@ -10,6 +10,7 @@ import {
   Text,
 } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
+import { Profiler } from 'react'
 import type React from 'react'
 import { useEffect, useState } from 'react'
 import type { Group, Object3DEventMap } from 'three'
@@ -26,6 +27,16 @@ import AutoZoomToMap from './camera/AutoZoomToMap'
 import MyCameraControls from './camera/MyCameraControls'
 import { DragContext } from './drag/DragContext'
 import TakeAPictureBox from './camera/TakeAPictureBox'
+import ShadowMapInvalidator from './ShadowMapInvalidator'
+import {
+  PerformanceOverlay,
+  PerformanceProbeGate,
+} from '../performance/PerformanceOverlay'
+import {
+  isPerformanceEnabled,
+  recordReactRender,
+} from '../performance/performance'
+import { clearLastPointerWorldPoint } from './hoverWorldPoint'
 
 const BILLBOARD_WARMUP_MS = 4000
 
@@ -109,6 +120,7 @@ const World = ({
           }}
           onPointerLeave={() => {
             toggleHoveredPieceID('')
+            clearLastPointerWorldPoint()
           }}
           /* Setting frameloop to "never" entirely halts the GPU loop when idle */
           frameloop={
@@ -162,8 +174,19 @@ const World = ({
                 // rotation={new Euler(0, Math.PI, 0)}
                 /> */}
           <Bvh firstHitOnly>
-            <MapDisplay3D mapGroupRef={mapGroupRef} />
+            {isPerformanceEnabled ? (
+              <Profiler
+                id="MapDisplay3D"
+                onRender={(_, __, duration) => recordReactRender(duration)}
+              >
+                <MapDisplay3D mapGroupRef={mapGroupRef} />
+              </Profiler>
+            ) : (
+              <MapDisplay3D mapGroupRef={mapGroupRef} />
+            )}
           </Bvh>
+          <PerformanceProbeGate />
+          <ShadowMapInvalidator />
           <BillboardWarmup />
           <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}
@@ -179,6 +202,7 @@ const World = ({
           <TestBridge />
         </Canvas>
         <E2EStatus />
+        {isPerformanceEnabled && <PerformanceOverlay />}
         <SelectedPieceReadout cameraControlsRef={cameraControlsRef} />
         {/* <HoveredPieceReadout /> */}
       </div>

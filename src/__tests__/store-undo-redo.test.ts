@@ -463,6 +463,8 @@ describe('real store undo and redo', () => {
   it('view, pen, drag, and hover changes never add history or autosave the map', () => {
     const { boardHexes, boardPieces, hexMap } = store.getState()
     store.getState().toggleViewingLevel(2)
+    store.getState().toggleSelectedPieceID('selected-piece')
+    store.getState().toggleSelectedPieceID('selected-piece')
     store.getState().togglePenMode('g')
     store.getState().setDragState(true, null)
     store.getState().toggleHoveredPieceID('hovered')
@@ -487,5 +489,31 @@ describe('real store undo and redo', () => {
         ([key]) => key === LS_KEYS.lastMap,
       ),
     ).toBe(false)
+  })
+
+  it('does not record selection, no-op moves, pen changes, or an equal map load', () => {
+    const piece = {
+      uid: 'stable-piece',
+      inventoryID: 'g1',
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 2, r: 2, s: -4 },
+    }
+    const map = loadedMap([piece])
+    loadWithoutHistory(map)
+
+    store.getState().toggleSelectedPieceID(piece.uid)
+    store.getState().toggleSelectedPieceID(piece.uid)
+    store.getState().toggleViewingLevel(2)
+    store.getState().togglePenMode('select')
+    store.getState().movePiece({
+      uid: piece.uid,
+      newPieceCoords: piece.pieceCoords,
+      newAltitude: piece.altitude,
+      newRotation: piece.rotation,
+    })
+    store.getState().loadMap(loadedMap([piece]), { holdAutosave: true })
+
+    expect(historyLength()).toBe(0)
   })
 })
