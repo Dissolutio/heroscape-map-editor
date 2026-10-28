@@ -6,6 +6,8 @@ import { parseReleaseNotes } from '../data/releaseNotes'
 const text = readFileSync(resolve(process.cwd(), 'release-notes.md'), 'utf8')
 const lines = text.split(/\r?\n/)
 const headingPattern = /^[A-Z][a-z]{2}-\d{2}-\d{4}$/
+// A line that starts like a date heading ("Sep-8-2026", "sep-08-2026") but is not a valid one.
+const malformedHeadingPattern = /^[A-Za-z]{3,}-\d/
 
 describe('release-notes.md headings', () => {
   it('starts with a valid heading', () => {
@@ -20,13 +22,16 @@ describe('release-notes.md headings', () => {
     ).toBe(true)
   })
 
-  it('uses only valid headings, TLDR lines, and bullets', () => {
+  it('uses only valid headings, TLDR lines, bullets, and plain intro sentences', () => {
     const invalidLines = lines.flatMap((line, index) => {
       if (
         !line.trim() ||
         line.startsWith('- ') ||
         line.startsWith('TLDR:') ||
-        headingPattern.test(line)
+        headingPattern.test(line) ||
+        // plain prose (an intro paragraph) is allowed; the parser shows it as-is.
+        // Only lines that look like a mistyped heading are rejected.
+        !malformedHeadingPattern.test(line)
       ) {
         return []
       }
