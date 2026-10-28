@@ -420,6 +420,7 @@ export default function PiecesGridDialog({ cameraControlsRef }: Props) {
       open={isOpen}
       onClose={handleClose}
       fullScreen={fullScreen}
+      keepMounted
       maxWidth="lg"
       fullWidth
       PaperProps={{

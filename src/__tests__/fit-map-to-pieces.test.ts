@@ -4,7 +4,7 @@ import {
   fitMapToPieces,
   mapTableHexes,
 } from '../data/fitMapToPieces'
-import { resizeMap } from '../data/resizeMap'
+import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
 import type { BoardPiece, HexMap } from '../types'
 import {
   hexUtilsGenHexagonGrid,
@@ -194,6 +194,59 @@ describe('fitMapToPieces', () => {
 })
 
 describe('resizeMap control behavior', () => {
+  it('only shrinks rectangles when no piece footprint occupies the removed edge', () => {
+    const map = rectangleMap()
+
+    expect(
+      canShrinkMapWithoutDroppingPieces(map, [piece('g1', 0, 1)], 'length'),
+    ).toBe(true)
+    expect(
+      canShrinkMapWithoutDroppingPieces(map, [piece('g1', 0, 2)], 'length'),
+    ).toBe(false)
+    expect(
+      canShrinkMapWithoutDroppingPieces(map, [piece('g1', 1, 2)], 'width'),
+    ).toBe(false)
+    expect(
+      canShrinkMapWithoutDroppingPieces(map, [piece('bt', 1, 2)], 'length'),
+    ).toBe(false)
+  })
+
+  it('checks multi-hex footprints and keeps hexagon origins stable on shrink', () => {
+    const map = {
+      ...rectangleMap(4, 4),
+      shape: 'hexagon',
+      originQ: 4,
+      originR: 6,
+    }
+
+    const g2 = piece('g2', 8, 9)
+    const resizedG2 = resizeMap(map, [g2], 'width', -1)
+    const resizedTableHexes = mapTableHexes(resizedG2.hexMap)
+    expect(resizedG2.boardPieces[0]?.pieceCoords).toEqual({
+      q: 7,
+      r: 8,
+      s: -15,
+    })
+    expect(doesPieceFitOnMap(piece('g1', 7, 8), resizedTableHexes)).toBe(true)
+    expect(doesPieceFitOnMap(piece('g2', 7, 8), resizedTableHexes)).toBe(false)
+    expect(canShrinkMapWithoutDroppingPieces(map, [g2], 'width')).toBe(false)
+    expect(
+      canShrinkMapWithoutDroppingPieces(map, [piece('g1', 6, 9)], 'length'),
+    ).toBe(true)
+    expect(
+      canShrinkMapWithoutDroppingPieces(map, [piece('g1', 9, 6)], 'length'),
+    ).toBe(false)
+
+    const resized = resizeMap(map, [piece('g1', 6, 9)], 'length', -1)
+    expect(resized.hexMap).toMatchObject({
+      length: 3,
+      width: 3,
+      originQ: 4,
+      originR: 6,
+    })
+    expect(resized.boardPieces[0]?.pieceCoords).toEqual({ q: 5, r: 8, s: -13 })
+  })
+
   it('adds rectangle length without moving pieces', () => {
     const map = rectangleMap(3, 5)
     const pieces = [piece('g1', 1, 2)]

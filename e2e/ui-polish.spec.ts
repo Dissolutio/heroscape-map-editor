@@ -1,4 +1,5 @@
-import { expect, test, waitForAppReady } from './fixtures'
+import { expect, mapUrl, test, waitForAppReady } from './fixtures'
+import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 
 test('camera actions and tooltips follow the active view', async ({ page }) => {
   const genericColorsText =
@@ -81,4 +82,70 @@ test('new map author appears in Edit Map Details and can be remembered', async (
     '',
   )
   await expect(rememberName).not.toBeChecked()
+})
+
+test('Pieces Grid filters survive zooming to a piece', async ({ page }) => {
+  await page.getByRole('tab', { name: 'Build' }).click()
+  await page.getByRole('button', { name: 'View Pieces Grid' }).click()
+
+  const search = page.getByRole('searchbox')
+  await search.fill('Sand')
+  const sandRow = page.getByRole('row').filter({ hasText: '1-hex Sand' })
+  await expect(sandRow).toHaveCount(1)
+  await sandRow.getByRole('button', { name: 'Zoom To' }).click()
+  await waitForAppReady(page)
+
+  await page.getByRole('button', { name: 'View Pieces Grid' }).click()
+  await expect(page.getByRole('searchbox')).toHaveValue('Sand')
+  await expect(
+    page.getByRole('row').filter({ hasText: '1-hex Sand' }),
+  ).toHaveCount(1)
+})
+
+test('Map Inventory selects available pen modes and disables unavailable ones', async ({
+  page,
+}) => {
+  await page.goto(
+    mapUrl({ ...FIXTURE_HEX_MAP, setsUsed: ['I'] }, FIXTURE_PIECE_IDS),
+  )
+  await waitForAppReady(page)
+  await page.getByRole('button', { name: 'View Map Inventory' }).click()
+
+  const roadPen = page.getByRole('button', {
+    name: 'Set 1-hex Road as pen mode',
+  })
+  await roadPen.click()
+  await expect(page.getByTestId('app-status')).toContainText('pen rd1')
+  await expect(
+    page.getByRole('heading', { name: 'View Map Inventory' }),
+  ).toBeVisible()
+
+  const unavailableGrass = page.getByRole('button', {
+    name: 'Set 1-hex Grass as pen mode',
+  })
+  await expect(unavailableGrass).toBeDisabled()
+  await unavailableGrass.locator('xpath=..').hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    'This piece is not available in the active terrain constraints.',
+  )
+})
+
+test('map shrink controls are disabled when a piece occupies the removed edge', async ({
+  page,
+}) => {
+  await page.goto(
+    mapUrl({ ...FIXTURE_HEX_MAP, width: 3, length: 3 }, ['0~1~2~0~g1']),
+  )
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-2').click()
+
+  const removeLength = page.getByRole('button', { name: '- length' })
+  const removeWidth = page.getByRole('button', { name: '- width' })
+  await expect(removeLength).toBeDisabled()
+  await expect(removeWidth).toBeDisabled()
+
+  await removeLength.locator('xpath=..').hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    'Cannot remove the bottom row because pieces occupy hexes in it',
+  )
 })
