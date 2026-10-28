@@ -30,11 +30,9 @@ export default function ShadowMapInvalidator() {
     noteShadowTrigger(gl, 'mount')
     const unsubscribe = useBoundStore.subscribe((current, previous) => {
       if (shouldInvalidateShadowMap(previous, current)) {
-        const changed = Object.keys(current).filter(
-          (key) =>
-            (current as Record<string, unknown>)[key] !==
-            (previous as Record<string, unknown>)[key],
-        )
+        const now = current as unknown as Record<string, unknown>
+        const before = previous as unknown as Record<string, unknown>
+        const changed = Object.keys(now).filter((key) => now[key] !== before[key])
         noteShadowTrigger(gl, `store:${changed.join(',')}`)
         requestShadowUpdate(shadowMap, settleWindow.current)
       }
