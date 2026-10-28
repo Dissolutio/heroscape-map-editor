@@ -1,14 +1,15 @@
+import { FIXTURE_HEX_MAP } from './fixture-map'
 import {
   clickPiece,
   expect,
   findPieceUid,
   mapUrl,
+  saveEvidence,
   startDrag,
   startDragToPiece,
   test,
   waitForAppReady,
 } from './fixtures'
-import { FIXTURE_HEX_MAP } from './fixture-map'
 
 const piece = async (page: import('@playwright/test').Page, uid: string) =>
   (await page.evaluate(() => window.__TEST__?.listPieces()))?.find(
@@ -57,7 +58,7 @@ test('rotates a dragged piece with the wheel and undo restores it', async ({
     )
     .toMatchObject({ state: 'dragging', targetStatus: 'ok' })
   await page.mouse.wheel(0, 100)
-  await page.screenshot({ path: 'docs/evidence/drag-rotate-wheel.png' })
+  await saveEvidence(page, 'drag-rotate-wheel')
   await page.mouse.up()
 
   await expect

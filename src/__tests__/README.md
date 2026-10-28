@@ -55,6 +55,7 @@ export-border test also renders minimal SVG and PDF output.
 | `store/graphics-tier.test.ts` | Graphics-tier loading state, session-only fallback after failure, and stale request handling. |
 | `performance/performance.test.ts` | Detection of monotonically growing scene, GPU-resource, heap, subscriber, timer, and animation-frame metrics. |
 | `performance/performanceFlags.test.ts` | Performance-gated accounting of active Zustand store subscriptions. |
+| `e2e-evidence.test.ts` | Keeps E2E writes to `docs/evidence/` inside the opt-in screenshot helper. |
 | `world/hoverWorldPoint.test.ts` | Placement-only consumption of the pointer world point. |
 | `land-hex-update-ranges.test.ts` | Bounded per-hex highlight buffer updates while no render uploads pending ranges. |
 | `world/shadowInvalidation.test.ts` | Static shadow invalidation for board, light, tier, level, and start-zone changes, excluding hover/selection/camera updates. |
