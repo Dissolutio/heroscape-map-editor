@@ -4,6 +4,7 @@ import {
   expect,
   findPieceUid,
   mapUrl,
+  saveEvidence,
   setPen,
   test,
   waitForAppReady,
@@ -54,7 +55,7 @@ test('hides placed start zones without affecting selection on show', async ({
     .toEqual([])
 
   await page.mouse.move(0, 0)
-  await page.screenshot({ path: 'docs/evidence/start-zones-hidden-3d.png' })
+  await saveEvidence(page, 'start-zones-hidden-3d')
 
   await clickPiece(page, zone)
   await expect

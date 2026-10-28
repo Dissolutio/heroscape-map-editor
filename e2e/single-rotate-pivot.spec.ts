@@ -5,6 +5,7 @@ import {
   expect,
   findPieceUid,
   mapUrl,
+  saveEvidence,
   test,
   waitForAppReady,
 } from './fixtures'
@@ -52,7 +53,7 @@ test('rotates one multi-hex piece around a clicked footprint hex and undoes', as
     })
   const before = await piece(page, tile)
   const undos = await undoCount(page)
-  await page.screenshot({ path: 'docs/evidence/single-rotate-pivot.png' })
+  await saveEvidence(page, 'single-rotate-pivot')
 
   const rotateClockwise = page.locator(
     'button[title="Rotate selected piece clockwise"]',
