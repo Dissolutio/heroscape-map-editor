@@ -8,12 +8,12 @@ import {
   Pieces,
   type VirtualScapeTile,
 } from '../types'
+import { generateHexagon, generateRectangle } from '../utils/hex-gen'
 import {
   HEX_DIRECTIONS,
   hexUtilsAdd,
   hexUtilsOddRToCube,
 } from '../utils/hex-utils'
-import { generateHexagon, generateRectangle } from '../utils/hex-gen'
 import { makeRectangleScenario } from '../utils/map-gen'
 import {
   type DroppedBoardPiece,
