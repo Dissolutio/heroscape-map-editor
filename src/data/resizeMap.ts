@@ -1,5 +1,9 @@
 import type { BoardPiece, BoardPieces, HexMap } from '../types'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
+import { genBoardHexID } from '../utils/map-utils'
+import { mapTableHexes } from './fitMapToPieces'
+import { piecesSoFar } from './pieces'
+import getPieceTemplateCoords from './rotationTransforms'
 
 export type MapDimension = 'length' | 'width'
 
@@ -39,4 +43,28 @@ export function resizeMap(
   )
 
   return { hexMap: resizedHexMap, boardPieces: shiftedPieces }
+}
+
+export function canShrinkMapWithoutDroppingPieces(
+  hexMap: HexMap,
+  boardPieces: BoardPieces,
+  dimension: MapDimension,
+) {
+  if (hexMap[dimension] <= 1) return false
+
+  const resized = resizeMap(hexMap, boardPieces, dimension, -1)
+  const tableHexes = mapTableHexes(resized.hexMap)
+  return resized.boardPieces.every((boardPiece) => {
+    const piece = piecesSoFar[boardPiece.inventoryID]
+    if (!piece) return true
+
+    return getPieceTemplateCoords({
+      clickedHex: boardPiece.pieceCoords,
+      rotation: boardPiece.rotation,
+      template: piece.template,
+      isVsTile: false,
+    }).every((coords) =>
+      tableHexes.has(genBoardHexID({ ...coords, altitude: 0 })),
+    )
+  })
 }

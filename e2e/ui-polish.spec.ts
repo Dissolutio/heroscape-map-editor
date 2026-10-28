@@ -129,3 +129,23 @@ test('Map Inventory selects available pen modes and disables unavailable ones', 
     'This piece is not available in the active terrain constraints.',
   )
 })
+
+test('map shrink controls are disabled when a piece occupies the removed edge', async ({
+  page,
+}) => {
+  await page.goto(
+    mapUrl({ ...FIXTURE_HEX_MAP, width: 3, length: 3 }, ['0~1~2~0~g1']),
+  )
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-2').click()
+
+  const removeLength = page.getByRole('button', { name: '- length' })
+  const removeWidth = page.getByRole('button', { name: '- width' })
+  await expect(removeLength).toBeDisabled()
+  await expect(removeWidth).toBeDisabled()
+
+  await removeLength.locator('xpath=..').hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    'Cannot remove the bottom row because pieces occupy hexes in it',
+  )
+})
