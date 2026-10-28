@@ -10,7 +10,10 @@ import {
 } from './shadowInvalidation'
 
 // e2e only: records why a shadow update was requested, so a failing test can say
-function noteShadowTrigger(gl: { domElement: HTMLCanvasElement }, why: string) {
+function noteShadowTrigger(
+  gl: { domElement: HTMLCanvasElement },
+  why: string,
+) {
   if (!isE2EDeterministic) return
   const list = JSON.parse(gl.domElement.dataset.shadowTriggers ?? '[]')
   list.push(why)
@@ -32,7 +35,9 @@ export default function ShadowMapInvalidator() {
       if (shouldInvalidateShadowMap(previous, current)) {
         const now = current as unknown as Record<string, unknown>
         const before = previous as unknown as Record<string, unknown>
-        const changed = Object.keys(now).filter((key) => now[key] !== before[key])
+        const changed = Object.keys(now).filter(
+          (key) => now[key] !== before[key],
+        )
         noteShadowTrigger(gl, `store:${changed.join(',')}`)
         requestShadowUpdate(shadowMap, settleWindow.current)
       }
