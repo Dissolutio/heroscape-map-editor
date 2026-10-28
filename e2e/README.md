@@ -192,6 +192,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
+| OHS-friendly glyph space export options | `e2e/glyph-export-options.spec.ts` |
 | View tooltips, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
 | Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |
 | Lazy Graphics tier texture loading in per-hex land mode | `e2e/graphics-tier.spec.ts` |

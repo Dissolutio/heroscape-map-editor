@@ -4,6 +4,7 @@ import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
+import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
 import useBoundStore from '../store/store'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
@@ -193,6 +194,9 @@ export const PdfMapHex = ({
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
   const pieceHeightText = piecesSoFar[inventoryID]?.height
+  const glyphSettings = useBoundStore.getState()
+  const getHexGlyphExportOptions = (targetHex: BoardHex) =>
+    getGlyphExportOptions(targetHex, glyphSettings.boardHexes, glyphSettings)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
@@ -377,6 +381,7 @@ export const PdfMapHex = ({
     inventoryID === Pieces.toxicOutcrop1 ||
     inventoryID === Pieces.glacier1
   ) {
+    const { hideHeight } = getHexGlyphExportOptions(hex)
     const glacierTextColor = isSubLevel
       ? svgSubLevelColors.glacierText
       : svgColors.glacierText
@@ -388,20 +393,22 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        <Text
-          fill={textColor}
-          // white text (not glaciers, so far) needs a little opacity boost
-          opacity={
-            isSubLevel
-              ? hex.terrain === HexTerrain.glacier
-                ? 1
-                : OPACITY_SUBLEVEL * 2
-              : 1
-          }
-          {...pdfTextProps()}
-        >
-          {pieceHeightText}
-        </Text>
+        {!hideHeight && (
+          <Text
+            fill={textColor}
+            // white text (not glaciers, so far) needs a little opacity boost
+            opacity={
+              isSubLevel
+                ? hex.terrain === HexTerrain.glacier
+                  ? 1
+                  : OPACITY_SUBLEVEL * 2
+                : 1
+            }
+            {...pdfTextProps()}
+          >
+            {pieceHeightText}
+          </Text>
+        )}
       </G>
     )
   }
@@ -447,6 +454,7 @@ export const PdfMapHex = ({
     hex.terrain === HexTerrain.glyphPower ||
     hex.terrain === HexTerrain.glyphTreasure
   ) {
+    const glyphOptions = getHexGlyphExportOptions(hex)
     const isPlacedLevelViewing = hex.altitude === viewingLevel
     if (
       !isOverlayViewing &&
@@ -459,9 +467,14 @@ export const PdfMapHex = ({
     const glyphLetter = piecesSoFar[hex.inventoryID]?.glyphLetter
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1 isGlyph hex={hex} isSubLevel={specialIsSubLevel} />
+        <PdfMultiHex1
+          isGlyph
+          hex={hex}
+          isSubLevel={specialIsSubLevel}
+          isTransparent={glyphOptions.isTransparent}
+        />
         <Text
-          fill="white"
+          fill={glyphOptions.isTransparent ? svgColors.glyphText : 'white'}
           // white text needs a little opacity boost
           opacity={specialIsSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           // {...glyphTextProps(`${pieceHeightText}`)}
@@ -494,23 +507,27 @@ export const PdfMapHex = ({
   }
   // Single hex trees
   if (isEvergreenTree(hex.terrain)) {
+    const { hideHeight } = getHexGlyphExportOptions(hex)
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1 hex={hex} isSubLevel={isSubLevel} />
-        <Text
-          fill="white"
-          // white text needs a little opacity boost
-          opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          {...pdfTextProps()}
-        >
-          {pieceHeightText}
-        </Text>
+        {!hideHeight && (
+          <Text
+            fill="white"
+            // white text needs a little opacity boost
+            opacity={isSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
+            {...pdfTextProps()}
+          >
+            {pieceHeightText}
+          </Text>
+        )}
       </G>
     )
   }
   // CASTLE WALLS
   if (isCastleTerrain(hex.terrain) && hex.isObstacleOrigin) {
-    const heightText = pieceHeightText > 0 ? pieceHeightText : ''
+    const { hideHeight } = getHexGlyphExportOptions(hex)
+    const heightText = !hideHeight && pieceHeightText > 0 ? pieceHeightText : ''
     //  Return Castle Corner
     if (
       hex.inventoryID === Pieces.castleBaseCorner ||

@@ -316,10 +316,12 @@ export const SvgMultiHex1 = ({
   hex,
   borderWidth = SVG_BORDER_WIDTH,
   isSubLevel,
+  isTransparent = false,
 }: {
   hex: BoardHex
   borderWidth?: number
   isSubLevel?: boolean
+  isTransparent?: boolean
 }) => {
   const fillColor = useSvgHexFillColor(hex, isSubLevel)
   const borderColor = isSubLevel
@@ -332,7 +334,7 @@ export const SvgMultiHex1 = ({
   )
   return (
     <>
-      <polygon points={points} fill={fillColor} />
+      <polygon points={points} fill={isTransparent ? 'none' : fillColor} />
       <polygon points={outlinePoints} fill={borderColor} />
     </>
   )

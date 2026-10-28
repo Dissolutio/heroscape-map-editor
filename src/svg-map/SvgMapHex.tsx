@@ -3,6 +3,7 @@ import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
+import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
 import useBoundStore from '../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
@@ -167,6 +168,10 @@ export const SvgMapHex = ({
   )
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
+  const isTransparentGlyphSpaces = useBoundStore(
+    (s) => s.isTransparentGlyphSpaces,
+  )
+  const isHideHeightsOnGlyphs = useBoundStore((s) => s.isHideHeightsOnGlyphs)
   const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
@@ -350,6 +355,10 @@ export const SvgMapHex = ({
     inventoryID === Pieces.glacier1
   ) {
     const textColor = getOutcropTextColor({ hex, isSubLevel })
+    const { hideHeight } = getGlyphExportOptions(hex, boardHexes, {
+      isTransparentGlyphSpaces,
+      isHideHeightsOnGlyphs,
+    })
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1
@@ -357,9 +366,11 @@ export const SvgMapHex = ({
           isSubLevel={isSubLevel}
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
         />
-        <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
-          {pieceHeightText}
-        </text>
+        {!hideHeight && (
+          <text fill={textColor} {...singleHexObstacleHeightTextProps()}>
+            {pieceHeightText}
+          </text>
+        )}
       </g>
     )
   }
@@ -405,6 +416,10 @@ export const SvgMapHex = ({
     hex.terrain === HexTerrain.glyphPower ||
     hex.terrain === HexTerrain.glyphTreasure
   ) {
+    const glyphOptions = getGlyphExportOptions(hex, boardHexes, {
+      isTransparentGlyphSpaces,
+      isHideHeightsOnGlyphs,
+    })
     // When overlay view is enabled, glyphs should only be shown on the overlay level
     const isOverlayViewing =
       is2DOverlayLevelEnabled && viewingLevel === overlayLevel
@@ -419,6 +434,7 @@ export const SvgMapHex = ({
           hex={hex}
           isSubLevel={specialIsSubLevel}
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
+          isTransparent={glyphOptions.isTransparent}
         />
         <text
           fill={
@@ -440,6 +456,10 @@ export const SvgMapHex = ({
     const textColor = isSubLevel
       ? svgSubLevelColors.evergreenText
       : svgColors.evergreenText
+    const { hideHeight } = getGlyphExportOptions(hex, boardHexes, {
+      isTransparentGlyphSpaces,
+      isHideHeightsOnGlyphs,
+    })
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1
@@ -447,19 +467,25 @@ export const SvgMapHex = ({
           isSubLevel={isSubLevel}
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
         />
-        <text
-          fill={textColor}
-          // white text needs a little opacity boost
-          {...singleHexObstacleHeightTextProps()}
-        >
-          {pieceHeightText}
-        </text>
+        {!hideHeight && (
+          <text
+            fill={textColor}
+            // white text needs a little opacity boost
+            {...singleHexObstacleHeightTextProps()}
+          >
+            {pieceHeightText}
+          </text>
+        )}
       </g>
     )
   }
   // CASTLE WALLS
   if (isCastleTerrain(hex.terrain) && hex.isObstacleOrigin) {
-    const heightText = pieceHeightText > 0 ? pieceHeightText : ''
+    const { hideHeight } = getGlyphExportOptions(hex, boardHexes, {
+      isTransparentGlyphSpaces,
+      isHideHeightsOnGlyphs,
+    })
+    const heightText = !hideHeight && pieceHeightText > 0 ? pieceHeightText : ''
     //  Return Castle Corner
     if (
       hex.inventoryID === Pieces.castleBaseCorner ||
