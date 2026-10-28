@@ -309,6 +309,37 @@ export function getLandHexSideVisibilityMask(
   return visibleMask
 }
 
+export function getLandHexInstanceIDs(
+  boardHexes: BoardHexes,
+  boardPieces: BoardPiece[],
+  viewingLevel: number,
+): string[] {
+  const piecesByUID = new Map(boardPieces.map((piece) => [piece.uid, piece]))
+
+  return Object.values(boardHexes).flatMap((hex) => {
+    if (
+      hex.altitude > viewingLevel ||
+      hex.isVerticalClearanceHex ||
+      !hex.boardPieceUID
+    ) {
+      return []
+    }
+
+    const piece = piecesByUID.get(hex.boardPieceUID)
+    if (!piece || NON_INSTANCED_SUBTERRAIN_PIECES.has(piece.inventoryID)) {
+      return []
+    }
+    const terrain = piecesSoFar[piece.inventoryID]?.terrain
+    if (
+      !terrain ||
+      (!isSolidTerrainHex(terrain) && !isFluidTerrainHex(terrain))
+    ) {
+      return []
+    }
+    return [hex.id]
+  })
+}
+
 export function buildLandHexInstanceData(
   boardHexes: BoardHexes,
   boardPieces: BoardPiece[],
