@@ -76,10 +76,14 @@ Nothing from that branch is merged or cherry-picked into this plan.
   placement, and lifecycle expectations). Its 1-/2-hex piece sizes should not
   be carried forward as placement footprints.
 - It keys text metadata by `BoardPiece.uid`, even though share links encode
-  board pieces as IDs rather than preserving their runtime UIDs. More
-  importantly, its `jsonCrush.ts` explicitly removes
-  `objectiveMarkerMetadataByUID` from the shareable map object, so marker text
-  and labels do not round-trip through share links.
+  board pieces as IDs rather than preserving their runtime UIDs. Its
+  `jsonCrush.ts` constructs a copy with `objectiveMarkerMetadataByUID` removed,
+  but serializes a different copy of the original map instead. The metadata
+  can therefore enter the share payload with stale UID keys and fail to attach
+  to the markers rebuilt on load.
+- Its export paths do not consistently render the proposed metadata: SVG draws
+  only the marker shape, PDF hard-codes `A`, and 3D reuses the start-zone model
+  rather than rendering marker values or distinct one-/two-hex variants.
 - The implementation predates current selection, drag, and derived
   `boardHexes` behavior. Its piece-based event path is not a reliable template
   for annotation selection or drag today.
