@@ -1,4 +1,5 @@
-import { expect, test, waitForAppReady } from './fixtures'
+import { expect, mapUrl, test, waitForAppReady } from './fixtures'
+import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 
 test('camera actions and tooltips follow the active view', async ({ page }) => {
   const genericColorsText =
@@ -99,4 +100,32 @@ test('Pieces Grid filters survive zooming to a piece', async ({ page }) => {
   await expect(
     page.getByRole('row').filter({ hasText: '1-hex Sand' }),
   ).toHaveCount(1)
+})
+
+test('Map Inventory selects available pen modes and disables unavailable ones', async ({
+  page,
+}) => {
+  await page.goto(
+    mapUrl({ ...FIXTURE_HEX_MAP, setsUsed: ['I'] }, FIXTURE_PIECE_IDS),
+  )
+  await waitForAppReady(page)
+  await page.getByRole('button', { name: 'View Map Inventory' }).click()
+
+  const roadPen = page.getByRole('button', {
+    name: 'Set 1-hex Road as pen mode',
+  })
+  await roadPen.click()
+  await expect(page.getByTestId('app-status')).toContainText('pen rd1')
+  await expect(
+    page.getByRole('heading', { name: 'View Map Inventory' }),
+  ).toBeVisible()
+
+  const unavailableGrass = page.getByRole('button', {
+    name: 'Set 1-hex Grass as pen mode',
+  })
+  await expect(unavailableGrass).toBeDisabled()
+  await unavailableGrass.locator('xpath=..').hover()
+  await expect(page.getByRole('tooltip')).toHaveText(
+    'This piece is not available in the active terrain constraints.',
+  )
 })

@@ -76,7 +76,7 @@ import {
   getAvailableLandPrefixesForSets,
   getEffectiveTerrainConstraintInventory,
   hasActiveTerrainConstraints,
-  isInventoryPieceAvailable,
+  isPenModePieceAvailable,
 } from '../utils/terrain-constraints'
 import { hexTerrainColor, svgColors } from '../world/maphex/hexColors'
 import { HotkeyText } from './HotKeyText'
@@ -155,13 +155,6 @@ export default function PenModeControls() {
       ]),
     [lastPenMode],
   )
-  const filteredByAlias: Record<string, string[]> = {
-    [Pieces.castleArchNoDoor]: [Pieces.castleArch],
-    [Pieces.marvelBroken]: [Pieces.marvel],
-    [Pieces.marvelNoUpper]: [Pieces.marvel],
-    [Pieces.marvelNoUpperBroken]: [Pieces.marvel],
-    [Pieces.laurWallRuin1]: [Pieces.laurWallRuin2, Pieces.laurWallRuin3],
-  }
   const filteredPrefixModes = new Set<string>([
     PiecePrefixes.grass,
     PiecePrefixes.rock,
@@ -188,11 +181,10 @@ export default function PenModeControls() {
     PiecePrefixes.genericFluid,
   ])
   const isPieceAvailable = (pieceID: string) => {
-    return isInventoryPieceAvailable(
+    return isPenModePieceAvailable(
       pieceID,
       constrainedInventory,
       hasSetConstraints,
-      filteredByAlias[pieceID] ?? [],
     )
   }
   const isPrefixAvailable = (prefix: string) => {
