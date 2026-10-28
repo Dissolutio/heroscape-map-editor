@@ -60,7 +60,7 @@ import LandSubterrainInstanced, {
   getLandSubterrainInstanceData,
 } from './models/LandSubterrainInstanced.tsx'
 import LandHexInstanced from './models/LandHexInstanced.tsx'
-import { buildLandHexInstanceData } from './models/landHexInstances.ts'
+import { getLandHexInstanceIDs } from './models/landHexInstances.ts'
 
 function getAvailableLaurStackableInventory(): PieceInventory | undefined {
   const state = useBoundStore.getState()
@@ -168,21 +168,14 @@ export default function MapDisplay3D({
       genericSolidSideColor,
     ],
   )
-  const landHexData = useMemo(
-    () =>
-      isPerHexLandEnabled
-        ? buildLandHexInstanceData(
-            boardHexes,
-            boardPieces,
-            viewingLevel,
-            genericColors,
-          )
-        : [],
-    [boardHexes, boardPieces, genericColors, viewingLevel],
-  )
   const perHexLandIDs = useMemo(
-    () => new Set(landHexData.map((item) => item.hex.id)),
-    [landHexData],
+    () =>
+      new Set(
+        isPerHexLandEnabled
+          ? getLandHexInstanceIDs(boardHexes, boardPieces, viewingLevel)
+          : [],
+      ),
+    [boardHexes, boardPieces, viewingLevel],
   )
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,

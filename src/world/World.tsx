@@ -33,6 +33,7 @@ import {
   PerformanceProbeGate,
 } from '../performance/PerformanceOverlay'
 import {
+  isPerformanceEventsDisabled,
   isPerformanceEnabled,
   recordReactRender,
 } from '../performance/performance'
@@ -111,6 +112,15 @@ const World = ({
         }}
       >
         <Canvas
+          events={
+            isPerformanceEventsDisabled
+              ? () => ({
+                  enabled: false,
+                  priority: 1,
+                  connected: undefined,
+                })
+              : undefined
+          }
           onPointerMissed={(event) => {
             if (event.button !== 0) {
               return

@@ -33,3 +33,29 @@ test('graphics tier lazily loads Medium textures and returns to Lowest', async (
   await expect(page.getByTestId('graphics-texture-status')).toHaveCount(0)
   expect(errors).toEqual([])
 })
+
+test('picture-only High restores the previous graphics and lighting settings', async ({
+  page,
+}) => {
+  await page.goto(`${FIXTURE_URL}&perHexLand=1`)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+
+  const pictureHigh = page.getByRole('checkbox', {
+    name: 'Use High quality when taking a map picture',
+  })
+  await expect(pictureHigh).toBeVisible()
+  await pictureHigh.check()
+  await page.getByRole('button', { name: 'Take map picture' }).click()
+
+  await expect(
+    page.getByText(
+      'Map portrait saved! Crop it in Edit tab, or download from File tab',
+    ),
+  ).toBeVisible({ timeout: 60_000 })
+  await expect(page.getByTestId('graphics-tier-select')).toContainText('Lowest')
+  await expect(
+    page.getByRole('checkbox', { name: 'Render Lights and Shadows' }),
+  ).not.toBeChecked()
+  await expect(pictureHigh).toBeChecked()
+})

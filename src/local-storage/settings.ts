@@ -24,12 +24,15 @@ export type SettingsValues = {
   isShowLightControls: boolean
   isTopOutlinedInterlockHexes: boolean
   isHighQualityRender: boolean
+  useHighQualityForPicture: boolean
   isDisplayCapHeights: boolean
   isHideTableTop: boolean
   useLegacyStartZones: boolean
   pdfRenderFormat: PdfRenderFormat
   isShowPDFInventory: boolean
   isPdfColorBorders: boolean
+  isTransparentGlyphSpaces: boolean
+  isHideHeightsOnGlyphs: boolean
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowPdfGridLinesOverSublevels: boolean
@@ -60,12 +63,15 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   isShowLightControls: true,
   isTopOutlinedInterlockHexes: true,
   isHighQualityRender: false,
+  useHighQualityForPicture: false,
   isDisplayCapHeights: false,
   isHideTableTop: false,
   useLegacyStartZones: false,
   pdfRenderFormat: 'coversheet',
   isShowPDFInventory: true,
   isPdfColorBorders: false,
+  isTransparentGlyphSpaces: false,
+  isHideHeightsOnGlyphs: false,
   isShowPdfOverlayLayer: true,
   isShowPdfOverlayOnPlacedLevel: false,
   isShowPdfGridLinesOverSublevels: true,
@@ -159,11 +165,14 @@ const validSettingValue = (
       'isShowLightControls',
       'isTopOutlinedInterlockHexes',
       'isHighQualityRender',
+      'useHighQualityForPicture',
       'isDisplayCapHeights',
       'isHideTableTop',
       'useLegacyStartZones',
       'isShowPDFInventory',
       'isPdfColorBorders',
+      'isTransparentGlyphSpaces',
+      'isHideHeightsOnGlyphs',
       'isShowPdfOverlayLayer',
       'isShowPdfOverlayOnPlacedLevel',
       'isShowPdfGridLinesOverSublevels',

@@ -314,6 +314,18 @@ export async function setPen(
   )
 }
 
+export async function saveEvidence(
+  page: Page,
+  name: string,
+  options?: Omit<NonNullable<Parameters<Page['screenshot']>[0]>, 'path'>,
+) {
+  if (process.env.E2E_EVIDENCE !== '1') return
+  await page.screenshot({
+    ...options,
+    path: `docs/evidence/${name}.png`,
+  })
+}
+
 export const test = base.extend({
   // Every test starts on the fixture map, loaded and ready.
   page: async ({ page }, use) => {

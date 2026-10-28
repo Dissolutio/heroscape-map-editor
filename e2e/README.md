@@ -16,6 +16,18 @@ npx playwright install chromium
 Run the tests with `npm run test:e2e`. The config starts the dev server
 itself (or reuses one already on port 5173).
 
+## Running
+
+Evidence screenshots are temporary review aids and are off by default. Generate
+them with:
+
+```sh
+E2E_EVIDENCE=1 npx playwright test <spec>
+```
+
+Commit these images on a PR branch only for a visual change when the PM asks for
+evidence. Delete them or do not carry them when the PR merges.
+
 ## Opening the app for automation
 
 Open **`/hs?e2e=1`**, not `/`. The router redirects `/` to `/hs` and drops the
@@ -43,6 +55,10 @@ textures load. `&perfSeconds=N` sets each phase length (1–60 seconds; default
 2). Use Copy JSON to collect the report. The 120-second leak sweep is a separate
 button in the overlay. These timings are software-rendering comparisons, not
 real-device FPS.
+The pointer split reports total event dispatch, raycasting, R3F bookkeeping,
+measured app handlers and other event-path time. `&perfNoEvents=1` disables R3F
+pointer events for an isolation run (hover/selection are unavailable in that
+mode).
 
 The automatic What's New dialog is suppressed for `?e2e=1` runs. A test that
 needs to exercise it can explicitly opt in with `&whats-new=1`. The ordinary
@@ -192,9 +208,10 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
+| OHS-friendly glyph space export options | `e2e/glyph-export-options.spec.ts` |
 | View tooltips, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
 | Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |
-| Lazy Graphics tier texture loading in per-hex land mode | `e2e/graphics-tier.spec.ts` |
+| Lazy Graphics tier loading and picture-only High setting restoration in per-hex land mode | `e2e/graphics-tier.spec.ts` |
 | Opt-in performance overlay | `e2e/performance.spec.ts` |
 
 The map-settle tracker also feeds the app's startup UI in normal runs. The
