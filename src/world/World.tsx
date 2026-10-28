@@ -174,7 +174,7 @@ const World = ({
             mapGroupRef={mapGroupRef}
           />
           <TakeAPictureBox />
-          {/* Test hooks: render nothing unless isE2E (see e2e/README.md) */}
+          {/* Readiness is shared with startup UI; browser hooks stay e2e-only. */}
           <ReadySignal mapGroupRef={mapGroupRef} />
           <TestBridge />
         </Canvas>

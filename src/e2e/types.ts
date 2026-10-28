@@ -9,15 +9,23 @@ export type E2ESnapshot = {
   mapLength: number
   pieceCount: number
   hexCount: number
+  landInstanceCounts: { solid: number; fluid: number }
   viewingLevel: number
   penMode: string
   selectedPieceIDs: string[]
+  rotationPivot: {
+    coords: { q: number; r: number; s: number }
+    surfaceAltitude: number
+  } | null
   hoveredPieceID: string
   isOrthoCam: boolean
   placementPreview: {
     status: 'ok' | 'conflict' | 'blocked'
     reason: string | null
     footprintCount: number
+    unsupported: boolean
+    altitude: number | null
+    rotation: number | null
   } | null
   /** A piece press or drag in progress (drag-to-move), or null. */
   drag: E2EDragSnapshot | null
@@ -29,6 +37,8 @@ export type E2EDragSnapshot = {
   /** The drop's status at the current target, or null with no target. */
   targetStatus: 'ok' | 'conflict' | 'blocked' | null
   reason: string | null
+  /** Whether the dragged Laur add-on lacks required support ports. */
+  unsupported: boolean
   /** Hexes in the target footprint, off-map ones included (0: no target). */
   footprintCount: number
   /** The hex under the pointer (the dragged piece itself is see-through). */
@@ -65,6 +75,13 @@ export type E2ETestBridge = {
     r: number
     altitude: number
   }) => ScreenPoint | null
+  /** A point just inside one of a hex's six edges. */
+  screenPosOfHexEdge: (hex: {
+    q: number
+    r: number
+    altitude: number
+    edge: number
+  }) => ScreenPoint | null
   /**
    * Instantly (no animation) move the camera. Resolves once the move has been
    * rendered, so await it. Needs the tab visible (rAF does not run in hidden
@@ -78,5 +95,5 @@ export type E2ETestBridge = {
   cameraPose: () => E2ECameraPose | null
   /** Set pen controls for test setup only. */
   setPen: (penMode: string, size: number, rotation?: number) => void
-  stats: () => { calls: number; triangles: number }
+  stats: () => { calls: number; triangles: number; frames: number }
 }

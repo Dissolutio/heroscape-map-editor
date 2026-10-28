@@ -1,15 +1,26 @@
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
-import { Vector3 } from 'three'
-import { getDragState } from '../world/drag/dragController'
+import { Box3, Vector3 } from 'three'
+import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
+import { resolveRotationPivot } from '../data/rotationPivot'
 import useBoundStore from '../store/store'
-import type { BoardHex, BoardPiece } from '../types'
+import { type BoardHex, type BoardPiece, Pieces } from '../types'
+import { isLaurWallAddonPieceID } from '../utils/board-utils'
+import { HEXGRID_HEXCAP_HEIGHT, HEXGRID_HEX_HEIGHT } from '../utils/constants'
+import { cubeToPixel, hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
 import { getBoardHex3DCoords } from '../utils/map-utils'
-import { isE2E } from './isE2E'
+import { getDragState } from '../world/drag/dragController'
+import {
+  getLadderBattlementOptions,
+  getRoadWallOptions,
+} from '../world/models/piece-adjustments'
+import { isE2E, isPerHexLandEnabled } from './isE2E'
 import { getPlacementPreview } from './placementPreviewStore'
 import { getReady } from './readyStore'
 import type { E2EDragSnapshot, E2ETestBridge, ScreenPoint } from './types'
+import { getLandSubterrainInstanceData } from '../world/models/LandSubterrainInstanced'
+import { buildLandHexInstanceData } from '../world/models/landHexInstances'
 
 const round1 = (n: number) => Math.round(n * 10) / 10
 const round4 = (n: number) => Math.round(n * 1e4) / 1e4
@@ -20,13 +31,17 @@ const round4Vector = (v: Vector3): [number, number, number] => [
 ]
 
 const getDragSnapshot = (): E2EDragSnapshot | null => {
-  const { phase } = getDragState()
-  if (phase === 'idle') return null
+  const dragState = getDragState()
+  if (dragState.phase === 'idle') return null
   const preview = useBoundStore.getState().dragPreview
+  const draggedMember = preview?.members?.find(
+    (member) => member.uid === dragState.uid,
+  )
   return {
-    state: phase,
+    state: dragState.phase,
     targetStatus: preview?.status ?? null,
     reason: preview?.reason ?? null,
+    unsupported: draggedMember?.unsupported ?? false,
     footprintCount: preview?.footprintHexes.length ?? 0,
     targetHex: preview?.pointerHex ? { ...preview.pointerHex } : null,
   }
@@ -87,6 +102,23 @@ function TestBridgeInner() {
     const bridge: E2ETestBridge = {
       snapshot: () => {
         const s = useBoundStore.getState()
+        const landInstances = isPerHexLandEnabled
+          ? buildLandHexInstanceData(
+              s.boardHexes,
+              s.boardPieces,
+              s.viewingLevel,
+              {
+                genericSolidCapColor: s.genericSolidCapColor,
+                genericSolidSideColor: s.genericSolidSideColor,
+                genericFluidCapColor: s.genericFluidCapColor,
+                genericFluidSideColor: s.genericFluidSideColor,
+              },
+            )
+          : getLandSubterrainInstanceData(
+              s.boardPieces,
+              s.boardHexes,
+              s.viewingLevel,
+            )
         return {
           ready: getReady(),
           mapId: s.hexMap.id,
@@ -95,9 +127,23 @@ function TestBridgeInner() {
           mapLength: s.hexMap.length,
           pieceCount: s.boardPieces.length,
           hexCount: Object.keys(s.boardHexes).length,
+          landInstanceCounts: landInstances.reduce(
+            (counts, item) => {
+              counts[item.isFluid ? 'fluid' : 'solid'] += 1
+              return counts
+            },
+            { solid: 0, fluid: 0 },
+          ),
           viewingLevel: s.viewingLevel,
           penMode: s.penMode,
           selectedPieceIDs: [...s.selectedPieceIDs],
+          rotationPivot:
+            resolveRotationPivot(
+              s.selectedPieceIDs,
+              s.boardPieces,
+              s.boardHexes,
+              s.rotationPivot,
+            ) ?? null,
           hoveredPieceID: s.hoveredPieceID,
           isOrthoCam: s.isOrthoCam,
           placementPreview: getPlacementPreview(),
@@ -116,10 +162,65 @@ function TestBridgeInner() {
         const { x, y, z } = getBoardHex3DCoords({ q, r, s: -q - r, altitude })
         return project(x, y, z)
       },
+      screenPosOfHexEdge: ({ q, r, altitude, edge }) => {
+        const center = getBoardHex3DCoords({ q, r, s: -q - r, altitude })
+        const neighbor = hexUtilsGetNeighborForRotation(edge)
+        const offset = cubeToPixel(neighbor)
+        return project(
+          center.x + offset.x * 0.35,
+          center.y,
+          center.z + offset.y * 0.35,
+        )
+      },
       screenPosOfPiece: (uid) => {
         const { boardPieces, boardHexes } = useBoundStore.getState()
         const bp = boardPieces.find((piece) => piece.uid === uid)
         if (!bp) return null
+        if (isLaurWallAddonPieceID(bp.inventoryID)) {
+          const feature = getLaurAddonFeaturePoint(bp.pieceCoords, bp.rotation)
+          if (feature) {
+            const { yWithBase } = getBoardHex3DCoords({
+              ...bp.pieceCoords,
+              altitude: bp.altitude + 1,
+            })
+            return project(feature.x, yWithBase, feature.z)
+          }
+        }
+        const anchor = getBoardHex3DCoords({
+          ...bp.pieceCoords,
+          altitude: bp.altitude + 1,
+        })
+        if (bp.inventoryID === Pieces.battlement) {
+          const offset = getLadderBattlementOptions(bp.rotation)
+          return project(
+            anchor.x + offset.xAdd,
+            anchor.y - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_HEIGHT / 2,
+            anchor.z + offset.zAdd,
+          )
+        }
+        if (bp.inventoryID === Pieces.roadWall) {
+          const offset = getRoadWallOptions(bp.rotation)
+          return project(
+            anchor.x + offset.xAdd,
+            anchor.y - HEXGRID_HEX_HEIGHT,
+            anchor.z + offset.zAdd,
+          )
+        }
+        if (
+          bp.inventoryID === Pieces.ladder ||
+          bp.inventoryID === Pieces.ropeLadder
+        ) {
+          const bounds = new Box3()
+          get().scene.traverse((object) => {
+            if (object.userData.boardPieceUID === uid) {
+              bounds.union(new Box3().setFromObject(object))
+            }
+          })
+          if (!bounds.isEmpty()) {
+            const center = bounds.getCenter(new Vector3())
+            return project(center.x, center.y, center.z)
+          }
+        }
         const hex = getPieceTopHex(bp, boardHexes)
         // Pieces with no grid expansion (e.g. Laur wall add-ons) render
         // straight from boardPieces: fall back to the placement hex.
@@ -161,8 +262,8 @@ function TestBridgeInner() {
         }
       },
       stats: () => {
-        const { calls, triangles } = get().gl.info.render
-        return { calls, triangles }
+        const { calls, triangles, frame: frames } = get().gl.info.render
+        return { calls, triangles, frames }
       },
     }
     window.__TEST__ = bridge

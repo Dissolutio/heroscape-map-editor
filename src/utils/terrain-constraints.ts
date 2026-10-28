@@ -1,5 +1,6 @@
 import { piecesSoFar } from '../data/pieces'
 import { terrainSetsByShortID } from '../data/terrainSets'
+import { PiecePrefixes } from '../types'
 import type { PieceInventory, TerrainConstraintSource } from '../types'
 import { normalizePieceInventory } from './piece-inventory'
 
@@ -62,10 +63,24 @@ export function hasActiveTerrainConstraints({
   }
 }
 
+export function isInventoryPieceAvailable(
+  pieceID: string,
+  constrainedInventory: PieceInventory,
+  hasConstraints: boolean,
+  aliases: string[] = [],
+) {
+  if (!hasConstraints || (constrainedInventory[pieceID] ?? 0) > 0) {
+    return true
+  }
+  return aliases.some((alias) => (constrainedInventory[alias] ?? 0) > 0)
+}
+
 export function getAvailableLandPrefixesForInventory(
   constrainedInventory?: PieceInventory,
 ) {
   const prefixes = new Set<string>()
+  prefixes.add(PiecePrefixes.generic)
+  prefixes.add(PiecePrefixes.genericFluid)
 
   for (const [pieceID, count] of Object.entries(constrainedInventory ?? {})) {
     if (count <= 0) {

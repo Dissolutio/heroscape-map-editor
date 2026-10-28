@@ -11,6 +11,8 @@ type RectangleScenarioOptions = {
   length?: number
   width?: number
   mapName?: string
+  author?: string
+  mapNotes?: string
   originQ?: number
   originR?: number
 }
@@ -33,7 +35,8 @@ export function makeRectangleScenario(
   const hexMap = {
     id: generateMapID(),
     name: options?.mapName ?? genRandomMapName(),
-    author: '',
+    author: options?.author ?? '',
+    ...(options?.mapNotes !== undefined ? { mapNotes: options.mapNotes } : {}),
     version: 1,
     shape: 'rectangle',
     width: mapWidth,
@@ -57,6 +60,8 @@ export function makeRectangleScenario(
 type HexagonScenarioOptions = {
   size?: number
   mapName?: string
+  author?: string
+  mapNotes?: string
 }
 export function makeHexagonScenario(
   options?: HexagonScenarioOptions,
@@ -76,7 +81,8 @@ export function makeHexagonScenario(
   const hexMap = {
     id: generateMapID(),
     name: options?.mapName ?? genRandomMapName(),
-    author: '',
+    author: options?.author ?? '',
+    ...(options?.mapNotes !== undefined ? { mapNotes: options.mapNotes } : {}),
     version: 1,
     shape: 'hexagon',
     width: size,

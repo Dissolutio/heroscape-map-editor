@@ -116,6 +116,101 @@ afterEach(() => {
 })
 
 describe('map persistence round trips', () => {
+  it.each(['CC', 'DD', 'EE'])(
+    'preserves set %s through JSON, autosave, and share-link round trips',
+    (setID) => {
+      const mapWithSet = { ...hexMap, setsUsed: [setID] }
+      const emptyPieces: BoardPiece[] = []
+      const fromFile = openJsonMapFile(
+        JSON.stringify({ hexMap: mapWithSet, boardPieces: emptyPieces }),
+      )
+      expect(fromFile.hexMap.setsUsed).toEqual([setID])
+
+      storageValues.clear()
+      vi.clearAllMocks()
+      vi.stubGlobal('localStorage', localStorageMock)
+      const autosave = createLocalMapAutosaveStorage()
+      expect(
+        autosave.save({ hexMap: mapWithSet, boardPieces: emptyPieces }),
+      ).toEqual({ ok: true })
+      expect(loadMapFromLocalStorage(LS_KEYS.lastMap)?.hexMap.setsUsed).toEqual(
+        [setID],
+      )
+
+      const crushed = getUrlMapString({
+        hexMap: mapWithSet,
+        boardPieces: emptyPieces,
+      })
+      const { m } = parseMapShareUrlParams(
+        `https://hexoscape.com/?m=${crushed}`,
+      )
+      if (m === null) throw new Error('Expected a shared map payload')
+      const decoded = parseMapDataArrayFromCrushed(m)
+      expect(decoded.hexMap.setsUsed).toEqual([setID])
+    },
+  )
+
+  it('rebuilds Laur add-on conflicts after JSON, autosave, and share-link round trips', () => {
+    const laurPieces: BoardPiece[] = [
+      {
+        uid: 'edge-a',
+        inventoryID: 'lws',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 3, r: 3, s: -6 },
+      },
+      {
+        uid: 'edge-b',
+        inventoryID: 'lws',
+        altitude: 0,
+        rotation: 3,
+        pieceCoords: { q: 4, r: 3, s: -7 },
+      },
+    ]
+    const piecesConflict = (pieces: BoardPiece[]) => {
+      const addonUIDs = pieces
+        .filter((piece) => piece.inventoryID === 'lws')
+        .map((piece) => piece.uid)
+      expect(computeConflictedPieceUIDs(pieces)).toEqual(
+        expect.arrayContaining(addonUIDs),
+      )
+      expect(pieces.every((piece) => !('conflict' in piece))).toBe(true)
+      expect(pieces.every((piece) => !('unsupported' in piece))).toBe(true)
+    }
+    const savedFile = JSON.stringify({ hexMap, boardPieces: laurPieces })
+    expect(JSON.parse(savedFile)).not.toHaveProperty('unsupportedPieceUIDs')
+    const fromFile = openJsonMapFile(savedFile)
+    piecesConflict(fromFile.boardPieces)
+
+    storageValues.clear()
+    vi.clearAllMocks()
+    vi.stubGlobal('localStorage', localStorageMock)
+    const autosave = createLocalMapAutosaveStorage()
+    expect(autosave.save({ hexMap, boardPieces: laurPieces })).toEqual({
+      ok: true,
+    })
+    const saved = loadMapFromLocalStorage(LS_KEYS.lastMap)
+    if (!saved) throw new Error('Expected the Laur autosave to load')
+    expect(saved).not.toHaveProperty('unsupportedPieceUIDs')
+    const normalized = normalizeBoardPiecesWithDropped(saved.boardPieces)
+    const fromAutosave = buildupJsonFileMap(
+      normalized.boardPieces,
+      saved.hexMap,
+      normalized.droppedPieces,
+    )
+    piecesConflict(fromAutosave.boardPieces)
+
+    const crushed = getUrlMapString({ hexMap, boardPieces: laurPieces })
+    const { m } = parseMapShareUrlParams(`https://hexoscape.com/?m=${crushed}`)
+    if (m === null) throw new Error('Expected the Laur share payload')
+    const decoded = parseMapDataArrayFromCrushed(m)
+    const fromShare = buildupJsonFileMap(
+      inflateBoardPiecesFromIds(decoded.boardPiecesEncodedArr),
+      decoded.hexMap,
+    )
+    piecesConflict(fromShare.boardPieces)
+  })
+
   it('grows a map for an overhanging piece and preserves the fit on reload', () => {
     const smallMap = { ...hexMap, width: 6, length: 6 }
     const edgePiece: BoardPiece = {

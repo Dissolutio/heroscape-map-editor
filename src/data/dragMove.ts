@@ -1,11 +1,15 @@
 import type { BoardHex, BoardPiece, CubeCoordinate, Piece } from '../types'
-import { HexTerrain } from '../types'
+import { isStartZoneBoardPiece } from './startZoneVisibility'
+import { HexTerrain, Pieces } from '../types'
+import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { CLICK_DRAG_TOLERANCE_PX, HEXGRID_HEX_RADIUS } from '../utils/constants'
-import { cubeToPixel } from '../utils/hex-utils'
+import { cubeToPixel, hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
 import { genBoardHexID } from '../utils/map-utils'
-import { piecesSoFar } from './pieces'
-import type { IgnoredPieceUIDs } from './ignoredPieceUIDs'
+import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
 import type { MovePieceArgs } from './movePieces'
+import { applyPieceMoves } from './movePieces'
+import { piecesSoFar } from './pieces'
+import { getNearestHexEdgeIndex } from './dragRotation'
 import {
   type PlacementBlockedReason,
   type PlacementBoard,
@@ -17,6 +21,7 @@ import {
   placementBlockedMessages,
   resolvePlacement,
 } from './placement'
+import { computeConflictedPieceUIDs } from './rebuildBoardState'
 import getPieceTemplateCoords from './rotationTransforms'
 
 /**
@@ -26,29 +31,52 @@ import getPieceTemplateCoords from './rotationTransforms'
  * world/drag/dragController.ts.
  */
 
-/**
- * Pieces with no hexes of their own (they live only in boardPieces and sit
- * on an edge or an overlay), plus pieces whose placement depends on what
- * they are attached to. Dragging these needs edge coordinates; not yet.
- */
-const NOT_DRAGGABLE_TERRAINS: string[] = [
-  HexTerrain.startZone,
-  HexTerrain.battlement,
-  HexTerrain.roadWall,
-  HexTerrain.ropeLadder,
-  HexTerrain.laurWallAddon,
-  HexTerrain.ladder, // hangs on a wall face
-  HexTerrain.laurWall, // Laur pillars: their add-ons would be left behind
-]
-
 export const isDraggablePiece = (piece: Piece | undefined): piece is Piece =>
-  !!piece && !NOT_DRAGGABLE_TERRAINS.includes(piece.terrain)
+  !!piece
+
+// The ladder-origin hit adds one level, and ladderStack adds one more.
+const LADDER_STACK_ALTITUDE_STEP = 2
+
+function ladderAtStackAltitude(
+  boardPieces: BoardPiece[],
+  ladder: BoardPiece,
+  altitude: number,
+): BoardPiece | undefined {
+  return boardPieces.find(
+    (candidate) =>
+      candidate.inventoryID === Pieces.ladder &&
+      candidate.altitude === altitude &&
+      candidate.rotation === ladder.rotation &&
+      candidate.pieceCoords.q === ladder.pieceCoords.q &&
+      candidate.pieceCoords.r === ladder.pieceCoords.r &&
+      candidate.pieceCoords.s === ladder.pieceCoords.s,
+  )
+}
+
+function getLadderStackAbove(
+  ladder: BoardPiece,
+  boardPieces: BoardPiece[],
+): BoardPiece[] {
+  const above: BoardPiece[] = []
+  let current = ladder
+  while (true) {
+    const next = ladderAtStackAltitude(
+      boardPieces,
+      current,
+      current.altitude + LADDER_STACK_ALTITUDE_STEP,
+    )
+    if (!next) return above
+    above.push(next)
+    current = next
+  }
+}
 
 /** The selected members may move together only if all of them can move. */
 export function getDraggableSelectionGroup(
   selectedPieceIDs: string[],
   grabbedUID: string,
   boardPieces: BoardPiece[],
+  isShowStartZones = true,
 ): BoardPiece[] | null {
   if (!selectedPieceIDs.length || !selectedPieceIDs.includes(grabbedUID)) {
     return null
@@ -59,8 +87,23 @@ export function getDraggableSelectionGroup(
     if (seen.has(uid)) return null
     seen.add(uid)
     const bp = boardPieces.find((piece) => piece.uid === uid)
-    if (!bp || !isDraggablePiece(piecesSoFar[bp.inventoryID])) return null
+    if (
+      !bp ||
+      (!isShowStartZones && isStartZoneBoardPiece(bp)) ||
+      !isDraggablePiece(piecesSoFar[bp.inventoryID])
+    ) {
+      return null
+    }
     group.push(bp)
+  }
+  for (let index = 0; index < group.length; index++) {
+    const ladder = group[index]
+    if (ladder.inventoryID !== Pieces.ladder) continue
+    for (const above of getLadderStackAbove(ladder, boardPieces)) {
+      if (seen.has(above.uid)) continue
+      seen.add(above.uid)
+      group.push(above)
+    }
   }
   return group
 }
@@ -102,6 +145,11 @@ export function getGrabOffset(
   bp: BoardPiece,
   point: { x: number; z: number },
 ): CubeCoordinate {
+  // Attachment pieces follow the edge or port resolved directly under the
+  // pointer; their BoardPiece anchor is not the clicked support hex.
+  if (piece.terrain === HexTerrain.laurWallAddon || isEdgeDragPiece(piece)) {
+    return { q: 0, r: 0, s: 0 }
+  }
   const footprint = getPieceTemplateCoords({
     clickedHex: bp.pieceCoords,
     rotation: bp.rotation,
@@ -162,6 +210,36 @@ export type DragTargetMember = {
   resolution: PlacementResolution
   evaluation: PlacementEvaluation
   previewHex: CubeCoordinate & { altitude: number }
+  unsupported: boolean
+  edgeIndex?: number
+}
+
+function hasMovingLadderSupport(
+  member: DragTargetMember,
+  members: DragTargetMember[],
+): boolean {
+  if (member.piece.id !== Pieces.ladder || 'blocked' in member.resolution) {
+    return false
+  }
+  const memberResolution = member.resolution
+  return members.some((candidate) => {
+    if (
+      candidate.uid === member.uid ||
+      candidate.piece.id !== Pieces.ladder ||
+      'blocked' in candidate.resolution
+    ) {
+      return false
+    }
+    const candidateResolution = candidate.resolution
+    return (
+      candidateResolution.altitude + LADDER_STACK_ALTITUDE_STEP ===
+        memberResolution.altitude &&
+      candidateResolution.rotation === memberResolution.rotation &&
+      candidateResolution.coords.q === memberResolution.coords.q &&
+      candidateResolution.coords.r === memberResolution.coords.r &&
+      candidateResolution.coords.s === memberResolution.coords.s
+    )
+  })
 }
 
 /**
@@ -179,19 +257,34 @@ export function evaluateDragTarget(
   pointerHex: BoardHex,
   grabOffset: CubeCoordinate,
   movingPieces: BoardPiece[] = [bp],
+  worldPoint?: { x: number; z: number },
 ): DragTarget {
   const dropHex = getDropPointerHex(pointerHex, grabOffset, board.boardHexes)
   const members = [
     bp,
     ...movingPieces.filter((member) => member.uid !== bp.uid),
   ]
+  const groupEdgeDrag = members.length > 1 && isEdgeDragPiece(piece)
+  const groupEdgeTarget = groupEdgeDrag
+    ? getEdgeDragTarget(piece, bp, dropHex)
+    : null
+  const edgeTarget = groupEdgeDrag
+    ? null
+    : getEdgeDragTarget(piece, bp, dropHex, worldPoint)
   const ignoredUIDs = members.map((member) => member.uid)
   // Like the pen hover, resolve a target that hangs off the map anyway, so
   // its whole footprint shows; evaluation blocks it (offMap).
-  const resolution = resolvePlacement(piece, dropHex, bp.rotation, board, {
-    ignoreUID: ignoredUIDs,
-    deferOffMapCheck: true,
-  })
+  const resolution = resolvePlacement(
+    piece,
+    dropHex,
+    edgeTarget?.rotation ?? groupEdgeTarget?.rotation ?? bp.rotation,
+    board,
+    {
+      ignoreUID: ignoredUIDs,
+      deferOffMapCheck: true,
+      worldPoint: groupEdgeDrag ? undefined : worldPoint,
+    },
+  )
   const evaluation = evaluatePlacement(board, resolution, {
     ignoreUID: ignoredUIDs,
     checkHeightBounds: members.length > 1,
@@ -199,30 +292,36 @@ export function evaluateDragTarget(
   const grabbedCoords = isPlacementBlocked(resolution)
     ? dropHex
     : resolution.coords
-  const delta = subtract(grabbedCoords, bp.pieceCoords)
+  const delta = groupEdgeDrag
+    ? subtract(
+        dropHex,
+        getEdgeSupportCoords(piece, bp.pieceCoords, bp.rotation),
+      )
+    : subtract(grabbedCoords, bp.pieceCoords)
   const altitudeDelta = isPlacementBlocked(resolution)
     ? 0
     : resolution.altitude - bp.altitude
-
   const targetMembers: DragTargetMember[] = []
   for (const member of members) {
     const memberPiece =
       member.uid === bp.uid ? piece : piecesSoFar[member.inventoryID]
     if (!memberPiece) continue
+    const rigidCoords = {
+      q: member.pieceCoords.q + delta.q,
+      r: member.pieceCoords.r + delta.r,
+      s: member.pieceCoords.s + delta.s,
+    }
     const memberResolution: PlacementResolution =
       member.uid === bp.uid
         ? resolution
-        : ({
-            piece: memberPiece,
-            coords: {
-              q: member.pieceCoords.q + delta.q,
-              r: member.pieceCoords.r + delta.r,
-              s: member.pieceCoords.s + delta.s,
-            },
-            altitude: member.altitude + altitudeDelta,
-            rotation: member.rotation,
-            rule: 'default',
-          } satisfies ResolvedPlacement)
+        : resolveRigidMemberPlacement(
+            board,
+            memberPiece,
+            rigidCoords,
+            member.altitude + altitudeDelta,
+            member.rotation,
+            ignoredUIDs,
+          )
     const memberEvaluation =
       member.uid === bp.uid
         ? evaluation
@@ -230,12 +329,45 @@ export function evaluateDragTarget(
             ignoreUID: ignoredUIDs,
             checkHeightBounds: members.length > 1,
           })
-    const previewHex = isPlacementBlocked(memberResolution)
-      ? { ...dropHex, altitude: member.altitude }
-      : {
-          ...memberResolution.coords,
-          altitude: memberResolution.altitude,
-        }
+    const memberEdgeIndex =
+      member.uid === bp.uid
+        ? (edgeTarget?.edgeIndex ??
+          (groupEdgeDrag ? groupEdgeTarget?.edgeIndex : undefined))
+        : getEdgeDragTarget(
+            memberPiece,
+            { ...member, pieceCoords: rigidCoords },
+            rigidCoords,
+          )?.edgeIndex
+    const previewHex =
+      member.uid === bp.uid && edgeTarget
+        ? {
+            q: dropHex.q,
+            r: dropHex.r,
+            s: dropHex.s,
+            altitude: dropHex.altitude,
+          }
+        : memberEdgeIndex !== undefined
+          ? {
+              ...getEdgeSupportCoords(
+                memberPiece,
+                isPlacementBlocked(memberResolution)
+                  ? rigidCoords
+                  : memberResolution.coords,
+                isPlacementBlocked(memberResolution)
+                  ? member.rotation
+                  : memberResolution.rotation,
+              ),
+              altitude:
+                (isPlacementBlocked(memberResolution)
+                  ? member.altitude + altitudeDelta
+                  : memberResolution.altitude) + 1,
+            }
+          : isPlacementBlocked(memberResolution)
+            ? { ...dropHex, altitude: member.altitude }
+            : {
+                ...memberResolution.coords,
+                altitude: memberResolution.altitude,
+              }
     targetMembers.push({
       uid: member.uid,
       bp: member,
@@ -243,7 +375,67 @@ export function evaluateDragTarget(
       resolution: memberResolution,
       evaluation: memberEvaluation,
       previewHex,
+      unsupported: false,
+      ...(memberEdgeIndex === undefined ? {} : { edgeIndex: memberEdgeIndex }),
     })
+  }
+
+  const hasLaurWallAddon = members.some((member) =>
+    isLaurWallAddonPieceID(member.inventoryID),
+  )
+  const hasMovingLadderStack = targetMembers.some((member) =>
+    hasMovingLadderSupport(member, targetMembers),
+  )
+  if (
+    (hasLaurWallAddon || hasMovingLadderStack) &&
+    targetMembers.every(
+      (member) =>
+        !isPlacementBlocked(member.resolution) &&
+        member.evaluation.status !== 'blocked',
+    )
+  ) {
+    const simulated = applyPieceMoves(
+      {
+        ...board,
+        conflictedPieceUIDs: computeConflictedPieceUIDs(board.boardPieces),
+      },
+      targetMembers.flatMap((member) =>
+        isPlacementBlocked(member.resolution)
+          ? []
+          : [
+              {
+                uid: member.uid,
+                newPieceCoords: member.resolution.coords,
+                newAltitude: member.resolution.altitude,
+                newRotation: member.resolution.rotation,
+              },
+            ],
+      ),
+    )
+    if (simulated) {
+      for (const member of targetMembers) {
+        const conflicted = simulated.conflictedPieceUIDs.includes(member.uid)
+        if (isLaurWallAddonPieceID(member.piece.id)) {
+          member.unsupported = simulated.unsupportedPieceUIDs.includes(
+            member.uid,
+          )
+        }
+        if (hasMovingLadderSupport(member, targetMembers)) {
+          member.evaluation = {
+            ...member.evaluation,
+            status: conflicted ? 'conflict' : 'ok',
+            reason: conflicted ? 'Overlaps other pieces' : undefined,
+          }
+        }
+        if (
+          conflicted &&
+          member.evaluation.status !== 'blocked' &&
+          hasLaurWallAddon
+        ) {
+          member.evaluation = { ...member.evaluation, status: 'conflict' }
+        }
+      }
+    }
   }
 
   const status = targetMembers.some(
@@ -478,6 +670,8 @@ export type DragPreviewMember = {
   reason: string | null
   footprintHexes: PlacementEvaluation['footprintHexes']
   previewBp: BoardPiece | null
+  unsupported: boolean
+  edgeIndex?: number
 }
 
 /** The preview for a drag target (or for no target yet). */
@@ -527,6 +721,129 @@ export function getDragPreview(
       reason: member.evaluation.reason ?? null,
       footprintHexes: member.evaluation.footprintHexes,
       previewBp: previewBPFor(member),
+      unsupported: member.unsupported,
+      ...(member.edgeIndex === undefined
+        ? {}
+        : { edgeIndex: member.edgeIndex }),
     })),
   }
+}
+
+const isEdgeDragPiece = (piece: Piece) =>
+  piece.id === Pieces.battlement ||
+  piece.id === Pieces.roadWall ||
+  piece.id === Pieces.ropeLadder
+
+function resolveRigidMemberPlacement(
+  board: PlacementBoard,
+  piece: Piece,
+  coords: CubeCoordinate,
+  altitude: number,
+  rotation: number,
+  ignoredUIDs: IgnoredPieceUIDs,
+): PlacementResolution {
+  if (!isEdgeDragPiece(piece)) {
+    return { piece, coords, altitude, rotation, rule: 'default' }
+  }
+
+  const edgeIndex =
+    piece.id === Pieces.battlement ? (rotation + 3) % 6 : rotation
+  const supportCoords = getEdgeSupportCoords(piece, coords, rotation)
+  if (piece.id === Pieces.battlement || piece.id === Pieces.roadWall) {
+    if (!board.boardHexes[genBoardHexID({ ...supportCoords, altitude: 0 })]) {
+      return { blocked: 'offMap' }
+    }
+  }
+
+  const supportID = genBoardHexID({
+    ...supportCoords,
+    altitude: altitude + 1,
+  })
+  const existingSupport = board.boardHexes[supportID]
+  const ignored = toIgnoredPieceUIDSet(ignoredUIDs)
+  const support =
+    existingSupport && !ignored.has(existingSupport.boardPieceUID ?? '')
+      ? existingSupport
+      : {
+          ...supportCoords,
+          altitude: altitude + 1,
+          id: supportID,
+          pieceID: '',
+          inventoryID: '',
+          terrain: HexTerrain.empty,
+          pieceRotation: 0,
+        }
+
+  return resolvePlacement(piece, support, edgeIndex, board, {
+    ignoreUID: ignoredUIDs,
+    deferOffMapCheck: true,
+  })
+}
+
+function getEdgeSupportCoords(
+  piece: Piece,
+  coords: CubeCoordinate,
+  rotation: number,
+): CubeCoordinate {
+  if (piece.id !== Pieces.battlement && piece.id !== Pieces.roadWall) {
+    return coords
+  }
+  const edgeIndex =
+    piece.id === Pieces.battlement ? (rotation + 3) % 6 : rotation
+  const neighbor = hexUtilsGetNeighborForRotation(
+    piece.id === Pieces.battlement ? edgeIndex : (edgeIndex + 4) % 6,
+  )
+  return {
+    q: coords.q - neighbor.q,
+    r: coords.r - neighbor.r,
+    s: coords.s - neighbor.s,
+  }
+}
+
+export type DragEdgeTarget = {
+  /** Edge of the hovered hex, numbered like the placement rotation. */
+  edgeIndex: number
+  /** Rotation expected by resolvePlacement for the selected edge. */
+  rotation: number
+}
+
+/**
+ * Select the nearest edge midpoint of a hovered hex. At a tie (including a
+ * pointer exactly at the center), retain the piece's existing attachment
+ * edge, then use the lowest edge index for a deterministic fallback.
+ */
+export function getEdgeDragTarget(
+  piece: Piece,
+  bp: BoardPiece,
+  pointerHex: CubeCoordinate,
+  worldPoint?: { x: number; z: number },
+): DragEdgeTarget | null {
+  if (!isEdgeDragPiece(piece)) return null
+  const currentEdge =
+    piece.id === Pieces.battlement
+      ? (bp.rotation + 3) % 6
+      : ((bp.rotation % 6) + 6) % 6
+  if (!worldPoint) {
+    return { edgeIndex: currentEdge, rotation: currentEdge }
+  }
+
+  const edgeIndex = getNearestHexEdgeIndex(pointerHex, worldPoint, currentEdge)
+  return { edgeIndex, rotation: edgeIndex }
+}
+
+/** A stable cache key: edge pieces only need reevaluation when the edge changes. */
+export function getDragTargetKey(
+  piece: Piece,
+  bp: BoardPiece,
+  hex: BoardHex,
+  worldPoint?: { x: number; z: number },
+  isGroupDrag = false,
+) {
+  if (isGroupDrag && isEdgeDragPiece(piece)) return hex.id
+  const edgeTarget = getEdgeDragTarget(piece, bp, hex, worldPoint)
+  if (edgeTarget) return `${hex.id}:edge:${edgeTarget.edgeIndex}`
+  if (piece.terrain === HexTerrain.laurWallAddon && worldPoint) {
+    return `${hex.id}:${worldPoint.x}:${worldPoint.z}`
+  }
+  return hex.id
 }

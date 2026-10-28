@@ -6,14 +6,14 @@ import { isE2EDeterministic } from '../../../e2e/isE2E'
 import { hashToUnit } from '../../../e2e/seededRandom'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
+import { type BoardHex, HexTerrain } from '../../../types'
+import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
+import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import {
   isDragPassThrough,
   pressPieceForDrag,
   reportDragTargetHex,
 } from '../../drag/dragController'
-import type { BoardHex } from '../../../types'
-import { HEXGRID_HEXCAP_HEIGHT, INSTANCE_LIMIT } from '../../../utils/constants'
-import { getBoardHex3DCoords } from '../../../utils/map-utils'
 import { useDisposableGLTF } from '../../models/useDisposableGLTF'
 import { terrainCapColors } from '../hexColors'
 import type {
@@ -46,6 +46,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
     (s) => s.isLightsAndShadowsRender,
   )
   const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
+  const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
 
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
@@ -71,6 +72,7 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
           isVisible={range >= i}
           isLightsAndShadowsRender={isLightsAndShadowsRender}
           isHighQualityRender={isHighQualityRender}
+          genericSolidCapColor={genericSolidCapColor}
         />
       ))}
     </Instances>
@@ -89,16 +91,21 @@ function SolidCapInstance({
   isVisible,
   isLightsAndShadowsRender,
   isHighQualityRender,
+  genericSolidCapColor,
 }: BoardHexPieceProps & {
   isVisible: boolean
   isLightsAndShadowsRender: boolean
   isHighQualityRender: boolean
+  genericSolidCapColor: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnter, onPointerOut, onPointerMove } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
-  const color = terrainCapColors[boardHex.terrain]
+  const color =
+    boardHex.terrain === HexTerrain.generic
+      ? genericSolidCapColor
+      : terrainCapColors[boardHex.terrain]
 
   // Effect: Initial color/position
   React.useEffect(() => {
@@ -168,9 +175,18 @@ function SolidCapInstance({
       onPointerDown={(e: ThreeEvent<PointerEvent>) =>
         isVisible && pressPieceForDrag(e, boardHex.boardPieceUID)
       }
-      onPointerMove={(e: ThreeEvent<PointerEvent>) =>
-        isVisible && reportDragTargetHex(boardHex) && e.stopPropagation()
-      }
+      onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+        if (!isVisible) return
+        onPointerMove(e)
+        if (
+          reportDragTargetHex(boardHex, undefined, {
+            x: e.point.x,
+            z: e.point.z,
+          })
+        ) {
+          e.stopPropagation()
+        }
+      }}
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}

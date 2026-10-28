@@ -438,7 +438,7 @@ type NormalizableBoardPiece = Omit<BoardPiece, 'uid'> & { uid?: unknown }
 export type DroppedBoardPiece = {
   uid?: string
   inventoryID?: string
-  reason: 'unknown' | 'malformed'
+  reason: 'unknown' | 'malformed' | 'too-far'
 }
 
 export type NormalizedBoardPieces = {
@@ -577,7 +577,12 @@ export function getDroppedPiecesWarning(
   const unknownPieces = droppedPieces.filter(
     (piece) => piece.reason === 'unknown',
   )
-  const malformedCount = droppedPieces.length - unknownPieces.length
+  const malformedCount = droppedPieces.filter(
+    (piece) => piece.reason === 'malformed',
+  ).length
+  const tooFarCount = droppedPieces.filter(
+    (piece) => piece.reason === 'too-far',
+  ).length
   const details: string[] = []
 
   if (unknownPieces.length) {
@@ -598,5 +603,12 @@ export function getDroppedPiecesWarning(
   const updateMessage = unknownPieces.length
     ? ' Updating the app may let you load unknown pieces.'
     : ''
-  return `Skipped ${details.join(' and ')}.${updateMessage}`
+  const tooFarVerb = tooFarCount === 1 ? 'was' : 'were'
+  const tooFarMessage = tooFarCount
+    ? ` ${tooFarCount} piece${tooFarCount === 1 ? '' : 's'} ${tooFarVerb} too far from the map and ${tooFarVerb} left out.`
+    : ''
+  const droppedMessage = details.length
+    ? `Skipped ${details.join(' and ')}.${updateMessage}`
+    : ''
+  return `${droppedMessage}${tooFarMessage}`.trim()
 }

@@ -14,8 +14,9 @@ import {
   decideDrop,
   dragReducer,
   evaluateDragTarget,
-  getDraggableSelectionGroup,
   getDragPreview,
+  getDraggableSelectionGroup,
+  getDragTargetKey,
   getDropPointerHex,
   getGrabOffset,
   initialDragState,
@@ -23,6 +24,9 @@ import {
   shouldSwallowRelease,
   worldToCube,
 } from '../data/dragMove'
+import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
+import { getLaurAddonHitHex } from '../data/laurAddonStacking'
+import { applyPieceMoves } from '../data/movePieces'
 import { piecesSoFar } from '../data/pieces'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import { verticalObstructionTemplates } from '../data/vertical-obstruction-templates'
@@ -35,6 +39,7 @@ import {
   HEXGRID_MAX_ALTITUDE,
 } from '../utils/constants'
 import { cubeToPixel } from '../utils/hex-utils'
+import { commitMoveDecision } from '../world/drag/dragController'
 import { getSubterrainSize } from '../world/models/LandSubterrainInstanced'
 import {
   type Board,
@@ -43,7 +48,6 @@ import {
   makeTable,
   place,
 } from './helpers/board'
-import { commitMoveDecision } from '../world/drag/dragController'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 
@@ -60,21 +64,19 @@ describe('isDraggablePiece', () => {
     'cbs',
     'sb',
     'sl',
+    'lwp',
+    'lwt',
+    'lws',
+    'bt',
+    'rw',
+    'rl',
+    'ld',
   ])('%s can be dragged', (id) => {
     expect(isDraggablePiece(piecesSoFar[id])).toBe(true)
   })
 
-  it.each([
-    ['bt', 'battlement (edge piece)'],
-    ['rw', 'road wall (edge piece)'],
-    ['rl', 'rope ladder (edge piece)'],
-    ['lws', 'Laur add-on'],
-    ['z1', 'start zone'],
-    ['ld', 'ladder'],
-    ['lwp', 'Laur square pillar'],
-    ['lwt', 'Laur triangle pillar'],
-  ])('%s cannot: %s', (id) => {
-    expect(isDraggablePiece(piecesSoFar[id])).toBe(false)
+  it('a start zone can be dragged', () => {
+    expect(isDraggablePiece(piecesSoFar.z1)).toBe(true)
   })
 
   it('an unknown piece cannot', () => {
@@ -178,6 +180,23 @@ describe('grab offset', () => {
     expect(getDropPointerHex(pointerHex, { q: 0, r: 0, s: 0 }, {})).toBe(
       pointerHex,
     )
+  })
+
+  it('a Laur add-on follows the pointer-resolved side or vertex directly', () => {
+    const piece = piecesSoFar.lws
+    const bp: BoardPiece = {
+      uid: 'ADDON',
+      inventoryID: piece.id,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: at,
+    }
+    const { x, y } = cubeToPixel(at)
+    expect(getGrabOffset(piece, bp, { x: x + 0.5, z: y })).toEqual({
+      q: 0,
+      r: 0,
+      s: 0,
+    })
   })
 
   it('a shifted drop uses the board hex there when the altitude matches', () => {
@@ -484,19 +503,146 @@ describe('multi-selection drag', () => {
     expect(getDraggableSelectionGroup(['A', 'B'], 'B', draggable)).toEqual(
       draggable,
     )
+    const addon = {
+      uid: 'C',
+      inventoryID: 'lws',
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 3, r: 2, s: -5 },
+    }
+    expect(
+      getDraggableSelectionGroup(['A', 'C'], 'A', [...draggable, addon]),
+    ).toEqual([draggable[0], addon])
+    const ladder = { ...addon, inventoryID: 'ld' }
+    expect(
+      getDraggableSelectionGroup(['A', 'C'], 'A', [...draggable, ladder]),
+    ).toEqual([draggable[0], ladder])
     expect(
       getDraggableSelectionGroup(['A', 'C'], 'A', [
         ...draggable,
-        {
-          uid: 'C',
-          inventoryID: 'lws',
-          altitude: 0,
-          rotation: 0,
-          pieceCoords: { q: 3, r: 2, s: -5 },
-        },
+        { ...addon, inventoryID: 'unknown' },
       ]),
     ).toBeNull()
     expect(getDraggableSelectionGroup(['B'], 'A', draggable)).toBeNull()
+  })
+
+  it('moves a start-zone group rigidly with other draggable families', () => {
+    const board = groupBoard([
+      { uid: 'ZONE', inventoryID: 'z1', q: 1, r: 3, rotation: 2 },
+      { uid: 'ROCK', inventoryID: 'r1', q: 2, r: 2, rotation: 4 },
+    ])
+    const zone = board.boardPieces.find((bp) => bp.uid === 'ZONE')
+    const pointer = hexAt(board, { q: 3, r: 3, s: -6 }, 0)
+    if (!zone || !pointer) throw new Error('start-zone fixture is incomplete')
+    const group = getDraggableSelectionGroup(
+      ['ZONE', 'ROCK'],
+      'ZONE',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable start-zone group')
+
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.z1,
+      zone,
+      pointer,
+      noOffset,
+      group,
+    )
+    expect(target.evaluation.status).toBe('ok')
+    expect(target.members.map((member) => member.resolution)).toMatchObject([
+      {
+        coords: { q: 3, r: 3, s: -6 },
+        altitude: 0,
+        rotation: 2,
+      },
+      {
+        coords: { q: 4, r: 2, s: -6 },
+        altitude: 0,
+        rotation: 4,
+      },
+    ])
+    expect(getDragPreview(zone, target).members).toHaveLength(2)
+  })
+
+  it('blocks a start-zone group if a moved zone would duplicate a stationary one', () => {
+    const board = groupBoard([
+      { uid: 'MOVE1', inventoryID: 'z1', q: 1, r: 3 },
+      { uid: 'MOVE2', inventoryID: 'z2', q: 2, r: 3 },
+      { uid: 'STAY', inventoryID: 'z3', q: 3, r: 3 },
+    ])
+    const grabbed = board.boardPieces.find((bp) => bp.uid === 'MOVE1')
+    const pointer = hexAt(board, { q: 3, r: 3, s: -6 }, 0)
+    if (!grabbed || !pointer)
+      throw new Error('duplicate start-zone fixture is incomplete')
+    const group = getDraggableSelectionGroup(
+      ['MOVE1', 'MOVE2'],
+      'MOVE1',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable start-zone group')
+
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.z1,
+      grabbed,
+      pointer,
+      noOffset,
+      group,
+    )
+    expect(target.evaluation).toMatchObject({
+      status: 'blocked',
+      reason: 'duplicateStartZone',
+    })
+    expect(decideDrop('MOVE1', target)).toEqual({
+      type: 'cancel',
+      reason: 'duplicateStartZone',
+      message: 'A start zone is already on that hex.',
+    })
+    expect(board.boardPieces.map((bp) => bp.uid)).toEqual([
+      'MOVE1',
+      'MOVE2',
+      'STAY',
+    ])
+  })
+
+  it('previews a start-zone drag from frozen board state without mutation', () => {
+    const board = groupBoard([
+      { uid: 'ZONE', inventoryID: 'z1', q: 1, r: 3 },
+      { uid: 'OTHER', inventoryID: 'g1', q: 2, r: 3 },
+    ])
+    const zone = board.boardPieces.find((bp) => bp.uid === 'ZONE')
+    const pointer = hexAt(board, { q: 3, r: 3, s: -6 }, 0)
+    if (!zone || !pointer)
+      throw new Error('frozen start-zone fixture is incomplete')
+    const before = structuredClone(board)
+    const frozenBoard: Board = {
+      ...board,
+      boardHexes: Object.fromEntries(
+        Object.entries(board.boardHexes).map(([id, hex]) => [
+          id,
+          Object.freeze({ ...hex }),
+        ]),
+      ),
+      boardPieces: board.boardPieces.map((bp) =>
+        Object.freeze({
+          ...bp,
+          pieceCoords: Object.freeze({ ...bp.pieceCoords }),
+        }),
+      ),
+    }
+
+    const target = evaluateDragTarget(
+      frozenBoard,
+      piecesSoFar.z1,
+      zone,
+      pointer,
+      noOffset,
+      frozenBoard.boardPieces,
+    )
+
+    expect(target.evaluation.status).toBe('ok')
+    expect(board).toEqual(before)
   })
 
   it('applies one rigid delta to every member at all rotations', () => {
@@ -812,6 +958,376 @@ describe('multi-selection drag', () => {
 })
 
 describe('drag target and drop decision', () => {
+  const worldPointAt = (coords: CubeCoordinate) => {
+    const { x, y } = cubeToPixel(coords)
+    return { x, z: y }
+  }
+
+  it('an add-on follows the pointer to a matching pillar port', () => {
+    const board = groupBoard([
+      { uid: 'ADDON', inventoryID: 'lws', q: 1, r: 3 },
+      { uid: 'PILLAR', inventoryID: 'lwp', q: 4, r: 3 },
+      { uid: 'FAR', inventoryID: 'lwp', q: 5, r: 3 },
+    ])
+    const addon = board.boardPieces.find((bp) => bp.uid === 'ADDON')
+    const pillar = board.boardPieces.find((bp) => bp.uid === 'PILLAR')
+    if (!addon || !pillar) throw new Error('Laur fixture is incomplete')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.lws,
+      addon,
+      getLaurAddonHitHex(pillar),
+      noOffset,
+      [addon],
+      worldPointAt(pillar.pieceCoords),
+    )
+
+    expect(target.resolution).toMatchObject({
+      coords: pillar.pieceCoords,
+      altitude: pillar.altitude,
+      rotation: 0,
+      rule: 'laurAddon',
+    })
+    expect(target.members[0]).toMatchObject({
+      evaluation: { status: 'ok' },
+      unsupported: false,
+    })
+    expect(decideDrop('ADDON', target)).toMatchObject({
+      type: 'move',
+      newPieceCoords: pillar.pieceCoords,
+      newAltitude: pillar.altitude,
+      newRotation: 0,
+    })
+  })
+
+  it('an add-on pointer point selects the nearest allowed pillar port', () => {
+    const board = groupBoard([
+      { uid: 'ADDON', inventoryID: 'lws', q: 1, r: 3 },
+      { uid: 'PILLAR', inventoryID: 'lwp', q: 4, r: 3 },
+      { uid: 'FAR', inventoryID: 'lwp', q: 3, r: 3 },
+    ])
+    const addon = board.boardPieces.find((bp) => bp.uid === 'ADDON')
+    const pillar = board.boardPieces.find((bp) => bp.uid === 'PILLAR')
+    if (!addon || !pillar) throw new Error('Laur fixture is incomplete')
+    const feature = getLaurAddonFeaturePoint(pillar.pieceCoords, 3)
+    if (!feature) throw new Error('Laur side feature is missing')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.lws,
+      addon,
+      getLaurAddonHitHex(pillar),
+      noOffset,
+      [addon],
+      feature,
+    )
+
+    expect(target.resolution).toMatchObject({
+      coords: pillar.pieceCoords,
+      altitude: pillar.altitude,
+      rotation: 3,
+      rule: 'laurAddon',
+    })
+    expect(target.members[0]).toMatchObject({
+      evaluation: { status: 'ok' },
+      unsupported: false,
+    })
+  })
+
+  it('an add-on lands on an empty hex permissively and is marked unsupported', () => {
+    const board = groupBoard([{ uid: 'ADDON', inventoryID: 'lws', q: 1, r: 3 }])
+    const addon = board.boardPieces[0]
+    const destination = { q: 4, r: 3, s: -7 }
+    const targetHex = hexAt(board, destination, 0)
+    if (!targetHex) throw new Error('empty destination is missing')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.lws,
+      addon,
+      targetHex,
+      noOffset,
+      [addon],
+      worldPointAt(destination),
+    )
+
+    expect(target.evaluation.status).toBe('ok')
+    expect(target.resolution).toMatchObject({
+      coords: destination,
+      altitude: 0,
+      rotation: addon.rotation,
+      rule: 'laurAddon',
+    })
+    expect(target.members[0].unsupported).toBe(true)
+    expect(decideDrop('ADDON', target).type).toBe('move')
+  })
+
+  it('an add-on lands on land and reports conflict plus unsupported state', () => {
+    const board = groupBoard([
+      { uid: 'ADDON', inventoryID: 'lws', q: 1, r: 3 },
+      { uid: 'LAND', inventoryID: 'g1', q: 4, r: 3 },
+    ])
+    const addon = board.boardPieces.find((bp) => bp.uid === 'ADDON')
+    const destination = { q: 4, r: 3, s: -7 }
+    const surface = hexAt(board, destination, 1)
+    if (!addon || !surface) throw new Error('land destination is missing')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.lws,
+      addon,
+      surface,
+      noOffset,
+      [addon],
+      worldPointAt(destination),
+    )
+
+    expect(target.evaluation.status).toBe('conflict')
+    expect(target.resolution).toMatchObject({
+      coords: destination,
+      altitude: 1,
+      rule: 'laurAddon',
+    })
+    expect(target.members[0].unsupported).toBe(true)
+    expect(decideDrop('ADDON', target).type).toBe('move')
+  })
+
+  it('a conflicted add-on can preview a drag from frozen store state', () => {
+    const board = groupBoard([
+      { uid: 'ADDON', inventoryID: 'lwr', q: 3, r: 3 },
+      { uid: 'LAND', inventoryID: 'g1', q: 4, r: 3 },
+    ])
+    const addon = board.boardPieces.find((bp) => bp.uid === 'ADDON')
+    const destination = { q: 2, r: 4, s: -6 }
+    const targetHex = hexAt(board, destination, 0)
+    if (!addon || !targetHex)
+      throw new Error('conflicted add-on fixture missing')
+
+    const before = structuredClone(board)
+    const frozenBoard: Board = {
+      ...board,
+      boardHexes: Object.fromEntries(
+        Object.entries(board.boardHexes).map(([id, hex]) => [
+          id,
+          Object.freeze({ ...hex }),
+        ]),
+      ),
+    }
+    const target = evaluateDragTarget(
+      frozenBoard,
+      piecesSoFar.lwr,
+      addon,
+      targetHex,
+      noOffset,
+      [addon],
+      worldPointAt(destination),
+    )
+
+    expect(target.resolution).toMatchObject({ coords: destination })
+    expect(target.members[0].unsupported).toBe(true)
+    expect(board).toEqual(before)
+  })
+
+  it('a pillar lands on empty land with smart altitude', () => {
+    const board = groupBoard([
+      { uid: 'PILLAR', inventoryID: 'lwp', q: 1, r: 3 },
+      { uid: 'LAND', inventoryID: 'g1', q: 4, r: 3 },
+    ])
+    const pillar = board.boardPieces.find((bp) => bp.uid === 'PILLAR')
+    const destination = { q: 4, r: 3, s: -7 }
+    const surface = hexAt(board, destination, 1)
+    if (!pillar || !surface) throw new Error('land destination is missing')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.lwp,
+      pillar,
+      surface,
+      noOffset,
+    )
+
+    expect(target.resolution).toMatchObject({
+      coords: destination,
+      altitude: 1,
+    })
+    expect(target.evaluation.status).toBe('ok')
+    expect(decideDrop('PILLAR', target).type).toBe('move')
+  })
+
+  it('a pillar stacks on a matching pillar at +8 with its rotation', () => {
+    const board = groupBoard([
+      { uid: 'PILLAR', inventoryID: 'lwp', q: 1, r: 3 },
+      { uid: 'TARGET', inventoryID: 'lwp', q: 4, r: 3, rotation: 2 },
+    ])
+    const pillar = board.boardPieces.find((bp) => bp.uid === 'PILLAR')
+    const targetPillar = board.boardPieces.find((bp) => bp.uid === 'TARGET')
+    if (!pillar || !targetPillar)
+      throw new Error('pillar fixture is incomplete')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.lwp,
+      pillar,
+      getLaurAddonHitHex(targetPillar),
+      noOffset,
+    )
+
+    expect(target.resolution).toMatchObject({
+      coords: targetPillar.pieceCoords,
+      altitude: targetPillar.altitude + 8,
+      rotation: targetPillar.rotation,
+      rule: 'pillarStack',
+    })
+    expect(target.evaluation.status).toBe('ok')
+    expect(decideDrop('PILLAR', target).type).toBe('move')
+  })
+
+  it('a pillar refuses to stack on a mismatched-shape pillar', () => {
+    const board = groupBoard([
+      { uid: 'PILLAR', inventoryID: 'lwp', q: 1, r: 3 },
+      { uid: 'TARGET', inventoryID: 'lwt', q: 4, r: 3 },
+    ])
+    const pillar = board.boardPieces.find((bp) => bp.uid === 'PILLAR')
+    const targetPillar = board.boardPieces.find((bp) => bp.uid === 'TARGET')
+    if (!pillar || !targetPillar)
+      throw new Error('pillar fixture is incomplete')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.lwp,
+      pillar,
+      getLaurAddonHitHex(targetPillar),
+      noOffset,
+    )
+
+    expect(target.resolution).toEqual({ blocked: 'pillarShapesDiffer' })
+    expect(decideDrop('PILLAR', target)).toMatchObject({
+      type: 'cancel',
+      reason: 'pillarShapesDiffer',
+    })
+  })
+
+  it('moving a pillar leaves its add-on behind and makes it unsupported', () => {
+    const board = groupBoard([
+      { uid: 'PILLAR', inventoryID: 'lwp', q: 1, r: 3 },
+      { uid: 'FAR', inventoryID: 'lwp', q: 2, r: 3 },
+      { uid: 'ADDON', inventoryID: 'lws', q: 1, r: 3 },
+    ])
+    const pillar = board.boardPieces.find((bp) => bp.uid === 'PILLAR')
+    const destination = { q: 4, r: 3, s: -7 }
+    const pointer = hexAt(board, destination, 0)
+    if (!pillar || !pointer) throw new Error('Laur fixture is incomplete')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.lwp,
+      pillar,
+      pointer,
+      noOffset,
+    )
+    const decision = decideDrop('PILLAR', target)
+    if (decision.type !== 'move') throw new Error('expected a pillar move')
+    const moved = applyPieceMoves(
+      { ...board, conflictedPieceUIDs: [] },
+      decision.moves ?? [
+        {
+          uid: decision.uid,
+          newPieceCoords: decision.newPieceCoords,
+          newAltitude: decision.newAltitude,
+          newRotation: decision.newRotation,
+        },
+      ],
+    )
+
+    expect(moved?.boardPieces.find((bp) => bp.uid === 'ADDON')).toMatchObject({
+      pieceCoords: { q: 1, r: 3, s: -4 },
+      inventoryID: 'lws',
+    })
+    expect(moved?.unsupportedPieceUIDs).toContain('ADDON')
+  })
+
+  it('a mixed pillar-and-add-on group moves rigidly without self-conflicts', () => {
+    const board = groupBoard([
+      { uid: 'PILLAR', inventoryID: 'lwp', q: 1, r: 3 },
+      { uid: 'FAR', inventoryID: 'lwp', q: 2, r: 3 },
+      { uid: 'ADDON', inventoryID: 'lws', q: 1, r: 3 },
+    ])
+    const pillar = board.boardPieces.find((bp) => bp.uid === 'PILLAR')
+    const destination = { q: 4, r: 3, s: -7 }
+    const pointer = hexAt(board, destination, 0)
+    if (!pillar || !pointer) throw new Error('Laur fixture is incomplete')
+    const group = getDraggableSelectionGroup(
+      ['PILLAR', 'FAR', 'ADDON'],
+      'PILLAR',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable Laur group')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.lwp,
+      pillar,
+      pointer,
+      noOffset,
+      group,
+    )
+    const addon = target.members.find((member) => member.uid === 'ADDON')
+
+    expect(target.evaluation.status).toBe('ok')
+    expect(target.members.map((member) => member.evaluation.status)).toEqual([
+      'ok',
+      'ok',
+      'ok',
+    ])
+    expect(addon).toMatchObject({
+      resolution: {
+        coords: { q: 4, r: 3, s: -7 },
+        altitude: 0,
+        rotation: 0,
+        rule: 'default',
+      },
+      unsupported: false,
+    })
+    expect(target.evaluation.displacedUIDs).toEqual([])
+    expect(decideDrop('PILLAR', target)).toMatchObject({
+      type: 'move',
+      moves: expect.arrayContaining([
+        expect.objectContaining({
+          uid: 'ADDON',
+          newPieceCoords: destination,
+          newRotation: 0,
+        }),
+      ]),
+    })
+  })
+
+  it('blocks a group when an add-on member exceeds the height bounds', () => {
+    const board = groupBoard([
+      { uid: 'PILLAR', inventoryID: 'lwp', q: 1, r: 3 },
+      { uid: 'ADDON', inventoryID: 'lws', q: 2, r: 3, altitude: 80 },
+    ])
+    const pillar = board.boardPieces.find((bp) => bp.uid === 'PILLAR')
+    const destination = { q: 4, r: 3, s: -7 }
+    const tableHex = hexAt(board, destination, 0)
+    if (!pillar || !tableHex) throw new Error('Laur fixture is incomplete')
+    const group = getDraggableSelectionGroup(
+      ['PILLAR', 'ADDON'],
+      'PILLAR',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable Laur group')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.lwp,
+      pillar,
+      { ...tableHex, altitude: 10 },
+      noOffset,
+      group,
+    )
+    const addon = target.members.find((member) => member.uid === 'ADDON')
+
+    expect(addon?.evaluation).toMatchObject({
+      status: 'blocked',
+      reason: 'outOfHeight',
+    })
+    expect(decideDrop('PILLAR', target)).toMatchObject({
+      type: 'cancel',
+      reason: 'outOfHeight',
+    })
+  })
+
   it('over its own start hex the rock resolves back where it is, and is ok', () => {
     const { board, rock } = fixtureBoard()
     const before = cloneBoard(board)
@@ -1006,6 +1522,153 @@ describe('store: drag state and undo/autosave', () => {
       .boardPieces.find((bp) => bp.uid === 'ROCK')
     expect(back?.pieceCoords).toEqual({ q: 1, r: 2, s: -3 })
     expect(back?.altitude).toBe(1)
+  })
+
+  it('a start-zone group drop is one undo step and undo restores the group', () => {
+    const board = groupBoard([
+      { uid: 'ZONE', inventoryID: 'z1', q: 1, r: 3 },
+      { uid: 'ROCK', inventoryID: 'r1', q: 2, r: 2 },
+    ])
+    const zone = board.boardPieces.find((bp) => bp.uid === 'ZONE')
+    const pointer = hexAt(board, { q: 3, r: 3, s: -6 }, 0)
+    if (!zone || !pointer) throw new Error('start-zone fixture is incomplete')
+    const group = getDraggableSelectionGroup(
+      ['ZONE', 'ROCK'],
+      'ZONE',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable start-zone group')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.z1,
+      zone,
+      pointer,
+      noOffset,
+      group,
+    )
+    const decision = decideDrop('ZONE', target)
+    if (decision.type !== 'move') throw new Error('expected a group move')
+
+    useBoundStore.setState({
+      boardHexes: board.boardHexes,
+      boardPieces: board.boardPieces,
+      conflictedPieceUIDs: [],
+      unsupportedPieceUIDs: [],
+      viewingLevel: 0,
+    })
+    useBoundStore.temporal.getState().clear()
+    const before = structuredClone({
+      boardHexes: board.boardHexes,
+      boardPieces: board.boardPieces,
+    })
+    commitMoveDecision(decision)
+    expect(history()).toBe(1)
+    expect(useBoundStore.getState().boardPieces).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          uid: 'ZONE',
+          pieceCoords: { q: 3, r: 3, s: -6 },
+        }),
+        expect.objectContaining({
+          uid: 'ROCK',
+          pieceCoords: { q: 4, r: 2, s: -6 },
+        }),
+      ]),
+    )
+
+    useBoundStore.temporal.getState().undo()
+    expect(history()).toBe(0)
+    expect(useBoundStore.getState()).toMatchObject(before)
+  })
+
+  it('dropping a start zone on its own hex records no undo entry', () => {
+    const board = groupBoard([
+      { uid: 'ZONE', inventoryID: 'z1', q: 1, r: 3 },
+      { uid: 'ROCK', inventoryID: 'r1', q: 2, r: 2 },
+    ])
+    const zone = board.boardPieces.find((bp) => bp.uid === 'ZONE')
+    const pointer = hexAt(board, { q: 1, r: 3, s: -4 }, 0)
+    if (!zone || !pointer) throw new Error('start-zone fixture is incomplete')
+    const target = evaluateDragTarget(
+      board,
+      piecesSoFar.z1,
+      zone,
+      pointer,
+      noOffset,
+    )
+    const decision = decideDrop('ZONE', target)
+    if (decision.type !== 'move') throw new Error('expected a start-zone move')
+
+    useBoundStore.setState({
+      boardHexes: board.boardHexes,
+      boardPieces: board.boardPieces,
+      conflictedPieceUIDs: [],
+      unsupportedPieceUIDs: [],
+      viewingLevel: 0,
+    })
+    useBoundStore.temporal.getState().clear()
+    commitMoveDecision(decision)
+    expect(history()).toBe(0)
+  })
+
+  it('a mixed Laur group drop is one undo step and restores all derived state', () => {
+    const board = groupBoard([
+      { uid: 'PILLAR', inventoryID: 'lwp', q: 1, r: 3 },
+      { uid: 'FAR', inventoryID: 'lwp', q: 2, r: 3 },
+      { uid: 'ADDON', inventoryID: 'lws', q: 1, r: 3 },
+    ])
+    const pillar = board.boardPieces.find((bp) => bp.uid === 'PILLAR')
+    const pointer = hexAt(board, { q: 4, r: 3, s: -7 }, 0)
+    if (!pillar || !pointer) throw new Error('Laur fixture is incomplete')
+    const group = getDraggableSelectionGroup(
+      ['PILLAR', 'FAR', 'ADDON'],
+      'PILLAR',
+      board.boardPieces,
+    )
+    if (!group) throw new Error('expected draggable Laur group')
+    const decision = decideDrop(
+      'PILLAR',
+      evaluateDragTarget(
+        board,
+        piecesSoFar.lwp,
+        pillar,
+        pointer,
+        noOffset,
+        group,
+      ),
+    )
+    if (decision.type !== 'move') throw new Error('expected a group move')
+
+    useBoundStore.setState({
+      boardHexes: board.boardHexes,
+      boardPieces: board.boardPieces,
+      conflictedPieceUIDs: [],
+      unsupportedPieceUIDs: [],
+      viewingLevel: 0,
+    })
+    useBoundStore.temporal.getState().clear()
+    const before = structuredClone({
+      boardHexes: useBoundStore.getState().boardHexes,
+      boardPieces: useBoundStore.getState().boardPieces,
+      conflictedPieceUIDs: useBoundStore.getState().conflictedPieceUIDs,
+      unsupportedPieceUIDs: useBoundStore.getState().unsupportedPieceUIDs,
+      viewingLevel: useBoundStore.getState().viewingLevel,
+    })
+
+    commitMoveDecision(decision)
+    expect(history()).toBe(1)
+    expect(useBoundStore.getState().unsupportedPieceUIDs).toEqual([])
+    expect(useBoundStore.getState().conflictedPieceUIDs).toEqual([])
+
+    useBoundStore.temporal.getState().undo()
+    const undone = useBoundStore.getState()
+    expect({
+      boardHexes: undone.boardHexes,
+      boardPieces: undone.boardPieces,
+      conflictedPieceUIDs: undone.conflictedPieceUIDs,
+      unsupportedPieceUIDs: undone.unsupportedPieceUIDs,
+      viewingLevel: undone.viewingLevel,
+    }).toEqual(before)
   })
 })
 

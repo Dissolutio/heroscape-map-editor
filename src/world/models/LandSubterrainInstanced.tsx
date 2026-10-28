@@ -6,13 +6,6 @@ import { piecesSoFar } from '../../data/pieces'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import {
-  findPieceHexAt,
-  isDragPassThrough,
-  isDragging,
-  pressPieceForDrag,
-  reportDragTargetHex,
-} from '../drag/dragController'
-import {
   type BoardHexes,
   type BoardPiece,
   HexTerrain,
@@ -28,23 +21,17 @@ import {
   getBoardHex3DCoords,
   getSurfaceAltitudeByPieceUID,
 } from '../../utils/map-utils'
+import {
+  findPieceHexAt,
+  isDragPassThrough,
+  isDragging,
+  pressPieceForDrag,
+  reportDragTargetHex,
+} from '../drag/dragController'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { InstanceRefType } from '../maphex/instance-hex'
+import { NON_INSTANCED_SUBTERRAIN_PIECES } from './landHexInstances'
 import { useDisposableGLTF } from './useDisposableGLTF'
-
-// These pieces render their own colorOverride'd LandSubterrain in MapBoardPiece3D.tsx,
-// so they are excluded here to avoid double rendering. Keep in sync with that file.
-const NON_INSTANCED_SUBTERRAIN_PIECES = new Set<string>([
-  Pieces.glacier1,
-  Pieces.outcrop1,
-  Pieces.lavaRockOutcrop1,
-  Pieces.glacier3,
-  Pieces.lavaRockOutcrop3,
-  Pieces.outcrop3,
-  Pieces.glacier4,
-  Pieces.glacier6,
-  Pieces.hive,
-])
 
 type SubterrainSize =
   | '1'
@@ -245,9 +232,17 @@ function SubterrainInstance({
     item.terrain === HexTerrain.grass ||
     item.terrain === HexTerrain.sand ||
     item.terrain === HexTerrain.rock
+  const genericSideColor = useBoundStore((s) =>
+    item.terrain === HexTerrain.generic
+      ? s.genericSolidSideColor
+      : item.terrain === HexTerrain.genericFluid
+        ? s.genericFluidSideColor
+        : null,
+  )
   const baseColor = isDirtSubterrain
     ? hexTerrainColor[HexTerrain.dirt]
-    : hexTerrainColor[item.terrain as keyof typeof hexTerrainColor]
+    : (genericSideColor ??
+      hexTerrainColor[item.terrain as keyof typeof hexTerrainColor])
   const isSelected = selectedPieceIDs.includes(item.uid)
   const displayColor = isSelected ? 'yellow' : baseColor
 
@@ -291,7 +286,10 @@ function SubterrainInstance({
     e.stopPropagation() // prevent pass through
     // Early out right clicks(event.button=2), middle mouse clicks(1)
     if (e.button !== 0) return
-    toggleSelectedPieceID(item.uid, e.shiftKey || e.ctrlKey || e.metaKey)
+    toggleSelectedPieceID(item.uid, e.shiftKey || e.ctrlKey || e.metaKey, {
+      x: e.point.x,
+      z: e.point.z,
+    })
   }
 
   return (
@@ -306,7 +304,10 @@ function SubterrainInstance({
       onPointerMove={(e: ThreeEvent<PointerEvent>) =>
         // a tile's side stands for its top in that column
         isDragging() &&
-        reportDragTargetHex(findPieceHexAt(item.uid, e.point), item.uid) &&
+        reportDragTargetHex(findPieceHexAt(item.uid, e.point), item.uid, {
+          x: e.point.x,
+          z: e.point.z,
+        }) &&
         e.stopPropagation()
       }
       frustumCulled={false}

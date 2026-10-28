@@ -112,10 +112,8 @@ export function remove(board: Board, uid: string) {
 }
 
 /**
- * A fully independent copy. Needed because `addPiece` only shallow-copies the
- * hex map, so it edits hex objects that the caller still holds (see the
- * "KNOWN GAP: addPiece mutates its input" test). Tests that reuse one starting
- * board across many placements clone it first.
+ * A fully independent copy for tests that reuse one starting board across
+ * many placements.
  */
 export function cloneBoard<T extends Board>(board: T): T {
   return structuredClone(board)
@@ -137,7 +135,7 @@ export function hexAt(
  * so it cannot be relied on to support a large footprint.)
  */
 export function withGrassFloor(table: Table): Table {
-  // clone first: placing mutates the hex objects it is handed
+  // Keep the source table independent from the floor-building placements.
   let board: Board = cloneBoard({
     boardHexes: table.boardHexes,
     boardPieces: table.boardPieces,

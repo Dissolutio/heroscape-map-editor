@@ -32,7 +32,11 @@ export function GlyphModel({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
+    toggleSelectedPieceID(
+      pid,
+      event.shiftKey || event.ctrlKey || event.metaKey,
+      { x: event.point.x, z: event.point.z },
+    )
   }
   const glyphColor = hexTerrainColor[terrain as keyof typeof hexTerrainColor]
   const yellowColor = 'yellow'

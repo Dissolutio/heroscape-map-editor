@@ -1,3 +1,26 @@
+Oct-27-2026
+TLDR: Add reusable Generic terrain pieces with customizable colors
+
+- **Generic terrain pieces**: Add Generic solid and fluid hexes in the sizes you need, without requiring inventory counts or terrain-set records. Choose separate cap and side colors for solid and fluid Generic terrain in the View tab; these colors are saved with your settings and used in 3D, 2D, PDF, and SVG views.
+- **Generic terrain export colors**: Generic terrain now keeps its correct colors at sub-levels in 2D, PDF, and SVG output.
+- **Buried-tile marks in build instructions**: Optional marks identify land tiles whose tops or sides will be covered. Turn them on separately for PDF and 2D/SVG exports; PDF marks use superscripts and have improved spacing.
+- **Laur add-on placement feedback**: Laur wall add-ons can be placed freely, while previews show whether they are supported or conflicted. When placing over a compatible pillar, rotation can snap to its ports.
+- **Laur add-on footprints and stacking**: Placement previews and conflict checks now account for add-on footprints, pillar support, and valid stacking, including measured piece heights and stacking increments. Unsupported add-ons remain placeable and are shown with a warning.
+- **What's New dialog**: See release notes for updates since your last visit. Release versions are now generated from the dated release notes.
+- **Safari stale-file recovery**: If Safari loads a stale app file after an update, the app automatically retries once instead of leaving a broken screen.
+- **Drag more pieces**: Laur pillars and wall add-ons, battlements, road walls, rope ladders, start zones and ladders can now be dragged, alone or several selected together. Dragging a ladder moves it and every ladder stacked above it. Conflicted Laur add-ons can be dragged too, so you can fix them.
+- **Rotate a selection around a pivot hex**: With one or more pieces selected, the rotate buttons turn them together, 60 degrees at a time, around a cyan hex marker. Click a different hex of the last selected piece to move the pivot. A rotation that would not fit is refused.
+- **Rotate while you drag**: Scroll the mouse wheel while dragging to rotate the piece or group around the part you are holding. Ladders rotate to face the side of the hex your pointer is on.
+- **Hide start zones in 3D**: A new switch in the View tab hides start zones in the 3D view, handy for photos. They come back on every visit, so nobody loses their zones by accident.
+- **Maps grow to fit on load**: If a loaded map has pieces hanging past its edge, the map grows to fit and tells you. Pieces absurdly far away are left out with a warning instead of freezing the app.
+- **Stackable Laur pen modes**: The stackable pillar, short wall and long wall each have their own pen mode. Placing a regular pillar or wall on a stack switches to the stackable version for you, with Undo.
+- **Laur symbols in exports**: Stackable walls, ruins 2 and 3 and the stackable pillar now show up in 2D and PDF build instructions.
+- **Asphalt border in PDF**: With colored outlines turned off, Asphalt gets a readable gray border instead of black on black.
+- **View tab tidy-up**: Long explanations moved into tooltips, and the camera options only show in the 3D view.
+- **New map dialog**: Create New Map now asks for the author and notes, like Edit Map Details, with an optional "Remember my name for new maps".
+- **New terrain: Toxic Wastelands of Valhalla, Tournament Organizer Terrain Kit 2, Organized Play Expeditions Kits Promo**: Pick them in your terrain constraints. New pieces: the 3-hex Toxic tile and Toxic Rock Outcrops (1 and 3).
+- **Under the hood**: Dev, security, and tidiness.
+
 Oct-18-2026
 TLDR: Click and drag *most* pieces, including multi-selected pieces. Better piece previews. Saved user settings.
 
@@ -42,35 +65,33 @@ Sep-12-2026
 - **Hex Height Text: Toxic Water**: White text for hex height was not visible on toxic water, switched to black
 - **Fix Memory Leaks/Instancing Subterrains**: Code changes were made to further minimize RAM usage, improve graphics performance, improve ray casting speed
 
-Sep-08-2026 PM
+Sep-08-2026
 - **StartZone bugs: conflicting with ruins**: StartZones will no longer conflict with other pieces they are placed next to, like ruins and fortified wall. Also, clicking a hex with a StartZone will no longer place a duplicate.
 - **PDF: Bugfix: small map level on last page**: If you had a page with less than 3 map levels on it, they would print too small
 - Some changes to make the SVG export images more friendly with other software
 
-Sep-08-2026
 - **PDF/SVG tile letters**: Many full-height and half-height tiles now have a letter on their tile as an abbreviation for their terrain, to help visually distinguish them in another way. This matches contemporary maps such as the 2026 GenCon map build instructions.
 - **Bugfix for roadwall**: The roadwall has had a strange bug where it displays in the center of the hex and does not visually "fit" right
 
-09-04-2026 PM
+Sep-04-2026
 - **PDF formats full text**: Both formats now display map notes, required sets
 - **Bugfix for convert liquid=>solid**: Display was going wonky when you converted fluid terrain to solid terrain. (half-height to full-height)
 - **PDF/SVG Level Logos**: Toggle on/off, now the level logo from official publications can be on your build instructions. Also, 2D/SVG exports of map levels will have the level logo in the export for you to use in your own editing software
 
-09-04-2026
 - **PDF Tile Borders: Black & Blue**: When PDF Color Borders is disabled, which is the default, then full-height tiles will have black borders, and half-height tiles will have blue borders. This will differentiate Asphalt from Shadow easily, and hopefully not overload the colors present too much.
 - **Marvel Ruin Bug**: Hex heights should now display properly underneath a marvel ruin (with wall, 2 hex heights were missing, with wall destroyed, 4 hex heights were missing)
 - **Ancient terrain color**: updated in 3D render
 - **PDF Laur Wall/Pillars**: updated to mirror the 2D view/contemporary styles
 - **PDF Grid Lines toggle**: show grid lines under sublevel, or over sublevels
 
-09-02-2026
+Sep-02-2026
 - Feature: Middle-click a placed piece to select it as the current pen mode (with hotkey shift+z to do it with a left-click)
 - Feature: Share URL for build instructions - regular URL and Markdown link buttons (you can link directly to your map's build instructions, but the map image & map notes you may have on your computer will NOT transfer)
 - Improvement: More legible personal piece inventory editing - clearer layout
 - Improvement: Hotkey text shown on relevant camera buttons, with tooltip on hover
 - Bug: Fixed camera zoom issue on newly created maps
 
-08-30-2026 AM
+Aug-30-2026
 - Bug:color: Share-URL button broke when trying to share a map with a picture 
 - Feature: PDF Layout Format option (1 page coversheet) available in View tab
 - An option that applies to all views: Enable/Disable legacy start zones. This just means opting between circles and Virtualscape based colors, or hexagons and contemporary colors

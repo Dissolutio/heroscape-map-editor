@@ -1,13 +1,14 @@
 import type { Dictionary } from 'lodash'
 import { HexTerrain, type Piece, PiecePrefixes, Pieces } from '../types'
 import {
-  powerGlyphs,
-  treasureGlyphs,
-  marvelGlyphs,
   c3vGlyphs,
   c3vPlaytestGlyphs,
   customGlyphs,
+  marvelGlyphs,
+  powerGlyphs,
+  treasureGlyphs,
 } from './glyphs'
+import { LAUR_PILLAR_HEIGHT } from './laurPillarStacking'
 
 export const piecesSoFar: Dictionary<Piece> = {
   // UNINVENTORIED
@@ -710,6 +711,17 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 1,
   },
+  [Pieces.toxic3]: {
+    id: Pieces.toxic3,
+    title: '3-hex Toxic',
+    terrain: HexTerrain.toxic,
+    landPrefix: PiecePrefixes.toxic,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    size: 3,
+    template: '3',
+    height: 1,
+  },
   [Pieces.ancientTerrain1]: {
     id: Pieces.ancientTerrain1,
     title: '1-hex Ancient Terrain',
@@ -942,6 +954,126 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '3',
     height: 0,
   },
+  [Pieces.generic1]: {
+    id: Pieces.generic1,
+    title: 'Generic 1-hex',
+    terrain: HexTerrain.generic,
+    landPrefix: PiecePrefixes.generic,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    isUninventoried: true,
+    size: 1,
+    template: '1',
+    height: 1,
+  },
+  [Pieces.generic2]: {
+    id: Pieces.generic2,
+    title: 'Generic 2-hex',
+    terrain: HexTerrain.generic,
+    landPrefix: PiecePrefixes.generic,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    isUninventoried: true,
+    size: 2,
+    template: '2',
+    height: 1,
+  },
+  [Pieces.generic3]: {
+    id: Pieces.generic3,
+    title: 'Generic 3-hex',
+    terrain: HexTerrain.generic,
+    landPrefix: PiecePrefixes.generic,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    isUninventoried: true,
+    size: 3,
+    template: '3',
+    height: 1,
+  },
+  [Pieces.generic7]: {
+    id: Pieces.generic7,
+    title: 'Generic 7-hex',
+    terrain: HexTerrain.generic,
+    landPrefix: PiecePrefixes.generic,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    isUninventoried: true,
+    size: 7,
+    template: '7',
+    height: 1,
+  },
+  [Pieces.generic24]: {
+    id: Pieces.generic24,
+    title: 'Generic 24-hex',
+    terrain: HexTerrain.generic,
+    landPrefix: PiecePrefixes.generic,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    isUninventoried: true,
+    size: 24,
+    template: '24',
+    height: 1,
+  },
+  [Pieces.genericFluid1]: {
+    id: Pieces.genericFluid1,
+    title: 'Generic 1-hex (fluid)',
+    terrain: HexTerrain.genericFluid,
+    landPrefix: PiecePrefixes.genericFluid,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    isUninventoried: true,
+    size: 1,
+    template: '1',
+    height: 0,
+  },
+  [Pieces.genericFluid2]: {
+    id: Pieces.genericFluid2,
+    title: 'Generic 2-hex (fluid)',
+    terrain: HexTerrain.genericFluid,
+    landPrefix: PiecePrefixes.genericFluid,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    isUninventoried: true,
+    size: 2,
+    template: '2',
+    height: 0,
+  },
+  [Pieces.genericFluid3]: {
+    id: Pieces.genericFluid3,
+    title: 'Generic 3-hex (fluid)',
+    terrain: HexTerrain.genericFluid,
+    landPrefix: PiecePrefixes.genericFluid,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    isUninventoried: true,
+    size: 3,
+    template: '3',
+    height: 0,
+  },
+  [Pieces.genericFluid7]: {
+    id: Pieces.genericFluid7,
+    title: 'Generic 7-hex (fluid)',
+    terrain: HexTerrain.genericFluid,
+    landPrefix: PiecePrefixes.genericFluid,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    isUninventoried: true,
+    size: 7,
+    template: '7',
+    height: 0,
+  },
+  [Pieces.genericFluid24]: {
+    id: Pieces.genericFluid24,
+    title: 'Generic 24-hex (fluid)',
+    terrain: HexTerrain.genericFluid,
+    landPrefix: PiecePrefixes.genericFluid,
+    isHexTerrainPiece: true,
+    isObstaclePiece: false,
+    isUninventoried: true,
+    size: 24,
+    template: '24',
+    height: 0,
+  },
   // LAUR WALL
   [Pieces.laurWallSquarePillar]: {
     id: Pieces.laurWallSquarePillar,
@@ -951,7 +1083,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12, // game height was 10, errata 9
+    height: LAUR_PILLAR_HEIGHT, // core 9.5, top 12, stacking adds 8; male top 4
   },
   [Pieces.laurWallPillarStackable]: {
     id: Pieces.laurWallPillarStackable,
@@ -961,7 +1093,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12, // game height was 10, errata 9
+    height: LAUR_PILLAR_HEIGHT, // core 9.5, top 12, stacking adds 8; male top 4
   },
   [Pieces.laurWallTrianglePillar]: {
     id: Pieces.laurWallTrianglePillar,
@@ -971,7 +1103,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12, // game height was 10, errata 9
+    height: LAUR_PILLAR_HEIGHT, // core 9.5, top 12, stacking adds 8; male top 4
   },
   [Pieces.laurWallShort]: {
     id: Pieces.laurWallShort,
@@ -991,7 +1123,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallShort,
-    height: 12, // game height is 10
+    height: 12, // game height is 10, only adds 8 when stacked (male wall top is 3 hexes tall)
   },
   [Pieces.laurWallLong]: {
     id: Pieces.laurWallLong,
@@ -1011,7 +1143,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallLongStackable,
-    height: 12, // game height is 10
+    height: 12, // game height is 10, only adds 8 when stacked (male wall/arch top is 3 hexes tall)
   },
   [Pieces.laurWallArch]: {
     id: Pieces.laurWallArch,
@@ -1021,7 +1153,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallArch,
-    height: 12, // game height is 10
+    height: 12, // game height is 10, cannot stack on top of anything, can have laurWallLongStackable stacked on top (male arch top is 3 hexes tall)
   },
   [Pieces.laurWallRuin1]: {
     id: Pieces.laurWallRuin1,
@@ -1031,7 +1163,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallRuin1,
-    height: 10, //smallest ruin, no top part, game height is undefined (doesn't block adjacency)
+    height: 8, // smallest ruin, no top part, game height is undefined (doesn't block adjacency), can stack
   },
   [Pieces.laurWallRuin2]: {
     id: Pieces.laurWallRuin2,
@@ -1041,7 +1173,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallRuin2,
-    height: 12, // game height is undefined (doesn't block adjacency)
+    height: 12, // game height is undefined (doesn't block adjacency), cannot stack
   },
   [Pieces.laurWallRuin3]: {
     id: Pieces.laurWallRuin3,
@@ -1051,7 +1183,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallRuin3,
-    height: 12, // game height is undefined (doesn't block adjacency)
+    height: 12, // game height is undefined (doesn't block adjacency), cannot stack
   },
   // RUINS
   [Pieces.ruins2]: {
@@ -1082,7 +1214,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 8,
     template: Pieces.fortifiedWall,
-    height: 10,
+    height: 9,
   },
   [Pieces.marvel]: {
     id: Pieces.marvel,
@@ -1153,7 +1285,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 10,
+    height: 9,
   },
   [Pieces.tree11]: {
     id: Pieces.tree11,
@@ -1173,7 +1305,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: true,
     size: 1,
     template: '1',
-    height: 12,
+    height: 11,
   },
   [Pieces.tree415]: {
     id: Pieces.tree415,
@@ -1425,6 +1557,26 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9, // untested in reality
+  },
+  [Pieces.toxicOutcrop1]: {
+    id: Pieces.toxicOutcrop1,
+    title: 'Toxic Rock Outcrop (1)',
+    terrain: HexTerrain.toxicOutcrop,
+    isHexTerrainPiece: false,
+    isObstaclePiece: true,
+    size: 1,
+    template: '1',
+    height: 7,
+  },
+  [Pieces.toxicOutcrop3]: {
+    id: Pieces.toxicOutcrop3,
+    title: 'Toxic Rock Outcrop (3)',
+    terrain: HexTerrain.toxicOutcrop,
+    isHexTerrainPiece: false,
+    isObstaclePiece: true,
+    size: 3,
+    template: '3',
+    height: 9,
   },
   [Pieces.hive]: {
     id: Pieces.hive,

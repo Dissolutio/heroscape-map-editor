@@ -1,7 +1,7 @@
 import { terrainSetsByShortID } from '../data/terrainSets'
-import { Pieces, type BoardPiece } from '../types'
+import { isGenericPieceID, Pieces, type BoardPiece } from '../types'
 
-const LAUR_STACK_ALTITUDE_DELTA = 9
+const LAUR_STACK_ALTITUDE_DELTA = 8
 
 export const RECONCILABLE_LAUR_PIECE_PAIRS: Array<{
   legacyID: string
@@ -99,6 +99,7 @@ export const countPiecesUsedWithLaurStacking = (
 
   for (const boardPiece of boardPieces) {
     const inventoryID = boardPiece.inventoryID
+    if (isGenericPieceID(inventoryID)) continue
     let remappedInventoryID = inventoryID
 
     if (

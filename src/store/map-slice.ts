@@ -3,9 +3,16 @@ import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
+import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { type MovePieceArgs, applyPieceMoves } from '../data/movePieces'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
+import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
+import { reanchorRotationPivotAfterRotation } from '../data/rotationPivot'
+import {
+  filterVisiblePieceIDs,
+  isStartZoneBoardPiece,
+} from '../data/startZoneVisibility'
 import { removePiece } from '../data/removePiece'
 import { HexTerrain } from '../types'
 import type {
@@ -81,6 +88,7 @@ function getDefaultSizeForLandPrefix(prefix: string) {
 
 export interface MapSlice extends MapState {
   conflictedPieceUIDs: string[]
+  unsupportedPieceUIDs: string[]
   isAutosaveHeld: boolean
   mapLoadRevision: number
   recomputeConflicts: () => void
@@ -89,7 +97,10 @@ export interface MapSlice extends MapState {
   convertTerrainForPieces: (args: ConvertTerrainArgs) => number
   movePiece: (args: MovePieceArgs) => void
   /** Moves several pieces in one update (one undo step); see applyPieceMoves. */
-  movePieces: (args: { moves: MovePieceArgs[] }) => void
+  movePieces: (args: {
+    moves: MovePieceArgs[]
+    preserveRotationPivot?: boolean
+  }) => void
   loadMap: (
     map: MapState & { dimensionsAdjusted?: boolean },
     options?: LoadMapOptions,
@@ -148,6 +159,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
   },
   boardPieces: [],
   conflictedPieceUIDs: [],
+  unsupportedPieceUIDs: [],
   isAutosaveHeld: false,
   mapLoadRevision: 0,
   recomputeConflicts: () =>
@@ -156,6 +168,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           draft.boardPieces,
         )
+        draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+          boardPieces: draft.boardPieces,
+        })
       }),
     ),
   paintTile: ({
@@ -190,6 +205,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.boardPieces = newBoardPieces
         // Recompute from boardPieces so conflict state stays correct even after load/rehydrate drift.
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(newBoardPieces)
+        draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+          boardPieces: newBoardPieces,
+        })
       })
     })
     return error
@@ -197,6 +215,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
   unpaintTile: (uid: string) =>
     set((state) => {
       return produce(state, (draft) => {
+        draft.rotationPivot = null
         // 1. Remove the piece being deleted
         let { newBoardHexes: workingHexes, newBoardPieces: workingPieces } =
           removePiece({
@@ -245,7 +264,15 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
 
         draft.boardHexes = workingHexes
         draft.boardPieces = workingPieces
-        draft.conflictedPieceUIDs = [...newConflicts]
+        draft.conflictedPieceUIDs = [
+          ...new Set([
+            ...newConflicts,
+            ...evaluateLaurAddonConflicts(workingPieces, workingHexes),
+          ]),
+        ]
+        draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+          boardPieces: workingPieces,
+        })
       })
     }),
   convertTerrainForPieces: ({
@@ -311,22 +338,64 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         if (occupancyChanged) {
           draft.boardHexes = workingHexes
           draft.conflictedPieceUIDs = computeConflictedPieceUIDs(workingPieces)
+          draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+            boardPieces: workingPieces,
+          })
         }
       })
     })
     return convertedCount
   },
   movePiece: (args: MovePieceArgs) => get().movePieces({ moves: [args] }),
-  movePieces: ({ moves }: { moves: MovePieceArgs[] }) =>
+  movePieces: ({
+    moves,
+    preserveRotationPivot = false,
+  }: {
+    moves: MovePieceArgs[]
+    preserveRotationPivot?: boolean
+  }) =>
     set((state) => {
-      // one update, so the whole group is one undo step; with no known
-      // piece to move, produce returns the same state and nothing changes
+      const effectiveMoves = moves.filter((move, index) => {
+        if (
+          moves.findIndex((candidate) => candidate.uid === move.uid) !== index
+        )
+          return false
+        const boardPiece = state.boardPieces.find(
+          (piece) => piece.uid === move.uid,
+        )
+        return (
+          boardPiece !== undefined &&
+          (boardPiece.pieceCoords.q !== move.newPieceCoords.q ||
+            boardPiece.pieceCoords.r !== move.newPieceCoords.r ||
+            boardPiece.pieceCoords.s !== move.newPieceCoords.s ||
+            boardPiece.altitude !== (move.newAltitude ?? boardPiece.altitude) ||
+            boardPiece.rotation !== (move.newRotation ?? boardPiece.rotation))
+        )
+      })
+      if (!effectiveMoves.length) return state
+      // One update makes the whole group one undo step. No-op moves should
+      // not reorder board pieces or create history entries.
       return produce(state, (draft) => {
-        const moved = applyPieceMoves(draft, moves)
+        const moved = applyPieceMoves(draft, effectiveMoves)
         if (!moved) return
+        const pivotUID =
+          state.selectedPieceIDs[state.selectedPieceIDs.length - 1]
+        if (effectiveMoves.some((move) => move.uid === pivotUID)) {
+          draft.rotationPivot = preserveRotationPivot
+            ? reanchorRotationPivotAfterRotation(
+                state.selectedPieceIDs,
+                state.boardPieces,
+                state.boardHexes,
+                moved.boardPieces,
+                moved.boardHexes,
+                state.rotationPivot,
+              )
+            : null
+        }
         draft.boardHexes = moved.boardHexes
         draft.boardPieces = moved.boardPieces
         draft.conflictedPieceUIDs = moved.conflictedPieceUIDs
+        draft.unsupportedPieceUIDs = moved.unsupportedPieceUIDs
         // same as painting: keep a piece moved up into view
         draft.viewingLevel = getViewingLevelAfterPlacing(
           state.viewingLevel,
@@ -417,12 +486,33 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     clearGlobalMaterialCache()
     const result = set((state) => {
       return produce(state, (draft) => {
+        const piecesBeforeLoad = draft.boardPieces
+        if (!draft.isShowStartZones) {
+          draft.selectedPieceIDs = filterVisiblePieceIDs(
+            draft.selectedPieceIDs,
+            [...piecesBeforeLoad, ...mapState.boardPieces],
+            false,
+          )
+          if (
+            isStartZoneBoardPiece(
+              piecesBeforeLoad.find(
+                (piece) => piece.uid === draft.hoveredPieceID,
+              ),
+            )
+          ) {
+            draft.hoveredPieceID = ''
+          }
+        }
         draft.boardHexes = mapState.boardHexes
         draft.hexMap = mapState.hexMap
         draft.boardPieces = mapState.boardPieces
+        draft.rotationPivot = null
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           mapState.boardPieces,
         )
+        draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
+          boardPieces: mapState.boardPieces,
+        })
         draft.isAutosaveHeld = options.holdAutosave ?? false
         draft.mapLoadRevision += 1
         const constrainedInventory = getEffectiveTerrainConstraintInventory({

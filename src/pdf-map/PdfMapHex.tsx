@@ -4,6 +4,7 @@ import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
+import useBoundStore from '../store/store'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
@@ -16,10 +17,11 @@ import {
 import { OPACITY_SUBLEVEL, SVG_HEX_RADIUS } from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
-  getTerrainTileLetter,
+  getTerrainTileAnnotation,
+  getTerrainTileLetterColor,
   getTileLetterPosition,
-  shouldDisplayTerrainTileLetter,
 } from '../utils/tileLetters'
+import { type BuriedMarksByUID, getBuriedMarksForHex } from '../utils/tileMarks'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
   PdfCannon,
@@ -58,6 +60,7 @@ import {
   PdfSvgRuins3,
   PdfSvgTree415,
 } from './PdfMapShapes'
+import { getPdfBuriedMarkOffset } from './pdfBuriedMarkPosition'
 
 const glyphTextProps = () => ({
   style: {
@@ -73,28 +76,86 @@ const glyphTextProps = () => ({
 const TerrainTileLetterText = ({
   hex,
   viewingLevel,
-  enabled,
+  isShowTileLetters,
+  isShowBuriedMarks,
+  buriedMarksByUID,
 }: {
   hex: BoardHex
   viewingLevel: number
-  enabled: boolean
+  isShowTileLetters: boolean
+  isShowBuriedMarks: boolean
+  buriedMarksByUID: BuriedMarksByUID
 }) => {
-  if (!enabled || !shouldDisplayTerrainTileLetter(hex, viewingLevel)) {
-    return null
-  }
-  const terrainLetter = getTerrainTileLetter(hex.terrain)
-  if (!terrainLetter) {
-    return null
-  }
+  const settings = useBoundStore.getState()
+  const genericCapColor =
+    hex.terrain === HexTerrain.generic
+      ? settings.genericSolidCapColor
+      : hex.terrain === HexTerrain.genericFluid
+        ? settings.genericFluidCapColor
+        : ''
+  const marks = isShowBuriedMarks
+    ? getBuriedMarksForHex(hex, viewingLevel, buriedMarksByUID)
+    : ''
+  const letter = getTerrainTileAnnotation(
+    hex,
+    viewingLevel,
+    isShowTileLetters,
+    '',
+  )
+  if (!letter && !marks) return null
+  const textFill = getTerrainTileLetterColor(
+    hex.terrain,
+    genericCapColor ?? '',
+    genericCapColor ?? '',
+  )
   const position = getTileLetterPosition(hex)
+  const textStyle = letter
+    ? pdfHexTextStyle
+    : {
+        ...pdfHexTextStyle,
+        fontSize: pdfHexTextStyle.fontSize * 0.58,
+      }
+  if (letter && marks) {
+    const markOffset = getPdfBuriedMarkOffset(letter, pdfHexTextStyle.fontSize)
+    if (!markOffset) {
+      throw new Error('A terrain letter is required to position buried marks')
+    }
+    return (
+      <>
+        <Text
+          fill={textFill ?? '#000000'}
+          {...pdfTextProps()}
+          style={pdfHexTextStyle}
+          x={position.x}
+          y={position.y}
+        >
+          {letter}
+        </Text>
+        <Text
+          fill={textFill ?? '#000000'}
+          {...pdfTextProps()}
+          style={{
+            ...pdfHexTextStyle,
+            fontSize: pdfHexTextStyle.fontSize * 0.58,
+          }}
+          textAnchor="start"
+          x={position.x + markOffset.x}
+          y={position.y + markOffset.y}
+        >
+          {marks}
+        </Text>
+      </>
+    )
+  }
   return (
     <Text
-      fill={terrainLetter.isBlack ? '#000000' : '#FFFFFF'}
+      fill={textFill ?? '#000000'}
       {...pdfTextProps()}
+      style={textStyle}
       x={position.x}
       y={position.y}
     >
-      {terrainLetter.letter}
+      {letter || marks}
     </Text>
   )
 }
@@ -106,6 +167,8 @@ export const PdfMapHex = ({
   isPdfColorBorders,
   isShowPdfOverlayOnPlacedLevel,
   isShowPdfTileLetters,
+  isShowPdfBuriedMarks,
+  buriedMarksByUID,
   useLegacyStartZones,
 }: {
   hex: BoardHex
@@ -114,6 +177,8 @@ export const PdfMapHex = ({
   isPdfColorBorders: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowPdfTileLetters: boolean
+  isShowPdfBuriedMarks: boolean
+  buriedMarksByUID: BuriedMarksByUID
   useLegacyStartZones: boolean
 }) => {
   const pixel = hexUtilsHexToPixel(hex)
@@ -309,6 +374,7 @@ export const PdfMapHex = ({
   if (
     inventoryID === Pieces.outcrop1 ||
     inventoryID === Pieces.lavaRockOutcrop1 ||
+    inventoryID === Pieces.toxicOutcrop1 ||
     inventoryID === Pieces.glacier1
   ) {
     const glacierTextColor = isSubLevel
@@ -343,6 +409,7 @@ export const PdfMapHex = ({
   if (
     inventoryID === Pieces.outcrop3 ||
     inventoryID === Pieces.lavaRockOutcrop3 ||
+    inventoryID === Pieces.toxicOutcrop3 ||
     inventoryID === Pieces.glacier3
   ) {
     return (
@@ -534,6 +601,7 @@ export const PdfMapHex = ({
   // LAUR PILLARS
   if (
     inventoryID === Pieces.laurWallSquarePillar ||
+    inventoryID === Pieces.laurWallPillarStackable ||
     inventoryID === Pieces.laurWallTrianglePillar
   ) {
     return (
@@ -554,7 +622,9 @@ export const PdfMapHex = ({
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
-          enabled={isShowPdfTileLetters}
+          isShowTileLetters={isShowPdfTileLetters}
+          isShowBuriedMarks={isShowPdfBuriedMarks}
+          buriedMarksByUID={buriedMarksByUID}
         />
         <PdfSvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </G>
@@ -578,7 +648,9 @@ export const PdfMapHex = ({
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
-          enabled={isShowPdfTileLetters}
+          isShowTileLetters={isShowPdfTileLetters}
+          isShowBuriedMarks={isShowPdfBuriedMarks}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </G>
     )
@@ -601,7 +673,9 @@ export const PdfMapHex = ({
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
-          enabled={isShowPdfTileLetters}
+          isShowTileLetters={isShowPdfTileLetters}
+          isShowBuriedMarks={isShowPdfBuriedMarks}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </G>
     )
@@ -624,7 +698,9 @@ export const PdfMapHex = ({
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
-          enabled={isShowPdfTileLetters}
+          isShowTileLetters={isShowPdfTileLetters}
+          isShowBuriedMarks={isShowPdfBuriedMarks}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </G>
     )
@@ -647,7 +723,9 @@ export const PdfMapHex = ({
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
-          enabled={isShowPdfTileLetters}
+          isShowTileLetters={isShowPdfTileLetters}
+          isShowBuriedMarks={isShowPdfBuriedMarks}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </G>
     )
@@ -670,7 +748,9 @@ export const PdfMapHex = ({
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
-          enabled={isShowPdfTileLetters}
+          isShowTileLetters={isShowPdfTileLetters}
+          isShowBuriedMarks={isShowPdfBuriedMarks}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </G>
     )
@@ -693,7 +773,9 @@ export const PdfMapHex = ({
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
-          enabled={isShowPdfTileLetters}
+          isShowTileLetters={isShowPdfTileLetters}
+          isShowBuriedMarks={isShowPdfBuriedMarks}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </G>
     )
@@ -716,7 +798,9 @@ export const PdfMapHex = ({
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
-          enabled={isShowPdfTileLetters}
+          isShowTileLetters={isShowPdfTileLetters}
+          isShowBuriedMarks={isShowPdfBuriedMarks}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </G>
     )
@@ -739,7 +823,9 @@ export const PdfMapHex = ({
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
-          enabled={isShowPdfTileLetters}
+          isShowTileLetters={isShowPdfTileLetters}
+          isShowBuriedMarks={isShowPdfBuriedMarks}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </G>
     )
@@ -758,7 +844,9 @@ export const PdfMapHex = ({
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
-          enabled={isShowPdfTileLetters}
+          isShowTileLetters={isShowPdfTileLetters}
+          isShowBuriedMarks={isShowPdfBuriedMarks}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </G>
     )
@@ -781,7 +869,9 @@ export const PdfMapHex = ({
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
-          enabled={isShowPdfTileLetters}
+          isShowTileLetters={isShowPdfTileLetters}
+          isShowBuriedMarks={isShowPdfBuriedMarks}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </G>
     )

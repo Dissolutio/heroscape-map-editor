@@ -37,7 +37,7 @@ const shiftInDirectionBoardPieces = (
   return newBoardPieces
 }
 export const EditControlsTab = () => {
-  // const boardHexes = useBoundStore((s) => s.boardHexes)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
   // const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
@@ -70,7 +70,7 @@ export const EditControlsTab = () => {
     (state) => state.toggleIsPieceInventoryDialogOpen,
   )
   const handleClickLogState = () => {
-    // console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
+    console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
     console.log({ boardPieces, hexMap } as MapFileState)
     // console.log('🚀 ~ Controls ~ boardPieces:', boardPieces)
     // console.log('🚀 ~ Controls ~ hexMap:', hexMap)
@@ -132,7 +132,6 @@ export const EditControlsTab = () => {
           ? `${remainingCount} remaining`
           : ''}
       </div> */}
-      {/* <MapLensToggles /> */}
       {/* <LocalStorageList /> */}
       <List>
         {/* OPEN EDIT MAP DETAILS DIALOG */}

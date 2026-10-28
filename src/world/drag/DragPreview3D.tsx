@@ -1,11 +1,12 @@
-import { piecesSoFar } from '../../data/pieces'
 import type { DragPreviewMember } from '../../data/dragMove'
+import { piecesSoFar } from '../../data/pieces'
 import useBoundStore from '../../store/store'
 import type { BoardPiece } from '../../types'
 import { HexTerrain } from '../../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../../utils/board-utils'
 import { genBoardHexID } from '../../utils/map-utils'
 import { LandPieceGhost } from '../LandPieceGhost'
+import { LaurAddonPreview } from '../LaurAddonPreview'
 import { OperationPiecePreviewItem } from '../OperationPiecePreviews'
 import { PlacementFootprint } from '../PlacementFootprint'
 
@@ -29,6 +30,7 @@ export function DragPreview3D() {
       reason: dragPreview.reason,
       footprintHexes: dragPreview.footprintHexes,
       previewBp: dragPreview.previewBp,
+      unsupported: false,
     },
   ]
 
@@ -63,17 +65,39 @@ export function DragPreview3D() {
           <group key={member.uid}>
             <PlacementFootprint
               status={member.status}
-              footprintHexes={member.footprintHexes}
+              unsupported={member.unsupported}
+              footprintHexes={
+                member.edgeIndex === undefined
+                  ? member.footprintHexes
+                  : [member.pointerHex]
+              }
               hoveredHex={member.pointerHex}
+              edgeRotation={member.edgeIndex}
             />
             {showGhost && isLand && landGhost()}
-            {showGhost && !isLand && originalBp && member.previewBp && (
-              <OperationPiecePreviewItem
-                originalBp={originalBp}
-                previewBp={member.previewBp}
-                isRaycastable={false}
-              />
-            )}
+            {showGhost &&
+              piece?.terrain === HexTerrain.laurWallAddon &&
+              member.previewBp && (
+                <LaurAddonPreview
+                  piece={piece}
+                  coords={member.previewBp.pieceCoords}
+                  altitude={member.previewBp.altitude}
+                  rotation={member.previewBp.rotation}
+                  unsupported={member.unsupported && member.status === 'ok'}
+                  isRaycastable={false}
+                />
+              )}
+            {showGhost &&
+              !isLand &&
+              piece?.terrain !== HexTerrain.laurWallAddon &&
+              originalBp &&
+              member.previewBp && (
+                <OperationPiecePreviewItem
+                  originalBp={originalBp}
+                  previewBp={member.previewBp}
+                  isRaycastable={false}
+                />
+              )}
           </group>
         )
       })}

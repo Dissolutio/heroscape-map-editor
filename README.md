@@ -7,24 +7,26 @@
 2. Double-click the `.msi` file to run the installer.
 3. *Note:* If a blue "Windows protected your PC" popup appears, click **More info** and then click **Run anyway**.
 
-### 🍏 macOS
-1. Download the app container from the [Official Mac Download](https://github.com/dissolutio/heroscape-map-editor/releases/latest/download/Hexoscape.dmg).
+### 🍏 macOS (Apple Silicon)
+1. Download the disk image from the [Official Mac Download](https://github.com/dissolutio/heroscape-map-editor/releases/latest/download/Hexoscape.dmg).
 2. Double-click the `.dmg` file, then **drag and drop** the application icon into your `Applications` folder.
 3. *Note:* If it says the developer cannot be verified, open your Mac's **System Settings > Privacy & Security**, scroll down, and click **Open Anyway**.
 
 ### 🐧 Linux
-1. Download the package from the [Official Linux Download](https://github.com/dissolutio/heroscape-map-editor/releases/latest/download/Hexoscape.deb).
-2. Open your terminal and install it using: `sudo apt install ./Hexoscape.deb`
+- Debian/Ubuntu: download the [`.deb` package](https://github.com/dissolutio/heroscape-map-editor/releases/latest/download/Hexoscape.deb), then install it with `sudo apt install ./Hexoscape.deb`.
+- Fedora/RPM-based distributions: download the [`.rpm` package](https://github.com/dissolutio/heroscape-map-editor/releases/latest/download/Hexoscape.rpm), then install it with `sudo dnf install ./Hexoscape.rpm`.
+- Other distributions: download the [AppImage](https://github.com/dissolutio/heroscape-map-editor/releases/latest/download/Hexoscape.AppImage) and follow your distribution's instructions for running AppImages.
 
 
 ## Table of Contents
 
 - [How to Install and Run](#how-to-install-and-run)
-- [Getting Started](#getting-started)
-- [Libraries Used](#libraries-used)
+- [Getting Started on Development](#getting-started-on-development)
+- [Selected Libraries Used](#selected-libraries-used)
 - [Blender Models](#blender-models)
 - [Quick Overview of How It Works](#quick-overview-of-how-it-works)
 - [Scripts](#scripts)
+- [Releasing](./docs/releasing.md)
 - [App Requirements: What this editor intends to fulfill, eventually](./app-requirements.md)
 - [Vite Template: The README.md that was included by the initial Vite Typescript template](./vite-template-README.md)
 - [License](#license)
@@ -52,7 +54,8 @@ To get started with the project, follow these steps:
     npm run dev
     ```
 
-4. Open your browser and navigate to `http://localhost:5173` to see the application in action.
+4. Open `http://localhost:5173` in your browser. The root route redirects to
+   the editor at `/hs`.
 
 ## Scripts
 
@@ -63,15 +66,20 @@ The following scripts are available in the project:
 - `build`: Builds the project using TypeScript and Vite.
 - `lint`: Lints the code using BiomeJS and fixes any issues.
 - `preview`: Previews the production build using Vite.
+- `test`: Runs the Vitest unit tests.
+- `test:watch`: Runs Vitest in watch mode.
+- `test:e2e`: Runs the Playwright end-to-end tests.
 
 To run any of these scripts, use the following command:
 ```sh
 npm run <script-name>
 ```
+Note that `lint` and `format` modify files.
 
-## Libraries Used
+## Selected Libraries Used
 
-This project utilizes several libraries to provide a rich development experience and 3D features:
+The application uses the following libraries for its UI, state management,
+rendering, and map data:
 
 - **React**: A JavaScript library for building user interfaces.
 - **TypeScript**: A typed superset of JavaScript that compiles to plain JavaScript.
@@ -82,50 +90,60 @@ This project utilizes several libraries to provide a rich development experience
 - **@react-three/drei** and **@react-three/fiber**: Libraries for working with Three.js in React.
 - **@sentry/react**: A library for error tracking and monitoring.
 - **immer**: A library for working with immutable state.
-- **jsoncrush**: A library for compressing JSON data. (to keep as many maps as possible within the URL-shareable length of ~2000 characters)
-- **lodash**: A utility library for JavaScript. (included by React, so is "free")
-- **nanoid**: A library for generating unique IDs. (to keep mapID's unique, in case they one day become cloud-storable)
+- **jsoncrush**: Compresses map data for shareable URLs. URL length limits vary
+  by browser and platform, so compression cannot guarantee that every map will
+  fit in a URL.
+- **lodash**: Utility functions used by the application.
+- **nanoid**: Generates unique IDs for map and piece instances.
 - **notistack**: A library for displaying snackbars (feedback/notifications when something is successful or errors) in React.
 - **papaparse**: A library for parsing CSV (and TSV etc) files, used for loading non-standard piece inventories.
 - **react-hotkeys-hook**: A library for handling keyboard shortcuts in React.
 - **react-icons**: A library for including popular icons in React.
 - **wouter**: A minimalistic routing library for React.
 - **zundo**: A library for managing undo/redo functionality.
-- **zustand**: A small, fast, and scalable state-management library. (included by react-three/fiber so is "free"; it is also awesome)
-
-## Blender Models
-All models used in the app are maintained in a blender file that you are welcome to access here: https://drive.google.com/file/d/1LY0ZwMMO2QvL_fQ9Ua4d-PpvixZn4XFQ/view?usp=sharing
+- **zustand**: State management; **zundo** adds undo/redo history.
 
 ## Quick Overview of How It Works
 
-So you have your [hex-grid and various coordinate systems](https://www.redblobgames.com/grids/hexagons/#coordinates).
-Virtualscape exports tiles with an X and Y value, and uses Odd-R offset coordinates.
+The app uses a [hex grid and several coordinate systems](https://www.redblobgames.com/grids/hexagons/#coordinates).
+Virtualscape exports tiles with X and Y values using Odd-R offset coordinates;
+the importer converts those coordinates for the editor.
 
-The app converts pieces/tiles to hexes. The hexes are used for validation.
-For instance, if a tree piece is placed at one coordinate, then it occupies a certain number of hexes above that as vertical clearance.
+Placed pieces are represented by `BoardPieces`. The app derives a grid of
+`BoardHexes` from them for rendering and placement validation. For example, an
+obstacle such as a tree can occupy multiple grid cells and block placement at
+some elevations above its base.
 
 
-### Blender to .glb Export
+### Blender Models
 
-Blender is used to create 3D models of the terrain pieces. These models are then exported as `.glb` files, which is a binary format for glTF (GL Transmission Format) files. The `.glb` files are imported into the application and rendered at specific hex positions using the `@react-three/fiber` library.
+The app uses GLB models stored in [`public/`](./public/), rendered at hex-grid
+positions with `@react-three/fiber`.
 
 ### Piece IDs and Heroscape Map Storage
 
-Each piece in the application is assigned an ID built from its altitude, Q-cube-coordinate, R-cube-coordinate, rotation (1-6, at 0.5 intervals), and its (Heroscape) Inventory ID. (There might be future hex games, with different pieces.)
-These 5 strings are separated by a "~" which is a URL valid character.
+Each placed piece has a compact encoded ID containing its altitude, Q and R
+coordinates, rotation, and Heroscape inventory ID. The values are separated by
+`~`; rotations are numeric and may use half-step values for pieces that need
+them. A runtime piece instance also has its own unique ID.
 
-The Inventory ID uniquely identifies a piece, and this app includes piece data for Heroscape pieces.
+The inventory ID identifies a piece definition, and the app includes data for
+Heroscape pieces.
 Piece data includes the terrain type, the hex-count, whether it is an obstacle, what template of hexes does it use if it is a multi-hex land tile, the obstacle height, etc.
 
-It also means, importantly, that a piece's ID contains all the data required to place it on the hex-grid.
-Thus a stored map can simply be the map details (name,id,shape,width,height) and an array of piece ID's.
-This is important for map sharing, which can be done via URL -- no database/paywall required!
-The requisite data is minified using [JSONCrush](https://github.com/KilledByAPixel/JSONCrush) to try and make as many maps possible fit within the browser URL character-limit of 2000 characters.
+The encoded piece ID contains the placement data needed to reconstruct a piece
+on the hex grid. A saved map stores map details and its placed pieces; map
+sharing encodes and compresses that data with
+[JSONCrush](https://github.com/KilledByAPixel/JSONCrush). The app rejects
+payloads above its input-size limit, but practical URL length limits vary, so
+not every map is guaranteed to be shareable in a URL.
 
 ### Expansion of BoardPieces into BoardHexes
 
-BoardPieces is just the name for pieces that are on the current map.
-BoardHexes are a 3D-hexgrid expansion of pieces. This representation is useful for validation. If you place a tree, it blocks any land hexes from being placed in the same cube-coordinate, and it does this on however many altitude levels depending how tall the tree is.
+`BoardPieces` are the canonical placed pieces on the current map.
+`BoardHexes` are the derived 3D hex-grid occupancy used for placement and
+validation. For example, a tree blocks placement in its footprint and at
+elevations covered by its vertical clearance.
 
 Some pieces, like the Ruins from Rise of the Valkyrie, have different amounts of vertical clearance in its various hexes that it occupies.
 
@@ -134,15 +152,13 @@ Each hex on the board has a unique ID that is derived from its Q and R coordinat
 
 ### Adding New Terrain Pieces
 
-To add new terrain pieces, follow these steps:
-1. **Create the 3D Model**: Use Blender to create the 3D model of the new terrain piece. Try to put the origin of the mesh right on the bottom of where it will sit, and right in the center of the hex that will be the object's origin in Hexoscape.
-2. **Export as .glb**: Export the model as a `.glb` file.
-3. **Add to Project**: Add the `.glb` file to the appropriate directory in the project.
-4. **Create a React Component for the Model**: Run the `.glb` through [`gltfjsx`](https://gltf.pmnd.rs/), for example.
-5. **Update UI**: Update the user interface to allow users to select and place the new terrain piece. (as the project is under development, this step is subject to considerable change)
-
-By following these steps, you can expand the application to support new releases of Heroscape terrain.
+Terrain registration touches more than the model and UI: it can require piece
+metadata, footprints, inventory, placement rules, previews, and tests. Follow
+the current [terrain addition guide](./docs/adding-a-piece.md), which describes
+the implementation and registration tests.
 
 ## License
 
-This project is dedicated to the public domain under the [CC0 1.0 Universal](./LICENSE) waiver. You can copy, modify, and distribute the code without asking for permission or giving credit.
+This project is dedicated to the public domain under the
+[CC0 1.0 Universal](./LICENSE) waiver. Refer to the license for its terms and
+limitations.

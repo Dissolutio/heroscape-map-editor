@@ -2,6 +2,7 @@ import { Line, Svg } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import type { BoardHex, DecodedPieceID, PdfMapAltitudeChunk } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
+import type { BuriedMarksByUID } from '../utils/tileMarks'
 import { PdfMapBoardPiece } from './PdfMapBoardPiece'
 import { PdfMapHex } from './PdfMapHex'
 
@@ -16,6 +17,8 @@ type ReactPdfSvgMapDisplayProps = {
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowGridLinesOverSublevels: boolean
   isShowPdfTileLetters: boolean
+  isShowPdfBuriedMarks: boolean
+  buriedMarksByUID: BuriedMarksByUID
   useLegacyStartZones: boolean
   is2DOverlayLevelEnabled: boolean
   chunk?: PdfMapAltitudeChunk
@@ -32,6 +35,8 @@ export const ReactPdfSvgMapDisplay = ({
   isShowPdfOverlayOnPlacedLevel,
   isShowGridLinesOverSublevels,
   isShowPdfTileLetters,
+  isShowPdfBuriedMarks,
+  buriedMarksByUID,
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
   chunk,
@@ -74,6 +79,8 @@ export const ReactPdfSvgMapDisplay = ({
         isPdfColorBorders={isPdfColorBorders}
         isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
         isShowPdfTileLetters={isShowPdfTileLetters}
+        isShowPdfBuriedMarks={isShowPdfBuriedMarks}
+        buriedMarksByUID={buriedMarksByUID}
         useLegacyStartZones={useLegacyStartZones}
       />
     ))
@@ -98,6 +105,8 @@ export const ReactPdfSvgMapDisplay = ({
       isPdfColorBorders={isPdfColorBorders}
       isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
       isShowPdfTileLetters={isShowPdfTileLetters}
+      isShowPdfBuriedMarks={isShowPdfBuriedMarks}
+      buriedMarksByUID={buriedMarksByUID}
       useLegacyStartZones={useLegacyStartZones}
     />
   ))
@@ -129,6 +138,8 @@ export const ReactPdfSvgMapDisplay = ({
             isPdfColorBorders={isPdfColorBorders}
             isShowPdfOverlayOnPlacedLevel={isShowPdfOverlayOnPlacedLevel}
             isShowPdfTileLetters={isShowPdfTileLetters}
+            isShowPdfBuriedMarks={isShowPdfBuriedMarks}
+            buriedMarksByUID={buriedMarksByUID}
             useLegacyStartZones={useLegacyStartZones}
           />
         ))}

@@ -12,7 +12,8 @@ export function isFluidTerrainHex(terrain: string) {
     terrain === HexTerrain.swampWater ||
     terrain === HexTerrain.ice ||
     terrain === HexTerrain.toxicWater ||
-    terrain === HexTerrain.shadow
+    terrain === HexTerrain.shadow ||
+    terrain === HexTerrain.genericFluid
   )
 }
 export function isSolidTerrainHex(terrain: string) {
@@ -30,7 +31,8 @@ export function isSolidTerrainHex(terrain: string) {
     terrain === HexTerrain.ancientTerrain ||
     terrain === HexTerrain.wood ||
     terrain === HexTerrain.wallWalk ||
-    terrain === HexTerrain.swamp
+    terrain === HexTerrain.swamp ||
+    terrain === HexTerrain.generic
   )
 }
 export function isJungleTerrainHex(terrain: string) {
@@ -50,7 +52,8 @@ export function isBridgingObstaclePieceID(id: string) {
     id === Pieces.glacier6 ||
     id === Pieces.glacier3 ||
     id === Pieces.outcrop3 ||
-    id === Pieces.lavaRockOutcrop3
+    id === Pieces.lavaRockOutcrop3 ||
+    id === Pieces.toxicOutcrop3
   )
 }
 export const getBoardHexObstacleOriginsAndHexesAndEmpties = (

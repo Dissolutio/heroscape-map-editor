@@ -3,17 +3,18 @@ import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
 import useBoundStore from '../../../store/store'
-import {
-  isDragPassThrough,
-  pressPieceForDrag,
-  reportDragTargetHex,
-} from '../../drag/dragController'
+import { HexTerrain } from '../../../types'
 import {
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEX_HEIGHT,
   INSTANCE_LIMIT,
 } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
+import {
+  isDragPassThrough,
+  pressPieceForDrag,
+  reportDragTargetHex,
+} from '../../drag/dragController'
 import { hexTerrainColor } from '../hexColors'
 import type {
   BoardHexPieceProps,
@@ -39,6 +40,7 @@ const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
   )
   const ref = React.useRef<InstanceRefType>(null)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const genericFluidCapColor = useBoundStore((s) => s.genericFluidCapColor)
 
   if (boardHexArr.length === 0) return null
   const range = boardHexArr.filter((bh) => bh.altitude <= viewingLevel).length
@@ -63,6 +65,7 @@ const FluidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
           onPointerUp={onPointerUp}
           isVisible={range >= i}
           isLightsAndShadowsRender={isLightsAndShadowsRender}
+          genericFluidCapColor={genericFluidCapColor}
         />
       ))}
     </Instances>
@@ -76,23 +79,25 @@ function FluidCap({
   onPointerUp,
   isVisible,
   isLightsAndShadowsRender,
+  genericFluidCapColor,
 }: BoardHexPieceProps & {
   isVisible: boolean
   isLightsAndShadowsRender: boolean
+  genericFluidCapColor: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnter, onPointerOut, onPointerMove } = usePieceHoverState()
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const color =
-    hexTerrainColor[boardHex.terrain as keyof typeof hexTerrainColor]
+    boardHex.terrain === HexTerrain.genericFluid
+      ? genericFluidCapColor
+      : hexTerrainColor[boardHex.terrain as keyof typeof hexTerrainColor]
 
   // Effect: Initial color/position
   React.useEffect(() => {
     const { x, y, z } = getBoardHex3DCoords(boardHex)
-    ref.current.color.set(
-      hexTerrainColor[boardHex.terrain as keyof typeof hexTerrainColor],
-    )
+    ref.current.color.set(color)
     ref.current.position.set(
       x,
       y -
@@ -100,7 +105,7 @@ function FluidCap({
         0.001,
       z,
     )
-  }, [boardHex])
+  }, [boardHex, color])
 
   // update color when piece is hovered
   React.useEffect(() => {
@@ -148,9 +153,18 @@ function FluidCap({
       onPointerDown={(e: ThreeEvent<PointerEvent>) =>
         isVisible && pressPieceForDrag(e, boardHex.boardPieceUID)
       }
-      onPointerMove={(e: ThreeEvent<PointerEvent>) =>
-        isVisible && reportDragTargetHex(boardHex) && e.stopPropagation()
-      }
+      onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+        if (!isVisible) return
+        onPointerMove(e)
+        if (
+          reportDragTargetHex(boardHex, undefined, {
+            x: e.point.x,
+            z: e.point.z,
+          })
+        ) {
+          e.stopPropagation()
+        }
+      }}
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}

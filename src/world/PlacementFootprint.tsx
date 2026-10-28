@@ -13,15 +13,21 @@ import type { PlacementStatus } from '../data/placement'
 import type { CubeCoordinate } from '../types'
 import { HEXGRID_HEX_RADIUS } from '../utils/constants'
 import { getBoardHex3DCoords } from '../utils/map-utils'
-import { getPlacementPreviewStyle } from './placementPreviewStyle'
+import {
+  PLACEMENT_UNSUPPORTED_COLOR,
+  getPlacementPreviewStyle,
+} from './placementPreviewStyle'
 
 type Props = {
   status: PlacementStatus
+  unsupported?: boolean
   footprintHexes: (CubeCoordinate & { altitude: number })[]
   hoveredHex: CubeCoordinate & { altitude: number }
+  edgeRotation?: number
 }
 
 const FOOTPRINT_RADIUS = HEXGRID_HEX_RADIUS * 0.94
+const ignoreRaycast = () => undefined
 
 function makeHexShape() {
   const shape = new Shape()
@@ -73,6 +79,36 @@ function makeHexOutline() {
   return geometry
 }
 
+function makeHexEdge(rotation: number) {
+  const centerAngle = (rotation * Math.PI) / 3
+  const edgeHalfAngle = Math.PI / 6
+  const startAngle = centerAngle - edgeHalfAngle
+  const endAngle = centerAngle + edgeHalfAngle
+  const start: [number, number, number] = [
+    Math.cos(startAngle) * FOOTPRINT_RADIUS,
+    0,
+    Math.sin(startAngle) * FOOTPRINT_RADIUS,
+  ]
+  const end: [number, number, number] = [
+    Math.cos(endAngle) * FOOTPRINT_RADIUS,
+    0,
+    Math.sin(endAngle) * FOOTPRINT_RADIUS,
+  ]
+  const geometry = new BufferGeometry()
+  geometry.setAttribute(
+    'position',
+    new BufferAttribute(new Float32Array([...start, ...end]), 3),
+  )
+  geometry.setAttribute(
+    'lineDistance',
+    new BufferAttribute(
+      new Float32Array([0, Math.hypot(end[0] - start[0], end[2] - start[2])]),
+      1,
+    ),
+  )
+  return geometry
+}
+
 function makeCross() {
   const radius = FOOTPRINT_RADIUS * 0.42
   const geometry = new BufferGeometry()
@@ -101,13 +137,19 @@ function makeCross() {
 
 export function PlacementFootprint({
   status,
+  unsupported = false,
   footprintHexes,
   hoveredHex,
+  edgeRotation,
 }: Props) {
-  const style = getPlacementPreviewStyle(status)
+  const style = getPlacementPreviewStyle(status, unsupported)
   const hexes = footprintHexes.length ? footprintHexes : [hoveredHex]
   const fillGeometry = useMemo(makeHexShape, [])
   const outlineGeometry = useMemo(makeHexOutline, [])
+  const edgeGeometry = useMemo(
+    () => (edgeRotation === undefined ? null : makeHexEdge(edgeRotation)),
+    [edgeRotation],
+  )
   const crossGeometry = useMemo(makeCross, [])
   const materials = useMemo(
     () => ({
@@ -143,6 +185,11 @@ export function PlacementFootprint({
         depthTest: false,
         toneMapped: false,
       }),
+      secondaryCross: new LineBasicMaterial({
+        color: PLACEMENT_UNSUPPORTED_COLOR,
+        depthTest: false,
+        toneMapped: false,
+      }),
     }),
     [style.color, style.pattern],
   )
@@ -153,6 +200,7 @@ export function PlacementFootprint({
       materials.outlineHalo.dispose()
       materials.outline.dispose()
       materials.cross.dispose()
+      materials.secondaryCross.dispose()
     },
     [materials],
   )
@@ -160,9 +208,10 @@ export function PlacementFootprint({
     () => () => {
       fillGeometry.dispose()
       outlineGeometry.dispose()
+      edgeGeometry?.dispose()
       crossGeometry.dispose()
     },
-    [fillGeometry, outlineGeometry, crossGeometry],
+    [fillGeometry, outlineGeometry, edgeGeometry, crossGeometry],
   )
 
   return (
@@ -175,6 +224,7 @@ export function PlacementFootprint({
               geometry={fillGeometry}
               material={materials.fill}
               position={[x, y + 0.006, z]}
+              raycast={ignoreRaycast}
               rotation={[-Math.PI / 2, 0, 0]}
               renderOrder={20}
             />
@@ -182,20 +232,41 @@ export function PlacementFootprint({
               geometry={outlineGeometry}
               material={materials.outlineHalo}
               position={[x, y + 0.012, z]}
+              raycast={ignoreRaycast}
               renderOrder={21}
             />
             <lineSegments
               geometry={outlineGeometry}
               material={materials.outline}
               position={[x, y + 0.014, z]}
+              raycast={ignoreRaycast}
               renderOrder={22}
             />
+            {edgeGeometry && (
+              <lineSegments
+                geometry={edgeGeometry}
+                material={materials.outline}
+                position={[x, y + 0.017, z]}
+                raycast={ignoreRaycast}
+                renderOrder={23}
+              />
+            )}
             {style.pattern === 'cross' && (
               <lineSegments
                 geometry={crossGeometry}
                 material={materials.cross}
                 position={[x, y + 0.016, z]}
-                renderOrder={23}
+                raycast={ignoreRaycast}
+                renderOrder={24}
+              />
+            )}
+            {style.secondaryPattern === 'cross' && (
+              <lineSegments
+                geometry={crossGeometry}
+                material={materials.secondaryCross}
+                position={[x, y + 0.018, z]}
+                raycast={ignoreRaycast}
+                renderOrder={25}
               />
             )}
           </group>

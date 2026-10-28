@@ -11,16 +11,20 @@
 import { describe, expect, it } from 'vitest'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import { blankPieceInventory } from '../inventory/blankInventory'
+import { Pieces } from '../types'
 import {
   normalizePieceInventory,
   parsePieceInventoryRows,
 } from '../utils/piece-inventory'
 import {
+  getAvailableLandPrefixesForSets,
   getAvailableLandPrefixesForInventory,
+  getConstrainedLandInventoryByTerrainAndSize,
   getConstrainedLandInventoryByTerrainAndSizeFromInventory,
   getEffectiveTerrainConstraintInventory,
   getSetConstrainedInventory,
   hasActiveTerrainConstraints,
+  isInventoryPieceAvailable,
 } from '../utils/terrain-constraints'
 
 describe('normalizePieceInventory', () => {
@@ -83,6 +87,84 @@ describe('set-based constraints', () => {
     expect(double[pieceInSet as string]).toBe((perSet as number) * 2)
   })
 
+  it('registers the three new terrain sets with their expected inventories', () => {
+    expect(terrainSetsByShortID.CC).toMatchObject({
+      name: 'Toxic Wastelands of Valhalla',
+      abbreviation: 'TWoV',
+      setType: 'Terrain Expansion',
+      releaseDate: '02/2027',
+      era: 'contemporary',
+    })
+    expect(terrainSetsByShortID.DD).toMatchObject({
+      name: 'Tournament Organizer Terrain Kit 2',
+      abbreviation: 'TOTK2',
+    })
+    expect(terrainSetsByShortID.EE).toMatchObject({
+      name: 'Organized Play Expeditions Kits Promo',
+      abbreviation: 'OPEKP',
+    })
+    for (const setID of ['CC', 'DD', 'EE'] as const) {
+      expect(terrainSetsByShortID[setID]).toMatchObject({
+        setType: 'Terrain Expansion',
+        releaseDate: '02/2027',
+        era: 'contemporary',
+      })
+      expect(terrainSetsByShortID[setID]).not.toHaveProperty('hsOrgId')
+    }
+    expect(Object.keys(terrainSetsByShortID)).toEqual(
+      expect.arrayContaining(['CC', 'DD', 'EE']),
+    )
+
+    expect(getSetConstrainedInventory(['CC'])).toMatchObject({
+      [Pieces.toxic1]: 8,
+      [Pieces.toxic3]: 4,
+      [Pieces.toxicWater1]: 12,
+      [Pieces.toxicOutcrop1]: 3,
+      [Pieces.toxicOutcrop3]: 1,
+    })
+    expect(getSetConstrainedInventory(['DD'])).toMatchObject({
+      [Pieces.grass1]: 34,
+      [Pieces.rock1]: 15,
+      [Pieces.water1]: 46,
+      [Pieces.laurWallSquarePillar]: 16,
+      [Pieces.laurPalm14]: 3,
+      [Pieces.outcrop1]: 3,
+    })
+    expect(getSetConstrainedInventory(['EE'])).toMatchObject({
+      [Pieces.laurWallTrianglePillar]: 2,
+      [Pieces.laurWallArch]: 1,
+    })
+  })
+
+  it.each([
+    ['CC', ['x'], { 1: Pieces.toxic1, 3: Pieces.toxic3 }],
+    ['DD', ['g', 'r', 's', 'w'], undefined],
+    ['EE', [], undefined],
+  ] as const)(
+    'limits land availability to set %s',
+    (setID, expectedPrefixes, toxicLand) => {
+      const prefixes = getAvailableLandPrefixesForSets([setID])
+      for (const prefix of expectedPrefixes) {
+        expect(prefixes.has(prefix)).toBe(true)
+      }
+
+      if (setID === 'CC') {
+        expect(prefixes.has('g')).toBe(false)
+        expect(
+          Object.fromEntries(
+            getConstrainedLandInventoryByTerrainAndSize([setID]).get('toxic') ??
+              [],
+          ),
+        ).toEqual(toxicLand)
+      } else if (setID === 'DD') {
+        expect(prefixes.has('x')).toBe(false)
+      } else {
+        expect(prefixes.has('x')).toBe(false)
+        expect(prefixes.has('g')).toBe(false)
+      }
+    },
+  )
+
   it('"none" (or no source) means no constraint at all', () => {
     expect(getEffectiveTerrainConstraintInventory({})).toEqual({})
     expect(
@@ -127,6 +209,19 @@ describe('set-based constraints', () => {
 })
 
 describe('what an inventory makes available', () => {
+  it('requires a Laur variant to have its own inventory when constrained', () => {
+    const inventory = { [Pieces.laurWallShortStackable]: 1 }
+    expect(
+      isInventoryPieceAvailable(Pieces.laurWallShortStackable, inventory, true),
+    ).toBe(true)
+    expect(
+      isInventoryPieceAvailable(Pieces.laurWallShort, inventory, true),
+    ).toBe(false)
+    expect(
+      isInventoryPieceAvailable(Pieces.laurWallShort, inventory, false),
+    ).toBe(true)
+  })
+
   it('lists the land prefixes that have at least one piece in stock', () => {
     const prefixes = getAvailableLandPrefixesForInventory({
       g1: 1,

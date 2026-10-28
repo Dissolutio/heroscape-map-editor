@@ -4,6 +4,9 @@ export type E2EPlacementPreview = {
   status: PlacementStatus
   reason: string | null
   footprintCount: number
+  unsupported: boolean
+  altitude: number | null
+  rotation: number | null
 }
 
 let placementPreview: E2EPlacementPreview | null = null

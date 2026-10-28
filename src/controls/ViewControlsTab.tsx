@@ -1,15 +1,18 @@
 import {
   Box,
   Button,
+  CircularProgress,
   FormControl,
   FormControlLabel,
   FormGroup,
+  FormHelperText,
   FormLabel,
   List,
   MenuItem,
   Select,
   type SelectChangeEvent,
   Switch,
+  Tooltip,
 } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
 import React from 'react'
@@ -25,6 +28,7 @@ import {
 import type { Group, Object3DEventMap } from 'three'
 import useEvent from '../hooks/useEvent'
 import useBoundStore from '../store/store'
+import type { GraphicsTier } from '../local-storage/settings'
 import { zoomToMap } from '../utils/camera-utils'
 import { EVENTS } from '../utils/constants'
 import {
@@ -36,6 +40,13 @@ import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
+import { getViewMode } from './viewMode'
+import { isPerHexLandEnabled } from '../e2e/isE2E'
+
+const GENERIC_PIECE_COLORS_TOOLTIP =
+  'Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D.'
+const BURIED_MARKS_TOOLTIP =
+  '* = the top of this tile will be covered. † = its sides will be covered. Both = fully hidden, so any piece of the same size and kind (solid for solid, fluid for fluid) works.'
 
 export default function ViewControlsTab({
   cameraControlsRef,
@@ -58,7 +69,7 @@ export default function ViewControlsTab({
   const { hotkeyLookup } = useHotkeyConfig()
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
   const is2DOpen = useBoundStore((s) => s.is2DOpen) && !isPdfOpen
-  const is3DOpen = !is2DOpen && !isPdfOpen
+  const is3DOpen = getViewMode(is2DOpen, isPdfOpen) === '3d'
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const onClickDisableCamera = (e: any) => {
   //   const targetId = e?.nativeEvent?.target?.id ?? ''
@@ -131,69 +142,78 @@ export default function ViewControlsTab({
           padding: 0,
         }}
       >
-        <List>
-          {/* Center map in camera view */}
-          <ControlTabsListItemButton
-            title="Center the camera on entire map"
-            primary="Zoom to map"
-            onClick={() =>
-              zoomToMap(mapGroupRef, cameraControlsRef, width, length)
-            }
-            icon={<FcCollect />}
-            endIcon={<HotkeyText text={hotkeyLookup.zoomToMap} />}
-          />
+        {is3DOpen && (
+          <List>
+            {/* Center map in camera view */}
+            <ControlTabsListItemButton
+              title="Center the camera on entire map"
+              primary="Zoom to map"
+              onClick={() =>
+                zoomToMap(mapGroupRef, cameraControlsRef, width, length)
+              }
+              icon={<FcCollect />}
+              endIcon={<HotkeyText text={hotkeyLookup.zoomToMap} />}
+            />
 
-          {/* Lock Camera Controls */}
-          <ControlTabsListItemButton
-            title={
-              isCamerDisabled
-                ? 'Unlock camera controls'
-                : 'Lock camera controls'
-            }
-            primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'}
-            onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
-            icon={isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />}
-            endIcon={
-              <HotkeyText text={hotkeyLookup.handleToggleIsCameraDisabled} />
-            }
-          />
+            {/* Lock Camera Controls */}
+            <ControlTabsListItemButton
+              title={
+                isCamerDisabled
+                  ? 'Unlock camera controls'
+                  : 'Lock camera controls'
+              }
+              primary={isCamerDisabled ? 'Unlock camera' : 'Lock camera'}
+              onClick={() => toggleIsCameraDisabled(!isCamerDisabled)}
+              icon={
+                isCamerDisabled ? <FcUnlock id={id2} /> : <FcLock id={id1} />
+              }
+              endIcon={
+                <HotkeyText text={hotkeyLookup.handleToggleIsCameraDisabled} />
+              }
+            />
 
-          {/* Reset camera defaults */}
-          <ControlTabsListItemButton
-            title={'Reset camera defaults'}
-            primary="Reset camera"
-            onClick={resetCamera}
-            icon={<FcSynchronize />}
-          />
+            {/* Reset camera defaults */}
+            <ControlTabsListItemButton
+              title={'Reset camera defaults'}
+              primary="Reset camera"
+              onClick={resetCamera}
+              icon={<FcSynchronize />}
+            />
 
-          {/* Switch camera orthographic/perspective */}
-          <ControlTabsListItemButton
-            title={
-              isOrthoCam
-                ? 'Switch to perspective camera'
-                : 'Switch to orthographic camera'
-            }
-            primary={
-              isOrthoCam ? 'Use perspective camera' : 'Use orthographic camera'
-            }
-            onClick={handleToggleOrthoCam}
-            icon={<FcSwitchCamera />}
-            endIcon={<HotkeyText text={hotkeyLookup.handleToggleIsOrthoCam} />}
-          />
+            {/* Switch camera orthographic/perspective */}
+            <ControlTabsListItemButton
+              title={
+                isOrthoCam
+                  ? 'Switch to perspective camera'
+                  : 'Switch to orthographic camera'
+              }
+              primary={
+                isOrthoCam
+                  ? 'Use perspective camera'
+                  : 'Use orthographic camera'
+              }
+              onClick={handleToggleOrthoCam}
+              icon={<FcSwitchCamera />}
+              endIcon={
+                <HotkeyText text={hotkeyLookup.handleToggleIsOrthoCam} />
+              }
+            />
 
-          {/* Take map picture */}
-          <ControlTabsListItemButton
-            title={'Take map picture'}
-            primary="Take map picture"
-            onClick={handleTakeAMapPicture}
-            icon={<FcOldTimeCamera />}
-          />
-        </List>
+            {/* Take map picture */}
+            <ControlTabsListItemButton
+              title={'Take map picture'}
+              primary="Take map picture"
+              onClick={handleTakeAMapPicture}
+              icon={<FcOldTimeCamera />}
+            />
+          </List>
+        )}
       </div>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {is3DOpen && <ViewPreferencesSwitchForm />}
         {isPdfOpen && <PdfPreferencesSwitchForm />}
         {is2DOpen && <SVGPreferencesSwitchForm />}
+        <GenericTerrainColorsForm />
         <Button
           onClick={handleResetSettings}
           size="small"
@@ -206,7 +226,82 @@ export default function ViewControlsTab({
     </Box>
   )
 }
+
+const GenericTerrainColorsForm = () => {
+  const solidCap = useBoundStore((s) => s.genericSolidCapColor)
+  const solidSide = useBoundStore((s) => s.genericSolidSideColor)
+  const fluidCap = useBoundStore((s) => s.genericFluidCapColor)
+  const fluidSide = useBoundStore((s) => s.genericFluidSideColor)
+  const setSolidCap = useBoundStore((s) => s.setGenericSolidCapColor)
+  const setSolidSide = useBoundStore((s) => s.setGenericSolidSideColor)
+  const setFluidCap = useBoundStore((s) => s.setGenericFluidCapColor)
+  const setFluidSide = useBoundStore((s) => s.setGenericFluidSideColor)
+  const resetColors = useBoundStore((s) => s.resetGenericTerrainColors)
+
+  const colors = [
+    ['Solid cap', solidCap, setSolidCap],
+    ['Solid side', solidSide, setSolidSide],
+    ['Fluid cap', fluidCap, setFluidCap],
+    ['Fluid side', fluidSide, setFluidSide],
+  ] as const
+
+  return (
+    <Box
+      component="fieldset"
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 0.5,
+        m: 0,
+        px: 1,
+        pb: 1,
+        border: '1px solid',
+        borderColor: 'divider',
+      }}
+    >
+      <Tooltip title={GENERIC_PIECE_COLORS_TOOLTIP} describeChild>
+        <FormLabel
+          component="legend"
+          aria-label={`Generic piece colors. ${GENERIC_PIECE_COLORS_TOOLTIP}`}
+        >
+          Generic piece colors
+        </FormLabel>
+      </Tooltip>
+      {colors.map(([label, color, setColor]) => (
+        <label
+          key={label}
+          style={{
+            alignItems: 'center',
+            display: 'flex',
+            fontSize: '0.8rem',
+            gap: 6,
+          }}
+        >
+          <input
+            aria-label={`Generic ${label.toLowerCase()} color`}
+            type="color"
+            value={color}
+            onChange={(event) => setColor(event.target.value)}
+          />
+          {label}
+        </label>
+      ))}
+      <Button
+        onClick={resetColors}
+        size="small"
+        sx={{ gridColumn: '1 / -1', justifySelf: 'start' }}
+      >
+        Reset generic colors
+      </Button>
+    </Box>
+  )
+}
+
 const ViewPreferencesSwitchForm = () => {
+  const graphicsTier = useBoundStore((s) => s.graphicsTier)
+  const setGraphicsTier = useBoundStore((s) => s.setGraphicsTier)
+  const textureLoadStatus = useBoundStore((s) => s.textureLoadStatus)
+  const textureLoadProgress = useBoundStore((s) => s.textureLoadProgress)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -261,11 +356,20 @@ const ViewPreferencesSwitchForm = () => {
   const toggleUseLegacyStartZones = useBoundStore(
     (s) => s.toggleUseLegacyStartZones,
   )
+  const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
+  const toggleIsShowStartZones = useBoundStore((s) => s.toggleIsShowStartZones)
   const handleChangeUseLegacyStartZones = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleUseLegacyStartZones(event.target.checked)
   }
+  const handleChangeShowStartZones = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShowStartZones(event.target.checked)
+  }
+  const showStartZonesTooltip =
+    'Hides start zones in the 3D view only. 2D and PDF exports are not affected. Turns back on every time you open the app.'
   // const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   // const toggleIsFrameloopDemand = useBoundStore((s) => s.toggleIsFrameloopDemand)
   // const handleChangeFrameloopDemand = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -276,6 +380,56 @@ const ViewPreferencesSwitchForm = () => {
     <FormControl component="fieldset" variant="standard">
       <FormLabel component="legend">3D View options:</FormLabel>
       <FormGroup>
+        {isPerHexLandEnabled && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            <Tooltip title="Medium and High download texture images the first time you choose them (about 2.7 MB for Medium, about 3.5 MB for High). Lowest uses no images.">
+              <FormLabel
+                id="graphics-tier-label"
+                component="label"
+                htmlFor="graphics-tier-select"
+              >
+                Graphics
+              </FormLabel>
+            </Tooltip>
+            <FormControl size="small">
+              <Select
+                id="graphics-tier-select"
+                labelId="graphics-tier-label"
+                data-testid="graphics-tier-select"
+                value={graphicsTier}
+                onChange={(event: SelectChangeEvent) => {
+                  void setGraphicsTier(event.target.value as GraphicsTier)
+                }}
+              >
+                <MenuItem value="low">Lowest</MenuItem>
+                <MenuItem value="medium">Medium (textures)</MenuItem>
+                <MenuItem value="high">High (PBR textures)</MenuItem>
+              </Select>
+            </FormControl>
+            {textureLoadStatus === 'loading' && (
+              <Box
+                aria-live="polite"
+                data-testid="graphics-texture-status"
+                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+              >
+                <CircularProgress aria-label="Loading textures" size={16} />
+                <span>
+                  Loading textures ({textureLoadProgress.loaded}/
+                  {textureLoadProgress.total})
+                </span>
+              </Box>
+            )}
+            {textureLoadStatus === 'ready' && (
+              <span
+                aria-live="polite"
+                data-testid="graphics-texture-status"
+                style={{ fontSize: '0.75rem' }}
+              >
+                Textures ready
+              </span>
+            )}
+          </Box>
+        )}
         <FormControlLabel
           control={
             <Switch
@@ -372,6 +526,18 @@ const ViewPreferencesSwitchForm = () => {
           label="Use Legacy Start Zones"
           title="Enable/disable rendering start zones as circles and with classic colors"
         />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShowStartZones}
+              onChange={handleChangeShowStartZones}
+              title={showStartZonesTooltip}
+            />
+          }
+          label="Show Start Zones"
+          title={showStartZonesTooltip}
+        />
       </FormGroup>
     </FormControl>
   )
@@ -408,6 +574,10 @@ const PdfPreferencesSwitchForm = () => {
   const isShowPdfTileLetters = useBoundStore((s) => s.isShowPdfTileLetters)
   const toggleIsShowPdfTileLetters = useBoundStore(
     (s) => s.toggleIsShowPdfTileLetters,
+  )
+  const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
+  const toggleIsShowPdfBuriedMarks = useBoundStore(
+    (s) => s.toggleIsShowPdfBuriedMarks,
   )
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const setPdfRenderFormat = useBoundStore((s) => s.setPdfRenderFormat)
@@ -449,6 +619,11 @@ const PdfPreferencesSwitchForm = () => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIsShowPdfTileLetters(event.target.checked)
+  }
+  const handleChangeShowPdfBuriedMarks = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShowPdfBuriedMarks(event.target.checked)
   }
   const handleChangePdfRenderFormat = (
     event: SelectChangeEvent<
@@ -549,6 +724,20 @@ const PdfPreferencesSwitchForm = () => {
           label="Show Tile Letters"
           title="Enable/disable terrain tile letters on current-level land in PDF output"
         />
+        <Tooltip title={BURIED_MARKS_TOOLTIP} describeChild>
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={isShowPdfBuriedMarks}
+                onChange={handleChangeShowPdfBuriedMarks}
+                aria-label={`Show Buried-Tile Marks. ${BURIED_MARKS_TOOLTIP}`}
+              />
+            }
+            label="Show Buried-Tile Marks"
+            title="Mark land tiles whose tops or sides will be covered in PDF output"
+          />
+        </Tooltip>
         <FormControlLabel
           control={
             <Switch
@@ -604,6 +793,12 @@ const SVGPreferencesSwitchForm = () => {
   const toggleIsShow2DExportTileLetters = useBoundStore(
     (s) => s.toggleIsShow2DExportTileLetters,
   )
+  const isShow2DExportBuriedMarks = useBoundStore(
+    (s) => s.isShow2DExportBuriedMarks,
+  )
+  const toggleIsShow2DExportBuriedMarks = useBoundStore(
+    (s) => s.toggleIsShow2DExportBuriedMarks,
+  )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const toggleUseLegacyStartZones = useBoundStore(
     (s) => s.toggleUseLegacyStartZones,
@@ -622,6 +817,11 @@ const SVGPreferencesSwitchForm = () => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     toggleIsShow2DExportTileLetters(event.target.checked)
+  }
+  const handleChangeShow2DExportBuriedMarks = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    toggleIsShow2DExportBuriedMarks(event.target.checked)
   }
   const handleChangeUseLegacyStartZones = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -666,6 +866,22 @@ const SVGPreferencesSwitchForm = () => {
           label="Show Tile Letters"
           title="Enable/disable terrain tile letters on current-level land in SVG output"
         />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShow2DExportBuriedMarks}
+              onChange={handleChangeShow2DExportBuriedMarks}
+            />
+          }
+          label="Show Buried-Tile Marks"
+          title="Mark land tiles whose tops or sides will be covered in SVG output"
+        />
+        <FormHelperText sx={{ ml: 5, mt: -0.5, mb: 1 }}>
+          * = the top of this tile will be covered. † = its sides will be
+          covered. Both = fully hidden, so any piece of the same size and kind
+          (solid for solid, fluid for fluid) works.
+        </FormHelperText>
         <FormControlLabel
           control={
             <Switch

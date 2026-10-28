@@ -29,6 +29,7 @@ import {
   verticalObstructionTemplates,
   verticalSupportTemplates,
 } from './vertical-obstruction-templates'
+import { getSupportingLaurPillar, isLaurPillarID } from './laurPillarStacking'
 
 export function addPiece({
   // state to mutate and return
@@ -57,13 +58,33 @@ export function addPiece({
   const uid = incomingUid ?? nanoid(10)
   const newBoardHexes = clone(boardHexes)
   const newBoardPieces: BoardPieces = clone(boardPieces)
+  const supportingLaurPillar = isLaurPillarID(piece.id)
+    ? getSupportingLaurPillar(boardPieces, {
+        uid,
+        inventoryID: piece.id,
+        pieceCoords,
+        rotation,
+        altitude: placementAltitude,
+      })
+    : undefined
   const displacedUIDs = new Set<string>()
   let isDuplicateStartZone = false
   const trackDisplaced = (hexID: string) => {
     const existing = newBoardHexes[hexID]
-    if (existing?.boardPieceUID && existing.boardPieceUID !== uid) {
+    if (
+      existing?.boardPieceUID &&
+      existing.boardPieceUID !== uid &&
+      !(
+        existing.boardPieceUID === supportingLaurPillar?.uid &&
+        existing.isVerticalClearanceHex
+      )
+    ) {
       displacedUIDs.add(existing.boardPieceUID)
     }
+  }
+  const clearCap = (hexID: string) => {
+    const hex = newBoardHexes[hexID]
+    if (hex) newBoardHexes[hexID] = { ...hex, isCap: false }
   }
   const piecePlaneCoords = getPieceTemplateCoords({
     clickedHex: { q: pieceCoords.q, r: pieceCoords.r, s: pieceCoords.s },
@@ -117,6 +138,17 @@ export function addPiece({
   const overHexIds = piecePlaneCoords.map((cubeCoord) =>
     genBoardHexID({ ...cubeCoord, altitude: newPieceAltitude + 1 }),
   )
+  const isLaurPillarStack = Boolean(supportingLaurPillar)
+  const isLaurPillarStackSpaceFree =
+    isLaurPillarStack &&
+    newHexIds.every((id) => {
+      const hex = newBoardHexes[id]
+      return (
+        !hex ||
+        (hex.boardPieceUID === supportingLaurPillar?.uid &&
+          hex.isVerticalClearanceHex)
+      )
+    })
   const isCastleWallPiece = piece.id.includes(PiecePrefixes.castleWall)
   const isCastleArchPiece =
     piece.id === Pieces.castleArch || piece.id === Pieces.castleArchNoDoor
@@ -181,6 +213,7 @@ export function addPiece({
     isSolidUnderAll ||
     // Some obstacles, and glyphs/startzones, can be placed on fluid tiles
     ((piece.id === Pieces.laurWallSquarePillar ||
+      piece.id === Pieces.laurWallPillarStackable ||
       piece.id === Pieces.laurWallTrianglePillar ||
       piece.id === Pieces.shipBow ||
       piece.id === Pieces.shipWall ||
@@ -195,9 +228,9 @@ export function addPiece({
   const isBattlementPieceSupported_true = true // TODO: validate pieces
   const isPlacingObstacle =
     piece.isObstaclePiece &&
-    isSpaceFree &&
+    (isSpaceFree || isLaurPillarStackSpaceFree) &&
     isVerticalClearanceForPiece &&
-    isObstaclePieceSupported
+    (isObstaclePieceSupported || isLaurPillarStack)
   const isLadderPieceID = piece.terrain === HexTerrain.ladder
   const isBattlementPieceID = piece.terrain === HexTerrain.battlement
   const isRoadWallPieceID = piece.terrain === HexTerrain.roadWall
@@ -274,8 +307,8 @@ export function addPiece({
       newHexIds.forEach((newHexID, i) => {
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]
         // remove caps covered by this obstacle
-        if (newBoardHexes?.[hexUnderneath?.id]?.isCap) {
-          newBoardHexes[hexUnderneath.id].isCap = false
+        if (hexUnderneath?.isCap) {
+          clearCap(hexUnderneath.id)
         }
         // write in the new hex
         trackDisplaced(newHexID)
@@ -443,13 +476,7 @@ export function addPiece({
     if (isPlacingCastleBase || permissive) {
       newHexIds.forEach((newHexID, i) => {
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]
-        const isSolidUnderneath = isSolidTerrainHex(hexUnderneath?.terrain)
-        if (hexUnderneath && (isSolidUnderneath || isPlacingOnTable)) {
-          // covers up the cap below
-          // remove old cap
-          newBoardHexes[hexUnderneath.id].isCap = false
-        }
-        if (hexUnderneath) newBoardHexes[hexUnderneath.id].isCap = false
+        if (hexUnderneath) clearCap(hexUnderneath.id)
         trackDisplaced(newHexID)
         newBoardHexes[newHexID] = {
           id: newHexID,
@@ -493,7 +520,7 @@ export function addPiece({
         const hexUnderneath = newBoardHexes?.[underHexIds[i]]
         const obstacleHeight = piece.height
         // remove the cap from land hex below
-        if (hexUnderneath) newBoardHexes[hexUnderneath.id].isCap = false
+        if (hexUnderneath) clearCap(hexUnderneath.id)
         trackDisplaced(newHexID)
         newBoardHexes[newHexID] = {
           id: newHexID,
@@ -608,7 +635,7 @@ export function addPiece({
           }
         } else {
           // remove the cap from land hex below
-          if (hexUnderneath) newBoardHexes[hexUnderneath.id].isCap = false
+          if (hexUnderneath) clearCap(hexUnderneath.id)
           trackDisplaced(newHexID)
           newBoardHexes[newHexID] = {
             id: newHexID,
@@ -705,7 +732,7 @@ export function addPiece({
       const hexUnderneath = newBoardHexes?.[underHexIds[i]]
       // remove caps covered by this obstacle (open base hexes leave the cap below intact)
       if (hexUnderneath && !isOpenBaseHex) {
-        newBoardHexes[hexUnderneath.id].isCap = false
+        clearCap(hexUnderneath.id)
       }
       // write in the new base level hexes (origin+auxiliaries)
       trackDisplaced(newHexID)
@@ -842,7 +869,7 @@ export function addPiece({
           if (hexUnderneath) {
             // solids and fluids can replace the cap below (fluid-on-fluid included)
             // remove cap beneath this land hex
-            newBoardHexes[hexUnderneath.id].isCap = false
+            clearCap(hexUnderneath.id)
           }
 
           trackDisplaced(newHexID)

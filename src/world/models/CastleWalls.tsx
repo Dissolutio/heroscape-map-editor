@@ -75,6 +75,7 @@ export function CastleWall({ boardHex, onPointerUp }: Props) {
     toggleSelectedPieceID(
       boardHex.boardPieceUID ?? '',
       event.shiftKey || event.ctrlKey || event.metaKey,
+      { x: event.point.x, z: event.point.z },
     )
   }
 

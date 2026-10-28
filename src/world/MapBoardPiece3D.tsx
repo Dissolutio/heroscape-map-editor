@@ -2,7 +2,16 @@ import { Billboard, Text } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { Suspense } from 'react'
 import { Vector3 } from 'three'
+import {
+  hasSupportingLaurPillar,
+  isLaurPillarID,
+} from '../data/laurPillarStacking'
 import { piecesSoFar } from '../data/pieces'
+import {
+  resolveRotationPivot,
+  shouldShowRotationPivotMarker,
+} from '../data/rotationPivot'
+import { shouldRenderPlacedPiece } from '../data/startZoneVisibility'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
@@ -11,9 +20,11 @@ import {
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
   HEXGRID_HEX_HEIGHT,
+  HEXGRID_HEX_RADIUS,
   HEXGRID_OBSTACLE_BASE_HEIGHT,
 } from '../utils/constants'
 import { genBoardHexID, getBoardHex3DCoords } from '../utils/map-utils'
+import { PlacementFootprint } from './PlacementFootprint'
 import {
   isDragging,
   pressPieceForDrag,
@@ -77,18 +88,100 @@ type MapBoardPiece3DProps = {
  */
 export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
   const { uid, pieceCoords, altitude } = props.bp
+  const isUnsupported = useBoundStore((s) =>
+    s.unsupportedPieceUIDs.includes(uid),
+  )
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const rotationPivot = useBoundStore((s) => s.rotationPivot)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const boardHexes = useBoundStore((s) => s.boardHexes)
+  const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
+  if (!shouldRenderPlacedPiece(props.bp, isShowStartZones)) return null
+  const isLastSelected = selectedPieceIDs[selectedPieceIDs.length - 1] === uid
+  const resolvedPivot = isLastSelected
+    ? resolveRotationPivot(
+        selectedPieceIDs,
+        boardPieces,
+        boardHexes,
+        rotationPivot,
+      )
+    : undefined
+  const pivotCoords = resolvedPivot?.coords ?? pieceCoords
+  const pivotAltitude = resolvedPivot?.surfaceAltitude ?? altitude + 1
+  const isPivot = shouldShowRotationPivotMarker(
+    selectedPieceIDs,
+    uid,
+    boardHexes,
+    pieceCoords,
+    pivotCoords,
+  )
+  const isVisible = altitude + 1 <= viewingLevel
+  const isPivotVisible = pivotAltitude <= viewingLevel
+  const { x, y, z } = getBoardHex3DCoords({
+    ...pivotCoords,
+    altitude: pivotAltitude,
+  })
   const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
     if (!isDragging()) return
     const { boardHexes } = useBoundStore.getState()
-    const support = boardHexes[genBoardHexID({ ...pieceCoords, altitude })]
-    if (reportDragTargetHex(support, uid)) e.stopPropagation()
+    const support = isLaurPillarID(props.bp.inventoryID)
+      ? ({
+          ...pieceCoords,
+          boardPieceUID: uid,
+          altitude,
+          inventoryID: props.bp.inventoryID,
+          pieceID: '',
+          pieceRotation: props.bp.rotation,
+          terrain: HexTerrain.laurWall,
+        } as BoardHex)
+      : boardHexes[genBoardHexID({ ...pieceCoords, altitude })]
+    if (reportDragTargetHex(support, uid, { x: e.point.x, z: e.point.z })) {
+      e.stopPropagation()
+    }
   }
   return (
     <group
+      userData={{ boardPieceUID: uid }}
       onPointerDown={(e: ThreeEvent<PointerEvent>) => pressPieceForDrag(e, uid)}
       onPointerMove={onPointerMove}
     >
       <MapBoardPiece3DModel {...props} />
+      {isUnsupported && altitude + 1 <= viewingLevel && (
+        <PlacementFootprint
+          status="ok"
+          unsupported
+          footprintHexes={[]}
+          hoveredHex={{ ...pieceCoords, altitude }}
+        />
+      )}
+      {isPivot && isVisible && isPivotVisible && (
+        <mesh
+          position={[
+            x,
+            y - HEXGRID_HEX_HEIGHT + HEXGRID_HEXCAP_HEIGHT + 0.03,
+            z,
+          ]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          raycast={() => null}
+          renderOrder={30}
+        >
+          <ringGeometry
+            args={[
+              HEXGRID_HEX_RADIUS * 0.72,
+              HEXGRID_HEX_RADIUS * 0.82,
+              6,
+              1,
+              Math.PI / 6,
+            ]}
+          />
+          <meshBasicMaterial
+            color="#00e5ff"
+            depthTest={false}
+            toneMapped={false}
+          />
+        </mesh>
+      )}
     </group>
   )
 }
@@ -113,18 +206,7 @@ const MapBoardPiece3DModel = ({
   } = getBoardHex3DCoords({ ...pieceCoords, altitude: altitude + 1 })
   const pieceRotation = (rotation * -Math.PI) / 3
   const ruinsOptions = getRuinsOptions(rotation)
-  const hasSupportingPillar = boardPieces.some((piece) => {
-    const isPillarType =
-      piece.inventoryID === Pieces.laurWallSquarePillar ||
-      piece.inventoryID === Pieces.laurWallTrianglePillar
-    return (
-      isPillarType &&
-      piece.pieceCoords.q === bp.pieceCoords.q &&
-      piece.pieceCoords.r === bp.pieceCoords.r &&
-      piece.pieceCoords.s === bp.pieceCoords.s &&
-      piece.altitude === bp.altitude - 9
-    )
-  })
+  const hasSupportingPillar = hasSupportingLaurPillar(boardPieces, bp)
   const pillarStackYOffset = hasSupportingPillar
     ? HEXGRID_OBSTACLE_BASE_HEIGHT
     : 0
@@ -158,7 +240,10 @@ const MapBoardPiece3DModel = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallRuinAddon pid={uid} />
+          <LaurWallRuinAddon
+            bp={bp}
+            onPointerUpPaintPiece={onPointerUpPaintPiece}
+          />
         </Suspense>
       </group>
     )
@@ -176,7 +261,10 @@ const MapBoardPiece3DModel = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallShortAddon pid={uid} />
+          <LaurWallShortAddon
+            bp={bp}
+            onPointerUpPaintPiece={onPointerUpPaintPiece}
+          />
         </Suspense>
       </group>
     )
@@ -194,7 +282,10 @@ const MapBoardPiece3DModel = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallLongAddon pid={uid} />
+          <LaurWallLongAddon
+            bp={bp}
+            onPointerUpPaintPiece={onPointerUpPaintPiece}
+          />
         </Suspense>
       </group>
     )
@@ -209,7 +300,10 @@ const MapBoardPiece3DModel = ({
         rotation={[0, (rotation * -Math.PI) / 3, 0]}
       >
         <Suspense fallback={<ModelLoader />}>
-          <LaurWallArchAddon pid={uid} />
+          <LaurWallArchAddon
+            bp={bp}
+            onPointerUpPaintPiece={onPointerUpPaintPiece}
+          />
         </Suspense>
       </group>
     )
@@ -272,7 +366,7 @@ const MapBoardPiece3DModel = ({
       <>
         <group
           scale={[treeOptions.scaleX, treeOptions.scaleY, treeOptions.scaleX]}
-          position={[x, yWithBase + treeOptions.y, z]}
+          position={[x, yWithBase - HEXGRID_HEXCAP_HEIGHT / 10, z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -289,7 +383,7 @@ const MapBoardPiece3DModel = ({
       <>
         <group
           scale={[treeOptions.scaleX, treeOptions.scaleY, treeOptions.scaleX]}
-          position={[x, yWithBase + treeOptions.y, z]}
+          position={[x, yWithBase, z]}
           rotation={[0, pieceRotation, 0]}
         >
           <Suspense fallback={<ModelLoader />}>
@@ -412,7 +506,10 @@ const MapBoardPiece3DModel = ({
     )
   }
 
-  if (inventoryID === Pieces.laurWallSquarePillar) {
+  if (
+    inventoryID === Pieces.laurWallSquarePillar ||
+    inventoryID === Pieces.laurWallPillarStackable
+  ) {
     return (
       <group
         position={[x, laurPillarHeight, z]}
@@ -546,20 +643,29 @@ const MapBoardPiece3DModel = ({
   if (
     inventoryID === Pieces.glacier1 ||
     inventoryID === Pieces.outcrop1 ||
-    inventoryID === Pieces.lavaRockOutcrop1
+    inventoryID === Pieces.lavaRockOutcrop1 ||
+    inventoryID === Pieces.toxicOutcrop1
   ) {
     const isGlacier = inventoryID === Pieces.glacier1
     const isLavaRock = inventoryID === Pieces.lavaRockOutcrop1
+    const isToxic = inventoryID === Pieces.toxicOutcrop1
     const baseColor = isGlacier
       ? hexTerrainColor[HexTerrain.ice]
       : isLavaRock
         ? hexTerrainColor[HexTerrain.lava]
-        : hexTerrainColor[HexTerrain.shadow]
+        : isToxic
+          ? hexTerrainColor[HexTerrain.toxic]
+          : hexTerrainColor[HexTerrain.shadow]
     return (
       <>
         <group position={[x, yWithBase, z]} rotation={[0, pieceRotation, 0]}>
           <Suspense fallback={<ModelLoader />}>
-            <Outcrop1 isGlacier={isGlacier} isLavaRock={isLavaRock} pid={uid} />
+            <Outcrop1
+              isGlacier={isGlacier}
+              isLavaRock={isLavaRock}
+              isToxic={isToxic}
+              pid={uid}
+            />
           </Suspense>
         </group>
         <group
@@ -584,15 +690,19 @@ const MapBoardPiece3DModel = ({
   if (
     inventoryID === Pieces.glacier3 ||
     inventoryID === Pieces.lavaRockOutcrop3 ||
-    inventoryID === Pieces.outcrop3
+    inventoryID === Pieces.outcrop3 ||
+    inventoryID === Pieces.toxicOutcrop3
   ) {
     const isGlacier = inventoryID === Pieces.glacier3
     const isLavaRock = inventoryID === Pieces.lavaRockOutcrop3
+    const isToxic = inventoryID === Pieces.toxicOutcrop3
     const baseColor = isGlacier
       ? hexTerrainColor[HexTerrain.ice]
       : isLavaRock
         ? hexTerrainColor[HexTerrain.lava]
-        : hexTerrainColor[HexTerrain.shadow]
+        : isToxic
+          ? hexTerrainColor[HexTerrain.toxic]
+          : hexTerrainColor[HexTerrain.shadow]
     return (
       <>
         <group
@@ -600,7 +710,12 @@ const MapBoardPiece3DModel = ({
           rotation={[0, getObstaclRotation(rotation), 0]}
         >
           <Suspense fallback={<ModelLoader />}>
-            <Outcrop3 isGlacier={isGlacier} isLavaRock={isLavaRock} pid={uid} />
+            <Outcrop3
+              isGlacier={isGlacier}
+              isLavaRock={isLavaRock}
+              isToxic={isToxic}
+              pid={uid}
+            />
           </Suspense>
         </group>
         <group

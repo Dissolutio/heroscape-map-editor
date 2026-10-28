@@ -2,6 +2,7 @@ import type { MapState } from '../types'
 import { normalizeBoardPieces } from '../utils/map-utils'
 import { addPiece } from './addPiece'
 import { piecesSoFar } from './pieces'
+import { evaluateLaurAddonConflicts } from './laurAddonConflicts'
 
 /** Just the list of conflicted piece uids from a full replay. */
 export function computeConflictedPieceUIDs(
@@ -22,7 +23,7 @@ export function computeConflictedPieceUIDs(
  *    it and the piece it displaced are reported as conflicted.
  *  - Pieces whose inventoryID is not registered are skipped (and therefore
  *    absent from the returned boardPieces).
- *  - Only overlaps are conflicts. A piece with nothing under it is not.
+ *  - Laur add-on edges and verified footprints also contribute conflicts.
  *
  * (Moved verbatim out of store/map-slice.ts so it can be tested without
  * constructing the zustand store.)
@@ -56,6 +57,10 @@ export function rebuildBoardStateFromPieces(
       conflicts.add(displacedUID)
       conflicts.add(boardPiece.uid)
     }
+  }
+
+  for (const uid of evaluateLaurAddonConflicts(workingPieces, workingHexes)) {
+    conflicts.add(uid)
   }
 
   return {

@@ -11,12 +11,14 @@ import {
 } from './safeStorage'
 
 export type LightPosition = [number, number, number]
+export type GraphicsTier = 'low' | 'medium' | 'high'
 export type PdfRenderFormat =
   | 'coversheet'
   | 'shortHeader'
   | 'condensedCoversheet'
 
 export type SettingsValues = {
+  graphicsTier: GraphicsTier
   isOrthoCam: boolean
   isLightsAndShadowsRender: boolean
   isShowLightControls: boolean
@@ -25,7 +27,6 @@ export type SettingsValues = {
   isDisplayCapHeights: boolean
   isHideTableTop: boolean
   useLegacyStartZones: boolean
-  isShowStartZones: boolean
   pdfRenderFormat: PdfRenderFormat
   isShowPDFInventory: boolean
   isPdfColorBorders: boolean
@@ -34,18 +35,26 @@ export type SettingsValues = {
   isShowPdfGridLinesOverSublevels: boolean
   isShowPdfLevelLogo: boolean
   isShowPdfTileLetters: boolean
+  isShowPdfBuriedMarks: boolean
   is2DOverlayLevelEnabled: boolean
   isShow2DExportLevelLogo: boolean
   isShow2DExportTileLetters: boolean
+  isShow2DExportBuriedMarks: boolean
   lastPenMode: string
   lastPenSize: number
   lightPositions: Record<string, LightPosition>
   terrainConstraintSource: TerrainConstraintSource
   customConstraintInventory: PieceInventory
   customConstraintInventoryFileName: string
+  genericSolidCapColor: string
+  genericSolidSideColor: string
+  genericFluidCapColor: string
+  genericFluidSideColor: string
+  rememberedMapAuthor: string
 }
 
 export const SETTINGS_DEFAULTS: SettingsValues = {
+  graphicsTier: 'low',
   isOrthoCam: true,
   isLightsAndShadowsRender: false,
   isShowLightControls: true,
@@ -54,7 +63,6 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   isDisplayCapHeights: false,
   isHideTableTop: false,
   useLegacyStartZones: false,
-  isShowStartZones: true,
   pdfRenderFormat: 'coversheet',
   isShowPDFInventory: true,
   isPdfColorBorders: false,
@@ -63,20 +71,39 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   isShowPdfGridLinesOverSublevels: true,
   isShowPdfLevelLogo: true,
   isShowPdfTileLetters: false,
+  isShowPdfBuriedMarks: false,
   is2DOverlayLevelEnabled: true,
   isShow2DExportLevelLogo: true,
   isShow2DExportTileLetters: true,
+  isShow2DExportBuriedMarks: false,
   lastPenMode: 'g',
   lastPenSize: 1,
   lightPositions: {},
   terrainConstraintSource: 'setsUsed',
   customConstraintInventory: blankPieceInventory,
   customConstraintInventoryFileName: '',
+  genericSolidCapColor: '#e63cc8',
+  genericSolidSideColor: '#a01e8c',
+  genericFluidCapColor: '#ff96e6',
+  genericFluidSideColor: '#c864b4',
+  rememberedMapAuthor: '',
 }
 
 export const SETTINGS_KEYS = Object.keys(
   SETTINGS_DEFAULTS,
 ) as (keyof SettingsValues)[]
+
+export function resetGenericTerrainColorSettings(
+  settings: SettingsValues,
+): SettingsValues {
+  return {
+    ...settings,
+    genericSolidCapColor: SETTINGS_DEFAULTS.genericSolidCapColor,
+    genericSolidSideColor: SETTINGS_DEFAULTS.genericSolidSideColor,
+    genericFluidCapColor: SETTINGS_DEFAULTS.genericFluidCapColor,
+    genericFluidSideColor: SETTINGS_DEFAULTS.genericFluidSideColor,
+  }
+}
 
 type SettingsBlob = {
   v: 1
@@ -135,7 +162,6 @@ const validSettingValue = (
       'isDisplayCapHeights',
       'isHideTableTop',
       'useLegacyStartZones',
-      'isShowStartZones',
       'isShowPDFInventory',
       'isPdfColorBorders',
       'isShowPdfOverlayLayer',
@@ -143,15 +169,21 @@ const validSettingValue = (
       'isShowPdfGridLinesOverSublevels',
       'isShowPdfLevelLogo',
       'isShowPdfTileLetters',
+      'isShowPdfBuriedMarks',
       'is2DOverlayLevelEnabled',
       'isShow2DExportLevelLogo',
       'isShow2DExportTileLetters',
+      'isShow2DExportBuriedMarks',
     ].includes(key)
   ) {
     return typeof value === 'boolean' ? value : undefined
   }
 
   switch (key) {
+    case 'graphicsTier':
+      return value === 'low' || value === 'medium' || value === 'high'
+        ? value
+        : undefined
     case 'pdfRenderFormat':
       return isPdfRenderFormat(value) ? value : undefined
     case 'terrainConstraintSource':
@@ -160,7 +192,15 @@ const validSettingValue = (
       return isRecord(value) ? normalizePieceInventory(value) : undefined
     case 'customConstraintInventoryFileName':
     case 'lastPenMode':
+    case 'rememberedMapAuthor':
       return typeof value === 'string' ? value : undefined
+    case 'genericSolidCapColor':
+    case 'genericSolidSideColor':
+    case 'genericFluidCapColor':
+    case 'genericFluidSideColor':
+      return typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value)
+        ? value
+        : undefined
     case 'lastPenSize':
       return typeof value === 'number' && Number.isFinite(value) && value > 0
         ? value

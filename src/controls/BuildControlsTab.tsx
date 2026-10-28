@@ -71,7 +71,6 @@ export const BuildControlsTab = () => {
       </div> */}
       <PieceSizeSelect />
       <RotationSelect />
-      {/* <MapLensToggles /> */}
       <ViewingLevelInput />
 
       {/* <LocalStorageList /> */}

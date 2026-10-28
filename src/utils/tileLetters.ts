@@ -10,6 +10,7 @@ import {
   yTransformForMultiHex24Rotation,
 } from '../pdf-svg-shared/textRotations'
 import { type BoardHex, HexTerrain } from '../types'
+import { getContrastingTextColor } from '../world/maphex/genericTerrainColors'
 
 export const terrainTileLetters: Record<
   string,
@@ -27,6 +28,8 @@ export const terrainTileLetters: Record<
   [HexTerrain.concrete]: { letter: 'C', isBlack: true },
   [HexTerrain.dungeon]: { letter: 'D', isBlack: true },
   [HexTerrain.wellspringWater]: { letter: 'W', isBlack: true },
+  [HexTerrain.generic]: { letter: '?', isBlack: true },
+  [HexTerrain.genericFluid]: { letter: '?', isBlack: true },
 }
 
 export const isTileLetterTerrain = (terrain: string) => {
@@ -35,6 +38,22 @@ export const isTileLetterTerrain = (terrain: string) => {
 
 export const getTerrainTileLetter = (terrain: string) => {
   return terrainTileLetters[terrain] ?? null
+}
+
+export const getTerrainTileLetterColor = (
+  terrain: string,
+  genericSolidCapColor: string,
+  genericFluidCapColor: string,
+) => {
+  const tileLetter = getTerrainTileLetter(terrain)
+  if (!tileLetter) return null
+  if (terrain === HexTerrain.generic) {
+    return getContrastingTextColor(genericSolidCapColor)
+  }
+  if (terrain === HexTerrain.genericFluid) {
+    return getContrastingTextColor(genericFluidCapColor)
+  }
+  return tileLetter.isBlack ? '#000000' : '#FFFFFF'
 }
 
 export const shouldDisplayTerrainTileLetter = (
@@ -69,6 +88,19 @@ export const shouldDisplayTerrainTileLetter = (
     return true
   }
   return true
+}
+
+export const getTerrainTileAnnotation = (
+  hex: BoardHex,
+  viewingLevel: number,
+  isShowTileLetters: boolean,
+  marks: string,
+) => {
+  const letter =
+    isShowTileLetters && shouldDisplayTerrainTileLetter(hex, viewingLevel)
+      ? (getTerrainTileLetter(hex.terrain)?.letter ?? '')
+      : ''
+  return `${letter}${marks}`
 }
 
 export const getTileLetterPosition = (hex: BoardHex) => {

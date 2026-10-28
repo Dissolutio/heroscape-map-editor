@@ -1,5 +1,6 @@
 import type { ThreeEvent } from '@react-three/fiber'
 import { DoubleSide, FrontSide } from 'three'
+import { hasSupportingLaurPillar } from '../../data/laurPillarStacking'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../../types'
@@ -51,18 +52,7 @@ export default function LaurWallTrianglePillar({
   const interiorColor = isHighlighted
     ? yellowColor
     : hexTerrainColor.laurModelColor2
-  const hasSupportingPillar = boardPieces.some((piece) => {
-    const isPillarType =
-      piece.inventoryID === Pieces.laurWallSquarePillar ||
-      piece.inventoryID === Pieces.laurWallTrianglePillar
-    return (
-      isPillarType &&
-      piece.pieceCoords.q === bp.pieceCoords.q &&
-      piece.pieceCoords.r === bp.pieceCoords.r &&
-      piece.pieceCoords.s === bp.pieceCoords.s &&
-      piece.altitude === bp.altitude - 9
-    )
-  })
+  const hasSupportingPillar = hasSupportingLaurPillar(boardPieces, bp)
   const isShowBaseMesh = !hasSupportingPillar
   const helpMaterialNeedsBlenderWork = isLightsAndShadowsRender ? (
     <meshStandardMaterial

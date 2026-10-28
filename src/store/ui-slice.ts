@@ -1,15 +1,32 @@
 import { produce } from 'immer'
+import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { DragPreview } from '../data/dragMove'
+import {
+  createRotationPivot,
+  getClosestOwnedPieceHex,
+  shouldSetRotationPivotOnClick,
+  type RotationPivot,
+} from '../data/rotationPivot'
+import {
+  filterVisiblePieceIDs,
+  isStartZoneBoardPiece,
+} from '../data/startZoneVisibility'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 import {
   loadSettings,
   resetSettings as resetStoredSettings,
   SETTINGS_DEFAULTS,
+  type GraphicsTier,
   type LightPosition,
+  resetGenericTerrainColorSettings,
 } from '../local-storage/settings'
+import {
+  loadTerrainTextureArrays,
+  type TextureLoadStatus,
+} from '../world/textures/terrainTextureArrays'
 import {
   type BoardHex,
   type BoardPiece,
@@ -23,10 +40,26 @@ import type { AppState } from './store'
 export type { LightPosition } from '../local-storage/settings'
 
 export interface UISlice {
+  graphicsTier: GraphicsTier
+  setGraphicsTier: (tier: GraphicsTier) => Promise<void>
+  effectiveGraphicsTier: GraphicsTier
+  textureLoadStatus: TextureLoadStatus
+  textureLoadProgress: { loaded: number; total: number }
   isShowStartZones: boolean
   toggleIsShowStartZones: (s: boolean) => void
   resetSettings: () => void
   resetLightPositions: () => void
+  genericSolidCapColor: string
+  genericSolidSideColor: string
+  genericFluidCapColor: string
+  genericFluidSideColor: string
+  rememberedMapAuthor: string
+  setGenericSolidCapColor: (color: string) => void
+  setGenericSolidSideColor: (color: string) => void
+  setGenericFluidCapColor: (color: string) => void
+  setGenericFluidSideColor: (color: string) => void
+  setRememberedMapAuthor: (name: string) => void
+  resetGenericTerrainColors: () => void
 
   // unpersisted state below
   lastPenMode: string
@@ -48,11 +81,20 @@ export interface UISlice {
 
   // WORLD STATE
   selectedPieceIDs: string[]
-  toggleSelectedPieceID: (id: string, multiSelect?: boolean) => void
+  toggleSelectedPieceID: (
+    id: string,
+    multiSelect?: boolean,
+    pointerPoint?: { x: number; z: number },
+    clickedHex?: BoardHex,
+  ) => void
+  rotationPivot: RotationPivot | null
+  setRotationPivot: (pivot: RotationPivot | null) => void
   hoveredPieceID: string
   toggleHoveredPieceID: (id: string) => void
   hoveredHex: BoardHex | undefined
   toggleHoveredHex: (hex?: BoardHex) => void
+  hoveredWorldPoint: { x: number; z: number } | undefined
+  toggleHoveredWorldPoint: (point?: { x: number; z: number }) => void
   viewingLevel: number
   toggleViewingLevel: (level: number) => void
   is2DOpen: boolean
@@ -130,6 +172,8 @@ export interface UISlice {
   toggleIsShowPdfLevelLogo: (b: boolean) => void
   isShowPdfTileLetters: boolean
   toggleIsShowPdfTileLetters: (b: boolean) => void
+  isShowPdfBuriedMarks: boolean
+  toggleIsShowPdfBuriedMarks: (b: boolean) => void
   pdfRenderFormat: 'coversheet' | 'shortHeader' | 'condensedCoversheet'
   setPdfRenderFormat: (
     format: 'coversheet' | 'shortHeader' | 'condensedCoversheet',
@@ -141,12 +185,15 @@ export interface UISlice {
   toggleIsShow2DExportLevelLogo: (b: boolean) => void
   isShow2DExportTileLetters: boolean
   toggleIsShow2DExportTileLetters: (b: boolean) => void
+  isShow2DExportBuriedMarks: boolean
+  toggleIsShow2DExportBuriedMarks: (b: boolean) => void
   useLegacyStartZones: boolean
   toggleUseLegacyStartZones: (b: boolean) => void
 }
 
 const initialPenMode = SELECT_PEN_MODE
 const nonPaintingPenModes = new Set<string>([SELECT_PEN_MODE, PICK_PEN_MODE])
+let graphicsTierLoadGeneration = 0
 
 const createUISlice: StateCreator<
   // https://immerjs.github.io/immer/#with-immer
@@ -156,14 +203,114 @@ const createUISlice: StateCreator<
   UISlice
 > = (set) => ({
   ...loadSettings(),
+  effectiveGraphicsTier: 'low',
+  textureLoadStatus: 'idle',
+  textureLoadProgress: { loaded: 0, total: 0 },
+  setGraphicsTier: async (tier) => {
+    const request = ++graphicsTierLoadGeneration
+    set({
+      graphicsTier: tier,
+      effectiveGraphicsTier: 'low',
+      textureLoadStatus: tier === 'low' ? 'idle' : 'loading',
+      textureLoadProgress: { loaded: 0, total: 0 },
+    })
+    if (tier === 'low') return
+
+    let result: Awaited<ReturnType<typeof loadTerrainTextureArrays>>
+    try {
+      result = await loadTerrainTextureArrays(tier, {
+        onProgress: (loaded, total) => {
+          if (request !== graphicsTierLoadGeneration) return
+          set({ textureLoadProgress: { loaded, total } })
+        },
+      })
+    } catch (error) {
+      result = {
+        error: error instanceof Error ? error : new Error(String(error)),
+        status: 'error',
+      }
+    }
+
+    if (request !== graphicsTierLoadGeneration) return
+    if (result.status === 'ready') {
+      set({
+        effectiveGraphicsTier: tier,
+        textureLoadStatus: 'ready',
+        textureLoadProgress: {
+          loaded: result.textures ? Object.keys(result.textures).length : 0,
+          total: tier === 'medium' ? 2 : 6,
+        },
+      })
+      return
+    }
+
+    set({
+      effectiveGraphicsTier: 'low',
+      textureLoadStatus: 'error',
+    })
+    enqueueSnackbar({
+      message: `Could not load terrain textures: ${result.error.message}`,
+      variant: 'error',
+      preventDuplicate: true,
+      key: 'terrain-texture-load-error',
+    })
+  },
+  setRememberedMapAuthor: (name: string) => set({ rememberedMapAuthor: name }),
+  isShowStartZones: true,
   selectedPieceIDs: [],
-  toggleSelectedPieceID: (pieceID: string, multiSelect?: boolean) =>
+  rotationPivot: null,
+  toggleSelectedPieceID: (
+    pieceID: string,
+    multiSelect?: boolean,
+    pointerPoint?: { x: number; z: number },
+    clickedHex?: BoardHex,
+  ) =>
     set(
       produce((state) => {
         // in pick pen mode a click is an eyedropper, not a selection
         if (pieceID && state.penMode === PICK_PEN_MODE) {
           return
         }
+        if (
+          pieceID &&
+          !state.isShowStartZones &&
+          isStartZoneBoardPiece(
+            state.boardPieces.find(
+              (candidate: BoardPiece) => candidate.uid === pieceID,
+            ),
+          )
+        ) {
+          return
+        }
+        const hitHex =
+          (pointerPoint
+            ? getClosestOwnedPieceHex(state.boardHexes, pieceID, pointerPoint)
+            : undefined) ??
+          (clickedHex?.boardPieceUID === pieceID ? clickedHex : undefined)
+        if (
+          pieceID &&
+          hitHex &&
+          shouldSetRotationPivotOnClick(
+            state.selectedPieceIDs,
+            state.boardPieces,
+            state.boardHexes,
+            state.rotationPivot,
+            hitHex,
+            Boolean(multiSelect),
+          )
+        ) {
+          const piece = state.boardPieces.find(
+            (candidate: BoardPiece) => candidate.uid === pieceID,
+          )
+          const pivot = piece && createRotationPivot(piece, hitHex)
+          if (pivot) {
+            state.rotationPivot = pivot
+            return
+          }
+        }
+
+        const wasSelected = state.selectedPieceIDs.includes(pieceID)
+        state.rotationPivot = null
         if (!pieceID) {
           state.selectedPieceIDs = []
         } else if (multiSelect) {
@@ -187,6 +334,26 @@ const createUISlice: StateCreator<
             state.selectedPieceIDs = [pieceID]
           }
         }
+
+        if (
+          pieceID &&
+          !wasSelected &&
+          state.selectedPieceIDs[state.selectedPieceIDs.length - 1] ===
+            pieceID &&
+          hitHex
+        ) {
+          const piece = state.boardPieces.find(
+            (candidate: BoardPiece) => candidate.uid === pieceID,
+          )
+          const pivot = piece && createRotationPivot(piece, hitHex)
+          if (pivot) state.rotationPivot = pivot
+        }
+      }),
+    ),
+  setRotationPivot: (pivot: RotationPivot | null) =>
+    set(
+      produce((state) => {
+        state.rotationPivot = pivot
       }),
     ),
   hoveredPieceID: '',
@@ -201,6 +368,20 @@ const createUISlice: StateCreator<
     set(
       produce((state) => {
         state.hoveredHex = hex
+        if (!hex) state.hoveredWorldPoint = undefined
+      }),
+    ),
+  hoveredWorldPoint: undefined,
+  toggleHoveredWorldPoint: (point?: { x: number; z: number }) =>
+    set(
+      produce((state) => {
+        if (
+          state.hoveredWorldPoint?.x === point?.x &&
+          state.hoveredWorldPoint?.z === point?.z
+        ) {
+          return
+        }
+        state.hoveredWorldPoint = point
       }),
     ),
   penMode: initialPenMode,
@@ -344,6 +525,34 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isShowStartZones = b
+        if (!b) {
+          s.selectedPieceIDs = filterVisiblePieceIDs(
+            s.selectedPieceIDs,
+            s.boardPieces,
+            false,
+          )
+          const lastSelectedUID =
+            s.selectedPieceIDs[s.selectedPieceIDs.length - 1]
+          const pivotPiece = s.boardPieces.find(
+            (piece: BoardPiece) => piece.uid === s.rotationPivot?.uid,
+          )
+          if (
+            s.rotationPivot &&
+            (s.rotationPivot.uid !== lastSelectedUID ||
+              isStartZoneBoardPiece(pivotPiece))
+          ) {
+            s.rotationPivot = null
+          }
+          if (
+            isStartZoneBoardPiece(
+              s.boardPieces.find(
+                (piece: BoardPiece) => piece.uid === s.hoveredPieceID,
+              ),
+            )
+          ) {
+            s.hoveredPieceID = ''
+          }
+        }
       }),
     ),
   isTakingPicture: false,
@@ -416,6 +625,12 @@ const createUISlice: StateCreator<
         s.isShowPdfTileLetters = b
       }),
     ),
+  toggleIsShowPdfBuriedMarks: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowPdfBuriedMarks = b
+      }),
+    ),
   setPdfRenderFormat: (
     format: 'coversheet' | 'shortHeader' | 'condensedCoversheet',
   ) =>
@@ -440,6 +655,12 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isShow2DExportTileLetters = b
+      }),
+    ),
+  toggleIsShow2DExportBuriedMarks: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShow2DExportBuriedMarks = b
       }),
     ),
   toggleUseLegacyStartZones: (b: boolean) =>
@@ -572,9 +793,25 @@ const createUISlice: StateCreator<
       }),
     ),
   resetSettings: () => {
+    graphicsTierLoadGeneration += 1
     resetStoredSettings()
-    set(SETTINGS_DEFAULTS)
+    set({
+      ...SETTINGS_DEFAULTS,
+      effectiveGraphicsTier: 'low',
+      textureLoadStatus: 'idle',
+      textureLoadProgress: { loaded: 0, total: 0 },
+    })
   },
+  setGenericSolidCapColor: (color: string) =>
+    set({ genericSolidCapColor: color }),
+  setGenericSolidSideColor: (color: string) =>
+    set({ genericSolidSideColor: color }),
+  setGenericFluidCapColor: (color: string) =>
+    set({ genericFluidCapColor: color }),
+  setGenericFluidSideColor: (color: string) =>
+    set({ genericFluidSideColor: color }),
+  resetGenericTerrainColors: () =>
+    set((state) => resetGenericTerrainColorSettings(state)),
   resetLightPositions: () =>
     set(
       produce((s) => {

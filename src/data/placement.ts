@@ -12,14 +12,30 @@ import {
   isLaurWallAddonPieceID,
   isSolidTerrainHex,
 } from '../utils/board-utils'
+import { HEXGRID_MAX_ALTITUDE } from '../utils/constants'
+import { cubeToPixel } from '../utils/hex-utils'
 import {
   genBoardHexID,
   getBattlementClickedHexCoords,
   getRoadWallClickedHexCoords,
 } from '../utils/map-utils'
-import { HEXGRID_MAX_ALTITUDE } from '../utils/constants'
 import { addPiece } from './addPiece'
 import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
+import { piecesSoFar } from './pieces'
+import {
+  getLaurAddonAllowedRotations,
+  getLaurAddonCanonicalKey,
+  resolveLaurAddonEdge,
+} from './laurAddonPlacement'
+import {
+  canLaurAddonStackOn,
+  getLaurAddonStackAltitude,
+} from './laurAddonStacking'
+import {
+  areMatchingLaurPillarShapes,
+  getLaurPillarStackAltitude,
+  isLaurPillarID,
+} from './laurPillarStacking'
 import getPieceTemplateCoords from './rotationTransforms'
 import { getSmartPlacementAltitude } from './smartPlacement'
 import { verticalObstructionTemplates } from './vertical-obstruction-templates'
@@ -32,7 +48,7 @@ export type PlacementBoard = {
 
 /** Which of the click rules picked the placement, tried in this order. */
 export type PlacementRule =
-  | 'laurAddon' // a Laur add-on on a pillar, at the pillar's altitude
+  | 'laurAddon' // a Laur add-on on any hovered surface
   | 'castleCap' // a castle wall or wall walk on a castle wall/arch top
   | 'battlement' // the edge toward the pen rotation, one level down
   | 'roadWall' // the edge two steps clockwise of it, one level down
@@ -43,7 +59,6 @@ export type PlacementRule =
   | 'default' // anything else, on the clicked cap
 
 export type PlacementBlockedReason =
-  | 'needsLaurPillar' // a Laur add-on clicked off a Square/Triangle Pillar
   | 'notOnCastleWallTop' // only a castle wall or wall walk fits on one
   | 'castleArchNeedsLand' // an arch's bases are attached: not on a wall top
   | 'pillarShapesDiffer' // square and triangle pillars do not stack
@@ -51,22 +66,23 @@ export type PlacementBlockedReason =
   | 'outOfHeight' // group member below ground or above the highest level
   | 'landTileNotOnHex' // canPlaceLandTileOnHex said no
   | 'notAHex' // the pointer handed over something that is not a hex
+  | 'duplicateStartZone' // one start zone per support hex and altitude
 
 /** What a refusal tells the user; a reason missing here is silent. */
+export const LAUR_STACKABLE_VARIANT_UNAVAILABLE_MESSAGE =
+  'Non-stackable Laur pieces cannot be stacked, and their stackable versions are not in your inventory.'
+
 export const placementBlockedMessages: Partial<
   Record<PlacementBlockedReason, string>
 > = {
-  needsLaurPillar: 'Must add to Square/Triangle Pillar.',
   notOnCastleWallTop: 'Only a castle wall or wall walk fits on a castle wall.',
   castleArchNeedsLand: 'A castle arch has its own bases; place it on land.',
   pillarShapesDiffer: 'Triangle and square pillars do not stack.',
   offMap: 'That piece would hang off the edge of the map.',
   outOfHeight:
     'Some pieces would end up below the ground or above the highest level.',
+  duplicateStartZone: 'A start zone is already on that hex.',
 }
-
-const isLaurPillarID = (id: string) =>
-  id === Pieces.laurWallSquarePillar || id === Pieces.laurWallTrianglePillar
 
 /**
  * What can go on top of a castle wall or arch: another wall (walls have no
@@ -116,6 +132,7 @@ export function resolvePlacement(
   options: {
     ignoreUID?: IgnoredPieceUIDs
     deferOffMapCheck?: boolean
+    worldPoint?: { x: number; z: number }
   } = {},
 ): PlacementResolution {
   // e.g. ShipBow used to hand over `{}`; there is nothing to place on
@@ -171,18 +188,23 @@ function resolveByRule(
   pointerHex: BoardHex,
   rotation: number,
   { boardHexes, boardPieces }: PlacementBoard,
-  { ignoreUID }: { ignoreUID?: IgnoredPieceUIDs },
+  {
+    ignoreUID,
+    worldPoint,
+  }: {
+    ignoreUID?: IgnoredPieceUIDs
+    worldPoint?: { x: number; z: number }
+  },
 ): PlacementResolution {
   const hex = pointerHex
   const isCastleWallArchClicked =
     hex.pieceID.includes(PiecePrefixes.castleWall) ||
     hex.pieceID.includes(PiecePrefixes.castleArch)
   const isLaurPillarClicked = isLaurPillarID(hex.inventoryID)
-  const isMatchingPillarStackTarget =
-    (piece.id === Pieces.laurWallSquarePillar &&
-      hex.inventoryID === Pieces.laurWallSquarePillar) ||
-    (piece.id === Pieces.laurWallTrianglePillar &&
-      hex.inventoryID === Pieces.laurWallTrianglePillar)
+  const isMatchingPillarStackTarget = areMatchingLaurPillarShapes(
+    piece.id,
+    hex.inventoryID,
+  )
   // for wall-walk pieces, if we clicked a wall or arch cap, then the clicked hex needs to be computed
   const clickedHex = isCastleWallArchClicked
     ? boardHexes[
@@ -216,10 +238,36 @@ function resolveByRule(
       ignoreUID,
     })
 
-  // Adding laur addon, put it at same level
+  // Laur add-ons may be placed on any hovered surface; support is evaluated
+  // separately and the hit surface determines their altitude.
   if (isLaurWallAddonPieceID(piece.id)) {
-    if (!isLaurPillarClicked) return { blocked: 'needsLaurPillar' }
-    return at('laurAddon', clickedAltitude)
+    const center = cubeToPixel(coords)
+    const hoveredAddon = boardPieces.find(
+      (boardPiece) => boardPiece.uid === hex.boardPieceUID,
+    )
+    const stackBase =
+      hoveredAddon && canLaurAddonStackOn(piece.id, hoveredAddon.inventoryID)
+        ? hoveredAddon
+        : undefined
+    const requestedRotation = stackBase?.rotation ?? rotation
+    const edge = resolveLaurAddonEdge(
+      coords,
+      worldPoint ?? { x: center.x, z: center.y },
+      requestedRotation,
+      getLaurAddonAllowedRotations(piece.id, hex),
+    )
+    const resolvedRotation = edge?.rotation ?? requestedRotation
+    const canStackOnHoveredAddon =
+      stackBase &&
+      getLaurAddonCanonicalKey(coords, resolvedRotation) ===
+        getLaurAddonCanonicalKey(stackBase.pieceCoords, stackBase.rotation)
+    return at(
+      'laurAddon',
+      canStackOnHoveredAddon
+        ? getLaurAddonStackAltitude(stackBase.altitude)
+        : clickedAltitude,
+      resolvedRotation,
+    )
   }
   // Castle W/A: use cap coords and altitude
   if (isCastleWallArchClicked) {
@@ -260,7 +308,9 @@ function resolveByRule(
     const supportingPillar = boardPieces.find(
       (bp) => bp.uid === clickedHex.boardPieceUID,
     )
-    const stackAltitude = (supportingPillar?.altitude ?? clickedAltitude) + 9
+    const stackAltitude = getLaurPillarStackAltitude(
+      supportingPillar?.altitude ?? clickedAltitude,
+    )
     return at('pillarStack', stackAltitude, clickedHex.pieceRotation)
   }
   // LAND TILE: solid or fluid (includes ship bow buildable sections). Gated so solid
@@ -274,9 +324,8 @@ function resolveByRule(
   return at('default', smartAltitude())
 }
 
+/** Placement outcome; Laur support is reported separately from conflicts. */
 export type PlacementStatus = 'ok' | 'conflict' | 'blocked'
-// A future 'unsupported' (placed, but nothing physically holds it up) belongs
-// here; today strict support failures count as 'conflict'.
 
 export type PlacementEvaluation = {
   /**
@@ -297,10 +346,9 @@ const PROBE_UID = 'placement-probe'
 /**
  * What placing `resolution` would do to `board`, without changing it.
  *
- * Like getSmartPlacementAltitude, this probes only the footprint's columns:
- * it copies that slice (addPiece edits the hex objects it is given), places
- * strictly to check the rules, then permissively (as painting does) to see
- * what it displaces. It never replays the whole map.
+ * Like getSmartPlacementAltitude, this probes only the footprint's columns,
+ * placing strictly to check the rules, then permissively (as painting does)
+ * to see what it displaces. It never replays the whole map.
  *
  * `ignoreUID` leaves one or more moving pieces out of the probe, so a drag
  * group does not conflict with its original positions.
@@ -341,9 +389,15 @@ export function evaluatePlacement(
     piece.height,
     ...(verticalObstructionTemplates[piece.id] ?? []),
   )
+  const minimumAltitude =
+    resolution.rule === 'battlement' ||
+    resolution.rule === 'roadWall' ||
+    resolution.rule === 'ropeLadder'
+      ? -1
+      : 0
   if (
     checkHeightBounds &&
-    (altitude < 0 || altitude + clearance > HEXGRID_MAX_ALTITUDE)
+    (altitude < minimumAltitude || altitude + clearance > HEXGRID_MAX_ALTITUDE)
   ) {
     return {
       status: 'blocked',
@@ -373,6 +427,26 @@ export function evaluatePlacement(
   const boardPieces = ignoredUIDs.size
     ? board.boardPieces.filter((bp) => !ignoredUIDs.has(bp.uid))
     : board.boardPieces
+  if (
+    piece.terrain === HexTerrain.startZone &&
+    boardPieces.some((bp) => {
+      const existingPiece = piecesSoFar[bp.inventoryID]
+      return (
+        existingPiece?.terrain === HexTerrain.startZone &&
+        bp.altitude === altitude &&
+        bp.pieceCoords.q === coords.q &&
+        bp.pieceCoords.r === coords.r &&
+        bp.pieceCoords.s === coords.s
+      )
+    })
+  ) {
+    return {
+      status: 'blocked',
+      displacedUIDs: [],
+      footprintHexes,
+      reason: 'duplicateStartZone',
+    }
+  }
   const args = {
     piece,
     pieceCoords: coords,
@@ -382,10 +456,10 @@ export function evaluatePlacement(
     boardPieces,
     uid: PROBE_UID,
   }
-  const strict = addPiece({ ...args, boardHexes: structuredClone(localHexes) })
+  const strict = addPiece({ ...args, boardHexes: localHexes })
   const painted = addPiece({
     ...args,
-    boardHexes: structuredClone(localHexes),
+    boardHexes: localHexes,
     permissive: true,
   })
   const displacedUIDs = painted.displacedUIDs ?? []

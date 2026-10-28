@@ -6,6 +6,10 @@ import {
 } from '../data/fitMapToPieces'
 import { resizeMap } from '../data/resizeMap'
 import type { BoardPiece, HexMap } from '../types'
+import {
+  hexUtilsGenHexagonGrid,
+  hexUtilsGenRectangleGrid,
+} from '../utils/hex-utils'
 
 const rectangleMap = (length = 3, width = 3): HexMap => ({
   id: 'fit-test',
@@ -32,6 +36,36 @@ const piece = (
 })
 
 describe('fitMapToPieces', () => {
+  it.each(Array.from({ length: 40 }, (_, index) => index + 1))(
+    'leaves an in-bounds hexagon of size %i unchanged',
+    (size) => {
+      const map = { ...rectangleMap(size, size), shape: 'hexagon' }
+      const [coords] = hexUtilsGenHexagonGrid(size - 1)
+
+      expect(fitMapToPieces(map, [piece('g1', coords.q, coords.r)])).toEqual({
+        hexMap: map,
+        changed: false,
+      })
+    },
+  )
+
+  it.each([
+    [1, 1],
+    [2, 4],
+    [5, 10],
+    [20, 40],
+    [40, 20],
+    [40, 40],
+  ])('leaves an in-bounds rectangle %i by %i unchanged', (length, width) => {
+    const map = rectangleMap(length, width)
+    const [coords] = hexUtilsGenRectangleGrid(length, width)
+
+    expect(fitMapToPieces(map, [piece('g1', coords.q, coords.r)])).toEqual({
+      hexMap: map,
+      changed: false,
+    })
+  })
+
   it('leaves pieces that are already on the map alone', () => {
     const map = rectangleMap()
     const pieces = [piece('g1', 1, 1)]
@@ -76,6 +110,12 @@ describe('fitMapToPieces', () => {
     const pieces = [piece('bt', 30, 30), piece('rw4', 30, 30)]
 
     expect(fitMapToPieces(map, pieces)).toEqual({ hexMap: map, changed: false })
+  })
+
+  it('includes rope ladders in map fitting', () => {
+    const result = fitMapToPieces(rectangleMap(), [piece('rl', 8, 8)])
+
+    expect(result.changed).toBe(true)
   })
 
   it('includes Laur add-ons that have no boardHexes representation', () => {

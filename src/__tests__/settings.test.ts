@@ -9,6 +9,7 @@ import {
   migrateSettings,
   pickSettings,
   resetSettings,
+  resetGenericTerrainColorSettings,
   serializeSettings,
   SETTINGS_DEFAULTS,
   SETTINGS_KEYS,
@@ -48,34 +49,89 @@ describe('settings persistence', () => {
 
   it('uses defaults when no settings are stored', () => {
     expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
+    expect(SETTINGS_DEFAULTS).toMatchObject({
+      genericSolidCapColor: '#e63cc8',
+      genericSolidSideColor: '#a01e8c',
+      genericFluidCapColor: '#ff96e6',
+      genericFluidSideColor: '#c864b4',
+    })
   })
 
   it('round-trips changed values and writes only differences', () => {
     const changed = {
       ...SETTINGS_DEFAULTS,
+      graphicsTier: 'high' as const,
       isOrthoCam: false,
+      isShowPdfBuriedMarks: true,
+      isShow2DExportBuriedMarks: true,
       lightPositions: { key: [1, 2, 3] as [number, number, number] },
+      genericSolidCapColor: '#123456',
+      genericSolidSideColor: '#234567',
+      genericFluidCapColor: '#345678',
+      genericFluidSideColor: '#456789',
+      rememberedMapAuthor: 'Map Builder',
     }
     const serialized = serializeSettings(changed)
     expect(serialized).toEqual({
       v: 1,
       values: {
         isOrthoCam: false,
+        graphicsTier: 'high' as const,
+        isShowPdfBuriedMarks: true,
+        isShow2DExportBuriedMarks: true,
         lightPositions: { key: [1, 2, 3] },
+        genericSolidCapColor: '#123456',
+        genericSolidSideColor: '#234567',
+        genericFluidCapColor: '#345678',
+        genericFluidSideColor: '#456789',
+        rememberedMapAuthor: 'Map Builder',
       },
     })
     storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
     expect(loadSettings()).toEqual(changed)
   })
 
+  it('ignores a stale start-zone visibility setting without rewriting it', () => {
+    const staleSettings = JSON.stringify({
+      v: 1,
+      values: { isShowStartZones: false },
+    })
+    storage.setItem(LS_KEYS.settings, staleSettings)
+
+    expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
+    expect(values.get(LS_KEYS.settings)).toBe(staleSettings)
+  })
+
   it('returns null when all settings equal their defaults', () => {
     expect(serializeSettings(SETTINGS_DEFAULTS)).toBeNull()
+  })
+
+  it('resets only the Generic colors without changing other settings', () => {
+    const changed = {
+      ...SETTINGS_DEFAULTS,
+      isOrthoCam: false,
+      graphicsTier: 'high' as const,
+      genericSolidCapColor: '#123456',
+      genericSolidSideColor: '#234567',
+      genericFluidCapColor: '#345678',
+      genericFluidSideColor: '#456789',
+    }
+
+    expect(resetGenericTerrainColorSettings(changed)).toMatchObject({
+      isOrthoCam: false,
+      graphicsTier: 'high',
+      genericSolidCapColor: SETTINGS_DEFAULTS.genericSolidCapColor,
+      genericSolidSideColor: SETTINGS_DEFAULTS.genericSolidSideColor,
+      genericFluidCapColor: SETTINGS_DEFAULTS.genericFluidCapColor,
+      genericFluidSideColor: SETTINGS_DEFAULTS.genericFluidSideColor,
+    })
   })
 
   it('removes the settings key on reset', () => {
     storage.setItem(LS_KEYS.settings, JSON.stringify({ v: 1, values: {} }))
     expect(resetSettings()).toBe(true)
     expect(values.has(LS_KEYS.settings)).toBe(false)
+    expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
   })
 
   it('validates each key independently and ignores unknown keys', () => {
@@ -85,11 +141,16 @@ describe('settings persistence', () => {
         v: 1,
         values: {
           isOrthoCam: false,
+          graphicsTier: 'fast',
+          isShowPdfBuriedMarks: 'yes',
+          isShow2DExportBuriedMarks: 1,
           pdfRenderFormat: 'invalid',
           terrainConstraintSource: 'invalid',
           lastPenMode: 5,
           lastPenSize: Number.POSITIVE_INFINITY,
           lightPositions: { bad: [1, Number.NaN, 3] },
+          genericSolidCapColor: 'pink',
+          rememberedMapAuthor: 42,
           customConstraintInventory: {
             g1: 1.9,
             g2: -4,
@@ -108,6 +169,8 @@ describe('settings persistence', () => {
       lastPenMode: SETTINGS_DEFAULTS.lastPenMode,
       lastPenSize: SETTINGS_DEFAULTS.lastPenSize,
       lightPositions: {},
+      genericSolidCapColor: SETTINGS_DEFAULTS.genericSolidCapColor,
+      rememberedMapAuthor: SETTINGS_DEFAULTS.rememberedMapAuthor,
       customConstraintInventory: {
         ...blankPieceInventory,
         g1: 1,
@@ -236,8 +299,10 @@ describe('settings persistence', () => {
   it('classifies every store data key exactly once', async () => {
     const transientKeys = [
       'selectedPieceIDs',
+      'rotationPivot',
       'hoveredPieceID',
       'hoveredHex',
+      'hoveredWorldPoint',
       'piecePreviews',
       'isDraggingPiece',
       'dragPreview',
@@ -246,6 +311,7 @@ describe('settings persistence', () => {
       'currentDialog',
       'isTakingPicture',
       'isCameraDisabled',
+      'isShowStartZones',
       'is2DOpen',
       'isPdfOpen',
       'viewingLevel',
@@ -257,6 +323,10 @@ describe('settings persistence', () => {
       'isFrameloopDemand',
       'isAutosaveHeld',
       'mapLoadRevision',
+      'unsupportedPieceUIDs',
+      'effectiveGraphicsTier',
+      'textureLoadStatus',
+      'textureLoadProgress',
     ]
     const mapStateKeys = [
       'boardHexes',

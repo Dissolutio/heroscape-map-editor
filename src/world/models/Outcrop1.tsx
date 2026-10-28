@@ -11,10 +11,12 @@ export function Outcrop1({
   pid,
   isGlacier,
   isLavaRock,
+  isToxic,
 }: {
   pid: string
   isGlacier?: boolean
   isLavaRock?: boolean
+  isToxic?: boolean
 }) {
   const { nodes } = useDisposableGLTF(
     '/uncolored-decimated-glacier-outcrop-1.glb',
@@ -32,7 +34,11 @@ export function Outcrop1({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(pid, event.shiftKey || event.ctrlKey || event.metaKey)
+    toggleSelectedPieceID(
+      pid,
+      event.shiftKey || event.ctrlKey || event.metaKey,
+      { x: event.point.x, z: event.point.z },
+    )
   }
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const yellowColor = 'yellow'
@@ -44,10 +50,19 @@ export function Outcrop1({
   const lavaColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.lavaField]
+  const toxicColor = isHighlighted
+    ? yellowColor
+    : hexTerrainColor[HexTerrain.toxic]
   const outcropColor = isHighlighted
     ? yellowColor
     : hexTerrainColor[HexTerrain.outcrop]
-  const color = isGlacier ? iceColor : isLavaRock ? lavaColor : outcropColor
+  const color = isGlacier
+    ? iceColor
+    : isLavaRock
+      ? lavaColor
+      : isToxic
+        ? toxicColor
+        : outcropColor
   return (
     <mesh
       receiveShadow={isLightsAndShadowsRender}
@@ -64,10 +79,12 @@ export function Outcrop1Preview({
   opacity,
   isGlacier,
   isLavaRock,
+  isToxic,
 }: {
   opacity?: number
   isGlacier?: boolean
   isLavaRock?: boolean
+  isToxic?: boolean
 }) {
   const { nodes } = useDisposableGLTF(
     '/uncolored-decimated-glacier-outcrop-1.glb',
@@ -78,8 +95,15 @@ export function Outcrop1Preview({
   )
   const iceColor = hexTerrainColor[HexTerrain.glacier]
   const lavaColor = hexTerrainColor[HexTerrain.lavaField]
+  const toxicColor = hexTerrainColor[HexTerrain.toxic]
   const outcropColor = hexTerrainColor[HexTerrain.outcrop]
-  const color = isGlacier ? iceColor : isLavaRock ? lavaColor : outcropColor
+  const color = isGlacier
+    ? iceColor
+    : isLavaRock
+      ? lavaColor
+      : isToxic
+        ? toxicColor
+        : outcropColor
   const opacityLevel = opacity ?? PIECE_PREVIEW_OPACITY
   return (
     <mesh

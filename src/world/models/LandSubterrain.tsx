@@ -33,8 +33,16 @@ export default function LandSubterrain({
     terrain === HexTerrain.grass ||
     terrain === HexTerrain.sand ||
     terrain === HexTerrain.rock
+  const genericSideColor = useBoundStore((s) =>
+    terrain === HexTerrain.generic
+      ? s.genericSolidSideColor
+      : terrain === HexTerrain.genericFluid
+        ? s.genericFluidSideColor
+        : null,
+  )
   const baseColor =
     colorOverride ??
+    genericSideColor ??
     (isDirtSubterrain
       ? hexTerrainColor[HexTerrain.dirt]
       : hexTerrainColor[terrain as keyof typeof hexTerrainColor])
@@ -65,7 +73,11 @@ export default function LandSubterrain({
     if (event.button !== 0) {
       return
     }
-    toggleSelectedPieceID(uid, event.shiftKey || event.ctrlKey || event.metaKey)
+    toggleSelectedPieceID(
+      uid,
+      event.shiftKey || event.ctrlKey || event.metaKey,
+      { x: event.point.x, z: event.point.z },
+    )
   }
   const material = () => {
     if (isLightsAndShadowsRender) {

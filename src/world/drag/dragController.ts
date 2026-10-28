@@ -3,25 +3,45 @@ import type { RootState, ThreeEvent } from '@react-three/fiber'
 import { enqueueSnackbar } from 'notistack'
 import type React from 'react'
 import {
-  type DropDecision,
   type DragCancelReason,
   type DragEvent,
   type DragState,
   type DragTarget,
+  type DropDecision,
   decideDrop,
   dragReducer,
   evaluateDragTarget,
-  getDraggableSelectionGroup,
   getDragPreview,
+  getDragTargetKey,
+  getDraggableSelectionGroup,
   getGrabOffset,
   initialDragState,
   isDraggablePiece,
   shouldSwallowRelease,
   worldToCube,
 } from '../../data/dragMove'
+import {
+  accumulateWheelRotation,
+  getLadderSectorRotation,
+  initialWheelRotationAccumulator,
+  normalizeRotationSteps,
+  rotateDragMembers,
+  shortestRotationSteps,
+  shouldRotateDragWithWheel,
+  shouldShowWheelHint,
+} from '../../data/dragRotation'
 import { piecesSoFar } from '../../data/pieces'
+import {
+  START_ZONES_HIDDEN_MESSAGE,
+  isStartZoneBoardPiece,
+} from '../../data/startZoneVisibility'
 import useBoundStore from '../../store/store'
-import { type BoardHex, type BoardPiece, SELECT_PEN_MODE } from '../../types'
+import {
+  type BoardHex,
+  type BoardPiece,
+  Pieces,
+  SELECT_PEN_MODE,
+} from '../../types'
 import { genBoardHexID } from '../../utils/map-utils'
 
 /**
@@ -40,8 +60,13 @@ let dragged: {
   bp: BoardPiece
   members: BoardPiece[]
   target: DragTarget | null
+  targetWorldPoint?: { x: number; z: number }
 } | null = null
 let targetKey = ''
+let rotationSteps = 0
+let wheelAccumulator = initialWheelRotationAccumulator
+let wheelListenerActive = false
+let hasShownWheelHint = false
 let cameraControlsRef: React.RefObject<CameraControls> | null = null
 let getR3F: (() => RootState) | null = null
 /** Set by reportDragTargetHex; cleared at the start of each pointermove. */
@@ -124,6 +149,10 @@ function onWindowPointerMoveCapture(event: PointerEvent) {
   if (outcome.type === 'start' && dragged) {
     forgetStoppedHovers()
     setPreview(null)
+    rotationSteps = 0
+    wheelAccumulator = initialWheelRotationAccumulator
+    listenWheel()
+    showWheelHint()
   }
 }
 
@@ -150,6 +179,33 @@ function onWindowPointerUpCapture(event: PointerEvent) {
 
 function onWindowPointerCancel() {
   cancel('pointercancel')
+}
+
+function onWindowWheelCapture(event: WheelEvent) {
+  if (state.phase !== 'dragging' || !dragged) return
+  event.preventDefault()
+  event.stopPropagation()
+
+  const piece = piecesSoFar[dragged.bp.inventoryID]
+  if (!piece) return
+  if (!shouldRotateDragWithWheel(piece, dragged.members.length)) {
+    wheelAccumulator = initialWheelRotationAccumulator
+    return
+  }
+
+  const result = accumulateWheelRotation(wheelAccumulator, {
+    deltaY: event.deltaY,
+    deltaMode: event.deltaMode,
+    time: performance.now(),
+    pagePixels: window.innerHeight,
+  })
+  wheelAccumulator = result.state
+  if (result.step === 0) return
+
+  rotationSteps = normalizeRotationSteps(rotationSteps + result.step)
+  if (dragged.target) {
+    setTarget(dragged.target.pointerHex, dragged.targetWorldPoint)
+  }
 }
 
 function onWindowKeyDownCapture(event: KeyboardEvent) {
@@ -199,7 +255,23 @@ function listen() {
   window.addEventListener('pointerdown', onWindowPointerDownCapture, true)
 }
 
+function listenWheel() {
+  if (wheelListenerActive) return
+  window.addEventListener('wheel', onWindowWheelCapture, {
+    capture: true,
+    passive: false,
+  })
+  wheelListenerActive = true
+}
+
+function unlistenWheel() {
+  if (!wheelListenerActive) return
+  window.removeEventListener('wheel', onWindowWheelCapture, true)
+  wheelListenerActive = false
+}
+
 function unlisten() {
+  unlistenWheel()
   window.removeEventListener('pointermove', onWindowPointerMoveCapture, true)
   window.removeEventListener('pointermove', onWindowPointerMove)
   window.removeEventListener('pointerup', onWindowPointerUpCapture, true)
@@ -223,9 +295,15 @@ export function pressPieceForDrag(
 ) {
   event.stopPropagation()
   if (!uid || event.button !== 0 || state.phase !== 'idle') return
-  const { penMode, selectedPieceIDs, boardPieces } = useBoundStore.getState()
+  const { penMode, selectedPieceIDs, boardPieces, isShowStartZones } =
+    useBoundStore.getState()
   if (penMode !== SELECT_PEN_MODE) return
-  const members = getDraggableSelectionGroup(selectedPieceIDs, uid, boardPieces)
+  const members = getDraggableSelectionGroup(
+    selectedPieceIDs,
+    uid,
+    boardPieces,
+    isShowStartZones,
+  )
   if (!members) return
   const bp = members.find((piece) => piece.uid === uid)
   const piece = bp && piecesSoFar[bp.inventoryID]
@@ -235,6 +313,8 @@ export function pressPieceForDrag(
   stopSwallowingClicks()
   dragged = { bp, members, target: null }
   targetKey = ''
+  rotationSteps = 0
+  wheelAccumulator = initialWheelRotationAccumulator
   dispatch({
     type: 'press',
     uid,
@@ -260,19 +340,44 @@ export const isDragPassThrough = (uid: string | undefined) =>
  * support). Returns true when it took the move as the drag target, so the
  * caller stops propagation; false while not dragging, and for anything the
  * dragged piece owns (`ownerUID`, the hex's piece by default), so the
- * pointer passes through to what is beneath.
+ * pointer passes through to what is beneath. `worldPoint` preserves the
+ * raycast x/z for Laur add-on side and vertex resolution.
  */
 export function reportDragTargetHex(
   hex: BoardHex | undefined,
   ownerUID = hex?.boardPieceUID,
+  worldPoint?: { x: number; z: number },
 ): boolean {
   if (state.phase !== 'dragging' || !dragged || !hex) return false
   if (ownerUID && dragged.members.some((member) => member.uid === ownerUID)) {
     return false
   }
+  const targetHex = getLadderDragTargetHex(hex, ownerUID)
   hitThisMove = true
-  if (hex.id !== targetKey) setTarget(hex)
+  setTarget(targetHex, worldPoint)
   return true
+}
+
+function getLadderDragTargetHex(
+  hex: BoardHex,
+  ownerUID: string | undefined,
+): BoardHex {
+  if (
+    !ownerUID ||
+    piecesSoFar[dragged?.bp.inventoryID ?? '']?.id !== Pieces.ladder
+  ) {
+    return hex
+  }
+  const { boardHexes, boardPieces } = useBoundStore.getState()
+  const target = boardPieces.find((piece) => piece.uid === ownerUID)
+  if (target?.inventoryID !== Pieces.ladder) return hex
+
+  const originID = genBoardHexID({
+    ...target.pieceCoords,
+    altitude: target.altitude + 1,
+  })
+  const origin = boardHexes[originID]
+  return origin?.boardPieceUID === target.uid ? origin : hex
 }
 
 /**
@@ -293,25 +398,66 @@ export function findPieceHexAt(
   return best
 }
 
-function setTarget(hex: BoardHex | null) {
+function setTarget(
+  hex: BoardHex | null,
+  worldPoint?: { x: number; z: number },
+) {
   if (!dragged) return
-  targetKey = hex?.id ?? ''
   if (!hex) {
+    targetKey = ''
     dragged.target = null
+    dragged.targetWorldPoint = undefined
     setPreview(null)
     return
   }
-  const { boardHexes, boardPieces } = useBoundStore.getState()
   const piece = piecesSoFar[dragged.bp.inventoryID]
-  const grabOffset = state.phase === 'dragging' ? state.grabOffset : null
-  if (!piece || !grabOffset) return
-  dragged.target = evaluateDragTarget(
-    { boardHexes, boardPieces },
+  if (!piece) return
+  dragged.targetWorldPoint = worldPoint
+  if (piece.id === Pieces.ladder) {
+    const currentRotation = normalizeRotationSteps(
+      dragged.bp.rotation + rotationSteps,
+    )
+    const sectorRotation = getLadderSectorRotation(
+      hex,
+      worldPoint,
+      currentRotation,
+    )
+    if (sectorRotation !== null) {
+      rotationSteps = normalizeRotationSteps(
+        rotationSteps + shortestRotationSteps(currentRotation, sectorRotation),
+      )
+    }
+  }
+  const key = `${getDragTargetKey(
     piece,
     dragged.bp,
     hex,
-    grabOffset,
+    worldPoint,
+    dragged.members.length > 1,
+  )}:rotation:${rotationSteps}`
+  if (key === targetKey) return
+  targetKey = key
+  const { boardHexes, boardPieces } = useBoundStore.getState()
+  const grabOffset = state.phase === 'dragging' ? state.grabOffset : null
+  if (!piece || !grabOffset) return
+  const transformed = rotateDragMembers(
     dragged.members,
+    dragged.bp.uid,
+    grabOffset,
+    rotationSteps,
+  )
+  const resolverPointerHex =
+    piece.id === Pieces.ladder
+      ? { ...hex, pieceRotation: transformed.bp.rotation }
+      : hex
+  dragged.target = evaluateDragTarget(
+    { boardHexes, boardPieces },
+    piece,
+    transformed.bp,
+    resolverPointerHex,
+    transformed.grabOffset,
+    transformed.members,
+    worldPoint,
   )
   setPreview(dragged.target)
 }
@@ -334,7 +480,19 @@ export function commitMoveDecision(
       newRotation: decision.newRotation,
     },
   ]
-  useBoundStore.getState().movePieces({ moves })
+  const store = useBoundStore.getState()
+  const movingStartZone = moves.some((move) =>
+    isStartZoneBoardPiece(
+      store.boardPieces.find((piece) => piece.uid === move.uid),
+    ),
+  )
+  store.movePieces({ moves })
+  if (movingStartZone && !store.isShowStartZones) {
+    enqueueSnackbar({
+      message: START_ZONES_HIDDEN_MESSAGE,
+      variant: 'info',
+    })
+  }
 }
 
 function drop(target: DragTarget | null) {
@@ -360,6 +518,9 @@ function cancel(reason: DragCancelReason) {
   // it can be swallowed; it ends the press as usual
   dragged = null
   targetKey = ''
+  rotationSteps = 0
+  wheelAccumulator = initialWheelRotationAccumulator
+  unlistenWheel()
   restoreCamera()
   useBoundStore.getState().setDragState(false, null)
   if (!shouldSwallowRelease(state)) unlisten()
@@ -370,8 +531,29 @@ function end() {
   unlisten()
   dragged = null
   targetKey = ''
+  rotationSteps = 0
+  wheelAccumulator = initialWheelRotationAccumulator
   restoreCamera()
   if (useBoundStore.getState().isDraggingPiece) {
     useBoundStore.getState().setDragState(false, null)
   }
+}
+
+function showWheelHint() {
+  if (!dragged) return
+  const piece = piecesSoFar[dragged.bp.inventoryID]
+  if (
+    !piece ||
+    !shouldShowWheelHint(piece, dragged.members.length, hasShownWheelHint)
+  ) {
+    return
+  }
+  hasShownWheelHint = true
+  enqueueSnackbar({
+    key: 'drag-rotate-wheel-hint',
+    message: 'Scroll the mouse wheel to rotate while you drag.',
+    variant: 'info',
+    preventDuplicate: true,
+    autoHideDuration: 5000,
+  })
 }

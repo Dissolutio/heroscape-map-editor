@@ -13,6 +13,22 @@ const hasE2EParam = () => {
   }
 }
 
+const hasWhatsNewOptIn = () => {
+  try {
+    return new URLSearchParams(window.location.search).get('whats-new') === '1'
+  } catch {
+    return false
+  }
+}
+
+const hasPerHexLandParam = () => {
+  try {
+    return new URLSearchParams(window.location.search).get('perHexLand') === '1'
+  } catch {
+    return false
+  }
+}
+
 const isBrowser = typeof window !== 'undefined'
 
 /**
@@ -29,3 +45,11 @@ export const isE2E: boolean =
  * exactly as it always did.
  */
 export const isE2EDeterministic: boolean = isBrowser && hasE2EParam()
+
+/** Explicit, session-only opt-in to the development per-hex land renderer. */
+export const isPerHexLandEnabled: boolean =
+  isBrowser && import.meta.env.DEV && hasPerHexLandParam()
+
+/** Explicit opt-in to the automatic What's New dialog in an e2e run. */
+export const isWhatsNewE2EOptIn: boolean =
+  isBrowser && hasE2EParam() && hasWhatsNewOptIn()

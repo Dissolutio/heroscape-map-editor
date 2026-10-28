@@ -20,10 +20,11 @@ import {
 import { getOverlayLevel } from '../utils/map-utils'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import {
-  getTerrainTileLetter,
+  getTerrainTileAnnotation,
+  getTerrainTileLetterColor,
   getTileLetterPosition,
-  shouldDisplayTerrainTileLetter,
 } from '../utils/tileLetters'
+import { type BuriedMarksByUID, getBuriedMarksForHex } from '../utils/tileMarks'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
   SvgCannon,
@@ -62,7 +63,7 @@ import {
   SvgTree415,
   getOutcropTextColor,
 } from './SvgMapShapes'
-import { singleHexObstacleHeightTextProps } from './svgText'
+import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
 const OPACITY_SUBLEVEL = 0.3
 
@@ -93,32 +94,70 @@ const TerrainTileLetterText = ({
   hex,
   viewingLevel,
   enabled,
+  buriedMarksByUID,
 }: {
   hex: BoardHex
   viewingLevel: number
   enabled: boolean
+  buriedMarksByUID: BuriedMarksByUID
 }) => {
-  if (!enabled || !shouldDisplayTerrainTileLetter(hex, viewingLevel)) {
-    return null
-  }
-  const terrainLetter = getTerrainTileLetter(hex.terrain)
-  if (!terrainLetter) {
-    return null
-  }
+  const isShow2DExportBuriedMarks = useBoundStore(
+    (s) => s.isShow2DExportBuriedMarks,
+  )
+  const genericCapColor = useBoundStore((s) =>
+    hex.terrain === HexTerrain.generic
+      ? s.genericSolidCapColor
+      : hex.terrain === HexTerrain.genericFluid
+        ? s.genericFluidCapColor
+        : null,
+  )
+  const marks = isShow2DExportBuriedMarks
+    ? getBuriedMarksForHex(hex, viewingLevel, buriedMarksByUID)
+    : ''
+  const letter = getTerrainTileAnnotation(hex, viewingLevel, enabled, '')
+  if (!letter && !marks) return null
+  const textColor = getTerrainTileLetterColor(
+    hex.terrain,
+    genericCapColor ?? '',
+    genericCapColor ?? '',
+  )
   const position = getTileLetterPosition(hex)
+  const textStyle = letter
+    ? hexTextStyle
+    : { ...hexTextStyle, fontSize: hexTextStyle.fontSize * 0.58 }
   return (
     <text
-      fill={terrainLetter.isBlack ? '#000000' : '#FFFFFF'}
+      fill={textColor ?? '#000000'}
       {...singleHexObstacleHeightTextProps()}
+      style={textStyle}
       x={position.x}
       y={position.y}
     >
-      {terrainLetter.letter}
+      {letter}
+      {letter && marks ? (
+        <tspan
+          dy="-0.6em"
+          style={{
+            fontSize: hexTextStyle.fontSize * 0.58,
+            fontWeight: hexTextStyle.fontWeight,
+          }}
+        >
+          {marks}
+        </tspan>
+      ) : (
+        !letter && marks
+      )}
     </text>
   )
 }
 
-export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
+export const SvgMapHex = ({
+  hex,
+  buriedMarksByUID,
+}: {
+  hex: BoardHex
+  buriedMarksByUID: BuriedMarksByUID
+}) => {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isShow2DExportTileLetters = useBoundStore(
     (s) => s.isShow2DExportTileLetters,
@@ -307,6 +346,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   if (
     inventoryID === Pieces.outcrop1 ||
     inventoryID === Pieces.lavaRockOutcrop1 ||
+    inventoryID === Pieces.toxicOutcrop1 ||
     inventoryID === Pieces.glacier1
   ) {
     const textColor = getOutcropTextColor({ hex, isSubLevel })
@@ -327,6 +367,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   if (
     inventoryID === Pieces.outcrop3 ||
     inventoryID === Pieces.lavaRockOutcrop3 ||
+    inventoryID === Pieces.toxicOutcrop3 ||
     inventoryID === Pieces.glacier3
   ) {
     return (
@@ -513,6 +554,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
   // LAUR PILLARS
   if (
     inventoryID === Pieces.laurWallSquarePillar ||
+    inventoryID === Pieces.laurWallPillarStackable ||
     inventoryID === Pieces.laurWallTrianglePillar
   ) {
     return (
@@ -530,6 +572,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          buriedMarksByUID={buriedMarksByUID}
         />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
       </g>
@@ -550,6 +593,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </g>
     )
@@ -569,6 +613,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </g>
     )
@@ -588,6 +633,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </g>
     )
@@ -607,6 +653,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </g>
     )
@@ -626,6 +673,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </g>
     )
@@ -645,6 +693,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </g>
     )
@@ -664,6 +713,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </g>
     )
@@ -683,6 +733,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </g>
     )
@@ -702,6 +753,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </g>
     )
@@ -721,6 +773,7 @@ export const SvgMapHex = ({ hex }: { hex: BoardHex }) => {
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          buriedMarksByUID={buriedMarksByUID}
         />
       </g>
     )

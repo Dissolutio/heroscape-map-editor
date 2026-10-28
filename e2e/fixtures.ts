@@ -23,12 +23,68 @@ export const mapUrl = (hexMap: object, pieceIds: string[]) =>
 export const FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS)
 
 const READY_TIMEOUT_MS = 60_000
+const pageErrors = new WeakMap<Page, string[]>()
+
+function capturePageErrors(page: Page) {
+  let errors = pageErrors.get(page)
+  if (errors) return errors
+  errors = []
+  const addError = (message: string) => {
+    errors?.push(message)
+    if (errors && errors.length > 10) errors.shift()
+  }
+  page.on('console', (message) => {
+    if (message.type() === 'error') addError(message.text())
+  })
+  page.on('pageerror', (error) => addError(error.message))
+  pageErrors.set(page, errors)
+  return errors
+}
 
 /** Resolves once the current map is loaded and the camera is still. */
 export async function waitForAppReady(page: Page, timeout = READY_TIMEOUT_MS) {
-  await page.waitForFunction(() => window.__APP_READY__ === true, null, {
-    timeout,
-  })
+  const errors = capturePageErrors(page)
+  try {
+    await page.waitForFunction(() => window.__APP_READY__ === true, null, {
+      timeout,
+    })
+  } catch (error) {
+    if (!String(error).includes('Timeout')) throw error
+    let snapshot: unknown
+    try {
+      snapshot = await page.evaluate(() => {
+        const now = performance.now()
+        const debug = window.__READY_DEBUG__
+        const canvas = document.querySelector('canvas')
+        return {
+          appReady: window.__APP_READY__ ?? false,
+          documentHidden: document.hidden,
+          url: window.location.href,
+          status: document.querySelector('[data-testid="app-status"]')
+            ?.textContent,
+          canvasReady: canvas?.dataset.ready ?? null,
+          canvasMapID: canvas?.dataset.mapId ?? null,
+          readyDebug: debug
+            ? {
+                ...debug,
+                frameAgeMs:
+                  debug.lastFrameAt === null ? null : now - debug.lastFrameAt,
+                loaderIdleMs: now - debug.lastLoaderActiveAt,
+              }
+            : null,
+        }
+      })
+    } catch {
+      snapshot = { unavailable: 'page closed or evaluation failed' }
+    }
+    throw new Error(
+      `App-ready timeout after ${timeout} ms.\n${String(error)}\nDiagnostics: ${JSON.stringify(
+        { snapshot, consoleErrors: errors },
+        null,
+        2,
+      )}`,
+    )
+  }
 }
 
 type PieceMatch = {
@@ -145,6 +201,19 @@ const hexPagePoint = async (
     `Hex ${JSON.stringify(hex)}`,
   )
 
+const hexEdgePagePoint = async (
+  page: Page,
+  hex: { q: number; r: number; altitude: number; edge: number },
+) =>
+  toPagePoint(
+    page,
+    await page.evaluate(
+      (target) => window.__TEST__?.screenPosOfHexEdge(target) ?? null,
+      hex,
+    ),
+    `Edge ${JSON.stringify(hex)}`,
+  )
+
 /**
  * Press the left button on a piece and move to a hex in several steps (past
  * the 5 px click tolerance), without releasing. Only an already selected
@@ -180,6 +249,57 @@ export async function dragPiece(
   await page.mouse.up()
 }
 
+/** Press and drag a piece to one edge of a hex without releasing. */
+export async function startDragToHexEdge(
+  page: Page,
+  uid: string,
+  target: { q: number; r: number; altitude: number; edge: number },
+  steps = 8,
+) {
+  await waitForAppReady(page)
+  const from = await piecePagePoint(page, uid)
+  const to = await hexEdgePagePoint(page, target)
+  await page.mouse.move(from.x, from.y)
+  await page.mouse.down()
+  for (let i = 1; i <= steps; i++) {
+    await page.mouse.move(
+      from.x + ((to.x - from.x) * i) / steps,
+      from.y + ((to.y - from.y) * i) / steps,
+    )
+  }
+}
+
+/** Press and drag between model positions reported by the app test bridge. */
+export async function startDragToPiece(
+  page: Page,
+  uid: string,
+  targetUID: string,
+  steps = 8,
+) {
+  await waitForAppReady(page)
+  const from = await piecePagePoint(page, uid)
+  const to = await piecePagePoint(page, targetUID)
+  await page.mouse.move(from.x, from.y)
+  await page.mouse.down()
+  for (let i = 1; i <= steps; i++) {
+    await page.mouse.move(
+      from.x + ((to.x - from.x) * i) / steps,
+      from.y + ((to.y - from.y) * i) / steps,
+    )
+  }
+}
+
+/** Drag a piece between model positions reported by the app test bridge. */
+export async function dragPieceToPiece(
+  page: Page,
+  uid: string,
+  targetUID: string,
+  steps = 8,
+) {
+  await startDragToPiece(page, uid, targetUID, steps)
+  await page.mouse.up()
+}
+
 /** Set paint controls through the E2E-only setup hook. */
 export async function setPen(
   page: Page,
@@ -197,6 +317,7 @@ export async function setPen(
 export const test = base.extend({
   // Every test starts on the fixture map, loaded and ready.
   page: async ({ page }, use) => {
+    capturePageErrors(page)
     await page.goto(FIXTURE_URL)
     await waitForAppReady(page)
     await use(page)

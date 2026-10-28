@@ -1,7 +1,18 @@
 import { Box, Button, ButtonGroup, Tooltip, Typography } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
+import { enqueueSnackbar } from 'notistack'
 import type { RefObject } from 'react'
+import { getGroupRotationBlockedReason } from '../data/evaluateGroupRotation'
 import { piecesSoFar } from '../data/pieces'
+import {
+  isRotationPivotAtPieceOrigin,
+  resolveRotationPivot,
+} from '../data/rotationPivot'
+import { rotateGroupAroundPivot } from '../data/rotateGroup'
+import {
+  placementBlockedMessages,
+  type PlacementBlockedReason,
+} from '../data/placement'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import useBoundStore from '../store/store'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
@@ -14,7 +25,10 @@ import {
 } from '../utils/map-utils'
 import { ConvertTerrainQuickSelect } from './ConvertTerrainQuickSelect'
 import DeletePieceButton from './DeletePieceButton'
-import { getPossibleRotationsForPenMode } from './getPossibleRotationsForPenMode'
+import {
+  getRotationByListStep,
+  hasIntegerRotationSteps,
+} from './getPossibleRotationsForPenMode'
 
 const FONT_SIZE = 8
 
@@ -152,6 +166,7 @@ function PieceTransformControls({
   onPreviewAltitude: (delta: number) => void
   onClearPreview: () => void
 }) {
+  const isMulti = selectedPieceIDs.length > 1
   const moveButton = (direction: number, title: string, label: string) => (
     <Button
       key={direction}
@@ -218,12 +233,28 @@ function PieceTransformControls({
         {moveButton(2, 'Move selected piece 1 hex down-left', '↙')}
       </ButtonGroup>
       <ButtonGroup
-        aria-label="Rotate selected piece"
+        aria-label={
+          isMulti
+            ? 'Rotate selected pieces around the pivot hex'
+            : 'Rotate selected piece'
+        }
         size="small"
         sx={{ mt: 0.5 }}
       >
-        {rotateButton(-1, 'Rotate selected piece counter-clockwise', '↺ CCW')}
-        {rotateButton(1, 'Rotate selected piece clockwise', 'CW ↻')}
+        {rotateButton(
+          -1,
+          isMulti
+            ? 'Rotate selected pieces around the pivot hex counter-clockwise'
+            : 'Rotate selected piece counter-clockwise',
+          '↺ CCW',
+        )}
+        {rotateButton(
+          1,
+          isMulti
+            ? 'Rotate selected pieces around the pivot hex clockwise'
+            : 'Rotate selected piece clockwise',
+          'CW ↻',
+        )}
       </ButtonGroup>
       <ButtonGroup
         aria-label="Move selected piece altitude"
@@ -273,10 +304,9 @@ export function SelectedPieceControls({
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const storedRotationPivot = useBoundStore((s) => s.rotationPivot)
   const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const movePieces = useBoundStore((s) => s.movePieces)
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
   const { width: mapWidth, length: mapLength } =
     getBoardHexesRectangularMapDimensions(boardHexes)
@@ -284,10 +314,23 @@ export function SelectedPieceControls({
   const selectedBoardPieces = boardPieces.filter((bp) =>
     selectedPieceIDs.includes(bp.uid),
   )
+  const groupRotationPivot = resolveRotationPivot(
+    selectedPieceIDs,
+    boardPieces,
+    boardHexes,
+    storedRotationPivot,
+  )
   const firstBp = selectedBoardPieces[0]
   if (!firstBp) return null
 
   const isMulti = selectedBoardPieces.length > 1
+  const hasNonOriginPivot =
+    !isMulti &&
+    groupRotationPivot !== undefined &&
+    !isRotationPivotAtPieceOrigin(
+      firstBp.pieceCoords,
+      groupRotationPivot.coords,
+    )
 
   // --- Status computations ---
   const conflictedUIDSet = new Set(conflictedPieceUIDs)
@@ -382,15 +425,43 @@ export function SelectedPieceControls({
     )
   }
   const previewRotate = (direction: 1 | -1) => {
+    if (isMulti || hasNonOriginPivot) {
+      if (!isMulti && !hasIntegerRotationSteps(firstBp.inventoryID)) {
+        setPiecePreviews(null)
+        return
+      }
+      const moves = rotateGroupAroundPivot(
+        selectedBoardPieces,
+        groupRotationPivot?.coords ??
+          selectedPieceIDs[selectedPieceIDs.length - 1],
+        direction,
+      )
+      const movesByUID = new Map(moves.map((move) => [move.uid, move]))
+      setPiecePreviews(
+        selectedBoardPieces.map((bp) => {
+          const move = movesByUID.get(bp.uid)
+          if (!move) {
+            throw new Error(`Missing rotation preview for ${bp.uid}`)
+          }
+          return {
+            ...bp,
+            pieceCoords: move.newPieceCoords,
+            rotation: move.newRotation ?? bp.rotation,
+          }
+        }),
+      )
+      return
+    }
     setPiecePreviews(
       selectedBoardPieces.map((bp) => {
-        const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
-        const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
-        const baseIdx = currentIdx === -1 ? 0 : currentIdx
-        const nextIdx =
-          (baseIdx + direction + possibleRotations.length) %
-          possibleRotations.length
-        return { ...bp, rotation: possibleRotations[nextIdx] }
+        return {
+          ...bp,
+          rotation: getRotationByListStep(
+            bp.inventoryID,
+            bp.rotation,
+            direction,
+          ),
+        }
       }),
     )
   }
@@ -426,49 +497,104 @@ export function SelectedPieceControls({
   }
 
   const rotateSelectedPiece = (direction: 1 | -1) => {
+    const showBlockedRotation = (reason?: PlacementBlockedReason) => {
+      enqueueSnackbar({
+        message: reason
+          ? placementBlockedMessages[reason]
+          : 'That rotation is blocked.',
+        variant: 'warning',
+        autoHideDuration: 5000,
+      })
+    }
+
+    if (isMulti) {
+      const moves = rotateGroupAroundPivot(
+        selectedBoardPieces,
+        groupRotationPivot?.coords ??
+          selectedPieceIDs[selectedPieceIDs.length - 1],
+        direction,
+      )
+      const blockedReason = getGroupRotationBlockedReason(
+        { boardHexes, boardPieces },
+        selectedBoardPieces,
+        moves,
+      )
+      if (blockedReason) {
+        showBlockedRotation(blockedReason)
+        setPiecePreviews(null)
+        return
+      }
+      setPiecePreviews(null)
+      movePieces({ moves, preserveRotationPivot: true })
+      return
+    }
+
+    if (hasNonOriginPivot && groupRotationPivot) {
+      if (!hasIntegerRotationSteps(firstBp.inventoryID)) {
+        showBlockedRotation()
+        setPiecePreviews(null)
+        return
+      }
+
+      const moves = rotateGroupAroundPivot(
+        selectedBoardPieces,
+        groupRotationPivot.coords,
+        direction,
+      )
+      const blockedReason = getGroupRotationBlockedReason(
+        { boardHexes, boardPieces },
+        selectedBoardPieces,
+        moves,
+      )
+      if (blockedReason) {
+        showBlockedRotation(blockedReason)
+        setPiecePreviews(null)
+        return
+      }
+
+      setPiecePreviews(null)
+      movePieces({ moves, preserveRotationPivot: true })
+      return
+    }
+
     setPiecePreviews(null)
     movePieces({
       moves: selectedBoardPieces.map((bp) => {
-        const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
-        const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
-        const baseIdx = currentIdx === -1 ? 0 : currentIdx
-        const nextIdx =
-          (baseIdx + direction + possibleRotations.length) %
-          possibleRotations.length
         return {
           uid: bp.uid,
           newPieceCoords: bp.pieceCoords,
-          newRotation: possibleRotations[nextIdx],
+          newRotation: getRotationByListStep(
+            bp.inventoryID,
+            bp.rotation,
+            direction,
+          ),
         }
       }),
     })
     setPiecePreviews(
       selectedBoardPieces.map((bp) => {
-        const possibleRotations = getPossibleRotationsForPenMode(bp.inventoryID)
-        const currentIdx = possibleRotations.findIndex((r) => r === bp.rotation)
-        const baseIdx = currentIdx === -1 ? 0 : currentIdx
-        const nextIdx =
-          (baseIdx + direction * 2 + possibleRotations.length * 2) %
-          possibleRotations.length
-        return { ...bp, rotation: possibleRotations[nextIdx] }
+        return {
+          ...bp,
+          rotation: getRotationByListStep(
+            bp.inventoryID,
+            bp.rotation,
+            direction,
+            2,
+          ),
+        }
       }),
     )
   }
 
   const moveSelectedPieceAltitude = (delta: number) => {
     setPiecePreviews(null)
-    let maxNewAltitude = 0
     const moves = []
     for (const bp of selectedBoardPieces) {
       const newAltitude = bp.altitude + delta
       if (newAltitude < 0) continue
-      maxNewAltitude = Math.max(maxNewAltitude, newAltitude)
       moves.push({ uid: bp.uid, newPieceCoords: bp.pieceCoords, newAltitude })
     }
     movePieces({ moves })
-    if (delta > 0 && maxNewAltitude + 1 > viewingLevel) {
-      toggleViewingLevel(maxNewAltitude + 1)
-    }
     const movedPieces = selectedBoardPieces
       .filter((bp) => bp.altitude + delta >= 0)
       .map((bp) => ({ ...bp, altitude: bp.altitude + delta }))

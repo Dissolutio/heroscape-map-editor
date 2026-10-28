@@ -1,5 +1,6 @@
 import type { BoardHexes, BoardPieces, CubeCoordinate, Piece } from '../types'
 import { addPiece } from './addPiece'
+import { getUnsupportedLaurAddonUIDs } from './laurAddonSupport'
 import { piecesSoFar } from './pieces'
 import { computeConflictedPieceUIDs } from './rebuildBoardState'
 import { removePiece } from './removePiece'
@@ -18,6 +19,7 @@ type MoveBoard = {
 }
 
 export type MovedBoard = MoveBoard & {
+  unsupportedPieceUIDs: string[]
   /** The highest altitude a piece was placed at (for the viewing level). */
   highestAltitude: number
 }
@@ -32,7 +34,7 @@ export type MovedBoard = MoveBoard & {
  *
  * Returns null, touching nothing, when no move names a known piece. A uid
  * given twice moves by its first entry. `addPiece` and `removePiece` edit
- * the hex objects they are given; inside the store those are Immer drafts.
+ * their own working board copies; the input board remains unchanged.
  */
 export function applyPieceMoves(
   board: MoveBoard,
@@ -132,6 +134,9 @@ export function applyPieceMoves(
     boardPieces: workingPieces,
     // Recompute globally so move and paint use the same conflict source of truth.
     conflictedPieceUIDs: computeConflictedPieceUIDs(workingPieces),
+    unsupportedPieceUIDs: getUnsupportedLaurAddonUIDs({
+      boardPieces: workingPieces,
+    }),
     highestAltitude: Math.max(...resolved.map((m) => m.altitude)),
   }
 }

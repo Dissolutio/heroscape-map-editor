@@ -17,6 +17,11 @@ import {
 } from '../types'
 import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
 import {
+  BURIED_MARKS_KEY,
+  getBuriedMarksForHex,
+  type BuriedMarksByUID,
+} from '../utils/tileMarks'
+import {
   boardPieceToDecodedPieceID,
   getBoardHexesSvgMapDimensions,
   getOverlayLevel,
@@ -32,6 +37,8 @@ export const PdfMapLevels6PerPage = ({
   isShowPdfGridLinesOverSublevels,
   isShowPdfLevelLogo,
   isShowPdfTileLetters,
+  isShowPdfBuriedMarks,
+  buriedMarksByUID,
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
   children,
@@ -44,6 +51,8 @@ export const PdfMapLevels6PerPage = ({
   isShowPdfGridLinesOverSublevels: boolean
   isShowPdfLevelLogo: boolean
   isShowPdfTileLetters: boolean
+  isShowPdfBuriedMarks: boolean
+  buriedMarksByUID: BuriedMarksByUID
   useLegacyStartZones: boolean
   is2DOverlayLevelEnabled: boolean
 }>) => {
@@ -61,6 +70,11 @@ export const PdfMapLevels6PerPage = ({
   const decodedBoardPiecesArr = boardPieces
     .map((bp) => boardPieceToDecodedPieceID(bp))
     .filter((p) => Boolean(p))
+  const hasBuriedMarks =
+    isShowPdfBuriedMarks &&
+    Object.values(boardHexes).some((hex) =>
+      getBuriedMarksForHex(hex, hex.altitude, buriedMarksByUID),
+    )
   return (
     <>
       {chunksOf6Levels.map((chunk, i) => (
@@ -108,6 +122,8 @@ export const PdfMapLevels6PerPage = ({
                         isShowPdfGridLinesOverSublevels
                       }
                       isShowPdfTileLetters={isShowPdfTileLetters}
+                      isShowPdfBuriedMarks={isShowPdfBuriedMarks}
+                      buriedMarksByUID={buriedMarksByUID}
                       useLegacyStartZones={useLegacyStartZones}
                       is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
                     />
@@ -142,6 +158,8 @@ export const PdfMapLevels6PerPage = ({
                         isShowPdfGridLinesOverSublevels
                       }
                       isShowPdfTileLetters={isShowPdfTileLetters}
+                      isShowPdfBuriedMarks={isShowPdfBuriedMarks}
+                      buriedMarksByUID={buriedMarksByUID}
                       useLegacyStartZones={useLegacyStartZones}
                       is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
                     />
@@ -150,6 +168,11 @@ export const PdfMapLevels6PerPage = ({
               )}
             </HalfPageColumn>
           </View>
+          {i === 0 && hasBuriedMarks && (
+            <Text style={{ fontSize: 7, textAlign: 'center', marginTop: 2 }}>
+              {BURIED_MARKS_KEY}
+            </Text>
+          )}
         </Page>
       ))}
     </>

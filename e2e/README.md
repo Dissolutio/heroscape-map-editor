@@ -27,6 +27,15 @@ link parameter: `/hs?e2e=1&m=<crushed map>` (see `e2e/fixtures.ts`).
 between runs. The rotation only shows with **High Quality Render** on; the
 default caps are plain hexagons.
 
+For the development-only per-hex land renderer, add `&perHexLand=1` to an
+`/hs?e2e=1` URL. It is session-only and off by default; all other rendering
+continues to use the current path.
+
+The automatic What's New dialog is suppressed for `?e2e=1` runs. A test that
+needs to exercise it can explicitly opt in with `&whats-new=1`. The ordinary
+What's New button remains available in e2e runs.
+The What's New spec reads the current release IDs from `release-notes.md`.
+
 ## Waiting: use the ready signal, never a fixed sleep
 
 The map is "ready" when its bounding box has stopped changing, no model is
@@ -43,6 +52,9 @@ await page.waitForFunction(() => window.__APP_READY__ === true)
 
 The signal needs frames to be rendering. It copes with `frameloop="demand"`
 but not with a hidden tab (the app stops rendering when `document.hidden`).
+`waitForAppReady` includes an e2e-only `window.__READY_DEBUG__` snapshot and
+recent browser console errors when it times out. The test timeout leaves 15
+seconds after its 60-second wait for that diagnostic to be reported.
 
 ## Reading state: `window.__TEST__` and the status element
 
@@ -53,10 +65,13 @@ The canvas is invisible to accessibility snapshots, so read state in text:
 - `window.__TEST__.snapshot()`: the same, structured (`mapId`, `mapWidth`,
   `mapLength`, `pieceCount`, `hexCount`, `viewingLevel`, `penMode`, `selectedPieceIDs`,
   `hoveredPieceID`, `isOrthoCam`, `ready`, `placementPreview`
-  (`status`, `reason`, and `footprintCount`, or `null`), and `drag`: a piece
+  (`status`, `reason`, `footprintCount`, `unsupported`, `altitude`, and
+  `rotation`, or `null`), and
+  `drag`: a piece
   press or drag in progress, or `null` (`state` is `'pressed'` or
   `'dragging'`; `targetStatus` is the drop's `'ok'`, `'conflict'` or
-  `'blocked'`, or `null` with no target; for a multi-selection it is the
+  `'blocked'`, or `null` with no target; `unsupported` marks a dragged
+  Laur add-on missing required support ports; for a multi-selection it is the
   worst member status; `reason`; `footprintCount`, the total hexes in all
   target footprints, off-map ones included (a target hanging off the map is
   `blocked`/`offMap` with its full footprint; a group member outside the
@@ -98,10 +113,23 @@ To drag a piece, use `dragPiece(page, uid, { q, r, altitude })` from
 past the 5 px click tolerance, and releases at `screenPosOfHex`.
 `startDrag` does the same without releasing (for Esc, or to read
 `snapshot().drag` mid-drag; finish with `page.mouse.up()`). The one selected
-piece or an all-draggable selected group drags, in select mode; a drag that
-starts anywhere else or with a non-draggable member orbits the camera. While
-dragging, the moving pieces are see-through to the pointer, so
+piece or an all-draggable selected group drags, in select mode, including
+start zones. Dropping a start zone onto an occupied start-zone position is
+refused so it cannot disappear. A drag that starts anywhere else or with a
+non-draggable member orbits the camera. While dragging, the moving pieces are
+see-through to the pointer, so
 `drag.targetHex` over their own spots is the hex under them.
+For a target that is itself a model (for example, a Laur pillar port), use
+`dragPieceToPiece(page, uid, targetUID)`; it uses the bridge's
+`screenPosOfPiece` for both endpoints.
+For a specific edge of a hovered hex, use `startDragToHexEdge` and
+`window.__TEST__.screenPosOfHexEdge`; the helper aims just inside that edge
+while still letting the app resolve the real hovered hex and pointer point.
+Dragging a ladder moves the grabbed ladder and every contiguous ladder above
+it; ladders below it stay in place.
+While a drag is active, the mouse wheel rotates the piece or dragged group;
+for ladders, the pointer's sector on the hovered hex sets the ladder's
+orientation instead.
 
 Things that decide what a click does:
 
@@ -110,9 +138,12 @@ Things that decide what a click does:
   selects a piece. Paint modes place pieces instead.
 - A click that hits nothing clears the selection. Clicking the only selected
   piece again deselects it.
-- `screenPosOfPiece` aims at the piece's top surface. If another piece sits
-  on top (a stacked tile, a tree, a pillar), the click selects that one; such
-  a piece is only reachable from the side, if at all.
+- `screenPosOfPiece` aims at the piece's top surface, except Laur add-ons, for
+  which it targets the add-on's canonical side/vertex feature point, and
+  ladders / boardPieces-only edge pieces, for which it targets their rendered
+  model.
+  If another piece sits on top (a stacked tile, a tree, a pillar), the click
+  selects that one; such a piece is only reachable from the side, if at all.
 - A tall piece in front can hide the target. If a click selects something
   else, check `snapshot().selectedPieceIDs` and move the camera.
 - The camera starts orthographic (top-down); `Insert` toggles perspective.
@@ -137,7 +168,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | What | Where |
 | --- | --- |
 | On/off switches (read once at load) | `src/e2e/isE2E.ts` |
-| Ready signal | `src/e2e/ReadySignal.tsx` (reuses `mapSettleTracker`) |
+| Ready signal | `src/e2e/ReadySignal.tsx` (reuses `mapSettleTracker`; window hooks remain e2e-only) |
 | `window.__TEST__` | `src/e2e/TestBridge.tsx` |
 | Preview test state | `src/e2e/placementPreviewStore.ts` |
 | Hidden status text | `src/e2e/E2EStatus.tsx` |
@@ -145,6 +176,13 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Tests, fixtures | `e2e/` |
 | Viewing-level regression | `e2e/viewing-level.spec.ts` |
 | Load-time map fitting | `e2e/load-fits-map.spec.ts` |
+| Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
+| Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
+| Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
+| View tooltips, camera visibility, and new-map author details | `e2e/ui-polish.spec.ts` |
+| Per-hex land pixels across lights toggles | `e2e/per-hex-land.spec.ts` |
+| Lazy Graphics tier texture loading in per-hex land mode | `e2e/graphics-tier.spec.ts` |
 
-All of it renders nothing and installs nothing unless the switch in `isE2E.ts`
-is on.
+The map-settle tracker also feeds the app's startup UI in normal runs. The
+window bridge, hidden status element, deterministic rotation, and other
+browser-only hooks remain gated by `isE2E.ts`.

@@ -2,20 +2,20 @@ import { Instance, Instances } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import usePieceHoverState from '../../../hooks/usePieceHoverState'
-import { reportDragTargetHex } from '../../drag/dragController'
+import useBoundStore from '../../../store/store'
 import { HexTerrain } from '../../../types'
 import {
   HEXGRID_EMPTYHEX_HEIGHT,
   INSTANCE_LIMIT,
 } from '../../../utils/constants'
 import { getBoardHex3DCoords } from '../../../utils/map-utils'
+import { reportDragTargetHex } from '../../drag/dragController'
 import { hexTerrainColor } from '../hexColors'
 import type {
   BoardHexPieceProps,
   CylinderGeometryArgs,
   DreiCapProps,
 } from '../instance-hex'
-import useBoundStore from '../../../store/store'
 
 const baseEmptyCapCylinderArgs: CylinderGeometryArgs = [
   0.999,
@@ -68,7 +68,7 @@ function EmptyHex({
 }: BoardHexPieceProps & { isLightsAndShadowsRender: boolean }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
-  const { onPointerEnter, onPointerOut } = usePieceHoverState()
+  const { onPointerEnter, onPointerOut, onPointerMove } = usePieceHoverState()
 
   // Effect: Initial color/position
   React.useLayoutEffect(() => {
@@ -101,9 +101,17 @@ function EmptyHex({
       onPointerUp={handleUp}
       onPointerEnter={handleEnter}
       onPointerOut={handleOut}
-      onPointerMove={(e: ThreeEvent<PointerEvent>) =>
-        reportDragTargetHex(boardHex) && e.stopPropagation()
-      }
+      onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+        onPointerMove(e)
+        if (
+          reportDragTargetHex(boardHex, undefined, {
+            x: e.point.x,
+            z: e.point.z,
+          })
+        ) {
+          e.stopPropagation()
+        }
+      }}
       frustumCulled={false}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}

@@ -17,6 +17,7 @@
  * and these tests see; the store only ever learns about overlaps.
  */
 import { beforeAll, describe, expect, it } from 'vitest'
+import { produce } from 'immer'
 import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
 import { piecesSoFar } from '../data/pieces'
 import {
@@ -106,6 +107,47 @@ describe('placement rules (strict mode)', () => {
     expect(second.error).toBeUndefined()
     expect(hexAt(second.board, table.center, 1)?.isCap).toBe(false)
     expect(hexAt(second.board, table.center, 2)?.isCap).toBe(true)
+  })
+
+  it('placing land over a cap does not mutate the board it was given', () => {
+    const table = makeTable()
+    const first = place({
+      board: table,
+      pieceID: 'g1',
+      at: table.center,
+      altitude: 0,
+    })
+    const before = structuredClone(first.board.boardHexes)
+
+    const second = place({
+      board: first.board,
+      pieceID: 'g1',
+      at: table.center,
+      altitude: 1,
+    })
+
+    expect(hexAt(first.board, table.center, 1)?.isCap).toBe(true)
+    expect(hexAt(second.board, table.center, 1)?.isCap).toBe(false)
+    expect(first.board.boardHexes).toEqual(before)
+  })
+
+  it('addPiece works with Immer drafts', () => {
+    const table = makeTable()
+    const placed = produce(table, (draft) => {
+      const result = place({
+        board: draft,
+        pieceID: 'g1',
+        at: table.center,
+        altitude: 0,
+      })
+      draft.boardHexes = result.board.boardHexes
+      draft.boardPieces = result.board.boardPieces
+    })
+
+    expect(placed.boardPieces).toHaveLength(1)
+    expect(table.boardPieces).toHaveLength(0)
+    expect(hexAt(placed, table.center, 1)?.isCap).toBe(true)
+    expect(hexAt(table, table.center, 1)).toBeUndefined()
   })
 
   it('two pieces cannot occupy the same hex', () => {
@@ -494,12 +536,9 @@ describe('KNOWN GAPS in the engine', () => {
     },
   )
 
-  it.fails('addPiece does not mutate the board it was given', () => {
-    // addPiece shallow-copies the hex map and then edits hex objects inside it
-    // (e.g. clearing `isCap` on the hex underneath), so the CALLER'S board
-    // changes too. Harmless today only because the store wraps every call in
-    // immer; it bites the moment placement runs outside immer (a web worker,
-    // tests, a "what-if" preview) and it is why the helpers here clone first.
+  it('addPiece does not mutate the board it was given', () => {
+    // Compare the complete map, including fields such as `isCap` on existing
+    // hexes.
     const table = makeTable()
     const before = structuredClone(table.boardHexes)
     place({ board: table, pieceID: 'g1', at: table.center, altitude: 0 })

@@ -1,4 +1,6 @@
 import { piecesSoFar } from '../data/pieces'
+import { getExportBorderColor } from '../pdf-svg-shared/exportBorderColor'
+import useBoundStore from '../store/store'
 import {
   type BoardHex,
   type DecodedPieceID,
@@ -12,6 +14,7 @@ import {
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import { decodePieceID } from '../utils/map-utils'
+import { getGenericTerrain2DColors } from '../world/maphex/genericTerrainColors'
 import {
   svgColors,
   svgSubLevelColors,
@@ -22,7 +25,7 @@ function isBoardHex(hex: BoardHex | DecodedPieceID): hex is BoardHex {
   return (<BoardHex>hex).pieceRotation !== undefined
 }
 
-export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
+const getSvgHexColorOutline = (hex: BoardHex | DecodedPieceID) => {
   // TODO: color: refactor this to be more direct
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
   if (hex.terrain === 'empty') {
@@ -70,6 +73,7 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
     hex.terrain === HexTerrain.wellspringWater ||
     hex.terrain === HexTerrain.toxicWater ||
     hex.terrain === HexTerrain.swampWater ||
+    hex.terrain === HexTerrain.genericFluid ||
     hex.terrain === HexTerrain.ice ||
     hex.terrain === HexTerrain.lava ||
     hex.terrain === HexTerrain.shadow
@@ -100,6 +104,9 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgColors.outlineLavaOutcrop
   }
+  if (hex.terrain === HexTerrain.toxicOutcrop) {
+    return svgColors[HexTerrain.toxicOutcrop]
+  }
   if (hex.terrain === HexTerrain.castleWall) {
     return svgColors.castleWall
   }
@@ -117,9 +124,24 @@ export const getSvgHexBorderColor = (hex: BoardHex | DecodedPieceID) => {
   }
   return 'black'
 }
-export const getSvgHexSubLevelBorderColor = (
+export const getSvgHexBorderColor = (
   hex: BoardHex | DecodedPieceID,
+  useTerrainBorderColor = true,
 ) => {
+  const colorBorder = getSvgHexColorOutline(hex)
+  return getExportBorderColor({
+    terrain: hex.terrain,
+    isFluid: isFluidTerrainHex(hex.terrain),
+    isSubLevel: false,
+    useTerrainBorderColor,
+    colorBorder,
+    defaultBorderColor: isSolidTerrainHex(hex.terrain)
+      ? svgColors.glacierText
+      : colorBorder,
+  })
+}
+
+const getSvgHexSubLevelColorOutline = (hex: BoardHex | DecodedPieceID) => {
   // TODO: color: refactor this to be more direct
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)
   if (hex.terrain === 'empty') {
@@ -166,6 +188,7 @@ export const getSvgHexSubLevelBorderColor = (
     hex.terrain === HexTerrain.wellspringWater ||
     hex.terrain === HexTerrain.toxicWater ||
     hex.terrain === HexTerrain.swampWater ||
+    hex.terrain === HexTerrain.genericFluid ||
     hex.terrain === HexTerrain.ice ||
     hex.terrain === HexTerrain.lava ||
     hex.terrain === HexTerrain.shadow
@@ -196,6 +219,9 @@ export const getSvgHexSubLevelBorderColor = (
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgSubLevelColors.outlineLavaOutcrop
   }
+  if (hex.terrain === HexTerrain.toxicOutcrop) {
+    return svgSubLevelColors[HexTerrain.toxicOutcrop]
+  }
   if (hex.terrain === HexTerrain.castleWall) {
     return svgSubLevelColors.castleWall
   }
@@ -210,8 +236,29 @@ export const getSvgHexSubLevelBorderColor = (
   }
   return 'black'
 }
+export const getSvgHexSubLevelBorderColor = (
+  hex: BoardHex | DecodedPieceID,
+  useTerrainBorderColor = true,
+) => {
+  const colorBorder = getSvgHexSubLevelColorOutline(hex)
+  return getExportBorderColor({
+    terrain: hex.terrain,
+    isFluid: isFluidTerrainHex(hex.terrain),
+    isSubLevel: true,
+    useTerrainBorderColor,
+    colorBorder,
+    defaultBorderColor: isSolidTerrainHex(hex.terrain)
+      ? svgSubLevelColors.glacierText
+      : colorBorder,
+  })
+}
 
 export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
+  const genericColors = getGenericTerrain2DColors(
+    hex.terrain,
+    useBoundStore.getState(),
+  )
+  if (genericColors) return genericColors.main
   if (
     isSolidTerrainHex(hex.terrain) ||
     isFluidTerrainHex(hex.terrain) ||
@@ -270,6 +317,9 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgColors.lava
   }
+  if (hex.terrain === HexTerrain.toxicOutcrop) {
+    return svgColors[HexTerrain.toxicOutcrop]
+  }
   if (hex.terrain === HexTerrain.castleWall) {
     return svgColors.castleWall
   }
@@ -279,6 +329,11 @@ export const getSvgHexFillColor = (hex: BoardHex | DecodedPieceID) => {
   return 'transparent'
 }
 export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
+  const genericColors = getGenericTerrain2DColors(
+    hex.terrain,
+    useBoundStore.getState(),
+  )
+  if (genericColors) return genericColors.subLevel
   if (
     isSolidTerrainHex(hex.terrain) ||
     isFluidTerrainHex(hex.terrain) ||
@@ -337,6 +392,9 @@ export const getSvgHexSubLevelFillColor = (hex: BoardHex | DecodedPieceID) => {
   }
   if (hex.terrain === HexTerrain.lavaRockOutcrop) {
     return svgSubLevelColors.lava
+  }
+  if (hex.terrain === HexTerrain.toxicOutcrop) {
+    return svgSubLevelColors[HexTerrain.toxicOutcrop]
   }
   if (hex.terrain === HexTerrain.castleWall) {
     return svgSubLevelColors.castleWall

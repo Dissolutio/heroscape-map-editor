@@ -32,6 +32,21 @@ export const pieceGroups = [
     ],
   },
   {
+    label: 'Generic',
+    pieces: [
+      Pieces.generic1,
+      Pieces.generic2,
+      Pieces.generic3,
+      Pieces.generic7,
+      Pieces.generic24,
+      Pieces.genericFluid1,
+      Pieces.genericFluid2,
+      Pieces.genericFluid3,
+      Pieces.genericFluid7,
+      Pieces.genericFluid24,
+    ],
+  },
+  {
     label: 'Dungeon & Shadow',
     pieces: [
       Pieces.dungeon1,
@@ -109,7 +124,7 @@ export const pieceGroups = [
   },
   {
     label: 'Toxic',
-    pieces: [Pieces.toxic1],
+    pieces: [Pieces.toxic1, Pieces.toxic3],
   },
   {
     label: 'Obstacles & Jungle',
@@ -133,6 +148,8 @@ export const pieceGroups = [
       Pieces.outcrop3,
       Pieces.lavaRockOutcrop1,
       Pieces.lavaRockOutcrop3,
+      Pieces.toxicOutcrop1,
+      Pieces.toxicOutcrop3,
       Pieces.glacier1,
       Pieces.glacier3,
       Pieces.glacier4,

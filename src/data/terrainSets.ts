@@ -281,4 +281,34 @@ export const terrainSetsByShortID = {
     releaseDate: '06/2026',
     era: 'contemporary',
   },
+  CC: {
+    name: 'Toxic Wastelands of Valhalla',
+    abbreviation: 'TWoV',
+    inventory: setInventories.toxicWastelandsOfValhalla,
+    setType: 'Terrain Expansion',
+    id: 'CC',
+    // hsOrgId omitted: no id yet.
+    releaseDate: '02/2027',
+    era: 'contemporary',
+  },
+  DD: {
+    name: 'Tournament Organizer Terrain Kit 2',
+    abbreviation: 'TOTK2',
+    inventory: setInventories.tournamentOrganizerTerrainKit2PieceSet,
+    setType: 'Terrain Expansion',
+    id: 'DD',
+    // hsOrgId omitted: no id yet.
+    releaseDate: '02/2027',
+    era: 'contemporary',
+  },
+  EE: {
+    name: 'Organized Play Expeditions Kits Promo',
+    abbreviation: 'OPEKP',
+    inventory: setInventories.organizedPlayExpeditionsKitsPromo,
+    setType: 'Terrain Expansion',
+    id: 'EE',
+    // hsOrgId omitted: no id yet.
+    releaseDate: '02/2027',
+    era: 'contemporary',
+  },
 }

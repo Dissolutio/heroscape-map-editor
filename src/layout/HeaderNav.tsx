@@ -4,7 +4,7 @@ import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
 import React from 'react'
 import { FcPrint } from 'react-icons/fc'
-import { MdFullscreen, MdFullscreenExit } from 'react-icons/md'
+import { MdFullscreen, MdFullscreenExit, MdNewReleases } from 'react-icons/md'
 import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
 import useBoundStore from '../store/store'
 import { useFullscreen } from '../hooks/useFullscreen'
@@ -18,7 +18,11 @@ const ReactPdfDownloadLink = lazyWithRetry(() =>
   })),
 )
 
-export function HeaderNav() {
+export function HeaderNav({
+  onOpenWhatsNew,
+}: {
+  onOpenWhatsNew: () => void
+}) {
   // AppBar height is 64px when screen > 600px
   // AppBar height is 56px when screen < 600px
   const hexMap = useBoundStore((s) => s.hexMap)
@@ -83,6 +87,21 @@ export function HeaderNav() {
           </Typography>
         )}
 
+        <IconButton
+          size={
+            isSmallScreenWidth
+              ? 'small'
+              : isMediumScreenWidth
+                ? undefined
+                : 'large'
+          }
+          aria-label="What's new"
+          title="What's new"
+          sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
+          onClick={onOpenWhatsNew}
+        >
+          <MdNewReleases />
+        </IconButton>
         <IconButton
           size={
             isSmallScreenWidth
