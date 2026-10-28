@@ -84,5 +84,11 @@ test('refreshes shadows for a late piece mount but not for camera orbit', async 
       }),
   )
 
-  expect(await shadowCount()).toBe(afterPlacement)
+  const triggers = await page
+    .locator('canvas[data-engine]')
+    .getAttribute('data-shadow-triggers')
+  expect(
+    await shadowCount(),
+    `shadow triggers (latest last): ${triggers}`,
+  ).toBe(afterPlacement)
 })
