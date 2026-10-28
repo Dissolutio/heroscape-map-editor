@@ -9,6 +9,14 @@ import {
   updateShadowSettleWindow,
 } from './shadowInvalidation'
 
+// e2e only: records why a shadow update was requested, so a failing test can say
+function noteShadowTrigger(gl: { domElement: HTMLCanvasElement }, why: string) {
+  if (!isE2EDeterministic) return
+  const list = JSON.parse(gl.domElement.dataset.shadowTriggers ?? '[]')
+  list.push(why)
+  gl.domElement.dataset.shadowTriggers = JSON.stringify(list.slice(-20))
+}
+
 export default function ShadowMapInvalidator() {
   const gl = useThree((state) => state.gl)
   const pendingLoads = useProgress((state) => state.active)
@@ -19,8 +27,15 @@ export default function ShadowMapInvalidator() {
     const originalAutoUpdate = shadowMap.autoUpdate
     shadowMap.autoUpdate = false
     requestShadowUpdate(shadowMap, settleWindow.current)
+    noteShadowTrigger(gl, 'mount')
     const unsubscribe = useBoundStore.subscribe((current, previous) => {
       if (shouldInvalidateShadowMap(previous, current)) {
+        const changed = Object.keys(current).filter(
+          (key) =>
+            (current as Record<string, unknown>)[key] !==
+            (previous as Record<string, unknown>)[key],
+        )
+        noteShadowTrigger(gl, `store:${changed.join(',')}`)
         requestShadowUpdate(shadowMap, settleWindow.current)
       }
     })
@@ -64,6 +79,9 @@ export default function ShadowMapInvalidator() {
   }, [gl])
 
   useFrame(() => {
+    if (pendingLoads && settleWindow.current.framesRemaining === 0) {
+      noteShadowTrigger(gl, 'loads')
+    }
     updateShadowSettleWindow(gl.shadowMap, settleWindow.current, pendingLoads)
   })
 
