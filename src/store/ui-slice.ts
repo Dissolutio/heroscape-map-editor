@@ -28,6 +28,10 @@ import {
   type TextureLoadStatus,
 } from '../world/textures/terrainTextureArrays'
 import {
+  getLastPointerWorldPoint,
+  shouldTrackHoveredWorldPoint,
+} from '../world/hoverWorldPoint'
+import {
   type BoardHex,
   type BoardPiece,
   PICK_PEN_MODE,
@@ -411,6 +415,9 @@ const createUISlice: StateCreator<
   togglePenMode: (mode: string) => {
     set(
       produce((state) => {
+        const startsPlacement =
+          !shouldTrackHoveredWorldPoint(state.penMode) &&
+          shouldTrackHoveredWorldPoint(mode)
         // when we switch terrains, we have different size options available and must update smartly
         const { newSize, newSizes } = getNewPieceSizeForPenMode(
           mode,
@@ -434,6 +441,9 @@ const createUISlice: StateCreator<
         state.penMode = mode
         state.pieceSize = newSize
         state.flatPieceSizes = newSizes
+        if (startsPlacement) {
+          state.hoveredWorldPoint = getLastPointerWorldPoint()
+        }
       }),
     )
   },

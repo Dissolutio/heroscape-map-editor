@@ -3,7 +3,10 @@ import React from 'react'
 import useBoundStore from '../store/store'
 import type { BoardHex } from '../types'
 import { isDragPassThrough, isDragging } from '../world/drag/dragController'
-import { shouldTrackHoveredWorldPoint } from '../world/hoverWorldPoint'
+import {
+  rememberPointerWorldPoint,
+  shouldTrackHoveredWorldPoint,
+} from '../world/hoverWorldPoint'
 
 export default function usePieceHoverState({
   trackIsHovered = true,
@@ -32,6 +35,7 @@ export default function usePieceHoverState({
     pendingWorldPoint.current = null
   }
   const scheduleWorldPoint = (point: { x: number; z: number }) => {
+    rememberPointerWorldPoint(point)
     if (!shouldTrackHoveredWorldPoint(useBoundStore.getState().penMode)) {
       pendingWorldPoint.current = null
       return

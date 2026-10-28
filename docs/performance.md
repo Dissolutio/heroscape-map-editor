@@ -7,6 +7,8 @@ scripted camera orbit and synthetic pointer sweep, and prints average/p95 frame
 times. `&perfSeconds=N` sets each phase (1–60 seconds, default 2). Run once with
 `&perHexLand=1` in development for the per-hex renderer and Medium texture
 cases. Copy JSON exports the most recent counters, benchmark and leak results.
+The overlay and benchmark JSON include device-pixel ratio, CSS and drawing-buffer
+dimensions, and the WebGL renderer string.
 The 120-second leak sweep is a separate button and samples every five seconds.
 
 ## Leak and hover diagnosis
@@ -21,17 +23,23 @@ the current mounted scene's baseline, not a rising count.
 Three.js's WebGL attribute uploader merges and clears `updateRanges` after each
 buffer upload. With the default always-render loop, the per-hex highlight
 ranges were therefore not an accumulating leak in this sweep. The hover-leave
-rAF is canceled on replacement and unmount. Hover timeouts do get replaced
-without clearing their previous handles, but they fire shortly afterward; this
-did not cause monotonic growth in the run.
+rAF and replaced hover timeouts are canceled on replacement and unmount.
+Per-hex highlight changes are coalesced into bounded update ranges.
 
 Zundo's temporal middleware calls `partialize` and then the configured equality
-callback on every store update. The existing hover test confirms hover-only
-updates do not create undo history, but the equality callback currently deep
-compares board arrays on those updates. This is avoidable CPU work, not history
-growth. The laptop's reported late FPS decay cannot be attributed conclusively
-to heat or CPU saturation from software rendering; the measurements rule out
-resource accumulation in this run, not thermal throttling on real hardware.
+callback on every store update. Its equality check now compares board references,
+so hover-only updates avoid deep comparisons and do not create undo history.
+Equal map loads reuse the current board references; the load-only structural
+comparisons are not run on transient updates. The laptop's reported late FPS
+decay cannot be attributed conclusively to heat or CPU saturation from software
+rendering; the measurements rule out resource accumulation in this run, not
+thermal throttling on real hardware.
+
+Static shadow maps are requested again for three rendered settling frames after
+a shadow-affecting store change. The window is extended while Drei reports
+active model loads, covering Suspense-delayed model mounts and per-hex effects.
+The browser regression test checks placement and camera-only motion, but could
+not be run in this sandbox because Playwright's browser download was blocked.
 
 ## Idle rendering
 

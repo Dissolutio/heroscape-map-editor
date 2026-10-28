@@ -162,6 +162,8 @@ async function loadBenchmarkMap() {
 async function runBenchmark() {
   await loadBenchmarkMap()
   const store = useBoundStore.getState()
+  const controller = activeController
+  if (!controller) throw new Error('Performance collection is not ready')
   const previousSettings = {
     tier: useBoundStore.getState().graphicsTier,
     lights: useBoundStore.getState().isLightsAndShadowsRender,
@@ -199,6 +201,14 @@ async function runBenchmark() {
             ? 'per-hex'
             : 'old',
         ...configuration,
+        environment: {
+          devicePixelRatio: window.devicePixelRatio,
+          canvasWidth: document.querySelector('canvas')?.clientWidth ?? 0,
+          canvasHeight: document.querySelector('canvas')?.clientHeight ?? 0,
+          drawingBufferWidth: document.querySelector('canvas')?.width ?? 0,
+          drawingBufferHeight: document.querySelector('canvas')?.height ?? 0,
+          glRenderer: controller.takeSnapshot().glRenderer,
+        },
         camera,
         pointer,
       }
@@ -322,6 +332,8 @@ export function PerformanceOverlay() {
         `Raycast: ${snapshot.raycastMsPerPointerMove.toFixed(3)} ms/pointer`,
         `React MapDisplay3D: ${snapshot.reactCommitsPerSecond.toFixed(1)} commits/s, ${snapshot.reactRenderMsPerSecond.toFixed(1)} ms/s`,
         `Scene objects: ${snapshot.sceneObjects} | subscribers: ${snapshot.storeSubscribers} | timers: ${snapshot.pendingTimers} | rAF: ${snapshot.pendingAnimationFrames}`,
+        `DPR: ${snapshot.devicePixelRatio} | canvas: ${snapshot.canvasWidth}×${snapshot.canvasHeight} CSS / ${snapshot.drawingBufferWidth}×${snapshot.drawingBufferHeight} px`,
+        `GL renderer: ${snapshot.glRenderer}`,
       ]
     : ['Collecting performance data…']
 

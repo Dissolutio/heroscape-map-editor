@@ -10,6 +10,12 @@ export type ShadowRelevantState = {
   isShowStartZones: boolean
 }
 
+export type ShadowUpdateWindow = {
+  framesRemaining: number
+}
+
+export const SHADOW_SETTLE_FRAMES = 3
+
 export function shouldInvalidateShadowMap(
   previous: ShadowRelevantState,
   current: ShadowRelevantState,
@@ -29,4 +35,25 @@ export function shouldInvalidateShadowMap(
 
 export function invalidateShadowMap(shadowMap: { needsUpdate: boolean }) {
   shadowMap.needsUpdate = true
+}
+
+export function requestShadowUpdate(
+  shadowMap: { needsUpdate: boolean },
+  window: ShadowUpdateWindow,
+) {
+  window.framesRemaining = SHADOW_SETTLE_FRAMES
+  invalidateShadowMap(shadowMap)
+}
+
+export function updateShadowSettleWindow(
+  shadowMap: { needsUpdate: boolean },
+  window: ShadowUpdateWindow,
+  hasPendingLoads: boolean,
+) {
+  if (hasPendingLoads) {
+    window.framesRemaining = SHADOW_SETTLE_FRAMES
+  }
+  if (window.framesRemaining === 0) return
+  invalidateShadowMap(shadowMap)
+  window.framesRemaining -= 1
 }

@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   invalidateShadowMap,
+  requestShadowUpdate,
+  SHADOW_SETTLE_FRAMES,
   shouldInvalidateShadowMap,
   type ShadowRelevantState,
+  updateShadowSettleWindow,
 } from './shadowInvalidation'
 
 const state = (): ShadowRelevantState => ({
@@ -57,5 +60,24 @@ describe('static shadow map invalidation', () => {
     const shadowMap = { needsUpdate: false }
     invalidateShadowMap(shadowMap)
     expect(shadowMap.needsUpdate).toBe(true)
+  })
+
+  it('keeps shadows dirty across settling frames and pending model loads', () => {
+    const shadowMap = { needsUpdate: false }
+    const window = { framesRemaining: 0 }
+
+    requestShadowUpdate(shadowMap, window)
+    expect(window.framesRemaining).toBe(SHADOW_SETTLE_FRAMES)
+    for (let frame = 0; frame < SHADOW_SETTLE_FRAMES; frame += 1) {
+      shadowMap.needsUpdate = false
+      updateShadowSettleWindow(shadowMap, window, false)
+      expect(shadowMap.needsUpdate).toBe(true)
+    }
+    expect(window.framesRemaining).toBe(0)
+
+    shadowMap.needsUpdate = false
+    updateShadowSettleWindow(shadowMap, window, true)
+    expect(shadowMap.needsUpdate).toBe(true)
+    expect(window.framesRemaining).toBe(SHADOW_SETTLE_FRAMES - 1)
   })
 })

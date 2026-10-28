@@ -1,23 +1,27 @@
-import { useThree } from '@react-three/fiber'
-import { useEffect } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
+import { useEffect, useRef } from 'react'
+import { useProgress } from '@react-three/drei'
 import useBoundStore from '../store/store'
 import { isE2EDeterministic } from '../e2e/isE2E'
 import {
-  invalidateShadowMap,
+  requestShadowUpdate,
   shouldInvalidateShadowMap,
+  updateShadowSettleWindow,
 } from './shadowInvalidation'
 
 export default function ShadowMapInvalidator() {
   const gl = useThree((state) => state.gl)
+  const pendingLoads = useProgress((state) => state.active)
+  const settleWindow = useRef({ framesRemaining: 0 })
 
   useEffect(() => {
     const { shadowMap } = gl
     const originalAutoUpdate = shadowMap.autoUpdate
     shadowMap.autoUpdate = false
-    invalidateShadowMap(shadowMap)
+    requestShadowUpdate(shadowMap, settleWindow.current)
     const unsubscribe = useBoundStore.subscribe((current, previous) => {
       if (shouldInvalidateShadowMap(previous, current)) {
-        invalidateShadowMap(shadowMap)
+        requestShadowUpdate(shadowMap, settleWindow.current)
       }
     })
 
@@ -46,9 +50,13 @@ export default function ShadowMapInvalidator() {
       unsubscribe()
       restoreRender?.()
       shadowMap.autoUpdate = originalAutoUpdate
-      invalidateShadowMap(shadowMap)
+      requestShadowUpdate(shadowMap, settleWindow.current)
     }
   }, [gl])
+
+  useFrame(() => {
+    updateShadowSettleWindow(gl.shadowMap, settleWindow.current, pendingLoads)
+  })
 
   return null
 }

@@ -27,6 +27,12 @@ export type PerformanceSnapshot = {
   storeSubscribers: number
   pendingTimers: number
   pendingAnimationFrames: number
+  devicePixelRatio: number
+  canvasWidth: number
+  canvasHeight: number
+  drawingBufferWidth: number
+  drawingBufferHeight: number
+  glRenderer: string
 }
 
 export type LeakSample = Pick<
@@ -213,6 +219,7 @@ export function startPerformanceCollection(
         recentFrames.length
       : 0
     const memory = renderer.info.memory
+    const context = renderer.getContext()
     const heapBytes =
       'memory' in performance
         ? (
@@ -244,6 +251,12 @@ export function startPerformanceCollection(
       storeSubscribers: getTrackedStoreSubscribers(),
       pendingTimers: pendingTimers.size,
       pendingAnimationFrames: pendingAnimationFrames.size,
+      devicePixelRatio: window.devicePixelRatio,
+      canvasWidth: canvas.clientWidth,
+      canvasHeight: canvas.clientHeight,
+      drawingBufferWidth: canvas.width,
+      drawingBufferHeight: canvas.height,
+      glRenderer: String(context.getParameter(context.RENDERER)),
     }
     lastSnapshotAt = now
     lastStoreUpdates = storeUpdates

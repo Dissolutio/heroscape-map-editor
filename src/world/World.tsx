@@ -36,6 +36,7 @@ import {
   isPerformanceEnabled,
   recordReactRender,
 } from '../performance/performance'
+import { clearLastPointerWorldPoint } from './hoverWorldPoint'
 
 const BILLBOARD_WARMUP_MS = 4000
 
@@ -119,6 +120,7 @@ const World = ({
           }}
           onPointerLeave={() => {
             toggleHoveredPieceID('')
+            clearLastPointerWorldPoint()
           }}
           /* Setting frameloop to "never" entirely halts the GPU loop when idle */
           frameloop={
