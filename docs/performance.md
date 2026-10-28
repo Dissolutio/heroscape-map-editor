@@ -61,8 +61,8 @@ shadow render with no new trigger is therefore an observed renderer-side
 invalidation (or a request outside the recorded app paths), not evidence of a
 store update; the test compares camera-motion renders with an equal idle window
 to tolerate the occasional single render.
-The browser regression test checks placement and camera-only motion, but could
-not be run in this sandbox because Playwright's browser download was blocked.
+The browser regression test checks placement and camera-only motion; it passed
+in Chromium after installing the Playwright browser in this sandbox.
 
 ## Picture-only High quality
 
