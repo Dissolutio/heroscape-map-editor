@@ -31,6 +31,8 @@ export type SettingsValues = {
   pdfRenderFormat: PdfRenderFormat
   isShowPDFInventory: boolean
   isPdfColorBorders: boolean
+  isTransparentGlyphSpaces: boolean
+  isHideHeightsOnGlyphs: boolean
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowPdfGridLinesOverSublevels: boolean
@@ -68,6 +70,8 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   pdfRenderFormat: 'coversheet',
   isShowPDFInventory: true,
   isPdfColorBorders: false,
+  isTransparentGlyphSpaces: false,
+  isHideHeightsOnGlyphs: false,
   isShowPdfOverlayLayer: true,
   isShowPdfOverlayOnPlacedLevel: false,
   isShowPdfGridLinesOverSublevels: true,
@@ -167,6 +171,8 @@ const validSettingValue = (
       'useLegacyStartZones',
       'isShowPDFInventory',
       'isPdfColorBorders',
+      'isTransparentGlyphSpaces',
+      'isHideHeightsOnGlyphs',
       'isShowPdfOverlayLayer',
       'isShowPdfOverlayOnPlacedLevel',
       'isShowPdfGridLinesOverSublevels',

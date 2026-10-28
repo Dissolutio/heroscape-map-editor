@@ -302,18 +302,23 @@ export const PdfMultiHex1 = ({
   hex,
   isSubLevel,
   isGlyph,
+  isTransparent = false,
   useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
   isGlyph?: boolean
+  isTransparent?: boolean
   useTerrainBorderColor?: boolean
 }) => {
   const isEmptyHex = hex.terrain === 'empty'
-  const fillColor = isEmptyHex ? 'white' : getPdfHexFillForView(hex, isSubLevel)
+  const terrainFillColor = isEmptyHex
+    ? 'white'
+    : getPdfHexFillForView(hex, isSubLevel)
+  const fillColor = isTransparent ? 'none' : terrainFillColor
   const borderColor =
     isGlyph && !isSubLevel
-      ? fillColor
+      ? terrainFillColor
       : getPdfHexBorderForView(hex, isSubLevel, useTerrainBorderColor)
   const glyphHexRadius = SVG_HEX_RADIUS / 1.4
   const { points } = getHexagonPdfPolygonPointsAt00(

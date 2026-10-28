@@ -25,7 +25,7 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
   const genericTerrainColorsKey = useBoundStore(
     (s) =>
-      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}`,
+      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}|${s.isTransparentGlyphSpaces}|${s.isHideHeightsOnGlyphs}`,
   )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const is2DOverlayLevelEnabled = useBoundStore(
