@@ -82,3 +82,21 @@ test('new map author appears in Edit Map Details and can be remembered', async (
   )
   await expect(rememberName).not.toBeChecked()
 })
+
+test('Pieces Grid filters survive zooming to a piece', async ({ page }) => {
+  await page.getByRole('tab', { name: 'Build' }).click()
+  await page.getByRole('button', { name: 'View Pieces Grid' }).click()
+
+  const search = page.getByRole('searchbox')
+  await search.fill('Sand')
+  const sandRow = page.getByRole('row').filter({ hasText: '1-hex Sand' })
+  await expect(sandRow).toHaveCount(1)
+  await sandRow.getByRole('button', { name: 'Zoom To' }).click()
+  await waitForAppReady(page)
+
+  await page.getByRole('button', { name: 'View Pieces Grid' }).click()
+  await expect(page.getByRole('searchbox')).toHaveValue('Sand')
+  await expect(
+    page.getByRole('row').filter({ hasText: '1-hex Sand' }),
+  ).toHaveCount(1)
+})
