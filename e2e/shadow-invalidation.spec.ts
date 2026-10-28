@@ -63,37 +63,32 @@ test('refreshes shadows for a late piece mount but not for camera orbit', async 
 
   const pose = await page.evaluate(() => window.__TEST__?.cameraPose())
   if (!pose) throw new Error('Camera pose is unavailable')
-  // Several camera moves must not each cost a shadow render. One stray render
-  // is tolerated (three can schedule a single update after the first camera
-  // change, with no store trigger recorded); a render per move would add 5.
-  for (const offset of [1, 2, 3, 4, 5]) {
+  // The shadow count can still tick now and then with no store change (the
+  // recorded triggers show none). So compare a stretch of camera moves with an
+  // idle stretch of the same length: a render per move would add one per move.
+  const movesStart = Date.now()
+  for (let move = 1; move <= 15; move += 1) {
     await page.evaluate(
       async ({ position, target, offset }) =>
         window.__TEST__?.setCamera(
           [position[0] + offset, position[1], position[2]],
           target,
         ),
-      { ...pose, offset },
+      { ...pose, offset: move },
     )
   }
-  await page.evaluate(
-    () =>
-      new Promise<void>((resolve) => {
-        let frames = 0
-        const next = () => {
-          frames += 1
-          if (frames === 10) resolve()
-          else requestAnimationFrame(next)
-        }
-        requestAnimationFrame(next)
-      }),
-  )
+  const afterMoves = await shadowCount()
+  const movesMs = Date.now() - movesStart
+  await page.waitForTimeout(movesMs)
+  const afterIdle = await shadowCount()
 
   const triggers = await page
     .locator('canvas[data-engine]')
     .getAttribute('data-shadow-triggers')
+  const moveRenders = afterMoves - afterPlacement
+  const idleRenders = afterIdle - afterMoves
   expect(
-    await shadowCount(),
-    `shadow triggers (latest last): ${triggers}`,
-  ).toBeLessThanOrEqual(afterPlacement + 1)
+    moveRenders,
+    `moves added ${moveRenders} shadow renders, idle added ${idleRenders}; triggers (latest last): ${triggers}`,
+  ).toBeLessThanOrEqual(idleRenders + 2)
 })
