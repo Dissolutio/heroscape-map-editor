@@ -1,3 +1,7 @@
+Oct-28-2026
+TLDR: Textures.
+
+- **New Graphics Levels**: Low= low-poly + flat colors. Medium = texture images, no PBR or shadows. High = PBR textures + shadows.
 Oct-27-2026
 TLDR: Generic pieces. Buried piece markers. Asphalt isn't black on black. New release terrain kits, some new terrain. Better stackable Laur pieces. Drag and drop all multi-selected piece types. Spin the scroll wheel while dragging, to spin piece. Choose your pivot for rotations.
 
