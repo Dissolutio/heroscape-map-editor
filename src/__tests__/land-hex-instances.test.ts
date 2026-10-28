@@ -11,6 +11,7 @@ import {
   getLandHexCapUV,
   getLandHexColors,
   getLandHexDisplayColors,
+  getLandHexInstanceIDs,
   getLandHexHighlightValue,
   getLandHexManifestTerrainName,
   getLandHexSideUV,
@@ -66,6 +67,13 @@ describe('land hex instance data', () => {
     )
 
     expect(data).toHaveLength(2)
+    expect(
+      getLandHexInstanceIDs(
+        second.board.boardHexes,
+        second.board.boardPieces,
+        1,
+      ).sort(),
+    ).toEqual(data.map(({ hex }) => hex.id).sort())
     expect(data.map(({ isFluid }) => isFluid)).toEqual([false, true])
     expect(data.map(({ levels }) => levels)).toEqual([1, 1])
     expect(

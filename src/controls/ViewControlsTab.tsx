@@ -42,6 +42,7 @@ import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
 import { getViewMode } from './viewMode'
 import { isPerHexLandEnabled } from '../e2e/isE2E'
+import { captureWithOptionalHighQuality } from '../world/camera/pictureQuality'
 
 const GENERIC_PIECE_COLORS_TOOLTIP =
   'Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D.'
@@ -82,6 +83,13 @@ export default function ViewControlsTab({
 
   // this timeout gives the World enough time to re-render without empty hexes etc.
   const takePictureTimeout = React.useRef<number>()
+  const waitForSettledFrames = async () => {
+    for (let frame = 0; frame < 3; frame += 1) {
+      await new Promise<void>((resolve) =>
+        window.requestAnimationFrame(() => resolve()),
+      )
+    }
+  }
   // effect: clear the timeout after we take a picture
   React.useEffect(() => {
     if (!isTakingPicture) {
@@ -121,15 +129,50 @@ export default function ViewControlsTab({
     toggleIsTakingPicture(true)
     takePictureTimeout.current = window.setTimeout(() => {
       takePictureTimeout.current = undefined
-      const { is2DOpen: show2D, isPdfOpen: showPdf } = useBoundStore.getState()
-      if (show2D || showPdf) {
-        toggleIsTakingPicture(false)
-        return
-      }
-      if (!publish(EVENTS.savePng)) {
-        toggleIsTakingPicture(false)
-      }
-    }, 100) // Long enough to make some changes to the map and render
+      const store = useBoundStore.getState()
+      void captureWithOptionalHighQuality({
+        enabled: isPerHexLandEnabled && store.useHighQualityForPicture,
+        getSettings: () => {
+          const current = useBoundStore.getState()
+          return {
+            graphicsTier: current.graphicsTier,
+            lights: current.isLightsAndShadowsRender,
+          }
+        },
+        setGraphicsTier: (tier) =>
+          useBoundStore.getState().setGraphicsTier(tier),
+        setLights: (enabled) =>
+          useBoundStore.getState().toggleIsLightsAndShadowsRender(enabled),
+        isHighReady: () => {
+          const current = useBoundStore.getState()
+          return (
+            current.effectiveGraphicsTier === 'high' &&
+            current.textureLoadStatus === 'ready'
+          )
+        },
+        waitForSettledFrames,
+        capture: () => {
+          const { is2DOpen: show2D, isPdfOpen: showPdf } =
+            useBoundStore.getState()
+          return !show2D && !showPdf && publish(EVENTS.savePng)
+        },
+        warn: () =>
+          enqueueSnackbar(
+            'High-quality textures could not be loaded. The picture was captured in the current mode.',
+            { variant: 'warning' },
+          ),
+      })
+        .then((published) => {
+          if (!published) toggleIsTakingPicture(false)
+        })
+        .catch((error: unknown) => {
+          enqueueSnackbar('Could not capture the map picture', {
+            variant: 'error',
+          })
+          console.error(error)
+        })
+        .finally(() => toggleIsTakingPicture(false))
+    }, 100)
   }
   return (
     <Box sx={{ width: '100%', height: '100%' }} role="presentation">
@@ -300,6 +343,12 @@ const GenericTerrainColorsForm = () => {
 const ViewPreferencesSwitchForm = () => {
   const graphicsTier = useBoundStore((s) => s.graphicsTier)
   const setGraphicsTier = useBoundStore((s) => s.setGraphicsTier)
+  const useHighQualityForPicture = useBoundStore(
+    (s) => s.useHighQualityForPicture,
+  )
+  const toggleUseHighQualityForPicture = useBoundStore(
+    (s) => s.toggleUseHighQualityForPicture,
+  )
   const textureLoadStatus = useBoundStore((s) => s.textureLoadStatus)
   const textureLoadProgress = useBoundStore((s) => s.textureLoadProgress)
   const isLightsAndShadowsRender = useBoundStore(
@@ -428,6 +477,18 @@ const ViewPreferencesSwitchForm = () => {
                 Textures ready
               </span>
             )}
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={useHighQualityForPicture}
+                  onChange={(event) =>
+                    toggleUseHighQualityForPicture(event.target.checked)
+                  }
+                />
+              }
+              label="Use High quality when taking a map picture"
+            />
           </Box>
         )}
         <FormControlLabel

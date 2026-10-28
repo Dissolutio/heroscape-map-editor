@@ -37,6 +37,10 @@ import {
 } from '../../data/startZoneVisibility'
 import useBoundStore from '../../store/store'
 import {
+  finishPerformanceTiming,
+  startPerformanceTiming,
+} from '../../performance/performanceTiming'
+import {
   type BoardHex,
   type BoardPiece,
   Pieces,
@@ -139,26 +143,36 @@ function dispatch(event: DragEvent) {
 }
 
 function onWindowPointerMoveCapture(event: PointerEvent) {
-  // before R3F handles this move: nothing has reported a target yet
-  hitThisMove = false
-  const outcome = dispatch({
-    type: 'move',
-    x: event.clientX,
-    y: event.clientY,
-  })
-  if (outcome.type === 'start' && dragged) {
-    forgetStoppedHovers()
-    setPreview(null)
-    rotationSteps = 0
-    wheelAccumulator = initialWheelRotationAccumulator
-    listenWheel()
-    showWheelHint()
+  const startedAt = startPerformanceTiming()
+  try {
+    // before R3F handles this move: nothing has reported a target yet
+    hitThisMove = false
+    const outcome = dispatch({
+      type: 'move',
+      x: event.clientX,
+      y: event.clientY,
+    })
+    if (outcome.type === 'start' && dragged) {
+      forgetStoppedHovers()
+      setPreview(null)
+      rotationSteps = 0
+      wheelAccumulator = initialWheelRotationAccumulator
+      listenWheel()
+      showWheelHint()
+    }
+  } finally {
+    finishPerformanceTiming('drag.pointerMoveCapture', startedAt)
   }
 }
 
 function onWindowPointerMove() {
-  // after R3F: the pointer is over nothing that can take the piece
-  if (state.phase === 'dragging' && !hitThisMove) setTarget(null)
+  const startedAt = startPerformanceTiming()
+  try {
+    // after R3F: the pointer is over nothing that can take the piece
+    if (state.phase === 'dragging' && !hitThisMove) setTarget(null)
+  } finally {
+    finishPerformanceTiming('drag.pointerMove', startedAt)
+  }
 }
 
 function onWindowPointerUpCapture(event: PointerEvent) {
@@ -209,11 +223,16 @@ function onWindowWheelCapture(event: WheelEvent) {
 }
 
 function onWindowKeyDownCapture(event: KeyboardEvent) {
-  if (event.key !== 'Escape' || state.phase === 'idle') return
-  // no other Escape handling (hotkeys, dialogs) during a press
-  event.preventDefault()
-  event.stopPropagation()
-  cancel('escape')
+  const startedAt = startPerformanceTiming()
+  try {
+    if (event.key !== 'Escape' || state.phase === 'idle') return
+    // no other Escape handling (hotkeys, dialogs) during a press
+    event.preventDefault()
+    event.stopPropagation()
+    cancel('escape')
+  } finally {
+    finishPerformanceTiming('drag.keydown', startedAt)
+  }
 }
 
 function onWindowBlur() {

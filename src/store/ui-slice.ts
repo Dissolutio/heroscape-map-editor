@@ -32,6 +32,10 @@ import {
   shouldTrackHoveredWorldPoint,
 } from '../world/hoverWorldPoint'
 import {
+  finishPerformanceTiming,
+  startPerformanceTiming,
+} from '../performance/performanceTiming'
+import {
   type BoardHex,
   type BoardPiece,
   PICK_PEN_MODE,
@@ -107,6 +111,8 @@ export interface UISlice {
   toggleIsPdfOpen: (b: boolean) => void
   isHighQualityRender: boolean
   toggleIsHighQualityRender: (b: boolean) => void
+  useHighQualityForPicture: boolean
+  toggleUseHighQualityForPicture: (b: boolean) => void
   isLightsAndShadowsRender: boolean
   toggleIsLightsAndShadowsRender: (b: boolean) => void
   isShowLightControls: boolean
@@ -377,18 +383,24 @@ const createUISlice: StateCreator<
       }),
     ),
   hoveredWorldPoint: undefined,
-  toggleHoveredWorldPoint: (point?: { x: number; z: number }) =>
-    set(
-      produce((state) => {
-        if (
-          state.hoveredWorldPoint?.x === point?.x &&
-          state.hoveredWorldPoint?.z === point?.z
-        ) {
-          return
-        }
-        state.hoveredWorldPoint = point
-      }),
-    ),
+  toggleHoveredWorldPoint: (point?: { x: number; z: number }) => {
+    const startedAt = startPerformanceTiming()
+    try {
+      set(
+        produce((state) => {
+          if (
+            state.hoveredWorldPoint?.x === point?.x &&
+            state.hoveredWorldPoint?.z === point?.z
+          ) {
+            return
+          }
+          state.hoveredWorldPoint = point
+        }),
+      )
+    } finally {
+      finishPerformanceTiming('store.toggleHoveredWorldPoint', startedAt)
+    }
+  },
   penMode: initialPenMode,
   toggleLastPenMode: () =>
     set(
@@ -749,6 +761,12 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isHighQualityRender = b
+      }),
+    ),
+  toggleUseHighQualityForPicture: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.useHighQualityForPicture = b
       }),
     ),
   toggleIsDisplayCapHeights: (b: boolean) =>

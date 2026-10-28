@@ -8,12 +8,17 @@ import useBoundStore from '../store/store'
 import {
   getMonotonicLeakMetrics,
   isPerformanceBenchmark,
+  isPerformanceEventsDisabled,
   isPerformanceEnabled,
   performanceSeconds,
   startPerformanceCollection,
   type LeakSample,
   type PerformanceSnapshot,
 } from './performance'
+import {
+  finishPerformanceTiming,
+  startPerformanceTiming,
+} from './performanceTiming'
 
 type PerformanceController = ReturnType<typeof startPerformanceCollection>
 type BenchmarkPhase = 'orbit' | 'pointer' | null
@@ -29,7 +34,7 @@ const nextFrame = () =>
   new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()))
 
 function PerformanceProbe() {
-  const { gl, scene, camera } = useThree()
+  const { gl, scene, camera, events } = useThree()
   const restorePose = useRef<{
     position: Vector3
     quaternion: typeof camera.quaternion
@@ -54,6 +59,30 @@ function PerformanceProbe() {
       if (activeController === collection) activeController = null
     }
   }, [gl, scene])
+
+  useEffect(() => {
+    const handlers = events.handlers
+    const original = handlers?.onPointerMove
+    if (!handlers || !original) return
+
+    const wrapped: EventListener = (event) => {
+      const startedAt = startPerformanceTiming()
+      try {
+        original(event)
+      } finally {
+        finishPerformanceTiming('r3f.pointerMove', startedAt)
+      }
+    }
+    gl.domElement.removeEventListener('pointermove', original)
+    gl.domElement.addEventListener('pointermove', wrapped, { passive: true })
+    handlers.onPointerMove = wrapped
+
+    return () => {
+      gl.domElement.removeEventListener('pointermove', wrapped)
+      handlers.onPointerMove = original
+      gl.domElement.addEventListener('pointermove', original, { passive: true })
+    }
+  }, [events, gl])
 
   useFrame((_, delta) => {
     activeController?.sampleFrame(performance.now())
@@ -132,15 +161,43 @@ async function measurePhase(
   const durationSeconds = (performance.now() - startedAt) / 1000
   const endCounters = controller.counterTotals()
   const pointerEvents = endCounters.pointerEvents - startCounters.pointerEvents
+  const pointerMoveCount = Math.max(pointerEvents, 1)
+  const raycastMsPerPointerMove =
+    (endCounters.raycastTimeMs - startCounters.raycastTimeMs) / pointerMoveCount
+  const r3fDispatchMsPerPointerMove =
+    (endCounters.r3fDispatchMs - startCounters.r3fDispatchMs) / pointerMoveCount
+  const appPointerHandlerMsPerPointerMove =
+    (endCounters.appPointerHandlerMs - startCounters.appPointerHandlerMs) /
+    pointerMoveCount
+  const pointerEventMsPerPointerMove =
+    (endCounters.pointerEventMs - startCounters.pointerEventMs) /
+    pointerMoveCount
   return {
     durationSeconds,
     ...controller.frameStatsSince(startFrame),
     storeUpdatesPerSecond:
       (endCounters.storeUpdates - startCounters.storeUpdates) / durationSeconds,
     pointerEventsPerSecond: pointerEvents / durationSeconds,
-    raycastMsPerPointerMove:
-      (endCounters.raycastTimeMs - startCounters.raycastTimeMs) /
-      Math.max(pointerEvents, 1),
+    raycastMsPerPointerMove,
+    pointerEventMsPerPointerMove,
+    r3fDispatchMsPerPointerMove,
+    appPointerHandlerMsPerPointerMove,
+    r3fBookkeepingMsPerPointerMove: Math.max(
+      0,
+      r3fDispatchMsPerPointerMove -
+        raycastMsPerPointerMove -
+        appPointerHandlerMsPerPointerMove,
+    ),
+    pointerOtherMsPerPointerMove: Math.max(
+      0,
+      pointerEventMsPerPointerMove - r3fDispatchMsPerPointerMove,
+    ),
+    dragControllerMsPerPointerMove:
+      (endCounters.dragControllerMs - startCounters.dragControllerMs) /
+      pointerMoveCount,
+    hoverStoreWriteMsPerPointerMove:
+      (endCounters.hoverStoreWriteMs - startCounters.hoverStoreWriteMs) /
+      pointerMoveCount,
     reactCommitsPerSecond:
       (endCounters.reactCommits - startCounters.reactCommits) / durationSeconds,
     reactRenderMsPerSecond:
@@ -193,22 +250,26 @@ async function runBenchmark() {
         .toggleIsLightsAndShadowsRender(configuration.lights)
       await nextFrame()
       await nextFrame()
+      controller.resetDrawCallSources()
       const camera = await measurePhase('orbit', performanceSeconds)
       const pointer = await measurePhase('pointer', performanceSeconds)
+      const resources = controller.takeSnapshot()
       const result = {
         renderer:
           new URLSearchParams(window.location.search).get('perHexLand') === '1'
             ? 'per-hex'
             : 'old',
         ...configuration,
+        r3fEventsDisabled: isPerformanceEventsDisabled,
         environment: {
           devicePixelRatio: window.devicePixelRatio,
           canvasWidth: document.querySelector('canvas')?.clientWidth ?? 0,
           canvasHeight: document.querySelector('canvas')?.clientHeight ?? 0,
           drawingBufferWidth: document.querySelector('canvas')?.width ?? 0,
           drawingBufferHeight: document.querySelector('canvas')?.height ?? 0,
-          glRenderer: controller.takeSnapshot().glRenderer,
+          glRenderer: resources.glRenderer,
         },
+        resources,
         camera,
         pointer,
       }
@@ -330,8 +391,14 @@ export function PerformanceOverlay() {
         `Heap: ${snapshot.jsHeapBytes === null ? 'unavailable' : `${(snapshot.jsHeapBytes / 1048576).toFixed(1)} MiB`}`,
         `Store: ${snapshot.storeUpdatesPerSecond.toFixed(1)}/s | pointer: ${snapshot.pointerEventsPerSecond.toFixed(1)}/s`,
         `Raycast: ${snapshot.raycastMsPerPointerMove.toFixed(3)} ms/pointer`,
+        `Pointer split (ms/move): total ${snapshot.pointerEventMsPerPointerMove.toFixed(3)} | raycast ${snapshot.raycastMsPerPointerMove.toFixed(3)} | R3F bookkeeping ${snapshot.r3fBookkeepingMsPerPointerMove.toFixed(3)} | app handlers ${snapshot.appPointerHandlerMsPerPointerMove.toFixed(3)} | other ${snapshot.pointerOtherMsPerPointerMove.toFixed(3)}`,
+        `R3F dispatch ${snapshot.r3fDispatchMsPerPointerMove.toFixed(3)} ms | drag ${snapshot.dragControllerMsPerPointerMove.toFixed(3)} ms | hovered-point store ${snapshot.hoverStoreWriteMsPerPointerMove.toFixed(3)} ms`,
         `React MapDisplay3D: ${snapshot.reactCommitsPerSecond.toFixed(1)} commits/s, ${snapshot.reactRenderMsPerSecond.toFixed(1)} ms/s`,
         `Scene objects: ${snapshot.sceneObjects} | subscribers: ${snapshot.storeSubscribers} | timers: ${snapshot.pendingTimers} | rAF: ${snapshot.pendingAnimationFrames}`,
+        `Typed arrays: ${(snapshot.typedArrayBytes / 1048576).toFixed(1)} MiB total | geometry ${(snapshot.geometryTypedArrayBytes / 1048576).toFixed(1)} MiB | texture ${(snapshot.textureCpuBytes / 1048576).toFixed(1)} MiB`,
+        `Instances: ${snapshot.instanceMeshCount} meshes | matrices ${(snapshot.instanceMatrixBytes / 1048576).toFixed(1)} MiB | ${snapshot.instanceAttributeCount} attributes / ${(snapshot.instanceAttributeBytes / 1048576).toFixed(1)} MiB`,
+        `Texture arrays: ${snapshot.textureArrayCount} | decoded CPU ${(snapshot.decodedTextureCpuBytes / 1048576).toFixed(1)} MiB | manifest ${(snapshot.manifestBytes / 1024).toFixed(1)} KiB`,
+        `Top draw-call sources: ${snapshot.topDrawCallSources.map(({ source, drawCalls, triangles }) => `${source} ${drawCalls} calls / ${triangles} tris`).join('; ') || 'Collecting…'}`,
         `DPR: ${snapshot.devicePixelRatio} | canvas: ${snapshot.canvasWidth}×${snapshot.canvasHeight} CSS / ${snapshot.drawingBufferWidth}×${snapshot.drawingBufferHeight} px`,
         `GL renderer: ${snapshot.glRenderer}`,
       ]

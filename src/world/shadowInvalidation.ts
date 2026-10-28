@@ -15,6 +15,20 @@ export type ShadowUpdateWindow = {
 }
 
 export const SHADOW_SETTLE_FRAMES = 3
+export const MODEL_MOUNTED_EVENT = 'hexoscape-model-mounted'
+
+export function notifyModelMounted(target: EventTarget) {
+  target.dispatchEvent(new Event(MODEL_MOUNTED_EVENT))
+}
+
+export function subscribeToModelMounts(
+  target: EventTarget,
+  onMount: () => void,
+) {
+  const listener = () => onMount()
+  target.addEventListener(MODEL_MOUNTED_EVENT, listener)
+  return () => target.removeEventListener(MODEL_MOUNTED_EVENT, listener)
+}
 
 export function shouldInvalidateShadowMap(
   previous: ShadowRelevantState,
