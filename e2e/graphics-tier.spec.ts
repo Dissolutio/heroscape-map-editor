@@ -17,7 +17,7 @@ test('graphics tier lazily loads Medium textures and returns to Lowest', async (
   await expect(graphics).toBeVisible()
   await page.getByText('Graphics', { exact: true }).hover()
   await expect(page.getByRole('tooltip')).toHaveText(
-    'Medium and High download texture images the first time you choose them (about 2.7 MB for Medium, about 3.5 MB for High). Lowest uses no images.',
+    'Medium and High download texture images the first time you choose them. High also enables lights and shadows and uses alternate cap images. Lowest uses no images.',
   )
   await page.mouse.move(0, 0)
   await expect(page.getByRole('tooltip')).toBeHidden()

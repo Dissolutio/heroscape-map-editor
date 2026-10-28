@@ -30,6 +30,27 @@ describe('per-hex land geometry', () => {
     }
   })
 
+  it('maps side-image top rows to face tops, including half-height fluids', () => {
+    const solid = buildSideGeometry(0).getAttribute('landSideUv')
+    const fluid = buildFluidGeometry(0).getAttribute('landSideUv')
+
+    for (let side = 0; side < 6; side += 1) {
+      const start = side * 4
+      expect([solid.getX(start), solid.getY(start)]).toEqual([0, 1])
+      expect([solid.getX(start + 1), solid.getY(start + 1)]).toEqual([0, 0])
+      expect([solid.getX(start + 2), solid.getY(start + 2)]).toEqual([1, 0])
+      expect([solid.getX(start + 3), solid.getY(start + 3)]).toEqual([1, 1])
+
+      const fluidStart = 18 + start
+      for (let vertex = 0; vertex < 4; vertex += 1) {
+        expect([
+          fluid.getX(fluidStart + vertex),
+          fluid.getY(fluidStart + vertex),
+        ]).toEqual([solid.getX(start + vertex), solid.getY(start + vertex)])
+      }
+    }
+  })
+
   it('every side quad faces away from the hex center', () => {
     const geometry = buildSideGeometry(0)
     const position = geometry.getAttribute('position')

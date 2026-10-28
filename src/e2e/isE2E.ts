@@ -50,6 +50,19 @@ export const isE2EDeterministic: boolean = isBrowser && hasE2EParam()
 export const isPerHexLandEnabled: boolean =
   isBrowser && import.meta.env.DEV && hasPerHexLandParam()
 
+export const initialE2EGraphicsTier: 'low' | 'medium' | 'high' | null = (() => {
+  try {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('e2e') !== '1' || params.get('perHexLand') !== '1') {
+      return null
+    }
+    const tier = params.get('graphicsTier')
+    return tier === 'low' || tier === 'medium' || tier === 'high' ? tier : null
+  } catch {
+    return null
+  }
+})()
+
 /** Explicit opt-in to the automatic What's New dialog in an e2e run. */
 export const isWhatsNewE2EOptIn: boolean =
   isBrowser && hasE2EParam() && hasWhatsNewOptIn()

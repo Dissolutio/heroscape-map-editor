@@ -71,12 +71,27 @@ const stripPromises = new Map<
 >()
 const loadedTextures = new Map<TerrainTextureFileName, DataArrayTexture>()
 let manifestPromise: Promise<TerrainTextureManifest> | undefined
+let loadedManifest: TerrainTextureManifest | undefined
 let generation = 0
 
 export function getTerrainTextureStrips(
   tier: GraphicsTier,
 ): TerrainTextureFileName[] {
   return tier === 'low' ? [] : [...tierStrips[tier]]
+}
+
+export function getCachedTerrainTextureArrays(
+  tier: GraphicsTier,
+): { manifest: TerrainTextureManifest; textures: TerrainTextureArrays } | null {
+  if (tier === 'low' || !loadedManifest) return null
+  const fileNames = tierStrips[tier]
+  if (fileNames.some((fileName) => !loadedTextures.has(fileName))) return null
+  return {
+    manifest: loadedManifest,
+    textures: Object.fromEntries(
+      fileNames.map((fileName) => [fileName, loadedTextures.get(fileName)]),
+    ) as TerrainTextureArrays,
+  }
 }
 
 export function sliceTextureArrayLayers(
@@ -279,6 +294,10 @@ export async function loadTerrainTextureArrays(
         }),
       ),
     )
+    if (loadGeneration !== generation) {
+      throw new Error('Texture loading was disposed before it completed')
+    }
+    loadedManifest = manifest
     return {
       manifest,
       status: 'ready',
@@ -295,4 +314,5 @@ export function disposeTerrainTextureArrays(): void {
   loadedTextures.clear()
   stripPromises.clear()
   manifestPromise = undefined
+  loadedManifest = undefined
 }

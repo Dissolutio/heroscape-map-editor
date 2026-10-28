@@ -1,16 +1,35 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { cloneBoard, makeTable, place, type Board } from './helpers/board'
-import { Pieces, type BoardHex } from '../types'
+import { HexTerrain, Pieces, type BoardHex } from '../types'
+import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
+import { HEXGRID_HEX_RADIUS } from '../utils/constants'
+import { parseTerrainTextureManifest } from '../world/textures/terrainTextureManifest'
 import {
   buildLandHexInstanceIndex,
   buildLandHexInstanceData,
+  getLandHexCapUV,
   getLandHexColors,
   getLandHexDisplayColors,
   getLandHexHighlightValue,
+  getLandHexManifestTerrainName,
+  getLandHexSideUV,
+  getLandHexTextureLayers,
   getLandHexHoverTransition,
   getLandHexSideVisibilityMask,
+  LAND_HEX_TEXTURE_TERRAIN_NAMES,
+  LAND_HEX_UNTEXTURED_TERRAINS,
   NON_INSTANCED_SUBTERRAIN_PIECES,
 } from '../world/models/landHexInstances'
+
+const terrainManifest = parseTerrainTextureManifest(
+  JSON.parse(
+    readFileSync(
+      new URL('../../public/textures/manifest.json', import.meta.url),
+      'utf8',
+    ),
+  ) as unknown,
+)
 
 const genericColors = {
   genericSolidCapColor: '#e63cc8',
@@ -28,6 +47,7 @@ describe('land hex instance data', () => {
       at: table.center,
       altitude: 0,
     })
+
     const second = place({
       board: first.board,
       pieceID: Pieces.genericFluid1,
@@ -62,6 +82,187 @@ describe('land hex instance data', () => {
         genericColors,
       ),
     ).toHaveLength(0)
+  })
+
+  it('maps every drawable land terrain or lists it as untextured', () => {
+    const landTerrains = Object.values(HexTerrain).filter(
+      (terrain) => isSolidTerrainHex(terrain) || isFluidTerrainHex(terrain),
+    )
+    const declaredTerrains = [
+      ...Object.keys(LAND_HEX_TEXTURE_TERRAIN_NAMES),
+      ...LAND_HEX_UNTEXTURED_TERRAINS,
+    ]
+
+    expect(new Set(declaredTerrains)).toEqual(new Set(landTerrains))
+    for (const terrain of landTerrains) {
+      const manifestName = getLandHexManifestTerrainName(terrain)
+      if (manifestName) {
+        expect(terrainManifest.terrains[manifestName]).toBeDefined()
+      } else {
+        expect(LAND_HEX_UNTEXTURED_TERRAINS).toContain(terrain)
+      }
+    }
+  })
+
+  it('selects manifest diffuse layers for each tier and keeps flat terrains untextured', () => {
+    for (const [terrain, manifestName] of Object.entries(
+      LAND_HEX_TEXTURE_TERRAIN_NAMES,
+    )) {
+      const manifestTerrain = terrainManifest.terrains[manifestName]
+      expect(
+        getLandHexTextureLayers(
+          terrain,
+          'stable-hex',
+          terrainManifest,
+          'medium',
+        ),
+      ).toMatchObject({
+        capLayer: manifestTerrain.capDiffuseLayer,
+        sideLayer: manifestTerrain.sideDiffuseLayer,
+      })
+      expect(
+        getLandHexTextureLayers(terrain, 'stable-hex', terrainManifest, 'high'),
+      ).toMatchObject({
+        capLayer: manifestTerrain.capDiffusePbrLayer,
+        sideLayer: manifestTerrain.sideDiffuseLayer,
+      })
+      expect(
+        getLandHexTextureLayers(terrain, 'stable-hex', terrainManifest, 'low'),
+      ).toMatchObject({ capLayer: -1, sideLayer: -1 })
+    }
+
+    for (const terrain of LAND_HEX_UNTEXTURED_TERRAINS) {
+      expect(
+        getLandHexTextureLayers(terrain, 'flat-hex', terrainManifest, 'high'),
+      ).toMatchObject({ capLayer: -1, sideLayer: -1 })
+    }
+    expect(getLandHexColors(HexTerrain.shadow, genericColors).cap).toBe(
+      '#0f0f0d',
+    )
+    expect(getLandHexColors(HexTerrain.swampWater, genericColors).cap).toBe(
+      '#7a6c35',
+    )
+    for (const [name, color] of [
+      ['Shadow', '#0f0f0d'],
+      ['SwampWater', '#7a6c35'],
+    ]) {
+      expect(terrainManifest.terrains[name]).toMatchObject({
+        capDiffuseLayer: -1,
+        capDiffusePbrLayer: -1,
+        sideDiffuseLayer: -1,
+        flatColor: color,
+      })
+    }
+  })
+
+  it('uses deterministic cap rotation only for Ice and ToxicWater', () => {
+    const rotatedTerrains = [HexTerrain.ice, HexTerrain.toxicWater]
+    for (const terrain of rotatedTerrains) {
+      const first = getLandHexTextureLayers(
+        terrain,
+        'persisted-hex-id',
+        terrainManifest,
+        'medium',
+      ).rotationSteps
+      expect(first).toBe(
+        getLandHexTextureLayers(
+          terrain,
+          'persisted-hex-id',
+          terrainManifest,
+          'medium',
+        ).rotationSteps,
+      )
+      expect(first).toBeGreaterThanOrEqual(0)
+      expect(first).toBeLessThan(6)
+    }
+    for (const terrain of Object.values(HexTerrain).filter(
+      (value) => isSolidTerrainHex(value) || isFluidTerrainHex(value),
+    )) {
+      if (!rotatedTerrains.includes(terrain as HexTerrain)) {
+        expect(
+          getLandHexTextureLayers(
+            terrain,
+            'persisted-hex-id',
+            terrainManifest,
+            'medium',
+          ).rotationSteps,
+        ).toBe(0)
+      }
+    }
+  })
+
+  it('maps pointy-top cap corners and center to clamped UV bounds', () => {
+    const radius = HEXGRID_HEX_RADIUS
+    expect(getLandHexCapUV(0, 0)).toEqual({ u: 0.5, v: 0.5 })
+    expect(getLandHexCapUV(0, -radius)).toEqual({ u: 0.5, v: 0 })
+    expect(getLandHexCapUV(0, radius)).toEqual({ u: 0.5, v: 1 })
+    expect(getLandHexCapUV((Math.sqrt(3) * radius) / 2, 0).u).toBe(1)
+    expect(getLandHexCapUV((-Math.sqrt(3) * radius) / 2, 0).u).toBe(0)
+
+    const vertices = Array.from({ length: 6 }, (_, index) => {
+      const angle = -Math.PI / 2 + (index * Math.PI) / 3
+      return {
+        x: Math.cos(angle) * radius,
+        z: Math.sin(angle) * radius,
+      }
+    })
+    const uvSet = (rotationSteps: number) =>
+      vertices
+        .map(({ x, z }) => {
+          const { u, v } = getLandHexCapUV(x, z, rotationSteps)
+          return [Number(u.toFixed(8)) || 0, Number(v.toFixed(8)) || 0]
+        })
+        .sort((a, b) => a[0] - b[0] || a[1] - b[1])
+    for (let step = 0; step < 6; step += 1) {
+      expect(uvSet(step)).toEqual(uvSet(0))
+    }
+  })
+
+  it('maps side UVs from the image top row to the top of each face', () => {
+    const height = 1
+    expect(getLandHexSideUV(0, height, height)).toEqual([0, 0])
+    expect(getLandHexSideUV(1, height, height)).toEqual([1, 0])
+    expect(getLandHexSideUV(0, 0, height)).toEqual([0, 1])
+    expect(getLandHexSideUV(1, 0, height)).toEqual([1, 1])
+  })
+
+  it('builds mixed textured and flat terrain layers for a small map', () => {
+    const table = makeTable(9)
+    const grass = place({
+      board: table,
+      pieceID: Pieces.grass1,
+      at: table.center,
+      altitude: 0,
+    })
+    const water = place({
+      board: grass.board,
+      pieceID: Pieces.water1,
+      at: {
+        q: table.center.q + 3,
+        r: table.center.r,
+        s: table.center.s - 3,
+      },
+      altitude: 0,
+    })
+    const data = buildLandHexInstanceData(
+      water.board.boardHexes,
+      water.board.boardPieces,
+      1,
+      genericColors,
+      terrainManifest,
+      'medium',
+    )
+
+    expect(
+      data.map(({ terrain, capLayer, sideLayer }) => [
+        terrain,
+        capLayer,
+        sideLayer,
+      ]),
+    ).toEqual([
+      ['grass', 4, 4],
+      ['water', 14, 11],
+    ])
   })
 
   it('omits every explicitly excluded piece family', () => {

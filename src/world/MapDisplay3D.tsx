@@ -154,25 +154,31 @@ export default function MapDisplay3D({
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useMiddleClickPickPenMode()
 
-  const landHexData = useMemo(
-    () =>
-      isPerHexLandEnabled
-        ? buildLandHexInstanceData(boardHexes, boardPieces, viewingLevel, {
-            genericSolidCapColor,
-            genericSolidSideColor,
-            genericFluidCapColor,
-            genericFluidSideColor,
-          })
-        : [],
-    [
-      boardHexes,
-      boardPieces,
-      viewingLevel,
+  const genericColors = useMemo(
+    () => ({
       genericSolidCapColor,
       genericSolidSideColor,
       genericFluidCapColor,
       genericFluidSideColor,
+    }),
+    [
+      genericFluidCapColor,
+      genericFluidSideColor,
+      genericSolidCapColor,
+      genericSolidSideColor,
     ],
+  )
+  const landHexData = useMemo(
+    () =>
+      isPerHexLandEnabled
+        ? buildLandHexInstanceData(
+            boardHexes,
+            boardPieces,
+            viewingLevel,
+            genericColors,
+          )
+        : [],
+    [boardHexes, boardPieces, genericColors, viewingLevel],
   )
   const perHexLandIDs = useMemo(
     () => new Set(landHexData.map((item) => item.hex.id)),
@@ -388,7 +394,10 @@ export default function MapDisplay3D({
         <Suspense fallback={null}>
           {isPerHexLandEnabled ? (
             <LandHexInstanced
-              data={landHexData}
+              boardHexes={boardHexes}
+              boardPieces={boardPieces}
+              viewingLevel={viewingLevel}
+              genericColors={genericColors}
               onPointerUpPaintPiece={onPointerUpPaintPiece}
             />
           ) : (

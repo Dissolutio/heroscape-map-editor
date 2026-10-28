@@ -382,7 +382,7 @@ const ViewPreferencesSwitchForm = () => {
       <FormGroup>
         {isPerHexLandEnabled && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-            <Tooltip title="Medium and High download texture images the first time you choose them (about 2.7 MB for Medium, about 3.5 MB for High). Lowest uses no images.">
+            <Tooltip title="Medium and High download texture images the first time you choose them. High also enables lights and shadows and uses alternate cap images. Lowest uses no images.">
               <FormLabel
                 id="graphics-tier-label"
                 component="label"
@@ -403,7 +403,7 @@ const ViewPreferencesSwitchForm = () => {
               >
                 <MenuItem value="low">Lowest</MenuItem>
                 <MenuItem value="medium">Medium (textures)</MenuItem>
-                <MenuItem value="high">High (PBR textures)</MenuItem>
+                <MenuItem value="high">High (alternate caps)</MenuItem>
               </Select>
             </FormControl>
             {textureLoadStatus === 'loading' && (

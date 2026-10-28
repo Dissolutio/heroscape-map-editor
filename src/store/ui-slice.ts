@@ -213,6 +213,7 @@ const createUISlice: StateCreator<
       effectiveGraphicsTier: 'low',
       textureLoadStatus: tier === 'low' ? 'idle' : 'loading',
       textureLoadProgress: { loaded: 0, total: 0 },
+      ...(tier === 'high' ? { isLightsAndShadowsRender: true } : {}),
     })
     if (tier === 'low') return
 

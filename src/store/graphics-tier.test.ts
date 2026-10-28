@@ -61,6 +61,26 @@ describe('graphics tier store state', () => {
     )
   })
 
+  it('enables lights and shadows when High is selected', async () => {
+    loadTerrainTextureArrays.mockResolvedValue({
+      manifest: {},
+      status: 'ready',
+      textures: {},
+    })
+    const store = await createUISliceStore()
+
+    await store.getState().setGraphicsTier('high')
+
+    expect(store.getState()).toMatchObject({
+      graphicsTier: 'high',
+      effectiveGraphicsTier: 'high',
+      textureLoadStatus: 'ready',
+      isLightsAndShadowsRender: true,
+    })
+    store.getState().toggleIsLightsAndShadowsRender(false)
+    expect(store.getState().isLightsAndShadowsRender).toBe(false)
+  })
+
   it('ignores a stale load result after the user selects Lowest', async () => {
     let finishLoad:
       | ((result: {
