@@ -16,6 +16,18 @@ npx playwright install chromium
 Run the tests with `npm run test:e2e`. The config starts the dev server
 itself (or reuses one already on port 5173).
 
+## Running
+
+Evidence screenshots are temporary review aids and are off by default. Generate
+them with:
+
+```sh
+E2E_EVIDENCE=1 npx playwright test <spec>
+```
+
+Commit these images on a PR branch only for a visual change when the PM asks for
+evidence. Delete them or do not carry them when the PR merges.
+
 ## Opening the app for automation
 
 Open **`/hs?e2e=1`**, not `/`. The router redirects `/` to `/hs` and drops the

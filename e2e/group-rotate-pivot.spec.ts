@@ -5,6 +5,7 @@ import {
   expect,
   findPieceUid,
   mapUrl,
+  saveEvidence,
   test,
   waitForAppReady,
 } from './fixtures'
@@ -127,7 +128,7 @@ test('rotates three selected pieces around the default pivot hex and undoes', as
   expect(
     await page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
   ).toEqual([first, second, pivot])
-  await page.screenshot({ path: 'docs/evidence/group-rotate-pivot.png' })
+  await saveEvidence(page, 'group-rotate-pivot')
 
   await undoButton(page).click()
   await waitForAppReady(page)
@@ -178,7 +179,7 @@ test('rotates around a clicked non-origin hex of a multi-hex pivot piece', async
     pivot: await piece(page, pivot),
   }
   const undos = await undoCount(page)
-  await page.screenshot({ path: 'docs/evidence/group-rotate-pivot.png' })
+  await saveEvidence(page, 'group-rotate-pivot')
   await page
     .locator(
       'button[title="Rotate selected pieces around the pivot hex clockwise"]',
