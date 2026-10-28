@@ -1,6 +1,5 @@
 import type { BoardHex, BoardPiece, CubeCoordinate, Piece } from '../types'
 import { HexTerrain, Pieces } from '../types'
-import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { genBoardHexID } from '../utils/map-utils'
 import { hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
 import type { MovePieceArgs } from './movePieces'
@@ -31,30 +30,6 @@ function getTargetHex(
       ]
     if (!hex) continue
     if (!movingUIDs.has(hex.boardPieceUID ?? '')) return hex
-    if (candidateAltitude === 0) {
-      const movingPiece = board.boardPieces.find(
-        (piece) => piece.uid === hex.boardPieceUID,
-      )
-      const movingDefinition = movingPiece
-        ? piecesSoFar[movingPiece.inventoryID]
-        : undefined
-      if (
-        movingPiece?.altitude === -1 &&
-        movingDefinition &&
-        (isSolidTerrainHex(movingDefinition.terrain) ||
-          isFluidTerrainHex(movingDefinition.terrain))
-      ) {
-        return {
-          ...hex,
-          terrain: HexTerrain.empty,
-          pieceID: '',
-          inventoryID: '',
-          boardPieceUID: undefined,
-          pieceRotation: 0,
-          isCap: true,
-        }
-      }
-    }
   }
 }
 
