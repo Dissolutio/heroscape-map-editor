@@ -37,23 +37,23 @@ test('refreshes shadows for a late piece mount but not for camera orbit', async 
   )
   await waitForAppReady(page)
   await expect.poll(shadowCount).toBeGreaterThan(beforePlacement)
-  // the settle window and late model loads can add a few more shadow renders
-  // after placement: wait until the count has been still for 15 frames
+  // the settle window, late model loads and the billboard warm-up (4 s) can
+  // add shadow renders after placement: wait until the count has been still
+  // for 5 seconds of wall-clock time
   await page.evaluate(
     () =>
       new Promise<void>((resolve) => {
         const canvas = document.querySelector('canvas[data-engine]')
         const read = () => canvas?.getAttribute('data-shadow-render-count')
         let last = read()
-        let stableFrames = 0
+        let stableSince = performance.now()
         const next = () => {
           const now = read()
-          if (now === last) stableFrames += 1
-          else {
-            stableFrames = 0
+          if (now !== last) {
             last = now
+            stableSince = performance.now()
           }
-          if (stableFrames >= 15) resolve()
+          if (performance.now() - stableSince >= 5000) resolve()
           else requestAnimationFrame(next)
         }
         requestAnimationFrame(next)
