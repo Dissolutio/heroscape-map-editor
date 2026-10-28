@@ -1,13 +1,13 @@
 import { produce } from 'immer'
 import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
-import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { DragPreview } from '../data/dragMove'
+import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import {
+  type RotationPivot,
   createRotationPivot,
   getClosestOwnedPieceHex,
   shouldSetRotationPivotOnClick,
-  type RotationPivot,
 } from '../data/rotationPivot'
 import {
   filterVisiblePieceIDs,
@@ -16,21 +16,13 @@ import {
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 import {
-  loadSettings,
-  resetSettings as resetStoredSettings,
-  SETTINGS_DEFAULTS,
   type GraphicsTier,
   type LightPosition,
+  SETTINGS_DEFAULTS,
+  loadSettings,
   resetGenericTerrainColorSettings,
+  resetSettings as resetStoredSettings,
 } from '../local-storage/settings'
-import {
-  loadTerrainTextureArrays,
-  type TextureLoadStatus,
-} from '../world/textures/terrainTextureArrays'
-import {
-  getLastPointerWorldPoint,
-  shouldTrackHoveredWorldPoint,
-} from '../world/hoverWorldPoint'
 import {
   type BoardHex,
   type BoardPiece,
@@ -39,6 +31,14 @@ import {
   SELECT_PEN_MODE,
   type TerrainConstraintSource,
 } from '../types'
+import {
+  getLastPointerWorldPoint,
+  shouldTrackHoveredWorldPoint,
+} from '../world/hoverWorldPoint'
+import {
+  type TextureLoadStatus,
+  loadTerrainTextureArrays,
+} from '../world/textures/terrainTextureArrays'
 import type { AppState } from './store'
 
 export type { LightPosition } from '../local-storage/settings'
@@ -85,6 +85,8 @@ export interface UISlice {
 
   // WORLD STATE
   selectedPieceIDs: string[]
+  selectedObjectiveMarkerUID: string | null
+  setSelectedObjectiveMarkerUID: (uid: string | null) => void
   toggleSelectedPieceID: (
     id: string,
     multiSelect?: boolean,
@@ -263,6 +265,9 @@ const createUISlice: StateCreator<
   setRememberedMapAuthor: (name: string) => set({ rememberedMapAuthor: name }),
   isShowStartZones: true,
   selectedPieceIDs: [],
+  selectedObjectiveMarkerUID: null,
+  setSelectedObjectiveMarkerUID: (uid) =>
+    set({ selectedObjectiveMarkerUID: uid }),
   rotationPivot: null,
   toggleSelectedPieceID: (
     pieceID: string,

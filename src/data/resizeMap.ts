@@ -2,6 +2,10 @@ import type { BoardPiece, BoardPieces, HexMap } from '../types'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { genBoardHexID } from '../utils/map-utils'
 import { mapTableHexes } from './fitMapToPieces'
+import {
+  type ObjectiveMarker,
+  getObjectiveMarkerFootprint,
+} from './objectiveMarkers'
 import { piecesSoFar } from './pieces'
 import getPieceTemplateCoords from './rotationTransforms'
 
@@ -12,7 +16,10 @@ export function resizeMap(
   boardPieces: BoardPieces,
   dimension: MapDimension,
   delta: 1 | -1,
-): { hexMap: HexMap; boardPieces: BoardPieces } {
+): {
+  hexMap: HexMap
+  boardPieces: BoardPieces
+} {
   const resizedHexMap = {
     ...hexMap,
     [dimension]: hexMap[dimension] + delta,
@@ -41,8 +48,23 @@ export function resizeMap(
       }
     },
   )
+  const shiftedObjectiveMarkers = hexMap.objectiveMarkers?.map((marker) => ({
+    ...marker,
+    anchor: {
+      ...hexUtilsAdd(hexUtilsAdd(marker.anchor, shift), secondShift),
+      altitude: marker.anchor.altitude,
+    },
+  }))
 
-  return { hexMap: resizedHexMap, boardPieces: shiftedPieces }
+  return {
+    hexMap: {
+      ...resizedHexMap,
+      ...(shiftedObjectiveMarkers
+        ? { objectiveMarkers: shiftedObjectiveMarkers }
+        : {}),
+    },
+    boardPieces: shiftedPieces,
+  }
 }
 
 export function canShrinkMapWithoutDroppingPieces(
@@ -54,7 +76,7 @@ export function canShrinkMapWithoutDroppingPieces(
 
   const resized = resizeMap(hexMap, boardPieces, dimension, -1)
   const tableHexes = mapTableHexes(resized.hexMap)
-  return resized.boardPieces.every((boardPiece) => {
+  const piecesFit = resized.boardPieces.every((boardPiece) => {
     const piece = piecesSoFar[boardPiece.inventoryID]
     if (!piece) return true
 
@@ -67,4 +89,18 @@ export function canShrinkMapWithoutDroppingPieces(
       tableHexes.has(genBoardHexID({ ...coords, altitude: 0 })),
     )
   })
+  if (!piecesFit) return false
+
+  return (resized.hexMap.objectiveMarkers ?? []).every((marker) =>
+    objectiveMarkerFitsOnMap(marker, tableHexes),
+  )
+}
+
+function objectiveMarkerFitsOnMap(
+  marker: ObjectiveMarker,
+  tableHexes: Set<string>,
+) {
+  return getObjectiveMarkerFootprint(marker).every((coords) =>
+    tableHexes.has(genBoardHexID({ ...coords, altitude: 0 })),
+  )
 }

@@ -1,3 +1,5 @@
+import type { ObjectiveMarker } from './data/objectiveMarkers'
+
 export type MapState = MapFileState & {
   boardHexes: BoardHexes
 }
@@ -20,6 +22,7 @@ export type HexMap = {
   // properties below are written as BLANK STRINGS in URL-shareable format
   mapPortraitBase64?: string // a base64 representation of image of map (taken or submitted by user)
   mapNotes?: string // notes about the map, added by user
+  objectiveMarkers?: ObjectiveMarker[]
 }
 export type CubeCoordinate = {
   q: number
