@@ -82,7 +82,10 @@ export interface UISlice {
   togglePieceSize: (s: number) => void
   flatPieceSizes: number[]
   currentDialog: string
+  cropDialogReturnToEditMap: boolean
   toggleCurrentDialog: (s: string) => void
+  openCropMapPortraitDialog: (returnToEditMap?: boolean) => void
+  closeCropMapPortraitDialog: () => void
   toggleIsNewMapDialogOpen: (b: boolean) => void
   toggleIsEditMapDialogOpen: (b: boolean) => void
   toggleIsPieceInventoryDialogOpen: (b: boolean) => void
@@ -715,6 +718,7 @@ const createUISlice: StateCreator<
       }),
     ),
   currentDialog: '',
+  cropDialogReturnToEditMap: false,
   toggleIsNewMapDialogOpen: (b: boolean) =>
     set(
       produce((s) => {
@@ -737,6 +741,20 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.currentDialog = dialogName ?? ''
+      }),
+    ),
+  openCropMapPortraitDialog: (returnToEditMap = false) =>
+    set(
+      produce((s) => {
+        s.currentDialog = DIALOGS.cropMapPortrait
+        s.cropDialogReturnToEditMap = returnToEditMap
+      }),
+    ),
+  closeCropMapPortraitDialog: () =>
+    set(
+      produce((s) => {
+        s.currentDialog = s.cropDialogReturnToEditMap ? DIALOGS.editMap : ''
+        s.cropDialogReturnToEditMap = false
       }),
     ),
   viewingLevel: 0,

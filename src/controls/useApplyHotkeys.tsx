@@ -3,6 +3,7 @@ import type { RefObject } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import type { Group, Object3DEventMap } from 'three'
 import useBoundStore from '../store/store'
+import { DIALOGS } from '../layout/dialogNames'
 import { PICK_PEN_MODE, PiecePrefixes, Pieces, SELECT_PEN_MODE } from '../types'
 import { zoomToMap } from '../utils/camera-utils'
 import {
@@ -118,6 +119,7 @@ export const useApplyHotkeys = ({
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const is2DOpen = useBoundStore((s) => s.is2DOpen)
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
+  const currentDialog = useBoundStore((s) => s.currentDialog)
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
   )
@@ -298,7 +300,9 @@ export const useApplyHotkeys = ({
   // biome-ignore lint/complexity/noForEach: <explanation>
   Object.entries(hotkeyConfig).forEach((value: any) => {
     if (value[0] && value[1] && actionMap[value[1]]) {
-      useHotkeys(value[0], () => actionMap[value[1]]?.())
+      useHotkeys(value[0], () => actionMap[value[1]]?.(), {
+        enabled: currentDialog !== DIALOGS.cropMapPortrait,
+      })
     }
   })
 

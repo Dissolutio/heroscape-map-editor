@@ -34,6 +34,9 @@ export const FileControlsTab = ({
   const toggleIsNewMapDialogOpen = useBoundStore(
     (state) => state.toggleIsNewMapDialogOpen,
   )
+  const openCropMapPortraitDialog = useBoundStore(
+    (state) => state.openCropMapPortraitDialog,
+  )
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const [isUploadOpen, setIsUploadOpen] = React.useState(false)
   const [isDownloadOpen, setIsDownloadOpen] = React.useState(false)
@@ -418,6 +421,13 @@ export const FileControlsTab = ({
           />
           <Collapse in={isDownloadPhotoOpen} timeout="auto">
             <List component="div">
+              {mapPortraitBase64 && (
+                <ControlTabsListItemButton
+                  primary="Crop picture"
+                  onClick={() => openCropMapPortraitDialog()}
+                  icon={<FcAddImage />}
+                />
+              )}
               <ControlTabsListItemButton
                 primary="Download map picture as .JPG"
                 onClick={handleDownloadJpg}
