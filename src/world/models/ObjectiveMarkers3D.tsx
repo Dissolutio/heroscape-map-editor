@@ -7,6 +7,7 @@ import useBoundStore from '../../store/store'
 import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
 import {
   getObjectiveMarker3DPosition,
+  getObjectiveMarkerTextPosition,
   getObjectiveMarkerTextFontSize,
   type ObjectiveMarker3DPosition,
   isObjectiveMarkerVisibleAtLevel,
@@ -70,6 +71,7 @@ function ObjectiveMarkerToken({
   )
   const fontSize = getObjectiveMarkerTextFontSize(marker)
   const lengthScale = position.lengthScale
+  const textPosition = getObjectiveMarkerTextPosition(marker, position)
   const handlePointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation()
     if (event.button !== 0) return
@@ -81,33 +83,55 @@ function ObjectiveMarkerToken({
     <group
       position={[position.x, position.y, position.z]}
       rotation={[0, position.rotationY, 0]}
-      scale={[lengthScale, 1, 1]}
       userData={{ objectiveMarkerUID: marker.uid }}
     >
-      <mesh
-        onPointerUp={handlePointerUp}
-        castShadow={false}
-        receiveShadow={false}
-      >
-        <cylinderGeometry args={[position.radius, position.radius, 0.025, 6]} />
-        <meshBasicMaterial
-          color={marker.style === 'black' ? '#ffffff' : '#111111'}
-          toneMapped={false}
-        />
-      </mesh>
-      <mesh
-        position={[0, 0.014, 0]}
-        raycast={() => null}
-        castShadow={false}
-        receiveShadow={false}
-      >
-        <cylinderGeometry
-          args={[position.radius * 0.92, position.radius * 0.92, 0.025, 6]}
-        />
-        <meshBasicMaterial color={background} toneMapped={false} />
-      </mesh>
+      <group scale={[lengthScale, 1, 1]}>
+        <mesh
+          onPointerUp={handlePointerUp}
+          castShadow={false}
+          receiveShadow={false}
+        >
+          <cylinderGeometry
+            args={[position.radius, position.radius, 0.025, 6]}
+          />
+          <meshBasicMaterial
+            color={marker.style === 'black' ? '#ffffff' : '#111111'}
+            toneMapped={false}
+          />
+        </mesh>
+        <mesh
+          position={[0, 0.014, 0]}
+          raycast={() => null}
+          castShadow={false}
+          receiveShadow={false}
+        >
+          <cylinderGeometry
+            args={[position.radius * 0.92, position.radius * 0.92, 0.025, 6]}
+          />
+          <meshBasicMaterial color={background} toneMapped={false} />
+        </mesh>
+        <mesh
+          position={[0, 0.03, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          raycast={() => null}
+          renderOrder={40}
+          visible={isSelected}
+          castShadow={false}
+          receiveShadow={false}
+        >
+          <ringGeometry
+            args={[position.radius * 1.04, position.radius * 1.14, 6]}
+          />
+          <meshBasicMaterial
+            color="#00c8ff"
+            side={DoubleSide}
+            depthWrite={false}
+            toneMapped={false}
+          />
+        </mesh>
+      </group>
       <Text
-        position={[0, 0.029, 0]}
+        position={[textPosition.x, 0.029, textPosition.z]}
         rotation={[-Math.PI / 2, 0, 0]}
         font="/fonts/Inter_18pt-Bold.ttf"
         fontSize={fontSize}
@@ -120,25 +144,6 @@ function ObjectiveMarkerToken({
       >
         {text}
       </Text>
-      <mesh
-        position={[0, 0.03, 0]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        raycast={() => null}
-        renderOrder={40}
-        visible={isSelected}
-        castShadow={false}
-        receiveShadow={false}
-      >
-        <ringGeometry
-          args={[position.radius * 1.04, position.radius * 1.14, 6]}
-        />
-        <meshBasicMaterial
-          color="#00c8ff"
-          side={DoubleSide}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
     </group>
   )
 }
