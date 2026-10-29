@@ -3,6 +3,12 @@ import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
+import {
+  getShroudshroom13OriginLine,
+  SHROUDSHROOM13_ORIGIN_LINE_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
+} from '../pdf-svg-shared/shroudshroom13OriginLine'
 import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
 import useBoundStore from '../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
@@ -289,11 +295,26 @@ export const SvgMapHex = ({
     const textColor = isSubLevel
       ? svgSubLevelColors.shroudshroomText
       : svgColors.shroudshroomText
+    const originLine = hex.isObstacleOrigin
+      ? getShroudshroom13OriginLine(hex.pieceRotation ?? 0, SVG_HEX_RADIUS)
+      : null
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
           <SvgMultiHex3 hex={hex} isSubLevel={isSubLevel} />
         </g>
+        {originLine && (
+          <line
+            {...originLine}
+            stroke={
+              isSubLevel
+                ? SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR
+                : SHROUDSHROOM13_ORIGIN_LINE_COLOR
+            }
+            strokeWidth={SHROUDSHROOM13_ORIGIN_LINE_WIDTH}
+            strokeLinecap="round"
+          />
+        )}
         <text
           opacity={
             isSubLevel
