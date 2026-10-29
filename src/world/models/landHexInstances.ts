@@ -498,11 +498,7 @@ export function getLandHexFluidCapFillBlend(
   const miterEpsilon = HEXGRID_HEX_RADIUS * 1e-5
   const edgeDistances = Array.from({ length: 6 }, (_, edge) => {
     const angle = (edge * Math.PI) / 3
-    return (
-      apothem -
-      point.x * Math.cos(angle) -
-      point.z * Math.sin(angle)
-    )
+    return apothem - point.x * Math.cos(angle) - point.z * Math.sin(angle)
   })
   let fillBlend = 0
 

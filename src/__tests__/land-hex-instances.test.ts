@@ -588,47 +588,56 @@ describe('land hex side visibility', () => {
 
   it('only removes baked fluid borders within a multi-hex piece', () => {
     const table = makeTable(9)
-    const single = place({
-      board: table,
-      pieceID: Pieces.water1,
-      at: table.center,
-      altitude: 0,
-    })
-    const singleHex = Object.values(single.board.boardHexes).find(
-      (hex) => hex.boardPieceUID === single.board.boardPieces[0].uid,
-    ) as BoardHex
-    expect(getLandHexFluidCapJoinMask(singleHex, single.board.boardHexes)).toBe(
-      0,
-    )
-
-    const orientationMasks: number[][] = []
-    let joinedDirections = 0
-    for (let rotation = 0; rotation < 6; rotation += 1) {
-      const multi = place({
+    for (const pieceID of [
+      Pieces.grass1,
+      Pieces.water1,
+      Pieces.toxicWater1,
+      Pieces.wellspringWater1,
+    ]) {
+      const single = place({
         board: table,
-        pieceID: Pieces.water3,
+        pieceID,
         at: table.center,
         altitude: 0,
-        rotation,
       })
-      const fluidHexes = Object.values(multi.board.boardHexes).filter(
-        (hex) => hex.boardPieceUID === multi.board.boardPieces[0].uid,
-      )
-      expect(fluidHexes.length).toBeGreaterThan(1)
-      const masks = fluidHexes.map((hex) =>
-        getLandHexFluidCapJoinMask(hex, multi.board.boardHexes),
-      )
-      expect(masks.some((mask) => mask > 0)).toBe(true)
-      for (const mask of masks) joinedDirections |= mask
-      orientationMasks.push(
-        masks
-          .map((mask) => mask.toString(2).replace(/0/g, '').length)
-          .sort((a, b) => a - b),
-      )
+      const singleHex = Object.values(single.board.boardHexes).find(
+        (hex) => hex.boardPieceUID === single.board.boardPieces[0].uid,
+      ) as BoardHex
+      expect(
+        getLandHexFluidCapJoinMask(singleHex, single.board.boardHexes),
+      ).toBe(0)
     }
-    expect(joinedDirections).toBe(0b111111)
-    for (const masks of orientationMasks.slice(1)) {
-      expect(masks).toEqual(orientationMasks[0])
+
+    for (const pieceID of [Pieces.water3, Pieces.lava3, Pieces.ice3]) {
+      const orientationMasks: number[][] = []
+      let joinedDirections = 0
+      for (let rotation = 0; rotation < 6; rotation += 1) {
+        const multi = place({
+          board: table,
+          pieceID,
+          at: table.center,
+          altitude: 0,
+          rotation,
+        })
+        const fluidHexes = Object.values(multi.board.boardHexes).filter(
+          (hex) => hex.boardPieceUID === multi.board.boardPieces[0].uid,
+        )
+        expect(fluidHexes).toHaveLength(3)
+        const masks = fluidHexes.map((hex) =>
+          getLandHexFluidCapJoinMask(hex, multi.board.boardHexes),
+        )
+        expect(masks.some((mask) => mask > 0)).toBe(true)
+        for (const mask of masks) joinedDirections |= mask
+        orientationMasks.push(
+          masks
+            .map((mask) => mask.toString(2).replace(/0/g, '').length)
+            .sort((a, b) => a - b),
+        )
+      }
+      expect(joinedDirections).toBe(0b111111)
+      for (const masks of orientationMasks.slice(1)) {
+        expect(masks).toEqual(orientationMasks[0])
+      }
     }
   })
 
@@ -644,9 +653,7 @@ describe('land hex side visibility', () => {
       const joinedEdges = (1 << beforeEdge) | (1 << afterEdge)
 
       expect(getLandHexFluidCapFillBlend(point, joinedEdges)).toBe(1)
-      expect(
-        getLandHexFluidCapFillBlend(point, 1 << beforeEdge),
-      ).toBe(1)
+      expect(getLandHexFluidCapFillBlend(point, 1 << beforeEdge)).toBe(1)
 
       const outerEdgeMidpoint = {
         x:
@@ -660,9 +667,27 @@ describe('land hex side visibility', () => {
               HEXGRID_HEX_RADIUS) /
           2,
       }
-      expect(getLandHexFluidCapFillBlend(outerEdgeMidpoint, 1 << beforeEdge)).toBe(
-        0,
-      )
+      expect(
+        getLandHexFluidCapFillBlend(outerEdgeMidpoint, 1 << beforeEdge),
+      ).toBe(0)
+    }
+  })
+
+  it('uses the joined edge sector at every corner for all join masks', () => {
+    for (let vertex = 0; vertex < 6; vertex += 1) {
+      const angle = -Math.PI / 2 + (vertex * Math.PI) / 3
+      const point = {
+        x: Math.cos(angle) * HEXGRID_HEX_RADIUS,
+        z: Math.sin(angle) * HEXGRID_HEX_RADIUS,
+      }
+      const adjacentEdges =
+        (1 << ((vertex + 4) % 6)) | (1 << ((vertex + 5) % 6))
+
+      for (let joinMask = 0; joinMask < 64; joinMask += 1) {
+        expect(getLandHexFluidCapFillBlend(point, joinMask)).toBe(
+          joinMask & adjacentEdges ? 1 : 0,
+        )
+      }
     }
   })
 
