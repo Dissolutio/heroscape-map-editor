@@ -127,11 +127,13 @@ export function getObjectiveMarkerOutlinePoints(
     bridgeWidthRatio,
     bridgeOverlap,
   }: ObjectiveMarkerShapeOptions = DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
+  singleHexRadius = 0.76,
 ): ObjectiveMarkerTextPosition[] {
   // Two hex centers remain one grid-step apart. Keep each regular lobe just
   // below the touching radius so the inner edges never cross when the
-  // selection outline is expanded.
-  const radius = size === 2 ? Math.min(hexScale, 0.99) : hexScale
+  // selection outline is expanded. One-hex markers retain their previous
+  // radius; the optional override lets the 3D selection ring scale that hex.
+  const radius = size === 2 ? Math.min(hexScale, 0.99) : singleHexRadius
   const apothem = (Math.sqrt(3) / 2) * radius
   const halfWidth =
     size === 2

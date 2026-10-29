@@ -24,32 +24,47 @@ function makeMarkerShape(
   hexScale: number,
   bridgeWidthRatio: number,
   bridgeOverlap: number,
+  outlineScale = 1,
 ) {
-  const points = getObjectiveMarkerOutlinePoints(markerSize, {
-    hexScale,
-    bridgeWidthRatio,
-    bridgeOverlap,
-  })
+  const points = getObjectiveMarkerOutlinePoints(
+    markerSize,
+    {
+      hexScale,
+      bridgeWidthRatio,
+      bridgeOverlap,
+    },
+    markerSize === 1 ? hexScale : undefined,
+  )
   const shape = new Shape()
   const [first, ...rest] = points
   if (!first) return shape
-  shape.moveTo(first.x, first.z)
-  for (const { x, z } of rest) shape.lineTo(x, z)
+  shape.moveTo(first.x * outlineScale, first.z * outlineScale)
+  for (const { x, z } of rest) {
+    shape.lineTo(x * outlineScale, z * outlineScale)
+  }
   shape.closePath()
   return shape
 }
 
 function makeSelectionRingShape(markerSize: ObjectiveMarker['size']) {
+  const markerRadius = markerSize === 1 ? 0.76 : MARKER_SHAPE_OPTIONS.hexScale
   const outer = makeMarkerShape(
     markerSize,
-    MARKER_SHAPE_OPTIONS.hexScale * 1.14,
+    markerRadius,
     MARKER_SHAPE_OPTIONS.bridgeWidthRatio,
-    MARKER_SHAPE_OPTIONS.bridgeOverlap * 1.14,
+    MARKER_SHAPE_OPTIONS.bridgeOverlap,
+    1.14,
   )
-  const innerPoints = getObjectiveMarkerOutlinePoints(markerSize, {
-    ...MARKER_SHAPE_OPTIONS,
-    hexScale: MARKER_SHAPE_OPTIONS.hexScale,
-  }).reverse()
+  const innerPoints = getObjectiveMarkerOutlinePoints(
+    markerSize,
+    {
+      ...MARKER_SHAPE_OPTIONS,
+      hexScale: markerRadius,
+    },
+    markerSize === 1 ? markerRadius : undefined,
+  )
+    .map(({ x, z }) => ({ x: x * 1.04, z: z * 1.04 }))
+    .reverse()
   const hole = new Path()
   const [first, ...rest] = innerPoints
   if (first) {
@@ -121,7 +136,7 @@ function ObjectiveMarkerToken({
     () =>
       makeMarkerShape(
         marker.size,
-        MARKER_SHAPE_OPTIONS.hexScale,
+        marker.size === 1 ? 0.76 : MARKER_SHAPE_OPTIONS.hexScale,
         MARKER_SHAPE_OPTIONS.bridgeWidthRatio,
         MARKER_SHAPE_OPTIONS.bridgeOverlap,
       ),
@@ -131,7 +146,7 @@ function ObjectiveMarkerToken({
     () =>
       makeMarkerShape(
         marker.size,
-        MARKER_SHAPE_OPTIONS.hexScale * 0.92,
+        marker.size === 1 ? 0.76 * 0.92 : MARKER_SHAPE_OPTIONS.hexScale * 0.92,
         MARKER_SHAPE_OPTIONS.bridgeWidthRatio,
         MARKER_SHAPE_OPTIONS.bridgeOverlap * 0.92,
       ),

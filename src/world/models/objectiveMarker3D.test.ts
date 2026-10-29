@@ -115,7 +115,7 @@ describe('objective marker 3D helpers', () => {
 
   it('builds a symmetric plain regular hex outline for one-hex markers', () => {
     const points = getObjectiveMarkerOutlinePoints(1)
-    const scale = DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS.hexScale
+    const scale = 0.76
 
     expect(points).toHaveLength(6)
     for (const { x, z } of points) {
