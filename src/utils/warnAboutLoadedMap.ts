@@ -28,6 +28,13 @@ export function warnAboutLoadedMap(
       autoHideDuration: 10000,
     })
   }
+  if (map.droppedObjectiveMarkers?.length) {
+    enqueueSnackbar({
+      message: `Skipped ${map.droppedObjectiveMarkers.length} objective marker${map.droppedObjectiveMarkers.length === 1 ? '' : 's'} too far from the map.`,
+      variant: 'warning',
+      autoHideDuration: 10000,
+    })
+  }
   warnIfTallFluidStack(enqueueSnackbar, getTallestFluidStack(map.boardHexes))
 }
 

@@ -1,14 +1,14 @@
+import { enqueueSnackbar } from 'notistack'
 import { temporal } from 'zundo'
 import { create } from 'zustand'
-import { enqueueSnackbar } from 'notistack'
 import { LS_KEYS } from '../local-storage/keys'
 import { createMapAutosave } from '../local-storage/mapAutosave'
+import { safeRemove, safeSetItem } from '../local-storage/safeStorage'
 import {
   createSettingsWriter,
   pickSettings,
   settingsChanged,
 } from '../local-storage/settings'
-import { safeRemove, safeSetItem } from '../local-storage/safeStorage'
 import { trackStoreSubscriptions } from '../performance/performanceFlags'
 import createMapSlice, { type MapSlice } from './map-slice'
 import createUISlice, { type UISlice } from './ui-slice'
@@ -31,13 +31,15 @@ const useBoundStore = create<AppState>()(
             boardHexes: state.boardHexes,
             boardPieces: state.boardPieces,
             hexMap: state.hexMap,
+            objectiveMarkers: state.hexMap.objectiveMarkers,
             viewingLevel: state.viewingLevel,
           }
         },
         equality: (pastState, currentState) =>
           pastState.boardHexes === currentState.boardHexes &&
           pastState.boardPieces === currentState.boardPieces &&
-          pastState.hexMap === currentState.hexMap,
+          pastState.hexMap === currentState.hexMap &&
+          pastState.objectiveMarkers === currentState.objectiveMarkers,
       },
     ),
   ),

@@ -1,0 +1,149 @@
+import { nanoid } from 'nanoid'
+import type { CubeCoordinate } from '../types'
+import { genBoardHexID } from '../utils/map-utils'
+import getPieceTemplateCoords from './rotationTransforms'
+
+export type ObjectiveMarkerAnchor = CubeCoordinate & {
+  altitude: number
+}
+
+export type ObjectiveMarkerContent =
+  | { kind: 'number'; value: number }
+  | { kind: 'text'; value: string }
+
+export type ObjectiveMarker = {
+  uid: string
+  anchor: ObjectiveMarkerAnchor
+  size: 1 | 2
+  rotation: 0 | 1 | 2 | 3 | 4 | 5
+  style: 'black' | 'white'
+  content: ObjectiveMarkerContent
+  name?: string
+}
+
+export type NewObjectiveMarker = Omit<ObjectiveMarker, 'uid'> & {
+  uid?: string
+}
+
+const MAX_MARKER_TEXT_LENGTH = 3
+
+export function generateObjectiveMarkerUID() {
+  return `om_${nanoid(10)}`
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function normalizeText(value: unknown, maxLength: number) {
+  if (typeof value !== 'string') return undefined
+  const cleaned = Array.from(value.normalize('NFC'))
+    .filter((character) => {
+      const codePoint = character.codePointAt(0) ?? 0
+      return codePoint > 0x1f && (codePoint < 0x7f || codePoint > 0x9f)
+    })
+    .join('')
+    .trim()
+  return Array.from(cleaned).slice(0, maxLength).join('')
+}
+
+function normalizeObjectiveMarker(value: unknown): ObjectiveMarker | null {
+  if (!isRecord(value) || !isRecord(value.anchor) || !isRecord(value.content)) {
+    return null
+  }
+
+  const { q, r, s, altitude } = value.anchor
+  if (
+    !Number.isInteger(q) ||
+    !Number.isInteger(r) ||
+    !Number.isInteger(s) ||
+    (q as number) + (r as number) + (s as number) !== 0 ||
+    typeof altitude !== 'number' ||
+    !Number.isFinite(altitude)
+  ) {
+    return null
+  }
+
+  if (value.size !== 1 && value.size !== 2) return null
+  if (typeof value.rotation !== 'number' || !Number.isFinite(value.rotation)) {
+    return null
+  }
+  if (value.style !== 'black' && value.style !== 'white') return null
+  if (typeof value.uid !== 'string' || value.uid.trim() === '') return null
+
+  let content: ObjectiveMarkerContent
+  if (value.content.kind === 'number') {
+    const number = value.content.value
+    if (typeof number !== 'number' || !Number.isFinite(number)) return null
+    content = {
+      kind: 'number',
+      value: Math.max(1, Math.min(99, Math.trunc(number))),
+    }
+  } else if (value.content.kind === 'text') {
+    const text = normalizeText(value.content.value, MAX_MARKER_TEXT_LENGTH)
+    if (!text) return null
+    content = { kind: 'text', value: text }
+  } else {
+    return null
+  }
+
+  const marker: ObjectiveMarker = {
+    uid: value.uid.trim(),
+    anchor: {
+      q: q as number,
+      r: r as number,
+      s: s as number,
+      altitude,
+    },
+    size: value.size,
+    rotation: Math.max(0, Math.min(5, Math.round(value.rotation))) as
+      | 0
+      | 1
+      | 2
+      | 3
+      | 4
+      | 5,
+    style: value.style,
+    content,
+  }
+  const name = normalizeText(value.name, Number.MAX_SAFE_INTEGER)
+  if (name) marker.name = name
+  return marker
+}
+
+export function normalizeObjectiveMarkers(raw: unknown): ObjectiveMarker[] {
+  if (!Array.isArray(raw)) return []
+
+  const markers: ObjectiveMarker[] = []
+  const usedUIDs = new Set<string>()
+  for (const value of raw) {
+    const marker = normalizeObjectiveMarker(value)
+    if (!marker || usedUIDs.has(marker.uid)) continue
+    usedUIDs.add(marker.uid)
+    markers.push(marker)
+  }
+  return markers
+}
+
+export function getObjectiveMarkerFootprint(
+  marker: Pick<ObjectiveMarker, 'anchor' | 'size' | 'rotation'>,
+): ObjectiveMarkerAnchor[] {
+  return getPieceTemplateCoords({
+    clickedHex: marker.anchor,
+    rotation: marker.rotation,
+    template: String(marker.size),
+    isVsTile: false,
+  }).map((coords) => ({ ...coords, altitude: marker.anchor.altitude }))
+}
+
+export function objectiveMarkersOverlap(
+  first: Pick<ObjectiveMarker, 'anchor' | 'size' | 'rotation'>,
+  second: Pick<ObjectiveMarker, 'anchor' | 'size' | 'rotation'>,
+) {
+  const firstHexes = new Set(
+    getObjectiveMarkerFootprint(first).map(genBoardHexID),
+  )
+  return getObjectiveMarkerFootprint(second).some((hex) =>
+    firstHexes.has(genBoardHexID(hex)),
+  )
+}

@@ -1,7 +1,8 @@
 # Objective markers: architecture and implementation plan
 
-This is a planning document only. Objective markers are not implemented by this
-change.
+This plan tracks the staged objective-marker work. PR 1 implements the data
+contract, persistence, and history only; UI, rendering, and exports remain for
+later PRs.
 
 ## Recommendation
 
@@ -94,26 +95,22 @@ The vector shapes, text-sanitization ideas, and focused controls can inform
 future work, but the data model and integration should be designed against
 current `dev`.
 
-## Proposed data model and compatibility
+## Data model and compatibility
 
 Use an optional, map-owned collection so markers are saved and shared with
 their map, without depending on random board-piece UIDs:
 
 ```ts
-type ObjectiveMarkerAnchor = {
-  kind: 'hex'
-  coords: CubeCoordinate
-  altitude: number // the supported surface hex altitude
-}
-
 type ObjectiveMarker = {
   uid: string
-  anchor: ObjectiveMarkerAnchor
-  kind: 'number' | 'symbol'
-  value: string
-  color: ObjectiveMarkerColor
+  anchor: CubeCoordinate & { altitude: number }
+  size: 1 | 2
   rotation: 0 | 1 | 2 | 3 | 4 | 5
-  label?: string
+  style: 'black' | 'white'
+  content:
+    | { kind: 'number'; value: number }
+    | { kind: 'text'; value: string }
+  name?: string
 }
 
 type HexMap = {
@@ -122,28 +119,40 @@ type HexMap = {
 }
 ```
 
-`ObjectiveMarkerColor` should be a small named palette, not arbitrary CSS.
-Start with hex-center surface anchors only; the discriminated anchor type leaves
-room for edge or piece anchors after their coordinate and selection semantics
-are agreed. Bound and normalize `value` and `label` at load/edit boundaries.
-Generate a stable marker UID when creating a marker and preserve it in map
-files and share links.
+Number markers follow Renegade scenario maps (1–99), in black-with-white-text
+and white-with-black-text styles. Custom text is also allowed, limited to three
+sanitized characters. A marker can have an optional free-text name, for example
+a HeroScape unit name. Size 2 uses a two-hex footprint and a six-step rotation.
+Reuse the existing template and rotation utilities rather than duplicating hex
+geometry.
 
-`HexMap` is already stored as the first object in JSONCrush share data and
-alongside `boardPieces` in JSON/autosave data. An optional marker array there
-can be preserved by existing map envelopes and the share-link payload without
-changing the encoded piece-ID list. Confirm and test this end to end when
-implementing it. Existing maps without the property load with no markers;
-unknown or malformed marker entries should be ignored safely rather than
-breaking a map load. Do not key marker metadata by `BoardPiece.uid`.
+Normalize optional marker data at load/edit boundaries: drop malformed entries,
+clamp numeric values and rotation, sanitize custom text to at most three
+characters, and keep only the first entry for a duplicate UID. Generate a UID
+when creating a marker; do not key marker data by `BoardPiece.uid`.
 
-The marker array is map state and must be included in the existing undo/redo
-snapshot and autosave path. One add, edit, move, rotate, or delete action should
-be one undo step. Selection remains transient UI state. Markers do not write
+The JSON map file and local autosave retain marker names. The share-link payload
+contains marker placement, size, rotation, content and style, but omits names,
+which can be arbitrarily long. A link opened without names still displays the
+markers without error; any future legend simply has no name for those entries.
+Legacy JSON maps and share links without `objectiveMarkers` load unchanged.
+
+The marker collection is map state and participates in the existing undo/redo
+and autosave paths. One add, edit, move, or delete action is one undo step;
+selection stays transient. Markers do not write
 `boardHexes`, displace pieces, consume inventory, affect set constraints, or
-change terrain placement rules. The initial placement rule should only allow
-anchors on an existing supported surface; overlapping an existing overlay is
-an explicit product decision, not an inventory conflict.
+change terrain placement rules. Marker footprints occupy a separate objective
+layer: they can overlap start zones and terrain, but not another marker at the
+same surface altitude. A 2-hex marker has one anchor altitude for its whole
+footprint. As with `evaluatePlacement` footprints, every covered hex is on that
+same placement plane; a marker does not bridge different surface altitudes.
+Future placement interaction should require that each covered coordinate has a
+supported surface at the anchor altitude.
+
+The unit-name suggestion list should be derived from the `SDW` display-name
+field in `src/data/armyCardsDotOrg.ts`, deduplicated and sorted. Keep the
+19,000-line source out of the main bundle by either loading it as a lazy chunk
+when the name field is used or generating a small sorted JSON list.
 
 ## Rendering plan
 
@@ -154,8 +163,9 @@ an explicit product decision, not an inventory conflict.
   board-surface helpers, and place a compact, legible marker just above the
   supported cap to avoid z-fighting.
 - Use a clear token/decal with a contrasting border and centered number or
-  symbol; preserve the chosen color and orientation. Keep it visible and
-  readable over both textured and flat-color terrain.
+  short custom text; preserve the black/white style, opposite text color,
+  footprint size, and orientation. Keep it visible and readable over both
+  textured and flat-color terrain.
 - The new texture system textures terrain caps and sides. Do not add a marker
   as a terrain layer or bake marker art into cap textures. Use vector/text
   geometry or a separate small transparent marker asset/material, independent
@@ -166,42 +176,39 @@ an explicit product decision, not an inventory conflict.
 
 ### SVG and PDF
 
-- Add markers as a distinct overlay pass positioned from the same
-  cube-coordinate-to-pixel conversion as other map content. Share marker
-  geometry, sizing, label layout, and color decisions between exports.
-- Respect viewing-level and overlay-level visibility, and keep the marker
-  inside the exported map bounds. Decide whether labels are always rendered or
-  only in a marker-detail/export option.
-- Keep PDF rendering on supported `@react-pdf/renderer` primitives. Share
-  geometry and decisions with SVG; do not assume SVG DOM elements can be used
-  directly as PDF components.
-- Add focused SVG markup and PDF-output regressions, including multiple markers,
-  text/symbols, rotations, colors, and visibility. Do not rely on screenshots
-  alone.
+- Draw markers as a distinct overlay pass positioned with the map's
+  cube-to-pixel conversion. Share symbol geometry, sizing, content, and color
+  decisions.
+- Draw map marker text and objective legend text as vector paths using the
+  existing `opentype.js` text-to-path helpers. The legend is a column of marker
+  symbols beside their optional names, so Renegade staff can rearrange it in
+  Adobe Illustrator and scale it without font substitutions.
+- Keep PDF rendering on supported `@react-pdf/renderer` primitives; adapt the
+  shared path data rather than assuming SVG DOM elements work as PDF nodes.
+- Respect export level and overlay visibility. Test SVG markup and PDF output
+  for text paths, multiple markers, rotations, colors, and names; do not rely on
+  screenshots alone.
 
 ## Interaction plan
 
-1. Add an objective-marker pen mode and a small tool for choosing marker value
-   and color. Clicking a supported surface creates one annotation; it never
-   places a terrain piece or consumes constrained inventory.
-2. In select mode, clicking a marker selects it. Keep marker selection distinct
-   from `selectedPieceIDs`, or use an explicitly tagged selection target so a
-   marker UID can never be passed to a board-piece action.
-3. Dragging a selected marker changes its anchor to a valid surface target.
-   The initial version moves one marker at a time; it does not join rigid
+1. Add an objective-marker pen and controls for size, number/text, and style.
+   Clicking a supported surface creates one annotation and never consumes
+   terrain inventory.
+2. Keep marker selection distinct from `selectedPieceIDs`; a marker UID must
+   never be passed to a board-piece action.
+3. Drag one marker at a time to a valid surface. It does not join rigid
    terrain-group transforms.
-4. Rotate the selected marker in six 60-degree steps using the established
-   rotation control/hotkey pattern. Delete removes only the annotation.
-5. Add/edit/move/rotate/delete use store actions that participate in temporal
-   history and autosave. Clear transient marker selection on map load or when
-   its marker is deleted.
+4. Rotate the selected marker in six 60-degree steps. Delete removes only the
+   annotation. Clear transient marker selection on map load or deletion.
+5. Add/edit/move/rotate/delete use map actions in temporal history and autosave.
 
 ## Tests to add during implementation
 
 - Pure annotation validation, normalization, anchor bounds, stable UID
   preservation, and safe handling of missing/unknown optional marker data.
-- JSON file, autosave, and compressed share-link round trips; verify a legacy
-  map without `objectiveMarkers` still loads unchanged.
+- JSON file and autosave round trips retain names. Share-link round trips retain
+  placement/content/style while omitting names; verify legacy maps and links
+  still load unchanged and measure a 40-marker URL payload.
 - Store undo/redo for add, text/color edit, drag, rotate, and delete, with one
   history entry per user action.
 - Placement/constraint checks proving markers do not add `boardPieces`, write
@@ -220,32 +227,39 @@ an explicit product decision, not an inventory conflict.
 
 ## Suggested small PR sequence
 
-1. **Agree the annotation contract.** Resolve the product questions below;
-   define typed marker/anchor/color data and safe normalization. Add old-map
-   compatibility tests.
-2. **Persistence and history.** Wire marker data through JSON, autosave,
-   share-link round trips, and undo/redo. Test that legacy maps and existing
-   share links remain valid; no rendering yet.
-3. **Editing interactions.** Add marker pen, selection, single-marker drag,
-   rotation, deletion, and controls using dedicated annotation actions. Add
-   store/interaction tests and focused E2E coverage.
-4. **3D layer.** Add the independent surface overlay for all graphics tiers,
-   including hit testing and selected state. Verify no terrain texture or
-   piece lifecycle regression.
-5. **2D/PDF exports.** Add the shared marker layout and SVG/PDF adapters,
-   visibility rules, and output regressions. Update export documentation if
-   the final product decisions affect it.
+1. **Data contract, persistence, and history (this PR).** Add typed annotations,
+   normalization, map-file/autosave/share-link support, and undo/redo; no UI or
+   rendering.
+2. **Editing interactions.** Add marker pen, selection, single-marker drag,
+   rotation, deletion, controls, and focused E2E coverage.
+3. **3D layer.** Add the independent surface overlay for all graphics tiers,
+   hit testing, and selected state.
+4. **Unit-name auto-suggest.** Connect the optional name field to the
+   deduplicated, sorted `SDW` list without adding the full card file to the main
+   bundle.
+5. **2D/PDF symbols and objective legend.** Add marker paths, the named legend,
+   export visibility rules, and SVG/PDF output regressions.
 
-## Product-owner questions
+## Decisions
 
-1. **What can a marker show?** Recommended default: a short free-form value
-   (numbers or a few symbols) plus an optional longer label, instead of a
-   fixed catalog of marker types.
-2. **Which colors?** Recommended default: a small accessible palette with one
-   high-contrast default; avoid arbitrary color entry in the first version.
-3. **What does it attach to?** Recommended default: the center of a supported
-   hex surface only. Defer edge and piece anchors until their placement and
-   drag semantics are specified.
-4. **Should labels appear in printed exports or a legend?** Recommended
-   default: print the visible marker value, omit longer labels and a separate
-   legend in the first version.
+1. Renegade scenario maps use numbered markers 1–99 in black-with-white-text
+   and white-with-black-text styles. Custom text is also allowed, limited to
+   three sanitized characters. A marker may additionally have a free-text name.
+2. A marker occupies one or two hexes; a two-hex marker has six rotations. It
+   is an annotation, not a terrain piece, and has no inventory or support
+   requirement.
+3. Markers have their own objective layer. They may overlap start zones and
+   board surfaces; two markers may not overlap on the same surface altitude.
+   All hexes in a two-hex footprint share the anchor altitude, following the
+   single-altitude footprint used by `evaluatePlacement`; markers do not bridge
+   different surface heights.
+4. JSON files and autosaves store names. Share links include marker placement,
+   content, and style but omit names. Opening a link without names is a clean
+   degradation: markers remain, and the later legend omits those names.
+5. Unit-name suggestions use deduplicated, sorted values from the `SDW` display
+   name field in `armyCardsDotOrg.ts`, loaded lazily or generated into a small
+   JSON file so the 19,000-line source is not in the main bundle.
+6. The future SVG/PDF export includes a column legend of symbols and names.
+   Marker and legend text are converted to paths with the existing
+   `opentype.js` helpers so the exported artwork remains editable and scales
+   cleanly in Adobe Illustrator.
