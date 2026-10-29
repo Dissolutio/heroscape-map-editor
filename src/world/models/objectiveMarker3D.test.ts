@@ -171,6 +171,48 @@ describe('objective marker 3D helpers', () => {
     expect(rightBridgeTop.z).toBeCloseTo(scale / 2)
   })
 
+  it('extends bridge overlap into both lobes without widening it', () => {
+    const options = {
+      ...DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
+      bridgeWidthRatio: 0.5,
+      bridgeOverlap: 0,
+    }
+    const noOverlap = getObjectiveMarkerOutlinePoints(2, options)
+    const overlapping = getObjectiveMarkerOutlinePoints(2, {
+      ...options,
+      bridgeOverlap: 0.04,
+    })
+    const leftBridgeTop = overlapping[2]
+    const rightBridgeTop = overlapping[3]
+    const leftBridgeBottom = overlapping[11]
+    const rightBridgeBottom = overlapping[10]
+
+    expect(leftBridgeTop?.x).toBeCloseTo((noOverlap[2]?.x ?? 0) - 0.04)
+    expect(rightBridgeTop?.x).toBeCloseTo((noOverlap[3]?.x ?? 0) + 0.04)
+    expect(leftBridgeBottom?.x).toBeCloseTo((noOverlap[11]?.x ?? 0) - 0.04)
+    expect(rightBridgeBottom?.x).toBeCloseTo((noOverlap[10]?.x ?? 0) + 0.04)
+    expect(leftBridgeTop?.z).toBeCloseTo(noOverlap[2]?.z ?? 0)
+    expect(rightBridgeTop?.z).toBeCloseTo(noOverlap[3]?.z ?? 0)
+    expect(leftBridgeBottom?.z).toBeCloseTo(noOverlap[11]?.z ?? 0)
+    expect(rightBridgeBottom?.z).toBeCloseTo(noOverlap[10]?.z ?? 0)
+    expect(options.bridgeOverlap).toBe(0)
+  })
+
+  it('extends bridge overlap symmetrically without crossing endpoints', () => {
+    const noOverlap = getObjectiveMarkerOutlinePoints(2, {
+      ...DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
+      bridgeOverlap: 0,
+    })
+    const points = getObjectiveMarkerOutlinePoints(2, {
+      ...DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
+      bridgeOverlap: 0.5,
+    })
+
+    expect(points[2]?.x).toBeLessThanOrEqual(points[3]?.x ?? Number.NEGATIVE_INFINITY)
+    expect(points[2]?.x).toBeCloseTo((noOverlap[2]?.x ?? 0) - 0.5)
+    expect(points[3]?.x).toBeCloseTo((noOverlap[3]?.x ?? 0) + 0.5)
+  })
+
   it('keeps expanded two-hex selection outlines from crossing at the bridge', () => {
     const points = getObjectiveMarkerOutlinePoints(2, {
       ...DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,

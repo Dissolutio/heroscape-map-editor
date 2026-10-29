@@ -137,7 +137,7 @@ export function getObjectiveMarkerOutlinePoints(
   const apothem = (Math.sqrt(3) / 2) * radius
   const halfWidth =
     size === 2
-      ? Math.min(radius / 2, (radius * bridgeWidthRatio) / 2 + bridgeOverlap)
+      ? Math.min(radius / 2, (radius * bridgeWidthRatio) / 2)
       : 0
 
   if (size === 1) {
@@ -156,19 +156,21 @@ export function getObjectiveMarkerOutlinePoints(
   const rightCenter = centerOffset
   const leftInnerEdge = leftCenter + apothem
   const rightInnerEdge = rightCenter - apothem
+  const bridgeLeftX = leftInnerEdge - bridgeOverlap
+  const bridgeRightX = rightInnerEdge + bridgeOverlap
   return [
     { x: leftCenter, z: radius },
     { x: leftInnerEdge, z: radius / 2 },
-    { x: leftInnerEdge, z: halfWidth },
-    { x: rightInnerEdge, z: halfWidth },
+    { x: bridgeLeftX, z: halfWidth },
+    { x: bridgeRightX, z: halfWidth },
     { x: rightInnerEdge, z: radius / 2 },
     { x: rightCenter, z: radius },
     { x: rightCenter + apothem, z: radius / 2 },
     { x: rightCenter + apothem, z: -radius / 2 },
     { x: rightCenter, z: -radius },
     { x: rightInnerEdge, z: -radius / 2 },
-    { x: rightInnerEdge, z: -halfWidth },
-    { x: leftInnerEdge, z: -halfWidth },
+    { x: bridgeRightX, z: -halfWidth },
+    { x: bridgeLeftX, z: -halfWidth },
     { x: leftInnerEdge, z: -radius / 2 },
     { x: leftCenter, z: -radius },
     { x: leftCenter - apothem, z: -radius / 2 },
