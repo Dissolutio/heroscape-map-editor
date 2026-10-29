@@ -332,13 +332,9 @@ function makeLandMaterial(
            ${glslFloat((FLUID_CAP_BORDER_INSET * HEXGRID_HEX_RADIUS * Math.sqrt(3)) / 2)};
          float landFluidBlendWidth =
            ${glslFloat((FLUID_CAP_BORDER_BLEND_WIDTH * HEXGRID_HEX_RADIUS * Math.sqrt(3)) / 2)};
-         float landOuterEdgeKeep = 1.0;
-         float landFluidEdgeHalfSide =
-           ${glslFloat(HEXGRID_HEX_RADIUS / 2)};
          for (int edge = 0; edge < 6; edge++) {
            float edgeAngle = float(edge) * 1.0471975512;
            vec2 edgeNormal = vec2(cos(edgeAngle), sin(edgeAngle));
-           vec2 edgeTangent = vec2(-sin(edgeAngle), cos(edgeAngle));
            float edgeDistance =
              ${glslFloat((Math.sqrt(3) / 2) * HEXGRID_HEX_RADIUS)} -
              dot(vLandCapLocalPosition, edgeNormal);
@@ -346,55 +342,55 @@ function makeLandMaterial(
              floor(vLandFluidJoinMask / exp2(float(edge))),
              2.0
            );
+           float edgeBefore = mod(float(edge) + 5.0, 6.0);
+           float edgeAfter = mod(float(edge) + 1.0, 6.0);
            float edgeBeforeJoined = mod(
-             floor(vLandFluidJoinVertexMask / exp2(float(edge))),
+             floor(vLandFluidJoinMask / exp2(edgeBefore)),
              2.0
            );
            float edgeAfterJoined = mod(
-             floor(
-               vLandFluidJoinVertexMask /
-               exp2(mod(float(edge) + 1.0, 6.0))
-             ),
+             floor(vLandFluidJoinMask / exp2(edgeAfter)),
              2.0
            );
-           float edgeAlong = dot(vLandCapLocalPosition, edgeTangent);
-           float beforeEndpointKeep = mix(
-             1.0,
-             smoothstep(
-               0.0,
-               landFluidInset,
-               landFluidEdgeHalfSide + edgeAlong
+           float edgeBeforeAngle = edgeBefore * 1.0471975512;
+           float edgeAfterAngle = edgeAfter * 1.0471975512;
+           float edgeBeforeDistance =
+             ${glslFloat((Math.sqrt(3) / 2) * HEXGRID_HEX_RADIUS)} -
+             dot(
+               vLandCapLocalPosition,
+               vec2(cos(edgeBeforeAngle), sin(edgeBeforeAngle))
+             );
+           float edgeAfterDistance =
+             ${glslFloat((Math.sqrt(3) / 2) * HEXGRID_HEX_RADIUS)} -
+             dot(
+               vLandCapLocalPosition,
+               vec2(cos(edgeAfterAngle), sin(edgeAfterAngle))
+             );
+           float edgeMiterKeep = mix(
+             step(
+               edgeDistance - ${glslFloat(HEXGRID_HEX_RADIUS * 1e-5)},
+               edgeBeforeDistance
              ),
+             1.0,
              edgeBeforeJoined
-           );
-           float afterEndpointKeep = mix(
-             1.0,
-             smoothstep(
-               0.0,
-               landFluidInset,
-               landFluidEdgeHalfSide - edgeAlong
+           ) * mix(
+             step(
+               edgeDistance - ${glslFloat(HEXGRID_HEX_RADIUS * 1e-5)},
+               edgeAfterDistance
              ),
+             1.0,
              edgeAfterJoined
-           );
-           float edgeEndpointKeep = min(
-             beforeEndpointKeep,
-             afterEndpointKeep
            );
            float edgeBlend = 1.0 - smoothstep(
              landFluidInset - landFluidBlendWidth,
              landFluidInset,
              edgeDistance
            );
-           landFluidFillBlend = max(
-             landFluidFillBlend,
-             edgeJoined * edgeBlend
-           );
-           landOuterEdgeKeep = min(
-             landOuterEdgeKeep,
-             edgeJoined + (1.0 - edgeBlend * edgeEndpointKeep)
-           );
-         }
-         landFluidFillBlend *= landOuterEdgeKeep;
+          landFluidFillBlend = max(
+            landFluidFillBlend,
+            edgeJoined * edgeBlend * edgeMiterKeep
+          );
+        }
         }
         vec2 landFluidFillUv = vec2(
           ${glslMirroredWindowCoordinate(
@@ -451,7 +447,6 @@ function makeLandMaterial(
         varying vec2 vLandCapPbrStrengths;
         varying float vLandSurfaceKind;
         varying float vLandFluidJoinMask;
-        varying float vLandFluidJoinVertexMask;
         varying vec2 vLandCapLocalPosition;
         varying vec2 vLandWorldFillUv;
         varying vec3 vLandTangent;`,
@@ -463,10 +458,6 @@ function makeLandMaterial(
         float landCapVisible = mod(floor(landVisibility / 64.0), 2.0);
         float landFluidJoinMask = mod(
           floor(landVisibility / 128.0),
-          64.0
-        );
-        float landFluidJoinVertexMask = mod(
-          floor(landVisibility / 8192.0),
           64.0
         );
         float landSurfaceKind = 1.0 - step(0.0, landDirection);
@@ -512,7 +503,6 @@ function makeLandMaterial(
         );
         vLandSurfaceKind = landSurfaceKind;
         vLandFluidJoinMask = landFluidJoinMask;
-        vLandFluidJoinVertexMask = landFluidJoinVertexMask;
         vLandCapLocalPosition = position.xz;
         vec4 landWorldPosition =
           modelMatrix * instanceMatrix * vec4(position, 1.0);
@@ -550,7 +540,6 @@ function makeLandMaterial(
         varying vec2 vLandCapPbrStrengths;
         varying float vLandSurfaceKind;
         varying float vLandFluidJoinMask;
-        varying float vLandFluidJoinVertexMask;
         varying vec2 vLandCapLocalPosition;
         varying vec2 vLandWorldFillUv;
         varying vec3 vLandTangent;

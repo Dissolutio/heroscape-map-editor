@@ -269,13 +269,10 @@ export function packLandHexVisibility(
   capVisible: boolean,
   fluidCapJoinMask = 0,
 ) {
-  const fluidCapJoinVertexMask =
-    getLandHexFluidCapJoinVertexMask(fluidCapJoinMask)
   return (
     (sideMask & 0b111111) +
     (capVisible ? 64 : 0) +
-    ((fluidCapJoinMask & 0b111111) << 7) +
-    (fluidCapJoinVertexMask << 13)
+    ((fluidCapJoinMask & 0b111111) << 7)
   )
 }
 
@@ -284,7 +281,6 @@ export function unpackLandHexVisibility(value: number) {
     sideMask: value % 64,
     capVisible: Math.floor(value / 64) % 2 === 1,
     fluidCapJoinMask: Math.floor(value / 128) % 64,
-    fluidCapJoinVertexMask: Math.floor(value / 8192) % 64,
   }
 }
 
@@ -487,19 +483,46 @@ export function getLandHexFluidCapJoinMask(
   return joinedMask
 }
 
-export function getLandHexFluidCapJoinVertexMask(joinMask: number) {
-  // The border should fade at both ends of every joined edge, not form a tab.
-  let joinedVertexMask = 0
-  for (let vertex = 0; vertex < 6; vertex += 1) {
-    const beforeEdge = (vertex + 5) % 6
-    if (
-      (joinMask & (1 << beforeEdge)) !== 0 ||
-      (joinMask & (1 << vertex)) !== 0
-    ) {
-      joinedVertexMask |= 1 << vertex
-    }
+function smoothstep(edge0: number, edge1: number, value: number) {
+  const t = Math.max(0, Math.min(1, (value - edge0) / (edge1 - edge0)))
+  return t * t * (3 - 2 * t)
+}
+
+export function getLandHexFluidCapFillBlend(
+  point: { x: number; z: number },
+  joinMask: number,
+) {
+  const apothem = (Math.sqrt(3) * HEXGRID_HEX_RADIUS) / 2
+  const inset = FLUID_CAP_BORDER_INSET * apothem
+  const blendWidth = FLUID_CAP_BORDER_BLEND_WIDTH * apothem
+  const miterEpsilon = HEXGRID_HEX_RADIUS * 1e-5
+  const edgeDistances = Array.from({ length: 6 }, (_, edge) => {
+    const angle = (edge * Math.PI) / 3
+    return (
+      apothem -
+      point.x * Math.cos(angle) -
+      point.z * Math.sin(angle)
+    )
+  })
+  let fillBlend = 0
+
+  for (let edge = 0; edge < 6; edge += 1) {
+    if ((joinMask & (1 << edge)) === 0) continue
+    const edgeDistance = edgeDistances[edge]
+    const adjacentEdges = [(edge + 5) % 6, (edge + 1) % 6]
+    const ownsMiteredRegion = adjacentEdges.every(
+      (adjacentEdge) =>
+        (joinMask & (1 << adjacentEdge)) !== 0 ||
+        edgeDistance <= edgeDistances[adjacentEdge] + miterEpsilon,
+    )
+    if (!ownsMiteredRegion) continue
+    fillBlend = Math.max(
+      fillBlend,
+      1 - smoothstep(inset - blendWidth, inset, edgeDistance),
+    )
   }
-  return joinedVertexMask
+
+  return fillBlend
 }
 
 export function getLandHexInstanceIDs(
