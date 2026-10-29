@@ -2,11 +2,12 @@ import { enqueueSnackbar } from 'notistack'
 import type { StoreApi } from 'zustand/vanilla'
 import type { AppState } from '../store/store'
 import type { BoardPiece, HexMap, MapFileState } from '../types'
+import { getMapPortraitStorageFallback } from '../utils/mapPortrait'
 import { readMapFromLocalStorage } from './get-local-item'
 import { LS_KEYS } from './keys'
 import {
-  saveMapPortrait,
   type MapStorageResult,
+  saveMapPortrait,
   withoutMapPortrait,
 } from './mapStorage'
 import { safeSetItem } from './safeStorage'
@@ -52,7 +53,10 @@ export function createLocalMapAutosaveStorage(): MapAutosaveStorage {
         map.hexMap.mapPortraitBase64 !== lastSavedPortrait
       let portraitResult: MapStorageResult = { ok: true }
       if (portraitChanged || hasInlinePortraitToMigrate) {
-        portraitResult = saveMapPortrait(map.hexMap)
+        portraitResult = saveMapPortrait(
+          map.hexMap,
+          getMapPortraitStorageFallback(map.hexMap.mapPortraitBase64 ?? ''),
+        )
       }
 
       const mapResult = safeSetItem(
@@ -71,7 +75,16 @@ export function createLocalMapAutosaveStorage(): MapAutosaveStorage {
       if (!portraitResult.ok && !mapResult.ok) {
         return { ok: false, quota: portraitResult.quota || mapResult.quota }
       }
-      return portraitResult.ok ? mapResult : portraitResult
+      if (!mapResult.ok) {
+        return {
+          ok: false,
+          quota:
+            mapResult.quota ||
+            (portraitResult.ok && portraitResult.quotaFallback === true),
+        }
+      }
+      if (!portraitResult.ok) return portraitResult
+      return portraitResult.quotaFallback ? portraitResult : mapResult
     },
   }
 }
@@ -96,6 +109,7 @@ export function createMapAutosaveWriter(
     try {
       const result = storage.save(map)
       if (!result.ok) onError({ quota: result.quota })
+      else if (result.quotaFallback) onError({ quota: true })
       return result.ok
     } catch (error) {
       const quota =

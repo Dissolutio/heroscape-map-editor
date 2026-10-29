@@ -9,7 +9,6 @@ import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
 import useBoundStore from '../store/store'
 import { useFullscreen } from '../hooks/useFullscreen'
 import { lazyWithRetry } from '../utils/lazyWithRetry'
-import { getSetsUsedText } from '../utils/map-utils'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 
 const ReactPdfDownloadLink = lazyWithRetry(() =>
@@ -31,7 +30,6 @@ export function HeaderNav({
   const toggleIs2DOpen = useBoundStore((s) => s.toggleIs2DOpen)
   const is2DOpen = useBoundStore((s) => s.is2DOpen)
   const view3DOr2DIconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
-  const setsUsedText = getSetsUsedText(hexMap?.setsUsed ?? [])
   const { isSmallScreenWidth, isMediumScreenWidth } = useMuiMediaQuery()
   const { isFullscreen, toggleFullscreen } = useFullscreen()
   const fontSizeHeaderMapName =
@@ -56,8 +54,7 @@ export function HeaderNav({
           component="h1"
           title="Name of this map"
           sx={{
-            // must grow instead of sets used text growing, since on small screens sets used text not displayed
-            flexGrow: isSmallScreenWidth ? 1 : 0,
+            flexGrow: 1,
             m: 0,
             p: 0,
             fontSize: fontSizeHeaderMapName,
@@ -65,27 +62,6 @@ export function HeaderNav({
         >
           {hexMap.name || 'Hexoscape Map Editor'}
         </Typography>
-
-        {/* Hide sets used in navbar on narrow screens */}
-        {!isSmallScreenWidth && (
-          <Typography
-            variant="subtitle1"
-            component="span"
-            title="Heroscape terrain sets used in this map"
-            noWrap
-            sx={{
-              flexGrow: 1,
-              textAlign: 'left',
-              fontSize: `calc(${fontSizeHeaderMapName} * 0.7)`,
-              color: 'var(--sub-white)',
-              px: 2,
-              overflow: 'hidden',
-              maxHeight: 68,
-            }}
-          >
-            {setsUsedText}
-          </Typography>
-        )}
 
         <IconButton
           size={

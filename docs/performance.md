@@ -73,6 +73,9 @@ the prior tier and lighting. If High textures fail, the prior settings are
 restored before capture and a warning is shown. This is a capture-time quality
 trade, not a change to the interactive defaults.
 
+Portrait captures and uploaded/cropped images use a 1920 px maximum at JPEG quality 0.92.
+If localStorage quota is exceeded, only its copy falls back to 800 px/0.8; session memory stays full quality.
+
 ## Performance round-two measurement status
 
 The overlay/benchmark now emits typed-array, instance, texture-array and
