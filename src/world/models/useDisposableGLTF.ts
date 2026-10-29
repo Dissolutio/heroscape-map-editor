@@ -1,11 +1,7 @@
 import { useGLTF } from '@react-three/drei'
 import { useEffect } from 'react'
 import { notifyModelMounted } from '../shadowInvalidation'
-
-// Track active hook consumers per GLTF path so we only dispose once the last one unmounts.
-const gltfRefCounts = new Map<string, number>()
-const pendingDisposals = new Map<string, number>()
-let nextDisposalId = 1
+import { trackGltfConsumer } from './gltfLifecycle'
 
 // Normalize path input to a stable key for ref counting.
 function makeCacheKey(path: string | string[]) {
@@ -56,36 +52,13 @@ export function useDisposableGLTF(...args: Parameters<typeof useGLTF>) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') notifyModelMounted(window)
-    // Register one active consumer for this model path.
-    gltfRefCounts.set(cacheKey, (gltfRefCounts.get(cacheKey) ?? 0) + 1)
-    pendingDisposals.delete(cacheKey)
+    const releaseGltfConsumer = trackGltfConsumer(cacheKey)
 
     return () => {
-      // Unregister this consumer and only dispose when the final consumer is gone.
-      const nextCount = (gltfRefCounts.get(cacheKey) ?? 1) - 1
-
-      if (nextCount > 0) {
-        gltfRefCounts.set(cacheKey, nextCount)
-        return
-      }
-
-      gltfRefCounts.delete(cacheKey)
-      const disposalId = nextDisposalId++
-      pendingDisposals.set(cacheKey, disposalId)
-
-      queueMicrotask(() => {
-        if (
-          gltfRefCounts.has(cacheKey) ||
-          pendingDisposals.get(cacheKey) !== disposalId
-        ) {
-          return
-        }
-
-        pendingDisposals.delete(cacheKey)
+      releaseGltfConsumer(() => {
         try {
           disposeGltfResources(gltf)
         } finally {
-          // Evict parsed geometry after confirming no replacement consumer mounted.
           useGLTF.clear(path)
         }
       })
