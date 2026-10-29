@@ -4,7 +4,7 @@ import React, { Suspense, useEffect, useRef, useState } from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
 import useAppUpdater from '../hooks/useAppUpdater'
-import { isE2E, isPerHexLandEnabled, isWhatsNewE2EOptIn } from '../e2e/isE2E'
+import { isE2E, isWhatsNewE2EOptIn } from '../e2e/isE2E'
 import { useAppReady } from '../e2e/useAppReady'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
 import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
@@ -86,7 +86,7 @@ export default function HomePage() {
   // session, so load its textures once at startup.
   useEffect(() => {
     const { graphicsTier, setGraphicsTier } = useBoundStore.getState()
-    if (isPerHexLandEnabled && graphicsTier !== 'low') {
+    if (graphicsTier !== 'low') {
       void setGraphicsTier(graphicsTier)
     }
   }, [])

@@ -39,11 +39,12 @@ link parameter: `/hs?e2e=1&m=<crushed map>` (see `e2e/fixtures.ts`).
 between runs. The rotation only shows with **High Quality Render** on; the
 default caps are plain hexagons.
 
-For the development-only per-hex land renderer, add `&perHexLand=1` to an
-`/hs?e2e=1` URL. It is session-only and off by default; all other rendering
-continues to use the current path.
-For tier-start coverage, `&graphicsTier=medium` or `&graphicsTier=high` selects
-the initial tier only when both `e2e=1` and `perHexLand=1` are present.
+Graphics tiers choose the land renderer in every build: Low uses the classic
+renderer, Medium uses per-hex land with diffuse textures, and High uses per-hex
+land with PBR textures. Add `&perHexLand=1` to an `/hs?e2e=1` URL only when a
+test needs to force per-hex land at Low. For tier-start coverage,
+`&graphicsTier=medium` or `&graphicsTier=high` selects the initial tier when
+both `e2e=1` and `perHexLand=1` are present.
 
 Add `&perf=1` to show the performance overlay in both development and production
 builds. It samples frame-time average/p95, FPS, renderer resources, heap when

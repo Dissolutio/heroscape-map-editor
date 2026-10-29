@@ -12,6 +12,7 @@ export type E2ESnapshot = {
   selectedObjectiveMarkerUID: string | null
   hexCount: number
   landInstanceCounts: { solid: number; fluid: number }
+  landRenderer: 'legacy' | 'per-hex'
   viewingLevel: number
   penMode: string
   selectedPieceIDs: string[]

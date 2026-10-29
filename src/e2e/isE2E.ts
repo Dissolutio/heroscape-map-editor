@@ -21,9 +21,10 @@ const hasWhatsNewOptIn = () => {
   }
 }
 
-const hasPerHexLandParam = () => {
+const hasPerHexLandOverride = () => {
   try {
-    return new URLSearchParams(window.location.search).get('perHexLand') === '1'
+    const params = new URLSearchParams(window.location.search)
+    return params.get('e2e') === '1' && params.get('perHexLand') === '1'
   } catch {
     return false
   }
@@ -46,9 +47,9 @@ export const isE2E: boolean =
  */
 export const isE2EDeterministic: boolean = isBrowser && hasE2EParam()
 
-/** Explicit, session-only opt-in to the development per-hex land renderer. */
-export const isPerHexLandEnabled: boolean =
-  isBrowser && import.meta.env.DEV && hasPerHexLandParam()
+/** Explicit e2e-only override for the per-hex land renderer. */
+export const isPerHexLandOverride: boolean =
+  isBrowser && hasPerHexLandOverride()
 
 export const initialE2EGraphicsTier: 'low' | 'medium' | 'high' | null = (() => {
   try {

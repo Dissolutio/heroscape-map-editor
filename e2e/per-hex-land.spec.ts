@@ -260,14 +260,26 @@ test('diffuse textures survive tier and lighting changes', async ({ page }) => {
   page.on('pageerror', (error) => errors.push(error.message))
 
   const map = mapUrl(FIXTURE_HEX_MAP, [...FIXTURE_PIECE_IDS, '0~2~3~0~w1'])
-  await page.goto(`${map}&perHexLand=1&graphicsTier=medium`)
+  await page.goto(map)
   await waitForAppReady(page)
+  await expect
+    .poll(async () =>
+      page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
+    )
+    .toBe('legacy')
   await page.locator('#simple-tab-3').click()
+  const graphics = page.getByTestId('graphics-tier-select')
+  await graphics.click()
+  await page.getByRole('option', { name: 'Medium (diffuse textures)' }).click()
   await expect(page.getByTestId('graphics-texture-status')).toHaveText(
     'Textures ready',
   )
+  await expect
+    .poll(async () =>
+      page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
+    )
+    .toBe('per-hex')
 
-  const graphics = page.getByTestId('graphics-tier-select')
   const lights = page.getByRole('checkbox', {
     name: 'Render Lights and Shadows',
   })
@@ -334,7 +346,7 @@ test('diffuse textures survive tier and lighting changes', async ({ page }) => {
     await waitForAppReady(page)
   }
 
-  await expect(graphics).toContainText('Medium (textures)')
+  await expect(graphics).toContainText('Medium (diffuse textures)')
   await expect(lights).not.toBeChecked()
   await expectTexturedCaps()
   await page.mouse.move(canvas.x + points.grass.x, canvas.y + points.grass.y)
@@ -342,22 +354,42 @@ test('diffuse textures survive tier and lighting changes', async ({ page }) => {
   const hovered = await sampleCanvasPoints(page, { grass: points.grass })
   expect(maxChannelDelta(hovered.grass, [255, 255, 0])).toBeLessThan(80)
 
-  await chooseTier('Lowest')
+  await chooseTier('Low (classic look)')
+  await expect
+    .poll(async () =>
+      page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
+    )
+    .toBe('legacy')
   await expectVisibleTiles()
-  await chooseTier('Medium (textures)')
+  await chooseTier('Medium (diffuse textures)')
   await expect(page.getByTestId('graphics-texture-status')).toHaveText(
     'Textures ready',
   )
+  await expect
+    .poll(async () =>
+      page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
+    )
+    .toBe('per-hex')
   await expectTexturedCaps()
 
-  await chooseTier('High (alternate caps)')
+  await chooseTier('High (PBR textures)')
   await expect(page.getByTestId('graphics-texture-status')).toHaveText(
     'Textures ready',
   )
   await expect(lights).toBeChecked()
+  await expect
+    .poll(async () =>
+      page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
+    )
+    .toBe('per-hex')
   await expectTexturedCaps()
 
-  await chooseTier('Lowest')
+  await chooseTier('Low (classic look)')
+  await expect
+    .poll(async () =>
+      page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
+    )
+    .toBe('legacy')
   await expectVisibleTiles()
   await lights.uncheck()
   await waitForAppReady(page)

@@ -2,7 +2,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 
 import { Button } from '@mui/material'
 import { closeSnackbar, enqueueSnackbar } from 'notistack'
-import { Suspense, useMemo } from 'react'
+import { Suspense, useEffect, useMemo, useRef } from 'react'
 import type React from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import {
@@ -52,7 +52,9 @@ import {
   hasActiveTerrainConstraints,
 } from '../utils/terrain-constraints.ts'
 import { warnIfTallFluidStack } from '../utils/warnAboutLoadedMap.ts'
-import { isPerHexLandEnabled } from '../e2e/isE2E.ts'
+import { clearLastPointerWorldPoint } from './hoverWorldPoint.ts'
+import { getLandRendererMode } from './landRendererTier.ts'
+import { isPerHexLandOverride } from '../e2e/isE2E.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
 import PiecePreview from './PiecePreview.tsx'
@@ -155,11 +157,14 @@ export default function MapDisplay3D({
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const effectiveGraphicsTier = useBoundStore((s) => s.effectiveGraphicsTier)
   const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
   const genericSolidSideColor = useBoundStore((s) => s.genericSolidSideColor)
   const genericFluidCapColor = useBoundStore((s) => s.genericFluidCapColor)
   const genericFluidSideColor = useBoundStore((s) => s.genericFluidSideColor)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
+  const toggleHoveredHex = useBoundStore((s) => s.toggleHoveredHex)
   const setSelectedObjectiveMarkerUID = useBoundStore(
     (s) => s.setSelectedObjectiveMarkerUID,
   )
@@ -170,7 +175,21 @@ export default function MapDisplay3D({
     [hexMap],
   )
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const landRendererMode = getLandRendererMode(
+    effectiveGraphicsTier,
+    isPerHexLandOverride,
+  )
+  const isPerHexLand = landRendererMode === 'per-hex'
+  const previousLandRendererMode = useRef(landRendererMode)
   useMiddleClickPickPenMode()
+
+  useEffect(() => {
+    if (previousLandRendererMode.current === landRendererMode) return
+    previousLandRendererMode.current = landRendererMode
+    toggleHoveredPieceID('')
+    toggleHoveredHex(undefined)
+    clearLastPointerWorldPoint()
+  }, [landRendererMode, toggleHoveredHex, toggleHoveredPieceID])
 
   const genericColors = useMemo(
     () => ({
@@ -189,11 +208,11 @@ export default function MapDisplay3D({
   const perHexLandIDs = useMemo(
     () =>
       new Set(
-        isPerHexLandEnabled
+        isPerHexLand
           ? getLandHexInstanceIDs(boardHexes, boardPieces, viewingLevel)
           : [],
       ),
-    [boardHexes, boardPieces, viewingLevel],
+    [boardHexes, boardPieces, viewingLevel, isPerHexLand],
   )
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
@@ -201,7 +220,7 @@ export default function MapDisplay3D({
     viewingLevel,
     perHexLandIDs,
   )
-  const landSubterrainData = isPerHexLandEnabled
+  const landSubterrainData = isPerHexLand
     ? []
     : getLandSubterrainInstanceData(boardPieces, boardHexes, viewingLevel)
 
@@ -448,7 +467,7 @@ export default function MapDisplay3D({
         />
         <ObjectiveMarkers3D />
         <Suspense fallback={null}>
-          {isPerHexLandEnabled ? (
+          {isPerHexLand ? (
             <LandHexInstanced
               boardHexes={boardHexes}
               boardPieces={boardPieces}

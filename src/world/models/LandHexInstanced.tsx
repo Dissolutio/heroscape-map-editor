@@ -1235,6 +1235,7 @@ export default function LandHexInstanced({
             args={[undefined, undefined, solidData.length]}
             geometry={capGeometry}
             material={capMaterial}
+            userData={{ landHexRenderer: true }}
             {...shadowProps}
             {...capEvents}
           />
@@ -1243,6 +1244,7 @@ export default function LandHexInstanced({
             args={[undefined, undefined, solidData.length]}
             geometry={sideGeometry}
             material={sideMaterial}
+            userData={{ landHexRenderer: true }}
             {...shadowProps}
             {...sideEvents}
           />
@@ -1254,6 +1256,7 @@ export default function LandHexInstanced({
           args={[undefined, undefined, fluidData.length]}
           geometry={fluidGeometry}
           material={fluidMaterial}
+          userData={{ landHexRenderer: true }}
           {...shadowProps}
           {...fluidEvents}
         />
