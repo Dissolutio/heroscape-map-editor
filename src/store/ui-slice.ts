@@ -248,14 +248,33 @@ const createUISlice: StateCreator<
       }
     }
 
+    let fellBackToMedium = false
+    if (request !== graphicsTierLoadGeneration) return
+    if (tier === 'high' && result.status === 'error') {
+      try {
+        result = await loadTerrainTextureArrays('medium', {
+          onProgress: (loaded, total) => {
+            if (request !== graphicsTierLoadGeneration) return
+            set({ textureLoadProgress: { loaded, total } })
+          },
+        })
+        fellBackToMedium = result.status === 'ready'
+      } catch (error) {
+        result = {
+          error: error instanceof Error ? error : new Error(String(error)),
+          status: 'error',
+        }
+      }
+    }
+
     if (request !== graphicsTierLoadGeneration) return
     if (result.status === 'ready') {
       set({
-        effectiveGraphicsTier: tier,
-        textureLoadStatus: 'ready',
+        effectiveGraphicsTier: fellBackToMedium ? 'medium' : tier,
+        textureLoadStatus: fellBackToMedium ? 'fallback' : 'ready',
         textureLoadProgress: {
           loaded: result.textures ? Object.keys(result.textures).length : 0,
-          total: tier === 'medium' ? 2 : 6,
+          total: fellBackToMedium ? 2 : tier === 'medium' ? 2 : 7,
         },
       })
       return

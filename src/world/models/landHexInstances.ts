@@ -42,6 +42,10 @@ export type LandHexInstanceDatum = {
   levels: number
   capLayer: number
   sideLayer: number
+  capNormalLayer: number
+  capOrmLayer: number
+  sideNormalLayer: number
+  sideOrmLayer: number
   rotationSteps: number
   sideMask: number
   capVisible: boolean
@@ -128,6 +132,13 @@ export function getLandHexTextureLayers(
         : (layers?.capDiffuseLayer ?? -1)
       : -1,
     sideLayer: enabled ? (layers?.sideDiffuseLayer ?? -1) : -1,
+    capNormalLayer:
+      enabled && tier === 'high' ? (layers?.capNormalLayer ?? -1) : -1,
+    capOrmLayer: enabled && tier === 'high' ? (layers?.capOrmLayer ?? -1) : -1,
+    sideNormalLayer:
+      enabled && tier === 'high' ? (layers?.sideNormalLayer ?? -1) : -1,
+    sideOrmLayer:
+      enabled && tier === 'high' ? (layers?.sideOrmLayer ?? -1) : -1,
     rotationSteps:
       enabled && allowRandomRotation ? getStableRotationStep(hexID) : 0,
   }

@@ -61,6 +61,7 @@ Templates:
 ## Rendering plan
 - Two instanced meshes (caps, sides). Sides carry a 6-bit visibility mask; hidden quads collapse in the vertex shader. A side is hidden when the neighbor at that level is solid land (see `src/data/interlock-templates.ts`).
 - Per-instance attributes: cap layer, side layer, tint/color, levels, highlight. Texture arrays (`sampler2DArray`), not 2D atlases.
+- High samples tangent-space normals and ORM on solid caps and sides; fluids keep constant material values. If the combined PBR samplers exceed the device texture-unit limit, land uses the Medium diffuse look.
 - Pointer events: `instanceId` -> hex -> `boardPieceUID`; hover/selected highlight is a per-instance attribute; drag, hover, select must match today's behavior.
 - Fluids: separate transparent mesh (opacity 0.8, `HEXGRID_HEXCAP_FLUID_SCALE`).
 - Unchanged for now: `NON_INSTANCED_SUBTERRAIN_PIECES`, castle, Laur and other GLB pieces. SVG/PDF and the registry ratchet test are unaffected.

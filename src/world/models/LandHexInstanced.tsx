@@ -24,7 +24,10 @@ import {
   pressPieceForDrag,
   reportDragTargetHex,
 } from '../drag/dragController'
-import { getCachedTerrainTextureArrays } from '../textures/terrainTextureArrays'
+import {
+  getCachedTerrainTextureArrays,
+  hasHighTierPbrTextureUnitBudget,
+} from '../textures/terrainTextureArrays'
 import type { GenericTerrainColorSettings } from '../maphex/genericTerrainColors'
 import {
   buildLandHexInstanceData,
@@ -173,7 +176,17 @@ function buildGeometry(
   instanceCount: number,
 ) {
   const geometry = new ThreeBufferGeometry()
+  const tangents = directions.flatMap((direction) => {
+    if (direction < 0) return [1, 0, 0]
+    const first = vertices[(direction + 1) % 6]
+    const second = vertices[(direction + 2) % 6]
+    return [second.x - first.x, 0, second.z - first.z]
+  })
   geometry.setAttribute('position', new Float32BufferAttribute(positions, 3))
+  geometry.setAttribute(
+    'landSurfaceTangent',
+    new Float32BufferAttribute(tangents, 3),
+  )
   geometry.setAttribute('landSurfaceKind', new Float32BufferAttribute(kinds, 1))
   geometry.setAttribute(
     'landDirection',
@@ -203,6 +216,10 @@ function buildGeometry(
       new InstancedBufferAttribute(new Float32Array(instanceCount * 3), 3),
     ],
     [
+      'landPbrTextureData',
+      new InstancedBufferAttribute(new Float32Array(instanceCount * 4), 4),
+    ],
+    [
       'levels',
       new InstancedBufferAttribute(new Float32Array(instanceCount), 1),
     ],
@@ -225,6 +242,12 @@ function makeLandMaterial(
   isFluid: boolean,
   capTexture?: DataArrayTexture,
   sideTexture?: DataArrayTexture,
+  pbrTextures?: {
+    capNormal: DataArrayTexture
+    capOrm: DataArrayTexture
+    sideNormal: DataArrayTexture
+    sideOrm: DataArrayTexture
+  },
 ) {
   const material = isLightsAndShadowsRender
     ? new MeshStandardMaterial()
@@ -239,6 +262,18 @@ function makeLandMaterial(
     : ''
   const sideTextureDeclaration = sideTexture
     ? 'uniform sampler2DArray uLandSideDiffuse;'
+    : ''
+  const capNormalDeclaration = pbrTextures
+    ? 'uniform sampler2DArray uLandCapNormal;'
+    : ''
+  const capOrmDeclaration = pbrTextures
+    ? 'uniform sampler2DArray uLandCapOrm;'
+    : ''
+  const sideNormalDeclaration = pbrTextures
+    ? 'uniform sampler2DArray uLandSideNormal;'
+    : ''
+  const sideOrmDeclaration = pbrTextures
+    ? 'uniform sampler2DArray uLandSideOrm;'
     : ''
   const capTextureSample = capTexture
     ? `if (vLandSurfaceKind > 0.5 && vLandTextureLayer >= 0.0) {
@@ -256,12 +291,54 @@ function makeLandMaterial(
            ).rgb;
          }`
     : ''
+  const capNormalSample = pbrTextures
+    ? `if (vLandSurfaceKind > 0.5 && vLandPbrTextureLayers.x >= 0.0) {
+           landTangentNormal = texture(
+             uLandCapNormal,
+             vec3(vLandTextureUv, vLandPbrTextureLayers.x)
+           ).xyz * 2.0 - 1.0;
+           landNormalEnabled = 1.0;
+         }`
+    : ''
+  const capOrmSample = pbrTextures
+    ? `if (vLandSurfaceKind > 0.5 && vLandPbrTextureLayers.y >= 0.0) {
+           landOrm = texture(
+             uLandCapOrm,
+             vec3(vLandTextureUv, vLandPbrTextureLayers.y)
+           ).rgb;
+           landOrmEnabled = 1.0;
+         }`
+    : ''
+  const sideNormalSample = pbrTextures
+    ? `if (vLandSurfaceKind < 0.5 && vLandPbrTextureLayers.z >= 0.0) {
+           landTangentNormal = texture(
+             uLandSideNormal,
+             vec3(vLandTextureUv, vLandPbrTextureLayers.z)
+           ).xyz * 2.0 - 1.0;
+           landNormalEnabled = 1.0;
+         }`
+    : ''
+  const sideOrmSample = pbrTextures
+    ? `if (vLandSurfaceKind < 0.5 && vLandPbrTextureLayers.w >= 0.0) {
+           landOrm = texture(
+             uLandSideOrm,
+             vec3(vLandTextureUv, vLandPbrTextureLayers.w)
+           ).rgb;
+           landOrmEnabled = 1.0;
+         }`
+    : ''
   material.onBeforeCompile = (shader) => {
     if (capTexture) {
       shader.uniforms.uLandCapDiffuse = { value: capTexture }
     }
     if (sideTexture) {
       shader.uniforms.uLandSideDiffuse = { value: sideTexture }
+    }
+    if (pbrTextures) {
+      shader.uniforms.uLandCapNormal = { value: pbrTextures.capNormal }
+      shader.uniforms.uLandCapOrm = { value: pbrTextures.capOrm }
+      shader.uniforms.uLandSideNormal = { value: pbrTextures.sideNormal }
+      shader.uniforms.uLandSideOrm = { value: pbrTextures.sideOrm }
     }
     shader.vertexShader = shader.vertexShader
       .replace(
@@ -275,11 +352,15 @@ function makeLandMaterial(
         attribute float landDirection;
         attribute vec2 landSideUv;
         attribute vec3 landTextureData;
+        attribute vec4 landPbrTextureData;
+        attribute vec3 landSurfaceTangent;
         varying vec3 vLandSurfaceColor;
         varying float vLandHighlight;
         varying vec2 vLandTextureUv;
         varying float vLandTextureLayer;
-        varying float vLandSurfaceKind;`,
+        varying vec4 vLandPbrTextureLayers;
+        varying float vLandSurfaceKind;
+        varying vec3 vLandTangent;`,
       )
       .replace(
         '#include <begin_vertex>',
@@ -313,7 +394,15 @@ function makeLandMaterial(
           : landSideUv;
         vLandTextureLayer =
           landSurfaceKind > 0.5 ? landTextureData.x : landTextureData.y;
-        vLandSurfaceKind = landSurfaceKind;`,
+        vLandPbrTextureLayers = landPbrTextureData;
+        vLandSurfaceKind = landSurfaceKind;
+        float landTangentAngle = landTextureData.z * 1.0471975512;
+        vec3 landLocalTangent = landSurfaceKind > 0.5
+          ? vec3(cos(landTangentAngle), 0.0, sin(landTangentAngle))
+          : landSurfaceTangent;
+        vLandTangent = normalize(
+          mat3(modelViewMatrix * instanceMatrix) * landLocalTangent
+        );`,
       )
     shader.fragmentShader = shader.fragmentShader
       .replace(
@@ -323,25 +412,69 @@ function makeLandMaterial(
         varying float vLandHighlight;
         varying vec2 vLandTextureUv;
         varying float vLandTextureLayer;
+        varying vec4 vLandPbrTextureLayers;
         varying float vLandSurfaceKind;
+        varying vec3 vLandTangent;
         ${capTextureDeclaration}
-        ${sideTextureDeclaration}`,
+        ${sideTextureDeclaration}
+        ${capNormalDeclaration}
+        ${capOrmDeclaration}
+        ${sideNormalDeclaration}
+        ${sideOrmDeclaration}`,
       )
       .replace(
         '#include <color_fragment>',
         `#include <color_fragment>
         vec3 landTextureColor = vLandSurfaceColor;
+        vec3 landTangentNormal = vec3(0.0, 0.0, 1.0);
+        vec3 landOrm = vec3(1.0, 1.0, 0.0);
+        float landNormalEnabled = 0.0;
+        float landOrmEnabled = 0.0;
         ${capTextureSample}
         ${sideTextureSample}
+        ${capNormalSample}
+        ${sideNormalSample}
+        ${capOrmSample}
+        ${sideOrmSample}
         diffuseColor.rgb = mix(
           landTextureColor,
           vec3(1.0, 1.0, 0.0),
           vLandHighlight
         );`,
       )
+      .replace(
+        '#include <normal_fragment_maps>',
+        `#include <normal_fragment_maps>
+        if (landNormalEnabled > 0.5) {
+          vec3 landTangent = normalize(
+            vLandTangent - normal * dot(normal, vLandTangent)
+          );
+          vec3 landBitangent = normalize(cross(normal, landTangent));
+          normal = normalize(
+            mat3(landTangent, landBitangent, normal) * landTangentNormal
+          );
+        }`,
+      )
+      .replace(
+        '#include <roughnessmap_fragment>',
+        `#include <roughnessmap_fragment>
+        if (landOrmEnabled > 0.5) roughnessFactor = landOrm.g;`,
+      )
+      .replace(
+        '#include <metalnessmap_fragment>',
+        `#include <metalnessmap_fragment>
+        if (landOrmEnabled > 0.5) metalnessFactor = landOrm.b;`,
+      )
+      .replace(
+        '#include <aomap_fragment>',
+        `#include <aomap_fragment>
+        if (landOrmEnabled > 0.5) {
+          reflectedLight.indirectDiffuse *= landOrm.r;
+        }`,
+      )
   }
   material.customProgramCacheKey = () =>
-    `land-hex-instance-colors-v3-${Number(Boolean(capTexture))}-${Number(Boolean(sideTexture))}`
+    `land-hex-instance-colors-v4-${Number(Boolean(capTexture))}-${Number(Boolean(sideTexture))}-${Number(Boolean(pbrTextures))}`
   return material
 }
 
@@ -373,6 +506,9 @@ function updateInstanceMesh(
   const textureDataAttribute = geometry.getAttribute(
     'landTextureData',
   ) as InstancedBufferAttribute
+  const pbrTextureDataAttribute = geometry.getAttribute(
+    'landPbrTextureData',
+  ) as InstancedBufferAttribute
   const transform = new Object3D()
   const color = new Color()
 
@@ -392,6 +528,13 @@ function updateInstanceMesh(
       item.sideLayer,
       item.rotationSteps,
     )
+    pbrTextureDataAttribute.setXYZW(
+      index,
+      item.capNormalLayer,
+      item.capOrmLayer,
+      item.sideNormalLayer,
+      item.sideOrmLayer,
+    )
 
     transform.position.set(item.x, item.y, item.z)
     transform.scale.set(1, item.isFluid ? 0.5 : 1, 1)
@@ -406,6 +549,7 @@ function updateInstanceMesh(
     highlightAttribute,
     levelsAttribute,
     textureDataAttribute,
+    pbrTextureDataAttribute,
   ]) {
     attribute.clearUpdateRanges()
     attribute.needsUpdate = true
@@ -524,9 +668,23 @@ export default function LandHexInstanced({
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isWebGL2 = useThree((state) => state.gl.capabilities.isWebGL2)
+  const maxTextureImageUnits = useThree(
+    (state) => state.gl.capabilities.maxTextures,
+  )
+  const hasPbrTextureUnitBudget =
+    hasHighTierPbrTextureUnitBudget(maxTextureImageUnits)
+  const renderTier =
+    effectiveGraphicsTier === 'high' && !hasPbrTextureUnitBudget
+      ? 'medium'
+      : effectiveGraphicsTier
+  const useHighPbr =
+    effectiveGraphicsTier === 'high' &&
+    hasPbrTextureUnitBudget &&
+    isLightsAndShadowsRender
   const textureArrays = React.useMemo(
     () =>
-      textureLoadStatus === 'ready' && isWebGL2
+      (textureLoadStatus === 'ready' || textureLoadStatus === 'fallback') &&
+      isWebGL2
         ? getCachedTerrainTextureArrays(effectiveGraphicsTier)
         : null,
     [effectiveGraphicsTier, isWebGL2, textureLoadStatus],
@@ -539,24 +697,41 @@ export default function LandHexInstanced({
         viewingLevel,
         genericColors,
         textureArrays?.manifest,
-        effectiveGraphicsTier,
+        renderTier,
       ),
     [
       boardHexes,
       boardPieces,
-      effectiveGraphicsTier,
       genericColors,
+      renderTier,
       textureArrays,
       viewingLevel,
     ],
   )
   const capTexture =
     textureArrays?.textures[
-      effectiveGraphicsTier === 'high'
+      effectiveGraphicsTier === 'high' && hasPbrTextureUnitBudget
         ? 'caps-diffuse-pbr.png'
         : 'caps-diffuse.png'
     ]
   const sideTexture = textureArrays?.textures['sides-diffuse.png']
+  const capNormalTexture = textureArrays?.textures['caps-normal.png']
+  const capOrmTexture = textureArrays?.textures['caps-orm.png']
+  const sideNormalTexture = textureArrays?.textures['sides-normal.png']
+  const sideOrmTexture = textureArrays?.textures['sides-orm.png']
+  const pbrTextures =
+    useHighPbr &&
+    capNormalTexture &&
+    capOrmTexture &&
+    sideNormalTexture &&
+    sideOrmTexture
+      ? {
+          capNormal: capNormalTexture,
+          capOrm: capOrmTexture,
+          sideNormal: sideNormalTexture,
+          sideOrm: sideOrmTexture,
+        }
+      : undefined
   const { onPointerEnter, onPointerEnterPID, onPointerOut, onPointerMove } =
     usePieceHoverState({ trackIsHovered: false })
   const solidData = React.useMemo(
@@ -594,8 +769,9 @@ export default function LandHexInstanced({
         false,
         capTexture,
         sideTexture,
+        pbrTextures,
       ),
-    [capTexture, isLightsAndShadowsRender, sideTexture],
+    [capTexture, isLightsAndShadowsRender, pbrTextures, sideTexture],
   )
   const sideMaterial = React.useMemo(
     () =>
@@ -604,8 +780,9 @@ export default function LandHexInstanced({
         false,
         capTexture,
         sideTexture,
+        pbrTextures,
       ),
-    [capTexture, isLightsAndShadowsRender, sideTexture],
+    [capTexture, isLightsAndShadowsRender, pbrTextures, sideTexture],
   )
   const fluidMaterial = React.useMemo(
     () =>
