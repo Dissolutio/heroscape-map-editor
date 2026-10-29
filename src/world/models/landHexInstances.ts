@@ -269,10 +269,13 @@ export function packLandHexVisibility(
   capVisible: boolean,
   fluidCapJoinMask = 0,
 ) {
+  const fluidCapJoinVertexMask =
+    getLandHexFluidCapJoinVertexMask(fluidCapJoinMask)
   return (
     (sideMask & 0b111111) +
     (capVisible ? 64 : 0) +
-    ((fluidCapJoinMask & 0b111111) << 7)
+    ((fluidCapJoinMask & 0b111111) << 7) +
+    (fluidCapJoinVertexMask << 13)
   )
 }
 
@@ -281,6 +284,7 @@ export function unpackLandHexVisibility(value: number) {
     sideMask: value % 64,
     capVisible: Math.floor(value / 64) % 2 === 1,
     fluidCapJoinMask: Math.floor(value / 128) % 64,
+    fluidCapJoinVertexMask: Math.floor(value / 8192) % 64,
   }
 }
 
@@ -481,6 +485,21 @@ export function getLandHexFluidCapJoinMask(
     }
   }
   return joinedMask
+}
+
+export function getLandHexFluidCapJoinVertexMask(joinMask: number) {
+  // The border should fade at both ends of every joined edge, not form a tab.
+  let joinedVertexMask = 0
+  for (let vertex = 0; vertex < 6; vertex += 1) {
+    const beforeEdge = (vertex + 5) % 6
+    if (
+      (joinMask & (1 << beforeEdge)) !== 0 ||
+      (joinMask & (1 << vertex)) !== 0
+    ) {
+      joinedVertexMask |= 1 << vertex
+    }
+  }
+  return joinedVertexMask
 }
 
 export function getLandHexInstanceIDs(

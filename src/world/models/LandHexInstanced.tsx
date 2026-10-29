@@ -333,15 +333,52 @@ function makeLandMaterial(
          float landFluidBlendWidth =
            ${glslFloat((FLUID_CAP_BORDER_BLEND_WIDTH * HEXGRID_HEX_RADIUS * Math.sqrt(3)) / 2)};
          float landOuterEdgeKeep = 1.0;
+         float landFluidEdgeHalfSide =
+           ${glslFloat(HEXGRID_HEX_RADIUS / 2)};
          for (int edge = 0; edge < 6; edge++) {
            float edgeAngle = float(edge) * 1.0471975512;
            vec2 edgeNormal = vec2(cos(edgeAngle), sin(edgeAngle));
+           vec2 edgeTangent = vec2(-sin(edgeAngle), cos(edgeAngle));
            float edgeDistance =
              ${glslFloat((Math.sqrt(3) / 2) * HEXGRID_HEX_RADIUS)} -
              dot(vLandCapLocalPosition, edgeNormal);
            float edgeJoined = mod(
              floor(vLandFluidJoinMask / exp2(float(edge))),
              2.0
+           );
+           float edgeBeforeJoined = mod(
+             floor(vLandFluidJoinVertexMask / exp2(float(edge))),
+             2.0
+           );
+           float edgeAfterJoined = mod(
+             floor(
+               vLandFluidJoinVertexMask /
+               exp2(mod(float(edge) + 1.0, 6.0))
+             ),
+             2.0
+           );
+           float edgeAlong = dot(vLandCapLocalPosition, edgeTangent);
+           float beforeEndpointKeep = mix(
+             1.0,
+             smoothstep(
+               0.0,
+               landFluidInset,
+               landFluidEdgeHalfSide + edgeAlong
+             ),
+             edgeBeforeJoined
+           );
+           float afterEndpointKeep = mix(
+             1.0,
+             smoothstep(
+               0.0,
+               landFluidInset,
+               landFluidEdgeHalfSide - edgeAlong
+             ),
+             edgeAfterJoined
+           );
+           float edgeEndpointKeep = min(
+             beforeEndpointKeep,
+             afterEndpointKeep
            );
            float edgeBlend = 1.0 - smoothstep(
              landFluidInset - landFluidBlendWidth,
@@ -354,7 +391,7 @@ function makeLandMaterial(
            );
            landOuterEdgeKeep = min(
              landOuterEdgeKeep,
-             edgeJoined + (1.0 - edgeBlend)
+             edgeJoined + (1.0 - edgeBlend * edgeEndpointKeep)
            );
          }
          landFluidFillBlend *= landOuterEdgeKeep;
@@ -414,6 +451,7 @@ function makeLandMaterial(
         varying vec2 vLandCapPbrStrengths;
         varying float vLandSurfaceKind;
         varying float vLandFluidJoinMask;
+        varying float vLandFluidJoinVertexMask;
         varying vec2 vLandCapLocalPosition;
         varying vec2 vLandWorldFillUv;
         varying vec3 vLandTangent;`,
@@ -425,6 +463,10 @@ function makeLandMaterial(
         float landCapVisible = mod(floor(landVisibility / 64.0), 2.0);
         float landFluidJoinMask = mod(
           floor(landVisibility / 128.0),
+          64.0
+        );
+        float landFluidJoinVertexMask = mod(
+          floor(landVisibility / 8192.0),
           64.0
         );
         float landSurfaceKind = 1.0 - step(0.0, landDirection);
@@ -470,6 +512,7 @@ function makeLandMaterial(
         );
         vLandSurfaceKind = landSurfaceKind;
         vLandFluidJoinMask = landFluidJoinMask;
+        vLandFluidJoinVertexMask = landFluidJoinVertexMask;
         vLandCapLocalPosition = position.xz;
         vec4 landWorldPosition =
           modelMatrix * instanceMatrix * vec4(position, 1.0);
@@ -507,6 +550,7 @@ function makeLandMaterial(
         varying vec2 vLandCapPbrStrengths;
         varying float vLandSurfaceKind;
         varying float vLandFluidJoinMask;
+        varying float vLandFluidJoinVertexMask;
         varying vec2 vLandCapLocalPosition;
         varying vec2 vLandWorldFillUv;
         varying vec3 vLandTangent;
@@ -590,7 +634,7 @@ function makeLandMaterial(
       )
   }
   material.customProgramCacheKey = () =>
-    `land-hex-instance-colors-v5-${Number(Boolean(capTexture))}-${Number(Boolean(sideTexture))}-${Number(Boolean(pbrTextures))}`
+    `land-hex-instance-colors-v6-${Number(Boolean(capTexture))}-${Number(Boolean(sideTexture))}-${Number(Boolean(pbrTextures))}`
   return material
 }
 

@@ -15,6 +15,7 @@ import {
   getLandHexColors,
   getLandHexDisplayColors,
   getLandHexFluidCapJoinMask,
+  getLandHexFluidCapJoinVertexMask,
   getLandHexHighlightValue,
   getLandHexHoverTransition,
   getLandHexInstanceIDs,
@@ -337,11 +338,11 @@ describe('land hex instance data', () => {
     expect(Math.abs(afterEdge.u - beforeEdge.u)).toBeLessThan(0.002)
   })
 
-  it('packs side, cap, and fluid-join masks without adding an instance attribute', () => {
+  it('packs side, cap, fluid-edge, and fluid-vertex masks in one attribute', () => {
     expect(packLandHexVisibility(0b101010, false, 0b000101)).toBe(
-      0b000101_0_101010,
+      0b001111_000101_0_101010,
     )
-    expect(packLandHexVisibility(0b111111, true, 0b111111)).toBe(8191)
+    expect(packLandHexVisibility(0b111111, true, 0b111111)).toBe(524287)
     expect(packLandHexVisibility(0b111111, false, 0)).toBe(63)
     expect(
       unpackLandHexVisibility(packLandHexVisibility(0b111111, false, 0b111111)),
@@ -349,6 +350,7 @@ describe('land hex instance data', () => {
       sideMask: 0b111111,
       capVisible: false,
       fluidCapJoinMask: 0b111111,
+      fluidCapJoinVertexMask: 0b111111,
     })
   })
 
@@ -628,6 +630,24 @@ describe('land hex side visibility', () => {
     expect(joinedDirections).toBe(0b111111)
     for (const masks of orientationMasks.slice(1)) {
       expect(masks).toEqual(orientationMasks[0])
+    }
+  })
+
+  it('marks both vertices on each joined edge for corner-aware cap blending', () => {
+    for (let edge = 0; edge < 6; edge += 1) {
+      expect(getLandHexFluidCapJoinVertexMask(1 << edge)).toBe(
+        (1 << edge) | (1 << ((edge + 1) % 6)),
+      )
+    }
+
+    for (let mask = 0; mask < 64; mask += 1) {
+      const expectedVertices = Array.from({ length: 6 }, (_, vertex) => {
+        const beforeEdge = (vertex + 5) % 6
+        return mask & ((1 << beforeEdge) | (1 << vertex))
+          ? 1 << vertex
+          : 0
+      }).reduce((combined, vertex) => combined | vertex, 0)
+      expect(getLandHexFluidCapJoinVertexMask(mask)).toBe(expectedVertices)
     }
   })
 
