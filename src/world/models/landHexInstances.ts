@@ -14,6 +14,7 @@ import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
 import type { GenericTerrainColorSettings } from '../maphex/genericTerrainColors'
 import { hexTerrainColor, terrainCapColors } from '../maphex/hexColors'
 import type { TerrainTextureManifest } from '../textures/terrainTextureManifest'
+import { allowsCapRotation, capRotationOverride } from './capRotationOverride'
 
 export const NON_INSTANCED_SUBTERRAIN_PIECES = new Set<string>([
   Pieces.glacier1,
@@ -212,8 +213,11 @@ export function getLandHexTextureLayers(
           layers?.capOrmLayer ?? -1,
         )
       : { normal: 1, ao: 1 }
-  const allowRandomRotation =
-    terrain === HexTerrain.ice || terrain === HexTerrain.toxicWater
+  const allowRandomRotation = allowsCapRotation(
+    manifestTerrainName,
+    layers?.allowRandomRotation ?? false,
+    capRotationOverride,
+  )
   return {
     capLayer: enabled
       ? tier === 'high'
@@ -539,6 +543,19 @@ export function getLandHexFluidCapFillBlend(
   }
 
   return fillBlend
+}
+
+export function getLandHexCapRotationBlend(point: { x: number; z: number }) {
+  const apothem = (Math.sqrt(3) * HEXGRID_HEX_RADIUS) / 2
+  const inset = FLUID_CAP_BORDER_INSET * apothem
+  const blendWidth = FLUID_CAP_BORDER_BLEND_WIDTH * apothem
+  const minEdgeDistance = Math.min(
+    ...Array.from({ length: 6 }, (_, edge) => {
+      const angle = (edge * Math.PI) / 3
+      return apothem - point.x * Math.cos(angle) - point.z * Math.sin(angle)
+    }),
+  )
+  return smoothstep(inset - blendWidth, inset, minEdgeDistance)
 }
 
 export function getLandHexInstanceIDs(
