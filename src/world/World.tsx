@@ -22,6 +22,7 @@ import useBoundStore from '../store/store'
 import { CAMERA_FOV } from '../utils/constants'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import Lights from './Lights'
+import LookSettingsApplier from './LookSettingsApplier'
 import MapDisplay3D from './MapDisplay3D'
 import AutoZoomToMap from './camera/AutoZoomToMap'
 import MyCameraControls from './camera/MyCameraControls'
@@ -38,6 +39,7 @@ import {
   recordReactRender,
 } from '../performance/performance'
 import { clearLastPointerWorldPoint } from './hoverWorldPoint'
+import LookSettingsDialog from '../layout/LookSettingsDialog'
 
 const BILLBOARD_WARMUP_MS = 4000
 
@@ -152,7 +154,7 @@ const World = ({
             fade
             speed={1}
           /> */}
-          <color attach="background" args={['white']} />
+          <LookSettingsApplier />
           <PerspectiveCamera
             position={[10, 10, 10]}
             fov={CAMERA_FOV}
@@ -218,6 +220,7 @@ const World = ({
         <E2EStatus />
         {isPerformanceEnabled && <PerformanceOverlay />}
         <SelectedPieceReadout cameraControlsRef={cameraControlsRef} />
+        <LookSettingsDialog />
         {/* <HoveredPieceReadout /> */}
       </div>
     </ClickAwayListener>

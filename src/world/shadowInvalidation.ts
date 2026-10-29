@@ -3,6 +3,7 @@ export type ShadowRelevantState = {
   boardPieces: unknown
   hexMap: unknown
   lightPositions: unknown
+  lookSettings: unknown
   viewingLevel: number
   isLightsAndShadowsRender: boolean
   graphicsTier: string
@@ -40,6 +41,7 @@ export function shouldInvalidateShadowMap(
     (previous.hexMap !== current.hexMap &&
       !hasOnlyObjectiveMarkerChanges(previous.hexMap, current.hexMap)) ||
     previous.lightPositions !== current.lightPositions ||
+    previous.lookSettings !== current.lookSettings ||
     previous.viewingLevel !== current.viewingLevel ||
     previous.isLightsAndShadowsRender !== current.isLightsAndShadowsRender ||
     previous.graphicsTier !== current.graphicsTier ||

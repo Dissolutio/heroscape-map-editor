@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { PointLight } from 'three'
 import useBoundStore from '../store/store'
 import type { LightPosition } from '../store/ui-slice'
+import { getAmbientIntensity } from '../data/lookSettings'
 import { invalidateShadowMap } from './shadowInvalidation'
 
 export default function Lights({
@@ -13,6 +14,7 @@ export default function Lights({
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
+  const lookSettings = useBoundStore((s) => s.lookSettings)
   const lights: { id: string; position: LightPosition }[] = [
     { id: 'front-left', position: [width / 3, 15, length / 3] },
     { id: 'back-left', position: [width / 3, 15, (2 * length) / 3] },
@@ -21,15 +23,23 @@ export default function Lights({
   ]
   return (
     <>
-      <ambientLight intensity={isLightsAndShadowsRender ? 0.5 : 2} />
+      <ambientLight
+        intensity={getAmbientIntensity(lookSettings, isLightsAndShadowsRender)}
+      />
       <hemisphereLight
         color={'#ffffbb'}
         groundColor={'#080820'}
-        intensity={0.5}
+        intensity={lookSettings.hemisphereIntensity}
       />
       {isLightsAndShadowsRender &&
         lights.map(({ id, position }) => (
-          <MovablePointLight key={id} id={id} defaultPosition={position} />
+          <MovablePointLight
+            key={id}
+            id={id}
+            defaultPosition={position}
+            color={lookSettings.lightColor}
+            intensity={lookSettings.pointLightIntensity}
+          />
         ))}
     </>
   )
@@ -38,7 +48,14 @@ export default function Lights({
 function MovablePointLight({
   id,
   defaultPosition,
-}: { id: string; defaultPosition: LightPosition }) {
+  color,
+  intensity,
+}: {
+  id: string
+  defaultPosition: LightPosition
+  color: string
+  intensity: number
+}) {
   const [light, setLight] = useState<PointLight | null>(null)
   const shadowMap = useThree((state) => state.gl.shadowMap)
   const position = useBoundStore((s) => s.lightPositions[id])
@@ -52,9 +69,9 @@ function MovablePointLight({
       <pointLight
         ref={setLight}
         position={position ?? defaultPosition}
-        color={'white'}
+        color={color}
         castShadow
-        intensity={200}
+        intensity={intensity}
         shadow-mapSize-height={512}
         shadow-mapSize-width={512}
       />
