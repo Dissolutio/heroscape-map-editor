@@ -11,6 +11,7 @@ import {
   rememberPointerWorldPoint,
   shouldTrackHoveredWorldPoint,
 } from '../world/hoverWorldPoint'
+import { reportObjectiveMarkerDragTarget } from '../world/drag/objectiveMarkerDragController'
 
 export default function usePieceHoverState({
   trackIsHovered = true,
@@ -97,9 +98,10 @@ export default function usePieceHoverState({
       finishPerformanceTiming('app.pointerHandler', startedAt)
     }
   }
-  const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
+  const onPointerMove = (e: ThreeEvent<PointerEvent>, boardHex?: BoardHex) => {
     const startedAt = startPerformanceTiming()
     try {
+      if (boardHex) reportObjectiveMarkerDragTarget(boardHex, e)
       scheduleWorldPoint({ x: e.point.x, z: e.point.z })
     } finally {
       finishPerformanceTiming('app.pointerHandler', startedAt)

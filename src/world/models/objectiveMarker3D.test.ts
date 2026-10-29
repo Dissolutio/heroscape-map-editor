@@ -13,6 +13,7 @@ import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
 import { Pieces } from '../../types'
 import {
   getObjectiveMarker3DPosition,
+  getObjectiveMarkerTextPosition,
   getObjectiveMarkerTextFontSize,
   isObjectiveMarkerVisibleAtLevel,
 } from './objectiveMarker3D'
@@ -78,6 +79,26 @@ describe('objective marker 3D helpers', () => {
     expect(position?.radius).toBe(0.68)
     expect(position?.x).toBe((expected[0].x + expected[1].x) / 2)
     expect(position?.z).toBe((expected[0].z + expected[1].z) / 2)
+  })
+
+  it('positions two-hex text at the anchor without applying token stretch', () => {
+    const board = makeTable(5)
+    const target = marker({
+      size: 2,
+      rotation: 4,
+    })
+    const position = getObjectiveMarker3DPosition(target, board.boardHexes)
+    if (!position) throw new Error('Expected a supported marker')
+    const textPosition = getObjectiveMarkerTextPosition(target, position)
+    const cos = Math.cos(position.rotationY)
+    const sin = Math.sin(position.rotationY)
+    const worldX = position.x + cos * textPosition.x + sin * textPosition.z
+    const worldZ = position.z - sin * textPosition.x + cos * textPosition.z
+    const anchor = getBoardHex3DCoords(target.anchor)
+
+    expect(textPosition.x).not.toBe(0)
+    expect(worldX).toBeCloseTo(anchor.x)
+    expect(worldZ).toBeCloseTo(anchor.z)
   })
 
   it('sits above a fluid cap at its physical surface height', () => {

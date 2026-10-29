@@ -102,7 +102,7 @@ function EmptyHex({
       onPointerEnter={handleEnter}
       onPointerOut={handleOut}
       onPointerMove={(e: ThreeEvent<PointerEvent>) => {
-        onPointerMove(e)
+        onPointerMove(e, boardHex)
         if (
           reportDragTargetHex(boardHex, undefined, {
             x: e.point.x,

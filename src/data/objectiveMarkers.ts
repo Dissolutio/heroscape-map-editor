@@ -3,6 +3,8 @@ import type { CubeCoordinate } from '../types'
 import { genBoardHexID } from '../utils/map-utils'
 import getPieceTemplateCoords from './rotationTransforms'
 
+export const OBJECTIVE_MARKER_PEN_MODE = 'objectiveMarker'
+
 export type ObjectiveMarkerAnchor = CubeCoordinate & {
   altitude: number
 }
@@ -20,6 +22,11 @@ export type ObjectiveMarker = {
   content: ObjectiveMarkerContent
   name?: string
 }
+
+export type ObjectiveMarkerDraft = Pick<
+  ObjectiveMarker,
+  'size' | 'style' | 'content'
+>
 
 export type NewObjectiveMarker = Omit<ObjectiveMarker, 'uid'> & {
   uid?: string
@@ -45,6 +52,36 @@ function normalizeText(value: unknown, maxLength: number) {
     .join('')
     .trim()
   return Array.from(cleaned).slice(0, maxLength).join('')
+}
+
+export function getObjectiveMarkerContentError(
+  content: ObjectiveMarkerContent,
+) {
+  if (content.kind === 'number') {
+    if (
+      !Number.isInteger(content.value) ||
+      content.value < 1 ||
+      content.value > 99
+    ) {
+      return 'Enter a whole number from 1 to 99.'
+    }
+    return null
+  }
+
+  const value = content.value
+  if (!value.trim()) return 'Enter 1 to 3 characters.'
+  if (
+    Array.from(value).some((character) => {
+      const codePoint = character.codePointAt(0) ?? 0
+      return codePoint <= 0x1f || (codePoint >= 0x7f && codePoint <= 0x9f)
+    })
+  ) {
+    return 'Control characters are not allowed.'
+  }
+  if (Array.from(value.trim()).length > MAX_MARKER_TEXT_LENGTH) {
+    return 'Use no more than 3 characters.'
+  }
+  return null
 }
 
 function normalizeObjectiveMarker(value: unknown): ObjectiveMarker | null {

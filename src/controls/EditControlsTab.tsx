@@ -22,6 +22,7 @@ import {
 } from '../utils/constants'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
+import ObjectiveMarkerControls from './ObjectiveMarkerControls'
 
 const shiftInDirectionBoardPieces = (
   direction: number,
@@ -41,6 +42,9 @@ export const EditControlsTab = () => {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const hexMap = useBoundStore((s) => s.hexMap)
+  const selectedObjectiveMarkerUID = useBoundStore(
+    (s) => s.selectedObjectiveMarkerUID,
+  )
   // const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const loadMap = useBoundStore((s) => s.loadMap)
   const setPiecePreviews = useBoundStore((s) => s.setPiecePreviews)
@@ -51,6 +55,9 @@ export const EditControlsTab = () => {
   } = useMuiMediaQuery()
 
   const clearPreview = () => setPiecePreviews(null)
+  const selectedObjectiveMarker = hexMap.objectiveMarkers?.find(
+    (marker) => marker.uid === selectedObjectiveMarkerUID,
+  )
 
   const previewAllPiecesMove = (direction: number) => {
     setPiecePreviews(
@@ -148,6 +155,12 @@ export const EditControlsTab = () => {
   const buttonFontSize = isSmallScreenWidth ? 8 : isMediumScreenWidth ? 8 : 8
   return (
     <Box sx={{ p: 0 }}>
+      {selectedObjectiveMarker && (
+        <ObjectiveMarkerControls
+          key={selectedObjectiveMarker.uid}
+          marker={selectedObjectiveMarker}
+        />
+      )}
       {/* <div style={{ padding: '0px 20px' }}>
         {isUseInventory && !Number.isNaN(remainingCount)
           ? `${remainingCount} remaining`

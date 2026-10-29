@@ -216,6 +216,16 @@ const piecePagePoint = async (page: Page, uid: string) =>
     `Piece ${uid}`,
   )
 
+const objectiveMarkerPagePoint = async (page: Page, uid: string) =>
+  toPagePoint(
+    page,
+    await page.evaluate(
+      (id) => window.__TEST__?.screenPosOfObjectiveMarker(id) ?? null,
+      uid,
+    ),
+    `Objective marker ${uid}`,
+  )
+
 const hexPagePoint = async (
   page: Page,
   hex: { q: number; r: number; altitude: number },
@@ -271,6 +281,33 @@ export async function dragPiece(
   steps = 8,
 ) {
   await startDrag(page, uid, toHex, steps)
+  await page.mouse.up()
+}
+
+/** Click or drag a marker at the position exposed by the app test bridge. */
+export async function clickObjectiveMarker(page: Page, uid: string) {
+  await waitForAppReady(page)
+  const point = await objectiveMarkerPagePoint(page, uid)
+  await page.mouse.click(point.x, point.y)
+}
+
+export async function dragObjectiveMarker(
+  page: Page,
+  uid: string,
+  toHex: { q: number; r: number; altitude: number },
+  steps = 8,
+) {
+  await waitForAppReady(page)
+  const from = await objectiveMarkerPagePoint(page, uid)
+  const to = await hexPagePoint(page, toHex)
+  await page.mouse.move(from.x, from.y)
+  await page.mouse.down()
+  for (let i = 1; i <= steps; i += 1) {
+    await page.mouse.move(
+      from.x + ((to.x - from.x) * i) / steps,
+      from.y + ((to.y - from.y) * i) / steps,
+    )
+  }
   await page.mouse.up()
 }
 

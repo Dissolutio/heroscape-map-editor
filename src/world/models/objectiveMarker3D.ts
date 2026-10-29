@@ -21,6 +21,28 @@ export type ObjectiveMarker3DPosition = {
   radius: number
 }
 
+export type ObjectiveMarkerTextPosition = {
+  x: number
+  z: number
+}
+
+export function getObjectiveMarkerTextPosition(
+  marker: ObjectiveMarker,
+  position: ObjectiveMarker3DPosition,
+): ObjectiveMarkerTextPosition {
+  if (marker.size === 1) return { x: 0, z: 0 }
+
+  const anchorPosition = getBoardHex3DCoords(marker.anchor)
+  const deltaX = anchorPosition.x - position.x
+  const deltaZ = anchorPosition.z - position.z
+  const cos = Math.cos(position.rotationY)
+  const sin = Math.sin(position.rotationY)
+  return {
+    x: cos * deltaX - sin * deltaZ,
+    z: sin * deltaX + cos * deltaZ,
+  }
+}
+
 export function getObjectiveMarker3DPosition(
   marker: ObjectiveMarker,
   boardHexes: BoardHexes,

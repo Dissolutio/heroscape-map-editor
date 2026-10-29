@@ -2,6 +2,7 @@ import { Container, List } from '@mui/material'
 import { FcTodoList } from 'react-icons/fc'
 import { MdGridView } from 'react-icons/md'
 import { DIALOGS } from '../layout/dialogNames'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 import useBoundStore from '../store/store'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import PenModeControls from './PenModeControls'
@@ -9,8 +10,10 @@ import PieceSizeSelect from './PieceSizeSelect'
 import RotationSelect from './RotationSelect'
 import UndoRedoButtonGroup from './UndoRedoButtonGroup'
 import ViewingLevelInput from './ViewingLevelInput'
+import ObjectiveMarkerControls from './ObjectiveMarkerControls'
 
 export const BuildControlsTab = () => {
+  const penMode = useBoundStore((state) => state.penMode)
   const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const isViewMapInventoryDialogOpen =
     useBoundStore((state) => state.currentDialog) === DIALOGS.viewMapInventory
@@ -69,7 +72,11 @@ export const BuildControlsTab = () => {
           ? `${remainingCount} remaining`
           : ''}
       </div> */}
-      <PieceSizeSelect />
+      {penMode === OBJECTIVE_MARKER_PEN_MODE ? (
+        <ObjectiveMarkerControls />
+      ) : (
+        <PieceSizeSelect />
+      )}
       <RotationSelect />
       <ViewingLevelInput />
 

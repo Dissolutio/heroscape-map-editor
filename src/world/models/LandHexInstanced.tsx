@@ -954,7 +954,7 @@ export default function LandHexInstanced({
     event: ThreeEvent<PointerEvent>,
     item: LandHexInstanceDatum,
   ) => {
-    onPointerMove(event)
+    onPointerMove(event, item.hex)
     if (
       isDragging() &&
       reportDragTargetHex(findPieceHexAt(item.uid, event.point), item.uid, {

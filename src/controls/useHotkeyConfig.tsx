@@ -9,6 +9,7 @@ export const useHotkeyConfig = () => {
 
 export const defaultHotkeyConfig = {
   delete: 'deleteSelectedPiece',
+  backspace: 'deleteSelectedPiece',
 
   // CAMERA
   insert: 'handleToggleIsOrthoCam',
@@ -90,7 +91,7 @@ export const defaultHotkeyConfig = {
   l: 'togglePenModeLavaField',
   'shift+l': 'togglePenModeLava',
   'alt+l': undefined,
-  m: undefined,
+  m: 'togglePenModeObjectiveMarker',
   'shift+m': undefined,
   'alt+m': undefined,
   n: 'togglePenModeAncientTerrain',
