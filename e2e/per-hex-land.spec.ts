@@ -34,6 +34,27 @@ function samplePixel(image: PNG, x: number, y: number): RGB {
   }) as RGB
 }
 
+function samplePixelMaxChannelRange(
+  image: PNG,
+  x: number,
+  y: number,
+  radius: number,
+) {
+  const minimum = [255, 255, 255]
+  const maximum = [0, 0, 0]
+  for (let dy = -radius; dy <= radius; dy += 1) {
+    for (let dx = -radius; dx <= radius; dx += 1) {
+      const offset = (Math.round(y + dy) * image.width + Math.round(x + dx)) * 4
+      for (let channel = 0; channel < 3; channel += 1) {
+        const value = image.data[offset + channel]
+        minimum[channel] = Math.min(minimum[channel], value)
+        maximum[channel] = Math.max(maximum[channel], value)
+      }
+    }
+  }
+  return Math.max(...maximum.map((value, channel) => value - minimum[channel]))
+}
+
 function maxChannelDelta(left: RGB, right: RGB) {
   return Math.max(
     Math.abs(left[0] - right[0]),
@@ -59,6 +80,26 @@ async function sampleCanvasPoints(
       samplePixel(image, canvas.x + point.x, canvas.y + point.y),
     ]),
   ) as Record<string, RGB>
+}
+
+async function sampleCanvasTextureVariation(
+  page: Page,
+  points: Record<string, ScreenPoint>,
+) {
+  const canvas = await page.locator('canvas').first().boundingBox()
+  if (!canvas) throw new Error('The WebGL canvas is not visible')
+  const image = PNG.sync.read(await page.screenshot())
+  return Object.fromEntries(
+    Object.entries(points).map(([name, point]) => [
+      name,
+      samplePixelMaxChannelRange(
+        image,
+        canvas.x + point.x,
+        canvas.y + point.y,
+        4,
+      ),
+    ]),
+  ) as Record<string, number>
 }
 
 test('per-hex land mode loads without console errors and selects a hex', async ({
@@ -274,9 +315,12 @@ test('diffuse textures survive tier and lighting changes', async ({ page }) => {
   if (!canvas) throw new Error('The WebGL canvas is not visible')
 
   const expectTexturedCaps = async () => {
-    const colors = await sampleCanvasPoints(page, points)
-    expect(maxChannelDelta(colors.grass, [124, 154, 60])).toBeGreaterThan(20)
-    expect(maxChannelDelta(colors.water, [53, 162, 208])).toBeGreaterThan(20)
+    const textureVariation = await sampleCanvasTextureVariation(page, {
+      grass: points.grass,
+      water: points.water,
+    })
+    expect(textureVariation.grass).toBeGreaterThan(10)
+    expect(textureVariation.water).toBeGreaterThan(10)
   }
   const expectVisibleTiles = async () => {
     const colors = await sampleCanvasPoints(page, points)
