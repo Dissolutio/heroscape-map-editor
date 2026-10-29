@@ -62,13 +62,6 @@ export function getMapPortraitStorageFallback(
   return storageFallbacks.get(portrait)
 }
 
-export async function downscaleMapPortrait(source: string): Promise<string> {
-  const image = new Image()
-  image.src = source
-  await image.decode()
-  return canvasToMapPortrait(image, image.naturalWidth, image.naturalHeight)
-}
-
 function encodeMapPortrait(
   source: CanvasImageSource,
   width: number,

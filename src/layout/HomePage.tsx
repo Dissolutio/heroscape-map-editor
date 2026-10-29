@@ -26,6 +26,7 @@ import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
 import LoadMapFromUrlDialog from './LoadMapFromUrlDialog'
 import PiecesGridDialog from './PiecesGridDialog'
+import CropMapPortraitDialog from './CropMapPortraitDialog'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 import WhatsNewDialog, { releaseNoteEntries } from './WhatsNewDialog'
 // 1. Define your lazy-loaded components
@@ -139,6 +140,7 @@ export default function HomePage() {
       />
       <CreateMapFormDialog />
       <EditMapFormDialog />
+      <CropMapPortraitDialog />
       <EditPieceInventoryDialog />
       <ViewMapInventoryDialog />
       <PiecesGridDialog cameraControlsRef={cameraControlsRef} />

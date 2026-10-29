@@ -6,12 +6,9 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
 import * as React from 'react'
-import ReactCropExampleApp from '../react-image-crop/ReactCropExampleApp'
-import 'react-image-crop/dist/ReactCrop.css'
 import { useSnackbar } from 'notistack'
 import { terrainSetsByShortID } from '../data/terrainSets'
 import useBoundStore from '../store/store'
-import { downscaleMapPortrait } from '../utils/mapPortrait'
 import { clearMapShareUrlParams } from '../utils/mapShareUrl'
 import {
   MAP_AUTHOR_FIELD_NAME,
@@ -42,28 +39,22 @@ export default function EditMapFormDialog() {
   const changeMapNotes = useBoundStore((state) => state.changeMapNotes)
   const mapNotes = hexMap?.mapNotes ?? ''
   const mapPortraitBase64 = hexMap?.mapPortraitBase64 ?? ''
-  const [imgSrc, setImgSrc] = React.useState(mapPortraitBase64)
-  const addMapPortraitBase64 = useBoundStore(
-    (state) => state.addMapPortraitBase64,
+  const openCropMapPortraitDialog = useBoundStore(
+    (state) => state.openCropMapPortraitDialog,
   )
   const toggleIsEditMapDialogOpen = useBoundStore(
     (state) => state.toggleIsEditMapDialogOpen,
   )
   const isEditMapDialogOpen =
     useBoundStore((state) => state.currentDialog) === DIALOGS.editMap
-  const handleClose = () => {
-    if (!isSaving) toggleIsEditMapDialogOpen(false)
-  }
+  const currentDialog = useBoundStore((state) => state.currentDialog)
+  const handleClose = () => toggleIsEditMapDialogOpen(false)
   const { enqueueSnackbar } = useSnackbar()
   const [newName, setNewName] = React.useState(mapName)
   const [newAuthor, setNewAuthor] = React.useState(authorName)
   const [newNotes, setNewNotes] = React.useState(mapNotes)
-  const [isSaving, setIsSaving] = React.useState(false)
-  const handleSubmitEditMapForm = async (
-    event: React.FormEvent<HTMLFormElement>,
-  ) => {
+  const handleSubmitEditMapForm = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (isSaving) return
     const formData = new FormData(event.currentTarget)
     // biome-ignore lint/suspicious/noExplicitAny: <form data not well understood>
     const formJson = Object.fromEntries((formData as any).entries())
@@ -82,29 +73,11 @@ export default function EditMapFormDialog() {
     }
     const newSetsUsed =
       terrainConstraintSource === 'setsUsed' ? getSetsUsedFormData() : []
-    let portrait = imgSrc
-    if (imgSrc && imgSrc !== mapPortraitBase64) {
-      setIsSaving(true)
-      try {
-        portrait = await downscaleMapPortrait(imgSrc)
-      } catch (error) {
-        console.error('Failed processing map portrait', error)
-        enqueueSnackbar({
-          message:
-            'Could not process the map portrait. Please try another image.',
-          variant: 'error',
-        })
-        return
-      } finally {
-        setIsSaving(false)
-      }
-    }
     changeMapName(newMapName)
     changeAuthorName(newAuthorName)
     changeMapNotes(newMapNotes)
     changeSetsUsed(newSetsUsed)
     syncTerrainConstraintPenMode()
-    addMapPortraitBase64(portrait)
     clearMapShareUrlParams()
     enqueueSnackbar({
       message: 'Updated Map',
@@ -113,43 +86,18 @@ export default function EditMapFormDialog() {
     handleClose()
   }
 
-  // TODO: UPDATE BASE64 URL (and jpg)
-  /* 
-  const [file, setFile] = React.useState<File | undefined>(undefined)
-  // update base64 map portrait when file uploaded
-    React.useEffect(() => {
-      let fileReader = undefined
-      let isCancel = false
-      if (file) {
-        fileReader = new FileReader()
-        fileReader.onload = (e) => {
-          const reader = e.target as FileReader
-          const result = reader.result
-          if (result && !isCancel) {
-            addMapPortraitBase64(result.toString())
-          }
-        }
-        fileReader.readAsDataURL(file)
-      }
-      return () => {
-        isCancel = true
-        if (fileReader && fileReader.readyState === 1) {
-          fileReader.abort()
-          }
-          }
-    }, [file, addMapPortraitBase64])
-    */
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <Only reset when dialog opens or closes>
+  const previousDialog = React.useRef(currentDialog)
   React.useEffect(() => {
-    // reset vals to the current map when dialog opens/closes
-    if (isEditMapDialogOpen) {
+    if (
+      isEditMapDialogOpen &&
+      previousDialog.current !== DIALOGS.cropMapPortrait
+    ) {
       setNewName(mapName)
       setNewAuthor(authorName)
       setNewNotes(mapNotes)
-      setImgSrc(mapPortraitBase64)
     }
-  }, [isEditMapDialogOpen])
+    previousDialog.current = currentDialog
+  }, [currentDialog, isEditMapDialogOpen, mapName, authorName, mapNotes])
 
   return (
     <Dialog
@@ -198,15 +146,24 @@ export default function EditMapFormDialog() {
           mapNotes={newNotes}
           onMapNotesChange={setNewNotes}
         />
-        <ReactCropExampleApp imgSrc={imgSrc} setImgSrc={setImgSrc} />
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 1 }}>
+          {mapPortraitBase64 ? (
+            <img
+              src={mapPortraitBase64}
+              alt="Current map portrait"
+              style={{ maxWidth: 160, maxHeight: 100, objectFit: 'contain' }}
+            />
+          ) : (
+            <Box sx={{ color: 'text.secondary' }}>No map picture</Box>
+          )}
+          <Button type="button" onClick={() => openCropMapPortraitDialog(true)}>
+            Crop or replace picture
+          </Button>
+        </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} disabled={isSaving}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isSaving}>
-          Submit
-        </Button>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button type="submit">Submit</Button>
       </DialogActions>
     </Dialog>
   )

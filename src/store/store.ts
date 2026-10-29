@@ -98,3 +98,13 @@ if (typeof window !== 'undefined') {
 }
 
 export default useBoundStore
+
+export function saveMapPortraitWithoutUndo(portrait: string) {
+  const temporal = useBoundStore.temporal.getState()
+  temporal.pause()
+  try {
+    useBoundStore.getState().addMapPortraitBase64(portrait)
+  } finally {
+    temporal.resume()
+  }
+}

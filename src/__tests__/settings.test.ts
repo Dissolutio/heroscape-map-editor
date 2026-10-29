@@ -320,6 +320,7 @@ describe('settings persistence', () => {
       'pendingUndoSelectionRestoreStack',
       'pendingRedoSelectionRestoreStack',
       'currentDialog',
+      'cropDialogReturnToEditMap',
       'isTakingPicture',
       'isCameraDisabled',
       'isShowStartZones',

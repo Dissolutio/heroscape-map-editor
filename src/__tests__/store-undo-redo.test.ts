@@ -31,6 +31,7 @@ const localStorageMock = {
 }
 
 let store: typeof import('../store/store').default
+let saveMapPortraitWithoutUndo: (portrait: string) => void
 
 function loadedMap(boardPieces: BoardPiece[] = []): MapState {
   return buildupJsonFileMap(boardPieces, hexMap)
@@ -61,7 +62,9 @@ beforeEach(async () => {
   vi.useFakeTimers()
   vi.stubGlobal('localStorage', localStorageMock)
   vi.resetModules()
-  ;({ default: store } = await import('../store/store'))
+  ;({ default: store, saveMapPortraitWithoutUndo } = await import(
+    '../store/store'
+  ))
   loadWithoutHistory(loadedMap())
 })
 
@@ -73,6 +76,32 @@ afterEach(() => {
 })
 
 describe('real store undo and redo', () => {
+  it('saves one cropped portrait update and leaves it unchanged on cancel', () => {
+    saveMapPortraitWithoutUndo('data:image/jpeg;base64,previous')
+    const portraitUpdates: string[] = []
+    const unsubscribe = store.subscribe((state, previous) => {
+      if (
+        state.hexMap.mapPortraitBase64 !== previous.hexMap.mapPortraitBase64
+      ) {
+        portraitUpdates.push(state.hexMap.mapPortraitBase64 ?? '')
+      }
+    })
+
+    store.getState().openCropMapPortraitDialog()
+    saveMapPortraitWithoutUndo('data:image/jpeg;base64,cropped')
+    store.getState().closeCropMapPortraitDialog()
+    expect(portraitUpdates).toEqual(['data:image/jpeg;base64,cropped'])
+    expect(historyLength()).toBe(0)
+
+    const portraitBeforeCancel = store.getState().hexMap.mapPortraitBase64
+    expect(portraitBeforeCancel).toBe('data:image/jpeg;base64,cropped')
+    store.getState().openCropMapPortraitDialog()
+    store.getState().closeCropMapPortraitDialog()
+    expect(store.getState().hexMap.mapPortraitBase64).toBe(portraitBeforeCancel)
+    expect(portraitUpdates).toEqual(['data:image/jpeg;base64,cropped'])
+    unsubscribe()
+  })
+
   it('recomputes Laur edge conflicts after paint, undo, redo, and remove', async () => {
     const { redoWithSelectionRestore, undoWithSelectionRestore } = await import(
       '../utils/undoWithSelectionRestore'
