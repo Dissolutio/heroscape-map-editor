@@ -503,6 +503,44 @@ export function getLandHexFluidCapJoinMask(
   return joinedMask
 }
 
+function smoothstep(edge0: number, edge1: number, value: number) {
+  const t = Math.max(0, Math.min(1, (value - edge0) / (edge1 - edge0)))
+  return t * t * (3 - 2 * t)
+}
+
+export function getLandHexFluidCapFillBlend(
+  point: { x: number; z: number },
+  joinMask: number,
+) {
+  const apothem = (Math.sqrt(3) * HEXGRID_HEX_RADIUS) / 2
+  const inset = FLUID_CAP_BORDER_INSET * apothem
+  const blendWidth = FLUID_CAP_BORDER_BLEND_WIDTH * apothem
+  const miterEpsilon = HEXGRID_HEX_RADIUS * 1e-5
+  const edgeDistances = Array.from({ length: 6 }, (_, edge) => {
+    const angle = (edge * Math.PI) / 3
+    return apothem - point.x * Math.cos(angle) - point.z * Math.sin(angle)
+  })
+  let fillBlend = 0
+
+  for (let edge = 0; edge < 6; edge += 1) {
+    if ((joinMask & (1 << edge)) === 0) continue
+    const edgeDistance = edgeDistances[edge]
+    const adjacentEdges = [(edge + 5) % 6, (edge + 1) % 6]
+    const ownsMiteredRegion = adjacentEdges.every(
+      (adjacentEdge) =>
+        (joinMask & (1 << adjacentEdge)) !== 0 ||
+        edgeDistance <= edgeDistances[adjacentEdge] + miterEpsilon,
+    )
+    if (!ownsMiteredRegion) continue
+    fillBlend = Math.max(
+      fillBlend,
+      1 - smoothstep(inset - blendWidth, inset, edgeDistance),
+    )
+  }
+
+  return fillBlend
+}
+
 export function getLandHexInstanceIDs(
   boardHexes: BoardHexes,
   boardPieces: BoardPiece[],

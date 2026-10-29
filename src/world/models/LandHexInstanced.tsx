@@ -336,7 +336,6 @@ function makeLandMaterial(
            ${glslFloat((FLUID_CAP_BORDER_INSET * HEXGRID_HEX_RADIUS * Math.sqrt(3)) / 2)};
          float landFluidBlendWidth =
            ${glslFloat((FLUID_CAP_BORDER_BLEND_WIDTH * HEXGRID_HEX_RADIUS * Math.sqrt(3)) / 2)};
-         float landOuterEdgeKeep = 1.0;
          for (int edge = 0; edge < 6; edge++) {
            float edgeAngle = float(edge) * 1.0471975512;
            vec2 edgeNormal = vec2(cos(edgeAngle), sin(edgeAngle));
@@ -347,21 +346,55 @@ function makeLandMaterial(
              floor(vLandFluidJoinMask / exp2(float(edge))),
              2.0
            );
+           float edgeBefore = mod(float(edge) + 5.0, 6.0);
+           float edgeAfter = mod(float(edge) + 1.0, 6.0);
+           float edgeBeforeJoined = mod(
+             floor(vLandFluidJoinMask / exp2(edgeBefore)),
+             2.0
+           );
+           float edgeAfterJoined = mod(
+             floor(vLandFluidJoinMask / exp2(edgeAfter)),
+             2.0
+           );
+           float edgeBeforeAngle = edgeBefore * 1.0471975512;
+           float edgeAfterAngle = edgeAfter * 1.0471975512;
+           float edgeBeforeDistance =
+             ${glslFloat((Math.sqrt(3) / 2) * HEXGRID_HEX_RADIUS)} -
+             dot(
+               vLandCapLocalPosition,
+               vec2(cos(edgeBeforeAngle), sin(edgeBeforeAngle))
+             );
+           float edgeAfterDistance =
+             ${glslFloat((Math.sqrt(3) / 2) * HEXGRID_HEX_RADIUS)} -
+             dot(
+               vLandCapLocalPosition,
+               vec2(cos(edgeAfterAngle), sin(edgeAfterAngle))
+             );
+           float edgeMiterKeep = mix(
+             step(
+               edgeDistance - ${glslFloat(HEXGRID_HEX_RADIUS * 1e-5)},
+               edgeBeforeDistance
+             ),
+             1.0,
+             edgeBeforeJoined
+           ) * mix(
+             step(
+               edgeDistance - ${glslFloat(HEXGRID_HEX_RADIUS * 1e-5)},
+               edgeAfterDistance
+             ),
+             1.0,
+             edgeAfterJoined
+           );
            float edgeBlend = 1.0 - smoothstep(
              landFluidInset - landFluidBlendWidth,
              landFluidInset,
              edgeDistance
            );
-           landFluidFillBlend = max(
-             landFluidFillBlend,
-             edgeJoined * edgeBlend
-           );
-           landOuterEdgeKeep = min(
-             landOuterEdgeKeep,
-             edgeJoined + (1.0 - edgeBlend)
-           );
-         }
-         landFluidFillBlend *= landOuterEdgeKeep;
+          landFluidFillBlend = max(
+            landFluidFillBlend,
+            edgeJoined * edgeBlend * edgeMiterKeep
+          );
+        }
         }
         vec2 landFluidFillUv = vec2(
           ${glslMirroredWindowCoordinate(
@@ -594,7 +627,7 @@ function makeLandMaterial(
       )
   }
   material.customProgramCacheKey = () =>
-    `land-hex-instance-colors-v5-${Number(Boolean(capTexture))}-${Number(Boolean(sideTexture))}-${Number(Boolean(pbrTextures))}`
+    `land-hex-instance-colors-v6-${Number(Boolean(capTexture))}-${Number(Boolean(sideTexture))}-${Number(Boolean(pbrTextures))}`
   return material
 }
 
