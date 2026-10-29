@@ -5,6 +5,7 @@ import { DoubleSide } from 'three'
 import type { ObjectiveMarker } from '../../data/objectiveMarkers'
 import useBoundStore from '../../store/store'
 import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
+import { pressObjectiveMarkerForDrag } from '../drag/objectiveMarkerDragController'
 import {
   getObjectiveMarker3DPosition,
   getObjectiveMarkerTextPosition,
@@ -87,6 +88,9 @@ function ObjectiveMarkerToken({
     >
       <group scale={[lengthScale, 1, 1]}>
         <mesh
+          onPointerDown={(event) =>
+            pressObjectiveMarkerForDrag(event, marker.uid)
+          }
           onPointerUp={handlePointerUp}
           castShadow={false}
           receiveShadow={false}

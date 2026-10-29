@@ -155,7 +155,7 @@ function FluidCap({
       }
       onPointerMove={(e: ThreeEvent<PointerEvent>) => {
         if (!isVisible) return
-        onPointerMove(e)
+        onPointerMove(e, boardHex)
         if (
           reportDragTargetHex(boardHex, undefined, {
             x: e.point.x,

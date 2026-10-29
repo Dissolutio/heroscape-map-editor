@@ -23,6 +23,11 @@ export type ObjectiveMarker = {
   name?: string
 }
 
+export type ObjectiveMarkerDraft = Pick<
+  ObjectiveMarker,
+  'size' | 'style' | 'content'
+>
+
 export type NewObjectiveMarker = Omit<ObjectiveMarker, 'uid'> & {
   uid?: string
 }
@@ -65,7 +70,12 @@ export function getObjectiveMarkerContentError(
 
   const value = content.value
   if (!value.trim()) return 'Enter 1 to 3 characters.'
-  if (/[\u0000-\u001f\u007f-\u009f]/u.test(value)) {
+  if (
+    Array.from(value).some((character) => {
+      const codePoint = character.codePointAt(0) ?? 0
+      return codePoint <= 0x1f || (codePoint >= 0x7f && codePoint <= 0x9f)
+    })
+  ) {
     return 'Control characters are not allowed.'
   }
   if (Array.from(value.trim()).length > MAX_MARKER_TEXT_LENGTH) {

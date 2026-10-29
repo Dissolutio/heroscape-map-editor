@@ -10,6 +10,12 @@ import {
   getLaurStackableVariantID,
 } from '../data/laurVariantPenModes.ts'
 import { piecesSoFar } from '../data/pieces.ts'
+import {
+  OBJECTIVE_MARKER_PEN_MODE,
+  type ObjectiveMarker,
+} from '../data/objectiveMarkers.ts'
+import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement.ts'
+import { mapTableHexes } from '../data/fitMapToPieces.ts'
 import { START_ZONES_HIDDEN_MESSAGE } from '../data/startZoneVisibility.ts'
 import {
   LAUR_STACKABLE_VARIANT_UNAVAILABLE_MESSAGE,
@@ -62,6 +68,7 @@ import LandSubterrainInstanced, {
 import LandHexInstanced from './models/LandHexInstanced.tsx'
 import { getLandHexInstanceIDs } from './models/landHexInstances.ts'
 import ObjectiveMarkers3D from './models/ObjectiveMarkers3D.tsx'
+import ObjectiveMarkerPlacementPreview from './ObjectiveMarkerPlacementPreview.tsx'
 
 function getAvailableLaurStackableInventory(): PieceInventory | undefined {
   const state = useBoundStore.getState()
@@ -139,6 +146,7 @@ export default function MapDisplay3D({
 }) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const hexMap = useBoundStore((s) => s.hexMap)
   const boardHexesArr = Object.values(boardHexes).sort(
     (a, b) => a.altitude - b.altitude,
   )
@@ -154,6 +162,12 @@ export default function MapDisplay3D({
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const setSelectedObjectiveMarkerUID = useBoundStore(
     (s) => s.setSelectedObjectiveMarkerUID,
+  )
+  const addObjectiveMarker = useBoundStore((s) => s.addObjectiveMarker)
+  const objectiveMarkerDraft = useBoundStore((s) => s.objectiveMarkerDraft)
+  const objectiveMarkerMapHexIDs = useMemo(
+    () => mapTableHexes(hexMap),
+    [hexMap],
   )
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useMiddleClickPickPenMode()
@@ -219,6 +233,48 @@ export default function MapDisplay3D({
           event.point ? { x: event.point.x, z: event.point.z } : undefined,
           hex,
         )
+      }
+      return
+    }
+    if (penMode === OBJECTIVE_MARKER_PEN_MODE) {
+      const marker: ObjectiveMarker = {
+        uid: '',
+        anchor: {
+          q: hex.q,
+          r: hex.r,
+          s: hex.s,
+          altitude: hex.altitude,
+        },
+        ...objectiveMarkerDraft,
+        rotation: (penModeRotation % 6) as 0 | 1 | 2 | 3 | 4 | 5,
+      }
+      const state = useBoundStore.getState()
+      const placement = getObjectiveMarkerPlacementStatus({
+        marker,
+        boardHexes: state.boardHexes,
+        mapHexIDs: objectiveMarkerMapHexIDs,
+        markers: state.hexMap.objectiveMarkers ?? [],
+      })
+      if (placement.status !== 'ok') {
+        enqueueSnackbar({
+          message:
+            placement.reason === 'overlap'
+              ? 'Objective markers cannot overlap.'
+              : 'Markers must fit on supported map caps.',
+          variant: 'warning',
+          autoHideDuration: 2500,
+        })
+        return
+      }
+      const uid = addObjectiveMarker(marker)
+      if (!uid) {
+        enqueueSnackbar({
+          message: 'Objective marker could not be placed.',
+          variant: 'warning',
+          autoHideDuration: 2500,
+        })
+      } else {
+        toggleSelectedPieceID('')
       }
       return
     }
@@ -375,6 +431,7 @@ export default function MapDisplay3D({
       <TableSurfaceMesh width={width} length={length} />
       <group ref={mapGroupRef}>
         <PiecePreview />
+        <ObjectiveMarkerPlacementPreview />
         <OperationPiecePreviews />
         <DragPreview3D />
         <EmptyHexes

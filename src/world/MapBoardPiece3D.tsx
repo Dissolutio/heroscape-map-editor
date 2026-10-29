@@ -30,6 +30,7 @@ import {
   pressPieceForDrag,
   reportDragTargetHex,
 } from './drag/dragController'
+import { reportObjectiveMarkerDragTarget } from './drag/objectiveMarkerDragController'
 import { hexTerrainColor } from './maphex/hexColors'
 import { Battlement } from './models/Battlement'
 import BigTree415 from './models/BigTree415'
@@ -123,7 +124,6 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
     altitude: pivotAltitude,
   })
   const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
-    if (!isDragging()) return
     const { boardHexes } = useBoundStore.getState()
     const support = isLaurPillarID(props.bp.inventoryID)
       ? ({
@@ -136,6 +136,8 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
           terrain: HexTerrain.laurWall,
         } as BoardHex)
       : boardHexes[genBoardHexID({ ...pieceCoords, altitude })]
+    if (support && reportObjectiveMarkerDragTarget(support, e)) return
+    if (!isDragging()) return
     if (reportDragTargetHex(support, uid, { x: e.point.x, z: e.point.z })) {
       e.stopPropagation()
     }

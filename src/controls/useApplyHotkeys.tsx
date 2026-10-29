@@ -10,6 +10,7 @@ import {
   getBoardPiecesMaxLevel,
   getCycleableLevels,
 } from '../utils/map-utils'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 import {
   redoWithSelectionRestore,
   undoWithSelectionRestore,
@@ -113,6 +114,11 @@ export const useApplyHotkeys = ({
   const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
   const unpaintTile = useBoundStore((s) => s.unpaintTile)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const selectedObjectiveMarkerUID = useBoundStore(
+    (s) => s.selectedObjectiveMarkerUID,
+  )
+  const updateObjectiveMarker = useBoundStore((s) => s.updateObjectiveMarker)
+  const removeObjectiveMarker = useBoundStore((s) => s.removeObjectiveMarker)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
@@ -132,6 +138,10 @@ export const useApplyHotkeys = ({
   const isSizes = flatPieceSizes?.length > 0
 
   const deleteSelectedPiece = () => {
+    if (selectedObjectiveMarkerUID) {
+      removeObjectiveMarker(selectedObjectiveMarkerUID)
+      return
+    }
     if (selectedPieceIDs.length) {
       // Save the IDs so undo() can re-select them
       useBoundStore
@@ -191,6 +201,25 @@ export const useApplyHotkeys = ({
   const undoWorld = undoWithSelectionRestore
   const redoWorld = redoWithSelectionRestore
   const cycleNextPieceRotation = () => {
+    if (selectedObjectiveMarkerUID) {
+      const marker = useBoundStore
+        .getState()
+        .hexMap.objectiveMarkers?.find(
+          (item) => item.uid === selectedObjectiveMarkerUID,
+        )
+      if (marker) {
+        updateObjectiveMarker(marker.uid, {
+          rotation: ((marker.rotation + 1) % 6) as
+            | 0
+            | 1
+            | 2
+            | 3
+            | 4
+            | 5,
+        })
+      }
+      return
+    }
     const pieceID = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
     doPenModeRotation(
       penMode,
@@ -200,6 +229,25 @@ export const useApplyHotkeys = ({
     )
   }
   const cyclePrevPieceRotation = () => {
+    if (selectedObjectiveMarkerUID) {
+      const marker = useBoundStore
+        .getState()
+        .hexMap.objectiveMarkers?.find(
+          (item) => item.uid === selectedObjectiveMarkerUID,
+        )
+      if (marker) {
+        updateObjectiveMarker(marker.uid, {
+          rotation: ((marker.rotation + 5) % 6) as
+            | 0
+            | 1
+            | 2
+            | 3
+            | 4
+            | 5,
+        })
+      }
+      return
+    }
     const pieceID = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
     doPenModeCounterRotation(
       penMode,
@@ -240,6 +288,8 @@ export const useApplyHotkeys = ({
   const togglePenModeShadow = () => togglePenMode(PiecePrefixes.shadow)
   const togglePenModePowerGlyph = () => togglePenMode(Pieces.glyphPower)
   const togglePenModeTreasureGlyph = () => togglePenMode(Pieces.glyphTreasure)
+  const togglePenModeObjectiveMarker = () =>
+    togglePenMode(OBJECTIVE_MARKER_PEN_MODE)
 
   const actionMap: { [key: string]: () => void } = {
     deleteSelectedPiece: deleteSelectedPiece,
@@ -270,6 +320,7 @@ export const useApplyHotkeys = ({
     togglePenModeLast: togglePenModeLast,
     togglePenModePowerGlyph: togglePenModePowerGlyph,
     togglePenModeTreasureGlyph: togglePenModeTreasureGlyph,
+    togglePenModeObjectiveMarker: togglePenModeObjectiveMarker,
     togglePenModeGrass: togglePenModeGrass,
     togglePenModeRock: togglePenModeRock,
     togglePenModeSand: togglePenModeSand,

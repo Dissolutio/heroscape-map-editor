@@ -7,10 +7,14 @@ import {
 } from '../data/jsonCrush'
 import {
   type ObjectiveMarker,
+  getObjectiveMarkerContentError,
   getObjectiveMarkerFootprint,
   normalizeObjectiveMarkers,
   objectiveMarkersOverlap,
 } from '../data/objectiveMarkers'
+import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
+import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
+import { makeTable } from './helpers/board'
 import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 import { LS_KEYS } from '../local-storage/keys'
@@ -53,6 +57,89 @@ const localStorageMock = {
 }
 
 describe('objective marker data', () => {
+  it('validates number and custom marker content without clamping', () => {
+    expect(
+      getObjectiveMarkerContentError({ kind: 'number', value: 1 }),
+    ).toBeNull()
+    expect(
+      getObjectiveMarkerContentError({ kind: 'number', value: 1.5 }),
+    ).toBe('Enter a whole number from 1 to 99.')
+    expect(
+      getObjectiveMarkerContentError({ kind: 'number', value: 100 }),
+    ).toBe('Enter a whole number from 1 to 99.')
+    expect(getObjectiveMarkerContentError({ kind: 'text', value: 'A2' })).toBe(
+      null,
+    )
+    expect(getObjectiveMarkerContentError({ kind: 'text', value: 'ABCD' })).toBe(
+      'Use no more than 3 characters.',
+    )
+    expect(getObjectiveMarkerContentError({ kind: 'text', value: '  ' })).toBe(
+      'Enter 1 to 3 characters.',
+    )
+  })
+
+  it('requires in-bounds cap support and rejects overlaps for the full footprint', () => {
+    const board = makeTable(5)
+    const anchor = { ...board.center, altitude: 0 }
+    const target = marker('', anchor.q, anchor.r, { anchor })
+    const footprint = getObjectiveMarkerFootprint(target)
+    const mapHexIDs = new Set(
+      Object.values(board.boardHexes).map((hex) =>
+        genBoardHexID({ ...hex, altitude: 0 }),
+      ),
+    )
+    const valid = {
+      marker: target,
+      boardHexes: board.boardHexes,
+      mapHexIDs,
+      markers: [],
+    }
+
+    expect(getObjectiveMarkerPlacementStatus(valid).status).toBe('ok')
+
+    const twoHex = { ...target, size: 2 as const }
+    const secondHex = getObjectiveMarkerFootprint(twoHex)[1]
+    if (!secondHex) throw new Error('Expected a two-hex footprint')
+    const unsupportedID = genBoardHexID(secondHex)
+    expect(
+      getObjectiveMarkerPlacementStatus({
+        ...valid,
+        marker: twoHex,
+        boardHexes: {
+          ...board.boardHexes,
+          [unsupportedID]: {
+            ...board.boardHexes[unsupportedID],
+            isCap: false,
+          },
+        },
+      }),
+    ).toMatchObject({ status: 'blocked', reason: 'unsupported' })
+
+    const missingFootprintMap = new Set([
+      genBoardHexID({ ...footprint[0], altitude: 0 }),
+    ])
+    expect(
+      getObjectiveMarkerPlacementStatus({
+        ...valid,
+        marker: twoHex,
+        mapHexIDs: missingFootprintMap,
+      }),
+    ).toMatchObject({ status: 'blocked', reason: 'outOfBounds' })
+    expect(
+      getObjectiveMarkerPlacementStatus({
+        ...valid,
+        marker: twoHex,
+        markers: [marker('other', secondHex.q, secondHex.r, { anchor: secondHex })],
+      }),
+    ).toMatchObject({ status: 'blocked', reason: 'overlap' })
+  })
+
+  it('uses six integer rotation steps for the objective marker pen', () => {
+    expect(getPossibleRotationsForPenMode('objectiveMarker')).toEqual([
+      0, 1, 2, 3, 4, 5,
+    ])
+  })
+
   it('normalizes values and drops malformed or duplicate entries', () => {
     const markers = normalizeObjectiveMarkers([
       {
@@ -314,16 +401,36 @@ describe('objective marker store actions', () => {
     store.getState().updateObjectiveMarker(uid, {
       content: { kind: 'number', value: 7 },
     })
+    vi.advanceTimersByTime(750)
+    expect(
+      loadMapFromLocalStorage(LS_KEYS.lastMap)?.hexMap.objectiveMarkers?.[0]
+        ?.content,
+    ).toEqual({ kind: 'number', value: 7 })
     store.getState().moveObjectiveMarker(uid, {
       q: 2,
       r: 2,
       s: -4,
       altitude: 1,
     })
-    expect(store.temporal.getState().pastStates).toHaveLength(3)
+    vi.advanceTimersByTime(750)
+    expect(
+      loadMapFromLocalStorage(LS_KEYS.lastMap)?.hexMap.objectiveMarkers?.[0]
+        ?.anchor,
+    ).toEqual({ q: 2, r: 2, s: -4, altitude: 1 })
+    store.getState().updateObjectiveMarker(uid, { rotation: 2 })
+    vi.advanceTimersByTime(750)
+    expect(
+      loadMapFromLocalStorage(LS_KEYS.lastMap)?.hexMap.objectiveMarkers?.[0]
+        ?.rotation,
+    ).toBe(2)
+    expect(store.temporal.getState().pastStates).toHaveLength(4)
 
     store.getState().removeObjectiveMarker(uid)
-    expect(store.temporal.getState().pastStates).toHaveLength(4)
+    vi.advanceTimersByTime(750)
+    expect(
+      loadMapFromLocalStorage(LS_KEYS.lastMap)?.hexMap.objectiveMarkers,
+    ).toEqual([])
+    expect(store.temporal.getState().pastStates).toHaveLength(5)
     expect(store.getState().selectedObjectiveMarkerUID).toBeNull()
     expect(store.getState().boardPieces).toBe(boardPiecesBefore)
     expect(store.getState().boardHexes).toBe(boardHexesBefore)
@@ -331,6 +438,8 @@ describe('objective marker store actions', () => {
 
     store.temporal.getState().undo()
     expect(store.getState().hexMap.objectiveMarkers?.[0]?.anchor.q).toBe(2)
+    store.temporal.getState().undo()
+    expect(store.getState().hexMap.objectiveMarkers?.[0]?.rotation).toBe(0)
     store.temporal.getState().undo()
     expect(store.getState().hexMap.objectiveMarkers?.[0]?.anchor.q).toBe(0)
     store.temporal.getState().undo()
@@ -349,6 +458,8 @@ describe('objective marker store actions', () => {
     })
     store.temporal.getState().redo()
     expect(store.getState().hexMap.objectiveMarkers?.[0]?.anchor.q).toBe(2)
+    store.temporal.getState().redo()
+    expect(store.getState().hexMap.objectiveMarkers?.[0]?.rotation).toBe(2)
     store.temporal.getState().redo()
     expect(store.getState().hexMap.objectiveMarkers).toEqual([])
 
@@ -375,5 +486,57 @@ describe('objective marker store actions', () => {
       altitude: 1,
     })
     expect(store.getState().hexMap.objectiveMarkers).toEqual(before)
+  })
+
+  it('preserves untouched marker references during edit undo and redo', () => {
+    const firstUID = store.getState().addObjectiveMarker(marker('', 0, 0))
+    const secondUID = store.getState().addObjectiveMarker(marker('', 2, 0))
+    if (!firstUID || !secondUID) throw new Error('Expected markers to be added')
+    const unchanged = store
+      .getState()
+      .hexMap.objectiveMarkers?.find((item) => item.uid === firstUID)
+    if (!unchanged) throw new Error('Expected first marker')
+
+    store.getState().updateObjectiveMarker(secondUID, {
+      content: { kind: 'number', value: 8 },
+    })
+    expect(
+      store
+        .getState()
+        .hexMap.objectiveMarkers?.find((item) => item.uid === firstUID),
+    ).toBe(unchanged)
+    expect(store.temporal.getState().pastStates).toHaveLength(3)
+
+    store.temporal.getState().undo()
+    expect(
+      store.getState().hexMap.objectiveMarkers?.find((item) => item.uid === firstUID),
+    ).toBe(unchanged)
+    store.temporal.getState().redo()
+    expect(
+      store.getState().hexMap.objectiveMarkers?.find((item) => item.uid === firstUID),
+    ).toBe(unchanged)
+  })
+
+  it('clears marker selection when undo or redo removes that marker', async () => {
+    const uid = store.getState().addObjectiveMarker(marker('', 0, 0))
+    if (!uid) throw new Error('Expected the marker to be added')
+    const { redoWithSelectionRestore, undoWithSelectionRestore } = await import(
+      '../utils/undoWithSelectionRestore'
+    )
+
+    store.getState().setSelectedObjectiveMarkerUID(uid)
+    undoWithSelectionRestore()
+    expect(store.getState().hexMap.objectiveMarkers).toBeUndefined()
+    expect(store.getState().selectedObjectiveMarkerUID).toBeNull()
+
+    redoWithSelectionRestore()
+    expect(store.getState().hexMap.objectiveMarkers).toHaveLength(1)
+    store.getState().setSelectedObjectiveMarkerUID(uid)
+    store.getState().removeObjectiveMarker(uid)
+    undoWithSelectionRestore()
+    store.getState().setSelectedObjectiveMarkerUID(uid)
+    redoWithSelectionRestore()
+    expect(store.getState().hexMap.objectiveMarkers).toEqual([])
+    expect(store.getState().selectedObjectiveMarkerUID).toBeNull()
   })
 })

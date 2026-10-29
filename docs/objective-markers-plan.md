@@ -1,8 +1,8 @@
 # Objective markers: architecture and implementation plan
 
-This plan tracks the staged objective-marker work. PR 1 implemented the data
-contract, persistence, and history. PR 2 adds the 3D layer; editing and exports
-remain for later PRs.
+This plan tracks the staged objective-marker work. PRs 1–3 implemented the data
+contract, persistence, history, 3D layer, and editing interactions. SVG/PDF
+exports and the name field remain for later PRs.
 
 ## Recommendation
 
@@ -231,9 +231,9 @@ when the name field is used or generating a small sorted JSON list.
 
 1. **Data contract, persistence, and history (done).** Add typed annotations,
    normalization, map-file/autosave/share-link support, and undo/redo.
-2. **3D layer (this PR).** Add the independent surface overlay for all graphics
+2. **3D layer (done).** Add the independent surface overlay for all graphics
    tiers, hit testing, and selected state.
-3. **Editing interactions.** Add marker pen, single-marker drag, rotation,
+3. **Editing interactions (done).** Add marker pen, single-marker drag, rotation,
    deletion, controls, and focused E2E coverage.
 4. **SVG/PDF symbols and objective legend.** Add marker paths, the named legend,
    export visibility rules, and SVG/PDF output regressions.
