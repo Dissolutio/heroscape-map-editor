@@ -10,6 +10,8 @@ import {
   NON_INSTANCED_SUBTERRAIN_PIECES,
   buildLandHexInstanceData,
   buildLandHexInstanceIndex,
+  getLandHexFluidMaterialClass,
+  getLandHexFluidOpacity,
   getLandHexCapPbrStrengths,
   getLandHexCapUV,
   getLandHexColors,
@@ -49,6 +51,26 @@ const genericColors = {
 }
 
 describe('land hex instance data', () => {
+  it('groups fluid terrain by opacity without adding instance attributes', () => {
+    expect(getLandHexFluidMaterialClass(HexTerrain.shadow)).toBe('opaque')
+    expect(getLandHexFluidMaterialClass(HexTerrain.swampWater)).toBe('opaque')
+    expect(getLandHexFluidOpacity('opaque')).toBe(1)
+
+    expect(getLandHexFluidMaterialClass(HexTerrain.ice)).toBe('ice')
+    expect(getLandHexFluidOpacity('ice')).toBe(0.92)
+
+    for (const terrain of [
+      HexTerrain.water,
+      HexTerrain.toxicWater,
+      HexTerrain.wellspringWater,
+      HexTerrain.lava,
+      HexTerrain.genericFluid,
+    ]) {
+      expect(getLandHexFluidMaterialClass(terrain)).toBe('translucent')
+    }
+    expect(getLandHexFluidOpacity('translucent')).toBe(0.8)
+  })
+
   it('packs every supported PBR layer tuple into a unique scalar', () => {
     const codes = new Set<number>()
     for (let capNormal = -1; capNormal < 3; capNormal += 1) {

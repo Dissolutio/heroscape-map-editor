@@ -36,8 +36,12 @@ import {
   type LandHexHoverTarget,
   type LandHexInstanceDatum,
   type LandHexInstanceIndex,
+  type LandHexFluidMaterialClass,
+  LAND_HEX_FLUID_MATERIAL_CLASSES,
   buildLandHexInstanceData,
   buildLandHexInstanceIndex,
+  getLandHexFluidMaterialClass,
+  getLandHexFluidOpacity,
   getLandHexHighlightValue,
   getLandHexHoverTransition,
   getLandHexSideUV,
@@ -216,6 +220,7 @@ function glslMirroredWindowCoordinate(
 function makeLandMaterial(
   isLightsAndShadowsRender: boolean,
   isFluid: boolean,
+  fluidOpacity: number,
   capTexture?: DataArrayTexture,
   sideTexture?: DataArrayTexture,
   pbrTextures?: {
@@ -232,8 +237,8 @@ function makeLandMaterial(
   material.userData.lookShine = useBoundStore.getState().lookSettings.shine
   material.color.set('white')
   if (isFluid) {
-    material.transparent = true
-    material.opacity = 0.8
+    material.transparent = fluidOpacity < 1
+    material.opacity = fluidOpacity
   }
   const capTextureDeclaration = capTexture
     ? 'uniform sampler2DArray uLandCapDiffuse;'
@@ -867,13 +872,32 @@ export default function LandHexInstanced({
     () => data.filter((item) => item.isFluid),
     [data],
   )
+  const fluidDataByClass = React.useMemo(
+    () =>
+      Object.fromEntries(
+        LAND_HEX_FLUID_MATERIAL_CLASSES.map((materialClass) => [
+          materialClass,
+          fluidData.filter(
+            (item) =>
+              getLandHexFluidMaterialClass(item.terrain) === materialClass,
+          ),
+        ]),
+      ) as Record<LandHexFluidMaterialClass, LandHexInstanceDatum[]>,
+    [fluidData],
+  )
   const solidIndex = React.useMemo(
     () => buildLandHexInstanceIndex(solidData),
     [solidData],
   )
-  const fluidIndex = React.useMemo(
-    () => buildLandHexInstanceIndex(fluidData),
-    [fluidData],
+  const fluidIndices = React.useMemo(
+    () =>
+      Object.fromEntries(
+        LAND_HEX_FLUID_MATERIAL_CLASSES.map((materialClass) => [
+          materialClass,
+          buildLandHexInstanceIndex(fluidDataByClass[materialClass]),
+        ]),
+      ) as Record<LandHexFluidMaterialClass, LandHexInstanceIndex>,
+    [fluidDataByClass],
   )
   const capGeometry = React.useMemo(
     () => buildCapGeometry(solidData.length),
@@ -883,15 +907,22 @@ export default function LandHexInstanced({
     () => buildSideGeometry(solidData.length),
     [solidData.length],
   )
-  const fluidGeometry = React.useMemo(
-    () => buildFluidGeometry(fluidData.length),
-    [fluidData.length],
+  const fluidGeometries = React.useMemo(
+    () =>
+      Object.fromEntries(
+        LAND_HEX_FLUID_MATERIAL_CLASSES.map((materialClass) => [
+          materialClass,
+          buildFluidGeometry(fluidDataByClass[materialClass].length),
+        ]),
+      ) as Record<LandHexFluidMaterialClass, BufferGeometry>,
+    [fluidDataByClass],
   )
   const capMaterial = React.useMemo(
     () =>
       makeLandMaterial(
         isLightsAndShadowsRender,
         false,
+        1,
         capTexture,
         sideTexture,
         pbrTextures,
@@ -903,34 +934,65 @@ export default function LandHexInstanced({
       makeLandMaterial(
         isLightsAndShadowsRender,
         false,
+        1,
         capTexture,
         sideTexture,
         pbrTextures,
       ),
     [capTexture, isLightsAndShadowsRender, pbrTextures, sideTexture],
   )
-  const fluidMaterial = React.useMemo(
+  const fluidMaterials = React.useMemo(
     () =>
-      makeLandMaterial(isLightsAndShadowsRender, true, capTexture, sideTexture),
+      Object.fromEntries(
+        LAND_HEX_FLUID_MATERIAL_CLASSES.map((materialClass) => [
+          materialClass,
+          makeLandMaterial(
+            isLightsAndShadowsRender,
+            true,
+            getLandHexFluidOpacity(materialClass),
+            capTexture,
+            sideTexture,
+          ),
+        ]),
+      ) as Record<
+        LandHexFluidMaterialClass,
+        MeshStandardMaterial | MeshMatcapMaterial
+      >,
     [capTexture, isLightsAndShadowsRender, sideTexture],
   )
   React.useEffect(() => {
-    for (const material of [capMaterial, sideMaterial, fluidMaterial]) {
+    for (const material of [
+      capMaterial,
+      sideMaterial,
+      ...Object.values(fluidMaterials),
+    ]) {
       if (!(material instanceof MeshStandardMaterial)) continue
       material.userData.lookShine = shine
       const shader = material.userData.lookShader
       if (shader) shader.uniforms.uLookShine.value = shine
     }
-  }, [capMaterial, fluidMaterial, shine, sideMaterial])
+  }, [capMaterial, fluidMaterials, shine, sideMaterial])
   React.useEffect(() => () => capGeometry.dispose(), [capGeometry])
   React.useEffect(() => () => sideGeometry.dispose(), [sideGeometry])
-  React.useEffect(() => () => fluidGeometry.dispose(), [fluidGeometry])
+  React.useEffect(
+    () => () => {
+      for (const geometry of Object.values(fluidGeometries)) geometry.dispose()
+    },
+    [fluidGeometries],
+  )
   React.useEffect(() => () => capMaterial.dispose(), [capMaterial])
   React.useEffect(() => () => sideMaterial.dispose(), [sideMaterial])
-  React.useEffect(() => () => fluidMaterial.dispose(), [fluidMaterial])
+  React.useEffect(
+    () => () => {
+      for (const material of Object.values(fluidMaterials)) material.dispose()
+    },
+    [fluidMaterials],
+  )
   const capRef = React.useRef<InstancedMesh>(null)
   const sideRef = React.useRef<InstancedMesh>(null)
-  const fluidRef = React.useRef<InstancedMesh>(null)
+  const fluidRefs = React.useRef<
+    Record<LandHexFluidMaterialClass, InstancedMesh | null>
+  >({ opaque: null, ice: null, translucent: null })
   const selectedIDs = React.useMemo(
     () => new Set(selectedPieceIDs),
     [selectedPieceIDs],
@@ -964,15 +1026,17 @@ export default function LandHexInstanced({
       hoverTargetRef.current,
       'side',
     )
-    updateInstanceMesh(
-      fluidRef.current,
-      fluidGeometry,
-      fluidData,
-      currentSelectedIDs,
-      hoverTargetRef.current,
-      'both',
-    )
-  }, [capGeometry, fluidData, fluidGeometry, sideGeometry, solidData])
+    for (const materialClass of LAND_HEX_FLUID_MATERIAL_CLASSES) {
+      updateInstanceMesh(
+        fluidRefs.current[materialClass],
+        fluidGeometries[materialClass],
+        fluidDataByClass[materialClass],
+        currentSelectedIDs,
+        hoverTargetRef.current,
+        'both',
+      )
+    }
+  }, [capGeometry, fluidDataByClass, fluidGeometries, sideGeometry, solidData])
 
   React.useEffect(() => {
     const previousSelectedIDs = previousSelectedIDsRef.current
@@ -1014,19 +1078,21 @@ export default function LandHexInstanced({
         solidIndex,
         'side',
       )
-      updateSelection(
-        fluidRef.current,
-        fluidGeometry,
-        fluidData,
-        fluidIndex,
-        'both',
-      )
+      for (const materialClass of LAND_HEX_FLUID_MATERIAL_CLASSES) {
+        updateSelection(
+          fluidRefs.current[materialClass],
+          fluidGeometries[materialClass],
+          fluidDataByClass[materialClass],
+          fluidIndices[materialClass],
+          'both',
+        )
+      }
     }
     previousSelectedIDsRef.current = selectedIDs
   }, [
-    fluidData,
-    fluidGeometry,
-    fluidIndex,
+    fluidDataByClass,
+    fluidGeometries,
+    fluidIndices,
     selectedIDs,
     sideGeometry,
     solidData,
@@ -1075,7 +1141,15 @@ export default function LandHexInstanced({
     }
     updateHover(capRef.current, capGeometry, solidData, solidIndex, 'cap')
     updateHover(sideRef.current, sideGeometry, solidData, solidIndex, 'side')
-    updateHover(fluidRef.current, fluidGeometry, fluidData, fluidIndex, 'both')
+    for (const materialClass of LAND_HEX_FLUID_MATERIAL_CLASSES) {
+      updateHover(
+        fluidRefs.current[materialClass],
+        fluidGeometries[materialClass],
+        fluidDataByClass[materialClass],
+        fluidIndices[materialClass],
+        'both',
+      )
+    }
     hoverTargetRef.current = next
   }
 
@@ -1173,19 +1247,19 @@ export default function LandHexInstanced({
       if (item) handleSideSelection(event, item.uid, toggleSelectedPieceID)
     },
   }
-  const fluidEvents = {
+  const fluidEvents = (items: LandHexInstanceDatum[]) => ({
     onPointerEnter: (event: ThreeEvent<PointerEvent>) => {
-      const item = getItem(event, fluidData)
+      const item = getItem(event, items)
       if (item) {
         handlePointerEnter(event, item, (event.faceIndex ?? 0) < 6)
       }
     },
     onPointerLeave: (event: ThreeEvent<PointerEvent>) => {
-      const item = getItem(event, fluidData)
+      const item = getItem(event, items)
       if (item) handlePointerLeave(event, item)
     },
     onPointerUp: (event: ThreeEvent<PointerEvent>) => {
-      const item = getItem(event, fluidData)
+      const item = getItem(event, items)
       if (!item) return
       if ((event.faceIndex ?? 0) < 6) {
         onPointerUpPaintPiece(event, item.hex)
@@ -1194,11 +1268,11 @@ export default function LandHexInstanced({
       }
     },
     onPointerDown: (event: ThreeEvent<PointerEvent>) => {
-      const item = getItem(event, fluidData)
+      const item = getItem(event, items)
       if (item) pressPieceForDrag(event, item.uid)
     },
     onPointerMove: (event: ThreeEvent<PointerEvent>) => {
-      const item = getItem(event, fluidData)
+      const item = getItem(event, items)
       if (item) {
         if (!isDragPassThrough(item.uid)) {
           const nextTarget = {
@@ -1224,7 +1298,7 @@ export default function LandHexInstanced({
         handlePointerMove(event, item)
       }
     },
-  }
+  })
 
   return (
     <>
@@ -1250,17 +1324,24 @@ export default function LandHexInstanced({
           />
         </>
       )}
-      {fluidData.length > 0 && (
-        <instancedMesh
-          ref={fluidRef}
-          args={[undefined, undefined, fluidData.length]}
-          geometry={fluidGeometry}
-          material={fluidMaterial}
-          userData={{ landHexRenderer: true }}
-          {...shadowProps}
-          {...fluidEvents}
-        />
-      )}
+      {LAND_HEX_FLUID_MATERIAL_CLASSES.map((materialClass) => {
+        const items = fluidDataByClass[materialClass]
+        if (items.length === 0) return null
+        return (
+          <instancedMesh
+            key={materialClass}
+            ref={(mesh) => {
+              fluidRefs.current[materialClass] = mesh
+            }}
+            args={[undefined, undefined, items.length]}
+            geometry={fluidGeometries[materialClass]}
+            material={fluidMaterials[materialClass]}
+            userData={{ landHexRenderer: true }}
+            {...shadowProps}
+            {...fluidEvents(items)}
+          />
+        )
+      })}
     </>
   )
 }
