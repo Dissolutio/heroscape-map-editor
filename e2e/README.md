@@ -93,6 +93,7 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   tree): map name, piece count, level, pen mode, how many pieces are selected.
 - `window.__TEST__.snapshot()`: the same, structured (`mapId`, `mapWidth`,
   `mapLength`, `pieceCount`, `hexCount`, `viewingLevel`, `penMode`, `selectedPieceIDs`,
+  `objectiveMarkerCount`, `selectedObjectiveMarkerUID`,
   `hoveredPieceID`, `isOrthoCam`, `ready`, `placementPreview`
   (`status`, `reason`, `footprintCount`, `unsupported`, `altitude`, and
   `rotation`, or `null`), and
@@ -113,6 +114,8 @@ The canvas is invisible to accessibility snapshots, so read state in text:
 - `window.__TEST__.cameraPose()`: the camera's `position`, `target` and
   `zoom` (rounded), to check that something did not move the camera.
 - `window.__TEST__.stats()`: draw calls and triangles.
+- `window.__TEST__.listRenderedObjectiveMarkerUIDs()` and
+  `screenPosOfObjectiveMarker(uid)`: mounted marker UIDs and marker hit positions.
 
 The bridge is read-only apart from the camera and the setup-only `setPen`
 helper. Drive the app through its real UI, hotkeys and canvas clicks, as a user
@@ -208,6 +211,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
+| Objective-marker 3D rendering, selection, and shadow isolation | `e2e/objective-markers.spec.ts` |
 | OHS-friendly glyph space export options | `e2e/glyph-export-options.spec.ts` |
 | View tooltips, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
 | Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |

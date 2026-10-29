@@ -58,6 +58,28 @@ describe('static shadow map invalidation', () => {
     expect(shouldInvalidateShadowMap(original, updated)).toBe(false)
   })
 
+  it('does not invalidate for marker-only map changes', () => {
+    const original = {
+      ...state(),
+      hexMap: { id: 'map', width: 4, objectiveMarkers: [] },
+    }
+    const updated = {
+      ...original,
+      hexMap: {
+        ...original.hexMap,
+        objectiveMarkers: [{ uid: 'marker' }],
+      },
+    }
+
+    expect(shouldInvalidateShadowMap(original, updated)).toBe(false)
+    expect(
+      shouldInvalidateShadowMap(original, {
+        ...updated,
+        hexMap: { ...updated.hexMap, width: 5 },
+      }),
+    ).toBe(true)
+  })
+
   it('sets the renderer shadow map update flag', () => {
     const shadowMap = { needsUpdate: false }
     invalidateShadowMap(shadowMap)

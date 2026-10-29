@@ -8,6 +8,8 @@ export type E2ESnapshot = {
   mapWidth: number
   mapLength: number
   pieceCount: number
+  objectiveMarkerCount: number
+  selectedObjectiveMarkerUID: string | null
   hexCount: number
   landInstanceCounts: { solid: number; fluid: number }
   viewingLevel: number
@@ -67,8 +69,12 @@ export type E2EPieceSummary = {
 export type E2ETestBridge = {
   snapshot: () => E2ESnapshot
   listPieces: () => E2EPieceSummary[]
+  /** UIDs mounted in the 3D objective-marker layer. */
+  listRenderedObjectiveMarkerUIDs: () => string[]
   /** Where to click the canvas to hit a placed piece, or null. */
   screenPosOfPiece: (uid: string) => ScreenPoint | null
+  /** Where to click the canvas to hit a rendered objective marker, or null. */
+  screenPosOfObjectiveMarker: (uid: string) => ScreenPoint | null
   /** Where to click the canvas to hit a hex's top surface, or null. */
   screenPosOfHex: (hex: {
     q: number

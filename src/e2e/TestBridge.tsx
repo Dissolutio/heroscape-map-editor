@@ -21,6 +21,10 @@ import { getReady } from './readyStore'
 import type { E2EDragSnapshot, E2ETestBridge, ScreenPoint } from './types'
 import { getLandSubterrainInstanceData } from '../world/models/LandSubterrainInstanced'
 import { buildLandHexInstanceData } from '../world/models/landHexInstances'
+import {
+  getObjectiveMarker3DPosition,
+  isObjectiveMarkerVisibleAtLevel,
+} from '../world/models/objectiveMarker3D'
 
 const round1 = (n: number) => Math.round(n * 10) / 10
 const round4 = (n: number) => Math.round(n * 1e4) / 1e4
@@ -126,6 +130,8 @@ function TestBridgeInner() {
           mapWidth: s.hexMap.width,
           mapLength: s.hexMap.length,
           pieceCount: s.boardPieces.length,
+          objectiveMarkerCount: s.hexMap.objectiveMarkers?.length ?? 0,
+          selectedObjectiveMarkerUID: s.selectedObjectiveMarkerUID,
           hexCount: Object.keys(s.boardHexes).length,
           landInstanceCounts: landInstances.reduce(
             (counts, item) => {
@@ -158,6 +164,14 @@ function TestBridgeInner() {
           rotation: bp.rotation,
           pieceCoords: { ...bp.pieceCoords },
         })),
+      listRenderedObjectiveMarkerUIDs: () => {
+        const uids: string[] = []
+        get().scene.traverse((object) => {
+          const uid = object.userData.objectiveMarkerUID
+          if (typeof uid === 'string') uids.push(uid)
+        })
+        return uids
+      },
       screenPosOfHex: ({ q, r, altitude }) => {
         const { x, y, z } = getBoardHex3DCoords({ q, r, s: -q - r, altitude })
         return project(x, y, z)
@@ -228,6 +242,24 @@ function TestBridgeInner() {
           hex ?? { ...bp.pieceCoords, altitude: bp.altitude + 1 },
         )
         return project(x, y, z)
+      },
+      screenPosOfObjectiveMarker: (uid) => {
+        const state = useBoundStore.getState()
+        const marker = state.hexMap.objectiveMarkers?.find(
+          (item) => item.uid === uid,
+        )
+        if (
+          !marker ||
+          !isObjectiveMarkerVisibleAtLevel(marker, state.viewingLevel)
+        ) {
+          return null
+        }
+        const position = getObjectiveMarker3DPosition(
+          marker,
+          state.boardHexes,
+          state.isHighQualityRender,
+        )
+        return position ? project(position.x, position.y, position.z) : null
       },
       setCamera: async (position, target) => {
         const { controls, invalidate } = get()

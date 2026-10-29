@@ -305,6 +305,9 @@ describe('objective marker store actions', () => {
     ).toBe('Saved marker')
 
     store.getState().setSelectedObjectiveMarkerUID(uid ?? null)
+    store.getState().toggleSelectedPieceID('')
+    expect(store.getState().selectedObjectiveMarkerUID).toBeNull()
+    store.getState().setSelectedObjectiveMarkerUID(uid ?? null)
     store.getState().toggleHoveredPieceID('hover-only')
     expect(store.temporal.getState().pastStates).toHaveLength(1)
 
