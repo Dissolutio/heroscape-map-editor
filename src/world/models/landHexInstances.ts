@@ -31,6 +31,20 @@ export const NON_INSTANCED_SUBTERRAIN_PIECES = new Set<string>([
 
 export const LAND_HEX_SIDE_DIRECTIONS = [0, 1, 2, 3, 4, 5] as const
 
+export function packLandHexPbrTextureLayers(
+  capNormalLayer: number,
+  capOrmLayer: number,
+  sideNormalLayer: number,
+  sideOrmLayer: number,
+) {
+  return (
+    (((capNormalLayer + 1) * 7 + capOrmLayer + 1) * 3 + sideNormalLayer + 1) *
+      4 +
+    sideOrmLayer +
+    1
+  )
+}
+
 export type LandHexInstanceDatum = {
   hex: BoardHex
   uid: string

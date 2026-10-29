@@ -18,6 +18,7 @@ import {
   getLandHexTextureLayers,
   getLandHexHoverTransition,
   getLandHexSideVisibilityMask,
+  packLandHexPbrTextureLayers,
   LAND_HEX_TEXTURE_TERRAIN_NAMES,
   LAND_HEX_UNTEXTURED_TERRAINS,
   NON_INSTANCED_SUBTERRAIN_PIECES,
@@ -40,6 +41,29 @@ const genericColors = {
 }
 
 describe('land hex instance data', () => {
+  it('packs every supported PBR layer tuple into a unique scalar', () => {
+    const codes = new Set<number>()
+    for (let capNormal = -1; capNormal < 3; capNormal += 1) {
+      for (let capOrm = -1; capOrm < 6; capOrm += 1) {
+        for (let sideNormal = -1; sideNormal < 2; sideNormal += 1) {
+          for (let sideOrm = -1; sideOrm < 3; sideOrm += 1) {
+            codes.add(
+              packLandHexPbrTextureLayers(
+                capNormal,
+                capOrm,
+                sideNormal,
+                sideOrm,
+              ),
+            )
+          }
+        }
+      }
+    }
+
+    expect(codes.size).toBe(336)
+    expect(packLandHexPbrTextureLayers(-1, -1, -1, -1)).toBe(0)
+  })
+
   it('creates one instance per supported land hex with surface levels', () => {
     const table = makeTable(9)
     const first = place({

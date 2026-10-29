@@ -33,6 +33,7 @@ import {
   buildLandHexInstanceData,
   buildLandHexInstanceIndex,
   getLandHexSideUV,
+  packLandHexPbrTextureLayers,
   type LandHexInstanceDatum,
   getLandHexHighlightValue,
   getLandHexHoverTransition,
@@ -50,7 +51,6 @@ const vertices = Array.from({ length: 6 }, (_, index) => {
 
 export function buildCapGeometry(instanceCount: number) {
   const positions: number[] = []
-  const kinds: number[] = []
   const directions: number[] = []
   const sideUVs: number[] = []
   const indices: number[] = []
@@ -69,26 +69,17 @@ export function buildCapGeometry(instanceCount: number) {
       HEXGRID_HEX_HEIGHT,
       current.z,
     )
-    kinds.push(1, 1, 1)
     directions.push(-1, -1, -1)
     sideUVs.push(0, 0, 0, 0, 0, 0)
     const start = side * 3 // first vertex of this triangle (3 vertices per triangle)
     indices.push(start, start + 1, start + 2)
   }
 
-  return buildGeometry(
-    positions,
-    kinds,
-    directions,
-    sideUVs,
-    indices,
-    instanceCount,
-  )
+  return buildGeometry(positions, directions, sideUVs, indices, instanceCount)
 }
 
 export function buildSideGeometry(instanceCount: number) {
   const positions: number[] = []
-  const kinds: number[] = []
   const directions: number[] = []
   const sideUVs: number[] = []
   const indices: number[] = []
@@ -110,7 +101,6 @@ export function buildSideGeometry(instanceCount: number) {
       0,
       second.z,
     )
-    kinds.push(0, 0, 0, 0)
     directions.push(side, side, side, side)
     sideUVs.push(
       ...getLandHexSideUV(0, 0, HEXGRID_HEX_HEIGHT),
@@ -122,14 +112,7 @@ export function buildSideGeometry(instanceCount: number) {
     indices.push(start, start + 1, start + 2, start, start + 2, start + 3)
   }
 
-  return buildGeometry(
-    positions,
-    kinds,
-    directions,
-    sideUVs,
-    indices,
-    instanceCount,
-  )
+  return buildGeometry(positions, directions, sideUVs, indices, instanceCount)
 }
 
 export function buildFluidGeometry(instanceCount: number) {
@@ -137,8 +120,6 @@ export function buildFluidGeometry(instanceCount: number) {
   const sides = buildSideGeometry(0)
   const capPositions = cap.getAttribute('position').array
   const sidePositions = sides.getAttribute('position').array
-  const capKinds = cap.getAttribute('landSurfaceKind').array
-  const sideKinds = sides.getAttribute('landSurfaceKind').array
   const capDirections = cap.getAttribute('landDirection').array
   const sideDirections = sides.getAttribute('landDirection').array
   const capUVs = cap.getAttribute('landSideUv').array
@@ -147,7 +128,6 @@ export function buildFluidGeometry(instanceCount: number) {
   const sideIndices = sides.getIndex()?.array ?? []
   const capVertexCount = cap.getAttribute('position').count
   const positions = [...capPositions, ...sidePositions]
-  const kinds = [...capKinds, ...sideKinds]
   const directions = [...capDirections, ...sideDirections]
   const combinedUVs = [...capUVs, ...sideUVs]
   const indices = [
@@ -159,7 +139,6 @@ export function buildFluidGeometry(instanceCount: number) {
 
   return buildGeometry(
     positions,
-    kinds,
     directions,
     combinedUVs,
     indices,
@@ -169,25 +148,13 @@ export function buildFluidGeometry(instanceCount: number) {
 
 function buildGeometry(
   positions: number[],
-  kinds: number[],
   directions: number[],
   sideUVs: number[],
   indices: number[],
   instanceCount: number,
 ) {
   const geometry = new ThreeBufferGeometry()
-  const tangents = directions.flatMap((direction) => {
-    if (direction < 0) return [1, 0, 0]
-    const first = vertices[(direction + 1) % 6]
-    const second = vertices[(direction + 2) % 6]
-    return [second.x - first.x, 0, second.z - first.z]
-  })
   geometry.setAttribute('position', new Float32BufferAttribute(positions, 3))
-  geometry.setAttribute(
-    'landSurfaceTangent',
-    new Float32BufferAttribute(tangents, 3),
-  )
-  geometry.setAttribute('landSurfaceKind', new Float32BufferAttribute(kinds, 1))
   geometry.setAttribute(
     'landDirection',
     new Float32BufferAttribute(directions, 1),
@@ -213,15 +180,7 @@ function buildGeometry(
     ],
     [
       'landTextureData',
-      new InstancedBufferAttribute(new Float32Array(instanceCount * 3), 3),
-    ],
-    [
-      'landPbrTextureData',
       new InstancedBufferAttribute(new Float32Array(instanceCount * 4), 4),
-    ],
-    [
-      'levels',
-      new InstancedBufferAttribute(new Float32Array(instanceCount), 1),
     ],
   ]
   for (const [name, attribute] of attributes) {
@@ -348,12 +307,9 @@ function makeLandMaterial(
         attribute vec3 landSideColor;
         attribute float landVisibility;
         attribute float landHighlight;
-        attribute float landSurfaceKind;
         attribute float landDirection;
         attribute vec2 landSideUv;
-        attribute vec3 landTextureData;
-        attribute vec4 landPbrTextureData;
-        attribute vec3 landSurfaceTangent;
+        attribute vec4 landTextureData;
         varying vec3 vLandSurfaceColor;
         varying float vLandHighlight;
         varying vec2 vLandTextureUv;
@@ -367,6 +323,7 @@ function makeLandMaterial(
         `#include <begin_vertex>
         float landSideMask = mod(landVisibility, 64.0);
         float landCapVisible = step(64.0, landVisibility);
+        float landSurfaceKind = 1.0 - step(0.0, landDirection);
         if (landSurfaceKind < 0.5) {
           float sideVisible = mod(
             floor(landSideMask / exp2(landDirection)),
@@ -394,12 +351,22 @@ function makeLandMaterial(
           : landSideUv;
         vLandTextureLayer =
           landSurfaceKind > 0.5 ? landTextureData.x : landTextureData.y;
-        vLandPbrTextureLayers = landPbrTextureData;
+        float landPbrLayerCode = landTextureData.w;
+        vLandPbrTextureLayers = vec4(
+          floor(landPbrLayerCode / 84.0) - 1.0,
+          mod(floor(landPbrLayerCode / 12.0), 7.0) - 1.0,
+          mod(floor(landPbrLayerCode / 4.0), 3.0) - 1.0,
+          mod(landPbrLayerCode, 4.0) - 1.0
+        );
         vLandSurfaceKind = landSurfaceKind;
         float landTangentAngle = landTextureData.z * 1.0471975512;
         vec3 landLocalTangent = landSurfaceKind > 0.5
           ? vec3(cos(landTangentAngle), 0.0, sin(landTangentAngle))
-          : landSurfaceTangent;
+          : vec3(
+              cos((landDirection + 1.5) * 1.0471975512),
+              0.0,
+              sin((landDirection + 1.5) * 1.0471975512)
+            );
         vLandTangent = normalize(
           mat3(modelViewMatrix * instanceMatrix) * landLocalTangent
         );`,
@@ -500,14 +467,8 @@ function updateInstanceMesh(
   const highlightAttribute = geometry.getAttribute(
     'landHighlight',
   ) as InstancedBufferAttribute
-  const levelsAttribute = geometry.getAttribute(
-    'levels',
-  ) as InstancedBufferAttribute
   const textureDataAttribute = geometry.getAttribute(
     'landTextureData',
-  ) as InstancedBufferAttribute
-  const pbrTextureDataAttribute = geometry.getAttribute(
-    'landPbrTextureData',
   ) as InstancedBufferAttribute
   const transform = new Object3D()
   const color = new Color()
@@ -521,19 +482,17 @@ function updateInstanceMesh(
       index,
       getFiniteLandHexHighlightValue(item, hovered, selectedIDs, surface),
     )
-    levelsAttribute.setX(index, item.levels)
-    textureDataAttribute.setXYZ(
+    textureDataAttribute.setXYZW(
       index,
       item.capLayer,
       item.sideLayer,
       item.rotationSteps,
-    )
-    pbrTextureDataAttribute.setXYZW(
-      index,
-      item.capNormalLayer,
-      item.capOrmLayer,
-      item.sideNormalLayer,
-      item.sideOrmLayer,
+      packLandHexPbrTextureLayers(
+        item.capNormalLayer,
+        item.capOrmLayer,
+        item.sideNormalLayer,
+        item.sideOrmLayer,
+      ),
     )
 
     transform.position.set(item.x, item.y, item.z)
@@ -547,9 +506,7 @@ function updateInstanceMesh(
     sideColorAttribute,
     visibilityAttribute,
     highlightAttribute,
-    levelsAttribute,
     textureDataAttribute,
-    pbrTextureDataAttribute,
   ]) {
     attribute.clearUpdateRanges()
     attribute.needsUpdate = true
