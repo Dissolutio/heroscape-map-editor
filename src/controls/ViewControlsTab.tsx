@@ -42,7 +42,6 @@ import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
 import { getViewMode } from './viewMode'
-import { isPerHexLandEnabled } from '../e2e/isE2E'
 import { captureWithOptionalHighQuality } from '../world/camera/pictureQuality'
 
 const GENERIC_PIECE_COLORS_TOOLTIP =
@@ -139,7 +138,7 @@ export default function ViewControlsTab({
       takePictureTimeout.current = undefined
       const store = useBoundStore.getState()
       void captureWithOptionalHighQuality({
-        enabled: isPerHexLandEnabled && store.useHighQualityForPicture,
+        enabled: store.useHighQualityForPicture,
         getSettings: () => {
           const current = useBoundStore.getState()
           return {
@@ -489,77 +488,75 @@ const ViewPreferencesSwitchForm = () => {
     <FormControl component="fieldset" variant="standard">
       <FormLabel component="legend">3D View options:</FormLabel>
       <FormGroup>
-        {isPerHexLandEnabled && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-            <Tooltip title="Medium and High download texture images the first time you choose them. High also enables lights and shadows and uses alternate cap images. Lowest uses no images.">
-              <FormLabel
-                id="graphics-tier-label"
-                component="label"
-                htmlFor="graphics-tier-select"
-              >
-                Graphics
-              </FormLabel>
-            </Tooltip>
-            <FormControl size="small">
-              <Select
-                id="graphics-tier-select"
-                labelId="graphics-tier-label"
-                data-testid="graphics-tier-select"
-                value={graphicsTier}
-                onChange={(event: SelectChangeEvent) => {
-                  void setGraphicsTier(event.target.value as GraphicsTier)
-                }}
-              >
-                <MenuItem value="low">Lowest</MenuItem>
-                <MenuItem value="medium">Medium (textures)</MenuItem>
-                <MenuItem value="high">High (alternate caps)</MenuItem>
-              </Select>
-            </FormControl>
-            {textureLoadStatus === 'loading' && (
-              <Box
-                aria-live="polite"
-                data-testid="graphics-texture-status"
-                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-              >
-                <CircularProgress aria-label="Loading textures" size={16} />
-                <span>
-                  Loading textures ({textureLoadProgress.loaded}/
-                  {textureLoadProgress.total})
-                </span>
-              </Box>
-            )}
-            {textureLoadStatus === 'ready' && (
-              <span
-                aria-live="polite"
-                data-testid="graphics-texture-status"
-                style={{ fontSize: '0.75rem' }}
-              >
-                Textures ready
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          <Tooltip title="Low uses the classic look with no textures. Medium uses diffuse textures. High adds PBR normal and ORM maps, enables lights and shadows, and uses alternate cap images.">
+            <FormLabel
+              id="graphics-tier-label"
+              component="label"
+              htmlFor="graphics-tier-select"
+            >
+              Graphics
+            </FormLabel>
+          </Tooltip>
+          <FormControl size="small">
+            <Select
+              id="graphics-tier-select"
+              labelId="graphics-tier-label"
+              data-testid="graphics-tier-select"
+              value={graphicsTier}
+              onChange={(event: SelectChangeEvent) => {
+                void setGraphicsTier(event.target.value as GraphicsTier)
+              }}
+            >
+              <MenuItem value="low">Low (classic look)</MenuItem>
+              <MenuItem value="medium">Medium (diffuse textures)</MenuItem>
+              <MenuItem value="high">High (PBR textures)</MenuItem>
+            </Select>
+          </FormControl>
+          {textureLoadStatus === 'loading' && (
+            <Box
+              aria-live="polite"
+              data-testid="graphics-texture-status"
+              sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+            >
+              <CircularProgress aria-label="Loading textures" size={16} />
+              <span>
+                Loading textures ({textureLoadProgress.loaded}/
+                {textureLoadProgress.total})
               </span>
-            )}
-            {textureLoadStatus === 'fallback' && (
-              <span
-                aria-live="polite"
-                data-testid="graphics-texture-status"
-                style={{ fontSize: '0.75rem' }}
-              >
-                High PBR unavailable; using Medium textures
-              </span>
-            )}
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  checked={useHighQualityForPicture}
-                  onChange={(event) =>
-                    toggleUseHighQualityForPicture(event.target.checked)
-                  }
-                />
-              }
-              label="Use High quality when taking a map picture"
-            />
-          </Box>
-        )}
+            </Box>
+          )}
+          {textureLoadStatus === 'ready' && (
+            <span
+              aria-live="polite"
+              data-testid="graphics-texture-status"
+              style={{ fontSize: '0.75rem' }}
+            >
+              Textures ready
+            </span>
+          )}
+          {textureLoadStatus === 'fallback' && (
+            <span
+              aria-live="polite"
+              data-testid="graphics-texture-status"
+              style={{ fontSize: '0.75rem' }}
+            >
+              High PBR unavailable; using Medium textures
+            </span>
+          )}
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={useHighQualityForPicture}
+                onChange={(event) =>
+                  toggleUseHighQualityForPicture(event.target.checked)
+                }
+              />
+            }
+            label="Use High quality when taking a map picture"
+          />
+        </Box>
         <FormControlLabel
           control={
             <Switch

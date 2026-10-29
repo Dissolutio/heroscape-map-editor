@@ -15,12 +15,13 @@ import {
   getLadderBattlementOptions,
   getRoadWallOptions,
 } from '../world/models/piece-adjustments'
-import { isE2E, isPerHexLandEnabled } from './isE2E'
+import { isE2E, isPerHexLandOverride } from './isE2E'
 import { getPlacementPreview } from './placementPreviewStore'
 import { getReady } from './readyStore'
 import type { E2EDragSnapshot, E2ETestBridge, ScreenPoint } from './types'
 import { getLandSubterrainInstanceData } from '../world/models/LandSubterrainInstanced'
 import { buildLandHexInstanceData } from '../world/models/landHexInstances'
+import { getLandRendererMode } from '../world/landRendererTier'
 import {
   getObjectiveMarker3DPosition,
   isObjectiveMarkerVisibleAtLevel,
@@ -106,23 +107,34 @@ function TestBridgeInner() {
     const bridge: E2ETestBridge = {
       snapshot: () => {
         const s = useBoundStore.getState()
-        const landInstances = isPerHexLandEnabled
-          ? buildLandHexInstanceData(
-              s.boardHexes,
-              s.boardPieces,
-              s.viewingLevel,
-              {
-                genericSolidCapColor: s.genericSolidCapColor,
-                genericSolidSideColor: s.genericSolidSideColor,
-                genericFluidCapColor: s.genericFluidCapColor,
-                genericFluidSideColor: s.genericFluidSideColor,
-              },
-            )
-          : getLandSubterrainInstanceData(
-              s.boardPieces,
-              s.boardHexes,
-              s.viewingLevel,
-            )
+        const landRendererMode = getLandRendererMode(
+          s.effectiveGraphicsTier,
+          isPerHexLandOverride,
+        )
+        const landInstances =
+          landRendererMode === 'per-hex'
+            ? buildLandHexInstanceData(
+                s.boardHexes,
+                s.boardPieces,
+                s.viewingLevel,
+                {
+                  genericSolidCapColor: s.genericSolidCapColor,
+                  genericSolidSideColor: s.genericSolidSideColor,
+                  genericFluidCapColor: s.genericFluidCapColor,
+                  genericFluidSideColor: s.genericFluidSideColor,
+                },
+              )
+            : getLandSubterrainInstanceData(
+                s.boardPieces,
+                s.boardHexes,
+                s.viewingLevel,
+              )
+        let hasPerHexLandRenderer = false
+        get().scene.traverse((object) => {
+          if (object.userData.landHexRenderer === true) {
+            hasPerHexLandRenderer = true
+          }
+        })
         return {
           ready: getReady(),
           mapId: s.hexMap.id,
@@ -140,6 +152,7 @@ function TestBridgeInner() {
             },
             { solid: 0, fluid: 0 },
           ),
+          landRenderer: hasPerHexLandRenderer ? 'per-hex' : 'legacy',
           viewingLevel: s.viewingLevel,
           penMode: s.penMode,
           selectedPieceIDs: [...s.selectedPieceIDs],

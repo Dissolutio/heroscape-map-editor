@@ -1,6 +1,17 @@
-import { expect, FIXTURE_URL, test, waitForAppReady } from './fixtures'
+import {
+  clickHex,
+  clickPiece,
+  dragPiece,
+  expect,
+  findPieceUid,
+  FIXTURE_URL,
+  hoverHex,
+  setPen,
+  test,
+  waitForAppReady,
+} from './fixtures'
 
-test('graphics tier lazily loads Medium textures and returns to Lowest', async ({
+test('graphics tier loads Medium textures and returns to the classic Low renderer', async ({
   page,
 }) => {
   const errors: string[] = []
@@ -9,35 +20,151 @@ test('graphics tier lazily loads Medium textures and returns to Lowest', async (
   })
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto(`${FIXTURE_URL}&perHexLand=1`)
+  await page.goto(FIXTURE_URL)
   await waitForAppReady(page)
+  await expect
+    .poll(async () =>
+      page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
+    )
+    .toBe('legacy')
   await page.locator('#simple-tab-3').click()
 
   const graphics = page.getByTestId('graphics-tier-select')
   await expect(graphics).toBeVisible()
   await page.getByText('Graphics', { exact: true }).hover()
   await expect(page.getByRole('tooltip')).toHaveText(
-    'Medium and High download texture images the first time you choose them. High also enables lights and shadows and uses alternate cap images. Lowest uses no images.',
+    'Low uses the classic look with no textures. Medium uses diffuse textures. High adds PBR normal and ORM maps, enables lights and shadows, and uses alternate cap images.',
   )
   await page.mouse.move(0, 0)
   await expect(page.getByRole('tooltip')).toBeHidden()
   await graphics.click()
-  await page.getByRole('option', { name: 'Medium (textures)' }).click()
+  await page.getByRole('option', { name: 'Medium (diffuse textures)' }).click()
   await expect(page.getByTestId('graphics-texture-status')).toHaveText(
     'Textures ready',
   )
+  await expect
+    .poll(async () =>
+      page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
+    )
+    .toBe('per-hex')
 
   await graphics.click()
-  await page.getByRole('option', { name: 'Lowest' }).click()
-  await expect(graphics).toContainText('Lowest')
+  await page.getByRole('option', { name: 'Low (classic look)' }).click()
+  await expect(graphics).toContainText('Low (classic look)')
+  await expect
+    .poll(async () =>
+      page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
+    )
+    .toBe('legacy')
   await expect(page.getByTestId('graphics-texture-status')).toHaveCount(0)
   expect(errors).toEqual([])
+})
+
+test('hover, paint, select, and drag work in every graphics tier', async ({
+  page,
+}) => {
+  await page.goto(FIXTURE_URL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+  const graphics = page.getByTestId('graphics-tier-select')
+  const rockUID = await findPieceUid(page, { inventoryID: 'r1' })
+  let rockHex = { q: 1, r: 2, altitude: 1 }
+
+  const tiers = [
+    {
+      label: 'Low (classic look)',
+      renderer: 'legacy',
+      paintHex: { q: 0, r: 0, altitude: 0 },
+      dragHex: { q: 2, r: 2, altitude: 1 },
+    },
+    {
+      label: 'Medium (diffuse textures)',
+      renderer: 'per-hex',
+      paintHex: { q: 1, r: 0, altitude: 0 },
+      dragHex: { q: 1, r: 2, altitude: 1 },
+    },
+    {
+      label: 'High (PBR textures)',
+      renderer: 'per-hex',
+      paintHex: { q: 2, r: 0, altitude: 0 },
+      dragHex: { q: 2, r: 2, altitude: 1 },
+    },
+  ] as const
+
+  for (const [index, tier] of tiers.entries()) {
+    if (index > 0) {
+      await graphics.click()
+      await page.getByRole('option', { name: tier.label }).click()
+      await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+        'Textures ready',
+      )
+    }
+
+    await expect
+      .poll(async () =>
+        page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
+      )
+      .toBe(tier.renderer)
+    if (index > 0) {
+      await expect
+        .poll(async () =>
+          page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
+        )
+        .toEqual([])
+    }
+
+    await hoverHex(page, rockHex)
+    await expect
+      .poll(async () =>
+        page.evaluate(() => window.__TEST__?.snapshot().hoveredPieceID),
+      )
+      .toBe(rockUID)
+    await clickPiece(page, rockUID)
+    await expect
+      .poll(async () =>
+        page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
+      )
+      .toEqual([rockUID])
+
+    await dragPiece(page, rockUID, tier.dragHex)
+    await expect
+      .poll(async () =>
+        page.evaluate(
+          (uid) =>
+            window.__TEST__?.listPieces().find((piece) => piece.uid === uid)
+              ?.pieceCoords,
+          rockUID,
+        ),
+      )
+      .toMatchObject({ q: tier.dragHex.q, r: tier.dragHex.r })
+    rockHex = tier.dragHex
+
+    await setPen(page, 'gn', 1)
+    await clickHex(page, tier.paintHex)
+    await expect
+      .poll(async () =>
+        page.evaluate(
+          ({ paintHex }) =>
+            window.__TEST__
+              ?.listPieces()
+              .some(
+                (piece) =>
+                  piece.inventoryID === 'gn1' &&
+                  piece.pieceCoords.q === paintHex.q &&
+                  piece.pieceCoords.r === paintHex.r,
+              ),
+          { paintHex: tier.paintHex },
+        ),
+      )
+      .toBe(true)
+    await setPen(page, 'select', 1)
+  }
 })
 
 test('picture-only High restores the previous graphics and lighting settings', async ({
   page,
 }) => {
-  await page.goto(`${FIXTURE_URL}&perHexLand=1`)
+  await page.goto(FIXTURE_URL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
 
@@ -52,7 +179,14 @@ test('picture-only High restores the previous graphics and lighting settings', a
   await expect(cropDialog).toBeVisible({ timeout: 60_000 })
   await cropDialog.getByRole('button', { name: 'Cancel', exact: true }).click()
   await expect(cropDialog).toBeHidden()
-  await expect(page.getByTestId('graphics-tier-select')).toContainText('Lowest')
+  await expect(page.getByTestId('graphics-tier-select')).toContainText(
+    'Low (classic look)',
+  )
+  await expect
+    .poll(async () =>
+      page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
+    )
+    .toBe('legacy')
   await expect(
     page.getByRole('checkbox', { name: 'Render Lights and Shadows' }),
   ).not.toBeChecked()
