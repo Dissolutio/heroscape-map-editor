@@ -1,20 +1,65 @@
 import { Text } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { useMemo } from 'react'
-import { DoubleSide } from 'three'
+import { Path, Shape } from 'three'
 import type { ObjectiveMarker } from '../../data/objectiveMarkers'
 import useBoundStore from '../../store/store'
 import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
 import { pressObjectiveMarkerForDrag } from '../drag/objectiveMarkerDragController'
 import {
-  getObjectiveMarker3DPosition,
-  getObjectiveMarkerTextPosition,
-  getObjectiveMarkerTextFontSize,
   type ObjectiveMarker3DPosition,
+  getObjectiveMarker3DPosition,
+  getObjectiveMarker3DTextPosition,
+  getObjectiveMarkerOutlinePoints,
+  getObjectiveMarkerShapeOptions,
+  getObjectiveMarkerTextFontSize,
   isObjectiveMarkerVisibleAtLevel,
 } from './objectiveMarker3D'
 
 const EMPTY_MARKERS: ObjectiveMarker[] = []
+const MARKER_SHAPE_OPTIONS = getObjectiveMarkerShapeOptions()
+
+function makeMarkerShape(
+  markerSize: ObjectiveMarker['size'],
+  hexScale: number,
+  bridgeWidthRatio: number,
+  bridgeOverlap: number,
+) {
+  const points = getObjectiveMarkerOutlinePoints(markerSize, {
+    hexScale,
+    bridgeWidthRatio,
+    bridgeOverlap,
+  })
+  const shape = new Shape()
+  const [first, ...rest] = points
+  if (!first) return shape
+  shape.moveTo(first.x, first.z)
+  for (const { x, z } of rest) shape.lineTo(x, z)
+  shape.closePath()
+  return shape
+}
+
+function makeSelectionRingShape(markerSize: ObjectiveMarker['size']) {
+  const outer = makeMarkerShape(
+    markerSize,
+    MARKER_SHAPE_OPTIONS.hexScale * 1.14,
+    MARKER_SHAPE_OPTIONS.bridgeWidthRatio,
+    MARKER_SHAPE_OPTIONS.bridgeOverlap * 1.14,
+  )
+  const innerPoints = getObjectiveMarkerOutlinePoints(markerSize, {
+    ...MARKER_SHAPE_OPTIONS,
+    hexScale: MARKER_SHAPE_OPTIONS.hexScale,
+  }).reverse()
+  const hole = new Path()
+  const [first, ...rest] = innerPoints
+  if (first) {
+    hole.moveTo(first.x, first.z)
+    for (const { x, z } of rest) hole.lineTo(x, z)
+    hole.closePath()
+    outer.holes.push(hole)
+  }
+  return outer
+}
 
 export default function ObjectiveMarkers3D() {
   const markers = useBoundStore((state) => state.hexMap.objectiveMarkers)
@@ -71,8 +116,31 @@ function ObjectiveMarkerToken({
     [marker.content],
   )
   const fontSize = getObjectiveMarkerTextFontSize(marker)
-  const lengthScale = position.lengthScale
-  const textPosition = getObjectiveMarkerTextPosition(marker, position)
+  const textPosition = getObjectiveMarker3DTextPosition(marker, position)
+  const borderShape = useMemo(
+    () =>
+      makeMarkerShape(
+        marker.size,
+        MARKER_SHAPE_OPTIONS.hexScale,
+        MARKER_SHAPE_OPTIONS.bridgeWidthRatio,
+        MARKER_SHAPE_OPTIONS.bridgeOverlap,
+      ),
+    [marker.size],
+  )
+  const faceShape = useMemo(
+    () =>
+      makeMarkerShape(
+        marker.size,
+        MARKER_SHAPE_OPTIONS.hexScale * 0.92,
+        MARKER_SHAPE_OPTIONS.bridgeWidthRatio,
+        MARKER_SHAPE_OPTIONS.bridgeOverlap * 0.92,
+      ),
+    [marker.size],
+  )
+  const selectionShape = useMemo(
+    () => makeSelectionRingShape(marker.size),
+    [marker.size],
+  )
   const handlePointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation()
     if (event.button !== 0) return
@@ -86,56 +154,47 @@ function ObjectiveMarkerToken({
       rotation={[0, position.rotationY, 0]}
       userData={{ objectiveMarkerUID: marker.uid }}
     >
-      <group scale={[lengthScale, 1, 1]}>
-        <mesh
-          onPointerDown={(event) =>
-            pressObjectiveMarkerForDrag(event, marker.uid)
-          }
-          onPointerUp={handlePointerUp}
-          castShadow={false}
-          receiveShadow={false}
-        >
-          <cylinderGeometry
-            args={[position.radius, position.radius, 0.025, 6]}
-          />
-          <meshBasicMaterial
-            color={marker.style === 'black' ? '#ffffff' : '#111111'}
-            toneMapped={false}
-          />
-        </mesh>
-        <mesh
-          position={[0, 0.014, 0]}
-          raycast={() => null}
-          castShadow={false}
-          receiveShadow={false}
-        >
-          <cylinderGeometry
-            args={[position.radius * 0.92, position.radius * 0.92, 0.025, 6]}
-          />
-          <meshBasicMaterial color={background} toneMapped={false} />
-        </mesh>
-        <mesh
-          position={[0, 0.03, 0]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          raycast={() => null}
-          renderOrder={40}
-          visible={isSelected}
-          castShadow={false}
-          receiveShadow={false}
-        >
-          <ringGeometry
-            args={[position.radius * 1.04, position.radius * 1.14, 6]}
-          />
-          <meshBasicMaterial
-            color="#00c8ff"
-            side={DoubleSide}
-            transparent
-            opacity={1}
-            depthWrite={false}
-            toneMapped={false}
-          />
-        </mesh>
-      </group>
+      <mesh
+        position={[0, -0.0125, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        onPointerDown={(event) =>
+          pressObjectiveMarkerForDrag(event, marker.uid)
+        }
+        onPointerUp={handlePointerUp}
+        castShadow={false}
+        receiveShadow={false}
+      >
+        <extrudeGeometry
+          args={[borderShape, { depth: 0.025, bevelEnabled: false }]}
+        />
+        <meshBasicMaterial color={foreground} toneMapped={false} />
+      </mesh>
+      <mesh
+        position={[0, 0.0015, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        raycast={() => null}
+        castShadow={false}
+        receiveShadow={false}
+      >
+        <extrudeGeometry
+          args={[faceShape, { depth: 0.025, bevelEnabled: false }]}
+        />
+        <meshBasicMaterial color={background} toneMapped={false} />
+      </mesh>
+      <mesh
+        position={[0, 0.026, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+        raycast={() => null}
+        renderOrder={40}
+        visible={isSelected}
+        castShadow={false}
+        receiveShadow={false}
+      >
+        <extrudeGeometry
+          args={[selectionShape, { depth: 0.01, bevelEnabled: false }]}
+        />
+        <meshBasicMaterial color="#00c8ff" toneMapped={false} />
+      </mesh>
       <Text
         position={[textPosition.x, 0.029, textPosition.z]}
         rotation={[-Math.PI / 2, 0, 0]}

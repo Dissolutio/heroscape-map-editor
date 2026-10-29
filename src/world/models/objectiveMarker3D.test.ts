@@ -1,19 +1,23 @@
 import { describe, expect, it } from 'vitest'
-import {
-  getObjectiveMarkerFootprint,
-  type ObjectiveMarker,
-} from '../../data/objectiveMarkers'
 import { makeTable, place } from '../../__tests__/helpers/board'
+import {
+  type ObjectiveMarker,
+  getObjectiveMarkerFootprint,
+} from '../../data/objectiveMarkers'
+import { Pieces } from '../../types'
 import {
   HEXGRID_HEXCAP_FLUID_SCALE,
   HEXGRID_HEXCAP_HEIGHT,
   HEXGRID_HEX_HEIGHT,
 } from '../../utils/constants'
 import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
-import { Pieces } from '../../types'
 import {
+  DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
   getObjectiveMarker3DPosition,
-  getObjectiveMarkerTextPosition,
+  getObjectiveMarker3DTextPosition,
+  getObjectiveMarkerExportTextPosition,
+  getObjectiveMarkerOutlinePoints,
+  getObjectiveMarkerShapeOptions,
   getObjectiveMarkerTextFontSize,
   isObjectiveMarkerVisibleAtLevel,
 } from './objectiveMarker3D'
@@ -45,7 +49,6 @@ describe('objective marker 3D helpers', () => {
       y: expected.y + HEXGRID_HEXCAP_HEIGHT / 2 + 0.012,
       z: expected.z,
       rotationY: 0,
-      lengthScale: 1,
     })
     expect(highQualityPosition?.y).toBe(
       expected.y - HEXGRID_HEXCAP_HEIGHT / 2 + 0.012,
@@ -75,13 +78,11 @@ describe('objective marker 3D helpers', () => {
         rotation === 0 ? 0 : (-rotation * Math.PI) / 3,
       )
     }
-    expect(position?.lengthScale).toBe(Math.sqrt(3))
-    expect(position?.radius).toBe(0.68)
     expect(position?.x).toBe((expected[0].x + expected[1].x) / 2)
     expect(position?.z).toBe((expected[0].z + expected[1].z) / 2)
   })
 
-  it('positions two-hex text at the anchor without applying token stretch', () => {
+  it('centers 3D text at the rotated two-hex midpoint', () => {
     const board = makeTable(5)
     const target = marker({
       size: 2,
@@ -89,7 +90,18 @@ describe('objective marker 3D helpers', () => {
     })
     const position = getObjectiveMarker3DPosition(target, board.boardHexes)
     if (!position) throw new Error('Expected a supported marker')
-    const textPosition = getObjectiveMarkerTextPosition(target, position)
+    const textPosition = getObjectiveMarker3DTextPosition(target, position)
+
+    expect(textPosition).toEqual({ x: 0, z: 0 })
+    expect(position.rotationY).toBe((-target.rotation * Math.PI) / 3)
+  })
+
+  it('preserves anchor-relative export text positioning separately from 3D', () => {
+    const board = makeTable(5)
+    const target = marker({ size: 2, rotation: 4 })
+    const position = getObjectiveMarker3DPosition(target, board.boardHexes)
+    if (!position) throw new Error('Expected a supported marker')
+    const textPosition = getObjectiveMarkerExportTextPosition(target, position)
     const cos = Math.cos(position.rotationY)
     const sin = Math.sin(position.rotationY)
     const worldX = position.x + cos * textPosition.x + sin * textPosition.z
@@ -99,6 +111,88 @@ describe('objective marker 3D helpers', () => {
     expect(textPosition.x).not.toBe(0)
     expect(worldX).toBeCloseTo(anchor.x)
     expect(worldZ).toBeCloseTo(anchor.z)
+  })
+
+  it('builds a symmetric plain regular hex outline for one-hex markers', () => {
+    const points = getObjectiveMarkerOutlinePoints(1)
+    const scale = DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS.hexScale
+
+    expect(points).toHaveLength(6)
+    for (const { x, z } of points) {
+      expect(Math.hypot(x, z)).toBeCloseTo(scale)
+    }
+    for (const point of points) {
+      expect(
+        points.some(
+          (other) =>
+            Math.abs(other.x + point.x) < 1e-10 &&
+            Math.abs(other.z - point.z) < 1e-10,
+        ),
+      ).toBe(true)
+      expect(
+        points.some(
+          (other) =>
+            Math.abs(other.x - point.x) < 1e-10 &&
+            Math.abs(other.z + point.z) < 1e-10,
+        ),
+      ).toBe(true)
+    }
+  })
+
+  it('builds a symmetric two-hex outline whose bridge covers the cell gap', () => {
+    const points = getObjectiveMarkerOutlinePoints(2)
+    const scale = DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS.hexScale
+    const leftBridgeTop = points[2]
+    const rightBridgeTop = points[3]
+
+    expect(points).toHaveLength(16)
+    for (const point of points) {
+      expect(
+        points.some(
+          (other) =>
+            Math.abs(other.x + point.x) < 1e-10 &&
+            Math.abs(other.z - point.z) < 1e-10,
+        ),
+      ).toBe(true)
+      expect(
+        points.some(
+          (other) =>
+            Math.abs(other.x - point.x) < 1e-10 &&
+            Math.abs(other.z + point.z) < 1e-10,
+        ),
+      ).toBe(true)
+    }
+    if (!leftBridgeTop || !rightBridgeTop) {
+      throw new Error('Expected bridge outline points')
+    }
+    expect(leftBridgeTop.x).toBeLessThan(0)
+    expect(rightBridgeTop.x).toBeGreaterThan(0)
+    expect(leftBridgeTop.z).toBeCloseTo(scale / 2)
+    expect(rightBridgeTop.z).toBeCloseTo(scale / 2)
+  })
+
+  it('keeps expanded two-hex selection outlines from crossing at the bridge', () => {
+    const points = getObjectiveMarkerOutlinePoints(2, {
+      ...DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
+      hexScale: DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS.hexScale * 1.14,
+    })
+
+    expect(points[2]?.x).toBeLessThan(points[3]?.x ?? Number.NEGATIVE_INFINITY)
+  })
+
+  it('reads development startup shape dials while retaining their defaults', () => {
+    expect(
+      getObjectiveMarkerShapeOptions('?markerBridge=1&markerHexScale=0.92'),
+    ).toEqual(DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS)
+    expect(
+      getObjectiveMarkerShapeOptions(
+        '?markerBridge=0.8&markerHexScale=1.1&markerBridgeOverlap=0.12',
+      ),
+    ).toEqual({
+      hexScale: 1.1,
+      bridgeWidthRatio: 0.8,
+      bridgeOverlap: 0.12,
+    })
   })
 
   it('sits above a fluid cap at its physical surface height', () => {
