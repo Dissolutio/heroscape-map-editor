@@ -1,4 +1,5 @@
 import { piecesSoFar } from '../../data/pieces'
+import type { GraphicsTier } from '../../local-storage/settings'
 import {
   type BoardHex,
   type BoardHexes,
@@ -7,10 +8,9 @@ import {
   Pieces,
 } from '../../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../../utils/board-utils'
-import { HEX_DIRECTIONS, hexUtilsAdd } from '../../utils/hex-utils'
-import { getBoardHex3DCoords, genBoardHexID } from '../../utils/map-utils'
 import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
-import type { GraphicsTier } from '../../local-storage/settings'
+import { HEX_DIRECTIONS, hexUtilsAdd } from '../../utils/hex-utils'
+import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
 import type { GenericTerrainColorSettings } from '../maphex/genericTerrainColors'
 import { hexTerrainColor, terrainCapColors } from '../maphex/hexColors'
 import type { TerrainTextureManifest } from '../textures/terrainTextureManifest'
@@ -36,13 +36,31 @@ export function packLandHexPbrTextureLayers(
   capOrmLayer: number,
   sideNormalLayer: number,
   sideOrmLayer: number,
+  capNormalStrength = 1,
+  capAoStrength = 1,
 ) {
-  return (
+  const layerCode =
     (((capNormalLayer + 1) * 7 + capOrmLayer + 1) * 3 + sideNormalLayer + 1) *
       4 +
     sideOrmLayer +
     1
-  )
+  const normalStrength = quantizeLandCapPbrStrength(capNormalStrength)
+  const aoStrength = quantizeLandCapPbrStrength(capAoStrength)
+  return layerCode * 1024 + normalStrength * 32 + aoStrength
+}
+
+export function unpackLandHexPbrTextureLayers(code: number) {
+  const layerCode = Math.floor(code / 1024)
+  const strengthCode = code % 1024
+  return {
+    capNormalLayer: Math.floor(layerCode / 84) - 1,
+    capOrmLayer: (Math.floor(layerCode / 12) % 7) - 1,
+    sideNormalLayer: (Math.floor(layerCode / 4) % 3) - 1,
+    sideOrmLayer: (layerCode % 4) - 1,
+    capNormalStrength:
+      Math.floor(strengthCode / 32) / LAND_CAP_PBR_STRENGTH_STEPS,
+    capAoStrength: (strengthCode % 32) / LAND_CAP_PBR_STRENGTH_STEPS,
+  }
 }
 
 export type LandHexInstanceDatum = {
@@ -58,10 +76,13 @@ export type LandHexInstanceDatum = {
   sideLayer: number
   capNormalLayer: number
   capOrmLayer: number
+  capNormalStrength: number
+  capAoStrength: number
   sideNormalLayer: number
   sideOrmLayer: number
   rotationSteps: number
   sideMask: number
+  fluidCapJoinMask: number
   capVisible: boolean
   capColor: string
   sideColor: string
@@ -90,6 +111,19 @@ export type LandHexHoverTransition = {
 
 const LAND_CAP_HIGHLIGHT = 1
 const LAND_SIDE_HIGHLIGHT = 2
+export const LAND_CAP_PBR_STRENGTH_STEPS = 31
+
+export const LAND_CAP_PBR_STRENGTH_DEFAULTS = {
+  normal: 0.45,
+  ao: 0.4,
+} as const
+export const LAND_HEX_WORLD_FILL_UV_SCALE = 0.004
+
+export const LAND_CAP_PBR_STRENGTH_OVERRIDES = {
+  Road: { normal: 0.55, ao: 0.45 },
+  WallWalk: { normal: 0.55, ao: 0.45 },
+  Wood: { normal: 0.35, ao: 0.3 },
+} as const
 
 export const LAND_HEX_TEXTURE_TERRAIN_NAMES: Partial<
   Record<HexTerrain, string>
@@ -137,6 +171,7 @@ export function getLandHexTextureLayers(
     ? manifest?.terrains[manifestTerrainName]
     : undefined
   const enabled = tier !== 'low' && Boolean(manifest && layers)
+  const capPbrStrengths = getLandHexCapPbrStrengths(terrain)
   const allowRandomRotation =
     terrain === HexTerrain.ice || terrain === HexTerrain.toxicWater
   return {
@@ -149,12 +184,58 @@ export function getLandHexTextureLayers(
     capNormalLayer:
       enabled && tier === 'high' ? (layers?.capNormalLayer ?? -1) : -1,
     capOrmLayer: enabled && tier === 'high' ? (layers?.capOrmLayer ?? -1) : -1,
+    capNormalStrength: capPbrStrengths.normal,
+    capAoStrength: capPbrStrengths.ao,
     sideNormalLayer:
       enabled && tier === 'high' ? (layers?.sideNormalLayer ?? -1) : -1,
     sideOrmLayer:
       enabled && tier === 'high' ? (layers?.sideOrmLayer ?? -1) : -1,
     rotationSteps:
       enabled && allowRandomRotation ? getStableRotationStep(hexID) : 0,
+  }
+}
+
+export function getLandHexCapPbrStrengths(terrain: string) {
+  const terrainName = getLandHexManifestTerrainName(terrain)
+  const override = terrainName
+    ? LAND_CAP_PBR_STRENGTH_OVERRIDES[
+        terrainName as keyof typeof LAND_CAP_PBR_STRENGTH_OVERRIDES
+      ]
+    : undefined
+  return override ?? LAND_CAP_PBR_STRENGTH_DEFAULTS
+}
+
+export function quantizeLandCapPbrStrength(strength: number) {
+  return Math.round(
+    Math.min(1, Math.max(0, Number.isFinite(strength) ? strength : 0)) *
+      LAND_CAP_PBR_STRENGTH_STEPS,
+  )
+}
+
+export function getLandHexWorldFillUV(x: number, z: number) {
+  return {
+    u: x * LAND_HEX_WORLD_FILL_UV_SCALE + 0.5,
+    v: z * LAND_HEX_WORLD_FILL_UV_SCALE + 0.5,
+  }
+}
+
+export function packLandHexVisibility(
+  sideMask: number,
+  capVisible: boolean,
+  fluidCapJoinMask = 0,
+) {
+  return (
+    (sideMask & 0b111111) +
+    (capVisible ? 64 : 0) +
+    ((fluidCapJoinMask & 0b111111) << 7)
+  )
+}
+
+export function unpackLandHexVisibility(value: number) {
+  return {
+    sideMask: value % 64,
+    capVisible: Math.floor(value / 64) % 2 === 1,
+    fluidCapJoinMask: Math.floor(value / 128) % 64,
   }
 }
 
@@ -334,6 +415,29 @@ export function getLandHexSideVisibilityMask(
   return visibleMask
 }
 
+export function getLandHexFluidCapJoinMask(
+  hex: BoardHex,
+  boardHexes: BoardHexes,
+) {
+  if (!isFluidTerrainHex(hex.terrain) || !hex.boardPieceUID) return 0
+  let joinedMask = 0
+  for (const direction of LAND_HEX_SIDE_DIRECTIONS) {
+    const neighborCoords = hexUtilsAdd(
+      { q: hex.q, r: hex.r, s: hex.s },
+      HEX_DIRECTIONS[direction],
+    )
+    const neighbor =
+      boardHexes[genBoardHexID({ ...neighborCoords, altitude: hex.altitude })]
+    if (
+      neighbor?.boardPieceUID === hex.boardPieceUID &&
+      isFluidTerrainHex(neighbor.terrain)
+    ) {
+      joinedMask |= 1 << direction
+    }
+  }
+  return joinedMask
+}
+
 export function getLandHexInstanceIDs(
   boardHexes: BoardHexes,
   boardPieces: BoardPiece[],
@@ -418,6 +522,7 @@ export function buildLandHexInstanceData(
           levels: hex.altitude,
           ...textureLayers,
           sideMask: getLandHexSideVisibilityMask(hex, boardHexes),
+          fluidCapJoinMask: getLandHexFluidCapJoinMask(hex, boardHexes),
           capVisible: !colors.isFluid || Boolean(hex.isCap),
           capColor: colors.cap,
           sideColor: colors.side,

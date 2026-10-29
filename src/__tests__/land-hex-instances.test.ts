@@ -1,28 +1,34 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { cloneBoard, makeTable, place, type Board } from './helpers/board'
-import { HexTerrain, Pieces, type BoardHex } from '../types'
+import { type BoardHex, HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HEXGRID_HEX_RADIUS } from '../utils/constants'
-import { parseTerrainTextureManifest } from '../world/textures/terrainTextureManifest'
 import {
-  buildLandHexInstanceIndex,
-  buildLandHexInstanceData,
-  getLandHexCapUV,
-  getLandHexColors,
-  getLandHexDisplayColors,
-  getLandHexInstanceIDs,
-  getLandHexHighlightValue,
-  getLandHexManifestTerrainName,
-  getLandHexSideUV,
-  getLandHexTextureLayers,
-  getLandHexHoverTransition,
-  getLandHexSideVisibilityMask,
-  packLandHexPbrTextureLayers,
   LAND_HEX_TEXTURE_TERRAIN_NAMES,
   LAND_HEX_UNTEXTURED_TERRAINS,
   NON_INSTANCED_SUBTERRAIN_PIECES,
+  buildLandHexInstanceData,
+  buildLandHexInstanceIndex,
+  getLandHexCapPbrStrengths,
+  getLandHexCapUV,
+  getLandHexColors,
+  getLandHexDisplayColors,
+  getLandHexFluidCapJoinMask,
+  getLandHexHighlightValue,
+  getLandHexHoverTransition,
+  getLandHexInstanceIDs,
+  getLandHexManifestTerrainName,
+  getLandHexSideUV,
+  getLandHexSideVisibilityMask,
+  getLandHexTextureLayers,
+  getLandHexWorldFillUV,
+  packLandHexPbrTextureLayers,
+  packLandHexVisibility,
+  unpackLandHexPbrTextureLayers,
+  unpackLandHexVisibility,
 } from '../world/models/landHexInstances'
+import { parseTerrainTextureManifest } from '../world/textures/terrainTextureManifest'
+import { type Board, cloneBoard, makeTable, place } from './helpers/board'
 
 const terrainManifest = parseTerrainTextureManifest(
   JSON.parse(
@@ -61,7 +67,32 @@ describe('land hex instance data', () => {
     }
 
     expect(codes.size).toBe(336)
-    expect(packLandHexPbrTextureLayers(-1, -1, -1, -1)).toBe(0)
+    expect(
+      unpackLandHexPbrTextureLayers(
+        packLandHexPbrTextureLayers(-1, -1, -1, -1, 0.45, 0.4),
+      ),
+    ).toMatchObject({
+      capNormalLayer: -1,
+      capOrmLayer: -1,
+      sideNormalLayer: -1,
+      sideOrmLayer: -1,
+    })
+    expect(packLandHexPbrTextureLayers(0, 0, 0, 0, 0.45, 0.4)).not.toBe(
+      packLandHexPbrTextureLayers(0, 0, 0, 0, 1, 1),
+    )
+    expect(
+      unpackLandHexPbrTextureLayers(
+        packLandHexPbrTextureLayers(1, 2, 0, 1, 0.45, 0.4),
+      ),
+    ).toMatchObject({
+      capNormalLayer: 1,
+      capOrmLayer: 2,
+      sideNormalLayer: 0,
+      sideOrmLayer: 1,
+      capNormalStrength: expect.closeTo(0.45, 1),
+      capAoStrength: expect.closeTo(0.4, 1),
+    })
+    expect(packLandHexPbrTextureLayers(2, 5, 1, 2, 1, 1)).toBeLessThan(2 ** 24)
   })
 
   it('creates one instance per supported land hex with surface levels', () => {
@@ -280,6 +311,50 @@ describe('land hex instance data', () => {
     expect(getLandHexSideUV(1, 0, height)).toEqual([1, 1])
   })
 
+  it('uses continuous world-space fill UVs at joined fluid edges', () => {
+    const apothem = (Math.sqrt(3) * HEXGRID_HEX_RADIUS) / 2
+    const fromFirstHex = getLandHexWorldFillUV(apothem, 0)
+    const fromSecondHex = getLandHexWorldFillUV(
+      Math.sqrt(3) * HEXGRID_HEX_RADIUS - apothem,
+      0,
+    )
+    expect(fromFirstHex).toEqual(fromSecondHex)
+  })
+
+  it('packs side, cap, and fluid-join masks without adding an instance attribute', () => {
+    expect(packLandHexVisibility(0b101010, false, 0b000101)).toBe(
+      0b000101_0_101010,
+    )
+    expect(packLandHexVisibility(0b111111, true, 0b111111)).toBe(8191)
+    expect(packLandHexVisibility(0b111111, false, 0)).toBe(63)
+    expect(
+      unpackLandHexVisibility(packLandHexVisibility(0b111111, false, 0b111111)),
+    ).toEqual({
+      sideMask: 0b111111,
+      capVisible: false,
+      fluidCapJoinMask: 0b111111,
+    })
+  })
+
+  it('reduces High-tier cap strengths and allows wood/road layer overrides', () => {
+    expect(getLandHexCapPbrStrengths(HexTerrain.grass)).toEqual({
+      normal: 0.45,
+      ao: 0.4,
+    })
+    expect(getLandHexCapPbrStrengths(HexTerrain.wood)).toEqual({
+      normal: 0.35,
+      ao: 0.3,
+    })
+    expect(getLandHexCapPbrStrengths(HexTerrain.road)).toEqual({
+      normal: 0.55,
+      ao: 0.45,
+    })
+    expect(getLandHexCapPbrStrengths(HexTerrain.wallWalk)).toEqual({
+      normal: 0.55,
+      ao: 0.45,
+    })
+  })
+
   it('builds mixed textured and flat terrain layers for a small map', () => {
     const table = makeTable(9)
     const grass = place({
@@ -449,6 +524,47 @@ describe('land hex side visibility', () => {
         solidNeighbor.board.boardHexes,
       ),
     ).toBe(0b111110)
+    expect(
+      getLandHexFluidCapJoinMask(fluidHex, fluidNeighbor.board.boardHexes),
+    ).toBe(0)
+    expect(
+      getLandHexFluidCapJoinMask(
+        fluidNextToSolid,
+        solidNeighbor.board.boardHexes,
+      ),
+    ).toBe(0)
+  })
+
+  it('only removes baked fluid borders within a multi-hex piece', () => {
+    const table = makeTable(9)
+    const single = place({
+      board: table,
+      pieceID: Pieces.water1,
+      at: table.center,
+      altitude: 0,
+    })
+    const singleHex = Object.values(single.board.boardHexes).find(
+      (hex) => hex.boardPieceUID === single.board.boardPieces[0].uid,
+    ) as BoardHex
+    expect(getLandHexFluidCapJoinMask(singleHex, single.board.boardHexes)).toBe(
+      0,
+    )
+
+    const multi = place({
+      board: table,
+      pieceID: Pieces.water3,
+      at: table.center,
+      altitude: 0,
+    })
+    const fluidHexes = Object.values(multi.board.boardHexes).filter(
+      (hex) => hex.boardPieceUID === multi.board.boardPieces[0].uid,
+    )
+    expect(fluidHexes.length).toBeGreaterThan(1)
+    expect(
+      fluidHexes.some(
+        (hex) => getLandHexFluidCapJoinMask(hex, multi.board.boardHexes) > 0,
+      ),
+    ).toBe(true)
   })
 
   it('does not cull across levels and leaves map-edge sides visible', () => {
