@@ -35,7 +35,6 @@ const startZoneInventoryIDs = [
 const startZoneInventoryIDSet = new Set<string>(startZoneInventoryIDs)
 
 function formatTerrainLabel(terrain: string) {
-  console.log('🚀 ~ formatTerrainLabel ~ terrain:', terrain)
   if (!terrain) return 'Unknown'
   return terrain
     .replace(/([A-Z])/g, ' $1')
