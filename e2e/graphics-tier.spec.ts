@@ -48,11 +48,10 @@ test('picture-only High restores the previous graphics and lighting settings', a
   await pictureHigh.check()
   await page.getByRole('button', { name: 'Take map picture' }).click()
 
-  await expect(
-    page.getByText(
-      'Map portrait saved! Crop it in Edit tab, or download from File tab',
-    ),
-  ).toBeVisible({ timeout: 60_000 })
+  const cropDialog = page.getByRole('dialog', { name: 'Crop map picture' })
+  await expect(cropDialog).toBeVisible({ timeout: 60_000 })
+  await cropDialog.getByRole('button', { name: 'Cancel', exact: true }).click()
+  await expect(cropDialog).toBeHidden()
   await expect(page.getByTestId('graphics-tier-select')).toContainText('Lowest')
   await expect(
     page.getByRole('checkbox', { name: 'Render Lights and Shadows' }),
