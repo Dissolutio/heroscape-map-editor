@@ -109,6 +109,30 @@ export function getCachedTerrainTextureArrays(
   }
 }
 
+/**
+ * Reverses the row order of one RGBA layer. WebGL rejects FLIP_Y for 3D
+ * texture uploads (Chrome logs INVALID_OPERATION and the array stays empty),
+ * so layers are flipped here instead of with `texture.flipY`.
+ */
+export function flipTextureLayerRows(
+  layer: Uint8Array,
+  width: number,
+  height: number,
+): Uint8Array {
+  const rowBytes = width * 4
+  if (layer.length !== rowBytes * height) {
+    throw new Error('Texture layer dimensions do not match its RGBA data')
+  }
+  const flipped = new Uint8Array(layer.length)
+  for (let row = 0; row < height; row++) {
+    flipped.set(
+      layer.subarray(row * rowBytes, (row + 1) * rowBytes),
+      (height - 1 - row) * rowBytes,
+    )
+  }
+  return flipped
+}
+
 export function sliceTextureArrayLayers(
   data: Uint8Array | Uint8ClampedArray,
   width: number,
@@ -208,7 +232,12 @@ function createArrayTexture(
     file.layers,
   )
   const pixels = new Uint8Array(decoded.data.length)
-  layers.forEach((layer, index) => pixels.set(layer, index * layer.length))
+  layers.forEach((layer, index) =>
+    pixels.set(
+      flipTextureLayerRows(layer, file.frameWidth, file.frameHeight),
+      index * layer.length,
+    ),
+  )
   const texture = new DataArrayTexture(
     pixels,
     file.frameWidth,
@@ -225,7 +254,8 @@ function createArrayTexture(
   texture.minFilter = LinearMipmapLinearFilter
   texture.magFilter = LinearFilter
   texture.anisotropy = 4
-  texture.flipY = true
+  // Never set flipY or premultiplyAlpha: WebGL forbids them for 3D uploads.
+  texture.flipY = false
   texture.unpackAlignment = 1
   texture.needsUpdate = true
   return texture

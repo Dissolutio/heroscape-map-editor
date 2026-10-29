@@ -3,6 +3,7 @@ import { ClampToEdgeWrapping, NoColorSpace, SRGBColorSpace } from 'three'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   disposeTerrainTextureArrays,
+  flipTextureLayerRows,
   getCachedTerrainTextureArrays,
   getTerrainTextureArrayStats,
   getTerrainTextureStrips,
@@ -148,7 +149,7 @@ describe('terrain texture array loading', () => {
     ])
   })
 
-  it('slices rows into layers in manifest order and flips texture Y on upload', async () => {
+  it('slices rows into layers in manifest order and flips rows in JS', async () => {
     const data = Uint8Array.from({ length: 4 * 4 }, (_, index) => index)
     const layers = sliceTextureArrayLayers(data, 1, 4, 2)
     expect(layers.map((layer) => [...layer])).toEqual([
@@ -166,10 +167,38 @@ describe('terrain texture array loading', () => {
     if (result.status !== 'ready') return
 
     const texture = result.textures['caps-diffuse.png']
-    expect(texture?.flipY).toBe(true)
-    expect(texture?.image.data.slice(0, 16)).toEqual(
-      decodePixels(manifest)('caps-diffuse.png').data.slice(0, 16),
-    )
+    expect(texture?.flipY).toBe(false)
+    expect(texture?.premultiplyAlpha).toBe(false)
+    const decoded = decodePixels(manifest)('caps-diffuse.png').data
+    expect([...(texture?.image.data.slice(0, 16) ?? [])]).toEqual([
+      ...decoded.slice(8, 16),
+      ...decoded.slice(0, 8),
+    ])
+  })
+
+  it('reverses layer rows without touching pixel order inside a row', () => {
+    const layer = Uint8Array.from({ length: 2 * 3 * 4 }, (_, index) => index)
+    expect([...flipTextureLayerRows(layer, 2, 3)]).toEqual([
+      ...layer.slice(16, 24),
+      ...layer.slice(8, 16),
+      ...layer.slice(0, 8),
+    ])
+    expect(() => flipTextureLayerRows(layer, 2, 2)).toThrow()
+  })
+
+  it('never sets flipY or premultiplyAlpha on any uploaded array texture', async () => {
+    const manifest = smallManifest()
+    const fetcher = vi.fn(async () => response(manifest))
+    const result = await loadTerrainTextureArrays('high', {
+      fetch: fetcher,
+      decodeImage: async (_bytes, fileName) => decodePixels(manifest)(fileName),
+    })
+    expect(result.status).toBe('ready')
+    if (result.status !== 'ready') return
+    for (const texture of Object.values(result.textures)) {
+      expect(texture.flipY).toBe(false)
+      expect(texture.premultiplyAlpha).toBe(false)
+    }
   })
 
   it('deduplicates requests and reports completed-strip progress', async () => {

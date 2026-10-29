@@ -4,7 +4,11 @@ import React, { Suspense, useEffect, useRef, useState } from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
 import useAppUpdater from '../hooks/useAppUpdater'
-import { isE2E, isWhatsNewE2EOptIn } from '../e2e/isE2E'
+import {
+  isE2E,
+  isPerHexLandEnabled,
+  isWhatsNewE2EOptIn,
+} from '../e2e/isE2E'
 import { useAppReady } from '../e2e/useAppReady'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
 import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
@@ -81,6 +85,15 @@ export default function HomePage() {
   useEffect(() => {
     toggleViewingLevel(maxLevel)
   }, [hexMap.id])
+
+  // USE EFFECT: a saved Medium or High graphics tier starts as Lowest every
+  // session, so load its textures once at startup.
+  useEffect(() => {
+    const { graphicsTier, setGraphicsTier } = useBoundStore.getState()
+    if (isPerHexLandEnabled && graphicsTier !== 'low') {
+      void setGraphicsTier(graphicsTier)
+    }
+  }, [])
 
   // USE EFFECT: automatically load up map from URL, OR from file
   useAutoLoadMapFile()
