@@ -1,14 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
 import { getEdgeDragTarget } from '../data/dragMove'
-import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
-import { getLaurAddonCanonicalKey } from '../data/laurAddonPlacement'
-import { getPillarPorts } from '../data/laurPillarPorts'
-import { piecesSoFar } from '../data/pieces'
-import {
-  getPieceFeatureIds,
-  pieceFeatureDeclarations,
-} from '../data/hexGrid/pieceFeatures'
 import {
   edgeIdFromHex,
   edgeToWorldPoint,
@@ -17,7 +9,20 @@ import {
   nodeIdFromHexCorner,
   nodeIdFromHexRotation,
 } from '../data/hexGrid/edgesAndNodes'
-import { HexTerrain, Pieces, type BoardPiece, type CubeCoordinate } from '../types'
+import {
+  getPieceFeatureIds,
+  pieceFeatureDeclarations,
+} from '../data/hexGrid/pieceFeatures'
+import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
+import { getLaurAddonCanonicalKey } from '../data/laurAddonPlacement'
+import { getPillarPorts } from '../data/laurPillarPorts'
+import { piecesSoFar } from '../data/pieces'
+import {
+  type BoardPiece,
+  type CubeCoordinate,
+  HexTerrain,
+  Pieces,
+} from '../types'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 
 const anchor: CubeCoordinate = { q: -3, r: 4, s: -1 }
@@ -36,8 +41,10 @@ const featurePieceIDs = new Set(featurePieces.map((piece) => piece.id))
 const coordinateKey = ({ q, r, s }: CubeCoordinate) => `${q},${r},${s}`
 
 function sameHexes(first: CubeCoordinate[], second: CubeCoordinate[]) {
-  return first.map(coordinateKey).sort().join('|') ===
+  return (
+    first.map(coordinateKey).sort().join('|') ===
     second.map(coordinateKey).sort().join('|')
+  )
 }
 
 function coordinatesFromKey(value: string) {
@@ -92,10 +99,7 @@ function edgePiecePlacement(
   if (pieceID === Pieces.roadWall) {
     return {
       pieceID,
-      pieceCoords: hexUtilsAdd(
-        support,
-        HEX_DIRECTIONS[(edgeIndex + 4) % 6],
-      ),
+      pieceCoords: hexUtilsAdd(support, HEX_DIRECTIONS[(edgeIndex + 4) % 6]),
       rotation: edgeIndex,
     }
   }
@@ -110,20 +114,14 @@ function edgePieceAtRotation(
   if (pieceID === Pieces.battlement) {
     return {
       pieceID,
-      pieceCoords: hexUtilsAdd(
-        support,
-        HEX_DIRECTIONS[(rotation + 3) % 6],
-      ),
+      pieceCoords: hexUtilsAdd(support, HEX_DIRECTIONS[(rotation + 3) % 6]),
       rotation,
     }
   }
   if (pieceID === Pieces.roadWall) {
     return {
       pieceID,
-      pieceCoords: hexUtilsAdd(
-        support,
-        HEX_DIRECTIONS[(rotation + 4) % 6],
-      ),
+      pieceCoords: hexUtilsAdd(support, HEX_DIRECTIONS[(rotation + 4) % 6]),
       rotation,
     }
   }
@@ -136,6 +134,39 @@ describe('piece feature declarations and adapters', () => {
       [...featurePieceIDs].sort(),
     )
     expect(featurePieces).toHaveLength(14)
+
+    for (const piece of featurePieces) {
+      const declaration =
+        pieceFeatureDeclarations[
+          piece.id as keyof typeof pieceFeatureDeclarations
+        ]
+      const rotations = getPossibleRotationsForPenMode(piece.id)
+      const hasWholeSteps = rotations.some(Number.isInteger)
+      const hasHalfSteps = rotations.some(
+        (rotation) => !Number.isInteger(rotation),
+      )
+      const expectedGranularity = hasWholeSteps
+        ? hasHalfSteps
+          ? 'whole-and-half-step'
+          : 'whole-step'
+        : 'half-step'
+      expect(declaration.rotation).toBe(expectedGranularity)
+
+      const featureKinds = new Set<string>()
+      for (const rotation of rotations) {
+        const result = getPieceFeatureIds({
+          pieceID: piece.id,
+          pieceCoords: anchor,
+          rotation,
+        })
+        for (const featureId of result?.featureIds ?? []) {
+          featureKinds.add(featureId.startsWith('edge:') ? 'edge' : 'node')
+        }
+      }
+      expect([...declaration.featureKinds].sort()).toEqual(
+        [...featureKinds].sort(),
+      )
+    }
   })
 
   it.each(featurePieces.map(({ id }) => id))(
@@ -197,7 +228,8 @@ describe('piece feature declarations and adapters', () => {
             anchor,
           )
           expect(legacyTarget).not.toBeNull()
-          if (!legacyTarget) throw new Error(`Missing drag target for ${pieceID}`)
+          if (!legacyTarget)
+            throw new Error(`Missing drag target for ${pieceID}`)
           expect(getPieceFeatureIds(placed)?.featureIds).toEqual([
             edgeIdFromHex(anchor, legacyTarget.edgeIndex),
           ])
@@ -246,9 +278,9 @@ describe('piece feature declarations and adapters', () => {
         altitude: 18,
       })
       expect(low?.featureIds).toEqual(high?.featureIds)
-      expect(
-        low?.featureIds.map((featureId) => [featureId, 2]),
-      ).not.toEqual(high?.featureIds.map((featureId) => [featureId, 18]))
+      expect(low?.featureIds.map((featureId) => [featureId, 2])).not.toEqual(
+        high?.featureIds.map((featureId) => [featureId, 18]),
+      )
     }
   })
 })

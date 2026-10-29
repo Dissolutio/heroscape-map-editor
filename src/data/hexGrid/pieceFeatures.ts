@@ -5,20 +5,17 @@ import { getLaurAddonFootprint } from '../laurAddonFootprints'
 import { getPillarPorts } from '../laurPillarPorts'
 import { piecesSoFar } from '../pieces'
 import {
-  edgeIdFromHex,
-  nodeIdFromHexRotation,
   type HexEdgeId,
   type HexNodeId,
+  edgeIdFromHex,
+  nodeIdFromHexRotation,
 } from './edgesAndNodes'
 
 export type PieceFeatureKind = 'edge' | 'node'
 export type PieceFeatureId = HexEdgeId | HexNodeId
 export type HexCellId = `hex:${number},${number},${number}`
 
-type RotationGranularity =
-  | 'whole-step'
-  | 'half-step'
-  | 'whole-and-half-step'
+type RotationGranularity = 'whole-step' | 'half-step' | 'whole-and-half-step'
 
 type PieceFeatureDeclaration = {
   featureKinds: readonly PieceFeatureKind[]
@@ -176,16 +173,10 @@ function getAttachmentAnchor(
   declaration: PieceFeatureDeclaration,
 ) {
   if (declaration.anchor === 'battlement-offset') {
-    return hexUtilsAdd(
-      input.pieceCoords,
-      negativeDirection(input.rotation + 3),
-    )
+    return hexUtilsAdd(input.pieceCoords, negativeDirection(input.rotation + 3))
   }
   if (declaration.anchor === 'road-wall-offset') {
-    return hexUtilsAdd(
-      input.pieceCoords,
-      negativeDirection(input.rotation + 4),
-    )
+    return hexUtilsAdd(input.pieceCoords, negativeDirection(input.rotation + 4))
   }
   return input.pieceCoords
 }
@@ -195,10 +186,11 @@ export function getPieceFeatureIds(
 ): PieceFeatureResult | null {
   const pieceID = 'pieceID' in input ? input.pieceID : input.inventoryID
   const declaration: PieceFeatureDeclaration | undefined =
-    pieceFeatureDeclarations[
-      pieceID as keyof typeof pieceFeatureDeclarations
-    ]
-  if (!declaration || !isAllowedRotation(input.rotation, declaration.rotation)) {
+    pieceFeatureDeclarations[pieceID as keyof typeof pieceFeatureDeclarations]
+  if (
+    !declaration ||
+    !isAllowedRotation(input.rotation, declaration.rotation)
+  ) {
     return null
   }
 
@@ -213,7 +205,10 @@ export function getPieceFeatureIds(
     }
   } else {
     const anchor = getAttachmentAnchor(input, declaration)
-    if (declaration.featureKinds.includes('edge') && Number.isInteger(input.rotation)) {
+    if (
+      declaration.featureKinds.includes('edge') &&
+      Number.isInteger(input.rotation)
+    ) {
       featureIds.push(
         edgeIdFromHex(
           anchor,
@@ -228,9 +223,7 @@ export function getPieceFeatureIds(
   }
 
   let footprint: PieceFeatureResult['footprint'] = null
-  if (
-    piecesSoFar[pieceID]?.terrain === HexTerrain.laurWallAddon
-  ) {
+  if (piecesSoFar[pieceID]?.terrain === HexTerrain.laurWallAddon) {
     const result = getLaurAddonFootprint({
       inventoryID: pieceID,
       anchor: input.pieceCoords,

@@ -45,9 +45,12 @@ One existing exception is important to preserve: pieces whose terrain is
 `laurWallAddon` take the Laur branch in `addPiece()`, which records only the
 `BoardPiece`. They have no `boardHexes` expansion and render from
 `boardPieces` in `MapBoardPiece3D`. Pen placement uses a world-hit resolver;
-conflict evaluation uses the measured data in
-[`src/data/laurAddonFootprints.ts`](../src/data/laurAddonFootprints.ts) only
-for `lwl2`, `lwr2`, and `lwr3`. Do not infer footprints for other add-ons.
+conflict evaluation uses the read-only data in
+[`src/data/laurAddonFootprints.ts`](../src/data/laurAddonFootprints.ts) for all
+eight registered Laur add-ons. The feature adapter in
+[`src/data/hexGrid/pieceFeatures.ts`](../src/data/hexGrid/pieceFeatures.ts)
+exposes those ends and blocked hexes as hex IDs; it does not change placement
+or occupancy.
 
 ## 2. Registration checklist, in order
 
@@ -191,7 +194,7 @@ render/export paths above.
 | Glyph | Use the right power/treasure glyph definition in `data/glyphs.ts`; named entries are converted to `Piece` definitions. `GlyphModel`/`GlyphModelPreview` use the shared glyph asset and the piece terrain for color. `addPiece()` requires glyph support from land, not bare table. `PenModeControls` separately lists named glyphs. |
 | Castle or wall | Distinguish a land-like wall walk from castle bases, walls, arches, battlements, and ladders. Those have explicit 3D dispatch and click rules; castle wall/arch tops use special placement handling. Test the exact family case, not just generic obstacle placement. |
 | Fluid tile | Classify it with the fluid terrains in `isFluidTerrainHex()`. The placement increment, fluid cap rendering, and loaded-map stack warning are separate concerns; test them without assuming a stable altitude for fluid-on-fluid stacks. |
-| Edge add-on | There is no first-class edge/node occupancy model today. Do not treat `laurAddonFootprints.ts` as active placement logic or change the existing `laurWallAddon` boardPieces-only behavior. **Needs owner input:** agree on identity, occupancy/conflict, click/hover, and export rules before implementing a new edge/node piece. |
+| Edge/node feature | Add a declaration to [`src/data/hexGrid/pieceFeatures.ts`](../src/data/hexGrid/pieceFeatures.ts) for Laur pillars and add-ons, battlements, road walls, rope ladders, or any new edge/node-positioned piece; update the terrain-family sweep in [`src/__tests__/piece-features.test.ts`](../src/__tests__/piece-features.test.ts) if it uses a new terrain. Keep the adapter read-only: there is no first-class edge/node occupancy model today. Do not change the existing `laurWallAddon` boardPieces-only behavior. **Needs owner input:** agree on identity, occupancy/conflict, click/hover, and export rules before behavior changes. |
 | Generic terrain | Use stable `gn*` solid and `gf*` fluid IDs. Generic pieces are unlimited and stay out of finite inventories and terrain-set records. Their four colors are device settings, not map data or share-link data; do not add Virtualscape codes. |
 
 For new obstacle dimensions, **Needs owner input:** confirm the physical support
@@ -214,7 +217,7 @@ Run `npm test`. The most relevant existing tests are:
 | [`src/__tests__/replay-conflicts.test.ts`](../src/__tests__/replay-conflicts.test.ts) | Conflict ownership and rebuild behavior when pieces overlap or are removed. |
 | [`src/__tests__/piece-ids-and-loading.test.ts`](../src/__tests__/piece-ids-and-loading.test.ts) | Encoded-ID round trips, uid regeneration/normalization, malformed/unknown pieces, and the `buildupJsonFileMap()` load path. |
 | [`src/__tests__/fluid-stacks.test.ts`](../src/__tests__/fluid-stacks.test.ts) | Current fluid-run counting and loaded-map warning behavior. It is not a reason to freeze a particular fluid-on-fluid placement altitude. |
-| [`src/__tests__/edges-and-nodes.test.ts`](../src/__tests__/edges-and-nodes.test.ts) and [`src/__tests__/laur-addon-footprints.test.ts`](../src/__tests__/laur-addon-footprints.test.ts) | Current edge/node coordinate facts and acceptance TODOs; all eight owner-specified Laur add-on footprints and registered heights. |
+| [`src/__tests__/edges-and-nodes.test.ts`](../src/__tests__/edges-and-nodes.test.ts), [`src/__tests__/piece-features.test.ts`](../src/__tests__/piece-features.test.ts), and [`src/__tests__/laur-addon-footprints.test.ts`](../src/__tests__/laur-addon-footprints.test.ts) | Current edge/node coordinate facts and acceptance TODOs; registry declaration coverage and adapter parity for every legal rotation; all eight owner-specified Laur add-on footprints and registered heights. |
 | [`src/__tests__/laur-addon-placement.test.ts`](../src/__tests__/laur-addon-placement.test.ts) | Laur side/vertex picking, canonical identity, allowed rotations, center tie-break, and non-mutation. |
 | [`src/__tests__/laur-addon-conflicts.test.ts`](../src/__tests__/laur-addon-conflicts.test.ts) | Derived Laur edge/footprint conflict detection and the empty support-table seam. |
 

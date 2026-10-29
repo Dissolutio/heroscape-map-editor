@@ -128,16 +128,21 @@ React and the store, and is not imported by any app caller.
 
 ## Migration plan
 
-1. **Land the pure ID layer and characterization tests.** This PR adds the
+1. **DONE — Land the pure ID layer and characterization tests.** Completed on
+   `dev`: the
    integer constructors, incidence queries, adjacency helpers, world-point
    conversion, and cross-checks against current Laur keys and edge-drag targets.
    No app callers or saved data change. Test with `edges-and-nodes.test.ts`,
    `hex-grid.test.ts`, and the full unit suite. **Risk: low.**
-2. **Add registry footprint declarations and adapters.** Declare each affected
-   piece's feature kind and translate its current anchor/rotation into IDs;
-   keep the result read-only and compare it to current support/footprint
-   calculations. Add registry sweeps for every rotation and piece family.
-   **Risk: low to medium; the piece-specific anchor conventions must be exact.**
+2. **DONE — Add registry footprint declarations and adapters.** The
+   read-only declarations cover the three Laur pillars and their ports, all
+   eight Laur add-ons, battlements, road walls, and rope ladders. The adapter
+   returns canonical feature IDs and expresses existing add-on footprint ends
+   and blocked hexes as hex IDs. `piece-features.test.ts` sweeps every legal
+   rotation and compares with the current Laur keys, footprints, pillar ports,
+   and edge-drag targets. The sweep found no convention mismatches. No app
+   callers or saved data change. **Risk: low to medium; the piece-specific
+   anchor conventions must be exact.**
 3. **Migrate Laur support and conflict identity.** Replace duplicate Laur
    canonical strings and rotation-key support lookup with typed feature IDs,
    while preserving altitude intervals, stack exemptions, blocked cells, and
@@ -173,6 +178,9 @@ now checks side symmetry from both adjacent hexes, node symmetry from all
 three meeting hexes, all six directions/corners, a signed-coordinate sweep,
 incidence and adjacency, world-point conversion, and equivalence with current
 Laur side/vertex keys and battlement/road-wall/rope-ladder drag targets.
+[`piece-features.test.ts`](../src/__tests__/piece-features.test.ts) checks the
+read-only registry adapters against the legacy implementations for every
+registered edge/node feature piece and legal rotation.
 Existing `it.todo` entries remain application-level acceptance work; this
 prototype does not implement placement conflicts, support requirements,
 serialization migration, or renderer integration.
