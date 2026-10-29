@@ -21,6 +21,7 @@ import {
   FcCollect,
   FcLock,
   FcOldTimeCamera,
+  FcSettings,
   FcSwitchCamera,
   FcSynchronize,
   FcUnlock,
@@ -64,6 +65,9 @@ export default function ViewControlsTab({
   const { enqueueSnackbar } = useSnackbar()
   const { publish } = useEvent()
   const resetSettings = useBoundStore((s) => s.resetSettings)
+  const setIsLookSettingsDialogOpen = useBoundStore(
+    (s) => s.setIsLookSettingsDialogOpen,
+  )
   const isCamerDisabled = useBoundStore((s) => s.isCameraDisabled)
   const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
   const toggleIsOrthoCam = useBoundStore((s) => s.toggleIsOrthoCam)
@@ -191,6 +195,12 @@ export default function ViewControlsTab({
       >
         {is3DOpen && (
           <List>
+            <ControlTabsListItemButton
+              title="Adjust scene lighting, tone mapping, shine, and colors"
+              primary="3D look..."
+              onClick={() => setIsLookSettingsDialogOpen(true)}
+              icon={<FcSettings />}
+            />
             {/* Center map in camera view */}
             <ControlTabsListItemButton
               title="Center the camera on entire map"

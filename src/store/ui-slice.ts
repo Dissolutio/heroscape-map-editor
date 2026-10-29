@@ -2,6 +2,7 @@ import { produce } from 'immer'
 import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import type { DragPreview } from '../data/dragMove'
+import { sanitizeLookSettings, type LookSettings } from '../data/lookSettings'
 import {
   type ObjectiveMarker,
   type ObjectiveMarkerDraft,
@@ -67,6 +68,8 @@ export interface UISlice {
   genericFluidCapColor: string
   genericFluidSideColor: string
   rememberedMapAuthor: string
+  lookSettings: LookSettings
+  setLookSettings: (settings: Partial<LookSettings>) => void
   setGenericSolidCapColor: (color: string) => void
   setGenericSolidSideColor: (color: string) => void
   setGenericFluidCapColor: (color: string) => void
@@ -87,6 +90,8 @@ export interface UISlice {
   togglePieceSize: (s: number) => void
   flatPieceSizes: number[]
   currentDialog: string
+  isLookSettingsDialogOpen: boolean
+  setIsLookSettingsDialogOpen: (open: boolean) => void
   cropDialogReturnToEditMap: boolean
   toggleCurrentDialog: (s: string) => void
   openCropMapPortraitDialog: (returnToEditMap?: boolean) => void
@@ -241,6 +246,7 @@ const createUISlice: StateCreator<
   UISlice
 > = (set) => ({
   ...loadSettings(),
+  isLookSettingsDialogOpen: false,
   effectiveGraphicsTier: 'low',
   textureLoadStatus: 'idle',
   textureLoadProgress: { loaded: 0, total: 0 },
@@ -926,6 +932,15 @@ const createUISlice: StateCreator<
       textureLoadProgress: { loaded: 0, total: 0 },
     })
   },
+  setLookSettings: (settings) =>
+    set((state) => ({
+      lookSettings: sanitizeLookSettings({
+        ...state.lookSettings,
+        ...settings,
+      }),
+    })),
+  setIsLookSettingsDialogOpen: (open) =>
+    set({ isLookSettingsDialogOpen: open }),
   setGenericSolidCapColor: (color: string) =>
     set({ genericSolidCapColor: color }),
   setGenericSolidSideColor: (color: string) =>

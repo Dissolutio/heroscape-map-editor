@@ -2,6 +2,13 @@ import { createStore } from 'zustand/vanilla'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { terrainSetsByShortID } from '../data/terrainSets'
+import {
+  DEFAULT_LOOK_SETTINGS,
+  clampLookRoughness,
+  getAmbientIntensity,
+  LOOK_SETTINGS_VERSION,
+  sanitizeLookSettings,
+} from '../data/lookSettings'
 import { LS_KEYS } from '../local-storage/keys'
 import {
   createSettingsWriter,
@@ -55,6 +62,20 @@ describe('settings persistence', () => {
       genericFluidCapColor: '#ff96e6',
       genericFluidSideColor: '#c864b4',
     })
+    expect(LOOK_SETTINGS_VERSION).toBe(1)
+    expect(DEFAULT_LOOK_SETTINGS).toEqual({
+      toneMapping: 'aces',
+      exposure: 1,
+      ambientIntensity: 0.5,
+      hemisphereIntensity: 0.5,
+      pointLightIntensity: 200,
+      lightColor: '#ffffff',
+      shine: 1,
+      backgroundColor: '#ffffff',
+      tableColor: '#ffffff',
+    })
+    expect(getAmbientIntensity(DEFAULT_LOOK_SETTINGS, true)).toBe(0.5)
+    expect(getAmbientIntensity(DEFAULT_LOOK_SETTINGS, false)).toBe(2)
   })
 
   it('round-trips changed values and writes only differences', () => {
@@ -73,6 +94,12 @@ describe('settings persistence', () => {
       genericFluidCapColor: '#345678',
       genericFluidSideColor: '#456789',
       rememberedMapAuthor: 'Map Builder',
+      lookSettings: {
+        ...DEFAULT_LOOK_SETTINGS,
+        toneMapping: 'agx' as const,
+        exposure: 2.2,
+        shine: 1.4,
+      },
     }
     const serialized = serializeSettings(changed)
     expect(serialized).toEqual({
@@ -91,6 +118,7 @@ describe('settings persistence', () => {
         genericFluidCapColor: '#345678',
         genericFluidSideColor: '#456789',
         rememberedMapAuthor: 'Map Builder',
+        lookSettings: changed.lookSettings,
       },
     })
     storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
@@ -106,6 +134,36 @@ describe('settings persistence', () => {
 
     expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
     expect(values.get(LS_KEYS.settings)).toBe(staleSettings)
+  })
+
+  it('sanitizes look settings by defaulting invalid values and clamping numbers', () => {
+    expect(
+      sanitizeLookSettings({
+        toneMapping: 'unknown',
+        exposure: 10,
+        ambientIntensity: -1,
+        hemisphereIntensity: 1.25,
+        pointLightIntensity: Number.NaN,
+        lightColor: 'red',
+        shine: 0.1,
+        backgroundColor: '#abc',
+        tableColor: '#123456',
+        ignored: 'value',
+      }),
+    ).toEqual({
+      ...DEFAULT_LOOK_SETTINGS,
+      exposure: 3,
+      ambientIntensity: 0,
+      hemisphereIntensity: 1.25,
+      shine: 0.5,
+      tableColor: '#123456',
+    })
+  })
+
+  it('clamps the final roughness after applying the shine multiplier', () => {
+    expect(clampLookRoughness(0.1, 0.5)).toBe(0.05)
+    expect(clampLookRoughness(0.02, 0.5)).toBe(0.04)
+    expect(clampLookRoughness(0.8, 2)).toBe(1)
   })
 
   it('returns null when all settings equal their defaults', () => {
@@ -341,6 +399,7 @@ describe('settings persistence', () => {
       'effectiveGraphicsTier',
       'textureLoadStatus',
       'textureLoadProgress',
+      'isLookSettingsDialogOpen',
     ]
     const mapStateKeys = [
       'boardHexes',

@@ -211,6 +211,8 @@ function makeLandMaterial(
   const material = isLightsAndShadowsRender
     ? new MeshStandardMaterial()
     : new MeshMatcapMaterial()
+  material.userData.lookShineHandled = material instanceof MeshStandardMaterial
+  material.userData.lookShine = useBoundStore.getState().lookSettings.shine
   material.color.set('white')
   if (isFluid) {
     material.transparent = true
@@ -287,6 +289,12 @@ function makeLandMaterial(
          }`
     : ''
   material.onBeforeCompile = (shader) => {
+    if (material instanceof MeshStandardMaterial) {
+      shader.uniforms.uLookShine = {
+        value: material.userData.lookShine as number,
+      }
+      material.userData.lookShader = shader
+    }
     if (capTexture) {
       shader.uniforms.uLandCapDiffuse = { value: capTexture }
     }
@@ -375,6 +383,11 @@ function makeLandMaterial(
       .replace(
         '#include <common>',
         `#include <common>
+        ${
+          material instanceof MeshStandardMaterial
+            ? 'uniform float uLookShine;'
+            : ''
+        }
         varying vec3 vLandSurfaceColor;
         varying float vLandHighlight;
         varying vec2 vLandTextureUv;
@@ -425,7 +438,16 @@ function makeLandMaterial(
       .replace(
         '#include <roughnessmap_fragment>',
         `#include <roughnessmap_fragment>
-        if (landOrmEnabled > 0.5) roughnessFactor = landOrm.g;`,
+        ${
+          pbrTextures
+            ? 'if (landOrmEnabled > 0.5) roughnessFactor = landOrm.g;'
+            : ''
+        }
+        ${
+          material instanceof MeshStandardMaterial
+            ? 'roughnessFactor = clamp(roughnessFactor * uLookShine, 0.04, 1.0);'
+            : ''
+        }`,
       )
       .replace(
         '#include <metalnessmap_fragment>',
@@ -622,6 +644,7 @@ export default function LandHexInstanced({
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
+  const shine = useBoundStore((s) => s.lookSettings.shine)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isWebGL2 = useThree((state) => state.gl.capabilities.isWebGL2)
@@ -755,6 +778,14 @@ export default function LandHexInstanced({
       makeLandMaterial(isLightsAndShadowsRender, true, capTexture, sideTexture),
     [capTexture, isLightsAndShadowsRender, sideTexture],
   )
+  React.useEffect(() => {
+    for (const material of [capMaterial, sideMaterial, fluidMaterial]) {
+      if (!(material instanceof MeshStandardMaterial)) continue
+      material.userData.lookShine = shine
+      const shader = material.userData.lookShader
+      if (shader) shader.uniforms.uLookShine.value = shine
+    }
+  }, [capMaterial, fluidMaterial, shine, sideMaterial])
   React.useEffect(() => () => capGeometry.dispose(), [capGeometry])
   React.useEffect(() => () => sideGeometry.dispose(), [sideGeometry])
   React.useEffect(() => () => fluidGeometry.dispose(), [fluidGeometry])
