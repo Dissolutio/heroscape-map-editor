@@ -11,6 +11,7 @@ import {
   resolveRotationPivot,
   shouldShowRotationPivotMarker,
 } from '../data/rotationPivot'
+import { worldToCube } from '../data/dragMove'
 import { shouldRenderPlacedPiece } from '../data/startZoneVisibility'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
@@ -136,7 +137,14 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
           terrain: HexTerrain.laurWall,
         } as BoardHex)
       : boardHexes[genBoardHexID({ ...pieceCoords, altitude })]
-    if (support && reportObjectiveMarkerDragTarget(support, e)) return
+    if (support) {
+      const pointerCoords = worldToCube(e.point.x, e.point.z)
+      const targetHex =
+        boardHexes[
+          genBoardHexID({ ...pointerCoords, altitude: support.altitude })
+        ] ?? { ...support, ...pointerCoords }
+      if (reportObjectiveMarkerDragTarget(targetHex, e)) return
+    }
     if (!isDragging()) return
     if (reportDragTargetHex(support, uid, { x: e.point.x, z: e.point.z })) {
       e.stopPropagation()

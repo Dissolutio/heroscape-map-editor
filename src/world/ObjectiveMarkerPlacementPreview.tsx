@@ -4,14 +4,19 @@ import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacem
 import { getObjectiveMarkerFootprint } from '../data/objectiveMarkers'
 import { mapTableHexes } from '../data/fitMapToPieces'
 import useBoundStore from '../store/store'
+import type { ObjectiveMarker } from '../data/objectiveMarkers'
 import { PlacementFootprint } from './PlacementFootprint'
+
+const EMPTY_OBJECTIVE_MARKERS: ObjectiveMarker[] = []
 
 export default function ObjectiveMarkerPlacementPreview() {
   const penMode = useBoundStore((state) => state.penMode)
   const hoveredHex = useBoundStore((state) => state.hoveredHex)
   const boardHexes = useBoundStore((state) => state.boardHexes)
   const hexMap = useBoundStore((state) => state.hexMap)
-  const markers = useBoundStore((state) => state.hexMap.objectiveMarkers ?? [])
+  const markers = useBoundStore(
+    (state) => state.hexMap.objectiveMarkers ?? EMPTY_OBJECTIVE_MARKERS,
+  )
   const draft = useBoundStore((state) => state.objectiveMarkerDraft)
   const penModeRotation = useBoundStore((state) => state.penModeRotation)
   const dragPreview = useBoundStore((state) => state.objectiveMarkerDragPreview)
