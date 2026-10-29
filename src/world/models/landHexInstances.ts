@@ -122,13 +122,12 @@ export const SOLID_CAP_NORMAL_STRENGTH_BY_LAYER: Readonly<
   0: SOLID_CAP_NORMAL_STRENGTH,
   1: SOLID_CAP_NORMAL_STRENGTH,
 }
-export const SOLID_CAP_AO_STRENGTH_BY_LAYER: Readonly<
-  Record<number, number>
-> = {
-  0: SOLID_CAP_AO_STRENGTH,
-  1: SOLID_CAP_AO_STRENGTH,
-  2: SOLID_CAP_AO_STRENGTH,
-}
+export const SOLID_CAP_AO_STRENGTH_BY_LAYER: Readonly<Record<number, number>> =
+  {
+    0: SOLID_CAP_AO_STRENGTH,
+    1: SOLID_CAP_AO_STRENGTH,
+    2: SOLID_CAP_AO_STRENGTH,
+  }
 
 export const FLUID_CAP_BORDER_INSET = 0.22
 export const FLUID_CAP_BORDER_BLEND_WIDTH = 0.04
@@ -226,8 +225,7 @@ export function getLandHexCapPbrStrengths(
     normal:
       SOLID_CAP_NORMAL_STRENGTH_BY_LAYER[capNormalLayer] ??
       SOLID_CAP_NORMAL_STRENGTH,
-    ao:
-      SOLID_CAP_AO_STRENGTH_BY_LAYER[capOrmLayer] ?? SOLID_CAP_AO_STRENGTH,
+    ao: SOLID_CAP_AO_STRENGTH_BY_LAYER[capOrmLayer] ?? SOLID_CAP_AO_STRENGTH,
   }
 }
 
@@ -248,7 +246,7 @@ export function getLandHexWorldFillUV(x: number, z: number) {
 function mirrorIntoWindow(value: number, min: number, max: number) {
   const width = max - min
   const period = 2 * width
-  const offset = ((value - min) % period + period) % period
+  const offset = (((value - min) % period) + period) % period
   return min + (offset <= width ? offset : period - offset)
 }
 

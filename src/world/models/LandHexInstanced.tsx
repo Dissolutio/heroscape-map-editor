@@ -327,9 +327,9 @@ function makeLandMaterial(
         float landFluidFillBlend = 0.0;
         if (vLandSurfaceKind > 0.5 && vLandFluidJoinMask > 0.5) {
          float landFluidInset =
-           ${glslFloat(FLUID_CAP_BORDER_INSET * HEXGRID_HEX_RADIUS * Math.sqrt(3) / 2)};
+           ${glslFloat((FLUID_CAP_BORDER_INSET * HEXGRID_HEX_RADIUS * Math.sqrt(3)) / 2)};
          float landFluidBlendWidth =
-           ${glslFloat(FLUID_CAP_BORDER_BLEND_WIDTH * HEXGRID_HEX_RADIUS * Math.sqrt(3) / 2)};
+           ${glslFloat((FLUID_CAP_BORDER_BLEND_WIDTH * HEXGRID_HEX_RADIUS * Math.sqrt(3)) / 2)};
          float landOuterEdgeKeep = 1.0;
          for (int edge = 0; edge < 6; edge++) {
            float edgeAngle = float(edge) * 1.0471975512;
