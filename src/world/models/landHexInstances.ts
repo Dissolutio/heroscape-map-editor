@@ -131,7 +131,7 @@ export const SOLID_CAP_AO_STRENGTH_BY_LAYER: Readonly<Record<number, number>> =
 
 export const FLUID_CAP_BORDER_INSET = 0.22
 export const FLUID_CAP_BORDER_BLEND_WIDTH = 0.04
-export const ICE_FLUID_OPACITY = 0.92
+export const ICE_FLUID_OPACITY = 0.98
 export const LAND_HEX_FLUID_MATERIAL_CLASSES = ['opaque', 'ice'] as const
 export type LandHexFluidMaterialClass =
   (typeof LAND_HEX_FLUID_MATERIAL_CLASSES)[number]

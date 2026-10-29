@@ -55,7 +55,7 @@ describe('land hex instance data', () => {
   it('groups fluid terrain by opacity without adding instance attributes', () => {
     expect(getLandHexFluidMaterialClass(HexTerrain.ice)).toBe('ice')
     expect(getLandHexFluidMaterialSettings('ice')).toEqual({
-      opacity: 0.92,
+      opacity: 0.98,
       transparent: true,
     })
 
