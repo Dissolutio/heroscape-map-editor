@@ -53,6 +53,7 @@ export-border test also renders minimal SVG and PDF output.
 | `material-clones.test.ts` | The private material copies the move/rotate preview ghost uses (`utils/materialClones.ts`), so it never changes the cached materials real pieces share. |
 | `textures-pack.test.ts` | Terrain texture manifest coverage, source existence, layer bounds and strip sizes, repaired side edges/rows, flat fluid cap normals, and packed-output drift checks. |
 | `world/textures/terrainTextureArrays.test.ts` | Runtime manifest validation, texture-tier strip selection and cached access, pure layer slicing and Y orientation, lazy request caching, retry after failure, and disposal. |
+| `world/models/gltfLifecycle.test.ts` | Delayed GLTF eviction after the idle timeout, cancellation on reacquisition, and reference-counted cleanup. |
 | `store/graphics-tier.test.ts` | Graphics-tier loading state, session-only fallback after failure, and stale request handling. |
 | `performance/performance.test.ts` | Detection of monotonically growing scene, GPU-resource, heap, subscriber, timer, and animation-frame metrics, plus typed-array accounting for geometry, instances, and texture data. |
 | `performance/performanceFlags.test.ts` | Performance-gated accounting of active Zustand store subscriptions, R3F-event isolation, and User Timing collection. |
