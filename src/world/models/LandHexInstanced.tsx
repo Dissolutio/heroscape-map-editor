@@ -41,7 +41,7 @@ import {
   buildLandHexInstanceData,
   buildLandHexInstanceIndex,
   getLandHexFluidMaterialClass,
-  getLandHexFluidOpacity,
+  getLandHexFluidMaterialSettings,
   getLandHexHighlightValue,
   getLandHexHoverTransition,
   getLandHexSideUV,
@@ -219,8 +219,7 @@ function glslMirroredWindowCoordinate(
 
 function makeLandMaterial(
   isLightsAndShadowsRender: boolean,
-  isFluid: boolean,
-  fluidOpacity: number,
+  fluidSettings?: { opacity: number; transparent: boolean },
   capTexture?: DataArrayTexture,
   sideTexture?: DataArrayTexture,
   pbrTextures?: {
@@ -236,9 +235,9 @@ function makeLandMaterial(
   material.userData.lookShineHandled = material instanceof MeshStandardMaterial
   material.userData.lookShine = useBoundStore.getState().lookSettings.shine
   material.color.set('white')
-  if (isFluid) {
-    material.transparent = fluidOpacity < 1
-    material.opacity = fluidOpacity
+  if (fluidSettings) {
+    material.transparent = fluidSettings.transparent
+    material.opacity = fluidSettings.opacity
   }
   const capTextureDeclaration = capTexture
     ? 'uniform sampler2DArray uLandCapDiffuse;'
@@ -921,8 +920,7 @@ export default function LandHexInstanced({
     () =>
       makeLandMaterial(
         isLightsAndShadowsRender,
-        false,
-        1,
+        undefined,
         capTexture,
         sideTexture,
         pbrTextures,
@@ -933,8 +931,7 @@ export default function LandHexInstanced({
     () =>
       makeLandMaterial(
         isLightsAndShadowsRender,
-        false,
-        1,
+        undefined,
         capTexture,
         sideTexture,
         pbrTextures,
@@ -948,8 +945,7 @@ export default function LandHexInstanced({
           materialClass,
           makeLandMaterial(
             isLightsAndShadowsRender,
-            true,
-            getLandHexFluidOpacity(materialClass),
+            getLandHexFluidMaterialSettings(materialClass),
             capTexture,
             sideTexture,
           ),
@@ -992,7 +988,7 @@ export default function LandHexInstanced({
   const sideRef = React.useRef<InstancedMesh>(null)
   const fluidRefs = React.useRef<
     Record<LandHexFluidMaterialClass, InstancedMesh | null>
-  >({ opaque: null, ice: null, translucent: null })
+  >({ opaque: null, ice: null })
   const selectedIDs = React.useMemo(
     () => new Set(selectedPieceIDs),
     [selectedPieceIDs],

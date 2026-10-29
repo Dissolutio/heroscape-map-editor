@@ -36,8 +36,8 @@
       "colorSpace": "srgb",
       "frameHeight": 32,
       "frameWidth": 128,
-      "height": 512,
-      "layers": 16,
+      "height": 576,
+      "layers": 18,
       "width": 128
     },
     "sides-normal.png": {
@@ -222,9 +222,9 @@
       "capOrmLayer": 5,
       "flatColor": "#0f0f0d",
       "isFluid": true,
-      "sideDiffuseLayer": -1,
-      "sideNormalLayer": -1,
-      "sideOrmLayer": -1
+      "sideDiffuseLayer": 17,
+      "sideNormalLayer": 1,
+      "sideOrmLayer": 2
     },
     "Snow": {
       "allowRandomRotation": false,
@@ -258,9 +258,9 @@
       "capOrmLayer": 5,
       "flatColor": "#7a6c35",
       "isFluid": true,
-      "sideDiffuseLayer": -1,
-      "sideNormalLayer": -1,
-      "sideOrmLayer": -1
+      "sideDiffuseLayer": 16,
+      "sideNormalLayer": 1,
+      "sideOrmLayer": 2
     },
     "ToxicLand": {
       "allowRandomRotation": false,

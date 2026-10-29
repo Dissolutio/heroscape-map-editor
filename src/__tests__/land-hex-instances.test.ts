@@ -11,7 +11,7 @@ import {
   buildLandHexInstanceData,
   buildLandHexInstanceIndex,
   getLandHexFluidMaterialClass,
-  getLandHexFluidOpacity,
+  getLandHexFluidMaterialSettings,
   getLandHexCapPbrStrengths,
   getLandHexCapUV,
   getLandHexColors,
@@ -52,12 +52,11 @@ const genericColors = {
 
 describe('land hex instance data', () => {
   it('groups fluid terrain by opacity without adding instance attributes', () => {
-    expect(getLandHexFluidMaterialClass(HexTerrain.shadow)).toBe('opaque')
-    expect(getLandHexFluidMaterialClass(HexTerrain.swampWater)).toBe('opaque')
-    expect(getLandHexFluidOpacity('opaque')).toBe(1)
-
     expect(getLandHexFluidMaterialClass(HexTerrain.ice)).toBe('ice')
-    expect(getLandHexFluidOpacity('ice')).toBe(0.92)
+    expect(getLandHexFluidMaterialSettings('ice')).toEqual({
+      opacity: 0.92,
+      transparent: true,
+    })
 
     for (const terrain of [
       HexTerrain.water,
@@ -65,10 +64,15 @@ describe('land hex instance data', () => {
       HexTerrain.wellspringWater,
       HexTerrain.lava,
       HexTerrain.genericFluid,
+      HexTerrain.shadow,
+      HexTerrain.swampWater,
     ]) {
-      expect(getLandHexFluidMaterialClass(terrain)).toBe('translucent')
+      expect(getLandHexFluidMaterialClass(terrain)).toBe('opaque')
+      expect(getLandHexFluidMaterialSettings('opaque')).toEqual({
+        opacity: 1,
+        transparent: false,
+      })
     }
-    expect(getLandHexFluidOpacity('translucent')).toBe(0.8)
   })
 
   it('packs every supported PBR layer tuple into a unique scalar', () => {
@@ -191,7 +195,7 @@ describe('land hex instance data', () => {
     }
   })
 
-  it('selects manifest diffuse layers for each tier and keeps flat terrains untextured', () => {
+  it('selects manifest layers by tier and keeps generic terrain untextured', () => {
     for (const [terrain, manifestName] of Object.entries(
       LAND_HEX_TEXTURE_TERRAIN_NAMES,
     )) {
@@ -258,7 +262,7 @@ describe('land hex instance data', () => {
       expect(terrainManifest.terrains[name]).toMatchObject({
         capDiffuseLayer: -1,
         capDiffusePbrLayer: -1,
-        sideDiffuseLayer: -1,
+        sideDiffuseLayer: expect.any(Number),
         flatColor: color,
       })
     }
