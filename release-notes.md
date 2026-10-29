@@ -1,7 +1,22 @@
-Oct-28-2026
-TLDR: Textures.
+Oct-29-2026
+TLDR: Textures! Three graphics levels, a 3D Look panel for your lighting and colors, objective markers, a crop dialog right after you take a map picture, and sharper map pictures.
 
-- **New Graphics Levels**: Low= low-poly + flat colors. Medium = texture images, no PBR or shadows. High = PBR textures + shadows.
+Hexoscape can now show real terrain textures, and you decide how much of your computer to spend on them. Everything here is optional: Low looks the way Hexoscape always has.
+
+- **Graphics levels**: Low is the classic look: low-poly pieces with flat colors, and it is the fastest. Medium adds terrain texture images. High adds full PBR textures (real-looking relief, sheen and shadowed crevices) plus lights and shadows. Pick one in the View tab. Textures download only when you choose Medium or High, and every session starts on Low.
+- **3D Look panel**: Tune the lighting, brightness, shine, background and table color, and watch the 3D view change live while it stays open. Reset puts everything back, and you can copy your settings to share them. Handy for map pictures.
+- **Picture-only High**: Keep working on a lighter level, and have High used just for the moment you take a map picture.
+- **Seamless water, lava and ice**: Neighboring fluid tiles in the same piece blend into one surface instead of showing a seam on every hex edge.
+- **Softer solid-land relief**: The tops of solid tiles are less shiny and less harsh on High.
+- **Objective markers**: Place numbered or lettered markers (1 or 2 hexes, black or white) on the map. Select, edit, drag, rotate and delete them, with undo and redo. They are saved with your map file and belong to the map, not to any piece. (They don't ride along in share links yet, and PDF and 2D export support is coming.)
+- **Crop right after you take a picture**: Taking a map picture now opens a cropping dialog right away, with a live preview of the result. Save, use the full picture, upload a different one, or cancel. It also opens from Edit Map and from the File tab.
+- **Sharper map pictures**: Map pictures were coming out grainy. They now keep up to 1920 pixels at much higher quality. If your browser runs out of room to store the full-size one, a smaller copy is kept for the map and the full one still goes into your downloads and PDF.
+- **Full terrain set names**: Required Terrain in the PDF build instructions, tooltips and set summaries now say "Swamps of Valhalla" instead of abbreviations. The sets list is gone from the header so your map name has room.
+- **Glyph options for OHS-style maps**: New switches in the SVG and PDF export options make glyph fills see-through, and hide the heights under glyphs, while keeping the glyph symbol and outline visible.
+- **Pieces Grid and Map Inventory**: Your search and filters survive zooming to a piece and reopening the grid. Click an available piece in the Map Inventory to start placing it. You can't shrink the map past pieces that are still on it, and the tooltip explains why.
+- **Smoother 3D**: Hovering no longer flashes the model loader, tiles no longer vanish or turn black in some lighting modes, and a batch of memory and speed improvements make big maps friendlier.
+- **Under the hood**: More tests, and a cleaner foundation for adding new terrain.
+
 Oct-27-2026
 TLDR: Generic pieces. Buried piece markers. Asphalt isn't black on black. New release terrain kits, some new terrain. Better stackable Laur pieces. Drag and drop all multi-selected piece types. Spin the scroll wheel while dragging, to spin piece. Choose your pivot for rotations.
 
