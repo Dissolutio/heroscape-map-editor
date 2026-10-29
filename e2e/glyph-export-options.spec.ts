@@ -1,6 +1,12 @@
 import { piecesSoFar } from '../src/data/pieces'
 import { Pieces } from '../src/types'
-import { expect, mapUrl, test, waitForAppReady } from './fixtures'
+import {
+  expect,
+  mapUrl,
+  saveLocatorEvidence,
+  test,
+  waitForAppReady,
+} from './fixtures'
 import { FIXTURE_HEX_MAP } from './fixture-map'
 
 const glyphMapURL = mapUrl(FIXTURE_HEX_MAP, [
@@ -38,7 +44,7 @@ test('glyph export options update the SVG view', async ({ page }) => {
     .toBe(true)
   const before = await getGlyphAttributes()
   expect(before.fills[0]).not.toBe('none')
-  await svg.screenshot({ path: 'docs/evidence/glyph-spaces-before.png' })
+  await saveLocatorEvidence(svg, 'glyph-spaces-before')
 
   const transparentGlyphs = page.getByRole('checkbox', {
     name: 'Transparent glyph spaces',
@@ -67,5 +73,5 @@ test('glyph export options update the SVG view', async ({ page }) => {
     .poll(async () => (await getSvgText()).includes(height))
     .toBe(true)
   await expect(glyphSymbol).toHaveText('?')
-  await svg.screenshot({ path: 'docs/evidence/glyph-spaces-after.png' })
+  await saveLocatorEvidence(svg, 'glyph-spaces-after')
 })

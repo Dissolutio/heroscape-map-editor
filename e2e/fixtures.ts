@@ -1,4 +1,4 @@
-import { type Page, test as base, expect } from '@playwright/test'
+import { type Locator, type Page, test as base, expect } from '@playwright/test'
 import JSONCrush from 'jsoncrush'
 import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 
@@ -324,6 +324,11 @@ export async function saveEvidence(
     ...options,
     path: `docs/evidence/${name}.png`,
   })
+}
+
+export async function saveLocatorEvidence(locator: Locator, name: string) {
+  if (process.env.E2E_EVIDENCE !== '1') return
+  await locator.screenshot({ path: `docs/evidence/${name}.png` })
 }
 
 export const test = base.extend({
