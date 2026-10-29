@@ -1,10 +1,16 @@
-import { G, Text } from '@react-pdf/renderer'
+import { G, Line, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
 import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
+import {
+  getShroudshroom13OriginLine,
+  SHROUDSHROOM13_ORIGIN_LINE_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
+} from '../pdf-svg-shared/shroudshroom13OriginLine'
 import useBoundStore from '../store/store'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
@@ -314,11 +320,26 @@ export const PdfMapHex = ({
   }
   // Shroudshroom13
   if (inventoryID === Pieces.shroudshroom13) {
+    const originLine = hex.isObstacleOrigin
+      ? getShroudshroom13OriginLine(hex.pieceRotation ?? 0, SVG_HEX_RADIUS)
+      : null
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <G transform={`rotate(${pieceRotation})`}>
           <PdfMultiHex3 hex={hex} isSubLevel={isSubLevel} />
         </G>
+        {originLine && (
+          <Line
+            {...originLine}
+            stroke={
+              isSubLevel
+                ? SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR
+                : SHROUDSHROOM13_ORIGIN_LINE_COLOR
+            }
+            strokeWidth={SHROUDSHROOM13_ORIGIN_LINE_WIDTH}
+            strokeLinecap="round"
+          />
+        )}
         <Text
           fill={svgColors.shroudshroomText}
           opacity={
