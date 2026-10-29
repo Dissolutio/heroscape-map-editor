@@ -113,16 +113,30 @@ const LAND_CAP_HIGHLIGHT = 1
 const LAND_SIDE_HIGHLIGHT = 2
 export const LAND_CAP_PBR_STRENGTH_STEPS = 31
 
-export const LAND_CAP_PBR_STRENGTH_DEFAULTS = {
-  normal: 0.45,
-  ao: 0.4,
-} as const
-export const LAND_HEX_WORLD_FILL_UV_SCALE = 0.004
+// Tune these values and reload the map to preview cap relief.
+export const SOLID_CAP_NORMAL_STRENGTH = 0.35
+export const SOLID_CAP_AO_STRENGTH = 0.4
+export const SOLID_CAP_NORMAL_STRENGTH_BY_LAYER: Readonly<
+  Record<number, number>
+> = {
+  0: SOLID_CAP_NORMAL_STRENGTH,
+  1: SOLID_CAP_NORMAL_STRENGTH,
+}
+export const SOLID_CAP_AO_STRENGTH_BY_LAYER: Readonly<
+  Record<number, number>
+> = {
+  0: SOLID_CAP_AO_STRENGTH,
+  1: SOLID_CAP_AO_STRENGTH,
+  2: SOLID_CAP_AO_STRENGTH,
+}
 
-export const LAND_CAP_PBR_STRENGTH_OVERRIDES = {
-  Road: { normal: 0.55, ao: 0.45 },
-  WallWalk: { normal: 0.55, ao: 0.45 },
-  Wood: { normal: 0.35, ao: 0.3 },
+export const FLUID_CAP_BORDER_INSET = 0.22
+export const FLUID_CAP_BORDER_BLEND_WIDTH = 0.04
+export const FLUID_CAP_FILL_UV_WINDOW = {
+  uMin: 0.11,
+  uMax: 0.89,
+  vMin: 0.305,
+  vMax: 0.695,
 } as const
 
 export const LAND_HEX_TEXTURE_TERRAIN_NAMES: Partial<
@@ -171,7 +185,14 @@ export function getLandHexTextureLayers(
     ? manifest?.terrains[manifestTerrainName]
     : undefined
   const enabled = tier !== 'low' && Boolean(manifest && layers)
-  const capPbrStrengths = getLandHexCapPbrStrengths(terrain)
+  const capPbrStrengths =
+    tier === 'high'
+      ? getLandHexCapPbrStrengths(
+          terrain,
+          layers?.capNormalLayer ?? -1,
+          layers?.capOrmLayer ?? -1,
+        )
+      : { normal: 1, ao: 1 }
   const allowRandomRotation =
     terrain === HexTerrain.ice || terrain === HexTerrain.toxicWater
   return {
@@ -195,14 +216,19 @@ export function getLandHexTextureLayers(
   }
 }
 
-export function getLandHexCapPbrStrengths(terrain: string) {
-  const terrainName = getLandHexManifestTerrainName(terrain)
-  const override = terrainName
-    ? LAND_CAP_PBR_STRENGTH_OVERRIDES[
-        terrainName as keyof typeof LAND_CAP_PBR_STRENGTH_OVERRIDES
-      ]
-    : undefined
-  return override ?? LAND_CAP_PBR_STRENGTH_DEFAULTS
+export function getLandHexCapPbrStrengths(
+  terrain: string,
+  capNormalLayer = -1,
+  capOrmLayer = -1,
+) {
+  if (!isSolidTerrainHex(terrain)) return { normal: 1, ao: 1 }
+  return {
+    normal:
+      SOLID_CAP_NORMAL_STRENGTH_BY_LAYER[capNormalLayer] ??
+      SOLID_CAP_NORMAL_STRENGTH,
+    ao:
+      SOLID_CAP_AO_STRENGTH_BY_LAYER[capOrmLayer] ?? SOLID_CAP_AO_STRENGTH,
+  }
 }
 
 export function quantizeLandCapPbrStrength(strength: number) {
@@ -214,11 +240,32 @@ export function quantizeLandCapPbrStrength(strength: number) {
 
 export function getLandHexWorldFillUV(x: number, z: number) {
   return {
-    u: x * LAND_HEX_WORLD_FILL_UV_SCALE + 0.5,
-    v: z * LAND_HEX_WORLD_FILL_UV_SCALE + 0.5,
+    u: x / (Math.sqrt(3) * HEXGRID_HEX_RADIUS) + 0.5,
+    v: z / (2 * HEXGRID_HEX_RADIUS) + 0.5,
   }
 }
 
+function mirrorIntoWindow(value: number, min: number, max: number) {
+  const width = max - min
+  const period = 2 * width
+  const offset = ((value - min) % period + period) % period
+  return min + (offset <= width ? offset : period - offset)
+}
+
+export function getLandHexMirroredFillUV(uv: { u: number; v: number }) {
+  return {
+    u: mirrorIntoWindow(
+      uv.u,
+      FLUID_CAP_FILL_UV_WINDOW.uMin,
+      FLUID_CAP_FILL_UV_WINDOW.uMax,
+    ),
+    v: mirrorIntoWindow(
+      uv.v,
+      FLUID_CAP_FILL_UV_WINDOW.vMin,
+      FLUID_CAP_FILL_UV_WINDOW.vMax,
+    ),
+  }
+}
 export function packLandHexVisibility(
   sideMask: number,
   capVisible: boolean,

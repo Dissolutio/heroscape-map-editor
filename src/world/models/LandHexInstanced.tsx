@@ -30,7 +30,9 @@ import {
   hasHighTierPbrTextureUnitBudget,
 } from '../textures/terrainTextureArrays'
 import {
-  LAND_HEX_WORLD_FILL_UV_SCALE,
+  FLUID_CAP_BORDER_BLEND_WIDTH,
+  FLUID_CAP_BORDER_INSET,
+  FLUID_CAP_FILL_UV_WINDOW,
   type LandHexHoverTarget,
   type LandHexInstanceDatum,
   type LandHexInstanceIndex,
@@ -198,6 +200,19 @@ function glslFloat(value: number) {
   return Number.isInteger(value) ? `${value}.0` : `${value}`
 }
 
+function glslMirroredWindowCoordinate(
+  coordinate: string,
+  min: number,
+  max: number,
+) {
+  const lower = glslFloat(min)
+  const width = glslFloat(max - min)
+  const period = glslFloat(2 * (max - min))
+  return `${lower} + ${width} - abs(
+    fract((${coordinate} - ${lower}) / ${period}) * ${period} - ${width}
+  )`
+}
+
 function makeLandMaterial(
   isLightsAndShadowsRender: boolean,
   isFluid: boolean,
@@ -237,35 +252,21 @@ function makeLandMaterial(
     ? 'uniform sampler2DArray uLandSideOrm;'
     : ''
   const capTextureSample = capTexture
-    ? `vec2 landCapTextureUv = vLandTextureUv;
-         if (vLandSurfaceKind > 0.5 && vLandFluidJoinMask > 0.5) {
-           float landFluidFillBlend = 0.0;
-           for (int edge = 0; edge < 6; edge++) {
-             float edgeAngle = float(edge) * 1.0471975512;
-             vec2 edgeNormal = vec2(cos(edgeAngle), sin(edgeAngle));
-             float edgeDistance =
-               ${glslFloat((Math.sqrt(3) / 2) * HEXGRID_HEX_RADIUS)} -
-               dot(vLandCapLocalPosition, edgeNormal);
-             float edgeJoined = mod(
-               floor(vLandFluidJoinMask / exp2(float(edge))),
-               2.0
-             );
-             landFluidFillBlend = max(
-               landFluidFillBlend,
-               edgeJoined * (1.0 - smoothstep(0.0, 0.12, edgeDistance))
-             );
-           }
-           landCapTextureUv = mix(
-             vLandTextureUv,
-             vLandWorldFillUv,
-             landFluidFillBlend
-           );
-         }
-         if (vLandSurfaceKind > 0.5 && vLandTextureLayer >= 0.0) {
-           landTextureColor = texture(
+    ? `if (vLandSurfaceKind > 0.5 && vLandTextureLayer >= 0.0) {
+           vec3 landCapCellColor = texture(
              uLandCapDiffuse,
-             vec3(landCapTextureUv, vLandTextureLayer)
+             vec3(vLandTextureUv, vLandTextureLayer)
            ).rgb;
+           landTextureColor = landFluidFillBlend > 0.0
+             ? mix(
+                 landCapCellColor,
+                 texture(
+                   uLandCapDiffuse,
+                   vec3(landFluidFillUv, vLandTextureLayer)
+                 ).rgb,
+                 landFluidFillBlend
+               )
+             : landCapCellColor;
          }`
     : ''
   const sideTextureSample = sideTexture
@@ -280,17 +281,27 @@ function makeLandMaterial(
     ? `if (vLandSurfaceKind > 0.5 && vLandPbrTextureLayers.x >= 0.0) {
            landTangentNormal = texture(
              uLandCapNormal,
-             vec3(vLandTextureUv, vLandPbrTextureLayers.x)
+             vec3(landCapTextureUv, vLandPbrTextureLayers.x)
            ).xyz * 2.0 - 1.0;
            landNormalEnabled = 1.0;
          }`
     : ''
   const capOrmSample = pbrTextures
     ? `if (vLandSurfaceKind > 0.5 && vLandPbrTextureLayers.y >= 0.0) {
-           landOrm = texture(
+           vec3 landCapCellOrm = texture(
              uLandCapOrm,
              vec3(vLandTextureUv, vLandPbrTextureLayers.y)
            ).rgb;
+           landOrm = landFluidFillBlend > 0.0
+             ? mix(
+                 landCapCellOrm,
+                 texture(
+                   uLandCapOrm,
+                   vec3(landFluidFillUv, vLandPbrTextureLayers.y)
+                 ).rgb,
+                 landFluidFillBlend
+               )
+             : landCapCellOrm;
            landOrmEnabled = 1.0;
          }`
     : ''
@@ -312,6 +323,57 @@ function makeLandMaterial(
            landOrmEnabled = 1.0;
          }`
     : ''
+  const capFillUvSetup = `
+        float landFluidFillBlend = 0.0;
+        if (vLandSurfaceKind > 0.5 && vLandFluidJoinMask > 0.5) {
+         float landFluidInset =
+           ${glslFloat(FLUID_CAP_BORDER_INSET * HEXGRID_HEX_RADIUS * Math.sqrt(3) / 2)};
+         float landFluidBlendWidth =
+           ${glslFloat(FLUID_CAP_BORDER_BLEND_WIDTH * HEXGRID_HEX_RADIUS * Math.sqrt(3) / 2)};
+         float landOuterEdgeKeep = 1.0;
+         for (int edge = 0; edge < 6; edge++) {
+           float edgeAngle = float(edge) * 1.0471975512;
+           vec2 edgeNormal = vec2(cos(edgeAngle), sin(edgeAngle));
+           float edgeDistance =
+             ${glslFloat((Math.sqrt(3) / 2) * HEXGRID_HEX_RADIUS)} -
+             dot(vLandCapLocalPosition, edgeNormal);
+           float edgeJoined = mod(
+             floor(vLandFluidJoinMask / exp2(float(edge))),
+             2.0
+           );
+           float edgeBlend = 1.0 - smoothstep(
+             landFluidInset - landFluidBlendWidth,
+             landFluidInset,
+             edgeDistance
+           );
+           landFluidFillBlend = max(
+             landFluidFillBlend,
+             edgeJoined * edgeBlend
+           );
+           landOuterEdgeKeep = min(
+             landOuterEdgeKeep,
+             edgeJoined + (1.0 - edgeBlend)
+           );
+         }
+         landFluidFillBlend *= landOuterEdgeKeep;
+        }
+        vec2 landFluidFillUv = vec2(
+          ${glslMirroredWindowCoordinate(
+            'vLandWorldFillUv.x',
+            FLUID_CAP_FILL_UV_WINDOW.uMin,
+            FLUID_CAP_FILL_UV_WINDOW.uMax,
+          )},
+          ${glslMirroredWindowCoordinate(
+            'vLandWorldFillUv.y',
+            FLUID_CAP_FILL_UV_WINDOW.vMin,
+            FLUID_CAP_FILL_UV_WINDOW.vMax,
+          )}
+        );
+        vec2 landCapTextureUv = mix(
+         vLandTextureUv,
+         landFluidFillUv,
+         landFluidFillBlend
+        );`
   material.onBeforeCompile = (shader) => {
     if (capTexture) {
       shader.uniforms.uLandCapDiffuse = { value: capTexture }
@@ -404,7 +466,10 @@ function makeLandMaterial(
         vec4 landWorldPosition =
           modelMatrix * instanceMatrix * vec4(position, 1.0);
         vLandWorldFillUv =
-          landWorldPosition.xz * ${glslFloat(LAND_HEX_WORLD_FILL_UV_SCALE)} + 0.5;
+          vec2(
+            landWorldPosition.x / ${glslFloat(Math.sqrt(3) * HEXGRID_HEX_RADIUS)},
+            landWorldPosition.z / ${glslFloat(2 * HEXGRID_HEX_RADIUS)}
+          ) + 0.5;
         float landTangentAngle = landTextureData.z * 1.0471975512;
         vec3 landLocalTangent = landSurfaceKind > 0.5
           ? vec3(cos(landTangentAngle), 0.0, sin(landTangentAngle))
@@ -447,6 +512,7 @@ function makeLandMaterial(
         vec3 landOrm = vec3(1.0, 1.0, 0.0);
         float landNormalEnabled = 0.0;
         float landOrmEnabled = 0.0;
+        ${capFillUvSetup}
         ${capTextureSample}
         ${sideTextureSample}
         ${capNormalSample}
@@ -467,16 +533,12 @@ function makeLandMaterial(
             vLandTangent - normal * dot(normal, vLandTangent)
           );
           vec3 landBitangent = normalize(cross(normal, landTangent));
-          float landNormalStrength = vLandSurfaceKind > 0.5
-            ? vLandCapPbrStrengths.x
-            : 1.0;
-          vec3 capNormal = normalize(mix(
-            vec3(0.0, 0.0, 1.0),
-            landTangentNormal,
-            landNormalStrength
-          ));
+          if (vLandSurfaceKind > 0.5) {
+            landTangentNormal.xy *= vLandCapPbrStrengths.x;
+          }
+          landTangentNormal = normalize(landTangentNormal);
           normal = normalize(
-            mat3(landTangent, landBitangent, normal) * capNormal
+            mat3(landTangent, landBitangent, normal) * landTangentNormal
           );
         }`,
       )
