@@ -171,10 +171,7 @@ function onWindowPointerUpCapture(event: PointerEvent) {
   if (current.dragging) {
     event.preventDefault()
     event.stopPropagation()
-    if (
-      isCanvasEvent(event) &&
-      current.target?.placement.status === 'ok'
-    ) {
+    if (isCanvasEvent(event) && current.target?.placement.status === 'ok') {
       useBoundStore
         .getState()
         .moveObjectiveMarker(current.uid, current.target.marker.anchor)

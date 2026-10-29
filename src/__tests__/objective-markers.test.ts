@@ -61,18 +61,18 @@ describe('objective marker data', () => {
     expect(
       getObjectiveMarkerContentError({ kind: 'number', value: 1 }),
     ).toBeNull()
-    expect(
-      getObjectiveMarkerContentError({ kind: 'number', value: 1.5 }),
-    ).toBe('Enter a whole number from 1 to 99.')
-    expect(
-      getObjectiveMarkerContentError({ kind: 'number', value: 100 }),
-    ).toBe('Enter a whole number from 1 to 99.')
+    expect(getObjectiveMarkerContentError({ kind: 'number', value: 1.5 })).toBe(
+      'Enter a whole number from 1 to 99.',
+    )
+    expect(getObjectiveMarkerContentError({ kind: 'number', value: 100 })).toBe(
+      'Enter a whole number from 1 to 99.',
+    )
     expect(getObjectiveMarkerContentError({ kind: 'text', value: 'A2' })).toBe(
       null,
     )
-    expect(getObjectiveMarkerContentError({ kind: 'text', value: 'ABCD' })).toBe(
-      'Use no more than 3 characters.',
-    )
+    expect(
+      getObjectiveMarkerContentError({ kind: 'text', value: 'ABCD' }),
+    ).toBe('Use no more than 3 characters.')
     expect(getObjectiveMarkerContentError({ kind: 'text', value: '  ' })).toBe(
       'Enter 1 to 3 characters.',
     )
@@ -129,7 +129,9 @@ describe('objective marker data', () => {
       getObjectiveMarkerPlacementStatus({
         ...valid,
         marker: twoHex,
-        markers: [marker('other', secondHex.q, secondHex.r, { anchor: secondHex })],
+        markers: [
+          marker('other', secondHex.q, secondHex.r, { anchor: secondHex }),
+        ],
       }),
     ).toMatchObject({ status: 'blocked', reason: 'overlap' })
   })
@@ -509,11 +511,15 @@ describe('objective marker store actions', () => {
 
     store.temporal.getState().undo()
     expect(
-      store.getState().hexMap.objectiveMarkers?.find((item) => item.uid === firstUID),
+      store
+        .getState()
+        .hexMap.objectiveMarkers?.find((item) => item.uid === firstUID),
     ).toBe(unchanged)
     store.temporal.getState().redo()
     expect(
-      store.getState().hexMap.objectiveMarkers?.find((item) => item.uid === firstUID),
+      store
+        .getState()
+        .hexMap.objectiveMarkers?.find((item) => item.uid === firstUID),
     ).toBe(unchanged)
   })
 

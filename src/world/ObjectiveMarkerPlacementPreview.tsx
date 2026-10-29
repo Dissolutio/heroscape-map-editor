@@ -22,7 +22,8 @@ export default function ObjectiveMarkerPlacementPreview() {
   const dragPreview = useBoundStore((state) => state.objectiveMarkerDragPreview)
   const mapHexIDs = useMemo(() => mapTableHexes(hexMap), [hexMap])
 
-  const marker = dragPreview?.marker ??
+  const marker =
+    dragPreview?.marker ??
     (penMode === OBJECTIVE_MARKER_PEN_MODE && hoveredHex
       ? {
           uid: '__objective-marker-preview__',

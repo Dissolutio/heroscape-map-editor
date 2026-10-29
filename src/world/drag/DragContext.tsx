@@ -22,8 +22,6 @@ export function DragContext({
       unregisterPieceDrag()
       unregisterMarkerDrag()
     }
-  },
-    [cameraControlsRef, get],
-  )
+  }, [cameraControlsRef, get])
   return null
 }

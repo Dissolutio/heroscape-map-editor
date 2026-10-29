@@ -27,17 +27,13 @@ export function getObjectiveMarkerPlacementStatus({
 }): ObjectiveMarkerPlacementStatus {
   const footprint = getObjectiveMarkerFootprint(marker)
   if (
-    footprint.some((hex) =>
-      !mapHexIDs.has(genBoardHexID({ ...hex, altitude: 0 })),
+    footprint.some(
+      (hex) => !mapHexIDs.has(genBoardHexID({ ...hex, altitude: 0 })),
     )
   ) {
     return { status: 'blocked', reason: 'outOfBounds', footprint }
   }
-  if (
-    footprint.some(
-      (hex) => boardHexes[genBoardHexID(hex)]?.isCap !== true,
-    )
-  ) {
+  if (footprint.some((hex) => boardHexes[genBoardHexID(hex)]?.isCap !== true)) {
     return { status: 'blocked', reason: 'unsupported', footprint }
   }
   if (

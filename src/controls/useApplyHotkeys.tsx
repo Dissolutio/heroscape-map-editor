@@ -209,13 +209,7 @@ export const useApplyHotkeys = ({
         )
       if (marker) {
         updateObjectiveMarker(marker.uid, {
-          rotation: ((marker.rotation + 1) % 6) as
-            | 0
-            | 1
-            | 2
-            | 3
-            | 4
-            | 5,
+          rotation: ((marker.rotation + 1) % 6) as 0 | 1 | 2 | 3 | 4 | 5,
         })
       }
       return
@@ -237,13 +231,7 @@ export const useApplyHotkeys = ({
         )
       if (marker) {
         updateObjectiveMarker(marker.uid, {
-          rotation: ((marker.rotation + 5) % 6) as
-            | 0
-            | 1
-            | 2
-            | 3
-            | 4
-            | 5,
+          rotation: ((marker.rotation + 5) % 6) as 0 | 1 | 2 | 3 | 4 | 5,
         })
       }
       return

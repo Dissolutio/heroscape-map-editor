@@ -172,7 +172,9 @@ export default function ObjectiveMarkerControls({
           </ToggleButtonGroup>
           <TextField
             size="small"
-            label={content.kind === 'number' ? 'Number (1–99)' : 'Text (1–3 chars)'}
+            label={
+              content.kind === 'number' ? 'Number (1–99)' : 'Text (1–3 chars)'
+            }
             type={content.kind}
             inputProps={{
               'aria-label':
@@ -199,7 +201,9 @@ export default function ObjectiveMarkerControls({
               aria-label="Marker rotation"
               onChange={(_, value: string | null) => {
                 if (value !== null) {
-                  updatePlacementField({ rotation: Number(value) as 0 | 1 | 2 | 3 | 4 | 5 })
+                  updatePlacementField({
+                    rotation: Number(value) as 0 | 1 | 2 | 3 | 4 | 5,
+                  })
                 }
               }}
             >

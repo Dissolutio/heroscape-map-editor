@@ -75,7 +75,6 @@ export function redoWithSelectionRestore() {
       pushPendingUndoSelectionRestoreFromRedo(ids)
     }
   }
-
 }
 
 function clearMissingObjectiveMarkerSelection() {

@@ -98,10 +98,7 @@ export default function usePieceHoverState({
       finishPerformanceTiming('app.pointerHandler', startedAt)
     }
   }
-  const onPointerMove = (
-    e: ThreeEvent<PointerEvent>,
-    boardHex?: BoardHex,
-  ) => {
+  const onPointerMove = (e: ThreeEvent<PointerEvent>, boardHex?: BoardHex) => {
     const startedAt = startPerformanceTiming()
     try {
       if (boardHex) reportObjectiveMarkerDragTarget(boardHex, e)

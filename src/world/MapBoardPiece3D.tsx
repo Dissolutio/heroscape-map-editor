@@ -139,10 +139,9 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
       : boardHexes[genBoardHexID({ ...pieceCoords, altitude })]
     if (support) {
       const pointerCoords = worldToCube(e.point.x, e.point.z)
-      const targetHex =
-        boardHexes[
-          genBoardHexID({ ...pointerCoords, altitude: support.altitude })
-        ] ?? { ...support, ...pointerCoords }
+      const targetHex = boardHexes[
+        genBoardHexID({ ...pointerCoords, altitude: support.altitude })
+      ] ?? { ...support, ...pointerCoords }
       if (reportObjectiveMarkerDragTarget(targetHex, e)) return
     }
     if (!isDragging()) return

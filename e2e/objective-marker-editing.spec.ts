@@ -70,9 +70,7 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
   expect(afterDrag).not.toEqual(beforeDrag)
 
   await page.getByRole('tab', { name: 'Edit' }).click()
-  await page
-    .getByRole('button', { name: 'Delete objective marker' })
-    .click()
+  await page.getByRole('button', { name: 'Delete objective marker' }).click()
   await expect
     .poll(() =>
       page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
