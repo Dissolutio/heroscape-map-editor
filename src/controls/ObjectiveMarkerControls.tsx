@@ -21,6 +21,8 @@ import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacem
 import { mapTableHexes } from '../data/fitMapToPieces'
 import useBoundStore from '../store/store'
 
+const EMPTY_MARKERS: ObjectiveMarker[] = []
+
 export default function ObjectiveMarkerControls({
   marker,
 }: {
@@ -29,7 +31,9 @@ export default function ObjectiveMarkerControls({
   const isEditing = marker !== undefined
   const hexMap = useBoundStore((state) => state.hexMap)
   const boardHexes = useBoundStore((state) => state.boardHexes)
-  const markers = useBoundStore((state) => state.hexMap.objectiveMarkers ?? [])
+  const markers = useBoundStore(
+    (state) => state.hexMap.objectiveMarkers ?? EMPTY_MARKERS,
+  )
   const draft = useBoundStore((state) => state.objectiveMarkerDraft)
   const updateDraft = useBoundStore((state) => state.updateObjectiveMarkerDraft)
   const updateMarker = useBoundStore((state) => state.updateObjectiveMarker)

@@ -8,10 +8,19 @@ import {
 } from './fixtures'
 import { FIXTURE_HEX_MAP } from './fixture-map'
 
+const SUPPORTING_PIECE_IDS = [
+  '0~2~2~0~g1',
+  '0~2~3~0~g1',
+  '0~3~3~0~g1',
+  '0~3~2~0~g1',
+  '0~4~3~0~g1',
+  '0~3~4~0~g1',
+]
+
 test('places, edits, drags, deletes, and undoes an objective marker', async ({
   page,
 }) => {
-  await page.goto(mapUrl(FIXTURE_HEX_MAP, []))
+  await page.goto(mapUrl(FIXTURE_HEX_MAP, SUPPORTING_PIECE_IDS))
   await waitForAppReady(page)
 
   await page.getByRole('tab', { name: 'Build' }).click()
@@ -22,7 +31,7 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
 
   const canvas = page.locator('canvas').first()
   const initialHex = await page.evaluate(
-    () => window.__TEST__?.screenPosOfHex({ q: 2, r: 2, altitude: 0 }) ?? null,
+    () => window.__TEST__?.screenPosOfHex({ q: 2, r: 2, altitude: 1 }) ?? null,
   )
   if (!initialHex) throw new Error('Initial marker hex is not on screen')
   await canvas.click({ position: initialHex })
@@ -37,7 +46,11 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
   )
   if (!markerUID) throw new Error('Placed objective marker is not rendered')
   await clickObjectiveMarker(page, markerUID)
-  await page.getByRole('tab', { name: 'Edit' }).click()
+  await page
+    .getByRole('tab', {
+      name: 'Show controls for editing details of the current map',
+    })
+    .click()
 
   const numberInput = page.getByRole('spinbutton', { name: 'Marker number' })
   await numberInput.fill('7')
@@ -59,9 +72,9 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
   if (!beforeDrag) throw new Error('Marker position is not available')
   await page.getByRole('tab', { name: 'Build' }).click()
   await penMode.click()
-  await page.getByRole('option', { name: 'Select' }).click()
+  await page.getByRole('option', { name: 'Select [Z]', exact: true }).click()
   await clickObjectiveMarker(page, markerUID)
-  await dragObjectiveMarker(page, markerUID, { q: 3, r: 3, altitude: 0 })
+  await dragObjectiveMarker(page, markerUID, { q: 3, r: 3, altitude: 1 })
   await waitForAppReady(page)
   const afterDrag = await page.evaluate(
     (uid) => window.__TEST__?.screenPosOfObjectiveMarker(uid) ?? null,
@@ -69,7 +82,11 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
   )
   expect(afterDrag).not.toEqual(beforeDrag)
 
-  await page.getByRole('tab', { name: 'Edit' }).click()
+  await page
+    .getByRole('tab', {
+      name: 'Show controls for editing details of the current map',
+    })
+    .click()
   await page.getByRole('button', { name: 'Delete objective marker' }).click()
   await expect
     .poll(() =>
