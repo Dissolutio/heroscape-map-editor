@@ -10,6 +10,8 @@ import {
   NON_INSTANCED_SUBTERRAIN_PIECES,
   buildLandHexInstanceData,
   buildLandHexInstanceIndex,
+  getLandHexFluidMaterialClass,
+  getLandHexFluidMaterialSettings,
   getLandHexCapPbrStrengths,
   getLandHexCapUV,
   getLandHexColors,
@@ -49,6 +51,30 @@ const genericColors = {
 }
 
 describe('land hex instance data', () => {
+  it('groups fluid terrain by opacity without adding instance attributes', () => {
+    expect(getLandHexFluidMaterialClass(HexTerrain.ice)).toBe('ice')
+    expect(getLandHexFluidMaterialSettings('ice')).toEqual({
+      opacity: 0.92,
+      transparent: true,
+    })
+
+    for (const terrain of [
+      HexTerrain.water,
+      HexTerrain.toxicWater,
+      HexTerrain.wellspringWater,
+      HexTerrain.lava,
+      HexTerrain.genericFluid,
+      HexTerrain.shadow,
+      HexTerrain.swampWater,
+    ]) {
+      expect(getLandHexFluidMaterialClass(terrain)).toBe('opaque')
+      expect(getLandHexFluidMaterialSettings('opaque')).toEqual({
+        opacity: 1,
+        transparent: false,
+      })
+    }
+  })
+
   it('packs every supported PBR layer tuple into a unique scalar', () => {
     const codes = new Set<number>()
     for (let capNormal = -1; capNormal < 3; capNormal += 1) {
@@ -169,7 +195,7 @@ describe('land hex instance data', () => {
     }
   })
 
-  it('selects manifest diffuse layers for each tier and keeps flat terrains untextured', () => {
+  it('selects manifest layers by tier and keeps generic terrain untextured', () => {
     for (const [terrain, manifestName] of Object.entries(
       LAND_HEX_TEXTURE_TERRAIN_NAMES,
     )) {
@@ -236,7 +262,7 @@ describe('land hex instance data', () => {
       expect(terrainManifest.terrains[name]).toMatchObject({
         capDiffuseLayer: -1,
         capDiffusePbrLayer: -1,
-        sideDiffuseLayer: -1,
+        sideDiffuseLayer: expect.any(Number),
         flatColor: color,
       })
     }

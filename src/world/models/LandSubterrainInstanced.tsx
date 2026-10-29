@@ -30,7 +30,12 @@ import {
 } from '../drag/dragController'
 import { hexTerrainColor } from '../maphex/hexColors'
 import type { InstanceRefType } from '../maphex/instance-hex'
-import { NON_INSTANCED_SUBTERRAIN_PIECES } from './landHexInstances'
+import {
+  getLandHexFluidMaterialClass,
+  getLandHexFluidMaterialSettings,
+  type LandHexFluidMaterialClass,
+  NON_INSTANCED_SUBTERRAIN_PIECES,
+} from './landHexInstances'
 import { useDisposableGLTF } from './useDisposableGLTF'
 
 type SubterrainSize =
@@ -144,7 +149,10 @@ export default function LandSubterrainInstanced({
 
   const groups = new Map<string, LandSubterrainInstanceDatum[]>()
   for (const item of data) {
-    const key = `${item.size}_${item.isFluid ? 'fluid' : 'solid'}`
+    const materialClass = item.isFluid
+      ? getLandHexFluidMaterialClass(item.terrain)
+      : 'solid'
+    const key = `${item.size}_${materialClass}`
     const group = groups.get(key)
     if (group) {
       group.push(item)
@@ -159,7 +167,11 @@ export default function LandSubterrainInstanced({
         <SubterrainSizeGroup
           key={key}
           size={items[0].size}
-          isFluid={items[0].isFluid}
+          fluidMaterialClass={
+            items[0].isFluid
+              ? getLandHexFluidMaterialClass(items[0].terrain)
+              : null
+          }
           items={items}
         />
       ))}
@@ -169,17 +181,20 @@ export default function LandSubterrainInstanced({
 
 function SubterrainSizeGroup({
   size,
-  isFluid,
+  fluidMaterialClass,
   items,
 }: {
   size: SubterrainSize
-  isFluid: boolean
+  fluidMaterialClass: LandHexFluidMaterialClass | null
   items: LandSubterrainInstanceDatum[]
 }) {
   const ref = React.useRef<InstanceRefType>(null)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
+  const fluidSettings = fluidMaterialClass
+    ? getLandHexFluidMaterialSettings(fluidMaterialClass)
+    : { opacity: 1, transparent: false }
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF(GEOMETRY_FILE_BY_SIZE[size]) as any
   const geometry = nodes[GEOMETRY_NODE_BY_SIZE[size]]?.geometry
@@ -197,9 +212,15 @@ function SubterrainSizeGroup({
       castShadow={isLightsAndShadowsRender}
     >
       {isLightsAndShadowsRender ? (
-        <meshStandardMaterial transparent={isFluid} opacity={1} />
-      ) : isFluid ? (
-        <meshMatcapMaterial transparent opacity={1} />
+        <meshStandardMaterial
+          transparent={fluidSettings.transparent}
+          opacity={fluidSettings.opacity}
+        />
+      ) : fluidMaterialClass ? (
+        <meshMatcapMaterial
+          transparent={fluidSettings.transparent}
+          opacity={fluidSettings.opacity}
+        />
       ) : (
         <meshMatcapMaterial />
       )}

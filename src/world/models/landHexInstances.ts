@@ -131,12 +131,32 @@ export const SOLID_CAP_AO_STRENGTH_BY_LAYER: Readonly<Record<number, number>> =
 
 export const FLUID_CAP_BORDER_INSET = 0.22
 export const FLUID_CAP_BORDER_BLEND_WIDTH = 0.04
+export const ICE_FLUID_OPACITY = 0.92
+export const LAND_HEX_FLUID_MATERIAL_CLASSES = ['opaque', 'ice'] as const
+export type LandHexFluidMaterialClass =
+  (typeof LAND_HEX_FLUID_MATERIAL_CLASSES)[number]
+
 export const FLUID_CAP_FILL_UV_WINDOW = {
   uMin: 0.11,
   uMax: 0.89,
   vMin: 0.305,
   vMax: 0.695,
 } as const
+
+export function getLandHexFluidMaterialClass(
+  terrain: string,
+): LandHexFluidMaterialClass {
+  if (terrain === HexTerrain.ice) return 'ice'
+  return 'opaque'
+}
+
+export function getLandHexFluidMaterialSettings(
+  materialClass: LandHexFluidMaterialClass,
+) {
+  return materialClass === 'ice'
+    ? { opacity: ICE_FLUID_OPACITY, transparent: true }
+    : { opacity: 1, transparent: false }
+}
 
 export const LAND_HEX_TEXTURE_TERRAIN_NAMES: Partial<
   Record<HexTerrain, string>
@@ -152,8 +172,10 @@ export const LAND_HEX_TEXTURE_TERRAIN_NAMES: Partial<
   [HexTerrain.rock]: 'Rock',
   [HexTerrain.road]: 'Road',
   [HexTerrain.sand]: 'Sand',
+  [HexTerrain.shadow]: 'Shadow',
   [HexTerrain.snow]: 'Snow',
   [HexTerrain.swamp]: 'Swamp',
+  [HexTerrain.swampWater]: 'SwampWater',
   [HexTerrain.toxic]: 'ToxicLand',
   [HexTerrain.toxicWater]: 'ToxicWater',
   [HexTerrain.wallWalk]: 'WallWalk',
@@ -165,8 +187,6 @@ export const LAND_HEX_TEXTURE_TERRAIN_NAMES: Partial<
 export const LAND_HEX_UNTEXTURED_TERRAINS = [
   HexTerrain.generic,
   HexTerrain.genericFluid,
-  HexTerrain.shadow,
-  HexTerrain.swampWater,
 ] as const
 
 export function getLandHexManifestTerrainName(terrain: string) {
