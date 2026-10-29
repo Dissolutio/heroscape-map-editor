@@ -88,6 +88,9 @@ const World = ({
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const setSelectedObjectiveMarkerUID = useBoundStore(
+    (s) => s.setSelectedObjectiveMarkerUID,
+  )
   const handleClickAway = () => {
     toggleHoveredPieceID('')
     // toggleSelectedPieceID('')
@@ -127,6 +130,7 @@ const World = ({
             }
             toggleHoveredPieceID('')
             toggleSelectedPieceID('')
+            setSelectedObjectiveMarkerUID(null)
           }}
           onPointerLeave={() => {
             toggleHoveredPieceID('')

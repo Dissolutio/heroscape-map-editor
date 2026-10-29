@@ -61,6 +61,7 @@ import LandSubterrainInstanced, {
 } from './models/LandSubterrainInstanced.tsx'
 import LandHexInstanced from './models/LandHexInstanced.tsx'
 import { getLandHexInstanceIDs } from './models/landHexInstances.ts'
+import ObjectiveMarkers3D from './models/ObjectiveMarkers3D.tsx'
 
 function getAvailableLaurStackableInventory(): PieceInventory | undefined {
   const state = useBoundStore.getState()
@@ -151,6 +152,9 @@ export default function MapDisplay3D({
   const genericFluidCapColor = useBoundStore((s) => s.genericFluidCapColor)
   const genericFluidSideColor = useBoundStore((s) => s.genericFluidSideColor)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const setSelectedObjectiveMarkerUID = useBoundStore(
+    (s) => s.setSelectedObjectiveMarkerUID,
+  )
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   useMiddleClickPickPenMode()
 
@@ -198,6 +202,7 @@ export default function MapDisplay3D({
       // const myClipboard = await navigator.clipboard.readText()
       return
     }
+    setSelectedObjectiveMarkerUID(null)
 
     // Pick pen mode is handled by useMiddleClickPickPenMode, nothing to paint
     if (penMode === PICK_PEN_MODE) {
@@ -384,6 +389,7 @@ export default function MapDisplay3D({
           boardHexArr={instanceBoardHexes.fluidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
         />
+        <ObjectiveMarkers3D />
         <Suspense fallback={null}>
           {isPerHexLandEnabled ? (
             <LandHexInstanced

@@ -1,8 +1,8 @@
 # Objective markers: architecture and implementation plan
 
-This plan tracks the staged objective-marker work. PR 1 implements the data
-contract, persistence, and history only; UI, rendering, and exports remain for
-later PRs.
+This plan tracks the staged objective-marker work. PR 1 implemented the data
+contract, persistence, and history. PR 2 adds the 3D layer; editing and exports
+remain for later PRs.
 
 ## Recommendation
 
@@ -173,6 +173,8 @@ when the name field is used or generating a small sorted JSON list.
   Medium, and High tiers and remain legible with High-tier lighting.
 - Give markers their own hit target and selected state. Terrain hover,
   selection, and drag highlights should not silently turn into marker state.
+- Hide markers whose anchor altitude is above the current viewing level, matching
+  the 3D piece-layer filtering.
 
 ### SVG and PDF
 
@@ -227,18 +229,17 @@ when the name field is used or generating a small sorted JSON list.
 
 ## Suggested small PR sequence
 
-1. **Data contract, persistence, and history (this PR).** Add typed annotations,
-   normalization, map-file/autosave/share-link support, and undo/redo; no UI or
-   rendering.
-2. **Editing interactions.** Add marker pen, selection, single-marker drag,
-   rotation, deletion, controls, and focused E2E coverage.
-3. **3D layer.** Add the independent surface overlay for all graphics tiers,
-   hit testing, and selected state.
-4. **Unit-name auto-suggest.** Connect the optional name field to the
-   deduplicated, sorted `SDW` list without adding the full card file to the main
-   bundle.
-5. **2D/PDF symbols and objective legend.** Add marker paths, the named legend,
+1. **Data contract, persistence, and history (done).** Add typed annotations,
+   normalization, map-file/autosave/share-link support, and undo/redo.
+2. **3D layer (this PR).** Add the independent surface overlay for all graphics
+   tiers, hit testing, and selected state.
+3. **Editing interactions.** Add marker pen, single-marker drag, rotation,
+   deletion, controls, and focused E2E coverage.
+4. **SVG/PDF symbols and objective legend.** Add marker paths, the named legend,
    export visibility rules, and SVG/PDF output regressions.
+5. **Name field and auto-suggest.** Add the optional name field and connect it to
+   the deduplicated, sorted `SDW` list without adding the full card file to the
+   main bundle.
 
 ## Decisions
 

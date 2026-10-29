@@ -37,7 +37,8 @@ export function shouldInvalidateShadowMap(
   return (
     previous.boardHexes !== current.boardHexes ||
     previous.boardPieces !== current.boardPieces ||
-    previous.hexMap !== current.hexMap ||
+    (previous.hexMap !== current.hexMap &&
+      !hasOnlyObjectiveMarkerChanges(previous.hexMap, current.hexMap)) ||
     previous.lightPositions !== current.lightPositions ||
     previous.viewingLevel !== current.viewingLevel ||
     previous.isLightsAndShadowsRender !== current.isLightsAndShadowsRender ||
@@ -45,6 +46,24 @@ export function shouldInvalidateShadowMap(
     previous.effectiveGraphicsTier !== current.effectiveGraphicsTier ||
     previous.isShowStartZones !== current.isShowStartZones
   )
+}
+
+function hasOnlyObjectiveMarkerChanges(previous: unknown, current: unknown) {
+  if (
+    typeof previous !== 'object' ||
+    previous === null ||
+    typeof current !== 'object' ||
+    current === null
+  ) {
+    return false
+  }
+  const before = previous as Record<string, unknown>
+  const after = current as Record<string, unknown>
+  const keys = new Set([...Object.keys(before), ...Object.keys(after)])
+  if (!keys.has('objectiveMarkers')) return false
+  return [...keys]
+    .filter((key) => key !== 'objectiveMarkers')
+    .every((key) => before[key] === after[key])
 }
 
 export function invalidateShadowMap(shadowMap: { needsUpdate: boolean }) {

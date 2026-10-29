@@ -287,6 +287,7 @@ const createUISlice: StateCreator<
   ) =>
     set(
       produce((state) => {
+        state.selectedObjectiveMarkerUID = null
         // in pick pen mode a click is an eyedropper, not a selection
         if (pieceID && state.penMode === PICK_PEN_MODE) {
           return

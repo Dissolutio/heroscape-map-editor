@@ -21,6 +21,31 @@ export const mapUrl = (hexMap: object, pieceIds: string[]) =>
   )}`
 
 export const FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS)
+export const OBJECTIVE_MARKERS_FIXTURE_PIECE_IDS = [
+  ...FIXTURE_PIECE_IDS,
+  '0~-1~2~0~g1',
+]
+export const OBJECTIVE_MARKERS_FIXTURE_HEX_MAP = {
+  ...FIXTURE_HEX_MAP,
+  objectiveMarkers: [
+    {
+      uid: 'objective-ground',
+      anchor: { q: 0, r: 2, s: -2, altitude: 1 },
+      size: 2,
+      rotation: 3,
+      style: 'black',
+      content: { kind: 'number', value: 7 },
+    },
+    {
+      uid: 'objective-stacked',
+      anchor: { q: 1, r: 2, s: -3, altitude: 2 },
+      size: 1,
+      rotation: 2,
+      style: 'white',
+      content: { kind: 'text', value: 'A2' },
+    },
+  ],
+}
 
 const READY_TIMEOUT_MS = 60_000
 const pageErrors = new WeakMap<Page, string[]>()
