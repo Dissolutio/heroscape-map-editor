@@ -85,7 +85,7 @@ describe('packed terrain textures', () => {
   it('enables random cap rotation for every terrain with a cap diffuse layer', () => {
     for (const [name, source] of Object.entries(terrainTextures)) {
       expect(manifest.terrains[name].allowRandomRotation).toBe(
-        Boolean(source.capDiffuse),
+        Boolean('capDiffuse' in source && source.capDiffuse),
       )
     }
   })
