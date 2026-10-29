@@ -82,6 +82,14 @@ describe('packed terrain textures', () => {
     expect(Object.keys(manifest.terrains)).toHaveLength(21)
   })
 
+  it('enables random cap rotation for every terrain with a cap diffuse layer', () => {
+    for (const [name, source] of Object.entries(terrainTextures)) {
+      expect(manifest.terrains[name].allowRandomRotation).toBe(
+        Boolean(source.capDiffuse),
+      )
+    }
+  })
+
   it('references source images that exist', () => {
     const sources = sourceFiles([
       terrainTextures,

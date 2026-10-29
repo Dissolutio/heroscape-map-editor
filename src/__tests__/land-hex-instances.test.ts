@@ -4,10 +4,6 @@ import { type BoardHex, HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HEXGRID_HEX_RADIUS } from '../utils/constants'
 import {
-  allowsCapRotation,
-  parseCapRotationOverride,
-} from '../world/models/capRotationOverride'
-import {
   FLUID_CAP_BORDER_INSET,
   FLUID_CAP_FILL_UV_WINDOW,
   LAND_HEX_TEXTURE_TERRAIN_NAMES,
@@ -281,7 +277,11 @@ describe('land hex instance data', () => {
     const enabledTerrainNames = terrainNames.filter(
       (name) => terrainManifest.terrains[name].allowRandomRotation,
     )
-    expect(enabledTerrainNames.sort()).toEqual(['Ice', 'ToxicWater'])
+    expect(enabledTerrainNames.sort()).toEqual(
+      terrainNames
+        .filter((name) => terrainManifest.terrains[name].capDiffuseLayer >= 0)
+        .sort(),
+    )
 
     const hexID = 'persisted-hex-id'
     const expectedStep = getStableRotationStep(hexID)
@@ -314,35 +314,6 @@ describe('land hex instance data', () => {
           .rotationSteps,
       ).toBe(0)
     }
-  })
-
-  it('parses dev cap rotation overrides and ignores them in production', () => {
-    expect(parseCapRotationOverride('?capRotation=all', true)).toEqual({
-      mode: 'all',
-    })
-    expect(parseCapRotationOverride('?capRotation=none', true)).toEqual({
-      mode: 'none',
-    })
-    expect(
-      parseCapRotationOverride('?capRotation=Grass%2C%20Sand,Water', true),
-    ).toEqual({
-      mode: 'terrains',
-      terrains: new Set(['Grass', 'Sand', 'Water']),
-    })
-    expect(parseCapRotationOverride('?capRotation=all', false)).toBeNull()
-    expect(parseCapRotationOverride('', true)).toBeNull()
-
-    const all = parseCapRotationOverride('?capRotation=all', true)
-    const none = parseCapRotationOverride('?capRotation=none', true)
-    const selected = parseCapRotationOverride(
-      '?capRotation=Grass,Sand,Water',
-      true,
-    )
-    expect(allowsCapRotation('Grass', false, all)).toBe(true)
-    expect(allowsCapRotation('Ice', true, none)).toBe(false)
-    expect(allowsCapRotation('Sand', false, selected)).toBe(true)
-    expect(allowsCapRotation('Ice', true, selected)).toBe(false)
-    expect(allowsCapRotation('Ice', true, null)).toBe(true)
   })
 
   it('keeps the cap edge inset unrotated', () => {

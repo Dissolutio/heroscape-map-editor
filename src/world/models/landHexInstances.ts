@@ -14,7 +14,6 @@ import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
 import type { GenericTerrainColorSettings } from '../maphex/genericTerrainColors'
 import { hexTerrainColor, terrainCapColors } from '../maphex/hexColors'
 import type { TerrainTextureManifest } from '../textures/terrainTextureManifest'
-import { allowsCapRotation, capRotationOverride } from './capRotationOverride'
 
 export const NON_INSTANCED_SUBTERRAIN_PIECES = new Set<string>([
   Pieces.glacier1,
@@ -213,11 +212,7 @@ export function getLandHexTextureLayers(
           layers?.capOrmLayer ?? -1,
         )
       : { normal: 1, ao: 1 }
-  const allowRandomRotation = allowsCapRotation(
-    manifestTerrainName,
-    layers?.allowRandomRotation ?? false,
-    capRotationOverride,
-  )
+  const allowRandomRotation = layers?.allowRandomRotation ?? false
   return {
     capLayer: enabled
       ? tier === 'high'
