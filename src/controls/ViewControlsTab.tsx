@@ -527,6 +527,15 @@ const ViewPreferencesSwitchForm = () => {
                 Textures ready
               </span>
             )}
+            {textureLoadStatus === 'fallback' && (
+              <span
+                aria-live="polite"
+                data-testid="graphics-texture-status"
+                style={{ fontSize: '0.75rem' }}
+              >
+                High PBR unavailable; using Medium textures
+              </span>
+            )}
             <FormControlLabel
               control={
                 <Switch

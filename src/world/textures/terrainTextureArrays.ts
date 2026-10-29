@@ -17,7 +17,12 @@ import {
 } from './terrainTextureManifest'
 
 export type { GraphicsTier } from '../../local-storage/settings'
-export type TextureLoadStatus = 'idle' | 'loading' | 'ready' | 'error'
+export type TextureLoadStatus =
+  | 'idle'
+  | 'loading'
+  | 'ready'
+  | 'fallback'
+  | 'error'
 
 export type DecodedTerrainTexture = {
   data: Uint8Array | Uint8ClampedArray
@@ -57,12 +62,22 @@ const tierStrips: Record<
   medium: ['caps-diffuse.png', 'sides-diffuse.png'],
   high: [
     'caps-diffuse-pbr.png',
+    'caps-diffuse.png',
     'sides-diffuse.png',
     'caps-orm.png',
     'sides-orm.png',
     'caps-normal.png',
     'sides-normal.png',
   ],
+}
+
+export const HIGH_TIER_PBR_TEXTURE_UNITS = 6
+
+export function hasHighTierPbrTextureUnitBudget(maxTextureImageUnits: number) {
+  return (
+    Number.isInteger(maxTextureImageUnits) &&
+    maxTextureImageUnits >= HIGH_TIER_PBR_TEXTURE_UNITS
+  )
 }
 
 const stripPromises = new Map<

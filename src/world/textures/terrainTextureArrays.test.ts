@@ -7,6 +7,8 @@ import {
   getCachedTerrainTextureArrays,
   getTerrainTextureArrayStats,
   getTerrainTextureStrips,
+  hasHighTierPbrTextureUnitBudget,
+  HIGH_TIER_PBR_TEXTURE_UNITS,
   loadTerrainTextureArrays,
   sliceTextureArrayLayers,
   type DecodedTerrainTexture,
@@ -141,12 +143,17 @@ describe('terrain texture array loading', () => {
     ])
     expect(getTerrainTextureStrips('high')).toEqual([
       'caps-diffuse-pbr.png',
+      'caps-diffuse.png',
       'sides-diffuse.png',
       'caps-orm.png',
       'sides-orm.png',
       'caps-normal.png',
       'sides-normal.png',
     ])
+    expect(HIGH_TIER_PBR_TEXTURE_UNITS).toBe(6)
+    expect(hasHighTierPbrTextureUnitBudget(6)).toBe(true)
+    expect(hasHighTierPbrTextureUnitBudget(5)).toBe(false)
+    expect(hasHighTierPbrTextureUnitBudget(Number.NaN)).toBe(false)
   })
 
   it('slices rows into layers in manifest order and flips rows in JS', async () => {
@@ -259,7 +266,7 @@ describe('terrain texture array loading', () => {
     })
 
     expect(result.status).toBe('ready')
-    expect(fetcher).toHaveBeenCalledTimes(7)
+    expect(fetcher).toHaveBeenCalledTimes(8)
     if (result.status !== 'ready') return
     expect(Object.keys(result.textures).sort()).toEqual(
       getTerrainTextureStrips('high').sort(),
