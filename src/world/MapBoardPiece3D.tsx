@@ -76,6 +76,10 @@ import {
   getRoadWallOptions,
   getRuinsOptions,
 } from './models/piece-adjustments'
+import {
+  ROTATION_PIVOT_MARKER_MATERIAL,
+  ROTATION_PIVOT_MARKER_RENDER_ORDER,
+} from './rotationPivotMarkerStyle'
 
 type MapBoardPiece3DProps = {
   bp: BoardPiece
@@ -176,7 +180,7 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
           ]}
           rotation={[-Math.PI / 2, 0, 0]}
           raycast={() => null}
-          renderOrder={30}
+          renderOrder={ROTATION_PIVOT_MARKER_RENDER_ORDER}
         >
           <ringGeometry
             args={[
@@ -187,11 +191,7 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
               Math.PI / 6,
             ]}
           />
-          <meshBasicMaterial
-            color="#00e5ff"
-            depthTest={false}
-            toneMapped={false}
-          />
+          <meshBasicMaterial {...ROTATION_PIVOT_MARKER_MATERIAL} />
         </mesh>
       )}
     </group>

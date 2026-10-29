@@ -129,6 +129,8 @@ function ObjectiveMarkerToken({
           <meshBasicMaterial
             color="#00c8ff"
             side={DoubleSide}
+            transparent
+            opacity={1}
             depthWrite={false}
             toneMapped={false}
           />
