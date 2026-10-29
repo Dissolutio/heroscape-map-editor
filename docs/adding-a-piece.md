@@ -1,5 +1,7 @@
 # How to add a new piece (terrain) to Hexoscape
 
+Always show set `name`, never `abbreviation`, to users.
+
 This guide follows the current `dev` implementation. The registration tests
 are the executable checklist: read
 [`src/__tests__/README.md`](../src/__tests__/README.md) before changing code.
