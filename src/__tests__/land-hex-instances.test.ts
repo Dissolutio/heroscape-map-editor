@@ -621,7 +621,7 @@ describe('land hex side visibility', () => {
       for (const mask of masks) joinedDirections |= mask
       orientationMasks.push(
         masks
-          .map((mask) => mask.toString(2).replaceAll('0', '').length)
+          .map((mask) => mask.toString(2).replace(/0/g, '').length)
           .sort((a, b) => a - b),
       )
     }
