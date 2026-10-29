@@ -80,6 +80,17 @@ describe('static shadow map invalidation', () => {
         hexMap: { ...updated.hexMap, width: 5 },
       }),
     ).toBe(true)
+
+    const moved = {
+      ...updated,
+      hexMap: {
+        ...updated.hexMap,
+        objectiveMarkers: [
+          { uid: 'marker', anchor: { q: 1, r: 0, s: -1, altitude: 1 } },
+        ],
+      },
+    }
+    expect(shouldInvalidateShadowMap(updated, moved)).toBe(false)
   })
 
   it('sets the renderer shadow map update flag', () => {

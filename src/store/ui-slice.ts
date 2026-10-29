@@ -3,6 +3,11 @@ import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import type { DragPreview } from '../data/dragMove'
 import { sanitizeLookSettings, type LookSettings } from '../data/lookSettings'
+import {
+  type ObjectiveMarker,
+  type ObjectiveMarkerDraft,
+  OBJECTIVE_MARKER_PEN_MODE,
+} from '../data/objectiveMarkers'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import {
   type RotationPivot,
@@ -99,6 +104,16 @@ export interface UISlice {
   selectedPieceIDs: string[]
   selectedObjectiveMarkerUID: string | null
   setSelectedObjectiveMarkerUID: (uid: string | null) => void
+  objectiveMarkerDraft: ObjectiveMarkerDraft
+  updateObjectiveMarkerDraft: (updates: Partial<ObjectiveMarkerDraft>) => void
+  objectiveMarkerDragPreview: {
+    marker: ObjectiveMarker
+    status: 'ok' | 'blocked'
+    reason?: 'outOfBounds' | 'unsupported' | 'overlap'
+  } | null
+  setObjectiveMarkerDragPreview: (
+    preview: UISlice['objectiveMarkerDragPreview'],
+  ) => void
   toggleSelectedPieceID: (
     id: string,
     multiSelect?: boolean,
@@ -216,7 +231,11 @@ export interface UISlice {
 }
 
 const initialPenMode = SELECT_PEN_MODE
-const nonPaintingPenModes = new Set<string>([SELECT_PEN_MODE, PICK_PEN_MODE])
+const nonPaintingPenModes = new Set<string>([
+  SELECT_PEN_MODE,
+  PICK_PEN_MODE,
+  OBJECTIVE_MARKER_PEN_MODE,
+])
 let graphicsTierLoadGeneration = 0
 
 const createUISlice: StateCreator<
@@ -257,14 +276,33 @@ const createUISlice: StateCreator<
       }
     }
 
+    let fellBackToMedium = false
+    if (request !== graphicsTierLoadGeneration) return
+    if (tier === 'high' && result.status === 'error') {
+      try {
+        result = await loadTerrainTextureArrays('medium', {
+          onProgress: (loaded, total) => {
+            if (request !== graphicsTierLoadGeneration) return
+            set({ textureLoadProgress: { loaded, total } })
+          },
+        })
+        fellBackToMedium = result.status === 'ready'
+      } catch (error) {
+        result = {
+          error: error instanceof Error ? error : new Error(String(error)),
+          status: 'error',
+        }
+      }
+    }
+
     if (request !== graphicsTierLoadGeneration) return
     if (result.status === 'ready') {
       set({
-        effectiveGraphicsTier: tier,
-        textureLoadStatus: 'ready',
+        effectiveGraphicsTier: fellBackToMedium ? 'medium' : tier,
+        textureLoadStatus: fellBackToMedium ? 'fallback' : 'ready',
         textureLoadProgress: {
           loaded: result.textures ? Object.keys(result.textures).length : 0,
-          total: tier === 'medium' ? 2 : 6,
+          total: fellBackToMedium ? 2 : tier === 'medium' ? 2 : 7,
         },
       })
       return
@@ -287,6 +325,23 @@ const createUISlice: StateCreator<
   selectedObjectiveMarkerUID: null,
   setSelectedObjectiveMarkerUID: (uid) =>
     set({ selectedObjectiveMarkerUID: uid }),
+  objectiveMarkerDraft: {
+    size: 1,
+    style: 'black',
+    content: { kind: 'number', value: 1 },
+  },
+  updateObjectiveMarkerDraft: (updates) =>
+    set((state) =>
+      produce(state, (draft) => {
+        draft.objectiveMarkerDraft = {
+          ...draft.objectiveMarkerDraft,
+          ...updates,
+        }
+      }),
+    ),
+  objectiveMarkerDragPreview: null,
+  setObjectiveMarkerDragPreview: (preview) =>
+    set({ objectiveMarkerDragPreview: preview }),
   rotationPivot: null,
   toggleSelectedPieceID: (
     pieceID: string,

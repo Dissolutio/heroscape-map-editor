@@ -31,6 +31,20 @@ export const NON_INSTANCED_SUBTERRAIN_PIECES = new Set<string>([
 
 export const LAND_HEX_SIDE_DIRECTIONS = [0, 1, 2, 3, 4, 5] as const
 
+export function packLandHexPbrTextureLayers(
+  capNormalLayer: number,
+  capOrmLayer: number,
+  sideNormalLayer: number,
+  sideOrmLayer: number,
+) {
+  return (
+    (((capNormalLayer + 1) * 7 + capOrmLayer + 1) * 3 + sideNormalLayer + 1) *
+      4 +
+    sideOrmLayer +
+    1
+  )
+}
+
 export type LandHexInstanceDatum = {
   hex: BoardHex
   uid: string
@@ -42,6 +56,10 @@ export type LandHexInstanceDatum = {
   levels: number
   capLayer: number
   sideLayer: number
+  capNormalLayer: number
+  capOrmLayer: number
+  sideNormalLayer: number
+  sideOrmLayer: number
   rotationSteps: number
   sideMask: number
   capVisible: boolean
@@ -128,6 +146,13 @@ export function getLandHexTextureLayers(
         : (layers?.capDiffuseLayer ?? -1)
       : -1,
     sideLayer: enabled ? (layers?.sideDiffuseLayer ?? -1) : -1,
+    capNormalLayer:
+      enabled && tier === 'high' ? (layers?.capNormalLayer ?? -1) : -1,
+    capOrmLayer: enabled && tier === 'high' ? (layers?.capOrmLayer ?? -1) : -1,
+    sideNormalLayer:
+      enabled && tier === 'high' ? (layers?.sideNormalLayer ?? -1) : -1,
+    sideOrmLayer:
+      enabled && tier === 'high' ? (layers?.sideOrmLayer ?? -1) : -1,
     rotationSteps:
       enabled && allowRandomRotation ? getStableRotationStep(hexID) : 0,
   }

@@ -11,6 +11,7 @@ import {
   resolveRotationPivot,
   shouldShowRotationPivotMarker,
 } from '../data/rotationPivot'
+import { worldToCube } from '../data/dragMove'
 import { shouldRenderPlacedPiece } from '../data/startZoneVisibility'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
@@ -30,6 +31,7 @@ import {
   pressPieceForDrag,
   reportDragTargetHex,
 } from './drag/dragController'
+import { reportObjectiveMarkerDragTarget } from './drag/objectiveMarkerDragController'
 import { hexTerrainColor } from './maphex/hexColors'
 import { Battlement } from './models/Battlement'
 import BigTree415 from './models/BigTree415'
@@ -123,7 +125,6 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
     altitude: pivotAltitude,
   })
   const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
-    if (!isDragging()) return
     const { boardHexes } = useBoundStore.getState()
     const support = isLaurPillarID(props.bp.inventoryID)
       ? ({
@@ -136,6 +137,14 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
           terrain: HexTerrain.laurWall,
         } as BoardHex)
       : boardHexes[genBoardHexID({ ...pieceCoords, altitude })]
+    if (support) {
+      const pointerCoords = worldToCube(e.point.x, e.point.z)
+      const targetHex = boardHexes[
+        genBoardHexID({ ...pointerCoords, altitude: support.altitude })
+      ] ?? { ...support, ...pointerCoords }
+      if (reportObjectiveMarkerDragTarget(targetHex, e)) return
+    }
+    if (!isDragging()) return
     if (reportDragTargetHex(support, uid, { x: e.point.x, z: e.point.z })) {
       e.stopPropagation()
     }

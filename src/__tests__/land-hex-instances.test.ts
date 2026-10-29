@@ -18,6 +18,7 @@ import {
   getLandHexTextureLayers,
   getLandHexHoverTransition,
   getLandHexSideVisibilityMask,
+  packLandHexPbrTextureLayers,
   LAND_HEX_TEXTURE_TERRAIN_NAMES,
   LAND_HEX_UNTEXTURED_TERRAINS,
   NON_INSTANCED_SUBTERRAIN_PIECES,
@@ -40,6 +41,29 @@ const genericColors = {
 }
 
 describe('land hex instance data', () => {
+  it('packs every supported PBR layer tuple into a unique scalar', () => {
+    const codes = new Set<number>()
+    for (let capNormal = -1; capNormal < 3; capNormal += 1) {
+      for (let capOrm = -1; capOrm < 6; capOrm += 1) {
+        for (let sideNormal = -1; sideNormal < 2; sideNormal += 1) {
+          for (let sideOrm = -1; sideOrm < 3; sideOrm += 1) {
+            codes.add(
+              packLandHexPbrTextureLayers(
+                capNormal,
+                capOrm,
+                sideNormal,
+                sideOrm,
+              ),
+            )
+          }
+        }
+      }
+    }
+
+    expect(codes.size).toBe(336)
+    expect(packLandHexPbrTextureLayers(-1, -1, -1, -1)).toBe(0)
+  })
+
   it('creates one instance per supported land hex with surface levels', () => {
     const table = makeTable(9)
     const first = place({
@@ -127,22 +151,44 @@ describe('land hex instance data', () => {
       ).toMatchObject({
         capLayer: manifestTerrain.capDiffuseLayer,
         sideLayer: manifestTerrain.sideDiffuseLayer,
+        capNormalLayer: -1,
+        capOrmLayer: -1,
+        sideNormalLayer: -1,
+        sideOrmLayer: -1,
       })
       expect(
         getLandHexTextureLayers(terrain, 'stable-hex', terrainManifest, 'high'),
       ).toMatchObject({
         capLayer: manifestTerrain.capDiffusePbrLayer,
         sideLayer: manifestTerrain.sideDiffuseLayer,
+        capNormalLayer: manifestTerrain.capNormalLayer,
+        capOrmLayer: manifestTerrain.capOrmLayer,
+        sideNormalLayer: manifestTerrain.sideNormalLayer,
+        sideOrmLayer: manifestTerrain.sideOrmLayer,
       })
       expect(
         getLandHexTextureLayers(terrain, 'stable-hex', terrainManifest, 'low'),
-      ).toMatchObject({ capLayer: -1, sideLayer: -1 })
+      ).toMatchObject({
+        capLayer: -1,
+        sideLayer: -1,
+        capNormalLayer: -1,
+        capOrmLayer: -1,
+        sideNormalLayer: -1,
+        sideOrmLayer: -1,
+      })
     }
 
     for (const terrain of LAND_HEX_UNTEXTURED_TERRAINS) {
       expect(
         getLandHexTextureLayers(terrain, 'flat-hex', terrainManifest, 'high'),
-      ).toMatchObject({ capLayer: -1, sideLayer: -1 })
+      ).toMatchObject({
+        capLayer: -1,
+        sideLayer: -1,
+        capNormalLayer: -1,
+        capOrmLayer: -1,
+        sideNormalLayer: -1,
+        sideOrmLayer: -1,
+      })
     }
     expect(getLandHexColors(HexTerrain.shadow, genericColors).cap).toBe(
       '#0f0f0d',

@@ -19,6 +19,7 @@ export function undoWithSelectionRestore() {
   const pieceCountBeforeUndo = useBoundStore.getState().boardPieces.length
 
   temporalState.undo()
+  clearMissingObjectiveMarkerSelection()
   useBoundStore.getState().recomputeConflicts()
   useBoundStore.getState().setPiecePreviews(null)
   useBoundStore.getState().setRotationPivot(null)
@@ -60,6 +61,7 @@ export function redoWithSelectionRestore() {
   const pieceCountBeforeRedo = useBoundStore.getState().boardPieces.length
 
   temporalState.redo()
+  clearMissingObjectiveMarkerSelection()
   useBoundStore.getState().recomputeConflicts()
   useBoundStore.getState().setPiecePreviews(null)
   useBoundStore.getState().setRotationPivot(null)
@@ -72,5 +74,17 @@ export function redoWithSelectionRestore() {
     if (ids?.length) {
       pushPendingUndoSelectionRestoreFromRedo(ids)
     }
+  }
+}
+
+function clearMissingObjectiveMarkerSelection() {
+  const state = useBoundStore.getState()
+  if (
+    state.selectedObjectiveMarkerUID &&
+    !state.hexMap.objectiveMarkers?.some(
+      (marker) => marker.uid === state.selectedObjectiveMarkerUID,
+    )
+  ) {
+    state.setSelectedObjectiveMarkerUID(null)
   }
 }

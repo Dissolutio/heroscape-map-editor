@@ -11,6 +11,7 @@ import {
 } from '../../utils/constants'
 import { getBoardHex3DCoords } from '../../utils/map-utils'
 import { pressPieceForDrag, reportDragTargetHex } from '../drag/dragController'
+import { reportObjectiveMarkerDragTarget } from '../drag/objectiveMarkerDragController'
 import { CastleArch } from '../models/CastleArch'
 import CastleBase from '../models/CastleBases'
 import { CastleWall } from '../models/CastleWalls'
@@ -70,6 +71,7 @@ export const MapHex3D = ({
     onPointerDown: (e: ThreeEvent<PointerEvent>) =>
       pressPieceForDrag(e, boardHex.boardPieceUID),
     onPointerMove: (e: ThreeEvent<PointerEvent>) => {
+      if (reportObjectiveMarkerDragTarget(boardHex, e)) return
       if (
         reportDragTargetHex(boardHex, undefined, {
           x: e.point.x,

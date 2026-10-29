@@ -368,6 +368,8 @@ describe('settings persistence', () => {
     const transientKeys = [
       'selectedPieceIDs',
       'selectedObjectiveMarkerUID',
+      'objectiveMarkerDraft',
+      'objectiveMarkerDragPreview',
       'rotationPivot',
       'hoveredPieceID',
       'hoveredHex',
