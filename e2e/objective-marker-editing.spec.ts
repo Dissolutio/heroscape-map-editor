@@ -18,7 +18,7 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
   const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
   await penMode.click()
   await page.getByRole('option', { name: 'Objective Marker' }).click()
-  await page.getByRole('button', { name: '2 hexes' }).click()
+  await page.getByRole('button', { name: '2-hex marker' }).click()
 
   const canvas = page.locator('canvas').first()
   const initialHex = await page.evaluate(
