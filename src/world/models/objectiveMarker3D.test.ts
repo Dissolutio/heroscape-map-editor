@@ -117,7 +117,11 @@ function isSimplePolygon(points: { x: number; z: number }[]) {
       }
     }
   }
-  return true
+  const doubledArea = points.reduce((area, point, index) => {
+    const next = points[(index + 1) % points.length]
+    return next ? area + point.x * next.z - next.x * point.z : area
+  }, 0)
+  return Math.abs(doubledArea) > 1e-10
 }
 
 describe('objective marker 3D helpers', () => {
@@ -246,21 +250,23 @@ describe('objective marker 3D helpers', () => {
     expect(isSimplePolygon(defaultPoints)).toBe(true)
     expect(points).toHaveLength(16)
     expect(isSimplePolygon(points)).toBe(true)
-    for (const point of points) {
-      expect(
-        points.some(
-          (other) =>
-            Math.abs(other.x + point.x) < 1e-10 &&
-            Math.abs(other.z - point.z) < 1e-10,
-        ),
-      ).toBe(true)
-      expect(
-        points.some(
-          (other) =>
-            Math.abs(other.x - point.x) < 1e-10 &&
-            Math.abs(other.z + point.z) < 1e-10,
-        ),
-      ).toBe(true)
+    for (const outline of [defaultPoints, points]) {
+      for (const point of outline) {
+        expect(
+          outline.some(
+            (other) =>
+              Math.abs(other.x + point.x) < 1e-10 &&
+              Math.abs(other.z - point.z) < 1e-10,
+          ),
+        ).toBe(true)
+        expect(
+          outline.some(
+            (other) =>
+              Math.abs(other.x - point.x) < 1e-10 &&
+              Math.abs(other.z + point.z) < 1e-10,
+          ),
+        ).toBe(true)
+      }
     }
     if (!leftBridgeTop || !rightBridgeTop) {
       throw new Error('Expected bridge outline points')
