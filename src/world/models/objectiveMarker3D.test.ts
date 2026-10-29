@@ -15,6 +15,7 @@ import {
   DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
   getObjectiveMarker3DPosition,
   getObjectiveMarker3DTextPosition,
+  getObjectiveMarkerBridgeExtents,
   getObjectiveMarkerExportTextPosition,
   getObjectiveMarkerOutlinePoints,
   getObjectiveMarkerShapeOptions,
@@ -31,6 +32,93 @@ const marker = (options: Partial<ObjectiveMarker> = {}): ObjectiveMarker => ({
   content: { kind: 'number', value: 1 },
   ...options,
 })
+
+function cross(
+  a: { x: number; z: number },
+  b: { x: number; z: number },
+  c: { x: number; z: number },
+) {
+  return (b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x)
+}
+
+function segmentsIntersect(
+  a: { x: number; z: number },
+  b: { x: number; z: number },
+  c: { x: number; z: number },
+  d: { x: number; z: number },
+) {
+  const epsilon = 1e-10
+  const onSegment = (
+    start: { x: number; z: number },
+    end: { x: number; z: number },
+    point: { x: number; z: number },
+  ) =>
+    point.x >= Math.min(start.x, end.x) - epsilon &&
+    point.x <= Math.max(start.x, end.x) + epsilon &&
+    point.z >= Math.min(start.z, end.z) - epsilon &&
+    point.z <= Math.max(start.z, end.z) + epsilon
+  const abC = cross(a, b, c)
+  const abD = cross(a, b, d)
+  const cdA = cross(c, d, a)
+  const cdB = cross(c, d, b)
+
+  if (
+    ((abC > epsilon && abD < -epsilon) || (abC < -epsilon && abD > epsilon)) &&
+    ((cdA > epsilon && cdB < -epsilon) || (cdA < -epsilon && cdB > epsilon))
+  ) {
+    return true
+  }
+  return (
+    (Math.abs(abC) <= epsilon && onSegment(a, b, c)) ||
+    (Math.abs(abD) <= epsilon && onSegment(a, b, d)) ||
+    (Math.abs(cdA) <= epsilon && onSegment(c, d, a)) ||
+    (Math.abs(cdB) <= epsilon && onSegment(c, d, b))
+  )
+}
+
+function isSimplePolygon(points: { x: number; z: number }[]) {
+  if (points.length < 3) return false
+  for (let first = 0; first < points.length; first += 1) {
+    const firstEnd = points[(first + 1) % points.length]
+    const firstStart = points[first]
+    if (!firstStart || !firstEnd) return false
+    if (
+      Math.abs(firstStart.x - firstEnd.x) < 1e-10 &&
+      Math.abs(firstStart.z - firstEnd.z) < 1e-10
+    ) {
+      return false
+    }
+    const nextEnd = points[(first + 2) % points.length]
+    if (!nextEnd) return false
+    const outgoingX = firstEnd.x - firstStart.x
+    const outgoingZ = firstEnd.z - firstStart.z
+    const nextX = nextEnd.x - firstEnd.x
+    const nextZ = nextEnd.z - firstEnd.z
+    if (
+      Math.abs(cross(firstStart, firstEnd, nextEnd)) < 1e-10 &&
+      outgoingX * nextX + outgoingZ * nextZ < -1e-10
+    ) {
+      return false
+    }
+
+    for (let second = first + 1; second < points.length; second += 1) {
+      const secondEnd = points[(second + 1) % points.length]
+      const secondStart = points[second]
+      if (!secondStart || !secondEnd) return false
+      if (
+        second === first ||
+        second === first + 1 ||
+        (first === 0 && second === points.length - 1)
+      ) {
+        continue
+      }
+      if (segmentsIntersect(firstStart, firstEnd, secondStart, secondEnd)) {
+        return false
+      }
+    }
+  }
+  return true
+}
 
 describe('objective marker 3D helpers', () => {
   it('positions a one-hex token just above its supported cap', () => {
@@ -140,12 +228,24 @@ describe('objective marker 3D helpers', () => {
   })
 
   it('builds a symmetric two-hex outline whose bridge covers the cell gap', () => {
-    const points = getObjectiveMarkerOutlinePoints(2)
+    const defaultPoints = getObjectiveMarkerOutlinePoints(2)
+    const options = {
+      ...DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
+      bridgeWidthRatio: 0.5,
+    }
+    const points = getObjectiveMarkerOutlinePoints(2, options)
     const scale = DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS.hexScale
-    const leftBridgeTop = points[2]
-    const rightBridgeTop = points[3]
+    const extents = getObjectiveMarkerBridgeExtents(options)
+    const bridgeTopPoints = points.filter(
+      (point) => Math.abs(point.z - extents.halfWidth) < 1e-10,
+    )
+    const leftBridgeTop = bridgeTopPoints[0]
+    const rightBridgeTop = bridgeTopPoints[1]
 
+    expect(defaultPoints).toHaveLength(12)
+    expect(isSimplePolygon(defaultPoints)).toBe(true)
     expect(points).toHaveLength(16)
+    expect(isSimplePolygon(points)).toBe(true)
     for (const point of points) {
       expect(
         points.some(
@@ -165,61 +265,74 @@ describe('objective marker 3D helpers', () => {
     if (!leftBridgeTop || !rightBridgeTop) {
       throw new Error('Expected bridge outline points')
     }
+    expect(leftBridgeTop.x).toBeCloseTo(extents.leftHexInnerX)
+    expect(rightBridgeTop.x).toBeCloseTo(extents.rightHexInnerX)
     expect(leftBridgeTop.x).toBeLessThan(0)
     expect(rightBridgeTop.x).toBeGreaterThan(0)
-    expect(leftBridgeTop.z).toBeCloseTo(scale / 2)
-    expect(rightBridgeTop.z).toBeCloseTo(scale / 2)
+    expect(leftBridgeTop.z).toBeCloseTo(scale / 4)
+    expect(rightBridgeTop.z).toBeCloseTo(scale / 4)
   })
 
-  it('extends bridge overlap into both lobes without widening it', () => {
+  it('extends bridge overlap into both lobes without changing the union contour', () => {
     const options = {
       ...DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
       bridgeWidthRatio: 0.5,
       bridgeOverlap: 0,
     }
-    const noOverlap = getObjectiveMarkerOutlinePoints(2, options)
-    const overlapping = getObjectiveMarkerOutlinePoints(2, {
+    const withOverlapOptions = {
       ...options,
       bridgeOverlap: 0.04,
-    })
-    const leftBridgeTop = overlapping[2]
-    const rightBridgeTop = overlapping[3]
-    const leftBridgeBottom = overlapping[11]
-    const rightBridgeBottom = overlapping[10]
+    }
+    const noOverlapExtents = getObjectiveMarkerBridgeExtents(options)
+    const overlapExtents = getObjectiveMarkerBridgeExtents(withOverlapOptions)
+    const noOverlapContour = getObjectiveMarkerOutlinePoints(2, options)
+    const overlapContour = getObjectiveMarkerOutlinePoints(
+      2,
+      withOverlapOptions,
+    )
 
-    expect(leftBridgeTop?.x).toBeCloseTo((noOverlap[2]?.x ?? 0) - 0.04)
-    expect(rightBridgeTop?.x).toBeCloseTo((noOverlap[3]?.x ?? 0) + 0.04)
-    expect(leftBridgeBottom?.x).toBeCloseTo((noOverlap[11]?.x ?? 0) - 0.04)
-    expect(rightBridgeBottom?.x).toBeCloseTo((noOverlap[10]?.x ?? 0) + 0.04)
-    expect(leftBridgeTop?.z).toBeCloseTo(noOverlap[2]?.z ?? 0)
-    expect(rightBridgeTop?.z).toBeCloseTo(noOverlap[3]?.z ?? 0)
-    expect(leftBridgeBottom?.z).toBeCloseTo(noOverlap[11]?.z ?? 0)
-    expect(rightBridgeBottom?.z).toBeCloseTo(noOverlap[10]?.z ?? 0)
+    expect(overlapExtents.bridgeLeftX).toBeCloseTo(
+      overlapExtents.leftHexInnerX - 0.04,
+    )
+    expect(overlapExtents.bridgeRightX).toBeCloseTo(
+      overlapExtents.rightHexInnerX + 0.04,
+    )
+    expect(overlapExtents.bridgeLeftX).toBeLessThan(
+      overlapExtents.leftHexInnerX,
+    )
+    expect(overlapExtents.bridgeRightX).toBeGreaterThan(
+      overlapExtents.rightHexInnerX,
+    )
+    expect(overlapExtents.halfWidth).toBeCloseTo(noOverlapExtents.halfWidth)
+    expect(overlapContour).toEqual(noOverlapContour)
+    expect(isSimplePolygon(overlapContour)).toBe(true)
     expect(options.bridgeOverlap).toBe(0)
   })
 
-  it('extends bridge overlap symmetrically without crossing endpoints', () => {
-    const noOverlap = getObjectiveMarkerOutlinePoints(2, {
-      ...DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
-      bridgeOverlap: 0,
-    })
-    const points = getObjectiveMarkerOutlinePoints(2, {
-      ...DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
-      bridgeOverlap: 0.5,
-    })
-
-    expect(points[2]?.x).toBeLessThanOrEqual(points[3]?.x ?? Number.NEGATIVE_INFINITY)
-    expect(points[2]?.x).toBeCloseTo((noOverlap[2]?.x ?? 0) - 0.5)
-    expect(points[3]?.x).toBeCloseTo((noOverlap[3]?.x ?? 0) + 0.5)
-  })
-
-  it('keeps expanded two-hex selection outlines from crossing at the bridge', () => {
+  it('keeps a symmetric simple contour for expanded two-hex selection outlines', () => {
     const points = getObjectiveMarkerOutlinePoints(2, {
       ...DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
       hexScale: DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS.hexScale * 1.14,
+      bridgeWidthRatio: 0.5,
     })
 
-    expect(points[2]?.x).toBeLessThan(points[3]?.x ?? Number.NEGATIVE_INFINITY)
+    expect(isSimplePolygon(points)).toBe(true)
+    for (const point of points) {
+      expect(
+        points.some(
+          (other) =>
+            Math.abs(other.x + point.x) < 1e-10 &&
+            Math.abs(other.z - point.z) < 1e-10,
+        ),
+      ).toBe(true)
+      expect(
+        points.some(
+          (other) =>
+            Math.abs(other.x - point.x) < 1e-10 &&
+            Math.abs(other.z + point.z) < 1e-10,
+        ),
+      ).toBe(true)
+    }
   })
 
   it('reads development startup shape dials while retaining their defaults', () => {

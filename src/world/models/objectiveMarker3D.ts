@@ -68,6 +68,39 @@ export const DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS: ObjectiveMarkerShapeOptions
     bridgeOverlap: 0.04,
   }
 
+export type ObjectiveMarkerBridgeExtents = {
+  leftHexInnerX: number
+  rightHexInnerX: number
+  bridgeLeftX: number
+  bridgeRightX: number
+  halfWidth: number
+}
+
+/**
+ * Return the bridge bounds before unioning it with the two hex lobes.
+ * bridgeOverlap extends the bridge longitudinally into both lobes; it is
+ * internal to the union and therefore does not change the exterior outline.
+ */
+export function getObjectiveMarkerBridgeExtents({
+  hexScale,
+  bridgeWidthRatio,
+  bridgeOverlap,
+}: ObjectiveMarkerShapeOptions): ObjectiveMarkerBridgeExtents {
+  const radius = Math.min(hexScale, 0.99)
+  const apothem = (Math.sqrt(3) / 2) * radius
+  const centerOffset = Math.sqrt(3) / 2
+  const leftHexInnerX = -centerOffset + apothem
+  const rightHexInnerX = centerOffset - apothem
+
+  return {
+    leftHexInnerX,
+    rightHexInnerX,
+    bridgeLeftX: leftHexInnerX - bridgeOverlap,
+    bridgeRightX: rightHexInnerX + bridgeOverlap,
+    halfWidth: Math.min(radius / 2, (radius * bridgeWidthRatio) / 2),
+  }
+}
+
 function parseDial(
   value: string | null,
   fallback: number,
@@ -135,10 +168,6 @@ export function getObjectiveMarkerOutlinePoints(
   // radius; the optional override lets the 3D selection ring scale that hex.
   const radius = size === 2 ? Math.min(hexScale, 0.99) : singleHexRadius
   const apothem = (Math.sqrt(3) / 2) * radius
-  const halfWidth =
-    size === 2
-      ? Math.min(radius / 2, (radius * bridgeWidthRatio) / 2)
-      : 0
 
   if (size === 1) {
     return [
@@ -154,28 +183,50 @@ export function getObjectiveMarkerOutlinePoints(
   const centerOffset = Math.sqrt(3) / 2
   const leftCenter = -centerOffset
   const rightCenter = centerOffset
-  const leftInnerEdge = leftCenter + apothem
-  const rightInnerEdge = rightCenter - apothem
-  const bridgeLeftX = leftInnerEdge - bridgeOverlap
-  const bridgeRightX = rightInnerEdge + bridgeOverlap
-  return [
+  const {
+    leftHexInnerX: leftInnerEdge,
+    rightHexInnerX: rightInnerEdge,
+    halfWidth,
+  } = getObjectiveMarkerBridgeExtents({
+    hexScale,
+    bridgeWidthRatio,
+    bridgeOverlap,
+  })
+  const points: ObjectiveMarkerTextPosition[] = [
     { x: leftCenter, z: radius },
     { x: leftInnerEdge, z: radius / 2 },
-    { x: bridgeLeftX, z: halfWidth },
-    { x: bridgeRightX, z: halfWidth },
+  ]
+
+  // Clip the bridge against the hex lobes to describe their simple union.
+  // The longitudinal overlap is intentionally absent from this exterior
+  // contour: it lies inside the lobes and must not introduce backtracking.
+  if (halfWidth < radius / 2) {
+    points.push(
+      { x: leftInnerEdge, z: halfWidth },
+      { x: rightInnerEdge, z: halfWidth },
+    )
+  }
+  points.push(
     { x: rightInnerEdge, z: radius / 2 },
     { x: rightCenter, z: radius },
     { x: rightCenter + apothem, z: radius / 2 },
     { x: rightCenter + apothem, z: -radius / 2 },
     { x: rightCenter, z: -radius },
     { x: rightInnerEdge, z: -radius / 2 },
-    { x: bridgeRightX, z: -halfWidth },
-    { x: bridgeLeftX, z: -halfWidth },
+  )
+  if (halfWidth < radius / 2) {
+    points.push(
+      { x: rightInnerEdge, z: -halfWidth },
+      { x: leftInnerEdge, z: -halfWidth },
+    )
+  }
+  points.push(
     { x: leftInnerEdge, z: -radius / 2 },
     { x: leftCenter, z: -radius },
     { x: leftCenter - apothem, z: -radius / 2 },
     { x: leftCenter - apothem, z: radius / 2 },
-  ]
+  )
+  return points
 }
 
 export function getObjectiveMarker3DPosition(
