@@ -18,6 +18,7 @@ import {
 
 const EMPTY_MARKERS: ObjectiveMarker[] = []
 const MARKER_SHAPE_OPTIONS = getObjectiveMarkerShapeOptions()
+const OBJECTIVE_MARKER_EXTRUSION_DEPTH = 0.025
 
 function makeMarkerShape(
   markerSize: ObjectiveMarker['size'],
@@ -180,7 +181,10 @@ function ObjectiveMarkerToken({
         receiveShadow={false}
       >
         <extrudeGeometry
-          args={[borderShape, { depth: 0.025, bevelEnabled: false }]}
+          args={[
+            borderShape,
+            { depth: OBJECTIVE_MARKER_EXTRUSION_DEPTH, bevelEnabled: false },
+          ]}
         />
         <meshBasicMaterial color={foreground} toneMapped={false} />
       </mesh>
@@ -192,7 +196,10 @@ function ObjectiveMarkerToken({
         receiveShadow={false}
       >
         <extrudeGeometry
-          args={[faceShape, { depth: 0.025, bevelEnabled: false }]}
+          args={[
+            faceShape,
+            { depth: OBJECTIVE_MARKER_EXTRUSION_DEPTH, bevelEnabled: false },
+          ]}
         />
         <meshBasicMaterial color={background} toneMapped={false} />
       </mesh>
@@ -206,7 +213,10 @@ function ObjectiveMarkerToken({
         receiveShadow={false}
       >
         <extrudeGeometry
-          args={[selectionShape, { depth: 0.01, bevelEnabled: false }]}
+          args={[
+            selectionShape,
+            { depth: OBJECTIVE_MARKER_EXTRUSION_DEPTH, bevelEnabled: false },
+          ]}
         />
         <meshBasicMaterial color="#00c8ff" toneMapped={false} />
       </mesh>
