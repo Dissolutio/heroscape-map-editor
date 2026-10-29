@@ -719,19 +719,28 @@ export default function LandHexInstanced({
   const capOrmTexture = textureArrays?.textures['caps-orm.png']
   const sideNormalTexture = textureArrays?.textures['sides-normal.png']
   const sideOrmTexture = textureArrays?.textures['sides-orm.png']
-  const pbrTextures =
-    useHighPbr &&
-    capNormalTexture &&
-    capOrmTexture &&
-    sideNormalTexture &&
-    sideOrmTexture
-      ? {
-          capNormal: capNormalTexture,
-          capOrm: capOrmTexture,
-          sideNormal: sideNormalTexture,
-          sideOrm: sideOrmTexture,
-        }
-      : undefined
+  const pbrTextures = React.useMemo(
+    () =>
+      useHighPbr &&
+      capNormalTexture &&
+      capOrmTexture &&
+      sideNormalTexture &&
+      sideOrmTexture
+        ? {
+            capNormal: capNormalTexture,
+            capOrm: capOrmTexture,
+            sideNormal: sideNormalTexture,
+            sideOrm: sideOrmTexture,
+          }
+        : undefined,
+    [
+      capNormalTexture,
+      capOrmTexture,
+      sideNormalTexture,
+      sideOrmTexture,
+      useHighPbr,
+    ],
+  )
   const { onPointerEnter, onPointerEnterPID, onPointerOut, onPointerMove } =
     usePieceHoverState({ trackIsHovered: false })
   const solidData = React.useMemo(
