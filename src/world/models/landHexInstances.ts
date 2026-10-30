@@ -392,12 +392,14 @@ export function getLandHexHoverTransition(
 }
 
 export function getLandHexHighlightValue(
-  item: LandHexInstanceKey,
+  item: LandHexInstanceKey & Pick<LandHexInstanceDatum, 'capVisible'>,
   hovered: LandHexHoverTarget,
   selectedIDs: ReadonlySet<string>,
   surface: 'cap' | 'side' | 'both' = 'both',
 ) {
-  const capHighlighted = hovered?.isCap && hovered.hexID === item.hex.id
+  const capHighlighted =
+    (hovered?.isCap && hovered.hexID === item.hex.id) ||
+    (surface !== 'side' && item.capVisible && selectedIDs.has(item.uid))
   const sideHighlighted = selectedIDs.has(item.uid) || hovered?.uid === item.uid
   if (surface === 'cap') return Number(capHighlighted)
   if (surface === 'side') {

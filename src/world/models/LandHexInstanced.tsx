@@ -1122,7 +1122,7 @@ export default function LandHexInstanced({
         geometry: BufferGeometry,
         items: LandHexInstanceDatum[],
         index: LandHexInstanceIndex,
-        surface: 'side' | 'both',
+        surface: 'cap' | 'side' | 'both',
       ) => {
         if (!mesh) return
         const indices = new Set<number>()
@@ -1140,6 +1140,7 @@ export default function LandHexInstanced({
           surface,
         )
       }
+      updateSelection(capRef.current, capGeometry, solidData, solidIndex, 'cap')
       updateSelection(
         sideRef.current,
         sideGeometry,
@@ -1159,6 +1160,7 @@ export default function LandHexInstanced({
     }
     previousSelectedIDsRef.current = selectedIDs
   }, [
+    capGeometry,
     fluidDataByClass,
     fluidGeometries,
     fluidIndices,

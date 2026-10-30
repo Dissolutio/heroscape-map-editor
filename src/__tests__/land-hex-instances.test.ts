@@ -792,9 +792,9 @@ describe('land hex colors', () => {
 
   describe('land hex hover highlighting', () => {
     const items = [
-      { uid: 'first', hex: { id: 'hex-a' } },
-      { uid: 'first', hex: { id: 'hex-b' } },
-      { uid: 'second', hex: { id: 'hex-c' } },
+      { uid: 'first', hex: { id: 'hex-a' }, capVisible: true },
+      { uid: 'first', hex: { id: 'hex-b' }, capVisible: true },
+      { uid: 'second', hex: { id: 'hex-c' }, capVisible: true },
     ]
     const index = buildLandHexInstanceIndex(items)
 
@@ -918,8 +918,75 @@ describe('land hex colors', () => {
           new Set([item.uid]),
         ),
       ).toBe(3)
-      expect(getLandHexHighlightValue(item, null, new Set([item.uid]))).toBe(2)
+      expect(
+        getLandHexHighlightValue(item, null, new Set([item.uid]), 'cap'),
+      ).toBe(1)
+      expect(getLandHexHighlightValue(item, null, new Set([item.uid]))).toBe(3)
       expect(getLandHexHighlightValue(item, null, new Set())).toBe(0)
+    })
+
+    it('highlights every selected cap-visible hex and clears on deselection', () => {
+      const table = makeTable(9)
+      const single = place({
+        board: table,
+        pieceID: Pieces.grass1,
+        at: table.center,
+        altitude: 0,
+        uid: 'single',
+      })
+      const multi = place({
+        board: single.board,
+        pieceID: Pieces.grass3,
+        at: {
+          q: table.center.q + 3,
+          r: table.center.r,
+          s: table.center.s - 3,
+        },
+        altitude: 0,
+        uid: 'multi',
+      })
+      const items = buildLandHexInstanceData(
+        multi.board.boardHexes,
+        multi.board.boardPieces,
+        1,
+        genericColors,
+      )
+      const selected = new Set(['single', 'multi'])
+      const selectedCaps = items.filter(
+        (item) => selected.has(item.uid) && item.capVisible,
+      )
+
+      expect(selectedCaps.filter((item) => item.uid === 'single')).toHaveLength(
+        1,
+      )
+      expect(selectedCaps.filter((item) => item.uid === 'multi')).toHaveLength(
+        3,
+      )
+      expect(
+        selectedCaps.map((item) =>
+          getLandHexHighlightValue(item, null, selected, 'cap'),
+        ),
+      ).toEqual([1, 1, 1, 1])
+      expect(
+        selectedCaps.map((item) =>
+          getLandHexHighlightValue(item, null, new Set(), 'cap'),
+        ),
+      ).toEqual([0, 0, 0, 0])
+
+      const hiddenCap = {
+        uid: 'multi',
+        hex: { id: 'hidden-cap' },
+        capVisible: false,
+      }
+      const unselectedCap = {
+        uid: 'unselected',
+        hex: { id: 'other-hex' },
+        capVisible: true,
+      }
+      expect(getLandHexHighlightValue(hiddenCap, null, selected, 'cap')).toBe(0)
+      expect(
+        getLandHexHighlightValue(unselectedCap, null, selected, 'cap'),
+      ).toBe(0)
     })
   })
 
