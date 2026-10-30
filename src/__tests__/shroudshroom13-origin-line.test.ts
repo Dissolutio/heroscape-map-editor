@@ -147,8 +147,8 @@ describe('Shroudshroom13 origin line', () => {
     },
   )
 
-  it('stops at the inner edge of the border and is five units thick', () => {
-    expect(SHROUDSHROOM13_ORIGIN_LINE_WIDTH).toBe(5)
+  it('stops at the inner edge of the border and is ten units thick', () => {
+    expect(SHROUDSHROOM13_ORIGIN_LINE_WIDTH).toBe(10)
     for (const borderWidth of [SVG_BORDER_WIDTH, PDF_BORDER_WIDTH]) {
       const line = getShroudshroom13OriginLine(0, SVG_HEX_RADIUS, borderWidth)
       expect(Math.hypot(line.x2, line.y2)).toBeCloseTo(
@@ -169,7 +169,7 @@ describe('Shroudshroom13 origin line', () => {
     })
 
     const svg = renderSvgHex(svgHex)
-    const markedLines = svg.match(/<line\b(?=[^>]*stroke="#808080")/g) ?? []
+    const markedLines = svg.match(/<line\b(?=[^>]*stroke="#999999")/g) ?? []
     const [svgLine] = svg.match(/<line\b[^>]*>/g) ?? []
     const expectedLine = getShroudshroom13OriginLine(
       0,
@@ -182,7 +182,7 @@ describe('Shroudshroom13 origin line', () => {
     expect(svgLine).toContain(`y1="${expectedLine.y1}"`)
     expect(svgLine).toContain(`x2="${expectedLine.x2}"`)
     expect(svgLine).toContain(`y2="${expectedLine.y2}"`)
-    expect(svg).toContain('stroke-width="5"')
+    expect(svg).toContain('stroke-width="10"')
     expect(svg).toContain('stroke-linecap="round"')
     expect(
       renderSvgHex(

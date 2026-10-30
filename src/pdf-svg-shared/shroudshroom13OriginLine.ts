@@ -1,6 +1,6 @@
-export const SHROUDSHROOM13_ORIGIN_LINE_COLOR = '#808080'
-export const SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR = '#B3B3B3'
-export const SHROUDSHROOM13_ORIGIN_LINE_WIDTH = 5
+export const SHROUDSHROOM13_ORIGIN_LINE_COLOR = '#999999'
+export const SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR = '#CCCCCC'
+export const SHROUDSHROOM13_ORIGIN_LINE_WIDTH = 10
 
 /**
  * The line runs from the origin hex center toward the hex vertex pointing away
