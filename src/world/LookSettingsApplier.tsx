@@ -22,6 +22,10 @@ const toneMappings: Record<ToneMapping, ThreeToneMapping> = {
 
 export default function LookSettingsApplier() {
   const lookSettings = useBoundStore((state) => state.lookSettings)
+  const isTakingTransparentPicture = useBoundStore(
+    (state) =>
+      state.isTakingPicture && state.lookSettings.transparentPictureBackground,
+  )
   const boardPieces = useBoundStore((state) => state.boardPieces)
   const { gl, invalidate, scene } = useThree()
   const standardMaterials = useRef(new Set<MeshStandardMaterial>())
@@ -89,5 +93,7 @@ export default function LookSettingsApplier() {
     }
   }, [lookSettings.shine])
 
-  return <color attach="background" args={[lookSettings.backgroundColor]} />
+  return isTakingTransparentPicture ? null : (
+    <color attach="background" args={[lookSettings.backgroundColor]} />
+  )
 }

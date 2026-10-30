@@ -1,7 +1,9 @@
 import {
   Box,
   Button,
+  Checkbox,
   FormControl,
+  FormControlLabel,
   FormHelperText,
   InputLabel,
   MenuItem,
@@ -174,6 +176,25 @@ export default function LookSettingsDialog() {
             />
           </Tooltip>
         ))}
+        <Tooltip
+          title={LOOK_SETTINGS_TOOLTIP_COPY.transparentBackground}
+          arrow
+          describeChild
+        >
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={lookSettings.transparentPictureBackground}
+                onChange={(event) =>
+                  setLookSettings({
+                    transparentPictureBackground: event.target.checked,
+                  })
+                }
+              />
+            }
+            label="Transparent background"
+          />
+        </Tooltip>
         <Stack direction="row" spacing={1}>
           <Tooltip title={LOOK_SETTINGS_TOOLTIP_COPY.reset} arrow describeChild>
             <Button

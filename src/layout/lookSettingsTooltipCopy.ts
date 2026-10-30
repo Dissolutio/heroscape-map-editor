@@ -16,9 +16,11 @@ export const LOOK_SETTINGS_TOOLTIP_COPY = {
   backgroundColor:
     'Changes the color behind the map, in the empty parts of the scene.',
   tableColor: 'Changes the color of the table surface under the map.',
+  transparentBackground:
+    'Takes the picture with no background so you can drop the map onto your own artwork.',
   fov: 'Controls how wide the perspective camera sees. Low is more zoomed-in and flatter, like a telephoto lens; high is wide-angle and more dramatic.',
   reset: 'Returns all controls in this panel to their default values.',
-  copy: 'Copies all current 3D look values as JSON, including field of view.',
+  copy: 'Copies all current 3D look values as JSON, including field of view and transparent background.',
 } as const
 
 export const LOOK_SETTINGS_CONTROL_IDS = [
@@ -32,6 +34,7 @@ export const LOOK_SETTINGS_CONTROL_IDS = [
   'shine',
   'backgroundColor',
   'tableColor',
+  'transparentBackground',
   'fov',
   'reset',
   'copy',

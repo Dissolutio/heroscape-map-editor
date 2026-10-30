@@ -12,6 +12,7 @@ export type LookSettings = {
   shine: number
   backgroundColor: string
   tableColor: string
+  transparentPictureBackground: boolean
   fov: number
 }
 
@@ -27,6 +28,7 @@ export const DEFAULT_LOOK_SETTINGS: LookSettings = {
   shine: 1,
   backgroundColor: '#ffffff',
   tableColor: '#ffffff',
+  transparentPictureBackground: false,
   fov: CAMERA_FOV,
 }
 
@@ -106,6 +108,10 @@ export function sanitizeLookSettings(value: unknown): LookSettings {
       settings.tableColor,
       DEFAULT_LOOK_SETTINGS.tableColor,
     ),
+    transparentPictureBackground:
+      typeof settings.transparentPictureBackground === 'boolean'
+        ? settings.transparentPictureBackground
+        : DEFAULT_LOOK_SETTINGS.transparentPictureBackground,
     fov: sanitizeNumber(
       settings.fov,
       DEFAULT_LOOK_SETTINGS.fov,

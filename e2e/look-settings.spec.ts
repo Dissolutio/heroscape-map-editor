@@ -1,5 +1,5 @@
-import { expect, FIXTURE_URL, test, waitForAppReady } from './fixtures'
 import { CAMERA_FOV } from '../src/utils/constants'
+import { FIXTURE_URL, expect, test, waitForAppReady } from './fixtures'
 
 test('3D look settings preview, persist, invalidate shadows, and reset', async ({
   page,
@@ -21,6 +21,9 @@ test('3D look settings preview, persist, invalidate shadows, and reset', async (
   const dialog = page.getByRole('dialog', { name: '3D look settings' })
   const fovSlider = dialog.getByRole('slider', { name: 'Field of view' })
   const slider = dialog.getByRole('slider', { name: 'Point light intensity' })
+  const transparentBackground = dialog.getByRole('checkbox', {
+    name: 'Transparent background',
+  })
   const cameraDistance = () =>
     page.evaluate(() => {
       const pose = window.__TEST__?.cameraPose()
@@ -61,6 +64,25 @@ test('3D look settings preview, persist, invalidate shadows, and reset', async (
       }),
     )
     .toBe(90)
+  await transparentBackground.check()
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const settings = JSON.parse(localStorage.getItem('settings') ?? '{}')
+        return settings.values?.lookSettings?.transparentPictureBackground
+      }),
+    )
+    .toBe(true)
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.mouse.move(0, 0)
+  await dialog.getByRole('button', { name: 'Copy settings as JSON' }).click()
+  await expect
+    .poll(() =>
+      page.evaluate(async () =>
+        JSON.parse(await navigator.clipboard.readText()),
+      ),
+    )
+    .toMatchObject({ fov: 90, transparentPictureBackground: true })
   const before = await shadowCount()
 
   await slider.focus()
@@ -96,6 +118,7 @@ test('3D look settings preview, persist, invalidate shadows, and reset', async (
     .toBeUndefined()
   await expect(slider).toHaveAttribute('aria-valuenow', '200')
   await expect(fovSlider).toHaveAttribute('aria-valuenow', '65')
+  await expect(transparentBackground).not.toBeChecked()
   await expect
     .poll(() => page.evaluate(() => window.__TEST__?.snapshot().cameraFov))
     .toBe(65)

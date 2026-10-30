@@ -74,6 +74,7 @@ describe('settings persistence', () => {
       shine: 1,
       backgroundColor: '#ffffff',
       tableColor: '#ffffff',
+      transparentPictureBackground: false,
       fov: CAMERA_FOV,
     })
     expect(getAmbientIntensity(DEFAULT_LOOK_SETTINGS, true)).toBe(0.5)
@@ -101,6 +102,7 @@ describe('settings persistence', () => {
         toneMapping: 'agx' as const,
         exposure: 2.2,
         shine: 1.4,
+        transparentPictureBackground: true,
         fov: 74,
       },
     }
@@ -151,6 +153,7 @@ describe('settings persistence', () => {
         shine: 0.1,
         backgroundColor: '#abc',
         tableColor: '#123456',
+        transparentPictureBackground: true,
         fov: 100,
         ignored: 'value',
       }),
@@ -161,6 +164,7 @@ describe('settings persistence', () => {
       hemisphereIntensity: 1.25,
       shine: 0.5,
       tableColor: '#123456',
+      transparentPictureBackground: true,
       fov: 90,
     })
     expect(sanitizeLookSettings({ toneMapping: 'neutral' }).fov).toBe(

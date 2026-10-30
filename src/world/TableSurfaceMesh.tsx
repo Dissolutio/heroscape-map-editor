@@ -9,8 +9,15 @@ export function TableSurfaceMesh({
     (s) => s.isLightsAndShadowsRender,
   )
   const isHideTableTop = useBoundStore((s) => s.isHideTableTop)
+  const isTakingTransparentPicture = useBoundStore(
+    (s) => s.isTakingPicture && s.lookSettings.transparentPictureBackground,
+  )
   const tableColor = useBoundStore((s) => s.lookSettings.tableColor)
-  if (!isLightsAndShadowsRender || isHideTableTop) {
+  if (
+    !isLightsAndShadowsRender ||
+    isHideTableTop ||
+    isTakingTransparentPicture
+  ) {
     return null
   }
   return (
