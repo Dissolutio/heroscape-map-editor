@@ -175,6 +175,8 @@ test('per-hex land pixels stay colored across lights and shadows toggles', async
     camera,
   )
   await waitForAppReady(page)
+  const initialSnapshot = await page.evaluate(() => window.__TEST__?.snapshot())
+  expect(initialSnapshot?.selectedPieceIDs).toEqual([])
 
   const points = await page.evaluate(
     ({ solidUID, fluidUID }) => {

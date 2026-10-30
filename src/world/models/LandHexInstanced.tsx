@@ -622,10 +622,11 @@ function makeLandMaterial(
             landSelectionTint + uLandSelectionEdge * landSelectionEdgeBand
           );
         }
+        float landSelectedTint = landSelectionTint * landSelectedHighlight;
         diffuseColor.rgb = mix(
           landTextureColor,
           vec3(1.0, 1.0, 0.0),
-          mix(landSelectionTint, 1.0, landHoverHighlight)
+          mix(landSelectedTint, 1.0, landHoverHighlight)
         );`,
       )
       .replace(
