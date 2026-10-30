@@ -46,6 +46,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `map-autosave.test.ts` | Debounced map writes, lifecycle flushes, hold/release gating, and failure retries. |
 | `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
 | `settings.test.ts` | Versioned settings defaults, migration, remembered map author validation and round-trip, debounced persistence, stale session-only visibility settings, and store-state classification. |
+| `look-settings-tooltip-copy.test.ts` | Ensures every 3D Look dialog control has plain-English tooltip copy. |
 | `new-map-details.test.ts` | New-map author and notes through JSON loading and share-link serialization, including empty metadata. |
 | `view-mode.test.ts` | Active 3D, SVG, and PDF view selection, including PDF precedence. |
 | `start-zone-visibility.test.ts` | Start-zone 3D visibility, selection filtering and pivot cleanup, hidden drag-group exclusion, map-load filtering, and undo selection restoration while hidden. |
