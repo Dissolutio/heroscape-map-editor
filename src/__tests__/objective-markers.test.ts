@@ -1,5 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
 import { armyCardsDotOrg } from '../data/armyCardsDotOrg'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { fitMapToPieces, mapTableHexes } from '../data/fitMapToPieces'
@@ -7,24 +8,24 @@ import {
   getUrlMapString,
   parseMapDataArrayFromCrushed,
 } from '../data/jsonCrush'
+import { getObjectiveMarkerNameSuggestions } from '../data/objectiveMarkerNameSuggestions'
+import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
 import {
   type ObjectiveMarker,
+  getNextObjectiveMarkerNumber,
   getObjectiveMarkerContentError,
   getObjectiveMarkerFootprint,
   normalizeObjectiveMarkerName,
   normalizeObjectiveMarkers,
   objectiveMarkersOverlap,
 } from '../data/objectiveMarkers'
-import { getObjectiveMarkerNameSuggestions } from '../data/objectiveMarkerNameSuggestions'
-import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
-import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
-import { makeTable } from './helpers/board'
 import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
 import { loadMapFromLocalStorage } from '../local-storage/get-local-item'
 import { LS_KEYS } from '../local-storage/keys'
 import { createLocalMapAutosaveStorage } from '../local-storage/mapAutosave'
 import type { HexMap } from '../types'
 import { genBoardHexID } from '../utils/map-utils'
+import { makeTable } from './helpers/board'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 
@@ -61,6 +62,74 @@ const localStorageMock = {
 }
 
 describe('objective marker data', () => {
+  it('finds the next free number for the placed marker style', () => {
+    expect(
+      getNextObjectiveMarkerNumber([marker('one', 0, 0)], 'black', 1),
+    ).toBe(2)
+    expect(
+      getNextObjectiveMarkerNumber(
+        [
+          marker('one', 0, 0),
+          marker('two', 1, 0, { content: { kind: 'number', value: 2 } }),
+          marker('four', 2, 0, { content: { kind: 'number', value: 4 } }),
+        ],
+        'black',
+        1,
+      ),
+    ).toBe(3)
+    expect(
+      getNextObjectiveMarkerNumber(
+        [
+          marker('black-one', 0, 0),
+          marker('white-two', 1, 0, {
+            style: 'white',
+            content: { kind: 'number', value: 2 },
+          }),
+        ],
+        'black',
+        1,
+      ),
+    ).toBe(2)
+    expect(
+      getNextObjectiveMarkerNumber(
+        [
+          marker('text-one', 0, 0, {
+            content: { kind: 'text', value: 'A2' },
+          }),
+        ],
+        'black',
+        1,
+      ),
+    ).toBe(2)
+    expect(
+      getNextObjectiveMarkerNumber(
+        [
+          marker('ninety-nine', 0, 0, {
+            content: { kind: 'number', value: 99 },
+          }),
+        ],
+        'black',
+        99,
+      ),
+    ).toBe(1)
+  })
+
+  it('returns no next number when the content is inapplicable or the range is full', () => {
+    expect(getNextObjectiveMarkerNumber([], 'black', 0)).toBeUndefined()
+    expect(getNextObjectiveMarkerNumber([], 'black', 100)).toBeUndefined()
+    expect(
+      getNextObjectiveMarkerNumber(
+        Array.from({ length: 99 }, (_, index) =>
+          marker(`used-${index + 1}`, index, 0, {
+            content: { kind: 'number', value: index + 1 },
+          }),
+        ),
+        'black',
+        1,
+      ),
+    ).toBeUndefined()
+  })
+
   it('trims and caps optional marker names', () => {
     expect(normalizeObjectiveMarkerName('  10th Regiment of Foot  ')).toBe(
       '10th Regiment of Foot',

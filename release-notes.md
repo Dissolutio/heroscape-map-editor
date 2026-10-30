@@ -1,5 +1,5 @@
-Oct-29-2026
-TLDR: Textures! Three graphics levels, a 3D Look panel for your lighting and colors, objective markers, a crop dialog right after you take a map picture, and sharper map pictures.
+Oct-30-2026
+TLDR: Textures! Three graphics levels, a 3D Look panel for your lighting and colors, objective markers (now in 2D and PDF too), a crop dialog right after you take a map picture, and sharper map pictures.
 
 Hexoscape can now show real terrain textures, and you decide how much of your computer to spend on them. Everything here is optional: Low looks the way Hexoscape always has.
 
@@ -8,7 +8,12 @@ Hexoscape can now show real terrain textures, and you decide how much of your co
 - **Picture-only High**: Keep working on a lighter level, and have High used just for the moment you take a map picture.
 - **Seamless water, lava and ice**: Neighboring fluid tiles in the same piece blend into one surface instead of showing a seam on every hex edge.
 - **Softer solid-land relief**: The tops of solid tiles are less shiny and less harsh on High.
-- **Objective markers**: Place numbered or lettered markers (1 or 2 hexes, black or white) on the map. Select, edit, drag, rotate and delete them, with undo and redo. They are saved with your map file and belong to the map, not to any piece. (They don't ride along in share links yet, and PDF and 2D export support is coming.)
+- **Objective markers**: Place numbered or lettered markers (1 or 2 hexes, black or white) on the map, with an optional name (type a unit name and pick from suggestions). Click one to select it from any pen mode, then edit it in the selected-piece readout, drag it, rotate it or delete it, with undo and redo. After you place a numbered marker the next one is numbered for you (the next free number for that color); tick "Pin number" to keep the same number. Two-hex markers are a sturdier shape with centered text in 3D. Markers show up in the 2D and PDF build instructions, with a legend. They are saved with your map file and belong to the map, not to any piece. (Marker names don't ride along in share links yet.)
+- **Selected pieces keep their textures**: Selecting a piece now tints its caps yellow while the texture still shows through, instead of turning the whole piece into a yellow blob. Hovering is still solid yellow.
+- **Rotated land caps**: On Medium and High, the tops of textured land tiles are turned a random 60 degrees per hex, so big fields of grass, sand or rock stop looking like repeating wallpaper. The same hex always gets the same turn. The thin lines inside the edge of some tiles are gone.
+- **Ice is a little less see-through**: Ice is slightly more opaque, and all other water, lava and similar tiles are fully solid.
+- **Laur ruins on pillars**: A Laur ruin (or wall) on a pillar no longer reports a false conflict with the land the pillar stands on.
+- **Ancient Shroudshroom marker**: The 2D and PDF build instructions draw a gray line from the center of the origin hex to its outer vertex, so you can tell which way this three-hex obstacle blocks movement.
 - **Crop right after you take a picture**: Taking a map picture now opens a cropping dialog right away, with a live preview of the result. Save, use the full picture, upload a different one, or cancel. It also opens from Edit Map and from the File tab.
 - **Sharper map pictures**: Map pictures were coming out grainy. They now keep up to 1920 pixels at much higher quality. If your browser runs out of room to store the full-size one, a smaller copy is kept for the map and the full one still goes into your downloads and PDF.
 - **Full terrain set names**: Required Terrain in the PDF build instructions, tooltips and set summaries now say "Swamps of Valhalla" instead of abbreviations. The sets list is gone from the header so your map name has room.

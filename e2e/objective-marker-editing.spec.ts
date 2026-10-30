@@ -1,16 +1,16 @@
+import { FIXTURE_HEX_MAP } from './fixture-map'
 import {
-  clickObjectiveMarker,
-  dragObjectiveMarker,
-  mapUrl,
   OBJECTIVE_MARKERS_FIXTURE_HEX_MAP,
   OBJECTIVE_MARKERS_FIXTURE_PIECE_IDS,
+  clickObjectiveMarker,
   clickPiece,
+  dragObjectiveMarker,
+  expect,
   findPieceUid,
+  mapUrl,
   test,
   waitForAppReady,
-  expect,
 } from './fixtures'
-import { FIXTURE_HEX_MAP } from './fixture-map'
 
 const SUPPORTING_PIECE_IDS = [
   '0~2~2~0~g1',
@@ -106,6 +106,119 @@ test('suggests unit names lazily and keeps them in saved map files', async ({
   ).toHaveValue('10th Regiment of Foot')
 })
 
+test('auto-advances objective marker numbers unless the number is pinned', async ({
+  page,
+}) => {
+  await page.goto(mapUrl(FIXTURE_HEX_MAP, SUPPORTING_PIECE_IDS))
+  await waitForAppReady(page)
+
+  await page.getByRole('tab', { name: 'Build' }).click()
+  const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
+  await penMode.click()
+  await page.getByRole('option', { name: 'Objective Marker' }).click()
+
+  const numberInput = page.getByRole('spinbutton', { name: 'Marker number' })
+  const pinNumber = page.getByRole('checkbox', { name: 'Pin number' })
+  const canvas = page.locator('canvas').first()
+  const placeAt = async (q: number, r: number) => {
+    const point = await page.evaluate(
+      ({ q, r }) =>
+        window.__TEST__?.screenPosOfHex({ q, r, altitude: 1 }) ?? null,
+      { q, r },
+    )
+    if (!point) throw new Error(`Marker hex ${q}, ${r} is not on screen`)
+    await canvas.click({ position: point })
+  }
+
+  await expect(numberInput).toHaveValue('1')
+  await expect(pinNumber).not.toBeChecked()
+  await placeAt(2, 2)
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(1)
+  await expect(numberInput).toHaveValue('2')
+
+  await placeAt(3, 2)
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(2)
+  await expect(numberInput).toHaveValue('3')
+  const secondMarkerUID = await page.evaluate(
+    () => window.__TEST__?.listRenderedObjectiveMarkerUIDs()[1] ?? null,
+  )
+  if (!secondMarkerUID) throw new Error('Second marker is not rendered')
+  await clickObjectiveMarker(page, secondMarkerUID)
+  await expect(page.getByText('Content: Number 2')).toBeVisible()
+
+  await canvas.click({ position: { x: 2, y: 2 } })
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__TEST__?.snapshot().selectedObjectiveMarkerUID,
+      ),
+    )
+    .toBeNull()
+  await page.getByRole('tab', { name: 'Build' }).click()
+  await penMode.click()
+  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await expect(numberInput).toHaveValue('3')
+
+  await pinNumber.check()
+  await numberInput.fill('7')
+  await placeAt(3, 3)
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(3)
+  await expect(numberInput).toHaveValue('7')
+
+  await pinNumber.uncheck()
+  await numberInput.fill('1')
+  await placeAt(2, 3)
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(4)
+  await expect(numberInput).toHaveValue('3')
+
+  await clickObjectiveMarker(page, secondMarkerUID)
+  const selectedNumberInput = page.getByRole('spinbutton', {
+    name: 'Marker number',
+  })
+  await selectedNumberInput.fill('8')
+  await expect(selectedNumberInput).toHaveValue('8')
+  await canvas.click({ position: { x: 2, y: 2 } })
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__TEST__?.snapshot().selectedObjectiveMarkerUID,
+      ),
+    )
+    .toBeNull()
+  await page.getByRole('tab', { name: 'Build' }).click()
+  await penMode.click()
+  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await expect(numberInput).toHaveValue('3')
+
+  await page.getByRole('button', { name: 'Text', exact: true }).click()
+  await expect(pinNumber).toHaveCount(0)
+  const textInput = page.getByRole('textbox', { name: 'Marker text' })
+  await textInput.fill('A2')
+  await placeAt(4, 3)
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(5)
+  await expect(textInput).toHaveValue('A2')
+})
+
 test('places, edits, drags, deletes, and undoes an objective marker', async ({
   page,
 }) => {
@@ -130,6 +243,13 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
     )
     .toBe(1)
 
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__TEST__?.listRenderedObjectiveMarkerUIDs().length,
+      ),
+    )
+    .toBe(1)
   const markerUID = await page.evaluate(
     () => window.__TEST__?.listRenderedObjectiveMarkerUIDs()[0] ?? null,
   )

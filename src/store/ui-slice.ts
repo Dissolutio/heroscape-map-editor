@@ -2,13 +2,13 @@ import { produce } from 'immer'
 import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import type { DragPreview } from '../data/dragMove'
-import { sanitizeLookSettings, type LookSettings } from '../data/lookSettings'
+import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
+import { type LookSettings, sanitizeLookSettings } from '../data/lookSettings'
 import {
+  OBJECTIVE_MARKER_PEN_MODE,
   type ObjectiveMarker,
   type ObjectiveMarkerDraft,
-  OBJECTIVE_MARKER_PEN_MODE,
 } from '../data/objectiveMarkers'
-import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import {
   type RotationPivot,
   createRotationPivot,
@@ -330,6 +330,7 @@ const createUISlice: StateCreator<
     style: 'black',
     content: { kind: 'number', value: 1 },
     name: undefined,
+    pinNumber: false,
   },
   updateObjectiveMarkerDraft: (updates) =>
     set((state) =>
