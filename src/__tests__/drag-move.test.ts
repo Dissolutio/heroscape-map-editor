@@ -1060,7 +1060,7 @@ describe('drag target and drop decision', () => {
     expect(decideDrop('ADDON', target).type).toBe('move')
   })
 
-  it('an add-on lands on land and reports conflict plus unsupported state', () => {
+  it('an add-on lands on land unsupported without a conflict', () => {
     const board = groupBoard([
       { uid: 'ADDON', inventoryID: 'lws', q: 1, r: 3 },
       { uid: 'LAND', inventoryID: 'g1', q: 4, r: 3 },
@@ -1079,7 +1079,7 @@ describe('drag target and drop decision', () => {
       worldPointAt(destination),
     )
 
-    expect(target.evaluation.status).toBe('conflict')
+    expect(target.evaluation.status).toBe('ok')
     expect(target.resolution).toMatchObject({
       coords: destination,
       altitude: 1,

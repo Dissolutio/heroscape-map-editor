@@ -163,6 +163,7 @@ export function evaluateLaurAddonConflicts(
   for (const addon of addons) {
     const footprint = addon.footprint
     if (!footprint) continue
+    const footprintBaseHexAltitude = footprint.altitude + 1
     const inspectHexes = (
       coordinates: CubeCoordinate[],
       attachmentEnds: boolean,
@@ -179,7 +180,7 @@ export function evaluateLaurAddonConflicts(
           occupantsByCoordinate.get(coordKey(coordinate)) ?? []
         ).filter((hex) =>
           overlapsAltitude(
-            footprint.altitude,
+            footprintBaseHexAltitude,
             footprint.heightInLevels,
             hex.altitude,
           ),
