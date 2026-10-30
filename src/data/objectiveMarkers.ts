@@ -26,7 +26,9 @@ export type ObjectiveMarker = {
 export type ObjectiveMarkerDraft = Pick<
   ObjectiveMarker,
   'size' | 'style' | 'content' | 'name'
->
+> & {
+  pinNumber: boolean
+}
 
 export type NewObjectiveMarker = Omit<ObjectiveMarker, 'uid'> & {
   uid?: string
@@ -34,6 +36,7 @@ export type NewObjectiveMarker = Omit<ObjectiveMarker, 'uid'> & {
 
 const MAX_MARKER_TEXT_LENGTH = 3
 export const MAX_OBJECTIVE_MARKER_NAME_LENGTH = 60
+export const MAX_OBJECTIVE_MARKER_NUMBER = 99
 
 export function generateObjectiveMarkerUID() {
   return `om_${nanoid(10)}`
@@ -67,7 +70,7 @@ export function getObjectiveMarkerContentError(
     if (
       !Number.isInteger(content.value) ||
       content.value < 1 ||
-      content.value > 99
+      content.value > MAX_OBJECTIVE_MARKER_NUMBER
     ) {
       return 'Enter a whole number from 1 to 99.'
     }
@@ -88,6 +91,43 @@ export function getObjectiveMarkerContentError(
     return 'Use no more than 3 characters.'
   }
   return null
+}
+
+export function getNextObjectiveMarkerNumber(
+  markers: readonly ObjectiveMarker[],
+  style: ObjectiveMarker['style'],
+  placedNumber: number,
+): number | undefined {
+  if (
+    !Number.isInteger(placedNumber) ||
+    placedNumber < 1 ||
+    placedNumber > MAX_OBJECTIVE_MARKER_NUMBER
+  ) {
+    return undefined
+  }
+
+  const usedNumbers = new Set([placedNumber])
+  for (const marker of markers) {
+    if (
+      marker.style === style &&
+      marker.content.kind === 'number' &&
+      getObjectiveMarkerContentError(marker.content) === null
+    ) {
+      usedNumbers.add(marker.content.value)
+    }
+  }
+
+  for (
+    let number = placedNumber + 1;
+    number <= MAX_OBJECTIVE_MARKER_NUMBER;
+    number += 1
+  ) {
+    if (!usedNumbers.has(number)) return number
+  }
+  for (let number = 1; number < placedNumber; number += 1) {
+    if (!usedNumbers.has(number)) return number
+  }
+  return undefined
 }
 
 function normalizeObjectiveMarker(value: unknown): ObjectiveMarker | null {

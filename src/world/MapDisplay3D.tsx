@@ -5,18 +5,18 @@ import { closeSnackbar, enqueueSnackbar } from 'notistack'
 import { Suspense, useEffect, useMemo, useRef } from 'react'
 import type React from 'react'
 import type { Group, Object3DEventMap } from 'three'
+import { mapTableHexes } from '../data/fitMapToPieces.ts'
 import {
   decideLaurVariantPlacement,
   getLaurStackableVariantID,
 } from '../data/laurVariantPenModes.ts'
-import { piecesSoFar } from '../data/pieces.ts'
+import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement.ts'
 import {
   OBJECTIVE_MARKER_PEN_MODE,
   type ObjectiveMarker,
+  getNextObjectiveMarkerNumber,
 } from '../data/objectiveMarkers.ts'
-import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement.ts'
-import { mapTableHexes } from '../data/fitMapToPieces.ts'
-import { START_ZONES_HIDDEN_MESSAGE } from '../data/startZoneVisibility.ts'
+import { piecesSoFar } from '../data/pieces.ts'
 import {
   LAUR_STACKABLE_VARIANT_UNAVAILABLE_MESSAGE,
   type ResolvedPlacement,
@@ -25,6 +25,8 @@ import {
   resolvePlacement,
 } from '../data/placement.ts'
 import getPieceTemplateCoords from '../data/rotationTransforms.ts'
+import { START_ZONES_HIDDEN_MESSAGE } from '../data/startZoneVisibility.ts'
+import { isPerHexLandOverride } from '../e2e/isE2E.ts'
 import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
 import {
   RECONCILABLE_LAUR_PIECE_PAIRS,
@@ -52,25 +54,24 @@ import {
   hasActiveTerrainConstraints,
 } from '../utils/terrain-constraints.ts'
 import { warnIfTallFluidStack } from '../utils/warnAboutLoadedMap.ts'
-import { clearLastPointerWorldPoint } from './hoverWorldPoint.ts'
-import { getLandRendererMode } from './landRendererTier.ts'
-import { isPerHexLandOverride } from '../e2e/isE2E.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
+import ObjectiveMarkerPlacementPreview from './ObjectiveMarkerPlacementPreview.tsx'
 import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
 import PiecePreview from './PiecePreview.tsx'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import { DragPreview3D } from './drag/DragPreview3D.tsx'
+import { clearLastPointerWorldPoint } from './hoverWorldPoint.ts'
+import { getLandRendererMode } from './landRendererTier.ts'
 import { MapHex3D } from './maphex/MapHex3D.tsx'
 import EmptyHexes from './maphex/instance/EmptyHex.tsx'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
 import SolidCaps from './maphex/instance/SolidCaps.tsx'
+import LandHexInstanced from './models/LandHexInstanced.tsx'
 import LandSubterrainInstanced, {
   getLandSubterrainInstanceData,
 } from './models/LandSubterrainInstanced.tsx'
-import LandHexInstanced from './models/LandHexInstanced.tsx'
-import { getLandHexInstanceIDs } from './models/landHexInstances.ts'
 import ObjectiveMarkers3D from './models/ObjectiveMarkers3D.tsx'
-import ObjectiveMarkerPlacementPreview from './ObjectiveMarkerPlacementPreview.tsx'
+import { getLandHexInstanceIDs } from './models/landHexInstances.ts'
 
 function getAvailableLaurStackableInventory(): PieceInventory | undefined {
   const state = useBoundStore.getState()
@@ -170,6 +171,9 @@ export default function MapDisplay3D({
   )
   const addObjectiveMarker = useBoundStore((s) => s.addObjectiveMarker)
   const objectiveMarkerDraft = useBoundStore((s) => s.objectiveMarkerDraft)
+  const updateObjectiveMarkerDraft = useBoundStore(
+    (s) => s.updateObjectiveMarkerDraft,
+  )
   const objectiveMarkerMapHexIDs = useMemo(
     () => mapTableHexes(hexMap),
     [hexMap],
@@ -264,7 +268,10 @@ export default function MapDisplay3D({
           s: hex.s,
           altitude: hex.altitude,
         },
-        ...objectiveMarkerDraft,
+        size: objectiveMarkerDraft.size,
+        style: objectiveMarkerDraft.style,
+        content: objectiveMarkerDraft.content,
+        name: objectiveMarkerDraft.name,
         rotation: (penModeRotation % 6) as 0 | 1 | 2 | 3 | 4 | 5,
       }
       const state = useBoundStore.getState()
@@ -294,6 +301,22 @@ export default function MapDisplay3D({
         })
       } else {
         toggleSelectedPieceID('')
+        const placedState = useBoundStore.getState()
+        if (
+          !placedState.objectiveMarkerDraft.pinNumber &&
+          marker.content.kind === 'number'
+        ) {
+          const nextNumber = getNextObjectiveMarkerNumber(
+            placedState.hexMap.objectiveMarkers ?? [],
+            marker.style,
+            marker.content.value,
+          )
+          if (nextNumber !== undefined) {
+            updateObjectiveMarkerDraft({
+              content: { kind: 'number', value: nextNumber },
+            })
+          }
+        }
       }
       return
     }

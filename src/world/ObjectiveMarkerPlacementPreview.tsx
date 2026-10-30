@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
-import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
-import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
-import { getObjectiveMarkerFootprint } from '../data/objectiveMarkers'
 import { mapTableHexes } from '../data/fitMapToPieces'
-import useBoundStore from '../store/store'
+import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
+import { getObjectiveMarkerFootprint } from '../data/objectiveMarkers'
 import type { ObjectiveMarker } from '../data/objectiveMarkers'
+import useBoundStore from '../store/store'
 import { PlacementFootprint } from './PlacementFootprint'
 
 const EMPTY_OBJECTIVE_MARKERS: ObjectiveMarker[] = []
@@ -33,7 +33,10 @@ export default function ObjectiveMarkerPlacementPreview() {
             s: hoveredHex.s,
             altitude: hoveredHex.altitude,
           },
-          ...draft,
+          size: draft.size,
+          style: draft.style,
+          content: draft.content,
+          name: draft.name,
           rotation: (penModeRotation % 6) as 0 | 1 | 2 | 3 | 4 | 5,
         }
       : null)
