@@ -178,6 +178,8 @@ declarations stay read-only. Keep the current boardPieces-only behavior for
 Laur add-ons. Get owner agreement on feature identity, support/conflict rules,
 and consumers before changing runtime behavior; see
 [`docs/edges-and-nodes-design.md`](edges-and-nodes-design.md).
+Laur footprint altitudes use the `BoardPiece` placement-altitude domain; convert
+the base to `BoardHex` altitude (`altitude + 1`) when checking hex occupants.
 
 ## 7. Run tests and check the app
 

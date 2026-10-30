@@ -58,9 +58,9 @@ describe('placement preview state', () => {
     expect(preview(tree, 'tr10').evaluation.status).toBe('conflict')
   })
 
-  it('flags a Laur add-on on grass as conflicted and unsupported', () => {
+  it('reports a Laur add-on on grass as unsupported without a conflict', () => {
     expect(preview(table, 'lws')).toMatchObject({
-      evaluation: { status: 'conflict' },
+      evaluation: { status: 'ok' },
       unsupported: true,
     })
   })

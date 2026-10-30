@@ -86,6 +86,39 @@ const overlapsAltitudeBands = (
   otherHeight: number,
 ) => altitude < otherAltitude + otherHeight && otherAltitude < altitude + height
 
+const boardWithGroundAndPillarsForAddon = (
+  inventoryID: string,
+  rotation: number,
+) => {
+  const footprint = getLaurAddonFootprint({
+    inventoryID,
+    anchor: center,
+    altitude: 1,
+    rotation,
+  })
+  if (!footprint) throw new Error('Expected a registered Laur footprint')
+
+  const coordinates = new Map<string, CubeCoordinate>()
+  for (const coordinate of [...footprint.endHexes, ...footprint.blockedHexes]) {
+    coordinates.set(coordKey(coordinate), coordinate)
+  }
+  let board: Board = cloneBoard(makeTable(9))
+  for (const [index, coordinate] of [...coordinates.values()].entries()) {
+    board = placeOnBoard(board, Pieces.grass1, coordinate, `ground-${index}`)
+  }
+  for (const [index, coordinate] of footprint.endHexes.entries()) {
+    board = placeOnBoard(
+      board,
+      Pieces.laurWallSquarePillar,
+      coordinate,
+      `pillar-${index}`,
+      0,
+      1,
+    )
+  }
+  return { board, footprint }
+}
+
 const portLocationKey = (coords: CubeCoordinate, altitude: number) =>
   `${coordKey(coords)}@${altitude}`
 
@@ -276,7 +309,7 @@ function bruteForceLaurAddonConflicts(
           occupantsByCoordinate.get(coordKey(coordinate)) ?? []
         ).filter((hex) =>
           overlapsAltitude(
-            footprint.altitude,
+            footprint.altitude + 1,
             footprint.heightInLevels,
             hex.altitude,
           ),
@@ -457,7 +490,126 @@ const attachedCases: AttachedCase[] = [
   },
 ]
 
+const groundUnderPillarCases = [
+  ...[Pieces.laurWallRuin1, Pieces.laurWallRuin2, Pieces.laurWallRuin3].flatMap(
+    (inventoryID) =>
+      Array.from({ length: 12 }, (_, halfStep) => ({
+        inventoryID,
+        rotation: halfStep / 2,
+      })),
+  ),
+  ...[Pieces.laurWallShort, Pieces.laurWallShortStackable].flatMap(
+    (inventoryID) =>
+      Array.from({ length: 6 }, (_, rotation) => ({
+        inventoryID,
+        rotation,
+      })),
+  ),
+  ...[
+    Pieces.laurWallLong,
+    Pieces.laurWallLongStackable,
+    Pieces.laurWallArch,
+  ].flatMap((inventoryID) =>
+    Array.from({ length: 6 }, (_, halfStep) => ({
+      inventoryID,
+      rotation: halfStep + 0.5,
+    })),
+  ),
+]
+
 describe('evaluateLaurAddonConflicts', () => {
+  it.each(groundUnderPillarCases)(
+    'does not conflict with ground at the pillar base for $inventoryID at rotation $rotation',
+    ({ inventoryID, rotation }) => {
+      const { board } = boardWithGroundAndPillarsForAddon(inventoryID, rotation)
+      const addon = piece('addon', inventoryID, center, rotation, 1)
+
+      expect(
+        evaluateLaurAddonConflicts(
+          [...board.boardPieces, addon],
+          board.boardHexes,
+        ),
+      ).toEqual([])
+    },
+  )
+
+  it('still conflicts with an obstacle at the add-on height in its blocked hex', () => {
+    const inventoryID = Pieces.laurWallRuin2
+    const rotation = 0
+    const { board, footprint } = boardWithGroundAndPillarsForAddon(
+      inventoryID,
+      rotation,
+    )
+    const obstacleBoard = placeOnBoard(
+      board,
+      Pieces.tree10,
+      footprint.blockedHexes[0],
+      'obstacle',
+      0,
+      1,
+    )
+    const addon = piece('addon', inventoryID, center, rotation, 1)
+
+    expect(
+      sorted(
+        evaluateLaurAddonConflicts(
+          [...obstacleBoard.boardPieces, addon],
+          obstacleBoard.boardHexes,
+        ),
+      ),
+    ).toEqual(['addon', 'obstacle'])
+  })
+
+  it('still conflicts with ground higher than the pillar base in its blocked hex', () => {
+    const inventoryID = Pieces.laurWallRuin2
+    const rotation = 0
+    const { board, footprint } = boardWithGroundAndPillarsForAddon(
+      inventoryID,
+      rotation,
+    )
+    const raisedGroundBoard = placeOnBoard(
+      board,
+      Pieces.grass1,
+      footprint.blockedHexes[0],
+      'raised-ground',
+      0,
+      2,
+    )
+    const addon = piece('addon', inventoryID, center, rotation, 1)
+
+    expect(
+      sorted(
+        evaluateLaurAddonConflicts(
+          [...raisedGroundBoard.boardPieces, addon],
+          raisedGroundBoard.boardHexes,
+        ),
+      ),
+    ).toEqual(['addon', 'raised-ground'])
+  })
+
+  it('does not report a conflict in the saved Laur ground-under-ruin example', () => {
+    const data = JSON.parse(
+      readFileSync(
+        resolve(
+          process.cwd(),
+          'public/json-maps/Example_Laur_Ruin_Conflict_With_Ground_Underneath.json',
+        ),
+        'utf8',
+      ),
+    ) as { hexMap: HexMap; boardPieces: unknown }
+    const normalized = normalizeBoardPiecesWithDropped(data.boardPieces)
+    const board = buildupJsonFileMap(
+      normalized.boardPieces,
+      data.hexMap,
+      normalized.droppedPieces,
+    )
+
+    expect(board.droppedPieces).toEqual([])
+    expect(
+      evaluateLaurAddonConflicts(board.boardPieces, board.boardHexes),
+    ).toEqual([])
+  })
+
   it('loads the legacy stacking example and flags its stacked pillars', () => {
     const data = JSON.parse(
       readFileSync(
