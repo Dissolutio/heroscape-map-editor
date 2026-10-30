@@ -1,8 +1,11 @@
 import { Line, Svg } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
+import type { ObjectiveMarker } from '../data/objectiveMarkers'
+import { getPdfVisibleObjectiveMarkers } from '../pdf-svg-shared/objectiveMarkerExport'
 import type { BoardHex, DecodedPieceID, PdfMapAltitudeChunk } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import type { BuriedMarksByUID } from '../utils/tileMarks'
+import { PdfObjectiveMarkerOverlay } from './PdfObjectiveMarkers'
 import { PdfMapBoardPiece } from './PdfMapBoardPiece'
 import { PdfMapHex } from './PdfMapHex'
 
@@ -21,6 +24,7 @@ type ReactPdfSvgMapDisplayProps = {
   buriedMarksByUID: BuriedMarksByUID
   useLegacyStartZones: boolean
   is2DOverlayLevelEnabled: boolean
+  objectiveMarkers: ObjectiveMarker[]
   chunk?: PdfMapAltitudeChunk
 }
 
@@ -39,6 +43,7 @@ export const ReactPdfSvgMapDisplay = ({
   buriedMarksByUID,
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
+  objectiveMarkers,
   chunk,
 }: ReactPdfSvgMapDisplayProps) => {
   const emptyHexesArr = boardHexesArr.filter((hex) => hex.terrain === 'empty')
@@ -66,6 +71,12 @@ export const ReactPdfSvgMapDisplay = ({
   )
   const currentLevelPieces = visibleBoardPieces.filter(
     (bp) => bp.altitude + 1 >= viewingLevel,
+  )
+  const visibleObjectiveMarkers = getPdfVisibleObjectiveMarkers(
+    objectiveMarkers,
+    viewingLevel,
+    isOverlayViewing,
+    isShowPdfOverlayOnPlacedLevel,
   )
   const viewBoxStr = `${-adjustXForNew00Centers} ${-adjustYForNew00Centers} ${width + adjustXForNew00Centers} ${length + adjustYForNew00Centers}`
   const subLevelHexesEls = subLevelHexes
@@ -154,6 +165,9 @@ export const ReactPdfSvgMapDisplay = ({
             useLegacyStartZones={useLegacyStartZones}
           />
         ))}
+      {visibleObjectiveMarkers.length > 0 && (
+        <PdfObjectiveMarkerOverlay markers={visibleObjectiveMarkers} />
+      )}
     </Svg>
   )
 }

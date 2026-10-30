@@ -341,6 +341,7 @@ const PdfDocumentCoverSheet = ({
         buriedMarksByUID={buriedMarksByUID}
         useLegacyStartZones={useLegacyStartZones}
         is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+        objectiveMarkers={hexMap.objectiveMarkers ?? []}
       />
 
       {/* Inventory Page(s) */}
@@ -512,6 +513,7 @@ const PdfDocumentCondensedCoverSheet = ({
         buriedMarksByUID={buriedMarksByUID}
         useLegacyStartZones={useLegacyStartZones}
         is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+        objectiveMarkers={hexMap.objectiveMarkers ?? []}
       />
     </Document>
   )
@@ -567,6 +569,7 @@ const PdfDocumentShortHeader = ({
         buriedMarksByUID={buriedMarksByUID}
         useLegacyStartZones={useLegacyStartZones}
         is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+        objectiveMarkers={hexMap.objectiveMarkers ?? []}
       >
         <MapPortraitHeader
           hexMap={hexMap}
