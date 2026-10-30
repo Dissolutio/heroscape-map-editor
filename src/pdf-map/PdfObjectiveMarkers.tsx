@@ -5,7 +5,7 @@ import {
   getObjectiveMarkerExportColors,
   getObjectiveMarkerExportGeometry,
 } from '../pdf-svg-shared/objectiveMarkerExport'
-import { getInterFont, type OpenTypeFont } from '../svg-map/exportSvg'
+import { type OpenTypeFont, getInterFont } from '../svg-map/exportSvg'
 
 const getMarkerText = (marker: ObjectiveMarker) =>
   marker.content.kind === 'number'
@@ -148,6 +148,12 @@ export function PdfObjectiveMarkerLegendPaths({
               <Polygon
                 points={pointsToString(geometry.facePoints)}
                 fill={colors.face}
+              />
+              <Polygon
+                points={pointsToString(geometry.outerPoints)}
+                fill="none"
+                stroke="#888888"
+                strokeWidth={4}
               />
             </G>
             {textPath && <Path d={textPath} fill="#000000" />}

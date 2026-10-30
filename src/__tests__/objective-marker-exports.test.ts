@@ -8,13 +8,25 @@ import {
   Svg,
   renderToBuffer,
 } from '@react-pdf/renderer'
-import { createElement, type ReactElement } from 'react'
+import { type ReactElement, createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import {
-  getObjectiveMarkerFootprint,
   type ObjectiveMarker,
+  getObjectiveMarkerFootprint,
 } from '../data/objectiveMarkers'
+import {
+  PdfObjectiveMarkerLegendPaths,
+  PdfObjectiveMarkerPaths,
+} from '../pdf-map/PdfObjectiveMarkers'
+import {
+  get1HexOutlineSvgPolygonPoints,
+  get2HexOutlineSvgPolygonPoints,
+  get2HexPdfPolygonPointsAt00,
+  get2HexSvgPolygonPointsAt00,
+  getHexagonPdfPolygonPointsAt00,
+  getHexagonSvgPolygonPointsAt00,
+} from '../pdf-svg-shared/hexPolygonPoints'
 import {
   getObjectiveMarkerExportGeometry,
   getPdfLegendObjectiveMarkers,
@@ -23,14 +35,16 @@ import {
   getSvgVisibleObjectiveMarkers,
 } from '../pdf-svg-shared/objectiveMarkerExport'
 import {
-  PdfObjectiveMarkerLegendPaths,
-  PdfObjectiveMarkerPaths,
-} from '../pdf-map/PdfObjectiveMarkers'
-import type { OpenTypeFont } from '../svg-map/exportSvg'
-import {
   SvgObjectiveMarkerLegend,
   SvgObjectiveMarkerOverlay,
 } from '../svg-map/SvgObjectiveMarkerOverlay'
+import type { OpenTypeFont } from '../svg-map/exportSvg'
+import {
+  PDF_BORDER_WIDTH,
+  SVG_BORDER_WIDTH,
+  SVG_HEX_APOTHEM,
+  SVG_HEX_RADIUS,
+} from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 
 const marker = (options: Partial<ObjectiveMarker> = {}): ObjectiveMarker => ({
@@ -57,18 +71,91 @@ const elementChildren = (element: ReactElement) => {
   ) as ReactElement[]
 }
 
-describe('shared objective-marker export geometry', () => {
-  it('uses the shared outline for single- and two-hex markers', () => {
-    const single = getObjectiveMarkerExportGeometry(marker())
-    const double = getObjectiveMarkerExportGeometry(
-      marker({ size: 2, rotation: 3 }),
-    )
+const rotatePoint = (point: { x: number; y: number }, degrees: number) => {
+  const radians = (degrees * Math.PI) / 180
+  return {
+    x: Math.cos(radians) * point.x - Math.sin(radians) * point.y,
+    y: Math.sin(radians) * point.x + Math.cos(radians) * point.y,
+  }
+}
 
-    expect(single.outerPoints).toHaveLength(6)
-    expect(single.facePoints).toHaveLength(6)
-    expect(double.outerPoints.length).toBeGreaterThan(6)
-    expect(double.facePoints.length).toBe(double.outerPoints.length)
-    expect(double.rotationDegrees).toBe(180)
+describe('shared objective-marker export geometry', () => {
+  it('uses the land-tile footprint and border helpers for both sizes', () => {
+    const single = getObjectiveMarkerExportGeometry(marker())
+    const double = getObjectiveMarkerExportGeometry(marker({ size: 2 }))
+    const singleOuter = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS).corners
+    const singleBorder = get1HexOutlineSvgPolygonPoints(
+      SVG_HEX_RADIUS,
+      SVG_BORDER_WIDTH,
+    ).corners
+    const doubleOuter = get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS).corners
+    const doubleBorder = get2HexOutlineSvgPolygonPoints(
+      SVG_HEX_RADIUS,
+      SVG_BORDER_WIDTH,
+    ).corners
+
+    expect(single.outerPoints).toEqual(singleOuter)
+    expect(single.svgBorderPoints).toEqual(singleBorder)
+    expect(double.outerPoints).toEqual(
+      doubleOuter.map(({ x, y }) => ({
+        x: x - SVG_HEX_APOTHEM,
+        y,
+      })),
+    )
+    expect(double.svgBorderPoints).toEqual(
+      doubleBorder.map(({ x, y }) => ({
+        x: x - SVG_HEX_APOTHEM,
+        y,
+      })),
+    )
+    expect(single.facePoints).toEqual(
+      getHexagonPdfPolygonPointsAt00(SVG_HEX_RADIUS, PDF_BORDER_WIDTH * 2)
+        .corners,
+    )
+    expect(double.facePoints).toEqual(
+      get2HexPdfPolygonPointsAt00(
+        SVG_HEX_RADIUS,
+        PDF_BORDER_WIDTH * 2,
+      ).corners.map(({ x, y }) => ({
+        x: x - SVG_HEX_APOTHEM,
+        y,
+      })),
+    )
+  })
+
+  it('aligns the two-hex land footprint for all marker rotations', () => {
+    const baseLandPoints = get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS).corners
+    const anchor = marker({ size: 2 }).anchor
+    const anchorPixel = hexUtilsHexToPixel(anchor)
+
+    for (let rotation = 0; rotation < 6; rotation += 1) {
+      const current = marker({
+        size: 2,
+        rotation: rotation as ObjectiveMarker['rotation'],
+      })
+      const geometry = getObjectiveMarkerExportGeometry(current)
+      const actual = geometry.outerPoints.map((point) => {
+        const rotated = rotatePoint(point, geometry.rotationDegrees)
+        return {
+          x: geometry.center.x + rotated.x,
+          y: geometry.center.y + rotated.y,
+        }
+      })
+      const expected = baseLandPoints.map((point) => {
+        const rotated = rotatePoint(point, rotation * 60)
+        return {
+          x: anchorPixel.x + rotated.x,
+          y: anchorPixel.y + rotated.y,
+        }
+      })
+
+      expect(actual).toHaveLength(expected.length)
+      actual.forEach((point, index) => {
+        expect(point.x).toBeCloseTo(expected[index].x)
+        expect(point.y).toBeCloseTo(expected[index].y)
+      })
+      expect(geometry.rotationDegrees).toBe(rotation * 60)
+    }
   })
 
   it('keeps two-hex export text centered on the origin hex for every rotation', () => {
@@ -146,6 +233,31 @@ describe('shared objective-marker export geometry', () => {
 })
 
 describe('SVG objective-marker markup', () => {
+  it('reuses marker footprint paths in the legend with a neutral outline', () => {
+    const markers = [marker()]
+    const overlay = SvgObjectiveMarkerOverlay({ markers })
+    const legend = SvgObjectiveMarkerLegend({
+      markers,
+      x: 0,
+      y: 0,
+      fontSize: 12,
+      rowHeight: 18,
+    })
+    if (!overlay || !legend) throw new Error('Expected marker SVG elements')
+    const [markerGroup] = elementChildren(overlay)
+    const [mapFace, mapBorder] = elementChildren(markerGroup)
+    const [legendRow] = elementChildren(legend)
+    const [legendShape] = elementChildren(legendRow)
+    const [legendFace, legendBorder, neutralOutline] =
+      elementChildren(legendShape)
+
+    expect(legendFace?.props.points).toBe(mapFace?.props.points)
+    expect(legendBorder?.props.points).toBe(mapBorder?.props.points)
+    expect(neutralOutline?.props.points).toBe(mapFace?.props.points)
+    expect(neutralOutline?.props.stroke).toBe('#888888')
+    expect(neutralOutline?.props.strokeWidth).toBe(3)
+  })
+
   it('renders rotated marker symbols, style colors, text, and named rows', () => {
     const markers = [
       marker({ content: { kind: 'number', value: 12 }, name: 'North' }),
@@ -179,6 +291,7 @@ describe('SVG objective-marker markup', () => {
     expect(markup).toContain('rotate(120)')
     expect(markup).toContain('fill="#111111"')
     expect(markup).toContain('fill="#ffffff"')
+    expect(markup).toContain('stroke="#888888"')
     expect(markup).toContain('>12</text>')
     expect(markup).toContain('>A2</text>')
     expect(markup).toContain('data-testid="objective-marker-legend"')
@@ -222,6 +335,13 @@ describe('PDF objective-marker primitives', () => {
     expect(group.type).toBe(G)
     expect(outer?.type).toBe(Polygon)
     expect(face?.type).toBe(Polygon)
+    expect(outer?.props.points).toBe(
+      getObjectiveMarkerExportGeometry(
+        marker({ content: { kind: 'text', value: 'Q2' } }),
+      )
+        .outerPoints.map(({ x, y }) => `${x},${y}`)
+        .join(' '),
+    )
     expect(text?.type).toBe(Path)
     expect(text?.props.d).toContain('M')
     expect(text?.props.children).toBeUndefined()
@@ -280,9 +400,16 @@ describe('PDF objective-marker primitives', () => {
     })
     if (!output) throw new Error('Expected PDF legend output')
     const [row] = elementChildren(output)
-    const [, label] = elementChildren(row)
+    const [markerGroup, label] = elementChildren(row)
+    const [outer, face, outline] = elementChildren(markerGroup)
 
     expect(output.type).toBe(Svg)
+    expect(outer?.type).toBe(Polygon)
+    expect(face?.type).toBe(Polygon)
+    expect(outline?.type).toBe(Polygon)
+    expect(outline?.props.stroke).toBe('#888888')
+    expect(outline?.props.strokeWidth).toBe(4)
+    expect(outline?.props.points).toBe(outer?.props.points)
     expect(label?.type).toBe(Path)
     expect(label?.props.d).toContain('M')
     expect(font.getPath).toHaveBeenCalledWith('East Gate', 42, 9, 9, {
