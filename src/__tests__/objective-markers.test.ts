@@ -133,6 +133,7 @@ describe('objective marker data', () => {
 
   it('derives the first available number from the base and marker style', () => {
     expect(getEffectiveObjectiveMarkerNumber([], 'black', 1)).toBe(1)
+    expect(getEffectiveObjectiveMarkerNumber([], 'black', 99)).toBe(99)
     expect(
       getEffectiveObjectiveMarkerNumber([marker('one', 0)], 'black', 1),
     ).toBe(2)

@@ -14,7 +14,7 @@ import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacem
 import {
   OBJECTIVE_MARKER_PEN_MODE,
   type ObjectiveMarker,
-  getNextObjectiveMarkerNumber,
+  getEffectiveObjectiveMarkerNumber,
 } from '../data/objectiveMarkers.ts'
 import { piecesSoFar } from '../data/pieces.ts'
 import {
@@ -170,10 +170,6 @@ export default function MapDisplay3D({
     (s) => s.setSelectedObjectiveMarkerUID,
   )
   const addObjectiveMarker = useBoundStore((s) => s.addObjectiveMarker)
-  const objectiveMarkerDraft = useBoundStore((s) => s.objectiveMarkerDraft)
-  const updateObjectiveMarkerDraft = useBoundStore(
-    (s) => s.updateObjectiveMarkerDraft,
-  )
   const objectiveMarkerMapHexIDs = useMemo(
     () => mapTableHexes(hexMap),
     [hexMap],
@@ -260,6 +256,19 @@ export default function MapDisplay3D({
       return
     }
     if (penMode === OBJECTIVE_MARKER_PEN_MODE) {
+      const state = useBoundStore.getState()
+      const draft = state.objectiveMarkerDraft
+      const content =
+        draft.content.kind === 'number' && !draft.pinNumber
+          ? {
+              kind: 'number' as const,
+              value: getEffectiveObjectiveMarkerNumber(
+                state.hexMap.objectiveMarkers ?? [],
+                draft.style,
+                draft.content.value,
+              ),
+            }
+          : draft.content
       const marker: ObjectiveMarker = {
         uid: '',
         anchor: {
@@ -268,13 +277,12 @@ export default function MapDisplay3D({
           s: hex.s,
           altitude: hex.altitude,
         },
-        size: objectiveMarkerDraft.size,
-        style: objectiveMarkerDraft.style,
-        content: objectiveMarkerDraft.content,
-        name: objectiveMarkerDraft.name,
+        size: draft.size,
+        style: draft.style,
+        content,
+        name: draft.name,
         rotation: (penModeRotation % 6) as 0 | 1 | 2 | 3 | 4 | 5,
       }
-      const state = useBoundStore.getState()
       const placement = getObjectiveMarkerPlacementStatus({
         marker,
         boardHexes: state.boardHexes,
@@ -301,22 +309,6 @@ export default function MapDisplay3D({
         })
       } else {
         toggleSelectedPieceID('')
-        const placedState = useBoundStore.getState()
-        if (
-          !placedState.objectiveMarkerDraft.pinNumber &&
-          marker.content.kind === 'number'
-        ) {
-          const nextNumber = getNextObjectiveMarkerNumber(
-            placedState.hexMap.objectiveMarkers ?? [],
-            marker.style,
-            marker.content.value,
-          )
-          if (nextNumber !== undefined) {
-            updateObjectiveMarkerDraft({
-              content: { kind: 'number', value: nextNumber },
-            })
-          }
-        }
       }
       return
     }
