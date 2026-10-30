@@ -25,7 +25,7 @@ export type ObjectiveMarker = {
 
 export type ObjectiveMarkerDraft = Pick<
   ObjectiveMarker,
-  'size' | 'style' | 'content'
+  'size' | 'style' | 'content' | 'name'
 >
 
 export type NewObjectiveMarker = Omit<ObjectiveMarker, 'uid'> & {
@@ -33,6 +33,7 @@ export type NewObjectiveMarker = Omit<ObjectiveMarker, 'uid'> & {
 }
 
 const MAX_MARKER_TEXT_LENGTH = 3
+export const MAX_OBJECTIVE_MARKER_NAME_LENGTH = 60
 
 export function generateObjectiveMarkerUID() {
   return `om_${nanoid(10)}`
@@ -52,6 +53,11 @@ function normalizeText(value: unknown, maxLength: number) {
     .join('')
     .trim()
   return Array.from(cleaned).slice(0, maxLength).join('')
+}
+
+export function normalizeObjectiveMarkerName(value: unknown) {
+  const name = normalizeText(value, MAX_OBJECTIVE_MARKER_NAME_LENGTH)
+  return name || undefined
 }
 
 export function getObjectiveMarkerContentError(
@@ -143,7 +149,7 @@ function normalizeObjectiveMarker(value: unknown): ObjectiveMarker | null {
     style: value.style,
     content,
   }
-  const name = normalizeText(value.name, Number.MAX_SAFE_INTEGER)
+  const name = normalizeObjectiveMarkerName(value.name)
   if (name) marker.name = name
   return marker
 }

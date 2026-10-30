@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { armyCardsDotOrg } from '../data/armyCardsDotOrg'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { fitMapToPieces, mapTableHexes } from '../data/fitMapToPieces'
 import {
@@ -9,9 +11,11 @@ import {
   type ObjectiveMarker,
   getObjectiveMarkerContentError,
   getObjectiveMarkerFootprint,
+  normalizeObjectiveMarkerName,
   normalizeObjectiveMarkers,
   objectiveMarkersOverlap,
 } from '../data/objectiveMarkers'
+import { getObjectiveMarkerNameSuggestions } from '../data/objectiveMarkerNameSuggestions'
 import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
 import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
 import { makeTable } from './helpers/board'
@@ -57,6 +61,61 @@ const localStorageMock = {
 }
 
 describe('objective marker data', () => {
+  it('trims and caps optional marker names', () => {
+    expect(normalizeObjectiveMarkerName('  10th Regiment of Foot  ')).toBe(
+      '10th Regiment of Foot',
+    )
+    expect(normalizeObjectiveMarkerName('   ')).toBeUndefined()
+    expect(normalizeObjectiveMarkerName('x'.repeat(61))).toBe('x'.repeat(60))
+  })
+
+  it('keeps the generated unit-name list in sync with card display names', () => {
+    const generatedFile = readFileSync(
+      new URL('../../public/objective-marker-unit-names.json', import.meta.url),
+      'utf8',
+    )
+    const generatedNames = JSON.parse(generatedFile) as string[]
+    const expectedNames = [
+      ...new Set(
+        armyCardsDotOrg
+          .map(({ SDW }) => SDW)
+          .filter((name): name is string => typeof name === 'string')
+          .map((name) => name.trim())
+          .filter(Boolean),
+      ),
+    ].sort((first, second) =>
+      first.localeCompare(second, 'en', { sensitivity: 'base' }),
+    )
+
+    expect(generatedNames).toEqual(expectedNames)
+    expect(generatedFile.length).toBeLessThan(20_000)
+  })
+
+  it('orders unit-name suggestions by prefix, then substring, and limits results', () => {
+    expect(
+      getObjectiveMarkerNameSuggestions(
+        [
+          'Axegrinders of Burning Forge',
+          'Einar Imperium',
+          '10th Regiment of Foot',
+          'The Axegrinders',
+          'Axe of Stun',
+        ],
+        'axe',
+      ),
+    ).toEqual([
+      'Axe of Stun',
+      'Axegrinders of Burning Forge',
+      'The Axegrinders',
+    ])
+    expect(
+      getObjectiveMarkerNameSuggestions(
+        Array.from({ length: 30 }, (_, index) => `Unit ${index}`),
+        'unit',
+      ),
+    ).toHaveLength(20)
+  })
+
   it('validates number and custom marker content without clamping', () => {
     expect(
       getObjectiveMarkerContentError({ kind: 'number', value: 1 }),
@@ -470,6 +529,27 @@ describe('objective marker store actions', () => {
       holdAutosave: true,
     })
     expect(store.getState().selectedObjectiveMarkerUID).toBeNull()
+  })
+
+  it('updates a marker name as one undoable map-state action', () => {
+    const uid = store.getState().addObjectiveMarker(marker('', 0, 0))
+    if (!uid) throw new Error('Expected the marker to be added')
+
+    store.getState().updateObjectiveMarker(uid, {
+      name: '10th Regiment of Foot',
+    })
+    expect(store.temporal.getState().pastStates).toHaveLength(2)
+    expect(store.getState().hexMap.objectiveMarkers?.[0]?.name).toBe(
+      '10th Regiment of Foot',
+    )
+
+    store.temporal.getState().undo()
+    expect(store.getState().hexMap.objectiveMarkers?.[0]?.name).toBeUndefined()
+    expect(store.getState().hexMap.objectiveMarkers).toHaveLength(1)
+    store.temporal.getState().redo()
+    expect(store.getState().hexMap.objectiveMarkers?.[0]?.name).toBe(
+      '10th Regiment of Foot',
+    )
   })
 
   it('refuses additions and moves that overlap another marker', () => {

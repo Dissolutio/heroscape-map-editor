@@ -329,6 +329,7 @@ const createUISlice: StateCreator<
     size: 1,
     style: 'black',
     content: { kind: 'number', value: 1 },
+    name: undefined,
   },
   updateObjectiveMarkerDraft: (updates) =>
     set((state) =>
