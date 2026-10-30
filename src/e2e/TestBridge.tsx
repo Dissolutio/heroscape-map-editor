@@ -1,7 +1,7 @@
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
-import { Box3, Vector3 } from 'three'
+import { Box3, PerspectiveCamera, Vector3 } from 'three'
 import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
 import { resolveRotationPivot } from '../data/rotationPivot'
 import useBoundStore from '../store/store'
@@ -107,6 +107,7 @@ function TestBridgeInner() {
     const bridge: E2ETestBridge = {
       snapshot: () => {
         const s = useBoundStore.getState()
+        const camera = get().camera
         const landRendererMode = getLandRendererMode(
           s.effectiveGraphicsTier,
           isPerHexLandOverride,
@@ -165,6 +166,7 @@ function TestBridgeInner() {
             ) ?? null,
           hoveredPieceID: s.hoveredPieceID,
           isOrthoCam: s.isOrthoCam,
+          cameraFov: camera instanceof PerspectiveCamera ? camera.fov : null,
           placementPreview: getPlacementPreview(),
           drag: getDragSnapshot(),
         }

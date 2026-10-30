@@ -25,6 +25,7 @@ import {
   type ObjectiveMarker,
   type ObjectiveMarkerContent,
   type ObjectiveMarkerDraft,
+  getEffectiveObjectiveMarkerNumber,
   getObjectiveMarkerContentError,
   normalizeObjectiveMarkerName,
 } from '../data/objectiveMarkers'
@@ -57,7 +58,17 @@ export default function ObjectiveMarkerControls({
   }))
   const [unitNames, setUnitNames] = useState<string[]>([])
   const current: ObjectiveMarkerDraft | ObjectiveMarker = marker ?? draft
-  const content = current.content
+  const content =
+    !marker && draft.content.kind === 'number' && !draft.pinNumber
+      ? {
+          kind: 'number' as const,
+          value: getEffectiveObjectiveMarkerNumber(
+            markers,
+            draft.style,
+            draft.content.value,
+          ),
+        }
+      : current.content
   const nameSource = marker?.uid ?? 'draft'
   const nameValue =
     nameInput.source === nameSource ? nameInput.value : (current.name ?? '')
@@ -131,6 +142,17 @@ export default function ObjectiveMarkerControls({
     setPlacementError('')
     if (marker) updateMarker(marker.uid, { content: nextContent })
     else updateDraft({ content: nextContent })
+    setContentValue(
+      String(
+        !marker && nextContent.kind === 'number' && !draft.pinNumber
+          ? getEffectiveObjectiveMarkerNumber(
+              markers,
+              draft.style,
+              nextContent.value,
+            )
+          : nextContent.value,
+      ),
+    )
   }
 
   const handleContentChange = (value: string) => {

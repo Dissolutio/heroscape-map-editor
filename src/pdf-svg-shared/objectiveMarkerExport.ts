@@ -1,15 +1,26 @@
 import {
-  getObjectiveMarkerFootprint,
   type ObjectiveMarker,
+  getObjectiveMarkerFootprint,
 } from '../data/objectiveMarkers'
 import {
+  PDF_BORDER_WIDTH,
+  SVG_BORDER_WIDTH,
+  SVG_HEX_APOTHEM,
+  SVG_HEX_RADIUS,
+} from '../utils/constants'
+import { getBoardHex3DCoords, hexUtilsHexToPixel } from '../utils/map-utils'
+import {
   getObjectiveMarkerExportTextPosition,
-  getObjectiveMarkerOutlinePoints,
-  getObjectiveMarkerShapeOptions,
   getObjectiveMarkerTextFontSize,
 } from '../world/models/objectiveMarker3D'
-import { SVG_HEX_RADIUS } from '../utils/constants'
-import { getBoardHex3DCoords, hexUtilsHexToPixel } from '../utils/map-utils'
+import {
+  get1HexOutlineSvgPolygonPoints,
+  get2HexOutlineSvgPolygonPoints,
+  get2HexPdfPolygonPointsAt00,
+  get2HexSvgPolygonPointsAt00,
+  getHexagonPdfPolygonPointsAt00,
+  getHexagonSvgPolygonPointsAt00,
+} from './hexPolygonPoints'
 
 export type ObjectiveMarkerExportPoint = { x: number; y: number }
 
@@ -18,6 +29,7 @@ export type ObjectiveMarkerExportGeometry = {
   rotationDegrees: number
   outerPoints: ObjectiveMarkerExportPoint[]
   facePoints: ObjectiveMarkerExportPoint[]
+  svgBorderPoints: ObjectiveMarkerExportPoint[]
   textPosition: ObjectiveMarkerExportPoint
   textFontSize: number
 }
@@ -50,28 +62,33 @@ export function getObjectiveMarkerExportGeometry(
     marker,
     markerPosition,
   )
-  const shapeOptions = getObjectiveMarkerShapeOptions()
-  const markerRadius = marker.size === 1 ? 0.76 : shapeOptions.hexScale
-
-  const getPoints = (scale: number) =>
-    getObjectiveMarkerOutlinePoints(
-      marker.size,
-      {
-        ...shapeOptions,
-        hexScale: markerRadius * scale,
-        bridgeOverlap: shapeOptions.bridgeOverlap * scale,
-      },
-      marker.size === 1 ? markerRadius * scale : undefined,
-    ).map(({ x, z }) => ({
-      x: x * SVG_HEX_RADIUS,
-      y: z * SVG_HEX_RADIUS,
+  const outerCorners =
+    marker.size === 1
+      ? getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS).corners
+      : get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS).corners
+  const svgBorderCorners =
+    marker.size === 1
+      ? get1HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).corners
+      : get2HexOutlineSvgPolygonPoints(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).corners
+  const pdfFaceCorners =
+    marker.size === 1
+      ? getHexagonPdfPolygonPointsAt00(SVG_HEX_RADIUS, PDF_BORDER_WIDTH * 2)
+          .corners
+      : get2HexPdfPolygonPointsAt00(SVG_HEX_RADIUS, PDF_BORDER_WIDTH * 2)
+          .corners
+  const centerOffsetX = marker.size === 1 ? 0 : SVG_HEX_APOTHEM
+  const centerPoints = (corners: { x: number; y: number }[]) =>
+    corners.map(({ x, y }) => ({
+      x: x - centerOffsetX,
+      y,
     }))
 
   return {
     center,
     rotationDegrees: marker.rotation * 60,
-    outerPoints: getPoints(1),
-    facePoints: getPoints(0.92),
+    outerPoints: centerPoints(outerCorners),
+    facePoints: centerPoints(pdfFaceCorners),
+    svgBorderPoints: centerPoints(svgBorderCorners),
     textPosition: {
       x: textPosition.x * SVG_HEX_RADIUS,
       y: textPosition.z * SVG_HEX_RADIUS,

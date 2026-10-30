@@ -32,11 +32,11 @@ export function SvgObjectiveMarkerOverlay({
           >
             <polygon
               points={pointsToString(geometry.outerPoints)}
-              fill={colors.foreground}
+              fill={colors.face}
             />
             <polygon
-              points={pointsToString(geometry.facePoints)}
-              fill={colors.face}
+              points={pointsToString(geometry.svgBorderPoints)}
+              fill={colors.foreground}
             />
             <text
               x={geometry.textPosition.x}
@@ -84,11 +84,17 @@ export function SvgObjectiveMarkerLegend({
             >
               <polygon
                 points={pointsToString(geometry.outerPoints)}
+                fill={colors.face}
+              />
+              <polygon
+                points={pointsToString(geometry.svgBorderPoints)}
                 fill={colors.foreground}
               />
               <polygon
-                points={pointsToString(geometry.facePoints)}
-                fill={colors.face}
+                points={pointsToString(geometry.outerPoints)}
+                fill="none"
+                stroke="#888888"
+                strokeWidth={3}
               />
             </g>
             <text

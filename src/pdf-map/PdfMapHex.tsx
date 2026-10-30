@@ -21,7 +21,11 @@ import {
   isJungleTerrainHex,
   isSolidTerrainHex,
 } from '../utils/board-utils'
-import { OPACITY_SUBLEVEL, SVG_HEX_RADIUS } from '../utils/constants'
+import {
+  OPACITY_SUBLEVEL,
+  PDF_BORDER_WIDTH,
+  SVG_HEX_RADIUS,
+} from '../utils/constants'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   getTerrainTileAnnotation,
@@ -321,7 +325,11 @@ export const PdfMapHex = ({
   // Shroudshroom13
   if (inventoryID === Pieces.shroudshroom13) {
     const originLine = hex.isObstacleOrigin
-      ? getShroudshroom13OriginLine(hex.pieceRotation ?? 0, SVG_HEX_RADIUS)
+      ? getShroudshroom13OriginLine(
+          hex.pieceRotation ?? 0,
+          SVG_HEX_RADIUS,
+          PDF_BORDER_WIDTH,
+        )
       : null
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>

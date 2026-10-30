@@ -20,6 +20,7 @@ import {
   isSolidTerrainHex,
 } from '../utils/board-utils'
 import {
+  SVG_BORDER_WIDTH,
   SVG_HEX_APOTHEM,
   SVG_HEX_RADIUS,
   SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
@@ -296,7 +297,11 @@ export const SvgMapHex = ({
       ? svgSubLevelColors.shroudshroomText
       : svgColors.shroudshroomText
     const originLine = hex.isObstacleOrigin
-      ? getShroudshroom13OriginLine(hex.pieceRotation ?? 0, SVG_HEX_RADIUS)
+      ? getShroudshroom13OriginLine(
+          hex.pieceRotation ?? 0,
+          SVG_HEX_RADIUS,
+          SVG_BORDER_WIDTH,
+        )
       : null
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
