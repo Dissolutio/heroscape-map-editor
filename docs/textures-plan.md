@@ -19,7 +19,7 @@ Size: ~9.1 MiB GPU with mips for everything, small enough for plain PNG/WebP, la
 ## Decisions
 - Caps are 256x256, sides 128x32 (one face, exactly one level tall; sides stack and V repeats once per level).
 - Each cap's hexagon fills its square (width/height about 1.0): UV = the regular pointy-top hex's bounding box mapped to 0..1, non-uniform, clamp to edge.
-- No random cap rotation (no cap is 60-degree symmetric). Per-terrain flag `allowRandomRotation`: true only for Ice and ToxicWater.
+- Per-terrain `allowRandomRotation` controls stable 60-degree cap rotation. Solid caps rotate their full texture, including the rim, so there is no rotated-interior seam; fluid caps retain their fill/mitered-border blend. Use `?capRim=unrotated` in a development URL to compare against the previous solid-cap behavior. The switch is ignored in production.
 - Neighboring pieces blend (no piece seam in the first pass); baked cap borders still show each hex.
 - Shared PBR maps are accepted even where their relief doesn't match the diffuse (cap-sand-* was made from Sand.png; the Water sparkle is reused by ToxicWater, WellspringWater, Ice). Judge in the real scene before authoring per-terrain maps.
 - Normal maps ship OpenGL (green up). Flip green for cap-road-normal, side-solid-normal, side-fluid-normal (DirectX). cap-sand-normal is already OpenGL.
