@@ -18,8 +18,9 @@ itself (or reuses one already on port 5173).
 
 ## Running
 
-Evidence screenshots are temporary review aids and are off by default. Generate
-them with:
+Evidence screenshots are temporary review aids and are off by default. The
+`saveEvidence` and `saveLocatorEvidence` helpers in `e2e/fixtures.ts` only save
+screenshots when `E2E_EVIDENCE=1`. Generate them with:
 
 ```sh
 E2E_EVIDENCE=1 npx playwright test <spec>

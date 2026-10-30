@@ -10,6 +10,25 @@ const storedPortrait = (page: import('@playwright/test').Page) =>
     )
   })
 
+const waitForStoredPortraitToSettle = async (
+  page: import('@playwright/test').Page,
+) => {
+  let previous = await storedPortrait(page)
+  let stablePolls = 0
+  await expect
+    .poll(
+      async () => {
+        const current = await storedPortrait(page)
+        stablePolls = current === previous ? stablePolls + 1 : 0
+        previous = current
+        return stablePolls
+      },
+      { intervals: [500] },
+    )
+    .toBeGreaterThanOrEqual(3)
+  return previous
+}
+
 test('taking a map picture opens crop dialog; save and cancel behave correctly', async ({
   page,
 }) => {
@@ -25,16 +44,16 @@ test('taking a map picture opens crop dialog; save and cancel behave correctly',
   await dialog.getByRole('button', { name: 'Save', exact: true }).click()
   await expect(dialog).toBeHidden()
   await expect.poll(() => storedPortrait(page)).toMatch(/^data:image\/jpeg/)
-  const savedPortrait = await storedPortrait(page)
+  const savedPortrait = await waitForStoredPortraitToSettle(page)
 
   await page.getByRole('button', { name: 'Use perspective camera' }).click()
   await waitForAppReady(page)
   await takePicture.click()
   await expect(dialog).toBeVisible()
   await expect.poll(() => storedPortrait(page)).not.toBe(savedPortrait)
-  const portraitBeforeCancel = await storedPortrait(page)
+  const portraitBeforeCancel = await waitForStoredPortraitToSettle(page)
 
   await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
   await expect(dialog).toBeHidden()
-  await expect.poll(() => storedPortrait(page)).toBe(portraitBeforeCancel)
+  expect(await waitForStoredPortraitToSettle(page)).toBe(portraitBeforeCancel)
 })

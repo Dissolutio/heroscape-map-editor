@@ -10,6 +10,10 @@ Most tests are **pure-logic tests** (hex math, placement rules, serialization,
 load). They run in Node with no browser or three.js rendering. The focused
 export-border test also renders minimal SVG and PDF output.
 
+Vitest may emit a `THREE_CJS_DEPRECATED` warning when a test imports rendering
+modules. It comes from `@react-three/fiber` or `@react-three/drei` loading
+Three.js through a CommonJS entry point, not from an application `require`.
+
 ## What is here
 
 | File | Protects |
