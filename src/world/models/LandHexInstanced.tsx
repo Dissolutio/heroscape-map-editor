@@ -33,6 +33,7 @@ import {
   FLUID_CAP_BORDER_BLEND_WIDTH,
   FLUID_CAP_BORDER_INSET,
   FLUID_CAP_FILL_UV_WINDOW,
+  LAND_SELECTION_EDGE_BAND_RATIO,
   LAND_HEX_FLUID_MATERIAL_CLASSES,
   LAND_HEX_FLUID_VISIBILITY_FLAG,
   type LandHexFluidMaterialClass,
@@ -44,6 +45,7 @@ import {
   getLandHexFluidMaterialClass,
   getLandHexFluidMaterialSettings,
   getLandHexHighlightValue,
+  getLandSelectionStyleOptions,
   getLandHexHoverTransition,
   getLandHexSideUV,
   isUnrotatedSolidCapRimEnabled,
@@ -231,6 +233,7 @@ function makeLandMaterial(
     sideOrm: DataArrayTexture
   },
 ) {
+  const selectionStyle = getLandSelectionStyleOptions()
   const material = isLightsAndShadowsRender
     ? new MeshStandardMaterial()
     : new MeshMatcapMaterial()
@@ -440,6 +443,8 @@ function makeLandMaterial(
          landFluidFillBlend
         );`
   material.onBeforeCompile = (shader) => {
+    shader.uniforms.uLandSelectionTint = { value: selectionStyle.tint }
+    shader.uniforms.uLandSelectionEdge = { value: selectionStyle.edge }
     shader.uniforms.uLandCapRimUnrotated = {
       value: unrotatedSolidCapRim,
     }
@@ -513,8 +518,8 @@ function makeLandMaterial(
         vLandSurfaceColor =
           landSurfaceKind > 0.5 ? landCapColor : landSideColor;
         vLandHighlight = landSurfaceKind > 0.5
-          ? mod(landHighlight, 2.0)
-          : step(2.0, landHighlight);
+          ? mod(landHighlight, 4.0)
+          : mod(floor(landHighlight / 4.0), 4.0);
         float capAngle = landTextureData.z * 1.0471975512;
         vec2 capPosition = vec2(
           position.x * cos(capAngle) + position.z * sin(capAngle),
@@ -579,6 +584,8 @@ function makeLandMaterial(
             ? 'uniform float uLookShine;'
             : ''
         }
+        uniform float uLandSelectionTint;
+        uniform float uLandSelectionEdge;
         uniform float uLandCapRimUnrotated;
         varying vec3 vLandSurfaceColor;
         varying float vLandHighlight;
@@ -616,10 +623,28 @@ function makeLandMaterial(
         ${sideNormalSample}
         ${capOrmSample}
         ${sideOrmSample}
+        float landHoverHighlight = mod(vLandHighlight, 2.0);
+        float landSelectedHighlight = step(1.5, vLandHighlight);
+        float landSelectionTint = uLandSelectionTint;
+        if (vLandSurfaceKind > 0.5 && landSelectedHighlight > 0.5) {
+          float landSelectionEdgeBand = 1.0 - smoothstep(
+            0.0,
+            ${glslFloat(
+              LAND_SELECTION_EDGE_BAND_RATIO *
+                ((Math.sqrt(3) * HEXGRID_HEX_RADIUS) / 2),
+            )},
+            landCapMinEdgeDistance
+          );
+          landSelectionTint = min(
+            1.0,
+            landSelectionTint + uLandSelectionEdge * landSelectionEdgeBand
+          );
+        }
+        float landSelectedTint = landSelectionTint * landSelectedHighlight;
         diffuseColor.rgb = mix(
           landTextureColor,
           vec3(1.0, 1.0, 0.0),
-          vLandHighlight
+          mix(landSelectedTint, 1.0, landHoverHighlight)
         );`,
       )
       .replace(
@@ -685,7 +710,12 @@ function makeLandMaterial(
       )
   }
   material.customProgramCacheKey = () =>
-    `land-hex-instance-colors-v6-${Number(Boolean(capTexture))}-${Number(Boolean(sideTexture))}-${Number(Boolean(pbrTextures))}`
+    [
+      'land-hex-instance-colors-v7',
+      Number(Boolean(capTexture)),
+      Number(Boolean(sideTexture)),
+      Number(Boolean(pbrTextures)),
+    ].join('-')
   return material
 }
 

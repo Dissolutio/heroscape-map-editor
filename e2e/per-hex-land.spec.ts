@@ -132,7 +132,13 @@ test('per-hex land mode loads without console errors and selects a hex', async (
   )
   if (!cap) throw new Error('The selected cap is not on screen')
   const selectedCapColor = await sampleCanvasPoints(page, { cap })
-  expect(maxChannelDelta(selectedCapColor.cap, [255, 255, 0])).toBeLessThan(80)
+  expect(selectedCapColor.cap[0]).toBeGreaterThan(selectedCapColor.cap[2] + 30)
+  expect(selectedCapColor.cap[1]).toBeGreaterThan(selectedCapColor.cap[2] + 30)
+  expect(selectedCapColor.cap[2]).toBeGreaterThan(5)
+  const selectedTextureVariation = await sampleCanvasTextureVariation(page, {
+    cap,
+  })
+  expect(selectedTextureVariation.cap).toBeGreaterThan(3)
   expect(snapshot?.landInstanceCounts).toEqual({
     solid: FIXTURE_PIECE_COUNT,
     fluid: 0,
@@ -169,6 +175,8 @@ test('per-hex land pixels stay colored across lights and shadows toggles', async
     camera,
   )
   await waitForAppReady(page)
+  const initialSnapshot = await page.evaluate(() => window.__TEST__?.snapshot())
+  expect(initialSnapshot?.selectedPieceIDs).toEqual([])
 
   const points = await page.evaluate(
     ({ solidUID, fluidUID }) => {
