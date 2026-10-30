@@ -4,20 +4,22 @@ import { type BoardHex, HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HEXGRID_HEX_RADIUS } from '../utils/constants'
 import {
+  FLUID_CAP_BORDER_INSET,
   FLUID_CAP_FILL_UV_WINDOW,
   LAND_HEX_TEXTURE_TERRAIN_NAMES,
   LAND_HEX_UNTEXTURED_TERRAINS,
   NON_INSTANCED_SUBTERRAIN_PIECES,
   buildLandHexInstanceData,
   buildLandHexInstanceIndex,
-  getLandHexFluidMaterialClass,
-  getLandHexFluidMaterialSettings,
   getLandHexCapPbrStrengths,
+  getLandHexCapRotationBlend,
   getLandHexCapUV,
   getLandHexColors,
   getLandHexDisplayColors,
   getLandHexFluidCapFillBlend,
   getLandHexFluidCapJoinMask,
+  getLandHexFluidMaterialClass,
+  getLandHexFluidMaterialSettings,
   getLandHexHighlightValue,
   getLandHexHoverTransition,
   getLandHexInstanceIDs,
@@ -27,6 +29,7 @@ import {
   getLandHexSideVisibilityMask,
   getLandHexTextureLayers,
   getLandHexWorldFillUV,
+  getStableRotationStep,
   packLandHexPbrTextureLayers,
   packLandHexVisibility,
   unpackLandHexPbrTextureLayers,
@@ -269,40 +272,55 @@ describe('land hex instance data', () => {
     }
   })
 
-  it('uses deterministic cap rotation only for Ice and ToxicWater', () => {
-    const rotatedTerrains = [HexTerrain.ice, HexTerrain.toxicWater]
-    for (const terrain of rotatedTerrains) {
-      const first = getLandHexTextureLayers(
-        terrain,
-        'persisted-hex-id',
-        terrainManifest,
-        'medium',
-      ).rotationSteps
-      expect(first).toBe(
-        getLandHexTextureLayers(
-          terrain,
-          'persisted-hex-id',
-          terrainManifest,
-          'medium',
-        ).rotationSteps,
-      )
-      expect(first).toBeGreaterThanOrEqual(0)
-      expect(first).toBeLessThan(6)
+  it('uses manifest flags for stable cap rotation and preserves current defaults', () => {
+    const terrainNames = Object.values(LAND_HEX_TEXTURE_TERRAIN_NAMES)
+    const enabledTerrainNames = terrainNames.filter(
+      (name) => terrainManifest.terrains[name].allowRandomRotation,
+    )
+    expect(enabledTerrainNames.sort()).toEqual(
+      terrainNames
+        .filter((name) => terrainManifest.terrains[name].capDiffuseLayer >= 0)
+        .sort(),
+    )
+
+    const hexID = 'persisted-hex-id'
+    const expectedStep = getStableRotationStep(hexID)
+    expect(getStableRotationStep(hexID)).toBe(expectedStep)
+    expect(expectedStep).toBeGreaterThanOrEqual(0)
+    expect(expectedStep).toBeLessThan(6)
+
+    for (const [terrain, manifestName] of Object.entries(
+      LAND_HEX_TEXTURE_TERRAIN_NAMES,
+    )) {
+      const expectedRotation = terrainManifest.terrains[manifestName]
+        .allowRandomRotation
+        ? expectedStep
+        : 0
+      expect(
+        getLandHexTextureLayers(terrain, hexID, terrainManifest, 'medium')
+          .rotationSteps,
+      ).toBe(expectedRotation)
+      expect(
+        getLandHexTextureLayers(terrain, hexID, terrainManifest, 'high')
+          .rotationSteps,
+      ).toBe(expectedRotation)
     }
+
     for (const terrain of Object.values(HexTerrain).filter(
       (value) => isSolidTerrainHex(value) || isFluidTerrainHex(value),
     )) {
-      if (!rotatedTerrains.includes(terrain as HexTerrain)) {
-        expect(
-          getLandHexTextureLayers(
-            terrain,
-            'persisted-hex-id',
-            terrainManifest,
-            'medium',
-          ).rotationSteps,
-        ).toBe(0)
-      }
+      expect(
+        getLandHexTextureLayers(terrain, hexID, terrainManifest, 'low')
+          .rotationSteps,
+      ).toBe(0)
     }
+  })
+
+  it('keeps the cap edge inset unrotated', () => {
+    const apothem = (Math.sqrt(3) * HEXGRID_HEX_RADIUS) / 2
+    const inset = FLUID_CAP_BORDER_INSET * apothem
+    expect(getLandHexCapRotationBlend({ x: apothem - inset / 2, z: 0 })).toBe(0)
+    expect(getLandHexCapRotationBlend({ x: 0, z: 0 })).toBe(1)
   })
 
   it('maps pointy-top cap corners and center to clamped UV bounds', () => {

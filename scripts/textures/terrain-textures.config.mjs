@@ -7,7 +7,7 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   Asphalt: {
@@ -17,7 +17,7 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   Concrete: {
@@ -27,7 +27,7 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   Dungeon: {
@@ -37,7 +37,7 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   Grass: {
@@ -47,7 +47,7 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   LavaField: {
@@ -57,7 +57,7 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   Rock: {
@@ -67,7 +67,7 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   Sand: {
@@ -77,7 +77,7 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   Snow: {
@@ -87,7 +87,7 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   Swamp: {
@@ -97,7 +97,7 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   ToxicLand: {
@@ -107,7 +107,7 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   Road: {
@@ -117,7 +117,7 @@ export const terrainTextures = {
     capNormal: 'road',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   WallWalk: {
@@ -127,7 +127,7 @@ export const terrainTextures = {
     capNormal: 'road',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   Wood: {
@@ -138,7 +138,7 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: false,
   },
   Water: {
@@ -148,7 +148,7 @@ export const terrainTextures = {
     capNormal: 'flat',
     sideOrm: 'fluidWater',
     sideNormal: 'fluid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: true,
   },
   ToxicWater: {
@@ -168,7 +168,7 @@ export const terrainTextures = {
     capNormal: 'flat',
     sideOrm: 'fluidWater',
     sideNormal: 'fluid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: true,
   },
   Ice: {
@@ -188,7 +188,7 @@ export const terrainTextures = {
     capNormal: 'flat',
     sideOrm: 'fluidFlat',
     sideNormal: 'fluid',
-    allowRandomRotation: false,
+    allowRandomRotation: true,
     isFluid: true,
   },
   SwampWater: {

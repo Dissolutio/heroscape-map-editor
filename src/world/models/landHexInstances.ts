@@ -212,8 +212,7 @@ export function getLandHexTextureLayers(
           layers?.capOrmLayer ?? -1,
         )
       : { normal: 1, ao: 1 }
-  const allowRandomRotation =
-    terrain === HexTerrain.ice || terrain === HexTerrain.toxicWater
+  const allowRandomRotation = layers?.allowRandomRotation ?? false
   return {
     capLayer: enabled
       ? tier === 'high'
@@ -539,6 +538,19 @@ export function getLandHexFluidCapFillBlend(
   }
 
   return fillBlend
+}
+
+export function getLandHexCapRotationBlend(point: { x: number; z: number }) {
+  const apothem = (Math.sqrt(3) * HEXGRID_HEX_RADIUS) / 2
+  const inset = FLUID_CAP_BORDER_INSET * apothem
+  const blendWidth = FLUID_CAP_BORDER_BLEND_WIDTH * apothem
+  const minEdgeDistance = Math.min(
+    ...Array.from({ length: 6 }, (_, edge) => {
+      const angle = (edge * Math.PI) / 3
+      return apothem - point.x * Math.cos(angle) - point.z * Math.sin(angle)
+    }),
+  )
+  return smoothstep(inset - blendWidth, inset, minEdgeDistance)
 }
 
 export function getLandHexInstanceIDs(

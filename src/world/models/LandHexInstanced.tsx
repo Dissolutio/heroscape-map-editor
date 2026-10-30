@@ -33,11 +33,11 @@ import {
   FLUID_CAP_BORDER_BLEND_WIDTH,
   FLUID_CAP_BORDER_INSET,
   FLUID_CAP_FILL_UV_WINDOW,
+  LAND_HEX_FLUID_MATERIAL_CLASSES,
+  type LandHexFluidMaterialClass,
   type LandHexHoverTarget,
   type LandHexInstanceDatum,
   type LandHexInstanceIndex,
-  type LandHexFluidMaterialClass,
-  LAND_HEX_FLUID_MATERIAL_CLASSES,
   buildLandHexInstanceData,
   buildLandHexInstanceIndex,
   getLandHexFluidMaterialClass,
@@ -261,7 +261,7 @@ function makeLandMaterial(
     ? `if (vLandSurfaceKind > 0.5 && vLandTextureLayer >= 0.0) {
            vec3 landCapCellColor = texture(
              uLandCapDiffuse,
-             vec3(vLandTextureUv, vLandTextureLayer)
+             vec3(landCapCellUv, vLandTextureLayer)
            ).rgb;
            landTextureColor = landFluidFillBlend > 0.0
              ? mix(
@@ -296,7 +296,7 @@ function makeLandMaterial(
     ? `if (vLandSurfaceKind > 0.5 && vLandPbrTextureLayers.y >= 0.0) {
            vec3 landCapCellOrm = texture(
              uLandCapOrm,
-             vec3(vLandTextureUv, vLandPbrTextureLayers.y)
+             vec3(landCapCellUv, vLandPbrTextureLayers.y)
            ).rgb;
            landOrm = landFluidFillBlend > 0.0
              ? mix(
@@ -408,8 +408,27 @@ function makeLandMaterial(
             FLUID_CAP_FILL_UV_WINDOW.vMax,
           )}
         );
-        vec2 landCapTextureUv = mix(
+        float landCapMinEdgeDistance =
+         ${glslFloat((Math.sqrt(3) * HEXGRID_HEX_RADIUS) / 2)};
+        for (int edge = 0; edge < 6; edge++) {
+         float edgeAngle = float(edge) * 1.0471975512;
+         float edgeDistance =
+           ${glslFloat((Math.sqrt(3) * HEXGRID_HEX_RADIUS) / 2)} -
+           dot(vLandCapLocalPosition, vec2(cos(edgeAngle), sin(edgeAngle)));
+         landCapMinEdgeDistance = min(landCapMinEdgeDistance, edgeDistance);
+        }
+        float landCapInteriorBlend = smoothstep(
+         ${glslFloat(((FLUID_CAP_BORDER_INSET - FLUID_CAP_BORDER_BLEND_WIDTH) * HEXGRID_HEX_RADIUS * Math.sqrt(3)) / 2)},
+         ${glslFloat((FLUID_CAP_BORDER_INSET * HEXGRID_HEX_RADIUS * Math.sqrt(3)) / 2)},
+         landCapMinEdgeDistance
+        );
+        vec2 landCapCellUv = mix(
+         vLandUnrotatedTextureUv,
          vLandTextureUv,
+         landCapInteriorBlend
+        );
+        vec2 landCapTextureUv = mix(
+         landCapCellUv,
          landFluidFillUv,
          landFluidFillBlend
         );`
@@ -446,6 +465,7 @@ function makeLandMaterial(
         varying vec3 vLandSurfaceColor;
         varying float vLandHighlight;
         varying vec2 vLandTextureUv;
+        varying vec2 vLandUnrotatedTextureUv;
         varying float vLandTextureLayer;
         varying vec4 vLandPbrTextureLayers;
         varying vec2 vLandCapPbrStrengths;
@@ -453,7 +473,8 @@ function makeLandMaterial(
         varying float vLandFluidJoinMask;
         varying vec2 vLandCapLocalPosition;
         varying vec2 vLandWorldFillUv;
-        varying vec3 vLandTangent;`,
+        varying vec3 vLandTangent;
+        varying float vLandCapRotationSteps;`,
       )
       .replace(
         '#include <begin_vertex>',
@@ -490,6 +511,12 @@ function makeLandMaterial(
               capPosition.y / ${glslFloat(2 * HEXGRID_HEX_RADIUS)} + 0.5
             )
           : landSideUv;
+        vLandUnrotatedTextureUv = landSurfaceKind > 0.5
+          ? vec2(
+              position.x / ${glslFloat(Math.sqrt(3) * HEXGRID_HEX_RADIUS)} + 0.5,
+              position.z / ${glslFloat(2 * HEXGRID_HEX_RADIUS)} + 0.5
+            )
+          : landSideUv;
         vLandTextureLayer =
           landSurfaceKind > 0.5 ? landTextureData.x : landTextureData.y;
         float landPbrCode = landTextureData.w;
@@ -506,6 +533,7 @@ function makeLandMaterial(
           mod(landPbrStrengthCode, 32.0) / 31.0
         );
         vLandSurfaceKind = landSurfaceKind;
+        vLandCapRotationSteps = landTextureData.z;
         vLandFluidJoinMask = landFluidJoinMask;
         vLandCapLocalPosition = position.xz;
         vec4 landWorldPosition =
@@ -515,9 +543,8 @@ function makeLandMaterial(
             landWorldPosition.x / ${glslFloat(Math.sqrt(3) * HEXGRID_HEX_RADIUS)},
             landWorldPosition.z / ${glslFloat(2 * HEXGRID_HEX_RADIUS)}
           ) + 0.5;
-        float landTangentAngle = landTextureData.z * 1.0471975512;
         vec3 landLocalTangent = landSurfaceKind > 0.5
-          ? vec3(cos(landTangentAngle), 0.0, sin(landTangentAngle))
+          ? vec3(1.0, 0.0, 0.0)
           : vec3(
               cos((landDirection + 1.5) * 1.0471975512),
               0.0,
@@ -539,6 +566,7 @@ function makeLandMaterial(
         varying vec3 vLandSurfaceColor;
         varying float vLandHighlight;
         varying vec2 vLandTextureUv;
+        varying vec2 vLandUnrotatedTextureUv;
         varying float vLandTextureLayer;
         varying vec4 vLandPbrTextureLayers;
         varying vec2 vLandCapPbrStrengths;
@@ -547,6 +575,7 @@ function makeLandMaterial(
         varying vec2 vLandCapLocalPosition;
         varying vec2 vLandWorldFillUv;
         varying vec3 vLandTangent;
+        varying float vLandCapRotationSteps;
         ${capTextureDeclaration}
         ${sideTextureDeclaration}
         ${capNormalDeclaration}
@@ -584,6 +613,17 @@ function makeLandMaterial(
           );
           vec3 landBitangent = normalize(cross(normal, landTangent));
           if (vLandSurfaceKind > 0.5) {
+            float landCapNormalAngle =
+              vLandCapRotationSteps * 1.0471975512 *
+              landCapInteriorBlend * (1.0 - landFluidFillBlend);
+            float landCapNormalCos = cos(landCapNormalAngle);
+            float landCapNormalSin = sin(landCapNormalAngle);
+            landTangentNormal.xy = vec2(
+              landTangentNormal.x * landCapNormalCos -
+                landTangentNormal.y * landCapNormalSin,
+              landTangentNormal.x * landCapNormalSin +
+                landTangentNormal.y * landCapNormalCos
+            );
             landTangentNormal.xy *= vLandCapPbrStrengths.x;
           }
           landTangentNormal = normalize(landTangentNormal);
