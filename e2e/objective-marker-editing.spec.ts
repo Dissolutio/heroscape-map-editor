@@ -2,6 +2,8 @@ import {
   clickObjectiveMarker,
   dragObjectiveMarker,
   mapUrl,
+  OBJECTIVE_MARKERS_FIXTURE_HEX_MAP,
+  OBJECTIVE_MARKERS_FIXTURE_PIECE_IDS,
   test,
   waitForAppReady,
   expect,
@@ -16,6 +18,90 @@ const SUPPORTING_PIECE_IDS = [
   '0~4~3~0~g1',
   '0~3~4~0~g1',
 ]
+
+test('suggests unit names lazily and keeps them in saved map files', async ({
+  page,
+}) => {
+  const unitNameRequests: string[] = []
+  page.on('request', (request) => {
+    if (request.url().endsWith('/objective-marker-unit-names.json')) {
+      unitNameRequests.push(request.url())
+    }
+  })
+
+  await page.goto(
+    mapUrl(
+      OBJECTIVE_MARKERS_FIXTURE_HEX_MAP,
+      OBJECTIVE_MARKERS_FIXTURE_PIECE_IDS,
+    ),
+  )
+  await waitForAppReady(page)
+  expect(unitNameRequests).toEqual([])
+
+  await clickObjectiveMarker(page, 'objective-ground')
+  await page
+    .getByRole('tab', {
+      name: 'Show controls for editing details of the current map',
+    })
+    .click()
+
+  const nameInput = page.getByRole('combobox', {
+    name: 'Objective marker name',
+  })
+  await nameInput.fill('10th')
+  const suggestion = page.getByRole('option', {
+    name: '10th Regiment of Foot',
+    exact: true,
+  })
+  await expect(suggestion).toBeVisible()
+  await suggestion.click()
+  await expect(nameInput).toHaveValue('10th Regiment of Foot')
+  expect(unitNameRequests).toHaveLength(1)
+
+  await page.getByRole('tab', { name: 'Build' }).click()
+  await page.keyboard.press('Control+z')
+  await page
+    .getByRole('tab', {
+      name: 'Show controls for editing details of the current map',
+    })
+    .click()
+  await expect(nameInput).toHaveValue('')
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(2)
+  await page.getByRole('tab', { name: 'Build' }).click()
+  await page.keyboard.press('Control+y')
+  await page
+    .getByRole('tab', {
+      name: 'Show controls for editing details of the current map',
+    })
+    .click()
+  await expect(nameInput).toHaveValue('10th Regiment of Foot')
+
+  await page.getByRole('tab', { name: 'File' }).click()
+  await page.getByRole('button', { name: 'Download Map File' }).click()
+  const downloadPromise = page.waitForEvent('download')
+  await page
+    .getByRole('button', { name: 'Download file (.json)', exact: true })
+    .click()
+  const download = await downloadPromise
+  const downloadPath = await download.path()
+  if (!downloadPath) throw new Error('Map-file download was not saved')
+
+  await page.locator('#jsonupload').setInputFiles(downloadPath)
+  await waitForAppReady(page)
+  await clickObjectiveMarker(page, 'objective-ground')
+  await page
+    .getByRole('tab', {
+      name: 'Show controls for editing details of the current map',
+    })
+    .click()
+  await expect(
+    page.getByRole('combobox', { name: 'Objective marker name' }),
+  ).toHaveValue('10th Regiment of Foot')
+})
 
 test('places, edits, drags, deletes, and undoes an objective marker', async ({
   page,

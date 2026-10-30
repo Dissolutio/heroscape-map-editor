@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Card,
@@ -13,10 +14,16 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import {
   getObjectiveMarkerContentError,
+  MAX_OBJECTIVE_MARKER_NAME_LENGTH,
+  normalizeObjectiveMarkerName,
   type ObjectiveMarker,
   type ObjectiveMarkerContent,
   type ObjectiveMarkerDraft,
 } from '../data/objectiveMarkers'
+import {
+  getObjectiveMarkerNameSuggestions,
+  loadObjectiveMarkerUnitNames,
+} from '../data/objectiveMarkerNameSuggestions'
 import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
 import { mapTableHexes } from '../data/fitMapToPieces'
 import useBoundStore from '../store/store'
@@ -42,13 +49,35 @@ export default function ObjectiveMarkerControls({
   const [contentValue, setContentValue] = useState('')
   const [contentError, setContentError] = useState('')
   const [placementError, setPlacementError] = useState('')
+  const [nameInput, setNameInput] = useState({ source: '', value: '' })
+  const [unitNames, setUnitNames] = useState<string[]>([])
   const current: ObjectiveMarkerDraft = marker ?? draft
   const content = current.content
+  const nameSource = marker?.uid ?? 'draft'
+  const nameValue =
+    nameInput.source === nameSource ? nameInput.value : (current.name ?? '')
 
   useEffect(() => {
     setContentValue(String(content.value))
     setContentError('')
   }, [content.value])
+
+  useEffect(() => {
+    setNameInput({ source: nameSource, value: current.name ?? '' })
+  }, [current.name, nameSource])
+
+  const saveName = (value: string) => {
+    const name = normalizeObjectiveMarkerName(value)
+    setNameInput({ source: nameSource, value: name ?? '' })
+    if (marker) updateMarker(marker.uid, { name })
+    else updateDraft({ name })
+  }
+
+  const loadUnitNames = () => {
+    void loadObjectiveMarkerUnitNames()
+      .then(setUnitNames)
+      .catch(() => setUnitNames([]))
+  }
 
   const updatePlacementField = (
     updates: Pick<Partial<ObjectiveMarker>, 'size' | 'rotation'>,
@@ -195,6 +224,36 @@ export default function ObjectiveMarkerControls({
           />
           {contentError && <FormHelperText>{contentError}</FormHelperText>}
         </FormControl>
+        <Autocomplete
+          freeSolo
+          openOnFocus
+          options={unitNames}
+          value={nameValue}
+          inputValue={nameValue}
+          filterOptions={(_, state) =>
+            getObjectiveMarkerNameSuggestions(unitNames, state.inputValue)
+          }
+          onInputChange={(_, value) =>
+            setNameInput({ source: nameSource, value })
+          }
+          onChange={(_, value) => {
+            if (typeof value === 'string') saveName(value)
+          }}
+          onBlur={() => saveName(nameValue)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              size="small"
+              label="Name"
+              onFocus={loadUnitNames}
+              inputProps={{
+                ...params.inputProps,
+                'aria-label': 'Objective marker name',
+                maxLength: MAX_OBJECTIVE_MARKER_NAME_LENGTH,
+              }}
+            />
+          )}
+        />
         {isEditing && (
           <Box sx={{ mb: 1 }}>
             <Typography sx={{ fontSize: 11, mb: 0.25 }}>Rotation</Typography>
