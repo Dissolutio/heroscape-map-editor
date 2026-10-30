@@ -112,6 +112,7 @@ export type LandHexHoverTransition = {
 const LAND_CAP_HIGHLIGHT = 1
 const LAND_SIDE_HIGHLIGHT = 2
 export const LAND_CAP_PBR_STRENGTH_STEPS = 31
+export const LAND_HEX_FLUID_VISIBILITY_FLAG = 1 << 13
 
 // Tune these values and reload the map to preview cap relief.
 export const SOLID_CAP_NORMAL_STRENGTH = 0.35
@@ -287,11 +288,13 @@ export function packLandHexVisibility(
   sideMask: number,
   capVisible: boolean,
   fluidCapJoinMask = 0,
+  isFluid = false,
 ) {
   return (
     (sideMask & 0b111111) +
     (capVisible ? 64 : 0) +
-    ((fluidCapJoinMask & 0b111111) << 7)
+    ((fluidCapJoinMask & 0b111111) << 7) +
+    (isFluid ? LAND_HEX_FLUID_VISIBILITY_FLAG : 0)
   )
 }
 
@@ -300,7 +303,18 @@ export function unpackLandHexVisibility(value: number) {
     sideMask: value % 64,
     capVisible: Math.floor(value / 64) % 2 === 1,
     fluidCapJoinMask: Math.floor(value / 128) % 64,
+    isFluid: Math.floor(value / LAND_HEX_FLUID_VISIBILITY_FLAG) % 2 === 1,
   }
+}
+
+export function isUnrotatedSolidCapRimEnabled(
+  search?: string,
+  isDevelopment = import.meta.env.DEV,
+) {
+  if (!isDevelopment) return false
+  const query =
+    search ?? (typeof window === 'undefined' ? '' : window.location.search)
+  return new URLSearchParams(query).get('capRim') === 'unrotated'
 }
 
 export function getStableRotationStep(id: string) {
