@@ -35,6 +35,7 @@ import {
   FLUID_CAP_FILL_UV_WINDOW,
   LAND_SELECTION_EDGE_BAND_RATIO,
   LAND_HEX_FLUID_MATERIAL_CLASSES,
+  LAND_HEX_FLUID_VISIBILITY_FLAG,
   type LandHexFluidMaterialClass,
   type LandHexHoverTarget,
   type LandHexInstanceDatum,
@@ -47,6 +48,7 @@ import {
   getLandSelectionStyleOptions,
   getLandHexHoverTransition,
   getLandHexSideUV,
+  isUnrotatedSolidCapRimEnabled,
   packLandHexPbrTextureLayers,
   packLandHexVisibility,
 } from './landHexInstances'
@@ -237,6 +239,7 @@ function makeLandMaterial(
     : new MeshMatcapMaterial()
   material.userData.lookShineHandled = material instanceof MeshStandardMaterial
   material.userData.lookShine = useBoundStore.getState().lookSettings.shine
+  const unrotatedSolidCapRim = Number(isUnrotatedSolidCapRimEnabled())
   material.color.set('white')
   if (fluidSettings) {
     material.transparent = fluidSettings.transparent
@@ -420,11 +423,15 @@ function makeLandMaterial(
            dot(vLandCapLocalPosition, vec2(cos(edgeAngle), sin(edgeAngle)));
          landCapMinEdgeDistance = min(landCapMinEdgeDistance, edgeDistance);
         }
-        float landCapInteriorBlend = smoothstep(
+        float landCapEdgeBlend = smoothstep(
          ${glslFloat(((FLUID_CAP_BORDER_INSET - FLUID_CAP_BORDER_BLEND_WIDTH) * HEXGRID_HEX_RADIUS * Math.sqrt(3)) / 2)},
          ${glslFloat((FLUID_CAP_BORDER_INSET * HEXGRID_HEX_RADIUS * Math.sqrt(3)) / 2)},
          landCapMinEdgeDistance
         );
+        float landCapInteriorBlend =
+         max(vLandIsFluid, uLandCapRimUnrotated) > 0.5
+           ? landCapEdgeBlend
+           : 1.0;
         vec2 landCapCellUv = mix(
          vLandUnrotatedTextureUv,
          vLandTextureUv,
@@ -438,6 +445,9 @@ function makeLandMaterial(
   material.onBeforeCompile = (shader) => {
     shader.uniforms.uLandSelectionTint = { value: selectionStyle.tint }
     shader.uniforms.uLandSelectionEdge = { value: selectionStyle.edge }
+    shader.uniforms.uLandCapRimUnrotated = {
+      value: unrotatedSolidCapRim,
+    }
     if (material instanceof MeshStandardMaterial) {
       shader.uniforms.uLookShine = {
         value: material.userData.lookShine as number,
@@ -475,6 +485,7 @@ function makeLandMaterial(
         varying vec4 vLandPbrTextureLayers;
         varying vec2 vLandCapPbrStrengths;
         varying float vLandSurfaceKind;
+        varying float vLandIsFluid;
         varying float vLandFluidJoinMask;
         varying vec2 vLandCapLocalPosition;
         varying vec2 vLandWorldFillUv;
@@ -489,6 +500,10 @@ function makeLandMaterial(
         float landFluidJoinMask = mod(
           floor(landVisibility / 128.0),
           64.0
+        );
+        float landIsFluid = mod(
+          floor(landVisibility / ${glslFloat(LAND_HEX_FLUID_VISIBILITY_FLAG)}),
+          2.0
         );
         float landSurfaceKind = 1.0 - step(0.0, landDirection);
         if (landSurfaceKind < 0.5) {
@@ -538,6 +553,7 @@ function makeLandMaterial(
           mod(landPbrStrengthCode, 32.0) / 31.0
         );
         vLandSurfaceKind = landSurfaceKind;
+        vLandIsFluid = landIsFluid;
         vLandCapRotationSteps = landTextureData.z;
         vLandFluidJoinMask = landFluidJoinMask;
         vLandCapLocalPosition = position.xz;
@@ -570,6 +586,7 @@ function makeLandMaterial(
         }
         uniform float uLandSelectionTint;
         uniform float uLandSelectionEdge;
+        uniform float uLandCapRimUnrotated;
         varying vec3 vLandSurfaceColor;
         varying float vLandHighlight;
         varying vec2 vLandTextureUv;
@@ -578,6 +595,7 @@ function makeLandMaterial(
         varying vec4 vLandPbrTextureLayers;
         varying vec2 vLandCapPbrStrengths;
         varying float vLandSurfaceKind;
+        varying float vLandIsFluid;
         varying float vLandFluidJoinMask;
         varying vec2 vLandCapLocalPosition;
         varying vec2 vLandWorldFillUv;
@@ -739,6 +757,7 @@ function updateInstanceMesh(
         item.sideMask,
         item.capVisible,
         item.fluidCapJoinMask,
+        item.isFluid,
       ),
     )
     highlightAttribute.setX(

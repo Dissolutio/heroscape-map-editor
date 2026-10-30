@@ -168,6 +168,34 @@ export default function ObjectiveMarkerControls({
         <Typography sx={{ fontSize: 13, fontWeight: 700, mb: 0.75 }}>
           {isEditing ? 'Selected Objective Marker' : 'Objective Marker'}
         </Typography>
+        {marker && (
+          <Box sx={{ mb: 1 }}>
+            <Typography sx={{ fontSize: 11 }}>
+              Type: Objective marker · Size: {marker.size}{' '}
+              {marker.size === 1 ? 'hex' : 'hexes'}
+            </Typography>
+            <Typography sx={{ fontSize: 11 }}>
+              Content:{' '}
+              {content.kind === 'number'
+                ? `Number ${content.value}`
+                : `Text ${content.value}`}
+            </Typography>
+            {marker.name && (
+              <Typography sx={{ fontSize: 11 }}>Name: {marker.name}</Typography>
+            )}
+            <Typography sx={{ fontSize: 11 }}>
+              Style: {marker.style === 'black' ? 'Black' : 'White'}
+            </Typography>
+            <Typography sx={{ fontSize: 11 }}>
+              Location: q {marker.anchor.q}, r {marker.anchor.r}, level{' '}
+              {marker.anchor.altitude}
+            </Typography>
+            <Typography sx={{ fontSize: 11, mt: 0.5 }}>
+              Drag the marker to move it. Selecting a marker switches to Select
+              mode.
+            </Typography>
+          </Box>
+        )}
         <Box sx={{ mb: 1 }}>
           <Typography sx={{ fontSize: 11, mb: 0.25 }}>Size</Typography>
           <ToggleButtonGroup
@@ -239,17 +267,20 @@ export default function ObjectiveMarkerControls({
           {contentError && <FormHelperText>{contentError}</FormHelperText>}
         </FormControl>
         <Autocomplete
+          key={`${nameSource}:${current.name ?? ''}`}
           freeSolo
           openOnFocus
           options={unitNames}
-          value={nameValue}
+          value={current.name ?? null}
           inputValue={nameValue}
           filterOptions={(_, state) =>
             getObjectiveMarkerNameSuggestions(unitNames, state.inputValue)
           }
-          onInputChange={(_, value) =>
-            setNameInput({ source: nameSource, value })
-          }
+          onInputChange={(_, value, reason) => {
+            if (reason === 'input') {
+              setNameInput({ source: nameSource, value })
+            }
+          }}
           onChange={(_, value) => {
             if (typeof value === 'string') saveName(value)
           }}

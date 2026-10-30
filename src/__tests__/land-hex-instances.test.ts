@@ -8,6 +8,7 @@ import {
   FLUID_CAP_FILL_UV_WINDOW,
   DEFAULT_LAND_SELECTION_EDGE,
   DEFAULT_LAND_SELECTION_TINT,
+  LAND_HEX_FLUID_VISIBILITY_FLAG,
   LAND_HEX_TEXTURE_TERRAIN_NAMES,
   LAND_SELECTION_EDGE_BAND_RATIO,
   LAND_HEX_UNTEXTURED_TERRAINS,
@@ -34,6 +35,7 @@ import {
   getLandHexTextureLayers,
   getLandHexWorldFillUV,
   getStableRotationStep,
+  isUnrotatedSolidCapRimEnabled,
   packLandHexPbrTextureLayers,
   packLandHexVisibility,
   unpackLandHexPbrTextureLayers,
@@ -320,7 +322,7 @@ describe('land hex instance data', () => {
     }
   })
 
-  it('keeps the cap edge inset unrotated', () => {
+  it('keeps the fluid cap edge inset unrotated', () => {
     const apothem = (Math.sqrt(3) * HEXGRID_HEX_RADIUS) / 2
     const inset = FLUID_CAP_BORDER_INSET * apothem
     expect(getLandHexCapRotationBlend({ x: apothem - inset / 2, z: 0 })).toBe(0)
@@ -392,13 +394,27 @@ describe('land hex instance data', () => {
     )
     expect(packLandHexVisibility(0b111111, true, 0b111111)).toBe(8191)
     expect(packLandHexVisibility(0b111111, false, 0)).toBe(63)
+    expect(packLandHexVisibility(0b111111, true, 0b111111, true)).toBe(
+      8191 + LAND_HEX_FLUID_VISIBILITY_FLAG,
+    )
     expect(
-      unpackLandHexVisibility(packLandHexVisibility(0b111111, false, 0b111111)),
+      unpackLandHexVisibility(
+        packLandHexVisibility(0b111111, false, 0b111111, true),
+      ),
     ).toEqual({
       sideMask: 0b111111,
       capVisible: false,
       fluidCapJoinMask: 0b111111,
+      isFluid: true,
     })
+  })
+
+  it('enables the unrotated solid cap rim only for its development URL dial', () => {
+    expect(isUnrotatedSolidCapRimEnabled('?capRim=unrotated', true)).toBe(true)
+    expect(isUnrotatedSolidCapRimEnabled('?capRim=rotated', true)).toBe(false)
+    expect(isUnrotatedSolidCapRimEnabled('?capRim=unrotated', false)).toBe(
+      false,
+    )
   })
 
   it('reduces High-tier cap strengths and allows wood/road layer overrides', () => {

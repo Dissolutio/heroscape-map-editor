@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { Path, Shape } from 'three'
 import type { ObjectiveMarker } from '../../data/objectiveMarkers'
 import useBoundStore from '../../store/store'
+import { SELECT_PEN_MODE } from '../../types'
 import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
 import { pressObjectiveMarkerForDrag } from '../drag/objectiveMarkerDragController'
 import {
@@ -162,6 +163,10 @@ function ObjectiveMarkerToken({
     if (event.button !== 0) return
     toggleSelectedPieceID('')
     setSelectedObjectiveMarkerUID(marker.uid)
+    const state = useBoundStore.getState()
+    if (state.penMode !== SELECT_PEN_MODE) {
+      state.togglePenMode(SELECT_PEN_MODE)
+    }
   }
 
   return (
