@@ -23,7 +23,7 @@ const waitForStoredPortraitToSettle = async (
         previous = current
         return stablePolls
       },
-      { interval: 500 },
+      { intervals: [500] },
     )
     .toBeGreaterThanOrEqual(3)
   return previous
