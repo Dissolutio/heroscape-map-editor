@@ -49,7 +49,10 @@ export default function ObjectiveMarkerControls({
   const [contentValue, setContentValue] = useState('')
   const [contentError, setContentError] = useState('')
   const [placementError, setPlacementError] = useState('')
-  const [nameInput, setNameInput] = useState({ source: '', value: '' })
+  const [nameInput, setNameInput] = useState(() => ({
+    source: marker?.uid ?? 'draft',
+    value: marker?.name ?? draft.name ?? '',
+  }))
   const [unitNames, setUnitNames] = useState<string[]>([])
   const current: ObjectiveMarkerDraft = marker ?? draft
   const content = current.content
@@ -63,12 +66,23 @@ export default function ObjectiveMarkerControls({
   }, [content.value])
 
   useEffect(() => {
-    setNameInput({ source: nameSource, value: current.name ?? '' })
+    const value = current.name ?? ''
+    setNameInput((previous) =>
+      previous.source === nameSource && previous.value === value
+        ? previous
+        : { source: nameSource, value },
+    )
   }, [current.name, nameSource])
 
   const saveName = (value: string) => {
     const name = normalizeObjectiveMarkerName(value)
-    setNameInput({ source: nameSource, value: name ?? '' })
+    const normalizedValue = name ?? ''
+    setNameInput((previous) =>
+      previous.source === nameSource && previous.value === normalizedValue
+        ? previous
+        : { source: nameSource, value: normalizedValue },
+    )
+    if (name === current.name) return
     if (marker) updateMarker(marker.uid, { name })
     else updateDraft({ name })
   }
