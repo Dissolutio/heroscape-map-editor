@@ -130,6 +130,31 @@ export function getNextObjectiveMarkerNumber(
   return undefined
 }
 
+export function getEffectiveObjectiveMarkerNumber(
+  markers: readonly ObjectiveMarker[],
+  style: ObjectiveMarker['style'],
+  baseNumber: number,
+): number {
+  if (
+    !Number.isInteger(baseNumber) ||
+    baseNumber < 1 ||
+    baseNumber > MAX_OBJECTIVE_MARKER_NUMBER
+  ) {
+    return baseNumber
+  }
+
+  const isUsed = markers.some(
+    (marker) =>
+      marker.style === style &&
+      marker.content.kind === 'number' &&
+      marker.content.value === baseNumber &&
+      getObjectiveMarkerContentError(marker.content) === null,
+  )
+  if (!isUsed) return baseNumber
+
+  return getNextObjectiveMarkerNumber(markers, style, baseNumber) ?? baseNumber
+}
+
 function normalizeObjectiveMarker(value: unknown): ObjectiveMarker | null {
   if (!isRecord(value) || !isRecord(value.anchor) || !isRecord(value.content)) {
     return null
