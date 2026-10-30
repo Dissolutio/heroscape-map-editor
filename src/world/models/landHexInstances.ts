@@ -109,9 +109,55 @@ export type LandHexHoverTransition = {
   capUpdates: { index: number; isHighlighted: boolean }[]
 }
 
-const LAND_CAP_HIGHLIGHT = 1
-const LAND_SIDE_HIGHLIGHT = 2
+const LAND_CAP_HOVER_HIGHLIGHT = 1
+const LAND_CAP_SELECTED_HIGHLIGHT = 2
+const LAND_SIDE_HOVER_HIGHLIGHT = 4
+const LAND_SIDE_SELECTED_HIGHLIGHT = 8
 export const LAND_CAP_PBR_STRENGTH_STEPS = 31
+
+export const DEFAULT_LAND_SELECTION_TINT = 0.45
+export const DEFAULT_LAND_SELECTION_EDGE = 0.35
+export const LAND_SELECTION_EDGE_BAND_RATIO = 0.12
+
+export type LandSelectionStyleOptions = {
+  tint: number
+  edge: number
+}
+
+function parseLandSelectionDial(value: string | null, fallback: number) {
+  if (value === null || value.trim() === '') return fallback
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? Math.max(0, Math.min(1, parsed)) : fallback
+}
+
+/**
+ * Development startup dials for selected land highlights. Production builds
+ * always use the defaults, regardless of URL parameters.
+ */
+export function getLandSelectionStyleOptions(
+  search?: string,
+): LandSelectionStyleOptions {
+  if (!import.meta.env.DEV) {
+    return {
+      tint: DEFAULT_LAND_SELECTION_TINT,
+      edge: DEFAULT_LAND_SELECTION_EDGE,
+    }
+  }
+
+  const query =
+    search ?? (typeof window === 'undefined' ? '' : window.location.search)
+  const params = new URLSearchParams(query)
+  return {
+    tint: parseLandSelectionDial(
+      params.get('selTint'),
+      DEFAULT_LAND_SELECTION_TINT,
+    ),
+    edge: parseLandSelectionDial(
+      params.get('selEdge'),
+      DEFAULT_LAND_SELECTION_EDGE,
+    ),
+  }
+}
 
 // Tune these values and reload the map to preview cap relief.
 export const SOLID_CAP_NORMAL_STRENGTH = 0.35
@@ -397,18 +443,20 @@ export function getLandHexHighlightValue(
   selectedIDs: ReadonlySet<string>,
   surface: 'cap' | 'side' | 'both' = 'both',
 ) {
-  const capHighlighted =
-    (hovered?.isCap && hovered.hexID === item.hex.id) ||
-    (surface !== 'side' && item.capVisible && selectedIDs.has(item.uid))
-  const sideHighlighted = selectedIDs.has(item.uid) || hovered?.uid === item.uid
-  if (surface === 'cap') return Number(capHighlighted)
-  if (surface === 'side') {
-    return sideHighlighted ? LAND_SIDE_HIGHLIGHT : 0
-  }
-  return (
-    (capHighlighted ? LAND_CAP_HIGHLIGHT : 0) +
-    (sideHighlighted ? LAND_SIDE_HIGHLIGHT : 0)
-  )
+  const isSelected = selectedIDs.has(item.uid)
+  const capHover =
+    hovered?.isCap && hovered.hexID === item.hex.id
+      ? LAND_CAP_HOVER_HIGHLIGHT
+      : 0
+  const capSelection =
+    surface !== 'side' && item.capVisible && isSelected
+      ? LAND_CAP_SELECTED_HIGHLIGHT
+      : 0
+  const sideHover = hovered?.uid === item.uid ? LAND_SIDE_HOVER_HIGHLIGHT : 0
+  const sideSelection = isSelected ? LAND_SIDE_SELECTED_HIGHLIGHT : 0
+  if (surface === 'cap') return capHover + capSelection
+  if (surface === 'side') return sideHover + sideSelection
+  return capHover + capSelection + sideHover + sideSelection
 }
 
 export function getLandHexColors(

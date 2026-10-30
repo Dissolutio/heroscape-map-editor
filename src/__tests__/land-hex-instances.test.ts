@@ -6,7 +6,10 @@ import { HEXGRID_HEX_RADIUS } from '../utils/constants'
 import {
   FLUID_CAP_BORDER_INSET,
   FLUID_CAP_FILL_UV_WINDOW,
+  DEFAULT_LAND_SELECTION_EDGE,
+  DEFAULT_LAND_SELECTION_TINT,
   LAND_HEX_TEXTURE_TERRAIN_NAMES,
+  LAND_SELECTION_EDGE_BAND_RATIO,
   LAND_HEX_UNTEXTURED_TERRAINS,
   NON_INSTANCED_SUBTERRAIN_PIECES,
   buildLandHexInstanceData,
@@ -27,6 +30,7 @@ import {
   getLandHexMirroredFillUV,
   getLandHexSideUV,
   getLandHexSideVisibilityMask,
+  getLandSelectionStyleOptions,
   getLandHexTextureLayers,
   getLandHexWorldFillUV,
   getStableRotationStep,
@@ -879,7 +883,7 @@ describe('land hex colors', () => {
       })
     })
 
-    it('encodes cap hover separately from highlighted sides', () => {
+    it('encodes hover and selection separately for caps and sides', () => {
       const item = items[0]
       expect(
         getLandHexHighlightValue(
@@ -887,7 +891,7 @@ describe('land hex colors', () => {
           { uid: item.uid, hexID: 'hex-a', isCap: true },
           new Set(),
         ),
-      ).toBe(3)
+      ).toBe(5)
       expect(
         getLandHexHighlightValue(
           item,
@@ -903,26 +907,48 @@ describe('land hex colors', () => {
           new Set(),
           'side',
         ),
-      ).toBe(2)
+      ).toBe(4)
       expect(
         getLandHexHighlightValue(
           item,
           { uid: item.uid, hexID: 'hex-a', isCap: false },
           new Set(),
         ),
-      ).toBe(2)
+      ).toBe(4)
       expect(
         getLandHexHighlightValue(
           item,
           { uid: item.uid, hexID: 'hex-a', isCap: true },
           new Set([item.uid]),
         ),
-      ).toBe(3)
+      ).toBe(15)
       expect(
         getLandHexHighlightValue(item, null, new Set([item.uid]), 'cap'),
-      ).toBe(1)
-      expect(getLandHexHighlightValue(item, null, new Set([item.uid]))).toBe(3)
+      ).toBe(2)
+      expect(
+        getLandHexHighlightValue(item, null, new Set([item.uid]), 'side'),
+      ).toBe(8)
+      expect(getLandHexHighlightValue(item, null, new Set([item.uid]))).toBe(10)
       expect(getLandHexHighlightValue(item, null, new Set())).toBe(0)
+    })
+
+    it('uses bounded development selection-tint dials with documented defaults', () => {
+      expect(DEFAULT_LAND_SELECTION_TINT).toBe(0.45)
+      expect(DEFAULT_LAND_SELECTION_EDGE).toBe(0.35)
+      expect(LAND_SELECTION_EDGE_BAND_RATIO).toBe(0.12)
+      expect(
+        getLandSelectionStyleOptions('?selTint=0.45&selEdge=0.35'),
+      ).toEqual({
+        tint: DEFAULT_LAND_SELECTION_TINT,
+        edge: DEFAULT_LAND_SELECTION_EDGE,
+      })
+      expect(getLandSelectionStyleOptions('?selTint=0.7&selEdge=2')).toEqual({
+        tint: 0.7,
+        edge: 1,
+      })
+      expect(
+        getLandSelectionStyleOptions('?selTint=-1&selEdge=invalid'),
+      ).toEqual({ tint: 0, edge: DEFAULT_LAND_SELECTION_EDGE })
     })
 
     it('highlights every selected cap-visible hex and clears on deselection', () => {
@@ -966,7 +992,7 @@ describe('land hex colors', () => {
         selectedCaps.map((item) =>
           getLandHexHighlightValue(item, null, selected, 'cap'),
         ),
-      ).toEqual([1, 1, 1, 1])
+      ).toEqual([2, 2, 2, 2])
       expect(
         selectedCaps.map((item) =>
           getLandHexHighlightValue(item, null, new Set(), 'cap'),
