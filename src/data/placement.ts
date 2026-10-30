@@ -21,10 +21,9 @@ import {
 } from '../utils/map-utils'
 import { addPiece } from './addPiece'
 import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
-import { piecesSoFar } from './pieces'
 import {
   getLaurAddonAllowedRotations,
-  getLaurAddonCanonicalKey,
+  getLaurAddonFeatureId,
   resolveLaurAddonEdge,
 } from './laurAddonPlacement'
 import {
@@ -36,6 +35,7 @@ import {
   getLaurPillarStackAltitude,
   isLaurPillarID,
 } from './laurPillarStacking'
+import { piecesSoFar } from './pieces'
 import getPieceTemplateCoords from './rotationTransforms'
 import { getSmartPlacementAltitude } from './smartPlacement'
 import { verticalObstructionTemplates } from './vertical-obstruction-templates'
@@ -259,8 +259,8 @@ function resolveByRule(
     const resolvedRotation = edge?.rotation ?? requestedRotation
     const canStackOnHoveredAddon =
       stackBase &&
-      getLaurAddonCanonicalKey(coords, resolvedRotation) ===
-        getLaurAddonCanonicalKey(stackBase.pieceCoords, stackBase.rotation)
+      edge?.featureId ===
+        getLaurAddonFeatureId(stackBase.pieceCoords, stackBase.rotation)
     return at(
       'laurAddon',
       canStackOnHoveredAddon

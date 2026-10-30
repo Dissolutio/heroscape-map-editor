@@ -161,19 +161,23 @@ The per-hex land geometry has a 14 vertex-attribute-location budget. The
 attributes to the land shader; use an existing attribute or another supported
 representation, and keep the budget test passing.
 
-## 6. Declare edge or node features when applicable
+## 6. Declare port providers and edge or node features when applicable
 
-For an edge- or node-positioned piece, add its read-only declaration to
-`src/data/hexGrid/pieceFeatures.ts`. Add its terrain family to the sweep in
-`src/__tests__/piece-features.test.ts` if it introduces a new family.
-`edges-and-nodes.test.ts` and `piece-features.test.ts` verify coordinate
+For a port provider (Laur pillars provide ports) or an edge- or
+node-positioned piece (Laur add-ons, battlements, road walls, rope ladders), add
+its declaration to `src/data/hexGrid/pieceFeatures.ts`. Add its terrain family
+to the sweep in `src/__tests__/piece-features.test.ts` if it introduces a new
+family. `edges-and-nodes.test.ts` and `piece-features.test.ts` verify coordinate
 conventions and adapter parity.
 
-This layer is a pure-logic prototype. Declarations do not add placement,
-occupancy, conflict, rendering, picking, or export behavior. Keep the current
-boardPieces-only behavior for Laur add-ons. Get owner agreement on feature
-identity, support/conflict rules, and consumers before changing runtime
-behavior; see [`docs/edges-and-nodes-design.md`](edges-and-nodes-design.md).
+Laur placement, support, footprints and conflicts use the canonical typed edge
+and node IDs; altitude stays separate from the ID. Other consumers
+(battlements, road walls, ladders, drag and group transforms, rendering,
+picking, exports and edge/node occupancy) have not moved yet, and non-Laur
+declarations stay read-only. Keep the current boardPieces-only behavior for
+Laur add-ons. Get owner agreement on feature identity, support/conflict rules,
+and consumers before changing runtime behavior; see
+[`docs/edges-and-nodes-design.md`](edges-and-nodes-design.md).
 
 ## 7. Run tests and check the app
 

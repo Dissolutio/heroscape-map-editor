@@ -6,6 +6,11 @@
 import type { CubeCoordinate } from '../types'
 import { Pieces } from '../types'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
+import {
+  type HexFeatureId,
+  edgeIdFromHex,
+  nodeIdFromHexRotation,
+} from './hexGrid/edgesAndNodes'
 import { piecesSoFar } from './pieces'
 
 const shortWalls = new Set<string>([
@@ -24,6 +29,8 @@ const ruins = new Set<string>([
 ])
 
 export type LaurAddonFootprint = {
+  /** Shared attachment edge or node identity. */
+  featureId: HexFeatureId
   /** Pillar hexes the add-on clips onto. */
   endHexes: CubeCoordinate[]
   /** Non-end hexes physically blocked by the add-on. */
@@ -71,10 +78,14 @@ export function getLaurAddonFootprint({
   if (heightInLevels === undefined) return null
 
   const direction = Math.floor(normalizedRotation)
+  const featureId = isHalfStep
+    ? nodeIdFromHexRotation(anchor, normalizedRotation)
+    : edgeIdFromHex(anchor, direction)
   const firstNeighbor = hexUtilsAdd(anchor, HEX_DIRECTIONS[direction])
 
   if (shortWalls.has(inventoryID)) {
     return {
+      featureId,
       endHexes: [anchor, firstNeighbor],
       blockedHexes: [],
       altitude,
@@ -88,6 +99,7 @@ export function getLaurAddonFootprint({
       HEX_DIRECTIONS[(direction + 1) % 6],
     )
     return {
+      featureId,
       endHexes: [
         anchor,
         hexUtilsAdd(firstNeighbor, HEX_DIRECTIONS[(direction + 1) % 6]),
@@ -102,6 +114,7 @@ export function getLaurAddonFootprint({
     ? [firstNeighbor, hexUtilsAdd(anchor, HEX_DIRECTIONS[(direction + 1) % 6])]
     : [firstNeighbor]
   return {
+    featureId,
     endHexes: [anchor],
     blockedHexes,
     altitude,

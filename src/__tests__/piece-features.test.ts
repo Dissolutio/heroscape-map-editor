@@ -11,10 +11,9 @@ import {
 } from '../data/hexGrid/edgesAndNodes'
 import {
   getPieceFeatureIds,
-  pieceFeatureDeclarations,
+  pieceTopologyDeclarations,
 } from '../data/hexGrid/pieceFeatures'
 import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
-import { getLaurAddonCanonicalKey } from '../data/laurAddonPlacement'
 import { getPillarPorts } from '../data/laurPillarPorts'
 import { piecesSoFar } from '../data/pieces'
 import {
@@ -24,19 +23,20 @@ import {
   Pieces,
 } from '../types'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
+import { legacyLaurAddonCanonicalKey } from './helpers/laurLegacyIdentity'
 
 const anchor: CubeCoordinate = { q: -3, r: 4, s: -1 }
-const featureTerrains = new Set<string>([
+const topologyTerrains = new Set<string>([
   HexTerrain.laurWall,
   HexTerrain.laurWallAddon,
   HexTerrain.battlement,
   HexTerrain.roadWall,
   HexTerrain.ropeLadder,
 ])
-const featurePieces = Object.values(piecesSoFar).filter((piece) =>
-  featureTerrains.has(piece.terrain),
+const topologyPieces = Object.values(piecesSoFar).filter((piece) =>
+  topologyTerrains.has(piece.terrain),
 )
-const featurePieceIDs = new Set(featurePieces.map((piece) => piece.id))
+const topologyPieceIDs = new Set(topologyPieces.map((piece) => piece.id))
 
 const coordinateKey = ({ q, r, s }: CubeCoordinate) => `${q},${r},${s}`
 
@@ -128,17 +128,17 @@ function edgePieceAtRotation(
   return { pieceID, pieceCoords: support, rotation }
 }
 
-describe('piece feature declarations and adapters', () => {
-  it('declares every registered Laur, battlement, road-wall, and rope-ladder feature piece', () => {
-    expect([...Object.keys(pieceFeatureDeclarations)].sort()).toEqual(
-      [...featurePieceIDs].sort(),
+describe('piece topology declarations and adapters', () => {
+  it('declares every Laur port provider and edge/node attachment piece', () => {
+    expect([...Object.keys(pieceTopologyDeclarations)].sort()).toEqual(
+      [...topologyPieceIDs].sort(),
     )
-    expect(featurePieces).toHaveLength(14)
+    expect(topologyPieces).toHaveLength(14)
 
-    for (const piece of featurePieces) {
+    for (const piece of topologyPieces) {
       const declaration =
-        pieceFeatureDeclarations[
-          piece.id as keyof typeof pieceFeatureDeclarations
+        pieceTopologyDeclarations[
+          piece.id as keyof typeof pieceTopologyDeclarations
         ]
       const rotations = getPossibleRotationsForPenMode(piece.id)
       const hasWholeSteps = rotations.some(Number.isInteger)
@@ -163,13 +163,15 @@ describe('piece feature declarations and adapters', () => {
           featureKinds.add(featureId.startsWith('edge:') ? 'edge' : 'node')
         }
       }
-      expect([...declaration.featureKinds].sort()).toEqual(
-        [...featureKinds].sort(),
-      )
+      const declaredKinds =
+        declaration.source === 'port-provider'
+          ? declaration.portKinds
+          : declaration.featureKinds
+      expect([...declaredKinds].sort()).toEqual([...featureKinds].sort())
     }
   })
 
-  it.each(featurePieces.map(({ id }) => id))(
+  it.each(topologyPieces.map(({ id }) => id))(
     'matches legacy feature calculations for every legal %s rotation',
     (pieceID) => {
       const piece = piecesSoFar[pieceID]
@@ -187,7 +189,7 @@ describe('piece feature declarations and adapters', () => {
         if (!result) throw new Error(`Missing feature IDs for ${pieceID}`)
 
         if (piece.terrain === HexTerrain.laurWallAddon) {
-          const legacyKey = getLaurAddonCanonicalKey(anchor, rotation)
+          const legacyKey = legacyLaurAddonCanonicalKey(anchor, rotation)
           expect(legacyKey).not.toBeNull()
           expect(result.featureIds).toEqual([
             featureIdFromLaurKey(legacyKey as string),
@@ -263,7 +265,7 @@ describe('piece feature declarations and adapters', () => {
   })
 
   it('keeps feature identity independent of altitude and preserves altitude-keyed occupancy', () => {
-    for (const pieceID of featurePieceIDs) {
+    for (const pieceID of topologyPieceIDs) {
       const rotation = getPossibleRotationsForPenMode(pieceID)[0]
       const low = getPieceFeatureIds({
         pieceID,

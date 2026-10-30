@@ -2,50 +2,56 @@ import type { CubeCoordinate } from '../../types'
 import { HexTerrain, Pieces } from '../../types'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../../utils/hex-utils'
 import { getLaurAddonFootprint } from '../laurAddonFootprints'
-import { getPillarPorts } from '../laurPillarPorts'
+import { getPillarPortFeatures } from '../laurPillarPorts'
 import { piecesSoFar } from '../pieces'
 import {
-  type HexEdgeId,
-  type HexNodeId,
+  type HexFeatureId,
   edgeIdFromHex,
   nodeIdFromHexRotation,
 } from './edgesAndNodes'
 
 export type PieceFeatureKind = 'edge' | 'node'
-export type PieceFeatureId = HexEdgeId | HexNodeId
+export type PieceFeatureId = HexFeatureId
 export type HexCellId = `hex:${number},${number},${number}`
 
 type RotationGranularity = 'whole-step' | 'half-step' | 'whole-and-half-step'
 
-type PieceFeatureDeclaration = {
-  featureKinds: readonly PieceFeatureKind[]
-  anchor:
-    | 'piece-origin'
-    | 'pillar-center'
-    | 'battlement-offset'
-    | 'road-wall-offset'
+type PortProviderDeclaration = {
+  portKinds: readonly PieceFeatureKind[]
+  anchor: 'pillar-center'
   rotation: RotationGranularity
-  source: 'attachment' | 'pillar-ports'
+  source: 'port-provider'
 }
 
-export const pieceFeatureDeclarations = {
+type PieceAttachmentDeclaration = {
+  featureKinds: readonly PieceFeatureKind[]
+  anchor: 'piece-origin' | 'battlement-offset' | 'road-wall-offset'
+  rotation: RotationGranularity
+  source: 'attachment'
+}
+
+type PieceTopologyDeclaration =
+  | PortProviderDeclaration
+  | PieceAttachmentDeclaration
+
+export const pieceTopologyDeclarations = {
   [Pieces.laurWallSquarePillar]: {
-    featureKinds: ['edge', 'node'],
+    portKinds: ['edge', 'node'],
     anchor: 'pillar-center',
     rotation: 'whole-step',
-    source: 'pillar-ports',
+    source: 'port-provider',
   },
   [Pieces.laurWallPillarStackable]: {
-    featureKinds: ['edge', 'node'],
+    portKinds: ['edge', 'node'],
     anchor: 'pillar-center',
     rotation: 'whole-step',
-    source: 'pillar-ports',
+    source: 'port-provider',
   },
   [Pieces.laurWallTrianglePillar]: {
-    featureKinds: ['edge', 'node'],
+    portKinds: ['edge', 'node'],
     anchor: 'pillar-center',
     rotation: 'whole-and-half-step',
-    source: 'pillar-ports',
+    source: 'port-provider',
   },
   [Pieces.laurWallShort]: {
     featureKinds: ['edge'],
@@ -113,7 +119,7 @@ export const pieceFeatureDeclarations = {
     rotation: 'whole-step',
     source: 'attachment',
   },
-} as const satisfies Record<string, PieceFeatureDeclaration>
+} as const satisfies Record<string, PieceTopologyDeclaration>
 
 type PieceFeatureInput = {
   pieceID: string
@@ -170,7 +176,7 @@ function negativeDirection(rotation: number) {
 
 function getAttachmentAnchor(
   input: PieceFeatureInput | BoardPieceFeatureInput,
-  declaration: PieceFeatureDeclaration,
+  declaration: PieceAttachmentDeclaration,
 ) {
   if (declaration.anchor === 'battlement-offset') {
     return hexUtilsAdd(input.pieceCoords, negativeDirection(input.rotation + 3))
@@ -185,8 +191,8 @@ export function getPieceFeatureIds(
   input: PieceFeatureInput | BoardPieceFeatureInput,
 ): PieceFeatureResult | null {
   const pieceID = 'pieceID' in input ? input.pieceID : input.inventoryID
-  const declaration: PieceFeatureDeclaration | undefined =
-    pieceFeatureDeclarations[pieceID as keyof typeof pieceFeatureDeclarations]
+  const declaration: PieceTopologyDeclaration | undefined =
+    pieceTopologyDeclarations[pieceID as keyof typeof pieceTopologyDeclarations]
   if (
     !declaration ||
     !isAllowedRotation(input.rotation, declaration.rotation)
@@ -195,14 +201,12 @@ export function getPieceFeatureIds(
   }
 
   const featureIds: PieceFeatureId[] = []
-  if (declaration.source === 'pillar-ports') {
-    for (const port of getPillarPorts(pieceID, input.rotation)) {
-      featureIds.push(
-        Number.isInteger(port)
-          ? edgeIdFromHex(input.pieceCoords, port)
-          : nodeIdFromHexRotation(input.pieceCoords, port),
-      )
-    }
+  if (declaration.source === 'port-provider') {
+    featureIds.push(
+      ...getPillarPortFeatures(pieceID, input.pieceCoords, input.rotation).map(
+        ({ featureId }) => featureId,
+      ),
+    )
   } else {
     const anchor = getAttachmentAnchor(input, declaration)
     if (
