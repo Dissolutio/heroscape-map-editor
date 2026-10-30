@@ -4,7 +4,9 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   FormControl,
+  FormControlLabel,
   FormHelperText,
   TextField,
   ToggleButton,
@@ -12,20 +14,20 @@ import {
   Typography,
 } from '@mui/material'
 import { useEffect, useMemo, useState } from 'react'
-import {
-  getObjectiveMarkerContentError,
-  MAX_OBJECTIVE_MARKER_NAME_LENGTH,
-  normalizeObjectiveMarkerName,
-  type ObjectiveMarker,
-  type ObjectiveMarkerContent,
-  type ObjectiveMarkerDraft,
-} from '../data/objectiveMarkers'
+import { mapTableHexes } from '../data/fitMapToPieces'
 import {
   getObjectiveMarkerNameSuggestions,
   loadObjectiveMarkerUnitNames,
 } from '../data/objectiveMarkerNameSuggestions'
 import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
-import { mapTableHexes } from '../data/fitMapToPieces'
+import {
+  MAX_OBJECTIVE_MARKER_NAME_LENGTH,
+  type ObjectiveMarker,
+  type ObjectiveMarkerContent,
+  type ObjectiveMarkerDraft,
+  getObjectiveMarkerContentError,
+  normalizeObjectiveMarkerName,
+} from '../data/objectiveMarkers'
 import useBoundStore from '../store/store'
 
 const EMPTY_MARKERS: ObjectiveMarker[] = []
@@ -54,7 +56,7 @@ export default function ObjectiveMarkerControls({
     value: marker?.name ?? draft.name ?? '',
   }))
   const [unitNames, setUnitNames] = useState<string[]>([])
-  const current: ObjectiveMarkerDraft = marker ?? draft
+  const current: ObjectiveMarkerDraft | ObjectiveMarker = marker ?? draft
   const content = current.content
   const nameSource = marker?.uid ?? 'draft'
   const nameValue =
@@ -266,6 +268,20 @@ export default function ObjectiveMarkerControls({
           />
           {contentError && <FormHelperText>{contentError}</FormHelperText>}
         </FormControl>
+        {!isEditing && content.kind === 'number' && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                size="small"
+                checked={draft.pinNumber}
+                onChange={(event) =>
+                  updateDraft({ pinNumber: event.target.checked })
+                }
+              />
+            }
+            label="Pin number"
+          />
+        )}
         <Autocomplete
           key={`${nameSource}:${current.name ?? ''}`}
           freeSolo
