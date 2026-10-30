@@ -19,11 +19,11 @@ const INTER_FONT_FILE_PATH = '/fonts/Inter_18pt-Bold.ttf'
 /** Level logo occupies this fraction of the exported map's width. */
 const LEVEL_LOGO_WIDTH_RATIO = 0.2
 
-type OpenTypePath = {
+export type OpenTypePath = {
   toPathData: (decimalPlaces?: number) => string
 }
 
-type OpenTypeFont = {
+export type OpenTypeFont = {
   getAdvanceWidth: (
     text: string,
     fontSize: number,
@@ -209,7 +209,7 @@ function parseDyToPx(dyValue: string | null, fontSizePx: number) {
   return parseFirstNumericValue(firstToken, 0)
 }
 
-async function getInterFont() {
+export async function getInterFont() {
   if (!interFontPromise) {
     interFontPromise = (async () => {
       try {

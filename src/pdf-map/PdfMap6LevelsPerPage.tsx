@@ -15,6 +15,8 @@ import {
   type PdfMapAltitudeChunk,
   Pieces,
 } from '../types'
+import type { ObjectiveMarker } from '../data/objectiveMarkers'
+import { getPdfLegendObjectiveMarkers } from '../pdf-svg-shared/objectiveMarkerExport'
 import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
 import {
   BURIED_MARKS_KEY,
@@ -27,6 +29,7 @@ import {
   getOverlayLevel,
 } from '../utils/map-utils'
 import { PdfLevelLogo } from './PdfLevelLogo'
+import { PdfObjectiveMarkerLegend } from './PdfObjectiveMarkers'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 export const PdfMapLevels6PerPage = ({
   boardHexes,
@@ -41,6 +44,7 @@ export const PdfMapLevels6PerPage = ({
   buriedMarksByUID,
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
+  objectiveMarkers,
   children,
 }: PropsWithChildren<{
   boardHexes: BoardHexes
@@ -55,6 +59,7 @@ export const PdfMapLevels6PerPage = ({
   buriedMarksByUID: BuriedMarksByUID
   useLegacyStartZones: boolean
   is2DOverlayLevelEnabled: boolean
+  objectiveMarkers: ObjectiveMarker[]
 }>) => {
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
@@ -75,6 +80,11 @@ export const PdfMapLevels6PerPage = ({
     Object.values(boardHexes).some((hex) =>
       getBuriedMarksForHex(hex, hex.altitude, buriedMarksByUID),
     )
+  const legendMarkers = getPdfLegendObjectiveMarkers(
+    objectiveMarkers,
+    isShowPdfOverlayLayer,
+    isShowPdfOverlayOnPlacedLevel,
+  ).filter((marker) => marker.name?.trim())
   return (
     <>
       {chunksOf6Levels.map((chunk, i) => (
@@ -126,6 +136,7 @@ export const PdfMapLevels6PerPage = ({
                       buriedMarksByUID={buriedMarksByUID}
                       useLegacyStartZones={useLegacyStartZones}
                       is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+                      objectiveMarkers={objectiveMarkers}
                     />
                   </RowWrapper>
                 ) : null,
@@ -162,12 +173,16 @@ export const PdfMapLevels6PerPage = ({
                       buriedMarksByUID={buriedMarksByUID}
                       useLegacyStartZones={useLegacyStartZones}
                       is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+                      objectiveMarkers={objectiveMarkers}
                     />
                   </RowWrapper>
                 ) : null,
               )}
             </HalfPageColumn>
           </View>
+          {i === 0 && legendMarkers.length > 0 && (
+            <PdfObjectiveMarkerLegend markers={legendMarkers} />
+          )}
           {i === 0 && hasBuriedMarks && (
             <Text style={{ fontSize: 7, textAlign: 'center', marginTop: 2 }}>
               {BURIED_MARKS_KEY}
