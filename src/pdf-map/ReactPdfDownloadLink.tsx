@@ -52,6 +52,7 @@ export const ReactPdfDownloadLink = (props: PropsWithChildren) => {
             buriedMarksByUID={buriedMarksByUID}
             useLegacyStartZones={useLegacyStartZones}
             is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+            objectiveMarkers={hexMap.objectiveMarkers ?? []}
           />
         </Document>
       }

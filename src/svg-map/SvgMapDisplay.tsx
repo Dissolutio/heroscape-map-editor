@@ -12,8 +12,16 @@ import {
   getBuriedMarksForHex,
   makeBuriedMarksByUID,
 } from '../utils/tileMarks'
+import {
+  getSvgObjectiveMarkerFooterHeight,
+  getSvgVisibleObjectiveMarkers,
+} from '../pdf-svg-shared/objectiveMarkerExport'
 import { SvgMapBoardPiece } from './SvgMapBoardPiece'
 import { SvgMapHex } from './SvgMapHex'
+import {
+  SvgObjectiveMarkerLegend,
+  SvgObjectiveMarkerOverlay,
+} from './SvgObjectiveMarkerOverlay'
 
 const adjustXForNew00Centers = -1 * SVG_HEX_APOTHEM
 const adjustYForNew00Centers = -1 * SVG_HEX_RADIUS
@@ -48,6 +56,15 @@ const SvgMapDisplay = () => {
     boardHexesArr.some((hex) =>
       getBuriedMarksForHex(hex, viewingLevel, buriedMarksByUID),
     )
+  const visibleObjectiveMarkers = getSvgVisibleObjectiveMarkers(
+    hexMap.objectiveMarkers ?? [],
+    viewingLevel,
+    overlayLevel,
+    is2DOverlayLevelEnabled,
+  )
+  const namedObjectiveMarkers = visibleObjectiveMarkers.filter((marker) =>
+    marker.name?.trim(),
+  )
 
   const [viewBox, setViewBox] = useState({
     x: adjustXForNew00Centers,
@@ -56,8 +73,20 @@ const SvgMapDisplay = () => {
     height: mapDimensions.length - adjustYForNew00Centers,
   })
   const keyFontSize = Math.min(0.12 * SVG_HEX_RADIUS, viewBox.width / 70)
-  const keyFooterHeight = hasVisibleBuriedMarks ? keyFontSize * 1.5 : 0
+  const objectiveLegendRowHeight = keyFontSize * 1.5
+  const objectiveLegendHeight =
+    namedObjectiveMarkers.length * objectiveLegendRowHeight
+  const keyFooterHeight = getSvgObjectiveMarkerFooterHeight(
+    namedObjectiveMarkers.length,
+    hasVisibleBuriedMarks,
+    keyFontSize,
+  )
   const viewboxStr = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height + keyFooterHeight}`
+  const objectiveLegendY = viewBox.y + viewBox.height + keyFontSize * 1.1
+  const buriedMarksY =
+    objectiveLegendHeight > 0
+      ? objectiveLegendY + objectiveLegendHeight + keyFontSize
+      : viewBox.y + viewBox.height + keyFontSize * 1.1
   // const isPointerDown = useRef(false)
 
   // Effect to update the viewBox when map dimensions change
@@ -117,10 +146,18 @@ const SvgMapDisplay = () => {
               overlayLevel={overlayLevel}
             />
           ))}
+        <SvgObjectiveMarkerOverlay markers={visibleObjectiveMarkers} />
+        <SvgObjectiveMarkerLegend
+          markers={namedObjectiveMarkers}
+          x={viewBox.x + 0.1}
+          y={objectiveLegendY}
+          fontSize={keyFontSize}
+          rowHeight={objectiveLegendRowHeight}
+        />
         {hasVisibleBuriedMarks && (
           <text
             x={viewBox.x + 0.1}
-            y={viewBox.y + viewBox.height + keyFontSize * 1.1}
+            y={buriedMarksY}
             fill="#000000"
             fontSize={keyFontSize}
           >
