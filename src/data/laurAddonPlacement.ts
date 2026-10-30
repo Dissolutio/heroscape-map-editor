@@ -1,15 +1,20 @@
 import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
 import type { BoardHex, CubeCoordinate } from '../types'
+import { isLaurWallAddonPieceID } from '../utils/board-utils'
+import { HEX_DIRECTIONS, cubeToPixel, hexUtilsAdd } from '../utils/hex-utils'
+import {
+  type HexFeatureId,
+  edgeIdFromHex,
+  nodeIdFromHexRotation,
+} from './hexGrid/edgesAndNodes'
 import { getPillarPorts } from './laurPillarPorts'
 import { isLaurPillarID } from './laurPillarStacking'
-import { isLaurWallAddonPieceID } from '../utils/board-utils'
-import { cubeToPixel, HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 
 export type LaurAddonPoint = { x: number; z: number }
 
 export type LaurAddonResolvedEdge = {
   rotation: number
-  canonicalKey: string
+  featureId: HexFeatureId
   kind: 'side' | 'vertex'
 }
 
@@ -49,9 +54,7 @@ const normalizeRotation = (rotation: number) => {
   return (((halfSteps % 12) + 12) % 12) / 2
 }
 
-const coordKey = ({ q, r, s }: CubeCoordinate) => `${q},${r},${s}`
-
-export function getLaurAddonCanonicalKey(
+export function getLaurAddonFeatureId(
   anchor: CubeCoordinate,
   rotation: number,
 ) {
@@ -59,21 +62,10 @@ export function getLaurAddonCanonicalKey(
   if (normalized === null) return null
 
   if (Number.isInteger(normalized)) {
-    const neighbor = hexUtilsAdd(anchor, HEX_DIRECTIONS[normalized])
-    const [first, second] = [coordKey(anchor), coordKey(neighbor)].sort()
-    return `side:${first}|${second}`
+    return edgeIdFromHex(anchor, normalized)
   }
 
-  const direction = Math.floor(normalized)
-  const nextDirection = (direction + 1) % 6
-  const vertexCells = [
-    anchor,
-    hexUtilsAdd(anchor, HEX_DIRECTIONS[direction]),
-    hexUtilsAdd(anchor, HEX_DIRECTIONS[nextDirection]),
-  ]
-    .map(coordKey)
-    .sort()
-  return `vertex:${vertexCells.join('|')}`
+  return nodeIdFromHexRotation(anchor, normalized)
 }
 
 export function getLaurAddonFeaturePoint(
@@ -115,12 +107,12 @@ export function resolveLaurAddonEdge(
   const candidates = allowedRotations.flatMap((rotation) => {
     const normalized = normalizeRotation(rotation)
     const point = getLaurAddonFeaturePoint(anchor, rotation)
-    const canonicalKey = getLaurAddonCanonicalKey(anchor, rotation)
-    if (normalized === null || !point || !canonicalKey) return []
+    const featureId = getLaurAddonFeatureId(anchor, rotation)
+    if (normalized === null || !point || !featureId) return []
     return [
       {
         rotation: normalized,
-        canonicalKey,
+        featureId,
         kind: Number.isInteger(normalized)
           ? ('side' as const)
           : ('vertex' as const),
@@ -158,7 +150,7 @@ export function resolveLaurAddonEdge(
   }
   return {
     rotation: best.rotation,
-    canonicalKey: best.canonicalKey,
+    featureId: best.featureId,
     kind: best.kind,
   }
 }

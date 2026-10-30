@@ -1,6 +1,6 @@
 import type { CubeCoordinate } from '../../types'
 import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
-import { cubeToPixel, HEX_DIRECTIONS, hexUtilsAdd } from '../../utils/hex-utils'
+import { HEX_DIRECTIONS, cubeToPixel, hexUtilsAdd } from '../../utils/hex-utils'
 
 type Brand<Value, Name extends string> = Value & {
   readonly __brand: Name
@@ -9,6 +9,7 @@ type Brand<Value, Name extends string> = Value & {
 export type IntegerCubeCoordinate = Readonly<CubeCoordinate>
 export type HexEdgeId = Brand<string, 'HexEdgeId'>
 export type HexNodeId = Brand<string, 'HexNodeId'>
+export type HexFeatureId = HexEdgeId | HexNodeId
 
 type ScaledCubeCoordinate = {
   q: number

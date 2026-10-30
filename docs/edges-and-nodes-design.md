@@ -1,8 +1,9 @@
 # Shared hex-grid edges and nodes
 
-This is a design and pure-logic prototype only. The app still stores and
-interprets pieces as before; no placement, conflict, rendering, picking, or
-saved-map behavior changes here. The prototype lives in
+The app keeps its saved piece representation and legacy anchor/rotation for
+edge pieces. Laur add-on placement, support, and conflict identity now use
+typed edge/node IDs without changing placement or conflict behavior. The
+shared layer lives in
 [`src/data/hexGrid/edgesAndNodes.ts`](../src/data/hexGrid/edgesAndNodes.ts) and
 is exercised by [`edges-and-nodes.test.ts`](../src/__tests__/edges-and-nodes.test.ts).
 
@@ -16,10 +17,10 @@ not shared edge/node identifiers.
 | Area | Current representation and canonicalization | Consumers |
 | --- | --- | --- |
 | Grid direction math | [`hex-utils.ts`](../src/utils/hex-utils.ts#L139-L197) exposes direction vectors, neighbor lookup, and half-step radial neighbors. An edge is described as `(hex, direction)`; the same edge also has `(neighbor, direction + 3)`. There is no canonical ID. | Placement, rotation, footprint, support, and drag code use these helpers. The direction vectors are in [`constants.ts`](../src/utils/constants.ts#L14-L19). |
-| Laur add-on side/node identity | [`laurAddonPlacement.ts`](../src/data/laurAddonPlacement.ts#L46-L77) normalizes rotations into 12 half-steps. An integer rotation becomes `side:<sorted full q,r,s>|<sorted full q,r,s>`; a half-step becomes `vertex:<three sorted full q,r,s>`. The strings are canonical across adjacent hex anchors, but omit altitude. | Placement uses the key for snapping and stack matching ([`placement.ts`](../src/data/placement.ts#L241-L271)); [`laurAddonConflicts.ts`](../src/data/laurAddonConflicts.ts#L76-L129) groups add-ons by key and altitude interval. |
+| Laur add-on side/node identity | [`laurAddonPlacement.ts`](../src/data/laurAddonPlacement.ts) normalizes rotations into 12 half-steps and resolves an integer rotation to a typed edge ID or a half-step to a typed node ID. IDs are canonical across adjacent hex anchors and omit altitude. | Placement uses the ID for stack matching; [`laurAddonConflicts.ts`](../src/data/laurAddonConflicts.ts) groups add-ons by feature ID and altitude interval. |
 | Laur hit resolution / world points | [`laurAddonPlacement.ts`](../src/data/laurAddonPlacement.ts#L79-L164) projects side midpoints and vertex points to floating-point world coordinates, then chooses the nearest allowed feature. Ties use `1e-12`; the exact-center special case uses strict `===`. | Click/preview placement passes a world hit point to the resolver. The e2e bridge projects the feature point for Laur add-on picking ([`TestBridge.tsx`](../src/e2e/TestBridge.tsx#L175-L187)). |
-| Laur pillar ports and support | [`laurPillarPorts.ts`](../src/data/laurPillarPorts.ts#L3-L24) represents ports as rotations from the pillar center: square pillars use four half-step/whole-step ports; triangle pillars use three whole-step ports. [`laurAddonSupport.ts`](../src/data/laurAddonSupport.ts#L36-L103) indexes them by `q,r,s@altitude` and stores a set of rotations. [`map-utils.ts`](../src/utils/map-utils.ts#L235-L241) also retains an unused square-pillar port list and flip table. | Port rotations restrict placement ([`laurAddonPlacement.ts`](../src/data/laurAddonPlacement.ts#L16-L44)) and are checked against required add-on ports in support evaluation. |
-| Laur physical footprint | [`laurAddonFootprints.ts`](../src/data/laurAddonFootprints.ts#L42-L110) independently normalizes the rotation, chooses side versus vertex by integer versus half-step, and derives attachment and blocked hexes. | [`laurAddonConflicts.ts`](../src/data/laurAddonConflicts.ts#L89-L103) consumes this footprint for conflicts. It does not create edge/node occupancy in `boardHexes`. |
+| Laur pillar ports and support | [`laurPillarPorts.ts`](../src/data/laurPillarPorts.ts) retains port rotations as the user-facing orientation adapter and also resolves each provider port to a typed feature ID. [`laurAddonSupport.ts`](../src/data/laurAddonSupport.ts) indexes by altitude and feature ID, retaining provider coordinates so both bridge endpoints still require their own pillar. [`map-utils.ts`](../src/utils/map-utils.ts#L235-L241) also retains an unused square-pillar port list and flip table. | Port rotations restrict placement; typed provider IDs are checked against typed required add-on ports. |
+| Laur physical footprint | [`laurAddonFootprints.ts`](../src/data/laurAddonFootprints.ts) derives the attachment edge/node ID through the shared constructors and retains explicit attachment ends, blocked hexes, and height data. | [`laurAddonConflicts.ts`](../src/data/laurAddonConflicts.ts) consumes the feature ID for identity conflicts and the physical footprint for blocked-cell conflicts. It does not create edge/node occupancy in `boardHexes`. |
 | Battlement, road-wall, and ladder placement | [`map-utils.ts`](../src/utils/map-utils.ts#L207-L224) translates clicked hexes and rotations for battlements and road walls; battlements and road walls have different anchor conventions. The saved piece still contains anchor hex plus rotation, not an edge ID. Additional resolver/support translation is repeated in [`dragMove.ts`](../src/data/dragMove.ts#L783-L801) and [`evaluateGroupRotation.ts`](../src/data/evaluateGroupRotation.ts#L61-L91). | `placement.ts` consumes the clicked-hex helpers; drag and group-rotation preflight recalculate the supporting hex. Rope ladders also use a direction/rotation, but have their own placement/stack behavior. |
 | Edge drag target | [`dragMove.ts`](../src/data/dragMove.ts#L803-L849) returns `{ edgeIndex, rotation }`; its cache key is `<hex.id>:edge:<edgeIndex>`. [`dragRotation.ts`](../src/data/dragRotation.ts#L100-L130) compares a world point against six floating-point edge midpoints and applies tie/hysteresis rules. Laur drag keys instead append raw world-point `x,z`. | Drag placement, group movement, cache invalidation, and preview use the target. `dragRotation.ts` also resolves ladder pointer sectors. |
 | Preview and rendered piece geometry | [`PlacementFootprint.tsx`](../src/world/PlacementFootprint.tsx#L82-L110) builds an edge segment with trigonometry from a rotation. Model offsets and rotations are separately encoded in [`piece-adjustments.ts`](../src/world/models/piece-adjustments.ts#L60-L105) and [`MapBoardPiece3D.tsx`](../src/world/MapBoardPiece3D.tsx#L207-L350). Laur pointer hits supply a world point through [`MapBoardPiece3D.tsx`](../src/world/MapBoardPiece3D.tsx#L125-L141). | The 3D drag preview consumes `edgeIndex`; actual piece models render from piece anchor and rotation. Ray hits currently identify pieces/hexes and supply world points, not a feature ID. |
@@ -92,18 +93,19 @@ The pure prototype provides:
 | Hex distance and adjacency; edge/node adjacency through shared features | `hexDistance`, `hexesAreAdjacent`, `edgesShareNode`, `nodesShareEdge` |
 | Feature → existing x/z world projection | `edgeToWorldPoint`, `nodeToWorldPoint` |
 
-It uses the existing direction ordering in `hex-utils.ts`, is independent of
-React and the store, and is not imported by any app caller.
+It uses the existing direction ordering in `hex-utils.ts` and is independent of
+React and the store. Laur runtime identity, support, and conflict consumers use
+the shared IDs; other edge-piece consumers remain unmigrated.
 
 ### Consumer migration
 
-- **Laur placement and support:** use node/edge IDs instead of canonical-string
-  construction. Store feature IDs in support tables and add altitude as a
-  separate key. Preserve allowed rotations as a user-facing orientation
-  adapter; do not make piece rotation the identity.
-- **Laur footprint/conflicts:** derive attachment features through shared
-  constructors, then retain explicit blocked-hex and height data. This does
-  not imply that Laur add-ons should begin writing `boardHexes`.
+- **DONE — Laur placement and support:** use node/edge IDs instead of
+  canonical-string construction. Support tables key by typed feature ID and
+  altitude while retaining provider coordinates for endpoint-specific support.
+  Allowed rotations remain a user-facing orientation adapter.
+- **DONE — Laur footprint/conflicts:** derive attachment features through
+  shared constructors, then retain explicit blocked-hex and height data. This
+  does not imply that Laur add-ons should begin writing `boardHexes`.
 - **Battlements, road walls, rope ladders, and other edge pieces:** add a
   piece-specific adapter from legacy `(anchor, rotation)` to a canonical
   edge ID, including battlement's inverse side and road-wall anchor offset.
@@ -143,12 +145,13 @@ React and the store, and is not imported by any app caller.
    and edge-drag targets. The sweep found no convention mismatches. No app
    callers or saved data change. **Risk: low to medium; the piece-specific
    anchor conventions must be exact.**
-3. **Migrate Laur support and conflict identity.** Replace duplicate Laur
-   canonical strings and rotation-key support lookup with typed feature IDs,
-   while preserving altitude intervals, stack exemptions, blocked cells, and
-   boardPieces-only storage. Run the Laur placement, support, footprint,
-   conflict, load-order, and known-good map tests. **Risk: medium; a wrong
-   feature or altitude key changes legal stacking/conflicts.**
+3. **DONE — Migrate Laur support and conflict identity.** Replaced duplicate
+   Laur canonical strings and rotation-key support lookup with typed feature
+   IDs, while preserving altitude intervals, stack exemptions, blocked cells,
+   endpoint-specific provider coordinates, and boardPieces-only storage.
+   Brute-force conflict and support comparisons, the legacy stacking example,
+   load-order, and known-good map tests cover the migration. **Risk: medium; a
+   wrong feature or altitude key changes legal stacking/conflicts.**
 4. **Migrate edge-piece placement and movement.** Pass canonical IDs through
    placement, support, drag/group rotation, no-op detection, and drag caches.
    Keep legacy saved fields and compare all six rotations, tie cases, group
@@ -180,7 +183,8 @@ incidence and adjacency, world-point conversion, and equivalence with current
 Laur side/vertex keys and battlement/road-wall/rope-ladder drag targets.
 [`piece-features.test.ts`](../src/__tests__/piece-features.test.ts) checks the
 read-only registry adapters against the legacy implementations for every
-registered edge/node feature piece and legal rotation.
-Existing `it.todo` entries remain application-level acceptance work; this
-prototype does not implement placement conflicts, support requirements,
-serialization migration, or renderer integration.
+registered port provider and edge/node attachment piece and legal rotation.
+The Laur support/conflict consumers use typed IDs, with generated-board
+comparisons against their legacy references. Other `it.todo` entries remain
+application-level acceptance work, including edge-piece integration,
+serialization migration, and renderer integration.

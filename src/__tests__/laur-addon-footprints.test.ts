@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
+import { getLaurAddonFeatureId } from '../data/laurAddonPlacement'
 import { piecesSoFar } from '../data/pieces'
 import { Pieces } from '../types'
 import type { CubeCoordinate } from '../types'
@@ -59,6 +60,7 @@ describe('getLaurAddonFootprint', () => {
 
   it('uses the owner-specified 4.5 long-wall geometry', () => {
     expect(footprint(Pieces.laurWallLong, 4.5)).toEqual({
+      featureId: getLaurAddonFeatureId(anchor, 4.5),
       endHexes: [anchor, farNorthwestNortheast],
       blockedHexes: [northwest, northeast],
       altitude: 9,

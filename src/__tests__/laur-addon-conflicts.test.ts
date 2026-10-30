@@ -4,12 +4,15 @@ import { describe, expect, it } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
-import { getLaurAddonCanonicalKey } from '../data/laurAddonPlacement'
 import {
   LAUR_ADDON_STACK_INCREMENT,
   canLaurAddonStackOn,
 } from '../data/laurAddonStacking'
-import { isLaurAddonSupported } from '../data/laurAddonSupport'
+import {
+  getUnsupportedLaurAddonUIDs,
+  isLaurAddonSupported,
+} from '../data/laurAddonSupport'
+import { getPillarPorts } from '../data/laurPillarPorts'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import {
@@ -23,9 +26,11 @@ import {
   Pieces,
 } from '../types'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
+import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { normalizeBoardPiecesWithDropped } from '../utils/map-utils'
 import { cloneBoard, makeTable, place, withGrassFloor } from './helpers/board'
 import type { Board } from './helpers/board'
+import { legacyLaurAddonCanonicalKey } from './helpers/laurLegacyIdentity'
 
 const center = makeTable(9).center
 const east = { q: center.q + 1, r: center.r, s: center.s - 1 }
@@ -81,6 +86,76 @@ const overlapsAltitudeBands = (
   otherHeight: number,
 ) => altitude < otherAltitude + otherHeight && otherAltitude < altitude + height
 
+const portLocationKey = (coords: CubeCoordinate, altitude: number) =>
+  `${coordKey(coords)}@${altitude}`
+
+function legacyRequiredPorts(addon: BoardPiece) {
+  const rotation = ((addon.rotation % 6) + 6) % 6
+  if (!Number.isFinite(rotation) || !Number.isInteger(rotation * 2)) return null
+
+  if (
+    addon.inventoryID === Pieces.laurWallShort ||
+    addon.inventoryID === Pieces.laurWallShortStackable
+  ) {
+    return [
+      { coords: addon.pieceCoords, rotation },
+      {
+        coords: hexUtilsAdd(addon.pieceCoords, HEX_DIRECTIONS[rotation]),
+        rotation: (rotation + 3) % 6,
+      },
+    ]
+  }
+  if (
+    addon.inventoryID === Pieces.laurWallLong ||
+    addon.inventoryID === Pieces.laurWallLongStackable ||
+    addon.inventoryID === Pieces.laurWallArch
+  ) {
+    const direction = Math.floor(rotation)
+    const farCoords = hexUtilsAdd(
+      hexUtilsAdd(addon.pieceCoords, HEX_DIRECTIONS[direction]),
+      HEX_DIRECTIONS[(direction + 1) % 6],
+    )
+    return [
+      { coords: addon.pieceCoords, rotation },
+      { coords: farCoords, rotation: (rotation + 3) % 6 },
+    ]
+  }
+  if (
+    addon.inventoryID === Pieces.laurWallRuin1 ||
+    addon.inventoryID === Pieces.laurWallRuin2 ||
+    addon.inventoryID === Pieces.laurWallRuin3
+  ) {
+    return [{ coords: addon.pieceCoords, rotation }]
+  }
+  return null
+}
+
+function bruteForceUnsupportedLaurAddonUIDs(boardPieces: BoardPieces) {
+  const portsByLocation = new Map<string, Set<number>>()
+  for (const pillar of boardPieces) {
+    const ports = getPillarPorts(pillar.inventoryID, pillar.rotation)
+    if (!ports.length) continue
+    const key = portLocationKey(pillar.pieceCoords, pillar.altitude)
+    const current = portsByLocation.get(key) ?? new Set<number>()
+    for (const port of ports) current.add(port)
+    portsByLocation.set(key, current)
+  }
+  return boardPieces
+    .filter((item) => isLaurWallAddonPieceID(item.inventoryID))
+    .filter((addon) => {
+      const requiredPorts = legacyRequiredPorts(addon)
+      return (
+        !requiredPorts ||
+        !requiredPorts.every(({ coords, rotation }) =>
+          portsByLocation
+            .get(portLocationKey(coords, addon.altitude))
+            ?.has(rotation),
+        )
+      )
+    })
+    .map(({ uid }) => uid)
+}
+
 function bruteForceLaurAddonConflicts(
   boardPieces: BoardPieces,
   boardHexes: BoardHexes,
@@ -89,7 +164,7 @@ function bruteForceLaurAddonConflicts(
   const pieceByUID = new Map(boardPieces.map((item) => [item.uid, item]))
   const addons = boardPieces.flatMap((item) => {
     if (!isLaurWallAddonPieceID(item.inventoryID)) return []
-    const canonicalKey = getLaurAddonCanonicalKey(
+    const canonicalKey = legacyLaurAddonCanonicalKey(
       item.pieceCoords,
       item.rotation,
     )
@@ -740,7 +815,7 @@ describe('evaluateLaurAddonConflicts', () => {
     }
   })
 
-  it('matches a brute-force reference on a generated mixed board', () => {
+  it('matches legacy conflict and support references on a generated mixed board', () => {
     const { boardPieces, boardHexes } = makeGeneratedConflictBoard()
     const conflicts = evaluateLaurAddonConflicts(boardPieces, boardHexes)
     expect(conflicts).not.toHaveLength(0)
@@ -752,6 +827,9 @@ describe('evaluateLaurAddonConflicts', () => {
     ).toBe(true)
     expect(sorted(conflicts)).toEqual(
       sorted(bruteForceLaurAddonConflicts(boardPieces, boardHexes)),
+    )
+    expect(getUnsupportedLaurAddonUIDs({ boardPieces })).toEqual(
+      bruteForceUnsupportedLaurAddonUIDs(boardPieces),
     )
   })
 

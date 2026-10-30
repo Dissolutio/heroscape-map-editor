@@ -6,17 +6,17 @@ import {
 } from '../controls/getPossibleRotationsForPenMode'
 import {
   getLaurAddonAllowedRotations,
-  getLaurAddonCanonicalKey,
+  getLaurAddonFeatureId,
   getLaurAddonPortRotations,
   resolveLaurAddonEdge,
 } from '../data/laurAddonPlacement'
 import { piecesSoFar } from '../data/pieces'
 import { resolvePlacement } from '../data/placement'
 import { getPlacementPreviewState } from '../data/placementPreview'
-import { hexAt, makeTable } from './helpers/board'
 import type { CubeCoordinate } from '../types'
-import { cubeToPixel, HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { Pieces } from '../types'
+import { HEX_DIRECTIONS, cubeToPixel, hexUtilsAdd } from '../utils/hex-utils'
+import { hexAt, makeTable } from './helpers/board'
 
 const anchor = { q: 5, r: 5, s: -10 }
 const integerRotations = [0, 1, 2, 3, 4, 5]
@@ -72,17 +72,17 @@ describe('resolveLaurAddonEdge', () => {
   )
 
   it.each(integerRotations)(
-    'uses one canonical side identity from either adjacent hex (%s)',
+    'uses one typed edge identity from either adjacent hex (%s)',
     (rotation) => {
       const neighbor = hexUtilsAdd(anchor, HEX_DIRECTIONS[rotation])
-      expect(getLaurAddonCanonicalKey(anchor, rotation)).toBe(
-        getLaurAddonCanonicalKey(neighbor, (rotation + 3) % 6),
+      expect(getLaurAddonFeatureId(anchor, rotation)).toBe(
+        getLaurAddonFeatureId(neighbor, (rotation + 3) % 6),
       )
     },
   )
 
   it.each(halfStepRotations)(
-    'uses one canonical vertex identity from all three adjacent hexes (%s)',
+    'uses one typed node identity from all three adjacent hexes (%s)',
     (rotation) => {
       const direction = Math.floor(rotation)
       const firstNeighbor = hexUtilsAdd(anchor, HEX_DIRECTIONS[direction])
@@ -90,10 +90,10 @@ describe('resolveLaurAddonEdge', () => {
         anchor,
         HEX_DIRECTIONS[(direction + 1) % 6],
       )
-      const key = getLaurAddonCanonicalKey(anchor, rotation)
+      const featureId = getLaurAddonFeatureId(anchor, rotation)
       const adjacentRotation = (at: CubeCoordinate) =>
         halfStepRotations.find(
-          (candidate) => getLaurAddonCanonicalKey(at, candidate) === key,
+          (candidate) => getLaurAddonFeatureId(at, candidate) === featureId,
         )
       expect(adjacentRotation(firstNeighbor)).toBeDefined()
       expect(adjacentRotation(secondNeighbor)).toBeDefined()

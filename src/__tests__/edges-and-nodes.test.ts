@@ -15,7 +15,7 @@
  * the new model, as `it.todo`, to be turned into real tests as it is built.
  */
 import { describe, expect, it } from 'vitest'
-import type { CubeCoordinate } from '../types'
+import { getEdgeDragTarget } from '../data/dragMove'
 import {
   edgeIdFromHex,
   edgeToWorldPoint,
@@ -33,15 +33,15 @@ import {
   nodesForHex,
   nodesShareEdge,
 } from '../data/hexGrid/edgesAndNodes'
-import { getLaurAddonCanonicalKey } from '../data/laurAddonPlacement'
-import { getEdgeDragTarget } from '../data/dragMove'
+import { getLaurAddonFeatureId } from '../data/laurAddonPlacement'
 import { piecesSoFar } from '../data/pieces'
+import type { CubeCoordinate } from '../types'
 import type { BoardPiece } from '../types'
 import { Pieces } from '../types'
 import {
   HEX_DIRECTIONS,
-  hexUtilsAdd,
   cubeToPixel,
+  hexUtilsAdd,
   hexUtilsGetRadialFarNeighborForRotation,
   hexUtilsGetRadialNearNeighborsForRotation,
 } from '../utils/hex-utils'
@@ -170,15 +170,15 @@ describe('integer cube-coordinate edge and node prototype', () => {
     }
   })
 
-  it('matches existing Laur canonical side and vertex identities', () => {
+  it('maps Laur side and vertex rotations to typed edge and node IDs', () => {
     const hex = { q: -1, r: 4, s: -3 }
     for (let direction = 0; direction < 6; direction++) {
       const neighbor = hexUtilsAdd(hex, HEX_DIRECTIONS[direction])
       expect(edgeIdFromHex(hex, direction)).toBe(
         edgeIdFromHex(neighbor, direction + 3),
       )
-      expect(getLaurAddonCanonicalKey(hex, direction)).toBe(
-        getLaurAddonCanonicalKey(neighbor, direction + 3),
+      expect(getLaurAddonFeatureId(hex, direction)).toBe(
+        getLaurAddonFeatureId(neighbor, direction + 3),
       )
 
       const first = HEX_DIRECTIONS[direction]
@@ -189,10 +189,10 @@ describe('integer cube-coordinate edge and node prototype', () => {
         [hexUtilsAdd(hex, second), direction + 4.5],
       ]
       const node = nodeIdFromHexCorner(hex, direction)
-      const canonicalKeys = aliases.map(([anchor, rotation]) =>
-        getLaurAddonCanonicalKey(anchor, rotation),
+      const featureIds = aliases.map(([anchor, rotation]) =>
+        getLaurAddonFeatureId(anchor, rotation),
       )
-      expect(new Set(canonicalKeys).size).toBe(1)
+      expect(new Set(featureIds).size).toBe(1)
       expect(
         aliases.map(([anchor, rotation]) =>
           nodeIdFromHexRotation(anchor, rotation),
