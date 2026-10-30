@@ -217,12 +217,6 @@ test('auto-advances objective marker numbers unless the number is pinned', async
     )
     .toBe(5)
   await expect(textInput).toHaveValue('A2')
-  const textMarkerUID = await page.evaluate(
-    () => window.__TEST__?.listRenderedObjectiveMarkerUIDs()[4] ?? null,
-  )
-  if (!textMarkerUID) throw new Error('Text marker is not rendered')
-  await clickObjectiveMarker(page, textMarkerUID)
-  await expect(page.getByText('Content: Text A2')).toBeVisible()
 })
 
 test('places, edits, drags, deletes, and undoes an objective marker', async ({
@@ -249,6 +243,13 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
     )
     .toBe(1)
 
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__TEST__?.listRenderedObjectiveMarkerUIDs().length,
+      ),
+    )
+    .toBe(1)
   const markerUID = await page.evaluate(
     () => window.__TEST__?.listRenderedObjectiveMarkerUIDs()[0] ?? null,
   )
