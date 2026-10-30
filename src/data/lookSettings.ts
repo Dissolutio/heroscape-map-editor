@@ -10,6 +10,7 @@ export type LookSettings = {
   shine: number
   backgroundColor: string
   tableColor: string
+  transparentPictureBackground: boolean
 }
 
 export const LOOK_SETTINGS_VERSION = 1
@@ -24,6 +25,7 @@ export const DEFAULT_LOOK_SETTINGS: LookSettings = {
   shine: 1,
   backgroundColor: '#ffffff',
   tableColor: '#ffffff',
+  transparentPictureBackground: false,
 }
 
 export const LOOK_SETTING_RANGES = {
@@ -101,6 +103,10 @@ export function sanitizeLookSettings(value: unknown): LookSettings {
       settings.tableColor,
       DEFAULT_LOOK_SETTINGS.tableColor,
     ),
+    transparentPictureBackground:
+      typeof settings.transparentPictureBackground === 'boolean'
+        ? settings.transparentPictureBackground
+        : DEFAULT_LOOK_SETTINGS.transparentPictureBackground,
   }
 }
 

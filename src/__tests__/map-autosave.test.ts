@@ -380,13 +380,18 @@ describe('map autosave state gating', () => {
             fillRect: vi.fn(),
             drawImage: vi.fn(),
           }),
-          toDataURL: (_type: string, quality: number) =>
-            `${canvas.width}x${canvas.height}:${quality}`,
+          toDataURL: (type: string, quality: number) =>
+            `data:${type};base64,${canvas.width}x${canvas.height}:${quality}`,
         }
         return canvas
       },
     })
-    const portrait = canvasToMapPortrait({} as CanvasImageSource, 1920, 1080)
+    const portrait = canvasToMapPortrait(
+      {} as CanvasImageSource,
+      1920,
+      1080,
+      true,
+    )
     const fallback = getMapPortraitStorageFallback(portrait)
     if (!fallback) throw new Error('Expected a quota fallback portrait')
 
@@ -409,11 +414,13 @@ describe('map autosave state gating', () => {
     }
 
     expect(writer.writeNow(mapWithPortrait)).toBe(true)
+    expect(portrait).toMatch(/^data:image\/png;/)
     expect(mapWithPortrait.hexMap.mapPortraitBase64).toBe(portrait)
     expect(JSON.parse(values.get(LS_KEYS.lastMapPortrait) ?? '')).toEqual({
       mapId: hexMap.id,
-      mapPortraitBase64: fallback,
+      mapPortraitBase64: expect.stringMatching(/^data:image\/jpeg;/),
     })
+    expect(fallback).toMatch(/^data:image\/jpeg;/)
     expect(
       JSON.parse(values.get(LS_KEYS.lastMap) ?? '').hexMap,
     ).not.toHaveProperty('mapPortraitBase64')

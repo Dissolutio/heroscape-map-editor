@@ -50,6 +50,53 @@ describe('portrait downscale dimensions', () => {
     expect(QUOTA_FALLBACK_JPEG_QUALITY).toBe(0.8)
   })
 
+  it('preserves alpha in PNG portraits and flattens quota fallbacks to JPEG', () => {
+    const canvases: {
+      context: {
+        fillRect: ReturnType<typeof vi.fn>
+        drawImage: ReturnType<typeof vi.fn>
+      }
+      toDataURL: ReturnType<typeof vi.fn>
+    }[] = []
+    vi.stubGlobal('document', {
+      createElement: () => {
+        const canvas = {
+          width: 0,
+          height: 0,
+          context: {
+            fillRect: vi.fn(),
+            drawImage: vi.fn(),
+          },
+          toDataURL: vi.fn((type: string) => `data:${type};base64,test`),
+          getContext: () => canvas.context,
+        }
+        canvases.push(canvas)
+        return canvas
+      },
+    })
+
+    try {
+      const transparent = canvasToMapPortrait(
+        {} as CanvasImageSource,
+        100,
+        50,
+        true,
+      )
+      expect(transparent).toBe('data:image/png;base64,test')
+      expect(getMapPortraitStorageFallback(transparent)).toBe(
+        'data:image/jpeg;base64,test',
+      )
+      expect(canvases[0].context.fillRect).not.toHaveBeenCalled()
+      expect(canvases[1].context.fillRect).toHaveBeenCalledOnce()
+
+      const opaque = canvasToMapPortrait({} as CanvasImageSource, 100, 50)
+      expect(opaque).toBe('data:image/jpeg;base64,test')
+      expect(canvases[2].context.fillRect).toHaveBeenCalledOnce()
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+
   it('uses high-quality smoothing and steps down large images by halves', () => {
     const canvases: {
       width: number

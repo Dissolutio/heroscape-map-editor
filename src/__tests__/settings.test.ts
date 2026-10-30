@@ -73,6 +73,7 @@ describe('settings persistence', () => {
       shine: 1,
       backgroundColor: '#ffffff',
       tableColor: '#ffffff',
+      transparentPictureBackground: false,
     })
     expect(getAmbientIntensity(DEFAULT_LOOK_SETTINGS, true)).toBe(0.5)
     expect(getAmbientIntensity(DEFAULT_LOOK_SETTINGS, false)).toBe(2)
@@ -99,6 +100,7 @@ describe('settings persistence', () => {
         toneMapping: 'agx' as const,
         exposure: 2.2,
         shine: 1.4,
+        transparentPictureBackground: true,
       },
     }
     const serialized = serializeSettings(changed)
@@ -148,6 +150,7 @@ describe('settings persistence', () => {
         shine: 0.1,
         backgroundColor: '#abc',
         tableColor: '#123456',
+        transparentPictureBackground: true,
         ignored: 'value',
       }),
     ).toEqual({
@@ -157,6 +160,7 @@ describe('settings persistence', () => {
       hemisphereIntensity: 1.25,
       shine: 0.5,
       tableColor: '#123456',
+      transparentPictureBackground: true,
     })
   })
 

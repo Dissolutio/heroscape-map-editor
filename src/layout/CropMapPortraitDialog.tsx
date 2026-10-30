@@ -26,6 +26,7 @@ import { DIALOGS } from './dialogNames'
 function renderCroppedPortrait(
   image: HTMLImageElement,
   crop: { x: number; y: number; width: number; height: number },
+  preserveAlpha: boolean,
 ) {
   const canvas = document.createElement('canvas')
   canvas.width = crop.width
@@ -45,7 +46,11 @@ function renderCroppedPortrait(
     crop.width,
     crop.height,
   )
-  return canvasToMapPortrait(canvas, crop.width, crop.height)
+  return canvasToMapPortrait(canvas, crop.width, crop.height, preserveAlpha)
+}
+
+function imageSupportsAlpha(imageSrc: string) {
+  return /^data:image\/(?:png|webp|gif|avif);/i.test(imageSrc)
 }
 
 export default function CropMapPortraitDialog() {
@@ -66,6 +71,9 @@ export default function CropMapPortraitDialog() {
   const [imageSize, setImageSize] = useState<ImageSize>()
   const [previewSrc, setPreviewSrc] = useState('')
   const [resultDimensions, setResultDimensions] = useState('')
+  const [preserveAlpha, setPreserveAlpha] = useState(
+    imageSupportsAlpha(portrait),
+  )
 
   useEffect(() => {
     if (!isOpen) return
@@ -75,6 +83,7 @@ export default function CropMapPortraitDialog() {
     setImageSize(undefined)
     setPreviewSrc('')
     setResultDimensions('')
+    setPreserveAlpha(imageSupportsAlpha(portrait))
   }, [isOpen, portrait])
 
   useEffect(() => {
@@ -84,7 +93,7 @@ export default function CropMapPortraitDialog() {
         const naturalCrop = cropRectToNaturalPixels(completedCrop, imageSize)
         const image = imageRef.current
         if (!image) return
-        setPreviewSrc(renderCroppedPortrait(image, naturalCrop))
+        setPreviewSrc(renderCroppedPortrait(image, naturalCrop, preserveAlpha))
         setResultDimensions(
           getCropResultDimensionsText(naturalCrop.width, naturalCrop.height),
         )
@@ -94,10 +103,11 @@ export default function CropMapPortraitDialog() {
       }
     }, 100)
     return () => window.clearTimeout(timeout)
-  }, [isOpen, completedCrop, imageSize])
+  }, [isOpen, completedCrop, imageSize, preserveAlpha])
 
   const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
     const image = event.currentTarget
+    setPreserveAlpha(imageSupportsAlpha(imageSrc))
     setImageSize({
       displayWidth: image.width,
       displayHeight: image.height,
@@ -127,6 +137,7 @@ export default function CropMapPortraitDialog() {
       setImageSize(undefined)
       setPreviewSrc('')
       setResultDimensions('')
+      setPreserveAlpha(imageSupportsAlpha(reader.result))
     }
     reader.readAsDataURL(file)
   }
@@ -152,7 +163,9 @@ export default function CropMapPortraitDialog() {
         if (!completedCrop) return
         naturalCrop = cropRectToNaturalPixels(completedCrop, imageSize)
       }
-      saveMapPortraitWithoutUndo(renderCroppedPortrait(image, naturalCrop))
+      saveMapPortraitWithoutUndo(
+        renderCroppedPortrait(image, naturalCrop, preserveAlpha),
+      )
       closeCropDialog()
     } catch (error) {
       console.error('Failed to save map picture crop', error)
@@ -262,17 +275,30 @@ export default function CropMapPortraitDialog() {
             Result
           </Box>
           {previewSrc ? (
-            <img
-              src={previewSrc}
-              alt="Cropped result preview"
-              style={{
-                display: 'block',
-                maxWidth: '100%',
-                maxHeight: isSmallScreenWidth ? '30vh' : '45vh',
-                objectFit: 'contain',
-                margin: '0 auto',
+            <Box
+              sx={{
+                display: 'inline-block',
+                p: preserveAlpha ? 1 : 0,
+                backgroundColor: preserveAlpha ? '#fff' : 'transparent',
+                backgroundImage: preserveAlpha
+                  ? 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)'
+                  : 'none',
+                backgroundSize: '16px 16px',
+                backgroundPosition: '0 0, 0 8px, 8px -8px, -8px 0px',
               }}
-            />
+            >
+              <img
+                src={previewSrc}
+                alt="Cropped result preview"
+                style={{
+                  display: 'block',
+                  maxWidth: '100%',
+                  maxHeight: isSmallScreenWidth ? '30vh' : '45vh',
+                  objectFit: 'contain',
+                  margin: '0 auto',
+                }}
+              />
+            </Box>
           ) : (
             <Box sx={{ py: 4 }}>Preview unavailable</Box>
           )}

@@ -32,6 +32,7 @@ export function canvasToMapPortrait(
   source: CanvasImageSource,
   width: number,
   height: number,
+  preserveAlpha = false,
 ): string {
   const portrait = encodeMapPortrait(
     source,
@@ -39,6 +40,7 @@ export function canvasToMapPortrait(
     height,
     MAX_PORTRAIT_SIZE,
     PORTRAIT_JPEG_QUALITY,
+    preserveAlpha,
   )
   const fallback = encodeMapPortrait(
     source,
@@ -68,6 +70,7 @@ function encodeMapPortrait(
   height: number,
   maxSize: number,
   quality: number,
+  preserveAlpha = false,
 ) {
   const dimensions = getPortraitDimensions(width, height, maxSize)
   let drawSource = source
@@ -109,8 +112,10 @@ function encodeMapPortrait(
   if (!context) throw new Error('Could not create a portrait canvas')
   context.imageSmoothingEnabled = true
   context.imageSmoothingQuality = 'high'
-  context.fillStyle = 'white'
-  context.fillRect(0, 0, canvas.width, canvas.height)
+  if (!preserveAlpha) {
+    context.fillStyle = 'white'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+  }
   context.drawImage(
     drawSource,
     0,
@@ -122,5 +127,7 @@ function encodeMapPortrait(
     canvas.width,
     canvas.height,
   )
-  return canvas.toDataURL('image/jpeg', quality)
+  return preserveAlpha
+    ? canvas.toDataURL('image/png')
+    : canvas.toDataURL('image/jpeg', quality)
 }

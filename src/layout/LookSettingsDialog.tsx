@@ -1,7 +1,9 @@
 import {
   Box,
   Button,
+  Checkbox,
   FormControl,
+  FormControlLabel,
   InputLabel,
   MenuItem,
   Paper,
@@ -9,6 +11,7 @@ import {
   Slider,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
@@ -130,6 +133,24 @@ export default function LookSettingsDialog() {
             slotProps={{ htmlInput: { 'aria-label': label } }}
           />
         ))}
+        <Tooltip
+          describeChild
+          title="Takes the picture with no background so you can drop the map onto your own artwork."
+        >
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={lookSettings.transparentPictureBackground}
+                onChange={(event) =>
+                  setLookSettings({
+                    transparentPictureBackground: event.target.checked,
+                  })
+                }
+              />
+            }
+            label="Transparent background"
+          />
+        </Tooltip>
         <Stack direction="row" spacing={1}>
           <Button
             size="small"

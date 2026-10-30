@@ -117,6 +117,7 @@ const World = ({
         }}
       >
         <Canvas
+          gl={{ alpha: true }}
           events={
             isPerformanceEventsDisabled
               ? () => ({
