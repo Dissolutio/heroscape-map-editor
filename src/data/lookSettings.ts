@@ -1,3 +1,5 @@
+import { CAMERA_FOV } from '../utils/constants'
+
 export type ToneMapping = 'none' | 'neutral' | 'aces' | 'agx'
 
 export type LookSettings = {
@@ -10,6 +12,7 @@ export type LookSettings = {
   shine: number
   backgroundColor: string
   tableColor: string
+  fov: number
 }
 
 export const LOOK_SETTINGS_VERSION = 1
@@ -24,6 +27,7 @@ export const DEFAULT_LOOK_SETTINGS: LookSettings = {
   shine: 1,
   backgroundColor: '#ffffff',
   tableColor: '#ffffff',
+  fov: CAMERA_FOV,
 }
 
 export const LOOK_SETTING_RANGES = {
@@ -32,6 +36,7 @@ export const LOOK_SETTING_RANGES = {
   hemisphereIntensity: { min: 0, max: 2, step: 0.05 },
   pointLightIntensity: { min: 0, max: 400, step: 5 },
   shine: { min: 0.5, max: 2.5, step: 0.05 },
+  fov: { min: 20, max: 90, step: 1 },
 } as const
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -100,6 +105,12 @@ export function sanitizeLookSettings(value: unknown): LookSettings {
     tableColor: sanitizeColor(
       settings.tableColor,
       DEFAULT_LOOK_SETTINGS.tableColor,
+    ),
+    fov: sanitizeNumber(
+      settings.fov,
+      DEFAULT_LOOK_SETTINGS.fov,
+      LOOK_SETTING_RANGES.fov.min,
+      LOOK_SETTING_RANGES.fov.max,
     ),
   }
 }

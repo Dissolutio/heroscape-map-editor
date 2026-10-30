@@ -22,6 +22,7 @@ export type E2ESnapshot = {
   } | null
   hoveredPieceID: string
   isOrthoCam: boolean
+  cameraFov: number | null
   placementPreview: {
     status: 'ok' | 'conflict' | 'blocked'
     reason: string | null

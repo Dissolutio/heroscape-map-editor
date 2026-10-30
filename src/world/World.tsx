@@ -12,14 +12,17 @@ import {
 import { Canvas } from '@react-three/fiber'
 import { Profiler } from 'react'
 import type React from 'react'
-import { useEffect, useState } from 'react'
-import type { Group, Object3DEventMap } from 'three'
+import { useEffect, useRef, useState } from 'react'
+import type {
+  Group,
+  Object3DEventMap,
+  PerspectiveCamera as ThreePerspectiveCamera,
+} from 'three'
 import SelectedPieceReadout from '../controls/SelectedPieceReadout'
 import { E2EStatus } from '../e2e/E2EStatus'
 import { ReadySignal } from '../e2e/ReadySignal'
 import { TestBridge } from '../e2e/TestBridge'
 import useBoundStore from '../store/store'
-import { CAMERA_FOV } from '../utils/constants'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils'
 import Lights from './Lights'
 import LookSettingsApplier from './LookSettingsApplier'
@@ -28,6 +31,7 @@ import AutoZoomToMap from './camera/AutoZoomToMap'
 import MyCameraControls from './camera/MyCameraControls'
 import { DragContext } from './drag/DragContext'
 import TakeAPictureBox from './camera/TakeAPictureBox'
+import PerspectiveFovApplier from './camera/PerspectiveFovApplier'
 import ShadowMapInvalidator from './ShadowMapInvalidator'
 import {
   PerformanceOverlay,
@@ -83,9 +87,11 @@ const World = ({
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
+  const fov = useBoundStore((s) => s.lookSettings.fov)
   const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
   const [isTabActive, setIsTabActive] = useState(true)
+  const perspectiveCameraRef = useRef<ThreePerspectiveCamera>(null)
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
@@ -156,9 +162,14 @@ const World = ({
           /> */}
           <LookSettingsApplier />
           <PerspectiveCamera
+            ref={perspectiveCameraRef}
             position={[10, 10, 10]}
-            fov={CAMERA_FOV}
+            fov={fov}
             makeDefault={!isOrthoCam}
+          />
+          <PerspectiveFovApplier
+            cameraControlsRef={cameraControlsRef}
+            perspectiveCameraRef={perspectiveCameraRef}
           />
           {/* // Example: FOV set to 15 (instead of the standard 50-75) and moved 1000 units away */}
           {/* <PerspectiveCamera

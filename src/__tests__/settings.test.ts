@@ -25,6 +25,7 @@ import {
 } from '../local-storage/settings'
 import type { AppState } from '../store/store'
 import { safeGetJSON } from '../local-storage/safeStorage'
+import { CAMERA_FOV } from '../utils/constants'
 import {
   getAvailableLandPrefixesForInventory,
   getAvailableLandPrefixesForSets,
@@ -73,6 +74,7 @@ describe('settings persistence', () => {
       shine: 1,
       backgroundColor: '#ffffff',
       tableColor: '#ffffff',
+      fov: CAMERA_FOV,
     })
     expect(getAmbientIntensity(DEFAULT_LOOK_SETTINGS, true)).toBe(0.5)
     expect(getAmbientIntensity(DEFAULT_LOOK_SETTINGS, false)).toBe(2)
@@ -99,6 +101,7 @@ describe('settings persistence', () => {
         toneMapping: 'agx' as const,
         exposure: 2.2,
         shine: 1.4,
+        fov: 74,
       },
     }
     const serialized = serializeSettings(changed)
@@ -148,6 +151,7 @@ describe('settings persistence', () => {
         shine: 0.1,
         backgroundColor: '#abc',
         tableColor: '#123456',
+        fov: 100,
         ignored: 'value',
       }),
     ).toEqual({
@@ -157,7 +161,11 @@ describe('settings persistence', () => {
       hemisphereIntensity: 1.25,
       shine: 0.5,
       tableColor: '#123456',
+      fov: 90,
     })
+    expect(sanitizeLookSettings({ toneMapping: 'neutral' }).fov).toBe(
+      CAMERA_FOV,
+    )
   })
 
   it('clamps the final roughness after applying the shine multiplier', () => {
