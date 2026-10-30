@@ -12,6 +12,7 @@ import { getObjectiveMarkerNameSuggestions } from '../data/objectiveMarkerNameSu
 import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
 import {
   type ObjectiveMarker,
+  getEffectiveObjectiveMarkerNumber,
   getNextObjectiveMarkerNumber,
   getObjectiveMarkerContentError,
   getObjectiveMarkerFootprint,
@@ -128,6 +129,60 @@ describe('objective marker data', () => {
         1,
       ),
     ).toBeUndefined()
+  })
+
+  it('derives the first available number from the base and marker style', () => {
+    expect(getEffectiveObjectiveMarkerNumber([], 'black', 1)).toBe(1)
+    expect(getEffectiveObjectiveMarkerNumber([], 'black', 99)).toBe(99)
+    expect(
+      getEffectiveObjectiveMarkerNumber([marker('one', 0)], 'black', 1),
+    ).toBe(2)
+    expect(
+      getEffectiveObjectiveMarkerNumber(
+        [
+          marker('one', 0),
+          marker('two', 1, 0, { content: { kind: 'number', value: 2 } }),
+          marker('three', 2, 0, { content: { kind: 'number', value: 3 } }),
+        ],
+        'black',
+        1,
+      ),
+    ).toBe(4)
+    expect(
+      getEffectiveObjectiveMarkerNumber(
+        [
+          marker('ninety-nine', 0, 0, {
+            content: { kind: 'number', value: 99 },
+          }),
+        ],
+        'black',
+        99,
+      ),
+    ).toBe(1)
+    expect(
+      getEffectiveObjectiveMarkerNumber(
+        [
+          marker('black-one', 0),
+          marker('white-two', 1, 0, {
+            style: 'white',
+            content: { kind: 'number', value: 1 },
+          }),
+        ],
+        'black',
+        1,
+      ),
+    ).toBe(2)
+    expect(
+      getEffectiveObjectiveMarkerNumber(
+        Array.from({ length: 99 }, (_, index) =>
+          marker(`used-${index + 1}`, index, 0, {
+            content: { kind: 'number', value: index + 1 },
+          }),
+        ),
+        'black',
+        42,
+      ),
+    ).toBe(42)
   })
 
   it('trims and caps optional marker names', () => {

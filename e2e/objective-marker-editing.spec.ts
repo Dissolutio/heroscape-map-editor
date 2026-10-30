@@ -106,7 +106,7 @@ test('suggests unit names lazily and keeps them in saved map files', async ({
   ).toHaveValue('10th Regiment of Foot')
 })
 
-test('auto-advances objective marker numbers unless the number is pinned', async ({
+test('derives objective marker numbers unless the number is pinned', async ({
   page,
 }) => {
   await page.goto(mapUrl(FIXTURE_HEX_MAP, SUPPORTING_PIECE_IDS))
@@ -139,6 +139,25 @@ test('auto-advances objective marker numbers unless the number is pinned', async
     )
     .toBe(1)
   await expect(numberInput).toHaveValue('2')
+  await page.getByRole('button', { name: 'White' }).click()
+  await expect(numberInput).toHaveValue('1')
+  await page.getByRole('button', { name: 'Black' }).click()
+  await expect(numberInput).toHaveValue('2')
+
+  await page.keyboard.press('Control+z')
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(0)
+  await expect(numberInput).toHaveValue('1')
+  await page.keyboard.press('Control+y')
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(1)
+  await expect(numberInput).toHaveValue('2')
 
   await placeAt(3, 2)
   await expect
@@ -147,12 +166,33 @@ test('auto-advances objective marker numbers unless the number is pinned', async
     )
     .toBe(2)
   await expect(numberInput).toHaveValue('3')
-  const secondMarkerUID = await page.evaluate(
+  let secondMarkerUID = await page.evaluate(
     () => window.__TEST__?.listRenderedObjectiveMarkerUIDs()[1] ?? null,
   )
   if (!secondMarkerUID) throw new Error('Second marker is not rendered')
   await clickObjectiveMarker(page, secondMarkerUID)
   await expect(page.getByText('Content: Number 2')).toBeVisible()
+  await page.getByRole('button', { name: 'Delete objective marker' }).click()
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(1)
+  await page.getByRole('tab', { name: 'Build' }).click()
+  await penMode.click()
+  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await expect(numberInput).toHaveValue('2')
+  await placeAt(3, 2)
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(2)
+  await expect(numberInput).toHaveValue('3')
+  secondMarkerUID = await page.evaluate(
+    () => window.__TEST__?.listRenderedObjectiveMarkerUIDs()[1] ?? null,
+  )
+  if (!secondMarkerUID) throw new Error('Replaced marker is not rendered')
 
   await canvas.click({ position: { x: 2, y: 2 } })
   await expect
@@ -179,13 +219,14 @@ test('auto-advances objective marker numbers unless the number is pinned', async
 
   await pinNumber.uncheck()
   await numberInput.fill('1')
+  await expect(numberInput).toHaveValue('3')
   await placeAt(2, 3)
   await expect
     .poll(() =>
       page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
     )
     .toBe(4)
-  await expect(numberInput).toHaveValue('3')
+  await expect(numberInput).toHaveValue('4')
 
   await clickObjectiveMarker(page, secondMarkerUID)
   const selectedNumberInput = page.getByRole('spinbutton', {
@@ -204,7 +245,7 @@ test('auto-advances objective marker numbers unless the number is pinned', async
   await page.getByRole('tab', { name: 'Build' }).click()
   await penMode.click()
   await page.getByRole('option', { name: 'Objective Marker' }).click()
-  await expect(numberInput).toHaveValue('3')
+  await expect(numberInput).toHaveValue('2')
 
   await page.getByRole('button', { name: 'Text', exact: true }).click()
   await expect(pinNumber).toHaveCount(0)
@@ -217,6 +258,61 @@ test('auto-advances objective marker numbers unless the number is pinned', async
     )
     .toBe(5)
   await expect(textInput).toHaveValue('A2')
+})
+
+test('keeps auto-numbering correct after loading a map and creating a new one', async ({
+  page,
+}) => {
+  await page.goto(mapUrl(FIXTURE_HEX_MAP, SUPPORTING_PIECE_IDS))
+  await waitForAppReady(page)
+
+  await page.getByRole('tab', { name: 'Build' }).click()
+  const penMode = page.getByRole('combobox', { name: 'Pen Mode' })
+  await penMode.click()
+  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  const numberInput = page.getByRole('spinbutton', { name: 'Marker number' })
+  await expect(numberInput).toHaveValue('1')
+
+  const canvas = page.locator('canvas').first()
+  const point = await page.evaluate(
+    () => window.__TEST__?.screenPosOfHex({ q: 2, r: 2, altitude: 1 }) ?? null,
+  )
+  if (!point) throw new Error('Marker hex is not on screen')
+  await canvas.click({ position: point })
+  await expect(numberInput).toHaveValue('2')
+
+  await page.getByRole('tab', { name: 'File' }).click()
+  await page.getByRole('button', { name: 'Download Map File' }).click()
+  const downloadPromise = page.waitForEvent('download')
+  await page
+    .getByRole('button', { name: 'Download file (.json)', exact: true })
+    .click()
+  const download = await downloadPromise
+  const downloadPath = await download.path()
+  if (!downloadPath) throw new Error('Map-file download was not saved')
+
+  await page.locator('#jsonupload').setInputFiles(downloadPath)
+  await waitForAppReady(page)
+  await page.getByRole('tab', { name: 'Build' }).click()
+  await penMode.click()
+  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await expect(numberInput).toHaveValue('2')
+
+  await page.getByRole('tab', { name: 'File' }).click()
+  await page.getByRole('button', { name: 'Create New Map' }).click()
+  await page.getByRole('heading', { name: 'New Map' }).waitFor()
+  await page.getByRole('button', { name: 'Create', exact: true }).click()
+  await waitForAppReady(page)
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerCount),
+    )
+    .toBe(0)
+
+  await page.getByRole('tab', { name: 'Build' }).click()
+  await penMode.click()
+  await page.getByRole('option', { name: 'Objective Marker' }).click()
+  await expect(numberInput).toHaveValue('1')
 })
 
 test('places, edits, drags, deletes, and undoes an objective marker', async ({
