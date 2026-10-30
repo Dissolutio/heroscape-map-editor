@@ -17,7 +17,11 @@ import {
 import useBoundStore from '../store/store'
 import { SvgMapHex } from '../svg-map/SvgMapHex'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
-import { SVG_HEX_RADIUS } from '../utils/constants'
+import {
+  PDF_BORDER_WIDTH,
+  SVG_BORDER_WIDTH,
+  SVG_HEX_RADIUS,
+} from '../utils/constants'
 import type { BuriedMarksByUID } from '../utils/tileMarks'
 import { renderToStaticMarkup } from 'react-dom/server'
 
@@ -143,6 +147,18 @@ describe('Shroudshroom13 origin line', () => {
     },
   )
 
+  it('stops at the inner edge of the border and is five units thick', () => {
+    expect(SHROUDSHROOM13_ORIGIN_LINE_WIDTH).toBe(5)
+    for (const borderWidth of [SVG_BORDER_WIDTH, PDF_BORDER_WIDTH]) {
+      const line = getShroudshroom13OriginLine(0, SVG_HEX_RADIUS, borderWidth)
+      expect(Math.hypot(line.x2, line.y2)).toBeCloseTo(
+        SVG_HEX_RADIUS -
+          (borderWidth * 2) / Math.sqrt(3) -
+          SHROUDSHROOM13_ORIGIN_LINE_WIDTH / 2,
+      )
+    }
+  })
+
   it('renders exactly one SVG origin line only for Shroudshroom13', () => {
     const svgHex = { ...shroudshroom13Hex, altitude: 0 }
     useBoundStore.setState({
@@ -155,14 +171,18 @@ describe('Shroudshroom13 origin line', () => {
     const svg = renderSvgHex(svgHex)
     const markedLines = svg.match(/<line\b(?=[^>]*stroke="#808080")/g) ?? []
     const [svgLine] = svg.match(/<line\b[^>]*>/g) ?? []
-    const expectedLine = getShroudshroom13OriginLine(0, SVG_HEX_RADIUS)
+    const expectedLine = getShroudshroom13OriginLine(
+      0,
+      SVG_HEX_RADIUS,
+      SVG_BORDER_WIDTH,
+    )
 
     expect(markedLines).toHaveLength(1)
     expect(svgLine).toContain(`x1="${expectedLine.x1}"`)
     expect(svgLine).toContain(`y1="${expectedLine.y1}"`)
     expect(svgLine).toContain(`x2="${expectedLine.x2}"`)
     expect(svgLine).toContain(`y2="${expectedLine.y2}"`)
-    expect(svg).toContain('stroke-width="1"')
+    expect(svg).toContain('stroke-width="5"')
     expect(svg).toContain('stroke-linecap="round"')
     expect(
       renderSvgHex(
@@ -202,7 +222,7 @@ describe('Shroudshroom13 origin line', () => {
 
     expect(line).toBeDefined()
     expect(line.props).toMatchObject({
-      ...getShroudshroom13OriginLine(4, SVG_HEX_RADIUS),
+      ...getShroudshroom13OriginLine(4, SVG_HEX_RADIUS, PDF_BORDER_WIDTH),
       stroke: SHROUDSHROOM13_ORIGIN_LINE_COLOR,
       strokeWidth: SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
       strokeLinecap: 'round',
