@@ -111,7 +111,7 @@ test('per-hex land mode loads without console errors and selects a hex', async (
   })
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto(`${FIXTURE_URL}&perHexLand=1`)
+  await page.goto(`${FIXTURE_URL}&perHexLand=1&graphicsTier=medium`)
   await waitForAppReady(page)
 
   const uid = await findPieceUid(page, {
@@ -122,8 +122,17 @@ test('per-hex land mode loads without console errors and selects a hex', async (
   await clickPiece(page, uid)
 
   await expect(page.getByTestId('app-status')).toContainText('1 selected')
+  await page.mouse.move(10, 700)
+  await waitForAppReady(page)
   const snapshot = await page.evaluate(() => window.__TEST__?.snapshot())
   expect(snapshot?.selectedPieceIDs).toEqual([uid])
+  const cap = await page.evaluate(
+    (pieceUID) => window.__TEST__?.screenPosOfPiece(pieceUID) ?? null,
+    uid,
+  )
+  if (!cap) throw new Error('The selected cap is not on screen')
+  const selectedCapColor = await sampleCanvasPoints(page, { cap })
+  expect(maxChannelDelta(selectedCapColor.cap, [255, 255, 0])).toBeLessThan(80)
   expect(snapshot?.landInstanceCounts).toEqual({
     solid: FIXTURE_PIECE_COUNT,
     fluid: 0,
