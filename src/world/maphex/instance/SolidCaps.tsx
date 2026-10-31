@@ -63,7 +63,6 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       castShadow={isLightsAndShadowsRender}
     >
       {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />}
-      {/* <cylinderGeometry args={baseSolidCapCylinderArgs} /> */}
       {boardHexArr.map((hex, i) => (
         <SolidCapInstance
           key={hex.id}
@@ -78,7 +77,6 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
     </Instances>
   )
 }
-// useGltf.preload('/classic1-cap.glb')
 
 // Create a single dummy color object at the module level to reuse for updates
 const _colorTemp = new Color()
@@ -111,7 +109,6 @@ function SolidCapInstance({
   React.useEffect(() => {
     const { x, y, z } = getBoardHex3DCoords(boardHex)
     ref.current.color.set(color)
-    // ref.current.position.set(x, y + HEXGRID_HEXCAP_HEIGHT / 2, z)
     ref.current.position.set(
       x,
       // small adjustment down for realistic caps, to show the subterrain through the cracks
@@ -129,9 +126,7 @@ function SolidCapInstance({
 
   // update color when piece is hovered
   React.useEffect(() => {
-    if (hoveredPieceID === boardHex?.boardPieceUID) {
-      // ref.current.color.set('yellow')
-    } else {
+    if (hoveredPieceID !== boardHex?.boardPieceUID) {
       ref?.current?.color?.set?.(color)
     }
   }, [boardHex.boardPieceUID, hoveredPieceID, color])
@@ -150,10 +145,8 @@ function SolidCapInstance({
     if (!isVisible) {
       return
     }
-    // if (hoveredPieceID !== boardHex.pieceID) {
     ref?.current?.color?.set?.(color)
     onPointerOut(e)
-    // }
   }
   const handlePointerUp = (e: ThreeEvent<PointerEvent>) => {
     if (!isVisible) {

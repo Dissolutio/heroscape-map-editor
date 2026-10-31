@@ -1,16 +1,16 @@
 import type { BoardHex, BoardPiece, CubeCoordinate, Piece } from '../types'
 import { HexTerrain, Pieces } from '../types'
-import { genBoardHexID } from '../utils/map-utils'
 import { hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
+import { genBoardHexID } from '../utils/map-utils'
 import type { MovePieceArgs } from './movePieces'
 import { piecesSoFar } from './pieces'
 import {
-  evaluatePlacement,
-  isPlacementBlocked,
-  resolvePlacement,
   type PlacementBlockedReason,
   type PlacementBoard,
   type ResolvedPlacement,
+  evaluatePlacement,
+  isPlacementBlocked,
+  resolvePlacement,
 } from './placement'
 
 function getTargetHex(
@@ -96,29 +96,17 @@ export function getGroupRotationBlockedReason(
       altitude + resolverTarget.altitudeOffset,
       movingUIDs,
     )
-    if (resolverTarget.altitudeOffset && !targetHex) return 'offMap'
-    let resolution: ResolvedPlacement
-
-    if (targetHex) {
-      const resolved = resolvePlacement(piece, targetHex, rotation, board, {
-        ignoreUID: ignoredUIDs,
-        deferOffMapCheck: true,
-      })
-      if (isPlacementBlocked(resolved)) return resolved.blocked
-      resolution = {
-        ...resolved,
-        coords: move.newPieceCoords,
-        altitude,
-        rotation,
-      }
-    } else {
-      resolution = {
-        piece,
-        coords: move.newPieceCoords,
-        altitude,
-        rotation,
-        rule: 'default',
-      }
+    if (!targetHex) return 'offMap'
+    const resolved = resolvePlacement(piece, targetHex, rotation, board, {
+      ignoreUID: ignoredUIDs,
+      deferOffMapCheck: true,
+    })
+    if (isPlacementBlocked(resolved)) return resolved.blocked
+    const resolution: ResolvedPlacement = {
+      ...resolved,
+      coords: move.newPieceCoords,
+      altitude,
+      rotation,
     }
 
     const evaluation = evaluatePlacement(board, resolution, {

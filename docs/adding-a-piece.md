@@ -146,14 +146,12 @@ The source images are under `textures/`; packing writes runtime strips and
 
 Caps are 256×256 and sides are 128×32; side images are one face and one level
 high. Side diffuse layers are deduplicated by source image. Keep the existing
-packing and layer model rather than inventing a new atlas. The plan estimates
-about 9.1 MiB of GPU memory for all mipmapped textures.
+packing and layer model rather than inventing a new atlas. Mipmapped GPU memory
+is estimated at 7.38 MiB for Medium and 17.48 MiB for High; Low uses no texture
+arrays. See [`docs/textures-plan.md`](textures-plan.md).
 
-There is an unresolved rotation-policy disagreement: `docs/textures-plan.md`
-says only Ice and ToxicWater allow random cap rotation, while the checked-in
-texture config and `textures-pack.test.ts` currently require it for every
-terrain with a cap diffuse image. Do not silently change this policy; confirm
-the intended behavior before changing the flag or its test.
+Every terrain with a cap diffuse image allows random cap rotation. The texture
+packing test enforces this policy.
 
 The per-hex land geometry has a 14 vertex-attribute-location budget. The
 `keeps land geometry within the WebGL vertex-attribute budget` test in
