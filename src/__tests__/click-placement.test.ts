@@ -1,5 +1,5 @@
 /**
- * CLICK PLACEMENT (world/MapDisplay3D.tsx onPointerUpPaintPiece)
+ * CLICK PLACEMENT (world/mapDisplayClickHandler.tsx)
  *
  * Characterization of what a left click with a piece pen does today, per
  * piece family, through the real handler and the real store (paintTile, which
@@ -374,6 +374,9 @@ describe('click placement through the real handler', () => {
       hex,
     })
     expect(result.added).toEqual([])
+    expect(snackbar.mock.calls[0]?.[0]).toMatchObject({
+      autoHideDuration: 10000,
+    })
     expect(useBoundStore.getState().penMode).toBe(Pieces.laurWallShort)
     expect(snackbarMessages()).toEqual([
       'Non-stackable Laur pieces cannot be stacked, and their stackable versions are not in your inventory.',
