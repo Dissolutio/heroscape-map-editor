@@ -107,7 +107,7 @@ describe('packed terrain textures', () => {
   it('packs toothed diffuse textures and PBR templates for Shadow and SwampWater', () => {
     const sideStrip = readTexture('sides-diffuse.png')
     const capStrip = readTexture('caps-diffuse.png')
-    for (const name of ['Shadow', 'SwampWater']) {
+    for (const name of ['Shadow', 'SwampWater'] as const) {
       const config = terrainTextures[name]
       const terrain = manifest.terrains[name]
       expect(config).toMatchObject({
@@ -120,7 +120,7 @@ describe('packed terrain textures', () => {
         isFluid: true,
         allowRandomRotation: true,
       })
-      expect(config.flatColor).toBeUndefined()
+      expect(config).not.toHaveProperty('flatColor')
       expect(terrain).toMatchObject({
         capDiffuseLayer: expect.any(Number),
         capDiffusePbrLayer: expect.any(Number),
