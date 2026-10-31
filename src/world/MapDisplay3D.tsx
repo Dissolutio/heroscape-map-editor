@@ -5,22 +5,7 @@ import { mapTableHexes } from '../data/fitMapToPieces.ts'
 import { isPerHexLandOverride } from '../e2e/isE2E.ts'
 import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
 import useBoundStore from '../store/store.ts'
-import {
-  type BoardHex,
-  HexTerrain,
-  PICK_PEN_MODE,
-  type Piece,
-  type PieceInventory,
-  SELECT_PEN_MODE,
-} from '../types.ts'
-import { isFluidTerrainHex } from '../utils/board-utils.ts'
-import { getFluidRunLengthAt } from '../utils/fluidStacks.ts'
-import { type BoardHex, HexTerrain } from '../types.ts'
-import {
-  isFluidTerrainHex,
-  isJungleTerrainHex,
-  isSolidTerrainHex,
-} from '../utils/board-utils.ts'
+import type { BoardHex } from '../types.ts'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import ObjectiveMarkerPlacementPreview from './ObjectiveMarkerPlacementPreview.tsx'
