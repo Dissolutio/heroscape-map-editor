@@ -159,6 +159,43 @@ describe('edge-piece drag eligibility and targeting', () => {
     },
   )
 
+  it.each(EDGE_PIECE_IDS)(
+    '%s keeps a tied current edge, otherwise choosing the lowest index',
+    (pieceID) => {
+      const hex = { q: 3, r: 3, s: -6 }
+      const firstPoint = edgePoint(hex, 0)
+      const secondPoint = edgePoint(hex, 1)
+      const tiedPoint = {
+        x: (firstPoint.x + secondPoint.x) / 2,
+        z: (firstPoint.z + secondPoint.z) / 2,
+      }
+      const makePiece = (edge: number): BoardPiece => ({
+        uid: 'EDGE',
+        inventoryID: pieceID,
+        altitude: -1,
+        rotation: pieceID === Pieces.battlement ? (edge + 3) % 6 : edge,
+        pieceCoords: hex,
+      })
+
+      expect(
+        getEdgeDragTarget(
+          piecesSoFar[pieceID],
+          makePiece(1),
+          hex,
+          tiedPoint,
+        ),
+      ).toEqual({ edgeIndex: 1, rotation: 1 })
+      expect(
+        getEdgeDragTarget(
+          piecesSoFar[pieceID],
+          makePiece(4),
+          hex,
+          tiedPoint,
+        ),
+      ).toEqual({ edgeIndex: 0, rotation: 0 })
+    },
+  )
+
   it('caches an edge target by the resolved hex and edge, not raw pointer', () => {
     const table = makeTable(8)
     const hex = hexAt(table, { q: 3, r: 3, s: -6 }, 0) as BoardHex
