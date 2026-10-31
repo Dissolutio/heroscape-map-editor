@@ -67,6 +67,7 @@ export default function ObjectiveMarkerControls({
   }))
   const [unitNames, setUnitNames] = useState<string[]>([])
   const current: ObjectiveMarkerDraft | ObjectiveMarker = marker ?? draft
+  const nameIdentity = marker?.uid ?? 'draft'
   const content =
     !marker && draft.content.kind === 'number' && !draft.pinNumber
       ? {
@@ -78,7 +79,7 @@ export default function ObjectiveMarkerControls({
           ),
         }
       : current.content
-  const nameSource = marker?.uid ?? 'draft'
+  const nameSource = `${nameIdentity}:${current.name ?? ''}`
   const contentSource = `${nameSource}:${content.kind}:${content.value}`
   const contentValue =
     contentInput.source === contentSource
@@ -94,10 +95,11 @@ export default function ObjectiveMarkerControls({
   const saveName = (value: string) => {
     const name = normalizeObjectiveMarkerName(value)
     const normalizedValue = name ?? ''
+    const nextNameSource = `${nameIdentity}:${normalizedValue}`
     setNameInput((previous) =>
-      previous.source === nameSource && previous.value === normalizedValue
+      previous.source === nextNameSource && previous.value === normalizedValue
         ? previous
-        : { source: nameSource, value: normalizedValue },
+        : { source: nextNameSource, value: normalizedValue },
     )
     if (name === current.name) return
     if (marker) updateMarker(marker.uid, { name })
@@ -356,7 +358,7 @@ export default function ObjectiveMarkerControls({
           </Tooltip>
         )}
         <Autocomplete
-          key={`${nameSource}:${current.name ?? ''}`}
+          key={nameSource}
           freeSolo
           openOnFocus
           options={unitNames}
