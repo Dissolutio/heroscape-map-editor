@@ -1,6 +1,6 @@
 # Texture inventory (`textures/`, branch `textures`)
 
-Originally generated 2026-10-27 from 57 images under `textures/`. On 2026-10-29, the Ice side source was replaced and the two tinted Shadow/SwampWater side sources were added; their file and color statistics below reflect the current 59 images. The other aggregate/pairwise analyses and [textures-inventory.json](textures-inventory.json) remain the original snapshot. The original analysis used ImageMagick 7.1.2-34 and numpy. Values are 0-255 unless marked 0-1. RMSE is per-channel RGB(A) on the 0-255 scale unless marked.
+Originally generated 2026-10-27 from 57 images under `textures/`. On 2026-10-29, the Ice side source was replaced and two Shadow/SwampWater side sources were added; those measurements reflect the then-current 59 images. Owner-supplied cap images and replacement toothed sides now bring the source tree to 62 images. The analysis below predates those assets; use [textures-plan.md](textures-plan.md) for current assignments. The aggregate/pairwise analyses and [textures-inventory.json](textures-inventory.json) remain the original snapshot. The original analysis used ImageMagick 7.1.2-34 and numpy. Values are 0-255 unless marked 0-1. RMSE is per-channel RGB(A) on the 0-255 scale unless marked.
 
 ## Can be hard-coded
 
@@ -296,11 +296,11 @@ Your expected mapping, checked against the files and against `Textures.md`. "-" 
   - AMBIGUOUS side roughness: your list gives side-water-roughness only to the sparkling fluids (so Lava would get side-roughness.bmp), but Textures.md gives Lava sidesOrmAtlas.water; side-roughness.bmp is shown here
   - side AO: only side-ao.bmp exists
 - **SwampWater**
-  - no cap diffuse image; `SwampWaterSide.png` uses the WaterSide tooth pattern tinted to the flat cap colour
+  - The current cap and toothed side diffuses postdate this inventory snapshot; see `textures-plan.md` for their assignments.
   - Textures.md swampWaterMaterial still names capsAtlas.swampWater and sidesAtlas.swampWater, which do not exist
   - roughness: Textures.md says ormAtlas.sand with the comment "textured large-sparkle lava"; the two disagree. cap-roughness.png / side-roughness.bmp shown
 - **Shadow**
-  - no cap diffuse image (Textures.md: map #000); `ShadowSide.png` uses the WaterSide tooth pattern tinted to the flat cap colour
+  - The current cap and toothed side diffuses postdate this inventory snapshot; `ShadowSide.png` is palette-indexed.
   - Textures.md: height none, normal = smooth fluid normal, AO/roughness/metalness = "fluid ORM" frame; cap-fluid-* shown, and which roughness is meant is not stated
   - Textures.md defines only a cap material for Shadow; sides unspecified
 
@@ -314,7 +314,7 @@ Your expected mapping, checked against the files and against `Textures.md`. "-" 
 - Fluids: `cap-water-roughness`, `cap-lava-roughness`, `cap-fluid-height/normal/ao`, `side-fluid-height/normal` and `side-water-roughness` all exist. Side AO for fluids is not in your list; only `side-ao.bmp` exists. Side roughness for Lava is ambiguous (see Lava). `cap-water-roughness` was made from `Water.png` and `side-water-roughness` from `WaterSide.png` (0.99 each). For ToxicWater, Wellspring and Ice they are 0.15-0.29.
 - WallWalk side: there is no WallWalk file. `RoadSide.png` is the only road-coloured side. The app already colours wallWalk the same as road (`src/world/maphex/hexColors.ts`). Whether RoadSide is *intended* is your call; nothing in `textures/` says so.
 - **Unused files** (referenced by no terrain under this mapping): none. The mapping only uses `cap-roughness.png` by assumption. If you follow Textures.md literally, `caps/Ancient.png`, `sides/AncientSide.png` and `caps/Lava.png` are unused, because it maps Ancient to sand/GroundSide and Lava to the Ice cap.
-- **Needed but missing**: Wood cap roughness; the WoodDark "associated roughness map"; a road roughness if one was meant (Textures.md `ormAtlas.road`); `capsAtlas.swampWater` / `sidesAtlas.swampWater` named by Textures.md; `/atlases/orm_atlas.png` named by Textures.md (there is no `atlases/` directory in `public/` or `textures/`). Shadow and SwampWater still have no cap diffuse images.
+- **Needed but missing**: Wood cap roughness; the WoodDark "associated roughness map"; a road roughness if one was meant (Textures.md `ormAtlas.road`); `capsAtlas.swampWater` / `sidesAtlas.swampWater` named by Textures.md; `/atlases/orm_atlas.png` named by Textures.md (there is no `atlases/` directory in `public/` or `textures/`).
 
 ### Average colours for SwampWater and Shadow
 

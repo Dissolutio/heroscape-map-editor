@@ -265,15 +265,14 @@ describe('land hex instance data', () => {
     expect(getLandHexColors(HexTerrain.swampWater, genericColors).cap).toBe(
       '#7a6c35',
     )
-    for (const [name, color] of [
-      ['Shadow', '#0f0f0d'],
-      ['SwampWater', '#7a6c35'],
-    ]) {
+    for (const name of ['Shadow', 'SwampWater']) {
       expect(terrainManifest.terrains[name]).toMatchObject({
-        capDiffuseLayer: -1,
-        capDiffusePbrLayer: -1,
+        capDiffuseLayer: expect.any(Number),
+        capDiffusePbrLayer: expect.any(Number),
         sideDiffuseLayer: expect.any(Number),
-        flatColor: color,
+        flatColor: null,
+        allowRandomRotation: true,
+        isFluid: true,
       })
     }
   })
@@ -672,7 +671,13 @@ describe('land hex side visibility', () => {
       ).toBe(0)
     }
 
-    for (const pieceID of [Pieces.water3, Pieces.lava3, Pieces.ice3]) {
+    for (const pieceID of [
+      Pieces.water3,
+      Pieces.lava3,
+      Pieces.ice3,
+      Pieces.swampWater3,
+      Pieces.shadow3,
+    ]) {
       const orientationMasks: number[][] = []
       let joinedDirections = 0
       for (let rotation = 0; rotation < 6; rotation += 1) {

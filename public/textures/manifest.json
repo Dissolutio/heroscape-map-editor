@@ -4,16 +4,16 @@
       "colorSpace": "srgb",
       "frameHeight": 256,
       "frameWidth": 256,
-      "height": 4864,
-      "layers": 19,
+      "height": 5376,
+      "layers": 21,
       "width": 256
     },
     "caps-diffuse.png": {
       "colorSpace": "srgb",
       "frameHeight": 256,
       "frameWidth": 256,
-      "height": 4864,
-      "layers": 19,
+      "height": 5376,
+      "layers": 21,
       "width": 256
     },
     "caps-normal.png": {
@@ -215,12 +215,12 @@
       "sideOrmLayer": 0
     },
     "Shadow": {
-      "allowRandomRotation": false,
-      "capDiffuseLayer": -1,
-      "capDiffusePbrLayer": -1,
+      "allowRandomRotation": true,
+      "capDiffuseLayer": 20,
+      "capDiffusePbrLayer": 20,
       "capNormalLayer": 2,
       "capOrmLayer": 5,
-      "flatColor": "#0f0f0d",
+      "flatColor": null,
       "isFluid": true,
       "sideDiffuseLayer": 17,
       "sideNormalLayer": 1,
@@ -251,16 +251,16 @@
       "sideOrmLayer": 0
     },
     "SwampWater": {
-      "allowRandomRotation": false,
-      "capDiffuseLayer": -1,
-      "capDiffusePbrLayer": -1,
+      "allowRandomRotation": true,
+      "capDiffuseLayer": 19,
+      "capDiffusePbrLayer": 19,
       "capNormalLayer": 2,
-      "capOrmLayer": 5,
-      "flatColor": "#7a6c35",
+      "capOrmLayer": 3,
+      "flatColor": null,
       "isFluid": true,
       "sideDiffuseLayer": 16,
       "sideNormalLayer": 1,
-      "sideOrmLayer": 2
+      "sideOrmLayer": 1
     },
     "ToxicLand": {
       "allowRandomRotation": true,
