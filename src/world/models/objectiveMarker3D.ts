@@ -18,6 +18,13 @@ export type ObjectiveMarker3DPosition = {
   rotationY: number
 }
 
+export type ObjectiveMarker3DTextTransform = {
+  groupPosition: [number, number, number]
+  groupRotation: [number, number, number]
+  textPosition: [number, number, number]
+  textRotation: [number, number, number]
+}
+
 export type ObjectiveMarkerTextPosition = {
   x: number
   z: number
@@ -32,6 +39,19 @@ export function getObjectiveMarker3DTextPosition(
   _position: ObjectiveMarker3DPosition,
 ): ObjectiveMarkerTextPosition {
   return { x: 0, z: 0 }
+}
+
+export function getObjectiveMarker3DTextTransform(
+  marker: ObjectiveMarker,
+  position: ObjectiveMarker3DPosition,
+): ObjectiveMarker3DTextTransform {
+  const textPosition = getObjectiveMarker3DTextPosition(marker, position)
+  return {
+    groupPosition: [position.x, position.y, position.z],
+    groupRotation: [0, position.rotationY, 0],
+    textPosition: [textPosition.x, 0.029, textPosition.z],
+    textRotation: [-Math.PI / 2, 0, 0],
+  }
 }
 
 /**

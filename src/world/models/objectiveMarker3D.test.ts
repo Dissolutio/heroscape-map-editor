@@ -15,6 +15,7 @@ import {
   DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
   getObjectiveMarker3DPosition,
   getObjectiveMarker3DTextPosition,
+  getObjectiveMarker3DTextTransform,
   getObjectiveMarkerBridgeExtents,
   getObjectiveMarkerExportTextPosition,
   getObjectiveMarkerOutlinePoints,
@@ -186,6 +187,40 @@ describe('objective marker 3D helpers', () => {
 
     expect(textPosition).toEqual({ x: 0, z: 0 })
     expect(position.rotationY).toBe((-target.rotation * Math.PI) / 3)
+  })
+
+  it('shares placed and preview text transforms across marker sizes and rotations', () => {
+    const board = makeTable(5)
+    for (const size of [1, 2] as const) {
+      for (const style of ['black', 'white'] as const) {
+        for (let rotation = 0; rotation < 6; rotation += 1) {
+          const target = marker({
+            size,
+            style,
+            rotation: rotation as ObjectiveMarker['rotation'],
+          })
+          const position = getObjectiveMarker3DPosition(
+            target,
+            board.boardHexes,
+          )
+          if (!position) throw new Error('Expected a supported marker')
+          const transform = getObjectiveMarker3DTextTransform(target, position)
+
+          expect(transform.groupPosition).toEqual([
+            position.x,
+            position.y,
+            position.z,
+          ])
+          expect(transform.groupRotation).toEqual([
+            0,
+            rotation === 0 ? 0 : (-rotation * Math.PI) / 3,
+            0,
+          ])
+          expect(transform.textPosition).toEqual([0, 0.029, 0])
+          expect(transform.textRotation).toEqual([-Math.PI / 2, 0, 0])
+        }
+      }
+    }
   })
 
   it('preserves anchor-relative export text positioning separately from 3D', () => {

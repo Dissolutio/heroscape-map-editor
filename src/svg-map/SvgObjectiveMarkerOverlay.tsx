@@ -2,6 +2,7 @@ import type { ObjectiveMarker } from '../data/objectiveMarkers'
 import {
   getObjectiveMarkerExportColors,
   getObjectiveMarkerExportGeometry,
+  getObjectiveMarkerLegendLayout,
 } from '../pdf-svg-shared/objectiveMarkerExport'
 
 const getMarkerText = (marker: ObjectiveMarker) =>
@@ -71,16 +72,19 @@ export function SvgObjectiveMarkerLegend({
 }) {
   if (!markers.length) return null
 
+  const layout = getObjectiveMarkerLegendLayout(markers, fontSize)
+  const labelX = x + layout.padding + layout.swatchWidth + fontSize * 0.75
+
   return (
     <g data-testid="objective-marker-legend">
       {markers.map((marker, index) => {
-        const geometry = getObjectiveMarkerExportGeometry(marker)
+        const geometry = layout.geometries[index]
         const colors = getObjectiveMarkerExportColors(marker)
         const rowY = y + index * rowHeight
         return (
           <g key={marker.uid}>
             <g
-              transform={`translate(${x + 10} ${rowY + rowHeight / 2}) scale(0.13) rotate(${geometry.rotationDegrees})`}
+              transform={`translate(${x + layout.padding + layout.swatchWidth / 2} ${rowY + rowHeight / 2}) scale(${layout.scales[index]})`}
             >
               <polygon
                 points={pointsToString(geometry.outerPoints)}
@@ -96,10 +100,21 @@ export function SvgObjectiveMarkerLegend({
                 stroke="#888888"
                 strokeWidth={3}
               />
+              <text
+                x={geometry.textPosition.x}
+                y={geometry.textPosition.y + geometry.textFontSize * 0.35}
+                fill={colors.foreground}
+                fontSize={geometry.textFontSize}
+                fontFamily="Inter, Arial, Helvetica, sans-serif"
+                fontWeight="bold"
+                textAnchor="middle"
+              >
+                {getMarkerText(marker)}
+              </text>
             </g>
             <text
-              x={x + 24}
-              y={rowY + fontSize}
+              x={labelX}
+              y={rowY + rowHeight / 2 + fontSize * 0.35}
               fill="#000000"
               fontSize={fontSize}
               fontFamily="Inter, Arial, Helvetica, sans-serif"

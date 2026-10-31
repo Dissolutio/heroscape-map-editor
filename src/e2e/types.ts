@@ -9,6 +9,11 @@ export type E2ESnapshot = {
   mapLength: number
   pieceCount: number
   objectiveMarkerCount: number
+  objectiveMarkerDraft: { size: 1 | 2; style: 'black' | 'white' }
+  objectiveMarkerAnchors: Array<{
+    uid: string
+    anchor: { q: number; r: number; s: number; altitude: number }
+  }>
   selectedObjectiveMarkerUID: string | null
   hexCount: number
   landInstanceCounts: { solid: number; fluid: number }

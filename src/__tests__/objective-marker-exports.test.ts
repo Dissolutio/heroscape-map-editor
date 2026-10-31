@@ -28,10 +28,14 @@ import {
   getHexagonSvgPolygonPointsAt00,
 } from '../pdf-svg-shared/hexPolygonPoints'
 import {
+  getObjectiveMarkerExportBounds,
   getObjectiveMarkerExportGeometry,
+  getObjectiveMarkerLegendGeometry,
+  getObjectiveMarkerLegendLayout,
   getPdfLegendObjectiveMarkers,
   getPdfVisibleObjectiveMarkers,
   getSvgObjectiveMarkerFooterHeight,
+  getSvgObjectiveMarkerKeyFontSize,
   getSvgVisibleObjectiveMarkers,
 } from '../pdf-svg-shared/objectiveMarkerExport'
 import {
@@ -191,6 +195,42 @@ describe('shared objective-marker export geometry', () => {
     expect(geometry.rotationDegrees).toBe(240)
   })
 
+  it('uses unrotated marker geometry and fits both shapes inside legend rows', () => {
+    const markers = [
+      marker({ name: 'Single', rotation: 3 }),
+      marker({ uid: 'double', size: 2, name: 'Double', rotation: 4 }),
+    ]
+    const layout = getObjectiveMarkerLegendLayout(markers, 12)
+
+    expect(getObjectiveMarkerLegendGeometry(markers[1]).rotationDegrees).toBe(0)
+    expect(getObjectiveMarkerLegendGeometry(markers[1]).textPosition).toEqual(
+      getObjectiveMarkerExportGeometry({
+        ...markers[1],
+        rotation: 0,
+      }).textPosition,
+    )
+    expect(layout.rowHeight).toBeGreaterThan(
+      layout.bounds[0].height * layout.scales[0],
+    )
+    expect(layout.rowHeight).toBeGreaterThan(
+      layout.bounds[1].height * layout.scales[1],
+    )
+    expect(
+      getObjectiveMarkerExportBounds(layout.geometries[1].outerPoints),
+    ).toEqual(layout.bounds[1])
+  })
+
+  it('scales the SVG footer font with map width within bounded sizes', () => {
+    const smallFontSize = getSvgObjectiveMarkerKeyFontSize(500)
+    const typicalFontSize = getSvgObjectiveMarkerKeyFontSize(1400)
+    const largeFontSize = getSvgObjectiveMarkerKeyFontSize(20000)
+
+    expect(smallFontSize).toBe(8)
+    expect(typicalFontSize).toBe(20)
+    expect(largeFontSize).toBe(0.35 * SVG_HEX_RADIUS)
+    expect(largeFontSize).toBeGreaterThanOrEqual(0.2 * SVG_HEX_RADIUS)
+  })
+
   it('applies SVG and PDF placed-level and overlay visibility rules', () => {
     const markers = [
       marker({ uid: 'lower', anchor: { q: 0, r: 0, s: 0, altitude: 1 } }),
@@ -229,6 +269,16 @@ describe('shared objective-marker export geometry', () => {
     expect(getSvgObjectiveMarkerFooterHeight(0, true, 12)).toBe(18)
     expect(getSvgObjectiveMarkerFooterHeight(1, false, 12)).toBeCloseTo(35.4)
     expect(getSvgObjectiveMarkerFooterHeight(1, true, 12)).toBeCloseTo(61.2)
+
+    const markers = [marker(), marker({ uid: 'double', size: 2 })]
+    const rowHeight = getObjectiveMarkerLegendLayout(markers, 12).rowHeight
+
+    expect(
+      getSvgObjectiveMarkerFooterHeight(2, false, 12, rowHeight),
+    ).toBeCloseTo(12 * 1.1 + rowHeight * 2 + 12 * 0.35)
+    expect(
+      getSvgObjectiveMarkerFooterHeight(2, true, 12, rowHeight),
+    ).toBeCloseTo(12 * 1.1 + rowHeight * 2 + 12 * 2.5)
   })
 })
 
@@ -297,6 +347,40 @@ describe('SVG objective-marker markup', () => {
     expect(markup).toContain('data-testid="objective-marker-legend"')
     expect(markup).toContain('>North</text>')
     expect(markup).toContain('>South</text>')
+  })
+
+  it('renders unrotated legend swatches with centered marker text at large-map size', () => {
+    const markers = [
+      marker({
+        size: 2,
+        rotation: 3,
+        content: { kind: 'text', value: 'A2' },
+        name: 'Large-map key',
+      }),
+    ]
+    const fontSize = getSvgObjectiveMarkerKeyFontSize(20000)
+    const legend = SvgObjectiveMarkerLegend({
+      markers,
+      x: 0,
+      y: 0,
+      fontSize,
+      rowHeight: getObjectiveMarkerLegendLayout(markers, fontSize).rowHeight,
+    })
+    if (!legend) throw new Error('Expected large-map legend')
+    const [row] = elementChildren(legend)
+    const [swatch] = elementChildren(row)
+    const [outer, border, outline, markerText] = elementChildren(swatch)
+
+    expect(swatch.props.transform).not.toContain('rotate')
+    expect(markerText?.props.children).toBe('A2')
+    expect(markerText?.props.fill).toBe('#ffffff')
+    expect(markerText?.props.fontSize).toBe(
+      getObjectiveMarkerLegendGeometry(markers[0]).textFontSize,
+    )
+    expect(fontSize).toBeGreaterThanOrEqual(0.2 * SVG_HEX_RADIUS)
+    expect(outer?.props.points).not.toBe(border?.props.points)
+    expect(outline?.props.points).toBe(outer?.props.points)
+    expect(outline?.props.stroke).toBe('#888888')
   })
 
   it('emits no marker or legend markup for empty inputs', () => {
@@ -394,14 +478,18 @@ describe('PDF objective-marker primitives', () => {
 
   it('uses path text for names in the PDF legend', () => {
     const font = mockFont()
+    const namedMarker = marker({ name: 'East Gate' })
+    const geometry = getObjectiveMarkerLegendGeometry(namedMarker)
+    const layout = getObjectiveMarkerLegendLayout([namedMarker], 9)
+    const nameX = 9 * 0.5 + layout.swatchWidth + 9
     const output = PdfObjectiveMarkerLegendPaths({
-      markers: [marker({ name: 'East Gate' })],
+      markers: [namedMarker],
       font,
     })
     if (!output) throw new Error('Expected PDF legend output')
     const [row] = elementChildren(output)
     const [markerGroup, label] = elementChildren(row)
-    const [outer, face, outline] = elementChildren(markerGroup)
+    const [outer, face, outline, markerText] = elementChildren(markerGroup)
 
     expect(output.type).toBe(Svg)
     expect(outer?.type).toBe(Polygon)
@@ -410,11 +498,46 @@ describe('PDF objective-marker primitives', () => {
     expect(outline?.props.stroke).toBe('#888888')
     expect(outline?.props.strokeWidth).toBe(4)
     expect(outline?.props.points).toBe(outer?.props.points)
+    expect(markerGroup.props.transform).not.toContain('rotate')
+    expect(markerText?.type).toBe(Path)
+    expect(markerText?.props.fill).toBe('#ffffff')
+    expect(markerText?.props.d).toContain('M')
     expect(label?.type).toBe(Path)
     expect(label?.props.d).toContain('M')
-    expect(font.getPath).toHaveBeenCalledWith('East Gate', 42, 9, 9, {
-      kerning: true,
+    expect(font.getPath).toHaveBeenCalledWith(
+      'East Gate',
+      nameX,
+      layout.rowHeight / 2 + 9 * 0.35,
+      9,
+      { kerning: true },
+    )
+    expect(font.getPath).toHaveBeenCalledWith(
+      '1',
+      geometry.textPosition.x -
+        font.getAdvanceWidth('1', geometry.textFontSize) / 2,
+      geometry.textPosition.y + geometry.textFontSize * 0.35,
+      geometry.textFontSize,
+      { kerning: true },
+    )
+  })
+
+  it('keeps a two-row PDF legend within letter-page dimensions', () => {
+    const output = PdfObjectiveMarkerLegendPaths({
+      markers: [
+        marker({ name: 'Bilco Biggunz' }),
+        marker({
+          uid: 'double',
+          size: 2,
+          style: 'white',
+          name: 'Raelin the Kyrie Warrior (AoA)',
+        }),
+      ],
+      font: mockFont(),
     })
+    if (!output) throw new Error('Expected PDF legend output')
+
+    expect(Number(output.props.width)).toBeLessThan(612)
+    expect(Number(output.props.height)).toBeLessThan(792)
   })
 
   it('returns no PDF primitives for an empty marker list', () => {

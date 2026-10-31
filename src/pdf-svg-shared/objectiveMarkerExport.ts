@@ -24,6 +24,15 @@ import {
 
 export type ObjectiveMarkerExportPoint = { x: number; y: number }
 
+export type ObjectiveMarkerExportBounds = {
+  minX: number
+  maxX: number
+  minY: number
+  maxY: number
+  width: number
+  height: number
+}
+
 export type ObjectiveMarkerExportGeometry = {
   center: ObjectiveMarkerExportPoint
   rotationDegrees: number
@@ -32,6 +41,26 @@ export type ObjectiveMarkerExportGeometry = {
   svgBorderPoints: ObjectiveMarkerExportPoint[]
   textPosition: ObjectiveMarkerExportPoint
   textFontSize: number
+}
+
+export function getObjectiveMarkerExportBounds(
+  points: ObjectiveMarkerExportPoint[],
+): ObjectiveMarkerExportBounds {
+  const xs = points.map(({ x }) => x)
+  const ys = points.map(({ y }) => y)
+  const minX = Math.min(...xs)
+  const maxX = Math.max(...xs)
+  const minY = Math.min(...ys)
+  const maxY = Math.max(...ys)
+
+  return {
+    minX,
+    maxX,
+    minY,
+    maxY,
+    width: maxX - minX,
+    height: maxY - minY,
+  }
 }
 
 export function getObjectiveMarkerExportGeometry(
@@ -97,6 +126,37 @@ export function getObjectiveMarkerExportGeometry(
   }
 }
 
+export function getObjectiveMarkerLegendGeometry(
+  marker: ObjectiveMarker,
+): ObjectiveMarkerExportGeometry {
+  return getObjectiveMarkerExportGeometry({ ...marker, rotation: 0 })
+}
+
+export function getObjectiveMarkerLegendLayout(
+  markers: ObjectiveMarker[],
+  fontSize: number,
+) {
+  const geometries = markers.map(getObjectiveMarkerLegendGeometry)
+  const bounds = geometries.map((geometry) =>
+    getObjectiveMarkerExportBounds(geometry.outerPoints),
+  )
+  const scales = geometries.map((geometry) => fontSize / geometry.textFontSize)
+  const padding = fontSize * 0.3
+  const swatchWidth = Math.max(
+    0,
+    ...bounds.map((bound, index) => bound.width * scales[index]),
+  )
+  const rowHeight =
+    Math.max(0, ...bounds.map((bound, index) => bound.height * scales[index])) +
+    padding * 2
+
+  return { geometries, bounds, scales, padding, swatchWidth, rowHeight }
+}
+
+export function getSvgObjectiveMarkerKeyFontSize(viewBoxWidth: number) {
+  return Math.max(8, Math.min(0.35 * SVG_HEX_RADIUS, viewBoxWidth / 70))
+}
+
 export function getObjectiveMarkerExportColors(marker: ObjectiveMarker) {
   return marker.style === 'black'
     ? { face: '#111111', foreground: '#ffffff' }
@@ -139,10 +199,11 @@ export function getSvgObjectiveMarkerFooterHeight(
   namedMarkerCount: number,
   hasBuriedMarks: boolean,
   fontSize: number,
+  rowHeight = fontSize * 1.5,
 ) {
   if (namedMarkerCount === 0) return hasBuriedMarks ? fontSize * 1.5 : 0
 
-  const legendHeight = namedMarkerCount * fontSize * 1.5
+  const legendHeight = namedMarkerCount * rowHeight
   return (
     fontSize * 1.1 + legendHeight + fontSize * (hasBuriedMarks ? 2.5 : 0.35)
   )

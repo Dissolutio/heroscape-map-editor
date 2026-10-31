@@ -4,6 +4,7 @@ import type { ObjectiveMarker } from '../data/objectiveMarkers'
 import {
   getObjectiveMarkerExportColors,
   getObjectiveMarkerExportGeometry,
+  getObjectiveMarkerLegendLayout,
 } from '../pdf-svg-shared/objectiveMarkerExport'
 import { type OpenTypeFont, getInterFont } from '../svg-map/exportSvg'
 
@@ -115,8 +116,10 @@ export function PdfObjectiveMarkerLegendPaths({
   if (!markers.length) return null
 
   const fontSize = 9
-  const rowHeight = 18
-  const nameX = 42
+  const layout = getObjectiveMarkerLegendLayout(markers, fontSize)
+  const rowHeight = layout.rowHeight
+  const leftPadding = fontSize * 0.5
+  const nameX = leftPadding + layout.swatchWidth + fontSize
   const width = Math.max(
     120,
     ...markers.map((marker) => nameX + (marker.name?.length ?? 0) * fontSize),
@@ -126,20 +129,40 @@ export function PdfObjectiveMarkerLegendPaths({
   return (
     <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
       {markers.map((marker, index) => {
-        const geometry = getObjectiveMarkerExportGeometry(marker)
+        const geometry = layout.geometries[index]
         const colors = getObjectiveMarkerExportColors(marker)
         const rowY = index * rowHeight
-        const textPath = font
+        const markerText = getMarkerText(marker)
+        const markerTextPath = font
           ? font
-              .getPath(marker.name ?? '', nameX, rowY + fontSize, fontSize, {
-                kerning: true,
-              })
+              .getPath(
+                markerText,
+                geometry.textPosition.x -
+                  font.getAdvanceWidth(markerText, geometry.textFontSize, {
+                    kerning: true,
+                  }) /
+                    2,
+                geometry.textPosition.y + geometry.textFontSize * 0.35,
+                geometry.textFontSize,
+                { kerning: true },
+              )
+              .toPathData(3)
+          : null
+        const namePath = font
+          ? font
+              .getPath(
+                marker.name ?? '',
+                nameX,
+                rowY + rowHeight / 2 + fontSize * 0.35,
+                fontSize,
+                { kerning: true },
+              )
               .toPathData(3)
           : null
         return (
           <G key={marker.uid}>
             <G
-              transform={`translate(18 ${rowY + rowHeight / 2}) scale(0.1) rotate(${geometry.rotationDegrees})`}
+              transform={`translate(${leftPadding + layout.swatchWidth / 2} ${rowY + rowHeight / 2}) scale(${layout.scales[index]})`}
             >
               <Polygon
                 points={pointsToString(geometry.outerPoints)}
@@ -155,8 +178,11 @@ export function PdfObjectiveMarkerLegendPaths({
                 stroke="#888888"
                 strokeWidth={4}
               />
+              {markerTextPath && (
+                <Path d={markerTextPath} fill={colors.foreground} />
+              )}
             </G>
-            {textPath && <Path d={textPath} fill="#000000" />}
+            {namePath && <Path d={namePath} fill="#000000" />}
           </G>
         )
       })}

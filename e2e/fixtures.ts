@@ -43,6 +43,7 @@ export const OBJECTIVE_MARKERS_FIXTURE_HEX_MAP = {
       rotation: 2,
       style: 'white',
       content: { kind: 'text', value: 'A2' },
+      name: 'Elite',
     },
   ],
 }

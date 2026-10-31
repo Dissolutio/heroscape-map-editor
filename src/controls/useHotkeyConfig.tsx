@@ -92,7 +92,7 @@ export const defaultHotkeyConfig = {
   'shift+l': 'togglePenModeLava',
   'alt+l': undefined,
   m: 'togglePenModeObjectiveMarker',
-  'shift+m': undefined,
+  'shift+m': 'togglePenModeObjectiveMarkerWhite',
   'alt+m': undefined,
   n: 'togglePenModeAncientTerrain',
   'shift+n': undefined,

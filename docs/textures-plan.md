@@ -14,7 +14,17 @@ Replace per-piece subterrain GLBs + caps with per-hex instanced cells (cap + sid
 3. High: lights + shadows with full PBR (normal, AO, roughness, height) and the PBR alternate diffuses (AncientDark, WoodDark).
 The old "High-Quality mode" is going away.
 
-Size: ~9.1 MiB GPU with mips for everything, small enough for plain PNG/WebP, lazy-loaded when a tier above Lowest is chosen.
+Packed strips contain 21 cap-diffuse layers, up from 19. Estimated RGBA8 GPU
+memory includes the complete mip chains for each selected array:
+
+| Tier | Arrays / layers | Estimated GPU memory |
+|---|---:|---:|
+| Lowest | none | 0 MiB |
+| Medium | 2 / 39 | 7.38 MiB |
+| High | 7 / 74 | 17.48 MiB |
+
+High includes both diffuse cap arrays. Driver allocation and mipmap padding may
+vary.
 
 ## Decisions
 - Caps are 256x256, sides 128x32 (one face, exactly one level tall; sides stack and V repeats once per level).
@@ -25,7 +35,6 @@ Size: ~9.1 MiB GPU with mips for everything, small enough for plain PNG/WebP, la
 - Normal maps ship OpenGL (green up). Flip green for cap-road-normal, side-solid-normal, side-fluid-normal (DirectX). cap-sand-normal is already OpenGL.
 - Flat source maps are baked as constants: fluid AO 1.0, fluid height 0.5, fluid normal neutral (128,128,255), solid cap roughness 0.2902 (#4a4a4a), side roughness 0.2824 (#484848), metalness 0 everywhere (cap-metallic's 50 stray pixels are ignored).
 - Wood uses `cap-wood-roughness.png`.
-- SwampWater and Shadow have no images: hard-coded colors (#7a6c35 and #0f0f0d, the current app colors).
 - Side-image repairs at pack time: stacked levels must not show a bright repeating top row, and the left/right edge must match so hex corners don't show a seam.
 
 ## Terrain table
@@ -50,13 +59,15 @@ Size: ~9.1 MiB GPU with mips for everything, small enough for plain PNG/WebP, la
 | WellspringWater | WellspringWater | WellspringSide | fluid + water sparkle |
 | Ice | Ice | IceSide | fluid + water sparkle |
 | Lava | Lava | LavaSide | fluid + cap-lava-roughness; side roughness constant |
-| SwampWater | hard-coded color | hard-coded color | fluid, constants only |
-| Shadow | hard-coded color | hard-coded color | fluid, constants only |
+| SwampWater | SwampWater | SwampWaterSide | fluid-water |
+| Shadow | Shadow | ShadowSide | fluid-flat |
 
 Templates:
 - sand: cap-sand-height/normal/ao; side-solid-height/normal, side-ao.
 - road: cap-road-height/normal, cap-road_ao; same side set as sand.
-- fluid: constants only, plus the roughness sparkle maps (cap-water-roughness, side-water-roughness, cap-lava-roughness).
+- fluid-water: constants plus cap/side water roughness maps.
+- fluid-lava: constants plus cap-lava-roughness; side roughness is constant.
+- fluid-flat: constant AO, roughness, metalness, and height.
 
 ## Rendering plan
 - Two instanced meshes (caps, sides). Sides carry a 6-bit visibility mask; hidden quads collapse in the vertex shader. A side is hidden when the neighbor at that level is solid land (see `src/data/interlock-templates.ts`).

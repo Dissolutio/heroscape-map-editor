@@ -1,7 +1,9 @@
 import {
   Box,
   Button,
+  Checkbox,
   CircularProgress,
+  Collapse,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -26,6 +28,7 @@ import {
   FcSynchronize,
   FcUnlock,
 } from 'react-icons/fc'
+import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 import type { Group, Object3DEventMap } from 'three'
 import useEvent from '../hooks/useEvent'
 import useBoundStore from '../store/store'
@@ -43,6 +46,11 @@ import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
 import { getViewMode } from './viewMode'
 import { captureWithOptionalHighQuality } from '../world/camera/pictureQuality'
+import {
+  resolvePictureCaptureOptions,
+  type PictureCaptureOptions,
+} from '../world/camera/pictureCaptureOptions'
+import { isLookSettingsAvailable } from '../layout/lookSettingsVisibility'
 
 const GENERIC_PIECE_COLORS_TOOLTIP =
   'Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D.'
@@ -52,6 +60,19 @@ const TRANSPARENT_GLYPHS_TOOLTIP =
   'Show glyph spaces transparently in SVG and PDF, preserving outlines and symbols.'
 const HIDE_GLYPH_HEIGHTS_TOOLTIP =
   'Hide hex heights at glyph spaces in SVG and PDF.'
+const PICTURE_CAPTURE_TOOLTIP_COPY = {
+  defaults:
+    'These saved options are used when you choose Take picture. Other picture actions apply their option only to that capture.',
+  take: 'Takes a picture using your saved background and graphics options.',
+  transparent:
+    'Takes one picture with no background, without changing your saved preference.',
+  highQuality:
+    'Takes one picture with High Quality graphics, then restores your previous graphics and lighting settings.',
+  transparentAndHighQuality:
+    'Takes one picture with a transparent background and High Quality graphics, then restores your saved options and previous graphics settings.',
+  highUnavailable:
+    'High Quality textures are loading or unavailable. Try again when texture loading has finished.',
+} as const
 
 export default function ViewControlsTab({
   cameraControlsRef,
@@ -64,15 +85,30 @@ export default function ViewControlsTab({
   const { enqueueSnackbar } = useSnackbar()
   const { publish } = useEvent()
   const resetSettings = useBoundStore((s) => s.resetSettings)
-  const setIsLookSettingsDialogOpen = useBoundStore(
-    (s) => s.setIsLookSettingsDialogOpen,
-  )
   const isCamerDisabled = useBoundStore((s) => s.isCameraDisabled)
   const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
   const toggleIsOrthoCam = useBoundStore((s) => s.toggleIsOrthoCam)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const toggleIsTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const setPictureCaptureOptions = useBoundStore(
+    (s) => s.setPictureCaptureOptions,
+  )
+  const lookSettings = useBoundStore((s) => s.lookSettings)
+  const setLookSettings = useBoundStore((s) => s.setLookSettings)
+  const useHighQualityForPicture = useBoundStore(
+    (s) => s.useHighQualityForPicture,
+  )
+  const toggleUseHighQualityForPicture = useBoundStore(
+    (s) => s.toggleUseHighQualityForPicture,
+  )
+  const textureLoadStatus = useBoundStore((s) => s.textureLoadStatus)
+  const isHighQualityCaptureUnavailable =
+    textureLoadStatus === 'loading' ||
+    textureLoadStatus === 'fallback' ||
+    textureLoadStatus === 'error'
+  const [isTakingPictureOptionsOpen, setIsTakingPictureOptionsOpen] =
+    React.useState(false)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const { hotkeyLookup } = useHotkeyConfig()
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
@@ -102,12 +138,19 @@ export default function ViewControlsTab({
     if (!isTakingPicture) {
       clearTimeout(takePictureTimeout.current)
       takePictureTimeout.current = undefined
+      setPictureCaptureOptions(null)
     } else if (!is3DOpen) {
       clearTimeout(takePictureTimeout.current)
       takePictureTimeout.current = undefined
       toggleIsTakingPicture(false)
+      setPictureCaptureOptions(null)
     }
-  }, [is3DOpen, isTakingPicture, toggleIsTakingPicture])
+  }, [
+    is3DOpen,
+    isTakingPicture,
+    setPictureCaptureOptions,
+    toggleIsTakingPicture,
+  ])
 
   React.useEffect(
     () => () => {
@@ -115,9 +158,10 @@ export default function ViewControlsTab({
         clearTimeout(takePictureTimeout.current)
         takePictureTimeout.current = undefined
         toggleIsTakingPicture(false)
+        setPictureCaptureOptions(null)
       }
     },
-    [toggleIsTakingPicture],
+    [setPictureCaptureOptions, toggleIsTakingPicture],
   )
 
   const id1 = 'camera-unlock-icon'
@@ -132,13 +176,25 @@ export default function ViewControlsTab({
     resetSettings()
     enqueueSnackbar('Settings reset to defaults', { variant: 'success' })
   }
-  const handleTakeAMapPicture = () => {
+  const handleTakeAMapPicture = (
+    overrides: Partial<PictureCaptureOptions> = {},
+  ) => {
+    if (useBoundStore.getState().isTakingPicture) return
+    const current = useBoundStore.getState()
+    const captureOptions = resolvePictureCaptureOptions(
+      {
+        transparentBackground:
+          current.lookSettings.transparentPictureBackground,
+        highQuality: current.useHighQualityForPicture,
+      },
+      overrides,
+    )
+    setPictureCaptureOptions(captureOptions)
     toggleIsTakingPicture(true)
     takePictureTimeout.current = window.setTimeout(() => {
       takePictureTimeout.current = undefined
-      const store = useBoundStore.getState()
       void captureWithOptionalHighQuality({
-        enabled: store.useHighQualityForPicture,
+        enabled: captureOptions.highQuality,
         getSettings: () => {
           const current = useBoundStore.getState()
           return {
@@ -178,7 +234,10 @@ export default function ViewControlsTab({
           })
           console.error(error)
         })
-        .finally(() => toggleIsTakingPicture(false))
+        .finally(() => {
+          toggleIsTakingPicture(false)
+          setPictureCaptureOptions(null)
+        })
     }, 100)
   }
   return (
@@ -194,12 +253,6 @@ export default function ViewControlsTab({
       >
         {is3DOpen && (
           <List>
-            <ControlTabsListItemButton
-              title="Adjust scene lighting, tone mapping, shine, and colors"
-              primary="3D look..."
-              onClick={() => setIsLookSettingsDialogOpen(true)}
-              icon={<FcSettings />}
-            />
             {/* Center map in camera view */}
             <ControlTabsListItemButton
               title="Center the camera on entire map"
@@ -257,11 +310,132 @@ export default function ViewControlsTab({
 
             {/* Take map picture */}
             <ControlTabsListItemButton
-              title={'Take map picture'}
+              title="Open picture capture options"
               primary="Take map picture"
-              onClick={handleTakeAMapPicture}
+              onClick={() =>
+                setIsTakingPictureOptionsOpen(!isTakingPictureOptionsOpen)
+              }
               icon={<FcOldTimeCamera />}
+              endIcon={
+                isTakingPictureOptionsOpen ? <MdExpandLess /> : <MdExpandMore />
+              }
             />
+            <Collapse in={isTakingPictureOptionsOpen} timeout="auto">
+              <List component="div">
+                <Box sx={{ px: 2, py: 0.5 }}>
+                  <Tooltip
+                    title={PICTURE_CAPTURE_TOOLTIP_COPY.defaults}
+                    describeChild
+                  >
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          size="small"
+                          checked={lookSettings.transparentPictureBackground}
+                          disabled={isTakingPicture}
+                          onChange={(event) =>
+                            setLookSettings({
+                              transparentPictureBackground:
+                                event.target.checked,
+                            })
+                          }
+                        />
+                      }
+                      label="Transparent background by default"
+                    />
+                  </Tooltip>
+                  <Tooltip
+                    title={
+                      isHighQualityCaptureUnavailable
+                        ? PICTURE_CAPTURE_TOOLTIP_COPY.highUnavailable
+                        : PICTURE_CAPTURE_TOOLTIP_COPY.defaults
+                    }
+                    describeChild
+                  >
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          size="small"
+                          checked={useHighQualityForPicture}
+                          disabled={
+                            isTakingPicture || isHighQualityCaptureUnavailable
+                          }
+                          onChange={(event) =>
+                            toggleUseHighQualityForPicture(event.target.checked)
+                          }
+                        />
+                      }
+                      label="High Quality graphics by default"
+                    />
+                  </Tooltip>
+                </Box>
+                <ControlTabsListItemButton
+                  title={PICTURE_CAPTURE_TOOLTIP_COPY.take}
+                  primary="Take picture"
+                  onClick={() => handleTakeAMapPicture()}
+                  icon={<FcOldTimeCamera />}
+                  disabled={isTakingPicture}
+                />
+                <ControlTabsListItemButton
+                  title={PICTURE_CAPTURE_TOOLTIP_COPY.transparent}
+                  primary="With transparent background"
+                  onClick={() =>
+                    handleTakeAMapPicture({ transparentBackground: true })
+                  }
+                  icon={<FcOldTimeCamera />}
+                  disabled={isTakingPicture}
+                />
+                <Tooltip
+                  title={
+                    isHighQualityCaptureUnavailable
+                      ? PICTURE_CAPTURE_TOOLTIP_COPY.highUnavailable
+                      : PICTURE_CAPTURE_TOOLTIP_COPY.highQuality
+                  }
+                  describeChild
+                >
+                  <Box component="span" sx={{ display: 'block' }}>
+                    <ControlTabsListItemButton
+                      title={PICTURE_CAPTURE_TOOLTIP_COPY.highQuality}
+                      primary="With High Quality graphics"
+                      onClick={() =>
+                        handleTakeAMapPicture({ highQuality: true })
+                      }
+                      icon={<FcOldTimeCamera />}
+                      disabled={
+                        isTakingPicture || isHighQualityCaptureUnavailable
+                      }
+                    />
+                  </Box>
+                </Tooltip>
+                <Tooltip
+                  title={
+                    isHighQualityCaptureUnavailable
+                      ? PICTURE_CAPTURE_TOOLTIP_COPY.highUnavailable
+                      : PICTURE_CAPTURE_TOOLTIP_COPY.transparentAndHighQuality
+                  }
+                  describeChild
+                >
+                  <Box component="span" sx={{ display: 'block' }}>
+                    <ControlTabsListItemButton
+                      title={
+                        PICTURE_CAPTURE_TOOLTIP_COPY.transparentAndHighQuality
+                      }
+                      primary="With transparent background and High Quality graphics"
+                      onClick={() =>
+                        handleTakeAMapPicture({
+                          transparentBackground: true,
+                          highQuality: true,
+                        })
+                      }
+                      icon={<FcOldTimeCamera />}
+                      disabled={
+                        isTakingPicture || isHighQualityCaptureUnavailable
+                      }
+                    />
+                  </Box>
+                </Tooltip>
+              </List>
+            </Collapse>
           </List>
         )}
       </div>
@@ -401,12 +575,14 @@ const GenericTerrainColorsForm = () => {
 
 const ViewPreferencesSwitchForm = () => {
   const graphicsTier = useBoundStore((s) => s.graphicsTier)
+  const effectiveGraphicsTier = useBoundStore((s) => s.effectiveGraphicsTier)
   const setGraphicsTier = useBoundStore((s) => s.setGraphicsTier)
-  const useHighQualityForPicture = useBoundStore(
-    (s) => s.useHighQualityForPicture,
+  const setIsLookSettingsDialogOpen = useBoundStore(
+    (s) => s.setIsLookSettingsDialogOpen,
   )
-  const toggleUseHighQualityForPicture = useBoundStore(
-    (s) => s.toggleUseHighQualityForPicture,
+  const showLookSettings = isLookSettingsAvailable(
+    graphicsTier,
+    effectiveGraphicsTier,
   )
   const textureLoadStatus = useBoundStore((s) => s.textureLoadStatus)
   const textureLoadProgress = useBoundStore((s) => s.textureLoadProgress)
@@ -513,6 +689,16 @@ const ViewPreferencesSwitchForm = () => {
               <MenuItem value="high">High (PBR textures)</MenuItem>
             </Select>
           </FormControl>
+          {showLookSettings && (
+            <Button
+              onClick={() => setIsLookSettingsDialogOpen(true)}
+              size="small"
+              startIcon={<FcSettings />}
+              title="Adjust scene lighting, tone mapping, shine, and colors"
+            >
+              3D look...
+            </Button>
+          )}
           {textureLoadStatus === 'loading' && (
             <Box
               aria-live="polite"
@@ -544,18 +730,6 @@ const ViewPreferencesSwitchForm = () => {
               High PBR unavailable; using Medium textures
             </span>
           )}
-          <FormControlLabel
-            control={
-              <Switch
-                size="small"
-                checked={useHighQualityForPicture}
-                onChange={(event) =>
-                  toggleUseHighQualityForPicture(event.target.checked)
-                }
-              />
-            }
-            label="Use High quality when taking a map picture"
-          />
         </Box>
         <FormControlLabel
           control={

@@ -9,11 +9,12 @@ import {
   FormControlLabel,
   FormHelperText,
   TextField,
+  Tooltip,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
 } from '@mui/material'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { mapTableHexes } from '../data/fitMapToPieces'
 import {
   getObjectiveMarkerNameSuggestions,
@@ -30,6 +31,7 @@ import {
   normalizeObjectiveMarkerName,
 } from '../data/objectiveMarkers'
 import useBoundStore from '../store/store'
+import { useHotkeyConfig } from './useHotkeyConfig'
 
 const EMPTY_MARKERS: ObjectiveMarker[] = []
 
@@ -48,16 +50,24 @@ export default function ObjectiveMarkerControls({
   const updateDraft = useBoundStore((state) => state.updateObjectiveMarkerDraft)
   const updateMarker = useBoundStore((state) => state.updateObjectiveMarker)
   const removeMarker = useBoundStore((state) => state.removeObjectiveMarker)
+  const { hotkeyLookup } = useHotkeyConfig()
   const tableHexIDs = useMemo(() => mapTableHexes(hexMap), [hexMap])
-  const [contentValue, setContentValue] = useState('')
-  const [contentError, setContentError] = useState('')
-  const [placementError, setPlacementError] = useState('')
+  const [contentInput, setContentInput] = useState({
+    source: '',
+    value: '',
+    error: '',
+  })
+  const [placementErrorState, setPlacementErrorState] = useState({
+    source: '',
+    value: '',
+  })
   const [nameInput, setNameInput] = useState(() => ({
     source: marker?.uid ?? 'draft',
     value: marker?.name ?? draft.name ?? '',
   }))
   const [unitNames, setUnitNames] = useState<string[]>([])
   const current: ObjectiveMarkerDraft | ObjectiveMarker = marker ?? draft
+  const nameIdentity = marker?.uid ?? 'draft'
   const content =
     !marker && draft.content.kind === 'number' && !draft.pinNumber
       ? {
@@ -69,31 +79,27 @@ export default function ObjectiveMarkerControls({
           ),
         }
       : current.content
-  const nameSource = marker?.uid ?? 'draft'
+  const nameSource = `${nameIdentity}:${current.name ?? ''}`
+  const contentSource = `${nameSource}:${content.kind}:${content.value}`
+  const contentValue =
+    contentInput.source === contentSource
+      ? contentInput.value
+      : String(content.value)
+  const contentError =
+    contentInput.source === contentSource ? contentInput.error : ''
+  const placementError =
+    placementErrorState.source === nameSource ? placementErrorState.value : ''
   const nameValue =
     nameInput.source === nameSource ? nameInput.value : (current.name ?? '')
-
-  useEffect(() => {
-    setContentValue(String(content.value))
-    setContentError('')
-  }, [content.value])
-
-  useEffect(() => {
-    const value = current.name ?? ''
-    setNameInput((previous) =>
-      previous.source === nameSource && previous.value === value
-        ? previous
-        : { source: nameSource, value },
-    )
-  }, [current.name, nameSource])
 
   const saveName = (value: string) => {
     const name = normalizeObjectiveMarkerName(value)
     const normalizedValue = name ?? ''
+    const nextNameSource = `${nameIdentity}:${normalizedValue}`
     setNameInput((previous) =>
-      previous.source === nameSource && previous.value === normalizedValue
+      previous.source === nextNameSource && previous.value === normalizedValue
         ? previous
-        : { source: nameSource, value: normalizedValue },
+        : { source: nextNameSource, value: normalizedValue },
     )
     if (name === current.name) return
     if (marker) updateMarker(marker.uid, { name })
@@ -121,45 +127,48 @@ export default function ObjectiveMarkerControls({
       markers,
     })
     if (placement.status !== 'ok') {
-      setPlacementError(
-        placement.reason === 'overlap'
-          ? 'This marker would overlap another marker.'
-          : 'Every marker hex must remain on a supported map cap.',
-      )
+      setPlacementErrorState({
+        source: nameSource,
+        value:
+          placement.reason === 'overlap'
+            ? 'This marker would overlap another marker.'
+            : 'Every marker hex must remain on a supported map cap.',
+      })
       return
     }
-    setPlacementError('')
+    setPlacementErrorState({ source: nameSource, value: '' })
     updateMarker(marker.uid, updates)
   }
 
   const saveContent = (nextContent: ObjectiveMarkerContent) => {
     const error = getObjectiveMarkerContentError(nextContent)
     if (error) {
-      setContentError(error)
+      setContentInput({
+        source: contentSource,
+        value: String(nextContent.value),
+        error,
+      })
       return
     }
-    setContentError('')
-    setPlacementError('')
+    setContentInput({
+      source: contentSource,
+      value: String(nextContent.value),
+      error: '',
+    })
+    setPlacementErrorState({ source: nameSource, value: '' })
     if (marker) updateMarker(marker.uid, { content: nextContent })
     else updateDraft({ content: nextContent })
-    setContentValue(
-      String(
-        !marker && nextContent.kind === 'number' && !draft.pinNumber
-          ? getEffectiveObjectiveMarkerNumber(
-              markers,
-              draft.style,
-              nextContent.value,
-            )
-          : nextContent.value,
-      ),
-    )
   }
 
   const handleContentChange = (value: string) => {
-    setContentValue(value)
+    setContentInput({ source: contentSource, value, error: '' })
     if (content.kind === 'number') {
       if (!/^\d+$/u.test(value)) {
-        setContentError('Enter a whole number from 1 to 99.')
+        setContentInput({
+          source: contentSource,
+          value,
+          error: 'Enter a whole number from 1 to 99.',
+        })
         return
       }
       saveContent({ kind: 'number', value: Number(value) })
@@ -174,14 +183,18 @@ export default function ObjectiveMarkerControls({
       kind === 'number'
         ? { kind: 'number', value: 1 }
         : { kind: 'text', value: String(content.value) }
-    setContentValue(String(nextContent.value))
+    setContentInput({
+      source: contentSource,
+      value: String(nextContent.value),
+      error: '',
+    })
     saveContent(nextContent)
   }
 
   const updateSimpleField = (
     updates: Pick<Partial<ObjectiveMarker>, 'style'>,
   ) => {
-    setPlacementError('')
+    setPlacementErrorState({ source: nameSource, value: '' })
     if (marker) updateMarker(marker.uid, updates)
     else updateDraft(updates as Partial<ObjectiveMarkerDraft>)
   }
@@ -210,10 +223,6 @@ export default function ObjectiveMarkerControls({
             <Typography sx={{ fontSize: 11 }}>
               Style: {marker.style === 'black' ? 'Black' : 'White'}
             </Typography>
-            <Typography sx={{ fontSize: 11 }}>
-              Location: q {marker.anchor.q}, r {marker.anchor.r}, level{' '}
-              {marker.anchor.altitude}
-            </Typography>
             <Typography sx={{ fontSize: 11, mt: 0.5 }}>
               Drag the marker to move it. Selecting a marker switches to Select
               mode.
@@ -231,10 +240,18 @@ export default function ObjectiveMarkerControls({
               if (value) updatePlacementField({ size: Number(value) as 1 | 2 })
             }}
           >
-            <ToggleButton value="1" aria-label="1-hex marker">
+            <ToggleButton
+              value="1"
+              aria-label="1-hex marker"
+              title={`Hotkey: ${hotkeyLookup.togglePieceSize1}`}
+            >
               1 hex
             </ToggleButton>
-            <ToggleButton value="2" aria-label="2-hex marker">
+            <ToggleButton
+              value="2"
+              aria-label="2-hex marker"
+              title={`Hotkey: ${hotkeyLookup.togglePieceSize2}`}
+            >
               2 hexes
             </ToggleButton>
           </ToggleButtonGroup>
@@ -250,8 +267,18 @@ export default function ObjectiveMarkerControls({
               if (value) updateSimpleField({ style: value })
             }}
           >
-            <ToggleButton value="black">Black</ToggleButton>
-            <ToggleButton value="white">White</ToggleButton>
+            <ToggleButton
+              value="black"
+              title={`Hotkey: ${hotkeyLookup.togglePenModeObjectiveMarker}`}
+            >
+              Black
+            </ToggleButton>
+            <ToggleButton
+              value="white"
+              title={`Hotkey: ${hotkeyLookup.togglePenModeObjectiveMarkerWhite}`}
+            >
+              White
+            </ToggleButton>
           </ToggleButtonGroup>
         </Box>
         <FormControl error={Boolean(contentError)} fullWidth sx={{ mb: 1 }}>
@@ -291,21 +318,47 @@ export default function ObjectiveMarkerControls({
           {contentError && <FormHelperText>{contentError}</FormHelperText>}
         </FormControl>
         {!isEditing && content.kind === 'number' && (
-          <FormControlLabel
-            control={
-              <Checkbox
-                size="small"
-                checked={draft.pinNumber}
-                onChange={(event) =>
-                  updateDraft({ pinNumber: event.target.checked })
-                }
-              />
-            }
-            label="Pin number"
-          />
+          <Tooltip title="Keep this number for every marker you place, instead of counting up.">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  size="small"
+                  checked={draft.pinNumber}
+                  inputProps={{ 'aria-label': 'Pin value' }}
+                  onChange={(event) =>
+                    updateDraft({ pinNumber: event.target.checked })
+                  }
+                />
+              }
+              label={
+                <Box
+                  component="span"
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                  }}
+                >
+                  <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    width="16"
+                    height="16"
+                    focusable="false"
+                  >
+                    <path
+                      d="M16 3 21 8l-3 1-4 4v5l-2 2-2-2v-5L6 9 3 8l5-5 1 3 4 4 4-4z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  Pin value
+                </Box>
+              }
+            />
+          </Tooltip>
         )}
         <Autocomplete
-          key={`${nameSource}:${current.name ?? ''}`}
+          key={nameSource}
           freeSolo
           openOnFocus
           options={unitNames}
