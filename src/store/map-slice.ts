@@ -6,6 +6,7 @@ import { addPiece } from '../data/addPiece'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
+import { getPieceEdgeId } from '../data/hexGrid/pieceFeatures'
 import { type MovePieceArgs, applyPieceMoves } from '../data/movePieces'
 import {
   type NewObjectiveMarker,
@@ -23,7 +24,7 @@ import {
   filterVisiblePieceIDs,
   isStartZoneBoardPiece,
 } from '../data/startZoneVisibility'
-import { HexTerrain } from '../types'
+import { HexTerrain, Pieces } from '../types'
 import type {
   AddRemovePieceError,
   CubeCoordinate,
@@ -381,13 +382,35 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         const boardPiece = state.boardPieces.find(
           (piece) => piece.uid === move.uid,
         )
-        return (
-          boardPiece !== undefined &&
-          (boardPiece.pieceCoords.q !== move.newPieceCoords.q ||
+        if (!boardPiece) return false
+        const isMigratedEdgePiece =
+          boardPiece.inventoryID === Pieces.battlement ||
+          boardPiece.inventoryID === Pieces.roadWall ||
+          boardPiece.inventoryID === Pieces.ropeLadder
+        const edgeId = isMigratedEdgePiece ? getPieceEdgeId(boardPiece) : null
+        if (edgeId) {
+          const targetEdgeId =
+            move.newEdgeId ??
+            getPieceEdgeId({
+              inventoryID: boardPiece.inventoryID,
+              pieceCoords: move.newPieceCoords,
+              rotation: move.newRotation ?? boardPiece.rotation,
+            })
+          return (
+            edgeId !== targetEdgeId ||
+            boardPiece.pieceCoords.q !== move.newPieceCoords.q ||
             boardPiece.pieceCoords.r !== move.newPieceCoords.r ||
             boardPiece.pieceCoords.s !== move.newPieceCoords.s ||
             boardPiece.altitude !== (move.newAltitude ?? boardPiece.altitude) ||
-            boardPiece.rotation !== (move.newRotation ?? boardPiece.rotation))
+            boardPiece.rotation !== (move.newRotation ?? boardPiece.rotation)
+          )
+        }
+        return (
+          boardPiece.pieceCoords.q !== move.newPieceCoords.q ||
+          boardPiece.pieceCoords.r !== move.newPieceCoords.r ||
+          boardPiece.pieceCoords.s !== move.newPieceCoords.s ||
+          boardPiece.altitude !== (move.newAltitude ?? boardPiece.altitude) ||
+          boardPiece.rotation !== (move.newRotation ?? boardPiece.rotation)
         )
       })
       if (!effectiveMoves.length) return state

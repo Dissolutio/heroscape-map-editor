@@ -497,6 +497,9 @@ export function commitMoveDecision(
       newPieceCoords: decision.newPieceCoords,
       newAltitude: decision.newAltitude,
       newRotation: decision.newRotation,
+      ...(decision.newEdgeId === undefined
+        ? {}
+        : { newEdgeId: decision.newEdgeId }),
     },
   ]
   const store = useBoundStore.getState()
