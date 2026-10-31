@@ -21,6 +21,79 @@ const SUPPORTING_PIECE_IDS = [
   '0~3~4~0~g1',
 ]
 
+test('selects objective marker pen style and size with hotkeys', async ({
+  page,
+}) => {
+  await page.goto(mapUrl(FIXTURE_HEX_MAP, SUPPORTING_PIECE_IDS))
+  await waitForAppReady(page)
+
+  await page.keyboard.press('m')
+  await expect
+    .poll(() => page.evaluate(() => window.__TEST__?.snapshot().penMode))
+    .toBe('objectiveMarker')
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__TEST__?.snapshot().objectiveMarkerDraft.style,
+      ),
+    )
+    .toBe('black')
+
+  await page.keyboard.press('2')
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__TEST__?.snapshot().objectiveMarkerDraft.size,
+      ),
+    )
+    .toBe(2)
+
+  await page.keyboard.press('Shift+m')
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => window.__TEST__?.snapshot().objectiveMarkerDraft.style,
+      ),
+    )
+    .toBe('white')
+
+  const nameInput = page.getByRole('combobox', {
+    name: 'Objective marker name',
+  })
+  await nameInput.fill('')
+  await page.keyboard.press('m')
+  await page.keyboard.press('1')
+  expect(await nameInput.inputValue()).toBe('m1')
+  expect(
+    await page.evaluate(() => window.__TEST__?.snapshot().objectiveMarkerDraft),
+  ).toEqual({ size: 2, style: 'white' })
+})
+
+test('shows selected marker values immediately when switching markers', async ({
+  page,
+}) => {
+  await page.goto(
+    mapUrl(
+      OBJECTIVE_MARKERS_FIXTURE_HEX_MAP,
+      OBJECTIVE_MARKERS_FIXTURE_PIECE_IDS,
+    ),
+  )
+  await waitForAppReady(page)
+
+  await clickObjectiveMarker(page, 'objective-ground')
+  const numberInput = page.getByRole('spinbutton', { name: 'Marker number' })
+  expect(await numberInput.inputValue()).toBe('7')
+
+  await clickObjectiveMarker(page, 'objective-stacked')
+  const textInput = page.getByRole('textbox', { name: 'Marker text' })
+  const nameInput = page.getByRole('combobox', {
+    name: 'Objective marker name',
+  })
+  expect(await textInput.inputValue()).toBe('A2')
+  expect(await nameInput.inputValue()).toBe('Elite')
+  expect(await page.getByText('Style: White').isVisible()).toBe(true)
+})
+
 test('suggests unit names lazily and keeps them in saved map files', async ({
   page,
 }) => {
@@ -118,7 +191,7 @@ test('derives objective marker numbers unless the number is pinned', async ({
   await page.getByRole('option', { name: 'Objective Marker' }).click()
 
   const numberInput = page.getByRole('spinbutton', { name: 'Marker number' })
-  const pinNumber = page.getByRole('checkbox', { name: 'Pin number' })
+  const pinNumber = page.getByRole('checkbox', { name: 'Pin value' })
   const canvas = page.locator('canvas').first()
   const placeAt = async (q: number, r: number) => {
     const point = await page.evaluate(
@@ -366,7 +439,16 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
   ).toBeVisible()
   await expect(page.getByText('Content: Number 1')).toBeVisible()
   await expect(page.getByText('Style: Black')).toBeVisible()
-  await expect(page.getByText('Location: q 2, r 2, level 1')).toBeVisible()
+  const markerAnchor = () =>
+    page.evaluate(
+      (uid) =>
+        window.__TEST__
+          ?.snapshot()
+          .objectiveMarkerAnchors.find((marker) => marker.uid === uid)
+          ?.anchor ?? null,
+      markerUID,
+    )
+  expect(await markerAnchor()).toEqual({ q: 2, r: 2, s: -4, altitude: 1 })
   await expect(
     page.getByText(
       'Drag the marker to move it. Selecting a marker switches to Select mode.',
@@ -445,7 +527,7 @@ test('places, edits, drags, deletes, and undoes an objective marker', async ({
     markerUID,
   )
   expect(afterDrag).not.toEqual(beforeDrag)
-  await expect(page.getByText('Location: q 3, r 3, level 1')).toBeVisible()
+  expect(await markerAnchor()).toEqual({ q: 3, r: 3, s: -6, altitude: 1 })
   await page.getByRole('button', { name: 'Delete objective marker' }).click()
   await expect
     .poll(() =>

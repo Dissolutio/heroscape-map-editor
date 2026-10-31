@@ -13,7 +13,7 @@ import { HEXGRID_HEX_RADIUS } from '../utils/constants'
 import { PlacementFootprint } from './PlacementFootprint'
 import {
   getObjectiveMarker3DPosition,
-  getObjectiveMarker3DTextPosition,
+  getObjectiveMarker3DTextTransform,
   getObjectiveMarkerTextFontSize,
 } from './models/objectiveMarker3D'
 
@@ -79,13 +79,12 @@ export default function ObjectiveMarkerPlacementPreview() {
       markers,
     })
   }, [boardHexes, dragPreview, mapHexIDs, marker, markers])
-  const markerPosition =
-    marker && !dragPreview
-      ? getObjectiveMarker3DPosition(marker, boardHexes, isHighQualityRender)
-      : null
-  const textPosition =
+  const markerPosition = marker
+    ? getObjectiveMarker3DPosition(marker, boardHexes, isHighQualityRender)
+    : null
+  const textTransform =
     marker && markerPosition
-      ? getObjectiveMarker3DTextPosition(marker, markerPosition)
+      ? getObjectiveMarker3DTextTransform(marker, markerPosition)
       : null
 
   if (!marker || !placement) return null
@@ -109,25 +108,26 @@ export default function ObjectiveMarkerPlacementPreview() {
         footprintHexes={placement.footprint}
         hoveredHex={hovered}
       />
-      {markerPosition && textPosition && (
-        <Text
-          position={[
-            markerPosition.x + textPosition.x,
-            markerPosition.y + 0.029,
-            markerPosition.z + textPosition.z,
-          ]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          font="/fonts/Inter_18pt-Bold.ttf"
-          fontSize={getObjectiveMarkerTextFontSize(marker)}
-          maxWidth={HEXGRID_HEX_RADIUS * 2.2}
-          anchorX="center"
-          anchorY="middle"
-          textAlign="center"
-          color={foreground}
-          raycast={() => null}
+      {textTransform && (
+        <group
+          position={textTransform.groupPosition}
+          rotation={textTransform.groupRotation}
         >
-          {text}
-        </Text>
+          <Text
+            position={textTransform.textPosition}
+            rotation={textTransform.textRotation}
+            font="/fonts/Inter_18pt-Bold.ttf"
+            fontSize={getObjectiveMarkerTextFontSize(marker)}
+            maxWidth={HEXGRID_HEX_RADIUS * 2.2}
+            anchorX="center"
+            anchorY="middle"
+            textAlign="center"
+            color={foreground}
+            raycast={() => null}
+          >
+            {text}
+          </Text>
+        </group>
       )}
     </>
   )

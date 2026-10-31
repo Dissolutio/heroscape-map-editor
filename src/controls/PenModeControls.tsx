@@ -318,8 +318,10 @@ export default function PenModeControls() {
           <ListItemIcon>
             <TbHexagonNumber1Filled />
           </ListItemIcon>
-          <span>Objective Marker</span>
-          <HotkeyText text={hotkeyLookup.togglePenModeObjectiveMarker} />
+          <span title="M selects black markers; Shift+M selects white markers.">
+            Objective Marker
+          </span>
+          <HotkeyText text="m / shift+m" />
         </MenuItem>
         <Divider />
         {/* TERRAIN TYPES BEGIN */}
