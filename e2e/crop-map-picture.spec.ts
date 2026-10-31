@@ -35,7 +35,11 @@ test('taking a map picture opens crop dialog; save and cancel behave correctly',
   page,
 }) => {
   await page.locator('#simple-tab-3').click()
-  const takePicture = page.getByRole('button', { name: 'Take map picture' })
+  await page.getByRole('button', { name: 'Take map picture' }).click()
+  const takePicture = page.getByRole('button', {
+    name: 'Take picture',
+    exact: true,
+  })
   const dialog = page.getByRole('dialog', { name: 'Crop map picture' })
 
   await takePicture.click()
@@ -60,15 +64,29 @@ test('taking a map picture opens crop dialog; save and cancel behave correctly',
   expect(await waitForStoredPortraitToSettle(page)).toBe(portraitBeforeCancel)
 })
 
-test('downloaded picture is opaque by default and transparent when enabled', async ({
+test('one-shot transparent pictures preserve alpha without changing the default', async ({
   page,
 }) => {
-  await page.locator('#simple-tab-3').click()
-  const takePicture = page.getByRole('button', { name: 'Take map picture' })
+  const pictureGroup = page.getByRole('button', {
+    name: 'Take map picture',
+  })
+  const takePicture = page.getByRole('button', {
+    name: 'Take picture',
+    exact: true,
+  })
+  const takeTransparentPicture = page.getByRole('button', {
+    name: 'With transparent background',
+    exact: true,
+  })
   const cropDialog = page.getByRole('dialog', { name: 'Crop map picture' })
+  const openPictureGroup = async () => {
+    await page.locator('#simple-tab-3').click()
+    if (!(await takePicture.isVisible())) await pictureGroup.click()
+  }
 
-  const savePicture = async () => {
-    await takePicture.click()
+  const savePicture = async (action = takePicture) => {
+    await openPictureGroup()
+    await action.click()
     await expect(cropDialog).toBeVisible()
     await expect(
       cropDialog.getByRole('img', { name: 'Cropped result preview' }),
@@ -78,11 +96,15 @@ test('downloaded picture is opaque by default and transparent when enabled', asy
   }
   const downloadPngAlphaAtCorner = async () => {
     await page.locator('#simple-tab-1').click()
-    await page.getByRole('button', { name: 'Download Map Picture' }).click()
+    const downloadPicture = page.getByRole('button', {
+      name: 'Download Map Picture',
+    })
+    const downloadPng = page.getByRole('button', {
+      name: 'Download map picture as .PNG',
+    })
+    if (!(await downloadPng.isVisible())) await downloadPicture.click()
     const downloadPromise = page.waitForEvent('download')
-    await page
-      .getByRole('button', { name: 'Download map picture as .PNG' })
-      .click()
+    await downloadPng.click()
     const download = await downloadPromise
     const path = await download.path()
     if (!path) throw new Error('Expected downloaded map picture')
@@ -95,19 +117,15 @@ test('downloaded picture is opaque by default and transparent when enabled', asy
     ]
   }
 
+  await savePicture(takeTransparentPicture)
+  expect(await downloadPngAlphaAtCorner()).toContain(0)
+  await openPictureGroup()
+  await expect(
+    page.getByRole('checkbox', {
+      name: 'Transparent background by default',
+    }),
+  ).not.toBeChecked()
+
   await savePicture()
   expect(await downloadPngAlphaAtCorner()).toEqual([255, 255, 255, 255])
-
-  await page.locator('#simple-tab-3').click()
-  await page.getByRole('button', { name: '3D look...' }).click()
-  const transparentBackground = page.getByRole('checkbox', {
-    name: 'Transparent background',
-  })
-  await expect(transparentBackground).not.toBeChecked()
-  await transparentBackground.check()
-  await page.getByRole('button', { name: 'Close 3D look settings' }).click()
-
-  await savePicture()
-  await expect.poll(() => storedPortrait(page)).toMatch(/^data:image\/png/)
-  expect(await downloadPngAlphaAtCorner()).toContain(0)
 })

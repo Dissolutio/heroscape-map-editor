@@ -24,7 +24,9 @@ export default function LookSettingsApplier() {
   const lookSettings = useBoundStore((state) => state.lookSettings)
   const isTakingTransparentPicture = useBoundStore(
     (state) =>
-      state.isTakingPicture && state.lookSettings.transparentPictureBackground,
+      state.isTakingPicture &&
+      (state.pictureCaptureOptions?.transparentBackground ??
+        state.lookSettings.transparentPictureBackground),
   )
   const boardPieces = useBoundStore((state) => state.boardPieces)
   const { gl, invalidate, scene } = useThree()

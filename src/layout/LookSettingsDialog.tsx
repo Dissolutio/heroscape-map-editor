@@ -1,9 +1,7 @@
 import {
   Box,
   Button,
-  Checkbox,
   FormControl,
-  FormControlLabel,
   FormHelperText,
   InputLabel,
   MenuItem,
@@ -15,6 +13,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
+import { useEffect } from 'react'
 import { useSnackbar } from 'notistack'
 import {
   DEFAULT_LOOK_SETTINGS,
@@ -26,6 +25,7 @@ import {
   type LookSettingsTooltipId,
 } from './lookSettingsTooltipCopy'
 import useBoundStore from '../store/store'
+import { isLookSettingsAvailable } from './lookSettingsVisibility'
 
 const numericSettings = [
   ['exposure', 'Exposure'],
@@ -45,12 +45,24 @@ const colorSettings = [
 export default function LookSettingsDialog() {
   const isOpen = useBoundStore((state) => state.isLookSettingsDialogOpen)
   const setIsOpen = useBoundStore((state) => state.setIsLookSettingsDialogOpen)
+  const graphicsTier = useBoundStore((state) => state.graphicsTier)
+  const effectiveGraphicsTier = useBoundStore(
+    (state) => state.effectiveGraphicsTier,
+  )
+  const isAvailable = isLookSettingsAvailable(
+    graphicsTier,
+    effectiveGraphicsTier,
+  )
   const lookSettings = useBoundStore((state) => state.lookSettings)
   const isOrthoCam = useBoundStore((state) => state.isOrthoCam)
   const setLookSettings = useBoundStore((state) => state.setLookSettings)
   const { enqueueSnackbar } = useSnackbar()
 
-  if (!isOpen) return null
+  useEffect(() => {
+    if (isOpen && !isAvailable) setIsOpen(false)
+  }, [isAvailable, isOpen, setIsOpen])
+
+  if (!isOpen || !isAvailable) return null
 
   const copySettings = async () => {
     try {
@@ -176,25 +188,6 @@ export default function LookSettingsDialog() {
             />
           </Tooltip>
         ))}
-        <Tooltip
-          title={LOOK_SETTINGS_TOOLTIP_COPY.transparentBackground}
-          arrow
-          describeChild
-        >
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={lookSettings.transparentPictureBackground}
-                onChange={(event) =>
-                  setLookSettings({
-                    transparentPictureBackground: event.target.checked,
-                  })
-                }
-              />
-            }
-            label="Transparent background"
-          />
-        </Tooltip>
         <Stack direction="row" spacing={1}>
           <Tooltip title={LOOK_SETTINGS_TOOLTIP_COPY.reset} arrow describeChild>
             <Button
