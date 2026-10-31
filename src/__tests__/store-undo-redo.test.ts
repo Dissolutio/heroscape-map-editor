@@ -1,11 +1,15 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { enqueueSnackbar } from 'notistack'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
+import {
+  getUrlMapString,
+  parseMapDataArrayFromCrushed,
+} from '../data/jsonCrush'
 import { piecesSoFar } from '../data/pieces'
+import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { LS_KEYS } from '../local-storage/keys'
 import type { BoardPiece, HexMap, MapState } from '../types'
 import { makeRectangleScenario } from '../utils/map-gen'
-import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 
@@ -76,6 +80,29 @@ afterEach(() => {
 })
 
 describe('real store undo and redo', () => {
+  it('loads shared objective markers without adding undo history', () => {
+    const marker = {
+      uid: 'shared-marker',
+      anchor: { q: 2, r: 2, s: -4, altitude: 1 },
+      size: 2 as const,
+      rotation: 4 as const,
+      style: 'white' as const,
+      content: { kind: 'number' as const, value: 7 },
+      name: 'Named objective',
+    }
+    const sharedMap = {
+      ...hexMap,
+      objectiveMarkers: [marker],
+    }
+    const payload = getUrlMapString({ hexMap: sharedMap, boardPieces: [] })
+    const parsed = parseMapDataArrayFromCrushed(payload)
+
+    loadWithoutHistory(buildupJsonFileMap([], parsed.hexMap))
+
+    expect(store.getState().hexMap.objectiveMarkers).toEqual([marker])
+    expect(historyLength()).toBe(0)
+  })
+
   it('saves one cropped portrait update and leaves it unchanged on cancel', () => {
     saveMapPortraitWithoutUndo('data:image/jpeg;base64,previous')
     const portraitUpdates: string[] = []
