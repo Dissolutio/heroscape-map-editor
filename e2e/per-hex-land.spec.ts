@@ -18,6 +18,13 @@ import {
 type ScreenPoint = { x: number; y: number }
 type RGB = [number, number, number]
 
+const TEXTURED_FLUID_PIECE_IDS = [
+  ...FIXTURE_PIECE_IDS,
+  '0~2~3~0~w1',
+  '0~-2~4~0~ws1',
+  '0~-1~4~0~sh1',
+]
+
 function samplePixel(image: PNG, x: number, y: number): RGB {
   const channels: [number[], number[], number[]] = [[], [], []]
   for (let dy = -1; dy <= 1; dy += 1) {
@@ -149,7 +156,7 @@ test('per-hex land mode loads without console errors and selects a hex', async (
 test('per-hex land pixels stay colored across lights and shadows toggles', async ({
   page,
 }) => {
-  const map = mapUrl(FIXTURE_HEX_MAP, [...FIXTURE_PIECE_IDS, '0~2~3~0~w1'])
+  const map = mapUrl(FIXTURE_HEX_MAP, TEXTURED_FLUID_PIECE_IDS)
   await page.goto(`${map}&perHexLand=1`)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
@@ -276,7 +283,7 @@ test('diffuse textures survive tier and lighting changes', async ({ page }) => {
   })
   page.on('pageerror', (error) => errors.push(error.message))
 
-  const map = mapUrl(FIXTURE_HEX_MAP, [...FIXTURE_PIECE_IDS, '0~2~3~0~w1'])
+  const map = mapUrl(FIXTURE_HEX_MAP, TEXTURED_FLUID_PIECE_IDS)
   await page.goto(map)
   await waitForAppReady(page)
   await expect
@@ -310,6 +317,16 @@ test('diffuse textures survive tier and lighting changes', async ({ page }) => {
     q: 2,
     r: 3,
   })
+  const swampWaterUID = await findPieceUid(page, {
+    inventoryID: 'ws1',
+    q: -2,
+    r: 4,
+  })
+  const shadowUID = await findPieceUid(page, {
+    inventoryID: 'sh1',
+    q: -1,
+    r: 4,
+  })
   const camera = await page.evaluate(() => window.__TEST__?.cameraPose())
   if (!camera) throw new Error('The e2e camera bridge is unavailable')
   await page.evaluate(
@@ -323,22 +340,24 @@ test('diffuse textures survive tier and lighting changes', async ({ page }) => {
   await waitForAppReady(page)
 
   const points = await page.evaluate(
-    ({ grassUID, waterUID }) => {
+    ({ grassUID, waterUID, swampWaterUID, shadowUID }) => {
       const bridge = window.__TEST__
       if (!bridge) throw new Error('The e2e map bridge is unavailable')
       const grass = bridge.screenPosOfPiece(grassUID)
       const water = bridge.screenPosOfPiece(waterUID)
+      const swampWater = bridge.screenPosOfPiece(swampWaterUID)
+      const shadow = bridge.screenPosOfPiece(shadowUID)
       const background = bridge.screenPosOfHex({
         q: 3,
         r: 2,
         altitude: 0,
       })
-      if (!grass || !water || !background) {
+      if (!grass || !water || !swampWater || !shadow || !background) {
         throw new Error('A diffuse-texture sample point is not on screen')
       }
-      return { grass, water, background }
+      return { grass, water, swampWater, shadow, background }
     },
-    { grassUID, waterUID },
+    { grassUID, waterUID, swampWaterUID, shadowUID },
   )
   const canvas = await page.locator('canvas').first().boundingBox()
   if (!canvas) throw new Error('The WebGL canvas is not visible')
@@ -347,9 +366,13 @@ test('diffuse textures survive tier and lighting changes', async ({ page }) => {
     const textureVariation = await sampleCanvasTextureVariation(page, {
       grass: points.grass,
       water: points.water,
+      swampWater: points.swampWater,
+      shadow: points.shadow,
     })
     expect(textureVariation.grass).toBeGreaterThan(10)
     expect(textureVariation.water).toBeGreaterThan(10)
+    expect(textureVariation.swampWater).toBeGreaterThan(3)
+    expect(textureVariation.shadow).toBeGreaterThan(1)
   }
   const expectVisibleTiles = async () => {
     const colors = await sampleCanvasPoints(page, points)
