@@ -387,9 +387,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
           boardPiece.inventoryID === Pieces.battlement ||
           boardPiece.inventoryID === Pieces.roadWall ||
           boardPiece.inventoryID === Pieces.ropeLadder
-        const edgeId = isMigratedEdgePiece
-          ? getPieceEdgeId(boardPiece)
-          : null
+        const edgeId = isMigratedEdgePiece ? getPieceEdgeId(boardPiece) : null
         if (edgeId) {
           const targetEdgeId =
             move.newEdgeId ??
@@ -400,7 +398,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
             })
           return (
             edgeId !== targetEdgeId ||
-            boardPiece.altitude !== (move.newAltitude ?? boardPiece.altitude)
+            boardPiece.pieceCoords.q !== move.newPieceCoords.q ||
+            boardPiece.pieceCoords.r !== move.newPieceCoords.r ||
+            boardPiece.pieceCoords.s !== move.newPieceCoords.s ||
+            boardPiece.altitude !== (move.newAltitude ?? boardPiece.altitude) ||
+            boardPiece.rotation !== (move.newRotation ?? boardPiece.rotation)
           )
         }
         return (

@@ -39,10 +39,7 @@ import { piecesSoFar } from './pieces'
 import getPieceTemplateCoords from './rotationTransforms'
 import { getSmartPlacementAltitude } from './smartPlacement'
 import { verticalObstructionTemplates } from './vertical-obstruction-templates'
-import {
-  type HexEdgeId,
-  edgeIdFromHex,
-} from './hexGrid/edgesAndNodes'
+import { type HexEdgeId, edgeIdFromHex } from './hexGrid/edgesAndNodes'
 
 /** The two pieces of state placement reads. */
 export type PlacementBoard = {

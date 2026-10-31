@@ -6,10 +6,7 @@ import { CLICK_DRAG_TOLERANCE_PX, HEXGRID_HEX_RADIUS } from '../utils/constants'
 import { cubeToPixel } from '../utils/hex-utils'
 import { genBoardHexID } from '../utils/map-utils'
 import { type IgnoredPieceUIDs, toIgnoredPieceUIDSet } from './ignoredPieceUIDs'
-import {
-  type HexEdgeId,
-  edgeIdFromHex,
-} from './hexGrid/edgesAndNodes'
+import { type HexEdgeId, edgeIdFromHex } from './hexGrid/edgesAndNodes'
 import { getPieceEdgeAnchor, getPieceEdgeId } from './hexGrid/pieceFeatures'
 import type { MovePieceArgs } from './movePieces'
 import { applyPieceMoves } from './movePieces'
@@ -347,7 +344,7 @@ export function evaluateDragTarget(
           )?.edgeIndex
     const memberEdgeId =
       member.uid === bp.uid
-        ? edgeTarget?.edgeId ?? groupEdgeTarget?.edgeId
+        ? (edgeTarget?.edgeId ?? groupEdgeTarget?.edgeId)
         : (getPieceEdgeId({
             inventoryID: memberPiece.id,
             pieceCoords: rigidCoords,
@@ -493,6 +490,7 @@ export type DropDecision =
       newPieceCoords: CubeCoordinate
       newAltitude: number
       newRotation: number
+      newEdgeId?: HexEdgeId
       moves?: MovePieceArgs[]
     }
   | {

@@ -190,7 +190,9 @@ function getAttachmentAnchor(
   return input.pieceCoords
 }
 
-function getAttachmentDeclaration(input: PieceEdgeInput) {
+function getAttachmentDeclaration(
+  input: PieceEdgeInput,
+): PieceAttachmentDeclaration | undefined {
   const pieceID = 'pieceID' in input ? input.pieceID : input.inventoryID
   const declaration =
     pieceTopologyDeclarations[pieceID as keyof typeof pieceTopologyDeclarations]

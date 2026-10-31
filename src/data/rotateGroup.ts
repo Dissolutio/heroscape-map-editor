@@ -1,9 +1,6 @@
 import type { BoardPiece, CubeCoordinate } from '../types'
 import { Pieces } from '../types'
-import {
-  type HexEdgeId,
-  edgeIdFromHex,
-} from './hexGrid/edgesAndNodes'
+import { type HexEdgeId, edgeIdFromHex } from './hexGrid/edgesAndNodes'
 import { getPieceEdgeAnchor, getPieceEdgeId } from './hexGrid/pieceFeatures'
 import { hexUtilsRotateAroundOrigin_000 } from '../utils/hex-utils'
 import type { MovePieceArgs } from './movePieces'
@@ -51,7 +48,7 @@ function rotatedEdgeId(
   const edgeIndex = Array.from({ length: 6 }, (_, index) => index).find(
     (index) => edgeIdFromHex(anchor, index) === edgeId,
   )
-  if (edgeIndex < 0) return undefined
+  if (edgeIndex === undefined) return undefined
   return edgeIdFromHex(
     rotateAroundPivot(anchor, pivot, direction),
     edgeIndex + direction,
