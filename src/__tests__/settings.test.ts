@@ -394,6 +394,7 @@ describe('settings persistence', () => {
       'currentDialog',
       'cropDialogReturnToEditMap',
       'isTakingPicture',
+      'pictureCaptureOptions',
       'isCameraDisabled',
       'isShowStartZones',
       'is2DOpen',

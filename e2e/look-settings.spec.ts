@@ -16,14 +16,17 @@ test('3D look settings preview, persist, invalidate shadows, and reset', async (
   await page.goto(FIXTURE_URL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
+  const graphics = page.getByTestId('graphics-tier-select')
+  await graphics.click()
+  await page.getByRole('option', { name: 'Medium (diffuse textures)' }).click()
+  await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+    'Textures ready',
+  )
   await page.getByRole('button', { name: '3D look...' }).click()
 
   const dialog = page.getByRole('dialog', { name: '3D look settings' })
   const fovSlider = dialog.getByRole('slider', { name: 'Field of view' })
   const slider = dialog.getByRole('slider', { name: 'Point light intensity' })
-  const transparentBackground = dialog.getByRole('checkbox', {
-    name: 'Transparent background',
-  })
   const cameraDistance = () =>
     page.evaluate(() => {
       const pose = window.__TEST__?.cameraPose()
@@ -64,6 +67,11 @@ test('3D look settings preview, persist, invalidate shadows, and reset', async (
       }),
     )
     .toBe(90)
+  await page.getByRole('button', { name: 'Close 3D look settings' }).click()
+  await page.getByRole('button', { name: 'Take map picture' }).click()
+  const transparentBackground = page.getByRole('checkbox', {
+    name: 'Transparent background by default',
+  })
   await transparentBackground.check()
   await expect
     .poll(() =>
@@ -73,6 +81,7 @@ test('3D look settings preview, persist, invalidate shadows, and reset', async (
       }),
     )
     .toBe(true)
+  await page.getByRole('button', { name: '3D look...' }).click()
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.mouse.move(0, 0)
   await dialog.getByRole('button', { name: 'Copy settings as JSON' }).click()

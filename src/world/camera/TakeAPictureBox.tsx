@@ -20,8 +20,10 @@ const TakeAPictureBox = () => {
   useEffect(() => {
     const handleTakeMapPicture = () => {
       let shouldOpenCropDialog = false
+      const state = useBoundStore.getState()
       const preserveAlpha =
-        useBoundStore.getState().lookSettings.transparentPictureBackground
+        state.pictureCaptureOptions?.transparentBackground ??
+        state.lookSettings.transparentPictureBackground
       const previousBackground = scene.background
       const previousClearColor = gl.getClearColor(new Color()).clone()
       const previousClearAlpha = gl.getClearAlpha()

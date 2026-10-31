@@ -49,6 +49,7 @@ import {
   type TextureLoadStatus,
   loadTerrainTextureArrays,
 } from '../world/textures/terrainTextureArrays'
+import type { PictureCaptureOptions } from '../world/camera/pictureCaptureOptions'
 import type { AppState } from './store'
 
 export type { LightPosition } from '../local-storage/settings'
@@ -154,6 +155,8 @@ export interface UISlice {
   toggleIsFrameloopDemand: (b: boolean) => void
   isTakingPicture: boolean
   toggleIsTakingPicture: (s: boolean) => void
+  pictureCaptureOptions: PictureCaptureOptions | null
+  setPictureCaptureOptions: (options: PictureCaptureOptions | null) => void
   isCameraDisabled: boolean
   toggleIsCameraDisabled: (b: boolean) => void
   isOrthoCam: boolean
@@ -661,6 +664,9 @@ const createUISlice: StateCreator<
         s.isTakingPicture = b
       }),
     ),
+  pictureCaptureOptions: null,
+  setPictureCaptureOptions: (options) =>
+    set({ pictureCaptureOptions: options }),
   isCameraDisabled: false,
   toggleIsCameraDisabled: (b: boolean) =>
     set(

@@ -30,7 +30,9 @@ test('graphics tier loads Medium textures and returns to the classic Low rendere
   await page.locator('#simple-tab-3').click()
 
   const graphics = page.getByTestId('graphics-tier-select')
+  const lookSettings = page.getByRole('button', { name: '3D look...' })
   await expect(graphics).toBeVisible()
+  await expect(lookSettings).toHaveCount(0)
   await page.getByText('Graphics', { exact: true }).hover()
   await expect(page.getByRole('tooltip')).toHaveText(
     'Low uses the classic look with no textures. Medium uses diffuse textures. High adds PBR normal and ORM maps, enables lights and shadows, and uses alternate cap images.',
@@ -42,15 +44,21 @@ test('graphics tier loads Medium textures and returns to the classic Low rendere
   await expect(page.getByTestId('graphics-texture-status')).toHaveText(
     'Textures ready',
   )
+  await expect(lookSettings).toBeVisible()
   await expect
     .poll(async () =>
       page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
     )
     .toBe('per-hex')
+  await lookSettings.click()
+  const lookDialog = page.getByRole('dialog', { name: '3D look settings' })
+  await expect(lookDialog).toBeVisible()
 
   await graphics.click()
   await page.getByRole('option', { name: 'Low (classic look)' }).click()
   await expect(graphics).toContainText('Low (classic look)')
+  await expect(lookSettings).toHaveCount(0)
+  await expect(lookDialog).toBeHidden()
   await expect
     .poll(async () =>
       page.evaluate(() => window.__TEST__?.snapshot().landRenderer),
@@ -167,13 +175,14 @@ test('picture-only High restores the previous graphics and lighting settings', a
   await page.goto(FIXTURE_URL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
+  await page.getByRole('button', { name: 'Take map picture' }).click()
 
   const pictureHigh = page.getByRole('checkbox', {
-    name: 'Use High quality when taking a map picture',
+    name: 'High Quality graphics by default',
   })
   await expect(pictureHigh).toBeVisible()
   await pictureHigh.check()
-  await page.getByRole('button', { name: 'Take map picture' }).click()
+  await page.getByRole('button', { name: 'Take picture', exact: true }).click()
 
   const cropDialog = page.getByRole('dialog', { name: 'Crop map picture' })
   await expect(cropDialog).toBeVisible({ timeout: 60_000 })
