@@ -9,6 +9,7 @@ import {
 } from '../../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../../utils/board-utils'
 import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
+import { isFluidCapVisible } from '../../utils/fluidStacks'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../../utils/hex-utils'
 import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
 import type { GenericTerrainColorSettings } from '../maphex/genericTerrainColors'
@@ -702,7 +703,7 @@ export function buildLandHexInstanceData(
           ...textureLayers,
           sideMask: getLandHexSideVisibilityMask(hex, boardHexes),
           fluidCapJoinMask: getLandHexFluidCapJoinMask(hex, boardHexes),
-          capVisible: !colors.isFluid || Boolean(hex.isCap),
+          capVisible: !colors.isFluid || isFluidCapVisible(hex, boardHexes),
           capColor: colors.cap,
           sideColor: colors.side,
         },

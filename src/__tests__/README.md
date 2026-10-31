@@ -22,6 +22,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `generic-pieces.test.ts` | Generic solid/fluid registration, all footprint sizes on the table, solid/fluid stacking, buried marks, unlimited inventory handling, and piece-grid grouping. |
 | `generic-terrain-colors.test.ts` | Generic cap/side color resolution and contrast-based `?` letter color selection. |
 | `land-hex-instances.test.ts` | Per-hex land instance construction and lightweight ID parity, manifest terrain/layer coverage, tier selection, deterministic cap rotation, cap/side UVs, level and piece exclusions, six-direction side culling, and flat-color fallback. |
+| `fluid-cap-visibility.test.ts` | Fluid caps under a solid: drawn with half-level clearance (an overhang on a whole-level fluid), hidden under flush fluid or solid, isCap unchanged, on all graphics tiers and the legacy Low cap buckets, plus the Cove of Bilfrost fixture through the loader. |
 | `land-hex-geometry.test.ts` | Per-hex solid/fluid prism geometry: side quads index their own vertices, side-image orientation (including fluid UVs), triangle kinds and directions stay consistent, and faces point outward/upward. |
 | `export-border-color.test.ts` | Shared SVG/PDF border-color decisions for every terrain, SVG Asphalt markup, and rendered PDF output with outlines on/off, including sub-levels. |
 | `glyph-export-options.test.tsx` | Shared glyph-space classification, SVG/PDF transparent fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |

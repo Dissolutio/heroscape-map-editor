@@ -42,11 +42,7 @@ import {
   type PieceInventory,
   SELECT_PEN_MODE,
 } from '../types.ts'
-import {
-  isFluidTerrainHex,
-  isJungleTerrainHex,
-  isSolidTerrainHex,
-} from '../utils/board-utils.ts'
+import { isFluidTerrainHex } from '../utils/board-utils.ts'
 import { getFluidRunLengthAt } from '../utils/fluidStacks.ts'
 import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils.ts'
 import {
@@ -61,6 +57,7 @@ import PiecePreview from './PiecePreview.tsx'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import { DragPreview3D } from './drag/DragPreview3D.tsx'
 import { clearLastPointerWorldPoint } from './hoverWorldPoint.ts'
+import { getInstanceBoardHexes } from './instanceBoardHexes.ts'
 import { getLandRendererMode } from './landRendererTier.ts'
 import { MapHex3D } from './maphex/MapHex3D.tsx'
 import EmptyHexes from './maphex/instance/EmptyHex.tsx'
@@ -215,6 +212,7 @@ export default function MapDisplay3D({
     [boardHexes, boardPieces, viewingLevel, isPerHexLand],
   )
   const instanceBoardHexes = getInstanceBoardHexes(
+    boardHexes,
     boardHexesArr,
     isTakingPicture,
     viewingLevel,
@@ -515,53 +513,4 @@ export default function MapDisplay3D({
       </group>
     </>
   )
-}
-
-type InstanceBoardHexes = {
-  subTerrainHexes: BoardHex[]
-  emptyHexCaps: BoardHex[]
-  solidHexCaps: BoardHex[]
-  fluidHexCaps: BoardHex[]
-}
-function getInstanceBoardHexes(
-  boardHexesArr: BoardHex[],
-  isTakingPicture: boolean,
-  viewingLevel: number,
-  perHexLandIDs: Set<string>,
-) {
-  return boardHexesArr
-    .filter((bh) => bh.altitude <= viewingLevel)
-    .reduce(
-      (result: InstanceBoardHexes, current) => {
-        const isCap = current.isCap // land hexes that are covered, obstacle origin/auxiliary hexes, vertical clearance hexes
-        const isEmptyCap =
-          !isTakingPicture && current?.terrain === HexTerrain.empty
-        const isSolidCap = isSolidTerrainHex(current?.terrain) // We render solid caps for aesthetics, even if they are not caps for building on click
-        const isFluidCap = isCap && isFluidTerrainHex(current?.terrain)
-        const isSubTerrain =
-          isSolidTerrainHex(current?.terrain) ||
-          (isJungleTerrainHex(current?.terrain) && current.isObstacleOrigin)
-        const isPerHexLand = perHexLandIDs.has(current.id)
-        // const isSubTerrain = isSolidTerrainHex(current.terrain) || isFluidTerrainHex(current.terrain)
-        if (isEmptyCap) {
-          result.emptyHexCaps.push(current)
-        }
-        if (isSolidCap && !isPerHexLand) {
-          result.solidHexCaps.push(current)
-        }
-        if (isFluidCap && !isPerHexLand) {
-          result.fluidHexCaps.push(current)
-        }
-        if (isSubTerrain) {
-          result.subTerrainHexes.push(current)
-        }
-        return result
-      },
-      {
-        emptyHexCaps: [],
-        solidHexCaps: [],
-        fluidHexCaps: [],
-        subTerrainHexes: [],
-      },
-    )
 }
