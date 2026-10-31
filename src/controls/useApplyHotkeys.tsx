@@ -11,7 +11,10 @@ import {
   getBoardPiecesMaxLevel,
   getCycleableLevels,
 } from '../utils/map-utils'
-import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
+import {
+  getObjectiveMarkerHotkeyAction,
+  OBJECTIVE_MARKER_PEN_MODE,
+} from '../data/objectiveMarkers'
 import {
   redoWithSelectionRestore,
   undoWithSelectionRestore,
@@ -103,6 +106,9 @@ export const useApplyHotkeys = ({
   const toggleLastPenMode = useBoundStore((state) => state.toggleLastPenMode)
   const flatPieceSizes = useBoundStore((s) => s.flatPieceSizes)
   const togglePieceSize = useBoundStore((s) => s.togglePieceSize)
+  const updateObjectiveMarkerDraft = useBoundStore(
+    (s) => s.updateObjectiveMarkerDraft,
+  )
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
@@ -185,6 +191,14 @@ export const useApplyHotkeys = ({
     )
   }
   const togglePieceSizeForHotkey = (hotkey: string) => {
+    if (
+      penMode === OBJECTIVE_MARKER_PEN_MODE &&
+      (hotkey === '1' || hotkey === '2')
+    ) {
+      const action = getObjectiveMarkerHotkeyAction(hotkey as '1' | '2', true)
+      if (action) updateObjectiveMarkerDraft(action.draftUpdates)
+      return
+    }
     if (!isSizes) return
 
     const targetSize = getPieceSizeForHotkey(hotkey, flatPieceSizes)
@@ -278,8 +292,15 @@ export const useApplyHotkeys = ({
   const togglePenModeShadow = () => togglePenMode(PiecePrefixes.shadow)
   const togglePenModePowerGlyph = () => togglePenMode(Pieces.glyphPower)
   const togglePenModeTreasureGlyph = () => togglePenMode(Pieces.glyphTreasure)
-  const togglePenModeObjectiveMarker = () =>
-    togglePenMode(OBJECTIVE_MARKER_PEN_MODE)
+  const togglePenModeObjectiveMarker = () => applyObjectiveMarkerHotkey('m')
+  const togglePenModeObjectiveMarkerWhite = () =>
+    applyObjectiveMarkerHotkey('shift+m')
+  const applyObjectiveMarkerHotkey = (hotkey: 'm' | 'shift+m') => {
+    const action = getObjectiveMarkerHotkeyAction(hotkey, false)
+    if (!action) return
+    updateObjectiveMarkerDraft(action.draftUpdates)
+    if (action.selectPen) togglePenMode(OBJECTIVE_MARKER_PEN_MODE)
+  }
 
   const actionMap: { [key: string]: () => void } = {
     deleteSelectedPiece: deleteSelectedPiece,
@@ -311,6 +332,7 @@ export const useApplyHotkeys = ({
     togglePenModePowerGlyph: togglePenModePowerGlyph,
     togglePenModeTreasureGlyph: togglePenModeTreasureGlyph,
     togglePenModeObjectiveMarker: togglePenModeObjectiveMarker,
+    togglePenModeObjectiveMarkerWhite: togglePenModeObjectiveMarkerWhite,
     togglePenModeGrass: togglePenModeGrass,
     togglePenModeRock: togglePenModeRock,
     togglePenModeSand: togglePenModeSand,
@@ -341,6 +363,8 @@ export const useApplyHotkeys = ({
     if (value[0] && value[1] && actionMap[value[1]]) {
       useHotkeys(value[0], () => actionMap[value[1]]?.(), {
         enabled: currentDialog !== DIALOGS.cropMapPortrait,
+        enableOnFormTags: false,
+        enableOnContentEditable: false,
       })
     }
   })

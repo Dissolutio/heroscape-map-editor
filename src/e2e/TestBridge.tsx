@@ -144,6 +144,13 @@ function TestBridgeInner() {
           mapLength: s.hexMap.length,
           pieceCount: s.boardPieces.length,
           objectiveMarkerCount: s.hexMap.objectiveMarkers?.length ?? 0,
+          objectiveMarkerDraft: {
+            size: s.objectiveMarkerDraft.size,
+            style: s.objectiveMarkerDraft.style,
+          },
+          objectiveMarkerAnchors: (s.hexMap.objectiveMarkers ?? []).map(
+            ({ uid, anchor }) => ({ uid, anchor: { ...anchor } }),
+          ),
           selectedObjectiveMarkerUID: s.selectedObjectiveMarkerUID,
           hexCount: Object.keys(s.boardHexes).length,
           landInstanceCounts: landInstances.reduce(

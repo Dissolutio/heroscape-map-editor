@@ -10,7 +10,7 @@ import { pressObjectiveMarkerForDrag } from '../drag/objectiveMarkerDragControll
 import {
   type ObjectiveMarker3DPosition,
   getObjectiveMarker3DPosition,
-  getObjectiveMarker3DTextPosition,
+  getObjectiveMarker3DTextTransform,
   getObjectiveMarkerOutlinePoints,
   getObjectiveMarkerShapeOptions,
   getObjectiveMarkerTextFontSize,
@@ -133,7 +133,7 @@ function ObjectiveMarkerToken({
     [marker.content],
   )
   const fontSize = getObjectiveMarkerTextFontSize(marker)
-  const textPosition = getObjectiveMarker3DTextPosition(marker, position)
+  const textTransform = getObjectiveMarker3DTextTransform(marker, position)
   const borderShape = useMemo(
     () =>
       makeMarkerShape(
@@ -171,8 +171,8 @@ function ObjectiveMarkerToken({
 
   return (
     <group
-      position={[position.x, position.y, position.z]}
-      rotation={[0, position.rotationY, 0]}
+      position={textTransform.groupPosition}
+      rotation={textTransform.groupRotation}
       userData={{ objectiveMarkerUID: marker.uid }}
     >
       <mesh
@@ -226,8 +226,8 @@ function ObjectiveMarkerToken({
         <meshBasicMaterial color="#00c8ff" toneMapped={false} />
       </mesh>
       <Text
-        position={[textPosition.x, 0.029, textPosition.z]}
-        rotation={[-Math.PI / 2, 0, 0]}
+        position={textTransform.textPosition}
+        rotation={textTransform.textRotation}
         font="/fonts/Inter_18pt-Bold.ttf"
         fontSize={fontSize}
         maxWidth={HEXGRID_HEX_RADIUS * 2.2}

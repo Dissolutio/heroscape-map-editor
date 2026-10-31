@@ -5,6 +5,8 @@ import getPieceTemplateCoords from './rotationTransforms'
 
 export const OBJECTIVE_MARKER_PEN_MODE = 'objectiveMarker'
 
+export type ObjectiveMarkerHotkey = '1' | '2' | 'm' | 'shift+m'
+
 export type ObjectiveMarkerAnchor = CubeCoordinate & {
   altitude: number
 }
@@ -28,6 +30,29 @@ export type ObjectiveMarkerDraft = Pick<
   'size' | 'style' | 'content' | 'name'
 > & {
   pinNumber: boolean
+}
+
+export type ObjectiveMarkerHotkeyAction = {
+  draftUpdates: Partial<ObjectiveMarkerDraft>
+  selectPen: boolean
+}
+
+export function getObjectiveMarkerHotkeyAction(
+  hotkey: ObjectiveMarkerHotkey,
+  isObjectiveMarkerPenActive: boolean,
+): ObjectiveMarkerHotkeyAction | null {
+  if (hotkey === '1' || hotkey === '2') {
+    if (!isObjectiveMarkerPenActive) return null
+    return {
+      draftUpdates: { size: hotkey === '1' ? 1 : 2 },
+      selectPen: false,
+    }
+  }
+
+  return {
+    draftUpdates: { style: hotkey === 'm' ? 'black' : 'white' },
+    selectPen: true,
+  }
 }
 
 export type NewObjectiveMarker = Omit<ObjectiveMarker, 'uid'> & {

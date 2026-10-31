@@ -41,10 +41,7 @@ const SelectedPieceReadout = ({
           overflowY: 'auto',
         }}
       >
-        <ObjectiveMarkerControls
-          key={selectedObjectiveMarker.uid}
-          marker={selectedObjectiveMarker}
-        />
+        <ObjectiveMarkerControls marker={selectedObjectiveMarker} />
       </div>
     )
   }

@@ -16,6 +16,7 @@ import {
   getNextObjectiveMarkerNumber,
   getObjectiveMarkerContentError,
   getObjectiveMarkerFootprint,
+  getObjectiveMarkerHotkeyAction,
   normalizeObjectiveMarkerName,
   normalizeObjectiveMarkers,
   objectiveMarkersOverlap,
@@ -63,6 +64,27 @@ const localStorageMock = {
 }
 
 describe('objective marker data', () => {
+  it('maps marker hotkeys without taking over piece-size keys outside marker mode', () => {
+    expect(getObjectiveMarkerHotkeyAction('1', false)).toBeNull()
+    expect(getObjectiveMarkerHotkeyAction('2', false)).toBeNull()
+    expect(getObjectiveMarkerHotkeyAction('1', true)).toEqual({
+      draftUpdates: { size: 1 },
+      selectPen: false,
+    })
+    expect(getObjectiveMarkerHotkeyAction('2', true)).toEqual({
+      draftUpdates: { size: 2 },
+      selectPen: false,
+    })
+    expect(getObjectiveMarkerHotkeyAction('m', false)).toEqual({
+      draftUpdates: { style: 'black' },
+      selectPen: true,
+    })
+    expect(getObjectiveMarkerHotkeyAction('shift+m', false)).toEqual({
+      draftUpdates: { style: 'white' },
+      selectPen: true,
+    })
+  })
+
   it('finds the next free number for the placed marker style', () => {
     expect(
       getNextObjectiveMarkerNumber([marker('one', 0, 0)], 'black', 1),
