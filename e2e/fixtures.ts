@@ -1,4 +1,4 @@
-import { type Page, test as base, expect } from '@playwright/test'
+import { type Locator, type Page, test as base, expect } from '@playwright/test'
 import JSONCrush from 'jsoncrush'
 import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 
@@ -21,6 +21,31 @@ export const mapUrl = (hexMap: object, pieceIds: string[]) =>
   )}`
 
 export const FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS)
+export const OBJECTIVE_MARKERS_FIXTURE_PIECE_IDS = [
+  ...FIXTURE_PIECE_IDS,
+  '0~-1~2~0~g1',
+]
+export const OBJECTIVE_MARKERS_FIXTURE_HEX_MAP = {
+  ...FIXTURE_HEX_MAP,
+  objectiveMarkers: [
+    {
+      uid: 'objective-ground',
+      anchor: { q: 0, r: 2, s: -2, altitude: 1 },
+      size: 2,
+      rotation: 3,
+      style: 'black',
+      content: { kind: 'number', value: 7 },
+    },
+    {
+      uid: 'objective-stacked',
+      anchor: { q: 1, r: 2, s: -3, altitude: 2 },
+      size: 1,
+      rotation: 2,
+      style: 'white',
+      content: { kind: 'text', value: 'A2' },
+    },
+  ],
+}
 
 const READY_TIMEOUT_MS = 60_000
 const pageErrors = new WeakMap<Page, string[]>()
@@ -191,6 +216,16 @@ const piecePagePoint = async (page: Page, uid: string) =>
     `Piece ${uid}`,
   )
 
+const objectiveMarkerPagePoint = async (page: Page, uid: string) =>
+  toPagePoint(
+    page,
+    await page.evaluate(
+      (id) => window.__TEST__?.screenPosOfObjectiveMarker(id) ?? null,
+      uid,
+    ),
+    `Objective marker ${uid}`,
+  )
+
 const hexPagePoint = async (
   page: Page,
   hex: { q: number; r: number; altitude: number },
@@ -246,6 +281,33 @@ export async function dragPiece(
   steps = 8,
 ) {
   await startDrag(page, uid, toHex, steps)
+  await page.mouse.up()
+}
+
+/** Click or drag a marker at the position exposed by the app test bridge. */
+export async function clickObjectiveMarker(page: Page, uid: string) {
+  await waitForAppReady(page)
+  const point = await objectiveMarkerPagePoint(page, uid)
+  await page.mouse.click(point.x, point.y)
+}
+
+export async function dragObjectiveMarker(
+  page: Page,
+  uid: string,
+  toHex: { q: number; r: number; altitude: number },
+  steps = 8,
+) {
+  await waitForAppReady(page)
+  const from = await objectiveMarkerPagePoint(page, uid)
+  const to = await hexPagePoint(page, toHex)
+  await page.mouse.move(from.x, from.y)
+  await page.mouse.down()
+  for (let i = 1; i <= steps; i += 1) {
+    await page.mouse.move(
+      from.x + ((to.x - from.x) * i) / steps,
+      from.y + ((to.y - from.y) * i) / steps,
+    )
+  }
   await page.mouse.up()
 }
 
@@ -312,6 +374,23 @@ export async function setPen(
       window.__TEST__?.setPen(mode, pieceSize, penRotation),
     { mode: penMode, pieceSize: size, penRotation: rotation },
   )
+}
+
+export async function saveEvidence(
+  page: Page,
+  name: string,
+  options?: Omit<NonNullable<Parameters<Page['screenshot']>[0]>, 'path'>,
+) {
+  if (process.env.E2E_EVIDENCE !== '1') return
+  await page.screenshot({
+    ...options,
+    path: `docs/evidence/${name}.png`,
+  })
+}
+
+export async function saveLocatorEvidence(locator: Locator, name: string) {
+  if (process.env.E2E_EVIDENCE !== '1') return
+  await locator.screenshot({ path: `docs/evidence/${name}.png` })
 }
 
 export const test = base.extend({

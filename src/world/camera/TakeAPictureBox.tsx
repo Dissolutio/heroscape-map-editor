@@ -2,8 +2,9 @@ import { Box } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { useSnackbar } from 'notistack'
 import { useEffect } from 'react'
+import { Color } from 'three'
 import useEvent from '../../hooks/useEvent'
-import useBoundStore from '../../store/store'
+import useBoundStore, { saveMapPortraitWithoutUndo } from '../../store/store'
 import { EVENTS } from '../../utils/constants'
 import { canvasToMapPortrait } from '../../utils/mapPortrait'
 
@@ -12,21 +13,34 @@ const TakeAPictureBox = () => {
   const { subscribe, unsubscribe } = useEvent()
   const { enqueueSnackbar } = useSnackbar()
   const toggleIsTakingPicture = useBoundStore((s) => s.toggleIsTakingPicture)
-  const addMapPortraitBase64 = useBoundStore((s) => s.addMapPortraitBase64)
+  const openCropMapPortraitDialog = useBoundStore(
+    (s) => s.openCropMapPortraitDialog,
+  )
 
   useEffect(() => {
     const handleTakeMapPicture = () => {
+      let shouldOpenCropDialog = false
+      const preserveAlpha =
+        useBoundStore.getState().lookSettings.transparentPictureBackground
+      const previousBackground = scene.background
+      const previousClearColor = gl.getClearColor(new Color()).clone()
+      const previousClearAlpha = gl.getClearAlpha()
       try {
+        if (preserveAlpha) {
+          scene.background = null
+          gl.setClearColor(0x000000, 0)
+        }
         gl.render(scene, camera)
         const screenshot = canvasToMapPortrait(
           gl.domElement,
           gl.domElement.width,
           gl.domElement.height,
+          preserveAlpha,
         )
-        addMapPortraitBase64(screenshot)
+        saveMapPortraitWithoutUndo(screenshot)
+        shouldOpenCropDialog = true
         enqueueSnackbar({
-          message:
-            'Map portrait saved! Crop it in Edit tab, or download from File tab',
+          message: 'Map picture taken',
           variant: 'success',
         })
       } catch (error) {
@@ -37,7 +51,12 @@ const TakeAPictureBox = () => {
         })
         console.error(error)
       } finally {
+        if (preserveAlpha) {
+          scene.background = previousBackground
+          gl.setClearColor(previousClearColor, previousClearAlpha)
+        }
         toggleIsTakingPicture(false)
+        if (shouldOpenCropDialog) openCropMapPortraitDialog()
       }
     }
 
@@ -53,7 +72,7 @@ const TakeAPictureBox = () => {
     toggleIsTakingPicture,
     subscribe,
     unsubscribe,
-    addMapPortraitBase64,
+    openCropMapPortraitDialog,
     enqueueSnackbar,
   ])
 

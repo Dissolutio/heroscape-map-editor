@@ -25,6 +25,7 @@ import {
   getSetConstrainedInventory,
   hasActiveTerrainConstraints,
   isInventoryPieceAvailable,
+  isPenModePieceAvailable,
 } from '../utils/terrain-constraints'
 
 describe('normalizePieceInventory', () => {
@@ -209,6 +210,24 @@ describe('set-based constraints', () => {
 })
 
 describe('what an inventory makes available', () => {
+  it('uses the same aliases for pen-mode availability as the selector', () => {
+    expect(
+      isPenModePieceAvailable(
+        Pieces.castleArchNoDoor,
+        {
+          [Pieces.castleArch]: 1,
+        },
+        true,
+      ),
+    ).toBe(true)
+    expect(isPenModePieceAvailable(Pieces.castleArchNoDoor, {}, true)).toBe(
+      false,
+    )
+    expect(isPenModePieceAvailable(Pieces.castleArchNoDoor, {}, false)).toBe(
+      true,
+    )
+  })
+
   it('requires a Laur variant to have its own inventory when constrained', () => {
     const inventory = { [Pieces.laurWallShortStackable]: 1 }
     expect(

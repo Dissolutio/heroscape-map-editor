@@ -11,6 +11,7 @@ import {
   resolveRotationPivot,
   shouldShowRotationPivotMarker,
 } from '../data/rotationPivot'
+import { worldToCube } from '../data/dragMove'
 import { shouldRenderPlacedPiece } from '../data/startZoneVisibility'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
@@ -30,6 +31,7 @@ import {
   pressPieceForDrag,
   reportDragTargetHex,
 } from './drag/dragController'
+import { reportObjectiveMarkerDragTarget } from './drag/objectiveMarkerDragController'
 import { hexTerrainColor } from './maphex/hexColors'
 import { Battlement } from './models/Battlement'
 import BigTree415 from './models/BigTree415'
@@ -74,6 +76,10 @@ import {
   getRoadWallOptions,
   getRuinsOptions,
 } from './models/piece-adjustments'
+import {
+  ROTATION_PIVOT_MARKER_MATERIAL,
+  ROTATION_PIVOT_MARKER_RENDER_ORDER,
+} from './rotationPivotMarkerStyle'
 
 type MapBoardPiece3DProps = {
   bp: BoardPiece
@@ -123,7 +129,6 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
     altitude: pivotAltitude,
   })
   const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
-    if (!isDragging()) return
     const { boardHexes } = useBoundStore.getState()
     const support = isLaurPillarID(props.bp.inventoryID)
       ? ({
@@ -136,13 +141,24 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
           terrain: HexTerrain.laurWall,
         } as BoardHex)
       : boardHexes[genBoardHexID({ ...pieceCoords, altitude })]
+    if (support) {
+      const pointerCoords = worldToCube(e.point.x, e.point.z)
+      const targetHex = boardHexes[
+        genBoardHexID({ ...pointerCoords, altitude: support.altitude })
+      ] ?? { ...support, ...pointerCoords }
+      if (reportObjectiveMarkerDragTarget(targetHex, e)) return
+    }
+    if (!isDragging()) return
     if (reportDragTargetHex(support, uid, { x: e.point.x, z: e.point.z })) {
       e.stopPropagation()
     }
   }
   return (
     <group
-      userData={{ boardPieceUID: uid }}
+      userData={{
+        boardPieceUID: uid,
+        inventoryID: props.bp.inventoryID,
+      }}
       onPointerDown={(e: ThreeEvent<PointerEvent>) => pressPieceForDrag(e, uid)}
       onPointerMove={onPointerMove}
     >
@@ -164,7 +180,7 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
           ]}
           rotation={[-Math.PI / 2, 0, 0]}
           raycast={() => null}
-          renderOrder={30}
+          renderOrder={ROTATION_PIVOT_MARKER_RENDER_ORDER}
         >
           <ringGeometry
             args={[
@@ -175,11 +191,7 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
               Math.PI / 6,
             ]}
           />
-          <meshBasicMaterial
-            color="#00e5ff"
-            depthTest={false}
-            toneMapped={false}
-          />
+          <meshBasicMaterial {...ROTATION_PIVOT_MARKER_MATERIAL} />
         </mesh>
       )}
     </group>

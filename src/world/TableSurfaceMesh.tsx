@@ -9,7 +9,15 @@ export function TableSurfaceMesh({
     (s) => s.isLightsAndShadowsRender,
   )
   const isHideTableTop = useBoundStore((s) => s.isHideTableTop)
-  if (!isLightsAndShadowsRender || isHideTableTop) {
+  const isTakingTransparentPicture = useBoundStore(
+    (s) => s.isTakingPicture && s.lookSettings.transparentPictureBackground,
+  )
+  const tableColor = useBoundStore((s) => s.lookSettings.tableColor)
+  if (
+    !isLightsAndShadowsRender ||
+    isHideTableTop ||
+    isTakingTransparentPicture
+  ) {
     return null
   }
   return (
@@ -25,7 +33,7 @@ export function TableSurfaceMesh({
       <planeGeometry args={[2 * width, 2 * length]} />
       {/* <shadowMaterial color="white" opacity={1} /> */}
       {/* <meshStandardMaterial color="brown" opacity={1} /> */}
-      <meshPhongMaterial color="white" opacity={1} />
+      <meshPhongMaterial color={tableColor} opacity={1} />
     </mesh>
   )
 }

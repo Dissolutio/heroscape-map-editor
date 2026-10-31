@@ -1,16 +1,20 @@
 import type { BoardPiece, HexMap } from '../types'
 import { Pieces } from '../types'
 import {
+  MAX_HEXAGON_MAP_DIMENSION,
+  MAX_RECTANGLE_MAP_DIMENSION,
+} from '../utils/constants'
+import {
   hexUtilsGenHexagonGrid,
   hexUtilsGenRectangleGrid,
 } from '../utils/hex-utils'
 import { genBoardHexID } from '../utils/map-utils'
 import {
-  MAX_HEXAGON_MAP_DIMENSION,
-  MAX_RECTANGLE_MAP_DIMENSION,
-} from '../utils/constants'
-import getPieceTemplateCoords from './rotationTransforms'
+  type ObjectiveMarker,
+  getObjectiveMarkerFootprint,
+} from './objectiveMarkers'
 import { piecesSoFar } from './pieces'
+import getPieceTemplateCoords from './rotationTransforms'
 
 const rimPieces = new Set([Pieces.battlement, Pieces.roadWall])
 
@@ -38,6 +42,8 @@ type RectangleExtents = {
 type FittingFootprints = {
   footprintCoords: ReturnType<typeof getPieceTemplateCoords>
   droppedPieces: BoardPiece[]
+  objectiveMarkers: ObjectiveMarker[]
+  droppedObjectiveMarkers: ObjectiveMarker[]
 }
 
 function getPieceFootprintCoords(boardPiece: BoardPiece) {
@@ -50,6 +56,14 @@ function getPieceFootprintCoords(boardPiece: BoardPiece) {
     template: piece.template,
     isVsTile: false,
   })
+}
+
+function getObjectiveMarkerFootprintCoords(marker: ObjectiveMarker) {
+  return getObjectiveMarkerFootprint(marker).map(({ q, r, s }) => ({
+    q,
+    r,
+    s,
+  }))
 }
 
 function addHexagonCoordsToExtents(
@@ -105,6 +119,8 @@ function getFittingHexagonFootprints(
   const maxRadius = Math.max(radius, MAX_HEXAGON_FIT_RADIUS)
   const footprintCoords: ReturnType<typeof getPieceTemplateCoords> = []
   const droppedPieces: BoardPiece[] = []
+  const objectiveMarkers: ObjectiveMarker[] = []
+  const droppedObjectiveMarkers: ObjectiveMarker[] = []
 
   for (const boardPiece of boardPieces) {
     const coords = getPieceFootprintCoords(boardPiece)
@@ -120,7 +136,25 @@ function getFittingHexagonFootprints(
     footprintCoords.push(...coords)
   }
 
-  return { footprintCoords, droppedPieces }
+  for (const marker of hexMap.objectiveMarkers ?? []) {
+    const coords = getObjectiveMarkerFootprintCoords(marker)
+    const nextExtents = addHexagonCoordsToExtents(extents, coords)
+    if (getHexagonFitRadius(nextExtents) > maxRadius) {
+      droppedObjectiveMarkers.push(marker)
+      continue
+    }
+
+    extents = nextExtents
+    footprintCoords.push(...coords)
+    objectiveMarkers.push(marker)
+  }
+
+  return {
+    footprintCoords,
+    droppedPieces,
+    objectiveMarkers,
+    droppedObjectiveMarkers,
+  }
 }
 
 function getFittingRectangleFootprints(
@@ -139,6 +173,8 @@ function getFittingRectangleFootprints(
   const maxWidth = Math.max(hexMap.width, MAX_RECTANGLE_FIT_DIMENSION)
   const footprintCoords: ReturnType<typeof getPieceTemplateCoords> = []
   const droppedPieces: BoardPiece[] = []
+  const objectiveMarkers: ObjectiveMarker[] = []
+  const droppedObjectiveMarkers: ObjectiveMarker[] = []
 
   for (const boardPiece of boardPieces) {
     const coords = getPieceFootprintCoords(boardPiece)
@@ -165,14 +201,59 @@ function getFittingRectangleFootprints(
     footprintCoords.push(...coords)
   }
 
-  return { footprintCoords, droppedPieces }
+  for (const marker of hexMap.objectiveMarkers ?? []) {
+    const coords = getObjectiveMarkerFootprintCoords(marker)
+    const nextExtents = coords.reduce((next, { q, r }) => {
+      const col = q + Math.floor(r / 2)
+      return {
+        minR: Math.min(next.minR, r),
+        maxR: Math.max(next.maxR, r),
+        minCol: Math.min(next.minCol, col),
+        maxCol: Math.max(next.maxCol, col),
+      }
+    }, extents)
+    if (
+      nextExtents.maxR - nextExtents.minR + 1 > maxLength ||
+      nextExtents.maxCol - nextExtents.minCol + 1 > maxWidth
+    ) {
+      droppedObjectiveMarkers.push(marker)
+      continue
+    }
+
+    extents = nextExtents
+    footprintCoords.push(...coords)
+    objectiveMarkers.push(marker)
+  }
+
+  return {
+    footprintCoords,
+    droppedPieces,
+    objectiveMarkers,
+    droppedObjectiveMarkers,
+  }
 }
 
-function withDroppedPieces(
+function withDroppedItems(
   result: { hexMap: HexMap; changed: boolean },
-  droppedPieces: BoardPiece[],
+  fitting: FittingFootprints,
 ) {
-  return droppedPieces.length ? { ...result, droppedPieces } : result
+  const droppedMarkerSet = new Set(fitting.droppedObjectiveMarkers)
+  const hexMap = droppedMarkerSet.size
+    ? {
+        ...result.hexMap,
+        objectiveMarkers: fitting.objectiveMarkers,
+      }
+    : result.hexMap
+  return {
+    ...result,
+    hexMap,
+    ...(fitting.droppedPieces.length
+      ? { droppedPieces: fitting.droppedPieces }
+      : {}),
+    ...(fitting.droppedObjectiveMarkers.length
+      ? { droppedObjectiveMarkers: fitting.droppedObjectiveMarkers }
+      : {}),
+  }
 }
 
 function getRectangleMapWithPieces(
@@ -228,14 +309,15 @@ export function fitMapToPieces(
   hexMap: HexMap
   changed: boolean
   droppedPieces?: BoardPiece[]
+  droppedObjectiveMarkers?: ObjectiveMarker[]
 } {
   const fitting =
     hexMap.shape === 'hexagon'
       ? getFittingHexagonFootprints(hexMap, boardPieces)
       : getFittingRectangleFootprints(hexMap, boardPieces)
-  const { footprintCoords, droppedPieces } = fitting
+  const { footprintCoords } = fitting
   if (footprintCoords.length === 0) {
-    return withDroppedPieces({ hexMap, changed: false }, droppedPieces)
+    return withDroppedItems({ hexMap, changed: false }, fitting)
   }
 
   if (hexMap.shape === 'hexagon') {
@@ -276,9 +358,9 @@ export function fitMapToPieces(
           originQ !== (hexMap.originQ ?? 0) ||
           originR !== (hexMap.originR ?? 0)
         if (!changed) {
-          return withDroppedPieces({ hexMap, changed: false }, droppedPieces)
+          return withDroppedItems({ hexMap, changed: false }, fitting)
         }
-        return withDroppedPieces(
+        return withDroppedItems(
           {
             hexMap: {
               ...hexMap,
@@ -293,7 +375,7 @@ export function fitMapToPieces(
             },
             changed: true,
           },
-          droppedPieces,
+          fitting,
         )
       }
       radius += 1
@@ -301,9 +383,9 @@ export function fitMapToPieces(
   }
 
   const nextHexMap = getRectangleMapWithPieces(hexMap, footprintCoords)
-  return withDroppedPieces(
+  return withDroppedItems(
     { hexMap: nextHexMap, changed: nextHexMap !== hexMap },
-    droppedPieces,
+    fitting,
   )
 }
 

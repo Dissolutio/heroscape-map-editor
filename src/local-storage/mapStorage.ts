@@ -2,7 +2,9 @@ import type { HexMap } from '../types'
 import { LS_KEYS } from './keys'
 import { safeGetJSON, safeRemove, safeSetItem } from './safeStorage'
 
-export type MapStorageResult = { ok: true } | { ok: false; quota: boolean }
+export type MapStorageResult =
+  | { ok: true; quotaFallback?: boolean }
+  | { ok: false; quota: boolean }
 
 export function mapStorageFailure(quota: boolean): MapStorageResult {
   return { ok: false, quota }
@@ -30,17 +32,30 @@ export function restoreMapPortrait(hexMap: HexMap): HexMap {
   return hexMap
 }
 
-export function saveMapPortrait(hexMap: HexMap): MapStorageResult {
+export function saveMapPortrait(
+  hexMap: HexMap,
+  quotaFallback?: string,
+): MapStorageResult {
   if (!hexMap.mapPortraitBase64) {
     return safeRemove(LS_KEYS.lastMapPortrait)
       ? { ok: true }
       : mapStorageFailure(false)
   }
-  return safeSetItem(
+  const result = safeSetItem(
     LS_KEYS.lastMapPortrait,
     JSON.stringify({
       mapId: hexMap.id,
       mapPortraitBase64: hexMap.mapPortraitBase64,
     }),
   )
+  if (result.ok || !result.quota || !quotaFallback) return result
+
+  const fallbackResult = safeSetItem(
+    LS_KEYS.lastMapPortrait,
+    JSON.stringify({
+      mapId: hexMap.id,
+      mapPortraitBase64: quotaFallback,
+    }),
+  )
+  return fallbackResult.ok ? { ok: true, quotaFallback: true } : result
 }

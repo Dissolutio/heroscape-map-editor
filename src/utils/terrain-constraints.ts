@@ -1,6 +1,6 @@
 import { piecesSoFar } from '../data/pieces'
 import { terrainSetsByShortID } from '../data/terrainSets'
-import { PiecePrefixes } from '../types'
+import { PiecePrefixes, Pieces } from '../types'
 import type { PieceInventory, TerrainConstraintSource } from '../types'
 import { normalizePieceInventory } from './piece-inventory'
 
@@ -73,6 +73,27 @@ export function isInventoryPieceAvailable(
     return true
   }
   return aliases.some((alias) => (constrainedInventory[alias] ?? 0) > 0)
+}
+
+const penModeInventoryAliases: Record<string, string[]> = {
+  [Pieces.castleArchNoDoor]: [Pieces.castleArch],
+  [Pieces.marvelBroken]: [Pieces.marvel],
+  [Pieces.marvelNoUpper]: [Pieces.marvel],
+  [Pieces.marvelNoUpperBroken]: [Pieces.marvel],
+  [Pieces.laurWallRuin1]: [Pieces.laurWallRuin2, Pieces.laurWallRuin3],
+}
+
+export function isPenModePieceAvailable(
+  pieceID: string,
+  constrainedInventory: PieceInventory,
+  hasConstraints: boolean,
+) {
+  return isInventoryPieceAvailable(
+    pieceID,
+    constrainedInventory,
+    hasConstraints,
+    penModeInventoryAliases[pieceID] ?? [],
+  )
 }
 
 export function getAvailableLandPrefixesForInventory(

@@ -14,7 +14,11 @@ export default defineConfig({
   // Each worker is a software-WebGL browser: more than two in parallel starve
   // each other and the slowest tests hit their timeout.
   workers: process.env.CI ? 1 : 2,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  // On CI the github reporter turns each failed test into an annotation on the
+  // check run, so failures can be read without downloading the report artifact.
+  reporter: process.env.CI
+    ? [['github'], ['list'], ['html', { open: 'never' }]]
+    : [['list'], ['html', { open: 'never' }]],
   use: {
     ...devices['Desktop Chrome'],
     baseURL: `http://localhost:${PORT}`,

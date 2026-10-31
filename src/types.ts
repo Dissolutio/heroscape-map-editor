@@ -1,3 +1,5 @@
+import type { ObjectiveMarker } from './data/objectiveMarkers'
+
 export type MapState = MapFileState & {
   boardHexes: BoardHexes
 }
@@ -20,6 +22,7 @@ export type HexMap = {
   // properties below are written as BLANK STRINGS in URL-shareable format
   mapPortraitBase64?: string // a base64 representation of image of map (taken or submitted by user)
   mapNotes?: string // notes about the map, added by user
+  objectiveMarkers?: ObjectiveMarker[]
 }
 export type CubeCoordinate = {
   q: number
@@ -145,7 +148,7 @@ export type Piece = {
   glyphLetter?: string
   landPrefix?: PiecePrefixes // Including this so land pieces can have their sizes computed for piece-size selection in the Controls
   // TODO: account for 1 marvel wall => 4 variations, 1 castle arch => 2 variations
-  isUninventoried?: boolean // so far just marvel-ruins-broken and castle-arch-no-door versions (these are just variations on their inventoried counterparts)
+  isUninventoried?: boolean // Generic pieces and variants without inventory counterparts.
 }
 // Pen modes that do not paint: 'select' picks pieces, 'pick' eyedroppers the clicked piece's pen mode
 export const SELECT_PEN_MODE = 'select'

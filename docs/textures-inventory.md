@@ -1,6 +1,6 @@
 # Texture inventory (`textures/`, branch `textures`)
 
-Generated 2026-10-27 from the 57 images under `textures/`. ImageMagick 7.1.2-34 decodes, rotates, compares and encodes. Statistics over the decoded pixels (`magick f -depth 8 rgba:-`) are aggregated with numpy. Values are 0-255 unless marked 0-1. RMSE is per-channel RGB(A) on the 0-255 scale unless marked. Full data, including per-pixel edge profiles and every pairwise RMSE, is in [textures-inventory.json](textures-inventory.json).
+Originally generated 2026-10-27 from 57 images under `textures/`. On 2026-10-29, the Ice side source was replaced and the two tinted Shadow/SwampWater side sources were added; their file and color statistics below reflect the current 59 images. The other aggregate/pairwise analyses and [textures-inventory.json](textures-inventory.json) remain the original snapshot. The original analysis used ImageMagick 7.1.2-34 and numpy. Values are 0-255 unless marked 0-1. RMSE is per-channel RGB(A) on the 0-255 scale unless marked.
 
 ## Can be hard-coded
 
@@ -73,7 +73,9 @@ Every file is 8 bits per channel. "Ch" is what is stored. Alpha is "yes" when an
 | `sides/ConcreteSide.png` | PNG Truecolor | 128x32 | 8 | RGB | no | 4705 | side diffuse |
 | `sides/DungeonSide.png` | PNG Indexed | 128x32 | 8 | RGB | no | 3553 | side diffuse |
 | `sides/GroundSide.png` | PNG Truecolor | 128x32 | 8 | RGB | no | 4736 | side diffuse |
-| `sides/IceSide.png` | PNG Truecolor | 128x32 | 8 | RGB | no | 5932 | side diffuse |
+| `sides/IceSide.png` | PNG Truecolor | 128x32 | 8 | RGB | no | 5828 | side diffuse |
+| `sides/ShadowSide.png` | PNG Truecolor | 128x32 | 8 | RGB | no | 3220 | tinted fluid side diffuse |
+| `sides/SwampWaterSide.png` | PNG Truecolor | 128x32 | 8 | RGB | no | 7326 | tinted fluid side diffuse |
 | `sides/LavaFieldSide.png` | PNG Truecolor | 128x32 | 8 | RGB | no | 4122 | side diffuse |
 | `sides/LavaSide.png` | PNG Indexed | 128x32 | 8 | RGB | no | 3536 | side diffuse |
 | `sides/RoadSide.png` | PNG Truecolor | 128x32 | 8 | RGB | no | 4312 | side diffuse |
@@ -137,7 +139,9 @@ Role comes from the file name: `caps/` = cap diffuse, `sides/` = side diffuse, o
 | `sides/ConcreteSide.png` | 55/74/63/255 | 209/220/211/255 | 154/146/148/0 |  |  |  |
 | `sides/DungeonSide.png` | 54/54/50/255 | 191/188/181/255 | 137/134/131/0 |  |  |  |
 | `sides/GroundSide.png` | 108/62/35/255 | 166/122/86/255 | 58/60/51/0 |  |  |  |
-| `sides/IceSide.png` | 162/166/160/255 | 222/227/220/255 | 60/61/60/0 |  |  |  |
+| `sides/IceSide.png` | 90/126/126/255 | 150/187/186/255 | 60/61/60/0 |  |  |  |
+| `sides/ShadowSide.png` | 5/5/4/255 | 11/11/10/255 | 6/6/6/0 |  |  |  |
+| `sides/SwampWaterSide.png` | 37/33/16/255 | 93/82/40/255 | 56/49/24/0 |  |  |  |
 | `sides/LavaFieldSide.png` | 102/11/0/255 | 154/56/22/255 | 52/45/22/0 |  |  |  |
 | `sides/LavaSide.png` | 136/0/0/255 | 236/93/31/255 | 100/93/31/0 |  |  |  |
 | `sides/RoadSide.png` | 96/102/93/255 | 169/171/162/255 | 73/69/69/0 |  |  |  |
@@ -153,7 +157,7 @@ Near-flat but not flat (range 3-8/255): none. Closest outside the limit: `cap-me
 
 ## C. Duplicates
 
-Pixel hashes (`magick f -depth 8 rgba:- | sha256sum`): **all 57 are distinct**. No pair of same-size images has RMSE under 1/255. The closest pair is `side-fluid-normal.bmp` vs `side-solid-normal.bmp` at 0.0385.
+The original 57-image pixel-hash and pairwise-RMSE analysis is unchanged and does not include the two new side images or the replacement Ice image.
 
 | A | B | Pixel-identical | RMSE 0-1 (RGBA) | `magick compare -metric RMSE` |
 |---|---|---|---|---|
@@ -223,8 +227,8 @@ Your expected mapping, checked against the files and against `Textures.md`. "-" 
 | WellspringWater | `WellspringWater` | - | `WellspringSide` | `cap-fluid-height` | `cap-fluid-normal` | `cap-fluid-ao` | `cap-water-roughness` | `cap-metallic` | `side-fluid-height` | `side-fluid-normal` | `side-ao` | `side-water-roughness` | `side-metallic` |
 | Ice | `Ice` | - | `IceSide` | `cap-fluid-height` | `cap-fluid-normal` | `cap-fluid-ao` | `cap-water-roughness` | `cap-metallic` | `side-fluid-height` | `side-fluid-normal` | `side-ao` | `side-water-roughness` | `side-metallic` |
 | Lava | `Lava` | - | `LavaSide` | `cap-fluid-height` | `cap-fluid-normal` | `cap-fluid-ao` | `cap-lava-roughness` | `cap-metallic` | `side-fluid-height` | `side-fluid-normal` | `side-ao` | **`side-roughness`** | `side-metallic` |
-| SwampWater | - | - | - | `cap-fluid-height` | `cap-fluid-normal` | `cap-fluid-ao` | **`cap-roughness`** | `cap-metallic` | `side-fluid-height` | `side-fluid-normal` | `side-ao` | **`side-roughness`** | `side-metallic` |
-| Shadow | - | - | - | - | `cap-fluid-normal` | `cap-fluid-ao` | **-** | `cap-metallic` | - | - | - | - | - |
+| SwampWater | - | - | `SwampWaterSide` | `cap-fluid-height` | `cap-fluid-normal` | `cap-fluid-ao` | **`cap-roughness`** | `cap-metallic` | `side-fluid-height` | `side-fluid-normal` | `side-ao` | **`side-roughness`** | `side-metallic` |
+| Shadow | - | - | `ShadowSide` | - | `cap-fluid-normal` | `cap-fluid-ao` | **-** | `cap-metallic` | `side-fluid-height` | `side-fluid-normal` | `side-ao` | `side-roughness` | `side-metallic` |
 
 ### Flags per terrain
 
@@ -292,11 +296,11 @@ Your expected mapping, checked against the files and against `Textures.md`. "-" 
   - AMBIGUOUS side roughness: your list gives side-water-roughness only to the sparkling fluids (so Lava would get side-roughness.bmp), but Textures.md gives Lava sidesOrmAtlas.water; side-roughness.bmp is shown here
   - side AO: only side-ao.bmp exists
 - **SwampWater**
-  - no cap or side image (hard-coded colour, see the average-colour table)
+  - no cap diffuse image; `SwampWaterSide.png` uses the WaterSide tooth pattern tinted to the flat cap colour
   - Textures.md swampWaterMaterial still names capsAtlas.swampWater and sidesAtlas.swampWater, which do not exist
   - roughness: Textures.md says ormAtlas.sand with the comment "textured large-sparkle lava"; the two disagree. cap-roughness.png / side-roughness.bmp shown
 - **Shadow**
-  - no cap or side image (Textures.md: map #000)
+  - no cap diffuse image (Textures.md: map #000); `ShadowSide.png` uses the WaterSide tooth pattern tinted to the flat cap colour
   - Textures.md: height none, normal = smooth fluid normal, AO/roughness/metalness = "fluid ORM" frame; cap-fluid-* shown, and which roughness is meant is not stated
   - Textures.md defines only a cap material for Shadow; sides unspecified
 
@@ -310,7 +314,7 @@ Your expected mapping, checked against the files and against `Textures.md`. "-" 
 - Fluids: `cap-water-roughness`, `cap-lava-roughness`, `cap-fluid-height/normal/ao`, `side-fluid-height/normal` and `side-water-roughness` all exist. Side AO for fluids is not in your list; only `side-ao.bmp` exists. Side roughness for Lava is ambiguous (see Lava). `cap-water-roughness` was made from `Water.png` and `side-water-roughness` from `WaterSide.png` (0.99 each). For ToxicWater, Wellspring and Ice they are 0.15-0.29.
 - WallWalk side: there is no WallWalk file. `RoadSide.png` is the only road-coloured side. The app already colours wallWalk the same as road (`src/world/maphex/hexColors.ts`). Whether RoadSide is *intended* is your call; nothing in `textures/` says so.
 - **Unused files** (referenced by no terrain under this mapping): none. The mapping only uses `cap-roughness.png` by assumption. If you follow Textures.md literally, `caps/Ancient.png`, `sides/AncientSide.png` and `caps/Lava.png` are unused, because it maps Ancient to sand/GroundSide and Lava to the Ice cap.
-- **Needed but missing**: Wood cap roughness; the WoodDark "associated roughness map"; a road roughness if one was meant (Textures.md `ormAtlas.road`); `capsAtlas.swampWater` / `sidesAtlas.swampWater` named by Textures.md; `/atlases/orm_atlas.png` named by Textures.md (there is no `atlases/` directory in `public/` or `textures/`). Shadow and SwampWater colour images are absent by design.
+- **Needed but missing**: Wood cap roughness; the WoodDark "associated roughness map"; a road roughness if one was meant (Textures.md `ormAtlas.road`); `capsAtlas.swampWater` / `sidesAtlas.swampWater` named by Textures.md; `/atlases/orm_atlas.png` named by Textures.md (there is no `atlases/` directory in `public/` or `textures/`). Shadow and SwampWater still have no cap diffuse images.
 
 ### Average colours for SwampWater and Shadow
 
@@ -320,6 +324,9 @@ Your expected mapping, checked against the files and against `Textures.md`. "-" 
 |---|---|---|---|
 | `caps/Swamp.png` | #536b36 | #3d6c37 | #3a743b |
 | `sides/SwampSide.png` | #706e35 |  |  |
+| `sides/SwampWaterSide.png` | #363018 |  |  |
+| `sides/ShadowSide.png` | #070706 |  |  |
+| `sides/IceSide.png` | #82aaa7 |  |  |
 | `caps/Water.png` | #0d80b5 | #0b83b9 | #0085bc |
 | `sides/WaterSide.png` | #0589c0 |  |  |
 | `caps/ToxicWater.png` | #bad68f | #b9d690 | #bcd791 |
@@ -531,11 +538,13 @@ Assumptions in the inputs: `cap-roughness.png` for sand and road (no dedicated f
 
 | Set | Images | GPU (RGBA8 + mips) | Disk |
 |---|---|---|---|
-| All files as they are | 57 | 11.50 MiB | 5371.2 KiB (as stored) |
+| Original inventory snapshot | 57 | 11.50 MiB | 5371.2 KiB (as stored) |
 | Minus duplicates (0) and flat images (6) | 51 | 10.12 MiB | 528.2 KiB WebP q90; 2044.2 KiB WebP lossless |
 | Packed: 36 diffuse + 4 non-flat normals + 7 ORM+H | 47 | 9.10 MiB | 2485.2 KiB PNG (diffuse as stored + ORM+H; the 4 normals, stored as BMP, not included); 561.0 KiB WebP q90; 2042.9 KiB WebP lossless |
 
 The flat images removed are `cap-fluid-ao.bmp`, `cap-fluid-height.bmp`, `cap-fluid-normal.bmp`, `cap-roughness.png`, `side-metallic.bmp`, `side-roughness.bmp`. Of the 20 caps, 2 are PBR alternates (`AncientDark`, `WoodDark`). Leaving them out saves 0.67 MiB of GPU memory if they are loaded only for high quality. WebP sizes were measured with `magick f -quality 90 out.webp` and `-define webp:lossless=true` into a temp directory. Lossy WebP on normal and height data is listed for size only; its effect on shading was not evaluated.
+
+The counts and estimates above describe the original 57-image inventory snapshot.
 
 ## What could not be determined
 

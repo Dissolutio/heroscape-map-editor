@@ -318,7 +318,7 @@ export const svgColors = {
   // [HexTerrain.glyphPower]: 'rgb(120, 1, 22)',
   // [HexTerrain.glyphTreasure]: 'rgb(245, 177, 53)',
   [HexTerrain.glyphPower]: 'rgb(255, 124, 3)',
-  [HexTerrain.glyphTreasure]: 'rgb(255, 124, 3)',
+  [HexTerrain.glyphTreasure]: 'rgb(225, 191, 20)',
 }
 export const svgSubLevelColors = {
   jungleText: '#C5BCBC',
@@ -403,7 +403,7 @@ export const svgSubLevelColors = {
   [HexTerrain.wellspringWater]: '#FFFFFF', // used this in virtualscape to differentiate from snow
   [HexTerrain.swampWater]: '#D3D2B2',
   [HexTerrain.lava]: '#FFA7A7',
-  [HexTerrain.shadow]: '#2E2D2D',
+  [HexTerrain.shadow]: '#808080', // lighter so sublevel shadow reads as see-through
   [HexTerrain.ice]: '#B4C2EF',
   [HexTerrain.toxic]: '#7A7A7A',
   [HexTerrain.toxicOutcrop]: '#B2F2AF',
@@ -413,7 +413,7 @@ export const svgSubLevelColors = {
   // GYLPHS
   // glyph: 'rgb(244, 106, 22)', // renegade
   [HexTerrain.glyphPower]: 'rgb(255, 169, 89)',
-  [HexTerrain.glyphTreasure]: 'rgb(255, 169, 89)',
+  [HexTerrain.glyphTreasure]: 'rgb(240, 223, 138)',
   glyphBorder: '#C5BCBC',
   battlementBorder: '#C5BCBC',
 }

@@ -21,6 +21,7 @@ import {
   FcCollect,
   FcLock,
   FcOldTimeCamera,
+  FcSettings,
   FcSwitchCamera,
   FcSynchronize,
   FcUnlock,
@@ -41,12 +42,16 @@ import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 import { HotkeyText } from './HotKeyText'
 import { useHotkeyConfig } from './useHotkeyConfig'
 import { getViewMode } from './viewMode'
-import { isPerHexLandEnabled } from '../e2e/isE2E'
+import { captureWithOptionalHighQuality } from '../world/camera/pictureQuality'
 
 const GENERIC_PIECE_COLORS_TOOLTIP =
   'Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D.'
 const BURIED_MARKS_TOOLTIP =
   '* = the top of this tile will be covered. † = its sides will be covered. Both = fully hidden, so any piece of the same size and kind (solid for solid, fluid for fluid) works.'
+const TRANSPARENT_GLYPHS_TOOLTIP =
+  'Show glyph spaces transparently in SVG and PDF, preserving outlines and symbols.'
+const HIDE_GLYPH_HEIGHTS_TOOLTIP =
+  'Hide hex heights at glyph spaces in SVG and PDF.'
 
 export default function ViewControlsTab({
   cameraControlsRef,
@@ -59,6 +64,9 @@ export default function ViewControlsTab({
   const { enqueueSnackbar } = useSnackbar()
   const { publish } = useEvent()
   const resetSettings = useBoundStore((s) => s.resetSettings)
+  const setIsLookSettingsDialogOpen = useBoundStore(
+    (s) => s.setIsLookSettingsDialogOpen,
+  )
   const isCamerDisabled = useBoundStore((s) => s.isCameraDisabled)
   const toggleIsCameraDisabled = useBoundStore((s) => s.toggleIsCameraDisabled)
   const toggleIsOrthoCam = useBoundStore((s) => s.toggleIsOrthoCam)
@@ -82,6 +90,13 @@ export default function ViewControlsTab({
 
   // this timeout gives the World enough time to re-render without empty hexes etc.
   const takePictureTimeout = React.useRef<number>()
+  const waitForSettledFrames = async () => {
+    for (let frame = 0; frame < 3; frame += 1) {
+      await new Promise<void>((resolve) =>
+        window.requestAnimationFrame(() => resolve()),
+      )
+    }
+  }
   // effect: clear the timeout after we take a picture
   React.useEffect(() => {
     if (!isTakingPicture) {
@@ -121,15 +136,50 @@ export default function ViewControlsTab({
     toggleIsTakingPicture(true)
     takePictureTimeout.current = window.setTimeout(() => {
       takePictureTimeout.current = undefined
-      const { is2DOpen: show2D, isPdfOpen: showPdf } = useBoundStore.getState()
-      if (show2D || showPdf) {
-        toggleIsTakingPicture(false)
-        return
-      }
-      if (!publish(EVENTS.savePng)) {
-        toggleIsTakingPicture(false)
-      }
-    }, 100) // Long enough to make some changes to the map and render
+      const store = useBoundStore.getState()
+      void captureWithOptionalHighQuality({
+        enabled: store.useHighQualityForPicture,
+        getSettings: () => {
+          const current = useBoundStore.getState()
+          return {
+            graphicsTier: current.graphicsTier,
+            lights: current.isLightsAndShadowsRender,
+          }
+        },
+        setGraphicsTier: (tier) =>
+          useBoundStore.getState().setGraphicsTier(tier),
+        setLights: (enabled) =>
+          useBoundStore.getState().toggleIsLightsAndShadowsRender(enabled),
+        isHighReady: () => {
+          const current = useBoundStore.getState()
+          return (
+            current.effectiveGraphicsTier === 'high' &&
+            current.textureLoadStatus === 'ready'
+          )
+        },
+        waitForSettledFrames,
+        capture: () => {
+          const { is2DOpen: show2D, isPdfOpen: showPdf } =
+            useBoundStore.getState()
+          return !show2D && !showPdf && publish(EVENTS.savePng)
+        },
+        warn: () =>
+          enqueueSnackbar(
+            'High-quality textures could not be loaded. The picture was captured in the current mode.',
+            { variant: 'warning' },
+          ),
+      })
+        .then((published) => {
+          if (!published) toggleIsTakingPicture(false)
+        })
+        .catch((error: unknown) => {
+          enqueueSnackbar('Could not capture the map picture', {
+            variant: 'error',
+          })
+          console.error(error)
+        })
+        .finally(() => toggleIsTakingPicture(false))
+    }, 100)
   }
   return (
     <Box sx={{ width: '100%', height: '100%' }} role="presentation">
@@ -144,6 +194,12 @@ export default function ViewControlsTab({
       >
         {is3DOpen && (
           <List>
+            <ControlTabsListItemButton
+              title="Adjust scene lighting, tone mapping, shine, and colors"
+              primary="3D look..."
+              onClick={() => setIsLookSettingsDialogOpen(true)}
+              icon={<FcSettings />}
+            />
             {/* Center map in camera view */}
             <ControlTabsListItemButton
               title="Center the camera on entire map"
@@ -227,6 +283,52 @@ export default function ViewControlsTab({
   )
 }
 
+const GlyphExportOptions = () => {
+  const isTransparentGlyphSpaces = useBoundStore(
+    (s) => s.isTransparentGlyphSpaces,
+  )
+  const toggleIsTransparentGlyphSpaces = useBoundStore(
+    (s) => s.toggleIsTransparentGlyphSpaces,
+  )
+  const isHideHeightsOnGlyphs = useBoundStore((s) => s.isHideHeightsOnGlyphs)
+  const toggleIsHideHeightsOnGlyphs = useBoundStore(
+    (s) => s.toggleIsHideHeightsOnGlyphs,
+  )
+
+  return (
+    <>
+      <Tooltip title={TRANSPARENT_GLYPHS_TOOLTIP} describeChild>
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isTransparentGlyphSpaces}
+              onChange={(event) =>
+                toggleIsTransparentGlyphSpaces(event.target.checked)
+              }
+            />
+          }
+          label="Transparent glyph spaces"
+        />
+      </Tooltip>
+      <Tooltip title={HIDE_GLYPH_HEIGHTS_TOOLTIP} describeChild>
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isHideHeightsOnGlyphs}
+              onChange={(event) =>
+                toggleIsHideHeightsOnGlyphs(event.target.checked)
+              }
+            />
+          }
+          label="Hide heights on glyphs"
+        />
+      </Tooltip>
+    </>
+  )
+}
+
 const GenericTerrainColorsForm = () => {
   const solidCap = useBoundStore((s) => s.genericSolidCapColor)
   const solidSide = useBoundStore((s) => s.genericSolidSideColor)
@@ -300,6 +402,12 @@ const GenericTerrainColorsForm = () => {
 const ViewPreferencesSwitchForm = () => {
   const graphicsTier = useBoundStore((s) => s.graphicsTier)
   const setGraphicsTier = useBoundStore((s) => s.setGraphicsTier)
+  const useHighQualityForPicture = useBoundStore(
+    (s) => s.useHighQualityForPicture,
+  )
+  const toggleUseHighQualityForPicture = useBoundStore(
+    (s) => s.toggleUseHighQualityForPicture,
+  )
   const textureLoadStatus = useBoundStore((s) => s.textureLoadStatus)
   const textureLoadProgress = useBoundStore((s) => s.textureLoadProgress)
   const isLightsAndShadowsRender = useBoundStore(
@@ -380,56 +488,75 @@ const ViewPreferencesSwitchForm = () => {
     <FormControl component="fieldset" variant="standard">
       <FormLabel component="legend">3D View options:</FormLabel>
       <FormGroup>
-        {isPerHexLandEnabled && (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-            <Tooltip title="Medium and High download texture images the first time you choose them (about 2.7 MB for Medium, about 3.5 MB for High). Lowest uses no images.">
-              <FormLabel
-                id="graphics-tier-label"
-                component="label"
-                htmlFor="graphics-tier-select"
-              >
-                Graphics
-              </FormLabel>
-            </Tooltip>
-            <FormControl size="small">
-              <Select
-                id="graphics-tier-select"
-                labelId="graphics-tier-label"
-                data-testid="graphics-tier-select"
-                value={graphicsTier}
-                onChange={(event: SelectChangeEvent) => {
-                  void setGraphicsTier(event.target.value as GraphicsTier)
-                }}
-              >
-                <MenuItem value="low">Lowest</MenuItem>
-                <MenuItem value="medium">Medium (textures)</MenuItem>
-                <MenuItem value="high">High (PBR textures)</MenuItem>
-              </Select>
-            </FormControl>
-            {textureLoadStatus === 'loading' && (
-              <Box
-                aria-live="polite"
-                data-testid="graphics-texture-status"
-                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-              >
-                <CircularProgress aria-label="Loading textures" size={16} />
-                <span>
-                  Loading textures ({textureLoadProgress.loaded}/
-                  {textureLoadProgress.total})
-                </span>
-              </Box>
-            )}
-            {textureLoadStatus === 'ready' && (
-              <span
-                aria-live="polite"
-                data-testid="graphics-texture-status"
-                style={{ fontSize: '0.75rem' }}
-              >
-                Textures ready
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          <Tooltip title="Low uses the classic look with no textures. Medium uses diffuse textures. High adds PBR normal and ORM maps, enables lights and shadows, and uses alternate cap images.">
+            <FormLabel
+              id="graphics-tier-label"
+              component="label"
+              htmlFor="graphics-tier-select"
+            >
+              Graphics
+            </FormLabel>
+          </Tooltip>
+          <FormControl size="small">
+            <Select
+              id="graphics-tier-select"
+              labelId="graphics-tier-label"
+              data-testid="graphics-tier-select"
+              value={graphicsTier}
+              onChange={(event: SelectChangeEvent) => {
+                void setGraphicsTier(event.target.value as GraphicsTier)
+              }}
+            >
+              <MenuItem value="low">Low (classic look)</MenuItem>
+              <MenuItem value="medium">Medium (diffuse textures)</MenuItem>
+              <MenuItem value="high">High (PBR textures)</MenuItem>
+            </Select>
+          </FormControl>
+          {textureLoadStatus === 'loading' && (
+            <Box
+              aria-live="polite"
+              data-testid="graphics-texture-status"
+              sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+            >
+              <CircularProgress aria-label="Loading textures" size={16} />
+              <span>
+                Loading textures ({textureLoadProgress.loaded}/
+                {textureLoadProgress.total})
               </span>
-            )}
-          </Box>
-        )}
+            </Box>
+          )}
+          {textureLoadStatus === 'ready' && (
+            <span
+              aria-live="polite"
+              data-testid="graphics-texture-status"
+              style={{ fontSize: '0.75rem' }}
+            >
+              Textures ready
+            </span>
+          )}
+          {textureLoadStatus === 'fallback' && (
+            <span
+              aria-live="polite"
+              data-testid="graphics-texture-status"
+              style={{ fontSize: '0.75rem' }}
+            >
+              High PBR unavailable; using Medium textures
+            </span>
+          )}
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                checked={useHighQualityForPicture}
+                onChange={(event) =>
+                  toggleUseHighQualityForPicture(event.target.checked)
+                }
+              />
+            }
+            label="Use High quality when taking a map picture"
+          />
+        </Box>
         <FormControlLabel
           control={
             <Switch
@@ -749,6 +876,7 @@ const PdfPreferencesSwitchForm = () => {
           label="Use Legacy Start Zones"
           title="Enable/disable rendering start zones as circles and with classic colors"
         />
+        <GlyphExportOptions />
         <FormControl size="small" fullWidth sx={{ mt: 1 }}>
           <FormLabel component="legend" sx={{ mb: 0.5, fontSize: '0.875rem' }}>
             PDF Layout Format
@@ -893,6 +1021,7 @@ const SVGPreferencesSwitchForm = () => {
           label="Use Legacy Start Zones"
           title="Enable/disable rendering start zones as circles and with classic colors"
         />
+        <GlyphExportOptions />
       </FormGroup>
     </FormControl>
   )

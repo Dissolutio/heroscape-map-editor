@@ -252,8 +252,8 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
               focused
               disabled={!officialSetSourceActive}
               name={`${setsUsedInputNameForFormData}${set.id}`}
-              label={`${set.name} - ${set.abbreviation}`}
-              title={`${set.name} - ${set.abbreviation}`}
+              label={`${set.name} - ${set.setType}`}
+              title={`${set.name} - ${set.setType}`}
               type="number"
             />
           ))}
@@ -280,8 +280,8 @@ export function InputSetsUsedCard({ isCreateNewMap }: Props) {
               focused
               disabled={!officialSetSourceActive}
               name={`${setsUsedInputNameForFormData}${set.id}`}
-              label={`${set.name} - ${set.abbreviation}`}
-              title={`${set.name} - ${set.abbreviation}`}
+              label={`${set.name} - ${set.setType}`}
+              title={`${set.name} - ${set.setType}`}
               type="number"
             />
           ))}

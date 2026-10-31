@@ -10,6 +10,10 @@ Most tests are **pure-logic tests** (hex math, placement rules, serialization,
 load). They run in Node with no browser or three.js rendering. The focused
 export-border test also renders minimal SVG and PDF output.
 
+Vitest may emit a `THREE_CJS_DEPRECATED` warning when a test imports rendering
+modules. It comes from `@react-three/fiber` or `@react-three/drei` loading
+Three.js through a CommonJS entry point, not from an application `require`.
+
 ## What is here
 
 | File | Protects |
@@ -17,9 +21,10 @@ export-border test also renders minimal SVG and PDF output.
 | `piece-registry.test.ts` | The "add a new terrain piece" checklist: every registry that must agree about a piece, including piece-grid groups. **Read this first if you are adding terrain.** |
 | `generic-pieces.test.ts` | Generic solid/fluid registration, all footprint sizes on the table, solid/fluid stacking, buried marks, unlimited inventory handling, and piece-grid grouping. |
 | `generic-terrain-colors.test.ts` | Generic cap/side color resolution and contrast-based `?` letter color selection. |
-| `land-hex-instances.test.ts` | Per-hex land instance construction, level and piece exclusions, six-direction side culling, and flat cap/side color selection. |
-| `land-hex-geometry.test.ts` | Per-hex solid/fluid prism geometry: side quads index their own vertices, triangle kinds and directions stay consistent, and faces point outward/upward. |
+| `land-hex-instances.test.ts` | Per-hex land instance construction and lightweight ID parity, manifest terrain/layer coverage, tier selection, deterministic cap rotation, cap/side UVs, level and piece exclusions, six-direction side culling, and flat-color fallback. |
+| `land-hex-geometry.test.ts` | Per-hex solid/fluid prism geometry: side quads index their own vertices, side-image orientation (including fluid UVs), triangle kinds and directions stay consistent, and faces point outward/upward. |
 | `export-border-color.test.ts` | Shared SVG/PDF border-color decisions for every terrain, SVG Asphalt markup, and rendered PDF output with outlines on/off, including sub-levels. |
+| `glyph-export-options.test.tsx` | Shared glyph-space classification, SVG/PDF transparent fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |
 | `generic-letter-metrics.test.ts` | Ratchets every terrain letter against the PDF mark-width table and the Inter Bold font metrics. |
 | `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
 | `replay-conflicts.test.ts` | How conflicts are computed (`data/rebuildBoardState.ts`): ordinary occupancy conflicts plus derived Laur conflicts. |
@@ -33,7 +38,7 @@ export-border test also renders minimal SVG and PDF output.
 | `piece-ids-and-loading.test.ts` | Piece ids, legacy uid-less piece normalization, saved-map formats, and the load path (`buildupJsonFileMap`). |
 | `buildup-map-load-order.test.ts` | Same-altitude support/overlap order for newer add-ons through `buildupJsonFileMap`, derived conflict/support state, a ladder control, and JSON save/reload idempotence. |
 | `hex-grid.test.ts` | Cube coordinates, directions, rotation, grid generation, odd-r conversion. |
-| `edges-and-nodes.test.ts` | How edges and corners are represented today, and the acceptance checklist (`it.todo`) for the edge/node model. |
+| `edges-and-nodes.test.ts` | Current edge/corner representations, the tested integer-lattice prototype and equivalence checks, plus application-level edge/node acceptance items (`it.todo`). |
 | `terrain-constraints.test.ts` | Inventory normalization, set/personal/file constraints, and exact pen-mode availability under inventory constraints. |
 | `map-share-url.test.ts` | Parsing pasted share links. |
 | `safe-storage.test.ts` | Guarded browser storage access, corrupted JSON, and quota/security failures. |
@@ -41,6 +46,7 @@ export-border test also renders minimal SVG and PDF output.
 | `map-autosave.test.ts` | Debounced map writes, lifecycle flushes, hold/release gating, and failure retries. |
 | `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
 | `settings.test.ts` | Versioned settings defaults, migration, remembered map author validation and round-trip, debounced persistence, stale session-only visibility settings, and store-state classification. |
+| `look-settings-tooltip-copy.test.ts` | Ensures every 3D Look dialog control has plain-English tooltip copy. |
 | `new-map-details.test.ts` | New-map author and notes through JSON loading and share-link serialization, including empty metadata. |
 | `view-mode.test.ts` | Active 3D, SVG, and PDF view selection, including PDF precedence. |
 | `start-zone-visibility.test.ts` | Start-zone 3D visibility, selection filtering and pivot cleanup, hidden drag-group exclusion, map-load filtering, and undo selection restoration while hidden. |
@@ -51,8 +57,16 @@ export-border test also renders minimal SVG and PDF output.
 | `crash-feedback.test.ts` | The anonymous crash-report note sent to Sentry (`utils/crashFeedback.ts`): trimmed, capped, linked to the crash event, no name/email. |
 | `material-clones.test.ts` | The private material copies the move/rotate preview ghost uses (`utils/materialClones.ts`), so it never changes the cached materials real pieces share. |
 | `textures-pack.test.ts` | Terrain texture manifest coverage, source existence, layer bounds and strip sizes, repaired side edges/rows, flat fluid cap normals, and packed-output drift checks. |
-| `world/textures/terrainTextureArrays.test.ts` | Runtime manifest validation, texture-tier strip selection, pure layer slicing and Y orientation, lazy request caching, retry after failure, and disposal. |
+| `world/textures/terrainTextureArrays.test.ts` | Runtime manifest validation, texture-tier strip selection and cached access, pure layer slicing and Y orientation, lazy request caching, retry after failure, and disposal. |
+| `world/models/gltfLifecycle.test.ts` | Delayed GLTF eviction after the idle timeout, cancellation on reacquisition, and reference-counted cleanup. |
 | `store/graphics-tier.test.ts` | Graphics-tier loading state, session-only fallback after failure, and stale request handling. |
+| `performance/performance.test.ts` | Detection of monotonically growing scene, GPU-resource, heap, subscriber, timer, and animation-frame metrics, plus typed-array accounting for geometry, instances, and texture data. |
+| `performance/performanceFlags.test.ts` | Performance-gated accounting of active Zustand store subscriptions, R3F-event isolation, and User Timing collection. |
+| `e2e-evidence.test.ts` | Keeps E2E writes to `docs/evidence/` inside the opt-in screenshot helper. |
+| `world/hoverWorldPoint.test.ts` | Placement-only consumption of the pointer world point. |
+| `land-hex-update-ranges.test.ts` | Bounded per-hex highlight buffer updates while no render uploads pending ranges. |
+| `world/shadowInvalidation.test.ts` | Static shadow invalidation for board, light, tier, level, and start-zone changes, late preloaded model mounts, and exclusion of hover/selection/camera updates. |
+| `world/camera/pictureQuality.test.ts` | Picture-only High capture: disabled behavior, settled High capture with exact setting restoration, and texture-load failure fallback. |
 | `click-placement.test.ts` | What a left click with a piece pen places, per piece family, through the real click handler (`world/MapDisplay3D.tsx`) and the store, without rendering; plus clicked-hex group-pivot behavior, refusals and messages, Laur variant stack switching and confirmation, undo, permissive Laur add-on placement with pillar-port rotation snapping, +8 pillar stacking including the stackable square variant, map edges, and a ship bow deck click that does nothing. Cases are in `helpers/placementCases.ts`. |
 | `placement.test.ts` | `resolvePlacement` (where a click puts a piece, or the reason it is blocked; must match the click handler case for case), +8 pillar and add-on stacking, Laur add-on port snapping, non-stackable wall conflict flags, the pure Laur stackable-variant pen decision and middle-click pick mode, `placementBlockedMessages` including group-drag `outOfHeight`, and `evaluatePlacement` (ok / conflict / blocked from a footprint-only probe, `ignoreUID` for a moving piece, opt-in height bounds, never mutates its input) in `data/placement.ts`, and the map-edge rule (`hangsOffMap`) swept over rectangle and hexagon maps of several sizes against each shape's own definition. |
 | `placement-preview.test.ts` | `getPlacementPreviewState` (click-rule resolution plus placement evaluation, including Laur edge conflicts, unsupported support signals, map-edge footprints and non-mutation) and the distinct color/pattern styles in `world/placementPreviewStyle.ts`. |
@@ -65,6 +79,9 @@ export-border test also renders minimal SVG and PDF output.
 | `storage-known-gaps.test.ts` | Legacy constraint restoration and protection against hotkey mount overwrites. |
 | `virtualscape-import.test.ts` | Version 0.0007 Virtualscape binary import through `readVirtualscapeMapFile()` and `buildupVSFileMap()`: registered codes, positions, rotations, odd-r coordinates, unknown-code drop reporting and warning, and empty drops for known-only files. |
 | `map-roundtrip.test.ts` | JSON file, local autosave, and compressed share-link save/load round trips for multiple piece families, including stable map/piece data, rebuilt occupancy, no drops, and conflict recomputation. |
+| `objective-markers.test.ts` | Objective-marker content and placement validation, six-step footprints/rotation, overlap rules, map growth/shrink safety, JSON/autosave/share-link persistence, legacy compatibility, 40-marker URL size, and store history/reference/selection isolation. |
+| `world/models/objectiveMarker3D.test.ts` | Objective-marker surface positions, footprints, rotation, text fitting, and viewing-level visibility. |
+| `objective-marker-exports.test.ts` | Shared objective-marker export geometry and level/overlay visibility, SVG symbols and named legend markup, PDF polygon/path primitives, and the empty case. |
 | `fit-map-to-pieces.test.ts` | Pure footprint-based map growth, rectangle/hexagon origin preservation, non-mutation/idempotence, and the resize controls' existing coordinate behavior. |
 | `map-load-growth-cap.test.ts` | Bounded hexagon/rectangle growth on JSON load, too-far piece drops and warnings, exact limits, mixed overhangs, 100,000-hex load time, and reload idempotence. |
 | `group-rotation.test.ts` | Rigid group and single-piece rotation about clicked pivot hexes: CW/CCW cube transforms, six-step cycles, every registered piece's footprint equivariance, edge and Laur attachment geometry, ladders, interlocks, large tiles, blocked placement preflight, conflicts, frozen-board safety, single-piece list stepping, selection order, and one-step undo/redo. |

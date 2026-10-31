@@ -7,8 +7,9 @@ import type {
 } from '../types'
 import { HexTerrain, Pieces } from '../types'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
+import type { HexFeatureId } from './hexGrid/edgesAndNodes'
 import { getLaurAddonFootprint } from './laurAddonFootprints'
-import { getLaurAddonCanonicalKey } from './laurAddonPlacement'
+import { getLaurAddonFeatureId } from './laurAddonPlacement'
 import {
   LAUR_ADDON_STACK_INCREMENT,
   canLaurAddonStackOn,
@@ -24,7 +25,7 @@ const overlapsAltitude = (
 
 type LaurAddon = {
   piece: BoardPiece
-  canonicalKey: string
+  featureId: HexFeatureId
   footprint: ReturnType<typeof getLaurAddonFootprint>
   heightInLevels: number | undefined
 }
@@ -41,7 +42,11 @@ const pillarIDs = new Set<string>([
   Pieces.laurWallTrianglePillar,
 ])
 
-function addToIndex<T>(index: Map<string, T[]>, key: string, value: T) {
+function addToIndex<Key extends string, Value>(
+  index: Map<Key, Value[]>,
+  key: Key,
+  value: Value,
+) {
   const entries = index.get(key)
   if (entries) entries.push(value)
   else index.set(key, [value])
@@ -81,11 +86,8 @@ export function evaluateLaurAddonConflicts(
   const pieceByUID = new Map(boardPieces.map((piece) => [piece.uid, piece]))
   const addons: LaurAddon[] = boardPieces.flatMap((piece) => {
     if (!isLaurWallAddonPieceID(piece.inventoryID)) return []
-    const canonicalKey = getLaurAddonCanonicalKey(
-      piece.pieceCoords,
-      piece.rotation,
-    )
-    if (!canonicalKey) return []
+    const featureId = getLaurAddonFeatureId(piece.pieceCoords, piece.rotation)
+    if (!featureId) return []
     const footprint = getLaurAddonFootprint({
       inventoryID: piece.inventoryID,
       anchor: piece.pieceCoords,
@@ -95,7 +97,7 @@ export function evaluateLaurAddonConflicts(
     return [
       {
         piece,
-        canonicalKey,
+        featureId: footprint?.featureId ?? featureId,
         footprint,
         heightInLevels:
           footprint?.heightInLevels ?? piecesSoFar[piece.inventoryID]?.height,
@@ -109,23 +111,23 @@ export function evaluateLaurAddonConflicts(
         ? [first, second]
         : [second, first]
     return (
-      first.canonicalKey === second.canonicalKey &&
+      first.featureId === second.featureId &&
       upper.piece.altitude - lower.piece.altitude ===
         LAUR_ADDON_STACK_INCREMENT &&
       canLaurAddonStackOn(upper.piece.inventoryID, lower.piece.inventoryID)
     )
   }
 
-  const addonsByCanonicalKey = new Map<string, LaurAddonInterval[]>()
+  const addonsByFeatureId = new Map<HexFeatureId, LaurAddonInterval[]>()
   for (const addon of addons) {
     if (addon.heightInLevels === undefined) continue
-    addToIndex(addonsByCanonicalKey, addon.canonicalKey, {
+    addToIndex(addonsByFeatureId, addon.featureId, {
       addon,
       altitude: addon.piece.altitude,
       height: addon.heightInLevels,
     })
   }
-  for (const intervals of addonsByCanonicalKey.values()) {
+  for (const intervals of addonsByFeatureId.values()) {
     addOverlappingIntervalConflicts(intervals, conflicts, isLegalStack)
   }
 
@@ -161,6 +163,7 @@ export function evaluateLaurAddonConflicts(
   for (const addon of addons) {
     const footprint = addon.footprint
     if (!footprint) continue
+    const footprintBaseHexAltitude = footprint.altitude + 1
     const inspectHexes = (
       coordinates: CubeCoordinate[],
       attachmentEnds: boolean,
@@ -177,7 +180,7 @@ export function evaluateLaurAddonConflicts(
           occupantsByCoordinate.get(coordKey(coordinate)) ?? []
         ).filter((hex) =>
           overlapsAltitude(
-            footprint.altitude,
+            footprintBaseHexAltitude,
             footprint.heightInLevels,
             hex.altitude,
           ),

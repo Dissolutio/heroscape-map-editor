@@ -48,6 +48,9 @@ describe('graphics tier store state', () => {
 
     await store.getState().setGraphicsTier('high')
 
+    expect(loadTerrainTextureArrays).toHaveBeenNthCalledWith(2, 'medium', {
+      onProgress: expect.any(Function),
+    })
     expect(store.getState()).toMatchObject({
       graphicsTier: 'high',
       effectiveGraphicsTier: 'low',
@@ -59,6 +62,59 @@ describe('graphics tier store state', () => {
         variant: 'error',
       }),
     )
+  })
+
+  it('falls back to Medium when High texture loading fails', async () => {
+    loadTerrainTextureArrays
+      .mockResolvedValueOnce({
+        error: new Error('PBR offline'),
+        status: 'error',
+      })
+      .mockResolvedValueOnce({
+        manifest: {},
+        status: 'ready',
+        textures: { 'caps-diffuse.png': {}, 'sides-diffuse.png': {} },
+      })
+    const store = await createUISliceStore()
+
+    await store.getState().setGraphicsTier('high')
+
+    expect(loadTerrainTextureArrays).toHaveBeenNthCalledWith(
+      1,
+      'high',
+      expect.objectContaining({ onProgress: expect.any(Function) }),
+    )
+    expect(loadTerrainTextureArrays).toHaveBeenNthCalledWith(
+      2,
+      'medium',
+      expect.objectContaining({ onProgress: expect.any(Function) }),
+    )
+    expect(store.getState()).toMatchObject({
+      graphicsTier: 'high',
+      effectiveGraphicsTier: 'medium',
+      textureLoadStatus: 'fallback',
+      textureLoadProgress: { loaded: 2, total: 2 },
+    })
+  })
+
+  it('enables lights and shadows when High is selected', async () => {
+    loadTerrainTextureArrays.mockResolvedValue({
+      manifest: {},
+      status: 'ready',
+      textures: {},
+    })
+    const store = await createUISliceStore()
+
+    await store.getState().setGraphicsTier('high')
+
+    expect(store.getState()).toMatchObject({
+      graphicsTier: 'high',
+      effectiveGraphicsTier: 'high',
+      textureLoadStatus: 'ready',
+      isLightsAndShadowsRender: true,
+    })
+    store.getState().toggleIsLightsAndShadowsRender(false)
+    expect(store.getState().isLightsAndShadowsRender).toBe(false)
   })
 
   it('ignores a stale load result after the user selects Lowest', async () => {
@@ -87,5 +143,18 @@ describe('graphics tier store state', () => {
       textureLoadStatus: 'idle',
     })
     expect(enqueueSnackbar).not.toHaveBeenCalled()
+  })
+
+  it('seeds the placement preview from the latest pointer hit on pen switch', async () => {
+    const store = await createUISliceStore()
+    const { clearLastPointerWorldPoint, rememberPointerWorldPoint } =
+      await import('../world/hoverWorldPoint')
+    store.getState().togglePenMode('select')
+    rememberPointerWorldPoint({ x: 2, z: 3 })
+
+    store.getState().togglePenMode('g')
+
+    expect(store.getState().hoveredWorldPoint).toEqual({ x: 2, z: 3 })
+    clearLastPointerWorldPoint()
   })
 })

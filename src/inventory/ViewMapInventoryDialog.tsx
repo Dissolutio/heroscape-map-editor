@@ -1,4 +1,5 @@
 import {
+  ButtonBase,
   Button,
   Dialog,
   DialogActions,
@@ -21,6 +22,7 @@ import {
 import {
   getEffectiveTerrainConstraintInventory,
   hasActiveTerrainConstraints,
+  isPenModePieceAvailable,
 } from '../utils/terrain-constraints'
 
 const ViewMapInventoryDialog = () => {
@@ -45,6 +47,7 @@ const ViewMapInventoryDialog = () => {
     (state) => state.customConstraintInventoryFileName,
   )
   const userPieceInventory = useBoundStore((state) => state.userPieceInventory)
+  const togglePenMode = useBoundStore((state) => state.togglePenMode)
 
   const combinedInventory = getEffectiveTerrainConstraintInventory({
     setsUsed: hexMap?.setsUsed ?? [],
@@ -135,6 +138,18 @@ const ViewMapInventoryDialog = () => {
               const isExact = usedCount === available && available > 0
               const isNotAllowed = available === 0 && usedCount > 0
               const skipAlert = isStartZoneOrGlyph(pieceID) || !hasConstraints
+              const piece = piecesSoFar[pieceID]
+              const canSetPenMode = Boolean(piece)
+              const isAvailable = isPenModePieceAvailable(
+                pieceID,
+                combinedInventory,
+                hasConstraints,
+              )
+              const disabledReason = !canSetPenMode
+                ? 'This piece cannot be selected as a pen mode.'
+                : !isAvailable
+                  ? 'This piece is not available in the active terrain constraints.'
+                  : ''
               let color = 'inherit'
               if ((isOver || isNotAllowed) && !skipAlert) color = 'error.main'
               else if (isExact && !skipAlert) color = yellow[700]
@@ -148,10 +163,26 @@ const ViewMapInventoryDialog = () => {
                     mb: 1,
                   }}
                 >
-                  <span>
-                    {piecesSoFar[pieceID]?.title || pieceID}: {usedCount}{' '}
-                    {available > 0 ? `/ ${available}` : ''}
-                  </span>
+                  <Tooltip
+                    title={disabledReason}
+                    disableHoverListener={!disabledReason}
+                  >
+                    <span>
+                      <ButtonBase
+                        disabled={Boolean(disabledReason)}
+                        onClick={() => togglePenMode(pieceID)}
+                        aria-label={`Set ${piece?.title || pieceID} as pen mode`}
+                        sx={{
+                          color: 'inherit',
+                          display: 'block',
+                          textAlign: 'left',
+                        }}
+                      >
+                        {piece?.title || pieceID}: {usedCount}{' '}
+                        {available > 0 ? `/ ${available}` : ''}
+                      </ButtonBase>
+                    </span>
+                  </Tooltip>
                   {conversion && (
                     <Tooltip
                       title={`${conversion.converted} ${piecesSoFar[conversion.stackableID]?.title ?? conversion.stackableID} counted as non-stacking usage because ${piecesSoFar[conversion.legacyID]?.title ?? conversion.legacyID} exceeded available constrained inventory.`}

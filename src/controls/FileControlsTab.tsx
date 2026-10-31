@@ -34,6 +34,9 @@ export const FileControlsTab = ({
   const toggleIsNewMapDialogOpen = useBoundStore(
     (state) => state.toggleIsNewMapDialogOpen,
   )
+  const openCropMapPortraitDialog = useBoundStore(
+    (state) => state.openCropMapPortraitDialog,
+  )
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const [isUploadOpen, setIsUploadOpen] = React.useState(false)
   const [isDownloadOpen, setIsDownloadOpen] = React.useState(false)
@@ -157,13 +160,30 @@ export const FileControlsTab = ({
       })
     }
   }
-  const handleDownloadJpg = () => {
-    const link = document.createElement('a')
-    link.download = `${hexMap.name}.jpg`
-    link.href = mapPortraitBase64
-    // document.body.appendChild(link)
-    link.click()
-    // document.body.removeChild(link)
+  const handleDownloadJpg = async () => {
+    try {
+      const image = new Image()
+      image.src = mapPortraitBase64
+      await image.decode()
+      const canvas = document.createElement('canvas')
+      canvas.width = image.naturalWidth
+      canvas.height = image.naturalHeight
+      const context = canvas.getContext('2d')
+      if (!context) throw new Error('Could not create a download canvas')
+      context.fillStyle = 'white'
+      context.fillRect(0, 0, canvas.width, canvas.height)
+      context.drawImage(image, 0, 0)
+      const link = document.createElement('a')
+      link.download = `${hexMap.name}.jpg`
+      link.href = canvas.toDataURL('image/jpeg', 0.92)
+      link.click()
+    } catch (error) {
+      console.error('Failed to download map portrait as JPG', error)
+      enqueueSnackbar({
+        message: 'Could not download the map portrait as JPG.',
+        variant: 'error',
+      })
+    }
   }
   // const handleClickUploadPersonalInventoryTsv = (e: React.MouseEvent<HTMLDivElement> | undefined) => {
   //   e?.stopPropagation()
@@ -418,6 +438,13 @@ export const FileControlsTab = ({
           />
           <Collapse in={isDownloadPhotoOpen} timeout="auto">
             <List component="div">
+              {mapPortraitBase64 && (
+                <ControlTabsListItemButton
+                  primary="Crop picture"
+                  onClick={() => openCropMapPortraitDialog()}
+                  icon={<FcAddImage />}
+                />
+              )}
               <ControlTabsListItemButton
                 primary="Download map picture as .JPG"
                 onClick={handleDownloadJpg}

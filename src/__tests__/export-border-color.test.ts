@@ -1,5 +1,13 @@
 import { inflateSync } from 'node:zlib'
-import { Document, G, Page, Svg, renderToBuffer } from '@react-pdf/renderer'
+import {
+  Document,
+  G,
+  Image,
+  Page,
+  Svg,
+  renderToBuffer,
+} from '@react-pdf/renderer'
+import { PNG } from 'pngjs'
 import { type ComponentType, createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -261,5 +269,29 @@ describe('SVG/PDF export border color decision', () => {
       `${pdfColorOperator(ASPHALT_SUBLEVEL_BORDER_COLOR)} SCN`,
     )
     expect(normalizedGrayscaleContent).toBe(coloredContent)
+  })
+
+  it('renders a transparent portrait over a white PDF page', async () => {
+    const png = new PNG({ width: 1, height: 1 })
+    png.data = Buffer.from([255, 0, 0, 0])
+    const portrait = `data:image/png;base64,${PNG.sync
+      .write(png)
+      .toString('base64')}`
+    const pdf = await renderToBuffer(
+      createElement(
+        Document,
+        null,
+        createElement(
+          Page,
+          { size: [100, 100], style: { backgroundColor: '#ffffff' } },
+          createElement(Image, {
+            src: portrait,
+            style: { width: 50, height: 50 },
+          }),
+        ),
+      ),
+    )
+
+    expect(pdf.toString('latin1')).toContain('/SMask')
   })
 })

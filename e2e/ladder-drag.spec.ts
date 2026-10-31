@@ -6,6 +6,7 @@ import {
   expect,
   findPieceUid,
   mapUrl,
+  saveEvidence,
   test,
   waitForAppReady,
 } from './fixtures'
@@ -85,7 +86,7 @@ test('dragging the top ladder to another stack moves only it and undo restores t
   expect((await snapshot(page))?.selectedPieceIDs).toEqual([top])
   expect(await undoCount(page)).toBe(undos + 1)
   await waitForAppReady(page)
-  await page.screenshot({ path: 'docs/evidence/ladder-stack-drag.png' })
+  await saveEvidence(page, 'ladder-stack-drag')
 
   await undoButton(page).click()
   await expect

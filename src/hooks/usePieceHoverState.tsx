@@ -1,8 +1,17 @@
 import type { ThreeEvent } from '@react-three/fiber'
 import React from 'react'
 import useBoundStore from '../store/store'
+import {
+  finishPerformanceTiming,
+  startPerformanceTiming,
+} from '../performance/performanceTiming'
 import type { BoardHex } from '../types'
 import { isDragPassThrough, isDragging } from '../world/drag/dragController'
+import {
+  rememberPointerWorldPoint,
+  shouldTrackHoveredWorldPoint,
+} from '../world/hoverWorldPoint'
+import { reportObjectiveMarkerDragTarget } from '../world/drag/objectiveMarkerDragController'
 
 export default function usePieceHoverState({
   trackIsHovered = true,
@@ -14,38 +23,117 @@ export default function usePieceHoverState({
   const toggleHoveredWorldPoint = useBoundStore(
     (s) => s.toggleHoveredWorldPoint,
   )
-  // biome-ignore lint/style/noNonNullAssertion: <is immediately defined>
-  const hoverTimeout = React.useRef<number>(null!)
+  const hoverTimeout = React.useRef<number | null>(null)
+  const pointerMoveFrame = React.useRef<number | null>(null)
+  const pendingWorldPoint = React.useRef<{ x: number; z: number } | null>(null)
   const [isHovered, setIsHovered] = React.useState(false)
 
-  const onPointerEnter = (e: ThreeEvent<PointerEvent>, boardHex: BoardHex) => {
-    // the pointer sees through a piece being dragged (no stopPropagation)
-    if (isDragPassThrough(boardHex.boardPieceUID)) return
-    if (!isDragging()) e.stopPropagation()
-    const point = { x: e.point.x, z: e.point.z }
-    if (trackIsHovered) setIsHovered(true)
-    hoverTimeout.current = window.setTimeout(() => {
-      toggleHoveredPieceID(boardHex.boardPieceUID ?? '')
-      toggleHoveredHex(boardHex)
-      toggleHoveredWorldPoint(point)
-    }, 50) // Adjust the delay (in milliseconds) as needed
+  const cancelHoverWork = () => {
+    if (hoverTimeout.current !== null) {
+      window.clearTimeout(hoverTimeout.current)
+      hoverTimeout.current = null
+    }
+    if (pointerMoveFrame.current !== null) {
+      window.cancelAnimationFrame(pointerMoveFrame.current)
+      pointerMoveFrame.current = null
+    }
+    pendingWorldPoint.current = null
   }
-  const onPointerMove = (e: ThreeEvent<PointerEvent>) => {
-    toggleHoveredWorldPoint({ x: e.point.x, z: e.point.z })
+  const scheduleWorldPoint = (point: { x: number; z: number }) => {
+    rememberPointerWorldPoint(point)
+    if (!shouldTrackHoveredWorldPoint(useBoundStore.getState().penMode)) {
+      pendingWorldPoint.current = null
+      return
+    }
+    if (pointerMoveFrame.current !== null) {
+      pendingWorldPoint.current = point
+      return
+    }
+    pendingWorldPoint.current = point
+    pointerMoveFrame.current = window.requestAnimationFrame(() => {
+      pointerMoveFrame.current = null
+      const currentPoint = pendingWorldPoint.current
+      pendingWorldPoint.current = null
+      if (
+        currentPoint &&
+        shouldTrackHoveredWorldPoint(useBoundStore.getState().penMode)
+      ) {
+        toggleHoveredWorldPoint(currentPoint)
+      }
+    })
+  }
+
+  React.useEffect(
+    () => () => {
+      if (hoverTimeout.current !== null) {
+        window.clearTimeout(hoverTimeout.current)
+      }
+      if (pointerMoveFrame.current !== null) {
+        window.cancelAnimationFrame(pointerMoveFrame.current)
+      }
+    },
+    [],
+  )
+
+  const onPointerEnter = (e: ThreeEvent<PointerEvent>, boardHex: BoardHex) => {
+    const startedAt = startPerformanceTiming()
+    try {
+      // the pointer sees through a piece being dragged (no stopPropagation)
+      if (isDragPassThrough(boardHex.boardPieceUID)) return
+      if (!isDragging()) e.stopPropagation()
+      const point = { x: e.point.x, z: e.point.z }
+      if (trackIsHovered) setIsHovered(true)
+      if (hoverTimeout.current !== null) {
+        window.clearTimeout(hoverTimeout.current)
+      }
+      hoverTimeout.current = window.setTimeout(() => {
+        hoverTimeout.current = null
+        toggleHoveredPieceID(boardHex.boardPieceUID ?? '')
+        toggleHoveredHex(boardHex)
+        if (shouldTrackHoveredWorldPoint(useBoundStore.getState().penMode)) {
+          scheduleWorldPoint(point)
+        }
+      }, 50) // Adjust the delay (in milliseconds) as needed
+    } finally {
+      finishPerformanceTiming('app.pointerHandler', startedAt)
+    }
+  }
+  const onPointerMove = (e: ThreeEvent<PointerEvent>, boardHex?: BoardHex) => {
+    const startedAt = startPerformanceTiming()
+    try {
+      if (boardHex) reportObjectiveMarkerDragTarget(boardHex, e)
+      scheduleWorldPoint({ x: e.point.x, z: e.point.z })
+    } finally {
+      finishPerformanceTiming('app.pointerHandler', startedAt)
+    }
   }
   const onPointerEnterPID = (e: ThreeEvent<PointerEvent>, pid: string) => {
-    if (isDragPassThrough(pid)) return
-    if (!isDragging()) e.stopPropagation()
-    if (trackIsHovered) setIsHovered(true)
-    hoverTimeout.current = window.setTimeout(() => {
-      toggleHoveredPieceID(pid)
-    }, 50) // Adjust the delay (in milliseconds) as needed
+    const startedAt = startPerformanceTiming()
+    try {
+      if (isDragPassThrough(pid)) return
+      if (!isDragging()) e.stopPropagation()
+      if (trackIsHovered) setIsHovered(true)
+      if (hoverTimeout.current !== null) {
+        window.clearTimeout(hoverTimeout.current)
+      }
+      hoverTimeout.current = window.setTimeout(() => {
+        hoverTimeout.current = null
+        toggleHoveredPieceID(pid)
+      }, 50) // Adjust the delay (in milliseconds) as needed
+    } finally {
+      finishPerformanceTiming('app.pointerHandler', startedAt)
+    }
   }
   const onPointerOut = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation()
-    if (trackIsHovered) setIsHovered(false)
-    toggleHoveredHex(undefined)
-    clearTimeout(hoverTimeout.current)
+    const startedAt = startPerformanceTiming()
+    try {
+      e.stopPropagation()
+      if (trackIsHovered) setIsHovered(false)
+      toggleHoveredHex(undefined)
+      cancelHoverWork()
+    } finally {
+      finishPerformanceTiming('app.pointerHandler', startedAt)
+    }
   }
   return {
     isHovered,

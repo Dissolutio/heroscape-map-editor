@@ -1,4 +1,9 @@
 import { isEqual } from 'lodash'
+import {
+  DEFAULT_LOOK_SETTINGS,
+  sanitizeLookSettings,
+  type LookSettings,
+} from '../data/lookSettings'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import type { PieceInventory, TerrainConstraintSource } from '../types'
 import { normalizePieceInventory } from '../utils/piece-inventory'
@@ -24,12 +29,15 @@ export type SettingsValues = {
   isShowLightControls: boolean
   isTopOutlinedInterlockHexes: boolean
   isHighQualityRender: boolean
+  useHighQualityForPicture: boolean
   isDisplayCapHeights: boolean
   isHideTableTop: boolean
   useLegacyStartZones: boolean
   pdfRenderFormat: PdfRenderFormat
   isShowPDFInventory: boolean
   isPdfColorBorders: boolean
+  isTransparentGlyphSpaces: boolean
+  isHideHeightsOnGlyphs: boolean
   isShowPdfOverlayLayer: boolean
   isShowPdfOverlayOnPlacedLevel: boolean
   isShowPdfGridLinesOverSublevels: boolean
@@ -51,6 +59,7 @@ export type SettingsValues = {
   genericFluidCapColor: string
   genericFluidSideColor: string
   rememberedMapAuthor: string
+  lookSettings: LookSettings
 }
 
 export const SETTINGS_DEFAULTS: SettingsValues = {
@@ -60,12 +69,15 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   isShowLightControls: true,
   isTopOutlinedInterlockHexes: true,
   isHighQualityRender: false,
+  useHighQualityForPicture: false,
   isDisplayCapHeights: false,
   isHideTableTop: false,
   useLegacyStartZones: false,
   pdfRenderFormat: 'coversheet',
   isShowPDFInventory: true,
   isPdfColorBorders: false,
+  isTransparentGlyphSpaces: false,
+  isHideHeightsOnGlyphs: false,
   isShowPdfOverlayLayer: true,
   isShowPdfOverlayOnPlacedLevel: false,
   isShowPdfGridLinesOverSublevels: true,
@@ -87,6 +99,7 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   genericFluidCapColor: '#ff96e6',
   genericFluidSideColor: '#c864b4',
   rememberedMapAuthor: '',
+  lookSettings: DEFAULT_LOOK_SETTINGS,
 }
 
 export const SETTINGS_KEYS = Object.keys(
@@ -159,11 +172,14 @@ const validSettingValue = (
       'isShowLightControls',
       'isTopOutlinedInterlockHexes',
       'isHighQualityRender',
+      'useHighQualityForPicture',
       'isDisplayCapHeights',
       'isHideTableTop',
       'useLegacyStartZones',
       'isShowPDFInventory',
       'isPdfColorBorders',
+      'isTransparentGlyphSpaces',
+      'isHideHeightsOnGlyphs',
       'isShowPdfOverlayLayer',
       'isShowPdfOverlayOnPlacedLevel',
       'isShowPdfGridLinesOverSublevels',
@@ -207,6 +223,8 @@ const validSettingValue = (
         : undefined
     case 'lightPositions':
       return isLightPositions(value) ? value : undefined
+    case 'lookSettings':
+      return sanitizeLookSettings(value)
     default:
       return undefined
   }

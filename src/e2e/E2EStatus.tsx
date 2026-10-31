@@ -1,6 +1,6 @@
-import { type CSSProperties, useSyncExternalStore } from 'react'
+import { type CSSProperties, useEffect, useSyncExternalStore } from 'react'
 import useBoundStore from '../store/store'
-import { isE2E } from './isE2E'
+import { initialE2EGraphicsTier, isE2E } from './isE2E'
 import { getReady, subscribeReady } from './readyStore'
 
 // Visually hidden but still in the accessibility tree (display:none would
@@ -30,11 +30,17 @@ export function E2EStatus() {
 
 function E2EStatusInner() {
   const ready = useSyncExternalStore(subscribeReady, getReady)
+  const setGraphicsTier = useBoundStore((s) => s.setGraphicsTier)
   const mapName = useBoundStore((s) => s.hexMap.name)
   const pieceCount = useBoundStore((s) => s.boardPieces.length)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const penMode = useBoundStore((s) => s.penMode)
   const selectedCount = useBoundStore((s) => s.selectedPieceIDs.length)
+  useEffect(() => {
+    if (initialE2EGraphicsTier) {
+      void setGraphicsTier(initialE2EGraphicsTier)
+    }
+  }, [setGraphicsTier])
   return (
     <div
       data-testid="app-status"

@@ -131,7 +131,7 @@ const InventoryForm = () => {
   }
 
   const renderTerrainSetCard = (terrainSet: TerrainSet) => {
-    const tooltipText = `${terrainSet.abbreviation}\n${getTerrainContentsText(terrainSet.inventory)}`
+    const tooltipText = `${terrainSet.name} · ${terrainSet.setType}\n${getTerrainContentsText(terrainSet.inventory)}`
     const setCount = draftSetCounts[terrainSet.id] ?? 0
 
     return (
@@ -166,7 +166,7 @@ const InventoryForm = () => {
               {terrainSet.name}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {terrainSet.abbreviation} &middot; {terrainSet.setType}
+              {terrainSet.name} &middot; {terrainSet.setType}
             </Typography>
           </Box>
         </Tooltip>

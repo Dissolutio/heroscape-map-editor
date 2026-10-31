@@ -8,12 +8,12 @@ import {
   Pieces,
   type VirtualScapeTile,
 } from '../types'
+import { generateHexagon, generateRectangle } from '../utils/hex-gen'
 import {
   HEX_DIRECTIONS,
   hexUtilsAdd,
   hexUtilsOddRToCube,
 } from '../utils/hex-utils'
-import { generateHexagon, generateRectangle } from '../utils/hex-gen'
 import { makeRectangleScenario } from '../utils/map-gen'
 import {
   type DroppedBoardPiece,
@@ -21,6 +21,7 @@ import {
 } from '../utils/map-utils'
 import { addPiece } from './addPiece'
 import { fitMapToPieces } from './fitMapToPieces'
+import { normalizeObjectiveMarkers } from './objectiveMarkers'
 import { pieceCodes } from './pieceCodes'
 import { piecesSoFar } from './pieces'
 import { getCodeForVSPersonalTile } from './readVirtualscapeMapFile'
@@ -104,6 +105,7 @@ function sortBoardPiecesForLoad(arr: BoardPiece[]) {
 export type JsonMapLoadResult = MapState & {
   /** Pieces omitted because they are malformed, unknown, or too far away. */
   droppedPieces: DroppedBoardPiece[]
+  droppedObjectiveMarkers?: NonNullable<HexMap['objectiveMarkers']>
   dimensionsAdjusted?: boolean
 }
 export type VirtualScapeMapLoadResult = MapState & {
@@ -129,12 +131,22 @@ export function buildupJsonFileMap(
         version: hexMap.version ?? 1,
       }
 
+  const mapWithNormalizedMarkers: HexMap =
+    'objectiveMarkers' in migratedHexMap
+      ? {
+          ...migratedHexMap,
+          objectiveMarkers: normalizeObjectiveMarkers(
+            migratedHexMap.objectiveMarkers,
+          ),
+        }
+      : migratedHexMap
+
   // For JSON maps, the map dimensions are free, we do not have to compute them
   let initialBoardHexes: BoardHexes = {}
   const { boardPieces: knownBoardPieces, droppedPieces: unknownPieces } =
     dropUnknownBoardPieces(boardPieces)
   const droppedPieces = [...droppedMalformedPieces, ...unknownPieces]
-  const fitted = fitMapToPieces(migratedHexMap, knownBoardPieces)
+  const fitted = fitMapToPieces(mapWithNormalizedMarkers, knownBoardPieces)
   const fittedHexMap = fitted.hexMap
   const droppedForFit = new Set(fitted.droppedPieces ?? [])
   const initialBoardPieces = clone(
@@ -193,6 +205,9 @@ export function buildupJsonFileMap(
     hexMap: fittedHexMap,
     boardPieces: finalBoardPieces,
     droppedPieces,
+    ...(fitted.droppedObjectiveMarkers
+      ? { droppedObjectiveMarkers: fitted.droppedObjectiveMarkers }
+      : {}),
     dimensionsAdjusted: fitted.changed,
   }
 }

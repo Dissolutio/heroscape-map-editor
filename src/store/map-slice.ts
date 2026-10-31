@@ -1,19 +1,28 @@
 import { produce } from 'immer'
+import { isEqual } from 'lodash'
 import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
+import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
 import { type MovePieceArgs, applyPieceMoves } from '../data/movePieces'
+import {
+  type NewObjectiveMarker,
+  type ObjectiveMarker,
+  type ObjectiveMarkerAnchor,
+  generateObjectiveMarkerUID,
+  normalizeObjectiveMarkers,
+  objectiveMarkersOverlap,
+} from '../data/objectiveMarkers'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
-import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
+import { removePiece } from '../data/removePiece'
 import { reanchorRotationPivotAfterRotation } from '../data/rotationPivot'
 import {
   filterVisiblePieceIDs,
   isStartZoneBoardPiece,
 } from '../data/startZoneVisibility'
-import { removePiece } from '../data/removePiece'
 import { HexTerrain } from '../types'
 import type {
   AddRemovePieceError,
@@ -101,6 +110,15 @@ export interface MapSlice extends MapState {
     moves: MovePieceArgs[]
     preserveRotationPivot?: boolean
   }) => void
+  addObjectiveMarker: (marker: NewObjectiveMarker) => string | undefined
+  updateObjectiveMarker: (
+    uid: string,
+    updates: Partial<
+      Pick<ObjectiveMarker, 'size' | 'rotation' | 'style' | 'content' | 'name'>
+    >,
+  ) => void
+  moveObjectiveMarker: (uid: string, anchor: ObjectiveMarkerAnchor) => void
+  removeObjectiveMarker: (uid: string) => void
   loadMap: (
     map: MapState & { dimensionsAdjusted?: boolean },
     options?: LoadMapOptions,
@@ -403,6 +421,92 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         )
       })
     }),
+  addObjectiveMarker: (marker) => {
+    const existing = get().hexMap.objectiveMarkers ?? []
+    let uid = marker.uid
+    if (!uid || existing.some((item) => item.uid === uid)) {
+      do {
+        uid = generateObjectiveMarkerUID()
+      } while (existing.some((item) => item.uid === uid))
+    }
+    const [normalized] = normalizeObjectiveMarkers([{ ...marker, uid }])
+    if (
+      !normalized ||
+      existing.some((item) => objectiveMarkersOverlap(item, normalized))
+    ) {
+      return undefined
+    }
+    set((state) =>
+      produce(state, (draft) => {
+        draft.hexMap.objectiveMarkers = [...existing, normalized]
+      }),
+    )
+    return uid
+  },
+  updateObjectiveMarker: (uid, updates) => {
+    const existing = get().hexMap.objectiveMarkers ?? []
+    const current = existing.find((marker) => marker.uid === uid)
+    if (!current) return
+    const [normalized] = normalizeObjectiveMarkers([
+      { ...current, ...updates, uid },
+    ])
+    if (
+      !normalized ||
+      existing.some(
+        (marker) =>
+          marker.uid !== uid && objectiveMarkersOverlap(marker, normalized),
+      )
+    ) {
+      return
+    }
+    if (isEqual(current, normalized)) return
+    set((state) =>
+      produce(state, (draft) => {
+        draft.hexMap.objectiveMarkers = existing.map((marker) =>
+          marker.uid === uid ? normalized : marker,
+        )
+      }),
+    )
+  },
+  moveObjectiveMarker: (uid, anchor) => {
+    const existing = get().hexMap.objectiveMarkers ?? []
+    const current = existing.find((marker) => marker.uid === uid)
+    if (!current) return
+    const [normalized] = normalizeObjectiveMarkers([
+      { ...current, anchor, uid },
+    ])
+    if (
+      !normalized ||
+      existing.some(
+        (marker) =>
+          marker.uid !== uid && objectiveMarkersOverlap(marker, normalized),
+      )
+    ) {
+      return
+    }
+    if (isEqual(current, normalized)) return
+    set((state) =>
+      produce(state, (draft) => {
+        draft.hexMap.objectiveMarkers = existing.map((marker) =>
+          marker.uid === uid ? normalized : marker,
+        )
+      }),
+    )
+  },
+  removeObjectiveMarker: (uid) => {
+    const existing = get().hexMap.objectiveMarkers ?? []
+    if (!existing.some((marker) => marker.uid === uid)) return
+    set((state) =>
+      produce(state, (draft) => {
+        draft.hexMap.objectiveMarkers = existing.filter(
+          (marker) => marker.uid !== uid,
+        )
+        if (draft.selectedObjectiveMarkerUID === uid) {
+          draft.selectedObjectiveMarkerUID = null
+        }
+      }),
+    )
+  },
   mapPortraitBase64: '',
   addMapPortraitBase64: (pic: string) =>
     set(
@@ -484,6 +588,16 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     }),
   loadMap: (mapState, options = {}) => {
     clearGlobalMaterialCache()
+    const current = get()
+    const boardPieces = isEqual(current.boardPieces, mapState.boardPieces)
+      ? current.boardPieces
+      : mapState.boardPieces
+    const boardHexes = isEqual(current.boardHexes, mapState.boardHexes)
+      ? current.boardHexes
+      : mapState.boardHexes
+    const hexMap = isEqual(current.hexMap, mapState.hexMap)
+      ? current.hexMap
+      : mapState.hexMap
     const result = set((state) => {
       return produce(state, (draft) => {
         const piecesBeforeLoad = draft.boardPieces
@@ -503,9 +617,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
             draft.hoveredPieceID = ''
           }
         }
-        draft.boardHexes = mapState.boardHexes
-        draft.hexMap = mapState.hexMap
-        draft.boardPieces = mapState.boardPieces
+        draft.boardHexes = boardHexes
+        draft.hexMap = hexMap
+        draft.boardPieces = boardPieces
+        draft.selectedObjectiveMarkerUID = null
         draft.rotationPivot = null
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
           mapState.boardPieces,

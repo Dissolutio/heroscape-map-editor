@@ -3,7 +3,12 @@ import { ClampToEdgeWrapping, NoColorSpace, SRGBColorSpace } from 'three'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   disposeTerrainTextureArrays,
+  flipTextureLayerRows,
+  getCachedTerrainTextureArrays,
+  getTerrainTextureArrayStats,
   getTerrainTextureStrips,
+  hasHighTierPbrTextureUnitBudget,
+  HIGH_TIER_PBR_TEXTURE_UNITS,
   loadTerrainTextureArrays,
   sliceTextureArrayLayers,
   type DecodedTerrainTexture,
@@ -138,15 +143,20 @@ describe('terrain texture array loading', () => {
     ])
     expect(getTerrainTextureStrips('high')).toEqual([
       'caps-diffuse-pbr.png',
+      'caps-diffuse.png',
       'sides-diffuse.png',
       'caps-orm.png',
       'sides-orm.png',
       'caps-normal.png',
       'sides-normal.png',
     ])
+    expect(HIGH_TIER_PBR_TEXTURE_UNITS).toBe(6)
+    expect(hasHighTierPbrTextureUnitBudget(6)).toBe(true)
+    expect(hasHighTierPbrTextureUnitBudget(5)).toBe(false)
+    expect(hasHighTierPbrTextureUnitBudget(Number.NaN)).toBe(false)
   })
 
-  it('slices rows into layers in manifest order and flips texture Y on upload', async () => {
+  it('slices rows into layers in manifest order and flips rows in JS', async () => {
     const data = Uint8Array.from({ length: 4 * 4 }, (_, index) => index)
     const layers = sliceTextureArrayLayers(data, 1, 4, 2)
     expect(layers.map((layer) => [...layer])).toEqual([
@@ -164,10 +174,38 @@ describe('terrain texture array loading', () => {
     if (result.status !== 'ready') return
 
     const texture = result.textures['caps-diffuse.png']
-    expect(texture?.flipY).toBe(true)
-    expect(texture?.image.data.slice(0, 16)).toEqual(
-      decodePixels(manifest)('caps-diffuse.png').data.slice(0, 16),
-    )
+    expect(texture?.flipY).toBe(false)
+    expect(texture?.premultiplyAlpha).toBe(false)
+    const decoded = decodePixels(manifest)('caps-diffuse.png').data
+    expect([...(texture?.image.data.slice(0, 16) ?? [])]).toEqual([
+      ...decoded.slice(8, 16),
+      ...decoded.slice(0, 8),
+    ])
+  })
+
+  it('reverses layer rows without touching pixel order inside a row', () => {
+    const layer = Uint8Array.from({ length: 2 * 3 * 4 }, (_, index) => index)
+    expect([...flipTextureLayerRows(layer, 2, 3)]).toEqual([
+      ...layer.slice(16, 24),
+      ...layer.slice(8, 16),
+      ...layer.slice(0, 8),
+    ])
+    expect(() => flipTextureLayerRows(layer, 2, 2)).toThrow()
+  })
+
+  it('never sets flipY or premultiplyAlpha on any uploaded array texture', async () => {
+    const manifest = smallManifest()
+    const fetcher = vi.fn(async () => response(manifest))
+    const result = await loadTerrainTextureArrays('high', {
+      fetch: fetcher,
+      decodeImage: async (_bytes, fileName) => decodePixels(manifest)(fileName),
+    })
+    expect(result.status).toBe('ready')
+    if (result.status !== 'ready') return
+    for (const texture of Object.values(result.textures)) {
+      expect(texture.flipY).toBe(false)
+      expect(texture.premultiplyAlpha).toBe(false)
+    }
   })
 
   it('deduplicates requests and reports completed-strip progress', async () => {
@@ -211,6 +249,11 @@ describe('terrain texture array loading', () => {
       )
       expect(first.textures['sides-diffuse.png']?.generateMipmaps).toBe(true)
       expect(first.textures['sides-diffuse.png']?.anisotropy).toBe(4)
+      expect(getCachedTerrainTextureArrays('medium')).toEqual({
+        manifest,
+        textures: first.textures,
+      })
+      expect(getCachedTerrainTextureArrays('low')).toBeNull()
     }
   })
 
@@ -223,13 +266,28 @@ describe('terrain texture array loading', () => {
     })
 
     expect(result.status).toBe('ready')
-    expect(fetcher).toHaveBeenCalledTimes(7)
+    expect(fetcher).toHaveBeenCalledTimes(8)
     if (result.status !== 'ready') return
     expect(Object.keys(result.textures).sort()).toEqual(
       getTerrainTextureStrips('high').sort(),
     )
     expect(result.textures['caps-orm.png']?.colorSpace).toBe(NoColorSpace)
     expect(result.textures['sides-normal.png']?.colorSpace).toBe(NoColorSpace)
+  })
+
+  it('reports the retained texture-array and manifest CPU sizes', async () => {
+    const manifest = smallManifest()
+    const result = await loadTerrainTextureArrays('medium', {
+      fetch: async () => response(manifest),
+      decodeImage: async (_bytes, fileName) => decodePixels(manifest)(fileName),
+    })
+
+    expect(result.status).toBe('ready')
+    expect(getTerrainTextureArrayStats()).toEqual({
+      cpuBytes: 2 * 4 * 4 * 2,
+      manifestBytes: JSON.stringify(manifest).length * 2,
+      textureArrayCount: 2,
+    })
   })
 
   it('retries failed strips and disposes cached GPU textures', async () => {

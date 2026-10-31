@@ -30,6 +30,27 @@ describe('per-hex land geometry', () => {
     }
   })
 
+  it('maps side-image top rows to face tops, including half-height fluids', () => {
+    const solid = buildSideGeometry(0).getAttribute('landSideUv')
+    const fluid = buildFluidGeometry(0).getAttribute('landSideUv')
+
+    for (let side = 0; side < 6; side += 1) {
+      const start = side * 4
+      expect([solid.getX(start), solid.getY(start)]).toEqual([0, 1])
+      expect([solid.getX(start + 1), solid.getY(start + 1)]).toEqual([0, 0])
+      expect([solid.getX(start + 2), solid.getY(start + 2)]).toEqual([1, 0])
+      expect([solid.getX(start + 3), solid.getY(start + 3)]).toEqual([1, 1])
+
+      const fluidStart = 18 + start
+      for (let vertex = 0; vertex < 4; vertex += 1) {
+        expect([
+          fluid.getX(fluidStart + vertex),
+          fluid.getY(fluidStart + vertex),
+        ]).toEqual([solid.getX(start + vertex), solid.getY(start + vertex)])
+      }
+    }
+  })
+
   it('every side quad faces away from the hex center', () => {
     const geometry = buildSideGeometry(0)
     const position = geometry.getAttribute('position')
@@ -66,7 +87,6 @@ describe('per-hex land geometry', () => {
     const geometry = buildFluidGeometry(0)
     const position = geometry.getAttribute('position')
     const directions = geometry.getAttribute('landDirection')
-    const kinds = geometry.getAttribute('landSurfaceKind')
     const index = geometry.getIndex()
     const capVertexCount = 18
     const capIndexCount = 18
@@ -106,15 +126,13 @@ describe('per-hex land geometry', () => {
         u[2] * v[0] - u[0] * v[2],
         u[0] * v[1] - u[1] * v[0],
       ]
-      const kind = kinds.getX(vertices[0])
       const direction = directions.getX(vertices[0])
 
       for (const vertex of vertices.slice(1)) {
-        expect(kinds.getX(vertex)).toBe(kind)
         expect(directions.getX(vertex)).toBe(direction)
       }
 
-      if (kind > 0.5) {
+      if (direction < 0) {
         expect(normal[1]).toBeGreaterThan(0)
       } else {
         const midpoint = [(a[0] + c[0]) / 2, (a[2] + c[2]) / 2]
@@ -122,6 +140,17 @@ describe('per-hex land geometry', () => {
           normal[0] * midpoint[0] + normal[2] * midpoint[1],
         ).toBeGreaterThan(0)
       }
+    }
+  })
+
+  it('keeps land geometry within the WebGL vertex-attribute budget', () => {
+    for (const geometry of [
+      buildCapGeometry(1),
+      buildSideGeometry(1),
+      buildFluidGeometry(1),
+    ]) {
+      const locationCount = Object.keys(geometry.attributes).length + 4 + 1
+      expect(locationCount).toBeLessThanOrEqual(14)
     }
   })
 })

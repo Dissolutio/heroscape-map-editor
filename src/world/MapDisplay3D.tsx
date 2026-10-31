@@ -2,15 +2,21 @@ import type { ThreeEvent } from '@react-three/fiber'
 
 import { Button } from '@mui/material'
 import { closeSnackbar, enqueueSnackbar } from 'notistack'
-import { Suspense, useMemo } from 'react'
+import { Suspense, useEffect, useMemo, useRef } from 'react'
 import type React from 'react'
 import type { Group, Object3DEventMap } from 'three'
+import { mapTableHexes } from '../data/fitMapToPieces.ts'
 import {
   decideLaurVariantPlacement,
   getLaurStackableVariantID,
 } from '../data/laurVariantPenModes.ts'
+import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement.ts'
+import {
+  OBJECTIVE_MARKER_PEN_MODE,
+  type ObjectiveMarker,
+  getEffectiveObjectiveMarkerNumber,
+} from '../data/objectiveMarkers.ts'
 import { piecesSoFar } from '../data/pieces.ts'
-import { START_ZONES_HIDDEN_MESSAGE } from '../data/startZoneVisibility.ts'
 import {
   LAUR_STACKABLE_VARIANT_UNAVAILABLE_MESSAGE,
   type ResolvedPlacement,
@@ -19,6 +25,8 @@ import {
   resolvePlacement,
 } from '../data/placement.ts'
 import getPieceTemplateCoords from '../data/rotationTransforms.ts'
+import { START_ZONES_HIDDEN_MESSAGE } from '../data/startZoneVisibility.ts'
+import { isPerHexLandOverride } from '../e2e/isE2E.ts'
 import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
 import {
   RECONCILABLE_LAUR_PIECE_PAIRS,
@@ -46,21 +54,24 @@ import {
   hasActiveTerrainConstraints,
 } from '../utils/terrain-constraints.ts'
 import { warnIfTallFluidStack } from '../utils/warnAboutLoadedMap.ts'
-import { isPerHexLandEnabled } from '../e2e/isE2E.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
+import ObjectiveMarkerPlacementPreview from './ObjectiveMarkerPlacementPreview.tsx'
 import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
 import PiecePreview from './PiecePreview.tsx'
 import { TableSurfaceMesh } from './TableSurfaceMesh.tsx'
 import { DragPreview3D } from './drag/DragPreview3D.tsx'
+import { clearLastPointerWorldPoint } from './hoverWorldPoint.ts'
+import { getLandRendererMode } from './landRendererTier.ts'
 import { MapHex3D } from './maphex/MapHex3D.tsx'
 import EmptyHexes from './maphex/instance/EmptyHex.tsx'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
 import SolidCaps from './maphex/instance/SolidCaps.tsx'
+import LandHexInstanced from './models/LandHexInstanced.tsx'
 import LandSubterrainInstanced, {
   getLandSubterrainInstanceData,
 } from './models/LandSubterrainInstanced.tsx'
-import LandHexInstanced from './models/LandHexInstanced.tsx'
-import { buildLandHexInstanceData } from './models/landHexInstances.ts'
+import ObjectiveMarkers3D from './models/ObjectiveMarkers3D.tsx'
+import { getLandHexInstanceIDs } from './models/landHexInstances.ts'
 
 function getAvailableLaurStackableInventory(): PieceInventory | undefined {
   const state = useBoundStore.getState()
@@ -138,6 +149,7 @@ export default function MapDisplay3D({
 }) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const hexMap = useBoundStore((s) => s.hexMap)
   const boardHexesArr = Object.values(boardHexes).sort(
     (a, b) => a.altitude - b.altitude,
   )
@@ -146,37 +158,61 @@ export default function MapDisplay3D({
   const pieceSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const effectiveGraphicsTier = useBoundStore((s) => s.effectiveGraphicsTier)
   const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
   const genericSolidSideColor = useBoundStore((s) => s.genericSolidSideColor)
   const genericFluidCapColor = useBoundStore((s) => s.genericFluidCapColor)
   const genericFluidSideColor = useBoundStore((s) => s.genericFluidSideColor)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
+  const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
+  const toggleHoveredHex = useBoundStore((s) => s.toggleHoveredHex)
+  const setSelectedObjectiveMarkerUID = useBoundStore(
+    (s) => s.setSelectedObjectiveMarkerUID,
+  )
+  const addObjectiveMarker = useBoundStore((s) => s.addObjectiveMarker)
+  const objectiveMarkerMapHexIDs = useMemo(
+    () => mapTableHexes(hexMap),
+    [hexMap],
+  )
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const landRendererMode = getLandRendererMode(
+    effectiveGraphicsTier,
+    isPerHexLandOverride,
+  )
+  const isPerHexLand = landRendererMode === 'per-hex'
+  const previousLandRendererMode = useRef(landRendererMode)
   useMiddleClickPickPenMode()
 
-  const landHexData = useMemo(
-    () =>
-      isPerHexLandEnabled
-        ? buildLandHexInstanceData(boardHexes, boardPieces, viewingLevel, {
-            genericSolidCapColor,
-            genericSolidSideColor,
-            genericFluidCapColor,
-            genericFluidSideColor,
-          })
-        : [],
-    [
-      boardHexes,
-      boardPieces,
-      viewingLevel,
+  useEffect(() => {
+    if (previousLandRendererMode.current === landRendererMode) return
+    previousLandRendererMode.current = landRendererMode
+    toggleHoveredPieceID('')
+    toggleHoveredHex(undefined)
+    clearLastPointerWorldPoint()
+  }, [landRendererMode, toggleHoveredHex, toggleHoveredPieceID])
+
+  const genericColors = useMemo(
+    () => ({
       genericSolidCapColor,
       genericSolidSideColor,
       genericFluidCapColor,
       genericFluidSideColor,
+    }),
+    [
+      genericFluidCapColor,
+      genericFluidSideColor,
+      genericSolidCapColor,
+      genericSolidSideColor,
     ],
   )
   const perHexLandIDs = useMemo(
-    () => new Set(landHexData.map((item) => item.hex.id)),
-    [landHexData],
+    () =>
+      new Set(
+        isPerHexLand
+          ? getLandHexInstanceIDs(boardHexes, boardPieces, viewingLevel)
+          : [],
+      ),
+    [boardHexes, boardPieces, viewingLevel, isPerHexLand],
   )
   const instanceBoardHexes = getInstanceBoardHexes(
     boardHexesArr,
@@ -184,7 +220,7 @@ export default function MapDisplay3D({
     viewingLevel,
     perHexLandIDs,
   )
-  const landSubterrainData = isPerHexLandEnabled
+  const landSubterrainData = isPerHexLand
     ? []
     : getLandSubterrainInstanceData(boardPieces, boardHexes, viewingLevel)
 
@@ -199,6 +235,7 @@ export default function MapDisplay3D({
       // const myClipboard = await navigator.clipboard.readText()
       return
     }
+    setSelectedObjectiveMarkerUID(null)
 
     // Pick pen mode is handled by useMiddleClickPickPenMode, nothing to paint
     if (penMode === PICK_PEN_MODE) {
@@ -215,6 +252,63 @@ export default function MapDisplay3D({
           event.point ? { x: event.point.x, z: event.point.z } : undefined,
           hex,
         )
+      }
+      return
+    }
+    if (penMode === OBJECTIVE_MARKER_PEN_MODE) {
+      const state = useBoundStore.getState()
+      const draft = state.objectiveMarkerDraft
+      const content =
+        draft.content.kind === 'number' && !draft.pinNumber
+          ? {
+              kind: 'number' as const,
+              value: getEffectiveObjectiveMarkerNumber(
+                state.hexMap.objectiveMarkers ?? [],
+                draft.style,
+                draft.content.value,
+              ),
+            }
+          : draft.content
+      const marker: ObjectiveMarker = {
+        uid: '',
+        anchor: {
+          q: hex.q,
+          r: hex.r,
+          s: hex.s,
+          altitude: hex.altitude,
+        },
+        size: draft.size,
+        style: draft.style,
+        content,
+        name: draft.name,
+        rotation: (penModeRotation % 6) as 0 | 1 | 2 | 3 | 4 | 5,
+      }
+      const placement = getObjectiveMarkerPlacementStatus({
+        marker,
+        boardHexes: state.boardHexes,
+        mapHexIDs: objectiveMarkerMapHexIDs,
+        markers: state.hexMap.objectiveMarkers ?? [],
+      })
+      if (placement.status !== 'ok') {
+        enqueueSnackbar({
+          message:
+            placement.reason === 'overlap'
+              ? 'Objective markers cannot overlap.'
+              : 'Markers must fit on supported map caps.',
+          variant: 'warning',
+          autoHideDuration: 2500,
+        })
+        return
+      }
+      const uid = addObjectiveMarker(marker)
+      if (!uid) {
+        enqueueSnackbar({
+          message: 'Objective marker could not be placed.',
+          variant: 'warning',
+          autoHideDuration: 2500,
+        })
+      } else {
+        toggleSelectedPieceID('')
       }
       return
     }
@@ -371,6 +465,7 @@ export default function MapDisplay3D({
       <TableSurfaceMesh width={width} length={length} />
       <group ref={mapGroupRef}>
         <PiecePreview />
+        <ObjectiveMarkerPlacementPreview />
         <OperationPiecePreviews />
         <DragPreview3D />
         <EmptyHexes
@@ -385,10 +480,14 @@ export default function MapDisplay3D({
           boardHexArr={instanceBoardHexes.fluidHexCaps}
           onPointerUp={onPointerUpPaintPiece}
         />
+        <ObjectiveMarkers3D />
         <Suspense fallback={null}>
-          {isPerHexLandEnabled ? (
+          {isPerHexLand ? (
             <LandHexInstanced
-              data={landHexData}
+              boardHexes={boardHexes}
+              boardPieces={boardPieces}
+              viewingLevel={viewingLevel}
+              genericColors={genericColors}
               onPointerUpPaintPiece={onPointerUpPaintPiece}
             />
           ) : (

@@ -1,13 +1,19 @@
 import { produce } from 'immer'
 import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
-import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import type { DragPreview } from '../data/dragMove'
+import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
+import { type LookSettings, sanitizeLookSettings } from '../data/lookSettings'
 import {
+  OBJECTIVE_MARKER_PEN_MODE,
+  type ObjectiveMarker,
+  type ObjectiveMarkerDraft,
+} from '../data/objectiveMarkers'
+import {
+  type RotationPivot,
   createRotationPivot,
   getClosestOwnedPieceHex,
   shouldSetRotationPivotOnClick,
-  type RotationPivot,
 } from '../data/rotationPivot'
 import {
   filterVisiblePieceIDs,
@@ -16,17 +22,17 @@ import {
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 import {
-  loadSettings,
-  resetSettings as resetStoredSettings,
-  SETTINGS_DEFAULTS,
   type GraphicsTier,
   type LightPosition,
+  SETTINGS_DEFAULTS,
+  loadSettings,
   resetGenericTerrainColorSettings,
+  resetSettings as resetStoredSettings,
 } from '../local-storage/settings'
 import {
-  loadTerrainTextureArrays,
-  type TextureLoadStatus,
-} from '../world/textures/terrainTextureArrays'
+  finishPerformanceTiming,
+  startPerformanceTiming,
+} from '../performance/performanceTiming'
 import {
   type BoardHex,
   type BoardPiece,
@@ -35,6 +41,14 @@ import {
   SELECT_PEN_MODE,
   type TerrainConstraintSource,
 } from '../types'
+import {
+  getLastPointerWorldPoint,
+  shouldTrackHoveredWorldPoint,
+} from '../world/hoverWorldPoint'
+import {
+  type TextureLoadStatus,
+  loadTerrainTextureArrays,
+} from '../world/textures/terrainTextureArrays'
 import type { AppState } from './store'
 
 export type { LightPosition } from '../local-storage/settings'
@@ -54,6 +68,8 @@ export interface UISlice {
   genericFluidCapColor: string
   genericFluidSideColor: string
   rememberedMapAuthor: string
+  lookSettings: LookSettings
+  setLookSettings: (settings: Partial<LookSettings>) => void
   setGenericSolidCapColor: (color: string) => void
   setGenericSolidSideColor: (color: string) => void
   setGenericFluidCapColor: (color: string) => void
@@ -74,13 +90,30 @@ export interface UISlice {
   togglePieceSize: (s: number) => void
   flatPieceSizes: number[]
   currentDialog: string
+  isLookSettingsDialogOpen: boolean
+  setIsLookSettingsDialogOpen: (open: boolean) => void
+  cropDialogReturnToEditMap: boolean
   toggleCurrentDialog: (s: string) => void
+  openCropMapPortraitDialog: (returnToEditMap?: boolean) => void
+  closeCropMapPortraitDialog: () => void
   toggleIsNewMapDialogOpen: (b: boolean) => void
   toggleIsEditMapDialogOpen: (b: boolean) => void
   toggleIsPieceInventoryDialogOpen: (b: boolean) => void
 
   // WORLD STATE
   selectedPieceIDs: string[]
+  selectedObjectiveMarkerUID: string | null
+  setSelectedObjectiveMarkerUID: (uid: string | null) => void
+  objectiveMarkerDraft: ObjectiveMarkerDraft
+  updateObjectiveMarkerDraft: (updates: Partial<ObjectiveMarkerDraft>) => void
+  objectiveMarkerDragPreview: {
+    marker: ObjectiveMarker
+    status: 'ok' | 'blocked'
+    reason?: 'outOfBounds' | 'unsupported' | 'overlap'
+  } | null
+  setObjectiveMarkerDragPreview: (
+    preview: UISlice['objectiveMarkerDragPreview'],
+  ) => void
   toggleSelectedPieceID: (
     id: string,
     multiSelect?: boolean,
@@ -103,6 +136,8 @@ export interface UISlice {
   toggleIsPdfOpen: (b: boolean) => void
   isHighQualityRender: boolean
   toggleIsHighQualityRender: (b: boolean) => void
+  useHighQualityForPicture: boolean
+  toggleUseHighQualityForPicture: (b: boolean) => void
   isLightsAndShadowsRender: boolean
   toggleIsLightsAndShadowsRender: (b: boolean) => void
   isShowLightControls: boolean
@@ -162,6 +197,10 @@ export interface UISlice {
   toggleIsShowPDFInventory: (b: boolean) => void
   isPdfColorBorders: boolean
   toggleIsPdfColorBorders: (b: boolean) => void
+  isTransparentGlyphSpaces: boolean
+  toggleIsTransparentGlyphSpaces: (b: boolean) => void
+  isHideHeightsOnGlyphs: boolean
+  toggleIsHideHeightsOnGlyphs: (b: boolean) => void
   isShowPdfOverlayLayer: boolean
   toggleIsShowPdfOverlayLayer: (b: boolean) => void
   isShowPdfOverlayOnPlacedLevel: boolean
@@ -192,7 +231,11 @@ export interface UISlice {
 }
 
 const initialPenMode = SELECT_PEN_MODE
-const nonPaintingPenModes = new Set<string>([SELECT_PEN_MODE, PICK_PEN_MODE])
+const nonPaintingPenModes = new Set<string>([
+  SELECT_PEN_MODE,
+  PICK_PEN_MODE,
+  OBJECTIVE_MARKER_PEN_MODE,
+])
 let graphicsTierLoadGeneration = 0
 
 const createUISlice: StateCreator<
@@ -203,6 +246,7 @@ const createUISlice: StateCreator<
   UISlice
 > = (set) => ({
   ...loadSettings(),
+  isLookSettingsDialogOpen: false,
   effectiveGraphicsTier: 'low',
   textureLoadStatus: 'idle',
   textureLoadProgress: { loaded: 0, total: 0 },
@@ -213,6 +257,7 @@ const createUISlice: StateCreator<
       effectiveGraphicsTier: 'low',
       textureLoadStatus: tier === 'low' ? 'idle' : 'loading',
       textureLoadProgress: { loaded: 0, total: 0 },
+      ...(tier === 'high' ? { isLightsAndShadowsRender: true } : {}),
     })
     if (tier === 'low') return
 
@@ -231,14 +276,33 @@ const createUISlice: StateCreator<
       }
     }
 
+    let fellBackToMedium = false
+    if (request !== graphicsTierLoadGeneration) return
+    if (tier === 'high' && result.status === 'error') {
+      try {
+        result = await loadTerrainTextureArrays('medium', {
+          onProgress: (loaded, total) => {
+            if (request !== graphicsTierLoadGeneration) return
+            set({ textureLoadProgress: { loaded, total } })
+          },
+        })
+        fellBackToMedium = result.status === 'ready'
+      } catch (error) {
+        result = {
+          error: error instanceof Error ? error : new Error(String(error)),
+          status: 'error',
+        }
+      }
+    }
+
     if (request !== graphicsTierLoadGeneration) return
     if (result.status === 'ready') {
       set({
-        effectiveGraphicsTier: tier,
-        textureLoadStatus: 'ready',
+        effectiveGraphicsTier: fellBackToMedium ? 'medium' : tier,
+        textureLoadStatus: fellBackToMedium ? 'fallback' : 'ready',
         textureLoadProgress: {
           loaded: result.textures ? Object.keys(result.textures).length : 0,
-          total: tier === 'medium' ? 2 : 6,
+          total: fellBackToMedium ? 2 : tier === 'medium' ? 2 : 7,
         },
       })
       return
@@ -258,6 +322,28 @@ const createUISlice: StateCreator<
   setRememberedMapAuthor: (name: string) => set({ rememberedMapAuthor: name }),
   isShowStartZones: true,
   selectedPieceIDs: [],
+  selectedObjectiveMarkerUID: null,
+  setSelectedObjectiveMarkerUID: (uid) =>
+    set({ selectedObjectiveMarkerUID: uid }),
+  objectiveMarkerDraft: {
+    size: 1,
+    style: 'black',
+    content: { kind: 'number', value: 1 },
+    name: undefined,
+    pinNumber: false,
+  },
+  updateObjectiveMarkerDraft: (updates) =>
+    set((state) =>
+      produce(state, (draft) => {
+        draft.objectiveMarkerDraft = {
+          ...draft.objectiveMarkerDraft,
+          ...updates,
+        }
+      }),
+    ),
+  objectiveMarkerDragPreview: null,
+  setObjectiveMarkerDragPreview: (preview) =>
+    set({ objectiveMarkerDragPreview: preview }),
   rotationPivot: null,
   toggleSelectedPieceID: (
     pieceID: string,
@@ -267,6 +353,7 @@ const createUISlice: StateCreator<
   ) =>
     set(
       produce((state) => {
+        state.selectedObjectiveMarkerUID = null
         // in pick pen mode a click is an eyedropper, not a selection
         if (pieceID && state.penMode === PICK_PEN_MODE) {
           return
@@ -372,18 +459,24 @@ const createUISlice: StateCreator<
       }),
     ),
   hoveredWorldPoint: undefined,
-  toggleHoveredWorldPoint: (point?: { x: number; z: number }) =>
-    set(
-      produce((state) => {
-        if (
-          state.hoveredWorldPoint?.x === point?.x &&
-          state.hoveredWorldPoint?.z === point?.z
-        ) {
-          return
-        }
-        state.hoveredWorldPoint = point
-      }),
-    ),
+  toggleHoveredWorldPoint: (point?: { x: number; z: number }) => {
+    const startedAt = startPerformanceTiming()
+    try {
+      set(
+        produce((state) => {
+          if (
+            state.hoveredWorldPoint?.x === point?.x &&
+            state.hoveredWorldPoint?.z === point?.z
+          ) {
+            return
+          }
+          state.hoveredWorldPoint = point
+        }),
+      )
+    } finally {
+      finishPerformanceTiming('store.toggleHoveredWorldPoint', startedAt)
+    }
+  },
   penMode: initialPenMode,
   toggleLastPenMode: () =>
     set(
@@ -410,6 +503,9 @@ const createUISlice: StateCreator<
   togglePenMode: (mode: string) => {
     set(
       produce((state) => {
+        const startsPlacement =
+          !shouldTrackHoveredWorldPoint(state.penMode) &&
+          shouldTrackHoveredWorldPoint(mode)
         // when we switch terrains, we have different size options available and must update smartly
         const { newSize, newSizes } = getNewPieceSizeForPenMode(
           mode,
@@ -433,6 +529,9 @@ const createUISlice: StateCreator<
         state.penMode = mode
         state.pieceSize = newSize
         state.flatPieceSizes = newSizes
+        if (startsPlacement) {
+          state.hoveredWorldPoint = getLastPointerWorldPoint()
+        }
       }),
     )
   },
@@ -587,6 +686,18 @@ const createUISlice: StateCreator<
         s.isPdfColorBorders = b
       }),
     ),
+  toggleIsTransparentGlyphSpaces: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isTransparentGlyphSpaces = b
+      }),
+    ),
+  toggleIsHideHeightsOnGlyphs: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isHideHeightsOnGlyphs = b
+      }),
+    ),
   toggleIsShowPdfOverlayLayer: (b: boolean) =>
     set(
       produce((s) => {
@@ -670,6 +781,7 @@ const createUISlice: StateCreator<
       }),
     ),
   currentDialog: '',
+  cropDialogReturnToEditMap: false,
   toggleIsNewMapDialogOpen: (b: boolean) =>
     set(
       produce((s) => {
@@ -692,6 +804,20 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.currentDialog = dialogName ?? ''
+      }),
+    ),
+  openCropMapPortraitDialog: (returnToEditMap = false) =>
+    set(
+      produce((s) => {
+        s.currentDialog = DIALOGS.cropMapPortrait
+        s.cropDialogReturnToEditMap = returnToEditMap
+      }),
+    ),
+  closeCropMapPortraitDialog: () =>
+    set(
+      produce((s) => {
+        s.currentDialog = s.cropDialogReturnToEditMap ? DIALOGS.editMap : ''
+        s.cropDialogReturnToEditMap = false
       }),
     ),
   viewingLevel: 0,
@@ -738,6 +864,12 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isHighQualityRender = b
+      }),
+    ),
+  toggleUseHighQualityForPicture: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.useHighQualityForPicture = b
       }),
     ),
   toggleIsDisplayCapHeights: (b: boolean) =>
@@ -802,6 +934,15 @@ const createUISlice: StateCreator<
       textureLoadProgress: { loaded: 0, total: 0 },
     })
   },
+  setLookSettings: (settings) =>
+    set((state) => ({
+      lookSettings: sanitizeLookSettings({
+        ...state.lookSettings,
+        ...settings,
+      }),
+    })),
+  setIsLookSettingsDialogOpen: (open) =>
+    set({ isLookSettingsDialogOpen: open }),
   setGenericSolidCapColor: (color: string) =>
     set({ genericSolidCapColor: color }),
   setGenericSolidSideColor: (color: string) =>

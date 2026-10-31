@@ -26,6 +26,7 @@ import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
 import LoadMapFromUrlDialog from './LoadMapFromUrlDialog'
 import PiecesGridDialog from './PiecesGridDialog'
+import CropMapPortraitDialog from './CropMapPortraitDialog'
 import { useMuiMediaQuery } from './useMuiMediaQuery'
 import WhatsNewDialog, { releaseNoteEntries } from './WhatsNewDialog'
 // 1. Define your lazy-loaded components
@@ -80,6 +81,15 @@ export default function HomePage() {
   useEffect(() => {
     toggleViewingLevel(maxLevel)
   }, [hexMap.id])
+
+  // USE EFFECT: a saved Medium or High graphics tier starts as Lowest every
+  // session, so load its textures once at startup.
+  useEffect(() => {
+    const { graphicsTier, setGraphicsTier } = useBoundStore.getState()
+    if (graphicsTier !== 'low') {
+      void setGraphicsTier(graphicsTier)
+    }
+  }, [])
 
   // USE EFFECT: automatically load up map from URL, OR from file
   useAutoLoadMapFile()
@@ -139,6 +149,7 @@ export default function HomePage() {
       />
       <CreateMapFormDialog />
       <EditMapFormDialog />
+      <CropMapPortraitDialog />
       <EditPieceInventoryDialog />
       <ViewMapInventoryDialog />
       <PiecesGridDialog cameraControlsRef={cameraControlsRef} />

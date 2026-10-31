@@ -16,6 +16,19 @@ npx playwright install chromium
 Run the tests with `npm run test:e2e`. The config starts the dev server
 itself (or reuses one already on port 5173).
 
+## Running
+
+Evidence screenshots are temporary review aids and are off by default. The
+`saveEvidence` and `saveLocatorEvidence` helpers in `e2e/fixtures.ts` only save
+screenshots when `E2E_EVIDENCE=1`. Generate them with:
+
+```sh
+E2E_EVIDENCE=1 npx playwright test <spec>
+```
+
+Commit these images on a PR branch only for a visual change when the PM asks for
+evidence. Delete them or do not carry them when the PR merges.
+
 ## Opening the app for automation
 
 Open **`/hs?e2e=1`**, not `/`. The router redirects `/` to `/hs` and drops the
@@ -27,9 +40,27 @@ link parameter: `/hs?e2e=1&m=<crushed map>` (see `e2e/fixtures.ts`).
 between runs. The rotation only shows with **High Quality Render** on; the
 default caps are plain hexagons.
 
-For the development-only per-hex land renderer, add `&perHexLand=1` to an
-`/hs?e2e=1` URL. It is session-only and off by default; all other rendering
-continues to use the current path.
+Graphics tiers choose the land renderer in every build: Low uses the classic
+renderer, Medium uses per-hex land with diffuse textures, and High uses per-hex
+land with PBR textures. Add `&perHexLand=1` to an `/hs?e2e=1` URL only when a
+test needs to force per-hex land at Low. For tier-start coverage,
+`&graphicsTier=medium` or `&graphicsTier=high` selects the initial tier when
+both `e2e=1` and `perHexLand=1` are present.
+
+Add `&perf=1` to show the performance overlay in both development and production
+builds. It samples frame-time average/p95, FPS, renderer resources, heap when
+available, store updates, pointer moves, raycast time, and pending async work.
+`&perf=1&bench=1` starts the benchmark once per browser session. The overlay's
+Run button measures camera orbit and synthetic pointer sweep for the currently
+selected renderer with lights off/on; `&perHexLand=1` also adds Medium when its
+textures load. `&perfSeconds=N` sets each phase length (1–60 seconds; default
+2). Use Copy JSON to collect the report. The 120-second leak sweep is a separate
+button in the overlay. These timings are software-rendering comparisons, not
+real-device FPS.
+The pointer split reports total event dispatch, raycasting, R3F bookkeeping,
+measured app handlers and other event-path time. `&perfNoEvents=1` disables R3F
+pointer events for an isolation run (hover/selection are unavailable in that
+mode).
 
 The automatic What's New dialog is suppressed for `?e2e=1` runs. A test that
 needs to exercise it can explicitly opt in with `&whats-new=1`. The ordinary
@@ -64,6 +95,7 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   tree): map name, piece count, level, pen mode, how many pieces are selected.
 - `window.__TEST__.snapshot()`: the same, structured (`mapId`, `mapWidth`,
   `mapLength`, `pieceCount`, `hexCount`, `viewingLevel`, `penMode`, `selectedPieceIDs`,
+  `objectiveMarkerCount`, `selectedObjectiveMarkerUID`,
   `hoveredPieceID`, `isOrthoCam`, `ready`, `placementPreview`
   (`status`, `reason`, `footprintCount`, `unsupported`, `altitude`, and
   `rotation`, or `null`), and
@@ -84,6 +116,8 @@ The canvas is invisible to accessibility snapshots, so read state in text:
 - `window.__TEST__.cameraPose()`: the camera's `position`, `target` and
   `zoom` (rounded), to check that something did not move the camera.
 - `window.__TEST__.stats()`: draw calls and triangles.
+- `window.__TEST__.listRenderedObjectiveMarkerUIDs()` and
+  `screenPosOfObjectiveMarker(uid)`: mounted marker UIDs and marker hit positions.
 
 The bridge is read-only apart from the camera and the setup-only `setPen`
 helper. Drive the app through its real UI, hotkeys and canvas clicks, as a user
@@ -179,9 +213,14 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
-| View tooltips, camera visibility, and new-map author details | `e2e/ui-polish.spec.ts` |
-| Per-hex land pixels across lights toggles | `e2e/per-hex-land.spec.ts` |
-| Lazy Graphics tier texture loading in per-hex land mode | `e2e/graphics-tier.spec.ts` |
+| Objective-marker 3D rendering, selection, and shadow isolation | `e2e/objective-markers.spec.ts` |
+| Objective-marker placement, editing, rotation, drag, deletion, undo, unit-name suggestions, and saved-file name round trips | `e2e/objective-marker-editing.spec.ts` |
+| OHS-friendly glyph space export options | `e2e/glyph-export-options.spec.ts` |
+| View tooltips, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
+| Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |
+| Multi-hex fluid cap join vertices and dark-pixel checks at Medium/High | `e2e/fluid-cap-vertices.spec.ts` |
+| Lazy Graphics tier loading and picture-only High setting restoration in per-hex land mode | `e2e/graphics-tier.spec.ts` |
+| Opt-in performance overlay | `e2e/performance.spec.ts` |
 
 The map-settle tracker also feeds the app's startup UI in normal runs. The
 window bridge, hidden status element, deterministic rotation, and other

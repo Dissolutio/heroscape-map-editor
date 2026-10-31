@@ -70,11 +70,24 @@ function channelDifference(
 }
 
 describe('packed terrain textures', () => {
+  it('uses the replacement Ice side source instead of a public source copy', () => {
+    expect(terrainTextures.Ice.sideDiffuse).toBe('sides/IceSide.png')
+    expect(existsSync(`${outputRoot}/IceSide.png`)).toBe(false)
+  })
+
   it('includes a manifest entry for every terrain', () => {
     expect(Object.keys(manifest.terrains).sort()).toEqual(
       Object.keys(terrainTextures).sort(),
     )
     expect(Object.keys(manifest.terrains)).toHaveLength(21)
+  })
+
+  it('enables random cap rotation for every terrain with a cap diffuse layer', () => {
+    for (const [name, source] of Object.entries(terrainTextures)) {
+      expect(manifest.terrains[name].allowRandomRotation).toBe(
+        Boolean('capDiffuse' in source && source.capDiffuse),
+      )
+    }
   })
 
   it('references source images that exist', () => {
@@ -86,6 +99,45 @@ describe('packed terrain textures', () => {
     ])
     for (const source of sources) {
       expect(existsSync(`${root}/textures/${source}`), source).toBe(true)
+    }
+  })
+
+  it('uses tinted, fluid-mapped sides for Shadow and SwampWater', () => {
+    for (const [name, color] of [
+      ['Shadow', '#0f0f0d'],
+      ['SwampWater', '#7a6c35'],
+    ]) {
+      const terrain = manifest.terrains[name]
+      expect(terrain.flatColor).toBe(color)
+      expect(terrain.sideDiffuseLayer).toBeGreaterThanOrEqual(0)
+      expect(terrain.sideNormalLayer).toBeGreaterThanOrEqual(0)
+      expect(terrain.sideOrmLayer).toBeGreaterThanOrEqual(0)
+
+      const source = PNG.sync.read(
+        readFileSync(`${root}/textures/sides/WaterSide.png`),
+      )
+      const tinted = PNG.sync.read(
+        readFileSync(`${root}/textures/sides/${name}Side.png`),
+      )
+      expect([tinted.width, tinted.height]).toEqual([128, 32])
+      const target =
+        color
+          .slice(1)
+          .match(/.{2}/g)
+          ?.map((channel) => Number.parseInt(channel, 16)) ?? []
+      for (let pixel = 0; pixel < source.width * source.height; pixel += 1) {
+        const index = pixel * 4
+        const luminance =
+          0.2126 * source.data[index] +
+          0.7152 * source.data[index + 1] +
+          0.0722 * source.data[index + 2]
+        for (let channel = 0; channel < 3; channel += 1) {
+          expect(tinted.data[index + channel]).toBeCloseTo(
+            (target[channel] * luminance) / 255,
+            0,
+          )
+        }
+      }
     }
   })
 

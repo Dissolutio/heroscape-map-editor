@@ -50,7 +50,7 @@ function ReactPdfRoot() {
   const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
   const genericTerrainColorsKey = useBoundStore(
     (s) =>
-      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}`,
+      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}|${s.isTransparentGlyphSpaces}|${s.isHideHeightsOnGlyphs}`,
   )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
@@ -341,6 +341,7 @@ const PdfDocumentCoverSheet = ({
         buriedMarksByUID={buriedMarksByUID}
         useLegacyStartZones={useLegacyStartZones}
         is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+        objectiveMarkers={hexMap.objectiveMarkers ?? []}
       />
 
       {/* Inventory Page(s) */}
@@ -512,6 +513,7 @@ const PdfDocumentCondensedCoverSheet = ({
         buriedMarksByUID={buriedMarksByUID}
         useLegacyStartZones={useLegacyStartZones}
         is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+        objectiveMarkers={hexMap.objectiveMarkers ?? []}
       />
     </Document>
   )
@@ -567,6 +569,7 @@ const PdfDocumentShortHeader = ({
         buriedMarksByUID={buriedMarksByUID}
         useLegacyStartZones={useLegacyStartZones}
         is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+        objectiveMarkers={hexMap.objectiveMarkers ?? []}
       >
         <MapPortraitHeader
           hexMap={hexMap}

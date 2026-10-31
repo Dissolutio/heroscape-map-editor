@@ -36,8 +36,8 @@
       "colorSpace": "srgb",
       "frameHeight": 32,
       "frameWidth": 128,
-      "height": 512,
-      "layers": 16,
+      "height": 576,
+      "layers": 18,
       "width": 128
     },
     "sides-normal.png": {
@@ -83,7 +83,7 @@
   ],
   "terrains": {
     "Ancient": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 0,
       "capDiffusePbrLayer": 0,
       "capNormalLayer": 0,
@@ -95,7 +95,7 @@
       "sideOrmLayer": 0
     },
     "Asphalt": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 1,
       "capDiffusePbrLayer": 1,
       "capNormalLayer": 0,
@@ -107,7 +107,7 @@
       "sideOrmLayer": 0
     },
     "Concrete": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 2,
       "capDiffusePbrLayer": 2,
       "capNormalLayer": 0,
@@ -119,7 +119,7 @@
       "sideOrmLayer": 0
     },
     "Dungeon": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 3,
       "capDiffusePbrLayer": 3,
       "capNormalLayer": 0,
@@ -131,7 +131,7 @@
       "sideOrmLayer": 0
     },
     "Grass": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 4,
       "capDiffusePbrLayer": 4,
       "capNormalLayer": 0,
@@ -155,7 +155,7 @@
       "sideOrmLayer": 1
     },
     "Lava": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 18,
       "capDiffusePbrLayer": 18,
       "capNormalLayer": 2,
@@ -167,7 +167,7 @@
       "sideOrmLayer": 2
     },
     "LavaField": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 5,
       "capDiffusePbrLayer": 5,
       "capNormalLayer": 0,
@@ -179,7 +179,7 @@
       "sideOrmLayer": 0
     },
     "Road": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 11,
       "capDiffusePbrLayer": 11,
       "capNormalLayer": 1,
@@ -191,7 +191,7 @@
       "sideOrmLayer": 0
     },
     "Rock": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 6,
       "capDiffusePbrLayer": 6,
       "capNormalLayer": 0,
@@ -203,7 +203,7 @@
       "sideOrmLayer": 0
     },
     "Sand": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 7,
       "capDiffusePbrLayer": 7,
       "capNormalLayer": 0,
@@ -222,12 +222,12 @@
       "capOrmLayer": 5,
       "flatColor": "#0f0f0d",
       "isFluid": true,
-      "sideDiffuseLayer": -1,
-      "sideNormalLayer": -1,
-      "sideOrmLayer": -1
+      "sideDiffuseLayer": 17,
+      "sideNormalLayer": 1,
+      "sideOrmLayer": 2
     },
     "Snow": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 8,
       "capDiffusePbrLayer": 8,
       "capNormalLayer": 0,
@@ -239,7 +239,7 @@
       "sideOrmLayer": 0
     },
     "Swamp": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 9,
       "capDiffusePbrLayer": 9,
       "capNormalLayer": 0,
@@ -258,12 +258,12 @@
       "capOrmLayer": 5,
       "flatColor": "#7a6c35",
       "isFluid": true,
-      "sideDiffuseLayer": -1,
-      "sideNormalLayer": -1,
-      "sideOrmLayer": -1
+      "sideDiffuseLayer": 16,
+      "sideNormalLayer": 1,
+      "sideOrmLayer": 2
     },
     "ToxicLand": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 10,
       "capDiffusePbrLayer": 10,
       "capNormalLayer": 0,
@@ -287,7 +287,7 @@
       "sideOrmLayer": 1
     },
     "WallWalk": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 12,
       "capDiffusePbrLayer": 12,
       "capNormalLayer": 1,
@@ -299,7 +299,7 @@
       "sideOrmLayer": 0
     },
     "Water": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 14,
       "capDiffusePbrLayer": 14,
       "capNormalLayer": 2,
@@ -311,7 +311,7 @@
       "sideOrmLayer": 1
     },
     "WellspringWater": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 16,
       "capDiffusePbrLayer": 16,
       "capNormalLayer": 2,
@@ -323,7 +323,7 @@
       "sideOrmLayer": 1
     },
     "Wood": {
-      "allowRandomRotation": false,
+      "allowRandomRotation": true,
       "capDiffuseLayer": 13,
       "capDiffusePbrLayer": 13,
       "capNormalLayer": 0,

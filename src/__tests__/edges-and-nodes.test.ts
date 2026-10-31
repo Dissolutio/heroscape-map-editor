@@ -15,9 +15,32 @@
  * the new model, as `it.todo`, to be turned into real tests as it is built.
  */
 import { describe, expect, it } from 'vitest'
+import { getEdgeDragTarget } from '../data/dragMove'
+import {
+  edgeIdFromHex,
+  edgeToWorldPoint,
+  edgesForHex,
+  edgesForNode,
+  edgesShareNode,
+  hexDistance,
+  hexesAreAdjacent,
+  hexesForEdge,
+  hexesForNode,
+  nodeIdFromHexCorner,
+  nodeIdFromHexRotation,
+  nodeToWorldPoint,
+  nodesForEdge,
+  nodesForHex,
+  nodesShareEdge,
+} from '../data/hexGrid/edgesAndNodes'
+import { getLaurAddonFeatureId } from '../data/laurAddonPlacement'
+import { piecesSoFar } from '../data/pieces'
 import type { CubeCoordinate } from '../types'
+import type { BoardPiece } from '../types'
+import { Pieces } from '../types'
 import {
   HEX_DIRECTIONS,
+  cubeToPixel,
   hexUtilsAdd,
   hexUtilsGetRadialFarNeighborForRotation,
   hexUtilsGetRadialNearNeighborsForRotation,
@@ -97,6 +120,187 @@ describe('today: a node is (hex, half-step rotation x.5) and every node has thre
       const meeting = names.map(([anchor, rot]) => cornerHexes(anchor, rot))
       expect(new Set(meeting).size).toBe(1)
     }
+  })
+})
+
+describe('integer cube-coordinate edge and node prototype', () => {
+  const coordinates = Array.from({ length: 9 }, (_, q) => q - 4).flatMap((q) =>
+    Array.from({ length: 9 }, (_, r) => r - 4).map((r) => ({
+      q,
+      r,
+      s: -q - r,
+    })),
+  )
+
+  it('round-trips edge ids from either neighboring hex and exposes both hexes and nodes', () => {
+    const hex = { q: -3, r: 2, s: 1 }
+    for (let edge = 0; edge < 6; edge++) {
+      const neighbor = hexUtilsAdd(hex, HEX_DIRECTIONS[edge])
+      const id = edgeIdFromHex(hex, edge)
+      expect(edgeIdFromHex(neighbor, edge + 3)).toBe(id)
+      expect(hexesForEdge(id)).toContainEqual(hex)
+      expect(hexesForEdge(id)).toContainEqual(neighbor)
+      expect(nodesForEdge(id)).toHaveLength(2)
+      for (const node of nodesForEdge(id)) {
+        expect(edgesForNode(node)).toContain(id)
+      }
+    }
+  })
+
+  it('round-trips node ids from each of the three meeting hexes and all rotations', () => {
+    const hex = { q: 2, r: -5, s: 3 }
+    for (let corner = 0; corner < 6; corner++) {
+      const first = HEX_DIRECTIONS[corner]
+      const second = HEX_DIRECTIONS[(corner + 1) % 6]
+      const aliases: [CubeCoordinate, number][] = [
+        [hex, corner + 0.5],
+        [hexUtilsAdd(hex, first), corner + 2.5],
+        [hexUtilsAdd(hex, second), corner + 4.5],
+      ]
+      const id = nodeIdFromHexCorner(hex, corner)
+      for (const [anchor, rotation] of aliases) {
+        expect(nodeIdFromHexRotation(anchor, rotation)).toBe(id)
+        expect(hexesForNode(id)).toContainEqual(anchor)
+      }
+      expect(nodesForHex(hex)).toContain(id)
+      expect(edgesForNode(id)).toHaveLength(3)
+      for (const edge of edgesForNode(id)) {
+        expect(nodesForEdge(edge)).toContain(id)
+      }
+    }
+  })
+
+  it('maps Laur side and vertex rotations to typed edge and node IDs', () => {
+    const hex = { q: -1, r: 4, s: -3 }
+    for (let direction = 0; direction < 6; direction++) {
+      const neighbor = hexUtilsAdd(hex, HEX_DIRECTIONS[direction])
+      expect(edgeIdFromHex(hex, direction)).toBe(
+        edgeIdFromHex(neighbor, direction + 3),
+      )
+      expect(getLaurAddonFeatureId(hex, direction)).toBe(
+        getLaurAddonFeatureId(neighbor, direction + 3),
+      )
+
+      const first = HEX_DIRECTIONS[direction]
+      const second = HEX_DIRECTIONS[(direction + 1) % 6]
+      const aliases: [CubeCoordinate, number][] = [
+        [hex, direction + 0.5],
+        [hexUtilsAdd(hex, first), direction + 2.5],
+        [hexUtilsAdd(hex, second), direction + 4.5],
+      ]
+      const node = nodeIdFromHexCorner(hex, direction)
+      const featureIds = aliases.map(([anchor, rotation]) =>
+        getLaurAddonFeatureId(anchor, rotation),
+      )
+      expect(new Set(featureIds).size).toBe(1)
+      expect(
+        aliases.map(([anchor, rotation]) =>
+          nodeIdFromHexRotation(anchor, rotation),
+        ),
+      ).toEqual(aliases.map(() => node))
+    }
+  })
+
+  it('agrees with battlement, road-wall, and rope-ladder drag edge targets', () => {
+    const hex = { q: 3, r: -2, s: -1 }
+    for (const pieceID of [
+      Pieces.battlement,
+      Pieces.roadWall,
+      Pieces.ropeLadder,
+    ]) {
+      for (let edge = 0; edge < 6; edge++) {
+        const rotation = pieceID === Pieces.battlement ? (edge + 3) % 6 : edge
+        const piece = piecesSoFar[pieceID]
+        const boardPiece = {
+          uid: `${pieceID}-${edge}`,
+          inventoryID: pieceID,
+          pieceCoords: hex,
+          rotation,
+          altitude: 0,
+        } as BoardPiece
+        const target = getEdgeDragTarget(
+          piece,
+          boardPiece,
+          hex,
+          edgeToWorldPoint(edgeIdFromHex(hex, edge)),
+        )
+        expect(target?.edgeIndex).toBe(edge)
+        expect(edgeIdFromHex(hex, target?.edgeIndex ?? -1)).toBe(
+          edgeIdFromHex(hex, edge),
+        )
+      }
+    }
+  })
+
+  it('covers hex incidence and adjacency over a range of signed coordinates', () => {
+    for (const hex of coordinates) {
+      const edges = edgesForHex(hex)
+      const nodes = nodesForHex(hex)
+      expect(new Set(edges).size).toBe(6)
+      expect(new Set(nodes).size).toBe(6)
+      for (const edge of edges) {
+        const [first, second] = hexesForEdge(edge)
+        expect([first, second].map(key)).toContain(key(hex))
+        expect(hexesAreAdjacent(first, second)).toBe(true)
+        expect(hexDistance(first, second)).toBe(1)
+        expect(edgesForHex(first)).toContain(edge)
+        expect(edgesForHex(second)).toContain(edge)
+      }
+      for (const node of nodes) {
+        const meetingHexes = hexesForNode(node)
+        expect(meetingHexes.map(key)).toContain(key(hex))
+        expect(new Set(meetingHexes.map(key)).size).toBe(3)
+        expect(edgesForNode(node)).toHaveLength(3)
+      }
+    }
+  })
+
+  it('converts integer edge and node ids to the existing world-space geometry', () => {
+    const hex = { q: -2, r: 1, s: 1 }
+    const neighbor = hexUtilsAdd(hex, HEX_DIRECTIONS[2])
+    const edge = edgeIdFromHex(hex, 2)
+    const edgePoint = edgeToWorldPoint(edge)
+    const firstCenter = cubeToPixel(hex)
+    const secondCenter = cubeToPixel(neighbor)
+    expect(edgePoint.x).toBeCloseTo((firstCenter.x + secondCenter.x) / 2)
+    expect(edgePoint.z).toBeCloseTo((firstCenter.y + secondCenter.y) / 2)
+
+    const node = nodeIdFromHexCorner(hex, 4)
+    const meetingCenters = hexesForNode(node).map(cubeToPixel)
+    const nodePoint = nodeToWorldPoint(node)
+    expect(nodePoint.x).toBeCloseTo(
+      meetingCenters.reduce((sum, point) => sum + point.x, 0) / 3,
+    )
+    expect(nodePoint.z).toBeCloseTo(
+      meetingCenters.reduce((sum, point) => sum + point.y, 0) / 3,
+    )
+  })
+
+  it('detects edge and node adjacency by shared lattice features', () => {
+    const hex = { q: 0, r: 0, s: 0 }
+    const edges = edgesForHex(hex)
+    const nodes = nodesForHex(hex)
+    expect(edgesShareNode(edges[0], edges[1])).toBe(true)
+    expect(edgesShareNode(edges[0], edges[3])).toBe(false)
+    expect(nodesShareEdge(nodes[0], nodes[1])).toBe(true)
+    expect(nodesShareEdge(nodes[0], nodes[3])).toBe(false)
+  })
+
+  it('keeps negative and zero coordinates canonical in serialized ids', () => {
+    const hex = { q: -0, r: 0, s: 0 }
+    for (const id of [...edgesForHex(hex), ...nodesForHex(hex)]) {
+      expect(id).not.toContain('-0')
+    }
+    expect(edgeIdFromHex(hex, 0)).toBe(edgeIdFromHex(ORIGIN, 0))
+    expect(nodeIdFromHexCorner(hex, 0)).toBe(nodeIdFromHexCorner(ORIGIN, 0))
+  })
+
+  it('rejects fractional coordinates and non-edge vertex rotations', () => {
+    expect(() => edgeIdFromHex({ q: 0.5, r: 0, s: -0.5 }, 0)).toThrow(
+      RangeError,
+    )
+    expect(() => nodeIdFromHexRotation(ORIGIN, 0)).toThrow(RangeError)
+    expect(() => nodeIdFromHexRotation(ORIGIN, 0.25)).toThrow(RangeError)
   })
 })
 

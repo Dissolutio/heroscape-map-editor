@@ -3,6 +3,7 @@ export function safeGetJSON<T = unknown>(
   fallback: T | null = null,
 ): T | null {
   try {
+    if (typeof localStorage === 'undefined') return fallback
     const raw = localStorage.getItem(key)
     return raw === null ? fallback : JSON.parse(raw)
   } catch (error) {
@@ -13,6 +14,7 @@ export function safeGetJSON<T = unknown>(
 
 export function safeHasItem(key: string): boolean | null {
   try {
+    if (typeof localStorage === 'undefined') return null
     return localStorage.getItem(key) !== null
   } catch (error) {
     console.warn(`Error checking localStorage key "${key}":`, error)
@@ -25,6 +27,9 @@ export function safeSetItem(
   value: string,
 ): { ok: true } | { ok: false; quota: boolean } {
   try {
+    if (typeof localStorage === 'undefined') {
+      return { ok: false, quota: false }
+    }
     localStorage.setItem(key, value)
     return { ok: true }
   } catch (error) {
@@ -41,6 +46,7 @@ export function safeSetItem(
 
 export function safeRemove(key: string): boolean {
   try {
+    if (typeof localStorage === 'undefined') return false
     localStorage.removeItem(key)
     return true
   } catch (error) {

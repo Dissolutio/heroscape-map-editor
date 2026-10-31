@@ -5,10 +5,9 @@ import {
 } from '../controls/getPossibleRotationsForPenMode'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { getGroupRotationBlockedReason } from '../data/evaluateGroupRotation'
-import { getLaurAddonCanonicalKey } from '../data/laurAddonPlacement'
 import { getPillarPorts } from '../data/laurPillarPorts'
 import { piecesSoFar } from '../data/pieces'
-import type { PlacementBoard, PlacementBlockedReason } from '../data/placement'
+import type { PlacementBlockedReason, PlacementBoard } from '../data/placement'
 import { rotateGroupAroundPivot } from '../data/rotateGroup'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import type {
@@ -22,6 +21,7 @@ import { HexTerrain, Pieces } from '../types'
 import { hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
 import { makeTable, place } from './helpers/board'
 import type { Board } from './helpers/board'
+import { legacyLaurAddonCanonicalKey } from './helpers/laurLegacyIdentity'
 
 const at = (q: number, r: number): CubeCoordinate => ({
   q,
@@ -424,7 +424,7 @@ describe('rotation equivariance', () => {
     }
   })
 
-  it('rotates Laur pillar ports, add-on side and vertex keys', () => {
+  it('rotates Laur port providers and add-on attachment identities', () => {
     for (const pillarID of [
       Pieces.laurWallSquarePillar,
       Pieces.laurWallTrianglePillar,
@@ -454,10 +454,10 @@ describe('rotation equivariance', () => {
     )
     for (const piece of addonPieces) {
       for (const rotation of getPossibleRotationsForPenMode(piece.id)) {
-        const before = getLaurAddonCanonicalKey(anchor, rotation)
+        const before = legacyLaurAddonCanonicalKey(anchor, rotation)
         if (!before) throw new Error(`No canonical key for ${piece.id}`)
         const afterAnchor = rotateAroundPivot(anchor, pivot, 1)
-        const after = getLaurAddonCanonicalKey(afterAnchor, rotation + 1)
+        const after = legacyLaurAddonCanonicalKey(afterAnchor, rotation + 1)
         if (!after) throw new Error(`No rotated key for ${piece.id}`)
         const beforeParts = parseKey(before)
         const afterParts = parseKey(after)

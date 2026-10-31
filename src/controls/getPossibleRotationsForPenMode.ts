@@ -1,9 +1,11 @@
 import { Pieces } from '../types'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 
 export function getPossibleRotationsForPenMode(penMode: string) {
   const regularRotations = [0, 1, 2, 3, 4, 5]
   const partialRotations = [0.5, 1.5, 2.5, 3.5, 4.5, 5.5]
   const allRotations = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5]
+  if (penMode === OBJECTIVE_MARKER_PEN_MODE) return regularRotations
   return penMode === Pieces.laurWallTrianglePillar ||
     penMode === Pieces.laurWallRuin1 ||
     penMode === Pieces.laurWallRuin2 ||

@@ -2,17 +2,22 @@ import type { BoardPiece, BoardPieces, CubeCoordinate } from '../types'
 import { Pieces } from '../types'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
-import { getPillarPorts } from './laurPillarPorts'
+import {
+  type HexFeatureId,
+  edgeIdFromHex,
+  nodeIdFromHexRotation,
+} from './hexGrid/edgesAndNodes'
+import { getPillarPortFeatures } from './laurPillarPorts'
 
 export type LaurAddonSupport = 'supported' | 'unsupported'
 export type LaurAddonSupportBoard = { boardPieces: BoardPieces }
 
 type RequiredPort = {
   coords: CubeCoordinate
-  rotation: number
+  featureId: HexFeatureId
 }
 
-type PillarPortIndex = Map<string, Set<number>>
+type PillarPortIndex = Map<number, Map<HexFeatureId, CubeCoordinate[]>>
 
 const squarePillars = new Set<string>([
   Pieces.laurWallSquarePillar,
@@ -34,8 +39,12 @@ const ruins = new Set<string>([
 ])
 
 const mod6 = (rotation: number) => ((rotation % 6) + 6) % 6
-const locationKey = (coords: CubeCoordinate, altitude: number) =>
-  `${coords.q},${coords.r},${coords.s}@${altitude}`
+const featureIdForPort = (coords: CubeCoordinate, rotation: number) =>
+  Number.isInteger(rotation)
+    ? edgeIdFromHex(coords, rotation)
+    : nodeIdFromHexRotation(coords, rotation)
+const sameCoords = (first: CubeCoordinate, second: CubeCoordinate) =>
+  first.q === second.q && first.r === second.r && first.s === second.s
 
 function getRequiredPorts(addon: BoardPiece): RequiredPort[] | null {
   const rotation = mod6(addon.rotation)
@@ -46,11 +55,15 @@ function getRequiredPorts(addon: BoardPiece): RequiredPort[] | null {
   if (shortBridges.has(addon.inventoryID)) {
     if (!Number.isInteger(rotation)) return null
     const direction = rotation
+    const farCoords = hexUtilsAdd(addon.pieceCoords, HEX_DIRECTIONS[direction])
     return [
-      { coords: addon.pieceCoords, rotation },
       {
-        coords: hexUtilsAdd(addon.pieceCoords, HEX_DIRECTIONS[direction]),
-        rotation: mod6(direction + 3),
+        coords: addon.pieceCoords,
+        featureId: featureIdForPort(addon.pieceCoords, rotation),
+      },
+      {
+        coords: farCoords,
+        featureId: featureIdForPort(farCoords, mod6(direction + 3)),
       },
     ]
   }
@@ -63,20 +76,31 @@ function getRequiredPorts(addon: BoardPiece): RequiredPort[] | null {
       HEX_DIRECTIONS[(direction + 1) % 6],
     )
     return [
-      { coords: addon.pieceCoords, rotation },
-      { coords: farCoords, rotation: mod6(rotation + 3) },
+      {
+        coords: addon.pieceCoords,
+        featureId: featureIdForPort(addon.pieceCoords, rotation),
+      },
+      {
+        coords: farCoords,
+        featureId: featureIdForPort(farCoords, mod6(rotation + 3)),
+      },
     ]
   }
 
   if (ruins.has(addon.inventoryID)) {
-    return [{ coords: addon.pieceCoords, rotation }]
+    return [
+      {
+        coords: addon.pieceCoords,
+        featureId: featureIdForPort(addon.pieceCoords, rotation),
+      },
+    ]
   }
 
   return null
 }
 
 function buildPillarPortIndex(boardPieces: BoardPieces): PillarPortIndex {
-  const portsByLocation: PillarPortIndex = new Map()
+  const portsByAltitude: PillarPortIndex = new Map()
   for (const piece of boardPieces) {
     if (
       !squarePillars.has(piece.inventoryID) &&
@@ -84,21 +108,33 @@ function buildPillarPortIndex(boardPieces: BoardPieces): PillarPortIndex {
     ) {
       continue
     }
-    const ports = getPillarPorts(piece.inventoryID, piece.rotation)
+    const ports = getPillarPortFeatures(
+      piece.inventoryID,
+      piece.pieceCoords,
+      piece.rotation,
+    )
     if (!ports.length) continue
-    const key = locationKey(piece.pieceCoords, piece.altitude)
-    const current = portsByLocation.get(key) ?? new Set<number>()
-    for (const port of ports) current.add(port)
-    portsByLocation.set(key, current)
+    const portsAtAltitude =
+      portsByAltitude.get(piece.altitude) ??
+      new Map<HexFeatureId, CubeCoordinate[]>()
+    for (const { featureId } of ports) {
+      const providers = portsAtAltitude.get(featureId) ?? []
+      providers.push(piece.pieceCoords)
+      portsAtAltitude.set(featureId, providers)
+    }
+    portsByAltitude.set(piece.altitude, portsAtAltitude)
   }
-  return portsByLocation
+  return portsByAltitude
 }
 
 function supportedByIndex(addon: BoardPiece, portsByLocation: PillarPortIndex) {
   const requiredPorts = getRequiredPorts(addon)
   if (!requiredPorts) return false
-  return requiredPorts.every(({ coords, rotation }) =>
-    portsByLocation.get(locationKey(coords, addon.altitude))?.has(rotation),
+  return requiredPorts.every(({ coords, featureId }) =>
+    portsByLocation
+      .get(addon.altitude)
+      ?.get(featureId)
+      ?.some((providerCoords) => sameCoords(providerCoords, coords)),
   )
 }
 

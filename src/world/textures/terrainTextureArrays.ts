@@ -17,7 +17,12 @@ import {
 } from './terrainTextureManifest'
 
 export type { GraphicsTier } from '../../local-storage/settings'
-export type TextureLoadStatus = 'idle' | 'loading' | 'ready' | 'error'
+export type TextureLoadStatus =
+  | 'idle'
+  | 'loading'
+  | 'ready'
+  | 'fallback'
+  | 'error'
 
 export type DecodedTerrainTexture = {
   data: Uint8Array | Uint8ClampedArray
@@ -57,6 +62,7 @@ const tierStrips: Record<
   medium: ['caps-diffuse.png', 'sides-diffuse.png'],
   high: [
     'caps-diffuse-pbr.png',
+    'caps-diffuse.png',
     'sides-diffuse.png',
     'caps-orm.png',
     'sides-orm.png',
@@ -65,18 +71,81 @@ const tierStrips: Record<
   ],
 }
 
+export const HIGH_TIER_PBR_TEXTURE_UNITS = 6
+
+export function hasHighTierPbrTextureUnitBudget(maxTextureImageUnits: number) {
+  return (
+    Number.isInteger(maxTextureImageUnits) &&
+    maxTextureImageUnits >= HIGH_TIER_PBR_TEXTURE_UNITS
+  )
+}
+
 const stripPromises = new Map<
   TerrainTextureFileName,
   Promise<DataArrayTexture>
 >()
 const loadedTextures = new Map<TerrainTextureFileName, DataArrayTexture>()
 let manifestPromise: Promise<TerrainTextureManifest> | undefined
+let loadedManifest: TerrainTextureManifest | undefined
 let generation = 0
+
+export function getTerrainTextureArrayStats() {
+  let cpuBytes = 0
+  for (const texture of loadedTextures.values()) {
+    const data = texture.source.data?.data
+    if (ArrayBuffer.isView(data)) cpuBytes += data.byteLength
+  }
+  return {
+    cpuBytes,
+    manifestBytes: loadedManifest
+      ? JSON.stringify(loadedManifest).length * 2
+      : 0,
+    textureArrayCount: loadedTextures.size,
+  }
+}
 
 export function getTerrainTextureStrips(
   tier: GraphicsTier,
 ): TerrainTextureFileName[] {
   return tier === 'low' ? [] : [...tierStrips[tier]]
+}
+
+export function getCachedTerrainTextureArrays(
+  tier: GraphicsTier,
+): { manifest: TerrainTextureManifest; textures: TerrainTextureArrays } | null {
+  if (tier === 'low' || !loadedManifest) return null
+  const fileNames = tierStrips[tier]
+  if (fileNames.some((fileName) => !loadedTextures.has(fileName))) return null
+  return {
+    manifest: loadedManifest,
+    textures: Object.fromEntries(
+      fileNames.map((fileName) => [fileName, loadedTextures.get(fileName)]),
+    ) as TerrainTextureArrays,
+  }
+}
+
+/**
+ * Reverses the row order of one RGBA layer. WebGL rejects FLIP_Y for 3D
+ * texture uploads (Chrome logs INVALID_OPERATION and the array stays empty),
+ * so layers are flipped here instead of with `texture.flipY`.
+ */
+export function flipTextureLayerRows(
+  layer: Uint8Array,
+  width: number,
+  height: number,
+): Uint8Array {
+  const rowBytes = width * 4
+  if (layer.length !== rowBytes * height) {
+    throw new Error('Texture layer dimensions do not match its RGBA data')
+  }
+  const flipped = new Uint8Array(layer.length)
+  for (let row = 0; row < height; row++) {
+    flipped.set(
+      layer.subarray(row * rowBytes, (row + 1) * rowBytes),
+      (height - 1 - row) * rowBytes,
+    )
+  }
+  return flipped
 }
 
 export function sliceTextureArrayLayers(
@@ -178,7 +247,12 @@ function createArrayTexture(
     file.layers,
   )
   const pixels = new Uint8Array(decoded.data.length)
-  layers.forEach((layer, index) => pixels.set(layer, index * layer.length))
+  layers.forEach((layer, index) =>
+    pixels.set(
+      flipTextureLayerRows(layer, file.frameWidth, file.frameHeight),
+      index * layer.length,
+    ),
+  )
   const texture = new DataArrayTexture(
     pixels,
     file.frameWidth,
@@ -195,7 +269,8 @@ function createArrayTexture(
   texture.minFilter = LinearMipmapLinearFilter
   texture.magFilter = LinearFilter
   texture.anisotropy = 4
-  texture.flipY = true
+  // Never set flipY or premultiplyAlpha: WebGL forbids them for 3D uploads.
+  texture.flipY = false
   texture.unpackAlignment = 1
   texture.needsUpdate = true
   return texture
@@ -279,6 +354,10 @@ export async function loadTerrainTextureArrays(
         }),
       ),
     )
+    if (loadGeneration !== generation) {
+      throw new Error('Texture loading was disposed before it completed')
+    }
+    loadedManifest = manifest
     return {
       manifest,
       status: 'ready',
@@ -295,4 +374,5 @@ export function disposeTerrainTextureArrays(): void {
   loadedTextures.clear()
   stripPromises.clear()
   manifestPromise = undefined
+  loadedManifest = undefined
 }

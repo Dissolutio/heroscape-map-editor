@@ -353,13 +353,12 @@ export function countTerrainSets(setsUsed: string[]): Record<string, number> {
 }
 export const getSetsUsedText = (setsUsed: string[]) => {
   const terrainSetCounts = countTerrainSets(setsUsed)
-  const res = Object.entries(terrainSetCounts).map(([key, val], index) => {
-    const isCommaAfter = !(index >= Object.entries(terrainSetCounts).length - 1)
-    const setNameText = `${terrainSetsByShortID[key as keyof typeof terrainSetsByShortID]?.abbreviation}`
-    const countText = `x${val ?? 0}`
-    return `${setNameText} ${countText}${isCommaAfter ? ', ' : ''}`
-  })
-  return res.join('')
+  return Object.entries(terrainSetCounts)
+    .map(([key, count]) => {
+      const set = terrainSetsByShortID[key as keyof typeof terrainSetsByShortID]
+      return `${set?.name ?? key} x${count}`
+    })
+    .join(', ')
 }
 
 export const getRequiredTerrainText = (setsUsed: string[]) => {

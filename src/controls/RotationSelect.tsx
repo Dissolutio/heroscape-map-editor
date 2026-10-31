@@ -11,6 +11,7 @@ import {
   MdOutlineWest,
 } from 'react-icons/md'
 import useBoundStore from '../store/store'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 import type React from 'react'
 import { useEffect } from 'react'
 import {
@@ -59,7 +60,9 @@ export default function RotationSelect() {
         }}
       >
         <span title={`Use "q"/"e" hotkeys to cycle rotation`}>
-          Piece rotation:
+          {penMode === OBJECTIVE_MARKER_PEN_MODE
+            ? 'Marker rotation:'
+            : 'Piece rotation:'}
         </span>
         <span
           style={{

@@ -23,6 +23,13 @@ export const getUrlMapString = ({
   // never actually fit in a URL.
   const urlSafeHexMap: HexMap = {
     ...hexMap,
+    ...(hexMap.objectiveMarkers
+      ? {
+          objectiveMarkers: hexMap.objectiveMarkers.map(
+            ({ name: _name, ...marker }) => marker,
+          ),
+        }
+      : {}),
     mapPortraitBase64: '',
     mapNotes: '',
   }

@@ -5,12 +5,13 @@ import {
   Card,
   CardContent,
   List,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import { FcVlc } from 'react-icons/fc'
 import { FcRules } from 'react-icons/fc'
 import { buildupJsonFileMap } from '../data/buildupMap'
-import { resizeMap } from '../data/resizeMap'
+import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
 import { DIALOGS } from '../layout/dialogNames'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
 import useBoundStore from '../store/store'
@@ -124,6 +125,26 @@ export const EditControlsTab = () => {
     const resized = resizeMap(hexMap, boardPieces, dimension, delta)
     loadMap(buildupJsonFileMap(resized.boardPieces, resized.hexMap))
   }
+  const lengthShrinkBlockedByPieces =
+    hexMap.length > 1 &&
+    !canShrinkMapWithoutDroppingPieces(hexMap, boardPieces, 'length')
+  const widthShrinkBlockedByPieces =
+    hexMap.width > 1 &&
+    !canShrinkMapWithoutDroppingPieces(hexMap, boardPieces, 'width')
+  const lengthShrinkTitle = lengthShrinkBlockedByPieces
+    ? hexMap.shape === 'hexagon'
+      ? 'Cannot remove the outer ring because pieces occupy hexes that would be removed'
+      : 'Cannot remove the bottom row because pieces occupy hexes in it'
+    : hexMap.shape === 'hexagon'
+      ? 'Remove one outer ring of hexes'
+      : 'Remove one row of hexes from bottom'
+  const widthShrinkTitle = widthShrinkBlockedByPieces
+    ? hexMap.shape === 'hexagon'
+      ? 'Cannot remove the outer ring because pieces occupy hexes that would be removed'
+      : 'Cannot remove the right column because pieces occupy hexes in it'
+    : hexMap.shape === 'hexagon'
+      ? 'Remove one outer ring of hexes'
+      : 'Remove one column of hexes from right side'
   const buttonFontSize = isSmallScreenWidth ? 8 : isMediumScreenWidth ? 8 : 8
   return (
     <Box sx={{ p: 0 }}>
@@ -186,23 +207,23 @@ export const EditControlsTab = () => {
             >
               + length
             </Button>
-            <Button
-              disabled={
-                (hexMap.shape === 'hexagon' && hexMap.length <= 1) ||
-                (hexMap.shape === 'rectangle' && hexMap.length <= 1)
-              }
-              title={
-                hexMap.shape === 'hexagon'
-                  ? 'Remove one outer ring of hexes'
-                  : 'Remove one row of hexes from bottom'
-              }
-              onClick={() => resizeAndLoad('length', -1)}
-              sx={{
-                fontSize: buttonFontSize,
-              }}
+            <Tooltip
+              title={lengthShrinkBlockedByPieces ? lengthShrinkTitle : ''}
+              disableHoverListener={!lengthShrinkBlockedByPieces}
             >
-              - length
-            </Button>
+              <span>
+                <Button
+                  disabled={hexMap.length <= 1 || lengthShrinkBlockedByPieces}
+                  title={lengthShrinkTitle}
+                  onClick={() => resizeAndLoad('length', -1)}
+                  sx={{
+                    fontSize: buttonFontSize,
+                  }}
+                >
+                  - length
+                </Button>
+              </span>
+            </Tooltip>
             <Button
               disabled={
                 (hexMap.shape === 'hexagon' &&
@@ -218,19 +239,23 @@ export const EditControlsTab = () => {
             >
               + width
             </Button>
-            <Button
-              disabled={
-                (hexMap.shape === 'hexagon' && hexMap.width <= 1) ||
-                (hexMap.shape === 'rectangle' && hexMap.width <= 1)
-              }
-              title="Remove one column of hexes from right side"
-              onClick={() => resizeAndLoad('width', -1)}
-              sx={{
-                fontSize: buttonFontSize,
-              }}
+            <Tooltip
+              title={widthShrinkBlockedByPieces ? widthShrinkTitle : ''}
+              disableHoverListener={!widthShrinkBlockedByPieces}
             >
-              - width
-            </Button>
+              <span>
+                <Button
+                  disabled={hexMap.width <= 1 || widthShrinkBlockedByPieces}
+                  title={widthShrinkTitle}
+                  onClick={() => resizeAndLoad('width', -1)}
+                  sx={{
+                    fontSize: buttonFontSize,
+                  }}
+                >
+                  - width
+                </Button>
+              </span>
+            </Tooltip>
           </ButtonGroup>
         </CardContent>
       </Card>

@@ -1,14 +1,18 @@
-import { createStore } from 'zustand/vanilla'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createStore } from 'zustand/vanilla'
+import { buildupJsonFileMap } from '../data/buildupMap'
+import { LS_KEYS } from '../local-storage/keys'
 import {
+  createLocalMapAutosaveStorage,
   createMapAutosave,
   createMapAutosaveWriter,
-  createLocalMapAutosaveStorage,
 } from '../local-storage/mapAutosave'
-import { LS_KEYS } from '../local-storage/keys'
-import type { AppState } from '../store/store'
 import type { MapSnapshot } from '../local-storage/mapAutosave'
-import { buildupJsonFileMap } from '../data/buildupMap'
+import type { AppState } from '../store/store'
+import {
+  canvasToMapPortrait,
+  getMapPortraitStorageFallback,
+} from '../utils/mapPortrait'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 
@@ -361,6 +365,67 @@ describe('map autosave state gating', () => {
       mapPortraitBase64: 'portrait-a',
     })
     expect(onError).toHaveBeenCalledOnce()
+  })
+
+  it('stores the smaller portrait after quota while retaining the full image', () => {
+    vi.stubGlobal('document', {
+      createElement: () => {
+        const canvas = {
+          width: 0,
+          height: 0,
+          getContext: () => ({
+            imageSmoothingEnabled: false,
+            imageSmoothingQuality: '',
+            fillStyle: '',
+            fillRect: vi.fn(),
+            drawImage: vi.fn(),
+          }),
+          toDataURL: (type: string, quality: number) =>
+            `data:${type};base64,${canvas.width}x${canvas.height}:${quality}`,
+        }
+        return canvas
+      },
+    })
+    const portrait = canvasToMapPortrait(
+      {} as CanvasImageSource,
+      1920,
+      1080,
+      true,
+    )
+    const fallback = getMapPortraitStorageFallback(portrait)
+    if (!fallback) throw new Error('Expected a quota fallback portrait')
+
+    browserStorage.setItem.mockImplementation((key, value) => {
+      if (
+        key === LS_KEYS.lastMapPortrait &&
+        JSON.parse(value).mapPortraitBase64 === portrait
+      ) {
+        throw new DOMException('Full', 'QuotaExceededError')
+      }
+      return values.set(key, value)
+    })
+    const storage = createLocalMapAutosaveStorage()
+    storage.load()
+    const onError = vi.fn()
+    const writer = createMapAutosaveWriter(storage, onError, 750)
+    const mapWithPortrait = {
+      hexMap: { ...hexMap, mapPortraitBase64: portrait },
+      boardPieces: [],
+    }
+
+    expect(writer.writeNow(mapWithPortrait)).toBe(true)
+    expect(portrait).toMatch(/^data:image\/png;/)
+    expect(mapWithPortrait.hexMap.mapPortraitBase64).toBe(portrait)
+    expect(JSON.parse(values.get(LS_KEYS.lastMapPortrait) ?? '')).toEqual({
+      mapId: hexMap.id,
+      mapPortraitBase64: expect.stringMatching(/^data:image\/jpeg;/),
+    })
+    expect(fallback).toMatch(/^data:image\/jpeg;/)
+    expect(
+      JSON.parse(values.get(LS_KEYS.lastMap) ?? '').hexMap,
+    ).not.toHaveProperty('mapPortraitBase64')
+    expect(onError).toHaveBeenCalledOnce()
+    expect(onError).toHaveBeenCalledWith({ quota: true })
   })
 
   it('retries a failed map write without resaving a successful portrait', () => {

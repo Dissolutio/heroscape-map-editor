@@ -61,6 +61,7 @@ import {
   powerGlyphs,
   treasureGlyphs,
 } from '../data/glyphs'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import {
@@ -76,7 +77,7 @@ import {
   getAvailableLandPrefixesForSets,
   getEffectiveTerrainConstraintInventory,
   hasActiveTerrainConstraints,
-  isInventoryPieceAvailable,
+  isPenModePieceAvailable,
 } from '../utils/terrain-constraints'
 import { hexTerrainColor, svgColors } from '../world/maphex/hexColors'
 import { HotkeyText } from './HotKeyText'
@@ -141,6 +142,7 @@ export default function PenModeControls() {
       new Set<string>([
         SELECT_PEN_MODE,
         PICK_PEN_MODE,
+        OBJECTIVE_MARKER_PEN_MODE,
         lastPenMode,
         Pieces.glyphPower,
         Pieces.glyphTreasure,
@@ -155,13 +157,6 @@ export default function PenModeControls() {
       ]),
     [lastPenMode],
   )
-  const filteredByAlias: Record<string, string[]> = {
-    [Pieces.castleArchNoDoor]: [Pieces.castleArch],
-    [Pieces.marvelBroken]: [Pieces.marvel],
-    [Pieces.marvelNoUpper]: [Pieces.marvel],
-    [Pieces.marvelNoUpperBroken]: [Pieces.marvel],
-    [Pieces.laurWallRuin1]: [Pieces.laurWallRuin2, Pieces.laurWallRuin3],
-  }
   const filteredPrefixModes = new Set<string>([
     PiecePrefixes.grass,
     PiecePrefixes.rock,
@@ -188,11 +183,10 @@ export default function PenModeControls() {
     PiecePrefixes.genericFluid,
   ])
   const isPieceAvailable = (pieceID: string) => {
-    return isInventoryPieceAvailable(
+    return isPenModePieceAvailable(
       pieceID,
       constrainedInventory,
       hasSetConstraints,
-      filteredByAlias[pieceID] ?? [],
     )
   }
   const isPrefixAvailable = (prefix: string) => {
@@ -319,6 +313,14 @@ export default function PenModeControls() {
           <HotkeyText text={hotkeyLookup.togglePenModeLast} />
         </MenuItem>
 
+        <Divider />
+        <MenuItem value={OBJECTIVE_MARKER_PEN_MODE}>
+          <ListItemIcon>
+            <TbHexagonNumber1Filled />
+          </ListItemIcon>
+          <span>Objective Marker</span>
+          <HotkeyText text={hotkeyLookup.togglePenModeObjectiveMarker} />
+        </MenuItem>
         <Divider />
         {/* TERRAIN TYPES BEGIN */}
 
