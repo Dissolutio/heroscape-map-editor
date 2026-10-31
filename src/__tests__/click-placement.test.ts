@@ -375,7 +375,7 @@ describe('click placement through the real handler', () => {
     })
     expect(result.added).toEqual([])
     expect(snackbar.mock.calls[0]?.[0]).toMatchObject({
-      autoHideDuration: 5000,
+      autoHideDuration: 10000,
     })
     expect(useBoundStore.getState().penMode).toBe(Pieces.laurWallShort)
     expect(snackbarMessages()).toEqual([

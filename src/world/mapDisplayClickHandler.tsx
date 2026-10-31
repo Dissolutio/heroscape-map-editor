@@ -305,7 +305,7 @@ export function createMapClickHandler({
                 Switch anyway
               </Button>
             ),
-            autoHideDuration: 5000,
+            autoHideDuration: 10000,
           })
           return
         }
