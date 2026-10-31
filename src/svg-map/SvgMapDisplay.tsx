@@ -13,7 +13,9 @@ import {
   makeBuriedMarksByUID,
 } from '../utils/tileMarks'
 import {
+  getObjectiveMarkerLegendLayout,
   getSvgObjectiveMarkerFooterHeight,
+  getSvgObjectiveMarkerKeyFontSize,
   getSvgVisibleObjectiveMarkers,
 } from '../pdf-svg-shared/objectiveMarkerExport'
 import { SvgMapBoardPiece } from './SvgMapBoardPiece'
@@ -72,14 +74,18 @@ const SvgMapDisplay = () => {
     width: mapDimensions.width,
     height: mapDimensions.length - adjustYForNew00Centers,
   })
-  const keyFontSize = Math.min(0.12 * SVG_HEX_RADIUS, viewBox.width / 70)
-  const objectiveLegendRowHeight = keyFontSize * 1.5
+  const keyFontSize = getSvgObjectiveMarkerKeyFontSize(viewBox.width)
+  const objectiveLegendRowHeight = getObjectiveMarkerLegendLayout(
+    namedObjectiveMarkers,
+    keyFontSize,
+  ).rowHeight
   const objectiveLegendHeight =
     namedObjectiveMarkers.length * objectiveLegendRowHeight
   const keyFooterHeight = getSvgObjectiveMarkerFooterHeight(
     namedObjectiveMarkers.length,
     hasVisibleBuriedMarks,
     keyFontSize,
+    objectiveLegendRowHeight,
   )
   const viewboxStr = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height + keyFooterHeight}`
   const objectiveLegendY = viewBox.y + viewBox.height + keyFontSize * 1.1
