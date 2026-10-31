@@ -1,5 +1,13 @@
-import type { BoardHexes, CubeCoordinate } from '../types'
-import { isFluidTerrainHex } from './board-utils'
+import type { BoardHex, BoardHexes, CubeCoordinate } from '../types'
+import {
+  isFluidTerrainHex,
+  isSolidTerrainHex,
+  isWholeLevelAltitude,
+} from './board-utils'
+import {
+  HEXGRID_FLUID_LEVEL_INCREMENT,
+  HEXGRID_LEVEL_INCREMENT,
+} from './constants'
 import { genBoardHexID } from './map-utils'
 
 /**
@@ -59,4 +67,26 @@ export function getTallestFluidStack(boardHexes: BoardHexes) {
 export function getFluidStackWarning(runLength: number): string | null {
   if (runLength <= MAX_FLUID_STACK_BEFORE_WARNING) return null
   return `Fluid stacks are modeled at half height, but real tiles are slightly taller. Stacks over ${MAX_FLUID_STACK_BEFORE_WARNING} may exceed the map (10 tiles are taller than 5 solid levels); note this for builders.`
+}
+
+/**
+ * Whether to draw the cap of a fluid hex. Rendering only; isCap keeps its
+ * meaning ("a unit can stand here").
+ *
+ * A fluid tile is half a level tall, so a fluid hex at altitude A has its top
+ * at A - 0.5. Anything sitting flush on it lands at A + 0.5 (fluid on fluid,
+ * or solid on a half-level fluid). A solid on a whole-level fluid rises a
+ * whole level (getLandAltitudeIncrement), to A + 1, and its bottom at A leaves
+ * half a level of clearance above the fluid, so the cap shows. That is also
+ * how a multi-hex solid overhangs a fluid hex from a neighbouring stack.
+ */
+export function isFluidCapVisible(hex: BoardHex, boardHexes: BoardHexes) {
+  if (hex.isCap) return true
+  if (!isWholeLevelAltitude(hex.altitude)) return false
+  const hexAt = (altitude: number) =>
+    boardHexes[genBoardHexID({ ...hex, altitude })]
+  if (hexAt(hex.altitude + HEXGRID_FLUID_LEVEL_INCREMENT)) return false
+  return isSolidTerrainHex(
+    hexAt(hex.altitude + HEXGRID_LEVEL_INCREMENT)?.terrain,
+  )
 }
