@@ -39,6 +39,7 @@ import { piecesSoFar } from './pieces'
 import getPieceTemplateCoords from './rotationTransforms'
 import { getSmartPlacementAltitude } from './smartPlacement'
 import { verticalObstructionTemplates } from './vertical-obstruction-templates'
+import { type HexEdgeId, edgeIdFromHex } from './hexGrid/edgesAndNodes'
 
 /** The two pieces of state placement reads. */
 export type PlacementBoard = {
@@ -101,6 +102,7 @@ export type ResolvedPlacement = {
   altitude: number
   rotation: number
   rule: PlacementRule
+  edgeId?: HexEdgeId
 }
 
 export type PlacementResolution =
@@ -133,11 +135,31 @@ export function resolvePlacement(
     ignoreUID?: IgnoredPieceUIDs
     deferOffMapCheck?: boolean
     worldPoint?: { x: number; z: number }
+    edgeId?: HexEdgeId
   } = {},
 ): PlacementResolution {
   // e.g. ShipBow used to hand over `{}`; there is nothing to place on
   if (typeof pointerHex?.pieceID !== 'string') return { blocked: 'notAHex' }
-  const resolution = resolveByRule(piece, pointerHex, rotation, board, options)
+  const isEdgePiece =
+    piece.id === Pieces.battlement ||
+    piece.id === Pieces.roadWall ||
+    piece.id === Pieces.ropeLadder
+  const edgeId = isEdgePiece
+    ? (options.edgeId ?? edgeIdFromHex(pointerHex, rotation))
+    : undefined
+  const edgeIndex = edgeId
+    ? Array.from({ length: 6 }, (_, index) => index).find(
+        (index) => edgeIdFromHex(pointerHex, index) === edgeId,
+      )
+    : undefined
+  if (edgeId && edgeIndex === undefined) return { blocked: 'notAHex' }
+  const resolution = resolveByRule(
+    piece,
+    pointerHex,
+    edgeIndex ?? rotation,
+    board,
+    { ...options, edgeId },
+  )
   if (
     !isPlacementBlocked(resolution) &&
     !options.deferOffMapCheck &&
@@ -191,9 +213,11 @@ function resolveByRule(
   {
     ignoreUID,
     worldPoint,
+    edgeId,
   }: {
     ignoreUID?: IgnoredPieceUIDs
     worldPoint?: { x: number; z: number }
+    edgeId?: HexEdgeId
   },
 ): PlacementResolution {
   const hex = pointerHex
@@ -227,6 +251,7 @@ function resolveByRule(
     altitude,
     rotation: placedRotation,
     rule,
+    ...(edgeId === undefined ? {} : { edgeId }),
   })
   const smartAltitude = () =>
     getSmartPlacementAltitude({
@@ -389,12 +414,7 @@ export function evaluatePlacement(
     piece.height,
     ...(verticalObstructionTemplates[piece.id] ?? []),
   )
-  const minimumAltitude =
-    resolution.rule === 'battlement' ||
-    resolution.rule === 'roadWall' ||
-    resolution.rule === 'ropeLadder'
-      ? -1
-      : 0
+  const minimumAltitude = resolution.edgeId ? -1 : 0
   if (
     checkHeightBounds &&
     (altitude < minimumAltitude || altitude + clearance > HEXGRID_MAX_ALTITUDE)

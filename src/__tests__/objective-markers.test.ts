@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import JSONCrush from 'jsoncrush'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getPossibleRotationsForPenMode } from '../controls/getPossibleRotationsForPenMode'
 import { armyCardsDotOrg } from '../data/armyCardsDotOrg'
@@ -483,7 +484,7 @@ describe('objective marker map integration', () => {
     expect(loaded.droppedObjectiveMarkers).toEqual([tooFar])
   })
 
-  it('round-trips JSON and autosave names, but omits names from share links', () => {
+  it('round-trips objective marker names through JSON, autosave, and share links', () => {
     const markers = [
       marker('named', 1, 1, { name: '10th Regiment of Foot' }),
       marker('custom', 2, 1, {
@@ -515,11 +516,10 @@ describe('objective marker map integration', () => {
     const shareData = parseMapDataArrayFromCrushed(
       getUrlMapString({ hexMap: mapWithMarkers, boardPieces: [] }),
     )
-    const expectedShareMarkers = markers.map(({ name: _name, ...item }) => item)
-    expect(shareData.hexMap.objectiveMarkers).toEqual(expectedShareMarkers)
+    expect(shareData.hexMap.objectiveMarkers).toEqual(markers)
     expect(
       buildupJsonFileMap([], shareData.hexMap).hexMap.objectiveMarkers,
-    ).toEqual(expectedShareMarkers)
+    ).toEqual(markers)
   })
 
   it('loads legacy maps and links without objective markers unchanged', () => {
@@ -533,11 +533,14 @@ describe('objective marker map integration', () => {
     expect(shareData.hexMap).not.toHaveProperty('objectiveMarkers')
   })
 
-  it('keeps forty marker share payloads within the URL input budget', () => {
+  it('round-trips forty named markers with all placed properties', () => {
     const markers = Array.from({ length: 40 }, (_, index) =>
-      marker(`marker-${index}`, index, 0, {
+      marker(`marker-${index}`, index + 1, 0, {
+        size: index % 2 === 0 ? 1 : 2,
+        rotation: (index % 6) as ObjectiveMarker['rotation'],
+        style: index % 2 === 0 ? 'black' : 'white',
         content: { kind: 'number', value: index + 1 },
-        name: `Private unit name ${index}`,
+        name: `Objective marker ${String(index + 1).padStart(3, '0')}`,
       }),
     )
     const crushed = getUrlMapString({
@@ -546,14 +549,51 @@ describe('objective marker map integration', () => {
     })
 
     expect(crushed.length).toBeLessThan(10_000)
+    const parsed = parseMapDataArrayFromCrushed(crushed)
+    expect(parsed.hexMap.objectiveMarkers).toEqual(markers)
     expect(
-      parseMapDataArrayFromCrushed(crushed).hexMap.objectiveMarkers,
-    ).toHaveLength(40)
-    expect(
-      parseMapDataArrayFromCrushed(crushed).hexMap.objectiveMarkers?.every(
-        (item) => item.name === undefined,
-      ),
-    ).toBe(true)
+      buildupJsonFileMap([], parsed.hexMap).hexMap.objectiveMarkers,
+    ).toEqual(markers)
+  })
+
+  it('keeps no-name links byte-identical and omits names only to meet the input cap', () => {
+    const unnamedMarker = marker('unnamed', 1, 1)
+    const mapWithoutNames = {
+      ...hexMap,
+      objectiveMarkers: [unnamedMarker],
+    }
+    const legacySafeMap = {
+      ...mapWithoutNames,
+      mapPortraitBase64: '',
+      mapNotes: '',
+    }
+    expect(getUrlMapString({ hexMap: mapWithoutNames, boardPieces: [] })).toBe(
+      encodeURIComponent(JSONCrush.crush(JSON.stringify([legacySafeMap]))),
+    )
+
+    const namedMarkers = Array.from({ length: 40 }, (_, index) =>
+      marker(`large-${index}`, index + 1, 0, {
+        name: `Objective marker ${String(index + 1).padStart(3, '0')}`,
+      }),
+    )
+    const mapWithNamedMarkers = {
+      ...hexMap,
+      width: 40,
+      objectiveMarkers: namedMarkers,
+    }
+    const nameLength =
+      20_001 - JSON.stringify([{ ...mapWithNamedMarkers, name: '' }]).length
+    const nearLimitMap = {
+      ...mapWithNamedMarkers,
+      name: 'x'.repeat(nameLength),
+    }
+    expect(JSON.stringify([nearLimitMap]).length).toBe(20_001)
+    const parsed = parseMapDataArrayFromCrushed(
+      getUrlMapString({ hexMap: nearLimitMap, boardPieces: [] }),
+    )
+    expect(parsed.hexMap.objectiveMarkers).toEqual(
+      namedMarkers.map(({ name: _name, ...item }) => item),
+    )
   })
 })
 

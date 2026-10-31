@@ -4,10 +4,15 @@
  * Maps are shared as a URL whose `m` query parameter holds the compressed map
  * and whose optional `v` selects the view (a = PDF, b = 2D). People paste these
  * from the production site, a dev server, or the desktop app, so the parser is
- * deliberately forgiving. (The compression itself is in data/jsonCrush.ts and
- * needs the real `jsoncrush` package; it is not exercised here.)
+ * deliberately forgiving.
  */
 import { describe, expect, it } from 'vitest'
+import { buildupJsonFileMap } from '../data/buildupMap'
+import {
+  getUrlMapString,
+  parseMapDataArrayFromCrushed,
+} from '../data/jsonCrush'
+import type { HexMap } from '../types'
 import {
   getViewModeFromQueryParam,
   parseMapShareUrlParams,
@@ -47,6 +52,47 @@ describe('parseMapShareUrlParams', () => {
     expect(parseMapShareUrlParams('https://x.test/?m=a%2Bb%26c%20d').m).toBe(
       'a+b&c d',
     )
+  })
+})
+
+describe('objective marker share links', () => {
+  it('creates a link that reopens named markers with all placed properties', () => {
+    const objectiveMarkers = Array.from({ length: 12 }, (_, index) => ({
+      uid: `marker-${index}`,
+      anchor: {
+        q: index + 1,
+        r: 0,
+        s: -index - 1,
+        altitude: index % 4,
+      },
+      size: (index % 2 === 0 ? 1 : 2) as 1 | 2,
+      rotation: (index % 6) as 0 | 1 | 2 | 3 | 4 | 5,
+      style: (index % 2 === 0 ? 'black' : 'white') as 'black' | 'white',
+      content:
+        index % 2 === 0
+          ? { kind: 'number' as const, value: index + 1 }
+          : { kind: 'text' as const, value: `M${index}` },
+      name: `Objective marker ${String(index + 1).padStart(3, '0')}`,
+    }))
+    const hexMap: HexMap = {
+      id: 'share-objective-markers',
+      name: 'Share objective markers',
+      author: 'Test Builder',
+      version: 1,
+      shape: 'rectangle',
+      width: 20,
+      length: 20,
+      objectiveMarkers,
+    }
+
+    const payload = getUrlMapString({ hexMap, boardPieces: [] })
+    const { m } = parseMapShareUrlParams(`https://hexoscape.com/?m=${payload}`)
+    if (m === null) throw new Error('Expected the shared map payload')
+    const parsed = parseMapDataArrayFromCrushed(m)
+    const loaded = buildupJsonFileMap([], parsed.hexMap)
+
+    expect(loaded.hexMap.objectiveMarkers).toEqual(objectiveMarkers)
+    expect(parsed.boardPiecesEncodedArr).toEqual([])
   })
 })
 

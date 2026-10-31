@@ -6,20 +6,22 @@ See [the texture asset pipeline](textures-pipeline.md) for packing commands,
 repair details, and the manifest/output format.
 
 ## Goal
-Replace per-piece subterrain GLBs + caps with per-hex instanced cells (cap + sides) that look up textures by terrain. Today's pipeline stays as the Lowest graphics tier.
+Per-hex instanced cells (cap + sides) replace per-piece subterrain GLBs for
+ordinary land. The legacy pipeline remains the Low graphics tier.
 
-## Graphics tiers (persisted in local settings; never auto-download above Lowest)
-1. Lowest: today's pipeline (subterrain GLBs, matcap, flat colors). No texture download.
+## Graphics tiers (persisted in local settings)
+1. Low: the legacy pipeline (subterrain GLBs, matcap, flat colors). No land texture arrays.
 2. Medium: per-hex instancing with diffuse cap and side images.
 3. High: lights + shadows with full PBR (normal, AO, roughness, height) and the PBR alternate diffuses (AncientDark, WoodDark).
-The old "High-Quality mode" is going away.
+The separate High Quality Render control remains available in Low: it selects
+the realistic legacy cap and keeps objective-marker height aligned with it.
 
 Packed strips contain 21 cap-diffuse layers, up from 19. Estimated RGBA8 GPU
 memory includes the complete mip chains for each selected array:
 
 | Tier | Arrays / layers | Estimated GPU memory |
 |---|---:|---:|
-| Lowest | none | 0 MiB |
+| Low | none | 0 MiB |
 | Medium | 2 / 39 | 7.38 MiB |
 | High | 7 / 74 | 17.48 MiB |
 

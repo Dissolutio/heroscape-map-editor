@@ -463,6 +463,51 @@ const isSaneBoardPiece = (value: unknown): value is NormalizableBoardPiece => {
   )
 }
 
+const coerceNumericString = (value: unknown): unknown => {
+  if (typeof value !== 'string' || value.trim() !== value || value === '') {
+    return value
+  }
+  const number = Number(value)
+  return Number.isFinite(number) ? number : value
+}
+
+const normalizeNumericStrings = (value: unknown): unknown => {
+  if (typeof value !== 'object' || value === null) return value
+
+  let normalized = value as Record<string, unknown>
+  let pieceChanged = false
+
+  for (const field of ['altitude', 'rotation']) {
+    const number = coerceNumericString(normalized[field])
+    if (number !== normalized[field]) {
+      if (!pieceChanged) normalized = { ...normalized }
+      normalized[field] = number
+      pieceChanged = true
+    }
+  }
+
+  const coords = normalized.pieceCoords
+  if (typeof coords === 'object' && coords !== null) {
+    let normalizedCoords = coords as Record<string, unknown>
+    let coordsChanged = false
+    for (const field of ['q', 'r', 's']) {
+      const number = coerceNumericString(normalizedCoords[field])
+      if (number !== normalizedCoords[field]) {
+        if (!coordsChanged) normalizedCoords = { ...normalizedCoords }
+        normalizedCoords[field] = number
+        coordsChanged = true
+      }
+    }
+    if (coordsChanged) {
+      if (!pieceChanged) normalized = { ...normalized }
+      normalized.pieceCoords = normalizedCoords
+      pieceChanged = true
+    }
+  }
+
+  return pieceChanged ? normalized : value
+}
+
 const getMalformedPiece = (value: unknown): DroppedBoardPiece => {
   const malformed: DroppedBoardPiece = { reason: 'malformed' }
   if (typeof value !== 'object' || value === null) return malformed
@@ -480,12 +525,13 @@ const normalizePieceArray = (pieces: unknown[]): NormalizedBoardPieces => {
   const droppedPieces: DroppedBoardPiece[] = []
 
   for (const value of pieces) {
-    if (!isSaneBoardPiece(value)) {
+    const normalizedValue = normalizeNumericStrings(value)
+    if (!isSaneBoardPiece(normalizedValue)) {
       droppedPieces.push(getMalformedPiece(value))
       continue
     }
 
-    const existingUID = value.uid
+    const existingUID = normalizedValue.uid
     let uid: string
     if (
       typeof existingUID === 'string' &&
@@ -493,12 +539,12 @@ const normalizePieceArray = (pieces: unknown[]): NormalizedBoardPieces => {
       !usedUIDs.has(existingUID)
     ) {
       uid = existingUID
-      normalized.push(value as BoardPiece)
+      normalized.push(normalizedValue as BoardPiece)
     } else {
       do {
         uid = nanoid(10)
       } while (usedUIDs.has(uid))
-      normalized.push({ ...value, uid })
+      normalized.push({ ...normalizedValue, uid })
     }
     usedUIDs.add(uid)
   }
