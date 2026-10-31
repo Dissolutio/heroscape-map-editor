@@ -1,4 +1,5 @@
 import type { BoardHexes, BoardPieces, CubeCoordinate, Piece } from '../types'
+import type { HexEdgeId } from './hexGrid/edgesAndNodes'
 import { addPiece } from './addPiece'
 import { getUnsupportedLaurAddonUIDs } from './laurAddonSupport'
 import { piecesSoFar } from './pieces'
@@ -10,6 +11,7 @@ export type MovePieceArgs = {
   newPieceCoords: CubeCoordinate
   newAltitude?: number
   newRotation?: number
+  newEdgeId?: HexEdgeId
 }
 
 type MoveBoard = {

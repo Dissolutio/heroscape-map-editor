@@ -9,15 +9,18 @@ import {
   getGrabOffset,
   isDraggablePiece,
 } from '../data/dragMove'
+import { getPieceEdgeId } from '../data/hexGrid/pieceFeatures'
 import { applyPieceMoves } from '../data/movePieces'
 import { piecesSoFar } from '../data/pieces'
 import { type ResolvedPlacement, resolvePlacement } from '../data/placement'
+import { rotateGroupAroundPivot } from '../data/rotateGroup'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import useBoundStore from '../store/store'
 import type { BoardHex, BoardPiece, CubeCoordinate } from '../types'
 import { Pieces } from '../types'
 import { cubeToPixel, hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
 import { genBoardHexID } from '../utils/map-utils'
+import { edgeIdFromHex } from '../data/hexGrid/edgesAndNodes'
 import { type Board, hexAt, makeTable, place } from './helpers/board'
 
 const EDGE_PIECE_IDS = [Pieces.battlement, Pieces.roadWall, Pieces.ropeLadder]
@@ -123,14 +126,14 @@ describe('edge-piece drag eligibility and targeting', () => {
           rotation,
           pieceCoords: hex,
         }
-        expect(
-          getEdgeDragTarget(
-            piecesSoFar[pieceID],
-            bp,
-            hex,
-            edgePoint(hex, edge),
-          ),
-        ).toEqual({ edgeIndex: edge, rotation: edge })
+        const target = getEdgeDragTarget(
+          piecesSoFar[pieceID],
+          bp,
+          hex,
+          edgePoint(hex, edge),
+        )
+        expect(target).toMatchObject({ edgeIndex: edge, rotation: edge })
+        expect(target?.edgeId).toBe(edgeIdFromHex(hex, edge))
       }
     },
   )
@@ -147,15 +150,17 @@ describe('edge-piece drag eligibility and targeting', () => {
         rotation,
         pieceCoords: hex,
       }
-      expect(
-        getEdgeDragTarget(piecesSoFar[pieceID], bp, hex, {
-          ...cubeToPixel(hex),
-          z: cubeToPixel(hex).y,
-        }),
-      ).toEqual({
+      const target = getEdgeDragTarget(piecesSoFar[pieceID], bp, hex, {
+        ...cubeToPixel(hex),
+        z: cubeToPixel(hex).y,
+      })
+      expect(target).toMatchObject({
         edgeIndex: currentEdge(pieceID, rotation),
         rotation: currentEdge(pieceID, rotation),
       })
+      expect(target?.edgeId).toBe(
+        edgeIdFromHex(hex, currentEdge(pieceID, rotation)),
+      )
     },
   )
 
@@ -177,22 +182,23 @@ describe('edge-piece drag eligibility and targeting', () => {
         pieceCoords: hex,
       })
 
-      expect(
-        getEdgeDragTarget(
-          piecesSoFar[pieceID],
-          makePiece(1),
-          hex,
-          tiedPoint,
-        ),
-      ).toEqual({ edgeIndex: 1, rotation: 1 })
-      expect(
-        getEdgeDragTarget(
-          piecesSoFar[pieceID],
-          makePiece(4),
-          hex,
-          tiedPoint,
-        ),
-      ).toEqual({ edgeIndex: 0, rotation: 0 })
+      const tiedCurrent = getEdgeDragTarget(
+        piecesSoFar[pieceID],
+        makePiece(1),
+        hex,
+        tiedPoint,
+      )
+      expect(tiedCurrent).toMatchObject({ edgeIndex: 1, rotation: 1 })
+      expect(tiedCurrent?.edgeId).toBe(edgeIdFromHex(hex, 1))
+
+      const tiedWithoutCurrent = getEdgeDragTarget(
+        piecesSoFar[pieceID],
+        makePiece(4),
+        hex,
+        tiedPoint,
+      )
+      expect(tiedWithoutCurrent).toMatchObject({ edgeIndex: 0, rotation: 0 })
+      expect(tiedWithoutCurrent?.edgeId).toBe(edgeIdFromHex(hex, 0))
     },
   )
 
@@ -257,7 +263,7 @@ describe('edge-piece drag eligibility and targeting', () => {
         edgePoint(hex, 0),
         true,
       ),
-    ).toBe(hex.id)
+    ).toBe(`${hex.id}:edge:${edgeIdFromHex(hex, 0)}`)
   })
 
   it.each(EDGE_PIECE_IDS)(
@@ -324,6 +330,7 @@ describe('edge-piece drag placement', () => {
         coords: expectedCoords,
         altitude: -1,
         rotation: pieceID === Pieces.battlement ? (edge + 3) % 6 : edge,
+        edgeId: edgeIdFromHex(destination, edge),
       })
       expect(target.members[0]).toMatchObject({
         edgeIndex: edge,
@@ -652,6 +659,9 @@ describe('edge-piece drag placement', () => {
       ),
     ).toEqual([destination, destination, destination])
     expect(target.members.map((member) => member.edgeIndex)).toEqual([0, 2, 4])
+    expect(target.members.map((member) => member.edgeId)).toEqual(
+      [0, 2, 4].map((edge) => edgeIdFromHex(destination, edge)),
+    )
     expect(target.members.map((member) => member.previewHex)).toEqual(
       target.members.map(() => ({ ...destination, altitude: 0 })),
     )
@@ -664,6 +674,7 @@ describe('edge-piece drag placement', () => {
       boardHexes: useBoundStore.getState().boardHexes,
       boardPieces: useBoundStore.getState().boardPieces,
     })
+
     useBoundStore.getState().movePieces({ moves: decision.moves ?? [] })
     const moved = useBoundStore
       .getState()
@@ -681,6 +692,31 @@ describe('edge-piece drag placement', () => {
       boardPieces: useBoundStore.getState().boardPieces,
     }).toEqual(before)
   })
+
+  it.each(EDGE_PIECE_IDS)(
+    '%s carries its canonical edge through rotation about a non-origin pivot',
+    (pieceID) => {
+      const piece = piecesSoFar[pieceID]
+      const boardPiece: BoardPiece = {
+        uid: 'EDGE',
+        inventoryID: pieceID,
+        pieceCoords: { q: 4, r: 3, s: -7 },
+        altitude: -1,
+        rotation: pieceID === Pieces.battlement ? 3 : 0,
+      }
+      const pivot = { q: 1, r: 2, s: -3 }
+      const move = rotateGroupAroundPivot([boardPiece], pivot, 1)[0]
+      if (!move) throw new Error('expected an edge rotation move')
+
+      expect(move.newEdgeId).toBe(
+        getPieceEdgeId({
+          inventoryID: piece.id,
+          pieceCoords: move.newPieceCoords,
+          rotation: move.newRotation ?? boardPiece.rotation,
+        }),
+      )
+    },
+  )
 
   it('keeps two road walls on their shared support with their own edges', () => {
     let board: Board = makeTable(8)
