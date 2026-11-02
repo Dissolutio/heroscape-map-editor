@@ -80,6 +80,53 @@ test('rotates a dragged piece with the wheel and undo restores it', async ({
   })
 })
 
+test('rotate hotkeys rotate a selection and the active drag', async ({
+  page,
+}) => {
+  await waitForAppReady(page)
+  const uid = await findPieceUid(page, {
+    inventoryID: 'g1',
+    q: 0,
+    r: 2,
+    altitude: 0,
+  })
+  await clickPiece(page, uid)
+  const before = await piece(page, uid)
+  if (!before) throw new Error('Selected piece is missing')
+  const undos = await undoCount(page)
+
+  await page.keyboard.press('e')
+  await expect.poll(async () => (await piece(page, uid))?.rotation).toBe(5)
+
+  await startDrag(page, uid, { q: 4, r: 2, altitude: 0 })
+  await expect
+    .poll(
+      async () =>
+        (await page.evaluate(() => window.__TEST__?.snapshot()))?.drag,
+    )
+    .toMatchObject({ state: 'dragging', targetStatus: 'ok' })
+  await page.keyboard.press('q')
+  await page.mouse.up()
+
+  await expect
+    .poll(async () => (await piece(page, uid))?.pieceCoords)
+    .toEqual({ q: 4, r: 2, s: -6 })
+  expect(await piece(page, uid)).toMatchObject({
+    rotation: 0,
+    altitude: 0,
+  })
+  expect(await undoCount(page)).toBe(undos + 2)
+
+  await undoButton(page).click()
+  await expect
+    .poll(async () => (await piece(page, uid))?.pieceCoords)
+    .toEqual(before.pieceCoords)
+  expect(await piece(page, uid)).toMatchObject({
+    rotation: 5,
+    altitude: before.altitude,
+  })
+})
+
 test('the pointer sector selects a dragged ladder stack rotation', async ({
   page,
 }) => {
