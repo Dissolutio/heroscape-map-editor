@@ -196,7 +196,9 @@ describe('start-zone visibility', () => {
       'zone',
     )
     expect(store.getState().selectedPieceIDs).toEqual([])
-    expect(store.getState().pendingRedoSelectionRestoreStack).toEqual([])
+    expect(store.getState().pendingRedoSelectionRestoreStack).toEqual([
+      { pieceUIDs: ['zone'], objectiveMarkerUID: null },
+    ])
   })
 
   it('notifies when an in-progress start-zone drag drops while hidden', async () => {

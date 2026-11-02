@@ -382,6 +382,8 @@ describe('settings persistence', () => {
     const transientKeys = [
       'selectedPieceIDs',
       'selectedObjectiveMarkerUID',
+      'selectionHistory',
+      'selectionHistoryCursor',
       'objectiveMarkerDraft',
       'objectiveMarkerDragPreview',
       'rotationPivot',
@@ -393,6 +395,7 @@ describe('settings persistence', () => {
       'dragPreview',
       'pendingUndoSelectionRestoreStack',
       'pendingRedoSelectionRestoreStack',
+      'pendingUndoSelectionRestore',
       'currentDialog',
       'cropDialogReturnToEditMap',
       'isTakingPicture',

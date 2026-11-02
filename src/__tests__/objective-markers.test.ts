@@ -803,6 +803,7 @@ describe('objective marker store actions', () => {
 
     redoWithSelectionRestore()
     expect(store.getState().hexMap.objectiveMarkers).toHaveLength(1)
+    expect(store.getState().selectedObjectiveMarkerUID).toBeNull()
     store.getState().setSelectedObjectiveMarkerUID(uid)
     store.getState().removeObjectiveMarker(uid)
     undoWithSelectionRestore()

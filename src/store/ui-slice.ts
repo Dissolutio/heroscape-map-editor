@@ -5,6 +5,13 @@ import type { DragPreview } from '../data/dragMove'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
 import { type LookSettings, sanitizeLookSettings } from '../data/lookSettings'
 import {
+  appendSelectionHistoryEntry,
+  navigateSelectionHistory,
+  resolveSelectionHistory,
+  sameSelection,
+  type SelectionHistoryEntry,
+} from '../data/selectionHistory'
+import {
   OBJECTIVE_MARKER_PEN_MODE,
   type ObjectiveMarker,
   type ObjectiveMarkerDraft,
@@ -53,6 +60,59 @@ import type { PictureCaptureOptions } from '../world/camera/pictureCaptureOption
 import type { AppState } from './store'
 
 export type { LightPosition } from '../local-storage/settings'
+
+export type UndoSelectionRestoreRecord = {
+  pieceUIDs: string[]
+  objectiveMarkerUID: string | null
+  restoreObjectiveMarkerSelection?: boolean
+}
+
+export const EMPTY_UNDO_SELECTION_RESTORE: UndoSelectionRestoreRecord = {
+  pieceUIDs: [],
+  objectiveMarkerUID: null,
+}
+const SELECTION_HISTORY_SETTLE_MS = 250
+let selectionHistoryTimeout: ReturnType<typeof setTimeout> | null = null
+
+function scheduleSelectionHistory(record: () => void) {
+  if (selectionHistoryTimeout) clearTimeout(selectionHistoryTimeout)
+  selectionHistoryTimeout = setTimeout(() => {
+    selectionHistoryTimeout = null
+    record()
+  }, SELECTION_HISTORY_SETTLE_MS)
+}
+
+function applySelectionHistoryEntry(
+  entry: SelectionHistoryEntry,
+  set: (partial: Partial<AppState>) => void,
+  get: () => AppState,
+) {
+  const state = get()
+  const markerExists =
+    entry.objectiveMarkerUID &&
+    state.hexMap.objectiveMarkers?.some(
+      (marker) => marker.uid === entry.objectiveMarkerUID,
+    )
+  set({
+    selectedPieceIDs: markerExists
+      ? []
+      : filterVisiblePieceIDs(
+          entry.pieceUIDs,
+          state.boardPieces,
+          state.isShowStartZones,
+        ),
+    selectedObjectiveMarkerUID: markerExists ? entry.objectiveMarkerUID : null,
+    rotationPivot: null,
+  })
+}
+
+function getCurrentSelection(state: AppState): SelectionHistoryEntry {
+  return {
+    pieceUIDs: [...state.selectedPieceIDs],
+    objectiveMarkerUID: state.selectedObjectiveMarkerUID,
+    selectedAt: 0,
+  }
+}
 
 export interface UISlice {
   graphicsTier: GraphicsTier
@@ -123,6 +183,13 @@ export interface UISlice {
     pointerPoint?: { x: number; z: number },
     clickedHex?: BoardHex,
   ) => void
+  selectionHistory: SelectionHistoryEntry[]
+  selectionHistoryCursor: number
+  recordSettledSelection: () => void
+  cancelSelectionHistoryRecording: () => void
+  clearSelectionHistory: () => void
+  navigateSelectionHistory: (direction: 'back' | 'forward') => void
+  selectSelectionHistoryEntry: (index: number) => void
   rotationPivot: RotationPivot | null
   setRotationPivot: (pivot: RotationPivot | null) => void
   hoveredPieceID: string
@@ -188,14 +255,26 @@ export interface UISlice {
     dragPreview: DragPreview | null,
   ) => void
 
-  // POST-DELETE UNDO RE-SELECTION
-  pendingUndoSelectionRestoreStack: string[][]
-  pushPendingUndoSelectionRestore: (ids: string[]) => void
-  pushPendingUndoSelectionRestoreFromRedo: (ids: string[]) => void
-  popPendingUndoSelectionRestore: () => string[] | null
-  pendingRedoSelectionRestoreStack: string[][]
-  pushPendingRedoSelectionRestore: (ids: string[]) => void
-  popPendingRedoSelectionRestore: () => string[] | null
+  // UNDO/REDO SELECTION RESTORATION
+  pendingUndoSelectionRestore: UndoSelectionRestoreRecord | null
+  pendingUndoSelectionRestoreStack: UndoSelectionRestoreRecord[]
+  pushPendingUndoSelectionRestore: (
+    record: string[] | UndoSelectionRestoreRecord,
+  ) => void
+  consumePendingUndoSelectionRestore: () => UndoSelectionRestoreRecord | null
+  clearPendingUndoSelectionRestore: () => void
+  pushUndoSelectionRestore: (record: UndoSelectionRestoreRecord) => void
+  popPendingUndoSelectionRestore: () => UndoSelectionRestoreRecord | null
+  peekPendingUndoSelectionRestore: () => UndoSelectionRestoreRecord | null
+  pushPendingUndoSelectionRestoreFromRedo: (
+    record: UndoSelectionRestoreRecord,
+  ) => void
+  pendingRedoSelectionRestoreStack: UndoSelectionRestoreRecord[]
+  pushPendingRedoSelectionRestore: (record: UndoSelectionRestoreRecord) => void
+  popPendingRedoSelectionRestore: () => UndoSelectionRestoreRecord | null
+  peekPendingRedoSelectionRestore: () => UndoSelectionRestoreRecord | null
+  clearPendingRedoSelectionRestoreStack: () => void
+  clearUndoSelectionRestoreHistory: () => void
 
   // PDF STATE
   isShowPDFInventory: boolean
@@ -249,7 +328,7 @@ const createUISlice: StateCreator<
   [],
   [],
   UISlice
-> = (set) => ({
+> = (set, get) => ({
   ...loadSettings(),
   isLookSettingsDialogOpen: false,
   effectiveGraphicsTier: 'low',
@@ -329,8 +408,13 @@ const createUISlice: StateCreator<
   toggleIsShowActionLog: (show) => set({ isShowActionLog: show }),
   selectedPieceIDs: [],
   selectedObjectiveMarkerUID: null,
-  setSelectedObjectiveMarkerUID: (uid) =>
-    set({ selectedObjectiveMarkerUID: uid }),
+  setSelectedObjectiveMarkerUID: (uid) => {
+    const previous = get().selectedObjectiveMarkerUID
+    set({ selectedObjectiveMarkerUID: uid })
+    if (previous !== uid) {
+      scheduleSelectionHistory(() => get().recordSettledSelection())
+    }
+  },
   objectiveMarkerDraft: {
     size: 1,
     style: 'black',
@@ -350,13 +434,126 @@ const createUISlice: StateCreator<
   objectiveMarkerDragPreview: null,
   setObjectiveMarkerDragPreview: (preview) =>
     set({ objectiveMarkerDragPreview: preview }),
+  selectionHistory: [],
+  selectionHistoryCursor: -1,
+  recordSettledSelection: () => {
+    const state = get()
+    const entry: SelectionHistoryEntry = {
+      pieceUIDs: [...state.selectedPieceIDs],
+      objectiveMarkerUID: state.selectedObjectiveMarkerUID,
+      selectedAt: Date.now(),
+    }
+    const history = appendSelectionHistoryEntry(
+      {
+        entries: state.selectionHistory,
+        cursor: state.selectionHistoryCursor,
+      },
+      entry,
+    )
+    set({
+      selectionHistory: history.entries,
+      selectionHistoryCursor: history.cursor,
+    })
+  },
+  cancelSelectionHistoryRecording: () => {
+    if (selectionHistoryTimeout) clearTimeout(selectionHistoryTimeout)
+    selectionHistoryTimeout = null
+  },
+  clearSelectionHistory: () => {
+    get().cancelSelectionHistoryRecording()
+    set({ selectionHistory: [], selectionHistoryCursor: -1 })
+  },
+  navigateSelectionHistory: (direction) => {
+    if (selectionHistoryTimeout) clearTimeout(selectionHistoryTimeout)
+    selectionHistoryTimeout = null
+    const state = get()
+    const available = resolveSelectionHistory(
+      {
+        entries: state.selectionHistory,
+        cursor: state.selectionHistoryCursor,
+      },
+      {
+        pieceUIDs: new Set(state.boardPieces.map((piece) => piece.uid)),
+        visiblePieceUIDs: new Set(
+          filterVisiblePieceIDs(
+            state.boardPieces.map((piece) => piece.uid),
+            state.boardPieces,
+            state.isShowStartZones,
+          ),
+        ),
+        objectiveMarkerUIDs: new Set(
+          (state.hexMap.objectiveMarkers ?? []).map((marker) => marker.uid),
+        ),
+      },
+    )
+    const next = navigateSelectionHistory(
+      available,
+      getCurrentSelection(state),
+      direction === 'back' ? -1 : 1,
+    )
+    set({
+      selectionHistory: next.entries,
+      selectionHistoryCursor: next.cursor,
+    })
+    const entry = next.entries[next.cursor]
+    if (
+      !entry ||
+      (next.cursor === available.cursor &&
+        sameSelection(entry, getCurrentSelection(state)))
+    ) {
+      return
+    }
+    applySelectionHistoryEntry(entry, set, get)
+  },
+  selectSelectionHistoryEntry: (index) => {
+    if (selectionHistoryTimeout) clearTimeout(selectionHistoryTimeout)
+    selectionHistoryTimeout = null
+    const state = get()
+    const available = resolveSelectionHistory(
+      {
+        entries: state.selectionHistory,
+        cursor: state.selectionHistoryCursor,
+      },
+      {
+        pieceUIDs: new Set(state.boardPieces.map((piece) => piece.uid)),
+        visiblePieceUIDs: new Set(
+          filterVisiblePieceIDs(
+            state.boardPieces.map((piece) => piece.uid),
+            state.boardPieces,
+            state.isShowStartZones,
+          ),
+        ),
+        objectiveMarkerUIDs: new Set(
+          (state.hexMap.objectiveMarkers ?? []).map((marker) => marker.uid),
+        ),
+      },
+    )
+    const requested = state.selectionHistory[index]
+    const resolvedIndex = requested
+      ? available.entries.findIndex(
+          (entry) =>
+            entry.selectedAt === requested.selectedAt &&
+            sameSelection(entry, requested),
+        )
+      : -1
+    set({
+      selectionHistory: available.entries,
+      selectionHistoryCursor:
+        resolvedIndex >= 0 ? resolvedIndex : available.cursor,
+    })
+    if (resolvedIndex < 0) return
+    const entry = available.entries[resolvedIndex]
+    if (!entry) return
+    applySelectionHistoryEntry(entry, set, get)
+  },
   rotationPivot: null,
   toggleSelectedPieceID: (
     pieceID: string,
     multiSelect?: boolean,
     pointerPoint?: { x: number; z: number },
     clickedHex?: BoardHex,
-  ) =>
+  ) => {
+    const previous = get()
     set(
       produce((state) => {
         state.selectedObjectiveMarkerUID = null
@@ -442,7 +639,25 @@ const createUISlice: StateCreator<
           if (pivot) state.rotationPivot = pivot
         }
       }),
-    ),
+    )
+    const next = get()
+    if (
+      !sameSelection(
+        {
+          pieceUIDs: previous.selectedPieceIDs,
+          objectiveMarkerUID: previous.selectedObjectiveMarkerUID,
+          selectedAt: 0,
+        },
+        {
+          pieceUIDs: next.selectedPieceIDs,
+          objectiveMarkerUID: next.selectedObjectiveMarkerUID,
+          selectedAt: 0,
+        },
+      )
+    ) {
+      scheduleSelectionHistory(() => get().recordSettledSelection())
+    }
+  },
   setRotationPivot: (pivot: RotationPivot | null) =>
     set(
       produce((state) => {
@@ -571,32 +786,59 @@ const createUISlice: StateCreator<
   dragPreview: null,
   setDragState: (isDraggingPiece, dragPreview) =>
     set({ isDraggingPiece, dragPreview }),
+  pendingUndoSelectionRestore: null,
   pendingUndoSelectionRestoreStack: [],
-  pushPendingUndoSelectionRestore: (ids: string[]) =>
-    set(
-      produce((s) => {
-        if (ids.length) {
-          // Any new mutation branch invalidates redo metadata from older undos.
-          s.pendingRedoSelectionRestoreStack = []
-          s.pendingUndoSelectionRestoreStack.push([...ids])
+  pushPendingUndoSelectionRestore: (record) => {
+    if (get().pendingUndoSelectionRestore) return
+    const normalized = Array.isArray(record)
+      ? { pieceUIDs: [...record], objectiveMarkerUID: null }
+      : {
+          pieceUIDs: [...record.pieceUIDs],
+          objectiveMarkerUID: record.objectiveMarkerUID,
+          restoreObjectiveMarkerSelection:
+            record.restoreObjectiveMarkerSelection,
         }
-      }),
-    ),
-  pushPendingUndoSelectionRestoreFromRedo: (ids: string[]) =>
+    set({ pendingUndoSelectionRestore: normalized })
+  },
+  consumePendingUndoSelectionRestore: () => {
+    const record = get().pendingUndoSelectionRestore
+    if (record) set({ pendingUndoSelectionRestore: null })
+    return record
+  },
+  clearPendingUndoSelectionRestore: () => {
+    if (get().pendingUndoSelectionRestore) {
+      set({ pendingUndoSelectionRestore: null })
+    }
+  },
+  pushUndoSelectionRestore: (record) =>
     set(
       produce((s) => {
-        if (ids.length) {
-          // During redo replay, preserve remaining redo metadata for later steps.
-          s.pendingUndoSelectionRestoreStack.push([...ids])
+        s.pendingRedoSelectionRestoreStack = []
+        s.pendingUndoSelectionRestoreStack.push({
+          pieceUIDs: [...record.pieceUIDs],
+          objectiveMarkerUID: record.objectiveMarkerUID,
+          restoreObjectiveMarkerSelection:
+            record.restoreObjectiveMarkerSelection,
+        })
+        if (s.pendingUndoSelectionRestoreStack.length > 30) {
+          s.pendingUndoSelectionRestoreStack.shift()
         }
       }),
     ),
   popPendingUndoSelectionRestore: () => {
-    let popped: string[] | null = null
+    let popped: UndoSelectionRestoreRecord | null = null
     set(
       produce((s) => {
         const stack = s.pendingUndoSelectionRestoreStack
-        popped = stack.length ? [...stack[stack.length - 1]] : null
+        const record = stack[stack.length - 1]
+        popped = record
+          ? {
+              pieceUIDs: [...record.pieceUIDs],
+              objectiveMarkerUID: record.objectiveMarkerUID,
+              restoreObjectiveMarkerSelection:
+                record.restoreObjectiveMarkerSelection,
+            }
+          : null
         if (stack.length) {
           stack.pop()
         }
@@ -604,21 +846,49 @@ const createUISlice: StateCreator<
     )
     return popped
   },
+  peekPendingUndoSelectionRestore: () => {
+    const stack = get().pendingUndoSelectionRestoreStack
+    const record = stack[stack.length - 1]
+    return record
+      ? {
+          pieceUIDs: [...record.pieceUIDs],
+          objectiveMarkerUID: record.objectiveMarkerUID,
+          restoreObjectiveMarkerSelection:
+            record.restoreObjectiveMarkerSelection,
+        }
+      : null
+  },
+  pushPendingUndoSelectionRestoreFromRedo: (record) =>
+    get().pushUndoSelectionRestore(record),
   pendingRedoSelectionRestoreStack: [],
-  pushPendingRedoSelectionRestore: (ids: string[]) =>
+  pushPendingRedoSelectionRestore: (record) =>
     set(
       produce((s) => {
-        if (ids.length) {
-          s.pendingRedoSelectionRestoreStack.push([...ids])
+        s.pendingRedoSelectionRestoreStack.push({
+          pieceUIDs: [...record.pieceUIDs],
+          objectiveMarkerUID: record.objectiveMarkerUID,
+          restoreObjectiveMarkerSelection:
+            record.restoreObjectiveMarkerSelection,
+        })
+        if (s.pendingRedoSelectionRestoreStack.length > 30) {
+          s.pendingRedoSelectionRestoreStack.shift()
         }
       }),
     ),
   popPendingRedoSelectionRestore: () => {
-    let popped: string[] | null = null
+    let popped: UndoSelectionRestoreRecord | null = null
     set(
       produce((s) => {
         const stack = s.pendingRedoSelectionRestoreStack
-        popped = stack.length ? [...stack[stack.length - 1]] : null
+        const record = stack[stack.length - 1]
+        popped = record
+          ? {
+              pieceUIDs: [...record.pieceUIDs],
+              objectiveMarkerUID: record.objectiveMarkerUID,
+              restoreObjectiveMarkerSelection:
+                record.restoreObjectiveMarkerSelection,
+            }
+          : null
         if (stack.length) {
           stack.pop()
         }
@@ -626,6 +896,26 @@ const createUISlice: StateCreator<
     )
     return popped
   },
+  peekPendingRedoSelectionRestore: () => {
+    const stack = get().pendingRedoSelectionRestoreStack
+    const record = stack[stack.length - 1]
+    return record
+      ? {
+          pieceUIDs: [...record.pieceUIDs],
+          objectiveMarkerUID: record.objectiveMarkerUID,
+          restoreObjectiveMarkerSelection:
+            record.restoreObjectiveMarkerSelection,
+        }
+      : null
+  },
+  clearPendingRedoSelectionRestoreStack: () =>
+    set({ pendingRedoSelectionRestoreStack: [] }),
+  clearUndoSelectionRestoreHistory: () =>
+    set({
+      pendingUndoSelectionRestore: null,
+      pendingUndoSelectionRestoreStack: [],
+      pendingRedoSelectionRestoreStack: [],
+    }),
   toggleIsShowStartZones: (b: boolean) =>
     set(
       produce((s) => {
