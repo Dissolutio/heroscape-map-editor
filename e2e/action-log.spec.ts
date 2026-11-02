@@ -155,7 +155,7 @@ test('shows relative ages and keeps expanded history after the collapsed timeout
 }) => {
   const startTime = new Date()
   await page.clock.install({ time: startTime })
-  await page.clock.pauseAt(startTime)
+  await page.clock.pauseAt(new Date(startTime.getTime() + 1_000))
   await page.evaluate(() => window.__TEST__?.seedActionLog(1))
 
   const log = page.getByRole('log')
@@ -163,12 +163,10 @@ test('shows relative ages and keeps expanded history after the collapsed timeout
   await expect(row.locator('.action-log__age')).toHaveText('just now')
 
   await page.clock.runFor(5_000)
-  await page.clock.pauseAt(new Date(startTime.getTime() + 5_000))
   await expect(row.locator('.action-log__age')).toHaveText('5s ago')
 
   await page.getByRole('button', { name: 'Expand action log' }).hover()
   await page.clock.runFor(4_000)
-  await page.clock.pauseAt(new Date(startTime.getTime() + 9_000))
   await expect(row.locator('.action-log__age')).toHaveText(/^[89]s ago$/)
   await expect(row).toHaveCount(1)
 
@@ -179,6 +177,5 @@ test('shows relative ages and keeps expanded history after the collapsed timeout
   await page.evaluate(() => window.__TEST__?.seedActionLog(1))
   const reducedMotionRow = log.locator('.action-log__row')
   await page.clock.runFor(8_000)
-  await page.clock.pauseAt(new Date(startTime.getTime() + 17_000))
   await expect(reducedMotionRow).toHaveCount(0)
 })
