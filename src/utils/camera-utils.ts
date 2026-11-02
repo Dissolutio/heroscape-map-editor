@@ -2,7 +2,8 @@ import type { CameraControls } from '@react-three/drei'
 import type { RefObject } from 'react'
 import { Box3, Vector3 } from 'three'
 import type { Group, InstancedMesh, Object3DEventMap } from 'three'
-import type { BoardHexes } from '../types'
+import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
+import type { BoardHexes, BoardPieces } from '../types'
 import { HEXGRID_HEX_RADIUS } from './constants'
 import { getBoardHex3DCoords } from './map-utils'
 
@@ -60,6 +61,7 @@ interface ZoomToPieceArgs {
 interface ZoomToPiecesArgs {
   cameraControlsRef: RefObject<CameraControls>
   boardHexes: BoardHexes
+  boardPieces: BoardPieces
   targetUIDs: string[]
   mapWidth: number
   mapLength: number
@@ -108,6 +110,7 @@ export const zoomToPiece = ({
 export const zoomToPieces = ({
   cameraControlsRef,
   boardHexes,
+  boardPieces,
   targetUIDs,
   mapWidth,
   mapLength,
@@ -117,16 +120,37 @@ export const zoomToPieces = ({
     (hex) => hex.boardPieceUID && targetUIDSet.has(hex.boardPieceUID),
   )
 
-  if (!pieceHexes.length) {
-    return
-  }
-
   // Framing through a world-space bounds box keeps clipping planes stable.
   const box = new Box3()
   for (const hex of pieceHexes) {
     const { x, y, z } = getBoardHex3DCoords(hex)
     box.expandByPoint(new Vector3(x, y, z))
   }
+
+  for (const piece of boardPieces) {
+    if (!targetUIDSet.has(piece.uid)) continue
+    const footprint = getLaurAddonFootprint({
+      inventoryID: piece.inventoryID,
+      anchor: piece.pieceCoords,
+      altitude: piece.altitude,
+      rotation: piece.rotation,
+    })
+    if (!footprint) continue
+
+    const footprintHexes = [...footprint.endHexes, ...footprint.blockedHexes]
+    for (const hex of footprintHexes) {
+      for (const altitude of [
+        piece.altitude,
+        piece.altitude + footprint.heightInLevels + 1,
+      ]) {
+        const { x, y, z } = getBoardHex3DCoords({ ...hex, altitude })
+        box.expandByPoint(new Vector3(x, y, z))
+      }
+    }
+  }
+
+  if (box.isEmpty()) return
+
   box.expandByScalar(HEXGRID_HEX_RADIUS * 5)
 
   cameraControlsRef.current?.setPosition?.(
