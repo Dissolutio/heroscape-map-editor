@@ -28,6 +28,7 @@ import {
   reconcileLaurLegacyToStackableUsage,
 } from '../inventory/laurInventoryReconcile.ts'
 import useBoundStore from '../store/store.ts'
+import { undoWithSelectionRestore } from '../utils/undoWithSelectionRestore.ts'
 import {
   type BoardHex,
   HexTerrain,
@@ -119,7 +120,7 @@ function placeStackableLaurVariant(
         color="inherit"
         onClick={() => {
           closeSnackbar(snackbarId)
-          useBoundStore.temporal.getState().undo()
+          undoWithSelectionRestore()
         }}
       >
         Undo

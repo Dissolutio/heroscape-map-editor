@@ -27,6 +27,7 @@ import {
 import { HexTerrain, Pieces } from '../types'
 import type {
   AddRemovePieceError,
+  BoardPiece,
   CubeCoordinate,
   MapState,
   Piece,
@@ -65,6 +66,13 @@ const preferredConstrainedPenModes: PiecePrefixes[] = [
   PiecePrefixes.concrete,
   PiecePrefixes.wood,
 ]
+
+function getObjectiveMarkerLabel(marker: ObjectiveMarker) {
+  if (marker.name) return marker.name
+  return marker.content.kind === 'number'
+    ? `#${marker.content.value}`
+    : marker.content.value
+}
 
 function getPreferredConstrainedPenMode(setsUsed?: string[]) {
   const availablePrefixes = getAvailableLandPrefixesForSets(setsUsed)
@@ -229,9 +237,13 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         })
       })
     })
+    if (!error) {
+      get().recordActionLog({ type: 'place', pieceName: piece.title })
+    }
     return error
   },
-  unpaintTile: (uid: string) =>
+  unpaintTile: (uid: string) => {
+    const removedPiece = get().boardPieces.find((piece) => piece.uid === uid)
     set((state) => {
       return produce(state, (draft) => {
         draft.rotationPivot = null
@@ -293,7 +305,16 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
           boardPieces: workingPieces,
         })
       })
-    }),
+    })
+    if (removedPiece) {
+      get().recordActionLog({
+        type: 'delete',
+        pieceName:
+          piecesSoFar[removedPiece.inventoryID]?.title ??
+          removedPiece.inventoryID,
+      })
+    }
+  },
   convertTerrainForPieces: ({
     selectedUIDs,
     targetInventoryBySourceInventory,
@@ -363,6 +384,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         }
       })
     })
+    if (convertedCount) {
+      get().recordActionLog({ type: 'convert', count: convertedCount })
+    }
     return convertedCount
   },
   movePiece: (args: MovePieceArgs) => get().movePieces({ moves: [args] }),
@@ -372,7 +396,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
   }: {
     moves: MovePieceArgs[]
     preserveRotationPivot?: boolean
-  }) =>
+  }) => {
+    const piecesBeforeMove = get().boardPieces
     set((state) => {
       const effectiveMoves = moves.filter((move, index) => {
         if (
@@ -443,7 +468,61 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
           moved.highestAltitude,
         )
       })
-    }),
+    })
+    const piecesAfterMove = get().boardPieces
+    const changedPieces: BoardPiece[] = []
+    const seenUIDs = new Set<string>()
+    for (const move of moves) {
+      if (seenUIDs.has(move.uid)) continue
+      seenUIDs.add(move.uid)
+      const before = piecesBeforeMove.find((piece) => piece.uid === move.uid)
+      const after = piecesAfterMove.find((piece) => piece.uid === move.uid)
+      if (
+        before &&
+        after &&
+        (before.pieceCoords.q !== after.pieceCoords.q ||
+          before.pieceCoords.r !== after.pieceCoords.r ||
+          before.pieceCoords.s !== after.pieceCoords.s ||
+          before.altitude !== after.altitude ||
+          before.rotation !== after.rotation)
+      ) {
+        changedPieces.push(after)
+      }
+    }
+    const leadPiece = changedPieces[0]
+    if (leadPiece) {
+      const pieceName =
+        piecesSoFar[leadPiece.inventoryID]?.title ?? leadPiece.inventoryID
+      const isRotation = changedPieces.every((piece) => {
+        const before = piecesBeforeMove.find(
+          (oldPiece) => oldPiece.uid === piece.uid,
+        )
+        return (
+          before &&
+          before.rotation !== piece.rotation &&
+          before.altitude === piece.altitude &&
+          (preserveRotationPivot ||
+            (before.pieceCoords.q === piece.pieceCoords.q &&
+              before.pieceCoords.r === piece.pieceCoords.r &&
+              before.pieceCoords.s === piece.pieceCoords.s))
+        )
+      })
+      if (isRotation) {
+        get().recordActionLog({
+          type: 'rotate',
+          pieceName,
+          count: changedPieces.length,
+        })
+      } else {
+        get().recordActionLog({
+          type: 'move',
+          pieceName,
+          count: changedPieces.length,
+          coords: leadPiece.pieceCoords,
+        })
+      }
+    }
+  },
   addObjectiveMarker: (marker) => {
     const existing = get().hexMap.objectiveMarkers ?? []
     let uid = marker.uid
@@ -464,6 +543,12 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.hexMap.objectiveMarkers = [...existing, normalized]
       }),
     )
+    get().recordActionLog({
+      type: 'marker',
+      operation: 'add',
+      label: getObjectiveMarkerLabel(normalized),
+      coords: normalized.anchor,
+    })
     return uid
   },
   updateObjectiveMarker: (uid, updates) => {
@@ -490,6 +575,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         )
       }),
     )
+    get().recordActionLog({
+      type: 'marker',
+      operation: 'edit',
+      label: getObjectiveMarkerLabel(normalized),
+    })
   },
   moveObjectiveMarker: (uid, anchor) => {
     const existing = get().hexMap.objectiveMarkers ?? []
@@ -515,6 +605,12 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         )
       }),
     )
+    get().recordActionLog({
+      type: 'marker',
+      operation: 'move',
+      label: getObjectiveMarkerLabel(normalized),
+      coords: normalized.anchor,
+    })
   },
   removeObjectiveMarker: (uid) => {
     const existing = get().hexMap.objectiveMarkers ?? []
@@ -529,6 +625,14 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         }
       }),
     )
+    const removedMarker = existing.find((marker) => marker.uid === uid)
+    if (removedMarker) {
+      get().recordActionLog({
+        type: 'marker',
+        operation: 'remove',
+        label: getObjectiveMarkerLabel(removedMarker),
+      })
+    }
   },
   mapPortraitBase64: '',
   addMapPortraitBase64: (pic: string) =>
@@ -673,6 +777,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         }
       })
     })
+    get().clearActionLog()
     if (mapState.dimensionsAdjusted) {
       enqueueSnackbar({
         message: 'Hexoscape has adjusted your map dimensions to fit all pieces',

@@ -62,6 +62,8 @@ export interface UISlice {
   textureLoadProgress: { loaded: number; total: number }
   isShowStartZones: boolean
   toggleIsShowStartZones: (s: boolean) => void
+  isShowActionLog: boolean
+  toggleIsShowActionLog: (show: boolean) => void
   resetSettings: () => void
   resetLightPositions: () => void
   genericSolidCapColor: string
@@ -324,6 +326,7 @@ const createUISlice: StateCreator<
   },
   setRememberedMapAuthor: (name: string) => set({ rememberedMapAuthor: name }),
   isShowStartZones: true,
+  toggleIsShowActionLog: (show) => set({ isShowActionLog: show }),
   selectedPieceIDs: [],
   selectedObjectiveMarkerUID: null,
   setSelectedObjectiveMarkerUID: (uid) =>

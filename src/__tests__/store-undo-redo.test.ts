@@ -333,6 +333,148 @@ describe('real store undo and redo', () => {
     expect(snapshot()).toEqual(afterPaint)
   })
 
+  it('keeps logged placement, undo, and redo outside of undo history', async () => {
+    const { redoWithSelectionRestore, undoWithSelectionRestore } = await import(
+      '../utils/undoWithSelectionRestore'
+    )
+    store.getState().paintTile({
+      piece: piecesSoFar.g1,
+      clickedHexCoords: { q: 3, r: 4, s: -7 },
+      altitude: 0,
+      rotation: 0,
+    })
+    expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
+      `Placed ${piecesSoFar.g1.title}`,
+    ])
+    expect(historyLength()).toBe(1)
+
+    undoWithSelectionRestore()
+    expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
+      `Placed ${piecesSoFar.g1.title}`,
+      `Undid: Placed ${piecesSoFar.g1.title}`,
+    ])
+    expect(historyLength()).toBe(0)
+
+    redoWithSelectionRestore()
+    expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
+      `Placed ${piecesSoFar.g1.title}`,
+      `Undid: Placed ${piecesSoFar.g1.title}`,
+      `Redid: Placed ${piecesSoFar.g1.title}`,
+    ])
+    expect(historyLength()).toBe(1)
+  })
+
+  it('logs a group move once and does not log a no-op move', () => {
+    const pieces: BoardPiece[] = [
+      {
+        uid: 'group-one',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 2, r: 2, s: -4 },
+      },
+      {
+        uid: 'group-two',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 7, r: 6, s: -13 },
+      },
+    ]
+    loadWithoutHistory(loadedMap(pieces))
+
+    store.getState().movePieces({
+      moves: [
+        { uid: 'group-one', newPieceCoords: { q: 3, r: 2, s: -5 } },
+        { uid: 'group-two', newPieceCoords: { q: 8, r: 6, s: -14 } },
+      ],
+    })
+    expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
+      `Moved 2 pieces (lead: ${piecesSoFar.g1.title}) to q3 r2`,
+    ])
+    expect(historyLength()).toBe(1)
+
+    store.getState().movePieces({
+      moves: [
+        { uid: 'group-one', newPieceCoords: { q: 3, r: 2, s: -5 } },
+        { uid: 'group-two', newPieceCoords: { q: 8, r: 6, s: -14 } },
+      ],
+    })
+    expect(store.getState().actionLog).toHaveLength(1)
+    expect(historyLength()).toBe(1)
+  })
+
+  it('records objective marker changes and clears log and action stacks on load', () => {
+    const marker = {
+      anchor: { q: 2, r: 2, s: -4, altitude: 1 },
+      size: 1 as const,
+      rotation: 0 as const,
+      style: 'black' as const,
+      content: { kind: 'number' as const, value: 1 },
+      name: 'Objective',
+    }
+    const uid = store.getState().addObjectiveMarker(marker)
+    if (!uid) throw new Error('Expected objective marker to be added')
+    store.getState().moveObjectiveMarker(uid, {
+      q: 3,
+      r: 2,
+      s: -5,
+      altitude: 1,
+    })
+    store.getState().updateObjectiveMarker(uid, { name: 'Updated objective' })
+    store.getState().removeObjectiveMarker(uid)
+
+    expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
+      'Added objective marker Objective to q2 r2',
+      'Moved objective marker Objective to q3 r2',
+      'Edited objective marker Updated objective',
+      'Removed objective marker Updated objective',
+    ])
+    expect(store.getState().actionLogUndoStack).toHaveLength(4)
+
+    store.getState().loadMap(loadedMap(), { holdAutosave: true })
+    expect(store.getState().actionLog).toEqual([])
+    expect(store.getState().actionLogUndoStack).toEqual([])
+    expect(store.getState().actionLogRedoStack).toEqual([])
+  })
+
+  it('records terrain conversion, rotation, and deletion at their commits', () => {
+    const piece: BoardPiece = {
+      uid: 'changing-piece',
+      inventoryID: 'g1',
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 2, r: 2, s: -4 },
+    }
+    loadWithoutHistory(loadedMap([piece]))
+
+    expect(
+      store.getState().convertTerrainForPieces({
+        selectedUIDs: [piece.uid],
+        targetInventoryBySourceInventory: { g1: 'g2' },
+      }),
+    ).toBe(1)
+    store.getState().movePieces({
+      moves: [
+        {
+          uid: piece.uid,
+          newPieceCoords: piece.pieceCoords,
+          newRotation: 1,
+        },
+      ],
+      preserveRotationPivot: true,
+    })
+    store.getState().unpaintTile(piece.uid)
+    store.getState().unpaintTile('missing-piece')
+
+    expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
+      'Converted 1 piece',
+      `Rotated ${piecesSoFar.g2.title}`,
+      `Deleted ${piecesSoFar.g2.title}`,
+    ])
+    expect(historyLength()).toBe(3)
+  })
+
   it('undoes and redoes unpainting with exact boardPieces and boardHexes', () => {
     loadWithoutHistory(
       loadedMap([
@@ -526,6 +668,13 @@ describe('real store undo and redo', () => {
     store.getState().toggleHoveredPieceID('hovered')
     store.getState().toggleHoveredHex(Object.values(boardHexes)[0])
     store.getState().toggleHoveredWorldPoint({ x: 1, z: 2 })
+    store.getState().recordActionLog({ type: 'warning', text: 'Not persisted' })
+    const sharedMap = parseMapDataArrayFromCrushed(
+      getUrlMapString({
+        hexMap: store.getState().hexMap,
+        boardPieces: store.getState().boardPieces,
+      }),
+    )
     store.getState().setDragState(false, null)
     store.getState().toggleHoveredPieceID('')
     store.getState().toggleHoveredHex(undefined)
@@ -535,6 +684,8 @@ describe('real store undo and redo', () => {
     expect(store.getState().boardPieces).toBe(boardPieces)
     expect(store.getState().boardHexes).toBe(boardHexes)
     expect(store.getState().hexMap).toBe(hexMap)
+    expect(store.getState().actionLog).toHaveLength(1)
+    expect(JSON.stringify(sharedMap)).not.toContain('Not persisted')
     expect(
       localStorageMock.setItem.mock.calls.some(
         ([key]) => key === LS_KEYS.lastMap,
