@@ -26,7 +26,10 @@ import {
 import { getPlacementPreviewState } from '../data/placementPreview'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import { getSmartPlacementAltitude } from '../data/smartPlacement'
-import { getPickedPenMode } from '../hooks/useMiddleClickPickPenMode'
+import {
+  getPickedPenMode,
+  getPickedPenModeSettings,
+} from '../hooks/useMiddleClickPickPenMode'
 import type { BoardHex, CubeCoordinate } from '../types'
 import { HexTerrain, Pieces } from '../types'
 import { makeHexagonScenario, makeRectangleScenario } from '../utils/map-gen'
@@ -219,6 +222,34 @@ describe('resolvePlacement', () => {
         [Pieces.laurWallRuin2, Pieces.laurWallRuin1],
       ])('picks %s as %s', (inventoryID, expectedPenMode) => {
         expect(getPickedPenMode(inventoryID)).toBe(expectedPenMode)
+      })
+
+      it('picks a selected land piece with its size and rotation', () => {
+        expect(
+          getPickedPenModeSettings({
+            uid: 'grass',
+            inventoryID: Pieces.grass3,
+            altitude: 0,
+            rotation: 2,
+            pieceCoords: c,
+          }),
+        ).toEqual({ penMode: 'g', pieceSize: 3, rotation: 2 })
+      })
+
+      it('picks non-land pieces without changing pen size', () => {
+        expect(
+          getPickedPenModeSettings({
+            uid: 'ruin',
+            inventoryID: Pieces.laurWallRuin2,
+            altitude: 0,
+            rotation: 4.5,
+            pieceCoords: c,
+          }),
+        ).toEqual({
+          penMode: Pieces.laurWallRuin1,
+          pieceSize: undefined,
+          rotation: 4.5,
+        })
       })
     })
 

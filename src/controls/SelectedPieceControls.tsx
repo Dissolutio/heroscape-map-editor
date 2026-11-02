@@ -10,6 +10,7 @@ import {
 } from '../data/rotationPivot'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import useBoundStore from '../store/store'
+import { pickPieceAsPenMode } from '../hooks/useMiddleClickPickPenMode'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { makeBuriedStatusChecker } from '../utils/buriedStatus'
 import { zoomToPieces } from '../utils/camera-utils'
@@ -548,6 +549,19 @@ export function SelectedPieceControls({
         partiallyBuried={partiallyBuriedCount}
         subBuried={subBuriedCount}
       />
+      {selectedPieceIDs.length === 1 && selectedBoardPieces.length === 1 && (
+        <Tooltip title="Use this piece as the pen">
+          <Button
+            variant="outlined"
+            size="small"
+            aria-label="Use selected piece as pen"
+            onClick={() => pickPieceAsPenMode(firstBp.uid)}
+            sx={{ fontSize: FONT_SIZE, mt: 0.25, mb: 0.5, width: '100%' }}
+          >
+            Use as Pen
+          </Button>
+        </Tooltip>
+      )}
       <PieceTransformControls
         selectedPieceIDs={selectedPieceIDs}
         canMoveDown={selectedBoardPieces.some((bp) => bp.altitude > 0)}
