@@ -391,8 +391,13 @@ export function getLandHexCapUV(
   }
 }
 
+/**
+ * Terrain texture layers are uploaded with their rows reversed (see
+ * `flipTextureLayerRows`), so v = 1 is the image's top row. v therefore
+ * increases upward, and the top of a face (y = height) samples the top row.
+ */
 export function getLandHexSideUV(u: number, y: number, height: number) {
-  return [u, 1 - y / height] as const
+  return [u, y / height] as const
 }
 
 export function buildLandHexInstanceIndex(

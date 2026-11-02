@@ -36,10 +36,10 @@ describe('per-hex land geometry', () => {
 
     for (let side = 0; side < 6; side += 1) {
       const start = side * 4
-      expect([solid.getX(start), solid.getY(start)]).toEqual([0, 1])
-      expect([solid.getX(start + 1), solid.getY(start + 1)]).toEqual([0, 0])
-      expect([solid.getX(start + 2), solid.getY(start + 2)]).toEqual([1, 0])
-      expect([solid.getX(start + 3), solid.getY(start + 3)]).toEqual([1, 1])
+      expect([solid.getX(start), solid.getY(start)]).toEqual([0, 0])
+      expect([solid.getX(start + 1), solid.getY(start + 1)]).toEqual([0, 1])
+      expect([solid.getX(start + 2), solid.getY(start + 2)]).toEqual([1, 1])
+      expect([solid.getX(start + 3), solid.getY(start + 3)]).toEqual([1, 0])
 
       const fluidStart = 18 + start
       for (let vertex = 0; vertex < 4; vertex += 1) {
