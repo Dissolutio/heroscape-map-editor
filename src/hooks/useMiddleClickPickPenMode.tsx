@@ -2,7 +2,7 @@ import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
-import { PICK_PEN_MODE, Pieces } from '../types'
+import { type BoardPiece, PICK_PEN_MODE, Pieces } from '../types'
 import { CLICK_DRAG_TOLERANCE_PX } from '../utils/constants'
 
 // These pieces have no pen mode of their own, they are painted via a listed variant
@@ -15,6 +15,31 @@ export function getPickedPenMode(inventoryID: string, landPrefix?: string) {
   return landPrefix ?? penModePieceAlias[inventoryID] ?? inventoryID
 }
 
+export function getPickedPenModeSettings(boardPiece: BoardPiece) {
+  const piece = piecesSoFar[boardPiece.inventoryID]
+  if (!piece) return null
+  return {
+    penMode: getPickedPenMode(boardPiece.inventoryID, piece.landPrefix),
+    pieceSize: piece.landPrefix ? piece.size : undefined,
+    rotation: boardPiece.rotation,
+  }
+}
+
+export function pickPieceAsPenMode(pieceUID: string) {
+  const state = useBoundStore.getState()
+  const boardPiece = state.boardPieces.find((bp) => bp.uid === pieceUID)
+  if (!boardPiece) return
+  const settings = getPickedPenModeSettings(boardPiece)
+  if (!settings) return
+
+  state.togglePenMode(settings.penMode)
+  const updatedState = useBoundStore.getState()
+  if (settings.pieceSize !== undefined) {
+    updatedState.togglePieceSize(settings.pieceSize)
+  }
+  updatedState.togglePenModeRotation(settings.rotation)
+}
+
 // Middle-drag is a camera dolly, left-drag orbits, so only a near-motionless
 // click (within CLICK_DRAG_TOLERANCE_PX) is a pick
 
@@ -22,17 +47,7 @@ export function getPickedPenMode(inventoryID: string, landPrefix?: string) {
 function pickHoveredPieceAsPenMode() {
   const state = useBoundStore.getState()
   if (!state.hoveredPieceID) return
-  const boardPiece = state.boardPieces.find(
-    (bp) => bp.uid === state.hoveredPieceID,
-  )
-  const piece = boardPiece ? piecesSoFar[boardPiece.inventoryID] : undefined
-  if (!boardPiece || !piece) return
-  // Land pieces select a terrain pen mode plus the size of the clicked piece
-  const penMode = getPickedPenMode(boardPiece.inventoryID, piece.landPrefix)
-  state.togglePenMode(penMode)
-  if (piece.landPrefix) {
-    useBoundStore.getState().togglePieceSize(piece.size)
-  }
+  pickPieceAsPenMode(state.hoveredPieceID)
 }
 
 /*
