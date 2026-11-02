@@ -108,5 +108,7 @@ export type E2ETestBridge = {
   cameraPose: () => E2ECameraPose | null
   /** Set pen controls for test setup only. */
   setPen: (penMode: string, size: number, rotation?: number) => void
+  setLookBackgroundColor: (color: string) => void
+  seedActionLog: (count: number) => void
   stats: () => { calls: number; triangles: number; frames: number }
 }

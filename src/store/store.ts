@@ -10,10 +10,11 @@ import {
   settingsChanged,
 } from '../local-storage/settings'
 import { trackStoreSubscriptions } from '../performance/performanceFlags'
+import createActionLogSlice, { type ActionLogSlice } from './action-log-slice'
 import createMapSlice, { type MapSlice } from './map-slice'
 import createUISlice, { type UISlice } from './ui-slice'
 
-export type AppState = MapSlice & UISlice
+export type AppState = MapSlice & UISlice & ActionLogSlice
 
 const useBoundStore = create<AppState>()(
   trackStoreSubscriptions(
@@ -21,6 +22,7 @@ const useBoundStore = create<AppState>()(
       (...a) => ({
         ...createMapSlice(...a),
         ...createUISlice(...a),
+        ...createActionLogSlice(...a),
       }),
       // undo/redo config object
       {

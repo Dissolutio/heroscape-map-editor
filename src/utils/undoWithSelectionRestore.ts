@@ -16,6 +16,7 @@ export function undoWithSelectionRestore() {
     pushPendingRedoSelectionRestore,
   } = useBoundStore.getState()
   const temporalState = useBoundStore.temporal.getState()
+  const canUndo = temporalState.pastStates.length > 0
   const pieceCountBeforeUndo = useBoundStore.getState().boardPieces.length
 
   temporalState.undo()
@@ -46,6 +47,7 @@ export function undoWithSelectionRestore() {
       toggleSelectedPieceID('')
     }
   }
+  if (canUndo) useBoundStore.getState().recordUndoActionLog()
 }
 
 /**
@@ -58,6 +60,7 @@ export function redoWithSelectionRestore() {
     pushPendingUndoSelectionRestoreFromRedo,
   } = useBoundStore.getState()
   const temporalState = useBoundStore.temporal.getState()
+  const canRedo = temporalState.futureStates.length > 0
   const pieceCountBeforeRedo = useBoundStore.getState().boardPieces.length
 
   temporalState.redo()
@@ -75,6 +78,7 @@ export function redoWithSelectionRestore() {
       pushPendingUndoSelectionRestoreFromRedo(ids)
     }
   }
+  if (canRedo) useBoundStore.getState().recordRedoActionLog()
 }
 
 function clearMissingObjectiveMarkerSelection() {

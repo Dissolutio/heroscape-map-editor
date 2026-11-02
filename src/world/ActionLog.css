@@ -1,0 +1,197 @@
+.action-log {
+  --action-log-backdrop: rgb(20 24 28 / 48%);
+  --action-log-place-color: #b8f5a5;
+  --action-log-move-color: #9de7ff;
+  --action-log-delete-color: #ffb1a8;
+  --action-log-marker-color: #ffe28c;
+  --action-log-history-color: #d3c4ff;
+  --action-log-warning-color: #ffcc80;
+  --action-log-row-height: 22px;
+  position: absolute;
+  z-index: 4;
+  bottom: 10px;
+  left: 10px;
+  width: min(320px, calc(100% - 24px));
+  color: #fff;
+  font-size: 11px;
+  line-height: var(--action-log-row-height);
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 90%);
+}
+
+.action-log__list {
+  max-height: calc(var(--action-log-row-height) * 4.5);
+  overflow: hidden;
+  transform: translateY(0);
+  transition: transform 160ms ease-out;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 18%, #000 100%);
+  scrollbar-width: none;
+}
+
+.action-log__list--settling {
+  transform: translateY(-2px);
+}
+
+.action-log__list::-webkit-scrollbar {
+  display: none;
+}
+
+.action-log__row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: var(--action-log-row-height);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transform: translateY(var(--action-log-entry-shift, 0));
+  transition: transform 180ms ease-out, opacity 180ms ease-out;
+  animation: action-log-enter 200ms ease-out both;
+}
+
+.action-log__row::after {
+  position: absolute;
+  inset: 0;
+  background: rgb(255 255 255 / 12%);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+}
+
+.action-log__row--latest::after {
+  animation: action-log-highlight 500ms ease-out both;
+}
+
+.action-log--dragging .action-log__list,
+.action-log--dragging .action-log__toggle {
+  pointer-events: none;
+}
+
+.action-log__row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.action-log__icon {
+  flex: 0 0 14px;
+}
+
+.action-log__row--place,
+.action-log__row--convert {
+  color: var(--action-log-place-color);
+}
+
+.action-log__row--move,
+.action-log__row--rotate {
+  color: var(--action-log-move-color);
+}
+
+.action-log__row--delete {
+  color: var(--action-log-delete-color);
+}
+
+.action-log__row--marker {
+  color: var(--action-log-marker-color);
+}
+
+.action-log__row--undo,
+.action-log__row--redo {
+  color: var(--action-log-history-color);
+}
+
+.action-log__row--warning {
+  color: var(--action-log-warning-color);
+}
+
+.action-log__toggle {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 22px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--action-log-backdrop);
+  color: #fff;
+  font: inherit;
+  line-height: 1;
+  opacity: 0.72;
+  pointer-events: auto;
+  text-shadow: inherit;
+}
+
+.action-log__toggle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.action-log--expanded {
+  width: min(360px, calc(100% - 24px));
+  padding: 5px 7px 3px;
+  border-radius: 5px;
+  background: var(--action-log-backdrop);
+  pointer-events: auto;
+}
+
+.action-log--expanded .action-log__list {
+  max-height: calc(var(--action-log-row-height) * 10);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 7%,
+    #000 93%,
+    transparent 100%
+  );
+}
+
+.action-log--expanded .action-log__toggle {
+  margin-left: auto;
+  opacity: 1;
+}
+
+@keyframes action-log-enter {
+  from {
+    transform: translateY(4px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(var(--action-log-entry-shift, 0));
+    opacity: var(--action-log-entry-opacity, 1);
+  }
+}
+
+@keyframes action-log-highlight {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action-log__list {
+    transition: none;
+  }
+
+  .action-log__row {
+    animation: action-log-reduced-fade 200ms ease-out both;
+    transition: opacity 180ms ease-out;
+  }
+
+  @keyframes action-log-reduced-fade {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: var(--action-log-entry-opacity, 1);
+    }
+  }
+}

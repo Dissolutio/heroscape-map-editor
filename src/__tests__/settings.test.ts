@@ -86,6 +86,7 @@ describe('settings persistence', () => {
       ...SETTINGS_DEFAULTS,
       graphicsTier: 'high' as const,
       isOrthoCam: false,
+      isShowActionLog: false,
       useHighQualityForPicture: true,
       isShowPdfBuriedMarks: true,
       isShow2DExportBuriedMarks: true,
@@ -113,6 +114,7 @@ describe('settings persistence', () => {
         isOrthoCam: false,
         useHighQualityForPicture: true,
         graphicsTier: 'high' as const,
+        isShowActionLog: false,
         isShowPdfBuriedMarks: true,
         isShow2DExportBuriedMarks: true,
         isTransparentGlyphSpaces: true,
@@ -394,6 +396,9 @@ describe('settings persistence', () => {
       'currentDialog',
       'cropDialogReturnToEditMap',
       'isTakingPicture',
+      'actionLog',
+      'actionLogUndoStack',
+      'actionLogRedoStack',
       'pictureCaptureOptions',
       'isCameraDisabled',
       'isShowStartZones',
@@ -424,14 +429,19 @@ describe('settings persistence', () => {
     ]
 
     vi.resetModules()
-    const [{ default: createMapSlice }, { default: createUISlice }] =
-      await Promise.all([
-        import('../store/map-slice'),
-        import('../store/ui-slice'),
-      ])
+    const [
+      { default: createMapSlice },
+      { default: createUISlice },
+      { default: createActionLogSlice },
+    ] = await Promise.all([
+      import('../store/map-slice'),
+      import('../store/ui-slice'),
+      import('../store/action-log-slice'),
+    ])
     const store = createStore<AppState>()((...args) => ({
       ...createMapSlice(...args),
       ...createUISlice(...args),
+      ...createActionLogSlice(...args),
     }))
     const dataKeys = Object.entries(store.getState())
       .filter(([, value]) => typeof value !== 'function')

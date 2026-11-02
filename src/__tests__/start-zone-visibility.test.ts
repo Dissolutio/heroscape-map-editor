@@ -10,6 +10,7 @@ import {
   shouldRenderPlacedPiece,
 } from '../data/startZoneVisibility'
 import createMapSlice from '../store/map-slice'
+import createActionLogSlice from '../store/action-log-slice'
 import createUISlice from '../store/ui-slice'
 import type { AppState } from '../store/store'
 import { Pieces, type HexMap } from '../types'
@@ -60,6 +61,7 @@ function createTestStore() {
   return createStore<AppState>()((...args) => ({
     ...createMapSlice(...args),
     ...createUISlice(...args),
+    ...createActionLogSlice(...args),
   }))
 }
 

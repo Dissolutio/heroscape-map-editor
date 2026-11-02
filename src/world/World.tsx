@@ -52,6 +52,7 @@ import {
 } from '../performance/performance'
 import { clearLastPointerWorldPoint } from './hoverWorldPoint'
 import LookSettingsDialog from '../layout/LookSettingsDialog'
+import ActionLog from './ActionLog'
 import {
   collectWebGLDiagnostics,
   collectWebGLDiagnosticsFromCanvas,
@@ -293,6 +294,9 @@ const World = ({
   const fov = useBoundStore((s) => s.lookSettings.fov)
   const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const isShowActionLog = useBoundStore((s) => s.isShowActionLog)
+  const is2DOpen = useBoundStore((s) => s.is2DOpen)
+  const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
   const [isTabActive, setIsTabActive] = useState(true)
   const perspectiveCameraRef = useRef<ThreePerspectiveCamera>(null)
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
@@ -443,6 +447,11 @@ const World = ({
           <TestBridge />
         </WebGLCanvas>
         <E2EStatus />
+        {!isHidden &&
+          !isTakingPicture &&
+          !is2DOpen &&
+          !isPdfOpen &&
+          isShowActionLog && <ActionLog />}
         {isPerformanceEnabled && <PerformanceOverlay />}
         <SelectedPieceReadout cameraControlsRef={cameraControlsRef} />
         <LookSettingsDialog />

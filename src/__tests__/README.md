@@ -61,6 +61,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `world/textures/terrainTextureArrays.test.ts` | Runtime manifest validation, texture-tier strip selection and cached access, pure layer slicing and Y orientation, lazy request caching, retry after failure, and disposal. |
 | `world/models/gltfLifecycle.test.ts` | Delayed GLTF eviction after the idle timeout, cancellation on reacquisition, and reference-counted cleanup. |
 | `store/graphics-tier.test.ts` | Graphics-tier loading state, session-only fallback after failure, and stale request handling. |
+| `store/action-log.test.ts` | Action-log message formatting and the bounded ring buffer. |
 | `performance/performance.test.ts` | Detection of monotonically growing scene, GPU-resource, heap, subscriber, timer, and animation-frame metrics, plus typed-array accounting for geometry, instances, and texture data. |
 | `performance/performanceFlags.test.ts` | Performance-gated accounting of active Zustand store subscriptions, R3F-event isolation, and User Timing collection. |
 | `e2e-evidence.test.ts` | Keeps E2E writes to `docs/evidence/` inside the opt-in screenshot helper. |
@@ -103,6 +104,13 @@ the missing step. Today the registrations a piece needs are: the `Pieces` consta
 the set inventories (`data/inventories.ts`), and a Virtualscape code in
 `data/pieceCodes.ts` if the old editor had it. The 3D model/loader and the
 SVG/PDF shapes are not checked by tests yet.
+
+## Adding an action-log entry
+
+Add the action shape and its text in `store/action-log.ts`, then record it at
+the successful state-commit point (normally in `store/map-slice.ts`). Keep
+pointer previews and refused/no-op actions out of the log, and add formatter and
+store tests for the new kind.
 
 ## Known gaps: `it.fails`
 
