@@ -367,7 +367,7 @@ const World = ({
             !isTabActive ? 'never' : isFrameloopDemand ? 'demand' : 'always'
           }
           hidden={isHidden}
-          shadows={isLightsAndShadowsRender}
+          shadows={isLightsAndShadowsRender ? 'percentage' : false}
         >
           {/* <Stars
             radius={100}

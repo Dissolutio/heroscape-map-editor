@@ -71,6 +71,17 @@ test('graphics tier loads Medium textures and returns to the classic Low rendere
 test('hover, paint, select, and drag work in every graphics tier', async ({
   page,
 }) => {
+  const shadowWarnings: string[] = []
+  page.on('console', (message) => {
+    const text = message.text()
+    if (
+      text.includes('Cannot update a component') ||
+      text.includes('PCFSoftShadowMap')
+    ) {
+      shadowWarnings.push(text)
+    }
+  })
+
   await page.goto(FIXTURE_URL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
@@ -167,6 +178,8 @@ test('hover, paint, select, and drag work in every graphics tier', async ({
       .toBe(true)
     await setPen(page, 'select', 1)
   }
+
+  expect(shadowWarnings).toEqual([])
 })
 
 test('picture-only High restores the previous graphics and lighting settings', async ({
