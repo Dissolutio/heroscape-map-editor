@@ -16,7 +16,8 @@
         "width": 1000,
         "height": 800,
         "resizable": true,
-        "fullscreen": false
+        "fullscreen": false,
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --enable-unsafe-swiftshader"
       }
     ],
     "security": {
