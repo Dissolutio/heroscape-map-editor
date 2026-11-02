@@ -122,6 +122,13 @@ describe('fluid cap visibility', () => {
     expectFluidCap(b, hexAt(b, c, 1.5)?.id ?? '', true)
   })
 
+  it('fluid at +1 hides the lower cap even with a half-level gap', () => {
+    let b = put(table, 'w1', c, 0)
+    b = put(b, 'w3', c, 1)
+    expectFluidCap(b, hexAt(b, c, 1)?.id ?? '', false)
+    expectFluidCap(b, hexAt(b, c, 2)?.id ?? '', true)
+  })
+
   it('a solid a whole level over a half-level water tile shows its cap', () => {
     // water stack at c (1, 1.5), grass column at e (1, 2), then a 2-hex grass
     // on top of the column overhanging c with a whole level of clearance
@@ -167,6 +174,66 @@ describe('fluid cap visibility', () => {
       waterHexes.map((hex) => getLandHexFluidCapJoinMask(hex, b.boardHexes)),
     ).toEqual(joinMasksBefore)
   })
+
+  it.each([0, 2, 4])(
+    'a ladder at rotation %i leaves a whole- or half-level water cap visible',
+    (rotation) => {
+      for (const altitude of [1, 1.5]) {
+        let b = put(table, 'w1', c, 0)
+        if (altitude === 1.5) b = put(b, 'w1', c, 1)
+
+        const water = hexAt(b, c, altitude)
+        if (!water) throw new Error(`no water hex at altitude ${altitude}`)
+        b = put(b, 'ld', c, altitude, rotation)
+
+        expect(b.boardHexes[water.id].isCap).toBe(false)
+        expectFluidCap(b, water.id, true)
+      }
+    },
+  )
+
+  it('a ladder on multi-hex water and a stacked ladder leave its cap visible', () => {
+    let b = put(table, 'w3', c, 0)
+    const waterHexes = Object.values(b.boardHexes).filter(
+      (hex) => hex.altitude === 1 && isFluidTerrainHex(hex.terrain),
+    )
+    const water = hexAt(b, c, 1)
+    if (!water) throw new Error('no water hex at the water tile origin')
+
+    b = put(b, 'ld', c, 1, 5)
+    b = put(b, 'ld', c, 3, 2)
+
+    expect(b.boardHexes[water.id].isCap).toBe(false)
+    expectFluidCap(b, water.id, true)
+    for (const hex of waterHexes) {
+      if (hex.id !== water.id) expectFluidCap(b, hex.id, true)
+    }
+  })
+
+  it.each([
+    ['rope ladder', 'rl'],
+    ['battlement', 'bt'],
+    ['road wall', 'rw'],
+    ['glyph', 'y0'],
+    ['start zone', 'z1'],
+  ])('a %s placed over water leaves its cap visible', (_family, pieceID) => {
+    let b = put(table, 'w1', c, 0)
+    const water = hexAt(b, c, 1)
+    if (!water) throw new Error('no water hex')
+    b = put(b, pieceID, c, 1)
+
+    expectFluidCap(b, water.id, true)
+  })
+
+  it('a water cap remains visible in the open center of a castle arch', () => {
+    let b = put(table, 'w1', e, 0)
+    const water = hexAt(b, e, 1)
+    if (!water) throw new Error('no water hex')
+    b = put(b, 'ca', c, 1)
+
+    expect(b.boardHexes[water.id].isCap).toBe(false)
+    expectFluidCap(b, water.id, true)
+  })
 })
 
 describe('regression: Cove of Bilfrost (fluid cap under an overhang)', () => {
@@ -204,5 +271,28 @@ describe('regression: Cove of Bilfrost (fluid cap under an overhang)', () => {
     expect(above?.boardPieceUID).toBe('sV2gZPngQ4')
     expect(above?.isCap).toBe(true)
     expect(capVisibleByTier(board, above?.id ?? '')).toEqual([true, true, true])
+  })
+})
+
+describe('regression: fluid cap under a ladder', () => {
+  const fixture = JSON.parse(
+    readFileSync(
+      new URL('./fixtures/fluid-cap-under-ladder.json', import.meta.url),
+      'utf8',
+    ),
+  ) as { hexMap: HexMap; boardPieces: BoardPiece[] }
+  const loaded = buildupJsonFileMap(fixture.boardPieces, fixture.hexMap)
+  const board = {
+    boardHexes: loaded.boardHexes,
+    boardPieces: loaded.boardPieces,
+  }
+  const waterCoords = { q: 0, r: 0, s: 0 }
+
+  it('loads the ladder without losing the water cap', () => {
+    expect(loaded.droppedPieces).toEqual([])
+    expect(board.boardPieces).toHaveLength(2)
+    const water = hexAt(board, waterCoords, 1)
+    expect(water?.isCap).toBe(false)
+    expectFluidCap(board, water?.id ?? '', true)
   })
 })
