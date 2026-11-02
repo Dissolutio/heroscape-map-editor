@@ -357,10 +357,10 @@ describe('land hex instance data', () => {
 
   it('maps side UVs from the image top row to the top of each face', () => {
     const height = 1
-    expect(getLandHexSideUV(0, height, height)).toEqual([0, 0])
-    expect(getLandHexSideUV(1, height, height)).toEqual([1, 0])
-    expect(getLandHexSideUV(0, 0, height)).toEqual([0, 1])
-    expect(getLandHexSideUV(1, 0, height)).toEqual([1, 1])
+    expect(getLandHexSideUV(0, height, height)).toEqual([0, 1])
+    expect(getLandHexSideUV(1, height, height)).toEqual([1, 1])
+    expect(getLandHexSideUV(0, 0, height)).toEqual([0, 0])
+    expect(getLandHexSideUV(1, 0, height)).toEqual([1, 0])
   })
 
   it('mirrors world-space fill UVs continuously inside the clean cap window', () => {
