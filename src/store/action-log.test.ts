@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  ACTION_LOG_COLLAPSED_TIMEOUT_MS,
   ACTION_LOG_LIMIT,
   appendActionLogEntry,
+  formatActionLogAge,
   formatActionLogAction,
   type ActionLogEntry,
 } from './action-log'
@@ -14,18 +16,16 @@ describe('action log formatting', () => {
         type: 'move',
         pieceName: '1-hex Grass',
         count: 1,
-        coords: { q: 3, r: 2, s: -5 },
       },
-      'Moved 1-hex Grass to q3 r2',
+      'Moved 1-hex Grass',
     ],
     [
       {
         type: 'move',
         pieceName: '2-hex Grass',
         count: 3,
-        coords: { q: 3, r: 2, s: -5 },
       },
-      'Moved 3 pieces (lead: 2-hex Grass) to q3 r2',
+      'Moved 3 pieces',
     ],
     [
       { type: 'rotate', pieceName: '1-hex Grass', count: 1 },
@@ -43,14 +43,10 @@ describe('action log formatting', () => {
         type: 'marker',
         operation: 'add',
         label: 'Elite',
-        coords: { q: 3, r: 2, s: -5 },
       },
-      'Added objective marker Elite to q3 r2',
+      'Added objective marker Elite',
     ],
-    [
-      { type: 'marker', operation: 'move', coords: { q: 1, r: 4, s: -5 } },
-      'Moved objective marker to q1 r4',
-    ],
+    [{ type: 'marker', operation: 'move' }, 'Moved objective marker'],
     [
       { type: 'marker', operation: 'edit', label: 'Elite' },
       'Edited objective marker Elite',
@@ -59,10 +55,7 @@ describe('action log formatting', () => {
       { type: 'marker', operation: 'remove', label: 'Elite' },
       'Removed objective marker Elite',
     ],
-    [
-      { type: 'undo', description: 'Moved Grass to q3 r2' },
-      'Undid: Moved Grass to q3 r2',
-    ],
+    [{ type: 'undo', description: 'Moved Grass' }, 'Undid: Moved Grass'],
     [{ type: 'redo', description: 'Placed Grass' }, 'Redid: Placed Grass'],
   ] as const)('formats %s', (action, text) => {
     expect(formatActionLogAction(action).text).toBe(text)
@@ -76,6 +69,25 @@ describe('action log formatting', () => {
       severity: 'warning',
       undoable: false,
     })
+  })
+})
+
+describe('action log relative age', () => {
+  it.each([
+    [0, 'just now'],
+    [4_999, 'just now'],
+    [5_000, '5s ago'],
+    [59_999, '59s ago'],
+    [60_000, '1 min ago'],
+    [120_000, '2 min ago'],
+    [3_600_000, '1 hr ago'],
+    [-1, 'just now'],
+  ])('formats %i ms as %s', (ageMs, text) => {
+    expect(formatActionLogAge(ageMs)).toBe(text)
+  })
+
+  it('uses an 8-second collapsed timeout', () => {
+    expect(ACTION_LOG_COLLAPSED_TIMEOUT_MS).toBe(8_000)
   })
 })
 

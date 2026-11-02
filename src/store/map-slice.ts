@@ -518,7 +518,6 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
           type: 'move',
           pieceName,
           count: changedPieces.length,
-          coords: leadPiece.pieceCoords,
         })
       }
     }
@@ -547,7 +546,6 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       type: 'marker',
       operation: 'add',
       label: getObjectiveMarkerLabel(normalized),
-      coords: normalized.anchor,
     })
     return uid
   },
@@ -609,7 +607,6 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       type: 'marker',
       operation: 'move',
       label: getObjectiveMarkerLabel(normalized),
-      coords: normalized.anchor,
     })
   },
   removeObjectiveMarker: (uid) => {
