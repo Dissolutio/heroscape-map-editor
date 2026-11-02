@@ -1,3 +1,20 @@
+Nov-02-2026
+TLDR: Selection history, a quiet action log, q/e rotate while you drag, and a bunch of rendering fixes, including upside-down textures and a Windows 3D fix.
+
+- **Action log**: A small, quiet log floats in the 3D view and shows what you just did: placed, moved, rotated, deleted, converted, markers, undo and redo. Entries show how long ago they happened and fade out when you stop acting, so anything showing is a gentle hint that something just changed. Hover it to scroll back through the recent history. It can be switched off in the View tab, and it is never saved with your map.
+- **Undo and redo bring your selection back**: Undoing or redoing an action now selects the pieces it touched. Multi-select three pieces, move them, click somewhere else, then undo, and your three pieces are selected again.
+- **Selection history**: Back and forward buttons and a list of recent selections in the selected-piece readout (and hotkeys) let you jump back to something you had selected a minute ago. It is not saved with your map.
+- **Rotate hotkeys while you drag**: The rotate keys (Q and E by default) now rotate whatever you are dragging, or your selected pieces, or the selected objective marker, or the pen preview, in that order. Much easier than the scroll wheel, and ladders, Laur add-ons and lone edge pieces still follow your pointer instead.
+- **Use as Pen**: A new button in the selected-piece readout sets your pen to the selected piece, so you can place more like it without reaching for a hotkey. Handy on a track pad.
+- **Zoom to a selected Laur wall**: The zoom button in the selected-piece readout works again for Laur wall ruins, short walls and long walls.
+- **Side textures are the right way up**: The side textures of land and fluid hexes were upside down, with the top edge at the bottom. They now match the artwork, and the lighting on the sides matches.
+- **Water caps under overhangs and ladders**: A water or lava cap now shows when a solid piece hangs over it with a little clearance, and when a ladder is placed on it. Caps that really are covered are still skipped.
+- **Windows desktop app: 3D view recovery**: If the 3D view cannot start, the app now retries, and if that fails it shows a recovery panel with a "Copy diagnostics" button you can send to us instead of a blank screen. 2D keeps working throughout. If this happens to you, please send us the copied text.
+- **Old maps load all their pieces**: Some older or hand-edited maps stored numbers as text and lost pieces on load (59 pieces in one case). They load complete now.
+- **Objective marker names in share links**: Names now travel in share links as long as the link stays a reasonable size.
+- **PDF build instructions**: Glyphs are drawn at full size again.
+- **Under the hood**: Edge pieces (battlements, road walls, rope ladders) now share a common edge system, which sets us up for better previews and placement, plus quieter developer warnings and more tests.
+
 Oct-30-2026
 TLDR: Textures! Tune your 3D graphics. Add named objective markers, better map pictures.
 
