@@ -826,19 +826,25 @@ describe('real store undo and redo', () => {
     const expectedMarkerRecord = {
       pieceUIDs: [],
       objectiveMarkerUID: marker.uid,
+      restoreObjectiveMarkerSelection: false,
     }
     expect(latestRecord()).toEqual(expectedMarkerRecord)
     store.getState().updateObjectiveMarker(marker.uid, { rotation: 1 })
-    expect(latestRecord()).toEqual(expectedMarkerRecord)
+    const expectedMarkerMutationRecord = {
+      pieceUIDs: [],
+      objectiveMarkerUID: marker.uid,
+      restoreObjectiveMarkerSelection: undefined,
+    }
+    expect(latestRecord()).toEqual(expectedMarkerMutationRecord)
     store.getState().moveObjectiveMarker(marker.uid, {
       q: 4,
       r: 3,
       s: -7,
       altitude: 1,
     })
-    expect(latestRecord()).toEqual(expectedMarkerRecord)
+    expect(latestRecord()).toEqual(expectedMarkerMutationRecord)
     store.getState().removeObjectiveMarker(marker.uid)
-    expect(latestRecord()).toEqual(expectedMarkerRecord)
+    expect(latestRecord()).toEqual(expectedMarkerMutationRecord)
   })
 
   it('restores placement, rotation, and conversion selections on undo and redo', () => {

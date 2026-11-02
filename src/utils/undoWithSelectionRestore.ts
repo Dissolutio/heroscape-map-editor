@@ -51,10 +51,14 @@ function restoreTouchedSelection(record: UndoSelectionRestoreRecord) {
         state.boardPieces,
         state.isShowStartZones,
       )
+  const selectedMarkerUID =
+    markerExists && record.restoreObjectiveMarkerSelection !== false
+      ? record.objectiveMarkerUID
+      : null
 
   useBoundStore.setState({
     selectedPieceIDs: pieceUIDs,
-    selectedObjectiveMarkerUID: markerExists ? record.objectiveMarkerUID : null,
+    selectedObjectiveMarkerUID: selectedMarkerUID,
     rotationPivot: null,
   })
 }

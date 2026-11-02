@@ -64,6 +64,7 @@ export type { LightPosition } from '../local-storage/settings'
 export type UndoSelectionRestoreRecord = {
   pieceUIDs: string[]
   objectiveMarkerUID: string | null
+  restoreObjectiveMarkerSelection?: boolean
 }
 
 export const EMPTY_UNDO_SELECTION_RESTORE: UndoSelectionRestoreRecord = {
@@ -794,6 +795,8 @@ const createUISlice: StateCreator<
       : {
           pieceUIDs: [...record.pieceUIDs],
           objectiveMarkerUID: record.objectiveMarkerUID,
+          restoreObjectiveMarkerSelection:
+            record.restoreObjectiveMarkerSelection,
         }
     set({ pendingUndoSelectionRestore: normalized })
   },
@@ -814,6 +817,8 @@ const createUISlice: StateCreator<
         s.pendingUndoSelectionRestoreStack.push({
           pieceUIDs: [...record.pieceUIDs],
           objectiveMarkerUID: record.objectiveMarkerUID,
+          restoreObjectiveMarkerSelection:
+            record.restoreObjectiveMarkerSelection,
         })
         if (s.pendingUndoSelectionRestoreStack.length > 30) {
           s.pendingUndoSelectionRestoreStack.shift()
@@ -830,6 +835,8 @@ const createUISlice: StateCreator<
           ? {
               pieceUIDs: [...record.pieceUIDs],
               objectiveMarkerUID: record.objectiveMarkerUID,
+              restoreObjectiveMarkerSelection:
+                record.restoreObjectiveMarkerSelection,
             }
           : null
         if (stack.length) {
@@ -846,6 +853,8 @@ const createUISlice: StateCreator<
       ? {
           pieceUIDs: [...record.pieceUIDs],
           objectiveMarkerUID: record.objectiveMarkerUID,
+          restoreObjectiveMarkerSelection:
+            record.restoreObjectiveMarkerSelection,
         }
       : null
   },
@@ -858,6 +867,8 @@ const createUISlice: StateCreator<
         s.pendingRedoSelectionRestoreStack.push({
           pieceUIDs: [...record.pieceUIDs],
           objectiveMarkerUID: record.objectiveMarkerUID,
+          restoreObjectiveMarkerSelection:
+            record.restoreObjectiveMarkerSelection,
         })
         if (s.pendingRedoSelectionRestoreStack.length > 30) {
           s.pendingRedoSelectionRestoreStack.shift()
@@ -874,6 +885,8 @@ const createUISlice: StateCreator<
           ? {
               pieceUIDs: [...record.pieceUIDs],
               objectiveMarkerUID: record.objectiveMarkerUID,
+              restoreObjectiveMarkerSelection:
+                record.restoreObjectiveMarkerSelection,
             }
           : null
         if (stack.length) {
@@ -890,6 +903,8 @@ const createUISlice: StateCreator<
       ? {
           pieceUIDs: [...record.pieceUIDs],
           objectiveMarkerUID: record.objectiveMarkerUID,
+          restoreObjectiveMarkerSelection:
+            record.restoreObjectiveMarkerSelection,
         }
       : null
   },

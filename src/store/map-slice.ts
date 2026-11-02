@@ -635,6 +635,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     get().pushPendingUndoSelectionRestore({
       pieceUIDs: [],
       objectiveMarkerUID: uid,
+      restoreObjectiveMarkerSelection: false,
     })
     set((state) =>
       produce(state, (draft) => {
