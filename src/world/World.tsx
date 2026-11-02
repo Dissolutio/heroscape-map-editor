@@ -445,13 +445,13 @@ const World = ({
           {/* Readiness is shared with startup UI; browser hooks stay e2e-only. */}
           <ReadySignal mapGroupRef={mapGroupRef} />
           <TestBridge />
+        </WebGLCanvas>
+        <E2EStatus />
         {!isHidden &&
           !isTakingPicture &&
           !is2DOpen &&
           !isPdfOpen &&
           isShowActionLog && <ActionLog />}
-        </WebGLCanvas>
-        <E2EStatus />
         {isPerformanceEnabled && <PerformanceOverlay />}
         <SelectedPieceReadout cameraControlsRef={cameraControlsRef} />
         <LookSettingsDialog />
