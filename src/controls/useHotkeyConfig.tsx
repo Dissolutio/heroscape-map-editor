@@ -22,6 +22,8 @@ export const defaultHotkeyConfig = {
   // 2 control buttons
   'mod+z': 'undoWorld',
   'mod+y': 'redoWorld',
+  'mod+shift+arrowleft': 'backSelectionHistory',
+  'mod+shift+arrowright': 'forwardSelectionHistory',
 
   // 10 numbers, 26 letters, shift+, alt+
   '1': 'togglePieceSize1',

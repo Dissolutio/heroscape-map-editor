@@ -1,5 +1,6 @@
 import { produce } from 'immer'
 import { isEqual } from 'lodash'
+import { nanoid } from 'nanoid'
 import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
@@ -207,6 +208,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     rotation,
   }: PaintTileArgs): AddRemovePieceError => {
     let error: AddRemovePieceError
+    const uid = nanoid(10)
+    get().pushPendingUndoSelectionRestore({
+      pieceUIDs: [uid],
+      objectiveMarkerUID: null,
+    })
     set((state) => {
       return produce(state, (draft) => {
         const {
@@ -221,6 +227,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
           placementAltitude: altitude,
           rotation,
           isVsTile: false,
+          uid,
           permissive: true,
         })
         error = addPieceError
@@ -237,6 +244,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         })
       })
     })
+    get().clearPendingUndoSelectionRestore()
     if (!error) {
       get().recordActionLog({ type: 'place', pieceName: piece.title })
     }
@@ -244,6 +252,12 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
   },
   unpaintTile: (uid: string) => {
     const removedPiece = get().boardPieces.find((piece) => piece.uid === uid)
+    if (removedPiece) {
+      get().pushPendingUndoSelectionRestore({
+        pieceUIDs: [uid],
+        objectiveMarkerUID: null,
+      })
+    }
     set((state) => {
       return produce(state, (draft) => {
         draft.rotationPivot = null
@@ -306,6 +320,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         })
       })
     })
+    get().clearPendingUndoSelectionRestore()
     if (removedPiece) {
       get().recordActionLog({
         type: 'delete',
@@ -320,6 +335,32 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     targetInventoryBySourceInventory,
   }: ConvertTerrainArgs): number => {
     let convertedCount = 0
+    const affectedUIDs = [
+      ...new Set(
+        selectedUIDs.filter((uid) => {
+          const boardPiece = get().boardPieces.find(
+            (piece) => piece.uid === uid,
+          )
+          if (!boardPiece) return false
+          const targetInventoryID =
+            targetInventoryBySourceInventory[boardPiece.inventoryID]
+          if (
+            !targetInventoryID ||
+            targetInventoryID === boardPiece.inventoryID
+          ) {
+            return false
+          }
+          const targetPiece = piecesSoFar[targetInventoryID]
+          return Boolean(targetPiece)
+        }),
+      ),
+    ]
+    if (affectedUIDs.length) {
+      get().pushPendingUndoSelectionRestore({
+        pieceUIDs: affectedUIDs,
+        objectiveMarkerUID: null,
+      })
+    }
     set((state) => {
       return produce(state, (draft) => {
         let workingHexes = draft.boardHexes
@@ -384,6 +425,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         }
       })
     })
+    get().clearPendingUndoSelectionRestore()
     if (convertedCount) {
       get().recordActionLog({ type: 'convert', count: convertedCount })
     }
@@ -397,7 +439,58 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     moves: MovePieceArgs[]
     preserveRotationPivot?: boolean
   }) => {
-    const piecesBeforeMove = get().boardPieces
+    const stateBeforeMove = get()
+    const piecesBeforeMove = stateBeforeMove.boardPieces
+    const selectionRecordUIDs: string[] = []
+    const seenMoveUIDs = new Set<string>()
+    for (const move of moves) {
+      if (seenMoveUIDs.has(move.uid)) continue
+      seenMoveUIDs.add(move.uid)
+      const boardPiece = piecesBeforeMove.find(
+        (piece) => piece.uid === move.uid,
+      )
+      if (!boardPiece) continue
+      const isMigratedEdgePiece =
+        boardPiece.inventoryID === Pieces.battlement ||
+        boardPiece.inventoryID === Pieces.roadWall ||
+        boardPiece.inventoryID === Pieces.ropeLadder
+      const edgeId = isMigratedEdgePiece ? getPieceEdgeId(boardPiece) : null
+      const targetEdgeId =
+        move.newEdgeId ??
+        (isMigratedEdgePiece
+          ? getPieceEdgeId({
+              inventoryID: boardPiece.inventoryID,
+              pieceCoords: move.newPieceCoords,
+              rotation: move.newRotation ?? boardPiece.rotation,
+            })
+          : null)
+      const changed = edgeId
+        ? edgeId !== targetEdgeId ||
+          boardPiece.pieceCoords.q !== move.newPieceCoords.q ||
+          boardPiece.pieceCoords.r !== move.newPieceCoords.r ||
+          boardPiece.pieceCoords.s !== move.newPieceCoords.s ||
+          boardPiece.altitude !== (move.newAltitude ?? boardPiece.altitude) ||
+          boardPiece.rotation !== (move.newRotation ?? boardPiece.rotation)
+        : boardPiece.pieceCoords.q !== move.newPieceCoords.q ||
+          boardPiece.pieceCoords.r !== move.newPieceCoords.r ||
+          boardPiece.pieceCoords.s !== move.newPieceCoords.s ||
+          boardPiece.altitude !== (move.newAltitude ?? boardPiece.altitude) ||
+          boardPiece.rotation !== (move.newRotation ?? boardPiece.rotation)
+      if (changed) selectionRecordUIDs.push(move.uid)
+    }
+    if (selectionRecordUIDs.length) {
+      const selectedOrder = stateBeforeMove.selectedPieceIDs.filter((uid) =>
+        selectionRecordUIDs.includes(uid),
+      )
+      const orderedUIDs = [
+        ...selectedOrder,
+        ...selectionRecordUIDs.filter((uid) => !selectedOrder.includes(uid)),
+      ]
+      get().pushPendingUndoSelectionRestore({
+        pieceUIDs: orderedUIDs,
+        objectiveMarkerUID: null,
+      })
+    }
     set((state) => {
       const effectiveMoves = moves.filter((move, index) => {
         if (
@@ -469,6 +562,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         )
       })
     })
+    get().clearPendingUndoSelectionRestore()
     const piecesAfterMove = get().boardPieces
     const changedPieces: BoardPiece[] = []
     const seenUIDs = new Set<string>()
@@ -538,11 +632,16 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     ) {
       return undefined
     }
+    get().pushPendingUndoSelectionRestore({
+      pieceUIDs: [],
+      objectiveMarkerUID: uid,
+    })
     set((state) =>
       produce(state, (draft) => {
         draft.hexMap.objectiveMarkers = [...existing, normalized]
       }),
     )
+    get().clearPendingUndoSelectionRestore()
     get().recordActionLog({
       type: 'marker',
       operation: 'add',
@@ -568,6 +667,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       return
     }
     if (isEqual(current, normalized)) return
+    get().pushPendingUndoSelectionRestore({
+      pieceUIDs: [],
+      objectiveMarkerUID: uid,
+    })
     set((state) =>
       produce(state, (draft) => {
         draft.hexMap.objectiveMarkers = existing.map((marker) =>
@@ -575,6 +678,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         )
       }),
     )
+    get().clearPendingUndoSelectionRestore()
     get().recordActionLog({
       type: 'marker',
       operation: 'edit',
@@ -598,6 +702,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       return
     }
     if (isEqual(current, normalized)) return
+    get().pushPendingUndoSelectionRestore({
+      pieceUIDs: [],
+      objectiveMarkerUID: uid,
+    })
     set((state) =>
       produce(state, (draft) => {
         draft.hexMap.objectiveMarkers = existing.map((marker) =>
@@ -605,6 +713,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         )
       }),
     )
+    get().clearPendingUndoSelectionRestore()
     get().recordActionLog({
       type: 'marker',
       operation: 'move',
@@ -615,6 +724,10 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
   removeObjectiveMarker: (uid) => {
     const existing = get().hexMap.objectiveMarkers ?? []
     if (!existing.some((marker) => marker.uid === uid)) return
+    get().pushPendingUndoSelectionRestore({
+      pieceUIDs: [],
+      objectiveMarkerUID: uid,
+    })
     set((state) =>
       produce(state, (draft) => {
         draft.hexMap.objectiveMarkers = existing.filter(
@@ -625,6 +738,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         }
       }),
     )
+    get().clearPendingUndoSelectionRestore()
     const removedMarker = existing.find((marker) => marker.uid === uid)
     if (removedMarker) {
       get().recordActionLog({
@@ -715,6 +829,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     }),
   loadMap: (mapState, options = {}) => {
     clearGlobalMaterialCache()
+    get().clearSelectionHistory()
+    get().pushPendingUndoSelectionRestore([])
     const current = get()
     const boardPieces = isEqual(current.boardPieces, mapState.boardPieces)
       ? current.boardPieces
@@ -777,6 +893,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         }
       })
     })
+    get().clearPendingUndoSelectionRestore()
     get().clearActionLog()
     if (mapState.dimensionsAdjusted) {
       enqueueSnackbar({
