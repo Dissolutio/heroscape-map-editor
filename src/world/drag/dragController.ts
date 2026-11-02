@@ -21,6 +21,7 @@ import {
   worldToCube,
 } from '../../data/dragMove'
 import {
+  WHEEL_ROTATION_COOLDOWN_MS,
   accumulateWheelRotation,
   getLadderSectorRotation,
   initialWheelRotationAccumulator,
@@ -35,11 +36,11 @@ import {
   START_ZONES_HIDDEN_MESSAGE,
   isStartZoneBoardPiece,
 } from '../../data/startZoneVisibility'
-import useBoundStore from '../../store/store'
 import {
   finishPerformanceTiming,
   startPerformanceTiming,
 } from '../../performance/performanceTiming'
+import useBoundStore from '../../store/store'
 import {
   type BoardHex,
   type BoardPiece,
@@ -71,6 +72,7 @@ let rotationSteps = 0
 let wheelAccumulator = initialWheelRotationAccumulator
 let wheelListenerActive = false
 let hasShownWheelHint = false
+let rotationHotkeyLabels: { previous?: string; next?: string } = {}
 let cameraControlsRef: React.RefObject<CameraControls> | null = null
 let getR3F: (() => RootState) | null = null
 /** Set by reportDragTargetHex; cleared at the start of each pointermove. */
@@ -92,6 +94,42 @@ export function registerDragContext(
 
 /** For window.__TEST__ (read-only). */
 export const getDragState = () => state
+
+export function setDragRotationHotkeyLabels(labels: {
+  previous?: string
+  next?: string
+}) {
+  rotationHotkeyLabels = labels
+}
+
+/** A pending press counts too, so rotation cannot mutate its stale drag data. */
+export const hasDragRotationPress = () => state.phase !== 'idle'
+
+export function rotateDragWithHotkey(direction: 1 | -1) {
+  if (!hasDragRotationPress()) return false
+  if (state.phase !== 'dragging' || !dragged) return true
+
+  const piece = piecesSoFar[dragged.bp.inventoryID]
+  if (!piece || !shouldRotateDragWithWheel(piece, dragged.members.length)) {
+    return true
+  }
+
+  const time = performance.now()
+  if (
+    wheelAccumulator.lastStepAt !== null &&
+    time - wheelAccumulator.lastStepAt < WHEEL_ROTATION_COOLDOWN_MS
+  ) {
+    return true
+  }
+
+  wheelAccumulator = {
+    accumulatedPixels: 0,
+    lastEventAt: time,
+    lastStepAt: time,
+  }
+  applyRotationStep(direction)
+  return true
+}
 
 // --- Camera lock ---
 
@@ -216,8 +254,12 @@ function onWindowWheelCapture(event: WheelEvent) {
   wheelAccumulator = result.state
   if (result.step === 0) return
 
-  rotationSteps = normalizeRotationSteps(rotationSteps + result.step)
-  if (dragged.target) {
+  applyRotationStep(result.step)
+}
+
+function applyRotationStep(step: -1 | 1) {
+  rotationSteps = normalizeRotationSteps(rotationSteps + step)
+  if (dragged?.target) {
     setTarget(dragged.target.pointerHex, dragged.targetWorldPoint)
   }
 }
@@ -571,9 +613,16 @@ function showWheelHint() {
     return
   }
   hasShownWheelHint = true
+  const rotationKeys = [
+    rotationHotkeyLabels.previous,
+    rotationHotkeyLabels.next,
+  ].filter(Boolean)
+  const keyHint = rotationKeys.length
+    ? ` or press ${rotationKeys.join('/')} `
+    : ' or use the rotate hotkeys '
   enqueueSnackbar({
     key: 'drag-rotate-wheel-hint',
-    message: 'Scroll the mouse wheel to rotate while you drag.',
+    message: `Scroll the mouse wheel${keyHint}to rotate while you drag.`,
     variant: 'info',
     preventDuplicate: true,
     autoHideDuration: 5000,

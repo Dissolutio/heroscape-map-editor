@@ -1,5 +1,7 @@
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import type React from 'react'
+import { useEffect } from 'react'
 import {
   MdOutlineEast,
   MdOutlineNorth,
@@ -10,10 +12,8 @@ import {
   MdOutlineSouthWest,
   MdOutlineWest,
 } from 'react-icons/md'
-import useBoundStore from '../store/store'
 import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
-import type React from 'react'
-import { useEffect } from 'react'
+import useBoundStore from '../store/store'
 import {
   doPenModeRotation,
   getPossibleRotationsForPenMode,
@@ -25,6 +25,9 @@ export default function RotationSelect() {
   const penMode = useBoundStore((s) => s.penMode)
   const togglePenModeRotation = useBoundStore((s) => s.togglePenModeRotation)
   const { hotkeyLookup } = useHotkeyConfig()
+  const previousRotationHotkey =
+    hotkeyLookup.cyclePrevPieceRotation?.toUpperCase()
+  const nextRotationHotkey = hotkeyLookup.cycleNextPieceRotation?.toUpperCase()
   const handleChange = (
     _event: React.MouseEvent<HTMLElement>,
     value: number | string | null,
@@ -59,7 +62,9 @@ export default function RotationSelect() {
           alignItems: 'center',
         }}
       >
-        <span title={`Use "q"/"e" hotkeys to cycle rotation`}>
+        <span
+          title={`Use ${previousRotationHotkey} and ${nextRotationHotkey} hotkeys to rotate the selection, marker, or pen mode`}
+        >
           {penMode === OBJECTIVE_MARKER_PEN_MODE
             ? 'Marker rotation:'
             : 'Piece rotation:'}

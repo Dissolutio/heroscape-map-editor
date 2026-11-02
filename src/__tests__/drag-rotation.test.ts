@@ -21,7 +21,10 @@ import { Pieces, SELECT_PEN_MODE } from '../types'
 import { HEX_DIRECTIONS, cubeToPixel } from '../utils/hex-utils'
 import {
   commitMoveDecision,
+  getDragState,
   pressPieceForDrag,
+  reportDragTargetHex,
+  rotateDragWithHotkey,
 } from '../world/drag/dragController'
 import { type Board, hexAt, makeTable, place } from './helpers/board'
 
@@ -640,4 +643,72 @@ describe('drag wheel listener lifecycle', () => {
       )
     },
   )
+
+  it('combines hotkey and wheel steps through the same drag rotation path', () => {
+    const now = vi.spyOn(performance, 'now')
+    now.mockReturnValueOnce(0).mockReturnValueOnce(WHEEL_ROTATION_COOLDOWN_MS)
+    expect(rotateDragWithHotkey(1)).toBe(true)
+
+    windowTarget.dispatchEvent(
+      Object.assign(new Event('wheel', { cancelable: true }), {
+        deltaY: 100,
+        deltaMode: 0,
+      }),
+    )
+
+    const { boardHexes, boardPieces } = useBoundStore.getState()
+    const target = Object.values(boardHexes).find(
+      (hex) => hex.altitude === 0 && !hex.boardPieceUID,
+    )
+    if (!target) throw new Error('Drag target hex is missing')
+    expect(reportDragTargetHex(target)).toBe(true)
+
+    const draggedPiece = boardPieces.find((piece) => piece.uid === 'DRAG')
+    if (!draggedPiece) throw new Error('Dragged piece is missing')
+    const dragState = getDragState()
+    if (dragState.phase !== 'dragging') {
+      throw new Error('Expected the drag to remain active')
+    }
+    const expected = rotateDragMembers(
+      [draggedPiece],
+      draggedPiece.uid,
+      dragState.grabOffset,
+      2,
+    )
+    const expectedTarget = evaluateDragTarget(
+      { boardHexes, boardPieces },
+      piecesSoFar.g1,
+      expected.bp,
+      target,
+      expected.grabOffset,
+      expected.members,
+    )
+    expect(expectedTarget.evaluation.status).toBe('ok')
+    if ('blocked' in expectedTarget.resolution) {
+      throw new Error('Expected the drag rotation to be placeable')
+    }
+    expect(useBoundStore.getState().dragPreview?.previewBp).toEqual({
+      ...expected.bp,
+      pieceCoords: expectedTarget.resolution.coords,
+      altitude: expectedTarget.resolution.altitude,
+      rotation: expectedTarget.resolution.rotation,
+    })
+  })
+
+  it('throttles repeated hotkey rotation to the wheel cooldown', () => {
+    const now = vi.spyOn(performance, 'now')
+    now
+      .mockReturnValueOnce(0)
+      .mockReturnValueOnce(WHEEL_ROTATION_COOLDOWN_MS - 1)
+    expect(rotateDragWithHotkey(1)).toBe(true)
+    expect(rotateDragWithHotkey(1)).toBe(true)
+
+    const { boardHexes } = useBoundStore.getState()
+    const target = Object.values(boardHexes).find(
+      (hex) => hex.altitude === 0 && !hex.boardPieceUID,
+    )
+    if (!target) throw new Error('Drag target hex is missing')
+    reportDragTargetHex(target)
+    expect(useBoundStore.getState().dragPreview?.previewBp?.rotation).toBe(1)
+  })
 })
