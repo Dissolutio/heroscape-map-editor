@@ -553,7 +553,6 @@ export function SelectedPieceControls({
           <Button
             variant="outlined"
             size="small"
-            title="Use this piece as the pen"
             aria-label="Use selected piece as pen"
             onClick={() => pickPieceAsPenMode(firstBp.uid)}
             sx={{ fontSize: FONT_SIZE, mt: 0.25, mb: 0.5, width: '100%' }}
