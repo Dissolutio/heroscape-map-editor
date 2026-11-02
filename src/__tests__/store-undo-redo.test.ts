@@ -390,7 +390,7 @@ describe('real store undo and redo', () => {
       ],
     })
     expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
-      `Moved 2 pieces (lead: ${piecesSoFar.g1.title}) to q3 r2`,
+      'Moved 2 pieces',
     ])
     expect(historyLength()).toBe(1)
 
@@ -425,8 +425,8 @@ describe('real store undo and redo', () => {
     store.getState().removeObjectiveMarker(uid)
 
     expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
-      'Added objective marker Objective to q2 r2',
-      'Moved objective marker Objective to q3 r2',
+      'Added objective marker Objective',
+      'Moved objective marker Objective',
       'Edited objective marker Updated objective',
       'Removed objective marker Updated objective',
     ])

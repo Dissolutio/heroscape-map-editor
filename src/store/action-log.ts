@@ -1,5 +1,3 @@
-import type { CubeCoordinate } from '../types'
-
 export type ActionLogKind =
   | 'place'
   | 'move'
@@ -27,7 +25,6 @@ export type ActionLogAction =
       type: 'move'
       pieceName: string
       count: number
-      coords: CubeCoordinate
     }
   | { type: 'rotate'; pieceName: string; count: number }
   | { type: 'delete'; pieceName: string }
@@ -36,14 +33,20 @@ export type ActionLogAction =
       type: 'marker'
       operation: 'add' | 'move' | 'edit' | 'remove'
       label?: string
-      coords?: CubeCoordinate
     }
   | { type: 'undo' | 'redo'; description: string }
   | { type: 'warning'; text: string }
 
 export const ACTION_LOG_LIMIT = 200
+export const ACTION_LOG_COLLAPSED_TIMEOUT_MS = 8_000
 
-const coordinateText = (coords: CubeCoordinate) => `q${coords.q} r${coords.r}`
+export function formatActionLogAge(ageMs: number) {
+  const age = Math.max(0, ageMs)
+  if (age < 5_000) return 'just now'
+  if (age < 60_000) return `${Math.floor(age / 1_000)}s ago`
+  if (age < 3_600_000) return `${Math.floor(age / 60_000)} min ago`
+  return `${Math.floor(age / 3_600_000)} hr ago`
+}
 
 export function formatActionLogAction(action: ActionLogAction) {
   switch (action.type) {
@@ -61,8 +64,8 @@ export function formatActionLogAction(action: ActionLogAction) {
         severity: 'info' as const,
         text:
           action.count > 1
-            ? `Moved ${action.count} pieces (lead: ${action.pieceName}) to ${coordinateText(action.coords)}`
-            : `Moved ${action.pieceName} to ${coordinateText(action.coords)}`,
+            ? `Moved ${action.count} pieces`
+            : `Moved ${action.pieceName}`,
         pieceName: action.pieceName,
         undoable: true,
       }
@@ -94,7 +97,6 @@ export function formatActionLogAction(action: ActionLogAction) {
       }
     case 'marker': {
       const label = action.label ? ` ${action.label}` : ''
-      const suffix = action.coords ? ` to ${coordinateText(action.coords)}` : ''
       const verbs = {
         add: 'Added',
         move: 'Moved',
@@ -104,7 +106,7 @@ export function formatActionLogAction(action: ActionLogAction) {
       return {
         kind: 'marker' as const,
         severity: 'info' as const,
-        text: `${verbs[action.operation]} objective marker${label}${suffix}`,
+        text: `${verbs[action.operation]} objective marker${label}`,
         undoable: true,
       }
     }

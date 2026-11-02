@@ -11,14 +11,89 @@ import {
   MdUndo,
   MdWarningAmber,
 } from 'react-icons/md'
-import type { CSSProperties } from 'react'
-import { useEffect, useRef, useState } from 'react'
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react'
 import useBoundStore from '../store/store'
-import type { ActionLogEntry, ActionLogKind } from '../store/action-log'
+import {
+  ACTION_LOG_COLLAPSED_TIMEOUT_MS,
+  formatActionLogAge,
+  type ActionLogEntry,
+  type ActionLogKind,
+} from '../store/action-log'
 import './ActionLog.css'
 
 const ROW_HEIGHT = 22
 const WINDOW_SIZE = 12
+
+let actionLogClockNow = Date.now()
+let actionLogClockInterval: number | null = null
+const actionLogClockSubscribers = new Set<() => void>()
+
+function notifyActionLogClock() {
+  actionLogClockNow = Date.now()
+  for (const subscriber of actionLogClockSubscribers) subscriber()
+}
+
+function stopActionLogClock() {
+  if (actionLogClockInterval === null) return
+  window.clearInterval(actionLogClockInterval)
+  actionLogClockInterval = null
+}
+
+function startActionLogClock() {
+  if (
+    actionLogClockInterval !== null ||
+    !actionLogClockSubscribers.size ||
+    document.visibilityState !== 'visible'
+  ) {
+    return
+  }
+  actionLogClockInterval = window.setInterval(notifyActionLogClock, 1_000)
+}
+
+function handleActionLogVisibilityChange() {
+  if (document.visibilityState === 'visible') {
+    notifyActionLogClock()
+    startActionLogClock()
+  } else {
+    stopActionLogClock()
+  }
+}
+
+function subscribeToActionLogClock(subscriber: () => void) {
+  actionLogClockSubscribers.add(subscriber)
+  if (actionLogClockSubscribers.size === 1) {
+    document.addEventListener(
+      'visibilitychange',
+      handleActionLogVisibilityChange,
+    )
+    actionLogClockNow = Date.now()
+    startActionLogClock()
+  }
+  return () => {
+    actionLogClockSubscribers.delete(subscriber)
+    if (!actionLogClockSubscribers.size) {
+      stopActionLogClock()
+      document.removeEventListener(
+        'visibilitychange',
+        handleActionLogVisibilityChange,
+      )
+    }
+  }
+}
+
+function getActionLogClock() {
+  if (actionLogClockInterval === null && !actionLogClockSubscribers.size) {
+    actionLogClockNow = Date.now()
+  }
+  return actionLogClockNow
+}
 
 const icons = {
   place: MdAdd,
@@ -34,47 +109,85 @@ const icons = {
 
 function ActionRow({
   entry,
-  age,
   isNewest,
+  isExpanded,
+  onExpire,
 }: {
   entry: ActionLogEntry
-  age: number
   isNewest: boolean
+  isExpanded: boolean
+  onExpire: (id: string) => void
 }) {
+  const now = useSyncExternalStore(
+    subscribeToActionLogClock,
+    getActionLogClock,
+    getActionLogClock,
+  )
+  const ageMs = Math.max(0, now - entry.time)
+  const isIdle = !isExpanded && ageMs >= ACTION_LOG_COLLAPSED_TIMEOUT_MS
   const Icon = icons[entry.kind]
+
+  useEffect(() => {
+    if (!isIdle) return
+    const motionPreference = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    )
+    const expireWithoutMotion = () => {
+      if (motionPreference.matches) onExpire(entry.id)
+    }
+    expireWithoutMotion()
+    motionPreference.addEventListener('change', expireWithoutMotion)
+    return () =>
+      motionPreference.removeEventListener('change', expireWithoutMotion)
+  }, [entry.id, isIdle, onExpire])
+
   return (
     <div
       className={[
         'action-log__row',
         `action-log__row--${entry.kind}`,
         isNewest && 'action-log__row--latest',
+        isIdle && 'action-log__row--idle',
       ]
         .filter(Boolean)
         .join(' ')}
+      onAnimationEnd={(event) => {
+        if (event.animationName === 'action-log-idle-fade' && !isExpanded) {
+          onExpire(entry.id)
+        }
+      }}
       key={entry.id}
-      style={
-        {
-          '--action-log-entry-opacity': Math.max(0.45, 1 - age * 0.12),
-          '--action-log-entry-shift': `${-Math.min(age, 2)}px`,
-        } as CSSProperties
-      }
       title={entry.text}
     >
       <Icon aria-hidden="true" className="action-log__icon" />
       <span>{entry.text}</span>
+      <span aria-hidden="true" className="action-log__age">
+        {formatActionLogAge(ageMs)}
+      </span>
     </div>
   )
 }
+
+const MemoizedActionRow = memo(ActionRow)
 
 export default function ActionLog() {
   const entries = useBoundStore((state) => state.actionLog)
   const isDraggingPiece = useBoundStore((state) => state.isDraggingPiece)
   const [isExpanded, setIsExpanded] = useState(false)
   const [scrollTop, setScrollTop] = useState(0)
+  const [expiredEntryIDs, setExpiredEntryIDs] = useState<Set<string>>(
+    () => new Set(),
+  )
   const listRef = useRef<HTMLDivElement>(null)
   const previousLength = useRef(entries.length)
   const previousShiftLength = useRef(entries.length)
   const [isListSettling, setIsListSettling] = useState(false)
+  const expireEntry = useCallback((id: string) => {
+    setExpiredEntryIDs((expired) => {
+      if (expired.has(id)) return expired
+      return new Set(expired).add(id)
+    })
+  }, [])
 
   useEffect(() => {
     if (isExpanded && entries.length > previousLength.current) {
@@ -111,7 +224,9 @@ export default function ActionLog() {
   const endVisible = isExpanded
     ? Math.min(entries.length, firstVisible + WINDOW_SIZE)
     : entries.length
-  const visibleEntries = entries.slice(firstVisible, endVisible)
+  const visibleEntries = entries
+    .slice(firstVisible, endVisible)
+    .filter((entry) => isExpanded || !expiredEntryIDs.has(entry.id))
   const hasFocusWithin = (element: HTMLElement) =>
     element.contains(document.activeElement)
 
@@ -156,11 +271,12 @@ export default function ActionLog() {
             style={{ height: firstVisible * ROW_HEIGHT }}
           />
         )}
-        {visibleEntries.map((entry, index) => (
-          <ActionRow
-            age={entries.length - firstVisible - index - 1}
+        {visibleEntries.map((entry) => (
+          <MemoizedActionRow
             entry={entry}
-            isNewest={firstVisible + index === entries.length - 1}
+            isNewest={entry.id === entries[entries.length - 1]?.id}
+            isExpanded={isExpanded}
+            onExpire={expireEntry}
             key={entry.id}
           />
         ))}

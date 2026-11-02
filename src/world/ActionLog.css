@@ -45,9 +45,12 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  transform: translateY(var(--action-log-entry-shift, 0));
   transition: transform 180ms ease-out, opacity 180ms ease-out;
   animation: action-log-enter 200ms ease-out both;
+}
+
+.action-log__row--idle {
+  animation: action-log-idle-fade 700ms ease-out forwards;
 }
 
 .action-log__row::after {
@@ -71,6 +74,14 @@
 .action-log__row span {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.action-log__age {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: rgb(255 255 255 / 55%);
+  font-size: 9px;
+  line-height: 1;
 }
 
 .action-log__icon {
@@ -160,8 +171,14 @@
   }
 
   to {
-    transform: translateY(var(--action-log-entry-shift, 0));
-    opacity: var(--action-log-entry-opacity, 1);
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes action-log-idle-fade {
+  to {
+    opacity: 0;
   }
 }
 
@@ -182,7 +199,12 @@
 
   .action-log__row {
     animation: action-log-reduced-fade 200ms ease-out both;
-    transition: opacity 180ms ease-out;
+    transition: none;
+  }
+
+  .action-log__row--idle {
+    animation: none;
+    opacity: 0;
   }
 
   @keyframes action-log-reduced-fade {
@@ -191,7 +213,7 @@
     }
 
     to {
-      opacity: var(--action-log-entry-opacity, 1);
+      opacity: 1;
     }
   }
 }
