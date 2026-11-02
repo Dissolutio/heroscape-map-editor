@@ -519,6 +519,7 @@ export function SelectedPieceControls({
     zoomToPieces({
       cameraControlsRef,
       boardHexes,
+      boardPieces,
       targetUIDs: selectedPieceIDs,
       mapWidth,
       mapLength,
