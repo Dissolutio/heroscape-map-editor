@@ -892,6 +892,10 @@ const PdfPreferencesSwitchForm = () => {
   const toggleIsShowPdfBuriedMarks = useBoundStore(
     (s) => s.toggleIsShowPdfBuriedMarks,
   )
+  const isShowPdfPieceLegend = useBoundStore((s) => s.isShowPdfPieceLegend)
+  const toggleIsShowPdfPieceLegend = useBoundStore(
+    (s) => s.toggleIsShowPdfPieceLegend,
+  )
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const setPdfRenderFormat = useBoundStore((s) => s.setPdfRenderFormat)
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
@@ -1051,6 +1055,19 @@ const PdfPreferencesSwitchForm = () => {
             title="Mark land tiles whose tops or sides will be covered in PDF output"
           />
         </Tooltip>
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShowPdfPieceLegend}
+              onChange={(event) =>
+                toggleIsShowPdfPieceLegend(event.target.checked)
+              }
+            />
+          }
+          label="Show PDF piece legend"
+          title="Add a legend of the pieces used in the map to the PDF"
+        />
         <FormControlLabel
           control={
             <Switch

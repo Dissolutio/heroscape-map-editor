@@ -1,5 +1,6 @@
 import { G, Line, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
+import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
@@ -197,6 +198,7 @@ export const PdfMapHex = ({
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
   const { inventoryID } = hex
+  const exportSymbol = getPieceExportSymbol(inventoryID)
   const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
   const isAuxiliaryNotRenderedIn2D =
     isObstaclePiece &&
@@ -223,7 +225,7 @@ export const PdfMapHex = ({
     )
   }
   // Ladder
-  if (inventoryID === Pieces.ladder && hex.isObstacleOrigin) {
+  if (exportSymbol === 'ladder' && hex.isObstacleOrigin) {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -481,10 +483,7 @@ export const PdfMapHex = ({
     )
   }
   // Glyphs
-  if (
-    hex.terrain === HexTerrain.glyphPower ||
-    hex.terrain === HexTerrain.glyphTreasure
-  ) {
+  if (exportSymbol === 'glyph') {
     const glyphOptions = getHexGlyphExportOptions(hex)
     const isPlacedLevelViewing = hex.altitude === viewingLevel
     if (
