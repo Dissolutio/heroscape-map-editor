@@ -81,4 +81,4 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - Import Virtualscape PDFs as maps (not a priority)
 
 ## 5. Done and retired
-Generic pieces, buried marks, Treasure glyph color, Shroudshroom marker, objective markers, 3D Look + field of view, transparent pictures, crop dialog, Pieces Grid filter keeps, Map Inventory click-to-pen, action log, background color, adjustable lights (3D Look). `REFACTORED_TODO.md` (the Flash plan) is superseded by this file.
+Generic pieces, buried marks, Treasure glyph color, Shroudshroom marker, objective markers, 3D Look + field of view, transparent pictures, crop dialog, Pieces Grid filter keeps, Map Inventory click-to-pen, action log, background color, adjustable lights (3D Look). The old Flash-era `REFACTORED_TODO.md` was retired; this file is the only list.
