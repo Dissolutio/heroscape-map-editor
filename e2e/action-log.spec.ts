@@ -147,9 +147,7 @@ test('logs placement, drag, and undo without blocking the editor', async ({
   })
 })
 
-test('keeps expanded history after the collapsed timeout', async ({
-  page,
-}) => {
+test('keeps expanded history after the collapsed timeout', async ({ page }) => {
   const startTime = new Date()
   await page.clock.install({ time: startTime })
   await page.clock.pauseAt(new Date(startTime.getTime() + 1_000))
