@@ -15,7 +15,15 @@ import {
   hasIntegerRotationSteps,
 } from './getPossibleRotationsForPenMode'
 
-export function rotateSelectedPieces(direction: 1 | -1) {
+/**
+ * `previewNext` is for the readout's rotate buttons: after rotating it shows a
+ * ghost of the next click's result, which the button clears on mouse leave.
+ * Hotkeys have no mouse leave, so they must not leave a preview behind.
+ */
+export function rotateSelectedPieces(
+  direction: 1 | -1,
+  { previewNext = false }: { previewNext?: boolean } = {},
+) {
   const {
     boardPieces,
     boardHexes,
@@ -95,6 +103,7 @@ export function rotateSelectedPieces(direction: 1 | -1) {
       ),
     })),
   })
+  if (!previewNext) return
   setPiecePreviews(
     selectedBoardPieces.map((piece) => ({
       ...piece,
