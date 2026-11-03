@@ -1,5 +1,5 @@
 import { G } from '@react-pdf/renderer'
-import { getLaurAddonExportSymbol } from '../pdf-svg-shared/laurAddonExportSymbol'
+import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   type BoardHex,
   type DecodedPieceID,
@@ -36,7 +36,7 @@ export const PdfMapBoardPiece = ({
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
   const isSubLevel = altitudeAdjusted < viewingLevel
   const { inventoryID } = piece
-  const laurAddonSymbol = getLaurAddonExportSymbol(inventoryID)
+  const exportSymbol = getPieceExportSymbol(inventoryID)
   const isVisible = altitudeAdjusted <= viewingLevel
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   const boardPieceAsHex: BoardHex = {
@@ -56,7 +56,7 @@ export const PdfMapBoardPiece = ({
     return null
   }
   // Start Zones
-  if (piece.terrain === HexTerrain.startZone) {
+  if (exportSymbol === 'start-zone') {
     const isOverlayViewing =
       is2DOverlayLevelEnabled && viewingLevel === overlayLevel
     const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
@@ -71,7 +71,7 @@ export const PdfMapBoardPiece = ({
     )
   }
   // RopeLadders
-  if (inventoryID === Pieces.ropeLadder) {
+  if (exportSymbol === 'rope-ladder') {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfRopeLadder
@@ -103,7 +103,7 @@ export const PdfMapBoardPiece = ({
     )
   }
   // LAUR LONGWALLS
-  if (laurAddonSymbol === 'long') {
+  if (exportSymbol === 'laur-long') {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -112,7 +112,7 @@ export const PdfMapBoardPiece = ({
       </G>
     )
   }
-  if (laurAddonSymbol === 'arch') {
+  if (exportSymbol === 'laur-arch') {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -135,7 +135,7 @@ export const PdfMapBoardPiece = ({
     )
   }
   // LAUR SHORTWALLS
-  if (laurAddonSymbol === 'short') {
+  if (exportSymbol === 'laur-short') {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -145,7 +145,7 @@ export const PdfMapBoardPiece = ({
     )
   }
   // LAUR RUINS
-  if (laurAddonSymbol === 'ruin') {
+  if (exportSymbol === 'laur-ruin') {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}

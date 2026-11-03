@@ -1,6 +1,7 @@
 import { Page, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy, uniq } from 'lodash'
 import type { PropsWithChildren } from 'react'
+import type { ObjectiveMarker } from '../data/objectiveMarkers'
 import {
   LEVEL_LOGO_OUTLIER_LABEL_MARGIN,
   LEVEL_LOGO_OVERLAY_LAYER_PDF_FONT_SIZE,
@@ -9,27 +10,28 @@ import {
   NO_LEVEL_LOGO_OVERLAY_LAYER_PDF_FONT_SIZE,
   NO_LEVEL_LOGO_OVERLAY_LAYER_PDF_LINE_HEIGHT,
 } from '../pdf-svg-shared/levelLogoLayout'
+import { getPdfLegendObjectiveMarkers } from '../pdf-svg-shared/objectiveMarkerExport'
+import useBoundStore from '../store/store'
 import {
   type BoardHexes,
   type BoardPiece,
   type PdfMapAltitudeChunk,
   Pieces,
 } from '../types'
-import type { ObjectiveMarker } from '../data/objectiveMarkers'
-import { getPdfLegendObjectiveMarkers } from '../pdf-svg-shared/objectiveMarkerExport'
 import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
-import {
-  BURIED_MARKS_KEY,
-  getBuriedMarksForHex,
-  type BuriedMarksByUID,
-} from '../utils/tileMarks'
 import {
   boardPieceToDecodedPieceID,
   getBoardHexesSvgMapDimensions,
   getOverlayLevel,
 } from '../utils/map-utils'
+import {
+  BURIED_MARKS_KEY,
+  type BuriedMarksByUID,
+  getBuriedMarksForHex,
+} from '../utils/tileMarks'
 import { PdfLevelLogo } from './PdfLevelLogo'
 import { PdfObjectiveMarkerLegend } from './PdfObjectiveMarkers'
+import { PdfPieceLegend } from './PdfPieceLegend'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 export const PdfMapLevels6PerPage = ({
   boardHexes,
@@ -61,6 +63,9 @@ export const PdfMapLevels6PerPage = ({
   is2DOverlayLevelEnabled: boolean
   objectiveMarkers: ObjectiveMarker[]
 }>) => {
+  const isShowPdfPieceLegend = useBoundStore(
+    (state) => state.isShowPdfPieceLegend,
+  )
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
   const boardHexesWithoutEmpties = keyBy(
@@ -190,6 +195,7 @@ export const PdfMapLevels6PerPage = ({
           )}
         </Page>
       ))}
+      {isShowPdfPieceLegend && <PdfPieceLegend boardPieces={boardPieces} />}
     </>
   )
 }

@@ -1,4 +1,5 @@
 import { piecesSoFar } from '../data/pieces'
+import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
@@ -183,6 +184,7 @@ export const SvgMapHex = ({
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = hex.altitude < viewingLevel
   const { inventoryID } = decodePieceID(hex.pieceID)
+  const exportSymbol = getPieceExportSymbol(inventoryID)
   const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
   const isAuxiliaryNotRenderedIn2D =
     isObstaclePiece &&
@@ -206,7 +208,7 @@ export const SvgMapHex = ({
     )
   }
   // Ladder
-  if (inventoryID === Pieces.ladder && hex.isObstacleOrigin) {
+  if (exportSymbol === 'ladder' && hex.isObstacleOrigin) {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -439,8 +441,7 @@ export const SvgMapHex = ({
   }
   // Glyphs
   if (
-    hex.terrain === HexTerrain.glyphPower ||
-    hex.terrain === HexTerrain.glyphTreasure
+    exportSymbol === 'glyph'
   ) {
     const glyphOptions = getGlyphExportOptions(hex, boardHexes, {
       isTransparentGlyphSpaces,
