@@ -58,6 +58,7 @@ describe('settings persistence', () => {
   it('uses defaults when no settings are stored', () => {
     expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
     expect(SETTINGS_DEFAULTS).toMatchObject({
+      markerGlyphRotation: 0,
       genericSolidCapColor: '#e63cc8',
       genericSolidSideColor: '#a01e8c',
       genericFluidCapColor: '#ff96e6',
@@ -88,6 +89,7 @@ describe('settings persistence', () => {
       isOrthoCam: false,
       isShowActionLog: false,
       useHighQualityForPicture: true,
+      markerGlyphRotation: 45,
       isShowPdfBuriedMarks: true,
       isShowPdfPieceLegend: true,
       isShow2DExportBuriedMarks: true,
@@ -115,6 +117,7 @@ describe('settings persistence', () => {
         isOrthoCam: false,
         useHighQualityForPicture: true,
         graphicsTier: 'high' as const,
+        markerGlyphRotation: 45,
         isShowActionLog: false,
         isShowPdfBuriedMarks: true,
         isShowPdfPieceLegend: true,
@@ -221,6 +224,7 @@ describe('settings persistence', () => {
         v: 1,
         values: {
           isOrthoCam: false,
+          markerGlyphRotation: '90',
           graphicsTier: 'fast',
           isShowPdfBuriedMarks: 'yes',
           isShow2DExportBuriedMarks: 1,
@@ -246,6 +250,7 @@ describe('settings persistence', () => {
 
     expect(loadSettings()).toMatchObject({
       isOrthoCam: false,
+      markerGlyphRotation: SETTINGS_DEFAULTS.markerGlyphRotation,
       isTransparentGlyphSpaces: SETTINGS_DEFAULTS.isTransparentGlyphSpaces,
       isHideHeightsOnGlyphs: SETTINGS_DEFAULTS.isHideHeightsOnGlyphs,
       pdfRenderFormat: SETTINGS_DEFAULTS.pdfRenderFormat,
@@ -607,6 +612,9 @@ describe('settings persistence', () => {
     )
     const { default: store } = await import('../store/store')
     store.getState().updateLightPosition('back-left', [3, 4, 5])
+    const historyLength = store.temporal.getState().pastStates.length
+    store.getState().setMarkerGlyphRotation(75)
+    expect(store.temporal.getState().pastStates).toHaveLength(historyLength)
     store.getState().resetSettings()
     expect(pickSettings(store.getState())).toEqual(SETTINGS_DEFAULTS)
     expect(values.has(LS_KEYS.settings)).toBe(false)

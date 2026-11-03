@@ -21,6 +21,7 @@ export function GlyphModel({
   const { nodes } = useDisposableGLTF('/glyph-with-logo.glb') as any
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const markerGlyphRotation = useBoundStore((s) => s.markerGlyphRotation)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -49,21 +50,26 @@ export function GlyphModel({
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
     >
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.Glyph.geometry}
-        material={basicModelMaterial(color, isLightsAndShadowsRender)}
-      />
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.GlyphValkyrieLogo.geometry}
-        material={basicModelMaterial(
-          isNamedGlyph ? color : 'white',
-          isLightsAndShadowsRender,
-        )}
-      />
+      <group
+        rotation={[0, (markerGlyphRotation * Math.PI) / 180, 0]}
+        userData={{ glyphPieceUID: pid }}
+      >
+        <mesh
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
+          geometry={nodes.Glyph.geometry}
+          material={basicModelMaterial(color, isLightsAndShadowsRender)}
+        />
+        <mesh
+          receiveShadow={isLightsAndShadowsRender}
+          castShadow={isLightsAndShadowsRender}
+          geometry={nodes.GlyphValkyrieLogo.geometry}
+          material={basicModelMaterial(
+            isNamedGlyph ? color : 'white',
+            isLightsAndShadowsRender,
+          )}
+        />
+      </group>
     </group>
   )
 }
@@ -74,6 +80,7 @@ export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
+  const markerGlyphRotation = useBoundStore((s) => s.markerGlyphRotation)
   // Use the piece's terrain (if present) so named glyphs (inventory IDs like
   // `y<id>`) are colored correctly based on whether they're power or
   // treasure glyphs.
@@ -83,7 +90,7 @@ export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
       ? hexTerrainColor[HexTerrain.glyphPower]
       : hexTerrainColor[HexTerrain.glyphTreasure]
   return (
-    <>
+    <group rotation={[0, (markerGlyphRotation * Math.PI) / 180, 0]}>
       <mesh
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
@@ -96,7 +103,7 @@ export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
         geometry={nodes.GlyphValkyrieLogo.geometry}
         material={basicModelMaterial('white', isLightsAndShadowsRender)}
       />
-    </>
+    </group>
   )
 }
 

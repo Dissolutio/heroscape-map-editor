@@ -195,6 +195,9 @@ test('picture-only High restores the previous graphics and lighting settings', a
   })
   await expect(pictureHigh).toBeVisible()
   await pictureHigh.check()
+  // Move the pointer off the checkbox so its tooltip cannot cover the button.
+  await page.mouse.move(0, 0)
+  await expect(page.getByRole('tooltip')).toHaveCount(0)
   await page.getByRole('button', { name: 'Take picture', exact: true }).click()
 
   const cropDialog = page.getByRole('dialog', { name: 'Crop map picture' })

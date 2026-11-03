@@ -25,6 +25,15 @@ export type ObjectiveMarker3DTextTransform = {
   textRotation: [number, number, number]
 }
 
+export function composeObjectiveMarkerRotationY(
+  markerRotation: ObjectiveMarker['rotation'],
+  sharedRotationDegrees: number,
+) {
+  const markerRotationY =
+    markerRotation === 0 ? 0 : (-markerRotation * Math.PI) / 3
+  return markerRotationY + (sharedRotationDegrees * Math.PI) / 180
+}
+
 export type ObjectiveMarkerTextPosition = {
   x: number
   z: number
@@ -253,6 +262,7 @@ export function getObjectiveMarker3DPosition(
   marker: ObjectiveMarker,
   boardHexes: BoardHexes,
   isHighQualityRender = false,
+  sharedRotationDegrees = 0,
 ): ObjectiveMarker3DPosition | null {
   const footprint = getObjectiveMarkerFootprint(marker)
   const supportHexes = footprint.map((hex) => boardHexes[genBoardHexID(hex)])
@@ -281,7 +291,10 @@ export function getObjectiveMarker3DPosition(
     x: centerX,
     y,
     z: centerZ,
-    rotationY: marker.rotation === 0 ? 0 : (-marker.rotation * Math.PI) / 3,
+    rotationY: composeObjectiveMarkerRotationY(
+      marker.rotation,
+      sharedRotationDegrees,
+    ),
   }
 }
 
