@@ -1,6 +1,5 @@
 import { G, Page, Polygon, Svg, Text, View } from '@react-pdf/renderer'
 import {
-  getHexagonPdfPolygonPointsAt00,
   getLaurLongWallPdfPolygonPoints,
   getLaurShortWallPolygonPoints,
   getLaurWallRuinPdfPolygonPoints,
@@ -17,6 +16,7 @@ import {
 import type { BoardHex, BoardPiece, DecodedPieceID } from '../types'
 import { HexTerrain } from '../types'
 import { PDF_BORDER_WIDTH, SVG_HEX_RADIUS } from '../utils/constants'
+import { PdfMultiHex1 } from './PdfMapShapes'
 import {
   PdfGlyphPower,
   PdfGlyphTreasure,
@@ -57,12 +57,9 @@ function PieceLegendSymbol({ entry }: { entry: PdfPieceLegendEntry }) {
   if (!entry.symbol) return null
 
   const piece = makeDecodedPiece(entry)
+  const hex = makeBoardHex(entry)
   const fill = getSvgHexFillColor(piece)
   const border = getSvgHexBorderColor(piece, true)
-  const hexPoints = getHexagonPdfPolygonPointsAt00(
-    SVG_HEX_RADIUS,
-    PDF_BORDER_WIDTH,
-  ).points
 
   return (
     <Svg width={34} height={24} viewBox="-32 -32 120 64">
@@ -128,15 +125,11 @@ function PieceLegendSymbol({ entry }: { entry: PdfPieceLegendEntry }) {
           strokeWidth={PDF_BORDER_WIDTH}
           transform="translate(22 0)"
         />
-      ) : (
-        <Polygon
-          points={hexPoints}
-          fill={fill}
-          stroke={border}
-          strokeWidth={PDF_BORDER_WIDTH}
-          transform="translate(22 0)"
-        />
-      )}
+      ) : entry.symbol === 'hex' ? (
+        <G transform="translate(22 0)">
+          <PdfMultiHex1 hex={hex} />
+        </G>
+      ) : null}
     </Svg>
   )
 }

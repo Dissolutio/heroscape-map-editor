@@ -53,6 +53,18 @@ export const getPieceExportSymbol = (
   if (!piece) return undefined
 
   if (
+    piece.landPrefix ||
+    inventoryID === Pieces.tree11 ||
+    inventoryID === Pieces.tree12 ||
+    inventoryID === Pieces.glacier1 ||
+    inventoryID === Pieces.outcrop1 ||
+    inventoryID === Pieces.lavaRockOutcrop1 ||
+    inventoryID === Pieces.toxicOutcrop1
+  ) {
+    return 'hex'
+  }
+
+  if (
     piece.terrain === HexTerrain.glyphPower ||
     piece.terrain === HexTerrain.glyphTreasure
   ) {
@@ -68,7 +80,7 @@ export const getPieceExportSymbol = (
   if (laurSymbol === 'short') return 'laur-short'
   if (laurSymbol === 'ruin') return 'laur-ruin'
 
-  return piece.terrain ? 'hex' : undefined
+  return undefined
 }
 
 export const getPdfPieceLegendEntries = (

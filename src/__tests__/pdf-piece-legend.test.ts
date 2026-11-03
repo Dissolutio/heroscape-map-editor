@@ -4,7 +4,10 @@ import { describe, expect, it } from 'vitest'
 import { piecesSoFar } from '../data/pieces'
 import { SETTINGS_DEFAULTS } from '../local-storage/settings'
 import { PdfPieceLegend } from '../pdf-map/PdfPieceLegend'
-import { getPdfPieceLegendEntries } from '../pdf-svg-shared/pieceLegend'
+import {
+  getPdfPieceLegendEntries,
+  getPieceExportSymbol,
+} from '../pdf-svg-shared/pieceLegend'
 import { type BoardPiece, HexTerrain, Pieces } from '../types'
 
 const makePiece = (inventoryID: string, index: number): BoardPiece => ({
@@ -68,6 +71,22 @@ describe('PDF piece legend', () => {
     expect(
       entries.find((entry) => entry.inventoryID === Pieces.startZone1),
     ).toMatchObject({ symbol: 'start-zone' })
+    expect(getPieceExportSymbol(Pieces.outcrop1)).toBe('hex')
+    expect(getPieceExportSymbol(Pieces.tree11)).toBe('hex')
+    expect(
+      entries.find((entry) => entry.inventoryID === Pieces.tree11),
+    ).toMatchObject({ category: 'obstacles', symbol: 'hex' })
+  })
+
+  it('uses the piece title when no matching export symbol exists', () => {
+    const entry = getPdfPieceLegendEntries([makePiece(Pieces.outcrop3, 0)])[0]
+
+    expect(entry).toMatchObject({
+      inventoryID: Pieces.outcrop3,
+      title: 'Rock Outcrop (3)',
+      category: 'obstacles',
+      symbol: undefined,
+    })
   })
 
   it('produces an entry for every registered piece without throwing', () => {
