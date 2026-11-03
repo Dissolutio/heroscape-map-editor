@@ -1,11 +1,13 @@
 import { Typography } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import IconButton from '@mui/material/IconButton'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Toolbar from '@mui/material/Toolbar'
 import React from 'react'
 import { FcPrint } from 'react-icons/fc'
 import { MdFullscreen, MdFullscreenExit, MdNewReleases } from 'react-icons/md'
-import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
+import { getViewMode, type ViewMode } from '../controls/viewMode'
 import useBoundStore from '../store/store'
 import { useFullscreen } from '../hooks/useFullscreen'
 import { lazyWithRetry } from '../utils/lazyWithRetry'
@@ -29,9 +31,16 @@ export function HeaderNav({
   const toggleIsPdfOpen = useBoundStore((s) => s.toggleIsPdfOpen)
   const toggleIs2DOpen = useBoundStore((s) => s.toggleIs2DOpen)
   const is2DOpen = useBoundStore((s) => s.is2DOpen)
-  const view3DOr2DIconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
+  const viewMode = getViewMode(is2DOpen, isPdfOpen)
   const { isSmallScreenWidth, isMediumScreenWidth } = useMuiMediaQuery()
   const { isFullscreen, toggleFullscreen } = useFullscreen()
+  const handleViewModeChange = (_: unknown, nextView: ViewMode | null) => {
+    if (nextView === 'pdf') {
+      toggleIsPdfOpen(true)
+    } else if (nextView) {
+      toggleIs2DOpen(nextView === '2d')
+    }
+  }
   const fontSizeHeaderMapName =
     isSmallScreenWidth && hexMap.name.length > 32
       ? '0.6em'
@@ -124,25 +133,26 @@ export function HeaderNav({
             <FcPrint />
           </IconButton>
         )}
-        <IconButton
-          size={
-            isSmallScreenWidth
-              ? 'small'
-              : isMediumScreenWidth
-                ? undefined
-                : 'large'
-          }
-          aria-label={view3DOr2DIconTitle}
-          title={view3DOr2DIconTitle}
-          sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
-          onClick={() => toggleIs2DOpen(!is2DOpen)}
+        <ToggleButtonGroup
+          aria-label="Map view"
+          exclusive
+          onChange={handleViewModeChange}
+          size={isSmallScreenWidth ? 'small' : 'medium'}
+          value={viewMode}
+          sx={{
+            flexShrink: 0,
+            '& .MuiToggleButton-root': {
+              minWidth: isSmallScreenWidth ? 36 : 48,
+              px: isSmallScreenWidth ? 0.75 : 1.5,
+              py: 0.5,
+              textTransform: 'none',
+            },
+          }}
         >
-          {is2DOpen ? (
-            <World3DIcon title={view3DOr2DIconTitle} />
-          ) : (
-            <Hexes2DIcon title={view3DOr2DIconTitle} />
-          )}
-        </IconButton>
+          <ToggleButton value="3d">3D</ToggleButton>
+          <ToggleButton value="2d">2D</ToggleButton>
+          <ToggleButton value="pdf">PDF</ToggleButton>
+        </ToggleButtonGroup>
       </Toolbar>
     </AppBar>
   )

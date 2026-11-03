@@ -31,6 +31,6 @@ test('a failed WebGL startup offers diagnostics and keeps 2D available', async (
   await page.getByRole('button', { name: 'Switch to 2D view' }).click()
   await expect(page.locator('[id="2d-svg-view"]')).toBeVisible()
 
-  await page.getByRole('button', { name: 'View 3D Map' }).click()
+  await page.getByRole('button', { name: '3D', exact: true }).click()
   await expect(page.getByTestId('webgl-failure')).toBeVisible()
 })
