@@ -114,11 +114,14 @@ export function buildSideGeometry(instanceCount: number) {
       second.z,
     )
     directions.push(side, side, side, side)
+    // Seen from outside the hex, a face's vertex order (first -> second) runs
+    // right to left, so u = 1 belongs to the first vertex: the image's left
+    // edge ends up on the viewer's left, not mirrored.
     sideUVs.push(
-      ...getLandHexSideUV(0, 0, HEXGRID_HEX_HEIGHT),
-      ...getLandHexSideUV(0, HEXGRID_HEX_HEIGHT, HEXGRID_HEX_HEIGHT),
-      ...getLandHexSideUV(1, HEXGRID_HEX_HEIGHT, HEXGRID_HEX_HEIGHT),
       ...getLandHexSideUV(1, 0, HEXGRID_HEX_HEIGHT),
+      ...getLandHexSideUV(1, HEXGRID_HEX_HEIGHT, HEXGRID_HEX_HEIGHT),
+      ...getLandHexSideUV(0, HEXGRID_HEX_HEIGHT, HEXGRID_HEX_HEIGHT),
+      ...getLandHexSideUV(0, 0, HEXGRID_HEX_HEIGHT),
     )
     const start = side * 4 // first vertex of this quad (4 vertices per quad; NOT indices.length, which grows by 6)
     indices.push(start, start + 1, start + 2, start, start + 2, start + 3)
@@ -566,7 +569,7 @@ function makeLandMaterial(
           ) + 0.5;
         vec3 landLocalTangent = landSurfaceKind > 0.5
           ? vec3(1.0, 0.0, 0.0)
-          : vec3(
+          : -vec3(
               cos((landDirection + 1.5) * 1.0471975512),
               0.0,
               sin((landDirection + 1.5) * 1.0471975512)
