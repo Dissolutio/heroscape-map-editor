@@ -29,6 +29,7 @@ import {
   getLandHexInstanceIDs,
   getLandHexManifestTerrainName,
   getLandHexMirroredFillUV,
+  getLandHexPieceRotationCapStep,
   getLandHexSideUV,
   getLandHexSideVisibilityMask,
   getLandSelectionStyleOptions,
@@ -325,6 +326,55 @@ describe('land hex instance data', () => {
           .rotationSteps,
       ).toBe(0)
     }
+  })
+
+  it('turns Wood caps with the piece so planking follows its rotation', () => {
+    // Planks repeat every 3 rotations: 0/3 horizontal, 1/4 and 2/5 each 60° apart.
+    expect([0, 1, 2, 3, 4, 5].map(getLandHexPieceRotationCapStep)).toEqual([
+      0, 1, 2, 0, 1, 2,
+    ])
+    expect(getLandHexPieceRotationCapStep(-1)).toBe(2)
+
+    for (const tier of ['medium', 'high'] as const) {
+      for (const rotation of [0, 1, 2, 3, 4, 5]) {
+        expect(
+          getLandHexTextureLayers(
+            HexTerrain.wood,
+            'wood-hex',
+            terrainManifest,
+            tier,
+            rotation,
+          ).rotationSteps,
+        ).toBe(rotation % 3)
+      }
+    }
+    // Low graphics has no texture, and other terrains ignore piece rotation.
+    expect(
+      getLandHexTextureLayers(
+        HexTerrain.wood,
+        'wood-hex',
+        terrainManifest,
+        'low',
+        1,
+      ).rotationSteps,
+    ).toBe(0)
+    expect(
+      getLandHexTextureLayers(
+        HexTerrain.road,
+        'road-hex',
+        terrainManifest,
+        'high',
+        1,
+      ).rotationSteps,
+    ).toBe(
+      getLandHexTextureLayers(
+        HexTerrain.road,
+        'road-hex',
+        terrainManifest,
+        'high',
+        4,
+      ).rotationSteps,
+    )
   })
 
   it('keeps the fluid cap edge inset unrotated', () => {
