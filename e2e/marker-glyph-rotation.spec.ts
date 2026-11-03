@@ -10,13 +10,10 @@ import {
 } from './fixtures'
 
 const rotationDegrees = 30
-const markerGlyphRotationURL = mapUrl(
-  OBJECTIVE_MARKERS_FIXTURE_HEX_MAP,
-  [
-    ...OBJECTIVE_MARKERS_FIXTURE_PIECE_IDS,
-    `1~2~2~0~${Pieces.glyphPower}`,
-  ],
-)
+const markerGlyphRotationURL = mapUrl(OBJECTIVE_MARKERS_FIXTURE_HEX_MAP, [
+  ...OBJECTIVE_MARKERS_FIXTURE_PIECE_IDS,
+  `1~2~2~0~${Pieces.glyphPower}`,
+])
 
 test('shared rotation turns rendered markers and glyph symbols', async ({
   page,
@@ -32,7 +29,10 @@ test('shared rotation turns rendered markers and glyph symbols', async ({
   })
   await expect
     .poll(() =>
-      page.evaluate((uid) => window.__TEST__?.getRenderedGlyphRotationY(uid), glyphUID),
+      page.evaluate(
+        (uid) => window.__TEST__?.getRenderedGlyphRotationY(uid),
+        glyphUID,
+      ),
     )
     .toBeCloseTo(0)
 
@@ -59,12 +59,12 @@ test('shared rotation turns rendered markers and glyph symbols', async ({
         window.__TEST__?.getRenderedObjectiveMarkerRotationY(markerUID) ?? null,
       uid,
     )
-  await expect.poll(() => renderedRotation('objective-ground')).toBeCloseTo(
-    (-5 * Math.PI) / 6,
-  )
-  await expect.poll(() => renderedRotation('objective-stacked')).toBeCloseTo(
-    -Math.PI / 2,
-  )
+  await expect
+    .poll(() => renderedRotation('objective-ground'))
+    .toBeCloseTo((-5 * Math.PI) / 6)
+  await expect
+    .poll(() => renderedRotation('objective-stacked'))
+    .toBeCloseTo(-Math.PI / 2)
   await expect
     .poll(() =>
       page.evaluate(
@@ -74,12 +74,14 @@ test('shared rotation turns rendered markers and glyph symbols', async ({
     )
     .toBeCloseTo(Math.PI / 6)
 
-  await slider.hover()
+  await page.getByText('Marker and glyph rotation', { exact: true }).hover()
   await expect(page.getByRole('tooltip')).toHaveText(
     'Rotates every objective marker and glyph symbol in 3D. It does not follow the camera or change saved maps or 2D/PDF exports.',
   )
 
-  await page.getByRole('button', { name: 'Reset' }).click()
+  await page
+    .getByRole('button', { name: 'Reset marker and glyph rotation' })
+    .click()
   await expect(slider).toHaveAttribute('aria-valuenow', '0')
   await expect
     .poll(() =>

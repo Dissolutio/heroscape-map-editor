@@ -58,6 +58,7 @@ describe('settings persistence', () => {
   it('uses defaults when no settings are stored', () => {
     expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
     expect(SETTINGS_DEFAULTS).toMatchObject({
+      markerGlyphRotation: 0,
       genericSolidCapColor: '#e63cc8',
       genericSolidSideColor: '#a01e8c',
       genericFluidCapColor: '#ff96e6',
@@ -609,7 +610,9 @@ describe('settings persistence', () => {
     )
     const { default: store } = await import('../store/store')
     store.getState().updateLightPosition('back-left', [3, 4, 5])
+    const historyLength = store.temporal.getState().pastStates.length
     store.getState().setMarkerGlyphRotation(75)
+    expect(store.temporal.getState().pastStates).toHaveLength(historyLength)
     store.getState().resetSettings()
     expect(pickSettings(store.getState())).toEqual(SETTINGS_DEFAULTS)
     expect(values.has(LS_KEYS.settings)).toBe(false)

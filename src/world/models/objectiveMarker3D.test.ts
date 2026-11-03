@@ -129,11 +129,9 @@ function isSimplePolygon(points: { x: number; z: number }[]) {
 describe('objective marker 3D helpers', () => {
   it('composes the marker rotation with the shared rotation in degrees', () => {
     expect(composeObjectiveMarkerRotationY(2, 30)).toBeCloseTo(
-      -Math.PI * 2 / 3 + Math.PI / 6,
+      (-Math.PI * 2) / 3 + Math.PI / 6,
     )
-    expect(composeObjectiveMarkerRotationY(0, -45)).toBeCloseTo(
-      -Math.PI / 4,
-    )
+    expect(composeObjectiveMarkerRotationY(0, -45)).toBeCloseTo(-Math.PI / 4)
   })
 
   it('positions a one-hex token just above its supported cap', () => {

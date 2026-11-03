@@ -100,10 +100,6 @@ export default function ViewControlsTab({
   )
   const lookSettings = useBoundStore((s) => s.lookSettings)
   const setLookSettings = useBoundStore((s) => s.setLookSettings)
-  const markerGlyphRotation = useBoundStore((s) => s.markerGlyphRotation)
-  const setMarkerGlyphRotation = useBoundStore(
-    (s) => s.setMarkerGlyphRotation,
-  )
   const useHighQualityForPicture = useBoundStore(
     (s) => s.useHighQualityForPicture,
   )
@@ -585,6 +581,8 @@ const ViewPreferencesSwitchForm = () => {
   const graphicsTier = useBoundStore((s) => s.graphicsTier)
   const effectiveGraphicsTier = useBoundStore((s) => s.effectiveGraphicsTier)
   const setGraphicsTier = useBoundStore((s) => s.setGraphicsTier)
+  const markerGlyphRotation = useBoundStore((s) => s.markerGlyphRotation)
+  const setMarkerGlyphRotation = useBoundStore((s) => s.setMarkerGlyphRotation)
   const setIsLookSettingsDialogOpen = useBoundStore(
     (s) => s.setIsLookSettingsDialogOpen,
   )
@@ -699,15 +697,9 @@ const ViewPreferencesSwitchForm = () => {
               <MenuItem value="high">High (PBR textures)</MenuItem>
             </Select>
           </FormControl>
-          <Tooltip
-            title={MARKER_GLYPH_ROTATION_TOOLTIP}
-            arrow
-            describeChild
-          >
+          <Tooltip title={MARKER_GLYPH_ROTATION_TOOLTIP} arrow describeChild>
             <Box>
-              <FormLabel component="label">
-                Marker and glyph rotation
-              </FormLabel>
+              <FormLabel component="label">Marker and glyph rotation</FormLabel>
               <Box
                 sx={{
                   display: 'flex',
@@ -731,7 +723,7 @@ const ViewPreferencesSwitchForm = () => {
                   size="small"
                   value={markerGlyphRotation}
                   onChange={(event) => {
-                    const value = event.currentTarget.valueAsNumber
+                    const value = Number(event.currentTarget.value)
                     if (Number.isFinite(value)) setMarkerGlyphRotation(value)
                   }}
                   slotProps={{
@@ -740,6 +732,7 @@ const ViewPreferencesSwitchForm = () => {
                   sx={{ width: 96 }}
                 />
                 <Button
+                  aria-label="Reset marker and glyph rotation"
                   size="small"
                   onClick={() => setMarkerGlyphRotation(0)}
                 >
