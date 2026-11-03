@@ -1,5 +1,6 @@
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
+import { getPieceSizeOptionsForPenMode } from '../data/flatPieceSizes'
 import { piecesSoFar } from '../data/pieces'
 import useBoundStore from '../store/store'
 import { type BoardPiece, PICK_PEN_MODE, Pieces } from '../types'
@@ -20,7 +21,10 @@ export function getPickedPenModeSettings(boardPiece: BoardPiece) {
   if (!piece) return null
   return {
     penMode: getPickedPenMode(boardPiece.inventoryID, piece.landPrefix),
-    pieceSize: piece.landPrefix ? piece.size : undefined,
+    pieceSize:
+      piece.landPrefix || getPieceSizeOptionsForPenMode(piece.id).length
+        ? piece.size
+        : undefined,
     rotation: boardPiece.rotation,
   }
 }

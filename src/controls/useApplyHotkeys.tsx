@@ -1,7 +1,8 @@
 import type { CameraControls } from '@react-three/drei'
-import { useRef, type RefObject } from 'react'
+import { type RefObject, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import type { Group, Object3DEventMap } from 'three'
+import { getPieceIDForPenMode } from '../data/flatPieceSizes'
 import { getLaurAddonAllowedRotations } from '../data/laurAddonPlacement'
 import {
   OBJECTIVE_MARKER_PEN_MODE,
@@ -240,7 +241,7 @@ export const useApplyHotkeys = ({
   const forwardSelectionHistory = () =>
     useBoundStore.getState().navigateSelectionHistory('forward')
   const rotatePenMode = (direction: 1 | -1) => {
-    const pieceID = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
+    const pieceID = getPieceIDForPenMode(penMode, pieceSize)
     const rotate =
       direction === 1 ? doPenModeRotation : doPenModeCounterRotation
     rotate(

@@ -1,6 +1,7 @@
 import { Button } from '@mui/material'
 import type { ThreeEvent } from '@react-three/fiber'
 import { closeSnackbar, enqueueSnackbar } from 'notistack'
+import { getPieceIDForPenMode } from '../data/flatPieceSizes.ts'
 import { LAUR_ADDON_STACK_INCREMENT } from '../data/laurAddonStacking.ts'
 import {
   decideLaurVariantPlacement,
@@ -28,7 +29,6 @@ import {
   reconcileLaurLegacyToStackableUsage,
 } from '../inventory/laurInventoryReconcile.ts'
 import useBoundStore from '../store/store.ts'
-import { undoWithSelectionRestore } from '../utils/undoWithSelectionRestore.ts'
 import {
   type BoardHex,
   HexTerrain,
@@ -43,6 +43,7 @@ import {
   getEffectiveTerrainConstraintInventory,
   hasActiveTerrainConstraints,
 } from '../utils/terrain-constraints.ts'
+import { undoWithSelectionRestore } from '../utils/undoWithSelectionRestore.ts'
 import { warnIfTallFluidStack } from '../utils/warnAboutLoadedMap.ts'
 
 type ClickHandlerDependencies = Pick<
@@ -226,7 +227,7 @@ export function createMapClickHandler({
       }
       return
     }
-    const pieceMode = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
+    const pieceMode = getPieceIDForPenMode(penMode, pieceSize)
     const piece = piecesSoFar[pieceMode]
     if (!piece) {
       return
