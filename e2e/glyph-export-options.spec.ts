@@ -19,7 +19,7 @@ test('glyph export options update the SVG view', async ({ page }) => {
   await page.goto(glyphMapURL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
-  await page.getByRole('button', { name: 'View 2D Map' }).click()
+  await page.getByRole('button', { name: '2D', exact: true }).click()
   await page.getByRole('checkbox', { name: 'Show Overlay Level' }).uncheck()
   const svg = page.locator('[id="2d-svg-view"]')
   await expect(svg).toBeVisible()

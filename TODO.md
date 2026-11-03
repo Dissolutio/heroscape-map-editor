@@ -24,7 +24,6 @@
 ## TODO
 - Group LoS blockers such as trees/outcrops/similar so that they can be rotated through like regular terrain (how land types can toggle their size using hotkeys "1" - "7"). For example once an outcrop piece is chosen as the pen mode, then the hotkeys are 1 for 1-hex outcrop, 3 for 3-hex outcrop, etc.
 - If you enter some filters and search into Pieces Grid, then Zoom to Piece, all those filters and search are lost. State should persist?
-- The "Zoom to Piece" opacity effects that we have for pieces and caps is broken. We should just remove it, and if we want to build a more robust system for controlling each level's opacity in the future, we will.
 - Laur wall ruin pieces have 3 types, not accounted for currently (or miscounted, perhaps). We do not have 3D models for the 2 new types yet, but we will. Currently, we only have a way to play 1 type, so any display we have regarding more than 1 type is kind of confusing and misleading.
 - Update conflicted states for ship pieces (account for level 0). This will require a physical testing with the terrain pieces.
 - OHS: Add a toggle that invokes all the desired settings to get a good image for OHS, like: 1. semi transparency to jungle palm leaves portion of jungle meshes because they obscure adjacent hexes 2. more compatible glyph spaces (glyph spaces often have another OHS picture of a glyph put over them in an OHS match, so less crap displaying in those hexes is nice) 3. don't display the 3D table under the map (which is already a toggleable option for the user)

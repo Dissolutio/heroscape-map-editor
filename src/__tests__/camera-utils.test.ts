@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { getLaurAddonFootprint } from '../data/laurAddonFootprints'
 import { Pieces } from '../types'
 import type { BoardHexes, BoardPiece } from '../types'
-import { zoomToPieces } from '../utils/camera-utils'
+import { zoomToPiece, zoomToPieces } from '../utils/camera-utils'
 import { getBoardHex3DCoords } from '../utils/map-utils'
 
 const makePiece = (
@@ -65,6 +65,43 @@ const zoomAndGetBounds = (
   expect(controls.fitToBox).toHaveBeenCalledOnce()
   return controls.fitToBox.mock.calls[0][0] as Box3
 }
+
+describe('zoomToPiece', () => {
+  it('moves the camera to frame the target piece', () => {
+    const controls = {
+      fitToBox: vi.fn(),
+      rotateTo: vi.fn(),
+      setPosition: vi.fn(),
+    }
+
+    zoomToPiece({
+      cameraControlsRef: {
+        current: controls as unknown as CameraControls,
+      } as RefObject<CameraControls>,
+      boardHexes: {
+        piece: {
+          q: 0,
+          r: 0,
+          s: 0,
+          id: 'piece',
+          altitude: 2,
+          pieceID: 'piece',
+          boardPieceUID: 'piece',
+          inventoryID: 'grass1',
+          terrain: 'grass',
+          pieceRotation: 0,
+        },
+      },
+      targetUID: 'piece',
+      mapWidth: 10,
+      mapLength: 10,
+    })
+
+    expect(controls.setPosition).toHaveBeenCalledWith(10, 20, 10, true)
+    expect(controls.rotateTo).toHaveBeenCalledWith(0, 0, true)
+    expect(controls.fitToBox).toHaveBeenCalledOnce()
+  })
+})
 
 describe('zoomToPieces', () => {
   it.each([

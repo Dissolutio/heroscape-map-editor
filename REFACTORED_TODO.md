@@ -2,13 +2,13 @@
 
 Source: [TODO.md](TODO.md). Architecture contract: [.github/agents/hexoscape.agent.md](.github/agents/hexoscape.agent.md).
 
-All 44 remaining top-level source tasks are represented below, including the prose-only 2D Builder and Database tasks. The five homepage destinations remain acceptance scope under B20. Source IDs retain original order within each section: T = TODO, H = Hotkeys, P = PDF/SVG, B = Big TODO, M = Blender, S = 2D Builder, D = Database.
+All 43 remaining top-level source tasks are represented below, including the prose-only 2D Builder and Database tasks. The five homepage destinations remain acceptance scope under B20. Source IDs retain original order within each section: T = TODO, H = Hotkeys, P = PDF/SVG, B = Big TODO, M = Blender, S = 2D Builder, D = Database.
 
 ## Execution Order
 
 | Stage | Work | Release Gate |
 | --- | --- | --- |
-| 1. Small, independent changes | T04, T05, T09, B03 | Each behavior verified independently; one task per Flash session. |
+| 1. Small, independent changes | T04, T09, B03 | Each behavior verified independently; one task per Flash session. |
 | 2. Bounded settings and export work | H01, P01, P05 | Hotkey regression checks; paired SVG/PDF verification for export changes. |
 | 3. Resolve the separate pile | Answer Bucket 2 questions; acquire physical fixtures for T07/B06 and asset specifications for M01-M05 | Approved behavior, fixtures, and asset contracts before implementation. Reclassify only after answers. |
 | 4. Shared interaction foundations | B05; B14; S01 after selection/command semantics are agreed | One source of map mutation truth; input ownership and undo verified. |
@@ -46,22 +46,6 @@ Keep the grid's existing filter model, including quick-filter/search terms, cont
 The master agent separates Zustand UI state from map data: this is UI state only. Do not change boardPieces, derived boardHexes, map files, or Zundo history. Do not change camera fitting, R3F coordinates, or the 0.35 Y-axis scale.
 
 Verify filtered rows and search text survive zoom/reopen, ordinary close/reopen works, clearing filters still works, and changed/deleted rows cannot leave stale row references. Run npm run build and report checks not run.
-```
-
-### T05 - Remove Zoom-to-Piece Opacity Effects
-
-Source: TODO #5. Depends on: nothing. Does not authorize removing unrelated transparency.
-
-**Copy-Paste Prompt**
-
-```text
-Remove only the opacity/fading effect associated with Zoom to Piece in Hexoscape. Read .github/agents/hexoscape.agent.md, src/controls/SelectedPieceControls.tsx, and src/utils/camera-utils.ts. Trace zoom-related state to its consumers in src/world, including both piece bodies and caps.
-
-Remove the zoom-specific opacity overrides and any state/helper that becomes unused exclusively because of this removal. Preserve camera movement/framing, selection, the existing target viewing level, normal fluid transparency, previews, hidden-level rules, and all non-zoom opacity behavior. Do not build a replacement level-opacity system.
-
-Per the master agent, preserve R3F instancing and shared material/resource lifetimes. Do not mutate a shared material to reset one instance. Keep boardPieces/boardHexes, conflict logic, model offsets, signed coordinates, and the 0.35 Y-level scale untouched.
-
-Verify repeated zooms to single- and multi-hex pieces, bodies and caps on multiple levels, normal transparent terrain, preview appearance, selection, and camera framing. Search for remaining consumers before deleting zoom-fade state. Run npm run build; report visual checks separately from compilation.
 ```
 
 ### T09 - Select Pen Mode From Map Inventory

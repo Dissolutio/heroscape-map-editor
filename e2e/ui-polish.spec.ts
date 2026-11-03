@@ -24,13 +24,11 @@ test('camera actions and tooltips follow the active view', async ({ page }) => {
   await genericColorsLabel.hover()
   await expect(page.getByRole('tooltip')).toHaveText(genericColorsText)
 
-  await page.getByRole('button', { name: 'View 2D Map' }).click()
+  await page.getByRole('button', { name: '2D', exact: true }).click()
   await expect(cameraAction).toHaveCount(0)
   await expect(genericColorsLabel).toBeVisible()
 
-  await page
-    .getByRole('button', { name: 'View pdf build instructions' })
-    .click()
+  await page.getByRole('button', { name: 'PDF', exact: true }).click()
   await expect(cameraAction).toHaveCount(0)
   const buriedMarksSwitch = page.getByRole('checkbox', {
     name: /Show Buried-Tile Marks/,
@@ -38,6 +36,39 @@ test('camera actions and tooltips follow the active view', async ({ page }) => {
   await expect(buriedMarksSwitch).toBeVisible()
   await buriedMarksSwitch.hover()
   await expect(page.getByRole('tooltip')).toHaveText(buriedMarksText)
+})
+
+test('navbar switches directly between 3D, 2D and PDF views', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 812 })
+  await waitForAppReady(page)
+
+  const viewMode = page.getByRole('group', { name: 'Map view' })
+  const threeD = viewMode.getByRole('button', { name: '3D', exact: true })
+  const twoD = viewMode.getByRole('button', { name: '2D', exact: true })
+  const pdf = viewMode.getByRole('button', { name: 'PDF', exact: true })
+
+  await expect(viewMode).toBeVisible()
+  const viewModeBounds = await viewMode.boundingBox()
+  if (!viewModeBounds) throw new Error('View mode control is not visible')
+  expect(viewModeBounds.x).toBeGreaterThanOrEqual(0)
+  expect(viewModeBounds.x + viewModeBounds.width).toBeLessThanOrEqual(375)
+  await expect(threeD).toHaveAttribute('aria-pressed', 'true')
+
+  await twoD.focus()
+  await page.keyboard.press('Enter')
+  await expect(twoD).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('svg title')).toHaveText('2D Map Display')
+
+  await pdf.click()
+  await expect(pdf).toHaveAttribute('aria-pressed', 'true')
+  await expect(
+    page.getByText(/Download build instructions \.pdf for:/),
+  ).toBeVisible()
+
+  await threeD.click()
+  await expect(threeD).toHaveAttribute('aria-pressed', 'true')
 })
 
 test('new map author appears in Edit Map Details and can be remembered', async ({
