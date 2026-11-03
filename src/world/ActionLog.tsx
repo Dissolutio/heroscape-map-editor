@@ -13,6 +13,8 @@ import {
 } from 'react-icons/md'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import useBoundStore from '../store/store'
+import SelectionRecallButton from '../controls/SelectionRecallButton'
+import SavedSelections from './SavedSelections'
 import {
   ACTION_LOG_COLLAPSED_TIMEOUT_MS,
   type ActionLogEntry,
@@ -96,8 +98,51 @@ function ActionRow({
       title={entry.text}
     >
       <Icon aria-hidden="true" className="action-log__icon" />
-      <span>{entry.text}</span>
+      <span>
+        {entry.selection && entry.selectionLabel ? (
+          <SelectionLinkedText entry={entry} disabled={isIdle} />
+        ) : (
+          entry.text
+        )}
+      </span>
     </div>
+  )
+}
+
+function SelectionLinkedText({
+  entry,
+  disabled,
+}: {
+  entry: ActionLogEntry
+  disabled: boolean
+}) {
+  const label = entry.selectionLabel
+  const selection = entry.selection
+  if (!label || !selection) return entry.text
+  const index = entry.text.indexOf(label)
+  const link = (
+    <SelectionRecallButton
+      className="action-log__selection-link"
+      disabled={disabled}
+      label={`Recall selection: ${label}`}
+      selection={selection}
+    >
+      {label}
+    </SelectionRecallButton>
+  )
+  if (index < 0) {
+    return (
+      <>
+        {entry.text} {link}
+      </>
+    )
+  }
+  return (
+    <>
+      {entry.text.slice(0, index)}
+      {link}
+      {entry.text.slice(index + label.length)}
+    </>
   )
 }
 
@@ -105,6 +150,7 @@ const MemoizedActionRow = memo(ActionRow)
 
 export default function ActionLog() {
   const entries = useBoundStore((state) => state.actionLog)
+  const savedSelections = useBoundStore((state) => state.savedSelections)
   const isDraggingPiece = useBoundStore((state) => state.isDraggingPiece)
   const [isExpanded, setIsExpanded] = useState(false)
   const [scrollTop, setScrollTop] = useState(0)
@@ -149,7 +195,7 @@ export default function ActionLog() {
     if (list && list.scrollTop === 0) list.scrollTop = list.scrollHeight
   }, [isExpanded])
 
-  if (!entries.length) return null
+  if (!entries.length && !savedSelections.length) return null
 
   const firstVisible = isExpanded
     ? Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - 2)
@@ -173,6 +219,7 @@ export default function ActionLog() {
         .filter(Boolean)
         .join(' ')}
       onMouseEnter={() => setIsExpanded(true)}
+      onFocusCapture={() => setIsExpanded(true)}
       onMouseLeave={(event) => {
         if (!hasFocusWithin(event.currentTarget)) setIsExpanded(false)
       }}
@@ -180,58 +227,63 @@ export default function ActionLog() {
         if (!hasFocusWithin(event.currentTarget)) setIsExpanded(false)
       }}
     >
-      <div
-        aria-live="polite"
-        aria-relevant="additions text"
-        className={[
-          'action-log__list',
-          isListSettling && 'action-log__list--settling',
-        ]
-          .filter(Boolean)
-          .join(' ')}
-        id="action-log-entries"
-        onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
-        onWheel={(event) => {
-          event.stopPropagation()
-        }}
-        ref={listRef}
-        role="log"
-        tabIndex={isExpanded ? 0 : -1}
-      >
-        {isExpanded && firstVisible > 0 && (
+      <SavedSelections />
+      {entries.length > 0 && (
+        <>
           <div
-            aria-hidden="true"
-            style={{ height: firstVisible * ROW_HEIGHT }}
-          />
-        )}
-        {visibleEntries.map((entry) => (
-          <MemoizedActionRow
-            entry={entry}
-            isNewest={entry.id === entries[entries.length - 1]?.id}
-            isExpanded={isExpanded}
-            onExpire={expireEntry}
-            key={entry.id}
-          />
-        ))}
-        {isExpanded && endVisible < entries.length && (
-          <div
-            aria-hidden="true"
-            style={{ height: (entries.length - endVisible) * ROW_HEIGHT }}
-          />
-        )}
-      </div>
-      <button
-        aria-controls="action-log-entries"
-        aria-expanded={isExpanded}
-        aria-label={isExpanded ? 'Collapse action log' : 'Expand action log'}
-        className="action-log__toggle"
-        onClick={() => setIsExpanded((expanded) => !expanded)}
-        onFocus={() => setIsExpanded(true)}
-        type="button"
-      >
-        <span>Recent actions</span>
-        {isExpanded ? <MdExpandLess /> : <MdExpandMore />}
-      </button>
+            aria-live="polite"
+            aria-relevant="additions text"
+            className={[
+              'action-log__list',
+              isListSettling && 'action-log__list--settling',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            id="action-log-entries"
+            onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
+            onWheel={(event) => {
+              event.stopPropagation()
+            }}
+            ref={listRef}
+            role="log"
+            tabIndex={isExpanded ? 0 : -1}
+          >
+            {isExpanded && firstVisible > 0 && (
+              <div
+                aria-hidden="true"
+                style={{ height: firstVisible * ROW_HEIGHT }}
+              />
+            )}
+            {visibleEntries.map((entry) => (
+              <MemoizedActionRow
+                entry={entry}
+                isNewest={entry.id === entries[entries.length - 1]?.id}
+                isExpanded={isExpanded}
+                onExpire={expireEntry}
+                key={entry.id}
+              />
+            ))}
+            {isExpanded && endVisible < entries.length && (
+              <div
+                aria-hidden="true"
+                style={{ height: (entries.length - endVisible) * ROW_HEIGHT }}
+              />
+            )}
+          </div>
+          <button
+            aria-controls="action-log-entries"
+            aria-expanded={isExpanded}
+            aria-label={isExpanded ? 'Collapse action log' : 'Expand action log'}
+            className="action-log__toggle"
+            onClick={() => setIsExpanded((expanded) => !expanded)}
+            onFocus={() => setIsExpanded(true)}
+            type="button"
+          >
+            <span>Recent actions</span>
+            {isExpanded ? <MdExpandLess /> : <MdExpandMore />}
+          </button>
+        </>
+      )}
     </div>
   )
 }

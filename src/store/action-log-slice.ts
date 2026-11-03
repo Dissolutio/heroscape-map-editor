@@ -23,10 +23,41 @@ let nextEntryId = 0
 
 function createEntry(action: ActionLogAction): ActionLogEntry {
   const time = Date.now()
+  const formatted = formatActionLogAction(action)
+  const selectionLabel =
+    action.selectionLabel ??
+    (action.selection?.objectiveMarkerUID && !action.selection.pieceUIDs.length
+      ? action.type === 'marker'
+        ? (action.label ?? 'objective marker')
+        : 'Objective marker'
+      : action.selection?.pieceUIDs.length
+        ? action.type === 'marker'
+          ? (action.label ?? 'objective marker')
+          : action.type === 'move' || action.type === 'rotate'
+          ? action.count > 1
+            ? `${action.count} pieces`
+            : action.pieceName
+          : action.type === 'convert'
+            ? `${action.count} ${action.count === 1 ? 'piece' : 'pieces'}`
+            : action.type === 'place' || action.type === 'delete'
+              ? action.pieceName
+              : 'pieces'
+        : undefined)
   return {
     id: `${time}-${nextEntryId++}`,
     time,
-    ...formatActionLogAction(action),
+    ...formatted,
+    ...(action.selection
+      ? {
+          selection: {
+            pieceUIDs: [...action.selection.pieceUIDs],
+            ...(action.selection.objectiveMarkerUID
+              ? { objectiveMarkerUID: action.selection.objectiveMarkerUID }
+              : {}),
+          },
+        }
+      : {}),
+    ...(selectionLabel ? { selectionLabel } : {}),
   }
 }
 
@@ -63,6 +94,8 @@ const createActionLogSlice: StateCreator<AppState, [], [], ActionLogSlice> = (
     const undoEntry = createEntry({
       type: 'undo',
       description: entry?.text ?? 'previous action',
+      selection: entry?.selection,
+      selectionLabel: entry?.selectionLabel,
     })
     set((state) =>
       produce(state, (draft) => {
@@ -88,6 +121,8 @@ const createActionLogSlice: StateCreator<AppState, [], [], ActionLogSlice> = (
     const redoEntry = createEntry({
       type: 'redo',
       description: entry?.text ?? 'previous action',
+      selection: entry?.selection,
+      selectionLabel: entry?.selectionLabel,
     })
     set((state) =>
       produce(state, (draft) => {

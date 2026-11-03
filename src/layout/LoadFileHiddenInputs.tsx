@@ -42,6 +42,7 @@ export const LoadFileHiddenInputs = () => {
         normalizedPieces.boardPieces,
         data.hexMap,
         normalizedPieces.droppedPieces,
+        data.savedSelections,
       )
       if (!jsonMap.hexMap.name) {
         jsonMap.hexMap.name = file.name
@@ -81,6 +82,7 @@ export const LoadFileHiddenInputs = () => {
         normalizedPieces.boardPieces,
         data.hexMap,
         normalizedPieces.droppedPieces,
+        data.savedSelections,
       )
       if (!jsonMap.hexMap.name) {
         jsonMap.hexMap.name = file.name

@@ -382,8 +382,6 @@ describe('settings persistence', () => {
     const transientKeys = [
       'selectedPieceIDs',
       'selectedObjectiveMarkerUID',
-      'selectionHistory',
-      'selectionHistoryCursor',
       'objectiveMarkerDraft',
       'objectiveMarkerDragPreview',
       'rotationPivot',
@@ -426,6 +424,7 @@ describe('settings persistence', () => {
       'boardHexes',
       'hexMap',
       'boardPieces',
+      'savedSelections',
       'conflictedPieceUIDs',
       'mapPortraitBase64',
       'mapNotes',

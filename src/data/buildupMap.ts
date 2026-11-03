@@ -22,6 +22,10 @@ import {
 import { addPiece } from './addPiece'
 import { fitMapToPieces } from './fitMapToPieces'
 import { normalizeObjectiveMarkers } from './objectiveMarkers'
+import {
+  normalizeSavedSelections,
+  pruneSavedSelections,
+} from './selectionUnits'
 import { pieceCodes } from './pieceCodes'
 import { piecesSoFar } from './pieces'
 import { getCodeForVSPersonalTile } from './readVirtualscapeMapFile'
@@ -68,6 +72,7 @@ export default function buildupVSFileMap(
     boardHexes: newBoardHexes,
     hexMap: hexMap,
     boardPieces,
+    savedSelections: [],
     droppedPieces,
   }
 }
@@ -116,6 +121,7 @@ export function buildupJsonFileMap(
   boardPieces: BoardPiece[],
   hexMap: HexMap,
   droppedMalformedPieces: DroppedBoardPiece[] = [],
+  savedSelections?: unknown,
 ): JsonMapLoadResult {
   const shouldMigrateLegacyHexagonMap =
     hexMap.shape === 'hexagon' && (hexMap?.version ?? 0) < 1
@@ -204,6 +210,11 @@ export function buildupJsonFileMap(
     boardHexes: newBoardHexes,
     hexMap: fittedHexMap,
     boardPieces: finalBoardPieces,
+    savedSelections: pruneSavedSelections(
+      normalizeSavedSelections(savedSelections),
+      new Set(finalBoardPieces.map((piece) => piece.uid)),
+      new Set((fittedHexMap.objectiveMarkers ?? []).map((marker) => marker.uid)),
+    ),
     droppedPieces,
     ...(fitted.droppedObjectiveMarkers
       ? { droppedObjectiveMarkers: fitted.droppedObjectiveMarkers }

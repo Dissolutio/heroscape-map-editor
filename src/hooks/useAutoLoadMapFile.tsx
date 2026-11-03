@@ -59,6 +59,7 @@ const useAutoLoadMapFile = () => {
           localMap.map.boardPieces,
           localMap.map.hexMap,
           localMap.droppedPieces,
+          localMap.map.savedSelections,
         )
       : undefined
     const loadMapWithoutUndo = (

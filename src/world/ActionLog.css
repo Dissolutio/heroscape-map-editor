@@ -26,6 +26,7 @@
   transition: transform 160ms ease-out;
   mask-image: linear-gradient(to bottom, transparent 0, #000 18%, #000 100%);
   scrollbar-width: none;
+  pointer-events: auto;
 }
 
 .action-log__list--settling {
@@ -51,6 +52,7 @@
 
 .action-log__row--idle {
   animation: action-log-idle-fade 700ms ease-out forwards;
+  pointer-events: none;
 }
 
 .action-log__row::after {
@@ -74,6 +76,94 @@
 .action-log__row span {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.action-log__selection-link {
+  display: inline;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px dotted currentColor;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  text-shadow: inherit;
+}
+
+.action-log__selection-link:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.action-log__selection-link:focus-visible,
+.action-log__saved-recall:focus-visible,
+.action-log__saved-action:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.action-log__saved {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 5px;
+  pointer-events: auto;
+}
+
+.action-log__saved-label {
+  flex-basis: 100%;
+  color: rgb(255 255 255 / 70%);
+  font-size: 9px;
+  line-height: 14px;
+}
+
+.action-log__saved-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 23px;
+  padding: 0 2px 0 7px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  border-radius: 12px;
+  background: var(--action-log-backdrop);
+  color: #fff;
+  pointer-events: auto;
+}
+
+.action-log__saved-recall {
+  overflow: hidden;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.action-log__saved-recall:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.action-log__saved-action {
+  width: 21px;
+  height: 21px;
+  padding: 2px;
+  color: #fff;
+  opacity: 0;
+}
+
+.action-log__saved-chip:hover .action-log__saved-action,
+.action-log__saved-chip:focus-within .action-log__saved-action {
+  opacity: 1;
+}
+
+.action-log__saved-action:hover {
+  background: rgb(255 255 255 / 15%);
 }
 
 .action-log__icon {

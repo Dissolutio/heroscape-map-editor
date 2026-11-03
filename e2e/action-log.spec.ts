@@ -173,3 +173,24 @@ test('keeps expanded history after the collapsed timeout', async ({ page }) => {
   await page.clock.runFor(8_000)
   await expect(reducedMotionRow).toHaveCount(0)
 })
+
+test('disables selection recall links while their action row fades', async ({
+  page,
+}) => {
+  await page.clock.install()
+  await waitForAppReady(page)
+  await setPen(page, 'g', 1)
+  await clickHex(page, { q: 3, r: 2, altitude: 0 })
+
+  const recall = page.getByRole('button', {
+    name: 'Recall selection: 1-hex Grass',
+  })
+  await expect(recall).toBeEnabled()
+
+  await page.clock.runFor(8_000)
+  const row = page.locator('.action-log__row').last()
+  await expect(row).toHaveClass(/action-log__row--idle/)
+  await expect(recall).toBeDisabled()
+  await recall.focus()
+  await expect(recall).not.toBeFocused()
+})

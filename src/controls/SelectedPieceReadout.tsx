@@ -4,9 +4,9 @@ import type { RefObject } from 'react'
 import type { ObjectiveMarker } from '../data/objectiveMarkers'
 import useBoundStore from '../store/store'
 import ObjectiveMarkerControls from './ObjectiveMarkerControls'
-import SelectionHistoryControls from './SelectionHistoryControls'
 import { SelectedPieceControls } from './SelectedPieceControls'
 import { useMuiMediaQuery } from '../layout/useMuiMediaQuery'
+import SaveSelectionButton from './SaveSelectionButton'
 
 const EMPTY_OBJECTIVE_MARKERS: ObjectiveMarker[] = []
 
@@ -23,7 +23,6 @@ const SelectedPieceReadout = ({
   const objectiveMarkers = useBoundStore(
     (s) => s.hexMap.objectiveMarkers ?? EMPTY_OBJECTIVE_MARKERS,
   )
-  const selectionHistory = useBoundStore((s) => s.selectionHistory)
   const { isSmallScreenWidth } = useMuiMediaQuery()
   const selectedObjectiveMarker = objectiveMarkers.find(
     (marker) => marker.uid === selectedObjectiveMarkerUID,
@@ -44,27 +43,13 @@ const SelectedPieceReadout = ({
         }}
       >
         <ObjectiveMarkerControls marker={selectedObjectiveMarker} />
-        <SelectionHistoryControls />
+        <SaveSelectionButton />
       </div>
     )
   }
 
   if (!selectedPieceIDs.length) {
-    if (!selectionHistory.length) return null
-    return (
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          right: 0,
-          padding: isSmallScreenWidth ? 4 : 10,
-          margin: isSmallScreenWidth ? 4 : 10,
-          width: 'min(320px, calc(100vw - 24px))',
-        }}
-      >
-        <SelectionHistoryControls />
-      </div>
-    )
+    return null
   }
   const firstBp = boardPieces.find((bp) => selectedPieceIDs.includes(bp.uid))
   if (!firstBp) return null
@@ -84,7 +69,7 @@ const SelectedPieceReadout = ({
       <Card sx={{ width: cardWidth, p: 0 }}>
         <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
           <SelectedPieceControls cameraControlsRef={cameraControlsRef} />
-          <SelectionHistoryControls />
+          <SaveSelectionButton />
         </CardContent>
       </Card>
     </div>

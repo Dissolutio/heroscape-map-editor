@@ -1,3 +1,5 @@
+import type { SelectionUnit } from '../data/selectionUnits'
+
 export type ActionLogKind =
   | 'place'
   | 'move'
@@ -16,10 +18,17 @@ export type ActionLogEntry = {
   severity: 'info' | 'warning'
   text: string
   pieceName?: string
+  selection?: SelectionUnit
+  selectionLabel?: string
   undoable: boolean
 }
 
-export type ActionLogAction =
+type ActionLogSelection = {
+  selection?: SelectionUnit
+  selectionLabel?: string
+}
+
+export type ActionLogAction = (
   | { type: 'place'; pieceName: string }
   | {
       type: 'move'
@@ -36,6 +45,8 @@ export type ActionLogAction =
     }
   | { type: 'undo' | 'redo'; description: string }
   | { type: 'warning'; text: string }
+) &
+  ActionLogSelection
 
 export const ACTION_LOG_LIMIT = 200
 export const ACTION_LOG_COLLAPSED_TIMEOUT_MS = 8_000

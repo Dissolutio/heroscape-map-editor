@@ -34,6 +34,7 @@ import {
   doPenModeRotation,
 } from './getPossibleRotationsForPenMode'
 import { rotateSelectedPieces } from './rotateSelectedPieces'
+import { promptToSaveSelection } from './SaveSelectionButton'
 
 export const STANDARD_PIECE_SIZE_HOTKEYS = {
   '1': 1,
@@ -235,10 +236,6 @@ export const useApplyHotkeys = ({
   const togglePieceSize7 = () => togglePieceSizeForHotkey('7')
   const undoWorld = undoWithSelectionRestore
   const redoWorld = redoWithSelectionRestore
-  const backSelectionHistory = () =>
-    useBoundStore.getState().navigateSelectionHistory('back')
-  const forwardSelectionHistory = () =>
-    useBoundStore.getState().navigateSelectionHistory('forward')
   const rotatePenMode = (direction: 1 | -1) => {
     const pieceID = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
     const rotate =
@@ -359,8 +356,7 @@ export const useApplyHotkeys = ({
 
     undoWorld: undoWorld,
     redoWorld: redoWorld,
-    backSelectionHistory: backSelectionHistory,
-    forwardSelectionHistory: forwardSelectionHistory,
+    saveSelection: promptToSaveSelection,
 
     togglePenModeSelect: togglePenModeSelect,
     togglePenModePick: togglePenModePick,
