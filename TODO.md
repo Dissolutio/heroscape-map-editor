@@ -14,9 +14,10 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - 🔧 #241 One shared rotation for markers and glyphs (camera shots)
 
 ## 2. Next (catch-up, in rough order)
-**Selection** (design together first)
-- Click an empty hex to deselect
-- Right-click menu: select same type, connected, same level, invert
+**Selection**
+- 🔧 #246 Selection units: action-log rows recall their selection, named saved selections pinned above the log (kept in the map file), replaces back/forward history
+- Click an empty hex to deselect (after #246)
+- Right-click menu: select same type, connected, same level, invert (after #246)
 
 **Hotkeys**
 - Edit hotkeys, import/export a config file
@@ -41,20 +42,23 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - Laur Ruin 2 and 3: pen modes and 3D models 👤 models from you
 
 **Health**
+- Retire the old High-Quality render path and the unused textured model files (the new textures replace them)
 - Rough-edges cleanup (small known nits, list in project docs)
 - E2E flake watch
 - Developer guide refresh once edges are done (`docs/adding-a-piece.md`)
 - "Retry 3D" button if the Windows panel shows up in the wild
 
 ## 3. Waiting on you 👤
-- Road and Wood textured caps, all remaining solid land textures (Blender)
 - Laur Ruin 1 redo; Ruin 2 and 3 models
 - Hand-testing after each deploy
 - Where to take the UI layout (you said the layout is "way off")
 
 ## 4. After catch-up
 **UI and structure**
-- Rework the layout (always-visible pen, level, errors; inventory in a floating box)
+- Rework the layout: tabs on the left are not the right way to build; fewer clicks
+- Map inventory always visible, especially when building with constraints
+- Tray of unused pieces off to the side, grouped by terrain set, drag and drop from it
+- Always-visible pen, level, and errors
 - Inventory hints in the pen selector
 - Conflict lens (heat map of problem pieces)
 - Command palette, help/encyclopedia, tutorial, About
