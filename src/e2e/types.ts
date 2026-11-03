@@ -78,6 +78,10 @@ export type E2ETestBridge = {
   listPieces: () => E2EPieceSummary[]
   /** UIDs mounted in the 3D objective-marker layer. */
   listRenderedObjectiveMarkerUIDs: () => string[]
+  /** The rendered objective-marker group's local Y rotation, or null. */
+  getRenderedObjectiveMarkerRotationY: (uid: string) => number | null
+  /** The rendered glyph symbol group's local Y rotation, or null. */
+  getRenderedGlyphRotationY: (uid: string) => number | null
   /** Where to click the canvas to hit a placed piece, or null. */
   screenPosOfPiece: (uid: string) => ScreenPoint | null
   /** Where to click the canvas to hit a rendered objective marker, or null. */

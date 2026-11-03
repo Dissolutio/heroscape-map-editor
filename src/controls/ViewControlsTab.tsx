@@ -12,8 +12,10 @@ import {
   List,
   MenuItem,
   Select,
+  Slider,
   type SelectChangeEvent,
   Switch,
+  TextField,
   Tooltip,
 } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
@@ -60,6 +62,8 @@ const TRANSPARENT_GLYPHS_TOOLTIP =
   'Show glyph spaces transparently in SVG and PDF, preserving outlines and symbols.'
 const HIDE_GLYPH_HEIGHTS_TOOLTIP =
   'Hide hex heights at glyph spaces in SVG and PDF.'
+const MARKER_GLYPH_ROTATION_TOOLTIP =
+  'Rotates every objective marker and glyph symbol in 3D. It does not follow the camera or change saved maps or 2D/PDF exports.'
 const PICTURE_CAPTURE_TOOLTIP_COPY = {
   defaults:
     'These saved options are used when you choose Take picture. Other picture actions apply their option only to that capture.',
@@ -96,6 +100,10 @@ export default function ViewControlsTab({
   )
   const lookSettings = useBoundStore((s) => s.lookSettings)
   const setLookSettings = useBoundStore((s) => s.setLookSettings)
+  const markerGlyphRotation = useBoundStore((s) => s.markerGlyphRotation)
+  const setMarkerGlyphRotation = useBoundStore(
+    (s) => s.setMarkerGlyphRotation,
+  )
   const useHighQualityForPicture = useBoundStore(
     (s) => s.useHighQualityForPicture,
   )
@@ -691,6 +699,55 @@ const ViewPreferencesSwitchForm = () => {
               <MenuItem value="high">High (PBR textures)</MenuItem>
             </Select>
           </FormControl>
+          <Tooltip
+            title={MARKER_GLYPH_ROTATION_TOOLTIP}
+            arrow
+            describeChild
+          >
+            <Box>
+              <FormLabel component="label">
+                Marker and glyph rotation
+              </FormLabel>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                }}
+              >
+                <Slider
+                  aria-label="Marker and glyph rotation"
+                  value={markerGlyphRotation}
+                  min={-180}
+                  max={180}
+                  step={1}
+                  onChange={(_, value) =>
+                    setMarkerGlyphRotation(value as number)
+                  }
+                />
+                <TextField
+                  label="Degrees"
+                  type="number"
+                  size="small"
+                  value={markerGlyphRotation}
+                  onChange={(event) => {
+                    const value = event.currentTarget.valueAsNumber
+                    if (Number.isFinite(value)) setMarkerGlyphRotation(value)
+                  }}
+                  slotProps={{
+                    htmlInput: { min: -180, max: 180, step: 1 },
+                  }}
+                  sx={{ width: 96 }}
+                />
+                <Button
+                  size="small"
+                  onClick={() => setMarkerGlyphRotation(0)}
+                >
+                  Reset
+                </Button>
+              </Box>
+            </Box>
+          </Tooltip>
           {showLookSettings && (
             <Button
               onClick={() => setIsLookSettingsDialogOpen(true)}

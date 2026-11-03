@@ -13,6 +13,7 @@ import {
 import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
 import {
   DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
+  composeObjectiveMarkerRotationY,
   getObjectiveMarker3DPosition,
   getObjectiveMarker3DTextPosition,
   getObjectiveMarker3DTextTransform,
@@ -126,6 +127,15 @@ function isSimplePolygon(points: { x: number; z: number }[]) {
 }
 
 describe('objective marker 3D helpers', () => {
+  it('composes the marker rotation with the shared rotation in degrees', () => {
+    expect(composeObjectiveMarkerRotationY(2, 30)).toBeCloseTo(
+      -Math.PI * 2 / 3 + Math.PI / 6,
+    )
+    expect(composeObjectiveMarkerRotationY(0, -45)).toBeCloseTo(
+      -Math.PI / 4,
+    )
+  })
+
   it('positions a one-hex token just above its supported cap', () => {
     const board = makeTable(5)
     const target = marker()

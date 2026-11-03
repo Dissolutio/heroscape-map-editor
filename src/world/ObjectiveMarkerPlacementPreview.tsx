@@ -33,6 +33,9 @@ export default function ObjectiveMarkerPlacementPreview() {
   const isHighQualityRender = useBoundStore(
     (state) => state.isHighQualityRender,
   )
+  const markerGlyphRotation = useBoundStore(
+    (state) => state.markerGlyphRotation,
+  )
   const mapHexIDs = useMemo(() => mapTableHexes(hexMap), [hexMap])
   const content =
     draft.content.kind === 'number' && !draft.pinNumber
@@ -80,7 +83,12 @@ export default function ObjectiveMarkerPlacementPreview() {
     })
   }, [boardHexes, dragPreview, mapHexIDs, marker, markers])
   const markerPosition = marker
-    ? getObjectiveMarker3DPosition(marker, boardHexes, isHighQualityRender)
+    ? getObjectiveMarker3DPosition(
+        marker,
+        boardHexes,
+        isHighQualityRender,
+        markerGlyphRotation,
+      )
     : null
   const textTransform =
     marker && markerPosition

@@ -88,6 +88,7 @@ describe('settings persistence', () => {
       isOrthoCam: false,
       isShowActionLog: false,
       useHighQualityForPicture: true,
+      markerGlyphRotation: 45,
       isShowPdfBuriedMarks: true,
       isShow2DExportBuriedMarks: true,
       isTransparentGlyphSpaces: true,
@@ -114,6 +115,7 @@ describe('settings persistence', () => {
         isOrthoCam: false,
         useHighQualityForPicture: true,
         graphicsTier: 'high' as const,
+        markerGlyphRotation: 45,
         isShowActionLog: false,
         isShowPdfBuriedMarks: true,
         isShow2DExportBuriedMarks: true,
@@ -219,6 +221,7 @@ describe('settings persistence', () => {
         v: 1,
         values: {
           isOrthoCam: false,
+          markerGlyphRotation: '90',
           graphicsTier: 'fast',
           isShowPdfBuriedMarks: 'yes',
           isShow2DExportBuriedMarks: 1,
@@ -244,6 +247,7 @@ describe('settings persistence', () => {
 
     expect(loadSettings()).toMatchObject({
       isOrthoCam: false,
+      markerGlyphRotation: SETTINGS_DEFAULTS.markerGlyphRotation,
       isTransparentGlyphSpaces: SETTINGS_DEFAULTS.isTransparentGlyphSpaces,
       isHideHeightsOnGlyphs: SETTINGS_DEFAULTS.isHideHeightsOnGlyphs,
       pdfRenderFormat: SETTINGS_DEFAULTS.pdfRenderFormat,
@@ -605,6 +609,7 @@ describe('settings persistence', () => {
     )
     const { default: store } = await import('../store/store')
     store.getState().updateLightPosition('back-left', [3, 4, 5])
+    store.getState().setMarkerGlyphRotation(75)
     store.getState().resetSettings()
     expect(pickSettings(store.getState())).toEqual(SETTINGS_DEFAULTS)
     expect(values.has(LS_KEYS.settings)).toBe(false)

@@ -194,6 +194,24 @@ function TestBridgeInner() {
         })
         return uids
       },
+      getRenderedObjectiveMarkerRotationY: (uid) => {
+        let rotationY: number | null = null
+        get().scene.traverse((object) => {
+          if (object.userData.objectiveMarkerUID === uid) {
+            rotationY = object.rotation.y
+          }
+        })
+        return rotationY
+      },
+      getRenderedGlyphRotationY: (uid) => {
+        let rotationY: number | null = null
+        get().scene.traverse((object) => {
+          if (object.userData.glyphPieceUID === uid) {
+            rotationY = object.rotation.y
+          }
+        })
+        return rotationY
+      },
       screenPosOfHex: ({ q, r, altitude }) => {
         const { x, y, z } = getBoardHex3DCoords({ q, r, s: -q - r, altitude })
         return project(x, y, z)

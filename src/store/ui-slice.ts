@@ -133,6 +133,8 @@ export interface UISlice {
   rememberedMapAuthor: string
   lookSettings: LookSettings
   setLookSettings: (settings: Partial<LookSettings>) => void
+  markerGlyphRotation: number
+  setMarkerGlyphRotation: (degrees: number) => void
   setGenericSolidCapColor: (color: string) => void
   setGenericSolidSideColor: (color: string) => void
   setGenericFluidCapColor: (color: string) => void
@@ -1240,6 +1242,10 @@ const createUISlice: StateCreator<
         ...settings,
       }),
     })),
+  setMarkerGlyphRotation: (degrees) => {
+    if (!Number.isFinite(degrees)) return
+    set({ markerGlyphRotation: Math.max(-180, Math.min(180, degrees)) })
+  },
   setIsLookSettingsDialogOpen: (open) =>
     set({ isLookSettingsDialogOpen: open }),
   setGenericSolidCapColor: (color: string) =>
