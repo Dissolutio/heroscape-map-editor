@@ -11,18 +11,10 @@ import {
   MdUndo,
   MdWarningAmber,
 } from 'react-icons/md'
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import useBoundStore from '../store/store'
 import {
   ACTION_LOG_COLLAPSED_TIMEOUT_MS,
-  formatActionLogAge,
   type ActionLogEntry,
   type ActionLogKind,
 } from '../store/action-log'
@@ -30,70 +22,6 @@ import './ActionLog.css'
 
 const ROW_HEIGHT = 22
 const WINDOW_SIZE = 12
-
-let actionLogClockNow = Date.now()
-let actionLogClockInterval: number | null = null
-const actionLogClockSubscribers = new Set<() => void>()
-
-function notifyActionLogClock() {
-  actionLogClockNow = Date.now()
-  for (const subscriber of actionLogClockSubscribers) subscriber()
-}
-
-function stopActionLogClock() {
-  if (actionLogClockInterval === null) return
-  window.clearInterval(actionLogClockInterval)
-  actionLogClockInterval = null
-}
-
-function startActionLogClock() {
-  if (
-    actionLogClockInterval !== null ||
-    !actionLogClockSubscribers.size ||
-    document.visibilityState !== 'visible'
-  ) {
-    return
-  }
-  actionLogClockInterval = window.setInterval(notifyActionLogClock, 1_000)
-}
-
-function handleActionLogVisibilityChange() {
-  if (document.visibilityState === 'visible') {
-    notifyActionLogClock()
-    startActionLogClock()
-  } else {
-    stopActionLogClock()
-  }
-}
-
-function subscribeToActionLogClock(subscriber: () => void) {
-  actionLogClockSubscribers.add(subscriber)
-  if (actionLogClockSubscribers.size === 1) {
-    document.addEventListener(
-      'visibilitychange',
-      handleActionLogVisibilityChange,
-    )
-    actionLogClockNow = Date.now()
-    startActionLogClock()
-  }
-  return () => {
-    actionLogClockSubscribers.delete(subscriber)
-    if (!actionLogClockSubscribers.size) {
-      stopActionLogClock()
-      document.removeEventListener(
-        'visibilitychange',
-        handleActionLogVisibilityChange,
-      )
-    }
-  }
-}
-
-function getActionLogClock() {
-  if (actionLogClockInterval === null && !actionLogClockSubscribers.size) {
-    actionLogClockNow = Date.now()
-  }
-  return actionLogClockNow
-}
 
 const icons = {
   place: MdAdd,
@@ -118,14 +46,22 @@ function ActionRow({
   isExpanded: boolean
   onExpire: (id: string) => void
 }) {
-  const now = useSyncExternalStore(
-    subscribeToActionLogClock,
-    getActionLogClock,
-    getActionLogClock,
+  // One timeout per row, no ticking clock: the row just fades when it gets old.
+  const [hasTimedOut, setHasTimedOut] = useState(
+    () => Date.now() - entry.time >= ACTION_LOG_COLLAPSED_TIMEOUT_MS,
   )
-  const ageMs = Math.max(0, now - entry.time)
-  const isIdle = !isExpanded && ageMs >= ACTION_LOG_COLLAPSED_TIMEOUT_MS
+  const isIdle = !isExpanded && hasTimedOut
   const Icon = icons[entry.kind]
+
+  useEffect(() => {
+    if (hasTimedOut) return
+    const remainingMs = Math.max(
+      0,
+      ACTION_LOG_COLLAPSED_TIMEOUT_MS - (Date.now() - entry.time),
+    )
+    const timeout = window.setTimeout(() => setHasTimedOut(true), remainingMs)
+    return () => window.clearTimeout(timeout)
+  }, [entry.time, hasTimedOut])
 
   useEffect(() => {
     if (!isIdle) return
@@ -161,9 +97,6 @@ function ActionRow({
     >
       <Icon aria-hidden="true" className="action-log__icon" />
       <span>{entry.text}</span>
-      <span aria-hidden="true" className="action-log__age">
-        {formatActionLogAge(ageMs)}
-      </span>
     </div>
   )
 }

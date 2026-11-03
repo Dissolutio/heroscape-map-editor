@@ -3,7 +3,6 @@ import {
   ACTION_LOG_COLLAPSED_TIMEOUT_MS,
   ACTION_LOG_LIMIT,
   appendActionLogEntry,
-  formatActionLogAge,
   formatActionLogAction,
   type ActionLogEntry,
 } from './action-log'
@@ -69,25 +68,6 @@ describe('action log formatting', () => {
       severity: 'warning',
       undoable: false,
     })
-  })
-})
-
-describe('action log relative age', () => {
-  it.each([
-    [0, 'just now'],
-    [4_999, 'just now'],
-    [5_000, '5s ago'],
-    [59_999, '59s ago'],
-    [60_000, '1 min ago'],
-    [120_000, '2 min ago'],
-    [3_600_000, '1 hr ago'],
-    [-1, 'just now'],
-  ])('formats %i ms as %s', (ageMs, text) => {
-    expect(formatActionLogAge(ageMs)).toBe(text)
-  })
-
-  it('uses an 8-second collapsed timeout', () => {
-    expect(ACTION_LOG_COLLAPSED_TIMEOUT_MS).toBe(8_000)
   })
 })
 
