@@ -19,12 +19,12 @@ test('saved selections survive map-file reload and recall with replace or Shift-
   )
   await waitForAppReady(page)
 
-  const group = await Promise.all([
+  const [first, second, third] = await Promise.all([
     findPieceUid(page, { inventoryID: 'g1', q: 0, r: 2 }),
     findPieceUid(page, { inventoryID: 'g1', q: 1, r: 3 }),
     findPieceUid(page, { inventoryID: 'g1', q: 2, r: 2 }),
   ])
-  const other = await findPieceUid(page, { inventoryID: 's1', q: 5, r: 0 })
+  const group = [first, second, third]
   const selectAt = async (uid: string, shift = false) => {
     const position = await page.evaluate(
       (id) => window.__TEST__?.screenPosOfPiece(id) ?? null,
@@ -37,9 +37,9 @@ test('saved selections survive map-file reload and recall with replace or Shift-
     })
   }
 
-  await selectAt(group[0]!)
-  await selectAt(group[1]!, true)
-  await selectAt(group[2]!, true)
+  await selectAt(first)
+  await selectAt(second, true)
+  await selectAt(third, true)
   await expect
     .poll(async () => (await snapshot(page))?.selectedPieceIDs)
     .toEqual(group)

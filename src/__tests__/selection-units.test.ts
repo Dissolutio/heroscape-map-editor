@@ -14,36 +14,33 @@ const saved: SavedSelection[] = [
   { id: 'marker', name: 'Marker', pieceUIDs: [], objectiveMarkerUID: 'm1' },
 ]
 
+const [groupUnit, markerUnit] = saved as [SavedSelection, SavedSelection]
+
 describe('selection units', () => {
   it('resolves only existing visible pieces and existing markers', () => {
     expect(
       resolveSelectionUnit(
-        saved[0]!,
+        groupUnit,
         new Set(['a', 'b']),
         new Set(['a']),
         new Set(),
       ),
     ).toEqual({ pieceUIDs: ['a'] })
     expect(
-      resolveSelectionUnit(
-        saved[1]!,
-        new Set(),
-        new Set(),
-        new Set(),
-      ),
+      resolveSelectionUnit(markerUnit, new Set(), new Set(), new Set()),
     ).toBeUndefined()
     expect(
-      resolveSelectionUnit(
-        saved[1]!,
-        new Set(),
-        new Set(),
-        new Set(['m1']),
-      ),
+      resolveSelectionUnit(markerUnit, new Set(), new Set(), new Set(['m1'])),
     ).toEqual({ pieceUIDs: [], objectiveMarkerUID: 'm1' })
   })
 
   it('saves, renames, and deletes selections with a cap of 20', () => {
-    const savedResult = saveNamedSelection([], { pieceUIDs: ['a', 'a'] }, '  Alpha  ', 'a1')
+    const savedResult = saveNamedSelection(
+      [],
+      { pieceUIDs: ['a', 'a'] },
+      '  Alpha  ',
+      'a1',
+    )
     expect(savedResult).toEqual({
       result: 'saved',
       selections: [{ id: 'a1', name: 'Alpha', pieceUIDs: ['a'] }],

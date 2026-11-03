@@ -896,6 +896,7 @@ describe('real store undo and redo', () => {
     store.getState().toggleSelectedPieceID('saved-two', true)
     expect(store.getState().saveSelectedSelection('My group')).toBe('saved')
     const [savedSelection] = store.getState().savedSelections
+    if (!savedSelection) throw new Error('Saved selection was not created')
     expect(savedSelection).toMatchObject({
       name: 'My group',
       pieceUIDs: ['saved-one', 'saved-two'],
@@ -903,13 +904,13 @@ describe('real store undo and redo', () => {
     expect(historyLength()).toBe(0)
 
     store.getState().toggleSelectedPieceID('saved-other')
-    store.getState().selectSelectionUnit(savedSelection!, true)
+    store.getState().selectSelectionUnit(savedSelection, true)
     expect(store.getState().selectedPieceIDs).toEqual([
       'saved-other',
       'saved-one',
       'saved-two',
     ])
-    store.getState().renameSavedSelection(savedSelection!.id, 'Renamed')
+    store.getState().renameSavedSelection(savedSelection.id, 'Renamed')
     expect(store.getState().savedSelections[0]?.name).toBe('Renamed')
 
     store.getState().unpaintTile('saved-one')
@@ -937,13 +938,14 @@ describe('real store undo and redo', () => {
 
     expect(store.getState().saveSelectedSelection('Marker-only')).toBe('saved')
     const [savedSelection] = store.getState().savedSelections
+    if (!savedSelection) throw new Error('Saved selection was not created')
     expect(savedSelection).toMatchObject({
       name: 'Marker-only',
       pieceUIDs: [],
       objectiveMarkerUID: marker.uid,
     })
 
-    store.getState().deleteSavedSelection(savedSelection!.id)
+    store.getState().deleteSavedSelection(savedSelection.id)
     expect(store.getState().savedSelections).toEqual([])
   })
 
