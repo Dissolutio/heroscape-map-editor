@@ -40,14 +40,6 @@ export type ActionLogAction =
 export const ACTION_LOG_LIMIT = 200
 export const ACTION_LOG_COLLAPSED_TIMEOUT_MS = 8_000
 
-export function formatActionLogAge(ageMs: number) {
-  const age = Math.max(0, ageMs)
-  if (age < 5_000) return 'just now'
-  if (age < 60_000) return `${Math.floor(age / 1_000)}s ago`
-  if (age < 3_600_000) return `${Math.floor(age / 60_000)} min ago`
-  return `${Math.floor(age / 3_600_000)} hr ago`
-}
-
 export function formatActionLogAction(action: ActionLogAction) {
   switch (action.type) {
     case 'place':

@@ -1,7 +1,7 @@
 Nov-02-2026
 TLDR: Selection history, a quiet action log, q/e rotate while you drag, and a bunch of rendering fixes, including upside-down textures and a Windows 3D fix.
 
-- **Action log**: A small, quiet log floats in the 3D view and shows what you just did: placed, moved, rotated, deleted, converted, markers, undo and redo. Entries show how long ago they happened and fade out when you stop acting, so anything showing is a gentle hint that something just changed. Hover it to scroll back through the recent history. It can be switched off in the View tab, and it is never saved with your map.
+- **Action log**: A small, quiet log floats in the 3D view and shows what you just did: placed, moved, rotated, deleted, converted, markers, undo and redo. Entries fade out after a few seconds, so anything showing is a gentle hint that something just changed. Hover it to scroll back through the recent history. It can be switched off in the View tab, and it is never saved with your map.
 - **Undo and redo bring your selection back**: Undoing or redoing an action now selects the pieces it touched. Multi-select three pieces, move them, click somewhere else, then undo, and your three pieces are selected again.
 - **Selection history**: Back and forward buttons and a list of recent selections in the selected-piece readout (and hotkeys) let you jump back to something you had selected a minute ago. It is not saved with your map.
 - **Rotate hotkeys while you drag**: The rotate keys (Q and E by default) now rotate whatever you are dragging, or your selected pieces, or the selected objective marker, or the pen preview, in that order. Much easier than the scroll wheel, and ladders, Laur add-ons and lone edge pieces still follow your pointer instead.

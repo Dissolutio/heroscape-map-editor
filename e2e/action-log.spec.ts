@@ -92,9 +92,6 @@ test('logs placement, drag, and undo without blocking the editor', async ({
 
   await page.evaluate(() => window.__TEST__?.seedActionLog(12))
   await expect(log.locator('.action-log__row')).toHaveCount(5)
-  await expect(
-    log.locator('.action-log__row').first().locator('.action-log__age'),
-  ).toHaveText('just now')
 
   const expandAgain = page.getByRole('button', {
     name: 'Expand action log',
@@ -150,9 +147,7 @@ test('logs placement, drag, and undo without blocking the editor', async ({
   })
 })
 
-test('shows relative ages and keeps expanded history after the collapsed timeout', async ({
-  page,
-}) => {
+test('keeps expanded history after the collapsed timeout', async ({ page }) => {
   const startTime = new Date()
   await page.clock.install({ time: startTime })
   await page.clock.pauseAt(new Date(startTime.getTime() + 1_000))
@@ -160,14 +155,13 @@ test('shows relative ages and keeps expanded history after the collapsed timeout
 
   const log = page.getByRole('log')
   const row = log.locator('.action-log__row')
-  await expect(row.locator('.action-log__age')).toHaveText('just now')
+  await expect(row).toHaveCount(1)
 
   await page.clock.runFor(5_000)
-  await expect(row.locator('.action-log__age')).toHaveText('5s ago')
+  await expect(row).toHaveCount(1)
 
   await page.getByRole('button', { name: 'Expand action log' }).hover()
   await page.clock.runFor(4_000)
-  await expect(row.locator('.action-log__age')).toHaveText(/^[89]s ago$/)
   await expect(row).toHaveCount(1)
 
   await page.getByRole('button', { name: 'Collapse action log' }).click()
