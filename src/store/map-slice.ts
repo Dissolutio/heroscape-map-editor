@@ -329,10 +329,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
 
         draft.boardHexes = workingHexes
         draft.boardPieces = workingPieces
-        draft.savedSelections = pruneDeletedPiece(
-          draft.savedSelections,
-          uid,
-        )
+        draft.savedSelections = pruneDeletedPiece(draft.savedSelections, uid)
         draft.conflictedPieceUIDs = [
           ...new Set([
             ...newConflicts,
@@ -618,7 +615,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         piecesSoFar[leadPiece.inventoryID]?.title ?? leadPiece.inventoryID
       const changedUIDs = new Set(changedPieces.map((piece) => piece.uid))
       const actionSelectionUIDs = [
-        ...stateBeforeMove.selectedPieceIDs.filter((uid) => changedUIDs.has(uid)),
+        ...stateBeforeMove.selectedPieceIDs.filter((uid) =>
+          changedUIDs.has(uid),
+        ),
         ...changedPieces
           .map((piece) => piece.uid)
           .filter((uid) => !stateBeforeMove.selectedPieceIDs.includes(uid)),

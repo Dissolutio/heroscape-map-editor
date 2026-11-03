@@ -51,9 +51,7 @@ export function readMapFromLocalStorage(ls_key: string): LoadedLocalMap | null {
           ),
           new Set(boardPieces.map((piece) => piece.uid)),
           new Set(
-            (parsed.hexMap.objectiveMarkers ?? []).map(
-              (marker) => marker.uid,
-            ),
+            (parsed.hexMap.objectiveMarkers ?? []).map((marker) => marker.uid),
           ),
         ),
       },

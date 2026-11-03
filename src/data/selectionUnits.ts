@@ -29,9 +29,13 @@ export function normalizeSavedSelections(value: unknown): SavedSelection[] {
     }
 
     const pieceUIDs = Array.isArray(item.pieceUIDs)
-      ? [...new Set(item.pieceUIDs.filter((uid): uid is string =>
-          typeof uid === 'string' && uid.length > 0,
-        ))]
+      ? [
+          ...new Set(
+            item.pieceUIDs.filter(
+              (uid): uid is string => typeof uid === 'string' && uid.length > 0,
+            ),
+          ),
+        ]
       : []
     const objectiveMarkerUID =
       typeof item.objectiveMarkerUID === 'string' &&

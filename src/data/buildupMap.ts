@@ -213,7 +213,9 @@ export function buildupJsonFileMap(
     savedSelections: pruneSavedSelections(
       normalizeSavedSelections(savedSelections),
       new Set(finalBoardPieces.map((piece) => piece.uid)),
-      new Set((fittedHexMap.objectiveMarkers ?? []).map((marker) => marker.uid)),
+      new Set(
+        (fittedHexMap.objectiveMarkers ?? []).map((marker) => marker.uid),
+      ),
     ),
     droppedPieces,
     ...(fitted.droppedObjectiveMarkers

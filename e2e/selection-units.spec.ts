@@ -31,10 +31,13 @@ test('saved selections survive map-file reload and recall with replace or Shift-
       uid,
     )
     if (!position) throw new Error(`Piece ${uid} is not on screen`)
-    await page.locator('canvas').first().click({
-      position,
-      modifiers: shift ? ['Shift'] : [],
-    })
+    await page
+      .locator('canvas')
+      .first()
+      .click({
+        position,
+        modifiers: shift ? ['Shift'] : [],
+      })
   }
 
   await selectAt(first)

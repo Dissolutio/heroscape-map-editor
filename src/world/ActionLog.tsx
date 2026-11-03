@@ -273,7 +273,9 @@ export default function ActionLog() {
           <button
             aria-controls="action-log-entries"
             aria-expanded={isExpanded}
-            aria-label={isExpanded ? 'Collapse action log' : 'Expand action log'}
+            aria-label={
+              isExpanded ? 'Collapse action log' : 'Expand action log'
+            }
             className="action-log__toggle"
             onClick={() => setIsExpanded((expanded) => !expanded)}
             onFocus={() => setIsExpanded(true)}

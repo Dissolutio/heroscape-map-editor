@@ -34,14 +34,14 @@ function createEntry(action: ActionLogAction): ActionLogEntry {
         ? action.type === 'marker'
           ? (action.label ?? 'objective marker')
           : action.type === 'move' || action.type === 'rotate'
-          ? action.count > 1
-            ? `${action.count} pieces`
-            : action.pieceName
-          : action.type === 'convert'
-            ? `${action.count} ${action.count === 1 ? 'piece' : 'pieces'}`
-            : action.type === 'place' || action.type === 'delete'
-              ? action.pieceName
-              : 'pieces'
+            ? action.count > 1
+              ? `${action.count} pieces`
+              : action.pieceName
+            : action.type === 'convert'
+              ? `${action.count} ${action.count === 1 ? 'piece' : 'pieces'}`
+              : action.type === 'place' || action.type === 'delete'
+                ? action.pieceName
+                : 'pieces'
         : undefined)
   return {
     id: `${time}-${nextEntryId++}`,

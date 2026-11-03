@@ -71,10 +71,7 @@ describe('selection units', () => {
       saved[1],
     ])
     expect(
-      pruneDeletedPiece(
-        [{ id: 'only', name: 'Only', pieceUIDs: ['a'] }],
-        'a',
-      ),
+      pruneDeletedPiece([{ id: 'only', name: 'Only', pieceUIDs: ['a'] }], 'a'),
     ).toEqual([])
   })
 
