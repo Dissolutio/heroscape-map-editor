@@ -1,17 +1,16 @@
 # Hexoscape roadmap
 
-Updated 2026-11-03. One page. Legend: 🔧 Copilot has it (issue #) · 👀 needs your eyes · 👤 waiting on you · ❓ needs a decision or measurement · 💤 later
+Updated 2026-11-03 (evening). One page. Legend: 🔧 Copilot has it (issue #) · 👀 needs your eyes · 👤 waiting on you · ❓ needs a decision or measurement · 💤 later
 
 ## Where we are
+Merged Nov 3: upright and unmirrored side textures, size hotkeys for obstacles, one 3D | 2D | PDF navbar switch, optional PDF piece legend, shared marker/glyph rotation, no random rotation on Wood caps, quieter action log.
 Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restores selection, rotate hotkeys (q/e) while dragging, Use as Pen, upright side textures, fluid caps, old-map loading fix. Textures (3 graphics tiers), objective markers, edge IDs for Laur/battlements/ladders are all in.
 
 ## 1. Now
-- 👀 Side textures mirrored left-right (PR #237): look at a side with your height map after merge
+- 👀 Hand-test the Nov 3 merges: side textures not mirrored, size hotkeys (#239), navbar 3D | 2D | PDF switch (#238), PDF piece legend (#240), shared marker/glyph rotation (#241)
+- 👀 Zoom-to-Piece fade: Copilot found no fade code in source. Does it still happen?
 - 👀 Test selection history, the ghost-preview fix, Windows diagnostics (Sentry tag `webgl`)
-- 🔧 #238 Remove broken Zoom-to-Piece fade; one 3D | 2D | PDF switch in the navbar
-- 🔧 #239 Size hotkeys (1, 3, ...) for trees, outcrops and other obstacle families
-- 🔧 #240 PDF legend of the pieces used in the map
-- 🔧 #241 One shared rotation for markers and glyphs (camera shots)
+- 🔧 #246 Selection units (PR #247, WIP)
 
 ## 2. Next (catch-up, in rough order)
 **Selection**
@@ -44,13 +43,13 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 **Health**
 - Retire the old High-Quality render path and the unused textured model files (the new textures replace them)
 - Rough-edges cleanup (small known nits, list in project docs)
-- E2E flake watch
+- E2E flake watch (tooltips can cover buttons: move the pointer away before clicking)
 - Developer guide refresh once edges are done (`docs/adding-a-piece.md`)
 - "Retry 3D" button if the Windows panel shows up in the wild
 
 ## 3. Waiting on you 👤
 - Laur Ruin 1 redo; Ruin 2 and 3 models
-- Hand-testing after each deploy
+- Hand-testing after each deploy (list in section 1)
 - Where to take the UI layout (you said the layout is "way off")
 
 ## 4. After catch-up
