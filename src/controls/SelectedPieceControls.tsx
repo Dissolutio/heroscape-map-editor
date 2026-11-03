@@ -494,7 +494,7 @@ export function SelectedPieceControls({
   }
 
   const rotateSelectedPiece = (direction: 1 | -1) => {
-    rotateSelectedPieces(direction)
+    rotateSelectedPieces(direction, { previewNext: true })
   }
 
   const moveSelectedPieceAltitude = (delta: number) => {

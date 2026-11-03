@@ -59,9 +59,34 @@ describe('selected-piece rotation hotkeys', () => {
     rotateSelectedPieces(-1)
 
     expect(useBoundStore.getState().boardPieces[0].rotation).toBe(5)
+    expect(useBoundStore.getState().piecePreviews).toBeNull()
     expect(useBoundStore.temporal.getState().pastStates).toHaveLength(1)
     useBoundStore.temporal.getState().undo()
     expect(useBoundStore.getState().boardPieces[0].rotation).toBe(0)
+  })
+
+  it('leaves a next-rotation preview only when a button asks for one', () => {
+    const placed = place({
+      board: makeTable(8),
+      pieceID: 'g1',
+      uid: 'PREVIEW',
+      at: { q: 2, r: 2, s: -4 },
+      altitude: 0,
+    })
+    if (placed.error) throw new Error(String(placed.error))
+    useBoundStore.setState({
+      boardHexes: placed.board.boardHexes,
+      boardPieces: placed.board.boardPieces,
+      selectedPieceIDs: ['PREVIEW'],
+      rotationPivot: null,
+      piecePreviews: null,
+    })
+
+    rotateSelectedPieces(1)
+    expect(useBoundStore.getState().piecePreviews).toBeNull()
+
+    rotateSelectedPieces(1, { previewNext: true })
+    expect(useBoundStore.getState().piecePreviews).toHaveLength(1)
   })
 
   it('shows the existing refusal when a group rotation leaves the map', async () => {
