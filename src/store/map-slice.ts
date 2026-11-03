@@ -22,6 +22,16 @@ import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { removePiece } from '../data/removePiece'
 import { reanchorRotationPivotAfterRotation } from '../data/rotationPivot'
 import {
+  normalizeSavedSelections,
+  pruneDeletedPiece,
+  pruneSavedSelections,
+  renameSavedSelection,
+  resolveSelectionUnit,
+  saveNamedSelection,
+  type SavedSelection,
+  type SelectionUnit,
+} from '../data/selectionUnits'
+import {
   filterVisiblePieceIDs,
   isStartZoneBoardPiece,
 } from '../data/startZoneVisibility'
@@ -106,6 +116,7 @@ function getDefaultSizeForLandPrefix(prefix: string) {
 }
 
 export interface MapSlice extends MapState {
+  savedSelections: SavedSelection[]
   conflictedPieceUIDs: string[]
   unsupportedPieceUIDs: string[]
   isAutosaveHeld: boolean
@@ -139,6 +150,10 @@ export interface MapSlice extends MapState {
   syncTerrainConstraintPenMode: () => void
   changeAuthorName: (val: string) => void
   changeMapNotes: (val: string) => void
+  saveSelectedSelection: (name: string) => 'saved' | 'empty' | 'full'
+  renameSavedSelection: (id: string, name: string) => void
+  deleteSavedSelection: (id: string) => void
+  selectSelectionUnit: (selection: SelectionUnit, additive?: boolean) => void
 }
 
 export type LoadMapOptions = {
@@ -186,6 +201,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     length: 20,
   },
   boardPieces: [],
+  savedSelections: [],
   conflictedPieceUIDs: [],
   unsupportedPieceUIDs: [],
   isAutosaveHeld: false,
@@ -246,7 +262,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     })
     get().clearPendingUndoSelectionRestore()
     if (!error) {
-      get().recordActionLog({ type: 'place', pieceName: piece.title })
+      get().recordActionLog({
+        type: 'place',
+        pieceName: piece.title,
+        selection: { pieceUIDs: [uid] },
+      })
     }
     return error
   },
@@ -309,6 +329,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
 
         draft.boardHexes = workingHexes
         draft.boardPieces = workingPieces
+        draft.savedSelections = pruneDeletedPiece(draft.savedSelections, uid)
         draft.conflictedPieceUIDs = [
           ...new Set([
             ...newConflicts,
@@ -327,6 +348,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         pieceName:
           piecesSoFar[removedPiece.inventoryID]?.title ??
           removedPiece.inventoryID,
+        selection: { pieceUIDs: [uid] },
       })
     }
   },
@@ -427,7 +449,11 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     })
     get().clearPendingUndoSelectionRestore()
     if (convertedCount) {
-      get().recordActionLog({ type: 'convert', count: convertedCount })
+      get().recordActionLog({
+        type: 'convert',
+        count: convertedCount,
+        selection: { pieceUIDs: affectedUIDs },
+      })
     }
     return convertedCount
   },
@@ -587,6 +613,15 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     if (leadPiece) {
       const pieceName =
         piecesSoFar[leadPiece.inventoryID]?.title ?? leadPiece.inventoryID
+      const changedUIDs = new Set(changedPieces.map((piece) => piece.uid))
+      const actionSelectionUIDs = [
+        ...stateBeforeMove.selectedPieceIDs.filter((uid) =>
+          changedUIDs.has(uid),
+        ),
+        ...changedPieces
+          .map((piece) => piece.uid)
+          .filter((uid) => !stateBeforeMove.selectedPieceIDs.includes(uid)),
+      ]
       const isRotation = changedPieces.every((piece) => {
         const before = piecesBeforeMove.find(
           (oldPiece) => oldPiece.uid === piece.uid,
@@ -606,12 +641,14 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
           type: 'rotate',
           pieceName,
           count: changedPieces.length,
+          selection: { pieceUIDs: actionSelectionUIDs },
         })
       } else {
         get().recordActionLog({
           type: 'move',
           pieceName,
           count: changedPieces.length,
+          selection: { pieceUIDs: actionSelectionUIDs },
         })
       }
     }
@@ -646,6 +683,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       type: 'marker',
       operation: 'add',
       label: getObjectiveMarkerLabel(normalized),
+      selection: { pieceUIDs: [], objectiveMarkerUID: uid },
     })
     return uid
   },
@@ -682,6 +720,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       type: 'marker',
       operation: 'edit',
       label: getObjectiveMarkerLabel(normalized),
+      selection: { pieceUIDs: [], objectiveMarkerUID: uid },
     })
   },
   moveObjectiveMarker: (uid, anchor) => {
@@ -717,6 +756,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       type: 'marker',
       operation: 'move',
       label: getObjectiveMarkerLabel(normalized),
+      selection: { pieceUIDs: [], objectiveMarkerUID: uid },
     })
   },
   removeObjectiveMarker: (uid) => {
@@ -739,10 +779,20 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     get().clearPendingUndoSelectionRestore()
     const removedMarker = existing.find((marker) => marker.uid === uid)
     if (removedMarker) {
+      set((state) =>
+        produce(state, (draft) => {
+          draft.savedSelections = draft.savedSelections.flatMap((selection) => {
+            if (selection.objectiveMarkerUID !== uid) return [selection]
+            const { objectiveMarkerUID: _removed, ...withoutMarker } = selection
+            return withoutMarker.pieceUIDs.length ? [withoutMarker] : []
+          })
+        }),
+      )
       get().recordActionLog({
         type: 'marker',
         operation: 'remove',
         label: getObjectiveMarkerLabel(removedMarker),
+        selection: { pieceUIDs: [], objectiveMarkerUID: uid },
       })
     }
   },
@@ -827,7 +877,6 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     }),
   loadMap: (mapState, options = {}) => {
     clearGlobalMaterialCache()
-    get().clearSelectionHistory()
     get().pushPendingUndoSelectionRestore([])
     const current = get()
     const boardPieces = isEqual(current.boardPieces, mapState.boardPieces)
@@ -861,6 +910,15 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         draft.boardHexes = boardHexes
         draft.hexMap = hexMap
         draft.boardPieces = boardPieces
+        draft.savedSelections = pruneSavedSelections(
+          normalizeSavedSelections(mapState.savedSelections),
+          new Set(mapState.boardPieces.map((piece) => piece.uid)),
+          new Set(
+            (mapState.hexMap.objectiveMarkers ?? []).map(
+              (marker) => marker.uid,
+            ),
+          ),
+        )
         draft.selectedObjectiveMarkerUID = null
         draft.rotationPivot = null
         draft.conflictedPieceUIDs = computeConflictedPieceUIDs(
@@ -902,6 +960,67 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       })
     }
     return result
+  },
+  saveSelectedSelection: (name) => {
+    const state = get()
+    const pieceUIDs = state.selectedPieceIDs.filter((uid) =>
+      state.boardPieces.some((piece) => piece.uid === uid),
+    )
+    const objectiveMarkerUID =
+      state.selectedObjectiveMarkerUID &&
+      state.hexMap.objectiveMarkers?.some(
+        (marker) => marker.uid === state.selectedObjectiveMarkerUID,
+      )
+        ? state.selectedObjectiveMarkerUID
+        : undefined
+    const result = saveNamedSelection(
+      state.savedSelections,
+      { pieceUIDs, ...(objectiveMarkerUID ? { objectiveMarkerUID } : {}) },
+      name,
+      nanoid(10),
+    )
+    if (result.result === 'saved') set({ savedSelections: result.selections })
+    return result.result
+  },
+  renameSavedSelection: (id, name) =>
+    set((state) => ({
+      savedSelections: renameSavedSelection(state.savedSelections, id, name),
+    })),
+  deleteSavedSelection: (id) =>
+    set((state) => ({
+      savedSelections: state.savedSelections.filter(
+        (selection) => selection.id !== id,
+      ),
+    })),
+  selectSelectionUnit: (selection, additive = false) => {
+    const state = get()
+    const pieceUIDs = new Set(state.boardPieces.map((piece) => piece.uid))
+    const visiblePieceUIDs = new Set(
+      filterVisiblePieceIDs(
+        [...pieceUIDs],
+        state.boardPieces,
+        state.isShowStartZones,
+      ),
+    )
+    const markerUIDs = new Set(
+      (state.hexMap.objectiveMarkers ?? []).map((marker) => marker.uid),
+    )
+    const resolved = resolveSelectionUnit(
+      selection,
+      pieceUIDs,
+      visiblePieceUIDs,
+      markerUIDs,
+    )
+    if (!resolved) return
+    set({
+      selectedPieceIDs: additive
+        ? [...new Set([...state.selectedPieceIDs, ...resolved.pieceUIDs])]
+        : resolved.pieceUIDs,
+      selectedObjectiveMarkerUID: additive
+        ? (resolved.objectiveMarkerUID ?? state.selectedObjectiveMarkerUID)
+        : (resolved.objectiveMarkerUID ?? null),
+      rotationPivot: null,
+    })
   },
 })
 

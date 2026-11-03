@@ -691,7 +691,6 @@ describe('real store undo and redo', () => {
     expect(store.getState().hexMap).toBe(hexMap)
     expect(store.getState().actionLog).toHaveLength(1)
     expect(JSON.stringify(sharedMap)).not.toContain('Not persisted')
-    expect(JSON.stringify(sharedMap)).not.toContain('selectionHistory')
     expect(
       localStorageMock.setItem.mock.calls.some(
         ([key]) => key === LS_KEYS.lastMap,
@@ -730,7 +729,7 @@ describe('real store undo and redo', () => {
     expect(historyLength()).toBe(0)
   })
 
-  it('records only settled selections and clears selection history on map load', () => {
+  it('does not record plain selections in the action log', () => {
     const pieces = [
       {
         uid: 'first-selection',
@@ -751,20 +750,12 @@ describe('real store undo and redo', () => {
 
     store.getState().toggleSelectedPieceID('first-selection')
     store.getState().toggleSelectedPieceID('second-selection')
-    vi.advanceTimersByTime(249)
-    expect(store.getState().selectionHistory).toEqual([])
-    vi.advanceTimersByTime(1)
-    expect(store.getState().selectionHistory).toHaveLength(1)
-    expect(store.getState().selectionHistory[0]?.pieceUIDs).toEqual([
-      'second-selection',
-    ])
+    expect(store.getState().actionLog).toEqual([])
 
     store.getState().loadMap(loadedMap(pieces.slice(0, 1)), {
       holdAutosave: true,
     })
-    expect(store.getState().selectionHistory).toEqual([])
-    vi.advanceTimersByTime(250)
-    expect(store.getState().selectionHistory).toEqual([])
+    expect(store.getState().actionLog).toEqual([])
   })
 
   it('records touched piece and objective-marker IDs for map actions', () => {
@@ -845,6 +836,117 @@ describe('real store undo and redo', () => {
     expect(latestRecord()).toEqual(expectedMarkerMutationRecord)
     store.getState().removeObjectiveMarker(marker.uid)
     expect(latestRecord()).toEqual(expectedMarkerMutationRecord)
+    expect(
+      store.getState().actionLog.map(({ kind, selection }) => ({
+        kind,
+        selection,
+      })),
+    ).toEqual([
+      { kind: 'place', selection: { pieceUIDs: [uid] } },
+      { kind: 'move', selection: { pieceUIDs: [uid] } },
+      { kind: 'move', selection: { pieceUIDs: [uid] } },
+      { kind: 'convert', selection: { pieceUIDs: [uid] } },
+      { kind: 'delete', selection: { pieceUIDs: [uid] } },
+      {
+        kind: 'marker',
+        selection: { pieceUIDs: [], objectiveMarkerUID: marker.uid },
+      },
+      {
+        kind: 'marker',
+        selection: { pieceUIDs: [], objectiveMarkerUID: marker.uid },
+      },
+      {
+        kind: 'marker',
+        selection: { pieceUIDs: [], objectiveMarkerUID: marker.uid },
+      },
+      {
+        kind: 'marker',
+        selection: { pieceUIDs: [], objectiveMarkerUID: marker.uid },
+      },
+    ])
+  })
+
+  it('saves, recalls, and prunes named selection units outside undo history', () => {
+    const pieces = [
+      {
+        uid: 'saved-one',
+        inventoryID: Pieces.grass1,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 2, r: 2, s: -4 },
+      },
+      {
+        uid: 'saved-two',
+        inventoryID: Pieces.grass1,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 3, r: 2, s: -5 },
+      },
+      {
+        uid: 'saved-other',
+        inventoryID: Pieces.grass1,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 8, r: 8, s: -16 },
+      },
+    ]
+    loadWithoutHistory(loadedMap(pieces))
+
+    store.getState().toggleSelectedPieceID('saved-one')
+    store.getState().toggleSelectedPieceID('saved-two', true)
+    expect(store.getState().saveSelectedSelection('My group')).toBe('saved')
+    const [savedSelection] = store.getState().savedSelections
+    if (!savedSelection) throw new Error('Saved selection was not created')
+    expect(savedSelection).toMatchObject({
+      name: 'My group',
+      pieceUIDs: ['saved-one', 'saved-two'],
+    })
+    expect(historyLength()).toBe(0)
+
+    store.getState().toggleSelectedPieceID('saved-other')
+    store.getState().selectSelectionUnit(savedSelection, true)
+    expect(store.getState().selectedPieceIDs).toEqual([
+      'saved-other',
+      'saved-one',
+      'saved-two',
+    ])
+    store.getState().renameSavedSelection(savedSelection.id, 'Renamed')
+    expect(store.getState().savedSelections[0]?.name).toBe('Renamed')
+
+    store.getState().unpaintTile('saved-one')
+    expect(store.getState().savedSelections[0]?.pieceUIDs).toEqual([
+      'saved-two',
+    ])
+    store.getState().unpaintTile('saved-two')
+    expect(store.getState().savedSelections).toEqual([])
+  })
+
+  it('saves and deletes a marker-only named selection', () => {
+    const marker = {
+      uid: 'saved-marker',
+      anchor: { q: 2, r: 2, s: -4, altitude: 1 },
+      size: 2 as const,
+      rotation: 4 as const,
+      style: 'white' as const,
+      content: { kind: 'number' as const, value: 7 },
+      name: 'Named objective',
+    }
+    loadWithoutHistory(
+      buildupJsonFileMap([], { ...hexMap, objectiveMarkers: [marker] }),
+    )
+    store.getState().setSelectedObjectiveMarkerUID(marker.uid)
+
+    expect(store.getState().saveSelectedSelection('Marker-only')).toBe('saved')
+    const [savedSelection] = store.getState().savedSelections
+    if (!savedSelection) throw new Error('Saved selection was not created')
+    expect(savedSelection).toMatchObject({
+      name: 'Marker-only',
+      pieceUIDs: [],
+      objectiveMarkerUID: marker.uid,
+    })
+
+    store.getState().deleteSavedSelection(savedSelection.id)
+    expect(store.getState().savedSelections).toEqual([])
   })
 
   it('restores placement, rotation, and conversion selections on undo and redo', () => {
@@ -906,7 +1008,7 @@ describe('real store undo and redo', () => {
     expect(store.getState().selectedPieceIDs).toEqual([uid])
   })
 
-  it('restores a multi-piece move selection and keeps selection history navigable', () => {
+  it('restores a multi-piece move selection on undo and redo', () => {
     const group = [
       {
         uid: 'group-one',
@@ -960,9 +1062,6 @@ describe('real store undo and redo', () => {
       objectiveMarkerUID: null,
     })
 
-    store.getState().toggleSelectedPieceID('other-piece')
-    vi.advanceTimersByTime(250)
-    expect(store.getState().selectionHistory).toHaveLength(2)
     undoWithSelectionRestore()
 
     expect(store.getState().selectedPieceIDs).toEqual([
@@ -981,9 +1080,6 @@ describe('real store undo and redo', () => {
               ?.pieceCoords,
         ),
     ).toEqual(originalCoords)
-
-    store.getState().navigateSelectionHistory('back')
-    expect(store.getState().selectedPieceIDs).toEqual(['other-piece'])
 
     redoWithSelectionRestore()
     expect(store.getState().selectedPieceIDs).toEqual([

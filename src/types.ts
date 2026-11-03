@@ -1,4 +1,5 @@
 import type { ObjectiveMarker } from './data/objectiveMarkers'
+import type { SavedSelection } from './data/selectionUnits'
 
 export type MapState = MapFileState & {
   boardHexes: BoardHexes
@@ -6,6 +7,7 @@ export type MapState = MapFileState & {
 export type MapFileState = {
   hexMap: HexMap
   boardPieces: BoardPiece[] // array of BoardPiece objects
+  savedSelections?: SavedSelection[]
 }
 export type HexMap = {
   id: string

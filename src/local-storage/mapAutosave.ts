@@ -12,7 +12,10 @@ import {
 } from './mapStorage'
 import { safeSetItem } from './safeStorage'
 
-export type MapSnapshot = Pick<MapFileState, 'hexMap' | 'boardPieces'>
+export type MapSnapshot = Pick<
+  MapFileState,
+  'hexMap' | 'boardPieces' | 'savedSelections'
+>
 
 export interface MapAutosaveStorage {
   load: () => ReturnType<typeof readMapFromLocalStorage>
@@ -25,7 +28,11 @@ export type MapAutosaveFailure = {
 
 type AutosaveState = Pick<
   AppState,
-  'hexMap' | 'boardPieces' | 'isAutosaveHeld' | 'mapLoadRevision'
+  | 'hexMap'
+  | 'boardPieces'
+  | 'savedSelections'
+  | 'isAutosaveHeld'
+  | 'mapLoadRevision'
 >
 
 type MapAutosaveOptions = {
@@ -65,6 +72,7 @@ export function createLocalMapAutosaveStorage(): MapAutosaveStorage {
           v: 1,
           hexMap: withoutMapPortrait(map.hexMap),
           boardPieces: map.boardPieces,
+          savedSelections: map.savedSelections,
         }),
       )
       if (portraitResult.ok) {
@@ -161,8 +169,12 @@ function notifyMapStorageError({ quota }: MapAutosaveFailure) {
   })
 }
 
-function snapshot(hexMap: HexMap, boardPieces: BoardPiece[]): MapSnapshot {
-  return { hexMap, boardPieces }
+function snapshot(
+  hexMap: HexMap,
+  boardPieces: BoardPiece[],
+  savedSelections: MapSnapshot['savedSelections'],
+): MapSnapshot {
+  return { hexMap, boardPieces, savedSelections }
 }
 
 export function createMapAutosave<T extends AutosaveState>(
@@ -177,20 +189,25 @@ export function createMapAutosave<T extends AutosaveState>(
   store.subscribe((state, previous) => {
     const mapChanged =
       state.hexMap !== previous.hexMap ||
-      state.boardPieces !== previous.boardPieces
+      state.boardPieces !== previous.boardPieces ||
+      state.savedSelections !== previous.savedSelections
     const isLoad = state.mapLoadRevision !== previous.mapLoadRevision
 
     if (isLoad) {
       if (state.isAutosaveHeld) {
         writer.flush()
       } else if (mapChanged) {
-        writer.writeNow(snapshot(state.hexMap, state.boardPieces))
+        writer.writeNow(
+          snapshot(state.hexMap, state.boardPieces, state.savedSelections),
+        )
       }
       return
     }
     if (!mapChanged) return
 
-    writer.schedule(snapshot(state.hexMap, state.boardPieces))
+    writer.schedule(
+      snapshot(state.hexMap, state.boardPieces, state.savedSelections),
+    )
     if (state.isAutosaveHeld) {
       store.setState((current) => ({ ...current, isAutosaveHeld: false }))
     }

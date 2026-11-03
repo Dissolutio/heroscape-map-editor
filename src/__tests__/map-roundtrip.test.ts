@@ -88,6 +88,7 @@ function openJsonMapFile(serialized: string): JsonMapLoadResult {
     normalized.boardPieces,
     fileData.hexMap,
     normalized.droppedPieces,
+    fileData.savedSelections,
   )
 }
 
@@ -124,6 +125,7 @@ describe('map persistence round trips', () => {
       const fromFile = openJsonMapFile(
         JSON.stringify({ hexMap: mapWithSet, boardPieces: emptyPieces }),
       )
+
       expect(fromFile.hexMap.setsUsed).toEqual([setID])
 
       storageValues.clear()
@@ -149,6 +151,49 @@ describe('map persistence round trips', () => {
       expect(decoded.hexMap.setsUsed).toEqual([setID])
     },
   )
+
+  it('round-trips saved selections in map files, defaults old files to none, and omits them from share URLs', () => {
+    const savedSelections = [
+      { id: 'named-group', name: 'Bridge crew', pieceUIDs: ['grass-first'] },
+    ]
+    const savedFile = JSON.stringify({
+      hexMap,
+      boardPieces,
+      savedSelections,
+    })
+    const loaded = openJsonMapFile(savedFile)
+    expect(loaded.savedSelections).toEqual(savedSelections)
+
+    const olderFile = openJsonMapFile(JSON.stringify({ hexMap, boardPieces }))
+    expect(olderFile.savedSelections).toEqual([])
+
+    const shareData = parseMapDataArrayFromCrushed(
+      getUrlMapString({
+        hexMap: loaded.hexMap,
+        boardPieces: loaded.boardPieces,
+      }),
+    )
+    expect(JSON.stringify(shareData)).not.toContain('savedSelections')
+  })
+
+  it('drops saved-selection references to pieces omitted while loading a map', () => {
+    const loaded = buildupJsonFileMap(
+      boardPieces.slice(1),
+      hexMap,
+      [],
+      [
+        {
+          id: 'partial',
+          name: 'Partial',
+          pieceUIDs: ['grass-first', 'grass-overlap'],
+        },
+        { id: 'empty', name: 'Empty', pieceUIDs: ['gone'] },
+      ],
+    )
+    expect(loaded.savedSelections).toEqual([
+      { id: 'partial', name: 'Partial', pieceUIDs: ['grass-overlap'] },
+    ])
+  })
 
   it('rebuilds Laur add-on conflicts after JSON, autosave, and share-link round trips', () => {
     const laurPieces: BoardPiece[] = [
@@ -257,7 +302,12 @@ describe('map persistence round trips', () => {
 
     const autosave = createLocalMapAutosaveStorage()
     expect(autosave.load()).toBeNull()
-    expect(autosave.save({ hexMap, boardPieces })).toEqual({ ok: true })
+    const savedSelections = [
+      { id: 'named', name: 'Saved terrain', pieceUIDs: ['grass-first'] },
+    ]
+    expect(autosave.save({ hexMap, boardPieces, savedSelections })).toEqual({
+      ok: true,
+    })
     expect(localStorageMock.setItem).toHaveBeenCalledWith(
       LS_KEYS.lastMap,
       expect.any(String),
@@ -270,9 +320,11 @@ describe('map persistence round trips', () => {
       normalized.boardPieces,
       saved.hexMap,
       normalized.droppedPieces,
+      saved.savedSelections,
     )
 
     expectMapDetails(loaded)
+    expect(loaded.savedSelections).toEqual(savedSelections)
     expect(loaded.boardPieces.map((piece) => piece.uid)).toEqual(
       boardPieces.map((piece) => piece.uid),
     )
