@@ -47,8 +47,11 @@ footprint hex as another placed piece.
 6. Add the piece to `src/data/pieceGroups.ts` if it belongs in the placed-pieces
    grid. Add a menu entry or family handling to
    `src/controls/PenModeControls.tsx`; land size choices are derived from
-   `landPrefix` and `size`. A new pen prefix needs the corresponding menu and
-   filter handling.
+   `landPrefix` and `size`. Multi-size obstacle families share a
+   `pieceSizeFamily` value; their available sizes and size-hotkey targets are
+   derived from those registry entries and each piece's `size`. Keep alternate
+   models with the same footprint in the same family. A new pen prefix needs
+   the corresponding menu and filter handling.
 7. Map a Virtualscape import code in `src/data/pieceCodes.ts` only if the
    original editor has one. This is not a requirement for every piece.
 

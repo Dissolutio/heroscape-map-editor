@@ -1266,6 +1266,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 10,
+    pieceSizeFamily: 'snowTree',
   },
   [Pieces.snowTree12]: {
     id: Pieces.snowTree12,
@@ -1276,6 +1277,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 12,
+    pieceSizeFamily: 'snowTree',
   },
   [Pieces.tree10]: {
     id: Pieces.tree10,
@@ -1286,6 +1288,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 9,
+    pieceSizeFamily: 'forestTree',
   },
   [Pieces.tree11]: {
     id: Pieces.tree11,
@@ -1296,6 +1299,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 11,
+    pieceSizeFamily: 'forestTree',
   },
   [Pieces.tree12]: {
     id: Pieces.tree12,
@@ -1306,6 +1310,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 11,
+    pieceSizeFamily: 'forestTree',
   },
   [Pieces.tree415]: {
     id: Pieces.tree415,
@@ -1316,6 +1321,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 4,
     template: '4',
     height: 15,
+    pieceSizeFamily: 'forestTree',
   },
   [Pieces.swampBrush10]: {
     id: Pieces.swampBrush10,
@@ -1346,6 +1352,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 13,
+    pieceSizeFamily: 'laurJungleTree',
   },
   [Pieces.laurPalm14]: {
     id: Pieces.laurPalm14,
@@ -1356,6 +1363,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 14,
+    pieceSizeFamily: 'laurJungleTree',
   },
   [Pieces.laurPalm15]: {
     id: Pieces.laurPalm15,
@@ -1366,6 +1374,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 15,
+    pieceSizeFamily: 'laurJungleTree',
   },
   [Pieces.brush9]: {
     id: Pieces.brush9,
@@ -1386,6 +1395,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 14,
+    pieceSizeFamily: 'ticallaPalm',
   },
   [Pieces.palm15]: {
     id: Pieces.palm15,
@@ -1396,6 +1406,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 15,
+    pieceSizeFamily: 'ticallaPalm',
   },
   [Pieces.palm16]: {
     id: Pieces.palm16,
@@ -1406,6 +1417,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 16,
+    pieceSizeFamily: 'ticallaPalm',
   },
   [Pieces.shroudshroom7]: {
     id: Pieces.shroudshroom7,
@@ -1416,6 +1428,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7,
+    pieceSizeFamily: 'shroudshroom',
   },
   [Pieces.shroudshroom10]: {
     id: Pieces.shroudshroom10,
@@ -1426,6 +1439,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 10,
+    pieceSizeFamily: 'shroudshroom',
   },
   [Pieces.shroudshroom13]: {
     id: Pieces.shroudshroom13,
@@ -1436,6 +1450,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 13,
+    pieceSizeFamily: 'shroudshroom',
   },
   [Pieces.shipWall]: {
     id: Pieces.shipWall,
@@ -1487,6 +1502,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7, // eventhough it definitely spans 8 hex-heights in reality!
+    pieceSizeFamily: 'glacier',
   },
   [Pieces.glacier3]: {
     id: Pieces.glacier3,
@@ -1497,6 +1513,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9, // untested in reality (heights clockwise from origin: 5,9,7)
+    pieceSizeFamily: 'glacier',
   },
   [Pieces.glacier4]: {
     id: Pieces.glacier4,
@@ -1507,6 +1524,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 4,
     template: '4',
     height: 8, // untested in reality (heights clockwise from origin: 7,11,9,11)
+    pieceSizeFamily: 'glacier',
   },
   [Pieces.glacier6]: {
     id: Pieces.glacier6,
@@ -1517,6 +1535,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 6,
     template: '6',
     height: 17, // untested in reality (heights clockwise from origin: 17,17,9,17,17,9)
+    pieceSizeFamily: 'glacier',
   },
   [Pieces.outcrop1]: {
     id: Pieces.outcrop1,
@@ -1527,6 +1546,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7, // eventhough it definitely spans 8 hex-heights in reality!
+    pieceSizeFamily: 'rockOutcrop',
   },
   [Pieces.outcrop3]: {
     id: Pieces.outcrop3,
@@ -1537,6 +1557,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9, // untested in reality
+    pieceSizeFamily: 'rockOutcrop',
   },
   [Pieces.lavaRockOutcrop1]: {
     id: Pieces.lavaRockOutcrop1,
@@ -1547,6 +1568,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7, // eventhough it definitely spans 8 hex-heights in reality!
+    pieceSizeFamily: 'lavaRockOutcrop',
   },
   [Pieces.lavaRockOutcrop3]: {
     id: Pieces.lavaRockOutcrop3,
@@ -1557,6 +1579,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9, // untested in reality
+    pieceSizeFamily: 'lavaRockOutcrop',
   },
   [Pieces.toxicOutcrop1]: {
     id: Pieces.toxicOutcrop1,
@@ -1567,6 +1590,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7,
+    pieceSizeFamily: 'toxicOutcrop',
   },
   [Pieces.toxicOutcrop3]: {
     id: Pieces.toxicOutcrop3,
@@ -1577,6 +1601,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9,
+    pieceSizeFamily: 'toxicOutcrop',
   },
   [Pieces.hive]: {
     id: Pieces.hive,
