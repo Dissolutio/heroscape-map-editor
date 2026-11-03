@@ -1,20 +1,20 @@
+import type { ThreeEvent } from '@react-three/fiber'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import type { ThreeEvent } from '@react-three/fiber'
+import type { RotationPivot } from '../../data/rotationPivot'
 import useBoundStore from '../../store/store'
 import type { BoardHex, BoardPiece } from '../../types'
 import { SELECT_PEN_MODE } from '../../types'
-import type { RotationPivot } from '../../data/rotationPivot'
 import MapDisplay3D from '../../world/MapDisplay3D'
 import type { Board } from './board'
 import { takeCapturedHandler } from './handlerCapture'
 
 /**
- * Drives the real click handler (onPointerUpPaintPiece in
- * world/MapDisplay3D.tsx) without WebGL. The test file must stub MapDisplay3D's
- * children and the pick-pen hook (see `mapDisplayMocks` in the test), so
- * rendering it to a string only runs its own hooks, and the stubbed
- * EmptyHexes (handlerCapture.ts) hands back the handler.
+ * Drives the real click handler (wired by world/MapDisplay3D.tsx) without
+ * WebGL. The test file must stub MapDisplay3D's children and the pick-pen hook
+ * (see `mapDisplayMocks` in the test), so rendering it to a string only runs
+ * its own hooks, and the stubbed EmptyHexes (handlerCapture.ts) hands back the
+ * handler.
  */
 
 export type ClickResult = {

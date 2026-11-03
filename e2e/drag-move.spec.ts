@@ -592,3 +592,51 @@ test('i. drags a three-piece selection rigidly and one undo restores all three',
     })
     .toEqual(originals)
 })
+
+test('undo restores the moved selection and selection history returns to the last selection', async ({
+  page,
+}) => {
+  const map = {
+    ...FIXTURE_HEX_MAP,
+    id: 'e2e-undo-selection',
+    name: 'E2E Undo Selection',
+    width: 8,
+    length: 8,
+  }
+  await page.goto(
+    mapUrl(map, ['0~0~2~0~g1', '0~1~3~0~g1', '0~2~2~0~g1', '0~5~0~0~s1']),
+  )
+  await waitForAppReady(page)
+  const group = await Promise.all([
+    findPieceUid(page, { inventoryID: 'g1', q: 0, r: 2 }),
+    findPieceUid(page, { inventoryID: 'g1', q: 1, r: 3 }),
+    findPieceUid(page, { inventoryID: 'g1', q: 2, r: 2 }),
+  ])
+  const other = await findPieceUid(page, { inventoryID: 's1', q: 5, r: 0 })
+  await clickPiece(page, group[0])
+  await shiftClickPiece(page, group[1])
+  await shiftClickPiece(page, group[2])
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual(group)
+
+  await dragPiece(page, group[1], { q: 1, r: 1, altitude: 0 })
+  await clickPiece(page, other)
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual([other])
+  const backButton = page.getByRole('button', {
+    name: 'Back to previous selection',
+  })
+  await expect(backButton).toBeEnabled()
+
+  await undoButton(page).click()
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual(group)
+
+  await backButton.click()
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual([other])
+})

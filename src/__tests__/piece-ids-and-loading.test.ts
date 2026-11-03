@@ -106,6 +106,176 @@ describe('normalizeBoardPieces (reads every saved-map format the app has had)', 
     expect(normalizeBoardPieces(current)).toBe(current)
   })
 
+  it('coerces numeric strings in piece fields and cube coordinates', () => {
+    const savedPieces = [
+      {
+        uid: 'integer-rotation',
+        inventoryID: 'g1',
+        altitude: '2',
+        rotation: '1',
+        pieceCoords: { q: '1', r: '-2', s: '1' },
+      },
+      {
+        uid: 'half-rotation',
+        inventoryID: 'lwl',
+        altitude: '1',
+        rotation: '1.5',
+        pieceCoords: { q: '-1', r: '0', s: '1' },
+      },
+    ]
+
+    const normalized = normalizeBoardPiecesWithDropped(savedPieces)
+
+    expect(normalized.droppedPieces).toEqual([])
+    expect(normalized.boardPieces).not.toBe(savedPieces)
+    expect(savedPieces[0].rotation).toBe('1')
+    expect(normalized.boardPieces).toMatchObject([
+      {
+        altitude: 2,
+        rotation: 1,
+        pieceCoords: { q: 1, r: -2, s: 1 },
+      },
+      {
+        altitude: 1,
+        rotation: 1.5,
+        pieceCoords: { q: -1, r: 0, s: 1 },
+      },
+    ])
+    expect(typeof normalized.boardPieces[0].rotation).toBe('number')
+    expect(typeof normalized.boardPieces[1].rotation).toBe('number')
+  })
+
+  it('drops invalid numeric strings and non-numeric field values as malformed', () => {
+    const base = piece('valid', 'g1', 1, 1)
+    const invalidRotations: unknown[] = [
+      '',
+      ' 1',
+      'abc',
+      'NaN',
+      'Infinity',
+      null,
+      true,
+      Number.NaN,
+      Number.POSITIVE_INFINITY,
+    ]
+    const malformed: unknown[] = invalidRotations.map((rotation, index) => ({
+      ...base,
+      uid: `bad-rotation-${index}`,
+      rotation,
+    }))
+    malformed.push(
+      { ...base, uid: 'bad-altitude', altitude: '' },
+      {
+        ...base,
+        uid: 'bad-coordinate',
+        pieceCoords: { q: 'abc', r: 1, s: -1 },
+      },
+      {
+        ...base,
+        uid: 'bad-coordinate-sum',
+        pieceCoords: { q: '1', r: '1', s: '-1' },
+      },
+    )
+
+    const normalized = normalizeBoardPiecesWithDropped(malformed)
+
+    expect(normalized.boardPieces).toEqual([])
+    expect(normalized.droppedPieces).toHaveLength(malformed.length)
+    expect(
+      normalized.droppedPieces.every(({ reason }) => reason === 'malformed'),
+    ).toBe(true)
+    expect(getDroppedPiecesWarning(normalized.droppedPieces)).toBe(
+      `Skipped ${malformed.length} malformed pieces.`,
+    )
+  })
+
+  it('round-trips normalized numeric-string pieces through saved JSON', () => {
+    const legacy = [
+      {
+        uid: 'legacy',
+        inventoryID: 'lwl',
+        altitude: '3',
+        rotation: '1.5',
+        pieceCoords: { q: '-2', r: '1', s: '1' },
+      },
+    ]
+    const firstLoad = normalizeBoardPiecesWithDropped(legacy)
+    const saved = JSON.stringify(firstLoad.boardPieces)
+    const secondLoad = normalizeBoardPiecesWithDropped(
+      JSON.parse(saved) as unknown[],
+    )
+
+    expect(firstLoad.droppedPieces).toEqual([])
+    expect(secondLoad.droppedPieces).toEqual([])
+    expect(secondLoad.boardPieces).toEqual(firstLoad.boardPieces)
+    expect(secondLoad.boardPieces[0]).toMatchObject({
+      altitude: 3,
+      rotation: 1.5,
+      pieceCoords: { q: -2, r: 1, s: 1 },
+    })
+  })
+
+  it('loads a trimmed legacy map fixture with numeric-string rotations', () => {
+    const savedPieces = [
+      {
+        uid: 'water',
+        inventoryID: 'w1',
+        altitude: '0',
+        rotation: '1',
+        pieceCoords: { q: -2, r: 0, s: 2 },
+      },
+      {
+        uid: 'grass-two',
+        inventoryID: 'g2',
+        altitude: '0',
+        rotation: '3',
+        pieceCoords: { q: 0, r: -2, s: 2 },
+      },
+      {
+        uid: 'laur-wall',
+        inventoryID: 'lwl',
+        altitude: '0',
+        rotation: '1.5',
+        pieceCoords: { q: 2, r: -2, s: 0 },
+      },
+      {
+        uid: 'road',
+        inventoryID: 'r7',
+        altitude: 1,
+        rotation: '4',
+        pieceCoords: { q: -1, r: 2, s: -1 },
+      },
+      {
+        uid: 'tree',
+        inventoryID: 'tr10',
+        altitude: 0,
+        rotation: '2',
+        pieceCoords: { q: 1, r: 1, s: -2 },
+      },
+      {
+        uid: 'grass-one',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: '5',
+        pieceCoords: { q: 3, r: 1, s: -4 },
+      },
+    ]
+    const normalized = normalizeBoardPiecesWithDropped(savedPieces)
+    const loaded = buildupJsonFileMap(
+      normalized.boardPieces,
+      rectangleMap(25),
+      normalized.droppedPieces,
+    )
+
+    expect(loaded.droppedPieces).toEqual([])
+    expect(
+      loaded.boardPieces.map(({ inventoryID }) => inventoryID).sort(),
+    ).toEqual(['g1', 'g2', 'lwl', 'r7', 'tr10', 'w1'])
+    expect(
+      loaded.boardPieces.find(({ uid }) => uid === 'laur-wall')?.rotation,
+    ).toBe(1.5)
+  })
+
   it('upgrades a legacy string[] of piece ids', () => {
     const [p] = normalizeBoardPieces(['1~2~3~0~g1'])
     expect(p).toMatchObject({

@@ -1,9 +1,18 @@
 import type { CameraControls } from '@react-three/drei'
-import type { RefObject } from 'react'
+import { useRef, type RefObject } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import type { Group, Object3DEventMap } from 'three'
-import useBoundStore from '../store/store'
+import { getLaurAddonAllowedRotations } from '../data/laurAddonPlacement'
+import {
+  OBJECTIVE_MARKER_PEN_MODE,
+  getObjectiveMarkerHotkeyAction,
+} from '../data/objectiveMarkers'
+import {
+  getRotationHotkeyTarget,
+  isRotationHotkeyReady,
+} from '../data/rotationHotkey'
 import { DIALOGS } from '../layout/dialogNames'
+import useBoundStore from '../store/store'
 import { PICK_PEN_MODE, PiecePrefixes, Pieces, SELECT_PEN_MODE } from '../types'
 import { zoomToMap } from '../utils/camera-utils'
 import {
@@ -12,18 +21,19 @@ import {
   getCycleableLevels,
 } from '../utils/map-utils'
 import {
-  getObjectiveMarkerHotkeyAction,
-  OBJECTIVE_MARKER_PEN_MODE,
-} from '../data/objectiveMarkers'
-import {
   redoWithSelectionRestore,
   undoWithSelectionRestore,
 } from '../utils/undoWithSelectionRestore'
 import {
+  hasDragRotationPress,
+  rotateDragWithHotkey,
+  setDragRotationHotkeyLabels,
+} from '../world/drag/dragController'
+import {
   doPenModeCounterRotation,
   doPenModeRotation,
 } from './getPossibleRotationsForPenMode'
-import { getLaurAddonAllowedRotations } from '../data/laurAddonPlacement'
+import { rotateSelectedPieces } from './rotateSelectedPieces'
 
 export const STANDARD_PIECE_SIZE_HOTKEYS = {
   '1': 1,
@@ -100,6 +110,7 @@ export const useApplyHotkeys = ({
   mapGroupRef: RefObject<Group<Object3DEventMap>>
   hotkeyConfig: { [key: string]: string | undefined }
 }) => {
+  const lastNonDragRotationAt = useRef<number | null>(null)
   const penMode = useBoundStore((s) => s.penMode)
   // const lastPenMode = useBoundStore((s) => s.lastPenMode)
   const togglePenMode = useBoundStore((state) => state.togglePenMode)
@@ -144,6 +155,14 @@ export const useApplyHotkeys = ({
     (level) => level <= allowedMaxLevel,
   )
   const isSizes = flatPieceSizes?.length > 0
+  const rotationHotkey = (action: string) =>
+    Object.entries(hotkeyConfig).find(
+      ([, assignedAction]) => assignedAction === action,
+    )?.[0]
+  setDragRotationHotkeyLabels({
+    previous: rotationHotkey('cyclePrevPieceRotation')?.toUpperCase(),
+    next: rotationHotkey('cycleNextPieceRotation')?.toUpperCase(),
+  })
 
   const deleteSelectedPiece = () => {
     if (selectedObjectiveMarkerUID) {
@@ -216,30 +235,39 @@ export const useApplyHotkeys = ({
   const togglePieceSize7 = () => togglePieceSizeForHotkey('7')
   const undoWorld = undoWithSelectionRestore
   const redoWorld = redoWithSelectionRestore
-  const cycleNextPieceRotation = () => {
-    if (selectedObjectiveMarkerUID) {
-      const marker = useBoundStore
-        .getState()
-        .hexMap.objectiveMarkers?.find(
-          (item) => item.uid === selectedObjectiveMarkerUID,
-        )
-      if (marker) {
-        updateObjectiveMarker(marker.uid, {
-          rotation: ((marker.rotation + 1) % 6) as 0 | 1 | 2 | 3 | 4 | 5,
-        })
-      }
-      return
-    }
+  const backSelectionHistory = () =>
+    useBoundStore.getState().navigateSelectionHistory('back')
+  const forwardSelectionHistory = () =>
+    useBoundStore.getState().navigateSelectionHistory('forward')
+  const rotatePenMode = (direction: 1 | -1) => {
     const pieceID = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
-    doPenModeRotation(
+    const rotate =
+      direction === 1 ? doPenModeRotation : doPenModeCounterRotation
+    rotate(
       penMode,
       penModeRotation,
       togglePenModeRotation,
       getLaurAddonAllowedRotations(pieceID, hoveredHex),
     )
   }
-  const cyclePrevPieceRotation = () => {
-    if (selectedObjectiveMarkerUID) {
+  const rotatePiece = (direction: 1 | -1) => {
+    const target = getRotationHotkeyTarget({
+      isDragging: hasDragRotationPress(),
+      selectedPieceCount: selectedPieceIDs.length,
+      hasSelectedObjectiveMarker: Boolean(selectedObjectiveMarkerUID),
+    })
+    if (target === 'drag') {
+      rotateDragWithHotkey(direction)
+      return
+    }
+    const time = performance.now()
+    if (!isRotationHotkeyReady(lastNonDragRotationAt.current, time)) return
+    lastNonDragRotationAt.current = time
+    if (target === 'selection') {
+      rotateSelectedPieces(direction)
+      return
+    }
+    if (target === 'objective-marker') {
       const marker = useBoundStore
         .getState()
         .hexMap.objectiveMarkers?.find(
@@ -247,18 +275,24 @@ export const useApplyHotkeys = ({
         )
       if (marker) {
         updateObjectiveMarker(marker.uid, {
-          rotation: ((marker.rotation + 5) % 6) as 0 | 1 | 2 | 3 | 4 | 5,
+          rotation: ((marker.rotation + direction + 6) % 6) as
+            | 0
+            | 1
+            | 2
+            | 3
+            | 4
+            | 5,
         })
       }
       return
     }
-    const pieceID = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
-    doPenModeCounterRotation(
-      penMode,
-      penModeRotation,
-      togglePenModeRotation,
-      getLaurAddonAllowedRotations(pieceID, hoveredHex),
-    )
+    rotatePenMode(direction)
+  }
+  const cycleNextPieceRotation = () => {
+    rotatePiece(1)
+  }
+  const cyclePrevPieceRotation = () => {
+    rotatePiece(-1)
   }
   // Instead of one for select, and one for last, maybe combine them and cycle? Could also track
   // a history of pen modes, and cycle backwards.
@@ -325,6 +359,8 @@ export const useApplyHotkeys = ({
 
     undoWorld: undoWorld,
     redoWorld: redoWorld,
+    backSelectionHistory: backSelectionHistory,
+    forwardSelectionHistory: forwardSelectionHistory,
 
     togglePenModeSelect: togglePenModeSelect,
     togglePenModePick: togglePenModePick,

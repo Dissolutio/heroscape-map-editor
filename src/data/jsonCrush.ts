@@ -23,22 +23,25 @@ export const getUrlMapString = ({
   // never actually fit in a URL.
   const urlSafeHexMap: HexMap = {
     ...hexMap,
-    ...(hexMap.objectiveMarkers
-      ? {
-          objectiveMarkers: hexMap.objectiveMarkers.map(
-            ({ name: _name, ...marker }) => marker,
-          ),
-        }
-      : {}),
     mapPortraitBase64: '',
     mapNotes: '',
   }
-  const uncrushed = JSON.stringify([
-    urlSafeHexMap, // 1
-    ...boardPiecesEncodedArr,
-  ])
+  const serialize = (map: HexMap) =>
+    JSON.stringify([map, ...boardPiecesEncodedArr])
+  let uncrushed = serialize(urlSafeHexMap)
   if (uncrushed.length > MAX_CRUSH_INPUT_LENGTH) {
-    throw new Error('Map is too large to be stored in a URL')
+    const markersWithoutNames = urlSafeHexMap.objectiveMarkers?.map(
+      ({ name: _name, ...marker }) => marker,
+    )
+    if (markersWithoutNames) {
+      uncrushed = serialize({
+        ...urlSafeHexMap,
+        objectiveMarkers: markersWithoutNames,
+      })
+    }
+    if (uncrushed.length > MAX_CRUSH_INPUT_LENGTH) {
+      throw new Error('Map is too large to be stored in a URL')
+    }
   }
   // Query-string values must use component encoding, not encodeURI. The
   // compressed payload is arbitrary JSONCrush data and can legally include

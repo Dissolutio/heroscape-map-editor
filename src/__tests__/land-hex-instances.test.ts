@@ -282,11 +282,17 @@ describe('land hex instance data', () => {
     const enabledTerrainNames = terrainNames.filter(
       (name) => terrainManifest.terrains[name].allowRandomRotation,
     )
+    // Wood's planking lines define its one orientation, so it never rotates.
     expect(enabledTerrainNames.sort()).toEqual(
       terrainNames
-        .filter((name) => terrainManifest.terrains[name].capDiffuseLayer >= 0)
+        .filter(
+          (name) =>
+            name !== 'Wood' &&
+            terrainManifest.terrains[name].capDiffuseLayer >= 0,
+        )
         .sort(),
     )
+    expect(terrainManifest.terrains.Wood.allowRandomRotation).toBe(false)
 
     const hexID = 'persisted-hex-id'
     const expectedStep = getStableRotationStep(hexID)
@@ -357,10 +363,10 @@ describe('land hex instance data', () => {
 
   it('maps side UVs from the image top row to the top of each face', () => {
     const height = 1
-    expect(getLandHexSideUV(0, height, height)).toEqual([0, 0])
-    expect(getLandHexSideUV(1, height, height)).toEqual([1, 0])
-    expect(getLandHexSideUV(0, 0, height)).toEqual([0, 1])
-    expect(getLandHexSideUV(1, 0, height)).toEqual([1, 1])
+    expect(getLandHexSideUV(0, height, height)).toEqual([0, 1])
+    expect(getLandHexSideUV(1, height, height)).toEqual([1, 1])
+    expect(getLandHexSideUV(0, 0, height)).toEqual([0, 0])
+    expect(getLandHexSideUV(1, 0, height)).toEqual([1, 0])
   })
 
   it('mirrors world-space fill UVs continuously inside the clean cap window', () => {

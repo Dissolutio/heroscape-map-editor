@@ -1,0 +1,37 @@
+{
+  "hexMap": {
+    "id": "dNTKsBN7lDkWQ",
+    "name": "Cove of Bilfrost",
+    "author": "",
+    "mapNotes": "",
+    "version": 1,
+    "shape": "rectangle",
+    "width": 2,
+    "length": 2,
+    "setsUsed": [],
+    "mapPortraitBase64": ""
+  },
+  "boardPieces": [
+    {
+      "uid": "CfYtMgSdtF",
+      "inventoryID": "w1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": { "q": 0, "r": 0, "s": 0 }
+    },
+    {
+      "uid": "RVewRcLM-I",
+      "inventoryID": "g1",
+      "altitude": 0,
+      "rotation": 0,
+      "pieceCoords": { "q": 1, "r": 0, "s": -1 }
+    },
+    {
+      "uid": "sV2gZPngQ4",
+      "inventoryID": "g2",
+      "altitude": 1,
+      "rotation": 3,
+      "pieceCoords": { "q": 1, "r": 0, "s": -1 }
+    }
+  ]
+}

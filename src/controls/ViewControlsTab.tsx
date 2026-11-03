@@ -642,6 +642,8 @@ const ViewPreferencesSwitchForm = () => {
   )
   const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
   const toggleIsShowStartZones = useBoundStore((s) => s.toggleIsShowStartZones)
+  const isShowActionLog = useBoundStore((s) => s.isShowActionLog)
+  const toggleIsShowActionLog = useBoundStore((s) => s.toggleIsShowActionLog)
   const handleChangeUseLegacyStartZones = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -838,6 +840,16 @@ const ViewPreferencesSwitchForm = () => {
           }
           label="Show Start Zones"
           title={showStartZonesTooltip}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShowActionLog}
+              onChange={(event) => toggleIsShowActionLog(event.target.checked)}
+            />
+          }
+          label="Show action log"
         />
       </FormGroup>
     </FormControl>

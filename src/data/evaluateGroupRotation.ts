@@ -1,16 +1,17 @@
 import type { BoardHex, BoardPiece, CubeCoordinate, Piece } from '../types'
 import { HexTerrain, Pieces } from '../types'
 import { genBoardHexID } from '../utils/map-utils'
-import { hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
+import type { HexEdgeId } from './hexGrid/edgesAndNodes'
+import { getPieceEdgeAnchor, getPieceEdgeId } from './hexGrid/pieceFeatures'
 import type { MovePieceArgs } from './movePieces'
 import { piecesSoFar } from './pieces'
 import {
-  evaluatePlacement,
-  isPlacementBlocked,
-  resolvePlacement,
   type PlacementBlockedReason,
   type PlacementBoard,
   type ResolvedPlacement,
+  evaluatePlacement,
+  isPlacementBlocked,
+  resolvePlacement,
 } from './placement'
 
 function getTargetHex(
@@ -37,6 +38,7 @@ function getResolverTarget(
   piece: Piece,
   coords: CubeCoordinate,
   rotation: number,
+  edgeId?: HexEdgeId,
 ) {
   if (
     piece.id !== Pieces.battlement &&
@@ -46,22 +48,24 @@ function getResolverTarget(
     return { coords, altitudeOffset: 1 }
   }
 
-  if (piece.id === Pieces.ropeLadder) {
-    return { coords, altitudeOffset: 1 }
-  }
-
-  const edgeIndex =
-    piece.id === Pieces.battlement ? (rotation + 3) % 6 : rotation
-  const neighbor = hexUtilsGetNeighborForRotation(
-    piece.id === Pieces.battlement ? edgeIndex : (edgeIndex + 4) % 6,
-  )
+  const resolvedEdgeId =
+    edgeId ??
+    getPieceEdgeId({
+      inventoryID: piece.id,
+      pieceCoords: coords,
+      rotation,
+    }) ??
+    undefined
+  const supportCoords =
+    getPieceEdgeAnchor({
+      inventoryID: piece.id,
+      pieceCoords: coords,
+      rotation,
+    }) ?? coords
   return {
-    coords: {
-      q: coords.q - neighbor.q,
-      r: coords.r - neighbor.r,
-      s: coords.s - neighbor.s,
-    },
+    coords: supportCoords,
     altitudeOffset: 1,
+    edgeId: resolvedEdgeId,
   }
 }
 
@@ -89,6 +93,7 @@ export function getGroupRotationBlockedReason(
       piece,
       move.newPieceCoords,
       rotation,
+      move.newEdgeId,
     )
     const targetHex = getTargetHex(
       board,
@@ -96,29 +101,18 @@ export function getGroupRotationBlockedReason(
       altitude + resolverTarget.altitudeOffset,
       movingUIDs,
     )
-    if (resolverTarget.altitudeOffset && !targetHex) return 'offMap'
-    let resolution: ResolvedPlacement
-
-    if (targetHex) {
-      const resolved = resolvePlacement(piece, targetHex, rotation, board, {
-        ignoreUID: ignoredUIDs,
-        deferOffMapCheck: true,
-      })
-      if (isPlacementBlocked(resolved)) return resolved.blocked
-      resolution = {
-        ...resolved,
-        coords: move.newPieceCoords,
-        altitude,
-        rotation,
-      }
-    } else {
-      resolution = {
-        piece,
-        coords: move.newPieceCoords,
-        altitude,
-        rotation,
-        rule: 'default',
-      }
+    if (!targetHex) return 'offMap'
+    const resolved = resolvePlacement(piece, targetHex, rotation, board, {
+      ignoreUID: ignoredUIDs,
+      deferOffMapCheck: true,
+      edgeId: resolverTarget.edgeId,
+    })
+    if (isPlacementBlocked(resolved)) return resolved.blocked
+    const resolution: ResolvedPlacement = {
+      ...resolved,
+      coords: move.newPieceCoords,
+      altitude,
+      rotation,
     }
 
     const evaluation = evaluatePlacement(board, resolution, {

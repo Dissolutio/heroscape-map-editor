@@ -33,6 +33,7 @@ export type SettingsValues = {
   isDisplayCapHeights: boolean
   isHideTableTop: boolean
   useLegacyStartZones: boolean
+  isShowActionLog: boolean
   pdfRenderFormat: PdfRenderFormat
   isShowPDFInventory: boolean
   isPdfColorBorders: boolean
@@ -73,6 +74,7 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   isDisplayCapHeights: false,
   isHideTableTop: false,
   useLegacyStartZones: false,
+  isShowActionLog: true,
   pdfRenderFormat: 'coversheet',
   isShowPDFInventory: true,
   isPdfColorBorders: false,
@@ -176,6 +178,7 @@ const validSettingValue = (
       'isDisplayCapHeights',
       'isHideTableTop',
       'useLegacyStartZones',
+      'isShowActionLog',
       'isShowPDFInventory',
       'isPdfColorBorders',
       'isTransparentGlyphSpaces',

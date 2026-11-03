@@ -301,43 +301,85 @@ const getPdfHexBorderForView = (
 export const PdfMultiHex1 = ({
   hex,
   isSubLevel,
-  isGlyph,
-  isTransparent = false,
   useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
-  isGlyph?: boolean
-  isTransparent?: boolean
   useTerrainBorderColor?: boolean
 }) => {
   const isEmptyHex = hex.terrain === 'empty'
-  const terrainFillColor = isEmptyHex
-    ? 'white'
-    : getPdfHexFillForView(hex, isSubLevel)
-  const fillColor = isTransparent ? 'none' : terrainFillColor
-  const borderColor =
-    isGlyph && !isSubLevel
-      ? terrainFillColor
-      : getPdfHexBorderForView(hex, isSubLevel, useTerrainBorderColor)
-  const glyphHexRadius = SVG_HEX_RADIUS / 1.4
+  const fillColor = isEmptyHex ? 'white' : getPdfHexFillForView(hex, isSubLevel)
+  const borderColor = getPdfHexBorderForView(
+    hex,
+    isSubLevel,
+    useTerrainBorderColor,
+  )
   const { points } = getHexagonPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const { points: glyphPoints } = getHexagonPdfPolygonPointsAt00(
-    glyphHexRadius,
-    0,
-  )
   return (
     <Polygon
-      points={isGlyph ? glyphPoints : points}
+      points={points}
       fill={fillColor}
       stroke={borderColor}
       strokeWidth={PDF_BORDER_WIDTH}
     />
   )
 }
+
+const pdfGlyphProps = ({
+  terrain,
+  isSubLevel,
+  isTransparent,
+}: {
+  terrain: HexTerrain
+  isSubLevel?: boolean
+  isTransparent?: boolean
+}) => {
+  const fillColor = isSubLevel ? svgSubLevelColors[terrain] : svgColors[terrain]
+  const borderColor = isSubLevel
+    ? svgSubLevelColors.glyphBorder
+    : svgColors.glyphBorder
+  const { points } = getHexagonPdfPolygonPointsAt00(
+    SVG_HEX_RADIUS,
+    PDF_BORDER_WIDTH,
+  )
+  return (
+    <Polygon
+      points={points}
+      fill={isTransparent ? 'none' : fillColor}
+      stroke={borderColor}
+      strokeWidth={PDF_BORDER_WIDTH}
+    />
+  )
+}
+
+export const PdfGlyphTreasure = ({
+  isSubLevel,
+  isTransparent,
+}: {
+  isSubLevel?: boolean
+  isTransparent?: boolean
+}) =>
+  pdfGlyphProps({
+    terrain: HexTerrain.glyphTreasure,
+    isSubLevel,
+    isTransparent,
+  })
+
+export const PdfGlyphPower = ({
+  isSubLevel,
+  isTransparent,
+}: {
+  isSubLevel?: boolean
+  isTransparent?: boolean
+}) =>
+  pdfGlyphProps({
+    terrain: HexTerrain.glyphPower,
+    isSubLevel,
+    isTransparent,
+  })
 export const PdfMultiHex2 = ({
   hex,
   isSubLevel,

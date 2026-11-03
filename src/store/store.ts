@@ -10,10 +10,16 @@ import {
   settingsChanged,
 } from '../local-storage/settings'
 import { trackStoreSubscriptions } from '../performance/performanceFlags'
+import createActionLogSlice, { type ActionLogSlice } from './action-log-slice'
 import createMapSlice, { type MapSlice } from './map-slice'
-import createUISlice, { type UISlice } from './ui-slice'
+import createUISlice, {
+  EMPTY_UNDO_SELECTION_RESTORE,
+  type UISlice,
+} from './ui-slice'
 
-export type AppState = MapSlice & UISlice
+export type AppState = MapSlice & UISlice & ActionLogSlice
+
+let temporalHistoryWasSaved = false
 
 const useBoundStore = create<AppState>()(
   trackStoreSubscriptions(
@@ -21,6 +27,7 @@ const useBoundStore = create<AppState>()(
       (...a) => ({
         ...createMapSlice(...a),
         ...createUISlice(...a),
+        ...createActionLogSlice(...a),
       }),
       // undo/redo config object
       {
@@ -40,10 +47,41 @@ const useBoundStore = create<AppState>()(
           pastState.boardPieces === currentState.boardPieces &&
           pastState.hexMap === currentState.hexMap &&
           pastState.objectiveMarkers === currentState.objectiveMarkers,
+        onSave: () => {
+          const actions = useBoundStore.getState()
+          const record =
+            actions.consumePendingUndoSelectionRestore() ??
+            EMPTY_UNDO_SELECTION_RESTORE
+          actions.pushUndoSelectionRestore(record)
+          temporalHistoryWasSaved = true
+        },
       },
     ),
   ),
 )
+
+let knownPastCount = useBoundStore.temporal.getState().pastStates.length
+let knownFutureCount = useBoundStore.temporal.getState().futureStates.length
+useBoundStore.temporal.subscribe((state) => {
+  const pastCount = state.pastStates.length
+  const futureCount = state.futureStates.length
+  const actions = useBoundStore.getState()
+  if (pastCount === 0 && futureCount === 0) {
+    actions.clearUndoSelectionRestoreHistory()
+  } else if (temporalHistoryWasSaved) {
+    temporalHistoryWasSaved = false
+  } else if (pastCount < knownPastCount) {
+    const record =
+      actions.popPendingUndoSelectionRestore() ?? EMPTY_UNDO_SELECTION_RESTORE
+    actions.pushPendingRedoSelectionRestore(record)
+  } else if (futureCount < knownFutureCount && pastCount > knownPastCount) {
+    const record =
+      actions.popPendingRedoSelectionRestore() ?? EMPTY_UNDO_SELECTION_RESTORE
+    actions.pushPendingUndoSelectionRestoreFromRedo(record)
+  }
+  knownPastCount = pastCount
+  knownFutureCount = futureCount
+})
 
 createMapAutosave(useBoundStore)
 

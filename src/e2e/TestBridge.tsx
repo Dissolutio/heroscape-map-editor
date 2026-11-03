@@ -315,6 +315,21 @@ function TestBridgeInner() {
           store.togglePenModeRotation(rotation)
         }
       },
+      setLookBackgroundColor: (color) =>
+        useBoundStore.getState().setLookSettings({ backgroundColor: color }),
+      seedActionLog: (count) => {
+        const state = useBoundStore.getState()
+        for (
+          let index = 0;
+          index < Math.min(200, Math.max(0, count));
+          index++
+        ) {
+          state.recordActionLog({
+            type: 'place',
+            pieceName: '1-hex Grass',
+          })
+        }
+      },
       stats: () => {
         const { calls, triangles, frame: frames } = get().gl.info.render
         return { calls, triangles, frames }

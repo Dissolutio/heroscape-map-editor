@@ -9,6 +9,7 @@ import {
 } from '../../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../../utils/board-utils'
 import { HEXGRID_HEX_RADIUS } from '../../utils/constants'
+import { isFluidCapVisible } from '../../utils/fluidStacks'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../../utils/hex-utils'
 import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
 import type { GenericTerrainColorSettings } from '../maphex/genericTerrainColors'
@@ -390,8 +391,13 @@ export function getLandHexCapUV(
   }
 }
 
+/**
+ * Terrain texture layers are uploaded with their rows reversed (see
+ * `flipTextureLayerRows`), so v = 1 is the image's top row. v therefore
+ * increases upward, and the top of a face (y = height) samples the top row.
+ */
 export function getLandHexSideUV(u: number, y: number, height: number) {
-  return [u, 1 - y / height] as const
+  return [u, y / height] as const
 }
 
 export function buildLandHexInstanceIndex(
@@ -702,7 +708,7 @@ export function buildLandHexInstanceData(
           ...textureLayers,
           sideMask: getLandHexSideVisibilityMask(hex, boardHexes),
           fluidCapJoinMask: getLandHexFluidCapJoinMask(hex, boardHexes),
-          capVisible: !colors.isFluid || Boolean(hex.isCap),
+          capVisible: !colors.isFluid || isFluidCapVisible(hex, boardHexes),
           capColor: colors.cap,
           sideColor: colors.side,
         },

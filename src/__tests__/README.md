@@ -22,6 +22,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `generic-pieces.test.ts` | Generic solid/fluid registration, all footprint sizes on the table, solid/fluid stacking, buried marks, unlimited inventory handling, and piece-grid grouping. |
 | `generic-terrain-colors.test.ts` | Generic cap/side color resolution and contrast-based `?` letter color selection. |
 | `land-hex-instances.test.ts` | Per-hex land instance construction and lightweight ID parity, manifest terrain/layer coverage, tier selection, deterministic cap rotation, cap/side UVs, level and piece exclusions, six-direction side culling, and flat-color fallback. |
+| `fluid-cap-visibility.test.ts` | Fluid caps under a solid: drawn with half-level clearance (an overhang on a whole-level fluid), hidden under flush fluid or solid, isCap unchanged, on all graphics tiers and the legacy Low cap buckets, plus the Cove of Bilfrost fixture through the loader. |
 | `land-hex-geometry.test.ts` | Per-hex solid/fluid prism geometry: side quads index their own vertices, side-image orientation (including fluid UVs), triangle kinds and directions stay consistent, and faces point outward/upward. |
 | `export-border-color.test.ts` | Shared SVG/PDF border-color decisions for every terrain, SVG Asphalt markup, and rendered PDF output with outlines on/off, including sub-levels. |
 | `glyph-export-options.test.tsx` | Shared glyph-space classification, SVG/PDF transparent fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |
@@ -60,6 +61,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `world/textures/terrainTextureArrays.test.ts` | Runtime manifest validation, texture-tier strip selection and cached access, pure layer slicing and Y orientation, lazy request caching, retry after failure, and disposal. |
 | `world/models/gltfLifecycle.test.ts` | Delayed GLTF eviction after the idle timeout, cancellation on reacquisition, and reference-counted cleanup. |
 | `store/graphics-tier.test.ts` | Graphics-tier loading state, session-only fallback after failure, and stale request handling. |
+| `store/action-log.test.ts` | Action-log message formatting and the bounded ring buffer. |
 | `performance/performance.test.ts` | Detection of monotonically growing scene, GPU-resource, heap, subscriber, timer, and animation-frame metrics, plus typed-array accounting for geometry, instances, and texture data. |
 | `performance/performanceFlags.test.ts` | Performance-gated accounting of active Zustand store subscriptions, R3F-event isolation, and User Timing collection. |
 | `e2e-evidence.test.ts` | Keeps E2E writes to `docs/evidence/` inside the opt-in screenshot helper. |
@@ -67,7 +69,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `land-hex-update-ranges.test.ts` | Bounded per-hex highlight buffer updates while no render uploads pending ranges. |
 | `world/shadowInvalidation.test.ts` | Static shadow invalidation for board, light, tier, level, and start-zone changes, late preloaded model mounts, and exclusion of hover/selection/camera updates. |
 | `world/camera/pictureQuality.test.ts` | Picture-only High capture: disabled behavior, settled High capture with exact setting restoration, and texture-load failure fallback. |
-| `click-placement.test.ts` | What a left click with a piece pen places, per piece family, through the real click handler (`world/MapDisplay3D.tsx`) and the store, without rendering; plus clicked-hex group-pivot behavior, refusals and messages, Laur variant stack switching and confirmation, undo, permissive Laur add-on placement with pillar-port rotation snapping, +8 pillar stacking including the stackable square variant, map edges, and a ship bow deck click that does nothing. Cases are in `helpers/placementCases.ts`. |
+| `click-placement.test.ts` | What a left click with a piece pen places, per piece family, through the real click handler (`world/mapDisplayClickHandler.tsx`) and the store, without rendering; plus clicked-hex group-pivot behavior, refusals and messages, Laur variant stack switching and confirmation, undo, permissive Laur add-on placement with pillar-port rotation snapping, +8 pillar stacking including the stackable square variant, map edges, and a ship bow deck click that does nothing. Cases are in `helpers/placementCases.ts`. |
 | `placement.test.ts` | `resolvePlacement` (where a click puts a piece, or the reason it is blocked; must match the click handler case for case), +8 pillar and add-on stacking, Laur add-on port snapping, non-stackable wall conflict flags, the pure Laur stackable-variant pen decision and middle-click pick mode, `placementBlockedMessages` including group-drag `outOfHeight`, and `evaluatePlacement` (ok / conflict / blocked from a footprint-only probe, `ignoreUID` for a moving piece, opt-in height bounds, never mutates its input) in `data/placement.ts`, and the map-edge rule (`hangsOffMap`) swept over rectangle and hexagon maps of several sizes against each shape's own definition. |
 | `placement-preview.test.ts` | `getPlacementPreviewState` (click-rule resolution plus placement evaluation, including Laur edge conflicts, unsupported support signals, map-edge footprints and non-mutation) and the distinct color/pattern styles in `world/placementPreviewStyle.ts`. |
 | `ship-deck-color.test.ts` | The ship bow/wall deck colour (`world/models/shipDeckColor.ts`): yellow with the rest of the piece when hovered or selected, or when that deck is hovered to build on. |
@@ -75,6 +77,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `edge-piece-drag.test.ts` | Battlement, road-wall and rope-ladder drag targeting: all six resolved edges, rotation tie-breaks, single-piece edge snapping, group support-hex movement and edge preservation, group cache keys, rim and castle-top behavior, mixed rigid groups, altitude bounds, undo, same-edge no-op, and frozen-board immutability. |
 | `ladder-drag.test.ts` | Ladder dragging: moves the grabbed ladder and contiguous stack above it, preserves the lower part, supports mixed groups and ladder-on-ladder placement, and checks blocked targets, no-op drops, undo, and frozen-board previews. |
 | `drag-rotation.test.ts` | Mouse-wheel drag rotation: wheel normalization and throttling, ladder pointer sectors and hysteresis, grabbed-piece-pivot group transforms, grab-offset rotation, pointer-oriented wheel policy, and ladder-stack single application. |
+| `rotation-hotkey.test.ts` | Rotation hotkey target priority, selected-piece rotation and undo, and blocked group-rotation refusal. |
 | `laur-drag.test.ts` | Laur drag-to-move: characterizes boardPieces-only add-on placement/removal/movement, grid-backed pillar moves, and inventory IDs on moved stacked pieces. |
 | `storage-known-gaps.test.ts` | Legacy constraint restoration and protection against hotkey mount overwrites. |
 | `virtualscape-import.test.ts` | Version 0.0007 Virtualscape binary import through `readVirtualscapeMapFile()` and `buildupVSFileMap()`: registered codes, positions, rotations, odd-r coordinates, unknown-code drop reporting and warning, and empty drops for known-only files. |
@@ -101,6 +104,13 @@ the missing step. Today the registrations a piece needs are: the `Pieces` consta
 the set inventories (`data/inventories.ts`), and a Virtualscape code in
 `data/pieceCodes.ts` if the old editor had it. The 3D model/loader and the
 SVG/PDF shapes are not checked by tests yet.
+
+## Adding an action-log entry
+
+Add the action shape and its text in `store/action-log.ts`, then record it at
+the successful state-commit point (normally in `store/map-slice.ts`). Keep
+pointer previews and refused/no-op actions out of the log, and add formatter and
+store tests for the new kind.
 
 ## Known gaps: `it.fails`
 

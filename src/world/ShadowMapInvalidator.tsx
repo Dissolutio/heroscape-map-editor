@@ -20,10 +20,14 @@ function noteShadowTrigger(gl: { domElement: HTMLCanvasElement }, why: string) {
 
 export default function ShadowMapInvalidator() {
   const gl = useThree((state) => state.gl)
-  const pendingLoads = useProgress((state) => state.active)
+  const pendingLoads = useRef(false)
   const settleWindow = useRef({ framesRemaining: 0 })
 
   useEffect(() => {
+    pendingLoads.current = useProgress.getState().active
+    const unsubscribeProgress = useProgress.subscribe((state) => {
+      pendingLoads.current = state.active
+    })
     const { shadowMap } = gl
     const originalAutoUpdate = shadowMap.autoUpdate
     shadowMap.autoUpdate = false
@@ -78,6 +82,7 @@ export default function ShadowMapInvalidator() {
     return () => {
       unsubscribe()
       unsubscribeModelMounts()
+      unsubscribeProgress()
       restoreRender?.()
       shadowMap.autoUpdate = originalAutoUpdate
       requestShadowUpdate(shadowMap, settleWindow.current)
@@ -85,10 +90,14 @@ export default function ShadowMapInvalidator() {
   }, [gl])
 
   useFrame(() => {
-    if (pendingLoads && settleWindow.current.framesRemaining === 0) {
+    if (pendingLoads.current && settleWindow.current.framesRemaining === 0) {
       noteShadowTrigger(gl, 'loads')
     }
-    updateShadowSettleWindow(gl.shadowMap, settleWindow.current, pendingLoads)
+    updateShadowSettleWindow(
+      gl.shadowMap,
+      settleWindow.current,
+      pendingLoads.current,
+    )
   })
 
   return null

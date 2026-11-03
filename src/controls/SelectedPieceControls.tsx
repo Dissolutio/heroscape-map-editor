@@ -1,23 +1,19 @@
 import { Box, Button, ButtonGroup, Tooltip, Typography } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
-import { enqueueSnackbar } from 'notistack'
 import type { RefObject } from 'react'
 import { getGroupRotationBlockedReason } from '../data/evaluateGroupRotation'
 import { piecesSoFar } from '../data/pieces'
+import { rotateGroupAroundPivot } from '../data/rotateGroup'
 import {
   isRotationPivotAtPieceOrigin,
   resolveRotationPivot,
 } from '../data/rotationPivot'
-import { rotateGroupAroundPivot } from '../data/rotateGroup'
-import {
-  placementBlockedMessages,
-  type PlacementBlockedReason,
-} from '../data/placement'
 import getPieceTemplateCoords from '../data/rotationTransforms'
 import useBoundStore from '../store/store'
+import { pickPieceAsPenMode } from '../hooks/useMiddleClickPickPenMode'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
-import { zoomToPieces } from '../utils/camera-utils'
 import { makeBuriedStatusChecker } from '../utils/buriedStatus'
+import { zoomToPieces } from '../utils/camera-utils'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import {
   genBoardHexID,
@@ -29,6 +25,7 @@ import {
   getRotationByListStep,
   hasIntegerRotationSteps,
 } from './getPossibleRotationsForPenMode'
+import { rotateSelectedPieces } from './rotateSelectedPieces'
 
 const FONT_SIZE = 8
 
@@ -497,93 +494,7 @@ export function SelectedPieceControls({
   }
 
   const rotateSelectedPiece = (direction: 1 | -1) => {
-    const showBlockedRotation = (reason?: PlacementBlockedReason) => {
-      enqueueSnackbar({
-        message: reason
-          ? placementBlockedMessages[reason]
-          : 'That rotation is blocked.',
-        variant: 'warning',
-        autoHideDuration: 5000,
-      })
-    }
-
-    if (isMulti) {
-      const moves = rotateGroupAroundPivot(
-        selectedBoardPieces,
-        groupRotationPivot?.coords ??
-          selectedPieceIDs[selectedPieceIDs.length - 1],
-        direction,
-      )
-      const blockedReason = getGroupRotationBlockedReason(
-        { boardHexes, boardPieces },
-        selectedBoardPieces,
-        moves,
-      )
-      if (blockedReason) {
-        showBlockedRotation(blockedReason)
-        setPiecePreviews(null)
-        return
-      }
-      setPiecePreviews(null)
-      movePieces({ moves, preserveRotationPivot: true })
-      return
-    }
-
-    if (hasNonOriginPivot && groupRotationPivot) {
-      if (!hasIntegerRotationSteps(firstBp.inventoryID)) {
-        showBlockedRotation()
-        setPiecePreviews(null)
-        return
-      }
-
-      const moves = rotateGroupAroundPivot(
-        selectedBoardPieces,
-        groupRotationPivot.coords,
-        direction,
-      )
-      const blockedReason = getGroupRotationBlockedReason(
-        { boardHexes, boardPieces },
-        selectedBoardPieces,
-        moves,
-      )
-      if (blockedReason) {
-        showBlockedRotation(blockedReason)
-        setPiecePreviews(null)
-        return
-      }
-
-      setPiecePreviews(null)
-      movePieces({ moves, preserveRotationPivot: true })
-      return
-    }
-
-    setPiecePreviews(null)
-    movePieces({
-      moves: selectedBoardPieces.map((bp) => {
-        return {
-          uid: bp.uid,
-          newPieceCoords: bp.pieceCoords,
-          newRotation: getRotationByListStep(
-            bp.inventoryID,
-            bp.rotation,
-            direction,
-          ),
-        }
-      }),
-    })
-    setPiecePreviews(
-      selectedBoardPieces.map((bp) => {
-        return {
-          ...bp,
-          rotation: getRotationByListStep(
-            bp.inventoryID,
-            bp.rotation,
-            direction,
-            2,
-          ),
-        }
-      }),
-    )
+    rotateSelectedPieces(direction, { previewNext: true })
   }
 
   const moveSelectedPieceAltitude = (delta: number) => {
@@ -609,6 +520,7 @@ export function SelectedPieceControls({
     zoomToPieces({
       cameraControlsRef,
       boardHexes,
+      boardPieces,
       targetUIDs: selectedPieceIDs,
       mapWidth,
       mapLength,
@@ -637,6 +549,19 @@ export function SelectedPieceControls({
         partiallyBuried={partiallyBuriedCount}
         subBuried={subBuriedCount}
       />
+      {selectedPieceIDs.length === 1 && selectedBoardPieces.length === 1 && (
+        <Tooltip title="Use this piece as the pen">
+          <Button
+            variant="outlined"
+            size="small"
+            aria-label="Use selected piece as pen"
+            onClick={() => pickPieceAsPenMode(firstBp.uid)}
+            sx={{ fontSize: FONT_SIZE, mt: 0.25, mb: 0.5, width: '100%' }}
+          >
+            Use as Pen
+          </Button>
+        </Tooltip>
+      )}
       <PieceTransformControls
         selectedPieceIDs={selectedPieceIDs}
         canMoveDown={selectedBoardPieces.some((bp) => bp.altitude > 0)}

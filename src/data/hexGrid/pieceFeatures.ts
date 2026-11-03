@@ -6,6 +6,7 @@ import { getPillarPortFeatures } from '../laurPillarPorts'
 import { piecesSoFar } from '../pieces'
 import {
   type HexFeatureId,
+  type HexEdgeId,
   edgeIdFromHex,
   nodeIdFromHexRotation,
 } from './edgesAndNodes'
@@ -145,6 +146,8 @@ export type PieceFeatureResult = {
   } | null
 }
 
+export type PieceEdgeInput = PieceFeatureInput | BoardPieceFeatureInput
+
 const mod6 = (rotation: number) => ((rotation % 6) + 6) % 6
 
 function isAllowedRotation(rotation: number, granularity: RotationGranularity) {
@@ -187,6 +190,42 @@ function getAttachmentAnchor(
   return input.pieceCoords
 }
 
+function getAttachmentDeclaration(
+  input: PieceEdgeInput,
+): PieceAttachmentDeclaration | undefined {
+  const pieceID = 'pieceID' in input ? input.pieceID : input.inventoryID
+  const declaration =
+    pieceTopologyDeclarations[pieceID as keyof typeof pieceTopologyDeclarations]
+  return declaration?.source === 'attachment' ? declaration : undefined
+}
+
+export function getPieceEdgeAnchor(
+  input: PieceEdgeInput,
+): CubeCoordinate | null {
+  const declaration = getAttachmentDeclaration(input)
+  if (
+    !declaration ||
+    !declaration.featureKinds.includes('edge') ||
+    !Number.isInteger(input.rotation) ||
+    !isAllowedRotation(input.rotation, declaration.rotation)
+  ) {
+    return null
+  }
+  return getAttachmentAnchor(input, declaration)
+}
+
+export function getPieceEdgeId(input: PieceEdgeInput): HexEdgeId | null {
+  const declaration = getAttachmentDeclaration(input)
+  const anchor = getPieceEdgeAnchor(input)
+  if (!declaration || !anchor) return null
+  return edgeIdFromHex(
+    anchor,
+    declaration.anchor === 'battlement-offset'
+      ? input.rotation + 3
+      : input.rotation,
+  )
+}
+
 export function getPieceFeatureIds(
   input: PieceFeatureInput | BoardPieceFeatureInput,
 ): PieceFeatureResult | null {
@@ -208,21 +247,19 @@ export function getPieceFeatureIds(
       ),
     )
   } else {
-    const anchor = getAttachmentAnchor(input, declaration)
     if (
       declaration.featureKinds.includes('edge') &&
       Number.isInteger(input.rotation)
     ) {
+      const edgeId = getPieceEdgeId(input)
+      if (edgeId) featureIds.push(edgeId)
+    } else if (declaration.featureKinds.includes('node')) {
       featureIds.push(
-        edgeIdFromHex(
-          anchor,
-          declaration.anchor === 'battlement-offset'
-            ? input.rotation + 3
-            : input.rotation,
+        nodeIdFromHexRotation(
+          getAttachmentAnchor(input, declaration),
+          input.rotation,
         ),
       )
-    } else if (declaration.featureKinds.includes('node')) {
-      featureIds.push(nodeIdFromHexRotation(anchor, input.rotation))
     }
   }
 

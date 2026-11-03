@@ -1,4 +1,11 @@
-import { ClickAwayListener } from '@mui/material'
+import {
+  Box,
+  Button,
+  ClickAwayListener,
+  Stack,
+  Typography,
+} from '@mui/material'
+import * as Sentry from '@sentry/react'
 import {
   Billboard,
   Bvh,
@@ -17,6 +24,7 @@ import type {
   Group,
   Object3DEventMap,
   PerspectiveCamera as ThreePerspectiveCamera,
+  WebGLRenderer,
 } from 'three'
 import SelectedPieceReadout from '../controls/SelectedPieceReadout'
 import { E2EStatus } from '../e2e/E2EStatus'
@@ -44,8 +52,204 @@ import {
 } from '../performance/performance'
 import { clearLastPointerWorldPoint } from './hoverWorldPoint'
 import LookSettingsDialog from '../layout/LookSettingsDialog'
+import ActionLog from './ActionLog'
+import {
+  collectWebGLDiagnostics,
+  collectWebGLDiagnosticsFromCanvas,
+  createWebGLRenderer,
+  type WebGLDiagnostics,
+  WebGLContextCreationError,
+} from './webglContext'
 
 const BILLBOARD_WARMUP_MS = 4000
+const WEBGL_FAILURE_SESSION_KEY = 'webgl-context-failure-reported'
+let webglFailureReported = false
+let webglFailureDiagnostics: WebGLDiagnostics | null = null
+
+const isTauri = () =>
+  typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
+
+const getWebGLEnvironment = () => ({
+  userAgent: navigator.userAgent,
+  devicePixelRatio: window.devicePixelRatio,
+  tauri: isTauri(),
+})
+
+const hasReportedWebGLFailure = () => {
+  if (webglFailureReported) {
+    return true
+  }
+
+  try {
+    if (sessionStorage.getItem(WEBGL_FAILURE_SESSION_KEY)) {
+      webglFailureReported = true
+      return true
+    }
+  } catch {
+    webglFailureReported = true
+    return false
+  }
+  webglFailureReported = true
+  return false
+}
+
+function getSessionWebGLFailure() {
+  let diagnostics = webglFailureDiagnostics
+
+  if (!diagnostics) {
+    try {
+      const saved = sessionStorage.getItem(WEBGL_FAILURE_SESSION_KEY)
+      if (saved) {
+        const parsed: unknown = JSON.parse(saved)
+        if (
+          typeof parsed === 'object' &&
+          parsed !== null &&
+          'attempts' in parsed &&
+          Array.isArray(parsed.attempts)
+        ) {
+          diagnostics = parsed as WebGLDiagnostics
+          webglFailureDiagnostics = diagnostics
+          webglFailureReported = true
+        }
+      }
+    } catch {
+      return null
+    }
+  }
+
+  if (!diagnostics) {
+    return null
+  }
+
+  const error = new WebGLContextCreationError(diagnostics.attempts)
+  error.diagnostics = diagnostics
+  return error
+}
+
+function handleWebGLFailure(error: WebGLContextCreationError) {
+  const diagnostics =
+    error.diagnostics ??
+    collectWebGLDiagnosticsFromCanvas(
+      error.attempts,
+      getWebGLEnvironment(),
+      document.createElement('canvas'),
+    )
+  error.diagnostics = diagnostics
+  webglFailureDiagnostics = diagnostics
+
+  Sentry.setTag('webgl', 'failed')
+  Sentry.setTag('webglRenderer', diagnostics.renderer ?? 'unavailable')
+  if (!hasReportedWebGLFailure()) {
+    Sentry.setContext('webgl', diagnostics)
+    try {
+      sessionStorage.setItem(
+        WEBGL_FAILURE_SESSION_KEY,
+        JSON.stringify(diagnostics),
+      )
+    } catch {
+      webglFailureReported = true
+    }
+  }
+}
+
+function handleWebGLReady(renderer: WebGLRenderer) {
+  if (!isTauri()) {
+    return
+  }
+
+  const diagnostics = collectWebGLDiagnostics(
+    [],
+    getWebGLEnvironment(),
+    renderer.getContext(),
+    renderer.capabilities.isWebGL2,
+  )
+  Sentry.setTag('webgl', diagnostics.softwareRendererGuess ? 'software' : 'ok')
+  Sentry.setTag('webglRenderer', diagnostics.renderer ?? 'unknown')
+  Sentry.setContext('webgl', diagnostics)
+}
+
+function WebGLFailure({ error }: { error: unknown }) {
+  const [copyStatus, setCopyStatus] = useState('')
+  const diagnostics =
+    error instanceof WebGLContextCreationError ? error.diagnostics : undefined
+  const errorMessage =
+    error instanceof Error ? error.message : String(error ?? 'Unknown error')
+
+  const copyDiagnostics = async () => {
+    const text = JSON.stringify(
+      { error: errorMessage, ...diagnostics },
+      null,
+      2,
+    )
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopyStatus('Diagnostics copied')
+    } catch {
+      setCopyStatus('Could not copy diagnostics')
+    }
+  }
+
+  return (
+    <Box
+      data-testid="webgl-failure"
+      role="alert"
+      sx={{
+        alignItems: 'center',
+        display: 'flex',
+        height: '100%',
+        justifyContent: 'center',
+        p: 3,
+      }}
+    >
+      <Stack alignItems="center" maxWidth={560} spacing={2} textAlign="center">
+        <Typography component="h1" variant="h5">
+          The 3D view could not start
+        </Typography>
+        <Typography color="text.secondary">
+          This device could not create a WebGL graphics context. The 2D and PDF
+          views are still available.
+        </Typography>
+        <Stack direction="row" flexWrap="wrap" gap={1} justifyContent="center">
+          <Button
+            variant="contained"
+            onClick={() => useBoundStore.getState().toggleIs2DOpen(true)}
+          >
+            Switch to 2D view
+          </Button>
+          <Button onClick={copyDiagnostics}>Copy diagnostics</Button>
+        </Stack>
+        {copyStatus && (
+          <Typography aria-live="polite" color="text.secondary">
+            {copyStatus}
+          </Typography>
+        )}
+      </Stack>
+    </Box>
+  )
+}
+
+const CanvasWithWebGLBoundary = Sentry.withErrorBoundary(Canvas, {
+  fallback: ({ error }) => {
+    if (!(error instanceof WebGLContextCreationError)) {
+      throw error
+    }
+    return <WebGLFailure error={error} />
+  },
+  onError: (error) => {
+    if (error instanceof WebGLContextCreationError) {
+      handleWebGLFailure(error)
+    }
+  },
+})
+
+function WebGLCanvas(props: React.ComponentProps<typeof Canvas>) {
+  const [sessionFailure] = useState(getSessionWebGLFailure)
+  return sessionFailure ? (
+    <WebGLFailure error={sessionFailure} />
+  ) : (
+    <CanvasWithWebGLBoundary {...props} />
+  )
+}
 
 function BillboardWarmup() {
   const [isVisible, setIsVisible] = useState(true)
@@ -90,6 +294,9 @@ const World = ({
   const fov = useBoundStore((s) => s.lookSettings.fov)
   const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
+  const isShowActionLog = useBoundStore((s) => s.isShowActionLog)
+  const is2DOpen = useBoundStore((s) => s.is2DOpen)
+  const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
   const [isTabActive, setIsTabActive] = useState(true)
   const perspectiveCameraRef = useRef<ThreePerspectiveCamera>(null)
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
@@ -122,8 +329,18 @@ const World = ({
           backgroundColor: 'var(--black)',
         }}
       >
-        <Canvas
-          gl={{ alpha: true }}
+        <WebGLCanvas
+          gl={(canvas) => {
+            try {
+              return createWebGLRenderer(canvas)
+            } catch (error) {
+              if (error instanceof WebGLContextCreationError) {
+                handleWebGLFailure(error)
+              }
+              throw error
+            }
+          }}
+          onCreated={({ gl }) => handleWebGLReady(gl)}
           events={
             isPerformanceEventsDisabled
               ? () => ({
@@ -150,7 +367,7 @@ const World = ({
             !isTabActive ? 'never' : isFrameloopDemand ? 'demand' : 'always'
           }
           hidden={isHidden}
-          shadows={isLightsAndShadowsRender}
+          shadows={isLightsAndShadowsRender ? 'percentage' : false}
         >
           {/* <Stars
             radius={100}
@@ -228,8 +445,13 @@ const World = ({
           {/* Readiness is shared with startup UI; browser hooks stay e2e-only. */}
           <ReadySignal mapGroupRef={mapGroupRef} />
           <TestBridge />
-        </Canvas>
+        </WebGLCanvas>
         <E2EStatus />
+        {!isHidden &&
+          !isTakingPicture &&
+          !is2DOpen &&
+          !isPdfOpen &&
+          isShowActionLog && <ActionLog />}
         {isPerformanceEnabled && <PerformanceOverlay />}
         <SelectedPieceReadout cameraControlsRef={cameraControlsRef} />
         <LookSettingsDialog />

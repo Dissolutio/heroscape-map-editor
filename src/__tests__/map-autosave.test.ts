@@ -475,14 +475,19 @@ describe('map autosave state gating', () => {
 
 async function createTestStore() {
   vi.resetModules()
-  const [{ default: createMapSlice }, { default: createUISlice }] =
-    await Promise.all([
-      import('../store/map-slice'),
-      import('../store/ui-slice'),
-    ])
+  const [
+    { default: createMapSlice },
+    { default: createUISlice },
+    { default: createActionLogSlice },
+  ] = await Promise.all([
+    import('../store/map-slice'),
+    import('../store/ui-slice'),
+    import('../store/action-log-slice'),
+  ])
   return createStore<AppState>()((...args) => ({
     ...createMapSlice(...args),
     ...createUISlice(...args),
+    ...createActionLogSlice(...args),
   }))
 }
 

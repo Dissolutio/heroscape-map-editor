@@ -28,3 +28,16 @@ test('clicking a piece at its projected position selects it', async ({
     page.getByRole('button', { name: /delete piece/i }),
   ).toBeVisible()
 })
+
+test('using the selected piece as the pen preserves its selection', async ({
+  page,
+}) => {
+  const uid = await findPieceUid(page, { inventoryID: 'g1', q: 0, r: 2 })
+  await clickPiece(page, uid)
+
+  await page.getByRole('button', { name: 'Use selected piece as pen' }).click()
+
+  const snapshot = await page.evaluate(() => window.__TEST__?.snapshot())
+  expect(snapshot?.penMode).toBe('g')
+  expect(snapshot?.selectedPieceIDs).toEqual([uid])
+})

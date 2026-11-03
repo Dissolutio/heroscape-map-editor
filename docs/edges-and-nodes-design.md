@@ -1,9 +1,9 @@
 # Shared hex-grid edges and nodes
 
 The app keeps its saved piece representation and legacy anchor/rotation for
-edge pieces. Laur add-on placement, support, and conflict identity now use
-typed edge/node IDs without changing placement or conflict behavior. The
-shared layer lives in
+edge pieces. Laur add-ons and battlements, road walls, and rope ladders rebuild
+runtime feature IDs from those legacy fields; IDs are not saved. The shared
+layer lives in
 [`src/data/hexGrid/edgesAndNodes.ts`](../src/data/hexGrid/edgesAndNodes.ts) and
 is exercised by [`edges-and-nodes.test.ts`](../src/__tests__/edges-and-nodes.test.ts).
 
@@ -21,8 +21,8 @@ not shared edge/node identifiers.
 | Laur hit resolution / world points | [`laurAddonPlacement.ts`](../src/data/laurAddonPlacement.ts#L79-L164) projects side midpoints and vertex points to floating-point world coordinates, then chooses the nearest allowed feature. Ties use `1e-12`; the exact-center special case uses strict `===`. | Click/preview placement passes a world hit point to the resolver. The e2e bridge projects the feature point for Laur add-on picking ([`TestBridge.tsx`](../src/e2e/TestBridge.tsx#L175-L187)). |
 | Laur pillar ports and support | [`laurPillarPorts.ts`](../src/data/laurPillarPorts.ts) retains port rotations as the user-facing orientation adapter and also resolves each provider port to a typed feature ID. [`laurAddonSupport.ts`](../src/data/laurAddonSupport.ts) indexes by altitude and feature ID, retaining provider coordinates so both bridge endpoints still require their own pillar. [`map-utils.ts`](../src/utils/map-utils.ts#L235-L241) also retains an unused square-pillar port list and flip table. | Port rotations restrict placement; typed provider IDs are checked against typed required add-on ports. |
 | Laur physical footprint | [`laurAddonFootprints.ts`](../src/data/laurAddonFootprints.ts) derives the attachment edge/node ID through the shared constructors and retains explicit attachment ends, blocked hexes, and height data. | [`laurAddonConflicts.ts`](../src/data/laurAddonConflicts.ts) consumes the feature ID for identity conflicts and the physical footprint for blocked-cell conflicts. It does not create edge/node occupancy in `boardHexes`. |
-| Battlement, road-wall, and ladder placement | [`map-utils.ts`](../src/utils/map-utils.ts#L207-L224) translates clicked hexes and rotations for battlements and road walls; battlements and road walls have different anchor conventions. The saved piece still contains anchor hex plus rotation, not an edge ID. Additional resolver/support translation is repeated in [`dragMove.ts`](../src/data/dragMove.ts#L783-L801) and [`evaluateGroupRotation.ts`](../src/data/evaluateGroupRotation.ts#L61-L91). | `placement.ts` consumes the clicked-hex helpers; drag and group-rotation preflight recalculate the supporting hex. Rope ladders also use a direction/rotation, but have their own placement/stack behavior. |
-| Edge drag target | [`dragMove.ts`](../src/data/dragMove.ts#L803-L849) returns `{ edgeIndex, rotation }`; its cache key is `<hex.id>:edge:<edgeIndex>`. [`dragRotation.ts`](../src/data/dragRotation.ts#L100-L130) compares a world point against six floating-point edge midpoints and applies tie/hysteresis rules. Laur drag keys instead append raw world-point `x,z`. | Drag placement, group movement, cache invalidation, and preview use the target. `dragRotation.ts` also resolves ladder pointer sectors. |
+| Battlement, road-wall, and ladder placement | [`pieceFeatures.ts`](../src/data/hexGrid/pieceFeatures.ts) adapts legacy anchor/rotation pairs to edge IDs and support anchors. The saved piece still contains anchor hex plus rotation, not an edge ID. | `placement.ts`, drag support, and group-rotation preflight carry the resolved edge ID while retaining legacy placement fields. |
+| Edge drag target | [`dragMove.ts`](../src/data/dragMove.ts) returns an edge ID with the legacy edge index/rotation adapter; cache keys use the canonical ID. [`dragRotation.ts`](../src/data/dragRotation.ts#L100-L130) still compares a world point against six floating-point edge midpoints and applies tie/hysteresis rules. Laur drag keys instead append raw world-point `x,z`. | Placement, group movement/rotation, no-op detection, and drag cache identity use the ID. Preview and rendered geometry remain rotation-based. |
 | Preview and rendered piece geometry | [`PlacementFootprint.tsx`](../src/world/PlacementFootprint.tsx#L82-L110) builds an edge segment with trigonometry from a rotation. Model offsets and rotations are separately encoded in [`piece-adjustments.ts`](../src/world/models/piece-adjustments.ts#L60-L105) and [`MapBoardPiece3D.tsx`](../src/world/MapBoardPiece3D.tsx#L207-L350). Laur pointer hits supply a world point through [`MapBoardPiece3D.tsx`](../src/world/MapBoardPiece3D.tsx#L125-L141). | The 3D drag preview consumes `edgeIndex`; actual piece models render from piece anchor and rotation. Ray hits currently identify pieces/hexes and supply world points, not a feature ID. |
 | SVG and PDF | [`SvgMapBoardPiece.tsx`](../src/svg-map/SvgMapBoardPiece.tsx#L22-L48) and [`PdfMapBoardPiece.tsx`](../src/pdf-map/PdfMapBoardPiece.tsx#L22-L53) derive their transforms from the saved anchor and rotation. Their piece-family geometry is independently defined in [`SvgMapShapes.tsx`](../src/svg-map/SvgMapShapes.tsx#L923-L1040) and [`PdfMapShapes.tsx`](../src/pdf-map/PdfMapShapes.tsx#L818-L951). | Exporters do not currently consume edge/node IDs. |
 | E2E edge picking | [`TestBridge.tsx`](../src/e2e/TestBridge.tsx#L161-L173) accepts a hex plus edge number, projects an interior point using the neighbor vector, and lets the regular pointer path resolve the target. Laur add-on picking uses its projected feature point. | `e2e/fixtures.ts` uses this helper for edge drags; [`e2e/README.md`](../e2e/README.md#L124-L129) documents it. |
@@ -94,8 +94,9 @@ The pure prototype provides:
 | Feature → existing x/z world projection | `edgeToWorldPoint`, `nodeToWorldPoint` |
 
 It uses the existing direction ordering in `hex-utils.ts` and is independent of
-React and the store. Laur runtime identity, support, and conflict consumers use
-the shared IDs; other edge-piece consumers remain unmigrated.
+React and the store. Laur runtime identity, support, and conflict consumers and
+edge-piece placement/movement consumers use shared IDs. Rendering and occupancy
+remain unmigrated.
 
 ### Consumer migration
 
@@ -106,12 +107,12 @@ the shared IDs; other edge-piece consumers remain unmigrated.
 - **DONE — Laur footprint/conflicts:** derive attachment features through
   shared constructors, then retain explicit blocked-hex and height data. This
   does not imply that Laur add-ons should begin writing `boardHexes`.
-- **Battlements, road walls, rope ladders, and other edge pieces:** add a
-  piece-specific adapter from legacy `(anchor, rotation)` to a canonical
-  edge ID, including battlement's inverse side and road-wall anchor offset.
-  Resolve the target once and pass the ID to placement, drag/group transforms,
-  support, cache keys, and preview. Preserve the legacy anchor/rotation in
-  saved maps until a separately reviewed format migration is justified.
+- **DONE — Battlements, road walls, and rope ladders:** the piece-specific
+  adapter resolves legacy `(anchor, rotation)` to an edge ID, including the
+  battlement inverse side and road-wall anchor offset. Placement, support,
+  drag/group transforms, no-op detection, and cache keys carry the ID; legacy
+  anchor/rotation fields remain the only saved representation. 3D picking and
+  preview geometry remain rotation-based for step 5.
 - **Piece registry:** add typed edge/node footprint metadata (feature kind,
   anchor/rotation adapter, required/support features, blocked hex offsets, and
   height). Keep ordinary hex footprints unchanged. Physical dimensions and
@@ -152,12 +153,17 @@ the shared IDs; other edge-piece consumers remain unmigrated.
    Brute-force conflict and support comparisons, the legacy stacking example,
    load-order, and known-good map tests cover the migration. **Risk: medium; a
    wrong feature or altitude key changes legal stacking/conflicts.**
-4. **Migrate edge-piece placement and movement.** Pass canonical IDs through
-   placement, support, drag/group rotation, no-op detection, and drag caches.
-   Keep legacy saved fields and compare all six rotations, tie cases, group
-   movement, undo, and blocked placement. Run placement, edge drag, ladder
-   drag, group rotation, and related click/e2e tests. **Risk: high; battlement,
-   road-wall, ladder, castle rim, and group-pivot conventions differ.**
+4. **DONE — Migrate edge-piece placement and movement.** Canonical IDs now pass
+   through placement resolution/evaluation, edge support, group/single pivot
+   rotation, move no-op detection, and drag cache keys. Drag target selection
+   still uses the existing pointer-boundary float math and tie behavior.
+   `boardPieces`, `altitude~q~r~rotation~id` records, and share links are
+   unchanged. Characterization covers all six rotations, ties, shared-support
+   and mixed groups, non-origin pivots, castle rim altitude -1, ladder stacks,
+   blocked targets, undo/redo, and no-op drops. Unit and e2e tests cover the
+   migration; real-GPU pointer targeting remains unverified. **Risk: high;
+   battlement, road-wall, ladder, castle rim, and group-pivot conventions
+   differ.**
 5. **Migrate 3D picking and previews.** Resolve one feature ID from pointer
    hits and share it with preview/picking; retain current pointer behavior at
    ties. Run edge and Laur drag e2e specs with the existing app-ready and
@@ -186,5 +192,5 @@ read-only registry adapters against the legacy implementations for every
 registered port provider and edge/node attachment piece and legal rotation.
 The Laur support/conflict consumers use typed IDs, with generated-board
 comparisons against their legacy references. Other `it.todo` entries remain
-application-level acceptance work, including edge-piece integration,
-serialization migration, and renderer integration.
+application-level acceptance work, including serialization migration and
+renderer integration.

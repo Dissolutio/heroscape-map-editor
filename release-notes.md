@@ -1,3 +1,20 @@
+Nov-02-2026
+TLDR: Selection history, a quiet action log, q/e hotkey rotate, and a bunch of rendering fixes, including upside-down textures and a Windows 3D fix.
+
+- **Action log**: Bottom-left of 3D view, the action log shows what you just did. Hover it to scroll back through the recent history. Toggle on/off in the View tab.
+- **Undo and redo bring your selection back**: Undoing or redoing an action now selects the pieces it touched. Multi-select three pieces, move them, click somewhere else, then undo, and your three pieces are selected again.
+- **Selection history**: Back and forward buttons and a list of recent selections in the selected-piece readout (and hotkeys) let you jump back to something you had selected a minute ago. It is not saved with your map.
+- **Rotate hotkeys while you drag**: The rotate keys (Q and E by default) now rotate whatever you are dragging, or your selected pieces.
+- **Use as Pen**: A new button in the selected-piece readout sets your pen to the selected piece.
+- **Zoom to a selected Laur wall**: The zoom button for Laur addons was broken.
+- **Side textures are the right way up**: The side textures were upside down...
+- **Fluid caps under overhangs and ladders**: A fluid cap was not rendering when something was directly over it, eventhough it was visible.
+- **Windows desktop app: 3D view recovery**: If the 3D view cannot start, the app now retries, and if that fails it shows a recovery panel with a "Copy diagnostics" button.
+- **Old maps load all their pieces**: Some older or hand-edited maps stored numbers as text and lost pieces on load (59 pieces in one case). They load complete now.
+- **Objective marker names in share links**: Names now travel in share links as long as the link stays a reasonable size.
+- **PDF build instructions**: Glyphs are drawn at full size again.
+- **Under the hood**: Edge pieces (battlements, road walls, rope ladders) now share a common edge system, which sets us up for better previews and placement, plus quieter developer warnings and more tests.
+
 Oct-30-2026
 TLDR: Textures! Tune your 3D graphics. Add named objective markers, better map pictures.
 

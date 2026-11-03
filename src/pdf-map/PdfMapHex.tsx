@@ -43,6 +43,8 @@ import {
   PdfCastleEnd,
   PdfCastleStraight,
   PdfEmptyHex,
+  PdfGlyphPower,
+  PdfGlyphTreasure,
   PdfHive6,
   PdfJungle,
   PdfLadder,
@@ -491,22 +493,23 @@ export const PdfMapHex = ({
     ) {
       return null
     }
-    const specialIsSubLevel = false
-    // const isNamedGlyph =  (hex.terrain === HexTerrain.glyphPower || hex.terrain === HexTerrain.glyphTreasure) && (hex.inventoryID !== Pieces.glyphPower && hex.inventoryID !== Pieces.glyphTreasure)
-    const glyphLetter = piecesSoFar[hex.inventoryID]?.glyphLetter
+    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
+    const glyphLetter = piecesSoFar[hex.inventoryID]?.glyphLetter ?? '?'
+    const GlyphShape =
+      hex.terrain === HexTerrain.glyphPower ? PdfGlyphPower : PdfGlyphTreasure
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <PdfMultiHex1
-          isGlyph
-          hex={hex}
+        <GlyphShape
           isSubLevel={specialIsSubLevel}
           isTransparent={glyphOptions.isTransparent}
         />
         <Text
-          fill={glyphOptions.isTransparent ? svgColors.glyphText : 'white'}
-          // white text needs a little opacity boost
+          fill={
+            specialIsSubLevel
+              ? svgSubLevelColors.glyphText
+              : svgColors.glyphText
+          }
           opacity={specialIsSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
-          // {...glyphTextProps(`${pieceHeightText}`)}
           {...glyphTextProps()}
         >
           {glyphLetter}

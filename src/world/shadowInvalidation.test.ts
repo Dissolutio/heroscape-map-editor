@@ -44,15 +44,19 @@ describe('static shadow map invalidation', () => {
     }
   })
 
-  it('does not invalidate for hover, selection, or camera-only changes', () => {
+  it('does not invalidate for drag, hover, selection, or camera-only changes', () => {
     const original = {
       ...state(),
+      isDraggingPiece: false,
+      dragPreview: null,
       hoveredWorldPoint: undefined,
       selectedPieceIDs: [],
       cameraPosition: [0, 0, 0],
     }
     const updated = {
       ...original,
+      isDraggingPiece: true,
+      dragPreview: { status: 'ok' },
       hoveredWorldPoint: { x: 1, z: 2 },
       selectedPieceIDs: ['piece'],
       cameraPosition: [1, 0, 0],

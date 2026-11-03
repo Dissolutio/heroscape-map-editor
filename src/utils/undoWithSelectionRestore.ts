@@ -1,90 +1,64 @@
-import useBoundStore from '../store/store'
 import { filterVisiblePieceIDs } from '../data/startZoneVisibility'
+import useBoundStore from '../store/store'
+import type { UndoSelectionRestoreRecord } from '../store/ui-slice'
 
-/**
- * Wraps zundo's `undo()` so that, when the next undoable action is a delete,
- * the restored piece IDs are automatically re-selected.
- *
- * Selection snapshots are stored in LIFO order and only consumed when undo
- * will increase piece count (i.e. a delete is being undone), so non-delete
- * undos do not eat or misapply saved delete selections.
- */
 export function undoWithSelectionRestore() {
-  const {
-    toggleSelectedPieceID,
-    popPendingUndoSelectionRestore,
-    pushPendingRedoSelectionRestore,
-  } = useBoundStore.getState()
   const temporalState = useBoundStore.temporal.getState()
-  const pieceCountBeforeUndo = useBoundStore.getState().boardPieces.length
+  const canUndo = temporalState.pastStates.length > 0
 
   temporalState.undo()
-  clearMissingObjectiveMarkerSelection()
   useBoundStore.getState().recomputeConflicts()
   useBoundStore.getState().setPiecePreviews(null)
   useBoundStore.getState().setRotationPivot(null)
 
-  const pieceCountAfterUndo = useBoundStore.getState().boardPieces.length
-  const isUndoingDelete = pieceCountAfterUndo > pieceCountBeforeUndo
-  const ids = isUndoingDelete ? popPendingUndoSelectionRestore() : null
-  if (ids?.length) {
-    const { boardPieces: restoredBoardPieces, isShowStartZones } =
-      useBoundStore.getState()
-    const restoredIds = filterVisiblePieceIDs(
-      ids.filter((id) => restoredBoardPieces.some((bp) => bp.uid === id)),
-      restoredBoardPieces,
-      isShowStartZones,
-    )
-    if (restoredIds.length) {
-      pushPendingRedoSelectionRestore(restoredIds)
-      // Select first ID (clears any existing selection), then multi-select the rest
-      toggleSelectedPieceID(restoredIds[0])
-      for (const id of restoredIds.slice(1)) {
-        toggleSelectedPieceID(id, true)
-      }
-    } else {
-      toggleSelectedPieceID('')
-    }
+  if (canUndo) {
+    const record = useBoundStore.getState().peekPendingRedoSelectionRestore()
+    if (record) restoreTouchedSelection(record)
+    useBoundStore.getState().recordUndoActionLog()
   }
 }
 
-/**
- * Wraps zundo's `redo()` and restores delete selection metadata so a
- * subsequent undo of that redone delete can re-select the affected pieces.
- */
 export function redoWithSelectionRestore() {
-  const {
-    popPendingRedoSelectionRestore,
-    pushPendingUndoSelectionRestoreFromRedo,
-  } = useBoundStore.getState()
   const temporalState = useBoundStore.temporal.getState()
-  const pieceCountBeforeRedo = useBoundStore.getState().boardPieces.length
+  const canRedo = temporalState.futureStates.length > 0
 
   temporalState.redo()
-  clearMissingObjectiveMarkerSelection()
   useBoundStore.getState().recomputeConflicts()
   useBoundStore.getState().setPiecePreviews(null)
   useBoundStore.getState().setRotationPivot(null)
 
-  const pieceCountAfterRedo = useBoundStore.getState().boardPieces.length
-  const isRedoingDelete = pieceCountAfterRedo < pieceCountBeforeRedo
-
-  if (isRedoingDelete) {
-    const ids = popPendingRedoSelectionRestore()
-    if (ids?.length) {
-      pushPendingUndoSelectionRestoreFromRedo(ids)
-    }
+  if (canRedo) {
+    const record = useBoundStore.getState().peekPendingUndoSelectionRestore()
+    if (record) restoreTouchedSelection(record)
+    useBoundStore.getState().recordRedoActionLog()
   }
 }
 
-function clearMissingObjectiveMarkerSelection() {
+function restoreTouchedSelection(record: UndoSelectionRestoreRecord) {
   const state = useBoundStore.getState()
-  if (
-    state.selectedObjectiveMarkerUID &&
-    !state.hexMap.objectiveMarkers?.some(
-      (marker) => marker.uid === state.selectedObjectiveMarkerUID,
+  state.cancelSelectionHistoryRecording()
+  const markerExists =
+    record.objectiveMarkerUID &&
+    state.hexMap.objectiveMarkers?.some(
+      (marker) => marker.uid === record.objectiveMarkerUID,
     )
-  ) {
-    state.setSelectedObjectiveMarkerUID(null)
-  }
+  const pieceUIDs = markerExists
+    ? []
+    : filterVisiblePieceIDs(
+        record.pieceUIDs.filter((uid) =>
+          state.boardPieces.some((piece) => piece.uid === uid),
+        ),
+        state.boardPieces,
+        state.isShowStartZones,
+      )
+  const selectedMarkerUID =
+    markerExists && record.restoreObjectiveMarkerSelection !== false
+      ? record.objectiveMarkerUID
+      : null
+
+  useBoundStore.setState({
+    selectedPieceIDs: pieceUIDs,
+    selectedObjectiveMarkerUID: selectedMarkerUID,
+    rotationPivot: null,
+  })
 }

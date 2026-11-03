@@ -1,11 +1,15 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { enqueueSnackbar } from 'notistack'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { buildupJsonFileMap } from '../data/buildupMap'
+import {
+  getUrlMapString,
+  parseMapDataArrayFromCrushed,
+} from '../data/jsonCrush'
 import { piecesSoFar } from '../data/pieces'
-import { LS_KEYS } from '../local-storage/keys'
-import type { BoardPiece, HexMap, MapState } from '../types'
-import { makeRectangleScenario } from '../utils/map-gen'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
+import { LS_KEYS } from '../local-storage/keys'
+import { Pieces, type BoardPiece, type HexMap, type MapState } from '../types'
+import { makeRectangleScenario } from '../utils/map-gen'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 
@@ -32,6 +36,8 @@ const localStorageMock = {
 
 let store: typeof import('../store/store').default
 let saveMapPortraitWithoutUndo: (portrait: string) => void
+let undoWithSelectionRestore: () => void
+let redoWithSelectionRestore: () => void
 
 function loadedMap(boardPieces: BoardPiece[] = []): MapState {
   return buildupJsonFileMap(boardPieces, hexMap)
@@ -65,6 +71,9 @@ beforeEach(async () => {
   ;({ default: store, saveMapPortraitWithoutUndo } = await import(
     '../store/store'
   ))
+  ;({ undoWithSelectionRestore, redoWithSelectionRestore } = await import(
+    '../utils/undoWithSelectionRestore'
+  ))
   loadWithoutHistory(loadedMap())
 })
 
@@ -76,6 +85,29 @@ afterEach(() => {
 })
 
 describe('real store undo and redo', () => {
+  it('loads shared objective markers without adding undo history', () => {
+    const marker = {
+      uid: 'shared-marker',
+      anchor: { q: 2, r: 2, s: -4, altitude: 1 },
+      size: 2 as const,
+      rotation: 4 as const,
+      style: 'white' as const,
+      content: { kind: 'number' as const, value: 7 },
+      name: 'Named objective',
+    }
+    const sharedMap = {
+      ...hexMap,
+      objectiveMarkers: [marker],
+    }
+    const payload = getUrlMapString({ hexMap: sharedMap, boardPieces: [] })
+    const parsed = parseMapDataArrayFromCrushed(payload)
+
+    loadWithoutHistory(buildupJsonFileMap([], parsed.hexMap))
+
+    expect(store.getState().hexMap.objectiveMarkers).toEqual([marker])
+    expect(historyLength()).toBe(0)
+  })
+
   it('saves one cropped portrait update and leaves it unchanged on cancel', () => {
     saveMapPortraitWithoutUndo('data:image/jpeg;base64,previous')
     const portraitUpdates: string[] = []
@@ -306,6 +338,148 @@ describe('real store undo and redo', () => {
     expect(snapshot()).toEqual(afterPaint)
   })
 
+  it('keeps logged placement, undo, and redo outside of undo history', async () => {
+    const { redoWithSelectionRestore, undoWithSelectionRestore } = await import(
+      '../utils/undoWithSelectionRestore'
+    )
+    store.getState().paintTile({
+      piece: piecesSoFar.g1,
+      clickedHexCoords: { q: 3, r: 4, s: -7 },
+      altitude: 0,
+      rotation: 0,
+    })
+    expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
+      `Placed ${piecesSoFar.g1.title}`,
+    ])
+    expect(historyLength()).toBe(1)
+
+    undoWithSelectionRestore()
+    expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
+      `Placed ${piecesSoFar.g1.title}`,
+      `Undid: Placed ${piecesSoFar.g1.title}`,
+    ])
+    expect(historyLength()).toBe(0)
+
+    redoWithSelectionRestore()
+    expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
+      `Placed ${piecesSoFar.g1.title}`,
+      `Undid: Placed ${piecesSoFar.g1.title}`,
+      `Redid: Placed ${piecesSoFar.g1.title}`,
+    ])
+    expect(historyLength()).toBe(1)
+  })
+
+  it('logs a group move once and does not log a no-op move', () => {
+    const pieces: BoardPiece[] = [
+      {
+        uid: 'group-one',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 2, r: 2, s: -4 },
+      },
+      {
+        uid: 'group-two',
+        inventoryID: 'g1',
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 7, r: 6, s: -13 },
+      },
+    ]
+    loadWithoutHistory(loadedMap(pieces))
+
+    store.getState().movePieces({
+      moves: [
+        { uid: 'group-one', newPieceCoords: { q: 3, r: 2, s: -5 } },
+        { uid: 'group-two', newPieceCoords: { q: 8, r: 6, s: -14 } },
+      ],
+    })
+    expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
+      'Moved 2 pieces',
+    ])
+    expect(historyLength()).toBe(1)
+
+    store.getState().movePieces({
+      moves: [
+        { uid: 'group-one', newPieceCoords: { q: 3, r: 2, s: -5 } },
+        { uid: 'group-two', newPieceCoords: { q: 8, r: 6, s: -14 } },
+      ],
+    })
+    expect(store.getState().actionLog).toHaveLength(1)
+    expect(historyLength()).toBe(1)
+  })
+
+  it('records objective marker changes and clears log and action stacks on load', () => {
+    const marker = {
+      anchor: { q: 2, r: 2, s: -4, altitude: 1 },
+      size: 1 as const,
+      rotation: 0 as const,
+      style: 'black' as const,
+      content: { kind: 'number' as const, value: 1 },
+      name: 'Objective',
+    }
+    const uid = store.getState().addObjectiveMarker(marker)
+    if (!uid) throw new Error('Expected objective marker to be added')
+    store.getState().moveObjectiveMarker(uid, {
+      q: 3,
+      r: 2,
+      s: -5,
+      altitude: 1,
+    })
+    store.getState().updateObjectiveMarker(uid, { name: 'Updated objective' })
+    store.getState().removeObjectiveMarker(uid)
+
+    expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
+      'Added objective marker Objective',
+      'Moved objective marker Objective',
+      'Edited objective marker Updated objective',
+      'Removed objective marker Updated objective',
+    ])
+    expect(store.getState().actionLogUndoStack).toHaveLength(4)
+
+    store.getState().loadMap(loadedMap(), { holdAutosave: true })
+    expect(store.getState().actionLog).toEqual([])
+    expect(store.getState().actionLogUndoStack).toEqual([])
+    expect(store.getState().actionLogRedoStack).toEqual([])
+  })
+
+  it('records terrain conversion, rotation, and deletion at their commits', () => {
+    const piece: BoardPiece = {
+      uid: 'changing-piece',
+      inventoryID: 'g1',
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 2, r: 2, s: -4 },
+    }
+    loadWithoutHistory(loadedMap([piece]))
+
+    expect(
+      store.getState().convertTerrainForPieces({
+        selectedUIDs: [piece.uid],
+        targetInventoryBySourceInventory: { g1: 'g2' },
+      }),
+    ).toBe(1)
+    store.getState().movePieces({
+      moves: [
+        {
+          uid: piece.uid,
+          newPieceCoords: piece.pieceCoords,
+          newRotation: 1,
+        },
+      ],
+      preserveRotationPivot: true,
+    })
+    store.getState().unpaintTile(piece.uid)
+    store.getState().unpaintTile('missing-piece')
+
+    expect(store.getState().actionLog.map((entry) => entry.text)).toEqual([
+      'Converted 1 piece',
+      `Rotated ${piecesSoFar.g2.title}`,
+      `Deleted ${piecesSoFar.g2.title}`,
+    ])
+    expect(historyLength()).toBe(3)
+  })
+
   it('undoes and redoes unpainting with exact boardPieces and boardHexes', () => {
     loadWithoutHistory(
       loadedMap([
@@ -499,6 +673,13 @@ describe('real store undo and redo', () => {
     store.getState().toggleHoveredPieceID('hovered')
     store.getState().toggleHoveredHex(Object.values(boardHexes)[0])
     store.getState().toggleHoveredWorldPoint({ x: 1, z: 2 })
+    store.getState().recordActionLog({ type: 'warning', text: 'Not persisted' })
+    const sharedMap = parseMapDataArrayFromCrushed(
+      getUrlMapString({
+        hexMap: store.getState().hexMap,
+        boardPieces: store.getState().boardPieces,
+      }),
+    )
     store.getState().setDragState(false, null)
     store.getState().toggleHoveredPieceID('')
     store.getState().toggleHoveredHex(undefined)
@@ -508,6 +689,9 @@ describe('real store undo and redo', () => {
     expect(store.getState().boardPieces).toBe(boardPieces)
     expect(store.getState().boardHexes).toBe(boardHexes)
     expect(store.getState().hexMap).toBe(hexMap)
+    expect(store.getState().actionLog).toHaveLength(1)
+    expect(JSON.stringify(sharedMap)).not.toContain('Not persisted')
+    expect(JSON.stringify(sharedMap)).not.toContain('selectionHistory')
     expect(
       localStorageMock.setItem.mock.calls.some(
         ([key]) => key === LS_KEYS.lastMap,
@@ -544,5 +728,274 @@ describe('real store undo and redo', () => {
     store.getState().loadMap(loadedMap([piece]), { holdAutosave: true })
 
     expect(historyLength()).toBe(0)
+  })
+
+  it('records only settled selections and clears selection history on map load', () => {
+    const pieces = [
+      {
+        uid: 'first-selection',
+        inventoryID: Pieces.grass1,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 2, r: 2, s: -4 },
+      },
+      {
+        uid: 'second-selection',
+        inventoryID: Pieces.grass1,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 3, r: 2, s: -5 },
+      },
+    ]
+    loadWithoutHistory(loadedMap(pieces))
+
+    store.getState().toggleSelectedPieceID('first-selection')
+    store.getState().toggleSelectedPieceID('second-selection')
+    vi.advanceTimersByTime(249)
+    expect(store.getState().selectionHistory).toEqual([])
+    vi.advanceTimersByTime(1)
+    expect(store.getState().selectionHistory).toHaveLength(1)
+    expect(store.getState().selectionHistory[0]?.pieceUIDs).toEqual([
+      'second-selection',
+    ])
+
+    store.getState().loadMap(loadedMap(pieces.slice(0, 1)), {
+      holdAutosave: true,
+    })
+    expect(store.getState().selectionHistory).toEqual([])
+    vi.advanceTimersByTime(250)
+    expect(store.getState().selectionHistory).toEqual([])
+  })
+
+  it('records touched piece and objective-marker IDs for map actions', () => {
+    const piece = piecesSoFar[Pieces.grass1]
+    if (!piece) throw new Error('test setup: grass piece is unavailable')
+    const error = store.getState().paintTile({
+      piece,
+      clickedHexCoords: { q: 4, r: 4, s: -8 },
+      altitude: 0,
+      rotation: 0,
+    })
+    expect(error).toBeUndefined()
+    const uid = store.getState().boardPieces[0]?.uid
+    if (!uid) throw new Error('test setup: painted piece is unavailable')
+    const latestRecord = () => {
+      const stack = store.getState().pendingUndoSelectionRestoreStack
+      return stack[stack.length - 1]
+    }
+    const expectedPieceRecord = {
+      pieceUIDs: [uid],
+      objectiveMarkerUID: null,
+    }
+    expect(latestRecord()).toEqual(expectedPieceRecord)
+
+    store.getState().movePiece({
+      uid,
+      newPieceCoords: { q: 5, r: 4, s: -9 },
+    })
+    expect(latestRecord()).toEqual(expectedPieceRecord)
+
+    store.getState().movePiece({
+      uid,
+      newPieceCoords: { q: 5, r: 4, s: -9 },
+      newAltitude: 1,
+      newRotation: 1,
+    })
+    expect(latestRecord()).toEqual(expectedPieceRecord)
+
+    store.getState().convertTerrainForPieces({
+      selectedUIDs: [uid],
+      targetInventoryBySourceInventory: {
+        [Pieces.grass1]: Pieces.grass2,
+      },
+    })
+    expect(latestRecord()).toEqual(expectedPieceRecord)
+
+    store.getState().unpaintTile(uid)
+    expect(latestRecord()).toEqual(expectedPieceRecord)
+
+    const marker = {
+      uid: 'history-marker',
+      anchor: { q: 3, r: 3, s: -6, altitude: 1 },
+      size: 1 as const,
+      rotation: 0 as const,
+      style: 'black' as const,
+      content: { kind: 'number' as const, value: 1 },
+    }
+    store.getState().addObjectiveMarker(marker)
+    const expectedMarkerRecord = {
+      pieceUIDs: [],
+      objectiveMarkerUID: marker.uid,
+      restoreObjectiveMarkerSelection: false,
+    }
+    expect(latestRecord()).toEqual(expectedMarkerRecord)
+    store.getState().updateObjectiveMarker(marker.uid, { rotation: 1 })
+    const expectedMarkerMutationRecord = {
+      pieceUIDs: [],
+      objectiveMarkerUID: marker.uid,
+      restoreObjectiveMarkerSelection: undefined,
+    }
+    expect(latestRecord()).toEqual(expectedMarkerMutationRecord)
+    store.getState().moveObjectiveMarker(marker.uid, {
+      q: 4,
+      r: 3,
+      s: -7,
+      altitude: 1,
+    })
+    expect(latestRecord()).toEqual(expectedMarkerMutationRecord)
+    store.getState().removeObjectiveMarker(marker.uid)
+    expect(latestRecord()).toEqual(expectedMarkerMutationRecord)
+  })
+
+  it('restores placement, rotation, and conversion selections on undo and redo', () => {
+    const piece = piecesSoFar[Pieces.grass1]
+    if (!piece) throw new Error('test setup: grass piece is unavailable')
+    store.getState().paintTile({
+      piece,
+      clickedHexCoords: { q: 4, r: 4, s: -8 },
+      altitude: 0,
+      rotation: 0,
+    })
+    const uid = store.getState().boardPieces[0]?.uid
+    if (!uid) throw new Error('test setup: painted piece is unavailable')
+
+    undoWithSelectionRestore()
+    expect(store.getState().selectedPieceIDs).toEqual([])
+    redoWithSelectionRestore()
+    expect(store.getState().selectedPieceIDs).toEqual([uid])
+    undoWithSelectionRestore()
+    expect(store.getState().selectedPieceIDs).toEqual([])
+
+    const placed = {
+      uid,
+      inventoryID: Pieces.grass1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 4, r: 4, s: -8 },
+    }
+    loadWithoutHistory(loadedMap([placed]))
+    store.getState().toggleSelectedPieceID(uid)
+    vi.advanceTimersByTime(250)
+    store.getState().movePiece({
+      uid,
+      newPieceCoords: placed.pieceCoords,
+      newRotation: 1,
+    })
+    store.getState().toggleSelectedPieceID('')
+    undoWithSelectionRestore()
+    expect(store.getState().selectedPieceIDs).toEqual([uid])
+    expect(store.getState().boardPieces[0]?.rotation).toBe(0)
+    redoWithSelectionRestore()
+    expect(store.getState().selectedPieceIDs).toEqual([uid])
+    expect(store.getState().boardPieces[0]?.rotation).toBe(1)
+
+    store.getState().convertTerrainForPieces({
+      selectedUIDs: [uid],
+      targetInventoryBySourceInventory: {
+        [Pieces.grass1]: Pieces.grass2,
+      },
+    })
+    store.getState().toggleSelectedPieceID('')
+    undoWithSelectionRestore()
+    expect(store.getState().selectedPieceIDs).toEqual([uid])
+    expect(store.getState().boardPieces[0]?.inventoryID).toBe(Pieces.grass1)
+    redoWithSelectionRestore()
+    expect(store.getState().selectedPieceIDs).toEqual([uid])
+    expect(store.getState().boardPieces[0]?.inventoryID).toBe(Pieces.grass2)
+    undoWithSelectionRestore()
+    expect(store.getState().selectedPieceIDs).toEqual([uid])
+  })
+
+  it('restores a multi-piece move selection and keeps selection history navigable', () => {
+    const group = [
+      {
+        uid: 'group-one',
+        inventoryID: Pieces.grass1,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 2, r: 2, s: -4 },
+      },
+      {
+        uid: 'group-two',
+        inventoryID: Pieces.grass1,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 3, r: 2, s: -5 },
+      },
+      {
+        uid: 'group-three',
+        inventoryID: Pieces.grass1,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 4, r: 2, s: -6 },
+      },
+      {
+        uid: 'other-piece',
+        inventoryID: Pieces.grass1,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 8, r: 8, s: -16 },
+      },
+    ]
+    loadWithoutHistory(loadedMap(group))
+
+    store.getState().toggleSelectedPieceID('group-one')
+    store.getState().toggleSelectedPieceID('group-two', true)
+    store.getState().toggleSelectedPieceID('group-three', true)
+    vi.advanceTimersByTime(250)
+    const originalCoords = group.slice(0, 3).map((piece) => piece.pieceCoords)
+    store.getState().movePieces({
+      moves: group.slice(0, 3).map((piece) => ({
+        uid: piece.uid,
+        newPieceCoords: {
+          q: piece.pieceCoords.q + 1,
+          r: piece.pieceCoords.r,
+          s: piece.pieceCoords.s - 1,
+        },
+      })),
+    })
+    const records = store.getState().pendingUndoSelectionRestoreStack
+    expect(records[records.length - 1]).toEqual({
+      pieceUIDs: ['group-one', 'group-two', 'group-three'],
+      objectiveMarkerUID: null,
+    })
+
+    store.getState().toggleSelectedPieceID('other-piece')
+    vi.advanceTimersByTime(250)
+    expect(store.getState().selectionHistory).toHaveLength(2)
+    undoWithSelectionRestore()
+
+    expect(store.getState().selectedPieceIDs).toEqual([
+      'group-one',
+      'group-two',
+      'group-three',
+    ])
+    expect(
+      group
+        .slice(0, 3)
+        .map(
+          (piece) =>
+            store
+              .getState()
+              .boardPieces.find((boardPiece) => boardPiece.uid === piece.uid)
+              ?.pieceCoords,
+        ),
+    ).toEqual(originalCoords)
+
+    store.getState().navigateSelectionHistory('back')
+    expect(store.getState().selectedPieceIDs).toEqual(['other-piece'])
+
+    redoWithSelectionRestore()
+    expect(store.getState().selectedPieceIDs).toEqual([
+      'group-one',
+      'group-two',
+      'group-three',
+    ])
+    undoWithSelectionRestore()
+    expect(store.getState().selectedPieceIDs).toEqual([
+      'group-one',
+      'group-two',
+      'group-three',
+    ])
   })
 })

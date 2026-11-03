@@ -323,7 +323,7 @@
       "sideOrmLayer": 1
     },
     "Wood": {
-      "allowRandomRotation": true,
+      "allowRandomRotation": false,
       "capDiffuseLayer": 13,
       "capDiffusePbrLayer": 13,
       "capNormalLayer": 0,
