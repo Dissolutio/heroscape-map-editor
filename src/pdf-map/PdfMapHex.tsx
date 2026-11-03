@@ -483,9 +483,7 @@ export const PdfMapHex = ({
     )
   }
   // Glyphs
-  if (
-    exportSymbol === 'glyph'
-  ) {
+  if (exportSymbol === 'glyph') {
     const glyphOptions = getHexGlyphExportOptions(hex)
     const isPlacedLevelViewing = hex.altitude === viewingLevel
     if (

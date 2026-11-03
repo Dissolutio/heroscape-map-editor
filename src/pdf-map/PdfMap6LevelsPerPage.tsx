@@ -63,9 +63,10 @@ export const PdfMapLevels6PerPage = ({
   is2DOverlayLevelEnabled: boolean
   objectiveMarkers: ObjectiveMarker[]
 }>) => {
-  const isShowPdfPieceLegend = useBoundStore(
-    (state) => state.isShowPdfPieceLegend,
-  )
+  // Not a hook: @react-pdf/renderer's tree has no React dispatcher. The toggle
+  // is part of the document `key` (genericTerrainColorsKey) so changing it
+  // rebuilds the document.
+  const isShowPdfPieceLegend = useBoundStore.getState().isShowPdfPieceLegend
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
   const boardHexesWithoutEmpties = keyBy(

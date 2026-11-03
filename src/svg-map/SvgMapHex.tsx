@@ -440,9 +440,7 @@ export const SvgMapHex = ({
     )
   }
   // Glyphs
-  if (
-    exportSymbol === 'glyph'
-  ) {
+  if (exportSymbol === 'glyph') {
     const glyphOptions = getGlyphExportOptions(hex, boardHexes, {
       isTransparentGlyphSpaces,
       isHideHeightsOnGlyphs,
