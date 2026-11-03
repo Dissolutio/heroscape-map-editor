@@ -138,7 +138,8 @@ export const terrainTextures = {
     capNormal: 'sand',
     sideOrm: 'solid',
     sideNormal: 'solid',
-    allowRandomRotation: true,
+    // The planking lines define Wood's single orientation; never rotate it.
+    allowRandomRotation: false,
     isFluid: false,
   },
   Water: {

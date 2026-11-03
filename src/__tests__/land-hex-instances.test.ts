@@ -282,11 +282,17 @@ describe('land hex instance data', () => {
     const enabledTerrainNames = terrainNames.filter(
       (name) => terrainManifest.terrains[name].allowRandomRotation,
     )
+    // Wood's planking lines define its one orientation, so it never rotates.
     expect(enabledTerrainNames.sort()).toEqual(
       terrainNames
-        .filter((name) => terrainManifest.terrains[name].capDiffuseLayer >= 0)
+        .filter(
+          (name) =>
+            name !== 'Wood' &&
+            terrainManifest.terrains[name].capDiffuseLayer >= 0,
+        )
         .sort(),
     )
+    expect(terrainManifest.terrains.Wood.allowRandomRotation).toBe(false)
 
     const hexID = 'persisted-hex-id'
     const expectedStep = getStableRotationStep(hexID)
