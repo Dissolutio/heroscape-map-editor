@@ -3,20 +3,19 @@
 Updated 2026-11-03 (evening). One page. Legend: 🔧 Copilot has it (issue #) · 👀 needs your eyes · 👤 waiting on you · ❓ needs a decision or measurement · 💤 later
 
 ## Where we are
-Merged Nov 3: upright and unmirrored side textures, size hotkeys for obstacles, one 3D | 2D | PDF navbar switch, optional PDF piece legend, shared marker/glyph rotation, no random rotation on Wood caps, quieter action log.
+Merged Nov 3: upright and unmirrored side textures, size hotkeys for obstacles, one 3D | 2D | PDF navbar switch, optional PDF piece legend, shared marker/glyph rotation, no random rotation on Wood caps, quieter action log, selection units (saved named selections pinned above the action log, log rows recall their selection; replaces back/forward history).
 Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restores selection, rotate hotkeys (q/e) while dragging, Use as Pen, upright side textures, fluid caps, old-map loading fix. Textures (3 graphics tiers), objective markers, edge IDs for Laur/battlements/ladders are all in.
 
 ## 1. Now
 - 👀 Hand-test the Nov 3 merges: side textures not mirrored, size hotkeys (#239), navbar 3D | 2D | PDF switch (#238), PDF piece legend (#240), shared marker/glyph rotation (#241)
 - 👀 Zoom-to-Piece fade: Copilot found no fade code in source. Does it still happen?
-- 👀 Test selection history, the ghost-preview fix, Windows diagnostics (Sentry tag `webgl`)
-- 🔧 #246 Selection units (PR #247, WIP)
+- 👀 Test selection units: click action-log rows, save and recall a named selection (Shift adds), save and reload a map keeps them
+- 👀 Test the ghost-preview fix and Windows diagnostics (Sentry tag `webgl`)
 
 ## 2. Next (catch-up, in rough order)
 **Selection**
-- 🔧 #246 Selection units: action-log rows recall their selection, named saved selections pinned above the log (kept in the map file), replaces back/forward history
-- Click an empty hex to deselect (after #246)
-- Right-click menu: select same type, connected, same level, invert (after #246)
+- Click an empty hex to deselect
+- Right-click menu: select same type, connected, same level, invert
 
 **Hotkeys**
 - Edit hotkeys, import/export a config file
