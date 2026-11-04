@@ -43,6 +43,8 @@ import {
   unpackLandHexVisibility,
 } from '../world/models/landHexInstances'
 import { parseTerrainTextureManifest } from '../world/textures/terrainTextureManifest'
+import { genBoardHexID } from '../utils/map-utils'
+import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { type Board, cloneBoard, makeTable, place } from './helpers/board'
 
 const terrainManifest = parseTerrainTextureManifest(
@@ -59,6 +61,13 @@ const genericColors = {
   genericSolidSideColor: '#a01e8c',
   genericFluidCapColor: '#ff96e6',
   genericFluidSideColor: '#c864b4',
+}
+
+function getSideMask(hex: BoardHex, board: Board, viewingLevel = 5) {
+  const renderedLandHexIDs = new Set(
+    getLandHexInstanceIDs(board.boardHexes, board.boardPieces, viewingLevel),
+  )
+  return getLandHexSideVisibilityMask(hex, board.boardHexes, renderedLandHexIDs)
 }
 
 describe('land hex instance data', () => {
@@ -592,6 +601,117 @@ describe('land hex instance data', () => {
 })
 
 describe('land hex side visibility', () => {
+  it('keeps exposed grass sides visible beside water and start zones', () => {
+    const table = makeTable(9)
+    const grass = place({
+      board: table,
+      pieceID: Pieces.grass1,
+      at: table.center,
+      altitude: 0,
+    })
+    const east = hexUtilsAdd(table.center, HEX_DIRECTIONS[0])
+    const water = place({
+      board: grass.board,
+      pieceID: Pieces.water1,
+      at: east,
+      altitude: 0,
+    })
+    const grassHex = Object.values(water.board.boardHexes).find(
+      (hex) =>
+        hex.q === table.center.q &&
+        hex.r === table.center.r &&
+        hex.altitude === 1,
+    ) as BoardHex
+    const waterSideMask = getSideMask(grassHex, water.board)
+    expect(waterSideMask & 1).toBe(1)
+
+    const startZone = place({
+      board: grass.board,
+      pieceID: Pieces.startZone7,
+      at: east,
+      altitude: 0,
+    })
+    const startZoneSideMask = getSideMask(grassHex, startZone.board)
+    expect(startZoneSideMask & 1).toBe(1)
+  })
+
+  it('does not cull a solid-looking neighbor that is not drawn', () => {
+    const table = makeTable(9)
+    const grass = place({
+      board: table,
+      pieceID: Pieces.grass1,
+      at: table.center,
+      altitude: 0,
+    })
+    const target = Object.values(grass.board.boardHexes).find(
+      (hex) =>
+        hex.q === table.center.q &&
+        hex.r === table.center.r &&
+        hex.altitude === 1,
+    ) as BoardHex
+    const east = hexUtilsAdd(table.center, HEX_DIRECTIONS[0])
+    const neighborID = genBoardHexID({ ...east, altitude: target.altitude })
+    const invisiblePiece: Board = {
+      ...grass.board,
+      boardPieces: [
+        ...grass.board.boardPieces,
+        {
+          uid: 'non-instanced',
+          inventoryID: Pieces.glacier1,
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: east,
+        },
+      ],
+    }
+    const notDrawnNeighbors = [
+      {
+        ...target,
+        ...east,
+        id: neighborID,
+        terrain: HexTerrain.grass,
+        isVerticalClearanceHex: true,
+      },
+      {
+        ...target,
+        ...east,
+        id: neighborID,
+        terrain: HexTerrain.grass,
+        boardPieceUID: 'non-instanced',
+      },
+      {
+        ...target,
+        ...east,
+        id: neighborID,
+        terrain: HexTerrain.grass,
+        boardPieceUID: 'missing-piece',
+      },
+    ] satisfies BoardHex[]
+
+    for (const neighbor of notDrawnNeighbors) {
+      const sourceBoard = neighbor.isVerticalClearanceHex
+        ? grass.board
+        : invisiblePiece
+      const board = {
+        ...sourceBoard,
+        boardHexes: {
+          ...grass.board.boardHexes,
+          [neighborID]: neighbor,
+        },
+      }
+
+      expect(getSideMask(target, board)).toBe(0b111111)
+      expect(
+        buildLandHexInstanceData(
+          board.boardHexes,
+          board.boardPieces,
+          5,
+          genericColors,
+        ).find((item) => item.hex.id === target.id)?.sideMask,
+      ).toBe(0b111111)
+    }
+  })
+
   it('maps all six cube directions to the matching side-mask bit', () => {
     const directions = [
       { q: 1, r: 0, s: -1 },
@@ -627,9 +747,7 @@ describe('land hex side visibility', () => {
           candidate.altitude === 1,
       ) as BoardHex
 
-      expect(getLandHexSideVisibilityMask(hex, neighbor.board.boardHexes)).toBe(
-        0b111111 ^ (1 << direction),
-      )
+      expect(getSideMask(hex, neighbor.board)).toBe(0b111111 ^ (1 << direction))
     })
   })
 
@@ -671,15 +789,8 @@ describe('land hex side visibility', () => {
         hex.altitude === 1,
     ) as BoardHex
 
-    expect(
-      getLandHexSideVisibilityMask(fluidHex, fluidNeighbor.board.boardHexes),
-    ).toBe(0b111110)
-    expect(
-      getLandHexSideVisibilityMask(
-        fluidNextToSolid,
-        solidNeighbor.board.boardHexes,
-      ),
-    ).toBe(0b111110)
+    expect(getSideMask(fluidHex, fluidNeighbor.board)).toBe(0b111110)
+    expect(getSideMask(fluidNextToSolid, solidNeighbor.board)).toBe(0b111110)
     expect(
       getLandHexFluidCapJoinMask(fluidHex, fluidNeighbor.board.boardHexes),
     ).toBe(0)
@@ -831,9 +942,7 @@ describe('land hex side visibility', () => {
         candidate.altitude === 1,
     ) as BoardHex
 
-    expect(getLandHexSideVisibilityMask(hex, placed.board.boardHexes)).toBe(
-      0b111111,
-    )
+    expect(getSideMask(hex, placed.board)).toBe(0b111111)
 
     const higher = place({
       board: cloneBoard(placed.board),
@@ -846,9 +955,7 @@ describe('land hex side visibility', () => {
       altitude: 1,
       permissive: true,
     })
-    expect(getLandHexSideVisibilityMask(hex, higher.board.boardHexes)).toBe(
-      0b111111,
-    )
+    expect(getSideMask(hex, higher.board)).toBe(0b111111)
   })
 })
 

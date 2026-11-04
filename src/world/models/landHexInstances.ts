@@ -32,6 +32,26 @@ export const NON_INSTANCED_SUBTERRAIN_PIECES = new Set<string>([
 
 export const LAND_HEX_SIDE_DIRECTIONS = [0, 1, 2, 3, 4, 5] as const
 
+function isLandHexInstanceRenderable(
+  hex: BoardHex,
+  piece: BoardPiece | undefined,
+  viewingLevel: number,
+) {
+  if (
+    hex.altitude > viewingLevel ||
+    hex.isVerticalClearanceHex ||
+    !hex.boardPieceUID ||
+    !piece ||
+    NON_INSTANCED_SUBTERRAIN_PIECES.has(piece.inventoryID)
+  ) {
+    return false
+  }
+  const terrain = piecesSoFar[piece.inventoryID]?.terrain
+  return Boolean(
+    terrain && (isSolidTerrainHex(terrain) || isFluidTerrainHex(terrain)),
+  )
+}
+
 export function packLandHexPbrTextureLayers(
   capNormalLayer: number,
   capOrmLayer: number,
@@ -548,6 +568,7 @@ export function getLandHexDisplayColors(
 export function getLandHexSideVisibilityMask(
   hex: BoardHex,
   boardHexes: BoardHexes,
+  renderedLandHexIDs: ReadonlySet<string>,
 ) {
   const isFluid = isFluidTerrainHex(hex.terrain)
   let visibleMask = 0
@@ -561,6 +582,7 @@ export function getLandHexSideVisibilityMask(
       boardHexes[genBoardHexID({ ...neighborCoords, altitude: hex.altitude })]
     const coveredByLand =
       neighbor &&
+      renderedLandHexIDs.has(neighbor.id) &&
       (isSolidTerrainHex(neighbor.terrain) ||
         (isFluid && isFluidTerrainHex(neighbor.terrain)))
 
@@ -652,26 +674,13 @@ export function getLandHexInstanceIDs(
   const piecesByUID = new Map(boardPieces.map((piece) => [piece.uid, piece]))
 
   return Object.values(boardHexes).flatMap((hex) => {
-    if (
-      hex.altitude > viewingLevel ||
-      hex.isVerticalClearanceHex ||
-      !hex.boardPieceUID
-    ) {
-      return []
-    }
-
-    const piece = piecesByUID.get(hex.boardPieceUID)
-    if (!piece || NON_INSTANCED_SUBTERRAIN_PIECES.has(piece.inventoryID)) {
-      return []
-    }
-    const terrain = piecesSoFar[piece.inventoryID]?.terrain
-    if (
-      !terrain ||
-      (!isSolidTerrainHex(terrain) && !isFluidTerrainHex(terrain))
-    ) {
-      return []
-    }
-    return [hex.id]
+    return isLandHexInstanceRenderable(
+      hex,
+      piecesByUID.get(hex.boardPieceUID ?? ''),
+      viewingLevel,
+    )
+      ? [hex.id]
+      : []
   })
 }
 
@@ -684,28 +693,21 @@ export function buildLandHexInstanceData(
   tier: GraphicsTier = 'low',
 ): LandHexInstanceDatum[] {
   const piecesByUID = new Map(boardPieces.map((piece) => [piece.uid, piece]))
+  const renderableHexes = Object.values(boardHexes).filter((hex) =>
+    isLandHexInstanceRenderable(
+      hex,
+      piecesByUID.get(hex.boardPieceUID ?? ''),
+      viewingLevel,
+    ),
+  )
+  const renderedLandHexIDs = new Set(renderableHexes.map((hex) => hex.id))
 
-  return Object.values(boardHexes)
-    .filter(
-      (hex) =>
-        hex.altitude <= viewingLevel &&
-        !hex.isVerticalClearanceHex &&
-        Boolean(hex.boardPieceUID),
-    )
+  return renderableHexes
     .flatMap((hex) => {
       const piece = piecesByUID.get(hex.boardPieceUID ?? '')
-      if (!piece || NON_INSTANCED_SUBTERRAIN_PIECES.has(piece.inventoryID)) {
-        return []
-      }
-
+      if (!piece) return []
       const definition = piecesSoFar[piece.inventoryID]
-      if (
-        !definition ||
-        (!isSolidTerrainHex(definition.terrain) &&
-          !isFluidTerrainHex(definition.terrain))
-      ) {
-        return []
-      }
+      if (!definition) return []
 
       const colors = getLandHexColors(hex.terrain, genericColors)
       const { x, z, yBaseCap } = getBoardHex3DCoords(hex)
@@ -728,7 +730,11 @@ export function buildLandHexInstanceData(
           z,
           levels: hex.altitude,
           ...textureLayers,
-          sideMask: getLandHexSideVisibilityMask(hex, boardHexes),
+          sideMask: getLandHexSideVisibilityMask(
+            hex,
+            boardHexes,
+            renderedLandHexIDs,
+          ),
           fluidCapJoinMask: getLandHexFluidCapJoinMask(hex, boardHexes),
           capVisible: !colors.isFluid || isFluidCapVisible(hex, boardHexes),
           capColor: colors.cap,
