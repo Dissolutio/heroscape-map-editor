@@ -55,10 +55,34 @@ type ClickHandlerDependencies = Pick<
   | 'penMode'
   | 'penModeRotation'
   | 'pieceSize'
-  | 'setSelectedObjectiveMarkerUID'
   | 'toggleSelectedPieceID'
 > & {
   objectiveMarkerMapHexIDs: Set<string>
+}
+
+type EmptyHexClickHandlerDependencies = Pick<
+  ReturnType<typeof useBoundStore.getState>,
+  'penMode' | 'toggleSelectedPieceID'
+>
+
+export function createEmptyHexClickHandler({
+  penMode,
+  toggleSelectedPieceID,
+}: EmptyHexClickHandlerDependencies) {
+  return (event: ThreeEvent<MouseEvent>) => {
+    event.stopPropagation()
+    if (event.intersections[0]?.eventObject !== event.eventObject) return
+    if (
+      event.button !== 0 ||
+      penMode !== SELECT_PEN_MODE ||
+      event.shiftKey ||
+      event.ctrlKey ||
+      event.metaKey
+    ) {
+      return
+    }
+    toggleSelectedPieceID('')
+  }
 }
 
 function getAvailableLaurStackableInventory(): PieceInventory | undefined {
@@ -139,7 +163,6 @@ export function createMapClickHandler({
   penMode,
   penModeRotation,
   pieceSize,
-  setSelectedObjectiveMarkerUID,
   toggleSelectedPieceID,
 }: ClickHandlerDependencies) {
   return (event: ThreeEvent<PointerEvent>, hex: BoardHex) => {
@@ -150,8 +173,6 @@ export function createMapClickHandler({
       // const myClipboard = await navigator.clipboard.readText()
       return
     }
-    setSelectedObjectiveMarkerUID(null)
-
     // Pick pen mode is handled by useMiddleClickPickPenMode, nothing to paint
     if (penMode === PICK_PEN_MODE) {
       return

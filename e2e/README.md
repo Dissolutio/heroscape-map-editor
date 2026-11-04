@@ -168,9 +168,11 @@ orientation instead.
 
 Things that decide what a click does:
 
-- Only the **left button** acts; handlers listen to `pointerup`.
+- Only the **left button** acts; placement and piece selection listen to
+  `pointerup`, while empty-hex deselection uses `click`.
 - It depends on the **pen mode**. The app starts in `select`, where a click
-  selects a piece. Paint modes place pieces instead.
+  selects a piece; a plain click on an empty hex clears the selection. Paint
+  modes place pieces instead. Shift-click on an empty hex does nothing.
 - A click that hits nothing clears the selection. Clicking the only selected
   piece again deselects it.
 - `screenPosOfPiece` aims at the piece's top surface, except Laur add-ons, for
@@ -213,6 +215,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Load-time map fitting | `e2e/load-fits-map.spec.ts` |
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
+| Empty-hex deselection, pen placement, and camera-drag selection safety | `e2e/empty-hex-selection.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
 | Objective-marker 3D rendering, selection, and shadow isolation | `e2e/objective-markers.spec.ts` |
 | Objective-marker placement, editing, rotation, drag, deletion, undo, unit-name suggestions, and saved-file name round trips | `e2e/objective-marker-editing.spec.ts` |
