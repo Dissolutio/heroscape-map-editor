@@ -150,8 +150,6 @@ export interface UISlice {
   toggleIs2DOpen: (b: boolean) => void
   isPdfOpen: boolean
   toggleIsPdfOpen: (b: boolean) => void
-  isHighQualityRender: boolean
-  toggleIsHighQualityRender: (b: boolean) => void
   useHighQualityForPicture: boolean
   toggleUseHighQualityForPicture: (b: boolean) => void
   isLightsAndShadowsRender: boolean
@@ -977,12 +975,6 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isPdfOpen = b
-      }),
-    ),
-  toggleIsHighQualityRender: (b: boolean) =>
-    set(
-      produce((s) => {
-        s.isHighQualityRender = b
       }),
     ),
   toggleUseHighQualityForPicture: (b: boolean) =>

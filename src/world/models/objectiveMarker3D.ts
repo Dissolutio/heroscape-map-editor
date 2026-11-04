@@ -261,7 +261,6 @@ export function getObjectiveMarkerOutlinePoints(
 export function getObjectiveMarker3DPosition(
   marker: ObjectiveMarker,
   boardHexes: BoardHexes,
-  isHighQualityRender = false,
   sharedRotationDegrees = 0,
 ): ObjectiveMarker3DPosition | null {
   const footprint = getObjectiveMarkerFootprint(marker)
@@ -281,10 +280,7 @@ export function getObjectiveMarker3DPosition(
     ? anchorPosition.y -
       (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
       0.0015
-    : anchorPosition.y +
-      (isHighQualityRender
-        ? -HEXGRID_HEXCAP_HEIGHT / 2
-        : HEXGRID_HEXCAP_HEIGHT / 2)
+    : anchorPosition.y + HEXGRID_HEXCAP_HEIGHT / 2
   const y = capTopY + 0.012
 
   return {

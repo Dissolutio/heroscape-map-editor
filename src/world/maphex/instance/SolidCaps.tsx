@@ -14,7 +14,6 @@ import {
   pressPieceForDrag,
   reportDragTargetHex,
 } from '../../drag/dragController'
-import { useDisposableGLTF } from '../../models/useDisposableGLTF'
 import { terrainCapColors } from '../hexColors'
 import type {
   BoardHexPieceProps,
@@ -39,13 +38,10 @@ const basicCapGeometry = new CylinderGeometry(...baseSolidCapCylinderArgs)
 
 const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
   const ref = React.useRef<InstanceRefType>(null)
-  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useDisposableGLTF('/classic1-cap.glb') as any
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
   const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
 
   if (boardHexArr.length === 0) return null
@@ -56,13 +52,11 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
       range={range}
       ref={ref}
       frustumCulled={false}
-      geometry={
-        isHighQualityRender ? nodes.Classic1_Cap.geometry : basicCapGeometry
-      }
+      geometry={basicCapGeometry}
       receiveShadow={isLightsAndShadowsRender}
       castShadow={isLightsAndShadowsRender}
     >
-      {isHighQualityRender ? <meshStandardMaterial /> : <meshMatcapMaterial />}
+      <meshMatcapMaterial />
       {boardHexArr.map((hex, i) => (
         <SolidCapInstance
           key={hex.id}
@@ -70,7 +64,6 @@ const SolidCaps = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
           onPointerUp={onPointerUp}
           isVisible={range >= i}
           isLightsAndShadowsRender={isLightsAndShadowsRender}
-          isHighQualityRender={isHighQualityRender}
           genericSolidCapColor={genericSolidCapColor}
         />
       ))}
@@ -88,12 +81,10 @@ function SolidCapInstance({
   onPointerUp,
   isVisible,
   isLightsAndShadowsRender,
-  isHighQualityRender,
   genericSolidCapColor,
 }: BoardHexPieceProps & {
   isVisible: boolean
   isLightsAndShadowsRender: boolean
-  isHighQualityRender: boolean
   genericSolidCapColor: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
@@ -109,12 +100,7 @@ function SolidCapInstance({
   React.useEffect(() => {
     const { x, y, z } = getBoardHex3DCoords(boardHex)
     ref.current.color.set(color)
-    ref.current.position.set(
-      x,
-      // small adjustment down for realistic caps, to show the subterrain through the cracks
-      y - (isHighQualityRender ? HEXGRID_HEXCAP_HEIGHT : 0),
-      z,
-    )
+    ref.current.position.set(x, y, z)
     // under ?e2e, a stable per-hex value so screenshots repeat
     const unit = isE2EDeterministic ? hashToUnit(boardHex.id) : Math.random()
     ref.current.rotation.set(
@@ -122,7 +108,7 @@ function SolidCapInstance({
       Math.PI / 6 + (getRandomInteger(1, 6, unit) * Math.PI) / 3,
       0,
     )
-  }, [boardHex, color, isHighQualityRender])
+  }, [boardHex, color])
 
   // update color when piece is hovered
   React.useEffect(() => {

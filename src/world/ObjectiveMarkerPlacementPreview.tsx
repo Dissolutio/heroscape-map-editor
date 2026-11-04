@@ -30,9 +30,6 @@ export default function ObjectiveMarkerPlacementPreview() {
   const draft = useBoundStore((state) => state.objectiveMarkerDraft)
   const penModeRotation = useBoundStore((state) => state.penModeRotation)
   const dragPreview = useBoundStore((state) => state.objectiveMarkerDragPreview)
-  const isHighQualityRender = useBoundStore(
-    (state) => state.isHighQualityRender,
-  )
   const markerGlyphRotation = useBoundStore(
     (state) => state.markerGlyphRotation,
   )
@@ -83,12 +80,7 @@ export default function ObjectiveMarkerPlacementPreview() {
     })
   }, [boardHexes, dragPreview, mapHexIDs, marker, markers])
   const markerPosition = marker
-    ? getObjectiveMarker3DPosition(
-        marker,
-        boardHexes,
-        isHighQualityRender,
-        markerGlyphRotation,
-      )
+    ? getObjectiveMarker3DPosition(marker, boardHexes, markerGlyphRotation)
     : null
   const textTransform =
     marker && markerPosition

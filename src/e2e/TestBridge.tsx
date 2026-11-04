@@ -294,11 +294,7 @@ function TestBridgeInner() {
         ) {
           return null
         }
-        const position = getObjectiveMarker3DPosition(
-          marker,
-          state.boardHexes,
-          state.isHighQualityRender,
-        )
+        const position = getObjectiveMarker3DPosition(marker, state.boardHexes)
         return position ? project(position.x, position.y, position.z) : null
       },
       setCamera: async (position, target) => {
