@@ -1,6 +1,8 @@
 import { piecesSoFar } from '../data/pieces'
+import { getLadderStackInfo } from '../pdf-svg-shared/ladderStack'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
+  getLadderStackTextPosition,
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
@@ -209,11 +211,31 @@ export const SvgMapHex = ({
   }
   // Ladder
   if (exportSymbol === 'ladder' && hex.isObstacleOrigin) {
+    const ladderPiece = boardPieces.find(
+      (piece) => piece.uid === hex.boardPieceUID,
+    )
+    const stack = ladderPiece
+      ? getLadderStackInfo(boardPieces, ladderPiece)
+      : null
+    const stackTextPosition = getLadderStackTextPosition(hex.pieceRotation ?? 0)
     return (
-      <g
-        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
-      >
-        <SvgLadder hex={hex} isSubLevel={isSubLevel} />
+      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
+        <g transform={`rotate(${pieceRotation})`}>
+          <SvgLadder hex={hex} isSubLevel={isSubLevel} />
+        </g>
+        {stack && stack.count >= 2 && stack.isBottom && (
+          <text
+            fill="black"
+            fontSize={SVG_HEX_RADIUS * 0.28}
+            fontWeight="bold"
+            textAnchor="middle"
+            dominantBaseline="central"
+            x={stackTextPosition.x}
+            y={stackTextPosition.y}
+          >
+            x{stack.count}
+          </text>
+        )}
       </g>
     )
   }
