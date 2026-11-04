@@ -11,10 +11,8 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - 👀 Zoom-to-Piece fade: Copilot found no fade code in source. Does it still happen?
 - 👀 Test selection units: click action-log rows, save and recall a named selection (Shift adds), save and reload a map keeps them
 - 👀 Test the ghost-preview fix and Windows diagnostics (Sentry tag `webgl`)
-- 🔧 #252 PDF sub-level colors match the SVG (SVG must not change; colors are Renegade's)
-- 🔧 #253 Ladder stack counts on the SVG/PDF overlay
-- 🔧 #254 Click an empty hex to deselect
-- 🔧 #255 Retire the old High-Quality render path and unused textured model files
+- 👀 Test the Nov 4 merges: PDF sub-level colors match the SVG (SVG unchanged), ladder stack counts (x2, x3) in SVG/PDF, click an empty hex to deselect, and that 3D still looks right after removing the old High-Quality render path
+- 🔧 #261 Some land hex sides render white or transparent (edge hexes under start zones, grass beside water)
 
 ## 2. Next (catch-up, in rough order)
 **Selection**
