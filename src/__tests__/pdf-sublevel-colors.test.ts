@@ -1,7 +1,24 @@
-import { createElement } from 'react'
+import {
+  Children,
+  createElement,
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
+import {
+  PdfGlyphPower,
+  PdfHive6,
+  PdfLadder,
+  PdfMarvelRuin,
+  PdfMultiHex1,
+  PdfSvgRuins2,
+} from '../pdf-map/PdfMapShapes'
+import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
+import { OPACITY_SUBLEVEL } from '../utils/constants'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
+import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
 import {
   SvgHexDecor,
   SvgHive6,
@@ -27,6 +44,20 @@ const makeHex = (
   terrain,
   isObstacleOrigin: true,
 })
+
+type PdfChildProps = {
+  children?: ReactNode
+  fill?: string
+  stroke?: string
+}
+
+const childrenOf = (element: ReactElement | null) => {
+  if (!element) throw new Error('Expected PDF output')
+  return Children.toArray(element.props.children).filter(
+    (child): child is ReactElement<PdfChildProps> =>
+      isValidElement<PdfChildProps>(child),
+  )
+}
 
 const hexes = [
   makeHex(Pieces.grass1, HexTerrain.grass, 0, 0),
@@ -65,6 +96,70 @@ const renderHex = (hex: BoardHex) => {
 }
 
 describe('PDF sub-level colors', () => {
+  it('blends supported hex and rgb colors with white as opaque hex', () => {
+    expect(blendColorWithWhite('#123456', 0)).toBe('#FFFFFF')
+    expect(blendColorWithWhite('#123456', 1)).toBe('#123456')
+    expect(blendColorWithWhite('rgb(160, 0, 0)', 0.5)).toBe('#D08080')
+    expect(blendColorWithWhite('#abc', 0.5)).toBe('#D5DDE6')
+    expect(blendColorWithWhite('#C5BCBC', 0.6)).toBe('#DCD7D7')
+    expect(() => blendColorWithWhite('#123456', -0.1)).toThrow(RangeError)
+    expect(() => blendColorWithWhite('red', 0.5)).toThrow(TypeError)
+  })
+
+  it('uses the SVG composite for liquid and solid PDF sub-level fills', () => {
+    const grass = makeHex(Pieces.grass1, HexTerrain.grass, 0, 0)
+    const water = makeHex(Pieces.water1, HexTerrain.water, 1, 0)
+
+    expect(PdfMultiHex1({ hex: grass, isSubLevel: true }).props.fill).toBe(
+      svgSubLevelColors[HexTerrain.grass],
+    )
+    expect(PdfMultiHex1({ hex: water, isSubLevel: true }).props.fill).toBe(
+      svgSubLevelColors[HexTerrain.water],
+    )
+  })
+
+  it('flattens PDF obstacle fills and borders and matches glyph fills', () => {
+    const hive = makeHex(Pieces.hive, HexTerrain.hive, 0, 0)
+    const [hiveOutline, hiveBlob] = childrenOf(
+      PdfHive6({ hex: hive, isSubLevel: true }),
+    )
+    expect(hiveOutline.props.fill).toBe(
+      blendColorWithWhite(svgColors.hive, OPACITY_SUBLEVEL),
+    )
+    expect(hiveOutline.props.stroke).toBe(
+      blendColorWithWhite(svgColors.outlineWater, OPACITY_SUBLEVEL),
+    )
+    expect(hiveBlob.props.stroke).toBe(
+      blendColorWithWhite(svgColors.jungleText, OPACITY_SUBLEVEL),
+    )
+
+    const ladder = makeHex(Pieces.ladder, HexTerrain.ladder, 1, 0)
+    const ladderShape = PdfLadder({ hex: ladder, isSubLevel: true })
+    expect(ladderShape.props.fill).toBe(
+      blendColorWithWhite(svgColors.ladder, OPACITY_SUBLEVEL),
+    )
+    expect(ladderShape.props.stroke).toBe('#808080')
+
+    const ruins = makeHex(Pieces.ruins2, HexTerrain.ruin, 2, 0)
+    expect(
+      PdfSvgRuins2({ hex: ruins, isSubLevel: true }).props.stroke,
+    ).toBe(blendColorWithWhite(svgColors.ruin, OPACITY_SUBLEVEL))
+
+    const marvel = makeHex(Pieces.marvel, HexTerrain.marvelRuin, 3, 0)
+    expect(
+      PdfMarvelRuin({ hex: marvel, isSubLevel: true }).props.stroke,
+    ).toBe(
+      blendColorWithWhite(
+        svgSubLevelColors.castleWall,
+        OPACITY_SUBLEVEL,
+      ),
+    )
+
+    const glyph = PdfGlyphPower({ isSubLevel: true })
+    expect(glyph.props.fill).toBe(svgSubLevelColors[HexTerrain.glyphPower])
+    expect(glyph.props.stroke).toBe(svgSubLevelColors.glyphBorder)
+  })
+
   it('keeps the stacked SVG map output unchanged', () => {
     const markup = renderToStaticMarkup(
       createElement(
