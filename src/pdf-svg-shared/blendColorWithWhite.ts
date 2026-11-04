@@ -16,9 +16,7 @@ export function blendColorWithWhite(color: string, opacity: number): string {
     )
   } else {
     const rgbMatch =
-      /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i.exec(
-        color,
-      )
+      /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i.exec(color)
     if (!rgbMatch) throw new TypeError(`Invalid color: ${color}`)
     channels = rgbMatch.slice(1).map(Number)
     if (channels.some((channel) => channel > 255)) {

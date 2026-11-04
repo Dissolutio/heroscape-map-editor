@@ -283,10 +283,7 @@ const getPdfHexFillForView = (
     hex.terrain === HexTerrain.ladder ||
     hex.terrain === HexTerrain.ruin
   ) {
-    return blendColorWithWhite(
-      getSvgHexFillColor(hex),
-      OPACITY_SUBLEVEL,
-    )
+    return blendColorWithWhite(getSvgHexFillColor(hex), OPACITY_SUBLEVEL)
   }
   const subLevelFill = getSvgHexSubLevelFillColor(hex)
   return hex.terrain === HexTerrain.marvelRuin
@@ -301,10 +298,7 @@ const getPdfHexBorderForView = (
 ) => {
   if (PDF_BORDER_WIDTH <= 0) return ''
   if (isSubLevel && hex.terrain === HexTerrain.hive) {
-    return blendColorWithWhite(
-      getSvgHexBorderColor(hex),
-      OPACITY_SUBLEVEL,
-    )
+    return blendColorWithWhite(getSvgHexBorderColor(hex), OPACITY_SUBLEVEL)
   }
   const colorBorder = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex, true)

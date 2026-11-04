@@ -42,6 +42,7 @@ const makeHex = (
   pieceID: `${altitude}~${q}~0~0~${inventoryID}`,
   inventoryID,
   terrain,
+  pieceRotation: 0,
   isObstacleOrigin: true,
 })
 
@@ -83,8 +84,8 @@ const renderHex = (hex: BoardHex) => {
         ? createElement(SvgRuins2, { hex, isSubLevel })
         : hex.terrain === HexTerrain.hive
           ? createElement(SvgHive6, { hex, isSubLevel })
-            : hex.inventoryID === Pieces.wood2
-              ? createElement(SvgMultiHex2, { hex, isSubLevel })
+          : hex.inventoryID === Pieces.wood2
+            ? createElement(SvgMultiHex2, { hex, isSubLevel })
             : createElement(SvgMultiHex1, { hex, isSubLevel })
 
   return createElement(
@@ -141,18 +142,13 @@ describe('PDF sub-level colors', () => {
     expect(ladderShape.props.stroke).toBe('#808080')
 
     const ruins = makeHex(Pieces.ruins2, HexTerrain.ruin, 2, 0)
-    expect(
-      PdfSvgRuins2({ hex: ruins, isSubLevel: true }).props.stroke,
-    ).toBe(blendColorWithWhite(svgColors.ruin, OPACITY_SUBLEVEL))
+    expect(PdfSvgRuins2({ hex: ruins, isSubLevel: true }).props.stroke).toBe(
+      blendColorWithWhite(svgColors.ruin, OPACITY_SUBLEVEL),
+    )
 
     const marvel = makeHex(Pieces.marvel, HexTerrain.marvelRuin, 3, 0)
-    expect(
-      PdfMarvelRuin({ hex: marvel, isSubLevel: true }).props.stroke,
-    ).toBe(
-      blendColorWithWhite(
-        svgSubLevelColors.castleWall,
-        OPACITY_SUBLEVEL,
-      ),
+    expect(PdfMarvelRuin({ hex: marvel, isSubLevel: true }).props.stroke).toBe(
+      blendColorWithWhite(svgSubLevelColors.castleWall, OPACITY_SUBLEVEL),
     )
 
     const glyph = PdfGlyphPower({ isSubLevel: true })
