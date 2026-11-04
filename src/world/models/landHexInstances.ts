@@ -241,11 +241,27 @@ export function getLandHexManifestTerrainName(terrain: string) {
   return LAND_HEX_TEXTURE_TERRAIN_NAMES[terrain as HexTerrain] ?? null
 }
 
+/**
+ * Terrains whose cap image has one real-world orientation (Wood planking).
+ * Their cap turns with the piece: the planks run along the piece's long axis,
+ * which repeats every 3 rotations (0/3, 1/4, 2/5 share an orientation). A
+ * positive step turns the image clockwise as seen from above.
+ */
+const PIECE_ROTATION_CAP_TERRAINS = new Set<string>([HexTerrain.wood])
+
+export function getLandHexPieceRotationCapStep(pieceRotation: number) {
+  const rotation = Number.isFinite(pieceRotation)
+    ? Math.trunc(pieceRotation)
+    : 0
+  return ((rotation % 3) + 3) % 3
+}
+
 export function getLandHexTextureLayers(
   terrain: string,
   hexID: string,
   manifest: TerrainTextureManifest | undefined,
   tier: GraphicsTier,
+  pieceRotation = 0,
 ) {
   const manifestTerrainName = getLandHexManifestTerrainName(terrain)
   const layers = manifestTerrainName
@@ -277,8 +293,13 @@ export function getLandHexTextureLayers(
       enabled && tier === 'high' ? (layers?.sideNormalLayer ?? -1) : -1,
     sideOrmLayer:
       enabled && tier === 'high' ? (layers?.sideOrmLayer ?? -1) : -1,
-    rotationSteps:
-      enabled && allowRandomRotation ? getStableRotationStep(hexID) : 0,
+    rotationSteps: !enabled
+      ? 0
+      : PIECE_ROTATION_CAP_TERRAINS.has(terrain)
+        ? getLandHexPieceRotationCapStep(pieceRotation)
+        : allowRandomRotation
+          ? getStableRotationStep(hexID)
+          : 0,
   }
 }
 
@@ -693,6 +714,7 @@ export function buildLandHexInstanceData(
         hex.id,
         manifest,
         tier,
+        piece.rotation,
       )
 
       return [
