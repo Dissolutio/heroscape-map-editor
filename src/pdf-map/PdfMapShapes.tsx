@@ -8,6 +8,7 @@ import {
   Text,
 } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
+import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
 import { getExportBorderColor } from '../pdf-svg-shared/exportBorderColor'
 import {
   genWoodPlankPath1,
@@ -275,7 +276,20 @@ const PdfSvgToxicNuclear = ({
 const getPdfHexFillForView = (
   hex: BoardHex | DecodedPieceID,
   isSubLevel?: boolean,
-) => (isSubLevel ? getSvgHexSubLevelFillColor(hex) : getSvgHexFillColor(hex))
+) => {
+  if (!isSubLevel) return getSvgHexFillColor(hex)
+  if (
+    hex.terrain === HexTerrain.hive ||
+    hex.terrain === HexTerrain.ladder ||
+    hex.terrain === HexTerrain.ruin
+  ) {
+    return blendColorWithWhite(getSvgHexFillColor(hex), OPACITY_SUBLEVEL)
+  }
+  const subLevelFill = getSvgHexSubLevelFillColor(hex)
+  return hex.terrain === HexTerrain.marvelRuin
+    ? blendColorWithWhite(subLevelFill, OPACITY_SUBLEVEL)
+    : subLevelFill
+}
 
 const getPdfHexBorderForView = (
   hex: BoardHex | DecodedPieceID,
@@ -283,6 +297,9 @@ const getPdfHexBorderForView = (
   useTerrainBorderColor = true,
 ) => {
   if (PDF_BORDER_WIDTH <= 0) return ''
+  if (isSubLevel && hex.terrain === HexTerrain.hive) {
+    return blendColorWithWhite(getSvgHexBorderColor(hex), OPACITY_SUBLEVEL)
+  }
   const colorBorder = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex, true)
     : getSvgHexBorderColor(hex, true)
@@ -754,7 +771,7 @@ export const PdfHive6 = ({
     PDF_BORDER_WIDTH,
   )
   const blackColor = isSubLevel
-    ? svgSubLevelColors.jungleText
+    ? blendColorWithWhite(svgColors.jungleText, OPACITY_SUBLEVEL)
     : svgColors.jungleText
   return (
     <>
@@ -1014,7 +1031,7 @@ export const PdfLadder = ({
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = isSubLevel
-    ? svgSubLevelColors.battlementBorder
+    ? blendColorWithWhite(svgColors.battlementBorder, OPACITY_SUBLEVEL)
     : svgColors.battlementBorder
   const { points } = getLadderSvgPolygonPoints(SVG_HEX_RADIUS, 0)
   return (
@@ -1128,7 +1145,7 @@ export const PdfCastleArch = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = isSubLevel
-    ? svgSubLevelColors.castleInterior
+    ? blendColorWithWhite(svgColors.castleInterior, OPACITY_SUBLEVEL)
     : svgColors.castleInterior
   const { points } = getCastleArchShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
