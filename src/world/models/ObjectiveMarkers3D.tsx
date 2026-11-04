@@ -82,9 +82,6 @@ export default function ObjectiveMarkers3D() {
   const markers = useBoundStore((state) => state.hexMap.objectiveMarkers)
   const boardHexes = useBoundStore((state) => state.boardHexes)
   const viewingLevel = useBoundStore((state) => state.viewingLevel)
-  const isHighQualityRender = useBoundStore(
-    (state) => state.isHighQualityRender,
-  )
   const markerGlyphRotation = useBoundStore(
     (state) => state.markerGlyphRotation,
   )
@@ -96,7 +93,6 @@ export default function ObjectiveMarkers3D() {
         const position = getObjectiveMarker3DPosition(
           marker,
           boardHexes,
-          isHighQualityRender,
           markerGlyphRotation,
         )
         if (!position) return null

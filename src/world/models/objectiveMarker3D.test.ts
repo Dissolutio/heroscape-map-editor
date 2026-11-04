@@ -138,11 +138,6 @@ describe('objective marker 3D helpers', () => {
     const board = makeTable(5)
     const target = marker()
     const position = getObjectiveMarker3DPosition(target, board.boardHexes)
-    const highQualityPosition = getObjectiveMarker3DPosition(
-      target,
-      board.boardHexes,
-      true,
-    )
     const expected = getBoardHex3DCoords(target.anchor)
 
     expect(position).toMatchObject({
@@ -151,9 +146,6 @@ describe('objective marker 3D helpers', () => {
       z: expected.z,
       rotationY: 0,
     })
-    expect(highQualityPosition?.y).toBe(
-      expected.y - HEXGRID_HEXCAP_HEIGHT / 2 + 0.012,
-    )
   })
 
   it('centers a two-hex token and rotates it in six 60-degree steps', () => {

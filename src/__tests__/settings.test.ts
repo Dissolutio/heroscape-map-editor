@@ -148,6 +148,24 @@ describe('settings persistence', () => {
     expect(values.get(LS_KEYS.settings)).toBe(staleSettings)
   })
 
+  it('ignores the retired high-quality render setting', () => {
+    const staleSettings = JSON.stringify({
+      v: 1,
+      values: {
+        isHighQualityRender: true,
+        useHighQualityForPicture: true,
+      },
+    })
+    storage.setItem(LS_KEYS.settings, staleSettings)
+
+    expect(loadSettings()).toMatchObject({
+      graphicsTier: 'low',
+      isLightsAndShadowsRender: false,
+      useHighQualityForPicture: true,
+    })
+    expect(values.get(LS_KEYS.settings)).toBe(staleSettings)
+  })
+
   it('sanitizes look settings by defaulting invalid values and clamping numbers', () => {
     expect(
       sanitizeLookSettings({

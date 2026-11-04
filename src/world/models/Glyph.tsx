@@ -1,4 +1,3 @@
-import { Decal, useTexture } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { piecesSoFar } from '../../data/pieces'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
@@ -76,7 +75,6 @@ export function GlyphModel({
 export function GlyphModelPreview({ inventoryID }: { inventoryID: string }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
   const { nodes } = useDisposableGLTF('/glyph-with-logo.glb') as any
-  // const texture = useTexture('glyph-valkyrie-logo.svg')
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )

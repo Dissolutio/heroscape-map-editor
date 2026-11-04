@@ -28,7 +28,6 @@ export type SettingsValues = {
   isLightsAndShadowsRender: boolean
   isShowLightControls: boolean
   isTopOutlinedInterlockHexes: boolean
-  isHighQualityRender: boolean
   useHighQualityForPicture: boolean
   markerGlyphRotation: number
   isDisplayCapHeights: boolean
@@ -71,7 +70,6 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   isLightsAndShadowsRender: false,
   isShowLightControls: true,
   isTopOutlinedInterlockHexes: true,
-  isHighQualityRender: false,
   useHighQualityForPicture: false,
   markerGlyphRotation: 0,
   isDisplayCapHeights: false,
@@ -177,7 +175,6 @@ const validSettingValue = (
       'isLightsAndShadowsRender',
       'isShowLightControls',
       'isTopOutlinedInterlockHexes',
-      'isHighQualityRender',
       'useHighQualityForPicture',
       'isDisplayCapHeights',
       'isHideTableTop',

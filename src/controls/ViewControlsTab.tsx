@@ -619,13 +619,6 @@ const ViewPreferencesSwitchForm = () => {
   ) => {
     toggleIsTopOutlinedInterlockHexes(event.target.checked)
   }
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const toggleIsHighQualityRender = useBoundStore(
-    (s) => s.toggleIsHighQualityRender,
-  )
-  const handleChangeHQRender = (event: React.ChangeEvent<HTMLInputElement>) => {
-    toggleIsHighQualityRender(event.target.checked)
-  }
   const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
   const toggleIsDisplayCapHeights = useBoundStore(
     (s) => s.toggleIsDisplayCapHeights,
@@ -852,17 +845,6 @@ const ViewPreferencesSwitchForm = () => {
           }
           title="Show/hide each hex's height, if a unit can be on that hex"
           label="Display Hex Heights"
-        />
-        <FormControlLabel
-          control={
-            <Switch
-              size="small"
-              checked={isHighQualityRender}
-              onChange={handleChangeHQRender}
-            />
-          }
-          title="Enable/disable high quality render settings, currently just a more realistic hex cap"
-          label="High Quality Render"
         />
         {/* <FormControlLabel
           control={<Switch checked={isFrameloopDemand} onChange={handleChangeFrameloopDemand} />}

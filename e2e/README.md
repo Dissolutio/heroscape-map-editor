@@ -37,8 +37,7 @@ production builds have them only with it. To load a known map add the share
 link parameter: `/hs?e2e=1&m=<crushed map>` (see `e2e/fixtures.ts`).
 
 `?e2e=1` also makes the cosmetic cap rotation repeatable, so screenshots match
-between runs. The rotation only shows with **High Quality Render** on; the
-default caps are plain hexagons.
+between runs.
 
 Graphics tiers choose the land renderer in every build: Low uses the classic
 renderer, Medium uses per-hex land with diffuse textures, and High uses per-hex
