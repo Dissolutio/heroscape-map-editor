@@ -25,6 +25,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `fluid-cap-visibility.test.ts` | Fluid caps under a solid: drawn with half-level clearance (an overhang on a whole-level fluid), hidden under flush fluid or solid, isCap unchanged, on all graphics tiers and the legacy Low cap buckets, plus the Cove of Bilfrost fixture through the loader. |
 | `land-hex-geometry.test.ts` | Per-hex solid/fluid prism geometry: side quads index their own vertices, side-image orientation (including fluid UVs), triangle kinds and directions stay consistent, and faces point outward/upward. |
 | `export-border-color.test.ts` | Shared SVG/PDF border-color decisions for every terrain, SVG Asphalt markup, and rendered PDF output with outlines on/off, including sub-levels. |
+| `pdf-sublevel-colors.test.ts` | SVG output snapshot for a stacked solid/liquid map and PDF sub-level color matching. |
 | `glyph-export-options.test.tsx` | Shared glyph-space classification, SVG/PDF transparent fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |
 | `ladder-stack-count.test.ts` | Consecutive ladder stack counts by edge and bottom-level SVG/PDF count rendering. |
 | `generic-letter-metrics.test.ts` | Ratchets every terrain letter against the PDF mark-width table and the Inter Bold font metrics. |

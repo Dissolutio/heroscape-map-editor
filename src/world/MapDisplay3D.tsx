@@ -16,7 +16,10 @@ import { DragPreview3D } from './drag/DragPreview3D.tsx'
 import { clearLastPointerWorldPoint } from './hoverWorldPoint.ts'
 import { getInstanceBoardHexes } from './instanceBoardHexes.ts'
 import { getLandRendererMode } from './landRendererTier.ts'
-import { createMapClickHandler } from './mapDisplayClickHandler.tsx'
+import {
+  createEmptyHexClickHandler,
+  createMapClickHandler,
+} from './mapDisplayClickHandler.tsx'
 import { MapHex3D } from './maphex/MapHex3D.tsx'
 import EmptyHexes from './maphex/instance/EmptyHex.tsx'
 import FluidCaps from './maphex/instance/FluidCap.tsx'
@@ -52,9 +55,6 @@ export default function MapDisplay3D({
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
   const toggleHoveredHex = useBoundStore((s) => s.toggleHoveredHex)
-  const setSelectedObjectiveMarkerUID = useBoundStore(
-    (s) => s.setSelectedObjectiveMarkerUID,
-  )
   const addObjectiveMarker = useBoundStore((s) => s.addObjectiveMarker)
   const objectiveMarkerMapHexIDs = useMemo(
     () => mapTableHexes(hexMap),
@@ -120,7 +120,10 @@ export default function MapDisplay3D({
     penMode,
     penModeRotation,
     pieceSize,
-    setSelectedObjectiveMarkerUID,
+    toggleSelectedPieceID,
+  })
+  const onClickEmptyHex = createEmptyHexClickHandler({
+    penMode,
     toggleSelectedPieceID,
   })
 
@@ -136,6 +139,7 @@ export default function MapDisplay3D({
         <EmptyHexes
           boardHexArr={instanceBoardHexes.emptyHexCaps}
           onPointerUp={onPointerUpPaintPiece}
+          onClick={onClickEmptyHex}
         />
         <SolidCaps
           boardHexArr={instanceBoardHexes.solidHexCaps}

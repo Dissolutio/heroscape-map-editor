@@ -29,7 +29,13 @@ const baseEmptyCapCylinderArgs: CylinderGeometryArgs = [
 ]
 const emptyHexColor = hexTerrainColor[HexTerrain.empty]
 
-const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
+const EmptyHexes = ({
+  boardHexArr,
+  onPointerUp,
+  onClick,
+}: DreiCapProps & {
+  onClick: (event: ThreeEvent<MouseEvent>) => void
+}) => {
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
   )
@@ -52,6 +58,7 @@ const EmptyHexes = ({ boardHexArr, onPointerUp }: DreiCapProps) => {
           key={`${hex.id + i}empty`}
           boardHex={hex}
           onPointerUp={onPointerUp}
+          onClick={onClick}
           isLightsAndShadowsRender={isLightsAndShadowsRender}
         />
       ))}
@@ -64,8 +71,12 @@ export default EmptyHexes
 function EmptyHex({
   boardHex,
   onPointerUp,
+  onClick,
   isLightsAndShadowsRender,
-}: BoardHexPieceProps & { isLightsAndShadowsRender: boolean }) {
+}: BoardHexPieceProps & {
+  onClick: (event: ThreeEvent<MouseEvent>) => void
+  isLightsAndShadowsRender: boolean
+}) {
   // biome-ignore lint/suspicious/noExplicitAny: <Type too weird>
   const ref = React.useRef<any>(null)
   const { onPointerEnter, onPointerOut, onPointerMove } = usePieceHoverState()
@@ -99,6 +110,7 @@ function EmptyHex({
     <Instance
       ref={ref}
       onPointerUp={handleUp}
+      onClick={onClick}
       onPointerEnter={handleEnter}
       onPointerOut={handleOut}
       onPointerMove={(e: ThreeEvent<PointerEvent>) => {

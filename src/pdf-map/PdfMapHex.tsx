@@ -1,5 +1,6 @@
 import { G, Line, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
+import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
 import { getLadderStackInfo } from '../pdf-svg-shared/ladderStack'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
@@ -88,6 +89,8 @@ const glyphTextProps = () => ({
   textAnchor: 'middle' as const,
   dominantBaseline: 'central' as const,
 })
+
+const SUBLEVEL_GLYPH_TEXT_OPACITY = 0.6
 
 const TerrainTileLetterText = ({
   hex,
@@ -378,12 +381,13 @@ export const PdfMapHex = ({
           />
         )}
         <Text
-          fill={svgColors.shroudshroomText}
-          opacity={
+          fill={
             isSubLevel
-              ? // white text needs a little opacity boost
-                OPACITY_SUBLEVEL * 2
-              : 1
+              ? blendColorWithWhite(
+                  svgSubLevelColors.shroudshroomText,
+                  SUBLEVEL_GLYPH_TEXT_OPACITY,
+                )
+              : svgColors.shroudshroomText
           }
           style={pdfHexTextStyle}
           textAnchor="middle"
@@ -530,10 +534,12 @@ export const PdfMapHex = ({
         <Text
           fill={
             specialIsSubLevel
-              ? svgSubLevelColors.glyphText
+              ? blendColorWithWhite(
+                  svgSubLevelColors.glyphText,
+                  SUBLEVEL_GLYPH_TEXT_OPACITY,
+                )
               : svgColors.glyphText
           }
-          opacity={specialIsSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           {...glyphTextProps()}
         >
           {glyphLetter}

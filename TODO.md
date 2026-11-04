@@ -11,10 +11,13 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - 👀 Zoom-to-Piece fade: Copilot found no fade code in source. Does it still happen?
 - 👀 Test selection units: click action-log rows, save and recall a named selection (Shift adds), save and reload a map keeps them
 - 👀 Test the ghost-preview fix and Windows diagnostics (Sentry tag `webgl`)
+- 🔧 #252 PDF sub-level colors match the SVG (SVG must not change; colors are Renegade's)
+- 🔧 #253 Ladder stack counts on the SVG/PDF overlay
+- 🔧 #254 Click an empty hex to deselect
+- 🔧 #255 Retire the old High-Quality render path and unused textured model files
 
 ## 2. Next (catch-up, in rough order)
 **Selection**
-- Click an empty hex to deselect
 - Right-click menu: select same type, connected, same level, invert
 
 **Hotkeys**
@@ -22,8 +25,6 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - More actions on keys (inventory dialog, convert terrain)
 
 **Exports (SVG / PDF)**
-- PDF sub-level colors match SVG (opaque 50% blend)
-- Ladder stack counts on the overlay
 - Preset for OHS pictures (see-through jungle leaves, quiet glyph hexes, no table)
 - Classic shapes (Marvel ruin, hive) that don't scale well in SVG
 - Virtualscape-style colors option (after the above)
@@ -40,7 +41,6 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - Laur Ruin 2 and 3: pen modes and 3D models 👤 models from you
 
 **Health**
-- Retire the old High-Quality render path and the unused textured model files (the new textures replace them)
 - Rough-edges cleanup (small known nits, list in project docs)
 - E2E flake watch (tooltips can cover buttons: move the pointer away before clicking)
 - Developer guide refresh once edges are done (`docs/adding-a-piece.md`)
