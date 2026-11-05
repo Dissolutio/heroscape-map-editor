@@ -94,7 +94,8 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   tree): map name, piece count, level, pen mode, how many pieces are selected.
 - `window.__TEST__.snapshot()`: the same, structured (`mapId`, `mapWidth`,
   `mapLength`, `pieceCount`, `hexCount`, `viewingLevel`, `penMode`, `selectedPieceIDs`,
-  `objectiveMarkerCount`, `selectedObjectiveMarkerUID`,
+  `marroHiveMaterials` (rendered hive UIDs, material types, and whether each
+  material has a base-color map), `objectiveMarkerCount`, `selectedObjectiveMarkerUID`,
   `hoveredPieceID`, `isOrthoCam`, `ready`, `placementPreview`
   (`status`, `reason`, `footprintCount`, `unsupported`, `altitude`, and
   `rotation`, or `null`), and
@@ -222,7 +223,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | View tooltips, 3D/2D/PDF navbar switching, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
 | Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |
 | Multi-hex fluid cap join vertices and dark-pixel checks at Medium/High | `e2e/fluid-cap-vertices.spec.ts` |
-| Lazy Graphics tier loading and picture-only High setting restoration in per-hex land mode | `e2e/graphics-tier.spec.ts` |
+| Hive texture maps, selection across Low/Medium/High, lazy tier loading, and picture-only High setting restoration | `e2e/graphics-tier.spec.ts` |
 | Opt-in performance overlay | `e2e/performance.spec.ts` |
 
 The map-settle tracker also feeds the app's startup UI in normal runs. The

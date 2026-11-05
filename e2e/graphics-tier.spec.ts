@@ -6,10 +6,74 @@ import {
   findPieceUid,
   FIXTURE_URL,
   hoverHex,
+  mapUrl,
   setPen,
   test,
   waitForAppReady,
 } from './fixtures'
+import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
+
+const HIVE_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
+  ...FIXTURE_PIECE_IDS,
+  '0~0~0~0~h',
+])
+
+test('the Marro Hive stays selectable and uses texture maps by graphics tier', async ({
+  page,
+}) => {
+  await page.goto(HIVE_FIXTURE_URL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+
+  const graphics = page.getByTestId('graphics-tier-select')
+  const hiveUID = await findPieceUid(page, {
+    inventoryID: 'h',
+    q: 0,
+    r: 0,
+  })
+  const tiers = [
+    { label: 'Low (classic look)', hasMap: false },
+    { label: 'Medium (diffuse textures)', hasMap: true },
+    { label: 'High (PBR textures)', hasMap: true },
+  ]
+
+  for (const [index, tier] of tiers.entries()) {
+    if (index > 0) {
+      await graphics.click()
+      await page.getByRole('option', { name: tier.label }).click()
+      await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+        'Textures ready',
+      )
+    }
+
+    await expect
+      .poll(async () =>
+        page.evaluate(
+          (uid) =>
+            window.__TEST__
+              ?.snapshot()
+              .marroHiveMaterials.find((material) => material.uid === uid) ??
+            null,
+          hiveUID,
+        ),
+      )
+      .toMatchObject({ hasMap: tier.hasMap })
+
+    await page.mouse.move(10, 700)
+    const selected = await page.evaluate(
+      (uid) =>
+        window.__TEST__?.snapshot().selectedPieceIDs.includes(uid) ?? false,
+      hiveUID,
+    )
+    if (selected) await clickPiece(page, hiveUID)
+    await clickPiece(page, hiveUID)
+    await expect
+      .poll(async () =>
+        page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
+      )
+      .toContain(hiveUID)
+  }
+})
 
 test('graphics tier loads Medium textures and returns to the classic Low renderer', async ({
   page,
@@ -185,9 +249,26 @@ test('hover, paint, select, and drag work in every graphics tier', async ({
 test('picture-only High restores the previous graphics and lighting settings', async ({
   page,
 }) => {
-  await page.goto(FIXTURE_URL)
+  await page.goto(HIVE_FIXTURE_URL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
+  const hiveUID = await findPieceUid(page, {
+    inventoryID: 'h',
+    q: 0,
+    r: 0,
+  })
+  await expect
+    .poll(async () =>
+      page.evaluate(
+        (uid) =>
+          window.__TEST__
+            ?.snapshot()
+            .marroHiveMaterials.find((material) => material.uid === uid) ??
+          null,
+        hiveUID,
+      ),
+    )
+    .toMatchObject({ hasMap: false })
   await page.getByRole('button', { name: 'Take map picture' }).click()
 
   const pictureHigh = page.getByRole('checkbox', {

@@ -18,6 +18,11 @@ export type E2ESnapshot = {
   hexCount: number
   landInstanceCounts: { solid: number; fluid: number }
   landRenderer: 'legacy' | 'per-hex'
+  marroHiveMaterials: Array<{
+    uid: string
+    hasMap: boolean
+    materialTypes: string[]
+  }>
   viewingLevel: number
   penMode: string
   selectedPieceIDs: string[]
