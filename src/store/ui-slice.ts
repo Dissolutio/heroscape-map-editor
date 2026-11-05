@@ -19,6 +19,7 @@ import {
   filterVisiblePieceIDs,
   isStartZoneBoardPiece,
 } from '../data/startZoneVisibility'
+import { canSelectObjectiveMarker } from '../data/objectiveMarkerVisibility'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 import {
@@ -73,6 +74,8 @@ export interface UISlice {
   textureLoadProgress: { loaded: number; total: number }
   isShowStartZones: boolean
   toggleIsShowStartZones: (s: boolean) => void
+  isShowObjectiveMarkers: boolean
+  toggleIsShowObjectiveMarkers: (show: boolean) => void
   isShowActionLog: boolean
   toggleIsShowActionLog: (show: boolean) => void
   resetSettings: () => void
@@ -84,8 +87,6 @@ export interface UISlice {
   rememberedMapAuthor: string
   lookSettings: LookSettings
   setLookSettings: (settings: Partial<LookSettings>) => void
-  markerGlyphRotation: number
-  setMarkerGlyphRotation: (degrees: number) => void
   setGenericSolidCapColor: (color: string) => void
   setGenericSolidSideColor: (color: string) => void
   setGenericFluidCapColor: (color: string) => void
@@ -351,10 +352,32 @@ const createUISlice: StateCreator<
   },
   setRememberedMapAuthor: (name: string) => set({ rememberedMapAuthor: name }),
   isShowStartZones: true,
+  isShowObjectiveMarkers: true,
+  toggleIsShowObjectiveMarkers: (show) =>
+    set(
+      produce((s) => {
+        s.isShowObjectiveMarkers = show
+        if (!show) {
+          s.selectedObjectiveMarkerUID = null
+          s.objectiveMarkerDragPreview = null
+        }
+      }),
+    ),
   toggleIsShowActionLog: (show) => set({ isShowActionLog: show }),
   selectedPieceIDs: [],
   selectedObjectiveMarkerUID: null,
   setSelectedObjectiveMarkerUID: (uid) => {
+    const state = get()
+    if (
+      uid &&
+      !canSelectObjectiveMarker(
+        uid,
+        state.hexMap.objectiveMarkers ?? [],
+        state.isShowObjectiveMarkers,
+      )
+    ) {
+      return
+    }
     set({ selectedObjectiveMarkerUID: uid })
   },
   objectiveMarkerDraft: {
@@ -1052,10 +1075,6 @@ const createUISlice: StateCreator<
         ...settings,
       }),
     })),
-  setMarkerGlyphRotation: (degrees) => {
-    if (!Number.isFinite(degrees)) return
-    set({ markerGlyphRotation: Math.max(-180, Math.min(180, degrees)) })
-  },
   setIsLookSettingsDialogOpen: (open) =>
     set({ isLookSettingsDialogOpen: open }),
   setGenericSolidCapColor: (color: string) =>

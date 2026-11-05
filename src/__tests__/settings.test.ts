@@ -58,7 +58,6 @@ describe('settings persistence', () => {
   it('uses defaults when no settings are stored', () => {
     expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
     expect(SETTINGS_DEFAULTS).toMatchObject({
-      markerGlyphRotation: 0,
       genericSolidCapColor: '#e63cc8',
       genericSolidSideColor: '#a01e8c',
       genericFluidCapColor: '#ff96e6',
@@ -89,7 +88,6 @@ describe('settings persistence', () => {
       isOrthoCam: false,
       isShowActionLog: false,
       useHighQualityForPicture: true,
-      markerGlyphRotation: 45,
       isShowPdfBuriedMarks: true,
       isShowPdfPieceLegend: true,
       isShow2DExportBuriedMarks: true,
@@ -117,7 +115,6 @@ describe('settings persistence', () => {
         isOrthoCam: false,
         useHighQualityForPicture: true,
         graphicsTier: 'high' as const,
-        markerGlyphRotation: 45,
         isShowActionLog: false,
         isShowPdfBuriedMarks: true,
         isShowPdfPieceLegend: true,
@@ -162,6 +159,23 @@ describe('settings persistence', () => {
       graphicsTier: 'low',
       isLightsAndShadowsRender: false,
       useHighQualityForPicture: true,
+    })
+    expect(values.get(LS_KEYS.settings)).toBe(staleSettings)
+  })
+
+  it('ignores the removed marker and glyph rotation setting', () => {
+    const staleSettings = JSON.stringify({
+      v: 1,
+      values: {
+        markerGlyphRotation: 45,
+        isOrthoCam: false,
+      },
+    })
+    storage.setItem(LS_KEYS.settings, staleSettings)
+
+    expect(loadSettings()).toMatchObject({
+      ...SETTINGS_DEFAULTS,
+      isOrthoCam: false,
     })
     expect(values.get(LS_KEYS.settings)).toBe(staleSettings)
   })
@@ -242,7 +256,6 @@ describe('settings persistence', () => {
         v: 1,
         values: {
           isOrthoCam: false,
-          markerGlyphRotation: '90',
           graphicsTier: 'fast',
           isShowPdfBuriedMarks: 'yes',
           isShow2DExportBuriedMarks: 1,
@@ -268,7 +281,6 @@ describe('settings persistence', () => {
 
     expect(loadSettings()).toMatchObject({
       isOrthoCam: false,
-      markerGlyphRotation: SETTINGS_DEFAULTS.markerGlyphRotation,
       isTransparentGlyphSpaces: SETTINGS_DEFAULTS.isTransparentGlyphSpaces,
       isHideHeightsOnGlyphs: SETTINGS_DEFAULTS.isHideHeightsOnGlyphs,
       pdfRenderFormat: SETTINGS_DEFAULTS.pdfRenderFormat,
@@ -428,6 +440,7 @@ describe('settings persistence', () => {
       'pictureCaptureOptions',
       'isCameraDisabled',
       'isShowStartZones',
+      'isShowObjectiveMarkers',
       'is2DOpen',
       'isPdfOpen',
       'viewingLevel',
@@ -630,10 +643,11 @@ describe('settings persistence', () => {
     const { default: store } = await import('../store/store')
     store.getState().updateLightPosition('back-left', [3, 4, 5])
     const historyLength = store.temporal.getState().pastStates.length
-    store.getState().setMarkerGlyphRotation(75)
     expect(store.temporal.getState().pastStates).toHaveLength(historyLength)
+    store.getState().toggleIsShowObjectiveMarkers(false)
     store.getState().resetSettings()
     expect(pickSettings(store.getState())).toEqual(SETTINGS_DEFAULTS)
+    expect(store.getState().isShowObjectiveMarkers).toBe(false)
     expect(values.has(LS_KEYS.settings)).toBe(false)
     vi.advanceTimersByTime(300)
     expect(values.has(LS_KEYS.settings)).toBe(false)

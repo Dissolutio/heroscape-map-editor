@@ -53,6 +53,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `new-map-details.test.ts` | New-map author and notes through JSON loading and share-link serialization, including empty metadata. |
 | `view-mode.test.ts` | Active 3D, SVG, and PDF view selection, including PDF precedence. |
 | `start-zone-visibility.test.ts` | Start-zone 3D visibility, selection filtering and pivot cleanup, hidden drag-group exclusion, map-load filtering, and undo selection restoration while hidden. |
+| `objective-marker-visibility.test.ts` | Objective-marker visibility helpers, selection and drag eligibility, selection recall filtering, and the session-only toggle's default/reset behavior. |
 | `tile-marks.test.ts` | Buried-status mark selection, letter/mark text composition, excluded piece families, and integration with the small buried-status board fixture. |
 | `pdf-buried-mark-position.test.ts` | PDF-only mark offsets scale with the registered Inter glyph advances and leave marks-only tiles unshifted. |
 | `release-notes.test.ts` | Release-note parsing and the pure first-visit / unseen-release decision. |

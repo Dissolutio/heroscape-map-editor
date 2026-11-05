@@ -29,7 +29,6 @@ export type SettingsValues = {
   isShowLightControls: boolean
   isTopOutlinedInterlockHexes: boolean
   useHighQualityForPicture: boolean
-  markerGlyphRotation: number
   isDisplayCapHeights: boolean
   isHideTableTop: boolean
   useLegacyStartZones: boolean
@@ -71,7 +70,6 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   isShowLightControls: true,
   isTopOutlinedInterlockHexes: true,
   useHighQualityForPicture: false,
-  markerGlyphRotation: 0,
   isDisplayCapHeights: false,
   isHideTableTop: false,
   useLegacyStartZones: false,
@@ -225,10 +223,6 @@ const validSettingValue = (
     case 'lastPenSize':
       return typeof value === 'number' && Number.isFinite(value) && value > 0
         ? value
-        : undefined
-    case 'markerGlyphRotation':
-      return typeof value === 'number' && Number.isFinite(value)
-        ? Math.max(-180, Math.min(180, value))
         : undefined
     case 'lightPositions':
       return isLightPositions(value) ? value : undefined

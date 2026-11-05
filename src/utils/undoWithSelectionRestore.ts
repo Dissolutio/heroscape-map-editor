@@ -51,7 +51,9 @@ function restoreTouchedSelection(record: UndoSelectionRestoreRecord) {
         state.isShowStartZones,
       )
   const selectedMarkerUID =
-    markerExists && record.restoreObjectiveMarkerSelection !== false
+    markerExists &&
+    state.isShowObjectiveMarkers &&
+    record.restoreObjectiveMarkerSelection !== false
       ? record.objectiveMarkerUID
       : null
 

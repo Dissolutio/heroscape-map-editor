@@ -35,6 +35,7 @@ import {
   filterVisiblePieceIDs,
   isStartZoneBoardPiece,
 } from '../data/startZoneVisibility'
+import { filterVisibleObjectiveMarkerUIDs } from '../data/objectiveMarkerVisibility'
 import { HexTerrain, Pieces } from '../types'
 import type {
   AddRemovePieceError,
@@ -1002,8 +1003,13 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         state.isShowStartZones,
       ),
     )
+    const objectiveMarkers = state.hexMap.objectiveMarkers ?? []
     const markerUIDs = new Set(
-      (state.hexMap.objectiveMarkers ?? []).map((marker) => marker.uid),
+      filterVisibleObjectiveMarkerUIDs(
+        objectiveMarkers.map((marker) => marker.uid),
+        objectiveMarkers,
+        state.isShowObjectiveMarkers,
+      ),
     )
     const resolved = resolveSelectionUnit(
       selection,

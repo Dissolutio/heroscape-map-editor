@@ -13,6 +13,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { getLaurAddonHitHex } from '../data/laurAddonStacking'
 import { placementBlockedMessages } from '../data/placement'
+import { OBJECTIVE_MARKERS_HIDDEN_MESSAGE } from '../data/objectiveMarkerVisibility'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 import useBoundStore from '../store/store'
 import type { BoardHex } from '../types'
 import { Pieces } from '../types'
@@ -113,6 +115,24 @@ function clickSnackbarAction(index: number, label: string) {
 }
 
 describe('click placement through the real handler', () => {
+  it('notifies when placing an objective marker while markers are hidden', () => {
+    const table = makeTable(5)
+    const hex = hexAt(table, table.center, 0)
+    if (!hex) throw new Error('test setup: missing table hex')
+    clickWithPen({
+      board: table,
+      pieceID: OBJECTIVE_MARKER_PEN_MODE,
+      hex,
+      isShowObjectiveMarkers: false,
+    })
+
+    expect(snackbar).toHaveBeenCalledWith({
+      message: OBJECTIVE_MARKERS_HIDDEN_MESSAGE,
+      variant: 'info',
+    })
+    expect(useBoundStore.getState().hexMap.objectiveMarkers ?? []).toEqual([])
+  })
+
   it('sets a multi-hex group pivot from the clicked hex without changing selection', () => {
     const table = makeTable(12)
     let board = place({
