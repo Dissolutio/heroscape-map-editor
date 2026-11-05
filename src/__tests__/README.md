@@ -62,7 +62,9 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `material-clones.test.ts` | The private material copies the move/rotate preview ghost uses (`utils/materialClones.ts`), so it never changes the cached materials real pieces share. |
 | `textures-pack.test.ts` | Terrain texture manifest coverage, source existence, layer bounds and strip sizes, repaired side edges/rows, flat fluid cap normals, and packed-output drift checks. |
 | `world/textures/terrainTextureArrays.test.ts` | Runtime manifest validation, texture-tier strip selection and cached access, pure layer slicing and Y orientation, lazy request caching, retry after failure, and disposal. |
-| `world/models/gltfLifecycle.test.ts` | Delayed GLTF eviction after the idle timeout, cancellation on reacquisition, and reference-counted cleanup. |
+| `world/models/gltfLifecycle.test.ts` | Delayed GLTF eviction, reacquisition/ref counts, and owned texture disposal. |
+| `marro-hive-model.test.ts` | Old and textured Marro Hive GLB position bounds, ground alignment, UVs, and base-color texture metadata. |
+| `world/models/marroHiveMaterial.test.ts` | Marro Hive texture selection across graphics tiers, load states, and a missing base-color map. |
 | `store/graphics-tier.test.ts` | Graphics-tier loading state, session-only fallback after failure, and stale request handling. |
 | `store/action-log.test.ts` | Action-log message formatting and the bounded ring buffer. |
 | `performance/performance.test.ts` | Detection of monotonically growing scene, GPU-resource, heap, subscriber, timer, and animation-frame metrics, plus typed-array accounting for geometry, instances, and texture data. |
