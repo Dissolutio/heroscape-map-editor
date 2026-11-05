@@ -141,18 +141,38 @@ function TestBridgeInner() {
           hasMap: boolean
           materialTypes: string[]
         }> = []
+        const evergreenTreeMaterials: Array<{
+          uid: string
+          part: 'tree' | 'boulders' | 'base'
+          hasMap: boolean
+          materialTypes: string[]
+        }> = []
         get().scene.traverse((object) => {
           if (!(object instanceof Mesh)) return
-          const uid = object.userData.marroHiveUID
-          if (typeof uid !== 'string') return
           const materials = (
             Array.isArray(object.material) ? object.material : [object.material]
           ) as Array<{ map?: unknown; type?: string }>
-          marroHiveMaterials.push({
-            uid,
-            hasMap: materials.some((material) => Boolean(material?.map)),
-            materialTypes: materials.map((material) => material?.type ?? ''),
-          })
+          const hiveUID = object.userData.marroHiveUID
+          if (typeof hiveUID === 'string') {
+            marroHiveMaterials.push({
+              uid: hiveUID,
+              hasMap: materials.some((material) => Boolean(material?.map)),
+              materialTypes: materials.map((material) => material?.type ?? ''),
+            })
+          }
+          const evergreenTreeUID = object.userData.evergreenTreeUID
+          const part = object.userData.evergreenTreePart
+          if (
+            typeof evergreenTreeUID === 'string' &&
+            (part === 'tree' || part === 'boulders' || part === 'base')
+          ) {
+            evergreenTreeMaterials.push({
+              uid: evergreenTreeUID,
+              part,
+              hasMap: materials.some((material) => Boolean(material?.map)),
+              materialTypes: materials.map((material) => material?.type ?? ''),
+            })
+          }
         })
         return {
           ready: getReady(),
@@ -180,6 +200,7 @@ function TestBridgeInner() {
           ),
           landRenderer: hasPerHexLandRenderer ? 'per-hex' : 'legacy',
           marroHiveMaterials,
+          evergreenTreeMaterials,
           viewingLevel: s.viewingLevel,
           penMode: s.penMode,
           selectedPieceIDs: [...s.selectedPieceIDs],

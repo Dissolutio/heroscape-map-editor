@@ -64,7 +64,9 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `world/textures/terrainTextureArrays.test.ts` | Runtime manifest validation, texture-tier strip selection and cached access, pure layer slicing and Y orientation, lazy request caching, retry after failure, and disposal. |
 | `world/models/gltfLifecycle.test.ts` | Delayed GLTF eviction, reacquisition/ref counts, and owned texture disposal. |
 | `marro-hive-model.test.ts` | Old and textured Marro Hive GLB position bounds, ground alignment, UVs, and base-color texture metadata. |
+| `evergreen-tree-model.test.ts` | Evergreen and large-tree GLB mesh bounds, UVs, and embedded base-color textures. |
 | `world/models/marroHiveMaterial.test.ts` | Marro Hive texture selection across graphics tiers, load states, and a missing base-color map. |
+| `world/models/texturedModelMaterial.test.ts` | Shared textured-model selection across graphics tiers, load states, and a missing base-color map. |
 | `store/graphics-tier.test.ts` | Graphics-tier loading state, session-only fallback after failure, and stale request handling. |
 | `store/action-log.test.ts` | Action-log message formatting and the bounded ring buffer. |
 | `performance/performance.test.ts` | Detection of monotonically growing scene, GPU-resource, heap, subscriber, timer, and animation-frame metrics, plus typed-array accounting for geometry, instances, and texture data. |

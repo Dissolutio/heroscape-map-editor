@@ -1,10 +1,11 @@
 import type { GraphicsTier } from '../../local-storage/settings'
 import type { TextureLoadStatus } from '../textures/terrainTextureArrays'
+import { shouldUseTieredModelTexture } from './texturedModelMaterial'
 
 export function shouldUseMarroHiveTexture(
   tier: GraphicsTier,
   textureLoadStatus: TextureLoadStatus,
   hasBaseColorMap: boolean,
 ) {
-  return tier !== 'low' && textureLoadStatus === 'ready' && hasBaseColorMap
+  return shouldUseTieredModelTexture(tier, textureLoadStatus, hasBaseColorMap)
 }

@@ -23,6 +23,12 @@ export type E2ESnapshot = {
     hasMap: boolean
     materialTypes: string[]
   }>
+  evergreenTreeMaterials: Array<{
+    uid: string
+    part: 'tree' | 'boulders' | 'base'
+    hasMap: boolean
+    materialTypes: string[]
+  }>
   viewingLevel: number
   penMode: string
   selectedPieceIDs: string[]
