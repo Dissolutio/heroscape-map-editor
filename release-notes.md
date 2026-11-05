@@ -5,7 +5,6 @@ TLDR: Saved selections, one 3D | 2D | PDF switch, click empty ground to deselect
 - **3D | 2D | PDF switch**: One control in the top bar switches between the three views, and shows which one you are in.
 - **Size hotkeys for obstacles**: The number keys now pick the size of trees, outcrops and other obstacle families, the same way they already did for land.
 - **PDF piece legend**: Build instructions can now include a legend of just the pieces used in your map, with each symbol and a few words. It is optional.
-- **Marker and glyph rotation in 3D**: A new View tab setting turns every objective marker and glyph symbol by the same angle, so they all read the same way in a map picture. It does not change your map, share links, or the 2D and PDF views.
 - **Wood caps follow the piece**: The planking on a wood cap now runs along the piece in all six rotations, like the real tile, and wood caps are never randomly rotated.
 - **Side textures are no longer mirrored**: Last release turned them right way up; now they are not flipped left to right either, so your own height-map and diffuse images read correctly.
 - **Action log**: The "seconds ago" labels are gone. Entries just fade away when you are idle, and hovering still shows the full history.
