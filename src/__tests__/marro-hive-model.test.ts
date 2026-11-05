@@ -42,10 +42,13 @@ function getHiveBounds(path: string) {
 
 describe('textured Marro Hive model', () => {
   it('preserves the original model bounds and sits on the ground', () => {
-    const oldHive = getHiveBounds('public/uncolored-decimated-marro-hive-6.glb')
+    // Bounds of the original untextured hive model (since removed).
+    const oldHive = {
+      min: [-1.9755, 0.0001, -0.7447],
+      max: [3.8204, 5.5672, 2.2111],
+    }
     const newHive = getHiveBounds('public/marro-hive-6-textured.glb')
 
-    expect(oldHive.hiveMesh.name).toBe('Marro_Hive')
     expect(newHive.hiveMesh.name).toBe('Marro_Hive_VS')
     for (let axis = 0; axis < 3; axis += 1) {
       expect(
