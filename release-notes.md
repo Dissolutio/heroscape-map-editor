@@ -1,15 +1,22 @@
-Nov-03-2026
-TLDR: Saved selections, one 3D | 2D | PDF switch, size hotkeys for trees and outcrops, a piece legend in the PDF, and texture fixes for wood and side images.
+Nov-05-2026
+TLDR: Saved selections, one 3D | 2D | PDF switch, click empty ground to deselect, size hotkeys for trees and outcrops, a piece legend and ladder counts in the PDF, a textured Marro Hive, a Show Objective Markers switch, and fixes for wood, side textures and missing hex sides.
 
 - **Saved selections**: Selection history is replaced by something more useful. Each action in the action log that touched pieces now has a link: click it to select those pieces again (Shift-click adds to your selection). You can also save the current selection with a name, and your saved selections sit above the action log. They are kept in your map file.
 - **3D | 2D | PDF switch**: One control in the top bar switches between the three views, and shows which one you are in.
 - **Size hotkeys for obstacles**: The number keys now pick the size of trees, outcrops and other obstacle families, the same way they already did for land.
 - **PDF piece legend**: Build instructions can now include a legend of just the pieces used in your map, with each symbol and a few words. It is optional.
-- **Marker and glyph rotation in 3D**: A new View tab setting turns every objective marker and glyph symbol by the same angle, so they all read the same way in a map picture. It does not change your map, share links, or the 2D and PDF views.
 - **Wood caps follow the piece**: The planking on a wood cap now runs along the piece in all six rotations, like the real tile, and wood caps are never randomly rotated.
 - **Side textures are no longer mirrored**: Last release turned them right way up; now they are not flipped left to right either, so your own height-map and diffuse images read correctly.
 - **Action log**: The "seconds ago" labels are gone. Entries just fade away when you are idle, and hovering still shows the full history.
 - **Rotate hotkeys**: Rotating a selected piece with Q or E no longer leaves a ghost piece behind.
+- **Show Objective Markers**: A new switch in the View tab, next to Start Zones, hides objective markers in 3D. When hidden they can't be clicked, selected or dragged, and placing one shows a message instead of nothing. It is on every time you open the app, so you can't lose your markers by accident, and it never changes your map, share links, or the 2D and PDF views.
+- **Objective marker numbers face you**: The number or letter on a marker now always turns to face the camera, so it reads right from any angle and in map pictures. The marker itself does not move.
+- **Textured Marro Hive**: The Marro Hive has a new, lighter model with its real painted look: green webbing, cream ridges and ornament. Medium and High graphics show the texture, High adds a glossy shine, and Low keeps the flat color.
+- **Click empty ground to deselect**: With the select pen, clicking an empty hex clears your selection. Shift-click and the placing pens work as before.
+- **Ladder stack counts**: When ladders are stacked, the 2D and PDF build instructions show how many (for example "x3") next to the bottom ladder.
+- **PDF colors for lower levels**: Pieces on levels below the one on the page now use flat colors that match the 2D map. The 2D map itself did not change.
+- **Missing hex sides**: Some hex sides along the map edge could be missing and show the table through them. A side is now hidden only when a neighbor that is actually drawn covers it. If you still see one, tell us which hex.
+- **Under the hood**: The old "High Quality render" path and its unused model files are gone; the graphics levels replace them. Your saved settings still load.
 - **Zoom to Piece**: Removed an old fade effect that was not working, so Zoom to Piece only moves the camera.
 
 Nov-02-2026
