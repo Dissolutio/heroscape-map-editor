@@ -1,5 +1,5 @@
-Nov-03-2026
-TLDR: Saved selections, one 3D | 2D | PDF switch, size hotkeys for trees and outcrops, a piece legend in the PDF, and texture fixes for wood and side images.
+Nov-05-2026
+TLDR: Saved selections, one 3D | 2D | PDF switch, click empty ground to deselect, size hotkeys for trees and outcrops, a piece legend and ladder counts in the PDF, and fixes for wood, side textures and missing hex sides.
 
 - **Saved selections**: Selection history is replaced by something more useful. Each action in the action log that touched pieces now has a link: click it to select those pieces again (Shift-click adds to your selection). You can also save the current selection with a name, and your saved selections sit above the action log. They are kept in your map file.
 - **3D | 2D | PDF switch**: One control in the top bar switches between the three views, and shows which one you are in.
@@ -10,6 +10,11 @@ TLDR: Saved selections, one 3D | 2D | PDF switch, size hotkeys for trees and out
 - **Side textures are no longer mirrored**: Last release turned them right way up; now they are not flipped left to right either, so your own height-map and diffuse images read correctly.
 - **Action log**: The "seconds ago" labels are gone. Entries just fade away when you are idle, and hovering still shows the full history.
 - **Rotate hotkeys**: Rotating a selected piece with Q or E no longer leaves a ghost piece behind.
+- **Click empty ground to deselect**: With the select pen, clicking an empty hex clears your selection. Shift-click and the placing pens work as before.
+- **Ladder stack counts**: When ladders are stacked, the 2D and PDF build instructions show how many (for example "x3") next to the bottom ladder.
+- **PDF colors for lower levels**: Pieces on levels below the one on the page now use flat colors that match the 2D map. The 2D map itself did not change.
+- **Missing hex sides**: Some hex sides along the map edge could be missing and show the table through them. A side is now hidden only when a neighbor that is actually drawn covers it. If you still see one, tell us which hex.
+- **Under the hood**: The old "High Quality render" path and its unused model files are gone; the graphics levels replace them. Your saved settings still load.
 - **Zoom to Piece**: Removed an old fade effect that was not working, so Zoom to Piece only moves the camera.
 
 Nov-02-2026
