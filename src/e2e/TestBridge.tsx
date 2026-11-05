@@ -1,7 +1,7 @@
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
-import { Box3, PerspectiveCamera, Vector3 } from 'three'
+import { Box3, Mesh, PerspectiveCamera, Vector3 } from 'three'
 import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
 import { resolveRotationPivot } from '../data/rotationPivot'
 import useBoundStore from '../store/store'
@@ -136,6 +136,24 @@ function TestBridgeInner() {
             hasPerHexLandRenderer = true
           }
         })
+        const marroHiveMaterials: Array<{
+          uid: string
+          hasMap: boolean
+          materialTypes: string[]
+        }> = []
+        get().scene.traverse((object) => {
+          if (!(object instanceof Mesh)) return
+          const uid = object.userData.marroHiveUID
+          if (typeof uid !== 'string') return
+          const materials = (
+            Array.isArray(object.material) ? object.material : [object.material]
+          ) as Array<{ map?: unknown; type?: string }>
+          marroHiveMaterials.push({
+            uid,
+            hasMap: materials.some((material) => Boolean(material?.map)),
+            materialTypes: materials.map((material) => material?.type ?? ''),
+          })
+        })
         return {
           ready: getReady(),
           mapId: s.hexMap.id,
@@ -161,6 +179,7 @@ function TestBridgeInner() {
             { solid: 0, fluid: 0 },
           ),
           landRenderer: hasPerHexLandRenderer ? 'per-hex' : 'legacy',
+          marroHiveMaterials,
           viewingLevel: s.viewingLevel,
           penMode: s.penMode,
           selectedPieceIDs: [...s.selectedPieceIDs],
