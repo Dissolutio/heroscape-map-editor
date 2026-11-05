@@ -4,6 +4,7 @@ import {
   buildFluidGeometry,
   buildSideGeometry,
 } from '../world/models/LandHexInstanced'
+import { HEX_DIRECTIONS, cubeToPixel } from '../utils/hex-utils'
 
 describe('per-hex land geometry', () => {
   it('draws all six side quads, each from its own four vertices', () => {
@@ -26,6 +27,32 @@ describe('per-hex land geometry', () => {
       ])
       for (const vertex of used) {
         expect(directions.getX(vertex)).toBe(side)
+      }
+    }
+  })
+
+  it('aligns solid and fluid side quads with all six hex directions', () => {
+    const geometries = [
+      { geometry: buildSideGeometry(0), sideVertexOffset: 0 },
+      { geometry: buildFluidGeometry(0), sideVertexOffset: 18 },
+    ]
+
+    for (const { geometry, sideVertexOffset } of geometries) {
+      const positions = geometry.getAttribute('position')
+      for (let side = 0; side < 6; side += 1) {
+        const first = sideVertexOffset + side * 4
+        const opposite = first + 2
+        const midpoint = {
+          x: (positions.getX(first) + positions.getX(opposite)) / 2,
+          z: (positions.getZ(first) + positions.getZ(opposite)) / 2,
+        }
+        const direction = cubeToPixel(HEX_DIRECTIONS[side])
+        const alignment =
+          (midpoint.x * direction.x + midpoint.z * direction.y) /
+          (Math.hypot(midpoint.x, midpoint.z) *
+            Math.hypot(direction.x, direction.y))
+
+        expect(alignment).toBeGreaterThan(0.999)
       }
     }
   })

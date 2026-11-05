@@ -153,6 +153,80 @@ test('per-hex land mode loads without console errors and selects a hex', async (
   expect(errors).toEqual([])
 })
 
+test('exposed grass sides remain visible beside water and edge start zones', async ({
+  page,
+}) => {
+  const map = mapUrl(FIXTURE_HEX_MAP, [
+    '0~0~0~0~g1',
+    '0~1~0~0~w1',
+    '0~0~0~0~z7',
+  ])
+
+  for (const tier of ['medium', 'high']) {
+    await page.goto(`${map}&perHexLand=1&graphicsTier=${tier}`)
+    await waitForAppReady(page)
+    await page.locator('#simple-tab-3').click()
+    await page.mouse.move(10, 700)
+    await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+      'Textures ready',
+    )
+
+    const camera = await page.evaluate(() => window.__TEST__?.cameraPose())
+    if (!camera) throw new Error('The e2e camera bridge is unavailable')
+    await page.evaluate(
+      ({ target }) =>
+        window.__TEST__?.setCamera(
+          [target[0] + 8, target[1] + 12, target[2] + 8],
+          target,
+        ),
+      camera,
+    )
+    await waitForAppReady(page)
+
+    const points = await page.evaluate(() => {
+      const bridge = window.__TEST__
+      if (!bridge) throw new Error('The e2e map bridge is unavailable')
+      const sidePoint = (edge: number) => {
+        const bottom = bridge.screenPosOfHexEdge({
+          q: 0,
+          r: 0,
+          altitude: -1,
+          edge,
+        })
+        const top = bridge.screenPosOfHexEdge({
+          q: 0,
+          r: 0,
+          altitude: 0,
+          edge,
+        })
+        if (!bottom || !top) {
+          throw new Error('A grass-side sample point is not on screen')
+        }
+        return {
+          x: bottom.x + (top.x - bottom.x) * 0.75,
+          y: bottom.y + (top.y - bottom.y) * 0.75,
+        }
+      }
+      const background = bridge.screenPosOfHex({
+        q: 4,
+        r: 4,
+        altitude: 0,
+      })
+      if (!background) throw new Error('The background sample is not on screen')
+      return {
+        waterSide: sidePoint(0),
+        edgeSide: sidePoint(3),
+        background,
+      }
+    })
+    const colors = await sampleCanvasPoints(page, points)
+    for (const side of [colors.waterSide, colors.edgeSide]) {
+      expect(maxChannelDelta(side, colors.background)).toBeGreaterThan(30)
+      expect(side[0]).toBeGreaterThan(side[2] * 1.5)
+    }
+  }
+})
+
 test('per-hex land pixels stay colored across lights and shadows toggles', async ({
   page,
 }) => {
