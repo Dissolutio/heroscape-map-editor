@@ -1,5 +1,5 @@
 Nov-05-2026
-TLDR: Saved selections, one 3D | 2D | PDF switch, click empty ground to deselect, size hotkeys for trees and outcrops, a piece legend and ladder counts in the PDF, and fixes for wood, side textures and missing hex sides.
+TLDR: Saved selections, one 3D | 2D | PDF switch, click empty ground to deselect, size hotkeys for trees and outcrops, a piece legend and ladder counts in the PDF, a textured Marro Hive, a Show Objective Markers switch, and fixes for wood, side textures and missing hex sides.
 
 - **Saved selections**: Selection history is replaced by something more useful. Each action in the action log that touched pieces now has a link: click it to select those pieces again (Shift-click adds to your selection). You can also save the current selection with a name, and your saved selections sit above the action log. They are kept in your map file.
 - **3D | 2D | PDF switch**: One control in the top bar switches between the three views, and shows which one you are in.
@@ -9,6 +9,9 @@ TLDR: Saved selections, one 3D | 2D | PDF switch, click empty ground to deselect
 - **Side textures are no longer mirrored**: Last release turned them right way up; now they are not flipped left to right either, so your own height-map and diffuse images read correctly.
 - **Action log**: The "seconds ago" labels are gone. Entries just fade away when you are idle, and hovering still shows the full history.
 - **Rotate hotkeys**: Rotating a selected piece with Q or E no longer leaves a ghost piece behind.
+- **Show Objective Markers**: A new switch in the View tab, next to Start Zones, hides objective markers in 3D. When hidden they can't be clicked, selected or dragged, and placing one shows a message instead of nothing. It is on every time you open the app, so you can't lose your markers by accident, and it never changes your map, share links, or the 2D and PDF views.
+- **Objective marker numbers face you**: The number or letter on a marker now always turns to face the camera, so it reads right from any angle and in map pictures. The marker itself does not move.
+- **Textured Marro Hive**: The Marro Hive has a new, lighter model with its real painted look: green webbing, cream ridges and ornament. Medium and High graphics show the texture, High adds a glossy shine, and Low keeps the flat color.
 - **Click empty ground to deselect**: With the select pen, clicking an empty hex clears your selection. Shift-click and the placing pens work as before.
 - **Ladder stack counts**: When ladders are stacked, the 2D and PDF build instructions show how many (for example "x3") next to the bottom ladder.
 - **PDF colors for lower levels**: Pieces on levels below the one on the page now use flat colors that match the 2D map. The 2D map itself did not change.
