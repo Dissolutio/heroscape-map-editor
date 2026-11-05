@@ -1,4 +1,4 @@
-import { Text } from '@react-three/drei'
+import { Billboard, Text } from '@react-three/drei'
 import { useMemo } from 'react'
 import { mapTableHexes } from '../data/fitMapToPieces'
 import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
@@ -30,8 +30,8 @@ export default function ObjectiveMarkerPlacementPreview() {
   const draft = useBoundStore((state) => state.objectiveMarkerDraft)
   const penModeRotation = useBoundStore((state) => state.penModeRotation)
   const dragPreview = useBoundStore((state) => state.objectiveMarkerDragPreview)
-  const markerGlyphRotation = useBoundStore(
-    (state) => state.markerGlyphRotation,
+  const isShowObjectiveMarkers = useBoundStore(
+    (state) => state.isShowObjectiveMarkers,
   )
   const mapHexIDs = useMemo(() => mapTableHexes(hexMap), [hexMap])
   const content =
@@ -80,14 +80,14 @@ export default function ObjectiveMarkerPlacementPreview() {
     })
   }, [boardHexes, dragPreview, mapHexIDs, marker, markers])
   const markerPosition = marker
-    ? getObjectiveMarker3DPosition(marker, boardHexes, markerGlyphRotation)
+    ? getObjectiveMarker3DPosition(marker, boardHexes)
     : null
   const textTransform =
     marker && markerPosition
       ? getObjectiveMarker3DTextTransform(marker, markerPosition)
       : null
 
-  if (!marker || !placement) return null
+  if (!isShowObjectiveMarkers || !marker || !placement) return null
   const hovered =
     hoveredHex ??
     ({
@@ -113,20 +113,20 @@ export default function ObjectiveMarkerPlacementPreview() {
           position={textTransform.groupPosition}
           rotation={textTransform.groupRotation}
         >
-          <Text
-            position={textTransform.textPosition}
-            rotation={textTransform.textRotation}
-            font="/fonts/Inter_18pt-Bold.ttf"
-            fontSize={getObjectiveMarkerTextFontSize(marker)}
-            maxWidth={HEXGRID_HEX_RADIUS * 2.2}
-            anchorX="center"
-            anchorY="middle"
-            textAlign="center"
-            color={foreground}
-            raycast={() => null}
-          >
-            {text}
-          </Text>
+          <Billboard position={textTransform.textPosition}>
+            <Text
+              font="/fonts/Inter_18pt-Bold.ttf"
+              fontSize={getObjectiveMarkerTextFontSize(marker)}
+              maxWidth={HEXGRID_HEX_RADIUS * 2.2}
+              anchorX="center"
+              anchorY="middle"
+              textAlign="center"
+              color={foreground}
+              raycast={() => null}
+            >
+              {text}
+            </Text>
+          </Billboard>
         </group>
       )}
     </>

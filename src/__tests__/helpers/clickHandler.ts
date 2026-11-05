@@ -41,6 +41,7 @@ export function clickWithPen({
   rotation = 0,
   shiftKey = false,
   selectedObjectiveMarkerUID = null,
+  isShowObjectiveMarkers = true,
 }: {
   board: Board
   pieceID: string
@@ -48,6 +49,7 @@ export function clickWithPen({
   rotation?: number
   shiftKey?: boolean
   selectedObjectiveMarkerUID?: string | null
+  isShowObjectiveMarkers?: boolean
 }): ClickResult {
   // The store freezes what it holds (Immer), and tests reuse their boards.
   const { boardHexes, boardPieces } = structuredClone(board)
@@ -61,6 +63,7 @@ export function clickWithPen({
     pieceSize: 0,
     penModeRotation: rotation,
     viewingLevel: 30,
+    isShowObjectiveMarkers,
   }
 
   useBoundStore.setState(state)

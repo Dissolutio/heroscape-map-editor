@@ -1,7 +1,8 @@
-import { Text } from '@react-three/drei'
+import { Billboard, Text } from '@react-three/drei'
 import type { ThreeEvent } from '@react-three/fiber'
 import { useMemo } from 'react'
 import { Path, Shape } from 'three'
+import { shouldRenderObjectiveMarker } from '../../data/objectiveMarkerVisibility'
 import type { ObjectiveMarker } from '../../data/objectiveMarkers'
 import useBoundStore from '../../store/store'
 import { SELECT_PEN_MODE } from '../../types'
@@ -82,28 +83,27 @@ export default function ObjectiveMarkers3D() {
   const markers = useBoundStore((state) => state.hexMap.objectiveMarkers)
   const boardHexes = useBoundStore((state) => state.boardHexes)
   const viewingLevel = useBoundStore((state) => state.viewingLevel)
-  const markerGlyphRotation = useBoundStore(
-    (state) => state.markerGlyphRotation,
+  const isShowObjectiveMarkers = useBoundStore(
+    (state) => state.isShowObjectiveMarkers,
   )
 
   return (
     <>
-      {(markers ?? EMPTY_MARKERS).map((marker) => {
-        if (!isObjectiveMarkerVisibleAtLevel(marker, viewingLevel)) return null
-        const position = getObjectiveMarker3DPosition(
-          marker,
-          boardHexes,
-          markerGlyphRotation,
-        )
-        if (!position) return null
-        return (
-          <ObjectiveMarkerToken
-            key={marker.uid}
-            marker={marker}
-            position={position}
-          />
-        )
-      })}
+      {shouldRenderObjectiveMarker(isShowObjectiveMarkers) &&
+        (markers ?? EMPTY_MARKERS).map((marker) => {
+          if (!isObjectiveMarkerVisibleAtLevel(marker, viewingLevel)) {
+            return null
+          }
+          const position = getObjectiveMarker3DPosition(marker, boardHexes)
+          if (!position) return null
+          return (
+            <ObjectiveMarkerToken
+              key={marker.uid}
+              marker={marker}
+              position={position}
+            />
+          )
+        })}
     </>
   )
 }
@@ -225,20 +225,21 @@ function ObjectiveMarkerToken({
         />
         <meshBasicMaterial color="#00c8ff" toneMapped={false} />
       </mesh>
-      <Text
-        position={textTransform.textPosition}
-        rotation={textTransform.textRotation}
-        font="/fonts/Inter_18pt-Bold.ttf"
-        fontSize={fontSize}
-        maxWidth={HEXGRID_HEX_RADIUS * 2.2}
-        anchorX="center"
-        anchorY="middle"
-        textAlign="center"
-        color={foreground}
-        raycast={() => null}
-      >
-        {text}
-      </Text>
+      <Billboard position={textTransform.textPosition}>
+        <Text
+          userData={{ objectiveMarkerTextUID: marker.uid }}
+          font="/fonts/Inter_18pt-Bold.ttf"
+          fontSize={fontSize}
+          maxWidth={HEXGRID_HEX_RADIUS * 2.2}
+          anchorX="center"
+          anchorY="middle"
+          textAlign="center"
+          color={foreground}
+          raycast={() => null}
+        >
+          {text}
+        </Text>
+      </Billboard>
     </group>
   )
 }

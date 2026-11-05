@@ -1,7 +1,7 @@
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
-import { Box3, PerspectiveCamera, Vector3 } from 'three'
+import { Box3, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
 import { resolveRotationPivot } from '../data/rotationPivot'
 import useBoundStore from '../store/store'
@@ -194,23 +194,32 @@ function TestBridgeInner() {
         })
         return uids
       },
-      getRenderedObjectiveMarkerRotationY: (uid) => {
-        let rotationY: number | null = null
+      getRenderedObjectiveMarkerTextQuaternion: (uid) => {
+        let quaternion: [number, number, number, number] | null = null
         get().scene.traverse((object) => {
-          if (object.userData.objectiveMarkerUID === uid) {
-            rotationY = object.rotation.y
+          if (object.userData.objectiveMarkerTextUID === uid) {
+            object.updateWorldMatrix(true, false)
+            const worldQuaternion = object.getWorldQuaternion(new Quaternion())
+            quaternion = [
+              round4(worldQuaternion.x),
+              round4(worldQuaternion.y),
+              round4(worldQuaternion.z),
+              round4(worldQuaternion.w),
+            ]
           }
         })
-        return rotationY
+        return quaternion
       },
-      getRenderedGlyphRotationY: (uid) => {
-        let rotationY: number | null = null
-        get().scene.traverse((object) => {
-          if (object.userData.glyphPieceUID === uid) {
-            rotationY = object.rotation.y
-          }
-        })
-        return rotationY
+      cameraQuaternion: () => {
+        const camera = get().camera
+        camera.updateMatrixWorld()
+        const quaternion = camera.getWorldQuaternion(new Quaternion())
+        return [
+          round4(quaternion.x),
+          round4(quaternion.y),
+          round4(quaternion.z),
+          round4(quaternion.w),
+        ]
       },
       screenPosOfHex: ({ q, r, altitude }) => {
         const { x, y, z } = getBoardHex3DCoords({ q, r, s: -q - r, altitude })

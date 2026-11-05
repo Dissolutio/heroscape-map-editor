@@ -130,4 +130,78 @@ test('renders, selects, and excludes objective markers from shadows', async ({
       ),
     )
     .toBeNull()
+
+  const initialTextQuaternion = await page.evaluate(
+    () =>
+      window.__TEST__?.getRenderedObjectiveMarkerTextQuaternion(
+        'objective-ground',
+      ) ?? null,
+  )
+  const pose = await page.evaluate(() => window.__TEST__?.cameraPose() ?? null)
+  if (!initialTextQuaternion || !pose) {
+    throw new Error('Objective-marker text or camera pose is unavailable')
+  }
+  await page.evaluate(
+    ({ position, target }) =>
+      window.__TEST__?.setCamera(
+        [position[0] + 4, position[1], position[2] + 4],
+        target,
+      ),
+    pose,
+  )
+  await waitForAppReady(page)
+  const [textQuaternion, cameraQuaternion] = await page.evaluate(() => [
+    window.__TEST__?.getRenderedObjectiveMarkerTextQuaternion(
+      'objective-ground',
+    ) ?? null,
+    window.__TEST__?.cameraQuaternion() ?? null,
+  ])
+  if (!textQuaternion || !cameraQuaternion) {
+    throw new Error('Objective-marker text orientation is unavailable')
+  }
+  const quaternionDot = textQuaternion.reduce(
+    (dot, value, index) => dot + value * (cameraQuaternion[index] ?? 0),
+    0,
+  )
+  expect(Math.abs(quaternionDot)).toBeGreaterThan(0.999)
+  expect(
+    Math.abs(
+      textQuaternion.reduce(
+        (dot, value, index) =>
+          dot + value * (initialTextQuaternion[index] ?? 0),
+        0,
+      ),
+    ),
+  ).toBeLessThan(0.99)
+
+  await page.locator('#simple-tab-3').click()
+  const visibilitySwitch = page.getByRole('checkbox', {
+    name: 'Show Objective Markers',
+  })
+  await expect(visibilitySwitch).toBeChecked()
+  await page.mouse.move(0, 0)
+  await visibilitySwitch.click()
+  await expect(visibilitySwitch).not.toBeChecked()
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.listRenderedObjectiveMarkerUIDs()),
+    )
+    .toEqual([])
+
+  await page.mouse.move(0, 0)
+  await visibilitySwitch.click()
+  await expect(visibilitySwitch).toBeChecked()
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.listRenderedObjectiveMarkerUIDs()),
+    )
+    .toEqual(markerUIDs)
+
+  await page.reload()
+  await waitForAppReady(page)
+  await expect
+    .poll(() =>
+      page.evaluate(() => window.__TEST__?.listRenderedObjectiveMarkerUIDs()),
+    )
+    .toEqual(markerUIDs)
 })

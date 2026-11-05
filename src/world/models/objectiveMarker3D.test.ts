@@ -13,7 +13,6 @@ import {
 import { genBoardHexID, getBoardHex3DCoords } from '../../utils/map-utils'
 import {
   DEFAULT_OBJECTIVE_MARKER_SHAPE_OPTIONS,
-  composeObjectiveMarkerRotationY,
   getObjectiveMarker3DPosition,
   getObjectiveMarker3DTextPosition,
   getObjectiveMarker3DTextTransform,
@@ -127,13 +126,6 @@ function isSimplePolygon(points: { x: number; z: number }[]) {
 }
 
 describe('objective marker 3D helpers', () => {
-  it('composes the marker rotation with the shared rotation in degrees', () => {
-    expect(composeObjectiveMarkerRotationY(2, 30)).toBeCloseTo(
-      (-Math.PI * 2) / 3 + Math.PI / 6,
-    )
-    expect(composeObjectiveMarkerRotationY(0, -45)).toBeCloseTo(-Math.PI / 4)
-  })
-
   it('positions a one-hex token just above its supported cap', () => {
     const board = makeTable(5)
     const target = marker()
@@ -148,7 +140,7 @@ describe('objective marker 3D helpers', () => {
     })
   })
 
-  it('centers a two-hex token and rotates it in six 60-degree steps', () => {
+  it('centers a two-hex token and preserves its own six rotation steps', () => {
     const board = makeTable(5)
     const target = marker({
       size: 2,
@@ -189,7 +181,7 @@ describe('objective marker 3D helpers', () => {
     expect(position.rotationY).toBe((-target.rotation * Math.PI) / 3)
   })
 
-  it('shares placed and preview text transforms across marker sizes and rotations', () => {
+  it('keeps placed and preview text centered across marker sizes and rotations', () => {
     const board = makeTable(5)
     for (const size of [1, 2] as const) {
       for (const style of ['black', 'white'] as const) {
@@ -217,7 +209,6 @@ describe('objective marker 3D helpers', () => {
             0,
           ])
           expect(transform.textPosition).toEqual([0, 0.029, 0])
-          expect(transform.textRotation).toEqual([-Math.PI / 2, 0, 0])
         }
       }
     }

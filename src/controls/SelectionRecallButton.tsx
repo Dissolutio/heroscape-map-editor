@@ -4,6 +4,7 @@ import {
   resolveSelectionUnit,
   type SelectionUnit,
 } from '../data/selectionUnits'
+import { filterVisibleObjectiveMarkerUIDs } from '../data/objectiveMarkerVisibility'
 import useBoundStore from '../store/store'
 
 export const SELECTION_RECALL_TOOLTIP =
@@ -27,6 +28,9 @@ export default function SelectionRecallButton({
 }) {
   const boardPieces = useBoundStore((state) => state.boardPieces)
   const isShowStartZones = useBoundStore((state) => state.isShowStartZones)
+  const isShowObjectiveMarkers = useBoundStore(
+    (state) => state.isShowObjectiveMarkers,
+  )
   const objectiveMarkers = useBoundStore(
     (state) => state.hexMap.objectiveMarkers ?? EMPTY_OBJECTIVE_MARKERS,
   )
@@ -43,7 +47,13 @@ export default function SelectionRecallButton({
         isShowStartZones,
       ),
     ),
-    new Set(objectiveMarkers.map((marker) => marker.uid)),
+    new Set(
+      filterVisibleObjectiveMarkerUIDs(
+        objectiveMarkers.map((marker) => marker.uid),
+        objectiveMarkers,
+        isShowObjectiveMarkers,
+      ),
+    ),
   )
 
   return (

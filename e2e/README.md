@@ -117,6 +117,9 @@ The canvas is invisible to accessibility snapshots, so read state in text:
 - `window.__TEST__.stats()`: draw calls and triangles.
 - `window.__TEST__.listRenderedObjectiveMarkerUIDs()` and
   `screenPosOfObjectiveMarker(uid)`: mounted marker UIDs and marker hit positions.
+- `window.__TEST__.getRenderedObjectiveMarkerTextQuaternion(uid)` and
+  `window.__TEST__.cameraQuaternion()`:
+  world orientations used to verify that marker text follows an orbiting camera.
 
 The bridge is read-only apart from the camera and the setup-only `setPen`
 helper. Drive the app through its real UI, hotkeys and canvas clicks, as a user
@@ -216,7 +219,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 | Empty-hex deselection, pen placement, and camera-drag selection safety | `e2e/empty-hex-selection.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
-| Objective-marker 3D rendering, selection, and shadow isolation | `e2e/objective-markers.spec.ts` |
+| Objective-marker 3D rendering, camera-facing text, visibility, selection, and shadow invalidation | `e2e/objective-markers.spec.ts` |
 | Objective-marker placement, editing, rotation, drag, deletion, undo, unit-name suggestions, and saved-file name round trips | `e2e/objective-marker-editing.spec.ts` |
 | OHS-friendly glyph space export options | `e2e/glyph-export-options.spec.ts` |
 | View tooltips, 3D/2D/PDF navbar switching, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |

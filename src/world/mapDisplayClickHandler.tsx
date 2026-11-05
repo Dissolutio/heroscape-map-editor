@@ -23,6 +23,7 @@ import {
 } from '../data/placement.ts'
 import getPieceTemplateCoords from '../data/rotationTransforms.ts'
 import { START_ZONES_HIDDEN_MESSAGE } from '../data/startZoneVisibility.ts'
+import { OBJECTIVE_MARKERS_HIDDEN_MESSAGE } from '../data/objectiveMarkerVisibility.ts'
 import {
   RECONCILABLE_LAUR_PIECE_PAIRS,
   countPiecesUsedWithLaurStacking,
@@ -193,6 +194,13 @@ export function createMapClickHandler({
     }
     if (penMode === OBJECTIVE_MARKER_PEN_MODE) {
       const state = useBoundStore.getState()
+      if (!state.isShowObjectiveMarkers) {
+        enqueueSnackbar({
+          message: OBJECTIVE_MARKERS_HIDDEN_MESSAGE,
+          variant: 'info',
+        })
+        return
+      }
       const draft = state.objectiveMarkerDraft
       const content =
         draft.content.kind === 'number' && !draft.pinNumber
