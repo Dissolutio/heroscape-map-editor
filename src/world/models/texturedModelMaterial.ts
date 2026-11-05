@@ -51,21 +51,11 @@ export function useTexturedModelMaterial({
       emissive: isHighlighted ? 'yellow' : 'black',
       emissiveIntensity: isHighlighted ? 0.3 : 0,
       metalness: isHigh ? sourceMaterial.metalness : 0,
-      roughness: isHigh
-        ? (highRoughness ?? sourceMaterial.roughness)
-        : 1,
+      roughness: isHigh ? (highRoughness ?? sourceMaterial.roughness) : 1,
       transparent: pid === undefined,
       opacity: pid === undefined ? PIECE_PREVIEW_OPACITY : 1,
     })
-  }, [
-    highRoughness,
-    isHighlighted,
-    map,
-    pid,
-    sourceMaterial,
-    tier,
-    useTexture,
-  ])
+  }, [highRoughness, isHighlighted, map, pid, sourceMaterial, tier, useTexture])
 
   useEffect(() => {
     if (!map || !useTexture) return

@@ -1,5 +1,5 @@
 import type { ThreeEvent } from '@react-three/fiber'
-import { MeshStandardMaterial } from 'three'
+import type { MeshStandardMaterial } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'

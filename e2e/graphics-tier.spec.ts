@@ -17,6 +17,20 @@ const HIVE_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
   ...FIXTURE_PIECE_IDS,
   '0~0~0~0~h',
 ])
+const EVERGREEN_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
+  ...FIXTURE_PIECE_IDS,
+  '0~0~0~0~tr10',
+  '0~5~0~0~tr11',
+  '0~-3~5~0~tr12',
+  '0~2~5~0~tr15',
+])
+
+const EVERGREEN_PIECES = [
+  { inventoryID: 'tr10', q: 0, r: 0 },
+  { inventoryID: 'tr11', q: 5, r: 0 },
+  { inventoryID: 'tr12', q: -3, r: 5 },
+  { inventoryID: 'tr15', q: 2, r: 5 },
+]
 
 test('the Marro Hive stays selectable and uses texture maps by graphics tier', async ({
   page,
@@ -72,6 +86,74 @@ test('the Marro Hive stays selectable and uses texture maps by graphics tier', a
         page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
       )
       .toContain(hiveUID)
+  }
+})
+
+test('evergreen trees stay selectable and use texture maps by graphics tier', async ({
+  page,
+}) => {
+  await page.goto(EVERGREEN_FIXTURE_URL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+
+  const graphics = page.getByTestId('graphics-tier-select')
+  await graphics.click()
+  await page.getByRole('option', { name: 'Low (classic look)' }).click()
+  const treeUIDs = await Promise.all(
+    EVERGREEN_PIECES.map((piece) => findPieceUid(page, piece)),
+  )
+  const tiers = [
+    { label: 'Low (classic look)', hasTreeMaps: false },
+    { label: 'Medium (diffuse textures)', hasTreeMaps: true },
+    { label: 'High (PBR textures)', hasTreeMaps: true },
+  ]
+
+  for (const [index, tier] of tiers.entries()) {
+    if (index > 0) {
+      await graphics.click()
+      await page.getByRole('option', { name: tier.label }).click()
+      await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+        'Textures ready',
+      )
+    }
+
+    await expect
+      .poll(async () =>
+        page.evaluate(() => window.__TEST__?.snapshot().evergreenTreeMaterials),
+      )
+      .toEqual(
+        expect.arrayContaining(
+          treeUIDs.flatMap((uid, index) =>
+            (index === treeUIDs.length - 1
+              ? ['tree', 'boulders', 'base']
+              : ['tree']
+            ).map((part) =>
+              expect.objectContaining({
+                uid,
+                part,
+                hasMap:
+                  tier.hasTreeMaps && (part === 'tree' || part === 'boulders'),
+              }),
+            ),
+          ),
+        ),
+      )
+
+    for (const uid of treeUIDs) {
+      await page.mouse.move(0, 0)
+      const alreadySelected = await page.evaluate(
+        (id) =>
+          window.__TEST__?.snapshot().selectedPieceIDs.includes(id) ?? false,
+        uid,
+      )
+      if (alreadySelected) await clickPiece(page, uid)
+      await clickPiece(page, uid)
+      await expect
+        .poll(async () =>
+          page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
+        )
+        .toContain(uid)
+    }
   }
 })
 
