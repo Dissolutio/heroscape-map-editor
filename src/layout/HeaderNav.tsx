@@ -1,12 +1,11 @@
 import { Typography } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import IconButton from '@mui/material/IconButton'
-import ToggleButton from '@mui/material/ToggleButton'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import Toolbar from '@mui/material/Toolbar'
 import React from 'react'
 import { FcPrint } from 'react-icons/fc'
 import { MdFullscreen, MdFullscreenExit, MdNewReleases } from 'react-icons/md'
+import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
 import { getViewMode, type ViewMode } from '../controls/viewMode'
 import useBoundStore from '../store/store'
 import { useFullscreen } from '../hooks/useFullscreen'
@@ -34,13 +33,16 @@ export function HeaderNav({
   const viewMode = getViewMode(is2DOpen, isPdfOpen)
   const { isSmallScreenWidth, isMediumScreenWidth } = useMuiMediaQuery()
   const { isFullscreen, toggleFullscreen } = useFullscreen()
-  const handleViewModeChange = (_: unknown, nextView: ViewMode | null) => {
+  const handleViewModeChange = (nextView: ViewMode) => {
     if (nextView === 'pdf') {
       toggleIsPdfOpen(true)
-    } else if (nextView) {
+    } else {
       toggleIs2DOpen(nextView === '2d')
     }
   }
+  const viewButtons: ViewMode[] = (['2d', '3d', 'pdf'] as const).filter(
+    (mode) => mode !== viewMode && (!isSmallScreenWidth || mode !== 'pdf'),
+  )
   const fontSizeHeaderMapName =
     isSmallScreenWidth && hexMap.name.length > 32
       ? '0.6em'
@@ -71,6 +73,39 @@ export function HeaderNav({
         >
           {hexMap.name || 'Hexoscape Map Editor'}
         </Typography>
+
+        {viewButtons.map((mode) => {
+          const title =
+            mode === '2d'
+              ? 'View 2D Map'
+              : mode === '3d'
+                ? 'View 3D Map'
+                : 'View pdf build instructions'
+          return (
+            <IconButton
+              key={mode}
+              size={
+                isSmallScreenWidth
+                  ? 'small'
+                  : isMediumScreenWidth
+                    ? undefined
+                    : 'large'
+              }
+              aria-label={title}
+              title={title}
+              sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
+              onClick={() => handleViewModeChange(mode)}
+            >
+              {mode === '2d' ? (
+                <Hexes2DIcon title={title} />
+              ) : mode === '3d' ? (
+                <World3DIcon title={title} />
+              ) : (
+                <FcPrint />
+              )}
+            </IconButton>
+          )
+        })}
 
         <IconButton
           size={
@@ -103,7 +138,7 @@ export function HeaderNav({
           {isFullscreen ? <MdFullscreenExit /> : <MdFullscreen />}
         </IconButton>
         {/* MOBILE: No render pdf, does not seem to work on mobile, direct download on button click instead */}
-        {isSmallScreenWidth ? (
+        {isSmallScreenWidth && (
           <React.Suspense fallback={null}>
             <ReactPdfDownloadLink>
               <IconButton
@@ -115,44 +150,7 @@ export function HeaderNav({
               </IconButton>
             </ReactPdfDownloadLink>
           </React.Suspense>
-        ) : (
-          // NOT ON MOBILE: You can view the pdf, can download from that view
-          <IconButton
-            size={
-              isSmallScreenWidth
-                ? 'small'
-                : isMediumScreenWidth
-                  ? undefined
-                  : 'large'
-            }
-            title={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
-            aria-label={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
-            sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
-            onClick={() => toggleIsPdfOpen(!isPdfOpen)}
-          >
-            <FcPrint />
-          </IconButton>
         )}
-        <ToggleButtonGroup
-          aria-label="Map view"
-          exclusive
-          onChange={handleViewModeChange}
-          size={isSmallScreenWidth ? 'small' : 'medium'}
-          value={viewMode}
-          sx={{
-            flexShrink: 0,
-            '& .MuiToggleButton-root': {
-              minWidth: isSmallScreenWidth ? 36 : 48,
-              px: isSmallScreenWidth ? 0.75 : 1.5,
-              py: 0.5,
-              textTransform: 'none',
-            },
-          }}
-        >
-          <ToggleButton value="3d">3D</ToggleButton>
-          <ToggleButton value="2d">2D</ToggleButton>
-          <ToggleButton value="pdf">PDF</ToggleButton>
-        </ToggleButtonGroup>
       </Toolbar>
     </AppBar>
   )
