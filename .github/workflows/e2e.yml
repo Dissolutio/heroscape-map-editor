@@ -17,15 +17,17 @@ concurrency:
 
 jobs:
   # The suite runs on software WebGL with one worker per job, so one job takes
-  # 10+ minutes and grows with every spec. Three shards run in parallel.
+  # 10+ minutes and grows with every spec. Shards run in parallel; with three,
+  # shard 2 reached about 17 minutes of tests and hit the 20-minute job limit,
+  # so the suite is split five ways to keep each shard well under it.
   e2e-shard:
-    name: e2e (shard ${{ matrix.shard }}/3)
+    name: e2e (shard ${{ matrix.shard }}/5)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3]
+        shard: [1, 2, 3, 4, 5]
 
     steps:
       - name: Checkout repository
@@ -44,7 +46,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright tests
-        run: npm run test:e2e -- --shard=${{ matrix.shard }}/3
+        run: npm run test:e2e -- --shard=${{ matrix.shard }}/5
 
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
