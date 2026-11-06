@@ -1,4 +1,4 @@
-import { piecesSoFar } from '../data/pieces'
+import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
 import { getLadderStackInfo } from '../pdf-svg-shared/ladderStack'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
@@ -195,7 +195,7 @@ export const SvgMapHex = ({
   const isVisible = hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const pieceHeightText = piecesSoFar[inventoryID]?.height
+  const pieceHeightText = getPieceGameHeight(inventoryID)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {

@@ -29,8 +29,10 @@ footprint hex as another placed piece.
    for a genuinely new terrain kind. IDs are part of saved/share data; do not
    rename existing ones.
 2. Define the `Piece` in [`src/data/pieces.ts`](../src/data/pieces.ts), keyed by
-   its ID. Set its terrain, size, template, height, land/obstacle flags, and
-   applicable prefix, glyph, overlay, or inventory flags. Named glyph
+   its ID. Set its terrain, size, template, physical `height`, land/obstacle
+   flags, and applicable prefix, glyph, overlay, or inventory flags. If its
+   printed game/rules height differs from its physical placement height, set
+   `gameHeight`; use `null` when the game defines no height. Named glyph
    definitions are assembled from [`src/data/glyphs.ts`](../src/data/glyphs.ts).
 3. Give it a template in `src/data/tileTemplates.ts`.
    The registry requires a template for every piece. For land, the template

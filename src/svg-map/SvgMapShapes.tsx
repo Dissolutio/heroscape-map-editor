@@ -1,4 +1,4 @@
-import { piecesSoFar } from '../data/pieces'
+import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
 import {
   genWoodPlankPath1,
   genWoodPlankPath2,
@@ -649,7 +649,7 @@ export const SvgJungle = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const pieceHeightText = piecesSoFar[hex.inventoryID]?.height
+  const pieceHeightText = getPieceGameHeight(hex.inventoryID)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   const points = getJungleTriangleShape(SVG_HEX_RADIUS, SVG_BORDER_WIDTH).points
   const borderColor = isSubLevel
@@ -1362,7 +1362,7 @@ export const SvgTree415 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const pieceHeightText = piecesSoFar[hex.inventoryID].height
+  const pieceHeightText = getPieceGameHeight(hex.inventoryID)
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)

@@ -144,6 +144,7 @@ export type Piece = {
   size: number
   template: string
   height: number
+  gameHeight?: number | null // printed/rules height; null when game height is undefined
   isHexTerrainPiece: boolean
   isObstaclePiece: boolean
   isOverlayPiece?: boolean

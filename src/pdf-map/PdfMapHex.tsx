@@ -1,5 +1,5 @@
 import { G, Line, Text } from '@react-pdf/renderer'
-import { piecesSoFar } from '../data/pieces'
+import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
 import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
 import { getLadderStackInfo } from '../pdf-svg-shared/ladderStack'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
@@ -213,7 +213,7 @@ export const PdfMapHex = ({
   const isVisible = hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const pieceHeightText = piecesSoFar[inventoryID]?.height
+  const pieceHeightText = getPieceGameHeight(inventoryID)
   const glyphSettings = useBoundStore.getState()
   const getHexGlyphExportOptions = (targetHex: BoardHex) =>
     getGlyphExportOptions(targetHex, glyphSettings.boardHexes, glyphSettings)

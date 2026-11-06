@@ -7,7 +7,7 @@ import {
   Rect,
   Text,
 } from '@react-pdf/renderer'
-import { piecesSoFar } from '../data/pieces'
+import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
 import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
 import { getExportBorderColor } from '../pdf-svg-shared/exportBorderColor'
 import {
@@ -699,7 +699,7 @@ export const PdfJungle = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const pieceHeightText = piecesSoFar[hex.inventoryID]?.height
+  const pieceHeightText = getPieceGameHeight(hex.inventoryID)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   const points = getJungleTriangleShape(SVG_HEX_RADIUS, PDF_BORDER_WIDTH).points
   const textColor = isSubLevel
@@ -1320,7 +1320,7 @@ export const PdfSvgTree415 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const pieceHeightText = piecesSoFar[hex.inventoryID].height
+  const pieceHeightText = getPieceGameHeight(hex.inventoryID)
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(hex, isSubLevel)
   const { points } = get4HexPdfPolygonPointsAt00(
