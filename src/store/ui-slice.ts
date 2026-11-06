@@ -20,6 +20,7 @@ import {
   isStartZoneBoardPiece,
 } from '../data/startZoneVisibility'
 import { canSelectObjectiveMarker } from '../data/objectiveMarkerVisibility'
+import { getVisibleSelectionPieces } from '../selection/selectionMenuActions'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 import {
@@ -137,6 +138,7 @@ export interface UISlice {
     pointerPoint?: { x: number; z: number },
     clickedHex?: BoardHex,
   ) => void
+  setSelectedPieceIDs: (ids: readonly string[]) => void
   rotationPivot: RotationPivot | null
   setRotationPivot: (pivot: RotationPivot | null) => void
   hoveredPieceID: string
@@ -490,6 +492,26 @@ const createUISlice: StateCreator<
           const pivot = piece && createRotationPivot(piece, hitHex)
           if (pivot) state.rotationPivot = pivot
         }
+      }),
+    )
+  },
+  setSelectedPieceIDs: (pieceIDs) => {
+    const state = get()
+    const visibleIDs = new Set(
+      getVisibleSelectionPieces(
+        state.boardPieces,
+        state.boardHexes,
+        state.viewingLevel,
+        state.isShowStartZones,
+      ).map((piece) => piece.uid),
+    )
+    set(
+      produce((s) => {
+        s.selectedObjectiveMarkerUID = null
+        s.selectedPieceIDs = [...new Set(pieceIDs)].filter((uid) =>
+          visibleIDs.has(uid),
+        )
+        s.rotationPivot = null
       }),
     )
   },
