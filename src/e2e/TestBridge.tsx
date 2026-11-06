@@ -1,7 +1,15 @@
 import type { CameraControls } from '@react-three/drei'
 import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
-import { Box3, Mesh, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import {
+  Box3,
+  Mesh,
+  PerspectiveCamera,
+  Quaternion,
+  Raycaster,
+  Vector2,
+  Vector3,
+} from 'three'
 import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
 import { resolveRotationPivot } from '../data/rotationPivot'
 import useBoundStore from '../store/store'
@@ -11,6 +19,13 @@ import { HEXGRID_HEXCAP_HEIGHT, HEXGRID_HEX_HEIGHT } from '../utils/constants'
 import { cubeToPixel, hexUtilsGetNeighborForRotation } from '../utils/hex-utils'
 import { getBoardHex3DCoords } from '../utils/map-utils'
 import { getDragState } from '../world/drag/dragController'
+import { getLandRendererMode } from '../world/landRendererTier'
+import { getLandSubterrainInstanceData } from '../world/models/LandSubterrainInstanced'
+import { buildLandHexInstanceData } from '../world/models/landHexInstances'
+import {
+  getObjectiveMarker3DPosition,
+  isObjectiveMarkerVisibleAtLevel,
+} from '../world/models/objectiveMarker3D'
 import {
   getLadderBattlementOptions,
   getRoadWallOptions,
@@ -109,6 +124,65 @@ function TestBridgeInner() {
       return isOnCanvas ? point : null
     }
 
+    // Ruin origin hexes can be offset from the wall meshes, so target a
+    // projected model triangle instead of the usual top-surface hex.
+    const screenPosOfRuins = (uid: string): ScreenPoint | null => {
+      const { camera, scene, size } = get()
+      camera.updateMatrixWorld()
+      scene.updateMatrixWorld(true)
+      const raycaster = new Raycaster()
+      let point: ScreenPoint | null = null
+      let firstProjectedPoint: ScreenPoint | null = null
+
+      scene.traverse((object) => {
+        if (
+          point ||
+          !(object instanceof Mesh) ||
+          object.userData.ruinsUID !== uid
+        ) {
+          return
+        }
+        const positions = object.geometry.getAttribute('position')
+        if (!positions) return
+        const index = object.geometry.index
+        const vertexCount = index?.count ?? positions.count
+        for (let triangle = 0; triangle + 2 < vertexCount; triangle += 3) {
+          const worldPoint = new Vector3()
+          for (let corner = 0; corner < 3; corner += 1) {
+            const vertex = index?.getX(triangle + corner) ?? triangle + corner
+            worldPoint.add(new Vector3().fromBufferAttribute(positions, vertex))
+          }
+          worldPoint.multiplyScalar(1 / 3)
+          object.localToWorld(worldPoint)
+          const ndc = worldPoint.clone().project(camera)
+          if (
+            !Number.isFinite(ndc.x) ||
+            !Number.isFinite(ndc.y) ||
+            ndc.x < -1 ||
+            ndc.x > 1 ||
+            ndc.y < -1 ||
+            ndc.y > 1 ||
+            ndc.z < -1 ||
+            ndc.z > 1
+          ) {
+            continue
+          }
+          firstProjectedPoint ??= {
+            x: round1((ndc.x * 0.5 + 0.5) * size.width),
+            y: round1((-ndc.y * 0.5 + 0.5) * size.height),
+          }
+          raycaster.setFromCamera(new Vector2(ndc.x, ndc.y), camera)
+          const firstHit = raycaster.intersectObject(scene, true)[0]
+          if (firstHit?.object.userData.ruinsUID !== uid) continue
+          const screenX = (ndc.x * 0.5 + 0.5) * size.width
+          const screenY = (-ndc.y * 0.5 + 0.5) * size.height
+          point = { x: round1(screenX), y: round1(screenY) }
+          return
+        }
+      })
+      return point ?? firstProjectedPoint
+    }
+
     const bridge: E2ETestBridge = {
       snapshot: () => {
         const s = useBoundStore.getState()
@@ -152,6 +226,12 @@ function TestBridgeInner() {
           hasMap: boolean
           materialTypes: string[]
         }> = []
+        const ruinsMaterials: Array<{
+          uid: string
+          part: 'face' | 'columns'
+          hasMap: boolean
+          materialTypes: string[]
+        }> = []
         const roadWallMaterials: Array<{
           uid: string
           part: 'wall' | 'road'
@@ -181,6 +261,19 @@ function TestBridgeInner() {
             evergreenTreeMaterials.push({
               uid: evergreenTreeUID,
               part,
+              hasMap: materials.some((material) => Boolean(material?.map)),
+              materialTypes: materials.map((material) => material?.type ?? ''),
+            })
+          }
+          const ruinsUID = object.userData.ruinsUID
+          const ruinsPart = object.userData.ruinsPart
+          if (
+            typeof ruinsUID === 'string' &&
+            (ruinsPart === 'face' || ruinsPart === 'columns')
+          ) {
+            ruinsMaterials.push({
+              uid: ruinsUID,
+              part: ruinsPart,
               hasMap: materials.some((material) => Boolean(material?.map)),
               materialTypes: materials.map((material) => material?.type ?? ''),
             })
@@ -244,6 +337,7 @@ function TestBridgeInner() {
           landRenderer: hasPerHexLandRenderer ? 'per-hex' : 'legacy',
           marroHiveMaterials,
           evergreenTreeMaterials,
+          ruinsMaterials,
           roadWallMaterials,
           marvelRuinMaterials,
           viewingLevel: s.viewingLevel,
@@ -380,6 +474,12 @@ function TestBridgeInner() {
             const center = bounds.getCenter(new Vector3())
             return project(center.x, center.y, center.z)
           }
+        }
+        if (
+          bp.inventoryID === Pieces.ruins2 ||
+          bp.inventoryID === Pieces.ruins3
+        ) {
+          return screenPosOfRuins(uid)
         }
         const hex = getPieceTopHex(bp, boardHexes)
         // Pieces with no grid expansion (e.g. Laur wall add-ons) render
