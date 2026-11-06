@@ -39,13 +39,6 @@ import type {
   E2ETestBridge,
   ScreenPoint,
 } from './types'
-import { getLandSubterrainInstanceData } from '../world/models/LandSubterrainInstanced'
-import { buildLandHexInstanceData } from '../world/models/landHexInstances'
-import { getLandRendererMode } from '../world/landRendererTier'
-import {
-  getObjectiveMarker3DPosition,
-  isObjectiveMarkerVisibleAtLevel,
-} from '../world/models/objectiveMarker3D'
 
 const round1 = (n: number) => Math.round(n * 10) / 10
 const round4 = (n: number) => Math.round(n * 1e4) / 1e4
