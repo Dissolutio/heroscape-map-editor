@@ -29,6 +29,12 @@ export type E2ESnapshot = {
     hasMap: boolean
     materialTypes: string[]
   }>
+  roadWallMaterials: Array<{
+    uid: string
+    part: 'wall' | 'road'
+    hasMap: boolean
+    materialTypes: string[]
+  }>
   marvelRuinMaterials: Array<{
     uid: string
     part:
