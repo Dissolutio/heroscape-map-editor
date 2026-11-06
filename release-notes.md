@@ -1,29 +1,23 @@
 Nov-06-2026
-TLDR: Adapt a map to the pieces you own, a right-click selection menu, textured trees, ruins and walls from the original models, numbered obstacle variants, a restored tree placement preview, saved selections, one 3D | 2D | PDF switch, click empty ground to deselect, a piece legend and ladder counts in the PDF, a textured Marro Hive, a Show Objective Markers switch, and fixes for wood, side textures and missing hex sides.
+TLDR: Adapt a map to the pieces you own. A right-click selection menu (extensible). Textured trees, ruins, marvel warehouse, hive from Virtualscape. Hotkey for trees/outcrops+. Saved selections. Click empty hexes to deselect. a piece legend and ladder counts in the PDF, a textured Marro Hive, a Show Objective Markers switch, and fixes for wood, side textures and missing hex sides.
 
-- **Saved selections**: Selection history is replaced by something more useful. Each action in the action log that touched pieces now has a link: click it to select those pieces again (Shift-click adds to your selection). You can also save the current selection with a name, and your saved selections sit above the action log. They are kept in your map file.
+- **Saved selections**: Each action in the bottom-left action-log that moves pieces now has a link: click it to select those pieces again (Shift-click adds to your selection). You can also save the current selection with a name, and your saved selections sit above the action log. They are kept in your map file.
 - **3D | 2D | PDF switch**: One control in the top bar switches between the three views, and shows which one you are in.
-- **Adapt to my Collection**: In the Edit tab, a new button turns a map into one you can build with your own pieces. It lists only the land terrains your collection can't supply, and for each you pick a first substitute from the terrain you own (a second and third appear only if the earlier ones don't cover the top surface). Choose whole-column conversion, or surface only with a buried fill of a terrain you own. It then asks you to name the new map (the name gets "(Adapted to collection)" and your author name is kept), and one Undo puts everything back. Obstacles, markers and Generic pieces are left alone, and a summary lists anything still missing.
-- **Right-click selection menu**: Right-click a piece in the 3D view for Select same type, Select connected, Select same level and Invert selection (right-click empty ground for Invert). Dragging with the right button still moves the camera. Escape closes the menu.
-- **Numbered obstacle variants**: Trees, outcrops, Laur walls, ruins and other obstacle families now list their pieces as numbered options in the order you'd expect, for example Evergreen Tree 1, 2, 3 and the Large Evergreen Tree as 4. The number keys pick the option. Families with more than five options, like the Laur walls, cycle forward with 1 and backward with Shift+1. Middle-click on a placed piece picks the matching option. Land sizes work as before.
-- **Tree placement preview is back**: The see-through ghost of Evergreen Trees (single and large) was missing while placing. It shows again at every graphics level.
-- **Textured trees**: The Evergreen Trees and the Large Evergreen Tree (with its boulders) use the original Virtualscape models and their painted textures. Medium and High show the texture, High adds a glossier shine, and Low keeps flat colors.
-- **Textured Warehouse Ruin and Stone Wall**: Same treatment for the Warehouse Ruin (all four variants, including the broken wall) and the Stone Wall: texture on Medium and High, flat colors on Low. Their shapes changed slightly to match the originals, so a ruin's broken wall and upper floor may sit a touch differently than before.
-- **Textured Ruins 2 and Ruins 3**: Both ruins now have their painted wall and column textures on Medium and High.
+- **Adapt to my Collection**: Edit controls tab: a button to adapt a map. Let's say you load a map with terrain you don't own. Now you can auto-switch the pieces to match your personal inventory. It will try to walk you through it. Only works on land right now, obstacles are next.
+- **Right-click selection menu**: Right-click a piece in the 3D view for Select same type, Select connected, Select same level and Invert selection. Dragging with the right button still moves the camera. "Esc" key closes the menu.
+- **Piece sizes for obstacles**: Trees, outcrops, Laur walls, ruins and other obstacle families now list their pieces as numbered options in the order you'd expect, for example Evergreen Tree 1, 2, 3 and the Large Evergreen Tree as 4. The number keys pick the option. Families with more than five options, like the Laur walls, cycle forward with 1 and backward with Shift+1.
 - **PDF piece legend**: Build instructions can now include a legend of just the pieces used in your map, with each symbol and a few words. It is optional.
-- **Wood caps follow the piece**: The planking on a wood cap now runs along the piece in all six rotations, like the real tile, and wood caps are never randomly rotated.
-- **Side textures are no longer mirrored**: Last release turned them right way up; now they are not flipped left to right either, so your own height-map and diffuse images read correctly.
+- **Wood cap rotation**: Planks always parallel to piece.
+- **Side textures**: Finally done right. 
 - **Action log**: The "seconds ago" labels are gone. Entries just fade away when you are idle, and hovering still shows the full history.
-- **Rotate hotkeys**: Rotating a selected piece with Q or E no longer leaves a ghost piece behind.
-- **Show Objective Markers**: A new switch in the View tab, next to Start Zones, hides objective markers in 3D. When hidden they can't be clicked, selected or dragged, and placing one shows a message instead of nothing. It is on every time you open the app, so you can't lose your markers by accident, and it never changes your map, share links, or the 2D and PDF views.
-- **Objective marker numbers face you**: The number or letter on a marker now always turns to face the camera, so it reads right from any angle and in map pictures. The marker itself does not move.
-- **Textured Marro Hive**: The Marro Hive has a new, lighter model with its real painted look: green webbing, cream ridges and ornament. Medium and High graphics show the texture, High adds a glossy shine, and Low keeps the flat color.
-- **Click empty ground to deselect**: With the select pen, clicking an empty hex clears your selection. Shift-click and the placing pens work as before.
+- **Rotate hotkeys bugfix**: Rotating a selected piece with Q or E no longer leaves a ghost piece behind.
+- **Show Objective Markers**: Just like Start Zones, you can hide them. This will always start ON when you come back to Hexoscape.
+- **Objective marker numbers face you**: The number or letter on a marker now always turns to face the camera.
+- **Textured Hive, Ruins, RoadWall, Marvel**: We got really lucky and the models from Virtualscape had texture info already in them. If you see Didier, you buy him une bière.
+- **Click empty ground to deselect**: Clicking an empty hex clears your selection.
 - **Ladder stack counts**: When ladders are stacked, the 2D and PDF build instructions show how many (for example "x3") next to the bottom ladder.
-- **PDF colors for lower levels**: Pieces on levels below the one on the page now use flat colors that match the 2D map. The 2D map itself did not change.
-- **Missing hex sides**: Some hex sides along the map edge could be missing and show the table through them. A side is now hidden only when a neighbor that is actually drawn covers it. If you still see one, tell us which hex.
-- **Under the hood**: The old "High Quality render" path and its unused model files are gone; the graphics levels replace them. Your saved settings still load.
-- **Zoom to Piece**: Removed an old fade effect that was not working, so Zoom to Piece only moves the camera.
+- **PDF colors for lower levels**: One last pass on sublevel pieces, now use flat colors that match the 2D map. The 2D map itself did not change.
+- **Missing hex sides**: Some hex sides were showing white or transparent, our "neighbor" function should work better now.
 
 Nov-02-2026
 TLDR: Selection history, a quiet action log, q/e hotkey rotate, and a bunch of rendering fixes, including upside-down textures and a Windows 3D fix.
