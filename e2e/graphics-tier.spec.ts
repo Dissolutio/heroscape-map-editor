@@ -1,17 +1,17 @@
+import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 import {
+  FIXTURE_URL,
   clickHex,
   clickPiece,
   dragPiece,
   expect,
   findPieceUid,
-  FIXTURE_URL,
   hoverHex,
   mapUrl,
   setPen,
   test,
   waitForAppReady,
 } from './fixtures'
-import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 
 const HIVE_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
   ...FIXTURE_PIECE_IDS,
@@ -23,6 +23,11 @@ const EVERGREEN_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
   '0~5~0~0~tr11',
   '0~-3~5~0~tr12',
   '0~2~5~0~tr15',
+])
+const RUINS_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
+  ...FIXTURE_PIECE_IDS,
+  '0~3~0~0~rs2',
+  '0~0~5~0~rs3',
 ])
 
 const EVERGREEN_PIECES = [
@@ -140,6 +145,88 @@ test('evergreen trees stay selectable and use texture maps by graphics tier', as
       )
 
     for (const uid of treeUIDs) {
+      await page.mouse.move(0, 0)
+      const alreadySelected = await page.evaluate(
+        (id) =>
+          window.__TEST__?.snapshot().selectedPieceIDs.includes(id) ?? false,
+        uid,
+      )
+      if (alreadySelected) await clickPiece(page, uid)
+      await clickPiece(page, uid)
+      await expect
+        .poll(async () =>
+          page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
+        )
+        .toContain(uid)
+    }
+  }
+})
+
+test('Ruins 2 and 3 stay selectable and use texture maps by graphics tier', async ({
+  page,
+}) => {
+  await page.goto(RUINS_FIXTURE_URL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+  const cameraTarget = await page.evaluate(
+    () => window.__TEST__?.cameraPose()?.target ?? null,
+  )
+  if (cameraTarget) {
+    await page.evaluate(
+      async (target) =>
+        window.__TEST__?.setCamera(
+          [target[0] + 6, target[1] + 8, target[2] + 8],
+          target,
+        ),
+      cameraTarget,
+    )
+    await waitForAppReady(page)
+  }
+
+  const graphics = page.getByTestId('graphics-tier-select')
+  await graphics.click()
+  await page.getByRole('option', { name: 'Low (classic look)' }).click()
+  const ruins = [
+    { inventoryID: 'rs2', q: 3, r: 0 },
+    { inventoryID: 'rs3', q: 0, r: 5 },
+  ]
+  const ruinUIDs = await Promise.all(
+    ruins.map((piece) => findPieceUid(page, piece)),
+  )
+  const tiers = [
+    { label: 'Low (classic look)', hasMaps: false },
+    { label: 'Medium (diffuse textures)', hasMaps: true },
+    { label: 'High (PBR textures)', hasMaps: true },
+  ]
+
+  for (const [index, tier] of tiers.entries()) {
+    if (index > 0) {
+      await graphics.click()
+      await page.getByRole('option', { name: tier.label }).click()
+      await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+        'Textures ready',
+      )
+    }
+
+    await expect
+      .poll(async () =>
+        page.evaluate(() => window.__TEST__?.snapshot().ruinsMaterials),
+      )
+      .toEqual(
+        expect.arrayContaining(
+          ruinUIDs.flatMap((uid) =>
+            (['face', 'columns'] as const).map((part) =>
+              expect.objectContaining({
+                uid,
+                part,
+                hasMap: tier.hasMaps,
+              }),
+            ),
+          ),
+        ),
+      )
+
+    for (const uid of ruinUIDs) {
       await page.mouse.move(0, 0)
       const alreadySelected = await page.evaluate(
         (id) =>

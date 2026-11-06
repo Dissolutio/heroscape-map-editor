@@ -1,6 +1,12 @@
 import { useThree } from '@react-three/fiber'
 import { useEffect, useMemo } from 'react'
-import { MeshStandardMaterial, SRGBColorSpace } from 'three'
+import {
+  DoubleSide,
+  FrontSide,
+  MeshStandardMaterial,
+  RepeatWrapping,
+  SRGBColorSpace,
+} from 'three'
 import type { GraphicsTier } from '../../local-storage/settings'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import type { TextureLoadStatus } from '../textures/terrainTextureArrays'
@@ -20,6 +26,8 @@ type TexturedModelMaterialOptions = {
   isHighlighted: boolean
   pid?: string
   highRoughness?: number
+  doubleSided?: boolean
+  repeatWrap?: boolean
 }
 
 export function useTexturedModelMaterial({
@@ -29,6 +37,8 @@ export function useTexturedModelMaterial({
   isHighlighted,
   pid,
   highRoughness,
+  doubleSided = false,
+  repeatWrap = false,
 }: TexturedModelMaterialOptions) {
   const renderer = useThree((state) => state.gl)
   const map = sourceMaterial.map
@@ -47,6 +57,7 @@ export function useTexturedModelMaterial({
       metalnessMap: isHigh ? sourceMaterial.metalnessMap : null,
       normalMap: isHigh ? sourceMaterial.normalMap : null,
       roughnessMap: isHigh ? sourceMaterial.roughnessMap : null,
+      side: doubleSided ? DoubleSide : FrontSide,
       color: 'white',
       emissive: isHighlighted ? 'yellow' : 'black',
       emissiveIntensity: isHighlighted ? 0.3 : 0,
@@ -55,14 +66,27 @@ export function useTexturedModelMaterial({
       transparent: pid === undefined,
       opacity: pid === undefined ? PIECE_PREVIEW_OPACITY : 1,
     })
-  }, [highRoughness, isHighlighted, map, pid, sourceMaterial, tier, useTexture])
+  }, [
+    doubleSided,
+    highRoughness,
+    isHighlighted,
+    map,
+    pid,
+    sourceMaterial,
+    tier,
+    useTexture,
+  ])
 
   useEffect(() => {
     if (!map || !useTexture) return
     map.colorSpace = SRGBColorSpace
     map.anisotropy = renderer.capabilities.getMaxAnisotropy()
+    if (repeatWrap) {
+      map.wrapS = RepeatWrapping
+      map.wrapT = RepeatWrapping
+    }
     map.needsUpdate = true
-  }, [map, renderer, useTexture])
+  }, [map, renderer, repeatWrap, useTexture])
 
   useEffect(
     () => () => {

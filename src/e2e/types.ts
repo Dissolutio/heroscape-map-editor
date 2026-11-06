@@ -29,6 +29,12 @@ export type E2ESnapshot = {
     hasMap: boolean
     materialTypes: string[]
   }>
+  ruinsMaterials: Array<{
+    uid: string
+    part: 'face' | 'columns'
+    hasMap: boolean
+    materialTypes: string[]
+  }>
   viewingLevel: number
   penMode: string
   selectedPieceIDs: string[]
