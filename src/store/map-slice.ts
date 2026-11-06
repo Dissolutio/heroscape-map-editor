@@ -173,6 +173,7 @@ type ConvertTerrainArgs = {
   targetInventoryBySourceInventory: Record<string, string>
   targetInventoryByUID?: Record<string, string>
   adaptToCollection?: boolean
+  mapMetadata?: { name: string; author: string; mapNotes?: string }
 }
 
 /**
@@ -360,7 +361,14 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     targetInventoryBySourceInventory,
     targetInventoryByUID,
     adaptToCollection,
+    mapMetadata,
   }: ConvertTerrainArgs): number => {
+    const metadataChanged =
+      mapMetadata !== undefined &&
+      (get().hexMap.name !== mapMetadata.name ||
+        get().hexMap.author !== mapMetadata.author ||
+        (mapMetadata.mapNotes !== undefined &&
+          get().hexMap.mapNotes !== mapMetadata.mapNotes))
     let convertedCount = 0
     const affectedUIDs = [
       ...new Set(
@@ -445,6 +453,13 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         }
 
         draft.boardPieces = workingPieces
+        if (mapMetadata) {
+          draft.hexMap.name = mapMetadata.name
+          draft.hexMap.author = mapMetadata.author
+          if (mapMetadata.mapNotes !== undefined) {
+            draft.hexMap.mapNotes = mapMetadata.mapNotes
+          }
+        }
         if (occupancyChanged) {
           draft.boardHexes = workingHexes
           draft.conflictedPieceUIDs = computeConflictedPieceUIDs(workingPieces)
@@ -455,7 +470,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
       })
     })
     get().clearPendingUndoSelectionRestore()
-    if (convertedCount) {
+    if (convertedCount || (adaptToCollection && metadataChanged)) {
       get().recordActionLog({
         type: adaptToCollection ? 'adapt' : 'convert',
         count: convertedCount,

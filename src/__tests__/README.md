@@ -43,7 +43,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `hex-grid.test.ts` | Cube coordinates, directions, rotation, grid generation, odd-r conversion. |
 | `edges-and-nodes.test.ts` | Current edge/corner representations, the tested integer-lattice prototype and equivalence checks, plus application-level edge/node acceptance items (`it.todo`). |
 | `terrain-constraints.test.ts` | Inventory normalization, set/personal/file constraints, and exact pen-mode availability under inventory constraints. |
-| `adapt-to-collection.test.ts` | Collection land supply, terrain analysis and suggestions, solid/fluid-safe whole-column or surface-only mappings, same-size generic fallback, and unresolved size shortfalls. |
+| `adapt-to-collection.test.ts` | Missing-terrain adaptation suggestions, deterministic shared inventory allocation (surface before buried), up to three same-kind same-size substitutions, owned buried fill, naming defaults, and size-specific leftovers without Generic fallback. |
 | `map-share-url.test.ts` | Parsing pasted share links. |
 | `safe-storage.test.ts` | Guarded browser storage access, corrupted JSON, and quota/security failures. |
 | `map-storage.test.ts` | Old/new saved-map formats, separate portraits, and inline-portrait migration. |
@@ -104,7 +104,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `registry-lifecycle.test.ts` | Every registered piece through placement, exact delete restoration, drag and one-step undo, single and non-origin rotation, and JSON save/load; family-specific support is set up in one place and new registry entries are included automatically. |
 | `rotation-pivot.test.ts` | Transient clicked-hex pivot ownership, single- and group-selection click rules, marker visibility and altitude, preservation through repeated rotations, undo fallbacks, selection/movement/map/delete resets, and integer-step rotation eligibility. |
 | `store-move-many.test.ts` | Moving several pieces in one store update (`movePieces`, `data/movePieces.ts`): one undo step with exact undo/redo, a rigid group shift without the movers displacing each other, displacing and restoring stationary pieces exactly as `movePiece` does, the viewing level, unknown uids, a no-op that records no history, UI fields and autosave. A frozen copy of the old `movePiece` pins that single moves and non-interfering group moves are unchanged. |
-| `store-undo-redo.test.ts` | The real Zustand/Zundo store: paint, unpaint, move, multi-piece undo/redo when pausing after the first move, the no-history gotcha when pausing before it, `loadMap` history/conflicts, and transient UI state versus autosave. |
+| `store-undo-redo.test.ts` | The real Zustand/Zundo store: paint, unpaint, move, terrain adaptation with atomic name/author/notes metadata, one-step undo and autosave persistence, `loadMap` history/conflicts, and transient UI state. |
 | `helpers/board.ts` | `makeTable`, `place`, `remove`, `withGrassFloor`, `hexAt`: build boards without the store. |
 | `helpers/clickHandler.ts` | `clickWithPen` and `clickWithSelection`: drive the real click handler in Node (the test stubs MapDisplay3D's children; see `click-placement.test.ts`). |
 
