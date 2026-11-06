@@ -319,18 +319,23 @@ export const PdfMultiHex1 = ({
   hex,
   isSubLevel,
   useTerrainBorderColor = true,
+  fillOverride,
+  borderOverride,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
   useTerrainBorderColor?: boolean
+  // replaces the terrain colors, e.g. the white hex under a ladder overlay stack
+  fillOverride?: string
+  borderOverride?: string
 }) => {
   const isEmptyHex = hex.terrain === 'empty'
-  const fillColor = isEmptyHex ? 'white' : getPdfHexFillForView(hex, isSubLevel)
-  const borderColor = getPdfHexBorderForView(
-    hex,
-    isSubLevel,
-    useTerrainBorderColor,
-  )
+  const fillColor =
+    fillOverride ??
+    (isEmptyHex ? 'white' : getPdfHexFillForView(hex, isSubLevel))
+  const borderColor =
+    borderOverride ??
+    getPdfHexBorderForView(hex, isSubLevel, useTerrainBorderColor)
   const { points } = getHexagonPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,

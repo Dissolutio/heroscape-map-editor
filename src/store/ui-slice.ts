@@ -246,6 +246,8 @@ export interface UISlice {
   toggleIsShowPdfBuriedMarks: (b: boolean) => void
   isShowPdfPieceLegend: boolean
   toggleIsShowPdfPieceLegend: (b: boolean) => void
+  isShowPdfLadderOverlay: boolean
+  toggleIsShowPdfLadderOverlay: (b: boolean) => void
   pdfRenderFormat: 'coversheet' | 'shortHeader' | 'condensedCoversheet'
   setPdfRenderFormat: (
     format: 'coversheet' | 'shortHeader' | 'condensedCoversheet',
@@ -902,6 +904,12 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isShowPdfPieceLegend = b
+      }),
+    ),
+  toggleIsShowPdfLadderOverlay: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowPdfLadderOverlay = b
       }),
     ),
   setPdfRenderFormat: (

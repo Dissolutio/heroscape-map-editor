@@ -896,6 +896,10 @@ const PdfPreferencesSwitchForm = () => {
     (s) => s.toggleIsShowPdfBuriedMarks,
   )
   const isShowPdfPieceLegend = useBoundStore((s) => s.isShowPdfPieceLegend)
+  const isShowPdfLadderOverlay = useBoundStore((s) => s.isShowPdfLadderOverlay)
+  const toggleIsShowPdfLadderOverlay = useBoundStore(
+    (s) => s.toggleIsShowPdfLadderOverlay,
+  )
   const toggleIsShowPdfPieceLegend = useBoundStore(
     (s) => s.toggleIsShowPdfPieceLegend,
   )
@@ -999,6 +1003,19 @@ const PdfPreferencesSwitchForm = () => {
           }
           label="Show StartZones/Glyphs on last level"
           title="Enable/disable a final level for start zones and glyphs"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShowPdfLadderOverlay}
+              onChange={(event) =>
+                toggleIsShowPdfLadderOverlay(event.target.checked)
+              }
+            />
+          }
+          label="Show ladder overlay"
+          title="Add level(s) to the PDF showing how many ladders are in each ladder stack"
         />
         <FormControlLabel
           control={
