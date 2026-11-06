@@ -111,7 +111,11 @@ export const PdfMapBoardPiece = ({
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <PdfBoardPieceLaurWallLong piece={piece} isSubLevel={isSubLevel} />
+        <PdfBoardPieceLaurWallLong
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </G>
     )
   }
@@ -120,7 +124,11 @@ export const PdfMapBoardPiece = ({
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <PdfBoardPieceLaurWallLongArch piece={piece} isSubLevel={isSubLevel} />
+        <PdfBoardPieceLaurWallLongArch
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
         <G
           // flip upside down text, all other rotations are legible
           transform={

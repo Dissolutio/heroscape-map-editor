@@ -10,6 +10,7 @@ import useBoundStore from '../store/store'
 import { SvgMapHex } from '../svg-map/SvgMapHex'
 import { SvgPieceKeyShape } from '../svg-map/SvgPieceKey'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
+import { svgColors } from '../world/maphex/hexColors'
 import { type Board, makeTable, place } from './helpers/board'
 
 const initialGenericColors = {
@@ -148,6 +149,45 @@ describe('piece key shape rendering', () => {
     )
     expect(piecesSoFar[Pieces.tree10].height).toBe(9)
     expect(svgKey).toContain('>10</text>')
+  })
+
+  it('renders Laur wall key shapes with purple centers and pink borders', () => {
+    const boardPieces: BoardPiece[] = [
+      Pieces.laurWallLong,
+      Pieces.laurWallShort,
+    ].map((inventoryID, index) => ({
+      uid: `key-${inventoryID}`,
+      inventoryID,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: index, r: 0, s: -index },
+    }))
+    const entries = getPieceKeyModel(boardPieces, {}, true).specialGroups.find(
+      ({ id }) => id === 'laur',
+    )?.entries
+
+    expect(entries).toHaveLength(2)
+    for (const [index, entry] of (entries ?? []).entries()) {
+      const svg = renderToStaticMarkup(
+        SvgPieceKeyShape(entry, 0, 0, 0.1, `laur-${index}`),
+      )
+      const pdfColors = collectShapeColors(
+        PieceKeyShape({
+          entry,
+          useTerrainBorderColor: true,
+          scale: 0.075,
+        }),
+      )
+
+      expect(svg).toContain(`fill="${svgColors[HexTerrain.laurWall]}"`)
+      expect(svg).toContain(`stroke="${svgColors.outlineLaurWall}"`)
+      expect(pdfColors).toContainEqual(
+        expect.objectContaining({ fill: svgColors[HexTerrain.laurWall] }),
+      )
+      expect(pdfColors).toContainEqual(
+        expect.objectContaining({ stroke: svgColors.outlineLaurWall }),
+      )
+    }
   })
 
   it('matches map fill and stroke in both border modes with Generic colors', () => {

@@ -947,41 +947,68 @@ export const SvgMarvelRuin = ({
 export const SvgBoardPieceLaurWallShort = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
   const { points } = getLaurShortWallPolygonPoints(SVG_HEX_RADIUS, 0.5)
-  return <polygon points={points} fill={fillColor} />
+  return (
+    <polygon
+      points={points}
+      fill={fillColor}
+      stroke={isPieceKeyPreview ? getSvgHexBorderColor(piece) : undefined}
+      strokeWidth={isPieceKeyPreview ? SVG_BORDER_WIDTH : undefined}
+    />
+  )
 }
 export const SvgBoardPieceLaurWallLong = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
   const { points } = getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
-  return <polygon points={points} fill={fillColor} />
+  return (
+    <polygon
+      points={points}
+      fill={fillColor}
+      stroke={isPieceKeyPreview ? getSvgHexBorderColor(piece) : undefined}
+      strokeWidth={isPieceKeyPreview ? SVG_BORDER_WIDTH : undefined}
+    />
+  )
 }
 export const SvgBoardPieceLaurWallLongArch = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
   const { points } = getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
-  return <polygon points={points} fill={fillColor} />
+  return (
+    <polygon
+      points={points}
+      fill={fillColor}
+      stroke={isPieceKeyPreview ? getSvgHexBorderColor(piece) : undefined}
+      strokeWidth={isPieceKeyPreview ? SVG_BORDER_WIDTH : undefined}
+    />
+  )
 }
 export const SvgLaurWallArchText = ({
   isSubLevel,
@@ -1022,15 +1049,24 @@ export const SvgLaurWallArchText = ({
 export const SvgBoardPieceLaurWallRuin = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
   const { points } = getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS)
-  return <polygon points={points} fill={fillColor} />
+  return (
+    <polygon
+      points={points}
+      fill={fillColor}
+      stroke={isPieceKeyPreview ? getSvgHexBorderColor(piece) : undefined}
+      strokeWidth={isPieceKeyPreview ? SVG_BORDER_WIDTH : undefined}
+    />
+  )
 }
 export const SvgRoadWall = ({
   piece,

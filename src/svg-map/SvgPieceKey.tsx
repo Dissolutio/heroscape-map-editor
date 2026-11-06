@@ -1,4 +1,5 @@
 import { Fragment } from 'react'
+import { getLaurAddonExportSymbol } from '../pdf-svg-shared/laurAddonExportSymbol'
 import {
   type PieceKeyEntry,
   type PieceKeyModel,
@@ -11,7 +12,7 @@ import {
   getPieceKeySpecialEntriesPerRow,
 } from '../pdf-svg-shared/pieceKeyShapeLayout'
 import useBoundStore from '../store/store'
-import type { BoardHex, BoardPiece } from '../types'
+import { type BoardHex, type BoardPiece, HexTerrain } from '../types'
 import { boardPieceToDecodedPieceID } from '../utils/map-utils'
 import { SvgMapBoardPiece } from './SvgMapBoardPiece'
 import { SvgMapHex } from './SvgMapHex'
@@ -32,6 +33,10 @@ export const SvgPieceKeyShape = (
 ) => {
   const layout = getPieceKeyShapeLayout(entry)
   const decoded = boardPieceToDecodedPieceID(entry.piece)
+  const keyPiece =
+    decoded && getLaurAddonExportSymbol(entry.inventoryID)
+      ? { ...decoded, terrain: HexTerrain.laurWall }
+      : decoded
   return (
     <g
       key={key}
@@ -66,9 +71,9 @@ export const SvgPieceKeyShape = (
                       />
                     )
                   })
-                ) : decoded ? (
+                ) : keyPiece ? (
                   <SvgMapBoardPiece
-                    piece={{ ...decoded, altitude: 0, rotation: 0 }}
+                    piece={{ ...keyPiece, altitude: 0, rotation: 0 }}
                     viewingLevel={100}
                     overlayLevel={100}
                     isPieceKeyPreview

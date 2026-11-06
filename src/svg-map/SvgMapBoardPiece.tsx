@@ -110,7 +110,11 @@ export const SvgMapBoardPiece = ({
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgBoardPieceLaurWallLong piece={piece} isSubLevel={isSubLevel} />
+        <SvgBoardPieceLaurWallLong
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </g>
     )
   }
@@ -119,7 +123,11 @@ export const SvgMapBoardPiece = ({
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgBoardPieceLaurWallLongArch piece={piece} isSubLevel={isSubLevel} />
+        <SvgBoardPieceLaurWallLongArch
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
         <g
           // flip upside down text, all other rotations are legible
           transform={
@@ -142,7 +150,11 @@ export const SvgMapBoardPiece = ({
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgBoardPieceLaurWallShort piece={piece} isSubLevel={isSubLevel} />
+        <SvgBoardPieceLaurWallShort
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </g>
     )
   }
@@ -152,7 +164,11 @@ export const SvgMapBoardPiece = ({
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgBoardPieceLaurWallRuin piece={piece} isSubLevel={isSubLevel} />
+        <SvgBoardPieceLaurWallRuin
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </g>
     )
   }

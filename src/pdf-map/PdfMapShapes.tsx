@@ -901,9 +901,11 @@ export const PdfBoardPieceLaurWallShort = ({
 export const PdfBoardPieceLaurWallLong = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
@@ -912,14 +914,25 @@ export const PdfBoardPieceLaurWallLong = ({
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  return <Polygon points={points} fill={fillColor} />
+  return (
+    <Polygon
+      points={points}
+      fill={fillColor}
+      stroke={
+        isPieceKeyPreview ? getPdfHexBorderForView(piece, isSubLevel) : ''
+      }
+      strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
+    />
+  )
 }
 export const PdfBoardPieceLaurWallLongArch = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
@@ -928,7 +941,16 @@ export const PdfBoardPieceLaurWallLongArch = ({
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  return <Polygon points={points} fill={fillColor} />
+  return (
+    <Polygon
+      points={points}
+      fill={fillColor}
+      stroke={
+        isPieceKeyPreview ? getPdfHexBorderForView(piece, isSubLevel) : ''
+      }
+      strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
+    />
+  )
 }
 // PdfLaurWallArchText
 export const PdfLaurWallArchText = ({
