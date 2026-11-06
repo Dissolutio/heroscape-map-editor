@@ -37,6 +37,7 @@ describe('action log formatting', () => {
     [{ type: 'delete', pieceName: 'Water 1' }, 'Deleted Water 1'],
     [{ type: 'convert', count: 2 }, 'Converted 2 pieces'],
     [{ type: 'convert', count: 1 }, 'Converted 1 piece'],
+    [{ type: 'adapt', count: 2 }, 'Adapted map to collection (2 pieces)'],
     [
       {
         type: 'marker',

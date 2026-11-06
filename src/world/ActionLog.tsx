@@ -31,6 +31,7 @@ const icons = {
   rotate: MdRotateRight,
   delete: MdDeleteOutline,
   convert: MdTransform,
+  adapt: MdTransform,
   marker: MdFlag,
   undo: MdUndo,
   redo: MdRedo,
