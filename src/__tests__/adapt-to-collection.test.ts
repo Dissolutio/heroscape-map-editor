@@ -4,12 +4,14 @@ import type { BoardPiece, HexMap } from '../types'
 import { HexTerrain, Pieces } from '../types'
 import {
   analyzeMapTerrain,
-  buildCollectionAdaptationMapping,
+  buildCollectionAdaptationPlan,
+  getAdaptedMapName,
   getCollectionLandSupply,
   getMissingLandTerrains,
   getRemainingLandShortfalls,
   suggestBuriedFillTerrain,
   suggestTerrainTarget,
+  type AdaptScope,
 } from '../utils/adaptToCollection'
 
 const hexMap: HexMap = {
@@ -39,51 +41,44 @@ const piece = (
 
 const map = (boardPieces: BoardPiece[]) =>
   buildupJsonFileMap(boardPieces, hexMap)
+const choice = (
+  targetTerrains: string[],
+  scope: AdaptScope = 'wholeColumn',
+) => ({
+  targetTerrains,
+  scope,
+})
+const noBuriedFill = { solid: '', fluid: '' }
 
 describe('collection land supply and suggestions', () => {
-  it('uses the personal inventory and suggests generic by solid/fluid kind', () => {
-    const empty = getCollectionLandSupply({})
+  it('only lists owned land terrain and never suggests Generic', () => {
+    const empty = getCollectionLandSupply({
+      [Pieces.generic1]: 20,
+      [Pieces.genericFluid1]: 20,
+    })
     expect(empty.hasAnyPieces).toBe(false)
-    expect(suggestTerrainTarget(HexTerrain.snow, empty)).toBe(
-      HexTerrain.generic,
-    )
-    expect(suggestTerrainTarget(HexTerrain.ice, empty)).toBe(
-      HexTerrain.genericFluid,
-    )
-    expect(suggestBuriedFillTerrain(empty, false)).toBe(HexTerrain.generic)
-    expect(suggestBuriedFillTerrain(empty, true)).toBe(HexTerrain.genericFluid)
+    expect(empty.ownedTerrains).toEqual([])
+    expect(suggestTerrainTarget(HexTerrain.snow, empty)).toBe('')
+    expect(suggestTerrainTarget(HexTerrain.ice, empty)).toBe('')
+    expect(suggestBuriedFillTerrain(empty, false)).toBe('')
+    expect(suggestBuriedFillTerrain(empty, true)).toBe('')
   })
 
-  it('keeps owned terrain by default and uses the editable similarity ranking', () => {
+  it('keeps the existing similarity order and uses the best same-kind fallback', () => {
     const supply = getCollectionLandSupply({
       [Pieces.grass1]: 1,
       [Pieces.toxic1]: 2,
       [Pieces.water1]: 3,
     })
-    expect(suggestTerrainTarget(HexTerrain.grass, supply)).toBe(
-      HexTerrain.grass,
-    )
     expect(suggestTerrainTarget(HexTerrain.lavaField, supply)).toBe(
       HexTerrain.toxic,
     )
+    expect(suggestTerrainTarget(HexTerrain.ice, supply)).toBe(HexTerrain.water)
     expect(suggestBuriedFillTerrain(supply, false)).toBe(HexTerrain.grass)
     expect(suggestBuriedFillTerrain(supply, true)).toBe(HexTerrain.water)
   })
 
-  it('falls back to the owned terrain with the most same-kind hex supply', () => {
-    const supply = getCollectionLandSupply({
-      [Pieces.grass1]: 1,
-      [Pieces.rock3]: 4,
-      [Pieces.water1]: 2,
-      [Pieces.swampWater3]: 3,
-    })
-    expect(suggestTerrainTarget(HexTerrain.dungeon, supply)).toBe(
-      HexTerrain.rock,
-    )
-    expect(suggestTerrainTarget(HexTerrain.ice, supply)).toBe(HexTerrain.water)
-  })
-
-  it('defaults buried fill to Grass, then the best owned terrain, then Generic', () => {
+  it('defaults solid buried fill to owned Grass, then most same-kind supply', () => {
     expect(
       suggestBuriedFillTerrain(
         getCollectionLandSupply({ [Pieces.grass1]: 1, [Pieces.rock1]: 9 }),
@@ -97,175 +92,234 @@ describe('collection land supply and suggestions', () => {
       ),
     ).toBe(HexTerrain.sand)
   })
+
+  it('prefills the adapted-map suffix once and handles unnamed maps', () => {
+    expect(getAdaptedMapName('Scenario')).toBe(
+      'Scenario (Adapted to collection)',
+    )
+    expect(getAdaptedMapName('Scenario (Adapted to collection)')).toBe(
+      'Scenario (Adapted to collection)',
+    )
+    expect(getAdaptedMapName('')).toBe('Adapted to collection')
+  })
 })
 
-describe('map analysis and adaptation mapping', () => {
-  const landPieces = [
-    piece('surface-snow', Pieces.snow1, 1, 1),
-    piece('buried-snow', Pieces.snow1, 3, 1),
-    piece('snow-cover', Pieces.grass1, 3, 1, 1),
-    piece('fluid-ice', Pieces.ice1, 5, 1),
-    piece('tree', Pieces.tree10, 7, 1),
-  ]
-
-  it('counts surface and buried hexes using buried marks status', () => {
-    const { boardHexes, boardPieces } = map(landPieces)
-    expect(analyzeMapTerrain(boardHexes, boardPieces)).toEqual([
-      { terrain: HexTerrain.grass, surfaceHexes: 1, buriedHexes: 0 },
-      { terrain: HexTerrain.ice, surfaceHexes: 1, buriedHexes: 0 },
-      { terrain: HexTerrain.snow, surfaceHexes: 1, buriedHexes: 1 },
+describe('collection adaptation planning', () => {
+  it('lists only missing land terrains and leaves owned and Generic pieces alone', () => {
+    const { boardHexes, boardPieces } = map([
+      piece('snow', Pieces.snow1, 1, 1),
+      piece('grass', Pieces.grass1, 3, 1),
+      piece('generic', Pieces.generic1, 5, 1),
     ])
-  })
-
-  it('maps whole columns and surface-only pieces independently by UID', () => {
-    const { boardHexes, boardPieces } = map(landPieces)
     const supply = getCollectionLandSupply({
-      [Pieces.rock1]: 2,
-      [Pieces.grass1]: 4,
-      [Pieces.water1]: 2,
-    })
-    const choices = {
-      [HexTerrain.snow]: {
-        targetTerrain: HexTerrain.rock,
-        scope: 'wholeColumn' as const,
-      },
-    }
-
-    expect(
-      buildCollectionAdaptationMapping({
-        boardHexes,
-        boardPieces,
-        supply,
-        choices,
-        buriedFillByKind: { solid: HexTerrain.grass, fluid: HexTerrain.water },
-      }),
-    ).toEqual({
-      'surface-snow': Pieces.rock1,
-      'buried-snow': Pieces.rock1,
-    })
-
-    expect(
-      buildCollectionAdaptationMapping({
-        boardHexes,
-        boardPieces,
-        supply,
-        choices: {
-          [HexTerrain.snow]: {
-            targetTerrain: HexTerrain.rock,
-            scope: 'surfaceOnly',
-          },
-        },
-        buriedFillByKind: { solid: HexTerrain.grass, fluid: HexTerrain.water },
-      }),
-    ).toEqual({
-      'surface-snow': Pieces.rock1,
-      'buried-snow': Pieces.grass1,
-    })
-  })
-
-  it('converts a partially buried footprint as one surface piece', () => {
-    const boardPieces = [
-      piece('partial-snow', Pieces.snow3, 3, 2),
-      piece('partial-cover', Pieces.grass1, 3, 2, 1),
-    ]
-    const { boardHexes } = map(boardPieces)
-    const supply = getCollectionLandSupply({ [Pieces.rock3]: 1 })
-
-    expect(analyzeMapTerrain(boardHexes, boardPieces)).toEqual([
-      { terrain: HexTerrain.grass, surfaceHexes: 1, buriedHexes: 0 },
-      { terrain: HexTerrain.snow, surfaceHexes: 3, buriedHexes: 0 },
-    ])
-    expect(
-      buildCollectionAdaptationMapping({
-        boardHexes,
-        boardPieces,
-        supply,
-        choices: {
-          [HexTerrain.snow]: {
-            targetTerrain: HexTerrain.rock,
-            scope: 'surfaceOnly',
-          },
-        },
-        buriedFillByKind: { solid: HexTerrain.grass, fluid: HexTerrain.water },
-      }),
-    ).toEqual({ 'partial-snow': Pieces.rock3 })
-  })
-
-  it('never converts between solid and fluid, and leaves non-land pieces untouched', () => {
-    const { boardHexes, boardPieces } = map(landPieces)
-    const supply = getCollectionLandSupply({
+      [Pieces.grass1]: 1,
       [Pieces.rock1]: 1,
-      [Pieces.water1]: 1,
+      [Pieces.generic1]: 1,
     })
-    expect(
-      buildCollectionAdaptationMapping({
-        boardHexes,
-        boardPieces,
-        supply,
-        choices: {
-          [HexTerrain.snow]: {
-            targetTerrain: HexTerrain.water,
-            scope: 'wholeColumn',
-          },
-          [HexTerrain.ice]: {
-            targetTerrain: HexTerrain.rock,
-            scope: 'wholeColumn',
-          },
-        },
-        buriedFillByKind: {
-          solid: HexTerrain.genericFluid,
-          fluid: HexTerrain.generic,
-        },
-      }),
-    ).toEqual({})
-  })
 
-  it('falls back to same-size Generic, preserving unsupported sizes otherwise', () => {
-    const genericFallbackPiece = piece('snow-2', Pieces.snow2, 1, 1)
-    const genericFallbackMap = map([genericFallbackPiece])
-    const genericFallbackSupply = getCollectionLandSupply({
-      [Pieces.rock1]: 1,
-    })
-    expect(
-      buildCollectionAdaptationMapping({
-        boardHexes: genericFallbackMap.boardHexes,
-        boardPieces: genericFallbackMap.boardPieces,
-        supply: genericFallbackSupply,
-        choices: {
-          [HexTerrain.snow]: {
-            targetTerrain: HexTerrain.rock,
-            scope: 'wholeColumn',
-          },
-        },
-        buriedFillByKind: { solid: HexTerrain.rock, fluid: HexTerrain.water },
-      }),
-    ).toEqual({ 'snow-2': Pieces.generic2 })
-
-    const boardPieces = [piece('road-5', Pieces.road5, 1, 1)]
-    const { boardHexes } = map(boardPieces)
-    const supply = getCollectionLandSupply({ [Pieces.grass1]: 1 })
-    expect(
-      buildCollectionAdaptationMapping({
-        boardHexes,
-        boardPieces,
-        supply,
-        choices: {
-          [HexTerrain.road]: {
-            targetTerrain: HexTerrain.grass,
-            scope: 'wholeColumn',
-          },
-        },
-        buriedFillByKind: { solid: HexTerrain.grass, fluid: HexTerrain.water },
-      }),
-    ).toEqual({})
-    expect(getRemainingLandShortfalls(boardPieces, {})).toEqual([
-      { inventoryID: Pieces.road5, shortfall: 1 },
-    ])
     expect(
       getMissingLandTerrains(
-        [{ terrain: HexTerrain.road, surfaceHexes: 5, buriedHexes: 0 }],
+        analyzeMapTerrain(boardHexes, boardPieces),
         supply,
       ),
-    ).toEqual([HexTerrain.road])
+    ).toEqual([HexTerrain.snow])
+    expect(
+      buildCollectionAdaptationPlan({
+        boardHexes,
+        boardPieces,
+        supply,
+        choices: { [HexTerrain.snow]: choice([HexTerrain.rock]) },
+        buriedFillByKind: noBuriedFill,
+      }).mapping,
+    ).toEqual({ snow: Pieces.rock1 })
+  })
+
+  it('allocates shared stock across rows in stable terrain order', () => {
+    const { boardHexes, boardPieces } = map([
+      piece('snow', Pieces.snow1, 1, 1),
+      piece('swamp', Pieces.swamp1, 3, 1),
+    ])
+    const supply = getCollectionLandSupply({ [Pieces.grass1]: 1 })
+    const terrains = getMissingLandTerrains(
+      analyzeMapTerrain(boardHexes, boardPieces),
+      supply,
+    )
+    const plan = buildCollectionAdaptationPlan({
+      boardHexes,
+      boardPieces,
+      supply,
+      choices: {
+        [HexTerrain.snow]: choice([HexTerrain.grass]),
+        [HexTerrain.swamp]: choice([HexTerrain.grass]),
+      },
+      buriedFillByKind: noBuriedFill,
+    })
+
+    expect(terrains).toEqual([HexTerrain.snow, HexTerrain.swamp])
+    expect(plan.mapping).toEqual({ snow: Pieces.grass1 })
+    expect(plan.unconvertedPieces).toEqual([
+      { terrain: HexTerrain.swamp, size: 1, count: 1 },
+    ])
+  })
+
+  it('allocates every surface piece before any buried piece', () => {
+    const { boardHexes, boardPieces } = map([
+      piece('buried-snow', Pieces.snow1, 1, 1),
+      piece('cover', Pieces.rock1, 1, 1, 1),
+      piece('surface-swamp', Pieces.swamp1, 3, 1),
+    ])
+    const supply = getCollectionLandSupply({
+      [Pieces.grass1]: 1,
+      [Pieces.rock1]: 1,
+    })
+    const plan = buildCollectionAdaptationPlan({
+      boardHexes,
+      boardPieces,
+      supply,
+      choices: {
+        [HexTerrain.snow]: choice([HexTerrain.grass]),
+        [HexTerrain.swamp]: choice([HexTerrain.grass]),
+      },
+      buriedFillByKind: noBuriedFill,
+    })
+
+    expect(plan.mapping).toEqual({ 'surface-swamp': Pieces.grass1 })
+    expect(plan.unconvertedPieces).toEqual([
+      { terrain: HexTerrain.snow, size: 1, count: 1 },
+    ])
+  })
+
+  it('assigns up to three substitutes and reports size-specific leftovers', () => {
+    const { boardHexes, boardPieces } = map([
+      piece('snow-a', Pieces.snow1, 1, 1),
+      piece('snow-b', Pieces.snow1, 2, 1),
+      piece('snow-c', Pieces.snow1, 3, 1),
+      piece('snow-d', Pieces.snow1, 4, 1),
+    ])
+    const supply = getCollectionLandSupply({
+      [Pieces.rock1]: 1,
+      [Pieces.grass1]: 1,
+      [Pieces.sand1]: 1,
+    })
+    const plan = buildCollectionAdaptationPlan({
+      boardHexes,
+      boardPieces,
+      supply,
+      choices: {
+        [HexTerrain.snow]: choice([
+          HexTerrain.rock,
+          HexTerrain.grass,
+          HexTerrain.sand,
+        ]),
+      },
+      buriedFillByKind: noBuriedFill,
+    })
+
+    expect(plan.mapping).toEqual({
+      'snow-a': Pieces.rock1,
+      'snow-b': Pieces.grass1,
+      'snow-c': Pieces.sand1,
+    })
+    expect(plan.surfaceCoverageByTerrain[HexTerrain.snow]).toEqual([1, 1, 1])
+    expect(plan.unconvertedPieces).toEqual([
+      { terrain: HexTerrain.snow, size: 1, count: 1 },
+    ])
+  })
+
+  it('uses only same-size swaps and leaves unsupported sizes unchanged', () => {
+    const { boardHexes, boardPieces } = map([
+      piece('snow-3', Pieces.snow3, 1, 1),
+    ])
+    const supply = getCollectionLandSupply({
+      [Pieces.rock1]: 1,
+      [Pieces.rock3]: 1,
+    })
+    const plan = buildCollectionAdaptationPlan({
+      boardHexes,
+      boardPieces,
+      supply,
+      choices: { [HexTerrain.snow]: choice([HexTerrain.rock]) },
+      buriedFillByKind: noBuriedFill,
+    })
+
+    expect(plan.mapping).toEqual({ 'snow-3': Pieces.rock3 })
+    expect(plan.unconvertedPieces).toEqual([])
+
+    const shortSupplyPlan = buildCollectionAdaptationPlan({
+      boardHexes,
+      boardPieces,
+      supply: getCollectionLandSupply({ [Pieces.rock1]: 1 }),
+      choices: { [HexTerrain.snow]: choice([HexTerrain.rock]) },
+      buriedFillByKind: noBuriedFill,
+    })
+    expect(shortSupplyPlan.mapping).toEqual({})
+    expect(shortSupplyPlan.unconvertedPieces).toEqual([
+      { terrain: HexTerrain.snow, size: 3, count: 1 },
+    ])
+  })
+
+  it('uses an owned buried fill and shares its quantity with other swaps', () => {
+    const { boardHexes, boardPieces } = map([
+      piece('buried-snow-a', Pieces.snow1, 1, 1),
+      piece('cover', Pieces.rock1, 1, 1, 1),
+      piece('buried-snow-b', Pieces.snow1, 3, 1),
+      piece('cover-b', Pieces.rock1, 3, 1, 1),
+    ])
+    const supply = getCollectionLandSupply({
+      [Pieces.grass1]: 1,
+      [Pieces.rock1]: 2,
+    })
+    const plan = buildCollectionAdaptationPlan({
+      boardHexes,
+      boardPieces,
+      supply,
+      choices: {
+        [HexTerrain.snow]: choice([HexTerrain.rock], 'surfaceOnly'),
+      },
+      buriedFillByKind: {
+        solid: HexTerrain.grass,
+        fluid: '',
+      },
+    })
+
+    expect(suggestBuriedFillTerrain(supply, false)).toBe(HexTerrain.grass)
+    expect(plan.mapping).toEqual({ 'buried-snow-a': Pieces.grass1 })
+    expect(plan.unconvertedPieces).toEqual([
+      { terrain: HexTerrain.snow, size: 1, count: 1 },
+    ])
+    expect(
+      getRemainingLandShortfalls(
+        [
+          piece('cover', Pieces.rock1, 1, 1, 1),
+          piece('cover-b', Pieces.rock1, 3, 1, 1),
+          piece('buried-snow-after', Pieces.grass1, 1, 1),
+        ],
+        { [Pieces.grass1]: 1, [Pieces.rock1]: 2 },
+      ),
+    ).toEqual([])
+  })
+
+  it('does not use Generic as a fallback and leaves Generic map pieces unchanged', () => {
+    const { boardHexes, boardPieces } = map([
+      piece('snow-2', Pieces.snow2, 1, 1),
+      piece('generic-map-piece', Pieces.generic1, 3, 1),
+    ])
+    const supply = getCollectionLandSupply({
+      [Pieces.rock1]: 1,
+      [Pieces.generic2]: 10,
+    })
+    const plan = buildCollectionAdaptationPlan({
+      boardHexes,
+      boardPieces,
+      supply,
+      choices: { [HexTerrain.snow]: choice([HexTerrain.rock]) },
+      buriedFillByKind: { solid: '', fluid: '' },
+    })
+
+    expect(supply.ownedTerrains).toEqual([HexTerrain.rock])
+    expect(plan.mapping).toEqual({})
+    expect(plan.unconvertedPieces).toEqual([
+      { terrain: HexTerrain.snow, size: 2, count: 1 },
+    ])
   })
 })

@@ -1,4 +1,4 @@
-import { Box, Checkbox, IconButton, useMediaQuery } from '@mui/material'
+import { Box, Checkbox, useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -10,10 +10,8 @@ import FormLabel from '@mui/material/FormLabel'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import Slider from '@mui/material/Slider'
-import TextField from '@mui/material/TextField'
 import { useSnackbar } from 'notistack'
 import * as React from 'react'
-import { MdAutorenew } from 'react-icons/md'
 import { useLocation } from 'wouter'
 import { ROUTES } from '../ROUTES'
 import useBoundStore from '../store/store'
@@ -34,6 +32,7 @@ import {
   MAP_NOTES_FIELD_NAME,
   MapAuthorNotesFields,
 } from './MapAuthorNotesFields'
+import { MapNameField } from './MapNameField'
 
 const hexagonMarks = [
   {
@@ -198,38 +197,7 @@ export default function CreateMapFormDialog() {
       >
         <DialogTitle>New Map</DialogTitle>
         <DialogContent>
-          <Box
-            sx={{
-              p: '1em 4px',
-              display: 'flex',
-              alignItems: 'center',
-              width: '100%',
-            }}
-          >
-            <TextField
-              id="newMapName"
-              autoFocus
-              required
-              value={mapName}
-              name="newMapName"
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setMapName(event.target.value)
-              }}
-              margin="dense"
-              label="Map Title"
-              type="text"
-              fullWidth
-              variant="outlined"
-            />
-            <IconButton
-              title="Generate new random map name"
-              type="button"
-              sx={{ p: '10px' }}
-              onClick={() => setMapName(genRandomMapName())}
-            >
-              <MdAutorenew />
-            </IconButton>
-          </Box>
+          <MapNameField value={mapName} onChange={setMapName} />
           <FormControl>
             <FormLabel id="map-shape-label">Map Shape</FormLabel>
             <RadioGroup
