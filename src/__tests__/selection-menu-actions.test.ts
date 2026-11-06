@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { getPieceEdgeId } from '../data/hexGrid/pieceFeatures'
+import { hexesForEdge } from '../data/hexGrid/edgesAndNodes'
 import { getLaurAddonFeatureId } from '../data/laurAddonPlacement'
 import { piecesSoFar } from '../data/pieces'
 import {
@@ -16,6 +18,7 @@ import type { Board, Table } from './helpers/board'
 import { makeTable, place } from './helpers/board'
 import { type BoardHex, type BoardPiece, Pieces } from '../types'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
+import { genBoardHexID } from '../utils/map-utils'
 
 const noSelection = () => undefined
 
@@ -55,6 +58,34 @@ function piece(
   rotation = 0,
 ): BoardPiece {
   return { uid, inventoryID, pieceCoords, altitude, rotation }
+}
+
+function occupiedHex(
+  uid: string,
+  inventoryID: string,
+  coords: Table['center'],
+  altitude: number,
+  isVerticalClearanceHex = false,
+): BoardHex {
+  const id = genBoardHexID({ ...coords, altitude })
+  return {
+    id,
+    ...coords,
+    altitude,
+    pieceID: id,
+    boardPieceUID: uid,
+    inventoryID,
+    terrain: piecesSoFar[inventoryID].terrain,
+    pieceRotation: 0,
+    ...(isVerticalClearanceHex ? { isVerticalClearanceHex: true } : {}),
+  }
+}
+
+function selectionBoard(boardPieces: BoardPiece[], hexes: BoardHex[]): Board {
+  return {
+    boardPieces,
+    boardHexes: Object.fromEntries(hexes.map((hex) => [hex.id, hex])),
+  }
 }
 
 describe('selection menu pure actions', () => {
@@ -211,6 +242,132 @@ describe('selection menu pure actions', () => {
     expect(selected).not.toContain('corner')
   })
 
+  it('connects land at the same altitude, but not side or corner contacts at another level', () => {
+    const table = makeTable(8)
+    const levelOne = [
+      piece('grass', Pieces.grass1, table.center),
+      piece('sand', Pieces.sand1, hexUtilsAdd(table.center, HEX_DIRECTIONS[0])),
+      piece(
+        'corner',
+        Pieces.grass1,
+        hexUtilsAdd(table.center, { q: 2, r: 1, s: -3 }),
+      ),
+    ]
+    const higherNeighbor = piece(
+      'higher-neighbor',
+      Pieces.grass1,
+      hexUtilsAdd(table.center, HEX_DIRECTIONS[1]),
+      1,
+    )
+    const board = selectionBoard(
+      [...levelOne, higherNeighbor],
+      [
+        occupiedHex('grass', Pieces.grass1, table.center, 1),
+        occupiedHex('sand', Pieces.sand1, levelOne[1].pieceCoords, 1),
+        occupiedHex('corner', Pieces.grass1, levelOne[2].pieceCoords, 1),
+        occupiedHex(
+          'higher-neighbor',
+          Pieces.grass1,
+          higherNeighbor.pieceCoords,
+          2,
+        ),
+      ],
+    )
+
+    expect(selectConnected(context(board, ['grass']))).toEqual([
+      'grass',
+      'sand',
+    ])
+  })
+
+  it('connects obstacles only to their supported land and through connected land', () => {
+    const table = makeTable(8)
+    const firstCoords = table.center
+    const secondCoords = hexUtilsAdd(firstCoords, HEX_DIRECTIONS[0])
+    const firstLand = piece('land-1', Pieces.grass1, firstCoords)
+    const secondLand = piece('land-2', Pieces.sand1, secondCoords)
+    const firstTree = piece('tree-1', Pieces.tree10, firstCoords, 1)
+    const secondTree = piece('tree-2', Pieces.tree11, secondCoords, 1)
+    const board = selectionBoard(
+      [firstLand, secondLand, firstTree, secondTree],
+      [
+        occupiedHex('land-1', Pieces.grass1, firstCoords, 1),
+        occupiedHex('land-2', Pieces.sand1, secondCoords, 1),
+        occupiedHex('tree-1', Pieces.tree10, firstCoords, 2),
+        occupiedHex('tree-2', Pieces.tree11, secondCoords, 2),
+      ],
+    )
+
+    expect(selectConnected(context(board, ['land-1']))).toEqual([
+      'land-1',
+      'land-2',
+      'tree-1',
+      'tree-2',
+    ])
+    expect(selectConnected(context(board, ['tree-1']))).toEqual([
+      'land-1',
+      'land-2',
+      'tree-1',
+      'tree-2',
+    ])
+    expect(selectConnected(context(board, ['tree-2']))).toEqual([
+      'land-1',
+      'land-2',
+      'tree-1',
+      'tree-2',
+    ])
+  })
+
+  it('does not connect adjacent obstacles on separate land or land beside the obstacle', () => {
+    const table = makeTable(8)
+    const firstCoords = table.center
+    const secondCoords = hexUtilsAdd(firstCoords, { q: 2, r: 0, s: -2 })
+    const firstTree = piece('tree-1', Pieces.tree10, firstCoords, 1)
+    const secondTree = piece('tree-2', Pieces.tree11, secondCoords, 1)
+    const treeClearance = hexUtilsAdd(firstCoords, HEX_DIRECTIONS[0])
+    const adjacentLandCoords = hexUtilsAdd(firstCoords, HEX_DIRECTIONS[1])
+    const adjacentLand = piece(
+      'adjacent-land',
+      Pieces.grass1,
+      adjacentLandCoords,
+      1,
+    )
+    const board = selectionBoard(
+      [
+        piece('land-1', Pieces.grass1, firstCoords),
+        piece('land-2', Pieces.sand1, secondCoords),
+        firstTree,
+        secondTree,
+        adjacentLand,
+      ],
+      [
+        occupiedHex('land-1', Pieces.grass1, firstCoords, 1),
+        occupiedHex('land-2', Pieces.sand1, secondCoords, 1),
+        occupiedHex('tree-1', Pieces.tree10, firstCoords, 2),
+        occupiedHex('tree-1', Pieces.tree10, treeClearance, 2, true),
+        occupiedHex('tree-2', Pieces.tree11, secondCoords, 2),
+        occupiedHex('adjacent-land', Pieces.grass1, adjacentLandCoords, 2),
+      ],
+    )
+
+    expect(selectConnected(context(board, ['tree-1']))).toEqual([
+      'land-1',
+      'tree-1',
+    ])
+    expect(selectConnected(context(board, ['tree-1']))).not.toContain('tree-2')
+    expect(selectConnected(context(board, ['tree-1']))).not.toContain(
+      'adjacent-land',
+    )
+  })
+
+  it('selects an obstacle seed even when it has no land beneath it', () => {
+    const table = makeTable(8)
+    const tree = piece('tree', Pieces.tree10, table.center, 1)
+    const board = selectionBoard([tree], [])
+
+    expect(selectConnected(context(board, ['tree']))).toEqual(['tree'])
+  })
+
   it('connects Laur add-ons to their matching attachment feature', () => {
     const table = makeTable(10)
     const pillar = piece('pillar', Pieces.laurWallSquarePillar, table.center)
@@ -226,6 +383,98 @@ describe('selection menu pure actions', () => {
     expect(selectConnected(context(board, ['addon']))).toEqual([
       'pillar',
       'addon',
+    ])
+  })
+
+  it('connects Laur walls through their pillar stack to supporting land', () => {
+    const table = makeTable(8)
+    const coords = table.center
+    const land = piece('land', Pieces.grass1, coords)
+    const pillar = piece('pillar', Pieces.laurWallSquarePillar, coords, 1)
+    const addon = piece('addon', Pieces.laurWallShort, coords, 1)
+    const board = selectionBoard(
+      [land, pillar, addon],
+      [
+        occupiedHex('land', Pieces.grass1, coords, 1),
+        occupiedHex('pillar', Pieces.laurWallSquarePillar, coords, 2),
+      ],
+    )
+
+    expect(selectConnected(context(board, ['addon']))).toEqual([
+      'land',
+      'pillar',
+      'addon',
+    ])
+  })
+
+  it('connects a ladder to the land at its bottom and top', () => {
+    const table = makeTable(8)
+    const coords = table.center
+    const ladder = piece('ladder', Pieces.ladder, coords, 1)
+    const bottom = piece('bottom', Pieces.grass1, coords)
+    const top = piece('top', Pieces.sand1, coords, 2)
+    const board = selectionBoard(
+      [bottom, ladder, top],
+      [
+        occupiedHex('bottom', Pieces.grass1, coords, 1),
+        occupiedHex('ladder', Pieces.ladder, coords, 2),
+        occupiedHex('top', Pieces.sand1, coords, 3),
+      ],
+    )
+
+    expect(selectConnected(context(board, ['ladder']))).toEqual([
+      'bottom',
+      'ladder',
+      'top',
+    ])
+  })
+
+  it.each([Pieces.ropeLadder, Pieces.battlement])(
+    'connects %s to land or wall at its edge',
+    (inventoryID) => {
+      const table = makeTable(8)
+      const edgePiece = piece('edge-piece', inventoryID, table.center, 1)
+      const edgeID = getPieceEdgeId({
+        ...edgePiece,
+        pieceID: inventoryID,
+      })
+      if (!edgeID) throw new Error('test setup: edge piece has no edge ID')
+      const endpoints = hexesForEdge(edgeID)
+      const attachedCoords = endpoints[0]
+      const attachedID =
+        inventoryID === Pieces.battlement ? Pieces.fortifiedWall : Pieces.grass1
+      const attached = piece('attached', attachedID, attachedCoords)
+      const board = selectionBoard(
+        [edgePiece, attached],
+        [
+          occupiedHex('edge-piece', inventoryID, edgePiece.pieceCoords, 2),
+          occupiedHex('attached', attachedID, attachedCoords, 1),
+        ],
+      )
+
+      expect(selectConnected(context(board, ['edge-piece']))).toEqual([
+        'edge-piece',
+        'attached',
+      ])
+    },
+  )
+
+  it('does not connect a road wall to adjacent land', () => {
+    const table = makeTable(8)
+    const coords = table.center
+    const neighborCoords = hexUtilsAdd(coords, HEX_DIRECTIONS[0])
+    const roadWall = piece('road-wall', Pieces.roadWall, coords, 1)
+    const land = piece('land', Pieces.grass1, neighborCoords)
+    const board = selectionBoard(
+      [roadWall, land],
+      [
+        occupiedHex('road-wall', Pieces.roadWall, coords, 2),
+        occupiedHex('land', Pieces.grass1, neighborCoords, 1),
+      ],
+    )
+
+    expect(selectConnected(context(board, ['road-wall']))).toEqual([
+      'road-wall',
     ])
   })
 

@@ -1,10 +1,67 @@
-import { getPieceFeatureIds } from '../data/hexGrid/pieceFeatures'
+import {
+  getPieceEdgeId,
+  getPieceFeatureIds,
+} from '../data/hexGrid/pieceFeatures'
+import { edgeIdFromHex, hexesForEdge } from '../data/hexGrid/edgesAndNodes'
 import { piecesSoFar } from '../data/pieces'
 import { isStartZoneBoardPiece } from '../data/startZoneVisibility'
-import type { BoardHexes, BoardPiece } from '../types'
+import {
+  HexTerrain,
+  Pieces,
+  type BoardHex,
+  type BoardHexes,
+  type BoardPiece,
+} from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { genBoardHexID, getSurfaceAltitudeByPieceUID } from '../utils/map-utils'
+
+type ConnectionCategory = 'land' | 'obstacle' | 'laur' | 'edge-piece' | 'none'
+
+const connectionCategoryRules: readonly [
+  Exclude<ConnectionCategory, 'none'>,
+  (terrain: string, inventoryID: string, isObstaclePiece: boolean) => boolean,
+][] = [
+  [
+    'land',
+    (terrain) => isSolidTerrainHex(terrain) || isFluidTerrainHex(terrain),
+  ],
+  [
+    'laur',
+    (terrain) =>
+      terrain === HexTerrain.laurWall || terrain === HexTerrain.laurWallAddon,
+  ],
+  [
+    'edge-piece',
+    (_terrain, inventoryID) =>
+      inventoryID === Pieces.ladder ||
+      inventoryID === Pieces.battlement ||
+      inventoryID === Pieces.ropeLadder,
+  ],
+  [
+    'obstacle',
+    (terrain, _inventoryID, isObstaclePiece) =>
+      isObstaclePiece ||
+      terrain === HexTerrain.ruin ||
+      terrain === HexTerrain.fortifiedWall,
+  ],
+]
+
+function getConnectionCategory(inventoryID: string): ConnectionCategory {
+  const definition = piecesSoFar[inventoryID]
+  if (!definition) return 'none'
+  return (
+    connectionCategoryRules.find(([, matches]) =>
+      matches(definition.terrain, inventoryID, definition.isObstaclePiece),
+    )?.[0] ?? 'none'
+  )
+}
+
+function getConnectionEdgeId(piece: BoardPiece) {
+  return piece.inventoryID === Pieces.ladder
+    ? edgeIdFromHex(piece.pieceCoords, piece.rotation)
+    : getPieceEdgeId({ ...piece, pieceID: piece.inventoryID })
+}
 
 export type SelectionMenuContext = {
   seedPieceIDs: readonly string[]
@@ -145,30 +202,131 @@ function buildPieceNeighbors(
   const neighbors = new Map(
     visiblePieces.map((piece) => [piece.uid, new Set<string>()]),
   )
+  const categories = new Map(
+    visiblePieces.map((piece) => [
+      piece.uid,
+      getConnectionCategory(piece.inventoryID),
+    ]),
+  )
   const visibleIDs = new Set(neighbors.keys())
+  const hexesByUID = new Map<string, BoardHex[]>()
+  for (const hex of Object.values(boardHexes)) {
+    if (!hex.boardPieceUID || !visibleIDs.has(hex.boardPieceUID)) continue
+    const ownedHexes = hexesByUID.get(hex.boardPieceUID)
+    if (ownedHexes) ownedHexes.push(hex)
+    else hexesByUID.set(hex.boardPieceUID, [hex])
+  }
+
+  const addLandAt = (
+    uid: string,
+    coords: { q: number; r: number; s: number },
+    altitude: number,
+  ) => {
+    const land = boardHexes[genBoardHexID({ ...coords, altitude })]
+    if (land?.boardPieceUID && categories.get(land.boardPieceUID) === 'land') {
+      addNeighbor(neighbors, uid, land.boardPieceUID)
+    }
+  }
+
   for (const hex of Object.values(boardHexes)) {
     const uid = hex.boardPieceUID
     if (!uid || !visibleIDs.has(uid)) continue
-    for (const direction of Object.values(HEX_DIRECTIONS)) {
-      const neighborCoords = hexUtilsAdd(hex, direction)
-      const neighbor =
-        boardHexes[genBoardHexID({ ...neighborCoords, altitude: hex.altitude })]
-      addNeighbor(neighbors, uid, neighbor?.boardPieceUID)
+    const category = categories.get(uid)
+    if (category === 'land') {
+      for (const direction of Object.values(HEX_DIRECTIONS)) {
+        const neighborCoords = hexUtilsAdd(hex, direction)
+        const neighbor =
+          boardHexes[
+            genBoardHexID({ ...neighborCoords, altitude: hex.altitude })
+          ]
+        if (categories.get(neighbor?.boardPieceUID ?? '') === 'land') {
+          addNeighbor(neighbors, uid, neighbor?.boardPieceUID)
+        }
+      }
+      for (const altitude of [hex.altitude - 1, hex.altitude + 1]) {
+        const stacked = boardHexes[genBoardHexID({ ...hex, altitude })]
+        if (categories.get(stacked?.boardPieceUID ?? '') === 'land') {
+          addNeighbor(neighbors, uid, stacked?.boardPieceUID)
+        }
+      }
+    } else if (category === 'laur') {
+      for (const altitude of [hex.altitude - 1, hex.altitude + 1]) {
+        const stacked = boardHexes[genBoardHexID({ ...hex, altitude })]
+        if (categories.get(stacked?.boardPieceUID ?? '') === 'laur') {
+          addNeighbor(neighbors, uid, stacked?.boardPieceUID)
+        }
+      }
     }
-    for (const altitude of [hex.altitude - 1, hex.altitude + 1]) {
-      const stacked = boardHexes[genBoardHexID({ ...hex, altitude })]
-      addNeighbor(neighbors, uid, stacked?.boardPieceUID)
+  }
+
+  for (const piece of visiblePieces) {
+    const category = categories.get(piece.uid)
+    if (category === 'obstacle' || category === 'laur') {
+      const ownedHexes = hexesByUID.get(piece.uid) ?? []
+      const footprintCoords =
+        ownedHexes.length > 0
+          ? ownedHexes
+              .filter((hex) => !hex.isVerticalClearanceHex)
+              .map(({ q, r, s }) => ({ q, r, s }))
+          : (getPieceFeatureIds({
+              ...piece,
+              pieceID: piece.inventoryID,
+            })?.footprint?.endHexIds.map((id) => {
+              const [q, r, s] = id.slice('hex:'.length).split(',').map(Number)
+              return { q, r, s }
+            }) ?? [])
+      for (const coords of footprintCoords) {
+        addLandAt(piece.uid, coords, piece.altitude)
+      }
+    }
+
+    if (category === 'edge-piece') {
+      const edgeID = getConnectionEdgeId(piece)
+      if (edgeID) {
+        for (const coords of hexesForEdge(edgeID)) {
+          const endpoint =
+            boardHexes[genBoardHexID({ ...coords, altitude: piece.altitude })]
+          const endpointCategory = categories.get(endpoint?.boardPieceUID ?? '')
+          if (
+            endpointCategory === 'land' ||
+            endpointCategory === 'laur' ||
+            (endpoint?.terrain &&
+              [
+                HexTerrain.castleWall,
+                HexTerrain.castleBase,
+                HexTerrain.shipWall,
+                HexTerrain.shipBow,
+                HexTerrain.fortifiedWall,
+                HexTerrain.ruin,
+                HexTerrain.marvelRuin,
+              ].includes(endpoint.terrain as HexTerrain))
+          ) {
+            addNeighbor(neighbors, piece.uid, endpoint?.boardPieceUID)
+          }
+        }
+      }
+      if (piece.inventoryID === Pieces.ladder) {
+        const height = piecesSoFar[piece.inventoryID]?.height ?? 0
+        for (const altitude of [piece.altitude, piece.altitude + height]) {
+          addLandAt(piece.uid, piece.pieceCoords, altitude)
+        }
+      }
     }
   }
 
   const piecesWithFeatures = new Map<string, Set<string>>()
   for (const piece of visiblePieces) {
+    const category = categories.get(piece.uid)
+    if (category !== 'laur' && category !== 'edge-piece') continue
     const featureIds =
-      getPieceFeatureIds({
-        ...piece,
-        pieceID: piece.inventoryID,
-      })?.featureIds ?? []
+      category === 'edge-piece' && piece.inventoryID === Pieces.ladder
+        ? [getConnectionEdgeId(piece)]
+        : (getPieceFeatureIds({
+            ...piece,
+            pieceID: piece.inventoryID,
+          })?.featureIds ?? [])
     for (const featureId of featureIds) {
+      if (!featureId) continue
       const attached = piecesWithFeatures.get(featureId)
       if (attached) {
         for (const uid of attached) addNeighbor(neighbors, piece.uid, uid)
@@ -231,7 +389,7 @@ export const selectionMenuActions: SelectionMenuAction[] = [
     label: 'Select connected',
     group: 'selection',
     tooltip:
-      'Select pieces that share a horizontal side at an occupied level, stack directly above or below, or share a Laur attachment.',
+      'Connects side-touching or stacked land, obstacles to the land beneath them, Laur pieces by attachment or stacking, and ladders, battlements, or rope ladders to edge attachments.',
     isEnabled: hasVisibleSeeds,
     disabledReason: seedRequired,
     run: (ctx) => ctx.setSelectedPieceIDs(selectConnected(ctx)),
