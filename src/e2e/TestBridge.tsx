@@ -208,6 +208,13 @@ function TestBridgeInner() {
               ...previewMaterial,
             })
           }
+          if (object.userData.snowEvergreenTreeUID === null) {
+            previewMeshes.push({
+              family: 'snowEvergreenTree',
+              part: 'tree',
+              ...previewMaterial,
+            })
+          }
           const marvelRuinUID = object.userData.marvelRuinUID
           const marvelRuinPart = object.userData.marvelRuinPart
           if (

@@ -30,7 +30,7 @@ export type E2ESnapshot = {
     materialTypes: string[]
   }>
   previewMeshes: Array<{
-    family: 'marroHive' | 'evergreenTree' | 'marvelRuin'
+    family: 'marroHive' | 'evergreenTree' | 'snowEvergreenTree' | 'marvelRuin'
     part: string
     hasMap: boolean
     transparent: boolean

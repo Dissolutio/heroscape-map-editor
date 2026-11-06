@@ -292,16 +292,14 @@ test('tree placement previews render transparently in every graphics tier', asyn
 
     for (const size of [1, 4]) {
       await setPen(page, 'tr10', size)
-      await hoverHex(page, { q: 4, r: 2, altitude: 0 })
+      await hoverHex(page, { q: 0, r: 0, altitude: 0 })
 
       await expect
         .poll(async () =>
           page.evaluate(() =>
             window.__TEST__
               ?.snapshot()
-              .previewMeshes.filter(
-                (mesh) => mesh.family === 'evergreenTree',
-              ),
+              .previewMeshes.filter((mesh) => mesh.family === 'evergreenTree'),
           ),
         )
         .toEqual(
@@ -322,6 +320,59 @@ test('tree placement previews render transparently in every graphics tier', asyn
       )
       expect(previews?.length).toBe(size === 1 ? 1 : 3)
       expect(previews?.every((mesh) => mesh.opacity < 1)).toBe(true)
+    }
+
+    await hoverHex(page, { q: 1, r: 0, altitude: 0 })
+    await expect
+      .poll(async () =>
+        page.evaluate(() =>
+          window.__TEST__
+            ?.snapshot()
+            .previewMeshes.filter((mesh) => mesh.family === 'evergreenTree'),
+        ),
+      )
+      .not.toHaveLength(0)
+
+    for (const preview of [
+      {
+        mode: 'h',
+        size: 0,
+        family: 'marroHive',
+        hasMap: tier.hasMap,
+      },
+      {
+        mode: 'str10',
+        size: 1,
+        family: 'snowEvergreenTree',
+        hasMap: false,
+      },
+      {
+        mode: 'rm',
+        size: 0,
+        family: 'marvelRuin',
+        hasMap: tier.hasMap,
+      },
+    ] as const) {
+      await setPen(page, preview.mode, preview.size)
+      await expect
+        .poll(async () =>
+          page.evaluate(
+            (family) =>
+              window.__TEST__
+                ?.snapshot()
+                .previewMeshes.filter((mesh) => mesh.family === family),
+            preview.family,
+          ),
+        )
+        .toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              family: preview.family,
+              hasMap: preview.hasMap,
+              transparent: true,
+            }),
+          ]),
+        )
     }
   }
 })
