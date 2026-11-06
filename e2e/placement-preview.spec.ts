@@ -42,12 +42,17 @@ test('Evergreen Tree hotkeys select each numbered variant', async ({
   ] as const) {
     await page.keyboard.press(key)
     await page.waitForFunction(
-      (id) => window.__TEST__?.snapshot().penPieceID === id,
-      pieceID,
+      ({ id, count }) => {
+        const snapshot = window.__TEST__?.snapshot()
+        return (
+          snapshot?.penPieceID === id &&
+          snapshot.placementPreview?.footprintCount === count
+        )
+      },
+      { id: pieceID, count: footprintCount },
     )
     const snapshot = await page.evaluate(() => window.__TEST__?.snapshot())
     expect(snapshot?.penPieceID).toBe(pieceID)
-    expect(snapshot?.placementPreview?.footprintCount).toBe(footprintCount)
   }
 })
 
