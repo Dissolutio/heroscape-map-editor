@@ -1,18 +1,19 @@
 # Hexoscape roadmap
 
-Updated 2026-11-03 (evening). One page. Legend: 🔧 Copilot has it (issue #) · 👀 needs your eyes · 👤 waiting on you · ❓ needs a decision or measurement · 💤 later
+Updated 2026-11-05. One page. Legend: 🔧 Copilot has it (issue #) · 👀 needs your eyes · 👤 waiting on you · ❓ needs a decision or measurement · 💤 later
 
 ## Where we are
+Merged Nov 5 (release notes entry Nov-05-2026): textured Marro Hive and textured Evergreen Trees 10/11/12 and Large Tree 15 (Medium and High tiers; models converted from Virtualscape meshes), "Show Objective Markers" switch (like Start Zones, on every session), objective marker numbers face the camera (shared marker/glyph rotation removed), missing and white hex sides fix, PDF sub-level colors (SVG unchanged), ladder stack counts, click empty ground to deselect, old High-Quality render path removed, Dependabot config and Tauri/zip dependency fix, unused old hive model deleted.
 Merged Nov 3: upright and unmirrored side textures, size hotkeys for obstacles, one 3D | 2D | PDF navbar switch, optional PDF piece legend, no random rotation on Wood caps, quieter action log, selection units (saved named selections pinned above the action log, log rows recall their selection; replaces back/forward history).
 Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restores selection, rotate hotkeys (q/e) while dragging, Use as Pen, upright side textures, fluid caps, old-map loading fix. Textures (3 graphics tiers), objective markers, edge IDs for Laur/battlements/ladders are all in.
 
 ## 1. Now
-- 👀 Hand-test the Nov 3 merges: side textures not mirrored, size hotkeys (#239), navbar 3D | 2D | PDF switch (#238), PDF piece legend (#240)
+- 👀 Hand-test the Nov 5 merges: textured Marro Hive (underside, ridges, eggs, shadow acne), textured evergreen trees (heights 11 and 12, rotation, tree 15 trunk/base, boulders), Show Objective Markers switch (hidden markers can't be clicked or dragged), marker numbers facing the camera, hex sides under start zones and beside water (#261 fix; send the map if white sides remain)
+- 👀 Hand-test the Nov 3 and 4 merges: side textures not mirrored, Wood planking at rotations 1, 2, 4, 5 (and in the drag preview), size hotkeys, navbar 3D | 2D | PDF switch, PDF piece legend, PDF sub-level colors match the SVG (SVG unchanged), ladder stack counts (x2, x3), click an empty hex to deselect
 - 👀 Zoom-to-Piece fade: Copilot found no fade code in source. Does it still happen?
 - 👀 Test selection units: click action-log rows, save and recall a named selection (Shift adds), save and reload a map keeps them
 - 👀 Test the ghost-preview fix and Windows diagnostics (Sentry tag `webgl`)
-- 👀 Test the Nov 4 merges: PDF sub-level colors match the SVG (SVG unchanged), ladder stack counts (x2, x3) in SVG/PDF, click an empty hex to deselect, and that 3D still looks right after removing the old High-Quality render path
-- 🔧 #261 Some land hex sides render white or transparent (edge hexes under start zones, grass beside water)
+- 👀 First release build after the Rust 1.90 minimum (Tauri/zip update); the two zip Dependabot alerts close once the updater fix ships
 
 ## 2. Next (catch-up, in rough order)
 **Selection**
@@ -37,6 +38,8 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - Outcrop bases count in inventory ("with holes" pieces don't exist yet)
 - Tall stacks of fluid beyond 2 ❓ needs physical testing
 - Laur Ruin 2 and 3: pen modes and 3D models 👤 models from you
+- Textured Virtualscape terrain, same recipe as the hive and trees: Ruins2, Ruins3, maybe RoadWall, Marvel Ruins 👤 send the `.sgl` and `.bmp` files; snow trees have no Virtualscape model, so they need a different plan ❓
+- Big tree boulders now use our boulder models with the Virtualscape rock texture; revisit if they look off
 
 **Health**
 - Rough-edges cleanup (small known nits, list in project docs)
@@ -46,6 +49,7 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 
 ## 3. Waiting on you 👤
 - Laur Ruin 1 redo; Ruin 2 and 3 models
+- `.sgl` and `.bmp` files for Ruins2, Ruins3, RoadWall, Marvel Ruins
 - Hand-testing after each deploy (list in section 1)
 - Where to take the UI layout (you said the layout is "way off")
 
@@ -81,4 +85,4 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - Import Virtualscape PDFs as maps (not a priority)
 
 ## 5. Done and retired
-Generic pieces, buried marks, Treasure glyph color, Shroudshroom marker, objective markers, 3D Look + field of view, transparent pictures, crop dialog, Pieces Grid filter keeps, Map Inventory click-to-pen, action log, background color, adjustable lights (3D Look). The old Flash-era `REFACTORED_TODO.md` was retired; this file is the only list.
+Textured Marro Hive and evergreen trees, Show Objective Markers switch, Dependabot setup, generic pieces, buried marks, Treasure glyph color, Shroudshroom marker, objective markers, 3D Look + field of view, transparent pictures, crop dialog, Pieces Grid filter keeps, Map Inventory click-to-pen, action log, background color, adjustable lights (3D Look). The old Flash-era `REFACTORED_TODO.md` was retired; this file is the only list.
