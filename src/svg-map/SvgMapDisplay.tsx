@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { piecesSoFar } from '../data/pieces'
+import {
+  getObjectiveMarkerLegendLayout,
+  getSvgObjectiveMarkerFooterHeight,
+  getSvgObjectiveMarkerKeyFontSize,
+  getSvgVisibleObjectiveMarkers,
+} from '../pdf-svg-shared/objectiveMarkerExport'
+import { getPieceKeyModel } from '../pdf-svg-shared/pieceKey'
 import useBoundStore from '../store/store'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import {
@@ -12,18 +19,13 @@ import {
   getBuriedMarksForHex,
   makeBuriedMarksByUID,
 } from '../utils/tileMarks'
-import {
-  getObjectiveMarkerLegendLayout,
-  getSvgObjectiveMarkerFooterHeight,
-  getSvgObjectiveMarkerKeyFontSize,
-  getSvgVisibleObjectiveMarkers,
-} from '../pdf-svg-shared/objectiveMarkerExport'
 import { SvgMapBoardPiece } from './SvgMapBoardPiece'
 import { SvgMapHex } from './SvgMapHex'
 import {
   SvgObjectiveMarkerLegend,
   SvgObjectiveMarkerOverlay,
 } from './SvgObjectiveMarkerOverlay'
+import { SvgPieceKey, getSvgPieceKeyHeight } from './SvgPieceKey'
 
 const adjustXForNew00Centers = -1 * SVG_HEX_APOTHEM
 const adjustYForNew00Centers = -1 * SVG_HEX_RADIUS
@@ -45,6 +47,8 @@ const SvgMapDisplay = () => {
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
   )
+  const isShowPieceKey = useBoundStore((s) => s.isShowPdfPieceLegend)
+  const useTerrainBorderColor = useBoundStore((s) => s.isPdfColorBorders)
   const decodedBoardPiecesArr = boardPieces
     .map((bp) => boardPieceToDecodedPieceID(bp))
     .filter((p) => Boolean(p))
@@ -87,12 +91,19 @@ const SvgMapDisplay = () => {
     keyFontSize,
     objectiveLegendRowHeight,
   )
-  const viewboxStr = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height + keyFooterHeight}`
+  const pieceKeyHeight = isShowPieceKey
+    ? getSvgPieceKeyHeight(
+        getPieceKeyModel(boardPieces, boardHexes, useTerrainBorderColor),
+        viewBox.width,
+      )
+    : 0
+  const viewboxStr = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height + keyFooterHeight + pieceKeyHeight}`
   const objectiveLegendY = viewBox.y + viewBox.height + keyFontSize * 1.1
   const buriedMarksY =
     objectiveLegendHeight > 0
       ? objectiveLegendY + objectiveLegendHeight + keyFontSize
       : viewBox.y + viewBox.height + keyFontSize * 1.1
+  const pieceKeyY = viewBox.y + viewBox.height + keyFooterHeight + 8
   // const isPointerDown = useRef(false)
 
   // Effect to update the viewBox when map dimensions change
@@ -169,6 +180,15 @@ const SvgMapDisplay = () => {
           >
             {BURIED_MARKS_KEY}
           </text>
+        )}
+        {isShowPieceKey && (
+          <SvgPieceKey
+            boardPieces={boardPieces}
+            boardHexes={boardHexes}
+            x={viewBox.x}
+            y={pieceKeyY}
+            width={viewBox.width}
+          />
         )}
       </g>
     </svg>

@@ -23,16 +23,22 @@ export const SvgMapBoardPiece = ({
   piece,
   viewingLevel,
   overlayLevel,
-}: { piece: DecodedPieceID; viewingLevel: number; overlayLevel: number }) => {
+  isPieceKeyPreview = false,
+}: {
+  piece: DecodedPieceID
+  viewingLevel: number
+  overlayLevel: number
+  isPieceKeyPreview?: boolean
+}) => {
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
-  const isSubLevel = altitudeAdjusted < viewingLevel
+  const isSubLevel = !isPieceKeyPreview && altitudeAdjusted < viewingLevel
   const { inventoryID } = piece
   const exportSymbol = getPieceExportSymbol(inventoryID)
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
   )
-  const isVisible = altitudeAdjusted <= viewingLevel
+  const isVisible = isPieceKeyPreview || altitudeAdjusted <= viewingLevel
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   const boardPieceAsHex: BoardHex = {
     id: piece.boardHexID,
@@ -54,7 +60,8 @@ export const SvgMapBoardPiece = ({
   if (exportSymbol === 'start-zone') {
     const isOverlayViewing =
       is2DOverlayLevelEnabled && viewingLevel === overlayLevel
-    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
+    const specialIsSubLevel =
+      isPieceKeyPreview || isOverlayViewing ? false : isSubLevel
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgStartZone hex={boardPieceAsHex} isSubLevel={specialIsSubLevel} />
@@ -103,7 +110,11 @@ export const SvgMapBoardPiece = ({
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgBoardPieceLaurWallLong piece={piece} isSubLevel={isSubLevel} />
+        <SvgBoardPieceLaurWallLong
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </g>
     )
   }
@@ -112,7 +123,11 @@ export const SvgMapBoardPiece = ({
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgBoardPieceLaurWallLongArch piece={piece} isSubLevel={isSubLevel} />
+        <SvgBoardPieceLaurWallLongArch
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
         <g
           // flip upside down text, all other rotations are legible
           transform={
@@ -135,7 +150,11 @@ export const SvgMapBoardPiece = ({
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgBoardPieceLaurWallShort piece={piece} isSubLevel={isSubLevel} />
+        <SvgBoardPieceLaurWallShort
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </g>
     )
   }
@@ -145,7 +164,11 @@ export const SvgMapBoardPiece = ({
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgBoardPieceLaurWallRuin piece={piece} isSubLevel={isSubLevel} />
+        <SvgBoardPieceLaurWallRuin
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </g>
     )
   }

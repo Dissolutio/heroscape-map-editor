@@ -234,6 +234,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Objective-marker placement, editing, rotation, drag, deletion, undo, unit-name suggestions, and saved-file name round trips | `e2e/objective-marker-editing.spec.ts` |
 | Collection inventory gating, missing-terrain rows, conditional ranked substitutes, naming/cancel, metadata persistence, buried fill, leftovers, and one-step undo | `e2e/adapt-to-collection.spec.ts` |
 | OHS-friendly glyph space export options | `e2e/glyph-export-options.spec.ts` |
+| SVG piece-key visibility, editable text, downloaded key on/off state, and PDF downloads with both border modes | `e2e/svg-piece-key.spec.ts` |
 | View tooltips, 3D/2D/PDF navbar switching, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
 | Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |
 | Multi-hex fluid cap join vertices and dark-pixel checks at Medium/High | `e2e/fluid-cap-vertices.spec.ts` |

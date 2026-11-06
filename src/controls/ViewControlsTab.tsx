@@ -1068,8 +1068,8 @@ const PdfPreferencesSwitchForm = () => {
               }
             />
           }
-          label="Show PDF piece legend"
-          title="Add a legend of the pieces used in the map to the PDF"
+          label="Include piece key in SVG and PDF"
+          title="Add an official-style key of the pieces used in the map to SVG and PDF exports"
         />
         <FormControlLabel
           control={
