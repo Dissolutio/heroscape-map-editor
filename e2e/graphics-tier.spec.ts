@@ -430,7 +430,7 @@ test('graphics tier loads Medium textures and returns to the classic Low rendere
   })
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto(EVERGREEN_FIXTURE_URL)
+  await page.goto(FIXTURE_URL)
   await waitForAppReady(page)
   await expect
     .poll(async () =>
@@ -492,7 +492,7 @@ test('hover, paint, select, and drag work in every graphics tier', async ({
     }
   })
 
-  await page.goto(EVERGREEN_FIXTURE_URL)
+  await page.goto(FIXTURE_URL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
   const graphics = page.getByTestId('graphics-tier-select')
