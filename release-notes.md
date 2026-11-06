@@ -1,9 +1,13 @@
-Nov-05-2026
-TLDR: Saved selections, one 3D | 2D | PDF switch, click empty ground to deselect, size hotkeys for trees and outcrops, a piece legend and ladder counts in the PDF, a textured Marro Hive, a Show Objective Markers switch, and fixes for wood, side textures and missing hex sides.
+Nov-06-2026
+TLDR: Textured trees, ruins and walls from the original models, numbered obstacle variants, a restored tree placement preview, saved selections, one 3D | 2D | PDF switch, click empty ground to deselect, a piece legend and ladder counts in the PDF, a textured Marro Hive, a Show Objective Markers switch, and fixes for wood, side textures and missing hex sides.
 
 - **Saved selections**: Selection history is replaced by something more useful. Each action in the action log that touched pieces now has a link: click it to select those pieces again (Shift-click adds to your selection). You can also save the current selection with a name, and your saved selections sit above the action log. They are kept in your map file.
 - **3D | 2D | PDF switch**: One control in the top bar switches between the three views, and shows which one you are in.
-- **Size hotkeys for obstacles**: The number keys now pick the size of trees, outcrops and other obstacle families, the same way they already did for land.
+- **Numbered obstacle variants**: Trees, outcrops, Laur walls, ruins and other obstacle families now list their pieces as numbered options in the order you'd expect, for example Evergreen Tree 1, 2, 3 and the Large Evergreen Tree as 4. The number keys pick the option. Families with more than five options, like the Laur walls, cycle forward with 1 and backward with Shift+1. Middle-click on a placed piece picks the matching option. Land sizes work as before.
+- **Tree placement preview is back**: The see-through ghost of Evergreen Trees (single and large) was missing while placing. It shows again at every graphics level.
+- **Textured trees**: The Evergreen Trees and the Large Evergreen Tree (with its boulders) use the original Virtualscape models and their painted textures. Medium and High show the texture, High adds a glossier shine, and Low keeps flat colors.
+- **Textured Warehouse Ruin and Stone Wall**: Same treatment for the Warehouse Ruin (all four variants, including the broken wall) and the Stone Wall: texture on Medium and High, flat colors on Low. Their shapes changed slightly to match the originals, so a ruin's broken wall and upper floor may sit a touch differently than before.
+- **Textured Ruins 2 and Ruins 3**: Both ruins now have their painted wall and column textures on Medium and High.
 - **PDF piece legend**: Build instructions can now include a legend of just the pieces used in your map, with each symbol and a few words. It is optional.
 - **Wood caps follow the piece**: The planking on a wood cap now runs along the piece in all six rotations, like the real tile, and wood caps are never randomly rotated.
 - **Side textures are no longer mirrored**: Last release turned them right way up; now they are not flipped left to right either, so your own height-map and diffuse images read correctly.
