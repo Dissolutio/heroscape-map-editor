@@ -18,7 +18,12 @@ import {
 import { isE2E, isPerHexLandOverride } from './isE2E'
 import { getPlacementPreview } from './placementPreviewStore'
 import { getReady } from './readyStore'
-import type { E2EDragSnapshot, E2ETestBridge, ScreenPoint } from './types'
+import type {
+  E2EDragSnapshot,
+  E2ESnapshot,
+  E2ETestBridge,
+  ScreenPoint,
+} from './types'
 import { getLandSubterrainInstanceData } from '../world/models/LandSubterrainInstanced'
 import { buildLandHexInstanceData } from '../world/models/landHexInstances'
 import { getLandRendererMode } from '../world/landRendererTier'
@@ -147,6 +152,7 @@ function TestBridgeInner() {
           hasMap: boolean
           materialTypes: string[]
         }> = []
+        const marvelRuinMaterials: E2ESnapshot['marvelRuinMaterials'] = []
         get().scene.traverse((object) => {
           if (!(object instanceof Mesh)) return
           const materials = (
@@ -169,6 +175,24 @@ function TestBridgeInner() {
             evergreenTreeMaterials.push({
               uid: evergreenTreeUID,
               part,
+              hasMap: materials.some((material) => Boolean(material?.map)),
+              materialTypes: materials.map((material) => material?.type ?? ''),
+            })
+          }
+          const marvelRuinUID = object.userData.marvelRuinUID
+          const marvelRuinPart = object.userData.marvelRuinPart
+          if (
+            typeof marvelRuinUID === 'string' &&
+            (marvelRuinPart === 'MarvelRuinLeft' ||
+              marvelRuinPart === 'MarvelRuinFront' ||
+              marvelRuinPart === 'MarvelRuinBack' ||
+              marvelRuinPart === 'MarvelRuinFrontBroken' ||
+              marvelRuinPart === 'MarvelRuinBackBroken' ||
+              marvelRuinPart === 'MarvelRuinUpperFloor')
+          ) {
+            marvelRuinMaterials.push({
+              uid: marvelRuinUID,
+              part: marvelRuinPart,
               hasMap: materials.some((material) => Boolean(material?.map)),
               materialTypes: materials.map((material) => material?.type ?? ''),
             })
@@ -201,6 +225,7 @@ function TestBridgeInner() {
           landRenderer: hasPerHexLandRenderer ? 'per-hex' : 'legacy',
           marroHiveMaterials,
           evergreenTreeMaterials,
+          marvelRuinMaterials,
           viewingLevel: s.viewingLevel,
           penMode: s.penMode,
           selectedPieceIDs: [...s.selectedPieceIDs],
