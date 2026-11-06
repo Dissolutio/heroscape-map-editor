@@ -480,6 +480,84 @@ describe('real store undo and redo', () => {
     expect(historyLength()).toBe(3)
   })
 
+  it('adapts different instances in one undo step and restores their IDs', () => {
+    const pieces: BoardPiece[] = [
+      {
+        uid: 'surface-snow',
+        inventoryID: Pieces.snow1,
+        altitude: 0,
+        rotation: 2,
+        pieceCoords: { q: 2, r: 2, s: -4 },
+      },
+      {
+        uid: 'buried-snow',
+        inventoryID: Pieces.snow1,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: 4, r: 2, s: -6 },
+      },
+      {
+        uid: 'snow-cover',
+        inventoryID: Pieces.grass1,
+        altitude: 1,
+        rotation: 0,
+        pieceCoords: { q: 4, r: 2, s: -6 },
+      },
+    ]
+    loadWithoutHistory(loadedMap(pieces))
+    const before = structuredClone(store.getState().boardPieces)
+    const conflictsBefore = [...store.getState().conflictedPieceUIDs]
+    const actionLogLength = store.getState().actionLog.length
+
+    expect(
+      store.getState().convertTerrainForPieces({
+        selectedUIDs: ['surface-snow', 'buried-snow'],
+        targetInventoryBySourceInventory: {},
+        targetInventoryByUID: {
+          'surface-snow': Pieces.rock1,
+          'buried-snow': Pieces.grass1,
+        },
+        adaptToCollection: true,
+      }),
+    ).toBe(2)
+
+    expect(historyLength()).toBe(1)
+    expect(store.getState().actionLog).toHaveLength(actionLogLength + 1)
+    expect(
+      store.getState().actionLog[store.getState().actionLog.length - 1]?.text,
+    ).toBe('Adapted map to collection (2 pieces)')
+    expect(store.getState().actionLogUndoStack).toHaveLength(1)
+    expect(
+      Object.fromEntries(
+        store
+          .getState()
+          .boardPieces.map((piece) => [piece.uid, piece.inventoryID]),
+      ),
+    ).toEqual({
+      'surface-snow': Pieces.rock1,
+      'buried-snow': Pieces.grass1,
+      'snow-cover': Pieces.grass1,
+    })
+    expect(store.getState().conflictedPieceUIDs).toEqual(conflictsBefore)
+    for (const original of before) {
+      const current = store
+        .getState()
+        .boardPieces.find((piece) => piece.uid === original.uid)
+      expect(current).toMatchObject({
+        altitude: original.altitude,
+        rotation: original.rotation,
+        pieceCoords: original.pieceCoords,
+      })
+    }
+
+    undoWithSelectionRestore()
+    expect(
+      store
+        .getState()
+        .boardPieces.map(({ uid, inventoryID }) => ({ uid, inventoryID })),
+    ).toEqual(before.map(({ uid, inventoryID }) => ({ uid, inventoryID })))
+  })
+
   it('undoes and redoes unpainting with exact boardPieces and boardHexes', () => {
     loadWithoutHistory(
       loadedMap([

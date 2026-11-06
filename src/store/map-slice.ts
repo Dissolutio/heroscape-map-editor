@@ -171,6 +171,8 @@ type PaintTileArgs = {
 type ConvertTerrainArgs = {
   selectedUIDs: string[]
   targetInventoryBySourceInventory: Record<string, string>
+  targetInventoryByUID?: Record<string, string>
+  adaptToCollection?: boolean
 }
 
 /**
@@ -356,6 +358,8 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
   convertTerrainForPieces: ({
     selectedUIDs,
     targetInventoryBySourceInventory,
+    targetInventoryByUID,
+    adaptToCollection,
   }: ConvertTerrainArgs): number => {
     let convertedCount = 0
     const affectedUIDs = [
@@ -366,6 +370,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
           )
           if (!boardPiece) return false
           const targetInventoryID =
+            targetInventoryByUID?.[uid] ??
             targetInventoryBySourceInventory[boardPiece.inventoryID]
           if (
             !targetInventoryID ||
@@ -395,6 +400,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
           if (!boardPiece) continue
 
           const targetInventoryID =
+            targetInventoryByUID?.[uid] ??
             targetInventoryBySourceInventory[boardPiece.inventoryID]
           if (
             !targetInventoryID ||
@@ -451,7 +457,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     get().clearPendingUndoSelectionRestore()
     if (convertedCount) {
       get().recordActionLog({
-        type: 'convert',
+        type: adaptToCollection ? 'adapt' : 'convert',
         count: convertedCount,
         selection: { pieceUIDs: affectedUIDs },
       })
