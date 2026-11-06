@@ -757,4 +757,3 @@ test('tree placement previews render transparently in every graphics tier', asyn
     }
   }
 })
-
