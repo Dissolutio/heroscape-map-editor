@@ -1110,13 +1110,18 @@ export const SvgBattlement = ({
 export const SvgLadder = ({
   hex,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
   // const borderColor = getSvgHexBorderColor(hex)
-  const { points } = getLadderSvgPolygonPoints(SVG_HEX_RADIUS, 0)
+  const { points } = getLadderSvgPolygonPoints(
+    SVG_HEX_RADIUS * (isPieceKeyPreview ? 2 : 1),
+    0,
+  )
   return (
     <>
       {isSubLevel && (
@@ -1362,10 +1367,12 @@ export const SvgRopeLadder = ({
   piece,
   isSubLevel,
   pieceRotation,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   pieceRotation: number
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
@@ -1378,28 +1385,30 @@ export const SvgRopeLadder = ({
   // const arrowWidth = (iconDiameter * (12 / 17.46))
   const arrowWidth = iconDiameter / 1.3
   return (
-    <g transform={`rotate(${pieceRotation})`}>
-      <g transform={`translate(${SVG_HEX_APOTHEM},0)`}>
-        {/* Placeholder until custom rope-ladder 2D geometry is added. */}
-        <rect
-          fill={fillColor}
-          width={iconDiameter}
-          height={iconDiameter}
-          x={-iconDiameter / 2}
-          y={-iconDiameter / 2}
-        />
-        <path
-          fill={arrowColor}
-          // d={generateArrowPath(SVG_HEX_RADIUS * 0.8)}
-          d={generateArrowPath(arrowWidth)}
-          transform={'translate(0, -17)'}
-        />
-        <path
-          fill={arrowColor}
-          // d={generateArrowPath(SVG_HEX_RADIUS * 0.8)}
-          d={generateArrowPath(arrowWidth)}
-          transform={'translate(-0, 15),rotate(180)'}
-        />
+    <g transform={isPieceKeyPreview ? 'scale(2)' : undefined}>
+      <g transform={`rotate(${pieceRotation})`}>
+        <g transform={`translate(${SVG_HEX_APOTHEM},0)`}>
+          {/* Placeholder until custom rope-ladder 2D geometry is added. */}
+          <rect
+            fill={fillColor}
+            width={iconDiameter}
+            height={iconDiameter}
+            x={-iconDiameter / 2}
+            y={-iconDiameter / 2}
+          />
+          <path
+            fill={arrowColor}
+            // d={generateArrowPath(SVG_HEX_RADIUS * 0.8)}
+            d={generateArrowPath(arrowWidth)}
+            transform={'translate(0, -17)'}
+          />
+          <path
+            fill={arrowColor}
+            // d={generateArrowPath(SVG_HEX_RADIUS * 0.8)}
+            d={generateArrowPath(arrowWidth)}
+            transform={'translate(-0, 15),rotate(180)'}
+          />
+        </g>
       </g>
     </g>
   )

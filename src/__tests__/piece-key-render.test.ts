@@ -45,6 +45,21 @@ const collectShapeColors = (node: ReactNode): unknown[] => {
   ]
 }
 
+const collectTextContent = (node: ReactNode): string[] => {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return [String(node)]
+  }
+  if (Array.isArray(node)) return node.flatMap(collectTextContent)
+  if (!isValidElement(node)) return []
+
+  const { type, props } = node
+  if (typeof type === 'function') {
+    const renderComponent = type as (componentProps: typeof props) => ReactNode
+    return collectTextContent(renderComponent(props))
+  }
+  return collectTextContent(props.children)
+}
+
 describe('piece key shape rendering', () => {
   it('renders a shape for every populated land-grid cell in both exports', () => {
     let board: Board = makeTable(24)
@@ -129,7 +144,7 @@ describe('piece key shape rendering', () => {
     ).toBeGreaterThan(0)
   })
 
-  it('uses the official tree height in the SVG key without changing map data', () => {
+  it('uses the registered tree height in both keys and map data', () => {
     const board = place({
       board: makeTable(12),
       pieceID: Pieces.tree10,
@@ -148,7 +163,16 @@ describe('piece key shape rendering', () => {
       SvgPieceKeyShape(entry, 0, 0, 0.1, 'tree-key'),
     )
     expect(piecesSoFar[Pieces.tree10].height).toBe(9)
-    expect(svgKey).toContain('>10</text>')
+    expect(svgKey).toContain('>9</text>')
+    const pdfText = collectTextContent(
+      PieceKeyShape({
+        entry,
+        useTerrainBorderColor: true,
+        scale: 0.075,
+      }),
+    )
+    expect(pdfText).toContain('9')
+    expect(pdfText).not.toContain('10')
   })
 
   it('renders Laur wall key shapes with purple centers and pink borders', () => {

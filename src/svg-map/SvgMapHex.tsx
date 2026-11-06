@@ -199,10 +199,7 @@ export const SvgMapHex = ({
   const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const pieceHeightText =
-    isPieceKeyPreview && inventoryID === Pieces.tree10
-      ? 10
-      : piecesSoFar[inventoryID]?.height
+  const pieceHeightText = piecesSoFar[inventoryID]?.height
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
@@ -228,7 +225,11 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgLadder hex={hex} isSubLevel={isSubLevel} />
+          <SvgLadder
+            hex={hex}
+            isSubLevel={isSubLevel}
+            isPieceKeyPreview={isPieceKeyPreview}
+          />
         </g>
         {stack && stack.count >= 2 && stack.isBottom && (
           <text

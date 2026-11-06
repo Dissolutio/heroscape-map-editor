@@ -215,10 +215,7 @@ export const PdfMapHex = ({
   const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const pieceHeightText =
-    isPieceKeyPreview && inventoryID === Pieces.tree10
-      ? 10
-      : piecesSoFar[inventoryID]?.height
+  const pieceHeightText = piecesSoFar[inventoryID]?.height
   const glyphSettings = useBoundStore.getState()
   const getHexGlyphExportOptions = (targetHex: BoardHex) =>
     getGlyphExportOptions(targetHex, glyphSettings.boardHexes, glyphSettings)
@@ -247,7 +244,11 @@ export const PdfMapHex = ({
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <G transform={`rotate(${pieceRotation})`}>
-          <PdfLadder hex={hex} isSubLevel={isSubLevel} />
+          <PdfLadder
+            hex={hex}
+            isSubLevel={isSubLevel}
+            isPieceKeyPreview={isPieceKeyPreview}
+          />
         </G>
         {stack && stack.count >= 2 && stack.isBottom && (
           <Text
