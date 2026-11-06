@@ -24,6 +24,10 @@ const EVERGREEN_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
   '0~-3~5~0~tr12',
   '0~2~5~0~tr15',
 ])
+const ROAD_WALL_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
+  ...FIXTURE_PIECE_IDS,
+  '0~2~4~0~rw',
+])
 
 const EVERGREEN_PIECES = [
   { inventoryID: 'tr10', q: 0, r: 0 },
@@ -261,6 +265,71 @@ test('evergreen trees stay selectable and use texture maps by graphics tier', as
         )
         .toContain(uid)
     }
+  }
+})
+
+test('the Stone Wall stays selectable and uses texture maps by graphics tier', async ({
+  page,
+}) => {
+  await page.goto(ROAD_WALL_FIXTURE_URL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+
+  const graphics = page.getByTestId('graphics-tier-select')
+  await graphics.click()
+  await page.getByRole('option', { name: 'Low (classic look)' }).click()
+  const roadWallUID = await findPieceUid(page, {
+    inventoryID: 'rw',
+    q: 2,
+    r: 4,
+  })
+  const tiers = [
+    { label: 'Low (classic look)', hasMap: false },
+    { label: 'Medium (diffuse textures)', hasMap: true },
+    { label: 'High (PBR textures)', hasMap: true },
+  ]
+
+  for (const [index, tier] of tiers.entries()) {
+    if (index > 0) {
+      await graphics.click()
+      await page.getByRole('option', { name: tier.label }).click()
+      await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+        'Textures ready',
+      )
+    }
+
+    await expect
+      .poll(async () =>
+        page.evaluate(() => window.__TEST__?.snapshot().roadWallMaterials),
+      )
+      .toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            uid: roadWallUID,
+            part: 'wall',
+            hasMap: tier.hasMap,
+          }),
+          expect.objectContaining({
+            uid: roadWallUID,
+            part: 'road',
+            hasMap: tier.hasMap,
+          }),
+        ]),
+      )
+
+    await page.mouse.move(0, 0)
+    const alreadySelected = await page.evaluate(
+      (uid) =>
+        window.__TEST__?.snapshot().selectedPieceIDs.includes(uid) ?? false,
+      roadWallUID,
+    )
+    if (alreadySelected) await clickPiece(page, roadWallUID)
+    await clickPiece(page, roadWallUID)
+    await expect
+      .poll(async () =>
+        page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
+      )
+      .toContain(roadWallUID)
   }
 })
 
