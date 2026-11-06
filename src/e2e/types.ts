@@ -36,6 +36,18 @@ export type E2ESnapshot = {
     transparent: boolean
     opacity: number
   }>
+  ruinsMaterials: Array<{
+    uid: string
+    part: 'face' | 'columns'
+    hasMap: boolean
+    materialTypes: string[]
+  }>
+  roadWallMaterials: Array<{
+    uid: string
+    part: 'wall' | 'road'
+    hasMap: boolean
+    materialTypes: string[]
+  }>
   marvelRuinMaterials: Array<{
     uid: string
     part:
