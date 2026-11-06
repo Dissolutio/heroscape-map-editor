@@ -1,9 +1,14 @@
 import { G, Page, Svg, Text, View } from '@react-pdf/renderer'
 import {
-  getPieceKeyModel,
   type PieceKeyEntry,
+  getPieceKeyModel,
 } from '../pdf-svg-shared/pieceKey'
-import { getPieceKeyShapeLayout } from '../pdf-svg-shared/pieceKeyShapeLayout'
+import {
+  getPieceKeyRowShapeHeight,
+  getPieceKeyShapeLayout,
+  getPieceKeyShapeScale,
+  getPieceKeySpecialEntriesPerRow,
+} from '../pdf-svg-shared/pieceKeyShapeLayout'
 import useBoundStore from '../store/store'
 import type { BoardHex, BoardPiece } from '../types'
 import { boardPieceToDecodedPieceID } from '../utils/map-utils'
@@ -12,7 +17,26 @@ import { PdfMapHex } from './PdfMapHex'
 
 const LAND_COLUMNS_PER_TABLE = 6
 const LAND_SHAPE_SCALE = 0.075
-const SPECIAL_SHAPE_SCALE = 0.055
+const SHAPE_PADDING = 24
+const PAGE_CONTENT_WIDTH = 564
+const PDF_TABLE_HEADER_HEIGHT = 36
+
+const getLandShapeScale = (model: ReturnType<typeof getPieceKeyModel>) =>
+  getPieceKeyShapeScale(
+    model,
+    (PAGE_CONTENT_WIDTH * 0.8) / LAND_COLUMNS_PER_TABLE,
+    LAND_SHAPE_SCALE,
+  )
+
+const getLandRowHeight = (
+  model: ReturnType<typeof getPieceKeyModel>,
+  size: number,
+  scale: number,
+) =>
+  Math.max(
+    size >= 24 ? 60 : size >= 7 ? 48 : 40,
+    getPieceKeyRowShapeHeight(model, size, scale, 16) + 10,
+  )
 
 export function PieceKeyShape({
   entry,
@@ -25,13 +49,15 @@ export function PieceKeyShape({
 }) {
   const settings = useBoundStore.getState()
   const layout = getPieceKeyShapeLayout(entry)
-  const boxSize = Math.max(layout.width, layout.height, 200) + 24
-  const width = Math.max(16, boxSize * scale)
-  const viewBox = `${layout.origin.x + layout.center.x - boxSize / 2} ${layout.origin.y + layout.center.y - boxSize / 2} ${boxSize} ${boxSize}`
+  const viewWidth = layout.width + SHAPE_PADDING * 2
+  const viewHeight = layout.height + SHAPE_PADDING * 2
+  const width = Math.max(8, viewWidth * scale)
+  const height = Math.max(8, viewHeight * scale)
+  const viewBox = `${layout.origin.x + layout.center.x - viewWidth / 2} ${layout.origin.y + layout.center.y - viewHeight / 2} ${viewWidth} ${viewHeight}`
   const decoded = boardPieceToDecodedPieceID(entry.piece)
 
   return (
-    <Svg width={width} height={width} viewBox={viewBox}>
+    <Svg width={width} height={height} viewBox={viewBox}>
       <G
         transform={`rotate(${layout.angle} ${layout.origin.x} ${layout.origin.y})`}
       >
@@ -81,6 +107,7 @@ function LandGrid({
   useTerrainBorderColor: boolean
 }) {
   const tables = []
+  const scale = getLandShapeScale(model)
   for (
     let offset = 0;
     offset < model.landColumns.length;
@@ -100,24 +127,27 @@ function LandGrid({
           <View style={{ flexDirection: 'row' }}>
             <View
               style={{
-                width: '16%',
-                minHeight: 34,
+                width: '20%',
+                minHeight: PDF_TABLE_HEADER_HEIGHT,
                 padding: 3,
                 borderRightWidth: 1,
                 borderBottomWidth: 1,
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ fontSize: 6, fontWeight: 'bold' }}>
-                Notice centers and border colors
+              <Text style={{ fontSize: 7, fontWeight: 'bold' }}>
+                Notice centers
+              </Text>
+              <Text style={{ fontSize: 7, fontWeight: 'bold' }}>
+                and border colors
               </Text>
             </View>
             {columns.map((column) => (
               <View
                 key={column.terrain}
                 style={{
-                  width: `${84 / Math.max(columns.length, 1)}%`,
-                  minHeight: 34,
+                  width: `${80 / Math.max(columns.length, 1)}%`,
+                  minHeight: PDF_TABLE_HEADER_HEIGHT,
                   padding: 2,
                   borderRightWidth: 1,
                   borderBottomWidth: 1,
@@ -132,56 +162,59 @@ function LandGrid({
               </View>
             ))}
           </View>
-          {model.landRows.map((row) => (
-            <View key={row.size} style={{ flexDirection: 'row' }}>
-              <View
-                style={{
-                  width: '16%',
-                  minHeight: row.size >= 24 ? 60 : row.size >= 7 ? 48 : 40,
-                  padding: 2,
-                  borderRightWidth: 1,
-                  borderBottomWidth: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <Text style={{ fontSize: 8, fontWeight: 'bold' }}>
-                  {row.title}
-                </Text>
-                <Text style={{ fontSize: 6 }}>{row.description}</Text>
+          {model.landRows.map((row) => {
+            const rowHeight = getLandRowHeight(model, row.size, scale)
+            return (
+              <View key={row.size} style={{ flexDirection: 'row' }}>
+                <View
+                  style={{
+                    width: '20%',
+                    minHeight: rowHeight,
+                    padding: 2,
+                    borderRightWidth: 1,
+                    borderBottomWidth: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 8, fontWeight: 'bold' }}>
+                    {row.title}
+                  </Text>
+                  <Text style={{ fontSize: 6 }}>{row.description}</Text>
+                </View>
+                {columns.map((column) => {
+                  const entry = column.cells.find(
+                    (cell) => cell.size === row.size,
+                  )?.entry
+                  return (
+                    <View
+                      key={`${column.terrain}-${row.size}`}
+                      style={{
+                        width: `${80 / Math.max(columns.length, 1)}%`,
+                        minHeight: rowHeight,
+                        padding: 1,
+                        borderRightWidth: 1,
+                        borderBottomWidth: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}
+                    >
+                      {entry && (
+                        <>
+                          <PieceKeyShape
+                            entry={entry}
+                            useTerrainBorderColor={useTerrainBorderColor}
+                            scale={scale}
+                          />
+                          <Text style={{ fontSize: 6 }}>x{entry.count}</Text>
+                        </>
+                      )}
+                    </View>
+                  )
+                })}
               </View>
-              {columns.map((column) => {
-                const entry = column.cells.find(
-                  (cell) => cell.size === row.size,
-                )?.entry
-                return (
-                  <View
-                    key={`${column.terrain}-${row.size}`}
-                    style={{
-                      width: `${84 / Math.max(columns.length, 1)}%`,
-                      minHeight: row.size >= 24 ? 60 : row.size >= 7 ? 48 : 40,
-                      padding: 1,
-                      borderRightWidth: 1,
-                      borderBottomWidth: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                  >
-                    {entry && (
-                      <>
-                        <PieceKeyShape
-                          entry={entry}
-                          useTerrainBorderColor={useTerrainBorderColor}
-                          scale={LAND_SHAPE_SCALE}
-                        />
-                        <Text style={{ fontSize: 6 }}>x{entry.count}</Text>
-                      </>
-                    )}
-                  </View>
-                )
-              })}
-            </View>
-          ))}
+            )
+          })}
         </View>
       ))}
     </>
@@ -191,10 +224,15 @@ function LandGrid({
 function SpecialTiles({
   model,
   useTerrainBorderColor,
+  scale,
 }: {
   model: ReturnType<typeof getPieceKeyModel>
   useTerrainBorderColor: boolean
+  scale: number
 }) {
+  const entriesPerRowFor = (group: (typeof model.specialGroups)[number]) =>
+    getPieceKeySpecialEntriesPerRow(group, PAGE_CONTENT_WIDTH / 3 - 12, scale)
+
   return (
     <View style={{ marginTop: 4 }}>
       <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 4 }}>
@@ -205,9 +243,8 @@ function SpecialTiles({
           <View
             key={group.id}
             style={{
-              width: '50%',
-              minHeight: 52,
-              padding: 4,
+              width: '33.333%',
+              padding: 3,
               borderWidth: 1,
               flexDirection: 'column',
             }}
@@ -219,28 +256,30 @@ function SpecialTiles({
               {group.description}
             </Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-              {group.entries.map((entry) => (
-                <View
-                  key={entry.inventoryID}
-                  style={{
-                    width: '25%',
-                    minHeight: 50,
-                    padding: 1,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <PieceKeyShape
-                    entry={entry}
-                    useTerrainBorderColor={useTerrainBorderColor}
-                    scale={SPECIAL_SHAPE_SCALE}
-                  />
-                  <Text style={{ fontSize: 5, textAlign: 'center' }}>
-                    {entry.title}
-                  </Text>
-                  <Text style={{ fontSize: 5 }}>x{entry.count}</Text>
-                </View>
-              ))}
+              {group.entries.map((entry) => {
+                const entriesPerRow = entriesPerRowFor(group)
+                return (
+                  <View
+                    key={entry.inventoryID}
+                    style={{
+                      width: `${100 / entriesPerRow}%`,
+                      padding: 1,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <PieceKeyShape
+                      entry={entry}
+                      useTerrainBorderColor={useTerrainBorderColor}
+                      scale={scale}
+                    />
+                    <Text style={{ fontSize: 5, textAlign: 'center' }}>
+                      {entry.title}
+                    </Text>
+                    <Text style={{ fontSize: 5 }}>x{entry.count}</Text>
+                  </View>
+                )
+              })}
             </View>
           </View>
         ))}
@@ -257,6 +296,7 @@ export function PdfPieceLegend({ boardPieces }: { boardPieces: BoardPiece[] }) {
     settings.isPdfColorBorders,
   )
   if (!model.landColumns.length && !model.specialGroups.length) return null
+  const scale = getLandShapeScale(model)
 
   return (
     <Page
@@ -276,6 +316,7 @@ export function PdfPieceLegend({ boardPieces }: { boardPieces: BoardPiece[] }) {
         <SpecialTiles
           model={model}
           useTerrainBorderColor={settings.isPdfColorBorders}
+          scale={scale}
         />
       )}
     </Page>

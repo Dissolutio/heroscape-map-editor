@@ -1,13 +1,16 @@
-import { createElement, type ReactNode, isValidElement } from 'react'
+import { type ReactNode, createElement, isValidElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it } from 'vitest'
-import { PieceKeyShape } from '../pdf-map/PdfPieceLegend'
+import { piecesSoFar } from '../data/pieces'
 import { PdfMapHex } from '../pdf-map/PdfMapHex'
-import useBoundStore from '../store/store'
-import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
+import { PieceKeyShape } from '../pdf-map/PdfPieceLegend'
 import type { PieceKeyEntry } from '../pdf-svg-shared/pieceKey'
+import { getPieceKeyModel } from '../pdf-svg-shared/pieceKey'
+import useBoundStore from '../store/store'
 import { SvgMapHex } from '../svg-map/SvgMapHex'
 import { SvgPieceKeyShape } from '../svg-map/SvgPieceKey'
+import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
+import { type Board, makeTable, place } from './helpers/board'
 
 const initialGenericColors = {
   genericSolidCapColor: useBoundStore.getState().genericSolidCapColor,
@@ -42,6 +45,111 @@ const collectShapeColors = (node: ReactNode): unknown[] => {
 }
 
 describe('piece key shape rendering', () => {
+  it('renders a shape for every populated land-grid cell in both exports', () => {
+    let board: Board = makeTable(24)
+    for (const [inventoryID, at] of [
+      [Pieces.grass2, { q: 2, r: 2, s: -4 }],
+      [Pieces.grass3, { q: 8, r: 8, s: -16 }],
+      [Pieces.grass7, { q: 14, r: 14, s: -28 }],
+    ] as const) {
+      board = place({
+        board,
+        pieceID: inventoryID,
+        at,
+        altitude: 0,
+        permissive: true,
+      }).board
+    }
+
+    const model = getPieceKeyModel(board.boardPieces, board.boardHexes, true)
+    const populatedCells = model.landColumns.flatMap((column) =>
+      column.cells.map(({ entry }) => entry),
+    )
+
+    expect(populatedCells).toHaveLength(3)
+    for (const [index, entry] of populatedCells.entries()) {
+      expect(entry.hexes.length).toBeGreaterThan(0)
+      const svg = renderToStaticMarkup(
+        SvgPieceKeyShape(entry, 0, 0, 0.1, `land-cell-${index}`),
+      )
+      expect(svg).toMatch(/<(polygon|path|circle)\b/)
+      expect(
+        collectShapeColors(
+          PieceKeyShape({
+            entry,
+            useTerrainBorderColor: true,
+            scale: 0.075,
+          }),
+        ).length,
+      ).toBeGreaterThan(0)
+    }
+  })
+
+  it('reconstructs the full land tile when its origin hex is missing', () => {
+    const piece: BoardPiece = {
+      uid: 'key-grass-2',
+      inventoryID: Pieces.grass2,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 0, r: 0, s: 0 },
+    }
+    const remainingHex: BoardHex = {
+      id: '0~1~0',
+      q: 1,
+      r: 0,
+      s: -1,
+      altitude: 0,
+      pieceID: '0~0~0~0~g2',
+      boardPieceUID: piece.uid,
+      inventoryID: Pieces.grass2,
+      terrain: HexTerrain.grass,
+      pieceRotation: 0,
+      isObstacleOrigin: false,
+    }
+    const entry = getPieceKeyModel(
+      [piece],
+      { [remainingHex.id]: remainingHex },
+      true,
+    ).landColumns[0].cells[0].entry
+
+    expect(entry.hexes).toHaveLength(2)
+    expect(entry.hexes[0].isObstacleOrigin).toBe(true)
+    expect(
+      renderToStaticMarkup(SvgPieceKeyShape(entry, 0, 0, 0.1, 'reconstructed')),
+    ).toMatch(/<polygon\b/)
+    expect(
+      collectShapeColors(
+        PieceKeyShape({
+          entry,
+          useTerrainBorderColor: true,
+          scale: 0.075,
+        }),
+      ).length,
+    ).toBeGreaterThan(0)
+  })
+
+  it('uses the official tree height in the SVG key without changing map data', () => {
+    const board = place({
+      board: makeTable(12),
+      pieceID: Pieces.tree10,
+      at: { q: 2, r: 2, s: -4 },
+      altitude: 0,
+      permissive: true,
+    }).board
+    const entry = getPieceKeyModel(board.boardPieces, board.boardHexes, true)
+      .specialGroups.find(({ id }) => id === 'evergreen')
+      ?.entries.find(({ inventoryID }) => inventoryID === Pieces.tree10)
+
+    expect(entry).toBeDefined()
+    if (!entry) return
+
+    const svgKey = renderToStaticMarkup(
+      SvgPieceKeyShape(entry, 0, 0, 0.1, 'tree-key'),
+    )
+    expect(piecesSoFar[Pieces.tree10].height).toBe(9)
+    expect(svgKey).toContain('>10</text>')
+  })
+
   it('matches map fill and stroke in both border modes with Generic colors', () => {
     const piece: BoardPiece = {
       uid: 'key-generic',
@@ -90,6 +198,7 @@ describe('piece key shape rendering', () => {
         buriedMarksByUID: new Map(),
         useLegacyStartZones: false,
         isPieceKeyPreview: true,
+        useTerrainBorderColor,
       }
       const keyShape = PieceKeyShape({
         entry,
@@ -113,11 +222,23 @@ describe('piece key shape rendering', () => {
       }),
     )
     const keySvg = renderToStaticMarkup(
-      SvgPieceKeyShape(entry, 0, 0, 0.075, 'generic'),
+      SvgPieceKeyShape(entry, 0, 0, 0.075, 'generic', true),
+    )
+    const darkMapSvg = renderToStaticMarkup(
+      createElement(SvgMapHex, {
+        hex,
+        buriedMarksByUID: new Map(),
+        isPieceKeyPreview: true,
+        useTerrainBorderColor: false,
+      }),
+    )
+    const darkKeySvg = renderToStaticMarkup(
+      SvgPieceKeyShape(entry, 0, 0, 0.075, 'generic-dark', false),
     )
     const svgColors = (markup: string) =>
       markup.match(/(?:fill|stroke)="[^"]+"/g) ?? []
 
     expect(svgColors(keySvg)).toEqual(svgColors(mapSvg))
+    expect(svgColors(darkKeySvg)).toEqual(svgColors(darkMapSvg))
   })
 })

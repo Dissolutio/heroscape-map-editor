@@ -1,20 +1,20 @@
 import { G, Line, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
+import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
 import { getLadderStackInfo } from '../pdf-svg-shared/ladderStack'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
+import {
+  SHROUDSHROOM13_ORIGIN_LINE_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
+  getShroudshroom13OriginLine,
+} from '../pdf-svg-shared/shroudshroom13OriginLine'
 import {
   getLadderStackTextPosition,
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
-import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
-import {
-  getShroudshroom13OriginLine,
-  SHROUDSHROOM13_ORIGIN_LINE_COLOR,
-  SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR,
-  SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
-} from '../pdf-svg-shared/shroudshroom13OriginLine'
 import useBoundStore from '../store/store'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
@@ -215,7 +215,10 @@ export const PdfMapHex = ({
   const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const pieceHeightText = piecesSoFar[inventoryID]?.height
+  const pieceHeightText =
+    isPieceKeyPreview && inventoryID === Pieces.tree10
+      ? 10
+      : piecesSoFar[inventoryID]?.height
   const glyphSettings = useBoundStore.getState()
   const getHexGlyphExportOptions = (targetHex: BoardHex) =>
     getGlyphExportOptions(targetHex, glyphSettings.boardHexes, glyphSettings)

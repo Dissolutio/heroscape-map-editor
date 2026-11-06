@@ -69,13 +69,13 @@ import {
   SVG_HEX_RADIUS,
   SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
 } from '../utils/constants'
+import { getGenericTerrain2DColorsFromCap } from '../world/maphex/genericTerrainColors'
 import {
   svgColors,
   svgSubLevelColors,
   virtualscapeSublevelTileColors,
   virtualscapeTileColors,
 } from '../world/maphex/hexColors'
-import { getGenericTerrain2DColorsFromCap } from '../world/maphex/genericTerrainColors'
 import { svgHiveBlobD } from './svg-hive'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
@@ -317,16 +317,18 @@ export const SvgMultiHex1 = ({
   borderWidth = SVG_BORDER_WIDTH,
   isSubLevel,
   isTransparent = false,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   borderWidth?: number
   isSubLevel?: boolean
   isTransparent?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = useSvgHexFillColor(hex, isSubLevel)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get1HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -342,14 +344,16 @@ export const SvgMultiHex1 = ({
 export const SvgMultiHex2 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = useSvgHexFillColor(hex, isSubLevel)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const { points } = get2HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get2HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -365,14 +369,16 @@ export const SvgMultiHex2 = ({
 export const SvgMultiHex3 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = useSvgHexFillColor(hex, isSubLevel)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const { points } = get3HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get3HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -409,16 +415,18 @@ export const SvgCastleArchStraight3 = ({
 export const SvgMultiHex4 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const { points } = get4HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get4HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -434,16 +442,18 @@ export const SvgMultiHex4 = ({
 export const SvgMultiHex5 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const { points } = get5HexStraightSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get5HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -460,16 +470,18 @@ export const SvgMultiHex5 = ({
 export const SvgMultiHex6 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const { points } = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -485,16 +497,18 @@ export const SvgMultiHex6 = ({
 export const SvgMultiHexMarvel6 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const { points } = getMarvel6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = getMarvel6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -510,14 +524,16 @@ export const SvgMultiHexMarvel6 = ({
 export const SvgMultiHex7 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = useSvgHexFillColor(hex, isSubLevel)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const { points } = get7HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get7HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -533,16 +549,18 @@ export const SvgMultiHex7 = ({
 export const SvgMultiHexWallWalk7 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const { points } = get7HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get7HexWallWalkOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -558,16 +576,18 @@ export const SvgMultiHexWallWalk7 = ({
 export const SvgMultiHexWallWalk9 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(hex)
     : getSvgHexFillColor(hex)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const { points } = get9HexWallWalkSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get9HexWallWalkOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -583,14 +603,16 @@ export const SvgMultiHexWallWalk9 = ({
 export const SvgMultiHex24 = ({
   hex,
   isSubLevel,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const fillColor = useSvgHexFillColor(hex, isSubLevel)
   const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex)
-    : getSvgHexBorderColor(hex)
+    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
+    : getSvgHexBorderColor(hex, useTerrainBorderColor)
   const { points } = get24HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get24HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,

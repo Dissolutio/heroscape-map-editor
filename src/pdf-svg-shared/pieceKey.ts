@@ -1,7 +1,9 @@
 import { piecesSoFar } from '../data/pieces'
+import getPieceTemplateCoords from '../data/rotationTransforms'
 import type { BoardHex, BoardPiece, Piece } from '../types'
 import { HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
+import { genBoardHexID, genPieceID } from '../utils/map-utils'
 
 export type PieceKeyEntry = {
   inventoryID: string
@@ -237,6 +239,54 @@ export const getPieceKeyTerrainDescription = (
 export const getPieceKeyDescriptionGaps = (terrains: string[]) =>
   terrains.filter((terrain) => !PIECE_KEY_METADATA.terrains[terrain])
 
+const getPieceKeyHexes = (
+  boardPiece: BoardPiece,
+  piece: Piece,
+  boardHexes: Record<string, BoardHex>,
+) => {
+  const hexes = Object.values(boardHexes).filter(
+    (hex) => hex.boardPieceUID === boardPiece.uid,
+  )
+  if (!piece.landPrefix) {
+    return hexes
+  }
+
+  const coords = getPieceTemplateCoords({
+    clickedHex: boardPiece.pieceCoords,
+    rotation: boardPiece.rotation,
+    template: piece.template,
+    isVsTile: false,
+  })
+  if (
+    hexes.length === coords.length &&
+    hexes.some((hex) => hex.isObstacleOrigin)
+  ) {
+    return hexes
+  }
+  const boardHexID = genBoardHexID({
+    ...boardPiece.pieceCoords,
+    altitude: 0,
+  })
+  const pieceID = genPieceID(boardHexID, piece.id, boardPiece.rotation)
+
+  return coords.map((coord, index) => {
+    const id = genBoardHexID({ ...coord, altitude: 0 })
+    return {
+      id,
+      ...coord,
+      altitude: 0,
+      pieceID,
+      boardPieceUID: boardPiece.uid,
+      inventoryID: piece.id,
+      terrain: piece.terrain,
+      pieceRotation: boardPiece.rotation,
+      isCap: true,
+      isObstacleOrigin: index === 0,
+      isObstacleAuxiliary: index !== 0,
+    }
+  })
+}
+
 export const getPieceKeyModel = (
   boardPieces: BoardPiece[],
   boardHexes: Record<string, BoardHex>,
@@ -259,9 +309,7 @@ export const getPieceKeyModel = (
       terrain: piece.terrain,
       count: 1,
       piece: pieceOnBoard,
-      hexes: Object.values(boardHexes).filter(
-        (hex) => hex.boardPieceUID === pieceOnBoard.uid,
-      ),
+      hexes: getPieceKeyHexes(pieceOnBoard, piece, boardHexes),
     })
   }
 

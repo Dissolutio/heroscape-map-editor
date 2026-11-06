@@ -1,18 +1,18 @@
 import { piecesSoFar } from '../data/pieces'
+import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
 import { getLadderStackInfo } from '../pdf-svg-shared/ladderStack'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
+import {
+  SHROUDSHROOM13_ORIGIN_LINE_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
+  getShroudshroom13OriginLine,
+} from '../pdf-svg-shared/shroudshroom13OriginLine'
 import {
   getLadderStackTextPosition,
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
-import {
-  getShroudshroom13OriginLine,
-  SHROUDSHROOM13_ORIGIN_LINE_COLOR,
-  SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR,
-  SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
-} from '../pdf-svg-shared/shroudshroom13OriginLine'
-import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
 import useBoundStore from '../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
@@ -166,10 +166,12 @@ export const SvgMapHex = ({
   hex,
   buriedMarksByUID,
   isPieceKeyPreview = false,
+  useTerrainBorderColor = true,
 }: {
   hex: BoardHex
   buriedMarksByUID: BuriedMarksByUID
   isPieceKeyPreview?: boolean
+  useTerrainBorderColor?: boolean
 }) => {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isShow2DExportTileLetters = useBoundStore(
@@ -197,7 +199,10 @@ export const SvgMapHex = ({
   const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const pieceHeightText = piecesSoFar[inventoryID]?.height
+  const pieceHeightText =
+    isPieceKeyPreview && inventoryID === Pieces.tree10
+      ? 10
+      : piecesSoFar[inventoryID]?.height
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
@@ -542,7 +547,11 @@ export const SvgMapHex = ({
     ) {
       return (
         <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-          <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex1
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <g transform={`rotate(${pieceRotation})`}>
             <SvgCastleCorner hex={hex} isSubLevel={isSubLevel} />
           </g>
@@ -661,7 +670,11 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex2 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex2
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
@@ -681,7 +694,11 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex4 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex4
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
@@ -701,7 +718,11 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex3 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex3
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
@@ -721,7 +742,11 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex5 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex5
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
@@ -741,7 +766,11 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex7 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex7
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
@@ -761,7 +790,11 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHexWallWalk7 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHexWallWalk7
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
@@ -781,7 +814,11 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHexWallWalk9 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHexWallWalk9
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
@@ -801,7 +838,11 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex6 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex6
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
@@ -821,7 +862,11 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHexMarvel6
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
@@ -841,7 +886,11 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex24 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex24
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
