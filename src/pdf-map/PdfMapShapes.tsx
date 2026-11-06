@@ -35,6 +35,7 @@ import {
   getJungleTriangleShape,
   getLadderSvgPolygonPoints,
   getLaurLongWallPdfPolygonPoints,
+  getLaurLongWallSvgPolygonPoints,
   getLaurPillarPdfShape,
   getLaurShortWallPolygonPoints,
   getLaurWallRuinPdfPolygonPoints,
@@ -882,13 +883,18 @@ export const PdfMarvelRuin = ({
 export const PdfBoardPieceLaurWallShort = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = getPdfHexFillForView(piece, isSubLevel)
   const borderColor = getPdfHexBorderForView(piece, isSubLevel)
-  const { points } = getLaurShortWallPolygonPoints(SVG_HEX_RADIUS, 0.2)
+  const { points } = getLaurShortWallPolygonPoints(
+    SVG_HEX_RADIUS,
+    isPieceKeyPreview ? 0.5 : 0.2,
+  )
   return (
     <Polygon
       points={points}
@@ -910,10 +916,9 @@ export const PdfBoardPieceLaurWallLong = ({
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
-  const { points } = getLaurLongWallPdfPolygonPoints(
-    SVG_HEX_RADIUS,
-    PDF_BORDER_WIDTH,
-  )
+  const { points } = isPieceKeyPreview
+    ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
+    : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
   return (
     <Polygon
       points={points}
@@ -937,10 +942,9 @@ export const PdfBoardPieceLaurWallLongArch = ({
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
-  const { points } = getLaurLongWallPdfPolygonPoints(
-    SVG_HEX_RADIUS,
-    PDF_BORDER_WIDTH,
-  )
+  const { points } = isPieceKeyPreview
+    ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
+    : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
   return (
     <Polygon
       points={points}

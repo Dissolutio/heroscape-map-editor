@@ -151,7 +151,11 @@ export const PdfMapBoardPiece = ({
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <PdfBoardPieceLaurWallShort piece={piece} isSubLevel={isSubLevel} />
+        <PdfBoardPieceLaurWallShort
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </G>
     )
   }
