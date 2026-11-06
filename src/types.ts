@@ -150,6 +150,8 @@ export type Piece = {
   glyphLetter?: string
   landPrefix?: PiecePrefixes // Including this so land pieces can have their sizes computed for piece-size selection in the Controls
   pieceSizeFamily?: string
+  variantOrder?: number
+  variantLabel?: string
   // TODO: account for 1 marvel wall => 4 variations, 1 castle arch => 2 variations
   isUninventoried?: boolean // Generic pieces and variants without inventory counterparts.
 }

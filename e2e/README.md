@@ -94,6 +94,7 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   tree): map name, piece count, level, pen mode, how many pieces are selected.
 - `window.__TEST__.snapshot()`: the same, structured (`mapId`, `mapWidth`,
   `mapLength`, `pieceCount`, `hexCount`, `viewingLevel`, `penMode`, `selectedPieceIDs`,
+  `penPieceID`,
   `marroHiveMaterials` (rendered hive UIDs, material types, and whether each
   material has a base-color map), `evergreenTreeMaterials` (rendered tree UIDs,
   part names, material types, and base-color map state), `marvelRuinMaterials`

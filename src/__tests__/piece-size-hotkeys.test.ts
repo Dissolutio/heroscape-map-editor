@@ -23,59 +23,71 @@ const obstacleFamilies = Object.values(piecesSoFar).reduce<
   return families
 }, {})
 
-const multiSizeObstacleFamilies = Object.entries(obstacleFamilies)
-  .map(([family, pieces]) => ({
+const orderedObstacleFamilies = Object.entries(obstacleFamilies).map(
+  ([family, pieces]) => ({
     family,
-    pieces,
-    sizes: [...new Set(pieces.map((piece) => piece.size))].sort(
-      (a, b) => a - b,
+    pieces: [...pieces].sort(
+      (a, b) => (a.variantOrder ?? 0) - (b.variantOrder ?? 0),
     ),
-  }))
-  .filter(({ sizes }) => sizes.length > 1)
+  }),
+)
 
-describe('obstacle piece size hotkeys', () => {
-  it.each(multiSizeObstacleFamilies)(
-    'resolves size keys to $family pieces',
-    ({ family, pieces, sizes }) => {
+describe('obstacle piece variant hotkeys', () => {
+  it.each(orderedObstacleFamilies)(
+    'lists every $family variant in data order',
+    ({ family, pieces }) => {
       const basePiece = pieces[0]
-      const hotkeyMap = getPieceSizeHotkeyMap(sizes)
+      const variants = pieces.map((piece) => piece.variantOrder)
+      const options = pieces.map((_, index) => index + 1)
 
-      expect(getPieceSizeOptionsForPenMode(basePiece.id)).toEqual(sizes)
-      expect(
-        getNewPieceSizeForPenMode(basePiece.id, 'select', 0).newSizes,
-      ).toEqual(sizes)
+      expect(variants).toEqual(options)
+      expect(pieces.every((piece) => piece.variantLabel)).toBe(true)
+      expect(getPieceSizeOptionsForPenMode(basePiece.id)).toEqual(options)
+      expect(getNewPieceSizeForPenMode(basePiece.id, 'select', 0)).toEqual({
+        newSize: 1,
+        newSizes: options,
+      })
 
-      for (const size of sizes) {
-        const targetKey = hotkeyMap.get(String(size))
-        expect(targetKey).toBeDefined()
-        if (!targetKey) throw new Error(`Missing hotkey for size ${size}`)
-        expect(getPieceSizeForHotkey(targetKey, sizes)).toBe(size)
+      pieces.forEach((piece, index) => {
+        expect(getPieceIDForPenMode(basePiece.id, index + 1)).toBe(piece.id)
+        expect(piecesSoFar[piece.id].pieceSizeFamily).toBe(family)
+      })
 
-        const expectedPiece =
-          pieces.find((piece) => piece.size === size) ?? basePiece
-        expect(getPieceIDForPenMode(basePiece.id, size)).toBe(expectedPiece.id)
-        expect(piecesSoFar[expectedPiece.id].pieceSizeFamily).toBe(family)
-      }
-
-      for (const piece of pieces) {
-        expect(getNewPieceSizeForPenMode(piece.id, 'select', 0).newSize).toBe(
-          piece.size,
+      if (pieces.length <= 5) {
+        const hotkeyMap = getPieceSizeHotkeyMap(options, true)
+        options.forEach((option, index) => {
+          expect(hotkeyMap.get(String(option))).toBe(String(index + 1))
+          expect(getPieceSizeForHotkey(String(index + 1), options, true)).toBe(
+            option,
+          )
+        })
+      } else {
+        expect(getPieceSizeHotkeyMap(options, true).size).toBe(0)
+        expect(getPieceSizeForHotkey('1', options, true, 1)).toBe(2)
+        expect(getPieceSizeForHotkey('1', options, true, options.length)).toBe(
+          1,
         )
+        expect(getPieceSizeForHotkey('shift+1', options, true, 1)).toBe(
+          options.length,
+        )
+        expect(getPieceSizeForHotkey('shift+1', options, true, 6)).toBe(5)
+        expect(getPieceSizeForHotkey('2', options, true, 1)).toBeNull()
       }
     },
   )
 
-  it('keeps alternate tree models when their footprint size is unchanged', () => {
-    const tree = piecesSoFar.tr12
-    expect(getPieceIDForPenMode(tree.id, tree.size)).toBe(tree.id)
+  it('orders Evergreen Trees as tr10, tr11, tr12, then the Large Tree', () => {
+    const tree = piecesSoFar.tr10
+    const options = getPieceSizeOptionsForPenMode(tree.id)
+
+    expect(options).toEqual([1, 2, 3, 4])
+    expect(
+      options.map((option) => getPieceIDForPenMode(tree.id, option)),
+    ).toEqual(['tr10', 'tr11', 'tr12', 'tr15'])
+    expect(piecesSoFar.tr15.variantLabel).toBe('Large Evergreen Tree (15)')
   })
 
-  it('does not expose size hotkeys for families with one footprint size', () => {
-    const snowTree = piecesSoFar.str10
-    expect(getPieceSizeOptionsForPenMode(snowTree.id)).toEqual([])
-  })
-
-  it('picks the placed obstacle size as the active pen size', () => {
+  it('picks the placed obstacle variant as the active pen variant', () => {
     expect(
       getPickedPenModeSettings({
         uid: 'outcrop',
@@ -84,7 +96,7 @@ describe('obstacle piece size hotkeys', () => {
         rotation: 2,
         pieceCoords: { q: 0, r: 0, s: 0 },
       }),
-    ).toEqual({ penMode: piecesSoFar.o3.id, pieceSize: 3, rotation: 2 })
+    ).toEqual({ penMode: piecesSoFar.o3.id, pieceSize: 2, rotation: 2 })
 
     expect(
       getPickedPenModeSettings({
@@ -96,8 +108,37 @@ describe('obstacle piece size hotkeys', () => {
       }),
     ).toEqual({
       penMode: piecesSoFar.str10.id,
-      pieceSize: undefined,
+      pieceSize: 1,
       rotation: 0,
     })
+  })
+
+  it('resets to the first variant across families and keeps it within one', () => {
+    expect(
+      getNewPieceSizeForPenMode(piecesSoFar.tr10.id, piecesSoFar.tr11.id, 2)
+        .newSize,
+    ).toBe(2)
+    expect(
+      getNewPieceSizeForPenMode(piecesSoFar.o1.id, piecesSoFar.tr11.id, 2)
+        .newSize,
+    ).toBe(1)
+  })
+
+  it('keeps the land hex-size hotkey mapping unchanged', () => {
+    const sizes = [1, 2, 3, 7, 24]
+
+    expect(getPieceSizeOptionsForPenMode('g')).toEqual(sizes)
+    expect(getPieceSizeHotkeyMap(sizes)).toEqual(
+      new Map([
+        ['1', '1'],
+        ['2', '2'],
+        ['3', '3'],
+        ['7', '4'],
+        ['24', '5'],
+      ]),
+    )
+    expect(
+      sizes.map((_, index) => getPieceSizeForHotkey(String(index + 1), sizes)),
+    ).toEqual(sizes)
   })
 })

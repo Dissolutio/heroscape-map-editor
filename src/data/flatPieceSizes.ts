@@ -4,11 +4,10 @@ import { piecesSoFar } from './pieces'
 
 const landSizes = Object.values(piecesSoFar).reduce(
   (prev, curr) => {
-    //  the presence of a landPrefix on a piece's data means it has flat-piece-sizes
+    // The presence of a landPrefix means the piece has flat piece sizes.
     const landPrefix = curr.landPrefix
     if (landPrefix) {
       prev[landPrefix] = [...(prev[landPrefix as string] ?? []), curr.size]
-      return prev
     }
     return prev
   },
@@ -27,33 +26,51 @@ const pieceSizeFamilies = Object.values(piecesSoFar).reduce(
   {} as Dictionary<Piece[]>,
 )
 
-const getObstaclePieceSizes = (mode: string) => {
+const getObstaclePieceVariants = (mode: string) => {
   const familyName = piecesSoFar[mode]?.pieceSizeFamily
   if (!familyName) return []
-  const pieces = pieceSizeFamilies[familyName]
-  const sizes = [...new Set(pieces.map((piece) => piece.size))].sort(
-    (a, b) => a - b,
+  return [...pieceSizeFamilies[familyName]].sort(
+    (a, b) => (a.variantOrder ?? 0) - (b.variantOrder ?? 0),
   )
-  return sizes.length > 1 ? sizes : []
 }
 
-export const getPieceSizeOptionsForPenMode = (mode: string) =>
-  landSizes[mode] ?? getObstaclePieceSizes(mode)
+export const isObstacleVariantFamily = (mode: string) =>
+  Boolean(piecesSoFar[mode]?.pieceSizeFamily)
+
+export const getPieceVariantForPenMode = (mode: string, variant: number) => {
+  const piece = piecesSoFar[mode]
+  if (!piece?.pieceSizeFamily) return piecesSoFar[`${mode}${variant}`]
+  return getObstaclePieceVariants(mode).find(
+    (familyPiece) => familyPiece.variantOrder === variant,
+  )
+}
+
+export const getPieceSizeOptionsForPenMode = (mode: string) => {
+  const variants = getObstaclePieceVariants(mode)
+  if (variants.length) return variants.map((_, index) => index + 1)
+  return landSizes[mode] ?? []
+}
 
 export const getPieceIDForPenMode = (mode: string, size: number) => {
   if (!size) return mode
 
   const piece = piecesSoFar[mode]
   if (piece?.pieceSizeFamily) {
-    if (piece.size === size) return mode
-    return (
-      pieceSizeFamilies[piece.pieceSizeFamily].find(
-        (familyPiece) => familyPiece.size === size,
-      )?.id ?? mode
-    )
+    return getPieceVariantForPenMode(mode, size)?.id ?? mode
   }
 
   return `${mode}${size}`
+}
+
+export const getNextPieceSizeOption = (
+  currentSize: number,
+  options: number[],
+  direction: 1 | -1,
+) => {
+  if (options.length === 0) return null
+  const currentIndex = options.indexOf(currentSize)
+  const startIndex = currentIndex === -1 ? 0 : currentIndex
+  return options[(startIndex + direction + options.length) % options.length]
 }
 
 export const getNewPieceSizeForPenMode = (
@@ -62,17 +79,23 @@ export const getNewPieceSizeForPenMode = (
   oldPieceSize: number,
 ): { newSize: number; newSizes: number[] } => {
   /*
-    Returns a new piece size, and an array of piece sizes 
+    Returns a new piece size, and an array of piece sizes
     OR
-    a piece size of ZERO, and an empty array 
+    a piece size of ZERO, and an empty array
   */
   const newPieceSizes = getPieceSizeOptionsForPenMode(newMode)
   if (!(newPieceSizes.length > 0)) {
     return { newSize: 0, newSizes: [] }
   }
-  const obstaclePiece = piecesSoFar[newMode]
-  if (obstaclePiece?.pieceSizeFamily) {
-    return { newSize: obstaclePiece.size, newSizes: newPieceSizes }
+  const newPiece = piecesSoFar[newMode]
+  if (newPiece?.pieceSizeFamily) {
+    const oldPiece = piecesSoFar[oldMode]
+    const newSize =
+      oldPiece?.pieceSizeFamily === newPiece.pieceSizeFamily &&
+      newPieceSizes.includes(oldPieceSize)
+        ? oldPieceSize
+        : (newPiece.variantOrder ?? newPieceSizes[0])
+    return { newSize, newSizes: newPieceSizes }
   }
   if (newPieceSizes.includes(oldPieceSize)) {
     return { newSize: oldPieceSize, newSizes: newPieceSizes }

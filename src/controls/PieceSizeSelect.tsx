@@ -1,6 +1,10 @@
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import type { MouseEvent } from 'react'
+import {
+  getPieceVariantForPenMode,
+  isObstacleVariantFamily,
+} from '../data/flatPieceSizes'
 import useBoundStore from '../store/store'
 import { HotkeyText } from './HotKeyText'
 import { getPieceSizeHotkeyMap } from './useApplyHotkeys'
@@ -8,10 +12,13 @@ import { useHotkeyConfig } from './useHotkeyConfig'
 
 export default function PieceSizeSelect() {
   const pieceSize = useBoundStore((s) => s.pieceSize)
+  const penMode = useBoundStore((s) => s.penMode)
   const togglePieceSize = useBoundStore((s) => s.togglePieceSize)
   const flatPieceSizes = useBoundStore((s) => s.flatPieceSizes)
   const { hotkeyLookup } = useHotkeyConfig()
-  const hotkeyMap = getPieceSizeHotkeyMap(flatPieceSizes)
+  const isVariantFamily = isObstacleVariantFamily(penMode)
+  const cyclesVariants = isVariantFamily && flatPieceSizes.length > 5
+  const hotkeyMap = getPieceSizeHotkeyMap(flatPieceSizes, isVariantFamily)
   const handleChange = (_event: MouseEvent<HTMLElement>, value: string) => {
     togglePieceSize(Number.parseInt(value))
   }
@@ -39,16 +46,24 @@ export default function PieceSizeSelect() {
           {isSizes ? (
             flatPieceSizes.map((s) => {
               const key = hotkeyMap.get(String(s)) ?? ''
-              const hotkeyText = hotkeyLookup[`togglePieceSize${key}`] ?? key
+              const hotkeyText = key
+                ? (hotkeyLookup[`togglePieceSize${key}`] ?? key)
+                : ''
+              const variant = isVariantFamily
+                ? getPieceVariantForPenMode(penMode, s)
+                : undefined
+              const label = variant
+                ? `${variant.size} hex, ${variant.variantLabel ?? variant.title}`
+                : `${s}-hex sized piece`
 
               return (
                 <ToggleButton
                   key={s}
                   value={`${s}`}
-                  aria-label={`${s}-hex sized piece`}
-                  title={`${s}-hex sized piece [hotkey ${key || 'none'}]`}
+                  aria-label={`${s}, ${label}`}
+                  title={`${label} [hotkey ${key || 'none'}]`}
                 >
-                  {s}
+                  {variant ? `${s}. ${label}` : s}
                   <HotkeyText text={hotkeyText} />
                 </ToggleButton>
               )
@@ -57,6 +72,12 @@ export default function PieceSizeSelect() {
             <ToggleButton value={`${0}`} disabled>
               -
             </ToggleButton>
+          )}
+          {cyclesVariants && (
+            <span>
+              {hotkeyLookup.togglePieceSize1} cycles forward;{' '}
+              {hotkeyLookup.cyclePieceVariantBackward} cycles backward
+            </span>
           )}
         </span>
       </ToggleButtonGroup>

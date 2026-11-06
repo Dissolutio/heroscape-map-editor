@@ -3,6 +3,7 @@ import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
 import { Box3, Mesh, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
+import { getPieceIDForPenMode } from '../data/flatPieceSizes'
 import { resolveRotationPivot } from '../data/rotationPivot'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, Pieces } from '../types'
@@ -228,6 +229,7 @@ function TestBridgeInner() {
           marvelRuinMaterials,
           viewingLevel: s.viewingLevel,
           penMode: s.penMode,
+          penPieceID: getPieceIDForPenMode(s.penMode, s.pieceSize),
           selectedPieceIDs: [...s.selectedPieceIDs],
           rotationPivot:
             resolveRotationPivot(

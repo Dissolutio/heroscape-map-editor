@@ -43,6 +43,7 @@ export type E2ESnapshot = {
   }>
   viewingLevel: number
   penMode: string
+  penPieceID: string
   selectedPieceIDs: string[]
   rotationPivot: {
     coords: { q: number; r: number; s: number }

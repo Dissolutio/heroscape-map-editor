@@ -2,7 +2,11 @@ import type { CameraControls } from '@react-three/drei'
 import { type RefObject, useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import type { Group, Object3DEventMap } from 'three'
-import { getPieceIDForPenMode } from '../data/flatPieceSizes'
+import {
+  getNextPieceSizeOption,
+  getPieceIDForPenMode,
+  isObstacleVariantFamily,
+} from '../data/flatPieceSizes'
 import { getLaurAddonAllowedRotations } from '../data/laurAddonPlacement'
 import {
   OBJECTIVE_MARKER_PEN_MODE,
@@ -50,7 +54,20 @@ export const PIECE_SIZE_OVERFLOW_HOTKEYS = ['6', '7', '8', '9', '0'] as const
 export const getPieceSizeForHotkey = (
   hotkey: string,
   flatPieceSizes: number[],
+  isVariantFamily = false,
+  currentSize = 0,
 ): number | null => {
+  if (isVariantFamily) {
+    if (flatPieceSizes.length > 5) {
+      const direction = hotkey === '1' ? 1 : hotkey === 'shift+1' ? -1 : 0
+      return direction
+        ? getNextPieceSizeOption(currentSize, flatPieceSizes, direction)
+        : null
+    }
+    const index = Number(hotkey) - 1
+    return flatPieceSizes[index] ?? null
+  }
+
   const standardSize =
     STANDARD_PIECE_SIZE_HOTKEYS[
       hotkey as keyof typeof STANDARD_PIECE_SIZE_HOTKEYS
@@ -72,8 +89,20 @@ export const getPieceSizeForHotkey = (
   return specialSizes[overflowIndex] ?? null
 }
 
-export const getPieceSizeHotkeyMap = (flatPieceSizes: number[]) => {
+export const getPieceSizeHotkeyMap = (
+  flatPieceSizes: number[],
+  isVariantFamily = false,
+) => {
   const hotkeyMap = new Map<string, string>()
+  if (isVariantFamily) {
+    if (flatPieceSizes.length <= 5) {
+      flatPieceSizes.forEach((size, index) => {
+        hotkeyMap.set(String(size), String(index + 1))
+      })
+    }
+    return hotkeyMap
+  }
+
   const standardKeys = Object.entries(STANDARD_PIECE_SIZE_HOTKEYS)
   for (const [hotkey, size] of standardKeys) {
     if (flatPieceSizes.includes(size)) {
@@ -222,10 +251,31 @@ export const useApplyHotkeys = ({
     }
     if (!isSizes) return
 
-    const targetSize = getPieceSizeForHotkey(hotkey, flatPieceSizes)
+    if (isObstacleVariantFamily(penMode)) {
+      if (flatPieceSizes.length > 5 && hotkey !== '1') return
+    }
+
+    const targetSize = getPieceSizeForHotkey(
+      hotkey,
+      flatPieceSizes,
+      isObstacleVariantFamily(penMode),
+      pieceSize,
+    )
     if (targetSize === null) return
 
     togglePieceSize(targetSize)
+  }
+  const cyclePieceVariantBackward = () => {
+    if (!isObstacleVariantFamily(penMode) || flatPieceSizes.length <= 5) {
+      return
+    }
+    const previousSize = getPieceSizeForHotkey(
+      'shift+1',
+      flatPieceSizes,
+      true,
+      pieceSize,
+    )
+    if (previousSize !== null) togglePieceSize(previousSize)
   }
 
   const togglePieceSize1 = () => togglePieceSizeForHotkey('1')
@@ -351,6 +401,7 @@ export const useApplyHotkeys = ({
     togglePieceSize5: togglePieceSize5,
     togglePieceSize6: togglePieceSize6,
     togglePieceSize7: togglePieceSize7,
+    cyclePieceVariantBackward: cyclePieceVariantBackward,
 
     cycleNextPieceRotation: cycleNextPieceRotation,
     cyclePrevPieceRotation: cyclePrevPieceRotation,

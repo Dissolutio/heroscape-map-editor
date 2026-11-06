@@ -26,6 +26,31 @@ test('a solid land pen previews ok over a free hex', async ({ page }) => {
   })
 })
 
+test('Evergreen Tree hotkeys select each numbered variant', async ({
+  page,
+}) => {
+  await page.goto(mapUrl(FIXTURE_HEX_MAP, []))
+  await waitForAppReady(page)
+  await setPen(page, 'tr10', 1)
+  await hoverHex(page, { q: 2, r: 2, altitude: 0 })
+
+  for (const [key, pieceID, footprintCount] of [
+    ['1', 'tr10', 1],
+    ['2', 'tr11', 1],
+    ['3', 'tr12', 1],
+    ['4', 'tr15', 4],
+  ] as const) {
+    await page.keyboard.press(key)
+    await page.waitForFunction(
+      (id) => window.__TEST__?.snapshot().penPieceID === id,
+      pieceID,
+    )
+    const snapshot = await page.evaluate(() => window.__TEST__?.snapshot())
+    expect(snapshot?.penPieceID).toBe(pieceID)
+    expect(snapshot?.placementPreview?.footprintCount).toBe(footprintCount)
+  }
+})
+
 test('a Laur add-on previews and places on empty and land hexes', async ({
   page,
 }) => {
@@ -110,7 +135,7 @@ test('a stackable Laur wall places eight levels above the wall it hits', async (
     r: 2,
     altitude: 1,
   })
-  await setPen(page, 'lws', 2, 0)
+  await setPen(page, 'lws', 5, 0)
   await clickPiece(page, lowerUID)
   await page.waitForFunction(() => window.__TEST__?.snapshot().pieceCount === 7)
   const wallPieces = await page.evaluate(() =>
