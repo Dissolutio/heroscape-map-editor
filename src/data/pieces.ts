@@ -1084,6 +1084,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: LAUR_PILLAR_HEIGHT, // core 9.5, top 12, stacking adds 8; male top 4
+    pieceSizeFamily: 'laurWall',
+    variantOrder: 1,
+    variantLabel: 'Square Pillar',
   },
   [Pieces.laurWallPillarStackable]: {
     id: Pieces.laurWallPillarStackable,
@@ -1094,6 +1097,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: LAUR_PILLAR_HEIGHT, // core 9.5, top 12, stacking adds 8; male top 4
+    pieceSizeFamily: 'laurWall',
+    variantOrder: 2,
+    variantLabel: 'Stackable Square Pillar',
   },
   [Pieces.laurWallTrianglePillar]: {
     id: Pieces.laurWallTrianglePillar,
@@ -1104,6 +1110,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: LAUR_PILLAR_HEIGHT, // core 9.5, top 12, stacking adds 8; male top 4
+    pieceSizeFamily: 'laurWall',
+    variantOrder: 3,
+    variantLabel: 'Triangle Pillar',
   },
   [Pieces.laurWallShort]: {
     id: Pieces.laurWallShort,
@@ -1114,6 +1123,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallShort,
     height: 12, // game height is 10
+    pieceSizeFamily: 'laurWall',
+    variantOrder: 4,
+    variantLabel: 'Short Wall',
   },
   [Pieces.laurWallShortStackable]: {
     id: Pieces.laurWallShortStackable,
@@ -1124,6 +1136,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallShort,
     height: 12, // game height is 10, only adds 8 when stacked (male wall top is 3 hexes tall)
+    pieceSizeFamily: 'laurWall',
+    variantOrder: 5,
+    variantLabel: 'Stackable Short Wall',
   },
   [Pieces.laurWallLong]: {
     id: Pieces.laurWallLong,
@@ -1134,6 +1149,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallLong,
     height: 12, // game height is 10
+    pieceSizeFamily: 'laurWall',
+    variantOrder: 6,
+    variantLabel: 'Long Wall',
   },
   [Pieces.laurWallLongStackable]: {
     id: Pieces.laurWallLongStackable,
@@ -1144,6 +1162,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallLongStackable,
     height: 12, // game height is 10, only adds 8 when stacked (male wall/arch top is 3 hexes tall)
+    pieceSizeFamily: 'laurWall',
+    variantOrder: 7,
+    variantLabel: 'Stackable Long Wall',
   },
   [Pieces.laurWallArch]: {
     id: Pieces.laurWallArch,
@@ -1154,6 +1175,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallArch,
     height: 12, // game height is 10, cannot stack on top of anything, can have laurWallLongStackable stacked on top (male arch top is 3 hexes tall)
+    pieceSizeFamily: 'laurWall',
+    variantOrder: 8,
+    variantLabel: 'Wall Arch',
   },
   [Pieces.laurWallRuin1]: {
     id: Pieces.laurWallRuin1,
@@ -1164,6 +1188,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallRuin1,
     height: 8, // smallest ruin, no top part, game height is undefined (doesn't block adjacency), can stack
+    pieceSizeFamily: 'laurWall',
+    variantOrder: 9,
+    variantLabel: 'Wall Ruin',
   },
   [Pieces.laurWallRuin2]: {
     id: Pieces.laurWallRuin2,
@@ -1174,6 +1201,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallRuin2,
     height: 12, // game height is undefined (doesn't block adjacency), cannot stack
+    pieceSizeFamily: 'laurWall',
+    variantOrder: 10,
+    variantLabel: 'Wall Ruin (Style 2)',
   },
   [Pieces.laurWallRuin3]: {
     id: Pieces.laurWallRuin3,
@@ -1184,6 +1214,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallRuin3,
     height: 12, // game height is undefined (doesn't block adjacency), cannot stack
+    pieceSizeFamily: 'laurWall',
+    variantOrder: 11,
+    variantLabel: 'Wall Ruin (Style 3)',
   },
   // RUINS
   [Pieces.ruins2]: {
@@ -1195,6 +1228,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 8,
     template: Pieces.ruins2,
     height: 5, // these have a template done, but pending vertex data approach
+    pieceSizeFamily: 'ruins',
+    variantOrder: 1,
+    variantLabel: 'Ruins (2)',
   },
   [Pieces.ruins3]: {
     id: Pieces.ruins3,
@@ -1205,6 +1241,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 10,
     template: Pieces.ruins3,
     height: 5, // these have a template done, but pending vertex data approach
+    pieceSizeFamily: 'ruins',
+    variantOrder: 2,
+    variantLabel: 'Ruins (3)',
   },
   [Pieces.fortifiedWall]: {
     id: Pieces.fortifiedWall,
@@ -1225,6 +1264,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 6,
     template: Pieces.marvel,
     height: 9, // rulebook height is warehoue upper floor 9 levels above base, the windows need a vertical obstruction template done + reality testing
+    pieceSizeFamily: 'marvelRuin',
+    variantOrder: 1,
+    variantLabel: 'Warehouse Ruin',
   },
   [Pieces.marvelBroken]: {
     id: Pieces.marvelBroken,
@@ -1235,6 +1277,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 6,
     template: Pieces.marvel,
     height: 9, // rulebook height is warehoue upper floor 9 levels above base, the windows need a vertical obstruction template done + reality testing
+    pieceSizeFamily: 'marvelRuin',
+    variantOrder: 2,
+    variantLabel: 'No Wall',
   },
   [Pieces.marvelNoUpper]: {
     id: Pieces.marvelNoUpper,
@@ -1245,6 +1290,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 6,
     template: Pieces.marvel,
     height: 9, // rulebook height is warehoue upper floor 9 levels above base, the windows need a vertical obstruction template done + reality testing
+    pieceSizeFamily: 'marvelRuin',
+    variantOrder: 3,
+    variantLabel: 'No Upper Floor',
   },
   [Pieces.marvelNoUpperBroken]: {
     id: Pieces.marvelNoUpperBroken,
@@ -1255,6 +1303,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 6,
     template: Pieces.marvel,
     height: 9, // rulebook height is warehoue upper floor 9 levels above base, the windows need a vertical obstruction template done + reality testing
+    pieceSizeFamily: 'marvelRuin',
+    variantOrder: 4,
+    variantLabel: 'No Upper Floor or Wall',
   },
   // HEX OBSTACLES
   [Pieces.snowTree10]: {
@@ -1267,6 +1318,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 10,
     pieceSizeFamily: 'snowTree',
+    variantOrder: 1,
+    variantLabel: 'Snow Tree (10)',
   },
   [Pieces.snowTree12]: {
     id: Pieces.snowTree12,
@@ -1278,6 +1331,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 12,
     pieceSizeFamily: 'snowTree',
+    variantOrder: 2,
+    variantLabel: 'Snow Tree (12)',
   },
   [Pieces.tree10]: {
     id: Pieces.tree10,
@@ -1289,6 +1344,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 9,
     pieceSizeFamily: 'forestTree',
+    variantOrder: 1,
+    variantLabel: 'Evergreen Tree (10)',
   },
   [Pieces.tree11]: {
     id: Pieces.tree11,
@@ -1300,6 +1357,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 11,
     pieceSizeFamily: 'forestTree',
+    variantOrder: 2,
+    variantLabel: 'Evergreen Tree (11)',
   },
   [Pieces.tree12]: {
     id: Pieces.tree12,
@@ -1311,6 +1370,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 11,
     pieceSizeFamily: 'forestTree',
+    variantOrder: 3,
+    variantLabel: 'Evergreen Tree (12)',
   },
   [Pieces.tree415]: {
     id: Pieces.tree415,
@@ -1322,6 +1383,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '4',
     height: 15,
     pieceSizeFamily: 'forestTree',
+    variantOrder: 4,
+    variantLabel: 'Large Evergreen Tree (15)',
   },
   [Pieces.swampBrush10]: {
     id: Pieces.swampBrush10,
@@ -1353,6 +1416,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 13,
     pieceSizeFamily: 'laurJungleTree',
+    variantOrder: 1,
+    variantLabel: 'Laur Jungle Tree (13)',
   },
   [Pieces.laurPalm14]: {
     id: Pieces.laurPalm14,
@@ -1364,6 +1429,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 14,
     pieceSizeFamily: 'laurJungleTree',
+    variantOrder: 2,
+    variantLabel: 'Laur Jungle Tree (14)',
   },
   [Pieces.laurPalm15]: {
     id: Pieces.laurPalm15,
@@ -1375,6 +1442,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 15,
     pieceSizeFamily: 'laurJungleTree',
+    variantOrder: 3,
+    variantLabel: 'Laur Jungle Tree (15)',
   },
   [Pieces.brush9]: {
     id: Pieces.brush9,
@@ -1396,6 +1465,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 14,
     pieceSizeFamily: 'ticallaPalm',
+    variantOrder: 1,
+    variantLabel: 'Ticalla Palm (14)',
   },
   [Pieces.palm15]: {
     id: Pieces.palm15,
@@ -1407,6 +1478,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 15,
     pieceSizeFamily: 'ticallaPalm',
+    variantOrder: 2,
+    variantLabel: 'Ticalla Palm (15)',
   },
   [Pieces.palm16]: {
     id: Pieces.palm16,
@@ -1418,6 +1491,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 16,
     pieceSizeFamily: 'ticallaPalm',
+    variantOrder: 3,
+    variantLabel: 'Ticalla Palm (16)',
   },
   [Pieces.shroudshroom7]: {
     id: Pieces.shroudshroom7,
@@ -1429,6 +1504,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 7,
     pieceSizeFamily: 'shroudshroom',
+    variantOrder: 1,
+    variantLabel: 'Shroudshroom (7)',
   },
   [Pieces.shroudshroom10]: {
     id: Pieces.shroudshroom10,
@@ -1440,6 +1517,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 10,
     pieceSizeFamily: 'shroudshroom',
+    variantOrder: 2,
+    variantLabel: 'Shroudshroom (10)',
   },
   [Pieces.shroudshroom13]: {
     id: Pieces.shroudshroom13,
@@ -1451,6 +1530,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '3',
     height: 13,
     pieceSizeFamily: 'shroudshroom',
+    variantOrder: 3,
+    variantLabel: 'Shroudshroom (13)',
   },
   [Pieces.shipWall]: {
     id: Pieces.shipWall,
@@ -1503,6 +1584,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 7, // eventhough it definitely spans 8 hex-heights in reality!
     pieceSizeFamily: 'glacier',
+    variantOrder: 1,
+    variantLabel: 'Glacier (1)',
   },
   [Pieces.glacier3]: {
     id: Pieces.glacier3,
@@ -1514,6 +1597,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '3',
     height: 9, // untested in reality (heights clockwise from origin: 5,9,7)
     pieceSizeFamily: 'glacier',
+    variantOrder: 2,
+    variantLabel: 'Glacier (3)',
   },
   [Pieces.glacier4]: {
     id: Pieces.glacier4,
@@ -1525,6 +1610,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '4',
     height: 8, // untested in reality (heights clockwise from origin: 7,11,9,11)
     pieceSizeFamily: 'glacier',
+    variantOrder: 3,
+    variantLabel: 'Glacier (4)',
   },
   [Pieces.glacier6]: {
     id: Pieces.glacier6,
@@ -1536,6 +1623,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '6',
     height: 17, // untested in reality (heights clockwise from origin: 17,17,9,17,17,9)
     pieceSizeFamily: 'glacier',
+    variantOrder: 4,
+    variantLabel: 'Glacier (6)',
   },
   [Pieces.outcrop1]: {
     id: Pieces.outcrop1,
@@ -1547,6 +1636,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 7, // eventhough it definitely spans 8 hex-heights in reality!
     pieceSizeFamily: 'rockOutcrop',
+    variantOrder: 1,
+    variantLabel: 'Rock Outcrop (1)',
   },
   [Pieces.outcrop3]: {
     id: Pieces.outcrop3,
@@ -1558,6 +1649,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '3',
     height: 9, // untested in reality
     pieceSizeFamily: 'rockOutcrop',
+    variantOrder: 2,
+    variantLabel: 'Rock Outcrop (3)',
   },
   [Pieces.lavaRockOutcrop1]: {
     id: Pieces.lavaRockOutcrop1,
@@ -1569,6 +1662,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 7, // eventhough it definitely spans 8 hex-heights in reality!
     pieceSizeFamily: 'lavaRockOutcrop',
+    variantOrder: 1,
+    variantLabel: 'Lava Rock Outcrop (1)',
   },
   [Pieces.lavaRockOutcrop3]: {
     id: Pieces.lavaRockOutcrop3,
@@ -1580,6 +1675,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '3',
     height: 9, // untested in reality
     pieceSizeFamily: 'lavaRockOutcrop',
+    variantOrder: 2,
+    variantLabel: 'Lava Rock Outcrop (3)',
   },
   [Pieces.toxicOutcrop1]: {
     id: Pieces.toxicOutcrop1,
@@ -1591,6 +1688,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '1',
     height: 7,
     pieceSizeFamily: 'toxicOutcrop',
+    variantOrder: 1,
+    variantLabel: 'Toxic Outcrop (1)',
   },
   [Pieces.toxicOutcrop3]: {
     id: Pieces.toxicOutcrop3,
@@ -1602,6 +1701,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     template: '3',
     height: 9,
     pieceSizeFamily: 'toxicOutcrop',
+    variantOrder: 2,
+    variantLabel: 'Toxic Outcrop (3)',
   },
   [Pieces.hive]: {
     id: Pieces.hive,

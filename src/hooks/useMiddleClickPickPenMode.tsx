@@ -21,8 +21,9 @@ export function getPickedPenModeSettings(boardPiece: BoardPiece) {
   if (!piece) return null
   return {
     penMode: getPickedPenMode(boardPiece.inventoryID, piece.landPrefix),
-    pieceSize:
-      piece.landPrefix || getPieceSizeOptionsForPenMode(piece.id).length
+    pieceSize: piece.pieceSizeFamily
+      ? piece.variantOrder
+      : piece.landPrefix || getPieceSizeOptionsForPenMode(piece.id).length
         ? piece.size
         : undefined,
     rotation: boardPiece.rotation,

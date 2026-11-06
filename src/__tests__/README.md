@@ -88,7 +88,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `ladder-drag.test.ts` | Ladder dragging: moves the grabbed ladder and contiguous stack above it, preserves the lower part, supports mixed groups and ladder-on-ladder placement, and checks blocked targets, no-op drops, undo, and frozen-board previews. |
 | `drag-rotation.test.ts` | Mouse-wheel drag rotation: wheel normalization and throttling, ladder pointer sectors and hysteresis, grabbed-piece-pivot group transforms, grab-offset rotation, pointer-oriented wheel policy, and ladder-stack single application. |
 | `rotation-hotkey.test.ts` | Rotation hotkey target priority, selected-piece rotation and undo, and blocked group-rotation refusal. |
-| `piece-size-hotkeys.test.ts` | Every registered multi-size obstacle family maps its size hotkeys to the right piece IDs, while preserving same-size tree models. |
+| `piece-size-hotkeys.test.ts` | Obstacle variant ordering, labels, direct/cycling hotkeys, picking, and unchanged land size mappings. |
 | `laur-drag.test.ts` | Laur drag-to-move: characterizes boardPieces-only add-on placement/removal/movement, grid-backed pillar moves, and inventory IDs on moved stacked pieces. |
 | `storage-known-gaps.test.ts` | Legacy constraint restoration and protection against hotkey mount overwrites. |
 | `virtualscape-import.test.ts` | Version 0.0007 Virtualscape binary import through `readVirtualscapeMapFile()` and `buildupVSFileMap()`: registered codes, positions, rotations, odd-r coordinates, unknown-code drop reporting and warning, and empty drops for known-only files. |

@@ -236,7 +236,7 @@ describe('resolvePlacement', () => {
         ).toEqual({ penMode: 'g', pieceSize: 3, rotation: 2 })
       })
 
-      it('picks non-land pieces without changing pen size', () => {
+      it('picks Laur wall variants with their family index', () => {
         expect(
           getPickedPenModeSettings({
             uid: 'ruin',
@@ -247,7 +247,7 @@ describe('resolvePlacement', () => {
           }),
         ).toEqual({
           penMode: Pieces.laurWallRuin1,
-          pieceSize: undefined,
+          pieceSize: 10,
           rotation: 4.5,
         })
       })
