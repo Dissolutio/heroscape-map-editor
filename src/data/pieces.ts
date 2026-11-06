@@ -1236,6 +1236,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 8,
     template: Pieces.ruins2,
     height: 5, // these have a template done, but pending vertex data approach
+    gameHeight: 2,
     pieceSizeFamily: 'ruins',
     variantOrder: 1,
     variantLabel: 'Ruins (2)',
@@ -1249,6 +1250,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 10,
     template: Pieces.ruins3,
     height: 5, // these have a template done, but pending vertex data approach
+    gameHeight: 3,
     pieceSizeFamily: 'ruins',
     variantOrder: 2,
     variantLabel: 'Ruins (3)',
@@ -1593,6 +1595,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7, // eventhough it definitely spans 8 hex-heights in reality!
+    gameHeight: 1,
     pieceSizeFamily: 'glacier',
     variantOrder: 1,
     variantLabel: 'Glacier (1)',
@@ -1606,6 +1609,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9, // untested in reality (heights clockwise from origin: 5,9,7)
+    gameHeight: 3,
     pieceSizeFamily: 'glacier',
     variantOrder: 2,
     variantLabel: 'Glacier (3)',
@@ -1619,6 +1623,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 4,
     template: '4',
     height: 8, // untested in reality (heights clockwise from origin: 7,11,9,11)
+    gameHeight: 4,
     pieceSizeFamily: 'glacier',
     variantOrder: 3,
     variantLabel: 'Glacier (4)',
@@ -1632,6 +1637,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 6,
     template: '6',
     height: 17, // untested in reality (heights clockwise from origin: 17,17,9,17,17,9)
+    gameHeight: 6,
     pieceSizeFamily: 'glacier',
     variantOrder: 4,
     variantLabel: 'Glacier (6)',
@@ -1645,6 +1651,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7, // eventhough it definitely spans 8 hex-heights in reality!
+    gameHeight: 1,
     pieceSizeFamily: 'rockOutcrop',
     variantOrder: 1,
     variantLabel: 'Rock Outcrop (1)',
@@ -1658,6 +1665,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9, // untested in reality
+    gameHeight: 3,
     pieceSizeFamily: 'rockOutcrop',
     variantOrder: 2,
     variantLabel: 'Rock Outcrop (3)',
@@ -1671,6 +1679,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7, // eventhough it definitely spans 8 hex-heights in reality!
+    gameHeight: 1,
     pieceSizeFamily: 'lavaRockOutcrop',
     variantOrder: 1,
     variantLabel: 'Lava Rock Outcrop (1)',
@@ -1684,6 +1693,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9, // untested in reality
+    gameHeight: 3,
     pieceSizeFamily: 'lavaRockOutcrop',
     variantOrder: 2,
     variantLabel: 'Lava Rock Outcrop (3)',
@@ -1697,6 +1707,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7,
+    gameHeight: 1,
     pieceSizeFamily: 'toxicOutcrop',
     variantOrder: 1,
     variantLabel: 'Toxic Outcrop (1)',
@@ -1710,6 +1721,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9,
+    gameHeight: 3,
     pieceSizeFamily: 'toxicOutcrop',
     variantOrder: 2,
     variantLabel: 'Toxic Outcrop (3)',
