@@ -1,6 +1,12 @@
 import { useThree } from '@react-three/fiber'
 import { useEffect, useMemo } from 'react'
-import { MeshStandardMaterial, SRGBColorSpace } from 'three'
+import {
+  DoubleSide,
+  FrontSide,
+  MeshStandardMaterial,
+  RepeatWrapping,
+  SRGBColorSpace,
+} from 'three'
 import type { GraphicsTier } from '../../local-storage/settings'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import type { TextureLoadStatus } from '../textures/terrainTextureArrays'
@@ -20,6 +26,9 @@ type TexturedModelMaterialOptions = {
   isHighlighted: boolean
   pid?: string
   highRoughness?: number
+  opacity?: number
+  repeatTexture?: boolean
+  doubleSided?: boolean
 }
 
 export function useTexturedModelMaterial({
@@ -29,6 +38,9 @@ export function useTexturedModelMaterial({
   isHighlighted,
   pid,
   highRoughness,
+  opacity,
+  repeatTexture = false,
+  doubleSided = false,
 }: TexturedModelMaterialOptions) {
   const renderer = useThree((state) => state.gl)
   const map = sourceMaterial.map
@@ -52,17 +64,32 @@ export function useTexturedModelMaterial({
       emissiveIntensity: isHighlighted ? 0.3 : 0,
       metalness: isHigh ? sourceMaterial.metalness : 0,
       roughness: isHigh ? (highRoughness ?? sourceMaterial.roughness) : 1,
+      side: doubleSided ? DoubleSide : FrontSide,
       transparent: pid === undefined,
-      opacity: pid === undefined ? PIECE_PREVIEW_OPACITY : 1,
+      opacity: pid === undefined ? (opacity ?? PIECE_PREVIEW_OPACITY) : 1,
     })
-  }, [highRoughness, isHighlighted, map, pid, sourceMaterial, tier, useTexture])
+  }, [
+    doubleSided,
+    highRoughness,
+    isHighlighted,
+    map,
+    opacity,
+    pid,
+    sourceMaterial,
+    tier,
+    useTexture,
+  ])
 
   useEffect(() => {
     if (!map || !useTexture) return
     map.colorSpace = SRGBColorSpace
     map.anisotropy = renderer.capabilities.getMaxAnisotropy()
+    if (repeatTexture) {
+      map.wrapS = RepeatWrapping
+      map.wrapT = RepeatWrapping
+    }
     map.needsUpdate = true
-  }, [map, renderer, useTexture])
+  }, [map, renderer, repeatTexture, useTexture])
 
   useEffect(
     () => () => {

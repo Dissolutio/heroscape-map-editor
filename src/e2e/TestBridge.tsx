@@ -147,6 +147,12 @@ function TestBridgeInner() {
           hasMap: boolean
           materialTypes: string[]
         }> = []
+        const roadWallMaterials: Array<{
+          uid: string
+          part: 'wall' | 'road'
+          hasMap: boolean
+          materialTypes: string[]
+        }> = []
         get().scene.traverse((object) => {
           if (!(object instanceof Mesh)) return
           const materials = (
@@ -169,6 +175,19 @@ function TestBridgeInner() {
             evergreenTreeMaterials.push({
               uid: evergreenTreeUID,
               part,
+              hasMap: materials.some((material) => Boolean(material?.map)),
+              materialTypes: materials.map((material) => material?.type ?? ''),
+            })
+          }
+          const roadWallUID = object.userData.roadWallUID
+          const roadWallPart = object.userData.roadWallPart
+          if (
+            typeof roadWallUID === 'string' &&
+            (roadWallPart === 'wall' || roadWallPart === 'road')
+          ) {
+            roadWallMaterials.push({
+              uid: roadWallUID,
+              part: roadWallPart,
               hasMap: materials.some((material) => Boolean(material?.map)),
               materialTypes: materials.map((material) => material?.type ?? ''),
             })
@@ -201,6 +220,7 @@ function TestBridgeInner() {
           landRenderer: hasPerHexLandRenderer ? 'per-hex' : 'legacy',
           marroHiveMaterials,
           evergreenTreeMaterials,
+          roadWallMaterials,
           viewingLevel: s.viewingLevel,
           penMode: s.penMode,
           selectedPieceIDs: [...s.selectedPieceIDs],
@@ -302,6 +322,18 @@ function TestBridgeInner() {
           )
         }
         if (bp.inventoryID === Pieces.roadWall) {
+          const bounds = new Box3()
+          get().scene.traverse((object) => {
+            if (object instanceof Mesh && object.userData.roadWallUID === uid) {
+              bounds.union(new Box3().setFromObject(object))
+            }
+          })
+          if (!bounds.isEmpty()) {
+            const center = bounds.getCenter(new Vector3())
+            // Inset from the bounds edge so the projected point hits the wall.
+            center.z = bounds.min.z + 0.01
+            return project(center.x, center.y, center.z)
+          }
           const offset = getRoadWallOptions(bp.rotation)
           return project(
             anchor.x + offset.xAdd,
