@@ -1,17 +1,17 @@
-import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 import {
-  FIXTURE_URL,
   clickHex,
   clickPiece,
   dragPiece,
   expect,
   findPieceUid,
+  FIXTURE_URL,
   hoverHex,
   mapUrl,
   setPen,
   test,
   waitForAppReady,
 } from './fixtures'
+import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 
 const HIVE_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
   ...FIXTURE_PIECE_IDS,
@@ -24,6 +24,11 @@ const EVERGREEN_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
   '0~-3~5~0~tr12',
   '0~2~5~0~tr15',
 ])
+const ROAD_WALL_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
+  ...FIXTURE_PIECE_IDS,
+  '0~2~4~0~rw',
+])
+
 const RUINS_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
   ...FIXTURE_PIECE_IDS,
   '0~3~0~0~rs2',
@@ -36,6 +41,113 @@ const EVERGREEN_PIECES = [
   { inventoryID: 'tr12', q: -3, r: 5 },
   { inventoryID: 'tr15', q: 2, r: 5 },
 ]
+
+const MARVEL_RUIN_PIECES = [
+  {
+    inventoryID: 'rm',
+    q: 0,
+    r: 0,
+    parts: [
+      'MarvelRuinLeft',
+      'MarvelRuinFront',
+      'MarvelRuinBack',
+      'MarvelRuinUpperFloor',
+    ],
+  },
+  {
+    inventoryID: 'rmb',
+    q: 4,
+    r: 0,
+    parts: [
+      'MarvelRuinLeft',
+      'MarvelRuinFrontBroken',
+      'MarvelRuinBackBroken',
+      'MarvelRuinUpperFloor',
+    ],
+  },
+  {
+    inventoryID: 'rmn',
+    q: -2,
+    r: 5,
+    parts: ['MarvelRuinLeft', 'MarvelRuinFront', 'MarvelRuinBack'],
+  },
+  {
+    inventoryID: 'rmnb',
+    q: 3,
+    r: 5,
+    parts: ['MarvelRuinLeft', 'MarvelRuinFrontBroken', 'MarvelRuinBackBroken'],
+  },
+] as const
+const MARVEL_RUIN_FIXTURE_URL = mapUrl(FIXTURE_HEX_MAP, [
+  ...FIXTURE_PIECE_IDS,
+  ...MARVEL_RUIN_PIECES.map(
+    ({ inventoryID, q, r }) => `0~${q}~${r}~0~${inventoryID}`,
+  ),
+])
+
+test('Marvel Ruins render their parts and stay selectable by graphics tier', async ({
+  page,
+}) => {
+  await page.goto(MARVEL_RUIN_FIXTURE_URL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+
+  const graphics = page.getByTestId('graphics-tier-select')
+  await graphics.click()
+  await page.getByRole('option', { name: 'Low (classic look)' }).click()
+  const ruinUIDs = await Promise.all(
+    MARVEL_RUIN_PIECES.map((piece) => findPieceUid(page, piece)),
+  )
+  const tiers = [
+    { label: 'Low (classic look)', hasMap: false },
+    { label: 'Medium (diffuse textures)', hasMap: true },
+    { label: 'High (PBR textures)', hasMap: true },
+  ]
+
+  for (const [index, tier] of tiers.entries()) {
+    if (index > 0) {
+      await graphics.click()
+      await page.getByRole('option', { name: tier.label }).click()
+      await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+        'Textures ready',
+      )
+    }
+
+    await expect
+      .poll(async () =>
+        page.evaluate(() => window.__TEST__?.snapshot().marvelRuinMaterials),
+      )
+      .toEqual(
+        expect.arrayContaining(
+          MARVEL_RUIN_PIECES.flatMap(({ parts }, index) =>
+            parts.map((part) =>
+              expect.objectContaining({
+                uid: ruinUIDs[index],
+                part,
+                hasMap: tier.hasMap,
+              }),
+            ),
+          ),
+        ),
+      )
+
+    for (const uid of ruinUIDs) {
+      await page.mouse.move(0, 0)
+      const alreadySelected = await page.evaluate(
+        (id) =>
+          window.__TEST__?.snapshot().selectedPieceIDs.includes(id) ?? false,
+        uid,
+      )
+      if (alreadySelected) await clickPiece(page, uid)
+      await clickPiece(page, uid)
+      await expect
+        .poll(async () =>
+          page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
+        )
+        .toContain(uid)
+    }
+  }
+})
 
 test('the Marro Hive stays selectable and uses texture maps by graphics tier', async ({
   page,
@@ -159,6 +271,71 @@ test('evergreen trees stay selectable and use texture maps by graphics tier', as
         )
         .toContain(uid)
     }
+  }
+})
+
+test('the Stone Wall stays selectable and uses texture maps by graphics tier', async ({
+  page,
+}) => {
+  await page.goto(ROAD_WALL_FIXTURE_URL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+
+  const graphics = page.getByTestId('graphics-tier-select')
+  await graphics.click()
+  await page.getByRole('option', { name: 'Low (classic look)' }).click()
+  const roadWallUID = await findPieceUid(page, {
+    inventoryID: 'rw',
+    q: 2,
+    r: 4,
+  })
+  const tiers = [
+    { label: 'Low (classic look)', hasMap: false },
+    { label: 'Medium (diffuse textures)', hasMap: true },
+    { label: 'High (PBR textures)', hasMap: true },
+  ]
+
+  for (const [index, tier] of tiers.entries()) {
+    if (index > 0) {
+      await graphics.click()
+      await page.getByRole('option', { name: tier.label }).click()
+      await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+        'Textures ready',
+      )
+    }
+
+    await expect
+      .poll(async () =>
+        page.evaluate(() => window.__TEST__?.snapshot().roadWallMaterials),
+      )
+      .toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            uid: roadWallUID,
+            part: 'wall',
+            hasMap: tier.hasMap,
+          }),
+          expect.objectContaining({
+            uid: roadWallUID,
+            part: 'road',
+            hasMap: tier.hasMap,
+          }),
+        ]),
+      )
+
+    await page.mouse.move(0, 0)
+    const alreadySelected = await page.evaluate(
+      (uid) =>
+        window.__TEST__?.snapshot().selectedPieceIDs.includes(uid) ?? false,
+      roadWallUID,
+    )
+    if (alreadySelected) await clickPiece(page, roadWallUID)
+    await clickPiece(page, roadWallUID)
+    await expect
+      .poll(async () =>
+        page.evaluate(() => window.__TEST__?.snapshot().selectedPieceIDs),
+      )
+      .toContain(roadWallUID)
   }
 })
 

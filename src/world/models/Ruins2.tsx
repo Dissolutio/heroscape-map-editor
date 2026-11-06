@@ -33,7 +33,7 @@ export default function Ruins2({ pid }: { pid: string }) {
     pid,
     highRoughness: 0.5,
     doubleSided: true,
-    repeatWrap: true,
+    repeatTexture: true,
   })
   const columnsMaterial = useTexturedModelMaterial({
     sourceMaterial: columns.material as MeshStandardMaterial,
@@ -101,7 +101,7 @@ export function Ruins2Preview() {
     isHighlighted: false,
     highRoughness: 0.5,
     doubleSided: true,
-    repeatWrap: true,
+    repeatTexture: true,
   })
   const columnsMaterial = useTexturedModelMaterial({
     sourceMaterial: columns.material as MeshStandardMaterial,

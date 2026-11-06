@@ -33,7 +33,19 @@ import {
 import { isE2E, isPerHexLandOverride } from './isE2E'
 import { getPlacementPreview } from './placementPreviewStore'
 import { getReady } from './readyStore'
-import type { E2EDragSnapshot, E2ETestBridge, ScreenPoint } from './types'
+import type {
+  E2EDragSnapshot,
+  E2ESnapshot,
+  E2ETestBridge,
+  ScreenPoint,
+} from './types'
+import { getLandSubterrainInstanceData } from '../world/models/LandSubterrainInstanced'
+import { buildLandHexInstanceData } from '../world/models/landHexInstances'
+import { getLandRendererMode } from '../world/landRendererTier'
+import {
+  getObjectiveMarker3DPosition,
+  isObjectiveMarkerVisibleAtLevel,
+} from '../world/models/objectiveMarker3D'
 
 const round1 = (n: number) => Math.round(n * 10) / 10
 const round4 = (n: number) => Math.round(n * 1e4) / 1e4
@@ -220,6 +232,13 @@ function TestBridgeInner() {
           hasMap: boolean
           materialTypes: string[]
         }> = []
+        const roadWallMaterials: Array<{
+          uid: string
+          part: 'wall' | 'road'
+          hasMap: boolean
+          materialTypes: string[]
+        }> = []
+        const marvelRuinMaterials: E2ESnapshot['marvelRuinMaterials'] = []
         get().scene.traverse((object) => {
           if (!(object instanceof Mesh)) return
           const materials = (
@@ -259,6 +278,37 @@ function TestBridgeInner() {
               materialTypes: materials.map((material) => material?.type ?? ''),
             })
           }
+          const roadWallUID = object.userData.roadWallUID
+          const roadWallPart = object.userData.roadWallPart
+          if (
+            typeof roadWallUID === 'string' &&
+            (roadWallPart === 'wall' || roadWallPart === 'road')
+          ) {
+            roadWallMaterials.push({
+              uid: roadWallUID,
+              part: roadWallPart,
+              hasMap: materials.some((material) => Boolean(material?.map)),
+              materialTypes: materials.map((material) => material?.type ?? ''),
+            })
+          }
+          const marvelRuinUID = object.userData.marvelRuinUID
+          const marvelRuinPart = object.userData.marvelRuinPart
+          if (
+            typeof marvelRuinUID === 'string' &&
+            (marvelRuinPart === 'MarvelRuinLeft' ||
+              marvelRuinPart === 'MarvelRuinFront' ||
+              marvelRuinPart === 'MarvelRuinBack' ||
+              marvelRuinPart === 'MarvelRuinFrontBroken' ||
+              marvelRuinPart === 'MarvelRuinBackBroken' ||
+              marvelRuinPart === 'MarvelRuinUpperFloor')
+          ) {
+            marvelRuinMaterials.push({
+              uid: marvelRuinUID,
+              part: marvelRuinPart,
+              hasMap: materials.some((material) => Boolean(material?.map)),
+              materialTypes: materials.map((material) => material?.type ?? ''),
+            })
+          }
         })
         return {
           ready: getReady(),
@@ -288,6 +338,8 @@ function TestBridgeInner() {
           marroHiveMaterials,
           evergreenTreeMaterials,
           ruinsMaterials,
+          roadWallMaterials,
+          marvelRuinMaterials,
           viewingLevel: s.viewingLevel,
           penMode: s.penMode,
           selectedPieceIDs: [...s.selectedPieceIDs],
@@ -389,6 +441,18 @@ function TestBridgeInner() {
           )
         }
         if (bp.inventoryID === Pieces.roadWall) {
+          const bounds = new Box3()
+          get().scene.traverse((object) => {
+            if (object instanceof Mesh && object.userData.roadWallUID === uid) {
+              bounds.union(new Box3().setFromObject(object))
+            }
+          })
+          if (!bounds.isEmpty()) {
+            const center = bounds.getCenter(new Vector3())
+            // Inset from the bounds edge so the projected point hits the wall.
+            center.z = bounds.min.z + 0.01
+            return project(center.x, center.y, center.z)
+          }
           const offset = getRoadWallOptions(bp.rotation)
           return project(
             anchor.x + offset.xAdd,

@@ -26,8 +26,9 @@ type TexturedModelMaterialOptions = {
   isHighlighted: boolean
   pid?: string
   highRoughness?: number
+  opacity?: number
+  repeatTexture?: boolean
   doubleSided?: boolean
-  repeatWrap?: boolean
 }
 
 export function useTexturedModelMaterial({
@@ -37,8 +38,9 @@ export function useTexturedModelMaterial({
   isHighlighted,
   pid,
   highRoughness,
+  opacity,
+  repeatTexture = false,
   doubleSided = false,
-  repeatWrap = false,
 }: TexturedModelMaterialOptions) {
   const renderer = useThree((state) => state.gl)
   const map = sourceMaterial.map
@@ -57,20 +59,21 @@ export function useTexturedModelMaterial({
       metalnessMap: isHigh ? sourceMaterial.metalnessMap : null,
       normalMap: isHigh ? sourceMaterial.normalMap : null,
       roughnessMap: isHigh ? sourceMaterial.roughnessMap : null,
-      side: doubleSided ? DoubleSide : FrontSide,
       color: 'white',
       emissive: isHighlighted ? 'yellow' : 'black',
       emissiveIntensity: isHighlighted ? 0.3 : 0,
       metalness: isHigh ? sourceMaterial.metalness : 0,
       roughness: isHigh ? (highRoughness ?? sourceMaterial.roughness) : 1,
+      side: doubleSided ? DoubleSide : FrontSide,
       transparent: pid === undefined,
-      opacity: pid === undefined ? PIECE_PREVIEW_OPACITY : 1,
+      opacity: pid === undefined ? (opacity ?? PIECE_PREVIEW_OPACITY) : 1,
     })
   }, [
     doubleSided,
     highRoughness,
     isHighlighted,
     map,
+    opacity,
     pid,
     sourceMaterial,
     tier,
@@ -81,12 +84,12 @@ export function useTexturedModelMaterial({
     if (!map || !useTexture) return
     map.colorSpace = SRGBColorSpace
     map.anisotropy = renderer.capabilities.getMaxAnisotropy()
-    if (repeatWrap) {
+    if (repeatTexture) {
       map.wrapS = RepeatWrapping
       map.wrapT = RepeatWrapping
     }
     map.needsUpdate = true
-  }, [map, renderer, repeatWrap, useTexture])
+  }, [map, renderer, repeatTexture, useTexture])
 
   useEffect(
     () => () => {

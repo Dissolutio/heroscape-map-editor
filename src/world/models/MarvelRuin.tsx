@@ -1,13 +1,65 @@
-import { useDisposableGLTF } from './useDisposableGLTF'
-
 import type { ThreeEvent } from '@react-three/fiber'
-import { DoubleSide } from 'three'
+import type { MeshStandardMaterial } from 'three'
 import usePieceHoverState from '../../hooks/usePieceHoverState'
 import useBoundStore from '../../store/store'
-import { Pieces } from '../../types'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import { hexTerrainColor } from '../maphex/hexColors'
 import { basicDoubleSideModelMaterial } from './materials'
+import {
+  getMarvelRuinMeshNames,
+  getMarvelRuinParts,
+  type MarvelRuinMeshName,
+} from './marvelRuinParts'
+import { useTexturedModelMaterial } from './texturedModelMaterial'
+import { useDisposableGLTF } from './useDisposableGLTF'
+
+function MarvelRuinMesh({
+  nodes,
+  meshName,
+  color,
+  pid,
+  isHighlighted,
+}: {
+  // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
+  nodes: any
+  meshName: MarvelRuinMeshName
+  color: string
+  pid?: string
+  isHighlighted: boolean
+}) {
+  const isLightsAndShadowsRender = useBoundStore(
+    (s) => s.isLightsAndShadowsRender,
+  )
+  const effectiveGraphicsTier = useBoundStore((s) => s.effectiveGraphicsTier)
+  const textureLoadStatus = useBoundStore((s) => s.textureLoadStatus)
+  const sourceMaterial = nodes[meshName].material as MeshStandardMaterial
+  const texturedMaterial = useTexturedModelMaterial({
+    sourceMaterial,
+    tier: effectiveGraphicsTier,
+    textureLoadStatus,
+    isHighlighted,
+    pid,
+    highRoughness: 0.5,
+    doubleSided: true,
+  })
+
+  return (
+    <mesh
+      userData={{ marvelRuinUID: pid ?? null, marvelRuinPart: meshName }}
+      receiveShadow={isLightsAndShadowsRender}
+      castShadow={isLightsAndShadowsRender}
+      geometry={nodes[meshName].geometry}
+      material={
+        texturedMaterial ??
+        basicDoubleSideModelMaterial(
+          color,
+          isLightsAndShadowsRender,
+          pid === undefined ? PIECE_PREVIEW_OPACITY : undefined,
+        )
+      }
+    />
+  )
+}
 
 export function MarvelRuin({
   pid,
@@ -17,21 +69,15 @@ export function MarvelRuin({
   inventoryID: string
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useDisposableGLTF('/marvel-ruins_v2.glb') as any
+  const { nodes } = useDisposableGLTF('/marvel-ruin-6-textured.glb') as any
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const toggleSelectedPieceID = useBoundStore((s) => s.toggleSelectedPieceID)
   const isSelected = selectedPieceIDs.includes(pid)
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
   const hoveredPieceID = useBoundStore((s) => s.hoveredPieceID)
   const { onPointerEnterPID, onPointerOut } = usePieceHoverState()
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation() // prevent pass through
-    // Early out right clicks(event.button=2), middle mouse clicks(1)
-    if (event.button !== 0) {
-      return
-    }
+    event.stopPropagation()
+    if (event.button !== 0) return
     toggleSelectedPieceID(
       pid,
       event.shiftKey || event.ctrlKey || event.metaKey,
@@ -39,50 +85,31 @@ export function MarvelRuin({
     )
   }
   const isHighlighted = hoveredPieceID === pid || isSelected
-  const yellowColor = 'yellow'
-  const color = isHighlighted ? yellowColor : hexTerrainColor.marvelRuin
-  const colorUpperFloor = isHighlighted ? yellowColor : hexTerrainColor.ladder
-  const isUpperFloor =
-    inventoryID === Pieces.marvel || inventoryID === Pieces.marvelBroken
-  const isWallIntact =
-    inventoryID === Pieces.marvel || inventoryID === Pieces.marvelNoUpper
+  const { isUpperFloor, isWallIntact } = getMarvelRuinParts(inventoryID)
+  const meshNames = getMarvelRuinMeshNames(isUpperFloor, isWallIntact)
+  const color = isHighlighted ? 'yellow' : hexTerrainColor.marvelRuin
+  const colorUpperFloor = isHighlighted ? 'yellow' : hexTerrainColor.ladder
+
   return (
     <group
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}
       onPointerUp={(e) => onPointerUp(e)}
     >
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.MarvelRuinMain.geometry}
-        material={basicDoubleSideModelMaterial(color, isLightsAndShadowsRender)}
-      />
-      {isUpperFloor && (
-        <mesh
-          receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender}
-          geometry={nodes.MarvelRuinUpperFloor.geometry}
-          material={basicDoubleSideModelMaterial(
-            colorUpperFloor,
-            isLightsAndShadowsRender,
-          )}
+      {meshNames.map((meshName) => (
+        <MarvelRuinMesh
+          key={meshName}
+          nodes={nodes}
+          meshName={meshName}
+          color={meshName === 'MarvelRuinUpperFloor' ? colorUpperFloor : color}
+          pid={pid}
+          isHighlighted={isHighlighted}
         />
-      )}
-      {isWallIntact && (
-        <mesh
-          receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender}
-          geometry={nodes.MarvelRuinRemoveableWall.geometry}
-          material={basicDoubleSideModelMaterial(
-            color,
-            isLightsAndShadowsRender,
-          )}
-        />
-      )}
+      ))}
     </group>
   )
 }
+
 export function MarvelRuinPreview({
   isUpperFloor,
   isWallIntact,
@@ -91,50 +118,23 @@ export function MarvelRuinPreview({
   isWallIntact: boolean
 }) {
   // biome-ignore lint/suspicious/noExplicitAny: <mesh names from Blender>
-  const { nodes } = useDisposableGLTF('/marvel-ruins_v2.glb') as any
-  const isLightsAndShadowsRender = useBoundStore(
-    (s) => s.isLightsAndShadowsRender,
-  )
-  const color = hexTerrainColor.marvelRuin
-  const colorUpperFloor = hexTerrainColor.ladder
+  const { nodes } = useDisposableGLTF('/marvel-ruin-6-textured.glb') as any
+  const meshNames = getMarvelRuinMeshNames(isUpperFloor, isWallIntact)
   return (
     <>
-      <mesh
-        receiveShadow={isLightsAndShadowsRender}
-        castShadow={isLightsAndShadowsRender}
-        geometry={nodes.MarvelRuinMain.geometry}
-        material={basicDoubleSideModelMaterial(
-          color,
-          isLightsAndShadowsRender,
-          PIECE_PREVIEW_OPACITY,
-        )}
-      />
-      {isUpperFloor && (
-        <mesh
-          receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender}
-          geometry={nodes.MarvelRuinUpperFloor.geometry}
-          material={basicDoubleSideModelMaterial(
-            colorUpperFloor,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
+      {meshNames.map((meshName) => (
+        <MarvelRuinMesh
+          key={meshName}
+          nodes={nodes}
+          meshName={meshName}
+          color={
+            meshName === 'MarvelRuinUpperFloor'
+              ? hexTerrainColor.ladder
+              : hexTerrainColor.marvelRuin
+          }
+          isHighlighted={false}
         />
-      )}
-      {isWallIntact && (
-        <mesh
-          receiveShadow={isLightsAndShadowsRender}
-          castShadow={isLightsAndShadowsRender}
-          geometry={nodes.MarvelRuinRemoveableWall.geometry}
-          material={basicDoubleSideModelMaterial(
-            color,
-            isLightsAndShadowsRender,
-            PIECE_PREVIEW_OPACITY,
-          )}
-        />
-      )}
+      ))}
     </>
   )
 }
-
-// useGltf.preload('/marvel-ruins.glb')
