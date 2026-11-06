@@ -6,6 +6,7 @@ import type { BoardHex, DecodedPieceID, PdfMapAltitudeChunk } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import type { BuriedMarksByUID } from '../utils/tileMarks'
 import { PdfObjectiveMarkerOverlay } from './PdfObjectiveMarkers'
+import { PdfLadderOverlayStack } from './PdfLadderOverlay'
 import { PdfMapBoardPiece } from './PdfMapBoardPiece'
 import { PdfMapHex } from './PdfMapHex'
 
@@ -56,8 +57,11 @@ export const ReactPdfSvgMapDisplay = ({
   const subLevelHexes = nonEmptyHexesArr.filter(
     (h) => h.altitude < viewingLevel,
   )
+  const ladderStacks = chunk?.ladderStacks
   const visibleBoardPieces = boardPiecesArr.filter((bp) => {
     if (piecesSoFar[bp.inventoryID]?.isOverlayPiece) {
+      // the ladder overlay level is a plain top-down background
+      if (ladderStacks) return false
       return (
         isOverlayViewing ||
         (isShowPdfOverlayOnPlacedLevel && bp.altitude <= viewingLevel)
@@ -165,6 +169,12 @@ export const ReactPdfSvgMapDisplay = ({
             useLegacyStartZones={useLegacyStartZones}
           />
         ))}
+      {ladderStacks?.map((stack) => (
+        <PdfLadderOverlayStack
+          key={`${stack.edgeId}~${stack.runIndex}`}
+          stack={stack}
+        />
+      ))}
       {visibleObjectiveMarkers.length > 0 && (
         <PdfObjectiveMarkerOverlay markers={visibleObjectiveMarkers} />
       )}
