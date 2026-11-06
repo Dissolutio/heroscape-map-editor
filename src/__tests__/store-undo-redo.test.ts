@@ -43,10 +43,10 @@ function loadedMap(boardPieces: BoardPiece[] = []): MapState {
   return buildupJsonFileMap(boardPieces, hexMap)
 }
 
-function loadWithoutHistory(map: MapState) {
+function loadWithoutHistory(map: MapState, holdAutosave = true) {
   const temporal = store.temporal.getState()
   temporal.pause()
-  store.getState().loadMap(map, { holdAutosave: true })
+  store.getState().loadMap(map, { holdAutosave })
   temporal.clear()
   temporal.resume()
   localStorageMock.setItem.mockClear()
@@ -504,8 +504,17 @@ describe('real store undo and redo', () => {
         pieceCoords: { q: 4, r: 2, s: -6 },
       },
     ]
-    loadWithoutHistory(loadedMap(pieces))
+    loadWithoutHistory(
+      buildupJsonFileMap(pieces, {
+        ...hexMap,
+        name: 'Original map',
+        author: 'Original author',
+        mapNotes: 'Original notes',
+      }),
+      false,
+    )
     const before = structuredClone(store.getState().boardPieces)
+    const beforeMetadata = structuredClone(store.getState().hexMap)
     const conflictsBefore = [...store.getState().conflictedPieceUIDs]
     const actionLogLength = store.getState().actionLog.length
 
@@ -518,6 +527,11 @@ describe('real store undo and redo', () => {
           'buried-snow': Pieces.grass1,
         },
         adaptToCollection: true,
+        mapMetadata: {
+          name: 'Adapted map',
+          author: 'Updated author',
+          mapNotes: 'Updated notes',
+        },
       }),
     ).toBe(2)
 
@@ -527,6 +541,11 @@ describe('real store undo and redo', () => {
       store.getState().actionLog[store.getState().actionLog.length - 1]?.text,
     ).toBe('Adapted map to collection (2 pieces)')
     expect(store.getState().actionLogUndoStack).toHaveLength(1)
+    expect(store.getState().hexMap).toMatchObject({
+      name: 'Adapted map',
+      author: 'Updated author',
+      mapNotes: 'Updated notes',
+    })
     expect(
       Object.fromEntries(
         store
@@ -550,12 +569,43 @@ describe('real store undo and redo', () => {
       })
     }
 
+    const current = store.getState()
+    const fileLoaded = buildupJsonFileMap(
+      structuredClone(current.boardPieces),
+      structuredClone(current.hexMap),
+    )
+    expect(fileLoaded.hexMap).toMatchObject({
+      name: 'Adapted map',
+      author: 'Updated author',
+      mapNotes: 'Updated notes',
+    })
+    const shared = parseMapDataArrayFromCrushed(
+      getUrlMapString({
+        hexMap: current.hexMap,
+        boardPieces: current.boardPieces,
+      }),
+    )
+    expect(shared.hexMap).toMatchObject({
+      name: 'Adapted map',
+      author: 'Updated author',
+    })
+    vi.advanceTimersByTime(1000)
+    const autosaved = JSON.parse(
+      storageValues.get(LS_KEYS.lastMap) ?? '{}',
+    ) as { hexMap?: HexMap }
+    expect(autosaved.hexMap).toMatchObject({
+      name: 'Adapted map',
+      author: 'Updated author',
+      mapNotes: 'Updated notes',
+    })
+
     undoWithSelectionRestore()
     expect(
       store
         .getState()
         .boardPieces.map(({ uid, inventoryID }) => ({ uid, inventoryID })),
     ).toEqual(before.map(({ uid, inventoryID }) => ({ uid, inventoryID })))
+    expect(store.getState().hexMap).toEqual(beforeMetadata)
   })
 
   it('undoes and redoes unpainting with exact boardPieces and boardHexes', () => {
