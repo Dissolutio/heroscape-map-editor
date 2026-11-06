@@ -232,7 +232,7 @@ function PiecePreviewModel({
   const penModeSize = useBoundStore((s) => s.pieceSize)
 
   // Determine the piece to preview based on penMode and pieceSize
-  const pieceKey = penModeSize === 0 ? penMode : `${penMode}${penModeSize}`
+  const pieceKey = getPieceIDForPenMode(penMode, penModeSize)
   const piece = piecesSoFar[pieceKey]
   const hoveredPieceSupportHexID = hoveredPiece
     ? genBoardHexID({

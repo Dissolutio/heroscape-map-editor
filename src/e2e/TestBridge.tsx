@@ -39,13 +39,6 @@ import type {
   E2ETestBridge,
   ScreenPoint,
 } from './types'
-import { getLandSubterrainInstanceData } from '../world/models/LandSubterrainInstanced'
-import { buildLandHexInstanceData } from '../world/models/landHexInstances'
-import { getLandRendererMode } from '../world/landRendererTier'
-import {
-  getObjectiveMarker3DPosition,
-  isObjectiveMarkerVisibleAtLevel,
-} from '../world/models/objectiveMarker3D'
 
 const round1 = (n: number) => Math.round(n * 10) / 10
 const round4 = (n: number) => Math.round(n * 1e4) / 1e4
@@ -226,6 +219,7 @@ function TestBridgeInner() {
           hasMap: boolean
           materialTypes: string[]
         }> = []
+        const previewMeshes: E2ESnapshot['previewMeshes'] = []
         const ruinsMaterials: Array<{
           uid: string
           part: 'face' | 'columns'
@@ -243,13 +237,31 @@ function TestBridgeInner() {
           if (!(object instanceof Mesh)) return
           const materials = (
             Array.isArray(object.material) ? object.material : [object.material]
-          ) as Array<{ map?: unknown; type?: string }>
+          ) as Array<{
+            map?: unknown
+            type?: string
+            transparent?: boolean
+            opacity?: number
+          }>
           const hiveUID = object.userData.marroHiveUID
           if (typeof hiveUID === 'string') {
             marroHiveMaterials.push({
               uid: hiveUID,
               hasMap: materials.some((material) => Boolean(material?.map)),
               materialTypes: materials.map((material) => material?.type ?? ''),
+            })
+          }
+          const firstMaterial = materials[0]
+          const previewMaterial = {
+            hasMap: materials.some((material) => Boolean(material?.map)),
+            transparent: materials.some((material) => material?.transparent),
+            opacity: firstMaterial?.opacity ?? 1,
+          }
+          if (hiveUID === null) {
+            previewMeshes.push({
+              family: 'marroHive',
+              part: 'model',
+              ...previewMaterial,
             })
           }
           const evergreenTreeUID = object.userData.evergreenTreeUID
@@ -263,6 +275,23 @@ function TestBridgeInner() {
               part,
               hasMap: materials.some((material) => Boolean(material?.map)),
               materialTypes: materials.map((material) => material?.type ?? ''),
+            })
+          }
+          if (
+            evergreenTreeUID === null &&
+            (part === 'tree' || part === 'boulders' || part === 'base')
+          ) {
+            previewMeshes.push({
+              family: 'evergreenTree',
+              part,
+              ...previewMaterial,
+            })
+          }
+          if (object.userData.snowEvergreenTreeUID === null) {
+            previewMeshes.push({
+              family: 'snowEvergreenTree',
+              part: 'tree',
+              ...previewMaterial,
             })
           }
           const ruinsUID = object.userData.ruinsUID
@@ -309,6 +338,21 @@ function TestBridgeInner() {
               materialTypes: materials.map((material) => material?.type ?? ''),
             })
           }
+          if (
+            marvelRuinUID === null &&
+            (marvelRuinPart === 'MarvelRuinLeft' ||
+              marvelRuinPart === 'MarvelRuinFront' ||
+              marvelRuinPart === 'MarvelRuinBack' ||
+              marvelRuinPart === 'MarvelRuinFrontBroken' ||
+              marvelRuinPart === 'MarvelRuinBackBroken' ||
+              marvelRuinPart === 'MarvelRuinUpperFloor')
+          ) {
+            previewMeshes.push({
+              family: 'marvelRuin',
+              part: marvelRuinPart,
+              ...previewMaterial,
+            })
+          }
         })
         return {
           ready: getReady(),
@@ -337,6 +381,7 @@ function TestBridgeInner() {
           landRenderer: hasPerHexLandRenderer ? 'per-hex' : 'legacy',
           marroHiveMaterials,
           evergreenTreeMaterials,
+          previewMeshes,
           ruinsMaterials,
           roadWallMaterials,
           marvelRuinMaterials,

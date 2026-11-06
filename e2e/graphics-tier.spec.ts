@@ -430,7 +430,7 @@ test('graphics tier loads Medium textures and returns to the classic Low rendere
   })
   page.on('pageerror', (error) => errors.push(error.message))
 
-  await page.goto(FIXTURE_URL)
+  await page.goto(EVERGREEN_FIXTURE_URL)
   await waitForAppReady(page)
   await expect
     .poll(async () =>
@@ -492,7 +492,7 @@ test('hover, paint, select, and drag work in every graphics tier', async ({
     }
   })
 
-  await page.goto(FIXTURE_URL)
+  await page.goto(EVERGREEN_FIXTURE_URL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
   const graphics = page.getByTestId('graphics-tier-select')
@@ -643,4 +643,117 @@ test('picture-only High restores the previous graphics and lighting settings', a
     page.getByRole('checkbox', { name: 'Render Lights and Shadows' }),
   ).not.toBeChecked()
   await expect(pictureHigh).toBeChecked()
+})
+
+test('tree placement previews render transparently in every graphics tier', async ({
+  page,
+}) => {
+  await page.goto(FIXTURE_URL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+
+  const graphics = page.getByTestId('graphics-tier-select')
+  const tiers = [
+    { label: 'Low (classic look)', hasMap: false },
+    { label: 'Medium (diffuse textures)', hasMap: true },
+    { label: 'High (PBR textures)', hasMap: true },
+  ]
+
+  await graphics.click()
+  await page.getByRole('option', { name: tiers[0].label }).click()
+
+  for (const [index, tier] of tiers.entries()) {
+    if (index > 0) {
+      await graphics.click()
+      await page.getByRole('option', { name: tier.label }).click()
+      await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+        'Textures ready',
+      )
+    }
+
+    for (const size of [1, 4]) {
+      await setPen(page, 'tr10', size)
+      await hoverHex(page, { q: 0, r: 0, altitude: 0 })
+
+      await expect
+        .poll(async () =>
+          page.evaluate(() =>
+            window.__TEST__
+              ?.snapshot()
+              .previewMeshes.filter((mesh) => mesh.family === 'evergreenTree'),
+          ),
+        )
+        .toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              family: 'evergreenTree',
+              part: 'tree',
+              hasMap: tier.hasMap,
+              transparent: true,
+            }),
+          ]),
+        )
+
+      const previews = await page.evaluate(() =>
+        window.__TEST__
+          ?.snapshot()
+          .previewMeshes.filter((mesh) => mesh.family === 'evergreenTree'),
+      )
+      expect(previews?.length).toBe(size === 1 ? 1 : 3)
+      expect(previews?.every((mesh) => mesh.opacity < 1)).toBe(true)
+    }
+
+    await hoverHex(page, { q: 1, r: 0, altitude: 0 })
+    await expect
+      .poll(async () =>
+        page.evaluate(() =>
+          window.__TEST__
+            ?.snapshot()
+            .previewMeshes.filter((mesh) => mesh.family === 'evergreenTree'),
+        ),
+      )
+      .not.toHaveLength(0)
+
+    for (const preview of [
+      {
+        mode: 'h',
+        size: 0,
+        family: 'marroHive',
+        hasMap: tier.hasMap,
+      },
+      {
+        mode: 'str10',
+        size: 1,
+        family: 'snowEvergreenTree',
+        hasMap: false,
+      },
+      {
+        mode: 'rm',
+        size: 0,
+        family: 'marvelRuin',
+        hasMap: tier.hasMap,
+      },
+    ] as const) {
+      await setPen(page, preview.mode, preview.size)
+      await expect
+        .poll(async () =>
+          page.evaluate(
+            (family) =>
+              window.__TEST__
+                ?.snapshot()
+                .previewMeshes.filter((mesh) => mesh.family === family),
+            preview.family,
+          ),
+        )
+        .toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              family: preview.family,
+              hasMap: preview.hasMap,
+              transparent: true,
+            }),
+          ]),
+        )
+    }
+  }
 })
