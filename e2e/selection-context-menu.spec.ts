@@ -176,7 +176,9 @@ test('right-click selection actions work in every graphics tier', async ({
     .poll(async () => (await snapshot(page))?.selectedPieceIDs)
     .toEqual([rock])
 
-  const before = await page.evaluate(() => window.__TEST__?.cameraPose() ?? null)
+  const before = await page.evaluate(
+    () => window.__TEST__?.cameraPose() ?? null,
+  )
   const canvas = await page.locator('canvas').first().boundingBox()
   if (!canvas) throw new Error('The 3D canvas is not visible')
   await page.mouse.move(canvas.x + emptyPoint.x, canvas.y + emptyPoint.y)
