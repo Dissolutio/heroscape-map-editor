@@ -35,6 +35,18 @@ export type E2ESnapshot = {
     hasMap: boolean
     materialTypes: string[]
   }>
+  marvelRuinMaterials: Array<{
+    uid: string
+    part:
+      | 'MarvelRuinLeft'
+      | 'MarvelRuinFront'
+      | 'MarvelRuinBack'
+      | 'MarvelRuinFrontBroken'
+      | 'MarvelRuinBackBroken'
+      | 'MarvelRuinUpperFloor'
+    hasMap: boolean
+    materialTypes: string[]
+  }>
   viewingLevel: number
   penMode: string
   selectedPieceIDs: string[]
