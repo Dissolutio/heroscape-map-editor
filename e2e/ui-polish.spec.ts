@@ -71,13 +71,15 @@ test('navbar offers only the other views as icons', async ({ page }) => {
   await expectViewButtons(['View 3D Map', 'View pdf build instructions'])
 
   await page.mouse.move(0, 0)
-  await page.getByRole('button', { name: 'View pdf build instructions' }).click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
   await expect(page.locator('iframe')).toBeVisible()
   await expectViewButtons(['View 2D Map', 'View 3D Map'])
 
   await page.mouse.move(0, 0)
   await page.getByRole('button', { name: 'View 3D Map' }).click()
-  await expect(page.locator('canvas')).toBeVisible()
+  await expect(page.locator('canvas').first()).toBeVisible()
   await expectViewButtons(['View 2D Map', 'View pdf build instructions'])
 })
 
