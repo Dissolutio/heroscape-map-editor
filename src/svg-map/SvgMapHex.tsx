@@ -165,9 +165,11 @@ const TerrainTileLetterText = ({
 export const SvgMapHex = ({
   hex,
   buriedMarksByUID,
+  isPieceKeyPreview = false,
 }: {
   hex: BoardHex
   buriedMarksByUID: BuriedMarksByUID
+  isPieceKeyPreview?: boolean
 }) => {
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isShow2DExportTileLetters = useBoundStore(
@@ -184,7 +186,7 @@ export const SvgMapHex = ({
   const isHideHeightsOnGlyphs = useBoundStore((s) => s.isHideHeightsOnGlyphs)
   const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
   const pixel = hexUtilsHexToPixel(hex)
-  const isSubLevel = hex.altitude < viewingLevel
+  const isSubLevel = !isPieceKeyPreview && hex.altitude < viewingLevel
   const { inventoryID } = decodePieceID(hex.pieceID)
   const exportSymbol = getPieceExportSymbol(inventoryID)
   const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
@@ -192,7 +194,7 @@ export const SvgMapHex = ({
     isObstaclePiece &&
     !hex.isObstacleOrigin &&
     (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
-  const isVisible = hex.altitude <= viewingLevel
+  const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
   const pieceHeightText = piecesSoFar[inventoryID]?.height
@@ -470,7 +472,7 @@ export const SvgMapHex = ({
     // When overlay view is enabled, glyphs should only be shown on the overlay level
     const isOverlayViewing =
       is2DOverlayLevelEnabled && viewingLevel === overlayLevel
-    if (is2DOverlayLevelEnabled && !isOverlayViewing) {
+    if (is2DOverlayLevelEnabled && !isOverlayViewing && !isPieceKeyPreview) {
       return null
     }
     const specialIsSubLevel = isOverlayViewing ? false : isSubLevel

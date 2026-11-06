@@ -25,19 +25,21 @@ export const PdfMapBoardPiece = ({
   overlayLevel,
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
+  isPieceKeyPreview = false,
 }: {
   piece: DecodedPieceID
   viewingLevel: number
   overlayLevel: number
   useLegacyStartZones?: boolean
   is2DOverlayLevelEnabled?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
-  const isSubLevel = altitudeAdjusted < viewingLevel
+  const isSubLevel = !isPieceKeyPreview && altitudeAdjusted < viewingLevel
   const { inventoryID } = piece
   const exportSymbol = getPieceExportSymbol(inventoryID)
-  const isVisible = altitudeAdjusted <= viewingLevel
+  const isVisible = isPieceKeyPreview || altitudeAdjusted <= viewingLevel
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   const boardPieceAsHex: BoardHex = {
     id: piece.boardHexID,
@@ -59,7 +61,8 @@ export const PdfMapBoardPiece = ({
   if (exportSymbol === 'start-zone') {
     const isOverlayViewing =
       is2DOverlayLevelEnabled && viewingLevel === overlayLevel
-    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
+    const specialIsSubLevel =
+      isPieceKeyPreview || isOverlayViewing ? false : isSubLevel
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfStartZone

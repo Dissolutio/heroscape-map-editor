@@ -189,6 +189,7 @@ export const PdfMapHex = ({
   isShowPdfBuriedMarks,
   buriedMarksByUID,
   useLegacyStartZones,
+  isPieceKeyPreview = false,
 }: {
   hex: BoardHex
   viewingLevel: number
@@ -199,9 +200,10 @@ export const PdfMapHex = ({
   isShowPdfBuriedMarks: boolean
   buriedMarksByUID: BuriedMarksByUID
   useLegacyStartZones: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const pixel = hexUtilsHexToPixel(hex)
-  const isSubLevel = hex.altitude < viewingLevel
+  const isSubLevel = !isPieceKeyPreview && hex.altitude < viewingLevel
   const { inventoryID } = hex
   const exportSymbol = getPieceExportSymbol(inventoryID)
   const boardPieces = useBoundStore.getState().boardPieces
@@ -210,7 +212,7 @@ export const PdfMapHex = ({
     isObstaclePiece &&
     !hex.isObstacleOrigin &&
     (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
-  const isVisible = hex.altitude <= viewingLevel
+  const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
   const pieceHeightText = piecesSoFar[inventoryID]?.height
