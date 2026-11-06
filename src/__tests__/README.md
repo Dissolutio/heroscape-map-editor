@@ -65,6 +65,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `world/models/gltfLifecycle.test.ts` | Delayed GLTF eviction, reacquisition/ref counts, and owned texture disposal. |
 | `marro-hive-model.test.ts` | Old and textured Marro Hive GLB position bounds, ground alignment, UVs, and base-color texture metadata. |
 | `evergreen-tree-model.test.ts` | Evergreen and large-tree GLB mesh bounds, UVs, and embedded base-color textures. |
+| `marvel-ruin-model.test.ts` | Textured Marvel Ruin GLB mesh names, UVs, embedded textures, bounds, and per-piece rendered parts. |
 | `world/models/marroHiveMaterial.test.ts` | Marro Hive texture selection across graphics tiers, load states, and a missing base-color map. |
 | `world/models/texturedModelMaterial.test.ts` | Shared textured-model selection across graphics tiers, load states, and a missing base-color map. |
 | `store/graphics-tier.test.ts` | Graphics-tier loading state, session-only fallback after failure, and stale request handling. |

@@ -1,6 +1,6 @@
 import { useThree } from '@react-three/fiber'
 import { useEffect, useMemo } from 'react'
-import { MeshStandardMaterial, SRGBColorSpace } from 'three'
+import { DoubleSide, MeshStandardMaterial, SRGBColorSpace } from 'three'
 import type { GraphicsTier } from '../../local-storage/settings'
 import { PIECE_PREVIEW_OPACITY } from '../../utils/constants'
 import type { TextureLoadStatus } from '../textures/terrainTextureArrays'
@@ -20,6 +20,7 @@ type TexturedModelMaterialOptions = {
   isHighlighted: boolean
   pid?: string
   highRoughness?: number
+  doubleSided?: boolean
 }
 
 export function useTexturedModelMaterial({
@@ -29,6 +30,7 @@ export function useTexturedModelMaterial({
   isHighlighted,
   pid,
   highRoughness,
+  doubleSided = false,
 }: TexturedModelMaterialOptions) {
   const renderer = useThree((state) => state.gl)
   const map = sourceMaterial.map
@@ -52,10 +54,20 @@ export function useTexturedModelMaterial({
       emissiveIntensity: isHighlighted ? 0.3 : 0,
       metalness: isHigh ? sourceMaterial.metalness : 0,
       roughness: isHigh ? (highRoughness ?? sourceMaterial.roughness) : 1,
+      side: doubleSided ? DoubleSide : undefined,
       transparent: pid === undefined,
       opacity: pid === undefined ? PIECE_PREVIEW_OPACITY : 1,
     })
-  }, [highRoughness, isHighlighted, map, pid, sourceMaterial, tier, useTexture])
+  }, [
+    doubleSided,
+    highRoughness,
+    isHighlighted,
+    map,
+    pid,
+    sourceMaterial,
+    tier,
+    useTexture,
+  ])
 
   useEffect(() => {
     if (!map || !useTexture) return
