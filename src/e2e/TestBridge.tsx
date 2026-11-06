@@ -152,18 +152,37 @@ function TestBridgeInner() {
           hasMap: boolean
           materialTypes: string[]
         }> = []
+        const previewMeshes: E2ESnapshot['previewMeshes'] = []
         const marvelRuinMaterials: E2ESnapshot['marvelRuinMaterials'] = []
         get().scene.traverse((object) => {
           if (!(object instanceof Mesh)) return
           const materials = (
             Array.isArray(object.material) ? object.material : [object.material]
-          ) as Array<{ map?: unknown; type?: string }>
+          ) as Array<{
+            map?: unknown
+            type?: string
+            transparent?: boolean
+            opacity?: number
+          }>
           const hiveUID = object.userData.marroHiveUID
           if (typeof hiveUID === 'string') {
             marroHiveMaterials.push({
               uid: hiveUID,
               hasMap: materials.some((material) => Boolean(material?.map)),
               materialTypes: materials.map((material) => material?.type ?? ''),
+            })
+          }
+          const firstMaterial = materials[0]
+          const previewMaterial = {
+            hasMap: materials.some((material) => Boolean(material?.map)),
+            transparent: materials.some((material) => material?.transparent),
+            opacity: firstMaterial?.opacity ?? 1,
+          }
+          if (hiveUID === null) {
+            previewMeshes.push({
+              family: 'marroHive',
+              part: 'model',
+              ...previewMaterial,
             })
           }
           const evergreenTreeUID = object.userData.evergreenTreeUID
@@ -177,6 +196,16 @@ function TestBridgeInner() {
               part,
               hasMap: materials.some((material) => Boolean(material?.map)),
               materialTypes: materials.map((material) => material?.type ?? ''),
+            })
+          }
+          if (
+            evergreenTreeUID === null &&
+            (part === 'tree' || part === 'boulders' || part === 'base')
+          ) {
+            previewMeshes.push({
+              family: 'evergreenTree',
+              part,
+              ...previewMaterial,
             })
           }
           const marvelRuinUID = object.userData.marvelRuinUID
@@ -195,6 +224,21 @@ function TestBridgeInner() {
               part: marvelRuinPart,
               hasMap: materials.some((material) => Boolean(material?.map)),
               materialTypes: materials.map((material) => material?.type ?? ''),
+            })
+          }
+          if (
+            marvelRuinUID === null &&
+            (marvelRuinPart === 'MarvelRuinLeft' ||
+              marvelRuinPart === 'MarvelRuinFront' ||
+              marvelRuinPart === 'MarvelRuinBack' ||
+              marvelRuinPart === 'MarvelRuinFrontBroken' ||
+              marvelRuinPart === 'MarvelRuinBackBroken' ||
+              marvelRuinPart === 'MarvelRuinUpperFloor')
+          ) {
+            previewMeshes.push({
+              family: 'marvelRuin',
+              part: marvelRuinPart,
+              ...previewMaterial,
             })
           }
         })
@@ -225,6 +269,7 @@ function TestBridgeInner() {
           landRenderer: hasPerHexLandRenderer ? 'per-hex' : 'legacy',
           marroHiveMaterials,
           evergreenTreeMaterials,
+          previewMeshes,
           marvelRuinMaterials,
           viewingLevel: s.viewingLevel,
           penMode: s.penMode,

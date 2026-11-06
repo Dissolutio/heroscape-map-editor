@@ -29,6 +29,13 @@ export type E2ESnapshot = {
     hasMap: boolean
     materialTypes: string[]
   }>
+  previewMeshes: Array<{
+    family: 'marroHive' | 'evergreenTree' | 'marvelRuin'
+    part: string
+    hasMap: boolean
+    transparent: boolean
+    opacity: number
+  }>
   marvelRuinMaterials: Array<{
     uid: string
     part:

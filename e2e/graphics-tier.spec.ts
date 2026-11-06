@@ -264,6 +264,68 @@ test('evergreen trees stay selectable and use texture maps by graphics tier', as
   }
 })
 
+test('tree placement previews render transparently in every graphics tier', async ({
+  page,
+}) => {
+  await page.goto(FIXTURE_URL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+
+  const graphics = page.getByTestId('graphics-tier-select')
+  const tiers = [
+    { label: 'Low (classic look)', hasMap: false },
+    { label: 'Medium (diffuse textures)', hasMap: true },
+    { label: 'High (PBR textures)', hasMap: true },
+  ]
+
+  await graphics.click()
+  await page.getByRole('option', { name: tiers[0].label }).click()
+
+  for (const [index, tier] of tiers.entries()) {
+    if (index > 0) {
+      await graphics.click()
+      await page.getByRole('option', { name: tier.label }).click()
+      await expect(page.getByTestId('graphics-texture-status')).toHaveText(
+        'Textures ready',
+      )
+    }
+
+    for (const size of [1, 4]) {
+      await setPen(page, 'tr10', size)
+      await hoverHex(page, { q: 4, r: 2, altitude: 0 })
+
+      await expect
+        .poll(async () =>
+          page.evaluate(() =>
+            window.__TEST__
+              ?.snapshot()
+              .previewMeshes.filter(
+                (mesh) => mesh.family === 'evergreenTree',
+              ),
+          ),
+        )
+        .toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              family: 'evergreenTree',
+              part: 'tree',
+              hasMap: tier.hasMap,
+              transparent: true,
+            }),
+          ]),
+        )
+
+      const previews = await page.evaluate(() =>
+        window.__TEST__
+          ?.snapshot()
+          .previewMeshes.filter((mesh) => mesh.family === 'evergreenTree'),
+      )
+      expect(previews?.length).toBe(size === 1 ? 1 : 3)
+      expect(previews?.every((mesh) => mesh.opacity < 1)).toBe(true)
+    }
+  }
+})
+
 test('graphics tier loads Medium textures and returns to the classic Low renderer', async ({
   page,
 }) => {
