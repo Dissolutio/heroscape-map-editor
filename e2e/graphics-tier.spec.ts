@@ -648,7 +648,7 @@ test('picture-only High restores the previous graphics and lighting settings', a
 test('tree placement previews render transparently in every graphics tier', async ({
   page,
 }) => {
-  await page.goto(EVERGREEN_FIXTURE_URL)
+  await page.goto(FIXTURE_URL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
 
