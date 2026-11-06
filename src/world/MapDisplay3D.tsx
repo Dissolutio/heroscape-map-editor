@@ -1,12 +1,17 @@
+import { useThree } from '@react-three/fiber'
 import { Suspense, useEffect, useMemo, useRef } from 'react'
 import type React from 'react'
-import type { Group, Object3DEventMap } from 'three'
+import { type Group, type Object3DEventMap, Raycaster, Vector2 } from 'three'
+import { worldToCube } from '../data/dragMove.ts'
 import { mapTableHexes } from '../data/fitMapToPieces.ts'
 import { isPerHexLandOverride } from '../e2e/isE2E.ts'
 import { useMiddleClickPickPenMode } from '../hooks/useMiddleClickPickPenMode.tsx'
 import useBoundStore from '../store/store.ts'
-import type { BoardHex } from '../types.ts'
-import { getBoardHexesRectangularMapDimensions } from '../utils/map-utils.ts'
+import type { BoardHex, BoardHexes } from '../types.ts'
+import {
+  getBoardHex3DCoords,
+  getBoardHexesRectangularMapDimensions,
+} from '../utils/map-utils.ts'
 import { MapBoardPiece3D } from './MapBoardPiece3D.tsx'
 import ObjectiveMarkerPlacementPreview from './ObjectiveMarkerPlacementPreview.tsx'
 import { OperationPiecePreviews } from './OperationPiecePreviews.tsx'
@@ -31,10 +36,90 @@ import LandSubterrainInstanced, {
 import ObjectiveMarkers3D from './models/ObjectiveMarkers3D.tsx'
 import { getLandHexInstanceIDs } from './models/landHexInstances.ts'
 
+function RightClickPieceCapture({
+  boardHexes,
+  onRightClickPiece,
+}: {
+  boardHexes: BoardHexes
+  onRightClickPiece: (uid: string) => void
+}) {
+  const { camera, gl, scene } = useThree()
+  const boardHexesRef = useRef(boardHexes)
+  const onRightClickPieceRef = useRef(onRightClickPiece)
+  boardHexesRef.current = boardHexes
+  onRightClickPieceRef.current = onRightClickPiece
+
+  useEffect(() => {
+    const raycaster = new Raycaster()
+    const pointer = new Vector2()
+    const captureRightClickPiece = (event: PointerEvent) => {
+      if (event.button !== 2) return
+      const bounds = gl.domElement.getBoundingClientRect()
+      pointer.set(
+        ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
+        -((event.clientY - bounds.top) / bounds.height) * 2 + 1,
+      )
+      camera.updateMatrixWorld()
+      scene.updateMatrixWorld(true)
+      raycaster.setFromCamera(pointer, camera)
+      const intersections = raycaster.intersectObject(scene, true)
+      let uid: string | undefined
+      let hitPoint: (typeof intersections)[number]['point'] | undefined
+      for (const intersection of intersections) {
+        hitPoint ??= intersection.point
+        let object: (typeof intersection)['object'] | null = intersection.object
+        while (object) {
+          const candidateUID = object.userData.boardPieceUID
+          if (typeof candidateUID === 'string') {
+            uid = candidateUID
+            break
+          }
+          object = object.parent
+        }
+        if (uid) break
+      }
+
+      if (
+        !uid &&
+        hitPoint &&
+        [hitPoint.x, hitPoint.y, hitPoint.z].every(Number.isFinite)
+      ) {
+        const pointerHex = worldToCube(hitPoint.x, hitPoint.z)
+        const nearestHex = Object.values(boardHexesRef.current)
+          .filter(
+            (hex) =>
+              hex.q === pointerHex.q &&
+              hex.r === pointerHex.r &&
+              hex.boardPieceUID,
+          )
+          .sort(
+            (first, second) =>
+              Math.abs(getBoardHex3DCoords(first).y - hitPoint.y) -
+              Math.abs(getBoardHex3DCoords(second).y - hitPoint.y),
+          )[0]
+        uid = nearestHex?.boardPieceUID
+      }
+      if (uid) onRightClickPieceRef.current(uid)
+    }
+
+    gl.domElement.addEventListener('pointerup', captureRightClickPiece, true)
+    return () =>
+      gl.domElement.removeEventListener(
+        'pointerup',
+        captureRightClickPiece,
+        true,
+      )
+  }, [camera, gl, scene])
+
+  return null
+}
+
 export default function MapDisplay3D({
   mapGroupRef,
+  onRightClickPiece,
 }: {
   mapGroupRef: React.RefObject<Group<Object3DEventMap>>
+  onRightClickPiece?: (uid: string) => void
 }) {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
@@ -130,6 +215,12 @@ export default function MapDisplay3D({
   const { length, width } = getBoardHexesRectangularMapDimensions(boardHexes)
   return (
     <>
+      {onRightClickPiece && (
+        <RightClickPieceCapture
+          boardHexes={boardHexes}
+          onRightClickPiece={onRightClickPiece}
+        />
+      )}
       <TableSurfaceMesh width={width} length={length} />
       <group ref={mapGroupRef}>
         <PiecePreview />

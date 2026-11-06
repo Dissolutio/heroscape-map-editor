@@ -12,6 +12,7 @@ import {
   shouldTrackHoveredWorldPoint,
 } from '../world/hoverWorldPoint'
 import { reportObjectiveMarkerDragTarget } from '../world/drag/objectiveMarkerDragController'
+import { setSelectionMenuHoveredPieceID } from '../selection/selectionMenuPointer'
 
 export default function usePieceHoverState({
   trackIsHovered = true,
@@ -80,6 +81,7 @@ export default function usePieceHoverState({
     try {
       // the pointer sees through a piece being dragged (no stopPropagation)
       if (isDragPassThrough(boardHex.boardPieceUID)) return
+      setSelectionMenuHoveredPieceID(boardHex.boardPieceUID ?? '')
       if (!isDragging()) e.stopPropagation()
       const point = { x: e.point.x, z: e.point.z }
       if (trackIsHovered) setIsHovered(true)
@@ -111,6 +113,7 @@ export default function usePieceHoverState({
     const startedAt = startPerformanceTiming()
     try {
       if (isDragPassThrough(pid)) return
+      setSelectionMenuHoveredPieceID(pid)
       if (!isDragging()) e.stopPropagation()
       if (trackIsHovered) setIsHovered(true)
       if (hoverTimeout.current !== null) {
