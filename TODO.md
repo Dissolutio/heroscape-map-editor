@@ -1,13 +1,15 @@
 # Hexoscape roadmap
 
-Updated 2026-11-05. One page. Legend: 🔧 Copilot has it (issue #) · 👀 needs your eyes · 👤 waiting on you · ❓ needs a decision or measurement · 💤 later
+Updated 2026-11-06. One page. Legend: 🔧 Copilot has it (issue #) · 👀 needs your eyes · 👤 waiting on you · ❓ needs a decision or measurement · 💤 later
 
 ## Where we are
+Merged Nov 5-6 (release notes entry Nov-06-2026, release planned Nov 6): textured Warehouse (Marvel) Ruin with all four variants, textured Stone Wall, textured Ruins 2 and 3 (all Virtualscape meshes; Low flat colors, Medium texture, High glossier), numbered obstacle variants (1-N keys; Shift+1 / 1 cycle large families like Laur walls), tree placement preview restored with e2e coverage in every tier, dev lint fix (duplicate imports in the test bridge).
 Merged Nov 5 (release notes entry Nov-05-2026): textured Marro Hive and textured Evergreen Trees 10/11/12 and Large Tree 15 (Medium and High tiers; models converted from Virtualscape meshes), "Show Objective Markers" switch (like Start Zones, on every session), objective marker numbers face the camera (shared marker/glyph rotation removed), missing and white hex sides fix, PDF sub-level colors (SVG unchanged), ladder stack counts, click empty ground to deselect, old High-Quality render path removed, Dependabot config and Tauri/zip dependency fix, unused old hive model deleted.
 Merged Nov 3: upright and unmirrored side textures, size hotkeys for obstacles, one 3D | 2D | PDF navbar switch, optional PDF piece legend, no random rotation on Wood caps, quieter action log, selection units (saved named selections pinned above the action log, log rows recall their selection; replaces back/forward history).
 Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restores selection, rotate hotkeys (q/e) while dragging, Use as Pen, upright side textures, fluid caps, old-map loading fix. Textures (3 graphics tiers), objective markers, edge IDs for Laur/battlements/ladders are all in.
 
 ## 1. Now
+- 👀 Hand-test Nov 6 merges: Warehouse Ruin variants (broken wall, upper floor height), Stone Wall, Ruins 2/3 (textures confirmed right), big-tree squash, numbered variant buttons (label fit with 11 Laur wall options, Shift+1), tree and other ghost previews
 - 👀 Hand-test the Nov 5 merges: textured Marro Hive (underside, ridges, eggs, shadow acne), textured evergreen trees (heights 11 and 12, rotation, tree 15 trunk/base, boulders), Show Objective Markers switch (hidden markers can't be clicked or dragged), marker numbers facing the camera, hex sides under start zones and beside water (#261 fix; send the map if white sides remain)
 - 👀 Hand-test the Nov 3 and 4 merges: side textures not mirrored, Wood planking at rotations 1, 2, 4, 5 (and in the drag preview), size hotkeys, navbar 3D | 2D | PDF switch, PDF piece legend, PDF sub-level colors match the SVG (SVG unchanged), ladder stack counts (x2, x3), click an empty hex to deselect
 - 👀 Zoom-to-Piece fade: Copilot found no fade code in source. Does it still happen?
@@ -37,8 +39,8 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - Ship conflicts at level 0 ❓ needs physical testing
 - Outcrop bases count in inventory ("with holes" pieces don't exist yet)
 - Tall stacks of fluid beyond 2 ❓ needs physical testing
-- Laur Ruin 2 and 3: pen modes and 3D models 👤 models from you
-- Textured Virtualscape terrain, same recipe as the hive and trees: Ruins2, Ruins3, maybe RoadWall, Marvel Ruins 👤 send the `.sgl` and `.bmp` files; snow trees have no Virtualscape model, so they need a different plan ❓
+- Snow trees: no Virtualscape model exists, so they need a different texturing plan ❓
+- Delete leftover old GLBs (`marvel-ruins_v2.glb`, old tree GLBs) once their bounds tests use recorded bounds
 - Big tree boulders now use our boulder models with the Virtualscape rock texture; revisit if they look off
 
 **Health**
@@ -48,8 +50,7 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - "Retry 3D" button if the Windows panel shows up in the wild
 
 ## 3. Waiting on you 👤
-- Laur Ruin 1 redo; Ruin 2 and 3 models
-- `.sgl` and `.bmp` files for Ruins2, Ruins3, RoadWall, Marvel Ruins
+- Laur Ruin 1 redo
 - Hand-testing after each deploy (list in section 1)
 - Where to take the UI layout (you said the layout is "way off")
 
