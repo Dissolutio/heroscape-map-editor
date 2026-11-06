@@ -10,6 +10,8 @@ import {
 } from '@mui/material'
 import { FcVlc } from 'react-icons/fc'
 import { FcRules } from 'react-icons/fc'
+import { useState } from 'react'
+import { AdaptToCollectionDialog } from './AdaptToCollectionDialog'
 import { buildupJsonFileMap } from '../data/buildupMap'
 import { canShrinkMapWithoutDroppingPieces, resizeMap } from '../data/resizeMap'
 import { DIALOGS } from '../layout/dialogNames'
@@ -20,6 +22,7 @@ import {
   MAX_HEXAGON_MAP_DIMENSION,
   MAX_RECTANGLE_MAP_DIMENSION,
 } from '../utils/constants'
+import { getCollectionLandSupply } from '../utils/adaptToCollection'
 import { HEX_DIRECTIONS, hexUtilsAdd } from '../utils/hex-utils'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
@@ -40,6 +43,7 @@ const shiftInDirectionBoardPieces = (
 export const EditControlsTab = () => {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const boardPieces = useBoundStore((s) => s.boardPieces)
+  const userPieceInventory = useBoundStore((s) => s.userPieceInventory)
   const hexMap = useBoundStore((s) => s.hexMap)
   // const conflictedPieceUIDs = useBoundStore((s) => s.conflictedPieceUIDs)
   const loadMap = useBoundStore((s) => s.loadMap)
@@ -70,6 +74,9 @@ export const EditControlsTab = () => {
   const toggleIsPieceInventoryDialogOpen = useBoundStore(
     (state) => state.toggleIsPieceInventoryDialogOpen,
   )
+  const [isAdaptToCollectionOpen, setIsAdaptToCollectionOpen] = useState(false)
+  const hasPersonalInventory =
+    getCollectionLandSupply(userPieceInventory).hasAnyPieces
   const handleClickLogState = () => {
     console.log('🚀 ~ Controls ~ boardHexes:', boardHexes)
     console.log({ boardPieces, hexMap } as MapFileState)
@@ -172,7 +179,32 @@ export const EditControlsTab = () => {
           }
           icon={<FcRules />}
         />
+        <Tooltip
+          title={
+            hasPersonalInventory ? '' : 'Add your pieces in the inventory first'
+          }
+          disableHoverListener={hasPersonalInventory}
+        >
+          <span>
+            <ControlTabsListItemButton
+              title={
+                hasPersonalInventory
+                  ? 'Convert land terrain to pieces in your personal inventory'
+                  : undefined
+              }
+              primary="Adapt to my Collection"
+              onClick={() => setIsAdaptToCollectionOpen(true)}
+              icon={<FcRules />}
+              disabled={!hasPersonalInventory}
+            />
+          </span>
+        </Tooltip>
       </List>
+
+      <AdaptToCollectionDialog
+        open={isAdaptToCollectionOpen}
+        onClose={() => setIsAdaptToCollectionOpen(false)}
+      />
 
       <Card>
         <CardContent>

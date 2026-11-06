@@ -6,6 +6,7 @@ export type ActionLogKind =
   | 'rotate'
   | 'delete'
   | 'convert'
+  | 'adapt'
   | 'marker'
   | 'undo'
   | 'redo'
@@ -38,6 +39,7 @@ export type ActionLogAction = (
   | { type: 'rotate'; pieceName: string; count: number }
   | { type: 'delete'; pieceName: string }
   | { type: 'convert'; count: number }
+  | { type: 'adapt'; count: number }
   | {
       type: 'marker'
       operation: 'add' | 'move' | 'edit' | 'remove'
@@ -96,6 +98,15 @@ export function formatActionLogAction(action: ActionLogAction) {
         kind: 'convert' as const,
         severity: 'info' as const,
         text: `Converted ${action.count} ${action.count === 1 ? 'piece' : 'pieces'}`,
+        undoable: true,
+      }
+    case 'adapt':
+      return {
+        kind: 'adapt' as const,
+        severity: 'info' as const,
+        text: `Adapted map to collection (${action.count} ${
+          action.count === 1 ? 'piece' : 'pieces'
+        })`,
         undoable: true,
       }
     case 'marker': {
