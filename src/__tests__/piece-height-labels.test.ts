@@ -9,11 +9,14 @@ import {
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it } from 'vitest'
 import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
+import { PdfMapBoardPiece } from '../pdf-map/PdfMapBoardPiece'
 import { PdfMapHex } from '../pdf-map/PdfMapHex'
 import useBoundStore from '../store/store'
+import { SvgMapBoardPiece } from '../svg-map/SvgMapBoardPiece'
 import { SvgMapHex } from '../svg-map/SvgMapHex'
-import { type BoardHex, Pieces } from '../types'
+import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import type { BuriedMarksByUID } from '../utils/tileMarks'
+import { boardPieceToDecodedPieceID } from '../utils/map-utils'
 import { makeTable, place } from './helpers/board'
 
 // These numbers are rules heights; glacier/outcrop numbers are hex counts and
@@ -34,6 +37,11 @@ const RULES_HEIGHT_PIECES = [
   [Pieces.shroudshroom7, 7],
   [Pieces.shroudshroom10, 10],
   [Pieces.shroudshroom13, 13],
+  [Pieces.laurWallShort, 9],
+  [Pieces.laurWallShortStackable, 9],
+  [Pieces.laurWallLong, 9],
+  [Pieces.laurWallLongStackable, 9],
+  [Pieces.laurWallArch, 9],
 ] as const
 
 const DEV_PHYSICAL_HEIGHTS = `
@@ -105,6 +113,55 @@ const renderPdfHex = (hex: BoardHex) =>
     useLegacyStartZones: false,
   })
 
+const makeBoardPiece = (inventoryID: string): BoardPiece => ({
+  uid: inventoryID,
+  inventoryID,
+  altitude: 0,
+  rotation: 0,
+  pieceCoords: { q: 0, r: 0, s: 0 },
+})
+
+const renderLaurPieceSvg = (inventoryID: string) => {
+  if (piecesSoFar[inventoryID].terrain !== HexTerrain.laurWallAddon) {
+    const hex = makePieceHex(inventoryID)
+    setExportState(hex)
+    return renderSvgHex(hex)
+  }
+
+  const piece = boardPieceToDecodedPieceID(makeBoardPiece(inventoryID))
+  return renderToStaticMarkup(
+    createElement(
+      'svg',
+      { xmlns: 'http://www.w3.org/2000/svg' },
+      createElement(SvgMapBoardPiece, {
+        piece,
+        viewingLevel: 1,
+        overlayLevel: 0,
+      }),
+    ),
+  )
+}
+
+const renderLaurPiecePdf = (inventoryID: string) => {
+  if (piecesSoFar[inventoryID].terrain !== HexTerrain.laurWallAddon) {
+    const hex = makePieceHex(inventoryID)
+    setExportState(hex)
+    const pdf = renderPdfHex(hex)
+    if (!pdf) throw new Error('Expected PDF hex output')
+    return getPdfText(pdf)
+  }
+
+  const piece = boardPieceToDecodedPieceID(makeBoardPiece(inventoryID))
+  return getPdfText(
+    PdfMapBoardPiece({
+      piece,
+      viewingLevel: 1,
+      overlayLevel: 0,
+      is2DOverlayLevelEnabled: false,
+    }),
+  )
+}
+
 const getPdfText = (node: ReactNode): string[] =>
   Children.toArray(node).flatMap((child) => {
     if (!isValidElement(child)) return []
@@ -146,6 +203,20 @@ const PHYSICAL_LABEL_CASES: [string, string[]][] = [
   [Pieces.toxicOutcrop3, ['5', '9', '7']],
 ]
 
+const LAUR_PIECES_WITHOUT_HEIGHT_LABEL = [
+  Pieces.laurWallSquarePillar,
+  Pieces.laurWallPillarStackable,
+  Pieces.laurWallTrianglePillar,
+  Pieces.laurWallShort,
+  Pieces.laurWallShortStackable,
+  Pieces.laurWallLong,
+  Pieces.laurWallLongStackable,
+  Pieces.laurWallArch,
+  Pieces.laurWallRuin1,
+  Pieces.laurWallRuin2,
+  Pieces.laurWallRuin3,
+]
+
 describe('printed piece heights', () => {
   it('matches the dev physical-height snapshot', () => {
     const physicalHeights = Object.values(Pieces)
@@ -164,6 +235,17 @@ describe('printed piece heights', () => {
       expect(getPieceGameHeight(pieceID)).toBe(rulesHeight)
     },
   )
+
+  it.each([
+    Pieces.laurWallShort,
+    Pieces.laurWallShortStackable,
+    Pieces.laurWallLong,
+    Pieces.laurWallLongStackable,
+    Pieces.laurWallArch,
+  ])('keeps %s physically 12 levels tall with rules height 9', (pieceID) => {
+    expect(piecesSoFar[pieceID].height).toBe(12)
+    expect(getPieceGameHeight(pieceID)).toBe(9)
+  })
 
   it.each([
     [Pieces.tree10, 9, 10],
@@ -236,6 +318,19 @@ describe('printed piece heights', () => {
       const pdf = renderPdfHex(hex)
       if (!pdf) throw new Error('Expected PDF hex output')
       expect(getPdfText(pdf)).toEqual(expect.arrayContaining(physicalHeights))
+    },
+  )
+
+  it.each(LAUR_PIECES_WITHOUT_HEIGHT_LABEL)(
+    'does not print a numeric height for %s in SVG or PDF',
+    (pieceID) => {
+      const svg = renderLaurPieceSvg(pieceID)
+      expect(svg).not.toMatch(/<text\b[^>]*>\s*\d+\s*<\/text>/)
+
+      const pdfNumbers = renderLaurPiecePdf(pieceID).filter((text) =>
+        /^\d+$/.test(text),
+      )
+      expect(pdfNumbers).toEqual([])
     },
   )
 })
