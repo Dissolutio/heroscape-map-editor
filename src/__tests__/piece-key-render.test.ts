@@ -193,7 +193,7 @@ describe('piece key shape rendering', () => {
     ).toBeGreaterThan(0)
   })
 
-  it('uses the registered tree height in both keys and map data', () => {
+  it('prints the game height (not the physical height) in both keys', () => {
     const board = place({
       board: makeTable(12),
       pieceID: Pieces.tree10,
@@ -211,8 +211,9 @@ describe('piece key shape rendering', () => {
     const svgKey = renderToStaticMarkup(
       SvgPieceKeyShape(entry, 0, 0, 0.1, 'tree-key'),
     )
+    // Physical height stays 9; the printed label is the rules height, 10.
     expect(piecesSoFar[Pieces.tree10].height).toBe(9)
-    expect(svgKey).toContain('>9</text>')
+    expect(svgKey).toContain('>10</text>')
     const pdfText = collectTextContent(
       PieceKeyShape({
         entry,
@@ -220,8 +221,7 @@ describe('piece key shape rendering', () => {
         scale: 0.075,
       }),
     )
-    expect(pdfText).toContain('9')
-    expect(pdfText).not.toContain('10')
+    expect(pdfText).toContain('10')
   })
 
   it('renders Laur wall key shapes with purple centers and pink borders', () => {

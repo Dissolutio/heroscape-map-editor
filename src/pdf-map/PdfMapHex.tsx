@@ -1,5 +1,5 @@
 import { G, Line, Text } from '@react-pdf/renderer'
-import { piecesSoFar } from '../data/pieces'
+import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
 import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
 import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
@@ -212,7 +212,7 @@ export const PdfMapHex = ({
   const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const pieceHeightText = piecesSoFar[inventoryID]?.height
+  const pieceHeightText = getPieceGameHeight(inventoryID)
   const glyphSettings = useBoundStore.getState()
   const getHexGlyphExportOptions = (targetHex: BoardHex) =>
     getGlyphExportOptions(targetHex, glyphSettings.boardHexes, glyphSettings)
@@ -570,7 +570,10 @@ export const PdfMapHex = ({
   // CASTLE WALLS
   if (isCastleTerrain(hex.terrain) && hex.isObstacleOrigin) {
     const { hideHeight } = getHexGlyphExportOptions(hex)
-    const heightText = !hideHeight && pieceHeightText > 0 ? pieceHeightText : ''
+    const heightText =
+      !hideHeight && pieceHeightText != null && pieceHeightText > 0
+        ? pieceHeightText
+        : ''
     //  Return Castle Corner
     if (
       hex.inventoryID === Pieces.castleBaseCorner ||

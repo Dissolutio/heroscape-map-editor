@@ -1122,7 +1122,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallShort,
-    height: 12, // game height is 10
+    height: 12, // physical height is 12
+    gameHeight: 9, // errata: rules height is 9; physical height is 12
     pieceSizeFamily: 'laurWall',
     variantOrder: 4,
     variantLabel: 'Short Wall',
@@ -1135,7 +1136,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallShort,
-    height: 12, // game height is 10, only adds 8 when stacked (male wall top is 3 hexes tall)
+    height: 12, // only adds 8 when stacked (male wall top is 3 hexes tall)
+    gameHeight: 9, // errata: rules height is 9; physical height is 12
     pieceSizeFamily: 'laurWall',
     variantOrder: 5,
     variantLabel: 'Stackable Short Wall',
@@ -1148,7 +1150,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallLong,
-    height: 12, // game height is 10
+    height: 12, // physical height is 12
+    gameHeight: 9, // errata: rules height is 9; physical height is 12
     pieceSizeFamily: 'laurWall',
     variantOrder: 6,
     variantLabel: 'Long Wall',
@@ -1161,7 +1164,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallLongStackable,
-    height: 12, // game height is 10, only adds 8 when stacked (male wall/arch top is 3 hexes tall)
+    height: 12, // only adds 8 when stacked (male wall/arch top is 3 hexes tall)
+    gameHeight: 9, // errata: rules height is 9; physical height is 12
     pieceSizeFamily: 'laurWall',
     variantOrder: 7,
     variantLabel: 'Stackable Long Wall',
@@ -1174,7 +1178,8 @@ export const piecesSoFar: Dictionary<Piece> = {
     isObstaclePiece: false,
     size: 1,
     template: Pieces.laurWallArch,
-    height: 12, // game height is 10, cannot stack on top of anything, can have laurWallLongStackable stacked on top (male arch top is 3 hexes tall)
+    height: 12, // cannot stack on top of anything, can have laurWallLongStackable stacked on top (male arch top is 3 hexes tall)
+    gameHeight: 9, // errata: rules height is 9; physical height is 12
     pieceSizeFamily: 'laurWall',
     variantOrder: 8,
     variantLabel: 'Wall Arch',
@@ -1343,6 +1348,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 9,
+    gameHeight: 10,
     pieceSizeFamily: 'forestTree',
     variantOrder: 1,
     variantLabel: 'Evergreen Tree (10)',
@@ -1369,6 +1375,7 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 11,
+    gameHeight: 12,
     pieceSizeFamily: 'forestTree',
     variantOrder: 3,
     variantLabel: 'Evergreen Tree (12)',
@@ -1865,3 +1872,10 @@ export const piecesSoFar: Dictionary<Piece> = {
     }
   }
 })()
+
+export const getPieceGameHeight = (pieceID: string): number | undefined => {
+  const piece = piecesSoFar[pieceID]
+  if (!piece) return undefined
+  if (piece.gameHeight === null) return undefined
+  return piece.gameHeight ?? piece.height
+}

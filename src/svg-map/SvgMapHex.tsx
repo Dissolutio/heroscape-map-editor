@@ -1,4 +1,4 @@
-import { piecesSoFar } from '../data/pieces'
+import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
 import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
@@ -197,7 +197,7 @@ export const SvgMapHex = ({
   const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const pieceHeightText = piecesSoFar[inventoryID]?.height
+  const pieceHeightText = getPieceGameHeight(inventoryID)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
@@ -518,7 +518,10 @@ export const SvgMapHex = ({
       isTransparentGlyphSpaces,
       isHideHeightsOnGlyphs,
     })
-    const heightText = !hideHeight && pieceHeightText > 0 ? pieceHeightText : ''
+    const heightText =
+      !hideHeight && pieceHeightText != null && pieceHeightText > 0
+        ? pieceHeightText
+        : ''
     //  Return Castle Corner
     if (
       hex.inventoryID === Pieces.castleBaseCorner ||
