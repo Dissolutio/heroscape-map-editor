@@ -1549,6 +1549,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: Pieces.shipWall,
     height: 10,
+    pieceSizeFamily: 'ship',
+    variantOrder: 1,
+    variantLabel: 'Ship Wall',
   },
   [Pieces.shipBow]: {
     id: Pieces.shipBow,
@@ -1559,6 +1562,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 5,
     template: Pieces.shipBow,
     height: 13,
+    pieceSizeFamily: 'ship',
+    variantOrder: 2,
+    variantLabel: 'Ship Bow',
   },
   [Pieces.cannon]: {
     id: Pieces.cannon,
@@ -1569,6 +1575,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 3,
+    pieceSizeFamily: 'ship',
+    variantOrder: 4,
+    variantLabel: 'Cannon',
   },
   [Pieces.ropeLadder]: {
     id: Pieces.ropeLadder,
@@ -1579,6 +1588,9 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7,
+    pieceSizeFamily: 'ship',
+    variantOrder: 3,
+    variantLabel: 'Rope Ladder',
   },
   // HEX-OBSTACLES with BASE fluid tiles
   [Pieces.glacier1]: {
