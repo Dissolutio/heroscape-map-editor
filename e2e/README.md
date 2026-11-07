@@ -227,6 +227,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Load-time map fitting | `e2e/load-fits-map.spec.ts` |
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
+| Deleting unrelated water beside a permissively overlapped Ship Wall and reloading its share link | `e2e/conflicted-delete.spec.ts` |
 | Empty-hex deselection, pen placement, and camera-drag selection safety | `e2e/empty-hex-selection.spec.ts` |
 | Right-click selection actions, keyboard dismissal, camera drag safety, and graphics-tier coverage | `e2e/selection-context-menu.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |

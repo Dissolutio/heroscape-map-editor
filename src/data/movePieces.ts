@@ -3,7 +3,7 @@ import type { HexEdgeId } from './hexGrid/edgesAndNodes'
 import { addPiece } from './addPiece'
 import { getUnsupportedLaurAddonUIDs } from './laurAddonSupport'
 import { piecesSoFar } from './pieces'
-import { computeConflictedPieceUIDs } from './rebuildBoardState'
+import { rebuildBoardStateFromPieces } from './rebuildBoardState'
 import { removePiece } from './removePiece'
 
 export type MovePieceArgs = {
@@ -131,13 +131,21 @@ export function applyPieceMoves(
     workingPieces = placed.newBoardPieces
   }
 
+  const finalPiecesByUID = new Map(
+    workingPieces.map((piece) => [piece.uid, piece]),
+  )
+  const orderedPieces = board.boardPieces.flatMap((piece) => {
+    const updatedPiece = finalPiecesByUID.get(piece.uid)
+    return updatedPiece ? [updatedPiece] : []
+  })
+  const rebuilt = rebuildBoardStateFromPieces(orderedPieces, board.boardHexes)
+
   return {
-    boardHexes: workingHexes,
-    boardPieces: workingPieces,
-    // Recompute globally so move and paint use the same conflict source of truth.
-    conflictedPieceUIDs: computeConflictedPieceUIDs(workingPieces),
+    boardHexes: rebuilt.boardHexes,
+    boardPieces: rebuilt.boardPieces,
+    conflictedPieceUIDs: rebuilt.conflictedPieceUIDs,
     unsupportedPieceUIDs: getUnsupportedLaurAddonUIDs({
-      boardPieces: workingPieces,
+      boardPieces: rebuilt.boardPieces,
     }),
     highestAltitude: Math.max(...resolved.map((m) => m.altitude)),
   }
