@@ -10,7 +10,6 @@ import {
   getPieceKeyShapeLayout,
   getPieceKeySpecialEntriesPerRow,
 } from '../pdf-svg-shared/pieceKeyShapeLayout'
-import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain } from '../types'
 import { SVG_HEX_RADIUS } from '../utils/constants'
 import { boardPieceToDecodedPieceID } from '../utils/map-utils'
@@ -54,6 +53,19 @@ export const SvgPieceKeyShape = (
   scale: number,
   key: string,
   useTerrainBorderColor = true,
+  renderOptions?: {
+    viewingLevel: number
+    overlayLevel: number
+    isOverlayViewing: boolean
+    is2DOverlayLevelEnabled: boolean
+    isShow2DExportTileLetters: boolean
+    isShow2DExportBuriedMarks: boolean
+    glyphCoordinates: ReadonlySet<string>
+    glyphExportSettings: {
+      isTransparentGlyphSpaces: boolean
+      isHideHeightsOnGlyphs: boolean
+    }
+  },
 ) => {
   const layout = getPieceKeyShapeLayout(entry)
   const decoded = boardPieceToDecodedPieceID(entry.piece)
@@ -90,6 +102,22 @@ export const SvgPieceKeyShape = (
                         key={sourceHex.id}
                         hex={hex}
                         buriedMarksByUID={new Map()}
+                        viewingLevel={renderOptions?.viewingLevel}
+                        overlayLevel={renderOptions?.overlayLevel}
+                        isVisible
+                        isSubLevel={false}
+                        isOverlayViewing={renderOptions?.isOverlayViewing}
+                        is2DOverlayLevelEnabled={
+                          renderOptions?.is2DOverlayLevelEnabled
+                        }
+                        isShow2DExportTileLetters={
+                          renderOptions?.isShow2DExportTileLetters
+                        }
+                        isShow2DExportBuriedMarks={
+                          renderOptions?.isShow2DExportBuriedMarks
+                        }
+                        glyphCoordinates={renderOptions?.glyphCoordinates}
+                        glyphExportSettings={renderOptions?.glyphExportSettings}
                         isPieceKeyPreview
                         useTerrainBorderColor={useTerrainBorderColor}
                       />
@@ -273,6 +301,7 @@ const renderLandTables = (
   y: number,
   width: number,
   useTerrainBorderColor: boolean,
+  renderOptions: NonNullable<Parameters<typeof SvgPieceKeyShape>[6]>,
 ) => {
   const tableCount = Math.ceil(
     model.landColumns.length / LAND_COLUMNS_PER_TABLE,
@@ -432,6 +461,7 @@ const renderLandTables = (
                             scale,
                             `${column.terrain}-${row.size}`,
                             useTerrainBorderColor,
+                            renderOptions,
                           )}
                       </g>
                     )
@@ -453,6 +483,7 @@ const renderSpecialGroups = (
   gridWidth: number,
   scale: number,
   useTerrainBorderColor: boolean,
+  renderOptions: NonNullable<Parameters<typeof SvgPieceKeyShape>[6]>,
 ) => {
   const cardWidth = gridWidth / 3
   let rowY = y + KEY_HEADING_SIZE * 1.6
@@ -597,6 +628,7 @@ const renderSpecialGroups = (
                           scale,
                           `${group.id}-${entry.inventoryID}`,
                           useTerrainBorderColor,
+                          renderOptions,
                         )}
                         <text
                           x={shapeX}
@@ -622,23 +654,23 @@ const renderSpecialGroups = (
 }
 
 export const SvgPieceKey = ({
-  boardPieces,
-  boardHexes,
+  model,
+  renderOptions,
+  useTerrainBorderColor,
   x,
   y,
   width,
 }: {
-  boardPieces: BoardPiece[]
-  boardHexes: Record<string, BoardHex>
+  model: PieceKeyModel | null
+  renderOptions: NonNullable<Parameters<typeof SvgPieceKeyShape>[6]>
+  useTerrainBorderColor: boolean
   x: number
   y: number
   width: number
 }) => {
-  const useTerrainBorderColor = useBoundStore(
-    (state) => state.isPdfColorBorders,
-  )
-  const model = getPieceKeyModel(boardPieces, boardHexes, useTerrainBorderColor)
-  if (!model.landColumns.length && !model.specialGroups.length) return null
+  if (!model || (!model.landColumns.length && !model.specialGroups.length)) {
+    return null
+  }
 
   const keyWidth = getSvgPieceKeyWidth(model, width)
   const { gridX, scale } = landGridDimensions(model, keyWidth)
@@ -664,6 +696,7 @@ export const SvgPieceKey = ({
         y + KEY_HEADING_SIZE * 2.3,
         contentWidth,
         useTerrainBorderColor,
+        renderOptions,
       )}
       {model.specialGroups.length > 0 &&
         renderSpecialGroups(
@@ -673,6 +706,7 @@ export const SvgPieceKey = ({
           contentWidth,
           scale,
           useTerrainBorderColor,
+          renderOptions,
         )}
     </g>
   )

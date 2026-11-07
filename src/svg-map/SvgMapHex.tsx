@@ -1,5 +1,10 @@
+import { memo, useContext } from 'react'
 import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
-import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
+import {
+  type GlyphCoordinateLookup,
+  type GlyphExportSettings,
+  getGlyphExportOptions,
+} from '../pdf-svg-shared/glyphExportOptions'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   SHROUDSHROOM13_ORIGIN_LINE_COLOR,
@@ -11,7 +16,6 @@ import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
-import useBoundStore from '../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
   isCastleTerrain,
@@ -26,7 +30,6 @@ import {
   SVG_HEX_RADIUS,
   SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
 } from '../utils/constants'
-import { getOverlayLevel } from '../utils/map-utils'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   getTerrainTileAnnotation,
@@ -72,9 +75,15 @@ import {
   SvgTree415,
   getOutcropTextColor,
 } from './SvgMapShapes'
+import { SvgMapShapeSettingsContext } from './SvgMapShapes'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
 const OPACITY_SUBLEVEL = 0.3
+const EMPTY_GLYPH_COORDINATES: GlyphCoordinateLookup = new Set()
+const DEFAULT_GLYPH_EXPORT_SETTINGS: GlyphExportSettings = {
+  isTransparentGlyphSpaces: false,
+  isHideHeightsOnGlyphs: false,
+}
 
 const glyphTextProps = (glyphText: string) => {
   const fontSize =
@@ -103,24 +112,25 @@ const TerrainTileLetterText = ({
   hex,
   viewingLevel,
   enabled,
+  showBuriedMarks,
   buriedMarksByUID,
 }: {
   hex: BoardHex
   viewingLevel: number
   enabled: boolean
+  showBuriedMarks: boolean
   buriedMarksByUID: BuriedMarksByUID
 }) => {
-  const isShow2DExportBuriedMarks = useBoundStore(
-    (s) => s.isShow2DExportBuriedMarks,
+  const { genericSolidCapColor, genericFluidCapColor } = useContext(
+    SvgMapShapeSettingsContext,
   )
-  const genericCapColor = useBoundStore((s) =>
+  const genericCapColor =
     hex.terrain === HexTerrain.generic
-      ? s.genericSolidCapColor
+      ? genericSolidCapColor
       : hex.terrain === HexTerrain.genericFluid
-        ? s.genericFluidCapColor
-        : null,
-  )
-  const marks = isShow2DExportBuriedMarks
+        ? genericFluidCapColor
+        : null
+  const marks = showBuriedMarks
     ? getBuriedMarksForHex(hex, viewingLevel, buriedMarksByUID)
     : ''
   const letter = getTerrainTileAnnotation(hex, viewingLevel, enabled, '')
@@ -160,33 +170,47 @@ const TerrainTileLetterText = ({
   )
 }
 
-export const SvgMapHex = ({
-  hex,
-  buriedMarksByUID,
-  isPieceKeyPreview = false,
-  useTerrainBorderColor = true,
-}: {
+type SvgMapHexProps = {
   hex: BoardHex
   buriedMarksByUID: BuriedMarksByUID
+  viewingLevel?: number
+  overlayLevel?: number
+  isVisible?: boolean
+  isSubLevel?: boolean
+  isOverlayViewing?: boolean
+  is2DOverlayLevelEnabled?: boolean
+  isShow2DExportTileLetters?: boolean
+  isShow2DExportBuriedMarks?: boolean
+  glyphCoordinates?: GlyphCoordinateLookup
+  glyphExportSettings?: GlyphExportSettings
   isPieceKeyPreview?: boolean
   useTerrainBorderColor?: boolean
-}) => {
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isShow2DExportTileLetters = useBoundStore(
-    (s) => s.isShow2DExportTileLetters,
-  )
-  const is2DOverlayLevelEnabled = useBoundStore(
-    (s) => s.is2DOverlayLevelEnabled,
-  )
-  const boardPieces = useBoundStore((s) => s.boardPieces)
-  const boardHexes = useBoundStore((s) => s.boardHexes)
-  const isTransparentGlyphSpaces = useBoundStore(
-    (s) => s.isTransparentGlyphSpaces,
-  )
-  const isHideHeightsOnGlyphs = useBoundStore((s) => s.isHideHeightsOnGlyphs)
-  const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
+}
+
+const SvgMapHexComponent = ({
+  hex,
+  buriedMarksByUID,
+  viewingLevel = 0,
+  overlayLevel = 0,
+  isVisible: visibleOverride,
+  isSubLevel: subLevelOverride,
+  isOverlayViewing: overlayViewingOverride,
+  is2DOverlayLevelEnabled = false,
+  isShow2DExportTileLetters = false,
+  isShow2DExportBuriedMarks = false,
+  glyphCoordinates = EMPTY_GLYPH_COORDINATES,
+  glyphExportSettings = DEFAULT_GLYPH_EXPORT_SETTINGS,
+  isPieceKeyPreview = false,
+  useTerrainBorderColor = true,
+}: SvgMapHexProps) => {
   const pixel = hexUtilsHexToPixel(hex)
-  const isSubLevel = !isPieceKeyPreview && hex.altitude < viewingLevel
+  const isSubLevel =
+    subLevelOverride ?? (!isPieceKeyPreview && hex.altitude < viewingLevel)
+  const isVisible =
+    visibleOverride ?? (isPieceKeyPreview || hex.altitude <= viewingLevel)
+  const isOverlayViewing =
+    overlayViewingOverride ??
+    (is2DOverlayLevelEnabled && viewingLevel === overlayLevel)
   const { inventoryID } = decodePieceID(hex.pieceID)
   const exportSymbol = getPieceExportSymbol(inventoryID)
   const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
@@ -194,7 +218,6 @@ export const SvgMapHex = ({
     isObstaclePiece &&
     !hex.isObstacleOrigin &&
     (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
-  const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
   const pieceHeightText = getPieceGameHeight(inventoryID)
@@ -391,10 +414,11 @@ export const SvgMapHex = ({
     inventoryID === Pieces.glacier1
   ) {
     const textColor = getOutcropTextColor({ hex, isSubLevel })
-    const { hideHeight } = getGlyphExportOptions(hex, boardHexes, {
-      isTransparentGlyphSpaces,
-      isHideHeightsOnGlyphs,
-    })
+    const { hideHeight } = getGlyphExportOptions(
+      hex,
+      glyphCoordinates,
+      glyphExportSettings,
+    )
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1
@@ -449,13 +473,12 @@ export const SvgMapHex = ({
   }
   // Glyphs
   if (exportSymbol === 'glyph') {
-    const glyphOptions = getGlyphExportOptions(hex, boardHexes, {
-      isTransparentGlyphSpaces,
-      isHideHeightsOnGlyphs,
-    })
+    const glyphOptions = getGlyphExportOptions(
+      hex,
+      glyphCoordinates,
+      glyphExportSettings,
+    )
     // When overlay view is enabled, glyphs should only be shown on the overlay level
-    const isOverlayViewing =
-      is2DOverlayLevelEnabled && viewingLevel === overlayLevel
     if (is2DOverlayLevelEnabled && !isOverlayViewing && !isPieceKeyPreview) {
       return null
     }
@@ -489,10 +512,11 @@ export const SvgMapHex = ({
     const textColor = isSubLevel
       ? svgSubLevelColors.evergreenText
       : svgColors.evergreenText
-    const { hideHeight } = getGlyphExportOptions(hex, boardHexes, {
-      isTransparentGlyphSpaces,
-      isHideHeightsOnGlyphs,
-    })
+    const { hideHeight } = getGlyphExportOptions(
+      hex,
+      glyphCoordinates,
+      glyphExportSettings,
+    )
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1
@@ -514,10 +538,11 @@ export const SvgMapHex = ({
   }
   // CASTLE WALLS
   if (isCastleTerrain(hex.terrain) && hex.isObstacleOrigin) {
-    const { hideHeight } = getGlyphExportOptions(hex, boardHexes, {
-      isTransparentGlyphSpaces,
-      isHideHeightsOnGlyphs,
-    })
+    const { hideHeight } = getGlyphExportOptions(
+      hex,
+      glyphCoordinates,
+      glyphExportSettings,
+    )
     const heightText =
       !hideHeight && pieceHeightText != null && pieceHeightText > 0
         ? pieceHeightText
@@ -638,6 +663,7 @@ export const SvgMapHex = ({
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
@@ -663,6 +689,7 @@ export const SvgMapHex = ({
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -687,6 +714,7 @@ export const SvgMapHex = ({
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -711,6 +739,7 @@ export const SvgMapHex = ({
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -735,6 +764,7 @@ export const SvgMapHex = ({
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -759,6 +789,7 @@ export const SvgMapHex = ({
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -783,6 +814,7 @@ export const SvgMapHex = ({
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -807,6 +839,7 @@ export const SvgMapHex = ({
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -831,6 +864,7 @@ export const SvgMapHex = ({
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -855,6 +889,7 @@ export const SvgMapHex = ({
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -879,6 +914,7 @@ export const SvgMapHex = ({
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -909,6 +945,8 @@ export const SvgMapHex = ({
   }
   return null
 }
+
+export const SvgMapHex = memo(SvgMapHexComponent)
 
 const SvgCastleWallBaseHeightText = ({
   isSubLevel,

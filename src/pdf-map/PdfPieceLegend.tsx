@@ -11,6 +11,11 @@ import {
   getPieceKeyShapeScale,
   getPieceKeySpecialEntriesPerRow,
 } from '../pdf-svg-shared/pieceKeyShapeLayout'
+import {
+  type GlyphCoordinateLookup,
+  type GlyphExportSettings,
+  makeGlyphCoordinateLookup,
+} from '../pdf-svg-shared/glyphExportOptions'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
@@ -93,12 +98,19 @@ export function PieceKeyShape({
   entry,
   useTerrainBorderColor,
   scale,
+  glyphCoordinates: glyphCoordinatesProp,
+  glyphExportSettings: glyphExportSettingsProp,
 }: {
   entry: PieceKeyEntry
   useTerrainBorderColor: boolean
   scale: number
+  glyphCoordinates?: GlyphCoordinateLookup
+  glyphExportSettings?: GlyphExportSettings
 }) {
   const settings = useBoundStore.getState()
+  const glyphCoordinates =
+    glyphCoordinatesProp ?? makeGlyphCoordinateLookup(settings.boardHexes)
+  const glyphExportSettings = glyphExportSettingsProp ?? settings
   const layout = getPieceKeyShapeLayout(entry)
   const viewBox = getPieceKeySymbolViewBox(entry, layout)
   const viewWidth = viewBox.width
@@ -137,6 +149,8 @@ export function PieceKeyShape({
                 buriedMarksByUID={new Map()}
                 useLegacyStartZones={settings.useLegacyStartZones}
                 isPieceKeyPreview
+                glyphCoordinates={glyphCoordinates}
+                glyphExportSettings={glyphExportSettings}
               />
             )
           })
@@ -158,9 +172,13 @@ export function PieceKeyShape({
 function LandGrid({
   model,
   useTerrainBorderColor,
+  glyphCoordinates,
+  glyphExportSettings,
 }: {
   model: ReturnType<typeof getPieceKeyModel>
   useTerrainBorderColor: boolean
+  glyphCoordinates: GlyphCoordinateLookup
+  glyphExportSettings: GlyphExportSettings
 }) {
   const tables = []
   const scale = getLandShapeScale(model)
@@ -261,6 +279,8 @@ function LandGrid({
                             entry={entry}
                             useTerrainBorderColor={useTerrainBorderColor}
                             scale={scale}
+                            glyphCoordinates={glyphCoordinates}
+                            glyphExportSettings={glyphExportSettings}
                           />
                           <Text style={{ fontSize: 6 }}>x{entry.count}</Text>
                         </>
@@ -281,10 +301,14 @@ function SpecialTiles({
   model,
   useTerrainBorderColor,
   scale,
+  glyphCoordinates,
+  glyphExportSettings,
 }: {
   model: ReturnType<typeof getPieceKeyModel>
   useTerrainBorderColor: boolean
   scale: number
+  glyphCoordinates: GlyphCoordinateLookup
+  glyphExportSettings: GlyphExportSettings
 }) {
   const entriesPerRowFor = (group: (typeof model.specialGroups)[number]) =>
     getPieceKeySpecialEntriesPerRow(group, PAGE_CONTENT_WIDTH / 3 - 12, scale)
@@ -328,6 +352,8 @@ function SpecialTiles({
                       entry={entry}
                       useTerrainBorderColor={useTerrainBorderColor}
                       scale={scale}
+                      glyphCoordinates={glyphCoordinates}
+                      glyphExportSettings={glyphExportSettings}
                     />
                     <Text style={{ fontSize: 5, textAlign: 'center' }}>
                       {entry.title}
@@ -346,6 +372,11 @@ function SpecialTiles({
 
 export function PdfPieceLegend({ boardPieces }: { boardPieces: BoardPiece[] }) {
   const settings = useBoundStore.getState()
+  const glyphCoordinates = makeGlyphCoordinateLookup(settings.boardHexes)
+  const glyphExportSettings: GlyphExportSettings = {
+    isTransparentGlyphSpaces: settings.isTransparentGlyphSpaces,
+    isHideHeightsOnGlyphs: settings.isHideHeightsOnGlyphs,
+  }
   const model = getPieceKeyModel(
     boardPieces,
     settings.boardHexes,
@@ -366,6 +397,8 @@ export function PdfPieceLegend({ boardPieces }: { boardPieces: BoardPiece[] }) {
         <LandGrid
           model={model}
           useTerrainBorderColor={settings.isPdfColorBorders}
+          glyphCoordinates={glyphCoordinates}
+          glyphExportSettings={glyphExportSettings}
         />
       )}
       {model.specialGroups.length > 0 && (
@@ -373,6 +406,8 @@ export function PdfPieceLegend({ boardPieces }: { boardPieces: BoardPiece[] }) {
           model={model}
           useTerrainBorderColor={settings.isPdfColorBorders}
           scale={scale}
+          glyphCoordinates={glyphCoordinates}
+          glyphExportSettings={glyphExportSettings}
         />
       )}
     </Page>

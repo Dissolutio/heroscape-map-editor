@@ -1,7 +1,12 @@
 import { G, Line, Text } from '@react-pdf/renderer'
 import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
 import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
-import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
+import {
+  type GlyphCoordinateLookup,
+  type GlyphExportSettings,
+  getGlyphExportOptions,
+  makeGlyphCoordinateLookup,
+} from '../pdf-svg-shared/glyphExportOptions'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   SHROUDSHROOM13_ORIGIN_LINE_COLOR,
@@ -188,6 +193,8 @@ export const PdfMapHex = ({
   buriedMarksByUID,
   useLegacyStartZones,
   isPieceKeyPreview = false,
+  glyphCoordinates,
+  glyphExportSettings,
 }: {
   hex: BoardHex
   viewingLevel: number
@@ -199,6 +206,8 @@ export const PdfMapHex = ({
   buriedMarksByUID: BuriedMarksByUID
   useLegacyStartZones: boolean
   isPieceKeyPreview?: boolean
+  glyphCoordinates?: GlyphCoordinateLookup
+  glyphExportSettings?: GlyphExportSettings
 }) => {
   const pixel = hexUtilsHexToPixel(hex)
   const isSubLevel = !isPieceKeyPreview && hex.altitude < viewingLevel
@@ -213,9 +222,17 @@ export const PdfMapHex = ({
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
   const pieceHeightText = getPieceGameHeight(inventoryID)
-  const glyphSettings = useBoundStore.getState()
+  const fallbackState =
+    glyphCoordinates && glyphExportSettings
+      ? undefined
+      : useBoundStore.getState()
+  const glyphLookup =
+    glyphCoordinates ??
+    makeGlyphCoordinateLookup(fallbackState?.boardHexes ?? {})
+  const glyphSettings =
+    glyphExportSettings ?? fallbackState ?? useBoundStore.getState()
   const getHexGlyphExportOptions = (targetHex: BoardHex) =>
-    getGlyphExportOptions(targetHex, glyphSettings.boardHexes, glyphSettings)
+    getGlyphExportOptions(targetHex, glyphLookup, glyphSettings)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
