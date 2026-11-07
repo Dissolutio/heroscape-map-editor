@@ -10,6 +10,7 @@ import {
 } from '../data/flatPieceSizes'
 import { piecesSoFar } from '../data/pieces'
 import { getPickedPenModeSettings } from '../hooks/useMiddleClickPickPenMode'
+import { Pieces } from '../types'
 
 const obstacleFamilies = Object.values(piecesSoFar).reduce<
   Record<string, (typeof piecesSoFar)[string][]>
@@ -85,6 +86,95 @@ describe('obstacle piece variant hotkeys', () => {
       options.map((option) => getPieceIDForPenMode(tree.id, option)),
     ).toEqual(['tr10', 'tr11', 'tr12', 'tr15'])
     expect(piecesSoFar.tr15.variantLabel).toBe('Large Evergreen Tree (15)')
+  })
+
+  it('lists the ship family variants in the requested order', () => {
+    expect(
+      [Pieces.shipWall, Pieces.shipBow, Pieces.ropeLadder, Pieces.cannon].map(
+        (id) => {
+          const piece = piecesSoFar[id]
+          return {
+            id: piece.id,
+            pieceSizeFamily: piece.pieceSizeFamily,
+            variantOrder: piece.variantOrder,
+            variantLabel: piece.variantLabel,
+          }
+        },
+      ),
+    ).toEqual([
+      {
+        id: Pieces.shipWall,
+        pieceSizeFamily: 'ship',
+        variantOrder: 1,
+        variantLabel: 'Ship Wall',
+      },
+      {
+        id: Pieces.shipBow,
+        pieceSizeFamily: 'ship',
+        variantOrder: 2,
+        variantLabel: 'Ship Bow',
+      },
+      {
+        id: Pieces.ropeLadder,
+        pieceSizeFamily: 'ship',
+        variantOrder: 3,
+        variantLabel: 'Rope Ladder',
+      },
+      {
+        id: Pieces.cannon,
+        pieceSizeFamily: 'ship',
+        variantOrder: 4,
+        variantLabel: 'Cannon',
+      },
+    ])
+  })
+
+  it('selects ship variants by number and middle-clicks each variant', () => {
+    const shipPieces = [
+      Pieces.shipWall,
+      Pieces.shipBow,
+      Pieces.ropeLadder,
+      Pieces.cannon,
+    ]
+
+    for (const penMode of shipPieces) {
+      const options = getPieceSizeOptionsForPenMode(penMode)
+      expect(options).toEqual([1, 2, 3, 4])
+      for (const [index, pieceID] of shipPieces.entries()) {
+        const hotkeySize = getPieceSizeForHotkey(
+          String(index + 1),
+          options,
+          true,
+        )
+        expect(hotkeySize).toBe(index + 1)
+        expect(getPieceIDForPenMode(penMode, hotkeySize ?? 0)).toBe(pieceID)
+        expect(
+          getNewPieceSizeForPenMode(pieceID, piecesSoFar.o1.id, 2).newSize,
+        ).toBe(index + 1)
+      }
+    }
+
+    for (const [index, inventoryID] of shipPieces.entries()) {
+      expect(
+        getPickedPenModeSettings({
+          uid: `ship-${index}`,
+          inventoryID,
+          altitude: 0,
+          rotation: 2,
+          pieceCoords: { q: 0, r: 0, s: 0 },
+        }),
+      ).toEqual({
+        penMode: inventoryID,
+        pieceSize: index + 1,
+        rotation: 2,
+      })
+    }
+  })
+
+  it('resets to Ship Wall when switching into the ship family', () => {
+    expect(
+      getNewPieceSizeForPenMode(Pieces.shipWall, piecesSoFar.o1.id, 2),
+    ).toMatchObject({ newSize: 1, newSizes: [1, 2, 3, 4] })
   })
 
   it('picks the placed obstacle variant as the active pen variant', () => {

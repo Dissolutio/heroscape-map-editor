@@ -1,3 +1,4 @@
+import { edgeIdFromHex } from '../src/data/hexGrid/edgesAndNodes'
 import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
 import {
   clickHex,
@@ -10,6 +11,15 @@ import {
   test,
   waitForAppReady,
 } from './fixtures'
+
+const SHIP_LADDER_MAP = { ...FIXTURE_HEX_MAP, width: 8, length: 8 }
+const SHIP_LADDER_PIECES = [
+  '0~0~2~0~g1',
+  '0~1~2~0~g1',
+  '0~2~2~0~g1',
+  '0~0~1~0~g1',
+  '1~0~1~0~g1',
+]
 
 test('a solid land pen previews ok over a free hex', async ({ page }) => {
   await setPen(page, 'g', 1)
@@ -54,6 +64,76 @@ test('Evergreen Tree hotkeys select each numbered variant', async ({
     const snapshot = await page.evaluate(() => window.__TEST__?.snapshot())
     expect(snapshot?.penPieceID).toBe(pieceID)
   }
+})
+
+test('Ship hotkeys preview all variants and place a rope ladder on a wall', async ({
+  page,
+}) => {
+  await page.goto(mapUrl(SHIP_LADDER_MAP, SHIP_LADDER_PIECES))
+  await waitForAppReady(page)
+  await setPen(page, 'sl', 1)
+  await hoverHex(page, { q: 4, r: 3, altitude: 0 })
+
+  for (const [key, pieceID] of [
+    ['1', 'sl'],
+    ['2', 'sb'],
+    ['3', 'rl'],
+    ['4', 'cn'],
+  ] as const) {
+    await page.keyboard.press(key)
+    await page.waitForFunction(
+      (id) => window.__TEST__?.snapshot().penPieceID === id,
+      pieceID,
+    )
+    const snapshot = await page.evaluate(() => window.__TEST__?.snapshot())
+    expect(snapshot?.penPieceID).toBe(pieceID)
+  }
+
+  await setPen(page, 'sl', 1, 0)
+  await hoverHex(page, { q: 0, r: 2, altitude: 1 })
+  await page.mouse.move(0, 0)
+  await clickHex(page, { q: 0, r: 2, altitude: 1 })
+  await page.waitForFunction(() =>
+    window.__TEST__?.listPieces().some((piece) => piece.inventoryID === 'sl'),
+  )
+
+  const wallUID = await findPieceUid(page, {
+    inventoryID: 'sl',
+    q: 0,
+    r: 2,
+  })
+  const wall = await page.evaluate(
+    (uid) => window.__TEST__?.listPieces().find((piece) => piece.uid === uid),
+    wallUID,
+  )
+  if (!wall) throw new Error('Ship wall was not placed')
+
+  await setPen(page, 'sl', 3, 1)
+  await hoverHex(page, { q: 0, r: 1, altitude: 2 })
+  await page.waitForFunction(
+    () =>
+      window.__TEST__?.snapshot().penPieceID === 'rl' &&
+      window.__TEST__?.snapshot().placementPreview,
+  )
+  await page.mouse.move(0, 0)
+  await clickHex(page, { q: 0, r: 1, altitude: 2 })
+
+  await page.waitForFunction(() =>
+    window.__TEST__?.listPieces().some((piece) => piece.inventoryID === 'rl'),
+  )
+  const ladder = await page.evaluate(() =>
+    window.__TEST__?.listPieces().find((piece) => piece.inventoryID === 'rl'),
+  )
+  if (!ladder) throw new Error('Rope ladder was not placed')
+  expect(ladder).toMatchObject({
+    inventoryID: 'rl',
+    pieceCoords: { q: 0, r: 1, s: -1 },
+    altitude: 1,
+    rotation: 1,
+  })
+  expect(edgeIdFromHex(ladder.pieceCoords, ladder.rotation)).toBe(
+    edgeIdFromHex(wall.pieceCoords, (ladder.rotation + 3) % 6),
+  )
 })
 
 test('a Laur add-on previews and places on empty and land hexes', async ({
