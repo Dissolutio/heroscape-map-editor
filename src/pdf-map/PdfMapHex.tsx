@@ -1,18 +1,18 @@
 import { G, Line, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
+import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
+import {
+  SHROUDSHROOM13_ORIGIN_LINE_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
+  getShroudshroom13OriginLine,
+} from '../pdf-svg-shared/shroudshroom13OriginLine'
 import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
-import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
-import {
-  getShroudshroom13OriginLine,
-  SHROUDSHROOM13_ORIGIN_LINE_COLOR,
-  SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR,
-  SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
-} from '../pdf-svg-shared/shroudshroom13OriginLine'
 import useBoundStore from '../store/store'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
@@ -187,6 +187,7 @@ export const PdfMapHex = ({
   isShowPdfBuriedMarks,
   buriedMarksByUID,
   useLegacyStartZones,
+  isPieceKeyPreview = false,
 }: {
   hex: BoardHex
   viewingLevel: number
@@ -197,9 +198,10 @@ export const PdfMapHex = ({
   isShowPdfBuriedMarks: boolean
   buriedMarksByUID: BuriedMarksByUID
   useLegacyStartZones: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const pixel = hexUtilsHexToPixel(hex)
-  const isSubLevel = hex.altitude < viewingLevel
+  const isSubLevel = !isPieceKeyPreview && hex.altitude < viewingLevel
   const { inventoryID } = hex
   const exportSymbol = getPieceExportSymbol(inventoryID)
   const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
@@ -207,7 +209,7 @@ export const PdfMapHex = ({
     isObstaclePiece &&
     !hex.isObstacleOrigin &&
     (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
-  const isVisible = hex.altitude <= viewingLevel
+  const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
   const pieceHeightText = piecesSoFar[inventoryID]?.height
@@ -233,7 +235,11 @@ export const PdfMapHex = ({
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <PdfLadder hex={hex} isSubLevel={isSubLevel} />
+        <PdfLadder
+          hex={hex}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </G>
     )
   }

@@ -256,6 +256,9 @@ async function replaceTextNodesWithPaths(
   for (let i = 0; i < count; i += 1) {
     const sourceText = sourceTextNodes[i]
     const clonedText = clonedTextNodes[i]
+    if (sourceText.closest('[data-testid="svg-piece-key"]')) {
+      continue
+    }
     const textContent = sourceText.textContent ?? ''
 
     if (!textContent.trim()) {

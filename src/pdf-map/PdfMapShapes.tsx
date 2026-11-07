@@ -35,6 +35,7 @@ import {
   getJungleTriangleShape,
   getLadderSvgPolygonPoints,
   getLaurLongWallPdfPolygonPoints,
+  getLaurLongWallSvgPolygonPoints,
   getLaurPillarPdfShape,
   getLaurShortWallPolygonPoints,
   getLaurWallRuinPdfPolygonPoints,
@@ -887,13 +888,18 @@ export const PdfMarvelRuin = ({
 export const PdfBoardPieceLaurWallShort = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = getPdfHexFillForView(piece, isSubLevel)
   const borderColor = getPdfHexBorderForView(piece, isSubLevel)
-  const { points } = getLaurShortWallPolygonPoints(SVG_HEX_RADIUS, 0.2)
+  const { points } = getLaurShortWallPolygonPoints(
+    SVG_HEX_RADIUS,
+    isPieceKeyPreview ? 0.5 : 0.2,
+  )
   return (
     <Polygon
       points={points}
@@ -906,34 +912,54 @@ export const PdfBoardPieceLaurWallShort = ({
 export const PdfBoardPieceLaurWallLong = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
-  const { points } = getLaurLongWallPdfPolygonPoints(
-    SVG_HEX_RADIUS,
-    PDF_BORDER_WIDTH,
+  const { points } = isPieceKeyPreview
+    ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
+    : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
+  return (
+    <Polygon
+      points={points}
+      fill={fillColor}
+      stroke={
+        isPieceKeyPreview ? getPdfHexBorderForView(piece, isSubLevel) : ''
+      }
+      strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
+    />
   )
-  return <Polygon points={points} fill={fillColor} />
 }
 export const PdfBoardPieceLaurWallLongArch = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
-  const { points } = getLaurLongWallPdfPolygonPoints(
-    SVG_HEX_RADIUS,
-    PDF_BORDER_WIDTH,
+  const { points } = isPieceKeyPreview
+    ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
+    : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
+  return (
+    <Polygon
+      points={points}
+      fill={fillColor}
+      stroke={
+        isPieceKeyPreview ? getPdfHexBorderForView(piece, isSubLevel) : ''
+      }
+      strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
+    />
   )
-  return <Polygon points={points} fill={fillColor} />
 }
 // PdfLaurWallArchText
 export const PdfLaurWallArchText = ({
@@ -1030,15 +1056,20 @@ export const PdfBattlement = ({
 export const PdfLadder = ({
   hex,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = isSubLevel
     ? blendColorWithWhite(svgColors.battlementBorder, OPACITY_SUBLEVEL)
     : svgColors.battlementBorder
-  const { points } = getLadderSvgPolygonPoints(SVG_HEX_RADIUS, 0)
+  const { points } = getLadderSvgPolygonPoints(
+    SVG_HEX_RADIUS * (isPieceKeyPreview ? 2 : 1),
+    0,
+  )
   return (
     <Polygon
       points={points}
@@ -1270,10 +1301,12 @@ export const PdfRopeLadder = ({
   piece,
   isSubLevel,
   pieceRotation,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   pieceRotation: number
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
@@ -1285,25 +1318,27 @@ export const PdfRopeLadder = ({
   // const arrowWidth = (iconDiameter * (12 / 17.46))
   const arrowWidth = iconDiameter / 1.3
   return (
-    <G transform={`rotate(${pieceRotation})`}>
-      <G transform={`translate(${SVG_HEX_APOTHEM},0)`}>
-        <Rect
-          fill={fillColor}
-          width={iconDiameter}
-          height={iconDiameter}
-          x={-iconDiameter / 2}
-          y={-iconDiameter / 2}
-        />
-        <Path
-          fill={arrowColor}
-          d={generateArrowPath(arrowWidth)}
-          transform={'translate(0, -17)'}
-        />
-        <Path
-          fill={arrowColor}
-          d={generateArrowPath(arrowWidth)}
-          transform={'translate(-0, 15),rotate(180)'}
-        />
+    <G transform={isPieceKeyPreview ? 'scale(2)' : undefined}>
+      <G transform={`rotate(${pieceRotation})`}>
+        <G transform={`translate(${SVG_HEX_APOTHEM},0)`}>
+          <Rect
+            fill={fillColor}
+            width={iconDiameter}
+            height={iconDiameter}
+            x={-iconDiameter / 2}
+            y={-iconDiameter / 2}
+          />
+          <Path
+            fill={arrowColor}
+            d={generateArrowPath(arrowWidth)}
+            transform={'translate(0, -17)'}
+          />
+          <Path
+            fill={arrowColor}
+            d={generateArrowPath(arrowWidth)}
+            transform={'translate(-0, 15),rotate(180)'}
+          />
+        </G>
       </G>
     </G>
   )
