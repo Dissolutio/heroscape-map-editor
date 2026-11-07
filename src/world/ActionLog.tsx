@@ -30,6 +30,7 @@ const icons = {
   move: MdOpenWith,
   rotate: MdRotateRight,
   delete: MdDeleteOutline,
+  deselect: MdDeleteOutline,
   convert: MdTransform,
   adapt: MdTransform,
   marker: MdFlag,
@@ -127,6 +128,7 @@ function SelectionLinkedText({
       disabled={disabled}
       label={`Recall selection: ${label}`}
       selection={selection}
+      switchToSelectMode
     >
       {label}
     </SelectionRecallButton>

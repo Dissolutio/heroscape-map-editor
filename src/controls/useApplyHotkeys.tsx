@@ -312,6 +312,7 @@ export const useApplyHotkeys = ({
       isDragging: hasDragRotationPress(),
       selectedPieceCount: selectedPieceIDs.length,
       hasSelectedObjectiveMarker: Boolean(selectedObjectiveMarkerUID),
+      penMode,
     })
     if (target === 'drag') {
       rotateDragWithHotkey(direction)

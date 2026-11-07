@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { rotateSelectedPieces } from '../controls/rotateSelectedPieces'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 import { placementBlockedMessages } from '../data/placement'
 import {
   getRotationHotkeyTarget,
@@ -13,19 +14,38 @@ vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
 
 describe('rotation hotkey priority', () => {
   it.each([
-    ['dragging with a selection and marker', true, 1, true, 'drag'],
-    ['selected pieces before a marker', false, 1, true, 'selection'],
-    ['selected objective marker', false, 0, true, 'objective-marker'],
-    ['pen mode when nothing is selected', false, 0, false, 'pen-mode'],
-  ] as const)('targets %s', (_name, isDragging, count, marker, target) => {
-    expect(
-      getRotationHotkeyTarget({
-        isDragging,
-        selectedPieceCount: count,
-        hasSelectedObjectiveMarker: marker,
-      }),
-    ).toBe(target)
-  })
+    ['dragging with a selection and marker', true, 1, true, 'g', 'drag'],
+    ['placement mode with a selection', false, 1, false, 'g', 'pen-mode'],
+    ['selected pieces in select mode', false, 1, true, 'select', 'selection'],
+    [
+      'selected objective marker',
+      false,
+      0,
+      true,
+      OBJECTIVE_MARKER_PEN_MODE,
+      'objective-marker',
+    ],
+    [
+      'pen mode when nothing is selected',
+      false,
+      0,
+      false,
+      'select',
+      'pen-mode',
+    ],
+  ] as const)(
+    'targets %s',
+    (_name, isDragging, count, marker, penMode, target) => {
+      expect(
+        getRotationHotkeyTarget({
+          isDragging,
+          selectedPieceCount: count,
+          hasSelectedObjectiveMarker: marker,
+          penMode,
+        }),
+      ).toBe(target)
+    },
+  )
 
   it('throttles repeated non-drag hotkeys at the wheel cooldown', () => {
     expect(isRotationHotkeyReady(null, 0)).toBe(true)

@@ -5,10 +5,18 @@ import {
   getUrlMapString,
   parseMapDataArrayFromCrushed,
 } from '../data/jsonCrush'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { LS_KEYS } from '../local-storage/keys'
-import { Pieces, type BoardPiece, type HexMap, type MapState } from '../types'
+import {
+  type BoardPiece,
+  type HexMap,
+  type MapState,
+  PICK_PEN_MODE,
+  Pieces,
+  SELECT_PEN_MODE,
+} from '../types'
 import { makeRectangleScenario } from '../utils/map-gen'
 
 vi.mock('notistack', () => ({ enqueueSnackbar: vi.fn() }))
@@ -854,6 +862,153 @@ describe('real store undo and redo', () => {
     })
     store.getState().loadMap(loadedMap([piece]), { holdAutosave: true })
 
+    expect(historyLength()).toBe(0)
+  })
+
+  it('clears and logs selection only when entering a placement pen', () => {
+    const piece = {
+      uid: 'pen-selection',
+      inventoryID: Pieces.grass1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 2, r: 2, s: -4 },
+    }
+    loadWithoutHistory(loadedMap([piece]))
+    store.setState({ selectedPieceIDs: [piece.uid] })
+    store.temporal.getState().clear()
+
+    store.getState().togglePenMode('g')
+
+    expect(store.getState().selectedPieceIDs).toEqual([])
+    expect(store.getState().actionLog).toMatchObject([
+      {
+        kind: 'deselect',
+        text: 'Cleared selection of 1 piece (switched to 1-hex Grass)',
+        selection: { pieceUIDs: [piece.uid] },
+        selectionLabel: '1 piece',
+        undoable: false,
+      },
+    ])
+    expect(store.getState().actionLogUndoStack).toEqual([])
+    expect(historyLength()).toBe(0)
+    expect(store.temporal.getState().futureStates).toHaveLength(0)
+  })
+
+  it('clears a selected objective marker with pieces and preserves both in the log', () => {
+    const piece = {
+      uid: 'pen-selection-with-marker',
+      inventoryID: Pieces.grass1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 2, r: 2, s: -4 },
+    }
+    const marker = {
+      uid: 'pen-selection-marker',
+      anchor: { q: 3, r: 3, s: -6, altitude: 1 },
+      size: 1 as const,
+      rotation: 0 as const,
+      style: 'black' as const,
+      content: { kind: 'number' as const, value: 1 },
+    }
+    const map = loadedMap([piece])
+    map.hexMap.objectiveMarkers = [marker]
+    loadWithoutHistory(map)
+    store.setState({ selectedPieceIDs: [piece.uid] })
+    store.getState().setSelectedObjectiveMarkerUID(marker.uid)
+
+    store.getState().togglePenMode('g')
+
+    const entry = store.getState().actionLog[0]
+    expect(store.getState().selectedPieceIDs).toEqual([])
+    expect(store.getState().selectedObjectiveMarkerUID).toBeNull()
+    expect(entry).toMatchObject({
+      kind: 'deselect',
+      selection: {
+        pieceUIDs: [piece.uid],
+        objectiveMarkerUID: marker.uid,
+      },
+      selectionLabel: '1 piece and objective marker',
+    })
+    if (!entry?.selection) throw new Error('Expected a selection to recall')
+
+    store.getState().togglePenMode('r')
+    store.getState().selectSelectionUnit(entry.selection)
+
+    expect(store.getState().penMode).toBe('r')
+    expect(store.getState().selectedPieceIDs).toEqual([piece.uid])
+    expect(store.getState().selectedObjectiveMarkerUID).toBe(marker.uid)
+  })
+
+  it('does not log empty switches or clear selections in non-painting modes', () => {
+    store.getState().togglePenMode('g')
+    store.getState().togglePieceSize(2)
+    store.getState().togglePenModeRotation(1)
+    expect(store.getState().actionLog).toEqual([])
+
+    store.setState({ selectedPieceIDs: ['placement-selection'] })
+    store.getState().togglePenMode('r')
+    expect(store.getState().selectedPieceIDs).toEqual(['placement-selection'])
+    expect(store.getState().actionLog).toEqual([])
+
+    store.setState({ selectedPieceIDs: ['selected-piece'] })
+    store.getState().togglePenMode(SELECT_PEN_MODE)
+    expect(store.getState().selectedPieceIDs).toEqual(['selected-piece'])
+    store.getState().togglePenMode(PICK_PEN_MODE)
+    expect(store.getState().selectedPieceIDs).toEqual(['selected-piece'])
+    store.getState().togglePenMode(OBJECTIVE_MARKER_PEN_MODE)
+    expect(store.getState().selectedPieceIDs).toEqual(['selected-piece'])
+    expect(store.getState().actionLog).toEqual([])
+    expect(historyLength()).toBe(0)
+  })
+
+  it('clears selection when the last-pen hotkey enters a placement mode', () => {
+    const piece = {
+      uid: 'last-pen-selection',
+      inventoryID: Pieces.grass1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 2, r: 2, s: -4 },
+    }
+    loadWithoutHistory(loadedMap([piece]))
+    store.getState().togglePenMode('g')
+    store.getState().togglePieceSize(3)
+    store.getState().togglePenMode(SELECT_PEN_MODE)
+    store.setState({ selectedPieceIDs: [piece.uid] })
+
+    store.getState().toggleLastPenMode()
+
+    expect(store.getState().penMode).toBe('g')
+    expect(store.getState().pieceSize).toBe(3)
+    expect(store.getState().selectedPieceIDs).toEqual([])
+    expect(store.getState().actionLog).toMatchObject([
+      {
+        kind: 'deselect',
+        selection: { pieceUIDs: [piece.uid] },
+      },
+    ])
+    expect(historyLength()).toBe(0)
+  })
+
+  it('preserves selection without logging when Use as Pen enters placement', async () => {
+    const piece = {
+      uid: 'use-as-pen-selection',
+      inventoryID: Pieces.grass1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 2, r: 2, s: -4 },
+    }
+    loadWithoutHistory(loadedMap([piece]))
+    store.setState({ selectedPieceIDs: [piece.uid] })
+
+    const { pickPieceAsPenMode } = await import(
+      '../hooks/useMiddleClickPickPenMode'
+    )
+    pickPieceAsPenMode(piece.uid, { preserveSelection: true })
+
+    expect(store.getState().penMode).toBe('g')
+    expect(store.getState().selectedPieceIDs).toEqual([piece.uid])
+    expect(store.getState().actionLog).toEqual([])
+    expect(store.getState().actionLogUndoStack).toEqual([])
     expect(historyLength()).toBe(0)
   })
 

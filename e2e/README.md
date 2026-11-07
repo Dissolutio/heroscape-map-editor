@@ -233,6 +233,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
 | Objective-marker 3D rendering, camera-facing text, visibility, selection, and shadow invalidation | `e2e/objective-markers.spec.ts` |
 | Objective-marker placement, editing, rotation, drag, deletion, undo, unit-name suggestions, and saved-file name round trips | `e2e/objective-marker-editing.spec.ts` |
+| Selection clearing on placement-pen hotkeys, preview rotation, and action-log recall | `e2e/action-log.spec.ts` |
 | Collection inventory gating, missing-terrain rows, conditional ranked substitutes, naming/cancel, metadata persistence, buried fill, leftovers, and one-step undo | `e2e/adapt-to-collection.spec.ts` |
 | OHS-friendly glyph space export options | `e2e/glyph-export-options.spec.ts` |
 | Legend viewing step, Illustrator-safe level/legend SVGs, ZIP and layered whole-map downloads, and PDF downloads with both border modes | `e2e/svg-piece-key.spec.ts` |
