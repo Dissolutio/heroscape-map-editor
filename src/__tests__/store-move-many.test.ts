@@ -3,17 +3,13 @@
  *
  * The selected-piece arrow, rotate and altitude controls move every
  * selected piece. This pins what that does to the board, against the real
- * store. `legacyMovePiece` below is a frozen copy of movePiece as it was
- * before movePieces existed: the single-piece path must keep matching it,
- * and so must a group move whose pieces do not get in each other's way.
+ * store. Moving or rotating a piece must preserve the piece-list order and
+ * leave live occupancy equal to a replay of that list.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { addPiece } from '../data/addPiece'
 import { buildupJsonFileMap } from '../data/buildupMap'
-import { piecesSoFar } from '../data/pieces'
-import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
+import { rebuildBoardStateFromPieces } from '../data/rebuildBoardState'
 import { LS_KEYS } from '../local-storage/keys'
-import { removePiece } from '../data/removePiece'
 import type {
   BoardHexes,
   BoardPiece,
@@ -104,73 +100,11 @@ const boardState = (): BoardState => {
 
 const historyLength = () => store.temporal.getState().pastStates.length
 
-/**
- * movePiece exactly as it was before movePieces (map-slice.ts at dev
- * 704d71ed), on a plain copy of the board: remove the mover, re-add every
- * previously conflicted piece, place the mover, raise the viewing level,
- * recompute conflicts. A fixed reference, not shared with the app code.
- */
-function legacyMovePiece(state: BoardState, args: MoveArgs): BoardState {
-  const next = structuredClone(state)
-  const boardPiece = next.boardPieces.find((p) => p.uid === args.uid)
-  if (!boardPiece) return next
-  const piece = piecesSoFar[boardPiece.inventoryID]
-  if (!piece) return next
-  let { newBoardHexes: workingHexes, newBoardPieces: workingPieces } =
-    removePiece({
-      uid: args.uid,
-      boardHexes: next.boardHexes,
-      boardPieces: next.boardPieces,
-    })
-  for (const conflictedUID of next.conflictedPieceUIDs) {
-    if (conflictedUID === args.uid) continue
-    const conflictedBP = workingPieces.find((p) => p.uid === conflictedUID)
-    if (!conflictedBP) continue
-    const conflictedPiece = piecesSoFar[conflictedBP.inventoryID]
-    if (!conflictedPiece) continue
-    const removed = removePiece({
-      uid: conflictedUID,
-      boardHexes: workingHexes,
-      boardPieces: workingPieces,
-    })
-    const added = addPiece({
-      piece: conflictedPiece,
-      boardHexes: removed.newBoardHexes,
-      boardPieces: removed.newBoardPieces,
-      pieceCoords: conflictedBP.pieceCoords,
-      placementAltitude: conflictedBP.altitude,
-      rotation: conflictedBP.rotation,
-      isVsTile: false,
-      uid: conflictedUID,
-      permissive: true,
-    })
-    workingHexes = added.newBoardHexes
-    workingPieces = added.newBoardPieces
-  }
-  const placementAltitude = args.newAltitude ?? boardPiece.altitude
-  const placed = addPiece({
-    piece,
-    boardHexes: workingHexes,
-    boardPieces: workingPieces,
-    pieceCoords: args.newPieceCoords,
-    placementAltitude,
-    rotation: args.newRotation ?? boardPiece.rotation,
-    isVsTile: false,
-    uid: args.uid,
-    permissive: true,
-  })
-  const placedAtLevel = placementAltitude + 1
-  return {
-    boardHexes: placed.newBoardHexes,
-    boardPieces: placed.newBoardPieces,
-    conflictedPieceUIDs: computeConflictedPieceUIDs(placed.newBoardPieces),
-    viewingLevel:
-      placedAtLevel > next.viewingLevel ? placedAtLevel : next.viewingLevel,
-  }
+function expectReplayMatches(state: BoardState) {
+  expect(state.boardHexes).toEqual(
+    rebuildBoardStateFromPieces(state.boardPieces, state.boardHexes).boardHexes,
+  )
 }
-
-const legacySequence = (state: BoardState, moves: MoveArgs[]) =>
-  moves.reduce(legacyMovePiece, state)
 
 /**
  * Three pieces far enough apart that moving them one at a time never puts
@@ -220,17 +154,24 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('movePiece one at a time (characterization)', () => {
+describe('movePiece one at a time', () => {
   it.each([
     ['translate east', (p: BoardPiece[]) => translate(p, 0)],
     ['rotate', rotateToNext],
     ['raise one level', (p: BoardPiece[]) => raise(p, 1)],
-  ])('%s: the store matches the frozen reference', (_, makeMoves) => {
+  ])('%s preserves order and agrees with replay', (_, makeMoves) => {
     load(SPREAD)
     const start = boardState()
     const moves = makeMoves(start.boardPieces)
     for (const move of moves) store.getState().movePiece(move)
-    expect(boardState()).toEqual(legacySequence(start, moves))
+    const after = boardState()
+    expect(after.boardPieces.map((piece) => piece.uid)).toEqual(
+      start.boardPieces.map((piece) => piece.uid),
+    )
+    expectReplayMatches(after)
+    for (const move of moves) {
+      expect(pieceAt(move.uid)?.pieceCoords).toEqual(move.newPieceCoords)
+    }
   })
 })
 
@@ -249,18 +190,22 @@ describe('movePieces', () => {
     ['translate east', (p: BoardPiece[]) => translate(p, 0)],
     ['rotate', rotateToNext],
     ['raise one level', (p: BoardPiece[]) => raise(p, 1)],
-  ])(
-    '%s: one update gives what moving them one at a time did',
-    (_, makeMoves) => {
-      load(SPREAD)
-      const start = boardState()
-      const moves = makeMoves(start.boardPieces)
-      store.getState().movePieces({ moves })
-      expect(boardState()).toEqual(legacySequence(start, moves))
-    },
-  )
+  ])('%s preserves order and agrees with replay', (_, makeMoves) => {
+    load(SPREAD)
+    const start = boardState()
+    const moves = makeMoves(start.boardPieces)
+    store.getState().movePieces({ moves })
+    const after = boardState()
+    expect(after.boardPieces.map((piece) => piece.uid)).toEqual(
+      start.boardPieces.map((piece) => piece.uid),
+    )
+    expectReplayMatches(after)
+    for (const move of moves) {
+      expect(pieceAt(move.uid)?.pieceCoords).toEqual(move.newPieceCoords)
+    }
+  })
 
-  it('a single move equals movePiece (and the frozen reference)', () => {
+  it('a single move equals movePiece', () => {
     const move = { uid: 'R2', newPieceCoords: at(6, 5), newRotation: 2 }
     load(SPREAD)
     const start = boardState()
@@ -268,8 +213,12 @@ describe('movePieces', () => {
     const viaMovePieces = boardState()
     load(SPREAD)
     store.getState().movePiece(move)
-    expect(boardState()).toEqual(viaMovePieces)
-    expect(viaMovePieces).toEqual(legacyMovePiece(start, move))
+    const viaMovePiece = boardState()
+    expect(viaMovePiece).toEqual(viaMovePieces)
+    expect(viaMovePiece.boardPieces.map((piece) => piece.uid)).toEqual(
+      start.boardPieces.map((piece) => piece.uid),
+    )
+    expectReplayMatches(viaMovePiece)
   })
 
   it('moves three pieces as one undo step; undo and redo are exact', () => {
@@ -309,32 +258,39 @@ describe('movePieces', () => {
     expect(store.getState().conflictedPieceUIDs).toEqual([])
   })
 
-  it('landing on a piece that stays displaces it exactly as movePiece does', () => {
+  it('landing on a piece that stays follows replay order', () => {
     const pieces = [bp('A', 'g1', at(2, 2)), bp('C', 'g1', at(2, 4))]
     const move = { uid: 'A', newPieceCoords: at(2, 4) }
     load(pieces)
     const start = boardState()
     store.getState().movePieces({ moves: [move] })
     const viaMovePieces = boardState()
-    expect(viaMovePieces).toEqual(legacyMovePiece(start, move))
     expect(viaMovePieces.conflictedPieceUIDs).toContain('C')
+    expect(ownerAt(at(2, 4), 1)).toBe('C')
+    expect(viaMovePieces.boardPieces.map((piece) => piece.uid)).toEqual(
+      start.boardPieces.map((piece) => piece.uid),
+    )
+    expectReplayMatches(viaMovePieces)
     load(pieces)
     store.getState().movePiece(move)
     expect(boardState()).toEqual(viaMovePieces)
   })
 
-  it('a piece displaced earlier gets its hexes back when the mover leaves', () => {
+  it('a later piece keeps ownership after an earlier mover leaves', () => {
     load([bp('A', 'g1', at(2, 2)), bp('C', 'g1', at(2, 4))])
     store.getState().movePiece({ uid: 'A', newPieceCoords: at(2, 4) })
     expect(store.getState().conflictedPieceUIDs).toContain('C')
-    expect(ownerAt(at(2, 4), 1)).toBe('A')
+    expect(ownerAt(at(2, 4), 1)).toBe('C')
 
     const start = boardState()
     const away = { uid: 'A', newPieceCoords: at(5, 5) }
     store.getState().movePieces({ moves: [away] })
     expect(ownerAt(at(2, 4), 1)).toBe('C')
     expect(store.getState().conflictedPieceUIDs).toEqual([])
-    expect(boardState()).toEqual(legacyMovePiece(start, away))
+    expect(boardState().boardPieces.map((piece) => piece.uid)).toEqual(
+      start.boardPieces.map((piece) => piece.uid),
+    )
+    expectReplayMatches(boardState())
   })
 
   it('raises the viewing level to the highest placed top, never lowers it', () => {

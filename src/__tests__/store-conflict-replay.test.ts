@@ -66,11 +66,18 @@ function snapshot() {
   return structuredClone({ boardHexes, boardPieces })
 }
 
-function withoutOwner(boardHexes: MapState['boardHexes'], uid: string) {
+function expectReplayMatches(
+  boardPieces: BoardPiece[],
+  boardHexes: MapState['boardHexes'],
+) {
+  expect(boardHexes).toEqual(
+    rebuildBoardStateFromPieces(boardPieces, boardHexes).boardHexes,
+  )
+}
+
+function hexesOwnedBy(boardHexes: MapState['boardHexes'], uid: string) {
   return Object.fromEntries(
-    Object.entries(boardHexes).filter(
-      ([, hex]) => hex.boardPieceUID !== uid,
-    ),
+    Object.entries(boardHexes).filter(([, hex]) => hex.boardPieceUID === uid),
   )
 }
 
@@ -107,11 +114,122 @@ describe('conflicted piece replay', () => {
       (piece) => piece.uid !== 'unrelated-water',
     )
     expect(after.boardPieces).toEqual(remaining)
-    expect(after.boardHexes).toEqual(
-      withoutOwner(before.boardHexes, 'unrelated-water'),
+    for (const piece of remaining) {
+      expect(hexesOwnedBy(after.boardHexes, piece.uid)).toEqual(
+        hexesOwnedBy(before.boardHexes, piece.uid),
+      )
+    }
+    expectReplayMatches(after.boardPieces, after.boardHexes)
+  })
+
+  it('moving a conflicted board preserves order and agrees with replay', () => {
+    load(conflictedBoard)
+    const before = snapshot()
+
+    store.getState().movePiece({
+      uid: 'unrelated-water',
+      newPieceCoords: at(11, 10),
+    })
+
+    const after = snapshot()
+    expect(after.boardPieces.map((piece) => piece.uid)).toEqual(
+      before.boardPieces.map((piece) => piece.uid),
     )
-    expect(after.boardHexes).toEqual(
-      rebuildBoardStateFromPieces(remaining).boardHexes,
+    expectReplayMatches(after.boardPieces, after.boardHexes)
+  })
+
+  it('drag-moving a conflicted board preserves order and agrees with replay', () => {
+    load(conflictedBoard)
+    const before = snapshot()
+
+    store.getState().movePieces({
+      moves: [{ uid: 'unrelated-water', newPieceCoords: at(11, 10) }],
+    })
+
+    const after = snapshot()
+    expect(after.boardPieces.map((piece) => piece.uid)).toEqual(
+      before.boardPieces.map((piece) => piece.uid),
     )
+    expectReplayMatches(after.boardPieces, after.boardHexes)
+  })
+
+  it('rotating a conflicted piece preserves order and agrees with replay', () => {
+    load(conflictedBoard)
+    const before = snapshot()
+
+    store.getState().movePiece({
+      uid: 'ship-wall',
+      newPieceCoords: at(2, 2),
+      newRotation: 1,
+    })
+
+    const after = snapshot()
+    expect(after.boardPieces.map((piece) => piece.uid)).toEqual(
+      before.boardPieces.map((piece) => piece.uid),
+    )
+    expectReplayMatches(after.boardPieces, after.boardHexes)
+  })
+
+  it('conversion preserves order and agrees with replay', () => {
+    load(conflictedBoard)
+    const before = snapshot()
+
+    expect(
+      store.getState().convertTerrainForPieces({
+        selectedUIDs: ['unrelated-water'],
+        targetInventoryBySourceInventory: { w1: 'g1' },
+      }),
+    ).toBe(1)
+
+    const after = snapshot()
+    expect(after.boardPieces.map((piece) => piece.uid)).toEqual(
+      before.boardPieces.map((piece) => piece.uid),
+    )
+    expectReplayMatches(after.boardPieces, after.boardHexes)
+  })
+
+  it('undo and redo restore the exact conflicted delete state', () => {
+    load(conflictedBoard)
+    const before = snapshot()
+    store.getState().unpaintTile('unrelated-water')
+    const after = snapshot()
+
+    store.temporal.getState().undo()
+    expect(snapshot()).toEqual(before)
+    store.temporal.getState().redo()
+    expect(snapshot()).toEqual(after)
+  })
+
+  it('deleting any piece from seeded overlapping boards agrees with replay', () => {
+    for (const seed of [13, 29, 47]) {
+      let state = seed
+      const random = () => {
+        state = (state * 48271) % 2147483647
+        return state
+      }
+      const q = 2 + (random() % 5)
+      const r = 2 + (random() % 5)
+      const pieces = [
+        bp(`water-${seed}-1`, 'w1', q, r),
+        bp(`water-${seed}-2`, 'w1', q + 1, r),
+        bp(`water-${seed}-3`, 'w1', q + 2, r),
+        bp(`ship-${seed}-1`, 'sl', q, r),
+        bp(`water-${seed}-4`, 'w1', 10 + (random() % 3), 10),
+        bp(`ship-${seed}-2`, 'sl', q + 1, r),
+      ]
+
+      for (const target of pieces) {
+        load(pieces)
+        const before = snapshot()
+        store.getState().unpaintTile(target.uid)
+        const after = snapshot()
+        expect(after.boardPieces.map((piece) => piece.uid)).toEqual(
+          before.boardPieces
+            .filter((piece) => piece.uid !== target.uid)
+            .map((piece) => piece.uid),
+        )
+        expectReplayMatches(after.boardPieces, after.boardHexes)
+      }
+    }
   })
 })
