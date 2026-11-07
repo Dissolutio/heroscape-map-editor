@@ -35,6 +35,14 @@ describe('action log formatting', () => {
       'Rotated 3 pieces (lead: 1-hex Grass)',
     ],
     [{ type: 'delete', pieceName: 'Water 1' }, 'Deleted Water 1'],
+    [
+      {
+        type: 'deselect',
+        pieceName: '7-hex Grass',
+        selectionLabel: '3 pieces',
+      },
+      'Cleared selection of 3 pieces (switched to 7-hex Grass)',
+    ],
     [{ type: 'convert', count: 2 }, 'Converted 2 pieces'],
     [{ type: 'convert', count: 1 }, 'Converted 1 piece'],
     [{ type: 'adapt', count: 2 }, 'Adapted map to collection (2 pieces)'],

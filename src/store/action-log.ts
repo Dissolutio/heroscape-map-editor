@@ -5,6 +5,7 @@ export type ActionLogKind =
   | 'move'
   | 'rotate'
   | 'delete'
+  | 'deselect'
   | 'convert'
   | 'adapt'
   | 'marker'
@@ -38,6 +39,11 @@ export type ActionLogAction = (
     }
   | { type: 'rotate'; pieceName: string; count: number }
   | { type: 'delete'; pieceName: string }
+  | {
+      type: 'deselect'
+      pieceName: string
+      selectionLabel: string
+    }
   | { type: 'convert'; count: number }
   | { type: 'adapt'; count: number }
   | {
@@ -92,6 +98,14 @@ export function formatActionLogAction(action: ActionLogAction) {
         text: `Deleted ${action.pieceName}`,
         pieceName: action.pieceName,
         undoable: true,
+      }
+    case 'deselect':
+      return {
+        kind: 'deselect' as const,
+        severity: 'info' as const,
+        text: `Cleared selection of ${action.selectionLabel} (switched to ${action.pieceName})`,
+        pieceName: action.pieceName,
+        undoable: false,
       }
     case 'convert':
       return {

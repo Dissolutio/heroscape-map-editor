@@ -194,3 +194,62 @@ test('disables selection recall links while their action row fades', async ({
   await recall.focus()
   await expect(recall).not.toBeFocused()
 })
+
+test('placement hotkeys rotate the preview and the action log restores selection', async ({
+  page,
+}) => {
+  const uid = await findPieceUid(page, {
+    inventoryID: 'g1',
+    q: 0,
+    r: 2,
+  })
+  await clickPiece(page, uid)
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual([uid])
+
+  await page.keyboard.press('g')
+  await expect.poll(async () => (await snapshot(page))?.penMode).toBe('g')
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual([])
+  const beforeRotation = await snapshot(page)
+  const pieceBefore = await page.evaluate(
+    (pieceUID) =>
+      window.__TEST__?.listPieces().find((piece) => piece.uid === pieceUID)
+        ?.rotation,
+    uid,
+  )
+
+  await page.keyboard.press('q')
+
+  await expect
+    .poll(async () =>
+      page.evaluate(
+        () => window.__TEST__?.snapshot().placementPreview?.rotation,
+      ),
+    )
+    .not.toBe(beforeRotation?.placementPreview?.rotation)
+  await expect
+    .poll(async () =>
+      page.evaluate(
+        (pieceUID) =>
+          window.__TEST__?.listPieces().find((piece) => piece.uid === pieceUID)
+            ?.rotation,
+        uid,
+      ),
+    )
+    .toBe(pieceBefore)
+
+  const recall = page.getByRole('button', {
+    name: 'Recall selection: 1 piece',
+  })
+  await expect(recall).toBeEnabled()
+  await page.mouse.move(0, 0)
+  await recall.click()
+
+  await expect.poll(async () => (await snapshot(page))?.penMode).toBe('select')
+  await expect
+    .poll(async () => (await snapshot(page))?.selectedPieceIDs)
+    .toEqual([uid])
+})

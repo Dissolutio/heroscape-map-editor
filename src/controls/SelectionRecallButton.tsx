@@ -6,6 +6,7 @@ import {
 } from '../data/selectionUnits'
 import { filterVisibleObjectiveMarkerUIDs } from '../data/objectiveMarkerVisibility'
 import useBoundStore from '../store/store'
+import { SELECT_PEN_MODE } from '../types'
 
 export const SELECTION_RECALL_TOOLTIP =
   'Click to select these pieces again (Shift-click adds to your selection). Pieces that are gone are skipped.'
@@ -19,12 +20,14 @@ export default function SelectionRecallButton({
   children,
   className,
   disabled = false,
+  switchToSelectMode = false,
 }: {
   selection: SelectionUnit
   label: string
   children: ReactNode
   className?: string
   disabled?: boolean
+  switchToSelectMode?: boolean
 }) {
   const boardPieces = useBoundStore((state) => state.boardPieces)
   const isShowStartZones = useBoundStore((state) => state.isShowStartZones)
@@ -37,6 +40,7 @@ export default function SelectionRecallButton({
   const selectSelectionUnit = useBoundStore(
     (state) => state.selectSelectionUnit,
   )
+  const togglePenMode = useBoundStore((state) => state.togglePenMode)
   const available = resolveSelectionUnit(
     selection,
     new Set(boardPieces.map((piece) => piece.uid)),
@@ -61,9 +65,10 @@ export default function SelectionRecallButton({
       aria-label={label}
       className={className}
       disabled={disabled || !available}
-      onClick={(event: MouseEvent<HTMLButtonElement>) =>
+      onClick={(event: MouseEvent<HTMLButtonElement>) => {
+        if (switchToSelectMode) togglePenMode(SELECT_PEN_MODE)
         selectSelectionUnit(selection, event.shiftKey)
-      }
+      }}
       title={SELECTION_RECALL_TOOLTIP}
       type="button"
     >

@@ -81,7 +81,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `world/models/marroHiveMaterial.test.ts` | Marro Hive texture selection across graphics tiers, load states, and a missing base-color map. |
 | `world/models/texturedModelMaterial.test.ts` | Shared textured-model selection across graphics tiers, load states, and a missing base-color map. |
 | `store/graphics-tier.test.ts` | Graphics-tier loading state, session-only fallback after failure, and stale request handling. |
-| `store/action-log.test.ts` | Action-log message formatting and the bounded ring buffer. |
+| `store/action-log.test.ts` | Action-log message formatting, non-undoable deselection rows, and the bounded ring buffer. |
 | `performance/performance.test.ts` | Detection of monotonically growing scene, GPU-resource, heap, subscriber, timer, and animation-frame metrics, plus typed-array accounting for geometry, instances, and texture data. |
 | `performance/performanceFlags.test.ts` | Performance-gated accounting of active Zustand store subscriptions, R3F-event isolation, and User Timing collection. |
 | `e2e-evidence.test.ts` | Keeps E2E writes to `docs/evidence/` inside the opt-in screenshot helper. |
@@ -97,7 +97,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `edge-piece-drag.test.ts` | Battlement, road-wall and rope-ladder drag targeting: all six resolved edges, rotation tie-breaks, single-piece edge snapping, group support-hex movement and edge preservation, group cache keys, rim and castle-top behavior, mixed rigid groups, altitude bounds, undo, same-edge no-op, and frozen-board immutability. |
 | `ladder-drag.test.ts` | Ladder dragging: moves the grabbed ladder and contiguous stack above it, preserves the lower part, supports mixed groups and ladder-on-ladder placement, and checks blocked targets, no-op drops, undo, and frozen-board previews. |
 | `drag-rotation.test.ts` | Mouse-wheel drag rotation: wheel normalization and throttling, ladder pointer sectors and hysteresis, grabbed-piece-pivot group transforms, grab-offset rotation, pointer-oriented wheel policy, and ladder-stack single application. |
-| `rotation-hotkey.test.ts` | Rotation hotkey target priority, selected-piece rotation and undo, and blocked group-rotation refusal. |
+| `rotation-hotkey.test.ts` | Rotation hotkey target priority by pen mode, selected-piece rotation and undo, and blocked group-rotation refusal. |
 | `piece-size-hotkeys.test.ts` | Obstacle variant ordering, labels, direct/cycling hotkeys, picking, and unchanged land size mappings. |
 | `laur-drag.test.ts` | Laur drag-to-move: characterizes boardPieces-only add-on placement/removal/movement, grid-backed pillar moves, and inventory IDs on moved stacked pieces. |
 | `storage-known-gaps.test.ts` | Legacy constraint restoration and protection against hotkey mount overwrites. |
@@ -112,7 +112,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `registry-lifecycle.test.ts` | Every registered piece through placement, exact delete restoration, drag and one-step undo, single and non-origin rotation, and JSON save/load; family-specific support is set up in one place and new registry entries are included automatically. |
 | `rotation-pivot.test.ts` | Transient clicked-hex pivot ownership, single- and group-selection click rules, marker visibility and altitude, preservation through repeated rotations, undo fallbacks, selection/movement/map/delete resets, and integer-step rotation eligibility. |
 | `store-move-many.test.ts` | Moving several pieces in one store update (`movePieces`, `data/movePieces.ts`): one undo step with exact undo/redo, a rigid group shift without the movers displacing each other, displacing and restoring stationary pieces exactly as `movePiece` does, the viewing level, unknown uids, a no-op that records no history, UI fields and autosave. A frozen copy of the old `movePiece` pins that single moves and non-interfering group moves are unchanged. |
-| `store-undo-redo.test.ts` | The real Zustand/Zundo store: paint, unpaint, move, terrain adaptation with atomic name/author/notes metadata, one-step undo and autosave persistence, `loadMap` history/conflicts, and transient UI state. |
+| `store-undo-redo.test.ts` | The real Zustand/Zundo store: paint, unpaint, move, placement-pen selection clearing and recall, terrain adaptation with atomic name/author/notes metadata, one-step undo and autosave persistence, `loadMap` history/conflicts, and transient UI state. |
 | `helpers/board.ts` | `makeTable`, `place`, `remove`, `withGrassFloor`, `hexAt`: build boards without the store. |
 | `helpers/clickHandler.ts` | `clickWithPen` and `clickWithSelection`: drive the real click handler in Node (the test stubs MapDisplay3D's children; see `click-placement.test.ts`). |
 

@@ -2,13 +2,17 @@ import { produce } from 'immer'
 import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import type { DragPreview } from '../data/dragMove'
-import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
-import { type LookSettings, sanitizeLookSettings } from '../data/lookSettings'
 import {
-  OBJECTIVE_MARKER_PEN_MODE,
-  type ObjectiveMarker,
-  type ObjectiveMarkerDraft,
+  getNewPieceSizeForPenMode,
+  getPieceIDForPenMode,
+} from '../data/flatPieceSizes'
+import { type LookSettings, sanitizeLookSettings } from '../data/lookSettings'
+import type {
+  ObjectiveMarker,
+  ObjectiveMarkerDraft,
 } from '../data/objectiveMarkers'
+import { isPlacementPenMode } from '../data/penMode'
+import { piecesSoFar } from '../data/pieces'
 import {
   type RotationPivot,
   createRotationPivot,
@@ -102,7 +106,7 @@ export interface UISlice {
 
   penMode: string
   pieceSize: number
-  togglePenMode: (mode: string) => void
+  togglePenMode: (mode: string, preferredSize?: number) => void
   penModeRotation: number
   togglePenModeRotation: (s: number) => void
   togglePieceSize: (s: number) => void
@@ -266,11 +270,6 @@ export interface UISlice {
 }
 
 const initialPenMode = SELECT_PEN_MODE
-const nonPaintingPenModes = new Set<string>([
-  SELECT_PEN_MODE,
-  PICK_PEN_MODE,
-  OBJECTIVE_MARKER_PEN_MODE,
-])
 let graphicsTierLoadGeneration = 0
 
 const createUISlice: StateCreator<
@@ -558,50 +557,48 @@ const createUISlice: StateCreator<
     }
   },
   penMode: initialPenMode,
-  toggleLastPenMode: () =>
-    set(
-      produce((state) => {
-        // if already using old pen mode, skip
-        if (
-          state.penMode === state.lastPenMode &&
-          state.lastPenSize === state.pieceSize
-        ) {
-          return
-        }
-        // we are selecting old pen mode
-        // recalculate piece sizes for old pen mode
-        const { newSize: _, newSizes } = getNewPieceSizeForPenMode(
-          state.lastPenMode,
-          state.penMode,
-          state.pieceSize,
-        )
-        state.penMode = state.lastPenMode
-        state.pieceSize = state.lastPenSize
-        state.flatPieceSizes = newSizes
-      }),
-    ),
-  togglePenMode: (mode: string) => {
+  toggleLastPenMode: () => {
+    const { penMode, lastPenMode, pieceSize, lastPenSize } = get()
+    if (penMode === lastPenMode && lastPenSize === pieceSize) return
+    get().togglePenMode(lastPenMode, lastPenSize)
+  },
+  togglePenMode: (mode: string, preferredSize?: number) => {
+    const current = get()
+    const entersPlacementMode =
+      !isPlacementPenMode(current.penMode) && isPlacementPenMode(mode)
+    const selection =
+      entersPlacementMode &&
+      (current.selectedPieceIDs.length > 0 ||
+        current.selectedObjectiveMarkerUID)
+        ? {
+            pieceUIDs: [...current.selectedPieceIDs],
+            ...(current.selectedObjectiveMarkerUID
+              ? { objectiveMarkerUID: current.selectedObjectiveMarkerUID }
+              : {}),
+          }
+        : null
+    const { newSize: calculatedSize, newSizes } = getNewPieceSizeForPenMode(
+      mode,
+      current.penMode,
+      current.pieceSize,
+    )
+    const newSize =
+      preferredSize !== undefined && newSizes.includes(preferredSize)
+        ? preferredSize
+        : calculatedSize
     set(
       produce((state) => {
         const startsPlacement =
           !shouldTrackHoveredWorldPoint(state.penMode) &&
           shouldTrackHoveredWorldPoint(mode)
         // when we switch terrains, we have different size options available and must update smartly
-        const { newSize, newSizes } = getNewPieceSizeForPenMode(
-          mode,
-          state.penMode,
-          state.pieceSize,
-        )
         // Keep the active painting mode and size available after a reload.
-        if (!nonPaintingPenModes.has(mode)) {
+        if (isPlacementPenMode(mode)) {
           state.lastPenMode = mode
           state.lastPenSize = newSize
         }
         // Preserve the painting mode when switching to a non-painting mode.
-        if (
-          nonPaintingPenModes.has(mode) &&
-          !nonPaintingPenModes.has(state.penMode)
-        ) {
+        if (!isPlacementPenMode(mode) && isPlacementPenMode(state.penMode)) {
           state.lastPenMode = state.penMode
           state.lastPenSize = state.pieceSize
         }
@@ -609,11 +606,32 @@ const createUISlice: StateCreator<
         state.penMode = mode
         state.pieceSize = newSize
         state.flatPieceSizes = newSizes
+        if (selection) {
+          state.selectedPieceIDs = []
+          state.selectedObjectiveMarkerUID = null
+          state.rotationPivot = null
+        }
         if (startsPlacement) {
           state.hoveredWorldPoint = getLastPointerWorldPoint()
         }
       }),
     )
+    if (selection) {
+      const pieceID = getPieceIDForPenMode(mode, newSize)
+      const pieceName = piecesSoFar[pieceID]?.title ?? pieceID
+      const selectedDescription =
+        selection.pieceUIDs.length > 0
+          ? `${selection.pieceUIDs.length} ${
+              selection.pieceUIDs.length === 1 ? 'piece' : 'pieces'
+            }${selection.objectiveMarkerUID ? ' and objective marker' : ''}`
+          : 'objective marker'
+      get().recordActionLog({
+        type: 'deselect',
+        selection,
+        selectionLabel: selectedDescription,
+        pieceName,
+      })
+    }
   },
   flatPieceSizes: getNewPieceSizeForPenMode(initialPenMode, 'select', 0)
     .newSizes,
@@ -622,7 +640,7 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.pieceSize = n
-        if (!nonPaintingPenModes.has(s.penMode)) {
+        if (isPlacementPenMode(s.penMode)) {
           s.lastPenSize = n
         }
       }),
