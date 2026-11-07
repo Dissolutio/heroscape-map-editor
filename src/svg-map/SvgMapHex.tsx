@@ -1,5 +1,4 @@
 import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
-import { getLadderStackInfo } from '../pdf-svg-shared/ladderStack'
 import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
