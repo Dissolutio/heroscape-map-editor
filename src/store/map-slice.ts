@@ -5,7 +5,6 @@ import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import { addPiece } from '../data/addPiece'
 import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
-import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { getUnsupportedLaurAddonUIDs } from '../data/laurAddonSupport'
 import { getPieceEdgeId } from '../data/hexGrid/pieceFeatures'
 import { type MovePieceArgs, applyPieceMoves } from '../data/movePieces'
@@ -18,7 +17,10 @@ import {
   objectiveMarkersOverlap,
 } from '../data/objectiveMarkers'
 import { piecesSoFar } from '../data/pieces'
-import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
+import {
+  computeConflictedPieceUIDs,
+  rebuildBoardStateFromPieces,
+} from '../data/rebuildBoardState'
 import { removePiece } from '../data/removePiece'
 import { reanchorRotationPivotAfterRotation } from '../data/rotationPivot'
 import {
@@ -276,85 +278,38 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
   },
   unpaintTile: (uid: string) => {
     const removedPiece = get().boardPieces.find((piece) => piece.uid === uid)
-    if (removedPiece) {
-      get().pushPendingUndoSelectionRestore({
-        pieceUIDs: [uid],
-        objectiveMarkerUID: null,
-      })
-    }
+    if (!removedPiece) return
+    get().pushPendingUndoSelectionRestore({
+      pieceUIDs: [uid],
+      objectiveMarkerUID: null,
+    })
     set((state) => {
       return produce(state, (draft) => {
         draft.rotationPivot = null
-        // 1. Remove the piece being deleted
-        let { newBoardHexes: workingHexes, newBoardPieces: workingPieces } =
-          removePiece({
-            uid,
-            boardHexes: draft.boardHexes,
-            boardPieces: draft.boardPieces,
-          })
-
-        const newConflicts = new Set<string>()
-
-        // 2. Restore hexes for previously-conflicted pieces (same as in movePiece)
-        for (const conflictedUID of draft.conflictedPieceUIDs) {
-          if (conflictedUID === uid) continue
-          const conflictedBP = workingPieces.find(
-            (bp) => bp.uid === conflictedUID,
-          )
-          if (!conflictedBP) continue
-          const conflictedPiece = piecesSoFar[conflictedBP.inventoryID]
-          if (!conflictedPiece) continue
-          // Remove from the pieces array (hexes are already absent/overwritten)
-          const removeResult = removePiece({
-            uid: conflictedUID,
-            boardHexes: workingHexes,
-            boardPieces: workingPieces,
-          })
-          // Re-add with fresh hexes
-          const addResult = addPiece({
-            piece: conflictedPiece,
-            boardHexes: removeResult.newBoardHexes,
-            boardPieces: removeResult.newBoardPieces,
-            pieceCoords: conflictedBP.pieceCoords,
-            placementAltitude: conflictedBP.altitude,
-            rotation: conflictedBP.rotation,
-            isVsTile: false,
-            uid: conflictedUID,
-            permissive: true,
-          })
-          workingHexes = addResult.newBoardHexes
-          workingPieces = addResult.newBoardPieces
-          // Track any residual conflicts among the restored pieces themselves
-          for (const duid of addResult.displacedUIDs ?? []) {
-            newConflicts.add(duid)
-          }
-          if (addResult.displacedUIDs?.length) newConflicts.add(conflictedUID)
-        }
-
-        draft.boardHexes = workingHexes
-        draft.boardPieces = workingPieces
+        const remainingPieces = draft.boardPieces.filter(
+          (piece) => piece.uid !== uid,
+        )
+        const rebuilt = rebuildBoardStateFromPieces(
+          remainingPieces,
+          draft.boardHexes,
+        )
+        draft.boardHexes = rebuilt.boardHexes
+        draft.boardPieces = rebuilt.boardPieces
         draft.savedSelections = pruneDeletedPiece(draft.savedSelections, uid)
-        draft.conflictedPieceUIDs = [
-          ...new Set([
-            ...newConflicts,
-            ...evaluateLaurAddonConflicts(workingPieces, workingHexes),
-          ]),
-        ]
+        draft.conflictedPieceUIDs = rebuilt.conflictedPieceUIDs
         draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
-          boardPieces: workingPieces,
+          boardPieces: rebuilt.boardPieces,
         })
       })
     })
     get().clearPendingUndoSelectionRestore()
-    if (removedPiece) {
-      get().recordActionLog({
-        type: 'delete',
-        pieceName:
-          piecesSoFar[removedPiece.inventoryID]?.title ??
-          removedPiece.inventoryID,
-        selection: { pieceUIDs: [uid] },
-      })
-    }
+    get().recordActionLog({
+      type: 'delete',
+      pieceName:
+        piecesSoFar[removedPiece.inventoryID]?.title ??
+        removedPiece.inventoryID,
+      selection: { pieceUIDs: [uid] },
+    })
   },
   convertTerrainForPieces: ({
     selectedUIDs,
@@ -402,6 +357,9 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         let workingHexes = draft.boardHexes
         let workingPieces = draft.boardPieces
         let occupancyChanged = false
+        const originalOrder = new Map(
+          workingPieces.map((piece, index) => [piece.uid, index]),
+        )
 
         for (const uid of selectedUIDs) {
           const boardPiece = workingPieces.find((bp) => bp.uid === uid)
@@ -461,8 +419,19 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
           }
         }
         if (occupancyChanged) {
-          draft.boardHexes = workingHexes
-          draft.conflictedPieceUIDs = computeConflictedPieceUIDs(workingPieces)
+          workingPieces.sort(
+            (a, b) =>
+              (originalOrder.get(a.uid) ?? Number.MAX_SAFE_INTEGER) -
+              (originalOrder.get(b.uid) ?? Number.MAX_SAFE_INTEGER),
+          )
+          const rebuilt = rebuildBoardStateFromPieces(
+            workingPieces,
+            draft.boardHexes,
+          )
+          workingPieces = rebuilt.boardPieces
+          draft.boardHexes = rebuilt.boardHexes
+          draft.boardPieces = rebuilt.boardPieces
+          draft.conflictedPieceUIDs = rebuilt.conflictedPieceUIDs
           draft.unsupportedPieceUIDs = getUnsupportedLaurAddonUIDs({
             boardPieces: workingPieces,
           })

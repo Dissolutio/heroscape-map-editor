@@ -412,6 +412,10 @@ function TestBridgeInner() {
           rotation: bp.rotation,
           pieceCoords: { ...bp.pieceCoords },
         })),
+      listPieceHexes: (uid) =>
+        Object.values(useBoundStore.getState().boardHexes)
+          .filter((hex) => hex.boardPieceUID === uid)
+          .map(({ q, r, altitude, terrain }) => ({ q, r, altitude, terrain })),
       listRenderedObjectiveMarkerUIDs: () => {
         const uids: string[] = []
         get().scene.traverse((object) => {

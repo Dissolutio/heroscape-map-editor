@@ -119,6 +119,9 @@ export type E2EPieceSummary = {
 export type E2ETestBridge = {
   snapshot: () => E2ESnapshot
   listPieces: () => E2EPieceSummary[]
+  listPieceHexes: (
+    uid: string,
+  ) => Array<{ q: number; r: number; altitude: number; terrain: string }>
   /** UIDs mounted in the 3D objective-marker layer. */
   listRenderedObjectiveMarkerUIDs: () => string[]
   /** The rendered objective-marker text's world quaternion, or null. */
