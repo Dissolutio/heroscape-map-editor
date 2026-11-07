@@ -6,10 +6,12 @@ import { PdfMapHex } from '../pdf-map/PdfMapHex'
 import { PieceKeyShape } from '../pdf-map/PdfPieceLegend'
 import type { PieceKeyEntry } from '../pdf-svg-shared/pieceKey'
 import { getPieceKeyModel } from '../pdf-svg-shared/pieceKey'
+import { getPieceKeyShapeLayout } from '../pdf-svg-shared/pieceKeyShapeLayout'
 import useBoundStore from '../store/store'
 import { SvgMapHex } from '../svg-map/SvgMapHex'
 import { SvgPieceKeyShape } from '../svg-map/SvgPieceKey'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
+import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import { svgColors } from '../world/maphex/hexColors'
 import { type Board, makeTable, place } from './helpers/board'
 
@@ -45,13 +47,30 @@ const collectShapeColors = (node: ReactNode): unknown[] => {
   ]
 }
 
+const collectTextContent = (node: ReactNode): string[] => {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return [String(node)]
+  }
+  if (Array.isArray(node)) return node.flatMap(collectTextContent)
+  if (!isValidElement(node)) return []
+
+  const { type, props } = node
+  if (typeof type === 'function') {
+    const renderComponent = type as (componentProps: typeof props) => ReactNode
+    return collectTextContent(renderComponent(props))
+  }
+  return collectTextContent(props.children)
+}
+
 describe('piece key shape rendering', () => {
-  it('renders a shape for every populated land-grid cell in both exports', () => {
+  it('renders populated land and ladder shapes inside their PDF cells', () => {
     let board: Board = makeTable(24)
     for (const [inventoryID, at] of [
       [Pieces.grass2, { q: 2, r: 2, s: -4 }],
       [Pieces.grass3, { q: 8, r: 8, s: -16 }],
       [Pieces.grass7, { q: 14, r: 14, s: -28 }],
+      [Pieces.ladder, { q: 4, r: 17, s: -21 }],
+      [Pieces.ropeLadder, { q: 17, r: 4, s: -21 }],
     ] as const) {
       board = place({
         board,
@@ -83,6 +102,51 @@ describe('piece key shape rendering', () => {
           }),
         ).length,
       ).toBeGreaterThan(0)
+    }
+
+    const ladderEntries = model.specialGroups.flatMap((group) =>
+      group.entries.filter(
+        ({ inventoryID }) =>
+          inventoryID === Pieces.ladder || inventoryID === Pieces.ropeLadder,
+      ),
+    )
+    expect(ladderEntries).toHaveLength(2)
+    for (const [index, entry] of ladderEntries.entries()) {
+      const svg = renderToStaticMarkup(
+        SvgPieceKeyShape(entry, 0, 0, 0.1, `special-${index}`),
+      )
+      expect(svg).toMatch(/<(polygon|path|rect)\b/)
+
+      const shape = PieceKeyShape({
+        entry,
+        useTerrainBorderColor: true,
+        scale: 0.075,
+      })
+      expect(collectShapeColors(shape).length).toBeGreaterThan(0)
+
+      const viewBox = (shape as { props: { viewBox: string } }).props.viewBox
+        .split(' ')
+        .map(Number)
+      const [viewX, viewY, viewWidth, viewHeight] = viewBox
+      const layout = getPieceKeyShapeLayout(entry)
+      const symbolBounds =
+        entry.inventoryID === Pieces.ropeLadder
+          ? {
+              minX: SVG_HEX_APOTHEM * 2 - SVG_HEX_RADIUS * 0.8,
+              maxX: SVG_HEX_APOTHEM * 2 + SVG_HEX_RADIUS * 0.8,
+              minY: -SVG_HEX_RADIUS * 0.8,
+              maxY: SVG_HEX_RADIUS * 0.8,
+            }
+          : {
+              minX: SVG_HEX_APOTHEM * 2 - SVG_HEX_RADIUS,
+              maxX: SVG_HEX_APOTHEM * 2,
+              minY: -SVG_HEX_RADIUS,
+              maxY: SVG_HEX_RADIUS,
+            }
+      expect(viewX).toBeCloseTo(layout.origin.x + symbolBounds.minX - 24)
+      expect(viewY).toBeCloseTo(layout.origin.y + symbolBounds.minY - 24)
+      expect(viewWidth).toBeCloseTo(symbolBounds.maxX - symbolBounds.minX + 48)
+      expect(viewHeight).toBeCloseTo(symbolBounds.maxY - symbolBounds.minY + 48)
     }
   })
 
@@ -129,7 +193,7 @@ describe('piece key shape rendering', () => {
     ).toBeGreaterThan(0)
   })
 
-  it('uses the official tree height in the SVG key without changing map data', () => {
+  it('uses the registered tree height in both keys and map data', () => {
     const board = place({
       board: makeTable(12),
       pieceID: Pieces.tree10,
@@ -148,7 +212,16 @@ describe('piece key shape rendering', () => {
       SvgPieceKeyShape(entry, 0, 0, 0.1, 'tree-key'),
     )
     expect(piecesSoFar[Pieces.tree10].height).toBe(9)
-    expect(svgKey).toContain('>10</text>')
+    expect(svgKey).toContain('>9</text>')
+    const pdfText = collectTextContent(
+      PieceKeyShape({
+        entry,
+        useTerrainBorderColor: true,
+        scale: 0.075,
+      }),
+    )
+    expect(pdfText).toContain('9')
+    expect(pdfText).not.toContain('10')
   })
 
   it('renders Laur wall key shapes with purple centers and pink borders', () => {

@@ -1,7 +1,13 @@
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { Pieces } from '../src/types'
 import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
-import { expect, mapUrl, test, waitForAppReady } from './fixtures'
+import {
+  expect,
+  mapUrl,
+  saveSvgEvidence,
+  test,
+  waitForAppReady,
+} from './fixtures'
 
 const pieceKeyURL = mapUrl({ ...FIXTURE_HEX_MAP, width: 12, length: 12 }, [
   ...FIXTURE_PIECE_IDS,
@@ -31,7 +37,9 @@ test('SVG downloads include the optional editable piece key', async ({
   await page.goto(pieceKeyURL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
-  await page.getByRole('button', { name: 'PDF', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
 
   const includeKey = page.getByRole('checkbox', {
     name: 'Include piece key in SVG and PDF',
@@ -41,7 +49,7 @@ test('SVG downloads include the optional editable piece key', async ({
   })
   await includeKey.check()
   await colorBorders.check()
-  await page.getByRole('button', { name: '2D', exact: true }).click()
+  await page.getByRole('button', { name: 'View 2D Map' }).click()
   const key = page.locator('[data-testid="svg-piece-key"]')
   await expect(key).toBeVisible()
   await expect(key.getByText('Grass', { exact: true })).toBeVisible()
@@ -49,9 +57,17 @@ test('SVG downloads include the optional editable piece key', async ({
   await expect(key.getByText('Rock', { exact: true })).toBeVisible()
   await expect(key.getByText('Water', { exact: true })).toBeVisible()
   await expect(key.getByText('Evergreen Trees', { exact: true })).toBeVisible()
-  await expect(
-    key.getByText('Pillars and Walls (Laur)', { exact: true }),
-  ).toBeVisible()
+  const laurTitle = await key
+    .locator('[data-testid="svg-piece-key-special-group"]')
+    .nth(2)
+    .locator('text')
+    .first()
+    .evaluate((element) => ({
+      text: element.textContent?.replace(/\s/g, ''),
+      lines: element.querySelectorAll('tspan').length,
+    }))
+  expect(laurTitle.text).toContain('PillarsandWalls(Laur)')
+  expect(laurTitle.lines).toBeGreaterThan(1)
   await expect(key.getByText('Ladders', { exact: true })).toBeVisible()
   await expect(key.getByText('Rope Ladders', { exact: true })).toBeVisible()
   await expect(key.getByText('Glyphs', { exact: true })).toBeVisible()
@@ -77,50 +93,68 @@ test('SVG downloads include the optional editable piece key', async ({
         }),
     )
   expect(missingLandShapes).toEqual([])
-  const saveKeyEvidence = async (name: string) => {
-    if (process.env.E2E_EVIDENCE !== '1') return
-    const png = await key.evaluate(async (element: SVGGraphicsElement) => {
-      const bounds = element.getBBox()
-      const scale = 2
-      const width = Math.ceil(bounds.width * scale)
-      const height = Math.ceil(bounds.height * scale)
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-      svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
-      svg.setAttribute('width', String(width))
-      svg.setAttribute('height', String(height))
-      svg.setAttribute(
-        'viewBox',
-        `${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}`,
-      )
-      svg.appendChild(element.cloneNode(true))
-      const blob = new Blob([new XMLSerializer().serializeToString(svg)], {
-        type: 'image/svg+xml',
+  const keyLayout = await key.evaluate((element) => {
+    const title = element.querySelector(
+      ':scope > text',
+    ) as SVGTextElement | null
+    const gridElement = element.querySelector(
+      '[data-testid="svg-piece-key-land-grid"]',
+    ) as SVGGElement | null
+    const grid = gridElement?.getBBox()
+    const groups = [
+      ...element.querySelectorAll(
+        '[data-testid="svg-piece-key-special-group"]',
+      ),
+    ]
+    const cards = groups.map(
+      (group) => group.querySelector(':scope > rect') as SVGRectElement | null,
+    )
+    const textOverflows = groups.flatMap((group, index) => {
+      const card = cards[index]?.getBBox()
+      if (!card) return [`missing-card-${index}`]
+      return [...group.querySelectorAll(':scope > text')].flatMap((text) => {
+        const bounds = (text as SVGTextElement).getBBox()
+        return bounds.x >= card.x &&
+          bounds.x + bounds.width <= card.x + card.width + 1
+          ? []
+          : [
+              `${text.textContent}: ${bounds.x}-${bounds.x + bounds.width} outside ${card.x}-${card.x + card.width}`,
+            ]
       })
-      const url = URL.createObjectURL(blob)
-      const image = new Image()
-      image.src = url
-      await image.decode()
-      URL.revokeObjectURL(url)
-      const canvas = document.createElement('canvas')
-      canvas.width = width
-      canvas.height = height
-      const context = canvas.getContext('2d')
-      if (!context) throw new Error('Unable to rasterize the SVG piece key')
-      context.fillStyle = 'white'
-      context.fillRect(0, 0, width, height)
-      context.drawImage(image, 0, 0, width, height)
-      return canvas.toDataURL('image/png').split(',')[1]
     })
-    await writeFile(`docs/evidence/${name}.png`, Buffer.from(png, 'base64'))
-  }
-  await saveKeyEvidence('svg-piece-key')
+    const lastCard = cards[cards.length - 1]?.getBBox()
+    return {
+      titleX: title?.getBBox().x,
+      gridX: grid?.x,
+      gridWidth: grid?.width,
+      firstCardX: cards[0]?.getBBox().x,
+      lastCardRight: lastCard ? lastCard.x + lastCard.width : undefined,
+      textOverflows,
+    }
+  })
+  expect(
+    Math.abs((keyLayout.titleX ?? 0) - (keyLayout.gridX ?? 0)),
+  ).toBeLessThan(3)
+  expect(
+    Math.abs((keyLayout.firstCardX ?? 0) - (keyLayout.gridX ?? 0)),
+  ).toBeLessThan(3)
+  expect(
+    Math.abs(
+      (keyLayout.lastCardRight ?? 0) -
+        ((keyLayout.gridX ?? 0) + (keyLayout.gridWidth ?? 0)),
+    ),
+  ).toBeLessThan(3)
+  expect(keyLayout.textOverflows).toEqual([])
+  await saveSvgEvidence(key, 'svg-piece-key')
 
   await page.locator('#simple-tab-3').click()
-  await page.getByRole('button', { name: 'PDF', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
   await colorBorders.uncheck()
-  await page.getByRole('button', { name: '2D', exact: true }).click()
+  await page.getByRole('button', { name: 'View 2D Map' }).click()
   await expect(key.getByText('dark borders').first()).toBeVisible()
-  await saveKeyEvidence('svg-piece-key-dark-borders')
+  await saveSvgEvidence(key, 'svg-piece-key-dark-borders')
 
   const downloadSvg = async () => {
     await page.locator('#simple-tab-1').click()
@@ -140,9 +174,11 @@ test('SVG downloads include the optional editable piece key', async ({
   expect(enabledSvg).toContain('<text')
 
   await page.locator('#simple-tab-3').click()
-  await page.getByRole('button', { name: 'PDF', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
   await includeKey.uncheck()
-  await page.getByRole('button', { name: '2D', exact: true }).click()
+  await page.getByRole('button', { name: 'View 2D Map' }).click()
   await expect(key).toHaveCount(0)
   const disabledSvg = await downloadSvg()
   expect(disabledSvg).not.toContain('data-testid="svg-piece-key"')
@@ -155,7 +191,9 @@ test('PDF downloads include the piece key with both border modes', async ({
   await page.goto(pieceKeyURL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
-  await page.getByRole('button', { name: 'PDF', exact: true }).click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
   await page
     .getByRole('checkbox', { name: 'Include piece key in SVG and PDF' })
     .check()

@@ -81,6 +81,7 @@ export const PdfMapBoardPiece = ({
           piece={piece}
           isSubLevel={isSubLevel}
           pieceRotation={pieceRotation}
+          isPieceKeyPreview={isPieceKeyPreview}
         />
       </G>
     )

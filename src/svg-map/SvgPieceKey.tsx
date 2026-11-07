@@ -146,7 +146,7 @@ const specialGroupRowHeight = (
     innerWidth,
     scale,
   )
-  let height = 68
+  let height = specialGroupHeader(group, innerWidth).height
   for (let offset = 0; offset < group.entries.length; offset += entriesPerRow) {
     const rowEntries = group.entries.slice(offset, offset + entriesPerRow)
     const shapeHeight = Math.max(
@@ -177,6 +177,36 @@ const groupRowHeights = (
     )
   }
   return heights
+}
+
+const wrapSvgText = (text: string, width: number, fontSize: number) => {
+  const maxCharacters = Math.max(1, Math.floor(width / (fontSize * 0.56)))
+  const lines: string[] = []
+  for (const word of text.split(/\s+/)) {
+    const currentLine = lines[lines.length - 1]
+    if (!currentLine || `${currentLine} ${word}`.length > maxCharacters) {
+      lines.push(word)
+    } else {
+      lines[lines.length - 1] = `${currentLine} ${word}`
+    }
+  }
+  return lines
+}
+
+const specialGroupHeader = (
+  group: PieceKeyModel['specialGroups'][number],
+  width: number,
+) => {
+  const titleLines = wrapSvgText(group.title, width, 24)
+  const descriptionLines = wrapSvgText(group.description, width, 15)
+  return {
+    titleLines,
+    descriptionLines,
+    height: Math.max(
+      68,
+      18 + titleLines.length * 26 + descriptionLines.length * 18,
+    ),
+  }
 }
 
 export const getSvgPieceKeyHeight = (model: PieceKeyModel, width: number) => {
@@ -444,25 +474,51 @@ const renderSpecialGroups = (
                   stroke="black"
                   strokeWidth={1}
                 />
-                <text
-                  x={cardX + 12}
-                  y={currentY + 26}
-                  fontFamily="Inter, Arial, sans-serif"
-                  fontSize={24}
-                  fontWeight="bold"
-                  fill="black"
-                >
-                  {group.title}
-                </text>
-                <text
-                  x={cardX + 12}
-                  y={currentY + 47}
-                  fontFamily="Inter, Arial, sans-serif"
-                  fontSize={15}
-                  fill="black"
-                >
-                  {group.description}
-                </text>
+                {(() => {
+                  const header = specialGroupHeader(group, cardWidth - 24)
+                  const titleY = currentY + 25
+                  const descriptionY =
+                    titleY + (header.titleLines.length - 1) * 26 + 20
+                  return (
+                    <>
+                      <text
+                        x={cardX + 12}
+                        y={titleY}
+                        fontFamily="Inter, Arial, sans-serif"
+                        fontSize={24}
+                        fontWeight="bold"
+                        fill="black"
+                      >
+                        {header.titleLines.map((line, index) => (
+                          <tspan
+                            key={`${group.id}-title-${index}`}
+                            x={cardX + 12}
+                            dy={index === 0 ? 0 : 26}
+                          >
+                            {line}
+                          </tspan>
+                        ))}
+                      </text>
+                      <text
+                        x={cardX + 12}
+                        y={descriptionY}
+                        fontFamily="Inter, Arial, sans-serif"
+                        fontSize={15}
+                        fill="black"
+                      >
+                        {header.descriptionLines.map((line, index) => (
+                          <tspan
+                            key={`${group.id}-description-${index}`}
+                            x={cardX + 12}
+                            dy={index === 0 ? 0 : 18}
+                          >
+                            {line}
+                          </tspan>
+                        ))}
+                      </text>
+                    </>
+                  )
+                })()}
                 {entryRows.map((entries, rowIndex) => {
                   const shapeHeight = Math.max(
                     0,
@@ -477,7 +533,7 @@ const renderSpecialGroups = (
                   const slotWidth = (cardWidth - 24) / entriesPerRow
                   const entryY =
                     currentY +
-                    68 +
+                    specialGroupHeader(group, cardWidth - 24).height +
                     entryRows
                       .slice(0, rowIndex)
                       .reduce((height, previousEntries) => {
@@ -553,10 +609,12 @@ export const SvgPieceKey = ({
 
   const { gridWidth, gridX, scale } = landGridDimensions(model, width)
   const landHeight = getLandTablesHeight(model, width)
+  const contentX = x + gridX
+  const contentWidth = gridWidth
   return (
     <g data-testid="svg-piece-key">
       <text
-        x={x}
+        x={contentX}
         y={y + 34}
         fontFamily="Inter, Arial, sans-serif"
         fontSize={34}
@@ -565,13 +623,19 @@ export const SvgPieceKey = ({
       >
         Piece Key
       </text>
-      {renderLandTables(model, x, y + 56, width, useTerrainBorderColor)}
+      {renderLandTables(
+        model,
+        contentX,
+        y + 56,
+        contentWidth,
+        useTerrainBorderColor,
+      )}
       {model.specialGroups.length > 0 &&
         renderSpecialGroups(
           model,
           y + 56 + landHeight,
-          x + gridX,
-          gridWidth,
+          contentX,
+          contentWidth,
           scale,
           useTerrainBorderColor,
         )}

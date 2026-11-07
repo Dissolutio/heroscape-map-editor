@@ -2,7 +2,6 @@ import { G, Line, Text } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
 import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
-import { getLadderStackInfo } from '../pdf-svg-shared/ladderStack'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   SHROUDSHROOM13_ORIGIN_LINE_COLOR,
@@ -11,7 +10,6 @@ import {
   getShroudshroom13OriginLine,
 } from '../pdf-svg-shared/shroudshroom13OriginLine'
 import {
-  getLadderStackTextPosition,
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
@@ -206,7 +204,6 @@ export const PdfMapHex = ({
   const isSubLevel = !isPieceKeyPreview && hex.altitude < viewingLevel
   const { inventoryID } = hex
   const exportSymbol = getPieceExportSymbol(inventoryID)
-  const boardPieces = useBoundStore.getState().boardPieces
   const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
   const isAuxiliaryNotRenderedIn2D =
     isObstaclePiece &&
@@ -215,10 +212,7 @@ export const PdfMapHex = ({
   const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const pieceHeightText =
-    isPieceKeyPreview && inventoryID === Pieces.tree10
-      ? 10
-      : piecesSoFar[inventoryID]?.height
+  const pieceHeightText = piecesSoFar[inventoryID]?.height
   const glyphSettings = useBoundStore.getState()
   const getHexGlyphExportOptions = (targetHex: BoardHex) =>
     getGlyphExportOptions(targetHex, glyphSettings.boardHexes, glyphSettings)
@@ -237,33 +231,15 @@ export const PdfMapHex = ({
   }
   // Ladder
   if (exportSymbol === 'ladder' && hex.isObstacleOrigin) {
-    const ladderPiece = boardPieces.find(
-      (piece) => piece.uid === hex.boardPieceUID,
-    )
-    const stack = ladderPiece
-      ? getLadderStackInfo(boardPieces, ladderPiece)
-      : null
-    const stackTextPosition = getLadderStackTextPosition(hex.pieceRotation ?? 0)
     return (
-      <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <G transform={`rotate(${pieceRotation})`}>
-          <PdfLadder hex={hex} isSubLevel={isSubLevel} />
-        </G>
-        {stack && stack.count >= 2 && stack.isBottom && (
-          <Text
-            fill="black"
-            style={{
-              fontSize: SVG_HEX_RADIUS * 0.28,
-              fontWeight: 'bold',
-            }}
-            textAnchor="middle"
-            dominantBaseline="central"
-            x={stackTextPosition.x}
-            y={stackTextPosition.y}
-          >
-            x{stack.count}
-          </Text>
-        )}
+      <G
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <PdfLadder
+          hex={hex}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </G>
     )
   }

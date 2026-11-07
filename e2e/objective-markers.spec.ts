@@ -1,11 +1,13 @@
 import {
-  expect,
-  mapUrl,
   OBJECTIVE_MARKERS_FIXTURE_HEX_MAP,
   OBJECTIVE_MARKERS_FIXTURE_PIECE_IDS,
+  expect,
+  mapUrl,
   test,
   waitForAppReady,
 } from './fixtures'
+
+const ANIMATION_FRAME_WAIT_TIMEOUT_MS = 15_000
 
 test('renders, selects, and excludes objective markers from shadows', async ({
   page,
@@ -44,39 +46,67 @@ test('renders, selects, and excludes objective markers from shadows', async ({
         .getAttribute('data-shadow-render-count'),
     )
   await page.evaluate(
-    () =>
-      new Promise<void>((resolve) => {
+    ({ timeoutMs }) =>
+      new Promise<void>((resolve, reject) => {
         const canvas = document.querySelector('canvas[data-engine]')
         const read = () => canvas?.getAttribute('data-shadow-render-count')
         let last = read()
         let stableSince = performance.now()
+        let frame = 0
+        const timeout = window.setTimeout(() => {
+          cancelAnimationFrame(frame)
+          reject(
+            new Error(
+              `Shadow render count did not stabilize within ${timeoutMs} ms`,
+            ),
+          )
+        }, timeoutMs)
         const next = () => {
           const current = read()
           if (current !== last) {
             last = current
             stableSince = performance.now()
           }
-          if (performance.now() - stableSince >= 5000) resolve()
-          else requestAnimationFrame(next)
+          if (performance.now() - stableSince >= 5000) {
+            window.clearTimeout(timeout)
+            resolve()
+          } else {
+            frame = requestAnimationFrame(next)
+          }
         }
-        requestAnimationFrame(next)
+        frame = requestAnimationFrame(next)
       }),
+    { timeoutMs: ANIMATION_FRAME_WAIT_TIMEOUT_MS },
   )
   const canvas = page.locator('canvas').first()
   const canvasBounds = await canvas.boundingBox()
   if (!canvasBounds) throw new Error('Canvas is not visible')
   const waitForRenderFrames = () =>
     page.evaluate(
-      () =>
-        new Promise<void>((resolve) => {
+      ({ frameCount, timeoutMs }) =>
+        new Promise<void>((resolve, reject) => {
           let frames = 0
+          let frame = 0
+          const timeout = window.setTimeout(() => {
+            cancelAnimationFrame(frame)
+            reject(
+              new Error(
+                `Expected ${frameCount} render frames within ${timeoutMs} ms`,
+              ),
+            )
+          }, timeoutMs)
           const next = () => {
             frames += 1
-            if (frames === 8) resolve()
-            else requestAnimationFrame(next)
+            if (frames === frameCount) {
+              window.clearTimeout(timeout)
+              resolve()
+            } else {
+              frame = requestAnimationFrame(next)
+            }
           }
-          requestAnimationFrame(next)
+          frame = requestAnimationFrame(next)
         }),
+      { frameCount: 8, timeoutMs: ANIMATION_FRAME_WAIT_TIMEOUT_MS },
     )
   const beforeIdle = await countShadowRenders()
   await canvas.click({ position: { x: 2, y: 2 } })

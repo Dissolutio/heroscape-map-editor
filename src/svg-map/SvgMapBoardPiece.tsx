@@ -76,6 +76,7 @@ export const SvgMapBoardPiece = ({
           piece={piece}
           isSubLevel={isSubLevel}
           pieceRotation={pieceRotation}
+          isPieceKeyPreview={isPieceKeyPreview}
         />
       </g>
     )

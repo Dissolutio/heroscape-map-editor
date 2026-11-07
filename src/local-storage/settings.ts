@@ -45,6 +45,7 @@ export type SettingsValues = {
   isShowPdfTileLetters: boolean
   isShowPdfBuriedMarks: boolean
   isShowPdfPieceLegend: boolean
+  isShowPdfLadderOverlay: boolean
   is2DOverlayLevelEnabled: boolean
   isShow2DExportLevelLogo: boolean
   isShow2DExportTileLetters: boolean
@@ -86,6 +87,7 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   isShowPdfTileLetters: false,
   isShowPdfBuriedMarks: false,
   isShowPdfPieceLegend: false,
+  isShowPdfLadderOverlay: false,
   is2DOverlayLevelEnabled: true,
   isShow2DExportLevelLogo: true,
   isShow2DExportTileLetters: true,
@@ -189,6 +191,7 @@ const validSettingValue = (
       'isShowPdfTileLetters',
       'isShowPdfBuriedMarks',
       'isShowPdfPieceLegend',
+      'isShowPdfLadderOverlay',
       'is2DOverlayLevelEnabled',
       'isShow2DExportLevelLogo',
       'isShow2DExportTileLetters',

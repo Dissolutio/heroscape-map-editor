@@ -1,6 +1,5 @@
 import { piecesSoFar } from '../data/pieces'
 import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
-import { getLadderStackInfo } from '../pdf-svg-shared/ladderStack'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   SHROUDSHROOM13_ORIGIN_LINE_COLOR,
@@ -9,7 +8,6 @@ import {
   getShroudshroom13OriginLine,
 } from '../pdf-svg-shared/shroudshroom13OriginLine'
 import {
-  getLadderStackTextPosition,
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
@@ -199,10 +197,7 @@ export const SvgMapHex = ({
   const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const pieceHeightText =
-    isPieceKeyPreview && inventoryID === Pieces.tree10
-      ? 10
-      : piecesSoFar[inventoryID]?.height
+  const pieceHeightText = piecesSoFar[inventoryID]?.height
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
@@ -218,31 +213,15 @@ export const SvgMapHex = ({
   }
   // Ladder
   if (exportSymbol === 'ladder' && hex.isObstacleOrigin) {
-    const ladderPiece = boardPieces.find(
-      (piece) => piece.uid === hex.boardPieceUID,
-    )
-    const stack = ladderPiece
-      ? getLadderStackInfo(boardPieces, ladderPiece)
-      : null
-    const stackTextPosition = getLadderStackTextPosition(hex.pieceRotation ?? 0)
     return (
-      <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <g transform={`rotate(${pieceRotation})`}>
-          <SvgLadder hex={hex} isSubLevel={isSubLevel} />
-        </g>
-        {stack && stack.count >= 2 && stack.isBottom && (
-          <text
-            fill="black"
-            fontSize={SVG_HEX_RADIUS * 0.28}
-            fontWeight="bold"
-            textAnchor="middle"
-            dominantBaseline="central"
-            x={stackTextPosition.x}
-            y={stackTextPosition.y}
-          >
-            x{stack.count}
-          </text>
-        )}
+      <g
+        transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
+      >
+        <SvgLadder
+          hex={hex}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </g>
     )
   }
