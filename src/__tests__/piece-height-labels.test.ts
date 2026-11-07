@@ -1,9 +1,9 @@
-import { Text } from '@react-pdf/renderer'
+import { G, Text } from '@react-pdf/renderer'
 import {
   Children,
+  Fragment,
   createElement,
   isValidElement,
-  type ReactElement,
   type ReactNode,
 } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -12,11 +12,29 @@ import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
 import { PdfMapHex } from '../pdf-map/PdfMapHex'
 import useBoundStore from '../store/store'
 import { SvgMapHex } from '../svg-map/SvgMapHex'
-import { type BoardHex, HexTerrain, Pieces } from '../types'
+import { type BoardHex, Pieces } from '../types'
 import type { BuriedMarksByUID } from '../utils/tileMarks'
 import { makeTable, place } from './helpers/board'
 
-type PdfTextProps = { children?: ReactNode }
+// These numbers are rules heights; glacier/outcrop numbers are hex counts and
+// ruin numbers are variants.
+const RULES_HEIGHT_PIECES = [
+  [Pieces.snowTree10, 10],
+  [Pieces.snowTree12, 12],
+  [Pieces.tree10, 10],
+  [Pieces.tree11, 11],
+  [Pieces.tree12, 12],
+  [Pieces.tree415, 15],
+  [Pieces.laurPalm13, 13],
+  [Pieces.laurPalm14, 14],
+  [Pieces.laurPalm15, 15],
+  [Pieces.palm14, 14],
+  [Pieces.palm15, 15],
+  [Pieces.palm16, 16],
+  [Pieces.shroudshroom7, 7],
+  [Pieces.shroudshroom10, 10],
+  [Pieces.shroudshroom13, 13],
+] as const
 
 const DEV_PHYSICAL_HEIGHTS = `
 a1:1,a2:1,a24:1,a3:1,a7:1,at1:1,at2:1,at24:1,at3:1,at7:1,bt:5,c1:1,c2:1,
@@ -35,7 +53,7 @@ ws3:0,ws6:0,ww1:0,x1:1,x3:1,xw1:0,y0:0,y1:0,z1:0,z2:0,z3:0,z4:0,z5:0,
 z6:0,z7:0,z8:0
 `.replace(/\s/g, '')
 
-const makeTreeHex = (inventoryID: string): BoardHex => ({
+const makePieceHex = (inventoryID: string): BoardHex => ({
   id: '0~0~0',
   q: 0,
   r: 0,
@@ -43,7 +61,7 @@ const makeTreeHex = (inventoryID: string): BoardHex => ({
   altitude: 0,
   pieceID: `0~0~0~0~${inventoryID}`,
   inventoryID,
-  terrain: HexTerrain.tree,
+  terrain: piecesSoFar[inventoryID].terrain,
   pieceRotation: 0,
   isObstacleOrigin: true,
 })
@@ -87,6 +105,22 @@ const renderPdfHex = (hex: BoardHex) =>
     useLegacyStartZones: false,
   })
 
+const getPdfText = (node: ReactNode): string[] =>
+  Children.toArray(node).flatMap((child) => {
+    if (!isValidElement(child)) return []
+    if (child.type === Text) {
+      return Children.toArray(child.props.children).map(String)
+    }
+    if (child.type === Fragment || child.type === G) {
+      return getPdfText(child.props.children)
+    }
+    if (typeof child.type === 'function') {
+      const renderComponent = child.type as (props: unknown) => ReactNode
+      return getPdfText(renderComponent(child.props))
+    }
+    return []
+  })
+
 afterEach(() => {
   useBoundStore.setState({
     boardHexes: initialState.boardHexes,
@@ -99,26 +133,37 @@ afterEach(() => {
   })
 })
 
+const PHYSICAL_LABEL_CASES: [string, string[]][] = [
+  [Pieces.glacier1, ['7']],
+  [Pieces.glacier3, ['5', '9', '7']],
+  [Pieces.glacier4, ['7', '11', '9', '11']],
+  [Pieces.glacier6, ['9', '17', '17', '9', '17', '17']],
+  [Pieces.outcrop1, ['7']],
+  [Pieces.outcrop3, ['5', '9', '7']],
+  [Pieces.lavaRockOutcrop1, ['7']],
+  [Pieces.lavaRockOutcrop3, ['5', '9', '7']],
+  [Pieces.toxicOutcrop1, ['7']],
+  [Pieces.toxicOutcrop3, ['5', '9', '7']],
+]
+
 describe('printed piece heights', () => {
   it('matches the dev physical-height snapshot', () => {
     const physicalHeights = Object.values(Pieces)
       .sort()
       .map(
-        (inventoryID) =>
-          `${inventoryID}:${piecesSoFar[inventoryID]?.height}`,
+        (inventoryID) => `${inventoryID}:${piecesSoFar[inventoryID]?.height}`,
       )
       .join(',')
 
     expect(physicalHeights).toBe(DEV_PHYSICAL_HEIGHTS)
   })
 
-  it('uses the parenthesized title number for every numbered piece', () => {
-    for (const piece of Object.values(piecesSoFar)) {
-      const match = piece.title.match(/\((\d+)\)/)
-      if (!match) continue
-      expect(getPieceGameHeight(piece.id), piece.id).toBe(Number(match[1]))
-    }
-  })
+  it.each(RULES_HEIGHT_PIECES)(
+    'uses the rules height for %s',
+    (pieceID, rulesHeight) => {
+      expect(getPieceGameHeight(pieceID)).toBe(rulesHeight)
+    },
+  )
 
   it.each([
     [Pieces.tree10, 9, 10],
@@ -136,55 +181,28 @@ describe('printed piece heights', () => {
   })
 
   it.each([
-    Pieces.laurWallShort,
-    Pieces.laurWallShortStackable,
-    Pieces.laurWallLong,
-    Pieces.laurWallLongStackable,
-    Pieces.laurWallArch,
-  ])('uses the rules height for %s without changing physical height', (id) => {
-    expect(piecesSoFar[id].height).toBe(12)
-    expect(getPieceGameHeight(id)).toBe(10)
-  })
-
-  it.each([
-    Pieces.laurWallRuin1,
-    Pieces.laurWallRuin2,
-    Pieces.laurWallRuin3,
-  ])('omits a game-height label for %s', (id) => {
-    expect(getPieceGameHeight(id)).toBeUndefined()
-  })
-
-  it.each([
     [Pieces.tree10, 10],
     [Pieces.tree12, 12],
   ])('renders %s game height in both SVG and PDF', (pieceID, gameHeight) => {
-    const hex = makeTreeHex(pieceID)
+    const hex = makePieceHex(pieceID)
     setExportState(hex)
 
     expect(renderSvgHex(hex)).toContain(`>${gameHeight}</text>`)
 
     const pdf = renderPdfHex(hex)
     if (!pdf) throw new Error('Expected PDF hex output')
-    const text = Children.toArray(pdf.props.children).filter(
-      (child): child is ReactElement<PdfTextProps> =>
-        isValidElement(child) && child.type === Text,
-    )
-    expect(text.map((element) => element.props.children)).toContain(gameHeight)
+    expect(getPdfText(pdf)).toContain(String(gameHeight))
   })
 
   it('prints tree10 as 10 while its placement blocks 9 levels', () => {
-    const hex = makeTreeHex(Pieces.tree10)
+    const hex = makePieceHex(Pieces.tree10)
     setExportState(hex)
 
     expect(renderSvgHex(hex)).toContain('>10</text>')
 
     const pdf = renderPdfHex(hex)
     if (!pdf) throw new Error('Expected PDF hex output')
-    const text = Children.toArray(pdf.props.children).filter(
-      (child): child is ReactElement<PdfTextProps> =>
-        isValidElement(child) && child.type === Text,
-    )
-    expect(text.map((element) => element.props.children)).toContain(10)
+    expect(getPdfText(pdf)).toContain('10')
 
     const table = makeTable()
     const result = place({
@@ -203,4 +221,21 @@ describe('printed piece heights', () => {
     )
     expect(occupiedLevels).toHaveLength(9)
   })
+
+  it.each(PHYSICAL_LABEL_CASES)(
+    'prints physical heights for %s',
+    (pieceID, physicalHeights) => {
+      const hex = makePieceHex(pieceID)
+      setExportState(hex)
+
+      const svgLabels = [
+        ...renderSvgHex(hex).matchAll(/<text\b[^>]*>(\d+)<\/text>/g),
+      ].map((match) => match[1])
+      expect(svgLabels).toEqual(expect.arrayContaining(physicalHeights))
+
+      const pdf = renderPdfHex(hex)
+      if (!pdf) throw new Error('Expected PDF hex output')
+      expect(getPdfText(pdf)).toEqual(expect.arrayContaining(physicalHeights))
+    },
+  )
 })

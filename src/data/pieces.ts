@@ -1123,7 +1123,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallShort,
     height: 12, // game height is 10
-    gameHeight: 10,
     pieceSizeFamily: 'laurWall',
     variantOrder: 4,
     variantLabel: 'Short Wall',
@@ -1137,7 +1136,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallShort,
     height: 12, // game height is 10, only adds 8 when stacked (male wall top is 3 hexes tall)
-    gameHeight: 10,
     pieceSizeFamily: 'laurWall',
     variantOrder: 5,
     variantLabel: 'Stackable Short Wall',
@@ -1151,7 +1149,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallLong,
     height: 12, // game height is 10
-    gameHeight: 10,
     pieceSizeFamily: 'laurWall',
     variantOrder: 6,
     variantLabel: 'Long Wall',
@@ -1165,7 +1162,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallLongStackable,
     height: 12, // game height is 10, only adds 8 when stacked (male wall/arch top is 3 hexes tall)
-    gameHeight: 10,
     pieceSizeFamily: 'laurWall',
     variantOrder: 7,
     variantLabel: 'Stackable Long Wall',
@@ -1179,7 +1175,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallArch,
     height: 12, // game height is 10, cannot stack on top of anything, can have laurWallLongStackable stacked on top (male arch top is 3 hexes tall)
-    gameHeight: 10,
     pieceSizeFamily: 'laurWall',
     variantOrder: 8,
     variantLabel: 'Wall Arch',
@@ -1193,7 +1188,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallRuin1,
     height: 8, // smallest ruin, no top part, game height is undefined (doesn't block adjacency), can stack
-    gameHeight: null,
     pieceSizeFamily: 'laurWall',
     variantOrder: 9,
     variantLabel: 'Wall Ruin',
@@ -1207,7 +1201,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallRuin2,
     height: 12, // game height is undefined (doesn't block adjacency), cannot stack
-    gameHeight: null,
     pieceSizeFamily: 'laurWall',
     variantOrder: 10,
     variantLabel: 'Wall Ruin (Style 2)',
@@ -1221,7 +1214,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: Pieces.laurWallRuin3,
     height: 12, // game height is undefined (doesn't block adjacency), cannot stack
-    gameHeight: null,
     pieceSizeFamily: 'laurWall',
     variantOrder: 11,
     variantLabel: 'Wall Ruin (Style 3)',
@@ -1236,7 +1228,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 8,
     template: Pieces.ruins2,
     height: 5, // these have a template done, but pending vertex data approach
-    gameHeight: 2,
     pieceSizeFamily: 'ruins',
     variantOrder: 1,
     variantLabel: 'Ruins (2)',
@@ -1250,7 +1241,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 10,
     template: Pieces.ruins3,
     height: 5, // these have a template done, but pending vertex data approach
-    gameHeight: 3,
     pieceSizeFamily: 'ruins',
     variantOrder: 2,
     variantLabel: 'Ruins (3)',
@@ -1595,7 +1585,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7, // eventhough it definitely spans 8 hex-heights in reality!
-    gameHeight: 1,
     pieceSizeFamily: 'glacier',
     variantOrder: 1,
     variantLabel: 'Glacier (1)',
@@ -1609,7 +1598,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9, // untested in reality (heights clockwise from origin: 5,9,7)
-    gameHeight: 3,
     pieceSizeFamily: 'glacier',
     variantOrder: 2,
     variantLabel: 'Glacier (3)',
@@ -1623,7 +1611,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 4,
     template: '4',
     height: 8, // untested in reality (heights clockwise from origin: 7,11,9,11)
-    gameHeight: 4,
     pieceSizeFamily: 'glacier',
     variantOrder: 3,
     variantLabel: 'Glacier (4)',
@@ -1637,7 +1624,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 6,
     template: '6',
     height: 17, // untested in reality (heights clockwise from origin: 17,17,9,17,17,9)
-    gameHeight: 6,
     pieceSizeFamily: 'glacier',
     variantOrder: 4,
     variantLabel: 'Glacier (6)',
@@ -1651,7 +1637,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7, // eventhough it definitely spans 8 hex-heights in reality!
-    gameHeight: 1,
     pieceSizeFamily: 'rockOutcrop',
     variantOrder: 1,
     variantLabel: 'Rock Outcrop (1)',
@@ -1665,7 +1650,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9, // untested in reality
-    gameHeight: 3,
     pieceSizeFamily: 'rockOutcrop',
     variantOrder: 2,
     variantLabel: 'Rock Outcrop (3)',
@@ -1679,7 +1663,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7, // eventhough it definitely spans 8 hex-heights in reality!
-    gameHeight: 1,
     pieceSizeFamily: 'lavaRockOutcrop',
     variantOrder: 1,
     variantLabel: 'Lava Rock Outcrop (1)',
@@ -1693,7 +1676,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9, // untested in reality
-    gameHeight: 3,
     pieceSizeFamily: 'lavaRockOutcrop',
     variantOrder: 2,
     variantLabel: 'Lava Rock Outcrop (3)',
@@ -1707,7 +1689,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 1,
     template: '1',
     height: 7,
-    gameHeight: 1,
     pieceSizeFamily: 'toxicOutcrop',
     variantOrder: 1,
     variantLabel: 'Toxic Outcrop (1)',
@@ -1721,7 +1702,6 @@ export const piecesSoFar: Dictionary<Piece> = {
     size: 3,
     template: '3',
     height: 9,
-    gameHeight: 3,
     pieceSizeFamily: 'toxicOutcrop',
     variantOrder: 2,
     variantLabel: 'Toxic Outcrop (3)',

@@ -589,7 +589,10 @@ export const PdfMapHex = ({
   // CASTLE WALLS
   if (isCastleTerrain(hex.terrain) && hex.isObstacleOrigin) {
     const { hideHeight } = getHexGlyphExportOptions(hex)
-    const heightText = !hideHeight && pieceHeightText > 0 ? pieceHeightText : ''
+    const heightText =
+      !hideHeight && pieceHeightText != null && pieceHeightText > 0
+        ? pieceHeightText
+        : ''
     //  Return Castle Corner
     if (
       hex.inventoryID === Pieces.castleBaseCorner ||

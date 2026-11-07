@@ -532,7 +532,10 @@ export const SvgMapHex = ({
       isTransparentGlyphSpaces,
       isHideHeightsOnGlyphs,
     })
-    const heightText = !hideHeight && pieceHeightText > 0 ? pieceHeightText : ''
+    const heightText =
+      !hideHeight && pieceHeightText != null && pieceHeightText > 0
+        ? pieceHeightText
+        : ''
     //  Return Castle Corner
     if (
       hex.inventoryID === Pieces.castleBaseCorner ||
