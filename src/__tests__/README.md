@@ -27,6 +27,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `export-border-color.test.ts` | Shared SVG/PDF border-color decisions for every terrain, SVG Asphalt markup, and rendered PDF output with outlines on/off, including sub-levels. |
 | `piece-key-model.test.ts` | Piece-key land terrain/size ordering, sparse cells, special-family groups and captions, counts, border-mode descriptions, and missing-description fallbacks. |
 | `piece-key-render.test.ts` | PDF map/key shape parity with both border modes and custom Generic colors, plus SVG map/key color parity. |
+| `cycleable-levels.test.ts` | Optional Legend viewing step after the overlay level. |
 | `pdf-sublevel-colors.test.ts` | SVG output snapshot for a stacked solid/liquid map and PDF sub-level color matching. |
 | `glyph-export-options.test.tsx` | Shared glyph-space classification, SVG/PDF transparent fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |
 | `ladder-stack-count.test.ts` | Ladder stack model: runs of consecutive ladder altitudes per edge (single run, two runs on one edge, different edges, rotation) and the number of PDF ladder overlay levels. |

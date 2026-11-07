@@ -49,7 +49,7 @@ type ClipperLibModule = {
     Execute: (solution: ClipperPath[], delta: number) => void
   }
   JoinType: { jtRound: number }
-  EndType: { etClosedPolygon: number }
+  EndType: { etClosedPolygon: number; etOpenRound: number }
 }
 
 let clipperLibPromise: Promise<ClipperLibModule | null> | null = null
@@ -154,16 +154,35 @@ const outlinePathDataCache = new Map<string, string>()
 async function getOutlinePathData(
   pathData: string,
   radius: number,
+  isOpen = false,
 ): Promise<string | null> {
-  const cacheKey = `${pathData}|${radius}`
+  const rings = pathDataToRings(pathData)
+  if (!rings.length) return null
+  const minX = Math.min(...rings.flatMap((ring) => ring.map(([x]) => x)))
+  const minY = Math.min(...rings.flatMap((ring) => ring.map(([, y]) => y)))
+  const normalizedRings = rings.map((ring) =>
+    ring.map(([x, y]) => [x - minX, y - minY] as [number, number]),
+  )
+  const normalizedPathData = normalizedRings
+    .map(
+      (ring) =>
+        `M${ring.map(([x, y]) => `${x} ${y}`).join('L')}${isOpen ? '' : 'Z'}`,
+    )
+    .join('')
+  const cacheKey = `${normalizedPathData}|${radius}|${isOpen}`
+  const translateToOriginal = (outline: string) =>
+    outline.replace(
+      /(-?\d*\.?\d+(?:e[-+]?\d+)?)\s+(-?\d*\.?\d+(?:e[-+]?\d+)?)/gi,
+      (_match, x: string, y: string) =>
+        `${Number(x) + minX} ${Number(y) + minY}`,
+    )
   const cached = outlinePathDataCache.get(cacheKey)
-  if (cached !== undefined) return cached
+  if (cached !== undefined) return translateToOriginal(cached)
 
   const ClipperLib = await getClipperLib()
   if (!ClipperLib) return null
 
-  const rings = pathDataToRings(pathData)
-  const clipperPaths: ClipperPath[] = rings.map((ring) =>
+  const clipperPaths: ClipperPath[] = normalizedRings.map((ring) =>
     ring.map(([x, y]) => ({
       X: Math.round(x * CLIPPER_SCALE),
       Y: Math.round(y * CLIPPER_SCALE),
@@ -174,7 +193,9 @@ async function getOutlinePathData(
   offset.AddPaths(
     clipperPaths,
     ClipperLib.JoinType.jtRound,
-    ClipperLib.EndType.etClosedPolygon,
+    isOpen
+      ? ClipperLib.EndType.etOpenRound
+      : ClipperLib.EndType.etClosedPolygon,
   )
   const solution: ClipperPath[] = []
   offset.Execute(solution, radius * CLIPPER_SCALE)
@@ -190,7 +211,129 @@ async function getOutlinePathData(
     .join('')
 
   outlinePathDataCache.set(cacheKey, outlinePathData)
-  return outlinePathData
+  return translateToOriginal(outlinePathData)
+}
+
+function getStrokedElementPath(element: Element): {
+  pathData: string
+  isOpen: boolean
+} | null {
+  const tag = element.tagName.toLowerCase()
+  if (tag === 'path') {
+    const pathData = element.getAttribute('d')
+    return pathData ? { pathData, isOpen: !/[zZ]\s*$/.test(pathData) } : null
+  }
+  if (tag === 'polygon' || tag === 'polyline') {
+    const points =
+      element
+        .getAttribute('points')
+        ?.trim()
+        .match(/-?\d*\.?\d+(?:e[-+]?\d+)?/gi)
+        ?.map(Number) ?? []
+    if (points.length < 4 || points.length % 2 !== 0) return null
+    const pathData = points
+      .reduce<string[]>((result, value, index) => {
+        if (index % 2 === 0) result.push(`${value}`)
+        else result[result.length - 1] += ` ${value}`
+        return result
+      }, [])
+      .join('L')
+    return {
+      pathData: `M${pathData}${tag === 'polygon' ? 'Z' : ''}`,
+      isOpen: tag === 'polyline',
+    }
+  }
+  if (tag === 'line') {
+    return {
+      pathData: `M${element.getAttribute('x1') ?? 0} ${element.getAttribute('y1') ?? 0}L${element.getAttribute('x2') ?? 0} ${element.getAttribute('y2') ?? 0}`,
+      isOpen: true,
+    }
+  }
+  if (tag === 'rect') {
+    const x = parseFirstNumericValue(element.getAttribute('x'), 0)
+    const y = parseFirstNumericValue(element.getAttribute('y'), 0)
+    const width = parseFirstNumericValue(element.getAttribute('width'), 0)
+    const height = parseFirstNumericValue(element.getAttribute('height'), 0)
+    if (!width || !height) return null
+    return {
+      pathData: `M${x} ${y}L${x + width} ${y}L${x + width} ${y + height}L${x} ${y + height}Z`,
+      isOpen: false,
+    }
+  }
+  if (tag === 'circle' || tag === 'ellipse') {
+    const cx = parseFirstNumericValue(element.getAttribute('cx'), 0)
+    const cy = parseFirstNumericValue(element.getAttribute('cy'), 0)
+    const rx = parseFirstNumericValue(
+      element.getAttribute(tag === 'circle' ? 'r' : 'rx'),
+      0,
+    )
+    const ry =
+      tag === 'circle'
+        ? rx
+        : parseFirstNumericValue(element.getAttribute('ry'), 0)
+    if (!rx || !ry) return null
+    const points = Array.from({ length: 32 }, (_, index) => {
+      const angle = (index / 32) * Math.PI * 2
+      return `${cx + Math.cos(angle) * rx} ${cy + Math.sin(angle) * ry}`
+    })
+    return { pathData: `M${points.join('L')}Z`, isOpen: false }
+  }
+  return null
+}
+
+async function replaceStrokesWithPaths(
+  sourceSvg: SVGSVGElement,
+  clonedSvg: SVGSVGElement,
+) {
+  const sourceNodes = Array.from(sourceSvg.querySelectorAll('*'))
+  const clonedNodes = Array.from(clonedSvg.querySelectorAll('*'))
+  for (
+    let i = 0;
+    i < Math.min(sourceNodes.length, clonedNodes.length);
+    i += 1
+  ) {
+    const sourceNode = sourceNodes[i]
+    const clonedNode = clonedNodes[i]
+    const stroke = sourceNode.getAttribute('stroke')
+    if (stroke && stroke !== 'none') {
+      const strokeWidth = parseFirstNumericValue(
+        sourceNode.getAttribute('stroke-width'),
+        1,
+      )
+      const shape = getStrokedElementPath(sourceNode)
+      const outerPathData =
+        shape && strokeWidth > 0
+          ? await getOutlinePathData(
+              shape.pathData,
+              strokeWidth / 2,
+              shape.isOpen,
+            )
+          : null
+      const innerPathData =
+        shape && !shape.isOpen && strokeWidth > 0
+          ? await getOutlinePathData(shape.pathData, -strokeWidth / 2)
+          : null
+      if (outerPathData) {
+        const pathNode = document.createElementNS(SVG_NS, 'path')
+        pathNode.setAttribute('d', `${outerPathData}${innerPathData ?? ''}`)
+        pathNode.setAttribute('fill', stroke)
+        if (innerPathData) pathNode.setAttribute('fill-rule', 'evenodd')
+        const opacity =
+          sourceNode.getAttribute('stroke-opacity') ??
+          sourceNode.getAttribute('opacity')
+        if (opacity && opacity !== '1')
+          pathNode.setAttribute('opacity', opacity)
+        const transform = clonedNode.getAttribute('transform')
+        if (transform) pathNode.setAttribute('transform', transform)
+        clonedNode.parentNode?.insertBefore(pathNode, clonedNode.nextSibling)
+      }
+    }
+    for (const attribute of Array.from(clonedNode.attributes)) {
+      if (attribute.name.toLowerCase().startsWith('stroke')) {
+        clonedNode.removeAttribute(attribute.name)
+      }
+    }
+  }
 }
 
 function parseFirstNumericValue(value: string | null, fallback: number) {
@@ -256,9 +399,6 @@ async function replaceTextNodesWithPaths(
   for (let i = 0; i < count; i += 1) {
     const sourceText = sourceTextNodes[i]
     const clonedText = clonedTextNodes[i]
-    if (sourceText.closest('[data-testid="svg-piece-key"]')) {
-      continue
-    }
     const textContent = sourceText.textContent ?? ''
 
     if (!textContent.trim()) {
@@ -490,11 +630,23 @@ export async function serializeSvgWithEmbeddedFont(
   const sourceSvg = svgElement
   const clonedSvg = sourceSvg.cloneNode(true) as SVGSVGElement
 
+  await replaceStrokesWithPaths(sourceSvg, clonedSvg)
   await replaceTextNodesWithPaths(sourceSvg, clonedSvg)
 
   if (levelLogoLevel !== undefined) {
     await prependLevelLogo(clonedSvg, levelLogoLevel)
   }
+
+  const viewBox = clonedSvg
+    .getAttribute('viewBox')
+    ?.trim()
+    .split(/[\s,]+/)
+    .map(Number)
+  if (viewBox?.length === 4 && viewBox.every(Number.isFinite)) {
+    clonedSvg.setAttribute('width', String(viewBox[2]))
+    clonedSvg.setAttribute('height', String(viewBox[3]))
+  }
+  clonedSvg.removeAttribute('style')
 
   if (!clonedSvg.getAttribute('xmlns')) {
     clonedSvg.setAttribute('xmlns', SVG_NS)
@@ -505,10 +657,16 @@ export async function serializeSvgWithEmbeddedFont(
 }
 
 export function downloadSvgString(filename: string, svgContent: string) {
-  const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' })
+  downloadBlob(
+    filename,
+    new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' }),
+  )
+}
+
+export function downloadBlob(filename: string, blob: Blob) {
   const link = document.createElement('a')
   link.download = filename
   link.href = URL.createObjectURL(blob)
   link.click()
-  URL.revokeObjectURL(link.href)
+  setTimeout(() => URL.revokeObjectURL(link.href), 0)
 }

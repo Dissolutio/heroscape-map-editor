@@ -85,8 +85,13 @@ const PIECE_KEY_METADATA: {
     [HexTerrain.sand]: { title: 'Sand', description: 'tan centers' },
     [HexTerrain.rock]: { title: 'Rock', description: 'gray centers' },
     [HexTerrain.swamp]: { title: 'Swamp', description: 'green centers' },
+    [HexTerrain.swampWater]: {
+      title: 'Swamp Water',
+      description: 'blue-green centers',
+    },
     [HexTerrain.dungeon]: { title: 'Dungeon', description: 'gray centers' },
     [HexTerrain.concrete]: { title: 'Concrete', description: 'gray centers' },
+    [HexTerrain.ice]: { title: 'Ice', description: 'white centers' },
     [HexTerrain.asphalt]: { title: 'Asphalt', description: 'black centers' },
     [HexTerrain.lavaField]: {
       title: 'Lava Field',
@@ -113,6 +118,12 @@ const PIECE_KEY_METADATA: {
     1: 'red borders',
   },
   groups: [
+    {
+      id: 'roads-and-wall-walks',
+      title: 'Roads and Wall Walks',
+      description: 'gray centers',
+      terrains: [HexTerrain.road, HexTerrain.wallWalk],
+    },
     {
       id: 'water',
       title: 'Water',
@@ -314,11 +325,28 @@ export const getPieceKeyModel = (
   }
 
   const allEntries = [...entries.values()]
+  const isLandEntry = (entry: PieceKeyEntry) =>
+    piecesSoFar[entry.inventoryID]?.landPrefix &&
+    entry.terrain !== HexTerrain.wood
+  const roadsAndWallWalks = allEntries.filter(
+    (entry) =>
+      isLandEntry(entry) &&
+      [HexTerrain.road, HexTerrain.wallWalk].includes(
+        entry.terrain as HexTerrain,
+      ),
+  )
   const landEntries = allEntries.filter(
     (entry) =>
-      piecesSoFar[entry.inventoryID]?.landPrefix &&
+      isLandEntry(entry) &&
       isSolidTerrainHex(entry.terrain) &&
-      entry.terrain !== HexTerrain.wood,
+      !roadsAndWallWalks.includes(entry) &&
+      [24, 7, 3, 2, 1].includes(piecesSoFar[entry.inventoryID].size),
+  )
+  const nonstandardLandEntries = allEntries.filter(
+    (entry) =>
+      isLandEntry(entry) &&
+      !roadsAndWallWalks.includes(entry) &&
+      ![24, 7, 3, 2, 1].includes(piecesSoFar[entry.inventoryID].size),
   )
   const availableTerrains = new Set(landEntries.map((entry) => entry.terrain))
   const terrains = [
@@ -334,9 +362,9 @@ export const getPieceKeyModel = (
       )
       .sort(),
   ]
-  const sizes = [
-    ...new Set(landEntries.map((entry) => piecesSoFar[entry.inventoryID].size)),
-  ].sort((a, b) => b - a)
+  const sizes = [24, 7, 3, 2, 1].filter((size) =>
+    landEntries.some((entry) => piecesSoFar[entry.inventoryID].size === size),
+  )
   const landRows = sizes.map((size) => ({
     size,
     title: `${size} space`,
@@ -363,15 +391,44 @@ export const getPieceKeyModel = (
   })
 
   const landIDs = new Set(landEntries.map((entry) => entry.inventoryID))
+  const specialLandGroups = new Map<string, PieceKeyGroupMetadata>()
+  for (const entry of nonstandardLandEntries) {
+    const terrain = entry.terrain
+    const metadata = PIECE_KEY_METADATA.terrains[terrain]
+    const id = `special-land-${terrain}`
+    specialLandGroups.set(id, {
+      id,
+      title: metadata?.title ?? entry.title,
+      description: `${metadata?.description ?? entry.title}; special tile`,
+      terrains: [terrain],
+    })
+  }
+  const roadsAndWallWalkIDs = new Set(
+    roadsAndWallWalks.map((entry) => entry.inventoryID),
+  )
   const grouped = new Map<string, PieceKeyEntry[]>()
+  for (const entry of nonstandardLandEntries) {
+    const id = `special-land-${entry.terrain}`
+    grouped.set(id, [...(grouped.get(id) ?? []), entry])
+  }
   for (const entry of allEntries) {
-    if (landIDs.has(entry.inventoryID)) continue
-    const id = specialGroupID(entry.inventoryID, piecesSoFar[entry.inventoryID])
+    if (
+      landIDs.has(entry.inventoryID) ||
+      nonstandardLandEntries.includes(entry)
+    ) {
+      continue
+    }
+    const id = roadsAndWallWalkIDs.has(entry.inventoryID)
+      ? 'roads-and-wall-walks'
+      : specialGroupID(entry.inventoryID, piecesSoFar[entry.inventoryID])
     const members = grouped.get(id) ?? []
     members.push(entry)
     grouped.set(id, members)
   }
-  const specialGroups = PIECE_KEY_METADATA.groups.flatMap((group) => {
+  const specialGroups = [
+    ...PIECE_KEY_METADATA.groups,
+    ...specialLandGroups.values(),
+  ].flatMap((group) => {
     const members = grouped.get(group.id)
     return members?.length
       ? [

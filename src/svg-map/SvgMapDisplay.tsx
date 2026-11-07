@@ -25,12 +25,24 @@ import {
   SvgObjectiveMarkerLegend,
   SvgObjectiveMarkerOverlay,
 } from './SvgObjectiveMarkerOverlay'
-import { SvgPieceKey, getSvgPieceKeyHeight } from './SvgPieceKey'
+import {
+  SvgPieceKey,
+  getSvgPieceKeyHeight,
+  getSvgPieceKeyWidth,
+} from './SvgPieceKey'
 
 const adjustXForNew00Centers = -1 * SVG_HEX_APOTHEM
 const adjustYForNew00Centers = -1 * SVG_HEX_RADIUS
 
-const SvgMapDisplay = () => {
+const SvgMapDisplay = ({
+  legendOnly = false,
+  viewingLevelOverride,
+  overlayEnabledOverride,
+}: {
+  legendOnly?: boolean
+  viewingLevelOverride?: number
+  overlayEnabledOverride?: boolean
+}) => {
   const boardHexes = useBoundStore((state) => state.boardHexes)
   const boardPieces = useBoundStore((s) => {
     return s.boardPieces
@@ -43,10 +55,10 @@ const SvgMapDisplay = () => {
     [boardHexes, boardPieces],
   )
   const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const is2DOverlayLevelEnabled = useBoundStore(
-    (s) => s.is2DOverlayLevelEnabled,
-  )
+  const storeViewingLevel = useBoundStore((s) => s.viewingLevel)
+  const viewingLevel = viewingLevelOverride ?? storeViewingLevel
+  const storeOverlayEnabled = useBoundStore((s) => s.is2DOverlayLevelEnabled)
+  const is2DOverlayLevelEnabled = overlayEnabledOverride ?? storeOverlayEnabled
   const isShowPieceKey = useBoundStore((s) => s.isShowPdfPieceLegend)
   const useTerrainBorderColor = useBoundStore((s) => s.isPdfColorBorders)
   const decodedBoardPiecesArr = boardPieces
@@ -91,19 +103,24 @@ const SvgMapDisplay = () => {
     keyFontSize,
     objectiveLegendRowHeight,
   )
-  const pieceKeyHeight = isShowPieceKey
-    ? getSvgPieceKeyHeight(
-        getPieceKeyModel(boardPieces, boardHexes, useTerrainBorderColor),
-        viewBox.width,
-      )
-    : 0
-  const viewboxStr = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height + keyFooterHeight + pieceKeyHeight}`
+  const pieceKeyModel = getPieceKeyModel(
+    boardPieces,
+    boardHexes,
+    useTerrainBorderColor,
+  )
+  const isLegendOnly =
+    legendOnly || (isShowPieceKey && viewingLevel === overlayLevel + 1)
+  const shouldRenderPieceKey = isShowPieceKey || legendOnly
+  const legendWidth = getSvgPieceKeyWidth(pieceKeyModel, mapDimensions.width)
+  const legendHeight = getSvgPieceKeyHeight(pieceKeyModel, mapDimensions.width)
+  const viewboxStr = isLegendOnly
+    ? `0 0 ${legendWidth} ${legendHeight}`
+    : `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height + keyFooterHeight}`
   const objectiveLegendY = viewBox.y + viewBox.height + keyFontSize * 1.1
   const buriedMarksY =
     objectiveLegendHeight > 0
       ? objectiveLegendY + objectiveLegendHeight + keyFontSize
       : viewBox.y + viewBox.height + keyFontSize * 1.1
-  const pieceKeyY = viewBox.y + viewBox.height + keyFooterHeight + 8
   // const isPointerDown = useRef(false)
 
   // Effect to update the viewBox when map dimensions change
@@ -126,71 +143,74 @@ const SvgMapDisplay = () => {
       // ref={svgRef}
       viewBox={viewboxStr}
       style={{
-        // height: '99%',
-        maxHeight: '99%',
-        width: '100%',
+        maxHeight: isLegendOnly ? 'none' : '99%',
+        width: isLegendOnly
+          ? `${(legendWidth / mapDimensions.width) * 100}%`
+          : '100%',
         overflow: 'auto',
       }}
     >
-      <title>2D Map Display</title>
+      <title>{isLegendOnly ? '2D Map Legend' : '2D Map Display'}</title>
 
-      {/* <AxesHelper width={viewBox.width} length={viewBox.height} /> */}
-      <g>
-        {boardHexesArr.map((hex) => (
-          <SvgMapHex
-            key={hex.id}
-            hex={hex}
-            buriedMarksByUID={buriedMarksByUID}
-          />
-        ))}
-        {decodedBoardPiecesArr
-          .filter((bp) => {
-            // when overlay mode is enabled, hide glyph/startzone/objective-like pieces
-            if (is2DOverlayLevelEnabled) {
-              if (piecesSoFar[bp.inventoryID]?.isOverlayPiece) {
-                return viewingLevel === overlayLevel
-              }
-              return bp.altitude <= viewingLevel
-            }
-            return bp.altitude <= viewingLevel
-          })
-          .sort((a, b) => a.altitude - b.altitude)
-          .map((bp) => (
-            <SvgMapBoardPiece
-              key={bp.boardPieceID}
-              piece={bp}
-              viewingLevel={viewingLevel}
-              overlayLevel={overlayLevel}
-            />
-          ))}
-        <SvgObjectiveMarkerOverlay markers={visibleObjectiveMarkers} />
-        <SvgObjectiveMarkerLegend
-          markers={namedObjectiveMarkers}
-          x={viewBox.x + 0.1}
-          y={objectiveLegendY}
-          fontSize={keyFontSize}
-          rowHeight={objectiveLegendRowHeight}
-        />
-        {hasVisibleBuriedMarks && (
-          <text
-            x={viewBox.x + 0.1}
-            y={buriedMarksY}
-            fill="#000000"
-            fontSize={keyFontSize}
-          >
-            {BURIED_MARKS_KEY}
-          </text>
-        )}
-        {isShowPieceKey && (
+      {isLegendOnly ? (
+        shouldRenderPieceKey && (
           <SvgPieceKey
             boardPieces={boardPieces}
             boardHexes={boardHexes}
-            x={viewBox.x}
-            y={pieceKeyY}
-            width={viewBox.width}
+            x={0}
+            y={0}
+            width={legendWidth}
           />
-        )}
-      </g>
+        )
+      ) : (
+        <g>
+          {boardHexesArr.map((hex) => (
+            <SvgMapHex
+              key={hex.id}
+              hex={hex}
+              buriedMarksByUID={buriedMarksByUID}
+            />
+          ))}
+          {decodedBoardPiecesArr
+            .filter((bp) => {
+              // when overlay mode is enabled, hide glyph/startzone/objective-like pieces
+              if (is2DOverlayLevelEnabled) {
+                if (piecesSoFar[bp.inventoryID]?.isOverlayPiece) {
+                  return viewingLevel === overlayLevel
+                }
+                return bp.altitude <= viewingLevel
+              }
+              return bp.altitude <= viewingLevel
+            })
+            .sort((a, b) => a.altitude - b.altitude)
+            .map((bp) => (
+              <SvgMapBoardPiece
+                key={bp.boardPieceID}
+                piece={bp}
+                viewingLevel={viewingLevel}
+                overlayLevel={overlayLevel}
+              />
+            ))}
+          <SvgObjectiveMarkerOverlay markers={visibleObjectiveMarkers} />
+          <SvgObjectiveMarkerLegend
+            markers={namedObjectiveMarkers}
+            x={viewBox.x + 0.1}
+            y={objectiveLegendY}
+            fontSize={keyFontSize}
+            rowHeight={objectiveLegendRowHeight}
+          />
+          {hasVisibleBuriedMarks && (
+            <text
+              x={viewBox.x + 0.1}
+              y={buriedMarksY}
+              fill="#000000"
+              fontSize={keyFontSize}
+            >
+              {BURIED_MARKS_KEY}
+            </text>
+          )}
+        </g>
+      )}
     </svg>
   )
 }

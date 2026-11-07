@@ -68,6 +68,39 @@ describe('piece key model', () => {
     ])
   })
 
+  it('keeps only standard land sizes in rows and groups special land pieces', () => {
+    const model = getPieceKeyModel(
+      [
+        makePiece(Pieces.grass1, 0),
+        makePiece(Pieces.grass2, 1),
+        makePiece(Pieces.grass3, 2),
+        makePiece(Pieces.grass7, 3),
+        makePiece(Pieces.grass24, 4),
+        makePiece(Pieces.concrete6, 5),
+        makePiece(Pieces.ice4, 6),
+        makePiece(Pieces.road5, 7),
+        makePiece(Pieces.wallWalk7, 8),
+        makePiece(Pieces.swampWater6, 9),
+      ],
+      {},
+      true,
+    )
+
+    expect(model.landRows.map(({ size }) => size)).toEqual([24, 7, 3, 2, 1])
+    expect(model.specialGroups.map(({ id }) => id)).toEqual([
+      'roads-and-wall-walks',
+      'special-land-concrete',
+      'special-land-ice',
+      'special-land-swampWater',
+    ])
+    expect(
+      model.specialGroups[0].entries.map(({ inventoryID }) => inventoryID),
+    ).toEqual([Pieces.road5, Pieces.wallWalk7])
+    expect(
+      model.specialGroups.slice(1).map(({ entries }) => entries[0].inventoryID),
+    ).toEqual([Pieces.concrete6, Pieces.ice4, Pieces.swampWater6])
+  })
+
   it('updates Special Tiles descriptions when border colors are disabled', () => {
     const colorBorders = getPieceKeyModel(
       [makePiece(Pieces.wood2, 0)],

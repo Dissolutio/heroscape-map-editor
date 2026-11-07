@@ -150,6 +150,51 @@ describe('piece key shape rendering', () => {
     }
   })
 
+  it('renders a one-space SVG key shape at the map scale', () => {
+    const piece: BoardPiece = {
+      uid: 'key-grass-1',
+      inventoryID: Pieces.grass1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 0, r: 0, s: 0 },
+    }
+    const entry = getPieceKeyModel([piece], {}, true).landColumns[0].cells[0]
+      .entry
+    const keySvg = renderToStaticMarkup(
+      SvgPieceKeyShape(entry, 0, 0, 1, 'map-scale'),
+    )
+    const mapSvg = renderToStaticMarkup(
+      createElement(SvgMapHex, {
+        hex: entry.hexes[0],
+        buriedMarksByUID: new Map(),
+        isPieceKeyPreview: true,
+      }),
+    )
+    const mapPolygon = mapSvg.match(/<polygon[^>]*points="([^"]+)"/)
+    const keyPolygon = keySvg.match(/<polygon[^>]*points="([^"]+)"/)
+    const bounds = (points: string | undefined) => {
+      const coordinates =
+        points
+          ?.trim()
+          .split(/[\s,]+/)
+          .map(Number) ?? []
+      const xs = coordinates.filter((_, index) => index % 2 === 0)
+      const ys = coordinates.filter((_, index) => index % 2 === 1)
+      return [
+        Math.min(...xs),
+        Math.min(...ys),
+        Math.max(...xs),
+        Math.max(...ys),
+      ]
+    }
+
+    expect(keySvg).toContain('scale(1)')
+    expect(mapPolygon?.[1]).toBeDefined()
+    expect(keyPolygon?.[1]).toBeDefined()
+    expect(bounds(keyPolygon?.[1])).toEqual(bounds(mapPolygon?.[1]))
+    expect(getPieceKeyShapeLayout(entry).width).toBeCloseTo(SVG_HEX_RADIUS * 2)
+  })
+
   it('reconstructs the full land tile when its origin hex is missing', () => {
     const piece: BoardPiece = {
       uid: 'key-grass-2',
