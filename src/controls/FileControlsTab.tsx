@@ -5,6 +5,7 @@ import { FaDiscord, FaSlack } from 'react-icons/fa'
 import { FcAddImage, FcDownload, FcLink, FcUpload } from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore, MdFolderZip } from 'react-icons/md'
 import { getUrlMapString } from '../data/jsonCrush'
+import { piecesSoFar } from '../data/pieces'
 import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
 import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
 import { LoadMapButtons } from '../layout/LoadMapButtons'
@@ -12,9 +13,15 @@ import { DIALOGS } from '../layout/dialogNames'
 import { isDesktop } from '../platform'
 import useBoundStore from '../store/store'
 import {
+  downloadBlob,
   downloadSvgString,
   serializeSvgWithEmbeddedFont,
 } from '../svg-map/exportSvg'
+import {
+  combineSvgExportPages,
+  renderSvgExportPage,
+  zipSvgExportPages,
+} from '../svg-map/renderSvgExport'
 import { getCycleableLevels, getOverlayLevel } from '../utils/map-utils'
 import { ControlTabsListItemButton } from './ControlTabsListItemButton'
 
@@ -64,77 +71,134 @@ export const FileControlsTab = ({
     // we place the overlay level as one whole level above the last piece
     const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
     const isOverlayLevel = viewingLevel === overlayLevel
+    const isLegendLevel =
+      useBoundStore.getState().isShowPdfPieceLegend &&
+      viewingLevel === overlayLevel + 1
     if (svgElement instanceof SVGSVGElement) {
       const svgContent = await serializeSvgWithEmbeddedFont(
         svgElement,
-        isShow2DExportLevelLogo ? viewingLevel : undefined,
+        isShow2DExportLevelLogo && !isLegendLevel && !isOverlayLevel
+          ? viewingLevel
+          : undefined,
       )
       downloadSvgString(
-        `${hexMap.name}-level-${isOverlayLevel ? 'overlay' : viewingLevel}.svg`,
+        isLegendLevel
+          ? `${hexMap.name}-legend.svg`
+          : `${hexMap.name}-level-${isOverlayLevel ? 'overlay' : viewingLevel}.svg`,
         svgContent,
       )
     }
   }
-  const [isDownloadingAll, setIsDownloadingAll] = React.useState(false)
-
-  const toggleViewingLevel = useBoundStore((s) => s.toggleViewingLevel)
-  const toggleIs2DOverlayLevelEnabled = useBoundStore(
-    (s) => s.toggleIs2DOverlayLevelEnabled,
+  const [isExportingSvg, setIsExportingSvg] = React.useState(false)
+  const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
+  const hasOverlayContent =
+    boardPieces.some(
+      (piece) => piecesSoFar[piece.inventoryID]?.isOverlayPiece,
+    ) || (hexMap.objectiveMarkers?.length ?? 0) > 0
+  const levelsToExport = getCycleableLevels(boardPieces, boardHexes).filter(
+    (level) => level >= 1 && level < overlayLevel,
   )
-
-  const sleep = (ms: number) =>
-    new Promise((resolve) => {
-      setTimeout(resolve, ms)
+  const sanitizedMapName = [...hexMap.name.trim()]
+    .map((character) => {
+      const code = character.charCodeAt(0)
+      return /[\\/:*?"<>|]/.test(character) || code < 32 ? '-' : character
     })
-
-  const handleDownloadAll2DSvgs = async () => {
-    if (!hexMap) return
-    setIsDownloadingAll(true)
-    // we place the overlay level as one whole level above the last piece
-    const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
-    // whole levels, any half-levels that actually have fluid-on-fluid content, plus overlay
-    const levelsToExport = getCycleableLevels(boardPieces, boardHexes).filter(
-      (level) => level >= 1,
-    )
-
-    // save current state to restore later
-    const prevViewingLevel = viewingLevel
-    const prevOverlayEnabled = useBoundStore.getState().is2DOverlayLevelEnabled
-
+    .join('')
+  const mapFolderName =
+    sanitizedMapName && sanitizedMapName !== '.' && sanitizedMapName !== '..'
+      ? sanitizedMapName
+      : 'Map'
+  const renderWholeMapPages = async () => {
+    const pages = []
+    for (const [index, level] of levelsToExport.entries()) {
+      pages.push({
+        id: `level-${String(level).replace('.', '-')}`,
+        filename: `${String(index + 1).padStart(2, '0')}-level-${level}.svg`,
+        content: await renderSvgExportPage({
+          viewingLevel: level,
+          logoLevel: isShow2DExportLevelLogo ? level : undefined,
+        }),
+      })
+    }
+    if (hasOverlayContent) {
+      pages.push({
+        id: 'overlay',
+        filename: '99-overlay.svg',
+        content: await renderSvgExportPage({ viewingLevel: overlayLevel }),
+      })
+    }
+    if (boardPieces.length) {
+      pages.push({
+        id: 'legend',
+        filename: 'legend.svg',
+        content: await renderSvgExportPage({ legendOnly: true }),
+      })
+    }
+    if (!pages.length) {
+      pages.push({
+        id: 'level-0',
+        filename: '01-level-0.svg',
+        content: await renderSvgExportPage({ viewingLevel: 0 }),
+      })
+    }
+    return pages
+  }
+  const handleDownloadLegend = async () => {
+    if (!hexMap || !boardPieces.length) return
+    setIsExportingSvg(true)
     try {
-      // ensure overlay rendering logic is enabled so overlay pieces render only on the overlay level
-      toggleIs2DOverlayLevelEnabled(true)
-
-      for (const level of levelsToExport) {
-        // set viewing level
-        toggleViewingLevel(level)
-        // eslint-disable-next-line no-await-in-loop reason:wait for DOM to update, small delay to allow React to re-render the SVG
-        await sleep(500)
-
-        const svgElement = document.getElementById('2d-svg-view')
-        if (svgElement instanceof SVGSVGElement) {
-          const isOverlayLevel = level === overlayLevel
-          const svgContent = await serializeSvgWithEmbeddedFont(
-            svgElement,
-            isOverlayLevel || !isShow2DExportLevelLogo ? undefined : level,
-          )
-          downloadSvgString(
-            `${hexMap.name}-level-${isOverlayLevel ? 'overlay' : level}.svg`,
-            svgContent,
-          )
-        }
-      }
+      const svgContent = await renderSvgExportPage({ legendOnly: true })
+      downloadSvgString(`${mapFolderName}-legend.svg`, svgContent)
     } catch (err) {
-      console.error('Failed to download all SVGs', err)
+      console.error('Failed to download SVG legend', err)
       enqueueSnackbar({
-        message: 'Failed to download all SVGs',
+        message: 'Failed to download SVG legend',
         variant: 'error',
       })
     } finally {
-      // restore previous state
-      toggleViewingLevel(prevViewingLevel)
-      toggleIs2DOverlayLevelEnabled(prevOverlayEnabled)
-      setIsDownloadingAll(false)
+      setIsExportingSvg(false)
+    }
+  }
+  const handleDownloadWholeMapZip = async () => {
+    if (!hexMap) return
+    setIsExportingSvg(true)
+    try {
+      const pages = await renderWholeMapPages()
+      const zipBytes = zipSvgExportPages(
+        pages.map(({ filename, content }) => ({
+          path: `${mapFolderName}/${filename}`,
+          content,
+        })),
+      )
+      downloadBlob(
+        `${mapFolderName}.zip`,
+        new Blob([zipBytes as BlobPart], { type: 'application/zip' }),
+      )
+    } catch (err) {
+      console.error('Failed to download whole map SVG ZIP', err)
+      enqueueSnackbar({
+        message: 'Failed to download whole map SVG ZIP',
+        variant: 'error',
+      })
+    } finally {
+      setIsExportingSvg(false)
+    }
+  }
+  const handleDownloadWholeMapSvg = async () => {
+    if (!hexMap) return
+    setIsExportingSvg(true)
+    try {
+      const pages = await renderWholeMapPages()
+      const svgContent = combineSvgExportPages(pages)
+      downloadSvgString(`${mapFolderName}.svg`, svgContent)
+    } catch (err) {
+      console.error('Failed to download whole map SVG', err)
+      enqueueSnackbar({
+        message: 'Failed to download whole map SVG',
+        variant: 'error',
+      })
+    } finally {
+      setIsExportingSvg(false)
     }
   }
   const handleDownloadPng = async () => {
@@ -401,17 +465,33 @@ export const FileControlsTab = ({
           {/* DOWNLOAD 2D-MODE SVG IMAGE */}
           {is2DOpen && (
             <ControlTabsListItemButton
-              primary="Download Current 2D Level as SVG"
+              primary="Download this level (SVG)"
               onClick={handleDownloadCurrent2DSvg}
               icon={<FcDownload />}
             />
           )}
           {is2DOpen && (
             <ControlTabsListItemButton
-              primary="Download All 2D Levels as SVG"
-              onClick={handleDownloadAll2DSvgs}
+              primary="Download Legend (SVG)"
+              onClick={handleDownloadLegend}
+              icon={<FcDownload />}
+              disabled={!boardPieces.length || isExportingSvg}
+            />
+          )}
+          {is2DOpen && (
+            <ControlTabsListItemButton
+              primary="Download whole map (.zip)"
+              onClick={handleDownloadWholeMapZip}
               icon={<MdFolderZip />}
-              disabled={isDownloadingAll}
+              disabled={isExportingSvg}
+            />
+          )}
+          {is2DOpen && (
+            <ControlTabsListItemButton
+              primary="Download whole map (one SVG)"
+              onClick={handleDownloadWholeMapSvg}
+              icon={<FcDownload />}
+              disabled={isExportingSvg}
             />
           )}
 

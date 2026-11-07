@@ -80,6 +80,7 @@ describe('piece key model', () => {
         makePiece(Pieces.ice4, 6),
         makePiece(Pieces.road5, 7),
         makePiece(Pieces.wallWalk7, 8),
+        makePiece(Pieces.swampWater6, 9),
       ],
       {},
       true,
@@ -90,13 +91,14 @@ describe('piece key model', () => {
       'roads-and-wall-walks',
       'special-land-concrete',
       'special-land-ice',
+      'special-land-swampWater',
     ])
     expect(
       model.specialGroups[0].entries.map(({ inventoryID }) => inventoryID),
     ).toEqual([Pieces.road5, Pieces.wallWalk7])
     expect(
       model.specialGroups.slice(1).map(({ entries }) => entries[0].inventoryID),
-    ).toEqual([Pieces.concrete6, Pieces.ice4])
+    ).toEqual([Pieces.concrete6, Pieces.ice4, Pieces.swampWater6])
   })
 
   it('updates Special Tiles descriptions when border colors are disabled', () => {

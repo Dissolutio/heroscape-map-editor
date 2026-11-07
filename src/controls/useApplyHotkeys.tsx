@@ -24,6 +24,7 @@ import {
   getBoardHexesRectangularMapDimensions,
   getBoardPiecesMaxLevel,
   getCycleableLevels,
+  getOverlayLevel,
 } from '../utils/map-utils'
 import {
   redoWithSelectionRestore,
@@ -173,18 +174,26 @@ export const useApplyHotkeys = ({
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const is2DOpen = useBoundStore((s) => s.is2DOpen)
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
+  const isShowPieceKey = useBoundStore((s) => s.isShowPdfPieceLegend)
   const currentDialog = useBoundStore((s) => s.currentDialog)
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
   )
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   const maxLevel = getBoardPiecesMaxLevel(boardPieces, boardHexes)
-  const overlayLevel = (maxLevel ?? 0) + 1
-  const allowedMaxLevel =
-    is2DOverlayLevelEnabled && is2DOpen && !isPdfOpen ? overlayLevel : maxLevel
-  const cycleableLevels = getCycleableLevels(boardPieces, boardHexes).filter(
-    (level) => level <= allowedMaxLevel,
-  )
+  const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
+  const canViewLegend =
+    is2DOpen && !isPdfOpen && isShowPieceKey && boardPieces.length > 0
+  const allowedMaxLevel = canViewLegend
+    ? overlayLevel + 1
+    : is2DOverlayLevelEnabled && is2DOpen && !isPdfOpen
+      ? overlayLevel
+      : maxLevel
+  const cycleableLevels = getCycleableLevels(
+    boardPieces,
+    boardHexes,
+    canViewLegend,
+  ).filter((level) => level <= allowedMaxLevel)
   const isSizes = flatPieceSizes?.length > 0
   const rotationHotkey = (action: string) =>
     Object.entries(hotkeyConfig).find(
