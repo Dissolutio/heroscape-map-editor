@@ -1,5 +1,4 @@
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
-import useBoundStore from '../store/store'
 import {
   type BoardHex,
   type DecodedPieceID,
@@ -23,11 +22,13 @@ export const SvgMapBoardPiece = ({
   piece,
   viewingLevel,
   overlayLevel,
+  is2DOverlayLevelEnabled = false,
   isPieceKeyPreview = false,
 }: {
   piece: DecodedPieceID
   viewingLevel: number
   overlayLevel: number
+  is2DOverlayLevelEnabled?: boolean
   isPieceKeyPreview?: boolean
 }) => {
   const altitudeAdjusted = piece.altitude + 1
@@ -35,9 +36,6 @@ export const SvgMapBoardPiece = ({
   const isSubLevel = !isPieceKeyPreview && altitudeAdjusted < viewingLevel
   const { inventoryID } = piece
   const exportSymbol = getPieceExportSymbol(inventoryID)
-  const is2DOverlayLevelEnabled = useBoundStore(
-    (s) => s.is2DOverlayLevelEnabled,
-  )
   const isVisible = isPieceKeyPreview || altitudeAdjusted <= viewingLevel
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   const boardPieceAsHex: BoardHex = {

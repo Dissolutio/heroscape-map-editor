@@ -1,3 +1,4 @@
+import { createContext, useContext } from 'react'
 import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
 import {
   genWoodPlankPath1,
@@ -46,7 +47,7 @@ import {
   getShipBowSvgPolygonPoints,
   getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/hexPolygonPoints'
-import useBoundStore from '../store/store'
+import { SETTINGS_DEFAULTS } from '../local-storage/settings'
 import {
   getSvgHexBorderColor,
   getSvgHexFillColor,
@@ -78,6 +79,18 @@ import {
 } from '../world/maphex/hexColors'
 import { svgHiveBlobD } from './svg-hive'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
+
+export type SvgMapShapeSettings = {
+  genericSolidCapColor: string
+  genericFluidCapColor: string
+  useLegacyStartZones: boolean
+}
+
+export const SvgMapShapeSettingsContext = createContext<SvgMapShapeSettings>({
+  genericSolidCapColor: SETTINGS_DEFAULTS.genericSolidCapColor,
+  genericFluidCapColor: SETTINGS_DEFAULTS.genericFluidCapColor,
+  useLegacyStartZones: SETTINGS_DEFAULTS.useLegacyStartZones,
+})
 
 // export const SvgHelperHex = () => {
 //   const { points } = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS)
@@ -296,13 +309,15 @@ const SvgToxicNuclear = ({
   )
 }
 const useSvgHexFillColor = (hex: BoardHex, isSubLevel?: boolean) => {
-  const genericCapColor = useBoundStore((s) =>
-    hex.terrain === HexTerrain.generic
-      ? s.genericSolidCapColor
-      : hex.terrain === HexTerrain.genericFluid
-        ? s.genericFluidCapColor
-        : null,
+  const { genericSolidCapColor, genericFluidCapColor } = useContext(
+    SvgMapShapeSettingsContext,
   )
+  const genericCapColor =
+    hex.terrain === HexTerrain.generic
+      ? genericSolidCapColor
+      : hex.terrain === HexTerrain.genericFluid
+        ? genericFluidCapColor
+        : null
   const genericColors = getGenericTerrain2DColorsFromCap(
     hex.terrain,
     genericCapColor,
@@ -1147,7 +1162,7 @@ export const SvgStartZone = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
+  const { useLegacyStartZones } = useContext(SvgMapShapeSettingsContext)
   const fillColor = useLegacyStartZones
     ? // legacy start zone colors
       isSubLevel

@@ -1,11 +1,14 @@
 import { G } from '@react-pdf/renderer'
-import { createElement, type ReactElement } from 'react'
+import { Children, createElement, type ReactElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it } from 'vitest'
 import { piecesSoFar } from '../data/pieces'
-import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
+import {
+  getGlyphExportOptions,
+  makeGlyphCoordinateLookup,
+} from '../pdf-svg-shared/glyphExportOptions'
 import { PdfMapHex } from '../pdf-map/PdfMapHex'
-import { PdfMultiHex1 } from '../pdf-map/PdfMapShapes'
+import { PdfGlyphPower, PdfMultiHex1 } from '../pdf-map/PdfMapShapes'
 import useBoundStore from '../store/store'
 import { SvgMapHex } from '../svg-map/SvgMapHex'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
@@ -63,19 +66,33 @@ const setExportState = (
 }
 
 const renderSvgHex = (hex: BoardHex) =>
-  renderToStaticMarkup(
-    createElement(
-      'svg',
-      { xmlns: 'http://www.w3.org/2000/svg' },
-      createElement(SvgMapHex, {
-        hex,
-        buriedMarksByUID: {} as BuriedMarksByUID,
-      }),
-    ),
-  )
+  (() => {
+    const settings = useBoundStore.getState()
+    return renderToStaticMarkup(
+      createElement(
+        'svg',
+        { xmlns: 'http://www.w3.org/2000/svg' },
+        createElement(SvgMapHex, {
+          hex,
+          buriedMarksByUID: {} as BuriedMarksByUID,
+          viewingLevel: 2,
+          overlayLevel: 3,
+          isVisible: true,
+          isSubLevel: false,
+          isOverlayViewing: false,
+          is2DOverlayLevelEnabled: false,
+          isShow2DExportTileLetters: settings.isShow2DExportTileLetters,
+          isShow2DExportBuriedMarks: settings.isShow2DExportBuriedMarks,
+          glyphCoordinates: makeGlyphCoordinateLookup(settings.boardHexes),
+          glyphExportSettings: settings,
+        }),
+      ),
+    )
+  })()
 
-const renderPdfHex = (hex: BoardHex) =>
-  PdfMapHex({
+const renderPdfHex = (hex: BoardHex) => {
+  const settings = useBoundStore.getState()
+  return PdfMapHex({
     hex,
     viewingLevel: 2,
     isOverlayViewing: true,
@@ -85,11 +102,14 @@ const renderPdfHex = (hex: BoardHex) =>
     isShowPdfBuriedMarks: false,
     buriedMarksByUID: {} as BuriedMarksByUID,
     useLegacyStartZones: false,
+    glyphCoordinates: makeGlyphCoordinateLookup(settings.boardHexes),
+    glyphExportSettings: settings,
   })
+}
 
 const childElements = (element: ReactElement | null) => {
   if (!element) throw new Error('Expected PDF hex output')
-  return element.props.children as ReactElement[]
+  return Children.toArray(element.props.children) as ReactElement[]
 }
 
 afterEach(() => {
@@ -113,7 +133,7 @@ describe('shared glyph export options', () => {
       expect(
         getGlyphExportOptions(
           hex,
-          { [hex.id]: hex },
+          makeGlyphCoordinateLookup({ [hex.id]: hex }),
           {
             isTransparentGlyphSpaces: true,
             isHideHeightsOnGlyphs: true,
@@ -125,10 +145,14 @@ describe('shared glyph export options', () => {
 
   it('recognizes land at a glyph coordinate', () => {
     expect(
-      getGlyphExportOptions(grassHex, landWithGlyph, {
-        isTransparentGlyphSpaces: true,
-        isHideHeightsOnGlyphs: true,
-      }),
+      getGlyphExportOptions(
+        grassHex,
+        makeGlyphCoordinateLookup(landWithGlyph),
+        {
+          isTransparentGlyphSpaces: true,
+          isHideHeightsOnGlyphs: true,
+        },
+      ),
     ).toEqual({ isTransparent: false, hideHeight: true })
   })
 
@@ -137,7 +161,7 @@ describe('shared glyph export options', () => {
     expect(
       getGlyphExportOptions(
         startZone,
-        { [startZone.id]: startZone },
+        makeGlyphCoordinateLookup({ [startZone.id]: startZone }),
         {
           isTransparentGlyphSpaces: true,
           isHideHeightsOnGlyphs: true,
@@ -180,12 +204,12 @@ describe('SVG and PDF glyph exports', () => {
     setExportState()
     const defaultGlyph = renderPdfHex(glyphHex)
     const [defaultShape, defaultText] = childElements(defaultGlyph)
-    const defaultPolygon = PdfMultiHex1(defaultShape.props)
+    const defaultPolygon = PdfGlyphPower(defaultShape.props)
 
     setExportState({ isTransparentGlyphSpaces: true })
     const transparentGlyph = renderPdfHex(glyphHex)
     const [transparentShape, transparentText] = childElements(transparentGlyph)
-    const transparentPolygon = PdfMultiHex1(transparentShape.props)
+    const transparentPolygon = PdfGlyphPower(transparentShape.props)
 
     expect(defaultPolygon.props.fill).not.toBe('none')
     expect(defaultPolygon.props.stroke).toBe(transparentPolygon.props.stroke)
@@ -201,6 +225,13 @@ describe('SVG and PDF glyph exports', () => {
     expect(childElements(renderPdfHex(outcropHex))).toHaveLength(2)
 
     setExportState({ isHideHeightsOnGlyphs: true })
+    expect(
+      getGlyphExportOptions(
+        outcropHex,
+        makeGlyphCoordinateLookup(useBoundStore.getState().boardHexes),
+        useBoundStore.getState(),
+      ).hideHeight,
+    ).toBe(true)
     const hiddenHeight = childElements(renderPdfHex(outcropHex))
     expect(hiddenHeight).toHaveLength(1)
     expect(hiddenHeight[0]?.type).toBe(PdfMultiHex1)
