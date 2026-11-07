@@ -242,6 +242,28 @@ describe('settings persistence', () => {
     })
   })
 
+  it('defaults the PDF ladder overlay off and persists it as a difference', () => {
+    expect(SETTINGS_DEFAULTS.isShowPdfLadderOverlay).toBe(false)
+    expect(serializeSettings(SETTINGS_DEFAULTS)).toBeNull()
+
+    const changed = { ...SETTINGS_DEFAULTS, isShowPdfLadderOverlay: true }
+    const serialized = serializeSettings(changed)
+    expect(serialized).toEqual({
+      v: 1,
+      values: { isShowPdfLadderOverlay: true },
+    })
+    storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
+    expect(loadSettings().isShowPdfLadderOverlay).toBe(true)
+  })
+
+  it('ignores a non-boolean PDF ladder overlay value', () => {
+    storage.setItem(
+      LS_KEYS.settings,
+      JSON.stringify({ v: 1, values: { isShowPdfLadderOverlay: 'yes' } }),
+    )
+    expect(loadSettings().isShowPdfLadderOverlay).toBe(false)
+  })
+
   it('removes the settings key on reset', () => {
     storage.setItem(LS_KEYS.settings, JSON.stringify({ v: 1, values: {} }))
     expect(resetSettings()).toBe(true)
@@ -645,7 +667,10 @@ describe('settings persistence', () => {
     const historyLength = store.temporal.getState().pastStates.length
     expect(store.temporal.getState().pastStates).toHaveLength(historyLength)
     store.getState().toggleIsShowObjectiveMarkers(false)
+    store.getState().toggleIsShowPdfLadderOverlay(true)
+    expect(store.getState().isShowPdfLadderOverlay).toBe(true)
     store.getState().resetSettings()
+    expect(store.getState().isShowPdfLadderOverlay).toBe(false)
     expect(pickSettings(store.getState())).toEqual(SETTINGS_DEFAULTS)
     expect(store.getState().isShowObjectiveMarkers).toBe(false)
     expect(values.has(LS_KEYS.settings)).toBe(false)

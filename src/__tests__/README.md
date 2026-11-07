@@ -25,9 +25,12 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `fluid-cap-visibility.test.ts` | Fluid caps under a solid: drawn with half-level clearance (an overhang on a whole-level fluid), hidden under flush fluid or solid, isCap unchanged, on all graphics tiers and the legacy Low cap buckets, plus the Cove of Bilfrost fixture through the loader. |
 | `land-hex-geometry.test.ts` | Per-hex solid/fluid prism geometry: side quads index their own vertices, side-image orientation (including fluid UVs), triangle kinds and directions stay consistent, and faces point outward/upward. |
 | `export-border-color.test.ts` | Shared SVG/PDF border-color decisions for every terrain, SVG Asphalt markup, and rendered PDF output with outlines on/off, including sub-levels. |
+| `piece-key-model.test.ts` | Piece-key land terrain/size ordering, sparse cells, special-family groups and captions, counts, border-mode descriptions, and missing-description fallbacks. |
+| `piece-key-render.test.ts` | PDF map/key shape parity with both border modes and custom Generic colors, plus SVG map/key color parity. |
 | `pdf-sublevel-colors.test.ts` | SVG output snapshot for a stacked solid/liquid map and PDF sub-level color matching. |
 | `glyph-export-options.test.tsx` | Shared glyph-space classification, SVG/PDF transparent fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |
-| `ladder-stack-count.test.ts` | Consecutive ladder stack counts by edge and bottom-level SVG/PDF count rendering. |
+| `ladder-stack-count.test.ts` | Ladder stack model: runs of consecutive ladder altitudes per edge (single run, two runs on one edge, different edges, rotation) and the number of PDF ladder overlay levels. |
+| `pdf-ladder-overlay.test.ts` | PDF ladder overlay levels: no ladder "x N" text in the PDF or SVG, the option off or no ladders gives no ladder level, white 1-hex with thin black border plus ladder shape and count, and two runs on one edge giving two ladder levels. |
 | `generic-letter-metrics.test.ts` | Ratchets every terrain letter against the PDF mark-width table and the Inter Bold font metrics. |
 | `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
 | `replay-conflicts.test.ts` | How conflicts are computed (`data/rebuildBoardState.ts`): ordinary occupancy conflicts plus derived Laur conflicts. |
@@ -50,7 +53,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `map-storage.test.ts` | Old/new saved-map formats, separate portraits, and inline-portrait migration. |
 | `map-autosave.test.ts` | Debounced map writes, lifecycle flushes, hold/release gating, and failure retries. |
 | `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
-| `settings.test.ts` | Versioned settings defaults, migration, remembered map author validation and round-trip, debounced persistence, stale session-only visibility settings, and store-state classification. |
+| `settings.test.ts` | Versioned settings defaults (including the PDF ladder overlay option), migration, remembered map author validation and round-trip, debounced persistence, stale session-only visibility settings, and store-state classification. |
 | `look-settings-tooltip-copy.test.ts` | Ensures every 3D Look dialog control has plain-English tooltip copy. |
 | `new-map-details.test.ts` | New-map author and notes through JSON loading and share-link serialization, including empty metadata. |
 | `view-mode.test.ts` | Active 3D, SVG, and PDF view selection, including PDF precedence. |

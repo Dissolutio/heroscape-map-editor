@@ -64,13 +64,3 @@ export const yTransformForMultiHex24Rotation = [
   -SVG_HEX_RADIUS * 4.5,
   0,
 ]
-
-export function getLadderStackTextPosition(rotation: number) {
-  const angle = (rotation * Math.PI) / 3
-  const x = -SVG_HEX_APOTHEM * 0.72
-  const y = SVG_HEX_RADIUS * 0.34
-  return {
-    x: x * Math.cos(angle) - y * Math.sin(angle),
-    y: x * Math.sin(angle) + y * Math.cos(angle),
-  }
-}

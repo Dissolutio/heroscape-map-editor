@@ -1,5 +1,6 @@
 import type { ObjectiveMarker } from './data/objectiveMarkers'
 import type { SavedSelection } from './data/selectionUnits'
+import type { LadderStack } from './pdf-svg-shared/ladderStack'
 
 export type MapState = MapFileState & {
   boardHexes: BoardHexes
@@ -434,6 +435,8 @@ export type PdfMapAltitudeChunk = {
   altitude: number
   label?: string
   isOverlay?: boolean
+  // set on PDF ladder overlay levels: the ladder stacks drawn on that level
+  ladderStacks?: LadderStack[]
   hexes: BoardHex[]
   pieces: DecodedPieceID[]
 }

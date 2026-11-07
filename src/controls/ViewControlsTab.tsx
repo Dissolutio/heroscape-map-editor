@@ -896,6 +896,10 @@ const PdfPreferencesSwitchForm = () => {
     (s) => s.toggleIsShowPdfBuriedMarks,
   )
   const isShowPdfPieceLegend = useBoundStore((s) => s.isShowPdfPieceLegend)
+  const isShowPdfLadderOverlay = useBoundStore((s) => s.isShowPdfLadderOverlay)
+  const toggleIsShowPdfLadderOverlay = useBoundStore(
+    (s) => s.toggleIsShowPdfLadderOverlay,
+  )
   const toggleIsShowPdfPieceLegend = useBoundStore(
     (s) => s.toggleIsShowPdfPieceLegend,
   )
@@ -1004,6 +1008,19 @@ const PdfPreferencesSwitchForm = () => {
           control={
             <Switch
               size="small"
+              checked={isShowPdfLadderOverlay}
+              onChange={(event) =>
+                toggleIsShowPdfLadderOverlay(event.target.checked)
+              }
+            />
+          }
+          label="Show ladder overlay"
+          title="Add level(s) to the PDF showing how many ladders are in each ladder stack"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
               checked={isShowPdfOverlayOnPlacedLevel}
               onChange={handleChangeShowPdfOverlayOnPlacedLevel}
             />
@@ -1068,8 +1085,8 @@ const PdfPreferencesSwitchForm = () => {
               }
             />
           }
-          label="Show PDF piece legend"
-          title="Add a legend of the pieces used in the map to the PDF"
+          label="Include piece key in SVG and PDF"
+          title="Add an official-style key of the pieces used in the map to SVG and PDF exports"
         />
         <FormControlLabel
           control={

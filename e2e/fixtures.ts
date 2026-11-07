@@ -1,3 +1,4 @@
+import { writeFile } from 'node:fs/promises'
 import { type Locator, type Page, test as base, expect } from '@playwright/test'
 import JSONCrush from 'jsoncrush'
 import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
@@ -392,6 +393,49 @@ export async function saveEvidence(
 export async function saveLocatorEvidence(locator: Locator, name: string) {
   if (process.env.E2E_EVIDENCE !== '1') return
   await locator.screenshot({ path: `docs/evidence/${name}.png` })
+}
+
+export async function saveSvgEvidence(
+  locator: Locator,
+  name: string,
+  scale = 2,
+) {
+  if (process.env.E2E_EVIDENCE !== '1') return
+  const png = await locator.evaluate(
+    async (element: SVGGraphicsElement, scale: number) => {
+      const bounds = element.getBBox()
+      const width = Math.ceil(bounds.width * scale)
+      const height = Math.ceil(bounds.height * scale)
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+      svg.setAttribute('width', String(width))
+      svg.setAttribute('height', String(height))
+      svg.setAttribute(
+        'viewBox',
+        `${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}`,
+      )
+      svg.appendChild(element.cloneNode(true))
+      const blob = new Blob([new XMLSerializer().serializeToString(svg)], {
+        type: 'image/svg+xml',
+      })
+      const url = URL.createObjectURL(blob)
+      const image = new Image()
+      image.src = url
+      await image.decode()
+      URL.revokeObjectURL(url)
+      const canvas = document.createElement('canvas')
+      canvas.width = width
+      canvas.height = height
+      const context = canvas.getContext('2d')
+      if (!context) throw new Error('Unable to rasterize the SVG piece key')
+      context.fillStyle = 'white'
+      context.fillRect(0, 0, width, height)
+      context.drawImage(image, 0, 0, width, height)
+      return canvas.toDataURL('image/png').split(',')[1]
+    },
+    scale,
+  )
+  await writeFile(`docs/evidence/${name}.png`, Buffer.from(png, 'base64'))
 }
 
 export const test = base.extend({
