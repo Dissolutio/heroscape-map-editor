@@ -9,8 +9,8 @@ import {
   resolveRotationPivot,
 } from '../data/rotationPivot'
 import getPieceTemplateCoords from '../data/rotationTransforms'
-import useBoundStore from '../store/store'
 import { pickPieceAsPenMode } from '../hooks/useMiddleClickPickPenMode'
+import useBoundStore from '../store/store'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
 import { makeBuriedStatusChecker } from '../utils/buriedStatus'
 import { zoomToPieces } from '../utils/camera-utils'
@@ -555,7 +555,9 @@ export function SelectedPieceControls({
             variant="outlined"
             size="small"
             aria-label="Use selected piece as pen"
-            onClick={() => pickPieceAsPenMode(firstBp.uid)}
+            onClick={() =>
+              pickPieceAsPenMode(firstBp.uid, { preserveSelection: true })
+            }
             sx={{ fontSize: FONT_SIZE, mt: 0.25, mb: 0.5, width: '100%' }}
           >
             Use as Pen

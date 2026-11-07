@@ -10,12 +10,12 @@ import { piecesSoFar } from '../data/pieces'
 import { computeConflictedPieceUIDs } from '../data/rebuildBoardState'
 import { LS_KEYS } from '../local-storage/keys'
 import {
-  Pieces,
-  PICK_PEN_MODE,
-  SELECT_PEN_MODE,
   type BoardPiece,
   type HexMap,
   type MapState,
+  PICK_PEN_MODE,
+  Pieces,
+  SELECT_PEN_MODE,
 } from '../types'
 import { makeRectangleScenario } from '../utils/map-gen'
 
@@ -986,6 +986,29 @@ describe('real store undo and redo', () => {
         selection: { pieceUIDs: [piece.uid] },
       },
     ])
+    expect(historyLength()).toBe(0)
+  })
+
+  it('preserves selection without logging when Use as Pen enters placement', async () => {
+    const piece = {
+      uid: 'use-as-pen-selection',
+      inventoryID: Pieces.grass1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 2, r: 2, s: -4 },
+    }
+    loadWithoutHistory(loadedMap([piece]))
+    store.setState({ selectedPieceIDs: [piece.uid] })
+
+    const { pickPieceAsPenMode } = await import(
+      '../hooks/useMiddleClickPickPenMode'
+    )
+    pickPieceAsPenMode(piece.uid, { preserveSelection: true })
+
+    expect(store.getState().penMode).toBe('g')
+    expect(store.getState().selectedPieceIDs).toEqual([piece.uid])
+    expect(store.getState().actionLog).toEqual([])
+    expect(store.getState().actionLogUndoStack).toEqual([])
     expect(historyLength()).toBe(0)
   })
 

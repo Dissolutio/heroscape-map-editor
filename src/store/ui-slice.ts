@@ -7,6 +7,7 @@ import {
   getPieceIDForPenMode,
 } from '../data/flatPieceSizes'
 import { type LookSettings, sanitizeLookSettings } from '../data/lookSettings'
+import { canSelectObjectiveMarker } from '../data/objectiveMarkerVisibility'
 import type {
   ObjectiveMarker,
   ObjectiveMarkerDraft,
@@ -23,8 +24,6 @@ import {
   filterVisiblePieceIDs,
   isStartZoneBoardPiece,
 } from '../data/startZoneVisibility'
-import { canSelectObjectiveMarker } from '../data/objectiveMarkerVisibility'
-import { getVisibleSelectionPieces } from '../selection/selectionMenuActions'
 import { blankPieceInventory } from '../inventory/blankInventory'
 import { DIALOGS } from '../layout/dialogNames'
 import {
@@ -39,6 +38,7 @@ import {
   finishPerformanceTiming,
   startPerformanceTiming,
 } from '../performance/performanceTiming'
+import { getVisibleSelectionPieces } from '../selection/selectionMenuActions'
 import {
   type BoardHex,
   type BoardPiece,
@@ -47,6 +47,7 @@ import {
   SELECT_PEN_MODE,
   type TerrainConstraintSource,
 } from '../types'
+import type { PictureCaptureOptions } from '../world/camera/pictureCaptureOptions'
 import {
   getLastPointerWorldPoint,
   shouldTrackHoveredWorldPoint,
@@ -55,7 +56,6 @@ import {
   type TextureLoadStatus,
   loadTerrainTextureArrays,
 } from '../world/textures/terrainTextureArrays'
-import type { PictureCaptureOptions } from '../world/camera/pictureCaptureOptions'
 import type { AppState } from './store'
 
 export type { LightPosition } from '../local-storage/settings'
@@ -64,6 +64,11 @@ export type UndoSelectionRestoreRecord = {
   pieceUIDs: string[]
   objectiveMarkerUID: string | null
   restoreObjectiveMarkerSelection?: boolean
+}
+
+export type TogglePenModeOptions = {
+  preferredSize?: number
+  preserveSelection?: boolean
 }
 
 export const EMPTY_UNDO_SELECTION_RESTORE: UndoSelectionRestoreRecord = {
@@ -106,7 +111,7 @@ export interface UISlice {
 
   penMode: string
   pieceSize: number
-  togglePenMode: (mode: string, preferredSize?: number) => void
+  togglePenMode: (mode: string, options?: TogglePenModeOptions) => void
   penModeRotation: number
   togglePenModeRotation: (s: number) => void
   togglePieceSize: (s: number) => void
@@ -560,14 +565,15 @@ const createUISlice: StateCreator<
   toggleLastPenMode: () => {
     const { penMode, lastPenMode, pieceSize, lastPenSize } = get()
     if (penMode === lastPenMode && lastPenSize === pieceSize) return
-    get().togglePenMode(lastPenMode, lastPenSize)
+    get().togglePenMode(lastPenMode, { preferredSize: lastPenSize })
   },
-  togglePenMode: (mode: string, preferredSize?: number) => {
+  togglePenMode: (mode: string, options?: TogglePenModeOptions) => {
     const current = get()
     const entersPlacementMode =
       !isPlacementPenMode(current.penMode) && isPlacementPenMode(mode)
     const selection =
       entersPlacementMode &&
+      !options?.preserveSelection &&
       (current.selectedPieceIDs.length > 0 ||
         current.selectedObjectiveMarkerUID)
         ? {
@@ -583,8 +589,9 @@ const createUISlice: StateCreator<
       current.pieceSize,
     )
     const newSize =
-      preferredSize !== undefined && newSizes.includes(preferredSize)
-        ? preferredSize
+      options?.preferredSize !== undefined &&
+      newSizes.includes(options.preferredSize)
+        ? options.preferredSize
         : calculatedSize
     set(
       produce((state) => {
