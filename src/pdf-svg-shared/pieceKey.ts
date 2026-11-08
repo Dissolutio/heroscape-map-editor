@@ -1,9 +1,8 @@
+import { addPiece } from '../data/addPiece'
 import { piecesSoFar } from '../data/pieces'
-import getPieceTemplateCoords from '../data/rotationTransforms'
 import type { BoardHex, BoardPiece, Piece } from '../types'
 import { HexTerrain, Pieces } from '../types'
 import { isFluidTerrainHex, isSolidTerrainHex } from '../utils/board-utils'
-import { genBoardHexID, genPieceID } from '../utils/map-utils'
 
 export type PieceKeyEntry = {
   inventoryID: string
@@ -250,57 +249,39 @@ export const getPieceKeyTerrainDescription = (
 export const getPieceKeyDescriptionGaps = (terrains: string[]) =>
   terrains.filter((terrain) => !PIECE_KEY_METADATA.terrains[terrain])
 
-const getPieceKeyHexes = (
-  boardPiece: BoardPiece,
-  piece: Piece,
-  boardHexes: Record<string, BoardHex>,
-) => {
-  const hexes = Object.values(boardHexes).filter(
-    (hex) => hex.boardPieceUID === boardPiece.uid,
-  )
-  if (!piece.landPrefix) {
-    return hexes
-  }
-
-  const coords = getPieceTemplateCoords({
-    clickedHex: boardPiece.pieceCoords,
-    rotation: boardPiece.rotation,
-    template: piece.template,
+const getCanonicalPieceKeyShape = (piece: Piece) => {
+  const uid = `piece-key-${piece.id}`
+  const origin = { q: 0, r: 0, s: 0 }
+  const placed = addPiece({
+    piece,
+    boardHexes: {},
+    boardPieces: [],
+    pieceCoords: origin,
+    placementAltitude: 0,
+    rotation: 0,
     isVsTile: false,
+    uid,
+    permissive: true,
   })
-  if (
-    hexes.length === coords.length &&
-    hexes.some((hex) => hex.isObstacleOrigin)
-  ) {
-    return hexes
-  }
-  const boardHexID = genBoardHexID({
-    ...boardPiece.pieceCoords,
+  const canonicalPiece = placed.newBoardPieces.find(
+    (boardPiece) => boardPiece.uid === uid,
+  ) ?? {
+    uid,
+    inventoryID: piece.id,
     altitude: 0,
-  })
-  const pieceID = genPieceID(boardHexID, piece.id, boardPiece.rotation)
+    rotation: 0,
+    pieceCoords: origin,
+  }
+  const hexes = Object.values(placed.newBoardHexes)
+    .filter((hex) => hex.boardPieceUID === uid)
+    .map((hex) => ({ ...hex, altitude: 0, pieceRotation: 0 }))
 
-  return coords.map((coord, index) => {
-    const id = genBoardHexID({ ...coord, altitude: 0 })
-    return {
-      id,
-      ...coord,
-      altitude: 0,
-      pieceID,
-      boardPieceUID: boardPiece.uid,
-      inventoryID: piece.id,
-      terrain: piece.terrain,
-      pieceRotation: boardPiece.rotation,
-      isCap: true,
-      isObstacleOrigin: index === 0,
-      isObstacleAuxiliary: index !== 0,
-    }
-  })
+  return { piece: canonicalPiece, hexes }
 }
 
 export const getPieceKeyModel = (
   boardPieces: BoardPiece[],
-  boardHexes: Record<string, BoardHex>,
+  _boardHexes: Record<string, BoardHex>,
   useTerrainBorderColor: boolean,
 ): PieceKeyModel => {
   const entries = new Map<string, PieceKeyEntry>()
@@ -319,8 +300,7 @@ export const getPieceKeyModel = (
       title: piece.title || pieceOnBoard.inventoryID,
       terrain: piece.terrain,
       count: 1,
-      piece: pieceOnBoard,
-      hexes: getPieceKeyHexes(pieceOnBoard, piece, boardHexes),
+      ...getCanonicalPieceKeyShape(piece),
     })
   }
 
