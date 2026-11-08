@@ -86,6 +86,8 @@ export interface UISlice {
   toggleIsShowStartZones: (s: boolean) => void
   isShowObjectiveMarkers: boolean
   toggleIsShowObjectiveMarkers: (show: boolean) => void
+  isObjectiveMarkerNumbersFaceCamera: boolean
+  toggleIsObjectiveMarkerNumbersFaceCamera: (show: boolean) => void
   isShowActionLog: boolean
   toggleIsShowActionLog: (show: boolean) => void
   resetSettings: () => void
@@ -361,6 +363,8 @@ const createUISlice: StateCreator<
   setRememberedMapAuthor: (name: string) => set({ rememberedMapAuthor: name }),
   isShowStartZones: true,
   isShowObjectiveMarkers: true,
+  toggleIsObjectiveMarkerNumbersFaceCamera: (show) =>
+    set({ isObjectiveMarkerNumbersFaceCamera: show }),
   toggleIsShowObjectiveMarkers: (show) =>
     set(
       produce((s) => {

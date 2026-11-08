@@ -640,6 +640,12 @@ const ViewPreferencesSwitchForm = () => {
   const toggleIsShowObjectiveMarkers = useBoundStore(
     (s) => s.toggleIsShowObjectiveMarkers,
   )
+  const isObjectiveMarkerNumbersFaceCamera = useBoundStore(
+    (s) => s.isObjectiveMarkerNumbersFaceCamera,
+  )
+  const toggleIsObjectiveMarkerNumbersFaceCamera = useBoundStore(
+    (s) => s.toggleIsObjectiveMarkerNumbersFaceCamera,
+  )
   const isShowActionLog = useBoundStore((s) => s.isShowActionLog)
   const toggleIsShowActionLog = useBoundStore((s) => s.toggleIsShowActionLog)
   const handleChangeUseLegacyStartZones = (
@@ -843,6 +849,19 @@ const ViewPreferencesSwitchForm = () => {
           }
           label="Show Objective Markers"
           title={showObjectiveMarkersTooltip}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isObjectiveMarkerNumbersFaceCamera}
+              onChange={(event) =>
+                toggleIsObjectiveMarkerNumbersFaceCamera(event.target.checked)
+              }
+            />
+          }
+          label="Marker numbers face the camera"
+          title="Turns objective marker numbers to face the camera in 3D. 2D and PDF exports are not affected."
         />
         <FormControlLabel
           control={

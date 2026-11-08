@@ -209,9 +209,28 @@ describe('objective marker 3D helpers', () => {
             0,
           ])
           expect(transform.textPosition).toEqual([0, 0.029, 0])
+          expect(transform.textRotation).toEqual([-Math.PI / 2, 0, 0])
+          expect(transform.isBillboard).toBe(false)
         }
       }
     }
+  })
+
+  it('keeps flat text on the face by default and lifts billboard text above it', () => {
+    const board = makeTable(5)
+    const target = marker()
+    const position = getObjectiveMarker3DPosition(target, board.boardHexes)
+    if (!position) throw new Error('Expected a supported marker')
+
+    const flat = getObjectiveMarker3DTextTransform(target, position)
+    expect(flat.textPosition).toEqual([0, 0.029, 0])
+    expect(flat.textRotation).toEqual([-Math.PI / 2, 0, 0])
+    expect(flat.isBillboard).toBe(false)
+
+    const billboard = getObjectiveMarker3DTextTransform(target, position, true)
+    expect(billboard.textPosition[1]).toBeGreaterThan(0.0265)
+    expect(billboard.textRotation).toEqual([0, 0, 0])
+    expect(billboard.isBillboard).toBe(true)
   })
 
   it('preserves anchor-relative export text positioning separately from 3D', () => {

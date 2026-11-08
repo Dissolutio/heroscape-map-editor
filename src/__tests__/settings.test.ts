@@ -256,6 +256,26 @@ describe('settings persistence', () => {
     expect(loadSettings().isShowPdfLadderOverlay).toBe(true)
   })
 
+  it('defaults marker text billboarding off and resets the persisted setting', () => {
+    expect(SETTINGS_DEFAULTS.isObjectiveMarkerNumbersFaceCamera).toBe(false)
+    expect(serializeSettings(SETTINGS_DEFAULTS)).toBeNull()
+
+    const changed = {
+      ...SETTINGS_DEFAULTS,
+      isObjectiveMarkerNumbersFaceCamera: true,
+    }
+    const serialized = serializeSettings(changed)
+    expect(serialized).toEqual({
+      v: 1,
+      values: { isObjectiveMarkerNumbersFaceCamera: true },
+    })
+    storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
+    expect(loadSettings().isObjectiveMarkerNumbersFaceCamera).toBe(true)
+
+    expect(resetSettings()).toBe(true)
+    expect(loadSettings().isObjectiveMarkerNumbersFaceCamera).toBe(false)
+  })
+
   it('ignores a non-boolean PDF ladder overlay value', () => {
     storage.setItem(
       LS_KEYS.settings,

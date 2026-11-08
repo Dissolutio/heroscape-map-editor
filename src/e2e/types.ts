@@ -128,6 +128,12 @@ export type E2ETestBridge = {
   getRenderedObjectiveMarkerTextQuaternion: (
     uid: string,
   ) => [number, number, number, number] | null
+  /** Text and marker-face world bounds, for verifying billboard clearance. */
+  getRenderedObjectiveMarkerTextLayout: (uid: string) => {
+    isBillboard: boolean
+    textBounds: { min: [number, number, number]; max: [number, number, number] }
+    markerFaceMaxY: number
+  } | null
   /** The camera's world quaternion. */
   cameraQuaternion: () => [number, number, number, number]
   /** Where to click the canvas to hit a placed piece, or null. */

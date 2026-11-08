@@ -130,6 +130,9 @@ The canvas is invisible to accessibility snapshots, so read state in text:
 - `window.__TEST__.getRenderedObjectiveMarkerTextQuaternion(uid)` and
   `window.__TEST__.cameraQuaternion()`:
   world orientations used to verify that marker text follows an orbiting camera.
+- `window.__TEST__.getRenderedObjectiveMarkerTextLayout(uid)`: whether rendered
+  marker text is billboarded, its world-space bounds, and the marker face's
+  highest world-space point.
 
 The bridge is read-only apart from the camera and the setup-only `setPen`
 helper. Drive the app through its real UI, hotkeys and canvas clicks, as a user
@@ -231,7 +234,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Empty-hex deselection, pen placement, and camera-drag selection safety | `e2e/empty-hex-selection.spec.ts` |
 | Right-click selection actions, keyboard dismissal, camera drag safety, and graphics-tier coverage | `e2e/selection-context-menu.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
-| Objective-marker 3D rendering, camera-facing text, visibility, selection, and shadow invalidation | `e2e/objective-markers.spec.ts` |
+| Objective-marker 3D rendering, flat/optional camera-facing text, preview text, visibility, selection, and shadow invalidation | `e2e/objective-markers.spec.ts` |
 | Objective-marker placement, editing, rotation, drag, deletion, undo, unit-name suggestions, and saved-file name round trips | `e2e/objective-marker-editing.spec.ts` |
 | Selection clearing on placement-pen hotkeys, preview rotation, and action-log recall | `e2e/action-log.spec.ts` |
 | Collection inventory gating, missing-terrain rows, conditional ranked substitutes, naming/cancel, metadata persistence, buried fill, leftovers, and one-step undo | `e2e/adapt-to-collection.spec.ts` |
