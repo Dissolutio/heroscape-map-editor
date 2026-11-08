@@ -7,11 +7,7 @@ import { ReactPdfSvgMapDisplay } from '../pdf-map/ReactPdfSvgMapDisplay'
 import { SvgMapHex } from '../svg-map/SvgMapHex'
 import SvgMapDisplay from '../svg-map/SvgMapDisplay'
 import useBoundStore from '../store/store'
-import {
-  type BoardHex,
-  type BoardPiece,
-  Pieces,
-} from '../types'
+import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { genPieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import type { BuriedMarksByUID } from '../utils/tileMarks'
 import { SVG_HEX_RADIUS } from '../utils/constants'
@@ -26,7 +22,7 @@ const emptyBuriedMarks = {} as BuriedMarksByUID
 const makePiece = (inventoryID: string, uid: string): BoardPiece => ({
   uid,
   inventoryID,
-  altitude,
+  altitude: altitude - 1,
   rotation,
   pieceCoords: coords,
 })
@@ -64,14 +60,14 @@ const setOverwrittenOrigin = (inventoryID: string) => {
   return { ship, waterHex }
 }
 
-const renderExpectedSvgOrigin = (hex: BoardHex) =>
+const renderExpectedSvgOrigin = (hex: BoardHex, viewingLevel = altitude) =>
   renderToStaticMarkup(
     createElement(SvgMapHex, {
       hex,
       buriedMarksByUID: emptyBuriedMarks,
-      viewingLevel: altitude,
+      viewingLevel,
       isVisible: true,
-      isSubLevel: false,
+      isSubLevel: hex.altitude < viewingLevel,
     }),
   )
 
@@ -89,6 +85,9 @@ const renderExpectedPdfOrigin = (hex: BoardHex) =>
       useLegacyStartZones: false,
     }),
   )
+
+const countMarkup = (markup: string, value: string) =>
+  markup.split(value).length - 1
 
 afterEach(() => {
   useBoundStore.setState(originalState)
@@ -139,7 +138,7 @@ describe('origin-anchored SVG and PDF symbols', () => {
           useLegacyStartZones: false,
           is2DOverlayLevelEnabled: false,
           objectiveMarkers: [],
-          glyphCoordinates: new Set(),
+          glyphCoordinates: new Set<string>(),
           glyphExportSettings: { isHideHeightsOnGlyphs: false },
         }),
       )
@@ -152,4 +151,97 @@ describe('origin-anchored SVG and PDF symbols', () => {
       expect(pdf).toContain(expectedRotation)
     },
   )
+
+  it('renders each registry-backed origin symbol once at its own level', () => {
+    const boardPieceOnlyTerrains = new Set([
+      HexTerrain.startZone,
+      HexTerrain.ropeLadder,
+      HexTerrain.laurWallAddon,
+      HexTerrain.battlement,
+      HexTerrain.roadWall,
+    ])
+    const originSymbolPieces = Object.values(piecesSoFar).filter(
+      (piece) =>
+        !boardPieceOnlyTerrains.has(piece.terrain as HexTerrain) &&
+        (piece.isObstaclePiece ||
+          piece.terrain === HexTerrain.castleBase ||
+          piece.terrain === HexTerrain.castleWall ||
+          (piece.landPrefix && piece.template !== '1')),
+    )
+    const boardHexes: Record<string, BoardHex> = {}
+    const boardPieces: BoardPiece[] = []
+    const expectedSymbols: string[] = []
+
+    originSymbolPieces.forEach((piece, index) => {
+      const pieceCoords = { q: index, r: 0, s: -index }
+      const pieceAltitude = 0
+      const symbolAltitude = pieceAltitude + 1
+      const uid = `origin-${index}`
+      const waterUID = `water-${index}`
+      const waterHexID = `${symbolAltitude}~${index}~0`
+      const originHex: BoardHex = {
+        id: waterHexID,
+        ...pieceCoords,
+        altitude: symbolAltitude,
+        pieceID: genPieceID(waterHexID, Pieces.water1, 0),
+        boardPieceUID: waterUID,
+        inventoryID: Pieces.water1,
+        terrain: HexTerrain.water,
+        pieceRotation: 0,
+        isObstacleOrigin: true,
+      }
+
+      boardHexes[waterHexID] = originHex
+      boardPieces.push(
+        {
+          uid,
+          inventoryID: piece.id,
+          altitude: pieceAltitude,
+          rotation: index % 6,
+          pieceCoords,
+        },
+        {
+          uid: waterUID,
+          inventoryID: Pieces.water1,
+          altitude: pieceAltitude,
+          rotation: 0,
+          pieceCoords,
+        },
+      )
+      expectedSymbols.push(
+        renderExpectedSvgOrigin(
+          {
+            ...originHex,
+            pieceID: genPieceID(waterHexID, piece.id, index % 6),
+            boardPieceUID: uid,
+            inventoryID: piece.id,
+            terrain: piece.terrain,
+            pieceRotation: index % 6,
+            isObstacleOrigin: true,
+          },
+          symbolAltitude,
+        ),
+      )
+    })
+
+    const state = {
+      ...useBoundStore.getState(),
+      boardHexes,
+      boardPieces,
+      viewingLevel: 1,
+      is2DOverlayLevelEnabled: false,
+      isShow2DExportBuriedMarks: false,
+      isShow2DExportTileLetters: false,
+      isShowPdfPieceLegend: false,
+      isHideHeightsOnGlyphs: false,
+    }
+    useBoundStore.setState(state)
+    Object.assign(useBoundStore.getInitialState(), state)
+
+    const svg = renderToStaticMarkup(createElement(SvgMapDisplay))
+    for (const symbol of expectedSymbols) {
+      expect(symbol).not.toBe('')
+      expect(countMarkup(svg, symbol)).toBe(1)
+    }
+  })
 })

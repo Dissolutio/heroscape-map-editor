@@ -168,6 +168,13 @@ export type E2ETestBridge = {
   cameraPose: () => E2ECameraPose | null
   /** Set pen controls for test setup only. */
   setPen: (penMode: string, size: number, rotation?: number) => void
+  /** Place a piece through the paint action when pointer hit-testing is occluded. */
+  paintPiece: (
+    inventoryID: string,
+    coords: { q: number; r: number; s: number },
+    altitude: number,
+    rotation?: number,
+  ) => boolean
   setLookBackgroundColor: (color: string) => void
   seedActionLog: (count: number) => void
   stats: () => { calls: number; triangles: number; frames: number }

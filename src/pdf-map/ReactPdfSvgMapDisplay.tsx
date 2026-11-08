@@ -1,5 +1,6 @@
 import { Line, Svg } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
+import { getBoardPieceOriginHexes } from '../pdf-svg-shared/boardPieceOriginHexes'
 import type { ObjectiveMarker } from '../data/objectiveMarkers'
 import type {
   GlyphCoordinateLookup,
@@ -59,12 +60,25 @@ export const ReactPdfSvgMapDisplay = ({
   const nonEmptyHexesArr = boardHexesArr.filter(
     (hex) => hex.terrain !== 'empty',
   )
+  const pieceOriginHexes = getBoardPieceOriginHexes(
+    boardPiecesArr,
+    boardHexesArr,
+  )
+  const pieceOriginBySourceID = new Map(
+    pieceOriginHexes
+      .filter((origin) => origin.sourceHexID)
+      .map((origin) => [origin.sourceHexID, origin.hex]),
+  )
+  const renderHexes = [
+    ...nonEmptyHexesArr.map((hex) => pieceOriginBySourceID.get(hex.id) ?? hex),
+    ...pieceOriginHexes
+      .filter((origin) => !origin.sourceHexID)
+      .map((origin) => origin.hex),
+  ]
   const adjustXForNew00Centers = 1.5 * SVG_HEX_APOTHEM
   const adjustYForNew00Centers = 1.2 * SVG_HEX_RADIUS
   const isOverlayViewing = Boolean(chunk?.isOverlay)
-  const subLevelHexes = nonEmptyHexesArr.filter(
-    (h) => h.altitude < viewingLevel,
-  )
+  const subLevelHexes = renderHexes.filter((h) => h.altitude < viewingLevel)
   const ladderStacks = chunk?.ladderStacks
   const visibleBoardPieces = boardPiecesArr.filter((bp) => {
     if (piecesSoFar[bp.inventoryID]?.isOverlayPiece) {
@@ -154,7 +168,7 @@ export const ReactPdfSvgMapDisplay = ({
           {subLevelPiecesEls}
         </>
       )}
-      {nonEmptyHexesArr
+      {renderHexes
         .filter((h) => h.altitude === viewingLevel)
         .map((hex) => (
           <PdfMapHex

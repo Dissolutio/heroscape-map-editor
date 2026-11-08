@@ -134,9 +134,11 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   marker text is billboarded, its world-space bounds, and the marker face's
   highest world-space point.
 
-The bridge is read-only apart from the camera and the setup-only `setPen`
-helper. Drive the app through its real UI, hotkeys and canvas clicks, as a user
-would. `setPen(penMode, size, rotation?)` is for preparing a preview test;
+The bridge is read-only apart from the camera and setup-only `setPen` and
+`paintPiece` helpers. Drive the app through its real UI, hotkeys and canvas
+clicks, as a user would. `setPen(penMode, size, rotation?)` prepares a preview
+test. `paintPiece(inventoryID, coords, altitude, rotation?)` invokes the real
+paint action for cases where an existing model occludes the target hex.
 `hoverHex` in `e2e/fixtures.ts` moves the mouse to the projected hex position.
 
 ## Clicking the canvas
@@ -231,6 +233,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 | Deleting unrelated water beside a permissively overlapped Ship Wall and reloading its share link | `e2e/conflicted-delete.spec.ts` |
+| Ship Wall symbols remain in the 2D view after a water tile takes their origin hex | `e2e/origin-symbol-overlap.spec.ts` |
 | Empty-hex deselection, pen placement, and camera-drag selection safety | `e2e/empty-hex-selection.spec.ts` |
 | Right-click selection actions, keyboard dismissal, camera drag safety, and graphics-tier coverage | `e2e/selection-context-menu.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
