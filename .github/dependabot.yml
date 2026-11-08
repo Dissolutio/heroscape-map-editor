@@ -1,9 +1,11 @@
 # Weekly dependency update PRs, grouped so they arrive as a few PRs, not dozens.
 # Security updates are separate and open automatically when a fix exists.
+# All PRs target dev; main only ever receives merges from dev.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
+    target-branch: dev
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
@@ -12,8 +14,36 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      # @types/three must match the three version that @react-three/fiber and
+      # drei install; a 0.x minor bump of the types alone breaks type checks.
+      # Upgrade it together with three as a planned change.
+      - dependency-name: "@types/three"
+      - dependency-name: "three"
+      # Planned upgrades, not weekly bumps: React 19 needs @react-three/fiber 9
+      # and drei 10; Vite 8 needs a matching @vitejs/plugin-react-swc;
+      # TypeScript 7 is the new native compiler.
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@react-three/fiber"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@react-three/drei"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@vitejs/plugin-react-swc"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: cargo
     directory: /src-tauri
+    target-branch: dev
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
@@ -24,6 +54,7 @@ updates:
           - patch
   - package-ecosystem: github-actions
     directory: /
+    target-branch: dev
     schedule:
       interval: weekly
     open-pull-requests-limit: 3
