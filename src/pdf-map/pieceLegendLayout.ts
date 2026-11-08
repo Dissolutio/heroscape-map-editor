@@ -39,10 +39,7 @@ export const chunkLandRows = (
   return chunks
 }
 
-export const chunkSpecialGroups = <T,>(
-  groups: T[],
-  groupsPerRow = 3,
-): T[][] => {
+export const chunkSpecialGroups = <T>(groups: T[], groupsPerRow = 3): T[][] => {
   if (groupsPerRow < 1) return []
   const rows: T[][] = []
   for (let offset = 0; offset < groups.length; offset += groupsPerRow) {
