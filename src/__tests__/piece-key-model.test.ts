@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import { piecesSoFar } from '../data/pieces'
 import {
   getPieceKeyDescriptionGaps,
   getPieceKeyModel,
   getPieceKeyTerrainDescription,
 } from '../pdf-svg-shared/pieceKey'
-import { piecesSoFar } from '../data/pieces'
 import type { BoardPiece } from '../types'
 import { HexTerrain, Pieces } from '../types'
 import { isSolidTerrainHex } from '../utils/board-utils'
@@ -90,15 +90,18 @@ describe('piece key model', () => {
     expect(model.specialGroups.map(({ id }) => id)).toEqual([
       'roads-and-wall-walks',
       'special-land-concrete',
-      'special-land-ice',
-      'special-land-swampWater',
     ])
     expect(
       model.specialGroups[0].entries.map(({ inventoryID }) => inventoryID),
     ).toEqual([Pieces.road5, Pieces.wallWalk7])
     expect(
       model.specialGroups.slice(1).map(({ entries }) => entries[0].inventoryID),
-    ).toEqual([Pieces.concrete6, Pieces.ice4, Pieces.swampWater6])
+    ).toEqual([Pieces.concrete6])
+    expect(
+      model.fluidColumns
+        .flatMap((column) => column.cells)
+        .map(({ entry }) => entry.inventoryID),
+    ).toEqual([Pieces.swampWater6, Pieces.ice4])
   })
 
   it('updates Special Tiles descriptions when border colors are disabled', () => {
@@ -170,9 +173,6 @@ describe('piece key model', () => {
     )
 
     expect(model.specialGroups.map(({ id }) => id)).toEqual([
-      'water',
-      'wellspring',
-      'other-fluids',
       'evergreen',
       'jungle',
       'wood',
@@ -184,7 +184,10 @@ describe('piece key model', () => {
       'glyph',
       'start-zone',
     ])
-    expect(model.specialGroups[0].entries[0]).toMatchObject({
+    expect(
+      model.fluidColumns.find(({ terrain }) => terrain === HexTerrain.water)
+        ?.cells[0].entry,
+    ).toMatchObject({
       inventoryID: Pieces.water3,
       count: 2,
     })
@@ -209,6 +212,72 @@ describe('piece key model', () => {
       'short wall',
       'square pillar',
     ])
+  })
+
+  it('builds fluid columns and size rows from only the fluids used', () => {
+    const model = getPieceKeyModel(
+      [
+        makePiece(Pieces.water3, 0),
+        makePiece(Pieces.water3, 1),
+        makePiece(Pieces.wellspringWater1, 2),
+        makePiece(Pieces.swampWater6, 3),
+        makePiece(Pieces.ice4, 4),
+        makePiece(Pieces.ice6, 5),
+        makePiece(Pieces.lava1, 6),
+        makePiece(Pieces.shadow3, 7),
+        makePiece(Pieces.toxicWater1, 8),
+        makePiece(Pieces.genericFluid2, 9),
+        makePiece(Pieces.genericFluid2, 10),
+      ],
+      {},
+      true,
+    )
+
+    expect(model.fluidColumns.map(({ terrain }) => terrain)).toEqual([
+      HexTerrain.water,
+      HexTerrain.wellspringWater,
+      HexTerrain.swampWater,
+      HexTerrain.lava,
+      HexTerrain.ice,
+      HexTerrain.shadow,
+      HexTerrain.toxicWater,
+      HexTerrain.genericFluid,
+    ])
+    expect(model.fluidRows.map(({ size }) => size)).toEqual([6, 4, 3, 2, 1])
+    expect(
+      model.fluidColumns.map((column) =>
+        column.cells.map(({ size, entry }) => [size, entry.inventoryID]),
+      ),
+    ).toEqual([
+      [[3, Pieces.water3]],
+      [[1, Pieces.wellspringWater1]],
+      [[6, Pieces.swampWater6]],
+      [[1, Pieces.lava1]],
+      [
+        [6, Pieces.ice6],
+        [4, Pieces.ice4],
+      ],
+      [[3, Pieces.shadow3]],
+      [[1, Pieces.toxicWater1]],
+      [[2, Pieces.genericFluid2]],
+    ])
+    expect(model.fluidColumns[0].cells[0].entry.count).toBe(2)
+    expect(model.fluidColumns[7]).toMatchObject({
+      title: 'Generic Fluid',
+      description: 'user-selected centers',
+    })
+    expect(model.fluidRows.map(({ description }) => description)).toEqual([
+      'blue borders',
+      'blue borders',
+      'blue borders',
+      'blue borders',
+      'blue borders',
+    ])
+    expect(
+      model.specialGroups.flatMap(({ entries }) =>
+        entries.map(({ inventoryID }) => inventoryID),
+      ),
+    ).not.toContain(Pieces.genericFluid2)
   })
 
   it('uses the title as a safe fallback for missing terrain descriptions', () => {
