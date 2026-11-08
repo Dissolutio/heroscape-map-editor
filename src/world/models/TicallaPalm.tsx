@@ -116,7 +116,7 @@ export function TicallaPalmPreview({
         />
       ) : (
         <mesh
-          userData={{ junglePalmUID: pid ?? null, junglePalmPart: 'canopy' }}
+          userData={{ junglePalmUID: pid ?? null, junglePalmPart: 'fronds' }}
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.Palm_Canopy.geometry}
@@ -235,7 +235,7 @@ export function LaurPalmPreview({
         />
       ) : (
         <mesh
-          userData={{ junglePalmUID: pid ?? null, junglePalmPart: 'canopy' }}
+          userData={{ junglePalmUID: pid ?? null, junglePalmPart: 'fronds' }}
           receiveShadow={isLightsAndShadowsRender}
           castShadow={isLightsAndShadowsRender}
           geometry={nodes.Palm_Canopy.geometry}

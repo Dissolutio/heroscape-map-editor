@@ -247,7 +247,7 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | View tooltips, 3D/2D/PDF navbar switching, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
 | Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |
 | Multi-hex fluid cap join vertices and dark-pixel checks at Medium/High | `e2e/fluid-cap-vertices.spec.ts` |
-| Hive, evergreen, Snow Evergreen, and Marvel Ruin, Stone Wall, Ruins 2/3 texture maps and selection across Low/Medium/High, transparent placement previews, lazy tier loading, and picture-only High setting restoration | `e2e/graphics-tier.spec.ts` |
+| Hive, jungle palm, evergreen, Snow Evergreen, and Marvel Ruin, Stone Wall, Ruins 2/3 texture maps and selection across Low/Medium/High, transparent placement previews, lazy tier loading, and picture-only High setting restoration | `e2e/graphics-tier.spec.ts` |
 | Opt-in performance overlay | `e2e/performance.spec.ts` |
 
 The map-settle tracker also feeds the app's startup UI in normal runs. The

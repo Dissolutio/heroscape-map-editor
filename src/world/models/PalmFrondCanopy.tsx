@@ -43,6 +43,36 @@ const barkMaterialCache = new Map<string, MeshStandardMaterial>()
 const depthMaterialCache = new Map<string, MeshDepthMaterial>()
 const distanceMaterialCache = new Map<string, MeshDistanceMaterial>()
 
+export function clearPalmCanopyCache() {
+  for (const material of [
+    ...frondMaterialCache.values(),
+    ...undergrowthMaterialCache.values(),
+    ...barkMaterialCache.values(),
+    ...depthMaterialCache.values(),
+    ...distanceMaterialCache.values(),
+  ]) {
+    material.dispose()
+  }
+  for (const textures of textureCache.values()) {
+    textures.frond.dispose()
+    textures.undergrowth.dispose()
+    textures.bark.dispose()
+    textures.barkNormal.dispose()
+  }
+  for (const geometry of frondGeometryCache.values()) {
+    geometry.dispose()
+  }
+  undergrowthGeometry?.dispose()
+  textureCache.clear()
+  frondGeometryCache.clear()
+  frondMaterialCache.clear()
+  undergrowthMaterialCache.clear()
+  barkMaterialCache.clear()
+  depthMaterialCache.clear()
+  distanceMaterialCache.clear()
+  undergrowthGeometry = undefined
+}
+
 function makeCanvas(width: number, height: number) {
   const canvas = document.createElement('canvas')
   canvas.width = width
@@ -256,6 +286,12 @@ function getFrondMaterial(
       opacity,
       depthWrite: opacity === 1,
     })
+    material.onBeforeCompile = (shader) => {
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <map_fragment>',
+        '#include <map_fragment>\nif (!gl_FrontFacing) diffuseColor.rgb *= 1.06;',
+      )
+    }
     frondMaterialCache.set(key, material)
   }
   return material
@@ -341,17 +377,21 @@ function getUndergrowthGeometry() {
   return undergrowthGeometry
 }
 
-function getCutoutDepthMaterials(style: PalmStyle) {
-  const map = getTextures(style).frond
-  let depth = depthMaterialCache.get(style)
+function getCutoutDepthMaterials(
+  style: PalmStyle,
+  foliage: 'frond' | 'undergrowth' = 'frond',
+) {
+  const map = getTextures(style)[foliage]
+  const key = `${style}:${foliage}`
+  let depth = depthMaterialCache.get(key)
   if (!depth) {
     depth = new MeshDepthMaterial({ map, alphaTest, side: DoubleSide })
-    depthMaterialCache.set(style, depth)
+    depthMaterialCache.set(key, depth)
   }
-  let distance = distanceMaterialCache.get(style)
+  let distance = distanceMaterialCache.get(key)
   if (!distance) {
     distance = new MeshDistanceMaterial({ map, alphaTest, side: DoubleSide })
-    distanceMaterialCache.set(style, distance)
+    distanceMaterialCache.set(key, distance)
   }
   return { depth, distance }
 }
@@ -433,6 +473,7 @@ function PalmUndergrowth({
   castShadow: boolean
 }) {
   const meshRef = useRef<InstancedMesh>(null)
+  const { depth, distance } = getCutoutDepthMaterials(style, 'undergrowth')
   const transforms = useMemo(() => {
     let value = 2166136261
     for (let index = 0; index < seed.length; index += 1) {
@@ -471,7 +512,10 @@ function PalmUndergrowth({
       mesh.setMatrixAt(index, object.matrix)
     })
     mesh.instanceMatrix.needsUpdate = true
-  }, [transforms])
+    mesh.computeBoundingSphere()
+    mesh.customDepthMaterial = depth
+    mesh.customDistanceMaterial = distance
+  }, [depth, distance, transforms])
 
   return (
     <instancedMesh
