@@ -1,25 +1,36 @@
 # Hexoscape roadmap
 
-Updated 2026-11-06. One page. Legend: 🔧 Copilot has it (issue #) · 👀 needs your eyes · 👤 waiting on you · ❓ needs a decision or measurement · 💤 later
+Updated 2026-11-08. One page. This file and the project doc `claude/roadmap.md` are kept identical.
+Legend: 🔧 Copilot has it (issue #) · 👀 needs your eyes · 👤 waiting on you · ❓ needs a decision or measurement · 💤 later
 
 ## Where we are
-Merged Nov 5-6 (release notes entry Nov-06-2026, release planned Nov 6): textured Warehouse (Marvel) Ruin with all four variants, textured Stone Wall, textured Ruins 2 and 3 (all Virtualscape meshes; Low flat colors, Medium texture, High glossier), numbered obstacle variants (1-N keys; Shift+1 / 1 cycle large families like Laur walls), tree placement preview restored with e2e coverage in every tier, dev lint fix (duplicate imports in the test bridge).
-Merged Nov 5 (release notes entry Nov-05-2026): textured Marro Hive and textured Evergreen Trees 10/11/12 and Large Tree 15 (Medium and High tiers; models converted from Virtualscape meshes), "Show Objective Markers" switch (like Start Zones, on every session), objective marker numbers face the camera (shared marker/glyph rotation removed), missing and white hex sides fix, PDF sub-level colors (SVG unchanged), ladder stack counts, click empty ground to deselect, old High-Quality render path removed, Dependabot config and Tauri/zip dependency fix, unused old hive model deleted.
-Merged Nov 3: upright and unmirrored side textures, size hotkeys for obstacles, one 3D | 2D | PDF navbar switch, optional PDF piece legend, no random rotation on Wood caps, quieter action log, selection units (saved named selections pinned above the action log, log rows recall their selection; replaces back/forward history).
-Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restores selection, rotate hotkeys (q/e) while dragging, Use as Pen, upright side textures, fluid caps, old-map loading fix. Textures (3 graphics tiers), objective markers, edge IDs for Laur/battlements/ladders are all in.
+Released to `main` Nov 8 (`e517d0ec`), everything below included. Release notes: the top entry is still Nov-07. A drafted Nov-08 entry is in chat; two Nov-07 bullets (marker numbers always face you, ladder "x3") no longer match what shipped.
+Since Nov 6: Adapt to my Collection (land only; ranked substitutes, new-map naming step, no Generic); right-click selection menu (same type, connected, same level, invert; "connected" = land, obstacle on its land, Laur, edge pieces); 3D | 2D | PDF switch replaced by the original icons; official-style piece key in SVG and PDF (real shapes, drawn from a rotation-0 placement, PDF breaks only between rows); SVG downloads (one level, Legend, whole map .zip or one SVG; Legend is its own 2D step; key text as paths, no strokes); PDF ladder overlay (the "x3" text is gone); 2D view about 4x faster; printed heights use the game height (Evergreen Tree (10) prints 10, Laur walls 9); ship family (Ship Wall, Ship Bow, Rope Ladder, Cannon = 1-4); switching to a placement pen clears the selection (logged, recallable; Use as Pen keeps it); "Objective text follow camera" option (default off); "Show Glyphs" for 3D (Transparent glyph spaces removed); fixes: deleting a piece made other pieces vanish, ship pieces missing from 2D/SVG/PDF; e2e in 5 shards; Dependabot targets `dev`.
+Earlier (Nov 2-6): textures for Marro Hive, Evergreen Trees, Warehouse Ruin, Stone Wall, Ruins 2/3; numbered obstacle variants; action log and saved selections; Show Objective Markers; Windows 3D recovery.
 
 ## 1. Now
-- 👀 Hand-test Nov 6 merges: Warehouse Ruin variants (broken wall, upper floor height), Stone Wall, Ruins 2/3 (textures confirmed right), big-tree squash, numbered variant buttons (label fit with 11 Laur wall options, Shift+1), tree and other ghost previews
-- 👀 Hand-test the Nov 5 merges: textured Marro Hive (underside, ridges, eggs, shadow acne), textured evergreen trees (heights 11 and 12, rotation, tree 15 trunk/base, boulders), Show Objective Markers switch (hidden markers can't be clicked or dragged), marker numbers facing the camera, hex sides under start zones and beside water (#261 fix; send the map if white sides remain)
-- 👀 Hand-test the Nov 3 and 4 merges: side textures not mirrored, Wood planking at rotations 1, 2, 4, 5 (and in the drag preview), size hotkeys, navbar 3D | 2D | PDF switch, PDF piece legend, PDF sub-level colors match the SVG (SVG unchanged), ladder stack counts (x2, x3), click an empty hex to deselect
-- 👀 Zoom-to-Piece fade: Copilot found no fade code in source. Does it still happen?
-- 👀 Test selection units: click action-log rows, save and recall a named selection (Shift adds), save and reload a map keeps them
-- 👀 Test the ghost-preview fix and Windows diagnostics (Sentry tag `webgl`)
-- 👀 First release build after the Rust 1.90 minimum (Tauri/zip update); the two zip Dependabot alerts close once the updater fix ships
+- 👀 Hand-test the Nov 8 release: right-click menu (all four actions, right-drag still orbits, Escape; Select connected on a map with start zones shown); Adapt to my Collection (2nd/3rd substitute appears only when needed, buried fill, naming step, one Undo); piece key in SVG and PDF on a real rotated map; SVG downloads (zip, one SVG, Legend step); PDF ladder overlay (two runs on one edge); pen switch clears selection + log recall; ship family keys 1-4; Show Glyphs; Objective text follow camera at low angles; delete near ships no longer eats water; ship walls and bows print
+- 👀 Delete speed on your big map (delete now replays the board, like move already did)
+- 👀 Earlier hand-test lists still open: Warehouse Ruin variants, Stone Wall, big-tree squash, Laur wall variant buttons (label fit, Shift+1), textured hive and trees, hex sides under start zones and beside water
+- 👀 First release build after the Rust 1.90 minimum; the two zip Dependabot alerts close once the updater fix ships
+- 👤 Dependabot: try the hotkeys with #344 (react-hotkeys-hook 5) before merging; merge #348 (hold MUI and Vitest majors)
+- 👤 Delete the leftover branch `parity/svg-snapshot-on-dev` (`git push origin --delete parity/svg-snapshot-on-dev`)
+- 👤 Release notes: add the Nov-08 entry and fix the two stale Nov-07 bullets
 
 ## 2. Next (catch-up, in rough order)
+**Bugs and quality**
+- Ship conflict rules to match the physical pieces (ships over water) 👤 your rules first
+- Piece key text is small next to full-size pieces (headings about one hex radius, subtitles about half) ❓ say go
+- Lock the SVG colors with a snapshot test so any change fails CI; optional render comparison against Oct 1 ❓ say go
+- 2D view still about 1 s to open on big maps: profile Oct 1 vs now ❓ say go
+
 **Selection**
-- Right-click menu: select same type, connected, same level, invert
+- More right-click menu items (grow selection, convert terrain, delete, use as pen) ❓ pick which
+- More "drop the selection" moments: level change hides it, leaving 3D, inventory jump ❓ pick which
+
+**Adapt to my Collection**
+- Obstacle substitution (trees for trees; Jungle, Shroudshrooms, Cannons as last resort)
+- What sets can build this map
 
 **Hotkeys**
 - Edit hotkeys, import/export a config file
@@ -36,23 +47,33 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - Step 7: occupancy and saving on edges
 
 **Rules and pieces**
-- Ship conflicts at level 0 ❓ needs physical testing
 - Outcrop bases count in inventory ("with holes" pieces don't exist yet)
 - Tall stacks of fluid beyond 2 ❓ needs physical testing
-- Snow trees: no Virtualscape model exists, so they need a different texturing plan ❓
+- Snow trees: no Virtualscape model, needs a different texturing plan ❓
 - Delete leftover old GLBs (`marvel-ruins_v2.glb`, old tree GLBs) once their bounds tests use recorded bounds
-- Big tree boulders now use our boulder models with the Virtualscape rock texture; revisit if they look off
+
+**3D looks**
+- Jungle palms (Laur and Ticalla) with cut-out drooping fronds, 3D only. Issue drafted in `claude/jungle-palm-3d-issue-draft.md`, file after the release 👤 frond photos from the community
+
+**Planned upgrades** (Dependabot skips these on purpose)
+- React 19 with @react-three/fiber 9 and drei 10
+- Vite 8 with the matching React plugin
+- TypeScript 7 (native compiler)
+- MUI 7+ (X Data Grid 9)
+- Vitest 5 (bench export moved)
+- three and @types/three together
 
 **Health**
-- Rough-edges cleanup (small known nits, list in project docs)
+- Rough-edges cleanup (small known nits, list in `claude/backlog.md`)
 - E2E flake watch (tooltips can cover buttons: move the pointer away before clicking)
 - Developer guide refresh once edges are done (`docs/adding-a-piece.md`)
-- "Retry 3D" button if the Windows panel shows up in the wild
 
 ## 3. Waiting on you 👤
 - Laur Ruin 1 redo
-- Hand-testing after each deploy (list in section 1)
+- Frond photos for the jungle palms (one frond with a card slid behind it, shot straight down in daylight)
+- Ship physical rules
 - Where to take the UI layout (you said the layout is "way off")
+- Hand-testing after each deploy (list in section 1)
 
 ## 4. After catch-up
 **UI and structure**
@@ -66,7 +87,7 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 
 **Site**
 - Homepage at `/` (Gallery, New map, Load, About, Desktop downloads)
-- Database: accounts, save/share maps with short URLs, browse by terrain
+- Database: accounts, save/share maps with short URLs, browse by terrain; the collection moves there too (Adapt already reads it through one function)
 - Shareable map image URL (needs a small server piece)
 
 **2D builder**
@@ -75,7 +96,6 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 **Builder power tools**
 - Copy/paste and saved templates (plus a template library)
 - Combine selected pieces into one larger piece
-- Convert a map to fit your inventory; what sets can build this map
 - Smarter mouse-only rotation (no wheel)
 
 **More content**
@@ -86,4 +106,4 @@ Shipped Nov 2: Windows 3D recovery, action log, selection history + undo restore
 - Import Virtualscape PDFs as maps (not a priority)
 
 ## 5. Done and retired
-Textured Marro Hive and evergreen trees, Show Objective Markers switch, Dependabot setup, generic pieces, buried marks, Treasure glyph color, Shroudshroom marker, objective markers, 3D Look + field of view, transparent pictures, crop dialog, Pieces Grid filter keeps, Map Inventory click-to-pen, action log, background color, adjustable lights (3D Look). The old Flash-era `REFACTORED_TODO.md` was retired; this file is the only list.
+Adapt to my Collection (land), right-click selection menu, official-style piece key, SVG download rework, PDF ladder overlay, game heights, ship family, Show Glyphs, faster 2D view, textured Warehouse Ruin, Stone Wall, Ruins 2/3, Marro Hive and evergreen trees, numbered obstacle variants, Show Objective Markers switch, Dependabot setup, generic pieces, buried marks, Treasure glyph color, Shroudshroom marker, objective markers, 3D Look + field of view, transparent pictures, crop dialog, Pieces Grid filter keeps, Map Inventory click-to-pen, action log, background color, adjustable lights (3D Look). The old Flash-era `REFACTORED_TODO.md` was retired; this file is the only list.
