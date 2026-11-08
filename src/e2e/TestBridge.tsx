@@ -10,6 +10,7 @@ import {
   Vector2,
   Vector3,
 } from 'three'
+import { piecesSoFar } from '../data/pieces'
 import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
 import { getPieceIDForPenMode } from '../data/flatPieceSizes'
 import { resolveRotationPivot } from '../data/rotationPivot'
@@ -615,6 +616,16 @@ function TestBridgeInner() {
         if (rotation !== undefined) {
           store.togglePenModeRotation(rotation)
         }
+      },
+      paintPiece: (inventoryID, coords, altitude, rotation = 0) => {
+        const piece = piecesSoFar[inventoryID]
+        if (!piece) return false
+        return !useBoundStore.getState().paintTile({
+          piece,
+          clickedHexCoords: coords,
+          altitude,
+          rotation,
+        })
       },
       setLookBackgroundColor: (color) =>
         useBoundStore.getState().setLookSettings({ backgroundColor: color }),

@@ -34,6 +34,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `glyph-visibility.test.ts` | Session-only 3D glyph visibility, selection/hover filtering, and selection cleanup when glyphs are hidden. |
 | `svg-map-render-performance.test.ts` | A large SVG map render computes its board-wide surface-altitude lookup once, not once per hex. |
 | `svg-map-render-markup.test.ts` | Byte-for-byte SVG snapshots captured from the pre-refactor levels, overlay, and Legend. |
+| `origin-symbol-overlap.test.ts` | SVG/PDF origin symbols remain present at their piece coordinates, rotation, and level after another piece takes ownership of the origin hex. |
 | `ladder-stack-count.test.ts` | Ladder stack model: runs of consecutive ladder altitudes per edge (single run, two runs on one edge, different edges, rotation) and the number of PDF ladder overlay levels. |
 | `pdf-ladder-overlay.test.ts` | PDF ladder overlay levels: no ladder "x N" text in the PDF or SVG, the option off or no ladders gives no ladder level, white 1-hex with thin black border plus ladder shape and count, and two runs on one edge giving two ladder levels. |
 | `pdf-piece-legend.test.ts` | PDF piece-key default visibility and rendering for every registered piece family. |
