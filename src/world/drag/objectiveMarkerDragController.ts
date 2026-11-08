@@ -5,6 +5,7 @@ import {
   getObjectiveMarkerPlacementStatus,
   type ObjectiveMarkerPlacementStatus,
 } from '../../data/objectiveMarkerPlacement'
+import { canDragObjectiveMarker } from '../../data/objectiveMarkerVisibility'
 import type { ObjectiveMarker } from '../../data/objectiveMarkers'
 import { mapTableHexes } from '../../data/fitMapToPieces'
 import useBoundStore from '../../store/store'
@@ -50,12 +51,18 @@ export function pressObjectiveMarkerForDrag(
   uid: string,
 ) {
   event.stopPropagation()
+  const markerState = useBoundStore.getState()
   if (
     event.button !== 0 ||
     press ||
     isDragging() ||
-    useBoundStore.getState().penMode !== SELECT_PEN_MODE ||
-    useBoundStore.getState().selectedObjectiveMarkerUID !== uid
+    markerState.penMode !== SELECT_PEN_MODE ||
+    !canDragObjectiveMarker(
+      uid,
+      markerState.selectedObjectiveMarkerUID,
+      markerState.hexMap.objectiveMarkers ?? [],
+      markerState.isShowObjectiveMarkers,
+    )
   ) {
     return
   }
@@ -78,6 +85,10 @@ export function reportObjectiveMarkerDragTarget(
 ) {
   if (!press?.dragging) return false
   const state = useBoundStore.getState()
+  if (!state.isShowObjectiveMarkers) {
+    end()
+    return false
+  }
   const marker = state.hexMap.objectiveMarkers?.find(
     (item) => item.uid === press?.uid,
   )
@@ -135,6 +146,10 @@ function isCanvasEvent(event: Event) {
 
 function onWindowPointerMoveCapture(event: PointerEvent) {
   if (!press) return
+  if (!useBoundStore.getState().isShowObjectiveMarkers) {
+    end()
+    return
+  }
   hitThisMove = false
   if (
     !press.dragging &&
@@ -171,7 +186,11 @@ function onWindowPointerUpCapture(event: PointerEvent) {
   if (current.dragging) {
     event.preventDefault()
     event.stopPropagation()
-    if (isCanvasEvent(event) && current.target?.placement.status === 'ok') {
+    if (
+      useBoundStore.getState().isShowObjectiveMarkers &&
+      isCanvasEvent(event) &&
+      current.target?.placement.status === 'ok'
+    ) {
       useBoundStore
         .getState()
         .moveObjectiveMarker(current.uid, current.target.marker.anchor)

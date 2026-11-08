@@ -13,9 +13,6 @@ ordinary land. The legacy pipeline remains the Low graphics tier.
 1. Low: the legacy pipeline (subterrain GLBs, matcap, flat colors). No land texture arrays.
 2. Medium: per-hex instancing with diffuse cap and side images.
 3. High: lights + shadows with full PBR (normal, AO, roughness, height) and the PBR alternate diffuses (AncientDark, WoodDark).
-The separate High Quality Render control remains available in Low: it selects
-the realistic legacy cap and keeps objective-marker height aligned with it.
-
 Packed strips contain 21 cap-diffuse layers, up from 19. Estimated RGBA8 GPU
 memory includes the complete mip chains for each selected array:
 

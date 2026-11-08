@@ -9,6 +9,7 @@ export type ShadowRelevantState = {
   graphicsTier: string
   effectiveGraphicsTier: string
   isShowStartZones: boolean
+  isShowObjectiveMarkers: boolean
 }
 
 export type ShadowUpdateWindow = {
@@ -46,7 +47,8 @@ export function shouldInvalidateShadowMap(
     previous.isLightsAndShadowsRender !== current.isLightsAndShadowsRender ||
     previous.graphicsTier !== current.graphicsTier ||
     previous.effectiveGraphicsTier !== current.effectiveGraphicsTier ||
-    previous.isShowStartZones !== current.isShowStartZones
+    previous.isShowStartZones !== current.isShowStartZones ||
+    previous.isShowObjectiveMarkers !== current.isShowObjectiveMarkers
   )
 }
 

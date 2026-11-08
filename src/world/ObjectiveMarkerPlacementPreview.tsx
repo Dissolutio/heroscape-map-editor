@@ -1,4 +1,4 @@
-import { Text } from '@react-three/drei'
+import { Billboard, Text } from '@react-three/drei'
 import { useMemo } from 'react'
 import { mapTableHexes } from '../data/fitMapToPieces'
 import { getObjectiveMarkerPlacementStatus } from '../data/objectiveMarkerPlacement'
@@ -30,8 +30,11 @@ export default function ObjectiveMarkerPlacementPreview() {
   const draft = useBoundStore((state) => state.objectiveMarkerDraft)
   const penModeRotation = useBoundStore((state) => state.penModeRotation)
   const dragPreview = useBoundStore((state) => state.objectiveMarkerDragPreview)
-  const isHighQualityRender = useBoundStore(
-    (state) => state.isHighQualityRender,
+  const isShowObjectiveMarkers = useBoundStore(
+    (state) => state.isShowObjectiveMarkers,
+  )
+  const faceCamera = useBoundStore(
+    (state) => state.isObjectiveMarkerNumbersFaceCamera,
   )
   const mapHexIDs = useMemo(() => mapTableHexes(hexMap), [hexMap])
   const content =
@@ -80,14 +83,14 @@ export default function ObjectiveMarkerPlacementPreview() {
     })
   }, [boardHexes, dragPreview, mapHexIDs, marker, markers])
   const markerPosition = marker
-    ? getObjectiveMarker3DPosition(marker, boardHexes, isHighQualityRender)
+    ? getObjectiveMarker3DPosition(marker, boardHexes)
     : null
   const textTransform =
     marker && markerPosition
-      ? getObjectiveMarker3DTextTransform(marker, markerPosition)
+      ? getObjectiveMarker3DTextTransform(marker, markerPosition, faceCamera)
       : null
 
-  if (!marker || !placement) return null
+  if (!isShowObjectiveMarkers || !marker || !placement) return null
   const hovered =
     hoveredHex ??
     ({
@@ -101,6 +104,25 @@ export default function ObjectiveMarkerPlacementPreview() {
       ? String(marker.content.value)
       : marker.content.value
   const foreground = marker.style === 'black' ? '#ffffff' : '#111111'
+  const label = (
+    <Text
+      userData={{
+        objectiveMarkerTextUID: '__objective-marker-preview__',
+        isBillboard: textTransform?.isBillboard ?? false,
+      }}
+      font="/fonts/Inter_18pt-Bold.ttf"
+      fontSize={getObjectiveMarkerTextFontSize(marker)}
+      maxWidth={HEXGRID_HEX_RADIUS * 2.2}
+      anchorX="center"
+      anchorY={textTransform?.isBillboard ? 'bottom' : 'middle'}
+      textAlign="center"
+      color={foreground}
+      raycast={() => null}
+      castShadow={false}
+    >
+      {text}
+    </Text>
+  )
   return (
     <>
       <PlacementFootprint
@@ -109,24 +131,19 @@ export default function ObjectiveMarkerPlacementPreview() {
         hoveredHex={hovered}
       />
       {textTransform && (
-        <group
-          position={textTransform.groupPosition}
-          rotation={textTransform.groupRotation}
-        >
-          <Text
-            position={textTransform.textPosition}
-            rotation={textTransform.textRotation}
-            font="/fonts/Inter_18pt-Bold.ttf"
-            fontSize={getObjectiveMarkerTextFontSize(marker)}
-            maxWidth={HEXGRID_HEX_RADIUS * 2.2}
-            anchorX="center"
-            anchorY="middle"
-            textAlign="center"
-            color={foreground}
-            raycast={() => null}
-          >
-            {text}
-          </Text>
+        <group position={textTransform.groupPosition}>
+          {textTransform.isBillboard ? (
+            <Billboard position={textTransform.textPosition}>{label}</Billboard>
+          ) : (
+            <group rotation={textTransform.groupRotation}>
+              <group
+                position={textTransform.textPosition}
+                rotation={textTransform.textRotation}
+              >
+                {label}
+              </group>
+            </group>
+          )}
         </group>
       )}
     </>

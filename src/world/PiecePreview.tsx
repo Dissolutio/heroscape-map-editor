@@ -1,4 +1,5 @@
 import { Suspense, useEffect, useMemo } from 'react'
+import { getPieceIDForPenMode } from '../data/flatPieceSizes'
 import { getLaurAddonHitHex } from '../data/laurAddonStacking'
 import {
   areMatchingLaurPillarShapes,
@@ -88,7 +89,7 @@ export default function PiecePreview() {
   const penModeSize = useBoundStore((s) => s.pieceSize)
   const penModeRotation = useBoundStore((s) => s.penModeRotation)
   const isTakingPicture = useBoundStore((s) => s.isTakingPicture)
-  const pieceKey = penModeSize === 0 ? penMode : `${penMode}${penModeSize}`
+  const pieceKey = getPieceIDForPenMode(penMode, penModeSize)
   const piece = piecesSoFar[pieceKey]
   const hoveredAddon = boardPieces.find(
     (boardPiece) =>
@@ -231,7 +232,7 @@ function PiecePreviewModel({
   const penModeSize = useBoundStore((s) => s.pieceSize)
 
   // Determine the piece to preview based on penMode and pieceSize
-  const pieceKey = penModeSize === 0 ? penMode : `${penMode}${penModeSize}`
+  const pieceKey = getPieceIDForPenMode(penMode, penModeSize)
   const piece = piecesSoFar[pieceKey]
   const hoveredPieceSupportHexID = hoveredPiece
     ? genBoardHexID({

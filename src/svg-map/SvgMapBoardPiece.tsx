@@ -1,5 +1,4 @@
-import { getLaurAddonExportSymbol } from '../pdf-svg-shared/laurAddonExportSymbol'
-import useBoundStore from '../store/store'
+import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   type BoardHex,
   type DecodedPieceID,
@@ -23,16 +22,21 @@ export const SvgMapBoardPiece = ({
   piece,
   viewingLevel,
   overlayLevel,
-}: { piece: DecodedPieceID; viewingLevel: number; overlayLevel: number }) => {
+  is2DOverlayLevelEnabled = false,
+  isPieceKeyPreview = false,
+}: {
+  piece: DecodedPieceID
+  viewingLevel: number
+  overlayLevel: number
+  is2DOverlayLevelEnabled?: boolean
+  isPieceKeyPreview?: boolean
+}) => {
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
-  const isSubLevel = altitudeAdjusted < viewingLevel
+  const isSubLevel = !isPieceKeyPreview && altitudeAdjusted < viewingLevel
   const { inventoryID } = piece
-  const laurAddonSymbol = getLaurAddonExportSymbol(inventoryID)
-  const is2DOverlayLevelEnabled = useBoundStore(
-    (s) => s.is2DOverlayLevelEnabled,
-  )
-  const isVisible = altitudeAdjusted <= viewingLevel
+  const exportSymbol = getPieceExportSymbol(inventoryID)
+  const isVisible = isPieceKeyPreview || altitudeAdjusted <= viewingLevel
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   const boardPieceAsHex: BoardHex = {
     id: piece.boardHexID,
@@ -51,10 +55,11 @@ export const SvgMapBoardPiece = ({
     return null
   }
   // Start Zones
-  if (piece.terrain === HexTerrain.startZone) {
+  if (exportSymbol === 'start-zone') {
     const isOverlayViewing =
       is2DOverlayLevelEnabled && viewingLevel === overlayLevel
-    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
+    const specialIsSubLevel =
+      isPieceKeyPreview || isOverlayViewing ? false : isSubLevel
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgStartZone hex={boardPieceAsHex} isSubLevel={specialIsSubLevel} />
@@ -62,13 +67,14 @@ export const SvgMapBoardPiece = ({
     )
   }
   // RopeLadders
-  if (inventoryID === Pieces.ropeLadder) {
+  if (exportSymbol === 'rope-ladder') {
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgRopeLadder
           piece={piece}
           isSubLevel={isSubLevel}
           pieceRotation={pieceRotation}
+          isPieceKeyPreview={isPieceKeyPreview}
         />
       </g>
     )
@@ -98,21 +104,29 @@ export const SvgMapBoardPiece = ({
   }
 
   // LAUR LONGWALLS
-  if (laurAddonSymbol === 'long') {
+  if (exportSymbol === 'laur-long') {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgBoardPieceLaurWallLong piece={piece} isSubLevel={isSubLevel} />
+        <SvgBoardPieceLaurWallLong
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </g>
     )
   }
-  if (laurAddonSymbol === 'arch') {
+  if (exportSymbol === 'laur-arch') {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgBoardPieceLaurWallLongArch piece={piece} isSubLevel={isSubLevel} />
+        <SvgBoardPieceLaurWallLongArch
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
         <g
           // flip upside down text, all other rotations are legible
           transform={
@@ -130,22 +144,30 @@ export const SvgMapBoardPiece = ({
     )
   }
   // LAUR SHORTWALLS
-  if (laurAddonSymbol === 'short') {
+  if (exportSymbol === 'laur-short') {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgBoardPieceLaurWallShort piece={piece} isSubLevel={isSubLevel} />
+        <SvgBoardPieceLaurWallShort
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </g>
     )
   }
   // LAUR RUINS
-  if (laurAddonSymbol === 'ruin') {
+  if (exportSymbol === 'laur-ruin') {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgBoardPieceLaurWallRuin piece={piece} isSubLevel={isSubLevel} />
+        <SvgBoardPieceLaurWallRuin
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </g>
     )
   }

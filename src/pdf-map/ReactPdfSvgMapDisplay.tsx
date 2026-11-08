@@ -1,11 +1,16 @@
 import { Line, Svg } from '@react-pdf/renderer'
 import { piecesSoFar } from '../data/pieces'
 import type { ObjectiveMarker } from '../data/objectiveMarkers'
+import type {
+  GlyphCoordinateLookup,
+  GlyphExportSettings,
+} from '../pdf-svg-shared/glyphExportOptions'
 import { getPdfVisibleObjectiveMarkers } from '../pdf-svg-shared/objectiveMarkerExport'
 import type { BoardHex, DecodedPieceID, PdfMapAltitudeChunk } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import type { BuriedMarksByUID } from '../utils/tileMarks'
 import { PdfObjectiveMarkerOverlay } from './PdfObjectiveMarkers'
+import { PdfLadderOverlayStack } from './PdfLadderOverlay'
 import { PdfMapBoardPiece } from './PdfMapBoardPiece'
 import { PdfMapHex } from './PdfMapHex'
 
@@ -25,6 +30,8 @@ type ReactPdfSvgMapDisplayProps = {
   useLegacyStartZones: boolean
   is2DOverlayLevelEnabled: boolean
   objectiveMarkers: ObjectiveMarker[]
+  glyphCoordinates: GlyphCoordinateLookup
+  glyphExportSettings: GlyphExportSettings
   chunk?: PdfMapAltitudeChunk
 }
 
@@ -44,6 +51,8 @@ export const ReactPdfSvgMapDisplay = ({
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
   objectiveMarkers,
+  glyphCoordinates,
+  glyphExportSettings,
   chunk,
 }: ReactPdfSvgMapDisplayProps) => {
   const emptyHexesArr = boardHexesArr.filter((hex) => hex.terrain === 'empty')
@@ -56,8 +65,11 @@ export const ReactPdfSvgMapDisplay = ({
   const subLevelHexes = nonEmptyHexesArr.filter(
     (h) => h.altitude < viewingLevel,
   )
+  const ladderStacks = chunk?.ladderStacks
   const visibleBoardPieces = boardPiecesArr.filter((bp) => {
     if (piecesSoFar[bp.inventoryID]?.isOverlayPiece) {
+      // the ladder overlay level is a plain top-down background
+      if (ladderStacks) return false
       return (
         isOverlayViewing ||
         (isShowPdfOverlayOnPlacedLevel && bp.altitude <= viewingLevel)
@@ -93,6 +105,8 @@ export const ReactPdfSvgMapDisplay = ({
         isShowPdfBuriedMarks={isShowPdfBuriedMarks}
         buriedMarksByUID={buriedMarksByUID}
         useLegacyStartZones={useLegacyStartZones}
+        glyphCoordinates={glyphCoordinates}
+        glyphExportSettings={glyphExportSettings}
       />
     ))
   const subLevelPiecesEls = subLevelPieces
@@ -119,6 +133,8 @@ export const ReactPdfSvgMapDisplay = ({
       isShowPdfBuriedMarks={isShowPdfBuriedMarks}
       buriedMarksByUID={buriedMarksByUID}
       useLegacyStartZones={useLegacyStartZones}
+      glyphCoordinates={glyphCoordinates}
+      glyphExportSettings={glyphExportSettings}
     />
   ))
   return (
@@ -152,6 +168,8 @@ export const ReactPdfSvgMapDisplay = ({
             isShowPdfBuriedMarks={isShowPdfBuriedMarks}
             buriedMarksByUID={buriedMarksByUID}
             useLegacyStartZones={useLegacyStartZones}
+            glyphCoordinates={glyphCoordinates}
+            glyphExportSettings={glyphExportSettings}
           />
         ))}
       {currentLevelPieces
@@ -165,6 +183,12 @@ export const ReactPdfSvgMapDisplay = ({
             useLegacyStartZones={useLegacyStartZones}
           />
         ))}
+      {ladderStacks?.map((stack) => (
+        <PdfLadderOverlayStack
+          key={`${stack.edgeId}~${stack.runIndex}`}
+          stack={stack}
+        />
+      ))}
       {visibleObjectiveMarkers.length > 0 && (
         <PdfObjectiveMarkerOverlay markers={visibleObjectiveMarkers} />
       )}

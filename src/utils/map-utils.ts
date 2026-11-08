@@ -327,6 +327,7 @@ export const getOverlayLevel = (
 export const getCycleableLevels = (
   boardPieces: BoardPiece[],
   boardHexes: BoardHexes,
+  includeLegend = false,
 ): number[] => {
   const maxLevel = getBoardPiecesMaxLevel(boardPieces, boardHexes)
   const wholeLevels = Array.from(
@@ -340,7 +341,12 @@ export const getCycleableLevels = (
     }
   }
   const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
-  return [...wholeLevels, ...halfLevels, overlayLevel].sort((a, b) => a - b)
+  return [
+    ...wholeLevels,
+    ...halfLevels,
+    overlayLevel,
+    ...(includeLegend ? [overlayLevel + 1] : []),
+  ].sort((a, b) => a - b)
 }
 export function countTerrainSets(setsUsed: string[]): Record<string, number> {
   return setsUsed.reduce(

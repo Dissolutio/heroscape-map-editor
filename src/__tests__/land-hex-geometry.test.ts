@@ -4,6 +4,7 @@ import {
   buildFluidGeometry,
   buildSideGeometry,
 } from '../world/models/LandHexInstanced'
+import { HEX_DIRECTIONS, cubeToPixel } from '../utils/hex-utils'
 
 describe('per-hex land geometry', () => {
   it('draws all six side quads, each from its own four vertices', () => {
@@ -30,16 +31,42 @@ describe('per-hex land geometry', () => {
     }
   })
 
+  it('aligns solid and fluid side quads with all six hex directions', () => {
+    const geometries = [
+      { geometry: buildSideGeometry(0), sideVertexOffset: 0 },
+      { geometry: buildFluidGeometry(0), sideVertexOffset: 18 },
+    ]
+
+    for (const { geometry, sideVertexOffset } of geometries) {
+      const positions = geometry.getAttribute('position')
+      for (let side = 0; side < 6; side += 1) {
+        const first = sideVertexOffset + side * 4
+        const opposite = first + 2
+        const midpoint = {
+          x: (positions.getX(first) + positions.getX(opposite)) / 2,
+          z: (positions.getZ(first) + positions.getZ(opposite)) / 2,
+        }
+        const direction = cubeToPixel(HEX_DIRECTIONS[side])
+        const alignment =
+          (midpoint.x * direction.x + midpoint.z * direction.y) /
+          (Math.hypot(midpoint.x, midpoint.z) *
+            Math.hypot(direction.x, direction.y))
+
+        expect(alignment).toBeGreaterThan(0.999)
+      }
+    }
+  })
+
   it('maps side-image top rows to face tops, including half-height fluids', () => {
     const solid = buildSideGeometry(0).getAttribute('landSideUv')
     const fluid = buildFluidGeometry(0).getAttribute('landSideUv')
 
     for (let side = 0; side < 6; side += 1) {
       const start = side * 4
-      expect([solid.getX(start), solid.getY(start)]).toEqual([0, 0])
-      expect([solid.getX(start + 1), solid.getY(start + 1)]).toEqual([0, 1])
-      expect([solid.getX(start + 2), solid.getY(start + 2)]).toEqual([1, 1])
-      expect([solid.getX(start + 3), solid.getY(start + 3)]).toEqual([1, 0])
+      expect([solid.getX(start), solid.getY(start)]).toEqual([1, 0])
+      expect([solid.getX(start + 1), solid.getY(start + 1)]).toEqual([1, 1])
+      expect([solid.getX(start + 2), solid.getY(start + 2)]).toEqual([0, 1])
+      expect([solid.getX(start + 3), solid.getY(start + 3)]).toEqual([0, 0])
 
       const fluidStart = 18 + start
       for (let vertex = 0; vertex < 4; vertex += 1) {
@@ -48,6 +75,31 @@ describe('per-hex land geometry', () => {
           fluid.getY(fluidStart + vertex),
         ]).toEqual([solid.getX(start + vertex), solid.getY(start + vertex)])
       }
+    }
+  })
+
+  it('side u increases to the right of a viewer facing each face, so images are not mirrored', () => {
+    const geometry = buildSideGeometry(0)
+    const position = geometry.getAttribute('position')
+    const uv = geometry.getAttribute('landSideUv')
+    for (let side = 0; side < 6; side += 1) {
+      const lowU = side * 4 + 3 // u = 0 corner, bottom
+      const highU = side * 4 // u = 1 corner, bottom
+      expect(uv.getX(lowU)).toBe(0)
+      expect(uv.getX(highU)).toBe(1)
+      // outward normal of the face, from the midpoint of its bottom edge
+      const mx = (position.getX(lowU) + position.getX(highU)) / 2
+      const mz = (position.getZ(lowU) + position.getZ(highU)) / 2
+      const length = Math.hypot(mx, mz)
+      const normal = [mx / length, 0, mz / length]
+      // viewer's right when looking at the face from outside: up x normal
+      const right = [normal[2], 0, -normal[0]]
+      const along = [
+        position.getX(highU) - position.getX(lowU),
+        0,
+        position.getZ(highU) - position.getZ(lowU),
+      ]
+      expect(along[0] * right[0] + along[2] * right[2]).toBeGreaterThan(0)
     }
   })
 

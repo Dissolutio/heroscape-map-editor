@@ -36,7 +36,6 @@ export function redoWithSelectionRestore() {
 
 function restoreTouchedSelection(record: UndoSelectionRestoreRecord) {
   const state = useBoundStore.getState()
-  state.cancelSelectionHistoryRecording()
   const markerExists =
     record.objectiveMarkerUID &&
     state.hexMap.objectiveMarkers?.some(
@@ -52,7 +51,9 @@ function restoreTouchedSelection(record: UndoSelectionRestoreRecord) {
         state.isShowStartZones,
       )
   const selectedMarkerUID =
-    markerExists && record.restoreObjectiveMarkerSelection !== false
+    markerExists &&
+    state.isShowObjectiveMarkers &&
+    record.restoreObjectiveMarkerSelection !== false
       ? record.objectiveMarkerUID
       : null
 

@@ -2,20 +2,18 @@ import { produce } from 'immer'
 import { enqueueSnackbar } from 'notistack'
 import type { StateCreator } from 'zustand'
 import type { DragPreview } from '../data/dragMove'
-import { getNewPieceSizeForPenMode } from '../data/flatPieceSizes'
+import {
+  getNewPieceSizeForPenMode,
+  getPieceIDForPenMode,
+} from '../data/flatPieceSizes'
 import { type LookSettings, sanitizeLookSettings } from '../data/lookSettings'
-import {
-  appendSelectionHistoryEntry,
-  navigateSelectionHistory,
-  resolveSelectionHistory,
-  sameSelection,
-  type SelectionHistoryEntry,
-} from '../data/selectionHistory'
-import {
-  OBJECTIVE_MARKER_PEN_MODE,
-  type ObjectiveMarker,
-  type ObjectiveMarkerDraft,
+import { canSelectObjectiveMarker } from '../data/objectiveMarkerVisibility'
+import type {
+  ObjectiveMarker,
+  ObjectiveMarkerDraft,
 } from '../data/objectiveMarkers'
+import { isPlacementPenMode } from '../data/penMode'
+import { piecesSoFar } from '../data/pieces'
 import {
   type RotationPivot,
   createRotationPivot,
@@ -40,6 +38,7 @@ import {
   finishPerformanceTiming,
   startPerformanceTiming,
 } from '../performance/performanceTiming'
+import { getVisibleSelectionPieces } from '../selection/selectionMenuActions'
 import {
   type BoardHex,
   type BoardPiece,
@@ -48,6 +47,7 @@ import {
   SELECT_PEN_MODE,
   type TerrainConstraintSource,
 } from '../types'
+import type { PictureCaptureOptions } from '../world/camera/pictureCaptureOptions'
 import {
   getLastPointerWorldPoint,
   shouldTrackHoveredWorldPoint,
@@ -56,7 +56,6 @@ import {
   type TextureLoadStatus,
   loadTerrainTextureArrays,
 } from '../world/textures/terrainTextureArrays'
-import type { PictureCaptureOptions } from '../world/camera/pictureCaptureOptions'
 import type { AppState } from './store'
 
 export type { LightPosition } from '../local-storage/settings'
@@ -67,51 +66,14 @@ export type UndoSelectionRestoreRecord = {
   restoreObjectiveMarkerSelection?: boolean
 }
 
+export type TogglePenModeOptions = {
+  preferredSize?: number
+  preserveSelection?: boolean
+}
+
 export const EMPTY_UNDO_SELECTION_RESTORE: UndoSelectionRestoreRecord = {
   pieceUIDs: [],
   objectiveMarkerUID: null,
-}
-const SELECTION_HISTORY_SETTLE_MS = 250
-let selectionHistoryTimeout: ReturnType<typeof setTimeout> | null = null
-
-function scheduleSelectionHistory(record: () => void) {
-  if (selectionHistoryTimeout) clearTimeout(selectionHistoryTimeout)
-  selectionHistoryTimeout = setTimeout(() => {
-    selectionHistoryTimeout = null
-    record()
-  }, SELECTION_HISTORY_SETTLE_MS)
-}
-
-function applySelectionHistoryEntry(
-  entry: SelectionHistoryEntry,
-  set: (partial: Partial<AppState>) => void,
-  get: () => AppState,
-) {
-  const state = get()
-  const markerExists =
-    entry.objectiveMarkerUID &&
-    state.hexMap.objectiveMarkers?.some(
-      (marker) => marker.uid === entry.objectiveMarkerUID,
-    )
-  set({
-    selectedPieceIDs: markerExists
-      ? []
-      : filterVisiblePieceIDs(
-          entry.pieceUIDs,
-          state.boardPieces,
-          state.isShowStartZones,
-        ),
-    selectedObjectiveMarkerUID: markerExists ? entry.objectiveMarkerUID : null,
-    rotationPivot: null,
-  })
-}
-
-function getCurrentSelection(state: AppState): SelectionHistoryEntry {
-  return {
-    pieceUIDs: [...state.selectedPieceIDs],
-    objectiveMarkerUID: state.selectedObjectiveMarkerUID,
-    selectedAt: 0,
-  }
 }
 
 export interface UISlice {
@@ -122,6 +84,10 @@ export interface UISlice {
   textureLoadProgress: { loaded: number; total: number }
   isShowStartZones: boolean
   toggleIsShowStartZones: (s: boolean) => void
+  isShowObjectiveMarkers: boolean
+  toggleIsShowObjectiveMarkers: (show: boolean) => void
+  isObjectiveMarkerNumbersFaceCamera: boolean
+  toggleIsObjectiveMarkerNumbersFaceCamera: (show: boolean) => void
   isShowActionLog: boolean
   toggleIsShowActionLog: (show: boolean) => void
   resetSettings: () => void
@@ -147,7 +113,7 @@ export interface UISlice {
 
   penMode: string
   pieceSize: number
-  togglePenMode: (mode: string) => void
+  togglePenMode: (mode: string, options?: TogglePenModeOptions) => void
   penModeRotation: number
   togglePenModeRotation: (s: number) => void
   togglePieceSize: (s: number) => void
@@ -183,13 +149,7 @@ export interface UISlice {
     pointerPoint?: { x: number; z: number },
     clickedHex?: BoardHex,
   ) => void
-  selectionHistory: SelectionHistoryEntry[]
-  selectionHistoryCursor: number
-  recordSettledSelection: () => void
-  cancelSelectionHistoryRecording: () => void
-  clearSelectionHistory: () => void
-  navigateSelectionHistory: (direction: 'back' | 'forward') => void
-  selectSelectionHistoryEntry: (index: number) => void
+  setSelectedPieceIDs: (ids: readonly string[]) => void
   rotationPivot: RotationPivot | null
   setRotationPivot: (pivot: RotationPivot | null) => void
   hoveredPieceID: string
@@ -204,8 +164,6 @@ export interface UISlice {
   toggleIs2DOpen: (b: boolean) => void
   isPdfOpen: boolean
   toggleIsPdfOpen: (b: boolean) => void
-  isHighQualityRender: boolean
-  toggleIsHighQualityRender: (b: boolean) => void
   useHighQualityForPicture: boolean
   toggleUseHighQualityForPicture: (b: boolean) => void
   isLightsAndShadowsRender: boolean
@@ -297,6 +255,10 @@ export interface UISlice {
   toggleIsShowPdfTileLetters: (b: boolean) => void
   isShowPdfBuriedMarks: boolean
   toggleIsShowPdfBuriedMarks: (b: boolean) => void
+  isShowPdfPieceLegend: boolean
+  toggleIsShowPdfPieceLegend: (b: boolean) => void
+  isShowPdfLadderOverlay: boolean
+  toggleIsShowPdfLadderOverlay: (b: boolean) => void
   pdfRenderFormat: 'coversheet' | 'shortHeader' | 'condensedCoversheet'
   setPdfRenderFormat: (
     format: 'coversheet' | 'shortHeader' | 'condensedCoversheet',
@@ -315,11 +277,6 @@ export interface UISlice {
 }
 
 const initialPenMode = SELECT_PEN_MODE
-const nonPaintingPenModes = new Set<string>([
-  SELECT_PEN_MODE,
-  PICK_PEN_MODE,
-  OBJECTIVE_MARKER_PEN_MODE,
-])
 let graphicsTierLoadGeneration = 0
 
 const createUISlice: StateCreator<
@@ -405,15 +362,35 @@ const createUISlice: StateCreator<
   },
   setRememberedMapAuthor: (name: string) => set({ rememberedMapAuthor: name }),
   isShowStartZones: true,
+  isShowObjectiveMarkers: true,
+  toggleIsObjectiveMarkerNumbersFaceCamera: (show) =>
+    set({ isObjectiveMarkerNumbersFaceCamera: show }),
+  toggleIsShowObjectiveMarkers: (show) =>
+    set(
+      produce((s) => {
+        s.isShowObjectiveMarkers = show
+        if (!show) {
+          s.selectedObjectiveMarkerUID = null
+          s.objectiveMarkerDragPreview = null
+        }
+      }),
+    ),
   toggleIsShowActionLog: (show) => set({ isShowActionLog: show }),
   selectedPieceIDs: [],
   selectedObjectiveMarkerUID: null,
   setSelectedObjectiveMarkerUID: (uid) => {
-    const previous = get().selectedObjectiveMarkerUID
-    set({ selectedObjectiveMarkerUID: uid })
-    if (previous !== uid) {
-      scheduleSelectionHistory(() => get().recordSettledSelection())
+    const state = get()
+    if (
+      uid &&
+      !canSelectObjectiveMarker(
+        uid,
+        state.hexMap.objectiveMarkers ?? [],
+        state.isShowObjectiveMarkers,
+      )
+    ) {
+      return
     }
+    set({ selectedObjectiveMarkerUID: uid })
   },
   objectiveMarkerDraft: {
     size: 1,
@@ -434,118 +411,6 @@ const createUISlice: StateCreator<
   objectiveMarkerDragPreview: null,
   setObjectiveMarkerDragPreview: (preview) =>
     set({ objectiveMarkerDragPreview: preview }),
-  selectionHistory: [],
-  selectionHistoryCursor: -1,
-  recordSettledSelection: () => {
-    const state = get()
-    const entry: SelectionHistoryEntry = {
-      pieceUIDs: [...state.selectedPieceIDs],
-      objectiveMarkerUID: state.selectedObjectiveMarkerUID,
-      selectedAt: Date.now(),
-    }
-    const history = appendSelectionHistoryEntry(
-      {
-        entries: state.selectionHistory,
-        cursor: state.selectionHistoryCursor,
-      },
-      entry,
-    )
-    set({
-      selectionHistory: history.entries,
-      selectionHistoryCursor: history.cursor,
-    })
-  },
-  cancelSelectionHistoryRecording: () => {
-    if (selectionHistoryTimeout) clearTimeout(selectionHistoryTimeout)
-    selectionHistoryTimeout = null
-  },
-  clearSelectionHistory: () => {
-    get().cancelSelectionHistoryRecording()
-    set({ selectionHistory: [], selectionHistoryCursor: -1 })
-  },
-  navigateSelectionHistory: (direction) => {
-    if (selectionHistoryTimeout) clearTimeout(selectionHistoryTimeout)
-    selectionHistoryTimeout = null
-    const state = get()
-    const available = resolveSelectionHistory(
-      {
-        entries: state.selectionHistory,
-        cursor: state.selectionHistoryCursor,
-      },
-      {
-        pieceUIDs: new Set(state.boardPieces.map((piece) => piece.uid)),
-        visiblePieceUIDs: new Set(
-          filterVisiblePieceIDs(
-            state.boardPieces.map((piece) => piece.uid),
-            state.boardPieces,
-            state.isShowStartZones,
-          ),
-        ),
-        objectiveMarkerUIDs: new Set(
-          (state.hexMap.objectiveMarkers ?? []).map((marker) => marker.uid),
-        ),
-      },
-    )
-    const next = navigateSelectionHistory(
-      available,
-      getCurrentSelection(state),
-      direction === 'back' ? -1 : 1,
-    )
-    set({
-      selectionHistory: next.entries,
-      selectionHistoryCursor: next.cursor,
-    })
-    const entry = next.entries[next.cursor]
-    if (
-      !entry ||
-      (next.cursor === available.cursor &&
-        sameSelection(entry, getCurrentSelection(state)))
-    ) {
-      return
-    }
-    applySelectionHistoryEntry(entry, set, get)
-  },
-  selectSelectionHistoryEntry: (index) => {
-    if (selectionHistoryTimeout) clearTimeout(selectionHistoryTimeout)
-    selectionHistoryTimeout = null
-    const state = get()
-    const available = resolveSelectionHistory(
-      {
-        entries: state.selectionHistory,
-        cursor: state.selectionHistoryCursor,
-      },
-      {
-        pieceUIDs: new Set(state.boardPieces.map((piece) => piece.uid)),
-        visiblePieceUIDs: new Set(
-          filterVisiblePieceIDs(
-            state.boardPieces.map((piece) => piece.uid),
-            state.boardPieces,
-            state.isShowStartZones,
-          ),
-        ),
-        objectiveMarkerUIDs: new Set(
-          (state.hexMap.objectiveMarkers ?? []).map((marker) => marker.uid),
-        ),
-      },
-    )
-    const requested = state.selectionHistory[index]
-    const resolvedIndex = requested
-      ? available.entries.findIndex(
-          (entry) =>
-            entry.selectedAt === requested.selectedAt &&
-            sameSelection(entry, requested),
-        )
-      : -1
-    set({
-      selectionHistory: available.entries,
-      selectionHistoryCursor:
-        resolvedIndex >= 0 ? resolvedIndex : available.cursor,
-    })
-    if (resolvedIndex < 0) return
-    const entry = available.entries[resolvedIndex]
-    if (!entry) return
-    applySelectionHistoryEntry(entry, set, get)
-  },
   rotationPivot: null,
   toggleSelectedPieceID: (
     pieceID: string,
@@ -553,7 +418,6 @@ const createUISlice: StateCreator<
     pointerPoint?: { x: number; z: number },
     clickedHex?: BoardHex,
   ) => {
-    const previous = get()
     set(
       produce((state) => {
         state.selectedObjectiveMarkerUID = null
@@ -640,23 +504,26 @@ const createUISlice: StateCreator<
         }
       }),
     )
-    const next = get()
-    if (
-      !sameSelection(
-        {
-          pieceUIDs: previous.selectedPieceIDs,
-          objectiveMarkerUID: previous.selectedObjectiveMarkerUID,
-          selectedAt: 0,
-        },
-        {
-          pieceUIDs: next.selectedPieceIDs,
-          objectiveMarkerUID: next.selectedObjectiveMarkerUID,
-          selectedAt: 0,
-        },
-      )
-    ) {
-      scheduleSelectionHistory(() => get().recordSettledSelection())
-    }
+  },
+  setSelectedPieceIDs: (pieceIDs) => {
+    const state = get()
+    const visibleIDs = new Set(
+      getVisibleSelectionPieces(
+        state.boardPieces,
+        state.boardHexes,
+        state.viewingLevel,
+        state.isShowStartZones,
+      ).map((piece) => piece.uid),
+    )
+    set(
+      produce((s) => {
+        s.selectedObjectiveMarkerUID = null
+        s.selectedPieceIDs = [...new Set(pieceIDs)].filter((uid) =>
+          visibleIDs.has(uid),
+        )
+        s.rotationPivot = null
+      }),
+    )
   },
   setRotationPivot: (pivot: RotationPivot | null) =>
     set(
@@ -699,50 +566,50 @@ const createUISlice: StateCreator<
     }
   },
   penMode: initialPenMode,
-  toggleLastPenMode: () =>
-    set(
-      produce((state) => {
-        // if already using old pen mode, skip
-        if (
-          state.penMode === state.lastPenMode &&
-          state.lastPenSize === state.pieceSize
-        ) {
-          return
-        }
-        // we are selecting old pen mode
-        // recalculate piece sizes for old pen mode
-        const { newSize: _, newSizes } = getNewPieceSizeForPenMode(
-          state.lastPenMode,
-          state.penMode,
-          state.pieceSize,
-        )
-        state.penMode = state.lastPenMode
-        state.pieceSize = state.lastPenSize
-        state.flatPieceSizes = newSizes
-      }),
-    ),
-  togglePenMode: (mode: string) => {
+  toggleLastPenMode: () => {
+    const { penMode, lastPenMode, pieceSize, lastPenSize } = get()
+    if (penMode === lastPenMode && lastPenSize === pieceSize) return
+    get().togglePenMode(lastPenMode, { preferredSize: lastPenSize })
+  },
+  togglePenMode: (mode: string, options?: TogglePenModeOptions) => {
+    const current = get()
+    const entersPlacementMode =
+      !isPlacementPenMode(current.penMode) && isPlacementPenMode(mode)
+    const selection =
+      entersPlacementMode &&
+      !options?.preserveSelection &&
+      (current.selectedPieceIDs.length > 0 ||
+        current.selectedObjectiveMarkerUID)
+        ? {
+            pieceUIDs: [...current.selectedPieceIDs],
+            ...(current.selectedObjectiveMarkerUID
+              ? { objectiveMarkerUID: current.selectedObjectiveMarkerUID }
+              : {}),
+          }
+        : null
+    const { newSize: calculatedSize, newSizes } = getNewPieceSizeForPenMode(
+      mode,
+      current.penMode,
+      current.pieceSize,
+    )
+    const newSize =
+      options?.preferredSize !== undefined &&
+      newSizes.includes(options.preferredSize)
+        ? options.preferredSize
+        : calculatedSize
     set(
       produce((state) => {
         const startsPlacement =
           !shouldTrackHoveredWorldPoint(state.penMode) &&
           shouldTrackHoveredWorldPoint(mode)
         // when we switch terrains, we have different size options available and must update smartly
-        const { newSize, newSizes } = getNewPieceSizeForPenMode(
-          mode,
-          state.penMode,
-          state.pieceSize,
-        )
         // Keep the active painting mode and size available after a reload.
-        if (!nonPaintingPenModes.has(mode)) {
+        if (isPlacementPenMode(mode)) {
           state.lastPenMode = mode
           state.lastPenSize = newSize
         }
         // Preserve the painting mode when switching to a non-painting mode.
-        if (
-          nonPaintingPenModes.has(mode) &&
-          !nonPaintingPenModes.has(state.penMode)
-        ) {
+        if (!isPlacementPenMode(mode) && isPlacementPenMode(state.penMode)) {
           state.lastPenMode = state.penMode
           state.lastPenSize = state.pieceSize
         }
@@ -750,11 +617,32 @@ const createUISlice: StateCreator<
         state.penMode = mode
         state.pieceSize = newSize
         state.flatPieceSizes = newSizes
+        if (selection) {
+          state.selectedPieceIDs = []
+          state.selectedObjectiveMarkerUID = null
+          state.rotationPivot = null
+        }
         if (startsPlacement) {
           state.hoveredWorldPoint = getLastPointerWorldPoint()
         }
       }),
     )
+    if (selection) {
+      const pieceID = getPieceIDForPenMode(mode, newSize)
+      const pieceName = piecesSoFar[pieceID]?.title ?? pieceID
+      const selectedDescription =
+        selection.pieceUIDs.length > 0
+          ? `${selection.pieceUIDs.length} ${
+              selection.pieceUIDs.length === 1 ? 'piece' : 'pieces'
+            }${selection.objectiveMarkerUID ? ' and objective marker' : ''}`
+          : 'objective marker'
+      get().recordActionLog({
+        type: 'deselect',
+        selection,
+        selectionLabel: selectedDescription,
+        pieceName,
+      })
+    }
   },
   flatPieceSizes: getNewPieceSizeForPenMode(initialPenMode, 'select', 0)
     .newSizes,
@@ -763,7 +651,7 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.pieceSize = n
-        if (!nonPaintingPenModes.has(s.penMode)) {
+        if (isPlacementPenMode(s.penMode)) {
           s.lastPenSize = n
         }
       }),
@@ -1041,6 +929,18 @@ const createUISlice: StateCreator<
         s.isShowPdfBuriedMarks = b
       }),
     ),
+  toggleIsShowPdfPieceLegend: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowPdfPieceLegend = b
+      }),
+    ),
+  toggleIsShowPdfLadderOverlay: (b: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowPdfLadderOverlay = b
+      }),
+    ),
   setPdfRenderFormat: (
     format: 'coversheet' | 'shortHeader' | 'condensedCoversheet',
   ) =>
@@ -1157,12 +1057,6 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isPdfOpen = b
-      }),
-    ),
-  toggleIsHighQualityRender: (b: boolean) =>
-    set(
-      produce((s) => {
-        s.isHighQualityRender = b
       }),
     ),
   toggleUseHighQualityForPicture: (b: boolean) =>

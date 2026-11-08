@@ -13,6 +13,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { evaluateLaurAddonConflicts } from '../data/laurAddonConflicts'
 import { getLaurAddonHitHex } from '../data/laurAddonStacking'
 import { placementBlockedMessages } from '../data/placement'
+import { OBJECTIVE_MARKERS_HIDDEN_MESSAGE } from '../data/objectiveMarkerVisibility'
+import { OBJECTIVE_MARKER_PEN_MODE } from '../data/objectiveMarkers'
 import useBoundStore from '../store/store'
 import type { BoardHex } from '../types'
 import { Pieces } from '../types'
@@ -113,6 +115,24 @@ function clickSnackbarAction(index: number, label: string) {
 }
 
 describe('click placement through the real handler', () => {
+  it('notifies when placing an objective marker while markers are hidden', () => {
+    const table = makeTable(5)
+    const hex = hexAt(table, table.center, 0)
+    if (!hex) throw new Error('test setup: missing table hex')
+    clickWithPen({
+      board: table,
+      pieceID: OBJECTIVE_MARKER_PEN_MODE,
+      hex,
+      isShowObjectiveMarkers: false,
+    })
+
+    expect(snackbar).toHaveBeenCalledWith({
+      message: OBJECTIVE_MARKERS_HIDDEN_MESSAGE,
+      variant: 'info',
+    })
+    expect(useBoundStore.getState().hexMap.objectiveMarkers ?? []).toEqual([])
+  })
+
   it('sets a multi-hex group pivot from the clicked hex without changing selection', () => {
     const table = makeTable(12)
     let board = place({
@@ -167,6 +187,61 @@ describe('click placement through the real handler', () => {
     })
     expect(currentPivotClick.selectedPieceIDs).toEqual(['tile'])
     expect(currentPivotClick.rotationPivot).toBeNull()
+  })
+
+  it('clears piece and objective-marker selection on an empty hex click', () => {
+    const table = makeTable(9)
+    const emptyHex = hexAt(table, table.center, 0)
+    if (!emptyHex) throw new Error('test setup: missing empty table hex')
+
+    const result = clickWithSelection({
+      board: table,
+      hex: emptyHex,
+      selectedPieceIDs: ['selected-piece'],
+      selectedObjectiveMarkerUID: 'selected-marker',
+    })
+
+    expect(result.selectedPieceIDs).toEqual([])
+    expect(result.selectedObjectiveMarkerUID).toBeNull()
+    expect(result.rotationPivot).toBeNull()
+    expect(result.historyUnchanged).toBe(true)
+  })
+
+  it.each([{ shiftKey: true }, { ctrlKey: true }, { metaKey: true }])(
+    'does not clear selection on an empty hex with a modifier',
+    (modifier) => {
+      const table = makeTable(9)
+      const emptyHex = hexAt(table, table.center, 0)
+      if (!emptyHex) throw new Error('test setup: missing empty table hex')
+
+      const result = clickWithSelection({
+        board: table,
+        hex: emptyHex,
+        selectedPieceIDs: ['selected-piece'],
+        selectedObjectiveMarkerUID: 'selected-marker',
+        ...modifier,
+      })
+
+      expect(result.selectedPieceIDs).toEqual(['selected-piece'])
+      expect(result.selectedObjectiveMarkerUID).toBe('selected-marker')
+    },
+  )
+
+  it('keeps selection when a piece pen placement is refused', () => {
+    const table = makeTable(9)
+    const edgeHex = hexAt(table, { q: 0, r: 0, s: 0 }, 0)
+    if (!edgeHex) throw new Error('test setup: missing map-edge hex')
+
+    const result = clickWithPen({
+      board: table,
+      pieceID: 'g7',
+      hex: edgeHex,
+      selectedObjectiveMarkerUID: 'selected-marker',
+    })
+
+    expect(result.added).toEqual([])
+    expect(result.selectedPieceIDs).toEqual([SELECTED_BEFORE_CLICK])
+    expect(result.selectedObjectiveMarkerUID).toBe('selected-marker')
   })
 
   it('sets a single-piece pivot on first click and moves it without toggling', () => {

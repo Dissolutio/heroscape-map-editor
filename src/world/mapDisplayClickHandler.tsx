@@ -1,6 +1,7 @@
 import { Button } from '@mui/material'
 import type { ThreeEvent } from '@react-three/fiber'
 import { closeSnackbar, enqueueSnackbar } from 'notistack'
+import { getPieceIDForPenMode } from '../data/flatPieceSizes.ts'
 import { LAUR_ADDON_STACK_INCREMENT } from '../data/laurAddonStacking.ts'
 import {
   decideLaurVariantPlacement,
@@ -22,13 +23,13 @@ import {
 } from '../data/placement.ts'
 import getPieceTemplateCoords from '../data/rotationTransforms.ts'
 import { START_ZONES_HIDDEN_MESSAGE } from '../data/startZoneVisibility.ts'
+import { OBJECTIVE_MARKERS_HIDDEN_MESSAGE } from '../data/objectiveMarkerVisibility.ts'
 import {
   RECONCILABLE_LAUR_PIECE_PAIRS,
   countPiecesUsedWithLaurStacking,
   reconcileLaurLegacyToStackableUsage,
 } from '../inventory/laurInventoryReconcile.ts'
 import useBoundStore from '../store/store.ts'
-import { undoWithSelectionRestore } from '../utils/undoWithSelectionRestore.ts'
 import {
   type BoardHex,
   HexTerrain,
@@ -43,6 +44,7 @@ import {
   getEffectiveTerrainConstraintInventory,
   hasActiveTerrainConstraints,
 } from '../utils/terrain-constraints.ts'
+import { undoWithSelectionRestore } from '../utils/undoWithSelectionRestore.ts'
 import { warnIfTallFluidStack } from '../utils/warnAboutLoadedMap.ts'
 
 type ClickHandlerDependencies = Pick<
@@ -54,10 +56,34 @@ type ClickHandlerDependencies = Pick<
   | 'penMode'
   | 'penModeRotation'
   | 'pieceSize'
-  | 'setSelectedObjectiveMarkerUID'
   | 'toggleSelectedPieceID'
 > & {
   objectiveMarkerMapHexIDs: Set<string>
+}
+
+type EmptyHexClickHandlerDependencies = Pick<
+  ReturnType<typeof useBoundStore.getState>,
+  'penMode' | 'toggleSelectedPieceID'
+>
+
+export function createEmptyHexClickHandler({
+  penMode,
+  toggleSelectedPieceID,
+}: EmptyHexClickHandlerDependencies) {
+  return (event: ThreeEvent<MouseEvent>) => {
+    event.stopPropagation()
+    if (event.intersections[0]?.eventObject !== event.eventObject) return
+    if (
+      event.button !== 0 ||
+      penMode !== SELECT_PEN_MODE ||
+      event.shiftKey ||
+      event.ctrlKey ||
+      event.metaKey
+    ) {
+      return
+    }
+    toggleSelectedPieceID('')
+  }
 }
 
 function getAvailableLaurStackableInventory(): PieceInventory | undefined {
@@ -138,7 +164,6 @@ export function createMapClickHandler({
   penMode,
   penModeRotation,
   pieceSize,
-  setSelectedObjectiveMarkerUID,
   toggleSelectedPieceID,
 }: ClickHandlerDependencies) {
   return (event: ThreeEvent<PointerEvent>, hex: BoardHex) => {
@@ -149,8 +174,6 @@ export function createMapClickHandler({
       // const myClipboard = await navigator.clipboard.readText()
       return
     }
-    setSelectedObjectiveMarkerUID(null)
-
     // Pick pen mode is handled by useMiddleClickPickPenMode, nothing to paint
     if (penMode === PICK_PEN_MODE) {
       return
@@ -171,6 +194,13 @@ export function createMapClickHandler({
     }
     if (penMode === OBJECTIVE_MARKER_PEN_MODE) {
       const state = useBoundStore.getState()
+      if (!state.isShowObjectiveMarkers) {
+        enqueueSnackbar({
+          message: OBJECTIVE_MARKERS_HIDDEN_MESSAGE,
+          variant: 'info',
+        })
+        return
+      }
       const draft = state.objectiveMarkerDraft
       const content =
         draft.content.kind === 'number' && !draft.pinNumber
@@ -226,7 +256,7 @@ export function createMapClickHandler({
       }
       return
     }
-    const pieceMode = pieceSize === 0 ? penMode : `${penMode}${pieceSize}`
+    const pieceMode = getPieceIDForPenMode(penMode, pieceSize)
     const piece = piecesSoFar[pieceMode]
     if (!piece) {
       return

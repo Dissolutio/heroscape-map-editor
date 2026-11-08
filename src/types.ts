@@ -1,4 +1,6 @@
 import type { ObjectiveMarker } from './data/objectiveMarkers'
+import type { SavedSelection } from './data/selectionUnits'
+import type { LadderStack } from './pdf-svg-shared/ladderStack'
 
 export type MapState = MapFileState & {
   boardHexes: BoardHexes
@@ -6,6 +8,7 @@ export type MapState = MapFileState & {
 export type MapFileState = {
   hexMap: HexMap
   boardPieces: BoardPiece[] // array of BoardPiece objects
+  savedSelections?: SavedSelection[]
 }
 export type HexMap = {
   id: string
@@ -142,11 +145,19 @@ export type Piece = {
   size: number
   template: string
   height: number
+  /**
+   * Rules/game height printed on maps; `height` is the physical height used
+   * for occupancy.
+   */
+  gameHeight?: number | null
   isHexTerrainPiece: boolean
   isObstaclePiece: boolean
   isOverlayPiece?: boolean
   glyphLetter?: string
   landPrefix?: PiecePrefixes // Including this so land pieces can have their sizes computed for piece-size selection in the Controls
+  pieceSizeFamily?: string
+  variantOrder?: number
+  variantLabel?: string
   // TODO: account for 1 marvel wall => 4 variations, 1 castle arch => 2 variations
   isUninventoried?: boolean // Generic pieces and variants without inventory counterparts.
 }
@@ -424,6 +435,8 @@ export type PdfMapAltitudeChunk = {
   altitude: number
   label?: string
   isOverlay?: boolean
+  // set on PDF ladder overlay levels: the ladder stacks drawn on that level
+  ladderStacks?: LadderStack[]
   hexes: BoardHex[]
   pieces: DecodedPieceID[]
 }

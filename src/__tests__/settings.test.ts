@@ -89,6 +89,7 @@ describe('settings persistence', () => {
       isShowActionLog: false,
       useHighQualityForPicture: true,
       isShowPdfBuriedMarks: true,
+      isShowPdfPieceLegend: true,
       isShow2DExportBuriedMarks: true,
       isTransparentGlyphSpaces: true,
       isHideHeightsOnGlyphs: true,
@@ -116,6 +117,7 @@ describe('settings persistence', () => {
         graphicsTier: 'high' as const,
         isShowActionLog: false,
         isShowPdfBuriedMarks: true,
+        isShowPdfPieceLegend: true,
         isShow2DExportBuriedMarks: true,
         isTransparentGlyphSpaces: true,
         isHideHeightsOnGlyphs: true,
@@ -140,6 +142,41 @@ describe('settings persistence', () => {
     storage.setItem(LS_KEYS.settings, staleSettings)
 
     expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
+    expect(values.get(LS_KEYS.settings)).toBe(staleSettings)
+  })
+
+  it('ignores the retired high-quality render setting', () => {
+    const staleSettings = JSON.stringify({
+      v: 1,
+      values: {
+        isHighQualityRender: true,
+        useHighQualityForPicture: true,
+      },
+    })
+    storage.setItem(LS_KEYS.settings, staleSettings)
+
+    expect(loadSettings()).toMatchObject({
+      graphicsTier: 'low',
+      isLightsAndShadowsRender: false,
+      useHighQualityForPicture: true,
+    })
+    expect(values.get(LS_KEYS.settings)).toBe(staleSettings)
+  })
+
+  it('ignores the removed marker and glyph rotation setting', () => {
+    const staleSettings = JSON.stringify({
+      v: 1,
+      values: {
+        markerGlyphRotation: 45,
+        isOrthoCam: false,
+      },
+    })
+    storage.setItem(LS_KEYS.settings, staleSettings)
+
+    expect(loadSettings()).toMatchObject({
+      ...SETTINGS_DEFAULTS,
+      isOrthoCam: false,
+    })
     expect(values.get(LS_KEYS.settings)).toBe(staleSettings)
   })
 
@@ -203,6 +240,48 @@ describe('settings persistence', () => {
       genericFluidCapColor: SETTINGS_DEFAULTS.genericFluidCapColor,
       genericFluidSideColor: SETTINGS_DEFAULTS.genericFluidSideColor,
     })
+  })
+
+  it('defaults the PDF ladder overlay off and persists it as a difference', () => {
+    expect(SETTINGS_DEFAULTS.isShowPdfLadderOverlay).toBe(false)
+    expect(serializeSettings(SETTINGS_DEFAULTS)).toBeNull()
+
+    const changed = { ...SETTINGS_DEFAULTS, isShowPdfLadderOverlay: true }
+    const serialized = serializeSettings(changed)
+    expect(serialized).toEqual({
+      v: 1,
+      values: { isShowPdfLadderOverlay: true },
+    })
+    storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
+    expect(loadSettings().isShowPdfLadderOverlay).toBe(true)
+  })
+
+  it('defaults marker text billboarding off and resets the persisted setting', () => {
+    expect(SETTINGS_DEFAULTS.isObjectiveMarkerNumbersFaceCamera).toBe(false)
+    expect(serializeSettings(SETTINGS_DEFAULTS)).toBeNull()
+
+    const changed = {
+      ...SETTINGS_DEFAULTS,
+      isObjectiveMarkerNumbersFaceCamera: true,
+    }
+    const serialized = serializeSettings(changed)
+    expect(serialized).toEqual({
+      v: 1,
+      values: { isObjectiveMarkerNumbersFaceCamera: true },
+    })
+    storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
+    expect(loadSettings().isObjectiveMarkerNumbersFaceCamera).toBe(true)
+
+    expect(resetSettings()).toBe(true)
+    expect(loadSettings().isObjectiveMarkerNumbersFaceCamera).toBe(false)
+  })
+
+  it('ignores a non-boolean PDF ladder overlay value', () => {
+    storage.setItem(
+      LS_KEYS.settings,
+      JSON.stringify({ v: 1, values: { isShowPdfLadderOverlay: 'yes' } }),
+    )
+    expect(loadSettings().isShowPdfLadderOverlay).toBe(false)
   })
 
   it('removes the settings key on reset', () => {
@@ -382,8 +461,6 @@ describe('settings persistence', () => {
     const transientKeys = [
       'selectedPieceIDs',
       'selectedObjectiveMarkerUID',
-      'selectionHistory',
-      'selectionHistoryCursor',
       'objectiveMarkerDraft',
       'objectiveMarkerDragPreview',
       'rotationPivot',
@@ -405,6 +482,7 @@ describe('settings persistence', () => {
       'pictureCaptureOptions',
       'isCameraDisabled',
       'isShowStartZones',
+      'isShowObjectiveMarkers',
       'is2DOpen',
       'isPdfOpen',
       'viewingLevel',
@@ -426,6 +504,7 @@ describe('settings persistence', () => {
       'boardHexes',
       'hexMap',
       'boardPieces',
+      'savedSelections',
       'conflictedPieceUIDs',
       'mapPortraitBase64',
       'mapNotes',
@@ -605,8 +684,15 @@ describe('settings persistence', () => {
     )
     const { default: store } = await import('../store/store')
     store.getState().updateLightPosition('back-left', [3, 4, 5])
+    const historyLength = store.temporal.getState().pastStates.length
+    expect(store.temporal.getState().pastStates).toHaveLength(historyLength)
+    store.getState().toggleIsShowObjectiveMarkers(false)
+    store.getState().toggleIsShowPdfLadderOverlay(true)
+    expect(store.getState().isShowPdfLadderOverlay).toBe(true)
     store.getState().resetSettings()
+    expect(store.getState().isShowPdfLadderOverlay).toBe(false)
     expect(pickSettings(store.getState())).toEqual(SETTINGS_DEFAULTS)
+    expect(store.getState().isShowObjectiveMarkers).toBe(false)
     expect(values.has(LS_KEYS.settings)).toBe(false)
     vi.advanceTimersByTime(300)
     expect(values.has(LS_KEYS.settings)).toBe(false)

@@ -7,11 +7,17 @@ import type { BoardHex } from '../../types'
  * MapDisplay3D's imports are being mocked.
  */
 export type Handler = (event: ThreeEvent<PointerEvent>, hex: BoardHex) => void
+export type EmptyHexClickHandler = (event: ThreeEvent<MouseEvent>) => void
 
 let captured: Handler | undefined
+let capturedClick: EmptyHexClickHandler | undefined
 
-export function CaptureHandler(props: { onPointerUp: Handler }) {
+export function CaptureHandler(props: {
+  onPointerUp: Handler
+  onClick?: EmptyHexClickHandler
+}) {
   captured = props.onPointerUp
+  capturedClick = props.onClick
   return null
 }
 
@@ -19,5 +25,11 @@ export function CaptureHandler(props: { onPointerUp: Handler }) {
 export function takeCapturedHandler() {
   const handler = captured
   captured = undefined
+  return handler
+}
+
+export function takeCapturedClickHandler() {
+  const handler = capturedClick
+  capturedClick = undefined
   return handler
 }

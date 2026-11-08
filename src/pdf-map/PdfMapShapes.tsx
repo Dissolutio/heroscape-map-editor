@@ -7,7 +7,8 @@ import {
   Rect,
   Text,
 } from '@react-pdf/renderer'
-import { piecesSoFar } from '../data/pieces'
+import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
+import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
 import { getExportBorderColor } from '../pdf-svg-shared/exportBorderColor'
 import {
   genWoodPlankPath1,
@@ -34,6 +35,7 @@ import {
   getJungleTriangleShape,
   getLadderSvgPolygonPoints,
   getLaurLongWallPdfPolygonPoints,
+  getLaurLongWallSvgPolygonPoints,
   getLaurPillarPdfShape,
   getLaurShortWallPolygonPoints,
   getLaurWallRuinPdfPolygonPoints,
@@ -275,7 +277,20 @@ const PdfSvgToxicNuclear = ({
 const getPdfHexFillForView = (
   hex: BoardHex | DecodedPieceID,
   isSubLevel?: boolean,
-) => (isSubLevel ? getSvgHexSubLevelFillColor(hex) : getSvgHexFillColor(hex))
+) => {
+  if (!isSubLevel) return getSvgHexFillColor(hex)
+  if (
+    hex.terrain === HexTerrain.hive ||
+    hex.terrain === HexTerrain.ladder ||
+    hex.terrain === HexTerrain.ruin
+  ) {
+    return blendColorWithWhite(getSvgHexFillColor(hex), OPACITY_SUBLEVEL)
+  }
+  const subLevelFill = getSvgHexSubLevelFillColor(hex)
+  return hex.terrain === HexTerrain.marvelRuin
+    ? blendColorWithWhite(subLevelFill, OPACITY_SUBLEVEL)
+    : subLevelFill
+}
 
 const getPdfHexBorderForView = (
   hex: BoardHex | DecodedPieceID,
@@ -283,6 +298,9 @@ const getPdfHexBorderForView = (
   useTerrainBorderColor = true,
 ) => {
   if (PDF_BORDER_WIDTH <= 0) return ''
+  if (isSubLevel && hex.terrain === HexTerrain.hive) {
+    return blendColorWithWhite(getSvgHexBorderColor(hex), OPACITY_SUBLEVEL)
+  }
   const colorBorder = isSubLevel
     ? getSvgHexSubLevelBorderColor(hex, true)
     : getSvgHexBorderColor(hex, true)
@@ -302,18 +320,23 @@ export const PdfMultiHex1 = ({
   hex,
   isSubLevel,
   useTerrainBorderColor = true,
+  fillOverride,
+  borderOverride,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
   useTerrainBorderColor?: boolean
+  // replaces the terrain colors, e.g. the white hex under a ladder overlay stack
+  fillOverride?: string
+  borderOverride?: string
 }) => {
   const isEmptyHex = hex.terrain === 'empty'
-  const fillColor = isEmptyHex ? 'white' : getPdfHexFillForView(hex, isSubLevel)
-  const borderColor = getPdfHexBorderForView(
-    hex,
-    isSubLevel,
-    useTerrainBorderColor,
-  )
+  const fillColor =
+    fillOverride ??
+    (isEmptyHex ? 'white' : getPdfHexFillForView(hex, isSubLevel))
+  const borderColor =
+    borderOverride ??
+    getPdfHexBorderForView(hex, isSubLevel, useTerrainBorderColor)
   const { points } = getHexagonPdfPolygonPointsAt00(
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
@@ -682,7 +705,7 @@ export const PdfJungle = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const pieceHeightText = piecesSoFar[hex.inventoryID]?.height
+  const pieceHeightText = getPieceGameHeight(hex.inventoryID)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   const points = getJungleTriangleShape(SVG_HEX_RADIUS, PDF_BORDER_WIDTH).points
   const textColor = isSubLevel
@@ -754,7 +777,7 @@ export const PdfHive6 = ({
     PDF_BORDER_WIDTH,
   )
   const blackColor = isSubLevel
-    ? svgSubLevelColors.jungleText
+    ? blendColorWithWhite(svgColors.jungleText, OPACITY_SUBLEVEL)
     : svgColors.jungleText
   return (
     <>
@@ -865,13 +888,18 @@ export const PdfMarvelRuin = ({
 export const PdfBoardPieceLaurWallShort = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = getPdfHexFillForView(piece, isSubLevel)
   const borderColor = getPdfHexBorderForView(piece, isSubLevel)
-  const { points } = getLaurShortWallPolygonPoints(SVG_HEX_RADIUS, 0.2)
+  const { points } = getLaurShortWallPolygonPoints(
+    SVG_HEX_RADIUS,
+    isPieceKeyPreview ? 0.5 : 0.2,
+  )
   return (
     <Polygon
       points={points}
@@ -884,34 +912,54 @@ export const PdfBoardPieceLaurWallShort = ({
 export const PdfBoardPieceLaurWallLong = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
-  const { points } = getLaurLongWallPdfPolygonPoints(
-    SVG_HEX_RADIUS,
-    PDF_BORDER_WIDTH,
+  const { points } = isPieceKeyPreview
+    ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
+    : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
+  return (
+    <Polygon
+      points={points}
+      fill={fillColor}
+      stroke={
+        isPieceKeyPreview ? getPdfHexBorderForView(piece, isSubLevel) : ''
+      }
+      strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
+    />
   )
-  return <Polygon points={points} fill={fillColor} />
 }
 export const PdfBoardPieceLaurWallLongArch = ({
   piece,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
     : getSvgHexFillColor(piece)
-  const { points } = getLaurLongWallPdfPolygonPoints(
-    SVG_HEX_RADIUS,
-    PDF_BORDER_WIDTH,
+  const { points } = isPieceKeyPreview
+    ? getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS)
+    : getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, PDF_BORDER_WIDTH)
+  return (
+    <Polygon
+      points={points}
+      fill={fillColor}
+      stroke={
+        isPieceKeyPreview ? getPdfHexBorderForView(piece, isSubLevel) : ''
+      }
+      strokeWidth={isPieceKeyPreview ? PDF_BORDER_WIDTH : 0}
+    />
   )
-  return <Polygon points={points} fill={fillColor} />
 }
 // PdfLaurWallArchText
 export const PdfLaurWallArchText = ({
@@ -1008,15 +1056,20 @@ export const PdfBattlement = ({
 export const PdfLadder = ({
   hex,
   isSubLevel,
+  isPieceKeyPreview,
 }: {
   hex: BoardHex
   isSubLevel?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = isSubLevel
-    ? svgSubLevelColors.battlementBorder
+    ? blendColorWithWhite(svgColors.battlementBorder, OPACITY_SUBLEVEL)
     : svgColors.battlementBorder
-  const { points } = getLadderSvgPolygonPoints(SVG_HEX_RADIUS, 0)
+  const { points } = getLadderSvgPolygonPoints(
+    SVG_HEX_RADIUS * (isPieceKeyPreview ? 2 : 1),
+    0,
+  )
   return (
     <Polygon
       points={points}
@@ -1128,7 +1181,7 @@ export const PdfCastleArch = ({
   isSubLevel?: boolean
 }) => {
   const fillColor = isSubLevel
-    ? svgSubLevelColors.castleInterior
+    ? blendColorWithWhite(svgColors.castleInterior, OPACITY_SUBLEVEL)
     : svgColors.castleInterior
   const { points } = getCastleArchShapeSvgPolygonPoints(
     SVG_HEX_RADIUS,
@@ -1248,10 +1301,12 @@ export const PdfRopeLadder = ({
   piece,
   isSubLevel,
   pieceRotation,
+  isPieceKeyPreview,
 }: {
   piece: DecodedPieceID
   isSubLevel?: boolean
   pieceRotation: number
+  isPieceKeyPreview?: boolean
 }) => {
   const fillColor = isSubLevel
     ? getSvgHexSubLevelFillColor(piece)
@@ -1263,25 +1318,27 @@ export const PdfRopeLadder = ({
   // const arrowWidth = (iconDiameter * (12 / 17.46))
   const arrowWidth = iconDiameter / 1.3
   return (
-    <G transform={`rotate(${pieceRotation})`}>
-      <G transform={`translate(${SVG_HEX_APOTHEM},0)`}>
-        <Rect
-          fill={fillColor}
-          width={iconDiameter}
-          height={iconDiameter}
-          x={-iconDiameter / 2}
-          y={-iconDiameter / 2}
-        />
-        <Path
-          fill={arrowColor}
-          d={generateArrowPath(arrowWidth)}
-          transform={'translate(0, -17)'}
-        />
-        <Path
-          fill={arrowColor}
-          d={generateArrowPath(arrowWidth)}
-          transform={'translate(-0, 15),rotate(180)'}
-        />
+    <G transform={isPieceKeyPreview ? 'scale(2)' : undefined}>
+      <G transform={`rotate(${pieceRotation})`}>
+        <G transform={`translate(${SVG_HEX_APOTHEM},0)`}>
+          <Rect
+            fill={fillColor}
+            width={iconDiameter}
+            height={iconDiameter}
+            x={-iconDiameter / 2}
+            y={-iconDiameter / 2}
+          />
+          <Path
+            fill={arrowColor}
+            d={generateArrowPath(arrowWidth)}
+            transform={'translate(0, -17)'}
+          />
+          <Path
+            fill={arrowColor}
+            d={generateArrowPath(arrowWidth)}
+            transform={'translate(-0, 15),rotate(180)'}
+          />
+        </G>
       </G>
     </G>
   )
@@ -1303,7 +1360,7 @@ export const PdfSvgTree415 = ({
   hex: BoardHex
   isSubLevel?: boolean
 }) => {
-  const pieceHeightText = piecesSoFar[hex.inventoryID].height
+  const pieceHeightText = getPieceGameHeight(hex.inventoryID)
   const fillColor = getPdfHexFillForView(hex, isSubLevel)
   const borderColor = getPdfHexBorderForView(hex, isSubLevel)
   const { points } = get4HexPdfPolygonPointsAt00(

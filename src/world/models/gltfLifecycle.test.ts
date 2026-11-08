@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { GLTF_IDLE_TIMEOUT_MS, trackGltfConsumer } from './gltfLifecycle'
+import { disposeGltfResources } from './useDisposableGLTF'
 
 afterEach(() => {
   vi.useRealTimers()
@@ -57,5 +58,23 @@ describe('GLTF consumer lifecycle', () => {
     remount(dispose)
     vi.advanceTimersByTime(GLTF_IDLE_TIMEOUT_MS)
     expect(dispose).toHaveBeenCalledOnce()
+  })
+
+  it('disposes GLTF-owned textures once when the asset is evicted', () => {
+    const disposeTexture = vi.fn()
+    const texture = { isTexture: true, dispose: disposeTexture }
+
+    disposeGltfResources({
+      scene: {
+        traverse: (callback: (child: unknown) => void) => {
+          callback({
+            isMesh: true,
+            material: { map: texture, normalMap: texture },
+          })
+        },
+      },
+    })
+
+    expect(disposeTexture).toHaveBeenCalledOnce()
   })
 })

@@ -40,6 +40,12 @@ import MyCameraControls from './camera/MyCameraControls'
 import { DragContext } from './drag/DragContext'
 import TakeAPictureBox from './camera/TakeAPictureBox'
 import PerspectiveFovApplier from './camera/PerspectiveFovApplier'
+import SelectionContextMenu from '../selection/SelectionContextMenu'
+import {
+  getVisibleSelectionPieces,
+  type SelectionMenuContext,
+} from '../selection/selectionMenuActions'
+import { getSelectionMenuHoveredPieceID } from '../selection/selectionMenuPointer'
 import ShadowMapInvalidator from './ShadowMapInvalidator'
 import {
   PerformanceOverlay,
@@ -60,6 +66,7 @@ import {
   type WebGLDiagnostics,
   WebGLContextCreationError,
 } from './webglContext'
+import { getDragState } from './drag/dragController'
 
 const BILLBOARD_WARMUP_MS = 4000
 const WEBGL_FAILURE_SESSION_KEY = 'webgl-context-failure-reported'
@@ -287,6 +294,12 @@ const World = ({
   isHidden: boolean
 }) => {
   const boardHexes = useBoundStore((s) => s.boardHexes)
+  const boardPieces = useBoundStore((s) => s.boardPieces)
+  const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
+  const viewingLevel = useBoundStore((s) => s.viewingLevel)
+  const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
+  const setSelectedPieceIDs = useBoundStore((s) => s.setSelectedPieceIDs)
+  const isDraggingPiece = useBoundStore((s) => s.isDraggingPiece)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
   const isLightsAndShadowsRender = useBoundStore(
     (s) => s.isLightsAndShadowsRender,
@@ -299,6 +312,17 @@ const World = ({
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
   const [isTabActive, setIsTabActive] = useState(true)
   const perspectiveCameraRef = useRef<ThreePerspectiveCamera>(null)
+  const rightPointerDown = useRef<{ x: number; y: number } | null>(null)
+  const rightPointerUp = useRef<{ x: number; y: number } | null>(null)
+  const rightContextMenuRequest = useRef<{ x: number; y: number } | null>(null)
+  const rightClickPieceID = useRef('')
+  const [selectionMenuAnchor, setSelectionMenuAnchor] = useState<{
+    left: number
+    top: number
+  } | null>(null)
+  const [selectionMenuSeedPieceIDs, setSelectionMenuSeedPieceIDs] = useState<
+    string[]
+  >([])
   const { width, length } = getBoardHexesRectangularMapDimensions(boardHexes)
   // const isTakingPicture = useBoundStore(s => s.isTakingPicture)
   const toggleHoveredPieceID = useBoundStore((s) => s.toggleHoveredPieceID)
@@ -306,6 +330,92 @@ const World = ({
   const setSelectedObjectiveMarkerUID = useBoundStore(
     (s) => s.setSelectedObjectiveMarkerUID,
   )
+  const closeSelectionMenu = () => setSelectionMenuAnchor(null)
+  const handleRightClickPiece = (uid: string) => {
+    rightClickPieceID.current = uid
+  }
+  const handleContainerPointerDown = (
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    if (event.button === 0) closeSelectionMenu()
+    if (event.button !== 2) return
+    rightContextMenuRequest.current = null
+    rightPointerDown.current = { x: event.clientX, y: event.clientY }
+    rightPointerUp.current = null
+    rightClickPieceID.current = getSelectionMenuHoveredPieceID()
+  }
+  const openSelectionMenuAfterRightClick = (position: {
+    x: number
+    y: number
+  }) => {
+    const down = rightPointerDown.current
+    const up = rightPointerUp.current
+    rightPointerDown.current = null
+    rightPointerUp.current = null
+    if (!down || !up || Math.hypot(up.x - down.x, up.y - down.y) > 5) {
+      return
+    }
+
+    const state = useBoundStore.getState()
+    if (state.isDraggingPiece || getDragState().phase !== 'idle') return
+    const visiblePieces = getVisibleSelectionPieces(
+      state.boardPieces,
+      state.boardHexes,
+      state.viewingLevel,
+      state.isShowStartZones,
+    )
+    if (!visiblePieces.length) return
+
+    const pieceID = visiblePieces.some(
+      (piece) => piece.uid === rightClickPieceID.current,
+    )
+      ? rightClickPieceID.current
+      : ''
+    rightClickPieceID.current = ''
+    if (pieceID && !state.selectedPieceIDs.includes(pieceID)) {
+      state.setSelectedPieceIDs([pieceID])
+    }
+    setSelectionMenuSeedPieceIDs(useBoundStore.getState().selectedPieceIDs)
+    setSelectionMenuAnchor({ left: position.x, top: position.y })
+  }
+  const handleContainerPointerUp = (
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    if (event.button === 2) {
+      rightPointerUp.current = { x: event.clientX, y: event.clientY }
+      const request = rightContextMenuRequest.current
+      if (request) {
+        rightContextMenuRequest.current = null
+        queueMicrotask(() => openSelectionMenuAfterRightClick(request))
+      }
+    }
+  }
+  const handleCanvasContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!(event.target instanceof HTMLCanvasElement)) return
+    event.preventDefault()
+    if (event.button !== 2) return
+
+    const position = { x: event.clientX, y: event.clientY }
+    if (rightPointerUp.current) {
+      queueMicrotask(() => openSelectionMenuAfterRightClick(position))
+    } else {
+      rightContextMenuRequest.current = position
+    }
+  }
+
+  useEffect(() => {
+    if (isDraggingPiece) setSelectionMenuAnchor(null)
+  }, [isDraggingPiece])
+
+  const selectionMenuContext: SelectionMenuContext = {
+    seedPieceIDs: selectionMenuSeedPieceIDs,
+    selectedPieceIDs,
+    boardPieces,
+    boardHexes,
+    viewingLevel,
+    isShowStartZones,
+    setSelectedPieceIDs,
+  }
   const handleClickAway = () => {
     toggleHoveredPieceID('')
     // toggleSelectedPieceID('')
@@ -321,6 +431,9 @@ const World = ({
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
       <div
+        onPointerDownCapture={handleContainerPointerDown}
+        onPointerUpCapture={handleContainerPointerUp}
+        onContextMenuCapture={handleCanvasContextMenu}
         style={{
           width: '100%',
           height: '100%',
@@ -424,10 +537,16 @@ const World = ({
                 id="MapDisplay3D"
                 onRender={(_, __, duration) => recordReactRender(duration)}
               >
-                <MapDisplay3D mapGroupRef={mapGroupRef} />
+                <MapDisplay3D
+                  mapGroupRef={mapGroupRef}
+                  onRightClickPiece={handleRightClickPiece}
+                />
               </Profiler>
             ) : (
-              <MapDisplay3D mapGroupRef={mapGroupRef} />
+              <MapDisplay3D
+                mapGroupRef={mapGroupRef}
+                onRightClickPiece={handleRightClickPiece}
+              />
             )}
           </Bvh>
           <PerformanceProbeGate />
@@ -435,7 +554,11 @@ const World = ({
           <BillboardWarmup />
           <Lights width={width} length={length} />
           {/* {!isTakingPicture && <GridHelper />} */}
-          <MyCameraControls cameraControlsRef={cameraControlsRef} />
+          <MyCameraControls
+            cameraControlsRef={cameraControlsRef}
+            onCameraMove={closeSelectionMenu}
+            isSelectionMenuOpen={selectionMenuAnchor !== null}
+          />
           <DragContext cameraControlsRef={cameraControlsRef} />
           <AutoZoomToMap
             cameraControlsRef={cameraControlsRef}
@@ -446,6 +569,11 @@ const World = ({
           <ReadySignal mapGroupRef={mapGroupRef} />
           <TestBridge />
         </WebGLCanvas>
+        <SelectionContextMenu
+          anchorPosition={selectionMenuAnchor}
+          context={selectionMenuContext}
+          onClose={closeSelectionMenu}
+        />
         <E2EStatus />
         {!isHidden &&
           !isTakingPicture &&

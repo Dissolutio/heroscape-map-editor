@@ -14,6 +14,7 @@ import {
   Select,
   type SelectChangeEvent,
   Switch,
+  TextField,
   Tooltip,
 } from '@mui/material'
 import type { CameraControls } from '@react-three/drei'
@@ -613,13 +614,6 @@ const ViewPreferencesSwitchForm = () => {
   ) => {
     toggleIsTopOutlinedInterlockHexes(event.target.checked)
   }
-  const isHighQualityRender = useBoundStore((s) => s.isHighQualityRender)
-  const toggleIsHighQualityRender = useBoundStore(
-    (s) => s.toggleIsHighQualityRender,
-  )
-  const handleChangeHQRender = (event: React.ChangeEvent<HTMLInputElement>) => {
-    toggleIsHighQualityRender(event.target.checked)
-  }
   const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
   const toggleIsDisplayCapHeights = useBoundStore(
     (s) => s.toggleIsDisplayCapHeights,
@@ -642,6 +636,16 @@ const ViewPreferencesSwitchForm = () => {
   )
   const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
   const toggleIsShowStartZones = useBoundStore((s) => s.toggleIsShowStartZones)
+  const isShowObjectiveMarkers = useBoundStore((s) => s.isShowObjectiveMarkers)
+  const toggleIsShowObjectiveMarkers = useBoundStore(
+    (s) => s.toggleIsShowObjectiveMarkers,
+  )
+  const isObjectiveMarkerNumbersFaceCamera = useBoundStore(
+    (s) => s.isObjectiveMarkerNumbersFaceCamera,
+  )
+  const toggleIsObjectiveMarkerNumbersFaceCamera = useBoundStore(
+    (s) => s.toggleIsObjectiveMarkerNumbersFaceCamera,
+  )
   const isShowActionLog = useBoundStore((s) => s.isShowActionLog)
   const toggleIsShowActionLog = useBoundStore((s) => s.toggleIsShowActionLog)
   const handleChangeUseLegacyStartZones = (
@@ -656,6 +660,8 @@ const ViewPreferencesSwitchForm = () => {
   }
   const showStartZonesTooltip =
     'Hides start zones in the 3D view only. 2D and PDF exports are not affected. Turns back on every time you open the app.'
+  const showObjectiveMarkersTooltip =
+    'Hides objective markers in the 3D view only. 2D and PDF exports are not affected. Turns back on every time you open the app.'
   // const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
   // const toggleIsFrameloopDemand = useBoundStore((s) => s.toggleIsFrameloopDemand)
   // const handleChangeFrameloopDemand = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -803,17 +809,6 @@ const ViewPreferencesSwitchForm = () => {
           title="Show/hide each hex's height, if a unit can be on that hex"
           label="Display Hex Heights"
         />
-        <FormControlLabel
-          control={
-            <Switch
-              size="small"
-              checked={isHighQualityRender}
-              onChange={handleChangeHQRender}
-            />
-          }
-          title="Enable/disable high quality render settings, currently just a more realistic hex cap"
-          label="High Quality Render"
-        />
         {/* <FormControlLabel
           control={<Switch checked={isFrameloopDemand} onChange={handleChangeFrameloopDemand} />}
           label="Frameloop Demand"
@@ -840,6 +835,33 @@ const ViewPreferencesSwitchForm = () => {
           }
           label="Show Start Zones"
           title={showStartZonesTooltip}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShowObjectiveMarkers}
+              onChange={(event) =>
+                toggleIsShowObjectiveMarkers(event.target.checked)
+              }
+              title={showObjectiveMarkersTooltip}
+            />
+          }
+          label="Show Objective Markers"
+          title={showObjectiveMarkersTooltip}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isObjectiveMarkerNumbersFaceCamera}
+              onChange={(event) =>
+                toggleIsObjectiveMarkerNumbersFaceCamera(event.target.checked)
+              }
+            />
+          }
+          label="Objective text follow camera"
+          title="Turns objective marker numbers to face the camera in 3D. 2D and PDF exports are not affected."
         />
         <FormControlLabel
           control={
@@ -891,6 +913,14 @@ const PdfPreferencesSwitchForm = () => {
   const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
   const toggleIsShowPdfBuriedMarks = useBoundStore(
     (s) => s.toggleIsShowPdfBuriedMarks,
+  )
+  const isShowPdfPieceLegend = useBoundStore((s) => s.isShowPdfPieceLegend)
+  const isShowPdfLadderOverlay = useBoundStore((s) => s.isShowPdfLadderOverlay)
+  const toggleIsShowPdfLadderOverlay = useBoundStore(
+    (s) => s.toggleIsShowPdfLadderOverlay,
+  )
+  const toggleIsShowPdfPieceLegend = useBoundStore(
+    (s) => s.toggleIsShowPdfPieceLegend,
   )
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
   const setPdfRenderFormat = useBoundStore((s) => s.setPdfRenderFormat)
@@ -997,6 +1027,19 @@ const PdfPreferencesSwitchForm = () => {
           control={
             <Switch
               size="small"
+              checked={isShowPdfLadderOverlay}
+              onChange={(event) =>
+                toggleIsShowPdfLadderOverlay(event.target.checked)
+              }
+            />
+          }
+          label="Show ladder overlay"
+          title="Add level(s) to the PDF showing how many ladders are in each ladder stack"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
               checked={isShowPdfOverlayOnPlacedLevel}
               onChange={handleChangeShowPdfOverlayOnPlacedLevel}
             />
@@ -1051,6 +1094,19 @@ const PdfPreferencesSwitchForm = () => {
             title="Mark land tiles whose tops or sides will be covered in PDF output"
           />
         </Tooltip>
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShowPdfPieceLegend}
+              onChange={(event) =>
+                toggleIsShowPdfPieceLegend(event.target.checked)
+              }
+            />
+          }
+          label="Include piece key in SVG and PDF"
+          title="Add an official-style key of the pieces used in the map to SVG and PDF exports"
+        />
         <FormControlLabel
           control={
             <Switch

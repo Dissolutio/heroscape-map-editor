@@ -28,7 +28,7 @@ export type SettingsValues = {
   isLightsAndShadowsRender: boolean
   isShowLightControls: boolean
   isTopOutlinedInterlockHexes: boolean
-  isHighQualityRender: boolean
+  isObjectiveMarkerNumbersFaceCamera: boolean
   useHighQualityForPicture: boolean
   isDisplayCapHeights: boolean
   isHideTableTop: boolean
@@ -45,6 +45,8 @@ export type SettingsValues = {
   isShowPdfLevelLogo: boolean
   isShowPdfTileLetters: boolean
   isShowPdfBuriedMarks: boolean
+  isShowPdfPieceLegend: boolean
+  isShowPdfLadderOverlay: boolean
   is2DOverlayLevelEnabled: boolean
   isShow2DExportLevelLogo: boolean
   isShow2DExportTileLetters: boolean
@@ -69,7 +71,7 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   isLightsAndShadowsRender: false,
   isShowLightControls: true,
   isTopOutlinedInterlockHexes: true,
-  isHighQualityRender: false,
+  isObjectiveMarkerNumbersFaceCamera: false,
   useHighQualityForPicture: false,
   isDisplayCapHeights: false,
   isHideTableTop: false,
@@ -86,6 +88,8 @@ export const SETTINGS_DEFAULTS: SettingsValues = {
   isShowPdfLevelLogo: true,
   isShowPdfTileLetters: false,
   isShowPdfBuriedMarks: false,
+  isShowPdfPieceLegend: false,
+  isShowPdfLadderOverlay: false,
   is2DOverlayLevelEnabled: true,
   isShow2DExportLevelLogo: true,
   isShow2DExportTileLetters: true,
@@ -173,7 +177,7 @@ const validSettingValue = (
       'isLightsAndShadowsRender',
       'isShowLightControls',
       'isTopOutlinedInterlockHexes',
-      'isHighQualityRender',
+      'isObjectiveMarkerNumbersFaceCamera',
       'useHighQualityForPicture',
       'isDisplayCapHeights',
       'isHideTableTop',
@@ -189,6 +193,8 @@ const validSettingValue = (
       'isShowPdfLevelLogo',
       'isShowPdfTileLetters',
       'isShowPdfBuriedMarks',
+      'isShowPdfPieceLegend',
+      'isShowPdfLadderOverlay',
       'is2DOverlayLevelEnabled',
       'isShow2DExportLevelLogo',
       'isShow2DExportTileLetters',

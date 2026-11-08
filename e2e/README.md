@@ -37,8 +37,7 @@ production builds have them only with it. To load a known map add the share
 link parameter: `/hs?e2e=1&m=<crushed map>` (see `e2e/fixtures.ts`).
 
 `?e2e=1` also makes the cosmetic cap rotation repeatable, so screenshots match
-between runs. The rotation only shows with **High Quality Render** on; the
-default caps are plain hexagons.
+between runs.
 
 Graphics tiers choose the land renderer in every build: Low uses the classic
 renderer, Medium uses per-hex land with diffuse textures, and High uses per-hex
@@ -95,7 +94,17 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   tree): map name, piece count, level, pen mode, how many pieces are selected.
 - `window.__TEST__.snapshot()`: the same, structured (`mapId`, `mapWidth`,
   `mapLength`, `pieceCount`, `hexCount`, `viewingLevel`, `penMode`, `selectedPieceIDs`,
-  `objectiveMarkerCount`, `selectedObjectiveMarkerUID`,
+  `penPieceID`,
+  `marroHiveMaterials` (rendered hive UIDs, material types, and whether each
+  material has a base-color map), `evergreenTreeMaterials` (rendered tree UIDs,
+  part names, material types, and base-color map state), `marvelRuinMaterials`
+  (rendered ruin UIDs, part names, material types, and base-color map state),
+  `previewMeshes` (mounted Marro Hive, evergreen, snow evergreen, and Marvel
+  Ruin preview meshes, with part, texture-map, transparency, and opacity state),
+  `roadWallMaterials` (rendered Stone Wall UIDs, part names, material types, and
+  base-color map state), `ruinsMaterials` (rendered Ruins 2/3 UIDs, face/column
+  part names, and base-color map state), `objectiveMarkerCount`,
+  `selectedObjectiveMarkerUID`,
   `hoveredPieceID`, `isOrthoCam`, `ready`, `placementPreview`
   (`status`, `reason`, `footprintCount`, `unsupported`, `altitude`, and
   `rotation`, or `null`), and
@@ -118,6 +127,12 @@ The canvas is invisible to accessibility snapshots, so read state in text:
 - `window.__TEST__.stats()`: draw calls and triangles.
 - `window.__TEST__.listRenderedObjectiveMarkerUIDs()` and
   `screenPosOfObjectiveMarker(uid)`: mounted marker UIDs and marker hit positions.
+- `window.__TEST__.getRenderedObjectiveMarkerTextQuaternion(uid)` and
+  `window.__TEST__.cameraQuaternion()`:
+  world orientations used to verify that marker text follows an orbiting camera.
+- `window.__TEST__.getRenderedObjectiveMarkerTextLayout(uid)`: whether rendered
+  marker text is billboarded, its world-space bounds, and the marker face's
+  highest world-space point.
 
 The bridge is read-only apart from the camera and the setup-only `setPen`
 helper. Drive the app through its real UI, hotkeys and canvas clicks, as a user
@@ -168,9 +183,11 @@ orientation instead.
 
 Things that decide what a click does:
 
-- Only the **left button** acts; handlers listen to `pointerup`.
+- Only the **left button** acts; placement and piece selection listen to
+  `pointerup`, while empty-hex deselection uses `click`.
 - It depends on the **pen mode**. The app starts in `select`, where a click
-  selects a piece. Paint modes place pieces instead.
+  selects a piece; a plain click on an empty hex clears the selection. Paint
+  modes place pieces instead. Shift-click on an empty hex does nothing.
 - A click that hits nothing clears the selection. Clicking the only selected
   piece again deselects it.
 - `screenPosOfPiece` aims at the piece's top surface, except Laur add-ons, for
@@ -213,14 +230,20 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Load-time map fitting | `e2e/load-fits-map.spec.ts` |
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
+| Deleting unrelated water beside a permissively overlapped Ship Wall and reloading its share link | `e2e/conflicted-delete.spec.ts` |
+| Empty-hex deselection, pen placement, and camera-drag selection safety | `e2e/empty-hex-selection.spec.ts` |
+| Right-click selection actions, keyboard dismissal, camera drag safety, and graphics-tier coverage | `e2e/selection-context-menu.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
-| Objective-marker 3D rendering, selection, and shadow isolation | `e2e/objective-markers.spec.ts` |
+| Objective-marker 3D rendering, flat/optional camera-facing text, preview text, visibility, selection, and shadow invalidation | `e2e/objective-markers.spec.ts` |
 | Objective-marker placement, editing, rotation, drag, deletion, undo, unit-name suggestions, and saved-file name round trips | `e2e/objective-marker-editing.spec.ts` |
+| Selection clearing on placement-pen hotkeys, preview rotation, and action-log recall | `e2e/action-log.spec.ts` |
+| Collection inventory gating, missing-terrain rows, conditional ranked substitutes, naming/cancel, metadata persistence, buried fill, leftovers, and one-step undo | `e2e/adapt-to-collection.spec.ts` |
 | OHS-friendly glyph space export options | `e2e/glyph-export-options.spec.ts` |
-| View tooltips, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
+| Legend viewing step, Illustrator-safe level/legend SVGs, ZIP and layered whole-map downloads, and PDF downloads with both border modes | `e2e/svg-piece-key.spec.ts` |
+| View tooltips, 3D/2D/PDF navbar switching, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
 | Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |
 | Multi-hex fluid cap join vertices and dark-pixel checks at Medium/High | `e2e/fluid-cap-vertices.spec.ts` |
-| Lazy Graphics tier loading and picture-only High setting restoration in per-hex land mode | `e2e/graphics-tier.spec.ts` |
+| Hive, evergreen, Snow Evergreen, and Marvel Ruin, Stone Wall, Ruins 2/3 texture maps and selection across Low/Medium/High, transparent placement previews, lazy tier loading, and picture-only High setting restoration | `e2e/graphics-tier.spec.ts` |
 | Opt-in performance overlay | `e2e/performance.spec.ts` |
 
 The map-settle tracker also feeds the app's startup UI in normal runs. The

@@ -15,16 +15,26 @@ export default function ViewingLevelInput() {
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const is2DOpen = useBoundStore((s) => s.is2DOpen)
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
+  const isShowPieceKey = useBoundStore((s) => s.isShowPdfPieceLegend)
   const is2DOverlayLevelEnabled = useBoundStore(
     (s) => s.is2DOverlayLevelEnabled,
   )
   const maxLevel = getBoardPiecesMaxLevel(boardPieces, boardHexes)
   const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
-  const allowedMaxLevel =
-    is2DOverlayLevelEnabled && is2DOpen && !isPdfOpen ? overlayLevel : maxLevel
-  const cycleableLevels = getCycleableLevels(boardPieces, boardHexes).filter(
-    (level) => level <= allowedMaxLevel,
-  )
+  const canViewLegend =
+    is2DOpen && !isPdfOpen && isShowPieceKey && boardPieces.length > 0
+  const legendLevel = overlayLevel + 1
+  const allowedMaxLevel = canViewLegend
+    ? legendLevel
+    : is2DOverlayLevelEnabled && is2DOpen && !isPdfOpen
+      ? overlayLevel
+      : maxLevel
+  const cycleableLevels = getCycleableLevels(
+    boardPieces,
+    boardHexes,
+    canViewLegend,
+  ).filter((level) => level <= allowedMaxLevel)
+  const isLegendLevel = canViewLegend && viewingLevel === legendLevel
   const { hotkeyLookup } = useHotkeyConfig()
   // Adjust viewing level down when it's over the allowed max (allow overlay level when toggle is enabled)
   useEffect(() => {
@@ -51,7 +61,7 @@ export default function ViewingLevelInput() {
       }}
     >
       <Grid2 container spacing={2} sx={{ alignItems: 'center' }}>
-        <Grid2 size={{ xs: 5 }}>
+        <Grid2 size={{ xs: isLegendLevel ? 4 : 5 }}>
           <div
             style={{
               display: 'flex',
@@ -74,12 +84,17 @@ export default function ViewingLevelInput() {
             </span>
           </div>
         </Grid2>
-        <Grid2 size={{ xs: 3 }}>
+        <Grid2 size={{ xs: isLegendLevel ? 5 : 3 }}>
           <Input
-            value={viewingLevel}
+            value={isLegendLevel ? 'Legend' : viewingLevel}
             size="small"
             onChange={(event) => {
-              const entered = Number.parseFloat(event.target.value)
+              const value = event.target.value.trim()
+              if (value.toLowerCase() === 'legend' && canViewLegend) {
+                toggleViewingLevel(legendLevel)
+                return
+              }
+              const entered = Number.parseFloat(value)
               if (Number.isNaN(entered)) return
               // snap freeform/step input to the nearest valid whole or half-fluid level
               const direction = Math.sign(entered - viewingLevel)
@@ -96,16 +111,22 @@ export default function ViewingLevelInput() {
               }, cycleableLevels[0] ?? 0)
               toggleViewingLevel(nearest)
             }}
-            inputProps={{
-              step: 0.5,
-              min: 0,
-              max: allowedMaxLevel ?? 0,
-              type: 'number',
-            }}
+            inputProps={
+              canViewLegend
+                ? { inputMode: 'decimal', type: 'text' }
+                : {
+                    step: 0.5,
+                    min: 0,
+                    max: allowedMaxLevel ?? 0,
+                    type: 'number',
+                  }
+            }
           />
         </Grid2>
-        <Grid2 size={{ xs: 4 }}>
-          <Typography id="input-slider">{`of ${maxLevel}${is2DOverlayLevelEnabled && is2DOpen ? ` (overlay ${overlayLevel})` : ''}`}</Typography>
+        <Grid2 size={{ xs: isLegendLevel ? 3 : 4 }}>
+          {!isLegendLevel && (
+            <Typography id="input-slider">{`of ${maxLevel}${is2DOverlayLevelEnabled && is2DOpen ? ` (overlay ${overlayLevel})` : ''}`}</Typography>
+          )}
         </Grid2>
       </Grid2>
     </Box>

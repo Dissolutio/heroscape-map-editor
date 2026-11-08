@@ -25,7 +25,16 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `fluid-cap-visibility.test.ts` | Fluid caps under a solid: drawn with half-level clearance (an overhang on a whole-level fluid), hidden under flush fluid or solid, isCap unchanged, on all graphics tiers and the legacy Low cap buckets, plus the Cove of Bilfrost fixture through the loader. |
 | `land-hex-geometry.test.ts` | Per-hex solid/fluid prism geometry: side quads index their own vertices, side-image orientation (including fluid UVs), triangle kinds and directions stay consistent, and faces point outward/upward. |
 | `export-border-color.test.ts` | Shared SVG/PDF border-color decisions for every terrain, SVG Asphalt markup, and rendered PDF output with outlines on/off, including sub-levels. |
+| `piece-key-model.test.ts` | Piece-key land terrain/size ordering, sparse cells, special-family groups and captions, counts, border-mode descriptions, and missing-description fallbacks. |
+| `piece-key-render.test.ts` | PDF map/key shape parity with both border modes and custom Generic colors, plus SVG map/key color parity. |
+| `cycleable-levels.test.ts` | Optional Legend viewing step after the overlay level. |
+| `pdf-sublevel-colors.test.ts` | SVG output snapshot for a stacked solid/liquid map and PDF sub-level color matching. |
 | `glyph-export-options.test.tsx` | Shared glyph-space classification, SVG/PDF transparent fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |
+| `glyph-coordinate-lookup.test.ts` | Prebuilt glyph-coordinate lookup parity for glyphs and covered/non-glyph hexes. |
+| `svg-map-render-performance.test.ts` | A large SVG map render computes its board-wide surface-altitude lookup once, not once per hex. |
+| `svg-map-render-markup.test.ts` | Byte-for-byte SVG snapshots captured from the pre-refactor levels, overlay, and Legend. |
+| `ladder-stack-count.test.ts` | Ladder stack model: runs of consecutive ladder altitudes per edge (single run, two runs on one edge, different edges, rotation) and the number of PDF ladder overlay levels. |
+| `pdf-ladder-overlay.test.ts` | PDF ladder overlay levels: no ladder "x N" text in the PDF or SVG, the option off or no ladders gives no ladder level, white 1-hex with thin black border plus ladder shape and count, and two runs on one edge giving two ladder levels. |
 | `generic-letter-metrics.test.ts` | Ratchets every terrain letter against the PDF mark-width table and the Inter Bold font metrics. |
 | `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
 | `replay-conflicts.test.ts` | How conflicts are computed (`data/rebuildBoardState.ts`): ordinary occupancy conflicts plus derived Laur conflicts. |
@@ -36,21 +45,26 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `laur-addon-exports.test.ts` | The shared Laur add-on SVG/PDF symbol mapping and a ratchet that every Laur wall add-on has an export symbol. |
 | `laur-pillar-stacking.test.ts` | Measured pillar heights and core height, the +8 stack increment, stack-support detection, stackable square pillar identification, and inventory reconciliation at the physical stack step. |
 | `pieceHeights.test.ts` | Every entry in the physical height audit matches its registered height, writes exactly that many origin/clearance cells, and distinguishes a free top-level tile from one overlapping the last blocked level. |
+| `piece-height-labels.test.ts` | SVG/PDF printed height labels use explicit game/rules heights without changing physical placement heights, including pieces with no game height. |
 | `piece-ids-and-loading.test.ts` | Piece ids, legacy uid-less piece normalization, saved-map formats, and the load path (`buildupJsonFileMap`). |
 | `buildup-map-load-order.test.ts` | Same-altitude support/overlap order for newer add-ons through `buildupJsonFileMap`, derived conflict/support state, a ladder control, and JSON save/reload idempotence. |
 | `hex-grid.test.ts` | Cube coordinates, directions, rotation, grid generation, odd-r conversion. |
 | `edges-and-nodes.test.ts` | Current edge/corner representations, the tested integer-lattice prototype and equivalence checks, plus application-level edge/node acceptance items (`it.todo`). |
 | `terrain-constraints.test.ts` | Inventory normalization, set/personal/file constraints, and exact pen-mode availability under inventory constraints. |
+| `adapt-to-collection.test.ts` | Missing-terrain adaptation suggestions, deterministic shared inventory allocation (surface before buried), up to three same-kind same-size substitutions, owned buried fill, naming defaults, and size-specific leftovers without Generic fallback. |
 | `map-share-url.test.ts` | Parsing pasted share links. |
 | `safe-storage.test.ts` | Guarded browser storage access, corrupted JSON, and quota/security failures. |
 | `map-storage.test.ts` | Old/new saved-map formats, separate portraits, and inline-portrait migration. |
 | `map-autosave.test.ts` | Debounced map writes, lifecycle flushes, hold/release gating, and failure retries. |
 | `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
-| `settings.test.ts` | Versioned settings defaults, migration, remembered map author validation and round-trip, debounced persistence, stale session-only visibility settings, and store-state classification. |
+| `settings.test.ts` | Versioned settings defaults (including the PDF ladder overlay option), migration, remembered map author validation and round-trip, debounced persistence, stale session-only visibility settings, and store-state classification. |
 | `look-settings-tooltip-copy.test.ts` | Ensures every 3D Look dialog control has plain-English tooltip copy. |
 | `new-map-details.test.ts` | New-map author and notes through JSON loading and share-link serialization, including empty metadata. |
 | `view-mode.test.ts` | Active 3D, SVG, and PDF view selection, including PDF precedence. |
+| `selection-menu-actions.test.ts` | Registry ordering and availability plus pure same-type, connected, same-level, invert, visibility, Laur attachment, and large-map selection behavior. |
 | `start-zone-visibility.test.ts` | Start-zone 3D visibility, selection filtering and pivot cleanup, hidden drag-group exclusion, map-load filtering, and undo selection restoration while hidden. |
+| `objective-marker-visibility.test.ts` | Objective-marker visibility helpers, selection and drag eligibility, selection recall filtering, and the session-only toggle's default/reset behavior. |
+| `world/models/objectiveMarker3D.test.ts` | Objective-marker surface positions, face-flat and raised billboard text transforms, marker outlines, export positioning, and visibility. |
 | `tile-marks.test.ts` | Buried-status mark selection, letter/mark text composition, excluded piece families, and integration with the small buried-status board fixture. |
 | `pdf-buried-mark-position.test.ts` | PDF-only mark offsets scale with the registered Inter glyph advances and leave marks-only tiles unshifted. |
 | `release-notes.test.ts` | Release-note parsing and the pure first-visit / unseen-release decision. |
@@ -59,9 +73,16 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `material-clones.test.ts` | The private material copies the move/rotate preview ghost uses (`utils/materialClones.ts`), so it never changes the cached materials real pieces share. |
 | `textures-pack.test.ts` | Terrain texture manifest coverage, source existence, layer bounds and strip sizes, repaired side edges/rows, flat fluid cap normals, and packed-output drift checks. |
 | `world/textures/terrainTextureArrays.test.ts` | Runtime manifest validation, texture-tier strip selection and cached access, pure layer slicing and Y orientation, lazy request caching, retry after failure, and disposal. |
-| `world/models/gltfLifecycle.test.ts` | Delayed GLTF eviction after the idle timeout, cancellation on reacquisition, and reference-counted cleanup. |
+| `world/models/gltfLifecycle.test.ts` | Delayed GLTF eviction, reacquisition/ref counts, and owned texture disposal. |
+| `marro-hive-model.test.ts` | Old and textured Marro Hive GLB position bounds, ground alignment, UVs, and base-color texture metadata. |
+| `evergreen-tree-model.test.ts` | Evergreen and large-tree GLB mesh bounds, UVs, and embedded base-color textures. |
+| `road-wall-model.test.ts` | Textured Road Wall GLB mesh names, UVs, embedded textures, repeat samplers, and recorded bounds. |
+| `marvel-ruin-model.test.ts` | Textured Marvel Ruin GLB mesh names, UVs, embedded textures, bounds, and per-piece rendered parts. |
+| `textured-ruins-model.test.ts` | Ruins 2/3 textured GLB mesh names, UVs, embedded base-color textures, repeat samplers, and bounds against the recorded scanned-model bounds. |
+| `world/models/marroHiveMaterial.test.ts` | Marro Hive texture selection across graphics tiers, load states, and a missing base-color map. |
+| `world/models/texturedModelMaterial.test.ts` | Shared textured-model selection across graphics tiers, load states, and a missing base-color map. |
 | `store/graphics-tier.test.ts` | Graphics-tier loading state, session-only fallback after failure, and stale request handling. |
-| `store/action-log.test.ts` | Action-log message formatting and the bounded ring buffer. |
+| `store/action-log.test.ts` | Action-log message formatting, non-undoable deselection rows, and the bounded ring buffer. |
 | `performance/performance.test.ts` | Detection of monotonically growing scene, GPU-resource, heap, subscriber, timer, and animation-frame metrics, plus typed-array accounting for geometry, instances, and texture data. |
 | `performance/performanceFlags.test.ts` | Performance-gated accounting of active Zustand store subscriptions, R3F-event isolation, and User Timing collection. |
 | `e2e-evidence.test.ts` | Keeps E2E writes to `docs/evidence/` inside the opt-in screenshot helper. |
@@ -77,7 +98,8 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `edge-piece-drag.test.ts` | Battlement, road-wall and rope-ladder drag targeting: all six resolved edges, rotation tie-breaks, single-piece edge snapping, group support-hex movement and edge preservation, group cache keys, rim and castle-top behavior, mixed rigid groups, altitude bounds, undo, same-edge no-op, and frozen-board immutability. |
 | `ladder-drag.test.ts` | Ladder dragging: moves the grabbed ladder and contiguous stack above it, preserves the lower part, supports mixed groups and ladder-on-ladder placement, and checks blocked targets, no-op drops, undo, and frozen-board previews. |
 | `drag-rotation.test.ts` | Mouse-wheel drag rotation: wheel normalization and throttling, ladder pointer sectors and hysteresis, grabbed-piece-pivot group transforms, grab-offset rotation, pointer-oriented wheel policy, and ladder-stack single application. |
-| `rotation-hotkey.test.ts` | Rotation hotkey target priority, selected-piece rotation and undo, and blocked group-rotation refusal. |
+| `rotation-hotkey.test.ts` | Rotation hotkey target priority by pen mode, selected-piece rotation and undo, and blocked group-rotation refusal. |
+| `piece-size-hotkeys.test.ts` | Obstacle variant ordering, labels, direct/cycling hotkeys, picking, and unchanged land size mappings. |
 | `laur-drag.test.ts` | Laur drag-to-move: characterizes boardPieces-only add-on placement/removal/movement, grid-backed pillar moves, and inventory IDs on moved stacked pieces. |
 | `storage-known-gaps.test.ts` | Legacy constraint restoration and protection against hotkey mount overwrites. |
 | `virtualscape-import.test.ts` | Version 0.0007 Virtualscape binary import through `readVirtualscapeMapFile()` and `buildupVSFileMap()`: registered codes, positions, rotations, odd-r coordinates, unknown-code drop reporting and warning, and empty drops for known-only files. |
@@ -90,8 +112,9 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `group-rotation.test.ts` | Rigid group and single-piece rotation about clicked pivot hexes: CW/CCW cube transforms, six-step cycles, every registered piece's footprint equivariance, edge and Laur attachment geometry, ladders, interlocks, large tiles, blocked placement preflight, conflicts, frozen-board safety, single-piece list stepping, selection order, and one-step undo/redo. |
 | `registry-lifecycle.test.ts` | Every registered piece through placement, exact delete restoration, drag and one-step undo, single and non-origin rotation, and JSON save/load; family-specific support is set up in one place and new registry entries are included automatically. |
 | `rotation-pivot.test.ts` | Transient clicked-hex pivot ownership, single- and group-selection click rules, marker visibility and altitude, preservation through repeated rotations, undo fallbacks, selection/movement/map/delete resets, and integer-step rotation eligibility. |
-| `store-move-many.test.ts` | Moving several pieces in one store update (`movePieces`, `data/movePieces.ts`): one undo step with exact undo/redo, a rigid group shift without the movers displacing each other, displacing and restoring stationary pieces exactly as `movePiece` does, the viewing level, unknown uids, a no-op that records no history, UI fields and autosave. A frozen copy of the old `movePiece` pins that single moves and non-interfering group moves are unchanged. |
-| `store-undo-redo.test.ts` | The real Zustand/Zundo store: paint, unpaint, move, multi-piece undo/redo when pausing after the first move, the no-history gotcha when pausing before it, `loadMap` history/conflicts, and transient UI state versus autosave. |
+| `store-move-many.test.ts` | Moving several pieces in one store update (`movePieces`, `data/movePieces.ts`): one undo step with exact undo/redo, rigid group shifts, replay-consistent conflict ownership, stable piece order for move/rotate, viewing level, unknown uids, no-op history, UI fields and autosave. |
+| `store-conflict-replay.test.ts` | Delete, move, drag-move, rotate and convert with permissive overlaps: stable piece order, replay parity, seeded delete cases, and exact undo/redo. |
+| `store-undo-redo.test.ts` | The real Zustand/Zundo store: paint, unpaint, move, placement-pen selection clearing and recall, terrain adaptation with atomic name/author/notes metadata, one-step undo and autosave persistence, `loadMap` history/conflicts, and transient UI state. |
 | `helpers/board.ts` | `makeTable`, `place`, `remove`, `withGrassFloor`, `hexAt`: build boards without the store. |
 | `helpers/clickHandler.ts` | `clickWithPen` and `clickWithSelection`: drive the real click handler in Node (the test stubs MapDisplay3D's children; see `click-placement.test.ts`). |
 

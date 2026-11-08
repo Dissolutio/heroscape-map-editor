@@ -1,3 +1,24 @@
+Nov-07-2026
+TLDR: Adapt a map to the pieces you own. A right-click selection menu (extensible). Textured trees, ruins, marvel warehouse, hive from Virtualscape. Hotkey for trees/outcrops+. Saved selections. Click empty hexes to deselect. PDF/SVG piece legend, and ladder summaries. Toggle Show Objective Markers. Fixes for wood, side textures and missing hex sides.
+
+- **Saved selections**: Each action in the bottom-left action-log that moves pieces now has a link: click it to select those pieces again (Shift-click adds to your selection). You can also save the current selection with a name, and your saved selections sit above the action log. They are kept in your map file.
+- **3D | 2D | PDF switch**: Still works about the same. Open/close PDF. Toggle 2d/3d.
+- **Adapt to my Collection**: Edit controls tab: a button to adapt a map. Let's say you load a map with terrain you don't own. Now you can auto-switch the pieces to match your personal inventory. It will try to walk you through it. Only works on land right now, obstacles are next. This probably has some bugs, but you can just undo it if it gets it wrong.
+- **Right-click selection menu**: Right-click a piece in the 3D view for Select same type, Select connected, Select same level and Invert selection. Dragging with the right button still moves the camera. "Esc" key closes the menu.
+- **Piece sizes for obstacles**: Trees, outcrops, Laur walls, ruins and other obstacle families now list their pieces as numbered options in the order you'd expect, for example Evergreen Tree 1, 2, 3 and the Large Evergreen Tree as 4. The number keys pick the option. Families with more than five options, like the Laur walls, cycle forward with 1 and backward with Shift+1. Ship set: 1,2,3,4 => wall/bow/ropeladder/cannon
+- **PDF piece legend**: Build instructions can now include a legend of just the pieces used in your map, with each symbol and a few words. It is optional.
+- **Wood cap rotation**: Planks always parallel to piece.
+- **Side textures**: Finally done right. 
+- **Action log**: The "seconds ago" labels are gone. Entries just fade away when you are idle, and hovering still shows the full history.
+- **Rotate hotkeys bugfix**: Rotating a selected piece with Q or E no longer leaves a ghost piece behind.
+- **Show Objective Markers**: Just like Start Zones, you can hide them. This will always start ON when you come back to Hexoscape.
+- **Objective marker numbers face you**: The number or letter on a marker now always turns to face the camera.
+- **Textured Hive, Ruins, RoadWall, Marvel**: We got really lucky and the models from Virtualscape had texture info already in them. If you see Didier, you buy him une bière.
+- **Click empty ground to deselect**: Clicking an empty hex clears your selection.
+- **Ladder stack counts**: When ladders are stacked, the 2D and PDF build instructions show how many (for example "x3") next to the bottom ladder.
+- **PDF colors for lower levels**: One last pass on sublevel pieces, now use flat colors that match the 2D map. The 2D map itself did not change.
+- **Missing hex sides**: Some hex sides were showing white or transparent, our "neighbor" function should work better now.
+
 Nov-02-2026
 TLDR: Selection history, a quiet action log, q/e hotkey rotate, and a bunch of rendering fixes, including upside-down textures and a Windows 3D fix.
 

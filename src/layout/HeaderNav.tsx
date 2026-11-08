@@ -6,6 +6,7 @@ import React from 'react'
 import { FcPrint } from 'react-icons/fc'
 import { MdFullscreen, MdFullscreenExit, MdNewReleases } from 'react-icons/md'
 import { Hexes2DIcon, World3DIcon } from '../assets/EditedGameIcons'
+import { getViewMode, type ViewMode } from '../controls/viewMode'
 import useBoundStore from '../store/store'
 import { useFullscreen } from '../hooks/useFullscreen'
 import { lazyWithRetry } from '../utils/lazyWithRetry'
@@ -29,9 +30,19 @@ export function HeaderNav({
   const toggleIsPdfOpen = useBoundStore((s) => s.toggleIsPdfOpen)
   const toggleIs2DOpen = useBoundStore((s) => s.toggleIs2DOpen)
   const is2DOpen = useBoundStore((s) => s.is2DOpen)
-  const view3DOr2DIconTitle = is2DOpen ? 'View 3D Map' : 'View 2D Map'
+  const viewMode = getViewMode(is2DOpen, isPdfOpen)
   const { isSmallScreenWidth, isMediumScreenWidth } = useMuiMediaQuery()
   const { isFullscreen, toggleFullscreen } = useFullscreen()
+  const handleViewModeChange = (nextView: ViewMode) => {
+    if (nextView === 'pdf') {
+      toggleIsPdfOpen(true)
+    } else {
+      toggleIs2DOpen(nextView === '2d')
+    }
+  }
+  const viewButtons: ViewMode[] = (['2d', '3d', 'pdf'] as const).filter(
+    (mode) => mode !== viewMode && (!isSmallScreenWidth || mode !== 'pdf'),
+  )
   const fontSizeHeaderMapName =
     isSmallScreenWidth && hexMap.name.length > 32
       ? '0.6em'
@@ -62,6 +73,39 @@ export function HeaderNav({
         >
           {hexMap.name || 'Hexoscape Map Editor'}
         </Typography>
+
+        {viewButtons.map((mode) => {
+          const title =
+            mode === '2d'
+              ? 'View 2D Map'
+              : mode === '3d'
+                ? 'View 3D Map'
+                : 'View pdf build instructions'
+          return (
+            <IconButton
+              key={mode}
+              size={
+                isSmallScreenWidth
+                  ? 'small'
+                  : isMediumScreenWidth
+                    ? undefined
+                    : 'large'
+              }
+              aria-label={title}
+              title={title}
+              sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
+              onClick={() => handleViewModeChange(mode)}
+            >
+              {mode === '2d' ? (
+                <Hexes2DIcon title={title} />
+              ) : mode === '3d' ? (
+                <World3DIcon title={title} />
+              ) : (
+                <FcPrint />
+              )}
+            </IconButton>
+          )
+        })}
 
         <IconButton
           size={
@@ -94,7 +138,7 @@ export function HeaderNav({
           {isFullscreen ? <MdFullscreenExit /> : <MdFullscreen />}
         </IconButton>
         {/* MOBILE: No render pdf, does not seem to work on mobile, direct download on button click instead */}
-        {isSmallScreenWidth ? (
+        {isSmallScreenWidth && (
           <React.Suspense fallback={null}>
             <ReactPdfDownloadLink>
               <IconButton
@@ -106,43 +150,7 @@ export function HeaderNav({
               </IconButton>
             </ReactPdfDownloadLink>
           </React.Suspense>
-        ) : (
-          // NOT ON MOBILE: You can view the pdf, can download from that view
-          <IconButton
-            size={
-              isSmallScreenWidth
-                ? 'small'
-                : isMediumScreenWidth
-                  ? undefined
-                  : 'large'
-            }
-            title={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
-            aria-label={`${isPdfOpen ? 'Close' : 'View'} pdf build instructions`}
-            sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
-            onClick={() => toggleIsPdfOpen(!isPdfOpen)}
-          >
-            <FcPrint />
-          </IconButton>
         )}
-        <IconButton
-          size={
-            isSmallScreenWidth
-              ? 'small'
-              : isMediumScreenWidth
-                ? undefined
-                : 'large'
-          }
-          aria-label={view3DOr2DIconTitle}
-          title={view3DOr2DIconTitle}
-          sx={{ mr: isSmallScreenWidth ? 0 : isMediumScreenWidth ? 1 : 2 }}
-          onClick={() => toggleIs2DOpen(!is2DOpen)}
-        >
-          {is2DOpen ? (
-            <World3DIcon title={view3DOr2DIconTitle} />
-          ) : (
-            <Hexes2DIcon title={view3DOr2DIconTitle} />
-          )}
-        </IconButton>
       </Toolbar>
     </AppBar>
   )

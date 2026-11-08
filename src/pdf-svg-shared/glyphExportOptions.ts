@@ -1,13 +1,32 @@
 import { HexTerrain, type BoardHex, type BoardHexes } from '../types'
 
-type GlyphExportSettings = {
+export type GlyphExportSettings = {
   isTransparentGlyphSpaces: boolean
   isHideHeightsOnGlyphs: boolean
 }
 
+export type GlyphCoordinateLookup = ReadonlySet<string>
+
+const glyphCoordinateKey = (hex: Pick<BoardHex, 'q' | 'r' | 's'>) =>
+  `${hex.q},${hex.r},${hex.s}`
+
+export function makeGlyphCoordinateLookup(
+  boardHexes: BoardHexes,
+): GlyphCoordinateLookup {
+  return new Set(
+    Object.values(boardHexes)
+      .filter(
+        (hex) =>
+          hex.terrain === HexTerrain.glyphPower ||
+          hex.terrain === HexTerrain.glyphTreasure,
+      )
+      .map(glyphCoordinateKey),
+  )
+}
+
 export function getGlyphExportOptions(
   hex: Pick<BoardHex, 'q' | 'r' | 's' | 'terrain'>,
-  boardHexes: BoardHexes,
+  glyphCoordinates: GlyphCoordinateLookup,
   settings: GlyphExportSettings,
 ) {
   const isGlyph =
@@ -16,14 +35,7 @@ export function getGlyphExportOptions(
   const hasGlyphAtCoordinates =
     isGlyph ||
     (settings.isHideHeightsOnGlyphs &&
-      Object.values(boardHexes).some(
-        (candidate) =>
-          candidate.q === hex.q &&
-          candidate.r === hex.r &&
-          candidate.s === hex.s &&
-          (candidate.terrain === HexTerrain.glyphPower ||
-            candidate.terrain === HexTerrain.glyphTreasure),
-      ))
+      glyphCoordinates.has(glyphCoordinateKey(hex)))
 
   return {
     isTransparent: isGlyph && settings.isTransparentGlyphSpaces,

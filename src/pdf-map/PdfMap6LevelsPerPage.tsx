@@ -1,6 +1,7 @@
 import { Page, Text, View } from '@react-pdf/renderer'
 import { groupBy, keyBy, uniq } from 'lodash'
 import type { PropsWithChildren } from 'react'
+import type { ObjectiveMarker } from '../data/objectiveMarkers'
 import {
   LEVEL_LOGO_OUTLIER_LABEL_MARGIN,
   LEVEL_LOGO_OVERLAY_LAYER_PDF_FONT_SIZE,
@@ -9,27 +10,33 @@ import {
   NO_LEVEL_LOGO_OVERLAY_LAYER_PDF_FONT_SIZE,
   NO_LEVEL_LOGO_OVERLAY_LAYER_PDF_LINE_HEIGHT,
 } from '../pdf-svg-shared/levelLogoLayout'
+import { getLadderOverlayLevels } from '../pdf-svg-shared/ladderStack'
+import { getPdfLegendObjectiveMarkers } from '../pdf-svg-shared/objectiveMarkerExport'
+import {
+  type GlyphExportSettings,
+  makeGlyphCoordinateLookup,
+} from '../pdf-svg-shared/glyphExportOptions'
+import useBoundStore from '../store/store'
 import {
   type BoardHexes,
   type BoardPiece,
   type PdfMapAltitudeChunk,
   Pieces,
 } from '../types'
-import type { ObjectiveMarker } from '../data/objectiveMarkers'
-import { getPdfLegendObjectiveMarkers } from '../pdf-svg-shared/objectiveMarkerExport'
 import { getBoardHexObstacleOriginsAndHexesAndEmpties } from '../utils/board-utils'
-import {
-  BURIED_MARKS_KEY,
-  getBuriedMarksForHex,
-  type BuriedMarksByUID,
-} from '../utils/tileMarks'
 import {
   boardPieceToDecodedPieceID,
   getBoardHexesSvgMapDimensions,
   getOverlayLevel,
 } from '../utils/map-utils'
+import {
+  BURIED_MARKS_KEY,
+  type BuriedMarksByUID,
+  getBuriedMarksForHex,
+} from '../utils/tileMarks'
 import { PdfLevelLogo } from './PdfLevelLogo'
 import { PdfObjectiveMarkerLegend } from './PdfObjectiveMarkers'
+import { PdfPieceLegend } from './PdfPieceLegend'
 import { ReactPdfSvgMapDisplay } from './ReactPdfSvgMapDisplay'
 export const PdfMapLevels6PerPage = ({
   boardHexes,
@@ -61,6 +68,21 @@ export const PdfMapLevels6PerPage = ({
   is2DOverlayLevelEnabled: boolean
   objectiveMarkers: ObjectiveMarker[]
 }>) => {
+  // Not a hook: @react-pdf/renderer's tree has no React dispatcher. The toggle
+  // is part of the document `key` (genericTerrainColorsKey) so changing it
+  // rebuilds the document.
+  const {
+    isShowPdfPieceLegend,
+    isShowPdfLadderOverlay,
+    isTransparentGlyphSpaces,
+    isHideHeightsOnGlyphs,
+  } = useBoundStore.getState()
+  const glyphExportSettings: GlyphExportSettings = {
+    isTransparentGlyphSpaces,
+    isHideHeightsOnGlyphs,
+  }
+  const glyphCoordinates = makeGlyphCoordinateLookup(boardHexes)
+  const boardHexesArr = Object.values(boardHexes)
   const { width, length } = getBoardHexesSvgMapDimensions(boardHexes)
   const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
   const boardHexesWithoutEmpties = keyBy(
@@ -71,6 +93,7 @@ export const PdfMapLevels6PerPage = ({
     boardHexesWithoutEmpties,
     boardPieces,
     isShowPdfOverlayLayer,
+    isShowPdfLadderOverlay,
   )
   const decodedBoardPiecesArr = boardPieces
     .map((bp) => boardPieceToDecodedPieceID(bp))
@@ -119,7 +142,7 @@ export const PdfMapLevels6PerPage = ({
                     <ReactPdfSvgMapDisplay
                       chunk={chunk[i]}
                       boardPiecesArr={decodedBoardPiecesArr}
-                      boardHexesArr={Object.values(boardHexes)}
+                      boardHexesArr={boardHexesArr}
                       width={width}
                       length={length}
                       viewingLevel={group.altitude}
@@ -137,6 +160,8 @@ export const PdfMapLevels6PerPage = ({
                       useLegacyStartZones={useLegacyStartZones}
                       is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
                       objectiveMarkers={objectiveMarkers}
+                      glyphCoordinates={glyphCoordinates}
+                      glyphExportSettings={glyphExportSettings}
                     />
                   </RowWrapper>
                 ) : null,
@@ -156,7 +181,7 @@ export const PdfMapLevels6PerPage = ({
                     <ReactPdfSvgMapDisplay
                       chunk={chunk[i]}
                       boardPiecesArr={decodedBoardPiecesArr}
-                      boardHexesArr={Object.values(boardHexes)}
+                      boardHexesArr={boardHexesArr}
                       width={width}
                       length={length}
                       viewingLevel={group.altitude}
@@ -174,6 +199,8 @@ export const PdfMapLevels6PerPage = ({
                       useLegacyStartZones={useLegacyStartZones}
                       is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
                       objectiveMarkers={objectiveMarkers}
+                      glyphCoordinates={glyphCoordinates}
+                      glyphExportSettings={glyphExportSettings}
                     />
                   </RowWrapper>
                 ) : null,
@@ -190,6 +217,7 @@ export const PdfMapLevels6PerPage = ({
           )}
         </Page>
       ))}
+      {isShowPdfPieceLegend && <PdfPieceLegend boardPieces={boardPieces} />}
     </>
   )
 }
@@ -198,6 +226,7 @@ const get6LevelChunk = (
   boardHexes: BoardHexes,
   boardPieces: BoardPiece[],
   isShowPdfOverlayLayer: boolean,
+  isShowPdfLadderOverlay = false,
 ): PdfMapAltitudeChunk[][] => {
   const filteredBoardHexes = Object.values(
     getBoardHexObstacleOriginsAndHexesAndEmpties(boardHexes),
@@ -245,18 +274,35 @@ const get6LevelChunk = (
   // Sort combined groups by altitude
   combinedGroups.sort((a, b) => a.altitude - b.altitude)
 
-  if (isShowPdfOverlayLayer) {
-    const overlayAltitude =
-      combinedGroups.length > 0
-        ? combinedGroups[combinedGroups.length - 1].altitude + 1
-        : 1
+  const overlayAltitude =
+    combinedGroups.length > 0
+      ? combinedGroups[combinedGroups.length - 1].altitude + 1
+      : 1
 
+  if (isShowPdfOverlayLayer) {
     combinedGroups.push({
       altitude: overlayAltitude,
       label: 'Glyphs and Start Zones',
       isOverlay: true,
       hexes: [],
       pieces: [],
+    })
+  }
+
+  // Ladder overlay levels come after the StartZones/Glyphs overlay level
+  if (isShowPdfLadderOverlay) {
+    const ladderLevels = getLadderOverlayLevels(boardPieces)
+    ladderLevels.forEach((ladderStacks, i) => {
+      combinedGroups.push({
+        altitude: overlayAltitude,
+        label:
+          ladderLevels.length > 1
+            ? `Ladders ${i + 1} of ${ladderLevels.length}`
+            : 'Ladders',
+        ladderStacks,
+        hexes: [],
+        pieces: [],
+      })
     })
   }
 
@@ -293,7 +339,7 @@ const PdfLevelChunkHeading = ({
   // Half levels (fluid stacked on fluid) get the plaque too, e.g. "LEVEL 01.5".
   if (group.label || !isShowPdfLevelLogo) {
     const margin =
-      group.label === 'Glyphs and Start Zones' && isShowPdfLevelLogo
+      (group.isOverlay || group.ladderStacks) && isShowPdfLevelLogo
         ? LEVEL_LOGO_OUTLIER_LABEL_MARGIN
         : 0
     return (

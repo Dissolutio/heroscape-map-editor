@@ -1,16 +1,23 @@
 import { G, Line, Text } from '@react-pdf/renderer'
-import { piecesSoFar } from '../data/pieces'
+import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
+import { blendColorWithWhite } from '../pdf-svg-shared/blendColorWithWhite'
+import {
+  type GlyphCoordinateLookup,
+  type GlyphExportSettings,
+  getGlyphExportOptions,
+  makeGlyphCoordinateLookup,
+} from '../pdf-svg-shared/glyphExportOptions'
+import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
+import {
+  SHROUDSHROOM13_ORIGIN_LINE_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
+  getShroudshroom13OriginLine,
+} from '../pdf-svg-shared/shroudshroom13OriginLine'
 import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
-import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
-import {
-  getShroudshroom13OriginLine,
-  SHROUDSHROOM13_ORIGIN_LINE_COLOR,
-  SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR,
-  SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
-} from '../pdf-svg-shared/shroudshroom13OriginLine'
 import useBoundStore from '../store/store'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
@@ -85,6 +92,8 @@ const glyphTextProps = () => ({
   textAnchor: 'middle' as const,
   dominantBaseline: 'central' as const,
 })
+
+const SUBLEVEL_GLYPH_TEXT_OPACITY = 0.6
 
 const TerrainTileLetterText = ({
   hex,
@@ -183,6 +192,9 @@ export const PdfMapHex = ({
   isShowPdfBuriedMarks,
   buriedMarksByUID,
   useLegacyStartZones,
+  isPieceKeyPreview = false,
+  glyphCoordinates,
+  glyphExportSettings,
 }: {
   hex: BoardHex
   viewingLevel: number
@@ -193,22 +205,34 @@ export const PdfMapHex = ({
   isShowPdfBuriedMarks: boolean
   buriedMarksByUID: BuriedMarksByUID
   useLegacyStartZones: boolean
+  isPieceKeyPreview?: boolean
+  glyphCoordinates?: GlyphCoordinateLookup
+  glyphExportSettings?: GlyphExportSettings
 }) => {
   const pixel = hexUtilsHexToPixel(hex)
-  const isSubLevel = hex.altitude < viewingLevel
+  const isSubLevel = !isPieceKeyPreview && hex.altitude < viewingLevel
   const { inventoryID } = hex
+  const exportSymbol = getPieceExportSymbol(inventoryID)
   const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
   const isAuxiliaryNotRenderedIn2D =
     isObstaclePiece &&
     !hex.isObstacleOrigin &&
     (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
-  const isVisible = hex.altitude <= viewingLevel
+  const isVisible = isPieceKeyPreview || hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const pieceHeightText = piecesSoFar[inventoryID]?.height
-  const glyphSettings = useBoundStore.getState()
+  const pieceHeightText = getPieceGameHeight(inventoryID)
+  const fallbackState =
+    glyphCoordinates && glyphExportSettings
+      ? undefined
+      : useBoundStore.getState()
+  const glyphLookup =
+    glyphCoordinates ??
+    makeGlyphCoordinateLookup(fallbackState?.boardHexes ?? {})
+  const glyphSettings =
+    glyphExportSettings ?? fallbackState ?? useBoundStore.getState()
   const getHexGlyphExportOptions = (targetHex: BoardHex) =>
-    getGlyphExportOptions(targetHex, glyphSettings.boardHexes, glyphSettings)
+    getGlyphExportOptions(targetHex, glyphLookup, glyphSettings)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
@@ -223,12 +247,16 @@ export const PdfMapHex = ({
     )
   }
   // Ladder
-  if (inventoryID === Pieces.ladder && hex.isObstacleOrigin) {
+  if (exportSymbol === 'ladder' && hex.isObstacleOrigin) {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <PdfLadder hex={hex} isSubLevel={isSubLevel} />
+        <PdfLadder
+          hex={hex}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </G>
     )
   }
@@ -351,12 +379,13 @@ export const PdfMapHex = ({
           />
         )}
         <Text
-          fill={svgColors.shroudshroomText}
-          opacity={
+          fill={
             isSubLevel
-              ? // white text needs a little opacity boost
-                OPACITY_SUBLEVEL * 2
-              : 1
+              ? blendColorWithWhite(
+                  svgSubLevelColors.shroudshroomText,
+                  SUBLEVEL_GLYPH_TEXT_OPACITY,
+                )
+              : svgColors.shroudshroomText
           }
           style={pdfHexTextStyle}
           textAnchor="middle"
@@ -481,10 +510,7 @@ export const PdfMapHex = ({
     )
   }
   // Glyphs
-  if (
-    hex.terrain === HexTerrain.glyphPower ||
-    hex.terrain === HexTerrain.glyphTreasure
-  ) {
+  if (exportSymbol === 'glyph') {
     const glyphOptions = getHexGlyphExportOptions(hex)
     const isPlacedLevelViewing = hex.altitude === viewingLevel
     if (
@@ -506,10 +532,12 @@ export const PdfMapHex = ({
         <Text
           fill={
             specialIsSubLevel
-              ? svgSubLevelColors.glyphText
+              ? blendColorWithWhite(
+                  svgSubLevelColors.glyphText,
+                  SUBLEVEL_GLYPH_TEXT_OPACITY,
+                )
               : svgColors.glyphText
           }
-          opacity={specialIsSubLevel ? OPACITY_SUBLEVEL * 2 : 1}
           {...glyphTextProps()}
         >
           {glyphLetter}
@@ -559,7 +587,10 @@ export const PdfMapHex = ({
   // CASTLE WALLS
   if (isCastleTerrain(hex.terrain) && hex.isObstacleOrigin) {
     const { hideHeight } = getHexGlyphExportOptions(hex)
-    const heightText = !hideHeight && pieceHeightText > 0 ? pieceHeightText : ''
+    const heightText =
+      !hideHeight && pieceHeightText != null && pieceHeightText > 0
+        ? pieceHeightText
+        : ''
     //  Return Castle Corner
     if (
       hex.inventoryID === Pieces.castleBaseCorner ||

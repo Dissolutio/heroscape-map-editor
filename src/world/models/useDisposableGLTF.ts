@@ -8,7 +8,7 @@ function makeCacheKey(path: string | string[]) {
   return JSON.stringify(path)
 }
 
-function disposeGltfResources(gltf: unknown) {
+export function disposeGltfResources(gltf: unknown) {
   if (Array.isArray(gltf)) {
     for (const asset of gltf) {
       disposeGltfResources(asset)
@@ -26,22 +26,44 @@ function disposeGltfResources(gltf: unknown) {
     return
   }
 
+  const textures = new Set<{ dispose?: () => void }>()
+
   // Walk every node and free only resources owned by the loaded asset.
   scene.traverse((child) => {
     const meshChild = child as {
       isMesh?: boolean
       geometry?: { dispose?: () => void }
       skeleton?: { dispose?: () => void }
+      material?: unknown | unknown[]
     }
 
     if (meshChild.isMesh) {
       // Materials are shared globally and must outlive any individual GLTF asset.
       meshChild.geometry?.dispose?.()
+      const materials = Array.isArray(meshChild.material)
+        ? meshChild.material
+        : [meshChild.material]
+      for (const material of materials) {
+        if (!material || typeof material !== 'object') continue
+        for (const value of Object.values(material)) {
+          if (
+            value &&
+            typeof value === 'object' &&
+            'isTexture' in value &&
+            value.isTexture
+          ) {
+            textures.add(value as { dispose?: () => void })
+          }
+        }
+      }
     }
 
     // Skinned assets may allocate skeleton buffers; release those too.
     meshChild.skeleton?.dispose?.()
   })
+  for (const texture of textures) {
+    texture.dispose?.()
+  }
 }
 
 export function useDisposableGLTF(...args: Parameters<typeof useGLTF>) {

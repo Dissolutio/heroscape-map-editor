@@ -23,6 +23,7 @@ export type ObjectiveMarker3DTextTransform = {
   groupRotation: [number, number, number]
   textPosition: [number, number, number]
   textRotation: [number, number, number]
+  isBillboard: boolean
 }
 
 export type ObjectiveMarkerTextPosition = {
@@ -44,13 +45,15 @@ export function getObjectiveMarker3DTextPosition(
 export function getObjectiveMarker3DTextTransform(
   marker: ObjectiveMarker,
   position: ObjectiveMarker3DPosition,
+  faceCamera = false,
 ): ObjectiveMarker3DTextTransform {
   const textPosition = getObjectiveMarker3DTextPosition(marker, position)
   return {
     groupPosition: [position.x, position.y, position.z],
     groupRotation: [0, position.rotationY, 0],
-    textPosition: [textPosition.x, 0.029, textPosition.z],
-    textRotation: [-Math.PI / 2, 0, 0],
+    textPosition: [textPosition.x, faceCamera ? 0.045 : 0.029, textPosition.z],
+    textRotation: faceCamera ? [0, 0, 0] : [-Math.PI / 2, 0, 0],
+    isBillboard: faceCamera,
   }
 }
 
@@ -252,7 +255,6 @@ export function getObjectiveMarkerOutlinePoints(
 export function getObjectiveMarker3DPosition(
   marker: ObjectiveMarker,
   boardHexes: BoardHexes,
-  isHighQualityRender = false,
 ): ObjectiveMarker3DPosition | null {
   const footprint = getObjectiveMarkerFootprint(marker)
   const supportHexes = footprint.map((hex) => boardHexes[genBoardHexID(hex)])
@@ -271,10 +273,7 @@ export function getObjectiveMarker3DPosition(
     ? anchorPosition.y -
       (HEXGRID_HEX_HEIGHT - HEXGRID_HEX_HEIGHT * HEXGRID_HEXCAP_FLUID_SCALE) +
       0.0015
-    : anchorPosition.y +
-      (isHighQualityRender
-        ? -HEXGRID_HEXCAP_HEIGHT / 2
-        : HEXGRID_HEXCAP_HEIGHT / 2)
+    : anchorPosition.y + HEXGRID_HEXCAP_HEIGHT / 2
   const y = capTopY + 0.012
 
   return {

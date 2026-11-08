@@ -6,6 +6,10 @@ import {
 import { isHexMap } from '../utils/type-checker'
 import { restoreMapPortrait } from './mapStorage'
 import { safeGetJSON } from './safeStorage'
+import {
+  normalizeSavedSelections,
+  pruneSavedSelections,
+} from '../data/selectionUnits'
 
 export type LoadedLocalMap = {
   map: MapFileState
@@ -38,7 +42,19 @@ export function readMapFromLocalStorage(ls_key: string): LoadedLocalMap | null {
       parsed.boardPieces,
     )
     return {
-      map: { hexMap: restoreMapPortrait(parsed.hexMap), boardPieces },
+      map: {
+        hexMap: restoreMapPortrait(parsed.hexMap),
+        boardPieces,
+        savedSelections: pruneSavedSelections(
+          normalizeSavedSelections(
+            'savedSelections' in parsed ? parsed.savedSelections : undefined,
+          ),
+          new Set(boardPieces.map((piece) => piece.uid)),
+          new Set(
+            (parsed.hexMap.objectiveMarkers ?? []).map((marker) => marker.uid),
+          ),
+        ),
+      },
       hasInlinePortrait:
         typeof parsed.hexMap.mapPortraitBase64 === 'string' &&
         parsed.hexMap.mapPortraitBase64.length > 0,

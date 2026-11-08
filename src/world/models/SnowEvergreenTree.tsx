@@ -94,6 +94,7 @@ export function SnowEvergreenTree({ pid }: { pid?: string }) {
   return (
     <>
       <mesh
+        userData={{ snowEvergreenTreeUID: pid ?? null }}
         receiveShadow={isLightsAndShadowsRender}
         castShadow={isLightsAndShadowsRender}
         geometry={nodes.Tree10_scanned.geometry}

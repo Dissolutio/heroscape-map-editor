@@ -1,9 +1,13 @@
+import type { SelectionUnit } from '../data/selectionUnits'
+
 export type ActionLogKind =
   | 'place'
   | 'move'
   | 'rotate'
   | 'delete'
+  | 'deselect'
   | 'convert'
+  | 'adapt'
   | 'marker'
   | 'undo'
   | 'redo'
@@ -16,10 +20,17 @@ export type ActionLogEntry = {
   severity: 'info' | 'warning'
   text: string
   pieceName?: string
+  selection?: SelectionUnit
+  selectionLabel?: string
   undoable: boolean
 }
 
-export type ActionLogAction =
+type ActionLogSelection = {
+  selection?: SelectionUnit
+  selectionLabel?: string
+}
+
+export type ActionLogAction = (
   | { type: 'place'; pieceName: string }
   | {
       type: 'move'
@@ -28,7 +39,13 @@ export type ActionLogAction =
     }
   | { type: 'rotate'; pieceName: string; count: number }
   | { type: 'delete'; pieceName: string }
+  | {
+      type: 'deselect'
+      pieceName: string
+      selectionLabel: string
+    }
   | { type: 'convert'; count: number }
+  | { type: 'adapt'; count: number }
   | {
       type: 'marker'
       operation: 'add' | 'move' | 'edit' | 'remove'
@@ -36,6 +53,8 @@ export type ActionLogAction =
     }
   | { type: 'undo' | 'redo'; description: string }
   | { type: 'warning'; text: string }
+) &
+  ActionLogSelection
 
 export const ACTION_LOG_LIMIT = 200
 export const ACTION_LOG_COLLAPSED_TIMEOUT_MS = 8_000
@@ -80,11 +99,28 @@ export function formatActionLogAction(action: ActionLogAction) {
         pieceName: action.pieceName,
         undoable: true,
       }
+    case 'deselect':
+      return {
+        kind: 'deselect' as const,
+        severity: 'info' as const,
+        text: `Cleared selection of ${action.selectionLabel} (switched to ${action.pieceName})`,
+        pieceName: action.pieceName,
+        undoable: false,
+      }
     case 'convert':
       return {
         kind: 'convert' as const,
         severity: 'info' as const,
         text: `Converted ${action.count} ${action.count === 1 ? 'piece' : 'pieces'}`,
+        undoable: true,
+      }
+    case 'adapt':
+      return {
+        kind: 'adapt' as const,
+        severity: 'info' as const,
+        text: `Adapted map to collection (${action.count} ${
+          action.count === 1 ? 'piece' : 'pieces'
+        })`,
         undoable: true,
       }
     case 'marker': {

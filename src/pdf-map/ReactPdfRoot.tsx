@@ -50,7 +50,7 @@ function ReactPdfRoot() {
   const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
   const genericTerrainColorsKey = useBoundStore(
     (s) =>
-      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}|${s.isTransparentGlyphSpaces}|${s.isHideHeightsOnGlyphs}`,
+      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}|${s.isTransparentGlyphSpaces}|${s.isHideHeightsOnGlyphs}|${s.isShowPdfPieceLegend}|${s.isShowPdfLadderOverlay}`,
   )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const pdfRenderFormat = useBoundStore((s) => s.pdfRenderFormat)
@@ -603,7 +603,7 @@ const ReactPdfDownloadLink = (props: PropsWithChildren) => {
   const isShowPdfBuriedMarks = useBoundStore((s) => s.isShowPdfBuriedMarks)
   const genericTerrainColorsKey = useBoundStore(
     (s) =>
-      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}`,
+      `${s.genericSolidCapColor}|${s.genericSolidSideColor}|${s.genericFluidCapColor}|${s.genericFluidSideColor}|${s.isShowPdfLadderOverlay}`,
   )
   const useLegacyStartZones = useBoundStore((s) => s.useLegacyStartZones)
   const is2DOverlayLevelEnabled = useBoundStore(

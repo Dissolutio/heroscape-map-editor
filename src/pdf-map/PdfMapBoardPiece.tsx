@@ -1,5 +1,5 @@
 import { G } from '@react-pdf/renderer'
-import { getLaurAddonExportSymbol } from '../pdf-svg-shared/laurAddonExportSymbol'
+import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   type BoardHex,
   type DecodedPieceID,
@@ -25,19 +25,21 @@ export const PdfMapBoardPiece = ({
   overlayLevel,
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
+  isPieceKeyPreview = false,
 }: {
   piece: DecodedPieceID
   viewingLevel: number
   overlayLevel: number
   useLegacyStartZones?: boolean
   is2DOverlayLevelEnabled?: boolean
+  isPieceKeyPreview?: boolean
 }) => {
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
-  const isSubLevel = altitudeAdjusted < viewingLevel
+  const isSubLevel = !isPieceKeyPreview && altitudeAdjusted < viewingLevel
   const { inventoryID } = piece
-  const laurAddonSymbol = getLaurAddonExportSymbol(inventoryID)
-  const isVisible = altitudeAdjusted <= viewingLevel
+  const exportSymbol = getPieceExportSymbol(inventoryID)
+  const isVisible = isPieceKeyPreview || altitudeAdjusted <= viewingLevel
   const pieceRotation = ((piece?.rotation ?? 0) % 6) * 60
   const boardPieceAsHex: BoardHex = {
     id: piece.boardHexID,
@@ -56,10 +58,11 @@ export const PdfMapBoardPiece = ({
     return null
   }
   // Start Zones
-  if (piece.terrain === HexTerrain.startZone) {
+  if (exportSymbol === 'start-zone') {
     const isOverlayViewing =
       is2DOverlayLevelEnabled && viewingLevel === overlayLevel
-    const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
+    const specialIsSubLevel =
+      isPieceKeyPreview || isOverlayViewing ? false : isSubLevel
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfStartZone
@@ -71,13 +74,14 @@ export const PdfMapBoardPiece = ({
     )
   }
   // RopeLadders
-  if (inventoryID === Pieces.ropeLadder) {
+  if (exportSymbol === 'rope-ladder') {
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfRopeLadder
           piece={piece}
           isSubLevel={isSubLevel}
           pieceRotation={pieceRotation}
+          isPieceKeyPreview={isPieceKeyPreview}
         />
       </G>
     )
@@ -103,21 +107,29 @@ export const PdfMapBoardPiece = ({
     )
   }
   // LAUR LONGWALLS
-  if (laurAddonSymbol === 'long') {
+  if (exportSymbol === 'laur-long') {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <PdfBoardPieceLaurWallLong piece={piece} isSubLevel={isSubLevel} />
+        <PdfBoardPieceLaurWallLong
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </G>
     )
   }
-  if (laurAddonSymbol === 'arch') {
+  if (exportSymbol === 'laur-arch') {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <PdfBoardPieceLaurWallLongArch piece={piece} isSubLevel={isSubLevel} />
+        <PdfBoardPieceLaurWallLongArch
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
         <G
           // flip upside down text, all other rotations are legible
           transform={
@@ -135,17 +147,21 @@ export const PdfMapBoardPiece = ({
     )
   }
   // LAUR SHORTWALLS
-  if (laurAddonSymbol === 'short') {
+  if (exportSymbol === 'laur-short') {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <PdfBoardPieceLaurWallShort piece={piece} isSubLevel={isSubLevel} />
+        <PdfBoardPieceLaurWallShort
+          piece={piece}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </G>
     )
   }
   // LAUR RUINS
-  if (laurAddonSymbol === 'ruin') {
+  if (exportSymbol === 'laur-ruin') {
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}

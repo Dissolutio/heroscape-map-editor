@@ -7,7 +7,7 @@ import type { BoardHex, BoardPiece } from '../../types'
 import { SELECT_PEN_MODE } from '../../types'
 import MapDisplay3D from '../../world/MapDisplay3D'
 import type { Board } from './board'
-import { takeCapturedHandler } from './handlerCapture'
+import { takeCapturedClickHandler, takeCapturedHandler } from './handlerCapture'
 
 /**
  * Drives the real click handler (wired by world/MapDisplay3D.tsx) without
@@ -23,6 +23,7 @@ export type ClickResult = {
   boardPieces: BoardPiece[]
   board: Board
   selectedPieceIDs: string[]
+  selectedObjectiveMarkerUID: string | null
   conflictedPieceUIDs: string[]
 }
 
@@ -39,12 +40,16 @@ export function clickWithPen({
   hex,
   rotation = 0,
   shiftKey = false,
+  selectedObjectiveMarkerUID = null,
+  isShowObjectiveMarkers = true,
 }: {
   board: Board
   pieceID: string
   hex: BoardHex
   rotation?: number
   shiftKey?: boolean
+  selectedObjectiveMarkerUID?: string | null
+  isShowObjectiveMarkers?: boolean
 }): ClickResult {
   // The store freezes what it holds (Immer), and tests reuse their boards.
   const { boardHexes, boardPieces } = structuredClone(board)
@@ -53,10 +58,12 @@ export function clickWithPen({
     boardPieces,
     conflictedPieceUIDs: [],
     selectedPieceIDs: [SELECTED_BEFORE_CLICK],
+    selectedObjectiveMarkerUID,
     penMode: pieceID,
     pieceSize: 0,
     penModeRotation: rotation,
     viewingLevel: 30,
+    isShowObjectiveMarkers,
   }
 
   useBoundStore.setState(state)
@@ -68,6 +75,7 @@ export function clickWithPen({
     createElement(MapDisplay3D, { mapGroupRef: { current: null } }),
   )
   const captured = takeCapturedHandler()
+  const capturedClick = takeCapturedClickHandler()
   if (!captured) throw new Error('test helper: handler was not captured')
   const before = new Set(board.boardPieces.map((bp) => bp.uid))
   captured(
@@ -80,12 +88,24 @@ export function clickWithPen({
     } as unknown as ThreeEvent<PointerEvent>,
     hex,
   )
+  const emptyHexEventObject = {}
+  const clickHit = hex.boardPieceUID ? {} : emptyHexEventObject
+  capturedClick?.({
+    button: 0,
+    shiftKey,
+    ctrlKey: false,
+    metaKey: false,
+    eventObject: emptyHexEventObject,
+    intersections: [{ eventObject: clickHit, object: clickHit }],
+    stopPropagation: () => undefined,
+  } as unknown as ThreeEvent<MouseEvent>)
   const after = useBoundStore.getState()
   return {
     added: after.boardPieces.filter((bp) => !before.has(bp.uid)),
     boardPieces: after.boardPieces,
     board: { boardHexes: after.boardHexes, boardPieces: after.boardPieces },
     selectedPieceIDs: after.selectedPieceIDs,
+    selectedObjectiveMarkerUID: after.selectedObjectiveMarkerUID,
     conflictedPieceUIDs: after.conflictedPieceUIDs,
   }
 }
@@ -96,19 +116,31 @@ export function clickWithSelection({
   selectedPieceIDs,
   rotationPivot = null,
   shiftKey = false,
+  ctrlKey = false,
+  metaKey = false,
+  selectedObjectiveMarkerUID = null,
 }: {
   board: Board
   hex: BoardHex
   selectedPieceIDs: string[]
   rotationPivot?: RotationPivot | null
   shiftKey?: boolean
-}): { selectedPieceIDs: string[]; rotationPivot: RotationPivot | null } {
+  ctrlKey?: boolean
+  metaKey?: boolean
+  selectedObjectiveMarkerUID?: string | null
+}): {
+  selectedPieceIDs: string[]
+  selectedObjectiveMarkerUID: string | null
+  rotationPivot: RotationPivot | null
+  historyUnchanged: boolean
+} {
   const { boardHexes, boardPieces } = structuredClone(board)
   const state = {
     boardHexes,
     boardPieces,
     conflictedPieceUIDs: [],
     selectedPieceIDs,
+    selectedObjectiveMarkerUID,
     rotationPivot,
     penMode: SELECT_PEN_MODE,
     viewingLevel: 30,
@@ -120,20 +152,36 @@ export function clickWithSelection({
     createElement(MapDisplay3D, { mapGroupRef: { current: null } }),
   )
   const captured = takeCapturedHandler()
+  const capturedClick = takeCapturedClickHandler()
   if (!captured) throw new Error('test helper: handler was not captured')
+  const historyBeforeClick = useBoundStore.temporal.getState().pastStates
   captured(
     {
       button: 0,
       shiftKey,
-      ctrlKey: false,
-      metaKey: false,
+      ctrlKey,
+      metaKey,
       stopPropagation: () => undefined,
     } as unknown as ThreeEvent<PointerEvent>,
     hex,
   )
+  const emptyHexEventObject = {}
+  const clickHit = hex.boardPieceUID ? {} : emptyHexEventObject
+  capturedClick?.({
+    button: 0,
+    shiftKey,
+    ctrlKey,
+    metaKey,
+    eventObject: emptyHexEventObject,
+    intersections: [{ eventObject: clickHit, object: clickHit }],
+    stopPropagation: () => undefined,
+  } as unknown as ThreeEvent<MouseEvent>)
   const after = useBoundStore.getState()
   return {
     selectedPieceIDs: after.selectedPieceIDs,
+    selectedObjectiveMarkerUID: after.selectedObjectiveMarkerUID,
     rotationPivot: after.rotationPivot,
+    historyUnchanged:
+      useBoundStore.temporal.getState().pastStates === historyBeforeClick,
   }
 }

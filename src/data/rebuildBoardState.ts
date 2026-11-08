@@ -1,4 +1,4 @@
-import type { MapState } from '../types'
+import { HexTerrain, type MapState } from '../types'
 import { normalizeBoardPieces } from '../utils/map-utils'
 import { addPiece } from './addPiece'
 import { piecesSoFar } from './pieces'
@@ -30,9 +30,17 @@ export function computeConflictedPieceUIDs(
  */
 export function rebuildBoardStateFromPieces(
   boardPieces: MapState['boardPieces'],
+  initialBoardHexes: MapState['boardHexes'] = {},
 ) {
   const conflicts = new Set<string>()
-  let workingHexes: MapState['boardHexes'] = {}
+  let workingHexes: MapState['boardHexes'] = Object.fromEntries(
+    Object.entries(initialBoardHexes)
+      .filter(([, hex]) => !hex.boardPieceUID)
+      .map(([id, hex]) => [
+        id,
+        hex.terrain === HexTerrain.empty ? { ...hex, isCap: true } : hex,
+      ]),
+  )
   let workingPieces: MapState['boardPieces'] = []
 
   for (const boardPiece of normalizeBoardPieces(boardPieces)) {

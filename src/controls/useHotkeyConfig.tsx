@@ -22,12 +22,10 @@ export const defaultHotkeyConfig = {
   // 2 control buttons
   'mod+z': 'undoWorld',
   'mod+y': 'redoWorld',
-  'mod+shift+arrowleft': 'backSelectionHistory',
-  'mod+shift+arrowright': 'forwardSelectionHistory',
 
   // 10 numbers, 26 letters, shift+, alt+
   '1': 'togglePieceSize1',
-  'shift+1': undefined,
+  'shift+1': 'cyclePieceVariantBackward',
   'alt+1': undefined,
   '2': 'togglePieceSize2',
   'shift+2': undefined,
@@ -113,7 +111,7 @@ export const defaultHotkeyConfig = {
   'alt+r': undefined,
   s: 'togglePenModeSand',
   'shift+s': undefined,
-  'alt+s': undefined,
+  'alt+s': 'saveSelection',
   t: 'togglePenModeToxic',
   'shift+t': 'togglePenModeToxicWater',
   'alt+t': undefined,

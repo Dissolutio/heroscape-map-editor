@@ -1,16 +1,21 @@
-import { piecesSoFar } from '../data/pieces'
+import { memo, useContext } from 'react'
+import { getPieceGameHeight, piecesSoFar } from '../data/pieces'
+import {
+  type GlyphCoordinateLookup,
+  type GlyphExportSettings,
+  getGlyphExportOptions,
+} from '../pdf-svg-shared/glyphExportOptions'
+import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
+import {
+  SHROUDSHROOM13_ORIGIN_LINE_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR,
+  SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
+  getShroudshroom13OriginLine,
+} from '../pdf-svg-shared/shroudshroom13OriginLine'
 import {
   xTransformForMultiHex3Rotation,
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
-import {
-  getShroudshroom13OriginLine,
-  SHROUDSHROOM13_ORIGIN_LINE_COLOR,
-  SHROUDSHROOM13_ORIGIN_LINE_SUBLEVEL_COLOR,
-  SHROUDSHROOM13_ORIGIN_LINE_WIDTH,
-} from '../pdf-svg-shared/shroudshroom13OriginLine'
-import { getGlyphExportOptions } from '../pdf-svg-shared/glyphExportOptions'
-import useBoundStore from '../store/store'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
   isCastleTerrain,
@@ -25,7 +30,6 @@ import {
   SVG_HEX_RADIUS,
   SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH,
 } from '../utils/constants'
-import { getOverlayLevel } from '../utils/map-utils'
 import { decodePieceID, hexUtilsHexToPixel } from '../utils/map-utils'
 import {
   getTerrainTileAnnotation,
@@ -71,9 +75,15 @@ import {
   SvgTree415,
   getOutcropTextColor,
 } from './SvgMapShapes'
+import { SvgMapShapeSettingsContext } from './SvgMapShapes'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 
 const OPACITY_SUBLEVEL = 0.3
+const EMPTY_GLYPH_COORDINATES: GlyphCoordinateLookup = new Set()
+const DEFAULT_GLYPH_EXPORT_SETTINGS: GlyphExportSettings = {
+  isTransparentGlyphSpaces: false,
+  isHideHeightsOnGlyphs: false,
+}
 
 const glyphTextProps = (glyphText: string) => {
   const fontSize =
@@ -102,24 +112,25 @@ const TerrainTileLetterText = ({
   hex,
   viewingLevel,
   enabled,
+  showBuriedMarks,
   buriedMarksByUID,
 }: {
   hex: BoardHex
   viewingLevel: number
   enabled: boolean
+  showBuriedMarks: boolean
   buriedMarksByUID: BuriedMarksByUID
 }) => {
-  const isShow2DExportBuriedMarks = useBoundStore(
-    (s) => s.isShow2DExportBuriedMarks,
+  const { genericSolidCapColor, genericFluidCapColor } = useContext(
+    SvgMapShapeSettingsContext,
   )
-  const genericCapColor = useBoundStore((s) =>
+  const genericCapColor =
     hex.terrain === HexTerrain.generic
-      ? s.genericSolidCapColor
+      ? genericSolidCapColor
       : hex.terrain === HexTerrain.genericFluid
-        ? s.genericFluidCapColor
-        : null,
-  )
-  const marks = isShow2DExportBuriedMarks
+        ? genericFluidCapColor
+        : null
+  const marks = showBuriedMarks
     ? getBuriedMarksForHex(hex, viewingLevel, buriedMarksByUID)
     : ''
   const letter = getTerrainTileAnnotation(hex, viewingLevel, enabled, '')
@@ -159,39 +170,57 @@ const TerrainTileLetterText = ({
   )
 }
 
-export const SvgMapHex = ({
-  hex,
-  buriedMarksByUID,
-}: {
+type SvgMapHexProps = {
   hex: BoardHex
   buriedMarksByUID: BuriedMarksByUID
-}) => {
-  const viewingLevel = useBoundStore((s) => s.viewingLevel)
-  const isShow2DExportTileLetters = useBoundStore(
-    (s) => s.isShow2DExportTileLetters,
-  )
-  const is2DOverlayLevelEnabled = useBoundStore(
-    (s) => s.is2DOverlayLevelEnabled,
-  )
-  const boardPieces = useBoundStore((s) => s.boardPieces)
-  const boardHexes = useBoundStore((s) => s.boardHexes)
-  const isTransparentGlyphSpaces = useBoundStore(
-    (s) => s.isTransparentGlyphSpaces,
-  )
-  const isHideHeightsOnGlyphs = useBoundStore((s) => s.isHideHeightsOnGlyphs)
-  const overlayLevel = getOverlayLevel(boardPieces, boardHexes)
+  viewingLevel?: number
+  overlayLevel?: number
+  isVisible?: boolean
+  isSubLevel?: boolean
+  isOverlayViewing?: boolean
+  is2DOverlayLevelEnabled?: boolean
+  isShow2DExportTileLetters?: boolean
+  isShow2DExportBuriedMarks?: boolean
+  glyphCoordinates?: GlyphCoordinateLookup
+  glyphExportSettings?: GlyphExportSettings
+  isPieceKeyPreview?: boolean
+  useTerrainBorderColor?: boolean
+}
+
+const SvgMapHexComponent = ({
+  hex,
+  buriedMarksByUID,
+  viewingLevel = 0,
+  overlayLevel = 0,
+  isVisible: visibleOverride,
+  isSubLevel: subLevelOverride,
+  isOverlayViewing: overlayViewingOverride,
+  is2DOverlayLevelEnabled = false,
+  isShow2DExportTileLetters = false,
+  isShow2DExportBuriedMarks = false,
+  glyphCoordinates = EMPTY_GLYPH_COORDINATES,
+  glyphExportSettings = DEFAULT_GLYPH_EXPORT_SETTINGS,
+  isPieceKeyPreview = false,
+  useTerrainBorderColor = true,
+}: SvgMapHexProps) => {
   const pixel = hexUtilsHexToPixel(hex)
-  const isSubLevel = hex.altitude < viewingLevel
+  const isSubLevel =
+    subLevelOverride ?? (!isPieceKeyPreview && hex.altitude < viewingLevel)
+  const isVisible =
+    visibleOverride ?? (isPieceKeyPreview || hex.altitude <= viewingLevel)
+  const isOverlayViewing =
+    overlayViewingOverride ??
+    (is2DOverlayLevelEnabled && viewingLevel === overlayLevel)
   const { inventoryID } = decodePieceID(hex.pieceID)
+  const exportSymbol = getPieceExportSymbol(inventoryID)
   const isObstaclePiece = piecesSoFar[inventoryID]?.isObstaclePiece
   const isAuxiliaryNotRenderedIn2D =
     isObstaclePiece &&
     !hex.isObstacleOrigin &&
     (hex.isObstacleAuxiliary || hex.isVerticalClearanceHex)
-  const isVisible = hex.altitude <= viewingLevel
   const isLandHex =
     isSolidTerrainHex(hex.terrain) || isFluidTerrainHex(hex.terrain)
-  const pieceHeightText = piecesSoFar[inventoryID]?.height
+  const pieceHeightText = getPieceGameHeight(inventoryID)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   // EARLY RETURN: NOT VISIBLE
   if (!isVisible || isAuxiliaryNotRenderedIn2D) {
@@ -206,12 +235,16 @@ export const SvgMapHex = ({
     )
   }
   // Ladder
-  if (inventoryID === Pieces.ladder && hex.isObstacleOrigin) {
+  if (exportSymbol === 'ladder' && hex.isObstacleOrigin) {
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgLadder hex={hex} isSubLevel={isSubLevel} />
+        <SvgLadder
+          hex={hex}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </g>
     )
   }
@@ -381,10 +414,11 @@ export const SvgMapHex = ({
     inventoryID === Pieces.glacier1
   ) {
     const textColor = getOutcropTextColor({ hex, isSubLevel })
-    const { hideHeight } = getGlyphExportOptions(hex, boardHexes, {
-      isTransparentGlyphSpaces,
-      isHideHeightsOnGlyphs,
-    })
+    const { hideHeight } = getGlyphExportOptions(
+      hex,
+      glyphCoordinates,
+      glyphExportSettings,
+    )
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1
@@ -438,18 +472,14 @@ export const SvgMapHex = ({
     )
   }
   // Glyphs
-  if (
-    hex.terrain === HexTerrain.glyphPower ||
-    hex.terrain === HexTerrain.glyphTreasure
-  ) {
-    const glyphOptions = getGlyphExportOptions(hex, boardHexes, {
-      isTransparentGlyphSpaces,
-      isHideHeightsOnGlyphs,
-    })
+  if (exportSymbol === 'glyph') {
+    const glyphOptions = getGlyphExportOptions(
+      hex,
+      glyphCoordinates,
+      glyphExportSettings,
+    )
     // When overlay view is enabled, glyphs should only be shown on the overlay level
-    const isOverlayViewing =
-      is2DOverlayLevelEnabled && viewingLevel === overlayLevel
-    if (is2DOverlayLevelEnabled && !isOverlayViewing) {
+    if (is2DOverlayLevelEnabled && !isOverlayViewing && !isPieceKeyPreview) {
       return null
     }
     const specialIsSubLevel = isOverlayViewing ? false : isSubLevel
@@ -482,10 +512,11 @@ export const SvgMapHex = ({
     const textColor = isSubLevel
       ? svgSubLevelColors.evergreenText
       : svgColors.evergreenText
-    const { hideHeight } = getGlyphExportOptions(hex, boardHexes, {
-      isTransparentGlyphSpaces,
-      isHideHeightsOnGlyphs,
-    })
+    const { hideHeight } = getGlyphExportOptions(
+      hex,
+      glyphCoordinates,
+      glyphExportSettings,
+    )
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <SvgMultiHex1
@@ -507,11 +538,15 @@ export const SvgMapHex = ({
   }
   // CASTLE WALLS
   if (isCastleTerrain(hex.terrain) && hex.isObstacleOrigin) {
-    const { hideHeight } = getGlyphExportOptions(hex, boardHexes, {
-      isTransparentGlyphSpaces,
-      isHideHeightsOnGlyphs,
-    })
-    const heightText = !hideHeight && pieceHeightText > 0 ? pieceHeightText : ''
+    const { hideHeight } = getGlyphExportOptions(
+      hex,
+      glyphCoordinates,
+      glyphExportSettings,
+    )
+    const heightText =
+      !hideHeight && pieceHeightText != null && pieceHeightText > 0
+        ? pieceHeightText
+        : ''
     //  Return Castle Corner
     if (
       hex.inventoryID === Pieces.castleBaseCorner ||
@@ -519,7 +554,11 @@ export const SvgMapHex = ({
     ) {
       return (
         <g transform={`translate(${pixel.x}, ${pixel.y})`}>
-          <SvgMultiHex1 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex1
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <g transform={`rotate(${pieceRotation})`}>
             <SvgCastleCorner hex={hex} isSubLevel={isSubLevel} />
           </g>
@@ -624,6 +663,7 @@ export const SvgMapHex = ({
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
         <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
@@ -638,13 +678,18 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex2 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex2
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -658,13 +703,18 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex4 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex4
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -678,13 +728,18 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex3 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex3
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -698,13 +753,18 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex5 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex5
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -718,13 +778,18 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex7 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex7
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -738,13 +803,18 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHexWallWalk7 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHexWallWalk7
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -758,13 +828,18 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHexWallWalk9 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHexWallWalk9
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -778,13 +853,18 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex6 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex6
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -798,13 +878,18 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHexMarvel6 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHexMarvel6
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -818,13 +903,18 @@ export const SvgMapHex = ({
     return (
       <g transform={`translate(${pixel.x}, ${pixel.y})`}>
         <g transform={`rotate(${pieceRotation})`}>
-          <SvgMultiHex24 hex={hex} isSubLevel={isSubLevel} />
+          <SvgMultiHex24
+            hex={hex}
+            isSubLevel={isSubLevel}
+            useTerrainBorderColor={useTerrainBorderColor}
+          />
           <SvgHexDecor hex={hex} isSubLevel={isSubLevel} />
         </g>
         <TerrainTileLetterText
           hex={hex}
           viewingLevel={viewingLevel}
           enabled={isShow2DExportTileLetters}
+          showBuriedMarks={isShow2DExportBuriedMarks}
           buriedMarksByUID={buriedMarksByUID}
         />
       </g>
@@ -855,6 +945,8 @@ export const SvgMapHex = ({
   }
   return null
 }
+
+export const SvgMapHex = memo(SvgMapHexComponent)
 
 const SvgCastleWallBaseHeightText = ({
   isSubLevel,

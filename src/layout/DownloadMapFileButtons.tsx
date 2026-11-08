@@ -1,6 +1,6 @@
 import { MdFolderZip } from 'react-icons/md'
 import useBoundStore from '../store/store'
-import type { BoardPiece, HexMap } from '../types'
+import type { MapFileState } from '../types'
 import { genRandomMapName } from '../utils/genRandomMapName'
 import { encodeFilename } from '../utils/map-utils'
 import { ControlTabsListItemButton } from '../controls/ControlTabsListItemButton'
@@ -12,12 +12,10 @@ const DownloadMapFileButtons = () => {
   const handleClickExportGzip = async () => {
     const filename = `${fileName}.gz`
     const hexMapToUse = { ...hexMap, mapPortraitBase64: '' }
-    const data: {
-      hexMap: HexMap
-      boardPieces: BoardPiece[]
-    } = {
+    const data: MapFileState = {
       hexMap: hexMapToUse,
       boardPieces,
+      savedSelections: useBoundStore.getState().savedSelections,
     }
     const jsonDataString = JSON.stringify(data)
     const encoder = new TextEncoder()
@@ -42,12 +40,10 @@ const DownloadMapFileButtons = () => {
     const hexMapToUse = isLeanFileVersion
       ? { ...hexMap, mapPortraitBase64: '' }
       : hexMap
-    const data: {
-      hexMap: HexMap
-      boardPieces: BoardPiece[]
-    } = {
+    const data: MapFileState = {
       hexMap: hexMapToUse,
       boardPieces,
+      savedSelections: useBoundStore.getState().savedSelections,
     }
     const element = document.createElement('a')
     element.setAttribute(

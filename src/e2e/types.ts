@@ -18,8 +18,51 @@ export type E2ESnapshot = {
   hexCount: number
   landInstanceCounts: { solid: number; fluid: number }
   landRenderer: 'legacy' | 'per-hex'
+  marroHiveMaterials: Array<{
+    uid: string
+    hasMap: boolean
+    materialTypes: string[]
+  }>
+  evergreenTreeMaterials: Array<{
+    uid: string
+    part: 'tree' | 'boulders' | 'base'
+    hasMap: boolean
+    materialTypes: string[]
+  }>
+  previewMeshes: Array<{
+    family: 'marroHive' | 'evergreenTree' | 'snowEvergreenTree' | 'marvelRuin'
+    part: string
+    hasMap: boolean
+    transparent: boolean
+    opacity: number
+  }>
+  ruinsMaterials: Array<{
+    uid: string
+    part: 'face' | 'columns'
+    hasMap: boolean
+    materialTypes: string[]
+  }>
+  roadWallMaterials: Array<{
+    uid: string
+    part: 'wall' | 'road'
+    hasMap: boolean
+    materialTypes: string[]
+  }>
+  marvelRuinMaterials: Array<{
+    uid: string
+    part:
+      | 'MarvelRuinLeft'
+      | 'MarvelRuinFront'
+      | 'MarvelRuinBack'
+      | 'MarvelRuinFrontBroken'
+      | 'MarvelRuinBackBroken'
+      | 'MarvelRuinUpperFloor'
+    hasMap: boolean
+    materialTypes: string[]
+  }>
   viewingLevel: number
   penMode: string
+  penPieceID: string
   selectedPieceIDs: string[]
   rotationPivot: {
     coords: { q: number; r: number; s: number }
@@ -76,8 +119,23 @@ export type E2EPieceSummary = {
 export type E2ETestBridge = {
   snapshot: () => E2ESnapshot
   listPieces: () => E2EPieceSummary[]
+  listPieceHexes: (
+    uid: string,
+  ) => Array<{ q: number; r: number; altitude: number; terrain: string }>
   /** UIDs mounted in the 3D objective-marker layer. */
   listRenderedObjectiveMarkerUIDs: () => string[]
+  /** The rendered objective-marker text's world quaternion, or null. */
+  getRenderedObjectiveMarkerTextQuaternion: (
+    uid: string,
+  ) => [number, number, number, number] | null
+  /** Text and marker-face world bounds, for verifying billboard clearance. */
+  getRenderedObjectiveMarkerTextLayout: (uid: string) => {
+    isBillboard: boolean
+    textBounds: { min: [number, number, number]; max: [number, number, number] }
+    markerFaceMaxY: number
+  } | null
+  /** The camera's world quaternion. */
+  cameraQuaternion: () => [number, number, number, number]
   /** Where to click the canvas to hit a placed piece, or null. */
   screenPosOfPiece: (uid: string) => ScreenPoint | null
   /** Where to click the canvas to hit a rendered objective marker, or null. */

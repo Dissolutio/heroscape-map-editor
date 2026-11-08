@@ -130,11 +130,6 @@ describe('objective marker 3D helpers', () => {
     const board = makeTable(5)
     const target = marker()
     const position = getObjectiveMarker3DPosition(target, board.boardHexes)
-    const highQualityPosition = getObjectiveMarker3DPosition(
-      target,
-      board.boardHexes,
-      true,
-    )
     const expected = getBoardHex3DCoords(target.anchor)
 
     expect(position).toMatchObject({
@@ -143,12 +138,9 @@ describe('objective marker 3D helpers', () => {
       z: expected.z,
       rotationY: 0,
     })
-    expect(highQualityPosition?.y).toBe(
-      expected.y - HEXGRID_HEXCAP_HEIGHT / 2 + 0.012,
-    )
   })
 
-  it('centers a two-hex token and rotates it in six 60-degree steps', () => {
+  it('centers a two-hex token and preserves its own six rotation steps', () => {
     const board = makeTable(5)
     const target = marker({
       size: 2,
@@ -189,7 +181,7 @@ describe('objective marker 3D helpers', () => {
     expect(position.rotationY).toBe((-target.rotation * Math.PI) / 3)
   })
 
-  it('shares placed and preview text transforms across marker sizes and rotations', () => {
+  it('keeps placed and preview text centered across marker sizes and rotations', () => {
     const board = makeTable(5)
     for (const size of [1, 2] as const) {
       for (const style of ['black', 'white'] as const) {
@@ -218,9 +210,27 @@ describe('objective marker 3D helpers', () => {
           ])
           expect(transform.textPosition).toEqual([0, 0.029, 0])
           expect(transform.textRotation).toEqual([-Math.PI / 2, 0, 0])
+          expect(transform.isBillboard).toBe(false)
         }
       }
     }
+  })
+
+  it('keeps flat text on the face by default and lifts billboard text above it', () => {
+    const board = makeTable(5)
+    const target = marker()
+    const position = getObjectiveMarker3DPosition(target, board.boardHexes)
+    if (!position) throw new Error('Expected a supported marker')
+
+    const flat = getObjectiveMarker3DTextTransform(target, position)
+    expect(flat.textPosition).toEqual([0, 0.029, 0])
+    expect(flat.textRotation).toEqual([-Math.PI / 2, 0, 0])
+    expect(flat.isBillboard).toBe(false)
+
+    const billboard = getObjectiveMarker3DTextTransform(target, position, true)
+    expect(billboard.textPosition[1]).toBeGreaterThan(0.0265)
+    expect(billboard.textRotation).toEqual([0, 0, 0])
+    expect(billboard.isBillboard).toBe(true)
   })
 
   it('preserves anchor-relative export text positioning separately from 3D', () => {

@@ -24,10 +24,12 @@ test('camera actions and tooltips follow the active view', async ({ page }) => {
   await genericColorsLabel.hover()
   await expect(page.getByRole('tooltip')).toHaveText(genericColorsText)
 
+  await page.mouse.move(0, 0)
   await page.getByRole('button', { name: 'View 2D Map' }).click()
   await expect(cameraAction).toHaveCount(0)
   await expect(genericColorsLabel).toBeVisible()
 
+  await page.mouse.move(0, 0)
   await page
     .getByRole('button', { name: 'View pdf build instructions' })
     .click()
@@ -38,6 +40,95 @@ test('camera actions and tooltips follow the active view', async ({ page }) => {
   await expect(buriedMarksSwitch).toBeVisible()
   await buriedMarksSwitch.hover()
   await expect(page.getByRole('tooltip')).toHaveText(buriedMarksText)
+})
+
+test('navbar offers only the other views as icons', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await waitForAppReady(page)
+
+  const expectViewButtons = async (names: string[]) => {
+    await expect(page.getByRole('group', { name: 'Map view' })).toHaveCount(0)
+    await expect(
+      page.getByRole('button', { name: 'View pdf build instructions' }),
+    ).toHaveCount(names.includes('View pdf build instructions') ? 1 : 0)
+    await expect(
+      page.getByRole('button', { name: 'Close pdf build instructions' }),
+    ).toHaveCount(0)
+    for (const name of ['View 2D Map', 'View 3D Map']) {
+      await expect(page.getByRole('button', { name })).toHaveCount(
+        names.includes(name) ? 1 : 0,
+      )
+    }
+  }
+
+  await expectViewButtons(['View 2D Map', 'View pdf build instructions'])
+
+  await page.mouse.move(0, 0)
+  await page.getByRole('button', { name: 'View 2D Map' }).click()
+  await expect(page.locator('[id="2d-svg-view"] title')).toHaveText(
+    '2D Map Display',
+  )
+  await expectViewButtons(['View 3D Map', 'View pdf build instructions'])
+
+  await page.mouse.move(0, 0)
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
+  await expect(page.locator('iframe')).toBeVisible()
+  await expectViewButtons(['View 2D Map', 'View 3D Map'])
+
+  await page.mouse.move(0, 0)
+  await page.getByRole('button', { name: 'View 3D Map' }).click()
+  await expect(page.locator('canvas').first()).toBeVisible()
+  await expectViewButtons(['View 2D Map', 'View pdf build instructions'])
+})
+
+test('mobile navbar keeps 2D/3D switching and direct PDF download', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 812 })
+  await waitForAppReady(page)
+
+  const pdfDownload = page.getByRole('button', {
+    name: 'Download pdf build instructions',
+  })
+  await expect(page.getByRole('button', { name: 'View 2D Map' })).toHaveCount(1)
+  await expect(page.getByRole('button', { name: 'View 3D Map' })).toHaveCount(0)
+  await expect(
+    page.getByRole('button', { name: 'View pdf build instructions' }),
+  ).toHaveCount(0)
+  await expect(pdfDownload).toHaveCount(1)
+
+  await page.mouse.move(0, 0)
+  await page.getByRole('button', { name: 'View 2D Map' }).click()
+  await expect(page.locator('[id="2d-svg-view"] title')).toHaveText(
+    '2D Map Display',
+  )
+  await expect(page.getByRole('button', { name: 'View 2D Map' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'View 3D Map' })).toHaveCount(1)
+  await expect(pdfDownload).toHaveCount(1)
+  await expect(
+    page.getByText(/Download build instructions \.pdf for:/),
+  ).toHaveCount(0)
+})
+
+test('direct view links still open their requested view', async ({ page }) => {
+  const fixtureUrl = mapUrl(FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS)
+
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.goto(`${fixtureUrl}&v=b`)
+  await expect(page.locator('[id="2d-svg-view"] title')).toHaveText(
+    '2D Map Display',
+  )
+  await expect(page.getByRole('button', { name: 'View 3D Map' })).toHaveCount(1)
+  await expect(
+    page.getByRole('button', { name: 'View pdf build instructions' }),
+  ).toHaveCount(1)
+
+  await page.goto(`${fixtureUrl}&v=a`)
+  await expect(page.locator('iframe')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'View 2D Map' })).toHaveCount(1)
+  await expect(page.getByRole('button', { name: 'View 3D Map' })).toHaveCount(1)
 })
 
 test('new map author appears in Edit Map Details and can be remembered', async ({

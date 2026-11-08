@@ -21,6 +21,7 @@ const state = (): ShadowRelevantState => ({
   graphicsTier: 'low',
   effectiveGraphicsTier: 'low',
   isShowStartZones: true,
+  isShowObjectiveMarkers: true,
 })
 
 describe('static shadow map invalidation', () => {
@@ -37,6 +38,7 @@ describe('static shadow map invalidation', () => {
       { ...original, graphicsTier: 'medium' },
       { ...original, effectiveGraphicsTier: 'medium' },
       { ...original, isShowStartZones: false },
+      { ...original, isShowObjectiveMarkers: false },
     ]
 
     for (const updated of updates) {
