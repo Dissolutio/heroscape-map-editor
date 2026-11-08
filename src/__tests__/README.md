@@ -36,6 +36,8 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `svg-map-render-markup.test.ts` | Byte-for-byte SVG snapshots captured from the pre-refactor levels, overlay, and Legend. |
 | `ladder-stack-count.test.ts` | Ladder stack model: runs of consecutive ladder altitudes per edge (single run, two runs on one edge, different edges, rotation) and the number of PDF ladder overlay levels. |
 | `pdf-ladder-overlay.test.ts` | PDF ladder overlay levels: no ladder "x N" text in the PDF or SVG, the option off or no ladders gives no ladder level, white 1-hex with thin black border plus ladder shape and count, and two runs on one edge giving two ladder levels. |
+| `pdf-piece-legend.test.ts` | PDF piece-key default visibility and rendering for every registered piece family. |
+| `pdf-piece-legend-layout.test.ts` | Piece-key Special Tiles rows of three and whole land-row pagination chunks with repeated headers. |
 | `generic-letter-metrics.test.ts` | Ratchets every terrain letter against the PDF mark-width table and the Inter Bold font metrics. |
 | `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
 | `replay-conflicts.test.ts` | How conflicts are computed (`data/rebuildBoardState.ts`): ordinary occupancy conflicts plus derived Laur conflicts. |
