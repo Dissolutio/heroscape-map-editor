@@ -61,7 +61,8 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `map-storage.test.ts` | Old/new saved-map formats, separate portraits, and inline-portrait migration. |
 | `map-autosave.test.ts` | Debounced map writes, lifecycle flushes, hold/release gating, and failure retries. |
 | `map-portrait.test.ts` | Pure downscale dimensions and map identity through a JSONCrush share-link round trip. |
-| `settings.test.ts` | Versioned settings defaults (including the PDF ladder overlay option), migration, remembered map author validation and round-trip, debounced persistence, stale session-only visibility settings, and store-state classification. |
+| `settings.test.ts` | Versioned settings defaults (including hotkey overrides and the PDF ladder overlay option), migration, remembered map author validation and round-trip, debounced persistence, stale session-only visibility settings, and store-state classification. |
+| `data/hotkeys.test.ts` | Default hotkey coverage, override merging, conflict swaps, clear/reset actions, and versioned import/export validation. |
 | `look-settings-tooltip-copy.test.ts` | Ensures every 3D Look dialog control has plain-English tooltip copy. |
 | `new-map-details.test.ts` | New-map author and notes through JSON loading and share-link serialization, including empty metadata. |
 | `view-mode.test.ts` | Active 3D, SVG, and PDF view selection, including PDF precedence. |
