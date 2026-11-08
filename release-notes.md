@@ -1,4 +1,4 @@
-Nov-06-2026
+Nov-07-2026
 TLDR: Adapt a map to the pieces you own. A right-click selection menu (extensible). Textured trees, ruins, marvel warehouse, hive from Virtualscape. Hotkey for trees/outcrops+. Saved selections. Click empty hexes to deselect. PDF/SVG piece legend, and ladder summaries. Toggle Show Objective Markers. Fixes for wood, side textures and missing hex sides.
 
 - **Saved selections**: Each action in the bottom-left action-log that moves pieces now has a link: click it to select those pieces again (Shift-click adds to your selection). You can also save the current selection with a name, and your saved selections sit above the action log. They are kept in your map file.
