@@ -19,7 +19,7 @@
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/material": "^6.1.6",
-    "@mui/x-data-grid": "^7.29.13",
+    "@mui/x-data-grid": "^9.17.0",
     "@react-pdf/renderer": "^4.3.0",
     "@react-three/drei": "^9.116.0",
     "@react-three/fiber": "^8.17.10",
