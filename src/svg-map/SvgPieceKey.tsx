@@ -8,7 +8,9 @@ import {
 import {
   getPieceKeyRowShapeHeight,
   getPieceKeyShapeLayout,
-  getPieceKeySpecialEntriesPerRow,
+  getPieceKeySpecialEntryRowLayout,
+  getPieceKeySpecialEntryRowShapeHeight,
+  getPieceKeySpecialEntryRows,
 } from '../pdf-svg-shared/pieceKeyShapeLayout'
 import type { BoardHex, BoardPiece } from '../types'
 import { SVG_HEX_RADIUS } from '../utils/constants'
@@ -139,20 +141,21 @@ export const SvgPieceKeyShape = (
   )
 }
 
-const landGridDimensions = (model: PieceKeyModel, width: number) => {
+const landGridDimensions = (
+  model: PieceKeyModel,
+  width: number,
+  columns: PieceKeyModel['landColumns'] = model.landColumns,
+) => {
   const rowHeaderWidth = Math.max(190, SVG_HEX_RADIUS * 2.6)
   const maxShapeWidth = Math.max(
     0,
-    ...model.landColumns.flatMap((column) =>
+    ...columns.flatMap((column) =>
       column.cells.map(({ entry }) => getPieceKeyShapeLayout(entry).width),
     ),
   )
   const cellWidth = Math.max(maxShapeWidth + SVG_HEX_RADIUS * 0.3, 185)
-  const columnsInWidestTable = Math.min(
-    LAND_COLUMNS_PER_TABLE,
-    model.landColumns.length,
-  )
-  const gridWidth = model.landColumns.length
+  const columnsInWidestTable = Math.min(LAND_COLUMNS_PER_TABLE, columns.length)
+  const gridWidth = columns.length
     ? rowHeaderWidth + cellWidth * columnsInWidestTable
     : width
   const scale = 1
@@ -166,17 +169,31 @@ const landGridDimensions = (model: PieceKeyModel, width: number) => {
 }
 
 export const getSvgPieceKeyWidth = (model: PieceKeyModel, width: number) => {
-  const { gridWidth } = landGridDimensions(model, width)
+  const landGridWidth = landGridDimensions(model, width).gridWidth
+  const fluidGridWidth = landGridDimensions(
+    model,
+    width,
+    model.fluidColumns,
+  ).gridWidth
   const largestSpecialShape = Math.max(
     0,
     ...model.specialGroups.flatMap((group) =>
       group.entries.map((entry) => getPieceKeyShapeLayout(entry).width),
     ),
   )
-  return Math.max(gridWidth, largestSpecialShape * 3 + SVG_HEX_RADIUS)
+  return Math.max(
+    landGridWidth,
+    fluidGridWidth,
+    largestSpecialShape * 3 + SVG_HEX_RADIUS,
+  )
 }
 
-const landRowHeight = (model: PieceKeyModel, size: number, scale: number) => {
+const landRowHeight = (
+  model: PieceKeyModel,
+  size: number,
+  scale: number,
+  columns: PieceKeyModel['landColumns'] = model.landColumns,
+) => {
   const minimum =
     size >= 24
       ? SVG_HEX_RADIUS * 2.4
@@ -185,20 +202,24 @@ const landRowHeight = (model: PieceKeyModel, size: number, scale: number) => {
         : SVG_HEX_RADIUS * 1.3
   return Math.max(
     minimum,
-    getPieceKeyRowShapeHeight(model, size, scale, LAND_ROW_PADDING),
+    getPieceKeyRowShapeHeight(model, size, scale, LAND_ROW_PADDING, columns),
   )
 }
 
-const getLandTablesHeight = (model: PieceKeyModel, width: number) => {
-  const { scale } = landGridDimensions(model, width)
-  const tableCount = Math.ceil(
-    model.landColumns.length / LAND_COLUMNS_PER_TABLE,
-  )
-  return model.landColumns.length
+const getTerrainTablesHeight = (
+  model: PieceKeyModel,
+  width: number,
+  columns: PieceKeyModel['landColumns'],
+  rows: PieceKeyModel['landRows'],
+) => {
+  const { scale } = landGridDimensions(model, width, columns)
+  const tableCount = Math.ceil(columns.length / LAND_COLUMNS_PER_TABLE)
+  return columns.length
     ? tableCount *
         (LAND_HEADER_HEIGHT +
-          model.landRows.reduce(
-            (height, row) => height + landRowHeight(model, row.size, scale),
+          rows.reduce(
+            (height, row) =>
+              height + landRowHeight(model, row.size, scale, columns),
             0,
           ) +
           12)
@@ -262,16 +283,7 @@ const getSpecialEntryRows = (
   scale: number,
 ) => {
   const innerWidth = cardWidth - 2 * SPECIAL_CARD_PADDING
-  const entriesPerRow = getPieceKeySpecialEntriesPerRow(
-    group,
-    innerWidth,
-    scale,
-  )
-  const rows: PieceKeyEntry[][] = []
-  for (let offset = 0; offset < group.entries.length; offset += entriesPerRow) {
-    rows.push(group.entries.slice(offset, offset + entriesPerRow))
-  }
-  return { rows, slotWidth: innerWidth / entriesPerRow }
+  return getPieceKeySpecialEntryRows(group, innerWidth, scale)
 }
 
 const getSpecialEntryRowHeight = (
@@ -279,10 +291,7 @@ const getSpecialEntryRowHeight = (
   slotWidth: number,
   scale: number,
 ) => {
-  const shapeHeight = Math.max(
-    0,
-    ...entries.map((entry) => getPieceKeyShapeLayout(entry).height * scale),
-  )
+  const shapeHeight = getPieceKeySpecialEntryRowShapeHeight(entries, scale)
   const captionLineCount = Math.max(
     1,
     ...entries.map(
@@ -326,12 +335,34 @@ const specialGroupHeader = (
 }
 
 export const getSvgPieceKeyHeight = (model: PieceKeyModel, width: number) => {
-  if (!model.landColumns.length && !model.specialGroups.length) return 0
+  if (
+    !model.landColumns.length &&
+    !model.fluidColumns.length &&
+    !model.specialGroups.length
+  ) {
+    return 0
+  }
   const keyWidth = getSvgPieceKeyWidth(model, width)
   const { scale } = landGridDimensions(model, keyWidth)
+  const landHeight = getTerrainTablesHeight(
+    model,
+    keyWidth,
+    model.landColumns,
+    model.landRows,
+  )
+  const fluidHeight = model.fluidColumns.length
+    ? KEY_HEADING_SIZE * 1.6 +
+      getTerrainTablesHeight(
+        model,
+        keyWidth,
+        model.fluidColumns,
+        model.fluidRows,
+      )
+    : 0
   return (
     KEY_HEADING_SIZE * 2.3 +
-    getLandTablesHeight(model, keyWidth) +
+    landHeight +
+    fluidHeight +
     (model.specialGroups.length
       ? KEY_HEADING_SIZE * 1.6 +
         groupRowHeights(model, keyWidth, scale).reduce((a, b) => a + b + 8, 0)
@@ -339,41 +370,46 @@ export const getSvgPieceKeyHeight = (model: PieceKeyModel, width: number) => {
   )
 }
 
-const renderLandTables = (
+const renderTerrainTables = (
   model: PieceKeyModel,
+  columns: PieceKeyModel['landColumns'],
+  rows: PieceKeyModel['landRows'],
   x: number,
   y: number,
   width: number,
   useTerrainBorderColor: boolean,
   renderOptions: NonNullable<Parameters<typeof SvgPieceKeyShape>[6]>,
+  gridTestID = 'svg-piece-key-land-grid',
 ) => {
-  const tableCount = Math.ceil(
-    model.landColumns.length / LAND_COLUMNS_PER_TABLE,
+  const tableCount = Math.ceil(columns.length / LAND_COLUMNS_PER_TABLE)
+  const { rowHeaderWidth, cellWidth, scale } = landGridDimensions(
+    model,
+    width,
+    columns,
   )
-  const { rowHeaderWidth, cellWidth, scale } = landGridDimensions(model, width)
   let tableY = y
   return (
-    <g data-testid="svg-piece-key-land-grid">
+    <g data-testid={gridTestID}>
       {Array.from({ length: tableCount }, (_, tableIndex) => {
-        const columns = model.landColumns.slice(
+        const tableColumns = columns.slice(
           tableIndex * LAND_COLUMNS_PER_TABLE,
           (tableIndex + 1) * LAND_COLUMNS_PER_TABLE,
         )
-        const activeWidth = rowHeaderWidth + cellWidth * columns.length
+        const activeWidth = rowHeaderWidth + cellWidth * tableColumns.length
         const startX = x + (width - activeWidth) / 2
         const headerHeight = LAND_HEADER_HEIGHT
         const thisY = tableY
-        const rows = model.landRows
         const tableHeight =
           headerHeight +
           rows.reduce(
-            (height, row) => height + landRowHeight(model, row.size, scale),
+            (height, row) =>
+              height + landRowHeight(model, row.size, scale, columns),
             0,
           )
         tableY += tableHeight + 12
         return (
           <g
-            key={columns.map((column) => column.terrain).join('|')}
+            key={tableColumns.map((column) => column.terrain).join('|')}
             data-testid="svg-piece-key-land-table"
           >
             <KeyBorderRect
@@ -402,7 +438,7 @@ const renderLandTables = (
             >
               and border colors
             </text>
-            {columns.map((column, columnIndex) => {
+            {tableColumns.map((column, columnIndex) => {
               const cellX = startX + rowHeaderWidth + columnIndex * cellWidth
               return (
                 <g key={column.terrain} data-testid="svg-piece-key-land-column">
@@ -444,10 +480,11 @@ const renderLandTables = (
                   .slice(0, rowIndex)
                   .reduce(
                     (height, previous) =>
-                      height + landRowHeight(model, previous.size, scale),
+                      height +
+                      landRowHeight(model, previous.size, scale, columns),
                     0,
                   )
-              const height = landRowHeight(model, row.size, scale)
+              const height = landRowHeight(model, row.size, scale, columns)
               return (
                 <Fragment key={row.size}>
                   <KeyBorderRect
@@ -477,7 +514,7 @@ const renderLandTables = (
                   >
                     {row.description}
                   </text>
-                  {columns.map((column, columnIndex) => {
+                  {tableColumns.map((column, columnIndex) => {
                     const cellX =
                       startX + rowHeaderWidth + columnIndex * cellWidth
                     const entry = column.cells.find(
@@ -617,6 +654,10 @@ const renderSpecialGroups = (
                   )
                 })()}
                 {entryRows.map((entries, rowIndex) => {
+                  const rowLayout = getPieceKeySpecialEntryRowLayout(
+                    entries,
+                    scale,
+                  )
                   const entryY =
                     currentY +
                     specialGroupHeader(group, cardWidth - 24).height +
@@ -633,19 +674,17 @@ const renderSpecialGroups = (
                         0,
                       )
                   return entries.map((entry, columnIndex) => {
-                    const shapeHeight = Math.max(
-                      0,
-                      ...entries.map(
-                        (rowEntry) =>
-                          getPieceKeyShapeLayout(rowEntry).height * scale,
-                      ),
-                    )
-                    const shapeAreaHeight = shapeHeight + SPECIAL_ENTRY_PADDING
+                    const entryLayout = rowLayout.entries[columnIndex]
+                    const shapeHeight = entryLayout.shapeHeight
                     const shapeX =
                       cardX +
                       SPECIAL_CARD_PADDING +
                       slotWidth * (columnIndex + 0.5)
-                    const shapeY = entryY + shapeAreaHeight / 2
+                    const shapeY =
+                      entryY +
+                      SPECIAL_ENTRY_PADDING / 2 +
+                      entryLayout.shapeTopOffset +
+                      shapeHeight / 2
                     const captionLines = wrapSvgPieceKeyText(
                       entry.title,
                       slotWidth - SPECIAL_CARD_PADDING / 2,
@@ -671,7 +710,12 @@ const renderSpecialGroups = (
                         )}
                         <text
                           x={shapeX}
-                          y={entryY + shapeAreaHeight + KEY_FONT_SIZE}
+                          y={
+                            entryY +
+                            rowLayout.shapeHeight +
+                            SPECIAL_ENTRY_PADDING +
+                            KEY_FONT_SIZE
+                          }
                           textAnchor="middle"
                           fontFamily="Inter, Arial, sans-serif"
                           fontSize={KEY_FONT_SIZE}
@@ -700,6 +744,42 @@ const renderSpecialGroups = (
   )
 }
 
+const renderFluidTable = (
+  model: PieceKeyModel,
+  x: number,
+  y: number,
+  width: number,
+  useTerrainBorderColor: boolean,
+  renderOptions: NonNullable<Parameters<typeof SvgPieceKeyShape>[6]>,
+) => {
+  const { gridX } = landGridDimensions(model, width, model.fluidColumns)
+  return (
+    <g data-testid="svg-piece-key-fluid-table">
+      <text
+        x={x + gridX}
+        y={y + KEY_HEADING_SIZE}
+        fontFamily="Inter, Arial, sans-serif"
+        fontSize={KEY_HEADING_SIZE}
+        fontWeight="bold"
+        fill="black"
+      >
+        Liquid and Base Terrain
+      </text>
+      {renderTerrainTables(
+        model,
+        model.fluidColumns,
+        model.fluidRows,
+        x,
+        y + KEY_HEADING_SIZE * 1.6,
+        width,
+        useTerrainBorderColor,
+        renderOptions,
+        'svg-piece-key-fluid-grid',
+      )}
+    </g>
+  )
+}
+
 export const SvgPieceKey = ({
   model,
   renderOptions,
@@ -715,13 +795,32 @@ export const SvgPieceKey = ({
   y: number
   width: number
 }) => {
-  if (!model || (!model.landColumns.length && !model.specialGroups.length)) {
+  if (
+    !model ||
+    (!model.landColumns.length &&
+      !model.fluidColumns.length &&
+      !model.specialGroups.length)
+  ) {
     return null
   }
 
   const keyWidth = getSvgPieceKeyWidth(model, width)
   const { gridX, scale } = landGridDimensions(model, keyWidth)
-  const landHeight = getLandTablesHeight(model, keyWidth)
+  const landHeight = getTerrainTablesHeight(
+    model,
+    keyWidth,
+    model.landColumns,
+    model.landRows,
+  )
+  const fluidHeight = model.fluidColumns.length
+    ? KEY_HEADING_SIZE * 1.6 +
+      getTerrainTablesHeight(
+        model,
+        keyWidth,
+        model.fluidColumns,
+        model.fluidRows,
+      )
+    : 0
   const contentX = x + (width - keyWidth) / 2
   const landX = contentX + gridX
   const contentWidth = keyWidth
@@ -737,18 +836,29 @@ export const SvgPieceKey = ({
       >
         Piece Key
       </text>
-      {renderLandTables(
+      {renderTerrainTables(
         model,
+        model.landColumns,
+        model.landRows,
         contentX,
         y + KEY_HEADING_SIZE * 2.3,
         contentWidth,
         useTerrainBorderColor,
         renderOptions,
       )}
+      {model.fluidColumns.length > 0 &&
+        renderFluidTable(
+          model,
+          contentX,
+          y + KEY_HEADING_SIZE * 2.3 + landHeight,
+          contentWidth,
+          useTerrainBorderColor,
+          renderOptions,
+        )}
       {model.specialGroups.length > 0 &&
         renderSpecialGroups(
           model,
-          y + KEY_HEADING_SIZE * 2.3 + landHeight,
+          y + KEY_HEADING_SIZE * 2.3 + landHeight + fluidHeight,
           contentX,
           contentWidth,
           scale,

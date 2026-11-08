@@ -20,7 +20,8 @@ const INTER_FONT_FILE_PATH = '/fonts/Inter_18pt-Bold.ttf'
 const LEVEL_LOGO_WIDTH_RATIO = 0.2
 
 export type OpenTypePath = {
-  toPathData: (decimalPlaces?: number) => string
+  toPathData: (decimalPlaces: number) => string
+  getBoundingBox?: () => { x1: number; x2: number }
 }
 
 export type OpenTypeFont = {
@@ -36,6 +37,43 @@ export type OpenTypeFont = {
     fontSize: number,
     options?: { kerning?: boolean },
   ) => OpenTypePath
+}
+
+type TextPathRun = {
+  text: string
+  fontSizePx: number
+  y: number
+  x?: number
+  textAnchor?: string
+}
+
+export const getTextPathOriginX = (
+  font: OpenTypeFont,
+  text: string,
+  fontSize: number,
+  textAnchor: string,
+  anchorX: number,
+) => {
+  const bounds = font
+    .getPath(text, 0, 0, fontSize, { kerning: true })
+    .getBoundingBox?.()
+  if (!bounds) {
+    const advanceWidth = font.getAdvanceWidth(text, fontSize, {
+      kerning: true,
+    })
+    return textAnchor === 'middle'
+      ? anchorX - advanceWidth / 2
+      : textAnchor === 'end'
+        ? anchorX - advanceWidth
+        : anchorX
+  }
+  if (textAnchor === 'middle') {
+    return anchorX - (bounds.x1 + bounds.x2) / 2
+  }
+  if (textAnchor === 'end') {
+    return anchorX - bounds.x2
+  }
+  return anchorX - bounds.x1
 }
 
 let interFontPromise: Promise<OpenTypeFont | null> | null = null
@@ -412,8 +450,10 @@ async function replaceTextNodesWithPaths(
     const parentY =
       parseFirstNumericValue(sourceText.getAttribute('y'), 0) +
       parseDyToPx(sourceText.getAttribute('dy'), fontSizePx)
+    const isPieceKeyText =
+      sourceText.closest('[data-testid="svg-piece-key"]') !== null
     const tspan = sourceText.querySelector('tspan')
-    const runs = tspan
+    const runs: TextPathRun[] = tspan
       ? Array.from(sourceText.childNodes).flatMap((node) => {
           if (node.nodeType === Node.TEXT_NODE) {
             const text = node.textContent ?? ''
@@ -436,7 +476,21 @@ async function replaceTextNodesWithPaths(
           const spanY = span.hasAttribute('y')
             ? parseFirstNumericValue(span.getAttribute('y'), parentY)
             : parentY + parseDyToPx(span.getAttribute('dy'), spanFontSize)
-          return [{ text, fontSizePx: spanFontSize, y: spanY }]
+          return [
+            {
+              text,
+              fontSizePx: spanFontSize,
+              y: spanY,
+              x: span.hasAttribute('x')
+                ? parseFirstNumericValue(span.getAttribute('x'), x)
+                : x,
+              textAnchor: (
+                span.getAttribute('text-anchor') ||
+                window.getComputedStyle(span).textAnchor ||
+                ''
+              ).trim(),
+            },
+          ]
         })
       : [{ text: textContent, fontSizePx, y: parentY }]
 
@@ -446,14 +500,16 @@ async function replaceTextNodesWithPaths(
       'start'
     ).trim()
 
-    const advanceWidth = runs.reduce(
-      (width, run) =>
-        width +
-        interFont.getAdvanceWidth(run.text, run.fontSizePx, {
-          kerning: true,
-        }),
-      0,
-    )
+    const advanceWidth = isPieceKeyText
+      ? 0
+      : runs.reduce(
+          (width, run) =>
+            width +
+            interFont.getAdvanceWidth(run.text, run.fontSizePx, {
+              kerning: true,
+            }),
+          0,
+        )
     let xWithAnchor = x
 
     if (textAnchor === 'middle') {
@@ -468,8 +524,17 @@ async function replaceTextNodesWithPaths(
     const pathNodes: SVGPathElement[] = []
 
     for (const run of runs) {
+      const pathX = isPieceKeyText
+        ? getTextPathOriginX(
+            interFont,
+            run.text,
+            run.fontSizePx,
+            run.textAnchor || textAnchor,
+            run.x ?? x,
+          )
+        : runX
       const pathData = interFont
-        .getPath(run.text, runX, run.y, run.fontSizePx, {
+        .getPath(run.text, pathX, run.y, run.fontSizePx, {
           kerning: true,
         })
         .toPathData(3)
@@ -480,9 +545,11 @@ async function replaceTextNodesWithPaths(
         pathNode.setAttribute('opacity', opacity)
       }
       pathNodes.push(pathNode)
-      runX += interFont.getAdvanceWidth(run.text, run.fontSizePx, {
-        kerning: true,
-      })
+      if (!isPieceKeyText) {
+        runX += interFont.getAdvanceWidth(run.text, run.fontSizePx, {
+          kerning: true,
+        })
+      }
     }
 
     const transform = clonedText.getAttribute('transform')

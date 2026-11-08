@@ -25,8 +25,8 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `fluid-cap-visibility.test.ts` | Fluid caps under a solid: drawn with half-level clearance (an overhang on a whole-level fluid), hidden under flush fluid or solid, isCap unchanged, on all graphics tiers and the legacy Low cap buckets, plus the Cove of Bilfrost fixture through the loader. |
 | `land-hex-geometry.test.ts` | Per-hex solid/fluid prism geometry: side quads index their own vertices, side-image orientation (including fluid UVs), triangle kinds and directions stay consistent, and faces point outward/upward. |
 | `export-border-color.test.ts` | Shared SVG/PDF border-color decisions for every terrain, SVG Asphalt markup, and rendered PDF output with outlines on/off, including sub-levels. |
-| `piece-key-model.test.ts` | Piece-key land terrain/size ordering and names, sparse cells, special-family groups and captions, counts, border-mode descriptions, and missing-description fallbacks. |
-| `piece-key-render.test.ts` | Canonical key geometry across map rotations, centered rope/Laur symbols, caption fit using Inter metrics, Laur map/key color parity, and rendered border/center descriptions. |
+| `piece-key-model.test.ts` | Piece-key land/fluid terrain and size ordering, sparse cells, counts, special-family groups and captions, border-mode descriptions, and missing-description fallbacks. |
+| `piece-key-render.test.ts` | Canonical key geometry across map rotations, centered rope/Laur symbols, Special Tiles row alignment and caption fit using Inter metrics, per-line SVG text anchors, Laur map/key color parity, and rendered border/center descriptions. |
 | `cycleable-levels.test.ts` | Optional Legend viewing step after the overlay level. |
 | `pdf-sublevel-colors.test.ts` | SVG output snapshot for a stacked solid/liquid map and PDF sub-level color matching. |
 | `glyph-export-options.test.tsx` | Shared glyph-space classification, opaque SVG/PDF glyph fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |

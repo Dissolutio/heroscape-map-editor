@@ -69,6 +69,29 @@ const issue350PieceKeyURL = mapUrl(
       `0~${(index % 8) * 3}~${Math.floor(index / 8) * 3}~0~${inventoryID}`,
   ),
 )
+const issue353InventoryIDs = [
+  ...issue350InventoryIDs,
+  Pieces.hive,
+  Pieces.water1,
+  Pieces.water3,
+  Pieces.wellspringWater1,
+  Pieces.swampWater6,
+  Pieces.ice4,
+  Pieces.ice6,
+  Pieces.lava3,
+  Pieces.shadow3,
+  Pieces.toxicWater1,
+  Pieces.genericFluid3,
+  'y56',
+  'y36',
+]
+const issue353PieceKeyURL = mapUrl(
+  { ...FIXTURE_HEX_MAP, width: 64, length: 64 },
+  issue353InventoryIDs.map(
+    (inventoryID, index) =>
+      `0~${(index % 8) * 7}~${Math.floor(index / 8) * 7}~0~${inventoryID}`,
+  ),
+)
 
 test('SVG levels and the standalone Legend export as Illustrator-safe paths', async ({
   page,
@@ -410,4 +433,88 @@ test('renders issue 350 key evidence with all tree and Laur variants', async ({
   const pdfPath = await download.path()
   if (!pdfPath) throw new Error('PDF download did not produce a file')
   await download.saveAs(testInfo.outputPath('issue-350-piece-key.pdf'))
+})
+
+test('renders issue 353 key evidence for fluids, glyphs, and the hive', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 1400, height: 1100 })
+  await page.goto(issue353PieceKeyURL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
+  await page
+    .getByRole('checkbox', { name: 'Include piece key in SVG and PDF' })
+    .check()
+  await page.getByRole('button', { name: 'View 2D Map' }).click()
+  await page.locator('#simple-tab-0').click()
+
+  const levelInput = page.locator('input[type="text"]')
+  await expect(levelInput).toBeVisible()
+  await levelInput.fill('Legend')
+  const key = page.locator('[data-testid="svg-piece-key"]')
+  await expect(key).toBeVisible()
+  await expect(key.getByText('Liquid and Base Terrain')).toBeVisible()
+  await expect(key.getByText('Jungle Trees')).toBeVisible()
+  await expect(key.getByText('Glyphs', { exact: true })).toBeVisible()
+  await saveSvgEvidence(key, 'issue-353-svg-live-piece-key', 1)
+
+  await page.setViewportSize({ width: 700, height: 900 })
+  await page.locator('#simple-tab-3').click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
+  const pdfLink = page.getByRole('link', {
+    name: /Download build instructions \.pdf/,
+  })
+  await expect(pdfLink).toBeVisible()
+  const pdfDownloadPromise = page.waitForEvent('download')
+  await pdfLink.click()
+  const pdfDownload = await pdfDownloadPromise
+  const pdfPath = await pdfDownload.path()
+  if (!pdfPath) throw new Error('PDF download did not produce a file')
+  await pdfDownload.saveAs(testInfo.outputPath('issue-353-piece-key.pdf'))
+
+  await page.setViewportSize({ width: 1400, height: 1100 })
+  await page.locator('#simple-tab-3').click()
+  await page.locator('#simple-tab-1').click()
+  const svgDownloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Download Legend (SVG)' }).click()
+  const svgDownload = await svgDownloadPromise
+  const svgPath = await svgDownload.path()
+  if (!svgPath) throw new Error('SVG download did not produce a file')
+  const exportedSvg = await readFile(svgPath, 'utf8')
+  await page.setContent(exportedSvg)
+  const captionPathOffsets = await page
+    .locator('[data-testid="svg-piece-key-special-entry"]')
+    .evaluateAll((entries) =>
+      entries.flatMap((entry) => {
+        const shape = entry.querySelector(
+          ':scope > [data-testid="svg-piece-key-shape"]',
+        )
+        const slotCenter =
+          Number(entry.getAttribute('data-slot-x')) +
+          Number(entry.getAttribute('data-slot-width')) / 2
+        return [...entry.children]
+          .filter((child) => child !== shape)
+          .flatMap((child) =>
+            child.tagName.toLowerCase() === 'path'
+              ? [child]
+              : [...child.querySelectorAll('path')],
+          )
+          .map((path) => {
+            const bounds = path.getBBox()
+            return Math.abs(bounds.x + bounds.width / 2 - slotCenter)
+          })
+      }),
+    )
+  expect(captionPathOffsets.length).toBeGreaterThan(0)
+  expect(captionPathOffsets.every((offset) => offset < 1)).toBe(true)
+  await saveSvgEvidence(
+    page.locator('svg'),
+    'issue-353-svg-exported-piece-key',
+    1,
+  )
 })

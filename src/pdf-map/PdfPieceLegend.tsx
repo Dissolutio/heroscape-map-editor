@@ -8,13 +8,15 @@ import { getLaurAddonExportSymbol } from '../pdf-svg-shared/laurAddonExportSymbo
 import {
   type PieceKeyEntry,
   type PieceKeyLandColumn,
+  type PieceKeyLandRow,
   getPieceKeyModel,
 } from '../pdf-svg-shared/pieceKey'
 import {
   getPieceKeyRowShapeHeight,
   getPieceKeyShapeLayout,
   getPieceKeyShapeScale,
-  getPieceKeySpecialEntriesPerRow,
+  getPieceKeySpecialEntryRowLayout,
+  getPieceKeySpecialEntryRows,
 } from '../pdf-svg-shared/pieceKeyShapeLayout'
 import useBoundStore from '../store/store'
 import type { BoardHex, BoardPiece } from '../types'
@@ -37,14 +39,26 @@ const getLandShapeScale = (model: ReturnType<typeof getPieceKeyModel>) =>
     LAND_SHAPE_SCALE,
   )
 
+const getTerrainShapeScale = (
+  model: ReturnType<typeof getPieceKeyModel>,
+  columns: PieceKeyLandColumn[],
+) =>
+  getPieceKeyShapeScale(
+    model,
+    (PAGE_CONTENT_WIDTH * 0.8) / LAND_COLUMNS_PER_TABLE,
+    LAND_SHAPE_SCALE,
+    columns,
+  )
+
 const getLandRowHeight = (
   model: ReturnType<typeof getPieceKeyModel>,
   size: number,
   scale: number,
+  columns: PieceKeyLandColumn[] = model.landColumns,
 ) =>
   Math.max(
     size >= 24 ? 60 : size >= 7 ? 48 : 40,
-    getPieceKeyRowShapeHeight(model, size, scale, 16) + 10,
+    getPieceKeyRowShapeHeight(model, size, scale, 16, columns) + 10,
   )
 
 const getPieceKeySymbolViewBox = (
@@ -136,31 +150,37 @@ export function PieceKeyShape({
 
 function LandGrid({
   model,
+  columns = model.landColumns,
+  rows = model.landRows,
+  sectionTitle,
+  showPieceKeyTitle = false,
   useTerrainBorderColor,
   glyphCoordinates,
   glyphExportSettings,
 }: {
   model: ReturnType<typeof getPieceKeyModel>
+  columns?: PieceKeyLandColumn[]
+  rows?: PieceKeyLandRow[]
+  sectionTitle?: string
+  showPieceKeyTitle?: boolean
   useTerrainBorderColor: boolean
   glyphCoordinates: GlyphCoordinateLookup
   glyphExportSettings: GlyphExportSettings
 }) {
   const tables: PieceKeyLandColumn[][] = []
-  const scale = getLandShapeScale(model)
+  const scale = getTerrainShapeScale(model, columns)
   for (
     let offset = 0;
-    offset < model.landColumns.length;
+    offset < columns.length;
     offset += LAND_COLUMNS_PER_TABLE
   ) {
-    tables.push(
-      model.landColumns.slice(offset, offset + LAND_COLUMNS_PER_TABLE),
-    )
+    tables.push(columns.slice(offset, offset + LAND_COLUMNS_PER_TABLE))
   }
   const landTables = tables.map((columns) => ({
     columns,
     chunks: chunkLandRows(
-      model.landRows,
-      (row) => getLandRowHeight(model, row.size, scale),
+      rows,
+      (row) => getLandRowHeight(model, row.size, scale, columns),
       PDF_TABLE_HEADER_HEIGHT,
       MAX_LAND_TABLE_CHUNK_HEIGHT,
     ),
@@ -211,9 +231,9 @@ function LandGrid({
 
   const renderLandRow = (
     columns: PieceKeyLandColumn[],
-    row: (typeof model.landRows)[number],
+    row: PieceKeyLandRow,
   ) => {
-    const rowHeight = getLandRowHeight(model, row.size, scale)
+    const rowHeight = getLandRowHeight(model, row.size, scale, columns)
     return (
       <View
         key={row.size}
@@ -295,21 +315,40 @@ function LandGrid({
             </View>
           )
           if (tableIndex === 0 && chunkIndex === 0) {
-            const firstRow = model.landRows[0]
+            const firstRow = rows[0]
             const headingAhead = firstRow
               ? PDF_TABLE_HEADER_HEIGHT +
-                getLandRowHeight(model, firstRow.size, scale)
+                getLandRowHeight(model, firstRow.size, scale, columns)
               : PDF_TABLE_HEADER_HEIGHT
             return (
               <View
                 key="piece-key-first-land-chunk"
                 wrap={false}
-                minPresenceAhead={headingAhead}
+                minPresenceAhead={
+                  headingAhead +
+                  (showPieceKeyTitle ? 24 : 0) +
+                  (sectionTitle ? 18 : 0)
+                }
               >
+                {showPieceKeyTitle && (
+                  <Text
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 'bold',
+                      marginBottom: 6,
+                    }}
+                  >
+                    Piece Key
+                  </Text>
+                )}
                 <Text
-                  style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 6 }}
+                  style={{
+                    fontSize: showPieceKeyTitle ? 11 : 15,
+                    fontWeight: 'bold',
+                    marginBottom: showPieceKeyTitle ? 4 : 6,
+                  }}
                 >
-                  Piece Key
+                  {sectionTitle ?? 'Piece Key'}
                 </Text>
                 {table}
               </View>
@@ -335,13 +374,6 @@ function SpecialTiles({
   glyphCoordinates: GlyphCoordinateLookup
   glyphExportSettings: GlyphExportSettings
 }) {
-  const entriesPerRowFor = (group: (typeof model.specialGroups)[number]) =>
-    getPieceKeySpecialEntriesPerRow(
-      group,
-      PAGE_CONTENT_WIDTH / 3 - 12,
-      scale,
-      'pdf',
-    )
   const groupRows = chunkSpecialGroups(model.specialGroups)
 
   return (
@@ -357,7 +389,7 @@ function SpecialTiles({
         >
           {index === 0 && (
             <>
-              {!model.landColumns.length && (
+              {!model.landColumns.length && !model.fluidColumns.length && (
                 <Text
                   style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 6 }}
                 >
@@ -395,32 +427,68 @@ function SpecialTiles({
                   {group.description}
                 </Text>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                  {group.entries.map((entry) => {
-                    const entriesPerRow = entriesPerRowFor(group)
-                    return (
-                      <View
-                        key={entry.inventoryID}
-                        style={{
-                          width: `${100 / entriesPerRow}%`,
-                          padding: 1,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <PieceKeyShape
-                          entry={entry}
-                          useTerrainBorderColor={useTerrainBorderColor}
-                          scale={scale}
-                          glyphCoordinates={glyphCoordinates}
-                          glyphExportSettings={glyphExportSettings}
-                        />
-                        <Text style={{ fontSize: 5, textAlign: 'center' }}>
-                          {entry.title}
-                        </Text>
-                        <Text style={{ fontSize: 5 }}>x{entry.count}</Text>
-                      </View>
+                  {(() => {
+                    const { entriesPerRow, rows } = getPieceKeySpecialEntryRows(
+                      group,
+                      PAGE_CONTENT_WIDTH / 3 - 12,
+                      scale,
+                      'pdf',
                     )
-                  })}
+                    return rows.map((entries, rowIndex) => {
+                      const rowLayout = getPieceKeySpecialEntryRowLayout(
+                        entries,
+                        scale,
+                        'pdf',
+                      )
+                      const shapeHeight = rowLayout.shapeHeight
+                      return (
+                        <View
+                          key={`${group.id}-entries-${rowIndex}`}
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'flex-start',
+                          }}
+                        >
+                          {rowLayout.entries.map(({ entry }) => (
+                            <View
+                              key={entry.inventoryID}
+                              style={{
+                                width: `${100 / entriesPerRow}%`,
+                                padding: 1,
+                                alignItems: 'center',
+                                justifyContent: 'flex-start',
+                              }}
+                            >
+                              <View
+                                style={{
+                                  height: shapeHeight,
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <PieceKeyShape
+                                  entry={entry}
+                                  useTerrainBorderColor={useTerrainBorderColor}
+                                  scale={scale}
+                                  glyphCoordinates={glyphCoordinates}
+                                  glyphExportSettings={glyphExportSettings}
+                                />
+                              </View>
+                              <Text
+                                style={{ fontSize: 5, textAlign: 'center' }}
+                              >
+                                {entry.title}
+                              </Text>
+                              <Text
+                                style={{ fontSize: 5, textAlign: 'center' }}
+                              >
+                                x{entry.count}
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      )
+                    })
+                  })()}
                 </View>
               </View>
             ))}
@@ -442,7 +510,13 @@ export function PdfPieceLegend({ boardPieces }: { boardPieces: BoardPiece[] }) {
     settings.boardHexes,
     settings.isPdfColorBorders,
   )
-  if (!model.landColumns.length && !model.specialGroups.length) return null
+  if (
+    !model.landColumns.length &&
+    !model.fluidColumns.length &&
+    !model.specialGroups.length
+  ) {
+    return null
+  }
   const scale = getLandShapeScale(model)
 
   return (
@@ -453,6 +527,18 @@ export function PdfPieceLegend({ boardPieces }: { boardPieces: BoardPiece[] }) {
       {model.landColumns.length > 0 && (
         <LandGrid
           model={model}
+          useTerrainBorderColor={settings.isPdfColorBorders}
+          glyphCoordinates={glyphCoordinates}
+          glyphExportSettings={glyphExportSettings}
+        />
+      )}
+      {model.fluidColumns.length > 0 && (
+        <LandGrid
+          model={model}
+          columns={model.fluidColumns}
+          rows={model.fluidRows}
+          sectionTitle="Liquid and Base Terrain"
+          showPieceKeyTitle={!model.landColumns.length}
           useTerrainBorderColor={settings.isPdfColorBorders}
           glyphCoordinates={glyphCoordinates}
           glyphExportSettings={glyphExportSettings}
