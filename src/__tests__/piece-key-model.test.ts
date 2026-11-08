@@ -121,6 +121,29 @@ describe('piece key model', () => {
     )
   })
 
+  it('describes ladder borders as black in both border modes', () => {
+    for (const useTerrainBorderColor of [true, false]) {
+      const model = getPieceKeyModel(
+        [makePiece(Pieces.ladder, 0)],
+        {},
+        useTerrainBorderColor,
+      )
+
+      expect(model.specialGroups[0]).toMatchObject({
+        id: 'ladder',
+        description: 'black borders',
+      })
+    }
+  })
+
+  it('labels Toxic terrain as Toxic Land', () => {
+    const model = getPieceKeyModel([makePiece(Pieces.toxic1, 0)], {}, true)
+
+    expect(model.landColumns).toMatchObject([
+      { terrain: HexTerrain.toxic, title: 'Toxic Land' },
+    ])
+  })
+
   it('groups special pieces by family with counts and tree heights', () => {
     const model = getPieceKeyModel(
       [
@@ -178,7 +201,8 @@ describe('piece key model', () => {
     ])
     expect(laur).toMatchObject({
       title: 'Pillars and Walls (Laur)',
-      description: 'pink borders, purple centers',
+      description:
+        'pillars have pink borders and purple centers; wall add-ons are pink',
     })
     expect(laur?.entries.map(({ title }) => title)).toEqual([
       'long wall',

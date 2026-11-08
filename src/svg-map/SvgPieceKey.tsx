@@ -10,7 +10,7 @@ import {
   getPieceKeyShapeLayout,
   getPieceKeySpecialEntriesPerRow,
 } from '../pdf-svg-shared/pieceKeyShapeLayout'
-import { type BoardHex, type BoardPiece, HexTerrain } from '../types'
+import type { BoardHex, BoardPiece } from '../types'
 import { SVG_HEX_RADIUS } from '../utils/constants'
 import { boardPieceToDecodedPieceID } from '../utils/map-utils'
 import { SvgMapBoardPiece } from './SvgMapBoardPiece'
@@ -20,6 +20,7 @@ const LAND_COLUMNS_PER_TABLE = 6
 const LAND_HEADER_HEIGHT = SVG_HEX_RADIUS * 1.3
 const LAND_ROW_PADDING = SVG_HEX_RADIUS * 0.25
 const SPECIAL_ENTRY_PADDING = SVG_HEX_RADIUS * 0.2
+const SPECIAL_CARD_PADDING = SVG_HEX_RADIUS * 0.12
 const KEY_FONT_SIZE = SVG_HEX_RADIUS * 0.24
 const KEY_HEADING_SIZE = SVG_HEX_RADIUS * 0.4
 
@@ -68,10 +69,8 @@ export const SvgPieceKeyShape = (
 ) => {
   const layout = getPieceKeyShapeLayout(entry)
   const decoded = boardPieceToDecodedPieceID(entry.piece)
-  const keyPiece =
-    decoded && getLaurAddonExportSymbol(entry.inventoryID)
-      ? { ...decoded, terrain: HexTerrain.laurWall }
-      : decoded
+  const isLaurAddon = Boolean(getLaurAddonExportSymbol(entry.inventoryID))
+  const keyPiece = decoded
   return (
     <g
       key={key}
@@ -114,7 +113,7 @@ export const SvgPieceKeyShape = (
                       }
                       glyphCoordinates={renderOptions?.glyphCoordinates}
                       glyphExportSettings={renderOptions?.glyphExportSettings}
-                      isPieceKeyPreview
+                      isPieceKeyPreview={!isLaurAddon}
                       useTerrainBorderColor={useTerrainBorderColor}
                     />
                   )
@@ -122,9 +121,9 @@ export const SvgPieceKeyShape = (
               ) : keyPiece ? (
                 <SvgMapBoardPiece
                   piece={{ ...keyPiece, altitude: 0, rotation: 0 }}
-                  viewingLevel={100}
-                  overlayLevel={100}
-                  isPieceKeyPreview
+                  viewingLevel={isLaurAddon ? 1 : 100}
+                  overlayLevel={isLaurAddon ? 1 : 100}
+                  isPieceKeyPreview={!isLaurAddon}
                 />
               ) : null}
             </g>
@@ -203,24 +202,14 @@ const getLandTablesHeight = (model: PieceKeyModel, width: number) => {
 
 const specialGroupRowHeight = (
   group: PieceKeyModel['specialGroups'][number],
-  innerWidth: number,
+  cardWidth: number,
   scale: number,
 ) => {
-  const entriesPerRow = getPieceKeySpecialEntriesPerRow(
-    group,
-    innerWidth,
-    scale,
-  )
+  const innerWidth = cardWidth - 2 * SPECIAL_CARD_PADDING
+  const { rows, slotWidth } = getSpecialEntryRows(group, cardWidth, scale)
   let height = specialGroupHeader(group, innerWidth).height
-  for (let offset = 0; offset < group.entries.length; offset += entriesPerRow) {
-    const rowEntries = group.entries.slice(offset, offset + entriesPerRow)
-    const shapeHeight = Math.max(
-      0,
-      ...rowEntries.map(
-        (entry) => getPieceKeyShapeLayout(entry).height * scale,
-      ),
-    )
-    height += Math.max(56, shapeHeight + SPECIAL_ENTRY_PADDING + 24)
+  for (const row of rows) {
+    height += getSpecialEntryRowHeight(row, slotWidth, scale)
   }
   return height
 }
@@ -236,7 +225,7 @@ const groupRowHeights = (
     heights.push(
       Math.max(
         ...model.specialGroups.slice(i, i + 3).map((group) => {
-          return specialGroupRowHeight(group, cardWidth - 24, scale)
+          return specialGroupRowHeight(group, cardWidth, scale)
         }),
       ),
     )
@@ -244,8 +233,12 @@ const groupRowHeights = (
   return heights
 }
 
-const wrapSvgText = (text: string, width: number, fontSize: number) => {
-  const maxCharacters = Math.max(1, Math.floor(width / (fontSize * 0.56)))
+export const wrapSvgPieceKeyText = (
+  text: string,
+  width: number,
+  fontSize: number,
+) => {
+  const maxCharacters = Math.max(1, Math.floor(width / (fontSize * 0.6)))
   const lines: string[] = []
   for (const word of text.split(/\s+/)) {
     const currentLine = lines[lines.length - 1]
@@ -258,12 +251,63 @@ const wrapSvgText = (text: string, width: number, fontSize: number) => {
   return lines
 }
 
+const getSpecialEntryRows = (
+  group: PieceKeyModel['specialGroups'][number],
+  cardWidth: number,
+  scale: number,
+) => {
+  const innerWidth = cardWidth - 2 * SPECIAL_CARD_PADDING
+  const entriesPerRow = getPieceKeySpecialEntriesPerRow(
+    group,
+    innerWidth,
+    scale,
+  )
+  const rows: PieceKeyEntry[][] = []
+  for (let offset = 0; offset < group.entries.length; offset += entriesPerRow) {
+    rows.push(group.entries.slice(offset, offset + entriesPerRow))
+  }
+  return { rows, slotWidth: innerWidth / entriesPerRow }
+}
+
+const getSpecialEntryRowHeight = (
+  entries: PieceKeyEntry[],
+  slotWidth: number,
+  scale: number,
+) => {
+  const shapeHeight = Math.max(
+    0,
+    ...entries.map((entry) => getPieceKeyShapeLayout(entry).height * scale),
+  )
+  const captionLineCount = Math.max(
+    1,
+    ...entries.map(
+      (entry) =>
+        wrapSvgPieceKeyText(
+          entry.title,
+          slotWidth - SPECIAL_CARD_PADDING / 2,
+          KEY_FONT_SIZE,
+        ).length,
+    ),
+  )
+  return Math.max(
+    SVG_HEX_RADIUS * 0.56,
+    shapeHeight +
+      SPECIAL_ENTRY_PADDING +
+      captionLineCount * KEY_FONT_SIZE * 1.2 +
+      SPECIAL_CARD_PADDING,
+  )
+}
+
 const specialGroupHeader = (
   group: PieceKeyModel['specialGroups'][number],
   width: number,
 ) => {
-  const titleLines = wrapSvgText(group.title, width, KEY_HEADING_SIZE)
-  const descriptionLines = wrapSvgText(group.description, width, KEY_FONT_SIZE)
+  const titleLines = wrapSvgPieceKeyText(group.title, width, KEY_HEADING_SIZE)
+  const descriptionLines = wrapSvgPieceKeyText(
+    group.description,
+    width,
+    KEY_FONT_SIZE,
+  )
   return {
     titleLines,
     descriptionLines,
@@ -500,28 +544,18 @@ const renderSpecialGroups = (
           const groups = model.specialGroups.slice(row * 3, row * 3 + 3)
           const rowHeight = Math.max(
             ...groups.map((group) =>
-              specialGroupRowHeight(group, cardWidth - 24, scale),
+              specialGroupRowHeight(group, cardWidth, scale),
             ),
           )
           const currentY = rowY
           rowY += rowHeight + 8
           return groups.map((group, column) => {
             const cardX = gridX + column * cardWidth
-            const entriesPerRow = getPieceKeySpecialEntriesPerRow(
+            const { rows: entryRows, slotWidth } = getSpecialEntryRows(
               group,
-              cardWidth - 24,
+              cardWidth,
               scale,
             )
-            const entryRows: PieceKeyEntry[][] = []
-            for (
-              let offset = 0;
-              offset < group.entries.length;
-              offset += entriesPerRow
-            ) {
-              entryRows.push(
-                group.entries.slice(offset, offset + entriesPerRow),
-              )
-            }
             return (
               <g key={group.id} data-testid="svg-piece-key-special-group">
                 <KeyBorderRect
@@ -578,44 +612,49 @@ const renderSpecialGroups = (
                   )
                 })()}
                 {entryRows.map((entries, rowIndex) => {
-                  const shapeHeight = Math.max(
-                    0,
-                    ...entries.map(
-                      (entry) => getPieceKeyShapeLayout(entry).height * scale,
-                    ),
-                  )
-                  const entryRowHeight = Math.max(
-                    56,
-                    shapeHeight + SPECIAL_ENTRY_PADDING + 24,
-                  )
-                  const slotWidth =
-                    (cardWidth - SVG_HEX_RADIUS * 0.48) / entriesPerRow
                   const entryY =
                     currentY +
                     specialGroupHeader(group, cardWidth - 24).height +
                     entryRows
                       .slice(0, rowIndex)
-                      .reduce((height, previousEntries) => {
-                        const previousShapeHeight = Math.max(
-                          0,
-                          ...previousEntries.map(
-                            (entry) =>
-                              getPieceKeyShapeLayout(entry).height * scale,
-                          ),
-                        )
-                        return (
+                      .reduce(
+                        (height, previousEntries) =>
                           height +
-                          Math.max(
-                            56,
-                            previousShapeHeight + SPECIAL_ENTRY_PADDING + 24,
-                          )
-                        )
-                      }, 0)
+                          getSpecialEntryRowHeight(
+                            previousEntries,
+                            slotWidth,
+                            scale,
+                          ),
+                        0,
+                      )
                   return entries.map((entry, columnIndex) => {
-                    const shapeX = cardX + 12 + slotWidth * (columnIndex + 0.5)
-                    const shapeY = entryY + entryRowHeight / 2
+                    const shapeHeight = Math.max(
+                      0,
+                      ...entries.map(
+                        (rowEntry) =>
+                          getPieceKeyShapeLayout(rowEntry).height * scale,
+                      ),
+                    )
+                    const shapeAreaHeight = shapeHeight + SPECIAL_ENTRY_PADDING
+                    const shapeX =
+                      cardX +
+                      SPECIAL_CARD_PADDING +
+                      slotWidth * (columnIndex + 0.5)
+                    const shapeY = entryY + shapeAreaHeight / 2
+                    const captionLines = wrapSvgPieceKeyText(
+                      entry.title,
+                      slotWidth - SPECIAL_CARD_PADDING / 2,
+                      KEY_FONT_SIZE,
+                    )
                     return (
-                      <g key={entry.inventoryID}>
+                      <g
+                        key={entry.inventoryID}
+                        data-testid="svg-piece-key-special-entry"
+                        data-slot-x={
+                          cardX + SPECIAL_CARD_PADDING + columnIndex * slotWidth
+                        }
+                        data-slot-width={slotWidth}
+                      >
                         {SvgPieceKeyShape(
                           entry,
                           shapeX,
@@ -627,13 +666,21 @@ const renderSpecialGroups = (
                         )}
                         <text
                           x={shapeX}
-                          y={entryY + entryRowHeight - KEY_FONT_SIZE * 0.3}
+                          y={entryY + shapeAreaHeight + KEY_FONT_SIZE}
                           textAnchor="middle"
                           fontFamily="Inter, Arial, sans-serif"
                           fontSize={KEY_FONT_SIZE}
                           fill="black"
                         >
-                          {entry.title}
+                          {captionLines.map((line, index) => (
+                            <tspan
+                              key={`${entry.inventoryID}-caption-${index}`}
+                              x={shapeX}
+                              dy={index === 0 ? 0 : KEY_FONT_SIZE * 1.2}
+                            >
+                              {line}
+                            </tspan>
+                          ))}
                         </text>
                       </g>
                     )

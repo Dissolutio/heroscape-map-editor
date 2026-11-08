@@ -1,8 +1,16 @@
 import { readFile } from 'node:fs/promises'
 import { unzipSync } from 'fflate'
-import { Pieces } from '../src/types'
+import { piecesSoFar } from '../src/data/pieces'
+import { HexTerrain, Pieces } from '../src/types'
 import { FIXTURE_HEX_MAP, FIXTURE_PIECE_IDS } from './fixture-map'
-import { expect, mapUrl, saveEvidence, test, waitForAppReady } from './fixtures'
+import {
+  expect,
+  mapUrl,
+  saveEvidence,
+  saveSvgEvidence,
+  test,
+  waitForAppReady,
+} from './fixtures'
 
 const pieceKeyURL = mapUrl({ ...FIXTURE_HEX_MAP, width: 12, length: 12 }, [
   ...FIXTURE_PIECE_IDS,
@@ -25,6 +33,42 @@ const pieceKeyURL = mapUrl({ ...FIXTURE_HEX_MAP, width: 12, length: 12 }, [
   `0~6~9~0~${Pieces.ropeLadder}`,
   `0~10~10~0~${Pieces.glyphPower}`,
 ])
+
+const issue350InventoryIDs = [
+  ...new Set(
+    Object.values(piecesSoFar)
+      .filter(({ terrain }) =>
+        [
+          HexTerrain.tree,
+          HexTerrain.snowTree,
+          HexTerrain.palm,
+          HexTerrain.brush,
+        ].includes(terrain as HexTerrain),
+      )
+      .map(({ id }) => id),
+  ),
+  Pieces.laurWallSquarePillar,
+  Pieces.laurWallPillarStackable,
+  Pieces.laurWallTrianglePillar,
+  Pieces.laurWallShort,
+  Pieces.laurWallShortStackable,
+  Pieces.laurWallLong,
+  Pieces.laurWallLongStackable,
+  Pieces.laurWallArch,
+  Pieces.laurWallRuin1,
+  Pieces.laurWallRuin2,
+  Pieces.laurWallRuin3,
+  Pieces.ladder,
+  Pieces.ropeLadder,
+  Pieces.toxic1,
+]
+const issue350PieceKeyURL = mapUrl(
+  { ...FIXTURE_HEX_MAP, width: 24, length: 24 },
+  issue350InventoryIDs.map(
+    (inventoryID, index) =>
+      `0~${(index % 8) * 3}~${Math.floor(index / 8) * 3}~0~${inventoryID}`,
+  ),
+)
 
 test('SVG levels and the standalone Legend export as Illustrator-safe paths', async ({
   page,
@@ -326,4 +370,44 @@ test('PDF downloads include the piece key with both border modes', async ({
   await downloadPdf('piece-key-color-borders.pdf')
   await colorBorders.uncheck()
   await downloadPdf('piece-key-dark-borders.pdf')
+})
+
+test('renders issue 350 key evidence with all tree and Laur variants', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 1400, height: 1100 })
+  await page.goto(issue350PieceKeyURL)
+  await waitForAppReady(page)
+  await page.locator('#simple-tab-3').click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
+  await page
+    .getByRole('checkbox', { name: 'Include piece key in SVG and PDF' })
+    .check()
+  await page.getByRole('button', { name: 'View 2D Map' }).click()
+  await page.locator('#simple-tab-0').click()
+
+  const levelInput = page.locator('input[type="text"]')
+  await expect(levelInput).toBeVisible()
+  await levelInput.fill('Legend')
+  const key = page.locator('[data-testid="svg-piece-key"]')
+  await expect(key).toBeVisible()
+  await saveSvgEvidence(key, 'issue-350-svg-piece-key')
+
+  await page.setViewportSize({ width: 700, height: 900 })
+  await page.locator('#simple-tab-3').click()
+  await page
+    .getByRole('button', { name: 'View pdf build instructions' })
+    .click()
+  const pdfLink = page.getByRole('link', {
+    name: /Download build instructions \.pdf/,
+  })
+  await expect(pdfLink).toBeVisible()
+  const downloadPromise = page.waitForEvent('download')
+  await pdfLink.click()
+  const download = await downloadPromise
+  const pdfPath = await download.path()
+  if (!pdfPath) throw new Error('PDF download did not produce a file')
+  await download.saveAs(testInfo.outputPath('issue-350-piece-key.pdf'))
 })
