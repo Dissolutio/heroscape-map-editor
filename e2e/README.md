@@ -16,6 +16,9 @@ npx playwright install chromium
 Run the tests with `npm run test:e2e`. The config starts the dev server
 itself (or reuses one already on port 5173).
 
+`map-inventory-sets.spec.ts` loads the standard fixture map and verifies the
+recommended terrain sets in the Map Inventory dialog.
+
 ## Running
 
 Evidence screenshots are temporary review aids and are off by default. The
