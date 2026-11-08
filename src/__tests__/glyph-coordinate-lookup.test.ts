@@ -39,24 +39,19 @@ describe('glyph coordinate lookup', () => {
       [ordinaryLand.id]: ordinaryLand,
     })
     const settings = {
-      isTransparentGlyphSpaces: true,
       isHideHeightsOnGlyphs: true,
     }
 
     expect(getGlyphExportOptions(glyph, coordinates, settings)).toEqual({
-      isTransparent: true,
       hideHeight: true,
     })
     expect(getGlyphExportOptions(coveredLand, coordinates, settings)).toEqual({
-      isTransparent: false,
       hideHeight: true,
     })
     expect(getGlyphExportOptions(ordinaryLand, coordinates, settings)).toEqual({
-      isTransparent: false,
       hideHeight: false,
     })
     expect(getGlyphExportOptions(treasure, coordinates, settings)).toEqual({
-      isTransparent: true,
       hideHeight: true,
     })
   })

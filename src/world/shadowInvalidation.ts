@@ -9,6 +9,7 @@ export type ShadowRelevantState = {
   graphicsTier: string
   effectiveGraphicsTier: string
   isShowStartZones: boolean
+  isShowGlyphs: boolean
   isShowObjectiveMarkers: boolean
 }
 
@@ -48,6 +49,7 @@ export function shouldInvalidateShadowMap(
     previous.graphicsTier !== current.graphicsTier ||
     previous.effectiveGraphicsTier !== current.effectiveGraphicsTier ||
     previous.isShowStartZones !== current.isShowStartZones ||
+    previous.isShowGlyphs !== current.isShowGlyphs ||
     previous.isShowObjectiveMarkers !== current.isShowObjectiveMarkers
   )
 }

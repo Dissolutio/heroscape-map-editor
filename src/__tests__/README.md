@@ -29,8 +29,9 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `piece-key-render.test.ts` | Canonical key geometry across map rotations, polygon bounds inside PDF viewBoxes, PDF map/key shape parity, and SVG map/key color parity. |
 | `cycleable-levels.test.ts` | Optional Legend viewing step after the overlay level. |
 | `pdf-sublevel-colors.test.ts` | SVG output snapshot for a stacked solid/liquid map and PDF sub-level color matching. |
-| `glyph-export-options.test.tsx` | Shared glyph-space classification, SVG/PDF transparent fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |
+| `glyph-export-options.test.tsx` | Shared glyph-space classification, opaque SVG/PDF glyph fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |
 | `glyph-coordinate-lookup.test.ts` | Prebuilt glyph-coordinate lookup parity for glyphs and covered/non-glyph hexes. |
+| `glyph-visibility.test.ts` | Session-only 3D glyph visibility, selection/hover filtering, and selection cleanup when glyphs are hidden. |
 | `svg-map-render-performance.test.ts` | A large SVG map render computes its board-wide surface-altitude lookup once, not once per hex. |
 | `svg-map-render-markup.test.ts` | Byte-for-byte SVG snapshots captured from the pre-refactor levels, overlay, and Legend. |
 | `ladder-stack-count.test.ts` | Ladder stack model: runs of consecutive ladder altitudes per edge (single run, two runs on one edge, different edges, rotation) and the number of PDF ladder overlay levels. |

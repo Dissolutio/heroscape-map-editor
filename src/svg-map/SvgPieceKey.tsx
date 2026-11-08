@@ -62,7 +62,6 @@ export const SvgPieceKeyShape = (
     isShow2DExportBuriedMarks: boolean
     glyphCoordinates: ReadonlySet<string>
     glyphExportSettings: {
-      isTransparentGlyphSpaces: boolean
       isHideHeightsOnGlyphs: boolean
     }
   },

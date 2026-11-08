@@ -49,6 +49,7 @@ function restoreTouchedSelection(record: UndoSelectionRestoreRecord) {
         ),
         state.boardPieces,
         state.isShowStartZones,
+        state.isShowGlyphs,
       )
   const selectedMarkerUID =
     markerExists &&

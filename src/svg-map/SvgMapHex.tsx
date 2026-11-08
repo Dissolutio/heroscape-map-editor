@@ -81,7 +81,6 @@ import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
 const OPACITY_SUBLEVEL = 0.3
 const EMPTY_GLYPH_COORDINATES: GlyphCoordinateLookup = new Set()
 const DEFAULT_GLYPH_EXPORT_SETTINGS: GlyphExportSettings = {
-  isTransparentGlyphSpaces: false,
   isHideHeightsOnGlyphs: false,
 }
 
@@ -473,11 +472,6 @@ const SvgMapHexComponent = ({
   }
   // Glyphs
   if (exportSymbol === 'glyph') {
-    const glyphOptions = getGlyphExportOptions(
-      hex,
-      glyphCoordinates,
-      glyphExportSettings,
-    )
     // When overlay view is enabled, glyphs should only be shown on the overlay level
     if (is2DOverlayLevelEnabled && !isOverlayViewing && !isPieceKeyPreview) {
       return null
@@ -490,7 +484,6 @@ const SvgMapHexComponent = ({
           hex={hex}
           isSubLevel={specialIsSubLevel}
           borderWidth={SVG_TREE_JUNGLE_OUTCROP_BORDER_WIDTH}
-          isTransparent={glyphOptions.isTransparent}
         />
         <text
           fill={

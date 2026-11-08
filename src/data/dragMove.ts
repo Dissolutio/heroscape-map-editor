@@ -1,5 +1,5 @@
 import type { BoardHex, BoardPiece, CubeCoordinate, Piece } from '../types'
-import { isStartZoneBoardPiece } from './startZoneVisibility'
+import { isGlyphBoardPiece, isStartZoneBoardPiece } from './startZoneVisibility'
 import { HexTerrain, Pieces } from '../types'
 import { isLaurWallAddonPieceID } from '../utils/board-utils'
 import { CLICK_DRAG_TOLERANCE_PX, HEXGRID_HEX_RADIUS } from '../utils/constants'
@@ -79,6 +79,7 @@ export function getDraggableSelectionGroup(
   grabbedUID: string,
   boardPieces: BoardPiece[],
   isShowStartZones = true,
+  isShowGlyphs = true,
 ): BoardPiece[] | null {
   if (!selectedPieceIDs.length || !selectedPieceIDs.includes(grabbedUID)) {
     return null
@@ -92,6 +93,7 @@ export function getDraggableSelectionGroup(
     if (
       !bp ||
       (!isShowStartZones && isStartZoneBoardPiece(bp)) ||
+      (!isShowGlyphs && isGlyphBoardPiece(bp)) ||
       !isDraggablePiece(piecesSoFar[bp.inventoryID])
     ) {
       return null

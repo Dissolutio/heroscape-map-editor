@@ -74,11 +74,9 @@ export const PdfMapLevels6PerPage = ({
   const {
     isShowPdfPieceLegend,
     isShowPdfLadderOverlay,
-    isTransparentGlyphSpaces,
     isHideHeightsOnGlyphs,
   } = useBoundStore.getState()
   const glyphExportSettings: GlyphExportSettings = {
-    isTransparentGlyphSpaces,
     isHideHeightsOnGlyphs,
   }
   const glyphCoordinates = makeGlyphCoordinateLookup(boardHexes)

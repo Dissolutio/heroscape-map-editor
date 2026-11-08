@@ -424,6 +424,14 @@ function TestBridgeInner() {
         })
         return uids
       },
+      listRenderedGlyphUIDs: () => {
+        const uids: string[] = []
+        get().scene.traverse((object) => {
+          const uid = object.userData.glyphPieceUID
+          if (typeof uid === 'string') uids.push(uid)
+        })
+        return uids
+      },
       getRenderedObjectiveMarkerTextQuaternion: (uid) => {
         let quaternion: [number, number, number, number] | null = null
         get().scene.traverse((object) => {

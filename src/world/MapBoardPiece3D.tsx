@@ -103,7 +103,10 @@ export const MapBoardPiece3D = (props: MapBoardPiece3DProps) => {
   const boardPieces = useBoundStore((s) => s.boardPieces)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
-  if (!shouldRenderPlacedPiece(props.bp, isShowStartZones)) return null
+  const isShowGlyphs = useBoundStore((s) => s.isShowGlyphs)
+  if (!shouldRenderPlacedPiece(props.bp, isShowStartZones, isShowGlyphs)) {
+    return null
+  }
   const isLastSelected = selectedPieceIDs[selectedPieceIDs.length - 1] === uid
   const resolvedPivot = isLastSelected
     ? resolveRotationPivot(

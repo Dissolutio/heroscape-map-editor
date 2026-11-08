@@ -1,7 +1,6 @@
 import { HexTerrain, type BoardHex, type BoardHexes } from '../types'
 
 export type GlyphExportSettings = {
-  isTransparentGlyphSpaces: boolean
   isHideHeightsOnGlyphs: boolean
 }
 
@@ -38,7 +37,6 @@ export function getGlyphExportOptions(
       glyphCoordinates.has(glyphCoordinateKey(hex)))
 
   return {
-    isTransparent: isGlyph && settings.isTransparentGlyphSpaces,
     hideHeight: settings.isHideHeightsOnGlyphs && hasGlyphAtCoordinates,
   }
 }

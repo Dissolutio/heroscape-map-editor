@@ -33,6 +33,7 @@ export const HexCapHeightTextDisplay = ({
   grid works (you can see vertical-clearance hexes, empty hexes)
   */
   const isDisplayCapHeights = useBoundStore((s) => s.isDisplayCapHeights)
+  const isShowGlyphs = useBoundStore((s) => s.isShowGlyphs)
   const isStartZoneHex = boardHex.terrain === HexTerrain.startZone
   const isGlyphHex =
     boardHex.terrain === HexTerrain.glyphPower ||
@@ -53,6 +54,7 @@ export const HexCapHeightTextDisplay = ({
       : 'white'
   // TODO: make own component for cap heights
   if (!isDisplayCapHeights) return null
+  if (!isShowGlyphs && isGlyphHex) return null
 
   // filters out all but caps, startzones, glyphs
   if (

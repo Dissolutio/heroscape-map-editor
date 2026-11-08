@@ -298,6 +298,7 @@ const World = ({
   const selectedPieceIDs = useBoundStore((s) => s.selectedPieceIDs)
   const viewingLevel = useBoundStore((s) => s.viewingLevel)
   const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
+  const isShowGlyphs = useBoundStore((s) => s.isShowGlyphs)
   const setSelectedPieceIDs = useBoundStore((s) => s.setSelectedPieceIDs)
   const isDraggingPiece = useBoundStore((s) => s.isDraggingPiece)
   const isOrthoCam = useBoundStore((s) => s.isOrthoCam)
@@ -363,6 +364,7 @@ const World = ({
       state.boardHexes,
       state.viewingLevel,
       state.isShowStartZones,
+      state.isShowGlyphs,
     )
     if (!visiblePieces.length) return
 
@@ -414,6 +416,7 @@ const World = ({
     boardHexes,
     viewingLevel,
     isShowStartZones,
+    isShowGlyphs,
     setSelectedPieceIDs,
   }
   const handleClickAway = () => {

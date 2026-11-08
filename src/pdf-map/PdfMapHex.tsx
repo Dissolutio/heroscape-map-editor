@@ -511,7 +511,6 @@ export const PdfMapHex = ({
   }
   // Glyphs
   if (exportSymbol === 'glyph') {
-    const glyphOptions = getHexGlyphExportOptions(hex)
     const isPlacedLevelViewing = hex.altitude === viewingLevel
     if (
       !isOverlayViewing &&
@@ -525,10 +524,7 @@ export const PdfMapHex = ({
       hex.terrain === HexTerrain.glyphPower ? PdfGlyphPower : PdfGlyphTreasure
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
-        <GlyphShape
-          isSubLevel={specialIsSubLevel}
-          isTransparent={glyphOptions.isTransparent}
-        />
+        <GlyphShape isSubLevel={specialIsSubLevel} />
         <Text
           fill={
             specialIsSubLevel

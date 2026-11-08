@@ -124,6 +124,8 @@ export type E2ETestBridge = {
   ) => Array<{ q: number; r: number; altitude: number; terrain: string }>
   /** UIDs mounted in the 3D objective-marker layer. */
   listRenderedObjectiveMarkerUIDs: () => string[]
+  /** UIDs whose 3D glyph models are mounted. */
+  listRenderedGlyphUIDs: () => string[]
   /** The rendered objective-marker text's world quaternion, or null. */
   getRenderedObjectiveMarkerTextQuaternion: (
     uid: string,

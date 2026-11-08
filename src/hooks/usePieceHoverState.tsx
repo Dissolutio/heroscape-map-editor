@@ -5,6 +5,7 @@ import {
   finishPerformanceTiming,
   startPerformanceTiming,
 } from '../performance/performanceTiming'
+import { isGlyphBoardPiece } from '../data/startZoneVisibility'
 import type { BoardHex } from '../types'
 import { isDragPassThrough, isDragging } from '../world/drag/dragController'
 import {
@@ -81,6 +82,18 @@ export default function usePieceHoverState({
     try {
       // the pointer sees through a piece being dragged (no stopPropagation)
       if (isDragPassThrough(boardHex.boardPieceUID)) return
+      const state = useBoundStore.getState()
+      if (
+        !state.isShowGlyphs &&
+        isGlyphBoardPiece(
+          state.boardPieces.find(
+            (piece) => piece.uid === boardHex.boardPieceUID,
+          ),
+        )
+      ) {
+        setSelectionMenuHoveredPieceID('')
+        return
+      }
       setSelectionMenuHoveredPieceID(boardHex.boardPieceUID ?? '')
       if (!isDragging()) e.stopPropagation()
       const point = { x: e.point.x, z: e.point.z }
@@ -113,6 +126,14 @@ export default function usePieceHoverState({
     const startedAt = startPerformanceTiming()
     try {
       if (isDragPassThrough(pid)) return
+      const state = useBoundStore.getState()
+      if (
+        !state.isShowGlyphs &&
+        isGlyphBoardPiece(state.boardPieces.find((piece) => piece.uid === pid))
+      ) {
+        setSelectionMenuHoveredPieceID('')
+        return
+      }
       setSelectionMenuHoveredPieceID(pid)
       if (!isDragging()) e.stopPropagation()
       if (trackIsHovered) setIsHovered(true)
