@@ -86,8 +86,12 @@ test('SVG levels and the standalone Legend export as Illustrator-safe paths', as
   const colorBorders = page.getByRole('checkbox', {
     name: 'PDF Color Borders',
   })
+  const svgColorBorders = page.getByRole('checkbox', {
+    name: 'SVG Color Borders',
+  })
   await includeKey.check()
   await colorBorders.check()
+  await svgColorBorders.check()
   await page.getByRole('button', { name: 'View 2D Map' }).click()
   await page.locator('#simple-tab-0').click()
   const key = page.locator('[data-testid="svg-piece-key"]')
@@ -120,6 +124,30 @@ test('SVG levels and the standalone Legend export as Illustrator-safe paths', as
   await expect(key.getByText('3 space', { exact: true })).toBeVisible()
   await expect(key.getByText('2 space', { exact: true })).toBeVisible()
   await expect(key.getByText('1 space', { exact: true })).toBeVisible()
+  const oneHexBorder = key
+    .locator(
+      '[data-testid="svg-piece-key-land-cell"][data-terrain="grass"][data-size="1"]',
+    )
+    .locator('[data-testid="svg-piece-key-shape"] polygon')
+    .nth(1)
+  const sevenHexBorder = key
+    .locator(
+      '[data-testid="svg-piece-key-land-cell"][data-terrain="grass"][data-size="7"]',
+    )
+    .locator('[data-testid="svg-piece-key-shape"] polygon')
+    .nth(1)
+  const legendBorders = async () =>
+    Promise.all([
+      oneHexBorder.getAttribute('fill'),
+      sevenHexBorder.getAttribute('fill'),
+    ])
+  const colorLegendBorders = await legendBorders()
+  await colorBorders.uncheck()
+  expect(await legendBorders()).toEqual(colorLegendBorders)
+  await svgColorBorders.uncheck()
+  expect(await legendBorders()).toEqual(['#000000', '#000000'])
+  await svgColorBorders.check()
+  expect(await legendBorders()).toEqual(colorLegendBorders)
   const missingLandShapes = await key
     .locator('[data-testid="svg-piece-key-land-cell"][data-has-entry="true"]')
     .evaluateAll((cells) =>

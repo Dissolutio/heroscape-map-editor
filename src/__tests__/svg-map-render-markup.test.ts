@@ -100,7 +100,6 @@ describe('SVG map render markup', () => {
       ['level-0', 0, false],
       ['level-1', 1, false],
       ['overlay', 2, true],
-      ['legend', 3, false],
     ].map(([label, viewingLevel, is2DOverlayLevelEnabled]) => {
       const state = {
         boardHexes,

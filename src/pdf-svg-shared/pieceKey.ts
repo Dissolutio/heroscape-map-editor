@@ -127,30 +127,37 @@ const PIECE_KEY_METADATA: {
       id: 'water',
       title: 'Water',
       description: 'blue borders and centers',
+      descriptionWithoutColorBorders: 'dark borders, blue centers',
       terrains: [HexTerrain.water],
     },
     {
       id: 'wellspring',
       title: 'Wellspring Water',
       description: 'blue borders, white centers',
+      descriptionWithoutColorBorders: 'dark borders, white centers',
       terrains: [HexTerrain.wellspringWater],
     },
     {
       id: 'other-fluids',
       title: 'Other Fluids',
       description: 'fluid colors follow the selected export options',
+      descriptionWithoutColorBorders:
+        'dark borders; fluid colors follow the selected export options',
       fluids: true,
     },
     {
       id: 'evergreen',
       title: 'Evergreen Trees',
       description: 'green borders and centers; number indicates tree height',
+      descriptionWithoutColorBorders:
+        'dark borders and green centers; number indicates tree height',
       terrains: [HexTerrain.tree, HexTerrain.snowTree],
     },
     {
       id: 'jungle',
       title: 'Jungle Trees',
       description: 'brown borders, yellow centers',
+      descriptionWithoutColorBorders: 'dark borders, yellow centers',
       terrains: [HexTerrain.palm, HexTerrain.brush],
     },
     {
@@ -165,6 +172,8 @@ const PIECE_KEY_METADATA: {
       title: 'Pillars and Walls (Laur)',
       description:
         'pillars have pink borders and purple centers; wall add-ons are pink',
+      descriptionWithoutColorBorders:
+        'pillars have dark borders and purple centers; wall add-ons are pink',
       terrains: [HexTerrain.laurWall, HexTerrain.laurWallAddon],
       inventoryIDs: [
         Pieces.laurWallSquarePillar,
