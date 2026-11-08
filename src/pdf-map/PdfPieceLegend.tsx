@@ -1,7 +1,13 @@
 import { G, Page, Svg, Text, View } from '@react-pdf/renderer'
+import {
+  type GlyphCoordinateLookup,
+  type GlyphExportSettings,
+  makeGlyphCoordinateLookup,
+} from '../pdf-svg-shared/glyphExportOptions'
 import { getLaurAddonExportSymbol } from '../pdf-svg-shared/laurAddonExportSymbol'
 import {
   type PieceKeyEntry,
+  type PieceKeyLandColumn,
   getPieceKeyModel,
 } from '../pdf-svg-shared/pieceKey'
 import {
@@ -10,17 +16,12 @@ import {
   getPieceKeyShapeScale,
   getPieceKeySpecialEntriesPerRow,
 } from '../pdf-svg-shared/pieceKeyShapeLayout'
-import { chunkLandRows, chunkSpecialGroups } from './pieceLegendLayout'
-import {
-  type GlyphCoordinateLookup,
-  type GlyphExportSettings,
-  makeGlyphCoordinateLookup,
-} from '../pdf-svg-shared/glyphExportOptions'
 import useBoundStore from '../store/store'
 import { type BoardHex, type BoardPiece, HexTerrain } from '../types'
 import { boardPieceToDecodedPieceID } from '../utils/map-utils'
 import { PdfMapBoardPiece } from './PdfMapBoardPiece'
 import { PdfMapHex } from './PdfMapHex'
+import { chunkLandRows, chunkSpecialGroups } from './pieceLegendLayout'
 
 const LAND_COLUMNS_PER_TABLE = 6
 const LAND_SHAPE_SCALE = 0.075
@@ -141,7 +142,7 @@ function LandGrid({
   glyphCoordinates: GlyphCoordinateLookup
   glyphExportSettings: GlyphExportSettings
 }) {
-  const tables = []
+  const tables: PieceKeyLandColumn[][] = []
   const scale = getLandShapeScale(model)
   for (
     let offset = 0;
@@ -162,8 +163,9 @@ function LandGrid({
     ),
   }))
 
-  const renderHeaderRow = (columns: (typeof tables)[number]) => (
+  const renderHeaderRow = (columns: PieceKeyLandColumn[], key: string) => (
     <View
+      key={key}
       wrap={false}
       style={{ flexDirection: 'row', minHeight: PDF_TABLE_HEADER_HEIGHT }}
     >
@@ -177,9 +179,7 @@ function LandGrid({
           justifyContent: 'center',
         }}
       >
-        <Text style={{ fontSize: 7, fontWeight: 'bold' }}>
-          Notice centers
-        </Text>
+        <Text style={{ fontSize: 7, fontWeight: 'bold' }}>Notice centers</Text>
         <Text style={{ fontSize: 7, fontWeight: 'bold' }}>
           and border colors
         </Text>
@@ -207,7 +207,7 @@ function LandGrid({
   )
 
   const renderLandRow = (
-    columns: (typeof tables)[number],
+    columns: PieceKeyLandColumn[],
     row: (typeof model.landRows)[number],
   ) => {
     const rowHeight = getLandRowHeight(model, row.size, scale)
@@ -232,8 +232,9 @@ function LandGrid({
           <Text style={{ fontSize: 6 }}>{row.description}</Text>
         </View>
         {columns.map((column) => {
-          const entry = column.cells.find((cell) => cell.size === row.size)
-            ?.entry
+          const entry = column.cells.find(
+            (cell) => cell.size === row.size,
+          )?.entry
           return (
             <View
               key={`${column.terrain}-${row.size}`}
@@ -275,15 +276,17 @@ function LandGrid({
               key={`${columns.map((column) => column.terrain).join('|')}-${chunkIndex}`}
               wrap={false}
               style={{
-                marginBottom:
-                  chunkIndex === chunks.length - 1 ? 8 : 0,
+                marginBottom: chunkIndex === chunks.length - 1 ? 8 : 0,
                 borderTopWidth: 1,
                 borderLeftWidth: 1,
               }}
             >
-              {chunk.map((chunkRow, rowIndex) =>
+              {chunk.map((chunkRow) =>
                 chunkRow.kind === 'header'
-                  ? renderHeaderRow(columns)
+                  ? renderHeaderRow(
+                      columns,
+                      `${columns.map((column) => column.terrain).join('|')}-header`,
+                    )
                   : renderLandRow(columns, chunkRow.row),
               )}
             </View>
@@ -337,7 +340,7 @@ function SpecialTiles({
     <>
       {groupRows.map((groups, index) => (
         <View
-          key={`special-groups-row-${index}`}
+          key={`special-groups-row-${groups.map((group) => group.id).join('|')}`}
           wrap={false}
           style={{
             marginTop: index === 0 ? 4 : 0,
@@ -413,7 +416,7 @@ function SpecialTiles({
                 </View>
               </View>
             ))}
-            </View>
+          </View>
         </View>
       ))}
     </>

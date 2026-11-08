@@ -5,9 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { piecesSoFar } from '../data/pieces'
 import { SETTINGS_DEFAULTS } from '../local-storage/settings'
 import { PdfPieceLegend } from '../pdf-map/PdfPieceLegend'
-import {
-  getPieceKeyModel,
-} from '../pdf-svg-shared/pieceKey'
+import { getPieceKeyModel } from '../pdf-svg-shared/pieceKey'
 import {
   getPieceKeyRowShapeHeight,
   getPieceKeyShapeScale,
@@ -65,6 +63,6 @@ describe('PDF piece key', () => {
     )
 
     expect(model.landRows.some((row) => row.size === 24)).toBe(true)
-    expect(maxRowHeight).toBeLessThan(744)
+    expect(maxRowHeight + 36 + 24).toBeLessThan(744)
   })
 })
