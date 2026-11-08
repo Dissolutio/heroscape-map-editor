@@ -48,7 +48,6 @@ const initialState = useBoundStore.getState()
 
 const setExportState = (
   options: {
-    isTransparentGlyphSpaces?: boolean
     isHideHeightsOnGlyphs?: boolean
   } = {},
 ) => {
@@ -59,7 +58,6 @@ const setExportState = (
     is2DOverlayLevelEnabled: false,
     isShow2DExportTileLetters: false,
     isShow2DExportBuriedMarks: false,
-    isTransparentGlyphSpaces: false,
     isHideHeightsOnGlyphs: false,
     ...options,
   })
@@ -120,7 +118,6 @@ afterEach(() => {
     is2DOverlayLevelEnabled: initialState.is2DOverlayLevelEnabled,
     isShow2DExportTileLetters: initialState.isShow2DExportTileLetters,
     isShow2DExportBuriedMarks: initialState.isShow2DExportBuriedMarks,
-    isTransparentGlyphSpaces: initialState.isTransparentGlyphSpaces,
     isHideHeightsOnGlyphs: initialState.isHideHeightsOnGlyphs,
   })
 })
@@ -135,11 +132,10 @@ describe('shared glyph export options', () => {
           hex,
           makeGlyphCoordinateLookup({ [hex.id]: hex }),
           {
-            isTransparentGlyphSpaces: true,
             isHideHeightsOnGlyphs: true,
           },
         ),
-      ).toEqual({ isTransparent: true, hideHeight: true })
+      ).toEqual({ hideHeight: true })
     },
   )
 
@@ -149,11 +145,10 @@ describe('shared glyph export options', () => {
         grassHex,
         makeGlyphCoordinateLookup(landWithGlyph),
         {
-          isTransparentGlyphSpaces: true,
           isHideHeightsOnGlyphs: true,
         },
       ),
-    ).toEqual({ isTransparent: false, hideHeight: true })
+    ).toEqual({ hideHeight: true })
   })
 
   it('does not treat start zones as glyph spaces', () => {
@@ -163,32 +158,24 @@ describe('shared glyph export options', () => {
         startZone,
         makeGlyphCoordinateLookup({ [startZone.id]: startZone }),
         {
-          isTransparentGlyphSpaces: true,
           isHideHeightsOnGlyphs: true,
         },
       ),
-    ).toEqual({ isTransparent: false, hideHeight: false })
+    ).toEqual({ hideHeight: false })
   })
 })
 
 describe('SVG and PDF glyph exports', () => {
-  it('keeps the glyph outline and symbol with a transparent SVG fill', () => {
+  it('always renders glyph fills, outlines, and symbols in SVG', () => {
     setExportState()
-    const defaultMarkup = renderSvgHex(glyphHex)
-    const defaultFills = [
-      ...defaultMarkup.matchAll(/<polygon[^>]*fill="([^"]+)"/g),
-    ].map((match) => match[1])
+    const markup = renderSvgHex(glyphHex)
+    const fills = [...markup.matchAll(/<polygon[^>]*fill="([^"]+)"/g)].map(
+      (match) => match[1],
+    )
 
-    setExportState({ isTransparentGlyphSpaces: true })
-    const transparentMarkup = renderSvgHex(glyphHex)
-    const transparentFills = [
-      ...transparentMarkup.matchAll(/<polygon[^>]*fill="([^"]+)"/g),
-    ].map((match) => match[1])
-
-    expect(defaultFills[0]).not.toBe('none')
-    expect(transparentFills[0]).toBe('none')
-    expect(transparentFills[1]).toBe(svgColors.glyphBorder)
-    expect(transparentMarkup).toContain('>?</text>')
+    expect(fills[0]).toBe(svgColors.glyphPower)
+    expect(fills[1]).toBe(svgColors.glyphBorder)
+    expect(markup).toContain('>?</text>')
   })
 
   it('hides height text on a lower hex at a glyph coordinate in SVG', () => {
@@ -200,24 +187,16 @@ describe('SVG and PDF glyph exports', () => {
     expect(renderSvgHex(outcropHex)).not.toContain(`>${height}</text>`)
   })
 
-  it('sets transparent PDF glyph attributes and preserves the symbol', () => {
+  it('always renders glyph fills, outlines, and symbols in PDF', () => {
     setExportState()
-    const defaultGlyph = renderPdfHex(glyphHex)
-    const [defaultShape, defaultText] = childElements(defaultGlyph)
-    const defaultPolygon = PdfGlyphPower(defaultShape.props)
+    const glyph = renderPdfHex(glyphHex)
+    const [shape, text] = childElements(glyph)
+    const polygon = PdfGlyphPower(shape.props)
 
-    setExportState({ isTransparentGlyphSpaces: true })
-    const transparentGlyph = renderPdfHex(glyphHex)
-    const [transparentShape, transparentText] = childElements(transparentGlyph)
-    const transparentPolygon = PdfGlyphPower(transparentShape.props)
-
-    expect(defaultPolygon.props.fill).not.toBe('none')
-    expect(defaultPolygon.props.stroke).toBe(transparentPolygon.props.stroke)
-    expect(transparentPolygon.props.fill).toBe('none')
-    expect(defaultText.props.children).toBe(
-      piecesSoFar[Pieces.glyphPower].glyphLetter,
-    )
-    expect(transparentText.props.fill).toBe(svgColors.glyphText)
+    expect(polygon.props.fill).toBe(svgColors.glyphPower)
+    expect(polygon.props.stroke).toBe(svgColors.glyphBorder)
+    expect(text.props.children).toBe(piecesSoFar[Pieces.glyphPower].glyphLetter)
+    expect(text.props.fill).toBe(svgColors.glyphText)
   })
 
   it('hides height text on a lower hex at a glyph coordinate in PDF', () => {
@@ -237,9 +216,9 @@ describe('SVG and PDF glyph exports', () => {
     expect(hiddenHeight[0]?.type).toBe(PdfMultiHex1)
   })
 
-  it('keeps start-zone PDF rendering outside the glyph fill option', () => {
+  it('keeps start-zone PDF rendering outside glyph exports', () => {
     const startZone = makeHex(Pieces.startZone1, HexTerrain.startZone, 2)
-    setExportState({ isTransparentGlyphSpaces: true })
+    setExportState()
     const renderedStartZone = PdfMapHex({
       hex: startZone,
       viewingLevel: 2,

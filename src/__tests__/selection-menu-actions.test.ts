@@ -28,6 +28,7 @@ function context(
   selectedPieceIDs = seedPieceIDs,
   viewingLevel = 3,
   isShowStartZones = true,
+  isShowGlyphs = true,
 ): SelectionMenuContext {
   return {
     seedPieceIDs,
@@ -36,6 +37,7 @@ function context(
     boardHexes: board.boardHexes,
     viewingLevel,
     isShowStartZones,
+    isShowGlyphs,
     setSelectedPieceIDs: noSelection,
   }
 }
@@ -191,6 +193,23 @@ describe('selection menu pure actions', () => {
       }),
     ).toEqual(['visible'])
     expect(invertSelection(ctx)).not.toContain(objectiveMarkerUID)
+  })
+
+  it('excludes hidden glyphs from every selection menu action', () => {
+    const table = makeTable(12)
+    const board = put(table, Pieces.glyphPower, table.center, 0, 'glyph')
+    const ctx = context(board, ['glyph'], ['glyph'], 3, true, false)
+
+    for (const action of selectionMenuActions) {
+      let selected: readonly string[] = []
+      action.run({
+        ...ctx,
+        setSelectedPieceIDs: (pieceIDs) => {
+          selected = pieceIDs
+        },
+      })
+      expect(selected).not.toContain('glyph')
+    }
   })
 
   it('returns no seeded selection when the current seed is empty', () => {
@@ -506,6 +525,7 @@ describe('selection menu pure actions', () => {
       boardHexes,
       viewingLevel: 1,
       isShowStartZones: true,
+      isShowGlyphs: true,
       setSelectedPieceIDs: noSelection,
     } satisfies SelectionMenuContext
 

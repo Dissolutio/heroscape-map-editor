@@ -6,6 +6,7 @@ import {
   getSvgObjectiveMarkerKeyFontSize,
   getSvgVisibleObjectiveMarkers,
 } from '../pdf-svg-shared/objectiveMarkerExport'
+import { getBoardPieceOriginHexes } from '../pdf-svg-shared/boardPieceOriginHexes'
 import {
   type PieceKeyModel,
   getPieceKeyModel,
@@ -76,9 +77,6 @@ const SvgMapDisplay = ({
   const is2DOverlayLevelEnabled = overlayEnabledOverride ?? storeOverlayEnabled
   const isShowPieceKey = useBoundStore((s) => s.isShowPdfPieceLegend)
   const useTerrainBorderColor = useBoundStore((s) => s.isPdfColorBorders)
-  const isTransparentGlyphSpaces = useBoundStore(
-    (s) => s.isTransparentGlyphSpaces,
-  )
   const isHideHeightsOnGlyphs = useBoundStore((s) => s.isHideHeightsOnGlyphs)
   const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
   const genericFluidCapColor = useBoundStore((s) => s.genericFluidCapColor)
@@ -88,8 +86,8 @@ const SvgMapDisplay = ({
     [boardHexes],
   )
   const glyphExportSettings = useMemo<GlyphExportSettings>(
-    () => ({ isTransparentGlyphSpaces, isHideHeightsOnGlyphs }),
-    [isTransparentGlyphSpaces, isHideHeightsOnGlyphs],
+    () => ({ isHideHeightsOnGlyphs }),
+    [isHideHeightsOnGlyphs],
   )
   const shapeSettings = useMemo<SvgMapShapeSettings>(
     () => ({
@@ -105,6 +103,19 @@ const SvgMapDisplay = ({
         .map((bp) => boardPieceToDecodedPieceID(bp))
         .filter((p) => Boolean(p)),
     [boardPieces],
+  )
+  const pieceOriginHexes = useMemo(
+    () => getBoardPieceOriginHexes(decodedBoardPiecesArr, boardHexes),
+    [decodedBoardPiecesArr, boardHexes],
+  )
+  const pieceOriginBySourceID = useMemo(
+    () =>
+      new Map(
+        pieceOriginHexes
+          .filter((origin) => origin.sourceHexID)
+          .map((origin) => [origin.sourceHexID, origin.hex]),
+      ),
+    [pieceOriginHexes],
   )
   const hexMap = useBoundStore((state) => state.hexMap)
   const mapDimensions = useMemo(
@@ -251,29 +262,59 @@ const SvgMapDisplay = ({
           )
         ) : (
           <g>
-            {boardHexesArr.map((hex) => (
-              <SvgMapHex
-                key={hex.id}
-                hex={hex}
-                buriedMarksByUID={buriedMarksByUID}
-                viewingLevel={
-                  isShow2DExportBuriedMarks || isShow2DExportTileLetters
-                    ? viewingLevel
-                    : 0
-                }
-                overlayLevel={overlayLevel}
-                isVisible={hex.altitude <= viewingLevel}
-                isSubLevel={hex.altitude < viewingLevel}
-                isOverlayViewing={
-                  is2DOverlayLevelEnabled && viewingLevel === overlayLevel
-                }
-                is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
-                isShow2DExportTileLetters={isShow2DExportTileLetters}
-                isShow2DExportBuriedMarks={isShow2DExportBuriedMarks}
-                glyphCoordinates={glyphCoordinates}
-                glyphExportSettings={glyphExportSettings}
-              />
-            ))}
+            {boardHexesArr.map((hex) => {
+              const originHex = pieceOriginBySourceID.get(hex.id) ?? hex
+              return (
+                <SvgMapHex
+                  key={hex.id}
+                  hex={originHex}
+                  buriedMarksByUID={buriedMarksByUID}
+                  viewingLevel={
+                    isShow2DExportBuriedMarks || isShow2DExportTileLetters
+                      ? viewingLevel
+                      : 0
+                  }
+                  overlayLevel={overlayLevel}
+                  isVisible={originHex.altitude <= viewingLevel}
+                  isSubLevel={originHex.altitude < viewingLevel}
+                  isOverlayViewing={
+                    is2DOverlayLevelEnabled && viewingLevel === overlayLevel
+                  }
+                  is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+                  isShow2DExportTileLetters={isShow2DExportTileLetters}
+                  isShow2DExportBuriedMarks={isShow2DExportBuriedMarks}
+                  glyphCoordinates={glyphCoordinates}
+                  glyphExportSettings={glyphExportSettings}
+                />
+              )
+            })}
+            {pieceOriginHexes
+              .filter((origin) => !origin.sourceHexID)
+              .map(({ hex }) =>
+                hex.altitude <= viewingLevel ? (
+                  <SvgMapHex
+                    key={`missing-origin-${hex.boardPieceUID}`}
+                    hex={hex}
+                    buriedMarksByUID={buriedMarksByUID}
+                    viewingLevel={
+                      isShow2DExportBuriedMarks || isShow2DExportTileLetters
+                        ? viewingLevel
+                        : 0
+                    }
+                    overlayLevel={overlayLevel}
+                    isVisible
+                    isSubLevel={hex.altitude < viewingLevel}
+                    isOverlayViewing={
+                      is2DOverlayLevelEnabled && viewingLevel === overlayLevel
+                    }
+                    is2DOverlayLevelEnabled={is2DOverlayLevelEnabled}
+                    isShow2DExportTileLetters={isShow2DExportTileLetters}
+                    isShow2DExportBuriedMarks={isShow2DExportBuriedMarks}
+                    glyphCoordinates={glyphCoordinates}
+                    glyphExportSettings={glyphExportSettings}
+                  />
+                ) : null,
+              )}
             {decodedBoardPiecesArr
               .filter((bp) => {
                 // when overlay mode is enabled, hide glyph/startzone/objective-like pieces

@@ -26,15 +26,19 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `land-hex-geometry.test.ts` | Per-hex solid/fluid prism geometry: side quads index their own vertices, side-image orientation (including fluid UVs), triangle kinds and directions stay consistent, and faces point outward/upward. |
 | `export-border-color.test.ts` | Shared SVG/PDF border-color decisions for every terrain, SVG Asphalt markup, and rendered PDF output with outlines on/off, including sub-levels. |
 | `piece-key-model.test.ts` | Piece-key land terrain/size ordering, sparse cells, special-family groups and captions, counts, border-mode descriptions, and missing-description fallbacks. |
-| `piece-key-render.test.ts` | PDF map/key shape parity with both border modes and custom Generic colors, plus SVG map/key color parity. |
+| `piece-key-render.test.ts` | Canonical key geometry across map rotations, polygon bounds inside PDF viewBoxes, PDF map/key shape parity, and SVG map/key color parity. |
 | `cycleable-levels.test.ts` | Optional Legend viewing step after the overlay level. |
 | `pdf-sublevel-colors.test.ts` | SVG output snapshot for a stacked solid/liquid map and PDF sub-level color matching. |
-| `glyph-export-options.test.tsx` | Shared glyph-space classification, SVG/PDF transparent fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |
+| `glyph-export-options.test.tsx` | Shared glyph-space classification, opaque SVG/PDF glyph fills and outlines, glyph symbol visibility, and height suppression beneath glyphs. |
 | `glyph-coordinate-lookup.test.ts` | Prebuilt glyph-coordinate lookup parity for glyphs and covered/non-glyph hexes. |
+| `glyph-visibility.test.ts` | Session-only 3D glyph visibility, selection/hover filtering, and selection cleanup when glyphs are hidden. |
 | `svg-map-render-performance.test.ts` | A large SVG map render computes its board-wide surface-altitude lookup once, not once per hex. |
 | `svg-map-render-markup.test.ts` | Byte-for-byte SVG snapshots captured from the pre-refactor levels, overlay, and Legend. |
+| `origin-symbol-overlap.test.ts` | SVG/PDF origin symbols remain present at their piece coordinates, rotation, and level after another piece takes ownership of the origin hex. |
 | `ladder-stack-count.test.ts` | Ladder stack model: runs of consecutive ladder altitudes per edge (single run, two runs on one edge, different edges, rotation) and the number of PDF ladder overlay levels. |
 | `pdf-ladder-overlay.test.ts` | PDF ladder overlay levels: no ladder "x N" text in the PDF or SVG, the option off or no ladders gives no ladder level, white 1-hex with thin black border plus ladder shape and count, and two runs on one edge giving two ladder levels. |
+| `pdf-piece-legend.test.ts` | PDF piece-key default visibility and rendering for every registered piece family. |
+| `pdf-piece-legend-layout.test.ts` | Piece-key Special Tiles rows of three and whole land-row pagination chunks with repeated headers. |
 | `generic-letter-metrics.test.ts` | Ratchets every terrain letter against the PDF mark-width table and the Inter Bold font metrics. |
 | `place-and-remove.test.ts` | `addPiece`/`removePiece`: every registered piece places and removes cleanly at every rotation, plus the placement rules as small stories. |
 | `replay-conflicts.test.ts` | How conflicts are computed (`data/rebuildBoardState.ts`): ordinary occupancy conflicts plus derived Laur conflicts. |

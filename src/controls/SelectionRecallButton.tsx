@@ -31,6 +31,7 @@ export default function SelectionRecallButton({
 }) {
   const boardPieces = useBoundStore((state) => state.boardPieces)
   const isShowStartZones = useBoundStore((state) => state.isShowStartZones)
+  const isShowGlyphs = useBoundStore((state) => state.isShowGlyphs)
   const isShowObjectiveMarkers = useBoundStore(
     (state) => state.isShowObjectiveMarkers,
   )
@@ -49,6 +50,7 @@ export default function SelectionRecallButton({
         boardPieces.map((piece) => piece.uid),
         boardPieces,
         isShowStartZones,
+        isShowGlyphs,
       ),
     ),
     new Set(

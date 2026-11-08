@@ -7,11 +7,19 @@ import { PieceKeyShape } from '../pdf-map/PdfPieceLegend'
 import type { PieceKeyEntry } from '../pdf-svg-shared/pieceKey'
 import { getPieceKeyModel } from '../pdf-svg-shared/pieceKey'
 import { getPieceKeyShapeLayout } from '../pdf-svg-shared/pieceKeyShapeLayout'
+import {
+  getHexagonSvgPolygonPointsAt00,
+  getLadderSvgPolygonPoints,
+  getLaurLongWallSvgPolygonPoints,
+  getShipBowSvgPolygonPoints,
+  getShipWallSvgPolygonPoints,
+} from '../pdf-svg-shared/hexPolygonPoints'
 import useBoundStore from '../store/store'
 import { SvgMapHex } from '../svg-map/SvgMapHex'
 import { SvgPieceKeyShape } from '../svg-map/SvgPieceKey'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
+import { hexUtilsHexToPixel } from '../utils/map-utils'
 import { svgColors } from '../world/maphex/hexColors'
 import { type Board, makeTable, place } from './helpers/board'
 
@@ -60,6 +68,56 @@ const collectTextContent = (node: ReactNode): string[] => {
     return collectTextContent(renderComponent(props))
   }
   return collectTextContent(props.children)
+}
+
+const pieceKeyEntry = (
+  model: ReturnType<typeof getPieceKeyModel>,
+  inventoryID: string,
+) =>
+  [
+    ...model.landColumns.flatMap((column) =>
+      column.cells.map(({ entry }) => entry),
+    ),
+    ...model.specialGroups.flatMap((group) => group.entries),
+  ].find((entry) => entry.inventoryID === inventoryID)
+
+const getShapePolygonPoints = (entry: PieceKeyEntry) => {
+  const hexPoints = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS).corners
+  const points = entry.hexes.flatMap((hex) => {
+    const center = hexUtilsHexToPixel(hex)
+    return hexPoints.map(({ x, y }) => ({
+      x: center.x + x,
+      y: center.y + y,
+    }))
+  })
+
+  if (entry.inventoryID === Pieces.ladder) {
+    points.push(...getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0).corners)
+  } else if (entry.inventoryID === Pieces.shipWall) {
+    points.push(...getShipWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners)
+  } else if (entry.inventoryID === Pieces.shipBow) {
+    points.push(...getShipBowSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners)
+  } else if (entry.inventoryID === Pieces.ropeLadder) {
+    const iconRadius = SVG_HEX_RADIUS * 0.4
+    const arrowWidth = (iconRadius * 2) / 1.3
+    const arrowHalfHeight = (arrowWidth * 7) / 24
+    points.push(
+      { x: 2 * (SVG_HEX_APOTHEM - iconRadius), y: -2 * iconRadius },
+      { x: 2 * (SVG_HEX_APOTHEM + iconRadius), y: 2 * iconRadius },
+      {
+        x: 2 * (SVG_HEX_APOTHEM - arrowWidth / 2),
+        y: 2 * (-17 - arrowHalfHeight),
+      },
+      {
+        x: 2 * (SVG_HEX_APOTHEM + arrowWidth / 2),
+        y: 2 * (15 + arrowHalfHeight),
+      },
+    )
+  } else if (entry.inventoryID === Pieces.laurWallLong) {
+    points.push(...getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS).corners)
+  }
+
+  return points
 }
 
 describe('piece key shape rendering', () => {
@@ -129,24 +187,135 @@ describe('piece key shape rendering', () => {
         .map(Number)
       const [viewX, viewY, viewWidth, viewHeight] = viewBox
       const layout = getPieceKeyShapeLayout(entry)
-      const symbolBounds =
-        entry.inventoryID === Pieces.ropeLadder
-          ? {
-              minX: SVG_HEX_APOTHEM * 2 - SVG_HEX_RADIUS * 0.8,
-              maxX: SVG_HEX_APOTHEM * 2 + SVG_HEX_RADIUS * 0.8,
-              minY: -SVG_HEX_RADIUS * 0.8,
-              maxY: SVG_HEX_RADIUS * 0.8,
-            }
-          : {
-              minX: SVG_HEX_APOTHEM * 2 - SVG_HEX_RADIUS,
-              maxX: SVG_HEX_APOTHEM * 2,
-              minY: -SVG_HEX_RADIUS,
-              maxY: SVG_HEX_RADIUS,
-            }
-      expect(viewX).toBeCloseTo(layout.origin.x + symbolBounds.minX - 24)
-      expect(viewY).toBeCloseTo(layout.origin.y + symbolBounds.minY - 24)
-      expect(viewWidth).toBeCloseTo(symbolBounds.maxX - symbolBounds.minX + 48)
-      expect(viewHeight).toBeCloseTo(symbolBounds.maxY - symbolBounds.minY + 48)
+      expect(viewX).toBeCloseTo(layout.origin.x + layout.minX - 24)
+      expect(viewY).toBeCloseTo(layout.origin.y + layout.minY - 24)
+      expect(viewWidth).toBeCloseTo(layout.width + 48)
+      expect(viewHeight).toBeCloseTo(layout.height + 48)
+    }
+  })
+
+  it('uses identical canonical key shapes for every map rotation', () => {
+    const inventoryIDs = [
+      Pieces.grass24,
+      Pieces.grass7,
+      Pieces.grass3,
+      Pieces.grass2,
+      Pieces.grass1,
+      Pieces.ropeLadder,
+      Pieces.ladder,
+      Pieces.shipWall,
+      Pieces.shipBow,
+      Pieces.cannon,
+      Pieces.laurWallLong,
+    ]
+    const models = Array.from({ length: 6 }, (_, rotation) => {
+      let board: Board = { boardHexes: {}, boardPieces: [] }
+      for (const [index, inventoryID] of inventoryIDs.entries()) {
+        board = place({
+          board,
+          pieceID: inventoryID,
+          at: { q: index * 20, r: 0, s: -index * 20 },
+          altitude: 0,
+          rotation,
+          permissive: true,
+        }).board
+      }
+      expect(
+        board.boardPieces.every((piece) => piece.rotation === rotation),
+      ).toBe(true)
+      return getPieceKeyModel(board.boardPieces, {}, true)
+    })
+
+    for (const inventoryID of inventoryIDs) {
+      const entries = models.map((model) => {
+        const entry = pieceKeyEntry(model, inventoryID)
+        expect(entry).toBeDefined()
+        return entry as PieceKeyEntry
+      })
+      const first = entries[0]
+      const firstSvg = renderToStaticMarkup(
+        SvgPieceKeyShape(first, 0, 0, 0.1, 'canonical-key'),
+      )
+      const firstPdf = PieceKeyShape({
+        entry: first,
+        useTerrainBorderColor: true,
+        scale: 0.075,
+      }) as { props: { viewBox: string } }
+
+      expect(first.piece.rotation).toBe(0)
+      expect(first.piece.pieceCoords).toEqual({ q: 0, r: 0, s: 0 })
+      if (inventoryID === Pieces.shipWall || inventoryID === Pieces.shipBow) {
+        expect(first.hexes.some((hex) => hex.isObstacleOrigin)).toBe(true)
+      }
+
+      for (const entry of entries.slice(1)) {
+        expect(entry.hexes).toEqual(first.hexes)
+        expect(getPieceKeyShapeLayout(entry)).toEqual(
+          getPieceKeyShapeLayout(first),
+        )
+        expect(
+          renderToStaticMarkup(
+            SvgPieceKeyShape(entry, 0, 0, 0.1, 'canonical-key'),
+          ),
+        ).toBe(firstSvg)
+        const pdf = PieceKeyShape({
+          entry,
+          useTerrainBorderColor: true,
+          scale: 0.075,
+        }) as { props: { viewBox: string } }
+        expect(pdf.props.viewBox).toBe(firstPdf.props.viewBox)
+      }
+    }
+  })
+
+  it('keeps canonical key polygons inside their PDF viewBoxes', () => {
+    const inventoryIDs = [
+      Pieces.grass24,
+      Pieces.grass7,
+      Pieces.grass3,
+      Pieces.grass2,
+      Pieces.grass1,
+      Pieces.ropeLadder,
+      Pieces.ladder,
+      Pieces.shipWall,
+      Pieces.shipBow,
+      Pieces.cannon,
+      Pieces.laurWallLong,
+    ]
+    let board: Board = { boardHexes: {}, boardPieces: [] }
+    for (const [index, inventoryID] of inventoryIDs.entries()) {
+      board = place({
+        board,
+        pieceID: inventoryID,
+        at: { q: index * 20, r: 0, s: -index * 20 },
+        altitude: 0,
+        permissive: true,
+      }).board
+    }
+    const model = getPieceKeyModel(board.boardPieces, board.boardHexes, true)
+
+    for (const inventoryID of inventoryIDs) {
+      const entry = pieceKeyEntry(model, inventoryID)
+      expect(entry).toBeDefined()
+      if (!entry) continue
+
+      const shape = PieceKeyShape({
+        entry,
+        useTerrainBorderColor: true,
+        scale: 0.075,
+      }) as { props: { viewBox: string } }
+      const [viewX, viewY, viewWidth, viewHeight] = shape.props.viewBox
+        .split(' ')
+        .map(Number)
+      const viewRight = viewX + viewWidth
+      const viewBottom = viewY + viewHeight
+
+      for (const point of getShapePolygonPoints(entry)) {
+        expect(point.x).toBeGreaterThanOrEqual(viewX)
+        expect(point.x).toBeLessThanOrEqual(viewRight)
+        expect(point.y).toBeGreaterThanOrEqual(viewY)
+        expect(point.y).toBeLessThanOrEqual(viewBottom)
+      }
     }
   })
 

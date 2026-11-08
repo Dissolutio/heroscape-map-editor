@@ -10,6 +10,7 @@ import {
   Vector2,
   Vector3,
 } from 'three'
+import { piecesSoFar } from '../data/pieces'
 import { getLaurAddonFeaturePoint } from '../data/laurAddonPlacement'
 import { getPieceIDForPenMode } from '../data/flatPieceSizes'
 import { resolveRotationPivot } from '../data/rotationPivot'
@@ -424,6 +425,14 @@ function TestBridgeInner() {
         })
         return uids
       },
+      listRenderedGlyphUIDs: () => {
+        const uids: string[] = []
+        get().scene.traverse((object) => {
+          const uid = object.userData.glyphPieceUID
+          if (typeof uid === 'string') uids.push(uid)
+        })
+        return uids
+      },
       getRenderedObjectiveMarkerTextQuaternion: (uid) => {
         let quaternion: [number, number, number, number] | null = null
         get().scene.traverse((object) => {
@@ -607,6 +616,16 @@ function TestBridgeInner() {
         if (rotation !== undefined) {
           store.togglePenModeRotation(rotation)
         }
+      },
+      paintPiece: (inventoryID, coords, altitude, rotation = 0) => {
+        const piece = piecesSoFar[inventoryID]
+        if (!piece) return false
+        return !useBoundStore.getState().paintTile({
+          piece,
+          clickedHexCoords: coords,
+          altitude,
+          rotation,
+        })
       },
       setLookBackgroundColor: (color) =>
         useBoundStore.getState().setLookSettings({ backgroundColor: color }),

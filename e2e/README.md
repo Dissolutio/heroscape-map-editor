@@ -134,9 +134,11 @@ The canvas is invisible to accessibility snapshots, so read state in text:
   marker text is billboarded, its world-space bounds, and the marker face's
   highest world-space point.
 
-The bridge is read-only apart from the camera and the setup-only `setPen`
-helper. Drive the app through its real UI, hotkeys and canvas clicks, as a user
-would. `setPen(penMode, size, rotation?)` is for preparing a preview test;
+The bridge is read-only apart from the camera and setup-only `setPen` and
+`paintPiece` helpers. Drive the app through its real UI, hotkeys and canvas
+clicks, as a user would. `setPen(penMode, size, rotation?)` prepares a preview
+test. `paintPiece(inventoryID, coords, altitude, rotation?)` invokes the real
+paint action for cases where an existing model occludes the target hex.
 `hoverHex` in `e2e/fixtures.ts` moves the mouse to the projected hex position.
 
 ## Clicking the canvas
@@ -231,14 +233,16 @@ loads cleanly, so format drift fails in `npm test` rather than in the browser.
 | Group rotation around a clicked footprint hex | `e2e/group-rotate-pivot.spec.ts` |
 | Single-piece rotation around a clicked footprint hex | `e2e/single-rotate-pivot.spec.ts` |
 | Deleting unrelated water beside a permissively overlapped Ship Wall and reloading its share link | `e2e/conflicted-delete.spec.ts` |
+| Ship Wall symbols remain in the 2D view after a water tile takes their origin hex | `e2e/origin-symbol-overlap.spec.ts` |
 | Empty-hex deselection, pen placement, and camera-drag selection safety | `e2e/empty-hex-selection.spec.ts` |
 | Right-click selection actions, keyboard dismissal, camera drag safety, and graphics-tier coverage | `e2e/selection-context-menu.spec.ts` |
 | Hiding placed start zones in the 3D view | `e2e/start-zone-visibility.spec.ts` |
+| Hiding glyphs in 3D while preserving SVG downloads | `e2e/glyph-visibility.spec.ts` |
 | Objective-marker 3D rendering, flat/optional camera-facing text, preview text, visibility, selection, and shadow invalidation | `e2e/objective-markers.spec.ts` |
 | Objective-marker placement, editing, rotation, drag, deletion, undo, unit-name suggestions, and saved-file name round trips | `e2e/objective-marker-editing.spec.ts` |
 | Selection clearing on placement-pen hotkeys, preview rotation, and action-log recall | `e2e/action-log.spec.ts` |
 | Collection inventory gating, missing-terrain rows, conditional ranked substitutes, naming/cancel, metadata persistence, buried fill, leftovers, and one-step undo | `e2e/adapt-to-collection.spec.ts` |
-| OHS-friendly glyph space export options | `e2e/glyph-export-options.spec.ts` |
+| Opaque glyph SVG fills and hide-heights export option | `e2e/glyph-export-options.spec.ts` |
 | Legend viewing step, Illustrator-safe level/legend SVGs, ZIP and layered whole-map downloads, and PDF downloads with both border modes | `e2e/svg-piece-key.spec.ts` |
 | View tooltips, 3D/2D/PDF navbar switching, camera visibility, map inventory pen selection, Pieces Grid filter persistence, map shrink safety, and new-map author details | `e2e/ui-polish.spec.ts` |
 | Per-hex land pixels, diffuse textures, tier changes, and lights toggles | `e2e/per-hex-land.spec.ts` |

@@ -1,5 +1,11 @@
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
+import { Pieces } from '../types'
 import { hexUtilsHexToPixel } from '../utils/map-utils'
+import {
+  getLadderSvgPolygonPoints,
+  getShipBowSvgPolygonPoints,
+  getShipWallSvgPolygonPoints,
+} from './hexPolygonPoints'
 import { getLaurAddonExportSymbol } from './laurAddonExportSymbol'
 import type {
   PieceKeyEntry,
@@ -9,19 +15,11 @@ import type {
 
 export const getPieceKeyShapeLayout = (entry: PieceKeyEntry) => {
   const origin = hexUtilsHexToPixel(entry.piece.pieceCoords)
-  const angle = -((entry.piece.rotation % 6) * 60)
-  const radians = (angle * Math.PI) / 180
-  const rotate = (x: number, y: number) => ({
-    x: x * Math.cos(radians) - y * Math.sin(radians),
-    y: x * Math.sin(radians) + y * Math.cos(radians),
-  })
   const positions = entry.hexes.map((hex) => {
     const pixel = hexUtilsHexToPixel(hex)
-    const dx = pixel.x - origin.x
-    const dy = pixel.y - origin.y
-    return rotate(dx, dy)
+    return { x: pixel.x - origin.x, y: pixel.y - origin.y }
   })
-  const bounds = positions.length
+  const footprintBounds = positions.length
     ? positions.flatMap(({ x, y }) => [
         { x: x - SVG_HEX_RADIUS, y: y - SVG_HEX_RADIUS },
         { x: x + SVG_HEX_RADIUS, y: y + SVG_HEX_RADIUS },
@@ -39,12 +37,55 @@ export const getPieceKeyShapeLayout = (entry: PieceKeyEntry) => {
                 : SVG_HEX_RADIUS
         const halfHeight = laurSymbol ? SVG_HEX_RADIUS / 2 : SVG_HEX_RADIUS
         return [
-          rotate(minX, -halfHeight),
-          rotate(maxX, -halfHeight),
-          rotate(maxX, halfHeight),
-          rotate(minX, halfHeight),
+          { x: minX, y: -halfHeight },
+          { x: maxX, y: -halfHeight },
+          { x: maxX, y: halfHeight },
+          { x: minX, y: halfHeight },
         ]
       })()
+  const symbolBounds =
+    entry.inventoryID === Pieces.ladder
+      ? getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0).corners
+      : entry.inventoryID === Pieces.shipWall
+        ? getShipWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
+        : entry.inventoryID === Pieces.shipBow
+          ? getShipBowSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
+          : entry.inventoryID === Pieces.ropeLadder
+            ? (() => {
+                const iconRadius = SVG_HEX_RADIUS * 0.4
+                const arrowWidth = (iconRadius * 2) / 1.3
+                const arrowHalfHeight = (arrowWidth * 7) / 24
+                const x = SVG_HEX_APOTHEM
+                const scale = 2
+                return [
+                  {
+                    x: scale * (x - iconRadius),
+                    y: -scale * iconRadius,
+                  },
+                  {
+                    x: scale * (x + iconRadius),
+                    y: scale * iconRadius,
+                  },
+                  {
+                    x: scale * (x - arrowWidth / 2),
+                    y: scale * (-17 - arrowHalfHeight),
+                  },
+                  {
+                    x: scale * (x + arrowWidth / 2),
+                    y: scale * (-17 + arrowHalfHeight),
+                  },
+                  {
+                    x: scale * (x - arrowWidth / 2),
+                    y: scale * (15 - arrowHalfHeight),
+                  },
+                  {
+                    x: scale * (x + arrowWidth / 2),
+                    y: scale * (15 + arrowHalfHeight),
+                  },
+                ]
+              })()
+            : []
+  const bounds = [...footprintBounds, ...symbolBounds]
   const minX = Math.min(...bounds.map(({ x }) => x))
   const maxX = Math.max(...bounds.map(({ x }) => x))
   const minY = Math.min(...bounds.map(({ y }) => y))
@@ -52,8 +93,9 @@ export const getPieceKeyShapeLayout = (entry: PieceKeyEntry) => {
 
   return {
     origin,
-    angle,
     center: { x: (minX + maxX) / 2, y: (minY + maxY) / 2 },
+    minX,
+    minY,
     width: maxX - minX,
     height: maxY - minY,
   }
