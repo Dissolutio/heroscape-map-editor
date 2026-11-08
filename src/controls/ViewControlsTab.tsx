@@ -860,7 +860,7 @@ const ViewPreferencesSwitchForm = () => {
               }
             />
           }
-          label="Marker numbers face the camera"
+          label="Objective text follow camera"
           title="Turns objective marker numbers to face the camera in 3D. 2D and PDF exports are not affected."
         />
         <FormControlLabel

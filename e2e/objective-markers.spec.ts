@@ -165,7 +165,7 @@ test('renders, selects, and excludes objective markers from shadows', async ({
 
   await page.locator('#simple-tab-3').click()
   const faceCameraSwitch = page.getByRole('checkbox', {
-    name: 'Marker numbers face the camera',
+    name: 'Objective text follow camera',
   })
   await expect(faceCameraSwitch).not.toBeChecked()
   const initialTextQuaternion = await page.evaluate(
