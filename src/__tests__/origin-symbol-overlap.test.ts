@@ -71,11 +71,11 @@ const renderExpectedSvgOrigin = (hex: BoardHex, viewingLevel = altitude) =>
     }),
   )
 
-const renderExpectedPdfOrigin = (hex: BoardHex) =>
+const renderExpectedPdfOrigin = (hex: BoardHex, viewingLevel = altitude) =>
   renderToStaticMarkup(
     PdfMapHex({
       hex,
-      viewingLevel: altitude,
+      viewingLevel,
       isOverlayViewing: false,
       isPdfColorBorders: false,
       isShowPdfOverlayOnPlacedLevel: false,
@@ -151,6 +151,108 @@ describe('origin-anchored SVG and PDF symbols', () => {
       expect(pdf).toContain(expectedRotation)
     },
   )
+
+  it('keeps a castle wall on its base at the stored level when its origin is overwritten', () => {
+    const wall: BoardPiece = {
+      uid: 'castle-wall-on-base',
+      inventoryID: Pieces.castleWallStraight,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 0, r: 0, s: 0 },
+    }
+    const water: BoardPiece = {
+      uid: 'water-on-castle-base',
+      inventoryID: Pieces.water1,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: wall.pieceCoords,
+    }
+    const waterHex: BoardHex = {
+      id: '0~0~0',
+      ...wall.pieceCoords,
+      altitude: 0,
+      pieceID: genPieceID('0~0~0', water.inventoryID, 0),
+      boardPieceUID: water.uid,
+      inventoryID: water.inventoryID,
+      terrain: HexTerrain.water,
+      pieceRotation: 0,
+      isObstacleOrigin: true,
+    }
+    const wallSecondaryHex: BoardHex = {
+      id: '0~1~0',
+      q: 1,
+      r: 0,
+      s: -1,
+      altitude: 0,
+      pieceID: genPieceID('0~1~0', wall.inventoryID, 0),
+      boardPieceUID: wall.uid,
+      inventoryID: wall.inventoryID,
+      terrain: piecesSoFar[wall.inventoryID].terrain,
+      pieceRotation: 0,
+      isObstacleAuxiliary: true,
+    }
+    const originHex: BoardHex = {
+      ...waterHex,
+      pieceID: genPieceID('0~0~0', wall.inventoryID, 0),
+      boardPieceUID: wall.uid,
+      inventoryID: wall.inventoryID,
+      terrain: piecesSoFar[wall.inventoryID].terrain,
+      isObstacleOrigin: true,
+    }
+
+    const state = {
+      ...useBoundStore.getState(),
+      boardHexes: {
+        [waterHex.id]: waterHex,
+        [wallSecondaryHex.id]: wallSecondaryHex,
+      },
+      boardPieces: [wall, water],
+      viewingLevel: 0,
+      is2DOverlayLevelEnabled: false,
+      isShow2DExportBuriedMarks: false,
+      isShow2DExportTileLetters: false,
+      isShowPdfPieceLegend: false,
+      isHideHeightsOnGlyphs: false,
+    }
+    useBoundStore.setState(state)
+    Object.assign(useBoundStore.getInitialState(), state)
+
+    const svg = renderToStaticMarkup(createElement(SvgMapDisplay))
+    const pdf = renderToStaticMarkup(
+      createElement(ReactPdfSvgMapDisplay, {
+        width: SVG_HEX_RADIUS * 4,
+        length: SVG_HEX_RADIUS * 4,
+        boardHexesArr: [waterHex, wallSecondaryHex],
+        boardPiecesArr: [
+          {
+            boardPieceID: wall.uid,
+            inventoryID: wall.inventoryID,
+            altitude: wall.altitude,
+            rotation: wall.rotation,
+            boardHexID: '0~0~0',
+            pieceCoords: wall.pieceCoords,
+            terrain: piecesSoFar[wall.inventoryID].terrain,
+          },
+        ],
+        viewingLevel: 0,
+        overlayLevel: 1,
+        isPdfColorBorders: false,
+        isShowPdfOverlayOnPlacedLevel: false,
+        isShowGridLinesOverSublevels: false,
+        isShowPdfTileLetters: false,
+        isShowPdfBuriedMarks: false,
+        buriedMarksByUID: emptyBuriedMarks,
+        useLegacyStartZones: false,
+        is2DOverlayLevelEnabled: false,
+        objectiveMarkers: [],
+        glyphCoordinates: new Set<string>(),
+        glyphExportSettings: { isHideHeightsOnGlyphs: false },
+      }),
+    )
+
+    expect(svg).toContain(renderExpectedSvgOrigin(originHex, 0))
+    expect(pdf).toContain(renderExpectedPdfOrigin(originHex, 0))
+  })
 
   it('renders each registry-backed origin symbol once at its own level', () => {
     const boardPieceOnlyTerrains = new Set([

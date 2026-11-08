@@ -41,7 +41,14 @@ export const getBoardPieceOriginHexes = (
           hex.r === piece.pieceCoords.r &&
           hex.s === piece.pieceCoords.s,
       )
-    const altitude = sourceHex?.altitude ?? piece.altitude + 1
+    const sourcePieceHex = hexes.find(
+      (hex) =>
+        hex.boardPieceUID === piece.boardPieceID &&
+        !hex.isVerticalClearanceHex &&
+        (hex.isObstacleOrigin || hex.isObstacleAuxiliary),
+    )
+    const altitude =
+      sourceHex?.altitude ?? sourcePieceHex?.altitude ?? piece.altitude + 1
     const id =
       sourceHex?.id ??
       `${altitude}~${piece.pieceCoords.q}~${piece.pieceCoords.r}`
