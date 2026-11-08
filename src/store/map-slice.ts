@@ -35,6 +35,7 @@ import {
 } from '../data/selectionUnits'
 import {
   filterVisiblePieceIDs,
+  isGlyphBoardPiece,
   isStartZoneBoardPiece,
 } from '../data/startZoneVisibility'
 import { filterVisibleObjectiveMarkerUIDs } from '../data/objectiveMarkerVisibility'
@@ -882,18 +883,19 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
     const result = set((state) => {
       return produce(state, (draft) => {
         const piecesBeforeLoad = draft.boardPieces
-        if (!draft.isShowStartZones) {
+        if (!draft.isShowStartZones || !draft.isShowGlyphs) {
           draft.selectedPieceIDs = filterVisiblePieceIDs(
             draft.selectedPieceIDs,
             [...piecesBeforeLoad, ...mapState.boardPieces],
-            false,
+            draft.isShowStartZones,
+            draft.isShowGlyphs,
+          )
+          const hoveredPiece = piecesBeforeLoad.find(
+            (piece) => piece.uid === draft.hoveredPieceID,
           )
           if (
-            isStartZoneBoardPiece(
-              piecesBeforeLoad.find(
-                (piece) => piece.uid === draft.hoveredPieceID,
-              ),
-            )
+            (!draft.isShowStartZones && isStartZoneBoardPiece(hoveredPiece)) ||
+            (!draft.isShowGlyphs && isGlyphBoardPiece(hoveredPiece))
           ) {
             draft.hoveredPieceID = ''
           }
@@ -991,6 +993,7 @@ const createMapSlice: StateCreator<AppState, [], [], MapSlice> = (
         [...pieceUIDs],
         state.boardPieces,
         state.isShowStartZones,
+        state.isShowGlyphs,
       ),
     )
     const objectiveMarkers = state.hexMap.objectiveMarkers ?? []

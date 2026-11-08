@@ -354,11 +354,9 @@ export const PdfMultiHex1 = ({
 const pdfGlyphProps = ({
   terrain,
   isSubLevel,
-  isTransparent,
 }: {
   terrain: HexTerrain
   isSubLevel?: boolean
-  isTransparent?: boolean
 }) => {
   const fillColor = isSubLevel ? svgSubLevelColors[terrain] : svgColors[terrain]
   const borderColor = isSubLevel
@@ -371,7 +369,7 @@ const pdfGlyphProps = ({
   return (
     <Polygon
       points={points}
-      fill={isTransparent ? 'none' : fillColor}
+      fill={fillColor}
       stroke={borderColor}
       strokeWidth={PDF_BORDER_WIDTH}
     />
@@ -380,28 +378,22 @@ const pdfGlyphProps = ({
 
 export const PdfGlyphTreasure = ({
   isSubLevel,
-  isTransparent,
 }: {
   isSubLevel?: boolean
-  isTransparent?: boolean
 }) =>
   pdfGlyphProps({
     terrain: HexTerrain.glyphTreasure,
     isSubLevel,
-    isTransparent,
   })
 
 export const PdfGlyphPower = ({
   isSubLevel,
-  isTransparent,
 }: {
   isSubLevel?: boolean
-  isTransparent?: boolean
 }) =>
   pdfGlyphProps({
     terrain: HexTerrain.glyphPower,
     isSubLevel,
-    isTransparent,
   })
 export const PdfMultiHex2 = ({
   hex,

@@ -24,8 +24,6 @@ const originalServerState = {
     useBoundStore.getInitialState().isShow2DExportTileLetters,
   isShowPdfPieceLegend: useBoundStore.getInitialState().isShowPdfPieceLegend,
   isHideHeightsOnGlyphs: useBoundStore.getInitialState().isHideHeightsOnGlyphs,
-  isTransparentGlyphSpaces:
-    useBoundStore.getInitialState().isTransparentGlyphSpaces,
 }
 
 afterEach(() => {
@@ -38,7 +36,6 @@ afterEach(() => {
     isShow2DExportTileLetters: originalState.isShow2DExportTileLetters,
     isShowPdfPieceLegend: originalState.isShowPdfPieceLegend,
     isHideHeightsOnGlyphs: originalState.isHideHeightsOnGlyphs,
-    isTransparentGlyphSpaces: originalState.isTransparentGlyphSpaces,
   }
   useBoundStore.setState(restored)
   Object.assign(useBoundStore.getInitialState(), originalServerState)
@@ -114,7 +111,6 @@ describe('SVG map render markup', () => {
         isShow2DExportTileLetters: false,
         isShowPdfPieceLegend: true,
         isHideHeightsOnGlyphs: true,
-        isTransparentGlyphSpaces: true,
       }
       useBoundStore.setState(state)
       Object.assign(useBoundStore.getInitialState(), state)

@@ -76,9 +76,6 @@ const SvgMapDisplay = ({
   const is2DOverlayLevelEnabled = overlayEnabledOverride ?? storeOverlayEnabled
   const isShowPieceKey = useBoundStore((s) => s.isShowPdfPieceLegend)
   const useTerrainBorderColor = useBoundStore((s) => s.isPdfColorBorders)
-  const isTransparentGlyphSpaces = useBoundStore(
-    (s) => s.isTransparentGlyphSpaces,
-  )
   const isHideHeightsOnGlyphs = useBoundStore((s) => s.isHideHeightsOnGlyphs)
   const genericSolidCapColor = useBoundStore((s) => s.genericSolidCapColor)
   const genericFluidCapColor = useBoundStore((s) => s.genericFluidCapColor)
@@ -88,8 +85,8 @@ const SvgMapDisplay = ({
     [boardHexes],
   )
   const glyphExportSettings = useMemo<GlyphExportSettings>(
-    () => ({ isTransparentGlyphSpaces, isHideHeightsOnGlyphs }),
-    [isTransparentGlyphSpaces, isHideHeightsOnGlyphs],
+    () => ({ isHideHeightsOnGlyphs }),
+    [isHideHeightsOnGlyphs],
   )
   const shapeSettings = useMemo<SvgMapShapeSettings>(
     () => ({

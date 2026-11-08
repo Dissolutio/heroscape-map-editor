@@ -333,7 +333,6 @@ export function PdfPieceLegend({ boardPieces }: { boardPieces: BoardPiece[] }) {
   const settings = useBoundStore.getState()
   const glyphCoordinates = makeGlyphCoordinateLookup(settings.boardHexes)
   const glyphExportSettings: GlyphExportSettings = {
-    isTransparentGlyphSpaces: settings.isTransparentGlyphSpaces,
     isHideHeightsOnGlyphs: settings.isHideHeightsOnGlyphs,
   }
   const model = getPieceKeyModel(

@@ -44,6 +44,7 @@ export function GlyphModel({
   const color = isHighlighted ? yellowColor : glyphColor
   return (
     <group
+      userData={{ glyphPieceUID: pid }}
       onPointerUp={(e) => onPointerUp(e)}
       onPointerEnter={(e) => onPointerEnterPID(e, pid)}
       onPointerOut={(e) => onPointerOut(e)}

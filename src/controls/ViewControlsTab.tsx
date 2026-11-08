@@ -57,8 +57,6 @@ const GENERIC_PIECE_COLORS_TOOLTIP =
   'Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D.'
 const BURIED_MARKS_TOOLTIP =
   '* = the top of this tile will be covered. † = its sides will be covered. Both = fully hidden, so any piece of the same size and kind (solid for solid, fluid for fluid) works.'
-const TRANSPARENT_GLYPHS_TOOLTIP =
-  'Show glyph spaces transparently in SVG and PDF, preserving outlines and symbols.'
 const HIDE_GLYPH_HEIGHTS_TOOLTIP =
   'Hide hex heights at glyph spaces in SVG and PDF.'
 const PICTURE_CAPTURE_TOOLTIP_COPY = {
@@ -459,48 +457,26 @@ export default function ViewControlsTab({
 }
 
 const GlyphExportOptions = () => {
-  const isTransparentGlyphSpaces = useBoundStore(
-    (s) => s.isTransparentGlyphSpaces,
-  )
-  const toggleIsTransparentGlyphSpaces = useBoundStore(
-    (s) => s.toggleIsTransparentGlyphSpaces,
-  )
   const isHideHeightsOnGlyphs = useBoundStore((s) => s.isHideHeightsOnGlyphs)
   const toggleIsHideHeightsOnGlyphs = useBoundStore(
     (s) => s.toggleIsHideHeightsOnGlyphs,
   )
 
   return (
-    <>
-      <Tooltip title={TRANSPARENT_GLYPHS_TOOLTIP} describeChild>
-        <FormControlLabel
-          control={
-            <Switch
-              size="small"
-              checked={isTransparentGlyphSpaces}
-              onChange={(event) =>
-                toggleIsTransparentGlyphSpaces(event.target.checked)
-              }
-            />
-          }
-          label="Transparent glyph spaces"
-        />
-      </Tooltip>
-      <Tooltip title={HIDE_GLYPH_HEIGHTS_TOOLTIP} describeChild>
-        <FormControlLabel
-          control={
-            <Switch
-              size="small"
-              checked={isHideHeightsOnGlyphs}
-              onChange={(event) =>
-                toggleIsHideHeightsOnGlyphs(event.target.checked)
-              }
-            />
-          }
-          label="Hide heights on glyphs"
-        />
-      </Tooltip>
-    </>
+    <Tooltip title={HIDE_GLYPH_HEIGHTS_TOOLTIP} describeChild>
+      <FormControlLabel
+        control={
+          <Switch
+            size="small"
+            checked={isHideHeightsOnGlyphs}
+            onChange={(event) =>
+              toggleIsHideHeightsOnGlyphs(event.target.checked)
+            }
+          />
+        }
+        label="Hide heights on glyphs"
+      />
+    </Tooltip>
   )
 }
 
@@ -636,6 +612,8 @@ const ViewPreferencesSwitchForm = () => {
   )
   const isShowStartZones = useBoundStore((s) => s.isShowStartZones)
   const toggleIsShowStartZones = useBoundStore((s) => s.toggleIsShowStartZones)
+  const isShowGlyphs = useBoundStore((s) => s.isShowGlyphs)
+  const toggleIsShowGlyphs = useBoundStore((s) => s.toggleIsShowGlyphs)
   const isShowObjectiveMarkers = useBoundStore((s) => s.isShowObjectiveMarkers)
   const toggleIsShowObjectiveMarkers = useBoundStore(
     (s) => s.toggleIsShowObjectiveMarkers,
@@ -660,6 +638,8 @@ const ViewPreferencesSwitchForm = () => {
   }
   const showStartZonesTooltip =
     'Hides start zones in the 3D view only. 2D and PDF exports are not affected. Turns back on every time you open the app.'
+  const showGlyphsTooltip =
+    'Hides glyphs in the 3D view only. 2D and PDF exports are not affected. Turns back on every time you open the app.'
   const showObjectiveMarkersTooltip =
     'Hides objective markers in the 3D view only. 2D and PDF exports are not affected. Turns back on every time you open the app.'
   // const isFrameloopDemand = useBoundStore((s) => s.isFrameloopDemand)
@@ -835,6 +815,18 @@ const ViewPreferencesSwitchForm = () => {
           }
           label="Show Start Zones"
           title={showStartZonesTooltip}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              checked={isShowGlyphs}
+              onChange={(event) => toggleIsShowGlyphs(event.target.checked)}
+              title={showGlyphsTooltip}
+            />
+          }
+          label="Show Glyphs"
+          title={showGlyphsTooltip}
         />
         <FormControlLabel
           control={

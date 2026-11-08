@@ -15,7 +15,7 @@ const glyphMapURL = mapUrl(FIXTURE_HEX_MAP, [
   `0~1~2~0~${Pieces.outcrop1}`,
 ])
 
-test('glyph export options update the SVG view', async ({ page }) => {
+test('glyphs remain opaque in SVG exports', async ({ page }) => {
   await page.goto(glyphMapURL)
   await waitForAppReady(page)
   await page.locator('#simple-tab-3').click()
@@ -45,20 +45,6 @@ test('glyph export options update the SVG view', async ({ page }) => {
     .toBe(true)
   const before = await getGlyphAttributes()
   expect(before.fills[0]).not.toBe('none')
-  await saveLocatorEvidence(svg, 'glyph-spaces-before')
-
-  const transparentGlyphs = page.getByRole('checkbox', {
-    name: 'Transparent glyph spaces',
-  })
-  await transparentGlyphs.hover()
-  await expect(page.getByRole('tooltip')).toHaveText(
-    'Show glyph spaces transparently in SVG and PDF, preserving outlines and symbols.',
-  )
-  await transparentGlyphs.check()
-  await expect.poll(getGlyphAttributes).toEqual({
-    fills: ['none', before.fills[1]],
-    symbol: '?',
-  })
 
   await page.mouse.move(0, 0)
   await expect(page.getByRole('tooltip')).toHaveCount(0)
@@ -74,5 +60,6 @@ test('glyph export options update the SVG view', async ({ page }) => {
     .poll(async () => (await getSvgText()).includes(height))
     .toBe(true)
   await expect(glyphSymbol).toHaveText('?')
-  await saveLocatorEvidence(svg, 'glyph-spaces-after')
+  await expect.poll(getGlyphAttributes).toEqual(before)
+  await saveLocatorEvidence(svg, 'glyph-export')
 })

@@ -22,7 +22,10 @@ import {
   resolvePlacement,
 } from '../data/placement.ts'
 import getPieceTemplateCoords from '../data/rotationTransforms.ts'
-import { START_ZONES_HIDDEN_MESSAGE } from '../data/startZoneVisibility.ts'
+import {
+  GLYPHS_HIDDEN_MESSAGE,
+  START_ZONES_HIDDEN_MESSAGE,
+} from '../data/startZoneVisibility.ts'
 import { OBJECTIVE_MARKERS_HIDDEN_MESSAGE } from '../data/objectiveMarkerVisibility.ts'
 import {
   RECONCILABLE_LAUR_PIECE_PAIRS,
@@ -397,6 +400,16 @@ export function createMapClickHandler({
       ) {
         enqueueSnackbar({
           message: START_ZONES_HIDDEN_MESSAGE,
+          variant: 'info',
+        })
+      }
+      if (
+        (piece.terrain === HexTerrain.glyphPower ||
+          piece.terrain === HexTerrain.glyphTreasure) &&
+        !useBoundStore.getState().isShowGlyphs
+      ) {
+        enqueueSnackbar({
+          message: GLYPHS_HIDDEN_MESSAGE,
           variant: 'info',
         })
       }

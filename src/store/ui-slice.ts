@@ -22,6 +22,7 @@ import {
 } from '../data/rotationPivot'
 import {
   filterVisiblePieceIDs,
+  isGlyphBoardPiece,
   isStartZoneBoardPiece,
 } from '../data/startZoneVisibility'
 import { blankPieceInventory } from '../inventory/blankInventory'
@@ -84,6 +85,8 @@ export interface UISlice {
   textureLoadProgress: { loaded: number; total: number }
   isShowStartZones: boolean
   toggleIsShowStartZones: (s: boolean) => void
+  isShowGlyphs: boolean
+  toggleIsShowGlyphs: (show: boolean) => void
   isShowObjectiveMarkers: boolean
   toggleIsShowObjectiveMarkers: (show: boolean) => void
   isObjectiveMarkerNumbersFaceCamera: boolean
@@ -239,8 +242,6 @@ export interface UISlice {
   toggleIsShowPDFInventory: (b: boolean) => void
   isPdfColorBorders: boolean
   toggleIsPdfColorBorders: (b: boolean) => void
-  isTransparentGlyphSpaces: boolean
-  toggleIsTransparentGlyphSpaces: (b: boolean) => void
   isHideHeightsOnGlyphs: boolean
   toggleIsHideHeightsOnGlyphs: (b: boolean) => void
   isShowPdfOverlayLayer: boolean
@@ -362,6 +363,7 @@ const createUISlice: StateCreator<
   },
   setRememberedMapAuthor: (name: string) => set({ rememberedMapAuthor: name }),
   isShowStartZones: true,
+  isShowGlyphs: true,
   isShowObjectiveMarkers: true,
   toggleIsObjectiveMarkerNumbersFaceCamera: (show) =>
     set({ isObjectiveMarkerNumbersFaceCamera: show }),
@@ -429,6 +431,17 @@ const createUISlice: StateCreator<
           pieceID &&
           !state.isShowStartZones &&
           isStartZoneBoardPiece(
+            state.boardPieces.find(
+              (candidate: BoardPiece) => candidate.uid === pieceID,
+            ),
+          )
+        ) {
+          return
+        }
+        if (
+          pieceID &&
+          !state.isShowGlyphs &&
+          isGlyphBoardPiece(
             state.boardPieces.find(
               (candidate: BoardPiece) => candidate.uid === pieceID,
             ),
@@ -513,6 +526,7 @@ const createUISlice: StateCreator<
         state.boardHexes,
         state.viewingLevel,
         state.isShowStartZones,
+        state.isShowGlyphs,
       ).map((piece) => piece.uid),
     )
     set(
@@ -535,6 +549,17 @@ const createUISlice: StateCreator<
   toggleHoveredPieceID: (pieceID: string) =>
     set(
       produce((state) => {
+        if (
+          pieceID &&
+          !state.isShowGlyphs &&
+          isGlyphBoardPiece(
+            state.boardPieces.find(
+              (piece: BoardPiece) => piece.uid === pieceID,
+            ),
+          )
+        ) {
+          return
+        }
         state.hoveredPieceID = pieceID
       }),
     ),
@@ -813,6 +838,7 @@ const createUISlice: StateCreator<
             s.selectedPieceIDs,
             s.boardPieces,
             false,
+            s.isShowGlyphs,
           )
           const lastSelectedUID =
             s.selectedPieceIDs[s.selectedPieceIDs.length - 1]
@@ -834,6 +860,52 @@ const createUISlice: StateCreator<
             )
           ) {
             s.hoveredPieceID = ''
+          }
+        }
+      }),
+    ),
+  toggleIsShowGlyphs: (show: boolean) =>
+    set(
+      produce((s) => {
+        s.isShowGlyphs = show
+        if (!show) {
+          s.selectedPieceIDs = filterVisiblePieceIDs(
+            s.selectedPieceIDs,
+            s.boardPieces,
+            s.isShowStartZones,
+            false,
+          )
+          const lastSelectedUID =
+            s.selectedPieceIDs[s.selectedPieceIDs.length - 1]
+          const pivotPiece = s.boardPieces.find(
+            (piece: BoardPiece) => piece.uid === s.rotationPivot?.uid,
+          )
+          if (
+            s.rotationPivot &&
+            (s.rotationPivot.uid !== lastSelectedUID ||
+              isGlyphBoardPiece(pivotPiece))
+          ) {
+            s.rotationPivot = null
+          }
+          if (
+            isGlyphBoardPiece(
+              s.boardPieces.find(
+                (piece: BoardPiece) => piece.uid === s.hoveredPieceID,
+              ),
+            )
+          ) {
+            s.hoveredPieceID = ''
+          }
+          if (
+            isGlyphBoardPiece(
+              s.boardPieces.find(
+                (piece: BoardPiece) =>
+                  piece.uid === s.hoveredHex?.boardPieceUID,
+              ),
+            )
+          ) {
+            s.hoveredHex = undefined
+            s.hoveredWorldPoint = undefined
           }
         }
       }),
@@ -871,12 +943,6 @@ const createUISlice: StateCreator<
     set(
       produce((s) => {
         s.isPdfColorBorders = b
-      }),
-    ),
-  toggleIsTransparentGlyphSpaces: (b: boolean) =>
-    set(
-      produce((s) => {
-        s.isTransparentGlyphSpaces = b
       }),
     ),
   toggleIsHideHeightsOnGlyphs: (b: boolean) =>

@@ -4,7 +4,10 @@ import {
 } from '../data/hexGrid/pieceFeatures'
 import { edgeIdFromHex, hexesForEdge } from '../data/hexGrid/edgesAndNodes'
 import { piecesSoFar } from '../data/pieces'
-import { isStartZoneBoardPiece } from '../data/startZoneVisibility'
+import {
+  isGlyphBoardPiece,
+  isStartZoneBoardPiece,
+} from '../data/startZoneVisibility'
 import {
   HexTerrain,
   Pieces,
@@ -70,6 +73,7 @@ export type SelectionMenuContext = {
   boardHexes: BoardHexes
   viewingLevel: number
   isShowStartZones: boolean
+  isShowGlyphs: boolean
   setSelectedPieceIDs: (pieceIDs: readonly string[]) => void
 }
 
@@ -94,11 +98,16 @@ export function getVisibleSelectionPieces(
   boardHexes: BoardHexes,
   viewingLevel: number,
   isShowStartZones: boolean,
+  isShowGlyphs = true,
 ) {
   const surfaceAltitudeByUID = getSurfaceAltitudeByPieceUID(boardHexes)
   return boardPieces.filter((piece) => {
     const definition = piecesSoFar[piece.inventoryID]
-    if (!definition || (!isShowStartZones && isStartZoneBoardPiece(piece))) {
+    if (
+      !definition ||
+      (!isShowStartZones && isStartZoneBoardPiece(piece)) ||
+      (!isShowGlyphs && isGlyphBoardPiece(piece))
+    ) {
       return false
     }
     const isLand =
@@ -118,6 +127,7 @@ function getVisibleSeeds(ctx: SelectionMenuContext) {
       ctx.boardHexes,
       ctx.viewingLevel,
       ctx.isShowStartZones,
+      ctx.isShowGlyphs,
     ).map((piece) => piece.uid),
   )
   return ctx.seedPieceIDs.filter((uid) => visibleIDs.has(uid))
@@ -129,6 +139,7 @@ export function selectSameType(ctx: SelectionMenuContext) {
     ctx.boardHexes,
     ctx.viewingLevel,
     ctx.isShowStartZones,
+    ctx.isShowGlyphs,
   )
   const piecesByUID = new Map(visiblePieces.map((piece) => [piece.uid, piece]))
   const typeKeys = new Set(
@@ -160,6 +171,7 @@ export function selectSameLevel(ctx: SelectionMenuContext) {
     ctx.boardHexes,
     ctx.viewingLevel,
     ctx.isShowStartZones,
+    ctx.isShowGlyphs,
   )
   const visibleIDs = new Set(visiblePieces.map((piece) => piece.uid))
   const seedIDs = new Set(getVisibleSeeds(ctx))
@@ -180,6 +192,7 @@ export function invertSelection(ctx: SelectionMenuContext) {
     ctx.boardHexes,
     ctx.viewingLevel,
     ctx.isShowStartZones,
+    ctx.isShowGlyphs,
   )
     .filter((piece) => !selectedIDs.has(piece.uid))
     .map((piece) => piece.uid)
@@ -345,6 +358,7 @@ export function selectConnected(ctx: SelectionMenuContext) {
     ctx.boardHexes,
     ctx.viewingLevel,
     ctx.isShowStartZones,
+    ctx.isShowGlyphs,
   )
   const neighbors = buildPieceNeighbors(visiblePieces, ctx.boardHexes)
   const connected = new Set<string>()
@@ -415,6 +429,7 @@ export const selectionMenuActions: SelectionMenuAction[] = [
         ctx.boardHexes,
         ctx.viewingLevel,
         ctx.isShowStartZones,
+        ctx.isShowGlyphs,
       ).length > 0,
     disabledReason: () => 'There are no visible pieces to select.',
     run: (ctx) => ctx.setSelectedPieceIDs(invertSelection(ctx)),

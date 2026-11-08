@@ -91,7 +91,6 @@ describe('settings persistence', () => {
       isShowPdfBuriedMarks: true,
       isShowPdfPieceLegend: true,
       isShow2DExportBuriedMarks: true,
-      isTransparentGlyphSpaces: true,
       isHideHeightsOnGlyphs: true,
       lightPositions: { key: [1, 2, 3] as [number, number, number] },
       genericSolidCapColor: '#123456',
@@ -119,7 +118,6 @@ describe('settings persistence', () => {
         isShowPdfBuriedMarks: true,
         isShowPdfPieceLegend: true,
         isShow2DExportBuriedMarks: true,
-        isTransparentGlyphSpaces: true,
         isHideHeightsOnGlyphs: true,
         lightPositions: { key: [1, 2, 3] },
         genericSolidCapColor: '#123456',
@@ -143,6 +141,17 @@ describe('settings persistence', () => {
 
     expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
     expect(values.get(LS_KEYS.settings)).toBe(staleSettings)
+  })
+
+  it('ignores the retired transparent-glyph-spaces setting', () => {
+    const staleSettings = JSON.stringify({
+      v: 1,
+      values: { isTransparentGlyphSpaces: true },
+    })
+    storage.setItem(LS_KEYS.settings, staleSettings)
+
+    expect(loadSettings()).toEqual(SETTINGS_DEFAULTS)
+    expect(loadSettings()).not.toHaveProperty('isTransparentGlyphSpaces')
   })
 
   it('ignores the retired high-quality render setting', () => {
@@ -301,7 +310,6 @@ describe('settings persistence', () => {
           graphicsTier: 'fast',
           isShowPdfBuriedMarks: 'yes',
           isShow2DExportBuriedMarks: 1,
-          isTransparentGlyphSpaces: 'yes',
           isHideHeightsOnGlyphs: 1,
           pdfRenderFormat: 'invalid',
           terrainConstraintSource: 'invalid',
@@ -323,7 +331,6 @@ describe('settings persistence', () => {
 
     expect(loadSettings()).toMatchObject({
       isOrthoCam: false,
-      isTransparentGlyphSpaces: SETTINGS_DEFAULTS.isTransparentGlyphSpaces,
       isHideHeightsOnGlyphs: SETTINGS_DEFAULTS.isHideHeightsOnGlyphs,
       pdfRenderFormat: SETTINGS_DEFAULTS.pdfRenderFormat,
       terrainConstraintSource: SETTINGS_DEFAULTS.terrainConstraintSource,
@@ -482,6 +489,7 @@ describe('settings persistence', () => {
       'pictureCaptureOptions',
       'isCameraDisabled',
       'isShowStartZones',
+      'isShowGlyphs',
       'isShowObjectiveMarkers',
       'is2DOpen',
       'isPdfOpen',

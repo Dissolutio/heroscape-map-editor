@@ -2,6 +2,7 @@ import { useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
 import { getPieceSizeOptionsForPenMode } from '../data/flatPieceSizes'
 import { piecesSoFar } from '../data/pieces'
+import { isGlyphBoardPiece } from '../data/startZoneVisibility'
 import useBoundStore from '../store/store'
 import { type BoardPiece, PICK_PEN_MODE, Pieces } from '../types'
 import { CLICK_DRAG_TOLERANCE_PX } from '../utils/constants'
@@ -37,6 +38,7 @@ export function pickPieceAsPenMode(
   const state = useBoundStore.getState()
   const boardPiece = state.boardPieces.find((bp) => bp.uid === pieceUID)
   if (!boardPiece) return
+  if (!state.isShowGlyphs && isGlyphBoardPiece(boardPiece)) return
   const settings = getPickedPenModeSettings(boardPiece)
   if (!settings) return
 

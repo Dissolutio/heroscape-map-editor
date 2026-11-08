@@ -41,7 +41,6 @@ const initialState = useBoundStore.getState()
 const setExportState = (
   hexes: BoardHex[],
   options: {
-    isTransparentGlyphSpaces?: boolean
     isHideHeightsOnGlyphs?: boolean
   } = {},
 ) => {
@@ -52,7 +51,6 @@ const setExportState = (
     is2DOverlayLevelEnabled: false,
     isShow2DExportTileLetters: false,
     isShow2DExportBuriedMarks: false,
-    isTransparentGlyphSpaces: false,
     isHideHeightsOnGlyphs: false,
     ...options,
   })
@@ -83,7 +81,6 @@ type PdfChildProps = {
   children?: ReactNode
   fill?: string
   isSubLevel?: boolean
-  isTransparent?: boolean
 }
 
 const childElements = (element: ReactElement | null) => {
@@ -107,7 +104,6 @@ afterEach(() => {
     is2DOverlayLevelEnabled: initialState.is2DOverlayLevelEnabled,
     isShow2DExportTileLetters: initialState.isShow2DExportTileLetters,
     isShow2DExportBuriedMarks: initialState.isShow2DExportBuriedMarks,
-    isTransparentGlyphSpaces: initialState.isTransparentGlyphSpaces,
     isHideHeightsOnGlyphs: initialState.isHideHeightsOnGlyphs,
   })
 })
@@ -164,7 +160,7 @@ describe('PDF glyph rendering', () => {
     expect(text.props.fill).toBe(svgColors.glyphText)
   })
 
-  it('preserves transparency and the glyph letter', () => {
+  it('always renders named glyphs with their fill, outline, and letter', () => {
     const namedGlyphEntry = Object.entries(piecesSoFar).find(
       ([, piece]) =>
         piece.terrain === HexTerrain.glyphPower &&
@@ -177,19 +173,13 @@ describe('PDF glyph rendering', () => {
     const [inventoryID, piece] = namedGlyphEntry
     const namedGlyph = makeHex(inventoryID, HexTerrain.glyphPower, 0)
     setExportState([namedGlyph])
-    const normalChildren = childElements(renderPdfHex(namedGlyph))
-    const normalPolygon = polygonForHex(namedGlyph, normalChildren[0])
+    const children = childElements(renderPdfHex(namedGlyph))
+    const polygon = polygonForHex(namedGlyph, children[0])
 
-    setExportState([namedGlyph], { isTransparentGlyphSpaces: true })
-    const transparentChildren = childElements(renderPdfHex(namedGlyph))
-    const transparentPolygon = polygonForHex(namedGlyph, transparentChildren[0])
-
-    expect(normalPolygon.props.fill).toBe(svgColors.glyphPower)
-    expect(transparentPolygon.props.fill).toBe('none')
-    expect(transparentPolygon.props.stroke).toBe(svgColors.glyphBorder)
-    expect(normalChildren[1].props.children).toBe(piece.glyphLetter)
-    expect(transparentChildren[1].props.children).toBe(piece.glyphLetter)
-    expect(transparentChildren[1].props.fill).toBe(svgColors.glyphText)
+    expect(polygon.props.fill).toBe(svgColors.glyphPower)
+    expect(polygon.props.stroke).toBe(svgColors.glyphBorder)
+    expect(children[1].props.children).toBe(piece.glyphLetter)
+    expect(children[1].props.fill).toBe(svgColors.glyphText)
   })
 
   it('still hides height text under glyph coordinates when enabled', () => {

@@ -33,7 +33,9 @@ import {
 } from '../../data/dragRotation'
 import { piecesSoFar } from '../../data/pieces'
 import {
+  GLYPHS_HIDDEN_MESSAGE,
   START_ZONES_HIDDEN_MESSAGE,
+  isGlyphBoardPiece,
   isStartZoneBoardPiece,
 } from '../../data/startZoneVisibility'
 import {
@@ -356,14 +358,20 @@ export function pressPieceForDrag(
 ) {
   event.stopPropagation()
   if (!uid || event.button !== 0 || state.phase !== 'idle') return
-  const { penMode, selectedPieceIDs, boardPieces, isShowStartZones } =
-    useBoundStore.getState()
+  const {
+    penMode,
+    selectedPieceIDs,
+    boardPieces,
+    isShowStartZones,
+    isShowGlyphs,
+  } = useBoundStore.getState()
   if (penMode !== SELECT_PEN_MODE) return
   const members = getDraggableSelectionGroup(
     selectedPieceIDs,
     uid,
     boardPieces,
     isShowStartZones,
+    isShowGlyphs,
   )
   if (!members) return
   const bp = members.find((piece) => piece.uid === uid)
@@ -550,10 +558,21 @@ export function commitMoveDecision(
       store.boardPieces.find((piece) => piece.uid === move.uid),
     ),
   )
+  const movingGlyph = moves.some((move) =>
+    isGlyphBoardPiece(
+      store.boardPieces.find((piece) => piece.uid === move.uid),
+    ),
+  )
   store.movePieces({ moves })
   if (movingStartZone && !store.isShowStartZones) {
     enqueueSnackbar({
       message: START_ZONES_HIDDEN_MESSAGE,
+      variant: 'info',
+    })
+  }
+  if (movingGlyph && !store.isShowGlyphs) {
+    enqueueSnackbar({
+      message: GLYPHS_HIDDEN_MESSAGE,
       variant: 'info',
     })
   }
