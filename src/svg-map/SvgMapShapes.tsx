@@ -726,9 +726,10 @@ export const SvgHive6 = ({
   useTerrainBorderColor?: boolean
 }) => {
   const fillColor = getSvgHexFillColor(hex)
-  const borderColor = isSubLevel
-    ? getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
-    : getSvgHexBorderColor(hex, useTerrainBorderColor)
+  const borderColor =
+    useTerrainBorderColor || !isSubLevel
+      ? getSvgHexBorderColor(hex, useTerrainBorderColor)
+      : getSvgHexSubLevelBorderColor(hex, useTerrainBorderColor)
   const { points } = get6HexSvgPolygonPointsAt00(SVG_HEX_RADIUS)
   const { points: outlinePoints } = get6HexOutlineSvgPolygonPoints(
     SVG_HEX_RADIUS,

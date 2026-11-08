@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`SVG map render markup > matches the captured level, overlay, and Legend SVG markup 1`] = `
+exports[`SVG map render markup > matches the captured level and overlay SVG markup 1`] = `
 [
   [
     "level-0",

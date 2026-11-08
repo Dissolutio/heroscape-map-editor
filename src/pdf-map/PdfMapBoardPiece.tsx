@@ -42,9 +42,7 @@ export const PdfMapBoardPiece = ({
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
   const isSubLevel = !isPieceKeyPreview && altitudeAdjusted < viewingLevel
-  const useLegendBorderColor = useTerrainBorderColor
-    ? true
-    : 'force-dark'
+  const useLegendBorderColor = useTerrainBorderColor ? true : 'force-dark'
   const { inventoryID } = piece
   const exportSymbol = getPieceExportSymbol(inventoryID)
   const isVisible = isPieceKeyPreview || altitudeAdjusted <= viewingLevel

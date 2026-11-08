@@ -586,11 +586,7 @@ export const PdfMultiHexMarvel6 = ({
     <Polygon
       points={points}
       fill={getPdfHexFillForView(hex, isSubLevel)}
-      stroke={getPdfHexBorderForView(
-        hex,
-        isSubLevel,
-        useTerrainBorderColor,
-      )}
+      stroke={getPdfHexBorderForView(hex, isSubLevel, useTerrainBorderColor)}
       strokeWidth={PDF_BORDER_WIDTH}
     />
   )

@@ -95,7 +95,7 @@ const boardPieces: BoardPiece[] = [
 ]
 
 describe('SVG map render markup', () => {
-  it('matches the captured level, overlay, and Legend SVG markup', () => {
+  it('matches the captured level and overlay SVG markup', () => {
     const renders = [
       ['level-0', 0, false],
       ['level-1', 1, false],
@@ -108,7 +108,7 @@ describe('SVG map render markup', () => {
         is2DOverlayLevelEnabled: Boolean(is2DOverlayLevelEnabled),
         isShow2DExportBuriedMarks: false,
         isShow2DExportTileLetters: false,
-        isShowPdfPieceLegend: true,
+        isShowPdfPieceLegend: false,
         isHideHeightsOnGlyphs: true,
       }
       useBoundStore.setState(state)

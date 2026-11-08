@@ -132,8 +132,11 @@ describe('piece key model', () => {
 
     for (const useTerrainBorderColor of [true, false]) {
       const descriptions = new Map(
-        getPieceKeyModel(boardPieces, {}, useTerrainBorderColor).specialGroups
-          .map(({ id, description }) => [id, description]),
+        getPieceKeyModel(
+          boardPieces,
+          {},
+          useTerrainBorderColor,
+        ).specialGroups.map(({ id, description }) => [id, description]),
       )
       expect(descriptions.get('water')).toBe(
         useTerrainBorderColor

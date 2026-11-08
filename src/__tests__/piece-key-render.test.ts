@@ -12,10 +12,7 @@ import { piecesSoFar } from '../data/pieces'
 import { PdfMapBoardPiece } from '../pdf-map/PdfMapBoardPiece'
 import { PdfMapHex } from '../pdf-map/PdfMapHex'
 import { PdfLaurWallArchText } from '../pdf-map/PdfMapShapes'
-import {
-  PdfPieceLegend,
-  PieceKeyShape,
-} from '../pdf-map/PdfPieceLegend'
+import { PdfPieceLegend, PieceKeyShape } from '../pdf-map/PdfPieceLegend'
 import {
   getHexagonSvgPolygonPointsAt00,
   getLadderSvgPolygonPoints,
@@ -765,9 +762,7 @@ describe('piece key shape rendering', () => {
     expect(renderSvgMap()).toBe(mapMarkup)
 
     setRenderState({ isPdfColorBorders: true })
-    const pdfColorShapes = collectShapeColors(
-      PdfPieceLegend({ boardPieces }),
-    )
+    const pdfColorShapes = collectShapeColors(PdfPieceLegend({ boardPieces }))
     expect(
       pdfColorShapes.some(
         (shape) =>
@@ -781,14 +776,12 @@ describe('piece key shape rendering', () => {
     ).toBe(true)
 
     setRenderState({ isSvgColorBorders: false })
-    expect(
-      collectShapeColors(PdfPieceLegend({ boardPieces })),
-    ).toEqual(pdfColorShapes)
+    expect(collectShapeColors(PdfPieceLegend({ boardPieces }))).toEqual(
+      pdfColorShapes,
+    )
 
     setRenderState({ isPdfColorBorders: false })
-    const pdfDarkShapes = collectShapeColors(
-      PdfPieceLegend({ boardPieces }),
-    )
+    const pdfDarkShapes = collectShapeColors(PdfPieceLegend({ boardPieces }))
     expect(
       pdfDarkShapes.some(
         (shape) =>

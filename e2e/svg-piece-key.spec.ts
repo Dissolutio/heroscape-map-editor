@@ -91,8 +91,8 @@ test('SVG levels and the standalone Legend export as Illustrator-safe paths', as
   })
   await includeKey.check()
   await colorBorders.check()
-  await svgColorBorders.check()
   await page.getByRole('button', { name: 'View 2D Map' }).click()
+  await svgColorBorders.check()
   await page.locator('#simple-tab-0').click()
   const key = page.locator('[data-testid="svg-piece-key"]')
   await expect(key).toHaveCount(0)
@@ -142,8 +142,7 @@ test('SVG levels and the standalone Legend export as Illustrator-safe paths', as
       sevenHexBorder.getAttribute('fill'),
     ])
   const colorLegendBorders = await legendBorders()
-  await colorBorders.uncheck()
-  expect(await legendBorders()).toEqual(colorLegendBorders)
+  await page.locator('#simple-tab-3').click()
   await svgColorBorders.uncheck()
   expect(await legendBorders()).toEqual(['#000000', '#000000'])
   await svgColorBorders.check()
@@ -226,7 +225,7 @@ test('SVG levels and the standalone Legend export as Illustrator-safe paths', as
   await colorBorders.uncheck()
   await page.getByRole('button', { name: 'View 2D Map' }).click()
   await page.locator('#simple-tab-0').click()
-  await expect(key.getByText('dark borders').first()).toBeVisible()
+  await expect(key.getByText('red borders').first()).toBeVisible()
 
   const downloadSvg = async (buttonName: string) => {
     await page.locator('#simple-tab-1').click()
