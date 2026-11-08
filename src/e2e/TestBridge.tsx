@@ -440,6 +440,28 @@ function TestBridgeInner() {
         })
         return quaternion
       },
+      getRenderedObjectiveMarkerTextLayout: (uid) => {
+        const scene = get().scene
+        scene.updateMatrixWorld(true)
+        let text: (typeof scene.children)[number] | undefined
+        let face: (typeof scene.children)[number] | undefined
+        scene.traverse((object) => {
+          if (object.userData.objectiveMarkerTextUID === uid) text = object
+          if (object.userData.objectiveMarkerFaceUID === uid) face = object
+        })
+        if (!text || !face) return null
+        const textBounds = new Box3().setFromObject(text)
+        const faceBounds = new Box3().setFromObject(face)
+        if (textBounds.isEmpty() || faceBounds.isEmpty()) return null
+        return {
+          isBillboard: text.userData.isBillboard === true,
+          textBounds: {
+            min: round4Vector(textBounds.min),
+            max: round4Vector(textBounds.max),
+          },
+          markerFaceMaxY: round4(faceBounds.max.y),
+        }
+      },
       cameraQuaternion: () => {
         const camera = get().camera
         camera.updateMatrixWorld()

@@ -22,6 +22,8 @@ export type ObjectiveMarker3DTextTransform = {
   groupPosition: [number, number, number]
   groupRotation: [number, number, number]
   textPosition: [number, number, number]
+  textRotation: [number, number, number]
+  isBillboard: boolean
 }
 
 export type ObjectiveMarkerTextPosition = {
@@ -43,12 +45,15 @@ export function getObjectiveMarker3DTextPosition(
 export function getObjectiveMarker3DTextTransform(
   marker: ObjectiveMarker,
   position: ObjectiveMarker3DPosition,
+  faceCamera = false,
 ): ObjectiveMarker3DTextTransform {
   const textPosition = getObjectiveMarker3DTextPosition(marker, position)
   return {
     groupPosition: [position.x, position.y, position.z],
     groupRotation: [0, position.rotationY, 0],
-    textPosition: [textPosition.x, 0.029, textPosition.z],
+    textPosition: [textPosition.x, faceCamera ? 0.045 : 0.029, textPosition.z],
+    textRotation: faceCamera ? [0, 0, 0] : [-Math.PI / 2, 0, 0],
+    isBillboard: faceCamera,
   }
 }
 

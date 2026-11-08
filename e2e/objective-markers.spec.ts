@@ -2,7 +2,9 @@ import {
   OBJECTIVE_MARKERS_FIXTURE_HEX_MAP,
   OBJECTIVE_MARKERS_FIXTURE_PIECE_IDS,
   expect,
+  hoverHex,
   mapUrl,
+  saveLocatorEvidence,
   test,
   waitForAppReady,
 } from './fixtures'
@@ -161,6 +163,11 @@ test('renders, selects, and excludes objective markers from shadows', async ({
     )
     .toBeNull()
 
+  await page.locator('#simple-tab-3').click()
+  const faceCameraSwitch = page.getByRole('checkbox', {
+    name: 'Objective text follow camera',
+  })
+  await expect(faceCameraSwitch).not.toBeChecked()
   const initialTextQuaternion = await page.evaluate(
     () =>
       window.__TEST__?.getRenderedObjectiveMarkerTextQuaternion(
@@ -172,23 +179,47 @@ test('renders, selects, and excludes objective markers from shadows', async ({
     throw new Error('Objective-marker text or camera pose is unavailable')
   }
   await page.evaluate(
-    ({ position, target }) =>
+    ({ target }) =>
       window.__TEST__?.setCamera(
-        [position[0] + 4, position[1], position[2] + 4],
+        [target[0] + 8, target[1] + 1, target[2] + 8],
         target,
       ),
     pose,
   )
   await waitForAppReady(page)
-  const [textQuaternion, cameraQuaternion] = await page.evaluate(() => [
-    window.__TEST__?.getRenderedObjectiveMarkerTextQuaternion(
-      'objective-ground',
-    ) ?? null,
-    window.__TEST__?.cameraQuaternion() ?? null,
-  ])
-  if (!textQuaternion || !cameraQuaternion) {
-    throw new Error('Objective-marker text orientation is unavailable')
+  const flatLayout = await page.evaluate(
+    () =>
+      window.__TEST__?.getRenderedObjectiveMarkerTextLayout(
+        'objective-ground',
+      ) ?? null,
+  )
+  expect(flatLayout?.isBillboard).toBe(false)
+
+  await page.mouse.move(0, 0)
+  await saveLocatorEvidence(canvas, 'objective-marker-text-flat-low-angle')
+  await faceCameraSwitch.click()
+  await expect(faceCameraSwitch).toBeChecked()
+  await waitForRenderFrames()
+  await waitForAppReady(page)
+  const [billboardLayout, textQuaternion, cameraQuaternion] =
+    await page.evaluate(() => [
+      window.__TEST__?.getRenderedObjectiveMarkerTextLayout(
+        'objective-ground',
+      ) ?? null,
+      window.__TEST__?.getRenderedObjectiveMarkerTextQuaternion(
+        'objective-ground',
+      ) ?? null,
+      window.__TEST__?.cameraQuaternion() ?? null,
+    ])
+  if (!billboardLayout || !textQuaternion || !cameraQuaternion) {
+    throw new Error(
+      'Objective-marker text layout or orientation is unavailable',
+    )
   }
+  expect(billboardLayout.isBillboard).toBe(true)
+  expect(billboardLayout.textBounds.min[1]).toBeGreaterThan(
+    billboardLayout.markerFaceMaxY,
+  )
   const quaternionDot = textQuaternion.reduce(
     (dot, value, index) => dot + value * (cameraQuaternion[index] ?? 0),
     0,
@@ -204,7 +235,55 @@ test('renders, selects, and excludes objective markers from shadows', async ({
     ),
   ).toBeLessThan(0.99)
 
-  await page.locator('#simple-tab-3').click()
+  await page.evaluate(() => window.__TEST__?.setPen('objectiveMarker', 1))
+  await hoverHex(page, { q: 2, r: 2, altitude: 1 })
+  await waitForRenderFrames()
+  const previewQuaternion = await page.evaluate(
+    () =>
+      window.__TEST__?.getRenderedObjectiveMarkerTextQuaternion(
+        '__objective-marker-preview__',
+      ) ?? null,
+  )
+  if (!previewQuaternion) {
+    throw new Error('Objective-marker placement preview text is unavailable')
+  }
+  expect(
+    Math.abs(
+      previewQuaternion.reduce(
+        (dot, value, index) => dot + value * (cameraQuaternion[index] ?? 0),
+        0,
+      ),
+    ),
+  ).toBeGreaterThan(0.999)
+
+  await page.mouse.move(0, 0)
+  await saveLocatorEvidence(canvas, 'objective-marker-text-billboard-low-angle')
+  await faceCameraSwitch.click()
+  await expect(faceCameraSwitch).not.toBeChecked()
+  await waitForRenderFrames()
+  await waitForAppReady(page)
+
+  await hoverHex(page, { q: 2, r: 2, altitude: 1 })
+  await waitForRenderFrames()
+  const flatPreviewQuaternion = await page.evaluate(
+    () =>
+      window.__TEST__?.getRenderedObjectiveMarkerTextQuaternion(
+        '__objective-marker-preview__',
+      ) ?? null,
+  )
+  if (!flatPreviewQuaternion) {
+    throw new Error('Objective-marker placement preview text is unavailable')
+  }
+  expect(
+    Math.abs(
+      flatPreviewQuaternion.reduce(
+        (dot, value, index) => dot + value * (cameraQuaternion[index] ?? 0),
+        0,
+      ),
+    ),
+  ).toBeLessThan(0.99)
+  await page.evaluate(() => window.__TEST__?.setPen('select', 1))
+
   const visibilitySwitch = page.getByRole('checkbox', {
     name: 'Show Objective Markers',
   })
