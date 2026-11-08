@@ -86,6 +86,9 @@ export default function ObjectiveMarkers3D() {
   const isShowObjectiveMarkers = useBoundStore(
     (state) => state.isShowObjectiveMarkers,
   )
+  const faceCamera = useBoundStore(
+    (state) => state.isObjectiveMarkerNumbersFaceCamera,
+  )
 
   return (
     <>
@@ -101,6 +104,7 @@ export default function ObjectiveMarkers3D() {
               key={marker.uid}
               marker={marker}
               position={position}
+              faceCamera={faceCamera}
             />
           )
         })}
@@ -111,9 +115,11 @@ export default function ObjectiveMarkers3D() {
 function ObjectiveMarkerToken({
   marker,
   position,
+  faceCamera,
 }: {
   marker: ObjectiveMarker
   position: ObjectiveMarker3DPosition
+  faceCamera: boolean
 }) {
   const selectedUID = useBoundStore((state) => state.selectedObjectiveMarkerUID)
   const setSelectedObjectiveMarkerUID = useBoundStore(
@@ -133,7 +139,11 @@ function ObjectiveMarkerToken({
     [marker.content],
   )
   const fontSize = getObjectiveMarkerTextFontSize(marker)
-  const textTransform = getObjectiveMarker3DTextTransform(marker, position)
+  const textTransform = getObjectiveMarker3DTextTransform(
+    marker,
+    position,
+    faceCamera,
+  )
   const borderShape = useMemo(
     () =>
       makeMarkerShape(
@@ -158,6 +168,25 @@ function ObjectiveMarkerToken({
     () => makeSelectionRingShape(marker.size),
     [marker.size],
   )
+  const label = (
+    <Text
+      userData={{
+        objectiveMarkerTextUID: marker.uid,
+        isBillboard: textTransform.isBillboard,
+      }}
+      font="/fonts/Inter_18pt-Bold.ttf"
+      fontSize={fontSize}
+      maxWidth={HEXGRID_HEX_RADIUS * 2.2}
+      anchorX="center"
+      anchorY={textTransform.isBillboard ? 'bottom' : 'middle'}
+      textAlign="center"
+      color={foreground}
+      raycast={() => null}
+      castShadow={false}
+    >
+      {text}
+    </Text>
+  )
   const handlePointerUp = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation()
     if (event.button !== 0) return
@@ -170,76 +199,83 @@ function ObjectiveMarkerToken({
   }
 
   return (
-    <group
-      position={textTransform.groupPosition}
-      rotation={textTransform.groupRotation}
-      userData={{ objectiveMarkerUID: marker.uid }}
-    >
-      <mesh
-        position={[0, -0.0125, 0]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        onPointerDown={(event) =>
-          pressObjectiveMarkerForDrag(event, marker.uid)
-        }
-        onPointerUp={handlePointerUp}
-        castShadow={false}
-        receiveShadow={false}
+    <>
+      <group
+        position={textTransform.groupPosition}
+        rotation={textTransform.groupRotation}
+        userData={{ objectiveMarkerUID: marker.uid }}
       >
-        <extrudeGeometry
-          args={[
-            borderShape,
-            { depth: OBJECTIVE_MARKER_EXTRUSION_DEPTH, bevelEnabled: false },
-          ]}
-        />
-        <meshBasicMaterial color={foreground} toneMapped={false} />
-      </mesh>
-      <mesh
-        position={[0, 0.0015, 0]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        raycast={() => null}
-        castShadow={false}
-        receiveShadow={false}
-      >
-        <extrudeGeometry
-          args={[
-            faceShape,
-            { depth: OBJECTIVE_MARKER_EXTRUSION_DEPTH, bevelEnabled: false },
-          ]}
-        />
-        <meshBasicMaterial color={background} toneMapped={false} />
-      </mesh>
-      <mesh
-        position={[0, 0.026, 0]}
-        rotation={[-Math.PI / 2, 0, 0]}
-        raycast={() => null}
-        renderOrder={40}
-        visible={isSelected}
-        castShadow={false}
-        receiveShadow={false}
-      >
-        <extrudeGeometry
-          args={[
-            selectionShape,
-            { depth: OBJECTIVE_MARKER_EXTRUSION_DEPTH, bevelEnabled: false },
-          ]}
-        />
-        <meshBasicMaterial color="#00c8ff" toneMapped={false} />
-      </mesh>
-      <Billboard position={textTransform.textPosition}>
-        <Text
-          userData={{ objectiveMarkerTextUID: marker.uid }}
-          font="/fonts/Inter_18pt-Bold.ttf"
-          fontSize={fontSize}
-          maxWidth={HEXGRID_HEX_RADIUS * 2.2}
-          anchorX="center"
-          anchorY="middle"
-          textAlign="center"
-          color={foreground}
-          raycast={() => null}
+        <mesh
+          position={[0, -0.0125, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          onPointerDown={(event) =>
+            pressObjectiveMarkerForDrag(event, marker.uid)
+          }
+          onPointerUp={handlePointerUp}
+          castShadow={false}
+          receiveShadow={false}
         >
-          {text}
-        </Text>
-      </Billboard>
-    </group>
+          <extrudeGeometry
+            args={[
+              borderShape,
+              { depth: OBJECTIVE_MARKER_EXTRUSION_DEPTH, bevelEnabled: false },
+            ]}
+          />
+          <meshBasicMaterial color={foreground} toneMapped={false} />
+        </mesh>
+        <mesh
+          position={[0, 0.0015, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          userData={{ objectiveMarkerFaceUID: marker.uid }}
+          raycast={() => null}
+          castShadow={false}
+          receiveShadow={false}
+        >
+          <extrudeGeometry
+            args={[
+              faceShape,
+              { depth: OBJECTIVE_MARKER_EXTRUSION_DEPTH, bevelEnabled: false },
+            ]}
+          />
+          <meshBasicMaterial color={background} toneMapped={false} />
+        </mesh>
+        <mesh
+          position={[0, 0.026, 0]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          raycast={() => null}
+          renderOrder={40}
+          visible={isSelected}
+          castShadow={false}
+          receiveShadow={false}
+        >
+          <extrudeGeometry
+            args={[
+              selectionShape,
+              { depth: OBJECTIVE_MARKER_EXTRUSION_DEPTH, bevelEnabled: false },
+            ]}
+          />
+          <meshBasicMaterial color="#00c8ff" toneMapped={false} />
+        </mesh>
+        {!textTransform.isBillboard && (
+          <group
+            position={textTransform.textPosition}
+            rotation={textTransform.textRotation}
+          >
+            {label}
+          </group>
+        )}
+      </group>
+      {textTransform.isBillboard && (
+        <Billboard
+          position={[
+            position.x + textTransform.textPosition[0],
+            position.y + textTransform.textPosition[1],
+            position.z + textTransform.textPosition[2],
+          ]}
+        >
+          {label}
+        </Billboard>
+      )}
+    </>
   )
 }

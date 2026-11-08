@@ -33,6 +33,9 @@ export default function ObjectiveMarkerPlacementPreview() {
   const isShowObjectiveMarkers = useBoundStore(
     (state) => state.isShowObjectiveMarkers,
   )
+  const faceCamera = useBoundStore(
+    (state) => state.isObjectiveMarkerNumbersFaceCamera,
+  )
   const mapHexIDs = useMemo(() => mapTableHexes(hexMap), [hexMap])
   const content =
     draft.content.kind === 'number' && !draft.pinNumber
@@ -84,7 +87,7 @@ export default function ObjectiveMarkerPlacementPreview() {
     : null
   const textTransform =
     marker && markerPosition
-      ? getObjectiveMarker3DTextTransform(marker, markerPosition)
+      ? getObjectiveMarker3DTextTransform(marker, markerPosition, faceCamera)
       : null
 
   if (!isShowObjectiveMarkers || !marker || !placement) return null
@@ -101,6 +104,25 @@ export default function ObjectiveMarkerPlacementPreview() {
       ? String(marker.content.value)
       : marker.content.value
   const foreground = marker.style === 'black' ? '#ffffff' : '#111111'
+  const label = (
+    <Text
+      userData={{
+        objectiveMarkerTextUID: '__objective-marker-preview__',
+        isBillboard: textTransform?.isBillboard ?? false,
+      }}
+      font="/fonts/Inter_18pt-Bold.ttf"
+      fontSize={getObjectiveMarkerTextFontSize(marker)}
+      maxWidth={HEXGRID_HEX_RADIUS * 2.2}
+      anchorX="center"
+      anchorY={textTransform?.isBillboard ? 'bottom' : 'middle'}
+      textAlign="center"
+      color={foreground}
+      raycast={() => null}
+      castShadow={false}
+    >
+      {text}
+    </Text>
+  )
   return (
     <>
       <PlacementFootprint
@@ -109,24 +131,19 @@ export default function ObjectiveMarkerPlacementPreview() {
         hoveredHex={hovered}
       />
       {textTransform && (
-        <group
-          position={textTransform.groupPosition}
-          rotation={textTransform.groupRotation}
-        >
-          <Billboard position={textTransform.textPosition}>
-            <Text
-              font="/fonts/Inter_18pt-Bold.ttf"
-              fontSize={getObjectiveMarkerTextFontSize(marker)}
-              maxWidth={HEXGRID_HEX_RADIUS * 2.2}
-              anchorX="center"
-              anchorY="middle"
-              textAlign="center"
-              color={foreground}
-              raycast={() => null}
-            >
-              {text}
-            </Text>
-          </Billboard>
+        <group position={textTransform.groupPosition}>
+          {textTransform.isBillboard ? (
+            <Billboard position={textTransform.textPosition}>{label}</Billboard>
+          ) : (
+            <group rotation={textTransform.groupRotation}>
+              <group
+                position={textTransform.textPosition}
+                rotation={textTransform.textRotation}
+              >
+                {label}
+              </group>
+            </group>
+          )}
         </group>
       )}
     </>
