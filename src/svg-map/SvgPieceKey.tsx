@@ -86,52 +86,48 @@ export const SvgPieceKeyShape = (
       <g transform={`translate(${x} ${y})`}>
         <g transform={`scale(${scale})`}>
           <g transform={`translate(${-layout.center.x} ${-layout.center.y})`}>
-            <g transform={`rotate(${layout.angle})`}>
-              <g
-                transform={`translate(${-layout.origin.x} ${-layout.origin.y})`}
-              >
-                {entry.hexes.length ? (
-                  entry.hexes.map((sourceHex) => {
-                    const hex: BoardHex = {
-                      ...sourceHex,
-                      altitude: 0,
-                      pieceRotation: 0,
-                    }
-                    return (
-                      <SvgMapHex
-                        key={sourceHex.id}
-                        hex={hex}
-                        buriedMarksByUID={new Map()}
-                        viewingLevel={renderOptions?.viewingLevel}
-                        overlayLevel={renderOptions?.overlayLevel}
-                        isVisible
-                        isSubLevel={false}
-                        isOverlayViewing={renderOptions?.isOverlayViewing}
-                        is2DOverlayLevelEnabled={
-                          renderOptions?.is2DOverlayLevelEnabled
-                        }
-                        isShow2DExportTileLetters={
-                          renderOptions?.isShow2DExportTileLetters
-                        }
-                        isShow2DExportBuriedMarks={
-                          renderOptions?.isShow2DExportBuriedMarks
-                        }
-                        glyphCoordinates={renderOptions?.glyphCoordinates}
-                        glyphExportSettings={renderOptions?.glyphExportSettings}
-                        isPieceKeyPreview
-                        useTerrainBorderColor={useTerrainBorderColor}
-                      />
-                    )
-                  })
-                ) : keyPiece ? (
-                  <SvgMapBoardPiece
-                    piece={{ ...keyPiece, altitude: 0, rotation: 0 }}
-                    viewingLevel={100}
-                    overlayLevel={100}
-                    isPieceKeyPreview
-                  />
-                ) : null}
-              </g>
+            <g transform={`translate(${-layout.origin.x} ${-layout.origin.y})`}>
+              {entry.hexes.length ? (
+                entry.hexes.map((sourceHex) => {
+                  const hex: BoardHex = {
+                    ...sourceHex,
+                    altitude: 0,
+                    pieceRotation: 0,
+                  }
+                  return (
+                    <SvgMapHex
+                      key={sourceHex.id}
+                      hex={hex}
+                      buriedMarksByUID={new Map()}
+                      viewingLevel={renderOptions?.viewingLevel}
+                      overlayLevel={renderOptions?.overlayLevel}
+                      isVisible
+                      isSubLevel={false}
+                      isOverlayViewing={renderOptions?.isOverlayViewing}
+                      is2DOverlayLevelEnabled={
+                        renderOptions?.is2DOverlayLevelEnabled
+                      }
+                      isShow2DExportTileLetters={
+                        renderOptions?.isShow2DExportTileLetters
+                      }
+                      isShow2DExportBuriedMarks={
+                        renderOptions?.isShow2DExportBuriedMarks
+                      }
+                      glyphCoordinates={renderOptions?.glyphCoordinates}
+                      glyphExportSettings={renderOptions?.glyphExportSettings}
+                      isPieceKeyPreview
+                      useTerrainBorderColor={useTerrainBorderColor}
+                    />
+                  )
+                })
+              ) : keyPiece ? (
+                <SvgMapBoardPiece
+                  piece={{ ...keyPiece, altitude: 0, rotation: 0 }}
+                  viewingLevel={100}
+                  overlayLevel={100}
+                  isPieceKeyPreview
+                />
+              ) : null}
             </g>
           </g>
         </g>
