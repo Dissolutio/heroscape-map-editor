@@ -66,7 +66,7 @@
     "pngjs": "^7.0.0",
     "typescript": "~5.6.2",
     "vite": "6.4.5",
-    "vitest": "4.1.12"
+    "vitest": "5.1.0"
   },
   "overrides": {
     "unplugin": "1.16.1"
