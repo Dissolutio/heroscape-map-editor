@@ -1,25 +1,49 @@
-import { type ReactNode, createElement, isValidElement } from 'react'
+import { readFileSync } from 'node:fs'
+import opentype from 'opentype.js'
+import {
+  type ReactElement,
+  type ReactNode,
+  createElement,
+  isValidElement,
+} from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it } from 'vitest'
 import { piecesSoFar } from '../data/pieces'
+import { PdfMapBoardPiece } from '../pdf-map/PdfMapBoardPiece'
 import { PdfMapHex } from '../pdf-map/PdfMapHex'
+import { PdfLaurWallArchText } from '../pdf-map/PdfMapShapes'
 import { PieceKeyShape } from '../pdf-map/PdfPieceLegend'
-import type { PieceKeyEntry } from '../pdf-svg-shared/pieceKey'
-import { getPieceKeyModel } from '../pdf-svg-shared/pieceKey'
-import { getPieceKeyShapeLayout } from '../pdf-svg-shared/pieceKeyShapeLayout'
 import {
   getHexagonSvgPolygonPointsAt00,
   getLadderSvgPolygonPoints,
+  getLaurLongWallPdfPolygonPoints,
   getLaurLongWallSvgPolygonPoints,
+  getLaurShortWallPolygonPoints,
+  getLaurWallRuinPdfPolygonPoints,
+  getLaurWallRuinSvgPolygonPoints,
   getShipBowSvgPolygonPoints,
   getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/hexPolygonPoints'
+import type { PieceKeyEntry } from '../pdf-svg-shared/pieceKey'
+import { getPieceKeyModel } from '../pdf-svg-shared/pieceKey'
+import {
+  getPieceKeyShapeLayout,
+  getPieceKeySpecialEntriesPerRow,
+} from '../pdf-svg-shared/pieceKeyShapeLayout'
 import useBoundStore from '../store/store'
+import { SvgMapBoardPiece } from '../svg-map/SvgMapBoardPiece'
 import { SvgMapHex } from '../svg-map/SvgMapHex'
-import { SvgPieceKeyShape } from '../svg-map/SvgPieceKey'
+import {
+  SvgPieceKeyShape,
+  getSvgPieceKeyWidth,
+  wrapSvgPieceKeyText,
+} from '../svg-map/SvgPieceKey'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
-import { hexUtilsHexToPixel } from '../utils/map-utils'
+import {
+  boardPieceToDecodedPieceID,
+  hexUtilsHexToPixel,
+} from '../utils/map-utils'
 import { svgColors } from '../world/maphex/hexColors'
 import { type Board, makeTable, place } from './helpers/board'
 
@@ -27,6 +51,15 @@ const initialGenericColors = {
   genericSolidCapColor: useBoundStore.getState().genericSolidCapColor,
   genericSolidSideColor: useBoundStore.getState().genericSolidSideColor,
 }
+const fontBuffer = readFileSync(
+  new URL('../../public/fonts/Inter_18pt-Bold.ttf', import.meta.url),
+)
+const interFont = opentype.parse(
+  fontBuffer.buffer.slice(
+    fontBuffer.byteOffset,
+    fontBuffer.byteOffset + fontBuffer.byteLength,
+  ),
+)
 
 afterEach(() => {
   useBoundStore.setState(initialGenericColors)
@@ -70,6 +103,38 @@ const collectTextContent = (node: ReactNode): string[] => {
   return collectTextContent(props.children)
 }
 
+const findElementByType = (
+  node: ReactNode,
+  type: ReactElement['type'],
+): ReactElement | undefined => {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const found = findElementByType(child, type)
+      if (found) return found
+    }
+    return undefined
+  }
+  if (!isValidElement(node)) return undefined
+  if (node.type === type) return node
+  return findElementByType(node.props.children, type)
+}
+
+const findTextElement = (
+  node: ReactNode,
+  text: string,
+): ReactElement | undefined => {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const found = findTextElement(child, text)
+      if (found) return found
+    }
+    return undefined
+  }
+  if (!isValidElement(node)) return undefined
+  if (node.props.children === text) return node
+  return findTextElement(node.props.children, text)
+}
+
 const pieceKeyEntry = (
   model: ReturnType<typeof getPieceKeyModel>,
   inventoryID: string,
@@ -81,9 +146,25 @@ const pieceKeyEntry = (
     ...model.specialGroups.flatMap((group) => group.entries),
   ].find((entry) => entry.inventoryID === inventoryID)
 
+const laurAddonIDs: string[] = [
+  Pieces.laurWallLong,
+  Pieces.laurWallLongStackable,
+  Pieces.laurWallArch,
+  Pieces.laurWallShort,
+  Pieces.laurWallShortStackable,
+  Pieces.laurWallRuin1,
+  Pieces.laurWallRuin2,
+  Pieces.laurWallRuin3,
+]
+const getLaurAddonSymbol = (inventoryID: string) =>
+  laurAddonIDs.includes(inventoryID)
+
 const getShapePolygonPoints = (entry: PieceKeyEntry) => {
   const hexPoints = getHexagonSvgPolygonPointsAt00(SVG_HEX_RADIUS).corners
-  const points = entry.hexes.flatMap((hex) => {
+  const isStandaloneSymbol =
+    entry.inventoryID === Pieces.ropeLadder ||
+    Boolean(getLaurAddonSymbol(entry.inventoryID))
+  const points = (isStandaloneSymbol ? [] : entry.hexes).flatMap((hex) => {
     const center = hexUtilsHexToPixel(hex)
     return hexPoints.map(({ x, y }) => ({
       x: center.x + x,
@@ -115,9 +196,34 @@ const getShapePolygonPoints = (entry: PieceKeyEntry) => {
     )
   } else if (entry.inventoryID === Pieces.laurWallLong) {
     points.push(...getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS).corners)
+  } else if (
+    entry.inventoryID === Pieces.laurWallLongStackable ||
+    entry.inventoryID === Pieces.laurWallArch
+  ) {
+    points.push(...getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS).corners)
+  } else if (
+    entry.inventoryID === Pieces.laurWallShort ||
+    entry.inventoryID === Pieces.laurWallShortStackable
+  ) {
+    points.push(...getLaurShortWallPolygonPoints(SVG_HEX_RADIUS, 0.5).corners)
+  } else if (
+    [Pieces.laurWallRuin1, Pieces.laurWallRuin2, Pieces.laurWallRuin3].some(
+      (inventoryID) => inventoryID === entry.inventoryID,
+    )
+  ) {
+    points.push(...getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS).corners)
   }
 
   return points
+}
+
+const boundsCenter = (points: { x: number; y: number }[]) => {
+  const xs = points.map(({ x }) => x)
+  const ys = points.map(({ y }) => y)
+  return {
+    x: (Math.min(...xs) + Math.max(...xs)) / 2,
+    y: (Math.min(...ys) + Math.max(...ys)) / 2,
+  }
 }
 
 describe('piece key shape rendering', () => {
@@ -438,27 +544,179 @@ describe('piece key shape rendering', () => {
     expect(pdfText).toContain('10')
   })
 
-  it('renders Laur wall key shapes with purple centers and pink borders', () => {
-    const boardPieces: BoardPiece[] = [
+  it('keeps special-group color descriptions aligned with both key renderers', () => {
+    const inventoryIDs = [
+      Pieces.road5,
+      Pieces.wallWalk7,
+      Pieces.water3,
+      Pieces.wellspringWater1,
+      Pieces.tree10,
+      Pieces.palm14,
+      Pieces.wood2,
+      Pieces.laurWallSquarePillar,
       Pieces.laurWallLong,
-      Pieces.laurWallShort,
-    ].map((inventoryID, index) => ({
-      uid: `key-${inventoryID}`,
-      inventoryID,
-      altitude: 0,
-      rotation: 0,
-      pieceCoords: { q: index, r: 0, s: -index },
-    }))
+      Pieces.ladder,
+    ]
+    const boardPieces: BoardPiece[] = inventoryIDs.map(
+      (inventoryID, index) => ({
+        uid: `key-${inventoryID}`,
+        inventoryID,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: index, r: 0, s: -index },
+      }),
+    )
+    const expectedDescriptions = new Map([
+      ['roads-and-wall-walks', 'gray centers'],
+      ['water', 'blue borders and centers'],
+      ['wellspring', 'blue borders, white centers'],
+      ['evergreen', 'green borders and centers; number indicates tree height'],
+      ['jungle', 'brown borders, yellow centers'],
+      [
+        'laur',
+        'pillars have pink borders and purple centers; wall add-ons are pink',
+      ],
+      ['ladder', 'black borders'],
+    ])
+
+    for (const useTerrainBorderColor of [true, false]) {
+      const model = getPieceKeyModel(boardPieces, {}, useTerrainBorderColor)
+      for (const [groupID, description] of expectedDescriptions) {
+        const group = model.specialGroups.find(({ id }) => id === groupID)
+        expect(group?.description).toBe(description)
+        expect(group?.entries.length).toBeGreaterThan(0)
+        for (const entry of group?.entries ?? []) {
+          const svg = renderToStaticMarkup(
+            SvgPieceKeyShape(
+              entry,
+              0,
+              0,
+              0.1,
+              `${groupID}-${entry.inventoryID}`,
+              useTerrainBorderColor,
+            ),
+          )
+          const decoded = boardPieceToDecodedPieceID(entry.piece)
+          expect(decoded).toBeDefined()
+          if (!decoded) continue
+
+          if (groupID === 'roads-and-wall-walks') {
+            expect(svg).toContain(`fill="${svgColors[HexTerrain.road]}"`)
+          } else if (groupID === 'water') {
+            expect(svg).toContain(`fill="${svgColors[HexTerrain.water]}"`)
+            expect(svg).toContain(`fill="${svgColors.outlineWater}"`)
+          } else if (groupID === 'wellspring') {
+            expect(svg).toContain(
+              `fill="${svgColors[HexTerrain.wellspringWater]}"`,
+            )
+            expect(svg).toContain(`fill="${svgColors.outlineWater}"`)
+          } else if (groupID === 'evergreen') {
+            expect(svg).toContain(`fill="${svgColors[HexTerrain.tree]}"`)
+            expect(svg).toContain(`fill="${svgColors.outlineTree}"`)
+          } else if (groupID === 'jungle') {
+            expect(svg).toContain(`fill="${svgColors.fillJungle}"`)
+            expect(svg).toContain(`fill="${svgColors.outlineJungle}"`)
+          } else if (groupID === 'laur') {
+            if (entry.inventoryID === Pieces.laurWallSquarePillar) {
+              expect(svg).toContain(`fill="${svgColors[HexTerrain.laurWall]}"`)
+              expect(svg).toContain(`fill="${svgColors.outlineLaurWall}"`)
+            } else {
+              expect(svg).toContain(
+                `fill="${svgColors[HexTerrain.laurWallAddon]}"`,
+              )
+            }
+          } else if (groupID === 'ladder') {
+            expect(svg).toContain('stroke="black"')
+          }
+        }
+      }
+
+      const wood = model.specialGroups.find(({ id }) => id === 'wood')
+      expect(wood?.description).toBe(
+        useTerrainBorderColor
+          ? 'orange borders, brown wood-grain centers'
+          : 'dark borders, brown wood-grain centers',
+      )
+      const woodEntry = wood?.entries[0]
+      expect(woodEntry).toBeDefined()
+      if (woodEntry) {
+        const svg = renderToStaticMarkup(
+          SvgPieceKeyShape(
+            woodEntry,
+            0,
+            0,
+            0.1,
+            'wood-description-check',
+            useTerrainBorderColor,
+          ),
+        )
+        expect(svg).toContain(`fill="${svgColors[HexTerrain.wood]}"`)
+        expect(svg).toContain(
+          `fill="${useTerrainBorderColor ? svgColors.outline2 : '#000000'}"`,
+        )
+      }
+      const ladder = model.specialGroups.find(({ id }) => id === 'ladder')
+      const ladderEntry = ladder?.entries[0]
+      expect(ladderEntry).toBeDefined()
+      if (ladderEntry) {
+        const pdfColors = collectShapeColors(
+          PieceKeyShape({
+            entry: ladderEntry,
+            useTerrainBorderColor,
+            scale: 0.075,
+          }),
+        )
+        expect(pdfColors).toContainEqual(
+          expect.objectContaining({ stroke: svgColors.battlementBorder }),
+        )
+      }
+    }
+  })
+
+  it('matches map-level fill and stroke colors for every Laur wall add-on', () => {
+    const boardPieces: BoardPiece[] = laurAddonIDs.map(
+      (inventoryID, index) => ({
+        uid: `key-${inventoryID}`,
+        inventoryID,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: index, r: 0, s: -index },
+      }),
+    )
     const entries = getPieceKeyModel(boardPieces, {}, true).specialGroups.find(
       ({ id }) => id === 'laur',
     )?.entries
 
-    expect(entries).toHaveLength(2)
-    for (const [index, entry] of (entries ?? []).entries()) {
-      const svg = renderToStaticMarkup(
-        SvgPieceKeyShape(entry, 0, 0, 0.1, `laur-${index}`),
+    expect(entries).toHaveLength(laurAddonIDs.length)
+    for (const entry of entries ?? []) {
+      const decoded = boardPieceToDecodedPieceID(entry.piece)
+      expect(decoded).toBeDefined()
+      if (!decoded) continue
+
+      const svgMap = renderToStaticMarkup(
+        createElement(SvgMapBoardPiece, {
+          piece: decoded,
+          viewingLevel: 1,
+          overlayLevel: 1,
+        }),
       )
-      const pdfColors = collectShapeColors(
+      const svgKey = renderToStaticMarkup(
+        SvgPieceKeyShape(entry, 0, 0, 0.1, `laur-${entry.inventoryID}`),
+      )
+      const svgColors = (markup: string) =>
+        markup.match(/(?:fill|stroke)="[^"]+"/g) ?? []
+
+      expect(svgColors(svgKey)).toEqual(svgColors(svgMap))
+
+      const pdfMapColors = collectShapeColors(
+        PdfMapBoardPiece({
+          piece: decoded,
+          viewingLevel: 1,
+          overlayLevel: 1,
+          useLegacyStartZones: false,
+        }),
+      )
+      const pdfKeyColors = collectShapeColors(
         PieceKeyShape({
           entry,
           useTerrainBorderColor: true,
@@ -466,14 +724,235 @@ describe('piece key shape rendering', () => {
         }),
       )
 
-      expect(svg).toContain(`fill="${svgColors[HexTerrain.laurWall]}"`)
-      expect(svg).toContain(`stroke="${svgColors.outlineLaurWall}"`)
-      expect(pdfColors).toContainEqual(
-        expect.objectContaining({ fill: svgColors[HexTerrain.laurWall] }),
+      expect(pdfKeyColors).toEqual(pdfMapColors)
+    }
+  })
+
+  it('centers the rope ladder and every Laur add-on over their captions', () => {
+    const inventoryIDs = [Pieces.ropeLadder, ...laurAddonIDs]
+    const boardPieces: BoardPiece[] = inventoryIDs.map(
+      (inventoryID, index) => ({
+        uid: `key-${inventoryID}`,
+        inventoryID,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: index, r: 0, s: -index },
+      }),
+    )
+    const model = getPieceKeyModel(boardPieces, {}, true)
+    const entries = model.specialGroups.flatMap(({ entries: groupEntries }) =>
+      groupEntries.filter(({ inventoryID }) =>
+        inventoryIDs.includes(inventoryID),
+      ),
+    )
+
+    expect(entries).toHaveLength(inventoryIDs.length)
+    for (const entry of entries) {
+      const svgBounds = getShapePolygonPoints(entry)
+      const svgLayout = getPieceKeyShapeLayout(entry)
+      expect(svgLayout.center).toEqual(boundsCenter(svgBounds))
+
+      const pdfBounds =
+        entry.inventoryID === Pieces.ropeLadder
+          ? svgBounds
+          : entry.inventoryID === Pieces.laurWallLong ||
+              entry.inventoryID === Pieces.laurWallLongStackable ||
+              entry.inventoryID === Pieces.laurWallArch
+            ? getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, 1).corners
+            : entry.inventoryID === Pieces.laurWallShort ||
+                entry.inventoryID === Pieces.laurWallShortStackable
+              ? getLaurShortWallPolygonPoints(SVG_HEX_RADIUS, 0.2).corners
+              : getLaurWallRuinPdfPolygonPoints(SVG_HEX_RADIUS).corners
+      const pdfLayout = getPieceKeyShapeLayout(entry, 'pdf')
+      expect(pdfLayout.center).toEqual(boundsCenter(pdfBounds))
+
+      const pdfViewBox = (
+        PieceKeyShape({
+          entry,
+          useTerrainBorderColor: true,
+          scale: 0.075,
+        }) as { props: { viewBox: string } }
+      ).props.viewBox
+        .split(' ')
+        .map(Number)
+      expect(pdfViewBox[0] + pdfViewBox[2] / 2).toBeCloseTo(
+        pdfLayout.origin.x + pdfLayout.center.x,
       )
-      expect(pdfColors).toContainEqual(
-        expect.objectContaining({ stroke: svgColors.outlineLaurWall }),
+      expect(pdfViewBox[1] + pdfViewBox[3] / 2).toBeCloseTo(
+        pdfLayout.origin.y + pdfLayout.center.y,
       )
+
+      const svg = renderToStaticMarkup(
+        SvgPieceKeyShape(entry, 500, 600, 1, `centered-${entry.inventoryID}`),
+      )
+      expect(svg).toContain(
+        `translate(${-svgLayout.center.x} ${-svgLayout.center.y})`,
+      )
+    }
+  })
+
+  it('centers ARCH text in the key without changing map arch text', () => {
+    const boardPiece: BoardPiece = {
+      uid: 'key-arch',
+      inventoryID: Pieces.laurWallArch,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 0, r: 0, s: 0 },
+    }
+    const model = getPieceKeyModel([boardPiece], {}, true)
+    const entry = pieceKeyEntry(model, Pieces.laurWallArch)
+    expect(entry).toBeDefined()
+    if (!entry) return
+
+    const pdfLayout = getPieceKeyShapeLayout(entry, 'pdf')
+    const svgLayout = getPieceKeyShapeLayout(entry, 'svg')
+    const pdfKeyPiece = findElementByType(
+      PieceKeyShape({
+        entry,
+        useTerrainBorderColor: true,
+        scale: 0.075,
+      }),
+      PdfMapBoardPiece,
+    )
+    const svgKeyPiece = findElementByType(
+      SvgPieceKeyShape(entry, 500, 600, 1, 'centered-arch'),
+      SvgMapBoardPiece,
+    )
+    expect(pdfKeyPiece?.props.archTextOffsetX).toBeCloseTo(pdfLayout.center.x)
+    expect(svgKeyPiece?.props.archTextOffsetX).toBeCloseTo(svgLayout.center.x)
+
+    const pdfKeyText = findTextElement(
+      PdfMapBoardPiece(pdfKeyPiece?.props as never),
+      'ARCH',
+    )
+    expect(pdfKeyText?.props.x).toBeCloseTo(pdfLayout.center.x)
+    expect(pdfKeyText?.props.textAnchor).toBe('middle')
+
+    const svgKeyMarkup = renderToStaticMarkup(
+      SvgMapBoardPiece(svgKeyPiece?.props as never),
+    )
+    const svgKeyText = svgKeyMarkup.match(/<text\b([^>]*)>ARCH<\/text>/)
+    expect(svgKeyText).not.toBeNull()
+    expect(svgKeyText?.[1]).toContain(`x="${svgLayout.center.x}"`)
+    expect(svgKeyText?.[1]).toContain('text-anchor="middle"')
+
+    for (const rotation of [150, 210]) {
+      const mapPiece: BoardPiece = {
+        ...boardPiece,
+        uid: `map-arch-${rotation}`,
+        rotation: rotation / 60,
+      }
+      const decoded = boardPieceToDecodedPieceID(mapPiece)
+      expect(decoded).toBeDefined()
+      if (!decoded) continue
+
+      const pdfMapPiece = PdfMapBoardPiece({
+        piece: decoded,
+        viewingLevel: 1,
+        overlayLevel: 1,
+      })
+      const pdfMapArchText = findElementByType(pdfMapPiece, PdfLaurWallArchText)
+      expect(pdfMapArchText).toBeDefined()
+      const pdfMapText = PdfLaurWallArchText(
+        pdfMapArchText?.props as never,
+      ) as ReactElement
+      expect(pdfMapText?.props.x).toBe(-2.75 * SVG_HEX_APOTHEM)
+      expect(pdfMapText?.props.y).toBe(0.2 * SVG_HEX_RADIUS)
+      expect('textAnchor' in (pdfMapText?.props ?? {})).toBe(false)
+
+      const svgMapMarkup = renderToStaticMarkup(
+        SvgMapBoardPiece({
+          piece: decoded,
+          viewingLevel: 1,
+          overlayLevel: 1,
+        }),
+      )
+      const svgMapText = svgMapMarkup.match(/<text\b([^>]*)>ARCH<\/text>/)
+      expect(svgMapText).not.toBeNull()
+      expect(svgMapText?.[1]).toContain(`x="${-2.75 * SVG_HEX_APOTHEM}"`)
+      expect(svgMapText?.[1]).toContain(`y="${0.2 * SVG_HEX_RADIUS}"`)
+      expect(svgMapText?.[1]).not.toContain('text-anchor=')
+    }
+  })
+
+  it('wraps SVG special captions within their cells using Inter metrics', () => {
+    const inventoryIDs = [
+      Pieces.laurPalm13,
+      Pieces.laurPalm14,
+      Pieces.laurPalm15,
+      Pieces.palm14,
+      Pieces.palm15,
+      Pieces.palm16,
+      Pieces.brush9,
+      Pieces.tree10,
+      Pieces.tree415,
+    ]
+    const boardPieces: BoardPiece[] = inventoryIDs.map(
+      (inventoryID, index) => ({
+        uid: `key-${inventoryID}`,
+        inventoryID,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: index, r: 0, s: -index },
+      }),
+    )
+    const model = getPieceKeyModel(boardPieces, {}, true)
+    const keyWidth = getSvgPieceKeyWidth(model, SVG_HEX_RADIUS * 4)
+    const cardWidth = keyWidth / 3
+    const fontSize = SVG_HEX_RADIUS * 0.24
+    for (const group of model.specialGroups.filter(({ id }) =>
+      ['evergreen', 'jungle'].includes(id),
+    )) {
+      const entriesPerRow = getPieceKeySpecialEntriesPerRow(
+        group,
+        cardWidth - 2 * SVG_HEX_RADIUS * 0.12,
+        1,
+      )
+      const slotWidth = (cardWidth - 2 * SVG_HEX_RADIUS * 0.12) / entriesPerRow
+      const availableWidth = slotWidth - SVG_HEX_RADIUS * 0.06
+      for (
+        let offset = 0;
+        offset < group.entries.length;
+        offset += entriesPerRow
+      ) {
+        const row = group.entries.slice(offset, offset + entriesPerRow)
+        const textBounds = row.map((entry, index) => {
+          const lines = wrapSvgPieceKeyText(
+            entry.title,
+            availableWidth,
+            fontSize,
+          )
+          const centerX = index * slotWidth + slotWidth / 2
+          const widths = lines.map((line) =>
+            interFont.getAdvanceWidth(line, fontSize, { kerning: true }),
+          )
+          expect(Math.max(...widths)).toBeLessThanOrEqual(availableWidth + 0.1)
+          return {
+            left: centerX - Math.max(...widths) / 2,
+            right: centerX + Math.max(...widths) / 2,
+          }
+        })
+        for (let index = 1; index < textBounds.length; index += 1) {
+          expect(textBounds[index - 1].right).toBeLessThanOrEqual(
+            textBounds[index].left + 0.1,
+          )
+        }
+      }
+    }
+
+    for (const caption of [
+      'Laur Jungle Tree (13)',
+      'Ticalla Jungle Palm (15)',
+    ]) {
+      const lines = wrapSvgPieceKeyText(caption, 140, fontSize)
+      expect(lines.length).toBeGreaterThan(1)
+      expect(
+        Math.max(
+          ...lines.map((line) =>
+            interFont.getAdvanceWidth(line, fontSize, { kerning: true }),
+          ),
+        ),
+      ).toBeLessThanOrEqual(140)
     }
   })
 

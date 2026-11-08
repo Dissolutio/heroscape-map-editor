@@ -17,7 +17,7 @@ import {
   getPieceKeySpecialEntriesPerRow,
 } from '../pdf-svg-shared/pieceKeyShapeLayout'
 import useBoundStore from '../store/store'
-import { type BoardHex, type BoardPiece, HexTerrain } from '../types'
+import type { BoardHex, BoardPiece } from '../types'
 import { boardPieceToDecodedPieceID } from '../utils/map-utils'
 import { PdfMapBoardPiece } from './PdfMapBoardPiece'
 import { PdfMapHex } from './PdfMapHex'
@@ -75,7 +75,7 @@ export function PieceKeyShape({
   const glyphCoordinates =
     glyphCoordinatesProp ?? makeGlyphCoordinateLookup(settings.boardHexes)
   const glyphExportSettings = glyphExportSettingsProp ?? settings
-  const layout = getPieceKeyShapeLayout(entry)
+  const layout = getPieceKeyShapeLayout(entry, 'pdf')
   const viewBox = getPieceKeySymbolViewBox(layout)
   const viewWidth = viewBox.width
   const viewHeight = viewBox.height
@@ -83,10 +83,8 @@ export function PieceKeyShape({
   const height = Math.max(8, viewHeight * scale)
   const viewBoxString = `${viewBox.x} ${viewBox.y} ${viewWidth} ${viewHeight}`
   const decoded = boardPieceToDecodedPieceID(entry.piece)
-  const keyPiece =
-    decoded && getLaurAddonExportSymbol(entry.inventoryID)
-      ? { ...decoded, terrain: HexTerrain.laurWall }
-      : decoded
+  const isLaurAddon = Boolean(getLaurAddonExportSymbol(entry.inventoryID))
+  const keyPiece = decoded
 
   return (
     <Svg width={width} height={height} viewBox={viewBoxString}>
@@ -110,7 +108,7 @@ export function PieceKeyShape({
                 isShowPdfBuriedMarks={false}
                 buriedMarksByUID={new Map()}
                 useLegacyStartZones={settings.useLegacyStartZones}
-                isPieceKeyPreview
+                isPieceKeyPreview={!isLaurAddon}
                 glyphCoordinates={glyphCoordinates}
                 glyphExportSettings={glyphExportSettings}
               />
@@ -123,7 +121,12 @@ export function PieceKeyShape({
             overlayLevel={1}
             useLegacyStartZones={settings.useLegacyStartZones}
             is2DOverlayLevelEnabled
-            isPieceKeyPreview
+            isPieceKeyPreview={!isLaurAddon}
+            archTextOffsetX={
+              getLaurAddonExportSymbol(entry.inventoryID) === 'arch'
+                ? layout.center.x
+                : undefined
+            }
           />
         ) : null}
       </G>
@@ -333,7 +336,12 @@ function SpecialTiles({
   glyphExportSettings: GlyphExportSettings
 }) {
   const entriesPerRowFor = (group: (typeof model.specialGroups)[number]) =>
-    getPieceKeySpecialEntriesPerRow(group, PAGE_CONTENT_WIDTH / 3 - 12, scale)
+    getPieceKeySpecialEntriesPerRow(
+      group,
+      PAGE_CONTENT_WIDTH / 3 - 12,
+      scale,
+      'pdf',
+    )
   const groupRows = chunkSpecialGroups(model.specialGroups)
 
   return (

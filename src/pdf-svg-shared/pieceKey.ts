@@ -99,7 +99,7 @@ const PIECE_KEY_METADATA: {
     [HexTerrain.snow]: { title: 'Snow', description: 'white centers' },
     [HexTerrain.road]: { title: 'Road', description: 'gray centers' },
     [HexTerrain.wallWalk]: { title: 'Wall Walk', description: 'gray centers' },
-    [HexTerrain.toxic]: { title: 'Toxic Waste', description: 'black centers' },
+    [HexTerrain.toxic]: { title: 'Toxic Land', description: 'black centers' },
     [HexTerrain.ancientTerrain]: {
       title: 'Ancient Terrain',
       description: 'brown centers',
@@ -163,7 +163,8 @@ const PIECE_KEY_METADATA: {
     {
       id: 'laur',
       title: 'Pillars and Walls (Laur)',
-      description: 'pink borders, purple centers',
+      description:
+        'pillars have pink borders and purple centers; wall add-ons are pink',
       terrains: [HexTerrain.laurWall, HexTerrain.laurWallAddon],
       inventoryIDs: [
         Pieces.laurWallSquarePillar,
@@ -187,7 +188,7 @@ const PIECE_KEY_METADATA: {
     {
       id: 'ladder',
       title: 'Ladders',
-      description: 'orange borders',
+      description: 'black borders',
       terrains: [HexTerrain.ladder],
     },
     {
