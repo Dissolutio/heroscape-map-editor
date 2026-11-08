@@ -23,30 +23,42 @@ export const getBoardPieceOriginHexes = (
     ? boardHexes
     : Object.values(boardHexes)
 
+  // Index the hexes once (first match wins, like Array.find), so this stays
+  // linear in board size instead of scanning every hex for every piece.
+  const ownedOriginByUID = new Map<string, BoardHex>()
+  const unownedOriginByKey = new Map<string, BoardHex>()
+  const footprintHexByUID = new Map<string, BoardHex>()
+  for (const hex of hexes) {
+    if (hex.isObstacleOrigin) {
+      if (hex.boardPieceUID) {
+        if (!ownedOriginByUID.has(hex.boardPieceUID)) {
+          ownedOriginByUID.set(hex.boardPieceUID, hex)
+        }
+      } else {
+        const key = `${hex.inventoryID}|${hex.q}|${hex.r}|${hex.s}`
+        if (!unownedOriginByKey.has(key)) unownedOriginByKey.set(key, hex)
+      }
+    }
+    if (
+      hex.boardPieceUID &&
+      !hex.isVerticalClearanceHex &&
+      (hex.isObstacleOrigin || hex.isObstacleAuxiliary) &&
+      !footprintHexByUID.has(hex.boardPieceUID)
+    ) {
+      footprintHexByUID.set(hex.boardPieceUID, hex)
+    }
+  }
+
   return boardPieces.flatMap((piece) => {
     const terrain = piecesSoFar[piece.inventoryID]?.terrain ?? piece.terrain
     if (boardPieceRenderedElsewhere.has(terrain)) return []
 
     const sourceHex =
-      hexes.find(
-        (hex) =>
-          hex.isObstacleOrigin && hex.boardPieceUID === piece.boardPieceID,
-      ) ??
-      hexes.find(
-        (hex) =>
-          hex.isObstacleOrigin &&
-          !hex.boardPieceUID &&
-          hex.inventoryID === piece.inventoryID &&
-          hex.q === piece.pieceCoords.q &&
-          hex.r === piece.pieceCoords.r &&
-          hex.s === piece.pieceCoords.s,
+      ownedOriginByUID.get(piece.boardPieceID) ??
+      unownedOriginByKey.get(
+        `${piece.inventoryID}|${piece.pieceCoords.q}|${piece.pieceCoords.r}|${piece.pieceCoords.s}`,
       )
-    const sourcePieceHex = hexes.find(
-      (hex) =>
-        hex.boardPieceUID === piece.boardPieceID &&
-        !hex.isVerticalClearanceHex &&
-        (hex.isObstacleOrigin || hex.isObstacleAuxiliary),
-    )
+    const sourcePieceHex = footprintHexByUID.get(piece.boardPieceID)
     const altitude =
       sourceHex?.altitude ?? sourcePieceHex?.altitude ?? piece.altitude + 1
     const id =
