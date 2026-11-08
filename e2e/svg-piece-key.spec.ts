@@ -139,10 +139,11 @@ test('SVG levels and the standalone Legend export as Illustrator-safe paths', as
   await expect(key.getByText('Ladders', { exact: true })).toBeVisible()
   await expect(key.getByText('Rope Ladders', { exact: true })).toBeVisible()
   await expect(key.getByText('Glyphs', { exact: true })).toBeVisible()
-  await expect(key.getByText('24 space', { exact: true })).toBeVisible()
-  await expect(key.getByText('3 space', { exact: true })).toBeVisible()
-  await expect(key.getByText('2 space', { exact: true })).toBeVisible()
-  await expect(key.getByText('1 space', { exact: true })).toBeVisible()
+  const landGrid = key.getByTestId('svg-piece-key-land-grid')
+  await expect(landGrid.getByText('24 space', { exact: true })).toBeVisible()
+  await expect(landGrid.getByText('3 space', { exact: true })).toBeVisible()
+  await expect(landGrid.getByText('2 space', { exact: true })).toBeVisible()
+  await expect(landGrid.getByText('1 space', { exact: true })).toBeVisible()
   const missingLandShapes = await key
     .locator('[data-testid="svg-piece-key-land-cell"][data-has-entry="true"]')
     .evaluateAll((cells) =>
@@ -191,12 +192,15 @@ test('SVG levels and the standalone Legend export as Illustrator-safe paths', as
       })
     })
     const lastCard = cards[cards.length - 1]?.getBBox()
+    const firstCard = cards[0]?.getBBox()
     return {
       titleX: title?.getBBox().x,
       gridX: grid?.x,
       gridWidth: grid?.width,
       firstCardX: cards[0]?.getBBox().x,
       lastCardRight: lastCard ? lastCard.x + lastCard.width : undefined,
+      firstCardWidth: firstCard?.width,
+      cardCount: cards.length,
       textOverflows,
     }
   })
@@ -209,7 +213,9 @@ test('SVG levels and the standalone Legend export as Illustrator-safe paths', as
   expect(
     Math.abs(
       (keyLayout.lastCardRight ?? 0) -
-        ((keyLayout.gridX ?? 0) + (keyLayout.gridWidth ?? 0)),
+        ((keyLayout.firstCardX ?? 0) +
+          (((keyLayout.cardCount - 1) % 3) + 1) *
+            (keyLayout.firstCardWidth ?? 0)),
     ),
   ).toBeLessThan(3)
   expect(keyLayout.textOverflows).toEqual([])

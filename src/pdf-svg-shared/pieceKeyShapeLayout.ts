@@ -76,46 +76,46 @@ export const getPieceKeyShapeLayout = (
   const symbolBounds = addonBounds.length
     ? addonBounds
     : entry.inventoryID === Pieces.ladder
-        ? getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0).corners
-        : entry.inventoryID === Pieces.shipWall
-          ? getShipWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
-          : entry.inventoryID === Pieces.shipBow
-            ? getShipBowSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
-            : entry.inventoryID === Pieces.ropeLadder
-              ? (() => {
-                  const iconRadius = SVG_HEX_RADIUS * 0.4
-                  const arrowWidth = (iconRadius * 2) / 1.3
-                  const arrowHalfHeight = (arrowWidth * 7) / 24
-                  const x = SVG_HEX_APOTHEM
-                  const scale = 2
-                  return [
-                    {
-                      x: scale * (x - iconRadius),
-                      y: -scale * iconRadius,
-                    },
-                    {
-                      x: scale * (x + iconRadius),
-                      y: scale * iconRadius,
-                    },
-                    {
-                      x: scale * (x - arrowWidth / 2),
-                      y: scale * (-17 - arrowHalfHeight),
-                    },
-                    {
-                      x: scale * (x + arrowWidth / 2),
-                      y: scale * (-17 + arrowHalfHeight),
-                    },
-                    {
-                      x: scale * (x - arrowWidth / 2),
-                      y: scale * (15 - arrowHalfHeight),
-                    },
-                    {
-                      x: scale * (x + arrowWidth / 2),
-                      y: scale * (15 + arrowHalfHeight),
-                    },
-                  ]
-                })()
-              : []
+      ? getLadderSvgPolygonPoints(SVG_HEX_RADIUS * 2, 0).corners
+      : entry.inventoryID === Pieces.shipWall
+        ? getShipWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
+        : entry.inventoryID === Pieces.shipBow
+          ? getShipBowSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
+          : entry.inventoryID === Pieces.ropeLadder
+            ? (() => {
+                const iconRadius = SVG_HEX_RADIUS * 0.4
+                const arrowWidth = (iconRadius * 2) / 1.3
+                const arrowHalfHeight = (arrowWidth * 7) / 24
+                const x = SVG_HEX_APOTHEM
+                const scale = 2
+                return [
+                  {
+                    x: scale * (x - iconRadius),
+                    y: -scale * iconRadius,
+                  },
+                  {
+                    x: scale * (x + iconRadius),
+                    y: scale * iconRadius,
+                  },
+                  {
+                    x: scale * (x - arrowWidth / 2),
+                    y: scale * (-17 - arrowHalfHeight),
+                  },
+                  {
+                    x: scale * (x + arrowWidth / 2),
+                    y: scale * (-17 + arrowHalfHeight),
+                  },
+                  {
+                    x: scale * (x - arrowWidth / 2),
+                    y: scale * (15 - arrowHalfHeight),
+                  },
+                  {
+                    x: scale * (x + arrowWidth / 2),
+                    y: scale * (15 + arrowHalfHeight),
+                  },
+                ]
+              })()
+            : []
   const bounds = [...footprintBounds, ...symbolBounds]
   const minX = Math.min(...bounds.map(({ x }) => x))
   const maxX = Math.max(...bounds.map(({ x }) => x))

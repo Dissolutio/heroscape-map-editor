@@ -46,7 +46,12 @@ import { getTextPathOriginX } from '../svg-map/exportSvg'
 import { getSvgHexFillColor } from '../svg-map/getSvgHexColors'
 import { svgHiveBlobD } from '../svg-map/svg-hive'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
-import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
+import {
+  PDF_BORDER_WIDTH,
+  SVG_BORDER_WIDTH,
+  SVG_HEX_APOTHEM,
+  SVG_HEX_RADIUS,
+} from '../utils/constants'
 import {
   boardPieceToDecodedPieceID,
   hexUtilsHexToPixel,
@@ -1020,7 +1025,7 @@ describe('piece key shape rendering', () => {
     }
   })
 
-  it('renders the same single hive artwork as the SVG map in the key', () => {
+  it('uses PDF-style hive details in the key without changing the map artwork', () => {
     const model = getPieceKeyModel(
       [
         {
@@ -1048,16 +1053,16 @@ describe('piece key shape rendering', () => {
       createElement(SvgMapHex, {
         hex: originHex,
         buriedMarksByUID: new Map(),
-        isPieceKeyPreview: true,
       }),
     )
     expect(keySvg.split(svgHiveBlobD).length - 1).toBe(1)
     expect(mapSvg.split(svgHiveBlobD).length - 1).toBe(1)
-    const artworkShapes = (markup: string) =>
-      [...markup.matchAll(/<(?:polygon|path|ellipse)\b[^>]*>/g)].map(
-        ([shape]) => shape,
-      )
-    expect(artworkShapes(keySvg)).toEqual(artworkShapes(mapSvg))
+    expect(keySvg).toContain(
+      `fill="none" stroke="black" stroke-width="${PDF_BORDER_WIDTH / 1.2}"`,
+    )
+    expect(mapSvg).toContain(
+      `fill="${getSvgHexFillColor(originHex)}" stroke="black" stroke-width="${SVG_BORDER_WIDTH / 2.4}"`,
+    )
   })
 
   it('converts every multiline key line with its own SVG text anchor', () => {

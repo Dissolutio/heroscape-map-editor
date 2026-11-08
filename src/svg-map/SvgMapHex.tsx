@@ -283,7 +283,11 @@ const SvgMapHexComponent = ({
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
       >
-        <SvgHive6 hex={hex} isSubLevel={isSubLevel} />
+        <SvgHive6
+          hex={hex}
+          isSubLevel={isSubLevel}
+          isPieceKeyPreview={isPieceKeyPreview}
+        />
       </g>
     )
   }
