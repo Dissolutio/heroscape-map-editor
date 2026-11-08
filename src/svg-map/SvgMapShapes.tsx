@@ -1047,12 +1047,11 @@ export const SvgLaurWallArchText = ({
       }}
       // {...singleHexObstacleHeightTextProps()}
       y={0.2 * SVG_HEX_RADIUS}
-      textAnchor="middle"
       // upside down text is flipped in parent component, and adjusted here
       x={
         pieceRotation === 150 || pieceRotation === 210
-          ? -1.625 * SVG_HEX_RADIUS
-          : 1.625 * SVG_HEX_RADIUS
+          ? -2.75 * SVG_HEX_APOTHEM
+          : 0.65 * SVG_HEX_APOTHEM
       }
     >
       {/* TODO: International: this style will need adjustment for international/other languages, where char length changes */}

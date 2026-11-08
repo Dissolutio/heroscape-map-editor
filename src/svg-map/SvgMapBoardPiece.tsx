@@ -1,3 +1,4 @@
+import { cloneElement } from 'react'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   type BoardHex,
@@ -24,12 +25,14 @@ export const SvgMapBoardPiece = ({
   overlayLevel,
   is2DOverlayLevelEnabled = false,
   isPieceKeyPreview = false,
+  archTextOffsetX,
 }: {
   piece: DecodedPieceID
   viewingLevel: number
   overlayLevel: number
   is2DOverlayLevelEnabled?: boolean
   isPieceKeyPreview?: boolean
+  archTextOffsetX?: number
 }) => {
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
@@ -118,6 +121,24 @@ export const SvgMapBoardPiece = ({
     )
   }
   if (exportSymbol === 'laur-arch') {
+    const archText =
+      archTextOffsetX === undefined ? (
+        <SvgLaurWallArchText
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
+      ) : (
+        cloneElement(
+          SvgLaurWallArchText({
+            isSubLevel,
+            pieceRotation,
+          }),
+          {
+            x: archTextOffsetX,
+            textAnchor: 'middle',
+          },
+        )
+      )
     return (
       <g
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -135,10 +156,7 @@ export const SvgMapBoardPiece = ({
               : 'rotate(0)'
           }
         >
-          <SvgLaurWallArchText
-            isSubLevel={isSubLevel}
-            pieceRotation={pieceRotation}
-          />
+          {archText}
         </g>
       </g>
     )

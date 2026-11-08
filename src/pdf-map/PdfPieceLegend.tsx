@@ -122,6 +122,11 @@ export function PieceKeyShape({
             useLegacyStartZones={settings.useLegacyStartZones}
             is2DOverlayLevelEnabled
             isPieceKeyPreview={!isLaurAddon}
+            archTextOffsetX={
+              getLaurAddonExportSymbol(entry.inventoryID) === 'arch'
+                ? layout.center.x
+                : undefined
+            }
           />
         ) : null}
       </G>

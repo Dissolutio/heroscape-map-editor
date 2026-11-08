@@ -1,4 +1,5 @@
 import { G } from '@react-pdf/renderer'
+import { cloneElement } from 'react'
 import { getPieceExportSymbol } from '../pdf-svg-shared/pieceLegend'
 import {
   type BoardHex,
@@ -26,6 +27,7 @@ export const PdfMapBoardPiece = ({
   useLegacyStartZones,
   is2DOverlayLevelEnabled,
   isPieceKeyPreview = false,
+  archTextOffsetX,
 }: {
   piece: DecodedPieceID
   viewingLevel: number
@@ -33,6 +35,7 @@ export const PdfMapBoardPiece = ({
   useLegacyStartZones?: boolean
   is2DOverlayLevelEnabled?: boolean
   isPieceKeyPreview?: boolean
+  archTextOffsetX?: number
 }) => {
   const altitudeAdjusted = piece.altitude + 1
   const pixel = hexUtilsHexToPixel(piece.pieceCoords)
@@ -121,6 +124,24 @@ export const PdfMapBoardPiece = ({
     )
   }
   if (exportSymbol === 'laur-arch') {
+    const archText =
+      archTextOffsetX === undefined ? (
+        <PdfLaurWallArchText
+          isSubLevel={isSubLevel}
+          pieceRotation={pieceRotation}
+        />
+      ) : (
+        cloneElement(
+          PdfLaurWallArchText({
+            isSubLevel,
+            pieceRotation,
+          }),
+          {
+            x: archTextOffsetX,
+            textAnchor: 'middle',
+          },
+        )
+      )
     return (
       <G
         transform={`translate(${pixel.x}, ${pixel.y})rotate(${pieceRotation})`}
@@ -138,10 +159,7 @@ export const PdfMapBoardPiece = ({
               : 'rotate(0)'
           }
         >
-          <PdfLaurWallArchText
-            isSubLevel={isSubLevel}
-            pieceRotation={pieceRotation}
-          />
+          {archText}
         </G>
       </G>
     )

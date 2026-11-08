@@ -1,19 +1,18 @@
 import { readFileSync } from 'node:fs'
-import { type ReactNode, createElement, isValidElement } from 'react'
+import opentype from 'opentype.js'
+import {
+  type ReactElement,
+  type ReactNode,
+  createElement,
+  isValidElement,
+} from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it } from 'vitest'
-import opentype from 'opentype.js'
 import { piecesSoFar } from '../data/pieces'
 import { PdfMapBoardPiece } from '../pdf-map/PdfMapBoardPiece'
 import { PdfMapHex } from '../pdf-map/PdfMapHex'
 import { PdfLaurWallArchText } from '../pdf-map/PdfMapShapes'
 import { PieceKeyShape } from '../pdf-map/PdfPieceLegend'
-import type { PieceKeyEntry } from '../pdf-svg-shared/pieceKey'
-import { getPieceKeyModel } from '../pdf-svg-shared/pieceKey'
-import {
-  getPieceKeyShapeLayout,
-  getPieceKeySpecialEntriesPerRow,
-} from '../pdf-svg-shared/pieceKeyShapeLayout'
 import {
   getHexagonSvgPolygonPointsAt00,
   getLadderSvgPolygonPoints,
@@ -25,15 +24,20 @@ import {
   getShipBowSvgPolygonPoints,
   getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/hexPolygonPoints'
+import type { PieceKeyEntry } from '../pdf-svg-shared/pieceKey'
+import { getPieceKeyModel } from '../pdf-svg-shared/pieceKey'
+import {
+  getPieceKeyShapeLayout,
+  getPieceKeySpecialEntriesPerRow,
+} from '../pdf-svg-shared/pieceKeyShapeLayout'
 import useBoundStore from '../store/store'
+import { SvgMapBoardPiece } from '../svg-map/SvgMapBoardPiece'
 import { SvgMapHex } from '../svg-map/SvgMapHex'
-import { SvgLaurWallArchText } from '../svg-map/SvgMapShapes'
 import {
   SvgPieceKeyShape,
   getSvgPieceKeyWidth,
   wrapSvgPieceKeyText,
 } from '../svg-map/SvgPieceKey'
-import { SvgMapBoardPiece } from '../svg-map/SvgMapBoardPiece'
 import { type BoardHex, type BoardPiece, HexTerrain, Pieces } from '../types'
 import { SVG_HEX_APOTHEM, SVG_HEX_RADIUS } from '../utils/constants'
 import {
@@ -97,6 +101,38 @@ const collectTextContent = (node: ReactNode): string[] => {
     return collectTextContent(renderComponent(props))
   }
   return collectTextContent(props.children)
+}
+
+const findElementByType = (
+  node: ReactNode,
+  type: ReactElement['type'],
+): ReactElement | undefined => {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const found = findElementByType(child, type)
+      if (found) return found
+    }
+    return undefined
+  }
+  if (!isValidElement(node)) return undefined
+  if (node.type === type) return node
+  return findElementByType(node.props.children, type)
+}
+
+const findTextElement = (
+  node: ReactNode,
+  text: string,
+): ReactElement | undefined => {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const found = findTextElement(child, text)
+      if (found) return found
+    }
+    return undefined
+  }
+  if (!isValidElement(node)) return undefined
+  if (node.props.children === text) return node
+  return findTextElement(node.props.children, text)
 }
 
 const pieceKeyEntry = (
@@ -755,38 +791,88 @@ describe('piece key shape rendering', () => {
     }
   })
 
-  it('centers ARCH text in PDF and SVG arch symbols', () => {
-    const pdfText = PdfLaurWallArchText({
-      isSubLevel: false,
-      pieceRotation: 0,
-    }) as { props: { x: number; textAnchor: string } }
-    const pdfReversedText = PdfLaurWallArchText({
-      isSubLevel: false,
-      pieceRotation: 150,
-    }) as { props: { x: number; textAnchor: string } }
-    const svgText = SvgLaurWallArchText({
-      isSubLevel: false,
-      pieceRotation: 0,
-    }) as { props: { x: number; textAnchor: string } }
-    const svgReversedText = SvgLaurWallArchText({
-      isSubLevel: false,
-      pieceRotation: 150,
-    }) as { props: { x: number; textAnchor: string } }
-    const pdfCenter = boundsCenter(
-      getLaurLongWallPdfPolygonPoints(SVG_HEX_RADIUS, 1).corners,
-    ).x
-    const svgCenter = boundsCenter(
-      getLaurLongWallSvgPolygonPoints(SVG_HEX_RADIUS).corners,
-    ).x
+  it('centers ARCH text in the key without changing map arch text', () => {
+    const boardPiece: BoardPiece = {
+      uid: 'key-arch',
+      inventoryID: Pieces.laurWallArch,
+      altitude: 0,
+      rotation: 0,
+      pieceCoords: { q: 0, r: 0, s: 0 },
+    }
+    const model = getPieceKeyModel([boardPiece], {}, true)
+    const entry = pieceKeyEntry(model, Pieces.laurWallArch)
+    expect(entry).toBeDefined()
+    if (!entry) return
 
-    expect(pdfText.props.textAnchor).toBe('middle')
-    expect(pdfText.props.x).toBeCloseTo(pdfCenter)
-    expect(pdfReversedText.props.textAnchor).toBe('middle')
-    expect(pdfReversedText.props.x).toBeCloseTo(-pdfCenter)
-    expect(svgText.props.textAnchor).toBe('middle')
-    expect(svgText.props.x).toBeCloseTo(svgCenter)
-    expect(svgReversedText.props.textAnchor).toBe('middle')
-    expect(svgReversedText.props.x).toBeCloseTo(-svgCenter)
+    const pdfLayout = getPieceKeyShapeLayout(entry, 'pdf')
+    const svgLayout = getPieceKeyShapeLayout(entry, 'svg')
+    const pdfKeyPiece = findElementByType(
+      PieceKeyShape({
+        entry,
+        useTerrainBorderColor: true,
+        scale: 0.075,
+      }),
+      PdfMapBoardPiece,
+    )
+    const svgKeyPiece = findElementByType(
+      SvgPieceKeyShape(entry, 500, 600, 1, 'centered-arch'),
+      SvgMapBoardPiece,
+    )
+    expect(pdfKeyPiece?.props.archTextOffsetX).toBeCloseTo(pdfLayout.center.x)
+    expect(svgKeyPiece?.props.archTextOffsetX).toBeCloseTo(svgLayout.center.x)
+
+    const pdfKeyText = findTextElement(
+      PdfMapBoardPiece(pdfKeyPiece?.props as never),
+      'ARCH',
+    )
+    expect(pdfKeyText?.props.x).toBeCloseTo(pdfLayout.center.x)
+    expect(pdfKeyText?.props.textAnchor).toBe('middle')
+
+    const svgKeyMarkup = renderToStaticMarkup(
+      SvgMapBoardPiece(svgKeyPiece?.props as never),
+    )
+    const svgKeyText = svgKeyMarkup.match(/<text\b([^>]*)>ARCH<\/text>/)
+    expect(svgKeyText).not.toBeNull()
+    expect(svgKeyText?.[1]).toContain(`x="${svgLayout.center.x}"`)
+    expect(svgKeyText?.[1]).toContain('text-anchor="middle"')
+
+    for (const rotation of [150, 210]) {
+      const mapPiece: BoardPiece = {
+        ...boardPiece,
+        uid: `map-arch-${rotation}`,
+        rotation: rotation / 60,
+      }
+      const decoded = boardPieceToDecodedPieceID(mapPiece)
+      expect(decoded).toBeDefined()
+      if (!decoded) continue
+
+      const pdfMapPiece = PdfMapBoardPiece({
+        piece: decoded,
+        viewingLevel: 1,
+        overlayLevel: 1,
+      })
+      const pdfMapArchText = findElementByType(pdfMapPiece, PdfLaurWallArchText)
+      expect(pdfMapArchText).toBeDefined()
+      const pdfMapText = PdfLaurWallArchText(
+        pdfMapArchText?.props as never,
+      ) as ReactElement
+      expect(pdfMapText?.props.x).toBe(-2.75 * SVG_HEX_APOTHEM)
+      expect(pdfMapText?.props.y).toBe(0.2 * SVG_HEX_RADIUS)
+      expect('textAnchor' in (pdfMapText?.props ?? {})).toBe(false)
+
+      const svgMapMarkup = renderToStaticMarkup(
+        SvgMapBoardPiece({
+          piece: decoded,
+          viewingLevel: 1,
+          overlayLevel: 1,
+        }),
+      )
+      const svgMapText = svgMapMarkup.match(/<text\b([^>]*)>ARCH<\/text>/)
+      expect(svgMapText).not.toBeNull()
+      expect(svgMapText?.[1]).toContain(`x="${-2.75 * SVG_HEX_APOTHEM}"`)
+      expect(svgMapText?.[1]).toContain(`y="${0.2 * SVG_HEX_RADIUS}"`)
+      expect(svgMapText?.[1]).not.toContain('text-anchor=')
+    }
   })
 
   it('wraps SVG special captions within their cells using Inter metrics', () => {

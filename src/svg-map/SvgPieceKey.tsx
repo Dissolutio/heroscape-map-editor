@@ -124,6 +124,11 @@ export const SvgPieceKeyShape = (
                   viewingLevel={isLaurAddon ? 1 : 100}
                   overlayLevel={isLaurAddon ? 1 : 100}
                   isPieceKeyPreview={!isLaurAddon}
+                  archTextOffsetX={
+                    getLaurAddonExportSymbol(entry.inventoryID) === 'arch'
+                      ? layout.center.x
+                      : undefined
+                  }
                 />
               ) : null}
             </g>
