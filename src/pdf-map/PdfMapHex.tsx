@@ -19,6 +19,7 @@ import {
   yTransformForMultiHex3Rotation,
 } from '../pdf-svg-shared/textRotations'
 import useBoundStore from '../store/store'
+import { getOutcropTextColor } from '../svg-map/getSvgHexColors'
 import { pdfHexTextStyle, pdfTextProps } from '../svg-map/pdfText'
 import { type BoardHex, HexTerrain, Pieces } from '../types'
 import {
@@ -466,14 +467,7 @@ export const PdfMapHex = ({
     inventoryID === Pieces.glacier1
   ) {
     const { hideHeight } = getHexGlyphExportOptions(hex)
-    const glacierTextColor = isSubLevel
-      ? svgSubLevelColors.glacierText
-      : svgColors.glacierText
-    const outcropTextColor = isSubLevel
-      ? svgSubLevelColors.outcropText
-      : svgColors.outcropText
-    const textColor =
-      hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
+    const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
     return (
       <G transform={`translate(${pixel.x}, ${pixel.y})`}>
         <PdfMultiHex1

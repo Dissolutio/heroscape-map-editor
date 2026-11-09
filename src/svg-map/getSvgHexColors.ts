@@ -25,6 +25,16 @@ function isBoardHex(hex: BoardHex | DecodedPieceID): hex is BoardHex {
   return (<BoardHex>hex).pieceRotation !== undefined
 }
 
+export const getOutcropTextColor = (
+  terrain: string,
+  isSubLevel?: boolean,
+) => {
+  const colors = isSubLevel ? svgSubLevelColors : svgColors
+  return terrain === HexTerrain.glacier || terrain === HexTerrain.toxicOutcrop
+    ? colors.glacierText
+    : colors.outcropText
+}
+
 const getSvgHexColorOutline = (hex: BoardHex | DecodedPieceID) => {
   // TODO: color: refactor this to be more direct
   const isSolidTerrain = isSolidTerrainHex(hex.terrain)

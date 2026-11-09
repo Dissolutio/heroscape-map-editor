@@ -38,6 +38,7 @@ import {
 } from '../utils/tileLetters'
 import { type BuriedMarksByUID, getBuriedMarksForHex } from '../utils/tileMarks'
 import { svgColors, svgSubLevelColors } from '../world/maphex/hexColors'
+import { getOutcropTextColor } from './getSvgHexColors'
 import {
   SvgCannon,
   SvgCastleArch,
@@ -73,7 +74,6 @@ import {
   SvgShipWall,
   SvgStartZone,
   SvgTree415,
-  getOutcropTextColor,
 } from './SvgMapShapes'
 import { SvgMapShapeSettingsContext } from './SvgMapShapes'
 import { hexTextStyle, singleHexObstacleHeightTextProps } from './svgText'
@@ -422,7 +422,7 @@ const SvgMapHexComponent = ({
     inventoryID === Pieces.toxicOutcrop1 ||
     inventoryID === Pieces.glacier1
   ) {
-    const textColor = getOutcropTextColor({ hex, isSubLevel })
+    const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
     const { hideHeight } = getGlyphExportOptions(
       hex,
       glyphCoordinates,

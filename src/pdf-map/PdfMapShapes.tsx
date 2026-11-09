@@ -48,6 +48,7 @@ import {
   getShipWallSvgPolygonPoints,
 } from '../pdf-svg-shared/hexPolygonPoints'
 import {
+  getOutcropTextColor,
   getSvgHexBorderColor,
   getSvgHexFillColor,
   getSvgHexSubLevelBorderColor,
@@ -1515,14 +1516,7 @@ export const PdfSvgOutcrop6 = ({
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const glacierTextColor = isSubLevel
-    ? svgSubLevelColors.glacierText
-    : svgColors.glacierText
-  const outcropTextColor = isSubLevel
-    ? svgSubLevelColors.outcropText
-    : svgColors.outcropText
-  const textColor =
-    hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
@@ -1616,14 +1610,7 @@ export const PdfSvgOutcrop3 = ({
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const glacierTextColor = isSubLevel
-    ? svgSubLevelColors.glacierText
-    : svgColors.glacierText
-  const outcropTextColor = isSubLevel
-    ? svgSubLevelColors.outcropText
-    : svgColors.outcropText
-  const textColor =
-    hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
@@ -1681,14 +1668,7 @@ export const PdfSvgOutcrop4 = ({
     SVG_HEX_RADIUS,
     PDF_BORDER_WIDTH,
   )
-  const glacierTextColor = isSubLevel
-    ? svgSubLevelColors.glacierText
-    : svgColors.glacierText
-  const outcropTextColor = isSubLevel
-    ? svgSubLevelColors.outcropText
-    : svgColors.outcropText
-  const textColor =
-    hex.terrain === HexTerrain.glacier ? glacierTextColor : outcropTextColor
+  const textColor = getOutcropTextColor(hex.terrain, isSubLevel)
   const pieceRotation = ((hex?.pieceRotation ?? 0) % 6) * 60
   return (
     <>
