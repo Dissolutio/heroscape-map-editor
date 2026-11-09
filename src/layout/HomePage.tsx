@@ -3,32 +3,33 @@ import type { CameraControls } from '@react-three/drei'
 import React, { Suspense, useEffect, useRef, useState } from 'react'
 import type { Group, Object3DEventMap } from 'three'
 import { ControlsWidthContextProvider } from '../controls/useControlWidth'
-import useAppUpdater from '../hooks/useAppUpdater'
+import { type ReleaseNoteEntry, decideReleaseNotes } from '../data/releaseNotes'
 import { isE2E, isWhatsNewE2EOptIn } from '../e2e/isE2E'
 import { useAppReady } from '../e2e/useAppReady'
+import useAppUpdater from '../hooks/useAppUpdater'
 import useAutoLoadMapFile from '../hooks/useAutoLoadMapFile'
 import { EditPieceInventoryDialog } from '../inventory/EditPieceInventoryDialog'
+import SetsToBuildMapDialog from '../inventory/SetsToBuildMapDialog'
 import ViewMapInventoryDialog from '../inventory/ViewMapInventoryDialog'
-import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
-import useBoundStore from '../store/store'
-import { lazyWithRetry } from '../utils/lazyWithRetry'
-import { getBoardPiecesMaxLevel } from '../utils/map-utils'
-import { decideReleaseNotes, type ReleaseNoteEntry } from '../data/releaseNotes'
 import { LS_KEYS } from '../local-storage/keys'
 import {
   safeGetJSON,
   safeHasItem,
   safeSetItem,
 } from '../local-storage/safeStorage'
+import { useLocalPieceInventory } from '../local-storage/useLocalPieceInventory'
+import useBoundStore from '../store/store'
+import { lazyWithRetry } from '../utils/lazyWithRetry'
+import { getBoardPiecesMaxLevel } from '../utils/map-utils'
 import { ControlTabs } from './ControlTabs'
 import CreateMapFormDialog from './CreateMapFormDialog'
+import CropMapPortraitDialog from './CropMapPortraitDialog'
 import EditMapFormDialog from './EditMapFormDialog'
 import { HeaderNav } from './HeaderNav'
 import LoadMapFromUrlDialog from './LoadMapFromUrlDialog'
 import PiecesGridDialog from './PiecesGridDialog'
-import CropMapPortraitDialog from './CropMapPortraitDialog'
-import { useMuiMediaQuery } from './useMuiMediaQuery'
 import WhatsNewDialog, { releaseNoteEntries } from './WhatsNewDialog'
+import { useMuiMediaQuery } from './useMuiMediaQuery'
 // 1. Define your lazy-loaded components
 const ReactPdfRoot = lazyWithRetry(() => import('../pdf-map/ReactPdfRoot'))
 const SvgMapDisplay = lazyWithRetry(() => import('../svg-map/SvgMapDisplay'))
@@ -152,6 +153,7 @@ export default function HomePage() {
       <CropMapPortraitDialog />
       <EditPieceInventoryDialog />
       <ViewMapInventoryDialog />
+      <SetsToBuildMapDialog />
       <PiecesGridDialog cameraControlsRef={cameraControlsRef} />
       <LoadMapFromUrlDialog />
       <div

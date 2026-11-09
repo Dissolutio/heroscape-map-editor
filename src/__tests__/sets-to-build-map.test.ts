@@ -1,8 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { Pieces, type BoardPiece } from '../types'
+import { terrainSetsByShortID } from '../data/terrainSets'
+import { type BoardPiece, Pieces } from '../types'
 import {
+  DEFAULT_VISIBLE_OPTION_COUNT,
+  EXCLUDED_SET_IDS,
+  JUNGLE_PIECE_EQUIVALENTS,
   getPiecesMissingFromCollection,
-  getSetsToBuildMap,
+  getSetsToBuildMapCatalog,
 } from '../utils/setsToBuildMap'
 
 const pieces = (...inventoryIDs: string[]): BoardPiece[] =>
@@ -14,80 +18,197 @@ const pieces = (...inventoryIDs: string[]): BoardPiece[] =>
     pieceCoords: { q: index, r: 0, s: -index },
   }))
 
-describe('sets needed to build a map', () => {
-  it('returns the one set containing a unique piece', () => {
-    expect(getSetsToBuildMap(pieces(Pieces.shipBow)).sets).toEqual([
-      {
-        setID: 'X',
-        name: 'Shores of Valhlla',
-        abbreviation: 'ShoV',
-        count: 1,
-      },
-    ])
-  })
+const category = (
+  mapPieces: BoardPiece[],
+  id: 'contemporary' | 'classic' | 'mixed',
+) =>
+  getSetsToBuildMapCatalog(mapPieces).categories.find((item) => item.id === id)
 
-  it('counts multiple copies of a set when its inventory is exceeded', () => {
-    const mapPieces = pieces(...Array(11).fill(Pieces.castleBaseCorner))
-    expect(getSetsToBuildMap(mapPieces).sets).toEqual([
-      {
-        setID: 'N',
-        name: 'Fortress of the Archkyrie',
-        abbreviation: 'FotA',
-        count: 2,
-      },
-    ])
-  })
-
-  it('selects both sets when their inventories cover different pieces', () => {
-    expect(
-      getSetsToBuildMap(pieces(Pieces.castleBaseCorner, Pieces.shipBow)).sets,
-    ).toMatchObject([
-      { setID: 'N', count: 1 },
-      { setID: 'X', count: 1 },
-    ])
-  })
-
-  it('lists pieces that are not in any set', () => {
-    expect(getSetsToBuildMap(pieces('custom-piece')).notInAnySet).toEqual([
-      { inventoryID: 'custom-piece', title: 'custom-piece', count: 1 },
-    ])
-  })
-
-  it('reports Generic pieces and start zones separately from set demand', () => {
-    const result = getSetsToBuildMap(
-      pieces(Pieces.generic1, Pieces.startZone1, Pieces.shipBow),
+describe('sets to build this map', () => {
+  it('excludes MSTK, TOTK, and TOTK2 from every catalog option', () => {
+    const result = getSetsToBuildMapCatalog(
+      pieces(Pieces.grass1, Pieces.shipBow, Pieces.castleBaseCorner),
+    )
+    const ids = result.categories.flatMap((item) =>
+      item.options.flatMap((option) => option.sets.map((set) => set.setID)),
     )
 
-    expect(result.sets.map(({ setID }) => setID)).toEqual(['X'])
-    expect(result.ignored).toEqual([
-      { inventoryID: Pieces.generic1, title: 'Generic 1-hex', count: 1 },
-      {
-        inventoryID: Pieces.startZone1,
-        title: 'Start Zone: Player 1',
-        count: 1,
-      },
+    expect(EXCLUDED_SET_IDS).toEqual(['A', 'B', 'DD'])
+    expect(ids).not.toContain('A')
+    expect(ids).not.toContain('B')
+    expect(ids).not.toContain('DD')
+  })
+
+  it('reports the Classic blocker for Contemporary-only Laur walls', () => {
+    const result = getSetsToBuildMapCatalog(pieces(Pieces.laurWallShort))
+
+    expect(result.categories.map((item) => item.id)).toEqual(['contemporary'])
+    expect(result.reasons.join(' ')).toContain('Classic')
+    expect(result.reasons.join(' ')).toContain('Laur Wall')
+    expect(result.reasons.join(' ')).toContain('no Classic set has')
+  })
+
+  it('reports the Contemporary blocker for Classic-only Marvel ruins', () => {
+    const result = getSetsToBuildMapCatalog(pieces(Pieces.marvel))
+
+    expect(result.categories.map((item) => item.id)).toEqual(['classic'])
+    expect(result.reasons.join(' ')).toContain('Contemporary')
+    expect(result.reasons.join(' ')).toContain('Warehouse Ruin')
+    expect(result.reasons.join(' ')).toContain('no Contemporary set has')
+  })
+
+  it('uses Mixed alone when Laur walls and Marvel ruins both block pure catalogs', () => {
+    const result = getSetsToBuildMapCatalog(
+      pieces(Pieces.laurWallShort, Pieces.marvel),
+    )
+
+    expect(result.categories.map((item) => item.id)).toEqual(['mixed'])
+    expect(
+      result.categories[0]?.options[0]?.sets.map((set) => set.setID),
+    ).toEqual(expect.arrayContaining(['O']))
+    expect(result.reasons.join(' ')).toContain('Laur Wall')
+    expect(result.reasons.join(' ')).toContain('Warehouse Ruin')
+  })
+
+  it('maps Ticalla palms to GaLE in Contemporary recommendations', () => {
+    const result = category(pieces(Pieces.palm14), 'contemporary')
+
+    expect(result?.options[0]?.sets.map((set) => set.setID)).toContain('L')
+  })
+
+  it('maps GaLE palms to Ticalla Jungle in Classic recommendations', () => {
+    const result = category(pieces(Pieces.laurPalm13), 'classic')
+
+    expect(result?.options[0]?.sets.map((set) => set.setID)).toContain('M')
+  })
+
+  it('omits Mixed options that only add boxes to a valid pure option', () => {
+    const result = getSetsToBuildMapCatalog(pieces(Pieces.grass1))
+
+    expect(result.categories.map((item) => item.id)).toEqual([
+      'contemporary',
+      'classic',
+    ])
+    expect(result.reasons.join(' ')).toContain(
+      'do not offer a better combination',
+    )
+  })
+
+  it('exports the complete one-to-one jungle interchange table', () => {
+    expect(JUNGLE_PIECE_EQUIVALENTS).toEqual([
+      { laur: Pieces.laurPalm13, ticalla: Pieces.palm14 },
+      { laur: Pieces.laurPalm14, ticalla: Pieces.palm15 },
+      { laur: Pieces.laurPalm15, ticalla: Pieces.palm16 },
+      { laur: Pieces.laurBrush10, ticalla: Pieces.brush9 },
     ])
   })
 
-  it('matches the greedy fallback on a small map', () => {
-    const mapPieces = pieces(Pieces.shipBow)
-    const exact = getSetsToBuildMap(mapPieces)
-    const greedy = getSetsToBuildMap(mapPieces, 0)
+  it('canonicalizes Mixed jungle options to GaLE without duplicate distributions', () => {
+    const result = getSetsToBuildMapCatalog(
+      pieces(Pieces.laurWallShort, Pieces.laurPalm13, Pieces.marvel),
+    )
+    const mixed = result.categories.find((item) => item.id === 'mixed')
+    const signatures = mixed?.options.map((option) =>
+      option.sets
+        .filter((set) => set.setID !== 'L')
+        .map((set) => `${set.setID}:${set.count}`)
+        .join(','),
+    )
 
-    expect(exact.approximate).toBe(false)
-    expect(greedy.approximate).toBe(true)
-    expect(greedy.sets).toEqual(exact.sets)
+    expect(
+      mixed?.options.every((option) =>
+        option.sets.every((set) => set.setID !== 'M'),
+      ),
+    ).toBe(true)
+    expect(new Set(signatures).size).toBe(signatures?.length)
   })
 
-  it('breaks equal-size ties by preferring lower set IDs', () => {
-    const first = getSetsToBuildMap(pieces(Pieces.grass1))
-    const second = getSetsToBuildMap(pieces(Pieces.grass1))
+  it('returns only irreducible Mixed options within the box and count ceilings', () => {
+    const mapPieces = pieces(Pieces.shipBow, Pieces.castleBaseCorner)
+    const options = category(mapPieces, 'mixed')?.options ?? []
+    const minimum = Math.min(...options.map((option) => option.boxCount))
 
-    expect(first.sets.map(({ setID }) => setID)).toEqual(['A'])
-    expect(second.sets).toEqual(first.sets)
+    expect(options.length).toBeLessThanOrEqual(20)
+    expect(DEFAULT_VISIBLE_OPTION_COUNT).toBe(6)
+    expect(options.every((option) => option.boxCount <= minimum + 2)).toBe(true)
+
+    const sets = options.map((option) =>
+      option.sets.reduce<Record<string, number>>((counts, set) => {
+        counts[set.setID] = set.count
+        return counts
+      }, {}),
+    )
+    for (const [index, option] of sets.entries()) {
+      for (const other of sets.slice(index + 1)) {
+        const optionContainsOther = Object.entries(other).every(
+          ([id, count]) => (option[id] ?? 0) >= count,
+        )
+        const otherContainsOption = Object.entries(option).every(
+          ([id, count]) => (other[id] ?? 0) >= count,
+        )
+        expect(optionContainsOther).toBe(false)
+        expect(otherContainsOption).toBe(false)
+      }
+    }
+
+    for (const option of options) {
+      for (const set of option.sets) {
+        const remaining = option.sets.map((item) => ({
+          id: item.setID,
+          count: item.count - (item.setID === set.setID ? 1 : 0),
+        }))
+        const stillBuildable = [Pieces.shipBow, Pieces.castleBaseCorner].every(
+          (pieceID) =>
+            remaining.reduce((total, item) => {
+              const inventory =
+                terrainSetsByShortID[
+                  item.id as keyof typeof terrainSetsByShortID
+                ]?.inventory
+              return total + item.count * (inventory?.[pieceID] ?? 0)
+            }, 0) > 0,
+        )
+        expect(stillBuildable).toBe(false)
+      }
+    }
   })
 
-  it('reports only pieces missing from a personal collection', () => {
+  it('keeps unlisted and ignored pieces separate from catalog feasibility', () => {
+    const result = getSetsToBuildMapCatalog(
+      pieces('custom-piece', Pieces.generic1, Pieces.startZone1),
+    )
+
+    expect(result.notInAnySet).toEqual([
+      { inventoryID: 'custom-piece', title: 'custom-piece', count: 1 },
+    ])
+    expect(result.categories.every((item) => item.options.length > 0)).toBe(
+      true,
+    )
+    expect(result.ignored.map((item) => item.inventoryID)).toEqual([
+      Pieces.generic1,
+      Pieces.startZone1,
+    ])
+  })
+
+  it('does not mark a finished search with no Mixed option as approximate', () => {
+    const result = getSetsToBuildMapCatalog(pieces(Pieces.grass1))
+
+    expect(result.categories.some((item) => item.id === 'mixed')).toBe(false)
+    expect(result.categories.every((item) => !item.approximate)).toBe(true)
+    expect(result.reasons.join(' ')).not.toContain('Approximate')
+  })
+
+  it('reports approximate options promptly when the time budget is zero', () => {
+    const startedAt = performance.now()
+    const result = getSetsToBuildMapCatalog(
+      pieces(...Array(5_000).fill(Pieces.grass1)),
+      0,
+    )
+
+    expect(performance.now() - startedAt).toBeLessThan(500)
+    expect(result.categories.some((item) => item.approximate)).toBe(true)
+  })
+
+  it('reports pieces missing from a personal collection', () => {
     expect(
       getPiecesMissingFromCollection(
         pieces(Pieces.shipBow, Pieces.castleBaseCorner),
@@ -100,15 +221,5 @@ describe('sets needed to build a map', () => {
         count: 1,
       },
     ])
-  })
-
-  it('keeps large maps within the set-copy budget using the greedy fallback', () => {
-    const mapPieces = pieces(...Array(30_000).fill(Pieces.castleBaseCorner))
-    const startedAt = performance.now()
-    const result = getSetsToBuildMap(mapPieces)
-
-    expect(performance.now() - startedAt).toBeLessThan(500)
-    expect(result.approximate).toBe(true)
-    expect(result.sets).toMatchObject([{ setID: 'N', count: 3_000 }])
   })
 })

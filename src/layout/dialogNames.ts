@@ -3,6 +3,7 @@ export const DIALOGS = {
   editMap: 'editMap',
   cropMapPortrait: 'cropMapPortrait',
   viewMapInventory: 'viewMapInventory',
+  setsToBuildMap: 'setsToBuildMap',
   editPersonalInventory: 'editPersonalInventory',
   viewPiecesGrid: 'viewPiecesGrid',
   loadFromUrl: 'loadFromUrl',

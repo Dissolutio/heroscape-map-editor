@@ -1,35 +1,30 @@
 import {
-  ButtonBase,
   Button,
+  ButtonBase,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Tooltip,
-  useMediaQuery,
   Typography,
+  useMediaQuery,
 } from '@mui/material'
+import { yellow } from '@mui/material/colors'
+import { Box } from '@mui/system'
 import React from 'react'
+import { piecesSoFar } from '../data/pieces'
 import { DIALOGS } from '../layout/dialogNames'
 import useBoundStore from '../store/store'
-import { Box } from '@mui/system'
-import { piecesSoFar } from '../data/pieces'
-import { yellow } from '@mui/material/colors'
-import {
-  countPiecesUsedWithLaurStacking,
-  type LaurReconcileDetail,
-  reconcileLaurLegacyToStackableUsage,
-} from './laurInventoryReconcile'
 import {
   getEffectiveTerrainConstraintInventory,
   hasActiveTerrainConstraints,
   isPenModePieceAvailable,
 } from '../utils/terrain-constraints'
-import { getCollectionLandSupply } from '../utils/adaptToCollection'
 import {
-  getPiecesMissingFromCollection,
-  getSetsToBuildMap,
-} from '../utils/setsToBuildMap'
+  type LaurReconcileDetail,
+  countPiecesUsedWithLaurStacking,
+  reconcileLaurLegacyToStackableUsage,
+} from './laurInventoryReconcile'
 
 const ViewMapInventoryDialog = () => {
   const fullScreen = useMediaQuery('(max-width:900px)')
@@ -54,19 +49,6 @@ const ViewMapInventoryDialog = () => {
   )
   const userPieceInventory = useBoundStore((state) => state.userPieceInventory)
   const togglePenMode = useBoundStore((state) => state.togglePenMode)
-
-  const setsToBuild = React.useMemo(
-    () => getSetsToBuildMap(boardPieces),
-    [boardPieces],
-  )
-  const collectionSupply = React.useMemo(
-    () => getCollectionLandSupply(userPieceInventory),
-    [userPieceInventory],
-  )
-  const missingFromCollection = React.useMemo(
-    () => getPiecesMissingFromCollection(boardPieces, userPieceInventory),
-    [boardPieces, userPieceInventory],
-  )
 
   const combinedInventory = getEffectiveTerrainConstraintInventory({
     setsUsed: hexMap?.setsUsed ?? [],
@@ -148,70 +130,6 @@ const ViewMapInventoryDialog = () => {
       >
         <DialogTitle>View Map Inventory</DialogTitle>
         <DialogContent>
-          <Box
-            component="section"
-            aria-label="Sets to build this map"
-            sx={{ mb: 2 }}
-          >
-            <Typography variant="h6" component="h2">
-              Sets to build this map
-            </Typography>
-            {setsToBuild.sets.map((set) => (
-              <Typography key={set.setID} variant="body2">
-                {set.count}× {set.name} ({set.abbreviation})
-              </Typography>
-            ))}
-            {setsToBuild.sets.length === 0 && (
-              <Typography variant="body2">
-                {setsToBuild.notInAnySet.length === 0
-                  ? 'No official terrain sets are needed.'
-                  : 'No official sets cover the pieces on this map.'}
-              </Typography>
-            )}
-            {setsToBuild.approximate && (
-              <Typography variant="body2">
-                Approximate (greedy fallback)
-              </Typography>
-            )}
-            {setsToBuild.notInAnySet.length > 0 && (
-              <Typography variant="body2">
-                Not in any set:{' '}
-                {setsToBuild.notInAnySet
-                  .map((piece) => `${piece.count}× ${piece.title}`)
-                  .join(', ')}
-              </Typography>
-            )}
-            {setsToBuild.ignored.length > 0 && (
-              <Typography variant="body2">
-                Not counted (generic, start zones, or glyphs):{' '}
-                {setsToBuild.ignored
-                  .map((piece) => `${piece.count}× ${piece.title}`)
-                  .join(', ')}
-              </Typography>
-            )}
-            {(hexMap?.objectiveMarkers?.length ?? 0) > 0 && (
-              <Typography variant="body2">
-                Objective markers: {hexMap?.objectiveMarkers?.length} (not
-                counted)
-              </Typography>
-            )}
-            {collectionSupply.hasAnyPieces && (
-              <Box sx={{ mt: 1 }}>
-                <Typography variant="subtitle1">You also need</Typography>
-                {missingFromCollection.length > 0 ? (
-                  missingFromCollection.map((piece) => (
-                    <Typography key={piece.inventoryID} variant="body2">
-                      {piece.count}× {piece.title}
-                    </Typography>
-                  ))
-                ) : (
-                  <Typography variant="body2">
-                    Your collection covers all pieces on this map.
-                  </Typography>
-                )}
-              </Box>
-            )}
-          </Box>
           <Box>
             {sortedPieceIDs.map((pieceID) => {
               const available = combinedInventory[pieceID] || 0
