@@ -24,6 +24,8 @@ import type {
   PieceKeySpecialGroup,
 } from './pieceKey'
 
+export const PIECE_KEY_LINE_WIDTH = 2
+
 const PDF_BATTLEMENT_KEY_DOWNWARD_OFFSET = 24 * 0.55
 
 export const getPieceKeyShapeLayout = (

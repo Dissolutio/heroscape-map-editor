@@ -7,6 +7,7 @@ import {
   shouldUseTerrainBorderColorForPieceKeyEntry,
 } from '../pdf-svg-shared/pieceKey'
 import {
+  PIECE_KEY_LINE_WIDTH,
   getPieceKeyRowShapeHeight,
   getPieceKeyShapeLayout,
   getPieceKeySpecialEntryRowLayout,
@@ -42,10 +43,10 @@ const KeyBorderRect = ({
   <>
     <rect x={x} y={y} width={width} height={height} fill="black" />
     <rect
-      x={x + 1}
-      y={y + 1}
-      width={Math.max(0, width - 2)}
-      height={Math.max(0, height - 2)}
+      x={x + PIECE_KEY_LINE_WIDTH}
+      y={y + PIECE_KEY_LINE_WIDTH}
+      width={Math.max(0, width - PIECE_KEY_LINE_WIDTH * 2)}
+      height={Math.max(0, height - PIECE_KEY_LINE_WIDTH * 2)}
       fill="white"
     />
   </>

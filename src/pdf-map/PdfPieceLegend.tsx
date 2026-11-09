@@ -15,6 +15,7 @@ import {
   shouldUseTerrainBorderColorForPieceKeyEntry,
 } from '../pdf-svg-shared/pieceKey'
 import {
+  PIECE_KEY_LINE_WIDTH,
   getPieceKeyRowShapeHeight,
   getPieceKeyShapeLayout,
   getPieceKeyShapeScale,
@@ -216,8 +217,8 @@ function LandGrid({
           width: '20%',
           minHeight: PDF_TABLE_HEADER_HEIGHT,
           padding: 3,
-          borderRightWidth: 1,
-          borderBottomWidth: 1,
+          borderRightWidth: PIECE_KEY_LINE_WIDTH,
+          borderBottomWidth: PIECE_KEY_LINE_WIDTH,
           alignItems: 'center',
           justifyContent: 'center',
         }}
@@ -242,8 +243,8 @@ function LandGrid({
             width: `${80 / Math.max(columns.length, 1)}%`,
             minHeight: PDF_TABLE_HEADER_HEIGHT,
             padding: 2,
-            borderRightWidth: 1,
-            borderBottomWidth: 1,
+            borderRightWidth: PIECE_KEY_LINE_WIDTH,
+            borderBottomWidth: PIECE_KEY_LINE_WIDTH,
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -281,8 +282,8 @@ function LandGrid({
             width: '20%',
             minHeight: rowHeight,
             padding: 2,
-            borderRightWidth: 1,
-            borderBottomWidth: 1,
+            borderRightWidth: PIECE_KEY_LINE_WIDTH,
+            borderBottomWidth: PIECE_KEY_LINE_WIDTH,
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -303,8 +304,8 @@ function LandGrid({
                 width: `${80 / Math.max(columns.length, 1)}%`,
                 minHeight: rowHeight,
                 padding: 1,
-                borderRightWidth: 1,
-                borderBottomWidth: 1,
+                borderRightWidth: PIECE_KEY_LINE_WIDTH,
+                borderBottomWidth: PIECE_KEY_LINE_WIDTH,
                 justifyContent: 'center',
                 alignItems: 'center',
               }}
@@ -340,8 +341,8 @@ function LandGrid({
               wrap={false}
               style={{
                 marginBottom: chunkIndex === chunks.length - 1 ? 8 : 0,
-                borderTopWidth: 1,
-                borderLeftWidth: 1,
+                borderTopWidth: PIECE_KEY_LINE_WIDTH,
+                borderLeftWidth: PIECE_KEY_LINE_WIDTH,
               }}
             >
               {chunk.map((chunkRow) =>
@@ -456,7 +457,7 @@ function SpecialTiles({
                 style={{
                   width: '33.333%',
                   padding: 3,
-                  borderWidth: 1,
+                  borderWidth: PIECE_KEY_LINE_WIDTH,
                   flexDirection: 'column',
                 }}
               >
