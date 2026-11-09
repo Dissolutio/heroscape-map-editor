@@ -12,6 +12,7 @@ import {
   getLaurShortWallPolygonPoints,
   getLaurWallRuinPdfPolygonPoints,
   getLaurWallRuinSvgPolygonPoints,
+  getRoadWallSvgPolygonPoints,
   getShipBowSvgPolygonPoints,
   getShipWallSvgPolygonPoints,
 } from './hexPolygonPoints'
@@ -33,7 +34,9 @@ export const getPieceKeyShapeLayout = (
   })
   const laurSymbol = getLaurAddonExportSymbol(entry.inventoryID)
   const footprintBounds =
-    laurSymbol || entry.inventoryID === Pieces.ropeLadder
+    laurSymbol ||
+    entry.inventoryID === Pieces.ropeLadder ||
+    entry.inventoryID === Pieces.roadWall
       ? []
       : positions.length
         ? positions.flatMap(({ x, y }) => [
@@ -72,7 +75,9 @@ export const getPieceKeyShapeLayout = (
         : renderer === 'pdf'
           ? getLaurWallRuinPdfPolygonPoints(SVG_HEX_RADIUS).corners
           : getLaurWallRuinSvgPolygonPoints(SVG_HEX_RADIUS).corners
-    : []
+    : entry.inventoryID === Pieces.roadWall
+        ? getRoadWallSvgPolygonPoints(SVG_HEX_RADIUS, 0).corners
+        : []
   const addonCenterX = addonBounds.length
     ? (Math.min(...addonBounds.map(({ x }) => x)) +
         Math.max(...addonBounds.map(({ x }) => x))) /
