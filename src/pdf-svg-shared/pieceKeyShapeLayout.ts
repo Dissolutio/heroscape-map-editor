@@ -24,6 +24,8 @@ import type {
   PieceKeySpecialGroup,
 } from './pieceKey'
 
+const PDF_BATTLEMENT_KEY_DOWNWARD_OFFSET = 24 * 0.55
+
 export const getPieceKeyShapeLayout = (
   entry: PieceKeyEntry,
   renderer: 'pdf' | 'svg' = 'svg',
@@ -150,7 +152,10 @@ export const getPieceKeyShapeLayout = (
     origin,
     center: { x: (minX + maxX) / 2, y: (minY + maxY) / 2 },
     minX,
-    minY,
+    minY:
+      renderer === 'pdf' && entry.inventoryID === Pieces.battlement
+        ? minY - PDF_BATTLEMENT_KEY_DOWNWARD_OFFSET
+        : minY,
     width: maxX - minX,
     height: maxY - minY,
   }
