@@ -4,7 +4,10 @@ import React from 'react'
 import { FaDiscord, FaSlack } from 'react-icons/fa'
 import { FcAddImage, FcDownload, FcLink, FcUpload } from 'react-icons/fc'
 import { MdExpandLess, MdExpandMore, MdFolderZip } from 'react-icons/md'
-import { getUrlMapString } from '../data/jsonCrush'
+import {
+  buildShareUrlWithFallback,
+  type ShareUrlRemoved,
+} from '../data/shareUrl'
 import { piecesSoFar } from '../data/pieces'
 import DownloadMapFileButtons from '../layout/DownloadMapFileButtons'
 import { LoadFileHiddenInputs } from '../layout/LoadFileHiddenInputs'
@@ -257,12 +260,61 @@ export const FileControlsTab = ({
   //   }
   // }
   const buildShareUrl = (viewMode?: 'a' | 'b') => {
-    const myUrl = getUrlMapString({
+    const result = buildShareUrlWithFallback({
       hexMap: hexMap,
       boardPieces: boardPieces,
+      baseUrl: window.location.origin + window.location.pathname,
+      view: viewMode,
     })
-    const viewModeParam = viewMode ? `&v=${viewMode}` : ''
-    return `${window.location.origin + window.location.pathname}?m=${myUrl}${viewModeParam}`
+    if ('error' in result) {
+      enqueueSnackbar({
+        message:
+          'Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.',
+        variant: 'error',
+      })
+      return null
+    }
+    return result
+  }
+  const enqueueShareSuccess = (
+    successMessage: string,
+    removed: ShareUrlRemoved[],
+  ) => {
+    if (!removed.length) {
+      enqueueSnackbar({ message: successMessage, variant: 'success' })
+      return
+    }
+
+    const labels = removed.map((item) => {
+      switch (item) {
+        case 'startZones':
+          return 'start zones'
+        case 'objectiveMarkers':
+          return 'objective markers'
+        case 'glyphs':
+          return 'glyphs'
+      }
+    })
+    const omitted =
+      labels.length === 1
+        ? labels[0]
+        : labels.length === 2
+          ? `${labels[0]} and ${labels[1]}`
+          : `${labels.slice(0, -1).join(', ')} and ${labels[labels.length - 1]}`
+    const action: SnackbarAction = (snackbarId: SnackbarKey) => (
+      <button type="button" onClick={() => closeSnackbar(snackbarId)}>
+        Dismiss
+      </button>
+    )
+    enqueueSnackbar({
+      message: [
+        `Your map was too big for a link, so this link leaves out ${omitted}.`,
+        'Download the map file to share everything.',
+      ].join(' '),
+      variant: 'warning',
+      persist: true,
+      action,
+    })
   }
   const handleShareError = (err: unknown) => {
     console.log('Attempted clipboard write, failed:', err)
@@ -285,21 +337,14 @@ export const FileControlsTab = ({
     })
   }
   const onClickCopy = async () => {
-    const fullUrl = buildShareUrl()
-    if (fullUrl.length > 2082) {
-      enqueueSnackbar({
-        message:
-          'Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.',
-        variant: 'error',
-      })
-      return
-    }
+    const share = buildShareUrl()
+    if (!share) return
     try {
-      await navigator.clipboard.writeText(fullUrl)
-      enqueueSnackbar({
-        message: 'Copied shareable map URL to clipboard!',
-        variant: 'success',
-      })
+      await navigator.clipboard.writeText(share.url)
+      enqueueShareSuccess(
+        'Copied shareable map URL to clipboard!',
+        share.removed,
+      )
     } catch (err) {
       handleShareError(err)
     }
@@ -311,66 +356,42 @@ export const FileControlsTab = ({
     return `[${label}](${fullUrl})`
   }
   const onClickCopyMarkdownLink = async () => {
-    const fullUrl = buildShareUrl()
-    if (fullUrl.length > 2082) {
-      enqueueSnackbar({
-        message:
-          'Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.',
-        variant: 'error',
-      })
-      return
-    }
-    const markdownLink = buildShareMarkdownLink(fullUrl)
+    const share = buildShareUrl()
+    if (!share) return
+    const markdownLink = buildShareMarkdownLink(share.url)
     try {
       await navigator.clipboard.writeText(markdownLink)
-      enqueueSnackbar({
-        message: 'Copied markdown link to clipboard!',
-        variant: 'success',
-      })
+      enqueueShareSuccess('Copied markdown link to clipboard!', share.removed)
     } catch (err) {
       handleShareError(err)
     }
   }
   const onClickCopyBuildInstructionsMarkdownLink = async () => {
-    const fullUrl = buildShareUrl('a')
-    if (fullUrl.length > 2082) {
-      enqueueSnackbar({
-        message:
-          'Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.',
-        variant: 'error',
-      })
-      return
-    }
+    const share = buildShareUrl('a')
+    if (!share) return
     const markdownLink = buildShareMarkdownLink(
-      fullUrl,
+      share.url,
       ' (Build Instructions)',
     )
     try {
       await navigator.clipboard.writeText(markdownLink)
-      enqueueSnackbar({
-        message: 'Copied build instructions markdown link to clipboard!',
-        variant: 'success',
-      })
+      enqueueShareSuccess(
+        'Copied build instructions markdown link to clipboard!',
+        share.removed,
+      )
     } catch (err) {
       handleShareError(err)
     }
   }
   const onClickCopyBuildInstructionsLink = async () => {
-    const fullUrl = buildShareUrl('a')
-    if (fullUrl.length > 2082) {
-      enqueueSnackbar({
-        message:
-          'Map is too large to be stored in a URL. You can try downloading your map as a file and sharing the file.',
-        variant: 'error',
-      })
-      return
-    }
+    const share = buildShareUrl('a')
+    if (!share) return
     try {
-      await navigator.clipboard.writeText(fullUrl)
-      enqueueSnackbar({
-        message: 'Copied shareable build instructions URL to clipboard!',
-        variant: 'success',
-      })
+      await navigator.clipboard.writeText(share.url)
+      enqueueShareSuccess(
+        'Copied shareable build instructions URL to clipboard!',
+        share.removed,
+      )
     } catch (err) {
       handleShareError(err)
     }
