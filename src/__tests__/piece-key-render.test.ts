@@ -1133,7 +1133,7 @@ describe('piece key shape rendering', () => {
     expect(label?.props.style).toMatchObject({ maxWidth: '100%' })
   })
 
-  it('top-aligns every Special Tiles entry row in both key layouts', () => {
+  it('aligns Special Tiles shapes per renderer and group', () => {
     const boardPieces = Object.keys(piecesSoFar).map((inventoryID, index) => ({
       uid: `layout-${index}`,
       inventoryID,
@@ -1159,16 +1159,156 @@ describe('piece key shape rendering', () => {
           renderer,
         )
         for (const row of rows) {
-          const layout = getPieceKeySpecialEntryRowLayout(row, scale, renderer)
-          expect(
-            layout.entries.map(({ shapeTopOffset }) => shapeTopOffset),
-          ).toEqual(row.map(() => 0))
+          const layout = getPieceKeySpecialEntryRowLayout(
+            row,
+            scale,
+            renderer,
+            group.id,
+          )
+          for (const { shapeHeight, shapeTopOffset } of layout.entries) {
+            const expectedOffset =
+              renderer === 'pdf'
+                ? 0
+                : group.id === 'ship'
+                  ? layout.shapeHeight - shapeHeight
+                  : (layout.shapeHeight - shapeHeight) / 2
+            expect(shapeTopOffset).toBeCloseTo(expectedOffset)
+          }
           expect(layout.shapeHeight).toBe(
             Math.max(...layout.entries.map(({ shapeHeight }) => shapeHeight)),
           )
         }
       }
     }
+  })
+
+  it('bottom-aligns a Ship Wall beside the Ship Bow', () => {
+    const model = getPieceKeyModel(
+      [Pieces.shipBow, Pieces.shipWall].map((inventoryID, index) => ({
+        uid: `ship-key-${inventoryID}`,
+        inventoryID,
+        altitude: 0,
+        rotation: 0,
+        pieceCoords: { q: index, r: 0, s: -index },
+      })),
+      {},
+      true,
+    )
+    const shipGroup = model.specialGroups.find(({ id }) => id === 'ship')
+    const shipBow = shipGroup?.entries.find(
+      ({ inventoryID }) => inventoryID === Pieces.shipBow,
+    )
+    const shipWall = shipGroup?.entries.find(
+      ({ inventoryID }) => inventoryID === Pieces.shipWall,
+    )
+
+    expect(shipBow).toBeDefined()
+    expect(shipWall).toBeDefined()
+    if (!shipBow || !shipWall) return
+
+    const layout = getPieceKeySpecialEntryRowLayout(
+      [shipBow, shipWall],
+      1,
+      'svg',
+      'ship',
+    )
+    const wallLayout = layout.entries.find(
+      ({ entry }) => entry.inventoryID === Pieces.shipWall,
+    )
+
+    expect(wallLayout?.shapeTopOffset).toBeGreaterThan(0)
+    expect(wallLayout?.shapeTopOffset).toBeCloseTo(
+      layout.shapeHeight - (wallLayout?.shapeHeight ?? 0),
+    )
+  })
+
+  it('centers SVG land header text blocks in their cells', () => {
+    const model = getPieceKeyModel(
+      [
+        {
+          uid: 'land-header-grass',
+          inventoryID: Pieces.grass24,
+          altitude: 0,
+          rotation: 0,
+          pieceCoords: { q: 0, r: 0, s: 0 },
+        },
+      ],
+      {},
+      true,
+    )
+    const keyWidth = getSvgPieceKeyWidth(model, SVG_HEX_RADIUS * 4)
+    const markup = renderToStaticMarkup(
+      SvgPieceKey({
+        model,
+        renderOptions: {
+          viewingLevel: 1,
+          overlayLevel: 1,
+          isOverlayViewing: false,
+          is2DOverlayLevelEnabled: false,
+          isShow2DExportTileLetters: false,
+          isShow2DExportBuriedMarks: false,
+          glyphCoordinates: new Set(),
+          glyphExportSettings: { isHideHeightsOnGlyphs: false },
+        },
+        useTerrainBorderColor: true,
+        x: 0,
+        y: 0,
+        width: keyWidth,
+      }),
+    )
+    const textAttributes = (text: string) =>
+      [...markup.matchAll(/<text\b([^>]*)>([\s\S]*?)<\/text>/g)].find(
+        ([, , content]) => content.replace(/<[^>]+>/g, '').trim() === text,
+      )?.[1]
+    const attributeNumber = (attributes: string, name: string) =>
+      Number(attributes.match(new RegExp(`${name}="([^"]+)"`))?.[1])
+    const tableMarkupStart = markup.indexOf(
+      '<g data-testid="svg-piece-key-land-table">',
+    )
+    expect(tableMarkupStart).toBeGreaterThanOrEqual(0)
+    const headerRects = [
+      ...markup.slice(tableMarkupStart).matchAll(/<rect\b([^>]*)>/g),
+    ].slice(0, 4)
+    expect(headerRects).toHaveLength(4)
+
+    const expectCenteredBlock = (texts: string[], cellAttributes: string) => {
+      const elements = texts.map((text) => textAttributes(text))
+      expect(elements.every(Boolean)).toBe(true)
+      if (elements.some((attributes) => !attributes)) return
+
+      const lineAttributes = elements as string[]
+      const fontSizes = lineAttributes.map((attributes) =>
+        attributeNumber(attributes, 'font-size'),
+      )
+      const cellTop = attributeNumber(cellAttributes, 'y')
+      const cellHeight = attributeNumber(cellAttributes, 'height')
+      const cellCenterX =
+        attributeNumber(cellAttributes, 'x') +
+        attributeNumber(cellAttributes, 'width') / 2
+      const lineGap = SVG_HEX_RADIUS * 0.24 * 0.25
+      const blockHeight =
+        fontSizes.reduce((sum, size) => sum + size, 0) +
+        lineGap * (fontSizes.length - 1)
+      let expectedBaseline =
+        cellTop + (cellHeight - blockHeight) / 2 + fontSizes[0]
+
+      lineAttributes.forEach((attributes, index) => {
+        if (index > 0) expectedBaseline += lineGap + fontSizes[index]
+        expect(
+          Math.abs(attributeNumber(attributes, 'y') - expectedBaseline),
+        ).toBeLessThanOrEqual(1)
+        expect(attributes).toContain('text-anchor="middle"')
+        expect(
+          Math.abs(attributeNumber(attributes, 'x') - cellCenterX),
+        ).toBeLessThanOrEqual(1)
+      })
+    }
+
+    expectCenteredBlock(
+      ['Notice centers', 'and border colors'],
+      headerRects[0][1],
+    )
+    expectCenteredBlock(['Grass', 'green centers'], headerRects[2][1])
   })
 
   it('uses the map hive artwork in the key', () => {

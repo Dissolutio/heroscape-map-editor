@@ -224,17 +224,27 @@ export const getPieceKeySpecialEntryRowLayout = (
   entries: PieceKeyEntry[],
   scale: number,
   renderer: 'pdf' | 'svg' = 'svg',
+  groupID?: string,
 ) => {
-  const entryLayouts = entries.map((entry) => ({
-    entry,
-    shapeHeight: getPieceKeyShapeLayout(entry, renderer).height * scale,
-    shapeTopOffset: 0,
-  }))
+  const shapeHeights = entries.map(
+    (entry) => getPieceKeyShapeLayout(entry, renderer).height * scale,
+  )
+  const shapeHeight = Math.max(0, ...shapeHeights)
+  const entryLayouts = entries.map((entry, index) => {
+    const entryShapeHeight = shapeHeights[index]
+    return {
+      entry,
+      shapeHeight: entryShapeHeight,
+      shapeTopOffset:
+        renderer === 'pdf'
+          ? 0
+          : groupID === 'ship'
+            ? shapeHeight - entryShapeHeight
+            : (shapeHeight - entryShapeHeight) / 2,
+    }
+  })
   return {
-    shapeHeight: Math.max(
-      0,
-      ...entryLayouts.map(({ shapeHeight }) => shapeHeight),
-    ),
+    shapeHeight,
     entries: entryLayouts,
   }
 }

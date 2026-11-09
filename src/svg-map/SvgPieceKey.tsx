@@ -25,6 +25,7 @@ const SPECIAL_ENTRY_PADDING = SVG_HEX_RADIUS * 0.2
 const SPECIAL_CARD_PADDING = SVG_HEX_RADIUS * 0.12
 const KEY_FONT_SIZE = SVG_HEX_RADIUS * 0.24
 const KEY_HEADING_SIZE = SVG_HEX_RADIUS * 0.4
+const HEADER_TEXT_LINE_GAP = KEY_FONT_SIZE * 0.25
 
 const KeyBorderRect = ({
   x,
@@ -233,6 +234,23 @@ const getTerrainTablesHeight = (
   }).reduce((height, tableHeight) => height + tableHeight, 0)
 }
 
+const getHeaderTextBaselines = (
+  top: number,
+  height: number,
+  fontSizes: number[],
+) => {
+  const blockHeight =
+    fontSizes.reduce((sum, size) => sum + size, 0) +
+    HEADER_TEXT_LINE_GAP * Math.max(0, fontSizes.length - 1)
+  const baselines: number[] = []
+  let baseline = top + (height - blockHeight) / 2 + (fontSizes[0] ?? 0)
+  for (const [index, fontSize] of fontSizes.entries()) {
+    if (index > 0) baseline += HEADER_TEXT_LINE_GAP + fontSize
+    baselines.push(baseline)
+  }
+  return baselines
+}
+
 const specialGroupRowHeight = (
   group: PieceKeyModel['specialGroups'][number],
   cardWidth: number,
@@ -406,6 +424,11 @@ const renderTerrainTables = (
         const startX = x + (width - activeWidth) / 2
         const headerHeight = LAND_HEADER_HEIGHT
         const thisY = tableY
+        const [noticeFirstBaseline, noticeSecondBaseline] =
+          getHeaderTextBaselines(thisY, headerHeight, [
+            KEY_FONT_SIZE,
+            KEY_FONT_SIZE,
+          ])
         const tableHeight =
           headerHeight +
           rows.reduce(
@@ -426,8 +449,9 @@ const renderTerrainTables = (
               height={headerHeight}
             />
             <text
-              x={startX + 5}
-              y={thisY + 21}
+              x={startX + rowHeaderWidth / 2}
+              y={noticeFirstBaseline}
+              textAnchor="middle"
               fontFamily="Inter, Arial, sans-serif"
               fontSize={KEY_FONT_SIZE}
               fontWeight="bold"
@@ -436,8 +460,9 @@ const renderTerrainTables = (
               Notice centers
             </text>
             <text
-              x={startX + 5}
-              y={thisY + 43}
+              x={startX + rowHeaderWidth / 2}
+              y={noticeSecondBaseline}
+              textAnchor="middle"
               fontFamily="Inter, Arial, sans-serif"
               fontSize={KEY_FONT_SIZE}
               fontWeight="bold"
@@ -447,6 +472,17 @@ const renderTerrainTables = (
             </text>
             {tableColumns.map((column, columnIndex) => {
               const cellX = startX + rowHeaderWidth + columnIndex * cellWidth
+              const centerX = cellX + cellWidth / 2
+              const titleLines = wrapSvgPieceKeyText(
+                column.title,
+                cellWidth - 8,
+                KEY_HEADING_SIZE,
+              )
+              const columnBaselines = getHeaderTextBaselines(
+                thisY,
+                headerHeight,
+                [...titleLines.map(() => KEY_HEADING_SIZE), KEY_FONT_SIZE],
+              )
               return (
                 <g key={column.terrain} data-testid="svg-piece-key-land-column">
                   <KeyBorderRect
@@ -456,19 +492,34 @@ const renderTerrainTables = (
                     height={headerHeight}
                   />
                   <text
-                    x={cellX + cellWidth / 2}
-                    y={thisY + 24}
+                    x={centerX}
+                    y={columnBaselines[0]}
                     textAnchor="middle"
                     fontFamily="Inter, Arial, sans-serif"
                     fontSize={KEY_HEADING_SIZE}
                     fontWeight="bold"
                     fill="black"
                   >
-                    {column.title}
+                    {titleLines.length === 1
+                      ? titleLines[0]
+                      : titleLines.map((line, index) => (
+                          <tspan
+                            key={`${column.terrain}-title-${index}`}
+                            x={centerX}
+                            dy={
+                              index === 0
+                                ? 0
+                                : columnBaselines[index] -
+                                  columnBaselines[index - 1]
+                            }
+                          >
+                            {line}
+                          </tspan>
+                        ))}
                   </text>
                   <text
-                    x={cellX + cellWidth / 2}
-                    y={thisY + 46}
+                    x={centerX}
+                    y={columnBaselines[titleLines.length]}
                     textAnchor="middle"
                     fontFamily="Inter, Arial, sans-serif"
                     fontSize={KEY_FONT_SIZE}
@@ -680,6 +731,8 @@ const renderSpecialGroups = (
                   const rowLayout = getPieceKeySpecialEntryRowLayout(
                     entries,
                     scale,
+                    'svg',
+                    group.id,
                   )
                   const entryY =
                     currentY +
