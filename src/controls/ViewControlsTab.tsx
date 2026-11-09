@@ -52,6 +52,7 @@ import {
   type PictureCaptureOptions,
 } from '../world/camera/pictureCaptureOptions'
 import { isLookSettingsAvailable } from '../layout/lookSettingsVisibility'
+import HotkeysDialog from '../layout/HotkeysDialog'
 
 const GENERIC_PIECE_COLORS_TOOLTIP =
   'Cap colors also drive SVG/PDF; 2D sub-level shades are derived automatically. Side colors affect only 3D.'
@@ -108,6 +109,7 @@ export default function ViewControlsTab({
     textureLoadStatus === 'error'
   const [isTakingPictureOptionsOpen, setIsTakingPictureOptionsOpen] =
     React.useState(false)
+  const [isHotkeysDialogOpen, setIsHotkeysDialogOpen] = React.useState(false)
   const boardHexes = useBoundStore((s) => s.boardHexes)
   const { hotkeyLookup } = useHotkeyConfig()
   const isPdfOpen = useBoundStore((s) => s.isPdfOpen)
@@ -250,6 +252,14 @@ export default function ViewControlsTab({
           padding: 0,
         }}
       >
+        <List>
+          <ControlTabsListItemButton
+            title="View and edit keyboard shortcuts"
+            primary="Hotkeys"
+            onClick={() => setIsHotkeysDialogOpen(true)}
+            icon={<FcSettings />}
+          />
+        </List>
         {is3DOpen && (
           <List>
             {/* Center map in camera view */}
@@ -438,6 +448,10 @@ export default function ViewControlsTab({
           </List>
         )}
       </div>
+      <HotkeysDialog
+        open={isHotkeysDialogOpen}
+        onClose={() => setIsHotkeysDialogOpen(false)}
+      />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {is3DOpen && <ViewPreferencesSwitchForm />}
         {isPdfOpen && <PdfPreferencesSwitchForm />}

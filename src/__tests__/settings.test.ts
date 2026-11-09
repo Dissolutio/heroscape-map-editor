@@ -108,6 +108,7 @@ describe('settings persistence', () => {
         transparentPictureBackground: true,
         fov: 74,
       },
+      hotkeyOverrides: { cycleNextPieceRotation: ['shift+q'] },
     }
     const serialized = serializeSettings(changed)
     expect(serialized).toEqual({
@@ -129,6 +130,7 @@ describe('settings persistence', () => {
         genericFluidSideColor: '#456789',
         rememberedMapAuthor: 'Map Builder',
         lookSettings: changed.lookSettings,
+        hotkeyOverrides: { cycleNextPieceRotation: ['shift+q'] },
       },
     })
     storage.setItem(LS_KEYS.settings, JSON.stringify(serialized))
@@ -366,6 +368,26 @@ describe('settings persistence', () => {
         g2: 0,
       },
       customConstraintInventoryFileName: 'valid.csv',
+    })
+  })
+
+  it('sanitizes persisted hotkey overrides', () => {
+    storage.setItem(
+      LS_KEYS.settings,
+      JSON.stringify({
+        v: 1,
+        values: {
+          hotkeyOverrides: {
+            cycleNextPieceRotation: ['shift+q'],
+            togglePenModeRock: ['not a key'],
+            unknownAction: ['x'],
+          },
+        },
+      }),
+    )
+
+    expect(loadSettings().hotkeyOverrides).toEqual({
+      cycleNextPieceRotation: ['shift+q'],
     })
   })
 

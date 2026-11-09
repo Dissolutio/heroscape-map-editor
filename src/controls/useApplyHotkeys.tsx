@@ -450,18 +450,23 @@ export const useApplyHotkeys = ({
     togglePenModeShadow: togglePenModeShadow,
   }
 
-  // ALL ACTION-ASSIGNED HOTKEYS ARE APPLIED HERE
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  // biome-ignore lint/complexity/noForEach: <explanation>
-  Object.entries(hotkeyConfig).forEach((value: any) => {
-    if (value[0] && value[1] && actionMap[value[1]]) {
-      useHotkeys(value[0], () => actionMap[value[1]]?.(), {
-        enabled: currentDialog !== DIALOGS.cropMapPortrait,
-        enableOnFormTags: false,
-        enableOnContentEditable: false,
-      })
-    }
+  const activeHotkeys = Object.keys(hotkeyConfig).filter((key) => {
+    const action = hotkeyConfig[key]
+    return action !== undefined && actionMap[action] !== undefined
   })
+  useHotkeys(
+    activeHotkeys,
+    (_, hotkeysEvent) => {
+      const action = hotkeyConfig[hotkeysEvent.hotkey]
+      if (action) actionMap[action]?.()
+    },
+    {
+      enabled: currentDialog !== DIALOGS.cropMapPortrait,
+      enableOnFormTags: false,
+      enableOnContentEditable: false,
+    },
+    [hotkeyConfig, actionMap],
+  )
 
   return null
 }

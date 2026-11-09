@@ -2,6 +2,8 @@ import { CameraControls } from '@react-three/drei'
 import type React from 'react'
 import useBoundStore from '../../store/store'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { useHotkeyConfig } from '../../controls/useHotkeyConfig'
+import type { HotkeyAction } from '../../data/hotkeys'
 
 export default function MyCameraControls({
   cameraControlsRef,
@@ -18,88 +20,46 @@ export default function MyCameraControls({
   const isCameraDisabled = useBoundStore(
     (s) => s.isCameraDisabled || s.isTakingPicture || s.isDraggingPiece,
   )
+  const { hotkeyConfig } = useHotkeyConfig()
   const cameraHotkeyOptions = { enabled: !isSelectionMenuOpen }
-  useHotkeys(
-    'up',
-    () => {
-      cameraControlsRef?.current?.truck(0, -1, true)
-    },
-    cameraHotkeyOptions,
-  )
-  useHotkeys(
-    'down',
-    () => cameraControlsRef?.current?.truck(0, 1, true),
-    cameraHotkeyOptions,
-  )
-  useHotkeys(
-    'left',
-    () => cameraControlsRef?.current?.truck(-1, 0, true),
-    cameraHotkeyOptions,
-  )
-  useHotkeys(
-    'right',
-    () => cameraControlsRef?.current?.truck(1, 0, true),
-    cameraHotkeyOptions,
-  )
-  useHotkeys(
-    'shift+up',
-    () => {
-      cameraControlsRef.current?.rotate(0, -Math.PI / 180, true)
-    },
-    cameraHotkeyOptions,
-  )
-  useHotkeys(
-    'shift+down',
-    () => {
-      cameraControlsRef.current?.rotate(0, Math.PI / 180, true)
-    },
-    cameraHotkeyOptions,
-  )
-  useHotkeys(
-    'shift+left',
-    () => {
-      cameraControlsRef.current?.rotate(-Math.PI / 180, 0, true)
-    },
-    cameraHotkeyOptions,
-  )
-  useHotkeys(
-    'shift+right',
-    () => {
-      cameraControlsRef.current?.rotate(Math.PI / 180, 0, true)
-    },
-    cameraHotkeyOptions,
-  )
-  useHotkeys(
-    'mod+left',
-    () => {
-      cameraControlsRef.current?.rotate((15 * -Math.PI) / 180, 0, true)
-    },
-    cameraHotkeyOptions,
-  )
-  useHotkeys(
-    'mod+right',
-    () => {
-      cameraControlsRef.current?.rotate((15 * Math.PI) / 180, 0, true)
-    },
-    cameraHotkeyOptions,
-  )
-  useHotkeys(
-    'mod+up',
-    () => {
+  const cameraActions: Partial<Record<HotkeyAction, () => void>> = {
+    cameraPanUp: () => cameraControlsRef?.current?.truck(0, -1, true),
+    cameraPanDown: () => cameraControlsRef?.current?.truck(0, 1, true),
+    cameraPanLeft: () => cameraControlsRef?.current?.truck(-1, 0, true),
+    cameraPanRight: () => cameraControlsRef?.current?.truck(1, 0, true),
+    cameraRotateUp: () =>
+      cameraControlsRef.current?.rotate(0, -Math.PI / 180, true),
+    cameraRotateDown: () =>
+      cameraControlsRef.current?.rotate(0, Math.PI / 180, true),
+    cameraRotateLeft: () =>
+      cameraControlsRef.current?.rotate(-Math.PI / 180, 0, true),
+    cameraRotateRight: () =>
+      cameraControlsRef.current?.rotate(Math.PI / 180, 0, true),
+    cameraRotateLeftFar: () =>
+      cameraControlsRef.current?.rotate((15 * -Math.PI) / 180, 0, true),
+    cameraRotateRightFar: () =>
+      cameraControlsRef.current?.rotate((15 * Math.PI) / 180, 0, true),
+    cameraZoomIn: () =>
       isOrthoCam
         ? cameraControlsRef?.current?.zoom(1, true)
-        : cameraControlsRef?.current?.dolly(1, true)
-    },
-    cameraHotkeyOptions,
-  )
-  useHotkeys(
-    'mod+down',
-    () => {
+        : cameraControlsRef?.current?.dolly(1, true),
+    cameraZoomOut: () =>
       isOrthoCam
         ? cameraControlsRef?.current?.zoom(-1, true)
-        : cameraControlsRef?.current?.dolly(-1, true)
+        : cameraControlsRef?.current?.dolly(-1, true),
+  }
+  const cameraHotkeys = Object.keys(hotkeyConfig).filter((key) => {
+    const action = hotkeyConfig[key]
+    return action !== undefined && cameraActions[action] !== undefined
+  })
+  useHotkeys(
+    cameraHotkeys,
+    (_, hotkeysEvent) => {
+      const action = hotkeyConfig[hotkeysEvent.hotkey]
+      if (action) cameraActions[action]?.()
     },
     cameraHotkeyOptions,
+    [hotkeyConfig, isOrthoCam],
   )
 
   return (
