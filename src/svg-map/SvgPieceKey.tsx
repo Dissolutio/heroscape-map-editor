@@ -673,7 +673,11 @@ const renderSpecialGroups = (
               scale,
             )
             return (
-              <g key={group.id} data-testid="svg-piece-key-special-group">
+              <g
+                key={group.id}
+                data-testid="svg-piece-key-special-group"
+                data-group-id={group.id}
+              >
                 <KeyBorderRect
                   x={cardX}
                   y={currentY}
