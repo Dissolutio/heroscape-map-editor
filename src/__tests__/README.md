@@ -59,6 +59,7 @@ Three.js through a CommonJS entry point, not from an application `require`.
 | `hex-grid.test.ts` | Cube coordinates, directions, rotation, grid generation, odd-r conversion. |
 | `edges-and-nodes.test.ts` | Current edge/corner representations, the tested integer-lattice prototype and equivalence checks, plus application-level edge/node acceptance items (`it.todo`). |
 | `terrain-constraints.test.ts` | Inventory normalization, set/personal/file constraints, and exact pen-mode availability under inventory constraints. |
+| `sets-to-build-map.test.ts` | Minimum set-copy recommendations, deterministic ties, ignored and unavailable pieces, collection shortfalls, exact/greedy parity, and large-map fallback timing. |
 | `adapt-to-collection.test.ts` | Missing-terrain adaptation suggestions, deterministic shared inventory allocation (surface before buried), up to three same-kind same-size substitutions, owned buried fill, naming defaults, and size-specific leftovers without Generic fallback. |
 | `map-share-url.test.ts` | Parsing pasted share links. |
 | `safe-storage.test.ts` | Guarded browser storage access, corrupted JSON, and quota/security failures. |
