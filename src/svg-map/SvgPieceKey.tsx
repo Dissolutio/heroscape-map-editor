@@ -51,6 +51,8 @@ const KeyBorderRect = ({
   // leaves an anti-aliased gray hairline on sides that should have no border.
   return (
     <>
+      {/* Invisible full-size rect first: it carries the cell's bounds. */}
+      <rect x={x} y={y} width={width} height={height} fill="none" />
       <rect
         x={x + leftInset}
         y={y + topInset}
